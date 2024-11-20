@@ -42,3 +42,8 @@ next-env.d.ts
 # public files
 /public/robots.txt
 /public/sitemap.xml
+.env*.local
+
+
+# BaseHub
+.basehub
