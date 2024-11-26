@@ -22,7 +22,7 @@ export const CameraControls = ({ position, target }: CameraConfig) => {
 
   camera.up = new Vector3(0, 1, 0);
 
-  const animConfig = {
+  const ANIMATION_CONFIG = {
     duration: 2,
     progress: 0,
     easing: (x: number) => x * x * (3 - 2 * x),
@@ -30,11 +30,11 @@ export const CameraControls = ({ position, target }: CameraConfig) => {
 
   useFrame((_state, delta) => {
     if (ref.current && position && target) {
-      animConfig.progress = Math.min(
-        animConfig.progress + delta / animConfig.duration,
+      ANIMATION_CONFIG.progress = Math.min(
+        ANIMATION_CONFIG.progress + delta / ANIMATION_CONFIG.duration,
         1,
       );
-      const easeValue = animConfig.easing(animConfig.progress);
+      const easeValue = ANIMATION_CONFIG.easing(ANIMATION_CONFIG.progress);
 
       camera.position.lerp(
         targetPosition.current.set(position.x, position.y, position.z),
@@ -46,8 +46,8 @@ export const CameraControls = ({ position, target }: CameraConfig) => {
         easeValue,
       );
 
-      if (animConfig.progress >= 1) {
-        animConfig.progress = 0;
+      if (ANIMATION_CONFIG.progress >= 1) {
+        ANIMATION_CONFIG.progress = 0;
       }
     }
   });
