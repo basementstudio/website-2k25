@@ -2,14 +2,18 @@
 import { useCameraStore } from "@/store/app-store";
 import { useEffect } from "react";
 
-const Homepage = () => {
+const ArcadePage = () => {
   const { setCameraState } = useCameraStore();
 
   useEffect(() => {
-    setCameraState("home");
+    const timer = setTimeout(() => {
+      setCameraState("arcade");
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [setCameraState]);
 
   return <div className="h-screen w-full bg-black"></div>;
 };
 
-export default Homepage;
+export default ArcadePage;

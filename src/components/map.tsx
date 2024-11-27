@@ -2,6 +2,7 @@ import { useCameraStore } from "@/store/app-store";
 import { useGLTF } from "@react-three/drei";
 import { Mesh } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
+import { useRouter } from "next/navigation";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -12,6 +13,8 @@ type GLTFResult = GLTF & {
 export const Map = () => {
   const { nodes } = useGLTF("/models/misc/map.glb") as unknown as GLTFResult;
   const { setCameraState } = useCameraStore();
+  const router = useRouter();
+
   return (
     <group dispose={null}>
       <mesh
@@ -380,7 +383,7 @@ export const Map = () => {
       />
       <mesh
         name="arcade"
-        onClick={() => setCameraState("arcade")}
+        onClick={() => router.push("/arcade")}
         castShadow
         receiveShadow
         geometry={nodes.Accade001.geometry}

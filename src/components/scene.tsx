@@ -4,10 +4,11 @@ import { useCameraStore } from "@/store/app-store";
 import { CustomCamera } from "@/components/camera-controls";
 import { Environment } from "@react-three/drei";
 import { Map } from "./map";
+import { useRouter } from "next/navigation";
 
 export const Scene = () => {
   const { setCameraState } = useCameraStore();
-
+  const router = useRouter();
   return (
     <div className="h-screen w-full">
       <Canvas>
@@ -18,7 +19,7 @@ export const Scene = () => {
       </Canvas>
       <div
         className="absolute left-6 top-6 cursor-pointer bg-white p-2"
-        onClick={() => setCameraState("home")}
+        onClick={() => router.push("/")}
       >
         <p>HOME</p>
       </div>
