@@ -7,9 +7,9 @@ import { Map } from "./map";
 import { useRouter } from "next/navigation";
 
 export const Scene = () => {
-  const { setCameraState } = useCameraStore();
+  const { setCameraState, previousCameraState } = useCameraStore();
   const router = useRouter();
-
+  console.log(previousCameraState);
   return (
     <div className="h-screen w-full">
       <Canvas>
