@@ -1,4 +1,3 @@
-import { useCameraStore } from "@/store/app-store";
 import { useGLTF } from "@react-three/drei";
 import { Mesh } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
@@ -12,7 +11,6 @@ type GLTFResult = GLTF & {
 
 export const Map = () => {
   const { nodes } = useGLTF("/models/misc/map.glb") as unknown as GLTFResult;
-  const { setCameraState } = useCameraStore();
   const router = useRouter();
 
   return (
@@ -186,7 +184,7 @@ export const Map = () => {
       />
       <mesh
         name="Escalera_Parante022"
-        onClick={() => setCameraState("stairs")}
+        onClick={() => router.push("/about")}
         castShadow
         receiveShadow
         geometry={nodes.Escalera_Parante022.geometry}
