@@ -6,11 +6,7 @@ const ArcadePage = () => {
   const { setCameraState } = useCameraStore();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setCameraState("arcade");
-    }, 100);
-
-    return () => clearTimeout(timer);
+    setCameraState("arcade");
   }, [setCameraState]);
 
   return <div className="h-screen w-full bg-black"></div>;

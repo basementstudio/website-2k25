@@ -6,11 +6,7 @@ const BasketballPage = () => {
   const { setCameraState } = useCameraStore();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setCameraState("hoop");
-    }, 100);
-
-    return () => clearTimeout(timer);
+    setCameraState("hoop");
   }, [setCameraState]);
 
   return <div className="h-screen w-full bg-black"></div>;
