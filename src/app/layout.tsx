@@ -1,3 +1,4 @@
+import { Scene } from "@/components/scene";
 import "@/styles/globals.css";
 
 import type { Metadata } from "next";
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang="en">
-    <body>{children}</body>
+    <body>
+      <Scene />
+      {children}
+    </body>
   </html>
 );
 

@@ -9,8 +9,9 @@ export const Scene = () => {
   const { setCameraState } = useCameraStore();
 
   return (
-    <>
+    <div className="h-screen w-full">
       <Canvas>
+        <color attach="background" args={["#000"]} />
         <CustomCamera />
         <Map />
         <Environment preset="sunset" />
@@ -27,6 +28,6 @@ export const Scene = () => {
       >
         <p>MENU</p>
       </div>
-    </>
+    </div>
   );
 };

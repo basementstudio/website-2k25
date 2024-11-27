@@ -1,9 +1,3 @@
-import { Scene } from "@/components/scene";
-
-const Homepage = () => (
-  <div className="h-screen w-full bg-black">
-    <Scene />
-  </div>
-);
+const Homepage = () => <div className="h-screen w-full bg-black"></div>;
 
 export default Homepage;
