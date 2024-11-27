@@ -2,7 +2,8 @@ import { CameraControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { Vector3 } from "three";
-import { CameraState, useCameraStore } from "@/store/app-store";
+import { CameraStateKeys, useCameraStore } from "@/store/app-store";
+import { CAMERA_STATES } from "@/constants/camera-states";
 
 const animationConfig = {
   duration: 2,
@@ -10,37 +11,49 @@ const animationConfig = {
   easing: (x: number) => x * x * (3 - 2 * x),
 };
 
-const currentPos = new Vector3(9, 1.6, -8.5);
-const currentTarget = new Vector3(7, 1.6, -12);
-
-export const CustomCamera = () => {
+export const CustomCamera = ({
+  initialState = "home",
+}: {
+  initialState?: CameraStateKeys;
+}) => {
   const { cameraConfig } = useCameraStore();
   const cameraControlsRef = useRef<CameraControls>(null);
+  const isInitialized = useRef(false);
 
+  const currentPos = useMemo(() => new Vector3(), []);
+  const currentTarget = useMemo(() => new Vector3(), []);
   const targetPosition = useMemo(() => new Vector3(), []);
   const targetLookAt = useMemo(() => new Vector3(), []);
 
   useEffect(() => {
     const controls = cameraControlsRef.current;
-    if (controls) {
-      controls.setPosition(9, 1.6, -8.5);
-      controls.setTarget(7, 1.6, -12);
-      controls.disconnect();
-    }
-  }, []);
+    if (controls && !isInitialized.current) {
+      const initialConfig = CAMERA_STATES[initialState];
+      currentPos.set(...initialConfig.position);
+      currentTarget.set(...initialConfig.target);
+      targetPosition.set(...initialConfig.position);
+      targetLookAt.set(...initialConfig.target);
 
-  const controls = cameraControlsRef.current;
+      controls.setPosition(...initialConfig.position);
+      controls.setTarget(...initialConfig.target);
+      controls.disconnect();
+
+      isInitialized.current = true;
+    }
+  }, [initialState, currentPos, currentTarget, targetPosition, targetLookAt]);
 
   useEffect(() => {
-    const { position, target } = cameraConfig as unknown as CameraState;
+    if (!isInitialized.current) return;
+
+    const { position, target } = cameraConfig;
     targetPosition.set(...position);
     targetLookAt.set(...target);
-
     animationConfig.progress = 0;
   }, [cameraConfig, targetPosition, targetLookAt]);
 
   useFrame((_, delta) => {
-    if (!controls) return;
+    const controls = cameraControlsRef.current;
+    if (!controls || !isInitialized.current) return;
 
     animationConfig.progress = Math.min(
       animationConfig.progress + delta / animationConfig.duration,
@@ -56,11 +69,7 @@ export const CustomCamera = () => {
 
     controls.setPosition(currentPos.x, currentPos.y, currentPos.z);
     controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
-
-    if (animationConfig.progress >= 1) {
-      animationConfig.progress = 0;
-    }
   });
 
-  return <CameraControls makeDefault ref={cameraControlsRef} />;
+  return <CameraControls ref={cameraControlsRef} />;
 };

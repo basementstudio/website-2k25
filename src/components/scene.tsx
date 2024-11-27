@@ -1,20 +1,32 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
-import { useCameraStore } from "@/store/app-store";
+import { CameraStateKeys } from "@/store/app-store";
 import { CustomCamera } from "@/components/camera-controls";
 import { Environment } from "@react-three/drei";
 import { Map } from "./map";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export const Scene = () => {
-  const { setCameraState, previousCameraState } = useCameraStore();
+  const pathname = usePathname();
   const router = useRouter();
-  console.log(previousCameraState);
+
+  const getInitialCameraState = (): CameraStateKeys => {
+    switch (pathname) {
+      case "/arcade":
+        return "arcade";
+      case "/about":
+        return "stairs";
+      case "/basketball":
+        return "hoop";
+      default:
+        return "home";
+    }
+  };
   return (
     <div className="h-screen w-full">
       <Canvas>
         <color attach="background" args={["#000"]} />
-        <CustomCamera />
+        <CustomCamera initialState={getInitialCameraState()} />
         <Map />
         <Environment preset="sunset" />
       </Canvas>
@@ -24,10 +36,7 @@ export const Scene = () => {
       >
         <p>HOME</p>
       </div>
-      <div
-        className="absolute right-6 top-6 cursor-pointer bg-white p-2"
-        onClick={() => setCameraState("menu")}
-      >
+      <div className="absolute right-6 top-6 cursor-pointer bg-white p-2">
         <p>MENU</p>
       </div>
     </div>
