@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Vector3 } from "three";
 import { CameraState, useCameraStore } from "@/store/app-store";
 import { CAMERA_STATES } from "@/constants/camera-states";
+import { usePathname } from "next/navigation";
 
 const animationConfig = {
   duration: 2,
@@ -11,11 +12,18 @@ const animationConfig = {
   easing: (x: number) => x * x * (3 - 2 * x),
 };
 
-const initialState = "home";
+const PATHNAME_MAP: Record<string, string> = {
+  "/": "home",
+  "/arcade": "arcade",
+  "/about": "stairs",
+  "/basketball": "hoop",
+};
 
 export const CustomCamera = () => {
+  const pathname = usePathname();
   const { cameraConfig } = useCameraStore();
   const cameraControlsRef = useRef<CameraControls>(null);
+  const isInitializedRef = useRef(false);
 
   const currentPos = useMemo(() => new Vector3(), []);
   const currentTarget = useMemo(() => new Vector3(), []);
@@ -24,20 +32,27 @@ export const CustomCamera = () => {
 
   useEffect(() => {
     const controls = cameraControlsRef.current;
-    if (controls) {
-      const initialConfig = CAMERA_STATES[initialState];
+    if (controls && !isInitializedRef.current) {
+      const initialState = PATHNAME_MAP[pathname] || "home";
+      const initialConfig =
+        CAMERA_STATES[initialState as keyof typeof CAMERA_STATES];
+
       currentPos.set(...initialConfig.position);
       currentTarget.set(...initialConfig.target);
 
       controls.setPosition(...initialConfig.position);
       controls.setTarget(...initialConfig.target);
       controls.disconnect();
+
+      isInitializedRef.current = true;
     }
-  }, [currentPos, currentTarget]);
+  }, [pathname, currentPos, currentTarget]);
 
   const controls = cameraControlsRef.current;
 
   useEffect(() => {
+    if (!isInitializedRef.current) return;
+
     const { position, target } = cameraConfig as unknown as CameraState;
     targetPosition.set(...position);
     targetLookAt.set(...target);
@@ -46,7 +61,7 @@ export const CustomCamera = () => {
   }, [cameraConfig, targetPosition, targetLookAt]);
 
   useFrame((_, delta) => {
-    if (!controls) return;
+    if (!controls || !isInitializedRef.current) return;
 
     animationConfig.progress = Math.min(
       animationConfig.progress + delta / animationConfig.duration,
