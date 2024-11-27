@@ -453,7 +453,7 @@ export const Map = () => {
         position={[5.2, 3.404, -14.409]}
         rotation={[Math.PI / 2, 0, 0]}
         scale={1.24}
-        onClick={() => setCameraState("hoop")}
+        onClick={() => router.push("/basketball")}
       >
         <mesh
           name="mount_01"
