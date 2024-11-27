@@ -24,12 +24,10 @@ export const CustomCamera = () => {
   useEffect(() => {
     const controls = cameraControlsRef.current;
     if (controls && isFirstRender.current) {
-      // Only set initial position if there was a previous state
       if (previousCameraState) {
         controls.setPosition(9, 1.6, -8.5);
         controls.setTarget(7, 1.6, -12);
       } else {
-        // Set camera directly to current config position if no previous state
         const { position, target } = cameraConfig as CameraState;
         controls.setPosition(...position);
         controls.setTarget(...target);
