@@ -1,10 +1,9 @@
 "use client";
-
-import { Environment } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { CustomCamera } from "./camera-controls";
+import { useCameraStore } from "@/store/app-store";
+import { CustomCamera } from "@/components/camera-controls";
+import { Environment } from "@react-three/drei";
 import { Map } from "./map";
-import { useCameraStore } from "@/store/camera-store";
 
 export const Scene = () => {
   const { setCameraState } = useCameraStore();

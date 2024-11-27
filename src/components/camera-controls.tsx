@@ -2,7 +2,7 @@ import { CameraControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { Vector3 } from "three";
-import { CameraState, useCameraStore } from "@/store/camera-store";
+import { CameraState, useCameraStore } from "@/store/app-store";
 
 const ANIMATION_CONFIG = {
   duration: 2,

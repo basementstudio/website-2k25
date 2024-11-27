@@ -1,8 +1,8 @@
-import { Demo } from "@/components/demo";
+import { Scene } from "@/components/scene";
 
 const Homepage = () => (
-  <div className="flex h-screen flex-col items-center justify-center gap-8 bg-black p-12 text-white">
-    <Demo />
+  <div className="h-screen w-full bg-black">
+    <Scene />
   </div>
 );
 

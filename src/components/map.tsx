@@ -1,4 +1,4 @@
-import { useCameraStore } from "@/store/camera-store";
+import { useCameraStore } from "@/store/app-store";
 import { useGLTF } from "@react-three/drei";
 import { Mesh } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
