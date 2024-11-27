@@ -14,28 +14,20 @@ const currentPos = new Vector3(9, 1.6, -8.5);
 const currentTarget = new Vector3(7, 1.6, -12);
 
 export const CustomCamera = () => {
-  const { cameraConfig, previousCameraState } = useCameraStore();
+  const { cameraConfig } = useCameraStore();
   const cameraControlsRef = useRef<CameraControls>(null);
-  const isFirstRender = useRef(true);
 
   const targetPosition = useMemo(() => new Vector3(), []);
   const targetLookAt = useMemo(() => new Vector3(), []);
 
   useEffect(() => {
     const controls = cameraControlsRef.current;
-    if (controls && isFirstRender.current) {
-      if (previousCameraState) {
-        controls.setPosition(9, 1.6, -8.5);
-        controls.setTarget(7, 1.6, -12);
-      } else {
-        const { position, target } = cameraConfig as CameraState;
-        controls.setPosition(...position);
-        controls.setTarget(...target);
-      }
+    if (controls) {
+      controls.setPosition(9, 1.6, -8.5);
+      controls.setTarget(7, 1.6, -12);
       controls.disconnect();
-      isFirstRender.current = false;
     }
-  }, [cameraConfig, previousCameraState]);
+  }, []);
 
   const controls = cameraControlsRef.current;
 
@@ -48,7 +40,7 @@ export const CustomCamera = () => {
   }, [cameraConfig, targetPosition, targetLookAt]);
 
   useFrame((_, delta) => {
-    if (!controls || isFirstRender.current) return;
+    if (!controls) return;
 
     ANIMATION_CONFIG.progress = Math.min(
       ANIMATION_CONFIG.progress + delta / ANIMATION_CONFIG.duration,
