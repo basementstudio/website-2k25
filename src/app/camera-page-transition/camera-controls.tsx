@@ -1,26 +1,17 @@
+import { CameraControls } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
 import { Vector3 } from "three";
-import { useFrame, useThree } from "@react-three/fiber";
-import { useRef } from "react";
-import { OrbitControls } from "@react-three/drei";
-import type { CameraConfig } from "@/store/camera-store";
+import { CameraState } from "./scene";
 
-export const CameraControls = ({ position, target }: CameraConfig) => {
-  const {
-    camera,
-    gl: { domElement },
-  } = useThree();
-  const ref = useRef<any>(null);
-
-  const targetPosition = useRef(
-    position
-      ? new Vector3(position.x, position.y, position.z)
-      : camera.position.clone(),
-  );
-  const targetLookAt = useRef(
-    target ? new Vector3(target.x, target.y, target.z) : new Vector3(),
-  );
-
-  camera.up = new Vector3(0, 1, 0);
+export const CustomCamera = ({
+  cameraPositions,
+}: {
+  cameraPositions: CameraState;
+}) => {
+  const cameraControlsRef = useRef<CameraControls>(null);
+  const targetPosition = useRef(new Vector3());
+  const targetLookAt = useRef(new Vector3());
 
   const ANIMATION_CONFIG = {
     duration: 2,
@@ -28,22 +19,37 @@ export const CameraControls = ({ position, target }: CameraConfig) => {
     easing: (x: number) => x * x * (3 - 2 * x),
   };
 
-  useFrame((_state, delta) => {
-    if (ref.current && position && target) {
+  useEffect(() => {
+    const { position, target } = cameraPositions;
+    targetPosition.current.set(...position);
+    targetLookAt.current.set(...target);
+  }, [cameraPositions]);
+
+  useFrame((_, delta) => {
+    if (cameraControlsRef.current) {
       ANIMATION_CONFIG.progress = Math.min(
         ANIMATION_CONFIG.progress + delta / ANIMATION_CONFIG.duration,
         1,
       );
       const easeValue = ANIMATION_CONFIG.easing(ANIMATION_CONFIG.progress);
 
-      camera.position.lerp(
-        targetPosition.current.set(position.x, position.y, position.z),
-        easeValue,
-      );
+      const currentPos = new Vector3();
+      const currentTarget = new Vector3();
+      cameraControlsRef.current.getPosition(currentPos);
+      cameraControlsRef.current.getTarget(currentTarget);
 
-      ref.current.target.lerp(
-        targetLookAt.current.set(target.x, target.y, target.z),
-        easeValue,
+      currentPos.lerp(targetPosition.current, easeValue);
+      currentTarget.lerp(targetLookAt.current, easeValue);
+
+      cameraControlsRef.current.setPosition(
+        currentPos.x,
+        currentPos.y,
+        currentPos.z,
+      );
+      cameraControlsRef.current.setTarget(
+        currentTarget.x,
+        currentTarget.y,
+        currentTarget.z,
       );
 
       if (ANIMATION_CONFIG.progress >= 1) {
@@ -52,12 +58,5 @@ export const CameraControls = ({ position, target }: CameraConfig) => {
     }
   });
 
-  return (
-    <OrbitControls
-      ref={ref}
-      args={[camera, domElement]}
-      panSpeed={1}
-      maxPolarAngle={Math.PI / 2}
-    />
-  );
+  return <CameraControls ref={cameraControlsRef} />;
 };

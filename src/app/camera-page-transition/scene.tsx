@@ -1,102 +1,64 @@
 "use client";
 
-import { customKTX2Loader } from "@/utils/loaders";
-import { Environment, useGLTF } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { CameraControls } from "./camera-controls";
-import { Mesh, MeshStandardMaterial, Vector3 } from "three";
-import { useCameraStore, type CameraStore } from "@/store/camera-store";
-import { GLTF } from "three/examples/jsm/Addons.js";
+import { CustomCamera } from "./camera-controls";
+import { Map } from "./map";
+import { useState } from "react";
 
-export const Scene = () => (
-  <Canvas camera={useCameraStore((state: CameraStore) => state.cameraConfig)}>
-    <CameraControls
-      {...useCameraStore((state: CameraStore) => state.cameraConfig)}
-    />
-    <Webby />
-    <NikeBook />
-    <gridHelper />
-    <Environment preset="sunset" />
-  </Canvas>
-);
+export interface CameraState {
+  position: [number, number, number];
+  target: [number, number, number];
+}
 
-const Webby = () => {
-  const { nodes } = customKTX2Loader("/models/misc/webby_ktx2_optimized.glb");
-  const {
-    setCameraConfig,
-    previousConfig,
-    cameraConfig: currentConfig,
-  } = useCameraStore();
+const CAMERA_STATES: Record<
+  "position1" | "position2" | "position3" | "position4" | "position5",
+  CameraState
+> = {
+  position1: {
+    position: [9, 1.6, -8.5],
+    target: [7, 1.6, -12],
+  },
+  position2: {
+    position: [2.9, 1.63, -13.21],
+    target: [2.9, 1.3, -14],
+  },
+  position3: {
+    position: [6, 1.63, -10.21],
+    target: [4, 1, -8],
+  },
+  position4: {
+    position: [5.5, 1.6, -10],
+    target: [5.5, 1.8, -12],
+  },
+  position5: {
+    position: [16, 14, -5],
+    target: [7, 1.6, -16],
+  },
+} as const;
 
-  const webbyConfig = {
-    position: new Vector3(2, 0.5, 0),
-    target: new Vector3(2, 0.1, -2),
-  };
-
-  const handleClick = () => {
-    if (currentConfig.position?.equals(webbyConfig.position)) {
-      setCameraConfig(previousConfig);
-    } else {
-      setCameraConfig(webbyConfig);
-    }
-  };
+export const Scene = () => {
+  const [cameraState, setCameraState] =
+    useState<keyof typeof CAMERA_STATES>("position1");
 
   return (
-    <group position={[2, 0, -2]} onClick={handleClick}>
-      {Object.values(nodes)
-        .filter((node) => node.type === "Mesh")
-        .map((node) => (
-          <primitive object={node} key={node.name} />
+    <>
+      <Canvas>
+        <CustomCamera cameraPositions={CAMERA_STATES[cameraState]} />
+        <Map />
+        <Environment preset="sunset" />
+      </Canvas>
+      <div className="h-10gap-2 absolute left-6 top-6 flex gap-2 bg-red-500 p-2">
+        {Object.keys(CAMERA_STATES).map((key) => (
+          <button
+            key={key}
+            className="bg-white px-8 text-black"
+            onClick={() => setCameraState(key as keyof typeof CAMERA_STATES)}
+          >
+            {key}
+          </button>
         ))}
-    </group>
+      </div>
+    </>
   );
 };
-
-type GLTFResult = GLTF & {
-  nodes: {
-    Cube225: Mesh;
-  };
-  materials: {
-    ["Nike-book"]: MeshStandardMaterial;
-  };
-};
-
-const NikeBook = () => {
-  const { nodes, materials } = useGLTF(
-    "/models/misc/nike.glb",
-  ) as unknown as GLTFResult;
-  const {
-    setCameraConfig,
-    previousConfig,
-    cameraConfig: currentConfig,
-  } = useCameraStore();
-
-  const nikeConfig = {
-    position: new Vector3(-1.2, 0.3, -1),
-    target: new Vector3(-1.9, 0.2, -2),
-  };
-
-  const handleClick = () => {
-    if (currentConfig.position?.equals(nikeConfig.position)) {
-      setCameraConfig(previousConfig);
-    } else {
-      setCameraConfig(nikeConfig);
-    }
-  };
-
-  return (
-    <group dispose={null} position={[-2, 0, -2]} onClick={handleClick}>
-      <mesh
-        castShadow
-        receiveShadow
-        rotation={[0, -Math.PI / 2 + 0.5, 0]}
-        geometry={nodes.Cube225.geometry}
-        material={materials["Nike-book"]}
-        position={[0.011, 0.23, -0.043]}
-        scale={[0.033, 0.208, 0.208]}
-      />
-    </group>
-  );
-};
-
-useGLTF.preload("/models/misc/nike.glb");
