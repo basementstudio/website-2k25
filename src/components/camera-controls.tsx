@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Vector3 } from "three";
 import { CameraState, useCameraStore } from "@/store/app-store";
 
-const ANIMATION_CONFIG = {
+const animationConfig = {
   duration: 2,
   progress: 0,
   easing: (x: number) => x * x * (3 - 2 * x),
@@ -34,17 +34,17 @@ export const CustomCamera = () => {
     targetPosition.set(...position);
     targetLookAt.set(...target);
 
-    ANIMATION_CONFIG.progress = 0;
+    animationConfig.progress = 0;
   }, [cameraConfig, targetPosition, targetLookAt]);
 
   useFrame((_, delta) => {
     if (!controls) return;
 
-    ANIMATION_CONFIG.progress = Math.min(
-      ANIMATION_CONFIG.progress + delta / ANIMATION_CONFIG.duration,
+    animationConfig.progress = Math.min(
+      animationConfig.progress + delta / animationConfig.duration,
       1,
     );
-    const easeValue = ANIMATION_CONFIG.easing(ANIMATION_CONFIG.progress);
+    const easeValue = animationConfig.easing(animationConfig.progress);
 
     controls.getPosition(currentPos);
     controls.getTarget(currentTarget);
@@ -55,8 +55,8 @@ export const CustomCamera = () => {
     controls.setPosition(currentPos.x, currentPos.y, currentPos.z);
     controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
 
-    if (ANIMATION_CONFIG.progress >= 1) {
-      ANIMATION_CONFIG.progress = 0;
+    if (animationConfig.progress >= 1) {
+      animationConfig.progress = 0;
     }
   });
 
