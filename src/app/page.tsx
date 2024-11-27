@@ -9,7 +9,7 @@ const Homepage = () => {
     setCameraState("home");
   }, [setCameraState]);
 
-  return <div className="h-screen w-full bg-black"></div>;
+  return <div></div>;
 };
 
 export default Homepage;
