@@ -21,9 +21,11 @@ export const CustomCamera = () => {
   const targetLookAt = useMemo(() => new Vector3(), []);
 
   useEffect(() => {
-    if (cameraControlsRef.current) {
-      cameraControlsRef.current.setPosition(9, 1.6, -8.5);
-      cameraControlsRef.current.setTarget(7, 1.6, -12);
+    const controls = cameraControlsRef.current;
+    if (controls) {
+      controls.setPosition(9, 1.6, -8.5);
+      controls.setTarget(7, 1.6, -12);
+      controls.disconnect();
     }
   }, []);
 
@@ -59,12 +61,6 @@ export const CustomCamera = () => {
       ANIMATION_CONFIG.progress = 0;
     }
   });
-
-  useEffect(() => {
-    if (controls?.disconnect) {
-      controls?.disconnect();
-    }
-  }, [controls]);
 
   return <CameraControls makeDefault ref={cameraControlsRef} />;
 };
