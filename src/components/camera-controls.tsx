@@ -2,11 +2,7 @@ import { CameraControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { Vector3 } from "three";
-import {
-  CameraState,
-  CameraStateKeys,
-  useCameraStore,
-} from "@/store/app-store";
+import { CameraState, useCameraStore } from "@/store/app-store";
 import { CAMERA_STATES } from "@/constants/camera-states";
 
 const animationConfig = {
@@ -15,11 +11,9 @@ const animationConfig = {
   easing: (x: number) => x * x * (3 - 2 * x),
 };
 
-export const CustomCamera = ({
-  initialState = "home",
-}: {
-  initialState?: CameraStateKeys;
-}) => {
+const initialState = "home";
+
+export const CustomCamera = () => {
   const { cameraConfig } = useCameraStore();
   const cameraControlsRef = useRef<CameraControls>(null);
 
@@ -39,7 +33,7 @@ export const CustomCamera = ({
       controls.setTarget(...initialConfig.target);
       controls.disconnect();
     }
-  }, [initialState, currentPos, currentTarget]);
+  }, [currentPos, currentTarget]);
 
   const controls = cameraControlsRef.current;
 

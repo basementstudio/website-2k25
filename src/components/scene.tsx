@@ -19,7 +19,7 @@ export const Scene = () => {
     <div className="h-screen w-full">
       <Canvas>
         <color attach="background" args={["#000"]} />
-        <CustomCamera initialState="home" />
+        <CustomCamera />
         <Map handleNavigation={handleNavigation} />
         <Environment preset="sunset" />
       </Canvas>
