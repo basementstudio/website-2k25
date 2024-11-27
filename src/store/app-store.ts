@@ -13,7 +13,6 @@ export type CameraStateKeys = 'home' | 'arcade' | 'stairs' | 'hoop' | 'menu';
 
 interface CameraStore {
   cameraState: CameraStateKeys;
-  previousCameraState: CameraStateKeys | null;
   cameraConfig: CameraState;
   setCameraState: (state: CameraStateKeys) => void;
   updateCameraFromPathname: (pathname: string) => void;
@@ -36,7 +35,6 @@ const getStateFromPathname = (pathname: string): CameraStateKeys => {
 
 export const useCameraStore = create<CameraStore>((set, get) => ({
   cameraState: "home",
-  previousCameraState: null,
   cameraConfig: CAMERA_STATES.home,
   setCameraState: (state) => {
     const { cameraState: currentState } = get();
@@ -44,7 +42,6 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
 
     set({ 
       cameraState: state,
-      previousCameraState: currentState,
       cameraConfig: CAMERA_STATES[state],
     });
   },
