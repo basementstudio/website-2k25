@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 export const Scene = () => {
   const { setCameraState } = useCameraStore();
   const router = useRouter();
+
   return (
     <div className="h-screen w-full">
       <Canvas>
