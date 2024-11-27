@@ -1,5 +1,6 @@
+import { useCameraStore } from "@/store/camera-store";
 import { useGLTF } from "@react-three/drei";
-import { Mesh, Vector3 } from "three";
+import { Mesh } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
 
 type GLTFResult = GLTF & {
@@ -8,25 +9,9 @@ type GLTFResult = GLTF & {
   };
 };
 
-const cameraConfigs = {
-  arcade: {
-    position: new Vector3(2.9, 1.6, -13),
-    target: new Vector3(2.9, 0.8, -15),
-  },
-  hoop: {
-    position: new Vector3(5.2, 1.6, -10),
-    target: new Vector3(5.2, 1.8, -12),
-  },
-  close_stairs: {
-    position: new Vector3(6, 1.6, -10),
-    target: new Vector3(3, 1.8, -8),
-  },
-};
-
 export const Map = () => {
   const { nodes } = useGLTF("/models/misc/map.glb") as unknown as GLTFResult;
-  const handleClick = (name: keyof typeof cameraConfigs) => {};
-
+  const { setCameraState } = useCameraStore();
   return (
     <group dispose={null}>
       <mesh
@@ -198,9 +183,9 @@ export const Map = () => {
       />
       <mesh
         name="Escalera_Parante022"
+        onClick={() => setCameraState("stairs")}
         castShadow
         receiveShadow
-        onClick={() => handleClick("close_stairs")}
         geometry={nodes.Escalera_Parante022.geometry}
         material={nodes.Escalera_Parante022.material}
         position={[1.685, 0.693, -9.513]}
@@ -394,8 +379,8 @@ export const Map = () => {
         rotation={[-Math.PI / 2, 0, Math.PI / 2]}
       />
       <mesh
-        onClick={() => handleClick("arcade")}
-        name="Accade001"
+        name="arcade"
+        onClick={() => setCameraState("arcade")}
         castShadow
         receiveShadow
         geometry={nodes.Accade001.geometry}
@@ -449,7 +434,7 @@ export const Map = () => {
         position={[4.012, 2.254, -5.906]}
         rotation={[Math.PI / 2, 0, 0]}
       />
-      <group onClick={() => handleClick("hoop")}>
+      <group>
         <mesh
           name="SM_PB_Glass"
           castShadow
@@ -459,77 +444,78 @@ export const Map = () => {
           position={[4.195, 2.254, -14.641]}
           rotation={[Math.PI / 2, 0, 0]}
         />
-        <group
-          name="Basketball_hoop"
-          position={[5.2, 3.404, -14.409]}
-          rotation={[Math.PI / 2, 0, 0]}
-          scale={1.24}
+      </group>
+      <group
+        name="Basketball_hoop"
+        position={[5.2, 3.404, -14.409]}
+        rotation={[Math.PI / 2, 0, 0]}
+        scale={1.24}
+        onClick={() => setCameraState("hoop")}
+      >
+        <mesh
+          name="mount_01"
+          castShadow
+          receiveShadow
+          geometry={nodes.mount_01.geometry}
+          material={nodes.mount_01.material}
+          position={[-0.001, 0.015, 0.329]}
+          rotation={[-Math.PI / 2, 0, 0]}
         >
           <mesh
-            name="mount_01"
+            name="Bolt001"
             castShadow
             receiveShadow
-            geometry={nodes.mount_01.geometry}
-            material={nodes.mount_01.material}
-            position={[-0.001, 0.015, 0.329]}
-            rotation={[-Math.PI / 2, 0, 0]}
-          >
-            <mesh
-              name="Bolt001"
-              castShadow
-              receiveShadow
-              geometry={nodes.Bolt001.geometry}
-              material={nodes.Bolt001.material}
-              position={[0.023, 0.02, 0.001]}
-              rotation={[Math.PI / 2, 0, 0]}
-            />
-          </mesh>
-          <mesh
-            name="mount_02"
-            castShadow
-            receiveShadow
-            geometry={nodes.mount_02.geometry}
-            material={nodes.mount_02.material}
-            position={[-0.002, 0.26, 0.218]}
-            rotation={[-Math.PI / 2, 0, 0]}
-          >
-            <mesh
-              name="Weld_4"
-              castShadow
-              receiveShadow
-              geometry={nodes.Weld_4.geometry}
-              material={nodes.Weld_4.material}
-              position={[15.429, 6.302, 9.966]}
-              scale={0.2}
-            />
-          </mesh>
-          <mesh
-            name="net"
-            castShadow
-            receiveShadow
-            geometry={nodes.net.geometry}
-            material={nodes.net.material}
-            position={[-0.003, 0.261, 0.218]}
-            rotation={[-Math.PI / 2, 0, 0]}
+            geometry={nodes.Bolt001.geometry}
+            material={nodes.Bolt001.material}
+            position={[0.023, 0.02, 0.001]}
+            rotation={[Math.PI / 2, 0, 0]}
           />
+        </mesh>
+        <mesh
+          name="mount_02"
+          castShadow
+          receiveShadow
+          geometry={nodes.mount_02.geometry}
+          material={nodes.mount_02.material}
+          position={[-0.002, 0.26, 0.218]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
           <mesh
-            name="ring"
+            name="Weld_4"
             castShadow
             receiveShadow
-            geometry={nodes.ring.geometry}
-            material={nodes.ring.material}
-            position={[-0.002, 0.26, 0.218]}
-            rotation={[-Math.PI / 2, 0, 0]}
+            geometry={nodes.Weld_4.geometry}
+            material={nodes.Weld_4.material}
+            position={[15.429, 6.302, 9.966]}
+            scale={0.2}
           />
-          <mesh
-            name="shield"
-            castShadow
-            receiveShadow
-            geometry={nodes.shield.geometry}
-            material={nodes.shield.material}
-            rotation={[-Math.PI / 2, 0, 0]}
-          />
-        </group>
+        </mesh>
+        <mesh
+          name="net"
+          castShadow
+          receiveShadow
+          geometry={nodes.net.geometry}
+          material={nodes.net.material}
+          position={[-0.003, 0.261, 0.218]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        />
+        <mesh
+          name="ring"
+          castShadow
+          receiveShadow
+          geometry={nodes.ring.geometry}
+          material={nodes.ring.material}
+          position={[-0.002, 0.26, 0.218]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        />
+        <mesh
+          name="shield"
+          castShadow
+          receiveShadow
+          geometry={nodes.shield.geometry}
+          material={nodes.shield.material}
+          rotation={[-Math.PI / 2, 0, 0]}
+        />
       </group>
       <mesh
         name="PA_Carpinteria028"

@@ -1,62 +1,63 @@
 import { CameraControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Vector3 } from "three";
-import { CameraState } from "./scene";
+import { CameraState, useCameraStore } from "@/store/camera-store";
 
-export const CustomCamera = ({
-  cameraPositions,
-}: {
-  cameraPositions: CameraState;
-}) => {
+const ANIMATION_CONFIG = {
+  duration: 2,
+  progress: 0,
+  easing: (x: number) => x * x * (3 - 2 * x),
+};
+
+const currentPos = new Vector3();
+const currentTarget = new Vector3();
+
+export const CustomCamera = () => {
+  const { cameraConfig } = useCameraStore();
   const cameraControlsRef = useRef<CameraControls>(null);
-  const targetPosition = useRef(new Vector3());
-  const targetLookAt = useRef(new Vector3());
 
-  const ANIMATION_CONFIG = {
-    duration: 2,
-    progress: 0,
-    easing: (x: number) => x * x * (3 - 2 * x),
-  };
+  const targetPosition = useMemo(() => new Vector3(), []);
+  const targetLookAt = useMemo(() => new Vector3(), []);
+
+  const controls = cameraControlsRef.current;
 
   useEffect(() => {
-    const { position, target } = cameraPositions;
-    targetPosition.current.set(...position);
-    targetLookAt.current.set(...target);
-  }, [cameraPositions]);
+    const { position, target } = cameraConfig as unknown as CameraState;
+    targetPosition.set(...position);
+    targetLookAt.set(...target);
+
+    ANIMATION_CONFIG.progress = 0;
+  }, [cameraConfig, targetPosition, targetLookAt]);
 
   useFrame((_, delta) => {
-    if (cameraControlsRef.current) {
-      ANIMATION_CONFIG.progress = Math.min(
-        ANIMATION_CONFIG.progress + delta / ANIMATION_CONFIG.duration,
-        1,
-      );
-      const easeValue = ANIMATION_CONFIG.easing(ANIMATION_CONFIG.progress);
+    if (!controls) return;
 
-      const currentPos = new Vector3();
-      const currentTarget = new Vector3();
-      cameraControlsRef.current.getPosition(currentPos);
-      cameraControlsRef.current.getTarget(currentTarget);
+    ANIMATION_CONFIG.progress = Math.min(
+      ANIMATION_CONFIG.progress + delta / ANIMATION_CONFIG.duration,
+      1,
+    );
+    const easeValue = ANIMATION_CONFIG.easing(ANIMATION_CONFIG.progress);
 
-      currentPos.lerp(targetPosition.current, easeValue);
-      currentTarget.lerp(targetLookAt.current, easeValue);
+    controls.getPosition(currentPos);
+    controls.getTarget(currentTarget);
 
-      cameraControlsRef.current.setPosition(
-        currentPos.x,
-        currentPos.y,
-        currentPos.z,
-      );
-      cameraControlsRef.current.setTarget(
-        currentTarget.x,
-        currentTarget.y,
-        currentTarget.z,
-      );
+    currentPos.lerp(targetPosition, easeValue);
+    currentTarget.lerp(targetLookAt, easeValue);
 
-      if (ANIMATION_CONFIG.progress >= 1) {
-        ANIMATION_CONFIG.progress = 0;
-      }
+    controls.setPosition(currentPos.x, currentPos.y, currentPos.z);
+    controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
+
+    if (ANIMATION_CONFIG.progress >= 1) {
+      ANIMATION_CONFIG.progress = 0;
     }
   });
 
-  return <CameraControls ref={cameraControlsRef} />;
+  useEffect(() => {
+    if (controls?.disconnect) {
+      controls?.disconnect();
+    }
+  }, [controls]);
+
+  return <CameraControls makeDefault ref={cameraControlsRef} />;
 };
