@@ -10,8 +10,8 @@ const ANIMATION_CONFIG = {
   easing: (x: number) => x * x * (3 - 2 * x),
 };
 
-const currentPos = new Vector3();
-const currentTarget = new Vector3();
+const currentPos = new Vector3(9, 1.6, -8.5);
+const currentTarget = new Vector3(7, 1.6, -12);
 
 export const CustomCamera = () => {
   const { cameraConfig } = useCameraStore();
@@ -19,6 +19,13 @@ export const CustomCamera = () => {
 
   const targetPosition = useMemo(() => new Vector3(), []);
   const targetLookAt = useMemo(() => new Vector3(), []);
+
+  useEffect(() => {
+    if (cameraControlsRef.current) {
+      cameraControlsRef.current.setPosition(9, 1.6, -8.5);
+      cameraControlsRef.current.setTarget(7, 1.6, -12);
+    }
+  }, []);
 
   const controls = cameraControlsRef.current;
 
