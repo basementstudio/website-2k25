@@ -3,7 +3,7 @@ import { useCameraStore } from "@/store/app-store";
 import { useEffect } from "react";
 
 const AboutPage = () => {
-  const { setCameraState } = useCameraStore();
+  const setCameraState = useCameraStore((state) => state.setCameraState);
 
   useEffect(() => {
     setCameraState("stairs");

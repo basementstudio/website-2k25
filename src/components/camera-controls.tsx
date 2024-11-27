@@ -16,7 +16,7 @@ export const CustomCamera = ({
 }: {
   initialState?: CameraStateKeys;
 }) => {
-  const { cameraConfig } = useCameraStore();
+  const cameraConfig = useCameraStore((state) => state.cameraConfig);
   const cameraControlsRef = useRef<CameraControls>(null);
   const isInitialized = useRef(false);
 
