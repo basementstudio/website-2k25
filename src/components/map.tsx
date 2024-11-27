@@ -184,6 +184,7 @@ export const Map = () => {
       />
       <mesh
         name="Escalera_Parante022"
+        onPointerEnter={() => router.prefetch("/about")}
         onClick={() => router.push("/about")}
         castShadow
         receiveShadow
@@ -381,6 +382,7 @@ export const Map = () => {
       />
       <mesh
         name="arcade"
+        onPointerEnter={() => router.prefetch("/arcade")}
         onClick={() => router.push("/arcade")}
         castShadow
         receiveShadow
@@ -451,6 +453,7 @@ export const Map = () => {
         position={[5.2, 3.404, -14.409]}
         rotation={[Math.PI / 2, 0, 0]}
         scale={1.24}
+        onPointerEnter={() => router.prefetch("/basketball")}
         onClick={() => router.push("/basketball")}
       >
         <mesh
