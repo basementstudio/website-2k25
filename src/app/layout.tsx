@@ -1,3 +1,4 @@
+import { CameraRouteHandler } from "@/components/camera-route-handler";
 import { Scene } from "@/components/scene";
 import "@/styles/globals.css";
 
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang="en">
     <body>
+      <CameraRouteHandler />
       <Scene />
       {children}
     </body>

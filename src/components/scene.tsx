@@ -3,21 +3,12 @@ import { Canvas } from "@react-three/fiber";
 import { CustomCamera } from "@/components/camera-controls";
 import { Environment } from "@react-three/drei";
 import { Map } from "./map";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCameraStore } from "@/store/app-store";
-import { useEffect } from "react";
 
 export const Scene = () => {
   const router = useRouter();
-  const pathname = usePathname();
-  const updateCameraFromPathname = useCameraStore(
-    (state) => state.updateCameraFromPathname,
-  );
   const setCameraState = useCameraStore((state) => state.setCameraState);
-
-  useEffect(() => {
-    updateCameraFromPathname(pathname);
-  }, [pathname, updateCameraFromPathname]);
 
   return (
     <div className="h-screen w-full">
