@@ -17,7 +17,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang="en">
     <body>
       <CameraRouteHandler />
-      <Scene />
+
       {children}
     </body>
   </html>
