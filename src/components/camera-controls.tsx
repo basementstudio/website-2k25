@@ -31,6 +31,12 @@ export const CustomCamera = () => {
   const targetLookAt = useMemo(() => new Vector3(), []);
 
   useEffect(() => {
+    if (cameraControlsRef.current) {
+      cameraControlsRef.current.disconnect();
+    }
+  }, [cameraControlsRef]);
+
+  useEffect(() => {
     const controls = cameraControlsRef.current;
     if (controls && !isInitializedRef.current) {
       const initialState = PATHNAME_MAP[pathname] || "home";
@@ -42,7 +48,6 @@ export const CustomCamera = () => {
 
       controls.setPosition(...initialConfig.position);
       controls.setTarget(...initialConfig.target);
-      controls.disconnect();
 
       isInitializedRef.current = true;
     }
