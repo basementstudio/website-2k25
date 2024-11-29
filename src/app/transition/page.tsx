@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, createPortal, useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { planeFragmentShader } from "./fragment";
 import { planeVertexShader } from "./vertex";
 
@@ -13,12 +13,7 @@ import {
   ShaderMaterial,
   type OrthographicCamera as OrthographicCameraType,
 } from "three";
-import {
-  Environment,
-  OrbitControls,
-  OrthographicCamera,
-  useFBO,
-} from "@react-three/drei";
+import { Environment, OrthographicCamera, useFBO } from "@react-three/drei";
 import { Map } from "@/components/map";
 import { MapBlueprint } from "@/components/map-blueprint";
 import { CustomCamera } from "@/components/camera-controls";
@@ -40,8 +35,15 @@ const getFullscreenTriangle = () => {
   return geometry;
 };
 
-const Transition = () => {
-  const progress = useRef(-1);
+interface TransitionRef {
+  startTransition: (reverse: boolean) => void;
+}
+
+const Transition = forwardRef<TransitionRef>((_, ref) => {
+  const progress = useRef(0);
+  const isAnimating = useRef(false);
+  const isReverse = useRef(false);
+
   // screen related
   const screenMesh = useRef<Mesh>(null!);
   const screenCamera = useRef<OrthographicCameraType>(null!);
@@ -54,6 +56,13 @@ const Transition = () => {
     router.push(route);
   };
 
+  useImperativeHandle(ref, () => ({
+    startTransition: (reverse: boolean) => {
+      isAnimating.current = true;
+      isReverse.current = reverse;
+    },
+  }));
+
   // scenes related
   const scene1 = new Scene();
   const scene2 = new Scene();
@@ -63,8 +72,24 @@ const Transition = () => {
   const renderTargetB = useFBO();
 
   useFrame((state) => {
-    const { gl, camera, clock } = state;
-    progress.current = Math.sin(clock.getElapsedTime() * 1.5);
+    const { gl, camera } = state;
+
+    // Update progress based on animation direction
+    if (isAnimating.current) {
+      if (isReverse.current) {
+        progress.current -= 0.02; // Adjust speed as needed
+        if (progress.current <= 0) {
+          progress.current = 0;
+          isAnimating.current = false;
+        }
+      } else {
+        progress.current += 0.02; // Adjust speed as needed
+        if (progress.current >= 1) {
+          progress.current = 1;
+          isAnimating.current = false;
+        }
+      }
+    }
 
     gl.setRenderTarget(renderTargetA);
     gl.render(scene1, camera);
@@ -131,7 +156,7 @@ const Transition = () => {
               value: 1.0,
             },
             uProgress: {
-              value: -0.0,
+              value: 0.0,
             },
           }}
           vertexShader={planeVertexShader}
@@ -140,24 +165,34 @@ const Transition = () => {
       </mesh>
     </>
   );
-};
+});
+
+Transition.displayName = "Transition";
 
 const TransitionPage = () => {
+  const transitionRef = useRef<TransitionRef>(null);
   const setCameraState = useCameraStore((state) => state.setCameraState);
+
   return (
     <div className="relative h-screen w-full">
       <Canvas shadows camera={{ position: [0, 0, 5], fov: 45 }} dpr={[1, 2]}>
-        <Transition />
+        <Transition ref={transitionRef} />
       </Canvas>
       <div
         className="absolute left-6 top-6 cursor-pointer bg-white p-2"
-        onClick={() => setCameraState("home")}
+        onClick={() => {
+          setCameraState("home");
+          transitionRef.current?.startTransition(true);
+        }}
       >
         <p>HOME</p>
       </div>
       <div
         className="absolute right-6 top-6 cursor-pointer bg-white p-2"
-        onClick={() => setCameraState("menu")}
+        onClick={() => {
+          setCameraState("menu");
+          transitionRef.current?.startTransition(false);
+        }}
       >
         <p>MENU</p>
       </div>

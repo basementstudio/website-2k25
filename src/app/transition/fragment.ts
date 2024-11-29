@@ -19,7 +19,7 @@ void main() {
     
     // Generate random value for each cell
     float randomValue = random(grid);
-    float threshold = step(randomValue, uProgress);
+    float threshold = step(randomValue + 0.001, uProgress);
     
     vec4 colorA = texture2D(textureA, uv);
     vec4 colorB = texture2D(textureB, uv);
