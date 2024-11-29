@@ -52,7 +52,7 @@ const Transition = () => {
 
   useFrame((state) => {
     const { gl, camera, clock } = state;
-    progress.current = Math.sin(clock.getElapsedTime() * 0.5);
+    progress.current = Math.sin(clock.getElapsedTime() * 1.5);
 
     gl.setRenderTarget(renderTargetA);
     gl.render(scene1, camera);
