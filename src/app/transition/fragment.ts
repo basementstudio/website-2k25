@@ -1,25 +1,33 @@
 export const planeFragmentShader = `
-uniform vec2 winResolution;
-uniform sampler2D uTextureA;
-uniform sampler2D uTextureB;
-uniform float uTransition;
+varying vec2 vUv;
 
-vec4 fromLinear(vec4 linearRGB) {
-    bvec3 cutoff = lessThan(linearRGB.rgb, vec3(0.0031308));
-    vec3 higher = vec3(1.055)*pow(linearRGB.rgb, vec3(1.0/2.4)) - vec3(0.055);
-    vec3 lower = linearRGB.rgb * vec3(12.92);
+uniform sampler2D textureA;
+uniform sampler2D textureB;
+uniform float uProgress;
 
-    return vec4(mix(higher, lower, cutoff), linearRGB.a);
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / winResolution.xy;
-  vec4 colorA = fromLinear(texture2D(uTextureA, uv));
-  vec4 colorB = fromLinear(texture2D(uTextureB, uv));
-  
-  float transition = step(uv.x, uTransition);
-  vec4 color = mix(colorA, colorB, transition);
-
-  gl_FragColor = color;
+    vec2 uv = vUv;
+    
+    // Create a pixelated grid
+    float aspectRatio = 16.0/9.0; // Adjust based on your needs
+    float numCols = 16.0 * aspectRatio;
+    vec2 grid = floor(vec2(uv.x * numCols, uv.y * 16.0));
+    
+    // Generate random value for each cell
+    float randomValue = random(grid);
+    float threshold = step(randomValue, uProgress);
+    
+    vec4 colorA = texture2D(textureA, uv);
+    vec4 colorB = texture2D(textureB, uv);
+    
+    vec4 color = mix(colorA, colorB, threshold);
+    gl_FragColor = color;
+    
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
 }
 `;

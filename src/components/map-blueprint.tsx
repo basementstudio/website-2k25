@@ -25,10 +25,10 @@ export const MapBlueprint = () => {
         position={[7.154, 1.673, -5.84]}
         rotation={[Math.PI / 2, 0, 0]}
       >
-        <meshBasicMaterial color="#4F6282" />
+        <meshBasicMaterial color="#91A2BE" />
       </mesh>
     </group>
   );
 };
 
-useGLTF.preload("/models/misc/map-bluepri");
+useGLTF.preload("/models/misc/map-blueprint.glb");

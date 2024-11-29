@@ -1,8 +1,8 @@
-export const planeVertexShader = `
-void main() {
-  vec4 worldPos = modelMatrix * vec4(position, 1.0);
-  vec4 mvPosition = viewMatrix * worldPos;
+export const planeVertexShader =  `
+varying vec2 vUv;
 
-  gl_Position = projectionMatrix * mvPosition;
+void main() {
+    vUv = uv;
+    gl_Position = vec4(position, 1.0);
 }
 `;

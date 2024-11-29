@@ -1,190 +1,143 @@
 "use client";
 
-import { Map } from "@/components/map";
-import { MapBlueprint } from "@/components/map-blueprint";
-import { CameraStateKeys } from "@/store/app-store";
-import { useCameraStore } from "@/store/app-store";
-import { useFBO, OrthographicCamera, Environment } from "@react-three/drei";
-import { Canvas, useFrame, useThree, createPortal } from "@react-three/fiber";
-import { useRouter } from "next/navigation";
-import { useRef, useMemo, useState } from "react";
-import * as THREE from "three";
+import { Canvas, createPortal, useFrame } from "@react-three/fiber";
+import { useRef } from "react";
 import { planeFragmentShader } from "./fragment";
 import { planeVertexShader } from "./vertex";
 
-const Drawing = ({ isTransitioning }) => {
-  const plane = useRef<THREE.Mesh>(null!);
-  const finalCamera = useRef<THREE.OrthographicCamera>(null!);
-  const blueprintCamera = useRef<THREE.OrthographicCamera>(null!);
-  const transitionProgress = useRef(0);
-  const [isFirstScene, setIsFirstScene] = useState(true);
+import {
+  BufferGeometry,
+  Float32BufferAttribute,
+  Mesh,
+  Scene,
+  ShaderMaterial,
+  type OrthographicCamera as OrthographicCameraType,
+} from "three";
+import {
+  Environment,
+  OrbitControls,
+  OrthographicCamera,
+  useFBO,
+} from "@react-three/drei";
+import { Map } from "@/components/map";
+import { MapBlueprint } from "@/components/map-blueprint";
 
-  const finalFBO = useFBO();
-  const blueprintSceneFBO = useFBO();
-
-  const { viewport } = useThree();
-
-  const finalScene = useMemo(() => new THREE.Scene(), []);
-  const blueprintScene = useMemo(() => new THREE.Scene(), []);
-
-  const planeUniforms = useMemo(
-    () => ({
-      uTextureA: {
-        value: null,
-      },
-      uTextureB: {
-        value: null,
-      },
-      uTransition: {
-        value: 0,
-      },
-      winResolution: {
-        value: new THREE.Vector2(
-          window.innerWidth,
-          window.innerHeight,
-        ).multiplyScalar(Math.min(window.devicePixelRatio, 2)),
-      },
-    }),
-    [],
+const getFullscreenTriangle = () => {
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3),
+  );
+  geometry.setAttribute(
+    "uv",
+    new Float32BufferAttribute([0, 0, 2, 0, 0, 2], 2),
   );
 
-  useFrame((state, delta) => {
-    // Set up both cameras
-    const setupCamera = (camera: THREE.OrthographicCamera) => {
-      camera.position.set(10, 10, 10);
-      camera.lookAt(0, 0, 0);
-      camera.zoom = 40;
+  return geometry;
+};
 
-      camera.updateProjectionMatrix();
-    };
+const Transition = () => {
+  const progress = useRef(-1);
+  // screen related
+  const screenMesh = useRef<Mesh>(null!);
+  const screenCamera = useRef<OrthographicCameraType>(null!);
 
-    setupCamera(finalCamera.current);
-    setupCamera(blueprintCamera.current);
+  // scenes related
+  const scene1 = new Scene();
+  const scene2 = new Scene();
+  const map = useRef<Mesh>(null!);
 
-    if (isTransitioning.current) {
-      const targetValue = isFirstScene ? 1 : 0;
-      const direction = isFirstScene ? 1 : -1;
+  const renderTargetA = useFBO();
+  const renderTargetB = useFBO();
 
-      transitionProgress.current += delta * 0.5 * direction;
-      transitionProgress.current = Math.max(
-        0,
-        Math.min(1, transitionProgress.current),
-      );
+  useFrame((state) => {
+    const { gl, camera, clock } = state;
+    progress.current = Math.sin(clock.getElapsedTime() * 0.5);
 
-      (
-        plane.current.material as THREE.ShaderMaterial
-      ).uniforms.uTransition.value = transitionProgress.current;
+    gl.setRenderTarget(renderTargetA);
+    gl.render(scene1, camera);
 
-      if (
-        (direction > 0 && transitionProgress.current >= targetValue) ||
-        (direction < 0 && transitionProgress.current <= targetValue)
-      ) {
-        setIsFirstScene(!isFirstScene);
-        isTransitioning.current = false;
-      }
-    }
+    gl.setRenderTarget(renderTargetB);
+    gl.render(scene2, camera);
 
-    const { gl } = state;
-
-    gl.setRenderTarget(finalFBO);
-    gl.render(finalScene, finalCamera.current);
-
-    blueprintScene.background = new THREE.Color("#1B43BA");
-    gl.setRenderTarget(blueprintSceneFBO);
-    gl.render(blueprintScene, blueprintCamera.current);
-
-    (plane.current.material as THREE.ShaderMaterial).uniforms.uTextureA.value =
-      blueprintSceneFBO.texture;
-    (plane.current.material as THREE.ShaderMaterial).uniforms.uTextureB.value =
-      finalFBO.texture;
-    (
-      plane.current.material as THREE.ShaderMaterial
-    ).uniforms.winResolution.value = new THREE.Vector2(
-      window.innerWidth,
-      window.innerHeight,
-    ).multiplyScalar(Math.min(window.devicePixelRatio, 2));
+    const material = screenMesh.current.material as ShaderMaterial;
+    material.uniforms.textureA.value = renderTargetA.texture;
+    material.uniforms.textureB.value = renderTargetB.texture;
+    material.uniforms.uProgress.value = progress.current;
 
     gl.setRenderTarget(null);
   });
 
-  const router = useRouter();
-  const setCameraState = useCameraStore((state) => state.setCameraState);
-
-  const handleNavigation = (route: string, cameraState: CameraStateKeys) => {
-    setCameraState(cameraState);
-    router.push(route);
-  };
-
   return (
     <>
-      {/* Final Scene */}
+      <OrbitControls />
       {createPortal(
         <>
-          <OrthographicCamera
-            ref={finalCamera}
-            makeDefault
-            position={[10, 10, 10]}
-            zoom={40}
-            near={0.01}
-            far={100}
-          />
           <color attach="background" args={["#000"]} />
-          <Environment preset="night" />
-          <Map handleNavigation={handleNavigation} />
+          <directionalLight position={[10, 10, 0]} intensity={1} />
+          <ambientLight intensity={1} />
+          <Environment preset="sunset" />
+          <mesh ref={map} position={[2, 0, 0]}>
+            <Map handleNavigation={() => {}} />
+          </mesh>
         </>,
-        finalScene,
+        scene1,
       )}
-      {/* Blueprint scene */}
       {createPortal(
         <>
-          <OrthographicCamera
-            ref={blueprintCamera}
-            makeDefault
-            position={[10, 10, 10]}
-            zoom={40}
-            near={0.01}
-            far={100}
-          />
-          <color attach="background" args={["red"]} />
+          <color attach="background" args={["#14181D"]} />
+          <directionalLight position={[0, 0, -10]} intensity={1} />
+          <ambientLight intensity={1} />
           <Environment preset="sunset" />
-          <MapBlueprint />
+          <mesh ref={map} position={[2, 0, 0]}>
+            <MapBlueprint />
+          </mesh>
         </>,
-        blueprintScene,
+        scene2,
       )}
-      <mesh ref={plane} scale={[viewport.width, viewport.height, 1]}>
-        <planeGeometry args={[1, 1]} />
+      <OrthographicCamera
+        ref={screenCamera}
+        args={[-1, 1, 1, -1, -1, 1]}
+        position={[0, 0, 0.1]}
+      />
+
+      <mesh
+        ref={screenMesh}
+        geometry={getFullscreenTriangle()}
+        frustumCulled={false}
+      >
         <shaderMaterial
-          fragmentShader={planeFragmentShader}
+          transparent
+          uniforms={{
+            textureA: {
+              value: renderTargetA.texture,
+            },
+            textureB: {
+              value: renderTargetB.texture,
+            },
+            uTime: {
+              value: 1.0,
+            },
+            uProgress: {
+              value: -0.0,
+            },
+          }}
           vertexShader={planeVertexShader}
-          uniforms={planeUniforms}
+          fragmentShader={planeFragmentShader}
         />
       </mesh>
     </>
   );
 };
 
-const BasketballPage = () => {
-  const isTransitioning = useRef(false);
-
-  const handleTransition = () => {
-    if (!isTransitioning.current) {
-      isTransitioning.current = true;
-    }
-  };
-
+const TransitionPage = () => {
   return (
     <div className="relative h-screen w-full">
-      <Canvas shadows camera={{ position: [0, 0, 5], fov: 45 }}>
-        <Drawing isTransitioning={isTransitioning} />
+      <Canvas shadows camera={{ position: [0, 0, 5], fov: 45 }} dpr={[1, 2]}>
+        <Transition />
       </Canvas>
-      <button
-        className="absolute right-6 top-6 bg-white p-2"
-        onClick={handleTransition}
-      >
-        MENU
-      </button>
     </div>
   );
 };
 
-export default BasketballPage;
+export default TransitionPage;
