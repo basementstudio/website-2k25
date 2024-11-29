@@ -21,6 +21,10 @@ import {
 } from "@react-three/drei";
 import { Map } from "@/components/map";
 import { MapBlueprint } from "@/components/map-blueprint";
+import { CustomCamera } from "@/components/camera-controls";
+import { useCameraStore } from "@/store/app-store";
+import { CameraStateKeys } from "@/store/app-store";
+import { useRouter } from "next/navigation";
 
 const getFullscreenTriangle = () => {
   const geometry = new BufferGeometry();
@@ -41,6 +45,14 @@ const Transition = () => {
   // screen related
   const screenMesh = useRef<Mesh>(null!);
   const screenCamera = useRef<OrthographicCameraType>(null!);
+
+  const router = useRouter();
+  const setCameraState = useCameraStore((state) => state.setCameraState);
+
+  const handleNavigation = (route: string, cameraState: CameraStateKeys) => {
+    setCameraState(cameraState);
+    router.push(route);
+  };
 
   // scenes related
   const scene1 = new Scene();
@@ -70,7 +82,7 @@ const Transition = () => {
 
   return (
     <>
-      <OrbitControls />
+      <CustomCamera />
       {createPortal(
         <>
           <color attach="background" args={["#000"]} />
@@ -78,7 +90,7 @@ const Transition = () => {
           <ambientLight intensity={1} />
           <Environment preset="sunset" />
           <mesh ref={map} position={[2, 0, 0]}>
-            <Map handleNavigation={() => {}} />
+            <Map handleNavigation={handleNavigation} />
           </mesh>
         </>,
         scene1,
@@ -131,11 +143,24 @@ const Transition = () => {
 };
 
 const TransitionPage = () => {
+  const setCameraState = useCameraStore((state) => state.setCameraState);
   return (
     <div className="relative h-screen w-full">
       <Canvas shadows camera={{ position: [0, 0, 5], fov: 45 }} dpr={[1, 2]}>
         <Transition />
       </Canvas>
+      <div
+        className="absolute left-6 top-6 cursor-pointer bg-white p-2"
+        onClick={() => setCameraState("home")}
+      >
+        <p>HOME</p>
+      </div>
+      <div
+        className="absolute right-6 top-6 cursor-pointer bg-white p-2"
+        onClick={() => setCameraState("menu")}
+      >
+        <p>MENU</p>
+      </div>
     </div>
   );
 };
