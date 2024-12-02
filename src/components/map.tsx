@@ -1,7 +1,8 @@
-import { useCameraStore } from "@/store/app-store";
 import { useGLTF } from "@react-three/drei";
 import { Mesh } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
+import { useRouter } from "next/navigation";
+import { CameraStateKeys } from "@/store/app-store";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -9,9 +10,14 @@ type GLTFResult = GLTF & {
   };
 };
 
-export const Map = () => {
+interface MapProps {
+  handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
+}
+
+export const Map = ({ handleNavigation }: MapProps) => {
+  const router = useRouter();
   const { nodes } = useGLTF("/models/misc/map.glb") as unknown as GLTFResult;
-  const { setCameraState } = useCameraStore();
+
   return (
     <group dispose={null}>
       <mesh
@@ -183,7 +189,8 @@ export const Map = () => {
       />
       <mesh
         name="Escalera_Parante022"
-        onClick={() => setCameraState("stairs")}
+        onPointerEnter={() => router.prefetch("/about")}
+        onClick={() => handleNavigation("/about", "stairs")}
         castShadow
         receiveShadow
         geometry={nodes.Escalera_Parante022.geometry}
@@ -380,7 +387,8 @@ export const Map = () => {
       />
       <mesh
         name="arcade"
-        onClick={() => setCameraState("arcade")}
+        onPointerEnter={() => router.prefetch("/arcade")}
+        onClick={() => handleNavigation("/arcade", "arcade")}
         castShadow
         receiveShadow
         geometry={nodes.Accade001.geometry}
@@ -447,10 +455,11 @@ export const Map = () => {
       </group>
       <group
         name="Basketball_hoop"
+        onPointerEnter={() => router.prefetch("/basketball")}
+        onClick={() => handleNavigation("/basketball", "hoop")}
         position={[5.2, 3.404, -14.409]}
         rotation={[Math.PI / 2, 0, 0]}
         scale={1.24}
-        onClick={() => setCameraState("hoop")}
       >
         <mesh
           name="mount_01"

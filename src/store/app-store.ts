@@ -1,6 +1,8 @@
 import { CAMERA_STATES } from '@/constants/camera-states';
 import { create } from 'zustand'
 
+export type CameraStateKeys = 'home' | 'arcade' | 'stairs' | 'hoop' | 'menu';
+
 export interface CameraState {
   name: string;
   url?: string;
@@ -9,27 +11,25 @@ export interface CameraState {
   target: [number, number, number];
 }
 
-export type CameraStateKeys = 'home' | 'arcade' | 'stairs' | 'hoop' | 'menu';
+const PATHNAME_MAP: Record<string, CameraStateKeys> = {
+  '/': 'home',
+  '/arcade': 'arcade',
+  '/about': 'stairs',
+  '/basketball': 'hoop',
+};
 
-interface CameraStore {
-    cameraState: CameraStateKeys;
-    previousCameraState: CameraStateKeys | null;
-    cameraConfig: CameraState;
+export const useCameraStore = create<{
+  cameraState: CameraStateKeys;
+  cameraConfig: CameraState;
   setCameraState: (state: CameraStateKeys) => void;
-}
-
-export const useCameraStore = create<CameraStore>((set, get) => ({
-    cameraState: "home",
-    previousCameraState: null,
-    cameraConfig: CAMERA_STATES.home,
-    setCameraState: (state) => {
-      const { cameraState: currentState } = get();
-      if (state === currentState) return;
-
-      set({ 
-        cameraState: state,
-        previousCameraState: currentState,
-        cameraConfig: CAMERA_STATES[state as CameraStateKeys],
-      });
-    },
-  }));
+  updateCameraFromPathname: (pathname: string) => void;
+}>((set, get) => ({
+  cameraState: "home",
+  cameraConfig: CAMERA_STATES.home,
+  setCameraState: (state) => {
+    if (state === get().cameraState) return;
+    set({ cameraState: state, cameraConfig: CAMERA_STATES[state] });
+  },
+  updateCameraFromPathname: (pathname) => 
+    get().setCameraState(PATHNAME_MAP[pathname] || 'home'),
+}));
