@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { vertexShader } from "./vertex";
 import { fragmentShader } from "./fragment";
 import { useRef } from "react";
+import { LineObject } from "../custom-material-line/page";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -36,12 +37,13 @@ export const InstanceMap = () => {
   const progressRef = useRef(0.0);
 
   useFrame((_state, delta) => {
-    progressRef.current = (progressRef.current + delta * 0.3) % 1.0;
+    progressRef.current = (progressRef.current + delta * 0.1) % 1.0;
     sharedMaterial.uniforms.uProgress.value = progressRef.current;
   });
 
   return (
     <group dispose={null} position={[-5, 0, 0]}>
+      <LineObject />
       <mesh
         castShadow
         receiveShadow
