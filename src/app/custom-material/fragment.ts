@@ -17,12 +17,18 @@ export const fragmentShader = `
   float diff = max(dot(normalize(vNormal), lightDir), 0.0);
   vec3 litColor = diffuseColor.rgb * (diff + 0.1); 
   
-  float dist = distance(vWorldPosition.xz, vec2(2.0, -16.0));
-  float radialMove = step(dist, uProgress * 14.0);
-  
-  // Add border effect
-  float borderWidth = 0.1;
-  float borderEdge = step(dist, uProgress * 14.0 + borderWidth) - radialMove;
+  // Pixel calculation
+  float pixelSize = 0.5; // Controls size of pixels
+  vec2 pixelatedPos = floor(vWorldPosition.xz / pixelSize) * pixelSize;
+  float dist = distance(pixelatedPos, vec2(2.0, -16.0));
+    
+  // Add noise to the edge
+  float noise = fract(sin(dot(pixelatedPos, vec2(12.9898, 78.233))) * 43758.5453);
+  float radialMove = step(dist + noise * 0.5, uProgress * 14.0);
+    
+  // Follow pixelation
+  float borderWidth = pixelSize;
+  float borderEdge = step(dist + noise * 0.5, uProgress * 14.0 + borderWidth) - radialMove;
   
   // Modify transparency based on radialMove
   float finalAlpha = mix(diffuseColor.a, 0.0, radialMove);
