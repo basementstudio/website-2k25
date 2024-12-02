@@ -34,10 +34,10 @@ export const fragmentShader = `
   float finalAlpha = mix(diffuseColor.a, 0.0, radialMove);
   
   vec3 scanColor = vec3(0.0, 0.2, 1.0);
-  vec3 borderColor = vec3(0.0, 0.1, 0.8);
+ vec3 borderColor = vec3(1.0, 0.15, 0.0);
   
   gl_FragColor = vec4(litColor, finalAlpha);
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, borderColor, borderEdge * 0.8);
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, borderColor, borderEdge * 1.0);
 
   #include <tonemapping_fragment>
   #include <colorspace_fragment>

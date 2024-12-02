@@ -13,7 +13,7 @@ export const LineObject = () => {
 
   const uniforms = {
     uProgress: { value: 0.0 },
-    uColor: { value: new Color(0xff0000) },
+    uColor: { value: new Color(0xffffff) },
     uOpacity: { value: 1.0 },
   };
 
@@ -41,18 +41,24 @@ export const LineObject = () => {
       varying vec3 vWorldPosition;
   
       void main() {
-        float dist = distance(vWorldPosition.xz, vec2(2.0, -16.0));
-        float radialMove = step(dist, uProgress * 14.0);
+        // Pixel calculation
+        float pixelSize = 0.5;
+        vec2 pixelatedPos = floor(vWorldPosition.xz / pixelSize) * pixelSize;
+        float dist = distance(pixelatedPos, vec2(2.0, -16.0));
         
-        float borderWidth = 0.1;
-        float borderEdge = step(dist, uProgress * 14.0 + borderWidth) - radialMove;
+        // Add noise to the edge
+        float noise = fract(sin(dot(pixelatedPos, vec2(12.9898, 78.233))) * 43758.5453);
+        float radialMove = step(dist + noise * 0.5, uProgress * 14.0);
         
-        float finalAlpha = mix(0.0, uOpacity, radialMove); // Inverted the mix parameters
+        // Follow pixelation
+        float borderWidth = pixelSize;
+        float borderEdge = step(dist + noise * 0.5, uProgress * 14.0 + borderWidth) - radialMove;
         
-        vec3 scanColor = vec3(0.0, 0.2, 1.0);
-        vec3 borderColor = vec3(0.0, 0.1, 0.8);
+        float finalAlpha = mix(0.0, uOpacity, radialMove);
         
-        vec3 finalColor = mix(uColor, borderColor, borderEdge * 0.8);
+        vec3 borderColor = vec3(1.0, 0.15, 0.0);
+        
+        vec3 finalColor = mix(uColor, borderColor, borderEdge * 1.0);
         
         gl_FragColor = vec4(finalColor, finalAlpha);
       }
