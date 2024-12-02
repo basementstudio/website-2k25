@@ -34,7 +34,7 @@ export const InstanceMap = () => {
   const sharedMaterial = new CustomShaderMaterial();
   const progressRef = useRef(0.0);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     progressRef.current = (progressRef.current + delta * 0.3) % 1.0;
     sharedMaterial.uniforms.uProgress.value = progressRef.current;
   });

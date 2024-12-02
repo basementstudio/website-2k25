@@ -21,7 +21,7 @@ export const fragmentShader = `
     float radialMove = step(dist, uProgress * 14.0);
     
     // Add border effect
-    float borderWidth = 0.2;
+    float borderWidth = 0.1;
     float borderEdge = step(dist, uProgress * 14.0 + borderWidth) - radialMove;
     
     // Simplified scan effect with border
