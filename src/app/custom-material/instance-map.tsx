@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { vertexShader } from "./vertex";
 import { fragmentShader } from "./fragment";
 import { useRef } from "react";
-import { LineObject } from "../custom-material-line/page";
+import { LineObject } from "./line-object";
 
 type GLTFResult = GLTF & {
   nodes: {
