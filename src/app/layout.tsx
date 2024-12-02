@@ -5,6 +5,7 @@ import { Scene } from "@/components/scene";
 import "@/styles/globals.css";
 
 import type { Metadata } from "next";
+import { preload } from "react-dom";
 
 export const metadata: Metadata = {
   title: {
@@ -17,6 +18,9 @@ export const metadata: Metadata = {
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const assets = await fetchAssets();
+
+  preload(assets.map, { as: "fetch" });
+
   return (
     <html lang="en">
       <AssetsProvider assets={assets}>

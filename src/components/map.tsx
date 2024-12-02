@@ -621,5 +621,3 @@ export const Map = ({ handleNavigation }: MapProps) => {
     </group>
   );
 };
-
-useGLTF.preload("/models/misc/map.glb");
