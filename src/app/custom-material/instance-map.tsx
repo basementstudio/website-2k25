@@ -32,6 +32,7 @@ export const InstanceMap = () => {
   );
 
   const sharedMaterial = new CustomShaderMaterial();
+  sharedMaterial.transparent = true;
   const progressRef = useRef(0.0);
 
   useFrame((_state, delta) => {

@@ -16,7 +16,7 @@ export const MapBlueprint = () => {
     "/models/misc/map-blueprint.glb",
   ) as unknown as GLTFResult;
   return (
-    <group dispose={null}>
+    <group dispose={null} position={[-5, 0, 0]} scale={0.9999}>
       <mesh
         castShadow
         receiveShadow

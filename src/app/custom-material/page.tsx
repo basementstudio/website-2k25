@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { Environment, OrbitControls } from "@react-three/drei";
 import { InstanceMap } from "./instance-map";
 import { Perf } from "r3f-perf";
+import { MapBlueprint } from "@/components/map-blueprint";
 
 const CustomMaterialPage = () => {
   return (
@@ -13,6 +14,7 @@ const CustomMaterialPage = () => {
         <gridHelper />
         <OrbitControls />
         <InstanceMap />
+        <MapBlueprint />
         <Perf />
       </Canvas>
     </div>
