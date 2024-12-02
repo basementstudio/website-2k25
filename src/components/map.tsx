@@ -3,6 +3,7 @@ import { Mesh } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys } from "@/store/app-store";
+import { useAssets } from "./assets-provider";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -16,7 +17,8 @@ interface MapProps {
 
 export const Map = ({ handleNavigation }: MapProps) => {
   const router = useRouter();
-  const { nodes } = useGLTF("/models/misc/map.glb") as unknown as GLTFResult;
+  const { map } = useAssets();
+  const { nodes } = useGLTF(map) as unknown as GLTFResult;
 
   return (
     <group dispose={null}>
