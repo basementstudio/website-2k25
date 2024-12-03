@@ -6,9 +6,9 @@ import { CameraStateKeys } from "@/store/app-store";
 import { useMemo } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { GLTF } from "three/examples/jsm/Addons.js";
-import { Mesh, MeshStandardMaterial, Object3D } from "three";
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D } from "three";
 import { Group } from "three/examples/jsm/libs/tween.module.js";
-import { CreateShaderMaterial } from "@/shaders/custom-shader-material";
+import { createShaderMaterial } from "@/shaders/custom-shader-material";
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -32,11 +32,19 @@ export const Map = ({ handleNavigation }: MapProps) => {
     const removedNodes: Object3D[] = [];
 
     scene.traverse((child) => {
-      if (child.isMesh) {
-        child.material = CreateShaderMaterial(
-          (child as Mesh).material as MeshStandardMaterial,
-        );
+      if ((child as any).isMesh) {
+        const meshChild = child as Mesh;
+
+        // TODO: remove once extra mesh is removed from the GLTF
+        if ((meshChild.material as MeshStandardMaterial)?.map) {
+          const newMaterial = createShaderMaterial(
+            meshChild.material as MeshStandardMaterial,
+          );
+          meshChild.material = newMaterial;
+        }
       }
+
+      // remove clickable nodes
       if (CLICKABLE_NODES.some((node) => node.name === child.name)) {
         removedNodes.push(child);
       }
