@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .actionable {
+    @apply text-paragraph underline underline-offset-[1.5px] [text-decoration-thickness:0.5px];
+  }
+}
+
 html {
   @apply scroll-smooth;
 }
@@ -21,6 +27,6 @@ body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 * {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
