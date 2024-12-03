@@ -1,12 +1,20 @@
 "use client";
 
 import { useGLTF } from "@react-three/drei";
-import { Object3D } from "three";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys } from "@/store/app-store";
 import { useAssets } from "./assets-provider";
 import { useMemo } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
+import { GLTF } from "three/examples/jsm/Addons.js";
+import { Mesh, Object3D } from "three";
+import { Group } from "three/examples/jsm/libs/tween.module.js";
+
+type GLTFResult = GLTF & {
+  nodes: {
+    [key: string]: Mesh | Group;
+  };
+};
 
 interface MapProps {
   handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
@@ -16,7 +24,7 @@ export const Map = ({ handleNavigation }: MapProps) => {
   const router = useRouter();
   const { map } = useAssets();
 
-  const { scene } = useGLTF("/office.glb");
+  const { scene } = useGLTF("/office.glb") as unknown as GLTFResult;
   const traversedScene = useMemo(() => {
     const removedNodes: Object3D[] = [];
 
@@ -29,25 +37,11 @@ export const Map = ({ handleNavigation }: MapProps) => {
     return { scene, removedNodes };
   }, [scene]);
 
-  console.log(traversedScene.removedNodes);
-
   return (
-    <group dispose={null}>
-      {/* <primitive object={traversedScene.scene} /> */}
-
-      {traversedScene.removedNodes.map((node) => {
-        if (node.isGroup)
-          return (
-            <group key={node.name}>
-              {node.children.map((child) => (
-                <primitive key={child.name} object={child} />
-              ))}
-            </group>
-          );
-
-        return null;
-
-        return (
+    <>
+      <group dispose={null}>
+        <primitive object={traversedScene.scene} />
+        {traversedScene.removedNodes.map((node) => (
           <group
             key={node.name}
             onPointerEnter={() =>
@@ -62,11 +56,22 @@ export const Map = ({ handleNavigation }: MapProps) => {
                   "home",
               )
             }
+            position={node.isGroup ? node.position : undefined}
+            rotation={node.isGroup ? node.rotation : undefined}
+            scale={node.isGroup ? node.scale : undefined}
           >
-            <primitive object={node} />
+            {node.isGroup ? (
+              <>
+                {node.children.map((child) => (
+                  <primitive key={child.name} object={child} />
+                ))}
+              </>
+            ) : (
+              <primitive object={node} />
+            )}
           </group>
-        );
-      })}
-    </group>
+        ))}
+      </group>
+    </>
   );
 };

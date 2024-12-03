@@ -5,6 +5,7 @@ import { Environment } from "@react-three/drei";
 import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
+import { Perf } from "r3f-perf";
 
 export const Scene = () => {
   const router = useRouter();
@@ -18,6 +19,7 @@ export const Scene = () => {
   return (
     <div className="h-screen w-full">
       <Canvas>
+        <Perf position="bottom-right" />
         <color attach="background" args={["#000"]} />
         <CustomCamera />
         <Map handleNavigation={handleNavigation} />
