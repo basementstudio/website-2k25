@@ -24,7 +24,8 @@ interface MapProps {
 export const Map = ({ handleNavigation }: MapProps) => {
   const { map } = useAssets();
 
-  const { scene } = useGLTF("office.glb") as unknown as GLTFResult;
+  const { scene } = useGLTF(map) as unknown as GLTFResult;
+
   const traversedScene = useMemo(() => {
     const routingNodes: Object3D<Object3DEventMap>[] = [];
 
