@@ -7,7 +7,7 @@ import { useAssets } from "./assets-provider";
 import { useMemo } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { GLTF } from "three/examples/jsm/Addons.js";
-import { Mesh, Object3D } from "three";
+import { Mesh, Object3D, Object3DEventMap } from "three";
 import { Group } from "three/examples/jsm/libs/tween.module.js";
 
 type GLTFResult = GLTF & {
@@ -20,13 +20,57 @@ interface MapProps {
   handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
 }
 
-export const Map = ({ handleNavigation }: MapProps) => {
+interface ClickableElementProps {
+  node: Object3D<Object3DEventMap>;
+  handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
+}
+
+const ClickableElement = ({
+  node,
+  handleNavigation,
+}: ClickableElementProps) => {
   const router = useRouter();
+  // @ts-expect-error - Object3D doesn't have isGroup property but Three.js adds it at runtime
+  const isGroup = node.isGroup;
+
+  return (
+    <group
+      key={node.name}
+      onPointerEnter={() =>
+        router.prefetch(
+          CLICKABLE_NODES.find((n) => n.name === node.name)?.route ?? "",
+        )
+      }
+      onClick={() =>
+        handleNavigation(
+          CLICKABLE_NODES.find((n) => n.name === node.name)?.route ?? "",
+          CLICKABLE_NODES.find((n) => n.name === node.name)?.routeName ??
+            "home",
+        )
+      }
+      position={isGroup ? node.position : undefined}
+      rotation={isGroup ? node.rotation : undefined}
+      scale={isGroup ? node.scale : undefined}
+    >
+      {isGroup ? (
+        <>
+          {node.children.map((child) => (
+            <primitive key={child.name} object={child} />
+          ))}
+        </>
+      ) : (
+        <primitive object={node} />
+      )}
+    </group>
+  );
+};
+
+export const Map = ({ handleNavigation }: MapProps) => {
   const { map } = useAssets();
 
-  const { scene } = useGLTF("/office.glb") as unknown as GLTFResult;
+  const { scene } = useGLTF("office.glb") as unknown as GLTFResult;
   const traversedScene = useMemo(() => {
-    const removedNodes: Object3D[] = [];
+    const removedNodes: Object3D<Object3DEventMap>[] = [];
 
     scene.traverse((child) => {
       if (CLICKABLE_NODES.some((node) => node.name === child.name)) {
@@ -38,40 +82,15 @@ export const Map = ({ handleNavigation }: MapProps) => {
   }, [scene]);
 
   return (
-    <>
-      <group dispose={null}>
-        <primitive object={traversedScene.scene} />
-        {traversedScene.removedNodes.map((node) => (
-          <group
-            key={node.name}
-            onPointerEnter={() =>
-              router.prefetch(
-                CLICKABLE_NODES.find((n) => n.name === node.name)?.route ?? "",
-              )
-            }
-            onClick={() =>
-              handleNavigation(
-                CLICKABLE_NODES.find((n) => n.name === node.name)?.route ?? "",
-                CLICKABLE_NODES.find((n) => n.name === node.name)?.routeName ??
-                  "home",
-              )
-            }
-            position={node.isGroup ? node.position : undefined}
-            rotation={node.isGroup ? node.rotation : undefined}
-            scale={node.isGroup ? node.scale : undefined}
-          >
-            {node.isGroup ? (
-              <>
-                {node.children.map((child) => (
-                  <primitive key={child.name} object={child} />
-                ))}
-              </>
-            ) : (
-              <primitive object={node} />
-            )}
-          </group>
-        ))}
-      </group>
-    </>
+    <group dispose={null}>
+      <primitive object={traversedScene.scene} />
+      {traversedScene.removedNodes.map((node) => (
+        <ClickableElement
+          key={node.name}
+          node={node}
+          handleNavigation={handleNavigation}
+        />
+      ))}
+    </group>
   );
 };
