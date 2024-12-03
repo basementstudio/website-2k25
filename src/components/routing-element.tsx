@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Object3D, Object3DEventMap } from "three";
 
 interface RoutingElementProps {
-  node: Object3D<Object3DEventMap>;
+  node: Object3D<Object3DEventMap> & { isGroup?: boolean };
   handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
 }
 
@@ -13,8 +13,6 @@ export const RoutingElement = ({
   handleNavigation,
 }: RoutingElementProps) => {
   const router = useRouter();
-  // @ts-expect-error - Object3D doesn't have isGroup property but Three.js adds it at runtime
-  const isGroup = node.isGroup;
 
   return (
     <group
@@ -30,11 +28,11 @@ export const RoutingElement = ({
             "home",
         )
       }
-      position={isGroup ? node.position : undefined}
-      rotation={isGroup ? node.rotation : undefined}
-      scale={isGroup ? node.scale : undefined}
+      position={node.isGroup ? node.position : undefined}
+      rotation={node.isGroup ? node.rotation : undefined}
+      scale={node.isGroup ? node.scale : undefined}
     >
-      {isGroup ? (
+      {node.isGroup ? (
         <>
           {node.children.map((child) => (
             <primitive key={child.name} object={child} />
