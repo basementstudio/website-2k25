@@ -1,4 +1,6 @@
 import { Color, DoubleSide, MeshStandardMaterial, ShaderMaterial } from "three";
+import vertexShader from "./vertex.glsl";
+import fragmentShader from "./fragment.glsl";
 
 export const createShaderMaterial = (baseMaterial: MeshStandardMaterial) => {
   const baseColor =
@@ -17,63 +19,15 @@ export const createShaderMaterial = (baseMaterial: MeshStandardMaterial) => {
     uniforms: {
       uThickness: { value: null },
       uColor: { value: emissiveColor },
-      uProgress: { value: 0.5 },
+      uProgress: { value: 0.0 },
       uPixelSize: { value: 8 },
       baseColorMap: { value: baseMap },
       baseColor: { value: baseColor },
       opacity: { value: baseOpacity },
+      noiseFactor: { value: 1.0 },
     },
-    vertexShader: /* glsl */ `
-        varying vec2 vUv;
-        varying vec3 vWorldPosition;
-        
-        void main() {
-        vUv = uv;
-
-        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-        vWorldPosition = worldPosition.xyz;
-
-        gl_Position = projectionMatrix * mvPosition;
-        }
-    `,
-    fragmentShader: /* glsl */ `
-        varying vec2 vUv;
-        varying vec3 vWorldPosition;
-        
-        uniform vec3 uColor;
-        uniform float uProgress;
-        uniform vec3 baseColor;
-        uniform sampler2D baseColorMap;
-        uniform float opacity;
-        
-        void main() {
-            // Distance from center
-            vec3 voxelCenter = round(vWorldPosition * 10.) / 10.;
-            // float randomOffset = noise3(voxelCenter);
-
-            float dist = distance(voxelCenter, vec3(2.0, 0., -16.0));
-            // dist += randomOffset;
-
-            // Wave effect
-            float wave = step(dist, uProgress * 14.0);
-            float edge = step(dist, uProgress * 14.0 + 0.2) - wave;
-            // Combine texture and base color
-            vec3 color = baseColor * texture2D(baseColorMap, vUv).rgb;
-            // Apply wave effect
-            color = mix(color, uColor * wave + uColor * edge, wave + edge);
-
-            float opacityResult = 1.0 - wave;
-            opacityResult *= opacity;
-            opacityResult = clamp(opacityResult, 0.0, 1.0);
-
-            if (opacityResult <= 0.0) {
-              discard;
-            }
-
-            gl_FragColor = vec4(color, opacityResult);
-        }
-    `,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
     transparent: true,
     side: DoubleSide,
   });

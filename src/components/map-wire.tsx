@@ -1,8 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import React from "react";
 import { GLTFResult } from "./map";
-import { Mesh, MeshStandardMaterial } from "three";
-import { createShaderMaterial } from "@/shaders/custom-shader-material";
+import { Mesh } from "three";
 
 export const MapWire = () => {
   const { nodes } = useGLTF("/models/map-wire.glb") as unknown as GLTFResult;
@@ -10,10 +9,7 @@ export const MapWire = () => {
     <group dispose={null}>
       <lineSegments
         geometry={(nodes.WireFrame_MeshCurveMesh as Mesh).geometry}
-        material={createShaderMaterial(
-          (nodes.WireFrame_MeshCurveMesh as Mesh)
-            .material as MeshStandardMaterial,
-        )}
+        material={(nodes.WireFrame_MeshCurveMesh as Mesh).material}
       />
     </group>
   );

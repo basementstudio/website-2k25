@@ -6,9 +6,10 @@ import { CameraStateKeys } from "@/store/app-store";
 import { memo, useMemo } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { GLTF } from "three/examples/jsm/Addons.js";
-import { Mesh, MeshStandardMaterial, Object3D } from "three";
+import { Mesh, MeshStandardMaterial, Object3D, ShaderMaterial } from "three";
 import { Group } from "three/examples/jsm/libs/tween.module.js";
 import { createShaderMaterial } from "@/shaders/custom-shader-material";
+import { useFrame } from "@react-three/fiber";
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -21,11 +22,12 @@ export type GLTFResult = GLTF & {
 
 interface MapProps {
   handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
+  isAnimating: boolean;
 }
 
 export const Map = memo(MapInner);
 
-function MapInner({ handleNavigation }: MapProps) {
+function MapInner({ handleNavigation, isAnimating }: MapProps) {
   const router = useRouter();
 
   const { scene } = useGLTF("/models/office.glb") as unknown as GLTFResult;
@@ -35,7 +37,7 @@ function MapInner({ handleNavigation }: MapProps) {
     const clonedScene = scene.clone(true);
 
     clonedScene.traverse((child) => {
-      if ((child as any).isMesh) {
+      if ("isMesh" in child) {
         const meshChild = child as Mesh;
         const newMaterial = createShaderMaterial(
           meshChild.material as MeshStandardMaterial,
@@ -51,6 +53,22 @@ function MapInner({ handleNavigation }: MapProps) {
 
     return { scene: clonedScene, removedNodes };
   }, [scene]);
+
+  useFrame((state, delta) => {
+    if (isAnimating) {
+      traversedScene.scene.traverse((child) => {
+        if ("isMesh" in child) {
+          const material = (child as Mesh).material as ShaderMaterial;
+          if (material.uniforms?.uProgress) {
+            material.uniforms.uProgress.value = Math.min(
+              material.uniforms.uProgress.value + delta * 0.8,
+              1.0,
+            );
+          }
+        }
+      });
+    }
+  });
 
   return (
     <>
