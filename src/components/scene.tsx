@@ -1,7 +1,6 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
-import { CustomCamera } from "@/components/camera-controls";
-import { Environment } from "@react-three/drei";
+import { Environment, OrbitControls } from "@react-three/drei";
 import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
@@ -19,7 +18,7 @@ export const Scene = () => {
     <div className="h-screen w-full">
       <Canvas>
         <color attach="background" args={["#000"]} />
-        <CustomCamera />
+        <OrbitControls />
         <Map handleNavigation={handleNavigation} />
         <Environment preset="sunset" />
       </Canvas>
