@@ -1,9 +1,11 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
-import { Environment, OrbitControls } from "@react-three/drei";
+import { CustomCamera } from "@/components/camera-controls";
+import { Environment } from "@react-three/drei";
 import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
+import { MapWire } from "./map-wire";
 
 export const Scene = () => {
   const router = useRouter();
@@ -18,8 +20,9 @@ export const Scene = () => {
     <div className="h-screen w-full">
       <Canvas>
         <color attach="background" args={["#000"]} />
-        <OrbitControls />
+        <CustomCamera />
         <Map handleNavigation={handleNavigation} />
+        <MapWire />
         <Environment preset="sunset" />
       </Canvas>
       <div
@@ -30,7 +33,9 @@ export const Scene = () => {
       </div>
       <div
         className="absolute right-6 top-6 cursor-pointer bg-white p-2"
-        onClick={() => setCameraState("menu")}
+        onClick={() => {
+          setCameraState("menu");
+        }}
       >
         <p>MENU</p>
       </div>
