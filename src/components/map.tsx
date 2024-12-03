@@ -3,10 +3,10 @@
 import { useGLTF } from "@react-three/drei";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys } from "@/store/app-store";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { GLTF } from "three/examples/jsm/Addons.js";
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D } from "three";
+import { Mesh, MeshStandardMaterial, Object3D } from "three";
 import { Group } from "three/examples/jsm/libs/tween.module.js";
 import { createShaderMaterial } from "@/shaders/custom-shader-material";
 
@@ -23,25 +23,24 @@ interface MapProps {
   handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
 }
 
-export const Map = ({ handleNavigation }: MapProps) => {
+export const Map = memo(MapInner);
+
+function MapInner({ handleNavigation }: MapProps) {
   const router = useRouter();
 
   const { scene } = useGLTF("/models/office.glb") as unknown as GLTFResult;
 
   const traversedScene = useMemo(() => {
     const removedNodes: Object3D[] = [];
+    const clonedScene = scene.clone(true);
 
-    scene.traverse((child) => {
+    clonedScene.traverse((child) => {
       if ((child as any).isMesh) {
         const meshChild = child as Mesh;
-
-        // TODO: remove once extra mesh is removed from the GLTF
-        if ((meshChild.material as MeshStandardMaterial)?.map) {
-          const newMaterial = createShaderMaterial(
-            meshChild.material as MeshStandardMaterial,
-          );
-          meshChild.material = newMaterial;
-        }
+        const newMaterial = createShaderMaterial(
+          meshChild.material as MeshStandardMaterial,
+        );
+        meshChild.material = newMaterial;
       }
 
       // remove clickable nodes
@@ -50,7 +49,7 @@ export const Map = ({ handleNavigation }: MapProps) => {
       }
     });
 
-    return { scene, removedNodes };
+    return { scene: clonedScene, removedNodes };
   }, [scene]);
 
   return (
@@ -95,4 +94,4 @@ export const Map = ({ handleNavigation }: MapProps) => {
       </group>
     </>
   );
-};
+}
