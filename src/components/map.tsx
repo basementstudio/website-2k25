@@ -1,54 +1,27 @@
+"use client";
+
 import { useGLTF } from "@react-three/drei";
-import { Mesh, Object3D } from "three";
-import { GLTF } from "three/examples/jsm/Addons.js";
+import { Object3D } from "three";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys } from "@/store/app-store";
 import { useAssets } from "./assets-provider";
 import { useMemo } from "react";
-
-type GLTFResult = GLTF & {
-  nodes: {
-    [key: string]: Mesh;
-  };
-};
+import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 
 interface MapProps {
   handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
 }
 
-const clickableNodes: {
-  name: string;
-  route: string;
-  routeName: CameraStateKeys;
-}[] = [
-  {
-    name: "SM_BasketballHoop",
-    route: "/basketball",
-    routeName: "hoop",
-  },
-  {
-    name: "SM_ArcadeLab",
-    route: "/arcade",
-    routeName: "arcade",
-  },
-  {
-    name: "SM_Stairs001",
-    route: "/about",
-    routeName: "stairs",
-  },
-];
-
 export const Map = ({ handleNavigation }: MapProps) => {
   const router = useRouter();
   const { map } = useAssets();
-  console.log(map);
-  const { scene, nodes } = useGLTF(map) as unknown as GLTFResult;
 
+  const { scene } = useGLTF("/office.glb");
   const traversedScene = useMemo(() => {
     const removedNodes: Object3D[] = [];
 
     scene.traverse((child) => {
-      if (clickableNodes.some((node) => node.name === child.name)) {
+      if (CLICKABLE_NODES.some((node) => node.name === child.name)) {
         removedNodes.push(child);
       }
     });
@@ -56,27 +29,36 @@ export const Map = ({ handleNavigation }: MapProps) => {
     return { scene, removedNodes };
   }, [scene]);
 
-  console.log(traversedScene);
+  console.log(traversedScene.removedNodes);
 
   return (
     <group dispose={null}>
-      <primitive object={traversedScene.scene} />
+      {/* <primitive object={traversedScene.scene} /> */}
 
       {traversedScene.removedNodes.map((node) => {
-        console.log(node);
+        if (node.isGroup)
+          return (
+            <group key={node.name}>
+              {node.children.map((child) => (
+                <primitive key={child.name} object={child} />
+              ))}
+            </group>
+          );
+
+        return null;
 
         return (
           <group
             key={node.name}
             onPointerEnter={() =>
               router.prefetch(
-                clickableNodes.find((n) => n.name === node.name)?.route ?? "",
+                CLICKABLE_NODES.find((n) => n.name === node.name)?.route ?? "",
               )
             }
             onClick={() =>
               handleNavigation(
-                clickableNodes.find((n) => n.name === node.name)?.route ?? "",
-                clickableNodes.find((n) => n.name === node.name)?.routeName ??
+                CLICKABLE_NODES.find((n) => n.name === node.name)?.route ?? "",
+                CLICKABLE_NODES.find((n) => n.name === node.name)?.routeName ??
                   "home",
               )
             }
