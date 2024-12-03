@@ -3,6 +3,7 @@ import { Mesh } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys } from "@/store/app-store";
+import { CustomShaderMaterial } from "@/shaders/custom-shader-material";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -25,10 +26,9 @@ export const Map = ({ handleNavigation }: MapProps) => {
         castShadow
         receiveShadow
         geometry={nodes.Cube002.geometry}
-        material={nodes.Cube002.material}
         position={[2.174, 0.946, -16.388]}
         scale={0.28}
-      />
+      ></mesh>
       <mesh
         name="SM_Wood"
         castShadow
@@ -396,7 +396,9 @@ export const Map = ({ handleNavigation }: MapProps) => {
         position={[2.937, 0.803, -14.205]}
         rotation={[0, -Math.PI / 2, 0]}
         scale={0.954}
-      />
+      >
+        <CustomShaderMaterial />
+      </mesh>
       <mesh
         name="Door_Low"
         castShadow
