@@ -7,6 +7,7 @@ uniform vec3 baseColor;
 uniform sampler2D baseColorMap;
 uniform float opacity;
 uniform float noiseFactor;
+uniform bool uReverse;
 
 
 // noise based on https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83 patriciogonzalezvivo's work
@@ -47,14 +48,20 @@ void main() {
     // Wave effect
     float wave = step(dist, uProgress * 20.0);
     float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
+    
     // Combine texture and base color
     vec3 color = baseColor * texture2D(baseColorMap, vUv).rgb;
-    // Apply wave effect
     color = mix(color, uColor * wave + uColor * edge, wave + edge);
 
-    float opacityResult = 1.0 - wave;
-    opacityResult *= opacity;
-    opacityResult = clamp(opacityResult, 0.0, 1.0);
+    // Reverse the opacity calculation and apply wave effect
+    float opacityResult;
+    if (uReverse) {
+        opacityResult = wave;
+        color = mix(color, vec3(0.455,0.463,1.) * wave + vec3(0.455,0.463,1.) * edge, wave + edge);
+    } else {
+        opacityResult = 1.0 - wave;
+        color = mix(color, uColor, wave);
+    }
 
     if (opacityResult <= 0.0) {
         discard;

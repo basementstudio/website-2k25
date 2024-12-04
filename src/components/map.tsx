@@ -27,7 +27,6 @@ export const Map = memo(MapInner);
 
 function MapInner({ handleNavigation }: MapProps) {
   const router = useRouter();
-
   const { scene } = useGLTF("/models/office.glb") as unknown as GLTFResult;
 
   const traversedScene = useMemo(() => {
@@ -39,6 +38,7 @@ function MapInner({ handleNavigation }: MapProps) {
         const meshChild = child as Mesh;
         const newMaterial = createShaderMaterial(
           meshChild.material as MeshStandardMaterial,
+          false,
         );
         meshChild.material = newMaterial;
       }
