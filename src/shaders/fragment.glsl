@@ -39,7 +39,7 @@ float noise(vec3 p){
 
 void main() {
     // Distance from center
-    vec3 voxelCenter = round(vWorldPosition * 4.) / 4.;
+    vec3 voxelCenter = round(vWorldPosition * 6.) / 6.;
     float randomOffset = noise(voxelCenter) * noiseFactor; 
 
     float dist = distance(voxelCenter, vec3(2.0, 0., -16.0));
@@ -69,3 +69,49 @@ void main() {
 
     gl_FragColor = vec4(color, opacityResult);
 }
+
+/*
+void main() {
+    // Distance from center
+    vec3 voxelCenter = vWorldPosition;
+    float gridSize = 6.0;
+    voxelCenter = (round(voxelCenter * gridSize) / gridSize);
+    
+    // Add smoothing to make edges
+    float smoothFactor = 0.9; // Adjust roundness
+    vec3 smoothedPosition = mix(vWorldPosition, voxelCenter, smoothFactor);
+    
+    float randomOffset = noise(smoothedPosition) * noiseFactor;
+
+    // Calculate distance to center
+    float dist = distance(smoothedPosition, vec3(2.0, 0., -16.0));
+    dist += randomOffset * 2.0;
+
+    //
+    float softness = 0.1; // Adjust edge softness
+    float wave = smoothstep(0.0, softness, uProgress * 20.0 - dist);
+    float edge = smoothstep(0.0, softness, uProgress * 20.0 + 0.2 - dist) - wave;
+    
+    // Combine texture and base color
+    vec3 color = baseColor * texture2D(baseColorMap, vUv).rgb;
+    color = mix(color, uColor * wave + uColor * edge, wave + edge);
+
+    // Reverse the opacity calculation and apply wave effect
+    float opacityResult;
+    if (uReverse) {
+        opacityResult = wave;
+        color = mix(color, vec3(1.0,1.0,1.0) * wave + vec3(1.0,1.0,1.0) * edge, wave + edge);
+    } else {
+        opacityResult = 1.0 - wave;
+        color = mix(color, uColor, wave);
+    }
+
+    if (opacityResult <= 0.0) {
+        discard;
+    }
+
+    gl_FragColor = vec4(color, opacityResult);
+}
+
+
+*/

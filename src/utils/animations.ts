@@ -7,7 +7,7 @@ const linearPow2 = (x: number): number => {
 };
 
 export const shaderAnimationConfig = {
-    duration: 1.5,
+    duration: 10,
     startTime: 0,
     startValue: 0,
     endValue: 1,
