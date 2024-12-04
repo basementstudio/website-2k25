@@ -6,30 +6,27 @@ export const createShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
   reverse: boolean,
 ) => {
-  const baseColor =
-    (baseMaterial as MeshStandardMaterial).color || new Color(0, 1, 1);
-  const baseMap = (baseMaterial as MeshStandardMaterial).map || null;
-  const baseOpacity =
-    (baseMaterial as MeshStandardMaterial).opacity !== undefined
-      ? (baseMaterial as MeshStandardMaterial).opacity
-      : 1.0;
+  const {
+    color: baseColor = new Color(0, 1, 1),
+    map: baseMap = null,
+    opacity: baseOpacity = 1.0,
+  } = baseMaterial;
 
-  const emissiveColor = new Color("#FF4D00");
-  emissiveColor.multiplyScalar(9);
+  const emissiveColor = new Color("#FF4D00").multiplyScalar(9);
 
   const material = new ShaderMaterial({
     name: "reveal-solid-shader",
     uniforms: {
       uColor: { value: emissiveColor },
-      uProgress: { value: 0.4 },
+      uProgress: { value: 0.0 },
       uReverse: { value: reverse },
       baseColorMap: { value: baseMap },
       baseColor: { value: baseColor },
       opacity: { value: baseOpacity },
       noiseFactor: { value: 0.5 },
     },
-    vertexShader: vertexShader,
-    fragmentShader: fragmentShader,
+    vertexShader,
+    fragmentShader,
     transparent: true,
     side: DoubleSide,
   });
