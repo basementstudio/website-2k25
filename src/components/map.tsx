@@ -10,7 +10,7 @@ import { Mesh, MeshStandardMaterial, Object3D, ShaderMaterial } from "three";
 import { Group } from "three/examples/jsm/libs/tween.module.js";
 import { createShaderMaterial } from "@/shaders/custom-shader-material";
 import { useFrame } from "@react-three/fiber";
-import { shaderAnimationConfig } from "@/utils/animations";
+import { customPowTwo } from "@/utils/animations";
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -59,18 +59,8 @@ function MapInner({ handleNavigation }: MapProps) {
       if ("isMesh" in child) {
         const meshChild = child as Mesh;
         if (meshChild.material instanceof ShaderMaterial) {
-          const elapsed =
-            clock.getElapsedTime() - shaderAnimationConfig.startTime;
-          const progress = Math.min(
-            elapsed / shaderAnimationConfig.duration,
-            1,
-          );
-
-          meshChild.material.uniforms.uProgress.value =
-            shaderAnimationConfig.easing(progress) *
-              (shaderAnimationConfig.endValue -
-                shaderAnimationConfig.startValue) +
-            shaderAnimationConfig.startValue;
+          const progress = (clock.getElapsedTime() % 3) / 3;
+          meshChild.material.uniforms.uProgress.value = customPowTwo(progress);
         }
       }
     });

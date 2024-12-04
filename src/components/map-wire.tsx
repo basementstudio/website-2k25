@@ -3,7 +3,7 @@ import { GLTFResult } from "./map";
 import { Mesh, MeshStandardMaterial, ShaderMaterial } from "three";
 import { createShaderMaterial } from "@/shaders/custom-shader-material";
 import { useFrame } from "@react-three/fiber";
-import { shaderAnimationConfig } from "@/utils/animations";
+import { customPowTwo } from "@/utils/animations";
 
 export const MapWire = () => {
   const { nodes } = useGLTF("/models/map-wire.glb") as unknown as GLTFResult;
@@ -14,13 +14,8 @@ export const MapWire = () => {
 
   useFrame(({ clock }) => {
     if (material instanceof ShaderMaterial) {
-      const elapsed = clock.getElapsedTime() - shaderAnimationConfig.startTime;
-      const progress = Math.min(elapsed / shaderAnimationConfig.duration, 1);
-
-      material.uniforms.uProgress.value =
-        shaderAnimationConfig.easing(progress) *
-          (shaderAnimationConfig.endValue - shaderAnimationConfig.startValue) +
-        shaderAnimationConfig.startValue;
+      const progress = (clock.getElapsedTime() % 3) / 3;
+      material.uniforms.uProgress.value = customPowTwo(progress);
     }
   });
 
