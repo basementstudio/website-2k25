@@ -5,12 +5,10 @@ import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
 import { MapWire } from "./map-wire";
 import { OrbitControls } from "@react-three/drei";
-import { useState } from "react";
 
 export const Scene = () => {
   const router = useRouter();
   const setCameraState = useCameraStore((state) => state.setCameraState);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const handleNavigation = (route: string, cameraState: CameraStateKeys) => {
     setCameraState(cameraState);
@@ -22,7 +20,7 @@ export const Scene = () => {
       <Canvas>
         <color attach="background" args={["#000"]} />
 
-        <Map handleNavigation={handleNavigation} isAnimating={isAnimating} />
+        <Map handleNavigation={handleNavigation} />
         <MapWire />
         <OrbitControls />
       </Canvas>
@@ -35,7 +33,6 @@ export const Scene = () => {
       <div
         className="absolute right-6 top-6 cursor-pointer bg-white p-2"
         onClick={() => {
-          setIsAnimating(true);
           setCameraState("menu");
         }}
       >
