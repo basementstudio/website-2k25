@@ -54,7 +54,7 @@ function MapInner({ handleNavigation, isAnimating }: MapProps) {
     return { scene: clonedScene, removedNodes };
   }, [scene]);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (isAnimating) {
       traversedScene.scene.traverse((child) => {
         if ("isMesh" in child) {
