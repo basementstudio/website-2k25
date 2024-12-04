@@ -4,7 +4,7 @@ import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
 import { MapWire } from "./map-wire";
-import { OrbitControls } from "@react-three/drei";
+import { CustomCamera } from "./camera-controls";
 
 export const Scene = () => {
   const router = useRouter();
@@ -19,10 +19,9 @@ export const Scene = () => {
     <div className="h-screen w-full">
       <Canvas>
         <color attach="background" args={["#000"]} />
-
         <Map handleNavigation={handleNavigation} />
         <MapWire />
-        <OrbitControls />
+        <CustomCamera />
       </Canvas>
       <div
         className="absolute left-6 top-6 cursor-pointer bg-white p-2"

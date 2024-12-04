@@ -57,7 +57,7 @@ void main() {
     float opacityResult;
     if (uReverse) {
         opacityResult = wave;
-        color = mix(color, vec3(0.455,0.463,1.) * wave + vec3(0.455,0.463,1.) * edge, wave + edge);
+        color = mix(color, vec3(1.0,1.0,1.0) * wave + vec3(1.0,1.0,1.0) * edge, wave + edge);
     } else {
         opacityResult = 1.0 - wave;
         color = mix(color, uColor, wave);

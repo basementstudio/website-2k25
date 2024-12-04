@@ -14,7 +14,7 @@ export const createShaderMaterial = (
       ? (baseMaterial as MeshStandardMaterial).opacity
       : 1.0;
 
-  const emissiveColor = new Color("#2D30FB");
+  const emissiveColor = new Color("#FF4D00");
   emissiveColor.multiplyScalar(9);
 
   const material = new ShaderMaterial({
