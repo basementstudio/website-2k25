@@ -6,11 +6,9 @@ import { CameraStateKeys } from "@/store/app-store";
 import { memo, useMemo } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { GLTF } from "three/examples/jsm/Addons.js";
-import { Mesh, MeshStandardMaterial, Object3D, ShaderMaterial } from "three";
+import { Mesh, MeshStandardMaterial, Object3D } from "three";
 import { Group } from "three/examples/jsm/libs/tween.module.js";
 import { createShaderMaterial } from "@/shaders/custom-shader-material";
-import { useFrame } from "@react-three/fiber";
-import { customPowTwo } from "@/utils/animations";
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -53,18 +51,6 @@ function MapInner({ handleNavigation }: MapProps) {
 
     return { scene: clonedScene, removedNodes };
   }, [scene]);
-
-  useFrame(({ clock }) => {
-    traversedScene.scene.traverse((child) => {
-      if ("isMesh" in child) {
-        const meshChild = child as Mesh;
-        if (meshChild.material instanceof ShaderMaterial) {
-          const progress = (clock.getElapsedTime() % 3) / 3;
-          meshChild.material.uniforms.uProgress.value = customPowTwo(progress);
-        }
-      }
-    });
-  });
 
   return (
     <>
