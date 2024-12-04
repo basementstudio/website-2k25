@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
 import { MapWire } from "./map-wire";
 import { CustomCamera } from "./camera-controls";
+import { Perf } from "r3f-perf";
 
 export const Scene = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ export const Scene = () => {
         <Map handleNavigation={handleNavigation} />
         <MapWire />
         <CustomCamera />
+        <Perf position="bottom-right" />
       </Canvas>
       <div
         className="absolute left-6 top-6 cursor-pointer bg-white p-2"

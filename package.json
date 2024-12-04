@@ -17,6 +17,7 @@
     "glslify-loader": "^2.0.0",
     "next": "15.0.3",
     "next-sitemap": "^4.2.3",
+    "r3f-perf": "^7.2.3",
     "raw-loader": "^4.0.2",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",

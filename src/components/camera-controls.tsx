@@ -5,12 +5,7 @@ import { Vector3 } from "three";
 import { CameraState, useCameraStore } from "@/store/app-store";
 import { CAMERA_STATES } from "@/constants/camera-states";
 import { usePathname } from "next/navigation";
-
-const animationConfig = {
-  duration: 2,
-  progress: 0,
-  easing: (x: number) => x * x * (3 - 2 * x),
-};
+import { cameraAnimationConfig } from "@/utils/animations";
 
 const PATHNAME_MAP: Record<string, string> = {
   "/": "home",
@@ -62,17 +57,19 @@ export const CustomCamera = () => {
     targetPosition.set(...position);
     targetLookAt.set(...target);
 
-    animationConfig.progress = 0;
+    cameraAnimationConfig.progress = 0;
   }, [cameraConfig, targetPosition, targetLookAt]);
 
   useFrame((_, delta) => {
     if (!controls || !isInitializedRef.current) return;
 
-    animationConfig.progress = Math.min(
-      animationConfig.progress + delta / animationConfig.duration,
+    cameraAnimationConfig.progress = Math.min(
+      cameraAnimationConfig.progress + delta / cameraAnimationConfig.duration,
       1,
     );
-    const easeValue = animationConfig.easing(animationConfig.progress);
+    const easeValue = cameraAnimationConfig.easing(
+      cameraAnimationConfig.progress,
+    );
 
     controls.getPosition(currentPos);
     controls.getTarget(currentTarget);
@@ -83,8 +80,8 @@ export const CustomCamera = () => {
     controls.setPosition(currentPos.x, currentPos.y, currentPos.z);
     controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
 
-    if (animationConfig.progress >= 1) {
-      animationConfig.progress = 0;
+    if (cameraAnimationConfig.progress >= 1) {
+      cameraAnimationConfig.progress = 0;
     }
   });
 
