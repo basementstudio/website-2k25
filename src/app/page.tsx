@@ -1,5 +1,3 @@
-const Homepage = () => {
-  return <div></div>;
-};
+const Homepage = () => null;
 
 export default Homepage;

@@ -30,7 +30,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <AssetsProvider assets={assets}>
         <body className={cn(geistSans.variable)}>
           <CameraRouteHandler />
-          <Scene />
+          <Scene className="sticky top-0 h-screen w-full" />
           {children}
         </body>
       </AssetsProvider>

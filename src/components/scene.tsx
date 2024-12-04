@@ -1,4 +1,5 @@
 "use client";
+
 import { Canvas } from "@react-three/fiber";
 import { CustomCamera } from "@/components/camera-controls";
 import { Environment } from "@react-three/drei";
@@ -6,7 +7,11 @@ import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
 
-export const Scene = () => {
+interface SceneProps {
+  className?: string;
+}
+
+export const Scene = ({ className }: SceneProps) => {
   const router = useRouter();
   const setCameraState = useCameraStore((state) => state.setCameraState);
 
@@ -16,7 +21,7 @@ export const Scene = () => {
   };
 
   return (
-    <div className="h-screen w-full">
+    <div className={className}>
       <Canvas gl={{ antialias: true, alpha: false }}>
         <color attach="background" args={["#000"]} />
         <CustomCamera />
