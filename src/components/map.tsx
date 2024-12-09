@@ -1,10 +1,8 @@
 "use client";
 
 import { useGLTF } from "@react-three/drei";
-
-import { CameraStateKeys } from "@/store/app-store";
 import { useAssets } from "./assets-provider";
-import { useMemo } from "react";
+import { memo, useEffect, useState } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import { Mesh, Object3D, Object3DEventMap } from "three";
@@ -17,37 +15,47 @@ type GLTFResult = GLTF & {
   };
 };
 
-interface MapProps {
-  handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
-}
+export const Map = memo(InnerMap);
 
-export const Map = ({ handleNavigation }: MapProps) => {
+function InnerMap() {
   const { map } = useAssets();
 
   const { scene } = useGLTF(map) as unknown as GLTFResult;
 
-  const traversedScene = useMemo(() => {
-    const routingNodes: Object3D<Object3DEventMap>[] = [];
+  const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
+    null,
+  );
 
-    scene.traverse((child) => {
-      if (CLICKABLE_NODES.some((node) => node.name === child.name)) {
-        routingNodes.push(child);
+  const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({});
+
+  useEffect(() => {
+    setMainScene(scene);
+
+    const routingNodes: Record<string, Mesh> = {};
+
+    CLICKABLE_NODES.forEach((node) => {
+      const child = scene.getObjectByName(`${node.name}_Hover`);
+
+      if (child) {
+        child.removeFromParent();
+        routingNodes[node.name] = child as Mesh;
       }
     });
 
-    return { scene, routingNodes };
+    setRoutingNodes((current) => ({
+      ...current,
+      ...routingNodes,
+    }));
   }, [scene]);
 
+  if (!mainScene) return null;
+
   return (
-    <group dispose={null}>
-      <primitive object={traversedScene.scene} />
-      {traversedScene.routingNodes.map((node) => (
-        <RoutingElement
-          key={node.name}
-          node={node}
-          handleNavigation={handleNavigation}
-        />
+    <group>
+      <primitive object={mainScene} />
+      {Object.values(routingNodes).map((node) => (
+        <RoutingElement key={node.name} node={node} />
       ))}
     </group>
   );
-};
+}
