@@ -3,9 +3,11 @@
 import { Canvas } from "@react-three/fiber";
 import { CustomCamera } from "@/components/camera-controls";
 import { Environment } from "@react-three/drei";
-import { Map } from "./map";
+import { Map } from "@/components/map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
+import { Inspectables } from "@/components/inspectables/inspectables";
+import { InspectableModal } from "./inspectables/inspectable-modal";
 
 interface SceneProps {
   className?: string;
@@ -26,6 +28,7 @@ export const Scene = ({ className }: SceneProps) => {
         <color attach="background" args={["#000"]} />
         <CustomCamera />
         <Map handleNavigation={handleNavigation} />
+        <Inspectables />
         <Environment preset="studio" />
       </Canvas>
       <div
@@ -40,6 +43,7 @@ export const Scene = ({ className }: SceneProps) => {
       >
         <p>MENU</p>
       </div>
+      <InspectableModal />
     </div>
   );
 };

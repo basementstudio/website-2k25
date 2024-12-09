@@ -7,9 +7,9 @@ export interface AssetsResult {
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
-  const { threeDInteractions } = await basehub({
-    next: { revalidate: 30 },
-  }).query(assetsQuery);
+  "use cache";
+
+  const { threeDInteractions } = await basehub().query(assetsQuery);
 
   return {
     map: threeDInteractions.map?.file?.url ?? "",
