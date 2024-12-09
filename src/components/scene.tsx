@@ -1,11 +1,9 @@
 "use client";
+
 import { Canvas } from "@react-three/fiber";
 import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
-import { MapWire } from "./map-wire";
-import { CustomCamera } from "./camera-controls";
-import { Perf } from "r3f-perf";
 
 export const Scene = () => {
   const router = useRouter();
@@ -17,13 +15,11 @@ export const Scene = () => {
   };
 
   return (
-    <div className="h-screen w-full">
-      <Canvas>
+    <div className={className}>
+      <Canvas gl={{ antialias: true, alpha: false }}>
         <color attach="background" args={["#000"]} />
         <Map handleNavigation={handleNavigation} />
-        <MapWire />
-        <CustomCamera />
-        <Perf position="bottom-right" />
+        <Environment preset="sunset" />
       </Canvas>
       <div
         className="absolute left-6 top-6 cursor-pointer bg-white p-2"
