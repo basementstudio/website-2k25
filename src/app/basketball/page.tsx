@@ -1,13 +1,7 @@
-const BasketballPage = () => {
-  return (
-    <div className="relative h-screen w-full bg-black">
-      <div className="absolute -top-[100px] left-0 h-[100px] w-full bg-black">
-        <h1 className="pt-3 text-center text-6xl font-bold text-white">
-          BASKETBALL
-        </h1>
-      </div>
-    </div>
-  );
-};
+const Basketball = () => (
+  <main className="relative -mt-24 min-h-96 w-full bg-brand-k px-4 pt-2">
+    <h1 className="text-heading uppercase text-brand-w2">Basketball</h1>
+  </main>
+);
 
-export default BasketballPage;
+export default Basketball;
