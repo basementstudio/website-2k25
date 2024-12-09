@@ -6,6 +6,7 @@ import { Environment } from "@react-three/drei";
 import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
+import { useCallback } from "react";
 
 interface SceneProps {
   className?: string;
@@ -15,10 +16,13 @@ export const Scene = ({ className }: SceneProps) => {
   const router = useRouter();
   const setCameraState = useCameraStore((state) => state.setCameraState);
 
-  const handleNavigation = (route: string, cameraState: CameraStateKeys) => {
-    setCameraState(cameraState);
-    router.push(route);
-  };
+  const handleNavigation = useCallback(
+    (route: string, cameraState: CameraStateKeys) => {
+      setCameraState(cameraState);
+      router.push(route);
+    },
+    [router, setCameraState],
+  );
 
   return (
     <div className={className}>
