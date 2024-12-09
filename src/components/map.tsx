@@ -44,7 +44,7 @@ export const Map = ({ handleNavigation }: MapProps) => {
     });
 
     return { scene: clonedScene, removedNodes };
-  }, [scene]);
+  }, []);
 
   return (
     <group dispose={null}>
