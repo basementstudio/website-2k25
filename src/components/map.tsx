@@ -3,10 +3,13 @@
 "use client";
 
 import { useGLTF } from "@react-three/drei";
-import { Mesh } from "three";
+import { Mesh, Object3D, Object3DEventMap } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
-import { useRouter } from "next/navigation";
 import { CameraStateKeys } from "@/store/app-store";
+import { useAssets } from "./assets-provider";
+import { useMemo } from "react";
+import { CLICKABLE_NODES } from "@/constants/clickable-elements";
+import { RoutingElement } from "./routing-element";
 
 type GLTFResult = GLTF & {
   nodes: {
