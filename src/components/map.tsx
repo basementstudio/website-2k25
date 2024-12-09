@@ -22,7 +22,6 @@ interface MapProps {
 
 export const Map = ({ handleNavigation }: MapProps) => {
   const { map } = useAssets();
-
   const { scene } = useGLTF(map) as unknown as GLTFResult;
 
   const traversedScene = useMemo(() => {
@@ -39,10 +38,8 @@ export const Map = ({ handleNavigation }: MapProps) => {
         meshChild.material = newMaterial;
       }
 
-      // Remove clickable nodes
       if (CLICKABLE_NODES.some((node) => node.name === child.name)) {
         removedNodes.push(child);
-        
       }
     });
 

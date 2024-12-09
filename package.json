@@ -6,6 +6,7 @@
     "dev": "basehub dev & next dev",
     "build": "basehub && next build",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
+    "prettier": "prettier --write .",
     "start": "next start",
     "lint": "next lint"
   },

@@ -26,7 +26,7 @@ export const Scene = ({ className }: SceneProps) => {
       <Canvas gl={{ antialias: true, alpha: false }}>
         <color attach="background" args={["#000"]} />
         <CustomCamera />
-        <MapWire/>
+        <MapWire />
         <Map handleNavigation={handleNavigation} />
         <Environment preset="studio" />
       </Canvas>
