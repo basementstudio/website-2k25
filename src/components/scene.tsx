@@ -26,10 +26,10 @@ export const Scene = ({ className }: SceneProps) => {
 
   return (
     <div className={className}>
-      <Canvas gl={{ antialias: true, alpha: false }}>
+      <Canvas gl={{ antialias: true, alpha: false }} camera={{ fov: 45 }}>
         <color attach="background" args={["#000"]} />
         <CustomCamera />
-        <Map handleNavigation={handleNavigation} />
+        <Map />
         <Environment preset="studio" />
       </Canvas>
       <div
