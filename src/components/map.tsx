@@ -1,17 +1,16 @@
 "use client";
 
-"use client";
-
 import { useGLTF } from "@react-three/drei";
-import { Mesh, Object3D, Object3DEventMap } from "three";
+import { Mesh, MeshStandardMaterial, Object3D } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import { CameraStateKeys } from "@/store/app-store";
 import { useAssets } from "./assets-provider";
 import { useMemo } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { RoutingElement } from "./routing-element";
+import { createShaderMaterial } from "@/shaders/custom-shader-material";
 
-type GLTFResult = GLTF & {
+export type GLTFResult = GLTF & {
   nodes: {
     [key: string]: Mesh;
   };
@@ -27,21 +26,33 @@ export const Map = ({ handleNavigation }: MapProps) => {
   const { scene } = useGLTF(map) as unknown as GLTFResult;
 
   const traversedScene = useMemo(() => {
-    const routingNodes: Object3D<Object3DEventMap>[] = [];
+    const removedNodes: Object3D[] = [];
+    const clonedScene = scene.clone(true);
 
-    scene.traverse((child) => {
+    clonedScene.traverse((child) => {
+      if ("isMesh" in child) {
+        const meshChild = child as Mesh;
+        const newMaterial = createShaderMaterial(
+          meshChild.material as MeshStandardMaterial,
+          false,
+        );
+        meshChild.material = newMaterial;
+      }
+
+      // Remove clickable nodes
       if (CLICKABLE_NODES.some((node) => node.name === child.name)) {
-        routingNodes.push(child);
+        removedNodes.push(child);
+        
       }
     });
 
-    return { scene, routingNodes };
+    return { scene: clonedScene, removedNodes };
   }, [scene]);
 
   return (
     <group dispose={null}>
       <primitive object={traversedScene.scene} />
-      {traversedScene.routingNodes.map((node) => (
+      {traversedScene.removedNodes.map((node) => (
         <RoutingElement
           key={node.name}
           node={node}
