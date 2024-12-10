@@ -42,7 +42,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     brightness,
   } = useControls({
     enableShader: { value: true },
-    pixelSize: { value: 1, min: 1, max: 16, step: 0.5 },
+    pixelSize: { value: 1, min: 0.1, max: 16, step: 0.1 },
     colorNum: { value: 6, min: 2, max: 32, step: 0.5 },
     bayerSize: {
       value: 8,
@@ -50,6 +50,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         "2x2": 2,
         "4x4": 4,
         "8x8": 8,
+        "16x16": 16,
       },
     },
     tolerance: { value: 0.25, min: 0, max: 0.5, step: 0.01 },
