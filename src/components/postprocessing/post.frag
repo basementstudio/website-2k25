@@ -10,6 +10,8 @@ uniform int uBayerSize;
 uniform bool uEnableShader;
 uniform float uTolerance;
 uniform float uBrightness;
+uniform bool uPreserveColors;
+uniform int uDitherPattern;
 
 varying vec2 vUv;
 
@@ -57,14 +59,45 @@ const float bayerMatrix16x16[256] = float[256](
     170.0/256.0, 106.0/256.0, 154.0/256.0, 90.0/256.0,  166.0/256.0, 102.0/256.0, 150.0/256.0, 86.0/256.0,  169.0/256.0, 105.0/256.0, 153.0/256.0, 89.0/256.0,  165.0/256.0, 101.0/256.0, 149.0/256.0, 85.0/256.0
 );
 
+const mat4x4 crossHatchMatrix = mat4x4(
+    15.0, 7.0, 13.0, 5.0,
+    3.0, 11.0, 1.0, 9.0,
+    12.0, 4.0, 14.0, 6.0,
+    0.0, 8.0, 2.0, 10.0
+) / 16.0;
+
+float getDitherValue(vec2 uv) {
+    int x = int(mod(uv.x * screenSize.x, 4.0));
+    int y = int(mod(uv.y * screenSize.y, 4.0));
+    
+    if (uDitherPattern == 1) {
+        // crosshatch pattern
+        return crossHatchMatrix[y][x];
+    } else {
+        // bayer pattern
+        x = int(mod(uv.x * screenSize.x, 16.0));
+        y = int(mod(uv.y * screenSize.y, 16.0));
+        return bayerMatrix16x16[y * 16 + x];
+    }
+}
+
 vec3 dither(vec2 uv, vec3 color) {
-    float threshold;
+    float threshold = getDitherValue(uv);
     
-    int x = int(mod(uv.x * screenSize.x, 16.0));
-    int y = int(mod(uv.y * screenSize.y, 16.0));
-    threshold = bayerMatrix16x16[y * 16 + x];
-    
-    color.rgb += (threshold - 0.5) * uTolerance; 
+    if (uPreserveColors) {
+        // Color-preserving dithering
+        float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+        if (luminance > 0.0) {
+            // original color ratios
+            vec3 colorRatio = color.rgb / luminance;
+            
+            float ditheredLuminance = luminance + (threshold - 0.5) * uTolerance;
+            
+            color.rgb = colorRatio * ditheredLuminance;
+        }
+    } else {
+        color.rgb += (threshold - 0.5) * uTolerance;
+    }
     
     // rgb quant
     vec3 scaled = color.rgb * (uColorNum - 1.0);

@@ -25,6 +25,8 @@ const material = new ShaderMaterial({
     uBayerSize: { value: 4 },
     uTolerance: { value: 0.01 },
     uBrightness: { value: 1.0 },
+    uPreserveColors: { value: false },
+    uDitherPattern: { value: 0 },
   },
 });
 
@@ -40,6 +42,8 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     enableShader,
     tolerance,
     brightness,
+    ditherPattern,
+    preserveColors,
   } = useControls({
     enableShader: { value: true },
     pixelSize: { value: 1, min: 0.1, max: 16, step: 0.1 },
@@ -55,6 +59,18 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     },
     tolerance: { value: 0.25, min: 0, max: 0.5, step: 0.01 },
     brightness: { value: 0.8, min: 0, max: 2, step: 0.01 },
+    ditherPattern: {
+      value: 0,
+      options: {
+        Bayer: 0,
+        CrossHatch: 1,
+      },
+      label: "Dither Pattern",
+    },
+    preserveColors: {
+      value: false,
+      label: "Preserve Colors",
+    },
   });
 
   useEffect(() => {
@@ -80,6 +96,9 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     material.uniforms.uBayerSize.value = bayerSize;
     material.uniforms.uTolerance.value = tolerance;
     material.uniforms.uBrightness.value = brightness;
+    material.uniforms.uPreserveColors.value = preserveColors;
+    material.uniforms.uDitherPattern.value = ditherPattern;
+
     return () => {
       controller.abort();
     };
@@ -91,6 +110,8 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     bayerSize,
     tolerance,
     brightness,
+    preserveColors,
+    ditherPattern,
   ]);
 
   return (
