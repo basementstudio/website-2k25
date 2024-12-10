@@ -36,12 +36,6 @@ export const Scene = ({ className }: SceneProps) => {
             </>
           }
         />
-
-        {/* <>
-          <CustomCamera />
-          <Map handleNavigation={handleNavigation} />
-          <Environment preset="studio" />
-        </> */}
       </Canvas>
       <div
         className="absolute left-6 top-6 cursor-pointer bg-white p-2"
