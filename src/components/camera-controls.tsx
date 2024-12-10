@@ -7,6 +7,7 @@ import { CAMERA_STATES } from "@/constants/camera-states";
 import { usePathname } from "next/navigation";
 import { cameraAnimationConfig } from "@/utils/animations";
 import { animate } from "motion";
+import { BASE_SHADER_MATERIAL_NAME } from "@/shaders/custom-shader-material";
 
 const PATHNAME_MAP: Record<string, string> = {
   "/": "home",
@@ -35,7 +36,7 @@ export const CustomCamera = () => {
           const materialChild = child as Mesh | LineSegments;
           if (
             materialChild.material instanceof ShaderMaterial &&
-            materialChild.material.name === "reveal-solid-shader"
+            materialChild.material.name === BASE_SHADER_MATERIAL_NAME
           ) {
             animate(start, end, {
               duration: 1.5,
