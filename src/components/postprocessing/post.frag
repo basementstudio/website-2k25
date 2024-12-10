@@ -8,20 +8,22 @@ uniform float uPixelSize;
 uniform float uColorNum;
 uniform int uBayerSize;
 uniform bool uEnableShader;
+uniform float uTolerance;
 
 varying vec2 vUv;
 
-const float bayerMatrix2x2[4] = float[4](
-    0.0/4.0, 2.0/4.0,
-    3.0/4.0, 1.0/4.0
-);
 
-const float bayerMatrix4x4[16] = float[16](
-    0.0/16.0,  8.0/16.0,  2.0/16.0, 10.0/16.0,
-    12.0/16.0, 4.0/16.0, 14.0/16.0,  6.0/16.0,
-    3.0/16.0, 11.0/16.0,  1.0/16.0,  9.0/16.0,
-    15.0/16.0, 7.0/16.0, 13.0/16.0,  5.0/16.0
-);
+const mat2x2 bayerMatrix2x2 = mat2x2(
+    0.0, 2.0,
+    3.0, 1.0
+) / 4.0;
+
+const mat4x4 bayerMatrix4x4 = mat4x4(
+    0.0,  8.0,  2.0, 10.0,
+    12.0, 4.0,  14.0, 6.0,
+    3.0,  11.0, 1.0, 9.0,
+    15.0, 7.0,  13.0, 5.0
+) / 16.0;
 
 const float bayerMatrix8x8[64] = float[64](
     0.0/ 64.0, 48.0/ 64.0, 12.0/ 64.0, 60.0/ 64.0,  3.0/ 64.0, 51.0/ 64.0, 15.0/ 64.0, 63.0/ 64.0,
@@ -34,23 +36,46 @@ const float bayerMatrix8x8[64] = float[64](
   42.0/ 64.0, 26.0/ 64.0, 38.0/ 64.0, 22.0/ 64.0, 41.0/ 64.0, 25.0/ 64.0, 37.0/ 64.0, 21.0 / 64.0
 );
 
+
 vec3 dither(vec2 uv, vec3 color) {
+    // Calculate luminance of the color
+    float luminance = dot(color, vec3(0.299, 0.587, 0.114));
+    
+    // Calculate color variance (how much the colors differ from each other)
+    float colorVariance = max(max(abs(color.r - color.g), abs(color.g - color.b)), abs(color.r - color.b));
+    
+    // Check if we're dealing with a gradient (similar colors but different brightness)
+    bool isGradient = colorVariance < uTolerance && luminance > uTolerance;
+    
+    if (isGradient) {
+        // For gradients, just quantize without dithering
+        color.r = floor(color.r * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
+        color.g = floor(color.g * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
+        color.b = floor(color.b * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
+        return color;
+    }
+
+    // Get threshold from bayer matrix
     float threshold;
     if (uBayerSize == 2) {
         int x = int(uv.x * screenSize.x) % 2;
         int y = int(uv.y * screenSize.y) % 2;
-        threshold = bayerMatrix2x2[y * 2 + x];
+        threshold = bayerMatrix2x2[y][x];
     } else if (uBayerSize == 4) {
         int x = int(uv.x * screenSize.x) % 4;
         int y = int(uv.y * screenSize.y) % 4;
-        threshold = bayerMatrix4x4[y * 4 + x];
+        threshold = bayerMatrix4x4[y][x];
     } else {
         int x = int(uv.x * screenSize.x) % 8;
         int y = int(uv.y * screenSize.y) % 8;
         threshold = bayerMatrix8x8[y * 8 + x];
     }
 
-    color.rgb += threshold * 0.6;
+    // Apply dithering with reduced intensity for subtle variations
+    float ditherIntensity = mix(0.3, 0.6, colorVariance);
+    color.rgb += threshold * ditherIntensity;
+    
+    // Quantize the result
     color.r = floor(color.r * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
     color.g = floor(color.g * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
     color.b = floor(color.b * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);

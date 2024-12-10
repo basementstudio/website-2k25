@@ -23,6 +23,7 @@ const material = new ShaderMaterial({
     uPixelSize: { value: 1.0 },
     uColorNum: { value: 4.0 },
     uBayerSize: { value: 8 },
+    uTolerance: { value: 0.01 },
   },
 });
 
@@ -31,18 +32,20 @@ const calculateFov = (z: number) => {
 };
 
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
-  const { pixelSize, colorNum, bayerSize, enableShader } = useControls({
-    enableShader: { value: true },
-    pixelSize: { value: 1, min: 1, max: 16, step: 0.5 },
-    colorNum: { value: 4, min: 2, max: 32, step: 0.5 },
-    bayerSize: {
-      options: {
-        "2x2": 2,
-        "4x4": 4,
-        "8x8": 8,
+  const { pixelSize, colorNum, bayerSize, enableShader, tolerance } =
+    useControls({
+      enableShader: { value: true },
+      pixelSize: { value: 1, min: 1, max: 16, step: 0.5 },
+      colorNum: { value: 4, min: 2, max: 32, step: 0.5 },
+      bayerSize: {
+        options: {
+          "2x2": 2,
+          "4x4": 4,
+          "8x8": 8,
+        },
       },
-    },
-  });
+      tolerance: { value: 0.05, min: 0, max: 0.5, step: 0.01 },
+    });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -65,11 +68,11 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     material.uniforms.uPixelSize.value = pixelSize;
     material.uniforms.uColorNum.value = colorNum;
     material.uniforms.uBayerSize.value = bayerSize;
-
+    material.uniforms.uTolerance.value = tolerance;
     return () => {
       controller.abort();
     };
-  }, [mainTexture, enableShader, pixelSize, colorNum, bayerSize]);
+  }, [mainTexture, enableShader, pixelSize, colorNum, bayerSize, tolerance]);
 
   return (
     <>
