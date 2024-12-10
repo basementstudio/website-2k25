@@ -48,7 +48,7 @@ export const ArcadeScreen = () => {
 
    const virtualScene = useMemo(() => {
         const scene = new Scene()
-        scene.background = new Color('orange')
+        scene.background = new Color('#FF4D00')
         return scene
     }, [])
 

@@ -15,13 +15,29 @@ export const ScreenUI = ({ dimensions = new Vector2(512, 512) }: ScreenUIProps) 
   
   return (
     <>
-      <Root 
-        backgroundColor="red" 
+      <Root
         transformScaleY={-1}
         flexDirection="row"
       >
-        <Container backgroundColor="orange" width={"100%"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
-          <Text>BASEMENT LAB</Text>
+        <Container backgroundColor="#000" width={"100%"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+          <Text color="#fff"
+            onPointerOver={() => {
+              console.log( "over" )
+              document.body.style.cursor = 'pointer'
+            }}
+            onPointerOut={() => {
+              document.body.style.cursor = 'default'
+            }}
+            onClick={() => {
+              console.log("click")
+              window.open(
+                `https://basement.studio/lab`,
+                '_blank'
+              );  
+            }}
+          >
+            BASEMENT LAB
+          </Text>
         </Container>
       </Root>
     </>
