@@ -26,6 +26,8 @@ export function Renderer({ sceneChildren }: RendererProps) {
     (state) => state.postProcessingCamera,
   );
 
+  const sceneCamera = useCameraStore((state) => state.cameraConfig);
+
   useEffect(() => {
     const resizeCallback = () => {
       mainTarget.setSize(window.innerWidth, window.innerHeight);
@@ -35,18 +37,14 @@ export function Renderer({ sceneChildren }: RendererProps) {
     return () => window.removeEventListener("resize", resizeCallback);
   }, [mainTarget, ditheringTarget]);
 
-  useFrame(({ gl, camera }) => {
-    if (!postProcessingCamera) return;
+  useFrame(({ gl }) => {
+    if (!sceneCamera || !postProcessingCamera) return;
 
-    // Render main scene with main camera
     gl.setRenderTarget(mainTarget);
-    gl.render(mainScene, camera);
-
-    // Render dithering scene with main camera
+    // @ts-expect-error, TODO: must type this
+    gl.render(mainScene, sceneCamera);
     gl.setRenderTarget(ditheringTarget);
-    gl.render(ditheringScene, camera);
-
-    // Final composite with post-processing camera
+    gl.render(ditheringScene, postProcessingCamera);
     gl.setRenderTarget(null);
     gl.render(postProcessingScene, postProcessingCamera);
   }, 1);

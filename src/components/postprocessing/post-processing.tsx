@@ -24,9 +24,9 @@ const material = new ShaderMaterial({
   },
 });
 
-// const calculateFov = (z: number) => {
-//   return Math.atan(1 / z) * (180 / Math.PI);
-// };
+const calculateFov = (z: number) => {
+  return Math.atan(1 / z) * (180 / Math.PI);
+};
 
 export function PostProcessing({
   mainTexture,
@@ -65,17 +65,15 @@ export function PostProcessing({
     <>
       <PerspectiveCamera
         manual
-        position={[0, 0, 1]}
-        aspect={window.innerWidth / window.innerHeight}
-        fov={45}
-        near={0.1}
-        far={2}
+        position={[0, 0, 10]}
+        aspect={1}
+        fov={calculateFov(10)}
         ref={(r) => {
           if (r) useCameraStore.setState({ postProcessingCamera: r });
         }}
       />
-      <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[2, 2]} />
+      <mesh>
+        <planeGeometry args={[1, 1]} />
         <primitive object={material} attach="material" />
       </mesh>
     </>
