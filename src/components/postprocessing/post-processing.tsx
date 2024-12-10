@@ -21,8 +21,8 @@ const material = new ShaderMaterial({
     screenSize: { value: new Vector2(1, 1) },
     dpr: { value: 1 },
     uPixelSize: { value: 1.0 },
-    uColorNum: { value: 4.0 },
-    uBayerSize: { value: 8 },
+    uColorNum: { value: 6.0 },
+    uBayerSize: { value: 4 },
     uTolerance: { value: 0.01 },
   },
 });
