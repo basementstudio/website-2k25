@@ -33,4 +33,4 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [16, 14, -5],
     target: [7, 1.6, -16],
   },
-} as const;
+};
