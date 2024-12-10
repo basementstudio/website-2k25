@@ -7,6 +7,7 @@ import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
 import { Renderer } from "./postprocessing/renderer";
+import { Leva } from "leva";
 
 interface SceneProps {
   className?: string;
@@ -23,6 +24,7 @@ export const Scene = ({ className }: SceneProps) => {
 
   return (
     <div className={className}>
+      <Leva />
       <Canvas gl={{ antialias: true, alpha: false }}>
         <color attach="background" args={["#000"]} />
         <Renderer
@@ -34,6 +36,12 @@ export const Scene = ({ className }: SceneProps) => {
             </>
           }
         />
+
+        {/* <>
+          <CustomCamera />
+          <Map handleNavigation={handleNavigation} />
+          <Environment preset="studio" />
+        </> */}
       </Canvas>
       <div
         className="absolute left-6 top-6 cursor-pointer bg-white p-2"

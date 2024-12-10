@@ -1,6 +1,7 @@
 import { useCameraStore } from "@/store/app-store";
 import { PerspectiveCamera } from "@react-three/drei";
 import { ShaderMaterial, Vector2, Texture } from "three";
+import { useControls } from "leva";
 
 import postVert from "./post.vert";
 import postFrag from "./post.frag";
@@ -15,11 +16,13 @@ const material = new ShaderMaterial({
   fragmentShader: postFrag,
   uniforms: {
     uMainTexture: { value: null },
-    uDitheringTexture: { value: null },
-    uDisablePostprocessing: { value: false },
+    uEnableShader: { value: true },
     aspect: { value: 1 },
     screenSize: { value: new Vector2(1, 1) },
     dpr: { value: 1 },
+    uPixelSize: { value: 1.0 },
+    uColorNum: { value: 4.0 },
+    uBayerSize: { value: 8 },
   },
 });
 
@@ -28,9 +31,18 @@ const calculateFov = (z: number) => {
 };
 
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
-  const disablePostprocessing = useCameraStore(
-    (state) => state.disablePostprocessing,
-  );
+  const { pixelSize, colorNum, bayerSize, enableShader } = useControls({
+    enableShader: { value: true },
+    pixelSize: { value: 1, min: 1, max: 16, step: 0.5 },
+    colorNum: { value: 4, min: 2, max: 32, step: 0.5 },
+    bayerSize: {
+      options: {
+        "2x2": 2,
+        "4x4": 4,
+        "8x8": 8,
+      },
+    },
+  });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -49,12 +61,15 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     window.addEventListener("resize", resize, { signal });
 
     material.uniforms.uMainTexture.value = mainTexture;
-    material.uniforms.uDisablePostprocessing.value = disablePostprocessing;
+    material.uniforms.uEnableShader.value = enableShader;
+    material.uniforms.uPixelSize.value = pixelSize;
+    material.uniforms.uColorNum.value = colorNum;
+    material.uniforms.uBayerSize.value = bayerSize;
 
     return () => {
       controller.abort();
     };
-  }, [mainTexture, disablePostprocessing]);
+  }, [mainTexture, enableShader, pixelSize, colorNum, bayerSize]);
 
   return (
     <>
