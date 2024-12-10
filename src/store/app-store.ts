@@ -22,7 +22,9 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
 export const useCameraStore = create<{
   cameraState: CameraStateKeys;
   cameraConfig: CameraState;
+  camera: PerspectiveCamera | null;
   setCameraState: (state: CameraStateKeys) => void;
+  setCamera: (camera: PerspectiveCamera) => void;
   updateCameraFromPathname: (pathname: string) => void;
   // dithering states
   postProcessingCamera: PerspectiveCamera | null;
@@ -31,6 +33,8 @@ export const useCameraStore = create<{
 }>((set, get) => ({
   cameraState: "home",
   cameraConfig: CAMERA_STATES.home,
+  camera: null,
+  setCamera: (camera) => set({ camera }),
   setCameraState: (state) => {
     if (state === get().cameraState) return;
     set({ cameraState: state, cameraConfig: CAMERA_STATES[state] });

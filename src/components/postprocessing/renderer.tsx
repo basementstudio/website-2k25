@@ -19,14 +19,12 @@ export function Renderer({ sceneChildren }: RendererProps) {
   );
 
   const mainScene = useMemo(() => new Scene(), []);
-  const ditheringScene = useMemo(() => new Scene(), []);
   const postProcessingScene = useMemo(() => new Scene(), []);
 
+  const sceneCamera = useCameraStore((state) => state.camera);
   const postProcessingCamera = useCameraStore(
     (state) => state.postProcessingCamera,
   );
-
-  const sceneCamera = useCameraStore((state) => state.cameraConfig);
 
   useEffect(() => {
     const resizeCallback = () => {
@@ -41,10 +39,9 @@ export function Renderer({ sceneChildren }: RendererProps) {
     if (!sceneCamera || !postProcessingCamera) return;
 
     gl.setRenderTarget(mainTarget);
-    // @ts-expect-error, TODO: must type this
+    // save render on main target
     gl.render(mainScene, sceneCamera);
-    gl.setRenderTarget(ditheringTarget);
-    gl.render(ditheringScene, postProcessingCamera);
+
     gl.setRenderTarget(null);
     gl.render(postProcessingScene, postProcessingCamera);
   }, 1);
@@ -52,12 +49,9 @@ export function Renderer({ sceneChildren }: RendererProps) {
   return (
     <>
       {createPortal(sceneChildren, mainScene)}
-      {createPortal(sceneChildren, ditheringScene)}
+
       {createPortal(
-        <PostProcessing
-          mainTexture={mainTarget.texture}
-          ditheringTexture={ditheringTarget.texture}
-        />,
+        <PostProcessing mainTexture={mainTarget.texture} />,
         postProcessingScene,
       )}
     </>

@@ -1,7 +1,7 @@
 import { CameraControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
-import { Vector3 } from "three";
+import { PerspectiveCamera, Vector3 } from "three";
 import { CameraState, useCameraStore } from "@/store/app-store";
 import { CAMERA_STATES } from "@/constants/camera-states";
 import { usePathname } from "next/navigation";
@@ -87,6 +87,14 @@ export const CustomCamera = () => {
       animationConfig.progress = 0;
     }
   });
+
+  useEffect(() => {
+    if (cameraControlsRef.current) {
+      useCameraStore
+        .getState()
+        .setCamera(cameraControlsRef.current.camera as PerspectiveCamera);
+    }
+  }, []);
 
   return <CameraControls makeDefault ref={cameraControlsRef} />;
 };

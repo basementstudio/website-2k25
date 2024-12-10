@@ -8,7 +8,6 @@ import { useEffect } from "react";
 
 interface PostProcessingProps {
   mainTexture: Texture;
-  ditheringTexture: Texture;
 }
 
 const material = new ShaderMaterial({
@@ -28,10 +27,7 @@ const calculateFov = (z: number) => {
   return Math.atan(1 / z) * (180 / Math.PI);
 };
 
-export function PostProcessing({
-  mainTexture,
-  ditheringTexture,
-}: PostProcessingProps) {
+export function PostProcessing({ mainTexture }: PostProcessingProps) {
   const disablePostprocessing = useCameraStore(
     (state) => state.disablePostprocessing,
   );
@@ -53,13 +49,12 @@ export function PostProcessing({
     window.addEventListener("resize", resize, { signal });
 
     material.uniforms.uMainTexture.value = mainTexture;
-    material.uniforms.uDitheringTexture.value = ditheringTexture;
     material.uniforms.uDisablePostprocessing.value = disablePostprocessing;
 
     return () => {
       controller.abort();
     };
-  }, [mainTexture, ditheringTexture, disablePostprocessing]);
+  }, [mainTexture, disablePostprocessing]);
 
   return (
     <>
