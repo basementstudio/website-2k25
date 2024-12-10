@@ -12,7 +12,7 @@ const LABS_DATA = [
   {
     title: 'Instanced grass',
     description: 'Instanced grass',
-    image: basement,
+    image:  "",
     contributors: ['/git-chad'],
     link: 'https://lab.basement.studio/experiments/77.instanced-grass',
   },
@@ -20,14 +20,14 @@ const LABS_DATA = [
     title: 'Shader matcap transition',
     description:
       'Animate transition between matcap texture and shader based on scroll.',
-    image: basement,
+    image:  "",
     contributors: ['/tomasferrerasdev', '/matiasngf'],
     link: 'https://lab.basement.studio/experiments/75.shader-matcap-transition.tsx',
   },
   {
     title: 'Butterfly Particle Sphere',
     description: `This example is based on this other example to show how splines can be used to create a camera rail. The camera will follow the curve and rotate to face the tangent's direction of the current point in the curve. It also modifies the target view in certain points of the curve to face other desired targets.`,
-    image: basement,
+    image:  "",
     contributors: ['/ignmandagaran'],
     link: 'https://lab.basement.studio/experiments/76.butterfly-particle-sphere',
   },
