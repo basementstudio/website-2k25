@@ -13,7 +13,6 @@ import { Leva } from "leva";
 import { useCallback } from "react";
 import { MapWire } from "./map-wire";
 
-
 interface SceneProps {
   className?: string;
 }
@@ -39,7 +38,7 @@ export const Scene = ({ className }: SceneProps) => {
           sceneChildren={
             <>
               <CustomCamera />
-              <Map handleNavigation={handleNavigation} />
+              <Map />
               <MapWire />
               <Environment preset="studio" />
             </>
