@@ -7,6 +7,7 @@ import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
 import { useCallback } from "react";
+import { MapWire } from "./map-wire";
 
 interface SceneProps {
   className?: string;
@@ -30,6 +31,7 @@ export const Scene = ({ className }: SceneProps) => {
         <color attach="background" args={["#000"]} />
         <CustomCamera />
         <Map />
+        <MapWire />
         <Environment preset="studio" />
       </Canvas>
       <div
