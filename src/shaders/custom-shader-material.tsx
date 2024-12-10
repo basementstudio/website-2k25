@@ -2,6 +2,8 @@ import { Color, DoubleSide, MeshStandardMaterial, ShaderMaterial } from "three";
 import vertexShader from "./vertex.glsl";
 import fragmentShader from "./fragment.glsl";
 
+export const BASE_SHADER_MATERIAL_NAME = "custom-shader-material";
+
 export const createShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
   reverse: boolean,
@@ -15,7 +17,7 @@ export const createShaderMaterial = (
   const emissiveColor = new Color("#FF4D00").multiplyScalar(9);
 
   const material = new ShaderMaterial({
-    name: "reveal-solid-shader",
+    name: BASE_SHADER_MATERIAL_NAME,
     uniforms: {
       uColor: { value: emissiveColor },
       uProgress: { value: 0.0 },
@@ -27,12 +29,10 @@ export const createShaderMaterial = (
     },
     vertexShader,
     fragmentShader,
-    transparent: true,
-    side: DoubleSide,
   });
 
   material.needsUpdate = true;
-  material.customProgramCacheKey = () => "reveal-solid-shader";
+  material.customProgramCacheKey = () => BASE_SHADER_MATERIAL_NAME;
 
   return material;
 };

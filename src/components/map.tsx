@@ -1,14 +1,16 @@
 "use client";
 
 import { useGLTF } from "@react-three/drei";
-import { Mesh, MeshStandardMaterial, Object3D } from "three";
-import { GLTF } from "three/examples/jsm/Addons.js";
-import { CameraStateKeys } from "@/store/app-store";
 import { useAssets } from "./assets-provider";
-import { useMemo } from "react";
+import { memo, useEffect, useState } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { RoutingElement } from "./routing-element";
-import { createShaderMaterial } from "@/shaders/custom-shader-material";
+import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three";
+import { GLTF } from "three/examples/jsm/Addons.js";
+import {
+  BASE_SHADER_MATERIAL_NAME,
+  createShaderMaterial,
+} from "@/shaders/custom-shader-material";
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -16,46 +18,63 @@ export type GLTFResult = GLTF & {
   };
 };
 
-interface MapProps {
-  handleNavigation: (route: string, cameraState: CameraStateKeys) => void;
-}
+export const Map = memo(InnerMap);
 
-export const Map = ({ handleNavigation }: MapProps) => {
+function InnerMap() {
   const { map } = useAssets();
   const { scene } = useGLTF(map) as unknown as GLTFResult;
 
-  const traversedScene = useMemo(() => {
-    const removedNodes: Object3D[] = [];
+  const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
+    null,
+  );
+
+  const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({});
+
+  useEffect(() => {
+    const routingNodes: Record<string, Mesh> = {};
     const clonedScene = scene.clone(true);
+    
+    
+
+    CLICKABLE_NODES.forEach((node) => {
+      const child = clonedScene.getObjectByName(`${node.name}`);
+
+      if (child) {
+        child.removeFromParent();
+        routingNodes[node.name] = child as Mesh;
+      }
+    });
 
     clonedScene.traverse((child) => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh;
-        const newMaterial = createShaderMaterial(
+
+        const nodeName = CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name;
+        if (!nodeName) {
+          const newMaterial = createShaderMaterial(
           meshChild.material as MeshStandardMaterial,
           false,
-        );
-        meshChild.material = newMaterial;
-      }
-
-      if (CLICKABLE_NODES.some((node) => node.name === child.name)) {
-        removedNodes.push(child);
+          );
+          meshChild.material = newMaterial;
+        }
       }
     });
+    setMainScene(clonedScene);
 
-    return { scene: clonedScene, removedNodes };
-  }, []);
+    setRoutingNodes((current) => ({
+      ...current,
+      ...routingNodes,
+    }));
+  }, [scene]);
+
+  if (!mainScene) return null;
 
   return (
-    <group dispose={null}>
-      <primitive object={traversedScene.scene} />
-      {traversedScene.removedNodes.map((node) => (
-        <RoutingElement
-          key={node.name}
-          node={node}
-          handleNavigation={handleNavigation}
-        />
+    <group>
+      <primitive object={mainScene} />
+      {Object.values(routingNodes).map((node) => (
+        <RoutingElement key={node.name} node={node} />
       ))}
     </group>
   );
-};
+}
