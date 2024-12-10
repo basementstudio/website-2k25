@@ -2,9 +2,9 @@
 
 import { useGLTF } from "@react-three/drei";
 import { GLTFResult } from "./map";
-import { Mesh, MeshStandardMaterial, ShaderMaterial } from "three";
+import { Mesh, MeshStandardMaterial } from "three";
 import { createShaderMaterial } from "@/shaders/custom-shader-material";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo} from "react";
 
 export const MapWire = memo(MapWireInner);
 
