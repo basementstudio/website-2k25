@@ -6,6 +6,7 @@ import { useMotionValue } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Group, Vector3, Quaternion, Matrix4, Box3 } from "three";
 import { useInspectable } from "./context";
+import { PresentationControls } from "./presentation-controls";
 
 interface InspectableProps {
   inspectable: {
@@ -17,6 +18,7 @@ interface InspectableProps {
 
 export const Inspectable = ({ inspectable }: InspectableProps) => {
   const { scene } = useGLTF(inspectable.url);
+  const { selected } = useInspectable();
 
   const memoizedScene = useMemo(() => scene.clone(), [scene]);
 
@@ -25,6 +27,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
   const [isInspecting, setIsInspecting] = useState(false);
 
   const ref = useRef<Group>(null);
+  const primitiveRef = useRef<Group>(null);
 
   const [size, setSize] = useState<Vector3>(new Vector3(0, 0, 0));
 
@@ -58,6 +61,14 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
       const direction = new Vector3();
       camera.getWorldDirection(direction);
 
+      const right = new Vector3(0, 1, 0).cross(direction).normalize();
+
+      // @ts-expect-error - camera.aspect is possible undefined
+      const viewportWidth = Math.min(camera.aspect, 1.855);
+      const xOffset = viewportWidth * 0.128;
+
+      direction.add(right.multiplyScalar(-xOffset));
+
       const targetPosition = isInspecting
         ? {
             x: camera.position.x + direction.x,
@@ -72,7 +83,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
       const maxDimension = Math.max(size.x, size.y, size.z);
 
-      const targetSize = 0.75;
+      const targetSize = 0.5;
 
       const targetScale = isInspecting ? targetSize / maxDimension : 1;
 
@@ -119,7 +130,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
         quaternion.set(currentQuaternion);
 
-        ref.current.quaternion.copy(currentQuaternion);
+        primitiveRef.current?.quaternion.copy(currentQuaternion);
       } else {
         const targetQuaternion = new Quaternion();
         const currentQuaternion = new Quaternion(
@@ -132,19 +143,41 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
         quaternion.set(currentQuaternion);
 
-        ref.current.quaternion.copy(currentQuaternion);
+        primitiveRef?.current?.quaternion.copy(currentQuaternion);
       }
     }
   });
 
+  useEffect(() => {
+    if (selected === inspectable.id) {
+      setIsInspecting(true);
+    } else {
+      setIsInspecting(false);
+    }
+  }, [selected]);
+
   return (
     <>
-      <group onClick={() => setIsInspecting(!isInspecting)} ref={ref}>
-        <primitive object={memoizedScene} />
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[size.x, size.y, size.z]} key={size.x} />
-          <meshBasicMaterial color="red" transparent opacity={0} />
-        </mesh>
+      <group onClick={() => setSelected(inspectable.id)} ref={ref}>
+        <PresentationControls
+          key={inspectable.id}
+          enabled={selected === inspectable.id}
+          global={false}
+          cursor={selected === inspectable.id}
+          snap={true}
+          speed={2}
+        >
+          <group ref={primitiveRef}>
+            <primitive object={memoizedScene} />
+            <mesh position={[0, 0, 0]}>
+              <boxGeometry
+                args={[size.x, size.y, size.z]}
+                key={memoizedScene.name}
+              />
+              <meshBasicMaterial transparent opacity={0} />
+            </mesh>
+          </group>
+        </PresentationControls>
       </group>
     </>
   );

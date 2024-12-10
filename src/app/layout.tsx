@@ -8,6 +8,8 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { cn } from "@/utils/cn";
 import { InspectableProvider } from "@/components/inspectables/context";
+import { Navbar } from "@/components/layout/navbar";
+import { InspectableModal } from "@/components/inspectables/inspectable-modal";
 
 export const metadata: Metadata = {
   title: {
@@ -31,8 +33,12 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body className={cn(geistSans.variable)}>
+            <Navbar />
             <CameraRouteHandler />
-            <Scene className="sticky top-0 h-screen w-full" />
+            <div className="sticky top-0 h-screen w-full">
+              <Scene />
+              <InspectableModal />
+            </div>
             {children}
           </body>
         </InspectableProvider>

@@ -4,8 +4,6 @@ const nextConfig: NextConfig = {
   experimental: {
     dynamicIO: true,
   },
-
-  /* config options here */
   webpack: (config) => {
     config.module.rules.push({
       test: /\.(glsl|vs|fs|vert|frag)$/,

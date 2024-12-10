@@ -3,7 +3,10 @@ import { assetsQuery } from "./query";
 
 export interface AssetsResult {
   map: string;
-  inspectables: string[];
+  inspectables: {
+    id: string;
+    url: string;
+  }[];
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -14,7 +17,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
   return {
     map: threeDInteractions.map?.file?.url ?? "",
     inspectables: threeDInteractions.inspectables.inspectableList.items.map(
-      (item) => item.model?.file?.url ?? "",
+      (item) => ({
+        id: item._id,
+        url: item.model?.file?.url ?? "",
+      }),
     ),
   };
 }
