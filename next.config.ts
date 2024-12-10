@@ -3,14 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     dynamicIO: true,
-  },
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(glsl|vs|fs|vert|frag)$/,
-      use: ["raw-loader", "glslify-loader"],
-    });
-
-    return config;
+    turbo: {
+      rules: {
+        "*.{glsl,vert,frag,vs,fs}": {
+          loaders: ["raw-loader", "glslify-loader"],
+          as: "*.js",
+        },
+      },
+    },
   },
 };
 
