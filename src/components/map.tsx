@@ -33,8 +33,6 @@ function InnerMap() {
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {};
     const clonedScene = scene.clone(true);
-    
-    
 
     CLICKABLE_NODES.forEach((node) => {
       const child = clonedScene.getObjectByName(`${node.name}`);
@@ -45,21 +43,32 @@ function InnerMap() {
       }
     });
 
+    // Replace materials
     clonedScene.traverse((child) => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh;
 
-        const nodeName = CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name;
-        if (!nodeName) {
-          const newMaterial = createShaderMaterial(
+        const ommitNode = Boolean(
+          CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name,
+        );
+        if (ommitNode) return;
+
+        const alreadyReplaced =
+          (meshChild.material as MeshStandardMaterial)?.name ===
+          BASE_SHADER_MATERIAL_NAME;
+
+        if (alreadyReplaced) return;
+
+        const newMaterial = createShaderMaterial(
           meshChild.material as MeshStandardMaterial,
           false,
-          );
-          meshChild.material = newMaterial;
-        }
+        );
+        meshChild.material = newMaterial;
       }
     });
     setMainScene(clonedScene);
+
+    // Split the routing nodes
 
     setRoutingNodes((current) => ({
       ...current,
