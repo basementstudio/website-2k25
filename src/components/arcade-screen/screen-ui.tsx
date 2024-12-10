@@ -44,14 +44,11 @@ export const ScreenUI = ({ dimensions = new Vector2(512, 512) }: ScreenUIProps) 
     <>
       <Root 
         backgroundColor="red" 
-        sizeX={2} 
-        sizeY={2 / aspect}
         transformScaleY={-1}
         flexDirection="row"
-        
       >
-        <Container backgroundColor="blue">
-          <Text>Basement Lab</Text>
+        <Container backgroundColor="orange" width={"100%"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+          <Text>BASEMENT LAB</Text>
         </Container>
       </Root>
     </>
