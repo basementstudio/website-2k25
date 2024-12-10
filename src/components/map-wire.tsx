@@ -10,19 +10,12 @@ export const MapWire = memo(MapWireInner);
 
 function MapWireInner() {
   const { nodes } = useGLTF("/models/map-wire.glb") as unknown as GLTFResult;
-  const [material, setMaterial] = useState<ShaderMaterial | null>(null);
-
-  useEffect(() => {
-    setMaterial(
-      createShaderMaterial(
-        (nodes.WireFrame_MeshCurveMesh as Mesh)
-          .material as MeshStandardMaterial,
-        true,
-      ),
+  const material = useMemo(() => {
+    return createShaderMaterial(
+      (nodes.WireFrame_MeshCurveMesh as Mesh).material as MeshStandardMaterial,
+      true,
     );
   }, [nodes.WireFrame_MeshCurveMesh]);
-
-  if (!material) return null;
 
   return (
     <group dispose={null} name="map-wire">
