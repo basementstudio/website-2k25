@@ -8,6 +8,7 @@ import { GLTF } from "three/examples/jsm/Addons.js";
 import { Mesh, Object3D, Object3DEventMap } from "three";
 import { Group } from "three/examples/jsm/libs/tween.module.js";
 import { RoutingElement } from "./routing-element";
+import { ArcadeScreen } from "./arcade-screen";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -53,6 +54,7 @@ function InnerMap() {
   return (
     <group>
       <primitive object={mainScene} />
+      <ArcadeScreen />
       {Object.values(routingNodes).map((node) => (
         <RoutingElement key={node.name} node={node} />
       ))}
