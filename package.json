@@ -14,6 +14,7 @@
     "@react-three/fiber": "9.0.0-rc.1",
     "basehub": "^7.5.28",
     "clsx": "^2.1.1",
+    "glslify": "^7.1.1",
     "next": "15.0.3",
     "next-sitemap": "^4.2.3",
     "r3f-perf": "^7.2.3",
@@ -30,9 +31,12 @@
     "@types/three": "^0.170.0",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
+    "glsl-constants": "^2.0.1",
+    "glslify-loader": "^2.0.0",
     "postcss": "^8",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.9",
+    "raw-loader": "^4.0.2",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
