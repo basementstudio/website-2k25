@@ -26,8 +26,8 @@
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "@types/three": "^0.170.0",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
