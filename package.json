@@ -12,6 +12,8 @@
   "dependencies": {
     "@react-three/drei": "^9.117.3",
     "@react-three/fiber": "9.0.0-rc.1",
+    "@react-three/uikit": "^0.8.4",
+    "@react-three/uikit-default": "^0.8.4",
     "basehub": "^7.5.28",
     "clsx": "^2.1.1",
     "next": "15.0.3",

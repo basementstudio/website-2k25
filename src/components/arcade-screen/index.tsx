@@ -2,12 +2,12 @@ import { useThree, createPortal, useFrame } from "@react-three/fiber"
 import { useEffect, useMemo } from "react"
 import { Color, Mesh } from "three"
 import { WebGLRenderTarget, Scene, OrthographicCamera, Vector2, Vector3, Box3, MeshBasicMaterial } from "three"
+import { ScreenUI } from "./screen-ui"
 
 export const ArcadeScreen = () => {
     const { scene } = useThree()
     const arcadeScreen = scene.getObjectByName("SM_ArcadeLab_Screen")
     
-    // Calculate screen dimensions
     const screenDimensions = useMemo(() => {
         if (!arcadeScreen) return new Vector2(512, 512)
         
@@ -26,10 +26,12 @@ export const ArcadeScreen = () => {
         return new WebGLRenderTarget(screenDimensions.x, screenDimensions.y)
     }, [screenDimensions])
 
-    const virtualCamera = useMemo(() => {
-        const aspect = screenDimensions.x / screenDimensions.y
-        return new OrthographicCamera(-1, 1, 1/aspect, -1/aspect, 0.1, 1000)
-    }, [screenDimensions])
+   const virtualCamera = useMemo(() => {
+    const aspect = screenDimensions.x / screenDimensions.y;
+    const camera = new OrthographicCamera(-1, 1, 1/aspect, -1/aspect, 0.1, 1000);
+    camera.position.z = 1; 
+    return camera;
+}, [screenDimensions]);
 
    const virtualScene = useMemo(() => {
         const scene = new Scene()
@@ -50,10 +52,7 @@ export const ArcadeScreen = () => {
     })
 
     return createPortal(
-         <mesh position={[0, 0, -2]}>
-            <boxGeometry args={[1, 1/screenDimensions.x * screenDimensions.y, 1]} />
-            <meshBasicMaterial color="red" />
-        </mesh>,
+        <ScreenUI dimensions={screenDimensions} />,
         virtualScene
     )
 }
