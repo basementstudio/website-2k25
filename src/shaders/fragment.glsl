@@ -4,7 +4,8 @@ varying vec3 vWorldPosition;
 uniform vec3 uColor;
 uniform float uProgress;
 uniform vec3 baseColor;
-uniform sampler2D baseColorMap;
+uniform sampler2D map;
+uniform vec2 mapRepeat;
 uniform float opacity;
 uniform float noiseFactor;
 uniform bool uReverse;
@@ -50,7 +51,8 @@ void main() {
     float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
     
     // Combine texture and base color
-    vec3 color = baseColor * texture2D(baseColorMap, vUv).rgb;
+    vec4 mapSample = texture2D(map, vUv * mapRepeat);
+    vec3 color = baseColor * mapSample.rgb;
     color = mix(color, uColor * wave + uColor * edge, wave + edge);
 
     // Reverse the opacity calculation and apply wave effect

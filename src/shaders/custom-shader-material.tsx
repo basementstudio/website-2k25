@@ -10,7 +10,7 @@ export const createShaderMaterial = (
 ) => {
   const {
     color: baseColor = new Color(0, 1, 1),
-    map: baseMap = null,
+    map = null,
     opacity: baseOpacity = 1.0,
   } = baseMaterial;
 
@@ -22,7 +22,8 @@ export const createShaderMaterial = (
       uColor: { value: emissiveColor },
       uProgress: { value: 0.0 },
       uReverse: { value: reverse },
-      baseColorMap: { value: baseMap },
+      map: { value: map },
+      mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
       baseColor: { value: baseColor },
       opacity: { value: baseOpacity },
       noiseFactor: { value: 0.5 },
