@@ -1,4 +1,4 @@
-import { Color, DoubleSide, MeshStandardMaterial, ShaderMaterial } from "three";
+import { Color,  MeshStandardMaterial, ShaderMaterial } from "three";
 import vertexShader from "./vertex.glsl";
 import fragmentShader from "./fragment.glsl";
 
