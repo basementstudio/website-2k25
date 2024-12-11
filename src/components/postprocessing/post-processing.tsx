@@ -3,10 +3,10 @@ import { PerspectiveCamera } from "@react-three/drei";
 import { ShaderMaterial, Vector2, Texture, TextureLoader } from "three";
 import { useControls } from "leva";
 import * as THREE from "three";
+import { useEffect, useRef } from "react";
 
 import postVert from "./post.vert";
 import postFrag from "./post.frag";
-import { useEffect } from "react";
 
 interface PostProcessingProps {
   mainTexture: Texture;
@@ -33,54 +33,33 @@ const material = new ShaderMaterial({
   },
 });
 
-const bayer8Texture = new TextureLoader().load("/textures/bayer8x8.png");
-bayer8Texture.minFilter = THREE.NearestFilter;
-bayer8Texture.magFilter = THREE.NearestFilter;
-
-const calculateFov = (z: number) => {
-  return Math.atan(1 / z) * (180 / Math.PI);
-};
-
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
-  const {
-    pixelSize,
-    // colorNum,
-    bayerSize,
-    enableShader,
-    // tolerance,
-    // brightness,
-    // ditherPattern,
-    // preserveColors,
-    // brightnessThreshold,
-  } = useControls({
+  const bayer8TextureRef = useRef<THREE.Texture | null>(null);
+
+  const { pixelSize, bayerSize, enableShader } = useControls({
     enableShader: { value: true },
     pixelSize: { value: 1, min: 1.0, max: 32.0, step: 1.0 },
-    // colorNum: { value: 18.0, min: 2, max: 32, step: 0.5 },
     bayerSize: {
       value: 8,
       options: {
-        // "2x2": 2,
-        // "4x4": 4,
         "8x8": 8,
         "16x16": 16,
       },
     },
-    // tolerance: { value: 0.25, min: 0, max: 0.5, step: 0.01 },
-    // brightness: { value: 1.0, min: 0, max: 2, step: 0.01 },
-    // ditherPattern: {
-    //   value: 0,
-    //   options: {
-    //     Bayer: 0,
-    //     CrossHatch: 1,
-    //   },
-    //   label: "Dither Pattern",
-    // },
-    // preserveColors: {
-    //   value: true,
-    //   label: "Preserve Colors",
-    // },
-    // brightnessThreshold: { value: 0.98, min: 0, max: 1, step: 0.01 },
   });
+
+  useEffect(() => {
+    const texture = new TextureLoader().load("/textures/bayer8x8.png");
+    texture.minFilter = THREE.NearestFilter;
+    texture.magFilter = THREE.NearestFilter;
+    bayer8TextureRef.current = texture;
+
+    return () => {
+      if (bayer8TextureRef.current) {
+        bayer8TextureRef.current.dispose();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -101,29 +80,17 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     material.uniforms.uMainTexture.value = mainTexture;
     material.uniforms.uEnableShader.value = enableShader;
     material.uniforms.uPixelSize.value = pixelSize;
-    // material.uniforms.uColorNum.value = colorNum;
     material.uniforms.uBayerSize.value = bayerSize;
-    // material.uniforms.uTolerance.value = tolerance;
-    // material.uniforms.uBrightness.value = brightness;
-    // material.uniforms.uPreserveColors.value = preserveColors;
-    // material.uniforms.uDitherPattern.value = ditherPattern;
-    // material.uniforms.uBrightnessThreshold.value = brightnessThreshold;
-    material.uniforms.uBayerTexture.value = bayer8Texture;
+    material.uniforms.uBayerTexture.value = bayer8TextureRef.current;
+
     return () => {
       controller.abort();
     };
-  }, [
-    mainTexture,
-    enableShader,
-    pixelSize,
-    // colorNum,
-    bayerSize,
-    // tolerance,
-    // brightness,
-    // preserveColors,
-    // ditherPattern,
-    // brightnessThreshold,
-  ]);
+  }, [mainTexture, enableShader, pixelSize, bayerSize]);
+
+  const calculateFov = (z: number) => {
+    return Math.atan(1 / z) * (180 / Math.PI);
+  };
 
   return (
     <>
