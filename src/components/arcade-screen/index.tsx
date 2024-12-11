@@ -37,9 +37,7 @@ export const ArcadeScreen = () => {
         if (!arcadeScreen) return
         const newMaterial = new MeshStandardMaterial({ 
             map: renderTarget.texture,
-            color: '#ff0000',
-            emissive: '#ff0000',
-            emissiveIntensity: 0.5
+            color: '#fff',
         })
         const shaderMaterial = createShaderMaterial(newMaterial, false)
         ;(arcadeScreen as Mesh).material = shaderMaterial
