@@ -1,12 +1,15 @@
-import { useThree, createPortal, useFrame } from "@react-three/fiber"
+import { useThree, useFrame } from "@react-three/fiber"
 import { useEffect, useMemo, useState } from "react"
-import { Color, Mesh, MeshStandardMaterial } from "three"
-import { WebGLRenderTarget, Scene, OrthographicCamera, Vector2, Vector3, Box3 } from "three"
+import { Mesh, MeshStandardMaterial } from "three"
+import { WebGLRenderTarget, Vector2, Vector3, Box3 } from "three"
 import { ScreenUI } from "./screen-ui"
 import { createShaderMaterial } from "@/shaders/custom-shader-material"
+import { RenderTexture } from "./render-texture"
+import { usePathname } from "next/navigation"
 
 export const ArcadeScreen = () => {
     const { scene } = useThree()
+    const pathname = usePathname()
     const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
     useEffect(() => {
         const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
@@ -19,34 +22,25 @@ export const ArcadeScreen = () => {
         const box = new Box3().setFromObject(arcadeScreen)
         const size = box.getSize(new Vector3())
         
-        const width = Math.abs(size.x)
-        const height = Math.abs(size.y)
-        const aspect = width / height
-        
         const baseResolution = 1024
-        return new Vector2(baseResolution, baseResolution / aspect)
+        const width = baseResolution
+        const height = baseResolution * (size.y / size.x)
+        
+        return new Vector2(width, height)
     }, [arcadeScreen])
 
     const renderTarget = useMemo(() => {
         return new WebGLRenderTarget(screenDimensions.x, screenDimensions.y)
     }, [screenDimensions])
 
-   const virtualCamera = useMemo(() => {
-    const aspect = screenDimensions.x / screenDimensions.y;
-    const camera = new OrthographicCamera(-1, 1, 1/aspect, -1/aspect, 0.1, 1000);
-    camera.position.z = 1; 
-    return camera;
-}, [screenDimensions]);
-
-   const virtualScene = useMemo(() => {
-        const scene = new Scene()
-        scene.background = new Color('#FF4D00')
-        return scene
-    }, [])
-
     useEffect(() => {
         if (!arcadeScreen) return
-        const newMaterial = new MeshStandardMaterial({ map: renderTarget.texture })
+        const newMaterial = new MeshStandardMaterial({ 
+            map: renderTarget.texture,
+            color: '#ff0000',
+            emissive: '#ff0000',
+            emissiveIntensity: 0.5
+        })
         const shaderMaterial = createShaderMaterial(newMaterial, false)
         ;(arcadeScreen as Mesh).material = shaderMaterial
     }, [arcadeScreen, renderTarget.texture])
@@ -54,12 +48,23 @@ export const ArcadeScreen = () => {
     useFrame((state) => {
         const { gl } = state
         gl.setRenderTarget(renderTarget)
-        gl.render(virtualScene, virtualCamera)
         gl.setRenderTarget(null)
     })
 
-    return createPortal(
+    /*return createPortal(
         <ScreenUI />,
         virtualScene
+    )*/
+    if(!arcadeScreen) return null
+    
+    return (
+        <RenderTexture
+            isPlaying={pathname === "/arcade"}
+            fbo={renderTarget}
+            useGlobalPointer={false}
+            raycasterMesh={arcadeScreen}
+        >
+            <ScreenUI />
+        </RenderTexture>
     )
 }

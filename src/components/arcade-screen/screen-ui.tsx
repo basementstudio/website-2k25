@@ -1,22 +1,27 @@
+
+import { PerspectiveCamera, useCursor } from '@react-three/drei';
 import {
   Container,
   Root,
   Text,
 } from '@react-three/uikit';
+import { useState } from 'react';
 
 export const ScreenUI = () => {
-  
+  const [hover, setHover] = useState(false);
+  useCursor(hover);
+
   return (
     <>
+    <PerspectiveCamera makeDefault position={[0, 0, 1]} />
       <Root
         transformScaleY={-1}
         flexDirection="row"
       >
-        <Container backgroundColor="#000" width={"100%"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+        <Container width={"100%"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
           <Text color="#fff"
-            onPointerOut={() => {
-              document.body.style.cursor = 'default'
-            }}
+            onPointerEnter={() => setHover(true)}  
+            onPointerLeave={() => setHover(false)}
             onClick={() => {
               window.open(
                 `https://basement.studio/lab`,
