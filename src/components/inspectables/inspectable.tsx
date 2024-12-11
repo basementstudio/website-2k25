@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useMotionValue } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { animate, MotionValue } from "motion";
 import {
   Group,
   Vector3,
@@ -12,6 +13,12 @@ import {
   Box3,
   PerspectiveCamera,
 } from "three";
+import {
+  ANIMATION_CONFIG,
+  SMOOTH_FACTOR,
+  TARGET_SIZE,
+  X_OFFSET,
+} from "@/constants/inspectables";
 import { useInspectable } from "./context";
 import { PresentationControls } from "./presentation-controls";
 
@@ -26,18 +33,21 @@ interface InspectableProps {
 export const Inspectable = ({ inspectable }: InspectableProps) => {
   const { scene } = useGLTF(inspectable.url);
   const { selected } = useInspectable();
-  const [boundingBox, setBoundingBox] = useState<number[]>([0, 0, 0]);
+  const [size, setSize] = useState<[number, number, number]>([0, 0, 0]);
+
+  const targetPosition = useRef({
+    x: new MotionValue(),
+    y: new MotionValue(),
+    z: new MotionValue(),
+  });
+  const targetScale = useRef(new MotionValue());
 
   const camera = useThree((state) => state.camera) as PerspectiveCamera;
-
-  const [isInspecting, setIsInspecting] = useState(false);
 
   const ref = useRef<Group>(null);
   const primitiveRef = useRef<Group>(null);
 
-  const position = useMotionValue(inspectable.position);
   const quaternion = useMotionValue(new Quaternion());
-  const scale = useMotionValue(1);
 
   const { setSelected } = useInspectable();
 
@@ -51,67 +61,60 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
       boundingBox.getCenter(center);
       scene.position.sub(center);
 
-      setBoundingBox([size.x, size.y, size.z]);
+      setSize([size.x, size.y, size.z]);
     }
   }, [scene]);
 
   useEffect(() => {
-    setIsInspecting(selected === inspectable.id);
-  }, [selected, inspectable]);
+    const direction = new Vector3();
+    camera.getWorldDirection(direction);
+    const offset = new Vector3(0, 1, 0).cross(direction).normalize();
+    const viewportWidth = Math.min(camera.aspect, 1.855);
+    const xOffset = viewportWidth * X_OFFSET;
+
+    direction.add(offset.multiplyScalar(-xOffset));
+
+    const target = targetPosition.current;
+
+    if (selected === inspectable.id) {
+      animate(target.x, camera.position.x + direction.x, ANIMATION_CONFIG);
+      animate(target.y, camera.position.y + direction.y, ANIMATION_CONFIG);
+      animate(target.z, camera.position.z + direction.z, ANIMATION_CONFIG);
+
+      const maxDimension = Math.max(...size);
+      animate(
+        targetScale.current,
+        TARGET_SIZE / maxDimension,
+        ANIMATION_CONFIG,
+      );
+    } else {
+      animate(target.x, inspectable.position.x, ANIMATION_CONFIG);
+      animate(target.y, inspectable.position.y, ANIMATION_CONFIG);
+      animate(target.z, inspectable.position.z, ANIMATION_CONFIG);
+
+      animate(targetScale.current, 1, ANIMATION_CONFIG);
+    }
+  }, [selected, inspectable, size, camera]);
 
   useFrame(() => {
     if (ref.current) {
-      const direction = new Vector3();
-      camera.getWorldDirection(direction);
-
-      const offset = new Vector3(0, 1, 0).cross(direction).normalize();
-
-      const viewportWidth = Math.min(camera.aspect, 1.855);
-      const xOffset = viewportWidth * 0.128;
-
-      direction.add(offset.multiplyScalar(-xOffset));
-
-      const targetPosition = isInspecting
-        ? {
-            x: camera.position.x + direction.x,
-            y: camera.position.y + direction.y,
-            z: camera.position.z + direction.z,
-          }
-        : {
-            x: inspectable.position.x,
-            y: inspectable.position.y,
-            z: inspectable.position.z,
-          };
-
-      const maxDimension = Math.max(...boundingBox);
-
-      const targetSize = 0.5;
-
-      const targetScale = isInspecting ? targetSize / maxDimension : 1;
-
-      const smoothFactor = 0.1;
-
-      const oldPos = position.get();
-
-      position.set({
-        x: oldPos.x + (targetPosition.x - oldPos.x) * smoothFactor,
-        y: oldPos.y + (targetPosition.y - oldPos.y) * smoothFactor,
-        z: oldPos.z + (targetPosition.z - oldPos.z) * smoothFactor,
-      });
-
-      scale.set(scale.get() + (targetScale - scale.get()) * smoothFactor);
+      const position = targetPosition.current;
 
       ref.current.position.set(
-        position.get().x,
-        position.get().y,
-        position.get().z,
+        position.x.get(),
+        position.y.get(),
+        position.z.get(),
       );
 
-      ref.current.scale.set(scale.get(), scale.get(), scale.get());
+      ref.current.scale.set(
+        targetScale.current.get(),
+        targetScale.current.get(),
+        targetScale.current.get(),
+      );
 
       const targetQuaternion = new Quaternion();
 
-      if (isInspecting) {
+      if (selected === inspectable.id) {
         const lookAtMatrix = new Matrix4();
         const upVector = new Vector3(0, 1, 0);
 
@@ -125,7 +128,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
       const q = quaternion.get();
       const currentQuaternion = new Quaternion(q.x, q.y, q.z, q.w);
-      currentQuaternion.slerp(targetQuaternion, smoothFactor);
+      currentQuaternion.slerp(targetQuaternion, SMOOTH_FACTOR);
       quaternion.set(currentQuaternion);
       primitiveRef.current?.quaternion.copy(currentQuaternion);
     }
@@ -145,8 +148,8 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
           <group ref={primitiveRef}>
             <primitive object={scene} />
             <mesh position={[0, 0, 0]}>
-              <boxGeometry args={[...boundingBox]} key={scene.name} />
-              <meshBasicMaterial transparent opacity={0.5} />
+              <boxGeometry args={[...size]} key={scene.name} />
+              <meshBasicMaterial transparent opacity={0} />
             </mesh>
           </group>
         </PresentationControls>
