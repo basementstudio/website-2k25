@@ -124,6 +124,8 @@ export const InspectableDragger = ({
       rotationXSpring.set(rInitial[0]);
       rotationYSpring.set(rInitial[1]);
       rotationZSpring.set(rInitial[2]);
+
+      explDomElement.style.cursor = "auto";
     }
   }, [enabled]);
 
