@@ -52,7 +52,7 @@ export const ArcadeScreen = () => {
     })
 
     return createPortal(
-        <ScreenUI dimensions={screenDimensions} />,
+        <ScreenUI />,
         virtualScene
     )
 }
