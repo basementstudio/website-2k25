@@ -32,10 +32,9 @@ function InnerMap() {
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {};
-    const clonedScene = scene.clone(true);
 
     CLICKABLE_NODES.forEach((node) => {
-      const child = clonedScene.getObjectByName(`${node.name}`);
+      const child = scene.getObjectByName(`${node.name}`);
 
       if (child) {
         child.removeFromParent();
@@ -44,7 +43,7 @@ function InnerMap() {
     });
 
     // Replace materials
-    clonedScene.traverse((child) => {
+    scene.traverse((child) => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh;
 
@@ -66,7 +65,7 @@ function InnerMap() {
         meshChild.material = newMaterial;
       }
     });
-    setMainScene(clonedScene);
+    setMainScene(scene);
 
     // Split the routing nodes
 
