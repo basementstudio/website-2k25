@@ -94,7 +94,7 @@ export const InspectableDragger = ({
       onDrag: ({
         down,
         delta: [x, y],
-        memo: [oldY, oldX] = [rotationY.get(), rotationX.get()] || rInitial,
+        memo: [oldY, oldX] = [rotationY.get(), rotationX.get()],
       }) => {
         if (!enabled) return [y, x];
         if (cursor) explDomElement.style.cursor = down ? "grabbing" : "grab";
