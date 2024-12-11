@@ -1,8 +1,9 @@
 import { useThree, createPortal, useFrame } from "@react-three/fiber"
 import { useEffect, useMemo } from "react"
-import { Color, Mesh } from "three"
-import { WebGLRenderTarget, Scene, OrthographicCamera, Vector2, Vector3, Box3, MeshBasicMaterial } from "three"
+import { Color, Mesh, MeshStandardMaterial } from "three"
+import { WebGLRenderTarget, Scene, OrthographicCamera, Vector2, Vector3, Box3 } from "three"
 import { ScreenUI } from "./screen-ui"
+import { createShaderMaterial } from "@/shaders/custom-shader-material"
 
 export const ArcadeScreen = () => {
     const { scene } = useThree()
@@ -41,7 +42,9 @@ export const ArcadeScreen = () => {
 
     useEffect(() => {
         if (!arcadeScreen) return
-        (arcadeScreen as Mesh).material = new MeshBasicMaterial({ map: renderTarget.texture })
+        const newMaterial = new MeshStandardMaterial({ map: renderTarget.texture })
+        const shaderMaterial = createShaderMaterial(newMaterial, false)
+        ;(arcadeScreen as Mesh).material = shaderMaterial
     }, [arcadeScreen, renderTarget.texture])
 
     useFrame((state) => {
