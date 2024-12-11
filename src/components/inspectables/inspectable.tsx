@@ -3,8 +3,15 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useMotionValue } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Group, Vector3, Quaternion, Matrix4, Box3 } from "three";
+import { useEffect, useRef, useState } from "react";
+import {
+  Group,
+  Vector3,
+  Quaternion,
+  Matrix4,
+  Box3,
+  PerspectiveCamera,
+} from "three";
 import { useInspectable } from "./context";
 import { PresentationControls } from "./presentation-controls";
 
@@ -19,17 +26,14 @@ interface InspectableProps {
 export const Inspectable = ({ inspectable }: InspectableProps) => {
   const { scene } = useGLTF(inspectable.url);
   const { selected } = useInspectable();
+  const [boundingBox, setBoundingBox] = useState<number[]>([0, 0, 0]);
 
-  const memoizedScene = useMemo(() => scene.clone(), [scene]);
-
-  const { camera } = useThree();
+  const camera = useThree((state) => state.camera) as PerspectiveCamera;
 
   const [isInspecting, setIsInspecting] = useState(false);
 
   const ref = useRef<Group>(null);
   const primitiveRef = useRef<Group>(null);
-
-  const [size, setSize] = useState<Vector3>(new Vector3(0, 0, 0));
 
   const position = useMotionValue(inspectable.position);
   const quaternion = useMotionValue(new Quaternion());
@@ -39,35 +43,33 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
   useEffect(() => {
     if (ref.current) {
-      const boundingBox = new Box3().setFromObject(memoizedScene);
+      const boundingBox = new Box3().setFromObject(scene);
       const size = new Vector3();
       boundingBox.getSize(size);
 
-      // TODO: the center should come from the glb file
       const center = new Vector3();
       boundingBox.getCenter(center);
-      memoizedScene.position.sub(center);
+      scene.position.sub(center);
 
-      setSize(size);
+      setBoundingBox([size.x, size.y, size.z]);
     }
   }, [scene]);
 
   useEffect(() => {
-    setSelected(isInspecting ? inspectable.id : "");
-  }, [isInspecting]);
+    setIsInspecting(selected === inspectable.id);
+  }, [selected, inspectable]);
 
   useFrame(() => {
     if (ref.current) {
       const direction = new Vector3();
       camera.getWorldDirection(direction);
 
-      const right = new Vector3(0, 1, 0).cross(direction).normalize();
+      const offset = new Vector3(0, 1, 0).cross(direction).normalize();
 
-      // @ts-expect-error - camera.aspect is possible undefined
       const viewportWidth = Math.min(camera.aspect, 1.855);
       const xOffset = viewportWidth * 0.128;
 
-      direction.add(right.multiplyScalar(-xOffset));
+      direction.add(offset.multiplyScalar(-xOffset));
 
       const targetPosition = isInspecting
         ? {
@@ -81,7 +83,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
             z: inspectable.position.z,
           };
 
-      const maxDimension = Math.max(size.x, size.y, size.z);
+      const maxDimension = Math.max(...boundingBox);
 
       const targetSize = 0.5;
 
@@ -107,8 +109,9 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
       ref.current.scale.set(scale.get(), scale.get(), scale.get());
 
+      const targetQuaternion = new Quaternion();
+
       if (isInspecting) {
-        const targetQuaternion = new Quaternion();
         const lookAtMatrix = new Matrix4();
         const upVector = new Vector3(0, 1, 0);
 
@@ -118,43 +121,15 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
         const rotationX = new Quaternion();
         rotationX.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2);
         targetQuaternion.multiply(rotationX);
-
-        const currentQuaternion = new Quaternion(
-          quaternion.get().x,
-          quaternion.get().y,
-          quaternion.get().z,
-          quaternion.get().w,
-        );
-
-        currentQuaternion.slerp(targetQuaternion, smoothFactor);
-
-        quaternion.set(currentQuaternion);
-
-        primitiveRef.current?.quaternion.copy(currentQuaternion);
-      } else {
-        const targetQuaternion = new Quaternion();
-        const currentQuaternion = new Quaternion(
-          quaternion.get().x,
-          quaternion.get().y,
-          quaternion.get().z,
-          quaternion.get().w,
-        );
-        currentQuaternion.slerp(targetQuaternion, smoothFactor);
-
-        quaternion.set(currentQuaternion);
-
-        primitiveRef?.current?.quaternion.copy(currentQuaternion);
       }
+
+      const q = quaternion.get();
+      const currentQuaternion = new Quaternion(q.x, q.y, q.z, q.w);
+      currentQuaternion.slerp(targetQuaternion, smoothFactor);
+      quaternion.set(currentQuaternion);
+      primitiveRef.current?.quaternion.copy(currentQuaternion);
     }
   });
-
-  useEffect(() => {
-    if (selected === inspectable.id) {
-      setIsInspecting(true);
-    } else {
-      setIsInspecting(false);
-    }
-  }, [selected]);
 
   return (
     <>
@@ -168,13 +143,10 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
           speed={2}
         >
           <group ref={primitiveRef}>
-            <primitive object={memoizedScene} />
+            <primitive object={scene} />
             <mesh position={[0, 0, 0]}>
-              <boxGeometry
-                args={[size.x, size.y, size.z]}
-                key={memoizedScene.name}
-              />
-              <meshBasicMaterial transparent opacity={0} />
+              <boxGeometry args={[...boundingBox]} key={scene.name} />
+              <meshBasicMaterial transparent opacity={0.5} />
             </mesh>
           </group>
         </PresentationControls>
