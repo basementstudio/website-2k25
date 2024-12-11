@@ -1,13 +1,13 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { CustomCamera } from "@/components/camera-controls";
 import { Environment } from "@react-three/drei";
 import { Map } from "./map";
 import { useRouter } from "next/navigation";
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
 import { useCallback } from "react";
 import { MapWire } from "./map-wire";
+import { Debug } from "./debug";
 
 interface SceneProps {
   className?: string;
@@ -29,7 +29,8 @@ export const Scene = ({ className }: SceneProps) => {
     <div className={className}>
       <Canvas gl={{ antialias: true, alpha: false }} camera={{ fov: 45 }}>
         <color attach="background" args={["#000"]} />
-        <CustomCamera />
+        {/* <CustomCamera /> */}
+        <Debug />
         <Map />
         <MapWire />
         <Environment preset="studio" />
