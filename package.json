@@ -11,7 +11,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@react-spring/three": "^9.7.5",
     "@react-three/drei": "^9.117.3",
     "@react-three/fiber": "9.0.0-rc.1",
     "@use-gesture/react": "^10.3.1",

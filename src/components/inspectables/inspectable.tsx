@@ -20,7 +20,7 @@ import {
   X_OFFSET,
 } from "@/constants/inspectables";
 import { useInspectable } from "./context";
-import { PresentationControls } from "./presentation-controls";
+import { InspectableDragger } from "./inspectable-dragger";
 
 interface InspectableProps {
   inspectable: {
@@ -65,7 +65,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
     }
   }, [scene]);
 
-  useEffect(() => {
+  const handleAnimation = (withAnimation: boolean) => {
     const direction = new Vector3();
     camera.getWorldDirection(direction);
     const offset = new Vector3(0, 1, 0).cross(direction).normalize();
@@ -76,24 +76,32 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
     const target = targetPosition.current;
 
+    const config = withAnimation ? ANIMATION_CONFIG : { duration: 0 };
+
     if (selected === inspectable.id) {
-      animate(target.x, camera.position.x + direction.x, ANIMATION_CONFIG);
-      animate(target.y, camera.position.y + direction.y, ANIMATION_CONFIG);
-      animate(target.z, camera.position.z + direction.z, ANIMATION_CONFIG);
-
-      const maxDimension = Math.max(...size);
-      animate(
-        targetScale.current,
-        TARGET_SIZE / maxDimension,
-        ANIMATION_CONFIG,
-      );
+      const maxDimension = TARGET_SIZE / Math.max(...size);
+      animate(target.x, camera.position.x + direction.x, config);
+      animate(target.y, camera.position.y + direction.y, config);
+      animate(target.z, camera.position.z + direction.z, config);
+      animate(targetScale.current, maxDimension, config);
     } else {
-      animate(target.x, inspectable.position.x, ANIMATION_CONFIG);
-      animate(target.y, inspectable.position.y, ANIMATION_CONFIG);
-      animate(target.z, inspectable.position.z, ANIMATION_CONFIG);
+      animate(target.x, inspectable.position.x, config);
+      animate(target.y, inspectable.position.y, config);
+      animate(target.z, inspectable.position.z, config);
 
-      animate(targetScale.current, 1, ANIMATION_CONFIG);
+      animate(targetScale.current, 1, config);
     }
+  };
+
+  useEffect(() => {
+    handleAnimation(true);
+
+    const handleResize = () => handleAnimation(false);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, inspectable, size, camera]);
 
   useFrame(() => {
@@ -137,7 +145,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
   return (
     <>
       <group onClick={() => setSelected(inspectable.id)} ref={ref}>
-        <PresentationControls
+        <InspectableDragger
           key={inspectable.id}
           enabled={selected === inspectable.id}
           global={false}
@@ -152,7 +160,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
               <meshBasicMaterial transparent opacity={0} />
             </mesh>
           </group>
-        </PresentationControls>
+        </InspectableDragger>
       </group>
     </>
   );

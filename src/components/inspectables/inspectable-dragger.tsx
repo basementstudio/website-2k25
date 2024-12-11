@@ -1,25 +1,32 @@
-import * as React from "react";
-import { MathUtils } from "three";
-import { useThree } from "@react-three/fiber";
-import { a, SpringConfig, useSpring } from "@react-spring/three";
-import { useGesture } from "@use-gesture/react";
+// This component is a re-implementation of Drei's PresentationControls,
+// but using motion instead of spring as animation library.
+// https://github.com/pmndrs/drei/blob/master/src/web/PresentationControls.tsx
 
-export type PresentationControlProps = {
-  snap?: boolean | SpringConfig;
+import * as React from "react";
+import { Group, MathUtils } from "three";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useGesture } from "@use-gesture/react";
+import { useMotionValue, useSpring } from "motion/react";
+
+export type InspectableDraggerProps = {
+  snap?: boolean;
   global?: boolean;
   cursor?: boolean;
   speed?: number;
-  zoom?: number;
   rotation?: [number, number, number];
   polar?: [number, number];
   azimuth?: [number, number];
-  config?: { mass: number; tension: number; friction: number };
+  config?: {
+    stiffness: number;
+    damping: number;
+    mass: number;
+  };
   enabled?: boolean;
   children?: React.ReactNode;
   domElement?: HTMLElement;
 };
 
-export const PresentationControls = ({
+export const InspectableDragger = ({
   enabled = true,
   snap,
   global,
@@ -28,14 +35,15 @@ export const PresentationControls = ({
   children,
   speed = 1,
   rotation = [0, 0, 0],
-  zoom = 1,
   polar = [-Math.PI / 2, Math.PI / 2],
   azimuth = [-Infinity, Infinity],
-  config = { mass: 1, tension: 128, friction: 28 },
-}: PresentationControlProps) => {
+  config = { stiffness: 64, damping: 16, mass: 1 },
+}: InspectableDraggerProps) => {
   const events = useThree((state) => state.events);
   const gl = useThree((state) => state.gl);
   const explDomElement = domElement || events.connected || gl.domElement;
+
+  const ref = React.useRef<Group>(null);
 
   const { size } = useThree();
 
@@ -58,16 +66,13 @@ export const PresentationControls = ({
     [rotation[0], rotation[1], rotation[2], rPolar, rAzimuth],
   );
 
-  const [spring, api] = useSpring(() => ({
-    scale: 1,
-    rotation: rInitial,
-    config,
-  }));
+  const rotationX = useMotionValue(rInitial[0]);
+  const rotationY = useMotionValue(rInitial[1]);
+  const rotationZ = useMotionValue(rInitial[2]);
 
-  React.useEffect(
-    () => void api.start({ scale: 1, rotation: rInitial, config }),
-    [rInitial],
-  );
+  const rotationXSpring = useSpring(rotationX, config);
+  const rotationYSpring = useSpring(rotationY, config);
+  const rotationZSpring = useSpring(rotationZ, config);
 
   React.useEffect(() => {
     if (global && cursor && enabled) {
@@ -89,7 +94,7 @@ export const PresentationControls = ({
       onDrag: ({
         down,
         delta: [x, y],
-        memo: [oldY, oldX] = spring.rotation.animation.to || rInitial,
+        memo: [oldY, oldX] = [rotationY.get(), rotationX.get()] || rInitial,
       }) => {
         if (!enabled) return [y, x];
         if (cursor) explDomElement.style.cursor = down ? "grabbing" : "grab";
@@ -101,25 +106,32 @@ export const PresentationControls = ({
           oldY + (y / size.height) * Math.PI * speed,
           ...rPolar,
         );
-        const sConfig =
-          snap && !down && typeof snap !== "boolean" ? snap : config;
-        api.start({
-          scale: down && y > rPolar[1] / 2 ? zoom : 1,
-          rotation: snap && !down ? rInitial : [y, x, 0],
-          config: (n) =>
-            n === "scale"
-              ? { ...sConfig, friction: sConfig.friction * 3 }
-              : sConfig,
-        });
+
+        const r = snap && !down ? rInitial : [y, x, 0];
+
+        rotationXSpring.set(r[0]);
+        rotationYSpring.set(r[1]);
+        rotationZSpring.set(r[2]);
+
         return [y, x];
       },
     },
     { target: global ? explDomElement : undefined },
   );
 
+  useFrame(() => {
+    ref.current?.rotation.set(
+      rotationXSpring.get(),
+      rotationYSpring.get() - Math.PI / 8,
+      rotationZSpring.get(),
+    );
+  });
+
   return (
-    <a.group {...bind?.()} {...(spring as any)}>
-      {children}
-    </a.group>
+    <group rotation={[0, Math.PI / 8, 0]}>
+      <group ref={ref} {...bind?.()}>
+        {children}
+      </group>
+    </group>
   );
 };

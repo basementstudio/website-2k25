@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@react-spring/three':
-        specifier: ^9.7.5
-        version: 9.7.5(@react-three/fiber@9.0.0-rc.1(@types/react@19.0.1)(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)(three@0.170.0))(react@19.0.0-rc-66855b96-20241106)(three@0.170.0)
       '@react-three/drei':
         specifier: ^9.117.3
         version: 9.119.0(@react-three/fiber@9.0.0-rc.1(@types/react@19.0.1)(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)(three@0.170.0))(@types/react@19.0.1)(@types/three@0.170.0)(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)(three@0.170.0)(use-sync-external-store@1.2.2(react@19.0.0-rc-66855b96-20241106))
