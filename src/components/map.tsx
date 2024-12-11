@@ -37,7 +37,6 @@ function InnerMap() {
 
     CLICKABLE_NODES.forEach((node) => {
       const child = clonedScene.getObjectByName(`${node.name}`);
-
       if (child) {
         child.removeFromParent();
         routingNodes[node.name] = child as Mesh;
@@ -52,6 +51,7 @@ function InnerMap() {
         const ommitNode = Boolean(
           CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name,
         );
+
         if (ommitNode) return;
 
         const alreadyReplaced =
