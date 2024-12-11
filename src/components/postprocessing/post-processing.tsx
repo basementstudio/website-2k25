@@ -30,11 +30,15 @@ const material = new ShaderMaterial({
     uDitherPattern: { value: 0 },
     uBrightnessThreshold: { value: 0.98 },
     uBayerTexture: { value: null },
+    uBayer16Texture: { value: null },
+    uBlueNoiseTexture: { value: null },
   },
 });
 
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
   const bayer8TextureRef = useRef<THREE.Texture | null>(null);
+  const bayer16TextureRef = useRef<THREE.Texture | null>(null);
+  const blueNoiseTextureRef = useRef<THREE.Texture | null>(null);
 
   const { pixelSize, bayerSize, enableShader } = useControls({
     enableShader: { value: true },
@@ -44,19 +48,37 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       options: {
         "8x8": 8,
         "16x16": 16,
+        "blue noise": 999,
       },
     },
   });
 
   useEffect(() => {
-    const texture = new TextureLoader().load("/textures/bayer8x8.png");
-    texture.minFilter = THREE.NearestFilter;
-    texture.magFilter = THREE.NearestFilter;
-    bayer8TextureRef.current = texture;
+    const textureLoader = new TextureLoader();
+    const bayerTexture = textureLoader.load("/textures/bayer8x8.png");
+    bayerTexture.minFilter = THREE.NearestFilter;
+    bayerTexture.magFilter = THREE.NearestFilter;
+    bayer8TextureRef.current = bayerTexture;
+
+    const blueNoiseTexture = textureLoader.load("/textures/bluenoise.png");
+    blueNoiseTexture.wrapS = THREE.RepeatWrapping;
+    blueNoiseTexture.wrapT = THREE.RepeatWrapping;
+    blueNoiseTextureRef.current = blueNoiseTexture;
+
+    const bayer16Texture = textureLoader.load("/textures/bayer16x16.png");
+    bayer16Texture.minFilter = THREE.NearestFilter;
+    bayer16Texture.magFilter = THREE.NearestFilter;
+    bayer16TextureRef.current = bayer16Texture;
 
     return () => {
-      if (bayer8TextureRef.current) {
+      if (
+        bayer8TextureRef.current &&
+        blueNoiseTextureRef.current &&
+        bayer16TextureRef.current
+      ) {
         bayer8TextureRef.current.dispose();
+        blueNoiseTextureRef.current.dispose();
+        bayer16TextureRef.current.dispose();
       }
     };
   }, []);
@@ -82,6 +104,8 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     material.uniforms.uPixelSize.value = pixelSize;
     material.uniforms.uBayerSize.value = bayerSize;
     material.uniforms.uBayerTexture.value = bayer8TextureRef.current;
+    material.uniforms.uBlueNoiseTexture.value = blueNoiseTextureRef.current;
+    material.uniforms.uBayer16Texture.value = bayer16TextureRef.current;
 
     return () => {
       controller.abort();
