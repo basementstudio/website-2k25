@@ -1,19 +1,18 @@
 "use client";
 
-import { FrontSide, Mesh, MeshBasicMaterial, Vector3 } from "three";
-import { useAssets } from "../assets-provider";
+import { useEffect, useRef } from "react";
+import { useThree } from "@react-three/fiber";
+import { FrontSide, Mesh, PerspectiveCamera, Vector3 } from "three";
+import { useAssets } from "@/components/assets-provider";
 
 import { Inspectable } from "./inspectable";
-import { Billboard, Text } from "@react-three/drei";
-import { useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
 import { useInspectable } from "./context";
 
 const HARDCODED_INSPECTABLES_POSITIONS = [
   { x: 2, y: 2.82, z: -11.6 },
-  { x: 2, y: 4.3, z: -11.6 },
+  { x: 2, y: 4.08, z: -13.8 },
   { x: 2, y: 4, z: -12.3 },
-  { x: 2, y: 5.15, z: -13 },
+  { x: 2, y: 5.15, z: -16 },
 ];
 
 export const Inspectables = () => {
@@ -23,10 +22,19 @@ export const Inspectables = () => {
 
   const ref = useRef<Mesh>(null);
 
-  const camera = useThree((state) => state.camera);
+  const camera = useThree((state) => state.camera) as PerspectiveCamera;
 
-  useFrame(() => {
-    if (ref.current) {
+  useEffect(() => {
+    if (!ref.current) return;
+
+    if (selected) {
+      const fov = (camera.fov * Math.PI) / 180;
+      const distance = camera.position.distanceTo(ref.current.position);
+      const height = 2 * Math.tan(fov / 2) * distance;
+      const width = height * camera.aspect;
+
+      ref.current.scale.set(width, height, 1);
+
       const direction = new Vector3();
       camera.getWorldDirection(direction);
 
@@ -44,20 +52,7 @@ export const Inspectables = () => {
 
       ref.current.lookAt(camera.position);
     }
-  });
-
-  useFrame(() => {
-    if (ref.current) {
-      // Calculate viewport size at the plane's distance
-      const fov = (camera.fov * Math.PI) / 180; // convert to radians
-      const distance = camera.position.distanceTo(ref.current.position);
-      const height = 2 * Math.tan(fov / 2) * distance;
-      const width = height * camera.aspect;
-
-      // Update plane scale
-      ref.current.scale.set(width, height, 1);
-    }
-  });
+  }, [selected, ref, camera]);
 
   return (
     <>
@@ -65,9 +60,8 @@ export const Inspectables = () => {
         <Inspectable
           key={inspectable.id}
           inspectable={{
-            url: inspectable.url,
+            ...inspectable,
             position: HARDCODED_INSPECTABLES_POSITIONS[index],
-            id: inspectable.id,
           }}
         />
       ))}
@@ -75,15 +69,9 @@ export const Inspectables = () => {
       {selected && (
         <mesh
           ref={ref}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          onPointerOver={(e) => {
-            e.stopPropagation();
-          }}
-          onPointerOut={(e) => {
-            e.stopPropagation();
-          }}
+          onClick={(e) => e.stopPropagation()}
+          onPointerOver={(e) => e.stopPropagation()}
+          onPointerOut={(e) => e.stopPropagation()}
         >
           <planeGeometry args={[1, 1]} />
           <meshBasicMaterial
@@ -92,7 +80,6 @@ export const Inspectables = () => {
             color="black"
             opacity={0.95}
           />
-          <Billboard />
         </mesh>
       )}
     </>

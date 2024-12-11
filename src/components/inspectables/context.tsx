@@ -3,8 +3,8 @@
 import { createContext, useContext, useState } from "react";
 
 interface InspectableContextType {
-  selected: string;
-  setSelected: (inspectable: string) => void;
+  selected: string | null;
+  setSelected: (inspectable: string | null) => void;
 }
 
 const InspectableContext = createContext<InspectableContextType | null>(null);
@@ -23,7 +23,7 @@ interface InspectableProviderProps {
 }
 
 export const InspectableProvider = ({ children }: InspectableProviderProps) => {
-  const [selected, setSelected] = useState<string>("");
+  const [selected, setSelected] = useState<string | null>(null);
 
   return (
     <InspectableContext.Provider value={{ selected, setSelected }}>
