@@ -44,7 +44,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     enableShader: { value: true },
     pixelSize: { value: 1, min: 1.0, max: 32.0, step: 1.0 },
     bayerSize: {
-      value: 8,
+      value: 16,
       options: {
         "8x8": 8,
         "16x16": 16,
