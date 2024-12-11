@@ -40,16 +40,22 @@ export default {
             letterSpacing: "0.01em",
           },
         ],
-        link: [
-          "0.6875rem",
+        blog: [
+          "0.875rem",
           {
-            lineHeight: "1rem",
-            fontWeight: "500",
+            lineHeight: "1.25rem",
+            letterSpacing: "0.02em",
           },
         ],
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
+      },
+      maxWidth: {
+        full: "120rem",
+      },
+      zIndex: {
+        navbar: "1000",
       },
     },
   },
