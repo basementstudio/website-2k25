@@ -26,6 +26,8 @@ const geistSans = Geist({
 });
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
+  "use cache";
+
   const assets = await fetchAssets();
 
   return (
