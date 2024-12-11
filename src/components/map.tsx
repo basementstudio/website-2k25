@@ -1,16 +1,24 @@
 "use client";
 
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, useTexture } from "@react-three/drei";
 import { useAssets } from "./assets-provider";
 import { memo, useEffect, useState } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { RoutingElement } from "./routing-element";
-import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three";
-import { GLTF } from "three/examples/jsm/Addons.js";
+import {
+  Mesh,
+  MeshStandardMaterial,
+  NearestFilter,
+  Object3D,
+  Object3DEventMap,
+  Texture,
+} from "three";
+import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js";
 import {
   BASE_SHADER_MATERIAL_NAME,
   createShaderMaterial,
 } from "@/shaders/custom-shader-material";
+import { useLoader } from "@react-three/fiber";
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -27,6 +35,32 @@ function InnerMap() {
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null,
   );
+
+  const [SM_PB_Floor, SM_RackWood009, SM_RackWood018, SM_Stairs001] = useLoader(
+    EXRLoader,
+    [
+      "/lightmaps/SM_PB_Floor_Bake1_PBR_Lightmap.exr",
+      "/lightmaps/SM_RackWood.009_Bake1_PBR_Lightmap.exr",
+      "/lightmaps/SM_RackWood.018_Bake1_PBR_Lightmap.exr",
+      "/lightmaps/SM_Stairs.001_Bake1_PBR_Lightmap.exr",
+    ],
+  );
+
+  const lightmaps = {
+    SM_PB_Floor,
+    SM_RackWood009,
+    SM_RackWood018,
+    SM_Stairs001,
+  };
+
+  SM_PB_Floor.flipY = true;
+  SM_PB_Floor.magFilter = NearestFilter;
+  SM_RackWood009.flipY = true;
+  SM_RackWood009.magFilter = NearestFilter;
+  SM_RackWood018.flipY = true;
+  SM_RackWood018.magFilter = NearestFilter;
+  SM_Stairs001.flipY = true;
+  SM_Stairs001.magFilter = NearestFilter;
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({});
 
@@ -58,8 +92,11 @@ function InnerMap() {
 
         if (alreadyReplaced) return;
 
+        const meshName = meshChild.name;
+        const lightMap = lightmaps[meshName as keyof typeof lightmaps] || null;
         const newMaterial = createShaderMaterial(
           meshChild.material as MeshStandardMaterial,
+          lightMap,
           false,
         );
         meshChild.material = newMaterial;

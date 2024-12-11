@@ -1,4 +1,5 @@
-import { Color, MeshStandardMaterial, ShaderMaterial } from "three";
+import { Color, ShaderMaterial } from "three";
+import type { MeshStandardMaterial, Texture } from "three";
 import vertexShader from "./vertex.glsl";
 import fragmentShader from "./fragment.glsl";
 
@@ -6,13 +7,13 @@ export const BASE_SHADER_MATERIAL_NAME = "custom-shader-material";
 
 export const createShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
+  lightMap: Texture | null,
   reverse: boolean,
 ) => {
   const {
     color: baseColor = new Color(1, 1, 1),
     map = null,
     opacity: baseOpacity = 1.0,
-    aoMap: lightMap = null,
   } = baseMaterial;
 
   const emissiveColor = new Color("#FF4D00").multiplyScalar(9);
