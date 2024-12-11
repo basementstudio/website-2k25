@@ -4,6 +4,7 @@ import { CameraRouteHandler } from "@/components/camera-route-handler";
 import { Scene } from "@/components/scene";
 import { Geist } from "next/font/google";
 import "@/styles/globals.css";
+import { Toolbar } from "basehub/next-toolbar";
 
 import type { Metadata } from "next";
 import { cn } from "@/utils/cn";
@@ -27,6 +28,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
+      <Toolbar />
       <AssetsProvider assets={assets}>
         <body className={cn(geistSans.variable)}>
           <CameraRouteHandler />

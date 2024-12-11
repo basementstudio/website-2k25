@@ -13,7 +13,7 @@
   "dependencies": {
     "@react-three/drei": "^9.117.3",
     "@react-three/fiber": "9.0.0-rc.1",
-    "basehub": "^7.5.28",
+    "basehub": "8.0.0-canary.17",
     "clsx": "^2.1.1",
     "glslify-loader": "^2.0.0",
     "motion": "^11.13.1",
