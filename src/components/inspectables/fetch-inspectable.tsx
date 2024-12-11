@@ -3,9 +3,9 @@
 import { basehub } from "basehub";
 
 export const fetchInspectable = async ({ id }: { id: string }) => {
-  "use cache";
-
-  const { threeDInteractions } = await basehub().query({
+  const { threeDInteractions } = await basehub({
+    next: { revalidate: 30 },
+  }).query({
     threeDInteractions: {
       inspectables: {
         inspectableList: {

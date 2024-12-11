@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    dynamicIO: true,
+    //dynamicIO: true,
     turbo: {
       rules: {
         "*.{glsl,vert,frag,vs,fs}": {
