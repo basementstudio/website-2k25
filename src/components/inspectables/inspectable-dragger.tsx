@@ -119,6 +119,8 @@ export const InspectableDragger = ({
     { target: global ? explDomElement : undefined },
   );
 
+  // TODO: find a parametric way to calculate the "Math.PI / 8" value
+
   useFrame(() => {
     ref.current?.rotation.set(
       rotationXSpring.get(),
