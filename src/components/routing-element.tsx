@@ -28,7 +28,7 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
   useCursor(hover);
 
   const routeConfig = useMemo(() => {
-    const routeName = node.name.replace("_Hover", "");
+    const routeName = node.name
     const conf = CLICKABLE_NODES.find((n) => n.name === routeName);
 
     return conf;
