@@ -1,7 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    //dynamicIO: true,
+    turbo: {
+      rules: {
+        "*.{glsl,vert,frag,vs,fs}": {
+          loaders: ["raw-loader", "glslify-loader"],
+          as: "*.js",
+        },
+      },
+    },
+  },
+
   webpack: (config) => {
     config.module.rules.push({
       test: /\.(glsl|vs|fs|vert|frag)$/,
