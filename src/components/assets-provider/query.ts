@@ -9,6 +9,7 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
   inspectables: {
     inspectableList: {
       items: {
+        _id: true,
         model: {
           file: {
             url: true,
