@@ -1,7 +1,8 @@
 import { useCameraStore } from "@/store/app-store";
 import { PerspectiveCamera } from "@react-three/drei";
-import { ShaderMaterial, Vector2, Texture } from "three";
+import { ShaderMaterial, Vector2, Texture, TextureLoader } from "three";
 import { useControls } from "leva";
+import * as THREE from "three";
 
 import postVert from "./post.vert";
 import postFrag from "./post.frag";
@@ -21,14 +22,20 @@ const material = new ShaderMaterial({
     screenSize: { value: new Vector2(1, 1) },
     dpr: { value: 1 },
     uPixelSize: { value: 1.0 },
-    uColorNum: { value: 6.0 },
+    uColorNum: { value: 18.0 },
     uBayerSize: { value: 4 },
-    uTolerance: { value: 0.01 },
+    uTolerance: { value: 0.25 },
     uBrightness: { value: 1.0 },
-    uPreserveColors: { value: false },
+    uPreserveColors: { value: true },
     uDitherPattern: { value: 0 },
+    uBrightnessThreshold: { value: 0.98 },
+    uBayerTexture: { value: null },
   },
 });
+
+const bayer8Texture = new TextureLoader().load("/textures/bayer8x8.png");
+bayer8Texture.minFilter = THREE.NearestFilter;
+bayer8Texture.magFilter = THREE.NearestFilter;
 
 const calculateFov = (z: number) => {
   return Math.atan(1 / z) * (180 / Math.PI);
@@ -37,40 +44,42 @@ const calculateFov = (z: number) => {
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
   const {
     pixelSize,
-    colorNum,
+    // colorNum,
     bayerSize,
     enableShader,
-    tolerance,
-    brightness,
-    ditherPattern,
-    preserveColors,
+    // tolerance,
+    // brightness,
+    // ditherPattern,
+    // preserveColors,
+    // brightnessThreshold,
   } = useControls({
     enableShader: { value: true },
-    pixelSize: { value: 1, min: 0.1, max: 16, step: 0.1 },
-    colorNum: { value: 6, min: 2, max: 32, step: 0.5 },
+    pixelSize: { value: 1, min: 1.0, max: 32.0, step: 2.0 },
+    // colorNum: { value: 18.0, min: 2, max: 32, step: 0.5 },
     bayerSize: {
       value: 8,
       options: {
-        "2x2": 2,
-        "4x4": 4,
+        // "2x2": 2,
+        // "4x4": 4,
         "8x8": 8,
         "16x16": 16,
       },
     },
-    tolerance: { value: 0.25, min: 0, max: 0.5, step: 0.01 },
-    brightness: { value: 0.8, min: 0, max: 2, step: 0.01 },
-    ditherPattern: {
-      value: 0,
-      options: {
-        Bayer: 0,
-        CrossHatch: 1,
-      },
-      label: "Dither Pattern",
-    },
-    preserveColors: {
-      value: false,
-      label: "Preserve Colors",
-    },
+    // tolerance: { value: 0.25, min: 0, max: 0.5, step: 0.01 },
+    // brightness: { value: 1.0, min: 0, max: 2, step: 0.01 },
+    // ditherPattern: {
+    //   value: 0,
+    //   options: {
+    //     Bayer: 0,
+    //     CrossHatch: 1,
+    //   },
+    //   label: "Dither Pattern",
+    // },
+    // preserveColors: {
+    //   value: true,
+    //   label: "Preserve Colors",
+    // },
+    // brightnessThreshold: { value: 0.98, min: 0, max: 1, step: 0.01 },
   });
 
   useEffect(() => {
@@ -92,13 +101,14 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     material.uniforms.uMainTexture.value = mainTexture;
     material.uniforms.uEnableShader.value = enableShader;
     material.uniforms.uPixelSize.value = pixelSize;
-    material.uniforms.uColorNum.value = colorNum;
+    // material.uniforms.uColorNum.value = colorNum;
     material.uniforms.uBayerSize.value = bayerSize;
-    material.uniforms.uTolerance.value = tolerance;
-    material.uniforms.uBrightness.value = brightness;
-    material.uniforms.uPreserveColors.value = preserveColors;
-    material.uniforms.uDitherPattern.value = ditherPattern;
-
+    // material.uniforms.uTolerance.value = tolerance;
+    // material.uniforms.uBrightness.value = brightness;
+    // material.uniforms.uPreserveColors.value = preserveColors;
+    // material.uniforms.uDitherPattern.value = ditherPattern;
+    // material.uniforms.uBrightnessThreshold.value = brightnessThreshold;
+    material.uniforms.uBayerTexture.value = bayer8Texture;
     return () => {
       controller.abort();
     };
@@ -106,12 +116,13 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     mainTexture,
     enableShader,
     pixelSize,
-    colorNum,
+    // colorNum,
     bayerSize,
-    tolerance,
-    brightness,
-    preserveColors,
-    ditherPattern,
+    // tolerance,
+    // brightness,
+    // preserveColors,
+    // ditherPattern,
+    // brightnessThreshold,
   ]);
 
   return (
