@@ -119,6 +119,14 @@ export const InspectableDragger = ({
     { target: global ? explDomElement : undefined },
   );
 
+  React.useEffect(() => {
+    if (!enabled) {
+      rotationXSpring.set(rInitial[0]);
+      rotationYSpring.set(rInitial[1]);
+      rotationZSpring.set(rInitial[2]);
+    }
+  }, [enabled]);
+
   // TODO: find a parametric way to calculate the "Math.PI / 8" value
 
   useFrame(() => {
