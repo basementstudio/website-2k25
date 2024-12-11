@@ -54,7 +54,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     // brightnessThreshold,
   } = useControls({
     enableShader: { value: true },
-    pixelSize: { value: 1, min: 1.0, max: 32.0, step: 2.0 },
+    pixelSize: { value: 1, min: 1.0, max: 32.0, step: 1.0 },
     // colorNum: { value: 18.0, min: 2, max: 32, step: 0.5 },
     bayerSize: {
       value: 8,
