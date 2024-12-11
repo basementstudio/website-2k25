@@ -1,42 +1,37 @@
 varying vec2 vUv;
+varying vec2 vUv2;
 varying vec3 vWorldPosition;
 
 uniform vec3 uColor;
 uniform float uProgress;
 uniform vec3 baseColor;
 uniform sampler2D map;
+uniform sampler2D lightMap;
 uniform vec2 mapRepeat;
 uniform float opacity;
 uniform float noiseFactor;
 uniform bool uReverse;
 
+#pragma glslify: noise = require('./noise3.glsl')
 
-// noise based on https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83 patriciogonzalezvivo's work
-float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
-vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
-vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
+// vec3 gamma(vec3 color) {
+//     return pow(color, vec3(1.0 / 2.2)); // 2.2 is standard gamma correction value
+// }
 
-float noise(vec3 p){
-    vec3 a = floor(p);
-    vec3 d = p - a;
-    d = d * d * (3.0 - 2.0 * d);
+// // ACES filmic tone mapping approximation
+// vec3 acesFilm(vec3 x) {
+//     float a = 2.51;
+//     float b = 0.03;
+//     float c = 2.43;
+//     float d = 0.59;
+//     float e = 0.14;
+//     return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+// }
 
-    vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);
-    vec4 k1 = perm(b.xyxy);
-    vec4 k2 = perm(k1.xyxy + b.zzww);
-
-    vec4 c = k2 + a.zzzz;
-    vec4 k3 = perm(c);
-    vec4 k4 = perm(c + 1.0);
-
-    vec4 o1 = fract(k3 * (1.0 / 41.0));
-    vec4 o2 = fract(k4 * (1.0 / 41.0));
-
-    vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);
-    vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);
-
-    return o4.y * d.y + o4.x * (1.0 - d.y);
-}
+// // Exposure tone mapping
+// vec3 exposureToneMap(vec3 color, float exposure) {
+//     return vec3(1.0) - exp(-color * exposure);
+// }
 
 void main() {
     // Distance from center
@@ -52,68 +47,27 @@ void main() {
     
     // Combine texture and base color
     vec4 mapSample = texture2D(map, vUv * mapRepeat);
-    vec3 color = baseColor * mapSample.rgb;
-    color = mix(color, uColor * wave + uColor * edge, wave + edge);
+
+    vec3 lightMapSample = texture2D(lightMap, vUv2).rgb;
+
+    vec3 irradiance = baseColor * mapSample.rgb + lightMapSample;
+
+    // Combine wave color
+    irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
 
     // Reverse the opacity calculation and apply wave effect
     float opacityResult;
     if (uReverse) {
         opacityResult = wave;
-        color = mix(color, vec3(1.0,1.0,1.0) * wave + vec3(1.0,1.0,1.0) * edge, wave + edge);
+        irradiance = mix(irradiance, vec3(1.0,1.0,1.0) * wave + vec3(1.0,1.0,1.0) * edge, wave + edge);
     } else {
         opacityResult = 1.0 - wave;
-        color = mix(color, uColor, wave);
+        irradiance = mix(irradiance, uColor, wave);
     }
 
     if (opacityResult <= 0.0) {
         discard;
     }
 
-    gl_FragColor = vec4(color, opacityResult);
+    gl_FragColor = vec4(irradiance, 1.);
 }
-
-/*
-void main() {
-    // Distance from center
-    vec3 voxelCenter = vWorldPosition;
-    float gridSize = 6.0;
-    voxelCenter = (round(voxelCenter * gridSize) / gridSize);
-    
-    // Add smoothing to make edges
-    float smoothFactor = 0.9; // Adjust roundness
-    vec3 smoothedPosition = mix(vWorldPosition, voxelCenter, smoothFactor);
-    
-    float randomOffset = noise(smoothedPosition) * noiseFactor;
-
-    // Calculate distance to center
-    float dist = distance(smoothedPosition, vec3(2.0, 0., -16.0));
-    dist += randomOffset * 2.0;
-
-    //
-    float softness = 0.1; // Adjust edge softness
-    float wave = smoothstep(0.0, softness, uProgress * 20.0 - dist);
-    float edge = smoothstep(0.0, softness, uProgress * 20.0 + 0.2 - dist) - wave;
-    
-    // Combine texture and base color
-    vec3 color = baseColor * texture2D(baseColorMap, vUv).rgb;
-    color = mix(color, uColor * wave + uColor * edge, wave + edge);
-
-    // Reverse the opacity calculation and apply wave effect
-    float opacityResult;
-    if (uReverse) {
-        opacityResult = wave;
-        color = mix(color, vec3(1.0,1.0,1.0) * wave + vec3(1.0,1.0,1.0) * edge, wave + edge);
-    } else {
-        opacityResult = 1.0 - wave;
-        color = mix(color, uColor, wave);
-    }
-
-    if (opacityResult <= 0.0) {
-        discard;
-    }
-
-    gl_FragColor = vec4(color, opacityResult);
-}
-
-
-*/
