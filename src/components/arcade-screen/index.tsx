@@ -1,5 +1,5 @@
 import { useThree, createPortal, useFrame } from "@react-three/fiber"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
 import { Color, Mesh } from "three"
 import { WebGLRenderTarget, Scene, OrthographicCamera, Vector2, Vector3, Box3, MeshBasicMaterial } from "three"
 import { ScreenUI } from "./screen-ui"
@@ -7,20 +7,7 @@ import { ScreenUI } from "./screen-ui"
 export const ArcadeScreen = () => {
     const { scene } = useThree()
     const arcadeScreen = scene.getObjectByName("SM_ArcadeLab_Screen")
-    
-    const [_, setForceRender] = useState(false)
-
-    const forceRender = () => {
-        setForceRender(prev => !prev)
-    }
- //todo: remove this force render
-    useEffect(() => {
-        const interval = setInterval(() => {
-            forceRender()
-        }, 100)
-        return () => clearInterval(interval)
-    }, [])
-
+   
     const screenDimensions = useMemo(() => {
         if (!arcadeScreen) return new Vector2(512, 512)
         

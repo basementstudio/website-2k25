@@ -29,29 +29,31 @@ export const CustomCamera = () => {
   const targetPosition = useMemo(() => new Vector3(), []);
   const targetLookAt = useMemo(() => new Vector3(), []);
 
-  const animateShader = useCallback(
-    (start: number, end: number) => {
-      scene.traverse((child) => {
-        if ("material" in child) {
-          const materialChild = child as Mesh | LineSegments;
-          if (
-            materialChild.material instanceof ShaderMaterial &&
-            materialChild.material.name === BASE_SHADER_MATERIAL_NAME
-          ) {
-            animate(start, end, {
-              duration: 1.5,
-              onUpdate: (latest) => {
-                (
-                  materialChild.material as ShaderMaterial
-                ).uniforms.uProgress.value = latest;
-              },
-            });
-          }
+const animateShader = useCallback(
+  (start: number, end: number) => {
+    scene.traverse((child) => {
+      if ("material" in child) {
+        const materialChild = child as Mesh | LineSegments;
+        if (
+          materialChild.material instanceof ShaderMaterial &&
+          materialChild.material.name === BASE_SHADER_MATERIAL_NAME &&
+          materialChild.material.uniforms?.uProgress
+        ) {
+          animate(start, end, {
+            duration: 1.5,
+            onUpdate: (latest) => {
+              const material = materialChild.material as ShaderMaterial;
+              if (material.uniforms?.uProgress) {
+                material.uniforms.uProgress.value = latest;
+              }
+            },
+          });
         }
-      });
-    },
+      }
+    });
+  },
     [scene],
-  );
+  );  
 
   useEffect(() => {
     const isMenuTransition =
