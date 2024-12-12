@@ -31,6 +31,14 @@ function InnerMap() {
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({});
 
   useEffect(() => {
+    // Add logging for all meshes in the scene
+    console.log("All scene meshes:");
+    scene.traverse((child) => {
+      if ("isMesh" in child) {
+        console.log(child.name);
+      }
+    });
+
     const routingNodes: Record<string, Mesh> = {};
     const clonedScene = scene.clone(true);
 
