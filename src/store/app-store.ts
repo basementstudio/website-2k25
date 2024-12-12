@@ -19,18 +19,28 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/basketball": "hoop",
 };
 
-export const useCameraStore = create<{
+type CameraNames = "main" | "debug-orbit";
+
+interface CameraStore {
+  activeCamera: CameraNames;
   cameraState: CameraStateKeys;
   cameraConfig: CameraState;
   camera: PerspectiveCamera | null;
   setCameraState: (state: CameraStateKeys) => void;
   setCamera: (camera: PerspectiveCamera) => void;
+  orbitCamera: PerspectiveCamera | null;
   updateCameraFromPathname: (pathname: string) => void;
   // dithering states
   postProcessingCamera: PerspectiveCamera | null;
   disablePostprocessing: boolean;
   setDisablePostprocessing: (value: boolean) => void;
-}>((set, get) => ({
+
+}
+
+export const useCameraStore = create<CameraStore>((set, get) => ({
+  // active camera
+  activeCamera: "debug-orbit",
+  // main camera
   cameraState: "home",
   cameraConfig: CAMERA_STATES.home,
   camera: null,
@@ -41,6 +51,9 @@ export const useCameraStore = create<{
   },
   updateCameraFromPathname: (pathname) =>
     get().setCameraState(PATHNAME_MAP[pathname] || "home"),
+
+  // debug camera
+  orbitCamera: null,
 
   // dithering states
   postProcessingCamera: null,

@@ -1,13 +1,21 @@
+import { useCameraStore } from "@/store/app-store";
 import { Grid } from "@react-three/drei";
 
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { Vector3 } from "three";
 
 export function Debug() {
+  const orbitCamera = useCameraStore((state) => state.orbitCamera);
+
   return (
     <>
-      <PerspectiveCamera makeDefault position={[10, 2, -16]} />
-      <OrbitControls target={new Vector3(6, 1, -10)} />
+      <PerspectiveCamera
+        ref={(camera) => useCameraStore.setState({ orbitCamera: camera })}
+        position={[10, 2, -16]}
+      />
+      {orbitCamera && (
+        <OrbitControls camera={orbitCamera} target={new Vector3(6, 1, -10)} />
+      )}
       <Grid
         opacity={0.5}
         position={[0, -0.01, 0]}

@@ -9,6 +9,8 @@ interface RendererProps {
 }
 
 export function Renderer({ sceneChildren }: RendererProps) {
+  const activeCamera = useCameraStore((state) => state.activeCamera);
+
   const mainTarget = useMemo(
     () => new WebGLRenderTarget(window.innerWidth, window.innerHeight),
     [],
@@ -22,9 +24,17 @@ export function Renderer({ sceneChildren }: RendererProps) {
   const postProcessingScene = useMemo(() => new Scene(), []);
 
   const sceneCamera = useCameraStore((state) => state.camera);
+  const orbitCamera = useCameraStore((state) => state.orbitCamera);
   const postProcessingCamera = useCameraStore(
     (state) => state.postProcessingCamera,
   );
+
+  const cameraToRender = useMemo(() => {
+    // debug orbit camera
+    if (activeCamera === "debug-orbit") return orbitCamera;
+    // render main camera
+    return sceneCamera;
+  }, [sceneCamera, orbitCamera, activeCamera]);
 
   useEffect(() => {
     const resizeCallback = () => {
@@ -36,11 +46,11 @@ export function Renderer({ sceneChildren }: RendererProps) {
   }, [mainTarget, ditheringTarget]);
 
   useFrame(({ gl }) => {
-    if (!sceneCamera || !postProcessingCamera) return;
+    if (!cameraToRender || !postProcessingCamera) return;
 
     gl.setRenderTarget(mainTarget);
     // save render on main target
-    gl.render(mainScene, sceneCamera);
+    gl.render(mainScene, cameraToRender);
 
     gl.setRenderTarget(null);
     gl.render(postProcessingScene, postProcessingCamera);

@@ -21,7 +21,7 @@ export const Scene = () => (
           <>
             <color attach="background" args={["#000"]} />
             <CustomCamera />
-            {/* <Debug /> */}
+            <Debug />
             <Map />
             <MapWire />
             <Inspectables />
