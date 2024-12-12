@@ -37,23 +37,25 @@ export const CustomCamera = () => {
 
   const animateShader = useCallback(
     (start: number, end: number) => {
-      scene.traverse((child) => {
-        if ("material" in child) {
-          const materialChild = child as Mesh | LineSegments;
-          if (
-            materialChild.material instanceof ShaderMaterial &&
-            materialChild.material.name === BASE_SHADER_MATERIAL_NAME
-          ) {
-            animate(start, end, {
-              duration: 1.5,
-              onUpdate: (latest) => {
-                (
-                  materialChild.material as ShaderMaterial
-                ).uniforms.uProgress.value = latest;
-              },
-            });
-          }
-        }
+      animate(start, end, {
+        duration: 1.5,
+        onUpdate: (latest) => {
+          scene.traverse((child) => {
+            if (!("material" in child)) return;
+
+            const meshChild = child as Mesh | LineSegments;
+            if (Array.isArray(meshChild.material)) {
+              meshChild.material.forEach((material) => {
+                if (material.name !== BASE_SHADER_MATERIAL_NAME) return;
+                (material as ShaderMaterial).uniforms.uProgress.value = latest;
+              });
+            } else {
+              if (meshChild.material.name !== BASE_SHADER_MATERIAL_NAME) return;
+              (meshChild.material as ShaderMaterial).uniforms.uProgress.value =
+                latest;
+            }
+          });
+        },
       });
     },
     [scene],

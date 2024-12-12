@@ -2,10 +2,11 @@
 
 import { useGLTF, useTexture } from "@react-three/drei";
 import { useAssets } from "./assets-provider";
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { RoutingElement } from "./routing-element";
 import {
+  Material,
   Mesh,
   MeshStandardMaterial,
   NearestFilter,
@@ -14,10 +15,7 @@ import {
   Texture,
 } from "three";
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js";
-import {
-  BASE_SHADER_MATERIAL_NAME,
-  createShaderMaterial,
-} from "@/shaders/custom-shader-material";
+import { createShaderMaterial } from "@/shaders/custom-shader-material";
 import { useLoader } from "@react-three/fiber";
 
 export type GLTFResult = GLTF & {
@@ -28,6 +26,35 @@ export type GLTFResult = GLTF & {
 
 export const Map = memo(InnerMap);
 
+const LIGHTMAP_OBJECTS = [
+  "SM_library_Wood",
+  "SM_LibraryWall_01",
+  "SM_PBWall_00",
+  "SM_PBWall_01",
+  "SM_StairsFloor",
+] as const;
+
+function useLightmaps(): Record<(typeof LIGHTMAP_OBJECTS)[number], Texture> {
+  const loadedMaps = useLoader(
+    EXRLoader,
+    LIGHTMAP_OBJECTS.map((name) => `/lightmaps/${name}_Bake1_PBR_Lightmap.exr`),
+  );
+
+  const lightMaps = useMemo(() => {
+    return loadedMaps.reduce(
+      (acc, map, index) => {
+        map.flipY = true;
+        map.magFilter = NearestFilter;
+        acc[LIGHTMAP_OBJECTS[index]] = map;
+        return acc;
+      },
+      {} as Record<(typeof LIGHTMAP_OBJECTS)[number], Texture>,
+    );
+  }, [loadedMaps]);
+
+  return lightMaps;
+}
+
 function InnerMap() {
   const { map } = useAssets();
   const { scene } = useGLTF(map) as unknown as GLTFResult;
@@ -36,31 +63,7 @@ function InnerMap() {
     null,
   );
 
-  const [SM_PB_Floor, SM_RackWood009, SM_RackWood018, SM_Stairs001] = useLoader(
-    EXRLoader,
-    [
-      "/lightmaps/SM_PB_Floor_Bake1_PBR_Lightmap.exr",
-      "/lightmaps/SM_RackWood.009_Bake1_PBR_Lightmap.exr",
-      "/lightmaps/SM_RackWood.018_Bake1_PBR_Lightmap.exr",
-      "/lightmaps/SM_Stairs.001_Bake1_PBR_Lightmap.exr",
-    ],
-  );
-
-  const lightmaps = {
-    SM_PB_Floor,
-    SM_RackWood009,
-    SM_RackWood018,
-    SM_Stairs001,
-  };
-
-  SM_PB_Floor.flipY = true;
-  SM_PB_Floor.magFilter = NearestFilter;
-  SM_RackWood009.flipY = true;
-  SM_RackWood009.magFilter = NearestFilter;
-  SM_RackWood018.flipY = true;
-  SM_RackWood018.magFilter = NearestFilter;
-  SM_Stairs001.flipY = true;
-  SM_Stairs001.magFilter = NearestFilter;
+  const lightmaps = useLightmaps();
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({});
 
@@ -76,6 +79,48 @@ function InnerMap() {
       }
     });
 
+    function getLightmap(meshName: string, material: Material) {
+      const lightMap = lightmaps[meshName as keyof typeof lightmaps] || null;
+      const newMaterial = createShaderMaterial(
+        material as MeshStandardMaterial,
+        lightMap,
+        false,
+      );
+      return newMaterial;
+    }
+
+    function replaceMeshMaterial(mesh: Mesh, lightMap: Texture | null = null) {
+      if (mesh.userData.hasGlobalMaterial) return;
+
+      mesh.userData.hasGlobalMaterial = true;
+      const newMaterial = createShaderMaterial(
+        mesh.material as MeshStandardMaterial,
+        lightMap,
+        false,
+      );
+      mesh.material = newMaterial;
+    }
+
+    // Replace groups
+    LIGHTMAP_OBJECTS.forEach((name) => {
+      const object = scene.getObjectByName(name);
+
+      if (!object) return;
+
+      const lightMap = lightmaps[name as keyof typeof lightmaps];
+
+      if (object.type === "Mesh") {
+        const mesh = object as Mesh;
+        replaceMeshMaterial(mesh, lightMap);
+      } else if (object.type === "Group") {
+        object.traverse((child) => {
+          if (child.type === "Mesh") {
+            replaceMeshMaterial(child as Mesh, lightMap);
+          }
+        });
+      }
+    });
+
     // Replace materials
     scene.traverse((child) => {
       if ("isMesh" in child) {
@@ -85,23 +130,21 @@ function InnerMap() {
           CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name,
         );
         if (ommitNode) return;
-
-        const alreadyReplaced =
-          (meshChild.material as MeshStandardMaterial)?.name ===
-          BASE_SHADER_MATERIAL_NAME;
+        const alreadyReplaced = meshChild.userData.hasGlobalMaterial;
 
         if (alreadyReplaced) return;
 
-        const meshName = meshChild.name;
-        const lightMap = lightmaps[meshName as keyof typeof lightmaps] || null;
-        const newMaterial = createShaderMaterial(
-          meshChild.material as MeshStandardMaterial,
-          lightMap,
-          false,
-        );
-        meshChild.material = newMaterial;
+        const currentMaterial = meshChild.material;
+        const newMaterials = Array.isArray(currentMaterial)
+          ? currentMaterial.map((material) => getLightmap(child.name, material))
+          : getLightmap(child.name, currentMaterial);
+
+        meshChild.material = newMaterials;
+
+        meshChild.userData.hasGlobalMaterial = true;
       }
     });
+
     setMainScene(scene);
 
     // Split the routing nodes
