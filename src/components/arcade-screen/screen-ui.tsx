@@ -7,7 +7,8 @@ import {
   Root
 } from '@react-three/uikit';
 import { Separator } from '@react-three/uikit-default';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
+import { useRenderTexture } from './render-texture';
 
 const LABS_DATA = [
   {
@@ -32,7 +33,7 @@ const LABS_DATA = [
     contributors: ['/ignmandagaran'],
     link: 'https://lab.basement.studio/experiments/76.butterfly-particle-sphere',
   },
-    {
+  {
     title: 'Instanced grass',
     description: 'Instanced grass',
     image: "/images/instanced-grass.png",
@@ -55,12 +56,21 @@ const LABS_DATA = [
     link: 'https://lab.basement.studio/experiments/76.butterfly-particle-sphere',
   },
 ];
+
 export const ScreenUI = () => {
+  const { aspect } = useRenderTexture();
   const [selectedLab, setSelectedLab] = useState(0);
+
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0, 13.5]} />
-      <Root transformScaleY={-1} width={1580} height={800}>
+      <color attach="background" args={['#000']} />
+      <PerspectiveCamera
+        manual
+        aspect={aspect}
+        makeDefault
+        position={[0, .6, 10]}
+      />
+      <Root transformScaleY={-1} width={920} height={800}>
         <Container
           flexDirection="column"
           width="100%"
@@ -117,6 +127,7 @@ export const ScreenUI = () => {
                         color={selectedLab === idx ? '#000' : 'orange'}
                         fontWeight={'bold'}
                         width={'50%'}
+                        fontSize={12}
                       >
                         {title}
                       </Text>
@@ -130,6 +141,7 @@ export const ScreenUI = () => {
                           color={selectedLab === idx ? '#000' : 'orange'}
                           fontWeight={'bold'}
                           opacity={0.5}
+                          fontSize={12}
                         >
                           C:
                         </Text>
@@ -138,6 +150,7 @@ export const ScreenUI = () => {
                             key={contributor}
                             color={selectedLab === idx ? '#000' : 'orange'}
                             fontWeight={'bold'}
+                            fontSize={12}
                             onClick={() => {
                               window.open(
                                 `https://github.com${contributor}`,
@@ -162,8 +175,6 @@ export const ScreenUI = () => {
                 gap={16}
               >
                 <Container
-                  height={'67%'}
-                  width={'100%'}
                   borderColor={'orange'}
                   borderWidth={2}
                   paddingY={16}
@@ -172,12 +183,13 @@ export const ScreenUI = () => {
                 >
                   <Image
                     src={LABS_DATA[selectedLab ?? 0].image ?? ''}
-                    objectFit={'cover'}
+                    objectFit={'fill'}
+                    height={'40%'}
                     width={'100%'}
-                    aspectRatio={16 / 9}
+
                   />
                 </Container>
-                <Text color={'orange'} fontWeight={'bold'}>
+                <Text color={'orange'} fontWeight={'bold'} fontSize={14}>
                   {LABS_DATA[selectedLab ?? 0].description}
                 </Text>
               </Container>

@@ -11,36 +11,33 @@ export const ArcadeScreen = () => {
     const { scene } = useThree()
     const pathname = usePathname()
     const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
+    const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
+    const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
+
     useEffect(() => {
         const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
         setArcadeScreen(screen as Mesh)
+        if (screen) {
+            const box = new Box3().setFromObject(screen)
+            const size = box.getSize(new Vector3())
+            const center = box.getCenter(new Vector3())
+            setScreenPosition(center)
+            setScreenScale(size)
+        }
     }, [scene])
-   
-    const screenDimensions = useMemo(() => {
-        if (!arcadeScreen) return new Vector2(512, 512)
-        
-        const box = new Box3().setFromObject(arcadeScreen)
-        const size = box.getSize(new Vector3())
-        
-        const baseResolution = 1024
-        const width = baseResolution
-        const height = baseResolution * (size.y / size.x)
-        
-        return new Vector2(width, height)
-    }, [arcadeScreen])
 
     const renderTarget = useMemo(() => {
-        return new WebGLRenderTarget(screenDimensions.x, screenDimensions.y)
-    }, [screenDimensions])
+        return new WebGLRenderTarget()
+    }, [])
 
     useEffect(() => {
         if (!arcadeScreen) return
-        const newMaterial = new MeshStandardMaterial({ 
+        const newMaterial = new MeshStandardMaterial({
             map: renderTarget.texture,
             color: '#fff',
         })
         const shaderMaterial = createShaderMaterial(newMaterial, false)
-        ;(arcadeScreen as Mesh).material = shaderMaterial
+        arcadeScreen.material = shaderMaterial
     }, [arcadeScreen, renderTarget.texture])
 
     useFrame((state) => {
@@ -49,12 +46,8 @@ export const ArcadeScreen = () => {
         gl.setRenderTarget(null)
     })
 
-    /*return createPortal(
-        <ScreenUI />,
-        virtualScene
-    )*/
-    if(!arcadeScreen) return null
-    
+    if (!arcadeScreen || !screenPosition || !screenScale) return null
+
     return (
         <RenderTexture
             isPlaying={pathname === "/arcade"}
@@ -62,7 +55,7 @@ export const ArcadeScreen = () => {
             useGlobalPointer={false}
             raycasterMesh={arcadeScreen}
         >
-            <ScreenUI  />
+            <ScreenUI />
         </RenderTexture>
     )
 }

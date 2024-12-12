@@ -11,9 +11,9 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     name: "arcade",
     url: "/lab",
     object_name: "arcade",
-    position: [2.98, 1.65, -13.8],
-    target: [2.98, 1.35, -14.1],
-  },  
+    position: [2.98, 1.65, -13.75],
+    target: [2.98, 1.35, -14.105],
+  },
   stairs: {
     name: "about",
     url: "/about",
