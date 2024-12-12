@@ -62,7 +62,7 @@ export const ArcadeScreen = () => {
             useGlobalPointer={false}
             raycasterMesh={arcadeScreen}
         >
-            <ScreenUI size={screenDimensions} />
+            <ScreenUI  />
         </RenderTexture>
     )
 }
