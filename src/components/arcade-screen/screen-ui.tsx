@@ -7,7 +7,7 @@ import {
   Root
 } from '@react-three/uikit';
 import { Separator } from '@react-three/uikit-default';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useRenderTexture } from './render-texture';
 
 const LABS_DATA = [

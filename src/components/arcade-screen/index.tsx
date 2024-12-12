@@ -1,7 +1,7 @@
 import { useThree, useFrame } from "@react-three/fiber"
 import { useEffect, useMemo, useState } from "react"
 import { Mesh, MeshStandardMaterial } from "three"
-import { WebGLRenderTarget, Vector2, Vector3, Box3 } from "three"
+import { WebGLRenderTarget, Vector3, Box3 } from "three"
 import { ScreenUI } from "./screen-ui"
 import { createShaderMaterial } from "@/shaders/custom-shader-material"
 import { RenderTexture } from "./render-texture"
