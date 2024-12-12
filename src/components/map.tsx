@@ -43,6 +43,8 @@ function InnerMap() {
     CLICKABLE_NODES.forEach((node) => {
       const child = clonedScene.getObjectByName(`${node.name}`);
 
+      console.log(child, node.name, "found child");
+
       if (child) {
         child.removeFromParent();
         routingNodes[node.name] = child as Mesh;

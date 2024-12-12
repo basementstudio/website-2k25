@@ -32,8 +32,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     name: "showcase",
     url: "/showcase",
     object_name: "railing",
-    position: [8, 10, -7],
-    target: [7, 1.6, -7],
+    position: [6, 3, -10.21],
+    target: [-4, 5.5, -12],
   },
   menu: {
     name: "menu",

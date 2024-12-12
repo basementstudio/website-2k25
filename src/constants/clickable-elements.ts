@@ -23,7 +23,7 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     routeName: "stairs",
   },
   {
-    name: "SM_Railing",
+    name: "SM_Railing001",
     route: "/showcase",
     routeName: "showcase",
   },
