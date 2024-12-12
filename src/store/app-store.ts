@@ -16,6 +16,7 @@ export interface CameraState {
   object_name?: string;
   position: [number, number, number];
   target: [number, number, number];
+  offset?: [number, number, number];
 }
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
@@ -33,6 +34,9 @@ export const useCameraStore = create<{
   setCameraState: (state: CameraStateKeys) => void;
   setCamera: (camera: PerspectiveCamera) => void;
   updateCameraFromPathname: (pathname: string) => void;
+  // Add offset handling
+  cameraOffset: [number, number, number];
+  setCameraOffset: (offset: [number, number, number]) => void;
   // dithering states
   postProcessingCamera: PerspectiveCamera | null;
   disablePostprocessing: boolean;
@@ -41,10 +45,16 @@ export const useCameraStore = create<{
   cameraState: "home",
   cameraConfig: CAMERA_STATES.home,
   camera: null,
+  cameraOffset: [0, 0, 0],
+  setCameraOffset: (offset) => set({ cameraOffset: offset }),
   setCamera: (camera) => set({ camera }),
   setCameraState: (state) => {
     if (state === get().cameraState) return;
-    set({ cameraState: state, cameraConfig: CAMERA_STATES[state] });
+    set({
+      cameraState: state,
+      cameraConfig: CAMERA_STATES[state],
+      cameraOffset: [0, 0, 0],
+    });
   },
   updateCameraFromPathname: (pathname) =>
     get().setCameraState(PATHNAME_MAP[pathname] || "home"),

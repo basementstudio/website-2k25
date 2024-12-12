@@ -18,6 +18,9 @@ import { usePathname } from "next/navigation";
 import { cameraAnimationConfig } from "@/utils/animations";
 import { animate } from "motion";
 import { BASE_SHADER_MATERIAL_NAME } from "@/shaders/custom-shader-material";
+import { useGesture } from "@use-gesture/react";
+import { useMotionValue, useSpring } from "motion/react";
+import { useInspectable } from "./inspectables/context";
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/": "home",
@@ -27,10 +30,13 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/projects": "projects",
 };
 
+const PROJECTS_CAMERA_SENSITIVITY = 0.01;
+
 export const CustomCamera = () => {
   const pathname = usePathname();
   const scene = useThree((state) => state.scene);
-  const { cameraConfig } = useCameraStore();
+  const { cameraConfig, cameraState } = useCameraStore();
+  const { selected } = useInspectable();
   const cameraControlsRef = useRef<CameraControls>(null);
   const isInitializedRef = useRef(false);
   const previousCameraState = useRef<string | null>(null);
@@ -39,6 +45,24 @@ export const CustomCamera = () => {
   const currentTarget = useMemo(() => new Vector3(), []);
   const targetPosition = useMemo(() => new Vector3(), []);
   const targetLookAt = useMemo(() => new Vector3(), []);
+
+  const offsetX = useMotionValue(0);
+  const offsetY = useMotionValue(0);
+  const offsetXSpring = useSpring(offsetX, {
+    stiffness: 64,
+    damping: 16,
+    mass: 1,
+  });
+  const offsetYSpring = useSpring(offsetY, {
+    stiffness: 64,
+    damping: 16,
+    mass: 1,
+  });
+
+  useEffect(() => {
+    offsetX.set(0);
+    offsetY.set(0);
+  }, [cameraState, cameraConfig, offsetX, offsetY]);
 
   const animateShader = useCallback(
     (start: number, end: number) => {
@@ -113,26 +137,42 @@ export const CustomCamera = () => {
     const controls = cameraControlsRef.current;
     if (!controls || !isInitializedRef.current) return;
 
-    cameraAnimationConfig.progress = Math.min(
-      cameraAnimationConfig.progress + delta / cameraAnimationConfig.duration,
-      1,
-    );
-    const easeValue = cameraAnimationConfig.easing(
-      cameraAnimationConfig.progress,
-    );
+    if (cameraAnimationConfig.progress < 1) {
+      cameraAnimationConfig.progress = Math.min(
+        cameraAnimationConfig.progress + delta / cameraAnimationConfig.duration,
+        1,
+      );
+      const easeValue = cameraAnimationConfig.easing(
+        cameraAnimationConfig.progress,
+      );
 
-    controls.getPosition(currentPos);
-    controls.getTarget(currentTarget);
+      controls.getPosition(currentPos);
+      controls.getTarget(currentTarget);
 
-    currentPos.lerp(targetPosition, easeValue);
-    currentTarget.lerp(targetLookAt, easeValue);
+      currentPos.lerp(targetPosition, easeValue);
+      currentTarget.lerp(targetLookAt, easeValue);
 
-    controls.setPosition(currentPos.x, currentPos.y, currentPos.z);
-    controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
-
-    if (cameraAnimationConfig.progress >= 1) {
-      cameraAnimationConfig.progress = 0;
+      controls.setPosition(currentPos.x, currentPos.y, currentPos.z);
+      controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
     }
+
+    if (
+      cameraState === "projects" &&
+      cameraAnimationConfig.progress >= 1 &&
+      !selected
+    ) {
+      const springX = offsetXSpring.get();
+      const springY = offsetYSpring.get();
+      const baseTarget = CAMERA_STATES.projects.target;
+
+      controls.setTarget(
+        baseTarget[0],
+        baseTarget[1] + springY,
+        baseTarget[2] + springX,
+      );
+    }
+
+    controls.update(delta);
   });
 
   useEffect(() => {
@@ -142,6 +182,36 @@ export const CustomCamera = () => {
         .setCamera(cameraControlsRef.current.camera as PerspectiveCamera);
     }
   }, []);
+
+  useGesture(
+    {
+      onDrag: ({
+        delta: [x, y],
+        memo = [offsetX.get(), offsetY.get()],
+        first,
+      }) => {
+        if (cameraState !== "projects" || selected) return memo;
+
+        if (first) {
+          console.log("Started dragging in projects view");
+        }
+
+        const newX = memo[0] + x * PROJECTS_CAMERA_SENSITIVITY;
+        const newY = memo[1] + y * PROJECTS_CAMERA_SENSITIVITY;
+
+        console.log("Drag values:", { x, y, newX, newY });
+
+        offsetX.set(newX);
+        offsetY.set(newY);
+
+        return [newX, newY];
+      },
+    },
+    {
+      target: window,
+      eventOptions: { passive: false },
+    },
+  );
 
   return <CameraControls makeDefault ref={cameraControlsRef} />;
 };
