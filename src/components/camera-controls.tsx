@@ -8,18 +8,23 @@ import {
   LineSegments,
   PerspectiveCamera,
 } from "three";
-import { CameraState, useCameraStore } from "@/store/app-store";
+import {
+  CameraState,
+  CameraStateKeys,
+  useCameraStore,
+} from "@/store/app-store";
 import { CAMERA_STATES } from "@/constants/camera-states";
 import { usePathname } from "next/navigation";
 import { cameraAnimationConfig } from "@/utils/animations";
 import { animate } from "motion";
 import { BASE_SHADER_MATERIAL_NAME } from "@/shaders/custom-shader-material";
 
-const PATHNAME_MAP: Record<string, string> = {
+const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/": "home",
   "/arcade": "arcade",
   "/about": "stairs",
   "/basketball": "hoop",
+  "/projects": "projects",
 };
 
 export const CustomCamera = () => {

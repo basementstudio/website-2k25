@@ -2,7 +2,13 @@ import { CAMERA_STATES } from "@/constants/camera-states";
 import { create } from "zustand";
 import { PerspectiveCamera } from "three";
 
-export type CameraStateKeys = "home" | "arcade" | "stairs" | "hoop" | "menu";
+export type CameraStateKeys =
+  | "home"
+  | "arcade"
+  | "stairs"
+  | "hoop"
+  | "projects"
+  | "menu";
 
 export interface CameraState {
   name: string;
@@ -17,6 +23,7 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/arcade": "arcade",
   "/about": "stairs",
   "/basketball": "hoop",
+  "/projects": "projects",
 };
 
 type CameraNames = "main" | "debug-orbit";
