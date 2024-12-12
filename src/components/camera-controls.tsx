@@ -24,7 +24,7 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/arcade": "arcade",
   "/about": "stairs",
   "/basketball": "hoop",
-  "/showcase": "showcase",
+  "/projects": "projects",
 };
 
 export const CustomCamera = () => {

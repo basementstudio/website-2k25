@@ -7,7 +7,7 @@ export type CameraStateKeys =
   | "arcade"
   | "stairs"
   | "hoop"
-  | "showcase"
+  | "projects"
   | "menu";
 
 export interface CameraState {
@@ -23,7 +23,7 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/arcade": "arcade",
   "/about": "stairs",
   "/basketball": "hoop",
-  "/showcase": "showcase",
+  "/projects": "projects",
 };
 
 export const useCameraStore = create<{
