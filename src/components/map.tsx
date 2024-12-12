@@ -5,13 +5,7 @@ import { useAssets } from "./assets-provider";
 import { memo, useEffect, useState } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { RoutingElement } from "./routing-element";
-import {
-  Mesh,
-  MeshNormalMaterial,
-  MeshStandardMaterial,
-  Object3D,
-  Object3DEventMap,
-} from "three";
+import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import {
   BASE_SHADER_MATERIAL_NAME,
@@ -71,7 +65,7 @@ function InnerMap() {
           meshChild.material as MeshStandardMaterial,
           false,
         );
-        meshChild.material = new MeshNormalMaterial();
+        meshChild.material = newMaterial;
       }
     });
     setMainScene(clonedScene);
