@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "tailwindcss.tailwindcss-intellisense",
+    "esbenp.prettier-vscode",
+    "stylelint.vscode-stylelint",
+    "phoenisx.cssvar",
+    "geforcelegend.vscode-glsl"
+  ]
+}

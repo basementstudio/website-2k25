@@ -49,11 +49,13 @@ export const InspectableDragger = ({
 
   const rPolar = React.useMemo(
     () => [rotation[0] + polar[0], rotation[0] + polar[1]],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [rotation[0], polar[0], polar[1]],
   ) as [number, number];
 
   const rAzimuth = React.useMemo(
     () => [rotation[1] + azimuth[0], rotation[1] + azimuth[1]],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [rotation[1], azimuth[0], azimuth[1]],
   ) as [number, number];
 
@@ -63,6 +65,7 @@ export const InspectableDragger = ({
       MathUtils.clamp(rotation[1], ...rAzimuth),
       rotation[2],
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [rotation[0], rotation[1], rotation[2], rPolar, rAzimuth],
   );
 
@@ -83,6 +86,7 @@ export const InspectableDragger = ({
         gl.domElement.style.cursor = "default";
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [global, cursor, explDomElement, enabled]);
 
   const bind = useGesture(
@@ -127,6 +131,7 @@ export const InspectableDragger = ({
 
       explDomElement.style.cursor = "auto";
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
 
   // TODO: find a parametric way to calculate the "Math.PI / 8" value

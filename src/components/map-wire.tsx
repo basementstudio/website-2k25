@@ -4,7 +4,7 @@ import { useGLTF } from "@react-three/drei";
 import { GLTFResult } from "./map";
 import { Mesh, MeshStandardMaterial } from "three";
 import { createShaderMaterial } from "@/shaders/custom-shader-material";
-import { memo, useMemo} from "react";
+import { memo, useMemo } from "react";
 
 export const MapWire = memo(MapWireInner);
 
@@ -13,6 +13,7 @@ function MapWireInner() {
   const material = useMemo(() => {
     return createShaderMaterial(
       (nodes.WireFrame_MeshCurveMesh as Mesh).material as MeshStandardMaterial,
+      null,
       true,
     );
   }, [nodes.WireFrame_MeshCurveMesh]);
