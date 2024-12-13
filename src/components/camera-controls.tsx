@@ -93,6 +93,29 @@ export const CustomCamera = () => {
       }
 
       previousCameraState.current = newState;
+
+  const animateShader = useCallback(
+    (start: number, end: number) => {
+      animate(start, end, {
+        duration: 1.5,
+        onUpdate: (latest) => {
+          scene.traverse((child) => {
+            if (!("material" in child)) return;
+
+            const meshChild = child as Mesh | LineSegments;
+            if (Array.isArray(meshChild.material)) {
+              meshChild.material.forEach((material) => {
+                if (material.name !== BASE_SHADER_MATERIAL_NAME) return;
+                (material as ShaderMaterial).uniforms.uProgress.value = latest;
+              });
+            } else {
+              if (meshChild.material.name !== BASE_SHADER_MATERIAL_NAME) return;
+              (meshChild.material as ShaderMaterial).uniforms.uProgress.value =
+                latest;
+            }
+          });
+        },
+      });
     },
     [scene],
   );
