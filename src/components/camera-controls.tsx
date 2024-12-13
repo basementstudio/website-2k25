@@ -58,11 +58,6 @@ export const CustomCamera = () => {
     damping: 16,
     mass: 1,
   });
-  const offsetYSpring = useSpring(offsetY, {
-    stiffness: 64,
-    damping: 16,
-    mass: 1,
-  });
 
   const mouseUV = useMousePosition((s) => s.uv);
   const smoothMouseUv = useMemo(() => new Vector2(0.5, 0.5), []);
@@ -175,7 +170,6 @@ export const CustomCamera = () => {
         PROJECTS_RIGHT_LIM,
         Math.min(PROJECTS_LEFT_LIM, offsetXSpring.get()),
       );
-      const springY = offsetYSpring.get();
       const baseTarget = CAMERA_STATES.projects.target;
       const basePosition = CAMERA_STATES.projects.position;
 
@@ -194,13 +188,13 @@ export const CustomCamera = () => {
         if (!selected) {
           controls.setTarget(
             baseTarget[0],
-            baseTarget[1] + springY + mouseSpringY,
+            baseTarget[1] - mouseSpringY,
             baseTarget[2] + springX + mouseSpringX,
           );
 
           controls.setPosition(
             basePosition[0],
-            basePosition[1],
+            basePosition[1] + mouseSpringY,
             basePosition[2] + springX + mouseSpringX,
           );
         }
@@ -233,8 +227,8 @@ export const CustomCamera = () => {
 
         controls.setTarget(
           baseTarget[0],
-          baseTarget[1] + springY,
-          baseTarget[2] + springX,
+          baseTarget[1] - springY,
+          baseTarget[2] - springX,
         );
 
         controls.setPosition(basePosition[0], basePosition[1], basePosition[2]);
@@ -247,7 +241,7 @@ export const CustomCamera = () => {
   useGesture(
     {
       onDrag: ({
-        delta: [x, y],
+        delta: [x],
         memo = [offsetX.get(), offsetY.get()],
         first,
       }) => {
@@ -264,12 +258,10 @@ export const CustomCamera = () => {
             memo[0] + x * PROJECTS_CAMERA_SENSITIVITY,
           ),
         );
-        const newY = memo[1] + y * PROJECTS_CAMERA_SENSITIVITY;
 
         offsetX.set(newX);
-        offsetY.set(newY);
 
-        return [newX, newY];
+        return [newX, memo[1]];
       },
     },
     {
