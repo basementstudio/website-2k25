@@ -14,6 +14,11 @@ uniform bool uPreserveColors;
 uniform int uDitherPattern;
 uniform float uBrightnessThreshold;
 
+// post
+uniform float uGamma;
+uniform float uContrast;
+uniform float uExposure;
+
 uniform sampler2D uBayerTexture;
 uniform sampler2D uBayer16Texture;
 uniform sampler2D uBlueNoiseTexture;
@@ -117,9 +122,58 @@ vec3 dither(vec2 uv, vec3 color) {
     return clamp(color.rgb, 0.0, 1.0);
 }
 
+// Tonemaping & gamma
+
+vec3 gamma(vec3 color) {
+    return pow(color, vec3(1.0 / 2.2)); // 2.2 is standard gamma correction value
+}
+
+vec3 gamma(vec3 color, float gamma) {
+    return pow(color, vec3(1.0 / gamma));
+}
+
+vec3 invertedGamma(vec3 color) {
+    return pow(color, vec3(2.2));
+}
+
+// // ACES filmic tone mapping approximation
+vec3 acesFilm(vec3 x) {
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+}
+
+// // Exposure tone mapping
+vec3 exposureToneMap(vec3 color, float exposure) {
+    return vec3(1.0) - exp(-color * exposure);
+}
+
+vec3 contrast(vec3 color, float contrast) {
+    return color * contrast;
+}
+
+vec3 tonemap(vec3 color) {
+    color = invertedGamma(color);
+    color = exposureToneMap(color, uExposure);
+    color = contrast(color, uContrast);
+    color = acesFilm(color);
+    color = gamma(color, uGamma); 
+    return color;
+}
+
 void main() {
+
+    vec4 baseColorSample = texture2D(uMainTexture, vUv);
+
+    vec3 color = baseColorSample.rgb;
+
     if (!uEnableShader) {
-        gl_FragColor = texture2D(uMainTexture, vUv);
+        // gl_FragColor = vec4(color, 1.0);
+        gl_FragColor = vec4(tonemap(color), 1.0);
+        #include <colorspace_fragment>
         return;
     }
     
@@ -127,8 +181,10 @@ void main() {
     vec2 normalizedPixelSize = (uPixelSize / dpr) / screenSize;
     uv = normalizedPixelSize * floor(vUv / normalizedPixelSize);
     
-    vec4 color = texture2D(uMainTexture, uv);
     color.rgb *= uBrightness;
     color.rgb = dither(uv, color.rgb);
-    gl_FragColor = color;
+    // gl_FragColor = vec4(color, 1.0);
+
+    gl_FragColor = vec4(tonemap(color), 1.0);
+    #include <colorspace_fragment>
 }

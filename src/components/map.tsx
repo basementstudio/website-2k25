@@ -1,17 +1,20 @@
 "use client";
 
-import { useGLTF, useTexture } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
 import { useAssets } from "./assets-provider";
 import { memo, useEffect, useMemo, useState } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { RoutingElement } from "./routing-element";
 import {
+  FloatType,
   Material,
   Mesh,
   MeshStandardMaterial,
   NearestFilter,
+  NoColorSpace,
   Object3D,
   Object3DEventMap,
+  RGBAFormat,
   Texture,
 } from "three";
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js";
@@ -27,7 +30,7 @@ export type GLTFResult = GLTF & {
 export const Map = memo(InnerMap);
 
 const LIGHTMAP_OBJECTS = [
-  "SM_library_Wood",
+  "SM__library_Wood",
   "SM_LibraryWall_01",
   "SM_PBWall_00",
   "SM_PBWall_01",
@@ -43,8 +46,11 @@ function useLightmaps(): Record<(typeof LIGHTMAP_OBJECTS)[number], Texture> {
   const lightMaps = useMemo(() => {
     return loadedMaps.reduce(
       (acc, map, index) => {
+        console.log(map);
+
         map.flipY = true;
         map.magFilter = NearestFilter;
+        map.colorSpace = NoColorSpace;
         acc[LIGHTMAP_OBJECTS[index]] = map;
         return acc;
       },
@@ -68,21 +74,10 @@ function InnerMap() {
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({});
 
   useEffect(() => {
-    // Add logging for all meshes in the scene
-    console.log("All scene meshes:");
-    scene.traverse((child) => {
-      if ("isMesh" in child) {
-        console.log(child.name);
-      }
-    });
-
     const routingNodes: Record<string, Mesh> = {};
 
     CLICKABLE_NODES.forEach((node) => {
       const child = scene.getObjectByName(`${node.name}`);
-
-      console.log(child, node.name, "found child");
-
       if (child) {
         child.removeFromParent();
         routingNodes[node.name] = child as Mesh;

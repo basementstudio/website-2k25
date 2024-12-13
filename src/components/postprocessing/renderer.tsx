@@ -1,6 +1,16 @@
 import { createPortal, useFrame } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
-import { Scene, WebGLRenderTarget } from "three";
+import {
+  HalfFloatType,
+  LinearSRGBColorSpace,
+  NoColorSpace,
+  NoToneMapping,
+  RGBAFormat,
+  Scene,
+  SRGBColorSpace,
+  Texture,
+  WebGLRenderTarget,
+} from "three";
 import { PostProcessing } from "./post-processing";
 import { useCameraStore } from "@/store/app-store";
 
@@ -11,14 +21,15 @@ interface RendererProps {
 export function Renderer({ sceneChildren }: RendererProps) {
   const activeCamera = useCameraStore((state) => state.activeCamera);
 
-  const mainTarget = useMemo(
-    () => new WebGLRenderTarget(window.innerWidth, window.innerHeight),
-    [],
-  );
-  const ditheringTarget = useMemo(
-    () => new WebGLRenderTarget(window.innerWidth, window.innerHeight),
-    [],
-  );
+  const mainTarget = useMemo(() => {
+    const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+      type: HalfFloatType,
+      format: RGBAFormat,
+      colorSpace: LinearSRGBColorSpace,
+    });
+
+    return rt;
+  }, []);
 
   const mainScene = useMemo(() => new Scene(), []);
   const postProcessingScene = useMemo(() => new Scene(), []);
@@ -39,19 +50,22 @@ export function Renderer({ sceneChildren }: RendererProps) {
   useEffect(() => {
     const resizeCallback = () => {
       mainTarget.setSize(window.innerWidth, window.innerHeight);
-      ditheringTarget.setSize(window.innerWidth, window.innerHeight);
     };
     window.addEventListener("resize", resizeCallback);
     return () => window.removeEventListener("resize", resizeCallback);
-  }, [mainTarget, ditheringTarget]);
+  }, [mainTarget]);
 
   useFrame(({ gl }) => {
     if (!cameraToRender || !postProcessingCamera) return;
 
+    gl.outputColorSpace = LinearSRGBColorSpace;
+    gl.toneMapping = NoToneMapping;
     gl.setRenderTarget(mainTarget);
     // save render on main target
     gl.render(mainScene, cameraToRender);
 
+    gl.outputColorSpace = SRGBColorSpace;
+    gl.toneMapping = NoToneMapping;
     gl.setRenderTarget(null);
     gl.render(postProcessingScene, postProcessingCamera);
   }, 1);

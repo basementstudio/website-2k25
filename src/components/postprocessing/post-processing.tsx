@@ -17,7 +17,7 @@ const material = new ShaderMaterial({
   fragmentShader: postFrag,
   uniforms: {
     uMainTexture: { value: null },
-    uEnableShader: { value: true },
+    uEnableShader: { value: false },
     aspect: { value: 1 },
     screenSize: { value: new Vector2(1, 1) },
     dpr: { value: 1 },
@@ -32,6 +32,11 @@ const material = new ShaderMaterial({
     uBayerTexture: { value: null },
     uBayer16Texture: { value: null },
     uBlueNoiseTexture: { value: null },
+
+    // adjustments
+    uContrast: { value: 1.0 },
+    uExposure: { value: 1.0 },
+    uGamma: { value: 1.0 },
   },
 });
 
@@ -49,6 +54,33 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         "8x8": 8,
         "16x16": 16,
         "blue noise": 999,
+      },
+    },
+    contrast: {
+      value: 1.0,
+      min: 0.0,
+      max: 10.0,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uContrast.value = value;
+      },
+    },
+    exposure: {
+      value: 1.16,
+      min: 0.0,
+      max: 10.0,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uExposure.value = value;
+      },
+    },
+    gamma: {
+      value: 1.87,
+      min: 0.0,
+      max: 2.2,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uGamma.value = value;
       },
     },
   });

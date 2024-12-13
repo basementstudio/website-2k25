@@ -2,6 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
+import * as THREE from "three";
 
 import { Map } from "@/components/map";
 import { Inspectables } from "@/components/inspectables/inspectables";
@@ -15,7 +16,15 @@ import { Leva } from "leva";
 export const Scene = () => (
   <div className="absolute inset-0">
     <Leva />
-    <Canvas gl={{ antialias: true, alpha: false }} camera={{ fov: 45 }}>
+    <Canvas
+      gl={{
+        antialias: true,
+        alpha: false,
+        outputColorSpace: THREE.SRGBColorSpace,
+        toneMapping: THREE.ACESFilmicToneMapping,
+      }}
+      camera={{ fov: 45 }}
+    >
       <Renderer
         sceneChildren={
           <>

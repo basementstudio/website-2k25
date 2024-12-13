@@ -26,10 +26,10 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/projects": "projects",
 };
 
-type CameraNames = "main" | "debug-orbit";
+export type CameraName = "main" | "debug-orbit";
 
 interface CameraStore {
-  activeCamera: CameraNames;
+  activeCamera: CameraName;
   cameraState: CameraStateKeys;
   cameraConfig: CameraState;
   camera: PerspectiveCamera | null;
@@ -46,7 +46,7 @@ interface CameraStore {
 
 export const useCameraStore = create<CameraStore>((set, get) => ({
   // active camera
-  activeCamera: "debug-orbit",
+  activeCamera: "main",
   // main camera
   cameraState: "home",
   cameraConfig: CAMERA_STATES.home,
