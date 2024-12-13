@@ -8,7 +8,7 @@ export const LabList = ({ selectedLab, setSelectedLab, data }: { selectedLab: nu
         <Container display={"flex"} flexDirection={"column"} width={"100%"}>
             {
                 data.map(({ title, contributors, link }, idx) => (
-                    <Container paddingX={8} paddingY={4} borderBottomWidth={2} height={40} borderColor={"orange"} backgroundColor={selectedLab === idx ? "orange" : "#000"} key={idx} onClick={() => {
+                    <Container paddingX={8} paddingY={4} borderBottomWidth={idx === data.length - 1 ? 0 : 2} height={40} borderColor={"orange"} backgroundColor={selectedLab === idx ? "orange" : "#000"} key={idx} onClick={() => {
                         window.open(link, '_blank');
                     }} onPointerOver={() => setSelectedLab(idx)}>
                         <Text fontSize={14} fontWeight={"bold"} color={selectedLab === idx ? "#000" : "orange"} width={"40%"}>{title}</Text>
