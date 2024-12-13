@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
 
 import { Toolbar as BasehubToolbar } from "basehub/next-toolbar";
-import { Geist } from "next/font/google";
 
 import { AssetsProvider } from "@/components/assets-provider";
 import { fetchAssets } from "@/components/assets-provider/fetch-assets";
