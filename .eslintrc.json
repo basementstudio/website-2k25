@@ -1,3 +1,28 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "simple-import-sort",
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "rules": {
+    // TODO change prettier to "error" once current PRs are merged
+    "prettier/prettier": "warn",
+    "semi": "off",
+    "arrow-body-style": "off",
+    "prefer-arrow-callback": "off",
+    "simple-import-sort/imports": "warn",
+    "simple-import-sort/exports": "warn",
+    "react-hooks/exhaustive-deps": [
+      "warn",
+      {
+        "additionalHooks": "(useIsomorphicLayoutEffect)"
+      }
+    ]
+  },
+  "root": true
 }

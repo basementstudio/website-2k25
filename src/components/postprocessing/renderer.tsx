@@ -3,12 +3,10 @@ import { useEffect, useMemo } from "react";
 import {
   HalfFloatType,
   LinearSRGBColorSpace,
-  NoColorSpace,
   NoToneMapping,
   RGBAFormat,
   Scene,
   SRGBColorSpace,
-  Texture,
   WebGLRenderTarget,
 } from "three";
 import { PostProcessing } from "./post-processing";

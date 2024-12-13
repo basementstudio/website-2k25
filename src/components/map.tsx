@@ -6,7 +6,6 @@ import { memo, useEffect, useMemo, useState } from "react";
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
 import { RoutingElement } from "./routing-element";
 import {
-  FloatType,
   Material,
   Mesh,
   MeshStandardMaterial,
@@ -14,7 +13,6 @@ import {
   NoColorSpace,
   Object3D,
   Object3DEventMap,
-  RGBAFormat,
   Texture,
 } from "three";
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js";
@@ -158,7 +156,7 @@ function InnerMap() {
       ...current,
       ...routingNodes,
     }));
-  }, [scene]);
+  }, [scene, lightmaps]);
 
   if (!mainScene) return null;
 

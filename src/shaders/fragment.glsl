@@ -15,41 +15,45 @@ uniform bool uReverse;
 #pragma glslify: noise = require('./noise3.glsl')
 
 void main() {
-    // Distance from center
-    vec3 voxelCenter = round(vWorldPosition * 6.) / 6.;
-    float randomOffset = noise(voxelCenter) * noiseFactor; 
+  // Distance from center
+  vec3 voxelCenter = round(vWorldPosition * 6.0) / 6.0;
+  float randomOffset = noise(voxelCenter) * noiseFactor;
 
-    float dist = distance(voxelCenter, vec3(2.0, 0., -16.0));
-    dist += randomOffset * 2.0;
+  float dist = distance(voxelCenter, vec3(2.0, 0.0, -16.0));
+  dist += randomOffset * 2.0;
 
-    // Wave effect
-    float wave = step(dist, uProgress * 20.0);
-    float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
-    
-    vec4 mapSample = texture2D(map, vUv * mapRepeat);
-    // Combine texture and base color
-    vec3 color = baseColor * mapSample.rgb;
+  // Wave effect
+  float wave = step(dist, uProgress * 20.0);
+  float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
 
-    vec3 lightMapSample = texture2D(lightMap, vUv2).rgb;
+  vec4 mapSample = texture2D(map, vUv * mapRepeat);
+  // Combine texture and base color
+  vec3 color = baseColor * mapSample.rgb;
 
-    vec3 irradiance = color + lightMapSample;
+  vec3 lightMapSample = texture2D(lightMap, vUv2).rgb;
 
-    // Combine wave color
-    irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
+  vec3 irradiance = color + lightMapSample;
 
-    // Reverse the opacity calculation and apply wave effect
-    float opacityResult;
-    if (uReverse) {
-        opacityResult = wave;
-        irradiance = mix(irradiance, vec3(1.0,1.0,1.0) * wave + vec3(1.0,1.0,1.0) * edge, wave + edge);
-    } else {
-        opacityResult = 1.0 - wave;
-        irradiance = mix(irradiance, uColor, wave);
-    }
+  // Combine wave color
+  irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
 
-    if (opacityResult <= 0.0) {
-        discard;
-    }
+  // Reverse the opacity calculation and apply wave effect
+  float opacityResult;
+  if (uReverse) {
+    opacityResult = wave;
+    irradiance = mix(
+      irradiance,
+      vec3(1.0, 1.0, 1.0) * wave + vec3(1.0, 1.0, 1.0) * edge,
+      wave + edge
+    );
+  } else {
+    opacityResult = 1.0 - wave;
+    irradiance = mix(irradiance, uColor, wave);
+  }
 
-    gl_FragColor = vec4(irradiance, opacityResult);
+  if (opacityResult <= 0.0) {
+    discard;
+  }
+
+  gl_FragColor = vec4(irradiance, opacityResult);
 }
