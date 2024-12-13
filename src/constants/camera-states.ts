@@ -53,7 +53,7 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     name: "menu",
     position: [16, 14, -5],
     target: [7, 1.6, -16],
-    rotationAngle: [5, 5],
+    rotationAngle: [1, 1],
     rotationLerp: 0.03,
   },
 };

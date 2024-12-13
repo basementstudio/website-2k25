@@ -162,30 +162,39 @@ export const CustomCamera = () => {
       controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
     }
 
-    if (
-      cameraState === "projects" &&
-      cameraAnimationConfig.progress >= 1 &&
-      !selected
-    ) {
+    if (cameraState === "projects") {
       const springX = offsetXSpring.get();
       const springY = offsetYSpring.get();
       const baseTarget = CAMERA_STATES.projects.target;
       const basePosition = CAMERA_STATES.projects.position;
 
-      controls.setTarget(
-        baseTarget[0],
-        baseTarget[1] + springY,
-        baseTarget[2] + springX,
-      );
+      if (cameraAnimationConfig.progress >= 1) {
+        const rotationAngle = cameraConfig.rotationAngle || [0, 0];
+        const rotationLerp = cameraConfig.rotationLerp || 0.03;
 
-      controls.setPosition(
-        basePosition[0],
-        basePosition[1],
-        basePosition[2] + springX,
-      );
-    }
+        smoothMouseUv.lerp(
+          new Vector2(mouseUV.x, mouseUV.y),
+          Math.min(rotationLerp * delta * 100, 1),
+        );
 
-    if (cameraAnimationConfig.progress >= 1) {
+        const mouseSpringX = (smoothMouseUv.x - 0.5) * rotationAngle[0];
+        const mouseSpringY = (smoothMouseUv.y - 0.5) * rotationAngle[1];
+
+        if (!selected) {
+          controls.setTarget(
+            baseTarget[0],
+            baseTarget[1] + springY + mouseSpringY,
+            baseTarget[2] + springX + mouseSpringX,
+          );
+
+          controls.setPosition(
+            basePosition[0],
+            basePosition[1],
+            basePosition[2] + springX + mouseSpringX,
+          );
+        }
+      }
+    } else if (cameraAnimationConfig.progress >= 1) {
       const rotationAngle = cameraConfig.rotationAngle || [0, 0];
       const rotationLerp = cameraConfig.rotationLerp || 0.03;
 
@@ -202,26 +211,10 @@ export const CustomCamera = () => {
         const basePosition = CAMERA_STATES.menu.position;
 
         controls.setTarget(baseTarget[0], baseTarget[1], baseTarget[2]);
-
         controls.setPosition(
           basePosition[0] + springX,
           basePosition[1] + springY,
           basePosition[2],
-        );
-      } else if (cameraState === "projects" && !selected) {
-        const baseTarget = CAMERA_STATES.projects.target;
-        const basePosition = CAMERA_STATES.projects.position;
-
-        controls.setTarget(
-          baseTarget[0],
-          baseTarget[1] + springY + offsetYSpring.get(),
-          baseTarget[2] + springX + offsetXSpring.get(),
-        );
-
-        controls.setPosition(
-          basePosition[0],
-          basePosition[1],
-          basePosition[2] + springX + offsetXSpring.get(),
         );
       } else {
         const baseTarget = CAMERA_STATES[cameraState].target;
