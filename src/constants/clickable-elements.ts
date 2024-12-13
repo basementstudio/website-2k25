@@ -8,6 +8,21 @@ interface ClickableNode {
 
 export const CLICKABLE_NODES: ClickableNode[] = [
   {
+    name: "404_Hover",
+    route: "/404",
+    routeName: "projects",
+  },
+  {
+    name: "About2_Hover",
+    route: "/about",
+    routeName: "stairs",
+  },
+  {
+    name: "Home_Hover",
+    route: "/",
+    routeName: "home",
+  },
+  {
     name: "Game_Hover",
     route: "/basketball",
     routeName: "hoop",

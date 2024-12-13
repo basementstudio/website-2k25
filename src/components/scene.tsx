@@ -1,22 +1,44 @@
-"use client";
+"use client"
 
-import { Canvas } from "@react-three/fiber";
-import { CustomCamera } from "@/components/camera-controls";
-import { Environment } from "@react-three/drei";
+import { Environment } from "@react-three/drei"
+import { Canvas } from "@react-three/fiber"
+import { Leva } from "leva"
+import * as THREE from "three"
 
-import { Map } from "@/components/map";
-import { Inspectables } from "@/components/inspectables/inspectables";
-import { MapWire } from "./map-wire";
+import { CustomCamera } from "@/components/camera-controls"
+import { Inspectables } from "@/components/inspectables/inspectables"
+import { Map } from "@/components/map"
+
+import { Debug } from "./debug"
+import { MapWire } from "./map-wire"
+import { Renderer } from "./postprocessing/renderer"
 
 export const Scene = () => (
   <div className="absolute inset-0">
-    <Canvas gl={{ antialias: true, alpha: false, localClippingEnabled: true }} camera={{ fov: 45 }}>
-      <color attach="background" args={["#000"]} />
-      <CustomCamera />
-      <Map />
-      <MapWire />
-      <Inspectables />
-      <Environment preset="studio" />
+    <Leva />
+    <Canvas
+      gl={{
+        antialias: true,
+        alpha: false,
+        outputColorSpace: THREE.SRGBColorSpace,
+        toneMapping: THREE.ACESFilmicToneMapping,
+        localClippingEnabled: true
+      }}
+      camera={{ fov: 45 }}
+    >
+      <Renderer
+        sceneChildren={
+          <>
+            <color attach="background" args={["#000"]} />
+            <CustomCamera />
+            <Debug />
+            <Map />
+            <MapWire />
+            <Inspectables />
+            <Environment preset="studio" />
+          </>
+        }
+      />
     </Canvas>
   </div>
-);
+)

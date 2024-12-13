@@ -1,11 +1,17 @@
 "use client";
 
-import { cn } from "@/utils/cn";
-import { useInspectable } from "./context";
+import { Node, RichText as BaseRichText } from "basehub/react-rich-text";
 import { Fragment, useEffect, useState } from "react";
-import { fetchInspectable, Inspectable } from "./fetch-inspectable";
-import { RichText } from "basehub/react-rich-text";
+
+const RichText = BaseRichText as unknown as React.ComponentType<{
+  content: Node[];
+}>;
+
 import { useKeyPress } from "@/hooks/use-key-press";
+import { cn } from "@/utils/cn";
+
+import { useInspectable } from "./context";
+import { fetchInspectable, Inspectable } from "./fetch-inspectable";
 
 const Close = ({ handleClose }: { handleClose: () => void }) => (
   <button className="text-paragraph text-brand-w1" onClick={handleClose}>
@@ -33,7 +39,9 @@ const Content = ({ data }: { data: Inspectable }) => (
       </div>
     )}
     <div className="mr-14 text-paragraph text-brand-w1">
-      <RichText content={data?.description?.json?.content} />
+      {data?.description?.json?.content && (
+        <RichText content={data.description.json.content as Node[]} />
+      )}
     </div>
   </>
 );
@@ -61,7 +69,7 @@ export const InspectableViewer = () => {
     <div
       className={cn(
         "pointer-events-none absolute inset-0 top-9 z-10 items-center",
-        selected ? "flex" : "hidden",
+        selected ? "flex" : "hidden"
       )}
     >
       <div className="grid-layout h-full">
