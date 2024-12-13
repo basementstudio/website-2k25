@@ -65,56 +65,48 @@ export const CustomCamera = () => {
   const mouseUV = useMousePosition((s) => s.uv);
   const smoothMouseUv = useMemo(() => new Vector2(0.5, 0.5), []);
 
-  useEffect(() => {
-    offsetX.set(0);
-    offsetY.set(0);
-  }, [cameraState, cameraConfig, offsetX, offsetY]);
+  const handleCameraStateChange = useCallback(
+    (newState: string) => {
+      const isMenuTransition =
+        previousCameraState.current === "menu" || newState === "menu";
 
-  const animateShader = useCallback(
-    (start: number, end: number) => {
-      scene.traverse((child) => {
-        if ("material" in child) {
-          const materialChild = child as Mesh | LineSegments;
-          if (
-            materialChild.material instanceof ShaderMaterial &&
-            materialChild.material.name === BASE_SHADER_MATERIAL_NAME
-          ) {
-            animate(start, end, {
-              duration: 1.5,
-              onUpdate: (latest) => {
-                (
-                  materialChild.material as ShaderMaterial
-                ).uniforms.uProgress.value = latest;
-              },
-            });
+      if (isMenuTransition) {
+        scene.traverse((child) => {
+          if ("material" in child) {
+            const materialChild = child as Mesh | LineSegments;
+            if (
+              materialChild.material instanceof ShaderMaterial &&
+              materialChild.material.name === BASE_SHADER_MATERIAL_NAME
+            ) {
+              animate(
+                newState === "menu" ? 0 : 1,
+                newState === "menu" ? 1 : 0,
+                {
+                  duration: 1.5,
+                  onUpdate: (latest) => {
+                    (
+                      materialChild.material as ShaderMaterial
+                    ).uniforms.uProgress.value = latest;
+                  },
+                },
+              );
+            }
           }
-        }
-      });
+        });
+      }
+
+      previousCameraState.current = newState;
     },
     [scene],
   );
 
   useEffect(() => {
-    const isMenuTransition =
-      previousCameraState.current === "menu" || cameraConfig.name === "menu";
-
-    if (isMenuTransition) {
-      animateShader(
-        cameraConfig.name === "menu" ? 0 : 1,
-        cameraConfig.name === "menu" ? 1 : 0,
-      );
-    }
-
-    previousCameraState.current = cameraConfig.name;
-  }, [cameraConfig.name, animateShader]);
-
-  useEffect(() => {
-    cameraControlsRef.current?.disconnect();
-  }, []);
-
-  useEffect(() => {
     const controls = cameraControlsRef.current;
-    if (controls && !isInitializedRef.current) {
+    if (!controls) return;
+
+    controls.disconnect();
+
+    if (!isInitializedRef.current) {
       const initialState = PATHNAME_MAP[pathname] || "home";
       const initialConfig =
         CAMERA_STATES[initialState as keyof typeof CAMERA_STATES];
@@ -127,6 +119,8 @@ export const CustomCamera = () => {
 
       isInitializedRef.current = true;
     }
+
+    useCameraStore.getState().setCamera(controls.camera as PerspectiveCamera);
   }, [pathname, currentPos, currentTarget]);
 
   useEffect(() => {
@@ -137,7 +131,19 @@ export const CustomCamera = () => {
     targetLookAt.set(...target);
 
     cameraAnimationConfig.progress = 0;
-  }, [cameraConfig, targetPosition, targetLookAt]);
+
+    offsetX.set(0);
+    offsetY.set(0);
+
+    handleCameraStateChange(cameraConfig.name);
+  }, [
+    cameraConfig,
+    targetPosition,
+    targetLookAt,
+    offsetX,
+    offsetY,
+    handleCameraStateChange,
+  ]);
 
   useFrame((_, delta) => {
     const controls = cameraControlsRef.current;
@@ -232,14 +238,6 @@ export const CustomCamera = () => {
 
     controls.update(delta);
   });
-
-  useEffect(() => {
-    if (cameraControlsRef.current) {
-      useCameraStore
-        .getState()
-        .setCamera(cameraControlsRef.current.camera as PerspectiveCamera);
-    }
-  }, []);
 
   useGesture(
     {
