@@ -13,7 +13,10 @@ import {
   CameraStateKeys,
   useCameraStore,
 } from "@/store/app-store";
-import { CAMERA_STATES } from "@/constants/camera-states";
+import {
+  CAMERA_STATES,
+  PROJECTS_CAMERA_SENSITIVITY,
+} from "@/constants/camera-states";
 import { usePathname } from "next/navigation";
 import { cameraAnimationConfig } from "@/utils/animations";
 import { animate } from "motion";
@@ -29,8 +32,6 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/basketball": "hoop",
   "/projects": "projects",
 };
-
-const PROJECTS_CAMERA_SENSITIVITY = 0.01;
 
 export const CustomCamera = () => {
   const pathname = usePathname();
@@ -164,11 +165,18 @@ export const CustomCamera = () => {
       const springX = offsetXSpring.get();
       const springY = offsetYSpring.get();
       const baseTarget = CAMERA_STATES.projects.target;
+      const basePosition = CAMERA_STATES.projects.position;
 
       controls.setTarget(
         baseTarget[0],
         baseTarget[1] + springY,
         baseTarget[2] + springX,
+      );
+
+      controls.setPosition(
+        basePosition[0],
+        basePosition[1],
+        basePosition[2] + springX,
       );
     }
 

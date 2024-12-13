@@ -1,5 +1,7 @@
 import { CameraState, CameraStateKeys } from "@/store/app-store";
 
+export const PROJECTS_CAMERA_SENSITIVITY = 0.025;
+
 export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
   home: {
     name: "home",
@@ -32,7 +34,7 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     name: "projects",
     url: "/projects",
     object_name: "railing",
-    position: [6, 3, -10.21],
+    position: [6, 4.78, -10.21],
     target: [-4, 5.5, -12],
   },
   menu: {
