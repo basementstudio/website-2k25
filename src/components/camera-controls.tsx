@@ -17,6 +17,8 @@ import {
 import {
   CAMERA_STATES,
   PROJECTS_CAMERA_SENSITIVITY,
+  PROJECTS_LEFT_LIM,
+  PROJECTS_RIGHT_LIM,
 } from "@/constants/camera-states";
 import { usePathname } from "next/navigation";
 import { cameraAnimationConfig } from "@/utils/animations";
@@ -169,7 +171,10 @@ export const CustomCamera = () => {
     }
 
     if (cameraState === "projects") {
-      const springX = offsetXSpring.get();
+      const springX = Math.max(
+        PROJECTS_RIGHT_LIM,
+        Math.min(PROJECTS_LEFT_LIM, offsetXSpring.get()),
+      );
       const springY = offsetYSpring.get();
       const baseTarget = CAMERA_STATES.projects.target;
       const basePosition = CAMERA_STATES.projects.position;
@@ -252,10 +257,14 @@ export const CustomCamera = () => {
           console.log("Started dragging in projects view");
         }
 
-        const newX = memo[0] + x * PROJECTS_CAMERA_SENSITIVITY;
+        const newX = Math.max(
+          PROJECTS_RIGHT_LIM,
+          Math.min(
+            PROJECTS_LEFT_LIM,
+            memo[0] + x * PROJECTS_CAMERA_SENSITIVITY,
+          ),
+        );
         const newY = memo[1] + y * PROJECTS_CAMERA_SENSITIVITY;
-
-        console.log("Drag values:", { x, y, newX, newY });
 
         offsetX.set(newX);
         offsetY.set(newY);

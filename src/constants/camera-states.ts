@@ -4,6 +4,9 @@ export const PROJECTS_CAMERA_SENSITIVITY = 0.025;
 
 export const MAX_MOUSE_PAN_OFFSET = 0.03;
 
+export const PROJECTS_RIGHT_LIM = -17;
+export const PROJECTS_LEFT_LIM = 1;
+
 export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
   home: {
     name: "home",
