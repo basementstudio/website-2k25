@@ -21,7 +21,7 @@ export const LabList = ({ selectedLab, setSelectedLab, data }: { selectedLab: nu
                                             window.open(`https://github.com${contributor}`)
                                         }}>{contributor}</Text>
                                         {selectedContributor === cIdx && (
-                                            <Container positionType={"absolute"} width={"100%"} height={2} positionBottom={2} backgroundColor={"#000"} />
+                                            <Container positionType={"absolute"} width={"100%"} height={2} positionBottom={5} backgroundColor={"#000"} />
                                         )}
                                     </Container>
                                 ))
