@@ -4,7 +4,7 @@ export const PROJECTS_CAMERA_SENSITIVITY = 0.025;
 
 export const MAX_MOUSE_PAN_OFFSET = 0.03;
 
-export const PROJECTS_RIGHT_LIM = -17;
+export const PROJECTS_RIGHT_LIM = -7.3;
 export const PROJECTS_LEFT_LIM = 1;
 
 export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
@@ -47,7 +47,7 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     name: "projects",
     url: "/projects",
     object_name: "railing",
-    position: [6, 4.72, -10.16],
+    position: [5.9, 4.72, -10.11],
     target: [-4, 5.55, -15.95],
     rotationAngle: [0.5, 0.5],
     rotationLerp: 0.03,

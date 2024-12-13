@@ -45,6 +45,7 @@ export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null);
   const isInitializedRef = useRef(false);
   const previousCameraState = useRef<string | null>(null);
+  const mouseInfluenceRef = useRef<number>(0);
 
   const currentPos = useMemo(() => new Vector3(), []);
   const currentTarget = useMemo(() => new Vector3(), []);
@@ -154,6 +155,7 @@ export const CustomCamera = () => {
     targetLookAt.set(...target);
 
     cameraAnimationConfig.progress = 0;
+    mouseInfluenceRef.current = 0;
 
     offsetX.set(0);
     offsetY.set(0);
@@ -208,8 +210,13 @@ export const CustomCamera = () => {
           Math.min(rotationLerp * delta * 100, 1),
         );
 
-        const mouseSpringX = (smoothMouseUv.x - 0.5) * rotationAngle[0];
-        const mouseSpringY = (smoothMouseUv.y - 0.5) * rotationAngle[1];
+        mouseInfluenceRef.current = Math.min(
+          mouseInfluenceRef.current + delta * 2,
+          1
+        );
+
+        const mouseSpringX = (smoothMouseUv.x - 0.5) * rotationAngle[0] * mouseInfluenceRef.current;
+        const mouseSpringY = (smoothMouseUv.y - 0.5) * rotationAngle[1] * mouseInfluenceRef.current;
 
         if (!selected) {
           controls.setTarget(
@@ -234,8 +241,13 @@ export const CustomCamera = () => {
         Math.min(rotationLerp * delta * 100, 1),
       );
 
-      const springX = (smoothMouseUv.x - 0.5) * rotationAngle[0];
-      const springY = (smoothMouseUv.y - 0.5) * rotationAngle[1];
+      mouseInfluenceRef.current = Math.min(
+        mouseInfluenceRef.current + delta * 2,
+        1
+      );
+
+      const springX = (smoothMouseUv.x - 0.5) * rotationAngle[0] * mouseInfluenceRef.current;
+      const springY = (smoothMouseUv.y - 0.5) * rotationAngle[1] * mouseInfluenceRef.current;
 
       if (cameraState === "menu") {
         const baseTarget = CAMERA_STATES.menu.target;
