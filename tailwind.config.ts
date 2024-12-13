@@ -48,6 +48,9 @@ export default {
           },
         ],
       },
+      spacing: {
+        "45": "11.25rem",
+      },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
       },

@@ -8,7 +8,35 @@
   }
 
   .actionable {
-    @apply underline underline-offset-[1.5px] [text-decoration-thickness:0.5px];
+    @apply font-medium underline underline-offset-[1.5px] [text-decoration-thickness:0.5px];
+  }
+
+  .with-dots {
+    --tw-gradient-stops: theme("colors.brand.w1") 0px,
+      theme("colors.brand.w1") 1px, transparent 1px,
+      transparent calc(100% - 1px), theme("colors.brand.w1") calc(100% - 1px),
+      theme("colors.brand.w1") 100%;
+
+    @apply relative;
+    @apply after:pointer-events-none after:absolute after:-left-px after:-right-px after:-top-px after:z-10 after:h-px after:bg-gradient-to-r;
+    @apply before:pointer-events-none before:absolute before:-bottom-px before:-left-px before:-right-px before:z-10 before:h-px before:bg-gradient-to-r;
+  }
+
+  .with-diagonal-lines {
+    @apply relative overflow-hidden;
+    @apply after:pointer-events-none after:absolute after:-inset-12 after:z-10 after:from-brand-w1/[0.12];
+  }
+
+  .with-diagonal-lines:after {
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 3.181989515px,
+      var(--tw-gradient-from) 3.181989515px,
+      var(--tw-gradient-from) 4.242640687px
+    );
+
+    animation: diagonalPatternAnimation 3s linear infinite;
   }
 }
 
@@ -17,7 +45,7 @@ html {
 }
 
 body {
-  @apply font-sans antialiased;
+  @apply bg-brand-k font-sans antialiased;
   text-rendering: optimizeLegibility;
 }
 
@@ -33,4 +61,13 @@ body {
 * {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+@keyframes diagonalPatternAnimation {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(48px);
+  }
 }

@@ -10,6 +10,7 @@ import { cn } from "@/utils/cn";
 import { InspectableProvider } from "@/components/inspectables/context";
 import { Navbar } from "@/components/layout/navbar";
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer";
+import { Footer } from "@/components/layout/footer";
 
 export const metadata: Metadata = {
   title: {
@@ -40,6 +41,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
               <InspectableViewer />
             </div>
             {children}
+            <Footer />
           </body>
         </InspectableProvider>
       </AssetsProvider>

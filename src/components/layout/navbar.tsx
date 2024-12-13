@@ -1,6 +1,7 @@
 "use client";
 
 import { CameraStateKeys, useCameraStore } from "@/store/app-store";
+import { cn } from "@/utils/cn";
 
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
@@ -36,7 +37,13 @@ export const Navbar = () => {
   );
 
   return (
-    <nav className="fixed top-0 z-navbar flex h-9 w-full items-center justify-between bg-brand-k px-4">
+    <nav
+      className={cn(
+        "fixed top-0 z-navbar flex h-9 w-full items-center justify-between px-4",
+        "[background-image:linear-gradient(#000000_1px,transparent_1px),linear-gradient(to_right,#000000_1px,rgba(0,0,0,0.7)_1px)] [background-position-y:1px] [background-size:2px_2px]",
+        "after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-brand-w1/10",
+      )}
+    >
       <button onClick={() => handleNavigation("/", "home")}>
         <Logo className="h-3.5 text-brand-w1" />
       </button>
