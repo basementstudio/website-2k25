@@ -3,12 +3,14 @@ import { PerspectiveCamera } from '@react-three/drei';
 import {
   Container,
   Text,
-  Image,
-  Root
+  Root,
+  Icon,
+  Image
 } from '@react-three/uikit';
-import { Separator } from '@react-three/uikit-default';
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import { useRenderTexture } from './render-texture';
+import { CustomSeparator } from './custom-components/CustomSeparator';
+import { Separator } from '@react-three/uikit-default';
 
 const LABS_DATA = [
   {
@@ -72,191 +74,76 @@ export const ScreenUI = () => {
       />
       <Root transformScaleY={-1} width={920} height={800}>
         <Container
-          flexDirection="column"
           width="100%"
           height="100%"
-          overflow="scroll"
-          backgroundColor={'#000'}
+          backgroundColor={'blue'}
+          padding={16}
         >
           <Container
-            height={'100%'}
-            width={'100%'}
-            borderColor={'orange'}
+            width="100%"
+            height="100%"
+            borderColor={"orange"}
+            backgroundColor={"#000"}
             borderWidth={2}
-            display={'flex'}
-            flexDirection={'column'}
-            paddingY={20}
-            gap={16}
+            positionType={"relative"}
           >
-            <Separator backgroundColor={'orange'} width={2} />
-            <Container
-              flexGrow={1}
-              width={'100%'}
-              paddingX={20}
-              display={'flex'}
-              flexDirection={'row'}
-              gap={16}
-            >
-              <Container
-                height={'100%'}
-                width={'100%'}
-                borderColor={'orange'}
-                borderWidth={2}
-                display={'flex'}
-                flexDirection={'column'}
-                overflow={'scroll'}
-              >
-                {LABS_DATA.map(({ title, contributors }, idx) => (
-                  <Fragment key={idx}>
-                    <Container
-                      width={'100%'}
-                      height={'10%'}
-                      paddingX={16}
-                      display={'flex'}
-                      flexDirection={'row'}
-                      backgroundColor={selectedLab === idx ? 'orange' : '#000'}
-                      cursor={'pointer'}
-                      onPointerOver={() => {
-                        setSelectedLab(idx);
-                      }}
-                      onClick={() => {
-                        window.open(LABS_DATA[idx].link, '_blank');
-                      }}
-                    >
-                      <Text
-                        color={selectedLab === idx ? '#000' : 'orange'}
-                        fontWeight={'bold'}
-                        width={'50%'}
-                        fontSize={12}
-                      >
-                        {title}
-                      </Text>
-                      <Container
-                        display={'flex'}
-                        flexDirection={'row'}
-                        width={'50%'}
-                        gap={8}
-                      >
-                        <Text
-                          color={selectedLab === idx ? '#000' : 'orange'}
-                          fontWeight={'bold'}
-                          opacity={0.5}
-                          fontSize={12}
-                        >
-                          C:
-                        </Text>
-                        {contributors.map((contributor) => (
-                          <Text
-                            key={contributor}
-                            color={selectedLab === idx ? '#000' : 'orange'}
-                            fontWeight={'bold'}
-                            fontSize={12}
-                            onClick={() => {
-                              window.open(
-                                `https://github.com${contributor}`,
-                                '_blank'
-                              );
-                            }}
-                          >
-                            {contributor}
-                          </Text>
-                        ))}
-                      </Container>
+            <Text color={"orange"} fontWeight={"bold"} positionType={"absolute"} positionTop={-10} positionLeft={10} paddingX={8} backgroundColor={"#000"}>Close [X]</Text>
+            <Container width={"100%"} height={"auto"} marginTop={10} paddingY={16} display={"flex"} flexDirection={"column"}>
+              <Container width={"100%"} height={16} positionType={"relative"} display={"flex"} alignItems={"center"} justifyContent={"center"}>
+                <CustomSeparator />
+                <Container positionType={"absolute"} paddingX={8} height={16} width={"100%"} display={"flex"} flexDirection={"row"} alignItems={"center"} gap={8}>
+                  <Container width={"60%"} height={16}>
+                    <Container backgroundColor={"#000"} paddingX={8}>
+                      <Text color={"orange"} fontWeight={"bold"}>Experiments</Text>
+                      <Icon paddingTop={5} text={`<svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 4.8L1.99835e-07 0L2.28571 1.04905e-07L2.28571 2.4L4.57143 2.4V4.8L6.85714 4.8V7.2H9.14286V4.8H11.4286V2.4H13.7143V6.29446e-07L16 7.34351e-07V4.8H13.7143V7.2H11.4286V9.6H9.14286L9.14286 12H6.85714L6.85714 9.6H4.57143L4.57143 7.2H2.28571L2.28571 4.8H0Z" fill="#F68300"/></svg>`} svgWidth={16} svgHeight={16} width={16} height={16} />
                     </Container>
-                    <Separator backgroundColor={'orange'} />
-                  </Fragment>
-                ))}
+                  </Container>
+                  <Container width={"40%"} height={16}>
+                    <Container backgroundColor={"#000"} paddingX={8}>
+                      <Text color={"orange"} fontWeight={"bold"}>Preview</Text>
+                      <Icon paddingTop={5} text={`<svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 4.8L1.99835e-07 0L2.28571 1.04905e-07L2.28571 2.4L4.57143 2.4V4.8L6.85714 4.8V7.2H9.14286V4.8H11.4286V2.4H13.7143V6.29446e-07L16 7.34351e-07V4.8H13.7143V7.2H11.4286V9.6H9.14286L9.14286 12H6.85714L6.85714 9.6H4.57143L4.57143 7.2H2.28571L2.28571 4.8H0Z" fill="#F68300"/></svg>`} svgWidth={16} svgHeight={16} width={16} height={16} />
+                    </Container>
+                  </Container>
+                </Container>
               </Container>
-              <Container
-                width={'40%'}
-                height={'100%'}
-                display={'flex'}
-                flexDirection={'column'}
-                gap={16}
-              >
-                <Container
-                  borderColor={'orange'}
-                  borderWidth={2}
-                  paddingY={16}
-                  paddingX={16}
-                  positionType={'relative'}
-                >
-                  <Image
-                    src={LABS_DATA[selectedLab ?? 0].image ?? ''}
-                    objectFit={'fill'}
-                    height={'40%'}
-                    width={'100%'}
+              <Container height={"100%"} width={"100%"} display={"flex"} flexDirection={"column"} paddingTop={16}>
 
-                  />
-                </Container>
-                <Text color={'orange'} fontWeight={'bold'} fontSize={14}>
-                  {LABS_DATA[selectedLab ?? 0].description}
-                </Text>
-              </Container>
-            </Container>
-            <Separator backgroundColor={'orange'} />
-            <Container width={'100%'} height={'30%'} paddingX={20}>
-              <Container
-                width={'100%'}
-                height={'100%'}
-                backgroundColor={'orange'}
-                display={'flex'}
-                flexDirection={'row'}
-                borderColor={'orange'}
-                borderWidth={2}
-              >
-                <Container
-                  width={'50%'}
-                  height={'100%'}
-                  positionType={'relative'}
-                  display={'flex'}
-                  justifyContent={'center'}
-                  alignItems={'center'}
-                >
-                  <Container backgroundColor={'#000'} zIndexOffset={1}>
-                    <Text color={'orange'} fontWeight={'bold'} padding={8}>
-                      Play Basment Chronicles
-                    </Text>
+
+
+                <Container backgroundColor={"red"} height={"70%"} width={"100%"}>
+                  <Container width={"60%"} height={"100%"} backgroundColor={"green"} padding={16}>
                   </Container>
-                  <Image
-                    src={"/images/chronicles.png"}
-                    objectFit={'cover'}
-                    positionType={'absolute'}
-                    width={'100%'}
-                    height={'100%'}
-                  />
-                </Container>
-                <Separator
-                  backgroundColor={'orange'}
-                  orientation="vertical"
-                  width={2}
-                />
-                <Container
-                  width={'50%'}
-                  height={'100%'}
-                  positionType={'relative'}
-                  display={'flex'}
-                  justifyContent={'center'}
-                  alignItems={'center'}
-                >
-                  <Container backgroundColor={'#000'} zIndexOffset={1}>
-                    <Text color={'orange'} fontWeight={'bold'} padding={8}>
-                      Looper (coming soon)
-                    </Text>
+                  <Container width={"40%"} height={"100%"} backgroundColor={"white"}>
                   </Container>
-                  <Image
-                    src={"/images/looper.png"}
-                    objectFit={'cover'}
-                    positionType={'absolute'}
-                    width={'100%'}
-                    height={'100%'}
-                  />
+                </Container>
+
+
+                <Container backgroundColor={"#000"} height={"30%"} width={"100%"} display={"flex"} flexDirection={"row"} padding={16}>
+                  <Container borderColor={"orange"} borderWidth={2}>
+                    <Container width={"50%"} height={"100%"} positionType={"relative"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                      <Container backgroundColor={"#000"} paddingX={8} zIndexOffset={1}>
+                        <Text color={"orange"} fontWeight={"bold"} fontSize={14}>Play Basment Chronicles</Text>
+                      </Container>
+                      <Image src={`/images/chronicles.png`} width={"100%"} height={"100%"} objectFit={"cover"} positionType={"absolute"} />
+                    </Container>
+                    <Separator orientation="vertical" backgroundColor={"orange"} />
+                    <Container width={"50%"} height={"100%"} positionType={"relative"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                      <Container backgroundColor={"#000"} paddingX={8} zIndexOffset={1}>
+                        <Text color={"orange"} fontWeight={"bold"} fontSize={14}>Looper (coming soon)</Text>
+                      </Container>
+                      <Image src={`/images/looper.png`} width={"100%"} height={"100%"} objectFit={"cover"} positionType={"absolute"} />
+                    </Container>
+                  </Container>
                 </Container>
               </Container>
+
             </Container>
           </Container>
         </Container>
       </Root>
     </>
   );
-};
+};/**  <Container positionType={"absolute"} positionLeft={10} paddingX={8} backgroundColor={"#000"} display={"flex"} flexDirection={"row"} alignItems={"center"} gap={8}>
+<Text color={"orange"} fontWeight={"bold"}>Experiments</Text>
+<Icon paddingTop={5} text={`<svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 4.8L1.99835e-07 0L2.28571 1.04905e-07L2.28571 2.4L4.57143 2.4V4.8L6.85714 4.8V7.2H9.14286V4.8H11.4286V2.4H13.7143V6.29446e-07L16 7.34351e-07V4.8H13.7143V7.2H11.4286V9.6H9.14286L9.14286 12H6.85714L6.85714 9.6H4.57143L4.57143 7.2H2.28571L2.28571 4.8H0Z" fill="#F68300"/></svg>`} svgWidth={16} svgHeight={16} width={16} height={16} />
+</Container> */
