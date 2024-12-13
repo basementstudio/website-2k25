@@ -93,6 +93,9 @@ export const CustomCamera = () => {
       }
 
       previousCameraState.current = newState;
+    },
+    [scene],
+  );
 
   const animateShader = useCallback(
     (start: number, end: number) => {
