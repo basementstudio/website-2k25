@@ -1,52 +1,21 @@
-const LABS_DATA = [
-    {
-        title: 'Instanced grass',
-        description: 'Instanced grass',
-        image: "/images/instanced-grass.png",
-        contributors: ['/git-chad'],
-        link: 'https://lab.basement.studio/experiments/77.instanced-grass',
-    },
-    {
-        title: 'Shader matcap transition',
-        description:
-            'Animate transition between matcap texture and shader based on scroll.',
-        image: "/images/butterflies.png",
-        contributors: ['/tomasferrerasdev', '/matiasngf'],
-        link: 'https://lab.basement.studio/experiments/75.shader-matcap-transition.tsx',
-    },
-    {
-        title: 'Butterfly Particle Sphere',
-        description: `This example is based on this other example to show how splines can be used to create a camera rail. The camera will follow the curve and rotate to face the tangent's direction of the current point in the curve. It also modifies the target view in certain points of the curve to face other desired targets.`,
-        image: "/images/butterflies.png",
-        contributors: ['/ignmandagaran'],
-        link: 'https://lab.basement.studio/experiments/76.butterfly-particle-sphere',
-    },
-    {
-        title: 'Instanced grass',
-        description: 'Instanced grass',
-        image: "/images/instanced-grass.png",
-        contributors: ['/git-chad'],
-        link: 'https://lab.basement.studio/experiments/77.instanced-grass',
-    },
-    {
-        title: 'Shader matcap transition',
-        description:
-            'Animate transition between matcap texture and shader based on scroll.',
-        image: "/images/instanced-grass.png",
-        contributors: ['/tomasferrerasdev', '/matiasngf'],
-        link: 'https://lab.basement.studio/experiments/75.shader-matcap-transition.tsx',
-    },
-    {
-        title: 'Butterfly Particle Sphere',
-        description: `This example is based on this other example to show how splines can be used to create a camera rail. The camera will follow the curve and rotate to face the tangent's direction of the current point in the curve. It also modifies the target view in certain points of the curve to face other desired targets.`,
-        image: "/images/butterflies.png",
-        contributors: ['/ignmandagaran'],
-        link: 'https://lab.basement.studio/experiments/76.butterfly-particle-sphere',
-    },
-];
+import { Container, Text } from "@react-three/uikit";
+import { Dispatch, SetStateAction } from "react";
+import { LabData } from "../screen-ui";
 
-export const LabList = () => {
+export const LabList = ({ selectedLab, setSelectedLab, data }: { selectedLab: number, setSelectedLab: Dispatch<SetStateAction<number>>, data: LabData[] }) => {
     return (
-        <div>LabList</div>
+        <Container display={"flex"} flexDirection={"column"} width={"100%"}>
+            {
+                data.map(({ title, contributors }, idx) => (
+                    <Container paddingX={8} paddingY={4} borderBottomWidth={2} borderColor={"orange"} backgroundColor={selectedLab === idx ? "orange" : "#000"} key={idx} onPointerOver={() => setSelectedLab(idx)}>
+                        <Text fontSize={14} fontWeight={"bold"} color={selectedLab === idx ? "#000" : "orange"} width={"40%"}>{title}</Text>
+                        <Container display={"flex"} flexDirection={"row"} gap={4}>
+                            <Text fontSize={14} fontWeight={"bold"} color={selectedLab === idx ? "#000" : "orange"}>C:</Text>
+                            <Text fontSize={14} fontWeight={"bold"} color={selectedLab === idx ? "#000" : "orange"}>{contributors.join(" ")}</Text>
+                        </Container>
+                    </Container>
+                ))
+            }
+        </Container>
     )
 }

@@ -1,8 +1,8 @@
 import { CLICKABLE_NODES } from "@/constants/clickable-elements";
-import { CameraStateKeys, useCameraStore } from "@/store/app-store";
+import useNavigation from "@/hooks/use-navigation";
 import { useCursor } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Mesh } from "three";
 
 interface RoutingElementProps {
@@ -11,18 +11,8 @@ interface RoutingElementProps {
 
 export const RoutingElement = ({ node }: RoutingElementProps) => {
   const router = useRouter();
-  const setCameraState = useCameraStore((state) => state.setCameraState);
-
   const pathname = usePathname();
-
-  const handleNavigation = useCallback(
-    (route: string, cameraState: CameraStateKeys) => {
-      setCameraState(cameraState);
-      router.push(route);
-    },
-    [router, setCameraState],
-  );
-
+  const handleNavigation = useNavigation();
   const [hover, setHover] = useState(false);
 
   useCursor(hover);
@@ -45,8 +35,6 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
       setHover(false);
     }
   }, [activeRoute]);
-
-  // todo: smooth hover
 
   if (!routeConfig) return null;
 
