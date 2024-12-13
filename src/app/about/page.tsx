@@ -1,89 +1,18 @@
-import { Pump } from "basehub/react-pump";
-import { RichText } from "basehub/react-rich-text";
-import Image from "next/image";
-import Link from "next/link";
+import { Pump, PumpQuery } from "basehub/react-pump"
+import Link from "next/link"
+
+import { formatDate } from "@/utils/format-date"
+
+import { Hero } from "./hero"
+import { query } from "./query"
+import { Services } from "./services"
 
 const About = () => (
-  <Pump
-    queries={[
-      {
-        pages: {
-          about: {
-            intro: {
-              json: { content: true },
-            },
-            imageSequence: {
-              items: {
-                image: {
-                  url: true,
-                  width: true,
-                  height: true,
-                },
-              },
-            },
-          },
-        },
-        company: {
-          services: {
-            serviceList: {
-              items: {
-                _title: true,
-                category: {
-                  _title: true,
-                },
-              },
-            },
-          },
-          clients: {
-            clientList: {
-              items: {
-                _title: true,
-                website: true,
-              },
-            },
-          },
-          people: {
-            peopleList: {
-              items: {
-                _title: true,
-                department: {
-                  _title: true,
-                },
-                role: true,
-              },
-            },
-          },
-          awards: {
-            awardList: {
-              items: {
-                _id: true,
-                title: true,
-                date: true,
-                project: {
-                  _title: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    ]}
-    next={{ revalidate: 30 }}
-  >
+  <Pump queries={[query]} next={{ revalidate: 30 }}>
     {async ([data]) => {
-      "use server";
-      if (!data) return null;
+      "use server"
 
-      const servicesByCategory = data.company.services.serviceList.items.reduce(
-        (acc, service) => {
-          const category = service.category._title;
-          if (!acc[category]) acc[category] = [];
-
-          acc[category].push(service._title);
-          return acc;
-        },
-        {} as Record<string, string[]>,
-      );
+      if (!data) return null
 
       const groupedClients = data.company.clients.clientList.items
         .sort((a, b) => a._title.localeCompare(b._title))
@@ -91,70 +20,31 @@ const About = () => (
           (acc, client, index) => {
             const groupIndex = Math.floor(
               index /
-                Math.ceil(data.company.clients.clientList.items.length / 5),
-            );
-            if (!acc[groupIndex]) acc[groupIndex] = [];
-            acc[groupIndex].push(client);
-            return acc;
+                Math.ceil(data.company.clients.clientList.items.length / 5)
+            )
+            if (!acc[groupIndex]) acc[groupIndex] = []
+            acc[groupIndex].push(client)
+            return acc
           },
-          {} as Record<number, typeof data.company.clients.clientList.items>,
-        );
+          {} as Record<number, typeof data.company.clients.clientList.items>
+        )
 
       const groupedPeople = data.company.people.peopleList.items.reduce(
         (acc, person) => {
-          const department = person.department._title;
-          if (!acc[department]) acc[department] = [];
-          acc[department].push(person);
-          return acc;
+          const department = person.department._title
+          if (!acc[department]) acc[department] = []
+          acc[department].push(person)
+          return acc
         },
-        {} as Record<string, typeof data.company.people.peopleList.items>,
-      );
+        {} as Record<string, typeof data.company.people.peopleList.items>
+      )
 
       return (
-        <main className="relative -mt-24 w-full bg-brand-k pt-2">
-          <section className="grid-layout pb-45">
-            <h1 className="col-start-1 col-end-5 text-heading uppercase text-brand-w2">
-              About Us
-            </h1>
-            <Image
-              src={data.pages.about.imageSequence.items[0].image.url}
-              width={data.pages.about.imageSequence.items[0].image.width}
-              height={data.pages.about.imageSequence.items[0].image.height}
-              alt=""
-              className="col-start-5 col-end-7"
-            />
-            <div className="col-start-9 col-end-12 text-paragraph text-brand-w2">
-              <RichText content={data.pages.about.intro.json.content} />
-            </div>
-          </section>
+        <main className="relative flex flex-col gap-49 bg-brand-k pt-2">
+          <Hero data={data} />
+          <Services data={data} />
 
-          <div className="grid-layout pb-45">
-            <div className="relative col-start-1 col-end-13 grid grid-cols-6 gap-2">
-              <hr className="absolute top-5 w-full border-brand-w1/20" />
-              {Object.entries(servicesByCategory).map(
-                ([category, services]) => (
-                  <div
-                    key={category}
-                    className="col-span-1 flex flex-col gap-5"
-                  >
-                    <h2 className="text-paragraph text-brand-g1">{category}</h2>
-                    <ul>
-                      {services.map((service) => (
-                        <li
-                          key={service}
-                          className="text-subheading text-brand-w2"
-                        >
-                          {service}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ),
-              )}
-            </div>
-          </div>
-
-          <div className="grid-layout pb-45">
+          <div className="grid-layout">
             <h2 className="col-start-1 col-end-5 text-heading uppercase text-brand-w2">
               Clients
             </h2>
@@ -176,7 +66,7 @@ const About = () => (
             </div>
           </div>
 
-          <div className="grid-layout pb-45">
+          <div className="grid-layout">
             <div className="col-start-1 col-end-5 flex flex-col gap-6">
               {Object.entries(groupedPeople).map(
                 ([department, people], index) => (
@@ -207,7 +97,7 @@ const About = () => (
                       ))}
                     </ul>
                   </div>
-                ),
+                )
               )}
             </div>
             <div className="col-start-5 col-end-13 grid h-fit grid-cols-8 gap-2 pt-5">
@@ -246,7 +136,7 @@ const About = () => (
               {data.company.awards.awardList.items
                 .sort(
                   (a, b) =>
-                    new Date(b.date).getTime() - new Date(a.date).getTime(),
+                    new Date(b.date).getTime() - new Date(a.date).getTime()
                 )
                 .map((award) => (
                   <li
@@ -256,13 +146,7 @@ const About = () => (
                     <div className="item col-start-5 col-end-13 grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-0.5 pt-px">
                       <div className="col-span-1">{award.title}</div>
                       <div className="col-span-1">{award.project._title}</div>
-                      <div className="col-span-1">
-                        {new Date(award.date).toLocaleDateString("en-US", {
-                          month: "long",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </div>
+                      <div className="col-span-1">{formatDate(award.date)}</div>
                     </div>
                     <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   </li>
@@ -270,9 +154,9 @@ const About = () => (
             </ul>
           </div>
         </main>
-      );
+      )
     }}
   </Pump>
-);
+)
 
-export default About;
+export default About
