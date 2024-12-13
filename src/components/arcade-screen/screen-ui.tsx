@@ -12,6 +12,7 @@ import { useRenderTexture } from './render-texture';
 import { Separator } from '@react-three/uikit-default';
 import { LabList } from './custom-components/lab-list';
 import useNavigation from '@/hooks/use-navigation';
+import { DashedPlane } from './custom-components/dashed-plane';
 
 export interface LabData {
   title: string;
@@ -100,6 +101,8 @@ export const ScreenUI = () => {
             <Text color={"orange"} fontWeight={"bold"} positionType={"absolute"} positionTop={-10} positionLeft={10} paddingX={8} backgroundColor={"#000"} onClick={() => {
               handleNavigation('/', "home");
             }}>Close [X]</Text>
+
+            <DashedPlane />
             <Container width={"100%"} height={"auto"} marginTop={10} paddingY={16} display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
               <Container width={"100%"} height={16} positionType={"relative"} display={"flex"} alignItems={"center"} justifyContent={"center"}>
                 <Separator orientation="horizontal" backgroundColor={"orange"} />
