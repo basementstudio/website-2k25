@@ -1,22 +1,24 @@
-"use client";
+"use client"
 
-import { useGLTF } from "@react-three/drei";
-import { GLTFResult } from "./map";
-import { Mesh, MeshStandardMaterial } from "three";
-import { createShaderMaterial } from "@/shaders/custom-shader-material";
-import { memo, useMemo } from "react";
+import { useGLTF } from "@react-three/drei"
+import { memo, useMemo } from "react"
+import { Mesh, MeshStandardMaterial } from "three"
 
-export const MapWire = memo(MapWireInner);
+import { createShaderMaterial } from "@/shaders/custom-shader-material"
+
+import { GLTFResult } from "./map"
+
+export const MapWire = memo(MapWireInner)
 
 function MapWireInner() {
-  const { nodes } = useGLTF("/models/map-wire.glb") as unknown as GLTFResult;
+  const { nodes } = useGLTF("/models/map-wire.glb") as unknown as GLTFResult
   const material = useMemo(() => {
     return createShaderMaterial(
       (nodes.WireFrame_MeshCurveMesh as Mesh).material as MeshStandardMaterial,
       null,
-      true,
-    );
-  }, [nodes.WireFrame_MeshCurveMesh]);
+      true
+    )
+  }, [nodes.WireFrame_MeshCurveMesh])
 
   return (
     <group dispose={null} name="map-wire">
@@ -25,7 +27,7 @@ function MapWireInner() {
         material={material}
       />
     </group>
-  );
+  )
 }
 
-useGLTF.preload("/models/map-wire.glb");
+useGLTF.preload("/models/map-wire.glb")

@@ -3,7 +3,6 @@
 import { useGLTF } from "@react-three/drei"
 import { useLoader } from "@react-three/fiber"
 import { memo, useEffect, useMemo, useState } from "react"
-import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three"
 import {
   Material,
   Mesh,
@@ -14,7 +13,6 @@ import {
   Object3DEventMap,
   Texture
 } from "three"
-import { GLTF } from "three/examples/jsm/Addons.js"
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
