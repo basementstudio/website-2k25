@@ -6,11 +6,9 @@ import {
   Root,
   Icon,
   Image,
-  Svg
 } from '@react-three/uikit';
 import { useState } from 'react';
 import { useRenderTexture } from './render-texture';
-import { CustomSeparator } from './custom-components/custom-separator';
 import { Separator } from '@react-three/uikit-default';
 import { LabList } from './custom-components/lab-list';
 import useNavigation from '@/hooks/use-navigation';
@@ -104,7 +102,7 @@ export const ScreenUI = () => {
             }}>Close [X]</Text>
             <Container width={"100%"} height={"auto"} marginTop={10} paddingY={16} display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
               <Container width={"100%"} height={16} positionType={"relative"} display={"flex"} alignItems={"center"} justifyContent={"center"}>
-                <CustomSeparator />
+                <Separator orientation="horizontal" backgroundColor={"orange"} />
                 <Container positionType={"absolute"} paddingX={8} height={16} width={"100%"} display={"flex"} flexDirection={"row"} alignItems={"center"} gap={8}>
                   <Container width={"60%"} height={16}>
                     <Container backgroundColor={"#000"} zIndexOffset={1} paddingX={8}>
@@ -139,7 +137,7 @@ export const ScreenUI = () => {
 
               <Container height={"100%"} width={"100%"} display={"flex"} flexDirection={"column"} paddingTop={16}>
                 <Container width={"100%"} height={16} positionType={"relative"} display={"flex"} alignItems={"center"} justifyContent={"center"}>
-                  <CustomSeparator />
+                  <Separator orientation="horizontal" backgroundColor={"orange"} />
 
                   <Container positionType={"absolute"} paddingX={8} height={16} width={"100%"} display={"flex"} flexDirection={"row"} alignItems={"center"} gap={8}>
                     <Container width={"60%"} height={16}>
@@ -174,9 +172,7 @@ export const ScreenUI = () => {
           </Container>
         </Container>
       </Root >
+
     </>
   );
-};/**  <Container positionType={"absolute"} positionLeft={10} paddingX={8} backgroundColor={"#000"} display={"flex"} flexDirection={"row"} alignItems={"center"} gap={8}>
-<Text color={"orange"} fontWeight={"bold"}>Experiments</Text>
-<Icon paddingTop={5} text={`<svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 4.8L1.99835e-07 0L2.28571 1.04905e-07L2.28571 2.4L4.57143 2.4V4.8L6.85714 4.8V7.2H9.14286V4.8H11.4286V2.4H13.7143V6.29446e-07L16 7.34351e-07V4.8H13.7143V7.2H11.4286V9.6H9.14286L9.14286 12H6.85714L6.85714 9.6H4.57143L4.57143 7.2H2.28571L2.28571 4.8H0Z" fill="#F68300"/></svg>`} svgWidth={16} svgHeight={16} width={16} height={16} />
-</Container> */
+};
