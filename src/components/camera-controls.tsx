@@ -7,6 +7,7 @@ import {
   Vector3,
   LineSegments,
   PerspectiveCamera,
+  Vector2,
 } from "three";
 import {
   CameraState,
@@ -24,6 +25,7 @@ import { BASE_SHADER_MATERIAL_NAME } from "@/shaders/custom-shader-material";
 import { useGesture } from "@use-gesture/react";
 import { useMotionValue, useSpring } from "motion/react";
 import { useInspectable } from "./inspectables/context";
+import { useMousePosition } from "@/hooks/use-mouse-position";
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/": "home",
@@ -59,6 +61,9 @@ export const CustomCamera = () => {
     damping: 16,
     mass: 1,
   });
+
+  const mouseUV = useMousePosition((s) => s.uv);
+  const smoothMouseUv = useMemo(() => new Vector2(0.5, 0.5), []);
 
   useEffect(() => {
     offsetX.set(0);
@@ -178,6 +183,58 @@ export const CustomCamera = () => {
         basePosition[1],
         basePosition[2] + springX,
       );
+    }
+
+    if (cameraAnimationConfig.progress >= 1) {
+      const rotationAngle = cameraConfig.rotationAngle || [0, 0];
+      const rotationLerp = cameraConfig.rotationLerp || 0.03;
+
+      smoothMouseUv.lerp(
+        new Vector2(mouseUV.x, mouseUV.y),
+        Math.min(rotationLerp * delta * 100, 1),
+      );
+
+      const springX = (smoothMouseUv.x - 0.5) * rotationAngle[0];
+      const springY = (smoothMouseUv.y - 0.5) * rotationAngle[1];
+
+      if (cameraState === "menu") {
+        const baseTarget = CAMERA_STATES.menu.target;
+        const basePosition = CAMERA_STATES.menu.position;
+
+        controls.setTarget(baseTarget[0], baseTarget[1], baseTarget[2]);
+
+        controls.setPosition(
+          basePosition[0] + springX,
+          basePosition[1] + springY,
+          basePosition[2],
+        );
+      } else if (cameraState === "projects" && !selected) {
+        const baseTarget = CAMERA_STATES.projects.target;
+        const basePosition = CAMERA_STATES.projects.position;
+
+        controls.setTarget(
+          baseTarget[0],
+          baseTarget[1] + springY + offsetYSpring.get(),
+          baseTarget[2] + springX + offsetXSpring.get(),
+        );
+
+        controls.setPosition(
+          basePosition[0],
+          basePosition[1],
+          basePosition[2] + springX + offsetXSpring.get(),
+        );
+      } else {
+        const baseTarget = CAMERA_STATES[cameraState].target;
+        const basePosition = CAMERA_STATES[cameraState].position;
+
+        controls.setTarget(
+          baseTarget[0],
+          baseTarget[1] + springY,
+          baseTarget[2] + springX,
+        );
+
+        controls.setPosition(basePosition[0], basePosition[1], basePosition[2]);
+      }
     }
 
     controls.update(delta);

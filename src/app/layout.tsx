@@ -2,6 +2,7 @@ import { AssetsProvider } from "@/components/assets-provider";
 import { fetchAssets } from "@/components/assets-provider/fetch-assets";
 import { CameraRouteHandler } from "@/components/camera-route-handler";
 import { Scene } from "@/components/scene";
+import { MouseTracker } from "@/components/mouse-tracker";
 import { Geist } from "next/font/google";
 import "@/styles/globals.css";
 
@@ -33,6 +34,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body className={cn(geistSans.variable)}>
+            <MouseTracker />
             <Navbar />
             <CameraRouteHandler />
             <div className="sticky top-0 h-screen w-full">
