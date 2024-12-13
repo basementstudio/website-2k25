@@ -27,4 +27,9 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     route: "/about",
     routeName: "stairs",
   },
+  {
+    name: "Projects_Hover",
+    route: "/projects",
+    routeName: "projects",
+  },
 ];

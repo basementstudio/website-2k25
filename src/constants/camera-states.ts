@@ -28,6 +28,13 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [5.5, 1.6, -10],
     target: [5.5, 1.8, -12],
   },
+  projects: {
+    name: "projects",
+    url: "/projects",
+    object_name: "railing",
+    position: [6, 3, -10.21],
+    target: [-4, 5.5, -12],
+  },
   menu: {
     name: "menu",
     position: [16, 14, -5],

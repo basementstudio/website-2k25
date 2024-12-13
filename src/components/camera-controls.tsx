@@ -1,19 +1,30 @@
 import { CameraControls } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { Mesh, ShaderMaterial, Vector3, LineSegments } from "three";
-import { CameraState, useCameraStore } from "@/store/app-store";
+import {
+  Mesh,
+  ShaderMaterial,
+  Vector3,
+  LineSegments,
+  PerspectiveCamera,
+} from "three";
+import {
+  CameraState,
+  CameraStateKeys,
+  useCameraStore,
+} from "@/store/app-store";
 import { CAMERA_STATES } from "@/constants/camera-states";
 import { usePathname } from "next/navigation";
 import { cameraAnimationConfig } from "@/utils/animations";
 import { animate } from "motion";
 import { BASE_SHADER_MATERIAL_NAME } from "@/shaders/custom-shader-material";
 
-const PATHNAME_MAP: Record<string, string> = {
+const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/": "home",
   "/arcade": "arcade",
   "/about": "stairs",
   "/basketball": "hoop",
+  "/projects": "projects",
 };
 
 export const CustomCamera = () => {
@@ -125,6 +136,14 @@ const animateShader = useCallback(
       cameraAnimationConfig.progress = 0;
     }
   });
+
+  useEffect(() => {
+    if (cameraControlsRef.current) {
+      useCameraStore
+        .getState()
+        .setCamera(cameraControlsRef.current.camera as PerspectiveCamera);
+    }
+  }, []);
 
   return <CameraControls makeDefault ref={cameraControlsRef} />;
 };
