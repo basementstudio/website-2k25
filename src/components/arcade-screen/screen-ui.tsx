@@ -167,8 +167,10 @@ export const ScreenUI = () => {
                   </Container>
                 </Container>
               </Container>
-
             </Container>
+            <Text color={"orange"} zIndexOffset={1} fontWeight={"bold"} positionType={"absolute"} positionBottom={-10} positionRight={16} paddingX={8} backgroundColor={"#000"} onClick={() => {
+              handleNavigation('/', "home");
+            }}>Lab V1.0</Text>
           </Container>
         </Container>
       </Root >
