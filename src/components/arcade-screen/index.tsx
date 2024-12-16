@@ -2,7 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { useControls } from "leva"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import { Mesh } from "three"
+import { Mesh, TextureLoader } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
 import { RenderTexture } from "./render-texture"
@@ -22,8 +22,15 @@ export const ArcadeScreen = () => {
     uScanlineIntensity,
     uScanlineFrequency,
     uIsMonochrome,
-    uMonochromeColor
+    uMonochromeColor,
+    reflectionOpacity
   } = useControls("Arcade Screen", {
+    reflectionOpacity: {
+      value: 0.14,
+      min: 0.0,
+      max: 1.0,
+      step: 0.01
+    },
     uPixelSize: {
       value: 1024.0,
       min: 16.0,
@@ -31,13 +38,13 @@ export const ArcadeScreen = () => {
       step: 1.0
     },
     uNoiseIntensity: {
-      value: 0.64,
+      value: 0.48,
       min: 0.0,
       max: 1.0,
       step: 0.01
     },
     uScanlineIntensity: {
-      value: 0.4,
+      value: 0.32,
       min: 0.0,
       max: 1.0,
       step: 0.01
@@ -81,8 +88,15 @@ export const ArcadeScreen = () => {
     }
   })
 
+  const reflectionTexture = useMemo(() => {
+    return new TextureLoader().load("/textures/reflection.jpg")
+  }, [])
+
   useEffect(() => {
     if (!arcadeScreen) return
+
+    screenMaterial.uniforms.reflectionMap.value = reflectionTexture
+    screenMaterial.uniforms.reflectionOpacity.value = reflectionOpacity
 
     screenMaterial.uniforms.map.value = renderTarget.texture
     screenMaterial.uniforms.uPixelSize.value = uPixelSize
@@ -99,6 +113,8 @@ export const ArcadeScreen = () => {
     uScanlineFrequency,
     uIsMonochrome,
     uMonochromeColor,
+    reflectionTexture,
+    reflectionOpacity,
     renderTarget.texture
   ])
 

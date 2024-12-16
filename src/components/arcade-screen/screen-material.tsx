@@ -13,6 +13,8 @@ const screenFragmentShader = /* glsl */ `
 precision highp float;
 
 uniform sampler2D map;
+uniform sampler2D reflectionMap;
+uniform float reflectionOpacity;
 uniform float uColorNum;
 uniform float uPixelSize;
 uniform float uTime;
@@ -77,7 +79,7 @@ void main() {
 
   // Add noise
   float noise = random(curveUV + uTime) * uNoiseIntensity;
-  color.rgb = mix(color.rgb, vec3(0.1), noise);  
+  color.rgb = mix(color.rgb, vec3(0.0), noise);  
 
   // Add vignette
   vec2 vignetteUV = curveUV * (1.0 - curveUV.yx);
@@ -88,6 +90,9 @@ void main() {
   vec2 edge = smoothstep(0., 0.005, curveUV)*(1.-smoothstep(1.-0.005, 1., curveUV));
   color.rgb *= edge.x * edge.y;
 
+  vec4 reflectionColor = texture2D(reflectionMap, curveUV);
+  color.rgb = mix(color.rgb, reflectionColor.rgb, reflectionOpacity);
+
   gl_FragColor = color;
 }
 `
@@ -97,6 +102,8 @@ export const screenMaterial = new ShaderMaterial({
   fragmentShader: screenFragmentShader,
   uniforms: {
     map: { value: null },
+    reflectionMap: { value: null },
+    reflectionOpacity: { value: 0.5 },
     uColorNum: { value: 16.0 },
     uPixelSize: { value: 1024.0 },
     uTime: { value: 0 },
