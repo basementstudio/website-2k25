@@ -26,7 +26,7 @@ export const ArcadeScreen = () => {
     reflectionOpacity
   } = useControls("Arcade Screen", {
     reflectionOpacity: {
-      value: 0.14,
+      value: 0.27,
       min: 0.0,
       max: 1.0,
       step: 0.01
