@@ -90,8 +90,8 @@ void main() {
   vec2 edge = smoothstep(0., 0.005, curveUV)*(1.-smoothstep(1.-0.005, 1., curveUV));
   color.rgb *= edge.x * edge.y;
 
-  vec4 reflectionColor = texture2D(reflectionMap, vUv);
-  color.rgb = mix(color.rgb, reflectionColor.rgb, reflectionOpacity);
+  vec4 reflectionColor = texture2D(reflectionMap, vec2(1.0 - vUv));
+  color.rgb = mix(color.rgb, reflectionColor.rgb, reflectionOpacity * (1.0 - vUv.x));
 
   gl_FragColor = color;
 }
