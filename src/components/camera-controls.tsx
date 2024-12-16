@@ -195,7 +195,7 @@ export const CustomCamera = () => {
       const mouseSpringY = (smoothMouseUv.y - 0.5) * rotationAngle[1];
 
       currentTarget.z -= mouseSpringX * transitionScale;
-      currentTarget.y -= mouseSpringY;
+      currentTarget.y -= mouseSpringY * transitionScale;
 
       controls.setPosition(currentPos.x, currentPos.y, currentPos.z);
       controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
