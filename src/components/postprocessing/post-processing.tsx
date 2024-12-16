@@ -1,15 +1,16 @@
-import { useCameraStore } from "@/store/app-store";
-import { PerspectiveCamera } from "@react-three/drei";
-import { ShaderMaterial, Vector2, Texture, TextureLoader } from "three";
-import { useControls } from "leva";
-import * as THREE from "three";
-import { useEffect, useRef } from "react";
+import { PerspectiveCamera } from "@react-three/drei"
+import { useControls } from "leva"
+import { useEffect, useRef } from "react"
+import { ShaderMaterial, Texture, TextureLoader, Vector2 } from "three"
+import * as THREE from "three"
 
-import postVert from "./post.vert";
-import postFrag from "./post.frag";
+import { useCameraStore } from "@/store/app-store"
+
+import postFrag from "./post.frag"
+import postVert from "./post.vert"
 
 interface PostProcessingProps {
-  mainTexture: Texture;
+  mainTexture: Texture
 }
 
 const material = new ShaderMaterial({
@@ -36,14 +37,14 @@ const material = new ShaderMaterial({
     // adjustments
     uContrast: { value: 1.0 },
     uExposure: { value: 1.0 },
-    uGamma: { value: 1.0 },
-  },
-});
+    uGamma: { value: 1.0 }
+  }
+})
 
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
-  const bayer8TextureRef = useRef<THREE.Texture | null>(null);
-  const bayer16TextureRef = useRef<THREE.Texture | null>(null);
-  const blueNoiseTextureRef = useRef<THREE.Texture | null>(null);
+  const bayer8TextureRef = useRef<THREE.Texture | null>(null)
+  const bayer16TextureRef = useRef<THREE.Texture | null>(null)
+  const blueNoiseTextureRef = useRef<THREE.Texture | null>(null)
 
   const { pixelSize, bayerSize, enableShader } = useControls({
     enableShader: { value: true },
@@ -53,54 +54,54 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       options: {
         "8x8": 8,
         "16x16": 16,
-        "blue noise": 999,
-      },
+        "blue noise": 999
+      }
     },
     contrast: {
       value: 1.0,
       min: 0.0,
-      max: 10.0,
+      max: 2.0,
       step: 0.01,
       onChange(value) {
-        material.uniforms.uContrast.value = value;
-      },
+        material.uniforms.uContrast.value = value
+      }
     },
     exposure: {
-      value: 1.16,
+      value: 1.2,
       min: 0.0,
-      max: 10.0,
+      max: 2.0,
       step: 0.01,
       onChange(value) {
-        material.uniforms.uExposure.value = value;
-      },
+        material.uniforms.uExposure.value = value
+      }
     },
     gamma: {
-      value: 1.87,
+      value: 2.2,
       min: 0.0,
       max: 2.2,
       step: 0.01,
       onChange(value) {
-        material.uniforms.uGamma.value = value;
-      },
-    },
-  });
+        material.uniforms.uGamma.value = value
+      }
+    }
+  })
 
   useEffect(() => {
-    const textureLoader = new TextureLoader();
-    const bayerTexture = textureLoader.load("/textures/bayer8x8.png");
-    bayerTexture.minFilter = THREE.NearestFilter;
-    bayerTexture.magFilter = THREE.NearestFilter;
-    bayer8TextureRef.current = bayerTexture;
+    const textureLoader = new TextureLoader()
+    const bayerTexture = textureLoader.load("/textures/bayer8x8.png")
+    bayerTexture.minFilter = THREE.NearestFilter
+    bayerTexture.magFilter = THREE.NearestFilter
+    bayer8TextureRef.current = bayerTexture
 
-    const blueNoiseTexture = textureLoader.load("/textures/bluenoise.png");
-    blueNoiseTexture.wrapS = THREE.RepeatWrapping;
-    blueNoiseTexture.wrapT = THREE.RepeatWrapping;
-    blueNoiseTextureRef.current = blueNoiseTexture;
+    const blueNoiseTexture = textureLoader.load("/textures/bluenoise.png")
+    blueNoiseTexture.wrapS = THREE.RepeatWrapping
+    blueNoiseTexture.wrapT = THREE.RepeatWrapping
+    blueNoiseTextureRef.current = blueNoiseTexture
 
-    const bayer16Texture = textureLoader.load("/textures/bayer16x16.png");
-    bayer16Texture.minFilter = THREE.NearestFilter;
-    bayer16Texture.magFilter = THREE.NearestFilter;
-    bayer16TextureRef.current = bayer16Texture;
+    const bayer16Texture = textureLoader.load("/textures/bayer16x16.png")
+    bayer16Texture.minFilter = THREE.NearestFilter
+    bayer16Texture.magFilter = THREE.NearestFilter
+    bayer16TextureRef.current = bayer16Texture
 
     return () => {
       if (
@@ -108,45 +109,45 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         blueNoiseTextureRef.current &&
         bayer16TextureRef.current
       ) {
-        bayer8TextureRef.current.dispose();
-        blueNoiseTextureRef.current.dispose();
-        bayer16TextureRef.current.dispose();
+        bayer8TextureRef.current.dispose()
+        blueNoiseTextureRef.current.dispose()
+        bayer16TextureRef.current.dispose()
       }
-    };
-  }, []);
+    }
+  }, [])
 
   useEffect(() => {
-    const controller = new AbortController();
-    const { signal } = controller;
+    const controller = new AbortController()
+    const { signal } = controller
 
     const resize = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const dpr = window.devicePixelRatio;
-      material.uniforms.screenSize.value.set(width, height);
-      material.uniforms.dpr.value = dpr;
-      material.uniforms.aspect.value = width / height;
-    };
+      const width = window.innerWidth
+      const height = window.innerHeight
+      const dpr = window.devicePixelRatio
+      material.uniforms.screenSize.value.set(width, height)
+      material.uniforms.dpr.value = dpr
+      material.uniforms.aspect.value = width / height
+    }
 
-    resize();
-    window.addEventListener("resize", resize, { signal });
+    resize()
+    window.addEventListener("resize", resize, { signal })
 
-    material.uniforms.uMainTexture.value = mainTexture;
-    material.uniforms.uEnableShader.value = enableShader;
-    material.uniforms.uPixelSize.value = pixelSize;
-    material.uniforms.uBayerSize.value = bayerSize;
-    material.uniforms.uBayerTexture.value = bayer8TextureRef.current;
-    material.uniforms.uBlueNoiseTexture.value = blueNoiseTextureRef.current;
-    material.uniforms.uBayer16Texture.value = bayer16TextureRef.current;
+    material.uniforms.uMainTexture.value = mainTexture
+    material.uniforms.uEnableShader.value = enableShader
+    material.uniforms.uPixelSize.value = pixelSize
+    material.uniforms.uBayerSize.value = bayerSize
+    material.uniforms.uBayerTexture.value = bayer8TextureRef.current
+    material.uniforms.uBlueNoiseTexture.value = blueNoiseTextureRef.current
+    material.uniforms.uBayer16Texture.value = bayer16TextureRef.current
 
     return () => {
-      controller.abort();
-    };
-  }, [mainTexture, enableShader, pixelSize, bayerSize]);
+      controller.abort()
+    }
+  }, [mainTexture, enableShader, pixelSize, bayerSize])
 
   const calculateFov = (z: number) => {
-    return Math.atan(1 / z) * (180 / Math.PI);
-  };
+    return Math.atan(1 / z) * (180 / Math.PI)
+  }
 
   return (
     <>
@@ -156,7 +157,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         aspect={1}
         fov={calculateFov(10)}
         ref={(r) => {
-          if (r) useCameraStore.setState({ postProcessingCamera: r });
+          if (r) useCameraStore.setState({ postProcessingCamera: r })
         }}
       />
       <mesh>
@@ -164,5 +165,5 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         <primitive object={material} attach="material" />
       </mesh>
     </>
-  );
+  )
 }
