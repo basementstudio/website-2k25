@@ -121,6 +121,9 @@ export const Footer = () => (
               <div className="col-span-4 grid grid-cols-4 gap-2">
                 <Input className="col-span-1" placeholder="Name" />
                 <Input className="col-span-2" placeholder="Email" />
+                <button className="col-span-1 w-fit text-paragraph text-brand-g1">
+                  Submit Form →
+                </button>
               </div>
             </div>
             <div className="col-start-9 col-end-11 text-paragraph text-brand-g1">

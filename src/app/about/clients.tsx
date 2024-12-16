@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import { QueryType } from "./query"
 
 export const Clients = ({ data }: { data: QueryType }) => (
@@ -15,7 +17,7 @@ export const Clients = ({ data }: { data: QueryType }) => (
                 className="actionable relative pb-1 text-paragraph text-brand-w1"
                 key={client._title}
               >
-                {client._title}
+                <Link href={client.website ?? ""}>{client._title}</Link>
               </li>
             ))}
           {Array(Math.ceil(data.company.clients.clientList.items.length / 5))
@@ -24,9 +26,7 @@ export const Clients = ({ data }: { data: QueryType }) => (
               <hr
                 key={index}
                 className="absolute left-0 right-0 w-full border-brand-w1/20"
-                style={{
-                  top: `${(index + 1) * 20}px`
-                }}
+                style={{ top: `${(index + 1) * 1.25}rem` }}
               />
             ))}
         </ul>

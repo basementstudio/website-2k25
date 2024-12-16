@@ -70,10 +70,11 @@ export const People = ({ data }: { data: QueryType }) => {
             gridColumn: `span ${8 - (data.company.people.peopleList.items.length % 8)} / span ${8 - (data.company.people.peopleList.items.length % 8)}`
           }}
         >
-          <Link href="/" className="relative z-10 block bg-brand-k">
-            <span className="actionable text-paragraph text-brand-w1">
-              Apply Here →
-            </span>
+          <Link
+            href="/"
+            className="relative z-10 block h-4 bg-brand-k text-paragraph text-brand-w1"
+          >
+            <span className="actionable">Apply Here</span> →
           </Link>
         </div>
       </div>
