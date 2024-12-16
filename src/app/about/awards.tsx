@@ -10,7 +10,7 @@ export const Awards = ({ data }: { data: QueryType }) => (
       Awards
     </h2>
     <p className="relative z-20 col-start-3 col-end-4 row-start-1 text-heading uppercase text-brand-g2">
-      x25
+      x{data.company.awards.awardList.items.length}
     </p>
     <ul className="relative col-start-1 col-end-13 row-start-1 mt-2 text-paragraph text-brand-w1">
       {data.company.awards.awardList.items
