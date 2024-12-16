@@ -22,6 +22,7 @@ export const createShaderMaterial = (
   const material = new ShaderMaterial({
     name: BASE_SHADER_MATERIAL_NAME,
     uniforms: {
+      envMap: { value: null },
       uColor: { value: emissiveColor },
       uProgress: { value: 0.0 },
       uReverse: { value: reverse },

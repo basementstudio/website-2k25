@@ -18,6 +18,7 @@
     "@use-gesture/react": "^10.3.1",
     "basehub": "8.0.0-canary.17",
     "clsx": "^2.1.1",
+    "glsl-blend": "^1.0.3",
     "glslify-loader": "^2.0.0",
     "leva": "^0.9.35",
     "motion": "12.0.0-alpha.2",
