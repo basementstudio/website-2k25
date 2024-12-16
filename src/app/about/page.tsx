@@ -17,7 +17,7 @@ const About = () => (
       if (!data) return null
 
       return (
-        <main className="relative -mt-24 bg-brand-k pt-2">
+        <main className="relative -mt-24 bg-brand-k pt-2 after:absolute after:-top-px after:z-10 after:h-px after:w-full after:bg-brand-w1/10">
           <Grid />
           <div className="relative flex flex-col gap-49">
             <Hero data={data} />
