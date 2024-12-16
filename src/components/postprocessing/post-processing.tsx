@@ -46,45 +46,48 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
   const bayer16TextureRef = useRef<THREE.Texture | null>(null)
   const blueNoiseTextureRef = useRef<THREE.Texture | null>(null)
 
-  const { pixelSize, bayerSize, enableShader } = useControls({
-    enableShader: { value: true },
-    pixelSize: { value: 1, min: 1.0, max: 32.0, step: 1.0 },
-    bayerSize: {
-      value: 16,
-      options: {
-        "8x8": 8,
-        "16x16": 16,
-        "blue noise": 999
-      }
-    },
-    contrast: {
-      value: 1.0,
-      min: 0.0,
-      max: 10.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uContrast.value = value
-      }
-    },
-    exposure: {
-      value: 1.16,
-      min: 0.0,
-      max: 10.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uExposure.value = value
-      }
-    },
-    gamma: {
-      value: 1.87,
-      min: 0.0,
-      max: 2.2,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uGamma.value = value
+  const { pixelSize, bayerSize, enableShader } = useControls(
+    "Post Processing",
+    {
+      enableShader: { value: true },
+      pixelSize: { value: 1, min: 1.0, max: 32.0, step: 1.0 },
+      bayerSize: {
+        value: 16,
+        options: {
+          "8x8": 8,
+          "16x16": 16,
+          "blue noise": 999
+        }
+      },
+      contrast: {
+        value: 1.0,
+        min: 0.0,
+        max: 10.0,
+        step: 0.01,
+        onChange(value) {
+          material.uniforms.uContrast.value = value
+        }
+      },
+      exposure: {
+        value: 1.16,
+        min: 0.0,
+        max: 10.0,
+        step: 0.01,
+        onChange(value) {
+          material.uniforms.uExposure.value = value
+        }
+      },
+      gamma: {
+        value: 1.87,
+        min: 0.0,
+        max: 2.2,
+        step: 0.01,
+        onChange(value) {
+          material.uniforms.uGamma.value = value
+        }
       }
     }
-  })
+  )
 
   useEffect(() => {
     const textureLoader = new TextureLoader()

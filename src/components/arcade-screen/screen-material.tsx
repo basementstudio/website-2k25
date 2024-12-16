@@ -1,4 +1,4 @@
-import { ShaderMaterial } from "three"
+import { ShaderMaterial, Vector3 } from "three"
 
 const screenVertexShader = /* glsl */ `
 varying vec2 vUv;
@@ -9,127 +9,101 @@ void main() {
 }
 `
 
-const screenFramgentShader = /* glsl */ `
+const screenFragmentShader = /* glsl */ `
+precision highp float;
+
 uniform sampler2D map;
-uniform vec2 screenSize;
-uniform bool rgbActive;
-uniform vec3 screenOn;
+uniform float uColorNum;
+uniform float uPixelSize;
+uniform float uTime;
+uniform float uNoiseIntensity;
+uniform float uScanlineIntensity;
+uniform float uScanlineFrequency;
+uniform bool uIsMonochrome;
+uniform vec3 uMonochromeColor;
 
 varying vec2 vUv;
 
-float valueRemap(float value, float min, float max, float newMin, float newMax) {
-  return newMin + (value - min) * (newMax - newMin) / (max - min);
+float random(vec2 c) {
+  return fract(sin(dot(c.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-struct Pixel {
-  vec2 size;
-  vec2 mapUv;
-  vec2 uv;
-};
-
-// Since we want a "pixelated" screen, we need to know which pixel we are in
-Pixel getPixel() {
-  vec2 pixelSize = 1.0 / screenSize;
-  vec2 mapUvCenter = floor(vUv * screenSize) / screenSize + pixelSize;
-
-  // get the UV realtive to the pixel
-  vec2 pixelUv = vec2(1.) - (mapUvCenter - vUv) / pixelSize;
-
-  return Pixel(
-    pixelSize,
-    mapUvCenter,
-    pixelUv
-  );
-
-}
-
-float getPixelEdge(vec2 uv, float edgeWidth) {
-  float distFromCenter = abs(uv.y - 0.5) * 2.;
-  // return distFromCenter;
-  return smoothstep(1. - edgeWidth, 1., distFromCenter);
-}
-
-float getLedFactor(vec2 uv, float ledWidth, float ledPos, float ledPow) {
-  float distanceFromLed = abs(uv.x - ledPos);
-  float ledFacror = step(distanceFromLed, ledWidth);
-  ledFacror = valueRemap(distanceFromLed, ledWidth - ledWidth * 0.8, ledWidth, 1.0, 0.);
-  ledFacror = clamp(ledFacror, 0., 1.);
-  ledFacror = pow(ledFacror, ledPow);
-  return ledFacror;
-}
-
-vec3 getPixelRgb(vec2 uv) {
-  float edgePos = 0.44444 / 2.;
-  float edgeSize = 0.433333 / 2.;
-
-  return vec3(
-    getLedFactor(uv, edgeSize, edgePos, 1.),
-    getLedFactor(uv, edgeSize, 0.5, 2.0),
-    getLedFactor(uv, edgeSize, 1. - edgePos, 1.)
-  );
+float noise (in vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  
+  float a = random(i);
+  float b = random(i + vec2(1.0, 0.0));
+  float c = random(i + vec2(0.0, 1.0));
+  float d = random(i + vec2(1.0, 1.0));
+  
+  vec2 u = f*f*(3.0-2.0*f);
+  
+  return mix(a, b, u.x) +
+  (c - a)* u.y * (1.0 - u.x) +
+  (d - b) * u.x * u.y;
 }
 
 void main() {
-  Pixel pixel = getPixel();
+  vec2 curveUV = vUv * 2.0 - 1.0;
+  vec2 offset = curveUV.yx * 0.15;
+  curveUV += curveUV * offset * offset;
+  curveUV = curveUV * 0.5 + 0.5;
 
-  vec3 color = vec3(0.0);
+  // Add shake effect here
+  float shake = (noise(vec2(curveUV.y) * sin(uTime * 400.0) * 100.0) - 0.5) * 0.0025;
+  curveUV.x += shake * 0.5;
 
-  vec2 pixelSampler = pixel.mapUv;
+  vec2 pixelUV = floor(curveUV * uPixelSize) / uPixelSize;
+  
+  vec4 color = texture2D(map, pixelUV);
 
-  pixelSampler = (pixelSampler - 0.5) * screenOn.xy + 0.5;
-
-  vec3 colorSample = texture2D(map, pixelSampler).rgb;
-  color = colorSample * screenOn.z;
-
-  // if(pixelSampler.y > 1. || pixelSampler.y > 1.) {
-  //   color = vec3(0.0);
-  // }
-
-  if(rgbActive) {
-    vec3 pixelRgb = getPixelRgb(pixel.uv);
-    color *= pixelRgb;
+  if (uIsMonochrome) {
+    float gray = dot(color.rgb, vec3(0.4, 0.5, 0.1));
+    gray = floor(gray * (uColorNum * 3.0) + 0.5) / (uColorNum * 3.0);
+    vec3 adjustedColor = uMonochromeColor;
+    adjustedColor.r *= 1.2; 
+    adjustedColor.g *= 0.9; 
+    color.rgb = gray * adjustedColor * 3.5;
+  } else {
+    color.r = floor(color.r * (uColorNum * 1.5 - 1.0) + 0.5) / (uColorNum * 1.5 - 1.0);
+    color.g = floor(color.g * (uColorNum * 1.5 - 1.0) + 0.5) / (uColorNum * 1.5 - 1.0);
+    color.b = floor(color.b * (uColorNum * 1.5 - 1.0) + 0.5) / (uColorNum * 1.5 - 1.0);
   }
 
-  float pixelEdge = getPixelEdge(pixel.uv, 0.2);
-  float pixelEdgeFactor = pow(1. - pixelEdge, 2.5);
-  color *= (pixelEdgeFactor * 0.9);
+  // Add scanlines
+  float scanLine = sin(curveUV.y * uScanlineFrequency) * uScanlineIntensity;
+  color.rgb *= (1.0 - scanLine);
 
-  // float pixelFactor = max(pixelRgb.x, max(pixelRgb.y, pixelRgb.z)) * 0.2;
+  // Add noise
+  float noise = random(curveUV + uTime) * uNoiseIntensity;
+  color.rgb = mix(color.rgb, vec3(0.1), noise);  
 
-  // color = mix(color, colorSample, pixelFactor);
+  // Add vignette
+  vec2 vignetteUV = curveUV * (1.0 - curveUV.yx);
+  float vignette = vignetteUV.x * vignetteUV.y * 15.0;
+  vignette = pow(vignette, 0.25);
+  color.rgb *= vignette;
 
-  // if(vUv.y < 0.5) {
-  //   color = texture2D(map, vUv).rgb;
-  // }
-  
-  
-  // color = vec3(0.0);
-  // color = pixelRgb;
-  // color.xy = pixelEdge;
-  // color.x = pixel.uv.x > 0.6 && pixel.uv.x < 0.9 ? 1. : 0.;
+  vec2 edge = smoothstep(0., 0.005, curveUV)*(1.-smoothstep(1.-0.005, 1., curveUV));
+  color.rgb *= edge.x * edge.y;
 
-  // color.x = pixel.uv.x < -0.1 ? 1. : 0.;
-
-  float colorPow = 0.5;
-  float colorMult = 3.;
-
-  color = vec3(
-    pow(color.x, colorPow) * colorMult,
-    pow(color.y, colorPow) * colorMult,
-    pow(color.z, colorPow) * colorMult
-  );
-
-  gl_FragColor = vec4(color, 1.);
+  gl_FragColor = color;
 }
 `
 
 export const screenMaterial = new ShaderMaterial({
   vertexShader: screenVertexShader,
-  fragmentShader: screenFramgentShader,
+  fragmentShader: screenFragmentShader,
   uniforms: {
     map: { value: null },
-    screenSize: { value: [1, 1] },
-    rgbActive: { value: true },
-    screenOn: { value: { x: 1, y: 1, z: 1 } }
+    uColorNum: { value: 16.0 },
+    uPixelSize: { value: 1024.0 },
+    uTime: { value: 0 },
+    uNoiseIntensity: { value: 0.05 },
+    uScanlineIntensity: { value: 0.25 },
+    uScanlineFrequency: { value: 10.0 },
+    uIsMonochrome: { value: false },
+    uMonochromeColor: { value: new Vector3(1.0, 0.5, 0.0) }
   }
 })

@@ -1,16 +1,9 @@
 import { useFrame, useThree } from "@react-three/fiber"
+import { useControls } from "leva"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import {
-  Mesh,
-  MeshStandardMaterial,
-  PlaneGeometry,
-  Scene,
-  Texture
-} from "three"
+import { Mesh } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
-
-import { createShaderMaterial } from "@/shaders/custom-shader-material"
 
 import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
@@ -22,6 +15,42 @@ export const ArcadeScreen = () => {
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
+
+  const {
+    uPixelSize,
+    uNoiseIntensity,
+    uScanlineIntensity,
+    uScanlineFrequency,
+    uIsMonochrome,
+    uMonochromeColor
+  } = useControls("Arcade Screen", {
+    uPixelSize: {
+      value: 1024.0,
+      min: 16.0,
+      max: 1200.0,
+      step: 1.0
+    },
+    uNoiseIntensity: {
+      value: 0.64,
+      min: 0.0,
+      max: 1.0,
+      step: 0.01
+    },
+    uScanlineIntensity: {
+      value: 0.4,
+      min: 0.0,
+      max: 1.0,
+      step: 0.01
+    },
+    uScanlineFrequency: {
+      value: 1024.0,
+      min: 1.0,
+      max: 1024.0,
+      step: 1.0
+    },
+    uIsMonochrome: { value: true },
+    uMonochromeColor: { value: "#ff7f00" }
+  })
 
   const renderTarget = useMemo(() => {
     return new WebGLRenderTarget(1024, 1024)
@@ -43,11 +72,35 @@ export const ArcadeScreen = () => {
     if (!arcadeScreen) return
 
     screenMaterial.uniforms.map.value = renderTarget.texture
-    screenMaterial.uniforms.screenSize.value = [2500, 2500]
-    screenMaterial.uniforms.rgbActive.value = true
-
     arcadeScreen.material = screenMaterial
   }, [arcadeScreen, renderTarget.texture])
+
+  useFrame((_, delta) => {
+    if (screenMaterial.uniforms.uTime) {
+      screenMaterial.uniforms.uTime.value += delta
+    }
+  })
+
+  useEffect(() => {
+    if (!arcadeScreen) return
+
+    screenMaterial.uniforms.map.value = renderTarget.texture
+    screenMaterial.uniforms.uPixelSize.value = uPixelSize
+    screenMaterial.uniforms.uNoiseIntensity.value = uNoiseIntensity
+    screenMaterial.uniforms.uScanlineIntensity.value = uScanlineIntensity
+    screenMaterial.uniforms.uScanlineFrequency.value = uScanlineFrequency
+    screenMaterial.uniforms.uIsMonochrome.value = uIsMonochrome
+    arcadeScreen.material = screenMaterial
+  }, [
+    arcadeScreen,
+    uPixelSize,
+    uNoiseIntensity,
+    uScanlineIntensity,
+    uScanlineFrequency,
+    uIsMonochrome,
+    uMonochromeColor,
+    renderTarget.texture
+  ])
 
   if (!arcadeScreen || !screenPosition || !screenScale) return null
 
