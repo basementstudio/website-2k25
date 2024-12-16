@@ -1,4 +1,4 @@
-import { ShaderMaterial } from 'three'
+import { ShaderMaterial } from "three"
 
 const screenVertexShader = /* glsl */ `
 varying vec2 vUv;

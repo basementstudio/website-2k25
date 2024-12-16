@@ -47,8 +47,6 @@ function useLightmaps(): Record<(typeof LIGHTMAP_OBJECTS)[number], Texture> {
   const lightMaps = useMemo(() => {
     return loadedMaps.reduce(
       (acc, map, index) => {
-        console.log(map)
-
         map.flipY = true
         map.magFilter = NearestFilter
         map.colorSpace = NoColorSpace

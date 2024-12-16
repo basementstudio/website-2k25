@@ -1,12 +1,19 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import { Mesh, MeshStandardMaterial } from "three"
+import {
+  Mesh,
+  MeshStandardMaterial,
+  PlaneGeometry,
+  Scene,
+  Texture
+} from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
 import { createShaderMaterial } from "@/shaders/custom-shader-material"
 
 import { RenderTexture } from "./render-texture"
+import { screenMaterial } from "./screen-material"
 import { ScreenUI } from "./screen-ui"
 
 export const ArcadeScreen = () => {
@@ -15,6 +22,10 @@ export const ArcadeScreen = () => {
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
+
+  const renderTarget = useMemo(() => {
+    return new WebGLRenderTarget(1024, 1024)
+  }, [])
 
   useEffect(() => {
     const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
@@ -28,25 +39,15 @@ export const ArcadeScreen = () => {
     }
   }, [scene])
 
-  const renderTarget = useMemo(() => {
-    return new WebGLRenderTarget()
-  }, [])
-
   useEffect(() => {
     if (!arcadeScreen) return
-    const newMaterial = new MeshStandardMaterial({
-      map: renderTarget.texture,
-      color: "#fff"
-    })
-    const shaderMaterial = createShaderMaterial(newMaterial, null, false)
-    arcadeScreen.material = shaderMaterial
-  }, [arcadeScreen, renderTarget.texture])
 
-  useFrame((state) => {
-    const { gl } = state
-    gl.setRenderTarget(renderTarget)
-    gl.setRenderTarget(null)
-  })
+    screenMaterial.uniforms.map.value = renderTarget.texture
+    screenMaterial.uniforms.screenSize.value = [2500, 2500]
+    screenMaterial.uniforms.rgbActive.value = true
+
+    arcadeScreen.material = screenMaterial
+  }, [arcadeScreen, renderTarget.texture])
 
   if (!arcadeScreen || !screenPosition || !screenScale) return null
 

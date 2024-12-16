@@ -1,7 +1,7 @@
-import { createPortal, RootState, useFrame, useThree } from '@react-three/fiber'
-import { DomEvent } from '@react-three/fiber/dist/declarations/src/core/events'
+import { createPortal, RootState, useFrame, useThree } from "@react-three/fiber"
+import { DomEvent } from "@react-three/fiber/dist/declarations/src/core/events"
 import {
-    createContext,
+  createContext,
   PropsWithChildren,
   useCallback,
   useContext,
@@ -9,15 +9,15 @@ import {
   useMemo,
   useRef,
   useState
-} from 'react'
-import * as THREE from 'three'
-import { Mesh } from 'three'
-import { RGBAFormat, Scene } from 'three'
+} from "react"
+import * as THREE from "three"
+import { Mesh } from "three"
+import { RGBAFormat, Scene } from "three"
 
 interface R3FObject {
-    __r3f: {
-        parent: R3FObject | THREE.Object3D;
-    };
+  __r3f: {
+    parent: R3FObject | THREE.Object3D
+  }
 }
 
 export interface PaintCanvasProps {
@@ -58,7 +58,6 @@ export const renderTextureContext = createContext<{
   aspect: 1,
   isPlaying: true
 })
-
 
 export const RenderTexture = ({
   isPlaying: _playing = true,
@@ -156,7 +155,8 @@ export const RenderTexture = ({
     (event: DomEvent, state: RootState, previous?: RootState) => {
       if (!isPlayingRef.current || !previous) return false
 
-      let parent = raycasterMesh || ((fbo.texture as unknown) as R3FObject)?.__r3f.parent
+      let parent =
+        raycasterMesh || (fbo.texture as unknown as R3FObject)?.__r3f.parent
       while (parent && !(parent instanceof THREE.Object3D)) {
         parent = (parent as R3FObject).__r3f.parent
       }
@@ -244,7 +244,6 @@ export const useTextureFrame = (
     })
   }, priority)
 }
-
 
 interface SceneContainerProps {
   fbo: THREE.WebGLRenderTarget
