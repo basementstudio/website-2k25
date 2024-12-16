@@ -1,3 +1,5 @@
+precision highp float;
+
 varying vec2 vUv;
 varying vec2 vUv2;
 varying vec3 vWorldPosition;
@@ -11,6 +13,7 @@ uniform vec2 mapRepeat;
 uniform float opacity;
 uniform float noiseFactor;
 uniform bool uReverse;
+uniform float metalness;
 
 #pragma glslify: noise = require('./noise3.glsl')
 
@@ -32,7 +35,18 @@ void main() {
 
   vec3 lightMapSample = texture2D(lightMap, vUv2).rgb;
 
-  vec3 irradiance = color + lightMapSample;
+  // Apply metalness to affect the reflection intensity
+  vec3 metallicReflection = mix(vec3(0.04), color, metalness);
+
+  // Combine base color, metallic reflection, and lightmap
+  vec3 irradiance = mix(
+    color * (1.0 - metalness), // Diffuse component
+    metallicReflection * lightMapSample, // Metallic reflection
+    metalness
+  );
+
+  // Add ambient light contribution
+  irradiance += lightMapSample * (1.0 - metalness) * 0.2;
 
   // Combine wave color
   irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
