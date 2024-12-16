@@ -4,6 +4,7 @@ import { useCursor } from "@react-three/drei";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Mesh } from "three";
+import { RigidBody } from "@react-three/rapier";
 
 interface RoutingElementProps {
   node: Mesh;
@@ -66,20 +67,39 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
         handleNavigation(routeConfig.route, routeConfig.routeName);
       }}
     >
-      <mesh
-        ref={meshRef}
-        geometry={node.geometry}
-        position={node.position}
-        scale={node.scale}
-        rotation={node.rotation}
-      >
-        <meshBasicMaterial
-          color="white"
-          opacity={hover ? 0.5 : 0}
-          transparent
-          depthTest={false}
-        />
-      </mesh>
+      {node.name === "Game_Hover" ? (
+        <RigidBody type="fixed" colliders="hull">
+          <mesh
+            ref={meshRef}
+            geometry={node.geometry}
+            position={node.position}
+            scale={node.scale}
+            rotation={node.rotation}
+          >
+            <meshBasicMaterial
+              color="white"
+              opacity={hover ? 0.5 : 0}
+              transparent
+              depthTest={false}
+            />
+          </mesh>
+        </RigidBody>
+      ) : (
+        <mesh
+          ref={meshRef}
+          geometry={node.geometry}
+          position={node.position}
+          scale={node.scale}
+          rotation={node.rotation}
+        >
+          <meshBasicMaterial
+            color="white"
+            opacity={hover ? 0.5 : 0}
+            transparent
+            depthTest={false}
+          />
+        </mesh>
+      )}
     </group>
   );
 };

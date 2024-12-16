@@ -12,6 +12,8 @@ import { CustomCamera } from "./camera-controls";
 
 import { Renderer } from "./postprocessing/renderer";
 import { Leva } from "leva";
+import { HoopMinigame } from "./basketball/hoop-minigame";
+import { Physics } from "@react-three/rapier";
 
 export const Scene = () => (
   <div className="absolute inset-0">
@@ -31,10 +33,14 @@ export const Scene = () => (
             <color attach="background" args={["#000"]} />
             <CustomCamera />
             <Debug />
-            <Map />
             <MapWire />
             <Inspectables />
             <Environment preset="studio" />
+
+            <Physics>
+              <Map />
+              <HoopMinigame />
+            </Physics>
           </>
         }
       />
