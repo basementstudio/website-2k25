@@ -1,6 +1,6 @@
-import { QueryResult } from "basehub"
+import { fragmentOn } from "basehub"
 
-export const query = {
+export const query = fragmentOn("Query", {
   pages: {
     about: {
       intro: {
@@ -60,6 +60,6 @@ export const query = {
       }
     }
   }
-}
+})
 
-export type QueryType = QueryResult<typeof query>
+export type QueryType = fragmentOn.infer<typeof query>

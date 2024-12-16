@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -7,10 +7,10 @@ const nextConfig: NextConfig = {
       rules: {
         "*.{glsl,vert,frag,vs,fs}": {
           loaders: ["raw-loader", "glslify-loader"],
-          as: "*.js",
-        },
-      },
-    },
+          as: "*.js"
+        }
+      }
+    }
   },
 
   images: {
@@ -18,19 +18,19 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "assets.basehub.com",
-        pathname: "**",
-      },
-    ],
+        pathname: "**"
+      }
+    ]
   },
 
   webpack: (config) => {
     config.module.rules.push({
       test: /\.(glsl|vs|fs|vert|frag)$/,
-      use: ["raw-loader", "glslify-loader"],
-    });
+      use: ["raw-loader", "glslify-loader"]
+    })
 
-    return config;
-  },
-};
+    return config
+  }
+}
 
-export default nextConfig;
+export default nextConfig

@@ -10,11 +10,9 @@ import { query } from "./query"
 import { Services } from "./services"
 
 const About = () => (
-  <Pump queries={[query]} next={{ revalidate: 30 }}>
+  <Pump queries={[query]}>
     {async ([data]) => {
       "use server"
-
-      if (!data) return null
 
       return (
         <main className="relative -mt-24 bg-brand-k pt-2 after:absolute after:-top-px after:z-10 after:h-px after:w-full after:bg-brand-w1/10">

@@ -12,6 +12,7 @@ export const Hero = ({ data }: { data: QueryType }) => {
 
   const cleanup = () => {
     if (interval.current) {
+      setIndexImage(0)
       clearInterval(interval.current)
       interval.current = null
     }
@@ -27,11 +28,6 @@ export const Hero = ({ data }: { data: QueryType }) => {
     return cleanup
   }
 
-  const handleMouseLeave = () => {
-    setIndexImage(0)
-    cleanup()
-  }
-
   return (
     <section className="grid-layout">
       <h1 className="col-start-1 col-end-5 text-heading uppercase text-brand-w2">
@@ -44,7 +40,7 @@ export const Hero = ({ data }: { data: QueryType }) => {
         height={data.pages.about.imageSequence.items[indexImage].image.height}
         className="col-start-5 col-end-7 pt-1"
         onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseLeave={cleanup}
       />
       <div className="col-start-9 col-end-12 pt-1 text-paragraph text-brand-w2">
         <RichText content={data.pages.about.intro.json.content} />
