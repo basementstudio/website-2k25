@@ -45,7 +45,7 @@ export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null);
   const isInitializedRef = useRef(false);
   const previousCameraState = useRef<string | null>(null);
-  const mouseInfluenceRef = useRef<number>(0);
+  const mouseInfluenceRef = useRef<number>(1);
 
   const currentPos = useMemo(() => new Vector3(), []);
   const currentTarget = useMemo(() => new Vector3(), []);
@@ -155,24 +155,25 @@ export const CustomCamera = () => {
     targetLookAt.set(...target);
 
     cameraAnimationConfig.progress = 0;
-    mouseInfluenceRef.current = 0;
+    mouseInfluenceRef.current = 1;
 
     offsetX.set(0);
     offsetY.set(0);
 
     handleCameraStateChange(cameraConfig.name);
-  }, [
-    cameraConfig,
-    targetPosition,
-    targetLookAt,
-    offsetX,
-    offsetY,
-    handleCameraStateChange,
-  ]);
+  }, [cameraConfig, targetPosition, targetLookAt, offsetX, offsetY, handleCameraStateChange]);
 
   useFrame((_, delta) => {
     const controls = cameraControlsRef.current;
     if (!controls || !isInitializedRef.current) return;
+
+    const rotationAngle = cameraConfig.rotationAngle || [0, 0];
+    const rotationLerp = cameraConfig.rotationLerp || 0.03;
+
+    smoothMouseUv.lerp(
+      new Vector2(mouseUV.x, mouseUV.y),
+      Math.min(rotationLerp * delta * 100, 1),
+    );
 
     if (cameraAnimationConfig.progress < 1) {
       cameraAnimationConfig.progress = Math.min(
@@ -189,11 +190,16 @@ export const CustomCamera = () => {
       currentPos.lerp(targetPosition, easeValue);
       currentTarget.lerp(targetLookAt, easeValue);
 
+      const transitionScale = Math.pow(cameraAnimationConfig.progress, 3);
+      const mouseSpringX = (smoothMouseUv.x - 0.5) * rotationAngle[0];
+      const mouseSpringY = (smoothMouseUv.y - 0.5) * rotationAngle[1];
+
+      currentTarget.z -= mouseSpringX * transitionScale;
+      currentTarget.y -= mouseSpringY;
+
       controls.setPosition(currentPos.x, currentPos.y, currentPos.z);
       controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
-    }
-
-    if (cameraState === "projects") {
+    } else if (cameraState === "projects") {
       const springX = Math.max(
         PROJECTS_RIGHT_LIM,
         Math.min(PROJECTS_LEFT_LIM, offsetXSpring.get()),
@@ -201,62 +207,38 @@ export const CustomCamera = () => {
       const baseTarget = CAMERA_STATES.projects.target;
       const basePosition = CAMERA_STATES.projects.position;
 
-      if (cameraAnimationConfig.progress >= 1) {
-        const rotationAngle = cameraConfig.rotationAngle || [0, 0];
-        const rotationLerp = cameraConfig.rotationLerp || 0.03;
+      const mouseSpringX = (smoothMouseUv.x - 0.5) * rotationAngle[0] * mouseInfluenceRef.current;
+      const mouseSpringY = (smoothMouseUv.y - 0.5) * rotationAngle[1] * mouseInfluenceRef.current;
 
-        smoothMouseUv.lerp(
-          new Vector2(mouseUV.x, mouseUV.y),
-          Math.min(rotationLerp * delta * 100, 1),
+      if (!selected) {
+        controls.setTarget(
+          baseTarget[0],
+          baseTarget[1] - mouseSpringY,
+          baseTarget[2] + springX - mouseSpringX,
         );
 
-        mouseInfluenceRef.current = Math.min(
-          mouseInfluenceRef.current + delta * 2,
-          1
+        controls.setPosition(
+          basePosition[0],
+          basePosition[1],
+          basePosition[2] + springX,
         );
-
-        const mouseSpringX = (smoothMouseUv.x - 0.5) * rotationAngle[0] * mouseInfluenceRef.current;
-        const mouseSpringY = (smoothMouseUv.y - 0.5) * rotationAngle[1] * mouseInfluenceRef.current;
-
-        if (!selected) {
-          controls.setTarget(
-            baseTarget[0],
-            baseTarget[1] - mouseSpringY,
-            baseTarget[2] + springX + mouseSpringX,
-          );
-
-          controls.setPosition(
-            basePosition[0],
-            basePosition[1] + mouseSpringY,
-            basePosition[2] + springX + mouseSpringX,
-          );
-        }
       }
-    } else if (cameraAnimationConfig.progress >= 1) {
-      const rotationAngle = cameraConfig.rotationAngle || [0, 0];
-      const rotationLerp = cameraConfig.rotationLerp || 0.03;
-
-      smoothMouseUv.lerp(
-        new Vector2(mouseUV.x, mouseUV.y),
-        Math.min(rotationLerp * delta * 100, 1),
-      );
-
-      mouseInfluenceRef.current = Math.min(
-        mouseInfluenceRef.current + delta * 2,
-        1
-      );
-
-      const springX = (smoothMouseUv.x - 0.5) * rotationAngle[0] * mouseInfluenceRef.current;
-      const springY = (smoothMouseUv.y - 0.5) * rotationAngle[1] * mouseInfluenceRef.current;
+    } else {
+      const springX = (smoothMouseUv.x - 0.5) * rotationAngle[0];
+      const springY = (smoothMouseUv.y - 0.5) * rotationAngle[1];
 
       if (cameraState === "menu") {
         const baseTarget = CAMERA_STATES.menu.target;
         const basePosition = CAMERA_STATES.menu.position;
 
-        controls.setTarget(baseTarget[0], baseTarget[1], baseTarget[2]);
+        controls.setTarget(
+          baseTarget[0] + springX,
+          baseTarget[1] - springY,
+          baseTarget[2]
+        );
         controls.setPosition(
-          basePosition[0] + springX,
-          basePosition[1] + springY,
+          basePosition[0],
+          basePosition[1],
           basePosition[2],
         );
       } else {
@@ -284,10 +266,6 @@ export const CustomCamera = () => {
         first,
       }) => {
         if (cameraState !== "projects" || selected) return memo;
-
-        if (first) {
-          console.log("Started dragging in projects view");
-        }
 
         const newX = Math.max(
           PROJECTS_RIGHT_LIM,

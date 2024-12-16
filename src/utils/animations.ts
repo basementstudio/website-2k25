@@ -15,7 +15,7 @@ export const customExpoOut = (x: number): number => {
 };
 
 export const cameraAnimationConfig = {
-  duration: 1.3,
+  duration: 2.2,
   progress: 0,
   easing: easeInOutCubic,
 };
