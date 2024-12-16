@@ -22,7 +22,6 @@ export const ArcadeScreen = () => {
     uScanlineIntensity,
     uScanlineFrequency,
     uIsMonochrome,
-    uMonochromeColor,
     reflectionOpacity
   } = useControls("Arcade Screen", {
     reflectionOpacity: {
@@ -55,8 +54,7 @@ export const ArcadeScreen = () => {
       max: 1024.0,
       step: 1.0
     },
-    uIsMonochrome: { value: true },
-    uMonochromeColor: { value: "#ff7f00" }
+    uIsMonochrome: { value: true }
   })
 
   const renderTarget = useMemo(() => {
@@ -112,7 +110,6 @@ export const ArcadeScreen = () => {
     uScanlineIntensity,
     uScanlineFrequency,
     uIsMonochrome,
-    uMonochromeColor,
     reflectionTexture,
     reflectionOpacity,
     renderTarget.texture
