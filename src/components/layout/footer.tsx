@@ -1,4 +1,9 @@
-import Link from "next/link";
+import { Pump } from "basehub/react-pump"
+import { RichText } from "basehub/react-rich-text"
+import Link from "next/link"
+
+import { Grid } from "@/components/grid"
+import { Input } from "@/components/primitives/input"
 
 const SVG = () => (
   <svg
@@ -64,65 +69,86 @@ const SVG = () => (
     />
     <path d="M24.9761 36.2288c.7552-2.6337 3.5571-4.7597 6.2728-4.7597h7.7709c2.7157 0 4.2983 2.126 3.5431 4.7597l-3.2756 11.4233c-.7552 2.6337-3.557 4.7597-6.2727 4.7597h-7.7709c-2.7158 0-4.2984-2.126-3.5432-4.7597l3.2756-11.4233Zm-5.516 17.4681c-1.979 6.9016 2.2355 12.3435 9.3521 12.3435h7.82c7.231 0 14.7165-5.6799 16.7273-12.6925l6.5921-22.9894c2.0108-7.0126-2.2173-12.6925-9.4483-12.6925h-9.8159c-5.7587 0-11.7587 4.6645-13.4046 10.2334L34.994 1.00708H19.2886L.731561 65.7231H16.0116l3.4485-12.0262ZM73.2597 52.4118H59.5175L55.696 65.7389h13.7422l3.8215-13.3271Z" />
   </svg>
-);
+)
 
 export const Footer = () => (
-  <footer className="0 relative z-10 flex h-screen items-end bg-brand-k pb-3">
-    <div className="absolute inset-0 flex items-center justify-center">
-      <SVG />
-    </div>
-    <div className="grid-layout items-end">
-      <div className="col-start-1 col-end-5 grid grid-cols-4 gap-x-2">
-        <p className="col-span-4 pb-3 text-subheading text-brand-w2">
-          Stay Connected
-        </p>
-        <p className="col-start-1 col-end-4 pb-4 text-paragraph text-brand-w2">
-          Discover how we push boundaries at Basement Studio, where creativity
-          meets innovation. Whether you’re a design enthusiast, a tech
-          aficionado, or simply curious about what’s next in the digital world
-        </p>
-        <div className="col-span-4 grid grid-cols-4 border-t border-brand-w1/20 pb-0.5 pt-px">
-          <p className="col-start-1 col-end-2 text-paragraph text-brand-w2">
-            Name
-          </p>
-          <p className="col-start-2 col-end-3 text-paragraph text-brand-g1">
-            John Doe
-          </p>
-        </div>
-        <div className="col-span-4 grid grid-cols-4 border-t border-brand-w1/20 pb-0.5 pt-px">
-          <p className="col-start-1 col-end-2 text-paragraph text-brand-w2">
-            Email
-          </p>
-          <p className="col-start-2 col-end-3 text-paragraph text-brand-g1">
-            john.doe@example.com
-          </p>
-          <p className="col-start-4 col-end-5 text-end text-paragraph text-brand-w1">
-            <span className="actionable">Submit Form</span>
-            {" >"}
-          </p>
-        </div>
-      </div>
-      <div className="col-start-9 col-end-11 text-paragraph text-brand-g1">
-        <Link className="actionable text-brand-w1" href="/">
-          Twitter
-        </Link>
-        {" , "}
-        <Link className="actionable text-brand-w1" href="/">
-          Instagram
-        </Link>
-        {" , "}
-        <Link className="actionable text-brand-w1" href="/">
-          Github
-        </Link>
-        {" , "}
-        <Link className="actionable text-brand-w1" href="/">
-          Twitch
-        </Link>
-      </div>
-      <div className="col-start-11 col-end-13 text-right text-paragraph text-brand-g1">
-        <p>© basement.studio LLC 2024</p>
-        <p>all rights reserved</p>
-      </div>
-    </div>
-  </footer>
-);
+  <Pump
+    queries={[
+      {
+        company: {
+          social: {
+            github: true,
+            instagram: true,
+            twitter: true,
+            newsletter: {
+              json: {
+                content: true
+              }
+            }
+          }
+        }
+      }
+    ]}
+    next={{ revalidate: 30 }}
+  >
+    {async ([data]) => {
+      "use server"
+
+      return (
+        <footer className="relative z-10 flex h-screen items-end bg-brand-k pb-3">
+          <Grid />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <SVG />
+          </div>
+          <div className="grid-layout relative items-end">
+            <div className="col-start-1 col-end-5 grid grid-cols-4 gap-x-2 gap-y-3">
+              <RichText
+                content={data.company.social.newsletter.json.content}
+                components={{
+                  h3: ({ children }) => (
+                    <p className="col-span-4 text-subheading text-brand-w2">
+                      {children}
+                    </p>
+                  ),
+                  p: ({ children }) => (
+                    <p className="col-start-1 col-end-4 text-paragraph text-brand-w2">
+                      {children}
+                    </p>
+                  )
+                }}
+              />
+
+              <div className="col-span-4 grid grid-cols-4 gap-2">
+                <Input className="col-span-1" placeholder="Name" />
+                <Input className="col-span-2" placeholder="Email" />
+              </div>
+            </div>
+            <div className="col-start-9 col-end-11 text-paragraph text-brand-g1">
+              <Link
+                className="actionable text-brand-w1"
+                href={data.company.social.twitter ?? ""}
+              >
+                Twitter
+              </Link>
+              {" , "}
+              <Link
+                className="actionable text-brand-w1"
+                href={data.company.social.instagram ?? ""}
+              >
+                Instagram
+              </Link>
+              {" , "}
+              <Link className="actionable text-brand-w1" href="/">
+                Github
+              </Link>
+            </div>
+            <div className="col-start-11 col-end-13 text-right text-paragraph text-brand-g1">
+              <p>© basement.studio LLC {new Date().getFullYear()}</p>
+              <p>all rights reserved</p>
+            </div>
+          </div>
+        </footer>
+      )
+    }}
+  </Pump>
+)
