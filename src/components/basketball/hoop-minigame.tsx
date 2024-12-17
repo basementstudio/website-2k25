@@ -5,8 +5,7 @@ import { Vector2, Vector3 } from "three"
 import { useFrame, useThree } from "@react-three/fiber"
 
 const INITIAL_POSITION = { x: 5.2, y: 1.6, z: -10.7 }
-// TODO: check real position and change it
-const HOOP_POSITION = { x: 5.2, y: 2.8, z: -12.7 }
+const HOOP_POSITION = { x: 5.230, y: 3.414, z: -14.412 }
 export const HoopMinigame = () => {
   const isBasketball = usePathname() === "/basketball"
   // TODO: fix types
@@ -73,20 +72,20 @@ export const HoopMinigame = () => {
       )
 
       const dragDistance = dragDelta.length()
-      const baseThrowStrength = 1
-      const throwStrength = Math.min(baseThrowStrength * dragDistance, 2)
+      const baseThrowStrength = 1.5
+      const throwStrength = Math.min(baseThrowStrength * dragDistance, 3)
 
-      // Calculate arc parameters
+      // Calculate arc parameters using HOOP_POSITION
       const distanceToHoop = Math.abs(HOOP_POSITION.z - currentPos.z)
       const heightDifference = HOOP_POSITION.y - currentPos.y
       
       ballRef.current.applyImpulse({
-        x: -dragDelta.x * throwStrength * 0.15,
-        y: (heightDifference + distanceToHoop * 0.3) * throwStrength,
-        z: -distanceToHoop * throwStrength * 0.25
+        x: -dragDelta.x * throwStrength * 0.015,
+        y: (heightDifference * 0.3) * throwStrength,
+        z: -distanceToHoop * throwStrength * 0.05
       }, true)
 
-      // Add some backspin
+      // Backspin
       ballRef.current.applyTorqueImpulse({ x: 0.02, y: 0, z: 0 }, true)
       
       setIsDragging(false)
@@ -95,7 +94,7 @@ export const HoopMinigame = () => {
   
   if (isBasketball) {
     return (
-      <RigidBody ref={ballRef} type="fixed" position={[INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z]}>
+      <RigidBody colliders="ball" ref={ballRef} type="fixed" position={[INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z]}>
         <mesh 
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}

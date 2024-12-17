@@ -67,39 +67,20 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
         handleNavigation(routeConfig.route, routeConfig.routeName);
       }}
     >
-      {node.name === "Game_Hover" ? (
-        <RigidBody type="fixed" colliders="hull">
-          <mesh
-            ref={meshRef}
-            geometry={node.geometry}
-            position={node.position}
-            scale={node.scale}
-            rotation={node.rotation}
-          >
-            <meshBasicMaterial
-              color="white"
-              opacity={hover ? 0.5 : 0}
-              transparent
-              depthTest={false}
-            />
-          </mesh>
-        </RigidBody>
-      ) : (
-        <mesh
-          ref={meshRef}
-          geometry={node.geometry}
-          position={node.position}
-          scale={node.scale}
-          rotation={node.rotation}
-        >
-          <meshBasicMaterial
-            color="white"
-            opacity={hover ? 0.5 : 0}
-            transparent
-            depthTest={false}
-          />
-        </mesh>
-      )}
+      <mesh
+        ref={meshRef}
+        geometry={node.geometry}
+        position={node.position}
+        scale={node.scale}
+        rotation={node.rotation}
+      >
+        <meshBasicMaterial
+          color="white"
+          opacity={hover ? 0.5 : 0}
+          transparent
+          depthTest={false}
+        />
+      </mesh>
     </group>
   );
 };

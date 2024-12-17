@@ -18,6 +18,7 @@ import {
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js";
 import { createShaderMaterial } from "@/shaders/custom-shader-material";
 import { useLoader } from "@react-three/fiber";
+import { RigidBody } from "@react-three/rapier";
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -70,6 +71,7 @@ function InnerMap() {
   const lightmaps = useLightmaps();
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({});
+  const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null);
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {};
@@ -81,6 +83,12 @@ function InnerMap() {
         routingNodes[node.name] = child as Mesh;
       }
     });
+
+    const hoopGroup = scene.getObjectByName("SM_BasketballHoop");
+    if (hoopGroup) {
+      hoopGroup.removeFromParent();
+      setBasketballHoop(hoopGroup);
+    }
 
     function getLightmap(meshName: string, material: Material) {
       const lightMap = lightmaps[meshName as keyof typeof lightmaps] || null;
@@ -163,6 +171,11 @@ function InnerMap() {
   return (
     <group>
       <primitive object={mainScene} />
+      {basketballHoop && (
+        <RigidBody type="fixed" colliders="trimesh">
+          <primitive object={basketballHoop} />
+        </RigidBody>
+      )}
       {Object.values(routingNodes).map((node) => (
         <RoutingElement key={node.name} node={node} />
       ))}
