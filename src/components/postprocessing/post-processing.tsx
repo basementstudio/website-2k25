@@ -25,7 +25,7 @@ const material = new ShaderMaterial({
     uPixelSize: { value: 2.0 },
     uBias: { value: 0.75 },
     uColorNum: { value: 32.0 },
-    uColorMultiplier: { value: 0.02 },
+    uColorMultiplier: { value: 0.05 },
 
     uBloomStrength: { value: 0.55 },
     uBloomRadius: { value: 6.0 },
@@ -122,7 +122,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     colorMultiplier: {
-      value: 0.02,
+      value: 0.05,
       min: 0.0,
       max: 2.0,
       step: 0.01,
