@@ -33,6 +33,7 @@ export const Inspectables = () => {
       const height = 2 * Math.tan(fov / 2) * distance;
       const width = height * camera.aspect;
 
+      // todo: remove division
       ref.current.scale.set(width, height, 1);
 
       const direction = new Vector3();

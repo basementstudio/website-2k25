@@ -6,6 +6,7 @@ import { Geist } from "next/font/google"
 import { AssetsProvider } from "@/components/assets-provider"
 import { fetchAssets } from "@/components/assets-provider/fetch-assets"
 import { CameraRouteHandler } from "@/components/camera-route-handler"
+import { MouseTracker } from "@/components/mouse-tracker"
 import { Scene } from "@/components/scene"
 
 const Toolbar = BasehubToolbar as unknown as React.ComponentType
@@ -42,6 +43,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body className={cn(geistSans.variable)}>
+            <MouseTracker />
             <Navbar />
             <CameraRouteHandler />
             <div className="sticky top-0 h-screen w-full">

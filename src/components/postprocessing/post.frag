@@ -204,16 +204,10 @@ vec3 tonemap(vec3 color) {
 void main() {
   vec4 baseColorSample = texture2D(uMainTexture, vUv);
 
-  bool isGratherThanOne = baseColorSample.r / 2.0 > 1.0;
-
   vec3 color = baseColorSample.rgb;
 
   if (!uEnableShader) {
-    // gl_FragColor = vec4(color, 1.0);
     gl_FragColor = vec4(tonemap(color), 1.0);
-    if (isGratherThanOne) {
-      gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }
     #include <colorspace_fragment>
     return;
   }
@@ -224,11 +218,7 @@ void main() {
 
   color.rgb *= uBrightness;
   color.rgb = dither(uv, color.rgb);
-  // gl_FragColor = vec4(color, 1.0);
 
   gl_FragColor = vec4(tonemap(color), 1.0);
-  if (isGratherThanOne) {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-  }
   #include <colorspace_fragment>
 }
