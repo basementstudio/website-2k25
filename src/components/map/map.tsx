@@ -1,7 +1,7 @@
 "use client"
 
 import { useGLTF } from "@react-three/drei"
-import { useLoader } from "@react-three/fiber"
+import { useFrame, useLoader } from "@react-three/fiber"
 import { memo, useEffect, useMemo, useState } from "react"
 import {
   Mesh,
@@ -15,7 +15,10 @@ import {
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
-import { createShaderMaterial } from "@/shaders/custom-shader-material"
+import {
+  createShaderMaterial,
+  useCustomShaderMaterial
+} from "@/shaders/custom-shader-material"
 
 import { useAssets } from "../assets-provider"
 import { RoutingElement } from "../routing-element"
@@ -65,6 +68,16 @@ function InnerMap() {
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
 
+  const shaderMaterialsRef = useCustomShaderMaterial(
+    (store) => store.materialsRef
+  )
+
+  useFrame(({ clock }) => {
+    Object.values(shaderMaterialsRef).forEach((material) => {
+      material.uniforms.uTime.value = clock.getElapsedTime()
+    })
+  })
+
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
 
@@ -75,17 +88,6 @@ function InnerMap() {
         routingNodes[node.name] = child as Mesh
       }
     })
-
-    function replaceMeshMaterial(mesh: Mesh) {
-      if (mesh.userData.hasGlobalMaterial) return
-
-      mesh.userData.hasGlobalMaterial = true
-      const newMaterial = createShaderMaterial(
-        mesh.material as MeshStandardMaterial,
-        false
-      )
-      mesh.material = newMaterial
-    }
 
     // Replace materials
     scene.traverse((child) => {

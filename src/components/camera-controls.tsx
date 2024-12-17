@@ -1,44 +1,41 @@
-import { CameraControls } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { CameraControls } from "@react-three/drei"
+import { useFrame, useThree } from "@react-three/fiber"
+import { animate } from "motion"
+import { usePathname } from "next/navigation"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import {
-  Mesh,
-  ShaderMaterial,
-  Vector3,
   LineSegments,
+  Mesh,
   PerspectiveCamera,
-} from "three";
-import {
-  CameraState,
-  CameraStateKeys,
-  useCameraStore,
-} from "@/store/app-store";
-import { CAMERA_STATES } from "@/constants/camera-states";
-import { usePathname } from "next/navigation";
-import { cameraAnimationConfig } from "@/utils/animations";
-import { animate } from "motion";
-import { BASE_SHADER_MATERIAL_NAME } from "@/shaders/custom-shader-material";
+  ShaderMaterial,
+  Vector3
+} from "three"
+
+import { CAMERA_STATES } from "@/constants/camera-states"
+import { BASE_SHADER_MATERIAL_NAME } from "@/shaders/custom-shader-material"
+import { CameraState, CameraStateKeys, useCameraStore } from "@/store/app-store"
+import { cameraAnimationConfig } from "@/utils/animations"
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/": "home",
   "/arcade": "arcade",
   "/about": "stairs",
   "/basketball": "hoop",
-  "/projects": "projects",
-};
+  "/projects": "projects"
+}
 
 export const CustomCamera = () => {
-  const pathname = usePathname();
-  const scene = useThree((state) => state.scene);
-  const { cameraConfig } = useCameraStore();
-  const cameraControlsRef = useRef<CameraControls>(null);
-  const isInitializedRef = useRef(false);
-  const previousCameraState = useRef<string | null>(null);
+  const pathname = usePathname()
+  const scene = useThree((state) => state.scene)
+  const { cameraConfig } = useCameraStore()
+  const cameraControlsRef = useRef<CameraControls>(null)
+  const isInitializedRef = useRef(false)
+  const previousCameraState = useRef<string | null>(null)
 
-  const currentPos = useMemo(() => new Vector3(), []);
-  const currentTarget = useMemo(() => new Vector3(), []);
-  const targetPosition = useMemo(() => new Vector3(), []);
-  const targetLookAt = useMemo(() => new Vector3(), []);
+  const currentPos = useMemo(() => new Vector3(), [])
+  const currentTarget = useMemo(() => new Vector3(), [])
+  const targetPosition = useMemo(() => new Vector3(), [])
+  const targetLookAt = useMemo(() => new Vector3(), [])
 
   const animateShader = useCallback(
     (start: number, end: number) => {
@@ -46,104 +43,104 @@ export const CustomCamera = () => {
         duration: 1.5,
         onUpdate: (latest) => {
           scene.traverse((child) => {
-            if (!("material" in child)) return;
+            if (!("material" in child)) return
 
-            const meshChild = child as Mesh | LineSegments;
+            const meshChild = child as Mesh | LineSegments
             if (Array.isArray(meshChild.material)) {
               meshChild.material.forEach((material) => {
-                if (material.name !== BASE_SHADER_MATERIAL_NAME) return;
-                (material as ShaderMaterial).uniforms.uProgress.value = latest;
-              });
+                if (material.name !== BASE_SHADER_MATERIAL_NAME) return
+                ;(material as ShaderMaterial).uniforms.uProgress.value = latest
+              })
             } else {
-              if (meshChild.material.name !== BASE_SHADER_MATERIAL_NAME) return;
-              (meshChild.material as ShaderMaterial).uniforms.uProgress.value =
-                latest;
+              if (meshChild.material.name !== BASE_SHADER_MATERIAL_NAME) return
+              ;(meshChild.material as ShaderMaterial).uniforms.uProgress.value =
+                latest
             }
-          });
-        },
-      });
+          })
+        }
+      })
     },
-    [scene],
-  );
+    [scene]
+  )
 
   useEffect(() => {
     const isMenuTransition =
-      previousCameraState.current === "menu" || cameraConfig.name === "menu";
+      previousCameraState.current === "menu" || cameraConfig.name === "menu"
 
     if (isMenuTransition) {
       animateShader(
         cameraConfig.name === "menu" ? 0 : 1,
-        cameraConfig.name === "menu" ? 1 : 0,
-      );
+        cameraConfig.name === "menu" ? 1 : 0
+      )
     }
 
-    previousCameraState.current = cameraConfig.name;
-  }, [cameraConfig.name, animateShader]);
+    previousCameraState.current = cameraConfig.name
+  }, [cameraConfig.name, animateShader])
 
   useEffect(() => {
-    cameraControlsRef.current?.disconnect();
-  }, []);
+    cameraControlsRef.current?.disconnect()
+  }, [])
 
   useEffect(() => {
-    const controls = cameraControlsRef.current;
+    const controls = cameraControlsRef.current
     if (controls && !isInitializedRef.current) {
-      const initialState = PATHNAME_MAP[pathname] || "home";
+      const initialState = PATHNAME_MAP[pathname] || "home"
       const initialConfig =
-        CAMERA_STATES[initialState as keyof typeof CAMERA_STATES];
+        CAMERA_STATES[initialState as keyof typeof CAMERA_STATES]
 
-      currentPos.set(...initialConfig.position);
-      currentTarget.set(...initialConfig.target);
+      currentPos.set(...initialConfig.position)
+      currentTarget.set(...initialConfig.target)
 
-      controls.setPosition(...initialConfig.position);
-      controls.setTarget(...initialConfig.target);
+      controls.setPosition(...initialConfig.position)
+      controls.setTarget(...initialConfig.target)
 
-      isInitializedRef.current = true;
+      isInitializedRef.current = true
     }
-  }, [pathname, currentPos, currentTarget]);
+  }, [pathname, currentPos, currentTarget])
 
   useEffect(() => {
-    if (!isInitializedRef.current) return;
+    if (!isInitializedRef.current) return
 
-    const { position, target } = cameraConfig as unknown as CameraState;
-    targetPosition.set(...position);
-    targetLookAt.set(...target);
+    const { position, target } = cameraConfig as unknown as CameraState
+    targetPosition.set(...position)
+    targetLookAt.set(...target)
 
-    cameraAnimationConfig.progress = 0;
-  }, [cameraConfig, targetPosition, targetLookAt]);
+    cameraAnimationConfig.progress = 0
+  }, [cameraConfig, targetPosition, targetLookAt])
 
   useFrame((_, delta) => {
-    const controls = cameraControlsRef.current;
-    if (!controls || !isInitializedRef.current) return;
+    const controls = cameraControlsRef.current
+    if (!controls || !isInitializedRef.current) return
 
     cameraAnimationConfig.progress = Math.min(
       cameraAnimationConfig.progress + delta / cameraAnimationConfig.duration,
-      1,
-    );
+      1
+    )
     const easeValue = cameraAnimationConfig.easing(
-      cameraAnimationConfig.progress,
-    );
+      cameraAnimationConfig.progress
+    )
 
-    controls.getPosition(currentPos);
-    controls.getTarget(currentTarget);
+    controls.getPosition(currentPos)
+    controls.getTarget(currentTarget)
 
-    currentPos.lerp(targetPosition, easeValue);
-    currentTarget.lerp(targetLookAt, easeValue);
+    currentPos.lerp(targetPosition, easeValue)
+    currentTarget.lerp(targetLookAt, easeValue)
 
-    controls.setPosition(currentPos.x, currentPos.y, currentPos.z);
-    controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z);
+    controls.setPosition(currentPos.x, currentPos.y, currentPos.z)
+    controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z)
 
     if (cameraAnimationConfig.progress >= 1) {
-      cameraAnimationConfig.progress = 0;
+      cameraAnimationConfig.progress = 0
     }
-  });
+  })
 
   useEffect(() => {
     if (cameraControlsRef.current) {
       useCameraStore
         .getState()
-        .setCamera(cameraControlsRef.current.camera as PerspectiveCamera);
+        .setCamera(cameraControlsRef.current.camera as PerspectiveCamera)
     }
-  }, []);
+  }, [])
 
-  return <CameraControls makeDefault ref={cameraControlsRef} />;
-};
+  return <CameraControls makeDefault ref={cameraControlsRef} />
+}

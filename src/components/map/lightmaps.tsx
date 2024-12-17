@@ -1,7 +1,8 @@
 "use client"
 
 import { useLoader, useThree } from "@react-three/fiber"
-import { memo, Suspense, useEffect, useMemo, useState } from "react"
+import { animate } from "motion"
+import { Suspense, useEffect, useMemo } from "react"
 import {
   Group,
   Mesh,
@@ -11,6 +12,8 @@ import {
   Texture
 } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
+
+import { useCustomShaderMaterial } from "@/shaders/custom-shader-material"
 
 import { useAssets } from "../assets-provider"
 
@@ -41,11 +44,26 @@ function useLightmaps(): Record<string, Texture> {
 }
 
 function Lightmaps() {
+  const shaderMaterialsRef = useCustomShaderMaterial(
+    (store) => store.materialsRef
+  )
+
   const lightMaps = useLightmaps()
 
   const scene = useThree((state) => state.scene)
 
   useEffect(() => {
+    animate(0, 1, {
+      delay: 1,
+      duration: 1,
+      ease: "easeIn",
+      onUpdate: (latest) => {
+        Object.values(shaderMaterialsRef).forEach((material) => {
+          material.uniforms.uLoaded.value = latest
+        })
+      }
+    })
+
     function addLightmap(mesh: Mesh, lightmap: Texture) {
       if (!mesh.userData.hasGlobalMaterial) return
 
@@ -67,7 +85,7 @@ function Lightmaps() {
         })
       }
     })
-  }, [scene, lightMaps])
+  }, [scene, lightMaps, shaderMaterialsRef])
 
   return null
 }

@@ -4,6 +4,10 @@ varying vec2 vUv;
 varying vec2 vUv2;
 varying vec3 vWorldPosition;
 
+const float voxelSize = 10.0;
+const float noiseBigScale = 1.0;
+const float noiseSmallScale = 3.0;
+
 uniform vec3 uColor;
 uniform float uProgress;
 uniform vec3 baseColor;
@@ -15,19 +19,73 @@ uniform float noiseFactor;
 uniform bool uReverse;
 uniform float metalness;
 
+uniform float uLoaded;
+uniform float uTime;
+
 #pragma glslify: noise = require('./noise3.glsl')
 
-void main() {
-  // Distance from center
-  vec3 voxelCenter = round(vWorldPosition * 6.0) / 6.0;
-  float randomOffset = noise(voxelCenter) * noiseFactor;
+struct VoxelData {
+  float edgeFactor;
+  float fillFactor;
+  vec3 center;
+  float size;
+  float noiseBig;
+  float noiseSmall;
+};
 
-  float dist = distance(voxelCenter, vec3(2.0, 0.0, -16.0));
-  dist += randomOffset * 2.0;
+float isEdge(vec3 p) {
+  float edgeLimit = 0.92;
+  float zEdge = float(abs(p.z) * voxelSize * 2.0 > edgeLimit);
+  float yEdge = float(abs(p.y) * voxelSize * 2.0 > edgeLimit);
+  float xEdge = float(abs(p.x) * voxelSize * 2.0 > edgeLimit);
+
+  float totalEdge = xEdge + yEdge + zEdge;
+  return totalEdge >= 1.0
+    ? 1.0
+    : 0.0;
+}
+
+VoxelData getVoxel() {
+  vec3 voxelCenter = round(vWorldPosition * voxelSize) / voxelSize;
+  float noiseBig = noise(voxelCenter * noiseBigScale);
+  float noiseSmall = noise(voxelCenter * noiseSmallScale);
+  float edgeFactor = isEdge(voxelCenter - vWorldPosition);
+  float fillFactor = 1.0 - edgeFactor;
+
+  return VoxelData(
+    edgeFactor,
+    fillFactor,
+    voxelCenter,
+    voxelSize,
+    noiseBig,
+    noiseSmall
+  );
+}
+
+void main() {
+  VoxelData voxel = getVoxel();
+
+  // Distance from center
+  float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));
+
+  float distantceOffset = voxel.noiseBig * noiseFactor;
+  dist += distantceOffset * 2.0;
 
   // Wave effect
   float wave = step(dist, uProgress * 20.0);
   float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
+
+  // Render as wireframe
+  if (uReverse) {
+    gl_FragColor = vec4(uColor, 1.0);
+
+    if (wave <= 0.0) {
+      discard;
+    }
+    return;
+  }
+
+  // Render as solid color
 
   vec4 mapSample = texture2D(map, vUv * mapRepeat);
   // Combine texture and base color
@@ -53,21 +111,34 @@ void main() {
 
   // Reverse the opacity calculation and apply wave effect
   float opacityResult;
-  if (uReverse) {
-    opacityResult = wave;
-    irradiance = mix(
-      irradiance,
-      vec3(1.0, 1.0, 1.0) * wave + vec3(1.0, 1.0, 1.0) * edge,
-      wave + edge
-    );
-  } else {
-    opacityResult = 1.0 - wave;
-    irradiance = mix(irradiance, uColor, wave);
-  }
+
+  opacityResult = 1.0 - wave;
+  opacityResult *= opacity;
+  irradiance = mix(irradiance, uColor, wave);
 
   if (opacityResult <= 0.0) {
     discard;
   }
 
   gl_FragColor = vec4(irradiance, opacityResult);
+
+  if (uLoaded < 1.0) {
+    // Loading effect
+    float colorBump = (uTime + voxel.noiseBig * 20.0) * 0.1;
+    colorBump = fract(colorBump) * 20.0;
+    colorBump = clamp(colorBump, 0.0, 1.0);
+    colorBump = 1.0 - pow(colorBump, 0.3);
+
+    float loadingColor = max(
+      voxel.edgeFactor * 0.2,
+      colorBump * voxel.fillFactor * 3.0
+    );
+
+    gl_FragColor.rgb = mix(
+      gl_FragColor.rgb,
+      vec3(loadingColor),
+      step(uLoaded, voxel.noiseSmall)
+    );
+  }
+
 }
