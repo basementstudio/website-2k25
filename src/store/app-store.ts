@@ -12,11 +12,14 @@ export type CameraStateKeys =
   | "menu"
 
 export interface CameraState {
-  name: string
-  url?: string
-  object_name?: string
-  position: [number, number, number]
-  target: [number, number, number]
+  name: string;
+  url?: string;
+  object_name?: string;
+  position: [number, number, number];
+  target: [number, number, number];
+  offset?: [number, number, number];
+  rotationAngle?: [number, number];
+  rotationLerp?: number;
 }
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
@@ -53,8 +56,11 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   camera: null,
   setCamera: (camera) => set({ camera }),
   setCameraState: (state) => {
-    if (state === get().cameraState) return
-    set({ cameraState: state, cameraConfig: CAMERA_STATES[state] })
+    if (state === get().cameraState) return;
+    set({
+      cameraState: state,
+      cameraConfig: CAMERA_STATES[state],
+    });
   },
   updateCameraFromPathname: (pathname) =>
     get().setCameraState(PATHNAME_MAP[pathname] || "home"),
