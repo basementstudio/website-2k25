@@ -26,6 +26,7 @@ const material = new ShaderMaterial({
     uBias: { value: 0.75 },
     uColorNum: { value: 32.0 },
     uColorMultiplier: { value: 0.05 },
+    uNoiseFactor: { value: 0.1 },
 
     uBloomStrength: { value: 0.55 },
     uBloomRadius: { value: 6.0 },
@@ -128,6 +129,15 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       step: 0.01,
       onChange(value) {
         material.uniforms.uColorMultiplier.value = value
+      }
+    },
+    noiseFactor: {
+      value: 0.1,
+      min: 0.0,
+      max: 2.0,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uNoiseFactor.value = value
       }
     }
   })

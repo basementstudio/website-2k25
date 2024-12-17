@@ -10,6 +10,7 @@ uniform float uBias;
 uniform float uColorNum;
 uniform float uColorMultiplier;
 uniform float uPixelSize;
+uniform float uNoiseFactor;
 
 uniform float uBloomStrength;
 uniform float uBloomRadius;
@@ -101,14 +102,14 @@ vec3 dither(vec2 uv, vec3 color) {
   vec2 screenCoord = uv * resolution;
 
   // Generate noise using hash function
-  vec3 noise = vec3(hash(screenCoord)) * 0.1;
+  vec3 noise = vec3(hash(screenCoord)) * uNoiseFactor;
 
   int x = int(uv.x * resolution.x / uPixelSize) % 8;
   int y = int(uv.y * resolution.y / uPixelSize) % 8;
   float threshold = bayerMatrix8x8[y * 8 + x] - uBias;
 
   // Add noise to the threshold
-  threshold += noise.r - 0.05;
+  threshold += noise.r - uNoiseFactor * 0.5;
 
   color.rgb += threshold * uColorMultiplier;
   color.r = floor(color.r * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
