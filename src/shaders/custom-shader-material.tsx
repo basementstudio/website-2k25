@@ -8,7 +8,6 @@ export const BASE_SHADER_MATERIAL_NAME = "custom-shader-material"
 
 export const createShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
-  lightMap: Texture | null,
   reverse: boolean
 ) => {
   const {
@@ -27,7 +26,7 @@ export const createShaderMaterial = (
       uProgress: { value: 0.0 },
       uReverse: { value: reverse },
       map: { value: map },
-      lightMap: { value: lightMap },
+      lightMap: { value: null },
       metalness: { value: metalness },
       mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
       baseColor: { value: baseColor },
