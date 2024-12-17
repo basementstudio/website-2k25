@@ -27,8 +27,8 @@ const material = new ShaderMaterial({
     uColorNum: { value: 64.0 },
     uColorMultiplier: { value: 0.02 },
 
-    uBloomStrength: { value: 1.0 },
-    uBloomRadius: { value: 3.0 },
+    uBloomStrength: { value: 0.55 },
+    uBloomRadius: { value: 6.0 },
 
     // adjustments
     uContrast: { value: 2.0 },
@@ -77,7 +77,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomStrength: {
-      value: 1.0,
+      value: 0.55,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -86,7 +86,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomRadius: {
-      value: 3.0,
+      value: 6.0,
       min: 0.0,
       max: 24.0,
       step: 1,
