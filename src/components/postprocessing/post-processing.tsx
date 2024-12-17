@@ -22,9 +22,9 @@ const material = new ShaderMaterial({
     resolution: { value: new Vector2(1, 1) },
     uPalette: { value: null },
 
-    uPixelSize: { value: 3.0 },
+    uPixelSize: { value: 2.0 },
     uBias: { value: 0.75 },
-    uColorNum: { value: 64.0 },
+    uColorNum: { value: 32.0 },
     uColorMultiplier: { value: 0.02 },
 
     uBloomStrength: { value: 0.55 },
@@ -95,7 +95,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     pixelSize: {
-      value: 3.0,
+      value: 2.0,
       min: 1.0,
       max: 16.0,
       step: 1,
@@ -113,7 +113,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     colorNum: {
-      value: 64.0,
+      value: 32.0,
       min: 0.0,
       max: 256.0,
       step: 1,
