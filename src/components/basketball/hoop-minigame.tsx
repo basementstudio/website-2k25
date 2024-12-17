@@ -94,7 +94,8 @@ export const HoopMinigame = () => {
   
   if (isBasketball) {
     return (
-      <RigidBody colliders="ball" ref={ballRef} type="fixed" position={[INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z]}>
+      <>
+      <RigidBody restitution={0.9} colliders="ball" ref={ballRef} type="fixed" position={[INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z]}>
         <mesh 
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -104,6 +105,23 @@ export const HoopMinigame = () => {
           <meshStandardMaterial color="orange" />
         </mesh>
       </RigidBody>
+
+      {/* invisible wall and floor */}
+      <RigidBody>
+        <mesh position={[HOOP_POSITION.x, HOOP_POSITION.y, HOOP_POSITION.z -0.1]}>
+            <planeGeometry args={[5, 5]} />
+            <meshBasicMaterial transparent opacity={0.1} color="red" />
+        </mesh>
+      </RigidBody>
+
+      <RigidBody>
+        <mesh rotation-x={-Math.PI / 2} position={[HOOP_POSITION.x, 0, HOOP_POSITION.z + 3]}>
+            <planeGeometry args={[7, 7]} />
+            <meshBasicMaterial transparent opacity={0.1} color="blue" />
+        </mesh>
+      </RigidBody>
+      </>
+      
     )
   }
   return null
