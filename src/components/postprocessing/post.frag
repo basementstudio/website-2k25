@@ -1,4 +1,4 @@
-precision mediump float;
+precision highp float;
 
 uniform sampler2D uMainTexture;
 uniform float aspect;
@@ -134,8 +134,8 @@ vec3 gamma(vec3 color, float gamma) {
   return pow(color, vec3(1.0 / gamma));
 }
 
-vec3 invertedGamma(vec3 color) {
-  return pow(color, vec3(2.2));
+vec3 invertedGamma(vec3 color, float gamma) {
+  return pow(color, vec3(gamma));
 }
 
 // // ACES filmic tone mapping approximation
@@ -148,6 +148,41 @@ vec3 acesFilm(vec3 x) {
   return clamp(x * (a * x + b) / (x * (c * x + d) + e), 0.0, 1.0);
 }
 
+// AGX color grading
+vec3 agxDefaultContrastApprox(vec3 x) {
+  vec3 x2 = x * x;
+  vec3 x4 = x2 * x2;
+  return +15.5 * x4 * x2 -
+  40.14 * x4 * x +
+  31.96 * x4 -
+  6.868 * x2 * x +
+  0.4298 * x2 +
+  0.1191 * x -
+  0.00232;
+}
+
+vec3 agxLook(vec3 color) {
+  const vec3 lw = vec3(0.2126, 0.7152, 0.0722);
+  float luma = dot(color, lw);
+  vec3 offset = vec3(0.0);
+  vec3 slope = vec3(1.0);
+  vec3 power = vec3(1.0);
+
+  // Apply slope-offset-power adjustments
+  color = pow(max(vec3(0.0), color * slope + offset), power);
+  return color;
+}
+
+vec3 agx(vec3 color) {
+  // Apply default AGX contrast curve
+  color = agxDefaultContrastApprox(color);
+
+  // Apply look adjustments
+  color = agxLook(color);
+
+  return max(vec3(0.0), color);
+}
+
 // // Exposure tone mapping
 vec3 exposureToneMap(vec3 color, float exposure) {
   return vec3(1.0) - exp(-color * exposure);
@@ -158,22 +193,27 @@ vec3 contrast(vec3 color, float contrast) {
 }
 
 vec3 tonemap(vec3 color) {
-  color = invertedGamma(color);
   color = exposureToneMap(color, uExposure);
   color = contrast(color, uContrast);
+  color = invertedGamma(color, uGamma);
+  // color = gamma(color, uGamma);
   color = acesFilm(color);
-  color = gamma(color, uGamma);
   return color;
 }
 
 void main() {
   vec4 baseColorSample = texture2D(uMainTexture, vUv);
 
+  bool isGratherThanOne = baseColorSample.r / 2.0 > 1.0;
+
   vec3 color = baseColorSample.rgb;
 
   if (!uEnableShader) {
     // gl_FragColor = vec4(color, 1.0);
     gl_FragColor = vec4(tonemap(color), 1.0);
+    if (isGratherThanOne) {
+      gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    }
     #include <colorspace_fragment>
     return;
   }
@@ -187,5 +227,8 @@ void main() {
   // gl_FragColor = vec4(color, 1.0);
 
   gl_FragColor = vec4(tonemap(color), 1.0);
+  if (isGratherThanOne) {
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+  }
   #include <colorspace_fragment>
 }

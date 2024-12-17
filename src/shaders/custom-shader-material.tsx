@@ -1,22 +1,24 @@
-import { Color, ShaderMaterial } from "three";
-import type { MeshStandardMaterial, Texture } from "three";
-import vertexShader from "./vertex.glsl";
-import fragmentShader from "./fragment.glsl";
+import type { MeshStandardMaterial, Texture } from "three"
+import { Color, ShaderMaterial } from "three"
 
-export const BASE_SHADER_MATERIAL_NAME = "custom-shader-material";
+import fragmentShader from "./fragment.glsl"
+import vertexShader from "./vertex.glsl"
+
+export const BASE_SHADER_MATERIAL_NAME = "custom-shader-material"
 
 export const createShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
   lightMap: Texture | null,
-  reverse: boolean,
+  reverse: boolean
 ) => {
   const {
     color: baseColor = new Color(1, 1, 1),
     map = null,
     opacity: baseOpacity = 1.0,
-  } = baseMaterial;
+    metalness
+  } = baseMaterial
 
-  const emissiveColor = new Color("#FF4D00").multiplyScalar(9);
+  const emissiveColor = new Color("#FF4D00").multiplyScalar(9)
 
   const material = new ShaderMaterial({
     name: BASE_SHADER_MATERIAL_NAME,
@@ -26,18 +28,19 @@ export const createShaderMaterial = (
       uReverse: { value: reverse },
       map: { value: map },
       lightMap: { value: lightMap },
+      metalness: { value: metalness },
       mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
       baseColor: { value: baseColor },
       opacity: { value: baseOpacity },
-      noiseFactor: { value: 0.5 },
+      noiseFactor: { value: 0.5 }
     },
 
     vertexShader,
-    fragmentShader,
-  });
+    fragmentShader
+  })
 
-  material.needsUpdate = true;
-  material.customProgramCacheKey = () => BASE_SHADER_MATERIAL_NAME;
+  material.needsUpdate = true
+  material.customProgramCacheKey = () => BASE_SHADER_MATERIAL_NAME
 
-  return material;
-};
+  return material
+}
