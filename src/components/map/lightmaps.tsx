@@ -2,7 +2,7 @@
 
 import { useLoader, useThree } from "@react-three/fiber"
 import { animate } from "motion"
-import { Suspense, useEffect, useMemo } from "react"
+import { memo, Suspense, useEffect, useMemo } from "react"
 import {
   Group,
   Mesh,
@@ -82,15 +82,18 @@ function Lightmaps() {
         })
       }
     })
-  }, [scene, lightMaps, shaderMaterialsRef])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return null
 }
 
-export function LightmapLoader() {
+function LightmapLoaderInner() {
   return (
     <Suspense>
       <Lightmaps />
     </Suspense>
   )
 }
+
+export const LightmapLoader = memo(LightmapLoaderInner)
