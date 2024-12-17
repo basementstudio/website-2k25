@@ -1,14 +1,17 @@
+import { useFrame, useThree } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { usePathname } from "next/navigation"
 import { useRef, useState } from "react"
 import { Vector2, Vector3 } from "three"
-import { useFrame, useThree } from "@react-three/fiber"
 
-const INITIAL_POSITION = { x: 5.2, y: 1.6, z: -10.7 }
-const HOOP_POSITION = { x: 5.230, y: 3.414, z: -14.412 }
+const INITIAL_POSITION = { x: 5.2, y: 1.3, z: -10.7 }
+const HOOP_POSITION = { x: 5.23, y: 3.414, z: -14.412 }
+
+const FORWARD_STRENGTH = 0.045
+const UP_STRENGTH = 0.15
+
 export const HoopMinigame = () => {
   const isBasketball = usePathname() === "/basketball"
-  // TODO: fix types
   // @ts-ignore
   const ballRef = useRef<RigidBody>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -18,6 +21,7 @@ export const HoopMinigame = () => {
   const dragPos = useRef(new Vector3())
   const dragStartPos = useRef(new Vector3())
   const { camera } = useThree()
+  const bounceCount = useRef(0)
 
   useFrame(({ pointer }) => {
     if (isDragging && ballRef.current) {
@@ -25,7 +29,7 @@ export const HoopMinigame = () => {
       throwVelocity.current.y = mousePos.current.y - lastMousePos.current.y
       lastMousePos.current.copy(mousePos.current)
 
-      const distance = 2 
+      const distance = 4
       dragPos.current.set(pointer.x, pointer.y, 0.5)
       dragPos.current.unproject(camera)
       dragPos.current.sub(camera.position).normalize()
@@ -44,10 +48,9 @@ export const HoopMinigame = () => {
     event.stopPropagation()
     setIsDragging(true)
     if (ballRef.current) {
-      ballRef.current.setBodyType("dynamic")
       const pos = ballRef.current.translation()
       dragStartPos.current.set(pos.x, pos.y, pos.z)
-      
+
       mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
       mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
       lastMousePos.current.copy(mousePos.current)
@@ -63,8 +66,10 @@ export const HoopMinigame = () => {
 
   const handlePointerUp = () => {
     if (isDragging && ballRef.current) {
+      ballRef.current.setBodyType("dynamic")
+
       const currentPos = ballRef.current.translation()
-      
+
       const dragDelta = new Vector3(
         dragStartPos.current.x - currentPos.x,
         dragStartPos.current.y - currentPos.y,
@@ -75,53 +80,90 @@ export const HoopMinigame = () => {
       const baseThrowStrength = 1.5
       const throwStrength = Math.min(baseThrowStrength * dragDistance, 3)
 
-      // Calculate arc parameters using HOOP_POSITION
       const distanceToHoop = Math.abs(HOOP_POSITION.z - currentPos.z)
       const heightDifference = HOOP_POSITION.y - currentPos.y
-      
-      ballRef.current.applyImpulse({
-        x: -dragDelta.x * throwStrength * 0.015,
-        y: (heightDifference * 0.3) * throwStrength,
-        z: -distanceToHoop * throwStrength * 0.05
-      }, true)
+
+      ballRef.current.applyImpulse(
+        {
+          x: -dragDelta.x * throwStrength * 0.015,
+          y: heightDifference * UP_STRENGTH * throwStrength,
+          z: -distanceToHoop * throwStrength * FORWARD_STRENGTH
+        },
+        true
+      )
 
       // Backspin
       ballRef.current.applyTorqueImpulse({ x: 0.02, y: 0, z: 0 }, true)
-      
+
       setIsDragging(false)
     }
   }
-  
+
+  const resetBall = () => {
+    if (ballRef.current) {
+      ballRef.current.setTranslation(
+        new Vector3(INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z)
+      )
+      ballRef.current.setLinvel({ x: 0, y: 0, z: 0 })
+      ballRef.current.setAngvel({ x: 0, y: 0, z: 0 })
+      ballRef.current.setBodyType(2)
+      bounceCount.current = 0
+    }
+  }
+
   if (isBasketball) {
     return (
       <>
-      <RigidBody restitution={0.9} colliders="ball" ref={ballRef} type="fixed" position={[INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z]}>
-        <mesh 
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
+        <RigidBody
+          restitution={0.9}
+          colliders="ball"
+          ref={ballRef}
+          type="fixed"
+          position={[
+            INITIAL_POSITION.x,
+            INITIAL_POSITION.y,
+            INITIAL_POSITION.z
+          ]}
+          onCollisionEnter={({ other }) => {
+            if (!isDragging && other.rigidBodyObject?.name === "floor") {
+              bounceCount.current += 1
+              if (bounceCount.current >= 2) {
+                resetBall()
+              }
+            }
+          }}
         >
-          <sphereGeometry args={[0.22, 32, 32]} />
-          <meshStandardMaterial color="orange" />
-        </mesh>
-      </RigidBody>
+          <mesh
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+          >
+            <sphereGeometry args={[0.22, 32, 32]} />
+            <meshStandardMaterial color="orange" />
+          </mesh>
+        </RigidBody>
 
-      {/* invisible wall and floor */}
-      <RigidBody>
-        <mesh position={[HOOP_POSITION.x, HOOP_POSITION.y, HOOP_POSITION.z -0.1]}>
+        {/* invisible wall */}
+        <RigidBody>
+          <mesh
+            position={[HOOP_POSITION.x, HOOP_POSITION.y, HOOP_POSITION.z - 0.1]}
+          >
             <planeGeometry args={[5, 5]} />
             <meshBasicMaterial transparent opacity={0.1} color="red" />
-        </mesh>
-      </RigidBody>
+          </mesh>
+        </RigidBody>
 
-      <RigidBody>
-        <mesh rotation-x={-Math.PI / 2} position={[HOOP_POSITION.x, 0, HOOP_POSITION.z + 3]}>
+        {/* invisible floor */}
+        <RigidBody name="floor">
+          <mesh
+            rotation-x={-Math.PI / 2}
+            position={[HOOP_POSITION.x, 0, HOOP_POSITION.z + 3]}
+          >
             <planeGeometry args={[7, 7]} />
             <meshBasicMaterial transparent opacity={0.1} color="blue" />
-        </mesh>
-      </RigidBody>
+          </mesh>
+        </RigidBody>
       </>
-      
     )
   }
   return null

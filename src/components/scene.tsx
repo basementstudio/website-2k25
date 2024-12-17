@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import { Canvas } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
-import * as THREE from "three";
+import { Environment } from "@react-three/drei"
+import { Canvas } from "@react-three/fiber"
+import { Physics } from "@react-three/rapier"
+import { Leva } from "leva"
+import * as THREE from "three"
 
-import { Map } from "@/components/map";
-import { Inspectables } from "@/components/inspectables/inspectables";
-import { MapWire } from "./map-wire";
-import { Debug } from "./debug";
-import { CustomCamera } from "./camera-controls";
+import { Inspectables } from "@/components/inspectables/inspectables"
+import { Map } from "@/components/map"
 
-import { Renderer } from "./postprocessing/renderer";
-import { Leva } from "leva";
-import { HoopMinigame } from "./basketball/hoop-minigame";
-import { Physics } from "@react-three/rapier";
+import { HoopMinigame } from "./basketball/hoop-minigame"
+import { CustomCamera } from "./camera-controls"
+import { Debug } from "./debug"
+import { MapWire } from "./map-wire"
+import { Renderer } from "./postprocessing/renderer"
 
 export const Scene = () => (
   <div className="absolute inset-0">
@@ -23,7 +23,7 @@ export const Scene = () => (
         antialias: true,
         alpha: false,
         outputColorSpace: THREE.SRGBColorSpace,
-        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMapping: THREE.ACESFilmicToneMapping
       }}
       camera={{ fov: 45 }}
     >
@@ -46,4 +46,4 @@ export const Scene = () => (
       />
     </Canvas>
   </div>
-);
+)

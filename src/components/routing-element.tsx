@@ -1,70 +1,71 @@
-import { CLICKABLE_NODES } from "@/constants/clickable-elements";
-import { CameraStateKeys, useCameraStore } from "@/store/app-store";
-import { useCursor } from "@react-three/drei";
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Mesh } from "three";
-import { RigidBody } from "@react-three/rapier";
+import { useCursor } from "@react-three/drei"
+import { RigidBody } from "@react-three/rapier"
+import { usePathname, useRouter } from "next/navigation"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { Mesh } from "three"
+
+import { CLICKABLE_NODES } from "@/constants/clickable-elements"
+import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 
 interface RoutingElementProps {
-  node: Mesh;
+  node: Mesh
 }
 
 export const RoutingElement = ({ node }: RoutingElementProps) => {
-  const router = useRouter();
-  const setCameraState = useCameraStore((state) => state.setCameraState);
+  const router = useRouter()
+  const setCameraState = useCameraStore((state) => state.setCameraState)
 
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   const handleNavigation = useCallback(
     (route: string, cameraState: CameraStateKeys) => {
-      setCameraState(cameraState);
-      router.push(route);
+      setCameraState(cameraState)
+      router.push(route)
     },
-    [router, setCameraState],
-  );
+    [router, setCameraState]
+  )
 
-  const [hover, setHover] = useState(false);
+  const [hover, setHover] = useState(false)
 
-  useCursor(hover);
+  useCursor(hover)
 
   const routeConfig = useMemo(() => {
-    const routeName = node.name;
-    const conf = CLICKABLE_NODES.find((n) => n.name === routeName);
+    const routeName = node.name
+    const conf = CLICKABLE_NODES.find((n) => n.name === routeName)
 
-    return conf;
-  }, [node.name]);
+    return conf
+  }, [node.name])
 
   const activeRoute = useMemo(() => {
-    return pathname === routeConfig?.route;
-  }, [pathname, routeConfig?.route]);
+    return pathname === routeConfig?.route
+  }, [pathname, routeConfig?.route])
 
-  const meshRef = useRef<Mesh | null>(null);
+  const meshRef = useRef<Mesh | null>(null)
 
   useEffect(() => {
     if (activeRoute) {
-      setHover(false);
+      setHover(false)
     }
-  }, [activeRoute]);
+  }, [activeRoute])
 
   // todo: smooth hover
 
-  if (!routeConfig) return null;
+  if (!routeConfig) return null
 
   return (
     <group
       onPointerEnter={() => {
-        if (activeRoute) return;
-        router.prefetch(routeConfig.route);
-        setHover(true);
+        if (activeRoute) return
+        router.prefetch(routeConfig.route)
+        setHover(true)
       }}
       onPointerLeave={() => {
-        if (activeRoute) return;
-        setHover(false);
+        if (activeRoute) return
+        setHover(false)
       }}
       onClick={() => {
-        if (activeRoute) return;
-        handleNavigation(routeConfig.route, routeConfig.routeName);
+        if (activeRoute) return
+        handleNavigation(routeConfig.route, routeConfig.routeName)
       }}
     >
       <mesh
@@ -82,5 +83,5 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
         />
       </mesh>
     </group>
-  );
-};
+  )
+}
