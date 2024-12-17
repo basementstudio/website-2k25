@@ -2,7 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { usePathname } from "next/navigation"
 import { useRef, useState } from "react"
-import { Vector2, Vector3 } from "three"
+import { MathUtils, Vector2, Vector3 } from "three"
 
 const INITIAL_POSITION = { x: 5.2, y: 1.3, z: -10.7 }
 const HOOP_POSITION = { x: 5.23, y: 3.414, z: -14.412 }
@@ -22,8 +22,11 @@ export const HoopMinigame = () => {
   const dragStartPos = useRef(new Vector3())
   const { camera } = useThree()
   const bounceCount = useRef(0)
+  const [isResetting, setIsResetting] = useState(false)
+  const resetProgress = useRef(0)
+  const startResetPos = useRef(new Vector3())
 
-  useFrame(({ pointer }) => {
+  useFrame(({ pointer }, delta) => {
     if (isDragging && ballRef.current) {
       throwVelocity.current.x = mousePos.current.x - lastMousePos.current.x
       throwVelocity.current.y = mousePos.current.y - lastMousePos.current.y
@@ -41,6 +44,25 @@ export const HoopMinigame = () => {
       dragPos.current.z = Math.max(-11.2, Math.min(-10.2, dragPos.current.z))
 
       ballRef.current.setTranslation(dragPos.current)
+    }
+
+    if (isResetting && ballRef.current) {
+      resetProgress.current += delta * 3
+      const progress = MathUtils.clamp(resetProgress.current, 0, 1)
+
+      const newPosition = new Vector3().lerpVectors(
+        startResetPos.current,
+        new Vector3(INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z),
+        progress
+      )
+
+      ballRef.current.setTranslation(newPosition)
+
+      if (progress === 1) {
+        setIsResetting(false)
+        resetProgress.current = 0
+        ballRef.current.setBodyType(2)
+      }
     }
   })
 
@@ -101,12 +123,12 @@ export const HoopMinigame = () => {
 
   const resetBall = () => {
     if (ballRef.current) {
-      ballRef.current.setTranslation(
-        new Vector3(INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z)
-      )
+      const currentPos = ballRef.current.translation()
+      startResetPos.current.set(currentPos.x, currentPos.y, currentPos.z)
+
       ballRef.current.setLinvel({ x: 0, y: 0, z: 0 })
       ballRef.current.setAngvel({ x: 0, y: 0, z: 0 })
-      ballRef.current.setBodyType(2)
+      setIsResetting(true)
       bounceCount.current = 0
     }
   }
