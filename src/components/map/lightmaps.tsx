@@ -28,8 +28,6 @@ function useLightmaps(): Record<string, Texture> {
   const lightMaps = useMemo(() => {
     return loadedMaps.reduce(
       (acc, map, index) => {
-        console.log(map)
-
         map.flipY = true
         map.magFilter = NearestFilter
         map.colorSpace = NoColorSpace
@@ -54,8 +52,7 @@ function Lightmaps() {
 
   useEffect(() => {
     animate(0, 1, {
-      delay: 1,
-      duration: 1,
+      duration: 1.5,
       ease: "easeIn",
       onUpdate: (latest) => {
         Object.values(shaderMaterialsRef).forEach((material) => {
