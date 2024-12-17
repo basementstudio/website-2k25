@@ -171,7 +171,7 @@ export const CustomCamera = () => {
     const rotationLerp = cameraConfig.rotationLerp || 0.03;
 
     smoothMouseUv.lerp(
-      new Vector2(mouseUV.x, mouseUV.y),
+      mouseUV,
       Math.min(rotationLerp * delta * 100, 1),
     );
 
