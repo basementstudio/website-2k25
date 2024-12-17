@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation"
 import { useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
+import { easeInOutCubic } from "@/utils/animations"
+
 const INITIAL_POSITION = { x: 5.2, y: 1.3, z: -10.7 }
 const HOOP_POSITION = { x: 5.23, y: 3.414, z: -14.412 }
 
@@ -49,11 +51,12 @@ export const HoopMinigame = () => {
     if (isResetting && ballRef.current) {
       resetProgress.current += delta * 3
       const progress = MathUtils.clamp(resetProgress.current, 0, 1)
+      const easedProgress = easeInOutCubic(progress)
 
       const newPosition = new Vector3().lerpVectors(
         startResetPos.current,
         new Vector3(INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z),
-        progress
+        easedProgress
       )
 
       ballRef.current.setTranslation(newPosition)
