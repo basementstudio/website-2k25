@@ -7,12 +7,12 @@ import { Leva } from "leva"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
-import { Map } from "@/components/map"
 
 import { HoopMinigame } from "./basketball/hoop-minigame"
 import { CustomCamera } from "./camera-controls"
 import { Debug } from "./debug"
-import { MapWire } from "./map-wire"
+import { Map } from "./map/map"
+import { MapWire } from "./map/map-wire"
 import { Renderer } from "./postprocessing/renderer"
 
 export const Scene = () => (
