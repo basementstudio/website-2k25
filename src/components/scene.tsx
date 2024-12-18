@@ -37,7 +37,7 @@ export const Scene = () => (
             <Inspectables />
             <Environment preset="studio" />
 
-            <Physics debug>
+            <Physics>
               <Map />
               <HoopMinigame />
             </Physics>
