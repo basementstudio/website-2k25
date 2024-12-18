@@ -21,6 +21,7 @@ import {
   PROJECTS_RIGHT_LIM
 } from "@/constants/camera-states"
 import { useMousePosition } from "@/hooks/use-mouse-position"
+import { useStateToRef } from "@/hooks/use-state-to-ref"
 import { GLOBAL_SHADER_MATERIAL_NAME } from "@/shaders/material-global-shader"
 import { CameraState, CameraStateKeys, useCameraStore } from "@/store/app-store"
 import { cameraAnimationConfig } from "@/utils/animations"
@@ -61,47 +62,14 @@ export const CustomCamera = () => {
   const mouseUV = useMousePosition((s) => s.uv)
   const smoothMouseUv = useMemo(() => new Vector2(0.5, 0.5), [])
 
-  const handleCameraStateChange = useCallback(
-    (newState: string) => {
-      const isMenuTransition =
-        previousCameraState.current === "menu" || newState === "menu"
-
-      if (isMenuTransition) {
-        scene.traverse((child) => {
-          if ("material" in child) {
-            const materialChild = child as Mesh | LineSegments
-            if (
-              materialChild.material instanceof ShaderMaterial &&
-              materialChild.material.name === GLOBAL_SHADER_MATERIAL_NAME
-            ) {
-              animate(
-                newState === "menu" ? 0 : 1,
-                newState === "menu" ? 1 : 0,
-                {
-                  duration: 1.5,
-                  onUpdate: (latest) => {
-                    ;(
-                      materialChild.material as ShaderMaterial
-                    ).uniforms.uProgress.value = latest
-                  }
-                }
-              )
-            }
-          }
-        })
-      }
-
-      previousCameraState.current = newState
-    },
-    [scene]
-  )
+  const sceneRef = useStateToRef(scene)
 
   const animateShader = useCallback(
     (start: number, end: number) => {
       animate(start, end, {
         duration: 1.5,
         onUpdate: (latest) => {
-          scene.traverse((child) => {
+          sceneRef.current.traverse((child) => {
             if (!("material" in child)) return
 
             const meshChild = child as Mesh | LineSegments
@@ -120,7 +88,25 @@ export const CustomCamera = () => {
         }
       })
     },
-    [scene]
+    [sceneRef]
+  )
+
+  const handleCameraStateChange = useCallback(
+    (newState: string) => {
+      const isMenuTransition =
+        previousCameraState.current === "menu" || newState === "menu"
+
+      if (isMenuTransition) {
+        if (previousCameraState.current === "menu") {
+          animateShader(1, 0)
+        } else {
+          animateShader(0, 1)
+        }
+      }
+
+      previousCameraState.current = newState
+    },
+    [animateShader]
   )
 
   useEffect(() => {
