@@ -1,7 +1,8 @@
+import { Html } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { CuboidCollider, RigidBody } from "@react-three/rapier"
 import { usePathname } from "next/navigation"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
@@ -29,6 +30,13 @@ export const HoopMinigame = () => {
   const startResetPos = useRef(new Vector3())
   const [score, setScore] = useState(0)
 
+  useEffect(() => {
+    return () => {
+      setIsResetting(false)
+      setIsDragging(false)
+    }
+  }, [])
+
   const resetBallToInitialPosition = () => {
     if (ballRef.current) {
       const currentPos = ballRef.current.translation()
@@ -40,8 +48,6 @@ export const HoopMinigame = () => {
       bounceCount.current = 0
     }
   }
-
-  const resetBall = resetBallToInitialPosition
 
   useFrame(({ pointer }, delta) => {
     if (isDragging && ballRef.current) {
@@ -213,6 +219,14 @@ export const HoopMinigame = () => {
             }}
           />
         </RigidBody>
+
+        <Html
+          position={[HOOP_POSITION.x - 1.5, HOOP_POSITION.y, HOOP_POSITION.z]}
+        >
+          <div className="w-16 font-mono text-subheading text-white">
+            {score}
+          </div>
+        </Html>
       </>
     )
   }
