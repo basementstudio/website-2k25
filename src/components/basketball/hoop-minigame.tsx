@@ -1,5 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber"
-import { RigidBody } from "@react-three/rapier"
+import { CuboidCollider, RigidBody } from "@react-three/rapier"
 import { usePathname } from "next/navigation"
 import { useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
@@ -27,6 +27,7 @@ export const HoopMinigame = () => {
   const [isResetting, setIsResetting] = useState(false)
   const resetProgress = useRef(0)
   const startResetPos = useRef(new Vector3())
+  const [score, setScore] = useState(0)
 
   useFrame(({ pointer }, delta) => {
     if (isDragging && ballRef.current) {
@@ -171,10 +172,14 @@ export const HoopMinigame = () => {
         {/* invisible wall */}
         <RigidBody>
           <mesh
-            position={[HOOP_POSITION.x, HOOP_POSITION.y, HOOP_POSITION.z - 0.1]}
+            position={[
+              HOOP_POSITION.x,
+              HOOP_POSITION.y - 1,
+              HOOP_POSITION.z - 0.1
+            ]}
           >
             <planeGeometry args={[5, 5]} />
-            <meshBasicMaterial transparent opacity={0.1} color="red" />
+            <meshBasicMaterial transparent opacity={0} color="red" />
           </mesh>
         </RigidBody>
 
@@ -185,8 +190,27 @@ export const HoopMinigame = () => {
             position={[HOOP_POSITION.x, 0, HOOP_POSITION.z + 3]}
           >
             <planeGeometry args={[7, 7]} />
-            <meshBasicMaterial transparent opacity={0.1} color="blue" />
+            <meshBasicMaterial transparent opacity={0} color="blue" />
           </mesh>
+        </RigidBody>
+
+        {/* score detection */}
+        <RigidBody
+          type="fixed"
+          position={[
+            HOOP_POSITION.x - 0.04,
+            HOOP_POSITION.y - 0.35,
+            HOOP_POSITION.z + 0.35
+          ]}
+          sensor
+        >
+          <CuboidCollider
+            args={[0.05, 0.05, 0.05]}
+            onIntersectionEnter={() => {
+              setScore((prev) => prev + 1)
+              console.log("score", score + 1)
+            }}
+          />
         </RigidBody>
       </>
     )
