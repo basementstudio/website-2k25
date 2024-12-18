@@ -5,8 +5,6 @@ import { create } from "zustand"
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
 
-console.log(fragmentShader)
-
 export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
 export const createGlobalShaderMaterial = (
