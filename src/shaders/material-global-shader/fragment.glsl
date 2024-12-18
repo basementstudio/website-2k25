@@ -18,6 +18,8 @@ uniform float opacity;
 uniform float noiseFactor;
 uniform bool uReverse;
 uniform float metalness;
+uniform sampler2D alphaMap;
+uniform bool useAlphaMap;
 
 uniform float uLoaded;
 uniform float uTime;
@@ -82,6 +84,11 @@ void main() {
   opacityResult = 1.0 - wave;
   opacityResult *= opacity;
   irradiance = mix(irradiance, uColor, wave);
+
+  if (useAlphaMap) {
+    float alpha = texture2D(alphaMap, vUv).r;
+    opacityResult *= alpha;
+  }
 
   if (opacityResult <= 0.0) {
     discard;

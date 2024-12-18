@@ -15,7 +15,8 @@ export const createGlobalShaderMaterial = (
     color: baseColor = new Color(1, 1, 1),
     map = null,
     opacity: baseOpacity = 1.0,
-    metalness
+    metalness,
+    alphaMap
   } = baseMaterial
 
   const emissiveColor = new Color("#FF4D00").multiplyScalar(9)
@@ -34,9 +35,11 @@ export const createGlobalShaderMaterial = (
       opacity: { value: baseOpacity },
       noiseFactor: { value: 0.5 },
       uLoaded: { value: 0 },
-      uTime: { value: 0.0 }
+      uTime: { value: 0.0 },
+      alphaMap: { value: alphaMap },
+      useAlphaMap: { value: alphaMap !== null }
     },
-    transparent: true,
+    transparent: baseOpacity < 1 || alphaMap !== null,
     vertexShader,
     fragmentShader
   })
