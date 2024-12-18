@@ -212,6 +212,8 @@ void main() {
 
   color = tonemap(color);
 
+  color.rgb = dither(uv, color);
+
   // Apply bloom effect
   float bloomIntensity = 0.8;
   vec3 bloom = vec3(0.0);
@@ -249,8 +251,6 @@ void main() {
 
   // Clamp result to valid range
   color = clamp(color, 0.0, 1.0);
-
-  color.rgb = dither(uv, color);
 
   gl_FragColor = vec4(color, 1.0);
 
