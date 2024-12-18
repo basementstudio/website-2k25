@@ -16,9 +16,9 @@ import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import {
-  createShaderMaterial,
+  createGlobalShaderMaterial,
   useCustomShaderMaterial
-} from "@/shaders/custom-shader-material"
+} from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 import { RoutingElement } from "../routing-element"
@@ -105,9 +105,15 @@ function InnerMap() {
         const currentMaterial = meshChild.material
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
-              createShaderMaterial(material as MeshStandardMaterial, false)
+              createGlobalShaderMaterial(
+                material as MeshStandardMaterial,
+                false
+              )
             )
-          : createShaderMaterial(currentMaterial as MeshStandardMaterial, false)
+          : createGlobalShaderMaterial(
+              currentMaterial as MeshStandardMaterial,
+              false
+            )
 
         meshChild.material = newMaterials
 

@@ -21,7 +21,7 @@ import {
   PROJECTS_RIGHT_LIM
 } from "@/constants/camera-states"
 import { useMousePosition } from "@/hooks/use-mouse-position"
-import { BASE_SHADER_MATERIAL_NAME } from "@/shaders/custom-shader-material"
+import { GLOBAL_SHADER_MATERIAL_NAME } from "@/shaders/material-global-shader"
 import { CameraState, CameraStateKeys, useCameraStore } from "@/store/app-store"
 import { cameraAnimationConfig } from "@/utils/animations"
 
@@ -72,7 +72,7 @@ export const CustomCamera = () => {
             const materialChild = child as Mesh | LineSegments
             if (
               materialChild.material instanceof ShaderMaterial &&
-              materialChild.material.name === BASE_SHADER_MATERIAL_NAME
+              materialChild.material.name === GLOBAL_SHADER_MATERIAL_NAME
             ) {
               animate(
                 newState === "menu" ? 0 : 1,
@@ -107,11 +107,12 @@ export const CustomCamera = () => {
             const meshChild = child as Mesh | LineSegments
             if (Array.isArray(meshChild.material)) {
               meshChild.material.forEach((material) => {
-                if (material.name !== BASE_SHADER_MATERIAL_NAME) return
+                if (material.name !== GLOBAL_SHADER_MATERIAL_NAME) return
                 ;(material as ShaderMaterial).uniforms.uProgress.value = latest
               })
             } else {
-              if (meshChild.material.name !== BASE_SHADER_MATERIAL_NAME) return
+              if (meshChild.material.name !== GLOBAL_SHADER_MATERIAL_NAME)
+                return
               ;(meshChild.material as ShaderMaterial).uniforms.uProgress.value =
                 latest
             }

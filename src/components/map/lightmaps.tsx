@@ -13,7 +13,7 @@ import {
 } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
-import { useCustomShaderMaterial } from "@/shaders/custom-shader-material"
+import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 

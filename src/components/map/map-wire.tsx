@@ -4,7 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { memo, useMemo } from "react"
 import { Mesh, MeshStandardMaterial } from "three"
 
-import { createShaderMaterial } from "@/shaders/custom-shader-material"
+import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { GLTFResult } from "./map"
 
@@ -13,7 +13,7 @@ export const MapWire = memo(MapWireInner)
 function MapWireInner() {
   const { nodes } = useGLTF("/models/map-wire.glb") as unknown as GLTFResult
   const material = useMemo(() => {
-    return createShaderMaterial(
+    return createGlobalShaderMaterial(
       (nodes.WireFrame_MeshCurveMesh as Mesh).material as MeshStandardMaterial,
       true
     )

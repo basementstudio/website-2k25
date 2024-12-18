@@ -22,48 +22,15 @@ uniform float metalness;
 uniform float uLoaded;
 uniform float uTime;
 
-#pragma glslify: noise = require('./noise3.glsl')
-
-struct VoxelData {
-  float edgeFactor;
-  float fillFactor;
-  vec3 center;
-  float size;
-  float noiseBig;
-  float noiseSmall;
-};
-
-float isEdge(vec3 p) {
-  float edgeLimit = 0.92;
-  float zEdge = float(abs(p.z) * voxelSize * 2.0 > edgeLimit);
-  float yEdge = float(abs(p.y) * voxelSize * 2.0 > edgeLimit);
-  float xEdge = float(abs(p.x) * voxelSize * 2.0 > edgeLimit);
-
-  float totalEdge = xEdge + yEdge + zEdge;
-  return totalEdge >= 1.0
-    ? 1.0
-    : 0.0;
-}
-
-VoxelData getVoxel() {
-  vec3 voxelCenter = round(vWorldPosition * voxelSize) / voxelSize;
-  float noiseBig = noise(voxelCenter * noiseBigScale);
-  float noiseSmall = noise(voxelCenter * noiseSmallScale);
-  float edgeFactor = isEdge(voxelCenter - vWorldPosition);
-  float fillFactor = 1.0 - edgeFactor;
-
-  return VoxelData(
-    edgeFactor,
-    fillFactor,
-    voxelCenter,
-    voxelSize,
-    noiseBig,
-    noiseSmall
-  );
-}
+#pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 
 void main() {
-  VoxelData voxel = getVoxel();
+  VoxelData voxel = getVoxel(
+    vWorldPosition,
+    voxelSize,
+    noiseBigScale,
+    noiseSmallScale
+  );
 
   // Distance from center
   float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));

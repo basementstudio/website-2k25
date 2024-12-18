@@ -5,9 +5,11 @@ import { create } from "zustand"
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
 
-export const BASE_SHADER_MATERIAL_NAME = "custom-shader-material"
+console.log(fragmentShader)
 
-export const createShaderMaterial = (
+export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
+
+export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
   reverse: boolean
 ) => {
@@ -21,7 +23,7 @@ export const createShaderMaterial = (
   const emissiveColor = new Color("#FF4D00").multiplyScalar(9)
 
   const material = new ShaderMaterial({
-    name: BASE_SHADER_MATERIAL_NAME,
+    name: GLOBAL_SHADER_MATERIAL_NAME,
     uniforms: {
       uColor: { value: emissiveColor },
       uProgress: { value: 0.0 },
@@ -42,7 +44,7 @@ export const createShaderMaterial = (
   })
 
   material.needsUpdate = true
-  material.customProgramCacheKey = () => BASE_SHADER_MATERIAL_NAME
+  material.customProgramCacheKey = () => GLOBAL_SHADER_MATERIAL_NAME
 
   useCustomShaderMaterial.getState().addMaterial(material)
 
