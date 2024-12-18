@@ -121,7 +121,6 @@ export const HoopMinigame = () => {
 
       const dragDistance = dragDelta.length()
 
-      // Only throw if we actually dragged
       if (dragDistance > 0.1) {
         ballRef.current.setBodyType("dynamic")
 
@@ -186,13 +185,9 @@ export const HoopMinigame = () => {
         <RigidBody
           type="fixed"
           name="wall"
-          position={[
-            HOOP_POSITION.x,
-            HOOP_POSITION.y - 1,
-            HOOP_POSITION.z - 0.1
-          ]}
+          position={[HOOP_POSITION.x, HOOP_POSITION.y, HOOP_POSITION.z - 0.1]}
         >
-          <CuboidCollider args={[2.5, 2.5, 0.1]} />
+          <CuboidCollider args={[2.5, 3.5, 0.1]} />
         </RigidBody>
 
         {/* invisible floor */}
