@@ -1,10 +1,9 @@
 "use client"
 
 import { useGLTF } from "@react-three/drei"
-import { useLoader } from "@react-three/fiber"
+import { useFrame, useLoader } from "@react-three/fiber"
 import { memo, useEffect, useMemo, useState } from "react"
 import {
-  Material,
   Mesh,
   MeshStandardMaterial,
   NearestFilter,
@@ -16,10 +15,14 @@ import {
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
-import { createShaderMaterial } from "@/shaders/custom-shader-material"
+import {
+  createGlobalShaderMaterial,
+  useCustomShaderMaterial
+} from "@/shaders/material-global-shader"
 
-import { useAssets } from "./assets-provider"
-import { RoutingElement } from "./routing-element"
+import { useAssets } from "../assets-provider"
+import { RoutingElement } from "../routing-element"
+import { LightmapLoader } from "./lightmaps"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -29,34 +32,26 @@ export type GLTFResult = GLTF & {
 
 export const Map = memo(InnerMap)
 
-const LIGHTMAP_OBJECTS = [
-  "SM__library_Wood",
-  "SM_LibraryWall_01",
-  "SM_PBWall_00",
-  "SM_PBWall_01",
-  "SM_StairsFloor"
-] as const
+function useLightmaps(): Record<string, Texture> {
+  const { lightmaps } = useAssets()
 
-function useLightmaps(): Record<(typeof LIGHTMAP_OBJECTS)[number], Texture> {
   const loadedMaps = useLoader(
     EXRLoader,
-    LIGHTMAP_OBJECTS.map((name) => `/lightmaps/${name}_Bake1_PBR_Lightmap.exr`)
+    lightmaps.map((lightmap) => lightmap.url)
   )
 
   const lightMaps = useMemo(() => {
     return loadedMaps.reduce(
       (acc, map, index) => {
-        console.log(map)
-
         map.flipY = true
         map.magFilter = NearestFilter
         map.colorSpace = NoColorSpace
-        acc[LIGHTMAP_OBJECTS[index]] = map
+        acc[lightmaps[index].mesh] = map
         return acc
       },
-      {} as Record<(typeof LIGHTMAP_OBJECTS)[number], Texture>
+      {} as Record<string, Texture>
     )
-  }, [loadedMaps])
+  }, [lightmaps, loadedMaps])
 
   return lightMaps
 }
@@ -69,9 +64,17 @@ function InnerMap() {
     null
   )
 
-  const lightmaps = useLightmaps()
-
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
+
+  const shaderMaterialsRef = useCustomShaderMaterial(
+    (store) => store.materialsRef
+  )
+
+  useFrame(({ clock }) => {
+    Object.values(shaderMaterialsRef).forEach((material) => {
+      material.uniforms.uTime.value = clock.getElapsedTime()
+    })
+  })
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
@@ -81,48 +84,6 @@ function InnerMap() {
       if (child) {
         child.removeFromParent()
         routingNodes[node.name] = child as Mesh
-      }
-    })
-
-    function getLightmap(meshName: string, material: Material) {
-      const lightMap = lightmaps[meshName as keyof typeof lightmaps] || null
-      const newMaterial = createShaderMaterial(
-        material as MeshStandardMaterial,
-        lightMap,
-        false
-      )
-      return newMaterial
-    }
-
-    function replaceMeshMaterial(mesh: Mesh, lightMap: Texture | null = null) {
-      if (mesh.userData.hasGlobalMaterial) return
-
-      mesh.userData.hasGlobalMaterial = true
-      const newMaterial = createShaderMaterial(
-        mesh.material as MeshStandardMaterial,
-        lightMap,
-        false
-      )
-      mesh.material = newMaterial
-    }
-
-    // Replace groups
-    LIGHTMAP_OBJECTS.forEach((name) => {
-      const object = scene.getObjectByName(name)
-
-      if (!object) return
-
-      const lightMap = lightmaps[name as keyof typeof lightmaps]
-
-      if (object.type === "Mesh") {
-        const mesh = object as Mesh
-        replaceMeshMaterial(mesh, lightMap)
-      } else if (object.type === "Group") {
-        object.traverse((child) => {
-          if (child.type === "Mesh") {
-            replaceMeshMaterial(child as Mesh, lightMap)
-          }
-        })
       }
     })
 
@@ -141,8 +102,16 @@ function InnerMap() {
 
         const currentMaterial = meshChild.material
         const newMaterials = Array.isArray(currentMaterial)
-          ? currentMaterial.map((material) => getLightmap(child.name, material))
-          : getLightmap(child.name, currentMaterial)
+          ? currentMaterial.map((material) =>
+              createGlobalShaderMaterial(
+                material as MeshStandardMaterial,
+                false
+              )
+            )
+          : createGlobalShaderMaterial(
+              currentMaterial as MeshStandardMaterial,
+              false
+            )
 
         meshChild.material = newMaterials
 
@@ -158,7 +127,7 @@ function InnerMap() {
       ...current,
       ...routingNodes
     }))
-  }, [scene, lightmaps])
+  }, [scene])
 
   if (!mainScene) return null
 
@@ -168,6 +137,7 @@ function InnerMap() {
       {Object.values(routingNodes).map((node) => (
         <RoutingElement key={node.name} node={node} />
       ))}
+      <LightmapLoader />
     </group>
   )
 }
