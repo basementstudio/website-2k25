@@ -1,17 +1,17 @@
 "use client"
 
-import { Canvas } from "@react-three/fiber"
 import { Environment } from "@react-three/drei"
+import { Canvas } from "@react-three/fiber"
+import { Leva } from "leva"
 import * as THREE from "three"
 
-import { Map } from "@/components/map/map"
 import { Inspectables } from "@/components/inspectables/inspectables"
-import { MapWire } from "./map/map-wire"
-import { Debug } from "./debug"
-import { CustomCamera } from "./camera-controls"
+import { Map } from "@/components/map/map"
 
+import { CustomCamera } from "./camera-controls"
+import { Debug } from "./debug"
+import { MapWire } from "./map/map-wire"
 import { Renderer } from "./postprocessing/renderer"
-import { Leva } from "leva"
 
 export const Scene = () => (
   <div className="absolute inset-0">
