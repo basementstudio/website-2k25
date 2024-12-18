@@ -174,28 +174,25 @@ export const HoopMinigame = () => {
         </RigidBody>
 
         {/* invisible wall */}
-        <RigidBody>
-          <mesh
-            position={[
-              HOOP_POSITION.x,
-              HOOP_POSITION.y - 1,
-              HOOP_POSITION.z - 0.1
-            ]}
-          >
-            <planeGeometry args={[5, 5]} />
-            <meshBasicMaterial transparent opacity={0} color="red" />
-          </mesh>
+        <RigidBody
+          type="fixed"
+          name="wall"
+          position={[
+            HOOP_POSITION.x,
+            HOOP_POSITION.y - 1,
+            HOOP_POSITION.z - 0.1
+          ]}
+        >
+          <CuboidCollider args={[2.5, 2.5, 0.1]} />
         </RigidBody>
 
         {/* invisible floor */}
-        <RigidBody name="floor">
-          <mesh
-            rotation-x={-Math.PI / 2}
-            position={[HOOP_POSITION.x, 0, HOOP_POSITION.z + 3]}
-          >
-            <planeGeometry args={[7, 7]} />
-            <meshBasicMaterial transparent opacity={0} color="blue" />
-          </mesh>
+        <RigidBody
+          type="fixed"
+          name="floor"
+          position={[HOOP_POSITION.x, 0, HOOP_POSITION.z + 3]}
+        >
+          <CuboidCollider args={[3.5, 0.1, 3.5]} />
         </RigidBody>
 
         {/* score detection */}
