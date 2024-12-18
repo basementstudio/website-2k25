@@ -129,10 +129,11 @@ export const HoopMinigame = () => {
 
         const distanceToHoop = Math.abs(HOOP_POSITION.z - currentPos.z)
         const heightDifference = HOOP_POSITION.y - currentPos.y
+        const ballHorizontalOffset = (currentPos.x - HOOP_POSITION.x) * 0.075
 
         ballRef.current.applyImpulse(
           {
-            x: -dragDelta.x * throwStrength * 0.015,
+            x: -dragDelta.x * throwStrength * 0.015 - ballHorizontalOffset,
             y: heightDifference * UP_STRENGTH * throwStrength,
             z: -distanceToHoop * throwStrength * FORWARD_STRENGTH
           },
