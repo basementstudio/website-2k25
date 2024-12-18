@@ -29,6 +29,20 @@ export const HoopMinigame = () => {
   const startResetPos = useRef(new Vector3())
   const [score, setScore] = useState(0)
 
+  const resetBallToInitialPosition = () => {
+    if (ballRef.current) {
+      const currentPos = ballRef.current.translation()
+      startResetPos.current.set(currentPos.x, currentPos.y, currentPos.z)
+
+      ballRef.current.setLinvel({ x: 0, y: 0, z: 0 })
+      ballRef.current.setAngvel({ x: 0, y: 0, z: 0 })
+      setIsResetting(true)
+      bounceCount.current = 0
+    }
+  }
+
+  const resetBall = resetBallToInitialPosition
+
   useFrame(({ pointer }, delta) => {
     if (isDragging && ballRef.current) {
       throwVelocity.current.x = mousePos.current.x - lastMousePos.current.x
@@ -125,21 +139,10 @@ export const HoopMinigame = () => {
     }
   }
 
-  const resetBall = () => {
-    if (ballRef.current) {
-      const currentPos = ballRef.current.translation()
-      startResetPos.current.set(currentPos.x, currentPos.y, currentPos.z)
-
-      ballRef.current.setLinvel({ x: 0, y: 0, z: 0 })
-      ballRef.current.setAngvel({ x: 0, y: 0, z: 0 })
-      setIsResetting(true)
-      bounceCount.current = 0
-    }
-  }
-
   if (isBasketball) {
     return (
       <>
+        {/* basketball */}
         <RigidBody
           restitution={0.9}
           colliders="ball"
@@ -154,10 +157,11 @@ export const HoopMinigame = () => {
             if (!isDragging && other.rigidBodyObject?.name === "floor") {
               bounceCount.current += 1
               if (bounceCount.current >= 2) {
-                resetBall()
+                resetBallToInitialPosition()
               }
             }
           }}
+          onSleep={resetBallToInitialPosition}
         >
           <mesh
             onPointerDown={handlePointerDown}
