@@ -1,10 +1,20 @@
-import { fragmentOn } from "basehub";
+import { fragmentOn } from "basehub"
 
 const assetsFragment = fragmentOn("ThreeDInteractions", {
   map: {
-    file: {
-      url: true,
+    model: {
+      file: {
+        url: true
+      }
     },
+    lightmaps: {
+      items: {
+        _title: true,
+        exr: {
+          url: true
+        }
+      }
+    }
   },
   inspectables: {
     inspectableList: {
@@ -12,18 +22,18 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         _id: true,
         model: {
           file: {
-            url: true,
-          },
-        },
-      },
-    },
-  },
-});
+            url: true
+          }
+        }
+      }
+    }
+  }
+})
 
 interface Query {
-  threeDInteractions: typeof assetsFragment;
+  threeDInteractions: typeof assetsFragment
 }
 
 export const assetsQuery: Query = {
-  threeDInteractions: assetsFragment,
-};
+  threeDInteractions: assetsFragment
+}
