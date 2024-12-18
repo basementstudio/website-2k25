@@ -62,7 +62,7 @@ export const HoopMinigame = () => {
       dragPos.current.multiplyScalar(distance)
       dragPos.current.add(camera.position)
 
-      dragPos.current.x = Math.max(4.2, Math.min(6.2, dragPos.current.x))
+      dragPos.current.x = Math.max(4.8, Math.min(5.6, dragPos.current.x))
       dragPos.current.y = Math.max(1, Math.min(3, dragPos.current.y))
       dragPos.current.z = Math.max(-11.2, Math.min(-10.2, dragPos.current.z))
 
@@ -112,10 +112,7 @@ export const HoopMinigame = () => {
 
   const handlePointerUp = () => {
     if (isDragging && ballRef.current) {
-      ballRef.current.setBodyType("dynamic")
-
       const currentPos = ballRef.current.translation()
-
       const dragDelta = new Vector3(
         dragStartPos.current.x - currentPos.x,
         dragStartPos.current.y - currentPos.y,
@@ -123,23 +120,29 @@ export const HoopMinigame = () => {
       )
 
       const dragDistance = dragDelta.length()
-      const baseThrowStrength = 1.5
-      const throwStrength = Math.min(baseThrowStrength * dragDistance, 3)
 
-      const distanceToHoop = Math.abs(HOOP_POSITION.z - currentPos.z)
-      const heightDifference = HOOP_POSITION.y - currentPos.y
+      // Only throw if we actually dragged
+      if (dragDistance > 0.1) {
+        ballRef.current.setBodyType("dynamic")
 
-      ballRef.current.applyImpulse(
-        {
-          x: -dragDelta.x * throwStrength * 0.015,
-          y: heightDifference * UP_STRENGTH * throwStrength,
-          z: -distanceToHoop * throwStrength * FORWARD_STRENGTH
-        },
-        true
-      )
+        const baseThrowStrength = 1.5
+        const throwStrength = Math.min(baseThrowStrength * dragDistance, 3)
 
-      // Backspin
-      ballRef.current.applyTorqueImpulse({ x: 0.02, y: 0, z: 0 }, true)
+        const distanceToHoop = Math.abs(HOOP_POSITION.z - currentPos.z)
+        const heightDifference = HOOP_POSITION.y - currentPos.y
+
+        ballRef.current.applyImpulse(
+          {
+            x: -dragDelta.x * throwStrength * 0.015,
+            y: heightDifference * UP_STRENGTH * throwStrength,
+            z: -distanceToHoop * throwStrength * FORWARD_STRENGTH
+          },
+          true
+        )
+
+        // Backspin
+        ballRef.current.applyTorqueImpulse({ x: 0.02, y: 0, z: 0 }, true)
+      }
 
       setIsDragging(false)
     }
