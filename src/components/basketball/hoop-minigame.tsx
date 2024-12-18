@@ -1,17 +1,21 @@
 import { Html } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { CuboidCollider, RigidBody } from "@react-three/rapier"
+import { Geist_Mono } from "next/font/google"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
 
+const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
+
 const INITIAL_POSITION = { x: 5.2, y: 1.3, z: -10.7 }
 const HOOP_POSITION = { x: 5.23, y: 3.414, z: -14.412 }
 
 const FORWARD_STRENGTH = 0.045
 const UP_STRENGTH = 0.15
+const GAME_DURATION = 45 // 45 seconds
 
 export const HoopMinigame = () => {
   const isBasketball = usePathname() === "/basketball"
@@ -29,13 +33,45 @@ export const HoopMinigame = () => {
   const resetProgress = useRef(0)
   const startResetPos = useRef(new Vector3())
   const [score, setScore] = useState(0)
+  const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION)
+  const [isGameActive, setIsGameActive] = useState(false)
+  const timerInterval = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     return () => {
+      if (timerInterval.current) {
+        clearInterval(timerInterval.current)
+      }
       setIsResetting(false)
       setIsDragging(false)
     }
   }, [])
+
+  const startGame = () => {
+    if (!isGameActive) {
+      setIsGameActive(true)
+      timerInterval.current = setInterval(() => {
+        setTimeRemaining((prev) => {
+          if (prev <= 1) {
+            // Game over
+            if (timerInterval.current) {
+              clearInterval(timerInterval.current)
+            }
+            setIsGameActive(false)
+            resetGame()
+            return GAME_DURATION
+          }
+          return prev - 1
+        })
+      }, 1000)
+    }
+  }
+
+  const resetGame = () => {
+    setScore(0)
+    setTimeRemaining(GAME_DURATION)
+    resetBallToInitialPosition()
+  }
 
   const resetBallToInitialPosition = () => {
     if (ballRef.current) {
@@ -112,6 +148,11 @@ export const HoopMinigame = () => {
 
   const handlePointerUp = () => {
     if (isDragging && ballRef.current) {
+      // Start the game on first throw
+      if (!isGameActive) {
+        startGame()
+      }
+
       const currentPos = ballRef.current.translation()
       const dragDelta = new Vector3(
         dragStartPos.current.x - currentPos.x,
@@ -146,6 +187,13 @@ export const HoopMinigame = () => {
 
       setIsDragging(false)
     }
+  }
+
+  // Format time as M:SS
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
   }
 
   if (isBasketball) {
@@ -220,10 +268,25 @@ export const HoopMinigame = () => {
         </RigidBody>
 
         <Html
-          position={[HOOP_POSITION.x - 1.5, HOOP_POSITION.y, HOOP_POSITION.z]}
+          position={[
+            HOOP_POSITION.x - 2.35,
+            HOOP_POSITION.y + 1,
+            HOOP_POSITION.z
+          ]}
         >
-          <div className="w-16 font-mono text-subheading text-white">
-            {score}
+          <div
+            className={`${geistMono.className} flex w-48 flex-col items-end text-brand-w2`}
+          >
+            <div className="flex w-full justify-between">
+              <small className="text-[11px] text-brand-g1">T:</small>
+              <p className="text-[51px] leading-none">
+                {formatTime(timeRemaining)}
+              </p>
+            </div>
+            <div className="flex w-full justify-between">
+              <small className="text-[11px] text-brand-g1">S:</small>
+              <p className="text-[51px] leading-none">{score}</p>
+            </div>
           </div>
         </Html>
       </>
