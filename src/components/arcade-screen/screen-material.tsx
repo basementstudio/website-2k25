@@ -1,4 +1,4 @@
-import { ShaderMaterial } from "three"
+import { ShaderMaterial, Vector3 } from "three"
 
 export const screenMaterial = new ShaderMaterial({
   uniforms: {
@@ -7,7 +7,10 @@ export const screenMaterial = new ShaderMaterial({
     smudgesTexture: { value: null },
     uTime: { value: 0 },
     uScanlineIntensity: { value: 0.1 },
-    uScanlineFrequency: { value: 150.0 }
+    uScanlineFrequency: { value: 150.0 },
+    uIsMonochrome: { value: true },
+    uMonochromeColor: { value: new Vector3(1.0, 0.3, 0.0) },
+    uColorNum: { value: 4.0 }
   },
   vertexShader: `
           varying vec2 vUv;
@@ -24,6 +27,9 @@ export const screenMaterial = new ShaderMaterial({
           uniform float uTime;
           uniform float uScanlineIntensity;
           uniform float uScanlineFrequency;
+          uniform bool uIsMonochrome;
+          uniform vec3 uMonochromeColor;
+          uniform float uColorNum;
           varying vec2 vUv;
           
           float random(vec2 c) {
@@ -81,6 +87,16 @@ export const screenMaterial = new ShaderMaterial({
             
             mainContent = mainContent + coloredBloom;
             mainContent = mix(baseColor, mainContent, 0.8);
+            
+            // Add monochrome effect before scanlines
+            if (uIsMonochrome) {
+              float gray = dot(mainContent.rgb, vec3(0.4, 0.5, 0.1));
+              gray = floor(gray * (uColorNum * 3.0) + 0.5) / (uColorNum * 3.0);
+              vec3 adjustedColor = uMonochromeColor;
+              adjustedColor.r *= 1.2;
+              adjustedColor.g *= 0.9;
+              mainContent.rgb = gray * adjustedColor * 3.5;
+            }
             
             // Add scanlines
             float scanLine = sin(curveUV.y * uScanlineFrequency + uTime * 2.0) * uScanlineIntensity;

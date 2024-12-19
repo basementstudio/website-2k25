@@ -1,14 +1,6 @@
 import { PerspectiveCamera } from "@react-three/drei"
-import {
-  Container,
-  DefaultProperties,
-  Icon,
-  Image,
-  Root,
-  Text
-} from "@react-three/uikit"
-import { Defaults, Separator } from "@react-three/uikit-default"
-import { useState } from "react"
+import { Container, Icon, Image, Root, Text } from "@react-three/uikit"
+import { Separator } from "@react-three/uikit-default"
 import { Vector3 } from "three"
 
 import { LABS_DATA } from "@/constants/labs-data"
@@ -44,195 +36,121 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
         display={"flex"}
         flexDirection={"column"}
       >
-        <Defaults>
-          <DefaultProperties
-            scrollbarWidth={12}
-            scrollbarOpacity={1.0}
-            scrollbarBackgroundColor={"orange"}
+        <Text
+          fontSize={20}
+          color={COLORS_THEME.primary}
+          fontWeight={"bold"}
+          positionType={"absolute"}
+          positionTop={8}
+          positionLeft={32}
+          paddingX={8}
+          backgroundColor={COLORS_THEME.black}
+          zIndexOffset={10}
+        >
+          Close [X]
+        </Text>
+
+        <Container
+          width={"100%"}
+          height={"100%"}
+          borderWidth={5}
+          borderColor={COLORS_THEME.primary}
+          paddingTop={32}
+          display={"flex"}
+          flexDirection={"column"}
+        >
+          <Container
+            width={"100%"}
+            height={"100%"}
+            display={"flex"}
+            flexDirection={"column"}
+            positionType={"relative"}
           >
-            <Text
-              fontSize={20}
-              color={COLORS_THEME.primary}
-              fontWeight={"bold"}
+            <Container
+              height={20}
+              width={"100%"}
+              paddingTop={10}
               positionType={"absolute"}
-              positionTop={8}
-              positionLeft={32}
-              paddingX={8}
-              backgroundColor={COLORS_THEME.black}
-              zIndexOffset={10}
             >
-              Close [X]
-            </Text>
+              <Separator
+                orientation="horizontal"
+                backgroundColor={COLORS_THEME.primary}
+                height={2}
+              />
+              <Container
+                positionType={"absolute"}
+                width={"100%"}
+                height={16}
+                positionTop={0}
+                positionLeft={0}
+              >
+                <Container
+                  width={"65%"}
+                  height={"100%"}
+                  positionType={"relative"}
+                >
+                  <TextTag text="Experiments" icon />
+                </Container>
+                <Container
+                  width={"35%"}
+                  height={"100%"}
+                  positionType={"relative"}
+                >
+                  <TextTag text="Preview" icon />
+                </Container>
+              </Container>
+            </Container>
 
             <Container
               width={"100%"}
               height={"100%"}
-              borderWidth={5}
-              borderColor={COLORS_THEME.primary}
               paddingTop={32}
               display={"flex"}
               flexDirection={"column"}
             >
               <Container
                 width={"100%"}
-                height={"100%"}
+                height={"65%"}
+                paddingX={14}
                 display={"flex"}
-                flexDirection={"column"}
-                positionType={"relative"}
+                flexDirection={"row"}
               >
                 <Container
-                  height={20}
-                  width={"100%"}
-                  paddingTop={10}
-                  positionType={"absolute"}
-                >
-                  <Separator
-                    orientation="horizontal"
-                    backgroundColor={COLORS_THEME.primary}
-                    height={2}
-                  />
-                  <Container
-                    positionType={"absolute"}
-                    width={"100%"}
-                    height={16}
-                    positionTop={0}
-                    positionLeft={0}
-                  >
-                    <Container
-                      width={"65%"}
-                      height={"100%"}
-                      positionType={"relative"}
-                    >
-                      <TextTag text="Experiments" icon />
-                    </Container>
-                    <Container
-                      width={"35%"}
-                      height={"100%"}
-                      positionType={"relative"}
-                    >
-                      <TextTag text="Preview" icon />
-                    </Container>
-                  </Container>
-                </Container>
-
-                <Container
-                  width={"100%"}
+                  width={"65%"}
                   height={"100%"}
-                  paddingTop={32}
+                  borderWidth={4}
+                  borderColor={COLORS_THEME.primary}
                   display={"flex"}
                   flexDirection={"column"}
+                  overflow={"scroll"}
+                  paddingRight={12}
+                  scrollbarColor={"yellow"}
                 >
-                  <Container
-                    width={"100%"}
-                    height={"65%"}
-                    paddingX={14}
-                    display={"flex"}
-                    flexDirection={"row"}
-                  >
-                    <Container
-                      width={"65%"}
-                      height={"100%"}
-                      borderWidth={4}
-                      borderColor={COLORS_THEME.primary}
-                      display={"flex"}
-                      flexDirection={"column"}
-                      overflow={"scroll"}
-                      paddingRight={11}
-                    >
-                      {LABS_DATA.map((data, idx) => (
-                        <ListItem key={idx} data={data} idx={idx} />
-                      ))}
-                    </Container>
-                    <Container
-                      width={"35%"}
-                      height={"50%"}
-                      borderWidth={4}
-                      borderColor={COLORS_THEME.primary}
-                      marginLeft={32}
-                    />
-                  </Container>
-
-                  <Container width={"100%"} height={"35%"} paddingTop={16}>
-                    <Container
-                      height={20}
-                      width={"100%"}
-                      paddingTop={10}
-                      positionType={"absolute"}
-                    >
-                      <Separator
-                        orientation="horizontal"
-                        backgroundColor={COLORS_THEME.primary}
-                        height={2}
-                      />
-                      <Container
-                        positionType={"absolute"}
-                        width={"100%"}
-                        height={16}
-                        positionTop={0}
-                        positionLeft={0}
-                      >
-                        <Container
-                          width={"65%"}
-                          height={"100%"}
-                          positionType={"relative"}
-                        >
-                          <TextTag text="Arcade" icon />
-                        </Container>
-                      </Container>
-                    </Container>
-                    <Container
-                      width={"100%"}
-                      height={"100%"}
-                      paddingTop={32}
-                      paddingX={14}
-                      paddingBottom={16}
-                    >
-                      <Container
-                        width={"100%"}
-                        height={"100%"}
-                        borderWidth={3}
-                        borderColor={COLORS_THEME.primary}
-                      >
-                        <Container width={"50%"} height={"100%"}>
-                          <Image
-                            src={`/images/arcade-screen/chronicles.jpg`}
-                            width={"100%"}
-                            height={"100%"}
-                            objectFit={"cover"}
-                            positionType={"absolute"}
-                          />
-                        </Container>
-                        <Separator
-                          orientation="vertical"
-                          backgroundColor={COLORS_THEME.primary}
-                          width={3}
-                        />
-                        <Container width={"50%"} height={"100%"}>
-                          <Image
-                            src={`/images/arcade-screen/chronicles.jpg`}
-                            width={"100%"}
-                            height={"100%"}
-                            objectFit={"cover"}
-                            positionType={"absolute"}
-                          />
-                        </Container>
-                      </Container>
-                    </Container>
-                  </Container>
+                  {LABS_DATA.map((data, idx) => (
+                    <ListItem key={idx} data={data} idx={idx} />
+                  ))}
                 </Container>
+                <Container
+                  width={"35%"}
+                  height={"50%"}
+                  borderWidth={4}
+                  borderColor={COLORS_THEME.primary}
+                  marginLeft={32}
+                />
               </Container>
+              <GameCovers />
             </Container>
-            <Container
-              width={"auto"}
-              height={"auto"}
-              positionType={"absolute"}
-              positionBottom={32}
-              positionRight={148}
-            >
-              <TextTag text="Lab V1.0" />
-            </Container>
-          </DefaultProperties>
-        </Defaults>
+          </Container>
+        </Container>
+        <Container
+          width={"auto"}
+          height={"auto"}
+          positionType={"absolute"}
+          positionBottom={32}
+          positionRight={148}
+        >
+          <TextTag text="Lab V1.0" />
+        </Container>
       </Root>
     </>
   )
@@ -287,16 +205,13 @@ const ListItem = ({
       width={"100%"}
       height={50}
       borderBottomWidth={idx === LABS_DATA.length - 1 ? 0 : 3}
-      borderRightWidth={3}
+      borderRightWidth={4}
       borderColor={COLORS_THEME.primary}
       paddingX={16}
       display={"flex"}
       flexDirection={"row"}
       justifyContent={"space-between"}
       alignItems={"center"}
-      hover={{
-        backgroundColor: COLORS_THEME.primary
-      }}
     >
       <Container width={"28%"}>
         <Text fontSize={20} fontWeight={"bold"} color={COLORS_THEME.primary}>
@@ -335,5 +250,117 @@ const ListItem = ({
         </Text>
       </Container>
     </Container>
+  )
+}
+
+const GameCovers = () => {
+  return (
+    <>
+      <Container width={"100%"} height={"35%"} paddingTop={16}>
+        <Container
+          height={20}
+          width={"100%"}
+          paddingTop={10}
+          positionType={"absolute"}
+        >
+          <Separator
+            orientation="horizontal"
+            backgroundColor={COLORS_THEME.primary}
+            height={2}
+          />
+          <Container
+            positionType={"absolute"}
+            width={"100%"}
+            height={16}
+            positionTop={0}
+            positionLeft={0}
+          >
+            <Container width={"65%"} height={"100%"} positionType={"relative"}>
+              <TextTag text="Arcade" icon />
+            </Container>
+          </Container>
+        </Container>
+        <Container
+          width={"100%"}
+          height={"100%"}
+          paddingTop={32}
+          paddingX={14}
+          paddingBottom={16}
+        >
+          <Container
+            width={"100%"}
+            height={"100%"}
+            borderWidth={3}
+            borderColor={COLORS_THEME.primary}
+          >
+            <Container
+              width={"50%"}
+              height={"100%"}
+              positionType={"relative"}
+              display={"flex"}
+              justifyContent={"center"}
+              alignItems={"center"}
+            >
+              <Image
+                src={`/images/arcade-screen/chronicles.jpg`}
+                width={"100%"}
+                height={"100%"}
+                objectFit={"cover"}
+                positionType={"absolute"}
+              />
+              <Container
+                height={30}
+                width={"auto"}
+                backgroundColor={COLORS_THEME.black}
+                zIndexOffset={1}
+              >
+                <Text
+                  fontSize={20}
+                  fontWeight={"bold"}
+                  color={COLORS_THEME.primary}
+                >
+                  Play Basment Chronicles
+                </Text>
+              </Container>
+            </Container>
+            <Separator
+              orientation="vertical"
+              backgroundColor={COLORS_THEME.primary}
+              width={3}
+            />
+            <Container
+              width={"50%"}
+              height={"100%"}
+              positionType={"relative"}
+              display={"flex"}
+              justifyContent={"center"}
+              alignItems={"center"}
+            >
+              <Image
+                src={`/images/arcade-screen/chronicles.jpg`}
+                width={"100%"}
+                height={"100%"}
+                objectFit={"cover"}
+                positionType={"absolute"}
+              />
+              <Container
+                height={30}
+                width={"auto"}
+                backgroundColor={COLORS_THEME.black}
+                zIndexOffset={1}
+              >
+                <Text
+                  fontSize={20}
+                  fontWeight={"bold"}
+                  color={COLORS_THEME.primary}
+                >
+                  Looper (coming soon)
+                </Text>
+              </Container>
+            </Container>
+          </Container>
+        </Container>
+      </Container>
+    </>
   )
 }
