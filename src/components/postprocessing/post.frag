@@ -117,10 +117,8 @@ vec3 dither(vec2 uv, vec3 color) {
   color.b = floor(color.b * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
 
   float luma = dot(originalColor, vec3(0.299, 0.587, 0.114));
-  // Reduce dithering effect in very bright or dark areas
-  float ditherStrength =
-    1.0 - smoothstep(0.3, 0.5, luma + 0.1) + smoothstep(0.5, 0.7, luma - 0.1);
-  color = mix(originalColor, color, ditherStrength);
+
+  color.rgb = mix(color, originalColor, luma);
 
   return color;
 }
