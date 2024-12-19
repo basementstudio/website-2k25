@@ -22,6 +22,136 @@ uniform float uExposure;
 
 varying vec2 vUv;
 
+// Dummy Color Palette
+const vec3 palette[16] = vec3[16](
+  // Grays, browns, blues and orange palette
+  vec3(0.1, 0.1, 0.1), // Dark gray
+  vec3(0.3, 0.3, 0.3), // Medium gray
+  vec3(0.5, 0.5, 0.5), // Light gray
+  vec3(0.7, 0.7, 0.7), // Very light gray
+  vec3(0.4, 0.2, 0.1), // Dark brown
+  vec3(0.6, 0.3, 0.1), // Medium brown
+  vec3(0.8, 0.4, 0.2), // Light brown
+  vec3(0.95, 0.6, 0.3), // Tan
+  vec3(0.1, 0.2, 0.4), // Dark blue
+  vec3(0.2, 0.3, 0.6), // Navy blue
+  vec3(0.3, 0.4, 0.8), // Medium blue
+  vec3(0.4, 0.6, 0.9), // Light blue
+  vec3(1.0, 0.5, 0.1), // Bright orange
+  vec3(0.9, 0.4, 0.1), // Dark orange
+  vec3(0.8, 0.3, 0.1), // Burnt orange
+  vec3(1.0, 0.6, 0.2) // Light orange
+);
+
+const int paletteLength = 32;
+const float saturationSteps = 16.0;
+const float lightnessSteps = 16.0;
+
+float hueToRgb(float f1, float f2, float hue) {
+  if (hue < 0.0) hue += 1.0;
+  else if (hue > 1.0) hue -= 1.0;
+  float res;
+  if (6.0 * hue < 1.0) res = f1 + (f2 - f1) * 6.0 * hue;
+  else if (2.0 * hue < 1.0) res = f2;
+  else if (3.0 * hue < 2.0) res = f1 + (f2 - f1) * (2.0 / 3.0 - hue) * 6.0;
+  else res = f1;
+  return res;
+}
+
+vec3 hslToRgb(vec3 hsl) {
+  vec3 rgb;
+
+  if (hsl.y == 0.0)
+    rgb = vec3(hsl.z); // Luminance
+  else {
+    float f2;
+
+    if (hsl.z < 0.5) f2 = hsl.z * (1.0 + hsl.y);
+    else f2 = hsl.z + hsl.y - hsl.y * hsl.z;
+
+    float f1 = 2.0 * hsl.z - f2;
+
+    rgb.r = hueToRgb(f1, f2, hsl.x + 1.0 / 3.0);
+    rgb.g = hueToRgb(f1, f2, hsl.x);
+    rgb.b = hueToRgb(f1, f2, hsl.x - 1.0 / 3.0);
+  }
+  return rgb;
+}
+
+vec3 rgbToHsl(vec3 color) {
+  vec3 hsl; // init to 0 to avoid warnings ? (and reverse if + remove first part)
+
+  float fmin = min(min(color.r, color.g), color.b); //Min. value of RGB
+  float fmax = max(max(color.r, color.g), color.b); //Max. value of RGB
+  float delta = fmax - fmin; //Delta RGB value
+
+  hsl.z = (fmax + fmin) / 2.0; // Luminance
+
+  if (
+    delta ==
+    0.0 //This is a gray, no chroma...
+  ) {
+    hsl.x = 0.0; // Hue
+    hsl.y = 0.0; // Saturation
+  } //Chromatic data...
+  else {
+    if (hsl.z < 0.5)
+      hsl.y = delta / (fmax + fmin); // Saturation
+    else hsl.y = delta / (2.0 - fmax - fmin); // Saturation
+
+    float deltaR = ((fmax - color.r) / 6.0 + delta / 2.0) / delta;
+    float deltaG = ((fmax - color.g) / 6.0 + delta / 2.0) / delta;
+    float deltaB = ((fmax - color.b) / 6.0 + delta / 2.0) / delta;
+
+    if (color.r == fmax)
+      hsl.x = deltaB - deltaG; // Hue
+    else if (color.g == fmax)
+      hsl.x = 1.0 / 3.0 + deltaR - deltaB; // Hue
+    else if (color.b == fmax) hsl.x = 2.0 / 3.0 + deltaG - deltaR; // Hue
+
+    if (hsl.x < 0.0)
+      hsl.x += 1.0; // Hue
+    else if (hsl.x > 1.0) hsl.x -= 1.0; // Hue
+  }
+
+  return hsl;
+}
+
+float hueDistance(float h1, float h2) {
+  float diff = abs(h1 - h2);
+  return min(abs(1.0 - diff), diff);
+}
+
+float lightnessStep(float l) {
+  return floor(0.5 + l * lightnessSteps) / lightnessSteps;
+}
+
+float SaturationStep(float s) {
+  return floor(0.5 + s * saturationSteps) / saturationSteps;
+}
+
+vec3[2] closestColors(float hue) {
+  vec3 ret[2];
+  vec3 closest = vec3(-2, 0, 0);
+  vec3 secondClosest = vec3(-2, 0, 0);
+  vec3 temp;
+  for (int i = 0; i < paletteLength; ++i) {
+    temp = rgbToHsl(palette[i]);
+    float tempDistance = hueDistance(temp.x, hue);
+    if (tempDistance < hueDistance(closest.x, hue)) {
+      secondClosest = closest;
+      closest = temp;
+    } else {
+      if (tempDistance < hueDistance(secondClosest.x, hue)) {
+        secondClosest = temp;
+      }
+    }
+  }
+  ret[0] = closest;
+  ret[1] = secondClosest;
+  return ret;
+}
+
 const float bayerMatrix8x8[64] = float[64](
   0.0 / 64.0,
   48.0 / 64.0,
@@ -96,31 +226,45 @@ float hash(vec2 p) {
 }
 
 vec3 dither(vec2 uv, vec3 color) {
-  vec3 originalColor = color.rgb;
+  vec3 originalColor = color;
+  color = rgbToHsl(color);
 
-  // Screen coordinates for noise
-  vec2 screenCoord = uv * resolution;
+  int x = int(mod(uv.x * floor(resolution.x / uPixelSize), 8.0));
+  int y = int(mod(uv.y * floor(resolution.y / uPixelSize), 8.0));
 
-  // Generate noise using hash function
-  vec3 noise = vec3(hash(screenCoord)) * uNoiseFactor;
+  float threshold = bayerMatrix8x8[x * 8 + y] + uBias;
 
-  int x = int(uv.x * resolution.x / uPixelSize) % 8;
-  int y = int(uv.y * resolution.y / uPixelSize) % 8;
-  float threshold = bayerMatrix8x8[y * 8 + x] - uBias;
+  // Add random noise based on uv coordinates and uNoiseFactor
+  float noise = hash(uv) * 2.0 - 1.0; // Generate noise between -1 and 1
+  color.z += noise * uNoiseFactor * 0.1; // Apply noise to lightness channel
+  color.z = clamp(color.z, 0.0, 1.0); // Clamp lightness to valid range
 
-  // Add noise to the threshold
-  threshold += noise.r - uNoiseFactor * 0.5;
+  vec3[2] Colors = closestColors(color.x);
 
-  color.rgb += threshold * uColorMultiplier;
-  color.r = floor(color.r * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
-  color.g = floor(color.g * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
-  color.b = floor(color.b * (uColorNum - 1.0) + 0.5) / (uColorNum - 1.0);
+  float hueDiff =
+    hueDistance(color.x, Colors[0].x) / hueDistance(Colors[1].x, Colors[0].x);
 
-  float luma = dot(originalColor, vec3(0.299, 0.587, 0.114));
+  float l1 = lightnessStep(max(color.z - 0.125, 0.0));
+  float l2 = lightnessStep(min(color.z + 0.124, 1.0));
+  float lightnessDiff = (color.z - l1) / (l2 - l1);
 
-  color.rgb = mix(color, originalColor, luma);
+  vec3 resultColor = hueDiff < threshold ? Colors[0] : Colors[1];
+  resultColor.z = lightnessDiff < threshold ? l1 : l2;
 
-  return color;
+  float s1 = SaturationStep(max(color.y - 0.125, 0.0));
+  float s2 = SaturationStep(min(color.y + 0.124, 1.0));
+  float SaturationDiff = (color.y - s1) / (s2 - s1);
+
+  resultColor.y = SaturationDiff < threshold ? s1 : s2;
+
+  resultColor = hslToRgb(resultColor);
+
+  // Blend mode multiply
+  return originalColor * resultColor;
+
+  // Blend based on lightness
+  float luminance = dot(originalColor, vec3(0.299, 0.587, 0.114));
+  return mix(resultColor, originalColor, luminance);
 }
 
 vec3 gamma(vec3 color) {
@@ -199,10 +343,8 @@ vec3 tonemap(vec3 color) {
 }
 
 void main() {
-  vec2 uv = vUv;
-  vec2 normalizedPixelSize = uPixelSize / resolution;
-  uv = normalizedPixelSize * floor(vUv / normalizedPixelSize);
-
+  // Voxelize UV coordinates
+  vec2 uv = floor(vUv * resolution / uPixelSize) * uPixelSize / resolution;
   vec4 baseColorSample = texture2D(uMainTexture, uv);
   vec3 color = baseColorSample.rgb;
 
@@ -246,9 +388,6 @@ void main() {
 
   // Add bloom to result with strength control
   color += bloom * uBloomStrength * bloomIntensity;
-
-  // Clamp result to valid range
-  color = clamp(color, 0.0, 1.0);
 
   gl_FragColor = vec4(color, 1.0);
 

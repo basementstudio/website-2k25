@@ -22,26 +22,25 @@ const material = new ShaderMaterial({
     resolution: { value: new Vector2(1, 1) },
     uPalette: { value: null },
     uPixelSize: { value: 2.0 },
-    uBias: { value: 0.75 },
+    uBias: { value: 0.0 },
     uColorNum: { value: 32.0 },
-    uColorMultiplier: { value: 0.05 },
-    uNoiseFactor: { value: 0.1 },
-
+    uColorMultiplier: { value: 1.0 },
+    uNoiseFactor: { value: 0.0 },
     uBloomStrength: { value: 0.55 },
     uBloomRadius: { value: 6.0 },
 
     // adjustments
-    uContrast: { value: 2.0 },
+    uContrast: { value: 1.8 },
     uExposure: { value: 1.2 },
     uGamma: { value: 2.2 },
-    uBrightness: { value: 1.0 }
+    uBrightness: { value: 1.6 }
   }
 })
 
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
   useControls({
     contrast: {
-      value: 2.0,
+      value: 1.8,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -50,7 +49,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     brightness: {
-      value: 1.0,
+      value: 1.6,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -104,7 +103,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bias: {
-      value: 0.75,
+      value: 0.0,
       min: 0.0,
       max: 1.0,
       step: 0.01,
@@ -122,16 +121,16 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     colorMultiplier: {
-      value: 0.05,
+      value: 1.0,
       min: 0.0,
-      max: 2.0,
+      max: 1.0,
       step: 0.01,
       onChange(value) {
         material.uniforms.uColorMultiplier.value = value
       }
     },
     noiseFactor: {
-      value: 0.1,
+      value: 0.0,
       min: 0.0,
       max: 2.0,
       step: 0.01,
