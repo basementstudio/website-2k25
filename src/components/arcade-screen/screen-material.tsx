@@ -8,7 +8,7 @@ export const screenMaterial = new ShaderMaterial({
     uTime: { value: 0 },
     uScanlineIntensity: { value: 0.1 },
     uScanlineFrequency: { value: 150.0 },
-    uIsMonochrome: { value: true },
+    uIsMonochrome: { value: false },
     uMonochromeColor: { value: new Vector3(1.0, 0.3, 0.0) },
     uColorNum: { value: 4.0 }
   },
