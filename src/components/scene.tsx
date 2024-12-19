@@ -21,7 +21,8 @@ export const Scene = () => (
         antialias: true,
         alpha: false,
         outputColorSpace: THREE.SRGBColorSpace,
-        toneMapping: THREE.ACESFilmicToneMapping
+        toneMapping: THREE.ACESFilmicToneMapping,
+        localClippingEnabled: true
       }}
       camera={{ fov: 45 }}
     >

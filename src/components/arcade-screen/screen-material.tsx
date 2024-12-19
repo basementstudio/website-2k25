@@ -1,7 +1,8 @@
 import { ShaderMaterial } from "three"
 
-export const shaderMaterial = new ShaderMaterial({
+export const screenMaterial = new ShaderMaterial({
   uniforms: {
+    map: { value: null },
     reflectionTexture: { value: null },
     smudgesTexture: { value: null },
     uTime: { value: 0 },
@@ -17,6 +18,7 @@ export const shaderMaterial = new ShaderMaterial({
           }
         `,
   fragmentShader: `
+          uniform sampler2D map;
           uniform sampler2D reflectionTexture;
           uniform sampler2D smudgesTexture;
           uniform float uTime;
@@ -49,7 +51,7 @@ export const shaderMaterial = new ShaderMaterial({
             
             // Add shake effect
             float shake = (noise(vec2(curveUV.y) * sin(uTime * 400.0) * 100.0) - 0.5) * 0.0025;
-            curveUV.x += shake * 0.5;
+            curveUV.x += shake * 1.0;
             
             curveUV = curveUV * 0.5 + 0.5;
             
@@ -65,20 +67,34 @@ export const shaderMaterial = new ShaderMaterial({
             float gradientFactor = min(gradientDist.x, gradientDist.y);
             float innerGradient = smoothstep(1.0, 2.0, gradientFactor);
             
-            // Base content with scanlines
-            vec3 baseColor = vec3(0.2,0.2, 0.2);
-            vec3 mainContent = baseColor;
+            // Add bloom
+            vec3 baseColor = vec3(0.2, 0.2, 0.2);
+            vec3 mainContent = texture2D(map, curveUV).rgb;
+            
+           
+            vec3 brightPass = max(mainContent - vec3(.1), 0.0); 
+            vec3 coloredBloom = pow(brightPass, vec3(2.0)) * 5.0; 
+            
+            coloredBloom.r *= 1.2; // Boost red glow
+            coloredBloom.g *= 1.1; // Boost green glow
+            coloredBloom.b *= 1.3; // Boost blue glow
+            
+            mainContent = mainContent + coloredBloom;
+            mainContent = mix(baseColor, mainContent, 0.8);
+            
+            // Add scanlines
             float scanLine = sin(curveUV.y * uScanlineFrequency + uTime * 2.0) * uScanlineIntensity;
             mainContent *= 1.0 - scanLine;
             
             // Apply border and smudges
             color = mix(mainContent, vec3(0.0), border);
             vec3 smudges = texture2D(smudgesTexture, curveUV).rgb;
-            color += smudges * 0.3;
+            color += smudges * 0.1;
             
             // Add reflection on top of everything
             vec3 reflection = texture2D(reflectionTexture, vec2(1.0 - curveUV.x, curveUV.y)).rgb;
-            color += reflection * 0.9;
+            color += reflection * 0.4;
+           
             
             gl_FragColor = vec4(color, 1.0);
           }
