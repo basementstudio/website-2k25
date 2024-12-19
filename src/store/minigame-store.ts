@@ -18,6 +18,10 @@ interface MinigameStore {
   isGameActive: boolean
   isDragging: boolean
   isResetting: boolean
+  hasHitRim: boolean
+  scoreMultiplier: number
+  lastScoreTime: number
+  justScored: boolean
 
   setScore: (score: number | ((prev: number) => number)) => void
   setTimeRemaining: (timeRemaining: number | ((prev: number) => number)) => void
@@ -37,6 +41,10 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   forwardStrength: FORWARD_STRENGTH,
   upStrength: UP_STRENGTH,
   gameDuration: GAME_DURATION,
+  hasHitRim: false,
+  scoreMultiplier: 1,
+  lastScoreTime: 0,
+  justScored: false,
 
   setScore: (score) =>
     set({ score: typeof score === "function" ? score(get().score) : score }),

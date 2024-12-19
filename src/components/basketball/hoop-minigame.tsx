@@ -3,7 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier"
 import { Geist_Mono } from "next/font/google"
 import { usePathname } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
 import { useMinigameStore } from "@/store/minigame-store"
@@ -20,7 +20,7 @@ export const HoopMinigame = () => {
   const throwVelocity = useRef(new Vector2())
   const dragPos = useRef(new Vector3())
   const dragStartPos = useRef(new Vector3())
-  const { camera } = useThree()
+  const { camera, clock } = useThree()
   const bounceCount = useRef(0)
   const resetProgress = useRef(0)
   const startResetPos = useRef(new Vector3())
@@ -92,7 +92,7 @@ export const HoopMinigame = () => {
     }
   }
 
-  useFrame(({ pointer }, delta) => {
+  useFrame(({ pointer, clock }, delta) => {
     if (!isBasketball) return
 
     if (isDragging && ballRef.current) {
@@ -114,6 +114,12 @@ export const HoopMinigame = () => {
       ballRef.current.setTranslation(dragPos.current)
     }
 
+    // score decay
+    if (score > 0) {
+      setScore((prev) => Math.max(0, prev - 10 * delta))
+    }
+
+    // reset ball anim
     if (isResetting && ballRef.current) {
       try {
         resetProgress.current += delta * 3
@@ -219,11 +225,14 @@ export const HoopMinigame = () => {
           type="fixed"
           position={[initialPosition.x, initialPosition.y, initialPosition.z]}
           onCollisionEnter={({ other }) => {
-            if (!isDragging && other.rigidBodyObject?.name === "floor") {
-              bounceCount.current += 1
-              if (bounceCount.current >= 2) {
-                resetBallToInitialPosition()
+            if (!isDragging) {
+              if (other.rigidBodyObject?.name === "floor") {
+                bounceCount.current += 1
+                if (bounceCount.current >= 2) {
+                  resetBallToInitialPosition()
+                }
               }
+              //TODO: maybe add points for close shots
             }
           }}
           onSleep={resetBallToInitialPosition}
@@ -269,8 +278,24 @@ export const HoopMinigame = () => {
           <CuboidCollider
             args={[0.05, 0.05, 0.05]}
             onIntersectionEnter={() => {
-              setScore((prev) => prev + 1)
+              setScore((prev) => prev + 1000)
             }}
+          />
+        </RigidBody>
+
+        {/* near-miss detection */}
+        <RigidBody
+          type="fixed"
+          position={[
+            hoopPosition.x - 0.04,
+            hoopPosition.y - 0.35,
+            hoopPosition.z + 0.35
+          ]}
+          sensor
+        >
+          <CuboidCollider
+            args={[0.15, 0.15, 0.15]}
+            onIntersectionEnter={() => {}}
           />
         </RigidBody>
 
@@ -288,7 +313,7 @@ export const HoopMinigame = () => {
             </div>
             <div className="flex w-full justify-between">
               <small className="text-[11px] text-brand-g1">S:</small>
-              <p className="text-[51px] leading-none">{score}</p>
+              <p className="text-[51px] leading-none">{Math.floor(score)}</p>
             </div>
           </div>
         </Html>
