@@ -1,27 +1,20 @@
 import { Html } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { CuboidCollider, RigidBody } from "@react-three/rapier"
+import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier"
 import { Geist_Mono } from "next/font/google"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
+import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
-
-const INITIAL_POSITION = { x: 5.2, y: 1.3, z: -10.7 }
-const HOOP_POSITION = { x: 5.23, y: 3.414, z: -14.412 }
-
-const FORWARD_STRENGTH = 0.045
-const UP_STRENGTH = 0.15
-const GAME_DURATION = 45 // 45 seconds
 
 export const HoopMinigame = () => {
   const isBasketball = usePathname() === "/basketball"
   // @ts-ignore
   const ballRef = useRef<RigidBody>(null)
-  const [isDragging, setIsDragging] = useState(false)
   const mousePos = useRef(new Vector2())
   const lastMousePos = useRef(new Vector2())
   const throwVelocity = useRef(new Vector2())
@@ -29,13 +22,27 @@ export const HoopMinigame = () => {
   const dragStartPos = useRef(new Vector3())
   const { camera } = useThree()
   const bounceCount = useRef(0)
-  const [isResetting, setIsResetting] = useState(false)
   const resetProgress = useRef(0)
   const startResetPos = useRef(new Vector3())
-  const [score, setScore] = useState(0)
-  const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION)
-  const [isGameActive, setIsGameActive] = useState(false)
   const timerInterval = useRef<NodeJS.Timeout | null>(null)
+
+  const {
+    gameDuration,
+    initialPosition,
+    hoopPosition,
+    forwardStrength,
+    upStrength,
+    score,
+    setScore,
+    timeRemaining,
+    setTimeRemaining,
+    isGameActive,
+    setIsGameActive,
+    isResetting,
+    setIsResetting,
+    isDragging,
+    setIsDragging
+  } = useMinigameStore()
 
   useEffect(() => {
     return () => {
@@ -45,7 +52,8 @@ export const HoopMinigame = () => {
       setIsResetting(false)
       setIsDragging(false)
     }
-  }, [])
+    // might wanna remove deps
+  }, [setIsResetting, setIsDragging])
 
   const startGame = () => {
     if (!isGameActive) {
@@ -53,13 +61,12 @@ export const HoopMinigame = () => {
       timerInterval.current = setInterval(() => {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
-            // Game over
             if (timerInterval.current) {
               clearInterval(timerInterval.current)
             }
             setIsGameActive(false)
             resetGame()
-            return GAME_DURATION
+            return gameDuration
           }
           return prev - 1
         })
@@ -69,7 +76,7 @@ export const HoopMinigame = () => {
 
   const resetGame = () => {
     setScore(0)
-    setTimeRemaining(GAME_DURATION)
+    setTimeRemaining(gameDuration)
     resetBallToInitialPosition()
   }
 
@@ -86,6 +93,8 @@ export const HoopMinigame = () => {
   }
 
   useFrame(({ pointer }, delta) => {
+    if (!isBasketball) return
+
     if (isDragging && ballRef.current) {
       throwVelocity.current.x = mousePos.current.x - lastMousePos.current.x
       throwVelocity.current.y = mousePos.current.y - lastMousePos.current.y
@@ -106,22 +115,27 @@ export const HoopMinigame = () => {
     }
 
     if (isResetting && ballRef.current) {
-      resetProgress.current += delta * 3
-      const progress = MathUtils.clamp(resetProgress.current, 0, 1)
-      const easedProgress = easeInOutCubic(progress)
+      try {
+        resetProgress.current += delta * 3
+        const progress = MathUtils.clamp(resetProgress.current, 0, 1)
+        const easedProgress = easeInOutCubic(progress)
 
-      const newPosition = new Vector3().lerpVectors(
-        startResetPos.current,
-        new Vector3(INITIAL_POSITION.x, INITIAL_POSITION.y, INITIAL_POSITION.z),
-        easedProgress
-      )
+        const newPosition = new Vector3().lerpVectors(
+          startResetPos.current,
+          new Vector3(initialPosition.x, initialPosition.y, initialPosition.z),
+          easedProgress
+        )
 
-      ballRef.current.setTranslation(newPosition)
+        ballRef.current.setTranslation(newPosition)
 
-      if (progress === 1) {
+        if (progress === 1) {
+          setIsResetting(false)
+          resetProgress.current = 0
+          ballRef.current.setBodyType(2)
+        }
+      } catch (error) {
         setIsResetting(false)
         resetProgress.current = 0
-        ballRef.current.setBodyType(2)
       }
     }
   })
@@ -148,7 +162,6 @@ export const HoopMinigame = () => {
 
   const handlePointerUp = () => {
     if (isDragging && ballRef.current) {
-      // Start the game on first throw
       if (!isGameActive) {
         startGame()
       }
@@ -168,15 +181,15 @@ export const HoopMinigame = () => {
         const baseThrowStrength = 1.5
         const throwStrength = Math.min(baseThrowStrength * dragDistance, 3)
 
-        const distanceToHoop = Math.abs(HOOP_POSITION.z - currentPos.z)
-        const heightDifference = HOOP_POSITION.y - currentPos.y
-        const ballHorizontalOffset = (currentPos.x - HOOP_POSITION.x) * 0.075
+        const distanceToHoop = Math.abs(hoopPosition.z - currentPos.z)
+        const heightDifference = hoopPosition.y - currentPos.y
+        const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.075
 
         ballRef.current.applyImpulse(
           {
             x: -dragDelta.x * throwStrength * 0.015 - ballHorizontalOffset,
-            y: heightDifference * UP_STRENGTH * throwStrength,
-            z: -distanceToHoop * throwStrength * FORWARD_STRENGTH
+            y: heightDifference * upStrength * throwStrength,
+            z: -distanceToHoop * throwStrength * forwardStrength
           },
           true
         )
@@ -189,7 +202,6 @@ export const HoopMinigame = () => {
     }
   }
 
-  // Format time as M:SS
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -205,11 +217,7 @@ export const HoopMinigame = () => {
           colliders="ball"
           ref={ballRef}
           type="fixed"
-          position={[
-            INITIAL_POSITION.x,
-            INITIAL_POSITION.y,
-            INITIAL_POSITION.z
-          ]}
+          position={[initialPosition.x, initialPosition.y, initialPosition.z]}
           onCollisionEnter={({ other }) => {
             if (!isDragging && other.rigidBodyObject?.name === "floor") {
               bounceCount.current += 1
@@ -234,7 +242,7 @@ export const HoopMinigame = () => {
         <RigidBody
           type="fixed"
           name="wall"
-          position={[HOOP_POSITION.x, HOOP_POSITION.y, HOOP_POSITION.z - 0.1]}
+          position={[hoopPosition.x, hoopPosition.y, hoopPosition.z - 0.1]}
         >
           <CuboidCollider args={[2.5, 3.5, 0.1]} />
         </RigidBody>
@@ -243,7 +251,7 @@ export const HoopMinigame = () => {
         <RigidBody
           type="fixed"
           name="floor"
-          position={[HOOP_POSITION.x, 0, HOOP_POSITION.z + 3]}
+          position={[hoopPosition.x, 0, hoopPosition.z + 3]}
         >
           <CuboidCollider args={[3.5, 0.1, 3.5]} />
         </RigidBody>
@@ -252,9 +260,9 @@ export const HoopMinigame = () => {
         <RigidBody
           type="fixed"
           position={[
-            HOOP_POSITION.x - 0.04,
-            HOOP_POSITION.y - 0.35,
-            HOOP_POSITION.z + 0.35
+            hoopPosition.x - 0.04,
+            hoopPosition.y - 0.35,
+            hoopPosition.z + 0.35
           ]}
           sensor
         >
@@ -262,17 +270,12 @@ export const HoopMinigame = () => {
             args={[0.05, 0.05, 0.05]}
             onIntersectionEnter={() => {
               setScore((prev) => prev + 1)
-              console.log("score", score + 1)
             }}
           />
         </RigidBody>
 
         <Html
-          position={[
-            HOOP_POSITION.x - 2.35,
-            HOOP_POSITION.y + 1,
-            HOOP_POSITION.z
-          ]}
+          position={[hoopPosition.x - 2.35, hoopPosition.y + 1, hoopPosition.z]}
         >
           <div
             className={`${geistMono.className} flex w-48 flex-col items-end text-brand-w2`}
