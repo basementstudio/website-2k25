@@ -267,7 +267,7 @@ export const HoopMinigame = () => {
     const angle = Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180 / Math.PI)
 
     // calculate success probability
-    const idealAngle = 50
+    const idealAngle = 40
     const angleDeviation = Math.abs(angle - idealAngle)
     const probability = Math.max(0, 100 - angleDeviation * 2)
 
