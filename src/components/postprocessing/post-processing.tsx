@@ -23,7 +23,6 @@ const material = new ShaderMaterial({
     uPalette: { value: null },
     uPixelSize: { value: 2.0 },
     uBias: { value: 0.0 },
-    uColorNum: { value: 32.0 },
     uColorMultiplier: { value: 1.0 },
     uNoiseFactor: { value: 0.0 },
     uBloomStrength: { value: 0.55 },
@@ -38,7 +37,7 @@ const material = new ShaderMaterial({
 })
 
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
-  useControls({
+  useControls("basics", {
     contrast: {
       value: 1.8,
       min: 0.0,
@@ -74,7 +73,10 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       onChange(value) {
         material.uniforms.uGamma.value = value
       }
-    },
+    }
+  })
+
+  useControls("bloom", {
     bloomStrength: {
       value: 0.55,
       min: 0.0,
@@ -86,13 +88,16 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     },
     bloomRadius: {
       value: 6.0,
-      min: 0.0,
+      min: 1.0,
       max: 24.0,
       step: 1,
       onChange(value) {
         material.uniforms.uBloomRadius.value = value
       }
-    },
+    }
+  })
+
+  useControls("dither", {
     pixelSize: {
       value: 2.0,
       min: 1.0,
@@ -109,15 +114,6 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       step: 0.01,
       onChange(value) {
         material.uniforms.uBias.value = value
-      }
-    },
-    colorNum: {
-      value: 32.0,
-      min: 0.0,
-      max: 256.0,
-      step: 1,
-      onChange(value) {
-        material.uniforms.uColorNum.value = parseFloat(value)
       }
     },
     colorMultiplier: {

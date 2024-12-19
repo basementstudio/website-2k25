@@ -7,7 +7,6 @@ uniform float uTolerance;
 uniform float uBrightness;
 
 uniform float uBias;
-uniform float uColorNum;
 uniform float uColorMultiplier;
 uniform float uPixelSize;
 uniform float uNoiseFactor;
