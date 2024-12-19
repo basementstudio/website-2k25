@@ -22,12 +22,14 @@ interface MinigameStore {
   scoreMultiplier: number
   lastScoreTime: number
   justScored: boolean
+  shotMetrics: { angle: string; probability: string }
 
   setScore: (score: number | ((prev: number) => number)) => void
   setTimeRemaining: (timeRemaining: number | ((prev: number) => number)) => void
   setIsGameActive: (isGameActive: boolean) => void
   setIsDragging: (isDragging: boolean) => void
   setIsResetting: (isResetting: boolean) => void
+  setShotMetrics: (shotMetrics: { angle: string; probability: string }) => void
 }
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
@@ -45,7 +47,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   scoreMultiplier: 1,
   lastScoreTime: 0,
   justScored: false,
-
+  shotMetrics: { angle: "0.0", probability: "0.0" },
   setScore: (score) =>
     set({ score: typeof score === "function" ? score(get().score) : score }),
   setTimeRemaining: (timeRemaining) =>
@@ -57,5 +59,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
     }),
   setIsGameActive: (isGameActive: boolean) => set({ isGameActive }),
   setIsDragging: (isDragging: boolean) => set({ isDragging }),
-  setIsResetting: (isResetting: boolean) => set({ isResetting })
+  setIsResetting: (isResetting: boolean) => set({ isResetting }),
+  setShotMetrics: (shotMetrics: { angle: string; probability: string }) =>
+    set({ shotMetrics })
 }))

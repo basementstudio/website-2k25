@@ -41,7 +41,9 @@ export const HoopMinigame = () => {
     isResetting,
     setIsResetting,
     isDragging,
-    setIsDragging
+    setIsDragging,
+    shotMetrics,
+    setShotMetrics
   } = useMinigameStore()
 
   useEffect(() => {
@@ -164,6 +166,44 @@ export const HoopMinigame = () => {
       mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
       mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
     }
+
+    const currentPos = ballRef.current.translation()
+    const dragDelta = new Vector3(
+      dragStartPos.current.x - currentPos.x,
+      dragStartPos.current.y - currentPos.y,
+      dragStartPos.current.z - currentPos.z
+    )
+
+    const metrics = calculateShotMetrics(currentPos, dragDelta)
+    setShotMetrics(metrics)
+  }
+
+  const applyThrowAssistance = (
+    velocity: { x: number; y: number; z: number },
+    currentPos: { x: number; y: number; z: number }
+  ) => {
+    const distanceToHoop = Math.abs(hoopPosition.z - currentPos.z)
+    const heightDiff = hoopPosition.y - currentPos.y
+
+    const inSweetSpot = distanceToHoop > 2.5 && distanceToHoop < 3.5
+
+    // if (heightDiff > 2) {
+    //   return {
+    //     x: velocity.x * 0.95,
+    //     y: velocity.y * 1.05,
+    //     z: velocity.z * 1.03
+    //   }
+    // }
+
+    if (inSweetSpot) {
+      return {
+        x: velocity.x * 0.95,
+        y: velocity.y * 1.02,
+        z: velocity.z * 1.05
+      }
+    }
+
+    return velocity
   }
 
   const handlePointerUp = () => {
@@ -191,14 +231,15 @@ export const HoopMinigame = () => {
         const heightDifference = hoopPosition.y - currentPos.y
         const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.075
 
-        ballRef.current.applyImpulse(
-          {
-            x: -dragDelta.x * throwStrength * 0.015 - ballHorizontalOffset,
-            y: heightDifference * upStrength * throwStrength,
-            z: -distanceToHoop * throwStrength * forwardStrength
-          },
-          true
-        )
+        // calculate raw velocity
+        const rawVelocity = {
+          x: -dragDelta.x * throwStrength * 0.015 - ballHorizontalOffset,
+          y: heightDifference * upStrength * throwStrength,
+          z: -distanceToHoop * throwStrength * forwardStrength
+        }
+
+        const assistedVelocity = applyThrowAssistance(rawVelocity, currentPos)
+        ballRef.current.applyImpulse(assistedVelocity, true)
 
         // Backspin
         ballRef.current.applyTorqueImpulse({ x: 0.02, y: 0, z: 0 }, true)
@@ -212,6 +253,28 @@ export const HoopMinigame = () => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
+  }
+
+  const calculateShotMetrics = (
+    currentPos: { x: number; y: number; z: number },
+    dragDelta: Vector3
+  ) => {
+    const dx = hoopPosition.x - currentPos.x
+    const dy = hoopPosition.y - currentPos.y
+    const dz = hoopPosition.z - currentPos.z
+
+    // calculate angle
+    const angle = Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180 / Math.PI)
+
+    // calculate success probability
+    const idealAngle = 50
+    const angleDeviation = Math.abs(angle - idealAngle)
+    const probability = Math.max(0, 100 - angleDeviation * 2)
+
+    return {
+      angle: angle.toFixed(1),
+      probability: probability.toFixed(1)
+    }
   }
 
   if (isBasketball) {
@@ -283,22 +346,6 @@ export const HoopMinigame = () => {
           />
         </RigidBody>
 
-        {/* near-miss detection */}
-        <RigidBody
-          type="fixed"
-          position={[
-            hoopPosition.x - 0.04,
-            hoopPosition.y - 0.35,
-            hoopPosition.z + 0.35
-          ]}
-          sensor
-        >
-          <CuboidCollider
-            args={[0.15, 0.15, 0.15]}
-            onIntersectionEnter={() => {}}
-          />
-        </RigidBody>
-
         <Html
           position={[hoopPosition.x - 2.35, hoopPosition.y + 1, hoopPosition.z]}
         >
@@ -315,6 +362,17 @@ export const HoopMinigame = () => {
               <small className="text-[11px] text-brand-g1">S:</small>
               <p className="text-[51px] leading-none">{Math.floor(score)}</p>
             </div>
+          </div>
+        </Html>
+
+        <Html
+          position={[hoopPosition.x + 1.15, hoopPosition.y + 1, hoopPosition.z]}
+        >
+          <div
+            className={`${geistMono.className} flex w-48 flex-col items-start text-[11px] text-brand-w2`}
+          >
+            <p className="leading-none">θ = {shotMetrics.angle}° ± 0.2°</p>
+            <p className="leading-none">{shotMetrics.probability}%</p>
           </div>
         </Html>
       </>
