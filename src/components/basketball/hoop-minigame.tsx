@@ -1,9 +1,9 @@
 import { Html } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier"
+import { CuboidCollider, RigidBody } from "@react-three/rapier"
 import { Geist_Mono } from "next/font/google"
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
 import { useMinigameStore } from "@/store/minigame-store"
