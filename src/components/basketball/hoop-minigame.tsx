@@ -22,13 +22,14 @@ export const HoopMinigame = () => {
   const throwVelocity = useRef(new Vector2())
   const dragPos = useRef(new Vector3())
   const dragStartPos = useRef(new Vector3())
-  const { camera, clock } = useThree()
+  const { camera } = useThree()
   const bounceCount = useRef(0)
   const resetProgress = useRef(0)
   const startResetPos = useRef(new Vector3())
   const timerInterval = useRef<NodeJS.Timeout | null>(null)
   const hasMovedSignificantly = useRef(false)
   const initialGrabPos = useRef(new Vector3())
+  const isThrowable = useRef(true)
 
   const {
     gameDuration,
@@ -122,6 +123,7 @@ export const HoopMinigame = () => {
       ballRef.current.setAngvel({ x: 0, y: 0, z: 0 })
       setIsResetting(true)
       bounceCount.current = 0
+      isThrowable.current = true
     }
   }
 
@@ -144,7 +146,16 @@ export const HoopMinigame = () => {
       dragPos.current.y = Math.max(1, Math.min(3, dragPos.current.y))
       dragPos.current.z = Math.max(-11.2, Math.min(-10.2, dragPos.current.z))
 
-      ballRef.current.setTranslation(dragPos.current)
+      if (
+        !isNaN(dragPos.current.x) &&
+        !isNaN(dragPos.current.y) &&
+        !isNaN(dragPos.current.z)
+      ) {
+        ballRef.current.setTranslation(dragPos.current)
+      } else {
+        setIsDragging(false)
+        resetBallToInitialPosition()
+      }
     }
 
     // score decay
@@ -191,6 +202,8 @@ export const HoopMinigame = () => {
   })
 
   const handlePointerDown = (event: any) => {
+    if (!isThrowable.current) return
+
     event.stopPropagation()
     setIsDragging(true)
     hasMovedSignificantly.current = false
@@ -303,6 +316,7 @@ export const HoopMinigame = () => {
         hasMovedSignificantly.current
       ) {
         ballRef.current.setBodyType("dynamic")
+        isThrowable.current = false
 
         const baseThrowStrength = 0.85
         const throwStrength = Math.min(baseThrowStrength * dragDistance, 2.5)
