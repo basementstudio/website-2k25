@@ -1,5 +1,7 @@
 import { fragmentOn } from "basehub"
 
+import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
+
 export const query = fragmentOn("Query", {
   pages: {
     about: {
@@ -8,11 +10,7 @@ export const query = fragmentOn("Query", {
       },
       imageSequence: {
         items: {
-          image: {
-            url: true,
-            width: true,
-            height: true
-          }
+          image: IMAGE_FRAGMENT
         }
       }
     }

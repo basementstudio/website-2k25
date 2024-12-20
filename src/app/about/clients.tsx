@@ -14,7 +14,7 @@ export const Clients = ({ data }: { data: QueryType }) => (
             .sort((a, b) => a._title.localeCompare(b._title))
             .map((client) => (
               <li
-                className="actionable pt-0.75 pb-1.25 relative text-paragraph text-brand-w1"
+                className="actionable relative pb-1.25 pt-0.75 text-paragraph text-brand-w1"
                 key={client._title}
               >
                 <Link href={client.website ?? ""}>{client._title}</Link>

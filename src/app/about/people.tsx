@@ -37,14 +37,14 @@ export const People = ({ data }: { data: QueryType }) => {
               {people.map((person) => (
                 <li
                   key={person._title}
-                  className="pt-0.75 group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1"
+                  className="group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
                 >
                   <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className="col-span-1">{person._title}</div>
                   <div className="col-span-1">{person.role}</div>
-                  <div className="col-span-2 text-right">
-                    <a className="actionable text-w2">LinkedIn</a> /{" "}
-                    <a className="actionable text-w2">Email</a>
+                  <div className="col-span-2 flex justify-end gap-1 text-right text-brand-g1">
+                    <a className="actionable text-brand-w1">LinkedIn</a>,
+                    <a className="actionable text-brand-w1">Email</a>
                   </div>
                 </li>
               ))}
@@ -56,12 +56,13 @@ export const People = ({ data }: { data: QueryType }) => {
         {data.company.people.peopleList.items.map((person) => (
           <div
             key={person._title}
-            className="with-dots aspect-[136/156] border border-brand-w1/20 bg-brand-k text-brand-w1/20"
+            className="with-dots aspect-[136/156] bg-brand-k text-brand-w1/20"
           >
             <svg
               stroke="currentColor"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 134 156"
+              className="border border-brand-w1/20"
             >
               <path d="M0-.00024414 134 156" />
             </svg>
