@@ -8,7 +8,7 @@ export const screenMaterial = new ShaderMaterial({
     uTime: { value: 0 },
     uScanlineIntensity: { value: 0.1 },
     uScanlineFrequency: { value: 150.0 },
-    uIsMonochrome: { value: false },
+    uIsMonochrome: { value: true },
     uMonochromeColor: { value: new Vector3(1.0, 0.3, 0.0) },
     uColorNum: { value: 4.0 }
   },
@@ -95,7 +95,7 @@ export const screenMaterial = new ShaderMaterial({
               vec3 adjustedColor = uMonochromeColor;
               adjustedColor.r *= 1.2;
               adjustedColor.g *= 0.9;
-              mainContent.rgb = gray * adjustedColor * 3.5;
+              mainContent.rgb = gray * adjustedColor * 2.0;
             }
             
             // Add scanlines

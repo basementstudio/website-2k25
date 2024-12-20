@@ -114,15 +114,42 @@ export const LabsUI = () => {
                 paddingX={14}
                 display={"flex"}
                 flexDirection={"row"}
+                gap={14}
               >
                 <List />
                 <Container
                   width={"35%"}
-                  height={"100%"}
-                  borderWidth={6}
-                  borderColor={"red"}
-                  positionType={"relative"}
-                ></Container>
+                  display={"flex"}
+                  flexDirection={"column"}
+                  gap={16}
+                  paddingLeft={14}
+                >
+                  <Container
+                    width={"100%"}
+                    height={"50%"}
+                    borderWidth={3}
+                    borderColor={"red"}
+                    positionType={"relative"}
+                  >
+                    <Image
+                      src={`/images/arcade-screen/lab.png`}
+                      width={"100%"}
+                      height={"100%"}
+                      objectFit={"cover"}
+                      positionType={"absolute"}
+                    />
+                  </Container>
+                  <Text
+                    fontSize={22}
+                    color={COLORS_THEME.primary}
+                    fontWeight={"bold"}
+                    backgroundColor={COLORS_THEME.black}
+                  >
+                    Animate transition between matcap texture and shader based
+                    on scroll. Lightning animations triggered by collisions
+                    between objects.
+                  </Text>
+                </Container>
               </Container>
               <GameCovers />
             </Container>
