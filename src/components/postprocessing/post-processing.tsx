@@ -58,7 +58,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     exposure: {
-      value: 1.2,
+      value: 1,
       min: 0.0,
       max: 4.0,
       step: 0.01,
@@ -67,7 +67,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     gamma: {
-      value: 2.2,
+      value: 1,
       min: 0.0,
       max: 2.2,
       step: 0.01,
@@ -79,16 +79,16 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
 
   useControls("bloom", {
     bloomThreshold: {
-      value: 1.5,
+      value: 0.91,
       min: 0.0,
-      max: 3.0,
+      max: 10.0,
       step: 0.01,
       onChange(value) {
         material.uniforms.uBloomThreshold.value = value
       }
     },
     bloomStrength: {
-      value: 0.13,
+      value: 0.12,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -97,7 +97,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomRadius: {
-      value: 24.0,
+      value: 34.0,
       min: 2.0,
       max: 50.0,
       step: 1,

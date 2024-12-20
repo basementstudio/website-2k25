@@ -296,8 +296,14 @@ vec3 invertedGamma(vec3 color, float gamma) {
   return pow(color, vec3(gamma));
 }
 
+// Exposure tone mapping
+vec3 exposureToneMap(vec3 color, float exposure) {
+  return vec3(1.0) - exp(-color * exposure);
+}
+
 // // ACES filmic tone mapping approximation
 vec3 acesFilm(vec3 x) {
+  x = exposureToneMap(x, uExposure);
   float a = 2.51;
   float b = 0.03;
   float c = 2.43;
@@ -341,21 +347,55 @@ vec3 agx(vec3 color) {
   return max(vec3(0.0), color);
 }
 
-// // Exposure tone mapping
-vec3 exposureToneMap(vec3 color, float exposure) {
-  return vec3(1.0) - exp(-color * exposure);
-}
-
 vec3 contrast(vec3 color, float contrast) {
   return color * contrast;
 }
 
+#define saturate(a) clamp(a, 0.0, 1.0)
+
+// source: https://github.com/selfshadow/ltc_code/blob/master/webgl/shaders/ltc/ltc_blit.fs
+vec3 RRTAndODTFit(vec3 v) {
+  vec3 a = v * (v + 0.0245786) - 0.000090537;
+  vec3 b = v * (0.983729 * v + 0.432951) + 0.238081;
+  return a / b;
+
+}
+
+// this implementation of ACES is modified to accommodate a brighter viewing environment.
+// the scale factor of 1/0.6 is subjective. see discussion in #19621.
+
+vec3 ACESFilmicToneMapping(vec3 color) {
+  // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
+  const mat3 ACESInputMat = mat3(
+    vec3(0.59719, 0.076, 0.0284), // transposed from source
+    vec3(0.35458, 0.90834, 0.13383),
+    vec3(0.04823, 0.01566, 0.83777)
+  );
+
+  // ODT_SAT => XYZ => D60_2_D65 => sRGB
+  const mat3 ACESOutputMat = mat3(
+    vec3(1.60475, -0.10208, -0.00327), // transposed from source
+    vec3(-0.53108, 1.10813, -0.07276),
+    vec3(-0.07367, -0.00605, 1.07602)
+  );
+
+  color *= uExposure / 0.6;
+
+  color = ACESInputMat * color;
+
+  // Apply RRT and ODT
+  color = RRTAndODTFit(color);
+
+  color = ACESOutputMat * color;
+
+  // Clamp to [0, 1]
+  return saturate(color);
+
+}
+
 vec3 tonemap(vec3 color) {
-  color = exposureToneMap(color, uExposure);
-  color = contrast(color, uContrast);
   color = invertedGamma(color, uGamma);
-  // color = gamma(color, uGamma);
-  color = acesFilm(color);
+  color = ACESFilmicToneMapping(color);
   return color;
 }
 
@@ -400,10 +440,11 @@ void main() {
   // Normalize bloom
   bloom /= totalWeight + 0.0001;
   vec3 bloomColor = bloom * uBloomStrength;
-  bloomColor = acesFilm(bloomColor);
-
+  bloomColor = tonemap(bloomColor);
   // Add bloom to result with strength control
   color += bloomColor;
+
+  color = clamp(color, 0.0, 1.0);
 
   gl_FragColor = vec4(color, 1.0);
 

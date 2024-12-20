@@ -8,21 +8,37 @@ const float voxelSize = 10.0;
 const float noiseBigScale = 1.0;
 const float noiseSmallScale = 3.0;
 
+// base color
 uniform vec3 uColor;
-uniform float uProgress;
 uniform vec3 baseColor;
 uniform sampler2D map;
-uniform sampler2D lightMap;
 uniform vec2 mapRepeat;
-uniform float opacity;
-uniform float noiseFactor;
-uniform bool uReverse;
+
+// wave
+uniform float uProgress;
 uniform float metalness;
 uniform float roughness;
-uniform sampler2D alphaMap;
-
 uniform float uLoaded;
 uniform float uTime;
+
+// lightmap
+uniform sampler2D lightMap;
+uniform float lightMapIntensity;
+
+uniform float noiseFactor;
+uniform bool uReverse;
+
+// transparency
+uniform float opacity;
+uniform sampler2D alphaMap;
+
+// emissive
+#ifdef USE_EMISSIVE
+uniform vec3 emissive;
+uniform float emissiveIntensity;
+#endif
+
+const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 
@@ -77,9 +93,16 @@ void main() {
     metalness
   );
 
+  #ifdef USE_EMISSIVE
+  irradiance += emissive * emissiveIntensity;
+  #endif
+
   // Adjust ambient light based on roughness
   float ambientFactor = mix(0.2, 0.4, roughness); // More ambient light for rougher surfaces
-  irradiance += lightMapSample * (1.0 - metalness) * ambientFactor;
+
+  if (lightMapIntensity > 0.0) {
+    irradiance *= lightMapSample * lightMapIntensity;
+  }
 
   // Combine wave color
   irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
