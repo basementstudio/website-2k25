@@ -48,7 +48,8 @@ export const createGlobalShaderMaterial = (
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
     vertexShader,
-    fragmentShader
+    fragmentShader,
+    side: baseMaterial.side
   })
 
   material.needsUpdate = true
