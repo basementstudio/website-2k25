@@ -104,11 +104,17 @@ export const screenMaterial = new ShaderMaterial({
             
             // Apply border and smudges
             color = mix(mainContent, vec3(0.0), border);
-            vec3 smudges = texture2D(smudgesTexture, curveUV).rgb;
+            vec2 smudgesUV = curveUV;
+            float smudgePixelSize = 0.007; 
+            smudgesUV = floor(smudgesUV / smudgePixelSize) * smudgePixelSize;
+            vec3 smudges = texture2D(smudgesTexture, smudgesUV).rgb;
             color += smudges * 0.1;
             
             // Add reflection on top of everything
-            vec3 reflection = texture2D(reflectionTexture, vec2(1.0 - curveUV.x, curveUV.y)).rgb;
+            vec2 reflectionUV = vec2(1.0 - curveUV.x, curveUV.y);
+            float pixelSize = 0.02;
+            reflectionUV = floor(reflectionUV / pixelSize) * pixelSize;
+            vec3 reflection = texture2D(reflectionTexture, reflectionUV).rgb;
             color += reflection * 0.4;
            
             
