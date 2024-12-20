@@ -16,6 +16,7 @@ export const createGlobalShaderMaterial = (
     map = null,
     opacity: baseOpacity = 1.0,
     metalness,
+    roughness,
     alphaMap
   } = baseMaterial
 
@@ -23,6 +24,11 @@ export const createGlobalShaderMaterial = (
 
   const material = new ShaderMaterial({
     name: GLOBAL_SHADER_MATERIAL_NAME,
+    defines: {
+      USE_MAP: map !== null,
+      IS_TRANSPARENT: alphaMap !== null || baseMaterial.transparent,
+      USE_ALPHA_MAP: alphaMap !== null
+    },
     uniforms: {
       uColor: { value: emissiveColor },
       uProgress: { value: 0.0 },
@@ -30,18 +36,20 @@ export const createGlobalShaderMaterial = (
       map: { value: map },
       lightMap: { value: null },
       metalness: { value: metalness },
+      roughness: { value: roughness },
       mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
       baseColor: { value: baseColor },
       opacity: { value: baseOpacity },
       noiseFactor: { value: 0.5 },
       uLoaded: { value: 0 },
       uTime: { value: 0.0 },
-      alphaMap: { value: alphaMap },
-      useAlphaMap: { value: alphaMap !== null }
+      alphaMap: { value: alphaMap }
     },
-    transparent: baseOpacity < 1 || alphaMap !== null,
+    transparent:
+      baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
     vertexShader,
-    fragmentShader
+    fragmentShader,
+    side: baseMaterial.side
   })
 
   material.needsUpdate = true
