@@ -24,6 +24,11 @@ export const createGlobalShaderMaterial = (
 
   const material = new ShaderMaterial({
     name: GLOBAL_SHADER_MATERIAL_NAME,
+    defines: {
+      USE_MAP: map !== null,
+      IS_TRANSPARENT: alphaMap !== null || baseMaterial.transparent,
+      USE_ALPHA_MAP: alphaMap !== null
+    },
     uniforms: {
       uColor: { value: emissiveColor },
       uProgress: { value: 0.0 },
@@ -38,8 +43,7 @@ export const createGlobalShaderMaterial = (
       noiseFactor: { value: 0.5 },
       uLoaded: { value: 0 },
       uTime: { value: 0.0 },
-      alphaMap: { value: alphaMap },
-      useAlphaMap: { value: alphaMap !== null }
+      alphaMap: { value: alphaMap }
     },
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
