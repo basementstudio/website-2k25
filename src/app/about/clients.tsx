@@ -5,7 +5,7 @@ import { QueryType } from "./query"
 export const Clients = ({ data }: { data: QueryType }) => (
   <section className="grid-layout">
     <div className="col-start-1 col-end-13 grid grid-cols-12 gap-2 border-t border-brand-w1/20">
-      <h2 className="col-start-1 col-end-5 pt-1 text-heading uppercase text-brand-w2">
+      <h2 className="col-start-1 col-end-5 pt-3 text-heading uppercase text-brand-w2">
         Clients
       </h2>
       <div className="relative col-start-5 col-end-13 grid grid-cols-8 gap-2">
