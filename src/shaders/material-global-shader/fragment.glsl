@@ -65,7 +65,7 @@ void main() {
   // Combine texture and base color
   vec3 color = baseColor * mapSample.rgb;
 
-  vec3 lightMapSample = texture2D(lightMap, vUv2).rgb * 0.3;
+  vec3 lightMapSample = texture2D(lightMap, vUv2).rgb;
 
   // Apply metalness to affect the reflection intensity
   vec3 metallicReflection = mix(vec3(0.04), color, metalness);
