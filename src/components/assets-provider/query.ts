@@ -27,6 +27,17 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         }
       }
     }
+  },
+  modelsDb: {
+    models: {
+      items: {
+        _id: true,
+        _title: true,
+        file: {
+          url: true
+        }
+      }
+    }
   }
 })
 

@@ -1,7 +1,5 @@
-import { Html } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { CuboidCollider, RigidBody } from "@react-three/rapier"
-import { Geist_Mono } from "next/font/google"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
@@ -9,9 +7,9 @@ import { MathUtils, Vector2, Vector3 } from "three"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
+import { Basketball } from "./basketball"
+import { GameUI } from "./game-ui"
 import { Trajectory } from "./trajectory"
-
-const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
 
 export const HoopMinigame = () => {
   const isBasketball = usePathname() === "/basketball"
@@ -346,12 +344,6 @@ export const HoopMinigame = () => {
     }
   }
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
-  }
-
   const calculateShotMetrics = (
     currentPos: { x: number; y: number; z: number },
     dragDelta: Vector3
@@ -377,35 +369,16 @@ export const HoopMinigame = () => {
   if (isBasketball) {
     return (
       <>
-        {/* basketball */}
-        <RigidBody
-          restitution={0.9}
-          colliders="ball"
-          ref={ballRef}
-          type="fixed"
-          position={[initialPosition.x, initialPosition.y, initialPosition.z]}
-          onCollisionEnter={({ other }) => {
-            if (!isDragging) {
-              if (other.rigidBodyObject?.name === "floor") {
-                bounceCount.current += 1
-                if (bounceCount.current >= 2) {
-                  resetBallToInitialPosition()
-                }
-              }
-              //TODO: maybe add points for close shots
-            }
-          }}
-          onSleep={resetBallToInitialPosition}
-        >
-          <mesh
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-          >
-            <sphereGeometry args={[0.22, 32, 32]} />
-            <meshStandardMaterial color="orange" />
-          </mesh>
-        </RigidBody>
+        <Basketball
+          ballRef={ballRef}
+          initialPosition={initialPosition}
+          isDragging={isDragging}
+          hoopPosition={hoopPosition}
+          resetBallToInitialPosition={resetBallToInitialPosition}
+          handlePointerDown={handlePointerDown}
+          handlePointerMove={handlePointerMove}
+          handlePointerUp={handlePointerUp}
+        />
 
         <Trajectory
           ballRef={ballRef}
@@ -449,35 +422,12 @@ export const HoopMinigame = () => {
           />
         </RigidBody>
 
-        <Html
-          position={[hoopPosition.x - 2.35, hoopPosition.y + 1, hoopPosition.z]}
-        >
-          <div
-            className={`${geistMono.className} flex w-48 flex-col items-end text-brand-w2`}
-          >
-            <div className="flex w-full justify-between">
-              <small className="text-[11px] text-brand-g1">T:</small>
-              <p className="text-[51px] leading-none">
-                {formatTime(timeRemaining)}
-              </p>
-            </div>
-            <div className="flex w-full justify-between">
-              <small className="text-[11px] text-brand-g1">S:</small>
-              <p className="text-[51px] leading-none">{Math.floor(score)}</p>
-            </div>
-          </div>
-        </Html>
-
-        <Html
-          position={[hoopPosition.x + 1.15, hoopPosition.y + 1, hoopPosition.z]}
-        >
-          <div
-            className={`${geistMono.className} flex w-48 flex-col items-start text-[11px] text-brand-w2`}
-          >
-            <p className="leading-none">θ = {shotMetrics.angle}° ± 0.2°</p>
-            <p className="leading-none">{shotMetrics.probability}%</p>
-          </div>
-        </Html>
+        <GameUI
+          hoopPosition={hoopPosition}
+          timeRemaining={timeRemaining}
+          score={score}
+          shotMetrics={shotMetrics}
+        />
       </>
     )
   }
