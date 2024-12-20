@@ -202,20 +202,20 @@ export const HoopMinigame = () => {
   }
 
   const handlePointerMove = (event: any) => {
-    if (isDragging) {
-      mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
-      mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
+    mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
+    mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
+
+    if (isDragging && ballRef.current) {
+      const currentPos = ballRef.current.translation()
+      const dragDelta = new Vector3(
+        dragStartPos.current.x - currentPos.x,
+        dragStartPos.current.y - currentPos.y,
+        dragStartPos.current.z - currentPos.z
+      )
+
+      const metrics = calculateShotMetrics(currentPos, dragDelta)
+      setShotMetrics(metrics)
     }
-
-    const currentPos = ballRef.current.translation()
-    const dragDelta = new Vector3(
-      dragStartPos.current.x - currentPos.x,
-      dragStartPos.current.y - currentPos.y,
-      dragStartPos.current.z - currentPos.z
-    )
-
-    const metrics = calculateShotMetrics(currentPos, dragDelta)
-    setShotMetrics(metrics)
   }
 
   const applyThrowAssistance = (
