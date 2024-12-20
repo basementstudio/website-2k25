@@ -27,6 +27,8 @@ export const HoopMinigame = () => {
   const resetProgress = useRef(0)
   const startResetPos = useRef(new Vector3())
   const timerInterval = useRef<NodeJS.Timeout | null>(null)
+  const hasMovedSignificantly = useRef(false)
+  const initialGrabPos = useRef(new Vector3())
 
   const {
     gameDuration,
@@ -191,9 +193,12 @@ export const HoopMinigame = () => {
   const handlePointerDown = (event: any) => {
     event.stopPropagation()
     setIsDragging(true)
+    hasMovedSignificantly.current = false
+
     if (ballRef.current) {
       const pos = ballRef.current.translation()
       dragStartPos.current.set(pos.x, pos.y, pos.z)
+      initialGrabPos.current.set(pos.x, pos.y, pos.z)
 
       mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
       mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
@@ -207,6 +212,17 @@ export const HoopMinigame = () => {
 
     if (isDragging && ballRef.current) {
       const currentPos = ballRef.current.translation()
+
+      const moveDistance = new Vector3(
+        initialGrabPos.current.x - currentPos.x,
+        initialGrabPos.current.y - currentPos.y,
+        initialGrabPos.current.z - currentPos.z
+      ).length()
+
+      if (moveDistance > 0.2) {
+        hasMovedSignificantly.current = true
+      }
+
       const dragDelta = new Vector3(
         dragStartPos.current.x - currentPos.x,
         dragStartPos.current.y - currentPos.y,
@@ -271,8 +287,21 @@ export const HoopMinigame = () => {
       )
 
       const dragDistance = dragDelta.length()
+      const verticalDragDistance = dragStartPos.current.y - currentPos.y
 
-      if (dragDistance > 0.1) {
+      console.log({
+        dragDistance,
+        verticalDragDistance,
+        startY: dragStartPos.current.y,
+        currentY: currentPos.y,
+        hasMovedSignificantly: hasMovedSignificantly.current
+      })
+
+      if (
+        dragDistance > 0.1 &&
+        verticalDragDistance < -0.1 &&
+        hasMovedSignificantly.current
+      ) {
         ballRef.current.setBodyType("dynamic")
 
         const baseThrowStrength = 0.85
@@ -302,8 +331,9 @@ export const HoopMinigame = () => {
 
         const assistedVelocity = applyThrowAssistance(rawVelocity, currentPos)
         ballRef.current.applyImpulse(assistedVelocity, true)
-
         ballRef.current.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
+      } else {
+        ballRef.current.setBodyType("dynamic")
       }
 
       setIsDragging(false)
