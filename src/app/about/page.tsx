@@ -15,15 +15,14 @@ const About = () => (
       "use server"
 
       return (
-        <main className="relative -mt-24 bg-brand-k pt-2 after:absolute after:-top-px after:z-10 after:h-px after:w-full after:bg-brand-w1/10">
+        <main className="relative -mt-24 flex flex-col gap-61 bg-brand-k pt-3 after:absolute after:-top-px after:z-10 after:h-px after:w-full after:bg-brand-w1/10">
           <Grid />
-          <div className="relative flex flex-col gap-49">
-            <Hero data={data} />
-            <Services data={data} />
-            <Clients data={data} />
-            <People data={data} />
-            <Awards data={data} />
-          </div>
+
+          <Hero data={data} className="-mb-11" />
+          <Services data={data} />
+          <Clients data={data} />
+          <People data={data} />
+          <Awards data={data} />
         </main>
       )
     }}

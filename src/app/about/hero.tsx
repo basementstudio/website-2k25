@@ -4,9 +4,17 @@ import { RichText } from "basehub/react-rich-text"
 import Image from "next/image"
 import { useRef, useState } from "react"
 
+import { cn } from "@/utils/cn"
+
 import { QueryType } from "./query"
 
-export const Hero = ({ data }: { data: QueryType }) => {
+export const Hero = ({
+  data,
+  className
+}: {
+  data: QueryType
+  className?: string
+}) => {
   const [indexImage, setIndexImage] = useState(0)
   const interval = useRef<NodeJS.Timeout | null>(null)
 
@@ -29,7 +37,7 @@ export const Hero = ({ data }: { data: QueryType }) => {
   }
 
   return (
-    <section className="grid-layout">
+    <section className={cn("grid-layout", className)}>
       <h1 className="col-start-1 col-end-5 text-heading uppercase text-brand-w2">
         About Us
       </h1>
@@ -38,11 +46,11 @@ export const Hero = ({ data }: { data: QueryType }) => {
         src={data.pages.about.imageSequence.items[indexImage].image.url}
         width={data.pages.about.imageSequence.items[indexImage].image.width}
         height={data.pages.about.imageSequence.items[indexImage].image.height}
-        className="col-start-5 col-end-7 pt-1"
+        className="col-start-5 col-end-7"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={cleanup}
       />
-      <div className="col-start-9 col-end-12 pt-1 text-paragraph text-brand-w2">
+      <div className="col-start-9 col-end-12 text-paragraph text-brand-w2">
         <RichText content={data.pages.about.intro.json.content} />
       </div>
     </section>

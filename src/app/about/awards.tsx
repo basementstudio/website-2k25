@@ -12,7 +12,7 @@ export const Awards = ({ data }: { data: QueryType }) => (
     <p className="relative z-20 col-start-3 col-end-4 row-start-1 text-heading uppercase text-brand-g2">
       x{data.company.awards.awardList.items.length}
     </p>
-    <ul className="relative col-start-1 col-end-13 row-start-1 mt-2 text-paragraph text-brand-w1">
+    <ul className="relative col-start-1 col-end-13 row-start-1 text-paragraph text-brand-w1">
       {data.company.awards.awardList.items
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .map((award) => (
@@ -22,7 +22,7 @@ export const Awards = ({ data }: { data: QueryType }) => (
           >
             <Link
               href={award.url ?? ""}
-              className="item relative col-start-5 col-end-13 grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-0.5 pt-px"
+              className="item pt-0.75 relative col-start-5 col-end-13 grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1"
             >
               <span className="col-span-1">{award.title}</span>
               <span className="col-span-1">{award.project._title}</span>

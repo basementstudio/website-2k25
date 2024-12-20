@@ -15,10 +15,13 @@ export const People = ({ data }: { data: QueryType }) => {
 
   return (
     <section className="grid-layout">
-      <h2 className="col-start-5 col-end-13 -mb-6 text-heading uppercase text-brand-w2">
-        The Crew
-      </h2>
-      <div className="col-start-1 col-end-5 flex flex-col gap-6">
+      <div className="col-start-5 col-end-13 -mb-[21px] flex justify-between text-heading uppercase">
+        <h2 className="text-brand-w2">The Crew</h2>
+        <p className="text-brand-g1">
+          x{data.company.people.peopleList.items.length}
+        </p>
+      </div>
+      <div className="col-start-1 col-end-5 flex flex-col gap-5">
         {Object.entries(groupedPeople).map(([department, people], index) => (
           <div key={department}>
             <div className="grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-2">
@@ -34,12 +37,12 @@ export const People = ({ data }: { data: QueryType }) => {
               {people.map((person) => (
                 <li
                   key={person._title}
-                  className="group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-0.5 pt-px"
+                  className="pt-0.75 group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1"
                 >
                   <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className="col-span-1">{person._title}</div>
                   <div className="col-span-1">{person.role}</div>
-                  <div className="col-span-2">
+                  <div className="col-span-2 text-right">
                     <a className="actionable text-w2">LinkedIn</a> /{" "}
                     <a className="actionable text-w2">Email</a>
                   </div>
@@ -74,7 +77,7 @@ export const People = ({ data }: { data: QueryType }) => {
             href="/"
             className="relative z-10 block h-4 bg-brand-k text-paragraph text-brand-w1"
           >
-            <span className="actionable">Apply Here</span> →
+            <span className="actionable">Join the Team</span> →
           </Link>
         </div>
       </div>
