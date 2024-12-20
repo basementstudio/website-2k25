@@ -1,5 +1,7 @@
 precision highp float;
 
+const int SAMPLE_COUNT = 32;
+
 uniform sampler2D uMainTexture;
 uniform vec2 resolution;
 
@@ -13,6 +15,7 @@ uniform float uNoiseFactor;
 
 uniform float uBloomStrength;
 uniform float uBloomRadius;
+uniform float uBloomThreshold;
 
 // post
 uniform float uGamma;
@@ -20,6 +23,14 @@ uniform float uContrast;
 uniform float uExposure;
 
 varying vec2 vUv;
+
+const float GOLDEN_ANGLE = 2.399963229728653;
+
+vec2 vogelDiskSample(int sampleIndex, int samplesCount, float phi) {
+  float r = sqrt(float(sampleIndex) + 0.5) / sqrt(float(samplesCount));
+  float theta = float(sampleIndex) * GOLDEN_ANGLE + phi;
+  return vec2(r * cos(theta), r * sin(theta));
+}
 
 // Dummy Color Palette
 const vec3 palette[16] = vec3[16](
@@ -224,17 +235,17 @@ float hash(vec2 p) {
   return fract(p.x * p.y);
 }
 
-vec3 dither(vec2 uv, vec3 color) {
+vec3 dither(vec2 voxelPixelCoord, vec3 color, vec2 voxelUv) {
   vec3 originalColor = color;
   color = rgbToHsl(color);
 
-  int x = int(mod(uv.x * floor(resolution.x / uPixelSize), 8.0));
-  int y = int(mod(uv.y * floor(resolution.y / uPixelSize), 8.0));
+  int x = int(mod(voxelPixelCoord.x, 8.0));
+  int y = int(mod(voxelPixelCoord.y, 8.0));
 
   float threshold = bayerMatrix8x8[x * 8 + y] + uBias;
 
   // Add random noise based on uv coordinates and uNoiseFactor
-  float noise = hash(uv) * 2.0 - 1.0; // Generate noise between -1 and 1
+  float noise = hash(voxelUv) * 2.0 - 1.0; // Generate noise between -1 and 1
   color.z += noise * uNoiseFactor * 0.1; // Apply noise to lightness channel
   color.z = clamp(color.z, 0.0, 1.0); // Clamp lightness to valid range
 
@@ -260,7 +271,17 @@ vec3 dither(vec2 uv, vec3 color) {
 
   // Blend based on lightness
   float luminance = dot(originalColor, vec3(0.299, 0.587, 0.114));
-  return mix(originalColor * resultColor, originalColor, luminance);
+  float ditherFactor = 1.0 - pow(luminance, 0.5);
+
+  // resultColor = resultColor * originalColor;
+
+  resultColor = mix(
+    originalColor,
+    resultColor,
+    uColorMultiplier * ditherFactor
+  );
+
+  return resultColor;
 }
 
 vec3 gamma(vec3 color) {
@@ -339,51 +360,50 @@ vec3 tonemap(vec3 color) {
 }
 
 void main() {
+  vec2 fragCoord = gl_FragCoord.xy;
   // Voxelize UV coordinates
-  vec2 uv = floor(vUv * resolution / uPixelSize) * uPixelSize / resolution;
-  vec4 baseColorSample = texture2D(uMainTexture, uv);
+  vec2 voxelPixelCoord = floor(vUv * resolution / uPixelSize) * uPixelSize;
+  vec2 voxelUv = voxelPixelCoord / resolution;
+
+  vec4 baseColorSample = texture2D(uMainTexture, voxelUv);
   vec3 color = baseColorSample.rgb;
 
   color.rgb *= uBrightness;
 
   color = tonemap(color);
 
-  color.rgb = dither(uv, color);
+  color.rgb = dither(voxelPixelCoord, color, voxelUv);
 
   // Apply bloom effect
-  float bloomIntensity = 0.8;
   vec3 bloom = vec3(0.0);
   float totalWeight = 0.0;
+  float phi = hash(vUv) * 6.28; // Random rotation angle
 
-  // Sample neighboring pixels in a circular pattern
-  for (float x = -uBloomRadius; x <= uBloomRadius; x += 1.0) {
-    for (float y = -uBloomRadius; y <= uBloomRadius; y += 1.0) {
-      vec2 offset = vec2(x, y) / resolution;
-      float dist = length(offset);
+  for (int i = 1; i < SAMPLE_COUNT; i++) {
+    vec2 sampleOffset =
+      vogelDiskSample(i, SAMPLE_COUNT, phi) * uBloomRadius / resolution;
+    float dist = length(sampleOffset);
 
-      // Gaussian-like falloff
-      float weight = exp(-dist * dist / (2.0 * uBloomRadius));
+    // Gaussian-like falloff
+    float weight = 1.0 / dist;
 
-      // Sample color at offset position
-      vec3 sampleColor = texture2D(uMainTexture, uv + offset).rgb;
+    // Sample color at offset position
+    vec3 sampleColor = texture2D(uMainTexture, vUv + sampleOffset).rgb;
 
-      // Only add to bloom if brightness is above threshold
-      float brightness = dot(sampleColor, vec3(0.2126, 0.7152, 0.0722));
-      totalWeight += weight;
-      if (brightness > 0.5) {
-        // Add weighted sample to bloom
-        bloom += sampleColor * weight;
-      } else {
-        bloom += vec3(0.0);
-      }
-    }
+    // Only add to bloom if brightness is above threshold
+    float brightness = dot(sampleColor, vec3(0.2126, 0.7152, 0.0722));
+    totalWeight += weight;
+
+    if (brightness > uBloomThreshold) bloom += sampleColor * weight;
   }
 
   // Normalize bloom
-  bloom /= totalWeight;
+  bloom /= totalWeight + 0.0001;
+  vec3 bloomColor = bloom * uBloomStrength;
+  bloomColor = acesFilm(bloomColor);
 
   // Add bloom to result with strength control
-  color += bloom * uBloomStrength * bloomIntensity;
+  color += bloomColor;
 
   gl_FragColor = vec4(color, 1.0);
 

@@ -25,21 +25,22 @@ const material = new ShaderMaterial({
     uBias: { value: 0.0 },
     uColorMultiplier: { value: 1.0 },
     uNoiseFactor: { value: 0.0 },
-    uBloomStrength: { value: 0.55 },
-    uBloomRadius: { value: 6.0 },
+    uBloomStrength: { value: 0.9 },
+    uBloomRadius: { value: 10 },
+    uBloomThreshold: { value: 1.5 },
 
     // adjustments
-    uContrast: { value: 1.8 },
+    uContrast: { value: 1 },
     uExposure: { value: 1.2 },
     uGamma: { value: 2.2 },
-    uBrightness: { value: 1.6 }
+    uBrightness: { value: 1 }
   }
 })
 
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
   useControls("basics", {
     contrast: {
-      value: 1.8,
+      value: 1,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -48,7 +49,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     brightness: {
-      value: 1.6,
+      value: 1,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -77,8 +78,17 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
   })
 
   useControls("bloom", {
+    bloomThreshold: {
+      value: 1.5,
+      min: 0.0,
+      max: 3.0,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uBloomThreshold.value = value
+      }
+    },
     bloomStrength: {
-      value: 0.55,
+      value: 0.13,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -87,9 +97,9 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomRadius: {
-      value: 6.0,
-      min: 1.0,
-      max: 24.0,
+      value: 24.0,
+      min: 2.0,
+      max: 50.0,
       step: 1,
       onChange(value) {
         material.uniforms.uBloomRadius.value = value
@@ -101,14 +111,14 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     pixelSize: {
       value: 2.0,
       min: 1.0,
-      max: 16.0,
+      max: 300.0,
       step: 1,
       onChange(value) {
         material.uniforms.uPixelSize.value = value
       }
     },
     bias: {
-      value: 0.0,
+      value: 0.39,
       min: 0.0,
       max: 1.0,
       step: 0.01,
@@ -117,7 +127,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     colorMultiplier: {
-      value: 1.0,
+      value: 0.26,
       min: 0.0,
       max: 1.0,
       step: 0.01,
@@ -126,7 +136,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     noiseFactor: {
-      value: 0.0,
+      value: 0.17,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -141,6 +151,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     const { signal } = controller
 
     const resize = () => {
+      const pixelRatio = window.devicePixelRatio
       const width = window.innerWidth
       const height = window.innerHeight
       material.uniforms.resolution.value.set(width, height)
