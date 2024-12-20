@@ -50,6 +50,7 @@ export const HoopMinigame = () => {
     return () => {
       if (timerInterval.current) {
         clearInterval(timerInterval.current)
+        timerInterval.current = null
       }
       setIsResetting(false)
       setIsDragging(false)
@@ -57,9 +58,29 @@ export const HoopMinigame = () => {
     // might wanna remove deps
   }, [setIsResetting, setIsDragging])
 
+  useEffect(() => {
+    const handleGlobalPointerUp = () => {
+      if (isDragging) {
+        handlePointerUp()
+      }
+    }
+
+    window.addEventListener("pointerup", handleGlobalPointerUp)
+
+    return () => {
+      window.removeEventListener("pointerup", handleGlobalPointerUp)
+    }
+  }, [isDragging])
+
   const startGame = () => {
     if (!isGameActive) {
+      if (timerInterval.current) {
+        clearInterval(timerInterval.current)
+      }
+
       setIsGameActive(true)
+      setTimeRemaining(gameDuration)
+
       timerInterval.current = setInterval(() => {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
@@ -182,24 +203,35 @@ export const HoopMinigame = () => {
     velocity: { x: number; y: number; z: number },
     currentPos: { x: number; y: number; z: number }
   ) => {
-    const distanceToHoop = Math.abs(hoopPosition.z - currentPos.z)
-    const heightDiff = hoopPosition.y - currentPos.y
+    const distanceToHoop = new Vector3(
+      hoopPosition.x - currentPos.x,
+      hoopPosition.y - currentPos.y,
+      hoopPosition.z - currentPos.z
+    ).length()
 
-    const inSweetSpot = distanceToHoop > 2.5 && distanceToHoop < 3.5
+    const horizontalOffset = Math.abs(hoopPosition.x - currentPos.x)
 
-    // if (heightDiff > 2) {
-    //   return {
-    //     x: velocity.x * 0.95,
-    //     y: velocity.y * 1.05,
-    //     z: velocity.z * 1.03
-    //   }
-    // }
+    const offsetMultiplier = Math.max(0, 1 - horizontalOffset * 0.5)
+
+    const inSweetSpot =
+      distanceToHoop > 3.2 && distanceToHoop < 4.2 && horizontalOffset < 0.5
+
+    const veryClose =
+      distanceToHoop > 2.8 && distanceToHoop < 3.2 && horizontalOffset < 0.3
+
+    if (veryClose) {
+      return {
+        x: velocity.x,
+        y: velocity.y * (1 + 0.25 * offsetMultiplier),
+        z: velocity.z * (1 + 0.2 * offsetMultiplier)
+      }
+    }
 
     if (inSweetSpot) {
       return {
-        x: velocity.x * 0.95,
-        y: velocity.y * 1.02,
-        z: velocity.z * 1.05
+        x: velocity.x,
+        y: velocity.y * (1 + 0.15 * offsetMultiplier),
+        z: velocity.z * (1 + 0.12 * offsetMultiplier)
       }
     }
 
@@ -207,7 +239,7 @@ export const HoopMinigame = () => {
   }
 
   const handlePointerUp = () => {
-    if (isDragging && ballRef.current) {
+    if (ballRef.current) {
       if (!isGameActive) {
         startGame()
       }
@@ -224,25 +256,35 @@ export const HoopMinigame = () => {
       if (dragDistance > 0.1) {
         ballRef.current.setBodyType("dynamic")
 
-        const baseThrowStrength = 1.5
-        const throwStrength = Math.min(baseThrowStrength * dragDistance, 3)
+        const baseThrowStrength = 0.95
+        const throwStrength = Math.min(baseThrowStrength * dragDistance, 2.5)
 
-        const distanceToHoop = Math.abs(hoopPosition.z - currentPos.z)
+        const distanceToHoop = new Vector3(
+          hoopPosition.x - currentPos.x,
+          hoopPosition.y - currentPos.y,
+          hoopPosition.z - currentPos.z
+        ).length()
         const heightDifference = hoopPosition.y - currentPos.y
-        const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.075
+        const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.055
 
-        // calculate raw velocity
         const rawVelocity = {
           x: -dragDelta.x * throwStrength * 0.015 - ballHorizontalOffset,
-          y: heightDifference * upStrength * throwStrength,
-          z: -distanceToHoop * throwStrength * forwardStrength
+          y:
+            heightDifference *
+            upStrength *
+            throwStrength *
+            (distanceToHoop > 2 ? 0.85 : 1),
+          z:
+            -distanceToHoop *
+            throwStrength *
+            forwardStrength *
+            (distanceToHoop > 2 ? 0.9 : 1)
         }
 
         const assistedVelocity = applyThrowAssistance(rawVelocity, currentPos)
         ballRef.current.applyImpulse(assistedVelocity, true)
 
-        // Backspin
-        ballRef.current.applyTorqueImpulse({ x: 0.02, y: 0, z: 0 }, true)
+        ballRef.current.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
       }
 
       setIsDragging(false)
