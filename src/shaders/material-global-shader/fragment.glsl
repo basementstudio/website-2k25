@@ -18,6 +18,7 @@ uniform float opacity;
 uniform float noiseFactor;
 uniform bool uReverse;
 uniform float metalness;
+uniform float roughness;
 uniform sampler2D alphaMap;
 uniform bool useAlphaMap;
 
@@ -57,10 +58,11 @@ void main() {
   // Render as solid color
 
   vec4 mapSample = texture2D(map, vUv * mapRepeat);
+  float mapAlpha = mapSample.a;
   // Combine texture and base color
   vec3 color = baseColor * mapSample.rgb;
 
-  vec3 lightMapSample = texture2D(lightMap, vUv2).rgb;
+  vec3 lightMapSample = texture2D(lightMap, vUv2).rgb * 0.3;
 
   // Apply metalness to affect the reflection intensity
   vec3 metallicReflection = mix(vec3(0.04), color, metalness);
@@ -68,12 +70,13 @@ void main() {
   // Combine base color, metallic reflection, and lightmap
   vec3 irradiance = mix(
     color * (1.0 - metalness), // Diffuse component
-    metallicReflection * lightMapSample, // Metallic reflection
+    metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
     metalness
   );
 
-  // Add ambient light contribution
-  irradiance += lightMapSample * (1.0 - metalness) * 0.2;
+  // Adjust ambient light based on roughness
+  float ambientFactor = mix(0.2, 0.4, roughness); // More ambient light for rougher surfaces
+  irradiance += lightMapSample * (1.0 - metalness) * ambientFactor;
 
   // Combine wave color
   irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
@@ -82,6 +85,7 @@ void main() {
   float opacityResult;
 
   opacityResult = 1.0 - wave;
+  opacityResult *= mapAlpha;
   opacityResult *= opacity;
   irradiance = mix(irradiance, uColor, wave);
 
