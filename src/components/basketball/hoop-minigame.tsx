@@ -9,6 +9,8 @@ import { MathUtils, Vector2, Vector3 } from "three"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
+import { Trajectory } from "./trajectory"
+
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
 
 export const HoopMinigame = () => {
@@ -106,7 +108,13 @@ export const HoopMinigame = () => {
   const resetBallToInitialPosition = () => {
     if (ballRef.current) {
       const currentPos = ballRef.current.translation()
-      startResetPos.current.set(currentPos.x, currentPos.y, currentPos.z)
+      if (isNaN(currentPos.x) || isNaN(currentPos.y) || isNaN(currentPos.z)) {
+        startResetPos.current.copy(
+          new Vector3(initialPosition.x, initialPosition.y, initialPosition.z)
+        )
+      } else {
+        startResetPos.current.set(currentPos.x, currentPos.y, currentPos.z)
+      }
 
       ballRef.current.setLinvel({ x: 0, y: 0, z: 0 })
       ballRef.current.setAngvel({ x: 0, y: 0, z: 0 })
@@ -155,7 +163,18 @@ export const HoopMinigame = () => {
           easedProgress
         )
 
-        ballRef.current.setTranslation(newPosition)
+        if (
+          !isNaN(newPosition.x) &&
+          !isNaN(newPosition.y) &&
+          !isNaN(newPosition.z)
+        ) {
+          ballRef.current.setTranslation(newPosition)
+        } else {
+          console.warn("invalid position during ball reset")
+          setIsResetting(false)
+          resetProgress.current = 0
+          ballRef.current.setTranslation(initialPosition)
+        }
 
         if (progress === 1) {
           setIsResetting(false)
@@ -256,7 +275,7 @@ export const HoopMinigame = () => {
       if (dragDistance > 0.1) {
         ballRef.current.setBodyType("dynamic")
 
-        const baseThrowStrength = 0.95
+        const baseThrowStrength = 0.85
         const throwStrength = Math.min(baseThrowStrength * dragDistance, 2.5)
 
         const distanceToHoop = new Vector3(
@@ -265,7 +284,7 @@ export const HoopMinigame = () => {
           hoopPosition.z - currentPos.z
         ).length()
         const heightDifference = hoopPosition.y - currentPos.y
-        const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.055
+        const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
 
         const rawVelocity = {
           x: -dragDelta.x * throwStrength * 0.015 - ballHorizontalOffset,
@@ -351,6 +370,12 @@ export const HoopMinigame = () => {
             <meshStandardMaterial color="orange" />
           </mesh>
         </RigidBody>
+
+        <Trajectory
+          ballRef={ballRef}
+          isDragging={isDragging}
+          isResetting={isResetting}
+        />
 
         {/* invisible wall */}
         <RigidBody
