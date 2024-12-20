@@ -302,14 +302,6 @@ export const HoopMinigame = () => {
       const dragDistance = dragDelta.length()
       const verticalDragDistance = dragStartPos.current.y - currentPos.y
 
-      console.log({
-        dragDistance,
-        verticalDragDistance,
-        startY: dragStartPos.current.y,
-        currentY: currentPos.y,
-        hasMovedSignificantly: hasMovedSignificantly.current
-      })
-
       if (
         dragDistance > 0.1 &&
         verticalDragDistance < -0.1 &&
