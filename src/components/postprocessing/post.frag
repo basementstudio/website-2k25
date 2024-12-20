@@ -258,12 +258,9 @@ vec3 dither(vec2 uv, vec3 color) {
 
   resultColor = hslToRgb(resultColor);
 
-  // Blend mode multiply
-  return originalColor * resultColor;
-
   // Blend based on lightness
   float luminance = dot(originalColor, vec3(0.299, 0.587, 0.114));
-  return mix(resultColor, originalColor, luminance);
+  return mix(originalColor * resultColor, originalColor, luminance);
 }
 
 vec3 gamma(vec3 color) {
