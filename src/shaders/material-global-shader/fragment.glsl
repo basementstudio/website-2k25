@@ -20,7 +20,6 @@ uniform bool uReverse;
 uniform float metalness;
 uniform float roughness;
 uniform sampler2D alphaMap;
-uniform bool useAlphaMap;
 
 uniform float uLoaded;
 uniform float uTime;
@@ -57,8 +56,12 @@ void main() {
 
   // Render as solid color
 
-  vec4 mapSample = texture2D(map, vUv * mapRepeat);
-  float mapAlpha = mapSample.a;
+  vec4 mapSample = vec4(1.0);
+
+  #ifdef USE_MAP
+  mapSample = texture2D(map, vUv * mapRepeat);
+  #endif
+
   // Combine texture and base color
   vec3 color = baseColor * mapSample.rgb;
 
@@ -85,14 +88,18 @@ void main() {
   float opacityResult;
 
   opacityResult = 1.0 - wave;
-  opacityResult *= mapAlpha;
   opacityResult *= opacity;
   irradiance = mix(irradiance, uColor, wave);
 
-  if (useAlphaMap) {
-    float alpha = texture2D(alphaMap, vUv).r;
-    opacityResult *= alpha;
-  }
+  #ifdef IS_TRANSPARENT
+  float mapAlpha = mapSample.a;
+  opacityResult *= mapAlpha;
+  #endif
+
+  #ifdef USE_ALPHA_MAP
+  float alpha = texture2D(alphaMap, vUv).r;
+  opacityResult *= alpha;
+  #endif
 
   if (opacityResult <= 0.0) {
     discard;
@@ -118,5 +125,4 @@ void main() {
       step(uLoaded, voxel.noiseSmall)
     );
   }
-
 }
