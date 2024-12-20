@@ -16,6 +16,7 @@ export const createGlobalShaderMaterial = (
     map = null,
     opacity: baseOpacity = 1.0,
     metalness,
+    roughness,
     alphaMap
   } = baseMaterial
 
@@ -30,6 +31,7 @@ export const createGlobalShaderMaterial = (
       map: { value: map },
       lightMap: { value: null },
       metalness: { value: metalness },
+      roughness: { value: roughness },
       mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
       baseColor: { value: baseColor },
       opacity: { value: baseOpacity },
@@ -39,7 +41,8 @@ export const createGlobalShaderMaterial = (
       alphaMap: { value: alphaMap },
       useAlphaMap: { value: alphaMap !== null }
     },
-    transparent: baseOpacity < 1 || alphaMap !== null,
+    transparent:
+      baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
     vertexShader,
     fragmentShader
   })
