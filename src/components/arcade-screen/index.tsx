@@ -1,6 +1,7 @@
+import { useVideoTexture } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { Suspense, useEffect, useMemo, useState } from "react"
 import { Mesh, TextureLoader } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
@@ -14,6 +15,13 @@ export const ArcadeScreen = () => {
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
+
+  const videoTexture = useVideoTexture(
+    "/videos/arcade-screen/screen-load.webm",
+    {
+      loop: true
+    }
+  )
 
   const renderTarget = useMemo(() => {
     return new WebGLRenderTarget(1024, 1024)
@@ -45,9 +53,21 @@ export const ArcadeScreen = () => {
     screenMaterial.uniforms.reflectionTexture.value = reflectionTexture
     screenMaterial.uniforms.smudgesTexture.value = smudgesTexture
 
-    screenMaterial.uniforms.map.value = renderTarget.texture
+    if (pathname === "/arcade") {
+      screenMaterial.uniforms.map.value = renderTarget.texture
+    } else {
+      screenMaterial.uniforms.map.value = videoTexture
+    }
+
     arcadeScreen.material = screenMaterial
-  }, [reflectionTexture, smudgesTexture, arcadeScreen, renderTarget.texture])
+  }, [
+    reflectionTexture,
+    smudgesTexture,
+    arcadeScreen,
+    renderTarget.texture,
+    videoTexture,
+    pathname
+  ])
 
   useFrame((_, delta) => {
     if (screenMaterial.uniforms.uTime) {
@@ -59,12 +79,14 @@ export const ArcadeScreen = () => {
 
   return (
     <RenderTexture
-      isPlaying={pathname === "/arcade"}
+      isPlaying={true}
       fbo={renderTarget}
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
     >
-      <ScreenUI screenScale={screenScale} />
+      <Suspense fallback={null}>
+        {pathname === "/arcade" ? <ScreenUI screenScale={screenScale} /> : null}
+      </Suspense>
     </RenderTexture>
   )
 }

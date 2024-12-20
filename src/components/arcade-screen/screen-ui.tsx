@@ -1,7 +1,11 @@
 import { PerspectiveCamera } from "@react-three/drei"
+import dynamic from "next/dynamic"
 import { Vector3 } from "three"
 
-import { LabsUI } from "./labs-ui"
+const DynamicLabsUI = dynamic(
+  () => import("./labs-ui").then((mod) => mod.LabsUI),
+  { ssr: false }
+)
 
 interface ScreenUIProps {
   screenScale?: Vector3 | null
@@ -26,8 +30,7 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
         position={[0, 0.0, 14]}
         aspect={aspect}
       />
-
-      <LabsUI />
+      <DynamicLabsUI />
     </>
   )
 }
