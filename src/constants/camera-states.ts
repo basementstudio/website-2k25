@@ -20,8 +20,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     name: "arcade",
     url: "/lab",
     object_name: "arcade",
-    position: [2.98, 1.4, -13.3],
-    target: [2.98, 1.38, -13.8],
+    position: [2.98, 1.3, -13.1],
+    target: [2.98, 1.3, -13.8],
     rotationAngle: [0, 0],
     rotationLerp: 0
   },

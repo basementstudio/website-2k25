@@ -1,6 +1,6 @@
 import { Container, Icon, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { COLORS_THEME } from "./screen-ui"
 
@@ -118,11 +118,11 @@ export const LabsUI = () => {
                 <List />
                 <Container
                   width={"35%"}
-                  height={"50%"}
-                  borderWidth={4}
-                  borderColor={COLORS_THEME.primary}
-                  marginLeft={32}
-                />
+                  height={"100%"}
+                  borderWidth={6}
+                  borderColor={"red"}
+                  positionType={"relative"}
+                ></Container>
               </Container>
               <GameCovers />
             </Container>
@@ -203,30 +203,51 @@ const List = () => {
       scrollbarColor={COLORS_THEME.primary}
     >
       {experiments &&
-        experiments.map((data, idx) => (
-          <ListItem
-            key={idx}
-            data={data}
-            idx={idx}
-            total={experiments.length}
-          />
-        ))}
+        experiments
+          .slice(0, 40)
+          .map(({ title, contributors, href }, idx) => (
+            <ListItem
+              title={title}
+              contributors={contributors}
+              href={href}
+              idx={idx}
+              total={experiments.length}
+              key={idx}
+            />
+          ))}
     </Container>
   )
 }
 
 const ListItem = ({
-  data,
+  title,
+  contributors,
+  href,
   idx,
   total
 }: {
-  data: Experiment
+  title: string
+  contributors: Contributor[]
+  href: string
   idx: number
   total: number
 }) => {
-  const { title, contributors } = data
+  const [selectedExperiment, setSelectedExperiment] = useState<number | null>(
+    null
+  )
+  const [selectedContributor, setSelectedContributor] = useState<number | null>(
+    null
+  )
+
+  const textColor = useMemo(() => {
+    return selectedExperiment === idx
+      ? COLORS_THEME.black
+      : COLORS_THEME.primary
+  }, [selectedExperiment, idx])
+
   return (
     <Container
+      key={idx}
       width={"100%"}
       height={50}
       borderBottomWidth={idx === total - 1 ? 0 : 3}
@@ -237,26 +258,47 @@ const ListItem = ({
       flexDirection={"row"}
       justifyContent={"space-between"}
       alignItems={"center"}
+      onPointerOver={() => setSelectedExperiment(idx)}
+      onPointerOut={() => setSelectedExperiment(null)}
+      backgroundColor={
+        selectedExperiment === idx ? COLORS_THEME.primary : undefined
+      }
+      onClick={() =>
+        window.open(`https://lab.basement.studio/${href}`, "_blank")
+      }
     >
-      <Container width={"28%"}>
-        <Text fontSize={20} fontWeight={"bold"} color={COLORS_THEME.primary}>
+      <Container width={"30%"}>
+        <Text fontSize={22} fontWeight={"bold"} color={textColor}>
           {title}
         </Text>
       </Container>
 
       <Container display={"flex"} flexDirection={"row"} gap={8} width={"50%"}>
-        <Text fontSize={20} fontWeight={"bold"} color={COLORS_THEME.primary}>
+        <Text fontSize={20} fontWeight={"bold"} color={textColor}>
           B:
         </Text>
         {contributors.map((contributor, idx) => (
-          <Text
-            fontSize={20}
-            fontWeight={"bold"}
-            color={COLORS_THEME.primary}
-            key={idx}
-          >
-            /{contributor.name}
-          </Text>
+          <Container key={idx} positionType={"relative"}>
+            <Text
+              fontSize={22}
+              fontWeight={"bold"}
+              color={textColor}
+              onClick={() => window.open(contributor.url, "_blank")}
+              onPointerOver={() => setSelectedContributor(idx)}
+              onPointerOut={() => setSelectedContributor(null)}
+            >
+              /{contributor.name}
+            </Text>
+            {selectedContributor === idx && (
+              <Container
+                positionType={"absolute"}
+                width={"100%"}
+                height={4}
+                positionBottom={-3}
+                backgroundColor={"#171717"}
+              />
+            )}
+          </Container>
         ))}
       </Container>
 
@@ -267,10 +309,10 @@ const ListItem = ({
         gap={8}
         justifyContent={"flex-start"}
       >
-        <Text fontSize={20} fontWeight={"bold"} color={COLORS_THEME.primary}>
+        <Text fontSize={22} fontWeight={"bold"} color={textColor}>
           View Live
         </Text>
-        <Text fontSize={20} fontWeight={"bold"} color={COLORS_THEME.primary}>
+        <Text fontSize={22} fontWeight={"bold"} color={textColor}>
           Source
         </Text>
       </Container>
