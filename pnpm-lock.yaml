@@ -3612,8 +3612,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zod@3.22.1:
-    resolution: {integrity: sha512-+qUhAMl414+Elh+fRNtpU+byrwjDFOS1N7NioLY+tSlcADTx4TkCUua/hxJvxwDXcV4397/nZ420jy4n4+3WUg==}
+  zod@3.24.1:
+    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
 
   zustand@3.7.2:
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
@@ -4789,7 +4789,7 @@ snapshots:
       sonner: 1.7.1(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
       typesense: 1.8.2(@babel/runtime@7.26.0)
       xmldom: 0.6.0
-      zod: 3.22.1
+      zod: 3.24.1
     transitivePeerDependencies:
       - '@babel/runtime'
       - '@types/react'
@@ -7552,7 +7552,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod@3.22.1: {}
+  zod@3.24.1: {}
 
   zustand@3.7.2(react@19.0.0-rc-66855b96-20241106):
     optionalDependencies:
