@@ -126,6 +126,11 @@ export const CustomCamera = () => {
       controls.setPosition(...initialConfig.position)
       controls.setTarget(...initialConfig.target)
 
+      if (initialConfig.fov && controls.camera instanceof PerspectiveCamera) {
+        controls.camera.fov = initialConfig.fov
+        controls.camera.updateProjectionMatrix()
+      }
+
       isInitializedRef.current = true
     }
 
@@ -135,9 +140,15 @@ export const CustomCamera = () => {
   useEffect(() => {
     if (!isInitializedRef.current) return
 
-    const { position, target } = cameraConfig as unknown as CameraState
+    const { position, target, fov } = cameraConfig as unknown as CameraState
     targetPosition.set(...position)
     targetLookAt.set(...target)
+
+    const controls = cameraControlsRef.current
+    if (controls && fov && controls.camera instanceof PerspectiveCamera) {
+      controls.camera.fov = fov
+      controls.camera.updateProjectionMatrix()
+    }
 
     cameraAnimationConfig.progress = 0
     mouseInfluenceRef.current = 1

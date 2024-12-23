@@ -9,6 +9,7 @@ export type CameraStateKeys =
   | "stairs"
   | "hoop"
   | "projects"
+  | "notFound"
   | "menu"
 
 export interface CameraState {
@@ -20,6 +21,7 @@ export interface CameraState {
   offset?: [number, number, number]
   rotationAngle?: [number, number]
   rotationLerp?: number
+  fov?: number
 }
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
@@ -27,7 +29,8 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/arcade": "arcade",
   "/about": "stairs",
   "/basketball": "hoop",
-  "/projects": "projects"
+  "/projects": "projects",
+  "/404": "notFound"
 }
 
 export type CameraName = "main" | "debug-orbit"

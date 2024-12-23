@@ -52,6 +52,15 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     rotationAngle: [0.5, 0.5],
     rotationLerp: 0.03
   },
+  notFound: {
+    name: "notFound",
+    url: "/404",
+    position: [6.5, 4, -6],
+    target: [4, 4, -12.95],
+    rotationAngle: [0.5, 0.5],
+    rotationLerp: 0.03,
+    fov: 70
+  },
   menu: {
     name: "menu",
     position: [16, 14, -5],

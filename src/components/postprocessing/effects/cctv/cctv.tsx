@@ -1,4 +1,5 @@
 import { PerspectiveCamera } from "@react-three/drei"
+import { useFrame } from "@react-three/fiber"
 import { useEffect } from "react"
 import { ShaderMaterial, Texture, Vector2 } from "three"
 
@@ -18,7 +19,8 @@ const material = new ShaderMaterial({
     uMainTexture: { value: null },
     screenSize: { value: new Vector2(1, 1) },
     dpr: { value: 1 },
-    aspect: { value: 1 }
+    aspect: { value: 1 },
+    uTime: { value: 0 }
   }
 })
 
@@ -49,6 +51,10 @@ export function CCTVEffect({ mainTexture }: PostProcessingProps) {
   const calculateFov = (z: number) => {
     return Math.atan(1 / z) * (180 / Math.PI)
   }
+
+  useFrame((state) => {
+    material.uniforms.uTime.value = state.clock.elapsedTime
+  })
 
   return (
     <>
