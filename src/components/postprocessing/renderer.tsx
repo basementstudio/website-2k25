@@ -1,4 +1,5 @@
 import { createPortal, useFrame } from "@react-three/fiber"
+import { usePathname } from "next/navigation"
 import { useEffect, useMemo } from "react"
 import {
   HalfFloatType,
@@ -20,6 +21,7 @@ interface RendererProps {
 }
 
 export function Renderer({ sceneChildren }: RendererProps) {
+  const pathname = usePathname()
   const activeCamera = useCameraStore((state) => state.activeCamera)
 
   const mainTarget = useMemo(() => {
@@ -42,9 +44,7 @@ export function Renderer({ sceneChildren }: RendererProps) {
   )
 
   const cameraToRender = useMemo(() => {
-    // debug orbit camera
     if (activeCamera === "debug-orbit") return orbitCamera
-    // render main camera
     return sceneCamera
   }, [sceneCamera, orbitCamera, activeCamera])
 
@@ -62,7 +62,6 @@ export function Renderer({ sceneChildren }: RendererProps) {
     gl.outputColorSpace = LinearSRGBColorSpace
     gl.toneMapping = NoToneMapping
     gl.setRenderTarget(mainTarget)
-    // save render on main target
     gl.render(mainScene, cameraToRender)
 
     gl.outputColorSpace = SRGBColorSpace
@@ -76,7 +75,11 @@ export function Renderer({ sceneChildren }: RendererProps) {
       {createPortal(sceneChildren, mainScene)}
 
       {createPortal(
-        <CCTVEffect mainTexture={mainTarget.texture} />,
+        pathname === "/404" ? (
+          <CCTVEffect mainTexture={mainTarget.texture} />
+        ) : (
+          <PostProcessing mainTexture={mainTarget.texture} />
+        ),
         postProcessingScene
       )}
     </>
