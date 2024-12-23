@@ -1,3 +1,3 @@
-const Homepage = () => null;
+const Homepage = () => null
 
-export default Homepage;
+export default Homepage

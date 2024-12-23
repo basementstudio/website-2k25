@@ -14,7 +14,7 @@
     "@react-three/drei": "^9.117.3",
     "@react-three/fiber": "9.0.0-rc.1",
     "@use-gesture/react": "^10.3.1",
-    "basehub": "8.0.0-canary.17",
+    "basehub": "8.0.0-canary.27",
     "clsx": "^2.1.1",
     "glslify-loader": "^2.0.0",
     "leva": "^0.9.35",
@@ -49,6 +49,6 @@
     "prettier-plugin-tailwindcss": "^0.6.9",
     "raw-loader": "^4.0.2",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5.7.2"
   }
 }
