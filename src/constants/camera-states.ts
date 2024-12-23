@@ -59,7 +59,7 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     target: [4, 4, -12.95],
     rotationAngle: [0.5, 0.5],
     rotationLerp: 0.03,
-    fov: 70
+    fov: 90
   },
   menu: {
     name: "menu",
