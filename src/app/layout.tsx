@@ -1,21 +1,22 @@
 import "@/styles/globals.css"
 
-import { Toolbar as BasehubToolbar } from "basehub/next-toolbar";
+import { Toolbar as BasehubToolbar } from "basehub/next-toolbar"
+import { Geist } from "next/font/google"
 
-import { AssetsProvider } from "@/components/assets-provider";
-import { fetchAssets } from "@/components/assets-provider/fetch-assets";
-import { CameraRouteHandler } from "@/components/camera-route-handler";
-import { Scene } from "@/components/scene";
-import { MouseTracker } from "@/components/mouse-tracker";
-import { Geist } from "next/font/google";
-import "@/styles/globals.css";
+import { AssetsProvider } from "@/components/assets-provider"
+import { fetchAssets } from "@/components/assets-provider/fetch-assets"
+import { CameraRouteHandler } from "@/components/camera-route-handler"
+import { MouseTracker } from "@/components/mouse-tracker"
+import { Scene } from "@/components/scene"
 
 const Toolbar = BasehubToolbar as unknown as React.ComponentType
 
 import type { Metadata } from "next"
 
+import { Grid } from "@/components/grid"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
+import { Footer } from "@/components/layout/footer"
 import { Navbar } from "@/components/layout/navbar"
 import { cn } from "@/utils/cn"
 
@@ -47,9 +48,11 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             <CameraRouteHandler />
             <div className="sticky top-0 h-screen w-full">
               <Scene />
+              <Grid />
               <InspectableViewer />
             </div>
             {children}
+            <Footer />
           </body>
         </InspectableProvider>
       </AssetsProvider>

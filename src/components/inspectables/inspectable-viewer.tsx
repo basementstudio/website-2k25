@@ -1,23 +1,23 @@
-"use client";
+"use client"
 
-import { Node, RichText as BaseRichText } from "basehub/react-rich-text";
-import { Fragment, useEffect, useState } from "react";
+import { RichText as BaseRichText } from "basehub/react-rich-text"
+import { Fragment, useEffect, useState } from "react"
 
 const RichText = BaseRichText as unknown as React.ComponentType<{
-  content: Node[];
-}>;
+  content: Node[]
+}>
 
-import { useKeyPress } from "@/hooks/use-key-press";
-import { cn } from "@/utils/cn";
+import { useKeyPress } from "@/hooks/use-key-press"
+import { cn } from "@/utils/cn"
 
-import { useInspectable } from "./context";
-import { fetchInspectable, Inspectable } from "./fetch-inspectable";
+import { useInspectable } from "./context"
+import { fetchInspectable, Inspectable } from "./fetch-inspectable"
 
 const Close = ({ handleClose }: { handleClose: () => void }) => (
   <button className="text-paragraph text-brand-w1" onClick={handleClose}>
     (X) <span className="actionable">Close</span>
   </button>
-);
+)
 
 const Content = ({ data }: { data: Inspectable }) => (
   <>
@@ -40,30 +40,30 @@ const Content = ({ data }: { data: Inspectable }) => (
     )}
     <div className="mr-14 text-paragraph text-brand-w1">
       {data?.description?.json?.content && (
-        <RichText content={data.description.json.content as Node[]} />
+        <RichText content={data.description.json.content as any} />
       )}
     </div>
   </>
-);
+)
 
 export const InspectableViewer = () => {
-  const { selected, setSelected } = useInspectable();
-  const [data, setData] = useState<Inspectable | null>(null);
+  const { selected, setSelected } = useInspectable()
+  const [data, setData] = useState<Inspectable | null>(null)
 
-  useKeyPress("Escape", () => setSelected(""));
+  useKeyPress("Escape", () => setSelected(""))
 
   useEffect(() => {
-    setData(null);
+    setData(null)
 
-    if (!selected) return;
+    if (!selected) return
 
     const fetchData = async () => {
-      const data = await fetchInspectable({ id: selected });
-      setData(data);
-    };
+      const data = await fetchInspectable({ id: selected })
+      setData(data)
+    }
 
-    fetchData();
-  }, [selected]);
+    fetchData()
+  }, [selected])
 
   return (
     <div
@@ -85,5 +85,5 @@ export const InspectableViewer = () => {
         <div className="col-start-5 col-end-13 my-2 border border-brand-w1/20" />
       </div>
     </div>
-  );
-};
+  )
+}
