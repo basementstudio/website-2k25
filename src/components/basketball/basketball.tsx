@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
-import { RefObject, useMemo } from "react"
+import { RefObject, useMemo, useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "../assets-provider"
@@ -27,13 +27,30 @@ export const Basketball = ({
 }: BasketballProps) => {
   const { basketball } = useAssets()
   const basketballModel = useGLTF(basketball)
+  const bounceCount = useRef(0)
 
   const geometry = useMemo(
     () => (basketballModel.scene.children[0] as Mesh).geometry,
     [basketballModel]
   )
 
-  console.log(basketballModel)
+  const handleCollision = (other: any) => {
+    if (!isDragging) {
+      if (other.rigidBodyObject?.name === "floor") {
+        bounceCount.current += 1
+
+        if (bounceCount.current >= 2) {
+          bounceCount.current = 0
+          resetBallToInitialPosition()
+        }
+      }
+    }
+  }
+
+  const handleSleep = () => {
+    bounceCount.current = 0
+    resetBallToInitialPosition()
+  }
 
   return (
     <RigidBody
@@ -42,25 +59,9 @@ export const Basketball = ({
       ref={ballRef}
       type="fixed"
       position={[initialPosition.x, initialPosition.y, initialPosition.z]}
-      onCollisionEnter={({ other }) => {
-        if (!isDragging) {
-          if (other.rigidBodyObject?.name === "floor") {
-            const bounceCount = (ballRef.current as any)?.bounceCount || 0
-            ;(ballRef.current as any).bounceCount = bounceCount + 1
-
-            if ((ballRef.current as any).bounceCount >= 2) {
-              resetBallToInitialPosition()
-            }
-          }
-        }
-      }}
-      onSleep={resetBallToInitialPosition}
+      onCollisionEnter={({ other }) => handleCollision(other)}
+      onSleep={handleSleep}
     >
-      {/* Mass does not change the weight of the object, it changes 
-      how it reacts when it collides with an object with a different mass. 
-      An additional mesh in this body can duplicate the weight of the basketball 
-      which may make it easier to score points. */}
-
       <mesh
         geometry={geometry}
         material={basketballModel.materials["Material.001"]}
