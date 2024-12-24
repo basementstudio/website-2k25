@@ -52,7 +52,7 @@ export const ArcadeScreen = () => {
 
     screenMaterial.uniforms.reflectionTexture.value = reflectionTexture
     screenMaterial.uniforms.smudgesTexture.value = smudgesTexture
-
+    videoTexture.flipY = false
     if (pathname === "/arcade") {
       screenMaterial.uniforms.map.value = renderTarget.texture
     } else {
