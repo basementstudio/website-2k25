@@ -10,7 +10,11 @@ interface BasketballProps {
   initialPosition: { x: number; y: number; z: number }
   isDragging: boolean
   hoopPosition: { x: number; y: number; z: number }
-  resetBallToInitialPosition: () => void
+  resetBallToInitialPosition: (position?: {
+    x: number
+    y: number
+    z: number
+  }) => void
   handlePointerDown: (event: any) => void
   handlePointerMove: (event: any) => void
   handlePointerUp: (event: any) => void
@@ -41,7 +45,11 @@ export const Basketball = ({
 
         if (bounceCount.current >= 2) {
           bounceCount.current = 0
-          resetBallToInitialPosition()
+          if (ballRef.current) {
+            const currentPos = ballRef.current.translation()
+            ballRef.current.setBodyType(2)
+            resetBallToInitialPosition(currentPos)
+          }
         }
       }
     }

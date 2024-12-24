@@ -155,19 +155,24 @@ export const HoopMinigame = () => {
     resetBallToInitialPosition()
   }
 
-  const resetBallToInitialPosition = () => {
+  const resetBallToInitialPosition = (position?: {
+    x: number
+    y: number
+    z: number
+  }) => {
     if (!isBasketball || !ballRef.current) return
     try {
-      startResetPos.current.copy(
-        new Vector3(initialPosition.x, initialPosition.y, initialPosition.z)
-      )
+      if (position) {
+        startResetPos.current.copy(
+          new Vector3(position.x, position.y, position.z)
+        )
+      } else {
+        startResetPos.current.copy(
+          new Vector3(initialPosition.x, initialPosition.y, initialPosition.z)
+        )
+      }
 
-      ballRef.current.setTranslation(initialPosition)
-      ballRef.current.setLinvel({ x: 0, y: 0, z: 0 })
-      ballRef.current.setAngvel({ x: 0, y: 0, z: 0 })
-      ballRef.current.setBodyType(2)
-
-      setIsResetting(false)
+      setIsResetting(true)
       resetProgress.current = 0
       bounceCount.current = 0
       isThrowable.current = true
