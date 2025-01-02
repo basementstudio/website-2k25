@@ -1,12 +1,16 @@
 import { Container, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
 
 import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
 import { TextTag } from "./text-tags"
+import { CameraStateKeys } from "@/store/app-store"
+import { useRouter } from "next/navigation"
+import { useCameraStore } from "@/store/app-store"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 interface Experiment {
   _title: string
@@ -38,6 +42,24 @@ export const LabsUI = () => {
   const [experimentsContributors, setExperimentsContributors] = useState<
     Record<string, Contributor[]>
   >({})
+
+  const router = useRouter()
+  const setCameraState = useCameraStore((state) => state.setCameraState)
+
+  const handleNavigation = useCallback(
+    (route: string, cameraState: CameraStateKeys) => {
+      setCameraState(cameraState)
+      router.push(route)
+    },
+    [router, setCameraState]
+  )
+
+  useKeyPress(
+    "Escape",
+    useCallback(() => {
+      handleNavigation("/", "home")
+    }, [handleNavigation])
+  )
 
   useEffect(() => {
     fetch("https://lab.basement.studio/experiments.json")
@@ -82,6 +104,7 @@ export const LabsUI = () => {
           paddingX={8}
           backgroundColor={COLORS_THEME.black}
           zIndexOffset={10}
+          onClick={() => handleNavigation("/", "home")}
         >
           Close [X]
         </Text>
