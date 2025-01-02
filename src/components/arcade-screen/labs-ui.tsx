@@ -1,13 +1,14 @@
 import { Container, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
+import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 
 import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
 import { TextTag } from "./text-tags"
-
 interface Experiment {
   _title: string
   url: string | null
@@ -38,6 +39,17 @@ export const LabsUI = () => {
   const [experimentsContributors, setExperimentsContributors] = useState<
     Record<string, Contributor[]>
   >({})
+
+  const router = useRouter()
+  const setCameraState = useCameraStore((state) => state.setCameraState)
+
+  const handleNavigation = useCallback(
+    (route: string, cameraState: CameraStateKeys) => {
+      setCameraState(cameraState)
+      router.push(route)
+    },
+    [router, setCameraState]
+  )
 
   useEffect(() => {
     fetch("https://lab.basement.studio/experiments.json")
@@ -82,6 +94,7 @@ export const LabsUI = () => {
           paddingX={8}
           backgroundColor={COLORS_THEME.black}
           zIndexOffset={10}
+          onClick={() => handleNavigation("/", "home")}
         >
           Close [X]
         </Text>

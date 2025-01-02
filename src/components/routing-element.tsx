@@ -1,5 +1,4 @@
 import { useCursor } from "@react-three/drei"
-import { RigidBody } from "@react-three/rapier"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
