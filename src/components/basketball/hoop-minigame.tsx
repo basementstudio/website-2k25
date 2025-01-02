@@ -28,7 +28,6 @@ export const HoopMinigame = () => {
   const hasMovedSignificantly = useRef(false)
   const initialGrabPos = useRef(new Vector3())
   const isThrowable = useRef(true)
-  const isUnmounting = useRef(false)
 
   const {
     gameDuration,
@@ -51,12 +50,35 @@ export const HoopMinigame = () => {
   } = useMinigameStore()
 
   useEffect(() => {
-    const cleanupGame = () => {
+    if (isBasketball) {
+      resetProgress.current = 0
+      bounceCount.current = 0
+      isThrowable.current = true
+      setIsResetting(false)
+      setIsDragging(false)
+      setScore(0)
+      setTimeRemaining(gameDuration)
+      setIsGameActive(false)
+      setShotMetrics({ angle: "0.0", probability: "0.0" })
+
+      startResetPos.current = new Vector3(
+        initialPosition.x,
+        initialPosition.y,
+        initialPosition.z
+      )
+      dragPos.current = new Vector3()
+      dragStartPos.current = new Vector3()
+      mousePos.current = new Vector2()
+      lastMousePos.current = new Vector2()
+      throwVelocity.current = new Vector2()
+      initialGrabPos.current = new Vector3()
+    }
+
+    return () => {
       if (timerInterval.current) {
         clearInterval(timerInterval.current)
         timerInterval.current = null
       }
-
       setIsResetting(false)
       setIsDragging(false)
       setIsGameActive(false)
@@ -67,35 +89,13 @@ export const HoopMinigame = () => {
       resetProgress.current = 0
       bounceCount.current = 0
       isThrowable.current = true
-      startResetPos.current.set(0, 0, 0)
-      dragPos.current.set(0, 0, 0)
-      dragStartPos.current.set(0, 0, 0)
-      mousePos.current.set(0, 0)
-      lastMousePos.current.set(0, 0)
-      throwVelocity.current.set(0, 0)
-      initialGrabPos.current.set(0, 0, 0)
-
-      if (ballRef.current) {
-        try {
-          ballRef.current.setTranslation(initialPosition, true)
-          ballRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true)
-          ballRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true)
-        } catch (error) {
-          console.warn("Failed to reset ball physics during cleanup")
-        }
-      }
-    }
-
-    if (isBasketball) {
-      cleanupGame()
-      startResetPos.current.copy(
-        new Vector3(initialPosition.x, initialPosition.y, initialPosition.z)
-      )
-    }
-
-    return () => {
-      isUnmounting.current = true
-      cleanupGame()
+      startResetPos.current = new Vector3()
+      dragPos.current = new Vector3()
+      dragStartPos.current = new Vector3()
+      mousePos.current = new Vector2()
+      lastMousePos.current = new Vector2()
+      throwVelocity.current = new Vector2()
+      initialGrabPos.current = new Vector3()
     }
   }, [
     isBasketball,
@@ -125,7 +125,7 @@ export const HoopMinigame = () => {
   }, [isDragging, isBasketball])
 
   const startGame = () => {
-    if (!isGameActive && !isUnmounting.current) {
+    if (!isGameActive) {
       if (timerInterval.current) {
         clearInterval(timerInterval.current)
       }
@@ -134,13 +134,6 @@ export const HoopMinigame = () => {
       setTimeRemaining(gameDuration)
 
       timerInterval.current = setInterval(() => {
-        if (isUnmounting.current) {
-          if (timerInterval.current) {
-            clearInterval(timerInterval.current)
-          }
-          return
-        }
-
         setTimeRemaining((prev) => {
           if (prev <= 1) {
             if (timerInterval.current) {
@@ -477,7 +470,7 @@ export const HoopMinigame = () => {
       </RigidBody>
 
       {/* arcade collider */}
-      <RigidBody type="fixed" name="floor" position={[2.943, 1.1, -14.257]}>
+      <RigidBody type="fixed" name="arcade" position={[2.943, 1.1, -14.257]}>
         <CuboidCollider args={[0.52, 1, 0.52]} />
       </RigidBody>
 
