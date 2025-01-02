@@ -1,29 +1,32 @@
 import { Container, Icon, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
+
+import { useArcadeStore } from "@/store/lab-store"
 
 import { COLORS_THEME } from "./screen-ui"
 
-interface Contributor {
-  id: string
-  url: string
-  name: string
-  avatarUrl: string
-  email: string
-  company: string
-}
-
 interface Experiment {
-  filename: string
-  title: string
-  href: string
-  tags: string[]
-  og: null | string
-  number: number
-  contributors: Contributor[]
+  _title: string
+  url: string | null
+  cover: {
+    url: string
+    width: number
+    height: number
+    alt: string | null
+  } | null
+  description: {
+    json: any
+  } | null
 }
 
 export const LabsUI = () => {
+  const [selectedExperiment, setSelectedExperiment] =
+    useState<Experiment | null>(null)
+  const data = useArcadeStore((state) => state.data)
+  if (!data) return null
+  const experiments = data?.pages.laboratory.projectList.items
+
   return (
     <>
       <Root
@@ -116,7 +119,11 @@ export const LabsUI = () => {
                 flexDirection={"row"}
                 gap={14}
               >
-                <List />
+                <List
+                  experiments={experiments}
+                  setSelectedExperiment={setSelectedExperiment}
+                  selectedExperiment={selectedExperiment}
+                />
                 <Container
                   width={"35%"}
                   display={"flex"}
@@ -131,24 +138,26 @@ export const LabsUI = () => {
                     borderColor={"red"}
                     positionType={"relative"}
                   >
-                    <Image
-                      src={`/images/arcade-screen/lab.png`}
-                      width={"100%"}
-                      height={"100%"}
-                      objectFit={"cover"}
-                      positionType={"absolute"}
-                    />
+                    {selectedExperiment && (
+                      <Image
+                        src={`${selectedExperiment.cover?.url}`}
+                        width={"100%"}
+                        height={"100%"}
+                        objectFit={"cover"}
+                        positionType={"absolute"}
+                      />
+                    )}
                   </Container>
-                  <Text
-                    fontSize={22}
-                    color={COLORS_THEME.primary}
-                    fontWeight={"bold"}
-                    backgroundColor={COLORS_THEME.black}
-                  >
-                    Animate transition between matcap texture and shader based
-                    on scroll. Lightning animations triggered by collisions
-                    between objects.
-                  </Text>
+                  {selectedExperiment && (
+                    <Text
+                      fontSize={22}
+                      color={COLORS_THEME.primary}
+                      fontWeight={"bold"}
+                      backgroundColor={COLORS_THEME.black}
+                    >
+                      {selectedExperiment._title}
+                    </Text>
+                  )}
                 </Container>
               </Container>
               <GameCovers />
@@ -205,18 +214,15 @@ const TextTag = ({ text, icon }: { text: string; icon?: boolean }) => {
   )
 }
 
-const List = () => {
-  const [experiments, setExperiments] = useState<Experiment[] | null>(null)
-
-  useEffect(() => {
-    async function fetchExperiments() {
-      const res = await fetch("https://lab.basement.studio/experiments.json")
-      const data = await res.json()
-      setExperiments(data)
-    }
-    fetchExperiments()
-  }, [])
-
+const List = ({
+  experiments,
+  setSelectedExperiment,
+  selectedExperiment
+}: {
+  experiments: Experiment[]
+  setSelectedExperiment: (experiment: Experiment | null) => void
+  selectedExperiment: Experiment | null
+}) => {
   return (
     <Container
       width={"65%"}
@@ -232,14 +238,18 @@ const List = () => {
       {experiments &&
         experiments
           .slice(0, 40)
-          .map(({ title, contributors, href }, idx) => (
+          .map(({ _title, url }, idx) => (
             <ListItem
-              title={title}
-              contributors={contributors}
-              href={href}
+              title={_title}
+              url={url}
               idx={idx}
               total={experiments.length}
               key={idx}
+              setSelectedExperiment={() =>
+                setSelectedExperiment(experiments[idx])
+              }
+              selectedExperiment={selectedExperiment}
+              experiments={experiments}
             />
           ))}
     </Container>
@@ -248,29 +258,26 @@ const List = () => {
 
 const ListItem = ({
   title,
-  contributors,
-  href,
+  url,
   idx,
-  total
+  total,
+  setSelectedExperiment,
+  selectedExperiment,
+  experiments
 }: {
   title: string
-  contributors: Contributor[]
-  href: string
+  url: string | null
   idx: number
   total: number
+  setSelectedExperiment: (experiment: Experiment | null) => void
+  selectedExperiment: Experiment | null
+  experiments: Experiment[]
 }) => {
-  const [selectedExperiment, setSelectedExperiment] = useState<number | null>(
-    null
-  )
-  const [selectedContributor, setSelectedContributor] = useState<number | null>(
-    null
-  )
-
   const textColor = useMemo(() => {
-    return selectedExperiment === idx
+    return selectedExperiment?._title === title
       ? COLORS_THEME.black
       : COLORS_THEME.primary
-  }, [selectedExperiment, idx])
+  }, [selectedExperiment, title])
 
   return (
     <Container
@@ -285,13 +292,13 @@ const ListItem = ({
       flexDirection={"row"}
       justifyContent={"space-between"}
       alignItems={"center"}
-      onPointerOver={() => setSelectedExperiment(idx)}
+      onPointerOver={() => setSelectedExperiment(experiments[idx])}
       onPointerOut={() => setSelectedExperiment(null)}
       backgroundColor={
-        selectedExperiment === idx ? COLORS_THEME.primary : undefined
+        selectedExperiment?._title === title ? COLORS_THEME.primary : undefined
       }
       onClick={() =>
-        window.open(`https://lab.basement.studio/${href}`, "_blank")
+        window.open(`https://lab.basement.studio/experiments/${url}`, "_blank")
       }
     >
       <Container width={"30%"}>
@@ -304,7 +311,8 @@ const ListItem = ({
         <Text fontSize={20} fontWeight={"bold"} color={textColor}>
           B:
         </Text>
-        {contributors.map((contributor, idx) => (
+        {/**
+         * {contributors.map((contributor, idx) => (
           <Container key={idx} positionType={"relative"}>
             <Text
               fontSize={22}
@@ -327,6 +335,8 @@ const ListItem = ({
             )}
           </Container>
         ))}
+         * 
+         */}
       </Container>
 
       <Container
@@ -336,12 +346,44 @@ const ListItem = ({
         gap={8}
         justifyContent={"flex-start"}
       >
-        <Text fontSize={22} fontWeight={"bold"} color={textColor}>
-          View Live
-        </Text>
-        <Text fontSize={22} fontWeight={"bold"} color={textColor}>
-          Source
-        </Text>
+        <Container positionType={"relative"}>
+          <Text fontSize={22} fontWeight={"bold"} color={textColor}>
+            View Live
+          </Text>
+          {selectedExperiment === experiments[idx] && (
+            <Container
+              positionType={"absolute"}
+              width={"100%"}
+              height={4}
+              positionBottom={-3}
+              backgroundColor={"#171717"}
+            />
+          )}
+        </Container>
+        <Container positionType={"relative"}>
+          <Text
+            fontSize={22}
+            fontWeight={"bold"}
+            color={textColor}
+            onClick={() =>
+              window.open(
+                `https://github.com/basementstudio/basement-laboratory/tree/main/src/experiments/${url}`,
+                "_blank"
+              )
+            }
+          >
+            Source
+          </Text>
+          {selectedExperiment === experiments[idx] && (
+            <Container
+              positionType={"absolute"}
+              width={"100%"}
+              height={4}
+              positionBottom={-3}
+              backgroundColor={"#171717"}
+            />
+          )}
+        </Container>
       </Container>
     </Container>
   )
