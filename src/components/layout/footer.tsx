@@ -81,7 +81,7 @@ export const Footer = () => (
         <footer className="relative z-10 flex min-h-[calc(100vh-2.25rem)] flex-col justify-between bg-brand-k pb-4">
           <Grid />
 
-          <Logo className="pt-4.5 mx-auto max-w-full text-brand-w2" />
+          <Logo className="mx-auto max-w-full pt-4.5 text-brand-w2" />
 
           <div className="grid-layout relative items-end">
             <StayConnected
@@ -123,13 +123,13 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => (
     {links.map((link) => (
       <li key={link.title}>
         <Link
-          className="flex gap-x-1 text-subheading text-brand-w1"
+          className="flex gap-x-0.5 text-subheading text-brand-w1"
           href={link.href}
         >
           <span className="actionable">{link.title}</span>
           {link.count && (
             <sup className="translate-y-1.25 text-paragraph !font-medium text-brand-g1">
-              <span className="tracking-[0.05em]">({link.count})</span>
+              <span className="tabular-nums">({link.count})</span>
             </sup>
           )}
         </Link>
