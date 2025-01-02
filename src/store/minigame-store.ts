@@ -25,6 +25,8 @@ interface MinigameStore {
   shotMetrics: { angle: string; probability: string }
 
   playerName: string | null
+  playerRecord: number
+  hasPlayed: boolean
 
   setScore: (score: number | ((prev: number) => number)) => void
   setTimeRemaining: (timeRemaining: number | ((prev: number) => number)) => void
@@ -33,6 +35,8 @@ interface MinigameStore {
   setIsResetting: (isResetting: boolean) => void
   setShotMetrics: (shotMetrics: { angle: string; probability: string }) => void
   setPlayerName: (playerName: string) => void
+  setPlayerRecord: (playerRecord: number) => void
+  setHasPlayed: (hasPlayed: boolean) => void
 }
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
@@ -52,6 +56,8 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   justScored: false,
   shotMetrics: { angle: "0.0", probability: "0.0" },
   playerName: null,
+  playerRecord: 0,
+  hasPlayed: false,
   setScore: (score) =>
     set({ score: typeof score === "function" ? score(get().score) : score }),
   setTimeRemaining: (timeRemaining) =>
@@ -66,5 +72,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   setIsResetting: (isResetting: boolean) => set({ isResetting }),
   setShotMetrics: (shotMetrics: { angle: string; probability: string }) =>
     set({ shotMetrics }),
-  setPlayerName: (playerName: string) => set({ playerName })
+  setPlayerName: (playerName: string) => set({ playerName }),
+  setHasPlayed: (hasPlayed: boolean) => set({ hasPlayed }),
+  setPlayerRecord: (playerRecord: number) => set({ playerRecord })
 }))

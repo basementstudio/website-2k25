@@ -27,7 +27,7 @@ export const GameUI = ({
 }: GameUIProps) => {
   const router = useRouter()
   const setCameraState = useCameraStore((state) => state.setCameraState)
-  const { playerName } = useMinigameStore()
+  const { playerName, hasPlayed } = useMinigameStore()
 
   const handleCloseGame = useCallback(() => {
     setCameraState("home")
@@ -41,8 +41,6 @@ export const GameUI = ({
     const remainingSeconds = seconds % 60
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
   }
-
-  if (!playerName) return null
 
   return (
     <>

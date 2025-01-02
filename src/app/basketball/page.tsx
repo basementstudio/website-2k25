@@ -3,12 +3,14 @@ import Scoreboard from "@/components/basketball/scoreboard"
 import { useMinigameStore } from "@/store/minigame-store"
 
 const Basketball = () => {
-  const { playerName, setPlayerName } = useMinigameStore()
+  const { playerName, setPlayerName, hasPlayed, score, setPlayerRecord } =
+    useMinigameStore()
 
   const handlePlayerName = () => {
     const input = document.getElementById("playerNameInput") as HTMLInputElement
     if (input?.value) {
       setPlayerName(input.value)
+      setPlayerRecord(Math.floor(score))
     }
   }
 
@@ -17,7 +19,7 @@ const Basketball = () => {
       <div className="fixed bottom-[14px] right-[14px]">
         <Scoreboard />
       </div>
-      {!playerName && (
+      {hasPlayed && !playerName && (
         <div className="fixed top-0 grid min-h-screen w-full place-items-center">
           <div className="flex gap-4 text-paragraph text-brand-g1">
             <input
@@ -32,7 +34,7 @@ const Basketball = () => {
               onClick={handlePlayerName}
               className="font-medium text-brand-w1 hover:underline"
             >
-              Play Ball -{">"}
+              Save Score -{">"}
             </button>
           </div>
         </div>

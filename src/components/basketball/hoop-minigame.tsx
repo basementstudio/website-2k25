@@ -46,7 +46,8 @@ export const HoopMinigame = () => {
     isDragging,
     setIsDragging,
     shotMetrics,
-    setShotMetrics
+    setShotMetrics,
+    setHasPlayed
   } = useMinigameStore()
 
   useEffect(() => {
@@ -140,6 +141,7 @@ export const HoopMinigame = () => {
               clearInterval(timerInterval.current)
             }
             setIsGameActive(false)
+            setHasPlayed(true)
             resetGame()
             return gameDuration
           }
