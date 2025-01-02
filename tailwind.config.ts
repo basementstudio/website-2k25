@@ -11,7 +11,7 @@ export default {
       colors: {
         brand: {
           w1: "#E6E6E6",
-          w2: "#BFBFBF",
+          w2: "#C9C9C9",
           g1: "#666666",
           g2: "#2E2E2E",
           k: "#000000",
@@ -21,20 +21,19 @@ export default {
       },
       fontSize: {
         heading: [
-          "3.8125rem",
+          "4.1875rem",
           {
-            lineHeight: "3.75rem",
-            letterSpacing: "-0.02em"
+            lineHeight: "4rem"
           }
         ],
         subheading: [
-          "1.375rem",
+          "1.5rem",
           {
-            lineHeight: "1.5rem"
+            lineHeight: "1.75rem"
           }
         ],
         paragraph: [
-          "0.6875rem",
+          "0.75rem",
           {
             lineHeight: "1rem",
             letterSpacing: "0.01em"
@@ -47,6 +46,13 @@ export default {
             letterSpacing: "0.02em"
           }
         ]
+      },
+      spacing: {
+        "0.75": "0.1875rem",
+        "1.25": "0.3125rem",
+        "4.5": "1.125rem",
+        "25": "6.25rem",
+        "61": "15.25rem"
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"]
