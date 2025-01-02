@@ -15,6 +15,7 @@ export const ArcadeScreen = () => {
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
+  const [hasVisitedArcade, setHasVisitedArcade] = useState(false)
 
   const videoTexture = useVideoTexture(
     "/videos/arcade-screen/screen-load.webm",
@@ -53,9 +54,11 @@ export const ArcadeScreen = () => {
     screenMaterial.uniforms.reflectionTexture.value = reflectionTexture
     screenMaterial.uniforms.smudgesTexture.value = smudgesTexture
     videoTexture.flipY = false
+
     if (pathname === "/arcade") {
+      setHasVisitedArcade(true)
       screenMaterial.uniforms.map.value = renderTarget.texture
-    } else {
+    } else if (!hasVisitedArcade) {
       screenMaterial.uniforms.map.value = videoTexture
     }
 
@@ -66,7 +69,8 @@ export const ArcadeScreen = () => {
     arcadeScreen,
     renderTarget.texture,
     videoTexture,
-    pathname
+    pathname,
+    hasVisitedArcade
   ])
 
   useFrame((_, delta) => {
@@ -85,7 +89,7 @@ export const ArcadeScreen = () => {
       raycasterMesh={arcadeScreen}
     >
       <Suspense fallback={null}>
-        {pathname === "/arcade" ? <ScreenUI screenScale={screenScale} /> : null}
+        <ScreenUI screenScale={screenScale} />
       </Suspense>
     </RenderTexture>
   )
