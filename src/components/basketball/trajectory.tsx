@@ -22,6 +22,7 @@ export const Trajectory = ({
   const activePoints = useRef(0)
   const opacity = useRef(0.4)
   const fadeOutPoints = useRef<Vector3[]>([])
+  const isUnmounting = useRef(false)
 
   useEffect(() => {
     positions.current = Array(maxPoints)
@@ -30,12 +31,28 @@ export const Trajectory = ({
     fadeOutPoints.current = []
     activePoints.current = 0
     opacity.current = 0.4
+    isUnmounting.current = false
+
+    const lastPosRef = lastPos.current
+    const tempVecRef = tempVec.current
+
+    return () => {
+      isUnmounting.current = true
+      positions.current.length = 0
+      fadeOutPoints.current.length = 0
+      activePoints.current = 0
+      opacity.current = 0
+      lastPosRef.set(0, 0, 0)
+      tempVecRef.set(0, 0, 0)
+    }
   }, [])
 
   useFrame((_, delta) => {
+    if (isUnmounting.current) return
+
     if (!ballRef.current || isDragging) {
       activePoints.current = 0
-      fadeOutPoints.current = []
+      fadeOutPoints.current.length = 0
       opacity.current = 0.4
       return
     }
@@ -44,7 +61,7 @@ export const Trajectory = ({
       if (fadeOutPoints.current.length === 0 && activePoints.current > 1) {
         fadeOutPoints.current = positions.current
           .slice(0, activePoints.current)
-          .map((p) => p.clone())
+          .map((p) => new Vector3().copy(p))
           .filter(
             (point) => !isNaN(point.x) && !isNaN(point.y) && !isNaN(point.z)
           )

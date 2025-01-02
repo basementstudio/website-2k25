@@ -1,5 +1,10 @@
 import { Html } from "@react-three/drei"
 import { Geist_Mono } from "next/font/google"
+import { useRouter } from "next/navigation"
+import { useCallback } from "react"
+
+import { useKeyPress } from "@/hooks/use-key-press"
+import { useCameraStore } from "@/store/app-store"
 
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
 
@@ -19,6 +24,16 @@ export const GameUI = ({
   score,
   shotMetrics
 }: GameUIProps) => {
+  const router = useRouter()
+  const setCameraState = useCameraStore((state) => state.setCameraState)
+
+  const handleCloseGame = useCallback(() => {
+    setCameraState("home")
+    router.push("/")
+  }, [router, setCameraState])
+
+  useKeyPress("Escape", handleCloseGame)
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -30,6 +45,12 @@ export const GameUI = ({
       <Html
         position={[hoopPosition.x - 2.35, hoopPosition.y + 1, hoopPosition.z]}
       >
+        <button
+          onClick={handleCloseGame}
+          className="text-paragraph text-brand-w1"
+        >
+          (X) <span className="underline">Close Game</span>
+        </button>
         <div
           className={`${geistMono.className} flex w-48 flex-col items-end text-brand-w2`}
         >
