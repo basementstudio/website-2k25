@@ -1,9 +1,12 @@
 "use client"
 
-import { CameraStateKeys, useCameraStore } from "@/store/app-store"
-
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
+
+import { CameraStateKeys, useCameraStore } from "@/store/app-store"
+import { argCurrentTime } from "@/utils/arg-current-time"
+import { cn } from "@/utils/cn"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -26,6 +29,16 @@ const Menu = () => (
 export const Navbar = () => {
   const router = useRouter()
   const setCameraState = useCameraStore((state) => state.setCameraState)
+  const [time, setTime] = useState<string | null>(null)
+
+  useEffect(() => {
+    const updateTime = () => setTime(argCurrentTime())
+
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const handleNavigation = useCallback(
     (route: string, cameraState: CameraStateKeys) => {
@@ -36,13 +49,40 @@ export const Navbar = () => {
   )
 
   return (
-    <nav className="fixed top-0 z-navbar flex h-9 w-full items-center justify-between bg-brand-k px-4">
-      <button onClick={() => handleNavigation("/", "home")}>
-        <Logo className="h-3.5 text-brand-w1" />
-      </button>
-      <button onClick={() => setCameraState("menu")}>
-        <Menu />
-      </button>
+    <nav
+      className={cn(
+        "fixed top-0 z-navbar flex h-9 w-full items-center justify-between",
+        "[background-image:linear-gradient(#000000_1px,transparent_1px),linear-gradient(to_right,#000000_1px,rgba(0,0,0,0.7)_1px)] [background-position-y:1px] [background-size:2px_2px]",
+        "after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-brand-w1/10"
+      )}
+    >
+      <div className="grid-layout">
+        <button
+          onClick={() => handleNavigation("/", "home")}
+          className="col-start-1 col-end-2"
+        >
+          <Logo className="h-3.5 text-brand-w1" />
+        </button>
+
+        <p className="col-start-9 col-end-10 text-paragraph text-brand-g1">
+          {time ? time : argCurrentTime()}
+        </p>
+
+        <div className="col-start-10 col-end-13 ml-auto flex items-center gap-3">
+          <div className="flex gap-1 text-paragraph">
+            <Link
+              href="mailto:hello@basement.studio"
+              className="actionable text-brand-w1"
+            >
+              Contact
+            </Link>
+            <p className="text-brand-g1">(hello@basement.studio)</p>
+          </div>
+          <button onClick={() => setCameraState("menu")}>
+            <Menu />
+          </button>
+        </div>
+      </div>
     </nav>
   )
 }

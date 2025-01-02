@@ -66,6 +66,7 @@ function Lightmaps() {
 
       const material = mesh.material as ShaderMaterial
       material.uniforms.lightMap.value = lightmap
+      material.uniforms.lightMapIntensity.value = 1.0
     }
 
     Object.entries(lightMaps).forEach(([mesh, lightmap]) => {

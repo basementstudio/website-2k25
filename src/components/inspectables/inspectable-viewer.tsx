@@ -1,6 +1,6 @@
 "use client"
 
-import { Node, RichText as BaseRichText } from "basehub/react-rich-text"
+import { RichText as BaseRichText } from "basehub/react-rich-text"
 import { Fragment, useEffect, useState } from "react"
 
 const RichText = BaseRichText as unknown as React.ComponentType<{
@@ -40,7 +40,7 @@ const Content = ({ data }: { data: Inspectable }) => (
     )}
     <div className="mr-14 text-paragraph text-brand-w1">
       {data?.description?.json?.content && (
-        <RichText content={data.description.json.content as Node[]} />
+        <RichText content={data.description.json.content as any} />
       )}
     </div>
   </>

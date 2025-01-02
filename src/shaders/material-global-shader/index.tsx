@@ -1,4 +1,4 @@
-import type { MeshStandardMaterial, Texture } from "three"
+import { MeshStandardMaterial, Texture, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
@@ -27,7 +27,8 @@ export const createGlobalShaderMaterial = (
     defines: {
       USE_MAP: map !== null,
       IS_TRANSPARENT: alphaMap !== null || baseMaterial.transparent,
-      USE_ALPHA_MAP: alphaMap !== null
+      USE_ALPHA_MAP: alphaMap !== null,
+      USE_EMISSIVE: baseMaterial.emissiveIntensity !== 0
     },
     uniforms: {
       uColor: { value: emissiveColor },
@@ -35,6 +36,7 @@ export const createGlobalShaderMaterial = (
       uReverse: { value: reverse },
       map: { value: map },
       lightMap: { value: null },
+      lightMapIntensity: { value: 0.0 },
       metalness: { value: metalness },
       roughness: { value: roughness },
       mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
@@ -43,7 +45,9 @@ export const createGlobalShaderMaterial = (
       noiseFactor: { value: 0.5 },
       uLoaded: { value: 0 },
       uTime: { value: 0.0 },
-      alphaMap: { value: alphaMap }
+      alphaMap: { value: alphaMap },
+      emissive: { value: baseMaterial.emissive || new Vector3() },
+      emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 }
     },
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,

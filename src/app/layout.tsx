@@ -14,8 +14,10 @@ const Toolbar = BasehubToolbar as unknown as React.ComponentType
 
 import type { Metadata } from "next"
 
+import { Grid } from "@/components/grid"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
+import { Footer } from "@/components/layout/footer"
 import { Navbar } from "@/components/layout/navbar"
 import { cn } from "@/utils/cn"
 
@@ -47,9 +49,11 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             <CameraRouteHandler />
             <div className="sticky top-0 h-screen w-full">
               <Scene />
+              <Grid />
               <InspectableViewer />
             </div>
             {children}
+            <Footer />
           </body>
         </InspectableProvider>
       </AssetsProvider>

@@ -14,4 +14,8 @@ void main() {
   vWorldPosition = worldPosition.xyz;
 
   gl_Position = projectionMatrix * mvPosition;
+
+  gl_Position.xy /= gl_Position.w;
+  float scale = 680.0;
+  gl_Position.xy = floor(gl_Position.xy * scale) / scale * gl_Position.w;
 }
