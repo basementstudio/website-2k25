@@ -21,6 +21,7 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 
+import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { RoutingElement } from "../routing-element"
 import { LightmapLoader } from "./lightmaps"
@@ -144,6 +145,7 @@ function InnerMap() {
   return (
     <group>
       <primitive object={mainScene} />
+      <ArcadeScreen />
       {Object.values(routingNodes).map((node) => (
         <RoutingElement key={node.name} node={node} />
       ))}
