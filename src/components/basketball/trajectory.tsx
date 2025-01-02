@@ -20,16 +20,36 @@ export const Trajectory = ({
   const lastPos = useRef<Vector3>(new Vector3())
   const tempVec = useRef<Vector3>(new Vector3())
   const activePoints = useRef(0)
+  const opacity = useRef(0.4)
+  const fadeOutPoints = useRef<Vector3[]>([])
 
   useEffect(() => {
     positions.current = Array(maxPoints)
       .fill(null)
       .map(() => new Vector3())
+    fadeOutPoints.current = []
     activePoints.current = 0
+    opacity.current = 0.4
   }, [])
 
-  useFrame(() => {
-    if (!ballRef.current || isDragging || isResetting) {
+  useFrame((_, delta) => {
+    if (!ballRef.current || isDragging) {
+      activePoints.current = 0
+      fadeOutPoints.current = []
+      opacity.current = 0.4
+      return
+    }
+
+    if (isResetting) {
+      if (fadeOutPoints.current.length === 0 && activePoints.current > 1) {
+        fadeOutPoints.current = positions.current
+          .slice(0, activePoints.current)
+          .map((p) => p.clone())
+          .filter(
+            (point) => !isNaN(point.x) && !isNaN(point.y) && !isNaN(point.z)
+          )
+      }
+      opacity.current = Math.max(0, opacity.current - delta * 3)
       activePoints.current = 0
       return
     }
@@ -58,16 +78,28 @@ export const Trajectory = ({
     }
   })
 
-  return activePoints.current > 1 ? (
+  if (opacity.current <= 0) return null
+
+  const pointsToRender = isResetting
+    ? fadeOutPoints.current
+    : positions.current
+        .slice(0, activePoints.current)
+        .filter(
+          (point) => !isNaN(point.x) && !isNaN(point.y) && !isNaN(point.z)
+        )
+
+  if (pointsToRender.length <= 1) return null
+
+  return (
     <Line
-      points={positions.current.slice(0, activePoints.current)}
+      points={pointsToRender}
       color="white"
       lineWidth={1.5}
-      opacity={0.4}
+      opacity={opacity.current}
       transparent
       dashed
       dashSize={0.02}
-      gapSize={0.02}
+      gapSize={0.04}
     />
-  ) : null
+  )
 }

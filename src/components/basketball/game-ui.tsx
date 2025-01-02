@@ -46,7 +46,7 @@ export const GameUI = ({
         </div>
       </Html>
 
-      <Html
+      {/* <Html
         position={[hoopPosition.x + 1.15, hoopPosition.y + 1, hoopPosition.z]}
       >
         <div
@@ -55,7 +55,7 @@ export const GameUI = ({
           <p className="leading-none">θ = {shotMetrics.angle}° ± 0.2°</p>
           <p className="leading-none">{shotMetrics.probability}%</p>
         </div>
-      </Html>
+      </Html> */}
     </>
   )
 }
