@@ -4,5 +4,5 @@ module.exports = {
   generateIndexSitemap: false,
   generateRobotsTxt: true,
 
-  exclude: [],
-};
+  exclude: []
+}

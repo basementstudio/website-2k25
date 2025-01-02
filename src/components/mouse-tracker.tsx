@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { useTrackMouse } from "@/hooks/use-mouse-position";
+import { useTrackMouse } from "@/hooks/use-mouse-position"
 
 export const MouseTracker = () => {
-  useTrackMouse();
-  return null;
-};
+  useTrackMouse()
+  return null
+}
