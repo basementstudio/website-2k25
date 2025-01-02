@@ -1,5 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber"
-import { CuboidCollider, RigidBody } from "@react-three/rapier"
+import { CuboidCollider, RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
@@ -13,8 +13,8 @@ import { Trajectory } from "./trajectory"
 
 export const HoopMinigame = () => {
   const isBasketball = usePathname() === "/basketball"
-  // @ts-ignore
-  const ballRef = useRef<RigidBody>(null)
+
+  const ballRef = useRef<RapierRigidBody>(null)
   const mousePos = useRef(new Vector2())
   const lastMousePos = useRef(new Vector2())
   const throwVelocity = useRef(new Vector2())
@@ -208,7 +208,7 @@ export const HoopMinigame = () => {
           !isNaN(dragPos.current.y) &&
           !isNaN(dragPos.current.z)
         ) {
-          ballRef.current.setTranslation(dragPos.current)
+          ballRef.current.setTranslation(dragPos.current, true)
         } else {
           setIsDragging(false)
           resetBallToInitialPosition()
@@ -242,18 +242,18 @@ export const HoopMinigame = () => {
           !isNaN(newPosition.y) &&
           !isNaN(newPosition.z)
         ) {
-          ballRef.current.setTranslation(newPosition)
+          ballRef.current.setTranslation(newPosition, true)
         } else {
           console.warn("invalid position during ball reset")
           setIsResetting(false)
           resetProgress.current = 0
-          ballRef.current.setTranslation(initialPosition)
+          ballRef.current.setTranslation(initialPosition, true)
         }
 
         if (progress === 1) {
           setIsResetting(false)
           resetProgress.current = 0
-          ballRef.current.setBodyType(2)
+          ballRef.current.setBodyType(2, true)
         }
       } catch (error) {
         console.warn("Failed to reset ball animation, physics might be paused")
@@ -369,7 +369,7 @@ export const HoopMinigame = () => {
         verticalDragDistance < -0.1 &&
         hasMovedSignificantly.current
       ) {
-        ballRef.current.setBodyType("dynamic")
+        ballRef.current.setBodyType(0, true)
         isThrowable.current = false
 
         const baseThrowStrength = 0.85
@@ -401,7 +401,7 @@ export const HoopMinigame = () => {
         ballRef.current.applyImpulse(assistedVelocity, true)
         ballRef.current.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
       } else {
-        ballRef.current.setBodyType("dynamic")
+        ballRef.current.setBodyType(0, true)
       }
 
       setIsDragging(false)

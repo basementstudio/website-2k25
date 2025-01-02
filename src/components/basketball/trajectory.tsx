@@ -1,12 +1,11 @@
 import { Line } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { RigidBody } from "@react-three/rapier"
-import { useRef } from "react"
+import { RapierRigidBody } from "@react-three/rapier"
+import { useEffect, useRef } from "react"
 import { Vector3 } from "three"
 
 interface TrajectoryProps {
-  // @ts-ignore
-  ballRef: React.RefObject<RigidBody>
+  ballRef: React.RefObject<RapierRigidBody | null>
   isDragging: boolean
   isResetting: boolean
 }
@@ -16,32 +15,52 @@ export const Trajectory = ({
   isDragging,
   isResetting
 }: TrajectoryProps) => {
+  const maxPoints = 140
   const positions = useRef<Vector3[]>([])
-  const lastPos = useRef<Vector3 | null>(null)
+  const lastPos = useRef<Vector3>(new Vector3())
+  const tempVec = useRef<Vector3>(new Vector3())
+  const activePoints = useRef(0)
+
+  useEffect(() => {
+    positions.current = Array(maxPoints)
+      .fill(null)
+      .map(() => new Vector3())
+    activePoints.current = 0
+  }, [])
 
   useFrame(() => {
     if (!ballRef.current || isDragging || isResetting) {
-      positions.current = []
-      lastPos.current = null
+      activePoints.current = 0
       return
     }
 
     const currentPos = ballRef.current.translation()
-    const pos = new Vector3(currentPos.x, currentPos.y, currentPos.z)
+    if (isNaN(currentPos.x) || isNaN(currentPos.y) || isNaN(currentPos.z)) {
+      return
+    }
 
-    if (!lastPos.current || pos.distanceTo(lastPos.current) > 0.05) {
-      positions.current.push(pos)
-      lastPos.current = pos.clone()
+    tempVec.current.set(currentPos.x, currentPos.y, currentPos.z)
 
-      if (positions.current.length > 140) {
-        positions.current.shift()
+    if (
+      activePoints.current === 0 ||
+      tempVec.current.distanceTo(lastPos.current) > 0.05
+    ) {
+      if (activePoints.current < maxPoints) {
+        positions.current[activePoints.current].copy(tempVec.current)
+        activePoints.current++
+      } else {
+        for (let i = 1; i < maxPoints; i++) {
+          positions.current[i - 1].copy(positions.current[i])
+        }
+        positions.current[maxPoints - 1].copy(tempVec.current)
       }
+      lastPos.current.copy(tempVec.current)
     }
   })
 
-  return positions.current.length > 1 ? (
+  return activePoints.current > 1 ? (
     <Line
-      points={[...positions.current]}
+      points={positions.current.slice(0, activePoints.current)}
       color="white"
       lineWidth={1.5}
       opacity={0.4}
