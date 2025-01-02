@@ -8,7 +8,17 @@
   }
 
   .actionable {
-    @apply font-medium underline underline-offset-[1.5px] [text-decoration-thickness:0.5px];
+    @apply font-medium underline;
+  }
+
+  .text-paragraph.actionable,
+  .text-paragraph .actionable {
+    @apply underline-offset-[1.5px] [text-decoration-thickness:0.5px];
+  }
+
+  .text-subheading.actionable,
+  .text-subheading .actionable {
+    @apply underline-offset-[3px] [text-decoration-thickness:1px];
   }
 
   .with-dots {
@@ -42,6 +52,7 @@
 
 html {
   @apply scroll-smooth;
+  font-feature-settings: "ss01";
 }
 
 body {
