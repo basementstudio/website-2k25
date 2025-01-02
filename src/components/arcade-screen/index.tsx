@@ -83,7 +83,7 @@ export const ArcadeScreen = () => {
 
   return (
     <RenderTexture
-      isPlaying={true}
+      isPlaying={pathname === "/arcade" ? true : false}
       fbo={renderTarget}
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
