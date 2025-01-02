@@ -1,10 +1,12 @@
-import { Container, Icon, Image, Root, Text } from "@react-three/uikit"
+import { Container, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { useArcadeStore } from "@/store/lab-store"
 
+import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
+import { TextTag } from "./text-tags"
 
 interface Experiment {
   _title: string
@@ -20,10 +22,39 @@ interface Experiment {
   } | null
 }
 
+interface Contributor {
+  id: string
+  url: string
+  name: string
+  avatarUrl: string
+  email: string
+  company: string
+}
+
 export const LabsUI = () => {
   const [selectedExperiment, setSelectedExperiment] =
     useState<Experiment | null>(null)
+  const [experimentsContributors, setExperimentsContributors] = useState<
+    Record<string, Contributor[]>
+  >({})
   const data = useArcadeStore((state) => state.data)
+
+  useEffect(() => {
+    fetch("https://lab.basement.studio/experiments.json")
+      .then((res) => res.json())
+      .then((data) => {
+        const contributorsMap: Record<string, Contributor[]> = {}
+        data.forEach(
+          (exp: { filename: string; contributors: Contributor[] }) => {
+            if (exp.filename) {
+              contributorsMap[exp.filename] = exp.contributors || []
+            }
+          }
+        )
+        setExperimentsContributors(contributorsMap)
+      })
+  }, [])
+
   if (!data) return null
   const experiments = data?.pages.laboratory.projectList.items
 
@@ -123,6 +154,7 @@ export const LabsUI = () => {
                   experiments={experiments}
                   setSelectedExperiment={setSelectedExperiment}
                   selectedExperiment={selectedExperiment}
+                  experimentsContributors={experimentsContributors}
                 />
                 <Container
                   width={"35%"}
@@ -178,50 +210,16 @@ export const LabsUI = () => {
   )
 }
 
-const TextTag = ({ text, icon }: { text: string; icon?: boolean }) => {
-  return (
-    <Container
-      display={"flex"}
-      flexDirection={"row"}
-      gap={10}
-      positionType={"absolute"}
-      backgroundColor={COLORS_THEME.black}
-      zIndexOffset={10}
-      paddingX={8}
-      positionTop={-3}
-      positionLeft={10}
-    >
-      <Text
-        fontSize={20}
-        color={COLORS_THEME.primary}
-        fontWeight={"bold"}
-        backgroundColor={COLORS_THEME.black}
-      >
-        {text}
-      </Text>
-      {icon && (
-        <Icon
-          color={COLORS_THEME.primary}
-          text={`<svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 4.8L1.99835e-07 0L2.28571 1.04905e-07L2.28571 2.4L4.57143 2.4V4.8L6.85714 4.8V7.2H9.14286V4.8H11.4286V2.4H13.7143V6.29446e-07L16 7.34351e-07V4.8H13.7143V7.2H11.4286V9.6H9.14286L9.14286 12H6.85714L6.85714 9.6H4.57143L4.57143 7.2H2.28571L2.28571 4.8H0Z" fill="#F68300"/></svg>`}
-          svgWidth={16}
-          svgHeight={16}
-          width={16}
-          height={16}
-          marginTop={6}
-        />
-      )}
-    </Container>
-  )
-}
-
 const List = ({
   experiments,
   setSelectedExperiment,
-  selectedExperiment
+  selectedExperiment,
+  experimentsContributors
 }: {
   experiments: Experiment[]
   setSelectedExperiment: (experiment: Experiment | null) => void
   selectedExperiment: Experiment | null
+  experimentsContributors: Record<string, Contributor[]>
 }) => {
   return (
     <Container
@@ -250,6 +248,7 @@ const List = ({
               }
               selectedExperiment={selectedExperiment}
               experiments={experiments}
+              experimentsContributors={experimentsContributors}
             />
           ))}
     </Container>
@@ -263,7 +262,8 @@ const ListItem = ({
   total,
   setSelectedExperiment,
   selectedExperiment,
-  experiments
+  experiments,
+  experimentsContributors
 }: {
   title: string
   url: string | null
@@ -272,12 +272,17 @@ const ListItem = ({
   setSelectedExperiment: (experiment: Experiment | null) => void
   selectedExperiment: Experiment | null
   experiments: Experiment[]
+  experimentsContributors: Record<string, Contributor[]>
 }) => {
   const textColor = useMemo(() => {
     return selectedExperiment?._title === title
       ? COLORS_THEME.black
       : COLORS_THEME.primary
   }, [selectedExperiment, title])
+
+  const [selectedContributor, setSelectedContributor] = useState<string | null>(
+    null
+  )
 
   return (
     <Container
@@ -311,20 +316,18 @@ const ListItem = ({
         <Text fontSize={20} fontWeight={"bold"} color={textColor}>
           B:
         </Text>
-        {/**
-         * {contributors.map((contributor, idx) => (
-          <Container key={idx} positionType={"relative"}>
-            <Text
-              fontSize={22}
-              fontWeight={"bold"}
-              color={textColor}
-              onClick={() => window.open(contributor.url, "_blank")}
-              onPointerOver={() => setSelectedContributor(idx)}
-              onPointerOut={() => setSelectedContributor(null)}
-            >
+        {experimentsContributors[url || ""]?.map((contributor, idx) => (
+          <Container
+            key={contributor.id}
+            positionType={"relative"}
+            onPointerOver={() => setSelectedContributor(contributor.id)}
+            onPointerOut={() => setSelectedContributor(null)}
+            onClick={() => window.open(contributor.url, "_blank")}
+          >
+            <Text fontSize={22} fontWeight={"bold"} color={textColor}>
               /{contributor.name}
             </Text>
-            {selectedContributor === idx && (
+            {selectedContributor === contributor.id && (
               <Container
                 positionType={"absolute"}
                 width={"100%"}
@@ -335,8 +338,6 @@ const ListItem = ({
             )}
           </Container>
         ))}
-         * 
-         */}
       </Container>
 
       <Container
@@ -386,117 +387,5 @@ const ListItem = ({
         </Container>
       </Container>
     </Container>
-  )
-}
-
-const GameCovers = () => {
-  return (
-    <>
-      <Container width={"100%"} height={"35%"} paddingTop={16}>
-        <Container
-          height={20}
-          width={"100%"}
-          paddingTop={10}
-          positionType={"absolute"}
-        >
-          <Separator
-            orientation="horizontal"
-            backgroundColor={COLORS_THEME.primary}
-            height={2}
-          />
-          <Container
-            positionType={"absolute"}
-            width={"100%"}
-            height={16}
-            positionTop={0}
-            positionLeft={0}
-          >
-            <Container width={"65%"} height={"100%"} positionType={"relative"}>
-              <TextTag text="Arcade" icon />
-            </Container>
-          </Container>
-        </Container>
-        <Container
-          width={"100%"}
-          height={"100%"}
-          paddingTop={32}
-          paddingX={14}
-          paddingBottom={16}
-        >
-          <Container
-            width={"100%"}
-            height={"100%"}
-            borderWidth={3}
-            borderColor={COLORS_THEME.primary}
-          >
-            <Container
-              width={"50%"}
-              height={"100%"}
-              positionType={"relative"}
-              display={"flex"}
-              justifyContent={"center"}
-              alignItems={"center"}
-            >
-              <Image
-                src={`/images/arcade-screen/chronicles.jpg`}
-                width={"100%"}
-                height={"100%"}
-                objectFit={"cover"}
-                positionType={"absolute"}
-              />
-              <Container
-                height={30}
-                width={"auto"}
-                backgroundColor={COLORS_THEME.black}
-                zIndexOffset={1}
-              >
-                <Text
-                  fontSize={20}
-                  fontWeight={"bold"}
-                  color={COLORS_THEME.primary}
-                >
-                  Play Basment Chronicles
-                </Text>
-              </Container>
-            </Container>
-            <Separator
-              orientation="vertical"
-              backgroundColor={COLORS_THEME.primary}
-              width={3}
-            />
-            <Container
-              width={"50%"}
-              height={"100%"}
-              positionType={"relative"}
-              display={"flex"}
-              justifyContent={"center"}
-              alignItems={"center"}
-            >
-              <Image
-                src={`/images/arcade-screen/chronicles.jpg`}
-                width={"100%"}
-                height={"100%"}
-                objectFit={"cover"}
-                positionType={"absolute"}
-              />
-              <Container
-                height={30}
-                width={"auto"}
-                backgroundColor={COLORS_THEME.black}
-                zIndexOffset={1}
-              >
-                <Text
-                  fontSize={20}
-                  fontWeight={"bold"}
-                  color={COLORS_THEME.primary}
-                >
-                  Looper (coming soon)
-                </Text>
-              </Container>
-            </Container>
-          </Container>
-        </Container>
-      </Container>
-    </>
   )
 }
