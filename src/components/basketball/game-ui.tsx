@@ -5,6 +5,7 @@ import { useCallback } from "react"
 
 import { useKeyPress } from "@/hooks/use-key-press"
 import { useCameraStore } from "@/store/app-store"
+import { useMinigameStore } from "@/store/minigame-store"
 
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
 
@@ -26,6 +27,7 @@ export const GameUI = ({
 }: GameUIProps) => {
   const router = useRouter()
   const setCameraState = useCameraStore((state) => state.setCameraState)
+  const { playerName } = useMinigameStore()
 
   const handleCloseGame = useCallback(() => {
     setCameraState("home")
@@ -39,6 +41,8 @@ export const GameUI = ({
     const remainingSeconds = seconds % 60
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
   }
+
+  if (!playerName) return null
 
   return (
     <>

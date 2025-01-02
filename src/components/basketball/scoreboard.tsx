@@ -1,4 +1,8 @@
+import { useMinigameStore } from "@/store/minigame-store"
+
 export default function Scoreboard() {
+  const { playerName, score } = useMinigameStore()
+
   const scores = [
     {
       name: "Tigresex 91",
@@ -15,14 +19,14 @@ export default function Scoreboard() {
     {
       name: "el joni",
       score: 15596
-    },
-    {
-      name: "Mecklenburger",
-      score: 9884
     }
   ]
   return (
     <div className="flex min-w-[276px] flex-col text-brand-w2">
+      <div className="flex justify-between border-b border-brand-w2">
+        <p className="capitalize">{playerName ? playerName : "You"}</p>
+        <p>{Math.floor(score)} pts</p>
+      </div>
       {scores.map((score, index) => (
         <div
           className="flex justify-between border-b border-brand-w2"
