@@ -52,6 +52,9 @@ export const GameCovers = () => {
               display={"flex"}
               justifyContent={"center"}
               alignItems={"center"}
+              onClick={() => {
+                window.open(`https://chronicles.basement.studio/`, "_blank")
+              }}
             >
               <Image
                 src={`/images/arcade-screen/chronicles.jpg`}
@@ -89,7 +92,7 @@ export const GameCovers = () => {
               alignItems={"center"}
             >
               <Image
-                src={`/images/arcade-screen/chronicles.jpg`}
+                src={`/images/arcade-screen/looper.jpg`}
                 width={"100%"}
                 height={"100%"}
                 objectFit={"cover"}

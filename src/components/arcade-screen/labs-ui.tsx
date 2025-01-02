@@ -2,7 +2,7 @@ import { Container, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
 import { useEffect, useMemo, useState } from "react"
 
-import { useArcadeStore } from "@/store/lab-store"
+import { fetchLaboratory } from "@/actions/laboratory-fetch"
 
 import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
@@ -31,29 +31,13 @@ interface Contributor {
   company: string
 }
 
-interface PagesData {
-  __typename: "Pages"
-  _analyticsKey: string
-  _id: string
-  _idPath: string
-  _slugPath: string
-  _title: string
-  pages: {
-    laboratory: {
-      projectList: {
-        items: Experiment[]
-      }
-    }
-  }
-}
-
 export const LabsUI = () => {
+  const [experiments, setExperiments] = useState<Experiment[]>([])
   const [selectedExperiment, setSelectedExperiment] =
     useState<Experiment | null>(null)
   const [experimentsContributors, setExperimentsContributors] = useState<
     Record<string, Contributor[]>
   >({})
-  const data = useArcadeStore((state) => state.data) as PagesData | null
 
   useEffect(() => {
     fetch("https://lab.basement.studio/experiments.json")
@@ -69,10 +53,12 @@ export const LabsUI = () => {
         )
         setExperimentsContributors(contributorsMap)
       })
+    fetchLaboratory().then((data) => {
+      setExperiments(data.projectList.items)
+    })
   }, [])
 
-  if (!data) return null
-  const experiments = data.pages?.laboratory?.projectList?.items
+  if (!experiments) return null
 
   return (
     <>
@@ -299,6 +285,7 @@ const ListItem = ({
   const [selectedContributor, setSelectedContributor] = useState<string | null>(
     null
   )
+  const [hoveredLink, setHoveredLink] = useState<"source" | "live" | null>(null)
 
   return (
     <Container
@@ -364,10 +351,16 @@ const ListItem = ({
         justifyContent={"flex-start"}
       >
         <Container positionType={"relative"}>
-          <Text fontSize={22} fontWeight={"bold"} color={textColor}>
+          <Text
+            fontSize={22}
+            fontWeight={"bold"}
+            color={textColor}
+            onPointerOver={() => setHoveredLink("live")}
+            onPointerOut={() => setHoveredLink(null)}
+          >
             View Live
           </Text>
-          {selectedExperiment === experiments[idx] && (
+          {hoveredLink === "live" && (
             <Container
               positionType={"absolute"}
               width={"100%"}
@@ -382,6 +375,8 @@ const ListItem = ({
             fontSize={22}
             fontWeight={"bold"}
             color={textColor}
+            onPointerOver={() => setHoveredLink("source")}
+            onPointerOut={() => setHoveredLink(null)}
             onClick={() =>
               window.open(
                 `https://github.com/basementstudio/basement-laboratory/tree/main/src/experiments/${url}`,
@@ -391,7 +386,7 @@ const ListItem = ({
           >
             Source
           </Text>
-          {selectedExperiment === experiments[idx] && (
+          {hoveredLink === "source" && (
             <Container
               positionType={"absolute"}
               width={"100%"}
