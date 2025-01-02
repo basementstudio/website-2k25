@@ -11,7 +11,7 @@ export default {
       colors: {
         brand: {
           w1: "#E6E6E6",
-          w2: "#BFBFBF",
+          w2: "#C9C9C9",
           g1: "#666666",
           g2: "#2E2E2E",
           k: "#000000",
@@ -50,6 +50,8 @@ export default {
       spacing: {
         "0.75": "0.1875rem",
         "1.25": "0.3125rem",
+        "4.5": "1.125rem",
+        "25": "6.25rem",
         "61": "15.25rem"
       },
       fontFamily: {
