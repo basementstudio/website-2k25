@@ -31,13 +31,29 @@ interface Contributor {
   company: string
 }
 
+interface PagesData {
+  __typename: "Pages"
+  _analyticsKey: string
+  _id: string
+  _idPath: string
+  _slugPath: string
+  _title: string
+  pages: {
+    laboratory: {
+      projectList: {
+        items: Experiment[]
+      }
+    }
+  }
+}
+
 export const LabsUI = () => {
   const [selectedExperiment, setSelectedExperiment] =
     useState<Experiment | null>(null)
   const [experimentsContributors, setExperimentsContributors] = useState<
     Record<string, Contributor[]>
   >({})
-  const data = useArcadeStore((state) => state.data)
+  const data = useArcadeStore((state) => state.data) as PagesData | null
 
   useEffect(() => {
     fetch("https://lab.basement.studio/experiments.json")
@@ -56,7 +72,7 @@ export const LabsUI = () => {
   }, [])
 
   if (!data) return null
-  const experiments = data?.pages.laboratory.projectList.items
+  const experiments = data.pages?.laboratory?.projectList?.items
 
   return (
     <>

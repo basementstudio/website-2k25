@@ -1,10 +1,10 @@
-"use server";
+"use server"
 
-import { basehub } from "basehub";
+import { basehub } from "basehub"
 
 export const fetchInspectable = async ({ id }: { id: string }) => {
   const { threeDInteractions } = await basehub({
-    next: { revalidate: 30 },
+    next: { revalidate: 30 }
   }).query({
     threeDInteractions: {
       inspectables: {
@@ -12,9 +12,9 @@ export const fetchInspectable = async ({ id }: { id: string }) => {
           __args: {
             filter: {
               _sys_id: {
-                eq: id,
-              },
-            },
+                eq: id
+              }
+            }
           },
           items: {
             _title: true,
@@ -22,21 +22,21 @@ export const fetchInspectable = async ({ id }: { id: string }) => {
               items: {
                 _id: true,
                 _title: true,
-                value: true,
-              },
+                value: true
+              }
             },
             description: {
               json: {
-                content: true,
-              },
-            },
-          },
-        },
-      },
-    },
-  });
+                content: true
+              }
+            }
+          }
+        }
+      }
+    }
+  })
 
-  return threeDInteractions.inspectables.inspectableList.items[0];
-};
+  return threeDInteractions.inspectables.inspectableList.items[0]
+}
 
-export type Inspectable = Awaited<ReturnType<typeof fetchInspectable>>;
+export type Inspectable = Awaited<ReturnType<typeof fetchInspectable>>

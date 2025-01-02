@@ -1,23 +1,23 @@
-import { useCameraStore } from "@/store/app-store";
-import { Grid } from "@react-three/drei";
+import { useCameraStore } from "@/store/app-store"
+import { Grid } from "@react-three/drei"
 
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
-import { useControls } from "leva";
-import { Vector3 } from "three";
-import type { CameraName } from "@/store/app-store";
+import { OrbitControls, PerspectiveCamera } from "@react-three/drei"
+import { useControls } from "leva"
+import { Vector3 } from "three"
+import type { CameraName } from "@/store/app-store"
 
 export function Debug() {
-  const orbitCamera = useCameraStore((state) => state.orbitCamera);
+  const orbitCamera = useCameraStore((state) => state.orbitCamera)
 
   useControls(() => ({
     camera: {
       value: "main",
       options: ["debug-orbit", "main"] satisfies CameraName[],
       onChange: (value: CameraName) => {
-        useCameraStore.setState({ activeCamera: value });
-      },
-    },
-  }));
+        useCameraStore.setState({ activeCamera: value })
+      }
+    }
+  }))
 
   return (
     <>
@@ -39,5 +39,5 @@ export function Debug() {
         cellColor="#656565"
       />
     </>
-  );
+  )
 }
