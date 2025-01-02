@@ -17,7 +17,6 @@ const About = () => (
       return (
         <main className="gap-61 relative -mt-24 flex flex-col bg-brand-k pt-3 after:absolute after:-top-px after:z-10 after:h-px after:w-full after:bg-brand-w1/10">
           <Grid />
-
           <Hero data={data} className="-mb-11" />
           <Services data={data} />
           <Clients data={data} />
