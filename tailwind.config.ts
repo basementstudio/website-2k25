@@ -51,7 +51,7 @@ export default {
         "0.75": "0.1875rem",
         "1.25": "0.3125rem",
         "4.5": "1.125rem",
-        "25": "6.25rem",
+        "38": "9.5rem",
         "61": "15.25rem"
       },
       fontFamily: {
@@ -62,6 +62,20 @@ export default {
       },
       zIndex: {
         navbar: "1000"
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" }
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" }
+        }
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out"
       }
     }
   },

@@ -9,10 +9,17 @@ export const query = fragmentOn("Query", {
         items: {
           _title: true,
           cover: IMAGE_FRAGMENT,
+          icon: IMAGE_FRAGMENT,
+          showcase: {
+            items: {
+              image: IMAGE_FRAGMENT
+            }
+          },
           project: {
             client: {
               _title: true
             },
+            year: true,
             categories: {
               _title: true
             }
