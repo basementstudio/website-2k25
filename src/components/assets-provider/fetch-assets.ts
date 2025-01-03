@@ -4,6 +4,7 @@ import { assetsQuery } from "./query"
 
 export interface AssetsResult {
   map: string
+  basketball: string
   lightmaps: {
     mesh: string
     url: string
@@ -30,6 +31,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
         id: item._id,
         url: item.model?.file?.url ?? ""
       })
-    )
+    ),
+    basketball:
+      threeDInteractions.modelsDb.models.items.find(
+        (item) => item._title === "Basketball"
+      )?.file?.url ?? ""
   }
 }
