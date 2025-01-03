@@ -12,6 +12,16 @@ export const careersQuery = fragmentOn("Query", {
           image: IMAGE_FRAGMENT
         }
       }
+    },
+    openPositions: {
+      openPositionsList:{
+        items: {
+          _title: true,
+          text: true,
+          text_1: true,
+          boolean: true,
+        }
+      }
     }
   }
 })
