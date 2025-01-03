@@ -33,6 +33,19 @@ interface PointerHandlerParams {
   setShotMetrics: (metrics: ShotMetrics) => void
 }
 
+interface HandlePointerUpParams {
+  ballRef: MutableRefObject<RapierRigidBody | null>
+  dragStartPos: MutableRefObject<Vector3>
+  hasMovedSignificantly: MutableRefObject<boolean>
+  isThrowable: MutableRefObject<boolean>
+  hoopPosition: Position
+  setIsDragging: (value: boolean) => void
+  isGameActive: boolean
+  startGame: () => void
+  upStrength: number
+  forwardStrength: number
+}
+
 export const calculateShotMetrics = (
   currentPos: Position,
   hoopPosition: Position,
@@ -189,5 +202,66 @@ export const handlePointerMove = ({
 
     const metrics = calculateShotMetrics(currentPos, hoopPosition, dragDelta)
     setShotMetrics(metrics)
+  }
+}
+
+export const handlePointerUp = ({
+  ballRef,
+  dragStartPos,
+  hasMovedSignificantly,
+  isThrowable,
+  hoopPosition,
+  setIsDragging,
+  isGameActive,
+  startGame,
+  upStrength,
+  forwardStrength
+}: HandlePointerUpParams) => {
+  if (ballRef.current) {
+    if (!isGameActive) {
+      startGame()
+    }
+
+    const currentPos = ballRef.current.translation()
+    const dragDelta = new Vector3(
+      dragStartPos.current.x - currentPos.x,
+      dragStartPos.current.y - currentPos.y,
+      dragStartPos.current.z - currentPos.z
+    )
+
+    const dragDistance = dragDelta.length()
+    const verticalDragDistance = dragStartPos.current.y - currentPos.y
+
+    if (
+      dragDistance > 0.1 &&
+      verticalDragDistance < -0.1 &&
+      hasMovedSignificantly.current
+    ) {
+      ballRef.current.setBodyType(0, true)
+      isThrowable.current = false
+
+      const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
+      const rawVelocity = calculateThrowVelocity(
+        dragDelta,
+        currentPos,
+        hoopPosition,
+        dragDistance,
+        upStrength,
+        forwardStrength,
+        ballHorizontalOffset
+      )
+
+      const assistedVelocity = applyThrowAssistance(
+        rawVelocity,
+        currentPos,
+        hoopPosition
+      )
+      ballRef.current.applyImpulse(assistedVelocity, true)
+      ballRef.current.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
+    } else {
+      ballRef.current.setBodyType(0, true)
+    }
+
+    setIsDragging(false)
   }
 }

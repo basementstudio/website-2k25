@@ -10,7 +10,8 @@ import {
   applyThrowAssistance,
   calculateThrowVelocity,
   handlePointerDown as utilsHandlePointerDown,
-  handlePointerMove as utilsHandlePointerMove
+  handlePointerMove as utilsHandlePointerMove,
+  handlePointerUp as utilsHandlePointerUp
 } from "@/utils/basketball-utils"
 
 import { Basketball } from "./basketball"
@@ -215,59 +216,22 @@ export const HoopMinigame = () => {
   ])
 
   const handlePointerUp = useCallback(() => {
-    if (ballRef.current) {
-      if (!isGameActive) {
-        startGame()
-      }
-
-      const currentPos = ballRef.current.translation()
-      const dragDelta = new Vector3(
-        dragStartPos.current.x - currentPos.x,
-        dragStartPos.current.y - currentPos.y,
-        dragStartPos.current.z - currentPos.z
-      )
-
-      const dragDistance = dragDelta.length()
-      const verticalDragDistance = dragStartPos.current.y - currentPos.y
-
-      if (
-        dragDistance > 0.1 &&
-        verticalDragDistance < -0.1 &&
-        hasMovedSignificantly.current
-      ) {
-        ballRef.current.setBodyType(0, true)
-        isThrowable.current = false
-
-        const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
-        const rawVelocity = calculateThrowVelocity(
-          dragDelta,
-          currentPos,
-          hoopPosition,
-          dragDistance,
-          upStrength,
-          forwardStrength,
-          ballHorizontalOffset
-        )
-
-        const assistedVelocity = applyThrowAssistance(
-          rawVelocity,
-          currentPos,
-          hoopPosition
-        )
-        ballRef.current.applyImpulse(assistedVelocity, true)
-        ballRef.current.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
-      } else {
-        ballRef.current.setBodyType(0, true)
-      }
-
-      setIsDragging(false)
-    }
+    utilsHandlePointerUp({
+      ballRef,
+      dragStartPos,
+      hasMovedSignificantly,
+      isThrowable,
+      hoopPosition,
+      setIsDragging,
+      isGameActive,
+      startGame,
+      upStrength,
+      forwardStrength
+    })
   }, [
     isGameActive,
-    ballRef,
-    setIsDragging,
-    isThrowable,
     hoopPosition,
+    setIsDragging,
     upStrength,
     forwardStrength,
     startGame
