@@ -1,9 +1,8 @@
-import { cn } from "@/utils/cn"
-
-export const Hero = ({ className }: { className?: string }) => {
+export const Hero = () => {
   return (
     <section
-      className={cn("grid-layout -mb-11 h-screen text-brand-w2", className)}
+      className="grid-layout -mb-11 text-brand-w2"
+      aria-labelledby="careers-heading"
     >
       <h1 className="col-start-1 col-end-5 text-heading uppercase">Careers</h1>
       <p className="col-start-5 col-end-9 text-subheading">
