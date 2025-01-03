@@ -27,6 +27,9 @@ export const PlayedBasketballs = () => {
           type="dynamic"
           position={[ball.position.x, ball.position.y, ball.position.z]}
           linearVelocity={[ball.velocity.x, ball.velocity.y, ball.velocity.z]}
+          friction={0.8}
+          linearDamping={0.5}
+          angularDamping={0.5}
         >
           <mesh
             geometry={geometry}

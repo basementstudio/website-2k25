@@ -69,6 +69,9 @@ export const Basketball = ({
       position={[initialPosition.x, initialPosition.y, initialPosition.z]}
       onCollisionEnter={({ other }) => handleCollision(other)}
       onSleep={handleSleep}
+      friction={0.8}
+      linearDamping={0.5}
+      angularDamping={0.5}
     >
       <mesh
         geometry={geometry}
