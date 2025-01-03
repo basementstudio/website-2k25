@@ -16,9 +16,9 @@ export const Values = ({ data }: { data: QueryType }) => {
           ({ _title, image, text }, idx) => (
             <div
               className={cn(
-                "grid-layout relative mb-2 pt-2",
+                "grid-layout relative mb-2 px-4 pt-2",
                 idx !== 0 &&
-                  "after:absolute after:left-0 after:top-0 after:w-full after:border-t after:border-brand-w1/20",
+                  "after:absolute after:left-4 after:right-4 after:top-0 after:w-[calc(100%-32px)] after:border-t after:border-brand-w1/20",
                 idx === data.company.ourValues.valuesList.items.length - 1 &&
                   "mb-0 before:absolute before:-bottom-2 before:left-0 before:w-full before:border-b before:border-brand-w1/20"
               )}
