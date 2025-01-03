@@ -1,5 +1,5 @@
 import { RapierRigidBody } from "@react-three/rapier"
-import { MutableRefObject } from "react"
+import { RefObject } from "react"
 import { Vector2, Vector3 } from "three"
 
 interface Position {
@@ -21,23 +21,23 @@ interface ShotMetrics {
 
 interface PointerHandlerParams {
   event: PointerEvent
-  ballRef: MutableRefObject<RapierRigidBody | null>
-  mousePos: MutableRefObject<Vector2>
-  lastMousePos: MutableRefObject<Vector2>
-  dragStartPos: MutableRefObject<Vector3>
-  initialGrabPos: MutableRefObject<Vector3>
-  hasMovedSignificantly: MutableRefObject<boolean>
-  isThrowable: MutableRefObject<boolean>
+  ballRef: RefObject<RapierRigidBody | null>
+  mousePos: RefObject<Vector2>
+  lastMousePos: RefObject<Vector2>
+  dragStartPos: RefObject<Vector3>
+  initialGrabPos: RefObject<Vector3>
+  hasMovedSignificantly: RefObject<boolean>
+  isThrowable: RefObject<boolean>
   hoopPosition: Position
   setIsDragging: (value: boolean) => void
   setShotMetrics: (metrics: ShotMetrics) => void
 }
 
 interface HandlePointerUpParams {
-  ballRef: MutableRefObject<RapierRigidBody | null>
-  dragStartPos: MutableRefObject<Vector3>
-  hasMovedSignificantly: MutableRefObject<boolean>
-  isThrowable: MutableRefObject<boolean>
+  ballRef: RefObject<RapierRigidBody | null>
+  dragStartPos: RefObject<Vector3>
+  hasMovedSignificantly: RefObject<boolean>
+  isThrowable: RefObject<boolean>
   hoopPosition: Position
   setIsDragging: (value: boolean) => void
   isGameActive: boolean
