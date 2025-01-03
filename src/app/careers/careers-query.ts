@@ -3,6 +3,13 @@ import { fragmentOn } from "basehub"
 import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 
 export const careersQuery = fragmentOn("Query", {
+  pages: {
+    careers: {
+      _title: true,
+      description: true,
+      description_1: true,
+    }
+  },
   company: {
     ourValues: {
       valuesList: {
