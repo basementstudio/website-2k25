@@ -412,7 +412,7 @@ void main() {
 
   color = tonemap(color);
 
-  color.rgb = dither(voxelPixelCoord, color, voxelUv);
+  //color.rgb = dither(voxelPixelCoord, color, voxelUv);
 
   // Apply bloom effect
   vec3 bloom = vec3(0.0);
