@@ -2,6 +2,7 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame, useLoader } from "@react-three/fiber"
+import { CuboidCollider, RigidBody } from "@react-three/rapier"
 import { memo, useEffect, useMemo, useState } from "react"
 import {
   Mesh,
@@ -22,6 +23,7 @@ import {
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
+import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { RoutingElement } from "../routing-element"
 import { LightmapLoader } from "./lightmaps"
 
@@ -71,6 +73,9 @@ function InnerMap() {
     (store) => store.materialsRef
   )
 
+  const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
+  const [stairsFloor, setStairsFloor] = useState<Object3D | null>(null)
+
   useFrame(({ clock }) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
@@ -87,6 +92,14 @@ function InnerMap() {
         routingNodes[node.name] = child as Mesh
       }
     })
+
+    const hoopMesh = scene.getObjectByName("SM_BasketballHoop")
+
+    if (hoopMesh) {
+      hoopMesh.removeFromParent()
+
+      setBasketballHoop(hoopMesh)
+    }
 
     // Replace materials
     scene.traverse((child) => {
@@ -139,6 +152,12 @@ function InnerMap() {
       {Object.values(routingNodes).map((node) => (
         <RoutingElement key={node.name} node={node} />
       ))}
+      {basketballHoop && (
+        <RigidBody type="fixed" colliders="trimesh">
+          <primitive object={basketballHoop} />
+        </RigidBody>
+      )}
+      <PlayedBasketballs />
       <LightmapLoader />
     </group>
   )
