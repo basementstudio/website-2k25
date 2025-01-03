@@ -23,6 +23,8 @@ interface MinigameStore {
   lastScoreTime: number
   justScored: boolean
   shotMetrics: { angle: string; probability: string }
+  playedBalls: { x: number; y: number; z: number }[]
+  readyToPlay: boolean
 
   playerName: string | null
   playerRecord: number
@@ -37,6 +39,8 @@ interface MinigameStore {
   setPlayerName: (playerName: string) => void
   setPlayerRecord: (playerRecord: number) => void
   setHasPlayed: (hasPlayed: boolean) => void
+  addPlayedBall: (position: { x: number; y: number; z: number }) => void
+  setReadyToPlay: (ready: boolean) => void
 }
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
@@ -55,6 +59,8 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   lastScoreTime: 0,
   justScored: false,
   shotMetrics: { angle: "0.0", probability: "0.0" },
+  playedBalls: [],
+  readyToPlay: true,
   playerName: null,
   playerRecord: 0,
   hasPlayed: false,
@@ -74,5 +80,8 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
     set({ shotMetrics }),
   setPlayerName: (playerName: string) => set({ playerName }),
   setHasPlayed: (hasPlayed: boolean) => set({ hasPlayed }),
-  setPlayerRecord: (playerRecord: number) => set({ playerRecord })
+  setPlayerRecord: (playerRecord: number) => set({ playerRecord }),
+  addPlayedBall: (position: { x: number; y: number; z: number }) =>
+    set((state) => ({ playedBalls: [...state.playedBalls, position] })),
+  setReadyToPlay: (ready: boolean) => set({ readyToPlay: ready })
 }))

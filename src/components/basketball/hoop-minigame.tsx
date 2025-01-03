@@ -54,7 +54,10 @@ export const HoopMinigame = () => {
     setIsDragging,
     shotMetrics,
     setShotMetrics,
-    setHasPlayed
+    setHasPlayed,
+    addPlayedBall,
+    readyToPlay,
+    setReadyToPlay
   } = useMinigameStore()
 
   const resetState = useCallback(() => {
@@ -91,8 +94,13 @@ export const HoopMinigame = () => {
   ])
 
   useEffect(() => {
-    if (isBasketball) {
+    if (isBasketball && readyToPlay) {
       resetState()
+      if (ballRef.current) {
+        ballRef.current.setTranslation(initialPosition, true)
+        ballRef.current.setBodyType(2, true)
+        isThrowable.current = true
+      }
     }
 
     return () => {
@@ -104,6 +112,7 @@ export const HoopMinigame = () => {
     }
   }, [
     isBasketball,
+    readyToPlay,
     gameDuration,
     initialPosition,
     setIsResetting,
@@ -150,8 +159,7 @@ export const HoopMinigame = () => {
   const resetGame = useCallback(() => {
     setScore(0)
     setTimeRemaining(gameDuration)
-    resetBallToInitialPosition()
-  }, [setScore, setTimeRemaining, gameDuration, resetBallToInitialPosition])
+  }, [setScore, setTimeRemaining, gameDuration])
 
   const startGame = useCallback(() => {
     if (!isGameActive) {
@@ -170,7 +178,18 @@ export const HoopMinigame = () => {
             }
             setIsGameActive(false)
             setHasPlayed(true)
-            resetGame()
+            setReadyToPlay(false)
+
+            if (ballRef.current) {
+              const currentPos = ballRef.current.translation()
+              addPlayedBall({
+                x: currentPos.x,
+                y: currentPos.y,
+                z: currentPos.z
+              })
+            }
+
+            resetState()
             return gameDuration
           }
           return prev - 1
@@ -182,8 +201,10 @@ export const HoopMinigame = () => {
     setIsGameActive,
     setTimeRemaining,
     gameDuration,
-    resetGame,
-    setHasPlayed
+    resetState,
+    setHasPlayed,
+    addPlayedBall,
+    setReadyToPlay
   ])
 
   const handlePointerUp = useCallback(() => {
@@ -384,31 +405,35 @@ export const HoopMinigame = () => {
 
   return (
     <>
-      <Basketball
-        ballRef={ballRef}
-        initialPosition={initialPosition}
-        isDragging={isDragging}
-        hoopPosition={hoopPosition}
-        resetBallToInitialPosition={resetBallToInitialPosition}
-        handlePointerDown={handlePointerDown}
-        handlePointerMove={handlePointerMove}
-        handlePointerUp={handlePointerUp}
-      />
+      {readyToPlay && (
+        <>
+          <Basketball
+            ballRef={ballRef}
+            initialPosition={initialPosition}
+            isDragging={isDragging}
+            hoopPosition={hoopPosition}
+            resetBallToInitialPosition={resetBallToInitialPosition}
+            handlePointerDown={handlePointerDown}
+            handlePointerMove={handlePointerMove}
+            handlePointerUp={handlePointerUp}
+          />
 
-      <Trajectory
-        ballRef={ballRef}
-        isDragging={isDragging}
-        isResetting={isResetting}
-      />
+          <Trajectory
+            ballRef={ballRef}
+            isDragging={isDragging}
+            isResetting={isResetting}
+          />
+
+          <GameUI
+            hoopPosition={hoopPosition}
+            timeRemaining={timeRemaining}
+            score={score}
+            shotMetrics={shotMetrics}
+          />
+        </>
+      )}
 
       <RigidBodies hoopPosition={hoopPosition} />
-
-      <GameUI
-        hoopPosition={hoopPosition}
-        timeRemaining={timeRemaining}
-        score={score}
-        shotMetrics={shotMetrics}
-      />
     </>
   )
 }

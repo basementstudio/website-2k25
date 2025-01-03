@@ -27,7 +27,7 @@ export default function RigidBodies({
         name="floor"
         position={[hoopPosition.x, -0.08, hoopPosition.z + 3]}
       >
-        <CuboidCollider args={[3.5, 0.1, 3.5]} />
+        <CuboidCollider args={[6, 0.1, 6]} />
       </RigidBody>
 
       {/* arcade collider */}
@@ -51,6 +51,12 @@ export default function RigidBodies({
             setScore((prev) => prev + 1000)
           }}
         />
+
+        {/* stairs rigid body */}
+        <RigidBody position={[-5.2, -2.7, 14]} type="fixed">
+          <CuboidCollider position={[6.2, 0.2, -7.5]} args={[1.5, 0.5, 1]} />
+          <CuboidCollider position={[4, 0.2, -9]} args={[0.6, 0.5, 2.2]} />
+        </RigidBody>
       </RigidBody>
     </>
   )
