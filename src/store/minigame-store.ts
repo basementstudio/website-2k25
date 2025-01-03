@@ -7,6 +7,11 @@ const FORWARD_STRENGTH = 0.045
 const UP_STRENGTH = 0.15
 const GAME_DURATION = 5
 
+interface PlayedBall {
+  position: { x: number; y: number; z: number }
+  velocity: { x: number; y: number; z: number }
+}
+
 interface MinigameStore {
   initialPosition: { x: number; y: number; z: number }
   hoopPosition: { x: number; y: number; z: number }
@@ -23,7 +28,7 @@ interface MinigameStore {
   lastScoreTime: number
   justScored: boolean
   shotMetrics: { angle: string; probability: string }
-  playedBalls: { x: number; y: number; z: number }[]
+  playedBalls: PlayedBall[]
   readyToPlay: boolean
 
   playerName: string | null
@@ -39,7 +44,7 @@ interface MinigameStore {
   setPlayerName: (playerName: string) => void
   setPlayerRecord: (playerRecord: number) => void
   setHasPlayed: (hasPlayed: boolean) => void
-  addPlayedBall: (position: { x: number; y: number; z: number }) => void
+  addPlayedBall: (ball: PlayedBall) => void
   setReadyToPlay: (ready: boolean) => void
 }
 
@@ -81,7 +86,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   setPlayerName: (playerName: string) => set({ playerName }),
   setHasPlayed: (hasPlayed: boolean) => set({ hasPlayed }),
   setPlayerRecord: (playerRecord: number) => set({ playerRecord }),
-  addPlayedBall: (position: { x: number; y: number; z: number }) =>
-    set((state) => ({ playedBalls: [...state.playedBalls, position] })),
+  addPlayedBall: (ball: PlayedBall) =>
+    set((state) => ({ playedBalls: [...state.playedBalls, ball] })),
   setReadyToPlay: (ready: boolean) => set({ readyToPlay: ready })
 }))

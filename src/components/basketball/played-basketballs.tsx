@@ -19,13 +19,14 @@ export const PlayedBasketballs = () => {
 
   return (
     <>
-      {playedBalls.map((position, index) => (
+      {playedBalls.map((ball, index) => (
         <RigidBody
           key={index}
           restitution={0.85}
           colliders="ball"
           type="dynamic"
-          position={[position.x, position.y, position.z]}
+          position={[ball.position.x, ball.position.y, ball.position.z]}
+          linearVelocity={[ball.velocity.x, ball.velocity.y, ball.velocity.z]}
         >
           <mesh
             geometry={geometry}

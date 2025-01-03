@@ -182,14 +182,22 @@ export const HoopMinigame = () => {
 
             if (ballRef.current) {
               const currentPos = ballRef.current.translation()
+              const currentVel = ballRef.current.linvel()
+
               addPlayedBall({
-                x: currentPos.x,
-                y: currentPos.y,
-                z: currentPos.z
+                position: {
+                  x: currentPos.x,
+                  y: currentPos.y,
+                  z: currentPos.z
+                },
+                velocity: {
+                  x: currentVel.x,
+                  y: currentVel.y,
+                  z: currentVel.z
+                }
               })
             }
 
-            resetState()
             return gameDuration
           }
           return prev - 1
@@ -201,7 +209,6 @@ export const HoopMinigame = () => {
     setIsGameActive,
     setTimeRemaining,
     gameDuration,
-    resetState,
     setHasPlayed,
     addPlayedBall,
     setReadyToPlay
