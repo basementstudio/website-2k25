@@ -5,7 +5,7 @@ import { cn } from "@/utils/cn"
 export const OpenPositions = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout">
-      <h2 className="relative z-20 col-start-1 col-end-4 row-start-1 pt-5 text-heading uppercase text-brand-w2">
+      <h2 className="relative z-20 col-start-1 col-end-4 row-start-1 pt-[27px] text-heading uppercase text-brand-w2">
         <span className="block">OPEN</span>
         <span className="block">POSITIONS</span>
       </h2>
