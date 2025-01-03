@@ -1,14 +1,21 @@
 import { useFrame, useThree } from "@react-three/fiber"
-import { CuboidCollider, RapierRigidBody, RigidBody } from "@react-three/rapier"
+import { RapierRigidBody } from "@react-three/rapier"
 import { usePathname } from "next/navigation"
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
+import {
+  applyThrowAssistance,
+  calculateThrowVelocity,
+  handlePointerDown as utilsHandlePointerDown,
+  handlePointerMove as utilsHandlePointerMove
+} from "@/utils/basketball-utils"
 
 import { Basketball } from "./basketball"
 import { GameUI } from "./game-ui"
+import RigidBodies from "./rigid-bodies"
 import { Trajectory } from "./trajectory"
 
 export const HoopMinigame = () => {
@@ -50,29 +57,42 @@ export const HoopMinigame = () => {
     setHasPlayed
   } = useMinigameStore()
 
+  const resetState = useCallback(() => {
+    resetProgress.current = 0
+    bounceCount.current = 0
+    isThrowable.current = true
+    setIsResetting(false)
+    setIsDragging(false)
+    setScore(0)
+    setTimeRemaining(gameDuration)
+    setIsGameActive(false)
+    setShotMetrics({ angle: "0.0", probability: "0.0" })
+
+    startResetPos.current = new Vector3(
+      initialPosition.x,
+      initialPosition.y,
+      initialPosition.z
+    )
+    dragPos.current = new Vector3()
+    dragStartPos.current = new Vector3()
+    mousePos.current = new Vector2()
+    lastMousePos.current = new Vector2()
+    throwVelocity.current = new Vector2()
+    initialGrabPos.current = new Vector3()
+  }, [
+    gameDuration,
+    initialPosition,
+    setIsResetting,
+    setIsDragging,
+    setScore,
+    setTimeRemaining,
+    setIsGameActive,
+    setShotMetrics
+  ])
+
   useEffect(() => {
     if (isBasketball) {
-      resetProgress.current = 0
-      bounceCount.current = 0
-      isThrowable.current = true
-      setIsResetting(false)
-      setIsDragging(false)
-      setScore(0)
-      setTimeRemaining(gameDuration)
-      setIsGameActive(false)
-      setShotMetrics({ angle: "0.0", probability: "0.0" })
-
-      startResetPos.current = new Vector3(
-        initialPosition.x,
-        initialPosition.y,
-        initialPosition.z
-      )
-      dragPos.current = new Vector3()
-      dragStartPos.current = new Vector3()
-      mousePos.current = new Vector2()
-      lastMousePos.current = new Vector2()
-      throwVelocity.current = new Vector2()
-      initialGrabPos.current = new Vector3()
+      resetState()
     }
 
     return () => {
@@ -80,23 +100,7 @@ export const HoopMinigame = () => {
         clearInterval(timerInterval.current)
         timerInterval.current = null
       }
-      setIsResetting(false)
-      setIsDragging(false)
-      setIsGameActive(false)
-      setScore(0)
-      setTimeRemaining(gameDuration)
-      setShotMetrics({ angle: "0.0", probability: "0.0" })
-
-      resetProgress.current = 0
-      bounceCount.current = 0
-      isThrowable.current = true
-      startResetPos.current = new Vector3()
-      dragPos.current = new Vector3()
-      dragStartPos.current = new Vector3()
-      mousePos.current = new Vector2()
-      lastMousePos.current = new Vector2()
-      throwVelocity.current = new Vector2()
-      initialGrabPos.current = new Vector3()
+      resetState()
     }
   }, [
     isBasketball,
@@ -107,25 +111,49 @@ export const HoopMinigame = () => {
     setIsGameActive,
     setScore,
     setTimeRemaining,
-    setShotMetrics
+    setShotMetrics,
+    resetState
   ])
 
-  useEffect(() => {
-    const handleGlobalPointerUp = () => {
-      if (isDragging) {
-        handlePointerUp()
-      }
-    }
+  const resetBallToInitialPosition = useCallback(
+    (position?: { x: number; y: number; z: number }) => {
+      if (!isBasketball || !ballRef.current) return
+      try {
+        startResetPos.current.copy(
+          new Vector3(
+            position?.x ?? initialPosition.x,
+            position?.y ?? initialPosition.y,
+            position?.z ?? initialPosition.z
+          )
+        )
 
-    if (isBasketball) {
-      window.addEventListener("pointerup", handleGlobalPointerUp)
-      return () => {
-        window.removeEventListener("pointerup", handleGlobalPointerUp)
+        setIsResetting(true)
+        resetProgress.current = 0
+        bounceCount.current = 0
+        isThrowable.current = true
+      } catch (error) {
+        console.warn("Failed to reset ball position")
+        setIsResetting(false)
+        resetProgress.current = 0
       }
-    }
-  }, [isDragging, isBasketball])
+    },
+    [
+      initialPosition,
+      setIsResetting,
+      resetProgress,
+      bounceCount,
+      isThrowable,
+      isBasketball
+    ]
+  )
 
-  const startGame = () => {
+  const resetGame = useCallback(() => {
+    setScore(0)
+    setTimeRemaining(gameDuration)
+    resetBallToInitialPosition()
+  }, [setScore, setTimeRemaining, gameDuration, resetBallToInitialPosition])
+
+  const startGame = useCallback(() => {
     if (!isGameActive) {
       if (timerInterval.current) {
         clearInterval(timerInterval.current)
@@ -149,41 +177,88 @@ export const HoopMinigame = () => {
         })
       }, 1000)
     }
-  }
+  }, [
+    isGameActive,
+    setIsGameActive,
+    setTimeRemaining,
+    gameDuration,
+    resetGame,
+    setHasPlayed
+  ])
 
-  const resetGame = () => {
-    setScore(0)
-    setTimeRemaining(gameDuration)
-    resetBallToInitialPosition()
-  }
-
-  const resetBallToInitialPosition = (position?: {
-    x: number
-    y: number
-    z: number
-  }) => {
-    if (!isBasketball || !ballRef.current) return
-    try {
-      if (position) {
-        startResetPos.current.copy(
-          new Vector3(position.x, position.y, position.z)
-        )
-      } else {
-        startResetPos.current.copy(
-          new Vector3(initialPosition.x, initialPosition.y, initialPosition.z)
-        )
+  const handlePointerUp = useCallback(() => {
+    if (ballRef.current) {
+      if (!isGameActive) {
+        startGame()
       }
 
-      setIsResetting(true)
-      resetProgress.current = 0
-      bounceCount.current = 0
-      isThrowable.current = true
-    } catch (error) {
-      console.warn("Failed to reset ball position")
-      setIsResetting(false)
-      resetProgress.current = 0
+      const currentPos = ballRef.current.translation()
+      const dragDelta = new Vector3(
+        dragStartPos.current.x - currentPos.x,
+        dragStartPos.current.y - currentPos.y,
+        dragStartPos.current.z - currentPos.z
+      )
+
+      const dragDistance = dragDelta.length()
+      const verticalDragDistance = dragStartPos.current.y - currentPos.y
+
+      if (
+        dragDistance > 0.1 &&
+        verticalDragDistance < -0.1 &&
+        hasMovedSignificantly.current
+      ) {
+        ballRef.current.setBodyType(0, true)
+        isThrowable.current = false
+
+        const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
+        const rawVelocity = calculateThrowVelocity(
+          dragDelta,
+          currentPos,
+          hoopPosition,
+          dragDistance,
+          upStrength,
+          forwardStrength,
+          ballHorizontalOffset
+        )
+
+        const assistedVelocity = applyThrowAssistance(
+          rawVelocity,
+          currentPos,
+          hoopPosition
+        )
+        ballRef.current.applyImpulse(assistedVelocity, true)
+        ballRef.current.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
+      } else {
+        ballRef.current.setBodyType(0, true)
+      }
+
+      setIsDragging(false)
     }
-  }
+  }, [
+    isGameActive,
+    ballRef,
+    setIsDragging,
+    isThrowable,
+    hoopPosition,
+    upStrength,
+    forwardStrength,
+    startGame
+  ])
+
+  useEffect(() => {
+    if (!isBasketball) return
+
+    const handleGlobalPointerUp = () => {
+      if (isDragging) {
+        handlePointerUp()
+      }
+    }
+
+    window.addEventListener("pointerup", handleGlobalPointerUp)
+    return () => {
+      window.removeEventListener("pointerup", handleGlobalPointerUp)
+    }
+  }, [isDragging, isBasketball, handlePointerUp])
 
   useFrame(({ pointer, clock }, delta) => {
     if (!isBasketball) return
@@ -265,172 +340,45 @@ export const HoopMinigame = () => {
     }
   })
 
-  const handlePointerDown = (event: any) => {
-    if (!isThrowable.current) return
+  const handlePointerDown = useCallback(
+    (event: any) => {
+      utilsHandlePointerDown({
+        event,
+        ballRef,
+        mousePos,
+        lastMousePos,
+        dragStartPos,
+        initialGrabPos,
+        hasMovedSignificantly,
+        isThrowable,
+        hoopPosition,
+        setIsDragging,
+        setShotMetrics
+      })
+    },
+    [hoopPosition, setIsDragging, setShotMetrics]
+  )
 
-    event.stopPropagation()
-    setIsDragging(true)
-    hasMovedSignificantly.current = false
+  const handlePointerMove = useCallback(
+    (event: any) => {
+      if (!isDragging) return
 
-    if (ballRef.current) {
-      const pos = ballRef.current.translation()
-      dragStartPos.current.set(pos.x, pos.y, pos.z)
-      initialGrabPos.current.set(pos.x, pos.y, pos.z)
-
-      mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
-      mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
-      lastMousePos.current.copy(mousePos.current)
-    }
-  }
-
-  const handlePointerMove = (event: any) => {
-    mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
-    mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
-
-    if (isDragging && ballRef.current) {
-      const currentPos = ballRef.current.translation()
-
-      const moveDistance = new Vector3(
-        initialGrabPos.current.x - currentPos.x,
-        initialGrabPos.current.y - currentPos.y,
-        initialGrabPos.current.z - currentPos.z
-      ).length()
-
-      if (moveDistance > 0.2) {
-        hasMovedSignificantly.current = true
-      }
-
-      const dragDelta = new Vector3(
-        dragStartPos.current.x - currentPos.x,
-        dragStartPos.current.y - currentPos.y,
-        dragStartPos.current.z - currentPos.z
-      )
-
-      const metrics = calculateShotMetrics(currentPos, dragDelta)
-      setShotMetrics(metrics)
-    }
-  }
-
-  const applyThrowAssistance = (
-    velocity: { x: number; y: number; z: number },
-    currentPos: { x: number; y: number; z: number }
-  ) => {
-    const distanceToHoop = new Vector3(
-      hoopPosition.x - currentPos.x,
-      hoopPosition.y - currentPos.y,
-      hoopPosition.z - currentPos.z
-    ).length()
-
-    const horizontalOffset = Math.abs(hoopPosition.x - currentPos.x)
-
-    const offsetMultiplier = Math.max(0, 1 - horizontalOffset * 0.5)
-
-    const inSweetSpot =
-      distanceToHoop > 3.2 && distanceToHoop < 4.2 && horizontalOffset < 0.5
-
-    const veryClose =
-      distanceToHoop > 2.8 && distanceToHoop < 3.2 && horizontalOffset < 0.3
-
-    if (veryClose) {
-      return {
-        x: velocity.x,
-        y: velocity.y * (1 + 0.25 * offsetMultiplier),
-        z: velocity.z * (1 + 0.2 * offsetMultiplier)
-      }
-    }
-
-    if (inSweetSpot) {
-      return {
-        x: velocity.x,
-        y: velocity.y * (1 + 0.15 * offsetMultiplier),
-        z: velocity.z * (1 + 0.12 * offsetMultiplier)
-      }
-    }
-
-    return velocity
-  }
-
-  const handlePointerUp = () => {
-    if (ballRef.current) {
-      if (!isGameActive) {
-        startGame()
-      }
-
-      const currentPos = ballRef.current.translation()
-      const dragDelta = new Vector3(
-        dragStartPos.current.x - currentPos.x,
-        dragStartPos.current.y - currentPos.y,
-        dragStartPos.current.z - currentPos.z
-      )
-
-      const dragDistance = dragDelta.length()
-      const verticalDragDistance = dragStartPos.current.y - currentPos.y
-
-      if (
-        dragDistance > 0.1 &&
-        verticalDragDistance < -0.1 &&
-        hasMovedSignificantly.current
-      ) {
-        ballRef.current.setBodyType(0, true)
-        isThrowable.current = false
-
-        const baseThrowStrength = 0.85
-        const throwStrength = Math.min(baseThrowStrength * dragDistance, 2.5)
-
-        const distanceToHoop = new Vector3(
-          hoopPosition.x - currentPos.x,
-          hoopPosition.y - currentPos.y,
-          hoopPosition.z - currentPos.z
-        ).length()
-        const heightDifference = hoopPosition.y - currentPos.y
-        const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
-
-        const rawVelocity = {
-          x: -dragDelta.x * throwStrength * 0.015 - ballHorizontalOffset,
-          y:
-            heightDifference *
-            upStrength *
-            throwStrength *
-            (distanceToHoop > 2 ? 0.85 : 1),
-          z:
-            -distanceToHoop *
-            throwStrength *
-            forwardStrength *
-            (distanceToHoop > 2 ? 0.9 : 1)
-        }
-
-        const assistedVelocity = applyThrowAssistance(rawVelocity, currentPos)
-        ballRef.current.applyImpulse(assistedVelocity, true)
-        ballRef.current.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
-      } else {
-        ballRef.current.setBodyType(0, true)
-      }
-
-      setIsDragging(false)
-    }
-  }
-
-  const calculateShotMetrics = (
-    currentPos: { x: number; y: number; z: number },
-    dragDelta: Vector3
-  ) => {
-    const dx = hoopPosition.x - currentPos.x
-    const dy = hoopPosition.y - currentPos.y
-    const dz = hoopPosition.z - currentPos.z
-
-    // calculate angle
-    const angle = Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180 / Math.PI)
-
-    // calculate success probability
-    const idealAngle = 40
-    const angleDeviation = Math.abs(angle - idealAngle)
-    const probability = Math.max(0, 100 - angleDeviation * 2)
-
-    return {
-      angle: angle.toFixed(1),
-      probability: probability.toFixed(1)
-    }
-  }
+      utilsHandlePointerMove({
+        event,
+        ballRef,
+        mousePos,
+        lastMousePos,
+        dragStartPos,
+        initialGrabPos,
+        hasMovedSignificantly,
+        isThrowable,
+        hoopPosition,
+        setIsDragging,
+        setShotMetrics
+      })
+    },
+    [isDragging, hoopPosition, setIsDragging, setShotMetrics]
+  )
 
   if (!isBasketball) return null
 
@@ -453,46 +401,7 @@ export const HoopMinigame = () => {
         isResetting={isResetting}
       />
 
-      {/* invisible wall */}
-      <RigidBody
-        type="fixed"
-        name="wall"
-        position={[hoopPosition.x, hoopPosition.y, hoopPosition.z - 0.1]}
-      >
-        <CuboidCollider args={[2.5, 3.5, 0.1]} />
-      </RigidBody>
-
-      {/* invisible floor */}
-      <RigidBody
-        type="fixed"
-        name="floor"
-        position={[hoopPosition.x, -0.08, hoopPosition.z + 3]}
-      >
-        <CuboidCollider args={[3.5, 0.1, 3.5]} />
-      </RigidBody>
-
-      {/* arcade collider */}
-      <RigidBody type="fixed" name="arcade" position={[2.943, 1.1, -14.257]}>
-        <CuboidCollider args={[0.52, 1, 0.52]} />
-      </RigidBody>
-
-      {/* score detection */}
-      <RigidBody
-        type="fixed"
-        position={[
-          hoopPosition.x - 0.04,
-          hoopPosition.y - 0.35,
-          hoopPosition.z + 0.35
-        ]}
-        sensor
-      >
-        <CuboidCollider
-          args={[0.05, 0.05, 0.05]}
-          onIntersectionEnter={() => {
-            setScore((prev) => prev + 1000)
-          }}
-        />
-      </RigidBody>
+      <RigidBodies hoopPosition={hoopPosition} />
 
       <GameUI
         hoopPosition={hoopPosition}

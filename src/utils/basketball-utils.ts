@@ -1,0 +1,193 @@
+import { RapierRigidBody } from "@react-three/rapier"
+import { MutableRefObject } from "react"
+import { Vector2, Vector3 } from "three"
+
+interface Position {
+  x: number
+  y: number
+  z: number
+}
+
+interface Velocity {
+  x: number
+  y: number
+  z: number
+}
+
+interface ShotMetrics {
+  angle: string
+  probability: string
+}
+
+interface PointerHandlerParams {
+  event: PointerEvent
+  ballRef: MutableRefObject<RapierRigidBody | null>
+  mousePos: MutableRefObject<Vector2>
+  lastMousePos: MutableRefObject<Vector2>
+  dragStartPos: MutableRefObject<Vector3>
+  initialGrabPos: MutableRefObject<Vector3>
+  hasMovedSignificantly: MutableRefObject<boolean>
+  isThrowable: MutableRefObject<boolean>
+  hoopPosition: Position
+  setIsDragging: (value: boolean) => void
+  setShotMetrics: (metrics: ShotMetrics) => void
+}
+
+export const calculateShotMetrics = (
+  currentPos: Position,
+  hoopPosition: Position,
+  dragDelta: Vector3
+): ShotMetrics => {
+  const dx = hoopPosition.x - currentPos.x
+  const dy = hoopPosition.y - currentPos.y
+  const dz = hoopPosition.z - currentPos.z
+
+  // calculate angle
+  const angle = Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180 / Math.PI)
+
+  // calculate success probability
+  const idealAngle = 40
+  const angleDeviation = Math.abs(angle - idealAngle)
+  const probability = Math.max(0, 100 - angleDeviation * 2)
+
+  return {
+    angle: angle.toFixed(1),
+    probability: probability.toFixed(1)
+  }
+}
+
+export const applyThrowAssistance = (
+  velocity: Velocity,
+  currentPos: Position,
+  hoopPosition: Position
+): Velocity => {
+  const distanceToHoop = new Vector3(
+    hoopPosition.x - currentPos.x,
+    hoopPosition.y - currentPos.y,
+    hoopPosition.z - currentPos.z
+  ).length()
+
+  const horizontalOffset = Math.abs(hoopPosition.x - currentPos.x)
+  const offsetMultiplier = Math.max(0, 1 - horizontalOffset * 0.5)
+
+  const inSweetSpot =
+    distanceToHoop > 3.2 && distanceToHoop < 4.2 && horizontalOffset < 0.5
+
+  const veryClose =
+    distanceToHoop > 2.8 && distanceToHoop < 3.2 && horizontalOffset < 0.3
+
+  if (veryClose) {
+    return {
+      x: velocity.x,
+      y: velocity.y * (1 + 0.25 * offsetMultiplier),
+      z: velocity.z * (1 + 0.2 * offsetMultiplier)
+    }
+  }
+
+  if (inSweetSpot) {
+    return {
+      x: velocity.x,
+      y: velocity.y * (1 + 0.15 * offsetMultiplier),
+      z: velocity.z * (1 + 0.12 * offsetMultiplier)
+    }
+  }
+
+  return velocity
+}
+
+export const calculateThrowVelocity = (
+  dragDelta: Vector3,
+  currentPos: Position,
+  hoopPosition: Position,
+  dragDistance: number,
+  upStrength: number,
+  forwardStrength: number,
+  ballHorizontalOffset: number
+): Velocity => {
+  const baseThrowStrength = 0.85
+  const throwStrength = Math.min(baseThrowStrength * dragDistance, 2.5)
+
+  const distanceToHoop = new Vector3(
+    hoopPosition.x - currentPos.x,
+    hoopPosition.y - currentPos.y,
+    hoopPosition.z - currentPos.z
+  ).length()
+  const heightDifference = hoopPosition.y - currentPos.y
+
+  return {
+    x: -dragDelta.x * throwStrength * 0.015 - ballHorizontalOffset,
+    y:
+      heightDifference *
+      upStrength *
+      throwStrength *
+      (distanceToHoop > 2 ? 0.85 : 1),
+    z:
+      -distanceToHoop *
+      throwStrength *
+      forwardStrength *
+      (distanceToHoop > 2 ? 0.9 : 1)
+  }
+}
+
+export const handlePointerDown = ({
+  event,
+  ballRef,
+  mousePos,
+  lastMousePos,
+  dragStartPos,
+  initialGrabPos,
+  isThrowable,
+  setIsDragging
+}: PointerHandlerParams) => {
+  if (!isThrowable.current) return
+
+  event.stopPropagation()
+  setIsDragging(true)
+
+  if (ballRef.current) {
+    const pos = ballRef.current.translation()
+    dragStartPos.current.set(pos.x, pos.y, pos.z)
+    initialGrabPos.current.set(pos.x, pos.y, pos.z)
+
+    mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
+    mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
+    lastMousePos.current.copy(mousePos.current)
+  }
+}
+
+export const handlePointerMove = ({
+  event,
+  ballRef,
+  mousePos,
+  dragStartPos,
+  initialGrabPos,
+  hasMovedSignificantly,
+  hoopPosition,
+  setShotMetrics
+}: PointerHandlerParams) => {
+  mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
+  mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
+
+  if (ballRef.current) {
+    const currentPos = ballRef.current.translation()
+
+    const moveDistance = new Vector3(
+      initialGrabPos.current.x - currentPos.x,
+      initialGrabPos.current.y - currentPos.y,
+      initialGrabPos.current.z - currentPos.z
+    ).length()
+
+    if (moveDistance > 0.2) {
+      hasMovedSignificantly.current = true
+    }
+
+    const dragDelta = new Vector3(
+      dragStartPos.current.x - currentPos.x,
+      dragStartPos.current.y - currentPos.y,
+      dragStartPos.current.z - currentPos.z
+    )
+
+    const metrics = calculateShotMetrics(currentPos, hoopPosition, dragDelta)
+    setShotMetrics(metrics)
+  }
+}
