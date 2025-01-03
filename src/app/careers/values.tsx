@@ -14,7 +14,15 @@ export const Values = ({ data }: { data: QueryType }) => {
       <div className="flex w-full flex-col">
         {data.company.ourValues.valuesList.items.map(
           ({ _title, image, text }, idx) => (
-            <div className={cn("grid-layout mb-2 pt-2")} key={idx}>
+            <div
+              className={cn(
+                "grid-layout mb-2 pt-2",
+                idx !== 0 && "border-t border-brand-w1/20",
+                idx === data.company.ourValues.valuesList.items.length - 1 &&
+                  "mb-0 border-b border-brand-w1/20 pb-2"
+              )}
+              key={idx}
+            >
               <p className="col-start-1 col-end-5 text-subheading text-brand-w2">
                 {_title}
               </p>
