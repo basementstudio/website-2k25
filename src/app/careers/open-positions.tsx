@@ -1,6 +1,8 @@
 import Link from "next/link"
-import { QueryType } from "./careers-query"
+
 import { cn } from "@/utils/cn"
+
+import { QueryType } from "./careers-query"
 
 export const OpenPositions = ({ data }: { data: QueryType }) => {
   return (
@@ -19,31 +21,37 @@ export const OpenPositions = ({ data }: { data: QueryType }) => {
           </div>
         </li>
         {data.company.openPositions.openPositionsList.items.map(
-          ({ _title, text, text_1, boolean }, idx) => (
+          ({ _title, type, location, isOpen }, idx) => (
             <li key={idx} className="group relative grid grid-cols-12 gap-2">
               <Link
                 href={""}
                 className={cn(
                   "relative col-start-5 col-end-13 grid grid-cols-8 items-center gap-2 py-2 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w1/20",
-                  boolean && "text-brand-w2/20"
+                  { "text-brand-w2/20": isOpen }
                 )}
               >
                 <span className="col-start-1 col-end-5 text-subheading">
                   {_title}
                 </span>
                 <span className="col-start-5 col-end-7 text-paragraph">
-                  {text}
+                  {type}
                 </span>
                 <div className="col-start-7 col-end-9 flex w-full justify-between">
-                  <span className="text-paragraph">{text_1}</span>
+                  <span className="text-paragraph">{location}</span>
                   <span className="text-paragraph">
-                    {boolean ? "(closed)" : "Apply for Role →"}
+                    {isOpen ? "(closed)" : "Apply for Role →"}
                   </span>
                 </div>
               </Link>
-              {!boolean && (
-                <div className="with-diagonal-lines pointer-events-none !absolute -top-px bottom-0 left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              )}
+              <div
+                className={cn(
+                  "with-diagonal-lines pointer-events-none !absolute -top-px bottom-0 left-0 right-0 transition-opacity duration-300",
+                  {
+                    "opacity-0 group-hover:opacity-100": !isOpen,
+                    hidden: isOpen
+                  }
+                )}
+              />
             </li>
           )
         )}

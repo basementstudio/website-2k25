@@ -2,8 +2,8 @@ import { Pump } from "basehub/react-pump"
 
 import { careersQuery } from "./careers-query"
 import { Hero } from "./hero"
-import { Values } from "./values"
 import { OpenPositions } from "./open-positions"
+import { Values } from "./values"
 
 const About = () => (
   <Pump queries={[careersQuery]}>

@@ -5,28 +5,28 @@ import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 export const careersQuery = fragmentOn("Query", {
   pages: {
     careers: {
-      _title: true,
-      description: true,
-      description_1: true,
+      title: true,
+      subheading1: true,
+      subheading2: true
     }
   },
   company: {
+    openPositions: {
+      openPositionsList: {
+        items: {
+          _title: true,
+          type: true,
+          location: true,
+          isOpen: true
+        }
+      }
+    },
     ourValues: {
       valuesList: {
         items: {
           _title: true,
-          text: true,
+          description: true,
           image: IMAGE_FRAGMENT
-        }
-      }
-    },
-    openPositions: {
-      openPositionsList:{
-        items: {
-          _title: true,
-          text: true,
-          text_1: true,
-          boolean: true,
         }
       }
     }

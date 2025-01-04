@@ -1,6 +1,8 @@
 import Image from "next/image"
-import { QueryType } from "./careers-query"
+
 import { cn } from "@/utils/cn"
+
+import { QueryType } from "./careers-query"
 
 export const Values = ({ data }: { data: QueryType }) => {
   return (
@@ -13,7 +15,7 @@ export const Values = ({ data }: { data: QueryType }) => {
 
       <div className="flex w-full flex-col">
         {data.company.ourValues.valuesList.items.map(
-          ({ _title, image, text }, idx) => (
+          ({ _title, image, description }, idx) => (
             <div
               className={cn(
                 "grid-layout relative mb-2 px-4 pt-2",
@@ -40,7 +42,7 @@ export const Values = ({ data }: { data: QueryType }) => {
                 )}
               </div>
               <p className="col-start-9 col-end-13 max-w-[489px] text-paragraph text-brand-w2">
-                {text}
+                {description}
               </p>
             </div>
           )
