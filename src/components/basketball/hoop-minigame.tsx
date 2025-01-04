@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
-import { useBasketballThemeSong } from "@/hooks/use-basketball-themesong"
+import { useGameAudio } from "@/hooks/use-game-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 import {
@@ -20,6 +20,7 @@ import { Trajectory } from "./trajectory"
 
 export const HoopMinigame = () => {
   const isBasketball = usePathname() === "/basketball"
+  const { playSoundFX } = useGameAudio()
 
   const ballRef = useRef<RapierRigidBody>(null)
   const mousePos = useRef(new Vector2())
@@ -156,11 +157,6 @@ export const HoopMinigame = () => {
     ]
   )
 
-  const resetGame = useCallback(() => {
-    setScore(0)
-    setTimeRemaining(gameDuration)
-  }, [setScore, setTimeRemaining, gameDuration])
-
   const startGame = useCallback(() => {
     if (!isGameActive) {
       if (timerInterval.current) {
@@ -175,6 +171,7 @@ export const HoopMinigame = () => {
           if (prev <= 1) {
             if (timerInterval.current) {
               clearInterval(timerInterval.current)
+              playSoundFX("TIMEOUT_BUZZER")
             }
             setIsGameActive(false)
             setHasPlayed(true)
@@ -211,7 +208,8 @@ export const HoopMinigame = () => {
     gameDuration,
     setHasPlayed,
     addPlayedBall,
-    setReadyToPlay
+    setReadyToPlay,
+    playSoundFX
   ])
 
   const handlePointerUp = useCallback(() => {
@@ -225,7 +223,8 @@ export const HoopMinigame = () => {
       isGameActive,
       startGame,
       upStrength,
-      forwardStrength
+      forwardStrength,
+      playSoundFX
     })
   }, [
     isGameActive,
@@ -233,7 +232,8 @@ export const HoopMinigame = () => {
     setIsDragging,
     upStrength,
     forwardStrength,
-    startGame
+    startGame,
+    playSoundFX
   ])
 
   useEffect(() => {

@@ -2,6 +2,8 @@ import { RapierRigidBody } from "@react-three/rapier"
 import { RefObject } from "react"
 import { Vector2, Vector3 } from "three"
 
+import { GameAudioSFXKey } from "@/hooks/use-game-audio"
+
 interface Position {
   x: number
   y: number
@@ -44,6 +46,7 @@ interface HandlePointerUpParams {
   startGame: () => void
   upStrength: number
   forwardStrength: number
+  playSoundFX: (sfx: GameAudioSFXKey, volume?: number) => void
 }
 
 export const calculateShotMetrics = (
@@ -215,7 +218,8 @@ export const handlePointerUp = ({
   isGameActive,
   startGame,
   upStrength,
-  forwardStrength
+  forwardStrength,
+  playSoundFX
 }: HandlePointerUpParams) => {
   if (ballRef.current) {
     if (!isGameActive) {
@@ -239,6 +243,8 @@ export const handlePointerUp = ({
     ) {
       ballRef.current.setBodyType(0, true)
       isThrowable.current = false
+
+      playSoundFX("BASKETBALL_THROW", 0.5)
 
       const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
       const rawVelocity = calculateThrowVelocity(
