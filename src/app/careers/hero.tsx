@@ -3,7 +3,7 @@ import { QueryType } from "./careers-query"
 export const Hero = ({ data }: { data?: QueryType }) => {
   return (
     <section
-      className="grid-layout -mb-11 text-brand-w2"
+      className="grid-layout mb-[180px] text-brand-w2"
       aria-labelledby="careers-heading"
     >
       <h1 className="col-start-1 col-end-5 text-heading uppercase">

@@ -6,7 +6,7 @@ import { QueryType } from "./careers-query"
 
 export const Values = ({ data }: { data: QueryType }) => {
   return (
-    <section>
+    <section className="mb-[168px] pb-2">
       <div className="px-4">
         <p className="w-full border-b border-brand-w1/20 pb-2 text-paragraph text-brand-g1">
           Our Values
