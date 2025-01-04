@@ -4,11 +4,10 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
+import { useBasketballThemeSong } from "@/hooks/use-basketball-themesong"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 import {
-  applyThrowAssistance,
-  calculateThrowVelocity,
   handlePointerDown as utilsHandlePointerDown,
   handlePointerMove as utilsHandlePointerMove,
   handlePointerUp as utilsHandlePointerUp

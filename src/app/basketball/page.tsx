@@ -1,4 +1,5 @@
 "use client"
+
 import Scoreboard from "@/components/basketball/scoreboard"
 import { useMinigameStore } from "@/store/minigame-store"
 
