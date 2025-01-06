@@ -11,8 +11,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
   home: {
     name: "home",
     url: "/home",
-    position: [6.5, 1.6, -6.5],
-    target: [5.5, 1.6, -12],
+    position: [6.6, 1.5, -7.1],
+    target: [4.48, 2.0, -12.8],
     rotationAngle: [0.5, 0.5],
     rotationLerp: 0.03
   },

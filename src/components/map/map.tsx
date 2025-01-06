@@ -2,7 +2,7 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame, useLoader } from "@react-three/fiber"
-import { CuboidCollider, RigidBody } from "@react-three/rapier"
+import { RigidBody } from "@react-three/rapier"
 import { memo, useEffect, useMemo, useState } from "react"
 import {
   Mesh,
