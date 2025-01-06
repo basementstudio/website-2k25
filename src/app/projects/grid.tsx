@@ -17,7 +17,8 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => (
           className={cn(
             "relative",
             firstItem ? "col-span-6 row-span-2" : "col-span-3",
-            "group aspect-[418/296] after:absolute after:inset-0 after:border after:border-brand-w1/20"
+            "group aspect-[418/296] cursor-pointer after:absolute after:inset-0 after:border after:border-brand-w1/20",
+            item.disabled && "pointer-events-none"
           )}
         >
           <div className="with-dots h-full w-full">
