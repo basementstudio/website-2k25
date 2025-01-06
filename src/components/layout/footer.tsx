@@ -54,13 +54,13 @@ export const Footer = () => (
 
       const LINKS = [
         {
-          title: "Works",
-          href: "/projects",
-          count: projects
-        },
-        {
           title: "About Us",
           href: "/about"
+        },
+        {
+          title: "Projects",
+          href: "/projects",
+          count: projects
         },
         {
           title: "Blog",
@@ -74,10 +74,6 @@ export const Footer = () => (
         {
           title: "Careers",
           href: "/careers"
-        },
-        {
-          title: "Ventures",
-          href: "https://basement.ventures"
         }
       ]
 

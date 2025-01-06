@@ -49,7 +49,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => (
               <div
                 className={cn(
                   "absolute inset-0 flex flex-col justify-center opacity-0 mix-blend-screen transition-opacity duration-300 group-hover:opacity-100",
-                  firstItem && "h-[calc(50%-4px)]"
+                  firstItem && "h-[calc(50%-2px)]"
                 )}
               >
                 <div

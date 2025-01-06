@@ -25,14 +25,6 @@ const RowIcon = () => (
   </svg>
 )
 
-interface FiltersProps {
-  categories: string[]
-  selectedCategories: string[]
-  viewMode: "grid" | "rows"
-  setViewMode: (mode: "grid" | "rows") => void
-  setSelectedCategories: (categories: string[]) => void
-}
-
 interface ViewSelectorProps {
   mode: "grid" | "rows"
   viewMode: "grid" | "rows"
@@ -55,6 +47,14 @@ const ViewSelector = ({ mode, viewMode, setViewMode }: ViewSelectorProps) => (
     </span>
   </CheckboxPrimitive.Root>
 )
+
+interface FiltersProps {
+  categories: string[]
+  selectedCategories: string[]
+  viewMode: "grid" | "rows"
+  setViewMode: (mode: "grid" | "rows") => void
+  setSelectedCategories: (categories: string[]) => void
+}
 
 export const Filters = ({
   categories,
@@ -87,7 +87,7 @@ export const Filters = ({
         />
       </div>
 
-      <div className="col-span-2 col-start-6 flex flex-wrap gap-1">
+      <div className="col-span-2 col-start-7 flex flex-wrap gap-1">
         {categories.map((category) => (
           <Checkbox
             key={category}
