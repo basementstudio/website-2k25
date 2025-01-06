@@ -6,8 +6,16 @@ export const careersQuery = fragmentOn("Query", {
   pages: {
     careers: {
       title: true,
-      subheading1: true,
-      subheading2: true
+      subheading1: {
+        json: {
+          content: true
+        }
+      },
+      subheading2: {
+        json: {
+          content: true
+        }
+      }
     }
   },
   company: {
@@ -25,7 +33,11 @@ export const careersQuery = fragmentOn("Query", {
       valuesList: {
         items: {
           _title: true,
-          description: true,
+          description: {
+            json: {
+              content: true
+            }
+          },
           image: IMAGE_FRAGMENT
         }
       }

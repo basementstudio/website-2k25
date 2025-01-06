@@ -1,3 +1,4 @@
+import { RichText } from "basehub/react-rich-text"
 import Image from "next/image"
 
 import { cn } from "@/utils/cn"
@@ -41,9 +42,9 @@ export const Values = ({ data }: { data: QueryType }) => {
                   />
                 )}
               </div>
-              <p className="col-start-9 col-end-13 max-w-[489px] text-paragraph text-brand-w2">
-                {description}
-              </p>
+              <div className="col-start-9 col-end-13 max-w-[30.5625rem] text-paragraph text-brand-w2">
+                <RichText content={description?.json?.content ?? []} />
+              </div>
             </div>
           )
         )}
