@@ -1,24 +1,26 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
 import { useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { useMotionValue } from "motion/react"
 import { animate, MotionValue } from "motion"
+import { useMotionValue } from "motion/react"
+import { useEffect, useRef, useState } from "react"
 import {
-  Group,
-  Vector3,
-  Quaternion,
-  Matrix4,
   Box3,
-  PerspectiveCamera
+  Group,
+  Matrix4,
+  PerspectiveCamera,
+  Quaternion,
+  Vector3
 } from "three"
+
 import {
   ANIMATION_CONFIG,
   SMOOTH_FACTOR,
   TARGET_SIZE,
   X_OFFSET
 } from "@/constants/inspectables"
+
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
 
