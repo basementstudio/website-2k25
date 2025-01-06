@@ -8,8 +8,8 @@ export const OpenPositions = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout pb-[148px]">
       <h2 className="relative z-20 col-start-1 col-end-4 row-start-1 pt-[27px] text-heading uppercase text-brand-w2">
-        <span className="block">OPEN</span>
-        <span className="block">POSITIONS</span>
+        <span className="block">Open</span>
+        <span className="block">Positions</span>
       </h2>
 
       <ul className="relative col-start-1 col-end-13 row-start-1 text-paragraph text-brand-w2">
@@ -26,8 +26,8 @@ export const OpenPositions = ({ data }: { data: QueryType }) => {
               <Link
                 href={""}
                 className={cn(
-                  "relative col-start-5 col-end-13 grid grid-cols-8 items-center gap-2 py-2 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w1/20",
-                  { "text-brand-w2/20": isOpen }
+                  "relative col-start-5 col-end-13 grid grid-cols-8 items-center gap-2 py-2 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w2/30",
+                  { "text-brand-w1/20": isOpen }
                 )}
               >
                 <span className="col-start-1 col-end-5 text-subheading">
