@@ -1,20 +1,10 @@
 import Image from "next/image"
 
+import { Placeholder } from "@/components/primitives/placeholder"
 import { cn } from "@/utils/cn"
 
 import { Categories } from "./categories"
 import { FilteredProjectType } from "./project-list"
-
-const Placeholder = ({ className }: { className: string }) => (
-  <svg
-    stroke="currentColor"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 418 296"
-    className={className}
-  >
-    <path d="M0-.00024414  418 296" />
-  </svg>
-)
 
 export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => (
   <div className="grid-layout">
@@ -32,7 +22,11 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => (
         >
           <div className="with-dots h-full w-full">
             {item.disabled && (
-              <Placeholder className="absolute inset-0 text-brand-w1/20" />
+              <Placeholder
+                className="absolute inset-0 text-brand-w1/20"
+                width={418}
+                height={296}
+              />
             )}
             <Image
               src={item.cover?.url ?? ""}
