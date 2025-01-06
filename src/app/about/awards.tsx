@@ -22,7 +22,7 @@ export const Awards = ({ data }: { data: QueryType }) => (
           >
             <Link
               href={award.url ?? ""}
-              className="item pt-0.75 relative col-start-5 col-end-13 grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1"
+              className="item relative col-start-5 col-end-13 grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
             >
               <span className="col-span-1">{award.title}</span>
               <span className="col-span-1">{award.project._title}</span>

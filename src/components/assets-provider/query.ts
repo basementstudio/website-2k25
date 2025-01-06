@@ -28,6 +28,9 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
       }
     }
   },
+
+  // TODO: get rid of this
+
   modelsDb: {
     models: {
       items: {

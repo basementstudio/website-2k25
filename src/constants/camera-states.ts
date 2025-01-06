@@ -39,7 +39,6 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     url: "/hoop",
     object_name: "hoop",
     position: [5.2, 0.8, -7.7],
-    // position: [5.2, 1.6, -9.7],
     target: [5.2, 1.95, -12],
     rotationAngle: [0, 0],
     rotationLerp: 0

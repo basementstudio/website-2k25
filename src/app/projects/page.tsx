@@ -1,7 +1,22 @@
+import { Pump } from "basehub/react-pump"
+
+import { Hero } from "./hero"
+import { ProjectList } from "./project-list"
+import { query } from "./query"
+
 const Projects = () => (
-  <main className="relative -mt-24 min-h-96 w-full bg-brand-k px-4 pt-2">
-    <h1 className="text-heading uppercase text-brand-w2">Projects</h1>
-  </main>
+  <Pump queries={[query]}>
+    {async ([data]) => {
+      "use server"
+
+      return (
+        <div className="flex flex-col gap-38">
+          <Hero data={data} />
+          <ProjectList data={data} />
+        </div>
+      )
+    }}
+  </Pump>
 )
 
 export default Projects
