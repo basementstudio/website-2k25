@@ -1,5 +1,7 @@
 "use client"
+
 import Scoreboard from "@/components/basketball/scoreboard"
+import { Input } from "@/components/primitives/input"
 import { useMinigameStore } from "@/store/minigame-store"
 
 const Basketball = () => {
@@ -29,7 +31,7 @@ const Basketball = () => {
 
   return (
     <>
-      <div className="fixed bottom-[14px] right-[14px]">
+      <div className="fixed bottom-3.5 right-3.5">
         <Scoreboard />
       </div>
       {(hasPlayed && !playerName) || (hasPlayed && !isGameActive) ? (
@@ -37,19 +39,19 @@ const Basketball = () => {
           <div className="flex flex-col items-center gap-4">
             {!playerName ? (
               <div className="flex gap-4 text-paragraph text-brand-g1">
-                <input
+                <Input
                   type="text"
                   id="playerNameInput"
                   placeholder="Enter your Name"
                   onKeyDown={(e) => e.key === "Enter" && handlePlayerName()}
-                  className="w-[197px] bg-[#1a1a1a] px-1 py-0.5 text-brand-w1"
+                  className="w-48"
                   autoFocus
                 />
                 <button
                   onClick={handlePlayerName}
                   className="font-medium text-brand-w1 hover:underline"
                 >
-                  Save Score -{">"}
+                  Save Score →
                 </button>
               </div>
             ) : (
@@ -57,7 +59,7 @@ const Basketball = () => {
                 onClick={handlePlayAgain}
                 className="font-medium text-brand-w1 hover:underline"
               >
-                Play Again -{">"}
+                Play Again →
               </button>
             )}
           </div>

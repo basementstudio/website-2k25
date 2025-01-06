@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect, useRef } from "react"
 import { useThree } from "@react-three/fiber"
+import { useEffect, useRef } from "react"
 import { FrontSide, Mesh, PerspectiveCamera, Vector3 } from "three"
+
 import { useAssets } from "@/components/assets-provider"
 
-import { Inspectable } from "./inspectable"
 import { useInspectable } from "./context"
+import { Inspectable } from "./inspectable"
 
 const HARDCODED_INSPECTABLES_POSITIONS = [
   { x: 2, y: 2.82, z: -11.6 },

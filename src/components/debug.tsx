@@ -1,10 +1,10 @@
-import { useCameraStore } from "@/store/app-store"
 import { Grid } from "@react-three/drei"
-
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei"
 import { useControls } from "leva"
 import { Vector3 } from "three"
+
 import type { CameraName } from "@/store/app-store"
+import { useCameraStore } from "@/store/app-store"
 
 export function Debug() {
   const orbitCamera = useCameraStore((state) => state.orbitCamera)
