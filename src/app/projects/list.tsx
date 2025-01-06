@@ -11,7 +11,6 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
   const [itemOpen, setItemOpen] = useState<string>()
 
   useEffect(() => {
-    console.log(projects[parseInt(itemOpen ?? "")])
     if (itemOpen && projects[parseInt(itemOpen)].disabled) {
       setItemOpen("")
     }
@@ -39,10 +38,14 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
         >
           <AccordionPrimitive.Trigger
             className={cn(
-              "col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300"
+              "[&[data-state=open]_.diagonal-lines]:opacity-0",
+              "group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300"
             )}
             disabled={item.disabled}
           >
+            {!item.disabled && (
+              <div className="diagonal-lines group-hover:with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            )}
             <div
               className={cn(
                 "contents",
@@ -50,7 +53,7 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
                   "duration-300 [&>*]:opacity-30 [&>*]:transition-opacity"
               )}
             >
-              <div className="col-span-5 flex items-center gap-2 text-subheading text-brand-w2 transition-opacity duration-300">
+              <div className="relative col-span-5 flex items-center gap-2 text-subheading text-brand-w2 transition-opacity duration-300">
                 <Image
                   src={item.icon?.url ?? ""}
                   alt={item.icon?.alt ?? ""}
@@ -61,15 +64,15 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
                 <p>{item.project?.client?._title}</p>
               </div>
               <Categories
-                className="col-start-7 col-end-10"
+                className="relative col-start-7 col-end-10"
                 categories={
                   item.project?.categories?.map((c) => c._title) ?? []
                 }
               />
-              <p className="col-start-10 col-end-11 text-left text-paragraph text-brand-w2">
+              <p className="relative col-start-10 col-end-11 text-left text-paragraph text-brand-w2">
                 {item.project?.year}
               </p>
-              <p className="view-project col-start-12 col-end-13 text-right text-paragraph text-brand-w2 opacity-0 transition-opacity duration-300">
+              <p className="view-project relative col-start-12 col-end-13 text-right text-paragraph text-brand-w2 opacity-0 transition-opacity duration-300">
                 <span className="actionable">View Project</span> →
               </p>
             </div>
