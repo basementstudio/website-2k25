@@ -16,6 +16,11 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
       }
     }
   },
+  basketball: {
+    file: {
+      url: true
+    }
+  },
   inspectables: {
     inspectableList: {
       items: {
@@ -24,20 +29,6 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
           file: {
             url: true
           }
-        }
-      }
-    }
-  },
-
-  // TODO: get rid of this
-
-  modelsDb: {
-    models: {
-      items: {
-        _id: true,
-        _title: true,
-        file: {
-          url: true
         }
       }
     }
