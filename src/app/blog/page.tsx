@@ -3,7 +3,7 @@ import { Pump } from "basehub/react-pump"
 import { Grid } from "@/components/grid"
 
 import BlogList from "./blog-list"
-import Featured from "./fatured"
+import Featured from "./featured"
 import { query } from "./query"
 
 const Blog = () => (
