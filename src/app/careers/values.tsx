@@ -8,8 +8,8 @@ import { QueryType } from "./careers-query"
 export const Values = ({ data }: { data: QueryType }) => {
   return (
     <section className="mb-[168px] pb-2">
-      <div className="px-4">
-        <p className="w-full border-b border-brand-w1/20 pb-2 text-paragraph text-brand-g1">
+      <div className="grid-layout">
+        <p className="col-span-full w-full border-b border-brand-w1/20 pb-2 text-paragraph text-brand-g1">
           Our Values
         </p>
       </div>
