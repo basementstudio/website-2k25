@@ -21,9 +21,14 @@ export default function BlogList({ data }: { data: QueryType }) {
               {post._title}
             </p>
             <div className="col-span-2 col-start-9 flex gap-1">
-              <p className="h-max w-max bg-brand-g2 px-1 text-paragraph text-brand-w2">
-                Web Design
-              </p>
+              {post.categories?.map((category) => (
+                <p
+                  key={category._title}
+                  className="h-max w-max bg-brand-g2 px-1 text-paragraph text-brand-w2"
+                >
+                  {category._title}
+                </p>
+              ))}
             </div>
             <p className="col-span-1 col-start-11 text-paragraph text-brand-w2">
               {new Date(post.date || "").toLocaleDateString("en-US", {
