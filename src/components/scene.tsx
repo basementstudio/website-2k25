@@ -30,6 +30,8 @@ export const Scene = () => {
           outputColorSpace: THREE.SRGBColorSpace,
           toneMapping: THREE.ACESFilmicToneMapping
         }}
+        eventSource={document.documentElement}
+        eventPrefix="client"
         camera={{ fov: 45 }}
       >
         <Renderer
