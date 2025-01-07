@@ -1,5 +1,3 @@
-const Arcade = () => {
-  return null
-}
+const Arcade = () => null
 
 export default Arcade

@@ -1,5 +1,7 @@
 import Link from "next/link"
 
+import { Placeholder } from "@/components/primitives/placeholder"
+
 import { QueryType } from "./query"
 
 export const People = ({ data }: { data: QueryType }) => {
@@ -58,14 +60,11 @@ export const People = ({ data }: { data: QueryType }) => {
             key={person._title}
             className="with-dots aspect-[136/156] bg-brand-k text-brand-w1/20"
           >
-            <svg
-              stroke="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 134 156"
+            <Placeholder
               className="border border-brand-w1/20"
-            >
-              <path d="M0-.00024414 134 156" />
-            </svg>
+              width={134}
+              height={156}
+            />
           </div>
         ))}
         <div
