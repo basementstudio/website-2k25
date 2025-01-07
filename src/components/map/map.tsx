@@ -88,6 +88,11 @@ function InnerMap() {
     fogDensity: 0.05,
     fogDepth: 9.0
   })
+
+  const { shitter } = useControls("shitter", {
+    shitter: 512.0
+  })
+
   useFrame(({ clock }) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
@@ -99,6 +104,8 @@ function InnerMap() {
       )
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
+
+      material.uniforms.uShitter.value = shitter
     })
   })
 
