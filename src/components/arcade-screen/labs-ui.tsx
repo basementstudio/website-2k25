@@ -21,9 +21,7 @@ interface Experiment {
     height: number
     alt: string | null
   } | null
-  description: {
-    json: any
-  } | null
+  description: string | null
 }
 
 interface Contributor {
@@ -86,10 +84,9 @@ export const LabsUI = () => {
     <>
       <Root
         transformScaleY={-1}
-        width={2000}
-        height={1180}
+        width={2100}
+        height={1260}
         backgroundColor={COLORS_THEME.black}
-        padding={20}
         positionType={"relative"}
         display={"flex"}
         flexDirection={"column"}
@@ -99,8 +96,8 @@ export const LabsUI = () => {
           color={COLORS_THEME.primary}
           fontWeight={"bold"}
           positionType={"absolute"}
-          positionTop={8}
-          positionLeft={32}
+          positionTop={-10}
+          positionLeft={20}
           paddingX={8}
           backgroundColor={COLORS_THEME.black}
           zIndexOffset={10}
@@ -192,7 +189,7 @@ export const LabsUI = () => {
                     width={"100%"}
                     height={"50%"}
                     borderWidth={3}
-                    borderColor={"red"}
+                    borderColor={COLORS_THEME.primary}
                     positionType={"relative"}
                   >
                     {selectedExperiment && (
@@ -212,7 +209,7 @@ export const LabsUI = () => {
                       fontWeight={"bold"}
                       backgroundColor={COLORS_THEME.black}
                     >
-                      {selectedExperiment._title}
+                      {selectedExperiment.description || ""}
                     </Text>
                   )}
                 </Container>
@@ -333,13 +330,13 @@ const ListItem = ({
       }
     >
       <Container width={"30%"}>
-        <Text fontSize={22} fontWeight={"bold"} color={textColor}>
+        <Text fontSize={24} fontWeight={"bold"} color={textColor}>
           {title}
         </Text>
       </Container>
 
       <Container display={"flex"} flexDirection={"row"} gap={8} width={"50%"}>
-        <Text fontSize={20} fontWeight={"bold"} color={textColor}>
+        <Text fontSize={22} fontWeight={"bold"} color={textColor}>
           B:
         </Text>
         {experimentsContributors[url || ""]?.map((contributor, idx) => (

@@ -9,9 +9,7 @@ export const query = fragmentOn("Query", {
         items: {
           _title: true,
           url: true,
-          description: {
-            json: { content: true }
-          },
+          description: true,
           cover: IMAGE_FRAGMENT
         }
       }

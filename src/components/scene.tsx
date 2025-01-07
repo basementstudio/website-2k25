@@ -49,7 +49,6 @@ export const Scene = () => {
               <MapWire />
               <Inspectables />
               <Environment preset="studio" />
-
               <Physics paused={!isBasketball}>
                 <Map />
                 <HoopMinigame />
