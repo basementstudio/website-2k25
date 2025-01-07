@@ -5,6 +5,7 @@ import { assetsQuery } from "./query"
 export interface AssetsResult {
   map: string
   basketball: string
+  basketballNet: string
   lightmaps: {
     mesh: string
     url: string
@@ -32,6 +33,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
         url: item.model?.file?.url ?? ""
       })
     ),
-    basketball: threeDInteractions.basketball.file?.url ?? ""
+    basketball: threeDInteractions.basketball.file?.url ?? "",
+    basketballNet: threeDInteractions.basketballNet.file?.url ?? ""
   }
 }

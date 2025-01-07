@@ -15,6 +15,9 @@ export default function RigidBodies({
   const handleScore = () => {
     setScore((prev) => prev + 1000)
     playSoundFX("BASKETBALL_NET", 0.6)
+
+    // event for net animation
+    window.dispatchEvent(new Event("basketball-score"))
   }
 
   return (
