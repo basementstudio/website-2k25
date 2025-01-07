@@ -1,8 +1,9 @@
 "use client"
 
 import { useLoader, useThree } from "@react-three/fiber"
+import { useControls } from "leva"
 import { animate } from "motion"
-import { memo, Suspense, useEffect, useMemo } from "react"
+import { memo, Suspense, useEffect, useMemo, useRef } from "react"
 import {
   Group,
   Mesh,
@@ -50,6 +51,23 @@ function Lightmaps() {
 
   const scene = useThree((state) => state.scene)
 
+  const elementsWithLightmap = useRef<Mesh[]>([])
+
+  useControls("lightmaps", {
+    lightmapIntensity: {
+      value: 1.0,
+      min: 0.001,
+      max: 8,
+      step: 0.001,
+      onChange: (value) => {
+        elementsWithLightmap.current.forEach((mesh) => {
+          const material = mesh.material as ShaderMaterial
+          material.uniforms.lightMapIntensity.value = value
+        })
+      }
+    }
+  })
+
   useEffect(() => {
     animate(0, 1, {
       duration: 1.5,
@@ -75,10 +93,12 @@ function Lightmaps() {
 
       if (meshOrGroup instanceof Mesh) {
         addLightmap(meshOrGroup, lightmap)
+        elementsWithLightmap.current.push(meshOrGroup)
       } else if (meshOrGroup instanceof Group) {
         meshOrGroup.traverse((child) => {
           if (child instanceof Mesh) {
             addLightmap(child, lightmap)
+            elementsWithLightmap.current.push(child)
           }
         })
       }
