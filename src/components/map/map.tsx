@@ -89,8 +89,8 @@ function InnerMap() {
     fogDepth: 9.0
   })
 
-  const { shitter } = useControls("shitter", {
-    shitter: 512.0
+  const { jitter } = useControls("jitter", {
+    jitter: 512.0
   })
 
   useFrame(({ clock }) => {
@@ -105,7 +105,7 @@ function InnerMap() {
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
 
-      material.uniforms.uShitter.value = shitter
+      material.uniforms.uJitter.value = jitter
     })
   })
 
