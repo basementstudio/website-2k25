@@ -328,6 +328,7 @@ vec3 ACESFilmicToneMapping(vec3 color) {
 }
 
 vec3 tonemap(vec3 color) {
+  color = contrast(color, uContrast);
   color = invertedGamma(color, uGamma);
   color = ACESFilmicToneMapping(color);
   return color;
@@ -349,7 +350,7 @@ void main() {
   // Apply bloom effect
   vec3 bloom = vec3(0.0);
   float totalWeight = 0.0;
-  float phi = hash(vUv) * 6.28; // Random rotation angle
+  float phi = hash(voxelUv) * 6.28; // Random rotation angle
 
   for(int i = 1; i < SAMPLE_COUNT; i++) {
     vec2 sampleOffset = vogelDiskSample(i, SAMPLE_COUNT, phi) * uBloomRadius / resolution;
@@ -359,7 +360,7 @@ void main() {
     float weight = 1.0 / dist;
 
     // Sample color at offset position
-    vec3 sampleColor = texture2D(uMainTexture, vUv + sampleOffset).rgb;
+    vec3 sampleColor = texture2D(uMainTexture, voxelUv + sampleOffset).rgb;
 
     // Only add to bloom if brightness is above threshold
     float brightness = dot(sampleColor, vec3(0.2126, 0.7152, 0.0722));

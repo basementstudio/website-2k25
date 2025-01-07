@@ -3,6 +3,7 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame, useLoader } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
+import { useControls } from "leva"
 import { memo, useEffect, useMemo, useState } from "react"
 import {
   Mesh,
@@ -11,7 +12,9 @@ import {
   NoColorSpace,
   Object3D,
   Object3DEventMap,
-  Texture
+  Texture,
+  Vector2,
+  Vector3
 } from "three"
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js"
 
@@ -76,9 +79,26 @@ function InnerMap() {
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
   const [stairsFloor, setStairsFloor] = useState<Object3D | null>(null)
 
+  const { fogColor, fogDensity, fogDepth } = useControls("fog", {
+    fogColor: {
+      x: 0.4,
+      y: 0.4,
+      z: 0.4
+    },
+    fogDensity: 0.05,
+    fogDepth: 9.0
+  })
   useFrame(({ clock }) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
+
+      material.uniforms.fogColor.value = new Vector3(
+        fogColor.x,
+        fogColor.y,
+        fogColor.z
+      )
+      material.uniforms.fogDensity.value = fogDensity
+      material.uniforms.fogDepth.value = fogDepth
     })
   })
 

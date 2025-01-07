@@ -129,8 +129,9 @@ void main() {
 
   gl_FragColor = vec4(irradiance, opacityResult);
 
-  float fogDepth = vMvPosition.z + fogDepth;
+  float fogDepth = min(vMvPosition.z + fogDepth, 0.0);
   float fogFactor = 1.0 - exp(-fogDensity * fogDensity * fogDepth * fogDepth);
+  fogFactor = clamp(fogFactor, 0.0, 1.0);
 
   gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
 
