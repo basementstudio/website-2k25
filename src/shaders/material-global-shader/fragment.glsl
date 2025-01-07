@@ -3,6 +3,7 @@ precision highp float;
 varying vec2 vUv;
 varying vec2 vUv2;
 varying vec3 vWorldPosition;
+varying vec3 vMvPosition;
 
 const float voxelSize = 10.0;
 const float noiseBigScale = 1.0;
@@ -38,17 +39,17 @@ uniform vec3 emissive;
 uniform float emissiveIntensity;
 #endif
 
+// Fog
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float fogDepth;
+
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 
 void main() {
-  VoxelData voxel = getVoxel(
-    vWorldPosition,
-    voxelSize,
-    noiseBigScale,
-    noiseSmallScale
-  );
+  VoxelData voxel = getVoxel(vWorldPosition, voxelSize, noiseBigScale, noiseSmallScale);
 
   // Distance from center
   float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));
@@ -61,10 +62,10 @@ void main() {
   float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
 
   // Render as wireframe
-  if (uReverse) {
+  if(uReverse) {
     gl_FragColor = vec4(uColor, 1.0);
 
-    if (wave <= 0.0) {
+    if(wave <= 0.0) {
       discard;
     }
     return;
@@ -87,11 +88,9 @@ void main() {
   vec3 metallicReflection = mix(vec3(0.04), color, metalness);
 
   // Combine base color, metallic reflection, and lightmap
-  vec3 irradiance = mix(
-    color * (1.0 - metalness), // Diffuse component
-    metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
-    metalness
-  );
+  vec3 irradiance = mix(color * (1.0 - metalness), // Diffuse component
+  metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
+  metalness);
 
   #ifdef USE_EMISSIVE
   irradiance += emissive * emissiveIntensity;
@@ -100,7 +99,7 @@ void main() {
   // Adjust ambient light based on roughness
   float ambientFactor = mix(0.2, 0.4, roughness); // More ambient light for rougher surfaces
 
-  if (lightMapIntensity > 0.0) {
+  if(lightMapIntensity > 0.0) {
     irradiance *= lightMapSample * lightMapIntensity;
   }
 
@@ -124,28 +123,27 @@ void main() {
   opacityResult *= alpha;
   #endif
 
-  if (opacityResult <= 0.0) {
+  if(opacityResult <= 0.0) {
     discard;
   }
 
   gl_FragColor = vec4(irradiance, opacityResult);
 
-  if (uLoaded < 1.0) {
+  float fogDepth = min(vMvPosition.z + fogDepth, 0.0);
+  float fogFactor = 1.0 - exp(-fogDensity * fogDensity * fogDepth * fogDepth);
+  fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+  gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
+
+  if(uLoaded < 1.0) {
     // Loading effect
     float colorBump = (uTime + voxel.noiseBig * 20.0) * 0.1;
     colorBump = fract(colorBump) * 20.0;
     colorBump = clamp(colorBump, 0.0, 1.0);
     colorBump = 1.0 - pow(colorBump, 0.3);
 
-    float loadingColor = max(
-      voxel.edgeFactor * 0.2,
-      colorBump * voxel.fillFactor * 3.0
-    );
+    float loadingColor = max(voxel.edgeFactor * 0.2, colorBump * voxel.fillFactor * 3.0);
 
-    gl_FragColor.rgb = mix(
-      gl_FragColor.rgb,
-      vec3(loadingColor),
-      step(uLoaded, voxel.noiseSmall)
-    );
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(loadingColor), step(uLoaded, voxel.noiseSmall));
   }
 }
