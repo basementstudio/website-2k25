@@ -74,7 +74,14 @@ export const LabsUI = () => {
         setExperimentsContributors(contributorsMap)
       })
     fetchLaboratory().then((data) => {
-      setExperiments(data.projectList.items as Experiment[])
+      setExperiments(
+        data.projectList.items.map((item) => ({
+          _title: item._title,
+          url: item.url,
+          cover: item.cover,
+          description: item.description as string | null
+        }))
+      )
     })
   }, [])
 
