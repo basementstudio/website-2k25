@@ -1,7 +1,5 @@
 import { Pump } from "basehub/react-pump"
 
-import { Grid } from "@/components/grid"
-
 import BlogList from "./blog-list"
 import Featured from "./featured"
 import { query } from "./query"
@@ -12,14 +10,10 @@ const Blog = () => (
       "use server"
 
       return (
-        <main className="relative -mt-24 flex flex-col gap-[68px] bg-brand-k pb-25 pt-3 after:absolute after:-top-px after:z-10 after:h-px after:w-full after:bg-brand-w1/10">
-          <Grid />
-
+        <main className="relative flex flex-col gap-[68px] bg-brand-k pb-25 text-heading uppercase">
           <section className="grid-layout">
-            <h1 className="col-start-1 col-end-5 text-heading uppercase text-brand-w2">
-              Blog
-            </h1>
-            <p className="col-span-1 col-start-5 text-heading text-brand-g1">
+            <h1 className="col-start-1 col-end-5 text-brand-w2">Blog</h1>
+            <p className="col-span-1 col-start-5 text-brand-g1">
               {data.pages.blog.posts.items.length}
             </p>
           </section>
