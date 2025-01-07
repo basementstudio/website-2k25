@@ -2,11 +2,11 @@
 // but using motion instead of spring as animation library.
 // https://github.com/pmndrs/drei/blob/master/src/web/PresentationControls.tsx
 
-import * as React from "react"
-import { Group, MathUtils } from "three"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useGesture } from "@use-gesture/react"
 import { useMotionValue, useSpring } from "motion/react"
+import * as React from "react"
+import { Group, MathUtils } from "three"
 
 export type InspectableDraggerProps = {
   snap?: boolean

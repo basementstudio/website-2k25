@@ -10,8 +10,9 @@ import {
   WebGLRenderTarget
 } from "three"
 
-import { PostProcessing } from "./post-processing"
 import { useCameraStore } from "@/store/app-store"
+
+import { PostProcessing } from "./post-processing"
 
 interface RendererProps {
   sceneChildren: React.ReactNode

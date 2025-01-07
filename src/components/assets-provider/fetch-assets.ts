@@ -32,9 +32,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
         url: item.model?.file?.url ?? ""
       })
     ),
-    basketball:
-      threeDInteractions.modelsDb.models.items.find(
-        (item) => item._title === "Basketball"
-      )?.file?.url ?? ""
+    basketball: threeDInteractions.basketball.file?.url ?? ""
   }
 }

@@ -1,16 +1,16 @@
 import { Container, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
+import { useKeyPress } from "@/hooks/use-key-press"
+import { CameraStateKeys } from "@/store/app-store"
+import { useCameraStore } from "@/store/app-store"
 
 import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
 import { TextTag } from "./text-tags"
-import { CameraStateKeys } from "@/store/app-store"
-import { useRouter } from "next/navigation"
-import { useCameraStore } from "@/store/app-store"
-import { useKeyPress } from "@/hooks/use-key-press"
 
 interface Experiment {
   _title: string

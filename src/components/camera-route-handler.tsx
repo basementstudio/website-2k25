@@ -1,8 +1,9 @@
 "use client"
 
-import { useCameraStore } from "@/store/app-store"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
+
+import { useCameraStore } from "@/store/app-store"
 
 export const CameraRouteHandler = () => {
   const pathname = usePathname()
