@@ -13,7 +13,6 @@ import {
   Object3D,
   Object3DEventMap,
   Texture,
-  Vector2,
   Vector3
 } from "three"
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js"

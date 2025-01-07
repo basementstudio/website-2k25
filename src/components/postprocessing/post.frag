@@ -184,8 +184,8 @@ vec3 dither(vec2 voxelPixelCoord, vec3 color, vec2 voxelUv) {
   vec3 originalColor = color;
   color = rgbToHsl(color);
 
-  int x = int(mod(voxelPixelCoord.x * 2.0 / uPixelSize, 8.0));
-  int y = int(mod(voxelPixelCoord.y * 2.0 / uPixelSize, 8.0));
+  int x = int(mod(voxelPixelCoord.x / uPixelSize, 8.0));
+  int y = int(mod(voxelPixelCoord.y / uPixelSize, 8.0));
 
   float threshold = bayerMatrix8x8[x * 8 + y] + uBias;
 
@@ -345,6 +345,8 @@ void main() {
 
   color.rgb *= uBrightness;
 
+  color = tonemap(color);
+
   //color.rgb = dither(voxelPixelCoord, color, voxelUv);
 
   // Apply bloom effect
@@ -376,8 +378,6 @@ void main() {
   // Add bloom to result with strength control
   color += bloomColor;
   color = clamp(color, 0.0, 1.0);
-
-  color = tonemap(color);
 
   gl_FragColor = vec4(color, 1.0);
 
