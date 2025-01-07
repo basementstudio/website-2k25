@@ -9,14 +9,19 @@ export default function BlogList({ data }: { data: QueryType }) {
     .slice(2)
 
   return (
-    <section className="grid-layout">
-      <h2 className="col-start-1 col-end-5 mb-3 text-subheading capitalize text-brand-w2">
-        more news
-      </h2>
-      <div className="col-span-12 grid grid-cols-12 gap-2">
+    <section className="grid-layout pb-[35px]">
+      <div className="col-span-12 grid grid-cols-12">
+        <h2 className="col-span-12 col-start-1 border-b border-brand-w1/20 pb-3 text-subheading capitalize text-brand-w2">
+          more news
+        </h2>
+
         {posts.map((post) => (
-          <div key={post._slug} className="col-span-12 grid grid-cols-12 gap-2">
-            <div className="col-span-2 aspect-video bg-brand-g2" />
+          <div
+            key={post._slug}
+            className="group relative col-span-12 grid grid-cols-12 gap-2 border-b border-brand-w1/20 py-2"
+          >
+            <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="with-dots col-span-2 h-[124px] w-[276px] bg-brand-g2/20" />
             <p className="col-start-5 col-end-8 text-subheading text-brand-w2">
               {post._title}
             </p>
