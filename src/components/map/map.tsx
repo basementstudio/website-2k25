@@ -76,7 +76,6 @@ function InnerMap() {
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
-  const [stairsFloor, setStairsFloor] = useState<Object3D | null>(null)
 
   const { fogColor, fogDensity, fogDepth } = useControls("fog", {
     fogColor: {

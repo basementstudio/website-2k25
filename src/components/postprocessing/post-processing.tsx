@@ -40,7 +40,7 @@ const material = new ShaderMaterial({
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
   useControls("basics", {
     contrast: {
-      value: 1,
+      value: 1.02,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -49,7 +49,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     brightness: {
-      value: 1,
+      value: 0.31,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -58,7 +58,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     exposure: {
-      value: 1,
+      value: 0.54,
       min: 0.0,
       max: 4.0,
       step: 0.01,
@@ -67,7 +67,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     gamma: {
-      value: 1,
+      value: 0.73,
       min: 0.0,
       max: 2.2,
       step: 0.01,
@@ -88,7 +88,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomStrength: {
-      value: 0.1,
+      value: 0.01,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -97,7 +97,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomRadius: {
-      value: 16.0,
+      value: 32.0,
       min: 1.0,
       max: 32.0,
       step: 1,
