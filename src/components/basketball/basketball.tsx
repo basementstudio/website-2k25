@@ -3,6 +3,8 @@ import { RigidBody } from "@react-three/rapier"
 import { RefObject, useMemo, useRef } from "react"
 import { Mesh } from "three"
 
+import { useGameAudio } from "@/hooks/use-game-audio"
+
 import { useAssets } from "../assets-provider"
 
 interface BasketballProps {
@@ -29,6 +31,8 @@ export const Basketball = ({
   handlePointerMove,
   handlePointerUp
 }: BasketballProps) => {
+  const { playSoundFX } = useGameAudio()
+
   const { basketball } = useAssets()
   const basketballModel = useGLTF(basketball)
   const bounceCount = useRef(0)
@@ -39,6 +43,8 @@ export const Basketball = ({
   )
 
   const handleCollision = (other: any) => {
+    const randomVolume = Math.random() * 0.5
+    playSoundFX("BASKETBALL_THUMP", randomVolume)
     if (!isDragging) {
       if (other.rigidBodyObject?.name === "floor") {
         bounceCount.current += 1

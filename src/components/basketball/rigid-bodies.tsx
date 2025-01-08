@@ -1,6 +1,7 @@
 import { CuboidCollider } from "@react-three/rapier"
 import { RigidBody } from "@react-three/rapier"
 
+import { useGameAudio } from "@/hooks/use-game-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 
 export default function RigidBodies({
@@ -9,6 +10,15 @@ export default function RigidBodies({
   hoopPosition: { x: number; y: number; z: number }
 }) {
   const { setScore } = useMinigameStore()
+  const { playSoundFX } = useGameAudio()
+
+  const handleScore = () => {
+    setScore((prev) => prev + 1000)
+    playSoundFX("BASKETBALL_NET", 0.6)
+
+    // event for net animation
+    window.dispatchEvent(new Event("basketball-score"))
+  }
 
   return (
     <>
@@ -47,9 +57,7 @@ export default function RigidBodies({
       >
         <CuboidCollider
           args={[0.05, 0.05, 0.05]}
-          onIntersectionEnter={() => {
-            setScore((prev) => prev + 1000)
-          }}
+          onIntersectionEnter={handleScore}
         />
 
         {/* stairs rigid body */}

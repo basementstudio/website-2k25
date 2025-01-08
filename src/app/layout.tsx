@@ -18,6 +18,7 @@ import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Footer } from "@/components/layout/footer"
 import { Navbar } from "@/components/layout/navbar"
+import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
 
 export const metadata: Metadata = {
@@ -57,11 +58,12 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
               <Grid />
             </main>
             <Footer />
+
+            <AppHooks />
           </body>
         </InspectableProvider>
       </AssetsProvider>
     </html>
   )
 }
-
 export default RootLayout

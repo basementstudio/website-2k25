@@ -4,7 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame, useLoader } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
-import { memo, useEffect, useMemo, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Mesh,
   MeshStandardMaterial,
@@ -22,6 +22,7 @@ import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
+import { animateNet, NET_ANIMATION_SPEED } from "@/utils/basketball-utils"
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
@@ -62,8 +63,9 @@ function useLightmaps(): Record<string, Texture> {
 }
 
 function InnerMap() {
-  const { map } = useAssets()
+  const { map, basketballNet } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
+  const { scene: basketballNetV2 } = useGLTF(basketballNet)
 
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
@@ -76,6 +78,10 @@ function InnerMap() {
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
+
+  const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
+  const animationProgress = useRef(0)
+  const isAnimating = useRef(false)
 
   const { fogColor, fogDensity, fogDepth } = useControls("fog", {
     fogColor: {
@@ -105,6 +111,12 @@ function InnerMap() {
 
       material.uniforms.uJitter.value = jitter
     })
+
+    if (keyframedNet && isAnimating.current) {
+      const mesh = keyframedNet as Mesh
+      animationProgress.current += NET_ANIMATION_SPEED
+      isAnimating.current = animateNet(mesh, animationProgress.current)
+    }
   })
 
   useEffect(() => {
@@ -119,14 +131,23 @@ function InnerMap() {
     })
 
     const hoopMesh = scene.getObjectByName("SM_BasketballHoop")
+    const newNetMesh = basketballNetV2.getObjectByName("SM_BasketRed-v2")
 
     if (hoopMesh) {
       hoopMesh.removeFromParent()
-
       setBasketballHoop(hoopMesh)
     }
 
-    // Replace materials
+    const originalNet = scene.getObjectByName("SM_BasketRed")
+    if (originalNet) {
+      originalNet.removeFromParent()
+    }
+
+    if (newNetMesh) {
+      newNetMesh.removeFromParent()
+      setKeyframedNet(newNetMesh)
+    }
+
     scene.traverse((child) => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh
@@ -166,7 +187,17 @@ function InnerMap() {
       ...current,
       ...routingNodes
     }))
-  }, [scene])
+  }, [scene, basketballNetV2])
+
+  useEffect(() => {
+    const handleScore = () => {
+      isAnimating.current = true
+      animationProgress.current = 0
+    }
+
+    window.addEventListener("basketball-score", handleScore)
+    return () => window.removeEventListener("basketball-score", handleScore)
+  }, [])
 
   if (!mainScene) return null
 
@@ -182,6 +213,8 @@ function InnerMap() {
           <primitive object={basketballHoop} />
         </RigidBody>
       )}
+
+      {keyframedNet && <primitive object={keyframedNet} />}
       <PlayedBasketballs />
       <LightmapLoader />
     </group>
