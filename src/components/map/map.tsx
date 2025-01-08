@@ -197,6 +197,7 @@ function InnerMap() {
               false
             )
 
+        // @ts-ignore
         if (meshChild.material.name === "BSM_MTL_Glass") {
           crystals.current.push(meshChild)
         }
