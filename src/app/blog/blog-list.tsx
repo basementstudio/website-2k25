@@ -1,7 +1,24 @@
+"use client"
+
 import { QueryType } from "./query"
 
-export default function BlogList({ data }: { data: QueryType }) {
+interface BlogListProps {
+  data?: QueryType
+  selectedCategories?: string[]
+}
+
+export default function BlogList({
+  data,
+  selectedCategories = []
+}: BlogListProps) {
+  if (!data) return null
+
   const posts = data.pages.blog.posts.items
+    .filter(
+      (post) =>
+        selectedCategories.length === 0 ||
+        post.categories?.some((cat) => selectedCategories.includes(cat._title))
+    )
     .sort(
       (a, b) =>
         new Date(b.date || "").getTime() - new Date(a.date || "").getTime()

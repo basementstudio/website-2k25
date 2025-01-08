@@ -1,25 +1,54 @@
+"use client"
+
 import { RichText } from "basehub/react-rich-text"
 
+import { Filters } from "./filters"
 import { QueryType } from "./query"
 
-export default function Featured({ data }: { data: QueryType }) {
-  const posts = data.pages.blog.posts.items.sort(
-    (a, b) =>
-      new Date(b.date || "").getTime() - new Date(a.date || "").getTime()
-  )
+interface FeaturedProps {
+  data?: QueryType
+  selectedCategories?: string[]
+  setSelectedCategories?: (categories: string[]) => void
+  categories?: string[]
+}
+
+export default function Featured({
+  data,
+  selectedCategories = [],
+  setSelectedCategories = () => {},
+  categories = []
+}: FeaturedProps) {
+  if (!data) return null
+
+  const posts = data.pages.blog.posts.items
+    .filter(
+      (post) =>
+        selectedCategories.length === 0 ||
+        post.categories?.some((cat) => selectedCategories.includes(cat._title))
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.date || "").getTime() - new Date(a.date || "").getTime()
+    )
 
   const featuredPosts = [...posts].slice(0, 2)
-
-  const categories = data.pages.blog.posts.items.map((post) => post.categories)
-  console.log(categories)
 
   return (
     <section className="grid-layout">
       <div className="col-span-12 grid grid-cols-12">
-        <h2 className="col-span-12 col-start-1 border-b border-brand-w1/20 pb-3 text-subheading capitalize text-brand-w2">
-          latest news
-        </h2>
-        {featuredPosts.map((post, key) => (
+        <div className="col-span-12 col-start-1 grid grid-cols-12 gap-2 border-b border-brand-w1/20 pb-3">
+          <h2 className="col-span-3 col-start-1 text-subheading capitalize text-brand-w2">
+            latest news
+          </h2>
+          <div className="col-span-2 col-start-9 flex items-end">
+            <Filters
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              categories={categories}
+            />
+          </div>
+        </div>
+        {featuredPosts.map((post) => (
           <div
             key={post._slug}
             className="group relative col-span-12 grid grid-cols-12 gap-2 border-b border-brand-w1/20 py-2"
