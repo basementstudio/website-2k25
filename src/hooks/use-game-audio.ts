@@ -48,7 +48,7 @@ export function useInitializeAudioContext(element?: HTMLElement) {
     const unlock = () => {
       if (!player) {
         useGameAudioStore.setState({ player: new WebAudioPlayer() })
-        console.log("=== 🔊 Audio Player Context is running ===")
+        // console.log("=== 🔊 Audio Player Context is running ===")
       } else {
         targetElement.removeEventListener("click", unlock)
       }

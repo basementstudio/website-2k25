@@ -15,27 +15,22 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
   const fadeOutTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const cleanup = useCallback(() => {
-    console.log("🎵 Cleanup called, current pathname:", pathname)
     if (fadeOutTimeout.current) {
-      console.log("🎵 Clearing fade timeout")
       clearTimeout(fadeOutTimeout.current)
       fadeOutTimeout.current = null
     }
     if (themeSong) {
-      console.log("🎵 Stopping theme song")
       themeSong.stop()
       useGameAudioStore.setState({ themeSong: null })
     }
-  }, [themeSong, pathname])
+  }, [themeSong])
 
   useEffect(() => {
     if (!player || !isEnabled) return
-    console.log("🎵 Audio load effect - isBasketballPage:", isBasketballPage)
 
     const loadAudioSource = async () => {
       try {
         if (!themeSong && isBasketballPage) {
-          console.log("🎵 Loading new theme song")
           const newThemeSong = await player.loadAudioFromURL(THEME_SONG_ASSET)
           newThemeSong.loop = true
           newThemeSong.setVolume(0)
@@ -44,7 +39,6 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
           useGameAudioStore.setState({
             themeSong: newThemeSong
           })
-          console.log("🎵 Theme song loaded and started playing")
         }
       } catch (error) {
         console.error("Error loading basketball theme song:", error)
@@ -55,7 +49,6 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
 
     return () => {
       if (!isBasketballPage) {
-        console.log("🎵 Cleanup on unmount - not basketball page")
         cleanup()
       }
     }
@@ -63,13 +56,11 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
 
   useEffect(() => {
     if (!themeSong || !player || !isEnabled) return
-    console.log("🎵 Volume effect - isBasketballPage:", isBasketballPage)
 
     const gainNode = themeSong.outputNode
     const currentTime = player.audioContext.currentTime
 
     if (isBasketballPage) {
-      console.log("🎵 Fading in theme song")
       gainNode.gain.cancelScheduledValues(currentTime)
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(
@@ -77,20 +68,17 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
         currentTime + FADE_DURATION
       )
     } else {
-      console.log("🎵 Fading out theme song")
       gainNode.gain.cancelScheduledValues(currentTime)
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(0, currentTime + FADE_DURATION)
 
       fadeOutTimeout.current = setTimeout(() => {
-        console.log("🎵 Fade out complete, cleaning up")
         cleanup()
       }, FADE_DURATION * 1000)
     }
 
     return () => {
       if (!isBasketballPage) {
-        console.log("🎵 Volume effect cleanup - not basketball page")
         cleanup()
       }
     }
