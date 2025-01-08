@@ -3,11 +3,8 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame, useLoader } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
-
-import { memo, useEffect, useMemo, useRef, useState } from "react"
-
 import { useControls } from "leva"
-
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Mesh,
   MeshStandardMaterial,
