@@ -1,6 +1,7 @@
 import { Pump } from "basehub/react-pump"
 
 import { query } from "../query"
+import Content from "./content"
 import BlogTitle from "./title"
 
 const Blog = ({ params }: { params: { slug: string } }) => (
@@ -11,6 +12,7 @@ const Blog = ({ params }: { params: { slug: string } }) => (
       return (
         <div className="pb-25 relative flex flex-col gap-[68px] bg-brand-k">
           <BlogTitle data={data} slug={params.slug} />
+          <Content data={data} slug={params.slug} />
         </div>
       )
     }}

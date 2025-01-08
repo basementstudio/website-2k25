@@ -28,6 +28,13 @@ export const Footer = () => (
                 _slug: true
               }
             }
+          },
+          blog: {
+            posts: {
+              items: {
+                _slug: true
+              }
+            }
           }
         },
         company: {
@@ -50,7 +57,7 @@ export const Footer = () => (
       "use server"
 
       const projects = data.pages.projects.projectList.items.length
-      const posts = 10
+      const posts = data.pages.blog.posts.items.length
 
       const LINKS = [
         {
