@@ -45,9 +45,9 @@ export const GameUI = ({
   return (
     <>
       <Html
-        position={[hoopPosition.x - 4.15, hoopPosition.y + 1, hoopPosition.z]}
+        position={[hoopPosition.x - 5.35, hoopPosition.y + 1, hoopPosition.z]}
       >
-        <div className="flex items-start gap-40">
+        <div className={`flex items-start gap-40`}>
           <button
             onClick={handleCloseGame}
             className="min-w-max text-paragraph text-brand-w1"
