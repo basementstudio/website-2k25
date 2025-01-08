@@ -4,8 +4,9 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame, useLoader } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
-import { memo, useEffect, useMemo, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
+  Color,
   Mesh,
   MeshStandardMaterial,
   NearestFilter,
@@ -69,6 +70,8 @@ function InnerMap() {
     null
   )
 
+  const crystals = useRef<Mesh[]>([])
+
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
 
   const shaderMaterialsRef = useCustomShaderMaterial(
@@ -91,6 +94,16 @@ function InnerMap() {
     jitter: 512.0
   })
 
+  // TODO: Remove once we define the final color for the crystals
+  const { color, opacity } = useControls("Crystals", {
+    color: {
+      x: 0.11257215589284897,
+      y: 0.11829517036676407,
+      z: 0.1276027411222458
+    },
+    opacity: 0.2909091114997864
+  })
+
   useFrame(({ clock }) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
@@ -104,6 +117,17 @@ function InnerMap() {
       material.uniforms.fogDepth.value = fogDepth
 
       material.uniforms.uJitter.value = jitter
+    })
+
+    crystals.current.forEach((crystal) => {
+      // @ts-ignore
+      crystal.material.uniforms.baseColor.value = new Color(
+        color.x,
+        color.y,
+        color.z
+      )
+      // @ts-ignore
+      crystal.material.uniforms.opacity.value = opacity
     })
   })
 
@@ -151,6 +175,10 @@ function InnerMap() {
               currentMaterial as MeshStandardMaterial,
               false
             )
+
+        if (meshChild.material.name === "BSM_MTL_Glass") {
+          crystals.current.push(meshChild)
+        }
 
         meshChild.material = newMaterials
 
