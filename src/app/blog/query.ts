@@ -16,6 +16,9 @@ export const query = fragmentOn("Query", {
           },
           categories: {
             _title: true
+          },
+          content: {
+            json: { content: true }
           }
         }
       },

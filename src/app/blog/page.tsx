@@ -6,7 +6,7 @@ import Featured from "./featured"
 import Hero from "./hero"
 import { query } from "./query"
 
-const Blog = () => (
+const Blogs = () => (
   <Pump queries={[query]}>
     {async ([data]) => {
       "use server"
@@ -24,4 +24,4 @@ const Blog = () => (
   </Pump>
 )
 
-export default Blog
+export default Blogs
