@@ -2,7 +2,7 @@ import { useVideoTexture } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { usePathname } from "next/navigation"
 import { Suspense, useEffect, useMemo, useState } from "react"
-import { Mesh, TextureLoader } from "three"
+import { Mesh } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
 import { RenderTexture } from "./render-texture"
@@ -25,7 +25,7 @@ export const ArcadeScreen = () => {
   )
 
   const renderTarget = useMemo(() => {
-    return new WebGLRenderTarget(1024, 1024)
+    return new WebGLRenderTarget(2024, 2024)
   }, [])
 
   useEffect(() => {
@@ -40,19 +40,9 @@ export const ArcadeScreen = () => {
     }
   }, [scene])
 
-  const reflectionTexture = useMemo(() => {
-    return new TextureLoader().load("/textures/arcade-screen/reflection.jpg")
-  }, [])
-
-  const smudgesTexture = useMemo(() => {
-    return new TextureLoader().load("/textures/arcade-screen/smudges.jpg")
-  }, [])
-
   useEffect(() => {
     if (!arcadeScreen) return
 
-    screenMaterial.uniforms.reflectionTexture.value = reflectionTexture
-    screenMaterial.uniforms.smudgesTexture.value = smudgesTexture
     videoTexture.flipY = false
 
     if (pathname === "/arcade") {
@@ -64,8 +54,6 @@ export const ArcadeScreen = () => {
 
     arcadeScreen.material = screenMaterial
   }, [
-    reflectionTexture,
-    smudgesTexture,
     arcadeScreen,
     renderTarget.texture,
     videoTexture,

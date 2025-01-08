@@ -3,7 +3,11 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame, useLoader } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
+
 import { memo, useEffect, useMemo, useRef, useState } from "react"
+
+import { useControls } from "leva"
+
 import {
   Mesh,
   MeshStandardMaterial,
@@ -11,7 +15,8 @@ import {
   NoColorSpace,
   Object3D,
   Object3DEventMap,
-  Texture
+  Texture,
+  Vector3
 } from "three"
 import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js"
 
@@ -76,13 +81,38 @@ function InnerMap() {
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
+
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
 
+  const { fogColor, fogDensity, fogDepth } = useControls("fog", {
+    fogColor: {
+      x: 0.4,
+      y: 0.4,
+      z: 0.4
+    },
+    fogDensity: 0.05,
+    fogDepth: 9.0
+  })
+
+  const { jitter } = useControls("jitter", {
+    jitter: 512.0
+  })
+
   useFrame(({ clock }) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
+
+      material.uniforms.fogColor.value = new Vector3(
+        fogColor.x,
+        fogColor.y,
+        fogColor.z
+      )
+      material.uniforms.fogDensity.value = fogDensity
+      material.uniforms.fogDepth.value = fogDepth
+
+      material.uniforms.uJitter.value = jitter
     })
 
     if (keyframedNet && isAnimating.current) {

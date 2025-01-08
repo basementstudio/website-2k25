@@ -40,7 +40,7 @@ const material = new ShaderMaterial({
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
   useControls("basics", {
     contrast: {
-      value: 1,
+      value: 1.02,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -49,7 +49,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     brightness: {
-      value: 1,
+      value: 0.31,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -58,7 +58,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     exposure: {
-      value: 1,
+      value: 0.54,
       min: 0.0,
       max: 4.0,
       step: 0.01,
@@ -67,7 +67,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     gamma: {
-      value: 1,
+      value: 0.73,
       min: 0.0,
       max: 2.2,
       step: 0.01,
@@ -79,7 +79,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
 
   useControls("bloom", {
     bloomThreshold: {
-      value: 0.91,
+      value: 3,
       min: 0.0,
       max: 10.0,
       step: 0.01,
@@ -88,7 +88,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomStrength: {
-      value: 0.12,
+      value: 0.01,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -97,9 +97,9 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomRadius: {
-      value: 34.0,
-      min: 2.0,
-      max: 50.0,
+      value: 32.0,
+      min: 1.0,
+      max: 32.0,
       step: 1,
       onChange(value) {
         material.uniforms.uBloomRadius.value = value
@@ -116,34 +116,34 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       onChange(value) {
         material.uniforms.uPixelSize.value = value
       }
-    },
-    bias: {
-      value: 0.39,
-      min: 0.0,
-      max: 1.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uBias.value = value
-      }
-    },
-    colorMultiplier: {
-      value: 0.26,
-      min: 0.0,
-      max: 1.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uColorMultiplier.value = value
-      }
-    },
-    noiseFactor: {
-      value: 0.17,
-      min: 0.0,
-      max: 2.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uNoiseFactor.value = value
-      }
     }
+    // bias: {
+    //   value: 0.39,
+    //   min: 0.0,
+    //   max: 1.0,
+    //   step: 0.01,
+    //   onChange(value) {
+    //     material.uniforms.uBias.value = value
+    //   }
+    // },
+    // colorMultiplier: {
+    //   value: 0.26,
+    //   min: 0.0,
+    //   max: 1.0,
+    //   step: 0.01,
+    //   onChange(value) {
+    //     material.uniforms.uColorMultiplier.value = value
+    //   }
+    // },
+    // noiseFactor: {
+    //   value: 0.17,
+    //   min: 0.0,
+    //   max: 2.0,
+    //   step: 0.01,
+    //   onChange(value) {
+    //     material.uniforms.uNoiseFactor.value = value
+    //   }
+    // }
   })
 
   useEffect(() => {

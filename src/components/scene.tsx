@@ -38,7 +38,7 @@ export const Scene = () => {
         }}
         eventSource={documentElement}
         eventPrefix="client"
-        camera={{ fov: 45 }}
+        camera={{ fov: 60 }}
       >
         <Renderer
           sceneChildren={
@@ -49,7 +49,6 @@ export const Scene = () => {
               <MapWire />
               <Inspectables />
               <Environment preset="studio" />
-
               <Physics paused={!isBasketball}>
                 <Map />
                 <HoopMinigame />
