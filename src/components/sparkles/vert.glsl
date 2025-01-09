@@ -18,6 +18,7 @@ void main() {
     modelPosition.y += cos(time * speed + modelPosition.y * noise.y * 100.0) * 0.2;
     modelPosition.z += cos(time * speed + modelPosition.z * noise.z * 100.0) * 0.2;
 
+    vec4 viewPosition = viewMatrix * modelPosition;
     vec4 projectionPostion = projectionMatrix * viewPosition;
     gl_Position = projectionPostion;
 
