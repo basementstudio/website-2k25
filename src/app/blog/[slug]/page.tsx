@@ -4,7 +4,14 @@ import { query } from "../query"
 import Content from "./content"
 import BlogTitle from "./title"
 
-const Blog = ({ params }: { params: { slug: string } }) => (
+interface Props {
+  params: {
+    slug: string
+  }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+const Blog = async ({ params }: Props) => (
   <Pump queries={[query]}>
     {async ([data]) => {
       "use server"
