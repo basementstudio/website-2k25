@@ -51,7 +51,7 @@ export const query = fragmentOn("Query", {
           _id: true,
           title: true,
           date: true,
-          url: true,
+          awardUrl: true,
           project: {
             _title: true
           }

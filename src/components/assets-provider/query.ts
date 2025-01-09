@@ -21,6 +21,11 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
       url: true
     }
   },
+  basketballNet: {
+    file: {
+      url: true
+    }
+  },
   inspectables: {
     inspectableList: {
       items: {

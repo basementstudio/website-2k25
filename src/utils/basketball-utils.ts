@@ -1,6 +1,8 @@
 import { RapierRigidBody } from "@react-three/rapier"
 import { RefObject } from "react"
-import { Vector2, Vector3 } from "three"
+import { Mesh, Vector2, Vector3 } from "three"
+
+import { GameAudioSFXKey } from "@/hooks/use-game-audio"
 
 import { GameAudioSFXKey } from "@/hooks/use-game-audio"
 
@@ -47,6 +49,42 @@ interface HandlePointerUpParams {
   upStrength: number
   forwardStrength: number
   playSoundFX: (sfx: GameAudioSFXKey, volume?: number) => void
+}
+
+interface MorphTargetMesh extends Mesh {
+  morphTargetInfluences?: number[]
+}
+
+// total duration: ~4/NET_ANIMATION_SPEED secs
+export const NET_ANIMATION_SPEED = 0.08
+
+export const animateNet = (
+  mesh: MorphTargetMesh,
+  progress: number
+): boolean => {
+  if (!mesh.morphTargetInfluences) return false
+
+  if (progress <= 1) {
+    mesh.morphTargetInfluences[0] = 1 - progress
+    mesh.morphTargetInfluences[1] = progress
+  } else if (progress <= 2) {
+    mesh.morphTargetInfluences[1] = 2 - progress
+    mesh.morphTargetInfluences[2] = progress - 1
+  } else if (progress <= 3) {
+    mesh.morphTargetInfluences[2] = 3 - progress
+    mesh.morphTargetInfluences[3] = progress - 2
+  } else {
+    mesh.morphTargetInfluences[3] = Math.max(0, 4 - progress)
+    mesh.morphTargetInfluences[4] = Math.random() * 0.2
+    mesh.morphTargetInfluences[5] = Math.random() * 0.2
+
+    if (progress >= 4) {
+      mesh.morphTargetInfluences.fill(0)
+      return false
+    }
+  }
+
+  return true
 }
 
 export const calculateShotMetrics = (

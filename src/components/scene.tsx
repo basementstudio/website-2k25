@@ -5,7 +5,7 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import { usePathname } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
@@ -49,7 +49,6 @@ export const Scene = () => {
               <MapWire />
               <Inspectables />
               <Environment preset="studio" />
-
               <Physics paused={!isBasketball}>
                 <Map />
                 <HoopMinigame />

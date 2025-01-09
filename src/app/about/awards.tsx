@@ -21,7 +21,7 @@ export const Awards = ({ data }: { data: QueryType }) => (
             className="group relative grid grid-cols-12 gap-2 [&:first-child>.item]:after:absolute [&:first-child>.item]:after:-top-px [&:first-child>.item]:after:left-0 [&:first-child>.item]:after:w-full [&:first-child>.item]:after:border-t [&:first-child>.item]:after:border-brand-w1/20"
           >
             <Link
-              href={award.url ?? ""}
+              href={award.awardUrl ?? ""}
               className="item relative col-start-5 col-end-13 grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
             >
               <span className="col-span-1">{award.title}</span>

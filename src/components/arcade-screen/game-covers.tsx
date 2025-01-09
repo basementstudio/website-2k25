@@ -64,10 +64,11 @@ export const GameCovers = () => {
                 positionType={"absolute"}
               />
               <Container
-                height={30}
+                height={38}
                 width={"auto"}
                 backgroundColor={COLORS_THEME.black}
                 zIndexOffset={1}
+                padding={8}
               >
                 <Text
                   fontSize={20}
@@ -99,10 +100,11 @@ export const GameCovers = () => {
                 positionType={"absolute"}
               />
               <Container
-                height={30}
+                height={38}
                 width={"auto"}
                 backgroundColor={COLORS_THEME.black}
                 zIndexOffset={1}
+                padding={8}
               >
                 <Text
                   fontSize={20}

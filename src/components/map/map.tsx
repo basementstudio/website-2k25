@@ -4,8 +4,9 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame, useLoader } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
-import { memo, useEffect, useMemo, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
+  Color,
   Mesh,
   MeshStandardMaterial,
   NearestFilter,
@@ -22,6 +23,7 @@ import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
+import { animateNet, NET_ANIMATION_SPEED } from "@/utils/basketball-utils"
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
@@ -62,12 +64,15 @@ function useLightmaps(): Record<string, Texture> {
 }
 
 function InnerMap() {
-  const { map } = useAssets()
+  const { map, basketballNet } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
+  const { scene: basketballNetV2 } = useGLTF(basketballNet)
 
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
   )
+
+  const crystals = useRef<Mesh[]>([])
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
 
@@ -76,7 +81,10 @@ function InnerMap() {
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
-  const [stairsFloor, setStairsFloor] = useState<Object3D | null>(null)
+
+  const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
+  const animationProgress = useRef(0)
+  const isAnimating = useRef(false)
 
   const { fogColor, fogDensity, fogDepth } = useControls("fog", {
     fogColor: {
@@ -90,6 +98,16 @@ function InnerMap() {
 
   const { jitter } = useControls("jitter", {
     jitter: 512.0
+  })
+
+  // TODO: Remove once we define the final color for the crystals
+  const { color, opacity } = useControls("Crystals", {
+    color: {
+      x: 0.11257215589284897,
+      y: 0.11829517036676407,
+      z: 0.1276027411222458
+    },
+    opacity: 0.2909091114997864
   })
 
   useFrame(({ clock }) => {
@@ -106,6 +124,23 @@ function InnerMap() {
 
       material.uniforms.uJitter.value = jitter
     })
+
+    crystals.current.forEach((crystal) => {
+      // @ts-ignore
+      crystal.material.uniforms.baseColor.value = new Color(
+        color.x,
+        color.y,
+        color.z
+      )
+      // @ts-ignore
+      crystal.material.uniforms.opacity.value = opacity
+    })
+
+    if (keyframedNet && isAnimating.current) {
+      const mesh = keyframedNet as Mesh
+      animationProgress.current += NET_ANIMATION_SPEED
+      isAnimating.current = animateNet(mesh, animationProgress.current)
+    }
   })
 
   useEffect(() => {
@@ -120,14 +155,23 @@ function InnerMap() {
     })
 
     const hoopMesh = scene.getObjectByName("SM_BasketballHoop")
+    const newNetMesh = basketballNetV2.getObjectByName("SM_BasketRed-v2")
 
     if (hoopMesh) {
       hoopMesh.removeFromParent()
-
       setBasketballHoop(hoopMesh)
     }
 
-    // Replace materials
+    const originalNet = scene.getObjectByName("SM_BasketRed")
+    if (originalNet) {
+      originalNet.removeFromParent()
+    }
+
+    if (newNetMesh) {
+      newNetMesh.removeFromParent()
+      setKeyframedNet(newNetMesh)
+    }
+
     scene.traverse((child) => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh
@@ -153,6 +197,11 @@ function InnerMap() {
               false
             )
 
+        // @ts-ignore
+        if (meshChild.material.name === "BSM_MTL_Glass") {
+          crystals.current.push(meshChild)
+        }
+
         meshChild.material = newMaterials
 
         meshChild.userData.hasGlobalMaterial = true
@@ -167,7 +216,17 @@ function InnerMap() {
       ...current,
       ...routingNodes
     }))
-  }, [scene])
+  }, [scene, basketballNetV2])
+
+  useEffect(() => {
+    const handleScore = () => {
+      isAnimating.current = true
+      animationProgress.current = 0
+    }
+
+    window.addEventListener("basketball-score", handleScore)
+    return () => window.removeEventListener("basketball-score", handleScore)
+  }, [])
 
   if (!mainScene) return null
 
@@ -183,6 +242,8 @@ function InnerMap() {
           <primitive object={basketballHoop} />
         </RigidBody>
       )}
+
+      {keyframedNet && <primitive object={keyframedNet} />}
       <PlayedBasketballs />
       <LightmapLoader />
     </group>
