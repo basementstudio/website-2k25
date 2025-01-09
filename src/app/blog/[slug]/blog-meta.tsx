@@ -55,7 +55,7 @@ export default function BlogMeta({ data }: { data: BlogMetaProps }) {
       </Link>
       <div className="col-span-10 col-start-2 flex justify-center">
         <div className="flex w-full max-w-[900px] flex-col gap-3">
-          <div>
+          <div className="flex gap-1">
             {data.categories?.map((category) => (
               <p
                 key={category._title}
