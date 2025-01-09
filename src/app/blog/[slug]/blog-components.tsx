@@ -54,7 +54,13 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
 export const BlogVideo = (props: HandlerProps<"video">) => {
   return (
     <div className="with-dots grid min-h-[312px] w-full place-items-center border border-brand-w1/20">
-      <video autoPlay muted {...props} className="w-[62.23%] object-contain" />
+      <video
+        autoPlay
+        loop
+        muted
+        {...props}
+        className="w-[62.23%] object-contain"
+      />
     </div>
   )
 }
@@ -120,7 +126,7 @@ export const Code = ({ children }: HandlerProps<"code">) => {
 
 export const Pre = ({ language, code }: HandlerProps<"pre">) => {
   return (
-    <div className="bg-codeblock-k2 w-full border-y border-brand-w2/20 py-3">
+    <div className="w-full border-y border-brand-w2/20 bg-codeblock-k2 py-3">
       <div className={styles["code-block"]}>
         <CodeBlock
           snippets={[

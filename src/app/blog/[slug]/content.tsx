@@ -1,4 +1,5 @@
 import { RichText } from "basehub/react-rich-text"
+import Image from "next/image"
 
 import { QueryType } from "../query"
 import {
