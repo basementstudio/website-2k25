@@ -39,36 +39,34 @@ export const SPAWN_POINTS: {
     scale: [2.5, 1.5, 0.75],
     count: 60
   },
-
   // Top Right Lamps
   {
-    position: [11.1, 5.8, -18.5],
-    scale: [1, 1, 5.5],
+    position: [11.1, 5.4, -18.5],
+    scale: [1, 0.6, 5.5],
     count: 360
   },
-
   // Top Left
   {
-    position: [4.1, 5.8, -18.6],
-    scale: [1, 1, 3.75],
+    position: [4.1, 5.4, -18.6],
+    scale: [1, 0.6, 3.75],
     count: 360
   },
   // Top Bottom Right Lamps
   {
-    position: [11.1, 5.8, -25.6],
-    scale: [1, 1, 3.75],
+    position: [11.1, 5.4, -25.6],
+    scale: [1, 0.6, 3.75],
     count: 360
   },
   // Top Bottom Center Lamps
   {
-    position: [7.25, 5.8, -25.6],
-    scale: [1, 1, 3.75],
+    position: [7.25, 5.4, -25.6],
+    scale: [1, 0.6, 3.75],
     count: 360
   },
   // Top Bottom Left Lamps
   {
-    position: [4.1, 5.8, -25.6],
-    scale: [1, 1, 3.75],
+    position: [4.1, 5.4, -25.6],
+    scale: [1, 0.6, 3.75],
     count: 360
   }
 ]
