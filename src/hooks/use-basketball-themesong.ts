@@ -20,7 +20,6 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
       fadeOutTimeout.current = null
     }
     if (themeSong) {
-
       themeSong.stop()
       useGameAudioStore.setState({ themeSong: null })
     }

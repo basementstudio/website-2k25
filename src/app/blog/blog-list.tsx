@@ -1,6 +1,9 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
+
+import { formatDate } from "@/utils/format-date"
 
 import { QueryType } from "./query"
 
@@ -44,7 +47,15 @@ export default function BlogList({
               href={`/blog/${post._slug}`}
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <div className="with-dots col-span-2 h-[124px] w-[276px] bg-brand-g2/20" />
+              <div className="with-dots col-span-2 h-[124px] w-full max-w-[276px] overflow-clip bg-brand-g2/20">
+                <Image
+                  src={post.heroImage?.url || ""}
+                  alt={post._title || ""}
+                  width={276}
+                  height={124}
+                  className="h-full w-full object-cover"
+                />
+              </div>
               <p className="col-start-5 col-end-8 text-subheading text-brand-w2">
                 {post._title}
               </p>
@@ -52,18 +63,14 @@ export default function BlogList({
                 {post.categories?.map((category) => (
                   <p
                     key={category._title}
-                    className="h-max w-max bg-brand-g2 px-1 text-paragraph text-brand-w2"
+                    className="h-max w-max bg-brand-g2 px-1 text-[11px] text-brand-w2"
                   >
                     {category._title}
                   </p>
                 ))}
               </div>
               <p className="col-span-1 col-start-11 text-paragraph text-brand-w2">
-                {new Date(post.date || "").toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric"
-                })}
+                {formatDate(post.date || "")}
               </p>
             </Link>
           </div>

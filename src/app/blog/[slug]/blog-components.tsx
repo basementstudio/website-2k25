@@ -23,7 +23,14 @@ const theme = createCssVariablesTheme({
     "token-function": "var(--bsmnt-token-function)",
     "token-string-expression": "var(--bsmnt-token-string-expression)",
     "token-punctuation": "var(--bsmnt-token-punctuation)",
-    "token-link": "var(--bsmnt-token-link)"
+    "token-link": "var(--bsmnt-token-link)",
+    "token-tag": "var(--bsmnt-token-tag)",
+    "token-tag-name": "var(--bsmnt-token-tag-name)",
+    "token-attr-name": "var(--bsmnt-token-attr-name)",
+    "token-attr-value": "var(--bsmnt-token-attr-value)",
+    "token-operator": "var(--bsmnt-token-operator)",
+    "token-builtin": "var(--bsmnt-token-builtin)",
+    "token-class-name": "var(--bsmnt-token-class-name)"
   },
   fontStyle: true
 })
@@ -32,7 +39,7 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
   if (!src) return null
 
   return (
-    <div className="with-dots mb-10 mt-5 grid min-h-[312px] w-full place-items-center border border-brand-w1/20">
+    <div className="with-dots grid min-h-[312px] w-full place-items-center border border-brand-w1/20">
       <Image
         src={src}
         width={width ?? 1920}
@@ -46,26 +53,26 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
 
 export const BlogVideo = (props: HandlerProps<"video">) => {
   return (
-    <div className="with-dots mb-10 mt-5 grid min-h-[312px] w-full place-items-center border border-brand-w1/20">
+    <div className="with-dots grid min-h-[312px] w-full place-items-center border border-brand-w1/20">
       <video autoPlay muted {...props} className="w-[62.23%] object-contain" />
     </div>
   )
 }
 
 export const Intro = ({ children }: HandlerProps<"p">) => {
-  return <p className="py-10 text-subheading text-brand-w2">{children}</p>
+  return <p className="mb-10 text-subheading text-brand-w2">{children}</p>
 }
 
 export const Paragraph = ({ children }: HandlerProps<"p">) => {
-  return <p className="mb-5 text-blog text-brand-w2">{children}</p>
+  return <p className="text-pretty text-blog text-brand-w2">{children}</p>
 }
 
 export const Heading2 = ({ children }: HandlerProps<"h2">) => {
-  return <h2 className="pb-6 text-subheading text-brand-w2">{children}</h2>
+  return <h2 className="text-subheading text-brand-w2">{children}</h2>
 }
 
 export const Heading3 = ({ children }: HandlerProps<"h3">) => {
-  return <h3 className="pb-6 text-subheading text-brand-w2">{children}</h3>
+  return <h3 className="text-subheading text-brand-w2">{children}</h3>
 }
 
 export const BlogLink = ({ children, href }: HandlerProps<"a">) => {
@@ -82,7 +89,7 @@ export const BlogLink = ({ children, href }: HandlerProps<"a">) => {
 
 export const OrderedList = ({ children }: HandlerProps<"ol">) => {
   return (
-    <ul className="list-decimal text-brand-w2 marker:text-brand-o">
+    <ul className="list-decimal pl-3.5 text-brand-w2 marker:text-brand-o">
       {children}
     </ul>
   )
@@ -93,12 +100,14 @@ export const UnorderedList = ({
   isTasksList
 }: HandlerProps<"ul"> & { isTasksList?: boolean }) => {
   return (
-    <ul className="list-disc text-brand-w2 marker:text-brand-o">{children}</ul>
+    <ul className="list-disc pl-3.5 text-brand-w2 marker:text-brand-o">
+      {children}
+    </ul>
   )
 }
 
 export const ListItem = ({ children }: HandlerProps<"li">) => {
-  return <li className="text-brand-w2">{children}</li>
+  return <li className="text-brand-w2 marker:text-brand-o">{children}</li>
 }
 
 export const Code = ({ children }: HandlerProps<"code">) => {
@@ -111,28 +120,30 @@ export const Code = ({ children }: HandlerProps<"code">) => {
 
 export const Pre = ({ language, code }: HandlerProps<"pre">) => {
   return (
-    <div className={styles["code-block"]}>
-      <CodeBlock
-        snippets={[
-          { code: `${code}`, language: language as Language, id: "1" }
-        ]}
-        theme={theme}
-        components={{
-          div: ({ children, ...rest }: { children: ReactNode }) => (
-            <div className={styles.content} {...rest}>
-              {children}
-            </div>
-          ),
-          pre: ({ children, ...rest }: { children: ReactNode }) => (
-            <pre className={styles.pre} {...rest}>
-              {children}
-            </pre>
-          )
-        }}
-        lineNumbers={{
-          className: styles.line_indicator
-        }}
-      />
+    <div className="bg-codeblock-k2 w-full border-y border-brand-w2/20 py-3">
+      <div className={styles["code-block"]}>
+        <CodeBlock
+          snippets={[
+            { code: `${code}`, language: language as Language, id: "1" }
+          ]}
+          theme={theme}
+          components={{
+            div: ({ children, ...rest }: { children: ReactNode }) => (
+              <div className={styles.content} {...rest}>
+                {children}
+              </div>
+            ),
+            pre: ({ children, ...rest }: { children: ReactNode }) => (
+              <pre className={styles.pre} {...rest}>
+                {children}
+              </pre>
+            )
+          }}
+          lineNumbers={{
+            className: styles.line_indicator
+          }}
+        />
+      </div>
     </div>
   )
 }

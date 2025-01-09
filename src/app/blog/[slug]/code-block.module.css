@@ -2,33 +2,33 @@
   display: flex;
   flex-direction: column;
   background-color: theme("colors.brand.k");
-  margin: 1.5rem 0;
+  margin: 40px 0px 0px 0px;
   width: 100%;
   overflow: hidden;
+  font-size: theme("fontSize.blog") !important;
 }
 
 .content {
   overflow-x: auto;
-  background-color: theme("colors.brand.k");
+  background-color: theme("colors.codeblock.k2");
   position: relative;
   --bsmnt-color-text: theme("colors.brand.w2");
-  --bsmnt-background: theme("colors.brand.k");
-  --bsmnt-token-constant: theme("colors.brand.o");
+  --bsmnt-background: theme("colors.codeblock.k2");
+  --bsmnt-token-constant: theme("colors.codeblock.lo");
   --bsmnt-token-string: theme("colors.brand.w1");
   --bsmnt-token-comment: theme("colors.brand.g1");
-  --bsmnt-token-keyword: theme("colors.brand.o");
-  --bsmnt-token-parameter: theme("colors.brand.w2");
-  --bsmnt-token-function: theme("colors.brand.w2");
-  --bsmnt-token-string-expression: theme("colors.brand.w2");
+  --bsmnt-token-keyword: theme("colors.codeblock.lo");
+  --bsmnt-token-parameter: theme("colors.brand.w1");
+  --bsmnt-token-function: theme("colors.codeblock.o");
+  --bsmnt-token-string-expression: theme("colors.codeblock.do");
   --bsmnt-token-punctuation: theme("colors.brand.o");
-  --bsmnt-token-link: theme("colors.brand.o");
+  --bsmnt-token-link: theme("colors.codeblock.lo");
+  --bsmnt-token-tag: theme("colors.codeblock.o");
 }
 
 .pre {
   margin: 0 !important;
   padding: 1.5rem;
-  /* font-size: theme("fontSize.heading") !important; */
-  font-size: 0.875rem !important;
   background-color: theme("colors.brand.k") !important;
   color: theme("colors.brand.w2");
 }
@@ -38,10 +38,10 @@
   pointer-events: none;
   position: sticky;
   left: 0;
-  background-color: theme("colors.brand.k");
+  background-color: theme("colors.codeblock.k2");
   color: theme("colors.brand.g1");
   user-select: none;
   width: 44px !important;
   text-align: end;
-  padding-right: 12px !important;
+  padding-right: 16px !important;
 }

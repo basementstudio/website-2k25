@@ -17,6 +17,12 @@ export default {
           k: "#000000",
           o: "#FF4D00",
           r: "#E60002"
+        },
+        codeblock: {
+          o: "#FF4D00",
+          lo: "#FF9C71",
+          do: "#EBBA9F",
+          k2: "#0A0A0A"
         }
       },
       fontSize: {

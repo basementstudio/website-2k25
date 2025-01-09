@@ -1,7 +1,10 @@
 "use client"
 
 import { RichText } from "basehub/react-rich-text"
+import Image from "next/image"
 import Link from "next/link"
+
+import { formatDate } from "@/utils/format-date"
 
 import { Filters } from "./filters"
 import { QueryType } from "./query"
@@ -60,7 +63,15 @@ export default function Featured({
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-              <div className="with-dots col-span-3 h-[228px] w-[418px] bg-brand-g2/20" />
+              <div className="with-dots col-span-3 h-[228px] w-full max-w-[418px] overflow-clip bg-brand-g2/20">
+                <Image
+                  src={post.heroImage?.url || ""}
+                  alt={post._title || ""}
+                  width={418}
+                  height={228}
+                  className="h-full w-full object-cover"
+                />
+              </div>
               <h2 className="col-start-5 col-end-8 text-subheading text-brand-w2">
                 {post._title}
               </h2>
@@ -73,18 +84,14 @@ export default function Featured({
                   {post.categories?.map((category) => (
                     <p
                       key={category._title}
-                      className="h-max w-max bg-brand-g2 px-1 text-paragraph text-brand-w2"
+                      className="h-max w-max bg-brand-g2 px-1 text-[11px] text-brand-w2"
                     >
                       {category._title}
                     </p>
                   ))}
                 </div>
                 <p className="col-span-2 col-start-3 text-paragraph text-brand-w2">
-                  {new Date(post.date || "").toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric"
-                  })}
+                  {formatDate(post.date || "")}
                 </p>
               </div>
             </Link>

@@ -4,8 +4,6 @@ import { Mesh, Vector2, Vector3 } from "three"
 
 import { GameAudioSFXKey } from "@/hooks/use-game-audio"
 
-import { GameAudioSFXKey } from "@/hooks/use-game-audio"
-
 interface Position {
   x: number
   y: number

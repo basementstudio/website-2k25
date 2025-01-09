@@ -19,6 +19,12 @@ export const query = fragmentOn("Query", {
           },
           content: {
             json: { content: true }
+          },
+          heroImage: {
+            url: true
+          },
+          authors: {
+            _title: true
           }
         }
       },

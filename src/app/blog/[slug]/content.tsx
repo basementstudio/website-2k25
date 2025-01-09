@@ -15,6 +15,7 @@ import {
   Pre,
   UnorderedList
 } from "./blog-components"
+import BlogMeta from "./blog-meta"
 
 export default function Content({
   data,
@@ -30,7 +31,8 @@ export default function Content({
   return (
     <div className="grid-layout">
       <div className="col-span-12 flex flex-col items-center justify-start">
-        <article className="col-span-12 max-w-[900px] text-brand-w2">
+        {post && <BlogMeta data={post as any} />}
+        <article className="col-span-12 flex max-w-[900px] flex-col items-start text-brand-w2 [&>*]:mt-10 [&>p+p]:!mt-[7px]">
           <RichText
             content={intro}
             components={{
