@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import * as THREE from "three"
 
+import { Sparkles } from "@/app/sparkles"
 import { Inspectables } from "@/components/inspectables/inspectables"
 
 import { HoopMinigame } from "./basketball/hoop-minigame"
@@ -28,7 +29,7 @@ export const Scene = () => {
 
   return (
     <div className="absolute inset-0">
-      <Leva />
+      <Leva collapsed />
       <Canvas
         gl={{
           antialias: true,
@@ -49,6 +50,7 @@ export const Scene = () => {
               <MapWire />
               <Inspectables />
               <Environment preset="studio" />
+              <Sparkles />
               <Physics paused={!isBasketball}>
                 <Map />
                 <HoopMinigame />

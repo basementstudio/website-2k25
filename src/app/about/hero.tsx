@@ -8,13 +8,12 @@ import { cn } from "@/utils/cn"
 
 import { QueryType } from "./query"
 
-export const Hero = ({
-  data,
-  className
-}: {
+interface HeroProps {
   data: QueryType
   className?: string
-}) => {
+}
+
+export const Hero = ({ data, className }: HeroProps) => {
   const [indexImage, setIndexImage] = useState(0)
   const interval = useRef<NodeJS.Timeout | null>(null)
 
