@@ -8,8 +8,8 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import * as THREE from "three"
 
-import { Sparkles } from "@/app/sparkles"
 import { Inspectables } from "@/components/inspectables/inspectables"
+import { Sparkles } from "@/components/sparkles"
 
 import { HoopMinigame } from "./basketball/hoop-minigame"
 import { CustomCamera } from "./camera-controls"

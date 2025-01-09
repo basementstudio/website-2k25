@@ -14,12 +14,10 @@ void main() {
     vec4 modelPosition = modelMatrix * vec4(position, 1.0);
 
     // Create quick jittery movement
-
     modelPosition.x += sin(time * speed + modelPosition.x * noise.x * 100.0) * 0.2;
     modelPosition.y += cos(time * speed + modelPosition.y * noise.y * 100.0) * 0.2;
     modelPosition.z += cos(time * speed + modelPosition.z * noise.z * 100.0) * 0.2;
 
-    vec4 viewPosition = viewMatrix * modelPosition;
     vec4 projectionPostion = projectionMatrix * viewPosition;
     gl_Position = projectionPostion;
 
