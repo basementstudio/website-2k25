@@ -64,13 +64,15 @@ export default function Featured({
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
               <div className="with-dots col-span-3 h-[228px] w-full max-w-[418px] overflow-clip bg-brand-g2/20">
-                <Image
-                  src={post.heroImage?.url || ""}
-                  alt={post._title || ""}
-                  width={418}
-                  height={228}
-                  className="h-full w-full object-cover"
-                />
+                {post.heroImage?.url && (
+                  <Image
+                    src={post.heroImage?.url}
+                    alt={post._title || ""}
+                    width={418}
+                    height={228}
+                    className="h-full w-full object-cover"
+                  />
+                )}
               </div>
               <h2 className="col-start-5 col-end-8 text-subheading text-brand-w2">
                 {post._title}

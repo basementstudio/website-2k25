@@ -4,13 +4,10 @@ import { query } from "../query"
 import Content from "./content"
 import BlogTitle from "./title"
 
-interface PageProps {
-  params: Promise<{ slug: string }>
-  searchParams: { [key: string]: string | string[] | undefined }
-}
+type Params = Promise<{ slug: string }>
 
-const Blog = async ({ params }: PageProps) => {
-  const resolvedParams = await params
+const Blog = async (props: { params: Params }) => {
+  const resolvedParams = await props.params
 
   return (
     <Pump queries={[query]}>
