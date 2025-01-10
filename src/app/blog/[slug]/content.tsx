@@ -32,7 +32,7 @@ export default function Content({
   return (
     <div className="grid-layout">
       <div className="col-span-12 flex flex-col items-center justify-start">
-        {post && <BlogMeta data={post as any} />}
+        {post && <BlogMeta categories data={post as any} />}
         <article className="col-span-12 flex max-w-[900px] flex-col items-start text-brand-w2 [&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-6 [&>p+p]:!mt-[7px]">
           <RichText
             content={intro}
@@ -70,9 +70,11 @@ export default function Content({
                 </Pre>
               ),
               video: (props) => <BlogVideo {...props} />
+              // TODO: add quote, sidenotes, codesandbox components
             }}
           />
         </article>
+        <BlogMeta categories={false} data={post as any} />
       </div>
     </div>
   )

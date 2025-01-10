@@ -47,24 +47,35 @@ interface BlogMetaProps {
     | null
 }
 
-export default function BlogMeta({ data }: { data: BlogMetaProps }) {
+export default function BlogMeta({
+  data,
+  categories
+}: {
+  data: BlogMetaProps
+  categories: boolean
+}) {
   return (
     <div className="grid-layout relative text-paragraph">
-      <Link href="/blog" className="col-span-1 col-start-1 text-brand-w1">
-        ← <span className="underline">Blog</span>
-      </Link>
+      {categories && (
+        <Link href="/blog" className="col-span-1 col-start-1 text-brand-w1">
+          ← <span className="underline">Blog</span>
+        </Link>
+      )}
       <div className="col-span-10 col-start-2 flex justify-center">
         <div className="flex w-full max-w-[900px] flex-col gap-3">
-          <div className="flex gap-1">
-            {data.categories?.map((category) => (
-              <p
-                key={category._title}
-                className="h-max w-max bg-brand-g2 px-1 text-[11px] text-brand-w2"
-              >
-                {category._title}
-              </p>
-            ))}
-          </div>
+          {!categories && <hr className="mt-10 border-brand-w1/20" />}
+          {categories && (
+            <div className="flex gap-1">
+              {data.categories?.map((category) => (
+                <p
+                  key={category._title}
+                  className="h-max w-max bg-brand-g2 px-1 text-[11px] text-brand-w2"
+                >
+                  {category._title}
+                </p>
+              ))}
+            </div>
+          )}
           <div className="flex justify-between">
             <p className="text-brand-g1">
               {formatDate(data.date || "")} ·{" "}
@@ -91,7 +102,7 @@ export default function BlogMeta({ data }: { data: BlogMetaProps }) {
               ))}
             </div>
           </div>
-          <hr className="border-brand-w1/20" />
+          {categories && <hr className="border-brand-w1/20" />}
         </div>
       </div>
     </div>
