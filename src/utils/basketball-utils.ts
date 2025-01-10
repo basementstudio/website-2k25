@@ -1,8 +1,43 @@
 import { RapierRigidBody } from "@react-three/rapier"
 import { RefObject } from "react"
-import { Mesh, Vector2, Vector3 } from "three"
+import { Mesh, ShaderMaterial, Vector2, Vector3 } from "three"
 
 import { GameAudioSFXKey } from "@/hooks/use-game-audio"
+
+export const BASKETBALL_FOG = {
+  color: new Vector3(0.4, 0.4, 0.4),
+  density: 0.35,
+  depth: 7.0
+}
+
+export const DEFAULT_FOG = {
+  color: new Vector3(0.4, 0.4, 0.4),
+  density: 0.05,
+  depth: 9.0
+}
+
+export const updateFogSettings = (
+  materials: Record<string, ShaderMaterial>,
+  progress: number,
+  isEntering: boolean
+) => {
+  const startFog = isEntering ? DEFAULT_FOG : BASKETBALL_FOG
+  const endFog = isEntering ? BASKETBALL_FOG : DEFAULT_FOG
+
+  const tempColor = new Vector3()
+  const tempValues = new Vector3()
+
+  Object.values(materials).forEach((material) => {
+    tempColor.copy(startFog.color).lerp(endFog.color, progress)
+    tempValues
+      .set(startFog.density, startFog.depth, 0)
+      .lerp(new Vector3(endFog.density, endFog.depth, 0), progress)
+
+    material.uniforms.fogColor.value.copy(tempColor)
+    material.uniforms.fogDensity.value = tempValues.x
+    material.uniforms.fogDepth.value = tempValues.y
+  })
+}
 
 interface Position {
   x: number
