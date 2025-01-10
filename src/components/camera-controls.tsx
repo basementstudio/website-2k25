@@ -107,7 +107,8 @@ export const CustomCamera = () => {
         }
       }
 
-      gametargetFov.current = newState === "hoop" ? 50 : 60
+      gametargetFov.current =
+        newState === "hoop" ? 50 : newState === "arcade" ? 35 : 60
       fovTransitionProgress.current = 0
 
       previousCameraState.current = newState

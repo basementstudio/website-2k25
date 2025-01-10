@@ -31,7 +31,7 @@ export const Scene = () => {
       <Leva />
       <Canvas
         gl={{
-          antialias: true,
+          antialias: false,
           alpha: false,
           outputColorSpace: THREE.SRGBColorSpace,
           toneMapping: THREE.ACESFilmicToneMapping
