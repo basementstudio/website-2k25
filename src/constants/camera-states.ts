@@ -52,6 +52,26 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     rotationAngle: [0.5, 0.5],
     rotationLerp: 0.03
   },
+  // TODO: Add camera state for careers
+  careers: {
+    name: "careers",
+    object_name: "careers",
+    url: "/careers",
+    position: [6.6, 1.5, -7.1],
+    target: [4.48, 2.0, -12.8],
+    rotationAngle: [0.5, 0.5],
+    rotationLerp: 0.03
+  },
+  // TODO: Add camera state for blog
+  blog: {
+    name: "blog",
+    object_name: "blog",
+    url: "/blog",
+    position: [6.6, 1.5, -7.1],
+    target: [4.48, 2.0, -12.8],
+    rotationAngle: [0.5, 0.5],
+    rotationLerp: 0.03
+  },
   menu: {
     name: "menu",
     position: [16, 14, -5],

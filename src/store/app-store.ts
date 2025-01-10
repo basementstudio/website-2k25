@@ -9,6 +9,8 @@ export type CameraStateKeys =
   | "stairs"
   | "hoop"
   | "projects"
+  | "careers"
+  | "blog"
   | "menu"
 
 export interface CameraState {
@@ -27,7 +29,9 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/arcade": "arcade",
   "/about": "stairs",
   "/basketball": "hoop",
-  "/projects": "projects"
+  "/projects": "projects",
+  "/careers": "careers",
+  "/blog": "blog"
 }
 
 export type CameraName = "main" | "debug-orbit"
