@@ -9,12 +9,7 @@ import { useAssets } from "@/components/assets-provider"
 import { useInspectable } from "./context"
 import { Inspectable } from "./inspectable"
 
-const HARDCODED_INSPECTABLES_POSITIONS = [
-  { x: 2, y: 2.82, z: -11.6 },
-  { x: 2, y: 4.08, z: -13.8 },
-  { x: 2, y: 4, z: -12.3 },
-  { x: 2, y: 5.15, z: -16 }
-]
+const HARDCODED_INSPECTABLES_POSITIONS = [{ x: 2, y: 4, z: -12.3 }]
 
 export const Inspectables = () => {
   const { inspectables } = useAssets()
@@ -58,15 +53,12 @@ export const Inspectables = () => {
 
   return (
     <>
-      {inspectables.map((inspectable, index) => (
-        <Inspectable
-          key={inspectable.id}
-          inspectable={{
-            ...inspectable,
-            position: HARDCODED_INSPECTABLES_POSITIONS[index]
-          }}
-        />
-      ))}
+      <Inspectable
+        inspectable={{
+          ...inspectables[0],
+          position: HARDCODED_INSPECTABLES_POSITIONS[0]
+        }}
+      />
 
       {selected && (
         <mesh

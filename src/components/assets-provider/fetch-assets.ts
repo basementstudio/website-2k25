@@ -10,6 +10,10 @@ export interface AssetsResult {
     mesh: string
     url: string
   }[]
+  glassReflexes: {
+    mesh: string
+    url: string
+  }[]
   inspectables: {
     id: string
     url: string
@@ -26,6 +30,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
     lightmaps: threeDInteractions.map.lightmaps.items.map((item) => ({
       mesh: item._title,
       url: item.exr.url
+    })),
+    glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
+      mesh: item._title,
+      url: item.file?.url ?? ""
     })),
     inspectables: threeDInteractions.inspectables.inspectableList.items.map(
       (item) => ({

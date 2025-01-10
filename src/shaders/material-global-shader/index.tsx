@@ -17,7 +17,8 @@ export const createGlobalShaderMaterial = (
     opacity: baseOpacity = 1.0,
     metalness,
     roughness,
-    alphaMap
+    alphaMap,
+    emissiveMap
   } = baseMaterial
 
   const emissiveColor = new Color("#FF4D00").multiplyScalar(9)
@@ -28,7 +29,9 @@ export const createGlobalShaderMaterial = (
       USE_MAP: map !== null,
       IS_TRANSPARENT: alphaMap !== null || baseMaterial.transparent,
       USE_ALPHA_MAP: alphaMap !== null,
-      USE_EMISSIVE: baseMaterial.emissiveIntensity !== 0
+      USE_EMISSIVE:
+        baseMaterial.emissiveIntensity !== 0 && emissiveMap === null,
+      USE_EMISSIVEMAP: emissiveMap !== null
     },
     uniforms: {
       uColor: { value: emissiveColor },
@@ -51,7 +54,10 @@ export const createGlobalShaderMaterial = (
       fogColor: { value: new Vector3(0.4, 0.4, 0.4) },
       fogDensity: { value: 0.05 },
       fogDepth: { value: 6.0 },
-      uJitter: { value: 512.0 }
+      uJitter: { value: 512.0 },
+      isGlass: { value: false },
+      glassReflex: { value: null },
+      emissiveMap: { value: emissiveMap }
     },
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,

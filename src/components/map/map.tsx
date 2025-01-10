@@ -1,22 +1,18 @@
 "use client"
 
 import { useGLTF } from "@react-three/drei"
-import { useFrame, useLoader } from "@react-three/fiber"
+import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
-import { memo, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useEffect, useRef, useState } from "react"
 import {
-  Color,
   Mesh,
   MeshStandardMaterial,
-  NearestFilter,
-  NoColorSpace,
   Object3D,
   Object3DEventMap,
-  Texture,
   Vector3
 } from "three"
-import { EXRLoader, GLTF } from "three/examples/jsm/Addons.js"
+import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import {
@@ -30,6 +26,7 @@ import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { RoutingElement } from "../routing-element"
 import { LightmapLoader } from "./lightmaps"
+import { ReflexesLoader } from "./reflexes"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -38,30 +35,6 @@ export type GLTFResult = GLTF & {
 }
 
 export const Map = memo(InnerMap)
-
-function useLightmaps(): Record<string, Texture> {
-  const { lightmaps } = useAssets()
-
-  const loadedMaps = useLoader(
-    EXRLoader,
-    lightmaps.map((lightmap) => lightmap.url)
-  )
-
-  const lightMaps = useMemo(() => {
-    return loadedMaps.reduce(
-      (acc, map, index) => {
-        map.flipY = true
-        map.magFilter = NearestFilter
-        map.colorSpace = NoColorSpace
-        acc[lightmaps[index].mesh] = map
-        return acc
-      },
-      {} as Record<string, Texture>
-    )
-  }, [lightmaps, loadedMaps])
-
-  return lightMaps
-}
 
 function InnerMap() {
   const { map, basketballNet } = useAssets()
@@ -161,7 +134,10 @@ function InnerMap() {
 
         if (alreadyReplaced) return
 
-        const currentMaterial = meshChild.material
+        const currentMaterial = meshChild.material as MeshStandardMaterial
+
+        const isGlass = currentMaterial.name === "BSM_MTL_Glass"
+
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
               createGlobalShaderMaterial(
@@ -175,6 +151,9 @@ function InnerMap() {
             )
 
         meshChild.material = newMaterials
+
+        // @ts-ignore
+        if (isGlass) meshChild.material.uniforms.isGlass.value = true
 
         meshChild.userData.hasGlobalMaterial = true
       }
@@ -218,6 +197,7 @@ function InnerMap() {
       {keyframedNet && <primitive object={keyframedNet} />}
       <PlayedBasketballs />
       <LightmapLoader />
+      <ReflexesLoader />
     </group>
   )
 }
