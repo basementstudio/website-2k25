@@ -83,6 +83,7 @@ export const Basketball = ({
         geometry={geometry}
         material={basketballModel.materials["Material.001"]}
         scale={1.7}
+        rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}

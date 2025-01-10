@@ -20,8 +20,15 @@ export const query = fragmentOn("Query", {
           content: {
             json: { content: true }
           },
-          heroImage: {
-            url: true
+          hero: {
+            heroImage: {
+              url: true,
+              blurDataURL: true,
+              alt: true
+            },
+            heroVideo: {
+              url: true
+            }
           },
           authors: {
             _title: true

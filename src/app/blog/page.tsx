@@ -10,11 +10,18 @@ const Blogs = () => (
   <Pump queries={[query]}>
     {async ([data]) => {
       "use server"
+      const categories = Array.from(
+        new Set(
+          data.pages.blog.posts.items.flatMap((post) =>
+            post.categories?.map((cat) => cat._title)
+          )
+        )
+      ).filter((c): c is string => c !== undefined)
 
       return (
         <div className="pb-25 relative flex flex-col gap-[68px] bg-brand-k">
           <Hero data={data} />
-          <BlogPosts data={data}>
+          <BlogPosts data={data} categories={categories}>
             <Featured />
             <BlogList />
           </BlogPosts>
