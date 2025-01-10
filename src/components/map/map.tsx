@@ -136,7 +136,9 @@ function InnerMap() {
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
 
-        const isGlass = currentMaterial.name === "BSM_MTL_Glass"
+        const isGlass =
+          currentMaterial.name === "BSM_MTL_Glass" ||
+          currentMaterial.name === "BSM_MTL_LightLibrary"
 
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>

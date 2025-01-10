@@ -149,7 +149,7 @@ void main() {
 
     vec2 shiftedCoord = gl_FragCoord.xy + vec2(1.0);
     vec2 checkerPos = floor(shiftedCoord.xy * 0.5);
-    gl_FragColor.a = mod(checkerPos.x + checkerPos.y, 2.0);
+    gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
   }
 
   // Fog

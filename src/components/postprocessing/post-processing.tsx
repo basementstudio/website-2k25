@@ -151,7 +151,6 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     const { signal } = controller
 
     const resize = () => {
-      const pixelRatio = window.devicePixelRatio
       const width = window.innerWidth
       const height = window.innerHeight
       material.uniforms.resolution.value.set(width, height)
@@ -161,9 +160,8 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     window.addEventListener("resize", resize, { signal })
 
     material.uniforms.uMainTexture.value = mainTexture
-    return () => {
-      controller.abort()
-    }
+
+    return () => controller.abort()
   }, [mainTexture])
 
   return (
