@@ -14,6 +14,14 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
           url: true
         }
       }
+    },
+    glassReflexes: {
+      items: {
+        _title: true,
+        file: {
+          url: true
+        }
+      }
     }
   },
   basketball: {

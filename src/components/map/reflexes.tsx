@@ -1,7 +1,6 @@
 "use client"
 
 import { useLoader, useThree } from "@react-three/fiber"
-import { useControls } from "leva"
 import { animate } from "motion"
 import { memo, Suspense, useEffect, useMemo, useRef } from "react"
 import {
@@ -10,63 +9,46 @@ import {
   NearestFilter,
   NoColorSpace,
   ShaderMaterial,
-  Texture
+  Texture,
+  TextureLoader
 } from "three"
-import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 
-function useLightmaps(): Record<string, Texture> {
-  const { lightmaps } = useAssets()
+function useReflexes(): Record<string, Texture> {
+  const { glassReflexes } = useAssets()
 
   const loadedMaps = useLoader(
-    EXRLoader,
-    lightmaps.map((lightmap) => lightmap.url)
+    TextureLoader,
+    glassReflexes.map((reflex) => reflex.url)
   )
 
-  const lightMaps = useMemo(() => {
+  const reflexes = useMemo(() => {
     return loadedMaps.reduce(
       (acc, map, index) => {
         map.flipY = true
         map.magFilter = NearestFilter
         map.colorSpace = NoColorSpace
-        acc[lightmaps[index].mesh] = map
+        acc[glassReflexes[index].mesh] = map
         return acc
       },
       {} as Record<string, Texture>
     )
-  }, [lightmaps, loadedMaps])
+  }, [glassReflexes, loadedMaps])
 
-  return lightMaps
+  return reflexes
 }
 
-function Lightmaps() {
+function Reflexes() {
   const shaderMaterialsRef = useCustomShaderMaterial(
     (store) => store.materialsRef
   )
 
-  const lightMaps = useLightmaps()
+  const reflexes = useReflexes()
 
   const scene = useThree((state) => state.scene)
-
-  const elementsWithLightmap = useRef<Mesh[]>([])
-
-  useControls("lightmaps", {
-    lightmapIntensity: {
-      value: 1.0,
-      min: 0.001,
-      max: 8,
-      step: 0.001,
-      onChange: (value) => {
-        elementsWithLightmap.current.forEach((mesh) => {
-          const material = mesh.material as ShaderMaterial
-          material.uniforms.lightMapIntensity.value = value
-        })
-      }
-    }
-  })
 
   useEffect(() => {
     animate(0, 1, {
@@ -79,26 +61,23 @@ function Lightmaps() {
       }
     })
 
-    function addLightmap(mesh: Mesh, lightmap: Texture) {
+    function addReflex(mesh: Mesh, reflex: Texture) {
       if (!mesh.userData.hasGlobalMaterial) return
 
       const material = mesh.material as ShaderMaterial
-      material.uniforms.lightMap.value = lightmap
-      material.uniforms.lightMapIntensity.value = 1.0
+      material.uniforms.glassReflex.value = reflex
     }
 
-    Object.entries(lightMaps).forEach(([mesh, lightmap]) => {
+    Object.entries(reflexes).forEach(([mesh, reflex]) => {
       const meshOrGroup = scene.getObjectByName(mesh)
       if (!meshOrGroup) return
 
       if (meshOrGroup instanceof Mesh) {
-        addLightmap(meshOrGroup, lightmap)
-        elementsWithLightmap.current.push(meshOrGroup)
+        addReflex(meshOrGroup, reflex)
       } else if (meshOrGroup instanceof Group) {
         meshOrGroup.traverse((child) => {
           if (child instanceof Mesh) {
-            addLightmap(child, lightmap)
-            elementsWithLightmap.current.push(child)
+            addReflex(child, reflex)
           }
         })
       }
@@ -109,10 +88,10 @@ function Lightmaps() {
   return null
 }
 
-const LightmapLoaderInner = () => (
+const ReflexesLoaderInner = () => (
   <Suspense>
-    <Lightmaps />
+    <Reflexes />
   </Suspense>
 )
 
-export const LightmapLoader = memo(LightmapLoaderInner)
+export const ReflexesLoader = memo(ReflexesLoaderInner)
