@@ -5,12 +5,15 @@ import { useCallback, useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
 import { useGameAudio } from "@/hooks/use-game-audio"
+import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 import {
+  BASKETBALL_FOG,
   handlePointerDown as utilsHandlePointerDown,
   handlePointerMove as utilsHandlePointerMove,
-  handlePointerUp as utilsHandlePointerUp
+  handlePointerUp as utilsHandlePointerUp,
+  updateFogSettings
 } from "@/utils/basketball-utils"
 
 import { Basketball } from "./basketball"
@@ -21,6 +24,12 @@ import { Trajectory } from "./trajectory"
 export const HoopMinigame = () => {
   const isBasketball = usePathname() === "/basketball"
   const { playSoundFX } = useGameAudio()
+  const shaderMaterialsRef = useCustomShaderMaterial(
+    (store) => store.materialsRef
+  )
+  const fogTransitionProgress = useRef(0)
+  const isLeavingBasketball = useRef(false)
+  const { camera } = useThree()
 
   const ballRef = useRef<RapierRigidBody>(null)
   const mousePos = useRef(new Vector2())
@@ -28,7 +37,6 @@ export const HoopMinigame = () => {
   const throwVelocity = useRef(new Vector2())
   const dragPos = useRef(new Vector3())
   const dragStartPos = useRef(new Vector3())
-  const { camera } = useThree()
   const bounceCount = useRef(0)
   const resetProgress = useRef(0)
   const startResetPos = useRef(new Vector3())
@@ -102,6 +110,17 @@ export const HoopMinigame = () => {
         ballRef.current.setBodyType(2, true)
         isThrowable.current = true
       }
+      // reset transition
+      fogTransitionProgress.current = 0
+      isLeavingBasketball.current = false
+    } else if (
+      !isBasketball &&
+      !isLeavingBasketball.current &&
+      fogTransitionProgress.current === 1
+    ) {
+      // exit
+      fogTransitionProgress.current = 0
+      isLeavingBasketball.current = true
     }
 
     return () => {
@@ -122,7 +141,8 @@ export const HoopMinigame = () => {
     setScore,
     setTimeRemaining,
     setShotMetrics,
-    resetState
+    resetState,
+    shaderMaterialsRef
   ])
 
   const resetBallToInitialPosition = useCallback(
@@ -251,8 +271,28 @@ export const HoopMinigame = () => {
     }
   }, [isDragging, isBasketball, handlePointerUp])
 
-  useFrame(({ pointer, clock }, delta) => {
-    if (!isBasketball) return
+  useFrame(({ pointer }, delta) => {
+    if (!isBasketball && !isLeavingBasketball.current) return
+
+    // fog transition
+    if (fogTransitionProgress.current < 1) {
+      fogTransitionProgress.current = Math.min(
+        fogTransitionProgress.current + delta * 0.5,
+        1
+      )
+      const easedProgress = easeInOutCubic(fogTransitionProgress.current)
+      updateFogSettings(
+        shaderMaterialsRef,
+        easedProgress,
+        !isLeavingBasketball.current
+      )
+    } else if (isBasketball) {
+      Object.values(shaderMaterialsRef).forEach((material) => {
+        material.uniforms.fogColor.value.copy(BASKETBALL_FOG.color)
+        material.uniforms.fogDensity.value = BASKETBALL_FOG.density
+        material.uniforms.fogDepth.value = BASKETBALL_FOG.depth
+      })
+    }
 
     if (isDragging && ballRef.current) {
       try {
