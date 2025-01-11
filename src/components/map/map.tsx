@@ -27,6 +27,7 @@ import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { RoutingElement } from "../routing-element"
 import { LightmapLoader } from "./lightmaps"
 import { ReflexesLoader } from "./reflexes"
+import { VideoTexture } from "./video-texture"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -37,7 +38,7 @@ export type GLTFResult = GLTF & {
 export const Map = memo(InnerMap)
 
 function InnerMap() {
-  const { map, basketballNet } = useAssets()
+  const { map, basketballNet, videos } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
 
@@ -93,6 +94,24 @@ function InnerMap() {
     }
   })
 
+  interface VideoElement {
+    mesh: Mesh
+    url: string
+  }
+
+  const [videoElements, setVideoElements] = useState<VideoElement[]>([])
+
+  useEffect(() => {
+    const t: VideoElement[] = []
+    for (const video of videos) {
+      const mesh = scene.getObjectByName(video.mesh) as Mesh
+      if (mesh) {
+        t.push({ mesh, url: video.url })
+      }
+    }
+    setVideoElements(t)
+  }, [videos, scene])
+
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
 
@@ -130,9 +149,11 @@ function InnerMap() {
           CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name
         )
         if (ommitNode) return
-        const alreadyReplaced = meshChild.userData.hasGlobalMaterial
 
+        const alreadyReplaced = meshChild.userData.hasGlobalMaterial
         if (alreadyReplaced) return
+
+        if (videos.find((video) => video.mesh === meshChild.name)) return
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
 
@@ -169,7 +190,7 @@ function InnerMap() {
       ...current,
       ...routingNodes
     }))
-  }, [scene, basketballNetV2])
+  }, [scene, basketballNetV2, videos])
 
   useEffect(() => {
     const handleScore = () => {
@@ -200,6 +221,9 @@ function InnerMap() {
       <PlayedBasketballs />
       <LightmapLoader />
       <ReflexesLoader />
+      {videoElements.map(({ mesh, url }) => (
+        <VideoTexture key={mesh.name} mesh={mesh} url={url} />
+      ))}
     </group>
   )
 }

@@ -22,6 +22,14 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
           url: true
         }
       }
+    },
+    videos: {
+      items: {
+        _title: true,
+        file: {
+          url: true
+        }
+      }
     }
   },
   basketball: {

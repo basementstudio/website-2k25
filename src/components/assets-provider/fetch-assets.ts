@@ -18,6 +18,10 @@ export interface AssetsResult {
     id: string
     url: string
   }[]
+  videos: {
+    mesh: string
+    url: string
+  }[]
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -32,6 +36,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
       url: item.exr.url
     })),
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
+      mesh: item._title,
+      url: item.file?.url ?? ""
+    })),
+    videos: threeDInteractions.map.videos.items.map((item) => ({
       mesh: item._title,
       url: item.file?.url ?? ""
     })),
