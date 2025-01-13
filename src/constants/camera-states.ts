@@ -14,16 +14,18 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [6.6, 1.5, -7.1],
     target: [4.48, 2.0, -12.8],
     rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03
+    rotationLerp: 0.03,
+    fov: 60
   },
   arcade: {
     name: "arcade",
     url: "/lab",
     object_name: "arcade",
-    position: [2.98, 1.5, -13.45],
-    target: [2.98, 1.41, -13.8],
+    position: [2.98, 1.6, -12.8],
+    target: [2.98, 1.33, -13.8],
     rotationAngle: [0, 0],
-    rotationLerp: 0
+    rotationLerp: 0,
+    fov: 35
   },
   stairs: {
     name: "about",
@@ -32,7 +34,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [6, 1.63, -10.21],
     target: [4, 1, -8],
     rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03
+    rotationLerp: 0.03,
+    fov: 60
   },
   hoop: {
     name: "hoop",
@@ -41,7 +44,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [5.2, 0.8, -7.7],
     target: [5.2, 1.95, -12],
     rotationAngle: [0, 0],
-    rotationLerp: 0
+    rotationLerp: 0,
+    fov: 50
   },
   projects: {
     name: "projects",
@@ -50,9 +54,9 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [5.9, 4.72, -10.11],
     target: [-4, 5.55, -15.95],
     rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03
+    rotationLerp: 0.03,
+    fov: 60
   },
-  // TODO: Add camera state for careers
   careers: {
     name: "careers",
     object_name: "careers",
@@ -60,9 +64,9 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [6.6, 1.5, -7.1],
     target: [4.48, 2.0, -12.8],
     rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03
+    rotationLerp: 0.03,
+    fov: 60
   },
-  // TODO: Add camera state for blog
   blog: {
     name: "blog",
     object_name: "blog",
@@ -70,13 +74,15 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [6.6, 1.5, -7.1],
     target: [4.48, 2.0, -12.8],
     rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03
+    rotationLerp: 0.03,
+    fov: 60
   },
   menu: {
     name: "menu",
     position: [16, 14, -5],
     target: [7, 1.6, -16],
     rotationAngle: [1, 1],
-    rotationLerp: 0.03
+    rotationLerp: 0.03,
+    fov: 60
   }
 }

@@ -22,6 +22,7 @@ export interface CameraState {
   offset?: [number, number, number]
   rotationAngle?: [number, number]
   rotationLerp?: number
+  fov?: number
 }
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
