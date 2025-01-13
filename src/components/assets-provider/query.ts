@@ -32,6 +32,11 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
       }
     }
   },
+  arcade: {
+    idleScreen: {
+      url: true
+    }
+  },
   basketball: {
     file: {
       url: true
