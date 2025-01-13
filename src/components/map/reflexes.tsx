@@ -51,16 +51,6 @@ function Reflexes() {
   const scene = useThree((state) => state.scene)
 
   useEffect(() => {
-    animate(0, 1, {
-      duration: 1.5,
-      ease: "easeIn",
-      onUpdate: (latest) => {
-        Object.values(shaderMaterialsRef).forEach((material) => {
-          material.uniforms.uLoaded.value = latest
-        })
-      }
-    })
-
     function addReflex(mesh: Mesh, reflex: Texture) {
       if (!mesh.userData.hasGlobalMaterial) return
 
