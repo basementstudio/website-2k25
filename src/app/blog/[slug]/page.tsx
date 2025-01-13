@@ -38,7 +38,7 @@ const Blog = async (props: { params: Params }) => {
               )}
             </div>
             <div className="mt-screen relative z-20 bg-brand-k">
-              <div className="pb-25 flex flex-col gap-[68px]">
+              <div className="pb-25 flex flex-col gap-40">
                 <BlogTitle data={data} slug={resolvedParams.slug} />
                 <Content data={data} slug={resolvedParams.slug} />
               </div>

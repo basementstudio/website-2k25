@@ -63,7 +63,7 @@ export default function Featured({
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-              <div className="relative col-span-3 h-[228px] w-full max-w-[418px] overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20">
+              <div className="relative col-span-3 aspect-[418/228] overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20">
                 <div className="with-dots h-full w-full">
                   {post.hero?.heroImage?.url && (
                     <Image
