@@ -24,7 +24,9 @@ export const query = fragmentOn("Query", {
             heroImage: {
               url: true,
               blurDataURL: true,
-              alt: true
+              alt: true,
+              width: true,
+              height: true
             },
             heroVideo: {
               url: true

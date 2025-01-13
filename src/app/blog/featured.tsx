@@ -55,10 +55,10 @@ export default function Featured({
         {featuredPosts.map((post) => (
           <div
             key={post._slug}
-            className="group relative col-span-12 border-b border-brand-w1/20 py-3"
+            className="group relative col-span-12 border-b border-brand-w1/20"
           >
             <Link
-              className="col-span-12 grid grid-cols-12 gap-2"
+              className="col-span-12 grid grid-cols-12 gap-2 py-2"
               href={`/blog/${post._slug}`}
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -68,16 +68,16 @@ export default function Featured({
                   <Image
                     src={post.hero?.heroImage?.url}
                     alt={post.hero?.heroImage.alt || ""}
-                    width={418}
-                    height={228}
+                    width={post.hero?.heroImage?.width || 418}
+                    height={post.hero?.heroImage?.height || 228}
                     className="h-full w-full object-cover"
                   />
                 )}
               </div>
-              <h2 className="col-start-5 col-end-8 text-subheading text-brand-w2">
+              <h2 className="col-start-5 col-end-8 py-3 text-subheading text-brand-w2">
                 {post._title}
               </h2>
-              <div className="relative col-span-4 col-start-9 grid grid-cols-4 content-start gap-y-2">
+              <div className="relative col-span-4 col-start-9 grid grid-cols-4 content-start gap-y-2 py-3">
                 <div className="col-start-1 col-end-4 block text-paragraph text-brand-w2">
                   <RichText content={post.intro?.json.content} />
                 </div>
