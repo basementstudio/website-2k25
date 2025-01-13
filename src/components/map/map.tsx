@@ -12,6 +12,7 @@ import {
   Object3DEventMap,
   Vector3
 } from "three"
+import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
@@ -34,10 +35,19 @@ export type GLTFResult = GLTF & {
   }
 }
 
-export const Map = memo(InnerMap)
+const createVideoTexture = (url: string) => {
+  const videoElement = document.createElement("video")
+  videoElement.src = url
+  videoElement.loop = true
+  videoElement.muted = true
+  videoElement.crossOrigin = "anonymous"
+  videoElement.play()
 
-function InnerMap() {
-  const { map, basketballNet } = useAssets()
+  return new THREE.VideoTexture(videoElement)
+}
+
+export const Map = memo(() => {
+  const { map, basketballNet, videos } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
 
@@ -130,11 +140,20 @@ function InnerMap() {
           CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name
         )
         if (ommitNode) return
-        const alreadyReplaced = meshChild.userData.hasGlobalMaterial
 
+        const alreadyReplaced = meshChild.userData.hasGlobalMaterial
         if (alreadyReplaced) return
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
+
+        const video = videos.find((video) => video.mesh === meshChild.name)
+
+        if (video) {
+          const videoTexture = createVideoTexture(video.url)
+
+          currentMaterial.map = videoTexture
+          currentMaterial.emissiveMap = videoTexture
+        }
 
         const isGlass =
           currentMaterial.name === "BSM_MTL_Glass" ||
@@ -169,7 +188,7 @@ function InnerMap() {
       ...current,
       ...routingNodes
     }))
-  }, [scene, basketballNetV2])
+  }, [scene, basketballNetV2, videos])
 
   useEffect(() => {
     const handleScore = () => {
@@ -202,4 +221,6 @@ function InnerMap() {
       <ReflexesLoader />
     </group>
   )
-}
+})
+
+Map.displayName = "Map"

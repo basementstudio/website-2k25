@@ -30,7 +30,7 @@ export const Values = ({ data }: { data: QueryType }) => {
               <p className="col-start-1 col-end-5 text-subheading text-brand-w2">
                 {_title}
               </p>
-              <div className="col-start-5 col-end-8 flex w-full items-start justify-between">
+              <div className="col-start-5 col-end-8 flex grid grid-cols-2">
                 <p className="text-heading text-brand-g1">{idx + 1}</p>
                 {image && (
                   <Image
@@ -38,7 +38,7 @@ export const Values = ({ data }: { data: QueryType }) => {
                     alt={image.alt ?? ""}
                     width={image.width}
                     height={image.height}
-                    className="h-[109px] w-[205px] object-cover"
+                    className="aspect-[205/109] w-full object-cover"
                   />
                 )}
               </div>
