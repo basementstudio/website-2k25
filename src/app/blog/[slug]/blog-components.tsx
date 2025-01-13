@@ -39,28 +39,32 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
   if (!src) return null
 
   return (
-    <div className="with-dots grid min-h-[312px] w-full place-items-center border border-brand-w1/20">
-      <Image
-        src={src}
-        width={width ?? 1920}
-        height={height ?? 1080}
-        className="w-[62.23%] object-contain"
-        alt={alt ?? "Blog image"}
-      />
+    <div className="relative min-h-[312px] w-full after:absolute after:inset-0 after:border after:border-brand-w1/20">
+      <div className="with-dots grid h-full w-full place-items-center">
+        <Image
+          src={src}
+          width={width ?? 1920}
+          height={height ?? 1080}
+          className="w-[62.23%] object-contain"
+          alt={alt ?? "Blog image"}
+        />
+      </div>
     </div>
   )
 }
 
 export const BlogVideo = (props: HandlerProps<"video">) => {
   return (
-    <div className="with-dots grid min-h-[312px] w-full place-items-center border border-brand-w1/20">
-      <video
-        autoPlay
-        loop
-        muted
-        {...props}
-        className="w-[62.23%] object-contain"
-      />
+    <div className="relative min-h-[312px] w-full after:absolute after:inset-0 after:border after:border-brand-w1/20">
+      <div className="with-dots grid h-full w-full place-items-center">
+        <video
+          autoPlay
+          loop
+          muted
+          {...props}
+          className="w-[62.23%] object-contain"
+        />
+      </div>
     </div>
   )
 }
@@ -126,7 +130,7 @@ export const Code = ({ children }: HandlerProps<"code">) => {
 
 export const Pre = ({ language, code }: HandlerProps<"pre">) => {
   return (
-    <div className="w-full border-y border-brand-w2/20 bg-codeblock-k2 py-3">
+    <div className="bg-codeblock-k2 w-full border-y border-brand-w2/20 py-3">
       <div className={styles["code-block"]}>
         <CodeBlock
           snippets={[

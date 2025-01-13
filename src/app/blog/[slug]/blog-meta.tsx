@@ -1,17 +1,17 @@
-import Image from "next/image"
 import Link from "next/link"
 
+import { LinkedInIcon, XIcon } from "@/components/icons/icons"
 import { formatDate } from "@/utils/format-date"
 
 const socialLinks = [
   {
-    icon: "/icons/x.svg",
+    Icon: XIcon,
     href: (slug: string, title: string) =>
       `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://basement.studio/blog/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
     label: "Share on X"
   },
   {
-    icon: "/icons/linkedin.svg",
+    Icon: LinkedInIcon,
     href: (slug: string) =>
       `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`https://basement.studio/blog/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
     label: "Share on LinkedIn"
@@ -92,12 +92,7 @@ export default function BlogMeta({
                   className="transition-opacity hover:opacity-80"
                   aria-label={social.label}
                 >
-                  <Image
-                    src={social.icon}
-                    alt={social.label}
-                    width={16}
-                    height={16}
-                  />
+                  <social.Icon className="text-brand-w1" />
                 </Link>
               ))}
             </div>
