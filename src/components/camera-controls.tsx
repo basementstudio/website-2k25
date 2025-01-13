@@ -107,6 +107,14 @@ export const CustomCamera = () => {
         }
       }
 
+      const state = CAMERA_STATES[newState as keyof typeof CAMERA_STATES]
+      gametargetFov.current = state?.fov ?? 60
+      gameCurrentFov.current =
+        cameraControlsRef.current?.camera instanceof PerspectiveCamera
+          ? cameraControlsRef.current.camera.fov
+          : 60
+      fovTransitionProgress.current = 0
+
       previousCameraState.current = newState
     },
     [animateShader]
