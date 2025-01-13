@@ -88,7 +88,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomStrength: {
-      value: 0.01,
+      value: 0.05,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -97,7 +97,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomRadius: {
-      value: 32.0,
+      value: 8.0,
       min: 1.0,
       max: 32.0,
       step: 1,
@@ -151,7 +151,6 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     const { signal } = controller
 
     const resize = () => {
-      const pixelRatio = window.devicePixelRatio
       const width = window.innerWidth
       const height = window.innerHeight
       material.uniforms.resolution.value.set(width, height)
@@ -161,9 +160,8 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     window.addEventListener("resize", resize, { signal })
 
     material.uniforms.uMainTexture.value = mainTexture
-    return () => {
-      controller.abort()
-    }
+
+    return () => controller.abort()
   }, [mainTexture])
 
   return (

@@ -109,12 +109,10 @@ function Lightmaps() {
   return null
 }
 
-function LightmapLoaderInner() {
-  return (
-    <Suspense>
-      <Lightmaps />
-    </Suspense>
-  )
-}
+const LightmapLoaderInner = () => (
+  <Suspense>
+    <Lightmaps />
+  </Suspense>
+)
 
 export const LightmapLoader = memo(LightmapLoaderInner)

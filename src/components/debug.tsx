@@ -28,9 +28,7 @@ export function Debug() {
         ref={(camera) => useCameraStore.setState({ orbitCamera: camera })}
         position={[10, 2, -16]}
       />
-      {orbitCamera && (
-        <OrbitControls camera={orbitCamera} target={new Vector3(6, 1, -10)} />
-      )}
+      {orbitCamera && <OrbitControls camera={orbitCamera} />}
       {camera === "debug-orbit" && (
         <Grid
           opacity={0.5}

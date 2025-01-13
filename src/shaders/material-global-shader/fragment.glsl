@@ -39,10 +39,18 @@ uniform vec3 emissive;
 uniform float emissiveIntensity;
 #endif
 
+#ifdef USE_EMISSIVEMAP
+uniform sampler2D emissiveMap;
+#endif
+
 // Fog
 uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float fogDepth;
+
+// Glass
+uniform bool isGlass;
+uniform sampler2D glassReflex;
 
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
@@ -96,6 +104,11 @@ void main() {
   irradiance += emissive * emissiveIntensity;
   #endif
 
+  #ifdef USE_EMISSIVEMAP
+  vec4 emissiveColor = texture2D(emissiveMap, vUv);
+  irradiance *= emissiveColor.rgb;
+  #endif
+
   // Adjust ambient light based on roughness
   float ambientFactor = mix(0.2, 0.4, roughness); // More ambient light for rougher surfaces
 
@@ -129,10 +142,20 @@ void main() {
 
   gl_FragColor = vec4(irradiance, opacityResult);
 
+  if(isGlass) {
+    // TODO: when implementing parallax and multiple reflections, add controls in basehub to resize the reflection map
+    vec4 reflexSample = texture2D(glassReflex, vUv * vec2(0.75, 1.0));
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.1);
+
+    vec2 shiftedCoord = gl_FragCoord.xy + vec2(1.0);
+    vec2 checkerPos = floor(shiftedCoord.xy * 0.5);
+    gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
+  }
+
+  // Fog
   float fogDepth = min(vMvPosition.z + fogDepth, 0.0);
   float fogFactor = 1.0 - exp(-fogDensity * fogDensity * fogDepth * fogDepth);
   fogFactor = clamp(fogFactor, 0.0, 1.0);
-
   gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
 
   if(uLoaded < 1.0) {

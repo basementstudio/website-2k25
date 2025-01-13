@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
+import { Sparkles } from "@/components/sparkles"
 
 import { HoopMinigame } from "./basketball/hoop-minigame"
 import { CustomCamera } from "./camera-controls"
@@ -28,7 +29,7 @@ export const Scene = () => {
 
   return (
     <div className="absolute inset-0">
-      <Leva />
+      <Leva collapsed />
       <Canvas
         gl={{
           antialias: true,
@@ -49,6 +50,7 @@ export const Scene = () => {
               <MapWire />
               <Inspectables />
               <Environment preset="studio" />
+              <Sparkles />
               <Physics paused={!isBasketball}>
                 <Map />
                 <HoopMinigame />

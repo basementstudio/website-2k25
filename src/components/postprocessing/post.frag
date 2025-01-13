@@ -335,9 +335,9 @@ vec3 tonemap(vec3 color) {
 }
 
 void main() {
-  vec2 fragCoord = gl_FragCoord.xy;
   // Voxelize UV coordinates
-  vec2 voxelPixelCoord = floor(vUv * resolution / uPixelSize) * uPixelSize;
+  vec2 voxel = floor(vUv * resolution / uPixelSize);
+  vec2 voxelPixelCoord = voxel * uPixelSize;
   vec2 voxelUv = voxelPixelCoord / resolution;
 
   vec4 baseColorSample = texture2D(uMainTexture, voxelUv);
@@ -349,10 +349,13 @@ void main() {
 
   //color.rgb = dither(voxelPixelCoord, color, voxelUv);
 
-  // Apply bloom effect
+  // Apply bloom effect with chess pattern
   vec3 bloom = vec3(0.0);
   float totalWeight = 0.0;
   float phi = hash(voxelUv) * 6.28; // Random rotation angle
+
+  // Create chess pattern
+  float chessPattern = mod(voxel.x + voxel.y, 2.0);
 
   for(int i = 1; i < SAMPLE_COUNT; i++) {
     vec2 sampleOffset = vogelDiskSample(i, SAMPLE_COUNT, phi) * uBloomRadius / resolution;
@@ -371,9 +374,9 @@ void main() {
       bloom += sampleColor * weight;
   }
 
-  // Normalize bloom
+  // Normalize bloom and apply chess pattern
   bloom /= totalWeight + 0.0001;
-  vec3 bloomColor = bloom * uBloomStrength;
+  vec3 bloomColor = bloom * uBloomStrength * chessPattern;
 
   // Add bloom to result with strength control
   color += bloomColor;

@@ -41,5 +41,15 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     name: "Projects_Hover",
     route: "/projects",
     routeName: "projects"
+  },
+  {
+    name: "Career-Services_Hover",
+    route: "/careers",
+    routeName: "careers"
+  },
+  {
+    name: "Blog_Hover",
+    route: "/blog",
+    routeName: "blog"
   }
 ]
