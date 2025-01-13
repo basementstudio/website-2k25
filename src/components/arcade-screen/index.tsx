@@ -5,32 +5,31 @@ import { Suspense, useEffect, useMemo, useState } from "react"
 import { Mesh } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
+import { useAssets } from "../assets-provider"
 import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
 import { ScreenUI } from "./screen-ui"
 
 export const ArcadeScreen = () => {
   const { scene } = useThree()
+
   const pathname = usePathname()
+
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
   const [hasVisitedArcade, setHasVisitedArcade] = useState(false)
 
-  const videoTexture = useVideoTexture(
-    "/videos/arcade-screen/screen-load.webm",
-    {
-      loop: true
-    }
-  )
+  const { arcade } = useAssets()
 
-  const renderTarget = useMemo(() => {
-    return new WebGLRenderTarget(2024, 2024)
-  }, [])
+  const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
+
+  const renderTarget = useMemo(() => new WebGLRenderTarget(2024, 2024), [])
 
   useEffect(() => {
     const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
     setArcadeScreen(screen as Mesh)
+
     if (screen) {
       const box = new Box3().setFromObject(screen)
       const size = box.getSize(new Vector3())
@@ -71,7 +70,7 @@ export const ArcadeScreen = () => {
 
   return (
     <RenderTexture
-      isPlaying={pathname === "/arcade" ? true : false}
+      isPlaying={pathname === "/arcade"}
       fbo={renderTarget}
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}

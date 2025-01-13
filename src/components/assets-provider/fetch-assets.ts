@@ -10,6 +10,9 @@ export interface AssetsResult {
     mesh: string
     url: string
   }[]
+  arcade: {
+    idleScreen: string
+  }
   glassReflexes: {
     mesh: string
     url: string
@@ -35,6 +38,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
       mesh: item._title,
       url: item.exr.url
     })),
+    arcade: {
+      idleScreen: threeDInteractions.arcade.idleScreen?.url ?? ""
+    },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
       mesh: item._title,
       url: item.file?.url ?? ""

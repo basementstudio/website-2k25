@@ -73,6 +73,7 @@ export const LabsUI = () => {
         )
         setExperimentsContributors(contributorsMap)
       })
+
     fetchLaboratory().then((data) => {
       setExperiments(
         data.projectList.items.map((item) => ({
@@ -91,18 +92,18 @@ export const LabsUI = () => {
     <>
       <Root
         transformScaleY={-1}
-        width={2100}
-        height={1260}
+        width={2010}
+        height={1293}
         backgroundColor={COLORS_THEME.black}
-        positionType={"relative"}
-        display={"flex"}
-        flexDirection={"column"}
+        positionType="relative"
+        display="flex"
+        flexDirection="column"
       >
         <Text
           fontSize={20}
           color={COLORS_THEME.primary}
-          fontWeight={"bold"}
-          positionType={"absolute"}
+          fontWeight="bold"
+          positionType="absolute"
           positionTop={-10}
           positionLeft={20}
           paddingX={8}
@@ -114,26 +115,26 @@ export const LabsUI = () => {
         </Text>
 
         <Container
-          width={"100%"}
-          height={"100%"}
-          borderWidth={5}
+          width="100%"
+          height="100%"
+          borderWidth={4}
           borderColor={COLORS_THEME.primary}
           paddingTop={32}
-          display={"flex"}
-          flexDirection={"column"}
+          display="flex"
+          flexDirection="column"
         >
           <Container
-            width={"100%"}
-            height={"100%"}
-            display={"flex"}
-            flexDirection={"column"}
-            positionType={"relative"}
+            width="100%"
+            height="100%"
+            display="flex"
+            flexDirection="column"
+            positionType="relative"
           >
             <Container
               height={20}
-              width={"100%"}
+              width="100%"
               paddingTop={10}
-              positionType={"absolute"}
+              positionType="absolute"
             >
               <Separator
                 orientation="horizontal"
@@ -141,42 +142,34 @@ export const LabsUI = () => {
                 height={2}
               />
               <Container
-                positionType={"absolute"}
-                width={"100%"}
+                positionType="absolute"
+                width="100%"
                 height={16}
                 positionTop={0}
                 positionLeft={0}
               >
-                <Container
-                  width={"65%"}
-                  height={"100%"}
-                  positionType={"relative"}
-                >
+                <Container width="65%" height="100%" positionType="relative">
                   <TextTag text="Experiments" icon />
                 </Container>
-                <Container
-                  width={"35%"}
-                  height={"100%"}
-                  positionType={"relative"}
-                >
+                <Container width="35%" height="100%" positionType="relative">
                   <TextTag text="Preview" icon />
                 </Container>
               </Container>
             </Container>
 
             <Container
-              width={"100%"}
-              height={"100%"}
+              width="100%"
+              height="100%"
               paddingTop={32}
-              display={"flex"}
-              flexDirection={"column"}
+              display="flex"
+              flexDirection="column"
             >
               <Container
-                width={"100%"}
-                height={"65%"}
+                width="100%"
+                height="65%"
                 paddingX={14}
-                display={"flex"}
-                flexDirection={"row"}
+                display="flex"
+                flexDirection="row"
                 gap={14}
               >
                 <List
@@ -186,26 +179,26 @@ export const LabsUI = () => {
                   experimentsContributors={experimentsContributors}
                 />
                 <Container
-                  width={"35%"}
-                  display={"flex"}
-                  flexDirection={"column"}
+                  width="35%"
+                  display="flex"
+                  flexDirection="column"
                   gap={16}
                   paddingLeft={14}
                 >
                   <Container
-                    width={"100%"}
-                    height={"50%"}
-                    borderWidth={3}
+                    width="100%"
+                    height="50%"
+                    borderWidth={4}
                     borderColor={COLORS_THEME.primary}
-                    positionType={"relative"}
+                    positionType="relative"
                   >
                     {selectedExperiment && (
                       <Image
                         src={`${selectedExperiment.cover?.url}`}
-                        width={"100%"}
-                        height={"100%"}
-                        objectFit={"cover"}
-                        positionType={"absolute"}
+                        width="100%"
+                        height="100%"
+                        objectFit="cover"
+                        positionType="absolute"
                       />
                     )}
                   </Container>
@@ -213,7 +206,7 @@ export const LabsUI = () => {
                     <Text
                       fontSize={22}
                       color={COLORS_THEME.primary}
-                      fontWeight={"bold"}
+                      fontWeight="bold"
                       backgroundColor={COLORS_THEME.black}
                     >
                       {selectedExperiment.description || ""}
@@ -226,9 +219,9 @@ export const LabsUI = () => {
           </Container>
         </Container>
         <Container
-          width={"auto"}
-          height={"auto"}
-          positionType={"absolute"}
+          width="auto"
+          height="auto"
+          positionType="absolute"
           positionBottom={32}
           positionRight={148}
         >
@@ -239,50 +232,50 @@ export const LabsUI = () => {
   )
 }
 
+interface ListProps {
+  experiments: Experiment[]
+  setSelectedExperiment: (experiment: Experiment | null) => void
+  selectedExperiment: Experiment | null
+  experimentsContributors: Record<string, Contributor[]>
+}
+
 const List = ({
   experiments,
   setSelectedExperiment,
   selectedExperiment,
   experimentsContributors
-}: {
-  experiments: Experiment[]
-  setSelectedExperiment: (experiment: Experiment | null) => void
-  selectedExperiment: Experiment | null
-  experimentsContributors: Record<string, Contributor[]>
-}) => {
-  return (
-    <Container
-      width={"65%"}
-      height={"100%"}
-      borderWidth={4}
-      borderColor={COLORS_THEME.primary}
-      display={"flex"}
-      flexDirection={"column"}
-      overflow={"scroll"}
-      paddingRight={12}
-      scrollbarColor={COLORS_THEME.primary}
-    >
-      {experiments &&
-        experiments
-          .slice(0, 40)
-          .map(({ _title, url }, idx) => (
-            <ListItem
-              title={_title}
-              url={url}
-              idx={idx}
-              total={experiments.length}
-              key={idx}
-              setSelectedExperiment={() =>
-                setSelectedExperiment(experiments[idx])
-              }
-              selectedExperiment={selectedExperiment}
-              experiments={experiments}
-              experimentsContributors={experimentsContributors}
-            />
-          ))}
-    </Container>
-  )
-}
+}: ListProps) => (
+  <Container
+    width="65%"
+    height="100%"
+    borderWidth={4}
+    borderColor={COLORS_THEME.primary}
+    display="flex"
+    flexDirection="column"
+    overflow="scroll"
+    paddingRight={12}
+    scrollbarColor={COLORS_THEME.primary}
+  >
+    {experiments &&
+      experiments
+        .slice(0, 40)
+        .map(({ _title, url }, idx) => (
+          <ListItem
+            title={_title}
+            url={url}
+            idx={idx}
+            total={experiments.length}
+            key={idx}
+            setSelectedExperiment={() =>
+              setSelectedExperiment(experiments[idx])
+            }
+            selectedExperiment={selectedExperiment}
+            experiments={experiments}
+            experimentsContributors={experimentsContributors}
+          />
+        ))}
+  </Container>
+)
 
 const ListItem = ({
   title,
@@ -317,16 +310,16 @@ const ListItem = ({
   return (
     <Container
       key={idx}
-      width={"100%"}
+      width="100%"
       height={50}
       borderBottomWidth={idx === total - 1 ? 0 : 3}
       borderRightWidth={4}
       borderColor={COLORS_THEME.primary}
       paddingX={16}
-      display={"flex"}
-      flexDirection={"row"}
-      justifyContent={"space-between"}
-      alignItems={"center"}
+      display="flex"
+      flexDirection="row"
+      justifyContent="space-between"
+      alignItems="center"
       onPointerOver={() => setSelectedExperiment(experiments[idx])}
       onPointerOut={() => setSelectedExperiment(null)}
       backgroundColor={
@@ -336,34 +329,34 @@ const ListItem = ({
         window.open(`https://lab.basement.studio/experiments/${url}`, "_blank")
       }
     >
-      <Container width={"30%"}>
-        <Text fontSize={24} fontWeight={"bold"} color={textColor}>
+      <Container width="30%">
+        <Text fontSize={24} fontWeight="bold" color={textColor}>
           {title}
         </Text>
       </Container>
 
-      <Container display={"flex"} flexDirection={"row"} gap={8} width={"50%"}>
-        <Text fontSize={22} fontWeight={"bold"} color={textColor}>
+      <Container display="flex" flexDirection="row" gap={8} width="50%">
+        <Text fontSize={22} fontWeight="bold" color={textColor}>
           B:
         </Text>
         {experimentsContributors[url || ""]?.map((contributor, idx) => (
           <Container
             key={contributor.id}
-            positionType={"relative"}
+            positionType="relative"
             onPointerOver={() => setSelectedContributor(contributor.id)}
             onPointerOut={() => setSelectedContributor(null)}
             onClick={() => window.open(contributor.url, "_blank")}
           >
-            <Text fontSize={22} fontWeight={"bold"} color={textColor}>
+            <Text fontSize={22} fontWeight="bold" color={textColor}>
               /{contributor.name}
             </Text>
             {selectedContributor === contributor.id && (
               <Container
-                positionType={"absolute"}
-                width={"100%"}
+                positionType="absolute"
+                width="100%"
                 height={4}
                 positionBottom={-3}
-                backgroundColor={"#171717"}
+                backgroundColor={COLORS_THEME.black}
               />
             )}
           </Container>
@@ -371,17 +364,18 @@ const ListItem = ({
       </Container>
 
       <Container
-        display={"flex"}
-        flexDirection={"row"}
+        display="flex"
+        flexDirection="row"
         flexGrow={0.6}
         gap={8}
-        justifyContent={"flex-start"}
+        justifyContent="flex-start"
       >
-        <Container positionType={"relative"}>
+        <Container positionType="relative">
           <Text
             fontSize={22}
-            fontWeight={"bold"}
+            fontWeight="bold"
             color={textColor}
+            cursor="pointer"
             onPointerOver={() => setHoveredLink("live")}
             onPointerOut={() => setHoveredLink(null)}
           >
@@ -389,21 +383,22 @@ const ListItem = ({
           </Text>
           {hoveredLink === "live" && (
             <Container
-              positionType={"absolute"}
-              width={"100%"}
+              positionType="absolute"
+              width="100%"
               height={4}
               positionBottom={-3}
-              backgroundColor={"#171717"}
+              backgroundColor={COLORS_THEME.black}
             />
           )}
         </Container>
-        <Container positionType={"relative"}>
+        <Container positionType="relative">
           <Text
             fontSize={22}
-            fontWeight={"bold"}
+            fontWeight="bold"
             color={textColor}
             onPointerOver={() => setHoveredLink("source")}
             onPointerOut={() => setHoveredLink(null)}
+            cursor="pointer"
             onClick={() =>
               window.open(
                 `https://github.com/basementstudio/basement-laboratory/tree/main/src/experiments/${url}`,
@@ -415,11 +410,12 @@ const ListItem = ({
           </Text>
           {hoveredLink === "source" && (
             <Container
-              positionType={"absolute"}
-              width={"100%"}
+              positionType="absolute"
+              cursor="pointer"
+              width="100%"
               height={4}
               positionBottom={-3}
-              backgroundColor={"#171717"}
+              backgroundColor={COLORS_THEME.black}
             />
           )}
         </Container>
