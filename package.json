@@ -23,6 +23,7 @@
     "clsx": "^2.1.1",
     "glslify-loader": "^2.0.0",
     "leva": "^0.9.35",
+    "maath": "^0.10.8",
     "motion": "12.0.0-alpha.2",
     "next": "15.1.2",
     "next-sitemap": "^4.2.3",
