@@ -63,16 +63,18 @@ export default function Featured({
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-              <div className="with-dots col-span-3 h-[228px] w-full max-w-[418px] overflow-clip border border-brand-w1/20 bg-brand-g2/20">
-                {post.hero?.heroImage?.url && (
-                  <Image
-                    src={post.hero?.heroImage?.url}
-                    alt={post.hero?.heroImage.alt || ""}
-                    width={post.hero?.heroImage?.width || 418}
-                    height={post.hero?.heroImage?.height || 228}
-                    className="h-full w-full object-cover"
-                  />
-                )}
+              <div className="relative col-span-3 h-[228px] w-full max-w-[418px] overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20">
+                <div className="with-dots h-full w-full">
+                  {post.hero?.heroImage?.url && (
+                    <Image
+                      src={post.hero?.heroImage?.url}
+                      alt={post.hero?.heroImage.alt || ""}
+                      width={post.hero?.heroImage?.width || 418}
+                      height={post.hero?.heroImage?.height || 228}
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
               </div>
               <h2 className="col-start-5 col-end-8 py-3 text-subheading text-brand-w2">
                 {post._title}
