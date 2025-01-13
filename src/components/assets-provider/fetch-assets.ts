@@ -37,6 +37,7 @@ export interface AssetsResult {
       y: number
       z: number
     }
+    fov?: number
   }[]
 }
 
@@ -73,6 +74,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
     cameraStates: threeDInteractions.cameraStates.cameraStates.items.map(
       (item) => ({
         title: item._title,
+        fov: item.fov ?? 60,
         position: {
           x: item.posX ?? 0,
           y: item.posY ?? 0,

@@ -26,6 +26,7 @@ import { GLOBAL_SHADER_MATERIAL_NAME } from "@/shaders/material-global-shader"
 import { CameraState, CameraStateKeys, useCameraStore } from "@/store/app-store"
 import { cameraAnimationConfig, easeInOutCubic } from "@/utils/animations"
 
+import { useAssets } from "./assets-provider"
 import { useInspectable } from "./inspectables/context"
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
@@ -67,6 +68,41 @@ export const CustomCamera = () => {
 
   const sceneRef = useStateToRef(scene)
 
+  const { cameraStates } = useAssets()
+
+  const getCameraState = useCallback(
+    (stateName: string) => {
+      const state = cameraStates.find(
+        (s) => s.title.toLowerCase() === stateName.toLowerCase()
+      )
+      if (!state) return CAMERA_STATES[stateName as keyof typeof CAMERA_STATES]
+
+      return {
+        name: stateName,
+        position: [state.position.x, state.position.y, state.position.z] as [
+          number,
+          number,
+          number
+        ],
+        target: [state.target.x, state.target.y, state.target.z] as [
+          number,
+          number,
+          number
+        ],
+        rotationAngle: CAMERA_STATES[stateName as keyof typeof CAMERA_STATES]
+          ?.rotationAngle ?? [0, 0],
+        rotationLerp:
+          CAMERA_STATES[stateName as keyof typeof CAMERA_STATES]
+            ?.rotationLerp ?? 0.03,
+        fov:
+          state.fov ??
+          CAMERA_STATES[stateName as keyof typeof CAMERA_STATES]?.fov ??
+          60
+      }
+    },
+    [cameraStates]
+  )
+
   const animateShader = useCallback(
     (start: number, end: number) => {
       animate(start, end, {
@@ -107,7 +143,7 @@ export const CustomCamera = () => {
         }
       }
 
-      const state = CAMERA_STATES[newState as keyof typeof CAMERA_STATES]
+      const state = getCameraState(newState)
       gametargetFov.current = state?.fov ?? 60
       gameCurrentFov.current =
         cameraControlsRef.current?.camera instanceof PerspectiveCamera
@@ -117,7 +153,7 @@ export const CustomCamera = () => {
 
       previousCameraState.current = newState
     },
-    [animateShader]
+    [animateShader, getCameraState]
   )
 
   useEffect(() => {
@@ -128,8 +164,7 @@ export const CustomCamera = () => {
 
     if (!isInitializedRef.current) {
       const initialState = PATHNAME_MAP[pathname] || "home"
-      const initialConfig =
-        CAMERA_STATES[initialState as keyof typeof CAMERA_STATES]
+      const initialConfig = getCameraState(initialState)
 
       currentPos.set(...initialConfig.position)
       currentTarget.set(...initialConfig.target)
@@ -141,19 +176,15 @@ export const CustomCamera = () => {
     }
 
     useCameraStore.getState().setCamera(controls.camera as PerspectiveCamera)
-  }, [pathname, currentPos, currentTarget])
+  }, [pathname, currentPos, currentTarget, getCameraState])
 
   useEffect(() => {
     if (!isInitializedRef.current) return
 
-    const {
-      position,
-      target,
-      fov = 60
-    } = cameraConfig as unknown as CameraState
-    targetPosition.set(...position)
-    targetLookAt.set(...target)
-    gametargetFov.current = fov
+    const config = getCameraState(cameraConfig.name)
+    targetPosition.set(...config.position)
+    targetLookAt.set(...config.target)
+    gametargetFov.current = config.fov ?? 60
     fovTransitionProgress.current = 0
 
     cameraAnimationConfig.progress = 0
@@ -169,7 +200,8 @@ export const CustomCamera = () => {
     targetLookAt,
     offsetX,
     offsetY,
-    handleCameraStateChange
+    handleCameraStateChange,
+    getCameraState
   ])
 
   useFrame((_, delta) => {
