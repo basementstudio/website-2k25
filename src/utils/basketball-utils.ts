@@ -46,7 +46,7 @@ interface HandlePointerUpParams {
   startGame: () => void
   upStrength: number
   forwardStrength: number
-  playSoundFX: (sfx: GameAudioSFXKey, volume?: number) => void
+  playSoundFX: (sfx: GameAudioSFXKey, volume?: number, pitch?: number) => void
 }
 
 interface MorphTargetMesh extends Mesh {
@@ -280,7 +280,8 @@ export const handlePointerUp = ({
       ballRef.current.setBodyType(0, true)
       isThrowable.current = false
 
-      playSoundFX("BASKETBALL_THROW", 0.5)
+      const randomPitch = 0.95 + Math.random() * 0.1
+      playSoundFX("BASKETBALL_THROW", 0.5, randomPitch)
 
       const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
       const rawVelocity = calculateThrowVelocity(
