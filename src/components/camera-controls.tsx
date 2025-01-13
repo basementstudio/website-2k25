@@ -141,9 +141,15 @@ export const CustomCamera = () => {
   useEffect(() => {
     if (!isInitializedRef.current) return
 
-    const { position, target } = cameraConfig as unknown as CameraState
+    const {
+      position,
+      target,
+      fov = 60
+    } = cameraConfig as unknown as CameraState
     targetPosition.set(...position)
     targetLookAt.set(...target)
+    gametargetFov.current = fov
+    fovTransitionProgress.current = 0
 
     cameraAnimationConfig.progress = 0
     mouseInfluenceRef.current = 1
