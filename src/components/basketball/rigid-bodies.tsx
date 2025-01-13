@@ -12,9 +12,11 @@ export default function RigidBodies({
   const { setScore } = useMinigameStore()
   const { playSoundFX } = useGameAudio()
 
+  const randomPitch = 0.95 + Math.random() * 0.1
+
   const handleScore = () => {
     setScore((prev) => prev + 1000)
-    playSoundFX("BASKETBALL_NET", 0.6)
+    playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
 
     // event for net animation
     window.dispatchEvent(new Event("basketball-score"))

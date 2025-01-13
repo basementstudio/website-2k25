@@ -27,7 +27,7 @@ interface GameAudioHook {
   pauseMaster: () => void
   setVolumeMaster: (volume: number) => void
   volumeMaster: number
-  playSoundFX: (sfx: GameAudioSFXKey, volume?: number) => void
+  playSoundFX: (sfx: GameAudioSFXKey, volume?: number, pitch?: number) => void
   getSoundFXSource: (key: GameAudioSFXKey) => AudioSource | null
 }
 
@@ -153,11 +153,12 @@ export function useGameAudio(): GameAudioHook {
   )
 
   const playSoundFX = useCallback(
-    (sfx: GameAudioSFXKey, volume = SFX_VOLUME) => {
+    (sfx: GameAudioSFXKey, volume = SFX_VOLUME, pitch = 1) => {
       if (!audioSfxSources) return
 
       audioSfxSources[sfx].stop()
       audioSfxSources[sfx].setVolume(volume)
+      audioSfxSources[sfx].setPitch(pitch)
       audioSfxSources[sfx].play()
     },
     [audioSfxSources]
