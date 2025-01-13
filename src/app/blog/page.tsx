@@ -19,7 +19,7 @@ const Blogs = () => (
       ).filter((c): c is string => c !== undefined)
 
       return (
-        <div className="pb-25 relative flex flex-col gap-[68px] bg-brand-k">
+        <div className="pb-25 relative flex flex-col gap-[168px] bg-brand-k">
           <Hero data={data} />
           <BlogPosts data={data} categories={categories}>
             <Featured />

@@ -55,7 +55,7 @@ export default function Featured({
         {featuredPosts.map((post) => (
           <div
             key={post._slug}
-            className="group relative col-span-12 border-b border-brand-w1/20 py-2"
+            className="group relative col-span-12 border-b border-brand-w1/20 py-3"
           >
             <Link
               className="col-span-12 grid grid-cols-12 gap-2"
@@ -81,7 +81,7 @@ export default function Featured({
                 <div className="col-start-1 col-end-4 block text-paragraph text-brand-w2">
                   <RichText content={post.intro?.json.content} />
                 </div>
-                <hr className="col-start-1 col-end-5 mt-2 w-full border-brand-w1/20" />
+                <hr className="col-start-1 col-end-5 mt-4 w-full border-brand-w1/20" />
                 <div className="col-span-2 col-start-1 flex gap-1">
                   {post.categories?.map((category) => (
                     <p
