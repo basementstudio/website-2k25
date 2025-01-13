@@ -24,7 +24,7 @@ import { useMousePosition } from "@/hooks/use-mouse-position"
 import { useStateToRef } from "@/hooks/use-state-to-ref"
 import { GLOBAL_SHADER_MATERIAL_NAME } from "@/shaders/material-global-shader"
 import { CameraState, CameraStateKeys, useCameraStore } from "@/store/app-store"
-import { cameraAnimationConfig } from "@/utils/animations"
+import { cameraAnimationConfig, easeInOutCubic } from "@/utils/animations"
 
 import { useInspectable } from "./inspectables/context"
 
@@ -45,6 +45,9 @@ export const CustomCamera = () => {
   const isInitializedRef = useRef(false)
   const previousCameraState = useRef<string | null>(null)
   const mouseInfluenceRef = useRef<number>(1)
+  const gametargetFov = useRef<number>(60)
+  const gameCurrentFov = useRef<number>(60)
+  const fovTransitionProgress = useRef<number>(1)
 
   const currentPos = useMemo(() => new Vector3(), [])
   const currentTarget = useMemo(() => new Vector3(), [])
@@ -135,9 +138,15 @@ export const CustomCamera = () => {
   useEffect(() => {
     if (!isInitializedRef.current) return
 
-    const { position, target } = cameraConfig as unknown as CameraState
+    const {
+      position,
+      target,
+      fov = 60
+    } = cameraConfig as unknown as CameraState
     targetPosition.set(...position)
     targetLookAt.set(...target)
+    gametargetFov.current = fov
+    fovTransitionProgress.current = 0
 
     cameraAnimationConfig.progress = 0
     mouseInfluenceRef.current = 1
@@ -158,6 +167,21 @@ export const CustomCamera = () => {
   useFrame((_, delta) => {
     const controls = cameraControlsRef.current
     if (!controls || !isInitializedRef.current) return
+
+    if (controls.camera instanceof PerspectiveCamera) {
+      fovTransitionProgress.current = Math.min(
+        fovTransitionProgress.current + delta * 0.5,
+        1
+      )
+
+      const easedProgress = easeInOutCubic(fovTransitionProgress.current)
+
+      gameCurrentFov.current =
+        gameCurrentFov.current +
+        (gametargetFov.current - gameCurrentFov.current) * easedProgress
+      controls.camera.fov = gameCurrentFov.current
+      controls.camera.updateProjectionMatrix()
+    }
 
     const rotationAngle = cameraConfig.rotationAngle || [0, 0]
     const rotationLerp = cameraConfig.rotationLerp || 0.03
