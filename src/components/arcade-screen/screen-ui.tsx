@@ -12,8 +12,8 @@ interface ScreenUIProps {
 }
 
 export const COLORS_THEME = {
-  primary: "#F68300",
-  black: "#000"
+  primary: "#ffffff",
+  black: "#000000"
 }
 
 export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
@@ -21,9 +21,8 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
 
   return (
     <>
-      <color attach="background" args={["#000"]} />
+      <color attach="background" args={[COLORS_THEME.black]} />
       <ambientLight intensity={1} />
-      <directionalLight position={[0, 0, 5]} intensity={1} />
       <PerspectiveCamera
         manual
         makeDefault

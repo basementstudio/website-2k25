@@ -7,6 +7,7 @@ export class AudioSource {
   private startedAt = 0
   private pausedAt = 0
   public loop = false
+  private pitch = 1
 
   constructor(audioPlayer: WebAudioPlayer, buffer: AudioBuffer) {
     this.audioContext = audioPlayer.audioContext
@@ -22,6 +23,7 @@ export class AudioSource {
     this.audioSource = this.audioContext.createBufferSource()
     this.audioSource.buffer = this.buffer
     this.audioSource.loop = this.loop
+    this.audioSource.playbackRate.value = this.pitch
     this.audioSource.connect(this.outputNode)
 
     let offset = this.pausedAt
@@ -57,6 +59,13 @@ export class AudioSource {
 
   setVolume(volume: number) {
     this.outputNode.gain.value = volume
+  }
+
+  setPitch(pitch: number) {
+    this.pitch = pitch
+    if (this.audioSource) {
+      this.audioSource.playbackRate.value = pitch
+    }
   }
 }
 

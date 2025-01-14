@@ -43,8 +43,15 @@ export const Basketball = ({
   )
 
   const handleCollision = (other: any) => {
-    const randomVolume = Math.random() * 0.5
-    playSoundFX("BASKETBALL_THUMP", randomVolume)
+    const randomVolume = 0.1 + Math.random() * 0.1
+    const randomPitch = 0.95 + Math.random() * 0.1
+    const decreaseVolumeOnBounce = bounceCount.current > 0 ? 0.5 : 0.75
+
+    playSoundFX(
+      "BASKETBALL_THUMP",
+      randomVolume * decreaseVolumeOnBounce,
+      randomPitch
+    )
     if (!isDragging) {
       if (other.rigidBodyObject?.name === "floor") {
         bounceCount.current += 1
@@ -83,6 +90,7 @@ export const Basketball = ({
         geometry={geometry}
         material={basketballModel.materials["Material.001"]}
         scale={1.7}
+        rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}

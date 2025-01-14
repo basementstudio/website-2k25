@@ -10,6 +10,9 @@ export interface AssetsResult {
     mesh: string
     url: string
   }[]
+  arcade: {
+    idleScreen: string
+  }
   glassReflexes: {
     mesh: string
     url: string
@@ -21,6 +24,20 @@ export interface AssetsResult {
   videos: {
     mesh: string
     url: string
+  }[]
+  cameraStates: {
+    title: string
+    position: {
+      x: number
+      y: number
+      z: number
+    }
+    target: {
+      x: number
+      y: number
+      z: number
+    }
+    fov?: number
   }[]
 }
 
@@ -35,6 +52,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
       mesh: item._title,
       url: item.exr.url
     })),
+    arcade: {
+      idleScreen: threeDInteractions.arcade.idleScreen?.url ?? ""
+    },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
       mesh: item._title,
       url: item.file?.url ?? ""
@@ -50,6 +70,22 @@ export async function fetchAssets(): Promise<AssetsResult> {
       })
     ),
     basketball: threeDInteractions.basketball.file?.url ?? "",
-    basketballNet: threeDInteractions.basketballNet.file?.url ?? ""
+    basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
+    cameraStates: threeDInteractions.cameraStates.cameraStates.items.map(
+      (item) => ({
+        title: item._title,
+        fov: item.fov ?? 60,
+        position: {
+          x: item.posX ?? 0,
+          y: item.posY ?? 0,
+          z: item.posZ ?? 0
+        },
+        target: {
+          x: item.tarX ?? 0,
+          y: item.tarY ?? 0,
+          z: item.tarZ ?? 0
+        }
+      })
+    )
   }
 }
