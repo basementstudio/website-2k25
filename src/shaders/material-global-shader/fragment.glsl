@@ -21,6 +21,7 @@ uniform float metalness;
 uniform float roughness;
 uniform float uLoaded;
 uniform float uTime;
+uniform float uBasketballTransition;
 
 // lightmap
 uniform sampler2D lightMap;
@@ -118,7 +119,8 @@ void main() {
   float basketballLightMapIntensity = 0.12;
 
   if(lightMapIntensity > 0.0) {
-    irradiance *= lightMapSample * (isBasketball ? basketballLightMapIntensity : lightMapIntensity);
+    float transitionedLightMapIntensity = mix(lightMapIntensity, basketballLightMapIntensity, uBasketballTransition);
+    irradiance *= lightMapSample * transitionedLightMapIntensity;
   }
 
   // Combine wave color
@@ -160,13 +162,16 @@ void main() {
   // Fog
   float basketballFogDensity = 0.25;
   float basketballFogDepth = 4.0;
-  float fogDepth = min(vMvPosition.z + (isBasketball ? basketballFogDepth : fogDepth), 0.0);
-  float fogFactor = 1.0 - exp(-(isBasketball ? basketballFogDensity : fogDensity) *
-    (isBasketball ? basketballFogDensity : fogDensity) *
-    fogDepth * fogDepth);
+
+  float transitionedFogDepth = mix(fogDepth, basketballFogDepth, uBasketballTransition);
+  float transitionedFogDensity = mix(fogDensity, basketballFogDensity, uBasketballTransition);
+
+  float fogDepthValue = min(vMvPosition.z + transitionedFogDepth, 0.0);
+  float fogFactor = 1.0 - exp(-transitionedFogDensity * transitionedFogDensity * fogDepthValue * fogDepthValue);
 
   fogFactor = clamp(fogFactor, 0.0, 1.0);
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, isBasketball ? fogColor / 20.0 : fogColor, fogFactor);
+  vec3 transitionedFogColor = mix(fogColor, fogColor / 20.0, uBasketballTransition);
+  gl_FragColor.rgb = mix(gl_FragColor.rgb, transitionedFogColor, fogFactor);
 
   if(uLoaded < 1.0) {
     // Loading effect

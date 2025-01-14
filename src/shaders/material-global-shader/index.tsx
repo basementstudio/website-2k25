@@ -58,7 +58,8 @@ export const createGlobalShaderMaterial = (
       isGlass: { value: false },
       glassReflex: { value: null },
       emissiveMap: { value: emissiveMap },
-      isBasketball: { value: false }
+      isBasketball: { value: false },
+      uBasketballTransition: { value: 0 }
     },
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
@@ -102,6 +103,31 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
       const materials = get().materialsRef
       Object.values(materials).forEach((material) => {
         material.uniforms.isBasketball.value = value
+
+        const startValue = material.uniforms.uBasketballTransition.value
+        const endValue = value ? 1 : 0
+        const duration = 2000
+        const startTime = performance.now()
+
+        const animate = () => {
+          const currentTime = performance.now()
+          const elapsed = currentTime - startTime
+          const progress = Math.min(elapsed / duration, 1)
+
+          const easeProgress =
+            progress < 0.5
+              ? 2 * progress * progress
+              : -1 + (4 - 2 * progress) * progress
+
+          material.uniforms.uBasketballTransition.value =
+            startValue + (endValue - startValue) * easeProgress
+
+          if (progress < 1) {
+            requestAnimationFrame(animate)
+          }
+        }
+
+        requestAnimationFrame(animate)
       })
     }
   })
