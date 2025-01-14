@@ -20,7 +20,7 @@ export interface CameraState {
   position: [number, number, number]
   target: [number, number, number]
   offset?: [number, number, number]
-  rotationAngle?: [number, number]
+
   rotationLerp?: number
   fov?: number
 }
