@@ -1,6 +1,10 @@
 import { PerspectiveCamera } from "three"
 import { CameraState } from "@/store/app-store"
 
+export const easeInOutCubic = (x: number): number => {
+  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
+}
+
 export const calculatePlanePosition = (cameraConfig: CameraState) => {
   const [px, py, pz] = cameraConfig.position
   const [tx, ty, tz] = cameraConfig.target
