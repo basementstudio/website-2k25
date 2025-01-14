@@ -52,6 +52,9 @@ uniform float fogDepth;
 uniform bool isGlass;
 uniform sampler2D glassReflex;
 
+// Basketball
+uniform bool isBasketball;
+
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
@@ -112,8 +115,14 @@ void main() {
   // Adjust ambient light based on roughness
   float ambientFactor = mix(0.2, 0.4, roughness); // More ambient light for rougher surfaces
 
+  float basketballLightMapIntensity = 0.12;
+
   if(lightMapIntensity > 0.0) {
-    irradiance *= lightMapSample * lightMapIntensity;
+    if(isBasketball) {
+      irradiance *= lightMapSample * basketballLightMapIntensity;
+    } else {
+      irradiance *= lightMapSample * lightMapIntensity;
+    }
   }
 
   // Combine wave color
@@ -153,10 +162,18 @@ void main() {
   }
 
   // Fog
+  float basketballFogDensity = 0.25;
   float fogDepth = min(vMvPosition.z + fogDepth, 0.0);
-  float fogFactor = 1.0 - exp(-fogDensity * fogDensity * fogDepth * fogDepth);
+  float fogFactor;
+
+  if(isBasketball) {
+    fogFactor = 1.0 - exp(-basketballFogDensity * basketballFogDensity * fogDepth * fogDepth);
+  } else {
+    fogFactor = 1.0 - exp(-fogDensity * fogDensity * fogDepth * fogDepth);
+  }
+
   fogFactor = clamp(fogFactor, 0.0, 1.0);
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
+  gl_FragColor.rgb = mix(gl_FragColor.rgb, isBasketball ? fogColor / 20.0 : fogColor, fogFactor);
 
   if(uLoaded < 1.0) {
     // Loading effect

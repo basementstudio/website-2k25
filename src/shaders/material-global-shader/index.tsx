@@ -57,7 +57,8 @@ export const createGlobalShaderMaterial = (
       uJitter: { value: 512.0 },
       isGlass: { value: false },
       glassReflex: { value: null },
-      emissiveMap: { value: emissiveMap }
+      emissiveMap: { value: emissiveMap },
+      isBasketball: { value: false }
     },
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
@@ -83,6 +84,7 @@ interface CustomShaderMaterialStore {
   materialsRef: Record<string, ShaderMaterial>
   addMaterial: (material: ShaderMaterial) => void
   removeMaterial: (id: number) => void
+  setIsBasketball: (value: boolean) => void
 }
 
 export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
@@ -95,6 +97,12 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
     removeMaterial: (id) => {
       const materials = get().materialsRef
       delete materials[id]
+    },
+    setIsBasketball: (value) => {
+      const materials = get().materialsRef
+      Object.values(materials).forEach((material) => {
+        material.uniforms.isBasketball.value = value
+      })
     }
   })
 )
