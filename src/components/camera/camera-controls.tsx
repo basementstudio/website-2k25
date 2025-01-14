@@ -7,20 +7,19 @@ import {
   calculateMovementVectors,
   calculateNewPosition,
   calculatePlanePosition,
-  calculateViewDimensions
+  calculateViewDimensions,
+  easeInOutCubic
 } from "./camera-utils"
 import { easing } from "maath"
 import { useControls } from "leva"
-
-export const easeInOutCubic = (x: number): number => {
-  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
-}
+import { usePathname } from "next/navigation"
 
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
   const planeBoundaryRef = useRef<Mesh>(null)
   const cameraConfig = useCameraStore((state) => state.cameraConfig)
+  const pathname = usePathname()
 
   const { debugBoundaries } = useControls({
     debugBoundaries: false
@@ -33,6 +32,10 @@ export const CustomCamera = () => {
   const animationProgress = useRef(1)
   const ANIMATION_DURATION = 1.5 //secs
 
+  const gametargetFov = useRef<number>(60)
+  const gameCurrentFov = useRef<number>(60)
+  const fovTransitionProgress = useRef<number>(1)
+
   useEffect(() => {
     const controls = cameraControlsRef.current
 
@@ -44,6 +47,10 @@ export const CustomCamera = () => {
     controls.setPosition(...cameraConfig.position)
     controls.setTarget(...cameraConfig.target)
     useCameraStore.getState().setCamera(camera)
+
+    gameCurrentFov.current = camera.fov
+    gametargetFov.current = cameraConfig.fov ?? 60
+    fovTransitionProgress.current = 0
 
     const planePos = calculatePlanePosition(cameraConfig)
     const distance = Math.hypot(
@@ -91,53 +98,69 @@ export const CustomCamera = () => {
         false
       )
     } else {
-      // Your existing pointer-based camera movement code
-      const maxOffset = (boundary.scale.x - plane.scale.x) / 2
-      const basePosition = calculatePlanePosition(cameraConfig)
-      const rightVector = calculateMovementVectors(basePosition, cameraConfig)
-      const offset = pointer.x * maxOffset
+      if (pathname !== "/basketball" && pathname !== "/arcade") {
+        const maxOffset = (boundary.scale.x - plane.scale.x) / 2
+        const basePosition = calculatePlanePosition(cameraConfig)
+        const rightVector = calculateMovementVectors(basePosition, cameraConfig)
+        const offset = pointer.x * maxOffset
 
-      // Update plane position
-      const targetPos = {
-        x: basePosition[0] + rightVector.x * offset,
-        z: basePosition[2] + rightVector.z * offset
+        // Update plane position
+        const targetPos = {
+          x: basePosition[0] + rightVector.x * offset,
+          z: basePosition[2] + rightVector.z * offset
+        }
+        const newPos = calculateNewPosition(
+          { x: plane.position.x, z: plane.position.z },
+          targetPos
+        )
+        plane.position.setX(newPos.x)
+        plane.position.setZ(newPos.z)
+
+        // Animate camera position to follow plane
+        const currentPosition = controls.getPosition(new Vector3())
+        const targetPosition = new Vector3(
+          cameraConfig.position[0] + rightVector.x * offset,
+          cameraConfig.position[1],
+          cameraConfig.position[2] + rightVector.z * offset
+        )
+
+        easing.damp3(currentPosition, targetPosition, 0.1, dt)
+        controls.setPosition(
+          currentPosition.x,
+          currentPosition.y,
+          currentPosition.z,
+          false
+        )
+
+        const currentTarget = controls.getTarget(new Vector3())
+        const targetLookAt = new Vector3(
+          cameraConfig.target[0] + rightVector.x * offset,
+          cameraConfig.target[1],
+          cameraConfig.target[2] + rightVector.z * offset
+        )
+        easing.damp3(currentTarget, targetLookAt, 0.05, dt)
+        controls.setTarget(
+          currentTarget.x,
+          currentTarget.y,
+          currentTarget.z,
+          false
+        )
       }
-      const newPos = calculateNewPosition(
-        { x: plane.position.x, z: plane.position.z },
-        targetPos
-      )
-      plane.position.setX(newPos.x)
-      plane.position.setZ(newPos.z)
+    }
 
-      // Animate camera position to follow plane
-      const currentPosition = controls.getPosition(new Vector3())
-      const targetPosition = new Vector3(
-        cameraConfig.position[0] + rightVector.x * offset,
-        cameraConfig.position[1],
-        cameraConfig.position[2] + rightVector.z * offset
+    if (controls.camera instanceof PerspectiveCamera) {
+      fovTransitionProgress.current = Math.min(
+        fovTransitionProgress.current + dt * 0.5,
+        1
       )
 
-      easing.damp3(currentPosition, targetPosition, 0.1, dt)
-      controls.setPosition(
-        currentPosition.x,
-        currentPosition.y,
-        currentPosition.z,
-        false
-      )
+      const easedProgress = easeInOutCubic(fovTransitionProgress.current)
 
-      const currentTarget = controls.getTarget(new Vector3())
-      const targetLookAt = new Vector3(
-        cameraConfig.target[0] + rightVector.x * offset,
-        cameraConfig.target[1],
-        cameraConfig.target[2] + rightVector.z * offset
-      )
-      easing.damp3(currentTarget, targetLookAt, 0.05, dt)
-      controls.setTarget(
-        currentTarget.x,
-        currentTarget.y,
-        currentTarget.z,
-        false
-      )
+      gameCurrentFov.current =
+        gameCurrentFov.current +
+        (gametargetFov.current - gameCurrentFov.current) * easedProgress
+      controls.camera.fov = gameCurrentFov.current
+      controls.camera.updateProjectionMatrix()
     }
   })
 
@@ -145,6 +168,9 @@ export const CustomCamera = () => {
     animationProgress.current = 0
     targetPosition.set(...cameraConfig.position)
     targetLookAt.set(...cameraConfig.target)
+
+    gametargetFov.current = cameraConfig.fov ?? 60
+    fovTransitionProgress.current = 0
   }, [cameraConfig, targetPosition, targetLookAt])
 
   const planePosition = calculatePlanePosition(cameraConfig)
