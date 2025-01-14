@@ -1,127 +1,115 @@
 import { CameraControls } from "@react-three/drei"
 import { useEffect, useRef } from "react"
-import {
-  Box3,
-  Box3Helper,
-  PerspectiveCamera,
-  Vector3,
-  Color,
-  Mesh
-} from "three"
+import { PerspectiveCamera, Mesh, Vector3 } from "three"
 import { useCameraStore } from "@/store/app-store"
 import { useFrame } from "@react-three/fiber"
-import { button, useControls } from "leva"
-
-const INITIAL_CONFIG = {
-  position: [6.6, 1.5, -7.1] as const,
-  target: [4.48, 2.0, -12.8] as const
-}
-
-const BOX_SIZE = {
-  width: 0.6,
-  height: 0.6,
-  depth: 0.002
-} as const
-
-const ViewportBox = ({
-  position,
-  target,
-  cameraControls
-}: {
-  position: readonly number[]
-  target: readonly number[]
-  cameraControls: CameraControls | null
-}) => {
-  const bb = useRef(
-    new Box3(new Vector3(-0.3, -0.3, -0.001), new Vector3(0.3, 0.3, 0.001))
-  )
-  const boxHelperRef = useRef<Box3Helper>(null)
-
-  useFrame(() => {
-    boxHelperRef.current?.lookAt(new Vector3(...position))
-  })
-
-  useEffect(() => {
-    if (!cameraControls) return
-    cameraControls.setBoundary(bb.current)
-  }, [cameraControls])
-
-  useEffect(() => {
-    if (!boxHelperRef.current) return
-
-    const direction = new Vector3()
-      .subVectors(new Vector3(...target), new Vector3(...position))
-      .normalize()
-
-    const boxPosition = new Vector3(...position).add(
-      direction.multiplyScalar(2)
-    )
-
-    bb.current.setFromCenterAndSize(
-      boxPosition,
-      new Vector3(BOX_SIZE.width, BOX_SIZE.height, BOX_SIZE.depth)
-    )
-    boxHelperRef.current.position.copy(boxPosition)
-  }, [position, target])
-
-  return (
-    <primitive
-      ref={boxHelperRef}
-      object={new Box3Helper(bb.current, new Color("yellow"))}
-    />
-  )
-}
+import { INITIAL_CONFIG } from "./camera-constants"
+import {
+  calculateMovementVectors,
+  calculateNewPosition,
+  calculatePlanePosition,
+  calculateViewDimensions
+} from "./camera-utils"
+import { easing } from "maath"
+import { useControls } from "leva"
 
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
-  const sphereRef = useRef<Mesh>(null)
+  const planeRef = useRef<Mesh>(null)
+  const planeBoundaryRef = useRef<Mesh>(null)
 
-  useFrame(() => {
-    if (!cameraControlsRef.current || !sphereRef.current) return
-
-    const camera = cameraControlsRef.current.camera
-    const direction = camera.getWorldDirection(new Vector3())
-    const spherePosition = camera.position
-      .clone()
-      .add(direction.multiplyScalar(2))
-
-    sphereRef.current.position.copy(spherePosition)
-    sphereRef.current.lookAt(camera.position)
-  })
-
-  useControls("Camera Controls", {
-    "Truck Left": button(() => {
-      cameraControlsRef.current?.truck(-0.1, 0, true)
-    }),
-    "Truck Right": button(() => {
-      cameraControlsRef.current?.truck(0.1, 0, true)
-    }),
-    Reset: button(() => {
-      cameraControlsRef.current?.reset(true)
-    })
+  const { debugBoundaries } = useControls({
+    debugBoundaries: false
   })
 
   useEffect(() => {
     const controls = cameraControlsRef.current
-    if (!controls) return
+    const camera = controls?.camera as PerspectiveCamera
+    const [plane, boundary] = [planeRef.current, planeBoundaryRef.current]
+    if (!controls || !plane || !boundary || !camera) return
 
     controls.disconnect()
     controls.setPosition(...INITIAL_CONFIG.position)
     controls.setTarget(...INITIAL_CONFIG.target)
-    useCameraStore.getState().setCamera(controls.camera as PerspectiveCamera)
+    useCameraStore.getState().setCamera(camera)
+
+    const planePos = calculatePlanePosition()
+    const distance = Math.hypot(
+      ...INITIAL_CONFIG.position.map((p, i) => p - planePos[i])
+    )
+    const { width, height } = calculateViewDimensions(camera, distance)
+
+    ;[plane, boundary].forEach((mesh) =>
+      mesh.lookAt(...INITIAL_CONFIG.position)
+    )
+    boundary.scale.set(width, height, 1)
+    plane.scale.set(width * 0.4, height, 1) // adjust the scale of the plane so the animation is more prominent
   }, [])
 
+  useFrame(({ pointer }, dt) => {
+    const controls = cameraControlsRef.current
+    const plane = planeRef.current
+    const boundary = planeBoundaryRef.current
+    if (!plane || !boundary || !controls) return
+
+    const maxOffset = (boundary.scale.x - plane.scale.x) / 2
+    const basePosition = calculatePlanePosition()
+    const rightVector = calculateMovementVectors(basePosition)
+    const offset = pointer.x * maxOffset
+
+    // Update plane position
+    const targetPos = {
+      x: basePosition[0] + rightVector.x * offset,
+      z: basePosition[2] + rightVector.z * offset
+    }
+    const newPos = calculateNewPosition(
+      { x: plane.position.x, z: plane.position.z },
+      targetPos
+    )
+    plane.position.setX(newPos.x)
+    plane.position.setZ(newPos.z)
+
+    // Animate camera position to follow plane
+    const currentPosition = controls.getPosition(new Vector3())
+    const targetPosition = new Vector3(
+      INITIAL_CONFIG.position[0] + rightVector.x * offset,
+      INITIAL_CONFIG.position[1],
+      INITIAL_CONFIG.position[2] + rightVector.z * offset
+    )
+
+    easing.damp3(currentPosition, targetPosition, 0.1, dt)
+    controls.setPosition(
+      currentPosition.x,
+      currentPosition.y,
+      currentPosition.z,
+      false
+    )
+
+    const currentTarget = controls.getTarget(new Vector3())
+    const targetLookAt = new Vector3(
+      INITIAL_CONFIG.target[0] + rightVector.x * offset,
+      INITIAL_CONFIG.target[1],
+      INITIAL_CONFIG.target[2] + rightVector.z * offset
+    )
+    easing.damp3(currentTarget, targetLookAt, 0.05, dt)
+    controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z, false)
+  })
+
+  const planePosition = calculatePlanePosition()
   return (
     <>
       <CameraControls makeDefault ref={cameraControlsRef} />
-      <ViewportBox
-        position={INITIAL_CONFIG.position}
-        target={INITIAL_CONFIG.target}
-        cameraControls={cameraControlsRef.current}
-      />
-      <mesh ref={sphereRef}>
-        <sphereGeometry args={[0.02]} />
-        <meshBasicMaterial color="red" />
+      <mesh ref={planeRef} position={planePosition} visible={debugBoundaries}>
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial color="green" transparent wireframe />
+      </mesh>
+      <mesh
+        ref={planeBoundaryRef}
+        position={planePosition}
+        visible={debugBoundaries}
+      >
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial color="red" transparent wireframe opacity={0.5} />
       </mesh>
     </>
   )
