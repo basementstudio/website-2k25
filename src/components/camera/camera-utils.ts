@@ -1,9 +1,9 @@
 import { PerspectiveCamera } from "three"
-import { INITIAL_CONFIG } from "./camera-constants"
+import { CameraState } from "@/store/app-store"
 
-export const calculatePlanePosition = () => {
-  const [px, py, pz] = INITIAL_CONFIG.position
-  const [tx, ty, tz] = INITIAL_CONFIG.target
+export const calculatePlanePosition = (cameraConfig: CameraState) => {
+  const [px, py, pz] = cameraConfig.position
+  const [tx, ty, tz] = cameraConfig.target
   const direction = {
     x: tx - px,
     y: ty - py,
@@ -19,9 +19,10 @@ export const calculatePlanePosition = () => {
 }
 
 export const calculateMovementVectors = (
-  basePosition: [number, number, number]
+  basePosition: [number, number, number],
+  cameraConfig: CameraState
 ) => {
-  const cameraPos = INITIAL_CONFIG.position
+  const cameraPos = cameraConfig.position
 
   // Direction from camera to plane
   const directionVector = {
@@ -52,9 +53,10 @@ export const calculateNewPosition = (
 
 export const calculateViewDimensions = (
   camera: PerspectiveCamera,
-  distance: number
+  distance: number,
+  cameraConfig: CameraState
 ) => {
-  const fovRadians = (camera.fov * Math.PI) / 180
+  const fovRadians = ((cameraConfig.fov ?? 55) * Math.PI) / 180
   const height = 2 * Math.tan(fovRadians / 2) * distance
   const width = height * camera.aspect
   return { width, height }

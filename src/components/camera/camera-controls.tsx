@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react"
 import { PerspectiveCamera, Mesh, Vector3 } from "three"
 import { useCameraStore } from "@/store/app-store"
 import { useFrame } from "@react-three/fiber"
-import { INITIAL_CONFIG } from "./camera-constants"
 import {
   calculateMovementVectors,
   calculateNewPosition,
@@ -17,6 +16,7 @@ export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
   const planeBoundaryRef = useRef<Mesh>(null)
+  const cameraConfig = useCameraStore((state) => state.cameraConfig)
 
   const { debugBoundaries } = useControls({
     debugBoundaries: false
@@ -29,19 +29,21 @@ export const CustomCamera = () => {
     if (!controls || !plane || !boundary || !camera) return
 
     controls.disconnect()
-    controls.setPosition(...INITIAL_CONFIG.position)
-    controls.setTarget(...INITIAL_CONFIG.target)
+    controls.setPosition(...cameraConfig.position)
+    controls.setTarget(...cameraConfig.target)
     useCameraStore.getState().setCamera(camera)
 
-    const planePos = calculatePlanePosition()
+    const planePos = calculatePlanePosition(cameraConfig)
     const distance = Math.hypot(
-      ...INITIAL_CONFIG.position.map((p, i) => p - planePos[i])
+      ...cameraConfig.position.map((p, i) => p - planePos[i])
     )
-    const { width, height } = calculateViewDimensions(camera, distance)
+    const { width, height } = calculateViewDimensions(
+      camera,
+      distance,
+      cameraConfig
+    )
 
-    ;[plane, boundary].forEach((mesh) =>
-      mesh.lookAt(...INITIAL_CONFIG.position)
-    )
+    ;[plane, boundary].forEach((mesh) => mesh.lookAt(...cameraConfig.position))
     boundary.scale.set(width, height, 1)
     plane.scale.set(width * 0.4, height, 1) // adjust the scale of the plane so the animation is more prominent
   }, [])
@@ -53,8 +55,8 @@ export const CustomCamera = () => {
     if (!plane || !boundary || !controls) return
 
     const maxOffset = (boundary.scale.x - plane.scale.x) / 2
-    const basePosition = calculatePlanePosition()
-    const rightVector = calculateMovementVectors(basePosition)
+    const basePosition = calculatePlanePosition(cameraConfig)
+    const rightVector = calculateMovementVectors(basePosition, cameraConfig)
     const offset = pointer.x * maxOffset
 
     // Update plane position
@@ -72,9 +74,9 @@ export const CustomCamera = () => {
     // Animate camera position to follow plane
     const currentPosition = controls.getPosition(new Vector3())
     const targetPosition = new Vector3(
-      INITIAL_CONFIG.position[0] + rightVector.x * offset,
-      INITIAL_CONFIG.position[1],
-      INITIAL_CONFIG.position[2] + rightVector.z * offset
+      cameraConfig.position[0] + rightVector.x * offset,
+      cameraConfig.position[1],
+      cameraConfig.position[2] + rightVector.z * offset
     )
 
     easing.damp3(currentPosition, targetPosition, 0.1, dt)
@@ -87,15 +89,15 @@ export const CustomCamera = () => {
 
     const currentTarget = controls.getTarget(new Vector3())
     const targetLookAt = new Vector3(
-      INITIAL_CONFIG.target[0] + rightVector.x * offset,
-      INITIAL_CONFIG.target[1],
-      INITIAL_CONFIG.target[2] + rightVector.z * offset
+      cameraConfig.target[0] + rightVector.x * offset,
+      cameraConfig.target[1],
+      cameraConfig.target[2] + rightVector.z * offset
     )
     easing.damp3(currentTarget, targetLookAt, 0.05, dt)
     controls.setTarget(currentTarget.x, currentTarget.y, currentTarget.z, false)
   })
 
-  const planePosition = calculatePlanePosition()
+  const planePosition = calculatePlanePosition(cameraConfig)
   return (
     <>
       <CameraControls makeDefault ref={cameraControlsRef} />
