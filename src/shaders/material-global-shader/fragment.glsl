@@ -118,11 +118,7 @@ void main() {
   float basketballLightMapIntensity = 0.12;
 
   if(lightMapIntensity > 0.0) {
-    if(isBasketball) {
-      irradiance *= lightMapSample * basketballLightMapIntensity;
-    } else {
-      irradiance *= lightMapSample * lightMapIntensity;
-    }
+    irradiance *= lightMapSample * (isBasketball ? basketballLightMapIntensity : lightMapIntensity);
   }
 
   // Combine wave color
@@ -163,14 +159,11 @@ void main() {
 
   // Fog
   float basketballFogDensity = 0.25;
-  float fogDepth = min(vMvPosition.z + fogDepth, 0.0);
-  float fogFactor;
-
-  if(isBasketball) {
-    fogFactor = 1.0 - exp(-basketballFogDensity * basketballFogDensity * fogDepth * fogDepth);
-  } else {
-    fogFactor = 1.0 - exp(-fogDensity * fogDensity * fogDepth * fogDepth);
-  }
+  float basketballFogDepth = 4.0;
+  float fogDepth = min(vMvPosition.z + (isBasketball ? basketballFogDepth : fogDepth), 0.0);
+  float fogFactor = 1.0 - exp(-(isBasketball ? basketballFogDensity : fogDensity) *
+    (isBasketball ? basketballFogDensity : fogDensity) *
+    fogDepth * fogDepth);
 
   fogFactor = clamp(fogFactor, 0.0, 1.0);
   gl_FragColor.rgb = mix(gl_FragColor.rgb, isBasketball ? fogColor / 20.0 : fogColor, fogFactor);
