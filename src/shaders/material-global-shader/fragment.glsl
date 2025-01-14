@@ -21,7 +21,6 @@ uniform float metalness;
 uniform float roughness;
 uniform float uLoaded;
 uniform float uTime;
-uniform float uBasketballTransition;
 
 // lightmap
 uniform sampler2D lightMap;
@@ -55,6 +54,8 @@ uniform sampler2D glassReflex;
 
 // Basketball
 uniform bool isBasketball;
+uniform float uBasketballTransition;
+uniform float uBasketballFogColorTransition;
 
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
@@ -161,7 +162,7 @@ void main() {
 
   // Fog
   float basketballFogDensity = 0.25;
-  float basketballFogDepth = 4.0;
+  float basketballFogDepth = 8.0;
 
   float transitionedFogDepth = mix(fogDepth, basketballFogDepth, uBasketballTransition);
   float transitionedFogDensity = mix(fogDensity, basketballFogDensity, uBasketballTransition);
@@ -170,7 +171,7 @@ void main() {
   float fogFactor = 1.0 - exp(-transitionedFogDensity * transitionedFogDensity * fogDepthValue * fogDepthValue);
 
   fogFactor = clamp(fogFactor, 0.0, 1.0);
-  vec3 transitionedFogColor = mix(fogColor, fogColor / 20.0, uBasketballTransition);
+  vec3 transitionedFogColor = mix(fogColor, fogColor / 20.0, uBasketballFogColorTransition);
   gl_FragColor.rgb = mix(gl_FragColor.rgb, transitionedFogColor, fogFactor);
 
   if(uLoaded < 1.0) {
