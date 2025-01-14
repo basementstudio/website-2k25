@@ -44,8 +44,8 @@ export const CustomCamera = () => {
     )
 
     ;[plane, boundary].forEach((mesh) => mesh.lookAt(...cameraConfig.position))
-    boundary.scale.set(width, height, 1)
-    plane.scale.set(width * 0.4, height, 1) // adjust the scale of the plane so the animation is more prominent
+    boundary.scale.set(width * 0.8, height, 1)
+    plane.scale.set(width * 0.6, height, 1) // adjust the scale of the plane so the animation is more prominent
   }, [])
 
   useFrame(({ pointer }, dt) => {
