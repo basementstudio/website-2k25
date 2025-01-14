@@ -12,7 +12,7 @@ import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 
 import { HoopMinigame } from "./basketball/hoop-minigame"
-import { CustomCamera } from "./camera-controls"
+import { CustomCamera } from "./camera/camera-controls"
 import { Debug } from "./debug"
 import { Map } from "./map/map"
 import { MapWire } from "./map/map-wire"

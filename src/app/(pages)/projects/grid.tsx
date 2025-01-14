@@ -13,7 +13,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => (
 
       return (
         <div
-          key={item._title}
+          key={item._title + index}
           className={cn(
             "relative",
             firstItem ? "col-span-6 row-span-2" : "col-span-3",
