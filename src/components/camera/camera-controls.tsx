@@ -21,14 +21,8 @@ export const CustomCamera = () => {
   const cameraConfig = useCameraStore((state) => state.cameraConfig)
   const pathname = usePathname()
 
-  const { debugBoundaries, offsetMultiplier } = useControls({
-    debugBoundaries: false,
-    offsetMultiplier: {
-      value: 2,
-      min: 1,
-      max: 10,
-      step: 0.1
-    }
+  const { debugBoundaries } = useControls({
+    debugBoundaries: false
   })
 
   const currentPos = useMemo(() => new Vector3(), [])
@@ -109,6 +103,7 @@ export const CustomCamera = () => {
         const basePosition = calculatePlanePosition(cameraConfig)
         const rightVector = calculateMovementVectors(basePosition, cameraConfig)
 
+        const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
         const offset = pointer.x * maxOffset * offsetMultiplier
 
         // Update plane position

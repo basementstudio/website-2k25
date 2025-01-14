@@ -13,7 +13,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     url: "/home",
     position: [6.6, 1.5, -7.1],
     target: [4.48, 2.0, -12.8],
-    fov: 60
+    fov: 60,
+    offsetMultiplier: 2
   },
   arcade: {
     name: "arcade",
@@ -29,7 +30,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     object_name: "stairs",
     position: [6, 1.63, -10.21],
     target: [4, 1, -8],
-    fov: 60
+    fov: 60,
+    offsetMultiplier: 1.0
   },
   hoop: {
     name: "hoop",
@@ -37,7 +39,6 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     object_name: "hoop",
     position: [5.2, 0.8, -7.7],
     target: [5.2, 1.95, -12],
-    rotationLerp: 0,
     fov: 50
   },
   projects: {
