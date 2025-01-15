@@ -38,6 +38,8 @@ export interface AssetsResult {
       z: number
     }
     fov?: number
+    offsetMultiplier?: number
+    scrollYMin?: number
   }[]
 }
 
@@ -84,7 +86,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
           x: item.tarX ?? 0,
           y: item.tarY ?? 0,
           z: item.tarZ ?? 0
-        }
+        },
+        offsetMultiplier: item.offsetMultiplier ?? 1,
+        scrollYMin: item.scrollYMin ?? 0
       })
     )
   }
