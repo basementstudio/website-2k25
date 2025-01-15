@@ -30,16 +30,11 @@ export const metadata: Metadata = {
     "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality."
 }
 
+// TODO: find a way to load font-feature-settings
 const geistSans = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans"
 })
-
-// // We load the font locally because when fetching from Google Fonts, we loose the Stylistic sets.
-// const geistSans = localFont({
-//   src: "../../public/fonts/geist.woff2",
-//   variable: "--font-geist-sans"
-// })
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const assets = await fetchAssets()
