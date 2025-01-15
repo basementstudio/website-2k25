@@ -52,8 +52,7 @@ export const Navbar = () => {
           },
           {
             title: "Ventures",
-            href: "/ventures",
-            // TODO: this will be a external link (probably)
+            href: "https://basement.ventures",
             routeName: "home"
           }
         ]

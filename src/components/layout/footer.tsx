@@ -51,7 +51,7 @@ export const Footer = () => (
         },
         {
           title: "Ventures",
-          href: "/ventures"
+          href: "https://basement.ventures"
         }
       ]
 
@@ -108,7 +108,7 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => (
     {links.map((link) => (
       <li key={link.title}>
         <Link
-          className="flex gap-x-0.5 text-h2 text-brand-w1"
+          className="flex w-max gap-x-0.5 text-h2 text-brand-w1"
           href={link.href}
           target={link.href.startsWith("http") ? "_blank" : undefined}
         >
