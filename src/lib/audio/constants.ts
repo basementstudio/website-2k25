@@ -9,7 +9,11 @@ export const GAME_AUDIO_SFX = {
   BASKETBALL_THUMP: "/sfx/basketball-thump.wav",
 
   // AMBIENT SFX
-  TIMEOUT_BUZZER: "/sfx/basketball-timeout-buzzer.wav"
+  TIMEOUT_BUZZER: "/sfx/basketball-timeout-buzzer.wav",
+
+  // ABOUT PAGE CAR SFX
+  CAR_PASSING: "/sfx/carsample01.mp3",
+  ALT_CAR_PASSING: "/sfx/carsample02.mp3"
 } as const
 
 export const THEME_SONG_VOLUME = 0.35

@@ -4,6 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
+import { usePathname } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -16,6 +17,7 @@ import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
+import { useGameAudio } from "@/hooks/use-game-audio"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -51,6 +53,8 @@ export const Map = memo(() => {
   const { map, basketballNet, videos } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
+  const pathname = usePathname()
+  const { playSoundFX } = useGameAudio()
 
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
@@ -107,7 +111,7 @@ export const Map = memo(() => {
     if (car) {
       const mesh = car as Mesh
       animationProgress.current += clock.getElapsedTime()
-      animateCar(mesh, animationProgress.current)
+      animateCar(mesh, animationProgress.current, pathname, playSoundFX)
     }
   })
 
@@ -231,7 +235,7 @@ export const Map = memo(() => {
 
       {keyframedNet && <primitive object={keyframedNet} />}
 
-      {car && <primitive object={car} />}
+      {car && <primitive position-x={-7.7} object={car} />}
       <PlayedBasketballs />
       <LightmapLoader />
       <ReflexesLoader />
