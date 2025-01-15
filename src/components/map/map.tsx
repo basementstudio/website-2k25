@@ -21,6 +21,7 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 import { animateNet, NET_ANIMATION_SPEED } from "@/utils/basketball-utils"
+import { animateCar } from "@/utils/map-utils"
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
@@ -62,8 +63,9 @@ export const Map = memo(() => {
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
-
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
+  const [car, setCar] = useState<Object3D | null>(null)
+
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
 
@@ -101,6 +103,12 @@ export const Map = memo(() => {
       animationProgress.current += NET_ANIMATION_SPEED
       isAnimating.current = animateNet(mesh, animationProgress.current)
     }
+
+    if (car) {
+      const mesh = car as Mesh
+      animationProgress.current += clock.getElapsedTime()
+      animateCar(mesh, animationProgress.current)
+    }
   })
 
   useEffect(() => {
@@ -116,6 +124,7 @@ export const Map = memo(() => {
 
     const hoopMesh = scene.getObjectByName("SM_BasketballHoop")
     const newNetMesh = basketballNetV2.getObjectByName("SM_BasketRed-v2")
+    const carMesh = scene.getObjectByName("Car01")
 
     if (hoopMesh) {
       hoopMesh.removeFromParent()
@@ -130,6 +139,11 @@ export const Map = memo(() => {
     if (newNetMesh) {
       newNetMesh.removeFromParent()
       setKeyframedNet(newNetMesh)
+    }
+
+    if (carMesh) {
+      carMesh.removeFromParent()
+      setCar(carMesh)
     }
 
     scene.traverse((child) => {
@@ -216,6 +230,8 @@ export const Map = memo(() => {
       )}
 
       {keyframedNet && <primitive object={keyframedNet} />}
+
+      {car && <primitive object={car} />}
       <PlayedBasketballs />
       <LightmapLoader />
       <ReflexesLoader />
