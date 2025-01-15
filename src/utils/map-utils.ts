@@ -3,7 +3,7 @@ import { Object3D } from "three"
 import { GameAudioSFXKey, useGameAudioStore } from "@/hooks/use-game-audio"
 
 // car speed 0.035 - 0.065
-const CAR_SPEED = Math.random() * 0.04 + 0.045
+const CAR_SPEED = Math.random() * 0.03 + 0.035
 let isWaiting = false
 let waitTimeout: NodeJS.Timeout | null = null
 let isSoundPlaying = false
@@ -33,7 +33,10 @@ export function animateCar(
   pathname: string,
   playSoundFX: (sfx: GameAudioSFXKey, volume?: number, pitch?: number) => void
 ) {
-  if (pathname !== "/about") return
+  if (pathname !== "/about") {
+    car.position.x = END_X
+    return
+  }
 
   const carPosition = car.position
   const randomPitch = 0.95 + Math.random() * 0.1
@@ -41,7 +44,7 @@ export function animateCar(
   const audioSources = useGameAudioStore.getState().audioSfxSources
   const player = useGameAudioStore.getState().player
 
-  console.log(carPosition.x)
+  //   console.log(carPosition.x)
 
   if (!isWaiting && carPosition.x >= START_X && carPosition.x <= END_X) {
     if (!isSoundPlaying && audioSources && player) {
@@ -50,17 +53,13 @@ export function animateCar(
       const currentTime = player.audioContext.currentTime
 
       gainNode.gain.setValueAtTime(0, currentTime)
-      gainNode.gain.linearRampToValueAtTime(0.25, currentTime + FADE_DURATION)
+      gainNode.gain.linearRampToValueAtTime(0.15, currentTime + FADE_DURATION)
+
+      const timeToEnd = (END_X - carPosition.x) / CAR_SPEED / 60
+      gainNode.gain.linearRampToValueAtTime(0, currentTime + timeToEnd)
 
       playSoundFX(randomSample, 0, randomPitch)
       isSoundPlaying = true
-
-      const timeToEnd = (END_X - carPosition.x) / CAR_SPEED / 60
-      gainNode.gain.setValueAtTime(
-        0.15,
-        currentTime + timeToEnd - FADE_DURATION
-      )
-      gainNode.gain.linearRampToValueAtTime(0, currentTime + timeToEnd)
     }
     carPosition.x += CAR_SPEED
 
