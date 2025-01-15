@@ -24,8 +24,7 @@ function setRandomTimeout() {
 
   waitTimeout = setTimeout(() => {
     isWaiting = false
-    //   }, waitTime)
-  }, 1000)
+  }, waitTime)
 }
 
 export function animateCar(
