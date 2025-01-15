@@ -66,7 +66,7 @@ export const Footer = () => (
           <div className="grid-layout relative flex flex-col items-end">
             <div className="col-start-1 col-end-8"></div>
 
-            <div className="col-start-8 col-end-13 flex flex-col gap-y-12">
+            <div className="col-start-8 col-end-13 flex flex-col gap-y-14">
               <StayConnected
                 content={data.company.social.newsletter.json.content}
               />
