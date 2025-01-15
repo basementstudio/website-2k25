@@ -158,10 +158,9 @@ export const CustomCamera = () => {
           cameraConfig.position[2] + rightVector.z * offset
         )
 
-        // Only lerp horizontal movement, not vertical
         const currentPosition = controls.getPosition(new Vector3())
-        currentPosition.y = targetPosition.y // Immediate vertical update
-        easing.damp3(currentPosition, targetPosition, 0.1, dt) // Lerp only x and z
+        currentPosition.y = targetPosition.y
+        easing.damp3(currentPosition, targetPosition, 0.1, dt)
 
         controls.setPosition(
           currentPosition.x,
@@ -177,9 +176,8 @@ export const CustomCamera = () => {
           cameraConfig.target[2] + rightVector.z * offset
         )
 
-        // Apply the same principle to the target
-        currentTarget.y = targetLookAt.y // Immediate vertical update
-        easing.damp3(currentTarget, targetLookAt, 0.05, dt) // Changed damp2 to damp3
+        currentTarget.y = targetLookAt.y
+        easing.damp3(currentTarget, targetLookAt, 0.05, dt)
 
         controls.setTarget(
           currentTarget.x,
