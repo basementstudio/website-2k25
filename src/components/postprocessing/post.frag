@@ -165,14 +165,14 @@ void main() {
   float phi = hash(pixelatedUv) * 6.28; // Random rotation angle
 
   for(int i = 1; i < SAMPLE_COUNT; i++) {
-    vec2 sampleOffset = vogelDiskSample(i, SAMPLE_COUNT, phi) * uBloomRadius / resolution / 2.0;
+    vec2 sampleOffset = vogelDiskSample(i, SAMPLE_COUNT, phi) * uBloomRadius / resolution;
     float dist = length(sampleOffset);
 
     // Gaussian-like falloff
     float weight = 1.0 / dist;
 
     // Sample color at offset position
-    vec3 sampleColor = texture2D(uMainTexture, pixelatedUv + sampleOffset + vec2(1.0 / resolution.x * uPixelRatio, 1.0 / resolution.y * uPixelRatio)).rgb;
+    vec3 sampleColor = texture2D(uMainTexture, pixelatedUv + sampleOffset + vec2(1.0 / resolution.x, 1.0 / resolution.y)).rgb;
 
     // Only add to bloom if brightness is above threshold
     float brightness = dot(sampleColor, vec3(0.2126, 0.7152, 0.0722));

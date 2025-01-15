@@ -97,7 +97,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomRadius: {
-      value: 16.0,
+      value: 8.0,
       min: 1.0,
       max: 64.0,
       step: 1,
