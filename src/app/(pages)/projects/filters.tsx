@@ -87,18 +87,28 @@ export const Filters = ({
         />
       </div>
 
-      <div className="col-span-2 col-start-7 flex flex-wrap gap-1">
-        {categories.map((category) => (
-          <Checkbox
-            key={category}
-            checked={selectedCategories.includes(category)}
-            onCheckedChange={(checked) =>
-              categoryHandler(category, checked as boolean)
-            }
-          >
-            {category}
-          </Checkbox>
-        ))}
+      <div className="col-start-7 col-end-13 flex flex-col gap-2">
+        <p className="text-paragraph text-brand-g1">Filters</p>
+
+        <ul className="flex flex-wrap gap-4">
+          {categories.map((category) => (
+            <button
+              key={category}
+              className={cn(
+                "!text-h2 text-brand-g1",
+                selectedCategories.includes(category) && "text-brand-w1"
+              )}
+              onClick={() =>
+                categoryHandler(
+                  category,
+                  !selectedCategories.includes(category)
+                )
+              }
+            >
+              {category}
+            </button>
+          ))}
+        </ul>
       </div>
     </div>
   )
