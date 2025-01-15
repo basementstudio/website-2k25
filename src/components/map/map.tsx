@@ -235,7 +235,7 @@ export const Map = memo(() => {
 
       {keyframedNet && <primitive object={keyframedNet} />}
 
-      {car && <primitive position-x={-7.7} object={car} />}
+      {car && <primitive position-x={-8.7} object={car} />}
       <PlayedBasketballs />
       <LightmapLoader />
       <ReflexesLoader />

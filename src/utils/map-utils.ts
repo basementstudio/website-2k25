@@ -9,9 +9,8 @@ let waitTimeout: NodeJS.Timeout | null = null
 let isSoundPlaying = false
 const FADE_DURATION = 2.0
 
-// Car position constants
 const END_X = 6.7
-const START_X = -7.7
+const START_X = -8.7
 
 function setRandomTimeout() {
   // loop interval 9 - 13 seconds
@@ -35,11 +34,14 @@ export function animateCar(
   playSoundFX: (sfx: GameAudioSFXKey, volume?: number, pitch?: number) => void
 ) {
   if (pathname !== "/about") return
+
   const carPosition = car.position
   const randomPitch = 0.95 + Math.random() * 0.1
   const randomSample = Math.random() > 0.5 ? "CAR_PASSING" : "ALT_CAR_PASSING"
   const audioSources = useGameAudioStore.getState().audioSfxSources
   const player = useGameAudioStore.getState().player
+
+  console.log(carPosition.x)
 
   if (!isWaiting && carPosition.x >= START_X && carPosition.x <= END_X) {
     if (!isSoundPlaying && audioSources && player) {
