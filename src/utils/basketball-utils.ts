@@ -122,32 +122,11 @@ export const applyThrowAssistance = (
   const horizontalOffset = Math.abs(hoopPosition.x - currentPos.x)
   const offsetMultiplier = Math.max(0, 1 - horizontalOffset * 0.45)
 
-  console.log("Throw assistance check:", {
-    distanceToHoop,
-    horizontalOffset,
-    offsetMultiplier
-  })
-
   const inSweetSpot =
     distanceToHoop > 3.0 && distanceToHoop < 4.4 && horizontalOffset < 0.6
 
   const veryClose =
     distanceToHoop > 2.6 && distanceToHoop < 3.4 && horizontalOffset < 0.4
-
-  console.log("Throw zones:", {
-    inSweetSpot,
-    veryClose,
-    conditions: {
-      sweetSpot: {
-        distance: distanceToHoop > 3.0 && distanceToHoop < 4.4,
-        offset: horizontalOffset < 0.6
-      },
-      veryClose: {
-        distance: distanceToHoop > 2.6 && distanceToHoop < 3.4,
-        offset: horizontalOffset < 0.4
-      }
-    }
-  })
 
   if (veryClose) {
     console.log("Applying very close assistance")
@@ -159,7 +138,6 @@ export const applyThrowAssistance = (
   }
 
   if (inSweetSpot) {
-    console.log("Applying sweet spot assistance")
     return {
       x: velocity.x,
       y: velocity.y * (1 + 0.35 * offsetMultiplier),
@@ -167,7 +145,6 @@ export const applyThrowAssistance = (
     }
   }
 
-  console.log("No assistance applied - outside all zones")
   return velocity
 }
 
@@ -222,8 +199,6 @@ export const handlePointerDown = ({
   setIsDragging
 }: PointerHandlerParams) => {
   if (!isThrowable.current) return
-
-  console.log("handlepointerdown is throwable:", isThrowable.current)
 
   event.stopPropagation()
   setIsDragging(true)
@@ -294,8 +269,6 @@ export const handlePointerUp = ({
     if (!isGameActive) {
       startGame()
     }
-
-    console.log("handlepointerup is throwable:", isThrowable.current)
 
     const currentPos = ballRef.current.translation()
     const dragDelta = new Vector3(
