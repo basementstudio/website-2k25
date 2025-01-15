@@ -1,8 +1,13 @@
 import { CameraControls } from "@react-three/drei"
-import { useEffect, useRef, useMemo } from "react"
-import { PerspectiveCamera, Mesh, Vector3 } from "three"
-import { useCameraStore } from "@/store/app-store"
 import { useFrame } from "@react-three/fiber"
+import { useControls } from "leva"
+import { easing } from "maath"
+import { usePathname } from "next/navigation"
+import { useEffect, useMemo, useRef } from "react"
+import { Mesh, PerspectiveCamera, Vector3 } from "three"
+
+import { useCameraStore } from "@/store/app-store"
+
 import {
   calculateMovementVectors,
   calculateNewPosition,
@@ -10,9 +15,6 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
-import { easing } from "maath"
-import { useControls } from "leva"
-import { usePathname } from "next/navigation"
 
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
@@ -64,8 +66,8 @@ export const CustomCamera = () => {
 
     ;[plane, boundary].forEach((mesh) => mesh.lookAt(...cameraConfig.position))
     boundary.scale.set(width * 0.6, height, 1)
-    plane.scale.set(width * 0.4, height, 1) // adjust the scale of the plane so the animation is more prominent
-  }, [])
+    plane.scale.set(width * 0.4, height, 1)
+  }, [cameraConfig])
 
   useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current

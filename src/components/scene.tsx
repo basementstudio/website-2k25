@@ -5,7 +5,6 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
@@ -21,11 +20,6 @@ import { Renderer } from "./postprocessing/renderer"
 export const Scene = () => {
   const pathname = usePathname()
   const isBasketball = pathname === "/basketball"
-  const [documentElement, setDocumentElement] = useState<HTMLElement>()
-
-  useEffect(() => {
-    setDocumentElement(document.documentElement)
-  }, [])
 
   return (
     <div className="absolute inset-0">
@@ -37,8 +31,6 @@ export const Scene = () => {
           outputColorSpace: THREE.SRGBColorSpace,
           toneMapping: THREE.ACESFilmicToneMapping
         }}
-        eventSource={documentElement}
-        eventPrefix="client"
         camera={{ fov: 60 }}
       >
         <Renderer
