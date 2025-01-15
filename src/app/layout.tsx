@@ -12,6 +12,7 @@ import { Scene } from "@/components/scene"
 const Toolbar = BasehubToolbar as unknown as React.ComponentType
 
 import type { Metadata } from "next"
+import { Geist } from "next/font/google"
 
 import { Grid } from "@/components/grid"
 import { InspectableProvider } from "@/components/inspectables/context"
@@ -29,9 +30,9 @@ export const metadata: Metadata = {
     "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality."
 }
 
-// We load the font locally because when fetching from Google Fonts, we loose the Stylistic sets.
-const geistSans = localFont({
-  src: "../../public/fonts/geist.woff2",
+// TODO: find a way to load font-feature-settings
+const geistSans = Geist({
+  subsets: ["latin"],
   variable: "--font-geist-sans"
 })
 
