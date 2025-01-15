@@ -72,33 +72,33 @@ export const CustomCamera = () => {
     ;[plane, boundary].forEach((mesh) => mesh.lookAt(...cameraConfig.position))
     boundary.scale.set(width * 0.6, height, 1)
     plane.scale.set(width * 0.4, height, 1)
-  }, [cameraConfig])
-
-  const handleScroll = () => {
-    const scrollProgress =
-      window.scrollY /
-      (document.documentElement.scrollHeight - window.innerHeight)
-    const newOffset = -scrollProgress * MAX_VERTICAL_OFFSET
-
-    const baseHeight = cameraConfig.position[1]
-
-    if (baseHeight + newOffset >= MIN_HEIGHT) {
-      verticalOffset.current = Math.max(
-        -MAX_VERTICAL_OFFSET,
-        Math.min(0, newOffset)
-      )
-    } else {
-      verticalOffset.current = Math.max(
-        -MAX_VERTICAL_OFFSET,
-        Math.min(0, MIN_HEIGHT - baseHeight)
-      )
-    }
-  }
+  }, [])
 
   useEffect(() => {
+    const handleScroll = () => {
+      const scrollProgress =
+        window.scrollY /
+        (document.documentElement.scrollHeight - window.innerHeight)
+      const newOffset = -scrollProgress * MAX_VERTICAL_OFFSET
+
+      const baseHeight = cameraConfig.position[1]
+
+      if (baseHeight + newOffset >= MIN_HEIGHT) {
+        verticalOffset.current = Math.max(
+          -MAX_VERTICAL_OFFSET,
+          Math.min(0, newOffset)
+        )
+      } else {
+        verticalOffset.current = Math.max(
+          -MAX_VERTICAL_OFFSET,
+          Math.min(0, MIN_HEIGHT - baseHeight)
+        )
+      }
+    }
+
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  }, [cameraConfig.position])
 
   useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current
