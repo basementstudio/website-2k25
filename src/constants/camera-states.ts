@@ -13,9 +13,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     url: "/home",
     position: [6.6, 1.5, -7.1],
     target: [4.48, 2.0, -12.8],
-    rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03,
-    fov: 60
+    fov: 60,
+    offsetMultiplier: 2
   },
   arcade: {
     name: "arcade",
@@ -23,8 +22,6 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     object_name: "arcade",
     position: [2.98, 1.6, -12.8],
     target: [2.98, 1.33, -13.8],
-    rotationAngle: [0, 0],
-    rotationLerp: 0,
     fov: 35
   },
   stairs: {
@@ -33,9 +30,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     object_name: "stairs",
     position: [6, 1.63, -10.21],
     target: [4, 1, -8],
-    rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03,
-    fov: 60
+    fov: 60,
+    offsetMultiplier: 1.0
   },
   hoop: {
     name: "hoop",
@@ -43,8 +39,6 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     object_name: "hoop",
     position: [5.2, 0.8, -7.7],
     target: [5.2, 1.95, -12],
-    rotationAngle: [0, 0],
-    rotationLerp: 0,
     fov: 50
   },
   projects: {
@@ -53,8 +47,6 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     object_name: "railing",
     position: [5.9, 4.72, -10.11],
     target: [-4, 5.55, -15.95],
-    rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03,
     fov: 60
   },
   careers: {
@@ -63,8 +55,6 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     url: "/careers",
     position: [6.6, 1.5, -7.1],
     target: [4.48, 2.0, -12.8],
-    rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03,
     fov: 60
   },
   blog: {
@@ -73,16 +63,12 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     url: "/blog",
     position: [6.6, 1.5, -7.1],
     target: [4.48, 2.0, -12.8],
-    rotationAngle: [0.5, 0.5],
-    rotationLerp: 0.03,
     fov: 60
   },
   menu: {
     name: "menu",
     position: [16, 14, -5],
     target: [7, 1.6, -16],
-    rotationAngle: [1, 1],
-    rotationLerp: 0.03,
     fov: 60
   }
 }
