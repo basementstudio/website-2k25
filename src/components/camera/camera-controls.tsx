@@ -151,15 +151,18 @@ export const CustomCamera = () => {
         plane.position.setX(newPos.x)
         plane.position.setZ(newPos.z)
 
-        // Animate camera position to follow plane
-        const currentPosition = controls.getPosition(new Vector3())
+        // Set camera position directly for vertical scroll
         const targetPosition = new Vector3(
           cameraConfig.position[0] + rightVector.x * offset,
           cameraConfig.position[1] + verticalOffset.current,
           cameraConfig.position[2] + rightVector.z * offset
         )
 
-        easing.damp3(currentPosition, targetPosition, 0.1, dt)
+        // Only lerp horizontal movement, not vertical
+        const currentPosition = controls.getPosition(new Vector3())
+        currentPosition.y = targetPosition.y // Immediate vertical update
+        easing.damp3(currentPosition, targetPosition, 0.1, dt) // Lerp only x and z
+
         controls.setPosition(
           currentPosition.x,
           currentPosition.y,
@@ -173,7 +176,11 @@ export const CustomCamera = () => {
           cameraConfig.target[1] + verticalOffset.current,
           cameraConfig.target[2] + rightVector.z * offset
         )
-        easing.damp3(currentTarget, targetLookAt, 0.05, dt)
+
+        // Apply the same principle to the target
+        currentTarget.y = targetLookAt.y // Immediate vertical update
+        easing.damp3(currentTarget, targetLookAt, 0.05, dt) // Changed damp2 to damp3
+
         controls.setTarget(
           currentTarget.x,
           currentTarget.y,
