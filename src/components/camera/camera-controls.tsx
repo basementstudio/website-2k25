@@ -16,6 +16,9 @@ import {
   easeInOutCubic
 } from "./camera-utils"
 
+const MAX_VERTICAL_OFFSET = 2
+const MIN_HEIGHT = 0.7
+
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
@@ -37,6 +40,8 @@ export const CustomCamera = () => {
   const gametargetFov = useRef<number>(60)
   const gameCurrentFov = useRef<number>(60)
   const fovTransitionProgress = useRef<number>(1)
+
+  const verticalOffset = useRef(0)
 
   useEffect(() => {
     const controls = cameraControlsRef.current
@@ -68,6 +73,32 @@ export const CustomCamera = () => {
     boundary.scale.set(width * 0.6, height, 1)
     plane.scale.set(width * 0.4, height, 1)
   }, [cameraConfig])
+
+  const handleScroll = () => {
+    const scrollProgress =
+      window.scrollY /
+      (document.documentElement.scrollHeight - window.innerHeight)
+    const newOffset = -scrollProgress * MAX_VERTICAL_OFFSET
+
+    const baseHeight = cameraConfig.position[1]
+
+    if (baseHeight + newOffset >= MIN_HEIGHT) {
+      verticalOffset.current = Math.max(
+        -MAX_VERTICAL_OFFSET,
+        Math.min(0, newOffset)
+      )
+    } else {
+      verticalOffset.current = Math.max(
+        -MAX_VERTICAL_OFFSET,
+        Math.min(0, MIN_HEIGHT - baseHeight)
+      )
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current
@@ -124,7 +155,7 @@ export const CustomCamera = () => {
         const currentPosition = controls.getPosition(new Vector3())
         const targetPosition = new Vector3(
           cameraConfig.position[0] + rightVector.x * offset,
-          cameraConfig.position[1],
+          cameraConfig.position[1] + verticalOffset.current,
           cameraConfig.position[2] + rightVector.z * offset
         )
 
@@ -139,7 +170,7 @@ export const CustomCamera = () => {
         const currentTarget = controls.getTarget(new Vector3())
         const targetLookAt = new Vector3(
           cameraConfig.target[0] + rightVector.x * offset,
-          cameraConfig.target[1],
+          cameraConfig.target[1] + verticalOffset.current,
           cameraConfig.target[2] + rightVector.z * offset
         )
         easing.damp3(currentTarget, targetLookAt, 0.05, dt)
