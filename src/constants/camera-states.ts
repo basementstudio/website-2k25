@@ -22,7 +22,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     object_name: "arcade",
     position: [2.98, 1.6, -12.8],
     target: [2.98, 1.33, -13.8],
-    fov: 35
+    fov: 35,
+    offsetMultiplier: 0.1
   },
   stairs: {
     name: "about",
