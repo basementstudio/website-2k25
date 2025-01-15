@@ -38,9 +38,6 @@ export const CustomCamera = () => {
   const gameCurrentFov = useRef<number>(60)
   const fovTransitionProgress = useRef<number>(1)
 
-  const initialY = useRef(0)
-  const targetY = useRef(0)
-
   useEffect(() => {
     const controls = cameraControlsRef.current
 
@@ -58,9 +55,6 @@ export const CustomCamera = () => {
     gametargetFov.current = cameraConfig.fov ?? 60
     fovTransitionProgress.current = 0
 
-    initialY.current = cameraConfig.position[1]
-    targetY.current = -initialY.current
-
     const planePos = calculatePlanePosition(cameraConfig)
     const distance = Math.hypot(
       ...cameraConfig.position.map((p, i) => p - planePos[i])
@@ -77,10 +71,11 @@ export const CustomCamera = () => {
   }, [])
 
   useEffect(() => {
+    const initialY = cameraConfig.position[1]
+    const targetY = cameraConfig.scrollYMin ?? -1.5
     const handleScroll = () => {
       const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)
-      const newY =
-        initialY.current + (targetY.current - initialY.current) * scrollProgress
+      const newY = initialY + (targetY - initialY) * scrollProgress
 
       if (cameraControlsRef.current) {
         const pos = cameraControlsRef.current.getPosition(new Vector3())
@@ -96,7 +91,7 @@ export const CustomCamera = () => {
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  }, [cameraConfig])
 
   useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current
