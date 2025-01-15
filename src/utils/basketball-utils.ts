@@ -120,27 +120,28 @@ export const applyThrowAssistance = (
   ).length()
 
   const horizontalOffset = Math.abs(hoopPosition.x - currentPos.x)
-  const offsetMultiplier = Math.max(0, 1 - horizontalOffset * 0.5)
+  const offsetMultiplier = Math.max(0, 1 - horizontalOffset * 0.45)
 
   const inSweetSpot =
-    distanceToHoop > 3.2 && distanceToHoop < 4.2 && horizontalOffset < 0.5
+    distanceToHoop > 3.0 && distanceToHoop < 4.4 && horizontalOffset < 0.6
 
   const veryClose =
-    distanceToHoop > 2.8 && distanceToHoop < 3.2 && horizontalOffset < 0.3
+    distanceToHoop > 2.6 && distanceToHoop < 3.4 && horizontalOffset < 0.4
 
   if (veryClose) {
+    console.log("Applying very close assistance")
     return {
       x: velocity.x,
-      y: velocity.y * (1 + 0.25 * offsetMultiplier),
-      z: velocity.z * (1 + 0.2 * offsetMultiplier)
+      y: velocity.y * (1 + 0.45 * offsetMultiplier),
+      z: velocity.z * (1 + 0.35 * offsetMultiplier)
     }
   }
 
   if (inSweetSpot) {
     return {
       x: velocity.x,
-      y: velocity.y * (1 + 0.15 * offsetMultiplier),
-      z: velocity.z * (1 + 0.12 * offsetMultiplier)
+      y: velocity.y * (1 + 0.35 * offsetMultiplier),
+      z: velocity.z * (1 + 0.25 * offsetMultiplier)
     }
   }
 
@@ -157,7 +158,7 @@ export const calculateThrowVelocity = (
   ballHorizontalOffset: number
 ): Velocity => {
   const baseThrowStrength = 0.85
-  const throwStrength = Math.min(baseThrowStrength * dragDistance, 2.5)
+  const throwStrength = Math.min(baseThrowStrength * dragDistance, 3.0)
 
   const distanceToHoop = new Vector3(
     hoopPosition.x - currentPos.x,
@@ -166,18 +167,24 @@ export const calculateThrowVelocity = (
   ).length()
   const heightDifference = hoopPosition.y - currentPos.y
 
+  // sideshot correction
+  const horizontalDistance = Math.abs(hoopPosition.x - currentPos.x)
+  const centeringForce = horizontalDistance * 0.05 // strong-ish centering force
+  const centeringDirection = currentPos.x > hoopPosition.x ? 1 : -1
+  const xCorrection = centeringForce * centeringDirection + ballHorizontalOffset
+
   return {
-    x: -dragDelta.x * throwStrength * 0.015 - ballHorizontalOffset,
+    x: -dragDelta.x * throwStrength * 0.02 - xCorrection,
     y:
       heightDifference *
       upStrength *
       throwStrength *
-      (distanceToHoop > 2 ? 0.85 : 1),
+      (distanceToHoop > 2 ? 1.3 : 1.5),
     z:
       -distanceToHoop *
       throwStrength *
       forwardStrength *
-      (distanceToHoop > 2 ? 0.9 : 1)
+      (distanceToHoop > 2 ? 1.3 : 1.5)
   }
 }
 
@@ -257,7 +264,8 @@ export const handlePointerUp = ({
   forwardStrength,
   playSoundFX
 }: HandlePointerUpParams) => {
-  if (ballRef.current) {
+  // this prevents the ball from being clicked when it is not throwable
+  if (ballRef.current && isThrowable.current) {
     if (!isGameActive) {
       startGame()
     }
@@ -278,6 +286,7 @@ export const handlePointerUp = ({
       hasMovedSignificantly.current
     ) {
       ballRef.current.setBodyType(0, true)
+      // isthrowable set to false only if it has moved significantly
       isThrowable.current = false
 
       const randomPitch = 0.95 + Math.random() * 0.1
