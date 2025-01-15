@@ -1,6 +1,6 @@
 export const BASE_CONFIG = {
   color: "#bbb",
-  speed: 0.25,
+  speed: 0.2,
   size: 1
 }
 
@@ -31,7 +31,7 @@ export const SPAWN_POINTS: {
   {
     position: [8.4, 2.55, -14.4],
     scale: [1.9, 0.2, 0.2],
-    count: 240
+    count: 120
   },
   // Tvs
   {
@@ -43,30 +43,30 @@ export const SPAWN_POINTS: {
   {
     position: [11.1, 5.4, -18.5],
     scale: [1, 0.6, 5.5],
-    count: 360
+    count: 180
   },
   // Top Left
   {
     position: [4.1, 5.4, -18.6],
     scale: [1, 0.6, 3.75],
-    count: 360
+    count: 180
   },
   // Top Bottom Right Lamps
   {
     position: [11.1, 5.4, -25.6],
     scale: [1, 0.6, 3.75],
-    count: 360
+    count: 180
   },
   // Top Bottom Center Lamps
   {
     position: [7.25, 5.4, -25.6],
     scale: [1, 0.6, 3.75],
-    count: 360
+    count: 180
   },
   // Top Bottom Left Lamps
   {
     position: [4.1, 5.4, -25.6],
     scale: [1, 0.6, 3.75],
-    count: 360
+    count: 180
   }
 ]
