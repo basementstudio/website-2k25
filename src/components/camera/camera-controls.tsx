@@ -16,9 +16,6 @@ import {
   easeInOutCubic
 } from "./camera-utils"
 
-const MAX_VERTICAL_OFFSET = 2
-const MIN_HEIGHT = 0.7
-
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
@@ -41,12 +38,14 @@ export const CustomCamera = () => {
   const gameCurrentFov = useRef<number>(60)
   const fovTransitionProgress = useRef<number>(1)
 
-  const verticalOffset = useRef(0)
+  const initialY = useRef(0)
+  const targetY = useRef(0)
 
   useEffect(() => {
     const controls = cameraControlsRef.current
 
     const camera = controls?.camera as PerspectiveCamera
+
     const [plane, boundary] = [planeRef.current, planeBoundaryRef.current]
     if (!controls || !plane || !boundary || !camera) return
 
@@ -58,6 +57,9 @@ export const CustomCamera = () => {
     gameCurrentFov.current = camera.fov
     gametargetFov.current = cameraConfig.fov ?? 60
     fovTransitionProgress.current = 0
+
+    initialY.current = cameraConfig.position[1]
+    targetY.current = -initialY.current
 
     const planePos = calculatePlanePosition(cameraConfig)
     const distance = Math.hypot(
@@ -76,29 +78,25 @@ export const CustomCamera = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollProgress =
-        window.scrollY /
-        (document.documentElement.scrollHeight - window.innerHeight)
-      const newOffset = -scrollProgress * MAX_VERTICAL_OFFSET
+      const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)
+      const newY =
+        initialY.current + (targetY.current - initialY.current) * scrollProgress
 
-      const baseHeight = cameraConfig.position[1]
+      if (cameraControlsRef.current) {
+        const pos = cameraControlsRef.current.getPosition(new Vector3())
+        const target = cameraControlsRef.current.getTarget(new Vector3())
 
-      if (baseHeight + newOffset >= MIN_HEIGHT) {
-        verticalOffset.current = Math.max(
-          -MAX_VERTICAL_OFFSET,
-          Math.min(0, newOffset)
-        )
-      } else {
-        verticalOffset.current = Math.max(
-          -MAX_VERTICAL_OFFSET,
-          Math.min(0, MIN_HEIGHT - baseHeight)
-        )
+        pos.y = newY
+        target.y = newY
+
+        cameraControlsRef.current.setPosition(pos.x, pos.y, pos.z, false)
+        cameraControlsRef.current.setTarget(target.x, target.y, target.z, false)
       }
     }
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [cameraConfig.position])
+  }, [])
 
   useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current
@@ -151,17 +149,15 @@ export const CustomCamera = () => {
         plane.position.setX(newPos.x)
         plane.position.setZ(newPos.z)
 
-        // Set camera position directly for vertical scroll
+        // Set camera position directly for horizontal movement
+        const currentPosition = controls.getPosition(new Vector3())
         const targetPosition = new Vector3(
           cameraConfig.position[0] + rightVector.x * offset,
-          cameraConfig.position[1] + verticalOffset.current,
+          currentPosition.y,
           cameraConfig.position[2] + rightVector.z * offset
         )
 
-        const currentPosition = controls.getPosition(new Vector3())
-        currentPosition.y = targetPosition.y
         easing.damp3(currentPosition, targetPosition, 0.1, dt)
-
         controls.setPosition(
           currentPosition.x,
           currentPosition.y,
@@ -172,13 +168,11 @@ export const CustomCamera = () => {
         const currentTarget = controls.getTarget(new Vector3())
         const targetLookAt = new Vector3(
           cameraConfig.target[0] + rightVector.x * offset,
-          cameraConfig.target[1] + verticalOffset.current,
+          currentTarget.y,
           cameraConfig.target[2] + rightVector.z * offset
         )
 
-        currentTarget.y = targetLookAt.y
         easing.damp3(currentTarget, targetLookAt, 0.05, dt)
-
         controls.setTarget(
           currentTarget.x,
           currentTarget.y,
