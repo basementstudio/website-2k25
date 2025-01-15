@@ -77,9 +77,9 @@ export const Map = memo(() => {
     fogDepth: 9.0
   })
 
-  const { jitter } = useControls("jitter", {
-    jitter: 512.0
-  })
+  // const { jitter } = useControls("jitter", {
+  //   jitter: 512.0
+  // })
 
   useFrame(({ clock }) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
@@ -93,7 +93,7 @@ export const Map = memo(() => {
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
 
-      material.uniforms.uJitter.value = jitter
+      // material.uniforms.uJitter.value = jitter
     })
 
     if (keyframedNet && isAnimating.current) {
