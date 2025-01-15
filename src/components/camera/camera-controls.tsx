@@ -124,7 +124,7 @@ export const CustomCamera = () => {
         false
       )
     } else {
-      if (pathname !== "/basketball" && pathname !== "/arcade") {
+      if (pathname !== "/basketball") {
         const maxOffset = (boundary.scale.x - plane.scale.x) / 2
         const basePosition = calculatePlanePosition(cameraConfig)
         const rightVector = calculateMovementVectors(basePosition, cameraConfig)
