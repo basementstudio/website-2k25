@@ -49,6 +49,12 @@ export const Navbar = () => {
             href: "/blog",
             routeName: "blog",
             count: posts
+          },
+          {
+            title: "Ventures",
+            href: "/ventures",
+            // TODO: this will be a external link (probably)
+            routeName: "home"
           }
         ]
 

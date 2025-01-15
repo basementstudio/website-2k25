@@ -11,6 +11,11 @@
     @apply font-medium underline;
   }
 
+  .text-h2.actionable,
+  .text-h2 .actionable {
+    @apply underline-offset-[3px] [text-decoration-thickness:2px];
+  }
+
   .text-paragraph.actionable,
   .text-paragraph .actionable {
     @apply underline-offset-[1.5px] [text-decoration-thickness:0.5px];

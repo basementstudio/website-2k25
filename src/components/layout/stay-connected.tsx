@@ -15,10 +15,12 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => (
       content={content}
       components={{
         h3: ({ children }) => (
-          <p className="col-span-4 text-subheading text-brand-w2">{children}</p>
+          <p className="col-span-4 text-subheading font-semibold text-brand-w2">
+            {children}
+          </p>
         ),
         p: ({ children }) => (
-          <p className="col-start-1 col-end-4 text-paragraph text-brand-w2">
+          <p className="col-start-1 col-end-4 text-paragraph font-semibold text-brand-w2">
             {children}
           </p>
         )
@@ -26,11 +28,10 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => (
     />
     <form className="col-span-4 flex flex-col gap-3">
       <div className="flex flex-col gap-2">
-        <Input className="col-span-4" placeholder="Name" />
-        <Input className="col-span-4" placeholder="Email" />
+        <Input className="col-span-4" placeholder="Enter your email" />
       </div>
-      <button className="col-span-4 w-fit text-paragraph text-brand-g1">
-        Submit Form →
+      <button className="col-span-4 w-fit text-h4 text-brand-g1">
+        Roll me in →
       </button>
     </form>
   </div>
