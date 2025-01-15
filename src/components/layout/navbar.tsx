@@ -49,11 +49,6 @@ export const Navbar = () => {
             href: "/blog",
             routeName: "blog",
             count: posts
-          },
-          {
-            title: "Ventures",
-            href: "https://basement.ventures",
-            routeName: "home"
           }
         ]
 

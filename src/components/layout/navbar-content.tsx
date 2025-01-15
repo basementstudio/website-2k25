@@ -57,32 +57,18 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
         </button>
 
         <div className="ga-5 col-start-3 col-end-11 flex w-full justify-center gap-5">
-          {links.map((link) => {
-            const isExternal = link.href.startsWith("http")
-
-            const Comp = isExternal ? Link : "button"
-
-            return (
-              <Comp
-                className="space-x-1 text-p text-brand-w1 transition-colors duration-300 hover:text-brand-o"
-                key={link.href}
-                href={link.href}
-                target={isExternal ? "_blank" : undefined}
-                onClick={
-                  isExternal
-                    ? undefined
-                    : () => handleNavigation(link.href, link.routeName)
-                }
-              >
-                <span>{link.title}</span>
-                {link.count && (
-                  <sup className="text-caption text-brand-g1">
-                    ({link.count})
-                  </sup>
-                )}
-              </Comp>
-            )
-          })}
+          {links.map((link) => (
+            <button
+              className="space-x-1 text-p text-brand-w1 transition-colors duration-300 hover:text-brand-o"
+              key={link.href}
+              onClick={() => handleNavigation(link.href, link.routeName)}
+            >
+              <span>{link.title}</span>
+              {link.count && (
+                <sup className="text-caption text-brand-g1">({link.count})</sup>
+              )}
+            </button>
+          ))}
         </div>
 
         <div className="col-start-11 col-end-13 ml-auto flex items-center gap-5">
