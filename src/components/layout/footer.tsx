@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Grid } from "@/components/grid"
 import { cn } from "@/utils/cn"
 
+import { query } from "./query"
 import { StayConnected } from "./stay-connected"
 
 const Logo = ({ className }: { className?: string }) => (
@@ -18,41 +19,7 @@ const Logo = ({ className }: { className?: string }) => (
 )
 
 export const Footer = () => (
-  <Pump
-    queries={[
-      {
-        pages: {
-          projects: {
-            projectList: {
-              items: {
-                _slug: true
-              }
-            }
-          },
-          blog: {
-            posts: {
-              items: {
-                _slug: true
-              }
-            }
-          }
-        },
-        company: {
-          social: {
-            github: true,
-            instagram: true,
-            twitter: true,
-            newsletter: {
-              json: {
-                content: true
-              }
-            }
-          }
-        }
-      }
-    ]}
-    next={{ revalidate: 30 }}
-  >
+  <Pump queries={[query]}>
     {async ([data]) => {
       "use server"
 
