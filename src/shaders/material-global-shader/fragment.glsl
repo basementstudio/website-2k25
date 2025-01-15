@@ -41,6 +41,7 @@ uniform float emissiveIntensity;
 
 #ifdef USE_EMISSIVEMAP
 uniform sampler2D emissiveMap;
+uniform float emissiveIntensity;
 #endif
 
 // Fog
@@ -111,7 +112,7 @@ void main() {
 
   #ifdef USE_EMISSIVEMAP
   vec4 emissiveColor = texture2D(emissiveMap, vUv);
-  irradiance *= emissiveColor.rgb;
+  irradiance *= emissiveColor.rgb * emissiveIntensity;
   #endif
 
   float basketballLightMapIntensity = 0.12;
