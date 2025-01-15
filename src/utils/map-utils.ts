@@ -24,7 +24,8 @@ function setRandomTimeout() {
 
   waitTimeout = setTimeout(() => {
     isWaiting = false
-  }, waitTime)
+    //   }, waitTime)
+  }, 1000)
 }
 
 export function animateCar(
@@ -48,17 +49,17 @@ export function animateCar(
 
   if (!isWaiting && carPosition.x >= START_X && carPosition.x <= END_X) {
     if (!isSoundPlaying && audioSources && player) {
-      const source = audioSources[randomSample]
-      const gainNode = source.outputNode
-      const currentTime = player.audioContext.currentTime
+      //   const source = audioSources[randomSample]
+      //   const gainNode = source.outputNode
+      //   const currentTime = player.audioContext.currentTime
 
-      gainNode.gain.setValueAtTime(0, currentTime)
-      gainNode.gain.linearRampToValueAtTime(0.15, currentTime + FADE_DURATION)
+      //   gainNode.gain.setValueAtTime(0, currentTime)
+      //   gainNode.gain.linearRampToValueAtTime(0.15, currentTime + FADE_DURATION)
 
-      const timeToEnd = (END_X - carPosition.x) / CAR_SPEED / 60
-      gainNode.gain.linearRampToValueAtTime(0, currentTime + timeToEnd)
+      //   const timeToEnd = (END_X - carPosition.x) / CAR_SPEED / 60
+      //   gainNode.gain.linearRampToValueAtTime(0, currentTime + timeToEnd)
 
-      playSoundFX(randomSample, 0, randomPitch)
+      //   playSoundFX(randomSample, 0, randomPitch)
       isSoundPlaying = true
     }
     carPosition.x += CAR_SPEED
