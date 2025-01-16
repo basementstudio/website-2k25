@@ -2,7 +2,7 @@ import { RapierRigidBody } from "@react-three/rapier"
 import { RefObject } from "react"
 import { Mesh, Vector2, Vector3 } from "three"
 
-import { GameAudioSFXKey } from "@/hooks/use-game-audio"
+import { SiteAudioSFXKey } from "@/hooks/use-site-audio"
 
 interface Position {
   x: number
@@ -46,7 +46,7 @@ interface HandlePointerUpParams {
   startGame: () => void
   upStrength: number
   forwardStrength: number
-  playSoundFX: (sfx: GameAudioSFXKey, volume?: number, pitch?: number) => void
+  playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
 }
 
 interface MorphTargetMesh extends Mesh {
