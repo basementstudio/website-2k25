@@ -1,5 +1,6 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import Image from "next/image"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
 import { cn } from "@/utils/cn"
@@ -72,9 +73,11 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
               <p className="relative col-start-10 col-end-11 text-left text-paragraph text-brand-w2">
                 {item.project?.year}
               </p>
-              <p className="view-project relative col-start-12 col-end-13 text-right text-paragraph text-brand-w2 opacity-0 transition-opacity duration-300">
-                <span className="actionable">View Project</span> →
-              </p>
+              <Link href={`/projects/${item.project?._slug}`}>
+                <p className="view-project relative col-start-12 col-end-13 text-right text-paragraph text-brand-w2 opacity-0 transition-opacity duration-300">
+                  <span className="actionable">View Project</span> →
+                </p>
+              </Link>
             </div>
 
             <AccordionPrimitive.Content

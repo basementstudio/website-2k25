@@ -1,4 +1,5 @@
 import Image from "next/image"
+import Link from "next/link"
 
 import { Placeholder } from "@/components/primitives/placeholder"
 import { cn } from "@/utils/cn"
@@ -38,11 +39,16 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
             className={cn(
               "relative",
               firstItem ? "col-span-6 row-span-2" : "col-span-3",
-              "group aspect-[418/296] cursor-pointer after:absolute after:inset-0 after:border after:border-brand-w1/20",
+              "group aspect-[418/296] cursor-pointer after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
               item.disabled && "pointer-events-none"
             )}
           >
-            <div className="with-dots h-full w-full">
+            <Link
+              href={`/projects/${item.project?._slug}`}
+              className={cn("with-dots block h-full w-full", {
+                "pointer-events-none": item.disabled
+              })}
+            >
               {item.disabled && (
                 <Placeholder
                   className="absolute inset-0 text-brand-w1/20"
@@ -64,7 +70,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
               {!item.disabled && (
                 <div
                   className={cn(
-                    "absolute inset-0 flex flex-col justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+                    "pointer-events-none absolute inset-0 flex flex-col justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100",
                     firstItem && "h-[calc(50%-2px)]"
                   )}
                 >
@@ -91,7 +97,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
                   </div>
                 </div>
               )}
-            </div>
+            </Link>
           </div>
         )
       })}
