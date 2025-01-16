@@ -1,7 +1,8 @@
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 
-import { Checkbox } from "@/components/primitives/checkbox"
 import { cn } from "@/utils/cn"
+
+import { CategoryItem } from "./project-list"
 
 const GridIcon = () => (
   <svg
@@ -49,7 +50,7 @@ const ViewSelector = ({ mode, viewMode, setViewMode }: ViewSelectorProps) => (
 )
 
 interface FiltersProps {
-  categories: string[]
+  categories: CategoryItem[]
   selectedCategories: string[]
   viewMode: "grid" | "rows"
   setViewMode: (mode: "grid" | "rows") => void
@@ -72,7 +73,7 @@ export const Filters = ({
   }
 
   return (
-    <div className="grid-layout items-end">
+    <div className="grid-layout items-end pb-2">
       <div className="col-span-1 flex items-center gap-1 text-paragraph text-brand-g1">
         <ViewSelector
           mode="grid"
@@ -88,24 +89,32 @@ export const Filters = ({
       </div>
 
       <div className="col-start-7 col-end-13 flex flex-col gap-2">
-        <p className="text-paragraph text-brand-g1">Filters</p>
+        <p className="text-p text-brand-g1">Filters</p>
 
-        <ul className="flex flex-wrap gap-4">
+        <ul className="flex flex-wrap gap-x-2 gap-y-1">
           {categories.map((category) => (
             <button
-              key={category}
+              key={category.name}
               className={cn(
-                "!text-h2 text-brand-g1",
-                selectedCategories.includes(category) && "text-brand-w1"
+                "flex w-max gap-x-0.5 !text-h2 text-brand-g1",
+                selectedCategories.includes(category.name) && "text-brand-w1",
+                // if no categories selected, show all as active
+                selectedCategories.length === 0 && "text-brand-w1"
               )}
               onClick={() =>
                 categoryHandler(
-                  category,
-                  !selectedCategories.includes(category)
+                  category.name,
+                  !selectedCategories.includes(category.name)
                 )
               }
             >
-              {category}
+              <span className="actionable">{category.name}</span>
+
+              {category.count && (
+                <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
+                  <span className="tabular-nums">({category.count})</span>
+                </sup>
+              )}
             </button>
           ))}
         </ul>

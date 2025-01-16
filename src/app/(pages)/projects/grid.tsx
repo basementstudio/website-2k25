@@ -3,7 +3,6 @@ import Image from "next/image"
 import { Placeholder } from "@/components/primitives/placeholder"
 import { cn } from "@/utils/cn"
 
-import { Categories } from "./categories"
 import { FilteredProjectType } from "./project-list"
 
 export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => (
@@ -43,50 +42,30 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => (
             {!item.disabled && (
               <div
                 className={cn(
-                  "absolute inset-0 flex flex-col justify-center opacity-0 mix-blend-screen transition-opacity duration-300 group-hover:opacity-100",
+                  "absolute inset-0 flex flex-col justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100",
                   firstItem && "h-[calc(50%-2px)]"
                 )}
               >
-                <div
-                  className={cn(
-                    "grid gap-2 border-y border-brand-w1/20 pb-1 pt-0.75",
-                    firstItem ? "grid-cols-6" : "grid-cols-3"
-                  )}
-                >
-                  <p
-                    className={cn(
-                      "pl-2 !text-paragraph text-brand-w1",
-                      firstItem && "col-start-2"
-                    )}
-                  >
-                    Client
-                  </p>
-                  <p className="pl-2 text-paragraph text-brand-w1">
+                <div className={cn("grid grid-cols-12 bg-brand-k px-2")}>
+                  <p className="col-span-4 text-p text-brand-w1">
                     {item.project?.client?._title}
                   </p>
-                </div>
 
-                <div
-                  className={cn(
-                    "grid gap-2 border-b border-brand-w1/20 pb-1 pt-0.75",
-                    firstItem ? "grid-cols-6" : "grid-cols-3"
-                  )}
-                >
-                  <p
-                    className={cn(
-                      "pl-2 !text-paragraph text-brand-w1",
-                      firstItem && "col-start-2"
-                    )}
-                  >
-                    Type
+                  <p className="col-span-8 inline-flex flex-wrap text-pretty text-p text-brand-w1">
+                    {item.project?.categories?.map((cat, idx) => {
+                      return (
+                        <span key={cat._title}>
+                          {cat._title}
+                          {idx !==
+                            (item.project?.categories?.length ?? 0) - 1 && (
+                            <span className="inline-block px-1 text-brand-g1">
+                              ,
+                            </span>
+                          )}
+                        </span>
+                      )
+                    })}
                   </p>
-
-                  <Categories
-                    categories={
-                      item.project?.categories?.map((cat) => cat._title) ?? []
-                    }
-                    className="col-span-2 pl-2"
-                  />
                 </div>
               </div>
             )}
