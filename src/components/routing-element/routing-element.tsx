@@ -1,7 +1,7 @@
 import { useCursor } from "@react-three/drei"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { EdgesGeometry, Mesh } from "three"
+import { Mesh } from "three"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import { CameraStateKeys, useCameraStore } from "@/store/app-store"
@@ -72,20 +72,19 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
       >
         <mesh
           ref={meshRef}
+          geometry={node.geometry}
           position={node.position}
           scale={node.scale}
           rotation={node.rotation}
         >
-          <lineSegments>
-            <edgesGeometry args={[node.geometry, 15]} />
-            <lineBasicMaterial
-              color="orange"
-              opacity={hover ? 1 : 0}
-              transparent
-              depthTest={true}
-              linewidth={10}
-            />
-          </lineSegments>
+          <meshBasicMaterial
+            color="white"
+            opacity={hover ? 0.5 : 0}
+            transparent
+            depthTest={false}
+            wireframe={true}
+            wireframeLinewidth={1}
+          />
         </mesh>
       </group>
       {hover && (
