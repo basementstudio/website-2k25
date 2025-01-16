@@ -2,7 +2,7 @@ import { RapierRigidBody } from "@react-three/rapier"
 import { RefObject } from "react"
 import { Mesh, Vector2, Vector3 } from "three"
 
-import { GameAudioSFXKey } from "@/hooks/use-game-audio"
+import { SiteAudioSFXKey } from "@/hooks/use-site-audio"
 
 interface Position {
   x: number
@@ -46,7 +46,7 @@ interface HandlePointerUpParams {
   startGame: () => void
   upStrength: number
   forwardStrength: number
-  playSoundFX: (sfx: GameAudioSFXKey, volume?: number, pitch?: number) => void
+  playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
 }
 
 interface MorphTargetMesh extends Mesh {
@@ -129,7 +129,6 @@ export const applyThrowAssistance = (
     distanceToHoop > 2.6 && distanceToHoop < 3.4 && horizontalOffset < 0.4
 
   if (veryClose) {
-    console.log("Applying very close assistance")
     return {
       x: velocity.x,
       y: velocity.y * (1 + 0.45 * offsetMultiplier),
