@@ -29,7 +29,9 @@ export const Scene = () => {
 
   return (
     <div className="absolute inset-0">
-      <Leva collapsed />
+      <div className="w-128 absolute bottom-8 right-64 z-50">
+        <Leva collapsed fill />
+      </div>
       <Canvas
         gl={{
           antialias: true,

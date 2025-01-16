@@ -20,8 +20,8 @@ const material = new ShaderMaterial({
     uEnableShader: { value: false },
     aspect: { value: 1 },
     resolution: { value: new Vector2(1, 1) },
+    uPixelRatio: { value: 1 },
     uPalette: { value: null },
-    uPixelSize: { value: 2.0 },
     uBias: { value: 0.0 },
     uColorMultiplier: { value: 1.0 },
     uNoiseFactor: { value: 0.0 },
@@ -88,7 +88,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomStrength: {
-      value: 0.05,
+      value: 0.03,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -99,51 +99,12 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     bloomRadius: {
       value: 8.0,
       min: 1.0,
-      max: 32.0,
+      max: 64.0,
       step: 1,
       onChange(value) {
         material.uniforms.uBloomRadius.value = value
       }
     }
-  })
-
-  useControls("dither", {
-    pixelSize: {
-      value: 2.0,
-      min: 1.0,
-      max: 300.0,
-      step: 1,
-      onChange(value) {
-        material.uniforms.uPixelSize.value = value
-      }
-    }
-    // bias: {
-    //   value: 0.39,
-    //   min: 0.0,
-    //   max: 1.0,
-    //   step: 0.01,
-    //   onChange(value) {
-    //     material.uniforms.uBias.value = value
-    //   }
-    // },
-    // colorMultiplier: {
-    //   value: 0.26,
-    //   min: 0.0,
-    //   max: 1.0,
-    //   step: 0.01,
-    //   onChange(value) {
-    //     material.uniforms.uColorMultiplier.value = value
-    //   }
-    // },
-    // noiseFactor: {
-    //   value: 0.17,
-    //   min: 0.0,
-    //   max: 2.0,
-    //   step: 0.01,
-    //   onChange(value) {
-    //     material.uniforms.uNoiseFactor.value = value
-    //   }
-    // }
   })
 
   useEffect(() => {
@@ -154,6 +115,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       const width = window.innerWidth
       const height = window.innerHeight
       material.uniforms.resolution.value.set(width, height)
+      material.uniforms.uPixelRatio.value = window.devicePixelRatio
     }
 
     resize()

@@ -77,8 +77,13 @@ export const Map = memo(() => {
     fogDepth: 9.0
   })
 
-  const { jitter } = useControls("jitter", {
-    jitter: 512.0
+  // const { jitter } = useControls("jitter", {
+  //   jitter: 512.0
+  // })
+
+  const colorPickerRef = useRef<Mesh>(null)
+  const { showColorPicker } = useControls("color picker", {
+    showColorPicker: false
   })
 
   useFrame(({ clock }) => {
@@ -93,13 +98,20 @@ export const Map = memo(() => {
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
 
-      material.uniforms.uJitter.value = jitter
+      // material.uniforms.uJitter.value = jitter
     })
 
     if (keyframedNet && isAnimating.current) {
       const mesh = keyframedNet as Mesh
       animationProgress.current += NET_ANIMATION_SPEED
       isAnimating.current = animateNet(mesh, animationProgress.current)
+    }
+
+    if (colorPickerRef.current) {
+      // @ts-ignore
+      colorPickerRef.current.material.uniforms.opacity.value = showColorPicker
+        ? 1.0
+        : 0.0
     }
   })
 
@@ -135,6 +147,11 @@ export const Map = memo(() => {
     scene.traverse((child) => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh
+
+        console.log("meshChild", meshChild.name)
+
+        if (meshChild.name === "SM_ColorChecker_")
+          colorPickerRef.current = meshChild
 
         const ommitNode = Boolean(
           CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name
