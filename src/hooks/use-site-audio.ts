@@ -7,47 +7,47 @@ import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { SFX_VOLUME, THEME_SONG_VOLUME } from "@/lib/audio/constants"
 
-export type GameAudioSFXKey =
+export type SiteAudioSFXKey =
   | "BASKETBALL_THROW"
   | "BASKETBALL_NET"
   | "BASKETBALL_THUMP"
   | "TIMEOUT_BUZZER"
 
-interface GameAudioStore {
+interface SiteAudioStore {
   player: WebAudioPlayer | null
-  audioSfxSources: Record<GameAudioSFXKey, AudioSource> | null
+  audioSfxSources: Record<SiteAudioSFXKey, AudioSource> | null
   themeSong: AudioSource | null
   ostSong: AudioSource | null
 }
 
-interface GameAudioHook {
+interface SiteAudioHook {
   player: WebAudioPlayer | null
   togglePlayMaster: () => void
   resumeMaster: () => void
   pauseMaster: () => void
   setVolumeMaster: (volume: number) => void
   volumeMaster: number
-  playSoundFX: (sfx: GameAudioSFXKey, volume?: number, pitch?: number) => void
-  getSoundFXSource: (key: GameAudioSFXKey) => AudioSource | null
+  playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
+  getSoundFXSource: (key: SiteAudioSFXKey) => AudioSource | null
 }
 
-const useGameAudioStore = create<GameAudioStore>(() => ({
+const useSiteAudioStore = create<SiteAudioStore>(() => ({
   player: null,
   audioSfxSources: null,
   themeSong: null,
   ostSong: null
 }))
 
-export { useGameAudioStore }
+export { useSiteAudioStore }
 
 export function useInitializeAudioContext(element?: HTMLElement) {
-  const player = useGameAudioStore((s) => s.player)
+  const player = useSiteAudioStore((s) => s.player)
 
   useEffect(() => {
     const targetElement = element || document
     const unlock = () => {
       if (!player) {
-        useGameAudioStore.setState({ player: new WebAudioPlayer() })
+        useSiteAudioStore.setState({ player: new WebAudioPlayer() })
       } else {
         targetElement.removeEventListener("click", unlock)
       }
@@ -60,20 +60,20 @@ export function useInitializeAudioContext(element?: HTMLElement) {
   }, [element, player])
 }
 
-export function GameSoundFXsLoader(): null {
-  const player = useGameAudioStore((s) => s.player)
+export function SiteAudioSFXsLoader(): null {
+  const player = useSiteAudioStore((s) => s.player)
   const { GAME_AUDIO_SFX } = useAudioUrls()
 
   useEffect(() => {
     if (!player) return
 
     const loadAudioSources = async () => {
-      const newSources = {} as Record<GameAudioSFXKey, AudioSource>
+      const newSources = {} as Record<SiteAudioSFXKey, AudioSource>
 
       try {
         await Promise.all(
           Object.keys(GAME_AUDIO_SFX).map(async (key) => {
-            const audioKey = key as GameAudioSFXKey
+            const audioKey = key as SiteAudioSFXKey
             const source = await player.loadAudioFromURL(
               GAME_AUDIO_SFX[audioKey as keyof typeof GAME_AUDIO_SFX]
             )
@@ -82,7 +82,7 @@ export function GameSoundFXsLoader(): null {
           })
         )
 
-        useGameAudioStore.setState({
+        useSiteAudioStore.setState({
           audioSfxSources: newSources
         })
       } catch (error) {
@@ -97,7 +97,7 @@ export function GameSoundFXsLoader(): null {
 }
 
 export function useGameThemeSong() {
-  const player = useGameAudioStore((s) => s.player)
+  const player = useSiteAudioStore((s) => s.player)
   const { GAME_THEME_SONGS } = useAudioUrls()
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export function useGameThemeSong() {
         themeSong.setVolume(THEME_SONG_VOLUME)
         themeSong.play()
 
-        useGameAudioStore.setState({
+        useSiteAudioStore.setState({
           themeSong
         })
       } catch (error) {
@@ -125,9 +125,9 @@ export function useGameThemeSong() {
   }, [player, GAME_THEME_SONGS])
 }
 
-export function useGameAudio(): GameAudioHook {
-  const player = useGameAudioStore((s) => s.player)
-  const audioSfxSources = useGameAudioStore((s) => s.audioSfxSources)
+export function useSiteAudio(): SiteAudioHook {
+  const player = useSiteAudioStore((s) => s.player)
+  const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
   const [volumeMaster, _setVolumeMaster] = useState(player ? player.volume : 1)
 
   const togglePlayMaster = useCallback(() => {
@@ -145,7 +145,7 @@ export function useGameAudio(): GameAudioHook {
   )
 
   const playSoundFX = useCallback(
-    (sfx: GameAudioSFXKey, volume = SFX_VOLUME, pitch = 1) => {
+    (sfx: SiteAudioSFXKey, volume = SFX_VOLUME, pitch = 1) => {
       if (!audioSfxSources) return
 
       audioSfxSources[sfx].stop()
@@ -157,7 +157,7 @@ export function useGameAudio(): GameAudioHook {
   )
 
   const getSoundFXSource = useCallback(
-    (key: GameAudioSFXKey): AudioSource | null =>
+    (key: SiteAudioSFXKey): AudioSource | null =>
       audioSfxSources?.[key] ?? null,
     [audioSfxSources]
   )

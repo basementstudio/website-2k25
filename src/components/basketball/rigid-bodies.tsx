@@ -1,7 +1,7 @@
 import { CuboidCollider } from "@react-three/rapier"
 import { RigidBody } from "@react-three/rapier"
 
-import { useGameAudio } from "@/hooks/use-game-audio"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 
 export default function RigidBodies({
@@ -10,7 +10,7 @@ export default function RigidBodies({
   hoopPosition: { x: number; y: number; z: number }
 }) {
   const { setScore } = useMinigameStore()
-  const { playSoundFX } = useGameAudio()
+  const { playSoundFX } = useSiteAudio()
 
   const randomPitch = 0.95 + Math.random() * 0.1
 

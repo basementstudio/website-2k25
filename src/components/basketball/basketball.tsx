@@ -3,7 +3,7 @@ import { RigidBody } from "@react-three/rapier"
 import { RefObject, useMemo, useRef } from "react"
 import { Mesh } from "three"
 
-import { useGameAudio } from "@/hooks/use-game-audio"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { useAssets } from "../assets-provider"
 
@@ -31,7 +31,7 @@ export const Basketball = ({
   handlePointerMove,
   handlePointerUp
 }: BasketballProps) => {
-  const { playSoundFX } = useGameAudio()
+  const { playSoundFX } = useSiteAudio()
 
   const { basketball } = useAssets()
   const basketballModel = useGLTF(basketball)

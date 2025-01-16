@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useState } from "react"
 
-import { useGameAudio } from "@/hooks/use-game-audio"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 import { cn } from "@/utils/cn"
 
@@ -31,7 +31,7 @@ interface NavbarContentProps {
 export const NavbarContent = ({ links }: NavbarContentProps) => {
   const router = useRouter()
   const setCameraState = useCameraStore((state) => state.setCameraState)
-  const { setVolumeMaster } = useGameAudio()
+  const { setVolumeMaster } = useSiteAudio()
   const [music, setMusic] = useState(true)
 
   const handleNavigation = useCallback(
@@ -66,7 +66,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
         <div className="ga-5 col-start-3 col-end-11 flex w-full justify-center gap-5">
           {links.map((link) => (
             <button
-              className="text-p space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o"
+              className="space-x-1 text-p text-brand-w1 transition-colors duration-300 hover:text-brand-o"
               key={link.href}
               onClick={() => handleNavigation(link.href, link.routeName)}
             >
@@ -81,7 +81,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
         <div className="col-start-11 col-end-13 ml-auto flex items-center gap-5">
           <button
             onClick={handleMute}
-            className="text-p space-x-1 text-brand-w2"
+            className="space-x-1 text-p text-brand-w2"
           >
             <span>Music:</span>
             <span

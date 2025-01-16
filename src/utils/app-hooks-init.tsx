@@ -2,14 +2,14 @@
 
 import { useBasketballThemeSong } from "@/hooks/use-basketball-themesong"
 import {
-  GameSoundFXsLoader,
+  SiteAudioSFXsLoader,
   useInitializeAudioContext
-} from "@/hooks/use-game-audio"
+} from "@/hooks/use-site-audio"
 
 export function AppHooks(): null {
   useInitializeAudioContext()
   useBasketballThemeSong()
-  GameSoundFXsLoader()
+  SiteAudioSFXsLoader()
 
   return null
 }
