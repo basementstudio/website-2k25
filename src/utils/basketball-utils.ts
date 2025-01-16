@@ -129,7 +129,6 @@ export const applyThrowAssistance = (
     distanceToHoop > 2.6 && distanceToHoop < 3.4 && horizontalOffset < 0.4
 
   if (veryClose) {
-    console.log("Applying very close assistance")
     return {
       x: velocity.x,
       y: velocity.y * (1 + 0.45 * offsetMultiplier),

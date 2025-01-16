@@ -4,14 +4,14 @@ import { useCallback, useEffect, useState } from "react"
 import { create } from "zustand"
 
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
-import {
-  GAME_AUDIO_SFX,
-  SFX_VOLUME,
-  THEME_SONG_ASSET,
-  THEME_SONG_VOLUME
-} from "@/lib/audio/constants"
+import { useAudioUrls } from "@/lib/audio/audio-urls"
+import { SFX_VOLUME, THEME_SONG_VOLUME } from "@/lib/audio/constants"
 
-export type GameAudioSFXKey = keyof typeof GAME_AUDIO_SFX
+export type GameAudioSFXKey =
+  | "BASKETBALL_THROW"
+  | "BASKETBALL_NET"
+  | "BASKETBALL_THUMP"
+  | "TIMEOUT_BUZZER"
 
 interface GameAudioStore {
   player: WebAudioPlayer | null
@@ -48,7 +48,6 @@ export function useInitializeAudioContext(element?: HTMLElement) {
     const unlock = () => {
       if (!player) {
         useGameAudioStore.setState({ player: new WebAudioPlayer() })
-        // console.log("=== 🔊 Audio Player Context is running ===")
       } else {
         targetElement.removeEventListener("click", unlock)
       }
@@ -63,6 +62,7 @@ export function useInitializeAudioContext(element?: HTMLElement) {
 
 export function GameSoundFXsLoader(): null {
   const player = useGameAudioStore((s) => s.player)
+  const { GAME_AUDIO_SFX } = useAudioUrls()
 
   useEffect(() => {
     if (!player) return
@@ -91,13 +91,14 @@ export function GameSoundFXsLoader(): null {
     }
 
     loadAudioSources()
-  }, [player])
+  }, [player, GAME_AUDIO_SFX])
 
   return null
 }
 
 export function useGameThemeSong() {
   const player = useGameAudioStore((s) => s.player)
+  const { GAME_THEME_SONGS } = useAudioUrls()
 
   useEffect(() => {
     if (!player) return
@@ -105,7 +106,7 @@ export function useGameThemeSong() {
     const loadAudioSource = async () => {
       try {
         const themeSong = await Promise.resolve(
-          player.loadAudioFromURL(THEME_SONG_ASSET)
+          player.loadAudioFromURL(GAME_THEME_SONGS.BASKETBALL_AMBIENT)
         )
 
         themeSong.loop = true
@@ -121,22 +122,13 @@ export function useGameThemeSong() {
     }
 
     loadAudioSource()
-  }, [player])
+  }, [player, GAME_THEME_SONGS])
 }
 
 export function useGameAudio(): GameAudioHook {
-  //   const isDebug = useGame((s) => s.isDebug)
   const player = useGameAudioStore((s) => s.player)
   const audioSfxSources = useGameAudioStore((s) => s.audioSfxSources)
   const [volumeMaster, _setVolumeMaster] = useState(player ? player.volume : 1)
-
-  //   useEffect(() => {
-  //     if (!isDebug) return
-
-  //     if (player) {
-  //       console.log("=== 🔊 Audio Player Context is running ===")
-  //     }
-  //   }, [isDebug, player])
 
   const togglePlayMaster = useCallback(() => {
     if (!player) return
