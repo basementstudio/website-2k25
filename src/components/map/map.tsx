@@ -25,7 +25,7 @@ import { animateNet, NET_ANIMATION_SPEED } from "@/utils/basketball-utils"
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
-import { RoutingElement } from "../routing-element"
+import { RoutingElement } from "../routing-element/routing-element"
 import { LightmapLoader } from "./lightmaps"
 import { ReflexesLoader } from "./reflexes"
 

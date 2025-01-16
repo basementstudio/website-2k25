@@ -6,6 +6,8 @@ import { Mesh } from "three"
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 
+import { RoutingArrow } from "./routing-arrow"
+
 interface RoutingElementProps {
   node: Mesh
 }
@@ -81,6 +83,21 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
           depthTest={false}
         />
       </mesh>
+      {hover && (
+        <RoutingArrow
+          position={
+            routeConfig.arrowPosition
+              ? [
+                  node.position.x + routeConfig.arrowPosition[0],
+                  node.position.y + routeConfig.arrowPosition[1],
+                  node.position.z + routeConfig.arrowPosition[2]
+                ]
+              : [node.position.x, node.position.y, node.position.z]
+          }
+          rotation={routeConfig.arrowRotation ?? [Math.PI, 0, 0]}
+          scale={routeConfig.arrowScale ?? 1}
+        />
+      )}
     </group>
   )
 }

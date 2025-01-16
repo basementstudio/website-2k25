@@ -4,6 +4,9 @@ interface ClickableNode {
   name: string
   route: string
   routeName: CameraStateKeys
+  arrowPosition?: [number, number, number]
+  arrowRotation?: [number, number, number]
+  arrowScale?: number
 }
 
 export const CLICKABLE_NODES: ClickableNode[] = [
@@ -15,7 +18,9 @@ export const CLICKABLE_NODES: ClickableNode[] = [
   {
     name: "About2_Hover",
     route: "/about",
-    routeName: "stairs"
+    routeName: "stairs",
+    arrowPosition: [-0.2, 0.5, 0],
+    arrowScale: 0.6
   },
   {
     name: "Home_Hover",
@@ -25,22 +30,29 @@ export const CLICKABLE_NODES: ClickableNode[] = [
   {
     name: "Game_Hover",
     route: "/basketball",
-    routeName: "hoop"
+    routeName: "hoop",
+    arrowPosition: [-0.05, 0.6, 0],
+    arrowScale: 0.6
   },
   {
     name: "Lab_Hover",
     route: "/arcade",
-    routeName: "arcade"
+    routeName: "arcade",
+    arrowPosition: [-0.05, 1.7, 0],
+    arrowScale: 1
   },
   {
     name: "About1_Hover",
     route: "/about",
-    routeName: "stairs"
+    routeName: "stairs",
+    arrowPosition: [-0.5, 0.5, -1.2],
+    arrowScale: 0.6
   },
   {
     name: "Projects_Hover",
     route: "/projects",
-    routeName: "projects"
+    routeName: "projects",
+    arrowRotation: [0, 0.2, 0]
   },
   {
     name: "Career-Services_Hover",
