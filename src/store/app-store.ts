@@ -49,6 +49,9 @@ interface CameraStore {
   postProcessingCamera: PerspectiveCamera | null
   disablePostprocessing: boolean
   setDisablePostprocessing: (value: boolean) => void
+
+  cameraStates: any
+  setCameraStates: (states: Record<CameraStateKeys, CameraState>) => void
 }
 
 export const useCameraStore = create<CameraStore>((set, get) => ({
@@ -57,13 +60,22 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   // main camera
   cameraState: "home",
   cameraConfig: CAMERA_STATES.home,
+  cameraStates: CAMERA_STATES, // Initialize with default states
   camera: null,
   setCamera: (camera) => set({ camera }),
   setCameraState: (state) => {
     if (state === get().cameraState) return
     set({
       cameraState: state,
-      cameraConfig: CAMERA_STATES[state]
+      cameraConfig: get().cameraStates[state] || CAMERA_STATES[state]
+    })
+  },
+  setCameraStates: (states) => {
+    set({
+      cameraStates: states,
+      // Update current config to use new states
+      cameraConfig:
+        states[get().cameraState] || CAMERA_STATES[get().cameraState]
     })
   },
   updateCameraFromPathname: (pathname) =>
