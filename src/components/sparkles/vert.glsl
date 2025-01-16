@@ -25,7 +25,7 @@ void main() {
     // Calculate point size to match exactly one pixel on screen
     float pointSize = size * pixelRatio;
     gl_PointSize = max(pointSize, 1.0);
-    gl_PointSize *= (1.0 / -viewPosition.z);
+    // gl_PointSize *= (1.0 / -viewPosition.z);
 
     vColor = color;
 
@@ -38,7 +38,7 @@ void main() {
     float fadeOut = smoothstep(1.0, 0.7, cycle); // Fade out over 0.3s
     float pulse = step(cycle, 1.0) * fadeIn * fadeOut; // Visible for 1s with fades
 
-    vOpacity = clamp(opacity * pulse, 0.0, 1.0);
+    vOpacity = clamp(opacity * pulse, 0.0, 1.0) * 0.5;
 
     vWorldPosition = modelPosition.xyz;
 }

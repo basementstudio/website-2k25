@@ -3,6 +3,7 @@ import { useEffect, useMemo } from "react"
 import {
   HalfFloatType,
   LinearSRGBColorSpace,
+  NearestFilter,
   NoToneMapping,
   RGBAFormat,
   Scene,
@@ -25,7 +26,9 @@ export function Renderer({ sceneChildren }: RendererProps) {
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
       type: HalfFloatType,
       format: RGBAFormat,
-      colorSpace: LinearSRGBColorSpace
+      colorSpace: LinearSRGBColorSpace,
+      minFilter: NearestFilter,
+      magFilter: NearestFilter
     })
 
     return rt
