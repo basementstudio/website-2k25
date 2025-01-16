@@ -38,8 +38,8 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     name: "Lab_Hover",
     route: "/arcade",
     routeName: "arcade",
-    arrowPosition: [-0.05, 1.7, 0],
-    arrowScale: 1
+    arrowPosition: [-0.05, 2.5, 0],
+    arrowScale: 0.6
   },
   {
     name: "About1_Hover",
@@ -52,7 +52,8 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     name: "Projects_Hover",
     route: "/projects",
     routeName: "projects",
-    arrowRotation: [0, 0.2, 0]
+    arrowPosition: [0, -0.5, 2],
+    arrowScale: 0.6
   },
   {
     name: "Career-Services_Hover",

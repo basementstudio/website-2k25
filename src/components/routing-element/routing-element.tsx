@@ -54,35 +54,37 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
   if (!routeConfig) return null
 
   return (
-    <group
-      onPointerEnter={() => {
-        if (activeRoute) return
-        router.prefetch(routeConfig.route)
-        setHover(true)
-      }}
-      onPointerLeave={() => {
-        if (activeRoute) return
-        setHover(false)
-      }}
-      onClick={() => {
-        if (activeRoute) return
-        handleNavigation(routeConfig.route, routeConfig.routeName)
-      }}
-    >
-      <mesh
-        ref={meshRef}
-        geometry={node.geometry}
-        position={node.position}
-        scale={node.scale}
-        rotation={node.rotation}
+    <>
+      <group
+        onPointerEnter={() => {
+          if (activeRoute) return
+          router.prefetch(routeConfig.route)
+          setHover(true)
+        }}
+        onPointerLeave={() => {
+          if (activeRoute) return
+          setHover(false)
+        }}
+        onClick={() => {
+          if (activeRoute) return
+          handleNavigation(routeConfig.route, routeConfig.routeName)
+        }}
       >
-        <meshBasicMaterial
-          color="white"
-          opacity={hover ? 0.5 : 0}
-          transparent
-          depthTest={false}
-        />
-      </mesh>
+        <mesh
+          ref={meshRef}
+          geometry={node.geometry}
+          position={node.position}
+          scale={node.scale}
+          rotation={node.rotation}
+        >
+          <meshBasicMaterial
+            color="white"
+            opacity={hover ? 0.5 : 0}
+            transparent
+            depthTest={false}
+          />
+        </mesh>
+      </group>
       {hover && (
         <RoutingArrow
           position={
@@ -98,6 +100,6 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
           scale={routeConfig.arrowScale ?? 1}
         />
       )}
-    </group>
+    </>
   )
 }
