@@ -176,22 +176,30 @@ export const Map = memo(() => {
           currentMaterial.name === "BSM_MTL_Glass" ||
           currentMaterial.name === "BSM_MTL_LightLibrary"
 
+        const isGodRay =
+          meshChild.name === "GR_About" || meshChild.name === "GR_Home"
+
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
               createGlobalShaderMaterial(
                 material as MeshStandardMaterial,
-                false
+                false,
+                {
+                  GLASS: isGlass,
+                  GODRAY: isGodRay
+                }
               )
             )
           : createGlobalShaderMaterial(
               currentMaterial as MeshStandardMaterial,
-              false
+              false,
+              {
+                GLASS: isGlass,
+                GODRAY: isGodRay
+              }
             )
 
         meshChild.material = newMaterials
-
-        // @ts-ignore
-        if (isGlass) meshChild.material.uniforms.isGlass.value = true
 
         meshChild.userData.hasGlobalMaterial = true
       }

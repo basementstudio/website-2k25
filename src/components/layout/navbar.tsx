@@ -12,48 +12,46 @@ interface NavbarLink {
   count?: number
 }
 
-export const Navbar = () => {
-  return (
-    <Pump queries={[query]}>
-      {async ([data]) => {
-        "use server"
+export const Navbar = () => (
+  <Pump queries={[query]}>
+    {async ([data]) => {
+      "use server"
 
-        const projects = data.pages.projects.projectList.items.length
-        const posts = data.pages.blog.posts.items.length
+      const projects = data.pages.projects.projectList.items.length
+      const posts = data.pages.blog.posts.items.length
 
-        const LINKS: NavbarLink[] = [
-          {
-            title: "Showcase",
-            href: "/projects",
-            routeName: "projects",
-            count: projects
-          },
-          {
-            title: "Services",
-            href: "/about",
-            routeName: "stairs"
-          },
+      const LINKS: NavbarLink[] = [
+        {
+          title: "Showcase",
+          href: "/projects",
+          routeName: "projects",
+          count: projects
+        },
+        {
+          title: "Services",
+          href: "/about",
+          routeName: "stairs"
+        },
 
-          {
-            title: "People",
-            href: "/careers",
-            routeName: "careers"
-          },
-          {
-            title: "Laboratory",
-            href: "/laboratory",
-            routeName: "arcade"
-          },
-          {
-            title: "Blog",
-            href: "/blog",
-            routeName: "blog",
-            count: posts
-          }
-        ]
+        {
+          title: "People",
+          href: "/careers",
+          routeName: "careers"
+        },
+        {
+          title: "Laboratory",
+          href: "/laboratory",
+          routeName: "arcade"
+        },
+        {
+          title: "Blog",
+          href: "/blog",
+          routeName: "blog",
+          count: posts
+        }
+      ]
 
-        return <NavbarContent links={LINKS} />
-      }}
-    </Pump>
-  )
-}
+      return <NavbarContent links={LINKS} />
+    }}
+  </Pump>
+)

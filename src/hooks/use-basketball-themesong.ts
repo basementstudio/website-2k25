@@ -1,16 +1,16 @@
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 
-import { THEME_SONG_ASSET, THEME_SONG_VOLUME } from "@/lib/audio/constants"
+import { useAudioUrls } from "@/lib/audio/audio-urls"
+import { FADE_DURATION, THEME_SONG_VOLUME } from "@/lib/audio/constants"
 
-import { useGameAudioStore } from "./use-game-audio"
-
-const FADE_DURATION = 2.5 // secs
+import { useSiteAudioStore } from "./use-site-audio"
 
 export function useBasketballThemeSong(isEnabled: boolean = true) {
   const pathname = usePathname()
-  const player = useGameAudioStore((s) => s.player)
-  const themeSong = useGameAudioStore((s) => s.themeSong)
+  const player = useSiteAudioStore((s) => s.player)
+  const themeSong = useSiteAudioStore((s) => s.themeSong)
+  const { GAME_THEME_SONGS } = useAudioUrls()
   const isBasketballPage = pathname === "/basketball"
   const fadeOutTimeout = useRef<NodeJS.Timeout | null>(null)
 
@@ -21,7 +21,7 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
     }
     if (themeSong) {
       themeSong.stop()
-      useGameAudioStore.setState({ themeSong: null })
+      useSiteAudioStore.setState({ themeSong: null })
     }
   }, [themeSong])
 
@@ -31,12 +31,14 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
     const loadAudioSource = async () => {
       try {
         if (!themeSong && isBasketballPage) {
-          const newThemeSong = await player.loadAudioFromURL(THEME_SONG_ASSET)
+          const newThemeSong = await player.loadAudioFromURL(
+            GAME_THEME_SONGS.BASKETBALL_AMBIENT
+          )
           newThemeSong.loop = true
           newThemeSong.setVolume(0)
           newThemeSong.play()
 
-          useGameAudioStore.setState({
+          useSiteAudioStore.setState({
             themeSong: newThemeSong
           })
         }
@@ -52,7 +54,14 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
         cleanup()
       }
     }
-  }, [player, themeSong, isEnabled, isBasketballPage, cleanup])
+  }, [
+    player,
+    themeSong,
+    isEnabled,
+    isBasketballPage,
+    cleanup,
+    GAME_THEME_SONGS
+  ])
 
   useEffect(() => {
     if (!themeSong || !player || !isEnabled) return
