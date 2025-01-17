@@ -75,6 +75,7 @@ export const CustomCamera = () => {
 
   useEffect(() => {
     const initialY = cameraConfig.position[1]
+    const camToZero = cameraConfig.camToZero ?? 50
     const targetY = cameraConfig.scrollYMin ?? -1.5
     const handleScroll = () => {
       const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)

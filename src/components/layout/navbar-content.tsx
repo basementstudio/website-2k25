@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
+import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { CameraStateKeys } from "@/store/app-store"
 import { cn } from "@/utils/cn"
@@ -29,9 +30,10 @@ interface NavbarContentProps {
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
-  const router = useRouter()
-  const { setVolumeMaster } = useSiteAudio()
   const [music, setMusic] = useState(true)
+  const { setVolumeMaster } = useSiteAudio()
+  const isOnTab = useIsOnTab()
+  const router = useRouter()
 
   const handleNavigation = useCallback(
     (route: string, cameraState: CameraStateKeys) => {
@@ -44,6 +46,14 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
     setVolumeMaster(music ? 0 : 1)
     setMusic(!music)
   }
+
+  useEffect(() => {
+    if (!isOnTab) {
+      setVolumeMaster(0)
+    } else {
+      setVolumeMaster(music ? 1 : 0)
+    }
+  }, [isOnTab, music, setVolumeMaster])
 
   return (
     <nav

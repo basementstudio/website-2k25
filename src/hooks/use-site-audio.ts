@@ -1,5 +1,3 @@
-"use client"
-
 import { useCallback, useEffect, useState } from "react"
 import { create } from "zustand"
 
@@ -138,7 +136,15 @@ export function useSiteAudio(): SiteAudioHook {
   const setVolumeMaster = useCallback(
     (volume: number) => {
       if (!player) return
-      player.setVolume(volume)
+      const gainNode = player.masterOutput
+      const currentTime = player.audioContext.currentTime
+      const FADE_DURATION = 0.75
+
+      gainNode.gain.cancelScheduledValues(currentTime)
+      gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
+      gainNode.gain.linearRampToValueAtTime(volume, currentTime + FADE_DURATION)
+
+      player.volume = volume
       _setVolumeMaster(volume)
     },
     [player]
