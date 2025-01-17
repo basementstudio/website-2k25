@@ -76,7 +76,7 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
       >
         <meshBasicMaterial
           color="white"
-          opacity={hover ? 0.5 : 0}
+          opacity={hover ? 0.2 : 0}
           transparent
           depthTest={false}
         />

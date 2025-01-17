@@ -145,10 +145,11 @@ export const Map = memo(() => {
     }
 
     scene.traverse((child) => {
+      if (child.name === "SM_Stair2" && child instanceof THREE.Mesh) {
+        child.material.side = THREE.FrontSide
+      }
       if ("isMesh" in child) {
         const meshChild = child as Mesh
-
-        console.log("meshChild", meshChild.name)
 
         if (meshChild.name === "SM_ColorChecker_")
           colorPickerRef.current = meshChild
