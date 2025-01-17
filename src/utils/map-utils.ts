@@ -1,20 +1,24 @@
 import { Object3D } from "three"
 
-import { GameAudioSFXKey, useGameAudioStore } from "@/hooks/use-game-audio"
+import { GameAudioSFXKey } from "@/hooks/use-game-audio"
 
-// car speed 0.035 - 0.065
-const CAR_SPEED = Math.random() * 0.03 + 0.035
+import { easeInOutCubic } from "./animations"
+
+const BASE_SPEED = 0.14
 let isWaiting = false
 let waitTimeout: NodeJS.Timeout | null = null
 let isSoundPlaying = false
-const FADE_DURATION = 2.0
+let carCount = 0
+let currentSpeed = BASE_SPEED
+let isSlowingDown = false
+let isSpeedingUp = false
 
 const END_X = 6.7
 const START_X = -8.7
+const TOTAL_DISTANCE = END_X - START_X
 
 function setRandomTimeout() {
-  // loop interval 9 - 13 seconds
-  const waitTime = 9000 + Math.random() * 4000
+  const waitTime = 6000 + Math.random() * 4000
   isWaiting = true
   isSoundPlaying = false
 
@@ -25,6 +29,26 @@ function setRandomTimeout() {
   waitTimeout = setTimeout(() => {
     isWaiting = false
   }, waitTime)
+}
+
+function resetCarMovement() {
+  carCount++
+  currentSpeed = BASE_SPEED
+
+  if (carCount % 2 === 0) {
+    if (Math.random() > 0.5) {
+      isSlowingDown = true
+      isSpeedingUp = false
+      currentSpeed = BASE_SPEED
+    } else {
+      isSpeedingUp = true
+      isSlowingDown = false
+      currentSpeed = BASE_SPEED * 0.7
+    }
+  } else {
+    isSlowingDown = false
+    isSpeedingUp = false
+  }
 }
 
 export function animateCar(
@@ -39,35 +63,30 @@ export function animateCar(
   }
 
   const carPosition = car.position
-  const randomPitch = 0.95 + Math.random() * 0.1
-  const randomSample = Math.random() > 0.5 ? "CAR_PASSING" : "ALT_CAR_PASSING"
-  const audioSources = useGameAudioStore.getState().audioSfxSources
-  const player = useGameAudioStore.getState().player
-
-  //   console.log(carPosition.x)
 
   if (!isWaiting && carPosition.x >= START_X && carPosition.x <= END_X) {
-    if (!isSoundPlaying && audioSources && player) {
-      //   const source = audioSources[randomSample]
-      //   const gainNode = source.outputNode
-      //   const currentTime = player.audioContext.currentTime
+    const progress = (carPosition.x - START_X) / TOTAL_DISTANCE
+    const easing = easeInOutCubic(progress)
 
-      //   gainNode.gain.setValueAtTime(0, currentTime)
-      //   gainNode.gain.linearRampToValueAtTime(0.15, currentTime + FADE_DURATION)
-
-      //   const timeToEnd = (END_X - carPosition.x) / CAR_SPEED / 60
-      //   gainNode.gain.linearRampToValueAtTime(0, currentTime + timeToEnd)
-
-      //   playSoundFX(randomSample, 0, randomPitch)
-      isSoundPlaying = true
+    if (isSlowingDown) {
+      const slowdownAmount = 0.5 * easing
+      currentSpeed = BASE_SPEED * (1 - slowdownAmount)
     }
-    carPosition.x += CAR_SPEED
+
+    if (isSpeedingUp) {
+      const speedupAmount = 0.5 * easing
+      currentSpeed = BASE_SPEED * (0.7 + speedupAmount)
+    }
+
+    carPosition.x += currentSpeed
 
     if (carPosition.x > END_X) {
       carPosition.x = START_X
+      resetCarMovement()
       setRandomTimeout()
     }
   } else if (!isWaiting) {
     carPosition.x = START_X
+    resetCarMovement()
   }
 }
