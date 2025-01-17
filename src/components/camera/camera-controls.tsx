@@ -16,6 +16,8 @@ import {
   easeInOutCubic
 } from "./camera-utils"
 
+const targetY = -1.5
+
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
@@ -75,10 +77,11 @@ export const CustomCamera = () => {
 
   useEffect(() => {
     const initialY = cameraConfig.position[1]
-    const camToZero = cameraConfig.camToZero ?? 50
-    const targetY = cameraConfig.scrollYMin ?? -1.5
+
+    const SCROLL_SPEED = pathname === "/" ? 1 : 0.3
     const handleScroll = () => {
-      const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)
+      const rawScrollProgress = window.scrollY / window.innerHeight
+      const scrollProgress = Math.min(1, rawScrollProgress * SCROLL_SPEED)
 
       const newY = initialY + (targetY - initialY) * scrollProgress
       const originalTargetY = cameraConfig.target[1]
@@ -98,9 +101,9 @@ export const CustomCamera = () => {
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [cameraConfig])
+  }, [cameraConfig, pathname])
 
-  useFrame(({ pointer, camera }, dt) => {
+  useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current
     const plane = planeRef.current
     const boundary = planeBoundaryRef.current
@@ -112,7 +115,6 @@ export const CustomCamera = () => {
         animationProgress.current + dt / ANIMATION_DURATION,
         1
       )
-
       // Update animation complete state when animation finishes
       if (animationProgress.current === 1) {
         setIsAnimationComplete(true)

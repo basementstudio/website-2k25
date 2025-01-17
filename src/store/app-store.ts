@@ -21,7 +21,6 @@ export interface CameraState {
   target: [number, number, number]
   offsetMultiplier?: number
   fov?: number
-  scrollYMin?: number
   camToZero?: number
 }
 

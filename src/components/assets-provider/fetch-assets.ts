@@ -39,7 +39,6 @@ export interface AssetsResult {
     }
     fov?: number
     offsetMultiplier?: number
-    scrollYMin?: number
     camToZero?: number
   }[]
   sfx: {
@@ -103,7 +102,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
           z: item.tarZ ?? 0
         },
         offsetMultiplier: item.offsetMultiplier ?? 1,
-        scrollYMin: item.scrollYMin ?? 0,
         camToZero: item.camToZero ?? 50
       })
     )
