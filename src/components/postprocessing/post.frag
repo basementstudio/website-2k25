@@ -20,6 +20,7 @@ uniform float uBloomThreshold;
 uniform float uGamma;
 uniform float uContrast;
 uniform float uExposure;
+uniform float uSaturation;
 
 varying vec2 vUv;
 
@@ -140,9 +141,15 @@ vec3 ACESFilmicToneMapping(vec3 color) {
 
 }
 
+vec3 adjustSaturation(vec3 color, float saturation) {
+  float gray = dot(color, vec3(0.2126, 0.7152, 0.0722));
+  return mix(vec3(gray), color, saturation);
+}
+
 vec3 tonemap(vec3 color) {
   color.rgb *= uBrightness;
   color = contrast(color, uContrast);
+  color = adjustSaturation(color, uSaturation);
   color = invertedGamma(color, uGamma);
   color = ACESFilmicToneMapping(color);
   return color;

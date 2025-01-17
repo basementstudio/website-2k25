@@ -1,5 +1,6 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { useControls } from "leva"
+import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { ShaderMaterial, Texture, Vector2 } from "three"
 
@@ -33,11 +34,14 @@ const material = new ShaderMaterial({
     uContrast: { value: 1 },
     uExposure: { value: 1.2 },
     uGamma: { value: 2.2 },
-    uBrightness: { value: 1 }
+    uBrightness: { value: 1 },
+    uSaturation: { value: 1.0 }
   }
 })
 
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
+  const pathname = usePathname()
+
   useControls("basics", {
     contrast: {
       value: 1.02,
@@ -125,6 +129,42 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
 
     return () => controller.abort()
   }, [mainTexture])
+
+  useEffect(() => {
+    const isBasketball = pathname === "/basketball"
+    const startSaturationValue = material.uniforms.uSaturation.value
+    const endSaturationValue = isBasketball ? 0.0 : 1.0
+    const startContrastValue = material.uniforms.uContrast.value
+    const endContrastValue = isBasketball ? 1.63 : 1.02
+    const duration = 800
+
+    const startTime = performance.now()
+
+    const animate = () => {
+      const currentTime = performance.now()
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      const easeProgress =
+        progress < 0.5
+          ? 2 * progress * progress
+          : -1 + (4 - 2 * progress) * progress
+
+      material.uniforms.uSaturation.value =
+        startSaturationValue +
+        (endSaturationValue - startSaturationValue) * easeProgress
+
+      material.uniforms.uContrast.value =
+        startContrastValue +
+        (endContrastValue - startContrastValue) * easeProgress
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      }
+    }
+
+    requestAnimationFrame(animate)
+  }, [pathname])
 
   return (
     <>
