@@ -117,77 +117,77 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     }
   })
 
-  // useControls("saturation mask", {
-  //   debugEllipse: {
-  //     value: false,
-  //     onChange(value) {
-  //       material.uniforms.uDebugEllipse.value = value
-  //     }
-  //   },
-  //   ellipseCenterX: {
-  //     value: 0.5,
-  //     min: 0,
-  //     max: 1,
-  //     step: 0.01,
-  //     onChange(value) {
-  //       material.uniforms.uEllipseCenter.value.x = value
-  //     }
-  //   },
-  //   ellipseCenterY: {
-  //     value: 0.61,
-  //     min: 0,
-  //     max: 1,
-  //     step: 0.01,
-  //     onChange(value) {
-  //       material.uniforms.uEllipseCenter.value.y = value
-  //     }
-  //   },
-  //   ellipseSizeX: {
-  //     value: 0.13,
-  //     min: 0,
-  //     max: 2,
-  //     step: 0.01,
-  //     onChange(value) {
-  //       material.uniforms.uEllipseSize.value.x = value
-  //     }
-  //   },
-  //   ellipseSizeY: {
-  //     value: 0.09,
-  //     min: 0,
-  //     max: 2,
-  //     step: 0.01,
-  //     onChange(value) {
-  //       material.uniforms.uEllipseSize.value.y = value
-  //     }
-  //   },
-  //   ellipseSoftness: {
-  //     value: 0.78,
-  //     min: 0,
-  //     max: 1,
-  //     step: 0.01,
-  //     onChange(value) {
-  //       material.uniforms.uEllipseSoftness.value = value
-  //     }
-  //   },
-  //   vignetteStrength: {
-  //     value: 1.0,
-  //     min: 0,
-  //     max: 1,
-  //     step: 0.01,
-  //     onChange(value) {
-  //       material.uniforms.uVignetteStrength.value = value
-  //     }
-  //   },
-  //   vignetteSoftness: {
-  //     value: 0.23,
-  //     min: 0,
-  //     max: 2,
-  //     step: 0.01,
-  //     onChange(value) {
-  //       material.uniforms.uVignetteSoftness.value = value
-  //     }
-  //   }
-  // })
+  useControls("saturation mask", {
+    debugEllipse: {
+      value: false,
+      onChange(value) {
+        material.uniforms.uDebugEllipse.value = value
+      }
+    },
+    ellipseCenterX: {
+      value: 0.5,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseCenter.value.x = value
+      }
+    },
+    ellipseCenterY: {
+      value: 0.61,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseCenter.value.y = value
+      }
+    },
+    ellipseSizeX: {
+      value: 0.13,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseSize.value.x = value
+      }
+    },
+    ellipseSizeY: {
+      value: 0.09,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseSize.value.y = value
+      }
+    },
+    ellipseSoftness: {
+      value: 0.78,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseSoftness.value = value
+      }
+    },
+    vignetteStrength: {
+      value: 1.0,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uVignetteStrength.value = value
+      }
+    },
+    vignetteSoftness: {
+      value: 0.23,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uVignetteSoftness.value = value
+      }
+    }
+  })
 
   useEffect(() => {
     const controller = new AbortController()
