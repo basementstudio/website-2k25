@@ -6,17 +6,37 @@ import { Arrow } from "@/components/primitives/icons/arrow"
 import { InfoItem } from "@/components/primitives/info-item"
 import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 
-export async function RelatedProjects({
-  categories
-}: {
-  categories: string[]
-}) {
+export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
+  const allPosts = await basehub({ cache: "no-store" }).query({
+    pages: {
+      projects: {
+        projectList: {
+          items: {
+            _id: true
+          }
+        }
+      }
+    }
+  })
+
   const entry = await basehub({ cache: "no-store" }).query({
     pages: {
       projects: {
         projectList: {
           __args: {
-            first: 2
+            first: 2,
+            skip: Math.floor(
+              Math.random() *
+                (allPosts.pages.projects.projectList.items.length - 1)
+            ),
+
+            filter: {
+              project: {
+                _sys_slug: {
+                  notEq: baseSlug
+                }
+              }
+            }
           },
           items: {
             project: {
@@ -29,6 +49,8 @@ export async function RelatedProjects({
       }
     }
   })
+
+  console.log(entry)
 
   return (
     <div className="mt-auto flex flex-col gap-2">

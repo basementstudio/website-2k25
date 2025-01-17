@@ -98,9 +98,7 @@ export function ProjectInfo({ entry }: { entry: QueryItemType }) {
         View Case Study <Arrow className="size-4" />
       </Link>
 
-      <RelatedProjects
-        categories={entry.project?.categories?.map((c) => c._title) || []}
-      />
+      <RelatedProjects baseSlug={entry.project?._slug || ""} />
     </div>
   )
 }

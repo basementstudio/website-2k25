@@ -12,7 +12,6 @@ export function ProjectPeople({ entry }: { entry: QueryItemType }) {
     const departments = new Map<string, string[]>()
 
     entry.project?.people?.forEach((person) => {
-      console.log(person)
       const dept = person.department?._title || "Other"
 
       if (!departments.has(dept)) {
