@@ -29,7 +29,13 @@ export const projectFragment = fragmentOn("ProjectList", {
           content: true
         }
       },
-      caseStudy: true
+      caseStudy: true,
+      people: {
+        department: {
+          _title: true
+        },
+        _title: true
+      }
     }
   }
 })

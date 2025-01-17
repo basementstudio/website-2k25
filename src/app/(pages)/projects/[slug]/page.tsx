@@ -1,3 +1,4 @@
+import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
 
@@ -46,4 +47,30 @@ const ProjectPost = async ({
     </Pump>
   )
 }
+
+// generate static pages for all projects
+export const generateStaticParams = async () => {
+  const {
+    pages: {
+      projects: {
+        projectList: { items }
+      }
+    }
+  } = await basehub({ cache: "no-store" }).query({
+    pages: {
+      projects: {
+        projectList: {
+          items: {
+            _slug: true
+          }
+        }
+      }
+    }
+  })
+
+  return items.map((p) => {
+    return { slug: p._slug }
+  })
+}
+
 export default ProjectPost

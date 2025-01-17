@@ -1,26 +1,17 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
-import { ReactNode } from "react"
 
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { InfoItem } from "@/components/primitives/info-item"
 import { RichText } from "@/components/primitives/rich-text"
 import { TextList } from "@/components/primitives/text-list"
 
-import { GalleryFilter } from "./gallery-filter"
+import { Filters } from "./gallery-filter"
 import { QueryItemType } from "./query"
+import { RelatedProjects } from "./related"
 
-export function ProjectInfo({
-  entry,
-  viewMode,
-  setViewMode
-}: {
-  entry: QueryItemType
-  viewMode: "grid" | "rows"
-  setViewMode: (mode: "grid" | "rows") => void
-}) {
+export function ProjectInfo({ entry }: { entry: QueryItemType }) {
   return (
     <div className="col-span-2 flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -31,18 +22,7 @@ export function ProjectInfo({
           <Arrow className="size-5 rotate-180" /> All projects
         </Link>
 
-        <div className="flex items-center gap-2">
-          <GalleryFilter
-            mode="grid"
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-          />
-          <GalleryFilter
-            mode="rows"
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-          />
-        </div>
+        <Filters />
       </div>
 
       <ul className="flex flex-col divide-y divide-brand-w1/30">
@@ -117,15 +97,10 @@ export function ProjectInfo({
       >
         View Case Study <Arrow className="size-4" />
       </Link>
-    </div>
-  )
-}
 
-const InfoItem = ({ label, value }: { label: string; value: ReactNode }) => {
-  return (
-    <li className="grid grid-cols-6 items-start py-1">
-      <span className="col-span-2 text-p text-brand-g1">{label}</span>
-      <span className="col-span-4 text-p text-brand-w1">{value}</span>
-    </li>
+      <RelatedProjects
+        categories={entry.project?.categories?.map((c) => c._title) || []}
+      />
+    </div>
   )
 }

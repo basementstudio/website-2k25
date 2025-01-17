@@ -4,15 +4,12 @@ import Image from "next/image"
 
 import { cn } from "@/utils/cn"
 
+import { useProjectContext } from "./context"
 import { QueryItemType } from "./query"
 
-export function ProjectGallery({
-  entry,
-  viewMode
-}: {
-  entry: QueryItemType
-  viewMode: "grid" | "rows"
-}) {
+export function ProjectGallery({ entry }: { entry: QueryItemType }) {
+  const { viewMode } = useProjectContext()
+
   const showcase = entry.showcase.items
     .map((item) => item.image)
     .filter((image) => image !== null)

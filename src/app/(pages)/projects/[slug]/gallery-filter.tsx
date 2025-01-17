@@ -4,6 +4,8 @@ import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 
 import { cn } from "@/utils/cn"
 
+import { useProjectContext } from "./context"
+
 interface GalleryFilterProps {
   mode: "grid" | "rows"
   viewMode: "grid" | "rows"
@@ -55,5 +57,24 @@ export function GalleryFilter({
         {mode.charAt(0).toUpperCase() + mode.slice(1)}
       </span>
     </CheckboxPrimitive.Root>
+  )
+}
+
+export function Filters() {
+  const { viewMode, setViewMode } = useProjectContext()
+
+  return (
+    <div className="flex items-center gap-2">
+      <GalleryFilter
+        mode="grid"
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
+      <GalleryFilter
+        mode="rows"
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
+    </div>
   )
 }
