@@ -1,9 +1,10 @@
 "use client"
 
-import { useGLTF } from "@react-three/drei"
+import { useGLTF, useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
+import { usePathname } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -51,6 +52,8 @@ export const Map = memo(() => {
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
 
+  const pathname = usePathname()
+
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
   )
@@ -86,6 +89,15 @@ export const Map = memo(() => {
     showColorPicker: false
   })
 
+  const { aoMapIntensity, withCheckerboard } = useControls("ao map", {
+    aoMapIntensity: {
+      value: 1.0,
+      min: 0.0,
+      max: 2.0
+    },
+    withCheckerboard: false
+  })
+
   useFrame(({ clock }) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
@@ -99,8 +111,9 @@ export const Map = memo(() => {
       material.uniforms.fogDepth.value = fogDepth
 
       // material.uniforms.uJitter.value = jitter
+      material.uniforms.aoMapIntensity.value = aoMapIntensity
+      material.uniforms.aoWithCheckerboard.value = withCheckerboard
     })
-
     if (keyframedNet && isAnimating.current) {
       const mesh = keyframedNet as Mesh
       animationProgress.current += NET_ANIMATION_SPEED
@@ -114,6 +127,10 @@ export const Map = memo(() => {
         : 0.0
     }
   })
+
+  const mapFloor = useTexture("./SM_StairsFloor.jpg")
+  mapFloor.colorSpace = THREE.NoColorSpace
+  mapFloor.flipY = false
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
@@ -145,10 +162,12 @@ export const Map = memo(() => {
     }
 
     scene.traverse((child) => {
+      if (child.name === "SM_Stair1") {
+        console.log(child)
+      }
+
       if ("isMesh" in child) {
         const meshChild = child as Mesh
-
-        console.log("meshChild", meshChild.name)
 
         if (meshChild.name === "SM_ColorChecker_")
           colorPickerRef.current = meshChild
@@ -176,8 +195,24 @@ export const Map = memo(() => {
           currentMaterial.name === "BSM_MTL_Glass" ||
           currentMaterial.name === "BSM_MTL_LightLibrary"
 
+        console.log(meshChild.name)
+
+        if (
+          meshChild.name === "SM_StairsFloor" ||
+          meshChild.name === "SM_Stair2" ||
+          meshChild.name === "SM_Stair3" ||
+          meshChild.name === "Componente#10001_1"
+        ) {
+          currentMaterial.aoMap = mapFloor
+          currentMaterial.aoMapIntensity = 1.0
+        }
+
         const isGodRay =
           meshChild.name === "GR_About" || meshChild.name === "GR_Home"
+
+        if (isGodRay) {
+          godRayElements.current.push(meshChild)
+        }
 
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>

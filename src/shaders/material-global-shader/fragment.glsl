@@ -63,9 +63,17 @@ const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 
-void main() {
-  VoxelData voxel = getVoxel(vWorldPosition, voxelSize, noiseBigScale, noiseSmallScale);
+#ifdef USE_AOMAP
+uniform sampler2D aoMap;
+uniform float aoMapIntensity;
+uniform bool aoWithCheckerboard;
+#endif
 
+void main() {
+  vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
+  vec2 checkerPos = floor(shiftedFragCoord * 0.5);
+
+  VoxelData voxel = getVoxel(vWorldPosition, voxelSize, noiseBigScale, noiseSmallScale);
   // Distance from center
   float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));
 
@@ -147,21 +155,27 @@ void main() {
     discard;
   }
 
+  #ifdef USE_AOMAP
+  float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
+  float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+  if(aoWithCheckerboard) {
+    irradiance = mix(irradiance, irradiance * ambientOcclusion, pattern);
+  } else {
+    irradiance *= ambientOcclusion;
+  }
+  #endif
+
   gl_FragColor = vec4(irradiance, opacityResult);
 
   #ifdef GLASS
   // TODO: when implementing parallax and multiple reflections, add controls in basehub to resize the reflection map
   vec4 reflexSample = texture2D(glassReflex, vUv * vec2(0.75, 1.0));
   gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.1);
-
-  vec2 checkerPos = floor(gl_FragCoord.xy * 0.5);
   gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
   #endif
 
-  #ifdef GODRAY
-  vec2 checkerPos = floor(gl_FragCoord.xy * 0.5);
-  // gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
-  gl_FragColor.a = 0.0;
+  #ifdef GODRA
+  gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
   #endif
 
   // Fog
