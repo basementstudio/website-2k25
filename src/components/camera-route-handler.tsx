@@ -30,8 +30,7 @@ export const CameraRouteHandler = () => {
           position: [state.position.x, state.position.y, state.position.z],
           target: [state.target.x, state.target.y, state.target.z],
           fov: state.fov,
-          offsetMultiplier: state.offsetMultiplier,
-          camToZero: state.camToZero
+          offsetMultiplier: state.offsetMultiplier
         }
         return acc
       },

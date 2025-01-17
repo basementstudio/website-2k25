@@ -39,7 +39,6 @@ export interface AssetsResult {
     }
     fov?: number
     offsetMultiplier?: number
-    camToZero?: number
   }[]
   sfx: {
     basketballTheme: string
@@ -101,8 +100,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
           y: item.tarY ?? 0,
           z: item.tarZ ?? 0
         },
-        offsetMultiplier: item.offsetMultiplier ?? 1,
-        camToZero: item.camToZero ?? 50
+        offsetMultiplier: item.offsetMultiplier ?? 1
       })
     )
   }

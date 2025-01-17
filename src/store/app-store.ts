@@ -21,7 +21,6 @@ export interface CameraState {
   target: [number, number, number]
   offsetMultiplier?: number
   fov?: number
-  camToZero?: number
 }
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
