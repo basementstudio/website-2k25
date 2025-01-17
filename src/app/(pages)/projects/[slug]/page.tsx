@@ -61,7 +61,9 @@ export const generateStaticParams = async () => {
       projects: {
         projectList: {
           items: {
-            _slug: true
+            project: {
+              _slug: true
+            }
           }
         }
       }
@@ -69,7 +71,7 @@ export const generateStaticParams = async () => {
   })
 
   return items.map((p) => {
-    return { slug: p._slug }
+    return { slug: p.project?._slug }
   })
 }
 
