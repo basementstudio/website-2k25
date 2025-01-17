@@ -1,9 +1,8 @@
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
 
-import { ProjectGallery } from "./gallery"
-import { ProjectInfo } from "./info"
 import { projectFragment } from "./query"
+import { ProjectWrapper } from "./wrapper"
 
 const ProjectPost = async ({
   params
@@ -40,15 +39,9 @@ const ProjectPost = async ({
         "use server"
 
         const entry = data.pages.projects.projectList.items[0]
-
         if (!entry) return notFound()
 
-        return (
-          <div className="grid-layout min-h-screen">
-            <ProjectGallery entry={entry} />
-            <ProjectInfo entry={entry} />
-          </div>
-        )
+        return <ProjectWrapper entry={entry} />
       }}
     </Pump>
   )

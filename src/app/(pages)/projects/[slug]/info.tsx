@@ -12,7 +12,15 @@ import { TextList } from "@/components/primitives/text-list"
 import { GalleryFilter } from "./gallery-filter"
 import { QueryItemType } from "./query"
 
-export function ProjectInfo({ entry }: { entry: QueryItemType }) {
+export function ProjectInfo({
+  entry,
+  viewMode,
+  setViewMode
+}: {
+  entry: QueryItemType
+  viewMode: "grid" | "rows"
+  setViewMode: (mode: "grid" | "rows") => void
+}) {
   return (
     <div className="col-span-2 flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -24,8 +32,16 @@ export function ProjectInfo({ entry }: { entry: QueryItemType }) {
         </Link>
 
         <div className="flex items-center gap-2">
-          <GalleryFilter mode="grid" viewMode="grid" setViewMode={() => {}} />
-          <GalleryFilter mode="rows" viewMode="grid" setViewMode={() => {}} />
+          <GalleryFilter
+            mode="grid"
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+          />
+          <GalleryFilter
+            mode="rows"
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+          />
         </div>
       </div>
 

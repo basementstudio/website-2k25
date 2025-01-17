@@ -17,9 +17,9 @@ const GridIcon = () => (
     fill="none"
     className="size-4"
   >
-    <rect x="1" y="2" width="10" height="3" fill="#666666" />
-    <rect x="1" y="7" width="4" height="3" fill="#666666" />
-    <rect x="7" y="7" width="4" height="3" fill="#666666" />
+    <rect x="1" y="2" width="10" height="3" fill="currentColor" />
+    <rect x="1" y="7" width="4" height="3" fill="currentColor" />
+    <rect x="7" y="7" width="4" height="3" fill="currentColor" />
   </svg>
 )
 
@@ -30,8 +30,8 @@ const RowIcon = () => (
     fill="none"
     className="size-4"
   >
-    <rect x="1" y="2" width="10" height="3" fill="#E6E6E6" />
-    <rect x="1" y="7" width="10" height="3" fill="#E6E6E6" />
+    <rect x="1" y="2" width="10" height="3" fill="currentColor" />
+    <rect x="1" y="7" width="10" height="3" fill="currentColor" />
   </svg>
 )
 
