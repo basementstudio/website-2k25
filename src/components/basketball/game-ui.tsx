@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 
 import { useKeyPress } from "@/hooks/use-key-press"
-import { useCameraStore } from "@/store/app-store"
 import { useMinigameStore } from "@/store/minigame-store"
 
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
@@ -26,13 +25,11 @@ export const GameUI = ({
   shotMetrics
 }: GameUIProps) => {
   const router = useRouter()
-  const setCameraState = useCameraStore((state) => state.setCameraState)
   const { playerName, hasPlayed } = useMinigameStore()
 
   const handleCloseGame = useCallback(() => {
-    setCameraState("home")
-    router.push("/")
-  }, [router, setCameraState])
+    router.push("/", { scroll: false })
+  }, [router])
 
   useKeyPress("Escape", handleCloseGame)
 

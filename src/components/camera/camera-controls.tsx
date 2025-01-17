@@ -78,15 +78,18 @@ export const CustomCamera = () => {
     const targetY = cameraConfig.scrollYMin ?? -1.5
     const handleScroll = () => {
       const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)
+
       const newY = initialY + (targetY - initialY) * scrollProgress
+      const originalTargetY = cameraConfig.target[1]
+      const originalDelta = originalTargetY - initialY
+      const newTargetY = newY + originalDelta
 
       if (cameraControlsRef.current) {
         const pos = cameraControlsRef.current.getPosition(new Vector3())
         const target = cameraControlsRef.current.getTarget(new Vector3())
 
         pos.y = newY
-        target.y = newY
-
+        target.y = newTargetY
         cameraControlsRef.current.setPosition(pos.x, pos.y, pos.z, false)
         cameraControlsRef.current.setTarget(target.x, target.y, target.z, false)
       }
@@ -96,7 +99,7 @@ export const CustomCamera = () => {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [cameraConfig])
 
-  useFrame(({ pointer }, dt) => {
+  useFrame(({ pointer, camera }, dt) => {
     const controls = cameraControlsRef.current
     const plane = planeRef.current
     const boundary = planeBoundaryRef.current

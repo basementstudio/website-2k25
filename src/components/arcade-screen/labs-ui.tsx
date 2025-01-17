@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { CameraStateKeys } from "@/store/app-store"
-import { useCameraStore } from "@/store/app-store"
 
 import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
@@ -42,14 +41,12 @@ export const LabsUI = () => {
   >({})
 
   const router = useRouter()
-  const setCameraState = useCameraStore((state) => state.setCameraState)
 
   const handleNavigation = useCallback(
     (route: string, cameraState: CameraStateKeys) => {
-      setCameraState(cameraState)
-      router.push(route)
+      router.push(route, { scroll: false })
     },
-    [router, setCameraState]
+    [router]
   )
 
   useKeyPress(

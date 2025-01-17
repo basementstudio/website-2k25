@@ -10,7 +10,6 @@ import { useAssets } from "./assets-provider"
 export const CameraRouteHandler = () => {
   const pathname = usePathname()
   const setCameraStates = useCameraStore((state) => state.setCameraStates)
-  const setCameraState = useCameraStore((state) => state.setCameraState)
   const updateCameraFromPathname = useCameraStore(
     (state) => state.updateCameraFromPathname
   )

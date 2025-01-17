@@ -13,7 +13,6 @@ interface RoutingElementProps {
 
 export const RoutingElement = ({ node }: RoutingElementProps) => {
   const router = useRouter()
-  const setCameraState = useCameraStore((state) => state.setCameraState)
   const pathname = usePathname()
   const scene = useThree((state) => state.scene)
   const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
@@ -26,10 +25,9 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
         stair3.visible = true
       }
 
-      setCameraState(cameraState)
-      router.push(route)
+      router.push(route, { scroll: false })
     },
-    [router, setCameraState, stair3]
+    [router, stair3]
   )
 
   const [hover, setHover] = useState(false)
