@@ -22,6 +22,14 @@ uniform float uContrast;
 uniform float uExposure;
 uniform float uSaturation;
 
+uniform vec2 uEllipseCenter;
+uniform vec2 uEllipseSize;
+uniform float uEllipseSoftness;
+uniform bool uDebugEllipse;
+
+uniform float uVignetteStrength;
+uniform float uVignetteSoftness;
+
 varying vec2 vUv;
 
 const float GOLDEN_ANGLE = 2.399963229728653;
@@ -143,7 +151,25 @@ vec3 ACESFilmicToneMapping(vec3 color) {
 
 vec3 adjustSaturation(vec3 color, float saturation) {
   float gray = dot(color, vec3(0.2126, 0.7152, 0.0722));
-  return mix(vec3(gray), color, saturation);
+  vec2 normalizedPos = (vUv - uEllipseCenter) / uEllipseSize;
+
+  float ellipseDistance = length(normalizedPos);
+  float ellipseMask = smoothstep(1.0 + uEllipseSoftness, 1.0 - uEllipseSoftness, ellipseDistance);
+
+  float vignetteDistance = length((vUv - vec2(0.5)) * 2.0);
+  float vignetteMask = smoothstep(0.0, 1.0 + uVignetteSoftness, vignetteDistance);
+  float finalVignette = vignetteMask * (1.0 - ellipseMask) * uVignetteStrength;
+
+  float finalSaturation = mix(saturation, max(saturation, 0.8), ellipseMask);
+  vec3 result = mix(vec3(gray), color, finalSaturation);
+
+  result *= 1.0 - finalVignette;
+
+  if(uDebugEllipse) {
+    return mix(result, vec3(1.0, 0.0, 0.0), ellipseMask * 0.5);
+  }
+
+  return result;
 }
 
 vec3 tonemap(vec3 color) {
