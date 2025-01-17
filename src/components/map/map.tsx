@@ -210,10 +210,6 @@ export const Map = memo(() => {
         const isGodRay =
           meshChild.name === "GR_About" || meshChild.name === "GR_Home"
 
-        if (isGodRay) {
-          godRayElements.current.push(meshChild)
-        }
-
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
               createGlobalShaderMaterial(
