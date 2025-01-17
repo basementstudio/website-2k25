@@ -145,7 +145,11 @@ export const Map = memo(() => {
     }
 
     scene.traverse((child) => {
-      if (child.name === "SM_Stair2" && child instanceof THREE.Mesh) {
+      if (child.name === "SM_Stair3" && child instanceof THREE.Mesh) {
+        child.material.opacity = 0.0
+        child.material.transparent = true
+      }
+      if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
       }
       if ("isMesh" in child) {
