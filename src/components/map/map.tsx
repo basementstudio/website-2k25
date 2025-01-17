@@ -66,7 +66,6 @@ export const Map = memo(() => {
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-
   const { fogColor, fogDensity, fogDepth } = useControls("fog", {
     fogColor: {
       x: 0.4,
@@ -145,10 +144,6 @@ export const Map = memo(() => {
     }
 
     scene.traverse((child) => {
-      if (child.name === "SM_Stair3" && child instanceof THREE.Mesh) {
-        child.material.opacity = 0.0
-        child.material.transparent = true
-      }
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
       }

@@ -1,9 +1,9 @@
 import { CameraControls } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { useFrame, useThree } from "@react-three/fiber"
 import { useControls } from "leva"
 import { easing } from "maath"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useCameraStore } from "@/store/app-store"
@@ -22,6 +22,7 @@ export const CustomCamera = () => {
   const planeBoundaryRef = useRef<Mesh>(null)
   const cameraConfig = useCameraStore((state) => state.cameraConfig)
   const pathname = usePathname()
+  const scene = useThree((state) => state.scene)
 
   const { debugBoundaries } = useControls({
     debugBoundaries: false
@@ -37,6 +38,8 @@ export const CustomCamera = () => {
   const gametargetFov = useRef<number>(60)
   const gameCurrentFov = useRef<number>(60)
   const fovTransitionProgress = useRef<number>(1)
+
+  const [isAnimationComplete, setIsAnimationComplete] = useState(true)
 
   useEffect(() => {
     const controls = cameraControlsRef.current
@@ -105,6 +108,13 @@ export const CustomCamera = () => {
         animationProgress.current + dt / ANIMATION_DURATION,
         1
       )
+
+      // Update animation complete state when animation finishes
+      if (animationProgress.current === 1) {
+        setIsAnimationComplete(true)
+      } else {
+        setIsAnimationComplete(false)
+      }
 
       controls.getPosition(currentPos)
       controls.getTarget(currentTarget)
@@ -201,6 +211,15 @@ export const CustomCamera = () => {
     gametargetFov.current = cameraConfig.fov ?? 60
     fovTransitionProgress.current = 0
   }, [cameraConfig, targetPosition, targetLookAt])
+
+  useEffect(() => {
+    if (!scene) return
+    const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
+
+    if (pathname === "/" && isAnimationComplete && stair3) {
+      stair3.visible = false
+    }
+  }, [pathname, isAnimationComplete, scene])
 
   const planePosition = calculatePlanePosition(cameraConfig)
   return (

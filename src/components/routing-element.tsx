@@ -1,4 +1,5 @@
 import { useCursor } from "@react-three/drei"
+import { useThree } from "@react-three/fiber"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
@@ -13,15 +14,22 @@ interface RoutingElementProps {
 export const RoutingElement = ({ node }: RoutingElementProps) => {
   const router = useRouter()
   const setCameraState = useCameraStore((state) => state.setCameraState)
-
   const pathname = usePathname()
+  const scene = useThree((state) => state.scene)
+  const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
 
   const handleNavigation = useCallback(
     (route: string, cameraState: CameraStateKeys) => {
+      if (!stair3) return
+
+      if (route !== "/") {
+        stair3.visible = true
+      }
+
       setCameraState(cameraState)
       router.push(route)
     },
-    [router, setCameraState]
+    [router, setCameraState, stair3]
   )
 
   const [hover, setHover] = useState(false)
