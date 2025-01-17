@@ -154,13 +154,13 @@ vec3 adjustSaturation(vec3 color, float saturation) {
   vec2 normalizedPos = (vUv - uEllipseCenter) / uEllipseSize;
 
   float ellipseDistance = length(normalizedPos);
-  float ellipseMask = smoothstep(1.0 + uEllipseSoftness, 1.0 - uEllipseSoftness, ellipseDistance);
+  float ellipseMask = smoothstep(1.0 + uEllipseSoftness, 0.3, ellipseDistance);
 
   float vignetteDistance = length((vUv - vec2(0.5)) * 2.0);
   float vignetteMask = smoothstep(0.0, 1.0 + uVignetteSoftness, vignetteDistance);
   float finalVignette = vignetteMask * (1.0 - ellipseMask) * uVignetteStrength;
 
-  float finalSaturation = mix(saturation, max(saturation, 0.8), ellipseMask);
+  float finalSaturation = mix(saturation, 1.0, ellipseMask);
   vec3 result = mix(vec3(gray), color, finalSaturation);
 
   result *= 1.0 - finalVignette;
