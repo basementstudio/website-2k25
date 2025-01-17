@@ -41,7 +41,7 @@ const material = new ShaderMaterial({
     uEllipseSoftness: { value: 0.78 },
     uDebugEllipse: { value: false },
     uVignetteStrength: { value: 1.0 },
-    uVignetteSoftness: { value: 0.23 }
+    uVignetteSoftness: { value: 1.03 }
   }
 })
 
@@ -179,7 +179,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     vignetteSoftness: {
-      value: 0.23,
+      value: 1.03,
       min: 0,
       max: 2,
       step: 0.01,
@@ -234,6 +234,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         startSaturationValue +
         (endSaturationValue - startSaturationValue) * easeProgress
 
+      // TODO: define which contrast is better
       material.uniforms.uContrast.value =
         startContrastValue +
         (endContrastValue - startContrastValue) * easeProgress
