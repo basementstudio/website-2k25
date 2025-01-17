@@ -75,10 +75,15 @@ export const CustomCamera = () => {
 
   useEffect(() => {
     const initialY = cameraConfig.position[1]
-    const targetY = cameraConfig.scrollYMin ?? -1.5
+    const camToZero = cameraConfig.camToZero ?? 50
+
     const handleScroll = () => {
-      const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)
-      const newY = initialY + (targetY - initialY) * scrollProgress
+      const scrollY = window.scrollY
+      const screenHeight = window.innerHeight
+      const scrollProgress = Math.min(1, scrollY / screenHeight)
+
+      const progress = Math.min(1, (scrollProgress * 100) / camToZero)
+      const newY = initialY * (1 - progress)
 
       if (cameraControlsRef.current) {
         const pos = cameraControlsRef.current.getPosition(new Vector3())
