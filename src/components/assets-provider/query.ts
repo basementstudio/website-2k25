@@ -71,7 +71,8 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         tarX: true,
         tarY: true,
         tarZ: true,
-        offsetMultiplier: true
+        offsetMultiplier: true,
+        scrollSpeed: true
       }
     }
   },

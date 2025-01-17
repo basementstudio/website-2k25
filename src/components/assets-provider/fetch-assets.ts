@@ -39,6 +39,7 @@ export interface AssetsResult {
     }
     fov?: number
     offsetMultiplier?: number
+    scrollSpeed?: number
   }[]
   sfx: {
     basketballTheme: string
@@ -100,7 +101,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
           y: item.tarY ?? 0,
           z: item.tarZ ?? 0
         },
-        offsetMultiplier: item.offsetMultiplier ?? 1
+        offsetMultiplier: item.offsetMultiplier ?? 1,
+        scrollSpeed: item.scrollSpeed ?? 1
       })
     )
   }

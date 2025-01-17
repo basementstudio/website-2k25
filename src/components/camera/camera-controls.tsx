@@ -23,6 +23,7 @@ export const CustomCamera = () => {
   const planeRef = useRef<Mesh>(null)
   const planeBoundaryRef = useRef<Mesh>(null)
   const cameraConfig = useCameraStore((state) => state.cameraConfig)
+  const cameraStates = useCameraStore((state) => state.cameraStates)
   const pathname = usePathname()
   const scene = useThree((state) => state.scene)
 
@@ -78,7 +79,8 @@ export const CustomCamera = () => {
   useEffect(() => {
     const initialY = cameraConfig.position[1]
 
-    const SCROLL_SPEED = pathname === "/" ? 1 : 0.3
+    const SCROLL_SPEED = cameraConfig.scrollSpeed ?? 1
+
     const handleScroll = () => {
       const rawScrollProgress = window.scrollY / window.innerHeight
       const scrollProgress = Math.min(1, rawScrollProgress * SCROLL_SPEED)

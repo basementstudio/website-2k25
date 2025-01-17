@@ -2,7 +2,6 @@
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 
-import { CAMERA_STATES } from "@/constants/camera-states"
 import { CameraState, CameraStateKeys, useCameraStore } from "@/store/app-store"
 
 import { useAssets } from "./assets-provider"
@@ -30,7 +29,8 @@ export const CameraRouteHandler = () => {
           position: [state.position.x, state.position.y, state.position.z],
           target: [state.target.x, state.target.y, state.target.z],
           fov: state.fov,
-          offsetMultiplier: state.offsetMultiplier
+          offsetMultiplier: state.offsetMultiplier,
+          scrollSpeed: state.scrollSpeed
         }
         return acc
       },
@@ -38,7 +38,6 @@ export const CameraRouteHandler = () => {
     )
 
     const mergedStates = {
-      ...CAMERA_STATES,
       ...statesRecord
     }
 

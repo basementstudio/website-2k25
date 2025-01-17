@@ -23,7 +23,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [2.98, 1.6, -12.8],
     target: [2.98, 1.33, -13.8],
     fov: 35,
-    offsetMultiplier: 0.1
+    offsetMultiplier: 0.1,
+    scrollSpeed: 0.3
   },
   stairs: {
     name: "about",
@@ -32,7 +33,8 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [6, 1.63, -10.21],
     target: [4, 1, -8],
     fov: 60,
-    offsetMultiplier: 1.0
+    offsetMultiplier: 1.0,
+    scrollSpeed: 0.7
   },
   hoop: {
     name: "hoop",
