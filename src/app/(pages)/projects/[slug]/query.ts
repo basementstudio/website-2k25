@@ -16,12 +16,20 @@ export const projectFragment = fragmentOn("ProjectList", {
     project: {
       _slug: true,
       client: {
-        _title: true
+        _title: true,
+        website: true
       },
       year: true,
       categories: {
         _title: true
-      }
+      },
+      projectWebsite: true,
+      description: {
+        json: {
+          content: true
+        }
+      },
+      caseStudy: true
     }
   }
 })
