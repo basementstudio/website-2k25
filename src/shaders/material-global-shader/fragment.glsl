@@ -72,6 +72,7 @@ uniform bool aoWithCheckerboard;
 void main() {
   vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
   vec2 checkerPos = floor(shiftedFragCoord * 0.5);
+  float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
 
   VoxelData voxel = getVoxel(vWorldPosition, voxelSize, noiseBigScale, noiseSmallScale);
   // Distance from center
@@ -156,11 +157,14 @@ void main() {
   }
 
   #ifdef USE_AOMAP
-  float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
-  float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+
   if(aoWithCheckerboard) {
-    irradiance = mix(irradiance, irradiance * ambientOcclusion, pattern);
+    float halfAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 0.5 + 1.0;
+    float moreAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 1.5 + 1.0;
+
+    irradiance = mix(irradiance * halfAmbientOcclusion, irradiance * moreAmbientOcclusion, pattern);
   } else {
+    float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
     irradiance *= ambientOcclusion;
   }
   #endif
@@ -171,11 +175,11 @@ void main() {
   // TODO: when implementing parallax and multiple reflections, add controls in basehub to resize the reflection map
   vec4 reflexSample = texture2D(glassReflex, vUv * vec2(0.75, 1.0));
   gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.1);
-  gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
+  gl_FragColor.a *= pattern;
   #endif
 
-  #ifdef GODRA
-  gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
+  #ifdef GODRAYS
+  gl_FragColor.a *= pattern;
   #endif
 
   // Fog
