@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
-import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 
 interface RoutingElementProps {
   node: Mesh
@@ -18,7 +17,7 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
   const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
 
   const handleNavigation = useCallback(
-    (route: string, cameraState: CameraStateKeys) => {
+    (route: string) => {
       if (!stair3) return
 
       if (route !== "/") {
@@ -70,7 +69,7 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
       }}
       onClick={() => {
         if (activeRoute) return
-        handleNavigation(routeConfig.route, routeConfig.routeName)
+        handleNavigation(routeConfig.route)
       }}
     >
       <mesh
