@@ -12,6 +12,7 @@ interface BaseClickableNode {
   arrowScale?: number
   framePosition?: [number, number, number]
   frameRotation?: [number, number, number]
+  hoverText?: string
 }
 
 interface PlaneNode extends BaseClickableNode, FrameType {
@@ -34,7 +35,8 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     frameType: "plane",
     framePosition: [6.32, 0.05, -10.05],
     frameRotation: [-Math.PI / 2, 0, 0],
-    frameSize: [3.3, 3.35]
+    frameSize: [3.3, 3.35],
+    hoverText: "home"
   },
   {
     name: "Lab_Hover",
@@ -44,7 +46,8 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     arrowScale: 0.4,
     frameType: "box",
     framePosition: [2.98, 1.08, -14.1],
-    frameSize: [1, 2.12, 0.8]
+    frameSize: [1, 2.12, 0.8],
+    hoverText: "laboratory"
   },
   {
     name: "About2_Hover",
@@ -55,7 +58,8 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     frameType: "plane",
     framePosition: [8.4, 2.54, -14.3],
     frameRotation: [0, 0, 0],
-    frameSize: [2, 0.5]
+    frameSize: [2, 0.5],
+    hoverText: "about us"
   },
   {
     name: "Game_Hover",
@@ -66,7 +70,8 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     frameType: "plane",
     framePosition: [5.23, 3.3, -14.3],
     frameRotation: [0, 0, 0],
-    frameSize: [1.55, 1.28]
+    frameSize: [1.55, 1.28],
+    hoverText: "basketball"
   },
 
   {
@@ -76,7 +81,8 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     arrowPosition: [-0.5, 0.5, -1.2],
     arrowScale: 0.4,
     frameType: "plane",
-    framePosition: [2.12, 2.25, -8.5]
+    framePosition: [2.12, 2.25, -8.5],
+    hoverText: "about us"
   },
   {
     name: "Projects_Hover",
@@ -87,7 +93,8 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     frameType: "plane",
     framePosition: [2.12, 3.57, -12.68],
     frameRotation: [0, Math.PI / 2, 0],
-    frameSize: [3.3, 2.43]
+    frameSize: [3.3, 2.43],
+    hoverText: "showcase"
   }
 ]
 
