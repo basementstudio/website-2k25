@@ -16,8 +16,6 @@ import {
   easeInOutCubic
 } from "./camera-utils"
 
-const targetY = -1.5
-
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
@@ -75,12 +73,11 @@ export const CustomCamera = () => {
 
   useEffect(() => {
     const initialY = cameraConfig.position[1]
-
-    const SCROLL_SPEED = cameraConfig.scrollSpeed ?? 1
+    const targetY = cameraConfig.targetScrollY ?? -cameraConfig.position[1]
 
     const handleScroll = () => {
       const rawScrollProgress = window.scrollY / window.innerHeight
-      const scrollProgress = Math.min(1, rawScrollProgress * SCROLL_SPEED)
+      const scrollProgress = Math.min(1, rawScrollProgress * 1)
 
       const newY = initialY + (targetY - initialY) * scrollProgress
       const originalTargetY = cameraConfig.target[1]
