@@ -7,6 +7,8 @@ import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 
 import { RoutingArrow } from "./routing-arrow"
+import { RoutingBox } from "./routing-box"
+import { RoutingPlane } from "./routing-plane"
 
 interface RoutingElementProps {
   node: Mesh
@@ -79,7 +81,7 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
         >
           <meshBasicMaterial
             color="white"
-            opacity={hover ? 0.5 : 0}
+            opacity={hover ? 0.0 : 0}
             transparent
             depthTest={false}
             wireframe={true}
@@ -88,19 +90,36 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
         </mesh>
       </group>
       {hover && (
-        <RoutingArrow
-          position={
-            routeConfig.arrowPosition
-              ? [
-                  node.position.x + routeConfig.arrowPosition[0],
-                  node.position.y + routeConfig.arrowPosition[1],
-                  node.position.z + routeConfig.arrowPosition[2]
-                ]
-              : [node.position.x, node.position.y, node.position.z]
-          }
-          rotation={routeConfig.arrowRotation ?? [Math.PI, 0, 0]}
-          scale={routeConfig.arrowScale ?? 1}
-        />
+        <>
+          {routeConfig.frameType === "box" && (
+            <RoutingBox
+              position={routeConfig.framePosition}
+              size={routeConfig.frameSize}
+            />
+          )}
+
+          {routeConfig.frameType === "plane" && (
+            <RoutingPlane
+              position={routeConfig.framePosition}
+              rotation={routeConfig.frameRotation}
+              size={routeConfig.frameSize}
+            />
+          )}
+
+          <RoutingArrow
+            position={
+              routeConfig.arrowPosition
+                ? [
+                    node.position.x + routeConfig.arrowPosition[0],
+                    node.position.y + routeConfig.arrowPosition[1],
+                    node.position.z + routeConfig.arrowPosition[2]
+                  ]
+                : [node.position.x, node.position.y, node.position.z]
+            }
+            rotation={[Math.PI, 0, 0]}
+            scale={routeConfig.arrowScale ?? 1}
+          />
+        </>
       )}
     </>
   )

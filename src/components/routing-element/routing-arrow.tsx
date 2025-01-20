@@ -1,3 +1,4 @@
+import { PivotControls } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { useRef } from "react"
 import { Mesh, ShaderMaterial } from "three"
@@ -54,11 +55,9 @@ export const RoutingArrow = ({
   })
 
   return (
-    <>
-      <mesh ref={meshRef} rotation={rotation} position={position} scale={scale}>
-        <coneGeometry args={[0.25, 0.5, 32]} />
-        <primitive object={arrowMaterial} attach="material" />
-      </mesh>
-    </>
+    <mesh ref={meshRef} rotation={rotation} position={position} scale={scale}>
+      <coneGeometry args={[0.25, 0.5, 32]} />
+      <primitive object={arrowMaterial} attach="material" />
+    </mesh>
   )
 }
