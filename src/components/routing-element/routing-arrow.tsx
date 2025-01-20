@@ -1,63 +1,68 @@
-import { PivotControls } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { useFrame, useThree } from "@react-three/fiber"
 import { useRef } from "react"
-import { Mesh, ShaderMaterial } from "three"
-
-const arrowMaterial = new ShaderMaterial({
-  uniforms: {
-    uTime: { value: 0 }
-  },
-  fragmentShader: `
-    uniform float uTime;
-
-    varying vec2 vUv;
-
-    void main() {
-      vec2 checkerPos = floor(gl_FragCoord.xy * 0.5);
-      float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
-      float alpha = pattern == 1.0 ? 1.0 : 0.2;
-      
-      gl_FragColor = vec4(2.0, 2.0, 2.0, alpha);
-    }
-  `,
-  vertexShader: `
-    varying vec2 vUv;
-
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  depthTest: false,
-  transparent: true
-})
+import { Mesh, Vector3 } from "three"
 
 export const RoutingArrow = ({
   position,
-  rotation,
   scale
 }: {
-  position: [number, number, number]
-  rotation: [number, number, number]
+  position: Vector3
   scale: number
 }) => {
-  const SPEED = 2
-  const AMPLITUDE = 0.05
-
-  const meshRef = useRef<Mesh>(null)
-  const initialY = position[1]
+  const meshRef = useRef<Mesh | null>(null)
+  const camera = useThree((state) => state.camera)
 
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.position.y =
-        initialY + Math.sin(state.clock.elapsedTime * SPEED) * AMPLITUDE
+      meshRef.current.quaternion.copy(camera.quaternion)
+      const offset = Math.sin(state.clock.elapsedTime * 3.5) * 0.03
+      meshRef.current.position.y = position.y + offset
     }
   })
 
   return (
-    <mesh ref={meshRef} rotation={rotation} position={position} scale={scale}>
-      <coneGeometry args={[0.25, 0.5, 32]} />
-      <primitive object={arrowMaterial} attach="material" />
+    <mesh
+      ref={meshRef}
+      position={position}
+      scale={[scale, scale, scale]}
+      renderOrder={1}
+    >
+      <planeGeometry args={[2, 3]} />
+      <shaderMaterial
+        transparent
+        side={2}
+        depthWrite={false}
+        depthTest={false}
+        uniforms={{
+          pixelDensity: { value: 12.0 }
+        }}
+        vertexShader={`
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `}
+        fragmentShader={`
+            uniform float pixelDensity;
+            varying vec2 vUv;
+            void main() {
+              vec2 grid = floor(vUv * vec2(pixelDensity, pixelDensity * 1.5)); 
+              vec2 gridUv = grid / vec2(pixelDensity, pixelDensity * 1.5);
+              
+              vec2 p = gridUv * 2.0 - 1.0;
+              float triangle = step(2.0 * abs(p.x) - 0.9, p.y) * step(p.y, 0.9);
+              
+              float checker = mod(grid.x + grid.y, 2.0);
+              
+              if (checker > 0.5 || triangle == 0.0) {
+                discard;
+              }
+              
+              gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+          `}
+      />
     </mesh>
   )
 }

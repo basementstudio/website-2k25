@@ -1,16 +1,15 @@
 import { useCursor } from "@react-three/drei"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Mesh, ShaderMaterial } from "three"
+import { Mesh, Vector3 } from "three"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 
-import { RoutingArrow } from "./routing-arrow"
 import { RoutingBox } from "./routing-box"
 import { RoutingPlane } from "./routing-plane"
 import { useMouseStore } from "../mouse-tracker"
-import { useThree } from "@react-three/fiber"
+import { RoutingArrow } from "./routing-arrow"
 
 interface RoutingElementProps {
   node: Mesh
@@ -114,59 +113,17 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
           <RoutingArrow
             position={
               routeConfig.arrowPosition
-                ? [
+                ? new Vector3(
                     node.position.x + routeConfig.arrowPosition[0],
                     node.position.y + routeConfig.arrowPosition[1],
                     node.position.z + routeConfig.arrowPosition[2]
-                  ]
-                : [node.position.x, node.position.y, node.position.z]
+                  )
+                : new Vector3(node.position.x, node.position.y, node.position.z)
             }
-            rotation={[Math.PI, 0, 0]}
-            scale={routeConfig.arrowScale ?? 1}
+            scale={routeConfig.arrowScale ?? 0.1}
           />
         </>
       )}
-
-      <ArrowPlane />
     </>
-  )
-}
-
-const ArrowPlane = () => {
-  const camera = useThree((state) => state.camera)
-  const material = new ShaderMaterial({
-    transparent: true,
-    vertexShader: `
-      varying vec2 vUv;
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      varying vec2 vUv;
-      
-      void main() {
-        // Create checkerboard pattern
-        float checkerSize = 8.0; // Adjust for smaller/larger squares
-        vec2 checkerPos = floor(vUv * checkerSize);
-        float checker = mod(checkerPos.x + checkerPos.y, 2.0);
-        
-        // Create triangle shape
-        float triangle = step(2.0 * abs(vUv.x - 0.5) + 0.0, vUv.y);
-        
-        // Combine checker pattern with triangle shape
-        float pattern = checker * triangle;
-        
-        gl_FragColor = vec4(vec3(1.0), pattern);
-      }
-    `
-  })
-
-  return (
-    <mesh position={[6, 1, -12]} lookAt={camera.position}>
-      <planeGeometry args={[1, 1]} />
-      <primitive object={material} />
-    </mesh>
   )
 }
