@@ -7,7 +7,7 @@ import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 
 import { RoutingBox } from "./routing-box"
-import { RoutingPlane } from "./routing-plane"
+import { RoutingPlane } from "./routing-plane/routing-plane"
 import { useMouseStore } from "../mouse-tracker"
 import { RoutingArrow } from "./routing-arrow"
 
