@@ -148,8 +148,6 @@ export const Map = memo(() => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh
 
-        console.log("meshChild", meshChild.name)
-
         if (meshChild.name === "SM_ColorChecker_")
           colorPickerRef.current = meshChild
 

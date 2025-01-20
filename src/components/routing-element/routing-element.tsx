@@ -9,6 +9,7 @@ import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 import { RoutingArrow } from "./routing-arrow"
 import { RoutingBox } from "./routing-box"
 import { RoutingPlane } from "./routing-plane"
+import { useMouseStore } from "../mouse-tracker"
 
 interface RoutingElementProps {
   node: Mesh
@@ -17,6 +18,7 @@ interface RoutingElementProps {
 export const RoutingElement = ({ node }: RoutingElementProps) => {
   const router = useRouter()
   const setCameraState = useCameraStore((state) => state.setCameraState)
+  const setHoverText = useMouseStore((state) => state.setHoverText)
 
   const pathname = usePathname()
 
@@ -62,10 +64,12 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
           if (activeRoute) return
           router.prefetch(routeConfig.route)
           setHover(true)
+          setHoverText(routeConfig.hoverText || null)
         }}
         onPointerLeave={() => {
           if (activeRoute) return
           setHover(false)
+          setHoverText(null)
         }}
         onClick={() => {
           if (activeRoute) return
