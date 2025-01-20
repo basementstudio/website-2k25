@@ -7,8 +7,8 @@ void main() {
   vec2 pixelSize = fwidth(uv);
   float borderWidth = 2.0;
   float worldSquareSize = 0.1;
-  float plusThickness = 0.2;
-  vec2 padding = vec2(0.02, 0.01);
+  float plusThickness = 0.15;
+  vec2 padding = vec2(0.015, 0.015);
   vec2 squareSize = worldSquareSize / planeSize;
   vec2 paddedUV = (uv - padding) / (1.0 - 2.0 * padding);
 
@@ -42,24 +42,24 @@ void main() {
       abs(localUV.x - 0.5) < plusThickness * 0.5
     )
       plus = 1.0;
-  } else // bottom right
-  if (uv.x > 1.0 - squareSize.x && uv.y < squareSize.y) {
+  } // bottom right
+  else if (uv.x > 1.0 - squareSize.x && uv.y < squareSize.y) {
     localUV = (uv - vec2(1.0 - squareSize.x, 0.0)) / squareSize;
     if (
       abs(localUV.y - 0.5) < plusThickness * 0.5 ||
       abs(localUV.x - 0.5) < plusThickness * 0.5
     )
       plus = 1.0;
-  } else // top left
-  if (uv.x < squareSize.x && uv.y > 1.0 - squareSize.y) {
+  } // top left
+  else if (uv.x < squareSize.x && uv.y > 1.0 - squareSize.y) {
     localUV = (uv - vec2(0.0, 1.0 - squareSize.y)) / squareSize;
     if (
       abs(localUV.y - 0.5) < plusThickness * 0.5 ||
       abs(localUV.x - 0.5) < plusThickness * 0.5
     )
       plus = 1.0;
-  } else // top right
-  if (uv.x > 1.0 - squareSize.x && uv.y > 1.0 - squareSize.y) {
+  } // top right
+  else if (uv.x > 1.0 - squareSize.x && uv.y > 1.0 - squareSize.y) {
     localUV = (uv - vec2(1.0 - squareSize.x, 1.0 - squareSize.y)) / squareSize;
     if (
       abs(localUV.y - 0.5) < plusThickness * 0.5 ||

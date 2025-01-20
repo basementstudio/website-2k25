@@ -1,12 +1,11 @@
 import "@/styles/globals.css"
 
 import { Toolbar as BasehubToolbar } from "basehub/next-toolbar"
-import localFont from "next/font/local"
 
 import { AssetsProvider } from "@/components/assets-provider"
 import { fetchAssets } from "@/components/assets-provider/fetch-assets"
 import { CameraRouteHandler } from "@/components/camera-route-handler"
-import { MouseTracker } from "@/components/mouse-tracker"
+import { MouseTracker } from "@/components/mouse-tracker/mouse-tracker"
 import { Scene } from "@/components/scene"
 
 const Toolbar = BasehubToolbar as unknown as React.ComponentType

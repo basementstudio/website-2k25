@@ -9,14 +9,36 @@ import {
 import { useEffect } from "react"
 import { create } from "zustand"
 
+type CursorType =
+  | "default"
+  | "hover"
+  | "click"
+  | "grab"
+  | "grabbing"
+  | "inspect"
+  | "zoom"
 interface MouseStore {
   hoverText: string | null
   setHoverText: (text: string | null) => void
+  cursorType: CursorType
+  setCursorType: (type: CursorType) => void
+}
+
+const cursorClasses = {
+  default: "default",
+  hover: "pointer",
+  click: "pointer",
+  grab: "grab",
+  grabbing: "grabbing",
+  inspect: "help",
+  zoom: "zoom-in"
 }
 
 export const useMouseStore = create<MouseStore>((set) => ({
   hoverText: null,
-  setHoverText: (text: string | null) => set({ hoverText: text })
+  setHoverText: (text: string | null) => set({ hoverText: text }),
+  cursorType: "default",
+  setCursorType: (type: CursorType) => set({ cursorType: type })
 }))
 
 export const MouseTracker = () => {
@@ -26,6 +48,7 @@ export const MouseTracker = () => {
   const springY = useSpring(y, { damping: 50, stiffness: 500 })
 
   const hoverText = useMouseStore((state) => state.hoverText)
+  const cursorType = useMouseStore((state) => state.cursorType)
 
   useEffect(() => {
     const updateMousePosition = (e: MouseEvent) => {
@@ -39,6 +62,13 @@ export const MouseTracker = () => {
       window.removeEventListener("mousemove", updateMousePosition)
     }
   }, [x, y])
+
+  useEffect(() => {
+    document.body.style.cursor = cursorClasses[cursorType]
+    return () => {
+      document.body.style.cursor = "default"
+    }
+  }, [cursorType])
 
   return (
     <AnimatePresence>

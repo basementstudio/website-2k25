@@ -8,7 +8,7 @@ import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 
 import { RoutingBox } from "./routing-box"
 import { RoutingPlane } from "./routing-plane/routing-plane"
-import { useMouseStore } from "../mouse-tracker"
+import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { RoutingArrow } from "./routing-arrow"
 
 interface RoutingElementProps {
