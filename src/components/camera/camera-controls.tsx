@@ -1,9 +1,9 @@
 import { CameraControls } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { useFrame, useThree } from "@react-three/fiber"
 import { useControls } from "leva"
 import { easing } from "maath"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useCameraStore } from "@/store/app-store"
@@ -22,6 +22,7 @@ export const CustomCamera = () => {
   const planeBoundaryRef = useRef<Mesh>(null)
   const cameraConfig = useCameraStore((state) => state.cameraConfig)
   const pathname = usePathname()
+  const scene = useThree((state) => state.scene)
 
   const { debugBoundaries } = useControls({
     debugBoundaries: false
@@ -42,6 +43,7 @@ export const CustomCamera = () => {
     const controls = cameraControlsRef.current
 
     const camera = controls?.camera as PerspectiveCamera
+
     const [plane, boundary] = [planeRef.current, planeBoundaryRef.current]
     if (!controls || !plane || !boundary || !camera) return
 
@@ -66,8 +68,36 @@ export const CustomCamera = () => {
 
     ;[plane, boundary].forEach((mesh) => mesh.lookAt(...cameraConfig.position))
     boundary.scale.set(width * 0.6, height, 1)
-    plane.scale.set(width * 0.4, height, 1) // adjust the scale of the plane so the animation is more prominent
+    plane.scale.set(width * 0.4, height, 1)
   }, [])
+
+  useEffect(() => {
+    const initialY = cameraConfig.position[1]
+    const targetY = cameraConfig.targetScrollY ?? -cameraConfig.position[1]
+
+    const handleScroll = () => {
+      const rawScrollProgress = window.scrollY / window.innerHeight
+      const scrollProgress = Math.min(1, rawScrollProgress * 1)
+
+      const newY = initialY + (targetY - initialY) * scrollProgress
+      const originalTargetY = cameraConfig.target[1]
+      const originalDelta = originalTargetY - initialY
+      const newTargetY = newY + originalDelta
+
+      if (cameraControlsRef.current) {
+        const pos = cameraControlsRef.current.getPosition(new Vector3())
+        const target = cameraControlsRef.current.getTarget(new Vector3())
+
+        pos.y = newY
+        target.y = newTargetY
+        cameraControlsRef.current.setPosition(pos.x, pos.y, pos.z, false)
+        cameraControlsRef.current.setTarget(target.x, target.y, target.z, false)
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [cameraConfig, pathname])
 
   useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current
@@ -81,6 +111,11 @@ export const CustomCamera = () => {
         animationProgress.current + dt / ANIMATION_DURATION,
         1
       )
+
+      if (pathname === "/" && animationProgress.current === 1) {
+        const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
+        stair3.visible = false
+      }
 
       controls.getPosition(currentPos)
       controls.getTarget(currentTarget)
@@ -100,7 +135,7 @@ export const CustomCamera = () => {
         false
       )
     } else {
-      if (pathname !== "/basketball" && pathname !== "/arcade") {
+      if (pathname !== "/basketball") {
         const maxOffset = (boundary.scale.x - plane.scale.x) / 2
         const basePosition = calculatePlanePosition(cameraConfig)
         const rightVector = calculateMovementVectors(basePosition, cameraConfig)
@@ -120,11 +155,11 @@ export const CustomCamera = () => {
         plane.position.setX(newPos.x)
         plane.position.setZ(newPos.z)
 
-        // Animate camera position to follow plane
+        // Set camera position directly for horizontal movement
         const currentPosition = controls.getPosition(new Vector3())
         const targetPosition = new Vector3(
           cameraConfig.position[0] + rightVector.x * offset,
-          cameraConfig.position[1],
+          currentPosition.y,
           cameraConfig.position[2] + rightVector.z * offset
         )
 
@@ -139,9 +174,10 @@ export const CustomCamera = () => {
         const currentTarget = controls.getTarget(new Vector3())
         const targetLookAt = new Vector3(
           cameraConfig.target[0] + rightVector.x * offset,
-          cameraConfig.target[1],
+          currentTarget.y,
           cameraConfig.target[2] + rightVector.z * offset
         )
+
         easing.damp3(currentTarget, targetLookAt, 0.05, dt)
         controls.setTarget(
           currentTarget.x,
