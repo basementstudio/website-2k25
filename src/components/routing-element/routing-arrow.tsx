@@ -4,9 +4,11 @@ import { Mesh, Vector3 } from "three"
 
 export const RoutingArrow = ({
   position,
+  rotation,
   scale
 }: {
   position: Vector3
+  rotation?: number
   scale: number
 }) => {
   const meshRef = useRef<Mesh | null>(null)
@@ -15,8 +17,14 @@ export const RoutingArrow = ({
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.quaternion.copy(camera.quaternion)
+      meshRef.current.rotateZ(rotation ?? 0)
       const offset = Math.sin(state.clock.elapsedTime * 3.5) * 0.03
-      meshRef.current.position.y = position.y + offset
+
+      if (rotation === -Math.PI / 2) {
+        meshRef.current.position.x = position.x + offset
+      } else {
+        meshRef.current.position.y = position.y + offset
+      }
     }
   })
 
@@ -24,6 +32,7 @@ export const RoutingArrow = ({
     <mesh
       ref={meshRef}
       position={position}
+      rotation={rotation}
       scale={[scale, scale, scale]}
       renderOrder={1}
     >

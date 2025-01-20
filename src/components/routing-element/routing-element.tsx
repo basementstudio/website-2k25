@@ -101,7 +101,6 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
               size={routeConfig.frameSize}
             />
           )}
-
           {routeConfig.frameType === "plane" && (
             <RoutingPlane
               position={routeConfig.framePosition}
@@ -109,19 +108,25 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
               size={routeConfig.frameSize}
             />
           )}
-
-          <RoutingArrow
-            position={
-              routeConfig.arrowPosition
-                ? new Vector3(
-                    node.position.x + routeConfig.arrowPosition[0],
-                    node.position.y + routeConfig.arrowPosition[1],
-                    node.position.z + routeConfig.arrowPosition[2]
-                  )
-                : new Vector3(node.position.x, node.position.y, node.position.z)
-            }
-            scale={routeConfig.arrowScale ?? 0.1}
-          />
+          {routeConfig.arrowScale && (
+            <RoutingArrow
+              position={
+                routeConfig.arrowPosition
+                  ? new Vector3(
+                      node.position.x + routeConfig.arrowPosition[0],
+                      node.position.y + routeConfig.arrowPosition[1],
+                      node.position.z + routeConfig.arrowPosition[2]
+                    )
+                  : new Vector3(
+                      node.position.x,
+                      node.position.y,
+                      node.position.z
+                    )
+              }
+              rotation={routeConfig.arrowRotation}
+              scale={routeConfig.arrowScale}
+            />
+          )}
         </>
       )}
     </>

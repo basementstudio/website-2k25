@@ -10,6 +10,7 @@ interface BaseClickableNode {
   routeName: CameraStateKeys
   arrowPosition?: [number, number, number]
   arrowScale?: number
+  arrowRotation?: number
   framePosition?: [number, number, number]
   frameRotation?: [number, number, number]
   hoverText?: string
@@ -73,27 +74,28 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     frameSize: [1.55, 1.28],
     hoverText: "basketball"
   },
-
   {
     name: "About1_Hover",
     route: "/about",
     routeName: "stairs",
-    arrowPosition: [-0.5, 0.5, -1.2],
-    arrowScale: 0.1,
+    arrowPosition: [-0.5, 1.4, -1.2],
+    arrowScale: 0.06,
     frameType: "plane",
     framePosition: [2.12, 2.25, -8.5],
+    arrowRotation: -Math.PI / 2,
     hoverText: "about us"
   },
   {
     name: "Projects_Hover",
     route: "/projects",
     routeName: "projects",
-    arrowPosition: [0, -0.5, 2],
+    arrowPosition: [0, -0.2, 2],
     arrowScale: 0.1,
     frameType: "plane",
     framePosition: [2.12, 3.57, -12.68],
     frameRotation: [0, Math.PI / 2, 0],
     frameSize: [3.3, 2.43],
+    arrowRotation: -Math.PI / 2,
     hoverText: "showcase"
   }
 ]
