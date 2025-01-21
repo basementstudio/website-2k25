@@ -17,7 +17,6 @@ import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
-import { useGameAudio } from "@/hooks/use-game-audio"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -54,7 +53,6 @@ export const Map = memo(() => {
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
   const pathname = usePathname()
-  const { playSoundFX } = useGameAudio()
 
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
@@ -115,7 +113,7 @@ export const Map = memo(() => {
     if (car) {
       const mesh = car as Mesh
       animationProgress.current += clock.getElapsedTime()
-      animateCar(mesh, animationProgress.current, pathname, playSoundFX)
+      animateCar(mesh, animationProgress.current, pathname)
     }
 
     if (colorPickerRef.current) {
