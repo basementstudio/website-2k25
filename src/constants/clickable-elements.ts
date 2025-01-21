@@ -45,9 +45,10 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     routeName: "arcade",
     arrowPosition: [-0.05, 2.4, 0],
     arrowScale: 0.1,
-    frameType: "box",
-    framePosition: [2.98, 1.08, -14.1],
-    frameSize: [1, 2.12, 0.8],
+    frameType: "plane",
+    framePosition: [3.34, 1.08, -13.4],
+    frameRotation: [0, 0.4, 0],
+    frameSize: [1.25, 2.1],
     hoverText: "laboratory"
   },
   {

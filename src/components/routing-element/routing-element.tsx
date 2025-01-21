@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, Vector3 } from "three"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
-import { RoutingBox } from "./routing-box"
 import { RoutingPlane } from "./routing-plane/routing-plane"
 import { RoutingArrow } from "./routing-arrow"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
@@ -99,12 +98,6 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
       </group>
       {hover && (
         <>
-          {routeConfig.frameType === "box" && (
-            <RoutingBox
-              position={routeConfig.framePosition}
-              size={routeConfig.frameSize}
-            />
-          )}
           {routeConfig.frameType === "plane" && (
             <RoutingPlane
               position={routeConfig.framePosition}
