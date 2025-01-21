@@ -54,14 +54,12 @@ const Basketball = () => {
             <div
               className={`${geistMono.className} col-span-2 col-start-6 mt-24 flex h-10 select-none text-xs uppercase text-brand-w2`}
             >
-              <div className="relative flex w-1/2 items-center justify-center">
+              <div className="corner-borders relative flex w-1/2 translate-x-[0.5px] items-center justify-center">
                 <p>{formatTime(timeRemaining)}</p>
-                <Corners className="absolute inset-0 w-full" />
               </div>
 
-              <div className="relative flex w-1/2 items-center justify-center">
+              <div className="corner-borders relative flex w-1/2 -translate-x-[0.5px] items-center justify-center">
                 <p>{Math.floor(score)} Pts.</p>
-                <Corners className="absolute inset-0 w-full" />
               </div>
             </div>
 
@@ -91,24 +89,3 @@ const Basketball = () => {
 }
 
 export default Basketball
-
-const Corners = ({ className = "" }: { className?: string }) => {
-  return (
-    <svg
-      width="100"
-      height="40"
-      viewBox="0 0 100 40"
-      fill="none"
-      preserveAspectRatio="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-    >
-      <g>
-        <path d="M8 1H0V9" stroke="#E6E6E6" />
-        <path d="M92 1H100V9" stroke="#E6E6E6" />
-        <path d="M92 39H100V31" stroke="#E6E6E6" />
-        <path d="M8 39H0V31" stroke="#E6E6E6" />
-      </g>
-    </svg>
-  )
-}
