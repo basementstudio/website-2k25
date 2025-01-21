@@ -15,7 +15,6 @@ import {
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
-import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -118,11 +117,11 @@ export const Map = memo(() => {
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
 
-    CLICKABLE_NODES.forEach((node) => {
-      const child = scene.getObjectByName(`${node.name}`)
+    clickables.forEach((node) => {
+      const child = scene.getObjectByName(`${node.title}`)
       if (child) {
         child.removeFromParent()
-        routingNodes[node.name] = child as Mesh
+        routingNodes[node.title] = child as Mesh
       }
     })
 
@@ -156,7 +155,7 @@ export const Map = memo(() => {
           colorPickerRef.current = meshChild
 
         const ommitNode = Boolean(
-          CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name
+          clickables.find((n) => n.title === meshChild.name)?.title
         )
         if (ommitNode) return
 
