@@ -6,6 +6,7 @@ import {
   useMotionValue,
   useSpring
 } from "motion/react"
+import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { create } from "zustand"
 
@@ -46,13 +47,27 @@ export const MouseTracker = ({
 }: {
   canvasRef: React.RefObject<HTMLCanvasElement>
 }) => {
+  const pathname = usePathname()
+
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const springX = useSpring(x, { damping: 50, stiffness: 500 })
   const springY = useSpring(y, { damping: 50, stiffness: 500 })
 
   const hoverText = useMouseStore((state) => state.hoverText)
+  const setHoverText = useMouseStore((state) => state.setHoverText)
   const cursorType = useMouseStore((state) => state.cursorType)
+  const setCursorType = useMouseStore((state) => state.setCursorType)
+
+  useEffect(() => {
+    setHoverText(null)
+    setCursorType("default")
+
+    return () => {
+      setHoverText(null)
+      setCursorType("default")
+    }
+  }, [pathname])
 
   useEffect(() => {
     const canvas = canvasRef.current
