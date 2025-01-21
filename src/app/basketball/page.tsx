@@ -70,7 +70,7 @@ const Basketball = () => {
       )}
 
       {(hasPlayed && !playerName) || (hasPlayed && !isGameActive) ? (
-        <div className="fixed top-0 grid min-h-screen w-full place-items-center">
+        <div className="animate-fade-in fixed top-0 grid min-h-screen w-full place-items-center bg-brand-k/20">
           <div className="flex flex-col items-center gap-4">
             {!playerName ? (
               <ArcadeNameInput />

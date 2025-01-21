@@ -23,10 +23,11 @@ const LetterSlot = ({
     <div className="relative h-8 w-8 overflow-hidden">
       <div
         className={cn(
-          "absolute inset-0 flex transform-gpu items-center justify-center transition-transform duration-100",
+          "absolute inset-0 flex transform-gpu items-center justify-center transition-all duration-100",
           isSelected ? "text-brand-w1" : "text-brand-g1",
-          direction === "up" && "-translate-y-full",
-          direction === "down" && "translate-y-full"
+          direction === "up" && "-translate-y-full opacity-0",
+          direction === "down" && "translate-y-full opacity-0",
+          direction === null && "opacity-100"
         )}
       >
         {currentLetter}
@@ -34,12 +35,12 @@ const LetterSlot = ({
       {nextLetter && (
         <div
           className={cn(
-            "absolute inset-0 flex transform-gpu items-center justify-center transition-transform duration-100",
-            isSelected ? "text-brand-w1" : "text-brand-g1"
+            "absolute inset-0 flex transform-gpu items-center justify-center transition-all duration-100",
+            isSelected ? "text-brand-w1" : "text-brand-g1",
+            direction === "up" && "translate-y-[100%] opacity-100",
+            direction === "down" && "-translate-y-[100%] opacity-100",
+            direction === null && "opacity-0"
           )}
-          style={{
-            transform: `translateY(${direction === "up" ? "100%" : direction === "down" ? "-100%" : "0"})`
-          }}
         >
           {nextLetter}
         </div>
@@ -108,11 +109,30 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
     setPlayerName(letters.join(""))
   }, [letters, setPlayerName])
 
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      const pressedKey = event.key.toUpperCase()
+      if (LETTERS.includes(pressedKey)) {
+        const newLetters = [...letters]
+        newLetters[selectedSlot] = pressedKey
+        setLetters(newLetters)
+
+        setSelectedSlot((prev) => (prev + 1) % 3)
+      }
+    },
+    [letters, selectedSlot]
+  )
+
   useKeyPress("ArrowUp", handleArrowUp)
   useKeyPress("ArrowDown", handleArrowDown)
   useKeyPress("ArrowLeft", handleArrowLeft)
   useKeyPress("ArrowRight", handleArrowRight)
   useKeyPress("Enter", handleEnter)
+
+  useEffect(() => {
+    window.addEventListener("keypress", handleKeyPress)
+    return () => window.removeEventListener("keypress", handleKeyPress)
+  }, [handleKeyPress])
 
   return (
     <div className={cn("flex gap-4", className)}>

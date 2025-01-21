@@ -25,7 +25,7 @@ export default function Scoreboard({ className }: { className?: string }) {
   return (
     <div className={cn("flex flex-col text-brand-w2", className)}>
       <div className="flex justify-between border-b border-brand-w2">
-        <p className="uppercase">{playerName ? playerName : "You"}</p>
+        <p className="uppercase">{playerName ? playerName : "-"}</p>
         <p>{score === 0 ? "-" : `${Math.floor(score)} pts`}</p>
       </div>
       {scores.map((score, index) => (
