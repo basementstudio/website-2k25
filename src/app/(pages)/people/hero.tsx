@@ -8,17 +8,17 @@ export const Hero = ({ data }: { data?: QueryType }) => {
       className="grid-layout mb-[180px] text-brand-w2"
       aria-labelledby="careers-heading"
     >
-      <h1 className="col-start-1 col-end-5 text-heading uppercase">
-        {data?.pages.careers.title}
+      <h1 className="col-start-1 col-end-5 text-h1 uppercase">
+        {data?.pages.people.title}
       </h1>
-      <div className="col-start-5 col-end-9 max-w-[34.6875rem] text-subheading">
+      <div className="col-start-5 col-end-9 max-w-[34.6875rem] text-h2">
         <RichText
-          content={data?.pages?.careers?.subheading1?.json?.content ?? []}
+          content={data?.pages?.people?.subheading1?.json?.content ?? []}
         />
       </div>
-      <div className="col-start-9 col-end-13 max-w-[34.6875rem] text-subheading">
+      <div className="col-start-9 col-end-13 max-w-[34.6875rem] text-h2">
         <RichText
-          content={data?.pages?.careers?.subheading2?.json?.content ?? []}
+          content={data?.pages?.people?.subheading2?.json?.content ?? []}
         />
       </div>
     </section>
