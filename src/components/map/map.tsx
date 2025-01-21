@@ -194,8 +194,6 @@ export const Map = memo(() => {
           currentMaterial.name === "BSM_MTL_Glass" ||
           currentMaterial.name === "BSM_MTL_LightLibrary"
 
-        console.log(meshChild.name)
-
         if (
           meshChild.name === "SM_StairsFloor" ||
           meshChild.name === "SM_Stair2" ||
