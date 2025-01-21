@@ -41,7 +41,11 @@ export const useMouseStore = create<MouseStore>((set) => ({
   setCursorType: (type: CursorType) => set({ cursorType: type })
 }))
 
-export const MouseTracker = () => {
+export const MouseTracker = ({
+  canvasRef
+}: {
+  canvasRef: React.RefObject<HTMLCanvasElement>
+}) => {
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const springX = useSpring(x, { damping: 50, stiffness: 500 })
@@ -51,9 +55,21 @@ export const MouseTracker = () => {
   const cursorType = useMouseStore((state) => state.cursorType)
 
   useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
     const updateMousePosition = (e: MouseEvent) => {
-      x.set(e.clientX + 20)
-      y.set(e.clientY + 20)
+      const rect = canvas.getBoundingClientRect()
+
+      if (
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom
+      ) {
+        x.set(e.clientX + 20)
+        y.set(e.clientY + 20)
+      }
     }
 
     window.addEventListener("mousemove", updateMousePosition)
@@ -61,20 +77,23 @@ export const MouseTracker = () => {
     return () => {
       window.removeEventListener("mousemove", updateMousePosition)
     }
-  }, [x, y])
+  }, [x, y, canvasRef])
 
   useEffect(() => {
-    document.body.style.cursor = cursorClasses[cursorType]
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    canvas.style.cursor = cursorClasses[cursorType]
     return () => {
-      document.body.style.cursor = "default"
+      canvas.style.cursor = "default"
     }
-  }, [cursorType])
+  }, [cursorType, canvasRef])
 
   return (
     <AnimatePresence>
       {hoverText && (
         <motion.div
-          className="pointer-events-none absolute z-50 bg-black text-paragraph text-brand-w1"
+          className="pointer-events-none fixed z-50 bg-black text-paragraph text-brand-w1"
           style={{ x: springX, y: springY }}
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
