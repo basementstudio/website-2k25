@@ -25,6 +25,7 @@ export interface AssetsResult {
   videos: {
     mesh: string
     url: string
+    intensity: number
   }[]
   cameraStates: {
     title: string
@@ -70,7 +71,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
     })),
     videos: threeDInteractions.map.videos.items.map((item) => ({
       mesh: item._title,
-      url: item.file?.url ?? ""
+      url: item.file?.url ?? "",
+      intensity: item.intensity ?? 1
     })),
     inspectables: threeDInteractions.inspectables.inspectableList.items.map(
       (item) => ({

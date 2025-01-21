@@ -171,6 +171,7 @@ export const Map = memo(() => {
 
           currentMaterial.map = videoTexture
           currentMaterial.emissiveMap = videoTexture
+          currentMaterial.emissiveIntensity = video.intensity
         }
 
         const isGlass =
