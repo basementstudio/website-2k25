@@ -62,9 +62,10 @@ export const RoutingArrow = ({
               vec2 p = gridUv * 2.0 - 1.0;
               float triangle = step(2.0 * abs(p.x) - 0.9, p.y) * step(p.y, 0.9);
               
-              float checker = mod(grid.x + grid.y, 2.0);
+              vec2 checkerPos = floor(gl_FragCoord.xy * 0.5);
+              float checker = mod(checkerPos.x + checkerPos.y, 2.0);
               
-              if (checker > 0.5 || triangle == 0.0) {
+              if (checker < 0.5 || triangle == 0.0) {
                 discard;
               }
               
