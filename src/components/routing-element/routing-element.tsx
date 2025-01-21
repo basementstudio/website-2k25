@@ -9,6 +9,7 @@ import { RoutingArrow } from "./routing-arrow"
 
 interface RoutingElementProps {
   node: Mesh
+  route: string
   frameData: {
     position: [number, number, number]
     rotation: [number, number, number]
@@ -24,6 +25,7 @@ interface RoutingElementProps {
 
 export const RoutingElement = ({
   node,
+  route,
   frameData,
   arrowData
 }: RoutingElementProps) => {
@@ -35,11 +37,6 @@ export const RoutingElement = ({
   const scene = useThree((state) => state.scene)
   const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
   const [hover, setHover] = useState(false)
-
-  const route = useMemo(() => {
-    const routeName = node.name.split("_")[0].toLowerCase()
-    return routeName === "home" ? "/" : `/${routeName}`
-  }, [node.name])
 
   const activeRoute = useMemo(() => {
     return pathname === route

@@ -98,7 +98,8 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         arrowScale: true,
         arrowRotationX: true,
         arrowRotationY: true,
-        arrowRotationZ: true
+        arrowRotationZ: true,
+        route: true
       }
     }
   },

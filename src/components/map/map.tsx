@@ -54,7 +54,16 @@ export const Map = memo(() => {
   )
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [clickableNodesData, setClickableNodesData] = useState<
-    Record<string, { name: string; frameData: any; node: Mesh; arrowData: any }>
+    Record<
+      string,
+      {
+        name: string
+        frameData: any
+        node: Mesh
+        arrowData: any
+        route: string
+      }
+    >
   >({})
 
   const shaderMaterialsRef = useCustomShaderMaterial(
@@ -236,6 +245,7 @@ export const Map = memo(() => {
         ...acc,
         [clickable.title]: {
           name: clickable.title,
+          route: clickable.route,
           frameData: {
             position: clickable.framePosition,
             rotation: clickable.frameRotation,
@@ -262,10 +272,11 @@ export const Map = memo(() => {
       <primitive object={mainScene} />
       <ArcadeScreen />
       {Object.values(clickableNodesData).map(
-        ({ frameData, name, node, arrowData }) => (
+        ({ frameData, name, node, arrowData, route }) => (
           <RoutingElement
             key={name}
             node={node}
+            route={route}
             frameData={frameData}
             arrowData={arrowData}
           />

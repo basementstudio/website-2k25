@@ -52,6 +52,7 @@ export interface AssetsResult {
   }
   clickables: {
     title: string
+    route: string
     framePosition: [number, number, number]
     frameRotation: [number, number, number]
     frameSize: [number, number]
@@ -119,6 +120,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
     clickables: threeDInteractions.clickables.clickables.items.map((item) => ({
       title: item._title,
       hoverName: item.hoverName ?? "",
+      route: item.route ?? "",
       framePosition: [
         item.framePositionX ?? 0,
         item.framePositionY ?? 0,
