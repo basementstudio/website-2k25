@@ -96,6 +96,8 @@ export const Map = memo(() => {
       )
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
+
+      // material.uniforms.uJitter.value = jitter
     })
 
     if (keyframedNet && isAnimating.current) {
