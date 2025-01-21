@@ -2,9 +2,11 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
-import { CameraStateKeys, useCameraStore } from "@/store/app-store"
+import { useIsOnTab } from "@/hooks/use-is-on-tab"
+import { useSiteAudio } from "@/hooks/use-site-audio"
+import { CameraStateKeys } from "@/store/app-store"
 import { cn } from "@/utils/cn"
 
 const Logo = ({ className }: { className?: string }) => (
@@ -28,17 +30,30 @@ interface NavbarContentProps {
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
+  const [music, setMusic] = useState(true)
+  const { setVolumeMaster } = useSiteAudio()
+  const isOnTab = useIsOnTab()
   const router = useRouter()
-  const setCameraState = useCameraStore((state) => state.setCameraState)
-  const [music, setMusic] = useState(false)
 
   const handleNavigation = useCallback(
     (route: string, cameraState: CameraStateKeys) => {
-      setCameraState(cameraState)
-      router.push(route)
+      router.push(route, { scroll: false })
     },
-    [router, setCameraState]
+    [router]
   )
+
+  const handleMute = () => {
+    setVolumeMaster(music ? 0 : 1)
+    setMusic(!music)
+  }
+
+  useEffect(() => {
+    if (!isOnTab) {
+      setVolumeMaster(0)
+    } else {
+      setVolumeMaster(music ? 1 : 0)
+    }
+  }, [isOnTab, music, setVolumeMaster])
 
   return (
     <nav
@@ -73,7 +88,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
 
         <div className="col-start-11 col-end-13 ml-auto flex items-center gap-5">
           <button
-            onClick={() => setMusic(!music)}
+            onClick={handleMute}
             className="space-x-1 text-p text-brand-w2"
           >
             <span>Music:</span>

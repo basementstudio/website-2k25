@@ -70,8 +70,27 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         posZ: true,
         tarX: true,
         tarY: true,
-        tarZ: true
+        tarZ: true,
+        offsetMultiplier: true,
+        targetScrollY: true
       }
+    }
+  },
+  sfx: {
+    basketballTheme: {
+      url: true
+    },
+    basketballSwoosh: {
+      url: true
+    },
+    basketballNet: {
+      url: true
+    },
+    basketballThump: {
+      url: true
+    },
+    basketballBuzzer: {
+      url: true
     }
   }
 })

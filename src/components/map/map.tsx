@@ -72,7 +72,6 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-
   const { fogColor, fogDensity, fogDepth } = useControls("fog", {
     fogColor: {
       x: 0.4,
@@ -163,10 +162,11 @@ export const Map = memo(() => {
     }
 
     scene.traverse((child) => {
+      if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
+        child.material.side = THREE.FrontSide
+      }
       if ("isMesh" in child) {
         const meshChild = child as Mesh
-
-        console.log("meshChild", meshChild.name)
 
         if (meshChild.name === "SM_ColorChecker_")
           colorPickerRef.current = meshChild
@@ -194,22 +194,30 @@ export const Map = memo(() => {
           currentMaterial.name === "BSM_MTL_Glass" ||
           currentMaterial.name === "BSM_MTL_LightLibrary"
 
+        const isGodRay =
+          meshChild.name === "GR_About" || meshChild.name === "GR_Home"
+
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
               createGlobalShaderMaterial(
                 material as MeshStandardMaterial,
-                false
+                false,
+                {
+                  GLASS: isGlass,
+                  GODRAY: isGodRay
+                }
               )
             )
           : createGlobalShaderMaterial(
               currentMaterial as MeshStandardMaterial,
-              false
+              false,
+              {
+                GLASS: isGlass,
+                GODRAY: isGodRay
+              }
             )
 
         meshChild.material = newMaterials
-
-        // @ts-ignore
-        if (isGlass) meshChild.material.uniforms.isGlass.value = true
 
         meshChild.userData.hasGlobalMaterial = true
       }

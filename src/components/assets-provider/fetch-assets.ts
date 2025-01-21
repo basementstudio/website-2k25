@@ -38,7 +38,16 @@ export interface AssetsResult {
       z: number
     }
     fov?: number
+    offsetMultiplier?: number
+    targetScrollY?: number
   }[]
+  sfx: {
+    basketballTheme: string
+    basketballSwoosh: string
+    basketballNet: string
+    basketballThump: string
+    basketballBuzzer: string
+  }
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -71,6 +80,13 @@ export async function fetchAssets(): Promise<AssetsResult> {
     ),
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
+    sfx: {
+      basketballTheme: threeDInteractions.sfx.basketballTheme?.url ?? "",
+      basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
+      basketballNet: threeDInteractions.sfx.basketballNet?.url ?? "",
+      basketballThump: threeDInteractions.sfx.basketballThump?.url ?? "",
+      basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? ""
+    },
     cameraStates: threeDInteractions.cameraStates.cameraStates.items.map(
       (item) => ({
         title: item._title,
@@ -84,7 +100,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
           x: item.tarX ?? 0,
           y: item.tarY ?? 0,
           z: item.tarZ ?? 0
-        }
+        },
+        offsetMultiplier: item.offsetMultiplier ?? 1,
+        targetScrollY: item.targetScrollY ?? -1.5
       })
     )
   }
