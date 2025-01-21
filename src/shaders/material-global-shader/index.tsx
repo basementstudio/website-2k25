@@ -46,6 +46,8 @@ export const createGlobalShaderMaterial = (
       map: { value: map },
       lightMap: { value: null },
       lightMapIntensity: { value: 0.0 },
+      aoMap: { value: null },
+      aoMapIntensity: { value: 0.0 },
       metalness: { value: metalness },
       roughness: { value: roughness },
       mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
@@ -63,6 +65,8 @@ export const createGlobalShaderMaterial = (
       uJitter: { value: 512.0 },
       glassReflex: { value: null },
       emissiveMap: { value: emissiveMap },
+
+      aoWithCheckerboard: { value: false },
       isBasketball: { value: false },
       uBasketballTransition: { value: 0 },
       uBasketballFogColorTransition: { value: 0 }

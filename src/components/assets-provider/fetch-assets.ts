@@ -6,9 +6,10 @@ export interface AssetsResult {
   map: string
   basketball: string
   basketballNet: string
-  lightmaps: {
+  mapAssets: {
     mesh: string
-    url: string
+    lightmap: string
+    ambientOcclusion: string
   }[]
   arcade: {
     idleScreen: string
@@ -57,13 +58,12 @@ export async function fetchAssets(): Promise<AssetsResult> {
 
   return {
     map: threeDInteractions.map?.model?.file?.url ?? "",
-    lightmaps: threeDInteractions.map.lightmaps.items.map((item) => ({
+    mapAssets: threeDInteractions.map.maps.items.map((item) => ({
       mesh: item._title,
-      url: item.exr.url
+      lightmap: item.lightmap?.url ?? "",
+      ambientOcclusion: item.ambientOcclusion?.url ?? ""
     })),
-    arcade: {
-      idleScreen: threeDInteractions.arcade.idleScreen?.url ?? ""
-    },
+    arcade: { idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "" },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
       mesh: item._title,
       url: item.file?.url ?? ""
