@@ -63,10 +63,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
       lightmap: item.lightmap?.url ?? "",
       ambientOcclusion: item.ambientOcclusion?.url ?? ""
     })),
-
-    arcade: {
-      idleScreen: threeDInteractions.arcade.idleScreen?.url ?? ""
-    },
+    arcade: { idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "" },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
       mesh: item._title,
       url: item.file?.url ?? ""

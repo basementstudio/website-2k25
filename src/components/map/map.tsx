@@ -100,6 +100,7 @@ export const Map = memo(() => {
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
     })
+
     if (keyframedNet && isAnimating.current) {
       const mesh = keyframedNet as Mesh
       animationProgress.current += NET_ANIMATION_SPEED
