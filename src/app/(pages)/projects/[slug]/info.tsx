@@ -86,9 +86,11 @@ export function ProjectInfo({ entry }: { entry: QueryItemType }) {
         <div />
       </ul>
 
-      <div className="flex flex-col gap-2">
-        <RichText>{entry.project?.description?.json?.content}</RichText>
-      </div>
+      {entry.project?.description?.json?.content ? (
+        <div className="flex flex-col gap-2">
+          <RichText>{entry.project?.description?.json?.content}</RichText>
+        </div>
+      ) : null}
 
       <Link
         href={entry.project?.caseStudy || ""}

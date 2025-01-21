@@ -50,8 +50,6 @@ export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
     }
   })
 
-  console.log(entry)
-
   return (
     <div className="mt-auto flex flex-col gap-2">
       <h4 className="text-h4 text-brand-g1">More Projects</h4>

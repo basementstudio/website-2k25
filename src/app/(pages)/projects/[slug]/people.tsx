@@ -26,6 +26,10 @@ export function ProjectPeople({ entry }: { entry: QueryItemType }) {
     )
   }, [entry.project?.people])
 
+  if (peopleByDepartment.length === 0) {
+    return null
+  }
+
   return (
     <ul className="col-span-5 flex flex-col divide-y divide-brand-w1/30">
       <div />
