@@ -26,7 +26,7 @@ import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { RoutingElement } from "../routing-element"
-import { LightmapLoader } from "./lightmaps"
+import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 
 export type GLTFResult = GLTF & {
@@ -147,6 +147,7 @@ export const Map = memo(() => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
       }
+
       if ("isMesh" in child) {
         const meshChild = child as Mesh
 
@@ -242,7 +243,7 @@ export const Map = memo(() => {
 
       {keyframedNet && <primitive object={keyframedNet} />}
       <PlayedBasketballs />
-      <LightmapLoader />
+      <MapAssetsLoader />
       <ReflexesLoader />
     </group>
   )
