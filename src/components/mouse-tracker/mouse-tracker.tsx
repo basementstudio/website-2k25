@@ -84,15 +84,21 @@ export const MouseTracker = ({
   }, [x, y, canvasRef])
 
   useEffect(() => {
+    setHoverText(null)
+
+    return () => {
+      setHoverText(null)
+    }
+  }, [pathname])
+
+  useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
     document.body.style.cursor = cursorClasses[cursorType]
-    setHoverText(null)
 
     return () => {
       document.body.style.cursor = "default"
-      setHoverText(null)
     }
   }, [cursorType, canvasRef, pathname])
 

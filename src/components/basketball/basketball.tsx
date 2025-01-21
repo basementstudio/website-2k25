@@ -79,7 +79,6 @@ export const Basketball = ({
   useEffect(() => {
     if (isDragging) {
       setCursorType("grabbing")
-      console.log("grabbing")
     }
   }, [isDragging, setCursorType])
 
