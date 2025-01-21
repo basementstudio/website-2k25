@@ -1,10 +1,9 @@
 "use client"
 
-import { useGLTF, useTexture } from "@react-three/drei"
+import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
-import { usePathname } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -51,8 +50,6 @@ export const Map = memo(() => {
   const { map, basketballNet, videos } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
-
-  const pathname = usePathname()
 
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
