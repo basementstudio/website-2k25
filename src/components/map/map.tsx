@@ -47,15 +47,16 @@ const createVideoTexture = (url: string) => {
 }
 
 export const Map = memo(() => {
-  const { map, basketballNet, videos } = useAssets()
+  const { map, basketballNet, videos, clickables } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
-
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
   )
-
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
+  const [clickableNodesData, setClickableNodesData] = useState<
+    Record<string, { name: string; frameData: any; node: Mesh }>
+  >({})
 
   const shaderMaterialsRef = useCustomShaderMaterial(
     (store) => store.materialsRef
@@ -225,14 +226,38 @@ export const Map = memo(() => {
     return () => window.removeEventListener("basketball-score", handleScore)
   }, [])
 
+  useEffect(() => {
+    const clickableNodesData = clickables.reduce((acc, clickable) => {
+      const node = routingNodes[clickable.title]
+      // Only add to clickableNodesData if node exists
+      if (!node) return acc
+
+      return {
+        ...acc,
+        [clickable.title]: {
+          name: clickable.title,
+          frameData: {
+            position: clickable.framePosition,
+            rotation: clickable.frameRotation,
+            size: clickable.frameSize,
+            hoverName: clickable.hoverName
+          },
+          node
+        }
+      }
+    }, {})
+
+    setClickableNodesData(clickableNodesData)
+  }, [clickables, routingNodes])
+
   if (!mainScene) return null
 
   return (
     <group>
       <primitive object={mainScene} />
       <ArcadeScreen />
-      {Object.values(routingNodes).map((node) => (
-        <RoutingElement key={node.name} node={node} />
+      {Object.values(clickableNodesData).map(({ frameData, name, node }) => (
+        <RoutingElement key={name} node={node} frameData={frameData} />
       ))}
       {basketballHoop && (
         <RigidBody type="fixed" colliders="trimesh">

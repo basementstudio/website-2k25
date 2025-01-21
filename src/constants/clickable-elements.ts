@@ -83,6 +83,7 @@ export const CLICKABLE_NODES: ClickableNode[] = [
     arrowScale: 0.06,
     frameType: "plane",
     framePosition: [2.12, 2.25, -8.5],
+    frameSize: [3.3, 2.43],
     arrowRotation: -Math.PI / 2,
     hoverText: "about us"
   },

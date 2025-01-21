@@ -76,6 +76,22 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
       }
     }
   },
+  clickables: {
+    clickables: {
+      items: {
+        _title: true,
+        framePositionX: true,
+        framePositionY: true,
+        framePositionZ: true,
+        frameRotationX: true,
+        frameRotationY: true,
+        frameRotationZ: true,
+        frameSizeX: true,
+        frameSizeY: true,
+        hoverName: true
+      }
+    }
+  },
   sfx: {
     basketballTheme: {
       url: true
