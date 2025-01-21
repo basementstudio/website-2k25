@@ -8,8 +8,8 @@ void main() {
   float borderWidth = 2.0;
   float worldSquareSize = 0.1;
   float plusThickness = 0.15;
-  vec2 padding = vec2(0.015, 0.015);
-  vec2 squareSize = worldSquareSize / planeSize;
+  vec2 padding = vec2(0.005, 0.005);
+  vec2 squareSize = worldSquareSize / planeSize * 0.5;
   vec2 paddedUV = (uv - padding) / (1.0 - 2.0 * padding);
 
   float aspectRatio = pixelSize.y / pixelSize.x;
