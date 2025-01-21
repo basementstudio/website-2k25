@@ -4,12 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, Vector3 } from "three"
 
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
-import { CameraStateKeys, useCameraStore } from "@/store/app-store"
-
 import { RoutingBox } from "./routing-box"
 import { RoutingPlane } from "./routing-plane/routing-plane"
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { RoutingArrow } from "./routing-arrow"
+import { CameraStateKeys, useCameraStore } from "@/store/app-store"
+import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 
 interface RoutingElementProps {
   node: Mesh
@@ -17,18 +16,9 @@ interface RoutingElementProps {
 
 export const RoutingElement = ({ node }: RoutingElementProps) => {
   const router = useRouter()
+  const pathname = usePathname()
   const setCameraState = useCameraStore((state) => state.setCameraState)
   const setHoverText = useMouseStore((state) => state.setHoverText)
-
-  const pathname = usePathname()
-
-  const handleNavigation = useCallback(
-    (route: string, cameraState: CameraStateKeys) => {
-      setCameraState(cameraState)
-      router.push(route)
-    },
-    [router, setCameraState]
-  )
 
   const [hover, setHover] = useState(false)
 
@@ -52,6 +42,14 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
       setHover(false)
     }
   }, [activeRoute])
+
+  const handleNavigation = useCallback(
+    (route: string, cameraState: CameraStateKeys) => {
+      setCameraState(cameraState)
+      router.push(route)
+    },
+    [router, setCameraState]
+  )
 
   // todo: smooth hover
 
