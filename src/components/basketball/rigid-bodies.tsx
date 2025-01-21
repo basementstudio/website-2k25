@@ -15,7 +15,7 @@ export default function RigidBodies({
   const randomPitch = 0.95 + Math.random() * 0.1
 
   const handleScore = () => {
-    setScore((prev) => prev + 1000)
+    setScore((prev) => prev + 10)
     playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
 
     // event for net animation

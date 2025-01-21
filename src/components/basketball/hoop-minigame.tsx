@@ -294,7 +294,7 @@ export const HoopMinigame = () => {
 
     // score decay
     if (score > 0) {
-      setScore((prev) => Math.max(0, prev - 10 * delta))
+      setScore((prev) => Math.max(0, prev - 1 * delta))
     }
 
     // reset ball anim
