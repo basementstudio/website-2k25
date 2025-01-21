@@ -1,30 +1,31 @@
 import { useMinigameStore } from "@/store/minigame-store"
+import { cn } from "@/utils/cn"
 
-export default function Scoreboard() {
+export default function Scoreboard({ className }: { className?: string }) {
   const { playerName, score } = useMinigameStore()
 
   const scores = [
     {
-      name: "Tigresex 91",
+      name: "TIG",
       score: 69000
     },
     {
-      name: "Neo",
+      name: "TBI",
       score: 42991
     },
     {
-      name: "totias",
+      name: "MAT",
       score: 32203
     },
     {
-      name: "el joni",
+      name: "PAT",
       score: 15596
     }
   ]
   return (
-    <div className="flex min-w-[276px] flex-col text-brand-w2">
+    <div className={cn("flex flex-col text-brand-w2", className)}>
       <div className="flex justify-between border-b border-brand-w2">
-        <p className="capitalize">{playerName ? playerName : "You"}</p>
+        <p className="uppercase">{playerName ? playerName : "You"}</p>
         <p>{score === 0 ? "-" : `${Math.floor(score)} pts`}</p>
       </div>
       {scores.map((score, index) => (
@@ -32,7 +33,7 @@ export default function Scoreboard() {
           className="flex justify-between border-b border-brand-w2"
           key={index}
         >
-          <p className="capitalize">{score.name}</p>
+          <p className="uppercase">{score.name}</p>
           <p>{score.score} pts</p>
         </div>
       ))}

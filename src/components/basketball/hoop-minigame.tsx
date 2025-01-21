@@ -15,7 +15,6 @@ import {
 } from "@/utils/basketball-utils"
 
 import { Basketball } from "./basketball"
-import { GameUI } from "./game-ui"
 import RigidBodies from "./rigid-bodies"
 import { Trajectory } from "./trajectory"
 
@@ -24,7 +23,6 @@ export const HoopMinigame = () => {
   const { playSoundFX } = useSiteAudio()
   const { setIsBasketball } = useCustomShaderMaterial()
 
-  // too many effects, change later
   useEffect(() => {
     setIsBasketball(isBasketball)
   }, [isBasketball, setIsBasketball])
@@ -399,13 +397,6 @@ export const HoopMinigame = () => {
             ballRef={ballRef}
             isDragging={isDragging}
             isResetting={isResetting}
-          />
-
-          <GameUI
-            hoopPosition={hoopPosition}
-            timeRemaining={timeRemaining}
-            score={score}
-            shotMetrics={shotMetrics}
           />
         </>
       )}
