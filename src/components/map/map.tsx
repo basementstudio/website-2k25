@@ -27,7 +27,7 @@ import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { RoutingElement } from "../routing-element"
-import { LightmapLoader } from "./lightmaps"
+import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 
 export type GLTFResult = GLTF & {
@@ -88,15 +88,6 @@ export const Map = memo(() => {
     showColorPicker: false
   })
 
-  const { aoMapIntensity, withCheckerboard } = useControls("ao map", {
-    aoMapIntensity: {
-      value: 1.0,
-      min: 0.0,
-      max: 2.0
-    },
-    withCheckerboard: false
-  })
-
   useFrame(({ clock }) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
@@ -108,10 +99,6 @@ export const Map = memo(() => {
       )
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
-
-      // material.uniforms.uJitter.value = jitter
-      material.uniforms.aoMapIntensity.value = aoMapIntensity
-      material.uniforms.aoWithCheckerboard.value = withCheckerboard
     })
     if (keyframedNet && isAnimating.current) {
       const mesh = keyframedNet as Mesh
@@ -126,10 +113,6 @@ export const Map = memo(() => {
         : 0.0
     }
   })
-
-  const mapFloor = useTexture("./SM_StairsFloor.jpg")
-  mapFloor.colorSpace = THREE.NoColorSpace
-  mapFloor.flipY = false
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
@@ -193,16 +176,6 @@ export const Map = memo(() => {
         const isGlass =
           currentMaterial.name === "BSM_MTL_Glass" ||
           currentMaterial.name === "BSM_MTL_LightLibrary"
-
-        if (
-          meshChild.name === "SM_StairsFloor" ||
-          meshChild.name === "SM_Stair2" ||
-          meshChild.name === "SM_Stair3" ||
-          meshChild.name === "Componente#10001_1"
-        ) {
-          currentMaterial.aoMap = mapFloor
-          currentMaterial.aoMapIntensity = 1.0
-        }
 
         const isGodRay =
           meshChild.name === "GR_About" || meshChild.name === "GR_Home"
@@ -270,7 +243,7 @@ export const Map = memo(() => {
 
       {keyframedNet && <primitive object={keyframedNet} />}
       <PlayedBasketballs />
-      <LightmapLoader />
+      <MapAssetsLoader />
       <ReflexesLoader />
     </group>
   )

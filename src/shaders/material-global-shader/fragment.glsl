@@ -26,6 +26,11 @@ uniform float uTime;
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
 
+// aomap
+uniform sampler2D aoMap;
+uniform float aoMapIntensity;
+uniform bool aoWithCheckerboard;
+
 uniform float noiseFactor;
 uniform bool uReverse;
 
@@ -62,12 +67,6 @@ uniform float uBasketballFogColorTransition;
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
-
-#ifdef USE_AOMAP
-uniform sampler2D aoMap;
-uniform float aoMapIntensity;
-uniform bool aoWithCheckerboard;
-#endif
 
 void main() {
   vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
@@ -156,17 +155,17 @@ void main() {
     discard;
   }
 
-  #ifdef USE_AOMAP
-  if(aoWithCheckerboard) {
-    float halfAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 0.5 + 1.0;
-    float moreAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 1.5 + 1.0;
+  if(aoMapIntensity > 0.0) {
+    if(aoWithCheckerboard) {
+      float halfAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 0.5 + 1.0;
+      float moreAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 1.5 + 1.0;
 
-    irradiance = mix(irradiance * halfAmbientOcclusion, irradiance * moreAmbientOcclusion, pattern);
-  } else {
-    float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
-    irradiance *= ambientOcclusion;
+      irradiance = mix(irradiance * halfAmbientOcclusion, irradiance * moreAmbientOcclusion, pattern);
+    } else {
+      float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+      irradiance *= ambientOcclusion;
+    }
   }
-  #endif
 
   gl_FragColor = vec4(irradiance, opacityResult);
 

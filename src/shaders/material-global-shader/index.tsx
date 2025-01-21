@@ -22,9 +22,7 @@ export const createGlobalShaderMaterial = (
     metalness,
     roughness,
     alphaMap,
-    emissiveMap,
-    aoMap,
-    aoMapIntensity = 1.0
+    emissiveMap
   } = baseMaterial
 
   const emissiveColor = new Color("#FF4D00").multiplyScalar(9)
@@ -38,7 +36,6 @@ export const createGlobalShaderMaterial = (
       USE_EMISSIVE:
         baseMaterial.emissiveIntensity !== 0 && emissiveMap === null,
       USE_EMISSIVEMAP: emissiveMap !== null,
-      USE_AOMAP: aoMap !== null,
       GLASS: defines?.GLASS,
       GODRAY: defines?.GODRAY
     },
@@ -49,6 +46,8 @@ export const createGlobalShaderMaterial = (
       map: { value: map },
       lightMap: { value: null },
       lightMapIntensity: { value: 0.0 },
+      aoMap: { value: null },
+      aoMapIntensity: { value: 0.0 },
       metalness: { value: metalness },
       roughness: { value: roughness },
       mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
@@ -66,8 +65,7 @@ export const createGlobalShaderMaterial = (
       uJitter: { value: 512.0 },
       glassReflex: { value: null },
       emissiveMap: { value: emissiveMap },
-      aoMap: { value: aoMap },
-      aoMapIntensity: { value: aoMapIntensity },
+
       aoWithCheckerboard: { value: false },
       isBasketball: { value: false },
       uBasketballTransition: { value: 0 },
