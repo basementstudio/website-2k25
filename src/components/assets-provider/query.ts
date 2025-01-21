@@ -88,7 +88,14 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         frameRotationZ: true,
         frameSizeX: true,
         frameSizeY: true,
-        hoverName: true
+        hoverName: true,
+        arrowPositionX: true,
+        arrowPositionY: true,
+        arrowPositionZ: true,
+        arrowScale: true,
+        arrowRotationX: true,
+        arrowRotationY: true,
+        arrowRotationZ: true
       }
     }
   },

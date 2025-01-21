@@ -1,6 +1,7 @@
 import { basehub } from "basehub"
 
 import { assetsQuery } from "./query"
+import { Vector3 } from "three"
 
 export interface AssetsResult {
   map: string
@@ -54,6 +55,9 @@ export interface AssetsResult {
     frameRotation: [number, number, number]
     frameSize: [number, number]
     hoverName: string
+    arrowPosition: [number, number, number]
+    arrowRotation: [number, number, number]
+    arrowScale: number
   }[]
 }
 
@@ -114,6 +118,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
     ),
     clickables: threeDInteractions.clickables.clickables.items.map((item) => ({
       title: item._title,
+      hoverName: item.hoverName ?? "",
       framePosition: [
         item.framePositionX ?? 0,
         item.framePositionY ?? 0,
@@ -125,7 +130,17 @@ export async function fetchAssets(): Promise<AssetsResult> {
         item.frameRotationZ ?? 0
       ],
       frameSize: [item.frameSizeX ?? 0, item.frameSizeY ?? 0],
-      hoverName: item.hoverName ?? ""
+      arrowPosition: [
+        item.arrowPositionX ?? 0,
+        item.arrowPositionY ?? 0,
+        item.arrowPositionZ ?? 0
+      ],
+      arrowRotation: [
+        item.arrowRotationX ?? 0,
+        item.arrowRotationY ?? 0,
+        item.arrowRotationZ ?? 0
+      ],
+      arrowScale: item.arrowScale ?? 0
     }))
   }
 }

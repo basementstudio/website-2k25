@@ -5,6 +5,7 @@ import { Mesh } from "three"
 import { RoutingPlane } from "./routing-plane/routing-plane"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useThree } from "@react-three/fiber"
+import { RoutingArrow } from "./routing-arrow"
 
 interface RoutingElementProps {
   node: Mesh
@@ -14,9 +15,18 @@ interface RoutingElementProps {
     size: [number, number]
     hoverName: string
   }
+  arrowData: {
+    position: [number, number, number]
+    scale: number
+    rotation: [number, number, number]
+  }
 }
 
-export const RoutingElement = ({ node, frameData }: RoutingElementProps) => {
+export const RoutingElement = ({
+  node,
+  frameData,
+  arrowData
+}: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const setHoverText = useMouseStore((state) => state.setHoverText)
@@ -99,6 +109,17 @@ export const RoutingElement = ({ node, frameData }: RoutingElementProps) => {
           position={frameData.position}
           rotation={frameData.rotation}
           size={frameData.size}
+        />
+      )}
+      {hover && (
+        <RoutingArrow
+          position={[
+            node.position.x + arrowData.position[0],
+            node.position.y + arrowData.position[1],
+            node.position.z + arrowData.position[2]
+          ]}
+          rotation={arrowData.rotation}
+          scale={arrowData.scale}
         />
       )}
     </>

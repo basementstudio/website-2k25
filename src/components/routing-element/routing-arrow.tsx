@@ -1,14 +1,13 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { useRef } from "react"
-import { Mesh, Vector3 } from "three"
+import { Mesh } from "three"
 
 export const RoutingArrow = ({
   position,
-  rotation,
-  scale
+  rotation
 }: {
-  position: Vector3
-  rotation?: number
+  position?: [number, number, number]
+  rotation?: [number, number, number]
   scale: number
 }) => {
   const meshRef = useRef<Mesh | null>(null)
@@ -17,13 +16,13 @@ export const RoutingArrow = ({
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.quaternion.copy(camera.quaternion)
-      meshRef.current.rotateZ(rotation ?? 0)
+      meshRef.current.rotateZ(rotation?.[2] ?? 0)
       const offset = Math.sin(state.clock.elapsedTime * 3.5) * 0.03
 
-      if (rotation === -Math.PI / 2) {
-        meshRef.current.position.x = position.x + offset
+      if (rotation?.[2] === -1.5708) {
+        meshRef.current.position.x = (position?.[0] ?? 0) + offset
       } else {
-        meshRef.current.position.y = position.y + offset
+        meshRef.current.position.y = (position?.[1] ?? 0) + offset
       }
     }
   })
@@ -33,7 +32,7 @@ export const RoutingArrow = ({
       ref={meshRef}
       position={position}
       rotation={rotation}
-      scale={[scale, scale, scale]}
+      scale={0.08}
       renderOrder={1}
     >
       <planeGeometry args={[2, 3]} />
