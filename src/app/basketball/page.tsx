@@ -52,17 +52,20 @@ const Basketball = () => {
               (X) <span className="underline">Close Game</span>
             </button>
             <div
-              className={`${geistMono.className} col-span-2 col-start-6 mt-24 flex select-none gap-4 uppercase text-brand-w2`}
+              className={`${geistMono.className} col-span-2 col-start-6 mt-24 flex h-10 select-none text-xs uppercase text-brand-w2`}
             >
-              <div className="">
-                <span>{formatTime(timeRemaining)}</span>
-                <Corners />
+              <div className="relative flex w-1/2 items-center justify-center">
+                <p>{formatTime(timeRemaining)}</p>
+                <Corners className="absolute inset-0 w-full" />
               </div>
 
-              <span>{Math.floor(score)} Pts.</span>
+              <div className="relative flex w-1/2 items-center justify-center">
+                <p>{Math.floor(score)} Pts.</p>
+                <Corners className="absolute inset-0 w-full" />
+              </div>
             </div>
 
-            <Scoreboard className="col-span-2 col-start-11 place-content-end" />
+            <Scoreboard className="col-span-1 col-start-10 mt-24 text-xs" />
           </div>
         </div>
       )}
@@ -89,31 +92,23 @@ const Basketball = () => {
 
 export default Basketball
 
-const Corners = () => {
+const Corners = ({ className = "" }: { className?: string }) => {
   return (
     <svg
-      width="110"
+      width="100"
       height="40"
-      viewBox="0 0 110 40"
+      viewBox="0 0 100 40"
       fill="none"
+      preserveAspectRatio="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
-      <g clip-path="url(#clip0_36_2027)">
-        <path d="M9 1H1V9" stroke="#E6E6E6" />
-        <path d="M101 1H109V9" stroke="#E6E6E6" />
-        <path d="M101 39H109V31" stroke="#E6E6E6" />
-        <path d="M9 39H1V31" stroke="#E6E6E6" />
+      <g>
+        <path d="M8 1H0V9" stroke="#E6E6E6" />
+        <path d="M92 1H100V9" stroke="#E6E6E6" />
+        <path d="M92 39H100V31" stroke="#E6E6E6" />
+        <path d="M8 39H0V31" stroke="#E6E6E6" />
       </g>
-      <defs>
-        <clipPath id="clip0_36_2027">
-          <rect
-            width="110"
-            height="40"
-            fill="white"
-            transform="matrix(-1 0 0 -1 110 40)"
-          />
-        </clipPath>
-      </defs>
     </svg>
   )
 }
