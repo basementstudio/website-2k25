@@ -20,7 +20,7 @@ const LetterSlot = ({
   isSelected
 }: LetterSlotProps) => {
   return (
-    <div className="relative h-8 w-8 overflow-hidden">
+    <div className="relative h-8 w-8 select-none overflow-hidden">
       <div
         className={cn(
           "absolute inset-0 flex transform-gpu items-center justify-center transition-all duration-100",
