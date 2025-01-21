@@ -7,8 +7,8 @@ import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import { RoutingBox } from "./routing-box"
 import { RoutingPlane } from "./routing-plane/routing-plane"
 import { RoutingArrow } from "./routing-arrow"
-import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
+import { useThree } from "@react-three/fiber"
 
 interface RoutingElementProps {
   node: Mesh
@@ -17,8 +17,23 @@ interface RoutingElementProps {
 export const RoutingElement = ({ node }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
-  const setCameraState = useCameraStore((state) => state.setCameraState)
   const setHoverText = useMouseStore((state) => state.setHoverText)
+
+  const scene = useThree((state) => state.scene)
+  const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
+
+  const handleNavigation = useCallback(
+    (route: string) => {
+      if (!stair3) return
+
+      if (route !== "/") {
+        stair3.visible = true
+      }
+
+      router.push(route, { scroll: false })
+    },
+    [router, stair3]
+  )
 
   const [hover, setHover] = useState(false)
 
@@ -43,14 +58,6 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
     }
   }, [activeRoute])
 
-  const handleNavigation = useCallback(
-    (route: string, cameraState: CameraStateKeys) => {
-      setCameraState(cameraState)
-      router.push(route)
-    },
-    [router, setCameraState]
-  )
-
   // todo: smooth hover
 
   if (!routeConfig) return null
@@ -71,7 +78,7 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
         }}
         onClick={() => {
           if (activeRoute) return
-          handleNavigation(routeConfig.route, routeConfig.routeName)
+          handleNavigation(routeConfig.route)
         }}
       >
         <mesh

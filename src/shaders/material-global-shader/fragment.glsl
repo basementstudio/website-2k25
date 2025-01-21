@@ -160,12 +160,12 @@ void main() {
 
   gl_FragColor = vec4(irradiance, opacityResult);
 
+  vec2 checkerPos = floor(gl_FragCoord.xy * 0.5);
+
   #ifdef GLASS
   // TODO: when implementing parallax and multiple reflections, add controls in basehub to resize the reflection map
   vec4 reflexSample = texture2D(glassReflex, vUv * vec2(0.75, 1.0));
   gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.1);
-
-  vec2 checkerPos = floor(gl_FragCoord.xy * 0.5);
   gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
   #endif
 
