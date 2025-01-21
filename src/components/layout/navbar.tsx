@@ -35,8 +35,8 @@ export const Navbar = () => (
 
         {
           title: "People",
-          href: "/careers",
-          routeName: "careers"
+          href: "/people",
+          routeName: "people"
         },
         {
           title: "Laboratory",

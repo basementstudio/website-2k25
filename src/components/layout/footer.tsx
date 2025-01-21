@@ -37,8 +37,8 @@ export const Footer = () => (
           href: "/about"
         },
         {
-          title: "Careers",
-          href: "/careers"
+          title: "People",
+          href: "/people"
         },
         {
           title: "Laboratory",
