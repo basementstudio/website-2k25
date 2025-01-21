@@ -26,6 +26,11 @@ uniform float uTime;
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
 
+// aomap
+uniform sampler2D aoMap;
+uniform float aoMapIntensity;
+uniform bool aoWithCheckerboard;
+
 uniform float noiseFactor;
 uniform bool uReverse;
 
@@ -64,13 +69,16 @@ const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 
 void main() {
+  vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
+  vec2 checkerPos = floor(shiftedFragCoord * 0.5);
+  float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
+
   VoxelData voxel = getVoxel(
     vWorldPosition,
     voxelSize,
     noiseBigScale,
     noiseSmallScale
   );
-
   // Distance from center
   float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));
 
@@ -158,9 +166,26 @@ void main() {
     discard;
   }
 
-  gl_FragColor = vec4(irradiance, opacityResult);
+  if (aoMapIntensity > 0.0) {
+    if (aoWithCheckerboard) {
+      float halfAmbientOcclusion =
+        (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 0.5 + 1.0;
+      float moreAmbientOcclusion =
+        (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 1.5 + 1.0;
 
-  vec2 checkerPos = floor(gl_FragCoord.xy * 0.5);
+      irradiance = mix(
+        irradiance * halfAmbientOcclusion,
+        irradiance * moreAmbientOcclusion,
+        pattern
+      );
+    } else {
+      float ambientOcclusion =
+        (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+      irradiance *= ambientOcclusion;
+    }
+  }
+
+  gl_FragColor = vec4(irradiance, opacityResult);
 
   #ifdef GLASS
   // TODO: when implementing parallax and multiple reflections, add controls in basehub to resize the reflection map
@@ -170,12 +195,7 @@ void main() {
   #endif
 
   #ifdef GODRAY
-
-  #ifndef GLASS
-  vec2 checkerPos = floor(gl_FragCoord.xy * 0.5);
-  #endif
-  // gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
-  gl_FragColor.a = 0.0;
+  // todo: add godrays
   #endif
 
   // Fog

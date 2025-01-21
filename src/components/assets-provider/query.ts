@@ -7,10 +7,13 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         url: true
       }
     },
-    lightmaps: {
+    maps: {
       items: {
         _title: true,
-        exr: {
+        lightmap: {
+          url: true
+        },
+        ambientOcclusion: {
           url: true
         }
       }
