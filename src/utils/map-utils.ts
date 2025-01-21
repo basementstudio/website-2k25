@@ -1,92 +1,131 @@
-import { Object3D } from "three"
-
-import { GameAudioSFXKey } from "@/hooks/use-game-audio"
+import { Object3D, Vector3 } from "three"
 
 import { easeInOutCubic } from "./animations"
 
-const BASE_SPEED = 0.14
-let isWaiting = false
-let waitTimeout: NodeJS.Timeout | null = null
-let isSoundPlaying = false
-let carCount = 0
-let currentSpeed = BASE_SPEED
-let isSlowingDown = false
-let isSpeedingUp = false
+interface CarState {
+  isWaiting: boolean
+  waitTimeout: NodeJS.Timeout | null
+  isSoundPlaying: boolean
+  carCount: number
+  currentSpeed: number
+  isSlowingDown: boolean
+  isSpeedingUp: boolean
+  hasInitialized: boolean
+}
 
-const END_X = 6.7
-const START_X = -8.7
-const TOTAL_DISTANCE = END_X - START_X
+const CONSTANTS = {
+  BASE_SPEED: 0.14,
+  START_X: -8.7,
+  END_X: 6.7,
+  MIN_WAIT_TIME: 6000,
+  ADDED_WAIT_TIME: 4000,
+  INITIAL_DELAY: 2000,
+  SPEED_REDUCTION: 0.7,
+  SPEED_VARIATION: 0.5
+} as const
+
+const TOTAL_DISTANCE = CONSTANTS.END_X - CONSTANTS.START_X
+
+const carState: CarState = {
+  isWaiting: false,
+  waitTimeout: null,
+  isSoundPlaying: false,
+  carCount: 0,
+  currentSpeed: CONSTANTS.BASE_SPEED,
+  isSlowingDown: false,
+  isSpeedingUp: false,
+  hasInitialized: false
+}
 
 function setRandomTimeout() {
-  const waitTime = 6000 + Math.random() * 4000
-  isWaiting = true
-  isSoundPlaying = false
+  const waitTime =
+    CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
+  carState.isWaiting = true
+  carState.isSoundPlaying = false
 
-  if (waitTimeout) {
-    clearTimeout(waitTimeout)
+  if (carState.waitTimeout) {
+    clearTimeout(carState.waitTimeout)
   }
 
-  waitTimeout = setTimeout(() => {
-    isWaiting = false
+  carState.waitTimeout = setTimeout(() => {
+    carState.isWaiting = false
   }, waitTime)
 }
 
-function resetCarMovement() {
-  carCount++
-  currentSpeed = BASE_SPEED
+function updateCarSpeed() {
+  carState.currentSpeed = CONSTANTS.BASE_SPEED
 
-  if (carCount % 2 === 0) {
-    if (Math.random() > 0.5) {
-      isSlowingDown = true
-      isSpeedingUp = false
-      currentSpeed = BASE_SPEED
-    } else {
-      isSpeedingUp = true
-      isSlowingDown = false
-      currentSpeed = BASE_SPEED * 0.7
-    }
+  if (carState.carCount % 2 === 0 && Math.random() > 0.5) {
+    carState.isSlowingDown = true
+    carState.isSpeedingUp = false
+  } else if (carState.carCount % 2 === 0) {
+    carState.isSpeedingUp = true
+    carState.isSlowingDown = false
+    carState.currentSpeed *= CONSTANTS.SPEED_REDUCTION
   } else {
-    isSlowingDown = false
-    isSpeedingUp = false
+    carState.isSlowingDown = false
+    carState.isSpeedingUp = false
   }
 }
 
-export function animateCar(
-  car: Object3D,
-  t: number,
-  pathname: string,
-  playSoundFX: (sfx: GameAudioSFXKey, volume?: number, pitch?: number) => void
-) {
+function resetCarMovement() {
+  carState.carCount++
+  updateCarSpeed()
+}
+
+function updateCarPosition(carPosition: Vector3, progress: number) {
+  if (carState.isSlowingDown) {
+    const slowdownAmount = CONSTANTS.SPEED_VARIATION * easeInOutCubic(progress)
+    carState.currentSpeed = CONSTANTS.BASE_SPEED * (1 - slowdownAmount)
+  }
+
+  if (carState.isSpeedingUp) {
+    const speedupAmount = CONSTANTS.SPEED_VARIATION * easeInOutCubic(progress)
+    carState.currentSpeed =
+      CONSTANTS.BASE_SPEED * (CONSTANTS.SPEED_REDUCTION + speedupAmount)
+  }
+
+  carPosition.x += carState.currentSpeed
+
+  if (carPosition.x > CONSTANTS.END_X) {
+    carPosition.x = CONSTANTS.START_X
+    resetCarMovement()
+    setRandomTimeout()
+  }
+}
+
+function runFirstCarPass(carPosition: Vector3) {
+  carState.hasInitialized = true
+  carPosition.x = CONSTANTS.START_X
+  setTimeout(() => {
+    carState.isWaiting = false
+    resetCarMovement()
+  }, CONSTANTS.INITIAL_DELAY)
+}
+
+export function animateCar(car: Object3D, t: number, pathname: string) {
   if (pathname !== "/about") {
-    car.position.x = END_X
+    car.position.x = CONSTANTS.END_X
+    carState.hasInitialized = false
     return
   }
 
   const carPosition = car.position
 
-  if (!isWaiting && carPosition.x >= START_X && carPosition.x <= END_X) {
-    const progress = (carPosition.x - START_X) / TOTAL_DISTANCE
-    const easing = easeInOutCubic(progress)
+  if (!carState.hasInitialized) {
+    runFirstCarPass(carPosition)
+    return
+  }
 
-    if (isSlowingDown) {
-      const slowdownAmount = 0.5 * easing
-      currentSpeed = BASE_SPEED * (1 - slowdownAmount)
-    }
-
-    if (isSpeedingUp) {
-      const speedupAmount = 0.5 * easing
-      currentSpeed = BASE_SPEED * (0.7 + speedupAmount)
-    }
-
-    carPosition.x += currentSpeed
-
-    if (carPosition.x > END_X) {
-      carPosition.x = START_X
-      resetCarMovement()
-      setRandomTimeout()
-    }
-  } else if (!isWaiting) {
-    carPosition.x = START_X
+  if (
+    !carState.isWaiting &&
+    carPosition.x >= CONSTANTS.START_X &&
+    carPosition.x <= CONSTANTS.END_X
+  ) {
+    const progress = (carPosition.x - CONSTANTS.START_X) / TOTAL_DISTANCE
+    updateCarPosition(carPosition, progress)
+  } else if (!carState.isWaiting) {
+    carPosition.x = CONSTANTS.START_X
     resetCarMovement()
   }
 }
