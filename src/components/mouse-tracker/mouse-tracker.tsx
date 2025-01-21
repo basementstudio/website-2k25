@@ -57,17 +57,6 @@ export const MouseTracker = ({
   const hoverText = useMouseStore((state) => state.hoverText)
   const setHoverText = useMouseStore((state) => state.setHoverText)
   const cursorType = useMouseStore((state) => state.cursorType)
-  const setCursorType = useMouseStore((state) => state.setCursorType)
-
-  useEffect(() => {
-    setHoverText(null)
-    setCursorType("default")
-
-    return () => {
-      setHoverText(null)
-      setCursorType("default")
-    }
-  }, [pathname])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -98,11 +87,14 @@ export const MouseTracker = ({
     const canvas = canvasRef.current
     if (!canvas) return
 
-    canvas.style.cursor = cursorClasses[cursorType]
+    document.body.style.cursor = cursorClasses[cursorType]
+    setHoverText(null)
+
     return () => {
-      canvas.style.cursor = "default"
+      document.body.style.cursor = "default"
+      setHoverText(null)
     }
-  }, [cursorType, canvasRef])
+  }, [cursorType, canvasRef, pathname])
 
   return (
     <AnimatePresence>

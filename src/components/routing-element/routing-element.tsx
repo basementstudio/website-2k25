@@ -1,4 +1,3 @@
-import { useCursor } from "@react-three/drei"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, Vector3 } from "three"
@@ -18,26 +17,11 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const setHoverText = useMouseStore((state) => state.setHoverText)
+  const setCursorType = useMouseStore((state) => state.setCursorType)
 
   const scene = useThree((state) => state.scene)
   const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
-
-  const handleNavigation = useCallback(
-    (route: string) => {
-      if (!stair3) return
-
-      if (route !== "/") {
-        stair3.visible = true
-      }
-
-      router.push(route, { scroll: false })
-    },
-    [router, stair3]
-  )
-
   const [hover, setHover] = useState(false)
-
-  useCursor(hover)
 
   const routeConfig = useMemo(() => {
     const routeName = node.name
@@ -58,6 +42,19 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
     }
   }, [activeRoute])
 
+  const handleNavigation = useCallback(
+    (route: string) => {
+      if (!stair3) return
+
+      if (route !== "/") {
+        stair3.visible = true
+      }
+
+      router.push(route, { scroll: false })
+    },
+    [router, stair3]
+  )
+
   // todo: smooth hover
 
   if (!routeConfig) return null
@@ -69,12 +66,14 @@ export const RoutingElement = ({ node }: RoutingElementProps) => {
           if (activeRoute) return
           router.prefetch(routeConfig.route)
           setHover(true)
+          setCursorType("click")
           setHoverText(routeConfig.hoverText || null)
         }}
         onPointerLeave={() => {
           if (activeRoute) return
           setHover(false)
           setHoverText(null)
+          setCursorType("default")
         }}
         onClick={() => {
           if (activeRoute) return
