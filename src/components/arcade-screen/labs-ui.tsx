@@ -89,7 +89,7 @@ export const LabsUI = () => {
     <>
       <Root
         transformScaleY={-1}
-        width={2010}
+        width={2020}
         height={1280}
         backgroundColor={COLORS_THEME.black}
         positionType="relative"
