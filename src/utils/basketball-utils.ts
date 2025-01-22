@@ -53,7 +53,7 @@ interface MorphTargetMesh extends Mesh {
   morphTargetInfluences?: number[]
 }
 
-export const NET_ANIMATION_SPEED = 0.009
+export const NET_ANIMATION_SPEED = 0.008
 
 const createMorphKeyframes = () => {
   const numKeyframes = 19
