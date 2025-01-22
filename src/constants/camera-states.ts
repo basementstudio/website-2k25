@@ -14,7 +14,7 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     position: [6.6, 1.5, -7.1],
     target: [4.48, 2.0, -12.8],
     fov: 60,
-    offsetMultiplier: 2,
+    offsetMultiplier: 0.2,
     targetScrollY: -1.5
   },
   arcade: {

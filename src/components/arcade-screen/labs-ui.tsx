@@ -90,7 +90,7 @@ export const LabsUI = () => {
       <Root
         transformScaleY={-1}
         width={2010}
-        height={1293}
+        height={1280}
         backgroundColor={COLORS_THEME.black}
         positionType="relative"
         display="flex"
@@ -136,7 +136,7 @@ export const LabsUI = () => {
               <Separator
                 orientation="horizontal"
                 backgroundColor={COLORS_THEME.primary}
-                height={2}
+                height={3}
               />
               <Container
                 positionType="absolute"
@@ -308,8 +308,8 @@ const ListItem = ({
     <Container
       key={idx}
       width="100%"
-      height={50}
-      borderBottomWidth={idx === total - 1 ? 0 : 3}
+      height={64}
+      borderBottomWidth={idx === total - 1 ? 0 : 4}
       borderRightWidth={4}
       borderColor={COLORS_THEME.primary}
       paddingX={16}
@@ -327,13 +327,13 @@ const ListItem = ({
       }
     >
       <Container width="30%">
-        <Text fontSize={24} fontWeight="bold" color={textColor}>
+        <Text fontSize={28} fontWeight="bold" color={textColor}>
           {title}
         </Text>
       </Container>
 
       <Container display="flex" flexDirection="row" gap={8} width="50%">
-        <Text fontSize={22} fontWeight="bold" color={textColor}>
+        <Text fontSize={24} fontWeight="bold" color={textColor}>
           B:
         </Text>
         {experimentsContributors[url || ""]?.map((contributor, idx) => (
@@ -344,14 +344,14 @@ const ListItem = ({
             onPointerOut={() => setSelectedContributor(null)}
             onClick={() => window.open(contributor.url, "_blank")}
           >
-            <Text fontSize={22} fontWeight="bold" color={textColor}>
+            <Text fontSize={24} fontWeight="black" color={textColor}>
               /{contributor.name}
             </Text>
             {selectedContributor === contributor.id && (
               <Container
                 positionType="absolute"
                 width="100%"
-                height={4}
+                height={5}
                 positionBottom={-3}
                 backgroundColor={COLORS_THEME.black}
               />

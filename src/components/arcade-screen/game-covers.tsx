@@ -11,7 +11,7 @@ export const GameCovers = () => (
       <Separator
         orientation="horizontal"
         backgroundColor={COLORS_THEME.primary}
-        height={2}
+        height={3}
       />
       <Container
         positionType="absolute"

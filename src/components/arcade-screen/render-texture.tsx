@@ -73,24 +73,29 @@ export const RenderTexture = ({
   renderPriority,
   raycasterMesh
 }: PropsWithChildren<PaintCanvasProps>) => {
-  // once the canvas is loaded, force render
+  const viewportSize = useThree((state) => state.size)
+  const viewportSizeRef = useRef(viewportSize)
+  viewportSizeRef.current = viewportSize
 
+  const { gl } = useThree()
   const fbo = useMemo(() => {
     const fbo =
       _fbo ||
       new THREE.WebGLRenderTarget(width, height, {
-        samples: 16,
-        stencilBuffer: true,
+        samples: 24,
         depthTexture: new THREE.DepthTexture(
-          width,
-          height,
+          2048,
+          2048,
           THREE.UnsignedInt248Type
         ),
-        format: RGBAFormat
+        format: RGBAFormat,
+        minFilter: THREE.LinearMipmapLinearFilter,
+        magFilter: THREE.LinearFilter,
+        generateMipmaps: true,
+        anisotropy: gl.capabilities.getMaxAnisotropy()
       })
     return fbo
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_fbo])
+  }, [_fbo, gl])
 
   useEffect(() => {
     if (onMapTexture) {
@@ -113,12 +118,8 @@ export const RenderTexture = ({
   const isPlayingRef = useRef(_playing)
   const [isPlaying, setIsPlaying] = useState(_playing)
 
-  const viewportSize = useThree((state) => state.size)
-  const viewportSizeRef = useRef(viewportSize)
-  viewportSizeRef.current = viewportSize
-
   useEffect(() => {
-    fbo.setSize(width, height)
+    fbo.setSize(viewportSize.width, viewportSize.height)
     const abortController = new AbortController()
     const signal = abortController.signal
 
@@ -134,7 +135,7 @@ export const RenderTexture = ({
     return () => {
       abortController.abort()
     }
-  }, [fbo, _playing, width, height, setIsPlaying])
+  }, [fbo, _playing, viewportSize.width, viewportSize.height, setIsPlaying])
 
   /** UV compute function relative to the viewport */
   const viewportUvCompute = useCallback(
@@ -189,9 +190,9 @@ export const RenderTexture = ({
       <renderTextureContext.Provider
         value={{
           isInsideRenderTexture: true,
-          width,
-          height,
-          aspect: width / height,
+          width: viewportSize.width,
+          height: viewportSize.height,
+          aspect: viewportSize.width / viewportSize.height,
           isPlaying
         }}
       >
