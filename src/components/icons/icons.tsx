@@ -39,3 +39,21 @@ export function XIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
+export function ExternalLinkIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="8"
+      height="8"
+      fill="none"
+      viewBox="0 0 8 8"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M5.88 6.924V1.632H.612L1.8.456l5.268.012v5.28zm-5.364-.96L5.928.54l1.068 1.056L1.572 7.02z"
+      />
+    </svg>
+  )
+}
