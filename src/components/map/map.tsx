@@ -24,13 +24,13 @@ import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
-import { animateCar } from "@/utils/map-utils"
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
+import { animateCar } from "./map-utils"
 import { ReflexesLoader } from "./reflexes"
 
 export type GLTFResult = GLTF & {
