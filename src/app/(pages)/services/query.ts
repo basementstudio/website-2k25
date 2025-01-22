@@ -4,13 +4,21 @@ import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 
 export const query = fragmentOn("Query", {
   pages: {
-    about: {
+    services: {
       intro: {
         json: { content: true }
       },
       imageSequence: {
         items: {
           image: IMAGE_FRAGMENT
+        }
+      },
+      ventures: {
+        title: true,
+        content: {
+          json: {
+            content: true
+          }
         }
       }
     }
