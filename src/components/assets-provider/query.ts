@@ -31,7 +31,8 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         _title: true,
         file: {
           url: true
-        }
+        },
+        intensity: true
       }
     }
   },
@@ -76,6 +77,30 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         tarZ: true,
         offsetMultiplier: true,
         targetScrollY: true
+      }
+    }
+  },
+  clickables: {
+    clickables: {
+      items: {
+        _title: true,
+        framePositionX: true,
+        framePositionY: true,
+        framePositionZ: true,
+        frameRotationX: true,
+        frameRotationY: true,
+        frameRotationZ: true,
+        frameSizeX: true,
+        frameSizeY: true,
+        hoverName: true,
+        arrowPositionX: true,
+        arrowPositionY: true,
+        arrowPositionZ: true,
+        arrowScale: true,
+        arrowRotationX: true,
+        arrowRotationY: true,
+        arrowRotationZ: true,
+        route: true
       }
     }
   },

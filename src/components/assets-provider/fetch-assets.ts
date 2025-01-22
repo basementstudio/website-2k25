@@ -1,6 +1,7 @@
 import { basehub } from "basehub"
 
 import { assetsQuery } from "./query"
+import { Vector3 } from "three"
 
 export interface AssetsResult {
   map: string
@@ -25,6 +26,7 @@ export interface AssetsResult {
   videos: {
     mesh: string
     url: string
+    intensity: number
   }[]
   cameraStates: {
     title: string
@@ -49,6 +51,17 @@ export interface AssetsResult {
     basketballThump: string
     basketballBuzzer: string
   }
+  clickables: {
+    title: string
+    route: string
+    framePosition: [number, number, number]
+    frameRotation: [number, number, number]
+    frameSize: [number, number]
+    hoverName: string
+    arrowPosition: [number, number, number]
+    arrowRotation: [number, number, number]
+    arrowScale: number
+  }[]
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -70,7 +83,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
     })),
     videos: threeDInteractions.map.videos.items.map((item) => ({
       mesh: item._title,
-      url: item.file?.url ?? ""
+      url: item.file?.url ?? "",
+      intensity: item.intensity ?? 1
     })),
     inspectables: threeDInteractions.inspectables.inspectableList.items.map(
       (item) => ({
@@ -104,6 +118,33 @@ export async function fetchAssets(): Promise<AssetsResult> {
         offsetMultiplier: item.offsetMultiplier ?? 1,
         targetScrollY: item.targetScrollY ?? -1.5
       })
-    )
+    ),
+    clickables: threeDInteractions.clickables.clickables.items.map((item) => ({
+      title: item._title,
+      hoverName: item.hoverName ?? "",
+      route: item.route ?? "",
+      framePosition: [
+        item.framePositionX ?? 0,
+        item.framePositionY ?? 0,
+        item.framePositionZ ?? 0
+      ],
+      frameRotation: [
+        item.frameRotationX ?? 0,
+        item.frameRotationY ?? 0,
+        item.frameRotationZ ?? 0
+      ],
+      frameSize: [item.frameSizeX ?? 0, item.frameSizeY ?? 0],
+      arrowPosition: [
+        item.arrowPositionX ?? 0,
+        item.arrowPositionY ?? 0,
+        item.arrowPositionZ ?? 0
+      ],
+      arrowRotation: [
+        item.arrowRotationX ?? 0,
+        item.arrowRotationY ?? 0,
+        item.arrowRotationZ ?? 0
+      ],
+      arrowScale: item.arrowScale ?? 0
+    }))
   }
 }
