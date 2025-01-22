@@ -25,11 +25,13 @@ export const query = fragmentOn("Query", {
   },
   company: {
     services: {
-      serviceList: {
+      serviceCategories: {
         items: {
           _title: true,
-          category: {
-            _title: true
+          description: {
+            json: {
+              content: true
+            }
           }
         }
       }

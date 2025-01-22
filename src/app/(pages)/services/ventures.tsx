@@ -5,7 +5,7 @@ import { QueryType } from "./query"
 export const VenturesBanner = ({ data }: { data: QueryType }) => {
   return (
     <div className="grid-layout">
-      <h2 className="col-start-3 col-end-6 text-h2 text-brand-w2">
+      <h2 className="col-start-3 col-end-6 text-h2 text-brand-g1">
         {data.pages.services.ventures.title}
       </h2>
 
