@@ -150,26 +150,17 @@ export const Map = memo(() => {
     const hoopMesh = scene.getObjectByName("SM_BasketballHoop")
     const originalNet = scene.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetV2.getObjectByName("SM_BasketRed-v2")
+
     const carMesh = scene.getObjectByName("Car01")
 
-    if (hoopMesh) {
-      hoopMesh.removeFromParent()
-      setBasketballHoop(hoopMesh)
-    }
-
-    if (originalNet) {
-      originalNet.removeFromParent()
-    }
-
+    if (hoopMesh) setBasketballHoop(hoopMesh)
+    if (originalNet) originalNet.removeFromParent()
     if (newNetMesh) {
       newNetMesh.removeFromParent()
       setKeyframedNet(newNetMesh)
     }
 
-    if (carMesh) {
-      carMesh.removeFromParent()
-      setCar(carMesh)
-    }
+    if (carMesh) setCar(carMesh)
 
     scene.traverse((child) => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
