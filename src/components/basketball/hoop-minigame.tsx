@@ -258,7 +258,7 @@ export const HoopMinigame = () => {
     }
   }, [isDragging, isBasketball, handlePointerUp])
 
-  useFrame(({ pointer, clock }, delta) => {
+  useFrame(({ pointer }, delta) => {
     if (!isBasketball) return
 
     if (isDragging && ballRef.current) {

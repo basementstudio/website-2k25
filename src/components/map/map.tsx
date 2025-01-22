@@ -15,7 +15,6 @@ import {
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
-import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -25,7 +24,7 @@ import { animateNet, NET_ANIMATION_SPEED } from "@/utils/basketball-utils"
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
-import { RoutingElement } from "../routing-element"
+import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 
@@ -47,15 +46,25 @@ const createVideoTexture = (url: string) => {
 }
 
 export const Map = memo(() => {
-  const { map, basketballNet, videos } = useAssets()
+  const { map, basketballNet, videos, clickables } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
-
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
   )
-
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
+  const [clickableNodesData, setClickableNodesData] = useState<
+    Record<
+      string,
+      {
+        name: string
+        frameData: any
+        node: Mesh
+        arrowData: any
+        route: string
+      }
+    >
+  >({})
 
   const shaderMaterialsRef = useCustomShaderMaterial(
     (store) => store.materialsRef
@@ -117,11 +126,11 @@ export const Map = memo(() => {
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
 
-    CLICKABLE_NODES.forEach((node) => {
-      const child = scene.getObjectByName(`${node.name}`)
+    clickables.forEach((node) => {
+      const child = scene.getObjectByName(`${node.title}`)
       if (child) {
         child.removeFromParent()
-        routingNodes[node.name] = child as Mesh
+        routingNodes[node.title] = child as Mesh
       }
     })
 
@@ -155,7 +164,7 @@ export const Map = memo(() => {
           colorPickerRef.current = meshChild
 
         const ommitNode = Boolean(
-          CLICKABLE_NODES.find((n) => n.name === meshChild.name)?.name
+          clickables.find((n) => n.title === meshChild.name)?.title
         )
         if (ommitNode) return
 
@@ -226,15 +235,53 @@ export const Map = memo(() => {
     return () => window.removeEventListener("basketball-score", handleScore)
   }, [])
 
+  useEffect(() => {
+    const clickableNodesData = clickables.reduce((acc, clickable) => {
+      const node = routingNodes[clickable.title]
+      // Only add to clickableNodesData if node exists
+      if (!node) return acc
+
+      return {
+        ...acc,
+        [clickable.title]: {
+          name: clickable.title,
+          route: clickable.route,
+          frameData: {
+            position: clickable.framePosition,
+            rotation: clickable.frameRotation,
+            size: clickable.frameSize,
+            hoverName: clickable.hoverName
+          },
+          arrowData: {
+            position: clickable.arrowPosition,
+            scale: clickable.arrowScale,
+            rotation: clickable.arrowRotation
+          },
+          node
+        }
+      }
+    }, {})
+
+    setClickableNodesData(clickableNodesData)
+  }, [clickables, routingNodes])
+
   if (!mainScene) return null
 
   return (
     <group>
       <primitive object={mainScene} />
       <ArcadeScreen />
-      {Object.values(routingNodes).map((node) => (
-        <RoutingElement key={node.name} node={node} />
-      ))}
+      {Object.values(clickableNodesData).map(
+        ({ frameData, name, node, arrowData, route }) => (
+          <RoutingElement
+            key={name}
+            node={node}
+            route={route}
+            frameData={frameData}
+            arrowData={arrowData}
+          />
+        )
+      )}
       {basketballHoop && (
         <RigidBody type="fixed" colliders="trimesh">
           <primitive object={basketballHoop} />
