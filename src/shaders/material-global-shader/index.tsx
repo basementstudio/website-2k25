@@ -126,6 +126,10 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
         const fogDuration = value ? 800 : duration * 2
         const startFogTime = performance.now()
 
+        if (material.userData.animationFrame) {
+          cancelAnimationFrame(material.userData.animationFrame)
+        }
+
         const animate = () => {
           const currentTime = performance.now()
 
@@ -150,11 +154,13 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
             startFogValue + (endFogValue - startFogValue) * easeFogProgress
 
           if (progress < 1 || fogProgress < 1) {
-            requestAnimationFrame(animate)
+            material.userData.animationFrame = requestAnimationFrame(animate)
+          } else {
+            delete material.userData.animationFrame
           }
         }
 
-        requestAnimationFrame(animate)
+        material.userData.animationFrame = requestAnimationFrame(animate)
       })
     }
   })
