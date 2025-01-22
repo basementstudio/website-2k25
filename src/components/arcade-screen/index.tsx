@@ -44,7 +44,7 @@ export const ArcadeScreen = () => {
 
     videoTexture.flipY = false
 
-    if (pathname === "/arcade") {
+    if (pathname === "/lab") {
       setHasVisitedArcade(true)
       screenMaterial.uniforms.map.value = renderTarget.texture
     } else if (!hasVisitedArcade) {
@@ -70,7 +70,7 @@ export const ArcadeScreen = () => {
 
   return (
     <RenderTexture
-      isPlaying={pathname === "/arcade"}
+      isPlaying={pathname === "/lab"}
       fbo={renderTarget}
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}

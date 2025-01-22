@@ -5,7 +5,7 @@ import { CAMERA_STATES } from "@/constants/camera-states"
 
 export type CameraStateKeys =
   | "home"
-  | "arcade"
+  | "lab"
   | "stairs"
   | "hoop"
   | "projects"
@@ -26,7 +26,7 @@ export interface CameraState {
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/": "home",
-  "/arcade": "arcade",
+  "/lab": "lab",
   "/about": "stairs",
   "/basketball": "hoop",
   "/projects": "projects",
