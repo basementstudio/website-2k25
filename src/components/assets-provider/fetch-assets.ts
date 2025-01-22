@@ -1,7 +1,6 @@
 import { basehub } from "basehub"
 
 import { assetsQuery } from "./query"
-import { Vector3 } from "three"
 
 export interface AssetsResult {
   map: string
