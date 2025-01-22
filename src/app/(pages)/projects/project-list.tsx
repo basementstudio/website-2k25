@@ -12,18 +12,34 @@ export type FilteredProjectType =
     disabled?: boolean
   }
 
+export type CategoryItem = {
+  name: string
+  count: number
+}
+
 export const ProjectList = ({ data }: { data: QueryType }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
 
   const categories = useMemo(() => {
-    return Array.from(
-      new Set(
-        data.pages.projects.projectList.items.flatMap((item) =>
-          item?.project?.categories?.map((cat) => cat._title)
-        )
+    const categoryMap = new Map<string, number>()
+
+    data.pages.projects.projectList.items.forEach((item) => {
+      item?.project?.categories?.forEach((cat) => {
+        if (cat._title) {
+          categoryMap.set(cat._title, (categoryMap.get(cat._title) || 0) + 1)
+        }
+      })
+    })
+
+    return Array.from(categoryMap.entries())
+      .map(
+        ([name, count]): CategoryItem => ({
+          name,
+          count
+        })
       )
-    )
+      .sort((a, b) => b.count - a.count)
   }, [data.pages.projects.projectList.items])
 
   const filteredProjects: FilteredProjectType[] = useMemo(() => {
@@ -38,9 +54,9 @@ export const ProjectList = ({ data }: { data: QueryType }) => {
   }, [data.pages.projects.projectList.items, selectedCategories])
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-2">
       <Filters
-        categories={categories.filter((c) => c !== undefined)}
+        categories={categories}
         selectedCategories={selectedCategories}
         setSelectedCategories={setSelectedCategories}
         viewMode={viewMode}
