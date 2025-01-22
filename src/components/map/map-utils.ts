@@ -26,10 +26,10 @@ const CONSTANTS = {
   INITIAL_DELAY: 2000,
   SPEED_REDUCTION: 0.7,
   SPEED_VARIATION: 0.5,
-  MAX_SWERVE: 0.7,
+  MAX_SWERVE: 0.3,
   SWERVE_SPEED: 0.5,
   MAX_ROTATION: 0.2,
-  MAX_Z_OFFSET: 2
+  MAX_Z_OFFSET: 1.5
 } as const
 
 const TOTAL_DISTANCE = CONSTANTS.END_X - CONSTANTS.START_X
@@ -97,13 +97,21 @@ function updateCarPosition(carPosition: Vector3, progress: number) {
       CONSTANTS.BASE_SPEED * (CONSTANTS.SPEED_REDUCTION + speedupAmount)
   }
 
-  carPosition.x += carState.currentSpeed
-
   carState.swerveTime += CONSTANTS.SWERVE_SPEED * 0.016
-  carState.swerveOffset = Math.sin(carState.swerveTime) * CONSTANTS.MAX_SWERVE
-  carState.rotationAngle =
-    Math.cos(carState.swerveTime) * CONSTANTS.MAX_ROTATION
-  carPosition.z = carState.swerveOffset + carState.baseZOffset
+
+  const nextX = carPosition.x + carState.currentSpeed
+
+  const currentSwerve = Math.sin(carState.swerveTime) * CONSTANTS.MAX_SWERVE
+  const nextSwerve =
+    Math.sin(carState.swerveTime + CONSTANTS.SWERVE_SPEED * 0.016) *
+    CONSTANTS.MAX_SWERVE
+
+  const dx = carState.currentSpeed
+  const dz = nextSwerve - currentSwerve
+  carState.rotationAngle = Math.atan2(dz, dx)
+
+  carPosition.x = nextX
+  carPosition.z = currentSwerve + carState.baseZOffset
 
   if (carPosition.x > CONSTANTS.END_X) {
     carPosition.x = CONSTANTS.START_X
