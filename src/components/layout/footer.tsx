@@ -124,19 +124,24 @@ interface SocialLinksProps {
   links: { twitter: string; instagram: string; github: string }
 }
 
+interface SocialLinkProps {
+  href: string
+  children: React.ReactNode
+}
+
+const SocialLink = ({ href, children }: SocialLinkProps) => (
+  <Link className={"actionable text-brand-w1"} href={href} target="_blank">
+    {children}
+  </Link>
+)
+
 const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div className={cn("space-x-1 !text-p text-brand-g1", className)}>
-    <Link className="actionable text-brand-w1" href={links.twitter}>
-      X (Twitter)
-    </Link>
+    <SocialLink href={links.twitter}>X (Twitter)</SocialLink>
     <span>,</span>
-    <Link className="actionable text-brand-w1" href={links.instagram}>
-      Instagram
-    </Link>
+    <SocialLink href={links.instagram}>Instagram</SocialLink>
     <span>,</span>
-    <Link className="actionable text-brand-w1" href={links.github}>
-      Github
-    </Link>
+    <SocialLink href={links.github}>Github</SocialLink>
   </div>
 )
 

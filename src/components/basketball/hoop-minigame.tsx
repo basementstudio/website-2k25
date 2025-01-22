@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
-import { useGameAudio } from "@/hooks/use-game-audio"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
@@ -21,7 +21,7 @@ import { Trajectory } from "./trajectory"
 
 export const HoopMinigame = () => {
   const isBasketball = usePathname() === "/basketball"
-  const { playSoundFX } = useGameAudio()
+  const { playSoundFX } = useSiteAudio()
   const { setIsBasketball } = useCustomShaderMaterial()
 
   // too many effects, change later
@@ -258,7 +258,7 @@ export const HoopMinigame = () => {
     }
   }, [isDragging, isBasketball, handlePointerUp])
 
-  useFrame(({ pointer, clock }, delta) => {
+  useFrame(({ pointer }, delta) => {
     if (!isBasketball) return
 
     if (isDragging && ballRef.current) {

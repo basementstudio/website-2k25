@@ -9,7 +9,11 @@ export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
-  reverse: boolean
+  reverse: boolean,
+  defines?: {
+    GLASS?: boolean
+    GODRAY?: boolean
+  }
 ) => {
   const {
     color: baseColor = new Color(1, 1, 1),
@@ -31,7 +35,9 @@ export const createGlobalShaderMaterial = (
       USE_ALPHA_MAP: alphaMap !== null,
       USE_EMISSIVE:
         baseMaterial.emissiveIntensity !== 0 && emissiveMap === null,
-      USE_EMISSIVEMAP: emissiveMap !== null
+      USE_EMISSIVEMAP: emissiveMap !== null,
+      GLASS: defines?.GLASS,
+      GODRAY: defines?.GODRAY
     },
     uniforms: {
       uColor: { value: emissiveColor },
@@ -40,6 +46,8 @@ export const createGlobalShaderMaterial = (
       map: { value: map },
       lightMap: { value: null },
       lightMapIntensity: { value: 0.0 },
+      aoMap: { value: null },
+      aoMapIntensity: { value: 0.0 },
       metalness: { value: metalness },
       roughness: { value: roughness },
       mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
@@ -55,9 +63,10 @@ export const createGlobalShaderMaterial = (
       fogDensity: { value: 0.05 },
       fogDepth: { value: 6.0 },
       uJitter: { value: 512.0 },
-      isGlass: { value: false },
       glassReflex: { value: null },
       emissiveMap: { value: emissiveMap },
+
+      aoWithCheckerboard: { value: false },
       isBasketball: { value: false },
       uBasketballTransition: { value: 0 },
       uBasketballFogColorTransition: { value: 0 }
