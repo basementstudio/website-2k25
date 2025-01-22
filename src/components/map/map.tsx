@@ -19,8 +19,6 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
-import { CLICKABLE_NODES } from "@/constants/clickable-elements"
-
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -229,7 +227,7 @@ export const Map = memo(() => {
       ...current,
       ...routingNodes
     }))
-  }, [scene, basketballNetV2, videos])
+  }, [scene, basketballNetV2, videos, clickables])
 
   useEffect(() => {
     const handleScore = () => {

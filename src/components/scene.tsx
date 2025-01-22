@@ -16,8 +16,8 @@ import { CustomCamera } from "./camera/camera-controls"
 import { Debug } from "./debug"
 import { Map } from "./map/map"
 import { MapWire } from "./map/map-wire"
-import { Renderer } from "./postprocessing/renderer"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
+import { Renderer } from "./postprocessing/renderer"
 
 export const Scene = () => {
   const pathname = usePathname()
