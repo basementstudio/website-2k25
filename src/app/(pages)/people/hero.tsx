@@ -8,8 +8,8 @@ export const Hero = ({ data }: { data?: QueryType }) => {
       className="grid-layout mb-[180px] text-brand-w2"
       aria-labelledby="careers-heading"
     >
-      <h1 className="col-start-1 col-end-5 text-h1 uppercase">
-        {data?.pages.people.title}
+      <h1 className="col-start-1 col-end-5 text-h1">
+        {data?.pages.people._title}
       </h1>
       <div className="col-start-5 col-end-9 max-w-[34.6875rem] text-h2">
         <RichText

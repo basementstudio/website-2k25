@@ -1,10 +1,17 @@
+"use client"
+
+import Image from "next/image"
 import Link from "next/link"
+import { useState } from "react"
 
 import { Placeholder } from "@/components/primitives/placeholder"
+import { cn } from "@/utils/cn"
 
-import { QueryType } from "./query"
+import { QueryType } from "./careers-query"
 
-export const People = ({ data }: { data: QueryType }) => {
+export const Crew = ({ data }: { data: QueryType }) => {
+  const [hoveredPerson, setHoveredPerson] = useState<string | null>(null)
+
   const groupedPeople = data.company.people.peopleList.items.reduce(
     (acc, person) => {
       const department = person.department._title
@@ -16,10 +23,10 @@ export const People = ({ data }: { data: QueryType }) => {
   )
 
   return (
-    <section className="grid-layout">
-      <div className="col-start-5 col-end-13 -mb-[21px] flex justify-between text-heading uppercase">
-        <h2 className="text-brand-w2">The Crew</h2>
-        <p className="text-brand-g1">
+    <section className="grid-layout mb-[180px]">
+      <div className="col-start-5 col-end-13 -mb-[21px] flex justify-between">
+        <h2 className="text-h2 text-brand-w2">The Crew</h2>
+        <p className="text-h1 text-brand-g1">
           x{data.company.people.peopleList.items.length}
         </p>
       </div>
@@ -27,21 +34,24 @@ export const People = ({ data }: { data: QueryType }) => {
         {Object.entries(groupedPeople).map(([department, people], index) => (
           <div key={department}>
             <div className="grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-2">
-              {index === 0 && (
-                <p className="text-paragraph text-brand-g1">A-Z</p>
-              )}
-              <p className="col-start-2 text-paragraph text-brand-g1">
-                {department}
-              </p>
+              {index === 0 && <p className="text-h4 text-brand-g1">A-Z</p>}
+              <p className="col-start-2 text-h4 text-brand-g1">{department}</p>
             </div>
 
-            <ul className="text-paragraph text-brand-w1">
+            <ul className="text-p text-brand-w1">
               {people.map((person) => (
                 <li
                   key={person._title}
                   className="group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
+                  onMouseEnter={() => setHoveredPerson(person._title)}
+                  onMouseLeave={() => setHoveredPerson(null)}
                 >
-                  <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div
+                    className={cn(
+                      "with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300",
+                      { "opacity-100": hoveredPerson === person._title }
+                    )}
+                  />
                   <div className="col-span-1">{person._title}</div>
                   <div className="col-span-1">{person.role}</div>
                   <div className="col-span-2 flex justify-end gap-1 text-right text-brand-g1">
@@ -58,12 +68,23 @@ export const People = ({ data }: { data: QueryType }) => {
         {data.company.people.peopleList.items.map((person) => (
           <div
             key={person._title}
-            className="with-dots aspect-[136/156] bg-brand-k text-brand-w1/20"
+            className={
+              "with-dots group relative aspect-[136/156] border border-brand-w1/20 bg-brand-k text-brand-w1/20"
+            }
+            onMouseEnter={() => setHoveredPerson(person._title)}
+            onMouseLeave={() => setHoveredPerson(null)}
           >
-            <Placeholder
-              className="border border-brand-w1/20"
-              width={134}
-              height={156}
+            {person.image ? (
+              <Image src={person.image.url} alt={person._title} fill />
+            ) : (
+              <Placeholder width={134} height={156} />
+            )}
+
+            <div
+              className={cn(
+                "with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300",
+                { "opacity-100": hoveredPerson === person._title }
+              )}
             />
           </div>
         ))}

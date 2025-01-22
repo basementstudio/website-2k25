@@ -5,7 +5,7 @@ import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 export const careersQuery = fragmentOn("Query", {
   pages: {
     people: {
-      title: true,
+      _title: true,
       subheading1: {
         json: {
           content: true
@@ -39,6 +39,19 @@ export const careersQuery = fragmentOn("Query", {
               content: true
             }
           },
+          image: IMAGE_FRAGMENT
+        }
+      }
+    },
+
+    people: {
+      peopleList: {
+        items: {
+          _title: true,
+          department: {
+            _title: true
+          },
+          role: true,
           image: IMAGE_FRAGMENT
         }
       }
