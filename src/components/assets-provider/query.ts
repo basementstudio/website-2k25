@@ -31,7 +31,8 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         _title: true,
         file: {
           url: true
-        }
+        },
+        intensity: true
       }
     }
   },
