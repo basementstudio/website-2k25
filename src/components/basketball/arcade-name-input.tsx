@@ -136,7 +136,7 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
 
   return (
     <div className={cn("flex gap-4", className)}>
-      <div className="flex gap-2 text-[2rem] font-bold">
+      <div className="corner-borders flex gap-2 text-subheading font-bold">
         {letters.map((letter, index) => (
           <LetterSlot
             key={index}
@@ -149,7 +149,7 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
       </div>
       <button
         onClick={handleEnter}
-        className="font-medium text-brand-w1 hover:underline"
+        className="font-semibold text-brand-w1 hover:underline"
       >
         Save Score →
       </button>

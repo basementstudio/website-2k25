@@ -41,7 +41,7 @@ const material = new ShaderMaterial({
     uEllipseSoftness: { value: 0.78 },
     uDebugEllipse: { value: false },
     uVignetteStrength: { value: 1.0 },
-    uVignetteSoftness: { value: 1.03 }
+    uVignetteSoftness: { value: 0.18 }
   }
 })
 
@@ -179,7 +179,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     vignetteSoftness: {
-      value: 1.03,
+      value: 0.18,
       min: 0,
       max: 2,
       step: 0.01,
@@ -219,6 +219,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     const duration = 800
 
     const startTime = performance.now()
+    let animationFrame: number
 
     const animate = () => {
       const currentTime = performance.now()
@@ -234,21 +235,26 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         startSaturationValue +
         (endSaturationValue - startSaturationValue) * easeProgress
 
-      // TODO: define which contrast is better
-      material.uniforms.uContrast.value =
-        startContrastValue +
-        (endContrastValue - startContrastValue) * easeProgress
+      // material.uniforms.uContrast.value =
+      //   startContrastValue +
+      //   (endContrastValue - startContrastValue) * easeProgress
 
       material.uniforms.uVignetteStrength.value =
         startVignetteValue +
         (endVignetteValue - startVignetteValue) * easeProgress
 
       if (progress < 1) {
-        requestAnimationFrame(animate)
+        animationFrame = requestAnimationFrame(animate)
       }
     }
 
-    requestAnimationFrame(animate)
+    animationFrame = requestAnimationFrame(animate)
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame)
+      }
+    }
   }, [pathname])
 
   return (

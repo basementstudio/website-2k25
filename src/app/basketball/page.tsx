@@ -43,7 +43,7 @@ const Basketball = () => {
   return (
     <>
       {!hasPlayed && (
-        <div className="animate-fade-in fixed left-0 top-0 h-screen w-full p-3.5">
+        <div className="fixed left-0 top-0 h-screen w-full animate-fade-in p-3.5">
           <div className="grid-layout h-full">
             <button
               onClick={handleCloseGame}
@@ -52,7 +52,7 @@ const Basketball = () => {
               (X) <span className="underline">Close Game</span>
             </button>
             <div
-              className={`${geistMono.className} col-span-2 col-start-6 mt-24 flex h-10 select-none text-xs uppercase text-brand-w2`}
+              className={`${geistMono.className} col-span-2 col-start-6 mt-24 flex h-10 select-none text-paragraph uppercase text-brand-w2`}
             >
               <div className="corner-borders relative flex w-1/2 translate-x-[0.5px] items-center justify-center">
                 <p>{formatTime(timeRemaining)}</p>
@@ -63,13 +63,13 @@ const Basketball = () => {
               </div>
             </div>
 
-            <Scoreboard className="col-span-1 col-start-10 mt-24 text-xs" />
+            <Scoreboard className="col-span-1 col-start-10 mt-24 text-paragraph" />
           </div>
         </div>
       )}
 
       {(hasPlayed && !playerName) || (hasPlayed && !isGameActive) ? (
-        <div className="animate-fade-in fixed top-0 grid min-h-screen w-full place-items-center bg-brand-k/20">
+        <div className="fixed top-0 grid min-h-screen w-full animate-fade-in place-items-center bg-brand-k/20">
           <div className="flex flex-col items-center gap-4">
             {!playerName ? (
               <ArcadeNameInput />

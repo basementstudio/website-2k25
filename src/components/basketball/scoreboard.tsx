@@ -23,18 +23,15 @@ export default function Scoreboard({ className }: { className?: string }) {
     }
   ]
   return (
-    <div
-      className={cn(
-        "flex select-none flex-col font-semibold text-brand-w2",
-        className
-      )}
-    >
-      <p className="pb-1 text-xs">High Scores:</p>
+    <div className={cn("flex select-none flex-col font-semibold", className)}>
+      <p className="pb-1 text-paragraph text-brand-w2">High Scores:</p>
       <div className="flex justify-between border-b border-brand-w2/20 py-1">
         <p className="uppercase text-brand-g1">
           {playerName ? playerName : "-"}
         </p>
-        <p>{score === 0 ? "- pts" : `${Math.floor(score)} pts`}</p>
+        <p className="text-brand-w2">
+          {score === 0 ? "- pts" : `${Math.floor(score)} pts`}
+        </p>
       </div>
       {scores.slice(0, 32).map((score, index) => (
         <div
@@ -42,7 +39,7 @@ export default function Scoreboard({ className }: { className?: string }) {
           key={index}
         >
           <p className="uppercase text-brand-g1">{score.name}</p>
-          <p>{score.score} pts</p>
+          <p className="text-brand-w2">{score.score} pts</p>
         </div>
       ))}
     </div>
