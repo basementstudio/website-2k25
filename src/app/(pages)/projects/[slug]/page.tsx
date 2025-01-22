@@ -6,11 +6,11 @@ import { projectFragment } from "./query"
 import { ProjectWrapper } from "./wrapper"
 
 interface ProjectPostProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 const ProjectPost = async ({ params }: ProjectPostProps) => {
-  const { slug } = params
+  const { slug } = await params
 
   return (
     <Pump

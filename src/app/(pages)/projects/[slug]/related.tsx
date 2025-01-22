@@ -3,7 +3,6 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
-import { InfoItem } from "@/components/primitives/info-item"
 import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 
 export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
