@@ -4,15 +4,15 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
-import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
-import { useMinigameStore } from "@/store/minigame-store"
-import { easeInOutCubic } from "@/utils/animations"
 import {
   handlePointerDown as utilsHandlePointerDown,
   handlePointerMove as utilsHandlePointerMove,
   handlePointerUp as utilsHandlePointerUp
-} from "@/utils/basketball-utils"
+} from "@/components/basketball/basketball-utils"
+import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
+import { useMinigameStore } from "@/store/minigame-store"
+import { easeInOutCubic } from "@/utils/animations"
 
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"

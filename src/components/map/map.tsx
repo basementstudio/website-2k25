@@ -15,12 +15,15 @@ import {
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
+import {
+  animateNet,
+  NET_ANIMATION_SPEED
+} from "@/components/basketball/basketball-utils"
 import { CLICKABLE_NODES } from "@/constants/clickable-elements"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
-import { animateNet, NET_ANIMATION_SPEED } from "@/utils/basketball-utils"
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
