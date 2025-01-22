@@ -4,18 +4,17 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
-import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
-import { useMinigameStore } from "@/store/minigame-store"
-import { easeInOutCubic } from "@/utils/animations"
 import {
   handlePointerDown as utilsHandlePointerDown,
   handlePointerMove as utilsHandlePointerMove,
   handlePointerUp as utilsHandlePointerUp
-} from "@/utils/basketball-utils"
+} from "@/components/basketball/basketball-utils"
+import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
+import { useMinigameStore } from "@/store/minigame-store"
+import { easeInOutCubic } from "@/utils/animations"
 
 import { Basketball } from "./basketball"
-import { GameUI } from "./game-ui"
 import RigidBodies from "./rigid-bodies"
 import { Trajectory } from "./trajectory"
 
@@ -24,7 +23,6 @@ export const HoopMinigame = () => {
   const { playSoundFX } = useSiteAudio()
   const { setIsBasketball } = useCustomShaderMaterial()
 
-  // too many effects, change later
   useEffect(() => {
     setIsBasketball(isBasketball)
   }, [isBasketball, setIsBasketball])
@@ -258,7 +256,7 @@ export const HoopMinigame = () => {
     }
   }, [isDragging, isBasketball, handlePointerUp])
 
-  useFrame(({ pointer, clock }, delta) => {
+  useFrame(({ pointer }, delta) => {
     if (!isBasketball) return
 
     if (isDragging && ballRef.current) {
@@ -296,7 +294,7 @@ export const HoopMinigame = () => {
 
     // score decay
     if (score > 0) {
-      setScore((prev) => Math.max(0, prev - 10 * delta))
+      setScore((prev) => Math.max(0, prev - 1 * delta))
     }
 
     // reset ball anim
@@ -399,13 +397,6 @@ export const HoopMinigame = () => {
             ballRef={ballRef}
             isDragging={isDragging}
             isResetting={isResetting}
-          />
-
-          <GameUI
-            hoopPosition={hoopPosition}
-            timeRemaining={timeRemaining}
-            score={score}
-            shotMetrics={shotMetrics}
           />
         </>
       )}

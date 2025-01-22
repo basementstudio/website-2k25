@@ -5,7 +5,7 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
@@ -16,12 +16,14 @@ import { CustomCamera } from "./camera/camera-controls"
 import { Debug } from "./debug"
 import { Map } from "./map/map"
 import { MapWire } from "./map/map-wire"
+import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { Renderer } from "./postprocessing/renderer"
 
 export const Scene = () => {
   const pathname = usePathname()
   const isBasketball = pathname === "/basketball"
   const [documentElement, setDocumentElement] = useState<HTMLElement>()
+  const canvasRef = useRef<HTMLCanvasElement>(null!)
 
   useEffect(() => {
     setDocumentElement(document.documentElement)
@@ -32,7 +34,9 @@ export const Scene = () => {
       <div className="w-128 absolute bottom-8 right-64 z-50">
         <Leva collapsed fill />
       </div>
+      <MouseTracker canvasRef={canvasRef} />
       <Canvas
+        ref={canvasRef}
         gl={{
           antialias: true,
           alpha: false,

@@ -78,8 +78,9 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         states[get().cameraState] || CAMERA_STATES[get().cameraState]
     })
   },
-  updateCameraFromPathname: (pathname) =>
-    get().setCameraState(PATHNAME_MAP[pathname] || "home"),
+  updateCameraFromPathname: (pathname) => {
+    get().setCameraState(PATHNAME_MAP[pathname] || "home")
+  },
 
   // debug camera
   orbitCamera: null,
