@@ -24,8 +24,6 @@ import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
-
-import { animateNet, NET_ANIMATION_SPEED } from "@/utils/basketball-utils"
 import { animateCar } from "@/utils/map-utils"
 
 import { ArcadeScreen } from "../arcade-screen"
@@ -53,11 +51,10 @@ const createVideoTexture = (url: string) => {
 }
 
 export const Map = memo(() => {
+  const pathname = usePathname()
   const { map, basketballNet, videos, clickables } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
-  const pathname = usePathname()
-
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
   )
@@ -80,8 +77,8 @@ export const Map = memo(() => {
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
-  const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
   const [car, setCar] = useState<Object3D | null>(null)
+  const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
@@ -151,6 +148,7 @@ export const Map = memo(() => {
     })
 
     const hoopMesh = scene.getObjectByName("SM_BasketballHoop")
+    const originalNet = scene.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetV2.getObjectByName("SM_BasketRed-v2")
     const carMesh = scene.getObjectByName("Car01")
 
@@ -159,7 +157,6 @@ export const Map = memo(() => {
       setBasketballHoop(hoopMesh)
     }
 
-    const originalNet = scene.getObjectByName("SM_BasketRed")
     if (originalNet) {
       originalNet.removeFromParent()
     }
@@ -312,7 +309,6 @@ export const Map = memo(() => {
       )}
 
       {keyframedNet && <primitive object={keyframedNet} />}
-
       {car && <primitive position-x={-8.7} object={car} />}
       <PlayedBasketballs />
       <MapAssetsLoader />
