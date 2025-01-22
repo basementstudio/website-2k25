@@ -54,37 +54,28 @@ export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
     <div className="mt-auto flex flex-col gap-2">
       <h4 className="text-h4 text-brand-g1">More Projects</h4>
 
-      <ul className="flex flex-col divide-y divide-brand-w1/30">
+      <ul className="flex flex-col divide-y divide-brand-w1/20">
         <div />
-        {entry.pages.projects.projectList.items.map((item) => (
-          <InfoItem
-            key={item.project?._slug}
-            label={
-              <span className="flex items-center gap-1">
-                <span className="relative size-3 overflow-hidden rounded-full bg-brand-g2">
+        {entry.pages.projects.projectList.items.map((item, index) => (
+          <Link
+            href={`/projects/${item.project?._slug}`}
+            key={index}
+            className="pb-1.75 flex items-center justify-between pt-1.5 text-p font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1"
+          >
+            <span className="gap-1.75 flex items-center">
+              {item.icon ? (
+                <span className="relative size-4.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
                   <Image
-                    src={item.icon?.url ?? ""}
-                    alt={item.icon?.alt ?? ""}
+                    src={item.icon?.url}
                     fill
-                    className="object-cover"
+                    alt={item.icon?.alt || "Client logo"}
                   />
                 </span>
-                <span className="text-p text-brand-w1">
-                  {item.project?._title}
-                </span>
-              </span>
-            }
-            labelClassName="col-span-5"
-            valueClassName="col-span-1 flex items-center justify-end"
-            value={
-              <Link
-                href={`/projects/${item.project?._slug}`}
-                className="text-p text-brand-w1"
-              >
-                <Arrow className="size-4" />
-              </Link>
-            }
-          />
+              ) : null}
+              {item.project?._title}
+            </span>
+            <Arrow className="size-4" />
+          </Link>
         ))}
         <div />
       </ul>

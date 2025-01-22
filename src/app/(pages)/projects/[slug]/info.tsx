@@ -11,28 +11,28 @@ import { Filters } from "./gallery-filter"
 import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
 
-export function ProjectInfo({ entry }: { entry: QueryItemType }) {
-  return (
-    <div className="col-span-2 flex flex-col gap-4">
+export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
+  <div className="col-span-2 flex h-full flex-col gap-4">
+    <div className="sticky top-11 mb-48 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <Link
           href="/projects"
-          className="actionable inline-flex items-center gap-2 text-p text-brand-w1"
+          className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
         >
-          <Arrow className="size-5 rotate-180" /> All projects
+          <Arrow className="size-4 rotate-180" /> All Projects
         </Link>
 
         <Filters />
       </div>
 
-      <ul className="flex flex-col divide-y divide-brand-w1/30">
+      <ul className="flex flex-col divide-y divide-brand-w1/20">
         <div />
         <InfoItem
           label="Client"
           value={
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-0.75">
               {entry.icon ? (
-                <span className="relative size-3 overflow-hidden rounded-full bg-brand-g2">
+                <span className="relative size-3.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
                   <Image
                     src={entry.icon?.url}
                     fill
@@ -78,7 +78,7 @@ export function ProjectInfo({ entry }: { entry: QueryItemType }) {
               target="_blank"
               className="actionable inline-flex items-center gap-1 text-brand-w1"
             >
-              {entry.project?.client?.website}{" "}
+              {entry.project?.projectWebsite}{" "}
               <ExternalLinkIcon className="size-2" />
             </Link>
           }
@@ -99,8 +99,8 @@ export function ProjectInfo({ entry }: { entry: QueryItemType }) {
       >
         View Case Study <Arrow className="size-4" />
       </Link>
-
-      <RelatedProjects baseSlug={entry.project?._slug || ""} />
     </div>
-  )
-}
+
+    <RelatedProjects baseSlug={entry.project?._slug || ""} />
+  </div>
+)

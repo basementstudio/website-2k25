@@ -25,17 +25,19 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
         <div
           key={image.url}
           className={cn(
-            "relative aspect-video w-full overflow-hidden",
+            "relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20",
             // each 3 images put one full width
             viewMode === "grid" && (idx + 1) % 3 === 0 && "col-span-2"
           )}
         >
-          <Image
-            src={image.url}
-            alt={image.alt || ""}
-            fill
-            className="object-cover"
-          />
+          <div className="with-dots h-full w-full after:absolute after:inset-0">
+            <Image
+              src={image.url}
+              alt={image.alt || ""}
+              fill
+              className="object-cover"
+            />
+          </div>
         </div>
       ))}
     </div>

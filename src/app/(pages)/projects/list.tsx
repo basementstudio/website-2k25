@@ -3,9 +3,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
+import { Arrow } from "@/components/primitives/icons/arrow"
 import { cn } from "@/utils/cn"
 
-import { Categories } from "./categories"
 import { FilteredProjectType } from "./project-list"
 
 export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
@@ -30,7 +30,7 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
         <AccordionPrimitive.Item
           key={index}
           className={cn(
-            "grid-layout [&[data-state=closed]_.view-project]:opacity-0",
+            "grid-layout [&:last-of-type>button]:border-b [&[data-state=closed]_.view-project]:opacity-0",
             item.disabled
               ? "[&[data-state=open]_.view-project]:opacity-30"
               : "[&[data-state=open]_.view-project]:opacity-100"
@@ -54,7 +54,7 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
                   "duration-300 [&>*]:opacity-30 [&>*]:transition-opacity"
               )}
             >
-              <div className="relative col-span-5 flex items-center gap-2 text-subheading text-brand-w2 transition-opacity duration-300">
+              <div className="relative col-span-5 flex items-center gap-2 text-h3 text-brand-w2 transition-opacity duration-300">
                 <Image
                   src={item.icon?.url ?? ""}
                   alt={item.icon?.alt ?? ""}
@@ -64,19 +64,26 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
                 />
                 <p>{item.project?.client?._title}</p>
               </div>
-              <Categories
-                className="relative col-start-7 col-end-10"
-                categories={
-                  item.project?.categories?.map((c) => c._title) ?? []
-                }
-              />
-              <p className="relative col-start-10 col-end-11 text-left text-paragraph text-brand-w2">
+
+              <p className="relative col-start-7 col-end-10 inline-flex flex-wrap text-pretty text-p leading-none text-brand-w2">
+                {item.project?.categories?.map((cat, idx) => (
+                  <span key={cat._title}>
+                    {cat._title}
+                    {idx !== (item.project?.categories?.length ?? 0) - 1 && (
+                      <span className="inline-block px-1 text-brand-g1">,</span>
+                    )}
+                  </span>
+                ))}
+              </p>
+              <p className="relative col-start-10 col-end-11 text-left text-p text-brand-w2">
                 {item.project?.year}
               </p>
-              <Link href={`/projects/${item.project?._slug}`}>
-                <p className="view-project relative col-start-12 col-end-13 text-right text-paragraph text-brand-w2 opacity-0 transition-opacity duration-300">
-                  <span className="actionable">View Project</span> →
-                </p>
+              <Link
+                href={`/projects/${item.project?._slug}`}
+                className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 opacity-0 transition-opacity duration-300"
+              >
+                <span className="actionable">View Work</span>{" "}
+                <Arrow className="inline-block size-4" />
               </Link>
             </div>
 

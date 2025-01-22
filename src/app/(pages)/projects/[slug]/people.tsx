@@ -31,16 +31,19 @@ export function ProjectPeople({ entry }: { entry: QueryItemType }) {
   }
 
   return (
-    <ul className="col-span-5 flex flex-col divide-y divide-brand-w1/30">
-      <div />
-      {peopleByDepartment.map(([department, people]) => (
-        <InfoItem
-          key={department}
-          label={department}
-          value={<TextList value={people} />}
-        />
-      ))}
-      <div />
-    </ul>
+    <div className="grid-layout">
+      <ul className="grid-row-start-2 col-span-5 mt-1.25 flex flex-col divide-y divide-brand-w1/20">
+        <div />
+        {peopleByDepartment.map(([department, people]) => (
+          <InfoItem
+            key={department}
+            label={department}
+            value={<TextList value={people} />}
+            className="grid-cols-5"
+          />
+        ))}
+        <div />
+      </ul>
+    </div>
   )
 }

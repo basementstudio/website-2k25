@@ -74,7 +74,7 @@ export const Filters = ({
 
   return (
     <div className="grid-layout items-end pb-2">
-      <div className="col-span-1 flex items-center gap-1 text-paragraph text-brand-g1">
+      <div className="col-span-1 flex items-center gap-1 text-p text-brand-g1">
         <ViewSelector
           mode="grid"
           viewMode={viewMode}
@@ -91,12 +91,12 @@ export const Filters = ({
       <div className="col-start-7 col-end-13 flex flex-col gap-2">
         <p className="text-p text-brand-g1">Filters</p>
 
-        <ul className="flex flex-wrap gap-x-2 gap-y-1">
+        <ul className="flex flex-wrap gap-x-4 gap-y-1">
           {categories.map((category) => (
             <button
               key={category.name}
               className={cn(
-                "flex w-max gap-x-0.5 !text-h2 text-brand-g1 transition-colors duration-300",
+                "flex w-max gap-x-1.25 !text-h2 text-brand-g1 transition-colors duration-300",
                 selectedCategories.includes(category.name) && "text-brand-w1",
                 // if no categories selected, show all as active
                 selectedCategories.length === 0 && "text-brand-w1"
@@ -109,10 +109,9 @@ export const Filters = ({
               }
             >
               <span className="actionable">{category.name}</span>
-
               {category.count && (
-                <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
-                  <span className="tabular-nums">({category.count})</span>
+                <sup className="translate-y-1.5 text-p !font-semibold text-brand-g1">
+                  ({category.count})
                 </sup>
               )}
             </button>

@@ -24,6 +24,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 
 export function useProjectContext() {
   const context = use(ProjectContext)
+
   if (!context)
     throw new Error("useProjectContext must be used within a ProjectProvider")
 

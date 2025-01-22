@@ -17,7 +17,7 @@ const GridIcon = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 12 12"
     fill="none"
-    className="size-4"
+    className="size-3"
   >
     <rect x="1" y="2" width="10" height="3" fill="currentColor" />
     <rect x="1" y="7" width="4" height="3" fill="currentColor" />
@@ -30,41 +30,39 @@ const RowIcon = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 12 12"
     fill="none"
-    className="size-4"
+    className="size-3"
   >
     <rect x="1" y="2" width="10" height="3" fill="currentColor" />
     <rect x="1" y="7" width="10" height="3" fill="currentColor" />
   </svg>
 )
 
-export function GalleryFilter({
+export const GalleryFilter = ({
   mode,
   viewMode,
   setViewMode
-}: GalleryFilterProps) {
-  return (
-    <CheckboxPrimitive.Root
-      className={cn(
-        "flex cursor-pointer items-center justify-center gap-1 transition-colors duration-300",
-        viewMode === mode ? "text-brand-w1" : "text-brand-g1"
-      )}
-      value={mode}
-      checked={viewMode === mode}
-      onCheckedChange={() => setViewMode(mode)}
-    >
-      {mode === "grid" ? <GridIcon /> : <RowIcon />}
-      <span className={cn("sr-only")}>
-        {mode.charAt(0).toUpperCase() + mode.slice(1)}
-      </span>
-    </CheckboxPrimitive.Root>
-  )
-}
+}: GalleryFilterProps) => (
+  <CheckboxPrimitive.Root
+    className={cn(
+      "flex cursor-pointer items-center justify-center gap-1 transition-colors duration-300",
+      viewMode === mode ? "text-brand-w1" : "text-brand-g1"
+    )}
+    value={mode}
+    checked={viewMode === mode}
+    onCheckedChange={() => setViewMode(mode)}
+  >
+    {mode === "grid" ? <GridIcon /> : <RowIcon />}
+    <span className={cn("sr-only")}>
+      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+    </span>
+  </CheckboxPrimitive.Root>
+)
 
-export function Filters() {
+export const Filters = () => {
   const { viewMode, setViewMode } = useProjectContext()
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       <GalleryFilter
         mode="grid"
         viewMode={viewMode}

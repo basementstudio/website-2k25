@@ -2,7 +2,7 @@ import { Fragment, ReactNode } from "react"
 
 export const TextList = ({ value }: { value: ReactNode[] }) => {
   return (
-    <p className="inline-flex flex-wrap gap-1 text-p">
+    <p className="inline-flex flex-wrap gap-x-1 text-p">
       {value.map((v, i) => (
         <Fragment key={i}>
           {v}

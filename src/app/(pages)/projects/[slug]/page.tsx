@@ -5,12 +5,12 @@ import { notFound } from "next/navigation"
 import { projectFragment } from "./query"
 import { ProjectWrapper } from "./wrapper"
 
-const ProjectPost = async ({
-  params
-}: {
-  params: Promise<{ slug: string }>
-}) => {
-  const { slug } = await params
+interface ProjectPostProps {
+  params: { slug: string }
+}
+
+const ProjectPost = async ({ params }: ProjectPostProps) => {
+  const { slug } = params
 
   return (
     <Pump
@@ -70,9 +70,7 @@ export const generateStaticParams = async () => {
     }
   })
 
-  return items.map((p) => {
-    return { slug: p.project?._slug }
-  })
+  return items.map((p) => ({ slug: p.project?._slug }))
 }
 
 export default ProjectPost

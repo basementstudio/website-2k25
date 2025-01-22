@@ -54,7 +54,7 @@ export const ProjectList = ({ data }: { data: QueryType }) => {
   }, [data.pages.projects.projectList.items, selectedCategories])
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-2">
       <Filters
         categories={categories}
         selectedCategories={selectedCategories}
