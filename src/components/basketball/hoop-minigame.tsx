@@ -63,7 +63,8 @@ export const HoopMinigame = () => {
     setHasPlayed,
     addPlayedBall,
     readyToPlay,
-    setReadyToPlay
+    setReadyToPlay,
+    hasPlayed
   } = useMinigameStore()
 
   const resetState = useCallback(() => {
@@ -72,10 +73,13 @@ export const HoopMinigame = () => {
     isThrowable.current = true
     setIsResetting(false)
     setIsDragging(false)
-    setScore(0)
     setTimeRemaining(gameDuration)
     setIsGameActive(false)
     setShotMetrics({ angle: "0.0", probability: "0.0" })
+
+    if (!hasPlayed) {
+      setScore(0)
+    }
 
     startResetPos.current = new Vector3(
       initialPosition.x,
@@ -96,7 +100,8 @@ export const HoopMinigame = () => {
     setScore,
     setTimeRemaining,
     setIsGameActive,
-    setShotMetrics
+    setShotMetrics,
+    hasPlayed
   ])
 
   useEffect(() => {
@@ -114,7 +119,6 @@ export const HoopMinigame = () => {
         clearInterval(timerInterval.current)
         timerInterval.current = null
       }
-      resetState()
     }
   }, [
     isBasketball,
@@ -127,7 +131,8 @@ export const HoopMinigame = () => {
     setScore,
     setTimeRemaining,
     setShotMetrics,
-    resetState
+    resetState,
+    hasPlayed
   ])
 
   const resetBallToInitialPosition = useCallback(
@@ -293,7 +298,7 @@ export const HoopMinigame = () => {
     }
 
     // score decay
-    if (score > 0) {
+    if (score > 0 && isGameActive) {
       setScore((prev) => Math.max(0, prev - 1 * delta))
     }
 

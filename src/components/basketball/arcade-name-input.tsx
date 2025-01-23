@@ -3,56 +3,24 @@ import { useCallback, useEffect, useState } from "react"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
+import { submitScore } from "@/utils/supabase/client"
+
+import { LetterSlot } from "./letter-slot"
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-interface LetterSlotProps {
-  currentLetter: string
-  nextLetter: string | null
-  direction: "up" | "down" | null
-  isSelected: boolean
-}
-
-const LetterSlot = ({
-  currentLetter,
-  nextLetter,
-  direction,
-  isSelected
-}: LetterSlotProps) => {
-  return (
-    <div className="relative h-8 w-8 select-none overflow-hidden">
-      <div
-        className={cn(
-          "absolute inset-0 flex transform-gpu items-center justify-center transition-all duration-100",
-          isSelected ? "text-brand-w1" : "text-brand-g1",
-          direction === "up" && "-translate-y-full opacity-0",
-          direction === "down" && "translate-y-full opacity-0",
-          direction === null && "opacity-100"
-        )}
-      >
-        {currentLetter}
-      </div>
-      {nextLetter && (
-        <div
-          className={cn(
-            "absolute inset-0 flex transform-gpu items-center justify-center transition-all duration-100",
-            isSelected ? "text-brand-w1" : "text-brand-g1",
-            direction === "up" && "translate-y-[100%] opacity-100",
-            direction === "down" && "-translate-y-[100%] opacity-100",
-            direction === null && "opacity-0"
-          )}
-        >
-          {nextLetter}
-        </div>
-      )}
-    </div>
-  )
-}
-
 export const ArcadeNameInput = ({ className }: { className?: string }) => {
-  const { setPlayerName } = useMinigameStore()
+  const {
+    setPlayerName,
+    score,
+    playerName: previousName,
+    setReadyToPlay,
+    setHasPlayed
+  } = useMinigameStore()
   const [selectedSlot, setSelectedSlot] = useState(0)
-  const [letters, setLetters] = useState(["A", "A", "A"])
+  const [letters, setLetters] = useState(
+    previousName ? previousName.split("") : ["A", "A", "A"]
+  )
   const [nextLetters, setNextLetters] = useState<(string | null)[]>([
     null,
     null,
@@ -61,6 +29,7 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
   const [slideDirections, setSlideDirections] = useState<
     ("up" | "down" | null)[]
   >([null, null, null])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (slideDirections.some((dir) => dir !== null)) {
@@ -105,9 +74,39 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
     setSelectedSlot((prev) => (prev + 1) % 3)
   }, [])
 
-  const handleEnter = useCallback(() => {
-    setPlayerName(letters.join(""))
-  }, [letters, setPlayerName])
+  const handleEnter = useCallback(async () => {
+    if (isSubmitting) return
+    setIsSubmitting(true)
+
+    const playerName = letters.join("")
+
+    try {
+      const { error } = await submitScore(playerName, score)
+
+      if (error) {
+        console.error("Error submitting score:", error)
+        return
+      }
+      setPlayerName(playerName)
+
+      // start new round directly after submitting score
+      setTimeout(() => {
+        setReadyToPlay(true)
+        setHasPlayed(false)
+      }, 500)
+    } catch (error) {
+      console.error("Failed to submit score:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [
+    letters,
+    score,
+    setPlayerName,
+    isSubmitting,
+    setReadyToPlay,
+    setHasPlayed
+  ])
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -149,9 +148,13 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
       </div>
       <button
         onClick={handleEnter}
-        className="font-semibold text-brand-w1 hover:underline"
+        disabled={isSubmitting}
+        className={cn(
+          "font-semibold text-brand-w1 hover:underline",
+          isSubmitting && "cursor-not-allowed opacity-50"
+        )}
       >
-        Save Score →
+        {isSubmitting ? "Saving..." : "Save Score →"}
       </button>
     </div>
   )

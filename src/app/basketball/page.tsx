@@ -12,21 +12,9 @@ import { useMinigameStore } from "@/store/minigame-store"
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
 
 const Basketball = () => {
-  const {
-    playerName,
-    hasPlayed,
-    score,
-    isGameActive,
-    setReadyToPlay,
-    setHasPlayed,
-    timeRemaining
-  } = useMinigameStore()
+  const { playerName, hasPlayed, score, isGameActive, timeRemaining } =
+    useMinigameStore()
   const router = useRouter()
-
-  const handlePlayAgain = () => {
-    setReadyToPlay(true)
-    setHasPlayed(false)
-  }
 
   const handleCloseGame = useCallback(() => {
     router.push("/")
@@ -71,16 +59,7 @@ const Basketball = () => {
       {(hasPlayed && !playerName) || (hasPlayed && !isGameActive) ? (
         <div className="fixed top-0 grid min-h-screen w-full animate-fade-in place-items-center bg-brand-k/20">
           <div className="flex flex-col items-center gap-4">
-            {!playerName ? (
-              <ArcadeNameInput />
-            ) : (
-              <button
-                onClick={handlePlayAgain}
-                className="font-medium text-brand-w1 hover:underline"
-              >
-                Play Again →
-              </button>
-            )}
+            <ArcadeNameInput />
           </div>
         </div>
       ) : null}
