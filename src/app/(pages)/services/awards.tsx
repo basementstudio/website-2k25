@@ -3,7 +3,7 @@
 import { motion } from "motion/react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { MouseEvent, useState } from "react"
 
 import { formatDate } from "@/utils/format-date"
 
@@ -12,25 +12,32 @@ import { QueryType } from "./query"
 export const Awards = ({ data }: { data: QueryType }) => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const [mouseY, setMouseY] = useState(0)
+  const [hoveredHeight, setHoveredHeight] = useState(0)
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLUListElement>) => {
+  function getRelativeCoordinates(
+    event: MouseEvent<HTMLElement>,
+    ref: HTMLElement
+  ) {
     const position = {
-      x: e.pageX,
-      y: e.pageY
+      y: event.pageY
     }
 
     const offset = {
-      left: e.currentTarget.offsetLeft,
-      top: e.currentTarget.offsetTop,
-      width: e.currentTarget.clientWidth,
-      height: e.currentTarget.clientHeight
+      top: ref.offsetTop,
+      height: ref.clientHeight
     }
 
-    const reference = e.currentTarget.offsetParent as HTMLElement
-    if (reference) offset.top += reference.offsetTop
+    let reference = ref.offsetParent as HTMLElement
 
-    // 156.5 is the half of the height of the certificate
-    setMouseY(position.y - offset.top - 156.5)
+    while (reference) {
+      offset.top += reference.offsetTop
+      reference = reference.offsetParent as HTMLElement
+    }
+
+    return {
+      centerY:
+        (position.y - offset.top - offset.height / 2) / (offset.height / 2)
+    }
   }
 
   return (
@@ -41,7 +48,13 @@ export const Awards = ({ data }: { data: QueryType }) => {
       </div>
       <ul
         className="relative col-span-12 text-paragraph text-brand-w1"
-        onMouseMove={handleMouseMove}
+        onMouseMove={(e) => {
+          const coordinates = getRelativeCoordinates(
+            e,
+            e.currentTarget as HTMLElement
+          )
+          setMouseY(coordinates.centerY)
+        }}
       >
         {data.company.awards.awardList.items
           .sort(
@@ -51,8 +64,14 @@ export const Awards = ({ data }: { data: QueryType }) => {
             <li
               key={award._id}
               className="group relative grid grid-cols-12 gap-2 [&:first-child>.item]:after:absolute [&:first-child>.item]:after:-top-px [&:first-child>.item]:after:left-0 [&:first-child>.item]:after:w-full [&:first-child>.item]:after:border-t [&:first-child>.item]:after:border-brand-w1/20"
-              onMouseEnter={() => setHoveredItem(award._id)}
-              onMouseLeave={() => setHoveredItem(null)}
+              onMouseEnter={() => {
+                setHoveredItem(award._id)
+                setHoveredHeight(award.certificate?.height ?? 0)
+              }}
+              onMouseLeave={() => {
+                setHoveredItem(null)
+                setHoveredHeight(0)
+              }}
             >
               <Link
                 href={award.awardUrl ?? ""}
@@ -69,19 +88,18 @@ export const Awards = ({ data }: { data: QueryType }) => {
 
               {award.certificate ? (
                 <motion.div
-                  className="absolute right-16"
-                  initial={{ opacity: 0 }}
+                  className="absolute right-16 aspect-[2/3] w-64 opacity-0"
                   animate={{
                     opacity: hoveredItem === award._id ? 1 : 0,
-                    y: mouseY
+                    y: mouseY - hoveredHeight / 2
                   }}
                   transition={{ duration: 0.3, type: "spring" }}
                 >
                   <Image
                     src={award.certificate.url}
                     alt={award.certificate.alt ?? ""}
-                    width={award.certificate.width}
-                    height={award.certificate.height}
+                    fill
+                    className="object-cover"
                   />
                 </motion.div>
               ) : null}
