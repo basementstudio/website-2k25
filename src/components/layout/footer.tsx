@@ -42,7 +42,7 @@ export const Footer = () => (
         },
         {
           title: "Laboratory",
-          href: "/laboratory"
+          href: "/lab"
         },
         {
           title: "Blog",

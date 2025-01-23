@@ -40,8 +40,8 @@ export const Navbar = () => (
         },
         {
           title: "Laboratory",
-          href: "/laboratory",
-          routeName: "arcade"
+          href: "/lab",
+          routeName: "lab"
         },
         {
           title: "Blog",

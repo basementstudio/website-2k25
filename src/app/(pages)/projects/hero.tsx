@@ -1,9 +1,10 @@
 import { QueryType } from "./query"
 
 export const Hero = ({ data }: { data: QueryType }) => (
-  <section className="grid-layout text-heading uppercase">
-    <h1 className="col-start-1 col-end-5 text-brand-w2">Projects</h1>
-    <div className="col-start-5 col-end-12 text-brand-g1">
+  <section className="grid-layout">
+    <h1 className="col-start-1 col-end-7 text-h1 text-brand-w2">Showcase</h1>
+
+    <div className="col-start-7 col-end-12 text-h1 text-brand-g1">
       {data.pages.projects.projectList.items.length}
     </div>
   </section>

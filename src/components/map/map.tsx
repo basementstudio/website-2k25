@@ -4,6 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
+import { usePathname } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -16,16 +17,20 @@ import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import {
+  animateNet,
+  NET_ANIMATION_SPEED
+} from "@/components/basketball/basketball-utils"
+import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
-import { animateNet, NET_ANIMATION_SPEED } from "@/utils/basketball-utils"
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
+import { animateCar } from "./map-utils"
 import { ReflexesLoader } from "./reflexes"
 
 export type GLTFResult = GLTF & {
@@ -46,6 +51,7 @@ const createVideoTexture = (url: string) => {
 }
 
 export const Map = memo(() => {
+  const pathname = usePathname()
   const { map, basketballNet, videos, clickables } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
   const { scene: basketballNetV2 } = useGLTF(basketballNet)
@@ -71,8 +77,9 @@ export const Map = memo(() => {
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
-
+  const [car, setCar] = useState<Object3D | null>(null)
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
+
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
   const { fogColor, fogDensity, fogDepth } = useControls("fog", {
@@ -115,6 +122,12 @@ export const Map = memo(() => {
       isAnimating.current = animateNet(mesh, animationProgress.current)
     }
 
+    if (car) {
+      const mesh = car as Mesh
+      animationProgress.current += clock.getElapsedTime()
+      animateCar(mesh, animationProgress.current, pathname)
+    }
+
     if (colorPickerRef.current) {
       // @ts-ignore
       colorPickerRef.current.material.uniforms.opacity.value = showColorPicker
@@ -135,22 +148,19 @@ export const Map = memo(() => {
     })
 
     const hoopMesh = scene.getObjectByName("SM_BasketballHoop")
+    const originalNet = scene.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetV2.getObjectByName("SM_BasketRed-v2")
 
-    if (hoopMesh) {
-      hoopMesh.removeFromParent()
-      setBasketballHoop(hoopMesh)
-    }
+    const carMesh = scene.getObjectByName("Car01")
 
-    const originalNet = scene.getObjectByName("SM_BasketRed")
-    if (originalNet) {
-      originalNet.removeFromParent()
-    }
-
+    if (hoopMesh) setBasketballHoop(hoopMesh)
+    if (originalNet) originalNet.removeFromParent()
     if (newNetMesh) {
       newNetMesh.removeFromParent()
       setKeyframedNet(newNetMesh)
     }
+
+    if (carMesh) setCar(carMesh)
 
     scene.traverse((child) => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
@@ -224,7 +234,7 @@ export const Map = memo(() => {
       ...current,
       ...routingNodes
     }))
-  }, [scene, basketballNetV2, videos])
+  }, [scene, basketballNetV2, videos, clickables])
 
   useEffect(() => {
     const handleScore = () => {
@@ -290,6 +300,7 @@ export const Map = memo(() => {
       )}
 
       {keyframedNet && <primitive object={keyframedNet} />}
+      {car && <primitive position-x={-8.7} object={car} />}
       <PlayedBasketballs />
       <MapAssetsLoader />
       <ReflexesLoader />
