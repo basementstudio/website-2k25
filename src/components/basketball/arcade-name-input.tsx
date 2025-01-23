@@ -79,26 +79,19 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
     setIsSubmitting(true)
 
     const playerName = letters.join("")
+    setPlayerName(playerName)
 
-    try {
-      const { error } = await submitScore(playerName, score)
+    setReadyToPlay(true)
+    setHasPlayed(false)
 
-      if (error) {
-        console.error("Error submitting score:", error)
-        return
-      }
-      setPlayerName(playerName)
-
-      // start new round directly after submitting score
-      setTimeout(() => {
-        setReadyToPlay(true)
-        setHasPlayed(false)
-      }, 500)
-    } catch (error) {
-      console.error("Failed to submit score:", error)
-    } finally {
-      setIsSubmitting(false)
-    }
+    // submit score optimistically
+    submitScore(playerName, score)
+      .catch((error) => {
+        console.error("Failed to submit score:", error)
+      })
+      .finally(() => {
+        setIsSubmitting(false)
+      })
   }, [
     letters,
     score,
@@ -151,10 +144,10 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
         disabled={isSubmitting}
         className={cn(
           "font-semibold text-brand-w1 hover:underline",
-          isSubmitting && "cursor-not-allowed opacity-50"
+          isSubmitting && "opacity-50"
         )}
       >
-        {isSubmitting ? "Saving..." : "Save Score →"}
+        {"Save Score ->"}
       </button>
     </div>
   )

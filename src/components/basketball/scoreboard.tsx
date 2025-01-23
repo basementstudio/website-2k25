@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
-import { getTopScores } from "@/utils/supabase/client"
+import { getTopScores, onScoreUpdate } from "@/utils/supabase/client"
 
 interface Score {
   player_name: string
@@ -15,10 +15,10 @@ interface Score {
 export default function Scoreboard({ className }: { className?: string }) {
   const { isGameActive } = useMinigameStore()
   const [highScores, setHighScores] = useState<Score[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setisLoading] = useState(true)
 
-  const fetchScores = async () => {
-    setIsLoading(true)
+  const fetchScores = useCallback(async (showLoading = false) => {
+    if (showLoading) setisLoading(true)
     try {
       const { data, error } = await getTopScores()
       if (!error && data) {
@@ -27,13 +27,27 @@ export default function Scoreboard({ className }: { className?: string }) {
     } catch (error) {
       console.error("Failed to fetch scores:", error)
     } finally {
-      setIsLoading(false)
+      if (showLoading) setisLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
-    fetchScores()
-  }, [isGameActive])
+    fetchScores(true)
+
+    const pollInterval = setInterval(() => fetchScores(false), 30000)
+    const unsubscribe = onScoreUpdate(() => fetchScores(false))
+
+    return () => {
+      clearInterval(pollInterval)
+      unsubscribe()
+    }
+  }, [fetchScores])
+
+  useEffect(() => {
+    if (!isGameActive) {
+      fetchScores(false)
+    }
+  }, [isGameActive, fetchScores])
 
   return (
     <div className={cn("flex select-none flex-col font-semibold", className)}>
@@ -44,7 +58,7 @@ export default function Scoreboard({ className }: { className?: string }) {
         highScores.map((score, index) => (
           <div
             className="flex justify-between border-b border-brand-w2/20 py-1"
-            key={index}
+            key={`${score.player_name}-${score.score}-${score.created_at}`}
           >
             <p className="uppercase text-brand-g1">{score.player_name}</p>
             <p className="text-brand-w2">{score.score} pts</p>

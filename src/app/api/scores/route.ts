@@ -42,7 +42,7 @@ export async function GET() {
     if (error) throw error
 
     const headers = {
-      "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59"
+      "Cache-Control": "public, s-maxage=60, stale-while-revalidate=600"
     }
 
     return NextResponse.json({ data: data || [] }, { headers })
