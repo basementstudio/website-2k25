@@ -1,10 +1,12 @@
 import { Pump } from "basehub/react-pump"
 
+import { Contact } from "@/components/layout/contact"
+
 import { Awards } from "./awards"
-import { Clients } from "./clients"
 import { Hero } from "./hero"
 import { query } from "./query"
 import { Services } from "./services"
+import { Testimonials } from "./testimonials"
 import { VenturesBanner } from "./ventures"
 
 const ServicesPage = () => (
@@ -16,9 +18,10 @@ const ServicesPage = () => (
         <div className="flex flex-col gap-61">
           <Hero data={data} className="-mb-11" />
           <Services data={data} />
-          <Clients data={data} />
-          <VenturesBanner data={data} />
+          <Testimonials data={data} />
           <Awards data={data} />
+          <VenturesBanner data={data} />
+          <Contact />
         </div>
       )
     }}

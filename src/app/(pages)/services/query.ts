@@ -68,6 +68,20 @@ export const query = fragmentOn("Query", {
           certificate: IMAGE_FRAGMENT
         }
       }
+    },
+    testimonials: {
+      services: {
+        name: true,
+        handle: true,
+        handleLink: true,
+        content: {
+          json: {
+            content: true
+          }
+        },
+        avatar: IMAGE_FRAGMENT,
+        date: true
+      }
     }
   }
 })
