@@ -9,7 +9,9 @@ export interface AssetsResult {
   mapAssets: {
     mesh: string
     lightmap: string
+    lightmapIntensity: number
     ambientOcclusion: string
+    ambientOcclusionIntensity: number
   }[]
   arcade: {
     idleScreen: string
@@ -73,7 +75,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
     mapAssets: threeDInteractions.map.maps.items.map((item) => ({
       mesh: item._title,
       lightmap: item.lightmap?.url ?? "",
-      ambientOcclusion: item.ambientOcclusion?.url ?? ""
+      lightmapIntensity: item.lightmapIntensity ?? 1,
+      ambientOcclusion: item.ambientOcclusion?.url ?? "",
+      ambientOcclusionIntensity: item.ambientOcclusionIntensity ?? 1
     })),
     arcade: { idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "" },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({

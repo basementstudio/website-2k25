@@ -25,10 +25,12 @@ uniform float uTime;
 // lightmap
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
+uniform float lightMapMultiplier;
 
 // aomap
 uniform sampler2D aoMap;
 uniform float aoMapIntensity;
+uniform float aoMapMultiplier;
 uniform bool aoWithCheckerboard;
 
 uniform float noiseFactor;
@@ -69,6 +71,9 @@ const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 
 void main() {
+  float lightMapIntensity = lightMapIntensity * lightMapMultiplier;
+  float aoMapIntensity = aoMapIntensity * aoMapMultiplier;
+
   vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
   vec2 checkerPos = floor(shiftedFragCoord * 0.5);
   float pattern = mod(checkerPos.x + checkerPos.y, 2.0);

@@ -13,9 +13,11 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
         lightmap: {
           url: true
         },
+        lightmapIntensity: true,
         ambientOcclusion: {
           url: true
-        }
+        },
+        ambientOcclusionIntensity: true
       }
     },
     glassReflexes: {
