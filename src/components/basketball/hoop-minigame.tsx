@@ -181,30 +181,38 @@ export const HoopMinigame = () => {
           if (prev <= 1) {
             if (timerInterval.current) {
               clearInterval(timerInterval.current)
-              playSoundFX("TIMEOUT_BUZZER")
-            }
-            setIsGameActive(false)
-            setHasPlayed(true)
-            setReadyToPlay(false)
 
-            if (ballRef.current) {
-              const currentPos = ballRef.current.translation()
-              const currentVel = ballRef.current.linvel()
+              // release ball if held after game timeout
+              if (isDragging && ballRef.current) {
+                setIsDragging(false)
+                ballRef.current.setBodyType(0, true)
+              }
 
-              addPlayedBall({
-                position: {
-                  x: currentPos.x,
-                  y: currentPos.y,
-                  z: currentPos.z
-                },
-                velocity: {
-                  x: currentVel.x,
-                  y: currentVel.y,
-                  z: currentVel.z
+              setTimeout(() => {
+                playSoundFX("TIMEOUT_BUZZER")
+                setIsGameActive(false)
+                setHasPlayed(true)
+                setReadyToPlay(false)
+
+                if (ballRef.current) {
+                  const currentPos = ballRef.current.translation()
+                  const currentVel = ballRef.current.linvel()
+
+                  addPlayedBall({
+                    position: {
+                      x: currentPos.x,
+                      y: currentPos.y,
+                      z: currentPos.z
+                    },
+                    velocity: {
+                      x: currentVel.x,
+                      y: currentVel.y,
+                      z: currentVel.z
+                    }
+                  })
                 }
-              })
+              }, 100)
             }
-
             return gameDuration
           }
           return prev - 1
@@ -219,7 +227,9 @@ export const HoopMinigame = () => {
     setHasPlayed,
     addPlayedBall,
     setReadyToPlay,
-    playSoundFX
+    playSoundFX,
+    isDragging,
+    setIsDragging
   ])
 
   const handlePointerUp = useCallback(() => {
