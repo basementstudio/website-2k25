@@ -13,7 +13,7 @@ interface Score {
 }
 
 export default function Scoreboard({ className }: { className?: string }) {
-  const { playerName, score } = useMinigameStore()
+  const { isGameActive } = useMinigameStore()
   const [highScores, setHighScores] = useState<Score[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -33,13 +33,13 @@ export default function Scoreboard({ className }: { className?: string }) {
 
   useEffect(() => {
     fetchScores()
-  }, [playerName])
+  }, [isGameActive])
 
   return (
     <div className={cn("flex select-none flex-col font-semibold", className)}>
       <p className="pb-1 text-paragraph text-brand-w2">Leaderboard:</p>
       {isLoading ? (
-        <p className="animate-pulse py-1 text-brand-g1">Loading...</p>
+        <p className="animate-pulse py-1 text-brand-g1">Loading</p>
       ) : (
         highScores.map((score, index) => (
           <div

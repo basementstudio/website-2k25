@@ -50,7 +50,7 @@ interface MinigameStore {
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   score: 0,
-  timeRemaining: 85,
+  timeRemaining: 24,
   isGameActive: false,
   isDragging: false,
   isResetting: false,
