@@ -33,14 +33,6 @@ export default function Scoreboard({ className }: { className?: string }) {
 
   useEffect(() => {
     fetchScores()
-    const interval = setInterval(fetchScores, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    if (playerName) {
-      fetchScores()
-    }
   }, [playerName])
 
   return (

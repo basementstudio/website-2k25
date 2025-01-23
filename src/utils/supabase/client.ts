@@ -28,7 +28,8 @@ export const submitScore = async (playerName: string, score: number) => {
     body: JSON.stringify({
       playerName,
       score: Math.floor(score),
-      clientId
+      clientId,
+      timestamp: Date.now()
     })
   })
 

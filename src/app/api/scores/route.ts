@@ -37,11 +37,15 @@ export async function GET() {
       .from("scoreboard")
       .select("player_name, score, created_at")
       .order("score", { ascending: false })
-      .limit(30)
+      .limit(25)
 
     if (error) throw error
 
-    return NextResponse.json({ data: data || [] })
+    const headers = {
+      "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59"
+    }
+
+    return NextResponse.json({ data: data || [] }, { headers })
   } catch (error) {
     console.error("Error fetching scores:", error)
     return NextResponse.json(
@@ -53,21 +57,43 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { playerName, score, clientId } = await request.json()
+    const { playerName, score, clientId, timestamp } = await request.json()
     console.log("API received score submission:", {
       playerName,
       score,
-      clientId
+      clientId,
+      timestamp
     })
 
-    if (!playerName || typeof playerName !== "string") {
+    // validate timestamp
+    const now = Date.now()
+    if (
+      !timestamp ||
+      typeof timestamp !== "number" ||
+      now - timestamp > 10000 ||
+      now - timestamp < 0
+    ) {
+      return NextResponse.json({ error: "Invalid timestamp" }, { status: 400 })
+    }
+
+    if (
+      !playerName ||
+      typeof playerName !== "string" ||
+      playerName.length < 3 ||
+      playerName.length > 3
+    ) {
       return NextResponse.json(
         { error: "Invalid player name" },
         { status: 400 }
       )
     }
 
-    if (typeof score !== "number" || score < 0 || score >= 999) {
+    if (
+      typeof score !== "number" ||
+      score < 0 ||
+      score >= 999 ||
+      !Number.isInteger(score)
+    ) {
       console.log("Score validation failed:", { score, type: typeof score })
       return NextResponse.json({ error: "Invalid score" }, { status: 400 })
     }
