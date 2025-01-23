@@ -22,6 +22,30 @@ import { useAssets } from "../assets-provider"
 interface MapAssets {
   lightmap?: Texture
   aomap?: Texture
+  lmIntensity?: number
+  aoIntensity?: number
+}
+
+interface TextureUpdate {
+  mesh: Mesh
+  texture: Texture
+  intensity?: number
+}
+
+const addLightmap = (update: TextureUpdate) => {
+  if (!update.mesh.userData.hasGlobalMaterial) return
+  const material = update.mesh.material as ShaderMaterial
+  material.uniforms.lightMap.value = update.texture
+  material.uniforms.lightMapIntensity.value = update.intensity ?? 1
+  material.uniforms.lightMapMultiplier.value = 1
+}
+
+const addAmbientOcclusion = (update: TextureUpdate) => {
+  if (!update.mesh.userData.hasGlobalMaterial) return
+  const material = update.mesh.material as ShaderMaterial
+  material.uniforms.aoMap.value = update.texture
+  material.uniforms.aoMapIntensity.value = update.intensity ?? 1
+  material.uniforms.aoMapMultiplier.value = 1
 }
 
 const useMapAssets = (): Record<string, MapAssets> => {
@@ -47,7 +71,7 @@ const useMapAssets = (): Record<string, MapAssets> => {
   )
 
   const meshMaps = useMemo(() => {
-    const maps: Record<string, { lightmap?: Texture; aomap?: Texture }> = {}
+    const maps: Record<string, MapAssets> = {}
 
     loadedLightmaps.forEach((map, index) => {
       const meshName = withLightmap[index].mesh
@@ -59,6 +83,7 @@ const useMapAssets = (): Record<string, MapAssets> => {
         maps[meshName] = {}
       }
       maps[meshName].lightmap = map
+      maps[meshName].lmIntensity = withLightmap[index].lightmapIntensity
     })
 
     loadedAmbientOcclusion.forEach((map, index) => {
@@ -71,6 +96,8 @@ const useMapAssets = (): Record<string, MapAssets> => {
         maps[meshName] = {}
       }
       maps[meshName].aomap = map
+      maps[meshName].aoIntensity =
+        withAmbientOcclusion[index].ambientOcclusionIntensity
     })
 
     return maps
@@ -105,7 +132,7 @@ const MapAssets = () => {
       onChange: (value) => {
         elementsWithLightmaps.current.forEach((mesh) => {
           const material = mesh.material as ShaderMaterial
-          material.uniforms.lightMapIntensity.value = value
+          material.uniforms.lightMapMultiplier.value = value
         })
       }
     }
@@ -120,7 +147,7 @@ const MapAssets = () => {
       onChange: (value) => {
         elementsWithAmbientOcclusion.current.forEach((mesh) => {
           const material = mesh.material as ShaderMaterial
-          material.uniforms.aoMapIntensity.value = value
+          material.uniforms.aoMapMultiplier.value = value
         })
       }
     },
@@ -146,44 +173,44 @@ const MapAssets = () => {
       }
     })
 
-    const addLightmap = (mesh: Mesh, lightmap: Texture) => {
-      if (!mesh.userData.hasGlobalMaterial) return
-
-      const material = mesh.material as ShaderMaterial
-      material.uniforms.lightMap.value = lightmap
-      material.uniforms.lightMapIntensity.value = 1.0
-    }
-
-    const addAmbientOcclusion = (mesh: Mesh, ambientOcclusion: Texture) => {
-      if (!mesh.userData.hasGlobalMaterial) return
-
-      const material = mesh.material as ShaderMaterial
-      material.uniforms.aoMap.value = ambientOcclusion
-      material.uniforms.aoMapIntensity.value = 1.0
-    }
-
     Object.entries(meshMaps).forEach(([mesh, maps]) => {
       const meshOrGroup = scene.getObjectByName(mesh)
       if (!meshOrGroup) return
 
       if (meshOrGroup instanceof Mesh) {
         if (maps.lightmap) {
-          addLightmap(meshOrGroup, maps.lightmap)
+          addLightmap({
+            mesh: meshOrGroup,
+            texture: maps.lightmap,
+            intensity: maps.lmIntensity
+          })
           elementsWithLightmaps.current.push(meshOrGroup)
         }
         if (maps.aomap) {
-          addAmbientOcclusion(meshOrGroup, maps.aomap)
+          addAmbientOcclusion({
+            mesh: meshOrGroup,
+            texture: maps.aomap,
+            intensity: maps.aoIntensity
+          })
           elementsWithAmbientOcclusion.current.push(meshOrGroup)
         }
       } else if (meshOrGroup instanceof Group) {
         meshOrGroup.traverse((child) => {
           if (child instanceof Mesh) {
             if (maps.lightmap) {
-              addLightmap(child, maps.lightmap)
+              addLightmap({
+                mesh: child,
+                texture: maps.lightmap,
+                intensity: maps.lmIntensity
+              })
               elementsWithLightmaps.current.push(child)
             }
             if (maps.aomap) {
-              addAmbientOcclusion(child, maps.aomap)
+              addAmbientOcclusion({
+                mesh: child,
+                texture: maps.aomap,
+                intensity: maps.aoIntensity
+              })
               elementsWithAmbientOcclusion.current.push(child)
             }
           }
