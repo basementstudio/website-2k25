@@ -27,6 +27,7 @@ import {
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
+import { Net } from "../basketball/net"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
@@ -52,9 +53,8 @@ const createVideoTexture = (url: string) => {
 
 export const Map = memo(() => {
   const pathname = usePathname()
-  const { map, basketballNet, videos, clickables } = useAssets()
+  const { map, videos, clickables } = useAssets()
   const { scene } = useGLTF(map) as unknown as GLTFResult
-  const { scene: basketballNetV2 } = useGLTF(basketballNet)
   const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
     null
   )
@@ -78,7 +78,7 @@ export const Map = memo(() => {
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
   const [car, setCar] = useState<Object3D | null>(null)
-  const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
+  const [net, setNet] = useState<THREE.Mesh | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
@@ -116,11 +116,12 @@ export const Map = memo(() => {
       // material.uniforms.uJitter.value = jitter
     })
 
-    if (keyframedNet && isAnimating.current) {
-      const mesh = keyframedNet as Mesh
-      animationProgress.current += NET_ANIMATION_SPEED
-      isAnimating.current = animateNet(mesh, animationProgress.current)
-    }
+    // keyframe animation method
+    // if (net && isAnimating.current) {
+    //   const mesh = net as Mesh
+    //   animationProgress.current += NET_ANIMATION_SPEED
+    //   isAnimating.current = animateNet(mesh, animationProgress.current)
+    // }
 
     if (car) {
       const mesh = car as Mesh
@@ -149,15 +150,20 @@ export const Map = memo(() => {
 
     const hoopMesh = scene.getObjectByName("SM_BasketballHoop")
     const originalNet = scene.getObjectByName("SM_BasketRed")
-    const newNetMesh = basketballNetV2.getObjectByName("SM_BasketRed-v2")
 
     const carMesh = scene.getObjectByName("Car01")
 
     if (hoopMesh) setBasketballHoop(hoopMesh)
-    if (originalNet) originalNet.removeFromParent()
-    if (newNetMesh) {
-      newNetMesh.removeFromParent()
-      setKeyframedNet(newNetMesh)
+    if (originalNet && originalNet instanceof THREE.Mesh) {
+      console.log("Found net mesh:", {
+        name: originalNet.name,
+        position: originalNet.position,
+        parent: originalNet.parent?.name,
+        material: originalNet.material,
+        visible: originalNet.visible
+      })
+      originalNet.removeFromParent()
+      setNet(originalNet)
     }
 
     if (carMesh) setCar(carMesh)
@@ -236,7 +242,7 @@ export const Map = memo(() => {
       ...current,
       ...routingNodes
     }))
-  }, [scene, basketballNetV2, videos, clickables])
+  }, [scene, videos, clickables])
 
   useEffect(() => {
     const handleScore = () => {
@@ -300,7 +306,7 @@ export const Map = memo(() => {
         </RigidBody>
       )}
 
-      {keyframedNet && <primitive object={keyframedNet} />}
+      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
       {car && <primitive position-x={-8.7} object={car} />}
       <PlayedBasketballs />
       <MapAssetsLoader />
