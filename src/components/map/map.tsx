@@ -155,13 +155,6 @@ export const Map = memo(() => {
 
     if (hoopMesh) setBasketballHoop(hoopMesh)
     if (originalNet && originalNet instanceof THREE.Mesh) {
-      console.log("Found net mesh:", {
-        name: originalNet.name,
-        position: originalNet.position,
-        parent: originalNet.parent?.name,
-        material: originalNet.material,
-        visible: originalNet.visible
-      })
       originalNet.removeFromParent()
       setNet(originalNet)
     }
