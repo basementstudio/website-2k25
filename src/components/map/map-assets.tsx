@@ -55,6 +55,7 @@ const useMapAssets = (): Record<string, MapAssets> => {
     () => mapAssets.filter((mesh) => mesh.lightmap),
     [mapAssets]
   )
+
   const withAmbientOcclusion = useMemo(
     () => mapAssets.filter((mesh) => mesh.ambientOcclusion),
     [mapAssets]

@@ -42,10 +42,6 @@ function useReflexes(): Record<string, Texture> {
 }
 
 function Reflexes() {
-  const shaderMaterialsRef = useCustomShaderMaterial(
-    (store) => store.materialsRef
-  )
-
   const reflexes = useReflexes()
 
   const scene = useThree((state) => state.scene)

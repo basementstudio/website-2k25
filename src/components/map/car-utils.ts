@@ -132,7 +132,7 @@ function runFirstCarPass(carPosition: Vector3) {
 export function animateCar(car: Object3D, t: number, pathname: string) {
   const carPosition = car.position
 
-  if (pathname !== "/about") {
+  if (pathname !== "/services") {
     if (
       carPosition.x >= CONSTANTS.END_X ||
       carPosition.x <= CONSTANTS.START_X
