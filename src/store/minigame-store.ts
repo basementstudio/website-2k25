@@ -24,6 +24,7 @@ interface MinigameStore {
   isDragging: boolean
   isResetting: boolean
   hasHitRim: boolean
+  consecutiveScores: number
   scoreMultiplier: number
   lastScoreTime: number
   justScored: boolean
@@ -46,6 +47,10 @@ interface MinigameStore {
   setHasPlayed: (hasPlayed: boolean) => void
   addPlayedBall: (ball: PlayedBall) => void
   setReadyToPlay: (ready: boolean) => void
+  incrementConsecutiveScores: () => void
+  resetConsecutiveScores: () => void
+  getMultiplier: () => number
+  setJustScored: (scored: boolean) => void
 }
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
@@ -60,6 +65,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   upStrength: UP_STRENGTH,
   gameDuration: GAME_DURATION,
   hasHitRim: false,
+  consecutiveScores: 0,
   scoreMultiplier: 1,
   lastScoreTime: 0,
   justScored: false,
@@ -88,5 +94,29 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   setPlayerRecord: (playerRecord: number) => set({ playerRecord }),
   addPlayedBall: (ball: PlayedBall) =>
     set((state) => ({ playedBalls: [...state.playedBalls, ball] })),
-  setReadyToPlay: (ready: boolean) => set({ readyToPlay: ready })
+  setReadyToPlay: (ready: boolean) => set({ readyToPlay: ready }),
+  setJustScored: (scored: boolean) => set({ justScored: scored }),
+  incrementConsecutiveScores: () =>
+    set((state) => ({
+      consecutiveScores: Math.min(state.consecutiveScores + 1, 4),
+      scoreMultiplier: state.getMultiplier(),
+      justScored: true
+    })),
+  resetConsecutiveScores: () =>
+    set({ consecutiveScores: 0, scoreMultiplier: 1, justScored: false }),
+  getMultiplier: () => {
+    const consecutiveScores = get().consecutiveScores
+    switch (consecutiveScores) {
+      case 0:
+        return 1
+      case 1:
+        return 1.25
+      case 2:
+        return 1.5
+      case 3:
+        return 2.5
+      default:
+        return 5
+    }
+  }
 }))
