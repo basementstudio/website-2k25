@@ -4,14 +4,12 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
-import { usePathname } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 import {
   Mesh,
   MeshStandardMaterial,
   Object3D,
   Object3DEventMap,
-  ShaderMaterial,
   Vector3
 } from "three"
 import * as THREE from "three"
@@ -63,7 +61,6 @@ interface clickable {
 }
 
 export const Map = memo(() => {
-  const pathname = usePathname()
   const {
     office: officePath,
     outdoor: outdoorPath,
@@ -118,7 +115,7 @@ export const Map = memo(() => {
 
   const { godraysOpacity } = useControls("godrays", {
     godraysOpacity: {
-      value: 1.0,
+      value: 0.5,
       min: 0.0,
       max: 5.0,
       step: 0.001
