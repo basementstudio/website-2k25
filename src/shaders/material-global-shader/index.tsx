@@ -71,7 +71,9 @@ export const createGlobalShaderMaterial = (
       aoWithCheckerboard: { value: false },
       isBasketball: { value: false },
       uBasketballTransition: { value: 0 },
-      uBasketballFogColorTransition: { value: 0 }
+      uBasketballFogColorTransition: { value: 0 },
+      uGodrayOpacity: { value: 0 },
+      uGodrayDensity: { value: 0 }
     },
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,

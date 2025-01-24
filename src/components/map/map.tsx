@@ -11,6 +11,7 @@ import {
   MeshStandardMaterial,
   Object3D,
   Object3DEventMap,
+  ShaderMaterial,
   Vector3
 } from "three"
 import * as THREE from "three"
@@ -71,6 +72,8 @@ export const Map = memo(() => {
       }
     >
   >({})
+
+  const godrays = useRef<Mesh[]>([])
 
   const shaderMaterialsRef = useCustomShaderMaterial(
     (store) => store.materialsRef
@@ -137,6 +140,49 @@ export const Map = memo(() => {
   })
 
   useEffect(() => {
+    godrays.current.forEach((mesh) => {
+      const material = mesh.material as ShaderMaterial
+
+      const shouldShow =
+        (mesh.name === "GR_About" && pathname === "/about") ||
+        (mesh.name === "GR_Home" && pathname === "/")
+
+      // Animate opacity
+      const startValue = material.uniforms.uGodrayOpacity.value
+      const endValue = shouldShow ? 1 : 0
+      const duration = 1000 // 1 second transition
+      const startTime = performance.now()
+
+      if (material.userData.opacityAnimation) {
+        cancelAnimationFrame(material.userData.opacityAnimation)
+      }
+
+      const animate = () => {
+        const currentTime = performance.now()
+        const elapsed = currentTime - startTime
+        const progress = Math.min(elapsed / duration, 1)
+
+        // Ease in-out cubic
+        const easeProgress =
+          progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2
+
+        material.uniforms.uGodrayOpacity.value =
+          startValue + (endValue - startValue) * easeProgress
+
+        if (progress < 1) {
+          material.userData.opacityAnimation = requestAnimationFrame(animate)
+        } else {
+          delete material.userData.opacityAnimation
+        }
+      }
+
+      animate()
+    })
+  }, [pathname])
+
+  useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
 
     clickables.forEach((node) => {
@@ -200,7 +246,9 @@ export const Map = memo(() => {
         const isGodRay =
           meshChild.name === "GR_About" || meshChild.name === "GR_Home"
 
-        if (isGodRay) currentMaterial.opacity = 0
+        if (isGodRay && !Array.isArray(meshChild.material)) {
+          meshChild.material.side = THREE.FrontSide
+        }
 
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
@@ -223,6 +271,10 @@ export const Map = memo(() => {
             )
 
         meshChild.material = newMaterials
+
+        if (isGodRay) {
+          godrays.current.push(meshChild)
+        }
 
         meshChild.userData.hasGlobalMaterial = true
       }
