@@ -34,6 +34,7 @@ export const PlayedBasketballs = () => {
           <mesh
             geometry={geometry}
             material={basketballModel.materials["Material.001"]}
+            raycast={() => null}
             scale={1.7}
             material-metalness={0}
             material-roughness={0.8}

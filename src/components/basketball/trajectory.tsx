@@ -109,6 +109,7 @@ export const Trajectory = ({
 
   return (
     <Line
+      raycast={() => null}
       points={pointsToRender}
       color="white"
       lineWidth={1.5}

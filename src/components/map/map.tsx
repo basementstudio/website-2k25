@@ -282,7 +282,7 @@ export const Map = memo(() => {
 
   return (
     <group>
-      <primitive object={mainScene} />
+      <primitive raycast={() => null} object={mainScene} />
       <ArcadeScreen />
       {Object.values(clickableNodesData).map(
         ({ frameData, name, node, arrowData, route }) => (
@@ -297,12 +297,12 @@ export const Map = memo(() => {
       )}
       {basketballHoop && (
         <RigidBody type="fixed" colliders="trimesh">
-          <primitive object={basketballHoop} />
+          <primitive raycast={() => null} object={basketballHoop} />
         </RigidBody>
       )}
 
-      {keyframedNet && <primitive object={keyframedNet} />}
-      {car && <primitive position-x={-8.7} object={car} />}
+      {keyframedNet && <primitive raycast={() => null} object={keyframedNet} />}
+      {car && <primitive raycast={() => null} position-x={-8.7} object={car} />}
       <PlayedBasketballs />
       <MapAssetsLoader />
       <ReflexesLoader />
