@@ -28,17 +28,7 @@ const getClientId = () => {
   return clientId
 }
 
-let scoresCache: { data: any[]; timestamp: number } | null = null
-const SCORES_CACHE_DURATION = 24000
-
 export const getTopScores = async () => {
-  if (
-    scoresCache &&
-    Date.now() - scoresCache.timestamp < SCORES_CACHE_DURATION
-  ) {
-    return { data: scoresCache.data, error: null }
-  }
-
   const response = await fetch("/api/scores")
 
   if (!response.ok) {
@@ -47,24 +37,12 @@ export const getTopScores = async () => {
   }
 
   const { data, error } = await response.json()
-
-  if (data && !error) {
-    scoresCache = { data, timestamp: Date.now() }
-  }
-
   return { data: data || [], error }
-}
-
-export const invalidateScoresCache = () => {
-  scoresCache = null
 }
 
 export const submitScore = async (playerName: string, score: number) => {
   console.log("submitScore called with score:", score)
   const clientId = getClientId()
-
-  invalidateScoresCache()
-  notifyScoreUpdate()
 
   const response = await fetch("/api/scores", {
     method: "POST",
@@ -84,10 +62,11 @@ export const submitScore = async (playerName: string, score: number) => {
     throw new Error(error.error || "Failed to submit score")
   }
 
-  await getTopScores()
-  notifyScoreUpdate()
-
   const result = await response.json()
   console.log("Score submission response:", result)
+
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  notifyScoreUpdate()
+
   return result
 }
