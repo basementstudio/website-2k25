@@ -6,6 +6,7 @@ import { Mesh } from "three"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { RoutingArrow } from "./routing-arrow"
 import { RoutingPlane } from "./routing-plane/routing-plane"
+import { Edges } from "@react-three/drei"
 
 interface RoutingElementProps {
   node: Mesh
@@ -87,37 +88,34 @@ export const RoutingElement = ({
         <mesh
           ref={meshRef}
           geometry={node.geometry}
-          position={node.position}
-          scale={node.scale}
+          position={[node.position.x, node.position.y, node.position.z]}
           rotation={node.rotation}
         >
-          <meshBasicMaterial
-            color="white"
-            opacity={hover ? 0.0 : 0}
-            transparent
-            depthTest={false}
-            wireframe={true}
-            wireframeLinewidth={1}
-          />
+          <meshBasicMaterial color="white" opacity={0} transparent />
         </mesh>
       </group>
       {hover && (
-        <RoutingPlane
-          position={frameData.position}
-          rotation={frameData.rotation}
-          size={frameData.size}
-        />
-      )}
-      {hover && (
-        <RoutingArrow
-          position={[
-            node.position.x + arrowData.position[0],
-            node.position.y + arrowData.position[1],
-            node.position.z + arrowData.position[2]
-          ]}
-          rotation={arrowData.rotation}
-          scale={arrowData.scale}
-        />
+        <>
+          <RoutingPlane
+            position={[
+              node.position.x + frameData.position[0],
+              node.position.y + frameData.position[1],
+              node.position.z + frameData.position[2]
+            ]}
+            scale={[frameData.size[0], frameData.size[1]]}
+            rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
+            geometry={node.geometry}
+          />
+          <RoutingArrow
+            position={[
+              node.position.x + arrowData.position[0],
+              node.position.y + arrowData.position[1],
+              node.position.z + arrowData.position[2]
+            ]}
+            scale={arrowData.scale}
+            rotation={arrowData.rotation}
+          />
+        </>
       )}
     </>
   )
