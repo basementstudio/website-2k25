@@ -2,7 +2,10 @@ import {
   BufferGeometry,
   ShaderMaterial,
   MeshBasicMaterial,
-  BoxGeometry
+  BoxGeometry,
+  Matrix4,
+  Object3D,
+  PlaneGeometry
 } from "three"
 
 import fragmentShader from "./fragment.glsl"
@@ -32,12 +35,43 @@ export const RoutingPlane = ({
   })
 
   const squareSize = 0.03
-  const squareGeometry = new BoxGeometry(squareSize, squareSize, 0.01)
+  const squareGeometry = new PlaneGeometry(squareSize, squareSize)
   const squareMaterial = new MeshBasicMaterial({
     color: 0xffffff,
     depthWrite: false,
     depthTest: false
   })
+
+  const instancedSquares = geometry.attributes.position ? (
+    <instancedMesh
+      args={[
+        squareGeometry,
+        squareMaterial,
+        geometry.attributes.position.count
+      ]}
+      position={[0, 0, 0]}
+      ref={(mesh) => {
+        if (mesh && geometry.attributes.position) {
+          const dummy = new Object3D()
+          const matrix = new Matrix4()
+
+          for (let i = 0; i < geometry.attributes.position.count; i++) {
+            const x = geometry.attributes.position.array[i * 3] * scale[0]
+            const y = geometry.attributes.position.array[i * 3 + 1] * scale[1]
+            const z = geometry.attributes.position.array[i * 3 + 2]
+
+            dummy.position.set(x, y, z)
+            dummy.scale.set(1 / scale[0], 1 / scale[1], 1)
+            dummy.updateMatrix()
+
+            matrix.copy(dummy.matrix)
+            mesh.setMatrixAt(i, matrix)
+          }
+          mesh.instanceMatrix.needsUpdate = true
+        }
+      }}
+    />
+  ) : null
 
   return (
     <group position={position} rotation={rotation}>
@@ -46,26 +80,7 @@ export const RoutingPlane = ({
         material={material}
         scale={[scale[0], scale[1], 1]}
       />
-
-      {geometry.attributes.position
-        ? Array.from({ length: geometry.attributes.position.count }).map(
-            (_, i) => {
-              const x = geometry.attributes.position.array[i * 3]
-              const y = geometry.attributes.position.array[i * 3 + 1]
-              const z = geometry.attributes.position.array[i * 3 + 2]
-
-              return (
-                <mesh
-                  key={`square-${i}`}
-                  geometry={squareGeometry}
-                  material={squareMaterial}
-                  position={[x * scale[0], y * scale[1], z]}
-                  scale={[1 / scale[0], 1 / scale[1], 1]}
-                />
-              )
-            }
-          )
-        : null}
+      {instancedSquares}
     </group>
   )
 }
