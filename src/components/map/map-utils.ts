@@ -125,22 +125,31 @@ function updateCarPosition(carPosition: Vector3, progress: number) {
 function runFirstCarPass(carPosition: Vector3) {
   carState.hasInitialized = true
   carPosition.x = CONSTANTS.START_X
-  setTimeout(() => {
-    carState.isWaiting = false
-    resetCarMovement()
-  }, CONSTANTS.INITIAL_DELAY)
+  carState.isWaiting = true
+  setRandomTimeout()
 }
 
 export function animateCar(car: Object3D, t: number, pathname: string) {
+  const carPosition = car.position
+
   if (pathname !== "/about") {
-    car.position.x = CONSTANTS.END_X
-    car.position.z = 0
-    car.rotation.y = 0
-    carState.hasInitialized = false
+    if (
+      carPosition.x >= CONSTANTS.END_X ||
+      carPosition.x <= CONSTANTS.START_X
+    ) {
+      car.position.x = CONSTANTS.END_X
+      car.position.z = 0
+      car.rotation.y = 0
+      carState.hasInitialized = false
+      return
+    }
+    if (carState.hasInitialized && !carState.isWaiting) {
+      const progress = (carPosition.x - CONSTANTS.START_X) / TOTAL_DISTANCE
+      updateCarPosition(carPosition, progress)
+      car.rotation.y = carState.rotationAngle
+    }
     return
   }
-
-  const carPosition = car.position
 
   if (!carState.hasInitialized) {
     runFirstCarPass(carPosition)
