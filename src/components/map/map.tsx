@@ -104,7 +104,16 @@ export const Map = memo(() => {
     showColorPicker: false
   })
 
+  const { godraysOpacity } = useControls("godrays", {
+    godraysOpacity: 1.0
+  })
+
   useFrame(({ clock }) => {
+    godrays.current.forEach((mesh) => {
+      // @ts-ignore
+      mesh.material.uniforms.uGodrayDensity.value = godraysOpacity
+    })
+
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
 
