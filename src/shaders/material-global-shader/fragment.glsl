@@ -206,7 +206,7 @@ void main() {
   #endif
 
   #ifdef GODRAY
-  gl_FragColor.a *= gl_FragColor.a * pattern * uGodrayOpacity * uGodrayDensity;
+  gl_FragColor.a *= pattern * uGodrayOpacity * uGodrayDensity;
   #endif
 
   // Fog

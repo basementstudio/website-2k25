@@ -105,7 +105,12 @@ export const Map = memo(() => {
   })
 
   const { godraysOpacity } = useControls("godrays", {
-    godraysOpacity: 1.0
+    godraysOpacity: {
+      value: 1.0,
+      min: 0.0,
+      max: 5.0,
+      step: 0.001
+    }
   })
 
   useFrame(({ clock }) => {
@@ -153,13 +158,13 @@ export const Map = memo(() => {
       const material = mesh.material as ShaderMaterial
 
       const shouldShow =
-        (mesh.name === "GR_About" && pathname === "/about") ||
+        (mesh.name === "GR_About" && pathname === "/services") ||
         (mesh.name === "GR_Home" && pathname === "/")
 
       // Animate opacity
       const startValue = material.uniforms.uGodrayOpacity.value
       const endValue = shouldShow ? 1 : 0
-      const duration = 1000 // 1 second transition
+      const duration = 500 // 1 second transition
       const startTime = performance.now()
 
       if (material.userData.opacityAnimation) {
