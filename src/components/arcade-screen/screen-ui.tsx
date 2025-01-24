@@ -26,7 +26,7 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
       <PerspectiveCamera
         manual
         makeDefault
-        position={[0, 0.0, 14]}
+        position={[0, 0.0, 16]}
         aspect={aspect}
       />
       <DynamicLabsUI />
