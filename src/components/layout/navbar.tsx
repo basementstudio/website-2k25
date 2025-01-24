@@ -23,13 +23,13 @@ export const Navbar = () => (
       const LINKS: NavbarLink[] = [
         {
           title: "Showcase",
-          href: "/projects",
+          href: "/showcase",
           routeName: "projects",
           count: projects
         },
         {
           title: "Services",
-          href: "/about",
+          href: "/services",
           routeName: "stairs"
         },
 
