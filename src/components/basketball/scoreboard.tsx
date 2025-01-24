@@ -13,7 +13,7 @@ interface Score {
 }
 
 export default function Scoreboard({ className }: { className?: string }) {
-  const { isGameActive } = useMinigameStore()
+  const { isGameActive, hasPlayed } = useMinigameStore()
   const [highScores, setHighScores] = useState<Score[]>([])
   const [isLoading, setisLoading] = useState(true)
 
@@ -34,20 +34,17 @@ export default function Scoreboard({ className }: { className?: string }) {
   useEffect(() => {
     fetchScores(true)
 
-    const pollInterval = setInterval(() => fetchScores(false), 30000)
     const unsubscribe = onScoreUpdate(() => fetchScores(false))
-
     return () => {
-      clearInterval(pollInterval)
       unsubscribe()
     }
   }, [fetchScores])
 
   useEffect(() => {
-    if (!isGameActive) {
+    if (!isGameActive || hasPlayed) {
       fetchScores(false)
     }
-  }, [isGameActive, fetchScores])
+  }, [isGameActive, hasPlayed, fetchScores])
 
   return (
     <div className={cn("flex select-none flex-col font-semibold", className)}>

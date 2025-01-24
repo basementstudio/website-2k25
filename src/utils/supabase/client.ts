@@ -63,24 +63,8 @@ export const submitScore = async (playerName: string, score: number) => {
   console.log("submitScore called with score:", score)
   const clientId = getClientId()
 
-  if (scoresCache?.data) {
-    const newScore = {
-      player_name: playerName,
-      score: Math.floor(score),
-      created_at: new Date().toISOString()
-    }
-
-    const newScores = [...scoresCache.data]
-    const insertIndex = newScores.findIndex((s) => s.score < score)
-    if (insertIndex === -1) {
-      newScores.push(newScore)
-    } else {
-      newScores.splice(insertIndex, 0, newScore)
-    }
-
-    scoresCache.data = newScores.slice(0, 25)
-    notifyScoreUpdate()
-  }
+  invalidateScoresCache()
+  notifyScoreUpdate()
 
   const response = await fetch("/api/scores", {
     method: "POST",
@@ -96,12 +80,12 @@ export const submitScore = async (playerName: string, score: number) => {
   })
 
   if (!response.ok) {
-    // On error, invalidate cache to ensure we fetch fresh data
-    invalidateScoresCache()
-    notifyScoreUpdate()
     const error = await response.json()
     throw new Error(error.error || "Failed to submit score")
   }
+
+  await getTopScores()
+  notifyScoreUpdate()
 
   const result = await response.json()
   console.log("Score submission response:", result)

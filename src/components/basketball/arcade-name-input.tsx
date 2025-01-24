@@ -79,19 +79,17 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
     setIsSubmitting(true)
 
     const playerName = letters.join("")
-    setPlayerName(playerName)
 
-    setReadyToPlay(true)
-    setHasPlayed(false)
-
-    // submit score optimistically
-    submitScore(playerName, score)
-      .catch((error) => {
-        console.error("Failed to submit score:", error)
-      })
-      .finally(() => {
-        setIsSubmitting(false)
-      })
+    try {
+      await submitScore(playerName, score)
+      setPlayerName(playerName)
+      setReadyToPlay(true)
+      setHasPlayed(false)
+    } catch (error) {
+      console.error("Failed to submit score:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }, [
     letters,
     score,
