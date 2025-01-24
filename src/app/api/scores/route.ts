@@ -67,12 +67,19 @@ export async function POST(request: Request) {
 
     // validate timestamp
     const now = Date.now()
-    if (
-      !timestamp ||
-      typeof timestamp !== "number" ||
-      now - timestamp > 10000 ||
-      now - timestamp < 0
-    ) {
+    const timeDiff = Math.abs(now - timestamp)
+    console.log("Timestamp validation:", {
+      serverTime: now,
+      clientTime: timestamp,
+      difference: timeDiff
+    })
+
+    if (!timestamp || typeof timestamp !== "number" || timeDiff > 30000) {
+      console.log("Timestamp validation failed:", {
+        serverTime: now,
+        clientTime: timestamp,
+        difference: timeDiff
+      })
       return NextResponse.json({ error: "Invalid timestamp" }, { status: 400 })
     }
 
