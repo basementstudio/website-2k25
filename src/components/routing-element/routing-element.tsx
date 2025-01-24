@@ -94,16 +94,29 @@ export const RoutingElement = ({
           <meshBasicMaterial color="white" opacity={0} transparent />
         </mesh>
       </group>
-      <RoutingPlane
-        position={[
-          node.position.x + frameData.position[0],
-          node.position.y + frameData.position[1],
-          node.position.z + frameData.position[2]
-        ]}
-        scale={[frameData.size[0], frameData.size[1]]}
-        rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
-        geometry={node.geometry}
-      />
+      {hover && (
+        <>
+          <RoutingPlane
+            position={[
+              node.position.x + frameData.position[0],
+              node.position.y + frameData.position[1],
+              node.position.z + frameData.position[2]
+            ]}
+            scale={[frameData.size[0], frameData.size[1]]}
+            rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
+            geometry={node.geometry}
+          />
+          <RoutingArrow
+            position={[
+              node.position.x + arrowData.position[0],
+              node.position.y + arrowData.position[1],
+              node.position.z + arrowData.position[2]
+            ]}
+            scale={arrowData.scale}
+            rotation={arrowData.rotation}
+          />
+        </>
+      )}
     </>
   )
 }

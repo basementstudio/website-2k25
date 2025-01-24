@@ -46,7 +46,7 @@ export const RoutingPlane = ({
         material={material}
         scale={[scale[0], scale[1], 1]}
       />
-      {/* Add squares at each vertex of the geometry */}
+
       {geometry.attributes.position
         ? Array.from({ length: geometry.attributes.position.count }).map(
             (_, i) => {
