@@ -329,7 +329,6 @@ export const Map = memo(() => {
 
     setClickableNodesData(clickableNodesData)
   }, [clickables, routingNodes])
-
   if (!mainScene) return null
 
   return (

@@ -27,9 +27,9 @@ export interface CameraState {
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/": "home",
   "/lab": "lab",
-  "/about": "stairs",
+  "/services": "stairs",
   "/basketball": "hoop",
-  "/projects": "projects",
+  "/showcase": "projects",
   "/careers": "careers",
   "/blog": "blog"
 }
