@@ -65,7 +65,6 @@ export const submitScore = async (playerName: string, score: number) => {
   const result = await response.json()
   console.log("Score submission response:", result)
 
-  await new Promise((resolve) => setTimeout(resolve, 500))
   notifyScoreUpdate()
 
   return result

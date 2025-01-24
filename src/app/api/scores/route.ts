@@ -41,11 +41,7 @@ export async function GET() {
 
     if (error) throw error
 
-    const headers = {
-      "Cache-Control": "public, s-maxage=60, stale-while-revalidate=600"
-    }
-
-    return NextResponse.json({ data: data || [] }, { headers })
+    return NextResponse.json({ data: data || [] })
   } catch (error) {
     console.error("Error fetching scores:", error)
     return NextResponse.json(
