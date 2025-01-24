@@ -30,9 +30,10 @@ import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { RoutingElement } from "../routing-element/routing-element"
-import { animateCar } from "./car-utils"
 import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
+import { useCarAnimation } from "./use-car-animation"
+import { useGodrays } from "./use-godrays"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -64,19 +65,18 @@ interface clickable {
 export const Map = memo(() => {
   const pathname = usePathname()
   const {
-    office,
-    outdoor,
-    godrays,
-    basketballNet,
+    office: officePath,
+    outdoor: outdoorPath,
+    godrays: godraysPath,
+    basketballNet: basketballNetPath,
     videos,
     clickables: clickablesList
   } = useAssets()
 
-  const { scene: basketballNetV2 } = useGLTF(basketballNet)
-
-  const { scene: officeModel } = useGLTF(office) as unknown as GLTFResult
-  const { scene: outdoorModel } = useGLTF(outdoor) as unknown as GLTFResult
-  const { scene: godrayModel } = useGLTF(godrays) as unknown as GLTFResult
+  const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
+  const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
+  const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
+  const { scene: basketballNetModel } = useGLTF(basketballNetPath)
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
@@ -85,14 +85,18 @@ export const Map = memo(() => {
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [clickables, setClickables] = useState<Record<string, clickable>>({})
 
-  const godraysRef = useRef<Mesh[]>([])
+  const [godrays, setGodrays] = useState<Mesh[]>([])
+  useGodrays({ godrays })
+
+  const [car, setCar] = useState<Mesh | null>(null)
+  useCarAnimation({ car })
 
   const shaderMaterialsRef = useCustomShaderMaterial(
     (store) => store.materialsRef
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
-  const [car, setCar] = useState<Object3D | null>(null)
+
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
 
   const animationProgress = useRef(0)
@@ -122,7 +126,7 @@ export const Map = memo(() => {
   })
 
   useFrame(({ clock }) => {
-    godraysRef.current.forEach((mesh) => {
+    godrays.forEach((mesh) => {
       // @ts-ignore
       mesh.material.uniforms.uGodrayDensity.value = godraysOpacity
     })
@@ -145,12 +149,6 @@ export const Map = memo(() => {
       isAnimating.current = animateNet(mesh, animationProgress.current)
     }
 
-    if (car) {
-      const mesh = car as Mesh
-      animationProgress.current += clock.getElapsedTime()
-      animateCar(mesh, animationProgress.current, pathname)
-    }
-
     if (colorPickerRef.current) {
       // @ts-ignore
       colorPickerRef.current.material.uniforms.opacity.value = showColorPicker
@@ -158,49 +156,6 @@ export const Map = memo(() => {
         : 0.0
     }
   })
-
-  useEffect(() => {
-    godraysRef.current.forEach((mesh) => {
-      const material = mesh.material as ShaderMaterial
-
-      const shouldShow =
-        (mesh.name === "GR_About" && pathname === "/services") ||
-        (mesh.name === "GR_Home" && pathname === "/")
-
-      // Animate opacity
-      const startValue = material.uniforms.uGodrayOpacity.value
-      const endValue = shouldShow ? 1 : 0
-      const duration = 500 // 1 second transition
-      const startTime = performance.now()
-
-      if (material.userData.opacityAnimation) {
-        cancelAnimationFrame(material.userData.opacityAnimation)
-      }
-
-      const animate = () => {
-        const currentTime = performance.now()
-        const elapsed = currentTime - startTime
-        const progress = Math.min(elapsed / duration, 1)
-
-        // Ease in-out cubic
-        const easeProgress =
-          progress < 0.5
-            ? 4 * progress * progress * progress
-            : 1 - Math.pow(-2 * progress + 2, 3) / 2
-
-        material.uniforms.uGodrayOpacity.value =
-          startValue + (endValue - startValue) * easeProgress
-
-        if (progress < 1) {
-          material.userData.opacityAnimation = requestAnimationFrame(animate)
-        } else {
-          delete material.userData.opacityAnimation
-        }
-      }
-
-      animate()
-    })
-  }, [pathname])
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
@@ -215,7 +170,7 @@ export const Map = memo(() => {
 
     const hoopMesh = officeModel.getObjectByName("SM_BasketballHoop")
     const originalNet = officeModel.getObjectByName("SM_BasketRed")
-    const newNetMesh = basketballNetV2.getObjectByName("SM_BasketRed-v2")
+    const newNetMesh = basketballNetModel.getObjectByName("SM_BasketRed-v2")
 
     const carMesh = outdoorModel.getObjectByName("Car01")
 
@@ -225,7 +180,7 @@ export const Map = memo(() => {
       newNetMesh.removeFromParent()
       setKeyframedNet(newNetMesh)
     }
-    if (carMesh) setCar(carMesh)
+    if (carMesh) setCar(carMesh as Mesh)
 
     const traverse = (child: Object3D) => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
@@ -306,7 +261,7 @@ export const Map = memo(() => {
                 material as MeshStandardMaterial,
                 false,
                 {
-                  GLASS: false
+                  GODRAY: true
                 }
               )
             )
@@ -314,13 +269,13 @@ export const Map = memo(() => {
               currentMaterial as MeshStandardMaterial,
               false,
               {
-                GLASS: false
+                GODRAY: true
               }
             )
 
         meshChild.material = newMaterials
         meshChild.userData.hasGlobalMaterial = true
-        godraysRef.current.push(meshChild)
+        setGodrays((prev) => [...prev, meshChild])
       }
     })
 
@@ -337,7 +292,7 @@ export const Map = memo(() => {
     officeModel,
     outdoorModel,
     godrayModel,
-    basketballNetV2,
+    basketballNetModel,
     videos,
     clickablesList
   ])

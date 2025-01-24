@@ -1,8 +1,7 @@
 "use client"
 
 import { useLoader, useThree } from "@react-three/fiber"
-import { animate } from "motion"
-import { memo, Suspense, useEffect, useMemo, useRef } from "react"
+import { memo, Suspense, useEffect, useMemo } from "react"
 import {
   Group,
   Mesh,
@@ -12,8 +11,6 @@ import {
   Texture,
   TextureLoader
 } from "three"
-
-import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 
