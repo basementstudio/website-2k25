@@ -3,7 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { useControls } from "leva"
 import { easing } from "maath"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useCameraStore } from "@/store/app-store"
@@ -15,12 +15,16 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
   const planeBoundaryRef = useRef<Mesh>(null)
   const cameraConfig = useCameraStore((state) => state.cameraConfig)
+  const navigationCameraConfig = useNavigationStore(
+    (state) => state.currentScene?.cameraConfig
+  )
   const pathname = usePathname()
   const scene = useThree((state) => state.scene)
 
@@ -41,32 +45,35 @@ export const CustomCamera = () => {
 
   useEffect(() => {
     const controls = cameraControlsRef.current
-
     const camera = controls?.camera as PerspectiveCamera
 
     const [plane, boundary] = [planeRef.current, planeBoundaryRef.current]
-    if (!controls || !plane || !boundary || !camera) return
+    if (!controls || !plane || !boundary || !camera || !navigationCameraConfig)
+      return
 
     controls.disconnect()
-    controls.setPosition(...cameraConfig.position)
-    controls.setTarget(...cameraConfig.target)
+    controls.setPosition(...navigationCameraConfig.position)
+    controls.setTarget(...navigationCameraConfig.target)
+
     useCameraStore.getState().setCamera(camera)
 
     gameCurrentFov.current = camera.fov
-    gametargetFov.current = cameraConfig.fov ?? 60
+    gametargetFov.current = navigationCameraConfig.fov ?? 60
     fovTransitionProgress.current = 0
 
-    const planePos = calculatePlanePosition(cameraConfig)
+    const planePos = calculatePlanePosition(navigationCameraConfig)
     const distance = Math.hypot(
-      ...cameraConfig.position.map((p, i) => p - planePos[i])
+      ...navigationCameraConfig.position.map((p, i) => p - planePos[i])
     )
     const { width, height } = calculateViewDimensions(
       camera,
       distance,
-      cameraConfig
+      navigationCameraConfig
     )
 
-    ;[plane, boundary].forEach((mesh) => mesh.lookAt(...cameraConfig.position))
+    ;[plane, boundary].forEach((mesh) =>
+      mesh.lookAt(...navigationCameraConfig.position)
+    )
     boundary.scale.set(width * 0.6, height, 1)
     plane.scale.set(width * 0.4, height, 1)
   }, [])
