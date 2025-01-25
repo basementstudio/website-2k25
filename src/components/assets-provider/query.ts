@@ -122,6 +122,32 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
     basketballBuzzer: {
       url: true
     }
+  },
+  scenes: {
+    scenes: {
+      items: {
+        _title: true,
+        tabs: {
+          items: {
+            _title: true,
+            tabRoute: true,
+            tabHoverName: true,
+            tabClickableName: true
+          }
+        },
+        cameraConfig: {
+          posX: true,
+          posY: true,
+          posZ: true,
+          tarX: true,
+          tarY: true,
+          tarZ: true,
+          fov: true,
+          targetScrollY: true,
+          offsetMultiplier: true
+        }
+      }
+    }
   }
 })
 

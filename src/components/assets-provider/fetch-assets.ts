@@ -63,6 +63,22 @@ export interface AssetsResult {
     arrowRotation: [number, number, number]
     arrowScale: number
   }[]
+  scenes: {
+    name: string
+    cameraConfig: {
+      position: [number, number, number]
+      target: [number, number, number]
+      fov: number
+      targetScrollY: number
+      offsetMultiplier: number
+    }
+    tabs: {
+      tabName: string
+      tabRoute: string
+      tabHoverName: string
+      tabClickableName: string
+    }[]
+  }[]
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -148,6 +164,31 @@ export async function fetchAssets(): Promise<AssetsResult> {
         item.arrowRotationZ ?? 0
       ],
       arrowScale: item.arrowScale ?? 0
+    })),
+
+    scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
+      name: item._title,
+      cameraConfig: {
+        position: [
+          item.cameraConfig.posX ?? 0,
+          item.cameraConfig.posY ?? 0,
+          item.cameraConfig.posZ ?? 0
+        ],
+        target: [
+          item.cameraConfig.tarX ?? 0,
+          item.cameraConfig.tarY ?? 0,
+          item.cameraConfig.tarZ ?? 0
+        ],
+        fov: item.cameraConfig.fov ?? 60,
+        targetScrollY: item.cameraConfig.targetScrollY ?? -1.5,
+        offsetMultiplier: item.cameraConfig.offsetMultiplier ?? 1
+      },
+      tabs: item.tabs.items.map((tab) => ({
+        tabName: tab._title,
+        tabRoute: tab.tabRoute ?? "",
+        tabHoverName: tab.tabHoverName ?? "",
+        tabClickableName: tab.tabClickableName ?? ""
+      }))
     }))
   }
 }
