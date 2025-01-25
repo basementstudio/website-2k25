@@ -26,7 +26,7 @@ export const calculatePlanePosition = (cameraConfig: ICameraConfig) => {
 
 export const calculateMovementVectors = (
   basePosition: [number, number, number],
-  cameraConfig: CameraState
+  cameraConfig: ICameraConfig
 ) => {
   const cameraPos = cameraConfig.position
 

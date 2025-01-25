@@ -110,7 +110,7 @@ export const CustomCamera = () => {
     const controls = cameraControlsRef.current
     const plane = planeRef.current
     const boundary = planeBoundaryRef.current
-    if (!plane || !boundary || !controls) return
+    if (!plane || !boundary || !controls || !navigationCameraConfig) return
 
     if (animationProgress.current < 1) {
       // Handle camera transition animation
@@ -127,8 +127,8 @@ export const CustomCamera = () => {
       controls.getPosition(currentPos)
       controls.getTarget(currentTarget)
 
-      targetPosition.set(...cameraConfig.position)
-      targetLookAt.set(...cameraConfig.target)
+      targetPosition.set(...navigationCameraConfig.position)
+      targetLookAt.set(...navigationCameraConfig.target)
 
       const easeValue = easeInOutCubic(animationProgress.current)
       currentPos.lerp(targetPosition, easeValue)
@@ -144,10 +144,13 @@ export const CustomCamera = () => {
     } else {
       if (pathname !== "/basketball") {
         const maxOffset = (boundary.scale.x - plane.scale.x) / 2
-        const basePosition = calculatePlanePosition(cameraConfig)
-        const rightVector = calculateMovementVectors(basePosition, cameraConfig)
+        const basePosition = calculatePlanePosition(navigationCameraConfig)
+        const rightVector = calculateMovementVectors(
+          basePosition,
+          navigationCameraConfig
+        )
 
-        const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
+        const offsetMultiplier = navigationCameraConfig.offsetMultiplier ?? 2
         const offset = pointer.x * maxOffset * offsetMultiplier
 
         // Update plane position
@@ -165,9 +168,9 @@ export const CustomCamera = () => {
         // Set camera position directly for horizontal movement
         const currentPosition = controls.getPosition(new Vector3())
         const targetPosition = new Vector3(
-          cameraConfig.position[0] + rightVector.x * offset,
+          navigationCameraConfig.position[0] + rightVector.x * offset,
           currentPosition.y,
-          cameraConfig.position[2] + rightVector.z * offset
+          navigationCameraConfig.position[2] + rightVector.z * offset
         )
 
         easing.damp3(currentPosition, targetPosition, 0.1, dt)
@@ -180,9 +183,9 @@ export const CustomCamera = () => {
 
         const currentTarget = controls.getTarget(new Vector3())
         const targetLookAt = new Vector3(
-          cameraConfig.target[0] + rightVector.x * offset,
+          navigationCameraConfig.target[0] + rightVector.x * offset,
           currentTarget.y,
-          cameraConfig.target[2] + rightVector.z * offset
+          navigationCameraConfig.target[2] + rightVector.z * offset
         )
 
         easing.damp3(currentTarget, targetLookAt, 0.05, dt)
