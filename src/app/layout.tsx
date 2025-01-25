@@ -18,6 +18,7 @@ import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Navbar } from "@/components/layout/navbar"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
+import { NavigationHandler } from "@/components/navigation-handler"
 
 export const metadata: Metadata = {
   title: {
@@ -44,6 +45,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
         <InspectableProvider>
           <body className={cn(geistSans.variable)}>
             <Navbar />
+            <NavigationHandler />
             <CameraRouteHandler />
             <div className="sticky top-0 h-screen w-full">
               <Scene />
