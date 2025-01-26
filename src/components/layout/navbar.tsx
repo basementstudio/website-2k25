@@ -29,7 +29,7 @@ export const Navbar = () => (
         },
         {
           title: "People",
-          href: "/careers"
+          href: "/people"
         },
         {
           title: "Laboratory",
