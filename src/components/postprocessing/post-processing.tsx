@@ -3,8 +3,7 @@ import { useControls } from "leva"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { ShaderMaterial, Texture, Vector2 } from "three"
-
-import { useCameraStore } from "@/store/app-store"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 import postFrag from "./post.frag"
 import postVert from "./post.vert"
@@ -270,7 +269,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         far={1000}
         ref={(r) => {
           // @ts-ignore
-          if (r) useCameraStore.setState({ postProcessingCamera: r })
+          if (r) useNavigationStore.setState({ postProcessingCamera: r })
         }}
       />
       <mesh>
