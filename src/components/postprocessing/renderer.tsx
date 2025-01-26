@@ -36,7 +36,7 @@ export function Renderer({ sceneChildren }: RendererProps) {
   const mainScene = useMemo(() => new Scene(), [])
   const postProcessingScene = useMemo(() => new Scene(), [])
 
-  const sceneCamera = useNavigationStore((state) => state.camera)
+  const sceneCamera = useNavigationStore((state) => state.mainCamera)
   const orbitCamera = useNavigationStore((state) => state.orbitCamera)
   const postProcessingCamera = useNavigationStore(
     (state) => state.postProcessingCamera
