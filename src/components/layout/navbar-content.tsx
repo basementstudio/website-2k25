@@ -64,7 +64,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
       <div className="grid-layout">
         <button
           onClick={() => handleNavigation("/")}
-          className="col-start-1 col-end-3"
+          className="col-start-1 col-end-3 w-fit"
         >
           <Logo className="h-3.5 text-brand-w1" />
         </button>
