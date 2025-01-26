@@ -2,21 +2,19 @@ import { Grid } from "@react-three/drei"
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei"
 import { useControls } from "leva"
 import { useState } from "react"
-import { Vector3 } from "three"
 
-import type { CameraName } from "@/store/app-store"
-import { useCameraStore } from "@/store/app-store"
+import { useNavigationStore } from "./navigation-handler/navigation-store"
 
 export function Debug() {
-  const orbitCamera = useCameraStore((state) => state.orbitCamera)
-  const [camera, setCamera] = useState<CameraName>("main")
+  const orbitCamera = useNavigationStore((state) => state.orbitCamera)
+  const [camera, setCamera] = useState("main")
 
   useControls(() => ({
     camera: {
       value: "main",
-      options: ["debug-orbit", "main"] satisfies CameraName[],
-      onChange: (value: CameraName) => {
-        useCameraStore.setState({ activeCamera: value })
+      options: ["debug-orbit", "main"],
+      onChange: (value) => {
+        useNavigationStore.setState({ activeCamera: value })
         setCamera(value)
       }
     }
@@ -25,7 +23,7 @@ export function Debug() {
   return (
     <>
       <PerspectiveCamera
-        ref={(camera) => useCameraStore.setState({ orbitCamera: camera })}
+        ref={(camera) => useNavigationStore.setState({ orbitCamera: camera })}
         position={[10, 2, -16]}
       />
       {orbitCamera && <OrbitControls camera={orbitCamera} />}
