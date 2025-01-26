@@ -1,14 +1,11 @@
 import { Pump } from "basehub/react-pump"
 
-import { CameraStateKeys } from "@/store/app-store"
-
 import { NavbarContent } from "./navbar-content"
 import { query } from "./query"
 
 interface NavbarLink {
   title: string
   href: string
-  routeName: CameraStateKeys
   count?: number
 }
 
@@ -24,29 +21,23 @@ export const Navbar = () => (
         {
           title: "Showcase",
           href: "/showcase",
-          routeName: "projects",
           count: projects
         },
         {
           title: "Services",
-          href: "/services",
-          routeName: "stairs"
+          href: "/services"
         },
-
         {
           title: "People",
-          href: "/careers",
-          routeName: "careers"
+          href: "/careers"
         },
         {
           title: "Laboratory",
-          href: "/lab",
-          routeName: "lab"
+          href: "/lab"
         },
         {
           title: "Blog",
           href: "/blog",
-          routeName: "blog",
           count: posts
         }
       ]

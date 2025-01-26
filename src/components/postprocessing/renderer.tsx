@@ -1,5 +1,5 @@
 import { createPortal, useFrame } from "@react-three/fiber"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import {
   HalfFloatType,
   LinearSRGBColorSpace,
@@ -8,7 +8,8 @@ import {
   RGBAFormat,
   Scene,
   SRGBColorSpace,
-  WebGLRenderTarget
+  WebGLRenderTarget,
+  OrthographicCamera
 } from "three"
 
 import { PostProcessing } from "./post-processing"
@@ -19,8 +20,6 @@ interface RendererProps {
 }
 
 export function Renderer({ sceneChildren }: RendererProps) {
-  const activeCamera = useNavigationStore((state) => state.activeCamera)
-
   const mainTarget = useMemo(() => {
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
       type: HalfFloatType,
@@ -29,25 +28,13 @@ export function Renderer({ sceneChildren }: RendererProps) {
       minFilter: NearestFilter,
       magFilter: NearestFilter
     })
-
     return rt
   }, [])
 
   const mainScene = useMemo(() => new Scene(), [])
   const postProcessingScene = useMemo(() => new Scene(), [])
-
-  const sceneCamera = useNavigationStore((state) => state.mainCamera)
-  const orbitCamera = useNavigationStore((state) => state.orbitCamera)
-  const postProcessingCamera = useNavigationStore(
-    (state) => state.postProcessingCamera
-  )
-
-  const cameraToRender = useMemo(() => {
-    // debug orbit camera
-    if (activeCamera === "debug-orbit") return orbitCamera
-    // render main camera
-    return sceneCamera
-  }, [sceneCamera, orbitCamera, activeCamera])
+  const postProcessingCameraRef = useRef<OrthographicCamera>(null)
+  const mainCamera = useNavigationStore((state) => state.mainCamera)
 
   useEffect(() => {
     const resizeCallback = () => {
@@ -58,26 +45,27 @@ export function Renderer({ sceneChildren }: RendererProps) {
   }, [mainTarget])
 
   useFrame(({ gl }) => {
-    if (!cameraToRender || !postProcessingCamera) return
+    if (!mainCamera || !postProcessingCameraRef.current) return
 
     gl.outputColorSpace = LinearSRGBColorSpace
     gl.toneMapping = NoToneMapping
     gl.setRenderTarget(mainTarget)
-    // save render on main target
-    gl.render(mainScene, cameraToRender)
+    gl.render(mainScene, mainCamera)
 
     gl.outputColorSpace = SRGBColorSpace
     gl.toneMapping = NoToneMapping
     gl.setRenderTarget(null)
-    gl.render(postProcessingScene, postProcessingCamera)
+    gl.render(postProcessingScene, postProcessingCameraRef.current)
   }, 1)
 
   return (
     <>
       {createPortal(sceneChildren, mainScene)}
-
       {createPortal(
-        <PostProcessing mainTexture={mainTarget.texture} />,
+        <PostProcessing
+          mainTexture={mainTarget.texture}
+          cameraRef={postProcessingCameraRef}
+        />,
         postProcessingScene
       )}
     </>

@@ -6,7 +6,6 @@ import { useCallback, useEffect, useState } from "react"
 
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { CameraStateKeys } from "@/store/app-store"
 import { cn } from "@/utils/cn"
 
 const Logo = ({ className }: { className?: string }) => (
@@ -25,7 +24,6 @@ interface NavbarContentProps {
     title: string
     href: string
     count?: number
-    routeName: CameraStateKeys
   }[]
 }
 
@@ -36,7 +34,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
   const router = useRouter()
 
   const handleNavigation = useCallback(
-    (route: string, cameraState: CameraStateKeys) => {
+    (route: string) => {
       router.push(route, { scroll: false })
     },
     [router]
@@ -65,7 +63,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
     >
       <div className="grid-layout">
         <button
-          onClick={() => handleNavigation("/", "home")}
+          onClick={() => handleNavigation("/")}
           className="col-start-1 col-end-3"
         >
           <Logo className="h-3.5 text-brand-w1" />
@@ -76,7 +74,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
             <button
               className="space-x-1 text-p text-brand-w1 transition-colors duration-300 hover:text-brand-o"
               key={link.href}
-              onClick={() => handleNavigation(link.href, link.routeName)}
+              onClick={() => handleNavigation(link.href)}
             >
               <span>{link.title}</span>
               {link.count && (

@@ -1,6 +1,4 @@
 import { PerspectiveCamera } from "three"
-
-import { CameraState } from "@/store/app-store"
 import { ICameraConfig } from "../navigation-handler/navigation.interface"
 
 export const easeInOutCubic = (x: number): number => {
