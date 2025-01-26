@@ -6,8 +6,6 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
-import { useCameraStore } from "@/store/app-store"
-
 import {
   calculateMovementVectors,
   calculateNewPosition,
@@ -55,7 +53,7 @@ export const CustomCamera = () => {
     controls.setTarget(...navigationCameraConfig.target)
 
     //TODO: remove this
-    useCameraStore.getState().setCamera(camera)
+    useNavigationStore.getState().setCamera(camera)
 
     gameCurrentFov.current = camera.fov
     gametargetFov.current = navigationCameraConfig.fov ?? 60
