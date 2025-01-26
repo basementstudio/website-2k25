@@ -4,7 +4,6 @@ import { Toolbar as BasehubToolbar } from "basehub/next-toolbar"
 
 import { AssetsProvider } from "@/components/assets-provider"
 import { fetchAssets } from "@/components/assets-provider/fetch-assets"
-import { CameraRouteHandler } from "@/components/camera-route-handler"
 import { Scene } from "@/components/scene"
 
 const Toolbar = BasehubToolbar as unknown as React.ComponentType
@@ -46,7 +45,6 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
           <body className={cn(geistSans.variable)}>
             <Navbar />
             <NavigationHandler />
-            <CameraRouteHandler />
             <div className="sticky top-0 h-screen w-full">
               <Scene />
               <Grid />
