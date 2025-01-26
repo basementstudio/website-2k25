@@ -11,16 +11,15 @@ import {
   WebGLRenderTarget
 } from "three"
 
-import { useCameraStore } from "@/store/app-store"
-
 import { PostProcessing } from "./post-processing"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 interface RendererProps {
   sceneChildren: React.ReactNode
 }
 
 export function Renderer({ sceneChildren }: RendererProps) {
-  const activeCamera = useCameraStore((state) => state.activeCamera)
+  const activeCamera = useNavigationStore((state) => state.activeCamera)
 
   const mainTarget = useMemo(() => {
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
@@ -37,9 +36,9 @@ export function Renderer({ sceneChildren }: RendererProps) {
   const mainScene = useMemo(() => new Scene(), [])
   const postProcessingScene = useMemo(() => new Scene(), [])
 
-  const sceneCamera = useCameraStore((state) => state.camera)
-  const orbitCamera = useCameraStore((state) => state.orbitCamera)
-  const postProcessingCamera = useCameraStore(
+  const sceneCamera = useNavigationStore((state) => state.camera)
+  const orbitCamera = useNavigationStore((state) => state.orbitCamera)
+  const postProcessingCamera = useNavigationStore(
     (state) => state.postProcessingCamera
   )
 
