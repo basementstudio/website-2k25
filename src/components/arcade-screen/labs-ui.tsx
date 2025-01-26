@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
 import { useKeyPress } from "@/hooks/use-key-press"
-import { CameraStateKeys } from "@/store/app-store"
 
 import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
@@ -43,7 +42,7 @@ export const LabsUI = () => {
   const router = useRouter()
 
   const handleNavigation = useCallback(
-    (route: string, cameraState: CameraStateKeys) => {
+    (route: string) => {
       router.push(route, { scroll: false })
     },
     [router]
@@ -52,7 +51,7 @@ export const LabsUI = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
-      handleNavigation("/", "home")
+      handleNavigation("/")
     }, [handleNavigation])
   )
 
@@ -106,7 +105,7 @@ export const LabsUI = () => {
           paddingX={8}
           backgroundColor={COLORS_THEME.black}
           zIndexOffset={10}
-          onClick={() => handleNavigation("/", "home")}
+          onClick={() => handleNavigation("/")}
         >
           Close [X]
         </Text>
