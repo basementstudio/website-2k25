@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import {
   calculateMovementVectors,
   calculateNewPosition,
@@ -13,7 +14,6 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)

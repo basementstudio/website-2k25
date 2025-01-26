@@ -15,9 +15,9 @@ import { Grid } from "@/components/grid"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Navbar } from "@/components/layout/navbar"
+import { NavigationHandler } from "@/components/navigation-handler"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
-import { NavigationHandler } from "@/components/navigation-handler"
 
 export const metadata: Metadata = {
   title: {

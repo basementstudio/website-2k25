@@ -1,3 +1,4 @@
+import { Edges } from "@react-three/drei"
 import { useThree } from "@react-three/fiber"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -6,7 +7,6 @@ import { Mesh } from "three"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { RoutingArrow } from "./routing-arrow"
 import { RoutingPlane } from "./routing-plane/routing-plane"
-import { Edges } from "@react-three/drei"
 
 interface RoutingElementProps {
   node: Mesh

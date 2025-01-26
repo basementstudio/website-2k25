@@ -1,6 +1,7 @@
-import { create } from "zustand"
-import { IScene } from "./navigation.interface"
 import { PerspectiveCamera } from "three"
+import { create } from "zustand"
+
+import { IScene } from "./navigation.interface"
 
 export const useNavigationStore = create<{
   scenes: IScene[] | null

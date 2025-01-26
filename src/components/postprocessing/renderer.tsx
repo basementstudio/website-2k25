@@ -5,15 +5,15 @@ import {
   LinearSRGBColorSpace,
   NearestFilter,
   NoToneMapping,
+  OrthographicCamera,
   RGBAFormat,
   Scene,
   SRGBColorSpace,
-  WebGLRenderTarget,
-  OrthographicCamera
+  WebGLRenderTarget
 } from "three"
 
-import { PostProcessing } from "./post-processing"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
+import { PostProcessing } from "./post-processing"
 
 interface RendererProps {
   sceneChildren: React.ReactNode
