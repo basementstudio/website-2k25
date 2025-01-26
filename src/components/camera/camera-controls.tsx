@@ -53,7 +53,7 @@ export const CustomCamera = () => {
     controls.setTarget(...navigationCameraConfig.target)
 
     //TODO: remove this
-    useNavigationStore.getState().setCamera(camera)
+    useNavigationStore.getState().setMainCamera(camera)
 
     gameCurrentFov.current = camera.fov
     gametargetFov.current = navigationCameraConfig.fov ?? 60
