@@ -17,13 +17,17 @@ import { Map } from "./map/map"
 import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { Renderer } from "./postprocessing/renderer"
+import { useNavigationStore } from "./navigation-handler/navigation-store"
 
 export const Scene = () => {
   const pathname = usePathname()
   const isBasketball = pathname === "/basketball"
   const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
-  const [isCanvasTabMode, setIsCanvasTabMode] = useState(false)
+  const isCanvasTabMode = useNavigationStore((state) => state.isCanvasTabMode)
+  const setIsCanvasTabMode = useNavigationStore(
+    (state) => state.setIsCanvasTabMode
+  )
 
   useEffect(() => {
     setDocumentElement(document.documentElement)

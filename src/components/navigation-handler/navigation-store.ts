@@ -11,6 +11,10 @@ export const useNavigationStore = create<{
 
   mainCamera: PerspectiveCamera | null
   setMainCamera: (camera: PerspectiveCamera) => void
+
+  // Canvas tab mode
+  isCanvasTabMode: boolean
+  setIsCanvasTabMode: (isCanvasTabMode: boolean) => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
@@ -18,5 +22,9 @@ export const useNavigationStore = create<{
   setCurrentScene: (scene) => set({ currentScene: scene }),
 
   mainCamera: null,
-  setMainCamera: (camera) => set({ mainCamera: camera })
+  setMainCamera: (camera) => set({ mainCamera: camera }),
+
+  // Canvas tab mode
+  isCanvasTabMode: false,
+  setIsCanvasTabMode: (isCanvasTabMode) => set({ isCanvasTabMode })
 }))
