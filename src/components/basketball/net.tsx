@@ -30,30 +30,20 @@ export const Net = ({ mesh }: NetProps) => {
       fragmentShader,
       uniforms: {
         uTime: { value: 0 },
-        uWaveAmplitude: { value: 0.02 },
-        uWaveFrequency: { value: 5.0 },
-        uWaveSpeed: { value: 3.0 },
+        uWaveAmplitude: { value: 0.015 },
+        uWaveFrequency: { value: 4.0 },
+        uWaveSpeed: { value: 2.0 },
         map: { value: texture },
         uBallPosition: { value: new THREE.Vector3() },
         uBallInfluence: { value: 0.0 },
         uScoreAnimation: { value: 0.0 }
       },
-      transparent: true,
       side: THREE.DoubleSide
     })
   }, [mesh.material])
 
   useEffect(() => {
     if (mesh && mesh.isMesh) {
-      console.log("Net Debug:", {
-        position: mesh.position,
-        scale: mesh.scale,
-        geometry: mesh.geometry,
-        vertexCount: mesh.geometry.attributes.position.count,
-        visible: mesh.visible,
-        parent: mesh.parent
-      })
-
       const originalMaterial = mesh.material
 
       mesh.material = shaderMaterial
@@ -85,9 +75,10 @@ export const Net = ({ mesh }: NetProps) => {
 
       // Decay score animation
       if (scoreAnimationRef.current > 0) {
+        const decayRate = scoreAnimationRef.current > 0.5 ? 3.0 : 1.5
         scoreAnimationRef.current = Math.max(
           0,
-          scoreAnimationRef.current - delta * 2
+          scoreAnimationRef.current - delta * decayRate
         )
         materialRef.current.uniforms.uScoreAnimation.value =
           scoreAnimationRef.current
