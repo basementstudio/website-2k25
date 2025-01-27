@@ -59,9 +59,9 @@ export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
           <Link
             href={`/projects/${item.project?._slug}`}
             key={index}
-            className="pb-1.75 flex items-center justify-between pt-1.5 text-p font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1"
+            className="flex items-center justify-between pb-1.75 pt-1.5 text-p font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1"
           >
-            <span className="gap-1.75 flex items-center">
+            <span className="flex items-center gap-1.75">
               {item.icon ? (
                 <span className="relative size-4.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
                   <Image
