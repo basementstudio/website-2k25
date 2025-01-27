@@ -54,8 +54,7 @@ export const careersQuery = fragmentOn("Query", {
           image: IMAGE_FRAGMENT,
           socialNetworks: {
             __args: {
-              // TODO: we should order by platform but there is a bug
-              orderBy: "link__ASC"
+              orderBy: "platform__ASC"
             },
             items: {
               platform: true,
