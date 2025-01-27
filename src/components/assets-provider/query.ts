@@ -122,6 +122,19 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
     basketballBuzzer: {
       url: true
     }
+  },
+  characters: {
+    model: {
+      file: {
+        url: true
+      }
+    },
+    textureBody: {
+      url: true
+    },
+    textureFaces: {
+      url: true
+    }
   }
 })
 

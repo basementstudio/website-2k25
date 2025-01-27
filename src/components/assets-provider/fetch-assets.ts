@@ -63,6 +63,11 @@ export interface AssetsResult {
     arrowRotation: [number, number, number]
     arrowScale: number
   }[]
+  characters: {
+    model: string
+    textureBody: string
+    textureFaces: string
+  }
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -148,6 +153,11 @@ export async function fetchAssets(): Promise<AssetsResult> {
         item.arrowRotationZ ?? 0
       ],
       arrowScale: item.arrowScale ?? 0
-    }))
+    })),
+    characters: {
+      model: threeDInteractions.characters.model.file?.url ?? "",
+      textureBody: threeDInteractions.characters.textureBody?.url,
+      textureFaces: threeDInteractions.characters.textureFaces?.url
+    }
   }
 }
