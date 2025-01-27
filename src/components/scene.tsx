@@ -16,9 +16,9 @@ import { CustomCamera } from "./camera/camera-controls"
 import { Map } from "./map/map"
 import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
-import { Renderer } from "./postprocessing/renderer"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { useTabNavigation } from "./navigation-handler/useTabNavigation"
+import { Renderer } from "./postprocessing/renderer"
 
 export const Scene = () => {
   const pathname = usePathname()

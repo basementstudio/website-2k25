@@ -1,13 +1,13 @@
-import { Edges } from "@react-three/drei"
 import { useThree } from "@react-three/fiber"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
 
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { RoutingArrow } from "./routing-arrow"
 import { RoutingPlane } from "./routing-plane/routing-plane"
-import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
 interface RoutingElementProps {
   node: Mesh
@@ -56,7 +56,7 @@ export const RoutingElement = ({
   }, [activeRoute])
 
   useEffect(() => {
-    if (isCanvasTabMode && currentScene) {
+    if (isCanvasTabMode && currentScene && currentTabIndex !== null) {
       const currentTab = currentScene.tabs[currentTabIndex]
       if (currentTab && currentTab.tabClickableName === node.name) {
         setHover(true)

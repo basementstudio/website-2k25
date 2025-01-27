@@ -1,6 +1,7 @@
 import { useEffect } from "react"
-import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
 export const useTabNavigation = () => {
   const currentScene = useNavigationStore((state) => state.currentScene)
@@ -22,8 +23,8 @@ export const useTabNavigation = () => {
         if (!tabs.length) return
 
         const nextIndex = e.shiftKey
-          ? (currentTabIndex - 1 + tabs.length) % tabs.length
-          : (currentTabIndex + 1) % tabs.length
+          ? (currentTabIndex ?? 0 - 1 + tabs.length) % tabs.length
+          : (currentTabIndex ?? 0 + 1) % tabs.length
 
         setCurrentTabIndex(nextIndex)
 

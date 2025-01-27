@@ -16,8 +16,8 @@ export const useNavigationStore = create<{
   isCanvasTabMode: boolean
   setIsCanvasTabMode: (isCanvasTabMode: boolean) => void
 
-  currentTabIndex: number
-  setCurrentTabIndex: (index: number) => void
+  currentTabIndex: number | null
+  setCurrentTabIndex: (index: number | null) => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
