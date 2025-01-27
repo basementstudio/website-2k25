@@ -1,6 +1,6 @@
 import { Container, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
@@ -40,7 +40,7 @@ export const LabsUI = () => {
   >({})
 
   const router = useRouter()
-
+  const pathname = usePathname()
   const handleNavigation = useCallback(
     (route: string) => {
       router.push(route, { scroll: false })
@@ -51,8 +51,10 @@ export const LabsUI = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
-      handleNavigation("/")
-    }, [handleNavigation])
+      if (pathname.startsWith("/arcade")) {
+        handleNavigation("/")
+      }
+    }, [handleNavigation, pathname])
   )
 
   useEffect(() => {

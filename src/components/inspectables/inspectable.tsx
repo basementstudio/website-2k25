@@ -4,7 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { useMotionValue } from "motion/react"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import {
   Box3,
   Group,
@@ -13,7 +13,7 @@ import {
   Quaternion,
   Vector3
 } from "three"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 import {
   ANIMATION_CONFIG,
@@ -25,6 +25,7 @@ import {
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 interface InspectableProps {
   inspectable: {
@@ -55,7 +56,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
   const { setSelected } = useInspectable()
   const setCursorType = useMouseStore((state) => state.setCursorType)
-
+  const router = useRouter()
   const pathname = usePathname()
 
   const isInspectableEnabled = pathname.startsWith("/showcase")
@@ -73,6 +74,22 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
       setSize([size.x, size.y, size.z])
     }
   }, [scene])
+
+  const handleNavigation = useCallback(
+    (route: string) => {
+      router.push(route, { scroll: false })
+    },
+    [router]
+  )
+
+  useKeyPress(
+    "Escape",
+    useCallback(() => {
+      if (pathname.startsWith("/showcase") && !selected) {
+        handleNavigation("/")
+      }
+    }, [handleNavigation, pathname, selected])
+  )
 
   const handleAnimation = (withAnimation: boolean) => {
     if (!isInspectableEnabled && selected === inspectable.id) return
