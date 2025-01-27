@@ -108,6 +108,15 @@ export const CustomCamera = () => {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [navigationCameraConfig, pathname])
 
+  const calculateDivisor = useCallback(() => {
+    const width = window.innerWidth
+    if (width <= 1100) return 0.32
+    if (width <= 1200) return 0.36
+    if (width <= 1500) return 0.4
+    if (width <= 1600) return 0.6
+    return 0.8
+  }, [window.innerWidth])
+
   useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current
     const plane = planeRef.current
@@ -182,15 +191,6 @@ export const CustomCamera = () => {
           currentPosition.z,
           false
         )
-
-        const calculateDivisor = () => {
-          const width = window.innerWidth
-          if (width <= 1100) return 0.32
-          if (width <= 1200) return 0.36
-          if (width <= 1500) return 0.4
-          if (width <= 1600) return 0.6
-          return 0.8
-        }
 
         const currentTarget = controls.getTarget(new Vector3())
         const targetLookAt = new Vector3(
