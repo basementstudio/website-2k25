@@ -187,6 +187,8 @@ export const Map = memo(() => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh
 
+        meshChild.raycast = () => null
+
         if (meshChild.name === "SM_ColorChecker_")
           colorPickerRef.current = meshChild
 
@@ -235,18 +237,16 @@ export const Map = memo(() => {
             )
 
         meshChild.material = newMaterials
-
         meshChild.userData.hasGlobalMaterial = true
       }
     }
 
-    officeModel.traverse((child) => traverse(child))
-
-    outdoorModel.traverse((child) => traverse(child))
-
-    godrayModel.traverse((child) => {
+    const traverseGodray = (child: Object3D) => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh
+
+        meshChild.raycast = () => null
+
         const alreadyReplaced = meshChild.userData.hasGlobalMaterial
         if (alreadyReplaced) return
 
@@ -274,12 +274,15 @@ export const Map = memo(() => {
         meshChild.userData.hasGlobalMaterial = true
         setGodrays((prev) => [...prev, meshChild])
       }
-    })
+    }
+
+    officeModel.traverse((child) => traverse(child))
+    outdoorModel.traverse((child) => traverse(child))
+    godrayModel.traverse((child) => traverseGodray(child))
 
     setOfficeScene(officeModel)
     setOutdoorScene(outdoorModel)
     setGodrayScene(godrayModel)
-    // Split the routing nodes
 
     setRoutingNodes((current) => ({
       ...current,
