@@ -75,20 +75,13 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
     }
   }, [scene])
 
-  const handleNavigation = useCallback(
-    (route: string) => {
-      router.push(route, { scroll: false })
-    },
-    [router]
-  )
-
   useKeyPress(
     "Escape",
     useCallback(() => {
       if (pathname.startsWith("/showcase") && !selected) {
-        handleNavigation("/")
+        router.push("/", { scroll: false })
       }
-    }, [handleNavigation, pathname, selected])
+    }, [pathname, selected, router])
   )
 
   const handleAnimation = (withAnimation: boolean) => {

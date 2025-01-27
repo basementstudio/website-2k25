@@ -4,8 +4,8 @@ import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
-import { usePathname } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
@@ -19,9 +19,11 @@ import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { useTabNavigation } from "./navigation-handler/useTabNavigation"
 import { Renderer } from "./postprocessing/renderer"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 export const Scene = () => {
   const pathname = usePathname()
+  const router = useRouter()
   const isBasketball = pathname === "/basketball"
   const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
@@ -29,10 +31,18 @@ export const Scene = () => {
   const setIsCanvasTabMode = useNavigationStore(
     (state) => state.setIsCanvasTabMode
   )
-
   useEffect(() => {
     setDocumentElement(document.documentElement)
   }, [])
+
+  useKeyPress(
+    "Escape",
+    useCallback(() => {
+      if (pathname.startsWith("/services")) {
+        router.push("/")
+      }
+    }, [pathname, router])
+  )
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

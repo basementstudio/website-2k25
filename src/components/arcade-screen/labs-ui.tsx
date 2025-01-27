@@ -51,7 +51,7 @@ export const LabsUI = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
-      if (pathname.startsWith("/arcade")) {
+      if (pathname.startsWith("/lab")) {
         handleNavigation("/")
       }
     }, [handleNavigation, pathname])
