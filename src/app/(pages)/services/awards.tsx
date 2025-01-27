@@ -88,12 +88,12 @@ export const Awards = ({ data }: { data: QueryType }) => {
 
               {award.certificate ? (
                 <motion.div
-                  className="absolute right-16 aspect-[2/3] w-64 opacity-0"
+                  className="absolute right-16 h-[313px] w-[232px] opacity-0"
                   animate={{
                     opacity: hoveredItem === award._id ? 1 : 0,
                     y: mouseY - hoveredHeight / 2
                   }}
-                  transition={{ duration: 0.3, type: "spring" }}
+                  transition={{ duration: 0.4, type: "spring" }}
                 >
                   <Image
                     src={award.certificate.url}
