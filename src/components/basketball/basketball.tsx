@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
-import { RefObject, useMemo, useRef, useEffect } from "react"
+import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh } from "three"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"

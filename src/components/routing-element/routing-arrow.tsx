@@ -4,7 +4,8 @@ import { Mesh } from "three"
 
 export const RoutingArrow = ({
   position,
-  rotation
+  rotation,
+  scale
 }: {
   position?: [number, number, number]
   rotation?: [number, number, number]
@@ -32,10 +33,10 @@ export const RoutingArrow = ({
       ref={meshRef}
       position={position}
       rotation={rotation}
-      scale={0.08}
+      scale={scale}
       renderOrder={1}
     >
-      <planeGeometry args={[2, 3]} />
+      <planeGeometry args={[0.16, 0.24]} />
       <shaderMaterial
         transparent
         side={2}

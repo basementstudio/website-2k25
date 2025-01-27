@@ -130,7 +130,7 @@ export const Code = ({ children }: HandlerProps<"code">) => {
 
 export const Pre = ({ language, code }: HandlerProps<"pre">) => {
   return (
-    <div className="bg-codeblock-k2 w-full border-y border-brand-w2/20 py-3">
+    <div className="w-full border-y border-brand-w2/20 bg-codeblock-k2 py-3">
       <div className={styles["code-block"]}>
         <CodeBlock
           snippets={[

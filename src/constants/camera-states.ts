@@ -17,10 +17,10 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     offsetMultiplier: 2,
     targetScrollY: -1.5
   },
-  arcade: {
-    name: "arcade",
+  lab: {
+    name: "lab",
     url: "/lab",
-    object_name: "arcade",
+    object_name: "lab",
     position: [2.98, 1.6, -12.8],
     target: [2.98, 1.33, -13.8],
     fov: 35,
@@ -55,10 +55,10 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     fov: 60,
     targetScrollY: -1.5
   },
-  careers: {
-    name: "careers",
-    object_name: "careers",
-    url: "/careers",
+  people: {
+    name: "people",
+    object_name: "people",
+    url: "/people",
     position: [6.6, 1.5, -7.1],
     target: [4.48, 2.0, -12.8],
     fov: 60,

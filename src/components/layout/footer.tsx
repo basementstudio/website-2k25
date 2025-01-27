@@ -28,21 +28,21 @@ export const Footer = () => (
 
       const LINKS = [
         {
-          title: "Works",
-          href: "/projects",
+          title: "Showcase",
+          href: "/showcase",
           count: projects
         },
         {
-          title: "About Us",
-          href: "/about"
+          title: "Services",
+          href: "/services"
         },
         {
-          title: "Careers",
-          href: "/careers"
+          title: "People",
+          href: "/people"
         },
         {
           title: "Laboratory",
-          href: "/laboratory"
+          href: "/lab"
         },
         {
           title: "Blog",

@@ -46,8 +46,10 @@ export const createGlobalShaderMaterial = (
       map: { value: map },
       lightMap: { value: null },
       lightMapIntensity: { value: 0.0 },
+      lightMapMultiplier: { value: 1.0 },
       aoMap: { value: null },
       aoMapIntensity: { value: 0.0 },
+      aoMapMultiplier: { value: 1.0 },
       metalness: { value: metalness },
       roughness: { value: roughness },
       mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
@@ -69,7 +71,9 @@ export const createGlobalShaderMaterial = (
       aoWithCheckerboard: { value: false },
       isBasketball: { value: false },
       uBasketballTransition: { value: 0 },
-      uBasketballFogColorTransition: { value: 0 }
+      uBasketballFogColorTransition: { value: 0 },
+      uGodrayOpacity: { value: 0 },
+      uGodrayDensity: { value: 0 }
     },
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
@@ -126,6 +130,10 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
         const fogDuration = value ? 800 : duration * 2
         const startFogTime = performance.now()
 
+        if (material.userData.animationFrame) {
+          cancelAnimationFrame(material.userData.animationFrame)
+        }
+
         const animate = () => {
           const currentTime = performance.now()
 
@@ -150,11 +158,13 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
             startFogValue + (endFogValue - startFogValue) * easeFogProgress
 
           if (progress < 1 || fogProgress < 1) {
-            requestAnimationFrame(animate)
+            material.userData.animationFrame = requestAnimationFrame(animate)
+          } else {
+            delete material.userData.animationFrame
           }
         }
 
-        requestAnimationFrame(animate)
+        material.userData.animationFrame = requestAnimationFrame(animate)
       })
     }
   })

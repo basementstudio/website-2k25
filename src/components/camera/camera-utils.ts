@@ -1,4 +1,5 @@
 import { PerspectiveCamera } from "three"
+
 import { CameraState } from "@/store/app-store"
 
 export const easeInOutCubic = (x: number): number => {
