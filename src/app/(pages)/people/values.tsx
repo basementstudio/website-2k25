@@ -3,11 +3,11 @@ import Image from "next/image"
 
 import { cn } from "@/utils/cn"
 
-import { QueryType } from "./careers-query"
+import { QueryType } from "./query"
 
 export const Values = ({ data }: { data: QueryType }) => {
   return (
-    <section className="mb-[168px] pb-2">
+    <section className="mb-44">
       <div className="grid-layout">
         <p className="col-span-full w-full border-b border-brand-w1/20 pb-2 text-h3 text-brand-g1">
           Our Values
@@ -32,17 +32,23 @@ export const Values = ({ data }: { data: QueryType }) => {
               </p>
               <div className="col-start-5 col-end-8 grid grid-cols-3">
                 <p className="col-span-1 text-h1 text-brand-g1">{idx + 1}</p>
+
                 {image && (
-                  <Image
-                    src={image.url}
-                    alt={image.alt ?? ""}
-                    width={image.width}
-                    height={image.height}
-                    className="col-span-2 aspect-[205/109] w-full object-cover"
-                  />
+                  <div className="relative col-span-2 aspect-[205/109] w-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+                    <div className="with-dots">
+                      <Image
+                        src={image.url}
+                        alt={image.alt ?? ""}
+                        width={image.width}
+                        height={image.height}
+                        className="aspect-[205/109] w-full object-cover"
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
-              <div className="col-start-9 col-end-13 max-w-[30.5625rem] text-h4 text-brand-w2">
+
+              <div className="col-start-9 col-end-13 text-h4 text-brand-w2">
                 <RichText content={description?.json?.content ?? []} />
               </div>
             </div>

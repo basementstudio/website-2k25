@@ -43,7 +43,6 @@ export const careersQuery = fragmentOn("Query", {
         }
       }
     },
-
     people: {
       peopleList: {
         items: {
@@ -52,7 +51,17 @@ export const careersQuery = fragmentOn("Query", {
             _title: true
           },
           role: true,
-          image: IMAGE_FRAGMENT
+          image: IMAGE_FRAGMENT,
+          socialNetworks: {
+            __args: {
+              // TODO: we should order by platform but there is a bug
+              orderBy: "link__ASC"
+            },
+            items: {
+              platform: true,
+              link: true
+            }
+          }
         }
       }
     }

@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { cn } from "@/utils/cn"
 
-import { QueryType } from "./careers-query"
+import { QueryType } from "./query"
 
 export const OpenPositions = ({ data }: { data: QueryType }) => {
   return (
@@ -12,7 +12,7 @@ export const OpenPositions = ({ data }: { data: QueryType }) => {
         Open Positions
       </h2>
 
-      <ul className="relative col-start-1 col-end-13 row-start-1 text-paragraph text-brand-w2">
+      <ul className="relative col-start-1 col-end-13 row-start-1 text-p text-brand-w2">
         <li className="group relative grid grid-cols-12 gap-2">
           <div className="relative col-start-5 col-end-13 grid grid-cols-8 items-center gap-2 pb-2 text-brand-g1 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w2/20">
             <span className="col-start-1 col-end-5 text-h4">Role</span>
@@ -43,12 +43,12 @@ export const OpenPositions = ({ data }: { data: QueryType }) => {
                 <span className="col-start-5 col-end-7 text-p">{type}</span>
                 <div className="col-start-7 col-end-9 flex w-full justify-between">
                   <span className="text-p">{location}</span>
-                  <span className="actionable inline-flex items-center gap-2 text-p">
+                  <span className="actionable inline-flex items-center gap-1 text-p">
                     {!isOpen ? (
                       "(closed)"
                     ) : (
                       <>
-                        Apply Now <Arrow className="size-3" />
+                        Apply Now <Arrow className="size-4" />
                       </>
                     )}
                   </span>
