@@ -55,15 +55,6 @@ export const RoutingElement = ({
     }
   }, [activeRoute])
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Enter" && currentTabIndex !== -1) {
-        handleNavigation(route)
-      }
-    },
-    [route, currentTabIndex]
-  )
-
   useEffect(() => {
     if (isCanvasTabMode && currentScene && currentTabIndex !== null) {
       const currentTab = currentScene.tabs[currentTabIndex]
@@ -88,6 +79,15 @@ export const RoutingElement = ({
       router.push(route, { scroll: false })
     },
     [router, stair3]
+  )
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Enter" && isCanvasTabMode && currentTabIndex !== -1) {
+        handleNavigation(route)
+      }
+    },
+    [route, currentTabIndex, isCanvasTabMode, handleNavigation]
   )
 
   return (

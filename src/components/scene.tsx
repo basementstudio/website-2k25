@@ -56,6 +56,7 @@ export const Scene = () => {
       if (e.key === "Enter" && !isCanvasTabMode) {
         e.preventDefault()
         setIsCanvasTabMode(true)
+        setCurrentTabIndex(-1)
         console.log("Entered canvas tab mode")
       } else if (e.key === "Escape" && isCanvasTabMode) {
         e.preventDefault()
@@ -77,7 +78,7 @@ export const Scene = () => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown)
     }
-  }, [isCanvasTabMode])
+  }, [isCanvasTabMode, setIsCanvasTabMode, setCurrentTabIndex])
 
   useTabNavigation()
 
