@@ -61,7 +61,7 @@ export const RoutingElement = ({
         handleNavigation(route)
       }
     },
-    [route]
+    [route, currentTabIndex]
   )
 
   useEffect(() => {
