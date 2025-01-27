@@ -1,11 +1,12 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
-import { RefObject, useMemo, useRef } from "react"
+import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh } from "three"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { useAssets } from "../assets-provider"
+import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -73,6 +74,14 @@ export const Basketball = ({
     resetBallToInitialPosition()
   }
 
+  const setCursorType = useMouseStore((state) => state.setCursorType)
+
+  useEffect(() => {
+    if (isDragging) {
+      setCursorType("grabbing")
+    }
+  }, [isDragging, setCursorType])
+
   return (
     <RigidBody
       restitution={0.85}
@@ -94,6 +103,8 @@ export const Basketball = ({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onPointerEnter={() => !isDragging && setCursorType("grab")}
+        onPointerLeave={() => !isDragging && setCursorType("default")}
         material-metalness={0}
         material-roughness={0.8}
       />

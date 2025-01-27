@@ -5,7 +5,7 @@ import { CAMERA_STATES } from "@/constants/camera-states"
 
 export type CameraStateKeys =
   | "home"
-  | "arcade"
+  | "lab"
   | "stairs"
   | "hoop"
   | "projects"
@@ -26,10 +26,10 @@ export interface CameraState {
 
 const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/": "home",
-  "/arcade": "arcade",
-  "/about": "stairs",
+  "/lab": "lab",
+  "/services": "stairs",
   "/basketball": "hoop",
-  "/projects": "projects",
+  "/showcase": "projects",
   "/people": "people",
   "/blog": "blog"
 }
@@ -78,8 +78,9 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
         states[get().cameraState] || CAMERA_STATES[get().cameraState]
     })
   },
-  updateCameraFromPathname: (pathname) =>
-    get().setCameraState(PATHNAME_MAP[pathname] || "home"),
+  updateCameraFromPathname: (pathname) => {
+    get().setCameraState(PATHNAME_MAP[pathname] || "home")
+  },
 
   // debug camera
   orbitCamera: null,

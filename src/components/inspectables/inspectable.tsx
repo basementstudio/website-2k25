@@ -23,6 +23,7 @@ import {
 
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
+import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 
 interface InspectableProps {
   inspectable: {
@@ -52,6 +53,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
   const quaternion = useMotionValue(new Quaternion())
 
   const { setSelected } = useInspectable()
+  const setCursorType = useMouseStore((state) => state.setCursorType)
 
   useEffect(() => {
     if (ref.current) {
@@ -146,7 +148,12 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
   return (
     <>
-      <group onClick={() => setSelected(inspectable.id)} ref={ref}>
+      <group
+        onClick={() => setSelected(inspectable.id)}
+        ref={ref}
+        onPointerEnter={() => setCursorType("inspect")}
+        onPointerLeave={() => setCursorType("default")}
+      >
         <InspectableDragger
           key={inspectable.id}
           enabled={selected === inspectable.id}

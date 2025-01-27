@@ -53,32 +53,44 @@ interface MorphTargetMesh extends Mesh {
   morphTargetInfluences?: number[]
 }
 
-// total duration: ~4/NET_ANIMATION_SPEED secs
-export const NET_ANIMATION_SPEED = 0.08
+export const NET_ANIMATION_SPEED = 0.008
+
+const createMorphKeyframes = () => {
+  const numKeyframes = 19
+  const duration = 1.0
+  const keyframes = []
+
+  for (let i = 0; i < numKeyframes; i++) {
+    keyframes.push({
+      time: (duration / numKeyframes) * i,
+      value: 1
+    })
+  }
+
+  return keyframes
+}
+
+const morphKeyframes = createMorphKeyframes()
 
 export const animateNet = (
   mesh: MorphTargetMesh,
   progress: number
 ): boolean => {
   if (!mesh.morphTargetInfluences) return false
+  if (progress >= 1.0) return false
 
-  if (progress <= 1) {
-    mesh.morphTargetInfluences[0] = 1 - progress
-    mesh.morphTargetInfluences[1] = progress
-  } else if (progress <= 2) {
-    mesh.morphTargetInfluences[1] = 2 - progress
-    mesh.morphTargetInfluences[2] = progress - 1
-  } else if (progress <= 3) {
-    mesh.morphTargetInfluences[2] = 3 - progress
-    mesh.morphTargetInfluences[3] = progress - 2
-  } else {
-    mesh.morphTargetInfluences[3] = Math.max(0, 4 - progress)
-    mesh.morphTargetInfluences[4] = Math.random() * 0.2
-    mesh.morphTargetInfluences[5] = Math.random() * 0.2
+  mesh.morphTargetInfluences.fill(0)
 
-    if (progress >= 4) {
-      mesh.morphTargetInfluences.fill(0)
-      return false
+  const waveWidth = 0.15
+  const numKeyframes = morphKeyframes.length
+
+  for (let i = 0; i < numKeyframes; i++) {
+    const keyframeTime = morphKeyframes[i].time
+    const distance = Math.abs(progress - keyframeTime)
+
+    if (distance < waveWidth) {
+      const influence = Math.cos((distance / waveWidth) * Math.PI * 0.5)
+      mesh.morphTargetInfluences[i] = Math.max(0, influence)
     }
   }
 

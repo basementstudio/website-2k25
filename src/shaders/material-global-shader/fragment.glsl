@@ -25,10 +25,12 @@ uniform float uTime;
 // lightmap
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
+uniform float lightMapMultiplier;
 
 // aomap
 uniform sampler2D aoMap;
 uniform float aoMapIntensity;
+uniform float aoMapMultiplier;
 uniform bool aoWithCheckerboard;
 
 uniform float noiseFactor;
@@ -59,6 +61,12 @@ uniform float fogDepth;
 uniform sampler2D glassReflex;
 #endif
 
+// Godray
+#ifdef GODRAY
+uniform float uGodrayOpacity;
+uniform float uGodrayDensity;
+#endif
+
 // Basketball
 uniform bool isBasketball;
 uniform float uBasketballTransition;
@@ -69,11 +77,19 @@ const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 
 void main() {
+  float lightMapIntensity = lightMapIntensity * lightMapMultiplier;
+  float aoMapIntensity = aoMapIntensity * aoMapMultiplier;
+
   vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
   vec2 checkerPos = floor(shiftedFragCoord * 0.5);
   float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
 
-  VoxelData voxel = getVoxel(vWorldPosition, voxelSize, noiseBigScale, noiseSmallScale);
+  VoxelData voxel = getVoxel(
+    vWorldPosition,
+    voxelSize,
+    noiseBigScale,
+    noiseSmallScale
+  );
   // Distance from center
   float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));
 
@@ -85,10 +101,10 @@ void main() {
   float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
 
   // Render as wireframe
-  if(uReverse) {
+  if (uReverse) {
     gl_FragColor = vec4(uColor, 1.0);
 
-    if(wave <= 0.0) {
+    if (wave <= 0.0) {
       discard;
     }
     return;
@@ -111,9 +127,11 @@ void main() {
   vec3 metallicReflection = mix(vec3(0.04), color, metalness);
 
   // Combine base color, metallic reflection, and lightmap
-  vec3 irradiance = mix(color * (1.0 - metalness), // Diffuse component
-  metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
-  metalness);
+  vec3 irradiance = mix(
+    color * (1.0 - metalness), // Diffuse component
+    metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
+    metalness
+  );
 
   #ifdef USE_EMISSIVE
   irradiance += emissive * emissiveIntensity;
@@ -126,8 +144,12 @@ void main() {
 
   float basketballLightMapIntensity = 0.12;
 
-  if(lightMapIntensity > 0.0) {
-    float transitionedLightMapIntensity = mix(lightMapIntensity, basketballLightMapIntensity, uBasketballTransition);
+  if (lightMapIntensity > 0.0) {
+    float transitionedLightMapIntensity = mix(
+      lightMapIntensity,
+      basketballLightMapIntensity,
+      uBasketballTransition
+    );
     irradiance *= lightMapSample * transitionedLightMapIntensity;
   }
 
@@ -151,18 +173,25 @@ void main() {
   opacityResult *= alpha;
   #endif
 
-  if(opacityResult <= 0.0) {
+  if (opacityResult <= 0.0) {
     discard;
   }
 
-  if(aoMapIntensity > 0.0) {
-    if(aoWithCheckerboard) {
-      float halfAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 0.5 + 1.0;
-      float moreAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 1.5 + 1.0;
+  if (aoMapIntensity > 0.0) {
+    if (aoWithCheckerboard) {
+      float halfAmbientOcclusion =
+        (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 0.5 + 1.0;
+      float moreAmbientOcclusion =
+        (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 1.5 + 1.0;
 
-      irradiance = mix(irradiance * halfAmbientOcclusion, irradiance * moreAmbientOcclusion, pattern);
+      irradiance = mix(
+        irradiance * halfAmbientOcclusion,
+        irradiance * moreAmbientOcclusion,
+        pattern
+      );
     } else {
-      float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+      float ambientOcclusion =
+        (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
       irradiance *= ambientOcclusion;
     }
   }
@@ -173,40 +202,62 @@ void main() {
   // TODO: when implementing parallax and multiple reflections, add controls in basehub to resize the reflection map
   vec4 reflexSample = texture2D(glassReflex, vUv * vec2(0.75, 1.0));
   gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.1);
-  gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
+  gl_FragColor.a *= pattern;
   #endif
 
   #ifdef GODRAY
-  // todo: add godrays
+  gl_FragColor.a *= pattern * uGodrayOpacity * uGodrayDensity;
   #endif
 
   // Fog
   float basketballFogDensity = 0.25;
   float basketballFogDepth = 8.0;
 
-  float transitionedFogDepth = mix(fogDepth, basketballFogDepth, uBasketballTransition);
-  float transitionedFogDensity = mix(fogDensity, basketballFogDensity, uBasketballTransition);
+  float transitionedFogDepth = mix(
+    fogDepth,
+    basketballFogDepth,
+    uBasketballTransition
+  );
+  float transitionedFogDensity = mix(
+    fogDensity,
+    basketballFogDensity,
+    uBasketballTransition
+  );
 
   float fogDepthValue = min(vMvPosition.z + transitionedFogDepth, 0.0);
-  float fogFactor = 1.0 -
-    exp(-transitionedFogDensity *
-    transitionedFogDensity *
-    fogDepthValue *
-    fogDepthValue);
+  float fogFactor =
+    1.0 -
+    exp(
+      -transitionedFogDensity *
+        transitionedFogDensity *
+        fogDepthValue *
+        fogDepthValue
+    );
 
   fogFactor = clamp(fogFactor, 0.0, 1.0);
-  vec3 transitionedFogColor = mix(fogColor, fogColor / 20.0, uBasketballFogColorTransition);
+  vec3 transitionedFogColor = mix(
+    fogColor,
+    fogColor / 20.0,
+    uBasketballFogColorTransition
+  );
   gl_FragColor.rgb = mix(gl_FragColor.rgb, transitionedFogColor, fogFactor);
 
-  if(uLoaded < 1.0) {
+  if (uLoaded < 1.0) {
     // Loading effect
     float colorBump = (uTime + voxel.noiseBig * 20.0) * 0.1;
     colorBump = fract(colorBump) * 20.0;
     colorBump = clamp(colorBump, 0.0, 1.0);
     colorBump = 1.0 - pow(colorBump, 0.3);
 
-    float loadingColor = max(voxel.edgeFactor * 0.2, colorBump * voxel.fillFactor * 3.0);
+    float loadingColor = max(
+      voxel.edgeFactor * 0.2,
+      colorBump * voxel.fillFactor * 3.0
+    );
 
-    gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(loadingColor), step(uLoaded, voxel.noiseSmall));
+    gl_FragColor.rgb = mix(
+      gl_FragColor.rgb,
+      vec3(loadingColor),
+      step(uLoaded, voxel.noiseSmall)
+    );
   }
 }

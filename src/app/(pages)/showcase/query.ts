@@ -16,6 +16,7 @@ export const query = fragmentOn("Query", {
             }
           },
           project: {
+            _slug: true,
             client: {
               _title: true
             },
