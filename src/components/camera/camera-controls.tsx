@@ -183,9 +183,19 @@ export const CustomCamera = () => {
           false
         )
 
+        const calculateDivisor = () => {
+          const width = window.innerWidth
+          if (width <= 1100) return 0.32
+          if (width <= 1200) return 0.36
+          if (width <= 1500) return 0.4
+          if (width <= 1600) return 0.6
+          return 0.8
+        }
+
         const currentTarget = controls.getTarget(new Vector3())
         const targetLookAt = new Vector3(
-          navigationCameraConfig.target[0] + rightVector.x * offset,
+          navigationCameraConfig.target[0] +
+            (rightVector.x * offset) / calculateDivisor(),
           currentTarget.y,
           navigationCameraConfig.target[2] + rightVector.z * offset
         )
