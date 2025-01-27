@@ -79,5 +79,14 @@ export const CAMERA_STATES: Record<CameraStateKeys, CameraState> = {
     target: [7, 1.6, -16],
     fov: 60,
     targetScrollY: -1.5
+  },
+  contact: {
+    name: "contact",
+    object_name: "contact",
+    url: "/contact",
+    position: [6.6, 1.5, -7.1],
+    target: [4.48, 2.0, -12.8],
+    fov: 60,
+    targetScrollY: -1.5
   }
 }
