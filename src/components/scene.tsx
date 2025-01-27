@@ -31,6 +31,7 @@ export const Scene = () => {
   const setIsCanvasTabMode = useNavigationStore(
     (state) => state.setIsCanvasTabMode
   )
+  const lastEscapeTimeRef = useRef<number>(0)
   useEffect(() => {
     setDocumentElement(document.documentElement)
   }, [])
@@ -47,19 +48,21 @@ export const Scene = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement
-      if (target.id === "canvas") {
-        if (e.key === "Enter" && !isCanvasTabMode) {
-          e.preventDefault()
-          setIsCanvasTabMode(true)
-          console.log("Entered canvas tab mode")
-        } else if (e.key === "Escape" && e.shiftKey && isCanvasTabMode) {
-          e.preventDefault()
+      if (target.id !== "canvas") return
+
+      if (e.key === "Enter" && !isCanvasTabMode) {
+        e.preventDefault()
+        setIsCanvasTabMode(true)
+        console.log("Entered canvas tab mode")
+      } else if (e.key === "Escape" && isCanvasTabMode) {
+        e.preventDefault()
+        const currentTime = Date.now()
+        if (currentTime - lastEscapeTimeRef.current < 1200) {
           setIsCanvasTabMode(false)
           console.log("Exited canvas tab mode")
         }
-      }
-
-      if (isCanvasTabMode && e.key === "Tab") {
+        lastEscapeTimeRef.current = currentTime
+      } else if (isCanvasTabMode && e.key === "Tab") {
         e.preventDefault()
         console.log("Tab trapped in canvas mode")
       }
