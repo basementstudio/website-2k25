@@ -55,19 +55,6 @@ export const RoutingElement = ({
     }
   }, [activeRoute])
 
-  useEffect(() => {
-    if (isCanvasTabMode && currentScene && currentTabIndex !== null) {
-      const currentTab = currentScene.tabs[currentTabIndex]
-      if (currentTab && currentTab.tabClickableName === node.name) {
-        setHover(true)
-        window.addEventListener("keydown", handleKeyDown)
-      } else {
-        setHover(false)
-        window.removeEventListener("keydown", handleKeyDown)
-      }
-    }
-  }, [isCanvasTabMode, currentTabIndex, currentScene, node.name])
-
   const handleNavigation = useCallback(
     (route: string) => {
       if (!stair3) return
@@ -81,14 +68,31 @@ export const RoutingElement = ({
     [router, stair3]
   )
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Enter" && isCanvasTabMode && currentTabIndex !== -1) {
-        handleNavigation(route)
+  useEffect(() => {
+    if (isCanvasTabMode && currentScene && currentTabIndex !== null) {
+      const currentTab = currentScene?.tabs[currentTabIndex]
+      if (currentTab && currentTab.tabClickableName === node.name) {
+        setHover(true)
+        const keyDownHandler = (e: KeyboardEvent) => {
+          if (e.key === "Enter") {
+            e.preventDefault()
+            handleNavigation(route)
+          }
+        }
+        window.addEventListener("keydown", keyDownHandler)
+        return () => window.removeEventListener("keydown", keyDownHandler)
+      } else {
+        setHover(false)
       }
-    },
-    [route, currentTabIndex, isCanvasTabMode, handleNavigation]
-  )
+    }
+  }, [
+    isCanvasTabMode,
+    currentTabIndex,
+    currentScene,
+    node.name,
+    handleNavigation,
+    route
+  ])
 
   return (
     <>
