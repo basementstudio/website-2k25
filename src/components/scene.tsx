@@ -31,6 +31,9 @@ export const Scene = () => {
   const setIsCanvasTabMode = useNavigationStore(
     (state) => state.setIsCanvasTabMode
   )
+  const setCurrentTabIndex = useNavigationStore(
+    (state) => state.setCurrentTabIndex
+  )
   const lastEscapeTimeRef = useRef<number>(0)
   useEffect(() => {
     setDocumentElement(document.documentElement)
@@ -59,6 +62,7 @@ export const Scene = () => {
         const currentTime = Date.now()
         if (currentTime - lastEscapeTimeRef.current < 1200) {
           setIsCanvasTabMode(false)
+          setCurrentTabIndex(-1)
           console.log("Exited canvas tab mode")
         }
         lastEscapeTimeRef.current = currentTime
