@@ -51,11 +51,11 @@ export const Scene = () => {
         if (e.key === "Enter" && !isCanvasTabMode) {
           e.preventDefault()
           setIsCanvasTabMode(true)
-          console.log("Entered canvas tab mode!")
-        } else if (e.key === "Escape" && isCanvasTabMode) {
+          console.log("Entered canvas tab mode")
+        } else if (e.key === "Escape" && e.shiftKey && isCanvasTabMode) {
           e.preventDefault()
           setIsCanvasTabMode(false)
-          console.log("Exited canvas tab mode!")
+          console.log("Exited canvas tab mode")
         }
       }
 
@@ -78,7 +78,7 @@ export const Scene = () => {
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
       <div className="w-128 absolute bottom-8 right-64 z-50">
-        <Leva collapsed fill />
+        <Leva collapsed fill hidden />
       </div>
 
       <Canvas
