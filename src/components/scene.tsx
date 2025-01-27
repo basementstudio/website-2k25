@@ -18,6 +18,7 @@ import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { Renderer } from "./postprocessing/renderer"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
+import { useTabNavigation } from "./navigation-handler/useTabNavigation"
 
 export const Scene = () => {
   const pathname = usePathname()
@@ -60,6 +61,8 @@ export const Scene = () => {
       document.removeEventListener("keydown", handleKeyDown)
     }
   }, [isCanvasTabMode])
+
+  useTabNavigation()
 
   return (
     <div className="absolute inset-0">
