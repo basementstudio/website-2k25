@@ -3,7 +3,7 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
-import { useControls } from "leva"
+import { useControls, folder as levaFolder } from "leva"
 import { usePathname } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 import {
@@ -82,14 +82,21 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-  const { fogColor, fogDensity, fogDepth } = useControls("fog", {
-    fogColor: {
-      x: 0.4,
-      y: 0.4,
-      z: 0.4
-    },
-    fogDensity: 0.05,
-    fogDepth: 9.0
+  const { fogColor, fogDensity, fogDepth } = useControls({
+    fog: levaFolder(
+      {
+        fogColor: {
+          x: 0.4,
+          y: 0.4,
+          z: 0.4
+        },
+        fogDensity: 0.05,
+        fogDepth: 9.0
+      },
+      {
+        collapsed: true
+      }
+    )
   })
 
   // const { jitter } = useControls("jitter", {
@@ -97,8 +104,15 @@ export const Map = memo(() => {
   // })
 
   const colorPickerRef = useRef<Mesh>(null)
-  const { showColorPicker } = useControls("color picker", {
-    showColorPicker: false
+  const { showColorPicker } = useControls({
+    "color picker": levaFolder(
+      {
+        showColorPicker: false
+      },
+      {
+        collapsed: true
+      }
+    )
   })
 
   useFrame(({ clock }) => {

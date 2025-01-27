@@ -1,5 +1,5 @@
 import { OrthographicCamera } from "@react-three/drei"
-import { useControls } from "leva"
+import { useControls, folder as levaFolder } from "leva"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { ShaderMaterial, Texture, Vector2 } from "three"
@@ -48,145 +48,166 @@ const material = new ShaderMaterial({
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
   const pathname = usePathname()
 
-  useControls("basics", {
-    contrast: {
-      value: 1.02,
-      min: 0.0,
-      max: 2.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uContrast.value = value
+  useControls({
+    basics: levaFolder(
+      {
+        contrast: {
+          value: 1.02,
+          min: 0.0,
+          max: 2.0,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uContrast.value = value
+          }
+        },
+        brightness: {
+          value: 0.31,
+          min: 0.0,
+          max: 2.0,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uBrightness.value = value
+          }
+        },
+        exposure: {
+          value: 0.54,
+          min: 0.0,
+          max: 4.0,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uExposure.value = value
+          }
+        },
+        gamma: {
+          value: 0.73,
+          min: 0.0,
+          max: 2.2,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uGamma.value = value
+          }
+        }
+      },
+      {
+        collapsed: true
       }
-    },
-    brightness: {
-      value: 0.31,
-      min: 0.0,
-      max: 2.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uBrightness.value = value
-      }
-    },
-    exposure: {
-      value: 0.54,
-      min: 0.0,
-      max: 4.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uExposure.value = value
-      }
-    },
-    gamma: {
-      value: 0.73,
-      min: 0.0,
-      max: 2.2,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uGamma.value = value
-      }
-    }
+    )
   })
 
-  useControls("bloom", {
-    bloomThreshold: {
-      value: 3,
-      min: 0.0,
-      max: 10.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uBloomThreshold.value = value
+  useControls({
+    bloom: levaFolder(
+      {
+        bloomThreshold: {
+          value: 3,
+          min: 0.0,
+          max: 10.0,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uBloomThreshold.value = value
+          }
+        },
+        bloomStrength: {
+          value: 0.03,
+          min: 0.0,
+          max: 2.0,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uBloomStrength.value = value
+          }
+        },
+        bloomRadius: {
+          value: 8.0,
+          min: 1.0,
+          max: 64.0,
+          step: 1,
+          onChange(value) {
+            material.uniforms.uBloomRadius.value = value
+          }
+        }
+      },
+      {
+        collapsed: true
       }
-    },
-    bloomStrength: {
-      value: 0.03,
-      min: 0.0,
-      max: 2.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uBloomStrength.value = value
-      }
-    },
-    bloomRadius: {
-      value: 8.0,
-      min: 1.0,
-      max: 64.0,
-      step: 1,
-      onChange(value) {
-        material.uniforms.uBloomRadius.value = value
-      }
-    }
+    )
   })
 
-  useControls("saturation mask", {
-    debugEllipse: {
-      value: false,
-      onChange(value) {
-        material.uniforms.uDebugEllipse.value = value
+  useControls({
+    "saturation mask": levaFolder(
+      {
+        debugEllipse: {
+          value: false,
+          onChange(value) {
+            material.uniforms.uDebugEllipse.value = value
+          }
+        },
+        ellipseCenterX: {
+          value: 0.5,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseCenter.value.x = value
+          }
+        },
+        ellipseCenterY: {
+          value: 0.61,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseCenter.value.y = value
+          }
+        },
+        ellipseSizeX: {
+          value: 0.13,
+          min: 0,
+          max: 2,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseSize.value.x = value
+          }
+        },
+        ellipseSizeY: {
+          value: 0.09,
+          min: 0,
+          max: 2,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseSize.value.y = value
+          }
+        },
+        ellipseSoftness: {
+          value: 0.78,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseSoftness.value = value
+          }
+        },
+        vignetteStrength: {
+          value: 1.0,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uVignetteStrength.value = value
+          }
+        },
+        vignetteSoftness: {
+          value: 0.18,
+          min: 0,
+          max: 2,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uVignetteSoftness.value = value
+          }
+        }
+      },
+      {
+        collapsed: true
       }
-    },
-    ellipseCenterX: {
-      value: 0.5,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseCenter.value.x = value
-      }
-    },
-    ellipseCenterY: {
-      value: 0.61,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseCenter.value.y = value
-      }
-    },
-    ellipseSizeX: {
-      value: 0.13,
-      min: 0,
-      max: 2,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseSize.value.x = value
-      }
-    },
-    ellipseSizeY: {
-      value: 0.09,
-      min: 0,
-      max: 2,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseSize.value.y = value
-      }
-    },
-    ellipseSoftness: {
-      value: 0.78,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseSoftness.value = value
-      }
-    },
-    vignetteStrength: {
-      value: 1.0,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uVignetteStrength.value = value
-      }
-    },
-    vignetteSoftness: {
-      value: 0.18,
-      min: 0,
-      max: 2,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uVignetteSoftness.value = value
-      }
-    }
+    )
   })
 
   useEffect(() => {
