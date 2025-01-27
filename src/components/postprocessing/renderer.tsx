@@ -1,5 +1,6 @@
 import { createPortal, useFrame } from "@react-three/fiber"
-import { useEffect, useMemo } from "react"
+import { usePathname } from "next/navigation"
+import { useEffect, useMemo, useRef } from "react"
 import {
   HalfFloatType,
   LinearSRGBColorSpace,
@@ -17,10 +18,14 @@ import { PostProcessing } from "./post-processing"
 
 interface RendererProps {
   sceneChildren: React.ReactNode
+  contactChildren: React.ReactNode
 }
 
-export function Renderer({ sceneChildren }: RendererProps) {
+export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
+  const pathname = usePathname()
   const activeCamera = useCameraStore((state) => state.activeCamera)
+  const contactCanvasRef = useRef<HTMLCanvasElement>(null)
+  const workerRef = useRef<Worker | null>(null)
 
   const mainTarget = useMemo(() => {
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
@@ -35,6 +40,7 @@ export function Renderer({ sceneChildren }: RendererProps) {
   }, [])
 
   const mainScene = useMemo(() => new Scene(), [])
+  const contactScene = useMemo(() => new Scene(), [])
   const postProcessingScene = useMemo(() => new Scene(), [])
 
   const sceneCamera = useCameraStore((state) => state.camera)
@@ -44,15 +50,60 @@ export function Renderer({ sceneChildren }: RendererProps) {
   )
 
   const cameraToRender = useMemo(() => {
-    // debug orbit camera
     if (activeCamera === "debug-orbit") return orbitCamera
-    // render main camera
     return sceneCamera
   }, [sceneCamera, orbitCamera, activeCamera])
 
   useEffect(() => {
+    if (pathname !== "/contact") return
+
+    const canvas = document.createElement("canvas")
+    canvas.style.position = "absolute"
+    canvas.style.top = "0"
+    canvas.style.left = "0"
+    canvas.style.width = "100%"
+    canvas.style.height = "100%"
+    canvas.style.pointerEvents = "none"
+    document.body.appendChild(canvas)
+
+    if (!("transferControlToOffscreen" in canvas)) {
+      console.warn("OffscreenCanvas not supported")
+      return
+    }
+
+    const offscreen = canvas.transferControlToOffscreen()
+    workerRef.current = new Worker(
+      new URL("@/workers/contact-scene.worker.ts", import.meta.url)
+    )
+    workerRef.current.postMessage(
+      {
+        canvas: offscreen,
+        width: window.innerWidth,
+        height: window.innerHeight
+      },
+      [offscreen]
+    )
+
+    // TODO: load phone model
+    workerRef.current.postMessage({
+      type: "load-model",
+      modelUrl: "/models/phone.glb"
+    })
+
+    return () => {
+      canvas.remove()
+      workerRef.current?.terminate()
+    }
+  }, [pathname])
+
+  useEffect(() => {
     const resizeCallback = () => {
       mainTarget.setSize(window.innerWidth, window.innerHeight)
+      workerRef.current?.postMessage({
+        type: "resize",
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
     }
     window.addEventListener("resize", resizeCallback)
     return () => window.removeEventListener("resize", resizeCallback)
@@ -64,7 +115,6 @@ export function Renderer({ sceneChildren }: RendererProps) {
     gl.outputColorSpace = LinearSRGBColorSpace
     gl.toneMapping = NoToneMapping
     gl.setRenderTarget(mainTarget)
-    // save render on main target
     gl.render(mainScene, cameraToRender)
 
     gl.outputColorSpace = SRGBColorSpace
@@ -76,7 +126,6 @@ export function Renderer({ sceneChildren }: RendererProps) {
   return (
     <>
       {createPortal(sceneChildren, mainScene)}
-
       {createPortal(
         <PostProcessing mainTexture={mainTarget.texture} />,
         postProcessingScene

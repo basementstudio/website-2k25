@@ -48,6 +48,11 @@ export const Navbar = () => (
           href: "/blog",
           routeName: "blog",
           count: posts
+        },
+        {
+          title: "Contact",
+          href: "/contact",
+          routeName: "contact"
         }
       ]
 

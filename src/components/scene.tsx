@@ -63,6 +63,14 @@ export const Scene = () => {
               </Physics>
             </>
           }
+          contactChildren={
+            <>
+              <mesh position={[5.5, 1, -10]}>
+                <sphereGeometry args={[1, 32, 32]} />
+                <meshBasicMaterial color="red" />
+              </mesh>
+            </>
+          }
         />
       </Canvas>
     </div>
