@@ -7,6 +7,25 @@
     @apply mx-auto grid w-full max-w-full grid-cols-12 gap-2 px-4;
   }
 
+  .corner-borders {
+    --b: 1px;
+    --c: #e6e6e6;
+    --w: 8px;
+
+    border: var(--b) solid transparent;
+    --_g: transparent 90deg, var(--c) 0;
+    --_p: var(--w) var(--w) border-box no-repeat;
+    background:
+      conic-gradient(from 90deg at top var(--b) left var(--b), var(--_g)) 0 0 /
+        var(--_p),
+      conic-gradient(from 180deg at top var(--b) right var(--b), var(--_g)) 100%
+        0 / var(--_p),
+      conic-gradient(from 0deg at bottom var(--b) left var(--b), var(--_g)) 0
+        100% / var(--_p),
+      conic-gradient(from -90deg at bottom var(--b) right var(--b), var(--_g))
+        100% 100% / var(--_p);
+  }
+
   .actionable {
     @apply font-semibold underline;
   }

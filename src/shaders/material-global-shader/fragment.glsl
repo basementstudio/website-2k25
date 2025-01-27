@@ -25,10 +25,12 @@ uniform float uTime;
 // lightmap
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
+uniform float lightMapMultiplier;
 
 // aomap
 uniform sampler2D aoMap;
 uniform float aoMapIntensity;
+uniform float aoMapMultiplier;
 uniform bool aoWithCheckerboard;
 
 uniform float noiseFactor;
@@ -59,6 +61,12 @@ uniform float fogDepth;
 uniform sampler2D glassReflex;
 #endif
 
+// Godray
+#ifdef GODRAY
+uniform float uGodrayOpacity;
+uniform float uGodrayDensity;
+#endif
+
 // Basketball
 uniform bool isBasketball;
 uniform float uBasketballTransition;
@@ -69,6 +77,9 @@ const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 
 void main() {
+  float lightMapIntensity = lightMapIntensity * lightMapMultiplier;
+  float aoMapIntensity = aoMapIntensity * aoMapMultiplier;
+
   vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
   vec2 checkerPos = floor(shiftedFragCoord * 0.5);
   float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
@@ -191,11 +202,11 @@ void main() {
   // TODO: when implementing parallax and multiple reflections, add controls in basehub to resize the reflection map
   vec4 reflexSample = texture2D(glassReflex, vUv * vec2(0.75, 1.0));
   gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.1);
-  gl_FragColor.a *= mod(checkerPos.x + checkerPos.y, 2.0);
+  gl_FragColor.a *= pattern;
   #endif
 
   #ifdef GODRAY
-  // todo: add godrays
+  gl_FragColor.a *= pattern * uGodrayOpacity * uGodrayDensity;
   #endif
 
   // Fog

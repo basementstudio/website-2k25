@@ -10,7 +10,7 @@ const Projects = () => (
       "use server"
 
       return (
-        <div className="flex flex-col gap-38">
+        <div className="flex flex-col gap-24">
           <Hero data={data} />
           <ProjectList data={data} />
         </div>

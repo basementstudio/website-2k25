@@ -1,5 +1,6 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { useControls } from "leva"
+import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { ShaderMaterial, Texture, Vector2 } from "three"
 
@@ -33,11 +34,20 @@ const material = new ShaderMaterial({
     uContrast: { value: 1 },
     uExposure: { value: 1.2 },
     uGamma: { value: 2.2 },
-    uBrightness: { value: 1 }
+    uBrightness: { value: 1 },
+    uSaturation: { value: 1.0 },
+    uEllipseCenter: { value: new Vector2(0.5, 0.61) },
+    uEllipseSize: { value: new Vector2(0.13, 0.09) },
+    uEllipseSoftness: { value: 0.78 },
+    uDebugEllipse: { value: false },
+    uVignetteStrength: { value: 1.0 },
+    uVignetteSoftness: { value: 0.18 }
   }
 })
 
 export function PostProcessing({ mainTexture }: PostProcessingProps) {
+  const pathname = usePathname()
+
   useControls("basics", {
     contrast: {
       value: 1.02,
@@ -79,7 +89,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
 
   useControls("bloom", {
     bloomThreshold: {
-      value: 3,
+      value: 1,
       min: 0.0,
       max: 10.0,
       step: 0.01,
@@ -88,7 +98,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomStrength: {
-      value: 0.03,
+      value: 0.15,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -97,12 +107,84 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       }
     },
     bloomRadius: {
-      value: 8.0,
+      value: 5.0,
       min: 1.0,
       max: 64.0,
       step: 1,
       onChange(value) {
         material.uniforms.uBloomRadius.value = value
+      }
+    }
+  })
+
+  useControls("saturation mask", {
+    debugEllipse: {
+      value: false,
+      onChange(value) {
+        material.uniforms.uDebugEllipse.value = value
+      }
+    },
+    ellipseCenterX: {
+      value: 0.5,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseCenter.value.x = value
+      }
+    },
+    ellipseCenterY: {
+      value: 0.61,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseCenter.value.y = value
+      }
+    },
+    ellipseSizeX: {
+      value: 0.13,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseSize.value.x = value
+      }
+    },
+    ellipseSizeY: {
+      value: 0.09,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseSize.value.y = value
+      }
+    },
+    ellipseSoftness: {
+      value: 0.78,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uEllipseSoftness.value = value
+      }
+    },
+    vignetteStrength: {
+      value: 1.0,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uVignetteStrength.value = value
+      }
+    },
+    vignetteSoftness: {
+      value: 0.18,
+      min: 0,
+      max: 2,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uVignetteSoftness.value = value
       }
     }
   })
@@ -125,6 +207,55 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
 
     return () => controller.abort()
   }, [mainTexture])
+
+  useEffect(() => {
+    const isBasketball = pathname === "/basketball"
+    const startSaturationValue = material.uniforms.uSaturation.value
+    const endSaturationValue = isBasketball ? 0.0 : 1.0
+    const startContrastValue = material.uniforms.uContrast.value
+    const endContrastValue = isBasketball ? 1.63 : 1.02
+    const startVignetteValue = material.uniforms.uVignetteStrength.value
+    const endVignetteValue = isBasketball ? 1.0 : 0.0
+    const duration = 800
+
+    const startTime = performance.now()
+    let animationFrame: number
+
+    const animate = () => {
+      const currentTime = performance.now()
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      const easeProgress =
+        progress < 0.5
+          ? 2 * progress * progress
+          : -1 + (4 - 2 * progress) * progress
+
+      material.uniforms.uSaturation.value =
+        startSaturationValue +
+        (endSaturationValue - startSaturationValue) * easeProgress
+
+      // material.uniforms.uContrast.value =
+      //   startContrastValue +
+      //   (endContrastValue - startContrastValue) * easeProgress
+
+      material.uniforms.uVignetteStrength.value =
+        startVignetteValue +
+        (endVignetteValue - startVignetteValue) * easeProgress
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate)
+      }
+    }
+
+    animationFrame = requestAnimationFrame(animate)
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame)
+      }
+    }
+  }, [pathname])
 
   return (
     <>

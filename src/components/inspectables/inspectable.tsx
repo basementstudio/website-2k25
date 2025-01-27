@@ -21,9 +21,9 @@ import {
   X_OFFSET
 } from "@/constants/inspectables"
 
+import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 
 interface InspectableProps {
   inspectable: {

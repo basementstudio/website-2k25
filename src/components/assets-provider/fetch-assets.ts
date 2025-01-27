@@ -1,16 +1,19 @@
 import { basehub } from "basehub"
 
 import { assetsQuery } from "./query"
-import { Vector3 } from "three"
 
 export interface AssetsResult {
-  map: string
+  office: string
+  outdoor: string
+  godrays: string
   basketball: string
   basketballNet: string
   mapAssets: {
     mesh: string
     lightmap: string
+    lightmapIntensity: number
     ambientOcclusion: string
+    ambientOcclusionIntensity: number
   }[]
   arcade: {
     idleScreen: string
@@ -70,11 +73,15 @@ export async function fetchAssets(): Promise<AssetsResult> {
   }).query(assetsQuery)
 
   return {
-    map: threeDInteractions.map?.model?.file?.url ?? "",
+    office: threeDInteractions.map.office?.file?.url ?? "",
+    outdoor: threeDInteractions.map.outdoor?.file?.url ?? "",
+    godrays: threeDInteractions.map.godrays?.file?.url ?? "",
     mapAssets: threeDInteractions.map.maps.items.map((item) => ({
       mesh: item._title,
       lightmap: item.lightmap?.url ?? "",
-      ambientOcclusion: item.ambientOcclusion?.url ?? ""
+      lightmapIntensity: item.lightmapIntensity ?? 1,
+      ambientOcclusion: item.ambientOcclusion?.url ?? "",
+      ambientOcclusionIntensity: item.ambientOcclusionIntensity ?? 1
     })),
     arcade: { idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "" },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
