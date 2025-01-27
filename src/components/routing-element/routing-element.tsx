@@ -57,7 +57,7 @@ export const RoutingElement = ({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
+      if (e.key === "Enter" && currentTabIndex !== -1) {
         handleNavigation(route)
       }
     },
