@@ -23,13 +23,15 @@ export const useTabNavigation = () => {
         if (!tabs.length) return
 
         const nextIndex = e.shiftKey
-          ? (currentTabIndex ?? 0 - 1 + tabs.length) % tabs.length
-          : (currentTabIndex ?? 0 + 1) % tabs.length
+          ? currentTabIndex === null || currentTabIndex <= 0
+            ? tabs.length - 1
+            : currentTabIndex - 1
+          : ((currentTabIndex ?? -1) + 1) % tabs.length
 
         setCurrentTabIndex(nextIndex)
 
         const currentTab = tabs[nextIndex]
-        setHoverText(currentTab.tabHoverName)
+        setHoverText(currentTab?.tabHoverName ?? null)
       }
     }
 

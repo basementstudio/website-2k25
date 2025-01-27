@@ -151,7 +151,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
       <group
         onClick={() => setSelected(inspectable.id)}
         ref={ref}
-        onPointerEnter={() => setCursorType("inspect")}
+        onPointerEnter={() => setCursorType("zoom")}
         onPointerLeave={() => setCursorType("default")}
       >
         <InspectableDragger

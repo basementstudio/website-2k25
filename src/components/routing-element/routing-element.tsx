@@ -55,13 +55,24 @@ export const RoutingElement = ({
     }
   }, [activeRoute])
 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleNavigation(route)
+      }
+    },
+    [route]
+  )
+
   useEffect(() => {
     if (isCanvasTabMode && currentScene && currentTabIndex !== null) {
       const currentTab = currentScene.tabs[currentTabIndex]
       if (currentTab && currentTab.tabClickableName === node.name) {
         setHover(true)
+        window.addEventListener("keydown", handleKeyDown)
       } else {
         setHover(false)
+        window.removeEventListener("keydown", handleKeyDown)
       }
     }
   }, [isCanvasTabMode, currentTabIndex, currentScene, node.name])
