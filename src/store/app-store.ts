@@ -9,7 +9,7 @@ export type CameraStateKeys =
   | "stairs"
   | "hoop"
   | "projects"
-  | "careers"
+  | "people"
   | "blog"
   | "menu"
 
@@ -30,7 +30,7 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/services": "stairs",
   "/basketball": "hoop",
   "/showcase": "projects",
-  "/careers": "careers",
+  "/people": "people",
   "/blog": "blog"
 }
 
