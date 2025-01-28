@@ -102,19 +102,19 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => (
     className={cn("mb-1 flex flex-col gap-y-2 text-p text-brand-g1", className)}
   >
     {links.map((link) => (
-      <li key={link.title}>
+      <li key={link.title} className="flex gap-x-1">
         <Link
           className="flex w-max gap-x-0.5 text-h2 text-brand-w1"
           href={link.href}
           target={link.href.startsWith("http") ? "_blank" : undefined}
         >
           <span className="actionable">{link.title}</span>
-          {link.count && (
-            <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
-              <span className="tabular-nums">({link.count})</span>
-            </sup>
-          )}
         </Link>
+        {link.count && (
+          <sup className="translate-y-[9px] text-p !font-medium text-brand-g1">
+            <span className="tabular-nums">({link.count})</span>
+          </sup>
+        )}
       </li>
     ))}
   </ul>
