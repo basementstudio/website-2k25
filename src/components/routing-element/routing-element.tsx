@@ -77,6 +77,17 @@ export const RoutingElement = ({
     if (currentTab && currentTab.tabClickableName === node.name) {
       setHover(true)
       setHoverText(frameData.hoverName)
+
+      const handleKeyPress = (event: KeyboardEvent) => {
+        if (event.key === "Enter") {
+          handleNavigation(route)
+        }
+      }
+      window.addEventListener("keydown", handleKeyPress)
+
+      return () => {
+        window.removeEventListener("keydown", handleKeyPress)
+      }
     } else {
       setHover(false)
       setHoverText(null)
@@ -86,7 +97,9 @@ export const RoutingElement = ({
     currentScene,
     currentTabIndex,
     node.name,
-    frameData.hoverName
+    frameData.hoverName,
+    handleNavigation,
+    route
   ])
 
   return (

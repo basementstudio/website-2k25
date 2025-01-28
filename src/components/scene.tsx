@@ -59,14 +59,12 @@ export const Scene = () => {
         e.preventDefault()
         const currentIndex = currentTabIndex
         if (e.shiftKey) {
-          // Handle backward navigation
           setCurrentTabIndex(currentIndex - 1)
           if (currentIndex === 0) {
             setCurrentTabIndex(-1)
             setIsCanvasTabMode(false)
           }
         } else {
-          // Handle forward navigation
           setCurrentTabIndex(currentIndex + 1)
           if (
             currentScene?.tabs &&
