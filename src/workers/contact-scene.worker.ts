@@ -1,4 +1,5 @@
 import * as THREE from "three"
+import { AnimationUtils } from "three"
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
 import { DRACOLoader } from "three/examples/jsm/Addons.js"
 
@@ -19,6 +20,8 @@ let renderer: THREE.WebGLRenderer
 let scene: THREE.Scene
 let camera: THREE.PerspectiveCamera
 let model: THREE.Group | null = null
+let mixer: THREE.AnimationMixer | null = null
+let currentAnimation: THREE.AnimationAction | null = null
 let isExiting = false
 let modelMaxDim = 0
 let currentMousePos = { x: 0, y: 0 }
@@ -34,6 +37,57 @@ loader.setDRACOLoader(dracoLoader)
 async function loadModel(url: string) {
   try {
     const gltf = await loader.loadAsync(url)
+    if (gltf.animations && gltf.animations.length > 0) {
+      // console.log(
+      //   gltf.animations.map((anim) => ({
+      //     name: anim.name,
+      //     duration: anim.duration,
+      //     tracks: anim.tracks.length
+      //   }))
+      // )
+
+      mixer = new THREE.AnimationMixer(gltf.scene)
+
+      // both idle anims - one for each arm
+      const baseAnim = gltf.animations[0]
+      const secondAnim = gltf.animations[1]
+
+      if (baseAnim && secondAnim) {
+        console.log("Found animations:", baseAnim.name, secondAnim.name)
+
+        const idleclip1 = AnimationUtils.subclip(
+          baseAnim,
+          "idle1",
+          0,
+          baseAnim.duration * 30,
+          30
+        )
+        const idleClip2 = AnimationUtils.subclip(
+          secondAnim,
+          "idle2",
+          0,
+          secondAnim.duration * 30,
+          30
+        )
+
+        const action1 = mixer.clipAction(idleclip1)
+        const action2 = mixer.clipAction(idleClip2)
+
+        action1.setLoop(THREE.LoopRepeat, Infinity)
+        action2.setLoop(THREE.LoopRepeat, Infinity)
+
+        // action1.setEffectiveWeight(1)
+        // action2.setEffectiveWeight(1)
+
+        action1.play()
+        action2.play()
+
+        currentAnimation = action1
+      }
+    } else {
+      console.log("no animations found")
+    }
+
     if (model) {
       scene.remove(model)
     }
@@ -46,8 +100,8 @@ async function loadModel(url: string) {
     const size = box.getSize(new THREE.Vector3())
     modelMaxDim = Math.max(size.x, size.y, size.z)
 
-    camera.position.set(0, modelMaxDim * 0.5, modelMaxDim * 2)
-    camera.lookAt(center)
+    camera.position.set(0, 0.1, 0.25)
+    // camera.lookAt(center)
 
     model.position.y = -modelMaxDim * 2
     isExiting = false
@@ -87,14 +141,23 @@ function init(canvas: OffscreenCanvas, width: number, height: number) {
 }
 
 let time = 0
+let lastTime = 0
 function animate(timestamp: number) {
   if (!renderer) return
+
+  const deltaTime = (timestamp - lastTime) * 0.001
+  lastTime = timestamp
+
   time += 0.01
+
+  if (mixer) {
+    mixer.update(deltaTime)
+  }
 
   if (model) {
     const targetY = isExiting ? -modelMaxDim * 2 : 0
     const currentY = model.position.y
-    const delta = (targetY - currentY) * easeInOutCubic(time * 0.8)
+    const delta = (targetY - currentY) * easeInOutCubic(time * 0.3)
     model.position.y += delta
 
     if (isExiting) {
