@@ -36,14 +36,6 @@ export const query = fragmentOn("Query", {
         }
       }
     },
-    clients: {
-      clientList: {
-        items: {
-          _title: true,
-          website: true
-        }
-      }
-    },
     people: {
       peopleList: {
         items: {

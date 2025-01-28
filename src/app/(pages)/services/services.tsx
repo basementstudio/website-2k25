@@ -6,23 +6,20 @@ import { QueryType } from "./query"
 
 export const Services = ({ data }: { data: QueryType }) => {
   return (
-    <section className="grid-layout !gap-x-0 !gap-y-12">
+    <section className="grid-layout !gap-x-0 !gap-y-14">
       {data.company.services.serviceCategories.items.map((category, index) => (
         <article
           key={category._title}
           className={cn("flex flex-col gap-2", {
-            "col-span-5": index % 2 === 0,
-            "col-span-7": index % 2 !== 0
+            "col-start-1 col-end-6": index % 2 === 0,
+            "col-start-6 col-end-13 grid grid-cols-7": index % 2 !== 0
           })}
         >
-          <h3 className="text-h3 text-brand-g1">{category._title}</h3>
-          <hr className="border-brand-w1/30" />
-          <div
-            className={cn("!text-h2 text-brand-w2", {
-              "max-w-[95%]": index % 2 === 0,
-              "max-w-[70%]": index % 2 !== 0
-            })}
-          >
+          <h3 className="col-span-7 text-h3 text-brand-g1">
+            {category._title}
+          </h3>
+          <hr className="col-span-7 -mt-px border-brand-w1/30" />
+          <div className="col-span-5 text-h2 text-brand-w2">
             <RichText>{category.description?.json.content}</RichText>
           </div>
         </article>

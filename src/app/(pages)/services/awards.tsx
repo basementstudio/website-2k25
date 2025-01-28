@@ -75,20 +75,20 @@ export const Awards = ({ data }: { data: QueryType }) => {
             >
               <Link
                 href={award.awardUrl ?? ""}
-                className="item relative col-span-12 grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
+                className="item relative col-span-12 grid grid-cols-12 items-center gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
               >
-                <span className="col-span-1 text-h4">{award.title}</span>
-                <span className="col-span-1 text-p text-brand-w2">
+                <span className="col-span-3 text-h4">{award.title}</span>
+                <span className="col-span-2 text-p text-brand-w2">
                   {award.project._title}
                 </span>
-                <span className="col-span-1 text-p text-brand-w2">
+                <span className="col-span-2 text-p text-brand-w2">
                   {formatDate(award.date)}
                 </span>
               </Link>
 
               {award.certificate ? (
                 <motion.div
-                  className="absolute right-16 h-[313px] w-[232px] opacity-0"
+                  className="absolute right-64 z-10 h-[313px] w-[232px] opacity-0"
                   animate={{
                     opacity: hoveredItem === award._id ? 1 : 0,
                     y: mouseY - hoveredHeight / 2

@@ -51,7 +51,7 @@ export const Hero = ({ data, className }: HeroProps) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={cleanup}
       />
-      <div className="col-start-9 col-end-12 flex flex-col gap-4 text-h4 text-brand-w2">
+      <div className="col-start-9 col-end-13 flex flex-col gap-4 text-h4 text-brand-w2">
         <RichText content={data.pages.services.intro.json.content} />
       </div>
     </section>

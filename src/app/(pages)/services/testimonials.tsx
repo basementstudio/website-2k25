@@ -10,17 +10,17 @@ export const Testimonials = ({ data }: { data: QueryType }) => {
   const testimonial = data.company.testimonials.services
 
   return (
-    <div className="grid-layout !gap-y-10">
+    <div className="grid-layout !gap-y-8">
       <div className="relative col-span-12 text-center text-h1 text-brand-w1">
         <div className="mx-auto max-w-[1440px]">
           <RichText>{testimonial.content?.json.content}</RichText>
         </div>
 
-        <div className="absolute inset-0 flex flex-col [&>*]:mt-[4.1rem]">
-          <div className="h-[1px] w-full bg-brand-w1/30" />
-          <div className="h-[1px] w-full bg-brand-w1/30" />
-          <div className="h-[1px] w-full bg-brand-w1/30" />
-          <div className="h-[1px] w-full bg-brand-w1/30" />
+        <div className="absolute inset-0 -mt-[0.5625rem] flex flex-col [&>*]:mt-[4.1875rem]">
+          <div className="h-px w-full bg-brand-w1/30" />
+          <div className="h-px w-full bg-brand-w1/30" />
+          <div className="h-px w-full bg-brand-w1/30" />
+          <div className="h-px w-full bg-brand-w1/30" />
         </div>
       </div>
 
@@ -31,16 +31,19 @@ export const Testimonials = ({ data }: { data: QueryType }) => {
             alt={testimonial.avatar?.alt || ""}
             width={testimonial.avatar?.width}
             height={testimonial.avatar?.height}
+            className="size-14"
           />
         ) : null}
 
-        <p className="text-h4 text-brand-w2">{testimonial.name}</p>
-        <Link
-          href={testimonial.handleLink || ""}
-          className="actionable text-h4 text-brand-w1"
-        >
-          {testimonial.handle}
-        </Link>
+        <p className="text-h4 text-brand-w2">
+          {testimonial.name}{" "}
+          <Link
+            href={testimonial.handleLink || ""}
+            className="actionable text-h4 text-brand-w1"
+          >
+            {testimonial.handle}
+          </Link>
+        </p>
 
         {testimonial.date ? (
           <p className="text-h4 text-brand-g1">
