@@ -12,7 +12,6 @@ export type CameraStateKeys =
   | "people"
   | "blog"
   | "menu"
-  | "contact"
 
 export interface CameraState {
   name: string
@@ -32,8 +31,7 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/basketball": "hoop",
   "/showcase": "projects",
   "/people": "people",
-  "/blog": "blog",
-  "/contact": "contact"
+  "/blog": "blog"
 }
 
 export type CameraName = "main" | "debug-orbit"
