@@ -100,7 +100,7 @@ async function loadModel(url: string) {
     const size = box.getSize(new THREE.Vector3())
     modelMaxDim = Math.max(size.x, size.y, size.z)
 
-    camera.position.set(0, 0.1, 0.25)
+    camera.position.set(0, 0.082, 0.25)
     // camera.lookAt(center)
 
     model.position.y = -modelMaxDim * 2
