@@ -146,7 +146,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
         const lookAtMatrix = new Matrix4()
         const upVector = new Vector3(0, 1, 0)
 
-        lookAtMatrix.lookAt(ref.current.position, camera.position, upVector)
+        lookAtMatrix.lookAt(camera.position, ref.current.position, upVector)
         targetQuaternion.setFromRotationMatrix(lookAtMatrix)
 
         const rotationX = new Quaternion()
@@ -175,18 +175,26 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
         ref={ref}
         onPointerEnter={() => {
           if (!isInspectableEnabled) return
-          setCursorType("zoom")
+          setCursorType(selected === inspectable.id ? "grab" : "zoom")
         }}
         onPointerLeave={() => {
           if (!isInspectableEnabled) return
           setCursorType("default")
+        }}
+        onPointerDown={() => {
+          if (!isInspectableEnabled || selected !== inspectable.id) return
+          setCursorType("grabbing")
+        }}
+        onPointerUp={() => {
+          if (!isInspectableEnabled || selected !== inspectable.id) return
+          setCursorType("grab")
         }}
       >
         <InspectableDragger
           key={inspectable.id}
           enabled={selected === inspectable.id && isInspectableEnabled}
           global={false}
-          cursor={selected === inspectable.id && isInspectableEnabled}
+          cursor={false}
           snap={true}
           speed={2}
         >

@@ -14,6 +14,7 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
+import { useInspectable } from "../inspectables/context"
 
 export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
@@ -24,6 +25,7 @@ export const CustomCamera = () => {
   )
   const pathname = usePathname()
   const scene = useThree((state) => state.scene)
+  const { selected } = useInspectable()
 
   const { debugBoundaries } = useControls({
     debugBoundaries: false
@@ -153,7 +155,8 @@ export const CustomCamera = () => {
         false
       )
     } else {
-      if (pathname !== "/basketball") {
+      // Only allow camera movement if no inspectable is selected
+      if (pathname !== "/basketball" && !selected) {
         const maxOffset = (boundary.scale.x - plane.scale.x) / 2
         const basePosition = calculatePlanePosition(navigationCameraConfig)
         const rightVector = calculateMovementVectors(
