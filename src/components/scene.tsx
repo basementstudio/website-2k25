@@ -102,7 +102,7 @@ export const Scene = () => {
         eventSource={documentElement}
         eventPrefix="client"
         camera={{ fov: 60 }}
-        className={`after:absolute after:inset-0 after:z-50 after:bg-brand-o/10 after:opacity-0 after:content-[''] ${
+        className={`after:absolute after:inset-0 after:z-50 after:border-[1px] after:border-brand-o after:opacity-0 after:content-[''] ${
           isCanvasTabMode ? "after:opacity-0" : "focus:after:opacity-100"
         }`}
       >
