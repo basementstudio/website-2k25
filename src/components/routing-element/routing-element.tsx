@@ -77,10 +77,15 @@ export const RoutingElement = ({
 
       return () => {
         window.removeEventListener("keydown", handleKeyPress)
+        if (!isCanvasTabMode) {
+          setHoverText(null)
+        }
       }
     } else {
       setHover(false)
-      setHoverText(null)
+      if (!isCanvasTabMode) {
+        setHoverText(null)
+      }
     }
   }, [
     isCanvasTabMode,
@@ -119,7 +124,7 @@ export const RoutingElement = ({
           position={[node.position.x, node.position.y, node.position.z]}
           rotation={node.rotation}
         >
-          <meshBasicMaterial color="white" opacity={0} transparent />
+          <meshBasicMaterial transparent visible={false} />
         </mesh>
       </group>
       {hover && (

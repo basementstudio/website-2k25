@@ -101,7 +101,6 @@ export const Scene = () => {
         eventSource={documentElement}
         eventPrefix="client"
         camera={{ fov: 60 }}
-        className={`after:absolute after:inset-0 after:z-50 after:content-[''] focus:after:border-[1px] focus:after:border-brand-o`}
       >
         <Renderer
           sceneChildren={
