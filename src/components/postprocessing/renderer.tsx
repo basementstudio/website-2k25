@@ -12,6 +12,7 @@ import {
   WebGLRenderTarget
 } from "three"
 
+import useMousePosition from "@/hooks/use-mouse-pos"
 import { useCameraStore } from "@/store/app-store"
 
 import { PostProcessing } from "./post-processing"
@@ -24,7 +25,7 @@ interface RendererProps {
 export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
   const pathname = usePathname()
   const activeCamera = useCameraStore((state) => state.activeCamera)
-  // const contactCanvasRef = useRef<HTMLCanvasElement>(null)
+  const mousePos = useMousePosition()
   const workerRef = useRef<Worker | null>(null)
   const [isAnimatingOut, setIsAnimatingOut] = useState(false)
 
@@ -59,7 +60,6 @@ export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
 
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "animation-complete") {
-        console.log("Animation complete, cleaning up")
         const canvas = document.querySelector(
           "canvas[style*='pointer-events: none']"
         )
@@ -81,7 +81,6 @@ export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
   useEffect(() => {
     if (pathname !== "/contact") {
       if (workerRef.current && !isAnimatingOut) {
-        console.log("Starting exit animation")
         setIsAnimatingOut(true)
         workerRef.current.postMessage({ type: "animate-out" })
       }
@@ -137,6 +136,23 @@ export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
     window.addEventListener("resize", resizeCallback)
     return () => window.removeEventListener("resize", resizeCallback)
   }, [mainTarget])
+
+  useEffect(() => {
+    if (!workerRef.current || pathname !== "/contact") return
+
+    workerRef.current.postMessage({ mousePos })
+
+    let rafId: number
+    const updateMousePos = () => {
+      workerRef.current?.postMessage({ mousePos })
+      rafId = requestAnimationFrame(updateMousePos)
+    }
+    rafId = requestAnimationFrame(updateMousePos)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+    }
+  }, [mousePos, pathname])
 
   useFrame(({ gl }) => {
     if (!cameraToRender || !postProcessingCamera) return

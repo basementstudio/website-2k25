@@ -11,6 +11,7 @@ interface WorkerMessage {
   height: number
   type?: "resize" | "load-model" | "animate-out"
   modelUrl?: string
+  mousePos?: { x: number; y: number }
 }
 
 let renderer: THREE.WebGLRenderer
@@ -19,6 +20,8 @@ let camera: THREE.PerspectiveCamera
 let model: THREE.Group | null = null
 let isExiting = false
 let modelMaxDim = 0
+let currentMousePos = { x: 0, y: 0 }
+let targetMousePos = { x: 0, y: 0 }
 const loader = new GLTFLoader()
 
 async function loadModel(url: string) {
@@ -99,7 +102,14 @@ function animate(timestamp: number) {
 }
 
 self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
-  const { type, canvas, width, height, modelUrl } = e.data
+  const { type, canvas, width, height, modelUrl, mousePos } = e.data
+
+  // if (mousePos) {
+  //   targetMousePos = {
+  //     x: (mousePos.x / width) * 2 - 1,
+  //     y: -(mousePos.y / height) * 2 + 1
+  //   }
+  // }
 
   if (canvas && !renderer) {
     init(canvas, width, height)
@@ -111,7 +121,6 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
   } else if (type === "load-model" && modelUrl) {
     await loadModel(modelUrl)
   } else if (type === "animate-out") {
-    console.log("Starting exit animation")
     isExiting = true
     time = 0
   }
