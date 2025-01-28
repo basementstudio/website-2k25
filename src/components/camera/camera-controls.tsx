@@ -115,7 +115,7 @@ export const CustomCamera = () => {
     if (width <= 1100) return 0.32
     if (width <= 1200) return 0.36
     if (width <= 1500) return 0.4
-    if (width <= 1600) return 0.6
+    if (width <= 1600) return 0.8
     return 0.8
   }, [window.innerWidth])
 
