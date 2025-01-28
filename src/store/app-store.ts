@@ -1,4 +1,4 @@
-import { PerspectiveCamera } from "three"
+import { PerspectiveCamera, Vector3 } from "three"
 import { create } from "zustand"
 
 import { CAMERA_STATES } from "@/constants/camera-states"
@@ -12,6 +12,7 @@ export type CameraStateKeys =
   | "people"
   | "blog"
   | "menu"
+  | "contact"
 
 export interface CameraState {
   name: string
@@ -31,7 +32,8 @@ const PATHNAME_MAP: Record<string, CameraStateKeys> = {
   "/basketball": "hoop",
   "/showcase": "projects",
   "/people": "people",
-  "/blog": "blog"
+  "/blog": "blog",
+  "/contact": "contact"
 }
 
 export type CameraName = "main" | "debug-orbit"

@@ -160,10 +160,13 @@ export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
   useFrame(({ gl }) => {
     if (!cameraToRender || !postProcessingCamera) return
 
+    // TODO: this is too janky, fix
+    // if (pathname !== "/contact") {
     gl.outputColorSpace = LinearSRGBColorSpace
     gl.toneMapping = NoToneMapping
     gl.setRenderTarget(mainTarget)
     gl.render(mainScene, cameraToRender)
+    // }
 
     gl.outputColorSpace = SRGBColorSpace
     gl.toneMapping = NoToneMapping
