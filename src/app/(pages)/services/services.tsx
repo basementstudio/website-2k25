@@ -1,34 +1,29 @@
+import { RichText } from "basehub/react-rich-text"
+
+import { cn } from "@/utils/cn"
+
 import { QueryType } from "./query"
 
 export const Services = ({ data }: { data: QueryType }) => {
-  const servicesByCategory = data.company.services.serviceList.items.reduce(
-    (acc, service) => {
-      const category = service.category._title
-      if (!acc[category]) acc[category] = []
-
-      acc[category].push(service._title)
-      return acc
-    },
-    {} as Record<string, string[]>
-  )
-
   return (
-    <section className="grid-layout">
-      <div className="relative col-start-1 col-end-13 grid grid-cols-6 gap-2">
-        <hr className="absolute top-6 w-full border-brand-w1/20" />
-        {Object.entries(servicesByCategory).map(([category, services]) => (
-          <div key={category} className="col-span-1 flex flex-col gap-4">
-            <h2 className="text-paragraph text-brand-g1">{category}</h2>
-            <ul>
-              {services.map((service) => (
-                <li key={service} className="text-subheading text-brand-w2">
-                  {service}
-                </li>
-              ))}
-            </ul>
+    <section className="grid-layout !gap-x-0 !gap-y-14">
+      {data.company.services.serviceCategories.items.map((category, index) => (
+        <article
+          key={category._title}
+          className={cn("flex flex-col gap-2", {
+            "col-start-1 col-end-6": index % 2 === 0,
+            "col-start-6 col-end-13 grid grid-cols-7": index % 2 !== 0
+          })}
+        >
+          <h3 className="col-span-7 text-h3 text-brand-g1">
+            {category._title}
+          </h3>
+          <hr className="col-span-7 -mt-px border-brand-w1/30" />
+          <div className="col-span-5 text-h2 text-brand-w2">
+            <RichText>{category.description?.json.content}</RichText>
           </div>
-        ))}
-      </div>
+        </article>
+      ))}
     </section>
   )
 }

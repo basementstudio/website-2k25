@@ -4,6 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { useMotionValue } from "motion/react"
+import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import {
   Box3,
@@ -13,7 +14,6 @@ import {
   Quaternion,
   Vector3
 } from "three"
-import { usePathname, useRouter } from "next/navigation"
 
 import {
   ANIMATION_CONFIG,
@@ -21,11 +21,11 @@ import {
   TARGET_SIZE,
   X_OFFSET
 } from "@/constants/inspectables"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
-import { useKeyPress } from "@/hooks/use-key-press"
 
 interface InspectableProps {
   inspectable: {

@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingArrow } from "./routing-arrow"
 import { RoutingPlane } from "./routing-plane/routing-plane"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 interface RoutingElementProps {
   node: Mesh

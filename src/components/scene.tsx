@@ -10,6 +10,7 @@ import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 import { HoopMinigame } from "./basketball/hoop-minigame"
 import { CustomCamera } from "./camera/camera-controls"
@@ -18,7 +19,6 @@ import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
-import { useKeyPress } from "@/hooks/use-key-press"
 
 export const Scene = () => {
   const pathname = usePathname()

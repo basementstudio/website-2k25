@@ -3,9 +3,12 @@ import { basehub } from "basehub"
 import { assetsQuery } from "./query"
 
 export interface AssetsResult {
-  map: string
+  office: string
+  outdoor: string
+  godrays: string
   basketball: string
   basketballNet: string
+  routingElements: string
   mapAssets: {
     mesh: string
     lightmap: string
@@ -87,7 +90,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
   }).query(assetsQuery)
 
   return {
-    map: threeDInteractions.map?.model?.file?.url ?? "",
+    office: threeDInteractions.map.office?.file?.url ?? "",
+    outdoor: threeDInteractions.map.outdoor?.file?.url ?? "",
+    godrays: threeDInteractions.map.godrays?.file?.url ?? "",
     mapAssets: threeDInteractions.map.maps.items.map((item) => ({
       mesh: item._title,
       lightmap: item.lightmap?.url ?? "",
@@ -95,6 +100,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
       ambientOcclusion: item.ambientOcclusion?.url ?? "",
       ambientOcclusionIntensity: item.ambientOcclusionIntensity ?? 1
     })),
+    routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
     arcade: { idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "" },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
       mesh: item._title,
@@ -165,7 +171,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
       ],
       arrowScale: item.arrowScale ?? 0
     })),
-
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
       cameraConfig: {

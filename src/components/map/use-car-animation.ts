@@ -1,4 +1,7 @@
-import { Object3D, Vector3 } from "three"
+import { useFrame } from "@react-three/fiber"
+import { usePathname } from "next/navigation"
+import { useRef } from "react"
+import { Mesh, Object3D, Vector3 } from "three"
 
 import { easeInOutCubic } from "../../utils/animations"
 
@@ -30,7 +33,7 @@ const CONSTANTS = {
   SWERVE_SPEED: 0.5,
   MAX_ROTATION: 0.2,
   MAX_Z_OFFSET: 1.5
-} as const
+}
 
 const TOTAL_DISTANCE = CONSTANTS.END_X - CONSTANTS.START_X
 
@@ -49,22 +52,20 @@ const carState: CarState = {
   baseZOffset: (Math.random() * 2 - 1) * CONSTANTS.MAX_Z_OFFSET
 }
 
-function setRandomTimeout() {
+const setRandomTimeout = () => {
   const waitTime =
     CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
   carState.isWaiting = true
   carState.isSoundPlaying = false
 
-  if (carState.waitTimeout) {
-    clearTimeout(carState.waitTimeout)
-  }
+  if (carState.waitTimeout) clearTimeout(carState.waitTimeout)
 
   carState.waitTimeout = setTimeout(() => {
     carState.isWaiting = false
   }, waitTime)
 }
 
-function updateCarSpeed() {
+const updateCarSpeed = () => {
   carState.currentSpeed = CONSTANTS.BASE_SPEED
 
   if (carState.carCount % 2 === 0 && Math.random() > 0.5) {
@@ -80,12 +81,12 @@ function updateCarSpeed() {
   }
 }
 
-function resetCarMovement() {
+const resetCarMovement = () => {
   carState.carCount++
   updateCarSpeed()
 }
 
-function updateCarPosition(carPosition: Vector3, progress: number) {
+const updateCarPosition = (carPosition: Vector3, progress: number) => {
   if (carState.isSlowingDown) {
     const slowdownAmount = CONSTANTS.SPEED_VARIATION * easeInOutCubic(progress)
     carState.currentSpeed = CONSTANTS.BASE_SPEED * (1 - slowdownAmount)
@@ -122,17 +123,17 @@ function updateCarPosition(carPosition: Vector3, progress: number) {
   }
 }
 
-function runFirstCarPass(carPosition: Vector3) {
+const runFirstCarPass = (carPosition: Vector3) => {
   carState.hasInitialized = true
   carPosition.x = CONSTANTS.START_X
   carState.isWaiting = true
   setRandomTimeout()
 }
 
-export function animateCar(car: Object3D, t: number, pathname: string) {
+const animateCar = (car: Object3D, t: number, pathname: string) => {
   const carPosition = car.position
 
-  if (pathname !== "/about") {
+  if (pathname !== "/services") {
     if (
       carPosition.x >= CONSTANTS.END_X ||
       carPosition.x <= CONSTANTS.START_X
@@ -171,4 +172,16 @@ export function animateCar(car: Object3D, t: number, pathname: string) {
     car.rotation.y = 0
     resetCarMovement()
   }
+}
+
+export const useCarAnimation = ({ car }: { car: Mesh | null }) => {
+  const animationProgress = useRef(0)
+  const pathname = usePathname()
+
+  useFrame(({ clock }) => {
+    if (car) {
+      animationProgress.current += clock.getElapsedTime()
+      animateCar(car, animationProgress.current, pathname)
+    }
+  })
 }

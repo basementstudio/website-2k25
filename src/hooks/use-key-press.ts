@@ -1,5 +1,6 @@
-import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useEffect } from "react"
+
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
 export const useKeyPress = (
   key: string,

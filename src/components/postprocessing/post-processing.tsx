@@ -96,7 +96,7 @@ export function PostProcessing({
 
   useControls("bloom", {
     bloomThreshold: {
-      value: 3,
+      value: 1,
       min: 0.0,
       max: 10.0,
       step: 0.01,
@@ -105,7 +105,7 @@ export function PostProcessing({
       }
     },
     bloomStrength: {
-      value: 0.03,
+      value: 0.15,
       min: 0.0,
       max: 2.0,
       step: 0.01,
@@ -114,7 +114,7 @@ export function PostProcessing({
       }
     },
     bloomRadius: {
-      value: 8.0,
+      value: 5.0,
       min: 1.0,
       max: 64.0,
       step: 1,
