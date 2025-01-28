@@ -3,11 +3,10 @@ import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
 
-import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { RoutingArrow } from "./routing-arrow"
 import { RoutingPlane } from "./routing-plane/routing-plane"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 interface RoutingElementProps {
   node: Mesh
@@ -35,9 +34,6 @@ export const RoutingElement = ({
   const pathname = usePathname()
   const setHoverText = useMouseStore((state) => state.setHoverText)
   const setCursorType = useMouseStore((state) => state.setCursorType)
-  const isCanvasTabMode = useNavigationStore((state) => state.isCanvasTabMode)
-  const currentTabIndex = useNavigationStore((state) => state.currentTabIndex)
-  const currentScene = useNavigationStore((state) => state.currentScene)
 
   const scene = useThree((state) => state.scene)
   const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
@@ -67,32 +63,6 @@ export const RoutingElement = ({
     },
     [router, stair3]
   )
-
-  useEffect(() => {
-    if (isCanvasTabMode && currentScene && currentTabIndex !== null) {
-      const currentTab = currentScene?.tabs[currentTabIndex]
-      if (currentTab && currentTab.tabClickableName === node.name) {
-        setHover(true)
-        const keyDownHandler = (e: KeyboardEvent) => {
-          if (e.key === "Enter") {
-            e.preventDefault()
-            handleNavigation(route)
-          }
-        }
-        window.addEventListener("keydown", keyDownHandler)
-        return () => window.removeEventListener("keydown", keyDownHandler)
-      } else {
-        setHover(false)
-      }
-    }
-  }, [
-    isCanvasTabMode,
-    currentTabIndex,
-    currentScene,
-    node.name,
-    handleNavigation,
-    route
-  ])
 
   return (
     <>

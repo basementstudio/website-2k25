@@ -27,17 +27,24 @@ export const Scene = () => {
   const isBasketball = pathname === "/basketball"
   const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
-  const isCanvasTabMode = useNavigationStore((state) => state.isCanvasTabMode)
-  const setIsCanvasTabMode = useNavigationStore(
-    (state) => state.setIsCanvasTabMode
-  )
-  const setCurrentTabIndex = useNavigationStore(
-    (state) => state.setCurrentTabIndex
-  )
-  const lastEscapeTimeRef = useRef<number>(0)
+  const {
+    isCanvasTabMode,
+    setIsCanvasTabMode,
+    setCurrentTabIndex,
+    currentTabIndex,
+    currentScene
+  } = useNavigationStore()
+
   useEffect(() => {
     setDocumentElement(document.documentElement)
   }, [])
+
+  useEffect(() => {
+    setIsCanvasTabMode(isCanvasTabMode)
+  }, [isCanvasTabMode, setIsCanvasTabMode])
+
+  const handleFocus = () => setIsCanvasTabMode(true)
+  const handleBlur = () => setIsCanvasTabMode(false)
 
   useKeyPress(
     "Escape",
@@ -47,38 +54,31 @@ export const Scene = () => {
       }
     }, [pathname, router])
   )
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement
-      if (target.id !== "canvas") return
-
-      if (e.key === "Enter" && !isCanvasTabMode) {
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Tab" && isCanvasTabMode) {
         e.preventDefault()
-        setIsCanvasTabMode(true)
-        setCurrentTabIndex(-1)
-        console.log("Entered canvas tab mode")
-      } else if (e.key === "Escape" && isCanvasTabMode) {
-        e.preventDefault()
-        const currentTime = Date.now()
-        if (currentTime - lastEscapeTimeRef.current < 1200) {
-          setIsCanvasTabMode(false)
-          setCurrentTabIndex(-1)
-          console.log("Exited canvas tab mode")
+        const currentIndex = currentTabIndex
+        if (e.shiftKey) {
+          // Handle backward navigation
+          setCurrentTabIndex(currentIndex - 1)
+          if (currentIndex === 0) {
+            setIsCanvasTabMode(false)
+          }
+        } else {
+          // Handle forward navigation
+          setCurrentTabIndex(currentIndex + 1)
+          if (
+            currentScene?.tabs &&
+            currentIndex === currentScene.tabs.length - 1
+          ) {
+            setIsCanvasTabMode(false)
+          }
         }
-        lastEscapeTimeRef.current = currentTime
-      } else if (isCanvasTabMode && e.key === "Tab") {
-        e.preventDefault()
-        console.log("Tab trapped in canvas mode")
       }
-    }
-
-    document.addEventListener("keydown", handleKeyDown)
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [isCanvasTabMode, setIsCanvasTabMode, setCurrentTabIndex])
+    },
+    [isCanvasTabMode, setCurrentTabIndex, currentTabIndex, currentScene]
+  )
 
   useTabNavigation()
 
@@ -93,6 +93,9 @@ export const Scene = () => {
         id="canvas"
         tabIndex={0}
         ref={canvasRef}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
         gl={{
           antialias: true,
           alpha: false,
@@ -102,9 +105,7 @@ export const Scene = () => {
         eventSource={documentElement}
         eventPrefix="client"
         camera={{ fov: 60 }}
-        className={`after:absolute after:inset-0 after:z-50 after:border-[1px] after:border-brand-o after:opacity-0 after:content-[''] ${
-          isCanvasTabMode ? "after:opacity-0" : "focus:after:opacity-100"
-        }`}
+        className={`after:absolute after:inset-0 after:z-50 after:content-[''] focus:after:border-[1px] focus:after:border-brand-o`}
       >
         <Renderer
           sceneChildren={
