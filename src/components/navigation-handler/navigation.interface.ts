@@ -3,6 +3,7 @@ interface Tab {
   tabRoute: string
   tabHoverName: string
   tabClickableName: string
+  plusShapeScale: number
 }
 
 export interface ICameraConfig {

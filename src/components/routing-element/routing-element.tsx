@@ -5,25 +5,20 @@ import { Mesh } from "three"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
-import { RoutingArrow } from "./routing-arrow"
 import { RoutingPlane } from "./routing-plane/routing-plane"
 
 interface RoutingElementProps {
   node: Mesh
   route: string
   hoverName: string
-  arrowData: {
-    position: [number, number, number]
-    scale: number
-    rotation: [number, number, number]
-  }
+  plusShapeScale: number
 }
 
 export const RoutingElement = ({
   node,
   route,
   hoverName,
-  arrowData
+  plusShapeScale
 }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
@@ -134,11 +129,7 @@ export const RoutingElement = ({
             scale={[1, 1]}
             rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
             geometry={node.geometry}
-          />
-          <RoutingArrow
-            position={[node.position.x, node.position.y, node.position.z]}
-            scale={arrowData.scale}
-            rotation={arrowData.rotation}
+            plusShapeScale={plusShapeScale}
           />
         </>
       )}

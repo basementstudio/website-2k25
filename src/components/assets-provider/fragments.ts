@@ -119,7 +119,8 @@ export const sceneFragment = fragmentOn("Scenes", {
           _title: true,
           tabRoute: true,
           tabHoverName: true,
-          tabClickableName: true
+          tabClickableName: true,
+          plusShapeScale: true
         }
       }
     }

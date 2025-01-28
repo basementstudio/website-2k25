@@ -53,20 +53,6 @@ const createVideoTexture = (url: string) => {
 
 type SceneType = Object3D<Object3DEventMap> | null
 
-interface clickable {
-  name: string
-  frameData: any
-  node: Mesh
-  arrowData: any
-  route: string
-}
-
-interface Tab {
-  name: string
-  route: string
-  // add any other properties your tabs might have
-}
-
 export const Map = memo(() => {
   const {
     office: officePath,
@@ -323,19 +309,21 @@ export const Map = memo(() => {
           <primitive object={basketballHoop} />
         </RigidBody>
       )}
-      {Object.values(routingNodes).map((node) => (
-        <RoutingElement
-          key={node.name}
-          node={node}
-          route={node.name}
-          hoverName={node.name}
-          arrowData={{
-            position: [0, 0, 0],
-            scale: 0.4,
-            rotation: [0, 0, 0]
-          }}
-        />
-      ))}
+      {Object.values(routingNodes).map((node) => {
+        const matchingTab = currentScene?.tabs?.find(
+          (tab) => tab.tabClickableName === node.name
+        )
+
+        return (
+          <RoutingElement
+            key={node.name}
+            node={node}
+            route={matchingTab?.tabRoute ?? ""}
+            hoverName={matchingTab?.tabHoverName ?? node.name}
+            plusShapeScale={matchingTab?.plusShapeScale ?? 1}
+          />
+        )
+      })}
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && <primitive position-x={-8.7} object={car} />}
       <PlayedBasketballs />

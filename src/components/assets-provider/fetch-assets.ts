@@ -70,6 +70,7 @@ export interface AssetsResult {
       tabRoute: string
       tabHoverName: string
       tabClickableName: string
+      plusShapeScale: number
     }[]
   }[]
 }
@@ -155,7 +156,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
         tabName: tab._title,
         tabRoute: tab.tabRoute ?? "",
         tabHoverName: tab.tabHoverName ?? "",
-        tabClickableName: tab.tabClickableName ?? ""
+        tabClickableName: tab.tabClickableName ?? "",
+        plusShapeScale: tab.plusShapeScale ?? 1
       }))
     }))
   }
