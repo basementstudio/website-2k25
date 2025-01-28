@@ -55,17 +55,7 @@ export interface AssetsResult {
     basketballThump: string
     basketballBuzzer: string
   }
-  clickables: {
-    title: string
-    route: string
-    framePosition: [number, number, number]
-    frameRotation: [number, number, number]
-    frameSize: [number, number]
-    hoverName: string
-    arrowPosition: [number, number, number]
-    arrowRotation: [number, number, number]
-    arrowScale: number
-  }[]
+
   scenes: {
     name: string
     cameraConfig: {
@@ -144,33 +134,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
         targetScrollY: item.targetScrollY ?? -1.5
       })
     ),
-    clickables: threeDInteractions.clickables.clickables.items.map((item) => ({
-      title: item._title,
-      hoverName: item.hoverName ?? "",
-      route: item.route ?? "",
-      framePosition: [
-        item.framePositionX ?? 0,
-        item.framePositionY ?? 0,
-        item.framePositionZ ?? 0
-      ],
-      frameRotation: [
-        item.frameRotationX ?? 0,
-        item.frameRotationY ?? 0,
-        item.frameRotationZ ?? 0
-      ],
-      frameSize: [item.frameSizeX ?? 0, item.frameSizeY ?? 0],
-      arrowPosition: [
-        item.arrowPositionX ?? 0,
-        item.arrowPositionY ?? 0,
-        item.arrowPositionZ ?? 0
-      ],
-      arrowRotation: [
-        item.arrowRotationX ?? 0,
-        item.arrowRotationY ?? 0,
-        item.arrowRotationZ ?? 0
-      ],
-      arrowScale: item.arrowScale ?? 0
-    })),
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
       cameraConfig: {

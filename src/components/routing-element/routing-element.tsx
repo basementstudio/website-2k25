@@ -11,12 +11,7 @@ import { RoutingPlane } from "./routing-plane/routing-plane"
 interface RoutingElementProps {
   node: Mesh
   route: string
-  frameData: {
-    position: [number, number, number]
-    rotation: [number, number, number]
-    size: [number, number]
-    hoverName: string
-  }
+  hoverName: string
   arrowData: {
     position: [number, number, number]
     scale: number
@@ -27,7 +22,7 @@ interface RoutingElementProps {
 export const RoutingElement = ({
   node,
   route,
-  frameData,
+  hoverName,
   arrowData
 }: RoutingElementProps) => {
   const router = useRouter()
@@ -76,7 +71,7 @@ export const RoutingElement = ({
     const currentTab = currentScene.tabs[currentTabIndex]
     if (currentTab && currentTab.tabClickableName === node.name) {
       setHover(true)
-      setHoverText(frameData.hoverName)
+      setHoverText(hoverName)
 
       const handleKeyPress = (event: KeyboardEvent) => {
         if (event.key === "Enter") {
@@ -97,7 +92,7 @@ export const RoutingElement = ({
     currentScene,
     currentTabIndex,
     node.name,
-    frameData.hoverName,
+    hoverName,
     handleNavigation,
     route
   ])
@@ -110,7 +105,7 @@ export const RoutingElement = ({
           router.prefetch(route)
           setHover(true)
           setCursorType("click")
-          setHoverText(frameData.hoverName)
+          setHoverText(hoverName)
         }}
         onPointerLeave={() => {
           if (activeRoute) return
@@ -135,21 +130,13 @@ export const RoutingElement = ({
       {hover && (
         <>
           <RoutingPlane
-            position={[
-              node.position.x + frameData.position[0],
-              node.position.y + frameData.position[1],
-              node.position.z + frameData.position[2]
-            ]}
-            scale={[frameData.size[0], frameData.size[1]]}
+            position={[node.position.x, node.position.y, node.position.z]}
+            scale={[1, 1]}
             rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
             geometry={node.geometry}
           />
           <RoutingArrow
-            position={[
-              node.position.x + arrowData.position[0],
-              node.position.y + arrowData.position[1],
-              node.position.z + arrowData.position[2]
-            ]}
+            position={[node.position.x, node.position.y, node.position.z]}
             scale={arrowData.scale}
             rotation={arrowData.rotation}
           />

@@ -3,7 +3,6 @@ import { fragmentOn } from "basehub"
 import {
   arcadeFragment,
   cameraStateFragment,
-  clickableFragment,
   inspectableFragment,
   mapFragment,
   modelsItemFragment,
@@ -14,7 +13,6 @@ import {
 const assetsFragment = fragmentOn("ThreeDInteractions", {
   map: mapFragment,
   cameraStates: cameraStateFragment,
-  clickables: clickableFragment,
   inspectables: inspectableFragment,
   sfx: sfxFragment,
   basketball: modelsItemFragment,
