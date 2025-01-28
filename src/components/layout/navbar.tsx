@@ -19,26 +19,26 @@ export const Navbar = () => (
 
       const LINKS: NavbarLink[] = [
         {
+          title: "Services",
+          href: "/services"
+        },
+        {
           title: "Showcase",
           href: "/showcase",
           count: projects
-        },
-        {
-          title: "Services",
-          href: "/services"
         },
         {
           title: "People",
           href: "/people"
         },
         {
-          title: "Laboratory",
-          href: "/lab"
-        },
-        {
           title: "Blog",
           href: "/blog",
           count: posts
+        },
+        {
+          title: "Laboratory",
+          href: "/lab"
         }
       ]
 
