@@ -1,5 +1,7 @@
 import * as THREE from "three"
-import { GLTF, GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
+
+import { easeInOutCubic } from "@/utils/animations"
 
 declare function requestAnimationFrame(callback: (time: number) => void): number
 
@@ -7,7 +9,7 @@ interface WorkerMessage {
   canvas?: OffscreenCanvas
   width: number
   height: number
-  type?: "resize" | "load-model"
+  type?: "resize" | "load-model" | "animate-out"
   modelUrl?: string
 }
 
@@ -15,6 +17,8 @@ let renderer: THREE.WebGLRenderer
 let scene: THREE.Scene
 let camera: THREE.PerspectiveCamera
 let model: THREE.Group | null = null
+let isExiting = false
+let modelMaxDim = 0
 const loader = new GLTFLoader()
 
 async function loadModel(url: string) {
@@ -26,13 +30,17 @@ async function loadModel(url: string) {
     model = gltf.scene
     scene.add(gltf.scene)
 
-    // Optional: Auto-position camera based on model bounds
+    // model bounds
     const box = new THREE.Box3().setFromObject(gltf.scene)
     const center = box.getCenter(new THREE.Vector3())
     const size = box.getSize(new THREE.Vector3())
-    const maxDim = Math.max(size.x, size.y, size.z)
-    camera.position.z = maxDim * 2
+    modelMaxDim = Math.max(size.x, size.y, size.z)
+
+    camera.position.set(0, modelMaxDim * 0.5, modelMaxDim * 2)
     camera.lookAt(center)
+
+    model.position.y = -modelMaxDim * 2
+    isExiting = false
 
     return true
   } catch (error) {
@@ -66,20 +74,6 @@ function init(canvas: OffscreenCanvas, width: number, height: number) {
   spotLight.penumbra = 0.5
 
   scene.add(ambientLight, directionalLight, pointLight, spotLight)
-
-  // testing cube
-  const tempGroup = new THREE.Group()
-  const cube = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshStandardMaterial({
-      color: 0xff0000,
-      roughness: 0.7,
-      metalness: 0.3
-    })
-  )
-  tempGroup.add(cube)
-  scene.add(tempGroup)
-  model = tempGroup
 }
 
 let time = 0
@@ -88,8 +82,16 @@ function animate(timestamp: number) {
   time += 0.01
 
   if (model) {
-    model.rotation.y = -Math.PI / 6 + Math.sin(time) * 0.1
-    model.position.y = Math.sin(time * 0.5) * 0.05
+    const targetY = isExiting ? -modelMaxDim * 2 : 0
+    const currentY = model.position.y
+    const delta = (targetY - currentY) * easeInOutCubic(time * 0.8)
+    model.position.y += delta
+
+    if (isExiting) {
+      if (Math.abs(currentY - targetY) < 0.01) {
+        self.postMessage({ type: "animation-complete" })
+      }
+    }
   }
 
   renderer.render(scene, camera)
@@ -108,5 +110,9 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
     renderer.setSize(width, height, false)
   } else if (type === "load-model" && modelUrl) {
     await loadModel(modelUrl)
+  } else if (type === "animate-out") {
+    console.log("Starting exit animation")
+    isExiting = true
+    time = 0
   }
 }

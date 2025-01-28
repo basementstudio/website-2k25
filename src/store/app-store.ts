@@ -12,7 +12,6 @@ export type CameraStateKeys =
   | "people"
   | "blog"
   | "menu"
-  | "contact"
 
 export interface CameraState {
   name: string

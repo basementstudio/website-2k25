@@ -1,6 +1,6 @@
 import { createPortal, useFrame } from "@react-three/fiber"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   HalfFloatType,
   LinearSRGBColorSpace,
@@ -24,8 +24,9 @@ interface RendererProps {
 export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
   const pathname = usePathname()
   const activeCamera = useCameraStore((state) => state.activeCamera)
-  const contactCanvasRef = useRef<HTMLCanvasElement>(null)
+  // const contactCanvasRef = useRef<HTMLCanvasElement>(null)
   const workerRef = useRef<Worker | null>(null)
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false)
 
   const mainTarget = useMemo(() => {
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
@@ -40,7 +41,6 @@ export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
   }, [])
 
   const mainScene = useMemo(() => new Scene(), [])
-  const contactScene = useMemo(() => new Scene(), [])
   const postProcessingScene = useMemo(() => new Scene(), [])
 
   const sceneCamera = useCameraStore((state) => state.camera)
@@ -55,7 +55,42 @@ export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
   }, [sceneCamera, orbitCamera, activeCamera])
 
   useEffect(() => {
-    if (pathname !== "/contact") return
+    if (!isAnimatingOut) return
+
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data.type === "animation-complete") {
+        console.log("Animation complete, cleaning up")
+        const canvas = document.querySelector(
+          "canvas[style*='pointer-events: none']"
+        )
+        canvas?.remove()
+        workerRef.current?.terminate()
+        workerRef.current = null
+        setIsAnimatingOut(false)
+      }
+    }
+
+    if (workerRef.current) {
+      workerRef.current.addEventListener("message", handleMessage)
+      return () => {
+        workerRef.current?.removeEventListener("message", handleMessage)
+      }
+    }
+  }, [isAnimatingOut])
+
+  useEffect(() => {
+    if (pathname !== "/contact") {
+      if (workerRef.current && !isAnimatingOut) {
+        console.log("Starting exit animation")
+        setIsAnimatingOut(true)
+        workerRef.current.postMessage({ type: "animate-out" })
+      }
+      return
+    }
+
+    if (isAnimatingOut) {
+      return
+    }
 
     const canvas = document.createElement("canvas")
     canvas.style.position = "absolute"
@@ -84,17 +119,11 @@ export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
       [offscreen]
     )
 
-    // TODO: load phone model
     workerRef.current.postMessage({
       type: "load-model",
       modelUrl: "/models/phone.glb"
     })
-
-    return () => {
-      canvas.remove()
-      workerRef.current?.terminate()
-    }
-  }, [pathname])
+  }, [pathname, isAnimatingOut])
 
   useEffect(() => {
     const resizeCallback = () => {
