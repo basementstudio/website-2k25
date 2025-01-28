@@ -15,6 +15,7 @@ import {
 import useMousePosition from "@/hooks/use-mouse-pos"
 import { useCameraStore } from "@/store/app-store"
 
+import { useAssets } from "../assets-provider"
 import { PostProcessing } from "./post-processing"
 
 interface RendererProps {
@@ -28,6 +29,8 @@ export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
   const mousePos = useMousePosition()
   const workerRef = useRef<Worker | null>(null)
   const [isAnimatingOut, setIsAnimatingOut] = useState(false)
+
+  const { contactPhone } = useAssets()
 
   const mainTarget = useMemo(() => {
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
@@ -120,9 +123,9 @@ export function Renderer({ sceneChildren, contactChildren }: RendererProps) {
 
     workerRef.current.postMessage({
       type: "load-model",
-      modelUrl: "/models/phone.glb"
+      modelUrl: contactPhone
     })
-  }, [pathname, isAnimatingOut])
+  }, [pathname, isAnimatingOut, contactPhone])
 
   useEffect(() => {
     const resizeCallback = () => {

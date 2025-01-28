@@ -18,6 +18,7 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
   sfx: sfxFragment,
   basketball: modelsItemFragment,
   basketballNet: modelsItemFragment,
+  contactPhone: modelsItemFragment,
   arcade: arcadeFragment
 })
 

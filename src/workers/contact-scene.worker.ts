@@ -1,5 +1,6 @@
 import * as THREE from "three"
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
+import { DRACOLoader } from "three/examples/jsm/Addons.js"
 
 import { easeInOutCubic } from "@/utils/animations"
 
@@ -22,7 +23,13 @@ let isExiting = false
 let modelMaxDim = 0
 let currentMousePos = { x: 0, y: 0 }
 let targetMousePos = { x: 0, y: 0 }
+
+const dracoLoader = new DRACOLoader()
+dracoLoader.setDecoderPath(
+  "https://www.gstatic.com/draco/versioned/decoders/1.5.5/"
+)
 const loader = new GLTFLoader()
+loader.setDRACOLoader(dracoLoader)
 
 async function loadModel(url: string) {
   try {
