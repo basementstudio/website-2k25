@@ -17,7 +17,6 @@ import { Map } from "./map/map"
 import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
-import { useTabNavigation } from "./navigation-handler/useTabNavigation"
 import { Renderer } from "./postprocessing/renderer"
 import { useKeyPress } from "@/hooks/use-key-press"
 
@@ -63,6 +62,7 @@ export const Scene = () => {
           // Handle backward navigation
           setCurrentTabIndex(currentIndex - 1)
           if (currentIndex === 0) {
+            setCurrentTabIndex(-1)
             setIsCanvasTabMode(false)
           }
         } else {
@@ -79,8 +79,6 @@ export const Scene = () => {
     },
     [isCanvasTabMode, setCurrentTabIndex, currentTabIndex, currentScene]
   )
-
-  useTabNavigation()
 
   return (
     <div className="absolute inset-0">

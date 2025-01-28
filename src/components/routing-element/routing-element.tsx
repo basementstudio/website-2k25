@@ -34,6 +34,8 @@ export const RoutingElement = ({
   const pathname = usePathname()
   const setHoverText = useMouseStore((state) => state.setHoverText)
   const setCursorType = useMouseStore((state) => state.setCursorType)
+  const { currentTabIndex, isCanvasTabMode, currentScene } =
+    useNavigationStore()
 
   const scene = useThree((state) => state.scene)
   const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
@@ -63,6 +65,29 @@ export const RoutingElement = ({
     },
     [router, stair3]
   )
+
+  useEffect(() => {
+    if (!isCanvasTabMode || !currentScene?.tabs) {
+      setHover(false)
+      setHoverText(null)
+      return
+    }
+
+    const currentTab = currentScene.tabs[currentTabIndex]
+    if (currentTab && currentTab.tabClickableName === node.name) {
+      setHover(true)
+      setHoverText(frameData.hoverName)
+    } else {
+      setHover(false)
+      setHoverText(null)
+    }
+  }, [
+    isCanvasTabMode,
+    currentScene,
+    currentTabIndex,
+    node.name,
+    frameData.hoverName
+  ])
 
   return (
     <>
