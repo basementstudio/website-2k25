@@ -77,6 +77,8 @@ const useMapAssets = (): Record<string, MapAssets> => {
     loadedLightmaps.forEach((map, index) => {
       const meshName = withLightmap[index].mesh
       map.flipY = true
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
       map.magFilter = NearestFilter
       map.colorSpace = NoColorSpace
 
@@ -90,6 +92,8 @@ const useMapAssets = (): Record<string, MapAssets> => {
     loadedAmbientOcclusion.forEach((map, index) => {
       const meshName = withAmbientOcclusion[index].mesh
       map.flipY = false
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
       map.magFilter = NearestFilter
       map.colorSpace = NoColorSpace
 

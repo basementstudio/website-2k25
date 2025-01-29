@@ -4,6 +4,7 @@ import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
+import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
@@ -11,7 +12,11 @@ import * as THREE from "three"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 
-import { HoopMinigame } from "./basketball/hoop-minigame"
+const HoopMinigame = dynamic(
+  () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
+  { ssr: false }
+)
+
 import { CustomCamera } from "./camera/camera-controls"
 import { Debug } from "./debug"
 import { Map } from "./map/map"
@@ -59,7 +64,7 @@ export const Scene = () => {
               <Sparkles />
               <Physics paused={!isBasketball}>
                 <Map />
-                <HoopMinigame />
+                {isBasketball && <HoopMinigame />}
               </Physics>
             </>
           }
