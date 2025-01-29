@@ -46,8 +46,6 @@ export const Transitions = () => {
       return `data:image/svg+xml;charset=utf-8,${encodedSvg}`
     }
 
-    const inContainer = document.querySelector(".sprite-container--in")
-    const outContainer = document.querySelector(".sprite-container--out")
     // this will generate an SVG sprite based on the given configuration
     const generateSprite = (prefix) => {
       const indices = split(
@@ -118,6 +116,8 @@ export const Transitions = () => {
   }, [])
 
   useEffect(() => {
+    document.documentElement.dataset.disabled = true
+
     const handleScroll = () => {
       const scrolled = window.scrollY
       const viewportHeight = window.innerHeight

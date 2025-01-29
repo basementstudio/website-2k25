@@ -12,11 +12,11 @@ const Toolbar = BasehubToolbar as unknown as React.ComponentType
 import type { Metadata } from "next"
 import { Geist } from "next/font/google"
 
-import { Transitions } from "@/app/(pages)/transitions"
 import { Grid } from "@/components/grid"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Navbar } from "@/components/layout/navbar"
+import { Transitions } from "@/components/transitions/transitions"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
 
