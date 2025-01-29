@@ -36,7 +36,9 @@ export const Scene = () => {
     setIsCanvasTabMode,
     setCurrentTabIndex,
     currentTabIndex,
-    currentScene
+    currentScene,
+    routeTabIndices,
+    setRouteTabIndex
   } = useNavigationStore()
 
   useEffect(() => {
@@ -62,19 +64,40 @@ export const Scene = () => {
       }
     }, [pathname, router])
   )
+
+  useEffect(() => {
+    if (currentTabIndex !== -1) {
+      setRouteTabIndex(pathname, currentTabIndex)
+    }
+
+    const previousIndex = routeTabIndices[pathname]
+    if (previousIndex !== undefined) {
+      setCurrentTabIndex(previousIndex)
+    } else {
+      setCurrentTabIndex(0)
+    }
+  }, [pathname])
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === "Tab" && isCanvasTabMode) {
         e.preventDefault()
         const currentIndex = currentTabIndex
+
         if (e.shiftKey) {
-          setCurrentTabIndex(currentIndex - 1)
+          const newIndex = currentIndex - 1
+          setCurrentTabIndex(newIndex)
+          setRouteTabIndex(pathname, newIndex)
+
           if (currentIndex === 0) {
             setCurrentTabIndex(-1)
             setIsCanvasTabMode(false)
           }
         } else {
-          setCurrentTabIndex(currentIndex + 1)
+          const newIndex = currentIndex + 1
+          setCurrentTabIndex(newIndex)
+          setRouteTabIndex(pathname, newIndex)
+
           if (
             currentScene?.tabs &&
             currentIndex === currentScene.tabs.length - 1
@@ -84,12 +107,14 @@ export const Scene = () => {
         }
       }
     },
-    [isCanvasTabMode, setCurrentTabIndex, currentTabIndex, currentScene]
+    [
+      isCanvasTabMode,
+      setCurrentTabIndex,
+      currentTabIndex,
+      currentScene,
+      pathname
+    ]
   )
-
-  useEffect(() => {
-    setCurrentTabIndex(0)
-  }, [pathname])
 
   return (
     <div className="absolute inset-0">
