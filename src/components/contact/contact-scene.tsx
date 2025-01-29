@@ -20,12 +20,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     mixerRef.current = new AnimationMixer(gltf.scene)
     const mixer = mixerRef.current
 
-    const baseAnim = gltf.animations[0]
-    const secondAnim = gltf.animations[1]
+    const baseAnim = gltf.animations.find((anim) => anim.name === "L-Idle")
+    const secondAnim = gltf.animations.find((anim) => anim.name === "R-Idle")
 
     if (baseAnim && secondAnim) {
-      console.log("Found animations:", baseAnim.name, secondAnim.name)
-
       const idleClip1 = AnimationUtils.subclip(
         baseAnim,
         "idle1",
@@ -62,7 +60,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     <>
       <Environment environmentIntensity={0.25} preset="studio" />
       <group scale={8}>
-        <primitive object={gltf.scene} />
+        <primitive position-y={-0.1} object={gltf.scene} />
       </group>
     </>
   )
