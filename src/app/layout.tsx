@@ -12,6 +12,7 @@ const Toolbar = BasehubToolbar as unknown as React.ComponentType
 import type { Metadata } from "next"
 import { Geist } from "next/font/google"
 
+import { Transitions } from "@/app/(pages)/transitions"
 import { Grid } from "@/components/grid"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
@@ -39,18 +40,19 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
+      <Transitions />
       <Toolbar />
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body className={cn(geistSans.variable)}>
             <Navbar />
             <CameraRouteHandler />
-            <div className="sticky top-0 h-screen w-full">
+            <div className="canvas-container sticky top-0 h-screen w-full">
               <Scene />
               <Grid />
               <InspectableViewer />
             </div>
-            {children}
+            <div className="layout-container">{children}</div>
             <AppHooks />
           </body>
         </InspectableProvider>

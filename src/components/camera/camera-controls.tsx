@@ -77,7 +77,8 @@ export const CustomCamera = () => {
 
     const handleScroll = () => {
       const rawScrollProgress = window.scrollY / window.innerHeight
-      const scrollProgress = Math.min(1, rawScrollProgress * 1)
+
+      const scrollProgress = Math.min(1, rawScrollProgress)
 
       const newY = initialY + (targetY - initialY) * scrollProgress
       const originalTargetY = cameraConfig.target[1]
@@ -85,13 +86,23 @@ export const CustomCamera = () => {
       const newTargetY = newY + originalDelta
 
       if (cameraControlsRef.current) {
-        const pos = cameraControlsRef.current.getPosition(new Vector3())
-        const target = cameraControlsRef.current.getTarget(new Vector3())
+        if (rawScrollProgress > 1) {
+          cameraControlsRef.current.setPosition(...cameraConfig.position, false)
+          cameraControlsRef.current.setTarget(...cameraConfig.target, false)
+        } else {
+          const pos = cameraControlsRef.current.getPosition(new Vector3())
+          const target = cameraControlsRef.current.getTarget(new Vector3())
 
-        pos.y = newY
-        target.y = newTargetY
-        cameraControlsRef.current.setPosition(pos.x, pos.y, pos.z, false)
-        cameraControlsRef.current.setTarget(target.x, target.y, target.z, false)
+          pos.y = newY
+          target.y = newTargetY
+          cameraControlsRef.current.setPosition(pos.x, pos.y, pos.z, false)
+          cameraControlsRef.current.setTarget(
+            target.x,
+            target.y,
+            target.z,
+            false
+          )
+        }
       }
     }
 

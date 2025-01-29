@@ -1,12 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { CameraStateKeys } from "@/store/app-store"
 import { cn } from "@/utils/cn"
 
 const Logo = ({ className }: { className?: string }) => (
@@ -25,35 +24,24 @@ interface NavbarContentProps {
     title: string
     href: string
     count?: number
-    routeName: CameraStateKeys
   }[]
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
   const [music, setMusic] = useState(true)
   const { setVolumeMaster } = useSiteAudio()
+  const { handleNavigation } = useHandleNavigation()
   const isOnTab = useIsOnTab()
-  const router = useRouter()
-
-  const handleNavigation = useCallback(
-    (route: string, cameraState: CameraStateKeys) => {
-      router.push(route, { scroll: false })
-    },
-    [router]
-  )
 
   const handleMute = () => {
     setVolumeMaster(music ? 0 : 1)
     setMusic(!music)
   }
 
-  useEffect(() => {
-    if (!isOnTab) {
-      setVolumeMaster(0)
-    } else {
-      setVolumeMaster(music ? 1 : 0)
-    }
-  }, [isOnTab, music, setVolumeMaster])
+  useEffect(
+    () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
+    [isOnTab, music, setVolumeMaster]
+  )
 
   return (
     <nav
@@ -65,7 +53,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
     >
       <div className="grid-layout">
         <button
-          onClick={() => handleNavigation("/", "home")}
+          onClick={() => handleNavigation("/")}
           className="col-start-1 col-end-3"
         >
           <Logo className="h-3.5 text-brand-w1" />
@@ -76,7 +64,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
             <button
               className="space-x-1 text-p text-brand-w1 transition-colors duration-300 hover:text-brand-o"
               key={link.href}
-              onClick={() => handleNavigation(link.href, link.routeName)}
+              onClick={() => handleNavigation(link.href)}
             >
               <span>{link.title}</span>
               {link.count && (
