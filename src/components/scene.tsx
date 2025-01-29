@@ -78,11 +78,11 @@ export const Scene = () => {
         </Canvas>
       </div>
 
-      {/* {isContact && ( */}
-      <div className="absolute inset-0">
-        <ContactCanvas />
-      </div>
-      {/* )} */}
+      {isContact && (
+        <div className="absolute inset-0">
+          <ContactCanvas />
+        </div>
+      )}
     </>
   )
 }

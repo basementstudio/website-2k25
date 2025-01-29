@@ -16,7 +16,7 @@ const ContactCanvas = () => {
       worker={worker}
       fallback={<Fallback />}
       shadows
-      camera={{ position: [0, 0, 10], fov: 25 }}
+      camera={{ position: [0, 0.082, 5.25], fov: 60 }}
     />
   )
 }
