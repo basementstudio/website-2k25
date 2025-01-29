@@ -12,13 +12,18 @@ import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useKeyPress } from "@/hooks/use-key-press"
 
-import { HoopMinigame } from "./basketball/hoop-minigame"
+const HoopMinigame = dynamic(
+  () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
+  { ssr: false }
+)
+
 import { CustomCamera } from "./camera/camera-controls"
 import { Map } from "./map/map"
 import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
+import dynamic from "next/dynamic"
 
 export const Scene = () => {
   const pathname = usePathname()
@@ -113,7 +118,7 @@ export const Scene = () => {
               <Sparkles />
               <Physics paused={!isBasketball}>
                 <Map />
-                <HoopMinigame />
+                {isBasketball && <HoopMinigame />}
               </Physics>
             </>
           }

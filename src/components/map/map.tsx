@@ -194,6 +194,11 @@ export const Map = memo(() => {
         if (alreadyReplaced) return
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
+        if (currentMaterial.map) {
+          currentMaterial.map.generateMipmaps = false
+          currentMaterial.map.magFilter = THREE.NearestFilter
+          currentMaterial.map.minFilter = THREE.NearestFilter
+        }
 
         const video = videos.find((video) => video.mesh === meshChild.name)
 
@@ -201,8 +206,15 @@ export const Map = memo(() => {
           const videoTexture = createVideoTexture(video.url)
 
           currentMaterial.map = videoTexture
+          currentMaterial.map.generateMipmaps = false
+          currentMaterial.map.magFilter = THREE.NearestFilter
+          currentMaterial.map.minFilter = THREE.NearestFilter
+
           currentMaterial.emissiveMap = videoTexture
           currentMaterial.emissiveIntensity = video.intensity
+          currentMaterial.emissiveMap.generateMipmaps = false
+          currentMaterial.emissiveMap.magFilter = THREE.NearestFilter
+          currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
         }
 
         const isGlass =
@@ -248,6 +260,12 @@ export const Map = memo(() => {
         if (alreadyReplaced) return
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
+
+        if (currentMaterial.map) {
+          currentMaterial.map.generateMipmaps = false
+          currentMaterial.map.magFilter = THREE.NearestFilter
+          currentMaterial.map.minFilter = THREE.NearestFilter
+        }
 
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
