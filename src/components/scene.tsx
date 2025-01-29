@@ -53,7 +53,11 @@ export const Scene = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
-      if (pathname.startsWith("/services")) {
+      if (
+        pathname.startsWith("/services") ||
+        pathname.startsWith("/blog") ||
+        pathname.startsWith("/people")
+      ) {
         router.push("/")
       }
     }, [pathname, router])
@@ -82,6 +86,10 @@ export const Scene = () => {
     },
     [isCanvasTabMode, setCurrentTabIndex, currentTabIndex, currentScene]
   )
+
+  useEffect(() => {
+    setCurrentTabIndex(0)
+  }, [pathname])
 
   return (
     <div className="absolute inset-0">
