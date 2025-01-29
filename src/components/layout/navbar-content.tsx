@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -35,6 +36,15 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
 
   const handleNavigation = useCallback(
     (route: string) => {
+      const setStairVisibility =
+        useNavigationStore.getState().setStairVisibility
+
+      if (route !== "/") {
+        setStairVisibility(true)
+      } else {
+        setStairVisibility(false)
+      }
+
       router.push(route, { scroll: false })
     },
     [router]

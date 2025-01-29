@@ -42,6 +42,8 @@ export const CustomCamera = () => {
   const gameCurrentFov = useRef<number>(60)
   const fovTransitionProgress = useRef<number>(1)
 
+  const stairVisibility = useNavigationStore((state) => state.stairVisibility)
+
   useEffect(() => {
     const controls = cameraControlsRef.current
     const camera = controls?.camera as PerspectiveCamera
@@ -133,8 +135,9 @@ export const CustomCamera = () => {
       )
 
       if (pathname === "/" && animationProgress.current === 1) {
-        const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
-        stair3.visible = false
+        const setStairVisibility =
+          useNavigationStore.getState().setStairVisibility
+        setStairVisibility(false)
       }
 
       controls.getPosition(currentPos)
@@ -244,6 +247,13 @@ export const CustomCamera = () => {
     if (!navigationCameraConfig) return
     return calculatePlanePosition(navigationCameraConfig)
   }, [navigationCameraConfig])
+
+  useEffect(() => {
+    const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
+    if (stair3) {
+      stair3.visible = stairVisibility
+    }
+  }, [scene, stairVisibility])
 
   return (
     <>

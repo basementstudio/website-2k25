@@ -24,6 +24,9 @@ export const useNavigationStore = create<{
 
   routeTabIndices: TabIndices
   setRouteTabIndex: (route: string, index: number) => void
+
+  stairVisibility: boolean
+  setStairVisibility: (visibility: boolean) => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
@@ -43,5 +46,8 @@ export const useNavigationStore = create<{
   setRouteTabIndex: (route, index) =>
     set((state) => ({
       routeTabIndices: { ...state.routeTabIndices, [route]: index }
-    }))
+    })),
+
+  stairVisibility: false,
+  setStairVisibility: (visibility) => set({ stairVisibility: visibility })
 }))

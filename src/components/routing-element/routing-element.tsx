@@ -45,15 +45,18 @@ export const RoutingElement = ({
 
   const handleNavigation = useCallback(
     (route: string) => {
-      if (!stair3) return
+      const setStairVisibility =
+        useNavigationStore.getState().setStairVisibility
 
       if (route !== "/") {
-        stair3.visible = true
+        setStairVisibility(true)
+      } else {
+        setStairVisibility(false)
       }
 
       router.push(route, { scroll: false })
     },
-    [router, stair3]
+    [router]
   )
 
   useEffect(() => {
