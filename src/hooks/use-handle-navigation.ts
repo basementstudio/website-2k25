@@ -1,8 +1,13 @@
 import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 
+import { useCameraStore } from "@/store/app-store"
+
 export const useHandleNavigation = () => {
   const router = useRouter()
+  const updateCameraFromPathname = useCameraStore(
+    (state) => state.updateCameraFromPathname
+  )
 
   const handleNavigation = useCallback(
     (route: string) => {
@@ -22,16 +27,16 @@ export const useHandleNavigation = () => {
         document.documentElement.dataset.flip = "true"
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: "instant" })
-          document.documentElement.dataset.flip = "false"
-          router.push(route, { scroll: false })
+          setTimeout(() => {
+            document.documentElement.dataset.flip = "false"
+            updateCameraFromPathname(route)
+            router.push(route, { scroll: false })
+          }, 5)
         }, 250)
-
-        // animate mask // probably need to disabel scroll
-        // scroll to top roughly
-        // route
       }
     },
-    [router]
+
+    [router, updateCameraFromPathname]
   )
 
   return { handleNavigation }
