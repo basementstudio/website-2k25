@@ -4,4 +4,10 @@ import ContactScene from "@/components/contact/contact-scene"
 
 console.log("OffscreenCanvas support:", typeof OffscreenCanvas !== "undefined")
 
-render(<ContactScene />)
+self.onmessage = (e: MessageEvent<{ type: string; modelUrl: string }>) => {
+  const { type, modelUrl } = e.data
+  if (type === "load-model") {
+    console.log("[ContactWorker] loading model", modelUrl)
+    render(<ContactScene modelUrl={modelUrl} />)
+  }
+}
