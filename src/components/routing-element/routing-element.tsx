@@ -66,6 +66,7 @@ export const RoutingElement = ({
     const currentTab = currentScene.tabs[currentTabIndex]
     if (currentTab && currentTab.tabClickableName === node.name) {
       setHover(true)
+      router.prefetch(route)
       setHoverText(hoverName)
 
       const handleKeyPress = (event: KeyboardEvent) => {
@@ -102,8 +103,8 @@ export const RoutingElement = ({
       <group
         onPointerEnter={() => {
           if (activeRoute) return
-          router.prefetch(route)
           setHover(true)
+          router.prefetch(route)
           setCursorType("click")
           setHoverText(hoverName)
         }}
