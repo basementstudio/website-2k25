@@ -39,13 +39,15 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
       const setStairVisibility =
         useNavigationStore.getState().setStairVisibility
 
-      if (route !== "/") {
-        setStairVisibility(true)
-      } else {
-        setStairVisibility(false)
-      }
-
       router.push(route, { scroll: false })
+
+      if (route === "/") {
+        setTimeout(() => {
+          setStairVisibility(false)
+        }, 2200)
+      } else {
+        setStairVisibility(true)
+      }
     },
     [router]
   )
