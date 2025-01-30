@@ -86,29 +86,36 @@ export const Scene = () => {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Tab" && isCanvasTabMode) {
-        e.preventDefault()
-        const currentIndex = currentTabIndex
+      if (e.key === "Tab") {
+        if (!currentScene?.tabs || currentScene.tabs.length === 0) {
+          setIsCanvasTabMode(false)
+          return
+        }
 
-        if (e.shiftKey) {
-          const newIndex = currentIndex - 1
-          setCurrentTabIndex(newIndex)
-          setRouteTabIndex(pathname, newIndex)
+        if (isCanvasTabMode) {
+          e.preventDefault()
+          const currentIndex = currentTabIndex
 
-          if (currentIndex === 0) {
-            setCurrentTabIndex(-1)
-            setIsCanvasTabMode(false)
-          }
-        } else {
-          const newIndex = currentIndex + 1
-          setCurrentTabIndex(newIndex)
-          setRouteTabIndex(pathname, newIndex)
+          if (e.shiftKey) {
+            const newIndex = currentIndex - 1
+            setCurrentTabIndex(newIndex)
+            setRouteTabIndex(pathname, newIndex)
 
-          if (
-            currentScene?.tabs &&
-            currentIndex === currentScene.tabs.length - 1
-          ) {
-            setIsCanvasTabMode(false)
+            if (currentIndex === 0) {
+              setCurrentTabIndex(-1)
+              setIsCanvasTabMode(false)
+            }
+          } else {
+            const newIndex = currentIndex + 1
+            setCurrentTabIndex(newIndex)
+            setRouteTabIndex(pathname, newIndex)
+
+            if (
+              currentScene.tabs &&
+              currentIndex === currentScene.tabs.length - 1
+            ) {
+              setIsCanvasTabMode(false)
+            }
           }
         }
       }
@@ -118,7 +125,9 @@ export const Scene = () => {
       setCurrentTabIndex,
       currentTabIndex,
       currentScene,
-      pathname
+      pathname,
+      setRouteTabIndex,
+      setIsCanvasTabMode
     ]
   )
 
