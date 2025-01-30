@@ -14,7 +14,11 @@ import { useInspectable } from "./context"
 import { fetchInspectable, Inspectable } from "./fetch-inspectable"
 
 const Close = ({ handleClose }: { handleClose: () => void }) => (
-  <button className="text-paragraph text-brand-w1" onClick={handleClose}>
+  <button
+    className="text-paragraph text-brand-w1"
+    tabIndex={0}
+    onClick={handleClose}
+  >
     (X) <span className="actionable">Close</span>
   </button>
 )
