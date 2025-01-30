@@ -1,6 +1,6 @@
 import { Environment, PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { Container, Input, Root, Text } from "@react-three/uikit"
+import { Container, Root, Text } from "@react-three/uikit"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
   AnimationMixer,
@@ -47,9 +47,8 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
           alignItems="center"
         >
           <Text fontSize={32} color="white" fontWeight="bold">
-            hello there
+            basement 2k25
           </Text>
-          {/* <Input type="text" value="obi wanker nobi" /> */}
         </Container>
       </Root>
     </>
@@ -127,8 +126,9 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       leftInAction.timeScale = 4
       rightInAction.timeScale = 4
 
-      leftInAction.play()
-      rightInAction.play()
+      // TODO: in animations break the screen completely
+      // leftInAction.play()
+      // rightInAction.play()
 
       leftInAction.clampWhenFinished = true
       rightInAction.clampWhenFinished = true
