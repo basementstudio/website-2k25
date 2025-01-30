@@ -14,12 +14,14 @@ export const RoutingPlane = ({
   position,
   rotation,
   geometry,
-  scale
+  scale,
+  plusShapeScale
 }: {
   position: [number, number, number]
   rotation: [number, number, number]
   geometry: BufferGeometry
   scale: [number, number]
+  plusShapeScale: number
 }) => {
   const material = useMemo(
     () =>
@@ -93,7 +95,11 @@ export const RoutingPlane = ({
                 material={squareMaterial}
                 position={[x, y, z]}
                 quaternion={quaternion}
-                scale={[1 / scale[0], 1 / scale[1], 1]}
+                scale={[
+                  plusShapeScale / scale[0],
+                  plusShapeScale / scale[1],
+                  1
+                ]}
               />
             )
           }

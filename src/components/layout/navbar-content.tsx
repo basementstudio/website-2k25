@@ -8,6 +8,8 @@ import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
+import { useNavigationStore } from "../navigation-handler/navigation-store"
+
 const Logo = ({ className }: { className?: string }) => (
   <svg
     fill="currentColor"
@@ -54,23 +56,24 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
       <div className="grid-layout">
         <button
           onClick={() => handleNavigation("/")}
-          className="col-start-1 col-end-3"
+          className="col-start-1 col-end-3 w-fit"
         >
           <Logo className="h-3.5 text-brand-w1" />
         </button>
 
         <div className="ga-5 col-start-3 col-end-11 flex w-full justify-center gap-5">
           {links.map((link) => (
-            <button
-              className="space-x-1 text-p text-brand-w1 transition-colors duration-300 hover:text-brand-o"
-              key={link.href}
-              onClick={() => handleNavigation(link.href)}
-            >
-              <span>{link.title}</span>
+            <div key={link.href} className="flex items-center gap-1 text-p">
+              <button
+                className="space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o"
+                onClick={() => handleNavigation(link.href)}
+              >
+                {link.title}
+              </button>
               {link.count && (
                 <sup className="text-caption text-brand-g1">({link.count})</sup>
               )}
-            </button>
+            </div>
           ))}
         </div>
 

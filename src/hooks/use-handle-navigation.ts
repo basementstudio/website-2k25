@@ -1,17 +1,29 @@
 import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 
-import { useCameraStore } from "@/store/app-store"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
 export const useHandleNavigation = () => {
   const router = useRouter()
-  const updateCameraFromPathname = useCameraStore(
-    (state) => state.updateCameraFromPathname
-  )
-
+  const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
+  const scenes = useNavigationStore((state) => state.scenes)
   const handleNavigation = useCallback(
     (route: string) => {
-      // if is an slug page we need to do something else
+      const selectedScene =
+        route === "/"
+          ? scenes?.find((scene) => scene.name.toLowerCase() === "home")
+          : scenes?.find((scene) => scene.name === route.split("/")[1])
+
+      if (!selectedScene) return
+
+      const setStairVisibility =
+        useNavigationStore.getState().setStairVisibility
+
+      if (selectedScene.name !== "") {
+        setStairVisibility(true)
+      } else {
+        setStairVisibility(false)
+      }
 
       if (window.scrollY < window.innerHeight) {
         window.scrollTo({ top: 0, behavior: "smooth" })
@@ -29,14 +41,14 @@ export const useHandleNavigation = () => {
           window.scrollTo({ top: 0, behavior: "instant" })
           setTimeout(() => {
             document.documentElement.dataset.flip = "false"
-            updateCameraFromPathname(route)
+            setCurrentScene(selectedScene)
             router.push(route, { scroll: false })
           }, 5)
         }, 250)
       }
     },
 
-    [router, updateCameraFromPathname]
+    [router, setCurrentScene, scenes]
   )
 
   return { handleNavigation }

@@ -8,6 +8,7 @@ export interface AssetsResult {
   godrays: string
   basketball: string
   basketballNet: string
+  routingElements: string
   mapAssets: {
     mesh: string
     lightmap: string
@@ -54,16 +55,23 @@ export interface AssetsResult {
     basketballThump: string
     basketballBuzzer: string
   }
-  clickables: {
-    title: string
-    route: string
-    framePosition: [number, number, number]
-    frameRotation: [number, number, number]
-    frameSize: [number, number]
-    hoverName: string
-    arrowPosition: [number, number, number]
-    arrowRotation: [number, number, number]
-    arrowScale: number
+
+  scenes: {
+    name: string
+    cameraConfig: {
+      position: [number, number, number]
+      target: [number, number, number]
+      fov: number
+      targetScrollY: number
+      offsetMultiplier: number
+    }
+    tabs: {
+      tabName: string
+      tabRoute: string
+      tabHoverName: string
+      tabClickableName: string
+      plusShapeScale: number
+    }[]
   }[]
 }
 
@@ -83,6 +91,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
       ambientOcclusion: item.ambientOcclusion?.url ?? "",
       ambientOcclusionIntensity: item.ambientOcclusionIntensity ?? 1
     })),
+    routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
     arcade: { idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "" },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
       mesh: item._title,
@@ -126,32 +135,30 @@ export async function fetchAssets(): Promise<AssetsResult> {
         targetScrollY: item.targetScrollY ?? -1.5
       })
     ),
-    clickables: threeDInteractions.clickables.clickables.items.map((item) => ({
-      title: item._title,
-      hoverName: item.hoverName ?? "",
-      route: item.route ?? "",
-      framePosition: [
-        item.framePositionX ?? 0,
-        item.framePositionY ?? 0,
-        item.framePositionZ ?? 0
-      ],
-      frameRotation: [
-        item.frameRotationX ?? 0,
-        item.frameRotationY ?? 0,
-        item.frameRotationZ ?? 0
-      ],
-      frameSize: [item.frameSizeX ?? 0, item.frameSizeY ?? 0],
-      arrowPosition: [
-        item.arrowPositionX ?? 0,
-        item.arrowPositionY ?? 0,
-        item.arrowPositionZ ?? 0
-      ],
-      arrowRotation: [
-        item.arrowRotationX ?? 0,
-        item.arrowRotationY ?? 0,
-        item.arrowRotationZ ?? 0
-      ],
-      arrowScale: item.arrowScale ?? 0
+    scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
+      name: item._title,
+      cameraConfig: {
+        position: [
+          item.cameraConfig.posX ?? 0,
+          item.cameraConfig.posY ?? 0,
+          item.cameraConfig.posZ ?? 0
+        ],
+        target: [
+          item.cameraConfig.tarX ?? 0,
+          item.cameraConfig.tarY ?? 0,
+          item.cameraConfig.tarZ ?? 0
+        ],
+        fov: item.cameraConfig.fov ?? 60,
+        targetScrollY: item.cameraConfig.targetScrollY ?? -1.5,
+        offsetMultiplier: item.cameraConfig.offsetMultiplier ?? 1
+      },
+      tabs: item.tabs.items.map((tab) => ({
+        tabName: tab._title,
+        tabRoute: tab.tabRoute ?? "",
+        tabHoverName: tab.tabHoverName ?? "",
+        tabClickableName: tab.tabClickableName ?? "",
+        plusShapeScale: tab.plusShapeScale ?? 1
+      }))
     }))
   }
 }

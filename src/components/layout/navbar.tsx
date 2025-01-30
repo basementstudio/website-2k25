@@ -6,7 +6,6 @@ import { query } from "./query"
 interface NavbarLink {
   title: string
   href: string
-
   count?: number
 }
 
@@ -19,6 +18,10 @@ export const Navbar = () => (
       const posts = data.pages.blog.posts.items.length
 
       const LINKS: NavbarLink[] = [
+        {
+          title: "Services",
+          href: "/services"
+        },
         {
           title: "Showcase",
           href: "/showcase",
@@ -40,6 +43,10 @@ export const Navbar = () => (
           title: "Blog",
           href: "/blog",
           count: posts
+        },
+        {
+          title: "Laboratory",
+          href: "/lab"
         }
       ]
 

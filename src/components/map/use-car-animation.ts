@@ -1,6 +1,4 @@
 import { useFrame } from "@react-three/fiber"
-import { usePathname } from "next/navigation"
-import { useRef } from "react"
 import { Mesh, Object3D, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
@@ -18,7 +16,7 @@ interface CarState {
 const CONSTANTS = {
   BASE_SPEED: 0.1,
   START_X: -8.7,
-  END_X: 6.7,
+  END_X: 7.7,
   MIN_WAIT_TIME: 6000,
   ADDED_WAIT_TIME: 4000,
   SPEED_REDUCTION: 0.7,
@@ -104,24 +102,8 @@ const runFirstCarPass = (carPosition: Vector3) => {
   setRandomTimeout()
 }
 
-const animateCar = (car: Object3D, t: number, pathname: string) => {
+const animateCar = (car: Object3D) => {
   const carPosition = car.position
-
-  if (pathname !== "/services") {
-    if (
-      carPosition.x >= CONSTANTS.END_X ||
-      carPosition.x <= CONSTANTS.START_X
-    ) {
-      car.position.x = CONSTANTS.END_X
-      carState.hasInitialized = false
-      return
-    }
-    if (carState.hasInitialized && !carState.isWaiting) {
-      const progress = (carPosition.x - CONSTANTS.START_X) / TOTAL_DISTANCE
-      updateCarPosition(carPosition, progress)
-    }
-    return
-  }
 
   if (!carState.hasInitialized) {
     runFirstCarPass(carPosition)
@@ -142,13 +124,7 @@ const animateCar = (car: Object3D, t: number, pathname: string) => {
 }
 
 export const useCarAnimation = ({ car }: { car: Mesh | null }) => {
-  const animationProgress = useRef(0)
-  const pathname = usePathname()
-
-  useFrame(({ clock }) => {
-    if (car) {
-      animationProgress.current += clock.getElapsedTime()
-      animateCar(car, animationProgress.current, pathname)
-    }
+  useFrame(() => {
+    if (car) animateCar(car)
   })
 }

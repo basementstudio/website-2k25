@@ -3,11 +3,11 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { useControls } from "leva"
 import { easing } from "maath"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
-import { useCameraStore } from "@/store/app-store"
-
+import { useInspectable } from "../inspectables/context"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import {
   calculateMovementVectors,
   calculateNewPosition,
@@ -20,9 +20,12 @@ export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
   const planeBoundaryRef = useRef<Mesh>(null)
-  const cameraConfig = useCameraStore((state) => state.cameraConfig)
+  const navigationCameraConfig = useNavigationStore(
+    (state) => state.currentScene?.cameraConfig
+  )
   const pathname = usePathname()
   const scene = useThree((state) => state.scene)
+  const { selected } = useInspectable()
 
   const { debugBoundaries } = useControls({
     debugBoundaries: false
@@ -39,41 +42,51 @@ export const CustomCamera = () => {
   const gameCurrentFov = useRef<number>(60)
   const fovTransitionProgress = useRef<number>(1)
 
+  const stairVisibility = useNavigationStore((state) => state.stairVisibility)
+
   useEffect(() => {
     const controls = cameraControlsRef.current
-
     const camera = controls?.camera as PerspectiveCamera
 
     const [plane, boundary] = [planeRef.current, planeBoundaryRef.current]
-    if (!controls || !plane || !boundary || !camera) return
+    if (!controls || !plane || !boundary || !camera || !navigationCameraConfig)
+      return
 
     controls.disconnect()
-    controls.setPosition(...cameraConfig.position)
-    controls.setTarget(...cameraConfig.target)
-    useCameraStore.getState().setCamera(camera)
+    controls.setPosition(...navigationCameraConfig.position)
+    controls.setTarget(...navigationCameraConfig.target)
+
+    //TODO: remove this
+    useNavigationStore.getState().setMainCamera(camera)
 
     gameCurrentFov.current = camera.fov
-    gametargetFov.current = cameraConfig.fov ?? 60
+    gametargetFov.current = navigationCameraConfig.fov ?? 60
     fovTransitionProgress.current = 0
 
-    const planePos = calculatePlanePosition(cameraConfig)
+    const planePos = calculatePlanePosition(navigationCameraConfig)
     const distance = Math.hypot(
-      ...cameraConfig.position.map((p, i) => p - planePos[i])
+      ...navigationCameraConfig.position.map((p, i) => p - planePos[i])
     )
     const { width, height } = calculateViewDimensions(
       camera,
       distance,
-      cameraConfig
+      navigationCameraConfig
     )
 
-    ;[plane, boundary].forEach((mesh) => mesh.lookAt(...cameraConfig.position))
+    ;[plane, boundary].forEach((mesh) =>
+      mesh.lookAt(...navigationCameraConfig.position)
+    )
     boundary.scale.set(width * 0.6, height, 1)
     plane.scale.set(width * 0.4, height, 1)
   }, [])
 
   useEffect(() => {
-    const initialY = cameraConfig.position[1]
-    const targetY = cameraConfig.targetScrollY ?? -cameraConfig.position[1]
+    if (!navigationCameraConfig) return
+
+    const initialY = navigationCameraConfig.position[1]
+    const targetY =
+      navigationCameraConfig.targetScrollY ??
+      -navigationCameraConfig.position[1]
 
     const handleScroll = () => {
       const rawScrollProgress = window.scrollY / window.innerHeight
@@ -81,7 +94,7 @@ export const CustomCamera = () => {
       const scrollProgress = Math.min(1, rawScrollProgress)
 
       const newY = initialY + (targetY - initialY) * scrollProgress
-      const originalTargetY = cameraConfig.target[1]
+      const originalTargetY = navigationCameraConfig.target[1]
       const originalDelta = originalTargetY - initialY
       const newTargetY = newY + originalDelta
 
@@ -108,13 +121,22 @@ export const CustomCamera = () => {
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [cameraConfig, pathname])
+  }, [navigationCameraConfig, pathname])
+
+  const calculateDivisor = useCallback(() => {
+    const width = window.innerWidth
+    if (width <= 1100) return 0.32
+    if (width <= 1200) return 0.36
+    if (width <= 1500) return 0.4
+    if (width <= 1600) return 0.8
+    return 0.8
+  }, [window.innerWidth])
 
   useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current
     const plane = planeRef.current
     const boundary = planeBoundaryRef.current
-    if (!plane || !boundary || !controls) return
+    if (!plane || !boundary || !controls || !navigationCameraConfig) return
 
     if (animationProgress.current < 1) {
       // Handle camera transition animation
@@ -124,15 +146,16 @@ export const CustomCamera = () => {
       )
 
       if (pathname === "/" && animationProgress.current === 1) {
-        const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
-        stair3.visible = false
+        const setStairVisibility =
+          useNavigationStore.getState().setStairVisibility
+        setStairVisibility(false)
       }
 
       controls.getPosition(currentPos)
       controls.getTarget(currentTarget)
 
-      targetPosition.set(...cameraConfig.position)
-      targetLookAt.set(...cameraConfig.target)
+      targetPosition.set(...navigationCameraConfig.position)
+      targetLookAt.set(...navigationCameraConfig.target)
 
       const easeValue = easeInOutCubic(animationProgress.current)
       currentPos.lerp(targetPosition, easeValue)
@@ -146,12 +169,16 @@ export const CustomCamera = () => {
         false
       )
     } else {
-      if (pathname !== "/basketball") {
+      // Only allow camera movement if no inspectable is selected
+      if (pathname !== "/basketball" && !selected) {
         const maxOffset = (boundary.scale.x - plane.scale.x) / 2
-        const basePosition = calculatePlanePosition(cameraConfig)
-        const rightVector = calculateMovementVectors(basePosition, cameraConfig)
+        const basePosition = calculatePlanePosition(navigationCameraConfig)
+        const rightVector = calculateMovementVectors(
+          basePosition,
+          navigationCameraConfig
+        )
 
-        const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
+        const offsetMultiplier = navigationCameraConfig.offsetMultiplier ?? 2
         const offset = pointer.x * maxOffset * offsetMultiplier
 
         // Update plane position
@@ -169,9 +196,9 @@ export const CustomCamera = () => {
         // Set camera position directly for horizontal movement
         const currentPosition = controls.getPosition(new Vector3())
         const targetPosition = new Vector3(
-          cameraConfig.position[0] + rightVector.x * offset,
+          navigationCameraConfig.position[0] + rightVector.x * offset,
           currentPosition.y,
-          cameraConfig.position[2] + rightVector.z * offset
+          navigationCameraConfig.position[2] + rightVector.z * offset
         )
 
         easing.damp3(currentPosition, targetPosition, 0.1, dt)
@@ -184,9 +211,10 @@ export const CustomCamera = () => {
 
         const currentTarget = controls.getTarget(new Vector3())
         const targetLookAt = new Vector3(
-          cameraConfig.target[0] + rightVector.x * offset,
+          navigationCameraConfig.target[0] +
+            (rightVector.x * offset) / calculateDivisor(),
           currentTarget.y,
-          cameraConfig.target[2] + rightVector.z * offset
+          navigationCameraConfig.target[2] + rightVector.z * offset
         )
 
         easing.damp3(currentTarget, targetLookAt, 0.05, dt)
@@ -216,25 +244,42 @@ export const CustomCamera = () => {
   })
 
   useEffect(() => {
+    if (!navigationCameraConfig) return
+
     animationProgress.current = 0
-    targetPosition.set(...cameraConfig.position)
-    targetLookAt.set(...cameraConfig.target)
+    targetPosition.set(...navigationCameraConfig.position)
+    targetLookAt.set(...navigationCameraConfig.target)
 
-    gametargetFov.current = cameraConfig.fov ?? 60
+    gametargetFov.current = navigationCameraConfig.fov ?? 60
     fovTransitionProgress.current = 0
-  }, [cameraConfig, targetPosition, targetLookAt])
+  }, [navigationCameraConfig, targetPosition, targetLookAt])
 
-  const planePosition = calculatePlanePosition(cameraConfig)
+  const planePosition = useCallback(() => {
+    if (!navigationCameraConfig) return
+    return calculatePlanePosition(navigationCameraConfig)
+  }, [navigationCameraConfig])
+
+  useEffect(() => {
+    const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
+    if (stair3) {
+      stair3.visible = stairVisibility
+    }
+  }, [scene, stairVisibility])
+
   return (
     <>
       <CameraControls makeDefault ref={cameraControlsRef} />
-      <mesh ref={planeRef} position={planePosition} visible={debugBoundaries}>
+      <mesh
+        ref={planeRef}
+        position={planePosition() ?? [0, 0, 0]}
+        visible={debugBoundaries}
+      >
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial color="green" transparent wireframe />
       </mesh>
       <mesh
         ref={planeBoundaryRef}
-        position={planePosition}
+        position={planePosition() ?? [0, 0, 0]}
         visible={debugBoundaries}
       >
         <planeGeometry args={[1, 1]} />

@@ -4,36 +4,28 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
-import { RoutingArrow } from "./routing-arrow"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingPlane } from "./routing-plane/routing-plane"
-import { Edges } from "@react-three/drei"
 
 interface RoutingElementProps {
   node: Mesh
   route: string
-  frameData: {
-    position: [number, number, number]
-    rotation: [number, number, number]
-    size: [number, number]
-    hoverName: string
-  }
-  arrowData: {
-    position: [number, number, number]
-    scale: number
-    rotation: [number, number, number]
-  }
+  hoverName: string
+  plusShapeScale: number
 }
 
 export const RoutingElement = ({
   node,
   route,
-  frameData,
-  arrowData
+  hoverName,
+  plusShapeScale
 }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const setHoverText = useMouseStore((state) => state.setHoverText)
   const setCursorType = useMouseStore((state) => state.setCursorType)
+  const { currentTabIndex, isCanvasTabMode, currentScene } =
+    useNavigationStore()
 
   const scene = useThree((state) => state.scene)
   const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
@@ -53,26 +45,71 @@ export const RoutingElement = ({
 
   const handleNavigation = useCallback(
     (route: string) => {
-      if (!stair3) return
+      const setStairVisibility =
+        useNavigationStore.getState().setStairVisibility
 
       if (route !== "/") {
-        stair3.visible = true
+        setStairVisibility(true)
+      } else {
+        setStairVisibility(false)
       }
 
       router.push(route, { scroll: false })
     },
-    [router, stair3]
+    [router]
   )
+
+  useEffect(() => {
+    if (!isCanvasTabMode || !currentScene?.tabs) {
+      setHover(false)
+      setHoverText(null)
+      return
+    }
+
+    const currentTab = currentScene.tabs[currentTabIndex]
+    if (currentTab && currentTab.tabClickableName === node.name) {
+      setHover(true)
+      router.prefetch(route)
+      setHoverText(hoverName)
+
+      const handleKeyPress = (event: KeyboardEvent) => {
+        if (event.key === "Enter") {
+          handleNavigation(route)
+        }
+      }
+      window.addEventListener("keydown", handleKeyPress)
+
+      return () => {
+        window.removeEventListener("keydown", handleKeyPress)
+        if (!isCanvasTabMode) {
+          setHoverText(null)
+        }
+      }
+    } else {
+      setHover(false)
+      if (!isCanvasTabMode) {
+        setHoverText(null)
+      }
+    }
+  }, [
+    isCanvasTabMode,
+    currentScene,
+    currentTabIndex,
+    node.name,
+    hoverName,
+    handleNavigation,
+    route
+  ])
 
   return (
     <>
       <group
         onPointerEnter={() => {
           if (activeRoute) return
-          router.prefetch(route)
           setHover(true)
+          router.prefetch(route)
           setCursorType("click")
-          setHoverText(frameData.hoverName)
+          setHoverText(hoverName)
         }}
         onPointerLeave={() => {
           if (activeRoute) return
@@ -91,29 +128,17 @@ export const RoutingElement = ({
           position={[node.position.x, node.position.y, node.position.z]}
           rotation={node.rotation}
         >
-          <meshBasicMaterial color="white" opacity={0} transparent />
+          <meshBasicMaterial transparent visible={false} />
         </mesh>
       </group>
       {hover && (
         <>
           <RoutingPlane
-            position={[
-              node.position.x + frameData.position[0],
-              node.position.y + frameData.position[1],
-              node.position.z + frameData.position[2]
-            ]}
-            scale={[frameData.size[0], frameData.size[1]]}
+            position={[node.position.x, node.position.y, node.position.z]}
+            scale={[1, 1]}
             rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
             geometry={node.geometry}
-          />
-          <RoutingArrow
-            position={[
-              node.position.x + arrowData.position[0],
-              node.position.y + arrowData.position[1],
-              node.position.z + arrowData.position[2]
-            ]}
-            scale={arrowData.scale}
-            rotation={arrowData.rotation}
+            plusShapeScale={plusShapeScale}
           />
         </>
       )}
