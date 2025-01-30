@@ -120,6 +120,7 @@ export const RoutingElement = ({
         onClick={() => {
           if (activeRoute) return
           handleNavigation(route)
+          setCursorType("default")
         }}
       >
         <mesh
