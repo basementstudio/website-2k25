@@ -12,6 +12,7 @@ const Toolbar = BasehubToolbar as unknown as React.ComponentType
 import type { Metadata } from "next"
 import { Geist } from "next/font/google"
 
+import Contact from "@/components/contact/contact"
 import { Grid } from "@/components/grid"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
@@ -52,6 +53,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             </div>
             {children}
             <AppHooks />
+            <Contact />
           </body>
         </InspectableProvider>
       </AssetsProvider>

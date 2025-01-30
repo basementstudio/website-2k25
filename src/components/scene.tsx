@@ -5,7 +5,7 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import dynamic from "next/dynamic"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
@@ -24,14 +24,10 @@ import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { Renderer } from "./postprocessing/renderer"
 
-const ContactCanvas = dynamic(() => import("./contact/contact-canvas"), {
-  ssr: false
-})
-
 export const Scene = () => {
   const pathname = usePathname()
   const isBasketball = pathname === "/basketball"
-  const isContact = pathname === "/contact"
+  const isContact = useSearchParams().get("contact")
   const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
 
@@ -77,12 +73,6 @@ export const Scene = () => {
           />
         </Canvas>
       </div>
-
-      {isContact && (
-        <div className="absolute inset-0">
-          <ContactCanvas />
-        </div>
-      )}
     </>
   )
 }

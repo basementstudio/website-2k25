@@ -35,7 +35,8 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
       <PerspectiveCamera
         manual
         makeDefault
-        position={[0, 0, 8]}
+        position={[0, 0, 15]}
+        rotation={[0, 0, Math.PI]}
         aspect={aspect}
       />
       <Root>
@@ -81,16 +82,15 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       setScreenPosition(center)
       setScreenScale(size)
 
-      screenMaterial.side = DoubleSide
       screenMaterial.needsUpdate = true
       screenMaterial.uniforms.map.value = renderTarget.texture
       screen.material = screenMaterial
 
-      console.log("screen geometry:", {
-        vertices: screen.geometry.attributes.position.count,
-        normals: screen.geometry.attributes.normal?.count,
-        uv: screen.geometry.attributes.uv?.count
-      })
+      // console.log("screen geometry:", {
+      //   vertices: screen.geometry.attributes.position.count,
+      //   normals: screen.geometry.attributes.normal?.count,
+      //   uv: screen.geometry.attributes.uv?.count
+      // })
     }
   }, [gltf.scene, renderTarget.texture])
 
@@ -144,9 +144,9 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       mixerRef.current.update(delta)
     }
 
-    if (screenMaterial.uniforms.uTime) {
-      screenMaterial.uniforms.uTime.value += delta
-    }
+    // if (screenMaterial.uniforms.uTime) {
+    //   screenMaterial.uniforms.uTime.value += delta
+    // }
   })
 
   if (!screenMesh || !screenPosition || !screenScale) return null

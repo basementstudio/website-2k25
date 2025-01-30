@@ -101,7 +101,10 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
               {music ? "On" : "Off"}
             </span>
           </button>
-          <Link href="/contact" className="text-p capitalize text-brand-w1">
+          <Link
+            href="?contact=true"
+            className="text-p capitalize text-brand-w1"
+          >
             Contact Us
           </Link>
         </div>
