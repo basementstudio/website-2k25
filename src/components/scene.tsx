@@ -72,6 +72,11 @@ export const Scene = () => {
   )
 
   useEffect(() => {
+    if (pathname !== "/") {
+      setCurrentTabIndex(0)
+      return
+    }
+
     if (currentTabIndex !== -1) {
       setRouteTabIndex(pathname, currentTabIndex)
     }
@@ -130,6 +135,10 @@ export const Scene = () => {
       setIsCanvasTabMode
     ]
   )
+
+  useEffect(() => {
+    console.log(currentTabIndex)
+  }, [currentTabIndex])
 
   return (
     <div className="absolute inset-0">

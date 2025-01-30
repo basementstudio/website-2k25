@@ -27,6 +27,8 @@ export const useNavigationStore = create<{
 
   stairVisibility: boolean
   setStairVisibility: (visibility: boolean) => void
+
+  resetTabIndex: () => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
@@ -49,5 +51,7 @@ export const useNavigationStore = create<{
     })),
 
   stairVisibility: false,
-  setStairVisibility: (visibility) => set({ stairVisibility: visibility })
+  setStairVisibility: (visibility) => set({ stairVisibility: visibility }),
+
+  resetTabIndex: () => set({ currentTabIndex: 0 })
 }))
