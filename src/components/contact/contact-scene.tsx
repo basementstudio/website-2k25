@@ -4,9 +4,7 @@ import { Container, Input, Root, Text } from "@react-three/uikit"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
   AnimationMixer,
-  AnimationUtils,
   Box3,
-  DoubleSide,
   LoopRepeat,
   Mesh,
   Vector3,
@@ -85,12 +83,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       screenMaterial.needsUpdate = true
       screenMaterial.uniforms.map.value = renderTarget.texture
       screen.material = screenMaterial
-
-      // console.log("screen geometry:", {
-      //   vertices: screen.geometry.attributes.position.count,
-      //   normals: screen.geometry.attributes.normal?.count,
-      //   uv: screen.geometry.attributes.uv?.count
-      // })
     }
   }, [gltf.scene, renderTarget.texture])
 
@@ -119,30 +111,36 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       (anim) => anim.name === ("R-IN" as PhoneAnimationName)
     )
 
-    if (leftIdle && rightIdle) {
-      const idleClip1 = AnimationUtils.subclip(
-        leftIdle,
-        "idle1",
-        0,
-        leftIdle.duration * 30,
-        30
-      )
-      const idleClip2 = AnimationUtils.subclip(
-        rightIdle,
-        "idle2",
-        0,
-        rightIdle.duration * 30,
-        30
-      )
+    if (leftIn && rightIn && leftIdle && rightIdle) {
+      const leftInAction = mixer.clipAction(leftIn)
+      const rightInAction = mixer.clipAction(rightIn)
 
-      const action1 = mixer.clipAction(idleClip1)
-      const action2 = mixer.clipAction(idleClip2)
+      const leftIdleAction = mixer.clipAction(leftIdle)
+      const rightIdleAction = mixer.clipAction(rightIdle)
 
-      action1.setLoop(LoopRepeat, Infinity)
-      action2.setLoop(LoopRepeat, Infinity)
+      leftIdleAction.setLoop(LoopRepeat, Infinity)
+      rightIdleAction.setLoop(LoopRepeat, Infinity)
 
-      action1.play()
-      action2.play()
+      leftInAction.setLoop(LoopRepeat, 0)
+      rightInAction.setLoop(LoopRepeat, 0)
+
+      leftInAction.timeScale = 4
+      rightInAction.timeScale = 4
+
+      leftInAction.play()
+      rightInAction.play()
+
+      leftInAction.clampWhenFinished = true
+      rightInAction.clampWhenFinished = true
+
+      const onEntranceComplete = () => {
+        leftIdleAction.play()
+        rightIdleAction.play()
+      }
+
+      const entranceDuration =
+        (Math.max(leftIn.duration, rightIn.duration) * 1000) / 2
+      setTimeout(onEntranceComplete, entranceDuration)
     }
   }, [gltf, glass])
 
@@ -151,9 +149,9 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       mixerRef.current.update(delta)
     }
 
-    // if (screenMaterial.uniforms.uTime) {
-    //   screenMaterial.uniforms.uTime.value += delta
-    // }
+    if (screenMaterial.uniforms.uTime) {
+      screenMaterial.uniforms.uTime.value += delta
+    }
   })
 
   if (!screenMesh || !screenPosition || !screenScale) return null
