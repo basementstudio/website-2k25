@@ -36,9 +36,7 @@ export const Scene = () => {
     setIsCanvasTabMode,
     setCurrentTabIndex,
     currentTabIndex,
-    currentScene,
-    routeTabIndices,
-    setRouteTabIndex
+    currentScene
   } = useNavigationStore()
 
   useEffect(() => {
@@ -77,14 +75,7 @@ export const Scene = () => {
       return
     }
 
-    if (currentTabIndex !== -1) {
-      setRouteTabIndex(pathname, currentTabIndex)
-    }
-
-    const previousIndex = routeTabIndices[pathname]
-    if (previousIndex !== undefined) {
-      setCurrentTabIndex(previousIndex)
-    } else {
+    if (currentTabIndex === -1) {
       setCurrentTabIndex(0)
     }
   }, [pathname])
@@ -104,7 +95,6 @@ export const Scene = () => {
           if (e.shiftKey) {
             const newIndex = currentIndex - 1
             setCurrentTabIndex(newIndex)
-            setRouteTabIndex(pathname, newIndex)
 
             if (currentIndex === 0) {
               setCurrentTabIndex(-1)
@@ -113,7 +103,6 @@ export const Scene = () => {
           } else {
             const newIndex = currentIndex + 1
             setCurrentTabIndex(newIndex)
-            setRouteTabIndex(pathname, newIndex)
 
             if (
               currentScene.tabs &&
@@ -130,8 +119,6 @@ export const Scene = () => {
       setCurrentTabIndex,
       currentTabIndex,
       currentScene,
-      pathname,
-      setRouteTabIndex,
       setIsCanvasTabMode
     ]
   )
