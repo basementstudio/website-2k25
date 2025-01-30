@@ -10,6 +10,7 @@ interface TabIndices {
 export const useNavigationStore = create<{
   scenes: IScene[] | null
   setScenes: (scenes: IScene[]) => void
+
   currentScene: IScene | null
   setCurrentScene: (scene: IScene) => void
 
@@ -27,6 +28,9 @@ export const useNavigationStore = create<{
 
   stairVisibility: boolean
   setStairVisibility: (visibility: boolean) => void
+
+  disableCameraTransition: boolean
+  setDisableCameraTransition: (disable: boolean) => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
@@ -49,5 +53,9 @@ export const useNavigationStore = create<{
     })),
 
   stairVisibility: false,
-  setStairVisibility: (visibility) => set({ stairVisibility: visibility })
+  setStairVisibility: (visibility) => set({ stairVisibility: visibility }),
+
+  disableCameraTransition: false,
+  setDisableCameraTransition: (disable) =>
+    set({ disableCameraTransition: disable })
 }))

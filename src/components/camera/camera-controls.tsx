@@ -26,12 +26,13 @@ export const CustomCamera = () => {
   const planeBoundaryRef = useRef<Mesh>(null)
   const animationProgress = useRef(1)
   const offsetY = useRef(0)
-  const gametargetFov = useRef<number>(60)
-  const gameCurrentFov = useRef<number>(60)
-  const fovTransitionProgress = useRef<number>(1)
 
   const cameraConfig = useNavigationStore.getState().currentScene?.cameraConfig
   const setStairVisibility = useNavigationStore.getState().setStairVisibility
+  const disableCameraTransition =
+    useNavigationStore.getState().disableCameraTransition
+  const setDisableCameraTransition =
+    useNavigationStore.getState().setDisableCameraTransition
 
   const scene = useThree((state) => state.scene)
 
@@ -39,8 +40,11 @@ export const CustomCamera = () => {
 
   const currentPos = useMemo(() => new Vector3(), [])
   const currentTarget = useMemo(() => new Vector3(), [])
+  const currentFov = useRef<number>(60)
+
   const targetPosition = useMemo(() => new Vector3(), [])
   const targetLookAt = useMemo(() => new Vector3(), [])
+  const targetFov = useRef<number>(60)
 
   const ANIMATION_DURATION = 1.5 //secs
 
@@ -59,10 +63,6 @@ export const CustomCamera = () => {
 
     //TODO: remove this
     useNavigationStore.getState().setMainCamera(camera)
-
-    gameCurrentFov.current = camera.fov
-    gametargetFov.current = cameraConfig.fov ?? 60
-    fovTransitionProgress.current = 0
 
     const planePos = calculatePlanePosition(cameraConfig)
     const distance = Math.hypot(
@@ -110,7 +110,24 @@ export const CustomCamera = () => {
     const boundary = planeBoundaryRef.current
     if (!plane || !boundary || !controls || !cameraConfig) return
 
-    if (animationProgress.current < 1) {
+    if (disableCameraTransition) {
+      animationProgress.current = 1
+      currentPos.set(...cameraConfig.position)
+      currentTarget.set(...cameraConfig.target)
+      currentFov.current = cameraConfig.fov ?? 60
+      controls.setPosition(currentPos.x, currentPos.y, currentPos.z, false)
+      controls.setTarget(
+        currentTarget.x,
+        currentTarget.y,
+        currentTarget.z,
+        false
+      )
+      if (controls.camera instanceof PerspectiveCamera) {
+        controls.camera.fov = currentFov.current
+        controls.camera.updateProjectionMatrix()
+      }
+      setTimeout(() => setDisableCameraTransition(false), 250)
+    } else if (animationProgress.current < 1) {
       // Handle camera transition animation
       animationProgress.current = Math.min(
         animationProgress.current + dt / ANIMATION_DURATION,
@@ -123,16 +140,24 @@ export const CustomCamera = () => {
       controls.getPosition(currentPos)
       controls.getTarget(currentTarget)
 
+      const easeValue = easeInOutCubic(animationProgress.current)
+
+      // Calculate targets
       targetPosition.set(...cameraConfig.position)
       targetLookAt.set(...cameraConfig.target)
+      targetFov.current = cameraConfig.fov ?? 60
 
-      targetPosition.y = cameraConfig.position[1] + offsetY.current
-      targetLookAt.y = cameraConfig.target[1] + offsetY.current
+      targetPosition.y += offsetY.current
+      targetLookAt.y += offsetY.current
 
-      const easeValue = easeInOutCubic(animationProgress.current)
+      // update current targets
       currentPos.lerp(targetPosition, easeValue)
       currentTarget.lerp(targetLookAt, easeValue)
+      currentFov.current =
+        currentFov.current +
+        (targetFov.current - currentFov.current) * easeValue
 
+      // set camera values to match current targets
       controls.setPosition(currentPos.x, currentPos.y, currentPos.z, false)
       controls.setTarget(
         currentTarget.x,
@@ -140,6 +165,10 @@ export const CustomCamera = () => {
         currentTarget.z,
         false
       )
+      if (controls.camera instanceof PerspectiveCamera) {
+        controls.camera.fov = currentFov.current
+        controls.camera.updateProjectionMatrix()
+      }
     } else {
       // Only allow camera movement if no inspectable is selected
       // if (pathname !== "/basketball" && !selected) {
@@ -198,46 +227,25 @@ export const CustomCamera = () => {
       //   )
       // }
 
-      targetPosition.y = cameraConfig.position[1] + offsetY.current
-      targetLookAt.y = cameraConfig.target[1] + offsetY.current
-      currentPos.lerp(targetPosition, 0.5)
-      currentTarget.lerp(targetLookAt, 0.5)
+      targetPosition.set(...cameraConfig.position)
+      targetLookAt.set(...cameraConfig.target)
+      targetPosition.y += offsetY.current
+      targetLookAt.y += offsetY.current
 
-      controls.setPosition(currentPos.x, currentPos.y, currentPos.z, false)
-      controls.setTarget(
-        currentTarget.x,
-        currentTarget.y,
-        currentTarget.z,
+      controls.setPosition(
+        targetPosition.x,
+        targetPosition.y,
+        targetPosition.z,
         false
       )
-    }
-
-    if (controls.camera instanceof PerspectiveCamera) {
-      fovTransitionProgress.current = Math.min(
-        fovTransitionProgress.current + dt * 0.5,
-        1
-      )
-
-      const easedProgress = easeInOutCubic(fovTransitionProgress.current)
-
-      gameCurrentFov.current =
-        gameCurrentFov.current +
-        (gametargetFov.current - gameCurrentFov.current) * easedProgress
-      controls.camera.fov = gameCurrentFov.current
-      controls.camera.updateProjectionMatrix()
+      controls.setTarget(targetLookAt.x, targetLookAt.y, targetLookAt.z, false)
     }
   })
 
   useEffect(() => {
     if (!cameraConfig) return
-
     animationProgress.current = 0
-    targetPosition.set(...cameraConfig.position)
-    targetLookAt.set(...cameraConfig.target)
-
-    gametargetFov.current = cameraConfig.fov ?? 60
-    fovTransitionProgress.current = 0
-  }, [cameraConfig, targetPosition, targetLookAt])
+  }, [cameraConfig])
 
   const planePosition = useCallback(
     () => (cameraConfig ? calculatePlanePosition(cameraConfig) : null),

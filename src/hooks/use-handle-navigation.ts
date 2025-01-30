@@ -6,6 +6,9 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 export const useHandleNavigation = () => {
   const router = useRouter()
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
+  const setDisableCameraTransition = useNavigationStore(
+    (state) => state.setDisableCameraTransition
+  )
   const setStairVisibility = useNavigationStore.getState().setStairVisibility
   const scenes = useNavigationStore((state) => state.scenes)
 
@@ -33,13 +36,17 @@ export const useHandleNavigation = () => {
         }, 10)
       } else {
         document.documentElement.dataset.flip = "true"
+        setCurrentScene(selectedScene)
+        setDisableCameraTransition(true)
+        router.push(route, { scroll: false })
+
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: "instant" })
-          setTimeout(() => {
-            document.documentElement.dataset.flip = "false"
-            setCurrentScene(selectedScene)
-            router.push(route, { scroll: false })
-          }, 5)
+
+          setTimeout(
+            () => (document.documentElement.dataset.flip = "false"),
+            10
+          )
         }, 250)
       }
     },
