@@ -6,7 +6,9 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 export const useHandleNavigation = () => {
   const router = useRouter()
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
+  const setStairVisibility = useNavigationStore.getState().setStairVisibility
   const scenes = useNavigationStore((state) => state.scenes)
+
   const handleNavigation = useCallback(
     (route: string) => {
       const selectedScene =
@@ -16,17 +18,11 @@ export const useHandleNavigation = () => {
 
       if (!selectedScene) return
 
-      const setStairVisibility =
-        useNavigationStore.getState().setStairVisibility
-
-      if (selectedScene.name !== "") {
-        setStairVisibility(true)
-      } else {
-        setStairVisibility(false)
-      }
+      setStairVisibility(selectedScene.name !== "")
 
       if (window.scrollY < window.innerHeight) {
         window.scrollTo({ top: 0, behavior: "smooth" })
+        setCurrentScene(selectedScene)
 
         // Wait for scroll to complete before routing
         const checkScroll = setInterval(() => {

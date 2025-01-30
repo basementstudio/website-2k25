@@ -124,7 +124,7 @@ export const Transitions = () => {
       document.documentElement.dataset.disabled = scrolled <= viewportHeight
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
 
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
