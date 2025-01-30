@@ -49,7 +49,13 @@ export const Scene = () => {
     setIsCanvasTabMode(isCanvasTabMode)
   }, [isCanvasTabMode, setIsCanvasTabMode])
 
-  const handleFocus = () => setIsCanvasTabMode(true)
+  const handleFocus = () => {
+    setIsCanvasTabMode(true)
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }
   const handleBlur = () => setIsCanvasTabMode(false)
 
   useKeyPress(
