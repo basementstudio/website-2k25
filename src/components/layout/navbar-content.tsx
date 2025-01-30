@@ -1,12 +1,11 @@
 "use client"
 
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { CameraStateKeys } from "@/store/app-store"
+import { CameraStateKeys, useCameraStore } from "@/store/app-store"
 import { cn } from "@/utils/cn"
 
 const Logo = ({ className }: { className?: string }) => (
@@ -32,6 +31,7 @@ interface NavbarContentProps {
 export const NavbarContent = ({ links }: NavbarContentProps) => {
   const [music, setMusic] = useState(true)
   const { setVolumeMaster } = useSiteAudio()
+  const { setContactOpen } = useCameraStore()
   const isOnTab = useIsOnTab()
   const router = useRouter()
 
@@ -101,12 +101,12 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
               {music ? "On" : "Off"}
             </span>
           </button>
-          <Link
-            href="?contact=true"
+          <button
+            onClick={() => setContactOpen(true)}
             className="text-p capitalize text-brand-w1"
           >
             Contact Us
-          </Link>
+          </button>
         </div>
       </div>
     </nav>

@@ -5,7 +5,7 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import dynamic from "next/dynamic"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
@@ -27,7 +27,6 @@ import { Renderer } from "./postprocessing/renderer"
 export const Scene = () => {
   const pathname = usePathname()
   const isBasketball = pathname === "/basketball"
-  const isContact = useSearchParams().get("contact")
   const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
 

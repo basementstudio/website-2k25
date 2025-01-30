@@ -112,6 +112,13 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       (anim) => anim.name === ("R-Idle" as PhoneAnimationName)
     )
 
+    const leftIn = gltf.animations.find(
+      (anim) => anim.name === ("L-IN" as PhoneAnimationName)
+    )
+    const rightIn = gltf.animations.find(
+      (anim) => anim.name === ("R-IN" as PhoneAnimationName)
+    )
+
     if (leftIdle && rightIdle) {
       const idleClip1 = AnimationUtils.subclip(
         leftIdle,

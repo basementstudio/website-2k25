@@ -1,13 +1,18 @@
 "use client"
-import { useSearchParams } from "next/navigation"
+import { useKeyPress } from "@/hooks/use-key-press"
+import { useCameraStore } from "@/store/app-store"
 
 import ContactCanvas from "./contact-canvas"
 
 const Contact = () => {
-  const isContact = useSearchParams().get("contact")
+  const { isContactOpen, setContactOpen } = useCameraStore()
+
+  useKeyPress("Escape", () => setContactOpen(false))
 
   return (
-    <div className="fixed inset-0 z-50">{isContact && <ContactCanvas />}</div>
+    <div className="fixed inset-0 z-50">
+      {isContactOpen && <ContactCanvas />}
+    </div>
   )
 }
 

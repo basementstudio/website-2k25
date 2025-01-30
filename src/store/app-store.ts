@@ -52,6 +52,9 @@ interface CameraStore {
 
   cameraStates: any
   setCameraStates: (states: Record<CameraStateKeys, CameraState>) => void
+
+  isContactOpen: boolean
+  setContactOpen: (open: boolean) => void
 }
 
 export const useCameraStore = create<CameraStore>((set, get) => ({
@@ -80,6 +83,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   },
   updateCameraFromPathname: (pathname) => {
     get().setCameraState(PATHNAME_MAP[pathname] || "home")
+    set({ isContactOpen: false })
   },
 
   // debug camera
@@ -88,5 +92,8 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   // dithering states
   postProcessingCamera: null,
   disablePostprocessing: false,
-  setDisablePostprocessing: (value) => set({ disablePostprocessing: value })
+  setDisablePostprocessing: (value) => set({ disablePostprocessing: value }),
+
+  isContactOpen: false,
+  setContactOpen: (open) => set({ isContactOpen: open })
 }))
