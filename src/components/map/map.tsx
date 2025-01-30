@@ -27,12 +27,12 @@ import {
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 import { useCarAnimation } from "./use-car-animation"
 import { useGodrays } from "./use-godrays"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -204,6 +204,8 @@ export const Map = memo(() => {
           const videoTexture = createVideoTexture(video.url)
 
           currentMaterial.map = videoTexture
+          currentMaterial.map.flipY = false
+
           currentMaterial.map.generateMipmaps = false
           currentMaterial.map.magFilter = THREE.NearestFilter
           currentMaterial.map.minFilter = THREE.NearestFilter
