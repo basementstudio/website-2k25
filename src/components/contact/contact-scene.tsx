@@ -16,6 +16,15 @@ import {
 import { RenderTexture } from "../arcade-screen/render-texture"
 import { screenMaterial } from "../arcade-screen/screen-material"
 
+type PhoneAnimationName =
+  | "L-IN"
+  | "R-IN"
+  | "L-Idle"
+  | "R-Idle"
+  | "Buttons-1"
+  | "Buttons-2"
+  | "Buttons-3"
+
 const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
 
@@ -38,7 +47,7 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
           justifyContent="center"
           alignItems="center"
         >
-          <Text fontSize={32} color="#ffffff" fontWeight="bold">
+          <Text fontSize={32} color="white" fontWeight="bold">
             hello there
           </Text>
           {/* <Input type="text" value="obi wanker nobi" /> */}
@@ -86,26 +95,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   }, [gltf.scene, renderTarget.texture])
 
   useEffect(() => {
-    if (!screenMesh) return
-
-    const geometry = screenMesh.geometry
-    const normals = geometry.attributes.normal
-    if (normals) {
-      for (let i = 0; i < normals.count; i++) {
-        normals.setXYZ(i, -normals.getX(i), -normals.getY(i), -normals.getZ(i))
-      }
-      normals.needsUpdate = true
-      geometry.computeVertexNormals()
-    }
-  }, [screenMesh])
-
-  // L-Idle
-  // R-Idle
-  // Buttons-1
-  // Buttons-2
-  // Buttons-3
-
-  useEffect(() => {
     if (!gltf.scene || !gltf.animations.length) return
 
     // TODO: add a mix blend to the glass
@@ -116,22 +105,26 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     mixerRef.current = new AnimationMixer(gltf.scene)
     const mixer = mixerRef.current
 
-    const baseAnim = gltf.animations.find((anim) => anim.name === "L-Idle")
-    const secondAnim = gltf.animations.find((anim) => anim.name === "R-Idle")
+    const leftIdle = gltf.animations.find(
+      (anim) => anim.name === ("L-Idle" as PhoneAnimationName)
+    )
+    const rightIdle = gltf.animations.find(
+      (anim) => anim.name === ("R-Idle" as PhoneAnimationName)
+    )
 
-    if (baseAnim && secondAnim) {
+    if (leftIdle && rightIdle) {
       const idleClip1 = AnimationUtils.subclip(
-        baseAnim,
+        leftIdle,
         "idle1",
         0,
-        baseAnim.duration * 30,
+        leftIdle.duration * 30,
         30
       )
       const idleClip2 = AnimationUtils.subclip(
-        secondAnim,
+        rightIdle,
         "idle2",
         0,
-        secondAnim.duration * 30,
+        rightIdle.duration * 30,
         30
       )
 
