@@ -336,7 +336,6 @@ export const Map = memo(() => {
             node={node}
             route={matchingTab?.tabRoute ?? ""}
             hoverName={matchingTab?.tabHoverName ?? node.name}
-            plusShapeScale={matchingTab?.plusShapeScale ?? 1}
           />
         )
       })}

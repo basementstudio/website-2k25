@@ -11,14 +11,12 @@ interface RoutingElementProps {
   node: Mesh
   route: string
   hoverName: string
-  plusShapeScale: number
 }
 
 export const RoutingElement = ({
   node,
   route,
-  hoverName,
-  plusShapeScale
+  hoverName
 }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
@@ -144,7 +142,6 @@ export const RoutingElement = ({
             scale={[1, 1]}
             rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
             geometry={node.geometry}
-            plusShapeScale={plusShapeScale}
           />
         </>
       )}
