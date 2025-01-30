@@ -4,7 +4,8 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { useMotionValue } from "motion/react"
-import { useEffect, useRef, useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { useCallback, useEffect, useRef, useState } from "react"
 import {
   Box3,
   Group,
@@ -20,6 +21,7 @@ import {
   TARGET_SIZE,
   X_OFFSET
 } from "@/constants/inspectables"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useInspectable } from "./context"
@@ -54,6 +56,10 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
   const { setSelected } = useInspectable()
   const setCursorType = useMouseStore((state) => state.setCursorType)
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const isInspectableEnabled = pathname.startsWith("/showcase")
 
   useEffect(() => {
     if (ref.current) {
@@ -69,7 +75,18 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
     }
   }, [scene])
 
+  useKeyPress(
+    "Escape",
+    useCallback(() => {
+      if (pathname.startsWith("/showcase") && !selected) {
+        router.push("/", { scroll: false })
+      }
+    }, [pathname, selected, router])
+  )
+
   const handleAnimation = (withAnimation: boolean) => {
+    if (!isInspectableEnabled && selected === inspectable.id) return
+
     const direction = new Vector3()
     camera.getWorldDirection(direction)
     const offset = new Vector3(0, 1, 0).cross(direction).normalize()
@@ -82,7 +99,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
     const config = withAnimation ? ANIMATION_CONFIG : { duration: 0 }
 
-    if (selected === inspectable.id) {
+    if (selected === inspectable.id && isInspectableEnabled) {
       const maxDimension = TARGET_SIZE / Math.max(...size)
       animate(target.x, camera.position.x + direction.x, config)
       animate(target.y, camera.position.y + direction.y, config)
@@ -92,7 +109,6 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
       animate(target.x, inspectable.position.x, config)
       animate(target.y, inspectable.position.y, config)
       animate(target.z, inspectable.position.z, config)
-
       animate(targetScale.current, 1, config)
     }
   }
@@ -106,7 +122,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
     return () => window.removeEventListener("resize", handleResize)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, inspectable, size, camera])
+  }, [selected, inspectable, size, camera, isInspectableEnabled])
 
   useFrame(() => {
     if (ref.current) {
@@ -130,7 +146,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
         const lookAtMatrix = new Matrix4()
         const upVector = new Vector3(0, 1, 0)
 
-        lookAtMatrix.lookAt(ref.current.position, camera.position, upVector)
+        lookAtMatrix.lookAt(camera.position, ref.current.position, upVector)
         targetQuaternion.setFromRotationMatrix(lookAtMatrix)
 
         const rotationX = new Quaternion()
@@ -149,16 +165,36 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
   return (
     <>
       <group
-        onClick={() => setSelected(inspectable.id)}
+        onClick={(e) => {
+          if (!isInspectableEnabled) {
+            e.stopPropagation()
+            return
+          }
+          setSelected(inspectable.id)
+        }}
         ref={ref}
-        onPointerEnter={() => setCursorType("inspect")}
-        onPointerLeave={() => setCursorType("default")}
+        onPointerEnter={() => {
+          if (!isInspectableEnabled) return
+          setCursorType(selected === inspectable.id ? "grab" : "zoom")
+        }}
+        onPointerLeave={() => {
+          if (!isInspectableEnabled) return
+          setCursorType("default")
+        }}
+        onPointerDown={() => {
+          if (!isInspectableEnabled || selected !== inspectable.id) return
+          setCursorType("grabbing")
+        }}
+        onPointerUp={() => {
+          if (!isInspectableEnabled || selected !== inspectable.id) return
+          setCursorType("grab")
+        }}
       >
         <InspectableDragger
           key={inspectable.id}
-          enabled={selected === inspectable.id}
+          enabled={selected === inspectable.id && isInspectableEnabled}
           global={false}
-          cursor={selected === inspectable.id}
+          cursor={false}
           snap={true}
           speed={2}
         >
