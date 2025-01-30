@@ -100,8 +100,14 @@ export const CustomCamera = () => {
 
       if (cameraControlsRef.current) {
         if (rawScrollProgress > 1) {
-          cameraControlsRef.current.setPosition(...cameraConfig.position, false)
-          cameraControlsRef.current.setTarget(...cameraConfig.target, false)
+          cameraControlsRef.current.setPosition(
+            ...navigationCameraConfig.position,
+            false
+          )
+          cameraControlsRef.current.setTarget(
+            ...navigationCameraConfig.target,
+            false
+          )
         } else {
           const pos = cameraControlsRef.current.getPosition(new Vector3())
           const target = cameraControlsRef.current.getTarget(new Vector3())
