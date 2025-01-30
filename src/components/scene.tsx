@@ -136,10 +136,6 @@ export const Scene = () => {
     ]
   )
 
-  useEffect(() => {
-    console.log(currentTabIndex)
-  }, [currentTabIndex])
-
   return (
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
