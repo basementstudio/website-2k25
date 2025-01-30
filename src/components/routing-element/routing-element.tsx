@@ -106,20 +106,23 @@ export const RoutingElement = ({
   return (
     <>
       <group
-        onPointerEnter={() => {
+        onPointerEnter={(e) => {
+          e.stopPropagation()
           if (activeRoute) return
           setHover(true)
           router.prefetch(route)
           setCursorType("click")
           setHoverText(hoverName)
         }}
-        onPointerLeave={() => {
+        onPointerLeave={(e) => {
+          e.stopPropagation()
           if (activeRoute) return
           setHover(false)
           setHoverText(null)
           setCursorType("default")
         }}
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation()
           if (activeRoute) return
           handleNavigation(route)
           setCursorType("default")
@@ -131,7 +134,7 @@ export const RoutingElement = ({
           position={[node.position.x, node.position.y, node.position.z]}
           rotation={node.rotation}
         >
-          <meshBasicMaterial transparent visible={false} />
+          <meshBasicMaterial transparent opacity={0} />
         </mesh>
       </group>
       {hover && (
