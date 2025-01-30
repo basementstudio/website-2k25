@@ -28,16 +28,8 @@ export const Navbar = () => (
           count: projects
         },
         {
-          title: "Services",
-          href: "/services"
-        },
-        {
           title: "People",
           href: "/people"
-        },
-        {
-          title: "Laboratory",
-          href: "/lab"
         },
         {
           title: "Blog",
