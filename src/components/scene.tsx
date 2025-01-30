@@ -154,6 +154,7 @@ export const Scene = () => {
         eventSource={documentElement}
         eventPrefix="client"
         camera={{ fov: 60 }}
+        className="outline-none focus-visible:outline-none"
       >
         <Renderer
           sceneChildren={
