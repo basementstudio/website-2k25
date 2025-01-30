@@ -3,7 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { useControls } from "leva"
 import { easing } from "maath"
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useInspectable } from "../inspectables/context"
@@ -20,6 +20,8 @@ export const CustomCamera = () => {
   const pathname = usePathname()
 
   const { selected } = useInspectable()
+
+  const [firstRender, setFirstRender] = useState(true)
 
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
@@ -108,9 +110,10 @@ export const CustomCamera = () => {
     const controls = cameraControlsRef.current
     const plane = planeRef.current
     const boundary = planeBoundaryRef.current
+
     if (!plane || !boundary || !controls || !cameraConfig) return
 
-    if (disableCameraTransition) {
+    if (disableCameraTransition || firstRender) {
       animationProgress.current = 1
       currentPos.set(...cameraConfig.position)
       currentTarget.set(...cameraConfig.target)
@@ -126,7 +129,9 @@ export const CustomCamera = () => {
         controls.camera.fov = currentFov.current
         controls.camera.updateProjectionMatrix()
       }
+
       setTimeout(() => setDisableCameraTransition(false), 250)
+      setFirstRender(false)
     } else if (animationProgress.current < 1) {
       // Handle camera transition animation
       animationProgress.current = Math.min(
