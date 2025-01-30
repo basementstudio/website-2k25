@@ -16,11 +16,20 @@ export const NavigationHandler = () => {
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
+  const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
+
   useEffect(() => {
     if (!scenes.length) return
 
     setSelected(null)
-  }, [pathname, scenes, setSelected])
+
+    const currentScene =
+      pathname === "/"
+        ? scenes.find((scene) => scene.name.toLowerCase() === "home")
+        : scenes.find((scene) => scene.name === pathname.split("/")[1])
+
+    if (currentScene) setCurrentScene(currentScene)
+  }, [pathname, scenes, setSelected, setCurrentScene])
 
   return null
 }
