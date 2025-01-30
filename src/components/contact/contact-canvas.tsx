@@ -13,10 +13,14 @@ const worker = new Worker(
 )
 
 const ContactCanvas = () => {
-  const { contactPhone } = useAssets()
+  const { contactPhone, arcade } = useAssets()
   console.log("[ContactCanvas] model url", contactPhone)
 
-  worker.postMessage({ type: "load-model", modelUrl: contactPhone })
+  worker.postMessage({
+    type: "load-model",
+    modelUrl: contactPhone,
+    idleUrl: arcade.idleScreen
+  })
 
   return (
     <Canvas
