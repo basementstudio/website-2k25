@@ -1,6 +1,9 @@
 "use client"
+
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
+
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { useAssets } from "../assets-provider"
 import { useInspectable } from "../inspectables/context"
@@ -13,6 +16,7 @@ export const NavigationHandler = () => {
 
   const scenes: IScene[] = useAssets().scenes
   const setScenes = useNavigationStore((state) => state.setScenes)
+  const scene = useCurrentScene()
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
@@ -28,8 +32,10 @@ export const NavigationHandler = () => {
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
-    if (currentScene) setCurrentScene(currentScene)
-  }, [pathname, scenes, setSelected, setCurrentScene])
+    if (currentScene && currentScene.name !== scene) {
+      setCurrentScene(currentScene)
+    }
+  }, [pathname, scenes, setSelected, setCurrentScene, scene])
 
   return null
 }
