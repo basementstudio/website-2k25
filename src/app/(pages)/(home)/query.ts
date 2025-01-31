@@ -16,6 +16,14 @@ export const query = fragmentOn("Query", {
             content: true
           }
         }
+      },
+      capabilities: {
+        _title: true,
+        intro: {
+          json: {
+            content: true
+          }
+        }
       }
     }
   },
@@ -48,6 +56,17 @@ export const query = fragmentOn("Query", {
           },
           _slug: true,
           cover: IMAGE_FRAGMENT
+        }
+      },
+      projectCategories: {
+        items: {
+          _title: true,
+          description: true,
+          subCategories: {
+            items: {
+              _title: true
+            }
+          }
         }
       }
     }
