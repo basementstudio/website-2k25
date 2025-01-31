@@ -49,7 +49,7 @@ export const useHandleNavigation = () => {
             () => (document.documentElement.dataset.flip = "false"),
             10
           )
-        }, 250)
+        }, 500)
       }
     },
 

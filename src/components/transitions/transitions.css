@@ -25,6 +25,10 @@ body {
 }
 
 [data-flip="true"] {
+  body {
+    background-color: #ff4d00;
+  }
+
   .layout-container {
     --position: 0%;
     transition:

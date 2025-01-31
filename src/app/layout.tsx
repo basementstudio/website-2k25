@@ -16,7 +16,7 @@ import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
-import { Transitions } from "@/components/transitions/transitions"
+import { Transitions } from "@/components/transitions"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
 

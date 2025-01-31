@@ -8,7 +8,7 @@ const config = {
   theme: "system",
   cells: 32,
   frames: 12,
-  speed: 0.25,
+  speed: 0.5,
   delay: 0
 }
 
@@ -17,11 +17,17 @@ let createSprites
 export const Transitions = () => {
   useEffect(() => {
     document.documentElement.dataset.theme = config.theme
-    document.documentElement.style.setProperty("--mask-speed", config.speed)
-    document.documentElement.style.setProperty("--mask-delay", config.delay)
+    document.documentElement.style.setProperty(
+      "--mask-speed",
+      config.speed.toString()
+    )
+    document.documentElement.style.setProperty(
+      "--mask-delay",
+      config.delay.toString()
+    )
 
     // basic array shuffling function
-    const shuffle = (arr) => {
+    const shuffle = (arr: number[]) => {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
         ;[arr[i], arr[j]] = [arr[j], arr[i]]
@@ -29,7 +35,7 @@ export const Transitions = () => {
       return arr
     }
     // split array into chunks to use for groups
-    const split = (arr, chunks) => {
+    const split = (arr: number[], chunks: number) => {
       const chunkSize = Math.ceil(arr.length / chunks)
       const result = []
       for (let i = 0; i < arr.length; i += chunkSize) {
@@ -38,7 +44,7 @@ export const Transitions = () => {
       return result
     }
     // convert SVG element into a data URL for CSS mask, etc.
-    const svgToUrl = (svg) => {
+    const svgToUrl = (svg: SVGElement) => {
       const svgString = new XMLSerializer().serializeToString(svg)
       const encodedSvg = encodeURIComponent(svgString)
         .replace(/'/g, "%27")
@@ -47,7 +53,7 @@ export const Transitions = () => {
     }
 
     // this will generate an SVG sprite based on the given configuration
-    const generateSprite = (prefix) => {
+    const generateSprite = (prefix: string) => {
       const indices = split(
         shuffle(new Array(config.cells ** 2).fill(0).map((_, i) => i)),
         config.frames
@@ -88,7 +94,7 @@ export const Transitions = () => {
         for (let u = 0; u < f + 1; u++) {
           const use = document.createElementNS(svgNamespace, "use")
           use.setAttribute("href", `#${prefix}-${u}`)
-          use.setAttribute("x", (f + 1) * (config.cells * 10))
+          use.setAttribute("x", ((f + 1) * (config.cells * 10)).toString())
           group.appendChild(use)
         }
         svg.appendChild(group)
@@ -99,7 +105,7 @@ export const Transitions = () => {
 
       document.documentElement.style.setProperty(
         "--mask-frames",
-        indices.length
+        indices.length.toString()
       )
 
       return { svg, dataURL }
@@ -116,12 +122,13 @@ export const Transitions = () => {
   }, [])
 
   useEffect(() => {
-    document.documentElement.dataset.disabled = true
+    document.documentElement.dataset.disabled = "true"
 
     const handleScroll = () => {
       const scrolled = window.scrollY
       const viewportHeight = window.innerHeight
-      document.documentElement.dataset.disabled = scrolled <= viewportHeight
+      document.documentElement.dataset.disabled =
+        scrolled <= viewportHeight ? "true" : "false"
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
