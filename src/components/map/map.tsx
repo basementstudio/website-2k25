@@ -27,6 +27,7 @@ import {
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
@@ -52,35 +53,27 @@ const createVideoTexture = (url: string) => {
 
 type SceneType = Object3D<Object3DEventMap> | null
 
-interface clickable {
-  name: string
-  frameData: any
-  node: Mesh
-  arrowData: any
-  route: string
-}
-
 export const Map = memo(() => {
   const {
     office: officePath,
     outdoor: outdoorPath,
     godrays: godraysPath,
     basketballNet: basketballNetPath,
-    videos,
-    clickables: clickablesList
+    routingElements: routingElementsPath,
+    videos
   } = useAssets()
-
+  const currentScene = useNavigationStore((state) => state.currentScene)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
   const { scene: basketballNetModel } = useGLTF(basketballNetPath)
+  const { scene: routingElementsModel } = useGLTF(
+    routingElementsPath
+  ) as unknown as GLTFResult
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
   const [godrayScene, setGodrayScene] = useState<SceneType>(null)
-
-  const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
-  const [clickables, setClickables] = useState<Record<string, clickable>>({})
 
   const [godrays, setGodrays] = useState<Mesh[]>([])
   useGodrays({ godrays })
@@ -93,7 +86,7 @@ export const Map = memo(() => {
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
-
+  const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
 
   const animationProgress = useRef(0)
@@ -156,14 +149,19 @@ export const Map = memo(() => {
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
+    routingElementsModel.traverse((child) => {
+      if (child instanceof Mesh) {
+        const matchingTab = currentScene?.tabs?.find((tab) =>
+          child.name.includes(tab.tabClickableName)
+        )
 
-    clickablesList.forEach((node) => {
-      const child = officeModel.getObjectByName(node.title)
-      if (child) {
-        child.removeFromParent()
-        routingNodes[node.title] = child as Mesh
+        if (matchingTab) {
+          routingNodes[matchingTab.tabClickableName] = child
+        }
       }
     })
+
+    setRoutingNodes(routingNodes)
 
     const hoopMesh = officeModel.getObjectByName("SM_BasketballHoop")
     const originalNet = officeModel.getObjectByName("SM_BasketRed")
@@ -190,11 +188,6 @@ export const Map = memo(() => {
         if (meshChild.name === "SM_ColorChecker_")
           colorPickerRef.current = meshChild
 
-        const ommitNode = Boolean(
-          clickablesList.find((n) => n.title === meshChild.name)?.title
-        )
-        if (ommitNode) return
-
         const alreadyReplaced = meshChild.userData.hasGlobalMaterial
         if (alreadyReplaced) return
 
@@ -211,6 +204,8 @@ export const Map = memo(() => {
           const videoTexture = createVideoTexture(video.url)
 
           currentMaterial.map = videoTexture
+          currentMaterial.map.flipY = false
+
           currentMaterial.map.generateMipmaps = false
           currentMaterial.map.magFilter = THREE.NearestFilter
           currentMaterial.map.minFilter = THREE.NearestFilter
@@ -253,6 +248,8 @@ export const Map = memo(() => {
     }
 
     officeModel.traverse((child) => traverse(child))
+
+    routingElementsModel.traverse((child) => traverse(child))
 
     outdoorModel.traverse((child) => traverse(child))
 
@@ -297,19 +294,14 @@ export const Map = memo(() => {
     setOfficeScene(officeModel)
     setOutdoorScene(outdoorModel)
     setGodrayScene(godrayModel)
-    // Split the routing nodes
-
-    setRoutingNodes((current) => ({
-      ...current,
-      ...routingNodes
-    }))
   }, [
     officeModel,
     outdoorModel,
     godrayModel,
     basketballNetModel,
+    routingElementsModel,
     videos,
-    clickablesList
+    currentScene
   ])
 
   useEffect(() => {
@@ -322,36 +314,6 @@ export const Map = memo(() => {
     return () => window.removeEventListener("basketball-score", handleScore)
   }, [])
 
-  useEffect(() => {
-    const clickablesElements = clickablesList.reduce((acc, clickable) => {
-      const node = routingNodes[clickable.title]
-      // Only add to clickables if node exists
-      if (!node) return acc
-
-      return {
-        ...acc,
-        [clickable.title]: {
-          name: clickable.title,
-          route: clickable.route,
-          frameData: {
-            position: clickable.framePosition,
-            rotation: clickable.frameRotation,
-            size: clickable.frameSize,
-            hoverName: clickable.hoverName
-          },
-          arrowData: {
-            position: clickable.arrowPosition,
-            scale: clickable.arrowScale,
-            rotation: clickable.arrowRotation
-          },
-          node
-        }
-      }
-    }, {})
-
-    setClickables(clickablesElements)
-  }, [clickablesList, routingNodes])
-
   if (!officeScene || !outdoorScene || !godrayScene) return null
 
   return (
@@ -360,23 +322,25 @@ export const Map = memo(() => {
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
       <ArcadeScreen />
-      {Object.values(clickables).map(
-        ({ frameData, name, node, arrowData, route }) => (
-          <RoutingElement
-            key={name}
-            node={node}
-            route={route}
-            frameData={frameData}
-            arrowData={arrowData}
-          />
-        )
-      )}
       {basketballHoop && (
         <RigidBody type="fixed" colliders="trimesh">
           <primitive object={basketballHoop} />
         </RigidBody>
       )}
+      {Object.values(routingNodes).map((node) => {
+        const matchingTab = currentScene?.tabs?.find(
+          (tab) => tab.tabClickableName === node.name
+        )
 
+        return (
+          <RoutingElement
+            key={node.name}
+            node={node}
+            route={matchingTab?.tabRoute ?? ""}
+            hoverName={matchingTab?.tabHoverName ?? node.name}
+          />
+        )
+      })}
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && <primitive position-x={-8.7} object={car} />}
       <PlayedBasketballs />

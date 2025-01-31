@@ -1,38 +1,26 @@
 import { useFrame } from "@react-three/fiber"
-import { usePathname } from "next/navigation"
-import { useRef } from "react"
 import { Mesh, Object3D, Vector3 } from "three"
 
-import { easeInOutCubic } from "../../utils/animations"
+import { easeInOutCubic } from "@/utils/animations"
 
 interface CarState {
   isWaiting: boolean
   waitTimeout: NodeJS.Timeout | null
   isSoundPlaying: boolean
-  carCount: number
   currentSpeed: number
   isSlowingDown: boolean
   isSpeedingUp: boolean
   hasInitialized: boolean
-  swerveOffset: number
-  swerveTime: number
-  rotationAngle: number
-  baseZOffset: number
 }
 
 const CONSTANTS = {
   BASE_SPEED: 0.1,
   START_X: -8.7,
-  END_X: 6.7,
+  END_X: 7.7,
   MIN_WAIT_TIME: 6000,
   ADDED_WAIT_TIME: 4000,
-  INITIAL_DELAY: 2000,
   SPEED_REDUCTION: 0.7,
-  SPEED_VARIATION: 0.5,
-  MAX_SWERVE: 0.3,
-  SWERVE_SPEED: 0.5,
-  MAX_ROTATION: 0.2,
-  MAX_Z_OFFSET: 1.5
+  SPEED_VARIATION: 0.5
 }
 
 const TOTAL_DISTANCE = CONSTANTS.END_X - CONSTANTS.START_X
@@ -41,15 +29,10 @@ const carState: CarState = {
   isWaiting: false,
   waitTimeout: null,
   isSoundPlaying: false,
-  carCount: 0,
   currentSpeed: CONSTANTS.BASE_SPEED,
   isSlowingDown: false,
   isSpeedingUp: false,
-  hasInitialized: false,
-  swerveOffset: 0,
-  swerveTime: Math.random() * Math.PI * 2,
-  rotationAngle: 0,
-  baseZOffset: (Math.random() * 2 - 1) * CONSTANTS.MAX_Z_OFFSET
+  hasInitialized: false
 }
 
 const setRandomTimeout = () => {
@@ -60,18 +43,21 @@ const setRandomTimeout = () => {
 
   if (carState.waitTimeout) clearTimeout(carState.waitTimeout)
 
-  carState.waitTimeout = setTimeout(() => {
-    carState.isWaiting = false
-  }, waitTime)
+  carState.waitTimeout = setTimeout(
+    () => (carState.isWaiting = false),
+    waitTime
+  )
 }
 
 const updateCarSpeed = () => {
   carState.currentSpeed = CONSTANTS.BASE_SPEED
 
-  if (carState.carCount % 2 === 0 && Math.random() > 0.5) {
+  const behavior = Math.random()
+
+  if (behavior < 0.25) {
     carState.isSlowingDown = true
     carState.isSpeedingUp = false
-  } else if (carState.carCount % 2 === 0) {
+  } else if (behavior < 0.5) {
     carState.isSpeedingUp = true
     carState.isSlowingDown = false
     carState.currentSpeed *= CONSTANTS.SPEED_REDUCTION
@@ -82,7 +68,6 @@ const updateCarSpeed = () => {
 }
 
 const resetCarMovement = () => {
-  carState.carCount++
   updateCarSpeed()
 }
 
@@ -98,26 +83,13 @@ const updateCarPosition = (carPosition: Vector3, progress: number) => {
       CONSTANTS.BASE_SPEED * (CONSTANTS.SPEED_REDUCTION + speedupAmount)
   }
 
-  carState.swerveTime += CONSTANTS.SWERVE_SPEED * 0.016
-
   const nextX = carPosition.x + carState.currentSpeed
 
-  const currentSwerve = Math.sin(carState.swerveTime) * CONSTANTS.MAX_SWERVE
-  const nextSwerve =
-    Math.sin(carState.swerveTime + CONSTANTS.SWERVE_SPEED * 0.016) *
-    CONSTANTS.MAX_SWERVE
-
-  const dx = carState.currentSpeed
-  const dz = nextSwerve - currentSwerve
-  carState.rotationAngle = Math.atan2(dz, dx)
-
   carPosition.x = nextX
-  carPosition.z = currentSwerve + carState.baseZOffset
+  carPosition.z = 1.75
 
   if (carPosition.x > CONSTANTS.END_X) {
     carPosition.x = CONSTANTS.START_X
-    carState.swerveTime = Math.random() * Math.PI * 2
-    carState.baseZOffset = (Math.random() * 2 - 1) * CONSTANTS.MAX_Z_OFFSET
     resetCarMovement()
     setRandomTimeout()
   }
@@ -130,31 +102,11 @@ const runFirstCarPass = (carPosition: Vector3) => {
   setRandomTimeout()
 }
 
-const animateCar = (car: Object3D, t: number, pathname: string) => {
+const animateCar = (car: Object3D) => {
   const carPosition = car.position
-
-  if (pathname !== "/services") {
-    if (
-      carPosition.x >= CONSTANTS.END_X ||
-      carPosition.x <= CONSTANTS.START_X
-    ) {
-      car.position.x = CONSTANTS.END_X
-      car.position.z = 0
-      car.rotation.y = 0
-      carState.hasInitialized = false
-      return
-    }
-    if (carState.hasInitialized && !carState.isWaiting) {
-      const progress = (carPosition.x - CONSTANTS.START_X) / TOTAL_DISTANCE
-      updateCarPosition(carPosition, progress)
-      car.rotation.y = carState.rotationAngle
-    }
-    return
-  }
 
   if (!carState.hasInitialized) {
     runFirstCarPass(carPosition)
-    carState.baseZOffset = (Math.random() * 2 - 1) * CONSTANTS.MAX_Z_OFFSET
     return
   }
 
@@ -165,23 +117,14 @@ const animateCar = (car: Object3D, t: number, pathname: string) => {
   ) {
     const progress = (carPosition.x - CONSTANTS.START_X) / TOTAL_DISTANCE
     updateCarPosition(carPosition, progress)
-    car.rotation.y = carState.rotationAngle
   } else if (!carState.isWaiting) {
     carPosition.x = CONSTANTS.START_X
-    carPosition.z = carState.baseZOffset
-    car.rotation.y = 0
     resetCarMovement()
   }
 }
 
 export const useCarAnimation = ({ car }: { car: Mesh | null }) => {
-  const animationProgress = useRef(0)
-  const pathname = usePathname()
-
-  useFrame(({ clock }) => {
-    if (car) {
-      animationProgress.current += clock.getElapsedTime()
-      animateCar(car, animationProgress.current, pathname)
-    }
+  useFrame(() => {
+    if (car) animateCar(car)
   })
 }

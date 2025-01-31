@@ -107,3 +107,9 @@ body {
     transform: translateX(48px);
   }
 }
+
+button:focus,
+input:focus,
+a:focus {
+  @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500;
+}
