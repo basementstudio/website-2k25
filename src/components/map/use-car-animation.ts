@@ -17,7 +17,7 @@ interface CarState {
 const CONSTANTS = {
   BASE_SPEED: 0.25,
   START_X: -8.7,
-  END_X: 12.7,
+  END_X: 9.5,
   MIN_WAIT_TIME: 6000,
   ADDED_WAIT_TIME: 4000,
   SPEED_REDUCTION: 0.7,
