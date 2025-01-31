@@ -252,8 +252,6 @@ export const CustomCamera = () => {
 
   useEffect(() => {
     if (!cameraConfig) return
-    //TODO: remove this
-    console.log("cameraConfig", cameraConfig)
     animationProgress.current = 0
   }, [cameraConfig])
 

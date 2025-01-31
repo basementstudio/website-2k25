@@ -23,19 +23,21 @@ export const NavigationHandler = () => {
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
 
   useEffect(() => {
-    if (!scenes.length) return
-
-    setSelected(null)
-
     const currentScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
-    if (currentScene && currentScene.name !== scene) {
-      setCurrentScene(currentScene)
-    }
-  }, [pathname, scenes, setSelected, setCurrentScene, scene])
+    if (currentScene) setCurrentScene(currentScene)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenes])
+
+  useEffect(
+    () => setSelected(null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [scene]
+  )
 
   return null
 }
