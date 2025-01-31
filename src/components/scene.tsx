@@ -28,7 +28,6 @@ export const Scene = () => {
   const pathname = usePathname()
   const router = useRouter()
   const isBasketball = pathname === "/basketball"
-  const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const {
     isCanvasTabMode,
@@ -37,10 +36,6 @@ export const Scene = () => {
     currentTabIndex,
     currentScene
   } = useNavigationStore()
-
-  useEffect(() => {
-    setDocumentElement(document.documentElement)
-  }, [])
 
   useEffect(() => {
     setIsCanvasTabMode(isCanvasTabMode)
@@ -142,8 +137,6 @@ export const Scene = () => {
           outputColorSpace: THREE.SRGBColorSpace,
           toneMapping: THREE.ACESFilmicToneMapping
         }}
-        eventSource={documentElement}
-        eventPrefix="client"
         camera={{ fov: 60 }}
         className="outline-none focus-visible:outline-none"
       >

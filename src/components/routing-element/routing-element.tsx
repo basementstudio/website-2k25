@@ -45,6 +45,11 @@ export const RoutingElement = ({
     (route: string) => {
       const setStairVisibility =
         useNavigationStore.getState().setStairVisibility
+      const setCurrentTabIndex =
+        useNavigationStore.getState().setCurrentTabIndex
+
+      // Prevent tab index reset by setting it to -1 before navigation
+      setCurrentTabIndex(-1)
 
       router.push(route, { scroll: false })
 

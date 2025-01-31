@@ -8,6 +8,15 @@ export default {
   ],
   theme: {
     extend: {
+      cursor: {
+        default: "default",
+        pointer: "pointer",
+        grab: "grab",
+        grabbing: "grabbing",
+        help: "help",
+        "zoom-in": "zoom-in"
+      },
+
       colors: {
         brand: {
           w1: "#E6E6E6",

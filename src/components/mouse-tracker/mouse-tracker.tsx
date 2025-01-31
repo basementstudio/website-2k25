@@ -26,13 +26,13 @@ interface MouseStore {
 }
 
 const cursorClasses = {
-  default: "default",
-  hover: "pointer",
-  click: "pointer",
-  grab: "grab",
-  grabbing: "grabbing",
-  inspect: "help",
-  zoom: "zoom-in"
+  default: "cursor-default",
+  hover: "cursor-pointer",
+  click: "cursor-pointer",
+  grab: "cursor-grab",
+  grabbing: "cursor-grabbing",
+  inspect: "cursor-help",
+  zoom: "cursor-zoom-in"
 }
 
 export const useMouseStore = create<MouseStore>((set) => ({
@@ -95,10 +95,10 @@ export const MouseTracker = ({
     const canvas = canvasRef.current
     if (!canvas) return
 
-    document.body.style.cursor = cursorClasses[cursorType]
+    canvas.classList.add(`${cursorClasses[cursorType]}`)
 
     return () => {
-      document.body.style.cursor = "default"
+      canvas.classList.remove(`${cursorClasses[cursorType]}`)
     }
   }, [cursorType, canvasRef, pathname])
 
