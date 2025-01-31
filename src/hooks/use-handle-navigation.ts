@@ -1,10 +1,11 @@
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useCallback } from "react"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
 export const useHandleNavigation = () => {
   const router = useRouter()
+  const pathname = usePathname()
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
   const setDisableCameraTransition = useNavigationStore(
     (state) => state.setDisableCameraTransition
@@ -14,6 +15,8 @@ export const useHandleNavigation = () => {
 
   const handleNavigation = useCallback(
     (route: string) => {
+      if (route === pathname) return
+
       const selectedScene =
         route === "/"
           ? scenes?.find((scene) => scene.name.toLowerCase() === "home")
@@ -51,7 +54,14 @@ export const useHandleNavigation = () => {
       }
     },
 
-    [router, setCurrentScene, scenes]
+    [
+      router,
+      setCurrentScene,
+      scenes,
+      pathname,
+      setStairVisibility,
+      setDisableCameraTransition
+    ]
   )
 
   return { handleNavigation }

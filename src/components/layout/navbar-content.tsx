@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
@@ -34,6 +35,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
   const { setVolumeMaster } = useSiteAudio()
   const { handleNavigation } = useHandleNavigation()
   const isOnTab = useIsOnTab()
+  const pathname = usePathname()
 
   const handleMute = () => {
     setVolumeMaster(music ? 0 : 1)
@@ -65,7 +67,10 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
           {links.map((link) => (
             <div key={link.href} className="flex items-center gap-1 text-p">
               <button
-                className="space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o"
+                className={cn(
+                  "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+                  link.href === pathname && "!text-brand-o"
+                )}
                 onClick={() => handleNavigation(link.href)}
               >
                 {link.title}
