@@ -31,7 +31,7 @@ interface NavbarContentProps {
 export const NavbarContent = ({ links }: NavbarContentProps) => {
   const [music, setMusic] = useState(true)
   const { setVolumeMaster } = useSiteAudio()
-  const { setContactOpen } = useCameraStore()
+  const { setContactOpen, isContactOpen } = useCameraStore()
   const isOnTab = useIsOnTab()
   const router = useRouter()
 
@@ -102,10 +102,10 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
             </span>
           </button>
           <button
-            onClick={() => setContactOpen(true)}
+            onClick={() => setContactOpen(!isContactOpen)}
             className="text-p capitalize text-brand-w1"
           >
-            Contact Us
+            {isContactOpen ? "Close" : "Contact Us"}
           </button>
         </div>
       </div>

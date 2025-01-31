@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Vector3 } from "three"
+import { PerspectiveCamera } from "three"
 import { create } from "zustand"
 
 import { CAMERA_STATES } from "@/constants/camera-states"

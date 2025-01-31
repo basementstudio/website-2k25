@@ -1,5 +1,4 @@
 import { createPortal, useFrame } from "@react-three/fiber"
-import { usePathname } from "next/navigation"
 import { useEffect, useMemo } from "react"
 import {
   HalfFloatType,
@@ -22,8 +21,6 @@ interface RendererProps {
 
 export function Renderer({ sceneChildren }: RendererProps) {
   const activeCamera = useCameraStore((state) => state.activeCamera)
-  const pathname = usePathname()
-  const isContact = pathname === "/contact"
 
   const mainTarget = useMemo(() => {
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
@@ -64,14 +61,10 @@ export function Renderer({ sceneChildren }: RendererProps) {
   useFrame(({ gl }) => {
     if (!cameraToRender || !postProcessingCamera) return
 
-    // TODO: Too janky, do sth else
-    // if (!isContact) {
     gl.outputColorSpace = LinearSRGBColorSpace
     gl.toneMapping = NoToneMapping
     gl.setRenderTarget(mainTarget)
-    // save render on main target
     gl.render(mainScene, cameraToRender)
-    // }
 
     gl.outputColorSpace = SRGBColorSpace
     gl.toneMapping = NoToneMapping

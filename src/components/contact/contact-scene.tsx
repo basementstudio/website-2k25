@@ -103,44 +103,15 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       (anim) => anim.name === ("R-Idle" as PhoneAnimationName)
     )
 
-    const leftIn = gltf.animations.find(
-      (anim) => anim.name === ("L-IN" as PhoneAnimationName)
-    )
-    const rightIn = gltf.animations.find(
-      (anim) => anim.name === ("R-IN" as PhoneAnimationName)
-    )
-
-    if (leftIn && rightIn && leftIdle && rightIdle) {
-      const leftInAction = mixer.clipAction(leftIn)
-      const rightInAction = mixer.clipAction(rightIn)
-
+    if (leftIdle && rightIdle) {
       const leftIdleAction = mixer.clipAction(leftIdle)
       const rightIdleAction = mixer.clipAction(rightIdle)
 
       leftIdleAction.setLoop(LoopRepeat, Infinity)
       rightIdleAction.setLoop(LoopRepeat, Infinity)
 
-      leftInAction.setLoop(LoopRepeat, 0)
-      rightInAction.setLoop(LoopRepeat, 0)
-
-      leftInAction.timeScale = 4
-      rightInAction.timeScale = 4
-
-      // TODO: in animations break the screen completely
-      // leftInAction.play()
-      // rightInAction.play()
-
-      leftInAction.clampWhenFinished = true
-      rightInAction.clampWhenFinished = true
-
-      const onEntranceComplete = () => {
-        leftIdleAction.play()
-        rightIdleAction.play()
-      }
-
-      const entranceDuration =
-        (Math.max(leftIn.duration, rightIn.duration) * 1000) / 2
-      setTimeout(onEntranceComplete, entranceDuration)
+      leftIdleAction.play()
+      rightIdleAction.play()
     }
   }, [gltf, glass])
 
