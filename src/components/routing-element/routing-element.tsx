@@ -12,14 +12,12 @@ interface RoutingElementProps {
   node: Mesh
   route: string
   hoverName: string
-  plusShapeScale: number
 }
 
 export const RoutingElement = ({
   node,
   route,
-  hoverName,
-  plusShapeScale
+  hoverName
 }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
@@ -87,22 +85,26 @@ export const RoutingElement = ({
   return (
     <>
       <group
-        onPointerEnter={() => {
+        onPointerEnter={(e) => {
+          e.stopPropagation()
           if (activeRoute) return
           setHover(true)
           router.prefetch(route)
           setCursorType("click")
           setHoverText(hoverName)
         }}
-        onPointerLeave={() => {
+        onPointerLeave={(e) => {
+          e.stopPropagation()
           if (activeRoute) return
           setHover(false)
           setHoverText(null)
           setCursorType("default")
         }}
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation()
           if (activeRoute) return
           navigate(route)
+          setCursorType("default")
         }}
       >
         <mesh
@@ -111,7 +113,7 @@ export const RoutingElement = ({
           position={[node.position.x, node.position.y, node.position.z]}
           rotation={node.rotation}
         >
-          <meshBasicMaterial transparent visible={false} />
+          <meshBasicMaterial transparent opacity={0} />
         </mesh>
       </group>
       {hover && (
@@ -121,7 +123,6 @@ export const RoutingElement = ({
             scale={[1, 1]}
             rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
             geometry={node.geometry}
-            plusShapeScale={plusShapeScale}
           />
         </>
       )}

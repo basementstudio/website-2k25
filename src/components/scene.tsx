@@ -39,9 +39,7 @@ export const Scene = () => {
     setIsCanvasTabMode,
     setCurrentTabIndex,
     currentTabIndex,
-    currentScene,
-    routeTabIndices,
-    setRouteTabIndex
+    currentScene
   } = useNavigationStore()
 
   useEffect(() => {
@@ -52,7 +50,13 @@ export const Scene = () => {
     setIsCanvasTabMode(isCanvasTabMode)
   }, [isCanvasTabMode, setIsCanvasTabMode])
 
-  const handleFocus = () => setIsCanvasTabMode(true)
+  const handleFocus = () => {
+    setIsCanvasTabMode(true)
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }
   const handleBlur = () => setIsCanvasTabMode(false)
 
   useKeyPress(
@@ -65,40 +69,46 @@ export const Scene = () => {
   )
 
   useEffect(() => {
-    if (currentTabIndex !== -1) setRouteTabIndex(pathname, currentTabIndex)
+    if (pathname !== "/") {
+      setCurrentTabIndex(0)
+      return
+    }
 
-    const previousIndex = routeTabIndices[pathname]
-
-    setCurrentTabIndex(previousIndex !== undefined ? previousIndex : 0)
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (currentTabIndex === -1) {
+      setCurrentTabIndex(0)
+    }
   }, [pathname])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Tab" && isCanvasTabMode) {
-        e.preventDefault()
-        const currentIndex = currentTabIndex
+      if (e.key === "Tab") {
+        if (!currentScene?.tabs || currentScene.tabs.length === 0) {
+          setIsCanvasTabMode(false)
+          return
+        }
 
-        if (e.shiftKey) {
-          const newIndex = currentIndex - 1
-          setCurrentTabIndex(newIndex)
-          setRouteTabIndex(pathname, newIndex)
+        if (isCanvasTabMode) {
+          e.preventDefault()
+          const currentIndex = currentTabIndex
 
-          if (currentIndex === 0) {
-            setCurrentTabIndex(-1)
-            setIsCanvasTabMode(false)
-          }
-        } else {
-          const newIndex = currentIndex + 1
-          setCurrentTabIndex(newIndex)
-          setRouteTabIndex(pathname, newIndex)
+          if (e.shiftKey) {
+            const newIndex = currentIndex - 1
+            setCurrentTabIndex(newIndex)
 
-          if (
-            currentScene?.tabs &&
-            currentIndex === currentScene.tabs.length - 1
-          ) {
-            setIsCanvasTabMode(false)
+            if (currentIndex === 0) {
+              setCurrentTabIndex(-1)
+              setIsCanvasTabMode(false)
+            }
+          } else {
+            const newIndex = currentIndex + 1
+            setCurrentTabIndex(newIndex)
+
+            if (
+              currentScene.tabs &&
+              currentIndex === currentScene.tabs.length - 1
+            ) {
+              setIsCanvasTabMode(false)
+            }
           }
         }
       }
@@ -109,7 +119,7 @@ export const Scene = () => {
       setCurrentTabIndex,
       currentTabIndex,
       currentScene,
-      pathname
+      setIsCanvasTabMode
     ]
   )
 
@@ -136,6 +146,7 @@ export const Scene = () => {
         eventSource={documentElement}
         eventPrefix="client"
         camera={{ fov: 60 }}
+        className="outline-none focus-visible:outline-none"
       >
         <Renderer
           sceneChildren={

@@ -33,6 +33,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
   const { setVolumeMaster } = useSiteAudio()
   const { handleNavigation } = useHandleNavigation()
   const isOnTab = useIsOnTab()
+
   const pathname = usePathname()
 
   const handleMute = () => {

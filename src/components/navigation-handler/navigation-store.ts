@@ -23,14 +23,16 @@ export const useNavigationStore = create<{
   currentTabIndex: number
   setCurrentTabIndex: (index: number) => void
 
-  routeTabIndices: TabIndices
-  setRouteTabIndex: (route: string, index: number) => void
+  previousTabIndex: number
+  setPreviousTabIndex: (index: number) => void
 
   stairVisibility: boolean
   setStairVisibility: (visibility: boolean) => void
 
   disableCameraTransition: boolean
   setDisableCameraTransition: (disable: boolean) => void
+
+  resetTabIndex: () => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
@@ -46,16 +48,15 @@ export const useNavigationStore = create<{
   currentTabIndex: -1,
   setCurrentTabIndex: (index) => set({ currentTabIndex: index }),
 
-  routeTabIndices: {},
-  setRouteTabIndex: (route, index) =>
-    set((state) => ({
-      routeTabIndices: { ...state.routeTabIndices, [route]: index }
-    })),
+  previousTabIndex: -1,
+  setPreviousTabIndex: (index) => set({ previousTabIndex: index }),
 
   stairVisibility: false,
   setStairVisibility: (visibility) => set({ stairVisibility: visibility }),
 
   disableCameraTransition: false,
   setDisableCameraTransition: (disable) =>
-    set({ disableCameraTransition: disable })
+    set({ disableCameraTransition: disable }),
+
+  resetTabIndex: () => set({ currentTabIndex: 0 })
 }))

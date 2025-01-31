@@ -149,10 +149,8 @@ export const Map = memo(() => {
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
-    // Match routing elements with current scene tabs
     routingElementsModel.traverse((child) => {
       if (child instanceof Mesh) {
-        // Assuming the mesh names in the model match with tab names
         const matchingTab = currentScene?.tabs?.find((tab) =>
           child.name.includes(tab.tabClickableName)
         )
@@ -340,7 +338,6 @@ export const Map = memo(() => {
             node={node}
             route={matchingTab?.tabRoute ?? ""}
             hoverName={matchingTab?.tabHoverName ?? node.name}
-            plusShapeScale={matchingTab?.plusShapeScale ?? 1}
           />
         )
       })}

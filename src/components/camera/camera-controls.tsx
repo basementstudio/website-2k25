@@ -114,6 +114,8 @@ export const CustomCamera = () => {
     const plane = planeRef.current
     const boundary = planeBoundaryRef.current
 
+    console.log(animationProgress.current)
+
     if (!plane || !boundary || !controls || !cameraConfig) return
 
     if (disableCameraTransition || firstRender) {
