@@ -15,7 +15,7 @@ interface CarState {
 }
 
 const CONSTANTS = {
-  BASE_SPEED: 0.25,
+  BASE_SPEED: 0.2,
   START_X: -8.7,
   END_X: 9.5,
   MIN_WAIT_TIME: 6000,
@@ -135,8 +135,8 @@ export const useCarAnimation = ({ car }: { car: Mesh | null }) => {
   useEffect(() => {
     if (!car) return
 
-    const frontWheels = car.getObjectByName("SM_FWells") as Mesh
-    const backWheels = car.getObjectByName("SM_BWells") as Mesh
+    const frontWheels = car.getObjectByName("SM_FWheels") as Mesh
+    const backWheels = car.getObjectByName("SM_BWheels") as Mesh
 
     if (frontWheels) wheelMeshes.current.push(frontWheels)
     if (backWheels) wheelMeshes.current.push(backWheels)
