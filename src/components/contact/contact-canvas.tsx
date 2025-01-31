@@ -2,12 +2,14 @@
 import { Canvas } from "@react-three/offscreen"
 import { lazy, useEffect, useState } from "react"
 
+import { useCameraStore } from "@/store/app-store"
+
 import { useAssets } from "../assets-provider"
 
 const Fallback = lazy(() => import("./fallback"))
 
-const ContactCanvas = () => {
-  const { contactPhone, arcade } = useAssets()
+const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
+  const { contactPhone } = useAssets()
   const [worker, setWorker] = useState<Worker>()
 
   useEffect(() => {
@@ -19,18 +21,17 @@ const ContactCanvas = () => {
     )
     setWorker(newWorker)
 
-    if (contactPhone && arcade) {
+    if (contactPhone) {
       newWorker.postMessage({
         type: "load-model",
-        modelUrl: contactPhone,
-        idleUrl: arcade.idleScreen
+        modelUrl: contactPhone
       })
     }
 
     return () => {
       newWorker.terminate()
     }
-  }, [contactPhone, arcade])
+  }, [contactPhone])
 
   console.log("[ContactCanvas] model url", contactPhone)
 
@@ -43,6 +44,7 @@ const ContactCanvas = () => {
       worker={worker}
       fallback={<Fallback />}
       shadows
+      frameloop={isContactOpen ? "always" : "never"}
       camera={{ position: [0, 0.082, 5.25], fov: 25 }}
       gl={{ antialias: false }}
     />
@@ -50,41 +52,3 @@ const ContactCanvas = () => {
 }
 
 export default ContactCanvas
-
-// "use client"
-// import { Canvas } from "@react-three/offscreen"
-// import { lazy } from "react"
-
-// import { useAssets } from "../assets-provider"
-
-// const Fallback = lazy(() => import("./fallback"))
-
-// const worker = new Worker(
-//   new URL("@/workers/contact-worker.tsx", import.meta.url),
-//   {
-//     type: "module"
-//   }
-// )
-
-// const ContactCanvas = () => {
-//   const { contactPhone, arcade } = useAssets()
-//   console.log("[ContactCanvas] model url", contactPhone)
-
-//   worker.postMessage({
-//     type: "load-model",
-//     modelUrl: contactPhone,
-//     idleUrl: arcade.idleScreen
-//   })
-
-//   return (
-//     <Canvas
-//       worker={worker}
-//       fallback={<Fallback />}
-//       shadows
-//       camera={{ position: [0, 0.082, 5.25], fov: 25 }}
-//       gl={{ antialias: false }}
-//     />
-//   )
-// }
-
-// export default ContactCanvas

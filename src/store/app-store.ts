@@ -65,6 +65,7 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   cameraConfig: CAMERA_STATES.home,
   cameraStates: CAMERA_STATES, // Initialize with default states
   camera: null,
+  isContactOpen: false,
   setCamera: (camera) => set({ camera }),
   setCameraState: (state) => {
     if (state === get().cameraState) return
@@ -94,6 +95,5 @@ export const useCameraStore = create<CameraStore>((set, get) => ({
   disablePostprocessing: false,
   setDisablePostprocessing: (value) => set({ disablePostprocessing: value }),
 
-  isContactOpen: false,
   setContactOpen: (open) => set({ isContactOpen: open })
 }))

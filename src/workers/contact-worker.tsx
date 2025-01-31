@@ -7,9 +7,9 @@ console.log("OffscreenCanvas support:", typeof OffscreenCanvas !== "undefined")
 self.onmessage = (
   e: MessageEvent<{ type: string; modelUrl: string; idleUrl: string }>
 ) => {
-  const { type, modelUrl, idleUrl } = e.data
+  const { type, modelUrl } = e.data
   if (type === "load-model") {
-    console.log("[ContactWorker] loading model", modelUrl, idleUrl)
+    console.log("[ContactWorker] loading model", modelUrl)
     render(<ContactScene modelUrl={modelUrl} />)
   }
 }
