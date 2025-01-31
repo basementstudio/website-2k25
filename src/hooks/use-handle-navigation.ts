@@ -41,11 +41,10 @@ export const useHandleNavigation = () => {
         document.documentElement.dataset.flip = "true"
         setCurrentScene(selectedScene)
         setDisableCameraTransition(true)
-        router.push(route, { scroll: false })
 
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: "instant" })
-
+          router.push(route, { scroll: false })
           setTimeout(
             () => (document.documentElement.dataset.flip = "false"),
             10
