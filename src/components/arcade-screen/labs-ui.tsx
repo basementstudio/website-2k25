@@ -1,9 +1,10 @@
 import { Container, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
 
 import { GameCovers } from "./game-covers"
@@ -38,23 +39,15 @@ export const LabsUI = () => {
   const [experimentsContributors, setExperimentsContributors] = useState<
     Record<string, Contributor[]>
   >({})
+  const { handleNavigation } = useHandleNavigation()
 
-  const router = useRouter()
-  const pathname = usePathname()
-  const handleNavigation = useCallback(
-    (route: string) => {
-      router.push(route, { scroll: false })
-    },
-    [router]
-  )
+  const scene = useCurrentScene()
 
   useKeyPress(
     "Escape",
     useCallback(() => {
-      if (pathname.startsWith("/lab")) {
-        handleNavigation("/")
-      }
-    }, [handleNavigation, pathname])
+      if (scene === "lab") handleNavigation("/")
+    }, [handleNavigation, scene])
   )
 
   useEffect(() => {

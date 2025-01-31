@@ -1,11 +1,11 @@
 "use client"
 
 import { Geist_Mono } from "next/font/google"
-import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 
 import { ArcadeNameInput } from "@/components/basketball/arcade-name-input"
 import Scoreboard from "@/components/basketball/scoreboard"
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 
@@ -21,7 +21,7 @@ const Basketball = () => {
     setHasPlayed,
     timeRemaining
   } = useMinigameStore()
-  const router = useRouter()
+  const { handleNavigation } = useHandleNavigation()
 
   const handlePlayAgain = () => {
     setReadyToPlay(true)
@@ -29,8 +29,8 @@ const Basketball = () => {
   }
 
   const handleCloseGame = useCallback(() => {
-    router.push("/")
-  }, [router])
+    handleNavigation("/")
+  }, [handleNavigation])
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)

@@ -9,8 +9,6 @@ import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
-import { useNavigationStore } from "../navigation-handler/navigation-store"
-
 const Logo = ({ className }: { className?: string }) => (
   <svg
     fill="currentColor"

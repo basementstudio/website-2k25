@@ -4,7 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { useMotionValue } from "motion/react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import {
   Box3,
@@ -21,6 +21,8 @@ import {
   TARGET_SIZE,
   X_OFFSET
 } from "@/constants/inspectables"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
@@ -38,6 +40,7 @@ interface InspectableProps {
 export const Inspectable = ({ inspectable }: InspectableProps) => {
   const { scene } = useGLTF(inspectable.url)
   const { selected } = useInspectable()
+  const currentScene = useCurrentScene()
   const [size, setSize] = useState<[number, number, number]>([0, 0, 0])
 
   const targetPosition = useRef({
@@ -56,10 +59,12 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
   const { setSelected } = useInspectable()
   const setCursorType = useMouseStore((state) => state.setCursorType)
-  const router = useRouter()
   const pathname = usePathname()
+  const { handleNavigation } = useHandleNavigation()
 
-  const isInspectableEnabled = pathname.startsWith("/showcase")
+  // TODO: create an abstraction for inspectables group that can be enabled for each scene
+  const isInspectableEnabled =
+    pathname.startsWith("/showcase") || currentScene === "lab"
 
   useEffect(() => {
     if (ref.current) {
@@ -78,10 +83,11 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
   useKeyPress(
     "Escape",
     useCallback(() => {
+      // TODO: allow inspectables group that can be enabled for each scene
       if (pathname.startsWith("/showcase") && !selected) {
-        router.push("/", { scroll: false })
+        handleNavigation("/")
       }
-    }, [pathname, selected, router])
+    }, [pathname, selected, handleNavigation])
   )
 
   const handleAnimation = (withAnimation: boolean) => {

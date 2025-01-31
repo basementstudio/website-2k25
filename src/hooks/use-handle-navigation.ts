@@ -24,7 +24,7 @@ export const useHandleNavigation = () => {
 
       if (!selectedScene) return
 
-      setStairVisibility(selectedScene.name !== "")
+      setStairVisibility(true)
 
       if (window.scrollY < window.innerHeight) {
         window.scrollTo({ top: 0, behavior: "smooth" })

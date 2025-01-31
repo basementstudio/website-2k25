@@ -6,8 +6,10 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
-import { useInspectable } from "../inspectables/context"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
+import { useInspectable } from "@/components/inspectables/context"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+
 import {
   calculateMovementVectors,
   calculateNewPosition,
@@ -19,6 +21,7 @@ import {
 export const CustomCamera = () => {
   const pathname = usePathname()
 
+  const currentScene = useCurrentScene()
   const { selected } = useInspectable()
 
   const [firstRender, setFirstRender] = useState(true)
@@ -95,7 +98,7 @@ export const CustomCamera = () => {
     window.addEventListener("scroll", handleScroll, { passive: true })
 
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [cameraConfig, pathname])
+  }, [cameraConfig])
 
   const calculateDivisor = useCallback(() => {
     const width = window.innerWidth
@@ -139,7 +142,7 @@ export const CustomCamera = () => {
         1
       )
 
-      if (pathname === "/" && animationProgress.current === 1)
+      if (currentScene === "home" && animationProgress.current > 0.6)
         setStairVisibility(false)
 
       controls.getPosition(currentPos)
