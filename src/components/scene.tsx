@@ -4,6 +4,7 @@ import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
+import dynamic from "next/dynamic"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
@@ -12,17 +13,16 @@ import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useKeyPress } from "@/hooks/use-key-press"
 
-const HoopMinigame = dynamic(
-  () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
-  { ssr: false }
-)
-
+import { CameraController } from "./camera/camera-controller"
 import { Map } from "./map/map"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
-import dynamic from "next/dynamic"
-import { CameraController } from "./camera/camera-controller"
+
+const HoopMinigame = dynamic(
+  () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
+  { ssr: false }
+)
 
 export const Scene = () => {
   const pathname = usePathname()

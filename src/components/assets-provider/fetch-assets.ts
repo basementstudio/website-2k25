@@ -8,6 +8,7 @@ export interface AssetsResult {
   godrays: string
   basketball: string
   basketballNet: string
+  contactPhone: string
   routingElements: string
   mapAssets: {
     mesh: string
@@ -110,6 +111,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
     ),
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
+    contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
     sfx: {
       basketballTheme: threeDInteractions.sfx.basketballTheme?.url ?? "",
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
