@@ -171,6 +171,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
             return
           }
           setSelected(inspectable.id)
+          setCursorType("default")
         }}
         ref={ref}
         onPointerEnter={() => {

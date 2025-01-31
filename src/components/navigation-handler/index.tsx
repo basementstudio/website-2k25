@@ -13,6 +13,14 @@ export const NavigationHandler = () => {
 
   const scenes: IScene[] = useAssets().scenes
   const setScenes = useNavigationStore((state) => state.setScenes)
+  const setPreviousTabIndex = useNavigationStore(
+    (state) => state.setPreviousTabIndex
+  )
+  const previousTabIndex = useNavigationStore((state) => state.previousTabIndex)
+  const setCurrentTabIndex = useNavigationStore(
+    (state) => state.setCurrentTabIndex
+  )
+
   useEffect(() => {
     setScenes(scenes)
   }, [scenes])
@@ -23,6 +31,30 @@ export const NavigationHandler = () => {
 
     setSelected(null)
 
+    const homeScene = scenes.find(
+      (scene) => scene.name.toLowerCase() === "home"
+    )
+
+    if (pathname === "/" && homeScene?.tabs) {
+      if (previousTabIndex !== -1) {
+        const matchingTabIndex = homeScene.tabs.findIndex(
+          (tab) =>
+            tab.tabClickableName ===
+            homeScene.tabs[previousTabIndex]?.tabClickableName
+        )
+        setCurrentTabIndex(matchingTabIndex !== -1 ? matchingTabIndex : 0)
+      } else {
+        setCurrentTabIndex(0)
+      }
+    } else if (pathname !== "/" && homeScene?.tabs) {
+      const tabIndex = homeScene.tabs.findIndex((tab) =>
+        pathname.startsWith(`/${tab.tabRoute.toLowerCase()}`)
+      )
+      if (tabIndex !== -1) {
+        setPreviousTabIndex(tabIndex)
+      }
+    }
+
     const currentScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
@@ -31,7 +63,14 @@ export const NavigationHandler = () => {
     if (currentScene) {
       setCurrentScene(currentScene)
     }
-  }, [pathname, scenes, setSelected])
+  }, [
+    pathname,
+    scenes,
+    setSelected,
+    setPreviousTabIndex,
+    setCurrentTabIndex,
+    previousTabIndex
+  ])
 
   return <></>
 }
