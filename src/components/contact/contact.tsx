@@ -2,15 +2,14 @@
 import { useEffect } from "react"
 
 import { useKeyPress } from "@/hooks/use-key-press"
-import { useCameraStore } from "@/store/app-store"
 
 import ContactCanvas from "./contact-canvas"
+import { useContactStore } from "./contact-store"
 
 const Contact = () => {
-  const { setContactOpen } = useCameraStore()
-  const { isContactOpen } = useCameraStore()
+  const { setIsContactOpen, isContactOpen } = useContactStore()
 
-  useKeyPress("Escape", () => setContactOpen(false))
+  useKeyPress("Escape", () => setIsContactOpen(false))
 
   useEffect(() => {
     if (isContactOpen) {

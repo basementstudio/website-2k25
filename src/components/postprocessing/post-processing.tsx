@@ -2,15 +2,19 @@ import { OrthographicCamera } from "@react-three/drei"
 import { useControls } from "leva"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
-import { ShaderMaterial, Texture, Vector2 } from "three"
-
-import { useCameraStore } from "@/store/app-store"
+import {
+  OrthographicCamera as ThreeOrthographicCamera,
+  ShaderMaterial,
+  Texture,
+  Vector2
+} from "three"
 
 import postFrag from "./post.frag"
 import postVert from "./post.vert"
 
 interface PostProcessingProps {
   mainTexture: Texture
+  cameraRef: React.RefObject<ThreeOrthographicCamera | null>
 }
 
 const material = new ShaderMaterial({
@@ -45,7 +49,10 @@ const material = new ShaderMaterial({
   }
 })
 
-export function PostProcessing({ mainTexture }: PostProcessingProps) {
+export function PostProcessing({
+  mainTexture,
+  cameraRef
+}: PostProcessingProps) {
   const pathname = usePathname()
 
   useControls("basics", {
@@ -261,6 +268,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     <>
       <OrthographicCamera
         manual
+        ref={cameraRef}
         position={[0, 0, 1]}
         left={-0.5}
         right={0.5}
@@ -268,10 +276,6 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         bottom={-0.5}
         near={0.1}
         far={1000}
-        ref={(r) => {
-          // @ts-ignore
-          if (r) useCameraStore.setState({ postProcessingCamera: r })
-        }}
       />
       <mesh>
         <planeGeometry args={[1, 1]} />

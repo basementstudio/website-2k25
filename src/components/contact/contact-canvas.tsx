@@ -2,8 +2,6 @@
 import { Canvas } from "@react-three/offscreen"
 import { lazy, useEffect, useState } from "react"
 
-import { useCameraStore } from "@/store/app-store"
-
 import { useAssets } from "../assets-provider"
 
 const Fallback = lazy(() => import("./fallback"))

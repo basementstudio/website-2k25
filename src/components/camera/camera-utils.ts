@@ -1,12 +1,12 @@
 import { PerspectiveCamera } from "three"
 
-import { CameraState } from "@/store/app-store"
+import { ICameraConfig } from "../navigation-handler/navigation.interface"
 
 export const easeInOutCubic = (x: number): number => {
   return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
 }
 
-export const calculatePlanePosition = (cameraConfig: CameraState) => {
+export const calculatePlanePosition = (cameraConfig: ICameraConfig) => {
   const [px, py, pz] = cameraConfig.position
   const [tx, ty, tz] = cameraConfig.target
   const direction = {
@@ -25,7 +25,7 @@ export const calculatePlanePosition = (cameraConfig: CameraState) => {
 
 export const calculateMovementVectors = (
   basePosition: [number, number, number],
-  cameraConfig: CameraState
+  cameraConfig: ICameraConfig
 ) => {
   const cameraPos = cameraConfig.position
 
@@ -59,7 +59,7 @@ export const calculateNewPosition = (
 export const calculateViewDimensions = (
   camera: PerspectiveCamera,
   distance: number,
-  cameraConfig: CameraState
+  cameraConfig: ICameraConfig
 ) => {
   const fovRadians = ((cameraConfig.fov ?? 55) * Math.PI) / 180
   const height = 2 * Math.tan(fovRadians / 2) * distance

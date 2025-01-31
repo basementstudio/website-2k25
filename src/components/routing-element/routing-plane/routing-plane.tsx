@@ -41,25 +41,38 @@ export const RoutingPlane = ({
     () =>
       new ShaderMaterial({
         uniforms: {
-          color: { value: [1.0, 1.0, 1.0] }
+          color: { value: [1.0, 1.0, 1.0] },
+          baseSize: { value: 0.05 },
+          minViewSize: { value: 0.01 }
         },
         vertexShader: `
-      varying vec2 vUv;
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
+          uniform float baseSize;
+          uniform float minViewSize;
+          varying vec2 vUv;
+
+          void main() {
+            vUv = uv;
+            
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            float distanceToCamera = length(cameraPosition - worldPosition.xyz);
+            
+            float scaleFactor = max(minViewSize, baseSize * pow(distanceToCamera / 5.0, 1.2));
+            float scale = scaleFactor / baseSize;
+            
+            vec3 scaledPosition = position * scale;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(scaledPosition, 1.0);
+          }
+        `,
         fragmentShader: `
-      varying vec2 vUv;
-      void main() {
-        float thickness = 0.2;
-        float vertical = step(0.5 - thickness/2.0, vUv.x) * step(vUv.x, 0.5 + thickness/2.0);
-        float horizontal = step(0.5 - thickness/2.0, vUv.y) * step(vUv.y, 0.5 + thickness/2.0);
-        float plus = max(vertical, horizontal);
-        gl_FragColor = vec4(vec3(1.0), plus);
-      }
-    `,
+          varying vec2 vUv;
+          void main() {
+            float thickness = 0.2;
+            float vertical = step(0.5 - thickness/2.0, vUv.x) * step(vUv.x, 0.5 + thickness/2.0);
+            float horizontal = step(0.5 - thickness/2.0, vUv.y) * step(vUv.y, 0.5 + thickness/2.0);
+            float plus = max(vertical, horizontal);
+            gl_FragColor = vec4(vec3(1.0), plus);
+          }
+        `,
         transparent: true,
         depthTest: false
       }),
@@ -93,7 +106,7 @@ export const RoutingPlane = ({
                 material={squareMaterial}
                 position={[x, y, z]}
                 quaternion={quaternion}
-                scale={[1 / scale[0], 1 / scale[1], 1]}
+                scale={[1, 1, 1]}
               />
             )
           }
