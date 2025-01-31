@@ -17,13 +17,14 @@ const HoopMinigame = dynamic(
   { ssr: false }
 )
 
+import dynamic from "next/dynamic"
+
 import { CustomCamera } from "./camera/camera-controls"
 import { Map } from "./map/map"
 import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
-import dynamic from "next/dynamic"
 
 export const Scene = () => {
   const pathname = usePathname()
