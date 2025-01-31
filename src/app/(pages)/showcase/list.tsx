@@ -56,10 +56,10 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
             >
               <div className="relative col-span-5 flex items-center gap-2 text-h3 text-brand-w2 transition-opacity duration-300">
                 <Image
-                  src={item.icon?.url ?? ""}
-                  alt={item.icon?.alt ?? ""}
-                  width={item.icon?.width ?? 0}
-                  height={item.icon?.height ?? 0}
+                  src={item.project?.icon?.url ?? ""}
+                  alt={item.project?.icon?.alt ?? ""}
+                  width={item.project?.icon?.width ?? 0}
+                  height={item.project?.icon?.height ?? 0}
                   className="mb-px size-4.5 rounded-full border border-brand-w1/10"
                 />
                 <p>{item.project?.client?._title}</p>
@@ -79,7 +79,7 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
                 {item.project?.year}
               </p>
               <Link
-                href={`/projects/${item.project?._slug}`}
+                href={`/showcase/${item.project?._slug}`}
                 className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 opacity-0 transition-opacity duration-300"
               >
                 <span className="actionable">View Work</span>{" "}

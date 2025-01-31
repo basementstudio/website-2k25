@@ -3,6 +3,7 @@ import { Pump } from "basehub/react-pump"
 import { Contact } from "@/components/layout/contact"
 
 import { Brands } from "./brands"
+import { FeaturedProjects } from "./featured-projects"
 import { Intro } from "./intro"
 import { query } from "./query"
 
@@ -16,6 +17,7 @@ const Homepage = () => {
           <div className="flex flex-col gap-44">
             <Intro data={data} />
             <Brands data={data} />
+            <FeaturedProjects data={data} />
             <Contact />
           </div>
         )

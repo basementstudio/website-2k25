@@ -40,9 +40,9 @@ export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
           items: {
             project: {
               _title: true,
-              _slug: true
-            },
-            icon: IMAGE_FRAGMENT
+              _slug: true,
+              icon: IMAGE_FRAGMENT
+            }
           }
         }
       }
@@ -57,17 +57,17 @@ export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
         <div />
         {entry.pages.projects.projectList.items.map((item, index) => (
           <Link
-            href={`/projects/${item.project?._slug}`}
+            href={`/showcase/${item.project?._slug}`}
             key={index}
-            className="flex items-center justify-between pb-1.75 pt-1.5 text-p font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1"
+            className="flex items-center justify-between pb-1.75 pt-1.5 !text-p font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1"
           >
             <span className="flex items-center gap-1.75">
-              {item.icon ? (
+              {item.project?.icon ? (
                 <span className="relative size-4.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
                   <Image
-                    src={item.icon?.url}
+                    src={item.project?.icon?.url}
                     fill
-                    alt={item.icon?.alt || "Client logo"}
+                    alt={item.project?.icon?.alt || "Client logo"}
                   />
                 </span>
               ) : null}

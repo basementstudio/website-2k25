@@ -28,6 +28,28 @@ export const query = fragmentOn("Query", {
           website: true
         }
       }
+    },
+    projects: {
+      projectList: {
+        __args: {
+          filter: {
+            featured: true
+          }
+        },
+        items: {
+          _title: true,
+          description: {
+            json: {
+              content: true
+            }
+          },
+          categories: {
+            _title: true
+          },
+          _slug: true,
+          cover: IMAGE_FRAGMENT
+        }
+      }
     }
   }
 })
