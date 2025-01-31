@@ -167,7 +167,7 @@ export const Map = memo(() => {
     const originalNet = officeModel.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel.getObjectByName("SM_BasketRed-v2")
 
-    const carMesh = outdoorModel.getObjectByName("Car01")
+    const carMesh = outdoorModel.getObjectByName("car01")
 
     if (hoopMesh) setBasketballHoop(hoopMesh)
     if (originalNet) originalNet.removeFromParent()
