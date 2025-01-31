@@ -1,4 +1,4 @@
-import { MeshStandardMaterial, Texture, Vector3 } from "three"
+import { MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
@@ -9,7 +9,6 @@ export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
-  reverse: boolean,
   defines?: {
     GLASS?: boolean
     GODRAY?: boolean
@@ -22,10 +21,10 @@ export const createGlobalShaderMaterial = (
     metalness,
     roughness,
     alphaMap,
-    emissiveMap
+    emissiveMap,
+    emissive = new Color(0, 0, 0),
+    emissiveIntensity = 1.0
   } = baseMaterial
-
-  const emissiveColor = new Color("#FF4D00").multiplyScalar(9)
 
   const material = new ShaderMaterial({
     name: GLOBAL_SHADER_MATERIAL_NAME,
@@ -40,9 +39,7 @@ export const createGlobalShaderMaterial = (
       GODRAY: defines?.GODRAY
     },
     uniforms: {
-      uColor: { value: emissiveColor },
-      uProgress: { value: 0.0 },
-      uReverse: { value: reverse },
+      uColor: { value: baseColor },
       map: { value: map },
       lightMap: { value: null },
       lightMapIntensity: { value: 0.0 },
@@ -59,15 +56,14 @@ export const createGlobalShaderMaterial = (
       uLoaded: { value: 0 },
       uTime: { value: 0.0 },
       alphaMap: { value: alphaMap },
-      emissive: { value: baseMaterial.emissive || new Vector3() },
-      emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
+      emissive: { value: emissive },
+      emissiveIntensity: { value: emissiveIntensity },
       fogColor: { value: new Vector3(0.4, 0.4, 0.4) },
       fogDensity: { value: 0.05 },
       fogDepth: { value: 6.0 },
       uJitter: { value: 512.0 },
       glassReflex: { value: null },
       emissiveMap: { value: emissiveMap },
-
       aoWithCheckerboard: { value: false },
       isBasketball: { value: false },
       uBasketballTransition: { value: 0 },

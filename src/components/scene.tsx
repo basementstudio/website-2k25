@@ -19,7 +19,6 @@ const HoopMinigame = dynamic(
 
 import { CustomCamera } from "./camera/camera-controls"
 import { Map } from "./map/map"
-import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
@@ -153,7 +152,6 @@ export const Scene = () => {
             <>
               <color attach="background" args={["#000"]} />
               <CustomCamera />
-              <MapWire />
               <Inspectables />
               <Environment preset="studio" />
               <Sparkles />

@@ -90,25 +90,6 @@ void main() {
     noiseBigScale,
     noiseSmallScale
   );
-  // Distance from center
-  float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));
-
-  float distantceOffset = voxel.noiseBig * noiseFactor;
-  dist += distantceOffset * 2.0;
-
-  // Wave effect
-  float wave = step(dist, uProgress * 20.0);
-  float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
-
-  // Render as wireframe
-  if (uReverse) {
-    gl_FragColor = vec4(uColor, 1.0);
-
-    if (wave <= 0.0) {
-      discard;
-    }
-    return;
-  }
 
   // Render as solid color
 
@@ -153,15 +134,8 @@ void main() {
     irradiance *= lightMapSample * transitionedLightMapIntensity;
   }
 
-  // Combine wave color
-  irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
-
-  // Reverse the opacity calculation and apply wave effect
-  float opacityResult;
-
-  opacityResult = 1.0 - wave;
-  opacityResult *= opacity;
-  irradiance = mix(irradiance, uColor, wave);
+  // Simple opacity handling
+  float opacityResult = opacity;
 
   #ifdef IS_TRANSPARENT
   float mapAlpha = mapSample.a;

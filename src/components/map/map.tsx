@@ -223,18 +223,13 @@ export const Map = memo(() => {
 
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
-              createGlobalShaderMaterial(
-                material as MeshStandardMaterial,
-                false,
-                {
-                  GLASS: isGlass,
-                  GODRAY: false
-                }
-              )
+              createGlobalShaderMaterial(material as MeshStandardMaterial, {
+                GLASS: isGlass,
+                GODRAY: false
+              })
             )
           : createGlobalShaderMaterial(
               currentMaterial as MeshStandardMaterial,
-              false,
               {
                 GLASS: isGlass,
                 GODRAY: false
@@ -269,17 +264,12 @@ export const Map = memo(() => {
 
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
-              createGlobalShaderMaterial(
-                material as MeshStandardMaterial,
-                false,
-                {
-                  GODRAY: true
-                }
-              )
+              createGlobalShaderMaterial(material as MeshStandardMaterial, {
+                GODRAY: true
+              })
             )
           : createGlobalShaderMaterial(
               currentMaterial as MeshStandardMaterial,
-              false,
               {
                 GODRAY: true
               }
