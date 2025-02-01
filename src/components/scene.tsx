@@ -17,11 +17,13 @@ const HoopMinigame = dynamic(
   { ssr: false }
 )
 
+import dynamic from "next/dynamic"
+
 import { Map } from "./map/map"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
-import dynamic from "next/dynamic"
+
 import { CameraController } from "./camera/camera-controller"
 
 export const Scene = () => {
