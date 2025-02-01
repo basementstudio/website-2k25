@@ -143,7 +143,6 @@ export const Scene = () => {
           toneMapping: THREE.ACESFilmicToneMapping
         }}
         eventSource={documentElement}
-        eventPrefix="client"
         camera={{ fov: 60 }}
         className="outline-none focus-visible:outline-none"
       >
