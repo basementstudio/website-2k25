@@ -25,6 +25,10 @@ export const HoopMinigame = () => {
 
   useEffect(() => {
     setIsBasketball(isBasketball)
+
+    return () => {
+      setIsBasketball(false)
+    }
   }, [isBasketball, setIsBasketball])
 
   const ballRef = useRef<RapierRigidBody>(null)
