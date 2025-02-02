@@ -14,7 +14,8 @@ body {
 .layout-container {
   --position: 100%;
   mask-image: var(--mask-in);
-  transition: mask-position var(--speed) var(--speed) steps(var(--mask-frames));
+  transition: mask-position var(--speed) calc(var(--speed) * 0)
+    steps(var(--mask-frames));
 }
 
 .canvas-container {
@@ -37,9 +38,8 @@ body {
 
   .canvas-container {
     --position: 100%;
-    transition:
-      mask-position var(--speed) var(--speed) steps(var(--mask-frames)),
-      transform var(--speed) steps(var(--mask-frames));
+    transition: mask-position var(--speed) calc(var(--speed) * 0)
+      steps(var(--mask-frames));
   }
 }
 

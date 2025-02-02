@@ -7,8 +7,7 @@ import { useEffect } from "react"
 const config = {
   cells: 32,
   frames: 12,
-  speed: 0.5,
-  delay: 0
+  speed: 1.5
 }
 
 export const Transitions = () => {
@@ -16,10 +15,6 @@ export const Transitions = () => {
     document.documentElement.style.setProperty(
       "--mask-speed",
       config.speed.toString()
-    )
-    document.documentElement.style.setProperty(
-      "--mask-delay",
-      config.delay.toString()
     )
 
     // basic array shuffling function

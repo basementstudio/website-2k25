@@ -133,7 +133,7 @@ export const CustomCamera = () => {
         controls.camera.updateProjectionMatrix()
       }
 
-      setTimeout(() => setDisableCameraTransition(false), 500)
+      setTimeout(() => setDisableCameraTransition(false), 1500)
       setFirstRender(false)
     } else if (animationProgress.current < 1) {
       // Handle camera transition animation
