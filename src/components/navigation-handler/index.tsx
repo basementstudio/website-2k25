@@ -13,7 +13,7 @@ import { useNavigationStore } from "./navigation-store"
 export const NavigationHandler = () => {
   const pathname = usePathname()
   const { setSelected } = useInspectable()
-
+  const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
   const scenes: IScene[] = useAssets().scenes
   const setScenes = useNavigationStore((state) => state.setScenes)
 
@@ -57,6 +57,15 @@ export const NavigationHandler = () => {
       )
       if (tabIndex !== -1) setPreviousTabIndex(tabIndex)
     }
+
+    const currentScene =
+      pathname === "/"
+        ? scenes.find((scene) => scene.name.toLowerCase() === "home")
+        : scenes.find((scene) => scene.name === pathname.split("/")[1])
+
+    if (currentScene && currentScene.name !== scene)
+      setCurrentScene(currentScene)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     scenes,
