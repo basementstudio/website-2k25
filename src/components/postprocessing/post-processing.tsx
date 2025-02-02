@@ -219,8 +219,6 @@ export function PostProcessing({
     const isBasketball = pathname === "/basketball"
     const startSaturationValue = material.uniforms.uSaturation.value
     const endSaturationValue = isBasketball ? 0.0 : 1.0
-    const startContrastValue = material.uniforms.uContrast.value
-    const endContrastValue = isBasketball ? 1.63 : 1.02
     const startVignetteValue = material.uniforms.uVignetteStrength.value
     const endVignetteValue = isBasketball ? 1.0 : 0.0
     const duration = 800
@@ -241,10 +239,6 @@ export function PostProcessing({
       material.uniforms.uSaturation.value =
         startSaturationValue +
         (endSaturationValue - startSaturationValue) * easeProgress
-
-      // material.uniforms.uContrast.value =
-      //   startContrastValue +
-      //   (endContrastValue - startContrastValue) * easeProgress
 
       material.uniforms.uVignetteStrength.value =
         startVignetteValue +
