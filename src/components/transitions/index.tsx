@@ -5,18 +5,14 @@ import "./transitions.css"
 import { useEffect } from "react"
 
 const config = {
-  theme: "system",
   cells: 32,
   frames: 12,
   speed: 0.5,
   delay: 0
 }
 
-let createSprites
-
 export const Transitions = () => {
   useEffect(() => {
-    document.documentElement.dataset.theme = config.theme
     document.documentElement.style.setProperty(
       "--mask-speed",
       config.speed.toString()
@@ -111,7 +107,7 @@ export const Transitions = () => {
       return { svg, dataURL }
     }
 
-    createSprites = () => {
+    const createSprites = () => {
       const { dataURL: outURL } = generateSprite("o")
       const { dataURL: inURL } = generateSprite("i")
       document.documentElement.style.setProperty("--mask-in", `url(${inURL})`)
