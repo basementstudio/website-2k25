@@ -62,7 +62,6 @@ export const Crew = ({ data }: { data: QueryType }) => {
                           <Link
                             href={socialNetwork.link as string}
                             className="actionable bg-brand-0 text-brand-w1"
-                            target="_blank"
                           >
                             {socialNetwork.platform}
                           </Link>

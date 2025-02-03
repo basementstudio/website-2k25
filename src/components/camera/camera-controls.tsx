@@ -172,8 +172,8 @@ export const CustomCamera = () => {
       targetLookAt.set(...cameraConfig.target)
       targetFov.current = cameraConfig.fov ?? 60
 
-      targetPosition.y += offsetY.current
-      targetLookAt.y += offsetY.current
+      // targetPosition.y += offsetY.current
+      // targetLookAt.y += offsetY.current
 
       // update current targets
       currentPos.lerp(targetPosition, easeValue)
@@ -195,75 +195,67 @@ export const CustomCamera = () => {
         controls.camera.updateProjectionMatrix()
       }
     } else {
-      // Only allow camera movement if no inspectable is selected
-      // if (pathname !== "/basketball" && !selected) {
-      //   const maxOffset = (boundary.scale.x - plane.scale.x) / 2
-      //   const basePosition = calculatePlanePosition(cameraConfig)
-      //   const rightVector = calculateMovementVectors(
-      //     basePosition,
-      //     cameraConfig
-      //   )
+      if (pathname !== "/basketball" && !selected) {
+        const maxOffset = (boundary.scale.x - plane.scale.x) / 2
+        const basePosition = calculatePlanePosition(cameraConfig)
+        const rightVector = calculateMovementVectors(basePosition, cameraConfig)
 
-      //   const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
-      //   const offset = pointer.x * maxOffset * offsetMultiplier
+        const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
+        const offset = pointer.x * maxOffset * offsetMultiplier * 2
 
-      //   // Update plane position
-      //   const targetPos = {
-      //     x: basePosition[0] + rightVector.x * offset,
-      //     z: basePosition[2] + rightVector.z * offset
-      //   }
-      //   const newPos = calculateNewPosition(
-      //     { x: plane.position.x, z: plane.position.z },
-      //     targetPos
-      //   )
-      //   plane.position.setX(newPos.x)
-      //   plane.position.setZ(newPos.z)
+        const tp = {
+          x: basePosition[0] + rightVector.x * offset,
+          z: basePosition[2] + rightVector.z * offset
+        }
+        const np = calculateNewPosition(
+          { x: plane.position.x, z: plane.position.z },
+          tp
+        )
+        plane.position.setX(np.x)
+        plane.position.setZ(np.z)
 
-      //   // Set camera position directly for horizontal movement
-      //   const currentPosition = controls.getPosition(new Vector3())
-      //   const targetPosition = new Vector3(
-      //     cameraConfig.position[0] + rightVector.x * offset,
-      //     currentPosition.y,
-      //     cameraConfig.position[2] + rightVector.z * offset
-      //   )
+        const offsetP = new Vector3(
+          cameraConfig.position[0] + rightVector.x * offset,
+          cameraConfig.position[1],
+          cameraConfig.position[2] + rightVector.z * offset
+        )
 
-      //   easing.damp3(currentPosition, targetPosition, 0.1, dt)
-      //   controls.setPosition(
-      //     currentPosition.x,
-      //     currentPosition.y,
-      //     currentPosition.z,
-      //     false
-      //   )
+        easing.damp3(targetPosition, offsetP, 0.5, dt)
+        controls.setPosition(
+          targetPosition.x,
+          targetPosition.y + offsetY.current,
+          targetPosition.z,
+          false
+        )
 
-      //   const currentTarget = controls.getTarget(new Vector3())
-      //   const targetLookAt = new Vector3(
-      //     cameraConfig.target[0] +
-      //       (rightVector.x * offset) / calculateDivisor(),
-      //     currentTarget.y,
-      //     cameraConfig.target[2] + rightVector.z * offset
-      //   )
+        const offsetLA = new Vector3(
+          cameraConfig.target[0] +
+            (rightVector.x * offset) / calculateDivisor(),
+          cameraConfig.target[1],
+          cameraConfig.target[2] + rightVector.z * offset
+        )
 
-      //   easing.damp3(currentTarget, targetLookAt, 0.05, dt)
-      //   controls.setTarget(
-      //     currentTarget.x,
-      //     currentTarget.y,
-      //     currentTarget.z,
-      //     false
-      //   )
-      // }
+        easing.damp3(targetLookAt, offsetLA, 0.25, dt)
+        controls.setTarget(
+          targetLookAt.x,
+          targetLookAt.y + offsetY.current,
+          targetLookAt.z,
+          false
+        )
+      }
 
-      targetPosition.set(...cameraConfig.position)
-      targetLookAt.set(...cameraConfig.target)
-      targetPosition.y += offsetY.current
-      targetLookAt.y += offsetY.current
+      // targetPosition.set(...cameraConfig.position)
+      // targetLookAt.set(...cameraConfig.target)
+      // targetPosition.y += offsetY.current
+      // targetLookAt.y += offsetY.current
 
-      controls.setPosition(
-        targetPosition.x,
-        targetPosition.y,
-        targetPosition.z,
-        false
-      )
-      controls.setTarget(targetLookAt.x, targetLookAt.y, targetLookAt.z, false)
+      // controls.setPosition(
+      //   targetPosition.x,
+      //   targetPosition.y,
+      //   targetPosition.z,
+      //   false
+      // )
+      // controls.setTarget(targetLookAt.x, targetLookAt.y, targetLookAt.z, false)
     }
 
     if (firstRender) setFirstRender(false)

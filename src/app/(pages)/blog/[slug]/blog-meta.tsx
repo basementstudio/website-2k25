@@ -86,8 +86,6 @@ export default function BlogMeta({
                 <Link
                   key={index}
                   href={social.href(data._slug, data._title)}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="transition-opacity hover:opacity-80"
                   aria-label={social.label}
                 >

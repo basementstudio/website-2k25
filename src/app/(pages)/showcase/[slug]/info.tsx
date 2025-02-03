@@ -75,7 +75,6 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
             <Link
               key={entry.project?.client?.website}
               href={entry.project?.client?.website || ""}
-              target="_blank"
               className="actionable inline-flex items-center gap-1 text-brand-w1"
             >
               {entry.project?.projectWebsite}{" "}
@@ -95,7 +94,6 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
       <Link
         href={entry.project?.caseStudy || ""}
         className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
-        target="_blank"
       >
         View Case Study <Arrow className="size-4" />
       </Link>
