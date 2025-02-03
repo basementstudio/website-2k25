@@ -39,16 +39,18 @@ export const useHandleNavigation = () => {
         }, 10)
       } else {
         document.documentElement.dataset.flip = "true"
+        document.body.style.overflow = "hidden"
         setCurrentScene(selectedScene)
         setDisableCameraTransition(true)
 
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: "instant" })
           router.push(route, { scroll: false })
-          setTimeout(
-            () => (document.documentElement.dataset.flip = "false"),
-            10
-          )
+
+          setTimeout(() => {
+            document.documentElement.dataset.flip = "false"
+            document.body.style.overflow = "auto"
+          }, 10)
         }, 750)
       }
     },
