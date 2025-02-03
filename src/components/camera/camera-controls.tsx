@@ -29,8 +29,6 @@ export const CustomCamera = () => {
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
   const planeBoundaryRef = useRef<Mesh>(null)
-  const animationProgress = useRef(1)
-  const offsetY = useRef(0)
 
   const cameraConfig = useNavigationStore.getState().currentScene?.cameraConfig
   const setStairVisibility = useNavigationStore.getState().setStairVisibility
@@ -42,6 +40,14 @@ export const CustomCamera = () => {
   const scene = useThree((state) => state.scene)
 
   const { debugBoundaries } = useControls({ debugBoundaries: false })
+
+  const animationProgress = useRef(1)
+  const offsetY = useRef(0)
+
+  const panningTarget = useRef<Vector3>(new Vector3())
+  const panningTargetLookAt = useRef<Vector3>(new Vector3())
+  const panningOffset = useRef<Vector3>(new Vector3())
+  const panningOffsetLookAt = useRef<Vector3>(new Vector3())
 
   const currentPos = useMemo(() => new Vector3(), [])
   const currentTarget = useMemo(() => new Vector3(), [])
@@ -120,6 +126,69 @@ export const CustomCamera = () => {
 
     if (!plane || !boundary || !controls || !cameraConfig) return
 
+    // Calculate targets
+    targetPosition.set(...cameraConfig.position)
+    targetLookAt.set(...cameraConfig.target)
+    targetFov.current = cameraConfig.fov ?? 60
+
+    targetPosition.y += offsetY.current
+    targetLookAt.y += offsetY.current
+
+    if (!selected) {
+      const maxOffset = (boundary.scale.x - plane.scale.x) / 2
+      const basePosition = calculatePlanePosition(cameraConfig)
+      const rightVector = calculateMovementVectors(basePosition, cameraConfig)
+
+      const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
+      const offset = pointer.x * maxOffset * offsetMultiplier
+
+      const tp = {
+        x: basePosition[0] + rightVector.x * offset,
+        z: basePosition[2] + rightVector.z * offset
+      }
+      const np = calculateNewPosition(
+        { x: plane.position.x, z: plane.position.z },
+        tp
+      )
+      plane.position.setX(np.x)
+      plane.position.setZ(np.z)
+
+      const offsetP = new Vector3(
+        targetPosition.x + rightVector.x * offset,
+        targetPosition.y,
+        targetPosition.z + rightVector.z * offset
+      )
+
+      const offsetLA = new Vector3(
+        targetLookAt.x + (rightVector.x * offset) / calculateDivisor(),
+        targetLookAt.y,
+        targetLookAt.z + rightVector.z * offset
+      )
+
+      panningTarget.current.set(offsetP.x, offsetP.y, offsetP.z)
+      panningTargetLookAt.current.set(offsetLA.x, offsetLA.y, offsetLA.z)
+
+      const newPanningOffset = new Vector3(
+        panningTarget.current.x - targetPosition.x,
+        panningTarget.current.y - targetPosition.y,
+        panningTarget.current.z - targetPosition.z
+      )
+
+      const newPanningOffsetLookAt = new Vector3(
+        panningTargetLookAt.current.x - targetLookAt.x,
+        panningTargetLookAt.current.y - targetLookAt.y,
+        panningTargetLookAt.current.z - targetLookAt.z
+      )
+
+      easing.damp3(panningOffset.current, newPanningOffset, 0.5, dt)
+      easing.damp3(
+        panningOffsetLookAt.current,
+        newPanningOffsetLookAt,
+        0.25,
+        dt
+      )
+    }
+
     if (disableCameraTransition || firstRender) {
       animationProgress.current = 1
       currentPos.set(...cameraConfig.position)
@@ -148,32 +217,34 @@ export const CustomCamera = () => {
       )
 
       if (
-        animationProgress.current > 0.6 &&
+        animationProgress.current > 0.8 &&
         currentScene === "home" &&
         stairVisibility
       ) {
         setStairVisibility(false)
       } else if (
         // TODO: fix this behaviour
-        animationProgress.current > 0.6 &&
+        animationProgress.current > 0.2 &&
         currentScene !== "home" &&
         !stairVisibility
       ) {
         setStairVisibility(true)
       }
 
-      controls.getPosition(currentPos)
-      controls.getTarget(currentTarget)
-
       const easeValue = easeInOutCubic(animationProgress.current)
 
-      // Calculate targets
-      targetPosition.set(...cameraConfig.position)
-      targetLookAt.set(...cameraConfig.target)
-      targetFov.current = cameraConfig.fov ?? 60
-
-      // targetPosition.y += offsetY.current
-      // targetLookAt.y += offsetY.current
+      controls.setPosition(
+        currentPos.x + panningOffset.current.x,
+        currentPos.y + panningOffset.current.y,
+        currentPos.z + panningOffset.current.z,
+        false
+      )
+      controls.setTarget(
+        currentTarget.x + panningOffsetLookAt.current.x,
+        currentTarget.y + panningOffsetLookAt.current.y,
+        currentTarget.z + panningOffsetLookAt.current.z,
+        false
+      )
 
       // update current targets
       currentPos.lerp(targetPosition, easeValue)
@@ -181,81 +252,24 @@ export const CustomCamera = () => {
       currentFov.current =
         currentFov.current +
         (targetFov.current - currentFov.current) * easeValue
-
-      // set camera values to match current targets
-      controls.setPosition(currentPos.x, currentPos.y, currentPos.z, false)
-      controls.setTarget(
-        currentTarget.x,
-        currentTarget.y,
-        currentTarget.z,
+    } else {
+      controls.setPosition(
+        targetPosition.x + panningOffset.current.x,
+        targetPosition.y + panningOffset.current.y,
+        targetPosition.z + panningOffset.current.z,
         false
       )
-      if (controls.camera instanceof PerspectiveCamera) {
-        controls.camera.fov = currentFov.current
-        controls.camera.updateProjectionMatrix()
-      }
-    } else {
-      if (pathname !== "/basketball" && !selected) {
-        const maxOffset = (boundary.scale.x - plane.scale.x) / 2
-        const basePosition = calculatePlanePosition(cameraConfig)
-        const rightVector = calculateMovementVectors(basePosition, cameraConfig)
+      controls.setTarget(
+        targetLookAt.x + panningOffsetLookAt.current.x,
+        targetLookAt.y + panningOffsetLookAt.current.y,
+        targetLookAt.z + panningOffsetLookAt.current.z,
+        false
+      )
+    }
 
-        const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
-        const offset = pointer.x * maxOffset * offsetMultiplier * 2
-
-        const tp = {
-          x: basePosition[0] + rightVector.x * offset,
-          z: basePosition[2] + rightVector.z * offset
-        }
-        const np = calculateNewPosition(
-          { x: plane.position.x, z: plane.position.z },
-          tp
-        )
-        plane.position.setX(np.x)
-        plane.position.setZ(np.z)
-
-        const offsetP = new Vector3(
-          cameraConfig.position[0] + rightVector.x * offset,
-          cameraConfig.position[1],
-          cameraConfig.position[2] + rightVector.z * offset
-        )
-
-        easing.damp3(targetPosition, offsetP, 0.5, dt)
-        controls.setPosition(
-          targetPosition.x,
-          targetPosition.y + offsetY.current,
-          targetPosition.z,
-          false
-        )
-
-        const offsetLA = new Vector3(
-          cameraConfig.target[0] +
-            (rightVector.x * offset) / calculateDivisor(),
-          cameraConfig.target[1],
-          cameraConfig.target[2] + rightVector.z * offset
-        )
-
-        easing.damp3(targetLookAt, offsetLA, 0.25, dt)
-        controls.setTarget(
-          targetLookAt.x,
-          targetLookAt.y + offsetY.current,
-          targetLookAt.z,
-          false
-        )
-      }
-
-      // targetPosition.set(...cameraConfig.position)
-      // targetLookAt.set(...cameraConfig.target)
-      // targetPosition.y += offsetY.current
-      // targetLookAt.y += offsetY.current
-
-      // controls.setPosition(
-      //   targetPosition.x,
-      //   targetPosition.y,
-      //   targetPosition.z,
-      //   false
-      // )
-      // controls.setTarget(targetLookAt.x, targetLookAt.y, targetLookAt.z, false)
+    if (controls.camera instanceof PerspectiveCamera) {
+      controls.camera.fov = currentFov.current
+      controls.camera.updateProjectionMatrix()
     }
 
     if (firstRender) setFirstRender(false)
@@ -264,6 +278,8 @@ export const CustomCamera = () => {
   useEffect(() => {
     if (!cameraConfig) return
     animationProgress.current = 0
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cameraConfig])
 
   const planePosition = useCallback(
