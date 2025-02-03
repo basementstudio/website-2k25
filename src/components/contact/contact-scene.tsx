@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber"
 import {
   Container,
   DefaultProperties,
+  FontFamilyProvider,
   Input,
   Root,
   Text
@@ -52,158 +53,169 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
         display="flex"
         flexDirection="column"
       >
-        <DefaultProperties fontSize={13} color={COLORS_THEME.primary}>
-          <Text
+        <FontFamilyProvider
+          ffflauta={{
+            normal: "/ffflauta.json"
+          }}
+        >
+          <DefaultProperties
+            fontFamily={"ffflauta"}
             fontSize={13}
+            fontWeight={"normal"}
             color={COLORS_THEME.primary}
-            fontWeight="bold"
-            positionType="absolute"
-            positionTop={8}
-            positionLeft={28}
-            paddingX={8}
-            backgroundColor={COLORS_THEME.black}
-            zIndexOffset={10}
           >
-            FILL IN THE FORM
-          </Text>
-          <Container
-            width="100%"
-            height="90%"
-            backgroundColor="#000000"
-            display="flex"
-            flexDirection="column"
-            justifyContent="flex-start"
-            alignItems="center"
-            padding={16}
-          >
+            <Text
+              fontSize={13}
+              color={COLORS_THEME.primary}
+              fontWeight="normal"
+              positionType="absolute"
+              positionTop={16}
+              positionLeft={28}
+              paddingX={8}
+              backgroundColor={COLORS_THEME.black}
+              zIndexOffset={10}
+            >
+              FILL IN THE FORM
+            </Text>
             <Container
               width="100%"
-              height="100%"
+              height="90%"
               backgroundColor="#000000"
               display="flex"
               flexDirection="column"
               justifyContent="flex-start"
               alignItems="center"
-              borderColor="#ffffff"
-              borderWidth={1}
+              padding={16}
             >
               <Container
                 width="100%"
-                backgroundColor={COLORS_THEME.black}
-                display="flex"
-                flexDirection="row"
-                gap={16}
-                paddingX={16}
-                paddingTop={24}
-              >
-                <Input
-                  defaultValue={"NAME"}
-                  color={COLORS_THEME.primary}
-                  borderColor={COLORS_THEME.primary}
-                  borderWidth={0}
-                  borderBottomWidth={1}
-                  paddingX={8}
-                  paddingY={16}
-                  width={"50%"}
-                  height={"10%"}
-                />
-                <Input
-                  defaultValue={"COMPANY"}
-                  borderColor={COLORS_THEME.primary}
-                  borderWidth={0}
-                  borderBottomWidth={1}
-                  paddingX={8}
-                  paddingY={16}
-                  width={"50%"}
-                  height={"10%"}
-                />
-              </Container>
-              <Container
-                width="100%"
-                backgroundColor={COLORS_THEME.black}
+                height="100%"
+                backgroundColor="#000000"
                 display="flex"
                 flexDirection="column"
-                paddingX={16}
-                gap={8}
-              >
-                <Input
-                  defaultValue={"EMAIL"}
-                  borderColor={COLORS_THEME.primary}
-                  borderWidth={0}
-                  borderBottomWidth={1}
-                  paddingX={8}
-                  paddingY={16}
-                  width={"100%"}
-                  height={"10%"}
-                />
-                <Input
-                  defaultValue={"BUDGET (OPTIONAL)"}
-                  borderColor={COLORS_THEME.primary}
-                  borderWidth={0}
-                  borderBottomWidth={1}
-                  paddingX={8}
-                  paddingY={16}
-                  width={"100%"}
-                  height={"10%"}
-                />
-                <Input
-                  defaultValue={"MESSAGE"}
-                  borderColor={COLORS_THEME.primary}
-                  borderWidth={0}
-                  borderBottomWidth={1}
-                  paddingX={8}
-                  paddingY={16}
-                  width={"100%"}
-                  height={80}
-                />
-              </Container>
-              <Container
-                display="flex"
-                flexDirection="row"
-                justifyContent="center"
+                justifyContent="flex-start"
                 alignItems="center"
-                paddingY={8}
-                paddingX={16}
-                width="100%"
+                borderColor="#ffffff"
+                borderWidth={1}
               >
-                <Text
+                <Container
                   width="100%"
-                  borderColor={COLORS_THEME.primary}
-                  paddingY={8}
-                  textAlign="center"
-                  borderWidth={1}
+                  backgroundColor={COLORS_THEME.black}
+                  display="flex"
+                  flexDirection="row"
+                  gap={16}
+                  paddingX={16}
+                  paddingTop={24}
                 >
-                  SUBMIT MESSAGE -{">"}
+                  <Input
+                    defaultValue={"NAME"}
+                    color={COLORS_THEME.primary}
+                    borderColor={COLORS_THEME.primary}
+                    borderWidth={0}
+                    borderBottomWidth={1}
+                    paddingX={8}
+                    paddingY={16}
+                    width={"50%"}
+                    height={"10%"}
+                  />
+                  <Input
+                    defaultValue={"COMPANY"}
+                    borderColor={COLORS_THEME.primary}
+                    borderWidth={0}
+                    borderBottomWidth={1}
+                    paddingX={8}
+                    paddingY={16}
+                    width={"50%"}
+                    height={"10%"}
+                  />
+                </Container>
+                <Container
+                  width="100%"
+                  backgroundColor={COLORS_THEME.black}
+                  display="flex"
+                  flexDirection="column"
+                  paddingX={16}
+                  gap={8}
+                >
+                  <Input
+                    defaultValue={"EMAIL"}
+                    borderColor={COLORS_THEME.primary}
+                    borderWidth={0}
+                    borderBottomWidth={1}
+                    paddingX={8}
+                    paddingY={16}
+                    width={"100%"}
+                    height={"10%"}
+                  />
+                  <Input
+                    defaultValue={"BUDGET (OPTIONAL)"}
+                    borderColor={COLORS_THEME.primary}
+                    borderWidth={0}
+                    borderBottomWidth={1}
+                    paddingX={8}
+                    paddingY={16}
+                    width={"100%"}
+                    height={"10%"}
+                  />
+                  <Input
+                    defaultValue={"MESSAGE"}
+                    borderColor={COLORS_THEME.primary}
+                    borderWidth={0}
+                    borderBottomWidth={1}
+                    paddingX={8}
+                    paddingY={16}
+                    width={"100%"}
+                    height={80}
+                  />
+                </Container>
+                <Container
+                  display="flex"
+                  flexDirection="row"
+                  justifyContent="center"
+                  alignItems="center"
+                  paddingY={8}
+                  paddingX={16}
+                  width="100%"
+                >
+                  <Text
+                    width="100%"
+                    borderColor={COLORS_THEME.primary}
+                    paddingY={8}
+                    textAlign="center"
+                    borderWidth={1}
+                  >
+                    SUBMIT MESSAGE -{">"}
+                  </Text>
+                </Container>
+              </Container>
+            </Container>
+            <Container
+              width="100%"
+              height="10%"
+              backgroundColor={COLORS_THEME.black}
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-between"
+              alignItems="center"
+              paddingX={16}
+            >
+              <Container gap={8}>
+                <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
+                  X (TWITTER),
+                </Text>
+                <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
+                  INSTAGRAM,
+                </Text>
+                <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
+                  GITHUB
                 </Text>
               </Container>
-            </Container>
-          </Container>
-          <Container
-            width="100%"
-            height="10%"
-            backgroundColor={COLORS_THEME.black}
-            display="flex"
-            flexDirection="row"
-            justifyContent="space-between"
-            alignItems="center"
-            paddingX={16}
-          >
-            <Container gap={8}>
               <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
-                X (TWITTER),
-              </Text>
-              <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
-                INSTAGRAM,
-              </Text>
-              <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
-                GITHUB
+                HELLO@BASEMENT.STUDIO
               </Text>
             </Container>
-            <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
-              HELLO@BASEMENT.STUDIO
-            </Text>
-          </Container>
-        </DefaultProperties>
+          </DefaultProperties>
+        </FontFamilyProvider>
       </Root>
     </>
   )
