@@ -28,6 +28,10 @@ export const Footer = () => (
 
       const LINKS = [
         {
+          title: "Home",
+          href: "/"
+        },
+        {
           title: "Services",
           href: "/services"
         },
@@ -38,48 +42,41 @@ export const Footer = () => (
         },
         {
           title: "People",
-          href: "/people"
+          href: "/people",
+          count: posts
         },
         {
           title: "Blog",
-          href: "/blog",
-          count: posts
+          href: "/blog"
         },
         {
           title: "Laboratory",
           href: "/lab"
-        },
-        {
-          title: "Ventures",
-          href: "https://basement.ventures"
         }
       ]
 
       return (
-        <footer className="relative z-10 flex min-h-[calc(100vh-2.25rem)] flex-col justify-between bg-brand-k pb-3">
+        <footer className="relative z-10 flex h-screen flex-col justify-between bg-brand-k pb-4">
           <Grid />
 
-          <div className="grid-layout pb-6 text-brand-w2">
-            <Logo className="col-span-12 flex items-end border-b border-brand-w1/30 pb-2" />
+          <div className="grid-layout mt-9">
+            <Logo className="col-span-12 mx-auto text-brand-w2" />
           </div>
 
-          <div className="grid-layout relative flex flex-col items-end">
-            <div className="col-start-9 col-end-13 flex flex-col">
-              <StayConnected
-                className="mb-23"
-                content={data.company.social.newsletter.json.content}
-              />
+          <div className="grid-layout relative items-end">
+            <StayConnected
+              className="col-start-1 col-end-5 mb-1"
+              content={data.company.social.newsletter.json.content}
+            />
 
-              <InternalLinks links={LINKS} className="mb-18" />
+            <InternalLinks className="col-start-7 col-end-9" links={LINKS} />
 
-              <div className="flex items-end justify-between">
-                <SocialLinks links={data.company.social} />
+            <SoDa className="col-start-9 col-end-11 -mb-1" />
 
-                <div className="flex flex-col gap-y-2">
-                  <SoDa />
-                  <Copyright />
-                </div>
-              </div>
+            <div className="col-start-11 col-end-13 flex flex-col items-end gap-y-2">
+              <SocialLinks links={data.company.social} />
+
+              <Copyright />
             </div>
           </div>
         </footer>
@@ -99,22 +96,22 @@ interface InternalLinksProps {
 
 const InternalLinks = ({ className, links }: InternalLinksProps) => (
   <ul
-    className={cn("mb-1 flex flex-col gap-y-2 text-p text-brand-g1", className)}
+    className={cn("mb-1 flex flex-col gap-y-1 text-p text-brand-g1", className)}
   >
     {links.map((link) => (
-      <li key={link.title} className="flex gap-x-1">
+      <li key={link.title}>
         <Link
-          className="flex w-max gap-x-0.5 text-h2 text-brand-w1"
+          className="flex gap-x-0.5 text-h2 text-brand-w1"
           href={link.href}
           target={link.href.startsWith("http") ? "_blank" : undefined}
         >
           <span className="actionable">{link.title}</span>
+          {link.count && (
+            <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
+              <span className="tabular-nums">({link.count})</span>
+            </sup>
+          )}
         </Link>
-        {link.count && (
-          <sup className="translate-y-[9px] text-p !font-medium text-brand-g1">
-            <span className="tabular-nums">({link.count})</span>
-          </sup>
-        )}
       </li>
     ))}
   </ul>
@@ -124,37 +121,30 @@ interface SocialLinksProps {
   links: { twitter: string; instagram: string; github: string }
 }
 
-interface SocialLinkProps {
-  href: string
-  children: React.ReactNode
-}
-
-const SocialLink = ({ href, children }: SocialLinkProps) => (
-  <Link className={"actionable text-brand-w1"} href={href} target="_blank">
-    {children}
-  </Link>
-)
-
 const SocialLinks = ({ className, links }: SocialLinksProps) => (
-  <div className={cn("space-x-1 !text-p text-brand-g1", className)}>
-    <SocialLink href={links.twitter}>X (Twitter)</SocialLink>
+  <div className={cn("flex gap-x-1 !text-p text-brand-g1", className)}>
+    <Link className="actionable text-brand-w1" href={links.twitter}>
+      X (Twitter)
+    </Link>
     <span>,</span>
-    <SocialLink href={links.instagram}>Instagram</SocialLink>
+    <Link className="actionable text-brand-w1" href={links.instagram}>
+      Instagram
+    </Link>
     <span>,</span>
-    <SocialLink href={links.github}>Github</SocialLink>
+    <Link className="actionable text-brand-w1" href={links.github}>
+      GitHub
+    </Link>
   </div>
 )
 
 const Copyright = ({ className }: { className?: string }) => (
-  <p
-    className={cn("text-right !text-p font-semibold text-brand-g1", className)}
-  >
+  <p className={cn("text-right !text-p text-brand-g1", className)}>
     © basement.studio LLC {new Date().getFullYear()} all rights reserved
   </p>
 )
 
 const SoDa = ({ className }: { className?: string }) => (
-  <span className="inline-flex items-end justify-end gap-2">
+  <div className={cn("flex w-full items-center gap-2", className)}>
     <p
       className={cn(
         "text-right !text-p font-semibold text-brand-w1",
@@ -165,7 +155,7 @@ const SoDa = ({ className }: { className?: string }) => (
     </p>
 
     <SodaLogo className="size-6 text-brand-w1" />
-  </span>
+  </div>
 )
 
 const SodaLogo = ({ className }: { className?: string }) => (
