@@ -137,8 +137,9 @@ export const CustomCamera = () => {
         controls.camera.updateProjectionMatrix()
       }
 
+      setStairVisibility(currentScene !== "home")
+
       setTimeout(() => setDisableCameraTransition(false), 750)
-      setFirstRender(false)
     } else if (animationProgress.current < 1) {
       // Handle camera transition animation
       animationProgress.current = Math.min(
@@ -146,8 +147,20 @@ export const CustomCamera = () => {
         1
       )
 
-      if (currentScene === "home" && animationProgress.current > 0.6)
+      if (
+        animationProgress.current > 0.6 &&
+        currentScene === "home" &&
+        stairVisibility
+      ) {
         setStairVisibility(false)
+      } else if (
+        // TODO: fix this behaviour
+        animationProgress.current > 0.6 &&
+        currentScene !== "home" &&
+        !stairVisibility
+      ) {
+        setStairVisibility(true)
+      }
 
       controls.getPosition(currentPos)
       controls.getTarget(currentTarget)
@@ -252,6 +265,8 @@ export const CustomCamera = () => {
       )
       controls.setTarget(targetLookAt.x, targetLookAt.y, targetLookAt.z, false)
     }
+
+    if (firstRender) setFirstRender(false)
   })
 
   useEffect(() => {

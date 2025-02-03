@@ -10,7 +10,6 @@ export const useHandleNavigation = () => {
   const setDisableCameraTransition = useNavigationStore(
     (state) => state.setDisableCameraTransition
   )
-  const setStairVisibility = useNavigationStore.getState().setStairVisibility
   const scenes = useNavigationStore((state) => state.scenes)
 
   const handleNavigation = useCallback(
@@ -23,8 +22,6 @@ export const useHandleNavigation = () => {
           : scenes?.find((scene) => scene.name === route.split("/")[1])
 
       if (!selectedScene) return
-
-      setStairVisibility(true)
 
       if (window.scrollY < window.innerHeight) {
         window.scrollTo({ top: 0, behavior: "smooth" })
@@ -55,14 +52,7 @@ export const useHandleNavigation = () => {
       }
     },
 
-    [
-      router,
-      setCurrentScene,
-      scenes,
-      pathname,
-      setStairVisibility,
-      setDisableCameraTransition
-    ]
+    [router, setCurrentScene, scenes, pathname, setDisableCameraTransition]
   )
 
   return { handleNavigation }
