@@ -1,6 +1,12 @@
 import { Environment, PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { Container, Root, Text } from "@react-three/uikit"
+import {
+  Container,
+  DefaultProperties,
+  Input,
+  Root,
+  Text
+} from "@react-three/uikit"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
   AnimationMixer,
@@ -13,6 +19,7 @@ import {
 
 import { RenderTexture } from "../arcade-screen/render-texture"
 import { screenMaterial } from "../arcade-screen/screen-material"
+import { COLORS_THEME } from "../arcade-screen/screen-ui"
 
 type PhoneAnimationName =
   | "L-IN"
@@ -33,23 +40,171 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
       <PerspectiveCamera
         manual
         makeDefault
-        position={[0, 0, 15]}
+        position={[0, 0, 4]}
         rotation={[0, 0, Math.PI]}
         aspect={aspect}
       />
-      <Root>
-        <Container
-          width="100%"
-          height="100%"
-          backgroundColor="#000000"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Text fontSize={32} color="white" fontWeight="bold">
-            basement 2k25
+      <Root
+        width={578}
+        height={360}
+        transformScaleX={-1}
+        backgroundColor={COLORS_THEME.black}
+        positionType="relative"
+        display="flex"
+        flexDirection="column"
+      >
+        <DefaultProperties fontSize={13} color={COLORS_THEME.primary}>
+          <Text
+            fontSize={13}
+            color={COLORS_THEME.primary}
+            fontWeight="bold"
+            positionType="absolute"
+            positionTop={8}
+            positionLeft={28}
+            paddingX={8}
+            backgroundColor={COLORS_THEME.black}
+            zIndexOffset={10}
+          >
+            FILL IN THE FORM
           </Text>
-        </Container>
+          <Container
+            width="100%"
+            height="90%"
+            backgroundColor="#000000"
+            display="flex"
+            flexDirection="column"
+            justifyContent="flex-start"
+            alignItems="center"
+            padding={16}
+          >
+            <Container
+              width="100%"
+              height="100%"
+              backgroundColor="#000000"
+              display="flex"
+              flexDirection="column"
+              justifyContent="flex-start"
+              alignItems="center"
+              borderColor="#ffffff"
+              borderWidth={1}
+            >
+              <Container
+                width="100%"
+                backgroundColor={COLORS_THEME.black}
+                display="flex"
+                flexDirection="row"
+                gap={16}
+                paddingX={16}
+                paddingTop={24}
+              >
+                <Input
+                  defaultValue={"NAME"}
+                  color={COLORS_THEME.primary}
+                  borderColor={COLORS_THEME.primary}
+                  borderWidth={0}
+                  borderBottomWidth={1}
+                  paddingX={8}
+                  paddingY={16}
+                  width={"50%"}
+                  height={"10%"}
+                />
+                <Input
+                  defaultValue={"COMPANY"}
+                  borderColor={COLORS_THEME.primary}
+                  borderWidth={0}
+                  borderBottomWidth={1}
+                  paddingX={8}
+                  paddingY={16}
+                  width={"50%"}
+                  height={"10%"}
+                />
+              </Container>
+              <Container
+                width="100%"
+                backgroundColor={COLORS_THEME.black}
+                display="flex"
+                flexDirection="column"
+                paddingX={16}
+                gap={8}
+              >
+                <Input
+                  defaultValue={"EMAIL"}
+                  borderColor={COLORS_THEME.primary}
+                  borderWidth={0}
+                  borderBottomWidth={1}
+                  paddingX={8}
+                  paddingY={16}
+                  width={"100%"}
+                  height={"10%"}
+                />
+                <Input
+                  defaultValue={"BUDGET (OPTIONAL)"}
+                  borderColor={COLORS_THEME.primary}
+                  borderWidth={0}
+                  borderBottomWidth={1}
+                  paddingX={8}
+                  paddingY={16}
+                  width={"100%"}
+                  height={"10%"}
+                />
+                <Input
+                  defaultValue={"MESSAGE"}
+                  borderColor={COLORS_THEME.primary}
+                  borderWidth={0}
+                  borderBottomWidth={1}
+                  paddingX={8}
+                  paddingY={16}
+                  width={"100%"}
+                  height={80}
+                />
+              </Container>
+              <Container
+                display="flex"
+                flexDirection="row"
+                justifyContent="center"
+                alignItems="center"
+                paddingY={8}
+                paddingX={16}
+                width="100%"
+              >
+                <Text
+                  width="100%"
+                  borderColor={COLORS_THEME.primary}
+                  paddingY={8}
+                  textAlign="center"
+                  borderWidth={1}
+                >
+                  SUBMIT MESSAGE -{">"}
+                </Text>
+              </Container>
+            </Container>
+          </Container>
+          <Container
+            width="100%"
+            height="10%"
+            backgroundColor={COLORS_THEME.black}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+            alignItems="center"
+            paddingX={16}
+          >
+            <Container gap={8}>
+              <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
+                X (TWITTER),
+              </Text>
+              <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
+                INSTAGRAM,
+              </Text>
+              <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
+                GITHUB
+              </Text>
+            </Container>
+            <Text borderBottomWidth={1} borderColor={COLORS_THEME.primary}>
+              HELLO@BASEMENT.STUDIO
+            </Text>
+          </Container>
+        </DefaultProperties>
       </Root>
     </>
   )
