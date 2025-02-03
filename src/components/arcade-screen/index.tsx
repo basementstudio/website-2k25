@@ -6,12 +6,14 @@ import { Mesh } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
 import { useAssets } from "../assets-provider"
+import { useContactStore } from "../contact/contact-store"
 import { RenderTexture } from "./render-texture"
-import { screenMaterial } from "./screen-material"
+import { createScreenMaterial } from "./screen-material"
 import { ScreenUI } from "./screen-ui"
 
 export const ArcadeScreen = () => {
   const { scene } = useThree()
+  const { isContactOpen } = useContactStore()
 
   const pathname = usePathname()
 
@@ -23,7 +25,7 @@ export const ArcadeScreen = () => {
   const { arcade } = useAssets()
 
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
-
+  const screenMaterial = useMemo(() => createScreenMaterial(), [])
   const renderTarget = useMemo(() => new WebGLRenderTarget(2024, 2024), [])
 
   useEffect(() => {
@@ -57,7 +59,8 @@ export const ArcadeScreen = () => {
     renderTarget.texture,
     videoTexture,
     pathname,
-    hasVisitedArcade
+    hasVisitedArcade,
+    screenMaterial
   ])
 
   useFrame((_, delta) => {

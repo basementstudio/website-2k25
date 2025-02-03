@@ -18,7 +18,7 @@ import {
 } from "three"
 
 import { RenderTexture } from "../arcade-screen/render-texture"
-import { screenMaterial } from "../arcade-screen/screen-material"
+import { createScreenMaterial } from "../arcade-screen/screen-material"
 import { COLORS_THEME } from "../arcade-screen/screen-ui"
 
 type PhoneAnimationName =
@@ -36,7 +36,6 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
   return (
     <>
       <color attach="background" args={["#000000"]} />
-      <ambientLight intensity={1} />
       <PerspectiveCamera
         manual
         makeDefault
@@ -222,6 +221,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const glass = gltf.scene.getObjectByName("GLASS") as Mesh | undefined
 
   const renderTarget = useMemo(() => new WebGLRenderTarget(2024, 2024), [])
+  const screenMaterial = useMemo(() => createScreenMaterial(), [])
 
   useEffect(() => {
     const screen = gltf.scene.getObjectByName("SCREEN") as Mesh
@@ -238,7 +238,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       screenMaterial.uniforms.map.value = renderTarget.texture
       screen.material = screenMaterial
     }
-  }, [gltf.scene, renderTarget.texture])
+  }, [gltf.scene, renderTarget.texture, screenMaterial])
 
   useEffect(() => {
     if (!gltf.scene || !gltf.animations.length) return
