@@ -78,6 +78,10 @@ export const CustomCamera = () => {
     )
     boundary.scale.set(width * 0.6, height, 1)
     plane.scale.set(width * 0.4, height, 1)
+
+    return () => {
+      controls.dispose()
+    }
   }, [])
 
   useEffect(() => {
