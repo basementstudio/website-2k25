@@ -19,14 +19,13 @@ const HoopMinigame = dynamic(
 
 import dynamic from "next/dynamic"
 
-import { Character } from "./characters"
+import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
+import { CharactersSpawn } from "./characters/characters-spawn"
 import { Map } from "./map/map"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
-
-import { CameraController } from "./camera/camera-controller"
 
 export const Scene = () => {
   const pathname = usePathname()
@@ -163,7 +162,7 @@ export const Scene = () => {
                 {isBasketball && <HoopMinigame />}
               </Physics>
               <CharacterInstanceConfig />
-              <Character />
+              <CharactersSpawn />
             </>
           }
         />

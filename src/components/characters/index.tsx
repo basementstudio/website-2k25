@@ -1,27 +1,28 @@
+import type { ElementProps } from "@react-three/fiber"
+import { Group } from "three"
+
 import {
   CharacterAnimationName,
   CharacterPosition
 } from "./character-instancer"
 
-export function Character() {
+interface CharacterProps extends ElementProps<typeof Group> {
+  animationName: CharacterAnimationName
+}
+
+export function Character({ animationName, ...props }: CharacterProps) {
   return (
-    <>
-      <mesh>
-        <boxGeometry args={[0.2, 0.2, 0.2]} />
-        <meshBasicMaterial color="green" />
-      </mesh>
+    <group {...props}>
       <CharacterPosition
-        position={[5, 0, -14]}
-        animationName={CharacterAnimationName.Working}
         timeSpeed={1}
         geometryId={0}
+        animationName={animationName}
       />
       <CharacterPosition
-        position={[5, 0, -14]}
-        animationName={CharacterAnimationName.Working}
         timeSpeed={1}
         geometryId={1}
+        animationName={animationName}
       />
-    </>
+    </group>
   )
 }
