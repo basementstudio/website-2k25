@@ -1,13 +1,14 @@
 "use client"
 
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { CameraStateKeys } from "@/store/app-store"
 import { cn } from "@/utils/cn"
+
+import { useContactStore } from "../contact/contact-store"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -25,19 +26,30 @@ interface NavbarContentProps {
     title: string
     href: string
     count?: number
-    routeName: CameraStateKeys
   }[]
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
   const [music, setMusic] = useState(true)
   const { setVolumeMaster } = useSiteAudio()
+  const { setIsContactOpen, isContactOpen } = useContactStore()
   const isOnTab = useIsOnTab()
   const router = useRouter()
 
   const handleNavigation = useCallback(
-    (route: string, cameraState: CameraStateKeys) => {
+    (route: string) => {
+      const setStairVisibility =
+        useNavigationStore.getState().setStairVisibility
+
       router.push(route, { scroll: false })
+
+      if (route === "/") {
+        setTimeout(() => {
+          setStairVisibility(false)
+        }, 2200)
+      } else {
+        setStairVisibility(true)
+      }
     },
     [router]
   )
@@ -65,24 +77,25 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
     >
       <div className="grid-layout">
         <button
-          onClick={() => handleNavigation("/", "home")}
-          className="col-start-1 col-end-3"
+          onClick={() => handleNavigation("/")}
+          className="col-start-1 col-end-3 w-fit"
         >
           <Logo className="h-3.5 text-brand-w1" />
         </button>
 
         <div className="ga-5 col-start-3 col-end-11 flex w-full justify-center gap-5">
           {links.map((link) => (
-            <button
-              className="space-x-1 text-p text-brand-w1 transition-colors duration-300 hover:text-brand-o"
-              key={link.href}
-              onClick={() => handleNavigation(link.href, link.routeName)}
-            >
-              <span>{link.title}</span>
+            <div key={link.href} className="flex items-center gap-1 text-p">
+              <button
+                className="space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o"
+                onClick={() => handleNavigation(link.href)}
+              >
+                {link.title}
+              </button>
               {link.count && (
                 <sup className="text-caption text-brand-g1">({link.count})</sup>
               )}
-            </button>
+            </div>
           ))}
         </div>
 
@@ -101,12 +114,12 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
               {music ? "On" : "Off"}
             </span>
           </button>
-          <Link
-            href="mailto:hello@basement.studio"
+          <button
+            onClick={() => setIsContactOpen(!isContactOpen)}
             className="text-p capitalize text-brand-w1"
           >
-            Work with us
-          </Link>
+            {isContactOpen ? "Close" : "Contact Us"}
+          </button>
         </div>
       </div>
     </nav>

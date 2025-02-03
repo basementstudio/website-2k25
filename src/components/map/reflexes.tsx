@@ -1,8 +1,7 @@
 "use client"
 
 import { useLoader, useThree } from "@react-three/fiber"
-import { animate } from "motion"
-import { memo, Suspense, useEffect, useMemo, useRef } from "react"
+import { memo, Suspense, useEffect, useMemo } from "react"
 import {
   Group,
   Mesh,
@@ -12,8 +11,6 @@ import {
   Texture,
   TextureLoader
 } from "three"
-
-import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 
@@ -29,8 +26,10 @@ function useReflexes(): Record<string, Texture> {
     return loadedMaps.reduce(
       (acc, map, index) => {
         map.flipY = true
-        map.magFilter = NearestFilter
         map.colorSpace = NoColorSpace
+        map.generateMipmaps = false
+        map.minFilter = NearestFilter
+        map.magFilter = NearestFilter
         acc[glassReflexes[index].mesh] = map
         return acc
       },
@@ -42,10 +41,6 @@ function useReflexes(): Record<string, Texture> {
 }
 
 function Reflexes() {
-  const shaderMaterialsRef = useCustomShaderMaterial(
-    (store) => store.materialsRef
-  )
-
   const reflexes = useReflexes()
 
   const scene = useThree((state) => state.scene)

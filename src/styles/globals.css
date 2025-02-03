@@ -58,7 +58,7 @@
 
   .with-diagonal-lines {
     @apply relative overflow-hidden;
-    @apply after:pointer-events-none after:absolute after:-inset-12 after:from-brand-w1/[0.12];
+    @apply after:pointer-events-none after:absolute after:-inset-12 after:from-brand-w1/[0.20];
   }
 
   .with-diagonal-lines:after {
@@ -70,7 +70,8 @@
       var(--tw-gradient-from) 4.242640687px
     );
 
-    animation: diagonalPatternAnimation 3s linear infinite;
+    /* TODO: Find some alternative method to display the animated diagonallines without causing glitches */
+    /* animation: diagonalPatternAnimation 3s linear infinite; */
   }
 }
 
@@ -105,4 +106,10 @@ body {
   to {
     transform: translateX(48px);
   }
+}
+
+button:focus,
+input:focus,
+a:focus {
+  @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500;
 }

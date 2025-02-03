@@ -4,7 +4,6 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls, folder as levaFolder } from "leva"
-import { usePathname } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -28,10 +27,12 @@ import {
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
-import { animateCar } from "./map-utils"
 import { ReflexesLoader } from "./reflexes"
+import { useCarAnimation } from "./use-car-animation"
+import { useGodrays } from "./use-godrays"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -50,34 +51,42 @@ const createVideoTexture = (url: string) => {
   return new THREE.VideoTexture(videoElement)
 }
 
+type SceneType = Object3D<Object3DEventMap> | null
+
 export const Map = memo(() => {
-  const pathname = usePathname()
-  const { map, basketballNet, videos, clickables } = useAssets()
-  const { scene } = useGLTF(map) as unknown as GLTFResult
-  const { scene: basketballNetV2 } = useGLTF(basketballNet)
-  const [mainScene, setMainScene] = useState<Object3D<Object3DEventMap> | null>(
-    null
-  )
-  const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
-  const [clickableNodesData, setClickableNodesData] = useState<
-    Record<
-      string,
-      {
-        name: string
-        frameData: any
-        node: Mesh
-        arrowData: any
-        route: string
-      }
-    >
-  >({})
+  const {
+    office: officePath,
+    outdoor: outdoorPath,
+    godrays: godraysPath,
+    basketballNet: basketballNetPath,
+    routingElements: routingElementsPath,
+    videos
+  } = useAssets()
+  const currentScene = useNavigationStore((state) => state.currentScene)
+  const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
+  const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
+  const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
+  const { scene: basketballNetModel } = useGLTF(basketballNetPath)
+  const { scene: routingElementsModel } = useGLTF(
+    routingElementsPath
+  ) as unknown as GLTFResult
+
+  const [officeScene, setOfficeScene] = useState<SceneType>(null)
+  const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
+  const [godrayScene, setGodrayScene] = useState<SceneType>(null)
+
+  const [godrays, setGodrays] = useState<Mesh[]>([])
+  useGodrays({ godrays })
+
+  const [car, setCar] = useState<Mesh | null>(null)
+  useCarAnimation({ car })
 
   const shaderMaterialsRef = useCustomShaderMaterial(
     (store) => store.materialsRef
   )
 
   const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
-  const [car, setCar] = useState<Object3D | null>(null)
+  const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
 
   const animationProgress = useRef(0)
@@ -99,10 +108,6 @@ export const Map = memo(() => {
     )
   })
 
-  // const { jitter } = useControls("jitter", {
-  //   jitter: 512.0
-  // })
-
   const colorPickerRef = useRef<Mesh>(null)
   const { showColorPicker } = useControls({
     "color picker": levaFolder(
@@ -115,7 +120,21 @@ export const Map = memo(() => {
     )
   })
 
+  const { godraysOpacity } = useControls("godrays", {
+    godraysOpacity: {
+      value: 0.5,
+      min: 0.0,
+      max: 5.0,
+      step: 0.001
+    }
+  })
+
   useFrame(({ clock }) => {
+    godrays.forEach((mesh) => {
+      // @ts-ignore
+      mesh.material.uniforms.uGodrayDensity.value = godraysOpacity
+    })
+
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
 
@@ -126,20 +145,12 @@ export const Map = memo(() => {
       )
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
-
-      // material.uniforms.uJitter.value = jitter
     })
 
     if (keyframedNet && isAnimating.current) {
       const mesh = keyframedNet as Mesh
       animationProgress.current += NET_ANIMATION_SPEED
       isAnimating.current = animateNet(mesh, animationProgress.current)
-    }
-
-    if (car) {
-      const mesh = car as Mesh
-      animationProgress.current += clock.getElapsedTime()
-      animateCar(mesh, animationProgress.current, pathname)
     }
 
     if (colorPickerRef.current) {
@@ -152,20 +163,25 @@ export const Map = memo(() => {
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
+    routingElementsModel.traverse((child) => {
+      if (child instanceof Mesh) {
+        const matchingTab = currentScene?.tabs?.find((tab) =>
+          child.name.includes(tab.tabClickableName)
+        )
 
-    clickables.forEach((node) => {
-      const child = scene.getObjectByName(`${node.title}`)
-      if (child) {
-        child.removeFromParent()
-        routingNodes[node.title] = child as Mesh
+        if (matchingTab) {
+          routingNodes[matchingTab.tabClickableName] = child
+        }
       }
     })
 
-    const hoopMesh = scene.getObjectByName("SM_BasketballHoop")
-    const originalNet = scene.getObjectByName("SM_BasketRed")
-    const newNetMesh = basketballNetV2.getObjectByName("SM_BasketRed-v2")
+    setRoutingNodes(routingNodes)
 
-    const carMesh = scene.getObjectByName("Car01")
+    const hoopMesh = officeModel.getObjectByName("SM_BasketballHoop")
+    const originalNet = officeModel.getObjectByName("SM_BasketRed")
+    const newNetMesh = basketballNetModel.getObjectByName("SM_BasketRed-v2")
+
+    const carMesh = outdoorModel.getObjectByName("car01")
 
     if (hoopMesh) setBasketballHoop(hoopMesh)
     if (originalNet) originalNet.removeFromParent()
@@ -173,10 +189,9 @@ export const Map = memo(() => {
       newNetMesh.removeFromParent()
       setKeyframedNet(newNetMesh)
     }
+    if (carMesh) setCar(carMesh as Mesh)
 
-    if (carMesh) setCar(carMesh)
-
-    scene.traverse((child) => {
+    const traverse = (child: Object3D) => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
       }
@@ -187,15 +202,15 @@ export const Map = memo(() => {
         if (meshChild.name === "SM_ColorChecker_")
           colorPickerRef.current = meshChild
 
-        const ommitNode = Boolean(
-          clickables.find((n) => n.title === meshChild.name)?.title
-        )
-        if (ommitNode) return
-
         const alreadyReplaced = meshChild.userData.hasGlobalMaterial
         if (alreadyReplaced) return
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
+        if (currentMaterial.map) {
+          currentMaterial.map.generateMipmaps = false
+          currentMaterial.map.magFilter = THREE.NearestFilter
+          currentMaterial.map.minFilter = THREE.NearestFilter
+        }
 
         const video = videos.find((video) => video.mesh === meshChild.name)
 
@@ -203,18 +218,22 @@ export const Map = memo(() => {
           const videoTexture = createVideoTexture(video.url)
 
           currentMaterial.map = videoTexture
+          currentMaterial.map.flipY = false
+
+          currentMaterial.map.generateMipmaps = false
+          currentMaterial.map.magFilter = THREE.NearestFilter
+          currentMaterial.map.minFilter = THREE.NearestFilter
+
           currentMaterial.emissiveMap = videoTexture
           currentMaterial.emissiveIntensity = video.intensity
+          currentMaterial.emissiveMap.generateMipmaps = false
+          currentMaterial.emissiveMap.magFilter = THREE.NearestFilter
+          currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
         }
 
         const isGlass =
           currentMaterial.name === "BSM_MTL_Glass" ||
           currentMaterial.name === "BSM_MTL_LightLibrary"
-
-        const isGodRay =
-          meshChild.name === "GR_About" || meshChild.name === "GR_Home"
-
-        if (isGodRay) currentMaterial.opacity = 0
 
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
@@ -223,7 +242,7 @@ export const Map = memo(() => {
                 false,
                 {
                   GLASS: isGlass,
-                  GODRAY: isGodRay
+                  GODRAY: false
                 }
               )
             )
@@ -232,7 +251,7 @@ export const Map = memo(() => {
               false,
               {
                 GLASS: isGlass,
-                GODRAY: isGodRay
+                GODRAY: false
               }
             )
 
@@ -240,17 +259,64 @@ export const Map = memo(() => {
 
         meshChild.userData.hasGlobalMaterial = true
       }
+    }
+
+    officeModel.traverse((child) => traverse(child))
+
+    routingElementsModel.traverse((child) => traverse(child))
+
+    outdoorModel.traverse((child) => traverse(child))
+
+    godrayModel.traverse((child) => {
+      if ("isMesh" in child) {
+        const meshChild = child as Mesh
+        const alreadyReplaced = meshChild.userData.hasGlobalMaterial
+        if (alreadyReplaced) return
+
+        const currentMaterial = meshChild.material as MeshStandardMaterial
+
+        if (currentMaterial.map) {
+          currentMaterial.map.generateMipmaps = false
+          currentMaterial.map.magFilter = THREE.NearestFilter
+          currentMaterial.map.minFilter = THREE.NearestFilter
+        }
+
+        const newMaterials = Array.isArray(currentMaterial)
+          ? currentMaterial.map((material) =>
+              createGlobalShaderMaterial(
+                material as MeshStandardMaterial,
+                false,
+                {
+                  GODRAY: true
+                }
+              )
+            )
+          : createGlobalShaderMaterial(
+              currentMaterial as MeshStandardMaterial,
+              false,
+              {
+                GODRAY: true
+              }
+            )
+
+        meshChild.material = newMaterials
+        meshChild.userData.hasGlobalMaterial = true
+        setGodrays((prev) => [...prev, meshChild])
+      }
     })
 
-    setMainScene(scene)
-
-    // Split the routing nodes
-
-    setRoutingNodes((current) => ({
-      ...current,
-      ...routingNodes
-    }))
-  }, [scene, basketballNetV2, videos, clickables])
+    setOfficeScene(officeModel)
+    setOutdoorScene(outdoorModel)
+    setGodrayScene(godrayModel)
+  }, [
+    officeModel,
+    outdoorModel,
+    godrayModel,
+    basketballNetModel,
+    routingElementsModel,
+    videos,
+    currentScene
+  ])
 
   useEffect(() => {
     const handleScore = () => {
@@ -262,58 +328,33 @@ export const Map = memo(() => {
     return () => window.removeEventListener("basketball-score", handleScore)
   }, [])
 
-  useEffect(() => {
-    const clickableNodesData = clickables.reduce((acc, clickable) => {
-      const node = routingNodes[clickable.title]
-      // Only add to clickableNodesData if node exists
-      if (!node) return acc
-
-      return {
-        ...acc,
-        [clickable.title]: {
-          name: clickable.title,
-          route: clickable.route,
-          frameData: {
-            position: clickable.framePosition,
-            rotation: clickable.frameRotation,
-            size: clickable.frameSize,
-            hoverName: clickable.hoverName
-          },
-          arrowData: {
-            position: clickable.arrowPosition,
-            scale: clickable.arrowScale,
-            rotation: clickable.arrowRotation
-          },
-          node
-        }
-      }
-    }, {})
-
-    setClickableNodesData(clickableNodesData)
-  }, [clickables, routingNodes])
-  if (!mainScene) return null
+  if (!officeScene || !outdoorScene || !godrayScene) return null
 
   return (
     <group>
-      <primitive object={mainScene} />
+      <primitive object={officeScene} />
+      <primitive object={outdoorScene} />
+      <primitive object={godrayScene} />
       <ArcadeScreen />
-      {Object.values(clickableNodesData).map(
-        ({ frameData, name, node, arrowData, route }) => (
-          <RoutingElement
-            key={name}
-            node={node}
-            route={route}
-            frameData={frameData}
-            arrowData={arrowData}
-          />
-        )
-      )}
       {basketballHoop && (
         <RigidBody type="fixed" colliders="trimesh">
           <primitive object={basketballHoop} />
         </RigidBody>
       )}
+      {Object.values(routingNodes).map((node) => {
+        const matchingTab = currentScene?.tabs?.find(
+          (tab) => tab.tabClickableName === node.name
+        )
 
+        return (
+          <RoutingElement
+            key={node.name}
+            node={node}
+            route={matchingTab?.tabRoute ?? ""}
+            hoverName={matchingTab?.tabHoverName ?? node.name}
+          />
+        )
+      })}
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && <primitive position-x={-8.7} object={car} />}
       <PlayedBasketballs />

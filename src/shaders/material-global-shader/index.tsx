@@ -71,7 +71,9 @@ export const createGlobalShaderMaterial = (
       aoWithCheckerboard: { value: false },
       isBasketball: { value: false },
       uBasketballTransition: { value: 0 },
-      uBasketballFogColorTransition: { value: 0 }
+      uBasketballFogColorTransition: { value: 0 },
+      uGodrayOpacity: { value: 0 },
+      uGodrayDensity: { value: 0 }
     },
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
@@ -113,6 +115,7 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
     },
     setIsBasketball: (value) => {
       const materials = get().materialsRef
+
       Object.values(materials).forEach((material) => {
         material.uniforms.isBasketball.value = value
 
@@ -135,29 +138,25 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
         const animate = () => {
           const currentTime = performance.now()
 
-          // Main transition
           const elapsed = currentTime - startTime
           const progress = Math.min(elapsed / duration, 1)
-          const easeProgress =
-            progress < 0.5
-              ? 2 * progress * progress
-              : -1 + (4 - 2 * progress) * progress
-          material.uniforms.uBasketballTransition.value =
-            startValue + (endValue - startValue) * easeProgress
 
           const elapsedFog = currentTime - startFogTime
           const fogProgress = Math.min(elapsedFog / fogDuration, 1)
 
-          const easeFogProgress =
-            fogProgress < 0.5
-              ? 2 * fogProgress * fogProgress
-              : -1 + (4 - 2 * fogProgress) * fogProgress
-          material.uniforms.uBasketballFogColorTransition.value =
-            startFogValue + (endFogValue - startFogValue) * easeFogProgress
+          const transitionValue =
+            startValue + (endValue - startValue) * progress
+          const fogValue =
+            startFogValue + (endFogValue - startFogValue) * fogProgress
+
+          material.uniforms.uBasketballTransition.value = transitionValue
+          material.uniforms.uBasketballFogColorTransition.value = fogValue
 
           if (progress < 1 || fogProgress < 1) {
             material.userData.animationFrame = requestAnimationFrame(animate)
           } else {
+            material.uniforms.uBasketballTransition.value = endValue
+            material.uniforms.uBasketballFogColorTransition.value = endFogValue
             delete material.userData.animationFrame
           }
         }

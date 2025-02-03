@@ -4,7 +4,7 @@ import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 
 export const query = fragmentOn("Query", {
   pages: {
-    about: {
+    services: {
       intro: {
         json: { content: true }
       },
@@ -12,25 +12,27 @@ export const query = fragmentOn("Query", {
         items: {
           image: IMAGE_FRAGMENT
         }
+      },
+      ventures: {
+        title: true,
+        content: {
+          json: {
+            content: true
+          }
+        }
       }
     }
   },
   company: {
     services: {
-      serviceList: {
+      serviceCategories: {
         items: {
           _title: true,
-          category: {
-            _title: true
+          description: {
+            json: {
+              content: true
+            }
           }
-        }
-      }
-    },
-    clients: {
-      clientList: {
-        items: {
-          _title: true,
-          website: true
         }
       }
     },
@@ -54,8 +56,23 @@ export const query = fragmentOn("Query", {
           awardUrl: true,
           project: {
             _title: true
-          }
+          },
+          certificate: IMAGE_FRAGMENT
         }
+      }
+    },
+    testimonials: {
+      services: {
+        name: true,
+        handle: true,
+        handleLink: true,
+        content: {
+          json: {
+            content: true
+          }
+        },
+        avatar: IMAGE_FRAGMENT,
+        date: true
       }
     }
   }

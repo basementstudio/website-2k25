@@ -2,15 +2,19 @@ import { OrthographicCamera } from "@react-three/drei"
 import { useControls, folder as levaFolder } from "leva"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
-import { ShaderMaterial, Texture, Vector2 } from "three"
-
-import { useCameraStore } from "@/store/app-store"
+import {
+  OrthographicCamera as ThreeOrthographicCamera,
+  ShaderMaterial,
+  Texture,
+  Vector2
+} from "three"
 
 import postFrag from "./post.frag"
 import postVert from "./post.vert"
 
 interface PostProcessingProps {
   mainTexture: Texture
+  cameraRef: React.RefObject<ThreeOrthographicCamera | null>
 }
 
 const material = new ShaderMaterial({
@@ -45,7 +49,10 @@ const material = new ShaderMaterial({
   }
 })
 
-export function PostProcessing({ mainTexture }: PostProcessingProps) {
+export function PostProcessing({
+  mainTexture,
+  cameraRef
+}: PostProcessingProps) {
   const pathname = usePathname()
 
   useControls({
@@ -94,41 +101,34 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     )
   })
 
-  useControls({
-    bloom: levaFolder(
-      {
-        bloomThreshold: {
-          value: 3,
-          min: 0.0,
-          max: 10.0,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uBloomThreshold.value = value
-          }
-        },
-        bloomStrength: {
-          value: 0.03,
-          min: 0.0,
-          max: 2.0,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uBloomStrength.value = value
-          }
-        },
-        bloomRadius: {
-          value: 8.0,
-          min: 1.0,
-          max: 64.0,
-          step: 1,
-          onChange(value) {
-            material.uniforms.uBloomRadius.value = value
-          }
-        }
-      },
-      {
-        collapsed: true
+  useControls("bloom", {
+    bloomThreshold: {
+      value: 1,
+      min: 0.0,
+      max: 10.0,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uBloomThreshold.value = value
       }
-    )
+    },
+    bloomStrength: {
+      value: 0.15,
+      min: 0.0,
+      max: 2.0,
+      step: 0.01,
+      onChange(value) {
+        material.uniforms.uBloomStrength.value = value
+      }
+    },
+    bloomRadius: {
+      value: 5.0,
+      min: 1.0,
+      max: 64.0,
+      step: 1,
+      onChange(value) {
+        material.uniforms.uBloomRadius.value = value
+      }
+    }
   })
 
   useControls({
@@ -233,8 +233,6 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     const isBasketball = pathname === "/basketball"
     const startSaturationValue = material.uniforms.uSaturation.value
     const endSaturationValue = isBasketball ? 0.0 : 1.0
-    const startContrastValue = material.uniforms.uContrast.value
-    const endContrastValue = isBasketball ? 1.63 : 1.02
     const startVignetteValue = material.uniforms.uVignetteStrength.value
     const endVignetteValue = isBasketball ? 1.0 : 0.0
     const duration = 800
@@ -255,10 +253,6 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
       material.uniforms.uSaturation.value =
         startSaturationValue +
         (endSaturationValue - startSaturationValue) * easeProgress
-
-      // material.uniforms.uContrast.value =
-      //   startContrastValue +
-      //   (endContrastValue - startContrastValue) * easeProgress
 
       material.uniforms.uVignetteStrength.value =
         startVignetteValue +
@@ -282,6 +276,7 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     <>
       <OrthographicCamera
         manual
+        ref={cameraRef}
         position={[0, 0, 1]}
         left={-0.5}
         right={0.5}
@@ -289,10 +284,6 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         bottom={-0.5}
         near={0.1}
         far={1000}
-        ref={(r) => {
-          // @ts-ignore
-          if (r) useCameraStore.setState({ postProcessingCamera: r })
-        }}
       />
       <mesh>
         <planeGeometry args={[1, 1]} />
