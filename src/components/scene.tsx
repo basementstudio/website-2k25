@@ -13,6 +13,8 @@ import { Sparkles } from "@/components/sparkles"
 
 import { HoopMinigame } from "./basketball/hoop-minigame"
 import { CustomCamera } from "./camera/camera-controls"
+import { Character } from "./characters"
+import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { Debug } from "./debug"
 import { Map } from "./map/map"
 import { MapWire } from "./map/map-wire"
@@ -61,6 +63,8 @@ export const Scene = () => {
                 <Map />
                 <HoopMinigame />
               </Physics>
+              <CharacterInstanceConfig />
+              <Character />
             </>
           }
         />
