@@ -6,6 +6,7 @@ import { useCallback } from "react"
 
 import { ArcadeNameInput } from "@/components/basketball/arcade-name-input"
 import Scoreboard from "@/components/basketball/scoreboard"
+import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 
@@ -22,6 +23,8 @@ const Basketball = () => {
     timeRemaining
   } = useMinigameStore()
   const router = useRouter()
+
+  useDisableScroll(true)
 
   const handlePlayAgain = () => {
     setReadyToPlay(true)
