@@ -65,6 +65,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
                   "absolute inset-0 object-cover opacity-0 transition-opacity duration-300",
                   !item.disabled && "opacity-100 group-hover:opacity-70"
                 )}
+                priority
               />
 
               {!item.disabled && (
