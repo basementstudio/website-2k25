@@ -1,6 +1,5 @@
-import Link from "next/link"
-
 import { LinkedInIcon, XIcon } from "@/components/icons/icons"
+import { Link } from "@/components/primitives/link"
 import { formatDate } from "@/utils/format-date"
 
 const socialLinks = [

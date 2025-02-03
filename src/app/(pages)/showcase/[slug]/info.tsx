@@ -1,9 +1,9 @@
 import Image from "next/image"
-import Link from "next/link"
 
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { InfoItem } from "@/components/primitives/info-item"
+import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
 import { TextList } from "@/components/primitives/text-list"
 

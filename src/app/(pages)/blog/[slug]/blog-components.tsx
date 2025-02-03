@@ -5,8 +5,9 @@ import {
 } from "basehub/react-code-block"
 import { HandlerProps } from "basehub/react-rich-text"
 import Image from "next/image"
-import Link from "next/link"
 import { ReactNode } from "react"
+
+import { Link } from "@/components/primitives/link"
 
 import styles from "./code-block.module.css"
 

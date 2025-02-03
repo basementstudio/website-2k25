@@ -1,7 +1,7 @@
 import { RichText } from "basehub/react-rich-text"
 import Image from "next/image"
-import Link from "next/link"
 
+import { Link } from "@/components/primitives/link"
 import { formatDate, formatTestimonialDate } from "@/utils/format-date"
 
 import { QueryType } from "./query"
