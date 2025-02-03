@@ -2,7 +2,7 @@ import { CameraControls } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useControls } from "leva"
 import { easing } from "maath"
-import { usePathname } from "next/navigation"
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
@@ -19,8 +19,6 @@ import {
 } from "./camera-utils"
 
 export const CustomCamera = () => {
-  const pathname = usePathname()
-
   const currentScene = useCurrentScene()
   const { selected } = useInspectable()
 
@@ -89,9 +87,7 @@ export const CustomCamera = () => {
     boundary.scale.set(width * 0.6, height, 1)
     plane.scale.set(width * 0.4, height, 1)
 
-    return () => {
-      controls.dispose()
-    }
+    return () => controls.dispose()
   }, [])
 
   useEffect(() => {
@@ -194,11 +190,16 @@ export const CustomCamera = () => {
       currentPos.set(...cameraConfig.position)
       currentTarget.set(...cameraConfig.target)
       currentFov.current = cameraConfig.fov ?? 60
-      controls.setPosition(currentPos.x, currentPos.y, currentPos.z, false)
+      controls.setPosition(
+        currentPos.x + panningOffset.current.x,
+        currentPos.y + panningOffset.current.y,
+        currentPos.z + panningOffset.current.z,
+        false
+      )
       controls.setTarget(
-        currentTarget.x,
-        currentTarget.y,
-        currentTarget.z,
+        currentTarget.x + panningOffsetLookAt.current.x,
+        currentTarget.y + panningOffsetLookAt.current.y,
+        currentTarget.z + panningOffsetLookAt.current.z,
         false
       )
       if (controls.camera instanceof PerspectiveCamera) {
