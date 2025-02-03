@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -8,6 +7,8 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
+
+import { useContactStore } from "../contact/contact-store"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -31,7 +32,11 @@ interface NavbarContentProps {
 export const NavbarContent = ({ links }: NavbarContentProps) => {
   const [music, setMusic] = useState(true)
   const { setVolumeMaster } = useSiteAudio()
+
   const { handleNavigation } = useHandleNavigation()
+
+  const { setIsContactOpen, isContactOpen } = useContactStore()
+
   const isOnTab = useIsOnTab()
 
   const pathname = usePathname()
@@ -96,12 +101,12 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
               {music ? "On" : "Off"}
             </span>
           </button>
-          <Link
-            href="mailto:hello@basement.studio"
+          <button
+            onClick={() => setIsContactOpen(!isContactOpen)}
             className="text-p capitalize text-brand-w1"
           >
-            Work with us
-          </Link>
+            {isContactOpen ? "Close" : "Contact Us"}
+          </button>
         </div>
       </div>
     </nav>
