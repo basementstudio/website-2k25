@@ -4,8 +4,8 @@ import { useControls } from "leva"
 import { useEffect, useState } from "react"
 import { PerspectiveCamera } from "three"
 
-import { CustomCamera } from "./camera-controls"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
+import { CustomCamera } from "./camera-controls"
 
 export const CameraController = () => {
   const [isOrbitMode, setIsOrbitMode] = useState(false)
