@@ -3,12 +3,11 @@ body {
   --size: 100vw;
 }
 
-.layout-container,
-.canvas-container {
+.layout-container {
+  /* .canvas-container */
   mask-image: var(--mask-image);
   mask-repeat: repeat-y;
   mask-size: calc((var(--mask-frames) + 1) * var(--size)) var(--size);
-  mask-position: var(--position, 100%) 0%; /* TODO: align masks by taking into account the scroll position */
 }
 
 .layout-container {
@@ -16,13 +15,15 @@ body {
   mask-image: var(--mask-in);
   transition: mask-position var(--speed) calc(var(--speed) * 0)
     steps(var(--mask-frames));
+  mask-position: var(--position, 100%) 0%;
 }
 
-.canvas-container {
+/* .canvas-container {
   --position: 0%;
   mask-image: var(--mask-out);
   transition: mask-position var(--speed) steps(var(--mask-frames));
-}
+  mask-position: var(--position, 100%) 0%;
+} */
 
 [data-flip="true"] {
   body {
@@ -36,11 +37,11 @@ body {
       transform var(--speed) steps(var(--mask-frames));
   }
 
-  .canvas-container {
+  /* .canvas-container {
     --position: 100%;
     transition: mask-position var(--speed) calc(var(--speed) * 0)
       steps(var(--mask-frames));
-  }
+  } */
 }
 
 [data-disabled="true"] {
@@ -48,8 +49,8 @@ body {
     --position: 100%;
     transition: mask-position 0s;
   }
-  .canvas-container {
+  /* .canvas-container {
     --position: 100%;
     transition: mask-position 0s;
-  }
+  } */
 }

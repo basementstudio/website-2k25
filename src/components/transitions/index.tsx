@@ -6,8 +6,8 @@ import { useEffect } from "react"
 
 const config = {
   cells: 32,
-  frames: 12,
-  speed: 1.5
+  frames: 15,
+  speed: 0.75
 }
 
 export const Transitions = () => {
@@ -120,6 +120,10 @@ export const Transitions = () => {
       const viewportHeight = window.innerHeight
       document.documentElement.dataset.disabled =
         scrolled <= viewportHeight ? "true" : "false"
+      document.documentElement.style.setProperty(
+        "--scroll-height",
+        `${scrolled}px`
+      )
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
