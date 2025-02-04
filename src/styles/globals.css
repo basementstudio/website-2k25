@@ -86,7 +86,8 @@ body {
 }
 
 *::selection {
-  /* TODO: Add selection styles */
+  color: #000;
+  background-color: #ff4d00;
 }
 
 ::-webkit-scrollbar {

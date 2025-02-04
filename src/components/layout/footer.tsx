@@ -71,7 +71,7 @@ export const Footer = () => (
 
             <InternalLinks className="col-start-7 col-end-9" links={LINKS} />
 
-            <SoDa className="col-start-9 col-end-11 -mb-1" />
+            <SoDa className="col-start-9 col-end-11" />
 
             <div className="col-start-11 col-end-13 flex flex-col items-end gap-y-2">
               <SocialLinks links={data.company.social} />
@@ -123,15 +123,30 @@ interface SocialLinksProps {
 
 const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div className={cn("flex gap-x-1 !text-p text-brand-g1", className)}>
-    <Link className="actionable text-brand-w1" href={links.twitter}>
+    <Link
+      className="actionable text-brand-w1"
+      href={links.twitter}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       X (Twitter)
     </Link>
     <span>,</span>
-    <Link className="actionable text-brand-w1" href={links.instagram}>
+    <Link
+      className="actionable text-brand-w1"
+      href={links.instagram}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       Instagram
     </Link>
     <span>,</span>
-    <Link className="actionable text-brand-w1" href={links.github}>
+    <Link
+      className="actionable text-brand-w1"
+      href={links.github}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       GitHub
     </Link>
   </div>
@@ -145,14 +160,17 @@ const Copyright = ({ className }: { className?: string }) => (
 
 const SoDa = ({ className }: { className?: string }) => (
   <div className={cn("flex w-full items-center gap-2", className)}>
-    <p
+    <Link
       className={cn(
         "text-right !text-p font-semibold text-brand-w1",
         className
       )}
+      href="https://www.sodaspeaks.com/"
+      target="_blank"
+      rel="noopener noreferrer"
     >
       Proud Member of SoDA
-    </p>
+    </Link>
 
     <SodaLogo className="size-6 text-brand-w1" />
   </div>

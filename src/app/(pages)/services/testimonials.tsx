@@ -12,7 +12,7 @@ export const Testimonials = ({ data }: { data: QueryType }) => {
   return (
     <div className="grid-layout !gap-y-8">
       <div className="relative col-span-12 text-center text-h1 text-brand-w1">
-        <div className="mx-auto max-w-[1440px]">
+        <div className="mx-auto max-w-[1440px] [&_p]:text-pretty">
           <RichText>{testimonial.content?.json.content}</RichText>
         </div>
 
