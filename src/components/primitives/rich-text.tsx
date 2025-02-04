@@ -1,5 +1,6 @@
 import { RichText as BaseRichText } from "basehub/react-rich-text"
-import Link from "next/link"
+
+import { Link } from "@/components/primitives/link"
 
 export function RichText({ children }: { children: any }) {
   return (

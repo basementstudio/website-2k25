@@ -1,22 +1,23 @@
 import { animate } from "motion"
-import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { Mesh, ShaderMaterial } from "three"
+
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 interface GodraysHandlerProps {
   godrays: Mesh[]
 }
 
 export const useGodrays = ({ godrays }: GodraysHandlerProps) => {
-  const pathname = usePathname()
+  const scene = useCurrentScene()
 
   useEffect(() => {
     godrays.forEach((mesh) => {
       const material = mesh.material as ShaderMaterial
 
       const shouldShow =
-        (mesh.name === "GR_About" && pathname === "/services") ||
-        (mesh.name === "GR_Home" && pathname === "/")
+        (mesh.name === "GR_About" && scene === "services") ||
+        (mesh.name === "GR_Home" && scene === "home")
 
       if (material.userData.opacityAnimation)
         material.userData.opacityAnimation.stop()
@@ -27,14 +28,11 @@ export const useGodrays = ({ godrays }: GodraysHandlerProps) => {
         {
           duration: 0.5,
           ease: "easeInOut",
-          onUpdate: (latest) => {
-            material.uniforms.uGodrayOpacity.value = latest
-          },
-          onComplete: () => {
-            delete material.userData.opacityAnimation
-          }
+          onUpdate: (latest) =>
+            (material.uniforms.uGodrayOpacity.value = latest),
+          onComplete: () => delete material.userData.opacityAnimation
         }
       )
     })
-  }, [pathname, godrays])
+  }, [scene, godrays])
 }

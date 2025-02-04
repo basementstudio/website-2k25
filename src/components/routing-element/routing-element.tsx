@@ -1,7 +1,8 @@
-import { useThree } from "@react-three/fiber"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
+
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
@@ -24,9 +25,8 @@ export const RoutingElement = ({
   const setCursorType = useMouseStore((state) => state.setCursorType)
   const { currentTabIndex, isCanvasTabMode, currentScene } =
     useNavigationStore()
+  const { handleNavigation } = useHandleNavigation()
 
-  const scene = useThree((state) => state.scene)
-  const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
   const [hover, setHover] = useState(false)
 
   const activeRoute = useMemo(() => {
@@ -36,27 +36,14 @@ export const RoutingElement = ({
   const meshRef = useRef<Mesh | null>(null)
 
   useEffect(() => {
-    if (activeRoute) {
-      setHover(false)
-    }
+    if (activeRoute) setHover(false)
   }, [activeRoute])
 
-  const handleNavigation = useCallback(
+  const navigate = useCallback(
     (route: string) => {
-      const setStairVisibility =
-        useNavigationStore.getState().setStairVisibility
-
-      router.push(route, { scroll: false })
-
-      if (route === "/") {
-        setTimeout(() => {
-          setStairVisibility(false)
-        }, 2200)
-      } else {
-        setStairVisibility(true)
-      }
+      handleNavigation(`${!route.startsWith("/") ? "/" : ""}${route}`)
     },
-    [router]
+    [handleNavigation]
   )
 
   useEffect(() => {
@@ -73,23 +60,17 @@ export const RoutingElement = ({
       setHoverText(hoverName)
 
       const handleKeyPress = (event: KeyboardEvent) => {
-        if (event.key === "Enter") {
-          handleNavigation(route)
-        }
+        if (event.key === "Enter") navigate(route)
       }
       window.addEventListener("keydown", handleKeyPress)
 
       return () => {
         window.removeEventListener("keydown", handleKeyPress)
-        if (!isCanvasTabMode) {
-          setHoverText(null)
-        }
+        if (!isCanvasTabMode) setHoverText(null)
       }
     } else {
       setHover(false)
-      if (!isCanvasTabMode) {
-        setHoverText(null)
-      }
+      if (!isCanvasTabMode) setHoverText(null)
     }
   }, [
     isCanvasTabMode,
@@ -97,7 +78,7 @@ export const RoutingElement = ({
     currentTabIndex,
     node.name,
     hoverName,
-    handleNavigation,
+    navigate,
     route
   ])
 
@@ -122,7 +103,7 @@ export const RoutingElement = ({
         onClick={(e) => {
           e.stopPropagation()
           if (activeRoute) return
-          handleNavigation(route)
+          navigate(route)
           setCursorType("default")
         }}
       >

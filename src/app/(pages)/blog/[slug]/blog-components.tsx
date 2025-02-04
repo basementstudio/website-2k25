@@ -5,8 +5,9 @@ import {
 } from "basehub/react-code-block"
 import { HandlerProps } from "basehub/react-rich-text"
 import Image from "next/image"
-import Link from "next/link"
 import { ReactNode } from "react"
+
+import { Link } from "@/components/primitives/link"
 
 import styles from "./code-block.module.css"
 
@@ -53,107 +54,88 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
   )
 }
 
-export const BlogVideo = (props: HandlerProps<"video">) => {
-  return (
-    <div className="relative min-h-[312px] w-full after:absolute after:inset-0 after:border after:border-brand-w1/20">
-      <div className="with-dots grid h-full w-full place-items-center">
-        <video
-          autoPlay
-          loop
-          muted
-          {...props}
-          className="w-[62.23%] object-contain"
-        />
-      </div>
+export const BlogVideo = (props: HandlerProps<"video">) => (
+  <div className="relative min-h-[312px] w-full after:absolute after:inset-0 after:border after:border-brand-w1/20">
+    <div className="with-dots grid h-full w-full place-items-center">
+      <video
+        autoPlay
+        loop
+        muted
+        {...props}
+        className="w-[62.23%] object-contain"
+      />
     </div>
-  )
-}
+  </div>
+)
 
-export const Intro = ({ children }: HandlerProps<"p">) => {
-  return <p className="mb-10 text-subheading text-brand-w2">{children}</p>
-}
+export const Intro = ({ children }: HandlerProps<"p">) => (
+  <p className="mb-10 text-subheading text-brand-w2">{children}</p>
+)
 
-export const Paragraph = ({ children }: HandlerProps<"p">) => {
-  return <p className="text-pretty text-blog text-brand-w2">{children}</p>
-}
+export const Paragraph = ({ children }: HandlerProps<"p">) => (
+  <p className="text-pretty text-blog text-brand-w2">{children}</p>
+)
 
-export const Heading2 = ({ children }: HandlerProps<"h2">) => {
-  return <h2 className="text-subheading text-brand-w2">{children}</h2>
-}
+export const Heading2 = ({ children }: HandlerProps<"h2">) => (
+  <h2 className="text-subheading text-brand-w2">{children}</h2>
+)
 
-export const Heading3 = ({ children }: HandlerProps<"h3">) => {
-  return <h3 className="text-subheading text-brand-w2">{children}</h3>
-}
+export const Heading3 = ({ children }: HandlerProps<"h3">) => (
+  <h3 className="text-subheading text-brand-w2">{children}</h3>
+)
 
-export const BlogLink = ({ children, href }: HandlerProps<"a">) => {
-  return (
-    <Link
-      href={href}
-      target={href.includes("https") ? "_blank" : "_self"}
-      className="font-semibold text-brand-w1 underline"
-    >
-      {children}
-    </Link>
-  )
-}
+export const BlogLink = ({ children, href }: HandlerProps<"a">) => (
+  <Link href={href} className="font-semibold text-brand-w1 underline">
+    {children}
+  </Link>
+)
 
-export const OrderedList = ({ children }: HandlerProps<"ol">) => {
-  return (
-    <ul className="list-decimal pl-3.5 text-brand-w2 marker:text-brand-o">
-      {children}
-    </ul>
-  )
-}
+export const OrderedList = ({ children }: HandlerProps<"ol">) => (
+  <ul className="list-decimal pl-3.5 text-brand-w2 marker:text-brand-o">
+    {children}
+  </ul>
+)
 
-export const UnorderedList = ({
-  children,
-  isTasksList
-}: HandlerProps<"ul"> & { isTasksList?: boolean }) => {
-  return (
-    <ul className="list-disc pl-3.5 text-brand-w2 marker:text-brand-o">
-      {children}
-    </ul>
-  )
-}
+export const UnorderedList = ({ children }: HandlerProps<"ul">) => (
+  <ul className="list-disc pl-3.5 text-brand-w2 marker:text-brand-o">
+    {children}
+  </ul>
+)
 
-export const ListItem = ({ children }: HandlerProps<"li">) => {
-  return <li className="text-brand-w2 marker:text-brand-o">{children}</li>
-}
+export const ListItem = ({ children }: HandlerProps<"li">) => (
+  <li className="text-brand-w2 marker:text-brand-o">{children}</li>
+)
 
-export const Code = ({ children }: HandlerProps<"code">) => {
-  return (
-    <code className="md:tracking-2 font-mono text-blog font-semibold">
-      ‘{children}’
-    </code>
-  )
-}
+export const Code = ({ children }: HandlerProps<"code">) => (
+  <code className="md:tracking-2 font-mono text-blog font-semibold">
+    ‘{children}’
+  </code>
+)
 
-export const Pre = ({ language, code }: HandlerProps<"pre">) => {
-  return (
-    <div className="w-full border-y border-brand-w2/20 bg-codeblock-k2 py-3">
-      <div className={styles["code-block"]}>
-        <CodeBlock
-          snippets={[
-            { code: `${code}`, language: language as Language, id: "1" }
-          ]}
-          theme={theme}
-          components={{
-            div: ({ children, ...rest }: { children: ReactNode }) => (
-              <div className={styles.content} {...rest}>
-                {children}
-              </div>
-            ),
-            pre: ({ children, ...rest }: { children: ReactNode }) => (
-              <pre className={styles.pre} {...rest}>
-                {children}
-              </pre>
-            )
-          }}
-          lineNumbers={{
-            className: styles.line_indicator
-          }}
-        />
-      </div>
+export const Pre = ({ language, code }: HandlerProps<"pre">) => (
+  <div className="w-full border-y border-brand-w2/20 bg-codeblock-k2 py-3">
+    <div className={styles["code-block"]}>
+      <CodeBlock
+        snippets={[
+          { code: `${code}`, language: language as Language, id: "1" }
+        ]}
+        theme={theme}
+        components={{
+          div: ({ children, ...rest }: { children: ReactNode }) => (
+            <div className={styles.content} {...rest}>
+              {children}
+            </div>
+          ),
+          pre: ({ children, ...rest }: { children: ReactNode }) => (
+            <pre className={styles.pre} {...rest}>
+              {children}
+            </pre>
+          )
+        }}
+        lineNumbers={{
+          className: styles.line_indicator
+        }}
+      />
     </div>
-  )
-}
+  </div>
+)

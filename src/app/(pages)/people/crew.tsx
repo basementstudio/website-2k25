@@ -1,10 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { Fragment, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
 import { cn } from "@/utils/cn"
 
@@ -62,7 +62,6 @@ export const Crew = ({ data }: { data: QueryType }) => {
                           <Link
                             href={socialNetwork.link as string}
                             className="actionable bg-brand-0 text-brand-w1"
-                            target="_blank"
                           >
                             {socialNetwork.platform}
                           </Link>

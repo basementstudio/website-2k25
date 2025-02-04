@@ -1,7 +1,7 @@
 import { Pump } from "basehub/react-pump"
-import Link from "next/link"
 
 import { Grid } from "@/components/grid"
+import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
 import { query } from "./query"
@@ -100,11 +100,7 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => (
   >
     {links.map((link) => (
       <li key={link.title}>
-        <Link
-          className="flex gap-x-0.5 text-h2 text-brand-w1"
-          href={link.href}
-          target={link.href.startsWith("http") ? "_blank" : undefined}
-        >
+        <Link className="flex gap-x-0.5 text-h2 text-brand-w1" href={link.href}>
           <span className="actionable">{link.title}</span>
           {link.count && (
             <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">

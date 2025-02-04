@@ -4,32 +4,34 @@ import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
-import { usePathname, useRouter } from "next/navigation"
+import dynamic from "next/dynamic"
+import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
-
-const HoopMinigame = dynamic(
-  () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
-  { ssr: false }
-)
-
-import dynamic from "next/dynamic"
 
 import { Map } from "./map/map"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
 
+const HoopMinigame = dynamic(
+  () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
+  { ssr: false }
+)
+
 import { CameraController } from "./camera/camera-controller"
 
 export const Scene = () => {
   const pathname = usePathname()
-  const router = useRouter()
-  const isBasketball = pathname === "/basketball"
+  const scene = useCurrentScene()
+  const { handleNavigation } = useHandleNavigation()
+  const isBasketball = scene === "basketball"
   const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const {
@@ -60,14 +62,10 @@ export const Scene = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
-      if (
-        pathname.startsWith("/services") ||
-        pathname.startsWith("/blog") ||
-        pathname.startsWith("/people")
-      ) {
-        router.push("/")
+      if (scene === "services" || scene === "blog" || scene === "people") {
+        handleNavigation("/")
       }
-    }, [pathname, router])
+    }, [scene, handleNavigation])
   )
 
   useEffect(() => {
@@ -115,6 +113,7 @@ export const Scene = () => {
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isCanvasTabMode,
       setCurrentTabIndex,

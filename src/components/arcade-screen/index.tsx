@@ -1,11 +1,12 @@
 import { useVideoTexture } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { usePathname } from "next/navigation"
 import { Suspense, useEffect, useMemo, useState } from "react"
 import { Mesh } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
-import { useAssets } from "../assets-provider"
+import { useAssets } from "@/components/assets-provider"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+
 import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
 import { ScreenUI } from "./screen-ui"
@@ -13,7 +14,7 @@ import { ScreenUI } from "./screen-ui"
 export const ArcadeScreen = () => {
   const { scene } = useThree()
 
-  const pathname = usePathname()
+  const currentScene = useCurrentScene()
 
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
@@ -44,7 +45,7 @@ export const ArcadeScreen = () => {
 
     videoTexture.flipY = false
 
-    if (pathname === "/lab") {
+    if (currentScene === "lab") {
       setHasVisitedArcade(true)
       screenMaterial.uniforms.map.value = renderTarget.texture
     } else if (!hasVisitedArcade) {
@@ -56,7 +57,7 @@ export const ArcadeScreen = () => {
     arcadeScreen,
     renderTarget.texture,
     videoTexture,
-    pathname,
+    currentScene,
     hasVisitedArcade
   ])
 
@@ -70,7 +71,7 @@ export const ArcadeScreen = () => {
 
   return (
     <RenderTexture
-      isPlaying={pathname === "/lab"}
+      isPlaying={currentScene === "lab"}
       fbo={renderTarget}
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}

@@ -1,6 +1,6 @@
 import Image from "next/image"
-import Link from "next/link"
 
+import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
 import { cn } from "@/utils/cn"
 

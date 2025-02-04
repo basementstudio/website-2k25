@@ -17,6 +17,7 @@ import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
+import { Transitions } from "@/components/transitions"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
 
@@ -40,18 +41,20 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
+      <Transitions />
       <Toolbar />
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body className={cn(geistSans.variable)}>
             <Navbar />
+
             <NavigationHandler />
-            <div className="sticky top-0 h-screen w-full">
+            <div className="canvas-container sticky top-0 h-screen w-full">
               <Scene />
               <Grid />
               <InspectableViewer />
             </div>
-            {children}
+            <div className="layout-container">{children}</div>
             <AppHooks />
             <Contact />
           </body>
