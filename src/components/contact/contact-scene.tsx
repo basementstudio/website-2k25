@@ -319,14 +319,14 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         <primitive position-y={-0.08} object={gltf.scene} />
       </group>
 
-      <RenderTexture
+      {/* <RenderTexture
         isPlaying={true}
         fbo={renderTarget}
         useGlobalPointer={false}
         raycasterMesh={screenMesh}
       >
         <PhoneScreenUI screenScale={screenScale} />
-      </RenderTexture>
+      </RenderTexture> */}
     </>
   )
 }

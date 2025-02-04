@@ -1,5 +1,7 @@
 import "@/styles/globals.css"
 
+// @ts-expect-error: partytown is not typed
+import { Partytown } from "@builder.io/partytown/react"
 import { Toolbar as BasehubToolbar } from "basehub/next-toolbar"
 
 import { AssetsProvider } from "@/components/assets-provider"
@@ -40,10 +42,14 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
-      <Toolbar />
-      <AssetsProvider assets={assets}>
-        <InspectableProvider>
-          <body className={cn(geistSans.variable)}>
+      <head>
+        <Partytown debug={true} forward={["dataLayer.push"]} />
+      </head>
+
+      <body className={cn(geistSans.variable)}>
+        <Toolbar />
+        <AssetsProvider assets={assets}>
+          <InspectableProvider>
             <Navbar />
             <NavigationHandler />
             <div className="sticky top-0 h-screen w-full">
@@ -54,9 +60,9 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             {children}
             <AppHooks />
             <Contact />
-          </body>
-        </InspectableProvider>
-      </AssetsProvider>
+          </InspectableProvider>
+        </AssetsProvider>
+      </body>
     </html>
   )
 }
