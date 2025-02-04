@@ -4,18 +4,11 @@ import "./transitions.css"
 
 import { useEffect } from "react"
 
-const config = {
-  cells: 32,
-  frames: 15,
-  speed: 0.75
-}
+import { CELLS, FRAMES, SPEED } from "@/constants/transitions"
 
 export const Transitions = () => {
   useEffect(() => {
-    document.documentElement.style.setProperty(
-      "--mask-speed",
-      config.speed.toString()
-    )
+    document.documentElement.style.setProperty("--mask-speed", SPEED.toString())
 
     // basic array shuffling function
     const shuffle = (arr: number[]) => {
@@ -25,6 +18,7 @@ export const Transitions = () => {
       }
       return arr
     }
+
     // split array into chunks to use for groups
     const split = (arr: number[], chunks: number) => {
       const chunkSize = Math.ceil(arr.length / chunks)
@@ -34,6 +28,7 @@ export const Transitions = () => {
       }
       return result
     }
+
     // convert SVG element into a data URL for CSS mask, etc.
     const svgToUrl = (svg: SVGElement) => {
       const svgString = new XMLSerializer().serializeToString(svg)
@@ -46,15 +41,15 @@ export const Transitions = () => {
     // this will generate an SVG sprite based on the given configuration
     const generateSprite = (prefix: string) => {
       const indices = split(
-        shuffle(new Array(config.cells ** 2).fill(0).map((_, i) => i)),
-        config.frames
+        shuffle(new Array(CELLS ** 2).fill(0).map((_, i) => i)),
+        FRAMES
       )
       const svgNamespace = "http://www.w3.org/2000/svg"
       const svg = document.createElementNS(svgNamespace, "svg")
       svg.setAttribute("xmlns", svgNamespace)
       svg.setAttribute(
         "viewBox",
-        `0 0 ${config.cells * 10 * (indices.length + 1)} ${config.cells * 10}`
+        `0 0 ${CELLS * 10 * (indices.length + 1)} ${CELLS * 10}`
       ) // Adjust viewBox to fit the grid
       svg.setAttribute("class", "sprite")
 
@@ -66,8 +61,8 @@ export const Transitions = () => {
         const positions = indices[f]
         let d = ""
         for (let p = 0; p < positions.length; p++) {
-          const x = positions[p] % config.cells
-          const y = Math.floor(positions[p] / config.cells)
+          const x = positions[p] % CELLS
+          const y = Math.floor(positions[p] / CELLS)
           d += `M${x * 10} ${y * 10} h10 v10 h-10 z `
         }
         // create the path and give it the "D" lol
@@ -85,7 +80,7 @@ export const Transitions = () => {
         for (let u = 0; u < f + 1; u++) {
           const use = document.createElementNS(svgNamespace, "use")
           use.setAttribute("href", `#${prefix}-${u}`)
-          use.setAttribute("x", ((f + 1) * (config.cells * 10)).toString())
+          use.setAttribute("x", ((f + 1) * (CELLS * 10)).toString())
           group.appendChild(use)
         }
         svg.appendChild(group)
