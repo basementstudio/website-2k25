@@ -7,6 +7,7 @@ import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import {
@@ -176,7 +177,7 @@ export const CustomCamera = () => {
 
       setStairVisibility(currentScene !== "home")
 
-      setTimeout(() => setDisableCameraTransition(false), 750)
+      setTimeout(() => setDisableCameraTransition(false), TRANSITION_DURATION)
     } else if (progress.current < 1) {
       progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
 

@@ -2,6 +2,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useCallback } from "react"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { TRANSITION_DURATION } from "@/constants/transitions"
 
 export const useHandleNavigation = () => {
   const router = useRouter()
@@ -48,7 +49,7 @@ export const useHandleNavigation = () => {
             document.documentElement.dataset.flip = "false"
             document.body.style.overflow = "auto"
           }, 10)
-        }, 750)
+        }, TRANSITION_DURATION)
       }
     },
 
