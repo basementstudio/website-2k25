@@ -2,7 +2,6 @@ import { CameraControls } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useControls } from "leva"
 import { easing } from "maath"
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
@@ -54,7 +53,7 @@ export const CustomCamera = () => {
 
   const offsetY = useRef(0)
 
-  const ANIMATION_DURATION = 6.5
+  const ANIMATION_DURATION = 2
 
   const stairVisibility = useNavigationStore((state) => state.stairVisibility)
 
