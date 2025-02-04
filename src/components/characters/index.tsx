@@ -17,11 +17,13 @@ export function Character({ animationName, ...props }: CharacterProps) {
         timeSpeed={1}
         geometryId={0}
         animationName={animationName}
+        scale={1.15}
       />
       <CharacterPosition
         timeSpeed={1}
         geometryId={1}
         animationName={animationName}
+        scale={1.15}
       />
     </group>
   )

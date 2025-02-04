@@ -146,15 +146,17 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
 
     const instanceId = useRef<number | null>(null)
 
-    const { group, groupPosition, groupRotation, positionMatrix } = useMemo(
-      () => ({
-        group: new Group(),
-        groupPosition: new Vector3(),
-        groupRotation: new Quaternion(),
-        positionMatrix: new Matrix4()
-      }),
-      []
-    )
+    const { group, groupPosition, groupRotation, positionMatrix, groupScale } =
+      useMemo(
+        () => ({
+          group: new Group(),
+          groupPosition: new Vector3(),
+          groupRotation: new Quaternion(),
+          groupScale: new Vector3(),
+          positionMatrix: new Matrix4()
+        }),
+        []
+      )
 
     // attach instance to the mesh
     useEffect(() => {
@@ -226,15 +228,22 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       // update instance position
       if (instanceId.current === null) return
       if (!instancedMesh) return
+      // apply mesh scale
+      group.getWorldScale(groupScale)
+      console.log(groupScale)
+
+      // apply mesh rotation
       group.getWorldQuaternion(groupRotation)
       positionMatrix.makeRotationFromQuaternion(groupRotation)
-      // update position matrix using group position
+      // apply mesh position
       group.getWorldPosition(groupPosition)
       positionMatrix.setPosition(
         groupPosition.x,
         groupPosition.y,
         groupPosition.z
       )
+      positionMatrix.scale(groupScale)
+      // apply positionMatrix to the instance
       instancedMesh.setMatrixAt(instanceId.current, positionMatrix)
     })
 

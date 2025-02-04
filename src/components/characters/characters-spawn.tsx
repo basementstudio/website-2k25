@@ -15,6 +15,18 @@ export function CharactersSpawn() {
         rotation={[0, -2.4, 0]}
         animationName={CharacterAnimationName.Chill}
       />
+
+      {/* Main */}
+      <Character
+        position={[2.6, 0, -13.5]}
+        rotation={[0, Math.PI * 0.7, 0]}
+        animationName={CharacterAnimationName.Idle2}
+      />
+      <Character
+        position={[3, 2.95, -13.7]}
+        rotation={[0, 0, 0]}
+        animationName={CharacterAnimationName.Idle2}
+      />
     </>
   )
 }
