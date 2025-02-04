@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "basehub dev & next dev",
-    "build": "basehub && partytown && next build",
+    "build": "basehub && next build",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "prettier": "prettier --write .",
     "start": "next start",
