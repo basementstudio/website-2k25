@@ -13,13 +13,10 @@ import {
   AnimationMixer,
   Box3,
   Group,
-  LoopRepeat,
   Mesh,
   Vector3,
   WebGLRenderTarget
 } from "three"
-
-import { easeInOutCubic } from "@/utils/animations"
 
 import { RenderTexture } from "../arcade-screen/render-texture"
 import { createScreenMaterial } from "../arcade-screen/screen-material"
@@ -220,8 +217,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const gltf = useGLTF(modelUrl)
   const animationHandlerRef = useRef<PhoneAnimationHandler | null>(null)
   const phoneGroupRef = useRef<Group>(null)
-  const [showModel, setShowModel] = useState(false)
-  const [animTime, setAnimTime] = useState(0)
+  const [showModel, setShowModel] = useState(true)
 
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
@@ -311,16 +307,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     if (screenMaterial.uniforms.uTime) {
       screenMaterial.uniforms.uTime.value += delta
     }
-
-    // if (showModel) {
-    //   setAnimTime((prev) => Math.min(1, prev + delta * 2))
-    //   const startY = -0.25
-    //   const endY = -0.1
-    //   const yPos =
-    //     startY * (1 - easeInOutCubic(animTime)) +
-    //     endY * easeInOutCubic(animTime)
-    //   gltf.scene.position.y = yPos
-    // }
   })
 
   if (!screenMesh || !screenPosition || !screenScale) return null
@@ -330,16 +316,17 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       <Environment environmentIntensity={0.25} preset="studio" />
       <group ref={phoneGroupRef} scale={8}>
         {/* -1 */}
-        <primitive position-y={-0.1} object={gltf.scene} />
-        <RenderTexture
-          isPlaying={true}
-          fbo={renderTarget}
-          useGlobalPointer={false}
-          raycasterMesh={screenMesh}
-        >
-          <PhoneScreenUI screenScale={screenScale} />
-        </RenderTexture>
+        <primitive position-y={-0.08} object={gltf.scene} />
       </group>
+
+      <RenderTexture
+        isPlaying={true}
+        fbo={renderTarget}
+        useGlobalPointer={false}
+        raycasterMesh={screenMesh}
+      >
+        <PhoneScreenUI screenScale={screenScale} />
+      </RenderTexture>
     </>
   )
 }
