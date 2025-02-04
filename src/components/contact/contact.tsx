@@ -27,7 +27,9 @@ const Contact = () => {
     <>
       <div
         className={`fixed inset-0 z-50 transition-opacity duration-300 ease-in-out ${
-          isContactOpen ? "opacity-100" : "pointer-events-none opacity-0"
+          isContactOpen
+            ? "block opacity-100"
+            : "pointer-events-none hidden opacity-0"
         }`}
       >
         <ContactCanvas isContactOpen={isContactOpen} />

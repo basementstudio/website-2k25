@@ -12,24 +12,19 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import {
   AnimationMixer,
   Box3,
+  Group,
   LoopRepeat,
   Mesh,
   Vector3,
   WebGLRenderTarget
 } from "three"
 
+import { easeInOutCubic } from "@/utils/animations"
+
 import { RenderTexture } from "../arcade-screen/render-texture"
 import { createScreenMaterial } from "../arcade-screen/screen-material"
 import { COLORS_THEME } from "../arcade-screen/screen-ui"
-
-type PhoneAnimationName =
-  | "L-IN"
-  | "R-IN"
-  | "L-Idle"
-  | "R-Idle"
-  | "Buttons-1"
-  | "Buttons-2"
-  | "Buttons-3"
+import { PhoneAnimationHandler } from "./contact-anims"
 
 const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
@@ -55,7 +50,7 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
       >
         <FontFamilyProvider
           ffflauta={{
-            normal: "/ffflauta.json"
+            normal: "/fonts/ffflauta.json"
           }}
         >
           <DefaultProperties
@@ -222,9 +217,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
 }
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
-  console.log("[ContactScene] model url", modelUrl)
   const gltf = useGLTF(modelUrl)
-  const mixerRef = useRef<AnimationMixer | null>(null)
+  const animationHandlerRef = useRef<PhoneAnimationHandler | null>(null)
+  const phoneGroupRef = useRef<Group>(null)
+  const [showModel, setShowModel] = useState(false)
+  const [animTime, setAnimTime] = useState(0)
 
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
@@ -255,41 +252,75 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   useEffect(() => {
     if (!gltf.scene || !gltf.animations.length) return
 
-    // TODO: add a mix blend to the glass
     if (glass) {
       glass.visible = false
     }
 
-    mixerRef.current = new AnimationMixer(gltf.scene)
-    const mixer = mixerRef.current
-
-    const leftIdle = gltf.animations.find(
-      (anim) => anim.name === ("L-Idle" as PhoneAnimationName)
-    )
-    const rightIdle = gltf.animations.find(
-      (anim) => anim.name === ("R-Idle" as PhoneAnimationName)
+    const mixer = new AnimationMixer(gltf.scene)
+    animationHandlerRef.current = new PhoneAnimationHandler(
+      mixer,
+      gltf.animations
     )
 
-    if (leftIdle && rightIdle) {
-      const leftIdleAction = mixer.clipAction(leftIdle)
-      const rightIdleAction = mixer.clipAction(rightIdle)
+    gltf.scene.visible = false
 
-      leftIdleAction.setLoop(LoopRepeat, Infinity)
-      rightIdleAction.setLoop(LoopRepeat, Infinity)
+    let completedCount = 0
+    const startIdleAnimations = () => {
+      completedCount++
+      if (completedCount === 2) {
+        animationHandlerRef.current?.playAnimation("L-Idle", {
+          loop: true,
+          fadeInDuration: 0.25
+        })
+        animationHandlerRef.current?.playAnimation("R-Idle", {
+          loop: true,
+          fadeInDuration: 0.25
+        })
+      }
+    }
 
-      leftIdleAction.play()
-      rightIdleAction.play()
+    setTimeout(() => {
+      setShowModel(true)
+      animationHandlerRef.current?.playAnimation("L-IN", {
+        speed: 5,
+        clampWhenFinished: true,
+        onComplete: startIdleAnimations
+      })
+      animationHandlerRef.current?.playAnimation("R-IN", {
+        speed: 5,
+        clampWhenFinished: true,
+        onComplete: startIdleAnimations
+      })
+    }, 500)
+
+    return () => {
+      animationHandlerRef.current?.stopAllAnimations()
+      animationHandlerRef.current = null
     }
   }, [gltf, glass])
 
-  useFrame((_, delta) => {
-    if (mixerRef.current) {
-      mixerRef.current.update(delta)
+  useEffect(() => {
+    if (gltf.scene) {
+      gltf.scene.visible = showModel
     }
+  }, [showModel, gltf.scene])
+
+  useFrame((_, delta) => {
+    animationHandlerRef.current?.update(delta)
 
     if (screenMaterial.uniforms.uTime) {
       screenMaterial.uniforms.uTime.value += delta
     }
+
+    // if (showModel) {
+    //   setAnimTime((prev) => Math.min(1, prev + delta * 2))
+    //   const startY = -0.25
+    //   const endY = -0.1
+    //   const yPos =
+    //     startY * (1 - easeInOutCubic(animTime)) +
+    //     endY * easeInOutCubic(animTime)
+    //   gltf.scene.position.y = yPos
+    // }
   })
 
   if (!screenMesh || !screenPosition || !screenScale) return null
@@ -297,17 +328,18 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   return (
     <>
       <Environment environmentIntensity={0.25} preset="studio" />
-      <group scale={8}>
+      <group ref={phoneGroupRef} scale={8}>
+        {/* -1 */}
         <primitive position-y={-0.1} object={gltf.scene} />
+        <RenderTexture
+          isPlaying={true}
+          fbo={renderTarget}
+          useGlobalPointer={false}
+          raycasterMesh={screenMesh}
+        >
+          <PhoneScreenUI screenScale={screenScale} />
+        </RenderTexture>
       </group>
-      <RenderTexture
-        isPlaying={true}
-        fbo={renderTarget}
-        useGlobalPointer={false}
-        raycasterMesh={screenMesh}
-      >
-        <PhoneScreenUI screenScale={screenScale} />
-      </RenderTexture>
     </>
   )
 }

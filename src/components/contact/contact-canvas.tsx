@@ -40,6 +40,8 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   }
 
   return (
+    // TODO: implement partytown
+
     // <Canvas
     //   worker={worker}
     //   fallback={<Fallback />}
@@ -47,7 +49,10 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
     //   camera={{ position: [0, 0.082, 5.25], fov: 25 }}
     //   gl={{ antialias: false }}
     // />
-    <Canvas camera={{ position: [0, 0.082, 5.25], fov: 25 }}>
+    <Canvas
+      camera={{ position: [0, 0.082, 5.25], fov: 25 }}
+      gl={{ antialias: false }}
+    >
       <ContactScene modelUrl={contactPhone} />
     </Canvas>
   )
