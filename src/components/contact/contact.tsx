@@ -8,9 +8,7 @@ import ContactCanvas from "./contact-canvas"
 import { useContactStore } from "./contact-store"
 
 const Contact = () => {
-  const { setIsContactOpen, isContactOpen } = useContactStore()
-
-  useKeyPress("Escape", () => setIsContactOpen(false))
+  const { isContactOpen } = useContactStore()
 
   useDisableScroll(isContactOpen)
 

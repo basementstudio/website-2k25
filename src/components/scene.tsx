@@ -19,12 +19,13 @@ const HoopMinigame = dynamic(
 
 import dynamic from "next/dynamic"
 
+import { useContactStore } from "@/components/contact/contact-store"
+
+import { CameraController } from "./camera/camera-controller"
 import { Map } from "./map/map"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
-
-import { CameraController } from "./camera/camera-controller"
 
 export const Scene = () => {
   const pathname = usePathname()
@@ -32,6 +33,7 @@ export const Scene = () => {
   const isBasketball = pathname === "/basketball"
   const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
+  const { isContactOpen, setIsContactOpen } = useContactStore()
   const {
     isCanvasTabMode,
     setIsCanvasTabMode,
@@ -60,6 +62,11 @@ export const Scene = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
+      if (isContactOpen) {
+        setIsContactOpen(false)
+        return
+      }
+
       if (
         pathname.startsWith("/services") ||
         pathname.startsWith("/blog") ||
@@ -67,7 +74,7 @@ export const Scene = () => {
       ) {
         router.push("/")
       }
-    }, [pathname, router])
+    }, [pathname, router, isContactOpen, setIsContactOpen])
   )
 
   useEffect(() => {
