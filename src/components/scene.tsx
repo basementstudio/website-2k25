@@ -17,13 +17,14 @@ const HoopMinigame = dynamic(
   { ssr: false }
 )
 
-import { CustomCamera } from "./camera/camera-controls"
+import dynamic from "next/dynamic"
+
 import { Map } from "./map/map"
-import { MapWire } from "./map/map-wire"
 import { MouseTracker } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
-import dynamic from "next/dynamic"
+
+import { CameraController } from "./camera/camera-controller"
 
 export const Scene = () => {
   const pathname = usePathname()
@@ -127,7 +128,7 @@ export const Scene = () => {
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
       <div className="w-128 absolute bottom-8 right-64 z-50">
-        <Leva collapsed fill hidden />
+        <Leva collapsed fill />
       </div>
 
       <Canvas
@@ -144,7 +145,6 @@ export const Scene = () => {
           toneMapping: THREE.ACESFilmicToneMapping
         }}
         eventSource={documentElement}
-        eventPrefix="client"
         camera={{ fov: 60 }}
         className="outline-none focus-visible:outline-none"
       >
@@ -152,8 +152,7 @@ export const Scene = () => {
           sceneChildren={
             <>
               <color attach="background" args={["#000"]} />
-              <CustomCamera />
-              <MapWire />
+              <CameraController />
               <Inspectables />
               <Environment preset="studio" />
               <Sparkles />

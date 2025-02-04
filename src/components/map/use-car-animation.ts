@@ -1,4 +1,5 @@
 import { useFrame } from "@react-three/fiber"
+import { useEffect, useRef } from "react"
 import { Mesh, Object3D, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
@@ -14,9 +15,9 @@ interface CarState {
 }
 
 const CONSTANTS = {
-  BASE_SPEED: 0.1,
+  BASE_SPEED: 0.2,
   START_X: -8.7,
-  END_X: 7.7,
+  END_X: 9.5,
   MIN_WAIT_TIME: 6000,
   ADDED_WAIT_TIME: 4000,
   SPEED_REDUCTION: 0.7,
@@ -67,11 +68,17 @@ const updateCarSpeed = () => {
   }
 }
 
-const resetCarMovement = () => {
-  updateCarSpeed()
+interface updateCarPositionProps {
+  carPosition: Vector3
+  wheelMeshes: Mesh[]
+  progress: number
 }
 
-const updateCarPosition = (carPosition: Vector3, progress: number) => {
+const updateCarPosition = ({
+  carPosition,
+  wheelMeshes,
+  progress
+}: updateCarPositionProps) => {
   if (carState.isSlowingDown) {
     const slowdownAmount = CONSTANTS.SPEED_VARIATION * easeInOutCubic(progress)
     carState.currentSpeed = CONSTANTS.BASE_SPEED * (1 - slowdownAmount)
@@ -83,14 +90,13 @@ const updateCarPosition = (carPosition: Vector3, progress: number) => {
       CONSTANTS.BASE_SPEED * (CONSTANTS.SPEED_REDUCTION + speedupAmount)
   }
 
-  const nextX = carPosition.x + carState.currentSpeed
+  wheelMeshes.forEach((wheel) => (wheel.rotation.z -= carState.currentSpeed))
 
-  carPosition.x = nextX
-  carPosition.z = 1.75
+  carPosition.x += carState.currentSpeed
 
   if (carPosition.x > CONSTANTS.END_X) {
     carPosition.x = CONSTANTS.START_X
-    resetCarMovement()
+    updateCarSpeed()
     setRandomTimeout()
   }
 }
@@ -102,7 +108,7 @@ const runFirstCarPass = (carPosition: Vector3) => {
   setRandomTimeout()
 }
 
-const animateCar = (car: Object3D) => {
+const animateCar = (car: Object3D, wheelMeshes: Mesh[]) => {
   const carPosition = car.position
 
   if (!carState.hasInitialized) {
@@ -116,15 +122,27 @@ const animateCar = (car: Object3D) => {
     carPosition.x <= CONSTANTS.END_X
   ) {
     const progress = (carPosition.x - CONSTANTS.START_X) / TOTAL_DISTANCE
-    updateCarPosition(carPosition, progress)
+    updateCarPosition({ carPosition, wheelMeshes, progress })
   } else if (!carState.isWaiting) {
     carPosition.x = CONSTANTS.START_X
-    resetCarMovement()
+    updateCarSpeed()
   }
 }
 
 export const useCarAnimation = ({ car }: { car: Mesh | null }) => {
+  const wheelMeshes = useRef<Mesh[]>([])
+
+  useEffect(() => {
+    if (!car) return
+
+    const frontWheels = car.getObjectByName("SM_FWheels") as Mesh
+    const backWheels = car.getObjectByName("SM_BWheels") as Mesh
+
+    if (frontWheels) wheelMeshes.current.push(frontWheels)
+    if (backWheels) wheelMeshes.current.push(backWheels)
+  }, [car])
+
   useFrame(() => {
-    if (car) animateCar(car)
+    if (car) animateCar(car, wheelMeshes.current)
   })
 }
