@@ -6,7 +6,6 @@
     "dev": "basehub dev & next dev",
     "build": "basehub && partytown && next build",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
-    "partytown": "partytown copylib public/~partytown",
     "prettier": "prettier --write .",
     "start": "next start",
     "lint": "next lint"
