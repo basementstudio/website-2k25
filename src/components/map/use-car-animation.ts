@@ -1,6 +1,7 @@
 import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { useEffect, useRef } from "react"
+import type { SetStateAction } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Mesh, Object3D, ShaderMaterial, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
@@ -88,12 +89,18 @@ interface updateCarPositionProps {
   carPosition: Vector3
   wheelMeshes: Mesh[]
   progress: number
+  setTextureIndex: (value: SetStateAction<number>) => void
+  texturesLength: number
+  carGroup: Object3D
 }
 
 const updateCarPosition = ({
   carPosition,
   wheelMeshes,
-  progress
+  progress,
+  setTextureIndex,
+  texturesLength,
+  carGroup
 }: updateCarPositionProps) => {
   if (carState.isSlowingDown) {
     const slowdownAmount = CONSTANTS.SPEED_VARIATION * easeInOutCubic(progress)
@@ -114,21 +121,29 @@ const updateCarPosition = ({
     carPosition.x = CONSTANTS.START_X
     updateCarSpeed()
     setRandomTimeout()
+    setTextureIndex((prevIndex: number) => (prevIndex + 1) % texturesLength)
+    carGroup.visible = false
   }
 }
 
-const runFirstCarPass = (carPosition: Vector3) => {
+const runFirstCarPass = (carPosition: Vector3, carGroup: Object3D) => {
   carState.hasInitialized = true
   carPosition.x = CONSTANTS.START_X
   carState.isWaiting = true
   setRandomTimeout()
+  carGroup.visible = false
 }
 
-const animateCar = (car: Object3D, wheelMeshes: Mesh[]) => {
+const animateCar = (
+  car: Object3D,
+  wheelMeshes: Mesh[],
+  setTextureIndex: (value: SetStateAction<number>) => void,
+  texturesLength: number
+) => {
   const carPosition = car.position
 
   if (!carState.hasInitialized) {
-    runFirstCarPass(carPosition)
+    runFirstCarPass(carPosition, car)
     return
   }
 
@@ -137,8 +152,18 @@ const animateCar = (car: Object3D, wheelMeshes: Mesh[]) => {
     carPosition.x >= CONSTANTS.START_X &&
     carPosition.x <= CONSTANTS.END_X
   ) {
+    if (!car.visible) {
+      car.visible = true
+    }
     const progress = (carPosition.x - CONSTANTS.START_X) / TOTAL_DISTANCE
-    updateCarPosition({ carPosition, wheelMeshes, progress })
+    updateCarPosition({
+      carPosition,
+      wheelMeshes,
+      progress,
+      setTextureIndex,
+      texturesLength,
+      carGroup: car
+    })
   } else if (!carState.isWaiting) {
     carPosition.x = CONSTANTS.START_X
     updateCarSpeed()
@@ -157,7 +182,14 @@ export const useCarAnimation = ({
   const wheelMeshes = useRef<Mesh[]>([])
   const mirroredCarRef = useRef<Mesh | null>(null)
   const carGroupRef = useRef<Object3D | null>(null)
-  const carTexture = useTexture("/textures/cars/delorean.png")
+  const [textureIndex, setTextureIndex] = useState(0)
+
+  const textures = [
+    "/textures/cars/dodge-o.png",
+    "/textures/cars/delorean.png",
+    "/textures/cars/dodge-b.png"
+  ]
+  const carTexture = useTexture(textures[textureIndex])
 
   useEffect(() => {
     if (!car) {
@@ -165,7 +197,6 @@ export const useCarAnimation = ({
       return
     }
 
-    console.log("Car mesh:", car)
     console.log("Morph dictionary:", car.morphTargetDictionary)
     console.log("Morph influences:", car.morphTargetInfluences)
 
@@ -174,16 +205,12 @@ export const useCarAnimation = ({
       return
     }
 
-    // Reset all morph targets
     car.morphTargetInfluences.fill(0)
 
-    // Set shape key
-    const targetIndex = car.morphTargetDictionary["Mistery"]
-    console.log("Target index for Mistery:", targetIndex)
+    const targetIndex = car.morphTargetDictionary["DeLorean"]
 
     if (targetIndex !== undefined) {
       car.morphTargetInfluences[targetIndex] = 1
-      console.log("Set morph influence to 1 for index:", targetIndex)
     }
   }, [car])
 
@@ -248,9 +275,24 @@ export const useCarAnimation = ({
     }
   }, [car, carTexture])
 
+  useEffect(() => {
+    if (!car) return
+    if (mirroredCarRef.current) {
+      const mirroredMaterial = mirroredCarRef.current.material as ShaderMaterial
+      if (mirroredMaterial && mirroredMaterial.uniforms) {
+        mirroredMaterial.uniforms.map.value = carTexture
+      }
+    }
+  }, [car, carTexture])
+
   useFrame(() => {
     if (carGroupRef.current) {
-      animateCar(carGroupRef.current, wheelMeshes.current)
+      animateCar(
+        carGroupRef.current,
+        wheelMeshes.current,
+        setTextureIndex,
+        textures.length
+      )
     }
   })
 }
