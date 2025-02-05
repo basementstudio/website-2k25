@@ -81,7 +81,6 @@ export const Scene = () => {
         }}
         camera={{ fov: 60 }}
         className={`outline-none focus-visible:outline-none`}
-        ref={canvasRef}
       >
         <Perf style={{ position: "absolute", top: "50px", right: "24px" }} />
         <Renderer
