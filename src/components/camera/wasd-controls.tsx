@@ -1,8 +1,8 @@
 import { KeyboardControls, PerspectiveCamera } from "@react-three/drei"
 import { useKeyboardControls } from "@react-three/drei"
-import { Camera, useFrame } from "@react-three/fiber"
+import { useFrame } from "@react-three/fiber"
 import { ComponentRef, useEffect, useMemo, useRef, useState } from "react"
-import { Group, Vector2, Vector3 } from "three"
+import { Euler, Vector3 } from "three"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 enum Controls {
@@ -44,10 +44,13 @@ function ControlsInner() {
   const cameraRef = useRef<ComponentRef<typeof PerspectiveCamera>>(null)
   const vectors = useMemo(
     () => ({
-      moveTo: new Vector3()
+      moveTo: new Vector3(),
+      cameraEuler: new Euler()
     }),
     []
   )
+
+  vectors.cameraEuler.order = "YXZ"
 
   useFrame(() => {
     if (!cameraRef.current) return
@@ -61,8 +64,8 @@ function ControlsInner() {
       forward ? -speed : backward ? speed : 0
     )
 
-    vectors.moveTo.applyEuler(cameraRef.current.rotation)
-
+    vectors.cameraEuler.copy(cameraRef.current.rotation)
+    vectors.moveTo.applyEuler(vectors.cameraEuler)
     vectors.moveTo.y += up ? speed : down ? -speed : 0
 
     cameraRef.current.position.add(vectors.moveTo)
@@ -76,51 +79,68 @@ function ControlsInner() {
     let isPointerDown = false
     let isContextMenu = false
 
-    const lastPointerPosition = new Vector2()
-
+    // Capture clicks
     const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement
+      const isLevaElement = target.closest('[class^="leva-c-"]')
+      if (isLevaElement) return
       isPointerDown = true
-      lastPointerPosition.set(event.clientX, event.clientY)
+      document.body.requestPointerLock()
+    }
+    const onContextMenu = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      const isLevaElement = target.closest('[class^="leva-c-"]')
+      if (isLevaElement) return
+      event.preventDefault()
+      document.body.requestPointerLock()
+      isContextMenu = true
     }
 
+    // Cleanup
+    const onPointerUp = () => {
+      isPointerDown = false
+      isContextMenu = false
+      try {
+        document.exitPointerLock()
+      } catch (_) {}
+    }
+
+    // Capture pointer movement
     const onPointerMove = (event: PointerEvent) => {
       if (!isPointerDown) return
 
       const camera = cameraRef.current
       if (!camera) return
 
-      // apply pointer moement
-      lastPointerPosition.x -= event.clientX
-      lastPointerPosition.y -= event.clientY
       if (isContextMenu) {
         // pan
+
+        vectors.moveTo.set(event.movementX * 0.004, event.movementY * -0.004, 0)
+        vectors.cameraEuler.copy(camera.rotation)
+        vectors.moveTo.applyEuler(vectors.cameraEuler)
+        camera.position.add(vectors.moveTo)
       } else {
         // rotate
-        camera.rotation.order = "YXZ"
-        camera.rotation.x += lastPointerPosition.y * 0.002
-        camera.rotation.y += lastPointerPosition.x * 0.002
-
-        // camera.getWorldDirection(vectors.lookAt)
+        camera.rotation.reorder("YXZ")
+        camera.rotation.x -= event.movementY * 0.003
+        camera.rotation.y -= event.movementX * 0.003
+        camera.rotation.z = 0
       }
-      // reset pointer position
-      lastPointerPosition.set(event.clientX, event.clientY)
-    }
-    const onPointerUp = () => {
-      isPointerDown = false
-      isContextMenu = false
-    }
-    const onContextMenu = (event: MouseEvent) => {
-      lastPointerPosition.set(event.clientX, event.clientY)
-      isContextMenu = true
     }
 
     window.addEventListener("pointerdown", onPointerDown, { signal })
-    window.addEventListener("pointermove", onPointerMove, { signal })
+    window.addEventListener("pointermove", onPointerMove, {
+      signal,
+      passive: true
+    })
     window.addEventListener("pointerup", onPointerUp, { signal })
     window.addEventListener("contextmenu", onContextMenu, { signal })
 
     return () => {
       controller.abort()
+      try {
+        document.exitPointerLock()
+      } catch (_) {}
     }
   }, [])
 
