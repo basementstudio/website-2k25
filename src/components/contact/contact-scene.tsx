@@ -259,6 +259,28 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       glass.visible = false
     }
 
+    gltf.scene.traverse((node) => {
+      if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
+        const oldMaterial = node.material
+        const basicMaterial = new MeshBasicMaterial()
+
+        // console.log(`Material for ${node.name}:`, {
+        //   hasMap: "map" in oldMaterial && oldMaterial.map !== null,
+        //   hasColor: "color" in oldMaterial,
+        //   isTransparent: oldMaterial.transparent,
+        //   opacity: oldMaterial.opacity
+        // })
+
+        if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
+        if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
+        if ("transparent" in oldMaterial)
+          basicMaterial.transparent = oldMaterial.transparent
+        if ("opacity" in oldMaterial)
+          basicMaterial.opacity = oldMaterial.opacity
+        node.material = basicMaterial
+      }
+    })
+
     const mixer = new AnimationMixer(gltf.scene)
     animationMixerRef.current = mixer
 
@@ -285,7 +307,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   return (
     <>
-      <Environment environmentIntensity={0.25} preset="studio" />
       <group scale={8} ref={phoneGroupRef}>
         <primitive position-y={-0.05} object={gltf.scene} />
       </group>
