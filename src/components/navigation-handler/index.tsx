@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
@@ -9,6 +9,8 @@ import { useAssets } from "../assets-provider"
 import { useInspectable } from "../inspectables/context"
 import { IScene } from "./navigation.interface"
 import { useNavigationStore } from "./navigation-store"
+import { useKeyPress } from "@/hooks/use-key-press"
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 export const NavigationHandler = () => {
   const pathname = usePathname()
@@ -16,7 +18,7 @@ export const NavigationHandler = () => {
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
   const scenes: IScene[] = useAssets().scenes
   const setScenes = useNavigationStore((state) => state.setScenes)
-
+  const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
@@ -74,6 +76,25 @@ export const NavigationHandler = () => {
     setCurrentTabIndex,
     previousTabIndex
   ])
+
+  useKeyPress(
+    "Escape",
+    useCallback(() => {
+      if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
+        return
+
+      if (
+        scene === "services" ||
+        scene === "blog" ||
+        scene === "people" ||
+        scene === "basketball" ||
+        scene === "lab" ||
+        scene === "showcase"
+      ) {
+        handleNavigation("/")
+      }
+    }, [scene, handleNavigation, pathname, scenes])
+  )
 
   useEffect(
     () => setSelected(null),

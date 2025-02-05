@@ -6,14 +6,12 @@ import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useHandleNavigation } from "@/hooks/use-handle-navigation"
-import { useKeyPress } from "@/hooks/use-key-press"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -40,11 +38,9 @@ const cursorTypeMap = {
 export const Scene = () => {
   const pathname = usePathname()
   const scene = useCurrentScene()
-  const { handleNavigation } = useHandleNavigation()
   const isBasketball = scene === "basketball"
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const cursorType = useMouseStore((state) => state.cursorType)
-  const scenes = useNavigationStore((state) => state.scenes)
   const {
     isCanvasTabMode,
     setIsCanvasTabMode,
@@ -69,25 +65,6 @@ export const Scene = () => {
     })
   }
   const handleBlur = () => setIsCanvasTabMode(false)
-
-  useKeyPress(
-    "Escape",
-    useCallback(() => {
-      if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
-        return
-
-      if (
-        scene === "services" ||
-        scene === "blog" ||
-        scene === "people" ||
-        scene === "basketball" ||
-        scene === "lab" ||
-        scene === "showcase"
-      ) {
-        handleNavigation("/")
-      }
-    }, [scene, handleNavigation, pathname, scenes])
-  )
 
   useEffect(() => {
     if (pathname !== "/") {
