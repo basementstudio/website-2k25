@@ -105,18 +105,14 @@ export const Scene = () => {
 }
 
 const StairControl = () => {
-  const pathname = usePathname()
   const scene = useThree((state) => state.scene)
   const stair = scene.getObjectByName("SM_Stair3") as Mesh
+  const { stairsVisible } = useNavigationStore()
 
   useEffect(() => {
     if (!stair) return
-    if (pathname === "/") {
-      stair.visible = false
-    } else {
-      stair.visible = true
-    }
-  }, [stair, pathname])
+    stair.visible = stairsVisible
+  }, [stair, stairsVisible])
 
   return <></>
 }

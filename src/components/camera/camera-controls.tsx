@@ -16,8 +16,10 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
+import { usePathname } from "next/navigation"
 
 export const CustomCamera = () => {
+  const pathname = usePathname()
   const { selected } = useInspectable()
 
   const [firstRender, setFirstRender] = useState(true)
@@ -31,6 +33,8 @@ export const CustomCamera = () => {
     useNavigationStore.getState().disableCameraTransition
   const setDisableCameraTransition =
     useNavigationStore.getState().setDisableCameraTransition
+  const setStairsVisible = useNavigationStore((state) => state.setStairsVisible)
+  const currentScene = useNavigationStore((state) => state.currentScene)
 
   const { debugBoundaries } = useControls({ debugBoundaries: false })
 
@@ -172,6 +176,13 @@ export const CustomCamera = () => {
     } else if (progress.current < 1) {
       progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
 
+      if (progress.current > 0.6 && currentScene?.name === "home") {
+        setStairsVisible(false)
+      }
+      if (progress.current > 0.3 && currentScene?.name === "services") {
+        setStairsVisible(true)
+      }
+
       const easeValue = easeInOutCubic(progress.current)
 
       currentPos.lerp(targetPosition, easeValue)
@@ -204,6 +215,16 @@ export const CustomCamera = () => {
 
     if (firstRender) setFirstRender(false)
   })
+
+  useEffect(() => {
+    if (firstRender) {
+      if (pathname === "/") {
+        setStairsVisible(false)
+      } else {
+        setStairsVisible(true)
+      }
+    }
+  }, [firstRender, currentScene?.name, setStairsVisible, pathname])
 
   useEffect(() => {
     if (!cameraConfig) return

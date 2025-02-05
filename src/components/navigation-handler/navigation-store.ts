@@ -30,6 +30,9 @@ export const useNavigationStore = create<{
   setDisableCameraTransition: (disable: boolean) => void
 
   resetTabIndex: () => void
+
+  stairsVisible: boolean
+  setStairsVisible: (visible: boolean) => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
@@ -52,5 +55,8 @@ export const useNavigationStore = create<{
   setDisableCameraTransition: (disable) =>
     set({ disableCameraTransition: disable }),
 
-  resetTabIndex: () => set({ currentTabIndex: 0 })
+  resetTabIndex: () => set({ currentTabIndex: 0 }),
+
+  stairsVisible: false,
+  setStairsVisible: (visible) => set({ stairsVisible: visible })
 }))
