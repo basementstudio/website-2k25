@@ -95,11 +95,9 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       if (Array.isArray(mesh)) {
         mesh.forEach((m) => {
           instancer.addGeometry(m.geometry)
-          console.log("Added geometry", m.geometry)
         })
       } else {
         instancer.addGeometry(mesh.geometry)
-        console.log("Added geometry", mesh.geometry)
       }
 
       animations.forEach((animation) => {
@@ -230,8 +228,6 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       if (!instancedMesh) return
       // apply mesh scale
       group.getWorldScale(groupScale)
-      console.log(groupScale)
-
       // apply mesh rotation
       group.getWorldQuaternion(groupRotation)
       positionMatrix.makeRotationFromQuaternion(groupRotation)
