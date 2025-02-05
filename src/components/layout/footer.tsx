@@ -52,6 +52,10 @@ export const Footer = () => (
         {
           title: "Laboratory",
           href: "/lab"
+        },
+        {
+          title: "Contact Us",
+          href: "/contact"
         }
       ]
 
@@ -65,7 +69,7 @@ export const Footer = () => (
 
           <div className="grid-layout relative items-end">
             <StayConnected
-              className="col-start-1 col-end-5 mb-1"
+              className="col-start-1 col-end-5"
               content={data.company.social.newsletter.json.content}
             />
 

@@ -14,7 +14,8 @@ export function RichText({ children }: { children: any }) {
         p: ({ children }) => <p className="text-p text-brand-w2">{children}</p>,
         ul: ({ children }) => <ul className="list-disc">{children}</ul>,
         ol: ({ children }) => <ol className="list-decimal">{children}</ol>,
-        li: ({ children }) => <li className="text-brand-w1">{children}</li>
+        li: ({ children }) => <li className="text-brand-w1">{children}</li>,
+        s: ({ children }) => <span className="actionable">{children}</span>
       }}
     >
       {children}

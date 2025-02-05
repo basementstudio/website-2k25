@@ -1,8 +1,7 @@
-import { RichText } from "basehub/react-rich-text"
 import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
-import { formatDate, formatTestimonialDate } from "@/utils/format-date"
+import { RichText } from "@/components/primitives/rich-text"
 
 import { QueryType } from "./query"
 
@@ -11,8 +10,8 @@ export const Testimonials = ({ data }: { data: QueryType }) => {
 
   return (
     <div className="grid-layout !gap-y-8">
-      <div className="relative col-span-12 text-center text-h1 text-brand-w1">
-        <div className="mx-auto max-w-[1440px] [&_p]:text-pretty">
+      <div className="relative col-span-12 text-center">
+        <div className="mx-auto max-w-[1440px] [&_a]:no-underline [&_p]:text-balance [&_p]:text-h1 [&_p]:text-brand-w1">
           <RichText>{testimonial.content?.json.content}</RichText>
         </div>
 
@@ -20,36 +19,37 @@ export const Testimonials = ({ data }: { data: QueryType }) => {
           <div className="h-px w-full bg-brand-w1/30" />
           <div className="h-px w-full bg-brand-w1/30" />
           <div className="h-px w-full bg-brand-w1/30" />
-          <div className="h-px w-full bg-brand-w1/30" />
         </div>
       </div>
 
-      <div className="col-start-5 col-end-9 mx-auto flex gap-x-2">
+      <div className="col-start-5 col-end-9 mx-auto flex gap-x-4">
         {testimonial.avatar ? (
-          <Image
-            src={testimonial.avatar?.url}
-            alt={testimonial.avatar?.alt || ""}
-            width={testimonial.avatar?.width}
-            height={testimonial.avatar?.height}
-            className="size-14"
-          />
+          <div className="with-dots after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+            <Image
+              src={testimonial.avatar?.url}
+              alt={testimonial.avatar?.alt || ""}
+              width={testimonial.avatar?.width}
+              height={testimonial.avatar?.height}
+              className="size-16"
+            />
+          </div>
         ) : null}
 
-        <p className="text-h4 text-brand-w2">
-          {testimonial.name}{" "}
-          <Link
-            href={testimonial.handleLink || ""}
-            className="actionable text-h4 text-brand-w1"
-          >
-            {testimonial.handle}
-          </Link>
-        </p>
-
-        {testimonial.date ? (
-          <p className="text-h4 text-brand-g1">
-            {formatTestimonialDate(testimonial.date)}
+        <div className="flex flex-col justify-center gap-1">
+          <p className="inline-flex items-center gap-x-2 text-h4 text-brand-w1">
+            {testimonial.name} <span>-</span>
+            <Link
+              href={testimonial.handleLink || ""}
+              className="actionable text-h4"
+            >
+              {testimonial.handle}
+            </Link>
           </p>
-        ) : null}
+
+          <div className="[&_*]:text-h4 [&_*]:text-brand-g1">
+            <RichText>{testimonial.role?.json.content}</RichText>
+          </div>
+        </div>
       </div>
     </div>
   )
