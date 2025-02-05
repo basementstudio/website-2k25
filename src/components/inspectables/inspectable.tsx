@@ -170,7 +170,7 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
         onPointerEnter={() => {
           if (!isInspectableEnabled) return
           if (selected === inspectable.id) {
-            setCursorType("grabbing")
+            setCursorType("grab")
           } else {
             setCursorType("zoom")
           }
@@ -183,9 +183,13 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
           if (!isInspectableEnabled || selected !== inspectable.id) return
           setCursorType("grabbing")
         }}
-        onPointerUp={() => {
+        onPointerUp={(e) => {
           if (!isInspectableEnabled || selected !== inspectable.id) return
-          setCursorType("grab")
+          if (e.object === e.eventObject) {
+            setCursorType("grab")
+          } else {
+            setCursorType("default")
+          }
         }}
       >
         <InspectableDragger
