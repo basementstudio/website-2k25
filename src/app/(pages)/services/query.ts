@@ -72,7 +72,12 @@ export const query = fragmentOn("Query", {
           }
         },
         avatar: IMAGE_FRAGMENT,
-        date: true
+        date: true,
+        role: {
+          json: {
+            content: true
+          }
+        }
       }
     }
   }

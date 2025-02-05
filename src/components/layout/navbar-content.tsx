@@ -89,12 +89,14 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
         <div className="col-start-11 col-end-13 ml-auto flex items-center gap-5">
           <button
             onClick={handleMute}
-            className="space-x-1 text-p text-brand-w2"
+            className="inline-flex w-18 items-center space-x-1 text-p text-brand-w2"
+            aria-label={music ? "Turn music off" : "Turn music on"}
           >
             <span>Music:</span>
+
             <span
               className={cn(
-                "uppercase",
+                "inline-block w-6 uppercase",
                 music ? "text-brand-w1" : "text-brand-g1"
               )}
             >
