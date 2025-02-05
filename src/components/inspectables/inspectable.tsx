@@ -22,7 +22,6 @@ import {
   X_OFFSET
 } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useInspectable } from "./context"
@@ -59,7 +58,6 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
   const { setSelected } = useInspectable()
   const setCursorType = useMouseStore((state) => state.setCursorType)
   const pathname = usePathname()
-  const { handleNavigation } = useHandleNavigation()
 
   // TODO: create an abstraction for inspectables group that can be enabled for each scene
   const isInspectableEnabled =
@@ -171,7 +169,11 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
         ref={ref}
         onPointerEnter={() => {
           if (!isInspectableEnabled) return
-          setCursorType(selected === inspectable.id ? "grab" : "zoom")
+          if (selected === inspectable.id) {
+            setCursorType("grabbing")
+          } else {
+            setCursorType("zoom")
+          }
         }}
         onPointerLeave={() => {
           if (!isInspectableEnabled) return
