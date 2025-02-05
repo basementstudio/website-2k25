@@ -23,8 +23,13 @@ export const RoutingElement = ({
   const pathname = usePathname()
   const setHoverText = useMouseStore((state) => state.setHoverText)
   const setCursorType = useMouseStore((state) => state.setCursorType)
-  const { currentTabIndex, isCanvasTabMode, currentScene } =
-    useNavigationStore()
+  const {
+    currentTabIndex,
+    isCanvasTabMode,
+    currentScene,
+    scenes,
+    setCurrentTabIndex
+  } = useNavigationStore()
   const { handleNavigation } = useHandleNavigation()
 
   const [hover, setHover] = useState(false)
@@ -60,7 +65,16 @@ export const RoutingElement = ({
       setHoverText(hoverName)
 
       const handleKeyPress = (event: KeyboardEvent) => {
-        if (event.key === "Enter") navigate(route)
+        if (event.key === "Enter" && scenes) {
+          const trimmedPathname = pathname.replace("/", "")
+          const tabIndex = scenes[0].tabs.findIndex(
+            (tab) => tab.tabName.toLowerCase() === trimmedPathname
+          )
+          navigate(route)
+          if (route === "/") {
+            setCurrentTabIndex(tabIndex)
+          }
+        }
       }
       window.addEventListener("keydown", handleKeyPress)
 
@@ -79,7 +93,9 @@ export const RoutingElement = ({
     node.name,
     hoverName,
     navigate,
-    route
+    route,
+    scenes,
+    pathname
   ])
 
   return (

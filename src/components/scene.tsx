@@ -5,15 +5,12 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import dynamic from "next/dynamic"
-import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useHandleNavigation } from "@/hooks/use-handle-navigation"
-import { useKeyPress } from "@/hooks/use-key-press"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -38,19 +35,11 @@ const cursorTypeMap = {
 } as const
 
 export const Scene = () => {
-  const pathname = usePathname()
   const scene = useCurrentScene()
-  const { handleNavigation } = useHandleNavigation()
   const isBasketball = scene === "basketball"
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const cursorType = useMouseStore((state) => state.cursorType)
-  const {
-    isCanvasTabMode,
-    setIsCanvasTabMode,
-    setCurrentTabIndex,
-    currentTabIndex,
-    currentScene
-  } = useNavigationStore()
+  const { isCanvasTabMode, setIsCanvasTabMode } = useNavigationStore()
 
   useEffect(() => {
     canvasRef.current.style.cursor = cursorTypeMap[cursorType]
@@ -69,75 +58,11 @@ export const Scene = () => {
   }
   const handleBlur = () => setIsCanvasTabMode(false)
 
-  useKeyPress(
-    "Escape",
-    useCallback(() => {
-      if (scene === "services" || scene === "blog" || scene === "people") {
-        handleNavigation("/")
-      }
-    }, [scene, handleNavigation])
-  )
-
-  useEffect(() => {
-    if (pathname !== "/") {
-      setCurrentTabIndex(0)
-      return
-    }
-
-    if (currentTabIndex === -1) {
-      setCurrentTabIndex(0)
-    }
-  }, [pathname])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Tab") {
-        if (!currentScene?.tabs || currentScene.tabs.length === 0) {
-          setIsCanvasTabMode(false)
-          return
-        }
-
-        if (isCanvasTabMode) {
-          e.preventDefault()
-          const currentIndex = currentTabIndex
-
-          if (e.shiftKey) {
-            const newIndex = currentIndex - 1
-            setCurrentTabIndex(newIndex)
-
-            if (currentIndex === 0) {
-              setCurrentTabIndex(-1)
-              setIsCanvasTabMode(false)
-            }
-          } else {
-            const newIndex = currentIndex + 1
-            setCurrentTabIndex(newIndex)
-
-            if (
-              currentScene.tabs &&
-              currentIndex === currentScene.tabs.length - 1
-            ) {
-              setIsCanvasTabMode(false)
-            }
-          }
-        }
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      isCanvasTabMode,
-      setCurrentTabIndex,
-      currentTabIndex,
-      currentScene,
-      setIsCanvasTabMode
-    ]
-  )
-
   return (
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
       <div className="w-128 absolute bottom-8 right-64 z-50">
-        <Leva collapsed fill />
+        <Leva collapsed fill hidden />
       </div>
 
       <Canvas
@@ -146,7 +71,6 @@ export const Scene = () => {
         ref={canvasRef}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
         gl={{
           antialias: true,
           alpha: false,
