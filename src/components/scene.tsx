@@ -44,6 +44,7 @@ export const Scene = () => {
   const isBasketball = scene === "basketball"
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const cursorType = useMouseStore((state) => state.cursorType)
+  const scenes = useNavigationStore((state) => state.scenes)
   const {
     isCanvasTabMode,
     setIsCanvasTabMode,
@@ -72,6 +73,9 @@ export const Scene = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
+      if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
+        return
+
       if (
         scene === "services" ||
         scene === "blog" ||
@@ -82,7 +86,7 @@ export const Scene = () => {
       ) {
         handleNavigation("/")
       }
-    }, [scene, handleNavigation])
+    }, [scene, handleNavigation, pathname, scenes])
   )
 
   useEffect(() => {
