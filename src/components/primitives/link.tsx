@@ -16,12 +16,7 @@ export const Link = ({ href, children, className, target, rel }: LinkProps) => {
   const { handleNavigation } = useHandleNavigation()
 
   return href.includes("http") ? (
-    <NextLink
-      href={href}
-      target={target ?? ""}
-      rel={rel ?? "noopener noreferrer"}
-      className={className}
-    >
+    <NextLink href={href} className={className}>
       {children}
     </NextLink>
   ) : (

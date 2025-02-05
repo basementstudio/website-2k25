@@ -119,30 +119,15 @@ interface SocialLinksProps {
 
 const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div className={cn("flex gap-x-1 !text-p text-brand-g1", className)}>
-    <Link
-      className="actionable text-brand-w1"
-      href={links.twitter}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <Link className="actionable text-brand-w1" href={links.twitter}>
       X (Twitter)
     </Link>
     <span>,</span>
-    <Link
-      className="actionable text-brand-w1"
-      href={links.instagram}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <Link className="actionable text-brand-w1" href={links.instagram}>
       Instagram
     </Link>
     <span>,</span>
-    <Link
-      className="actionable text-brand-w1"
-      href={links.github}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <Link className="actionable text-brand-w1" href={links.github}>
       GitHub
     </Link>
   </div>
@@ -162,8 +147,6 @@ const SoDa = ({ className }: { className?: string }) => (
         className
       )}
       href="https://www.sodaspeaks.com/"
-      target="_blank"
-      rel="noopener noreferrer"
     >
       Proud Member of SoDA
     </Link>
