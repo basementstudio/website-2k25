@@ -3,10 +3,6 @@ import { RichText } from "@/components/primitives/rich-text"
 import { QueryType } from "./query"
 
 export const VenturesBanner = ({ data }: { data: QueryType }) => {
-  console.dir(data.pages.services.ventures.content?.json.content, {
-    depth: null
-  })
-
   return (
     <div className="grid-layout">
       <h2 className="col-start-3 col-end-6 text-h2 text-brand-g1">
