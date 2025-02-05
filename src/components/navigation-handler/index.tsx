@@ -15,8 +15,15 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 export const NavigationHandler = () => {
   const pathname = usePathname()
   const { setSelected } = useInspectable()
-  const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
+
   const setScenes = useNavigationStore((state) => state.setScenes)
+  const {
+    isCanvasTabMode,
+    setIsCanvasTabMode,
+    currentScene,
+    setCurrentScene,
+    currentTabIndex
+  } = useNavigationStore()
   const scenes: IScene[] = useAssets().scenes
   const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()
@@ -38,28 +45,6 @@ export const NavigationHandler = () => {
 
     setSelected(null)
 
-    const homeScene = scenes.find(
-      (scene) => scene.name.toLowerCase() === "home"
-    )
-
-    if (pathname === "/" && homeScene?.tabs) {
-      if (previousTabIndex !== -1) {
-        const matchingTabIndex = homeScene.tabs.findIndex(
-          (tab) =>
-            tab.tabClickableName ===
-            homeScene.tabs[previousTabIndex]?.tabClickableName
-        )
-        setCurrentTabIndex(matchingTabIndex !== -1 ? matchingTabIndex : 0)
-      } else {
-        setCurrentTabIndex(0)
-      }
-    } else if (pathname !== "/" && homeScene?.tabs) {
-      const tabIndex = homeScene.tabs.findIndex((tab) =>
-        pathname.startsWith(`/${tab.tabRoute.toLowerCase()}`)
-      )
-      if (tabIndex !== -1) setPreviousTabIndex(tabIndex)
-    }
-
     const currentScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
@@ -77,11 +62,53 @@ export const NavigationHandler = () => {
     previousTabIndex
   ])
 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !isCanvasTabMode) return
+      if (!currentScene?.tabs?.length) {
+        setIsCanvasTabMode(false)
+        return
+      }
+
+      e.preventDefault()
+      const newIndex = e.shiftKey ? currentTabIndex - 1 : currentTabIndex + 1
+      setCurrentTabIndex(newIndex)
+
+      if (
+        (e.shiftKey && currentTabIndex === 0) ||
+        (!e.shiftKey && currentTabIndex === currentScene.tabs.length - 1)
+      ) {
+        setIsCanvasTabMode(false)
+      }
+    },
+    [
+      isCanvasTabMode,
+      setCurrentTabIndex,
+      currentTabIndex,
+      currentScene,
+      setIsCanvasTabMode
+    ]
+  )
+
+  useEffect(() => {
+    if (pathname !== "/" && currentTabIndex !== -1) {
+      setCurrentTabIndex(0)
+    }
+  }, [setCurrentTabIndex, pathname])
+
+  useEffect(() => setSelected(null), [scene])
+
+  useKeyPress("Tab", handleKeyDown)
   useKeyPress(
     "Escape",
     useCallback(() => {
       if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
         return
+
+      const trimmedPathname = pathname.replace("/", "")
+      const tabIndex = scenes[0].tabs.findIndex(
+        (tab) => tab.tabName.toLowerCase() === trimmedPathname
+      )
 
       if (
         scene === "services" ||
@@ -92,14 +119,9 @@ export const NavigationHandler = () => {
         scene === "showcase"
       ) {
         handleNavigation("/")
+        setCurrentTabIndex(tabIndex)
       }
     }, [scene, handleNavigation, pathname, scenes])
-  )
-
-  useEffect(
-    () => setSelected(null),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scene]
   )
 
   return null
