@@ -1,9 +1,9 @@
 import Image from "next/image"
-import Link from "next/link"
 
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { InfoItem } from "@/components/primitives/info-item"
+import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
 import { TextList } from "@/components/primitives/text-list"
 
@@ -75,7 +75,6 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
             <Link
               key={entry.project?.client?.website}
               href={entry.project?.client?.website || ""}
-              target="_blank"
               className="actionable inline-flex items-center gap-1 text-brand-w1"
             >
               {entry.project?.projectWebsite}{" "}
@@ -95,7 +94,6 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
       <Link
         href={entry.project?.caseStudy || ""}
         className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
-        target="_blank"
       >
         View Case Study <Arrow className="size-4" />
       </Link>

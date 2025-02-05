@@ -1,6 +1,5 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { useControls } from "leva"
-import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import {
   OrthographicCamera as ThreeOrthographicCamera,
@@ -8,6 +7,8 @@ import {
   Texture,
   Vector2
 } from "three"
+
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import postFrag from "./post.frag"
 import postVert from "./post.vert"
@@ -53,7 +54,7 @@ export function PostProcessing({
   mainTexture,
   cameraRef
 }: PostProcessingProps) {
-  const pathname = usePathname()
+  const scene = useCurrentScene()
 
   useControls("basics", {
     contrast: {
@@ -216,7 +217,7 @@ export function PostProcessing({
   }, [mainTexture])
 
   useEffect(() => {
-    const isBasketball = pathname === "/basketball"
+    const isBasketball = scene === "basketball"
     const startSaturationValue = material.uniforms.uSaturation.value
     const endSaturationValue = isBasketball ? 0.0 : 1.0
     const startVignetteValue = material.uniforms.uVignetteStrength.value
@@ -252,11 +253,9 @@ export function PostProcessing({
     animationFrame = requestAnimationFrame(animate)
 
     return () => {
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame)
-      }
+      if (animationFrame) cancelAnimationFrame(animationFrame)
     }
-  }, [pathname])
+  }, [scene])
 
   return (
     <>

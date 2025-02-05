@@ -2,7 +2,8 @@ import {
   RichText as BaseRichText,
   RichTextProps
 } from "basehub/react-rich-text"
-import Link from "next/link"
+
+import { Link } from "@/components/primitives/link"
 
 interface CustomRichTextProps {
   children: RichTextProps["content"]

@@ -1,7 +1,7 @@
 import { Pump } from "basehub/react-pump"
-import Link from "next/link"
 
 import { Grid } from "@/components/grid"
+import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
 import { query } from "./query"
@@ -71,7 +71,7 @@ export const Footer = () => (
 
             <InternalLinks className="col-start-7 col-end-9" links={LINKS} />
 
-            <SoDa className="col-start-9 col-end-11 -mb-1" />
+            <SoDa className="col-start-9 col-end-11" />
 
             <div className="col-start-11 col-end-13 flex flex-col items-end gap-y-2">
               <SocialLinks links={data.company.social} />
@@ -100,11 +100,7 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => (
   >
     {links.map((link) => (
       <li key={link.title}>
-        <Link
-          className="flex gap-x-0.5 text-h2 text-brand-w1"
-          href={link.href}
-          target={link.href.startsWith("http") ? "_blank" : undefined}
-        >
+        <Link className="flex gap-x-0.5 text-h2 text-brand-w1" href={link.href}>
           <span className="actionable">{link.title}</span>
           {link.count && (
             <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
@@ -145,14 +141,15 @@ const Copyright = ({ className }: { className?: string }) => (
 
 const SoDa = ({ className }: { className?: string }) => (
   <div className={cn("flex w-full items-center gap-2", className)}>
-    <p
+    <Link
       className={cn(
         "text-right !text-p font-semibold text-brand-w1",
         className
       )}
+      href="https://www.sodaspeaks.com/"
     >
       Proud Member of SoDA
-    </p>
+    </Link>
 
     <SodaLogo className="size-6 text-brand-w1" />
   </div>

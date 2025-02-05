@@ -219,7 +219,8 @@ export const Map = memo(() => {
 
         const isGlass =
           currentMaterial.name === "BSM_MTL_Glass" ||
-          currentMaterial.name === "BSM_MTL_LightLibrary"
+          currentMaterial.name === "BSM_MTL_LightLibrary" ||
+          currentMaterial.name === "BSM-MTL-Backup"
 
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>

@@ -1,14 +1,14 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
 import { useContactStore } from "../contact/contact-store"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -32,40 +32,24 @@ interface NavbarContentProps {
 export const NavbarContent = ({ links }: NavbarContentProps) => {
   const [music, setMusic] = useState(true)
   const { setVolumeMaster } = useSiteAudio()
+
+  const { handleNavigation } = useHandleNavigation()
+
   const { setIsContactOpen, isContactOpen } = useContactStore()
+
   const isOnTab = useIsOnTab()
-  const router = useRouter()
 
-  const handleNavigation = useCallback(
-    (route: string) => {
-      const setStairVisibility =
-        useNavigationStore.getState().setStairVisibility
-
-      router.push(route, { scroll: false })
-
-      if (route === "/") {
-        setTimeout(() => {
-          setStairVisibility(false)
-        }, 2200)
-      } else {
-        setStairVisibility(true)
-      }
-    },
-    [router]
-  )
+  const pathname = usePathname()
 
   const handleMute = () => {
     setVolumeMaster(music ? 0 : 1)
     setMusic(!music)
   }
 
-  useEffect(() => {
-    if (!isOnTab) {
-      setVolumeMaster(0)
-    } else {
-      setVolumeMaster(music ? 1 : 0)
-    }
-  }, [isOnTab, music, setVolumeMaster])
+  useEffect(
+    () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
+    [isOnTab, music, setVolumeMaster]
+  )
 
   return (
     <nav
@@ -87,7 +71,10 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
           {links.map((link) => (
             <div key={link.href} className="flex items-center gap-1 text-p">
               <button
-                className="space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o"
+                className={cn(
+                  "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+                  link.href === pathname && "!text-brand-o"
+                )}
                 onClick={() => handleNavigation(link.href)}
               >
                 {link.title}

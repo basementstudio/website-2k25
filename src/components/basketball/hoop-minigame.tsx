@@ -1,7 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { RapierRigidBody } from "@react-three/rapier"
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
 import {
@@ -9,6 +9,7 @@ import {
   handlePointerMove as utilsHandlePointerMove,
   handlePointerUp as utilsHandlePointerUp
 } from "@/components/basketball/basketball-utils"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -19,17 +20,17 @@ import RigidBodies from "./rigid-bodies"
 import { Trajectory } from "./trajectory"
 
 export const HoopMinigame = () => {
-  const isBasketball = usePathname() === "/basketball"
   const { playSoundFX } = useSiteAudio()
-  const { setIsBasketball } = useCustomShaderMaterial()
+  const [isBasketball, setIsBasketball] = useState(false)
+  const { setIsBasketball: setIsBasketballShader } = useCustomShaderMaterial()
+  const scene = useCurrentScene()
 
   useEffect(() => {
-    setIsBasketball(isBasketball)
+    setIsBasketball(scene === "basketball")
+    setIsBasketballShader(scene === "basketball")
 
-    return () => {
-      setIsBasketball(false)
-    }
-  }, [isBasketball, setIsBasketball])
+    return () => setIsBasketballShader(false)
+  }, [scene, setIsBasketballShader, setIsBasketball])
 
   const ballRef = useRef<RapierRigidBody>(null)
   const mousePos = useRef(new Vector2())

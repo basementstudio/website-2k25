@@ -1,6 +1,6 @@
 import Image from "next/image"
-import Link from "next/link"
 
+import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
 import { cn } from "@/utils/cn"
 
@@ -65,6 +65,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
                   "absolute inset-0 object-cover opacity-0 transition-opacity duration-300",
                   !item.disabled && "opacity-100 group-hover:opacity-70"
                 )}
+                priority
               />
 
               {!item.disabled && (

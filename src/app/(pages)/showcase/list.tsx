@@ -1,9 +1,9 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import Image from "next/image"
-import Link from "next/link"
 import { useEffect, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
 import { FilteredProjectType } from "./project-list"
@@ -25,6 +25,7 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
       collapsible
       value={itemOpen}
       onValueChange={setItemOpen}
+      defaultValue="0"
     >
       {projects.map((item, index) => (
         <AccordionPrimitive.Item
@@ -40,7 +41,7 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
           <AccordionPrimitive.Trigger
             className={cn(
               "[&[data-state=open]_.diagonal-lines]:opacity-0",
-              "group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300"
+              "group relative col-span-12 grid cursor-nesw-resize grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300"
             )}
             disabled={item.disabled}
           >
@@ -61,6 +62,7 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
                   width={item.project?.icon?.width ?? 0}
                   height={item.project?.icon?.height ?? 0}
                   className="mb-px size-4.5 rounded-full border border-brand-w1/10"
+                  priority
                 />
                 <p>{item.project?.client?._title}</p>
               </div>
