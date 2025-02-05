@@ -1,5 +1,5 @@
 import { CameraControls } from "@react-three/drei"
-import { useFrame, useThree } from "@react-three/fiber"
+import { useFrame } from "@react-three/fiber"
 import { useControls } from "leva"
 import { easing } from "maath"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -8,7 +8,6 @@ import { Mesh, PerspectiveCamera, Vector3 } from "three"
 import { useInspectable } from "@/components/inspectables/context"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { TRANSITION_DURATION } from "@/constants/transitions"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import {
   calculateMovementVectors,
@@ -19,7 +18,6 @@ import {
 } from "./camera-utils"
 
 export const CustomCamera = () => {
-  const currentScene = useCurrentScene()
   const { selected } = useInspectable()
 
   const [firstRender, setFirstRender] = useState(true)
@@ -29,13 +27,10 @@ export const CustomCamera = () => {
   const planeBoundaryRef = useRef<Mesh>(null)
 
   const cameraConfig = useNavigationStore.getState().currentScene?.cameraConfig
-  const setStairVisibility = useNavigationStore.getState().setStairVisibility
   const disableCameraTransition =
     useNavigationStore.getState().disableCameraTransition
   const setDisableCameraTransition =
     useNavigationStore.getState().setDisableCameraTransition
-
-  const scene = useThree((state) => state.scene)
 
   const { debugBoundaries } = useControls({ debugBoundaries: false })
 
@@ -55,8 +50,6 @@ export const CustomCamera = () => {
   const offsetY = useRef(0)
 
   const ANIMATION_DURATION = 2
-
-  const stairVisibility = useNavigationStore((state) => state.stairVisibility)
 
   useEffect(() => {
     const controls = cameraControlsRef.current
@@ -175,26 +168,9 @@ export const CustomCamera = () => {
         controls.camera.updateProjectionMatrix()
       }
 
-      setStairVisibility(currentScene !== "home")
-
       setTimeout(() => setDisableCameraTransition(false), TRANSITION_DURATION)
     } else if (progress.current < 1) {
       progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
-
-      if (
-        progress.current > 0.8 &&
-        currentScene === "home" &&
-        stairVisibility
-      ) {
-        setStairVisibility(false)
-      } else if (
-        // TODO: fix this behaviour
-        progress.current > 0.2 &&
-        currentScene !== "home" &&
-        !stairVisibility
-      ) {
-        setStairVisibility(true)
-      }
 
       const easeValue = easeInOutCubic(progress.current)
 
@@ -240,11 +216,6 @@ export const CustomCamera = () => {
     () => (cameraConfig ? calculatePlanePosition(cameraConfig) : null),
     [cameraConfig]
   )
-
-  useEffect(() => {
-    const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
-    if (stair3) stair3.visible = stairVisibility
-  }, [scene, stairVisibility])
 
   return (
     <>

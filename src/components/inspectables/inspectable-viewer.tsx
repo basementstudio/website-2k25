@@ -7,7 +7,6 @@ const RichText = BaseRichText as unknown as React.ComponentType<{
   content: Node[]
 }>
 
-import { useKeyPress } from "@/hooks/use-key-press"
 import { cn } from "@/utils/cn"
 
 import { useInspectable } from "./context"
@@ -53,8 +52,6 @@ const Content = ({ data }: { data: Inspectable }) => (
 export const InspectableViewer = () => {
   const { selected, setSelected } = useInspectable()
   const [data, setData] = useState<Inspectable | null>(null)
-
-  useKeyPress("Escape", () => setSelected(""))
 
   useEffect(() => {
     setData(null)

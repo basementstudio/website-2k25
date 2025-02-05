@@ -5,7 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { useMotionValue } from "motion/react"
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   Box3,
   Group,
@@ -23,7 +23,6 @@ import {
 } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
-import { useKeyPress } from "@/hooks/use-key-press"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useInspectable } from "./context"
@@ -79,16 +78,6 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
       setSize([size.x, size.y, size.z])
     }
   }, [scene])
-
-  useKeyPress(
-    "Escape",
-    useCallback(() => {
-      // TODO: allow inspectables group that can be enabled for each scene
-      if (pathname.startsWith("/showcase") && !selected) {
-        handleNavigation("/")
-      }
-    }, [pathname, selected, handleNavigation])
-  )
 
   const handleAnimation = (withAnimation: boolean) => {
     if (!isInspectableEnabled && selected === inspectable.id) return

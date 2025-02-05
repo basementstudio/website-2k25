@@ -6,7 +6,6 @@ import { useCallback } from "react"
 import { ArcadeNameInput } from "@/components/basketball/arcade-name-input"
 import Scoreboard from "@/components/basketball/scoreboard"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
-import { useKeyPress } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
@@ -37,8 +36,6 @@ const Basketball = () => {
     const remainingSeconds = seconds % 60
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
   }
-
-  useKeyPress("Escape", handleCloseGame)
 
   return (
     <>

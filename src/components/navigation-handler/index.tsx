@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
@@ -9,54 +9,32 @@ import { useAssets } from "../assets-provider"
 import { useInspectable } from "../inspectables/context"
 import { IScene } from "./navigation.interface"
 import { useNavigationStore } from "./navigation-store"
+import { useKeyPress } from "@/hooks/use-key-press"
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 export const NavigationHandler = () => {
   const pathname = usePathname()
-  const { setSelected } = useInspectable()
-  const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
+  const { setSelected, selected } = useInspectable()
   const scenes: IScene[] = useAssets().scenes
-  const setScenes = useNavigationStore((state) => state.setScenes)
-
   const scene = useCurrentScene()
-
-  useEffect(() => setScenes(scenes), [scenes, setScenes])
-
-  const setPreviousTabIndex = useNavigationStore(
-    (state) => state.setPreviousTabIndex
-  )
-  const previousTabIndex = useNavigationStore((state) => state.previousTabIndex)
-  const setCurrentTabIndex = useNavigationStore(
-    (state) => state.setCurrentTabIndex
-  )
-
+  const {
+    setScenes,
+    setCurrentScene,
+    setPreviousTabIndex,
+    setCurrentTabIndex,
+    previousTabIndex,
+    setIsCanvasTabMode,
+    currentScene,
+    currentTabIndex,
+    isCanvasTabMode
+  } = useNavigationStore()
+  const { handleNavigation } = useHandleNavigation()
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
   useEffect(() => {
     if (!scenes.length) return
 
     setSelected(null)
-
-    const homeScene = scenes.find(
-      (scene) => scene.name.toLowerCase() === "home"
-    )
-
-    if (pathname === "/" && homeScene?.tabs) {
-      if (previousTabIndex !== -1) {
-        const matchingTabIndex = homeScene.tabs.findIndex(
-          (tab) =>
-            tab.tabClickableName ===
-            homeScene.tabs[previousTabIndex]?.tabClickableName
-        )
-        setCurrentTabIndex(matchingTabIndex !== -1 ? matchingTabIndex : 0)
-      } else {
-        setCurrentTabIndex(0)
-      }
-    } else if (pathname !== "/" && homeScene?.tabs) {
-      const tabIndex = homeScene.tabs.findIndex((tab) =>
-        pathname.startsWith(`/${tab.tabRoute.toLowerCase()}`)
-      )
-      if (tabIndex !== -1) setPreviousTabIndex(tabIndex)
-    }
 
     const currentScene =
       pathname === "/"
@@ -80,6 +58,67 @@ export const NavigationHandler = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [scene]
   )
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        if (!currentScene?.tabs || currentScene.tabs.length === 0) {
+          setIsCanvasTabMode(false)
+          return
+        }
+
+        if (isCanvasTabMode) {
+          e.preventDefault()
+          const currentIndex = currentTabIndex
+
+          if (e.shiftKey) {
+            const newIndex = currentIndex - 1
+            setCurrentTabIndex(newIndex)
+
+            if (currentIndex === 0) {
+              setCurrentTabIndex(-1)
+              setIsCanvasTabMode(false)
+            }
+          } else {
+            const newIndex = currentIndex + 1
+            setCurrentTabIndex(newIndex)
+
+            if (
+              currentScene.tabs &&
+              currentIndex === currentScene.tabs.length - 1
+            ) {
+              setIsCanvasTabMode(false)
+            }
+          }
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      isCanvasTabMode,
+      setCurrentTabIndex,
+      currentTabIndex,
+      currentScene,
+      setIsCanvasTabMode
+    ]
+  )
+
+  const handleKeyEscape = useCallback(() => {
+    if (isCanvasTabMode && pathname !== "/") {
+      if (pathname.startsWith("/showcase")) {
+        if (selected) {
+          setSelected(null)
+        } else {
+          handleNavigation("/")
+        }
+      } else {
+        handleNavigation("/")
+      }
+    }
+  }, [isCanvasTabMode, pathname, selected, setSelected])
+
+  useKeyPress("Tab", handleKeyDown)
+  useKeyPress("Escape", handleKeyEscape)
 
   return null
 }

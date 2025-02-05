@@ -1,11 +1,8 @@
 import { Container, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
-import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useHandleNavigation } from "@/hooks/use-handle-navigation"
-import { useKeyPress } from "@/hooks/use-key-press"
 
 import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
@@ -39,16 +36,6 @@ export const LabsUI = () => {
   const [experimentsContributors, setExperimentsContributors] = useState<
     Record<string, Contributor[]>
   >({})
-  const { handleNavigation } = useHandleNavigation()
-
-  const scene = useCurrentScene()
-
-  useKeyPress(
-    "Escape",
-    useCallback(() => {
-      if (scene === "lab") handleNavigation("/")
-    }, [handleNavigation, scene])
-  )
 
   useEffect(() => {
     fetch("https://lab.basement.studio/experiments.json")
@@ -100,7 +87,6 @@ export const LabsUI = () => {
           paddingX={8}
           backgroundColor={COLORS_THEME.black}
           zIndexOffset={10}
-          onClick={() => handleNavigation("/")}
         >
           Close [X]
         </Text>

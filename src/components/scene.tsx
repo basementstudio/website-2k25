@@ -47,7 +47,7 @@ export const Scene = () => {
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
       <div className="w-128 absolute bottom-8 right-64 z-50">
-        <Leva collapsed fill />
+        <Leva collapsed fill hidden />
       </div>
 
       <Canvas

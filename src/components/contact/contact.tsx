@@ -1,15 +1,11 @@
 "use client"
 import { useEffect } from "react"
 
-import { useKeyPress } from "@/hooks/use-key-press"
-
 import ContactCanvas from "./contact-canvas"
 import { useContactStore } from "./contact-store"
 
 const Contact = () => {
   const { setIsContactOpen, isContactOpen } = useContactStore()
-
-  useKeyPress("Escape", () => setIsContactOpen(false))
 
   useEffect(() => {
     if (isContactOpen) {
