@@ -1,9 +1,18 @@
-import { RichText as BaseRichText } from "basehub/react-rich-text"
+import {
+  RichText as BaseRichText,
+  RichTextProps
+} from "basehub/react-rich-text"
 import Link from "next/link"
 
-export function RichText({ children }: { children: any }) {
+interface CustomRichTextProps {
+  children: RichTextProps["content"]
+  components?: RichTextProps["components"]
+}
+
+export const RichText = ({ children, components }: CustomRichTextProps) => {
   return (
     <BaseRichText
+      content={children}
       components={{
         a: ({ children, href }) => (
           <Link href={href} className="actionable text-brand-w1">
@@ -13,10 +22,9 @@ export function RichText({ children }: { children: any }) {
         p: ({ children }) => <p className="text-p text-brand-w2">{children}</p>,
         ul: ({ children }) => <ul className="list-disc">{children}</ul>,
         ol: ({ children }) => <ol className="list-decimal">{children}</ol>,
-        li: ({ children }) => <li className="text-brand-w1">{children}</li>
+        li: ({ children }) => <li className="text-brand-w1">{children}</li>,
+        ...components
       }}
-    >
-      {children}
-    </BaseRichText>
+    />
   )
 }

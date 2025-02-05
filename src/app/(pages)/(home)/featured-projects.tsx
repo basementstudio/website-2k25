@@ -10,13 +10,13 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
   const p = data.company.projects.projectList.items
 
   return (
-    <div className="grid-layout !gap-y-12">
+    <div className="grid-layout !gap-y-14">
       {p.map((p, idx) => (
         <section key={p._slug} className="grid-layout group col-span-12 !px-0">
           <article className="grid-layout col-span-6 items-end !px-0">
-            <p className="col-span-4 text-h1 text-brand-g1">{idx + 1}</p>
+            <p className="col-span-4 -mb-2 text-h1 text-brand-g1">{idx + 1}</p>
 
-            <h2 className="actionable col-span-8 text-h2 text-brand-w1">
+            <h2 className="actionable col-span-8 -mb-2 text-h2 text-brand-w1">
               <Link href={`/showcase/${p._slug}`}>{p._title}</Link>
             </h2>
 
@@ -26,7 +26,7 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
 
             <TextList
               value={p.categories?.map((c) => c._title) ?? []}
-              className="actionable col-span-4 mt-4 !text-h4 text-brand-w1"
+              className="actionable col-span-4 mt-4 gap-y-1 !text-h4 text-brand-w1"
             />
           </article>
 

@@ -23,7 +23,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout !gap-y-0">
       <div className="grid-layout col-span-12 !px-0">
-        <h3 className="col-start-3 col-end-6 text-h3 text-brand-g1">
+        <h3 className="col-start-3 col-end-6 mb-2 text-h3 text-brand-g1">
           Trusted by Visionaries
         </h3>
 
@@ -35,7 +35,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
           {rows.map((row, index) => (
             <div
               key={`brands-row-${index}`}
-              className="flex items-center gap-x-8 py-4"
+              className="flex items-center gap-x-9 py-3"
             >
               {row.map((brand) => (
                 <Link
@@ -51,12 +51,12 @@ export const Brands = ({ data }: { data: QueryType }) => {
         </div>
       </div>
 
-      <div className="relative col-start-3 col-end-5 flex aspect-[16/5] items-end">
+      <div className="relative col-start-3 col-end-5 -mt-px flex aspect-[3.1/1] items-end">
         <Link
           href="/showcase"
-          className="actionable relative z-[1] flex items-center gap-x-2 bg-brand-k text-h4 text-brand-w1"
+          className="actionable relative z-10 flex items-center gap-x-1 bg-brand-k text-h4 text-brand-w1"
         >
-          Call to Action <Arrow className="size-4" />
+          <span>Call to Action</span> <Arrow className="size-5" />
         </Link>
 
         <div className="with-diagonal-lines !absolute inset-0" />
