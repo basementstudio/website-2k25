@@ -76,7 +76,12 @@ export const NavigationHandler = () => {
 
   // Handle escape key
   const handleKeyEscape = useCallback(() => {
-    if (!isCanvasTabMode || pathname === "/" || !scenes.length) return
+    if (
+      pathname === "/" ||
+      !scenes.length ||
+      window.scrollY > window.innerHeight
+    )
+      return
 
     const trimmedPathname = pathname.replace("/", "")
     const tabIndex = scenes[0].tabs.findIndex(
@@ -100,7 +105,8 @@ export const NavigationHandler = () => {
     selected,
     setSelected,
     handleNavigation,
-    scenes
+    scenes,
+    setCurrentTabIndex
   ])
 
   // Reset selection on pathname change
