@@ -8,13 +8,14 @@ interface LinkProps {
   href: string
   children: React.ReactNode
   className?: string
+  target?: "_blank" | "_self"
 }
 
-export const Link = ({ href, children, className }: LinkProps) => {
+export const Link = ({ href, children, className, target }: LinkProps) => {
   const { handleNavigation } = useHandleNavigation()
 
   return href.includes("http") ? (
-    <NextLink href={href} className={className}>
+    <NextLink href={href} className={className} target={target}>
       {children}
     </NextLink>
   ) : (

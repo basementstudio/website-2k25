@@ -30,6 +30,10 @@
     @apply font-semibold underline;
   }
 
+  .actionable[target="_blank"] {
+    @apply cursor-alias;
+  }
+
   .text-h2.actionable,
   .text-h2 .actionable {
     @apply underline-offset-[5px] [text-decoration-thickness:2px];

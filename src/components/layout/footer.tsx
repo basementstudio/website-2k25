@@ -123,15 +123,27 @@ interface SocialLinksProps {
 
 const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div className={cn("flex gap-x-1 !text-p text-brand-g1", className)}>
-    <Link className="actionable text-brand-w1" href={links.twitter}>
+    <Link
+      className="actionable text-brand-w1"
+      href={links.twitter}
+      target="_blank"
+    >
       X (Twitter)
     </Link>
     <span>,</span>
-    <Link className="actionable text-brand-w1" href={links.instagram}>
+    <Link
+      className="actionable text-brand-w1"
+      href={links.instagram}
+      target="_blank"
+    >
       Instagram
     </Link>
     <span>,</span>
-    <Link className="actionable text-brand-w1" href={links.github}>
+    <Link
+      className="actionable text-brand-w1"
+      href={links.github}
+      target="_blank"
+    >
       GitHub
     </Link>
   </div>
