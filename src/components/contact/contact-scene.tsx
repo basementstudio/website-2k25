@@ -13,7 +13,9 @@ import {
   AnimationMixer,
   Box3,
   Group,
+  LoopRepeat,
   Mesh,
+  SkinnedMesh,
   Vector3,
   WebGLRenderTarget
 } from "three"
@@ -215,21 +217,24 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const gltf = useGLTF(modelUrl)
-  const animationHandlerRef = useRef<PhoneAnimationHandler | null>(null)
+  const animationMixerRef = useRef<AnimationMixer | null>(null)
   const phoneGroupRef = useRef<Group>(null)
-  const [showModel, setShowModel] = useState(true)
 
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
 
-  const glass = gltf.scene.getObjectByName("GLASS") as Mesh | undefined
+  const glass = gltf.scene.children[0].getObjectByName("GLASS") as
+    | Mesh
+    | undefined
 
   const renderTarget = useMemo(() => new WebGLRenderTarget(2024, 2024), [])
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
 
   useEffect(() => {
-    const screen = gltf.scene.getObjectByName("SCREEN") as Mesh
+    const screen = gltf.scene.children[0].getObjectByName(
+      "SCREEN"
+    ) as SkinnedMesh
     setScreenMesh(screen)
 
     if (screen) {
@@ -253,56 +258,20 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     }
 
     const mixer = new AnimationMixer(gltf.scene)
-    animationHandlerRef.current = new PhoneAnimationHandler(
-      mixer,
-      gltf.animations
-    )
+    animationMixerRef.current = mixer
 
-    gltf.scene.visible = false
-
-    let completedCount = 0
-    const startIdleAnimations = () => {
-      completedCount++
-      if (completedCount === 2) {
-        animationHandlerRef.current?.playAnimation("L-Idle", {
-          loop: true,
-          fadeInDuration: 0.25
-        })
-        animationHandlerRef.current?.playAnimation("R-Idle", {
-          loop: true,
-          fadeInDuration: 0.25
-        })
-      }
-    }
-
-    setTimeout(() => {
-      setShowModel(true)
-      animationHandlerRef.current?.playAnimation("L-IN", {
-        speed: 5,
-        clampWhenFinished: true,
-        onComplete: startIdleAnimations
-      })
-      animationHandlerRef.current?.playAnimation("R-IN", {
-        speed: 5,
-        clampWhenFinished: true,
-        onComplete: startIdleAnimations
-      })
-    }, 500)
+    const action = mixer.clipAction(gltf.animations[0])
+    action.play()
+    action.loop = LoopRepeat
 
     return () => {
-      animationHandlerRef.current?.stopAllAnimations()
-      animationHandlerRef.current = null
+      mixer.stopAllAction()
+      animationMixerRef.current = null
     }
   }, [gltf, glass])
 
-  useEffect(() => {
-    if (gltf.scene) {
-      gltf.scene.visible = showModel
-    }
-  }, [showModel, gltf.scene])
-
   useFrame((_, delta) => {
-    animationHandlerRef.current?.update(delta)
+    animationMixerRef.current?.update(delta)
 
     if (screenMaterial.uniforms.uTime) {
       screenMaterial.uniforms.uTime.value += delta
@@ -314,19 +283,18 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   return (
     <>
       <Environment environmentIntensity={0.25} preset="studio" />
-      <group ref={phoneGroupRef} scale={8}>
-        {/* -1 */}
-        <primitive position-y={-0.08} object={gltf.scene} />
+      <group ref={phoneGroupRef}>
+        <primitive scale={8} position-y={-0.1} object={gltf.scene} />
       </group>
 
-      {/* <RenderTexture
+      <RenderTexture
         isPlaying={true}
         fbo={renderTarget}
         useGlobalPointer={false}
-        raycasterMesh={screenMesh}
+        raycasterMesh={glass}
       >
         <PhoneScreenUI screenScale={screenScale} />
-      </RenderTexture> */}
+      </RenderTexture>
     </>
   )
 }

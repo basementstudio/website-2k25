@@ -7,13 +7,14 @@ import {
 } from "three"
 
 export type PhoneAnimationName =
-  | "L-IN"
-  | "R-IN"
-  | "L-Idle"
-  | "R-Idle"
+  | "IN"
+  | "IN"
+  | "Idle"
+  | "Idle"
   | "Buttons-1"
   | "Buttons-2"
   | "Buttons-3"
+  | "ArmatureAction"
 
 interface AnimationOptions {
   loop?: boolean

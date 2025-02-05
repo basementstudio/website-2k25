@@ -49,13 +49,19 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
           `
         }}
       />
-      <OffscreenCanvas
+      {/* <OffscreenCanvas
         worker={worker}
         fallback={<Fallback />}
         frameloop={isContactOpen ? "always" : "never"}
         camera={{ position: [0, 0.082, 5.25], fov: 25 }}
         gl={{ antialias: false }}
-      />
+      /> */}
+      <Canvas
+        gl={{ antialias: false }}
+        camera={{ position: [0, 0.082, 5.25], fov: 25 }}
+      >
+        <ContactScene modelUrl={contactPhone} />
+      </Canvas>
     </>
   )
 }
