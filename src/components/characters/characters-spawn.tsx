@@ -1,7 +1,17 @@
+import { useRef } from "react"
 import { Character } from "."
 import { CharacterAnimationName } from "./character-instancer"
+import { Group } from "three"
+import { useFrame } from "@react-three/fiber"
 
 export function CharactersSpawn() {
+  const spinningTatoRef = useRef<Group>(null)
+
+  useFrame(() => {
+    if (spinningTatoRef.current) {
+      spinningTatoRef.current.rotation.y += 0.01
+    }
+  })
   return (
     <>
       {/* Services */}
@@ -18,13 +28,13 @@ export function CharactersSpawn() {
 
       {/* Main */}
       <Character
-        position={[2.6, 0, -13]}
+        position={[2.8, 0, -12.6]}
         rotation={[0, Math.PI * 0.7, 0]}
         animationName={CharacterAnimationName.Idle1}
       />
 
       <Character
-        position={[3.6, 0, -13.5]}
+        position={[3.8, 0, -13.5]}
         rotation={[0, Math.PI * -0.3, 0]}
         animationName={CharacterAnimationName.Idle2}
       />
@@ -51,8 +61,15 @@ export function CharactersSpawn() {
 
       {/* <Character
         position={[5, 0, -10]}
+        rotation={[0, Math.PI, 0]}
+        animationName={CharacterAnimationName.Idle2}
+      />
+
+      <Character
+        ref={spinningTatoRef}
+        position={[6, 0, -10]}
         rotation={[0, 0, 0]}
-        animationName={CharacterAnimationName.Idle1}
+        animationName={CharacterAnimationName.Working}
       /> */}
     </>
   )

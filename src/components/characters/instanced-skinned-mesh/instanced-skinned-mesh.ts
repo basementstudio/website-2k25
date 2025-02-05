@@ -50,16 +50,39 @@ THREE.ShaderChunk.skinning_vertex =
 
           vec4 skinVertex = vec4( transformed, 1.0 );
 
+          mat4 boneSkinMatrix = mat4( 0.0 );
           mat4 boneMatX = getBatchedBoneMatrix( skinIndex.x );
           mat4 boneMatY = getBatchedBoneMatrix( skinIndex.y );
           mat4 boneMatZ = getBatchedBoneMatrix( skinIndex.z );
           mat4 boneMatW = getBatchedBoneMatrix( skinIndex.w );
 
+          mat4 weightedBoneMatX = skinWeight.x * boneMatX;
+          mat4 weightedBoneMatY = skinWeight.y * boneMatY;
+          mat4 weightedBoneMatZ = skinWeight.z * boneMatZ;
+          mat4 weightedBoneMatW = skinWeight.w * boneMatW;
+
+          boneSkinMatrix += weightedBoneMatX;
+          boneSkinMatrix += weightedBoneMatY;
+          boneSkinMatrix += weightedBoneMatZ;
+          boneSkinMatrix += weightedBoneMatW;
+
+          vec3 objectNormal = normal;
+
+          // apply the skeleton animation to the normal
+          vNormal = vec4(boneSkinMatrix * vec4(objectNormal, 0.0)).xyz;
+
+          // get the mat transformation of the current instance
+          mat3 bm = mat3( batchingMatrix );
+
+          // apply the mat transformation to the normal
+          vNormal /= vec3( dot( bm[ 0 ], bm[ 0 ] ), dot( bm[ 1 ], bm[ 1 ] ), dot( bm[ 2 ], bm[ 2 ] ) );
+          vNormal = normalize(bm * vNormal);
+
           vec4 skinned = vec4( 0.0 );
-          skinned += boneMatX * skinVertex * skinWeight.x;
-          skinned += boneMatY * skinVertex * skinWeight.y;
-          skinned += boneMatZ * skinVertex * skinWeight.z;
-          skinned += boneMatW * skinVertex * skinWeight.w;
+          skinned += weightedBoneMatX * skinVertex;
+          skinned += weightedBoneMatY * skinVertex;
+          skinned += weightedBoneMatZ * skinVertex;
+          skinned += weightedBoneMatW * skinVertex;
 
           transformed = skinned.xyz;
 
@@ -99,7 +122,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
   /** Where in the bone texture each animation starts */
   private offsets: number[] = []
   /** Frames per second, will be used to transform animations into a texture */
-  private fps: number = 15
+  private fps: number = 30
 
   private instanceData: InstanceData[] = []
 
@@ -166,13 +189,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
   }
 
   public getGeometryId(name: string): number {
-    console.log(
-      "GETTING GEOMETRY",
-      name,
-      this.geometries.get(name),
-      this.geometries
-    )
-
     return this.geometries.get(name) || 0
   }
 
@@ -193,8 +209,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     instanceId: number,
     animation: number | string
   ): void {
-    console.log("Setting animtion", instanceId, animation)
-
     const animationId =
       typeof animation === "string"
         ? this.clips.findIndex((clip) => clip.name === animation)

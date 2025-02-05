@@ -1,6 +1,8 @@
 #include <common>
 #include <batching_pars_vertex>
+#include <morphtarget_pars_vertex>
 #include <skinning_pars_vertex>
+#include <normal_pars_vertex>
 
 #ifdef USE_MULTI_MAP
 attribute float mapIndex;
@@ -9,26 +11,27 @@ varying float vMapIndex;
 #endif
 
 varying vec2 vUv;
-varying vec3 vNormal;
 
 void main() {
   vUv = uv;
-  vNormal = normal;
-
-  #include <begin_vertex>
-  #include <batching_vertex>
-
-  #ifdef USE_SKINNING
-  #include <skinbase_vertex>
-  #include <skinnormal_vertex>
-  #endif
-
   #ifdef USE_MULTI_MAP
   vMapIndex = mapIndex;
   #endif
 
+  #include <batching_vertex>
+
+  #ifdef USE_SKINNING
+  #include <beginnormal_vertex>
+  #include <morphnormal_vertex>
+  #include <skinbase_vertex>
+  #include <defaultnormal_vertex>
+  #include <normal_vertex>
+  #endif
+
+  #include <begin_vertex>
+  #include <morphtarget_vertex>
   #include <skinning_vertex>
 
   #include <project_vertex>
-  #include <worldpos_vertex>
+  // #include <worldpos_vertex>
 }

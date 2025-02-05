@@ -14,7 +14,7 @@ vec4 sampleConfigMap(int index) {
 }
 #endif
 
-vec3 light = normalize(vec3(0.1, 0.3, 1.0));
+vec3 light = normalize(vec3(-0.2, 1, 1.));
 
 void main() {
   vec3 color = vec3(0.0);
@@ -35,9 +35,12 @@ void main() {
   #endif
 
   float lightIntensity = dot(light, normalize(vNormal));
+  lightIntensity = clamp(lightIntensity, 0.0, 1.0);
+  lightIntensity *= 3.;
+  lightIntensity += 0.3;
 
   color *= lightIntensity;
 
 
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(vec3(color), 1.0);
 }
