@@ -9,9 +9,11 @@ varying float vMapIndex;
 #endif
 
 varying vec2 vUv;
+varying vec3 vNormal;
 
 void main() {
   vUv = uv;
+  vNormal = normal;
 
   #include <begin_vertex>
   #include <batching_vertex>

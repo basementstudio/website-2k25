@@ -1,16 +1,7 @@
 import { useGLTF, useTexture } from "@react-three/drei"
-import { memo, useEffect, useMemo } from "react"
+import { memo, useMemo } from "react"
 import type * as THREE from "three"
-import {
-  BufferAttribute,
-  Color,
-  DoubleSide,
-  Matrix3,
-  MeshBasicMaterial,
-  RepeatWrapping,
-  Vector2,
-  Vector3
-} from "three"
+import { BufferAttribute } from "three"
 
 import { useAssets } from "../assets-provider"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
@@ -65,23 +56,6 @@ const setGeometryMapIndex = (
   )
 }
 
-const getUVTransform = (map: THREE.Texture) => {
-  const repeat = new Vector2(map.repeat.x, map.repeat.y)
-  const offset = new Vector2(map.offset.x, map.offset.y)
-  const center = new Vector2(map.center.x, map.center.y)
-  const rotation = map.rotation
-  const invertY = map.flipY ? 1 : 1
-  return new Matrix3().setUvTransform(
-    offset.x,
-    offset.y * invertY,
-    repeat.x,
-    repeat.y,
-    rotation,
-    center.x,
-    center.y * invertY
-  )
-}
-
 function CharacterInstanceConfigInner() {
   const { characters } = useAssets()
 
@@ -108,7 +82,6 @@ function CharacterInstanceConfigInner() {
     const selectedX = 3
     const selectedY = 0
     textureFaces.offset.set(offset * selectedX, offset * selectedY)
-    // textureFaces.center.set(0, 0)
     textureFaces.flipY = false
     textureFaces.updateMatrix()
     textureFaces.needsUpdate = true

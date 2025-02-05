@@ -1,4 +1,5 @@
 varying vec2 vUv;
+varying vec3 vNormal;
 
 #ifdef USE_MULTI_MAP
 struct MapConfig {
@@ -12,6 +13,8 @@ vec4 sampleConfigMap(int index) {
   return texture2D(mapConfigs[index].map, (mapConfigs[index].mapTransform * vec3(vUv, 1.0)).xy);
 }
 #endif
+
+vec3 light = normalize(vec3(0.1, 0.3, 1.0));
 
 void main() {
   vec3 color = vec3(0.0);
@@ -30,6 +33,11 @@ void main() {
       else if (vMapIndex < 3.5) color = sampleConfigMap(3).rgb;
       #endif
   #endif
+
+  float lightIntensity = dot(light, normalize(vNormal));
+
+  color *= lightIntensity;
+
 
   gl_FragColor = vec4(color, 1.0);
 }
