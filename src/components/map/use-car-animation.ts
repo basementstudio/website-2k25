@@ -2,7 +2,13 @@ import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import type { SetStateAction } from "react"
 import { useEffect, useRef, useState } from "react"
-import { Mesh, Object3D, ShaderMaterial, Vector3 } from "three"
+import {
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  ShaderMaterial,
+  Vector3
+} from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
 
@@ -207,7 +213,7 @@ export const useCarAnimation = ({
 
     car.morphTargetInfluences.fill(0)
 
-    const targetIndex = car.morphTargetDictionary["DeLorean"]
+    const targetIndex = car.morphTargetDictionary["Mistery"]
 
     if (targetIndex !== undefined) {
       car.morphTargetInfluences[targetIndex] = 1
@@ -223,33 +229,42 @@ export const useCarAnimation = ({
         mirrorLine: { value: 0.0 }
       },
       vertexShader: `
+        #include <common>
+        #include <morphtarget_pars_vertex>
+        
         varying vec2 vUv;
         varying vec3 vPosition;
-        
+
         void main() {
+          #include <begin_vertex>
+          #include <morphtarget_vertex>
+          #include <project_vertex>
+          
           vUv = uv;
-          vPosition = position;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          vPosition = transformed;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
         }
       `,
       fragmentShader: `
         uniform sampler2D map;
         uniform float mirrorLine;
-        
+
         varying vec2 vUv;
         varying vec3 vPosition;
-        
+
         void main() {
           vec4 texColor = texture2D(map, vUv);
-          
+
           if(vPosition.z < mirrorLine) {
             texColor = texture2D(map, vec2(vUv.x, 1.0 - vUv.y));
           }
-          
+
           gl_FragColor = texColor;
         }
       `
     })
+
+    const basicMaterial = new MeshBasicMaterial({ color: "white" })
 
     car.material = mirrorMaterial
 
