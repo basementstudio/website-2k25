@@ -18,21 +18,12 @@ type CursorType =
   | "grabbing"
   | "inspect"
   | "zoom"
+
 interface MouseStore {
   hoverText: string | null
   setHoverText: (text: string | null) => void
   cursorType: CursorType
   setCursorType: (type: CursorType) => void
-}
-
-const cursorClasses = {
-  default: "default",
-  hover: "pointer",
-  click: "pointer",
-  grab: "grab",
-  grabbing: "grabbing",
-  inspect: "help",
-  zoom: "zoom-in"
 }
 
 export const useMouseStore = create<MouseStore>((set) => ({
@@ -56,7 +47,6 @@ export const MouseTracker = ({
 
   const hoverText = useMouseStore((state) => state.hoverText)
   const setHoverText = useMouseStore((state) => state.setHoverText)
-  const cursorType = useMouseStore((state) => state.cursorType)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -90,17 +80,6 @@ export const MouseTracker = ({
       setHoverText(null)
     }
   }, [pathname])
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    document.body.style.cursor = cursorClasses[cursorType]
-
-    return () => {
-      document.body.style.cursor = "default"
-    }
-  }, [cursorType, canvasRef, pathname])
 
   return (
     <AnimatePresence>

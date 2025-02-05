@@ -16,7 +16,7 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
 
 import { Map } from "./map/map"
-import { MouseTracker } from "./mouse-tracker/mouse-tracker"
+import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
 
@@ -27,13 +27,23 @@ const HoopMinigame = dynamic(
 
 import { CameraController } from "./camera/camera-controller"
 
+const cursorTypeMap = {
+  default: "default",
+  hover: "pointer",
+  click: "pointer",
+  grab: "grab",
+  grabbing: "grabbing",
+  inspect: "help",
+  zoom: "zoom-in"
+} as const
+
 export const Scene = () => {
   const pathname = usePathname()
   const scene = useCurrentScene()
   const { handleNavigation } = useHandleNavigation()
   const isBasketball = scene === "basketball"
-  const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
+  const cursorType = useMouseStore((state) => state.cursorType)
   const {
     isCanvasTabMode,
     setIsCanvasTabMode,
@@ -43,8 +53,8 @@ export const Scene = () => {
   } = useNavigationStore()
 
   useEffect(() => {
-    setDocumentElement(document.documentElement)
-  }, [])
+    canvasRef.current.style.cursor = cursorTypeMap[cursorType]
+  }, [cursorType])
 
   useEffect(() => {
     setIsCanvasTabMode(isCanvasTabMode)
@@ -143,7 +153,6 @@ export const Scene = () => {
           outputColorSpace: THREE.SRGBColorSpace,
           toneMapping: THREE.ACESFilmicToneMapping
         }}
-        eventSource={documentElement}
         camera={{ fov: 60 }}
         className="outline-none focus-visible:outline-none"
       >
