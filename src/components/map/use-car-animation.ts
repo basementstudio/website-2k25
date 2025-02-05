@@ -1,9 +1,23 @@
 import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { useEffect, useRef } from "react"
-import { DoubleSide, Mesh, Object3D, ShaderMaterial, Vector3 } from "three"
+import { Mesh, Object3D, ShaderMaterial, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
+
+export type CarVariant =
+  | "DeLorean"
+  | "Nissan"
+  | "Mistery"
+  | "Simpsons"
+  | "Kitt"
+  | "DeLoreanFly"
+
+export interface CarUserData {
+  targetNames: CarVariant[]
+  name: string
+  currentVariant?: CarVariant
+}
 
 interface CarState {
   isWaiting: boolean
@@ -17,7 +31,7 @@ interface CarState {
 
 const CONSTANTS = {
   BASE_SPEED: 0.2,
-  START_X: -8.7,
+  START_X: -8.8,
   END_X: 9.5,
   MIN_WAIT_TIME: 6000,
   ADDED_WAIT_TIME: 4000,
@@ -131,9 +145,47 @@ const animateCar = (car: Object3D, wheelMeshes: Mesh[]) => {
   }
 }
 
-export const useCarAnimation = ({ car }: { car: Mesh | null }) => {
+interface UseCarAnimationProps {
+  car: Mesh | null
+  variant?: CarVariant
+}
+
+export const useCarAnimation = ({
+  car,
+  variant = "DeLoreanFly"
+}: UseCarAnimationProps) => {
   const wheelMeshes = useRef<Mesh[]>([])
+  const mirroredCarRef = useRef<Mesh | null>(null)
+  const carGroupRef = useRef<Object3D | null>(null)
   const carTexture = useTexture("/textures/cars/delorean.png")
+
+  useEffect(() => {
+    if (!car) {
+      console.log("No car mesh provided")
+      return
+    }
+
+    console.log("Car mesh:", car)
+    console.log("Morph dictionary:", car.morphTargetDictionary)
+    console.log("Morph influences:", car.morphTargetInfluences)
+
+    if (!car.morphTargetDictionary || !car.morphTargetInfluences) {
+      console.log("Car has no morph targets")
+      return
+    }
+
+    // Reset all morph targets
+    car.morphTargetInfluences.fill(0)
+
+    // Set shape key
+    const targetIndex = car.morphTargetDictionary["Mistery"]
+    console.log("Target index for Mistery:", targetIndex)
+
+    if (targetIndex !== undefined) {
+      car.morphTargetInfluences[targetIndex] = 1
+      console.log("Set morph influence to 1 for index:", targetIndex)
+    }
+  }, [car])
 
   useEffect(() => {
     if (!car) return
@@ -169,20 +221,36 @@ export const useCarAnimation = ({ car }: { car: Mesh | null }) => {
           
           gl_FragColor = texColor;
         }
-      `,
-      side: DoubleSide
+      `
     })
 
     car.material = mirrorMaterial
 
+    carGroupRef.current = car.parent
+
     const frontWheels = car.getObjectByName("SM_FWheels") as Mesh
     const backWheels = car.getObjectByName("SM_BWheels") as Mesh
 
+    wheelMeshes.current = []
     if (frontWheels) wheelMeshes.current.push(frontWheels)
     if (backWheels) wheelMeshes.current.push(backWheels)
+
+    if (carGroupRef.current) {
+      mirroredCarRef.current = carGroupRef.current.children[1] as Mesh
+      const mirroredFrontWheels = mirroredCarRef.current.getObjectByName(
+        "SM_FWheels"
+      ) as Mesh
+      const mirroredBackWheels = mirroredCarRef.current.getObjectByName(
+        "SM_BWheels"
+      ) as Mesh
+      if (mirroredFrontWheels) wheelMeshes.current.push(mirroredFrontWheels)
+      if (mirroredBackWheels) wheelMeshes.current.push(mirroredBackWheels)
+    }
   }, [car, carTexture])
 
   useFrame(() => {
-    if (car) animateCar(car, wheelMeshes.current)
+    if (carGroupRef.current) {
+      animateCar(carGroupRef.current, wheelMeshes.current)
+    }
   })
 }

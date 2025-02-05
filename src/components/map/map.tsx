@@ -74,7 +74,8 @@ export const Map = memo(() => {
     "/models/car-v2.glb"
   ) as unknown as GLTFResult
 
-  console.log(newCarTest)
+  console.log("New car model:", newCarTest)
+  console.log("Car children:", newCarTest.children)
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
@@ -182,7 +183,10 @@ export const Map = memo(() => {
     }
     if (carMesh) {
       carMesh.removeFromParent()
-      setCar(newCarTest.children[0] as Mesh)
+      const newCar = newCarTest.children[0] as Mesh
+      console.log("Setting car mesh:", newCar)
+      console.log("Car morph targets:", newCar.morphTargetDictionary)
+      setCar(newCar)
     }
 
     const traverse = (child: Object3D) => {
@@ -352,12 +356,10 @@ export const Map = memo(() => {
       })}
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && (
-        <primitive
-          position-x={-8.7}
-          position-y={0.38}
-          position-z={4}
-          object={car}
-        />
+        <group position-x={-8.8} position-y={1.2} position-z={4}>
+          <primitive object={car} />
+          <primitive object={car.clone()} scale-z={-3.4} />
+        </group>
       )}
       <PlayedBasketballs />
       <MapAssetsLoader />
