@@ -26,6 +26,12 @@ export interface CarUserData {
   currentVariant?: CarVariant
 }
 
+const TEXTURE_TO_MORPH: Record<string, CarVariant | null> = {
+  "/textures/cars/dodge-o.png": null,
+  "/textures/cars/delorean.png": "DeLorean",
+  "/textures/cars/dodge-b.png": null
+}
+
 interface CarState {
   isWaiting: boolean
   waitTimeout: NodeJS.Timeout | null
@@ -34,6 +40,7 @@ interface CarState {
   isSlowingDown: boolean
   isSpeedingUp: boolean
   hasInitialized: boolean
+  isFlying: boolean
 }
 
 const CONSTANTS = {
@@ -55,7 +62,8 @@ const carState: CarState = {
   currentSpeed: CONSTANTS.BASE_SPEED,
   isSlowingDown: false,
   isSpeedingUp: false,
-  hasInitialized: false
+  hasInitialized: false,
+  isFlying: false
 }
 
 const setRandomTimeout = () => {
@@ -178,17 +186,14 @@ const animateCar = (
 
 interface UseCarAnimationProps {
   car: Mesh | null
-  variant?: CarVariant
 }
 
-export const useCarAnimation = ({
-  car,
-  variant = "DeLoreanFly"
-}: UseCarAnimationProps) => {
+export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
   const wheelMeshes = useRef<Mesh[]>([])
   const mirroredCarRef = useRef<Mesh | null>(null)
   const carGroupRef = useRef<Object3D | null>(null)
   const [textureIndex, setTextureIndex] = useState(0)
+  const flyingTime = useRef(0)
 
   const textures = [
     "/textures/cars/dodge-o.png",
@@ -197,14 +202,67 @@ export const useCarAnimation = ({
   ]
   const carTexture = useTexture(textures[textureIndex])
 
+  // Update morph targets based on current texture
+  useEffect(() => {
+    if (!car?.morphTargetDictionary || !car?.morphTargetInfluences) return
+
+    // Reset all morph influences
+    car.morphTargetInfluences.fill(0)
+
+    // Get the associated morph target for current texture
+    const currentMorphTarget = TEXTURE_TO_MORPH[textures[textureIndex]]
+
+    if (currentMorphTarget) {
+      const targetIndex = car.morphTargetDictionary[currentMorphTarget]
+      if (targetIndex !== undefined) {
+        car.morphTargetInfluences[targetIndex] = 1
+
+        // fly away little delorean
+        if (currentMorphTarget === "DeLorean" && Math.random() < 0.5) {
+          const flyIndex = car.morphTargetDictionary["DeLoreanFly"]
+          if (flyIndex !== undefined) {
+            car.morphTargetInfluences[flyIndex] = 1
+            carState.isFlying = true
+          }
+        } else {
+          carState.isFlying = false
+        }
+      }
+    } else {
+      carState.isFlying = false
+    }
+  }, [car, textureIndex, textures])
+
+  useFrame((_, delta) => {
+    if (carGroupRef.current && carState.isFlying) {
+      flyingTime.current += delta
+      carGroupRef.current.position.y =
+        Math.sin(flyingTime.current * 2) * 0.5 + 1.5
+      carGroupRef.current.rotation.x = Math.sin(flyingTime.current) * 0.1
+    } else if (carGroupRef.current) {
+      carGroupRef.current.rotation.x = 0
+      carGroupRef.current.position.y = 1.2
+      flyingTime.current = 0
+    }
+
+    if (carGroupRef.current) {
+      animateCar(
+        carGroupRef.current,
+        wheelMeshes.current,
+        setTextureIndex,
+        textures.length
+      )
+    }
+  })
+
   useEffect(() => {
     if (!car) {
       console.log("No car mesh provided")
       return
     }
 
-    console.log("Morph dictionary:", car.morphTargetDictionary)
-    console.log("Morph influences:", car.morphTargetInfluences)
+    // console.log("Morph dictionary:", car.morphTargetDictionary)
+    // console.log("Morph influences:", car.morphTargetInfluences)
 
     if (!car.morphTargetDictionary || !car.morphTargetInfluences) {
       console.log("Car has no morph targets")
@@ -212,6 +270,7 @@ export const useCarAnimation = ({
     }
 
     car.morphTargetInfluences.fill(0)
+    const morphVariants = Object.keys(car.morphTargetDictionary)
 
     const targetIndex = car.morphTargetDictionary["Mistery"]
 
@@ -264,8 +323,6 @@ export const useCarAnimation = ({
       `
     })
 
-    const basicMaterial = new MeshBasicMaterial({ color: "white" })
-
     car.material = mirrorMaterial
 
     carGroupRef.current = car.parent
@@ -299,15 +356,4 @@ export const useCarAnimation = ({
       }
     }
   }, [car, carTexture])
-
-  useFrame(() => {
-    if (carGroupRef.current) {
-      animateCar(
-        carGroupRef.current,
-        wheelMeshes.current,
-        setTextureIndex,
-        textures.length
-      )
-    }
-  })
 }
