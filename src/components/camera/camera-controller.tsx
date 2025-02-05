@@ -4,11 +4,13 @@ import { useControls } from "leva"
 import { useEffect, useState } from "react"
 import { PerspectiveCamera } from "three"
 
-import { CustomCamera } from "./camera-controls"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
+import { CustomCamera } from "./camera-controls"
+import { WasdControls } from "./wasd-controls"
 
 export const CameraController = () => {
   const [isOrbitMode, setIsOrbitMode] = useState(false)
+  const [isFlyMode, setIsFlyMode] = useState(true)
   const { camera } = useThree()
   const setMainCamera = useNavigationStore((state) => state.setMainCamera)
 
@@ -17,6 +19,12 @@ export const CameraController = () => {
       value: false,
       onChange: (value) => {
         setIsOrbitMode(value)
+      }
+    },
+    flyMode: {
+      value: false,
+      onChange: (value) => {
+        setIsFlyMode(value)
       }
     }
   })
@@ -27,13 +35,13 @@ export const CameraController = () => {
     }
   }, [camera, setMainCamera])
 
-  return (
-    <>
-      {isOrbitMode ? (
-        <OrbitControls makeDefault enableDamping dampingFactor={0.1} />
-      ) : (
-        <CustomCamera />
-      )}
-    </>
-  )
+  if (isOrbitMode) {
+    return <OrbitControls makeDefault enableDamping dampingFactor={0.1} />
+  }
+
+  if (isFlyMode) {
+    return <WasdControls />
+  }
+
+  return <CustomCamera />
 }
