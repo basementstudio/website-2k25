@@ -16,8 +16,8 @@ export const NavigationHandler = () => {
   const pathname = usePathname()
   const { setSelected } = useInspectable()
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
-  const scenes: IScene[] = useAssets().scenes
   const setScenes = useNavigationStore((state) => state.setScenes)
+  const scenes: IScene[] = useAssets().scenes
   const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()
 
