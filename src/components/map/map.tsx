@@ -70,6 +70,11 @@ export const Map = memo(() => {
   const { scene: routingElementsModel } = useGLTF(
     routingElementsPath
   ) as unknown as GLTFResult
+  const { scene: newCarTest } = useGLTF(
+    "/models/car-v2.glb"
+  ) as unknown as GLTFResult
+
+  console.log(newCarTest)
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
@@ -175,7 +180,10 @@ export const Map = memo(() => {
       newNetMesh.removeFromParent()
       setKeyframedNet(newNetMesh)
     }
-    if (carMesh) setCar(carMesh as Mesh)
+    if (carMesh) {
+      carMesh.removeFromParent()
+      setCar(newCarTest.children[0] as Mesh)
+    }
 
     const traverse = (child: Object3D) => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
@@ -301,7 +309,8 @@ export const Map = memo(() => {
     basketballNetModel,
     routingElementsModel,
     videos,
-    currentScene
+    currentScene,
+    newCarTest
   ])
 
   useEffect(() => {
@@ -342,7 +351,14 @@ export const Map = memo(() => {
         )
       })}
       {keyframedNet && <primitive object={keyframedNet} />}
-      {car && <primitive position-x={-8.7} object={car} />}
+      {car && (
+        <primitive
+          position-x={-8.7}
+          position-y={0.38}
+          position-z={4}
+          object={car}
+        />
+      )}
       <PlayedBasketballs />
       <MapAssetsLoader />
       <ReflexesLoader />

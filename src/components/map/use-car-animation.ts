@@ -1,6 +1,7 @@
+import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { useEffect, useRef } from "react"
-import { Mesh, Object3D, Vector3 } from "three"
+import { DoubleSide, Mesh, Object3D, ShaderMaterial, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
 
@@ -37,8 +38,9 @@ const carState: CarState = {
 }
 
 const setRandomTimeout = () => {
-  const waitTime =
-    CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
+  // const waitTime =
+  //   CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
+  const waitTime = 1000
   carState.isWaiting = true
   carState.isSoundPlaying = false
 
@@ -131,16 +133,54 @@ const animateCar = (car: Object3D, wheelMeshes: Mesh[]) => {
 
 export const useCarAnimation = ({ car }: { car: Mesh | null }) => {
   const wheelMeshes = useRef<Mesh[]>([])
+  const carTexture = useTexture("/textures/cars/delorean.png")
 
   useEffect(() => {
     if (!car) return
+
+    const mirrorMaterial = new ShaderMaterial({
+      uniforms: {
+        map: { value: carTexture },
+        mirrorLine: { value: 0.0 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        
+        void main() {
+          vUv = uv;
+          vPosition = position;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D map;
+        uniform float mirrorLine;
+        
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        
+        void main() {
+          vec4 texColor = texture2D(map, vUv);
+          
+          if(vPosition.z < mirrorLine) {
+            texColor = texture2D(map, vec2(vUv.x, 1.0 - vUv.y));
+          }
+          
+          gl_FragColor = texColor;
+        }
+      `,
+      side: DoubleSide
+    })
+
+    car.material = mirrorMaterial
 
     const frontWheels = car.getObjectByName("SM_FWheels") as Mesh
     const backWheels = car.getObjectByName("SM_BWheels") as Mesh
 
     if (frontWheels) wheelMeshes.current.push(frontWheels)
     if (backWheels) wheelMeshes.current.push(backWheels)
-  }, [car])
+  }, [car, carTexture])
 
   useFrame(() => {
     if (car) animateCar(car, wheelMeshes.current)
