@@ -15,85 +15,56 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 export const NavigationHandler = () => {
   const pathname = usePathname()
   const { setSelected, selected } = useInspectable()
-  const scenes: IScene[] = useAssets().scenes
+  const { scenes } = useAssets()
   const scene = useCurrentScene()
   const {
     setScenes,
     setCurrentScene,
-    setPreviousTabIndex,
     setCurrentTabIndex,
-    previousTabIndex,
     setIsCanvasTabMode,
     currentScene,
     currentTabIndex,
     isCanvasTabMode
   } = useNavigationStore()
   const { handleNavigation } = useHandleNavigation()
+
+  // Initialize scenes
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
+  // Handle scene changes based on pathname
   useEffect(() => {
     if (!scenes.length) return
 
-    setSelected(null)
-
-    const currentScene =
+    const newScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
-    if (currentScene && currentScene.name !== scene)
-      setCurrentScene(currentScene)
+    if (newScene && newScene.name !== scene) {
+      setCurrentScene(newScene)
+    }
+  }, [scenes, pathname, scene, setCurrentScene])
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    scenes,
-    setSelected,
-    setPreviousTabIndex,
-    setCurrentTabIndex,
-    previousTabIndex
-  ])
-
-  useEffect(
-    () => setSelected(null),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scene]
-  )
-
+  // Handle tab navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Tab") {
-        if (!currentScene?.tabs || currentScene.tabs.length === 0) {
-          setIsCanvasTabMode(false)
-          return
-        }
+      if (e.key !== "Tab" || !isCanvasTabMode) return
+      if (!currentScene?.tabs?.length) {
+        setIsCanvasTabMode(false)
+        return
+      }
 
-        if (isCanvasTabMode) {
-          e.preventDefault()
-          const currentIndex = currentTabIndex
+      e.preventDefault()
+      const newIndex = e.shiftKey ? currentTabIndex - 1 : currentTabIndex + 1
+      setCurrentTabIndex(newIndex)
 
-          if (e.shiftKey) {
-            const newIndex = currentIndex - 1
-            setCurrentTabIndex(newIndex)
-
-            if (currentIndex === 0) {
-              setCurrentTabIndex(-1)
-              setIsCanvasTabMode(false)
-            }
-          } else {
-            const newIndex = currentIndex + 1
-            setCurrentTabIndex(newIndex)
-
-            if (
-              currentScene.tabs &&
-              currentIndex === currentScene.tabs.length - 1
-            ) {
-              setIsCanvasTabMode(false)
-            }
-          }
-        }
+      if (
+        (e.shiftKey && currentTabIndex === 0) ||
+        (!e.shiftKey && currentTabIndex === currentScene.tabs.length - 1)
+      ) {
+        setIsCanvasTabMode(false)
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isCanvasTabMode,
       setCurrentTabIndex,
@@ -103,19 +74,25 @@ export const NavigationHandler = () => {
     ]
   )
 
+  // Handle escape key
   const handleKeyEscape = useCallback(() => {
-    if (isCanvasTabMode && pathname !== "/") {
-      if (pathname.startsWith("/showcase")) {
-        if (selected) {
-          setSelected(null)
-        } else {
-          handleNavigation("/")
-        }
-      } else {
-        handleNavigation("/")
-      }
+    if (!isCanvasTabMode || pathname === "/") return
+
+    if (pathname.startsWith("/showcase")) {
+      selected ? setSelected(null) : handleNavigation("/")
+    } else {
+      handleNavigation("/")
     }
-  }, [isCanvasTabMode, pathname, selected, setSelected])
+  }, [isCanvasTabMode, pathname, selected, setSelected, handleNavigation])
+
+  // Reset selection on pathname change
+  useEffect(() => setSelected(null), [pathname, setSelected])
+
+  useEffect(() => {
+    if (pathname !== "/" && currentTabIndex !== -1) {
+      setCurrentTabIndex(0)
+    }
+  }, [setCurrentTabIndex, pathname])
 
   useKeyPress("Tab", handleKeyDown)
   useKeyPress("Escape", handleKeyEscape)
