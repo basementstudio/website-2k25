@@ -7,6 +7,7 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingPlane } from "./routing-plane/routing-plane"
+import { useAssets } from "../assets-provider"
 
 interface RoutingElementProps {
   node: Mesh
@@ -21,9 +22,10 @@ export const RoutingElement = ({
 }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
+  const scenes = useAssets().scenes
   const setHoverText = useMouseStore((state) => state.setHoverText)
   const setCursorType = useMouseStore((state) => state.setCursorType)
-  const { currentTabIndex, isCanvasTabMode, currentScene } =
+  const { currentTabIndex, isCanvasTabMode, currentScene, setCurrentTabIndex } =
     useNavigationStore()
   const { handleNavigation } = useHandleNavigation()
 
@@ -60,7 +62,16 @@ export const RoutingElement = ({
       setHoverText(hoverName)
 
       const handleKeyPress = (event: KeyboardEvent) => {
-        if (event.key === "Enter") navigate(route)
+        if (event.key === "Enter") {
+          navigate(route)
+          if (route === "/") {
+            const trimmedPathname = pathname.replace("/", "")
+            const tabIndex = scenes[0].tabs.findIndex(
+              (tab) => tab.tabName.toLowerCase() === trimmedPathname
+            )
+            setCurrentTabIndex(tabIndex)
+          }
+        }
       }
       window.addEventListener("keydown", handleKeyPress)
 

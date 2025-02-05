@@ -76,14 +76,32 @@ export const NavigationHandler = () => {
 
   // Handle escape key
   const handleKeyEscape = useCallback(() => {
-    if (!isCanvasTabMode || pathname === "/") return
+    if (!isCanvasTabMode || pathname === "/" || !scenes.length) return
+
+    const trimmedPathname = pathname.replace("/", "")
+    const tabIndex = scenes[0].tabs.findIndex(
+      (tab) => tab.tabName.toLowerCase() === trimmedPathname
+    )
 
     if (pathname.startsWith("/showcase")) {
-      selected ? setSelected(null) : handleNavigation("/")
+      if (selected) {
+        setSelected(null)
+      } else {
+        handleNavigation("/")
+        setCurrentTabIndex(tabIndex)
+      }
     } else {
       handleNavigation("/")
+      setCurrentTabIndex(tabIndex)
     }
-  }, [isCanvasTabMode, pathname, selected, setSelected, handleNavigation])
+  }, [
+    isCanvasTabMode,
+    pathname,
+    selected,
+    setSelected,
+    handleNavigation,
+    scenes
+  ])
 
   // Reset selection on pathname change
   useEffect(() => setSelected(null), [pathname, setSelected])
