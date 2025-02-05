@@ -7,7 +7,7 @@ import { Leva } from "leva"
 import dynamic from "next/dynamic"
 import { useEffect, useRef } from "react"
 import * as THREE from "three"
-
+import { Perf } from "r3f-perf"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -65,6 +65,7 @@ export const Scene = () => {
         camera={{ fov: 60 }}
         className="outline-none focus-visible:outline-none"
       >
+        <Perf style={{ position: "absolute", top: "50px", right: "24px" }} />
         <Renderer
           sceneChildren={
             <>
