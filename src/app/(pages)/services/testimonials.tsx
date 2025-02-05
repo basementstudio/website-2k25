@@ -24,14 +24,16 @@ export const Testimonials = ({ data }: { data: QueryType }) => {
 
       <div className="col-start-5 col-end-9 mx-auto flex gap-x-4">
         {testimonial.avatar ? (
-          <div className="with-dots after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
-            <Image
-              src={testimonial.avatar?.url}
-              alt={testimonial.avatar?.alt || ""}
-              width={testimonial.avatar?.width}
-              height={testimonial.avatar?.height}
-              className="size-16"
-            />
+          <div className="with-dots">
+            <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+              <Image
+                src={testimonial.avatar?.url}
+                alt={testimonial.avatar?.alt || ""}
+                width={testimonial.avatar?.width}
+                height={testimonial.avatar?.height}
+                className="size-16"
+              />
+            </div>
           </div>
         ) : null}
 
