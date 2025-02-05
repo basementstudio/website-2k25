@@ -15,6 +15,7 @@ import {
   Group,
   LoopRepeat,
   Mesh,
+  MeshBasicMaterial,
   SkinnedMesh,
   Vector3,
   WebGLRenderTarget
@@ -235,6 +236,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const screen = gltf.scene.children[0].getObjectByName(
       "SCREEN"
     ) as SkinnedMesh
+    console.log(gltf.scene.children[0].children)
     setScreenMesh(screen)
 
     if (screen) {
@@ -262,7 +264,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
     const action = mixer.clipAction(gltf.animations[0])
     action.play()
-    action.loop = LoopRepeat
+    action.setLoop(LoopRepeat, 1)
+    action.clampWhenFinished = true
 
     return () => {
       mixer.stopAllAction()
@@ -283,8 +286,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   return (
     <>
       <Environment environmentIntensity={0.25} preset="studio" />
-      <group ref={phoneGroupRef}>
-        <primitive scale={8} position-y={-0.1} object={gltf.scene} />
+      <group scale={8} ref={phoneGroupRef}>
+        <primitive position-y={-0.05} object={gltf.scene} />
       </group>
 
       <RenderTexture
