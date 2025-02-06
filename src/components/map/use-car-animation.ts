@@ -147,9 +147,7 @@ const animateCar = (
   car: Object3D,
   wheelMeshes: Mesh[],
   setTextureIndex: (value: SetStateAction<number>) => void,
-  texturesLength: number,
-  textures: string[],
-  carGroupRef: React.MutableRefObject<Object3D | null>
+  texturesLength: number
 ) => {
   const carPosition = car.position
 
@@ -202,11 +200,73 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
 
     const currentMorphTarget = TEXTURE_TO_MORPH[textures[textureIndex]]
 
+    console.table({
+      currentTexture: textures[textureIndex],
+      morphTarget: currentMorphTarget,
+      morphTargetDictionary: car.morphTargetDictionary,
+      targetIndex: currentMorphTarget
+        ? car.morphTargetDictionary[currentMorphTarget]
+        : "none",
+      availableUVs: {
+        uv: car.geometry.attributes.uv?.count ?? "none",
+        uv1: car.userData.uv1?.array ? "present" : "none",
+        uv2: car.geometry.attributes.uv2?.count ?? "none",
+        uv3: car.geometry.attributes.uv3?.count ?? "none",
+        texcoord_4: car.geometry.attributes.texcoord_4?.count ?? "none",
+        texcoord_5: car.geometry.attributes.texcoord_5?.count ?? "none",
+        originalUV: car.userData.originalUV ? "present" : "none"
+      }
+    })
+
+    const updateUVs = (mesh: Mesh) => {
+      if (!mesh.geometry.attributes.uv) return
+
+      if (!mesh.userData.originalUV) {
+        mesh.userData.originalUV = mesh.geometry.attributes.uv.array.slice()
+      }
+
+      let newUVs
+      let uvSetName
+
+      if (!currentMorphTarget) {
+        // For Dodge cars (default)
+        newUVs = mesh.geometry.attributes.uv.array
+        uvSetName = "Default Dodge UV (uv)"
+      } else if (car.morphTargetDictionary) {
+        const targetIndex = car.morphTargetDictionary[currentMorphTarget]
+        if (targetIndex === 0 || targetIndex === 5) {
+          newUVs = mesh.geometry.attributes.uv2?.array
+          uvSetName = "DeLorean UV (uv2)"
+        } else if (targetIndex === 1) {
+          newUVs = mesh.userData.originalUV
+          uvSetName = "Nissan UV (originalUV)"
+        } else if (targetIndex === 2) {
+          newUVs = mesh.geometry.attributes.uv3?.array
+          uvSetName = "Mistery UV (uv3)"
+        } else if (targetIndex === 3) {
+          newUVs = mesh.geometry.attributes.texcoord_4?.array
+          uvSetName = "Simpsons UV (texcoord_4)"
+        } else if (targetIndex === 4) {
+          newUVs = mesh.geometry.attributes.texcoord_5?.array
+          uvSetName = "Kitt UV (texcoord_5)"
+        }
+      }
+
+      if (newUVs) {
+        mesh.geometry.attributes.uv.array.set(newUVs)
+        mesh.geometry.attributes.uv.needsUpdate = true
+      }
+    }
+
+    // Reset morph influences for mirrored car if it's a Dodge
     if (!currentMorphTarget && carGroupRef.current) {
       const mirroredCar = carGroupRef.current.children[1] as Mesh
       if (mirroredCar.morphTargetInfluences) {
         mirroredCar.morphTargetInfluences.fill(0)
       }
+      // Update UVs for both cars
+      updateUVs(car)
+      updateUVs(mirroredCar)
     }
 
     if (currentMorphTarget) {
@@ -215,41 +275,6 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
       if (targetIndex !== undefined) {
         car.morphTargetInfluences[targetIndex] = 1
         const material = car.material as ShaderMaterial
-
-        const updateUVs = (mesh: Mesh) => {
-          if (!mesh.geometry.attributes.uv) return
-
-          if (!mesh.userData.originalUV) {
-            mesh.userData.originalUV = mesh.geometry.attributes.uv.array.slice()
-          }
-
-          let newUVs
-          let uvSetName
-          if (targetIndex === 0 || targetIndex === 5) {
-            newUVs = mesh.geometry.attributes.uv3?.array
-            uvSetName = "DeLorean UV"
-          } else if (targetIndex === 1) {
-            newUVs = mesh.geometry.attributes.uv2?.array
-            uvSetName = "Nissan UV"
-          } else if (targetIndex === 2) {
-            newUVs = mesh.userData.uv4?.array
-            uvSetName = "Mistery UV"
-          } else if (targetIndex === 3) {
-            newUVs = mesh.geometry.attributes.texcoord_4?.array
-            uvSetName = "Simpsons UV"
-          } else if (targetIndex === 4) {
-            newUVs = mesh.geometry.attributes.texcoord_5?.array
-            uvSetName = "Kitt UV (texcoord_5) CORRECT"
-          } else {
-            newUVs = mesh.userData.originalUV.array
-            uvSetName = "Default Dodge UV"
-          }
-
-          if (newUVs) {
-            mesh.geometry.attributes.uv.array.set(newUVs)
-            mesh.geometry.attributes.uv.needsUpdate = true
-          }
-        }
 
         // Apply to original car
         updateUVs(car)
@@ -319,9 +344,7 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
         carGroupRef.current,
         wheelMeshes.current,
         setTextureIndex,
-        textures.length,
-        textures,
-        carGroupRef
+        textures.length
       )
     }
   })
