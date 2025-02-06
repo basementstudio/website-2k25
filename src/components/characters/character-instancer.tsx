@@ -118,8 +118,6 @@ function CharacterInstanceConfigInner() {
     return material
   }, [textureBody, textureFaces, nodes])
 
-  console.log(nodes)
-
   return (
     <>
       <CharacterInstancedMesh

@@ -4,7 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
 import { useControls, folder as levaFolder } from "leva"
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Mesh,
   MeshStandardMaterial,
@@ -236,6 +236,16 @@ export const Map = memo(() => {
           currentMaterial.name === "BSM_MTL_LightLibrary" ||
           currentMaterial.name === "BSM-MTL-Backup"
 
+        const isPlant = meshChild.name === "SM_plant01001"
+
+        if (isPlant) {
+          currentMaterial.userData.lightDirection = new Vector3(
+            0,
+            3,
+            1
+          ).normalize()
+        }
+
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
               createGlobalShaderMaterial(
@@ -243,7 +253,8 @@ export const Map = memo(() => {
                 false,
                 {
                   GLASS: isGlass,
-                  GODRAY: false
+                  GODRAY: false,
+                  LIGHT: isPlant
                 }
               )
             )
@@ -252,7 +263,8 @@ export const Map = memo(() => {
               false,
               {
                 GLASS: isGlass,
-                GODRAY: false
+                GODRAY: false,
+                LIGHT: isPlant
               }
             )
 

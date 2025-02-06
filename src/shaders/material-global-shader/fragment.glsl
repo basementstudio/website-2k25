@@ -4,6 +4,7 @@ varying vec2 vUv;
 varying vec2 vUv2;
 varying vec3 vWorldPosition;
 varying vec3 vMvPosition;
+varying vec3 vNormal;
 
 const float voxelSize = 10.0;
 const float noiseBigScale = 1.0;
@@ -26,6 +27,11 @@ uniform float uTime;
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
 uniform float lightMapMultiplier;
+
+// lights
+#ifdef LIGHT
+uniform vec3 lightDirection;
+#endif
 
 // aomap
 uniform sampler2D aoMap;
@@ -75,6 +81,7 @@ uniform float uBasketballFogColorTransition;
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
+#pragma glslify: valueRemap = require('../utils/value-remap.glsl')
 
 void main() {
   float lightMapIntensity = lightMapIntensity * lightMapMultiplier;
@@ -195,6 +202,16 @@ void main() {
       irradiance *= ambientOcclusion;
     }
   }
+
+  #ifdef LIGHT
+  float lightFactor = dot(lightDirection, normalize(vNormal));
+  lightFactor = valueRemap(lightFactor, 0.2, 1.0, 0.1, 1.0);
+  lightFactor = clamp(lightFactor, 0.0, 1.0);
+  lightFactor = pow(lightFactor, 2.0);
+  lightFactor *= 3.0;
+  lightFactor += 1.0;
+  irradiance *= lightFactor;
+  #endif
 
   gl_FragColor = vec4(irradiance, opacityResult);
 
