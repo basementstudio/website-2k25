@@ -18,7 +18,11 @@ import {
   easeInOutCubic
 } from "./camera-utils"
 
-export const CustomCamera = () => {
+interface Props {
+  transition404Progress?: number
+}
+
+export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
   const currentScene = useCurrentScene()
   const { selected } = useInspectable()
 
@@ -118,7 +122,7 @@ export const CustomCamera = () => {
     return 0.8
   }, [window.innerWidth])
 
-  useFrame(({ pointer }, dt) => {
+  useFrame(({ pointer, clock }, dt) => {
     const controls = cameraControlsRef.current
     const plane = planeRef.current
     const boundary = planeBoundaryRef.current
@@ -134,9 +138,10 @@ export const CustomCamera = () => {
         progress.current = 0
 
         // Instantly set current position to origin
-        currentPos.set(8.8, 1.15, -13.2)
-        currentTarget.set(9, 1.15, -14)
-        currentFov.current = targetFov.current
+        currentPos.set(8.8, 1.15, -13.6)
+        currentTarget.set(8.96, 1.15, -14)
+        // Set FOV to match target FOV initially - don't animate during first phase
+        currentFov.current = 60
 
         // Set home as target
         targetPosition.set(...cameraConfig.position)
@@ -144,11 +149,11 @@ export const CustomCamera = () => {
         targetFov.current = cameraConfig.fov
 
         // Instantly update camera
-        controls.setPosition(8.8, 1.15, -13.2, false)
-        controls.setTarget(9, 1.15, -14, false)
+        controls.setPosition(8.8, 1.15, -13.6, false)
+        controls.setTarget(8.96, 1.15, -14, false)
 
         if (controls.camera instanceof PerspectiveCamera) {
-          controls.camera.fov = targetFov.current
+          controls.camera.fov = currentFov.current
           controls.camera.updateProjectionMatrix()
         }
         return
@@ -161,11 +166,58 @@ export const CustomCamera = () => {
       currentPos.lerp(targetPosition, easeValue)
       currentTarget.lerp(targetLookAt, easeValue)
 
+      // Only animate FOV during the transition to home
+      currentFov.current =
+        currentFov.current +
+        (targetFov.current - currentFov.current) * easeValue
+
       // Update post-processing grayscale transition
       if (controls.camera instanceof PerspectiveCamera) {
         const material = controls.camera.userData.postProcessingMaterial
         if (material) {
           material.uniforms.u404Transition.value = 1 - easeValue
+        }
+      }
+
+      // Update camera position
+      const finalPos = currentPos.clone().add(panTargetDelta)
+      const finalLookAt = currentTarget.clone().add(panLookAtDelta)
+      controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
+      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
+
+      setStairVisibility(false)
+      return
+    }
+
+    // Handle manual 404 transition progress
+    if (transition404Progress > 0) {
+      if (!transitionPhase) {
+        // Start transition from origin
+        currentPos.set(8.8, 1.15, -13.2)
+        currentTarget.set(9, 1.15, -14)
+        currentFov.current = targetFov.current
+
+        // Set home as target
+        targetPosition.set(...cameraConfig.position)
+        targetLookAt.set(...cameraConfig.target)
+        targetFov.current = cameraConfig.fov
+
+        // Instantly update camera
+        controls.setPosition(8.8, 1.15, -13.2, false)
+        controls.setTarget(9, 1.15, -14, false)
+      }
+
+      // Use the manual progress instead of animated progress
+      const easeValue = easeInOutCubic(1 - transition404Progress)
+
+      currentPos.lerp(targetPosition, easeValue)
+      currentTarget.lerp(targetLookAt, easeValue)
+
+      // Update post-processing grayscale transition
+      if (controls.camera instanceof PerspectiveCamera) {
+        const material = controls.camera.userData.postProcessingMaterial
+        if (material) {
+          material.uniforms.u404Transition.value = transition404Progress
         }
       }
 

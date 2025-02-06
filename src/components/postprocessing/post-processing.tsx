@@ -227,15 +227,17 @@ export function PostProcessing({
     const endSaturationValue = isBasketball ? 0.0 : 1.0
     const startVignetteValue = material.uniforms.uVignetteStrength.value
     const endVignetteValue = isBasketball ? 1.0 : 0.0
+    const start404Value = material.uniforms.u404Transition.value
+    const end404Value = is404 ? 1.0 : 0.0
 
     // Update the shader defines
     material.defines = {
       ...(material.defines || {}),
-      IS_404_SCENE: is404
+      IS_404_SCENE: true
     }
     material.needsUpdate = true
 
-    const duration = 800
+    const duration = 700
 
     const startTime = performance.now()
     let animationFrame: number
@@ -258,8 +260,17 @@ export function PostProcessing({
         startVignetteValue +
         (endVignetteValue - startVignetteValue) * easeProgress
 
+      material.uniforms.u404Transition.value =
+        start404Value + (end404Value - start404Value) * easeProgress
+
       if (progress < 1) {
         animationFrame = requestAnimationFrame(animate)
+      } else {
+        // Only remove the 404 define after transition is complete
+        if (!is404) {
+          material.defines.IS_404_SCENE = false
+          material.needsUpdate = true
+        }
       }
     }
 
