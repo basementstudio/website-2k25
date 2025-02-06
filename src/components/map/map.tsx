@@ -28,7 +28,6 @@ import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
 import Cars from "../cars/cars"
-import { useCarAnimation } from "../cars/use-car-animation"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
@@ -168,13 +167,13 @@ export const Map = memo(() => {
     const originalNet = officeModel.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel.getObjectByName("SM_BasketRed-v2")
 
-    const carMesh = outdoorModel.getObjectByName("car01")
-
     if (originalNet) originalNet.removeFromParent()
     if (newNetMesh) {
       newNetMesh.removeFromParent()
       setKeyframedNet(newNetMesh)
     }
+
+    const carMesh = outdoorModel.getObjectByName("car01")
     if (carMesh) {
       carMesh.removeFromParent()
       useMesh.setState({ carMesh: newCarTest.children[0] as Mesh })

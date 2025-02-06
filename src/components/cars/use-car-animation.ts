@@ -62,7 +62,6 @@ const carState: CarState = {
 const setRandomTimeout = () => {
   const waitTime =
     CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
-  // const waitTime = 1000
   carState.isWaiting = true
   carState.isSoundPlaying = false
 
@@ -302,7 +301,6 @@ const updateCarPosition = ({
       (config) => config.texture === nextConfig.texture
     )
     setTextureIndex(nextTextureIndex)
-
     carGroup.visible = false
   }
 }
@@ -328,14 +326,11 @@ const animateCar = (
     return
   }
 
-  if (
-    !carState.isWaiting &&
-    carPosition.x >= CONSTANTS.START_X &&
-    carPosition.x <= CONSTANTS.END_X
-  ) {
-    if (!car.visible) {
-      car.visible = true
-    }
+  if (!carState.isWaiting && !car.visible) {
+    car.visible = true
+  }
+
+  if (!carState.isWaiting) {
     const progress = (carPosition.x - CONSTANTS.START_X) / TOTAL_DISTANCE
     updateCarPosition({
       carPosition,
@@ -345,9 +340,6 @@ const animateCar = (
       texturesLength,
       carGroup: car
     })
-  } else if (!carState.isWaiting) {
-    carPosition.x = CONSTANTS.START_X
-    updateCarSpeed()
   }
 }
 
