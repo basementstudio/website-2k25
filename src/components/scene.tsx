@@ -11,6 +11,7 @@ import * as THREE from "three"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { Perf } from "r3f-perf"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -94,6 +95,14 @@ export const Scene = () => {
               </Physics>
             </>
           }
+        />
+        <Perf
+          style={{
+            position: "absolute",
+            top: 40,
+            right: 10,
+            zIndex: 1000
+          }}
         />
       </Canvas>
     </div>
