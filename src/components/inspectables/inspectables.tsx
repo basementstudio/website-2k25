@@ -51,12 +51,12 @@ export const Inspectables = () => {
 
   return (
     <>
-      <Inspectable
+      {/* <Inspectable
         inspectable={{
           ...inspectables[0],
           position: HARDCODED_INSPECTABLES_POSITIONS[0]
         }}
-      />
+      /> */}
 
       {selected && (
         <mesh

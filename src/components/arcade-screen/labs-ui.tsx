@@ -1,10 +1,9 @@
 import { Container, Image, Root, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import { usePathname, useRouter } from "next/navigation"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
-import { useKeyPress } from "@/hooks/use-key-press"
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
@@ -38,24 +37,7 @@ export const LabsUI = () => {
   const [experimentsContributors, setExperimentsContributors] = useState<
     Record<string, Contributor[]>
   >({})
-
-  const router = useRouter()
-  const pathname = usePathname()
-  const handleNavigation = useCallback(
-    (route: string) => {
-      router.push(route, { scroll: false })
-    },
-    [router]
-  )
-
-  useKeyPress(
-    "Escape",
-    useCallback(() => {
-      if (pathname.startsWith("/lab")) {
-        handleNavigation("/")
-      }
-    }, [handleNavigation, pathname])
-  )
+  const { handleNavigation } = useHandleNavigation()
 
   useEffect(() => {
     fetch("https://lab.basement.studio/experiments.json")

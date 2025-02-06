@@ -27,8 +27,13 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => (
       />
     </div>
     <form className="flex flex-col gap-4">
-      <Input placeholder="Enter your Email" />
-      <button className="flex w-fit items-center gap-1 text-p text-brand-g1">
+      <Input
+        placeholder="Enter your Email"
+        required
+        type="email"
+        name="email"
+      />
+      <button className="flex w-fit translate-y-1 items-center gap-1 text-p text-brand-g1">
         Roll me in <Arrow className="size-3" />
       </button>
     </form>
