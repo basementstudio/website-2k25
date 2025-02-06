@@ -42,7 +42,8 @@ const CONSTANTS = {
   MIN_WAIT_TIME: 6000,
   ADDED_WAIT_TIME: 4000,
   SPEED_REDUCTION: 0.7,
-  SPEED_VARIATION: 0.5
+  SPEED_VARIATION: 0.5,
+  FLIGHT_PROBABILITY: 0.25
 }
 
 const TOTAL_DISTANCE = CONSTANTS.END_X - CONSTANTS.START_X
@@ -59,9 +60,9 @@ const carState: CarState = {
 }
 
 const setRandomTimeout = () => {
-  // const waitTime =
-  //   CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
-  const waitTime = 1000
+  const waitTime =
+    CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
+  // const waitTime = 1000
   carState.isWaiting = true
   carState.isSoundPlaying = false
 
@@ -78,7 +79,7 @@ const updateCarSpeed = () => {
 
   const behavior = Math.random()
 
-  if (behavior < 0.25) {
+  if (behavior < 0.9) {
     carState.isSlowingDown = true
     carState.isSpeedingUp = false
   } else if (behavior < 0.5) {
@@ -98,6 +99,175 @@ interface updateCarPositionProps {
   setTextureIndex: (value: SetStateAction<number>) => void
   texturesLength: number
   carGroup: Object3D
+}
+
+interface CarConfig {
+  texture: string
+  morphTarget: CarVariant | null
+  uvSource: "uv2" | "originalUV" | "uv3" | "texcoord_4" | "texcoord_5"
+  probability: number
+  canFly?: boolean
+}
+
+const CAR_CONFIGS: Record<string, CarConfig> = {
+  "dodge-orange": {
+    texture: "/textures/cars/dodge-o.png",
+    morphTarget: null,
+    uvSource: "uv2",
+    probability: 0.35,
+    canFly: false
+  },
+  delorean: {
+    texture: "/textures/cars/delorean.png",
+    morphTarget: "DeLorean",
+    uvSource: "uv2",
+    probability: 0.1,
+    canFly: true
+  },
+  kitt: {
+    texture: "/textures/cars/kitt.png",
+    morphTarget: "Kitt",
+    uvSource: "texcoord_5",
+    probability: 0.1,
+    canFly: false
+  },
+  nissan: {
+    texture: "/textures/cars/fnf.png",
+    morphTarget: "Nissan",
+    uvSource: "originalUV",
+    probability: 0.1,
+    canFly: false
+  },
+  homer: {
+    texture: "/textures/cars/homer.png",
+    morphTarget: "Simpsons",
+    uvSource: "texcoord_4",
+    probability: 0.1,
+    canFly: false
+  },
+  "dodge-black": {
+    texture: "/textures/cars/dodge-b.png",
+    morphTarget: null,
+    uvSource: "uv2",
+    probability: 0.15,
+    canFly: false
+  },
+  mistery: {
+    texture: "/textures/cars/mistery.png",
+    morphTarget: "Mistery",
+    uvSource: "uv3",
+    probability: 0.1,
+    canFly: false
+  }
+}
+
+const getRandomCarConfig = (): CarConfig => {
+  const random = Math.random()
+  let cumulativeProbability = 0
+
+  for (const config of Object.values(CAR_CONFIGS)) {
+    cumulativeProbability += config.probability
+    if (random <= cumulativeProbability) {
+      return config
+    }
+  }
+
+  // Fallback to first car if probabilities don't sum to 1
+  return Object.values(CAR_CONFIGS)[0]
+}
+
+const setupCarMorphAndUVs = (
+  car: Mesh,
+  mirroredCar: Mesh | undefined,
+  config: CarConfig
+) => {
+  if (!car.morphTargetDictionary || !car.morphTargetInfluences) return
+
+  // Reset morph targets
+  car.morphTargetInfluences.fill(0)
+  if (mirroredCar?.morphTargetInfluences) {
+    mirroredCar.morphTargetInfluences.fill(0)
+  }
+
+  const material = car.material as ShaderMaterial
+
+  // Set morph target if exists
+  if (
+    config.morphTarget &&
+    car.morphTargetDictionary[config.morphTarget] !== undefined
+  ) {
+    const targetIndex = car.morphTargetDictionary[config.morphTarget]
+    car.morphTargetInfluences[targetIndex] = 1
+
+    if (mirroredCar?.morphTargetInfluences) {
+      mirroredCar.morphTargetInfluences[targetIndex] = 1
+    }
+
+    if (material?.uniforms) {
+      material.uniforms.activeMorphIndex.value = targetIndex
+      material.uniforms.isUsingCorrectUV.value = 1.0
+    }
+
+    // Handle flying DeLorean
+    if (
+      config.canFly &&
+      config.morphTarget === "DeLorean" &&
+      Math.random() < CONSTANTS.FLIGHT_PROBABILITY
+    ) {
+      const flyIndex = car.morphTargetDictionary["DeLoreanFly"]
+      if (flyIndex !== undefined) {
+        car.morphTargetInfluences[flyIndex] = 1
+        if (mirroredCar?.morphTargetInfluences) {
+          mirroredCar.morphTargetInfluences[flyIndex] = 1
+        }
+        carState.isFlying = true
+        if (material?.uniforms) {
+          material.uniforms.activeMorphIndex.value = flyIndex
+        }
+      }
+    }
+  } else {
+    carState.isFlying = false
+    if (material?.uniforms) {
+      material.uniforms.activeMorphIndex.value = -1
+      material.uniforms.isUsingCorrectUV.value = 0.0
+    }
+  }
+
+  // Set UVs
+  const updateUVs = (mesh: Mesh) => {
+    if (!mesh.geometry.attributes.uv) return
+
+    let newUVs: ArrayLike<number> | undefined
+
+    switch (config.uvSource) {
+      case "uv2":
+        newUVs = mesh.geometry.attributes.uv2?.array
+        break
+      case "originalUV":
+        newUVs = mesh.userData.originalUV
+        break
+      case "uv3":
+        newUVs = mesh.geometry.attributes.uv3?.array
+        break
+      case "texcoord_4":
+        newUVs = mesh.geometry.attributes.texcoord_4?.array
+        break
+      case "texcoord_5":
+        newUVs = mesh.geometry.attributes.texcoord_5?.array
+        break
+    }
+
+    if (newUVs) {
+      mesh.geometry.attributes.uv.array.set(newUVs)
+      mesh.geometry.attributes.uv.needsUpdate = true
+    }
+  }
+
+  updateUVs(car)
+  if (mirroredCar) {
+    updateUVs(mirroredCar)
+  }
 }
 
 const updateCarPosition = ({
@@ -127,10 +297,14 @@ const updateCarPosition = ({
     carPosition.x = CONSTANTS.START_X
     updateCarSpeed()
     setRandomTimeout()
-    setTextureIndex((prevIndex: number) => {
-      const newIndex = (prevIndex + 1) % texturesLength
-      return newIndex
-    })
+
+    // Instead of cycling through textures, randomly select next car
+    const nextConfig = getRandomCarConfig()
+    const nextTextureIndex = Object.values(CAR_CONFIGS).findIndex(
+      (config) => config.texture === nextConfig.texture
+    )
+    setTextureIndex(nextTextureIndex)
+
     carGroup.visible = false
   }
 }
@@ -196,113 +370,26 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
   useEffect(() => {
     if (!car?.morphTargetDictionary || !car?.morphTargetInfluences) return
 
-    car.morphTargetInfluences.fill(0)
+    const currentConfig = Object.values(CAR_CONFIGS).find(
+      (config) => config.texture === textures[textureIndex]
+    )
 
-    const currentMorphTarget = TEXTURE_TO_MORPH[textures[textureIndex]]
+    if (!currentConfig) return
 
-    const updateUVs = (mesh: Mesh) => {
-      if (!mesh.geometry.attributes.uv) return
-
-      let newUVs
-
-      if (!currentMorphTarget) {
-        newUVs = mesh.geometry.attributes.uv2?.array
-        // default dodge uv
-      } else if (car.morphTargetDictionary) {
-        const targetIndex = car.morphTargetDictionary[currentMorphTarget]
-
-        if (targetIndex === 0 || targetIndex === 5) {
-          newUVs = mesh.geometry.attributes.uv2?.array
-          // default delorean uv
-        } else if (targetIndex === 1) {
-          newUVs = mesh.userData.originalUV
-          // default nissan uv
-        } else if (targetIndex === 2) {
-          newUVs = mesh.geometry.attributes.uv3?.array
-          // default mistery uv
-        } else if (targetIndex === 3) {
-          newUVs = mesh.geometry.attributes.texcoord_4?.array
-          // default simpsons uv
-        } else if (targetIndex === 4) {
-          newUVs = mesh.geometry.attributes.texcoord_5?.array
-          // default kitt uv
-        }
-      }
-
-      if (newUVs) {
-        mesh.geometry.attributes.uv.array.set(newUVs)
-        mesh.geometry.attributes.uv.needsUpdate = true
-      }
-    }
-
-    if (!currentMorphTarget && carGroupRef.current) {
+    if (carGroupRef.current) {
       const mirroredCar = carGroupRef.current.children[1] as Mesh
-      if (mirroredCar.morphTargetInfluences) {
-        mirroredCar.morphTargetInfluences.fill(0)
-      }
-
-      updateUVs(car)
-      updateUVs(mirroredCar)
-    }
-
-    if (currentMorphTarget) {
-      const targetIndex = car.morphTargetDictionary[currentMorphTarget]
-
-      if (targetIndex !== undefined) {
-        car.morphTargetInfluences[targetIndex] = 1
-        const material = car.material as ShaderMaterial
-
-        updateUVs(car)
-
-        if (carGroupRef.current) {
-          const mirroredCar = carGroupRef.current.children[1] as Mesh
-          // Ensure morph targets are synced
-          mirroredCar.morphTargetInfluences = [...car.morphTargetInfluences]
-          mirroredCar.material = car.material
-          updateUVs(mirroredCar)
-        }
-
-        if (material?.uniforms) {
-          material.uniforms.activeMorphIndex.value = targetIndex
-          material.uniforms.isUsingCorrectUV.value = 1.0
-        }
-
-        // fly away little delorean
-        if (currentMorphTarget === "DeLorean" && Math.random() < 0.25) {
-          const flyIndex = car.morphTargetDictionary["DeLoreanFly"]
-          if (flyIndex !== undefined) {
-            car.morphTargetInfluences[flyIndex] = 1
-            if (carGroupRef.current) {
-              const mirroredCar = carGroupRef.current.children[1] as Mesh
-              if (mirroredCar.morphTargetInfluences) {
-                mirroredCar.morphTargetInfluences[flyIndex] = 1
-              }
-            }
-            carState.isFlying = true
-            // flying state
-            if (material?.uniforms) {
-              material.uniforms.activeMorphIndex.value = flyIndex
-            }
-          }
-        } else {
-          carState.isFlying = false
-          if (material?.uniforms) {
-            material.uniforms.isUsingCorrectUV.value = 0.0
-          }
-        }
-      }
-    } else {
-      carState.isFlying = false
-      const material = car.material as ShaderMaterial
-      if (material?.uniforms) {
-        material.uniforms.activeMorphIndex.value = -1
-        material.uniforms.isUsingCorrectUV.value = 0.0
-      }
+      setupCarMorphAndUVs(car, mirroredCar, currentConfig)
     }
   }, [car, textureIndex, textures])
 
   useFrame((_, delta) => {
-    if (carGroupRef.current && carState.isFlying) {
+    const flyIndex = car?.morphTargetDictionary?.["DeLoreanFly"]
+    if (
+      carGroupRef.current &&
+      carState.isFlying &&
+      typeof flyIndex === "number" &&
+      car?.morphTargetInfluences?.[flyIndex] === 1
+    ) {
       flyingTime.current += delta
       carGroupRef.current.position.y =
         Math.sin(flyingTime.current * 2) * 0.5 + 1.5
@@ -311,6 +398,10 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
       carGroupRef.current.rotation.x = 0
       carGroupRef.current.position.y = 1.2
       flyingTime.current = 0
+
+      if (carState.isFlying) {
+        carState.isFlying = false
+      }
     }
 
     if (carGroupRef.current) {

@@ -354,15 +354,14 @@ export const Map = memo(() => {
         <group
           position-x={-8.8}
           position-y={1.2}
-          position-z={4}
+          position-z={7.7}
           ref={(group) => {
             if (group) {
               const mirroredCar = car.clone()
-              group.clear() // Clear any existing children
-              group.add(car) // Add original car
-              group.add(mirroredCar) // Add mirrored car
+              group.clear()
+              group.add(car)
+              group.add(mirroredCar)
               mirroredCar.scale.z = -3.4
-              // Set this group as the carGroupRef for the animation hook
               setCar(car)
             }
           }}
