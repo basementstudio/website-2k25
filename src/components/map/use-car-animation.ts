@@ -200,55 +200,32 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
 
     const currentMorphTarget = TEXTURE_TO_MORPH[textures[textureIndex]]
 
-    console.table({
-      currentTexture: textures[textureIndex],
-      morphTarget: currentMorphTarget,
-      morphTargetDictionary: car.morphTargetDictionary,
-      targetIndex: currentMorphTarget
-        ? car.morphTargetDictionary[currentMorphTarget]
-        : "none",
-      availableUVs: {
-        uv: car.geometry.attributes.uv?.count ?? "none",
-        uv1: car.userData.uv1?.array ? "present" : "none",
-        uv2: car.geometry.attributes.uv2?.count ?? "none",
-        uv3: car.geometry.attributes.uv3?.count ?? "none",
-        texcoord_4: car.geometry.attributes.texcoord_4?.count ?? "none",
-        texcoord_5: car.geometry.attributes.texcoord_5?.count ?? "none",
-        originalUV: car.userData.originalUV ? "present" : "none"
-      }
-    })
-
     const updateUVs = (mesh: Mesh) => {
       if (!mesh.geometry.attributes.uv) return
 
-      if (!mesh.userData.originalUV) {
-        mesh.userData.originalUV = mesh.geometry.attributes.uv.array.slice()
-      }
-
       let newUVs
-      let uvSetName
 
       if (!currentMorphTarget) {
-        // For Dodge cars (default)
-        newUVs = mesh.geometry.attributes.uv.array
-        uvSetName = "Default Dodge UV (uv)"
+        newUVs = mesh.geometry.attributes.uv2?.array
+        // default dodge uv
       } else if (car.morphTargetDictionary) {
         const targetIndex = car.morphTargetDictionary[currentMorphTarget]
+
         if (targetIndex === 0 || targetIndex === 5) {
           newUVs = mesh.geometry.attributes.uv2?.array
-          uvSetName = "DeLorean UV (uv2)"
+          // default delorean uv
         } else if (targetIndex === 1) {
           newUVs = mesh.userData.originalUV
-          uvSetName = "Nissan UV (originalUV)"
+          // default nissan uv
         } else if (targetIndex === 2) {
           newUVs = mesh.geometry.attributes.uv3?.array
-          uvSetName = "Mistery UV (uv3)"
+          // default mistery uv
         } else if (targetIndex === 3) {
           newUVs = mesh.geometry.attributes.texcoord_4?.array
-          uvSetName = "Simpsons UV (texcoord_4)"
+          // default simpsons uv
         } else if (targetIndex === 4) {
           newUVs = mesh.geometry.attributes.texcoord_5?.array
-          uvSetName = "Kitt UV (texcoord_5)"
+          // default kitt uv
         }
       }
 
@@ -258,13 +235,12 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
       }
     }
 
-    // Reset morph influences for mirrored car if it's a Dodge
     if (!currentMorphTarget && carGroupRef.current) {
       const mirroredCar = carGroupRef.current.children[1] as Mesh
       if (mirroredCar.morphTargetInfluences) {
         mirroredCar.morphTargetInfluences.fill(0)
       }
-      // Update UVs for both cars
+
       updateUVs(car)
       updateUVs(mirroredCar)
     }
@@ -276,10 +252,8 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
         car.morphTargetInfluences[targetIndex] = 1
         const material = car.material as ShaderMaterial
 
-        // Apply to original car
         updateUVs(car)
 
-        // Apply to mirrored car
         if (carGroupRef.current) {
           const mirroredCar = carGroupRef.current.children[1] as Mesh
           // Ensure morph targets are synced
@@ -294,7 +268,7 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
         }
 
         // fly away little delorean
-        if (currentMorphTarget === "DeLorean" && Math.random() < 0.05) {
+        if (currentMorphTarget === "DeLorean" && Math.random() < 0.25) {
           const flyIndex = car.morphTargetDictionary["DeLoreanFly"]
           if (flyIndex !== undefined) {
             car.morphTargetInfluences[flyIndex] = 1
@@ -361,6 +335,17 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
     }
 
     car.morphTargetInfluences.fill(0)
+
+    // storing this uv is vital for the nissan
+    if (car.geometry.attributes.uv) {
+      car.userData.originalUV = car.geometry.attributes.uv.array.slice()
+    }
+
+    // initialize with uv2 since its used for the default cars
+    if (car.geometry.attributes.uv && car.geometry.attributes.uv2) {
+      car.geometry.attributes.uv.array.set(car.geometry.attributes.uv2.array)
+      car.geometry.attributes.uv.needsUpdate = true
+    }
   }, [car])
 
   useEffect(() => {
@@ -414,16 +399,6 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
           }
 
           vec4 texColor = texture2D(map, finalUV);
-          
-          // Debug: Add color tint based on UV correctness AND mirror state
-          vec3 debugColor;
-          if(vIsMirrored > 0.5) {
-            debugColor = isUsingCorrectUV > 0.5 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
-          } else {
-            debugColor = isUsingCorrectUV > 0.5 ? vec3(0.0, 0.7, 0.3) : vec3(0.7, 0.0, 0.3);
-          }
-          texColor.rgb = mix(texColor.rgb, debugColor, 0.3);
-
           gl_FragColor = texColor;
         }
       `
