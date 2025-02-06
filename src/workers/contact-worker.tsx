@@ -9,7 +9,6 @@ self.onmessage = (
 ) => {
   const { type, modelUrl } = e.data
   if (type === "load-model") {
-    console.log("[ContactWorker] loading model", modelUrl)
     render(<ContactScene modelUrl={modelUrl} />)
   }
 }

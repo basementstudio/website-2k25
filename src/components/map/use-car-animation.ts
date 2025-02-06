@@ -17,10 +17,10 @@ export type CarVariant =
 const TEXTURE_TO_MORPH: Record<string, CarVariant | null> = {
   "/textures/cars/dodge-o.png": null,
   "/textures/cars/delorean.png": "DeLorean",
+  "/textures/cars/kitt.png": "Kitt",
   "/textures/cars/fnf.png": "Nissan",
   "/textures/cars/homer.png": "Simpsons",
   "/textures/cars/dodge-b.png": null,
-  "/textures/cars/kitt.png": "Kitt",
   "/textures/cars/mistery.png": "Mistery"
 }
 
@@ -127,7 +127,10 @@ const updateCarPosition = ({
     carPosition.x = CONSTANTS.START_X
     updateCarSpeed()
     setRandomTimeout()
-    setTextureIndex((prevIndex: number) => (prevIndex + 1) % texturesLength)
+    setTextureIndex((prevIndex: number) => {
+      const newIndex = (prevIndex + 1) % texturesLength
+      return newIndex
+    })
     carGroup.visible = false
   }
 }
@@ -144,7 +147,9 @@ const animateCar = (
   car: Object3D,
   wheelMeshes: Mesh[],
   setTextureIndex: (value: SetStateAction<number>) => void,
-  texturesLength: number
+  texturesLength: number,
+  textures: string[],
+  carGroupRef: React.MutableRefObject<Object3D | null>
 ) => {
   const carPosition = car.position
 
@@ -182,7 +187,6 @@ interface UseCarAnimationProps {
 
 export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
   const wheelMeshes = useRef<Mesh[]>([])
-  const mirroredCarRef = useRef<Mesh | null>(null)
   const carGroupRef = useRef<Object3D | null>(null)
   const [textureIndex, setTextureIndex] = useState(0)
   const flyingTime = useRef(0)
@@ -194,45 +198,106 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
   useEffect(() => {
     if (!car?.morphTargetDictionary || !car?.morphTargetInfluences) return
 
-    // Reset all morph influences
     car.morphTargetInfluences.fill(0)
 
-    // Get the associated morph target for current texture
     const currentMorphTarget = TEXTURE_TO_MORPH[textures[textureIndex]]
+
+    if (!currentMorphTarget && carGroupRef.current) {
+      const mirroredCar = carGroupRef.current.children[1] as Mesh
+      if (mirroredCar.morphTargetInfluences) {
+        mirroredCar.morphTargetInfluences.fill(0)
+      }
+    }
 
     if (currentMorphTarget) {
       const targetIndex = car.morphTargetDictionary[currentMorphTarget]
 
       if (targetIndex !== undefined) {
         car.morphTargetInfluences[targetIndex] = 1
-
-        // update shader uniform
         const material = car.material as ShaderMaterial
+
+        const updateUVs = (mesh: Mesh) => {
+          if (!mesh.geometry.attributes.uv) return
+
+          if (!mesh.userData.originalUV) {
+            mesh.userData.originalUV = mesh.geometry.attributes.uv.array.slice()
+          }
+
+          let newUVs
+          let uvSetName
+          if (targetIndex === 0 || targetIndex === 5) {
+            newUVs = mesh.geometry.attributes.uv3?.array
+            uvSetName = "DeLorean UV"
+          } else if (targetIndex === 1) {
+            newUVs = mesh.geometry.attributes.uv2?.array
+            uvSetName = "Nissan UV"
+          } else if (targetIndex === 2) {
+            newUVs = mesh.userData.uv4?.array
+            uvSetName = "Mistery UV"
+          } else if (targetIndex === 3) {
+            newUVs = mesh.geometry.attributes.texcoord_4?.array
+            uvSetName = "Simpsons UV"
+          } else if (targetIndex === 4) {
+            newUVs = mesh.geometry.attributes.texcoord_5?.array
+            uvSetName = "Kitt UV (texcoord_5) CORRECT"
+          } else {
+            newUVs = mesh.userData.originalUV.array
+            uvSetName = "Default Dodge UV"
+          }
+
+          if (newUVs) {
+            mesh.geometry.attributes.uv.array.set(newUVs)
+            mesh.geometry.attributes.uv.needsUpdate = true
+          }
+        }
+
+        // Apply to original car
+        updateUVs(car)
+
+        // Apply to mirrored car
+        if (carGroupRef.current) {
+          const mirroredCar = carGroupRef.current.children[1] as Mesh
+          // Ensure morph targets are synced
+          mirroredCar.morphTargetInfluences = [...car.morphTargetInfluences]
+          mirroredCar.material = car.material
+          updateUVs(mirroredCar)
+        }
+
         if (material?.uniforms) {
           material.uniforms.activeMorphIndex.value = targetIndex
+          material.uniforms.isUsingCorrectUV.value = 1.0
         }
 
         // fly away little delorean
-        if (currentMorphTarget === "DeLorean" && Math.random() < 0.5) {
+        if (currentMorphTarget === "DeLorean" && Math.random() < 0.05) {
           const flyIndex = car.morphTargetDictionary["DeLoreanFly"]
           if (flyIndex !== undefined) {
             car.morphTargetInfluences[flyIndex] = 1
+            if (carGroupRef.current) {
+              const mirroredCar = carGroupRef.current.children[1] as Mesh
+              if (mirroredCar.morphTargetInfluences) {
+                mirroredCar.morphTargetInfluences[flyIndex] = 1
+              }
+            }
             carState.isFlying = true
-            // uniform for flying state
+            // flying state
             if (material?.uniforms) {
               material.uniforms.activeMorphIndex.value = flyIndex
             }
           }
         } else {
           carState.isFlying = false
+          if (material?.uniforms) {
+            material.uniforms.isUsingCorrectUV.value = 0.0
+          }
         }
       }
     } else {
       carState.isFlying = false
-      // reset uniform when no morph target
       const material = car.material as ShaderMaterial
       if (material?.uniforms) {
         material.uniforms.activeMorphIndex.value = -1
+        material.uniforms.isUsingCorrectUV.value = 0.0
       }
     }
   }, [car, textureIndex, textures])
@@ -254,7 +319,9 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
         carGroupRef.current,
         wheelMeshes.current,
         setTextureIndex,
-        textures.length
+        textures.length,
+        textures,
+        carGroupRef
       )
     }
   })
@@ -281,7 +348,8 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
         map: { value: carTexture },
         mirrorLine: { value: 0.0 },
         morphTargetInfluences: { value: car.morphTargetInfluences },
-        activeMorphIndex: { value: -1 }
+        activeMorphIndex: { value: -1 },
+        isUsingCorrectUV: { value: 0.0 }
       },
       vertexShader: `
         #include <morphtarget_pars_vertex>
@@ -290,13 +358,17 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
         
         varying vec2 vUv;
         varying vec3 vPosition;
+        varying float vIsMirrored;
+        uniform float activeMorphIndex;
+        uniform float isUsingCorrectUV;
 
         void main() {
           #include <begin_vertex>
           #include <morphtarget_vertex>
           #include <project_vertex>
           
-          vUv = uv;
+          vUv = uv; 
+          vIsMirrored = position.z < 0.0 ? 1.0 : 0.0;
           vPosition = transformed;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
         }
@@ -304,19 +376,32 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
       fragmentShader: `
         uniform sampler2D map;
         uniform float mirrorLine;
+        uniform float isUsingCorrectUV;
 
         varying vec2 vUv;
         varying vec3 vPosition;
+        varying float vIsMirrored;
 
         void main() {
           vec2 finalUV = vUv;
-          
-          // Flip UVs for the reflection (mirrored half of the car)
+
+          // Handle UV flipping for mirrored half
           if(vPosition.z < mirrorLine) {
             finalUV.y = 1.0 - finalUV.y;
           }
 
-          gl_FragColor = texture2D(map, finalUV);
+          vec4 texColor = texture2D(map, finalUV);
+          
+          // Debug: Add color tint based on UV correctness AND mirror state
+          vec3 debugColor;
+          if(vIsMirrored > 0.5) {
+            debugColor = isUsingCorrectUV > 0.5 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+          } else {
+            debugColor = isUsingCorrectUV > 0.5 ? vec3(0.0, 0.7, 0.3) : vec3(0.7, 0.0, 0.3);
+          }
+          texColor.rgb = mix(texColor.rgb, debugColor, 0.3);
+
+          gl_FragColor = texColor;
         }
       `
     })
@@ -324,6 +409,11 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
     car.material = mirrorMaterial
 
     carGroupRef.current = car.parent
+
+    if (carGroupRef.current) {
+      const mirroredCar = carGroupRef.current.children[1] as Mesh
+      mirroredCar.material = mirrorMaterial
+    }
 
     const frontWheels = car.getObjectByName("SM_FWheels") as Mesh
     const backWheels = car.getObjectByName("SM_BWheels") as Mesh
@@ -333,25 +423,15 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
     if (backWheels) wheelMeshes.current.push(backWheels)
 
     if (carGroupRef.current) {
-      mirroredCarRef.current = carGroupRef.current.children[1] as Mesh
-      const mirroredFrontWheels = mirroredCarRef.current.getObjectByName(
+      const mirroredCar = carGroupRef.current.children[1] as Mesh
+      const mirroredFrontWheels = mirroredCar.getObjectByName(
         "SM_FWheels"
       ) as Mesh
-      const mirroredBackWheels = mirroredCarRef.current.getObjectByName(
+      const mirroredBackWheels = mirroredCar.getObjectByName(
         "SM_BWheels"
       ) as Mesh
       if (mirroredFrontWheels) wheelMeshes.current.push(mirroredFrontWheels)
       if (mirroredBackWheels) wheelMeshes.current.push(mirroredBackWheels)
-    }
-  }, [car, carTexture])
-
-  useEffect(() => {
-    if (!car) return
-    if (mirroredCarRef.current) {
-      const mirroredMaterial = mirroredCarRef.current.material as ShaderMaterial
-      if (mirroredMaterial && mirroredMaterial.uniforms) {
-        mirroredMaterial.uniforms.map.value = carTexture
-      }
     }
   }, [car, carTexture])
 }

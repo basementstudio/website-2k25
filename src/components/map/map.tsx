@@ -181,8 +181,6 @@ export const Map = memo(() => {
     if (carMesh) {
       carMesh.removeFromParent()
       const newCar = newCarTest.children[0] as Mesh
-      console.log("Setting car mesh:", newCar)
-      console.log("Car morph targets:", newCar.morphTargetDictionary)
       setCar(newCar)
     }
 
@@ -353,10 +351,22 @@ export const Map = memo(() => {
       })}
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && (
-        <group position-x={-8.8} position-y={1.2} position-z={4}>
-          <primitive object={car} />
-          <primitive object={car.clone()} scale-z={-3.4} />
-        </group>
+        <group
+          position-x={-8.8}
+          position-y={1.2}
+          position-z={4}
+          ref={(group) => {
+            if (group) {
+              const mirroredCar = car.clone()
+              group.clear() // Clear any existing children
+              group.add(car) // Add original car
+              group.add(mirroredCar) // Add mirrored car
+              mirroredCar.scale.z = -3.4
+              // Set this group as the carGroupRef for the animation hook
+              setCar(car)
+            }
+          }}
+        />
       )}
       <PlayedBasketballs />
       <MapAssetsLoader />
