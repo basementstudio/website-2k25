@@ -71,11 +71,8 @@ export const Map = memo(() => {
     routingElementsPath
   ) as unknown as GLTFResult
   const { scene: newCarTest } = useGLTF(
-    "/models/car-v2.glb"
+    "/models/car-v3.glb"
   ) as unknown as GLTFResult
-
-  console.log("New car model:", newCarTest)
-  console.log("Car children:", newCarTest.children)
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)

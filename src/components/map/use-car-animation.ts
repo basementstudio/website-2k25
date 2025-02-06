@@ -1,14 +1,8 @@
 import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import type { SetStateAction } from "react"
-import { useEffect, useRef, useState } from "react"
-import {
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  ShaderMaterial,
-  Vector3
-} from "three"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { Mesh, Object3D, ShaderMaterial, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
 
@@ -20,16 +14,14 @@ export type CarVariant =
   | "Kitt"
   | "DeLoreanFly"
 
-export interface CarUserData {
-  targetNames: CarVariant[]
-  name: string
-  currentVariant?: CarVariant
-}
-
 const TEXTURE_TO_MORPH: Record<string, CarVariant | null> = {
   "/textures/cars/dodge-o.png": null,
   "/textures/cars/delorean.png": "DeLorean",
-  "/textures/cars/dodge-b.png": null
+  "/textures/cars/fnf.png": "Nissan",
+  "/textures/cars/homer.png": "Simpsons",
+  "/textures/cars/dodge-b.png": null,
+  "/textures/cars/kitt.png": "Kitt",
+  "/textures/cars/mistery.png": "Mistery"
 }
 
 interface CarState {
@@ -195,14 +187,10 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
   const [textureIndex, setTextureIndex] = useState(0)
   const flyingTime = useRef(0)
 
-  const textures = [
-    "/textures/cars/dodge-o.png",
-    "/textures/cars/delorean.png",
-    "/textures/cars/dodge-b.png"
-  ]
+  const textures = useMemo(() => Object.keys(TEXTURE_TO_MORPH), [])
+
   const carTexture = useTexture(textures[textureIndex])
 
-  // Update morph targets based on current texture
   useEffect(() => {
     if (!car?.morphTargetDictionary || !car?.morphTargetInfluences) return
 
@@ -214,8 +202,15 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
 
     if (currentMorphTarget) {
       const targetIndex = car.morphTargetDictionary[currentMorphTarget]
+
       if (targetIndex !== undefined) {
         car.morphTargetInfluences[targetIndex] = 1
+
+        // update shader uniform
+        const material = car.material as ShaderMaterial
+        if (material?.uniforms) {
+          material.uniforms.activeMorphIndex.value = targetIndex
+        }
 
         // fly away little delorean
         if (currentMorphTarget === "DeLorean" && Math.random() < 0.5) {
@@ -223,6 +218,10 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
           if (flyIndex !== undefined) {
             car.morphTargetInfluences[flyIndex] = 1
             carState.isFlying = true
+            // uniform for flying state
+            if (material?.uniforms) {
+              material.uniforms.activeMorphIndex.value = flyIndex
+            }
           }
         } else {
           carState.isFlying = false
@@ -230,6 +229,11 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
       }
     } else {
       carState.isFlying = false
+      // reset uniform when no morph target
+      const material = car.material as ShaderMaterial
+      if (material?.uniforms) {
+        material.uniforms.activeMorphIndex.value = -1
+      }
     }
   }, [car, textureIndex, textures])
 
@@ -261,22 +265,12 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
       return
     }
 
-    // console.log("Morph dictionary:", car.morphTargetDictionary)
-    // console.log("Morph influences:", car.morphTargetInfluences)
-
     if (!car.morphTargetDictionary || !car.morphTargetInfluences) {
       console.log("Car has no morph targets")
       return
     }
 
     car.morphTargetInfluences.fill(0)
-    const morphVariants = Object.keys(car.morphTargetDictionary)
-
-    const targetIndex = car.morphTargetDictionary["Mistery"]
-
-    if (targetIndex !== undefined) {
-      car.morphTargetInfluences[targetIndex] = 1
-    }
   }, [car])
 
   useEffect(() => {
@@ -285,11 +279,14 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
     const mirrorMaterial = new ShaderMaterial({
       uniforms: {
         map: { value: carTexture },
-        mirrorLine: { value: 0.0 }
+        mirrorLine: { value: 0.0 },
+        morphTargetInfluences: { value: car.morphTargetInfluences },
+        activeMorphIndex: { value: -1 }
       },
       vertexShader: `
-        #include <common>
         #include <morphtarget_pars_vertex>
+        #include <common>
+        #include <uv_pars_vertex>
         
         varying vec2 vUv;
         varying vec3 vPosition;
@@ -312,13 +309,14 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
         varying vec3 vPosition;
 
         void main() {
-          vec4 texColor = texture2D(map, vUv);
-
+          vec2 finalUV = vUv;
+          
+          // Flip UVs for the reflection (mirrored half of the car)
           if(vPosition.z < mirrorLine) {
-            texColor = texture2D(map, vec2(vUv.x, 1.0 - vUv.y));
+            finalUV.y = 1.0 - finalUV.y;
           }
 
-          gl_FragColor = texColor;
+          gl_FragColor = texture2D(map, finalUV);
         }
       `
     })
