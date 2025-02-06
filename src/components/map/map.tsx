@@ -353,8 +353,8 @@ export const Map = memo(() => {
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && (
         <group
+          scale={0.8}
           position-x={-8.8}
-          position-y={1.2}
           position-z={7.7}
           ref={(group) => {
             if (group) {

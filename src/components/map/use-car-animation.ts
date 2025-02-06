@@ -60,9 +60,9 @@ const carState: CarState = {
 }
 
 const setRandomTimeout = () => {
-  const waitTime =
-    CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
-  // const waitTime = 1000
+  // const waitTime =
+  // CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
+  const waitTime = 1000
   carState.isWaiting = true
   carState.isSoundPlaying = false
 
@@ -114,7 +114,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/dodge-o.png",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.35,
+    probability: 0.25,
     canFly: false
   },
   delorean: {
@@ -149,7 +149,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/dodge-b.png",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.15,
+    probability: 0.25,
     canFly: false
   },
   mistery: {
@@ -179,11 +179,11 @@ const getRandomCarConfig = (): CarConfig => {
 const setupCarMorphAndUVs = (
   car: Mesh,
   mirroredCar: Mesh | undefined,
-  config: CarConfig
+  config: CarConfig,
+  originalUVRef: React.RefObject<Float32Array | null>
 ) => {
   if (!car.morphTargetDictionary || !car.morphTargetInfluences) return
 
-  // Reset morph targets
   car.morphTargetInfluences.fill(0)
   if (mirroredCar?.morphTargetInfluences) {
     mirroredCar.morphTargetInfluences.fill(0)
@@ -191,7 +191,6 @@ const setupCarMorphAndUVs = (
 
   const material = car.material as ShaderMaterial
 
-  // Set morph target if exists
   if (
     config.morphTarget &&
     car.morphTargetDictionary[config.morphTarget] !== undefined
@@ -208,7 +207,7 @@ const setupCarMorphAndUVs = (
       material.uniforms.isUsingCorrectUV.value = 1.0
     }
 
-    // Handle flying DeLorean
+    // fly away little delorean
     if (
       config.canFly &&
       config.morphTarget === "DeLorean" &&
@@ -234,7 +233,7 @@ const setupCarMorphAndUVs = (
     }
   }
 
-  // Set UVs
+  // very specific dont touchy
   const updateUVs = (mesh: Mesh) => {
     if (!mesh.geometry.attributes.uv) return
 
@@ -245,7 +244,7 @@ const setupCarMorphAndUVs = (
         newUVs = mesh.geometry.attributes.uv2?.array
         break
       case "originalUV":
-        newUVs = mesh.userData.originalUV
+        newUVs = originalUVRef.current || undefined
         break
       case "uv3":
         newUVs = mesh.geometry.attributes.uv3?.array
@@ -298,7 +297,6 @@ const updateCarPosition = ({
     updateCarSpeed()
     setRandomTimeout()
 
-    // Instead of cycling through textures, randomly select next car
     const nextConfig = getRandomCarConfig()
     const nextTextureIndex = Object.values(CAR_CONFIGS).findIndex(
       (config) => config.texture === nextConfig.texture
@@ -360,6 +358,7 @@ interface UseCarAnimationProps {
 export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
   const wheelMeshes = useRef<Mesh[]>([])
   const carGroupRef = useRef<Object3D | null>(null)
+  const originalUVRef = useRef<Float32Array | null>(null)
   const [textureIndex, setTextureIndex] = useState(0)
   const flyingTime = useRef(0)
 
@@ -378,7 +377,7 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
 
     if (carGroupRef.current) {
       const mirroredCar = carGroupRef.current.children[1] as Mesh
-      setupCarMorphAndUVs(car, mirroredCar, currentConfig)
+      setupCarMorphAndUVs(car, mirroredCar, currentConfig, originalUVRef)
     }
   }, [car, textureIndex, textures])
 
@@ -427,9 +426,9 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
 
     car.morphTargetInfluences.fill(0)
 
-    // storing this uv is vital for the nissan
-    if (car.geometry.attributes.uv) {
-      car.userData.originalUV = car.geometry.attributes.uv.array.slice()
+    // Store original UV in ref if we haven't already
+    if (car.geometry.attributes.uv && !originalUVRef.current) {
+      originalUVRef.current = new Float32Array(car.geometry.attributes.uv.array)
     }
 
     // initialize with uv2 since its used for the default cars
