@@ -1,4 +1,11 @@
+"use client"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+
 export default function NotFound() {
+  const currentScene = useNavigationStore((state) => state.currentScene)
+
+  if (currentScene?.name !== "404") return null
+
   return (
     <>
       <div className="fixed top-9 z-30 flex h-[calc(100dvh-36px)] w-full px-20 py-14">
