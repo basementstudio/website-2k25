@@ -6,7 +6,12 @@ import vertexShader from "./shaders/index.vert"
 export function getCharacterMaterial() {
   const material = new ShaderMaterial({
     vertexShader,
-    fragmentShader
+    fragmentShader,
+    uniforms: {
+      uMapSampler: {
+        value: null
+      }
+    }
   })
 
   return material

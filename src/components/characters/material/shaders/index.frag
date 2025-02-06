@@ -1,5 +1,6 @@
 varying vec2 vUv;
 varying vec3 vNormal;
+varying vec3 vDebug;
 
 #ifdef USE_MULTI_MAP
 struct MapConfig {
@@ -43,4 +44,6 @@ void main() {
 
 
   gl_FragColor = vec4(vec3(color), 1.0);
+
+  // gl_FragColor = vec4(vDebug, 1.0);
 }

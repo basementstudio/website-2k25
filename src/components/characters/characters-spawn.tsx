@@ -12,6 +12,22 @@ export function CharactersSpawn() {
       spinningTatoRef.current.rotation.y += 0.01
     }
   })
+
+  return (
+    <group position={[4, 0, -13]}>
+      {Array.from({ length: 3 }).map((_, rowIndex) =>
+        Array.from({ length: 3 }).map((_, colIndex) => (
+          <Character
+            key={`${rowIndex}-${colIndex}`}
+            position={[rowIndex * 1, 0, colIndex * 1]}
+            rotation={[0, Math.PI * Math.random(), 0]}
+            animationName={CharacterAnimationName.Idle1}
+          />
+        ))
+      )}
+    </group>
+  )
+
   return (
     <>
       {/* Services */}

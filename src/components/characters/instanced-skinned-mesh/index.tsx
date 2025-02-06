@@ -12,7 +12,10 @@ import {
 } from "three"
 import { create } from "zustand"
 
-import { InstancedBatchedSkinnedMesh } from "./instanced-skinned-mesh"
+import {
+  InstancedUniformParams,
+  InstancedBatchedSkinnedMesh
+} from "./instanced-skinned-mesh"
 
 type GroupProps = React.ComponentProps<"group">
 
@@ -21,10 +24,15 @@ interface InstancesProviderProps {
   material?: Material
   count: number
   animations: AnimationClip[]
+  instancedUniforms?: InstancedUniformParams[]
 }
 
 interface InstancedMeshStore {
   instancedMesh: InstancedBatchedSkinnedMesh | null
+}
+
+interface InstanceUniform {
+  value: number | number[]
 }
 
 export interface InstancePositionProps<T extends string> {
@@ -34,6 +42,7 @@ export interface InstancePositionProps<T extends string> {
   initialTime?: number
   geometryName?: T
   geometryId?: number
+  uniforms?: Record<string, InstanceUniform>
 }
 
 export const createInstancedSkinnedMesh = <T extends string>() => {
@@ -48,7 +57,8 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
     mesh,
     count,
     animations,
-    material: propMaterial
+    material: propMaterial,
+    instancedUniforms
   }: InstancesProviderProps) {
     // prevent re-render
     const refs = useRef({ mesh, animations })
@@ -87,7 +97,8 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
         maxInstanceCount: count,
         maxVertexCount: maxPos,
         maxIndexCount: maxIdx,
-        material
+        material,
+        instancedUniforms
       })
 
       instancer.frustumCulled = false
@@ -136,6 +147,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       initialTime,
       geometryName,
       geometryId,
+      uniforms,
       ...props
     },
     ref
@@ -221,6 +233,18 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
         timeSpeed: timeSpeed ?? 1
       })
     }, [instancedMesh, timeSpeed])
+
+    useEffect(() => {
+      if (!instancedMesh) return
+      const id = instanceId.current
+      if (id === null) return
+
+      if (uniforms) {
+        Object.entries(uniforms).forEach(([name, value]) => {
+          instancedMesh.setInstanceUniform(id, name, value.value)
+        })
+      }
+    }, [instancedMesh, uniforms])
 
     useFrame(() => {
       // update instance position

@@ -91,14 +91,6 @@ THREE.ShaderChunk.skinning_vertex =
 
 const _offsetMatrix = new THREE.Matrix4()
 
-// Add interface for constructor parameters
-interface InstancedBatchedSkinnedMeshParams {
-  maxInstanceCount: number
-  maxVertexCount: number
-  maxIndexCount: number
-  material: THREE.Material
-}
-
 interface InstanceParams {
   timeSpeed: number
   /** What frame each instance is on */
@@ -112,6 +104,20 @@ interface InstanceData extends InstanceParams {
   id: number
   /** Is active */
   active: boolean
+}
+
+export interface InstancedUniformParams {
+  name: string
+  defaultValue: number | number[]
+  type: THREE.TextureDataType
+}
+
+interface InstancedBatchedSkinnedMeshParams {
+  maxInstanceCount: number
+  maxVertexCount: number
+  maxIndexCount: number
+  material: THREE.Material
+  instancedUniforms?: InstancedUniformParams[]
 }
 
 export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
@@ -133,7 +139,8 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     maxInstanceCount,
     maxVertexCount,
     maxIndexCount,
-    material
+    material,
+    instancedUniforms
   }: InstancedBatchedSkinnedMeshParams) {
     super(maxInstanceCount, maxVertexCount, maxIndexCount, material)
     this.offsets = Array(maxInstanceCount).fill(0)
@@ -159,6 +166,18 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     )
     this.batchingKeyframeTexture.needsUpdate = true
 
+    const instanceMapData = new Uint32Array(size * size).fill(0)
+    for (let i = 0; i < size * size; i++) {
+      instanceMapData[i] = i % 2
+    }
+
+    if (instancedUniforms) {
+      instancedUniforms.forEach(({ name, defaultValue, type }) => {
+        this.addInstancedUniform(name, defaultValue, type)
+      })
+    }
+
+
     this.material.onBeforeCompile = (shader) => {
       if (this.boneTexture === null) this.computeBoneTexture()
 
@@ -168,10 +187,61 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
         value: this.batchingKeyframeTexture
       }
       shader.uniforms.boneTexture = { value: this.boneTexture }
+
+      this.dataTextures.forEach((texture, name) => {
+        if (!shader.uniforms[name]) {
+          shader.uniforms[name] = { value: texture }
+        } else {
+          shader.uniforms[name].value = texture
+        }
+      })
     }
   }
 
   private geometries: Map<string, number> = new Map()
+
+  // texutres used to store instance data
+  private dataTextures: Map<string, THREE.DataTexture> = new Map()
+
+  public addInstancedUniform(name: string, defaultValue: number | number[], type: THREE.TextureDataType = THREE.FloatType): THREE.DataTexture {
+    const textureSize = Math.ceil(Math.sqrt(this.maxInstanceCount))
+    const totalPixels = textureSize * textureSize
+
+    let format: THREE.PixelFormat = THREE.RGBAFormat
+
+    const arrayDefault = Array.isArray(defaultValue) ? defaultValue : [defaultValue]
+
+    if (arrayDefault.length === 1) {
+      format = type === THREE.FloatType ? THREE.RedFormat : THREE.RedIntegerFormat
+    } else if (arrayDefault.length === 2) {
+      format = type === THREE.FloatType ? THREE.RGFormat : THREE.RGIntegerFormat
+    } else if (arrayDefault.length === 3) {
+      format = type === THREE.FloatType ? THREE.RGBFormat : THREE.RGBIntegerFormat
+    } else if (arrayDefault.length === 4) {
+      format = type === THREE.FloatType ? THREE.RGBAFormat : THREE.RGBAIntegerFormat
+    }
+
+    let data: Float32Array | Uint32Array | Uint8Array | Int32Array | null = null
+    if (type === THREE.FloatType) {
+      data = new Float32Array(totalPixels)
+    } else if (type === THREE.IntType) {
+      data = new Int32Array(totalPixels)
+    } else if (type === THREE.UnsignedIntType) {
+      data = new Uint32Array(totalPixels)
+    }
+
+    if (!data) {
+      throw new Error('Invalid type');
+    }
+
+    for (let i = 0; i < totalPixels; i++) {
+      data.set(arrayDefault, i)
+    }
+    const texture = new THREE.DataTexture(data, textureSize, textureSize, format, type)
+    texture.needsUpdate = true
+    this.dataTextures.set(name, texture)
+    return texture
+  }
 
   public addGeometry(
     geometry: THREE.BufferGeometry,
@@ -304,6 +374,19 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       active: true
     }
     return instanceId
+  }
+
+  public setInstanceUniform(instanceId: number, name: string, value: number | number[]) {
+    const texture = this.dataTextures.get(name)
+    if (!texture) {
+      console.warn('Setting data on non-existent uniform', name)
+      return
+    }
+
+    const arrayValue = Array.isArray(value) ? value : [value]
+    const numComponents = arrayValue.length
+    texture.image.data.set(arrayValue, instanceId * numComponents)
+    texture.needsUpdate = true
   }
 
   /** Set instance data */

@@ -1,7 +1,11 @@
 import { useGLTF, useTexture } from "@react-three/drei"
-import { memo, useMemo } from "react"
+import { memo, useEffect, useMemo } from "react"
 import type * as THREE from "three"
-import { BufferAttribute } from "three"
+import {
+  BufferAttribute,
+  InstancedBufferAttribute,
+  UnsignedIntType
+} from "three"
 
 import { useAssets } from "../assets-provider"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
@@ -45,6 +49,8 @@ interface CharactersGLTF {
 
 export { CharacterPosition, useCharacterMesh }
 
+const MAX_CHARACTERS_INSTANCES = 40
+
 const setGeometryMapIndex = (
   geometry: THREE.BufferGeometry,
   mapIndex: number
@@ -67,6 +73,9 @@ function CharacterInstanceConfigInner() {
   const textureFaces = useTexture(characters.textureFaces)
 
   const material = useMemo(() => {
+    // const bodyMapIndices = new Uint32Array(MAX_CHARACTERS_INSTANCES).fill(0)
+    // nodes.BODY.geometry.setAttribute("instanceMapIndex", new InstancedBufferAttribute(mapIndices, 1))
+
     textureBody.repeat.set(0.5, 1)
     textureBody.offset.set(0, 0)
     textureBody.flipY = false
@@ -116,7 +125,10 @@ function CharacterInstanceConfigInner() {
         material={material}
         mesh={[nodes.BODY, nodes.HEAD]}
         animations={animations}
-        count={40}
+        count={MAX_CHARACTERS_INSTANCES}
+        instancedUniforms={[
+          { name: "uMapIndex", defaultValue: 0, type: UnsignedIntType }
+        ]}
       />
     </>
   )

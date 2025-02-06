@@ -24,6 +24,11 @@ export function Character({ animationName, ...props }: CharacterProps) {
         geometryId={1}
         animationName={animationName}
         scale={1.15}
+        uniforms={{
+          uMapIndex: {
+            value: 1
+          }
+        }}
       />
     </group>
   )
