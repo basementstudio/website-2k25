@@ -33,7 +33,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => (
         type="email"
         name="email"
       />
-      <button className="flex w-fit items-center gap-1 text-p text-brand-g1">
+      <button className="flex w-fit translate-y-1 items-center gap-1 text-p text-brand-g1">
         Roll me in <Arrow className="size-3" />
       </button>
     </form>

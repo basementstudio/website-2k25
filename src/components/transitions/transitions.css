@@ -42,11 +42,13 @@ body {
 
 [data-disabled="true"] {
   .layout-container {
+    mask-image: none;
     --position: 100%;
     transition: mask-position 0s;
   }
 
   /* .canvas-container {
+    mask-image: none;
     --position: 100%;
     transition: mask-position 0s;
   } */

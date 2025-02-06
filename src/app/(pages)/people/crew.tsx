@@ -105,7 +105,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
           </div>
         ))}
         <div
-          className="with-diagonal-lines relative col-span-7 flex items-center justify-center bg-brand-k"
+          className="with-diagonal-lines relative flex min-h-32 items-center justify-center bg-brand-k"
           style={{
             gridColumn: `span ${8 - (data.company.people.peopleList.items.length % 8)} / span ${8 - (data.company.people.peopleList.items.length % 8)}`
           }}
