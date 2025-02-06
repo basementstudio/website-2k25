@@ -30,6 +30,17 @@ export function Character({ animationName, ...props }: CharacterProps) {
           }
         }}
       />
+      <CharacterPosition
+        timeSpeed={1}
+        geometryId={2}
+        animationName={animationName}
+        scale={1.15}
+        uniforms={{
+          uMapIndex: {
+            value: 1
+          }
+        }}
+      />
     </group>
   )
 }

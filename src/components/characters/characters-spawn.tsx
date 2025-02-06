@@ -1,10 +1,12 @@
-import { useRef } from "react"
+import { memo, useRef } from "react"
 import { Character } from "."
 import { CharacterAnimationName } from "./character-instancer"
 import { Group } from "three"
 import { useFrame } from "@react-three/fiber"
 
-export function CharactersSpawn() {
+export const CharactersSpawn = memo(CharactersSpawnInner)
+
+function CharactersSpawnInner() {
   const spinningTatoRef = useRef<Group>(null)
 
   useFrame(() => {
@@ -13,20 +15,20 @@ export function CharactersSpawn() {
     }
   })
 
-  return (
-    <group position={[4, 0, -13]}>
-      {Array.from({ length: 3 }).map((_, rowIndex) =>
-        Array.from({ length: 3 }).map((_, colIndex) => (
-          <Character
-            key={`${rowIndex}-${colIndex}`}
-            position={[rowIndex * 1, 0, colIndex * 1]}
-            rotation={[0, Math.PI * Math.random(), 0]}
-            animationName={CharacterAnimationName.Idle1}
-          />
-        ))
-      )}
-    </group>
-  )
+  // return (
+  //   <group position={[4, 0, -13]}>
+  //     {Array.from({ length: 5 }).map((_, rowIndex) =>
+  //       Array.from({ length: 5 }).map((_, colIndex) => (
+  //         <Character
+  //           key={`${rowIndex}-${colIndex}`}
+  //           position={[rowIndex * 1, 0, colIndex * 1]}
+  //           rotation={[0, Math.PI * Math.random() * 2, 0]}
+  //           animationName={CharacterAnimationName.Idle1}
+  //         />
+  //       ))
+  //     )}
+  //   </group>
+  // )
 
   return (
     <>

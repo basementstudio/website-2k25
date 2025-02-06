@@ -17,6 +17,14 @@ vec4 sampleConfigMap(int index) {
 
 vec3 light = normalize(vec3(-0.2, 1, 1.));
 
+vec3 gamma(vec3 color, float gamma) {
+  return pow(color, vec3(gamma));
+}
+
+float valueRemap(float value, float min, float max, float newMin, float newMax) {
+  return newMin + (value - min) * (newMax - newMin) / (max - min);
+}
+
 void main() {
   vec3 color = vec3(0.0);
 
@@ -35,10 +43,14 @@ void main() {
       #endif
   #endif
 
+  color = gamma(color, 2.2);
+
   float lightIntensity = dot(light, normalize(vNormal));
+  lightIntensity = valueRemap(lightIntensity, -0.5, 1.0, 0.0, 1.0);
   lightIntensity = clamp(lightIntensity, 0.0, 1.0);
-  lightIntensity *= 3.;
-  lightIntensity += 0.3;
+  lightIntensity *= 2.;
+  // ambient light
+  lightIntensity += 0.5;
 
   color *= lightIntensity;
 

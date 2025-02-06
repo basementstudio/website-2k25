@@ -5,7 +5,7 @@
 #include <normal_pars_vertex>
 
 #ifdef USE_MULTI_MAP
-attribute float mapIndex;
+// attribute float mapIndex;
 varying float vMapIndex;
 
 uniform usampler2D uMapIndex;
@@ -41,6 +41,7 @@ void main() {
 
   ivec2 mapIndexCoord = getSampleCoord(uMapIndex, batchId);
   vMapIndex = float(texelFetch(uMapIndex, mapIndexCoord, 0).x);
+
   #endif
 
   #include <batching_vertex>
