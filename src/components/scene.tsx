@@ -85,6 +85,8 @@ export const Scene = () => {
           sceneChildren={
             <>
               <color attach="background" args={["#000"]} />
+              <Inspectables />
+              <Environment preset="studio" />
               <CameraController />
               <Sparkles />
               <Physics paused={!isBasketball}>
