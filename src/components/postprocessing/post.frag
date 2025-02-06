@@ -7,6 +7,7 @@ uniform vec2 resolution;
 uniform float uPixelRatio;
 uniform float uTolerance;
 uniform float uBrightness;
+uniform float u404Transition;
 
 uniform float uBias;
 uniform float uColorMultiplier;
@@ -192,9 +193,9 @@ vec3 tonemap(vec3 color) {
   color = invertedGamma(color, uGamma);
   color = ACESFilmicToneMapping(color);
 
-  #ifdef IS_404_SCENE
   float gray = dot(color, vec3(0.299, 0.587, 0.114));
-  color = vec3(gray);
+  #ifdef IS_404_SCENE
+  color = mix(color, vec3(gray), u404Transition);
   #endif
 
   return color;

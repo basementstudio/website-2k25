@@ -49,7 +49,8 @@ const material = new ShaderMaterial({
     uDebugEllipse: { value: false },
     uVignetteStrength: { value: 1.0 },
     uVignetteSoftness: { value: 0.18 },
-    uIs404: { value: false }
+    uIs404: { value: false },
+    u404Transition: { value: 1.0 }
   }
 })
 

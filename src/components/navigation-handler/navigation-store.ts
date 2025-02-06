@@ -33,11 +33,18 @@ export const useNavigationStore = create<{
   setDisableCameraTransition: (disable: boolean) => void
 
   resetTabIndex: () => void
+
+  previousScene: IScene | null
+  setPreviousScene: (scene: IScene | null) => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
   currentScene: null,
-  setCurrentScene: (scene) => set({ currentScene: scene }),
+  setCurrentScene: (scene) =>
+    set((state) => ({
+      previousScene: state.currentScene,
+      currentScene: scene
+    })),
 
   mainCamera: null,
   setMainCamera: (camera) => set({ mainCamera: camera }),
@@ -58,5 +65,8 @@ export const useNavigationStore = create<{
   setDisableCameraTransition: (disable) =>
     set({ disableCameraTransition: disable }),
 
-  resetTabIndex: () => set({ currentTabIndex: 0 })
+  resetTabIndex: () => set({ currentTabIndex: 0 }),
+
+  previousScene: null,
+  setPreviousScene: (scene) => set({ previousScene: scene })
 }))

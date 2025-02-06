@@ -23,6 +23,9 @@ export const CustomCamera = () => {
   const { selected } = useInspectable()
 
   const [firstRender, setFirstRender] = useState(true)
+  const [transitionPhase, setTransitionPhase] = useState<
+    "to-origin" | "to-home" | null
+  >(null)
 
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
@@ -57,6 +60,8 @@ export const CustomCamera = () => {
   const ANIMATION_DURATION = 2
 
   const stairVisibility = useNavigationStore((state) => state.stairVisibility)
+
+  const previousScene = useNavigationStore.getState().previousScene
 
   useEffect(() => {
     const controls = cameraControlsRef.current
@@ -119,6 +124,60 @@ export const CustomCamera = () => {
     const boundary = planeBoundaryRef.current
 
     if (!plane || !boundary || !controls || !cameraConfig) return
+
+    const is404ToHome = currentScene === "home" && previousScene?.name === "404"
+
+    if (is404ToHome) {
+      if (!transitionPhase) {
+        // Start first phase - teleport to origin
+        setTransitionPhase("to-home")
+        progress.current = 0
+
+        // Instantly set current position to origin
+        currentPos.set(8.8, 1.15, -13.2)
+        currentTarget.set(9, 1.15, -14)
+        currentFov.current = targetFov.current
+
+        // Set home as target
+        targetPosition.set(...cameraConfig.position)
+        targetLookAt.set(...cameraConfig.target)
+        targetFov.current = cameraConfig.fov
+
+        // Instantly update camera
+        controls.setPosition(8.8, 1.15, -13.2, false)
+        controls.setTarget(9, 1.15, -14, false)
+
+        if (controls.camera instanceof PerspectiveCamera) {
+          controls.camera.fov = targetFov.current
+          controls.camera.updateProjectionMatrix()
+        }
+        return
+      }
+
+      // Handle the transition to home
+      progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
+      const easeValue = easeInOutCubic(progress.current)
+
+      currentPos.lerp(targetPosition, easeValue)
+      currentTarget.lerp(targetLookAt, easeValue)
+
+      // Update post-processing grayscale transition
+      if (controls.camera instanceof PerspectiveCamera) {
+        const material = controls.camera.userData.postProcessingMaterial
+        if (material) {
+          material.uniforms.u404Transition.value = 1 - easeValue
+        }
+      }
+
+      // Update camera position
+      const finalPos = currentPos.clone().add(panTargetDelta)
+      const finalLookAt = currentTarget.clone().add(panLookAtDelta)
+      controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
+      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
+
+      setStairVisibility(false)
+      return
+    }
 
     // Calculate targets
     targetPosition.set(...cameraConfig.position)
