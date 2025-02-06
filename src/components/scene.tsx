@@ -5,7 +5,7 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import dynamic from "next/dynamic"
-import { useEffect, useRef } from "react"
+import { memo, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
@@ -25,6 +25,7 @@ const HoopMinigame = dynamic(
 import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
+import { useSearchParams } from "next/navigation"
 
 const cursorTypeMap = {
   default: "default",
@@ -36,7 +37,9 @@ const cursorTypeMap = {
   zoom: "zoom-in"
 } as const
 
-export const Scene = () => {
+export const Scene = memo(SceneInner)
+
+function SceneInner() {
   const scene = useCurrentScene()
   const isBasketball = scene === "basketball"
   const canvasRef = useRef<HTMLCanvasElement>(null!)
@@ -60,11 +63,20 @@ export const Scene = () => {
   }
   const handleBlur = () => setIsCanvasTabMode(false)
 
+  const searchParams = useSearchParams()
+  const [debug, setDebug] = useState(false)
+
+  useEffect(() => {
+    const hasDebg = searchParams.has("debug")
+    if (!hasDebg) return
+    setDebug(hasDebg)
+  }, [searchParams])
+
   return (
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
       <div className="w-128 absolute bottom-8 right-64 z-50">
-        <Leva collapsed fill hidden />
+        <Leva collapsed fill hidden={!debug} />
       </div>
 
       <Canvas
