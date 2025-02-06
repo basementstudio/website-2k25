@@ -46,7 +46,8 @@ const material = new ShaderMaterial({
     uEllipseSoftness: { value: 0.78 },
     uDebugEllipse: { value: false },
     uVignetteStrength: { value: 1.0 },
-    uVignetteSoftness: { value: 0.18 }
+    uVignetteSoftness: { value: 0.18 },
+    uIs404: { value: false }
   }
 })
 
@@ -218,10 +219,19 @@ export function PostProcessing({
 
   useEffect(() => {
     const isBasketball = scene === "basketball"
+    const is404 = scene === "404"
     const startSaturationValue = material.uniforms.uSaturation.value
     const endSaturationValue = isBasketball ? 0.0 : 1.0
     const startVignetteValue = material.uniforms.uVignetteStrength.value
     const endVignetteValue = isBasketball ? 1.0 : 0.0
+
+    // Update the shader defines
+    material.defines = {
+      ...(material.defines || {}),
+      IS_404_SCENE: is404
+    }
+    material.needsUpdate = true
+
     const duration = 800
 
     const startTime = performance.now()
