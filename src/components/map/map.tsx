@@ -33,6 +33,7 @@ import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 import { useCarAnimation } from "./use-car-animation"
 import { useGodrays } from "./use-godrays"
+import { useMesh } from "@/hooks/use-mesh"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -88,7 +89,7 @@ export const Map = memo(() => {
     (store) => store.materialsRef
   )
 
-  const [basketballHoop, setBasketballHoop] = useState<Object3D | null>(null)
+  //
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
 
@@ -166,13 +167,13 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    const hoopMesh = officeModel.getObjectByName("SM_BasketballHoop")
+    //
     const originalNet = officeModel.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel.getObjectByName("SM_BasketRed-v2")
 
     const carMesh = outdoorModel.getObjectByName("car01")
 
-    if (hoopMesh) setBasketballHoop(hoopMesh)
+    //
     if (originalNet) originalNet.removeFromParent()
     if (newNetMesh) {
       newNetMesh.removeFromParent()
@@ -302,6 +303,11 @@ export const Map = memo(() => {
     setOfficeScene(officeModel)
     setOutdoorScene(outdoorModel)
     setGodrayScene(godrayModel)
+
+    const hoopMesh = officeModel.getObjectByName(
+      "SM_BasketballHoop"
+    ) as Mesh | null
+    if (hoopMesh) useMesh.setState({ hoopMesh })
   }, [
     officeModel,
     outdoorModel,
@@ -331,11 +337,7 @@ export const Map = memo(() => {
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
       <ArcadeScreen />
-      {basketballHoop && (
-        <RigidBody type="fixed" colliders="trimesh">
-          <primitive object={basketballHoop} />
-        </RigidBody>
-      )}
+
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
           (tab) => tab.tabClickableName === node.name
