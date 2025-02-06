@@ -2,9 +2,8 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { RigidBody } from "@react-three/rapier"
 import { useControls } from "leva"
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, Suspense, useEffect, useRef, useState } from "react"
 import {
   Mesh,
   MeshStandardMaterial,
@@ -19,6 +18,7 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { useMesh } from "@/hooks/use-mesh"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -27,13 +27,13 @@ import {
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
+import Cars from "../cars/cars"
+import { useCarAnimation } from "../cars/use-car-animation"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
-import { useCarAnimation } from "./use-car-animation"
 import { useGodrays } from "./use-godrays"
-import { useMesh } from "@/hooks/use-mesh"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -81,9 +81,6 @@ export const Map = memo(() => {
 
   const [godrays, setGodrays] = useState<Mesh[]>([])
   useGodrays({ godrays })
-
-  const [car, setCar] = useState<Mesh | null>(null)
-  useCarAnimation({ car })
 
   const shaderMaterialsRef = useCustomShaderMaterial(
     (store) => store.materialsRef
@@ -173,7 +170,6 @@ export const Map = memo(() => {
 
     const carMesh = outdoorModel.getObjectByName("car01")
 
-    //
     if (originalNet) originalNet.removeFromParent()
     if (newNetMesh) {
       newNetMesh.removeFromParent()
@@ -181,8 +177,7 @@ export const Map = memo(() => {
     }
     if (carMesh) {
       carMesh.removeFromParent()
-      const newCar = newCarTest.children[0] as Mesh
-      setCar(newCar)
+      useMesh.setState({ carMesh: newCarTest.children[0] as Mesh })
     }
 
     const traverse = (child: Object3D) => {
@@ -353,26 +348,13 @@ export const Map = memo(() => {
         )
       })}
       {keyframedNet && <primitive object={keyframedNet} />}
-      {car && (
-        <group
-          scale={0.8}
-          position-x={-8.8}
-          position-z={7.7}
-          ref={(group) => {
-            if (group) {
-              const mirroredCar = car.clone()
-              group.clear()
-              group.add(car)
-              group.add(mirroredCar)
-              mirroredCar.scale.z = -3.4
-              setCar(car)
-            }
-          }}
-        />
-      )}
       <PlayedBasketballs />
       <MapAssetsLoader />
       <ReflexesLoader />
+
+      <Suspense fallback={null}>
+        <Cars />
+      </Suspense>
     </group>
   )
 })
