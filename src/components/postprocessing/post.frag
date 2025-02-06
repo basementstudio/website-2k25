@@ -38,7 +38,6 @@ const float GOLDEN_ANGLE = 2.399963229728653;
 const float DENSITY = 0.9;
 const float OPACITY_SCANLINE = 0.24;
 const float OPACITY_NOISE = 0.01;
-const float FLICKERING = 0.09;
 
 varying vec2 vUv;
 
@@ -273,7 +272,11 @@ void main() {
 
   color += color * scanlines * OPACITY_SCANLINE;
   color += color * vec3(random(vUv * uTime)) * OPACITY_NOISE;
-  color += color * sin(110.0 * uTime) * FLICKERING;
+
+  // Add additional time-based noise
+  vec2 noiseUv = vUv + uTime * 0.1;
+  float timeNoise = random(noiseUv) * 0.02;
+  color += vec3(timeNoise);
   #endif
 
   gl_FragColor = vec4(color, 1.0);

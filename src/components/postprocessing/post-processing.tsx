@@ -12,6 +12,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import postFrag from "./post.frag"
 import postVert from "./post.vert"
+import { useFrame } from "@react-three/fiber"
 
 interface PostProcessingProps {
   mainTexture: Texture
@@ -34,6 +35,7 @@ const material = new ShaderMaterial({
     uBloomStrength: { value: 0.9 },
     uBloomRadius: { value: 10 },
     uBloomThreshold: { value: 1.5 },
+    uTime: { value: 0.0 },
 
     // adjustments
     uContrast: { value: 1 },
@@ -266,6 +268,10 @@ export function PostProcessing({
       if (animationFrame) cancelAnimationFrame(animationFrame)
     }
   }, [scene])
+
+  useFrame(({ clock }) => {
+    material.uniforms.uTime.value = clock.elapsedTime
+  })
 
   return (
     <>
