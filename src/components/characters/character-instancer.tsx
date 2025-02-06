@@ -1,7 +1,7 @@
 import { useGLTF, useTexture } from "@react-three/drei"
 import { memo, useMemo } from "react"
 import type * as THREE from "three"
-import { BufferAttribute, UnsignedIntType } from "three"
+import { BufferAttribute, FloatType, UnsignedIntType } from "three"
 
 import { useAssets } from "../assets-provider"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
@@ -50,14 +50,16 @@ const MAX_CHARACTERS = 40
 
 const MAX_CHARACTERS_INSTANCES = MAX_CHARACTERS * 3
 
-const setGeometryMapIndex = (
+// util, move from here
+export const setGeometryFloatAttribute = (
+  name: string,
   geometry: THREE.BufferGeometry,
-  mapIndex: number
+  value: number
 ) => {
   const vertexCount = geometry.attributes.position.array.length / 3
   geometry.setAttribute(
-    "mapIndex",
-    new BufferAttribute(new Float32Array(vertexCount).fill(mapIndex), 1)
+    name,
+    new BufferAttribute(new Float32Array(vertexCount).fill(value), 1)
   )
 }
 
@@ -75,8 +77,8 @@ function CharacterInstanceConfigInner() {
     // const bodyMapIndices = new Uint32Array(MAX_CHARACTERS_INSTANCES).fill(0)
     // nodes.BODY.geometry.setAttribute("instanceMapIndex", new InstancedBufferAttribute(mapIndices, 1))
 
-    textureBody.repeat.set(1, 1)
-    textureBody.offset.set(0, 0)
+    const bodyRepeat = 2
+    textureBody.repeat.set(1 / bodyRepeat, 1 / bodyRepeat)
     textureBody.flipY = false
     textureBody.updateMatrix()
     textureBody.needsUpdate = true
@@ -84,19 +86,12 @@ function CharacterInstanceConfigInner() {
 
     const facesRepeat = 6
     textureFaces.repeat.set(1 / facesRepeat, 1 / facesRepeat)
-
-    const numRepetitions = 6
-    const offset = 1 / numRepetitions
-    const selectedX = 5
-    const selectedY = 4
-    textureFaces.offset.set(offset * selectedX, offset * selectedY)
     textureFaces.flipY = false
     textureFaces.updateMatrix()
     textureFaces.needsUpdate = true
 
     /** Character material accepts having more than one instance
      * each one can have a different map assigned
-     * TODO: move this into instanced attribute instead
      */
     interface MapConfig {
       map: THREE.Texture
@@ -112,8 +107,6 @@ function CharacterInstanceConfigInner() {
     }
     material.uniforms.mapConfigs = { value: [bodyMapConfig, headMapConfig] }
     material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: 2 }
-    // setGeometryMapIndex(nodes.BODY.geometry, 0)
-    // setGeometryMapIndex(nodes.HEAD.geometry, 1)
 
     return material
   }, [textureBody, textureFaces, nodes])
@@ -126,7 +119,9 @@ function CharacterInstanceConfigInner() {
         animations={animations}
         count={MAX_CHARACTERS_INSTANCES}
         instancedUniforms={[
-          { name: "uMapIndex", defaultValue: 0, type: UnsignedIntType }
+          { name: "uMapIndex", defaultValue: 0, type: UnsignedIntType },
+          // used to select face, body textures
+          { name: "uMapOffset", defaultValue: [0, 0], type: FloatType }
         ]}
       />
     </>

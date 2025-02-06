@@ -11,8 +11,11 @@ varying float vMapIndex;
 uniform usampler2D uMapIndex;
 #endif
 
+uniform sampler2D uMapOffset;
+
 varying vec2 vUv;
 varying vec3 vDebug;
+varying vec2 vMapOffset;
 
 ivec2 calcCoord(int size, int id) {
   int j = int(id);
@@ -38,11 +41,12 @@ void main() {
   float batchId = getIndirectIndex(gl_DrawID);
 
   #ifdef USE_MULTI_MAP
-
   ivec2 mapIndexCoord = getSampleCoord(uMapIndex, batchId);
   vMapIndex = float(texelFetch(uMapIndex, mapIndexCoord, 0).x);
-
   #endif
+
+  ivec2 mapOffsetCoord = getSampleCoord(uMapOffset, batchId);
+  vMapOffset = texelFetch(uMapOffset, mapOffsetCoord, 0).xy;
 
   #include <batching_vertex>
 

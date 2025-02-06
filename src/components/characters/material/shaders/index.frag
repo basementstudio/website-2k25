@@ -1,5 +1,6 @@
 varying vec2 vUv;
 varying vec3 vNormal;
+varying vec2 vMapOffset;
 varying vec3 vDebug;
 
 #ifdef USE_MULTI_MAP
@@ -11,7 +12,9 @@ uniform MapConfig mapConfigs[MULTI_MAP_COUNT];
 varying float vMapIndex;
 
 vec4 sampleConfigMap(int index) {
-  return texture2D(mapConfigs[index].map, (mapConfigs[index].mapTransform * vec3(vUv, 1.0)).xy);
+  vec2 mapUv = (mapConfigs[index].mapTransform * vec3(vUv, 1.0)).xy;
+  mapUv += vMapOffset;
+  return texture2D(mapConfigs[index].map, mapUv);
 }
 #endif
 

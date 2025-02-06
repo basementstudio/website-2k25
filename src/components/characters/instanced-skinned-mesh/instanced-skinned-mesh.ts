@@ -223,11 +223,11 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
 
     let data: Float32Array | Uint32Array | Uint8Array | Int32Array | null = null
     if (type === THREE.FloatType) {
-      data = new Float32Array(totalPixels)
+      data = new Float32Array(totalPixels * arrayDefault.length)
     } else if (type === THREE.IntType) {
-      data = new Int32Array(totalPixels)
+      data = new Int32Array(totalPixels * arrayDefault.length)
     } else if (type === THREE.UnsignedIntType) {
-      data = new Uint32Array(totalPixels)
+      data = new Uint32Array(totalPixels * arrayDefault.length)
     }
 
     if (!data) {
@@ -235,7 +235,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     }
 
     for (let i = 0; i < totalPixels; i++) {
-      data.set(arrayDefault, i)
+      data.set(arrayDefault, i * arrayDefault.length)
     }
     const texture = new THREE.DataTexture(data, textureSize, textureSize, format, type)
     texture.needsUpdate = true
