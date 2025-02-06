@@ -60,9 +60,9 @@ const carState: CarState = {
 }
 
 const setRandomTimeout = () => {
-  // const waitTime =
-  // CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
-  const waitTime = 1000
+  const waitTime =
+    CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
+  // const waitTime = 1000
   carState.isWaiting = true
   carState.isSoundPlaying = false
 
