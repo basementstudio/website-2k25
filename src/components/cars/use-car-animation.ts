@@ -397,6 +397,7 @@ export const useCarAnimation = ({
   const originalUVRef = useRef<Float32Array | null>(null)
   const [textureIndex, setTextureIndex] = useState(0)
   const flyingTime = useRef(0)
+  const wheelRotation = useRef(0)
   const originalFrontWheelPos = useRef<Vector3 | null>(null)
   const originalBackWheelPos = useRef<Vector3 | null>(null)
   const originalFrontWheelScale = useRef<Vector3 | null>(null)
@@ -452,6 +453,12 @@ export const useCarAnimation = ({
   }, [car, textureIndex, textures, frontWheel, backWheel])
 
   useFrame((_, delta) => {
+    if (!carState.isWaiting && frontWheel && backWheel) {
+      wheelRotation.current -= carState.currentSpeed
+      frontWheel.rotation.z = wheelRotation.current
+      backWheel.rotation.z = wheelRotation.current
+    }
+
     const flyIndex = car?.morphTargetDictionary?.["DeLoreanFly"]
     if (
       carGroupRef.current &&
