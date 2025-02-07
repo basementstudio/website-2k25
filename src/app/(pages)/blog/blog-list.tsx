@@ -33,8 +33,8 @@ export default function BlogList({
   return (
     <section className="grid-layout pb-[35px]">
       <div className="col-span-12 grid grid-cols-12">
-        <h2 className="col-span-12 col-start-1 border-b border-brand-w1/20 pb-3 text-subheading capitalize text-brand-w2">
-          more news
+        <h2 className="col-span-12 col-start-1 border-b border-brand-w1/20 pb-3 text-h2 text-brand-w2">
+          More News
         </h2>
 
         {posts.map((post) => (
@@ -58,20 +58,20 @@ export default function BlogList({
                   />
                 )}
               </div>
-              <p className="col-start-5 col-end-8 text-subheading text-brand-w2">
+              <p className="col-start-5 col-end-8 text-h3 text-brand-w2">
                 {post._title}
               </p>
               <div className="col-span-2 col-start-9 flex gap-1">
                 {post.categories?.map((category) => (
                   <p
                     key={category._title}
-                    className="h-max w-max bg-brand-g2 px-1 text-[11px] text-brand-w2"
+                    className="h-max w-max bg-brand-g2 px-1 text-p text-brand-w2"
                   >
                     {category._title}
                   </p>
                 ))}
               </div>
-              <p className="col-span-1 col-start-11 text-paragraph text-brand-w2">
+              <p className="col-span-1 col-start-11 text-p text-brand-w2">
                 {formatDate(post.date || "")}
               </p>
             </Link>

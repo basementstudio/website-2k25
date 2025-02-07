@@ -69,19 +69,19 @@ export const BlogVideo = (props: HandlerProps<"video">) => (
 )
 
 export const Intro = ({ children }: HandlerProps<"p">) => (
-  <p className="mb-10 text-subheading text-brand-w2">{children}</p>
+  <p className="mb-10 text-h3 text-brand-w2">{children}</p>
 )
 
 export const Paragraph = ({ children }: HandlerProps<"p">) => (
-  <p className="text-pretty text-blog text-brand-w2">{children}</p>
+  <p className="text-pretty text-p text-brand-w2">{children}</p>
 )
 
 export const Heading2 = ({ children }: HandlerProps<"h2">) => (
-  <h2 className="text-subheading text-brand-w2">{children}</h2>
+  <h2 className="text-h2 text-brand-w2">{children}</h2>
 )
 
 export const Heading3 = ({ children }: HandlerProps<"h3">) => (
-  <h3 className="text-subheading text-brand-w2">{children}</h3>
+  <h3 className="text-h3 text-brand-w2">{children}</h3>
 )
 
 export const BlogLink = ({ children, href }: HandlerProps<"a">) => (

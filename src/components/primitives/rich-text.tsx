@@ -1,8 +1,15 @@
+import { RichTextNode } from "basehub/api-transaction"
 import { RichText as BaseRichText } from "basehub/react-rich-text"
 
 import { Link } from "@/components/primitives/link"
 
-export function RichText({ children }: { children: any }) {
+export function RichText({
+  children,
+  content
+}: {
+  children?: any
+  content?: RichTextNode[]
+}) {
   return (
     <BaseRichText
       components={{
@@ -17,6 +24,7 @@ export function RichText({ children }: { children: any }) {
         li: ({ children }) => <li className="text-brand-w1">{children}</li>,
         s: ({ children }) => <span className="actionable">{children}</span>
       }}
+      content={content}
     >
       {children}
     </BaseRichText>
