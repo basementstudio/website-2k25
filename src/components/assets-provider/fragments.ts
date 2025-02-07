@@ -26,17 +26,20 @@ export const mapFragment = fragmentOn("Map", {
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
   routingElements: modelsItemFragment,
-  maps: {
+  bakes: {
     items: {
       _title: true,
       lightmap: {
         url: true
       },
-      lightmapIntensity: true,
       ambientOcclusion: {
         url: true
       },
-      ambientOcclusionIntensity: true
+      meshes: {
+        items: {
+          _title: true
+        }
+      }
     }
   },
   glassReflexes: {

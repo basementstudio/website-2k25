@@ -10,12 +10,11 @@ export interface AssetsResult {
   basketballNet: string
   contactPhone: string
   routingElements: string
-  mapAssets: {
-    mesh: string
+  bakes: {
+    title: string
     lightmap: string
-    lightmapIntensity: number
     ambientOcclusion: string
-    ambientOcclusionIntensity: number
+    meshes: string[]
   }[]
   arcade: {
     idleScreen: string
@@ -89,12 +88,11 @@ export async function fetchAssets(): Promise<AssetsResult> {
     office: threeDInteractions.map.office?.file?.url ?? "",
     outdoor: threeDInteractions.map.outdoor?.file?.url ?? "",
     godrays: threeDInteractions.map.godrays?.file?.url ?? "",
-    mapAssets: threeDInteractions.map.maps.items.map((item) => ({
-      mesh: item._title,
+    bakes: threeDInteractions.map.bakes.items.map((item) => ({
+      title: item._title,
       lightmap: item.lightmap?.url ?? "",
-      lightmapIntensity: item.lightmapIntensity ?? 1,
       ambientOcclusion: item.ambientOcclusion?.url ?? "",
-      ambientOcclusionIntensity: item.ambientOcclusionIntensity ?? 1
+      meshes: item.meshes.items.map((mesh) => mesh._title)
     })),
     routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
     arcade: { idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "" },

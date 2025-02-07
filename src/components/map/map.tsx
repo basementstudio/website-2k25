@@ -2,9 +2,10 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { RigidBody } from "@react-three/rapier"
+
 import { folder as levaFolder, useControls } from "leva"
-import { memo, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useEffect, useRef, useState } from "react"
+
 import {
   Mesh,
   MeshStandardMaterial,
@@ -30,7 +31,7 @@ import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
-import { MapAssetsLoader } from "./map-assets"
+import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useCarAnimation } from "./use-car-animation"
 import { useGodrays } from "./use-godrays"
@@ -376,7 +377,8 @@ export const Map = memo(() => {
       )}
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && <primitive position-x={-8.7} object={car} />}
-      <MapAssetsLoader />
+      <PlayedBasketballs />
+      <BakesLoader />
       <ReflexesLoader />
     </group>
   )
