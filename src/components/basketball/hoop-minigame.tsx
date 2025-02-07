@@ -418,11 +418,11 @@ export const HoopMinigame = () => {
             handlePointerUp={handlePointerUp}
           />
 
-          <Trajectory
+          {/* <Trajectory
             ballRef={ballRef}
             isDragging={isDragging}
             isResetting={isResetting}
-          />
+          /> */}
         </>
       )}
 

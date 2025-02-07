@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { useMemo } from "react"
-import { Mesh } from "three"
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three"
 
 import { useMinigameStore } from "@/store/minigame-store"
 
@@ -16,6 +16,15 @@ export const PlayedBasketballs = () => {
     () => (basketballModel.scene.children[0] as Mesh).geometry,
     [basketballModel]
   )
+
+  const material = useMemo(() => {
+    const originalMaterial = basketballModel.materials[
+      "Material.001"
+    ] as MeshStandardMaterial
+    return new MeshBasicMaterial({
+      map: originalMaterial.map
+    })
+  }, [basketballModel])
 
   return (
     <>
@@ -33,7 +42,7 @@ export const PlayedBasketballs = () => {
         >
           <mesh
             geometry={geometry}
-            material={basketballModel.materials["Material.001"]}
+            material={material}
             scale={1.7}
             material-metalness={0}
             material-roughness={0.8}

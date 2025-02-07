@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh } from "three"
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
@@ -42,6 +42,15 @@ export const Basketball = ({
     () => (basketballModel.scene.children[0] as Mesh).geometry,
     [basketballModel]
   )
+
+  const material = useMemo(() => {
+    const originalMaterial = basketballModel.materials[
+      "Material.001"
+    ] as MeshStandardMaterial
+    return new MeshBasicMaterial({
+      map: originalMaterial.map
+    })
+  }, [basketballModel])
 
   const handleCollision = (other: any) => {
     const randomVolume = 0.1 + Math.random() * 0.1
@@ -97,7 +106,7 @@ export const Basketball = ({
     >
       <mesh
         geometry={geometry}
-        material={basketballModel.materials["Material.001"]}
+        material={material}
         scale={1.7}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
