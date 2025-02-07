@@ -3,10 +3,6 @@ import { create } from "zustand"
 
 import { IScene } from "./navigation.interface"
 
-interface TabIndices {
-  [key: string]: number
-}
-
 export const useNavigationStore = create<{
   scenes: IScene[] | null
   setScenes: (scenes: IScene[]) => void
