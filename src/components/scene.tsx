@@ -10,6 +10,7 @@ import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
+import { Perf } from "r3f-perf"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -40,8 +41,7 @@ export const Scene = () => {
     isCanvasTabMode,
     setIsCanvasTabMode,
     setCurrentTabIndex,
-    currentScene,
-    currentTabIndex
+    currentScene
   } = useNavigationStore()
   const isBasketball = currentScene?.name === "basketball"
 
@@ -72,7 +72,7 @@ export const Scene = () => {
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
       <div className="w-128 absolute bottom-8 right-64 z-50">
-        <Leva collapsed fill hidden />
+        <Leva collapsed fill />
       </div>
 
       <Canvas
@@ -94,9 +94,9 @@ export const Scene = () => {
           sceneChildren={
             <>
               <color attach="background" args={["#000"]} />
-              <CameraController />
               <Inspectables />
               <Environment preset="studio" />
+              <CameraController />
               <Sparkles />
               <Physics paused={!isBasketball}>
                 <Map />
@@ -104,6 +104,14 @@ export const Scene = () => {
               </Physics>
             </>
           }
+        />
+        <Perf
+          style={{
+            position: "absolute",
+            top: 40,
+            right: 10,
+            zIndex: 1000
+          }}
         />
       </Canvas>
     </div>

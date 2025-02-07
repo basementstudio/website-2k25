@@ -20,6 +20,7 @@ import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
+import LenisScrollProvider from "@/providers/lenis-provider"
 
 export const metadata: Metadata = {
   title: {
@@ -46,17 +47,20 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body className={cn(geistSans.variable)}>
-            <Navbar />
+            <LenisScrollProvider>
+              <Navbar />
 
-            <NavigationHandler />
-            <div className="canvas-container sticky top-0 h-screen w-full">
-              <Scene />
-              <Grid />
-              <InspectableViewer />
-            </div>
-            <div className="layout-container">{children}</div>
-            <AppHooks />
-            <Contact />
+              <NavigationHandler />
+              <div className="canvas-container sticky top-0 h-screen w-full">
+                <Scene />
+                <Grid />
+                <InspectableViewer />
+              </div>
+
+              <div className="layout-container">{children}</div>
+              <AppHooks />
+              <Contact />
+            </LenisScrollProvider>
           </body>
         </InspectableProvider>
       </AssetsProvider>
