@@ -5,18 +5,16 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import dynamic from "next/dynamic"
-import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useHandleNavigation } from "@/hooks/use-handle-navigation"
-import { useKeyPress } from "@/hooks/use-key-press"
+import { Perf } from "r3f-perf"
 
 import { Map } from "./map/map"
-import { MouseTracker } from "./mouse-tracker/mouse-tracker"
+import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "./navigation-handler/navigation-store"
 import { Renderer } from "./postprocessing/renderer"
 
@@ -27,24 +25,26 @@ const HoopMinigame = dynamic(
 
 import { CameraController } from "./camera/camera-controller"
 
+const cursorTypeMap = {
+  default: "default",
+  hover: "pointer",
+  click: "pointer",
+  grab: "grab",
+  grabbing: "grabbing",
+  inspect: "help",
+  zoom: "zoom-in"
+} as const
+
 export const Scene = () => {
-  const pathname = usePathname()
   const scene = useCurrentScene()
-  const { handleNavigation } = useHandleNavigation()
   const isBasketball = scene === "basketball"
-  const [documentElement, setDocumentElement] = useState<HTMLElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null!)
-  const {
-    isCanvasTabMode,
-    setIsCanvasTabMode,
-    setCurrentTabIndex,
-    currentTabIndex,
-    currentScene
-  } = useNavigationStore()
+  const cursorType = useMouseStore((state) => state.cursorType)
+  const { isCanvasTabMode, setIsCanvasTabMode } = useNavigationStore()
 
   useEffect(() => {
-    setDocumentElement(document.documentElement)
-  }, [])
+    canvasRef.current.style.cursor = cursorTypeMap[cursorType]
+  }, [cursorType])
 
   useEffect(() => {
     setIsCanvasTabMode(isCanvasTabMode)
@@ -59,70 +59,6 @@ export const Scene = () => {
   }
   const handleBlur = () => setIsCanvasTabMode(false)
 
-  useKeyPress(
-    "Escape",
-    useCallback(() => {
-      if (scene === "services" || scene === "blog" || scene === "people") {
-        handleNavigation("/")
-      }
-    }, [scene, handleNavigation])
-  )
-
-  useEffect(() => {
-    if (pathname !== "/") {
-      setCurrentTabIndex(0)
-      return
-    }
-
-    if (currentTabIndex === -1) {
-      setCurrentTabIndex(0)
-    }
-  }, [pathname])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Tab") {
-        if (!currentScene?.tabs || currentScene.tabs.length === 0) {
-          setIsCanvasTabMode(false)
-          return
-        }
-
-        if (isCanvasTabMode) {
-          e.preventDefault()
-          const currentIndex = currentTabIndex
-
-          if (e.shiftKey) {
-            const newIndex = currentIndex - 1
-            setCurrentTabIndex(newIndex)
-
-            if (currentIndex === 0) {
-              setCurrentTabIndex(-1)
-              setIsCanvasTabMode(false)
-            }
-          } else {
-            const newIndex = currentIndex + 1
-            setCurrentTabIndex(newIndex)
-
-            if (
-              currentScene.tabs &&
-              currentIndex === currentScene.tabs.length - 1
-            ) {
-              setIsCanvasTabMode(false)
-            }
-          }
-        }
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      isCanvasTabMode,
-      setCurrentTabIndex,
-      currentTabIndex,
-      currentScene,
-      setIsCanvasTabMode
-    ]
-  )
-
   return (
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
@@ -136,14 +72,12 @@ export const Scene = () => {
         ref={canvasRef}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
         gl={{
           antialias: true,
           alpha: false,
           outputColorSpace: THREE.SRGBColorSpace,
           toneMapping: THREE.ACESFilmicToneMapping
         }}
-        eventSource={documentElement}
         camera={{ fov: 60 }}
         className="outline-none focus-visible:outline-none"
       >
@@ -151,9 +85,9 @@ export const Scene = () => {
           sceneChildren={
             <>
               <color attach="background" args={["#000"]} />
-              <CameraController />
               <Inspectables />
               <Environment preset="studio" />
+              <CameraController />
               <Sparkles />
               <Physics paused={!isBasketball}>
                 <Map />
@@ -161,6 +95,14 @@ export const Scene = () => {
               </Physics>
             </>
           }
+        />
+        <Perf
+          style={{
+            position: "absolute",
+            top: 40,
+            right: 10,
+            zIndex: 1000
+          }}
         />
       </Canvas>
     </div>

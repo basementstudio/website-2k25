@@ -24,6 +24,7 @@ export const RichText = ({ children, components }: CustomRichTextProps) => {
         ul: ({ children }) => <ul className="list-disc">{children}</ul>,
         ol: ({ children }) => <ol className="list-decimal">{children}</ol>,
         li: ({ children }) => <li className="text-brand-w1">{children}</li>,
+        s: ({ children }) => <span className="actionable">{children}</span>,
         ...components
       }}
     />

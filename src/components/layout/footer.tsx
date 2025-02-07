@@ -52,6 +52,10 @@ export const Footer = () => (
         {
           title: "Laboratory",
           href: "/lab"
+        },
+        {
+          title: "Contact Us",
+          href: "/contact"
         }
       ]
 
@@ -65,7 +69,7 @@ export const Footer = () => (
 
           <div className="grid-layout relative items-end">
             <StayConnected
-              className="col-start-1 col-end-5 mb-1"
+              className="col-start-1 col-end-5"
               content={data.company.social.newsletter.json.content}
             />
 
@@ -73,7 +77,7 @@ export const Footer = () => (
 
             <SoDa className="col-start-9 col-end-11" />
 
-            <div className="col-start-11 col-end-13 flex flex-col items-end gap-y-2">
+            <div className="col-start-11 col-end-13 flex translate-y-[3px] flex-col items-end gap-y-2">
               <SocialLinks links={data.company.social} />
 
               <Copyright />
@@ -95,9 +99,7 @@ interface InternalLinksProps {
 }
 
 const InternalLinks = ({ className, links }: InternalLinksProps) => (
-  <ul
-    className={cn("mb-1 flex flex-col gap-y-1 text-p text-brand-g1", className)}
-  >
+  <ul className={cn("flex flex-col gap-y-1 text-p text-brand-g1", className)}>
     {links.map((link) => (
       <li key={link.title}>
         <Link className="flex gap-x-0.5 text-h2 text-brand-w1" href={link.href}>
@@ -119,15 +121,27 @@ interface SocialLinksProps {
 
 const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div className={cn("flex gap-x-1 !text-p text-brand-g1", className)}>
-    <Link className="actionable text-brand-w1" href={links.twitter}>
+    <Link
+      className="actionable text-brand-w1"
+      href={links.twitter}
+      target="_blank"
+    >
       X (Twitter)
     </Link>
     <span>,</span>
-    <Link className="actionable text-brand-w1" href={links.instagram}>
+    <Link
+      className="actionable text-brand-w1"
+      href={links.instagram}
+      target="_blank"
+    >
       Instagram
     </Link>
     <span>,</span>
-    <Link className="actionable text-brand-w1" href={links.github}>
+    <Link
+      className="actionable text-brand-w1"
+      href={links.github}
+      target="_blank"
+    >
       GitHub
     </Link>
   </div>
@@ -140,7 +154,9 @@ const Copyright = ({ className }: { className?: string }) => (
 )
 
 const SoDa = ({ className }: { className?: string }) => (
-  <div className={cn("flex w-full items-center gap-2", className)}>
+  <div
+    className={cn("flex w-full translate-y-2 items-center gap-2", className)}
+  >
     <Link
       className={cn(
         "text-right !text-p font-semibold text-brand-w1",
