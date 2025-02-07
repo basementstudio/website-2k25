@@ -24,11 +24,11 @@ const Basketball = () => {
   return (
     <>
       {!hasPlayed && (
-        <div className="fixed left-0 top-0 h-screen w-full animate-fade-in p-3.5">
+        <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in p-3.5">
           <div className="grid-layout h-full">
             <button
               onClick={() => handleNavigation("/")}
-              className="col-span-1 col-start-2 mt-24 h-max text-paragraph text-brand-w1"
+              className="pointer-events-auto col-span-1 col-start-2 mt-24 h-max text-paragraph text-brand-w1"
             >
               (X) <span className="underline">Close Game</span>
             </button>

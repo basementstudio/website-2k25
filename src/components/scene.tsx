@@ -5,13 +5,13 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Leva } from "leva"
 import dynamic from "next/dynamic"
-import { useEffect, useRef } from "react"
+import { Perf } from "r3f-perf"
+import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { Perf } from "r3f-perf"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -23,6 +23,24 @@ const HoopMinigame = dynamic(
   { ssr: false }
 )
 
+const PhysicsWorld = dynamic(
+  () =>
+    import("@react-three/rapier").then((mod) => {
+      const { Physics } = mod
+      return function PhysicsWrapper({
+        children,
+        paused
+      }: {
+        children: React.ReactNode
+        paused: boolean
+      }) {
+        return <Physics paused={paused}>{children}</Physics>
+      }
+    }),
+  { ssr: false }
+)
+
+import { PlayedBasketballs } from "./basketball/played-basketballs"
 import { CameraController } from "./camera/camera-controller"
 
 const cursorTypeMap = {
@@ -89,10 +107,14 @@ export const Scene = () => {
               <Environment preset="studio" />
               <CameraController />
               <Sparkles />
-              <Physics paused={!isBasketball}>
-                <Map />
-                {isBasketball && <HoopMinigame />}
-              </Physics>
+              <Map />
+
+              <Suspense fallback={null}>
+                <PhysicsWorld paused={!isBasketball}>
+                  <HoopMinigame />
+                  <PlayedBasketballs />
+                </PhysicsWorld>
+              </Suspense>
             </>
           }
         />

@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     if (
       typeof score !== "number" ||
       score < 0 ||
-      score >= 999 ||
+      score >= 400 ||
       !Number.isInteger(score)
     ) {
       console.log("Score validation failed:", { score, type: typeof score })

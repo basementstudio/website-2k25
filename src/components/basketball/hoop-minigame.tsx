@@ -1,6 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
-import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
@@ -10,6 +9,7 @@ import {
   handlePointerUp as utilsHandlePointerUp
 } from "@/components/basketball/basketball-utils"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -18,7 +18,6 @@ import { easeInOutCubic } from "@/utils/animations"
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
 import { Trajectory } from "./trajectory"
-import { useMesh } from "@/hooks/use-mesh"
 
 export const HoopMinigame = () => {
   const { playSoundFX } = useSiteAudio()
@@ -401,7 +400,7 @@ export const HoopMinigame = () => {
 
   return (
     <>
-      {hoopMesh && (
+      {isBasketball && hoopMesh && (
         <RigidBody type="fixed" colliders="trimesh">
           <primitive object={hoopMesh} />
         </RigidBody>
