@@ -3,7 +3,6 @@
 import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
-import { Leva } from "leva"
 import dynamic from "next/dynamic"
 import { memo, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
@@ -26,7 +25,7 @@ const HoopMinigame = dynamic(
 import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
-import { useSearchParams } from "next/navigation"
+import { Debug } from "./debug"
 
 const cursorTypeMap = {
   default: "default",
@@ -64,22 +63,10 @@ function SceneInner() {
   }
   const handleBlur = () => setIsCanvasTabMode(false)
 
-  const searchParams = useSearchParams()
-  const [debug, setDebug] = useState(false)
-
-  useEffect(() => {
-    const hasDebg = searchParams.has("debug")
-    if (!hasDebg) return
-    setDebug(hasDebg)
-  }, [searchParams])
-
   return (
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
-      <div className="w-128 absolute bottom-8 right-64 z-50">
-        <Leva collapsed fill hidden={!debug} />
-      </div>
-
+      <Debug />
       <Canvas
         id="canvas"
         tabIndex={0}

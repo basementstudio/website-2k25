@@ -86,6 +86,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
           }
         }
       } else {
+        // Not array
         maxPos = mesh.geometry.attributes.position.count
         maxIdx = mesh.geometry.index?.count || 0
         if (!propMaterial) {
