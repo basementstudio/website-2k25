@@ -31,13 +31,13 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
           label="Client"
           value={
             <span className="flex items-center gap-0.75">
-              {entry.icon ? (
+              {entry.project?.icon ? (
                 <span className="relative size-3.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
                   <Image
-                    src={entry.icon?.url}
+                    src={entry.project?.icon?.url}
                     fill
                     alt={
-                      entry.icon?.alt ||
+                      entry.project?.icon?.alt ||
                       entry.project?.client?._title ||
                       "Client logo"
                     }

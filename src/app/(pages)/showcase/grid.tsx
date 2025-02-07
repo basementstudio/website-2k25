@@ -44,7 +44,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
             )}
           >
             <Link
-              href={`/projects/${item.project?._slug}`}
+              href={`/showcase/${item.project?._slug}`}
               className={cn("with-dots block h-full w-full", {
                 "pointer-events-none": item.disabled
               })}
@@ -57,10 +57,10 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
                 />
               )}
               <Image
-                src={item.cover?.url ?? ""}
-                alt={item.cover?.alt ?? ""}
-                width={item.cover?.width ?? 0}
-                height={item.cover?.height ?? 0}
+                src={item.project?.cover?.url ?? ""}
+                alt={item.project?.cover?.alt ?? ""}
+                width={item.project?.cover?.width ?? 0}
+                height={item.project?.cover?.height ?? 0}
                 className={cn(
                   "absolute inset-0 object-cover opacity-0 transition-opacity duration-300",
                   !item.disabled && "opacity-100 group-hover:opacity-70"
