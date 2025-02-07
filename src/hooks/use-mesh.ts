@@ -1,13 +1,23 @@
 import { Mesh } from "three"
 import { create } from "zustand"
 
+interface CarMeshes {
+  backWheel: Mesh | null
+  car: Mesh | null
+  frontWheel: Mesh | null
+}
+
 export interface MeshStore {
   hoopMesh: Mesh | null
-  carMesh: Mesh | null
+  carMeshes: CarMeshes
 }
 
 /** Global store for extracted meshes */
 export const useMesh = create<MeshStore>()((set) => ({
   hoopMesh: null,
-  carMesh: null
+  carMeshes: {
+    backWheel: null,
+    car: null,
+    frontWheel: null
+  }
 }))

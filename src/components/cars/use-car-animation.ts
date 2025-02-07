@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber"
 import type { SetStateAction } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
+  BufferAttribute,
   ClampToEdgeWrapping,
   DataTexture,
   FloatType,
@@ -46,7 +47,7 @@ interface CarState {
 }
 
 const CONSTANTS = {
-  BASE_SPEED: 0.175,
+  BASE_SPEED: 0.175 / 1.25,
   START_X: -9,
   END_X: 9.5,
   MIN_WAIT_TIME: 8000,
@@ -77,10 +78,7 @@ const setRandomTimeout = () => {
 
   if (carState.waitTimeout) clearTimeout(carState.waitTimeout)
 
-  carState.waitTimeout = setTimeout(
-    () => (carState.isWaiting = false),
-    waitTime
-  )
+  carState.waitTimeout = setTimeout(() => (carState.isWaiting = false), 1000)
 }
 
 const updateCarSpeed = () => {
@@ -103,7 +101,6 @@ const updateCarSpeed = () => {
 
 interface updateCarPositionProps {
   carPosition: Vector3
-  wheelMeshes: Mesh[]
   progress: number
   setTextureIndex: (value: SetStateAction<number>) => void
   texturesLength: number
@@ -116,6 +113,9 @@ interface CarConfig {
   uvSource: "uv2" | "originalUV" | "uv3" | "texcoord_4" | "texcoord_5"
   probability: number
   canFly?: boolean
+  wheelSize?: number
+  frontWheelOffset?: number
+  backWheelOffset?: number
 }
 
 const CAR_CONFIGS: Record<string, CarConfig> = {
@@ -123,50 +123,71 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/dodge-o.png",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.425,
-    canFly: false
+    probability: 0.4,
+    canFly: false,
+    wheelSize: 1,
+    frontWheelOffset: 0.25,
+    backWheelOffset: 0
   },
   delorean: {
     texture: "/textures/cars/delorean.png",
     morphTarget: "DeLorean",
     uvSource: "uv2",
-    probability: 0.03,
-    canFly: true
+    probability: 0,
+    canFly: true,
+    wheelSize: 1.1,
+    frontWheelOffset: 0.15,
+    backWheelOffset: -0.05
   },
   kitt: {
     texture: "/textures/cars/kitt.png",
     morphTarget: "Kitt",
     uvSource: "texcoord_5",
-    probability: 0.03,
-    canFly: false
+    probability: 0,
+    canFly: false,
+    wheelSize: 1,
+    frontWheelOffset: -0.12,
+    backWheelOffset: 0
   },
   nissan: {
     texture: "/textures/cars/fnf.png",
     morphTarget: "Nissan",
     uvSource: "originalUV",
-    probability: 0.03,
-    canFly: false
+    probability: 0,
+    canFly: false,
+    wheelSize: 1,
+    frontWheelOffset: 0,
+    backWheelOffset: -0.02
   },
   homer: {
     texture: "/textures/cars/homer.png",
     morphTarget: "Simpsons",
     uvSource: "texcoord_4",
-    probability: 0.03,
-    canFly: false
+    probability: 0,
+    canFly: false,
+    wheelSize: 1,
+    frontWheelOffset: 0.27,
+    backWheelOffset: 0
   },
   "dodge-black": {
     texture: "/textures/cars/dodge-b.png",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.425,
-    canFly: false
+    probability: 0,
+    canFly: false,
+    wheelSize: 1,
+    frontWheelOffset: 0.25,
+    backWheelOffset: 0
   },
   mistery: {
     texture: "/textures/cars/mistery.png",
     morphTarget: "Mistery",
     uvSource: "uv3",
-    probability: 0.03,
-    canFly: false
+    probability: 0.6,
+    canFly: false,
+    wheelSize: 1,
+    frontWheelOffset: 0,
+    backWheelOffset: 0
   }
 }
 
@@ -363,7 +384,12 @@ const setupCarMorphAndUVs = (
     }
 
     if (newUVs) {
-      mesh.geometry.attributes.uv.array.set(newUVs)
+      if (newUVs.length !== mesh.geometry.attributes.uv.array.length) {
+        const uvArray = new Float32Array(newUVs)
+        mesh.geometry.setAttribute("uv", new BufferAttribute(uvArray, 2))
+      } else {
+        mesh.geometry.attributes.uv.array.set(newUVs)
+      }
       mesh.geometry.attributes.uv.needsUpdate = true
     }
   }
@@ -376,7 +402,6 @@ const setupCarMorphAndUVs = (
 
 const updateCarPosition = ({
   carPosition,
-  wheelMeshes,
   progress,
   setTextureIndex,
   texturesLength,
@@ -392,8 +417,6 @@ const updateCarPosition = ({
     carState.currentSpeed =
       CONSTANTS.BASE_SPEED * (CONSTANTS.SPEED_REDUCTION + speedupAmount)
   }
-
-  wheelMeshes.forEach((wheel) => (wheel.rotation.z -= carState.currentSpeed))
 
   carPosition.x += carState.currentSpeed
 
@@ -425,7 +448,6 @@ const runFirstCarPass = (carPosition: Vector3, carGroup: Object3D) => {
 
 const animateCar = (
   car: Object3D,
-  wheelMeshes: Mesh[],
   setTextureIndex: (value: SetStateAction<number>) => void,
   texturesLength: number
 ) => {
@@ -447,7 +469,6 @@ const animateCar = (
     const progress = (carPosition.x - CONSTANTS.START_X) / TOTAL_DISTANCE
     updateCarPosition({
       carPosition,
-      wheelMeshes,
       progress,
       setTextureIndex,
       texturesLength,
@@ -458,18 +479,38 @@ const animateCar = (
 
 interface UseCarAnimationProps {
   car: Mesh | null
+  frontWheel: Mesh | null
+  backWheel: Mesh | null
 }
 
-export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
-  const wheelMeshes = useRef<Mesh[]>([])
+export const useCarAnimation = ({
+  car,
+  frontWheel,
+  backWheel
+}: UseCarAnimationProps) => {
   const carGroupRef = useRef<Object3D | null>(null)
   const originalUVRef = useRef<Float32Array | null>(null)
   const [textureIndex, setTextureIndex] = useState(0)
   const flyingTime = useRef(0)
+  const originalFrontWheelPos = useRef<Vector3 | null>(null)
+  const originalBackWheelPos = useRef<Vector3 | null>(null)
+  const originalFrontWheelScale = useRef<Vector3 | null>(null)
+  const originalBackWheelScale = useRef<Vector3 | null>(null)
 
   const textures = useMemo(() => Object.keys(TEXTURE_TO_MORPH), [])
 
   const carTexture = useTexture(textures[textureIndex])
+
+  useEffect(() => {
+    if (frontWheel && !originalFrontWheelPos.current) {
+      originalFrontWheelPos.current = frontWheel.position.clone()
+      originalFrontWheelScale.current = frontWheel.scale.clone()
+    }
+    if (backWheel && !originalBackWheelPos.current) {
+      originalBackWheelPos.current = backWheel.position.clone()
+      originalBackWheelScale.current = backWheel.scale.clone()
+    }
+  }, [frontWheel, backWheel])
 
   useEffect(() => {
     if (!car?.morphTargetDictionary || !car?.morphTargetInfluences) return
@@ -483,8 +524,27 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
     if (carGroupRef.current) {
       const mirroredCar = carGroupRef.current.children[1] as Mesh
       setupCarMorphAndUVs(car, mirroredCar, currentConfig, originalUVRef)
+
+      if (
+        frontWheel &&
+        backWheel &&
+        originalBackWheelPos.current &&
+        originalFrontWheelPos.current &&
+        originalFrontWheelScale.current &&
+        originalBackWheelScale.current
+      ) {
+        backWheel.position.copy(originalBackWheelPos.current)
+        frontWheel.position.copy(originalFrontWheelPos.current)
+        frontWheel.position.x *= 1 + currentConfig.frontWheelOffset!
+        backWheel.position.x *= 1 - currentConfig.backWheelOffset!
+
+        frontWheel.scale.copy(originalFrontWheelScale.current)
+        backWheel.scale.copy(originalBackWheelScale.current)
+        frontWheel.scale.multiplyScalar(currentConfig.wheelSize!)
+        backWheel.scale.multiplyScalar(currentConfig.wheelSize!)
+      }
     }
-  }, [car, textureIndex, textures])
+  }, [car, textureIndex, textures, frontWheel, backWheel])
 
   useFrame((_, delta) => {
     const flyIndex = car?.morphTargetDictionary?.["DeLoreanFly"]
@@ -509,12 +569,7 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
     }
 
     if (carGroupRef.current) {
-      animateCar(
-        carGroupRef.current,
-        wheelMeshes.current,
-        setTextureIndex,
-        textures.length
-      )
+      animateCar(carGroupRef.current, setTextureIndex, textures.length)
     }
   })
 
@@ -619,28 +674,11 @@ export const useCarAnimation = ({ car }: UseCarAnimationProps) => {
 
     carGroupRef.current = car.parent
 
-    if (carGroupRef.current) {
+    if (carGroupRef.current && carGroupRef.current.children.length > 1) {
       const mirroredCar = carGroupRef.current.children[1] as Mesh
-      mirroredCar.material = mirrorMaterial
-    }
-
-    const frontWheels = car.getObjectByName("SM_FWheels") as Mesh
-    const backWheels = car.getObjectByName("SM_BWheels") as Mesh
-
-    wheelMeshes.current = []
-    if (frontWheels) wheelMeshes.current.push(frontWheels)
-    if (backWheels) wheelMeshes.current.push(backWheels)
-
-    if (carGroupRef.current) {
-      const mirroredCar = carGroupRef.current.children[1] as Mesh
-      const mirroredFrontWheels = mirroredCar.getObjectByName(
-        "SM_FWheels"
-      ) as Mesh
-      const mirroredBackWheels = mirroredCar.getObjectByName(
-        "SM_BWheels"
-      ) as Mesh
-      if (mirroredFrontWheels) wheelMeshes.current.push(mirroredFrontWheels)
-      if (mirroredBackWheels) wheelMeshes.current.push(mirroredBackWheels)
+      if (mirroredCar) {
+        mirroredCar.material = mirrorMaterial
+      }
     }
   }, [car, carTexture])
 

@@ -71,7 +71,7 @@ export const Map = memo(() => {
     routingElementsPath
   ) as unknown as GLTFResult
   const { scene: newCarTest } = useGLTF(
-    "/models/car-v3.glb"
+    "/models/car-v5.glb"
   ) as unknown as GLTFResult
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
@@ -176,7 +176,22 @@ export const Map = memo(() => {
     const carMesh = outdoorModel.getObjectByName("car01")
     if (carMesh) {
       carMesh.removeFromParent()
-      useMesh.setState({ carMesh: newCarTest.children[0] as Mesh })
+      useMesh.setState({
+        carMeshes: {
+          backWheel:
+            (newCarTest.children.find(
+              (child) => child.name === "BACK-WHEEL"
+            ) as Mesh) ?? null,
+          car:
+            (newCarTest.children.find(
+              (child) => child.name === "CAR"
+            ) as Mesh) ?? null,
+          frontWheel:
+            (newCarTest.children.find(
+              (child) => child.name === "FRONT-WHEEL"
+            ) as Mesh) ?? null
+        }
+      })
     }
 
     const traverse = (child: Object3D) => {
