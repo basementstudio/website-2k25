@@ -11,6 +11,7 @@ import * as THREE from "three"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { Perf } from "r3f-perf"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -98,9 +99,9 @@ function SceneInner() {
           sceneChildren={
             <>
               <color attach="background" args={["#000"]} />
-              <CameraController />
               <Inspectables />
               <Environment preset="studio" />
+              <CameraController />
               <Sparkles />
               <Physics paused={!isBasketball}>
                 <Map />
@@ -110,6 +111,14 @@ function SceneInner() {
               <CharactersSpawn />
             </>
           }
+        />
+        <Perf
+          style={{
+            position: "absolute",
+            top: 40,
+            right: 10,
+            zIndex: 1000
+          }}
         />
       </Canvas>
     </div>
