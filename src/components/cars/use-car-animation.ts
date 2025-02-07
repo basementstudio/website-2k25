@@ -556,6 +556,13 @@ export const useCarAnimation = ({
 
     car.material = mirrorMaterial
 
+    if (frontWheel) {
+      frontWheel.material = mirrorMaterial
+    }
+    if (backWheel) {
+      backWheel.material = mirrorMaterial
+    }
+
     carGroupRef.current = car.parent
 
     if (carGroupRef.current && carGroupRef.current.children.length > 1) {
@@ -564,13 +571,20 @@ export const useCarAnimation = ({
         mirroredCar.material = mirrorMaterial
       }
     }
-  }, [car, carTexture])
+  }, [car, carTexture, frontWheel, backWheel])
 
   useEffect(() => {
     if (!car?.material) return
 
     const material = car.material as ShaderMaterial
     material.uniforms.map.value = carTexture
+
+    if (frontWheel?.material) {
+      ;(frontWheel.material as ShaderMaterial).uniforms.map.value = carTexture
+    }
+    if (backWheel?.material) {
+      ;(backWheel.material as ShaderMaterial).uniforms.map.value = carTexture
+    }
 
     // Update mirrored car
     if (carGroupRef.current) {
@@ -580,5 +594,5 @@ export const useCarAnimation = ({
         mirrorMaterial.uniforms.map.value = carTexture
       }
     }
-  }, [car, carTexture, textureIndex, textures])
+  }, [car, carTexture, textureIndex, textures, frontWheel, backWheel])
 }
