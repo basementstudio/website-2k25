@@ -2,18 +2,7 @@ import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import type { SetStateAction } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import {
-  BufferAttribute,
-  ClampToEdgeWrapping,
-  DataTexture,
-  FloatType,
-  LinearFilter,
-  Mesh,
-  Object3D,
-  RGBAFormat,
-  ShaderMaterial,
-  Vector3
-} from "three"
+import { BufferAttribute, Mesh, Object3D, ShaderMaterial, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
 
