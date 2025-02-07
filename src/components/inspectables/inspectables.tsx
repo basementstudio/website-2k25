@@ -1,7 +1,7 @@
 "use client"
 
 import { useThree } from "@react-three/fiber"
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { FrontSide, Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -13,11 +13,9 @@ const HARDCODED_INSPECTABLES_POSITIONS = [{ x: 2, y: 4, z: -12.3 }]
 
 export const Inspectables = () => {
   const { inspectables } = useAssets()
-
   const { selected } = useInspectable()
 
   const ref = useRef<Mesh>(null)
-
   const camera = useThree((state) => state.camera) as PerspectiveCamera
 
   useEffect(() => {
@@ -53,12 +51,12 @@ export const Inspectables = () => {
 
   return (
     <>
-      <Inspectable
+      {/* <Inspectable
         inspectable={{
           ...inspectables[0],
           position: HARDCODED_INSPECTABLES_POSITIONS[0]
         }}
-      />
+      /> */}
 
       {selected && (
         <mesh

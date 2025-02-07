@@ -1,7 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber"
-import { RapierRigidBody } from "@react-three/rapier"
+import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
 import {
@@ -9,6 +9,7 @@ import {
   handlePointerMove as utilsHandlePointerMove,
   handlePointerUp as utilsHandlePointerUp
 } from "@/components/basketball/basketball-utils"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -17,15 +18,20 @@ import { easeInOutCubic } from "@/utils/animations"
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
 import { Trajectory } from "./trajectory"
+import { useMesh } from "@/hooks/use-mesh"
 
 export const HoopMinigame = () => {
-  const isBasketball = usePathname() === "/basketball"
   const { playSoundFX } = useSiteAudio()
-  const { setIsBasketball } = useCustomShaderMaterial()
+  const [isBasketball, setIsBasketball] = useState(false)
+  const { setIsBasketball: setIsBasketballShader } = useCustomShaderMaterial()
+  const scene = useCurrentScene()
 
   useEffect(() => {
-    setIsBasketball(isBasketball)
-  }, [isBasketball, setIsBasketball])
+    setIsBasketball(scene === "basketball")
+    setIsBasketballShader(scene === "basketball")
+
+    return () => setIsBasketballShader(false)
+  }, [scene, setIsBasketballShader, setIsBasketball])
 
   const ballRef = useRef<RapierRigidBody>(null)
   const mousePos = useRef(new Vector2())
@@ -50,7 +56,6 @@ export const HoopMinigame = () => {
     upStrength,
     score,
     setScore,
-    timeRemaining,
     setTimeRemaining,
     isGameActive,
     setIsGameActive,
@@ -58,7 +63,6 @@ export const HoopMinigame = () => {
     setIsResetting,
     isDragging,
     setIsDragging,
-    shotMetrics,
     setShotMetrics,
     setHasPlayed,
     addPlayedBall,
@@ -391,10 +395,17 @@ export const HoopMinigame = () => {
     [isDragging, hoopPosition, setIsDragging, setShotMetrics]
   )
 
+  const hoopMesh = useMesh((state) => state.hoopMesh)
+
   if (!isBasketball) return null
 
   return (
     <>
+      {hoopMesh && (
+        <RigidBody type="fixed" colliders="trimesh">
+          <primitive object={hoopMesh} />
+        </RigidBody>
+      )}
       {readyToPlay && (
         <>
           <Basketball

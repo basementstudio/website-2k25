@@ -1,10 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { Fragment, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
 import { cn } from "@/utils/cn"
 
@@ -62,7 +62,6 @@ export const Crew = ({ data }: { data: QueryType }) => {
                           <Link
                             href={socialNetwork.link as string}
                             className="actionable bg-brand-0 text-brand-w1"
-                            target="_blank"
                           >
                             {socialNetwork.platform}
                           </Link>
@@ -106,7 +105,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
           </div>
         ))}
         <div
-          className="with-diagonal-lines relative col-span-7 flex items-center justify-center bg-brand-k"
+          className="with-diagonal-lines relative flex min-h-32 items-center justify-center bg-brand-k"
           style={{
             gridColumn: `span ${8 - (data.company.people.peopleList.items.length % 8)} / span ${8 - (data.company.people.peopleList.items.length % 8)}`
           }}

@@ -1,13 +1,12 @@
-import Link from "next/link"
-
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
 import { QueryType } from "./query"
 
 export const OpenPositions = ({ data }: { data: QueryType }) => {
   return (
-    <section className="grid-layout pb-[148px]">
+    <section className="grid-layout">
       <h2 className="relative z-20 col-start-1 col-end-5 row-start-1 pt-[27px] text-h1 text-brand-w2">
         Open Positions
       </h2>

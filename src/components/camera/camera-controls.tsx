@@ -2,11 +2,14 @@ import { CameraControls } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useControls } from "leva"
 import { easing } from "maath"
-import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
-import { useCameraStore } from "@/store/app-store"
+import { useInspectable } from "@/components/inspectables/context"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { TRANSITION_DURATION } from "@/constants/transitions"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useScrollStore } from "@/providers/lenis-provider"
 
 import {
   calculateMovementVectors,
@@ -17,44 +20,56 @@ import {
 } from "./camera-utils"
 
 export const CustomCamera = () => {
+  const currentScene = useCurrentScene()
+  const { selected } = useInspectable()
+
+  const [firstRender, setFirstRender] = useState(true)
+
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
   const planeBoundaryRef = useRef<Mesh>(null)
-  const cameraConfig = useCameraStore((state) => state.cameraConfig)
-  const pathname = usePathname()
+
+  const cameraConfig = useNavigationStore.getState().currentScene?.cameraConfig
+  const setStairVisibility = useNavigationStore.getState().setStairVisibility
+  const disableCameraTransition =
+    useNavigationStore.getState().disableCameraTransition
+  const setDisableCameraTransition =
+    useNavigationStore.getState().setDisableCameraTransition
+
   const scene = useThree((state) => state.scene)
 
-  const { debugBoundaries } = useControls({
-    debugBoundaries: false
-  })
+  const { debugBoundaries } = useControls({ debugBoundaries: false })
+
+  const progress = useRef(1)
+
+  const panTargetDelta = useMemo(() => new Vector3(), [])
+  const panLookAtDelta = useMemo(() => new Vector3(), [])
+
+  const targetPosition = useMemo(() => new Vector3(), [])
+  const targetLookAt = useMemo(() => new Vector3(), [])
+  const targetFov = useRef<number>(60)
 
   const currentPos = useMemo(() => new Vector3(), [])
   const currentTarget = useMemo(() => new Vector3(), [])
-  const targetPosition = useMemo(() => new Vector3(), [])
-  const targetLookAt = useMemo(() => new Vector3(), [])
-  const animationProgress = useRef(1)
-  const ANIMATION_DURATION = 1.5 //secs
+  const currentFov = useRef<number>(60)
 
-  const gametargetFov = useRef<number>(60)
-  const gameCurrentFov = useRef<number>(60)
-  const fovTransitionProgress = useRef<number>(1)
+  const offsetY = useRef(0)
+
+  const ANIMATION_DURATION = 2
+
+  const stairVisibility = useNavigationStore((state) => state.stairVisibility)
 
   useEffect(() => {
     const controls = cameraControlsRef.current
-
     const camera = controls?.camera as PerspectiveCamera
 
     const [plane, boundary] = [planeRef.current, planeBoundaryRef.current]
-    if (!controls || !plane || !boundary || !camera) return
+    if (!controls || !plane || !boundary || !camera || !cameraConfig) return
 
     controls.disconnect()
-    controls.setPosition(...cameraConfig.position)
-    controls.setTarget(...cameraConfig.target)
-    useCameraStore.getState().setCamera(camera)
 
-    gameCurrentFov.current = camera.fov
-    gametargetFov.current = cameraConfig.fov ?? 60
-    fovTransitionProgress.current = 0
+    //TODO: remove this
+    useNavigationStore.getState().setMainCamera(camera)
 
     const planePos = calculatePlanePosition(cameraConfig)
     const distance = Math.hypot(
@@ -69,161 +84,185 @@ export const CustomCamera = () => {
     ;[plane, boundary].forEach((mesh) => mesh.lookAt(...cameraConfig.position))
     boundary.scale.set(width * 0.6, height, 1)
     plane.scale.set(width * 0.4, height, 1)
+
+    return () => controls.dispose()
   }, [])
 
   useEffect(() => {
+    if (!cameraConfig) return
+
     const initialY = cameraConfig.position[1]
     const targetY = cameraConfig.targetScrollY ?? -cameraConfig.position[1]
 
     const handleScroll = () => {
-      const rawScrollProgress = window.scrollY / window.innerHeight
-      const scrollProgress = Math.min(1, rawScrollProgress * 1)
+      const scrollY = useScrollStore.getState().scrollY
+      const scrollProgress = Math.min(1, scrollY / window.innerHeight)
 
-      const newY = initialY + (targetY - initialY) * scrollProgress
-      const originalTargetY = cameraConfig.target[1]
-      const originalDelta = originalTargetY - initialY
-      const newTargetY = newY + originalDelta
-
-      if (cameraControlsRef.current) {
-        const pos = cameraControlsRef.current.getPosition(new Vector3())
-        const target = cameraControlsRef.current.getTarget(new Vector3())
-
-        pos.y = newY
-        target.y = newTargetY
-        cameraControlsRef.current.setPosition(pos.x, pos.y, pos.z, false)
-        cameraControlsRef.current.setTarget(target.x, target.y, target.z, false)
-      }
+      offsetY.current = (targetY - initialY) * scrollProgress
     }
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [cameraConfig, pathname])
+    // Subscribe to scroll store changes
+    const unsubscribe = useScrollStore.subscribe(handleScroll)
+
+    return () => unsubscribe()
+  }, [cameraConfig])
+
+  const calculateDivisor = useCallback(() => {
+    const width = window.innerWidth
+    if (width <= 1100) return 0.32
+    if (width <= 1200) return 0.36
+    if (width <= 1500) return 0.4
+    if (width <= 1600) return 0.8
+    return 0.8
+  }, [window.innerWidth])
 
   useFrame(({ pointer }, dt) => {
     const controls = cameraControlsRef.current
     const plane = planeRef.current
     const boundary = planeBoundaryRef.current
-    if (!plane || !boundary || !controls) return
 
-    if (animationProgress.current < 1) {
-      // Handle camera transition animation
-      animationProgress.current = Math.min(
-        animationProgress.current + dt / ANIMATION_DURATION,
-        1
+    if (!plane || !boundary || !controls || !cameraConfig) return
+
+    // Calculate targets
+    targetPosition.set(...cameraConfig.position)
+    targetLookAt.set(...cameraConfig.target)
+    targetFov.current = cameraConfig.fov ?? 60
+    targetPosition.y += offsetY.current
+    targetLookAt.y += offsetY.current
+
+    if (!selected) {
+      const maxOffset = (boundary.scale.x - plane.scale.x) / 2
+      const basePosition = calculatePlanePosition(cameraConfig)
+      const right = calculateMovementVectors(basePosition, cameraConfig)
+
+      const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
+      const offset = pointer.x * maxOffset * offsetMultiplier
+
+      const xPos = right.x * offset
+      const zPos = right.z * offset
+
+      const tp = {
+        x: basePosition[0] + xPos,
+        z: basePosition[2] + zPos
+      }
+      const np = calculateNewPosition(
+        { x: plane.position.x, z: plane.position.z },
+        tp
       )
+      plane.position.setX(np.x)
+      plane.position.setZ(np.z)
 
-      if (pathname === "/" && animationProgress.current === 1) {
-        const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
-        stair3.visible = false
+      const newDelta = new Vector3(xPos, 0, zPos)
+      const newLookAtDelta = new Vector3(xPos / calculateDivisor(), 0, zPos)
+
+      easing.damp3(panTargetDelta, newDelta, 0.5, dt)
+      easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
+    }
+
+    if (disableCameraTransition || firstRender) {
+      progress.current = 1
+      currentPos.set(...cameraConfig.position)
+      currentTarget.set(...cameraConfig.target)
+      currentFov.current = cameraConfig.fov ?? 60
+
+      const finalPos = currentPos.clone().add(panTargetDelta)
+      const finalLookAt = currentTarget.clone().add(panLookAtDelta)
+      controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
+      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
+
+      if (
+        controls.camera instanceof PerspectiveCamera &&
+        controls.camera.fov !== currentFov.current
+      ) {
+        controls.camera.fov = currentFov.current
+        controls.camera.updateProjectionMatrix()
       }
 
-      controls.getPosition(currentPos)
-      controls.getTarget(currentTarget)
+      setStairVisibility(currentScene !== "home")
 
-      targetPosition.set(...cameraConfig.position)
-      targetLookAt.set(...cameraConfig.target)
+      setTimeout(() => setDisableCameraTransition(false), TRANSITION_DURATION)
+    } else if (progress.current < 1) {
+      progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
 
-      const easeValue = easeInOutCubic(animationProgress.current)
+      if (
+        progress.current > 0.8 &&
+        currentScene === "home" &&
+        stairVisibility
+      ) {
+        setStairVisibility(false)
+      } else if (
+        // TODO: fix this behaviour
+        progress.current > 0.2 &&
+        currentScene !== "home" &&
+        !stairVisibility
+      ) {
+        setStairVisibility(true)
+      }
+
+      const easeValue = easeInOutCubic(progress.current)
+
       currentPos.lerp(targetPosition, easeValue)
       currentTarget.lerp(targetLookAt, easeValue)
 
-      controls.setPosition(currentPos.x, currentPos.y, currentPos.z, false)
-      controls.setTarget(
-        currentTarget.x,
-        currentTarget.y,
-        currentTarget.z,
-        false
-      )
+      const pos = currentPos.clone().add(panTargetDelta)
+      controls.setPosition(pos.x, pos.y, pos.z, false)
+
+      const lookAt = currentTarget.clone().add(panLookAtDelta)
+      controls.setTarget(lookAt.x, lookAt.y, lookAt.z, false)
+
+      currentFov.current =
+        currentFov.current +
+        (targetFov.current - currentFov.current) * easeValue
     } else {
-      if (pathname !== "/basketball") {
-        const maxOffset = (boundary.scale.x - plane.scale.x) / 2
-        const basePosition = calculatePlanePosition(cameraConfig)
-        const rightVector = calculateMovementVectors(basePosition, cameraConfig)
+      const pos = targetPosition.clone().add(panTargetDelta)
+      controls.setPosition(pos.x, pos.y, pos.z, false)
 
-        const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
-        const offset = pointer.x * maxOffset * offsetMultiplier
-
-        // Update plane position
-        const targetPos = {
-          x: basePosition[0] + rightVector.x * offset,
-          z: basePosition[2] + rightVector.z * offset
-        }
-        const newPos = calculateNewPosition(
-          { x: plane.position.x, z: plane.position.z },
-          targetPos
-        )
-        plane.position.setX(newPos.x)
-        plane.position.setZ(newPos.z)
-
-        // Set camera position directly for horizontal movement
-        const currentPosition = controls.getPosition(new Vector3())
-        const targetPosition = new Vector3(
-          cameraConfig.position[0] + rightVector.x * offset,
-          currentPosition.y,
-          cameraConfig.position[2] + rightVector.z * offset
-        )
-
-        easing.damp3(currentPosition, targetPosition, 0.1, dt)
-        controls.setPosition(
-          currentPosition.x,
-          currentPosition.y,
-          currentPosition.z,
-          false
-        )
-
-        const currentTarget = controls.getTarget(new Vector3())
-        const targetLookAt = new Vector3(
-          cameraConfig.target[0] + rightVector.x * offset,
-          currentTarget.y,
-          cameraConfig.target[2] + rightVector.z * offset
-        )
-
-        easing.damp3(currentTarget, targetLookAt, 0.05, dt)
-        controls.setTarget(
-          currentTarget.x,
-          currentTarget.y,
-          currentTarget.z,
-          false
-        )
-      }
+      const lookAt = targetLookAt.clone().add(panLookAtDelta)
+      controls.setTarget(lookAt.x, lookAt.y, lookAt.z, false)
     }
 
-    if (controls.camera instanceof PerspectiveCamera) {
-      fovTransitionProgress.current = Math.min(
-        fovTransitionProgress.current + dt * 0.5,
-        1
-      )
-
-      const easedProgress = easeInOutCubic(fovTransitionProgress.current)
-
-      gameCurrentFov.current =
-        gameCurrentFov.current +
-        (gametargetFov.current - gameCurrentFov.current) * easedProgress
-      controls.camera.fov = gameCurrentFov.current
+    if (
+      controls.camera instanceof PerspectiveCamera &&
+      controls.camera.fov !== currentFov.current
+    ) {
+      controls.camera.fov = currentFov.current
       controls.camera.updateProjectionMatrix()
     }
+
+    if (firstRender) setFirstRender(false)
   })
 
   useEffect(() => {
-    animationProgress.current = 0
-    targetPosition.set(...cameraConfig.position)
-    targetLookAt.set(...cameraConfig.target)
+    if (!cameraConfig) return
+    progress.current = 0
 
-    gametargetFov.current = cameraConfig.fov ?? 60
-    fovTransitionProgress.current = 0
-  }, [cameraConfig, targetPosition, targetLookAt])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cameraConfig])
 
-  const planePosition = calculatePlanePosition(cameraConfig)
+  const planePosition = useCallback(
+    () => (cameraConfig ? calculatePlanePosition(cameraConfig) : null),
+    [cameraConfig]
+  )
+
+  useEffect(() => {
+    const stair3 = scene.getObjectByName("SM_Stair3") as Mesh
+    if (stair3) stair3.visible = stairVisibility
+  }, [scene, stairVisibility])
+
   return (
     <>
       <CameraControls makeDefault ref={cameraControlsRef} />
-      <mesh ref={planeRef} position={planePosition} visible={debugBoundaries}>
+      <mesh
+        ref={planeRef}
+        position={planePosition() ?? [0, 0, 0]}
+        visible={debugBoundaries}
+      >
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial color="green" transparent wireframe />
       </mesh>
       <mesh
         ref={planeBoundaryRef}
-        position={planePosition}
+        position={planePosition() ?? [0, 0, 0]}
         visible={debugBoundaries}
       >
         <planeGeometry args={[1, 1]} />
