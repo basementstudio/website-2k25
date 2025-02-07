@@ -4,14 +4,13 @@ import { useCarAnimation } from "./use-car-animation"
 
 const Cars = () => {
   const { carMesh } = useMesh()
-  console.log(carMesh)
   useCarAnimation({ car: carMesh })
   return (
     <>
       {carMesh && (
         <group
           scale={0.8}
-          position-x={-8.8}
+          position-x={-9}
           position-z={7.7}
           ref={(group) => {
             if (group) {
