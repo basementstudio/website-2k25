@@ -123,17 +123,17 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/dodge-o.png",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.4,
+    probability: 0.25,
     canFly: false,
     wheelSize: 1,
-    frontWheelOffset: 0.25,
+    frontWheelOffset: 0.2,
     backWheelOffset: 0
   },
   delorean: {
     texture: "/textures/cars/delorean.png",
     morphTarget: "DeLorean",
     uvSource: "uv2",
-    probability: 0,
+    probability: 0.1,
     canFly: true,
     wheelSize: 1.1,
     frontWheelOffset: 0.15,
@@ -143,7 +143,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/kitt.png",
     morphTarget: "Kitt",
     uvSource: "texcoord_5",
-    probability: 0,
+    probability: 0.1,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: -0.12,
@@ -153,7 +153,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/fnf.png",
     morphTarget: "Nissan",
     uvSource: "originalUV",
-    probability: 0.99,
+    probability: 0.1,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0,
@@ -163,7 +163,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/homer.png",
     morphTarget: "Simpsons",
     uvSource: "texcoord_4",
-    probability: 0,
+    probability: 0.1,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.27,
@@ -173,7 +173,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/dodge-b.png",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0,
+    probability: 0.25,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.25,
@@ -183,7 +183,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/mistery.png",
     morphTarget: "Mistery",
     uvSource: "uv3",
-    probability: 0.6,
+    probability: 0.1,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0,
@@ -202,7 +202,6 @@ const getRandomCarConfig = (): CarConfig => {
     }
   }
 
-  // Fallback to first car if probabilities don't sum to 1
   return Object.values(CAR_CONFIGS)[0]
 }
 
