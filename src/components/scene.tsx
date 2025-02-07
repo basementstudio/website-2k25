@@ -10,7 +10,6 @@ import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -35,11 +34,16 @@ const cursorTypeMap = {
 } as const
 
 export const Scene = () => {
-  const scene = useCurrentScene()
-  const isBasketball = scene === "basketball"
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const cursorType = useMouseStore((state) => state.cursorType)
-  const { isCanvasTabMode, setIsCanvasTabMode } = useNavigationStore()
+  const {
+    isCanvasTabMode,
+    setIsCanvasTabMode,
+    setCurrentTabIndex,
+    currentScene,
+    currentTabIndex
+  } = useNavigationStore()
+  const isBasketball = currentScene?.name === "basketball"
 
   useEffect(() => {
     canvasRef.current.style.cursor = cursorTypeMap[cursorType]
@@ -49,12 +53,18 @@ export const Scene = () => {
     setIsCanvasTabMode(isCanvasTabMode)
   }, [isCanvasTabMode, setIsCanvasTabMode])
 
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent) => {
     setIsCanvasTabMode(true)
     window.scrollTo({
       top: 0,
       behavior: "smooth"
     })
+
+    if (e.relatedTarget?.id === "nav-contact") {
+      setCurrentTabIndex(0)
+    } else {
+      setCurrentTabIndex(currentScene?.tabs?.length ?? 0)
+    }
   }
   const handleBlur = () => setIsCanvasTabMode(false)
 
