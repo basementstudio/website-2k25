@@ -153,7 +153,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     texture: "/textures/cars/fnf.png",
     morphTarget: "Nissan",
     uvSource: "originalUV",
-    probability: 0,
+    probability: 0.99,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0,
@@ -206,101 +206,7 @@ const getRandomCarConfig = (): CarConfig => {
   return Object.values(CAR_CONFIGS)[0]
 }
 
-// Define our orange color ranges and their mappings
-const COLOR_MAPPINGS = {
-  DARKEST_ORANGE: [0.65, 0.2, 0.05], // Very dark orange borders
-  DARK_ORANGE: [0.82, 0.25, 0.08], // Dark orange
-  MID_ORANGE: [0.89, 0.35, 0.13], // Mid orange
-  LIGHT_ORANGE: [0.95, 0.45, 0.18] // Light orange
-}
-
-const TINT_COLORS = {
-  DARK_GRAY: {
-    DARK: [0.15, 0.15, 0.15],
-    MID: [0.25, 0.25, 0.25],
-    LIGHT: [0.35, 0.35, 0.35]
-  },
-  LIGHT_GRAY: {
-    DARK: [0.6, 0.6, 0.6],
-    MID: [0.7, 0.7, 0.7],
-    LIGHT: [0.8, 0.8, 0.8]
-  },
-  WHITE: {
-    DARK: [0.85, 0.85, 0.85],
-    MID: [0.92, 0.92, 0.92],
-    LIGHT: [1.0, 1.0, 1.0]
-  },
-  ROYAL_BLUE: {
-    DARK: [0.0, 0.1, 0.4],
-    MID: [0.0, 0.2, 0.6],
-    LIGHT: [0.1, 0.3, 0.8]
-  },
-  GOLDENROD: {
-    DARK: [0.7, 0.5, 0.0],
-    MID: [0.85, 0.65, 0.0],
-    LIGHT: [1.0, 0.8, 0.0]
-  },
-  ORANGE: {
-    DARK: COLOR_MAPPINGS.DARK_ORANGE,
-    MID: COLOR_MAPPINGS.MID_ORANGE,
-    LIGHT: COLOR_MAPPINGS.LIGHT_ORANGE
-  },
-  NONE: [1.0, 1.0, 1.0]
-}
-
-const getRandomTint = () => {
-  if (Math.random() < 0.2) {
-    return null
-  }
-
-  const tints = [
-    TINT_COLORS.DARK_GRAY,
-    TINT_COLORS.LIGHT_GRAY,
-    TINT_COLORS.WHITE,
-    TINT_COLORS.ROYAL_BLUE,
-    TINT_COLORS.GOLDENROD,
-    TINT_COLORS.ORANGE
-  ]
-  return tints[Math.floor(Math.random() * tints.length)]
-}
-
 const GRADIENT_SIZE = 16
-
-const addColorVariation = (color: number[], amount: number = 0.1) => {
-  const variation = (Math.random() - 0.5) * amount
-  return color.map((c) => Math.max(0, Math.min(1, c + variation)))
-}
-
-const createGradientData = (color: typeof TINT_COLORS.DARK_GRAY) => {
-  const data = new Float32Array(GRADIENT_SIZE * 4)
-
-  const darkVariation = addColorVariation(color.DARK, 0.08)
-  const midVariation = addColorVariation(color.MID, 0.08)
-  const lightVariation = addColorVariation(color.LIGHT, 0.08)
-
-  for (let i = 0; i < GRADIENT_SIZE; i++) {
-    const t = i / (GRADIENT_SIZE - 1)
-    let targetColor
-
-    if (t < 0.33) {
-      const microVariation = addColorVariation(darkVariation, 0.03)
-      targetColor = microVariation
-    } else if (t < 0.66) {
-      const microVariation = addColorVariation(midVariation, 0.03)
-      targetColor = microVariation
-    } else {
-      const microVariation = addColorVariation(lightVariation, 0.03)
-      targetColor = microVariation
-    }
-
-    data[i * 4] = targetColor[0] // R
-    data[i * 4 + 1] = targetColor[1] // G
-    data[i * 4 + 2] = targetColor[2] // B
-    data[i * 4 + 3] = 1.0 // A
-  }
-
-  return data
-}
 
 const setupCarMorphAndUVs = (
   car: Mesh,
@@ -604,9 +510,7 @@ export const useCarAnimation = ({
         mirrorLine: { value: 0.0 },
         morphTargetInfluences: { value: car.morphTargetInfluences },
         activeMorphIndex: { value: -1 },
-        isUsingCorrectUV: { value: 0.0 },
-        isOrangeDodge: { value: false },
-        colorGradient: { value: null }
+        isUsingCorrectUV: { value: 0.0 }
       },
       vertexShader: `
         #include <morphtarget_pars_vertex>
@@ -632,19 +536,12 @@ export const useCarAnimation = ({
       `,
       fragmentShader: `
         uniform sampler2D map;
-        uniform sampler2D colorGradient;
         uniform float mirrorLine;
         uniform float isUsingCorrectUV;
-        uniform bool isOrangeDodge;
 
         varying vec2 vUv;
         varying vec3 vPosition;
         varying float vIsMirrored;
-
-        bool isOrangeish(vec3 color) {
-          // Adjusted to better detect orange tones
-          return color.r > 0.4 && color.r > color.g * 1.2 && color.r > color.b * 1.5;
-        }
 
         void main() {
           vec2 finalUV = vUv;
@@ -653,18 +550,6 @@ export const useCarAnimation = ({
           }
 
           vec4 texColor = texture2D(map, finalUV);
-          
-          if (isOrangeDodge && isOrangeish(texColor.rgb)) {
-            // Calculate luminance
-            float luminance = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));
-            
-            // Use luminance to look up the replacement color
-            vec2 gradientUV = vec2(luminance, 0.5);
-            vec4 newColor = texture2D(colorGradient, gradientUV);
-            
-            texColor.rgb = newColor.rgb;
-          }
-          
           gl_FragColor = texColor;
         }
       `
@@ -686,30 +571,7 @@ export const useCarAnimation = ({
     if (!car?.material) return
 
     const material = car.material as ShaderMaterial
-    const isOrangeDodge =
-      textures[textureIndex] === "/textures/cars/dodge-o.png"
-
-    const tint = getRandomTint()
-
-    if (tint !== null) {
-      const gradientData = createGradientData(tint)
-      const gradientTexture = new DataTexture(
-        gradientData,
-        GRADIENT_SIZE,
-        1,
-        RGBAFormat,
-        FloatType
-      )
-      gradientTexture.needsUpdate = true
-      gradientTexture.minFilter = LinearFilter
-      gradientTexture.magFilter = LinearFilter
-      gradientTexture.wrapS = ClampToEdgeWrapping
-      gradientTexture.wrapT = ClampToEdgeWrapping
-      material.uniforms.colorGradient.value = gradientTexture
-    }
-
     material.uniforms.map.value = carTexture
-    material.uniforms.isOrangeDodge.value = isOrangeDodge && tint !== null
 
     // Update mirrored car
     if (carGroupRef.current) {
@@ -717,10 +579,6 @@ export const useCarAnimation = ({
       if (mirroredCar?.material) {
         const mirrorMaterial = mirroredCar.material as ShaderMaterial
         mirrorMaterial.uniforms.map.value = carTexture
-        mirrorMaterial.uniforms.isOrangeDodge.value =
-          material.uniforms.isOrangeDodge.value
-        mirrorMaterial.uniforms.colorGradient.value =
-          material.uniforms.colorGradient.value
       }
     }
   }, [car, carTexture, textureIndex, textures])
