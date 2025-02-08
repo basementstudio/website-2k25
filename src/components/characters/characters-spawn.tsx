@@ -22,8 +22,8 @@ function CharactersSpawnInner() {
   //         <Character
   //           key={`${rowIndex}-${colIndex}`}
   //           position={[rowIndex * 1, 0, colIndex * 1]}
-  //           rotation={[0, Math.PI * Math.random() * 2, 0]}
-  //           animationName={CharacterAnimationName.Idle1}
+  //           rotation={[0, 0, 0]}
+  //           animationName={CharacterAnimationName.Idle2}
   //         />
   //       ))
   //     )}

@@ -36,6 +36,7 @@ ivec2 getSampleCoord(const usampler2D mapSampler, const float batchId) {
 
 void main() {
   vUv = uv;
+  #include <morphinstance_vertex>
 
   // batch Info
   float batchId = getIndirectIndex(gl_DrawID);
@@ -61,7 +62,6 @@ void main() {
   #include <begin_vertex>
   #include <morphtarget_vertex>
   #include <skinning_vertex>
-
   #include <project_vertex>
   // #include <worldpos_vertex>
 }
