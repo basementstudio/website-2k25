@@ -3,9 +3,8 @@
 import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
-import { Leva } from "leva"
 import dynamic from "next/dynamic"
-import { useEffect, useRef } from "react"
+import { memo, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
@@ -23,6 +22,9 @@ const HoopMinigame = dynamic(
 )
 
 import { CameraController } from "./camera/camera-controller"
+import { CharacterInstanceConfig } from "./characters/character-instancer"
+import { CharactersSpawn } from "./characters/characters-spawn"
+import { Debug } from "./debug"
 
 const cursorTypeMap = {
   default: "default",
@@ -71,10 +73,7 @@ export const Scene = () => {
   return (
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
-      <div className="w-128 absolute bottom-8 right-64 z-50">
-        <Leva collapsed fill />
-      </div>
-
+      <Debug />
       <Canvas
         id="canvas"
         tabIndex={0}
@@ -102,6 +101,8 @@ export const Scene = () => {
                 <Map />
                 {isBasketball && <HoopMinigame />}
               </Physics>
+              <CharacterInstanceConfig />
+              <CharactersSpawn />
             </>
           }
         />
