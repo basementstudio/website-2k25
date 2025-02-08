@@ -9,7 +9,6 @@ import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { Perf } from "r3f-perf"
 
 import { Map } from "./map/map"
@@ -37,14 +36,16 @@ const cursorTypeMap = {
   zoom: "zoom-in"
 } as const
 
-export const Scene = memo(SceneInner)
-
-function SceneInner() {
-  const scene = useCurrentScene()
-  const isBasketball = scene === "basketball"
+export const Scene = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const cursorType = useMouseStore((state) => state.cursorType)
-  const { isCanvasTabMode, setIsCanvasTabMode } = useNavigationStore()
+  const {
+    isCanvasTabMode,
+    setIsCanvasTabMode,
+    setCurrentTabIndex,
+    currentScene
+  } = useNavigationStore()
+  const isBasketball = currentScene?.name === "basketball"
 
   useEffect(() => {
     canvasRef.current.style.cursor = cursorTypeMap[cursorType]
@@ -54,12 +55,18 @@ function SceneInner() {
     setIsCanvasTabMode(isCanvasTabMode)
   }, [isCanvasTabMode, setIsCanvasTabMode])
 
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent) => {
     setIsCanvasTabMode(true)
     window.scrollTo({
       top: 0,
       behavior: "smooth"
     })
+
+    if (e.relatedTarget?.id === "nav-contact") {
+      setCurrentTabIndex(0)
+    } else {
+      setCurrentTabIndex(currentScene?.tabs?.length ?? 0)
+    }
   }
   const handleBlur = () => setIsCanvasTabMode(false)
 

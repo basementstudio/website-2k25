@@ -105,6 +105,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
             </span>
           </button>
           <button
+            id="nav-contact"
             onClick={() => setIsContactOpen(!isContactOpen)}
             className="text-p capitalize text-brand-w1"
           >
