@@ -3,14 +3,13 @@
 import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
-import { Leva } from "leva"
 import dynamic from "next/dynamic"
-import { useEffect, useRef } from "react"
+import { memo, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
-import { useCurrentScene } from "@/hooks/use-current-scene"
+import { Perf } from "r3f-perf"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -23,6 +22,9 @@ const HoopMinigame = dynamic(
 )
 
 import { CameraController } from "./camera/camera-controller"
+import { CharacterInstanceConfig } from "./characters/character-instancer"
+import { CharactersSpawn } from "./characters/characters-spawn"
+import { Debug } from "./debug"
 
 const cursorTypeMap = {
   default: "default",
@@ -35,11 +37,15 @@ const cursorTypeMap = {
 } as const
 
 export const Scene = () => {
-  const scene = useCurrentScene()
-  const isBasketball = scene === "basketball"
   const canvasRef = useRef<HTMLCanvasElement>(null!)
   const cursorType = useMouseStore((state) => state.cursorType)
-  const { isCanvasTabMode, setIsCanvasTabMode } = useNavigationStore()
+  const {
+    isCanvasTabMode,
+    setIsCanvasTabMode,
+    setCurrentTabIndex,
+    currentScene
+  } = useNavigationStore()
+  const isBasketball = currentScene?.name === "basketball"
 
   useEffect(() => {
     canvasRef.current.style.cursor = cursorTypeMap[cursorType]
@@ -49,22 +55,25 @@ export const Scene = () => {
     setIsCanvasTabMode(isCanvasTabMode)
   }, [isCanvasTabMode, setIsCanvasTabMode])
 
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent) => {
     setIsCanvasTabMode(true)
     window.scrollTo({
       top: 0,
       behavior: "smooth"
     })
+
+    if (e.relatedTarget?.id === "nav-contact") {
+      setCurrentTabIndex(0)
+    } else {
+      setCurrentTabIndex(currentScene?.tabs?.length ?? 0)
+    }
   }
   const handleBlur = () => setIsCanvasTabMode(false)
 
   return (
     <div className="absolute inset-0">
       <MouseTracker canvasRef={canvasRef} />
-      <div className="w-128 absolute bottom-8 right-64 z-50">
-        <Leva collapsed fill hidden />
-      </div>
-
+      <Debug />
       <Canvas
         id="canvas"
         tabIndex={0}
@@ -84,16 +93,26 @@ export const Scene = () => {
           sceneChildren={
             <>
               <color attach="background" args={["#000"]} />
-              <CameraController />
               <Inspectables />
               <Environment preset="studio" />
+              <CameraController />
               <Sparkles />
               <Physics paused={!isBasketball}>
                 <Map />
                 {isBasketball && <HoopMinigame />}
               </Physics>
+              <CharacterInstanceConfig />
+              <CharactersSpawn />
             </>
           }
+        />
+        <Perf
+          style={{
+            position: "absolute",
+            top: 40,
+            right: 10,
+            zIndex: 1000
+          }}
         />
       </Canvas>
     </div>

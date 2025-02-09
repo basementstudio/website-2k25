@@ -115,10 +115,6 @@ export const Transitions = () => {
       const viewportHeight = window.innerHeight
       document.documentElement.dataset.disabled =
         scrolled <= viewportHeight ? "true" : "false"
-      document.documentElement.style.setProperty(
-        "--scroll-height",
-        `${scrolled}px`
-      )
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
