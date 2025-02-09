@@ -1,18 +1,19 @@
 import { PerspectiveCamera } from "@react-three/drei"
-import dynamic from "next/dynamic"
+import {
+  Container,
+  DefaultProperties,
+  FontFamilyProvider,
+  Root,
+  Text
+} from "@react-three/uikit"
 import { Vector3 } from "three"
-
-const DynamicLabsUI = dynamic(
-  () => import("./labs-ui").then((mod) => mod.LabsUI),
-  { ssr: false }
-)
 
 interface ScreenUIProps {
   screenScale?: Vector3 | null
 }
 
 export const COLORS_THEME = {
-  primary: "#ffffff",
+  primary: "#FF4D00",
   black: "#000000"
 }
 
@@ -21,15 +22,72 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
 
   return (
     <>
-      <color attach="background" args={[COLORS_THEME.black]} />
-      <ambientLight intensity={1} />
+      <color attach="background" args={["#000000"]} />
       <PerspectiveCamera
         manual
         makeDefault
-        position={[0, 0.0, 16]}
+        position={[0, 0, 4]}
+        rotation={[0, 0, Math.PI]}
         aspect={aspect}
       />
-      <DynamicLabsUI />
+      <Root
+        width={578}
+        height={370}
+        transformScaleX={-1}
+        backgroundColor={COLORS_THEME.black}
+        positionType="relative"
+        display="flex"
+        flexDirection="column"
+        padding={12}
+      >
+        <FontFamilyProvider
+          ffflauta={{
+            normal: "/fonts/ffflauta.json"
+          }}
+        >
+          <DefaultProperties
+            fontFamily={"ffflauta"}
+            fontSize={13}
+            fontWeight={"normal"}
+            color={COLORS_THEME.primary}
+          >
+            <Container
+              width={"100%"}
+              height={"100%"}
+              borderWidth={1}
+              borderColor={COLORS_THEME.primary}
+              borderRadius={10}
+            >
+              <Text
+                fontSize={12}
+                color={COLORS_THEME.primary}
+                fontWeight="normal"
+                positionType="absolute"
+                positionTop={-3}
+                positionLeft={12}
+                paddingX={4}
+                backgroundColor={COLORS_THEME.black}
+                zIndexOffset={10}
+              >
+                CLOSE
+              </Text>
+              <Text
+                fontSize={10}
+                color={COLORS_THEME.primary}
+                fontWeight="normal"
+                positionType="absolute"
+                positionBottom={-10}
+                positionRight={12}
+                paddingX={4}
+                backgroundColor={COLORS_THEME.black}
+                zIndexOffset={10}
+              >
+                LABS V1.0
+              </Text>
+            </Container>
+          </DefaultProperties>
+        </FontFamilyProvider>
+      </Root>
     </>
   )
 }

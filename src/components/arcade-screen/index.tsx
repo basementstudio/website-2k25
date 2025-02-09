@@ -76,9 +76,7 @@ export const ArcadeScreen = () => {
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
     >
-      <Suspense fallback={null}>
-        <ScreenUI screenScale={screenScale} />
-      </Suspense>
+      <ScreenUI screenScale={screenScale} />
     </RenderTexture>
   )
 }
