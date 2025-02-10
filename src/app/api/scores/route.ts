@@ -54,28 +54,12 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { playerName, score, clientId, timestamp } = await request.json()
-    console.log("API received score submission:", {
-      playerName,
-      score,
-      clientId,
-      timestamp
-    })
 
     // validate timestamp
     const now = Date.now()
     const timeDiff = Math.abs(now - timestamp)
-    console.log("Timestamp validation:", {
-      serverTime: now,
-      clientTime: timestamp,
-      difference: timeDiff
-    })
 
     if (!timestamp || typeof timestamp !== "number" || timeDiff > 30000) {
-      console.log("Timestamp validation failed:", {
-        serverTime: now,
-        clientTime: timestamp,
-        difference: timeDiff
-      })
       return NextResponse.json({ error: "Invalid timestamp" }, { status: 400 })
     }
 
@@ -97,7 +81,6 @@ export async function POST(request: Request) {
       score >= 400 ||
       !Number.isInteger(score)
     ) {
-      console.log("Score validation failed:", { score, type: typeof score })
       return NextResponse.json({ error: "Invalid score" }, { status: 400 })
     }
 

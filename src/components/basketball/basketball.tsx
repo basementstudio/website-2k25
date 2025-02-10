@@ -1,9 +1,10 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three"
+import { Mesh, MeshStandardMaterial } from "three"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
@@ -47,9 +48,7 @@ export const Basketball = ({
     const originalMaterial = basketballModel.materials[
       "Material.001"
     ] as MeshStandardMaterial
-    return new MeshBasicMaterial({
-      map: originalMaterial.map
-    })
+    return createGlobalShaderMaterial(originalMaterial, false)
   }, [basketballModel])
 
   const handleCollision = (other: any) => {
