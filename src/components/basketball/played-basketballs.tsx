@@ -1,8 +1,9 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
-import { useMemo } from "react"
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three"
+import { useEffect, useMemo } from "react"
+import { Mesh, MeshStandardMaterial } from "three"
 
+import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { useAssets } from "../assets-provider"
@@ -11,20 +12,29 @@ export const PlayedBasketballs = () => {
   const { basketball } = useAssets()
   const basketballModel = useGLTF(basketball)
   const playedBalls = useMinigameStore((state) => state.playedBalls)
+  const playedBallMaterial = useMinigameStore(
+    (state) => state.playedBallMaterial
+  )
+  const setPlayedBallMaterial = useMinigameStore(
+    (state) => state.setPlayedBallMaterial
+  )
 
   const geometry = useMemo(
     () => (basketballModel.scene.children[0] as Mesh).geometry,
     [basketballModel]
   )
 
-  const material = useMemo(() => {
-    const originalMaterial = basketballModel.materials[
-      "Material.001"
-    ] as MeshStandardMaterial
-    return new MeshBasicMaterial({
-      map: originalMaterial.map
-    })
-  }, [basketballModel])
+  useEffect(() => {
+    if (!playedBallMaterial) {
+      const originalMaterial = basketballModel.materials[
+        "Material.001"
+      ] as MeshStandardMaterial
+      const material = createGlobalShaderMaterial(originalMaterial, true)
+      setPlayedBallMaterial(material)
+    }
+  }, [basketballModel, playedBallMaterial, setPlayedBallMaterial])
+
+  if (!playedBallMaterial) return null
 
   return (
     <>
@@ -42,7 +52,7 @@ export const PlayedBasketballs = () => {
         >
           <mesh
             geometry={geometry}
-            material={material}
+            material={playedBallMaterial}
             scale={1.7}
             material-metalness={0}
             material-roughness={0.8}

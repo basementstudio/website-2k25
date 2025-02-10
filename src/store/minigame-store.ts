@@ -1,3 +1,4 @@
+import { Material } from "three"
 import { create } from "zustand"
 
 const INITIAL_POSITION = { x: 5.2, y: 1.3, z: -10.7 }
@@ -30,6 +31,7 @@ interface MinigameStore {
   shotMetrics: { angle: string; probability: string }
   playedBalls: PlayedBall[]
   readyToPlay: boolean
+  playedBallMaterial: Material | null
 
   playerName: string | null
   playerRecord: number
@@ -46,6 +48,7 @@ interface MinigameStore {
   setHasPlayed: (hasPlayed: boolean) => void
   addPlayedBall: (ball: PlayedBall) => void
   setReadyToPlay: (ready: boolean) => void
+  setPlayedBallMaterial: (material: Material) => void
 }
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
@@ -69,6 +72,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   playerName: null,
   playerRecord: 0,
   hasPlayed: false,
+  playedBallMaterial: null,
   setScore: (score) =>
     set({ score: typeof score === "function" ? score(get().score) : score }),
   setTimeRemaining: (timeRemaining) =>
@@ -88,5 +92,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   setPlayerRecord: (playerRecord: number) => set({ playerRecord }),
   addPlayedBall: (ball: PlayedBall) =>
     set((state) => ({ playedBalls: [...state.playedBalls, ball] })),
-  setReadyToPlay: (ready: boolean) => set({ readyToPlay: ready })
+  setReadyToPlay: (ready: boolean) => set({ readyToPlay: ready }),
+  setPlayedBallMaterial: (material: Material) =>
+    set({ playedBallMaterial: material })
 }))

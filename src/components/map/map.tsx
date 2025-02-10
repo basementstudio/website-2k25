@@ -3,7 +3,7 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
-import { useControls, folder as levaFolder } from "leva"
+import { folder as levaFolder, useControls } from "leva"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Mesh,
@@ -28,7 +28,6 @@ import {
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
-import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"

@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshStandardMaterial } from "three"
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
@@ -48,6 +48,7 @@ export const Basketball = ({
     const originalMaterial = basketballModel.materials[
       "Material.001"
     ] as MeshStandardMaterial
+
     return createGlobalShaderMaterial(originalMaterial, false)
   }, [basketballModel])
 
@@ -105,8 +106,8 @@ export const Basketball = ({
     >
       <mesh
         geometry={geometry}
-        material={material}
         scale={1.7}
+        material={material}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
