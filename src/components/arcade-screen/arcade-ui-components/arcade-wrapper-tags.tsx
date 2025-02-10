@@ -1,8 +1,13 @@
 import { Text } from "@react-three/uikit"
+import { useRouter } from "next/navigation"
+
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 
 import { COLORS_THEME } from "../screen-ui"
 
 export const ArcadeWrapperTags = () => {
+  const setCursorType = useMouseStore((state) => state.setCursorType)
+  const router = useRouter()
   return (
     <>
       <Text
@@ -16,8 +21,19 @@ export const ArcadeWrapperTags = () => {
         paddingX={4}
         backgroundColor={COLORS_THEME.black}
         zIndexOffset={10}
+        onClick={() => {
+          router.prefetch("/")
+          router.push("/")
+        }}
+        onHoverChange={(hover) => {
+          if (hover) {
+            setCursorType("click")
+          } else {
+            setCursorType("default")
+          }
+        }}
       >
-        CLOSE
+        CLOSE [ESC]
       </Text>
       <Text
         fontSize={10}

@@ -8,7 +8,6 @@ interface ArcadePreviewProps {
 }
 
 export const ArcadePreview = ({ selectedExperiment }: ArcadePreviewProps) => {
-  console.log(selectedExperiment)
   return (
     <Container width={"40%"} height={"100%"} gap={10} flexDirection={"column"}>
       <Container
@@ -18,7 +17,7 @@ export const ArcadePreview = ({ selectedExperiment }: ArcadePreviewProps) => {
         borderColor={COLORS_THEME.primary}
         positionType="relative"
       >
-        {selectedExperiment && (
+        {selectedExperiment?.cover?.url && (
           <Image
             positionType="absolute"
             src={selectedExperiment.cover.url}
@@ -29,7 +28,7 @@ export const ArcadePreview = ({ selectedExperiment }: ArcadePreviewProps) => {
         )}
       </Container>
       <Text fontSize={10} color={COLORS_THEME.primary}>
-        {selectedExperiment && selectedExperiment.description.toUpperCase()}
+        {selectedExperiment?.description?.toUpperCase() || ""}
       </Text>
     </Container>
   )

@@ -4,12 +4,12 @@ import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import dynamic from "next/dynamic"
+import { Perf } from "r3f-perf"
 import { memo, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
-import { Perf } from "r3f-perf"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"

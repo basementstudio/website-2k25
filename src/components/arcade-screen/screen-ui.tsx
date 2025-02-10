@@ -13,6 +13,7 @@ import { Vector3 } from "three"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
 
+import { ArcadeFeatured } from "./arcade-ui-components/arcade-featured"
 import { ArcadeLabsList } from "./arcade-ui-components/arcade-labs-list"
 import { ArcadePreview } from "./arcade-ui-components/arcade-preview"
 import { ArcadeTitleTagsHeader } from "./arcade-ui-components/arcade-title-tags-header"
@@ -103,89 +104,7 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
                 />
                 <ArcadePreview selectedExperiment={selectedExperiment} />
               </Container>
-              <Container paddingX={10} width={"100%"} height={100}>
-                <Container
-                  width={"100%"}
-                  height={"100%"}
-                  borderWidth={1}
-                  borderColor={COLORS_THEME.primary}
-                  flexDirection="row"
-                >
-                  <Container
-                    width={"50%"}
-                    height={"100%"}
-                    positionType="relative"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Container
-                      backgroundColor={COLORS_THEME.black}
-                      positionType="absolute"
-                      width={"auto"}
-                      zIndexOffset={10}
-                      height={16}
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Text
-                        fontSize={8}
-                        paddingX={4}
-                        color={COLORS_THEME.primary}
-                        zIndexOffset={10}
-                        positionTop={4}
-                      >
-                        PLAY BASEMENT CHRONICLES
-                      </Text>
-                    </Container>
-                    <Image
-                      src="/images/arcade-screen/chronicles.jpg"
-                      width={"100%"}
-                      height={"100%"}
-                      objectFit="cover"
-                      positionType="absolute"
-                    />
-                  </Container>
-                  <Separator
-                    width={1}
-                    backgroundColor={COLORS_THEME.primary}
-                    orientation="vertical"
-                  />
-                  <Container
-                    width={"50%"}
-                    height={"100%"}
-                    positionType="relative"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Container
-                      backgroundColor={COLORS_THEME.black}
-                      positionType="absolute"
-                      width={"auto"}
-                      zIndexOffset={10}
-                      height={16}
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Text
-                        fontSize={8}
-                        paddingX={4}
-                        color={COLORS_THEME.primary}
-                        zIndexOffset={10}
-                        positionTop={4}
-                      >
-                        LOOPER (COOMING SOON)
-                      </Text>
-                    </Container>
-                    <Image
-                      src="/images/arcade-screen/chronicles.jpg"
-                      width={"100%"}
-                      height={"100%"}
-                      objectFit="cover"
-                      positionType="absolute"
-                    />
-                  </Container>
-                </Container>
-              </Container>
+              <ArcadeFeatured />
             </Container>
           </DefaultProperties>
         </FontFamilyProvider>

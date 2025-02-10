@@ -1,5 +1,7 @@
 import { Container, Text } from "@react-three/uikit"
 
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+
 import { COLORS_THEME } from "../screen-ui"
 
 interface ArcadeLabsListProps {
@@ -13,6 +15,8 @@ export const ArcadeLabsList = ({
   selectedExperiment,
   setSelectedExperiment
 }: ArcadeLabsListProps) => {
+  const setCursorType = useMouseStore((state) => state.setCursorType)
+
   return (
     <Container
       width={"60%"}
@@ -81,6 +85,13 @@ export const ArcadeLabsList = ({
                     "_blank"
                   )
                 }}
+                onHoverChange={(hover) => {
+                  if (hover) {
+                    setCursorType("click")
+                  } else {
+                    setCursorType("default")
+                  }
+                }}
               >
                 CODE
               </Text>
@@ -98,6 +109,13 @@ export const ArcadeLabsList = ({
                     `https://lab.basement.studio/experiments/${data.url}`,
                     "_blank"
                   )
+                }}
+                onHoverChange={(hover) => {
+                  if (hover) {
+                    setCursorType("click")
+                  } else {
+                    setCursorType("default")
+                  }
                 }}
               >
                 LIVE
