@@ -1,3 +1,4 @@
+import { Material } from "three"
 import { create } from "zustand"
 
 const INITIAL_POSITION = { x: 5.2, y: 1.3, z: -10.7 }
@@ -10,6 +11,11 @@ const GAME_DURATION = 24
 interface PlayedBall {
   position: { x: number; y: number; z: number }
   velocity: { x: number; y: number; z: number }
+}
+
+interface StaticBall {
+  position: { x: number; y: number; z: number }
+  rotation: { x: number; y: number; z: number }
 }
 
 interface MinigameStore {
@@ -31,6 +37,8 @@ interface MinigameStore {
   shotMetrics: { angle: string; probability: string }
   playedBalls: PlayedBall[]
   readyToPlay: boolean
+  playedBallMaterial: Material | null
+  staticBalls: StaticBall[]
 
   playerName: string | null
   playerRecord: number
@@ -51,11 +59,15 @@ interface MinigameStore {
   resetConsecutiveScores: () => void
   getMultiplier: () => number
   setJustScored: (scored: boolean) => void
+  setPlayedBallMaterial: (material: Material) => void
+  addStaticBall: (ball: StaticBall) => void
+  clearStaticBalls: () => void
+  clearPlayedBalls: () => void
 }
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   score: 0,
-  timeRemaining: 85,
+  timeRemaining: 24,
   isGameActive: false,
   isDragging: false,
   isResetting: false,
@@ -75,6 +87,9 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   playerName: null,
   playerRecord: 0,
   hasPlayed: false,
+  playedBallMaterial: null,
+  staticBalls: [],
+
   setScore: (score) =>
     set({ score: typeof score === "function" ? score(get().score) : score }),
   setTimeRemaining: (timeRemaining) =>
@@ -84,7 +99,21 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
           ? timeRemaining(get().timeRemaining)
           : timeRemaining
     }),
-  setIsGameActive: (isGameActive: boolean) => set({ isGameActive }),
+  setIsGameActive: (isGameActive: boolean) => {
+    set({
+      isGameActive,
+      ...(isGameActive
+        ? {
+            playedBalls: [],
+            playedBallMaterial: null,
+            hasHitRim: false,
+            scoreMultiplier: 1,
+            lastScoreTime: 0,
+            justScored: false
+          }
+        : {})
+    })
+  },
   setIsDragging: (isDragging: boolean) => set({ isDragging }),
   setIsResetting: (isResetting: boolean) => set({ isResetting }),
   setShotMetrics: (shotMetrics: { angle: string; probability: string }) =>
@@ -118,5 +147,11 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
       default:
         return 5
     }
-  }
+  },
+  setPlayedBallMaterial: (material: Material) =>
+    set({ playedBallMaterial: material }),
+  addStaticBall: (ball: StaticBall) =>
+    set((state) => ({ staticBalls: [...state.staticBalls, ball] })),
+  clearStaticBalls: () => set({ staticBalls: [] }),
+  clearPlayedBalls: () => set({ playedBalls: [] })
 }))

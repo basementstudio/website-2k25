@@ -3,7 +3,7 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
-import { useControls, folder as levaFolder } from "leva"
+import { folder as levaFolder, useControls } from "leva"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Mesh,
@@ -19,6 +19,8 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMesh } from "@/hooks/use-mesh"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -26,14 +28,12 @@ import {
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
-import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 import { useCarAnimation } from "./use-car-animation"
 import { useGodrays } from "./use-godrays"
-import { useMesh } from "@/hooks/use-mesh"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -63,6 +63,7 @@ export const Map = memo(() => {
     routingElements: routingElementsPath,
     videos
   } = useAssets()
+  const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
@@ -86,7 +87,6 @@ export const Map = memo(() => {
     (store) => store.materialsRef
   )
 
-  //
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
 
@@ -178,13 +178,11 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    //
     const originalNet = officeModel.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel.getObjectByName("SM_BasketRed-v2")
 
     const carMesh = outdoorModel.getObjectByName("car01")
 
-    //
     if (originalNet) originalNet.removeFromParent()
     if (newNetMesh) {
       newNetMesh.removeFromParent()
@@ -326,7 +324,10 @@ export const Map = memo(() => {
     const hoopMesh = officeModel.getObjectByName(
       "SM_BasketballHoop"
     ) as Mesh | null
-    if (hoopMesh) useMesh.setState({ hoopMesh })
+    if (hoopMesh) {
+      hoopMesh.removeFromParent()
+      useMesh.setState({ hoopMesh })
+    }
   }, [
     officeModel,
     outdoorModel,
@@ -370,9 +371,11 @@ export const Map = memo(() => {
           />
         )
       })}
+      {scene !== "basketball" && useMesh.getState().hoopMesh && (
+        <primitive object={useMesh.getState().hoopMesh as Mesh} />
+      )}
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && <primitive position-x={-8.7} object={car} />}
-      <PlayedBasketballs />
       <MapAssetsLoader />
       <ReflexesLoader />
     </group>
