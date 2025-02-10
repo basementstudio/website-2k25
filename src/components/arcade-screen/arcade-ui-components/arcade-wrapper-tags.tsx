@@ -1,5 +1,4 @@
 import { Text } from "@react-three/uikit"
-import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
@@ -18,13 +17,11 @@ export const ArcadeWrapperTags = () => {
   const handleClose = useCallback(() => {
     handleNavigation("/")
 
-    console.log(scenes)
-
     const tabIndex = scenes?.[0]?.tabs.findIndex(
       (tab) => tab.tabName.toLowerCase() === "lab"
     )
 
-    setCurrentTabIndex(tabIndex ?? 0)
+    setCurrentTabIndex(tabIndex ?? -1)
   }, [handleNavigation, setCurrentTabIndex, scenes])
 
   return (

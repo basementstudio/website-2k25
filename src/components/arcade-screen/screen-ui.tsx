@@ -3,11 +3,8 @@ import {
   Container,
   DefaultProperties,
   FontFamilyProvider,
-  Image,
-  Root,
-  Text
+  Root
 } from "@react-three/uikit"
-import { Separator } from "@react-three/uikit-default"
 import { useEffect, useState } from "react"
 import { Vector3 } from "three"
 
