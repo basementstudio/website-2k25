@@ -9,7 +9,6 @@ import { useInspectable } from "@/components/inspectables/context"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useScrollStore } from "@/providers/lenis-provider"
 
 import {
   calculateMovementVectors,
@@ -95,16 +94,14 @@ export const CustomCamera = () => {
     const targetY = cameraConfig.targetScrollY ?? -cameraConfig.position[1]
 
     const handleScroll = () => {
-      const scrollY = useScrollStore.getState().scrollY
-      const scrollProgress = Math.min(1, scrollY / window.innerHeight)
+      const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)
 
       offsetY.current = (targetY - initialY) * scrollProgress
     }
 
-    // Subscribe to scroll store changes
-    const unsubscribe = useScrollStore.subscribe(handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
 
-    return () => unsubscribe()
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [cameraConfig])
 
   const calculateDivisor = useCallback(() => {

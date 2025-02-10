@@ -56,7 +56,6 @@ export interface AssetsResult {
     basketballThump: string
     basketballBuzzer: string
   }
-
   scenes: {
     name: string
     cameraConfig: {
@@ -74,6 +73,11 @@ export interface AssetsResult {
       plusShapeScale: number
     }[]
   }[]
+  characters: {
+    model: string
+    textureBody: string
+    textureFaces: string
+  }
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -161,6 +165,11 @@ export async function fetchAssets(): Promise<AssetsResult> {
         tabClickableName: tab.tabClickableName ?? "",
         plusShapeScale: tab.plusShapeScale ?? 1
       }))
-    }))
+    })),
+    characters: {
+      model: threeDInteractions.characters.model.file?.url ?? "",
+      textureBody: threeDInteractions.characters.textureBody?.url,
+      textureFaces: threeDInteractions.characters.textureFaces?.url
+    }
   }
 }

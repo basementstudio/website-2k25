@@ -3,8 +3,8 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
-import { useControls } from "leva"
-import { memo, useEffect, useRef, useState } from "react"
+import { useControls, folder as levaFolder } from "leva"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Mesh,
   MeshStandardMaterial,
@@ -93,19 +93,33 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-  const { fogColor, fogDensity, fogDepth } = useControls("fog", {
-    fogColor: {
-      x: 0.4,
-      y: 0.4,
-      z: 0.4
-    },
-    fogDensity: 0.05,
-    fogDepth: 9.0
+  const { fogColor, fogDensity, fogDepth } = useControls({
+    fog: levaFolder(
+      {
+        fogColor: {
+          x: 0.4,
+          y: 0.4,
+          z: 0.4
+        },
+        fogDensity: 0.05,
+        fogDepth: 9.0
+      },
+      {
+        collapsed: true
+      }
+    )
   })
 
   const colorPickerRef = useRef<Mesh>(null)
-  const { showColorPicker } = useControls("color picker", {
-    showColorPicker: false
+  const { showColorPicker } = useControls({
+    "color picker": levaFolder(
+      {
+        showColorPicker: false
+      },
+      {
+        collapsed: true
+      }
+    )
   })
 
   const { godraysOpacity } = useControls("godrays", {
@@ -222,6 +236,16 @@ export const Map = memo(() => {
           currentMaterial.name === "BSM_MTL_LightLibrary" ||
           currentMaterial.name === "BSM-MTL-Backup"
 
+        const isPlant = meshChild.name === "SM_plant01001"
+
+        if (isPlant) {
+          currentMaterial.userData.lightDirection = new Vector3(
+            0,
+            3,
+            1
+          ).normalize()
+        }
+
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
               createGlobalShaderMaterial(
@@ -229,7 +253,8 @@ export const Map = memo(() => {
                 false,
                 {
                   GLASS: isGlass,
-                  GODRAY: false
+                  GODRAY: false,
+                  LIGHT: isPlant
                 }
               )
             )
@@ -238,7 +263,8 @@ export const Map = memo(() => {
               false,
               {
                 GLASS: isGlass,
-                GODRAY: false
+                GODRAY: false,
+                LIGHT: isPlant
               }
             )
 
