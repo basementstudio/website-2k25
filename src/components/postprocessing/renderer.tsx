@@ -1,5 +1,5 @@
 import { createPortal, useFrame } from "@react-three/fiber"
-import { useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 import {
   HalfFloatType,
   LinearSRGBColorSpace,
@@ -19,7 +19,9 @@ interface RendererProps {
   sceneChildren: React.ReactNode
 }
 
-export function Renderer({ sceneChildren }: RendererProps) {
+export const Renderer = memo(RendererInner)
+
+function RendererInner({ sceneChildren }: RendererProps) {
   const mainTarget = useMemo(() => {
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
       type: HalfFloatType,
