@@ -81,7 +81,7 @@ export default function Featured({
               </h2>
               <div className="relative col-span-4 col-start-9 grid grid-cols-4 content-start gap-y-2 py-3">
                 <div className="col-start-1 col-end-4 block text-brand-w2">
-                  <RichText content={post.intro?.json.content} />
+                  <RichText>{post.intro?.json.content}</RichText>
                 </div>
                 <hr className="col-start-1 col-end-5 mt-4 w-full border-brand-w1/20" />
                 <div className="col-span-2 col-start-1 flex flex-wrap gap-1 text-p">

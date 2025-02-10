@@ -152,7 +152,7 @@ export const CodeSanbox = ({
   sourceCodeUrl,
   title
 }: {
-  sandboxUrl: string
+  sandboxUrl: string | null
   sourceCodeUrl?: string | null
   title: string
 }) => {
