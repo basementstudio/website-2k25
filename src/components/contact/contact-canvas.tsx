@@ -31,8 +31,6 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
     }
   }, [contactPhone])
 
-  console.log("[ContactCanvas] model url", contactPhone)
-
   if (!worker) {
     return <Fallback />
   }
