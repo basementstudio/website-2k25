@@ -13,6 +13,7 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
   const { GAME_THEME_SONGS } = useAudioUrls()
   const isBasketballPage = scene === "basketball"
   const fadeOutTimeout = useRef<NodeJS.Timeout | null>(null)
+  const isInitialized = useRef(false)
 
   const cleanup = useCallback(() => {
     if (fadeOutTimeout.current) {
@@ -23,6 +24,7 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
       themeSong.stop()
       useSiteAudioStore.setState({ themeSong: null })
     }
+    isInitialized.current = false
   }, [themeSong])
 
   useEffect(() => {
@@ -30,7 +32,8 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
 
     const loadAudioSource = async () => {
       try {
-        if (!themeSong && isBasketballPage) {
+        if (!themeSong && isBasketballPage && !isInitialized.current) {
+          isInitialized.current = true
           const newThemeSong = await player.loadAudioFromURL(
             GAME_THEME_SONGS.BASKETBALL_AMBIENT
           )
@@ -44,6 +47,7 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
         }
       } catch (error) {
         console.error("Error loading basketball theme song:", error)
+        isInitialized.current = false
       }
     }
 
@@ -87,7 +91,16 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
     }
 
     return () => {
-      if (!isBasketballPage) cleanup()
+      if (fadeOutTimeout.current) {
+        clearTimeout(fadeOutTimeout.current)
+        fadeOutTimeout.current = null
+      }
     }
   }, [isBasketballPage, themeSong, player, isEnabled, cleanup])
+
+  useEffect(() => {
+    return () => {
+      cleanup()
+    }
+  }, [cleanup])
 }
