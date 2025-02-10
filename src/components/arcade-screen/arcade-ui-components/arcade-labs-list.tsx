@@ -75,6 +75,12 @@ export const ArcadeLabsList = ({
                     : COLORS_THEME.primary
                 }
                 fontWeight="normal"
+                onClick={() => {
+                  window.open(
+                    `https://github.com/basementstudio/basement-laboratory/tree/main/src/experiments/${data.url}`,
+                    "_blank"
+                  )
+                }}
               >
                 CODE
               </Text>
@@ -87,6 +93,12 @@ export const ArcadeLabsList = ({
                     : COLORS_THEME.primary
                 }
                 fontWeight="normal"
+                onClick={() => {
+                  window.open(
+                    `https://lab.basement.studio/experiments/${data.url}`,
+                    "_blank"
+                  )
+                }}
               >
                 LIVE
               </Text>
