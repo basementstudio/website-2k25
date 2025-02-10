@@ -2,7 +2,17 @@ import { Container, Text } from "@react-three/uikit"
 
 import { COLORS_THEME } from "../screen-ui"
 
-export const ArcadeLabsList = () => {
+interface ArcadeLabsListProps {
+  experiments: any[]
+  selectedExperiment: any
+  setSelectedExperiment: (experiment: any) => void
+}
+
+export const ArcadeLabsList = ({
+  experiments,
+  selectedExperiment,
+  setSelectedExperiment
+}: ArcadeLabsListProps) => {
   return (
     <Container
       width={"60%"}
@@ -18,33 +28,71 @@ export const ArcadeLabsList = () => {
       scrollbarBorderWidth={2}
       scrollbarColor={COLORS_THEME.primary}
     >
-      {Array.from({ length: 24 }).map((_, index) => (
-        <Container
-          key={index}
-          flexDirection="row"
-          justifyContent="space-between"
-          width={"100%"}
-          paddingLeft={8}
-          paddingRight={8}
-          height={24}
-          borderBottomWidth={1}
-          borderRightWidth={1}
-          borderColor={COLORS_THEME.primary}
-          paddingTop={8}
-        >
-          <Text fontSize={10} color={COLORS_THEME.primary} fontWeight="normal">
-            {"Multi scene composer pipeline.".toUpperCase()}
-          </Text>
-          <Container width={"auto"} gap={8}>
-            <Text fontSize={9} color={COLORS_THEME.primary} fontWeight="normal">
-              CODE
+      {experiments &&
+        experiments.map((data, idx) => (
+          <Container
+            key={idx}
+            flexDirection="row"
+            justifyContent="space-between"
+            width={"100%"}
+            paddingLeft={8}
+            paddingRight={8}
+            height={24}
+            borderBottomWidth={1}
+            borderRightWidth={1}
+            backgroundColor={
+              selectedExperiment && selectedExperiment._title === data._title
+                ? COLORS_THEME.primary
+                : COLORS_THEME.black
+            }
+            borderColor={COLORS_THEME.primary}
+            paddingTop={8}
+            onHoverChange={(hover) => {
+              if (hover) {
+                setSelectedExperiment(data)
+              }
+            }}
+          >
+            <Text
+              fontSize={10}
+              color={
+                selectedExperiment && selectedExperiment._title === data._title
+                  ? COLORS_THEME.black
+                  : COLORS_THEME.primary
+              }
+              fontWeight="normal"
+              zIndexOffset={10}
+            >
+              {data._title.toUpperCase()}
             </Text>
-            <Text fontSize={9} color={COLORS_THEME.primary} fontWeight="normal">
-              LIVE
-            </Text>
+            <Container width={"auto"} gap={8}>
+              <Text
+                fontSize={9}
+                color={
+                  selectedExperiment &&
+                  selectedExperiment._title === data._title
+                    ? COLORS_THEME.black
+                    : COLORS_THEME.primary
+                }
+                fontWeight="normal"
+              >
+                CODE
+              </Text>
+              <Text
+                fontSize={9}
+                color={
+                  selectedExperiment &&
+                  selectedExperiment._title === data._title
+                    ? COLORS_THEME.black
+                    : COLORS_THEME.primary
+                }
+                fontWeight="normal"
+              >
+                LIVE
+              </Text>
+            </Container>
           </Container>
-        </Container>
-      ))}
+        ))}
     </Container>
   )
 }

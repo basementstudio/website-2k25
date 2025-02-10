@@ -8,7 +8,10 @@ import {
   Text
 } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
+import { useEffect, useState } from "react"
 import { Vector3 } from "three"
+
+import { fetchLaboratory } from "@/actions/laboratory-fetch"
 
 import { ArcadeLabsList } from "./arcade-ui-components/arcade-labs-list"
 import { ArcadePreview } from "./arcade-ui-components/arcade-preview"
@@ -26,6 +29,22 @@ export const COLORS_THEME = {
 
 export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
+
+  const [experiments, setExperiments] = useState<any[]>([])
+  const [selectedExperiment, setSelectedExperiment] = useState<any>(null)
+
+  useEffect(() => {
+    fetchLaboratory().then((data) => {
+      setExperiments(
+        data.projectList.items.map((item) => ({
+          _title: item._title,
+          url: item.url,
+          cover: item.cover,
+          description: item.description as string | null
+        }))
+      )
+    })
+  }, [])
 
   return (
     <>
@@ -77,8 +96,12 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
                 flexDirection="row"
                 gap={10}
               >
-                <ArcadeLabsList />
-                <ArcadePreview />
+                <ArcadeLabsList
+                  experiments={experiments}
+                  selectedExperiment={selectedExperiment}
+                  setSelectedExperiment={setSelectedExperiment}
+                />
+                <ArcadePreview selectedExperiment={selectedExperiment} />
               </Container>
               <Container paddingX={10} width={"100%"} height={100}>
                 <Container
