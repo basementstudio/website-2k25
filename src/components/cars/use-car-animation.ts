@@ -24,16 +24,6 @@ interface CMSTextures {
   mistery: string
 }
 
-const TEXTURE_TO_MORPH: Record<keyof CMSTextures, CarVariant | null> = {
-  dodgeO: null,
-  delorean: "DeLorean",
-  knightRider: "Kitt",
-  nissan: "Nissan",
-  simpsons: "Simpsons",
-  dodgeB: null,
-  mistery: "Mistery"
-}
-
 interface CarState {
   isWaiting: boolean
   waitTimeout: NodeJS.Timeout | null
@@ -122,7 +112,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "dodgeO",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.25,
+    probability: 0.375,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.2,
@@ -132,7 +122,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "delorean",
     morphTarget: "DeLorean",
     uvSource: "uv2",
-    probability: 0.1,
+    probability: 0.05,
     canFly: true,
     wheelSize: 1.1,
     frontWheelOffset: 0.15,
@@ -142,7 +132,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "knightRider",
     morphTarget: "Kitt",
     uvSource: "texcoord_5",
-    probability: 0.1,
+    probability: 0.05,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: -0.12,
@@ -152,7 +142,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "nissan",
     morphTarget: "Nissan",
     uvSource: "originalUV",
-    probability: 0.1,
+    probability: 0.05,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0,
@@ -162,7 +152,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "simpsons",
     morphTarget: "Simpsons",
     uvSource: "texcoord_4",
-    probability: 0.1,
+    probability: 0.05,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.27,
@@ -172,7 +162,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "dodgeB",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.25,
+    probability: 0.375,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.25,
@@ -182,7 +172,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "mistery",
     morphTarget: "Mistery",
     uvSource: "uv3",
-    probability: 0.1,
+    probability: 0.05,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0,
