@@ -126,3 +126,30 @@ export const sceneFragment = fragmentOn("Scenes", {
     }
   }
 })
+
+export const carFragment = fragmentOn("Car", {
+  carModel: {
+    url: true
+  },
+  dodgeOTexture: {
+    url: true
+  },
+  dodgeBTexture: {
+    url: true
+  },
+  deloreanTexture: {
+    url: true
+  },
+  nissanTexture: {
+    url: true
+  },
+  simpsonsTexture: {
+    url: true
+  },
+  knightRiderTexture: {
+    url: true
+  },
+  misteryTexture: {
+    url: true
+  }
+})

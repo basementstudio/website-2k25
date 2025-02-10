@@ -14,14 +14,24 @@ export type CarVariant =
   | "Kitt"
   | "DeLoreanFly"
 
-const TEXTURE_TO_MORPH: Record<string, CarVariant | null> = {
-  "/textures/cars/dodge-o.png": null,
-  "/textures/cars/delorean.png": "DeLorean",
-  "/textures/cars/kitt.png": "Kitt",
-  "/textures/cars/fnf.png": "Nissan",
-  "/textures/cars/homer.png": "Simpsons",
-  "/textures/cars/dodge-b.png": null,
-  "/textures/cars/mistery.png": "Mistery"
+interface CMSTextures {
+  dodgeO: string
+  dodgeB: string
+  delorean: string
+  nissan: string
+  simpsons: string
+  knightRider: string
+  mistery: string
+}
+
+const TEXTURE_TO_MORPH: Record<keyof CMSTextures, CarVariant | null> = {
+  dodgeO: null,
+  delorean: "DeLorean",
+  knightRider: "Kitt",
+  nissan: "Nissan",
+  simpsons: "Simpsons",
+  dodgeB: null,
+  mistery: "Mistery"
 }
 
 interface CarState {
@@ -107,9 +117,9 @@ interface CarConfig {
   backWheelOffset?: number
 }
 
-const CAR_CONFIGS: Record<string, CarConfig> = {
-  "dodge-orange": {
-    texture: "/textures/cars/dodge-o.png",
+const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
+  dodgeO: {
+    texture: "dodgeO",
     morphTarget: null,
     uvSource: "uv2",
     probability: 0.25,
@@ -119,7 +129,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     backWheelOffset: 0
   },
   delorean: {
-    texture: "/textures/cars/delorean.png",
+    texture: "delorean",
     morphTarget: "DeLorean",
     uvSource: "uv2",
     probability: 0.1,
@@ -128,8 +138,8 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     frontWheelOffset: 0.15,
     backWheelOffset: -0.05
   },
-  kitt: {
-    texture: "/textures/cars/kitt.png",
+  knightRider: {
+    texture: "knightRider",
     morphTarget: "Kitt",
     uvSource: "texcoord_5",
     probability: 0.1,
@@ -139,7 +149,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     backWheelOffset: 0
   },
   nissan: {
-    texture: "/textures/cars/fnf.png",
+    texture: "nissan",
     morphTarget: "Nissan",
     uvSource: "originalUV",
     probability: 0.1,
@@ -148,8 +158,8 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     frontWheelOffset: 0,
     backWheelOffset: -0.02
   },
-  homer: {
-    texture: "/textures/cars/homer.png",
+  simpsons: {
+    texture: "simpsons",
     morphTarget: "Simpsons",
     uvSource: "texcoord_4",
     probability: 0.1,
@@ -158,8 +168,8 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     frontWheelOffset: 0.27,
     backWheelOffset: 0
   },
-  "dodge-black": {
-    texture: "/textures/cars/dodge-b.png",
+  dodgeB: {
+    texture: "dodgeB",
     morphTarget: null,
     uvSource: "uv2",
     probability: 0.25,
@@ -169,7 +179,7 @@ const CAR_CONFIGS: Record<string, CarConfig> = {
     backWheelOffset: 0
   },
   mistery: {
-    texture: "/textures/cars/mistery.png",
+    texture: "mistery",
     morphTarget: "Mistery",
     uvSource: "uv3",
     probability: 0.1,
@@ -193,8 +203,6 @@ const getRandomCarConfig = (): CarConfig => {
 
   return Object.values(CAR_CONFIGS)[0]
 }
-
-const GRADIENT_SIZE = 16
 
 const setupCarMorphAndUVs = (
   car: Mesh,
@@ -375,12 +383,14 @@ interface UseCarAnimationProps {
   car: Mesh | null
   frontWheel: Mesh | null
   backWheel: Mesh | null
+  textures: CMSTextures
 }
 
 export const useCarAnimation = ({
   car,
   frontWheel,
-  backWheel
+  backWheel,
+  textures
 }: UseCarAnimationProps) => {
   const carGroupRef = useRef<Object3D | null>(null)
   const originalUVRef = useRef<Float32Array | null>(null)
@@ -392,9 +402,9 @@ export const useCarAnimation = ({
   const originalFrontWheelScale = useRef<Vector3 | null>(null)
   const originalBackWheelScale = useRef<Vector3 | null>(null)
 
-  const textures = useMemo(() => Object.keys(TEXTURE_TO_MORPH), [])
+  const textureUrls = useMemo(() => Object.values(textures), [textures])
 
-  const carTexture = useTexture(textures[textureIndex])
+  const carTexture = useTexture(textureUrls[textureIndex])
 
   useEffect(() => {
     if (frontWheel && !originalFrontWheelPos.current) {
@@ -410,9 +420,9 @@ export const useCarAnimation = ({
   useEffect(() => {
     if (!car?.morphTargetDictionary || !car?.morphTargetInfluences) return
 
-    const currentConfig = Object.values(CAR_CONFIGS).find(
-      (config) => config.texture === textures[textureIndex]
-    )
+    const textureKeys = Object.keys(textures) as (keyof CMSTextures)[]
+    const currentTextureKey = textureKeys[textureIndex]
+    const currentConfig = CAR_CONFIGS[currentTextureKey]
 
     if (!currentConfig) return
 
@@ -470,7 +480,7 @@ export const useCarAnimation = ({
     }
 
     if (carGroupRef.current) {
-      animateCar(carGroupRef.current, setTextureIndex, textures.length)
+      animateCar(carGroupRef.current, setTextureIndex, textureUrls.length)
     }
   })
 
@@ -590,5 +600,5 @@ export const useCarAnimation = ({
         mirrorMaterial.uniforms.map.value = carTexture
       }
     }
-  }, [car, carTexture, textureIndex, textures, frontWheel, backWheel])
+  }, [car, carTexture, textureIndex, textureUrls, frontWheel, backWheel])
 }

@@ -74,6 +74,18 @@ export interface AssetsResult {
       plusShapeScale: number
     }[]
   }[]
+  car: {
+    carModel: string
+    textures: {
+      dodgeOTexture: string
+      dodgeBTexture: string
+      deloreanTexture: string
+      nissanTexture: string
+      simpsonsTexture: string
+      knightRiderTexture: string
+      misteryTexture: string
+    }
+  }
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -118,6 +130,19 @@ export async function fetchAssets(): Promise<AssetsResult> {
       basketballNet: threeDInteractions.sfx.basketballNet?.url ?? "",
       basketballThump: threeDInteractions.sfx.basketballThump?.url ?? "",
       basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? ""
+    },
+    car: {
+      carModel: threeDInteractions.car.carModel?.url ?? "",
+      textures: {
+        dodgeOTexture: threeDInteractions.car.dodgeOTexture?.url ?? "",
+        dodgeBTexture: threeDInteractions.car.dodgeBTexture?.url ?? "",
+        deloreanTexture: threeDInteractions.car.deloreanTexture?.url ?? "",
+        nissanTexture: threeDInteractions.car.nissanTexture?.url ?? "",
+        simpsonsTexture: threeDInteractions.car.simpsonsTexture?.url ?? "",
+        knightRiderTexture:
+          threeDInteractions.car.knightRiderTexture?.url ?? "",
+        misteryTexture: threeDInteractions.car.misteryTexture?.url ?? ""
+      }
     },
     cameraStates: threeDInteractions.cameraStates.cameraStates.items.map(
       (item) => ({

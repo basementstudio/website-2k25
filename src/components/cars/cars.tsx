@@ -3,6 +3,7 @@ import type { Group } from "three"
 
 import { useMesh } from "@/hooks/use-mesh"
 
+import { useAssets } from "../assets-provider"
 import { useCarAnimation } from "./use-car-animation"
 
 const Cars = () => {
@@ -10,7 +11,23 @@ const Cars = () => {
   const { car, frontWheel, backWheel } = carMeshes
   const groupRef = useRef<Group>(null)
 
-  useCarAnimation({ car: car, frontWheel, backWheel })
+  const { car: carV5 } = useAssets()
+  const { textures } = carV5
+
+  useCarAnimation({
+    car: car,
+    frontWheel,
+    backWheel,
+    textures: {
+      dodgeO: textures.dodgeOTexture,
+      dodgeB: textures.dodgeBTexture,
+      delorean: textures.deloreanTexture,
+      nissan: textures.nissanTexture,
+      simpsons: textures.simpsonsTexture,
+      knightRider: textures.knightRiderTexture,
+      mistery: textures.misteryTexture
+    }
+  })
 
   useEffect(() => {
     if (!car || !groupRef.current) return

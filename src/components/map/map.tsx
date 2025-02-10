@@ -60,7 +60,8 @@ export const Map = memo(() => {
     godrays: godraysPath,
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
-    videos
+    videos,
+    car
   } = useAssets()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
@@ -70,9 +71,7 @@ export const Map = memo(() => {
   const { scene: routingElementsModel } = useGLTF(
     routingElementsPath
   ) as unknown as GLTFResult
-  const { scene: newCarTest } = useGLTF(
-    "/models/car-v5.glb"
-  ) as unknown as GLTFResult
+  const { scene: carV5 } = useGLTF(car.carModel) as unknown as GLTFResult
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
@@ -179,15 +178,14 @@ export const Map = memo(() => {
       useMesh.setState({
         carMeshes: {
           backWheel:
-            (newCarTest.children.find(
+            (carV5.children.find(
               (child) => child.name === "BACK-WHEEL"
             ) as Mesh) ?? null,
           car:
-            (newCarTest.children.find(
-              (child) => child.name === "CAR"
-            ) as Mesh) ?? null,
+            (carV5.children.find((child) => child.name === "CAR") as Mesh) ??
+            null,
           frontWheel:
-            (newCarTest.children.find(
+            (carV5.children.find(
               (child) => child.name === "FRONT-WHEEL"
             ) as Mesh) ?? null
         }
@@ -325,7 +323,7 @@ export const Map = memo(() => {
     routingElementsModel,
     videos,
     currentScene,
-    newCarTest
+    carV5
   ])
 
   useEffect(() => {
