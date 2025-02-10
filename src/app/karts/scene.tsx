@@ -9,7 +9,8 @@ export enum CarControls {
   left = "left",
   right = "right",
   drift = "drift",
-  jump = "jump"
+  jump = "jump",
+  reset = "reset"
 }
 
 // Define controls map
@@ -19,13 +20,14 @@ const controls = [
   { name: "left", keys: ["ArrowLeft", "KeyA"] },
   { name: "right", keys: ["ArrowRight", "KeyD"] },
   { name: "drift", keys: ["ShiftLeft"] },
-  { name: "jump", keys: ["Space"] }
+  { name: "jump", keys: ["Space"] },
+  { name: "reset", keys: ["KeyR"] }
 ]
 
 export function KartsScene() {
   return (
     <KeyboardControls map={controls}>
-      <Physics debug>
+      <Physics>
         {/* Ground */}
         <RigidBody type="fixed" position={[5, -1, -15]}>
           <CuboidCollider args={[5, 1, 10]} />
@@ -51,7 +53,7 @@ export function KartsScene() {
         </RigidBody>
 
         {/* Car */}
-        <Car position={[3.5, 5, -22]} />
+        <Car position={[11, 6, -22]} />
 
         {/* Lights */}
         <ambientLight intensity={0.5} />

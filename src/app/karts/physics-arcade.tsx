@@ -1,10 +1,7 @@
 import { useKeyboardControls } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { useFrame, useThree } from "@react-three/fiber"
 import {
   BallCollider,
-  CuboidCollider,
-  CylinderCollider,
-  Physics,
   RapierRigidBody,
   RigidBody,
   RigidBodyProps,
@@ -17,16 +14,59 @@ import * as THREE from "three"
 import { CarControls } from "./scene"
 
 const up = new THREE.Vector3(0, 1, 0)
-const maxForwardSpeed = 14
-const maxReverseSpeed = -8
+const maxForwardSpeed = 5
+const maxReverseSpeed = -4
+
+// Car dimensions
+const CAR = {
+  WIDTH: 0.3,
+  HEIGHT: 0.3,
+  LENGTH: 0.5,
+  MASS: 3,
+  COLLIDER_RADIUS: 0.2
+} as const
+
+// Wheel properties
+const WHEEL = {
+  RADIUS: 0.1,
+  WIDTH: 0.1,
+  HEIGHT_OFFSET: -0.1,
+  FRONT_OFFSET: -0.2,
+  REAR_OFFSET: 0.2,
+  SIDE_OFFSET: 0.3
+} as const
 
 const wheels = [
   // front
-  { position: new THREE.Vector3(-0.45, -0.15, -0.4) },
-  { position: new THREE.Vector3(0.45, -0.15, -0.4) },
+  {
+    position: new THREE.Vector3(
+      -WHEEL.SIDE_OFFSET,
+      WHEEL.HEIGHT_OFFSET,
+      WHEEL.FRONT_OFFSET
+    )
+  },
+  {
+    position: new THREE.Vector3(
+      WHEEL.SIDE_OFFSET,
+      WHEEL.HEIGHT_OFFSET,
+      WHEEL.FRONT_OFFSET
+    )
+  },
   // rear
-  { position: new THREE.Vector3(-0.45, -0.15, 0.4) },
-  { position: new THREE.Vector3(0.45, -0.15, 0.4) }
+  {
+    position: new THREE.Vector3(
+      -WHEEL.SIDE_OFFSET,
+      WHEEL.HEIGHT_OFFSET,
+      WHEEL.REAR_OFFSET
+    )
+  },
+  {
+    position: new THREE.Vector3(
+      WHEEL.SIDE_OFFSET,
+      WHEEL.HEIGHT_OFFSET,
+      WHEEL.REAR_OFFSET
+    )
+  }
 ]
 
 const _bodyPosition = new THREE.Vector3()
@@ -177,6 +217,18 @@ export const Car = (props: RigidBodyProps) => {
     )
   })
 
+  const camera = useThree((state) => state.camera)
+
+  const isReset = useKeyboardControls<CarControls>((state) => state.reset)
+
+  const inintialPosition = useRef(props.position)
+
+  // useEffect(() => {
+  //   if (isReset) {
+  //     bodyRef.current.setNextKinematicTranslation(inintialPosition.current)
+  //   }
+  // }, [isReset])
+
   useFrame((state, delta) => {
     // body position
     const bodyPosition = _bodyPosition.copy(bodyRef.current.translation())
@@ -200,7 +252,7 @@ export const Car = (props: RigidBodyProps) => {
     groupRef.current.rotation.copy(bodyEuler)
 
     // wheel rotation
-    wheelRotation.current -= (speed.current / 50) * delta * 100
+    wheelRotation.current -= (speed.current / 10) * delta * 100
     wheelsRef.current.forEach((wheel) => {
       if (!wheel) return
 
@@ -214,13 +266,13 @@ export const Car = (props: RigidBodyProps) => {
     wheelsRef.current[0]!.rotation.y = frontWheelsSteeringAngle
 
     // camera
-    if (!state.controls) {
+    if (true) {
       const cameraPosition = _cameraPosition
-        .set(0, 3, 10)
+        .set(0, 0.5, 2)
         .applyQuaternion(steeringAngleQuat.current)
         .add(bodyPosition)
-      state.camera.position.copy(cameraPosition)
-      state.camera.lookAt(bodyPosition)
+      camera.position.copy(cameraPosition)
+      camera.lookAt(bodyPosition.clone().add(new THREE.Vector3(0, 0.5, 0)))
     }
   })
 
@@ -231,19 +283,19 @@ export const Car = (props: RigidBodyProps) => {
         {...props}
         ref={bodyRef}
         colliders={false}
-        mass={3}
+        mass={CAR.MASS}
         ccd
         name="player"
         type="dynamic"
       >
-        <BallCollider args={[0.7]} mass={3} />
+        <BallCollider args={[CAR.COLLIDER_RADIUS]} mass={CAR.MASS} />
       </RigidBody>
 
       {/* vehicle */}
       <group ref={groupRef}>
-        <group position-y={-0.35}>
+        <group position-y={0}>
           <mesh>
-            <boxGeometry args={[0.8, 0.4, 1.2]} />
+            <boxGeometry args={[CAR.WIDTH, CAR.HEIGHT, CAR.LENGTH]} />
             <meshBasicMaterial color="#fff" />
           </mesh>
 
@@ -255,11 +307,15 @@ export const Car = (props: RigidBodyProps) => {
             >
               <group rotation-z={-Math.PI / 2}>
                 <mesh>
-                  <cylinderGeometry args={[0.15, 0.15, 0.25, 16]} />
+                  <cylinderGeometry
+                    args={[WHEEL.RADIUS, WHEEL.RADIUS, WHEEL.WIDTH, 16]}
+                  />
                   <meshStandardMaterial color="#222" />
                 </mesh>
                 <mesh scale={1.01}>
-                  <cylinderGeometry args={[0.15, 0.15, 0.25, 6]} />
+                  <cylinderGeometry
+                    args={[WHEEL.RADIUS, WHEEL.RADIUS, WHEEL.WIDTH, 6]}
+                  />
                   <meshStandardMaterial color="#fff" wireframe />
                 </mesh>
               </group>
