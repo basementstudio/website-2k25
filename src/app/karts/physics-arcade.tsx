@@ -1,3 +1,5 @@
+/** Inspired by https://github.com/isaac-mason/sketches/blob/main/sketches/rapier/arcade-vehicle-controller/src/sketch.tsx */
+
 import { useKeyboardControls } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import {
@@ -19,22 +21,27 @@ const maxReverseSpeed = -4
 
 // Car dimensions
 const CAR = {
-  WIDTH: 0.3,
-  HEIGHT: 0.3,
-  LENGTH: 0.5,
-  MASS: 3,
-  COLLIDER_RADIUS: 0.2
+  WIDTH: 0.1,
+  HEIGHT: 0.08,
+  LENGTH: 0.2,
+  MASS: 2,
+  COLLIDER_RADIUS: 0.1
 } as const
 
 // Wheel properties
 const WHEEL = {
-  RADIUS: 0.1,
-  WIDTH: 0.1,
-  HEIGHT_OFFSET: -0.1,
-  FRONT_OFFSET: -0.2,
-  REAR_OFFSET: 0.2,
-  SIDE_OFFSET: 0.3
+  RADIUS: 0.03,
+  WIDTH: 0.03,
+  HEIGHT_OFFSET: -0.06,
+  FRONT_OFFSET: -0.1,
+  REAR_OFFSET: 0.1,
+  SIDE_OFFSET: 0.07
 } as const
+
+const CAMERA = {
+  position: new THREE.Vector3(0, 0.06, 0.4),
+  lookAt: new THREE.Vector3(0, 0.07, 0)
+}
 
 const wheels = [
   // front
@@ -96,14 +103,12 @@ export const Car = (props: RigidBodyProps) => {
 
   const speed = useRef(0)
   const grounded = useRef(false)
-  const holdingJump = useRef(false)
-  const jumpTime = useRef(0)
 
   const [, getKeyboardControls] = useKeyboardControls<CarControls>()
 
   useBeforePhysicsStep(() => {
     const controls = getKeyboardControls()
-    const { forward, backward, left, right, jump, drift } = controls
+    const { forward, backward, left, right, drift } = controls
 
     const impulse = _impulse.set(0, 0, -speed.current).multiplyScalar(5)
 
@@ -135,12 +140,7 @@ export const Car = (props: RigidBodyProps) => {
       driftingRight.current = false
     }
 
-    if (
-      drift &&
-      grounded.current &&
-      1 < speed.current &&
-      jumpTime.current + 100 < Date.now()
-    ) {
+    if (drift && grounded.current && 1 < speed.current) {
       if (left) {
         driftingLeft.current = true
       }
@@ -193,14 +193,6 @@ export const Car = (props: RigidBodyProps) => {
 
     speed.current = THREE.MathUtils.lerp(speed.current, speedTarget, 0.03)
 
-    // jump
-    if (grounded.current && jump && !holdingJump.current) {
-      impulse.y = 2
-      holdingJump.current = true
-
-      jumpTime.current = Date.now()
-    }
-
     // apply impulse
     if (impulse.length() > 0) {
       bodyRef.current.applyImpulse(impulse, true)
@@ -219,17 +211,7 @@ export const Car = (props: RigidBodyProps) => {
 
   const camera = useThree((state) => state.camera)
 
-  const isReset = useKeyboardControls<CarControls>((state) => state.reset)
-
-  const inintialPosition = useRef(props.position)
-
-  // useEffect(() => {
-  //   if (isReset) {
-  //     bodyRef.current.setNextKinematicTranslation(inintialPosition.current)
-  //   }
-  // }, [isReset])
-
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     // body position
     const bodyPosition = _bodyPosition.copy(bodyRef.current.translation())
     groupRef.current.position.copy(bodyPosition)
@@ -268,11 +250,11 @@ export const Car = (props: RigidBodyProps) => {
     // camera
     if (true) {
       const cameraPosition = _cameraPosition
-        .set(0, 0.5, 2)
+        .copy(CAMERA.position)
         .applyQuaternion(steeringAngleQuat.current)
         .add(bodyPosition)
       camera.position.copy(cameraPosition)
-      camera.lookAt(bodyPosition.clone().add(new THREE.Vector3(0, 0.5, 0)))
+      camera.lookAt(bodyPosition.clone().add(CAMERA.lookAt))
     }
   })
 

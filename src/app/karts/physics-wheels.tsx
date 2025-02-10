@@ -103,8 +103,8 @@ export function Car() {
       {wheelPositions.map(([x, y, z, isFront], index) => (
         <WheelJoint
           key={index}
-          body={bodyRef}
-          wheel={wheelRefs.current[index]}
+          body={bodyRef as any}
+          wheel={wheelRefs.current[index] as any}
           bodyAnchor={[x, y, z]}
           wheelAnchor={[0, 0, 0]}
           rotationAxis={[0, 0, 1]}
