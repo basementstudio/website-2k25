@@ -121,7 +121,8 @@ export default {
         "61": "15.25rem"
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)"]
+        sans: ["var(--font-geist-sans)"],
+        mono: ["var(--font-geist-mono)"]
       },
       maxWidth: {
         full: "120rem"

@@ -53,7 +53,7 @@ export const BaseCodeBlock = ({
           <div
             className={cn(
               styles.content,
-              "border-b border-t border-brand-w1/30 py-2.5"
+              "border-b border-t border-brand-w1/30 py-2.5 font-mono text-p"
             )}
             {...rest}
           >
