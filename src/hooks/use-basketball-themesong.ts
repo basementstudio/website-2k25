@@ -54,7 +54,7 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
     loadAudioSource()
 
     return () => {
-      if (!isBasketballPage) {
+      if (!isBasketballPage && !fadeOutTimeout.current) {
         cleanup()
       }
     }
@@ -85,6 +85,9 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(0, currentTime + FADE_DURATION)
 
+      if (fadeOutTimeout.current) {
+        clearTimeout(fadeOutTimeout.current)
+      }
       fadeOutTimeout.current = setTimeout(() => {
         cleanup()
       }, FADE_DURATION * 1000)
@@ -97,10 +100,4 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
       }
     }
   }, [isBasketballPage, themeSong, player, isEnabled, cleanup])
-
-  useEffect(() => {
-    return () => {
-      cleanup()
-    }
-  }, [cleanup])
 }
