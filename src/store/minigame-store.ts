@@ -58,6 +58,7 @@ interface MinigameStore {
   setPlayedBallMaterial: (material: Material) => void
   addStaticBall: (ball: StaticBall) => void
   clearStaticBalls: () => void
+  clearPlayedBalls: () => void
 }
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
@@ -92,7 +93,23 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
           ? timeRemaining(get().timeRemaining)
           : timeRemaining
     }),
-  setIsGameActive: (isGameActive: boolean) => set({ isGameActive }),
+  setIsGameActive: (isGameActive: boolean) => {
+    const currentBalls = get().playedBalls
+
+    set({
+      isGameActive,
+      ...(isGameActive
+        ? {
+            playedBalls: [],
+            playedBallMaterial: null,
+            hasHitRim: false,
+            scoreMultiplier: 1,
+            lastScoreTime: 0,
+            justScored: false
+          }
+        : {})
+    })
+  },
   setIsDragging: (isDragging: boolean) => set({ isDragging }),
   setIsResetting: (isResetting: boolean) => set({ isResetting }),
   setShotMetrics: (shotMetrics: { angle: string; probability: string }) =>
@@ -100,12 +117,15 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   setPlayerName: (playerName: string) => set({ playerName }),
   setHasPlayed: (hasPlayed: boolean) => set({ hasPlayed }),
   setPlayerRecord: (playerRecord: number) => set({ playerRecord }),
-  addPlayedBall: (ball: PlayedBall) =>
-    set((state) => ({ playedBalls: [...state.playedBalls, ball] })),
+  addPlayedBall: (ball: PlayedBall) => {
+    set((state) => ({ playedBalls: [...state.playedBalls, ball] }))
+  },
   setReadyToPlay: (ready: boolean) => set({ readyToPlay: ready }),
   setPlayedBallMaterial: (material: Material) =>
     set({ playedBallMaterial: material }),
-  addStaticBall: (ball: StaticBall) =>
-    set((state) => ({ staticBalls: [...state.staticBalls, ball] })),
-  clearStaticBalls: () => set({ staticBalls: [] })
+  addStaticBall: (ball: StaticBall) => {
+    set((state) => ({ staticBalls: [...state.staticBalls, ball] }))
+  },
+  clearStaticBalls: () => set({ staticBalls: [] }),
+  clearPlayedBalls: () => set({ playedBalls: [] })
 }))

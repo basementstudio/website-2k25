@@ -10,6 +10,7 @@ import * as THREE from "three"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMinigameStore } from "@/store/minigame-store"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -65,6 +66,13 @@ export const Scene = () => {
     currentScene
   } = useNavigationStore()
   const isBasketball = currentScene?.name === "basketball"
+  const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
+
+  useEffect(() => {
+    if (!isBasketball) {
+      clearPlayedBalls()
+    }
+  }, [isBasketball, clearPlayedBalls])
 
   useEffect(() => {
     canvasRef.current.style.cursor = cursorTypeMap[cursorType]

@@ -193,9 +193,6 @@ export const HoopMinigame = () => {
 
               setTimeout(() => {
                 playSoundFX("TIMEOUT_BUZZER")
-                setIsGameActive(false)
-                setHasPlayed(true)
-                setReadyToPlay(false)
 
                 if (ballRef.current) {
                   const currentPos = ballRef.current.translation()
@@ -214,6 +211,10 @@ export const HoopMinigame = () => {
                     }
                   })
                 }
+
+                setIsGameActive(false)
+                setHasPlayed(true)
+                setReadyToPlay(false)
               }, 100)
             }
             return gameDuration

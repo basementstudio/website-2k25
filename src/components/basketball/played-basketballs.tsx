@@ -46,12 +46,13 @@ export const PlayedBasketballs = () => {
   useEffect(() => {
     if (isGameActive) {
       processedBalls.current.clear()
+      rigidBodies.current = []
     }
-  }, [isGameActive])
+  }, [isGameActive, playedBalls])
 
   useEffect(() => {
-    const checkVelocities = setInterval(() => {
-      if (!isGameActive) {
+    if (!isGameActive) {
+      const checkVelocities = setInterval(() => {
         rigidBodies.current.forEach((rigidBody, index) => {
           if (!rigidBody || processedBalls.current.has(index)) return
 
@@ -70,10 +71,12 @@ export const PlayedBasketballs = () => {
             processedBalls.current.add(index)
           }
         })
-      }
-    }, 100)
+      }, 100)
 
-    return () => clearInterval(checkVelocities)
+      return () => {
+        clearInterval(checkVelocities)
+      }
+    }
   }, [isGameActive, addStaticBall])
 
   if (!playedBallMaterial) return null

@@ -41,7 +41,6 @@ export const getTopScores = async () => {
 }
 
 export const submitScore = async (playerName: string, score: number) => {
-  console.log("submitScore called with score:", score)
   const clientId = getClientId()
 
   const response = await fetch("/api/scores", {
@@ -63,7 +62,6 @@ export const submitScore = async (playerName: string, score: number) => {
   }
 
   const result = await response.json()
-  console.log("Score submission response:", result)
 
   notifyScoreUpdate()
 

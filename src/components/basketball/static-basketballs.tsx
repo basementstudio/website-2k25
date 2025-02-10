@@ -1,5 +1,5 @@
 import { useGLTF } from "@react-three/drei"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { Mesh, MeshStandardMaterial } from "three"
 
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
@@ -23,15 +23,19 @@ const StaticBasketballs = () => {
     [basketballModel]
   )
 
-  const originalMaterial = basketballModel.materials[
-    "Material.001"
-  ] as MeshStandardMaterial
+  const originalMaterial = useMemo(
+    () => basketballModel.materials["Material.001"] as MeshStandardMaterial,
+    [basketballModel]
+  )
 
-  if (!playedBallMaterial) {
-    const material = createGlobalShaderMaterial(originalMaterial, true)
-    setPlayedBallMaterial(material)
-    return null
-  }
+  useEffect(() => {
+    if (!playedBallMaterial) {
+      const material = createGlobalShaderMaterial(originalMaterial, true)
+      setPlayedBallMaterial(material)
+    }
+  }, [originalMaterial, playedBallMaterial, setPlayedBallMaterial])
+
+  if (!playedBallMaterial) return null
 
   return (
     <>
