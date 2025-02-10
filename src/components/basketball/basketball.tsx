@@ -44,11 +44,11 @@ export const Basketball = ({
     [basketballModel]
   )
 
-  const material = useMemo(() => {
-    const originalMaterial = basketballModel.materials[
-      "Material.001"
-    ] as MeshStandardMaterial
+  const originalMaterial = basketballModel.materials[
+    "Material.001"
+  ] as MeshStandardMaterial
 
+  const material = useMemo(() => {
     return createGlobalShaderMaterial(originalMaterial, false)
   }, [basketballModel])
 
@@ -107,7 +107,7 @@ export const Basketball = ({
       <mesh
         geometry={geometry}
         scale={1.7}
-        material={material}
+        material={originalMaterial}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
