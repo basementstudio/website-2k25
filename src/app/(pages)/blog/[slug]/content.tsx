@@ -15,6 +15,7 @@ import {
   OrderedList,
   Paragraph,
   Pre,
+  QuoteWithAuthor,
   UnorderedList
 } from "./blog-components"
 import BlogMeta from "./blog-meta"
@@ -74,6 +75,13 @@ export default function Content({
               // TODO: add quote, sidenotes, codesandbox components
               CodeBlockComponent: ({ files: { items } }) => (
                 <CodeBlock items={items} />
+              ),
+              QuoteWithAuthorComponent: (props) => (
+                <QuoteWithAuthor
+                  quote={props.quote?.json.content}
+                  author={props.author}
+                  role={props.role}
+                />
               )
             }}
             blocks={post?.content?.json.blocks}

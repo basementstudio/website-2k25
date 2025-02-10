@@ -3,6 +3,7 @@ import { HandlerProps } from "basehub/react-rich-text"
 import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
+import { RichText } from "@/components/primitives/rich-text"
 
 import { BaseCodeBlock } from "./components/code-block"
 import styles from "./components/code-block.module.css"
@@ -110,11 +111,38 @@ export const CodeBlock = ({
     <div className="flex w-full flex-col gap-y-2">
       <BaseCodeBlock
         childrenTop={<CodeGroupHeader items={items} />}
-        snippets={items.map((file, idx) => ({
+        snippets={items.map((file) => ({
           code: `${file.codeSnippet.code}`,
           language: file.codeSnippet.language
         }))}
       />
+    </div>
+  )
+}
+
+export const QuoteWithAuthor = ({
+  quote,
+  author,
+  role
+}: {
+  quote?: any
+  author?: string | null
+  role?: string | null
+}) => {
+  return (
+    <div className="flex gap-x-4">
+      <div className="h-full w-1.5 bg-brand-o" />
+
+      <div className="flex flex-col gap-y-2.5">
+        <div className="[&>*]:text-h4 [&>*]:text-brand-w2">
+          <RichText>{quote}</RichText>
+        </div>
+
+        <div className="flex gap-x-2">
+          {author ? <p className="text-p text-brand-w2">{author}</p> : null}
+          {role ? <p className="text-p text-brand-g1">{role}</p> : null}
+        </div>
+      </div>
     </div>
   )
 }

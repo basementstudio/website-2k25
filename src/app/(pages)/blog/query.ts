@@ -37,6 +37,18 @@ export const query = fragmentOn("Query", {
                       }
                     }
                   }
+                },
+                on_QuoteWithAuthorComponent: {
+                  __typename: true,
+                  _id: true,
+
+                  quote: {
+                    json: {
+                      content: true
+                    }
+                  },
+                  author: true,
+                  role: true
                 }
               }
             }
