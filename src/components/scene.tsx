@@ -4,12 +4,12 @@ import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import dynamic from "next/dynamic"
+import { Perf } from "r3f-perf"
 import { memo, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
-import { Perf } from "r3f-perf"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -25,6 +25,7 @@ import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
+import { WebGL } from "./tunnels"
 
 const cursorTypeMap = {
   default: "default",
@@ -103,6 +104,7 @@ export const Scene = () => {
               </Physics>
               <CharacterInstanceConfig />
               <CharactersSpawn />
+              <WebGL.Out />
             </>
           }
         />
