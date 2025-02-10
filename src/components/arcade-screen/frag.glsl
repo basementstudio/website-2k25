@@ -8,7 +8,7 @@ varying vec2 vUv;
 #define SCANLINE_INTENSITY (0.5)
 #define SCANLINE_COUNT (800.0)
 #define VIGNETTE_STRENGTH (0.1)
-#define DISTORTION (0.2)
+#define DISTORTION (0.3)
 #define NOISE_INTENSITY (0.05)
 #define TIME_SPEED (1.0)
 

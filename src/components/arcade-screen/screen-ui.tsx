@@ -105,7 +105,7 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
                       justifyContent="center"
                     >
                       <Text
-                        fontSize={10}
+                        fontSize={8}
                         paddingX={4}
                         color={COLORS_THEME.primary}
                         zIndexOffset={10}
@@ -144,7 +144,7 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
                       justifyContent="center"
                     >
                       <Text
-                        fontSize={10}
+                        fontSize={8}
                         paddingX={4}
                         color={COLORS_THEME.primary}
                         zIndexOffset={10}
