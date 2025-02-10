@@ -146,3 +146,35 @@ export const QuoteWithAuthor = ({
     </div>
   )
 }
+
+export const CodeSanbox = ({
+  sandboxUrl,
+  sourceCodeUrl,
+  title
+}: {
+  sandboxUrl: string
+  sourceCodeUrl?: string | null
+  title: string
+}) => {
+  const finalUrl = sandboxUrl + "?view=preview&hideNavigation=1"
+
+  return (
+    <div className="flex w-full flex-col gap-y-2">
+      <h3 className="text-p text-brand-w2">{title}</h3>
+
+      <div className="min-h-[500px] w-full overflow-hidden rounded-md border border-brand-w1/20"></div>
+
+      <div className="flex gap-x-2">
+        {sourceCodeUrl ? (
+          <Link href={sourceCodeUrl} className="text-p text-brand-w1 underline">
+            Source code
+          </Link>
+        ) : null}
+
+        <Link href={finalUrl} className="text-p text-brand-w1 underline">
+          Open in CodeSandbox
+        </Link>
+      </div>
+    </div>
+  )
+}

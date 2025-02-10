@@ -49,6 +49,14 @@ export const query = fragmentOn("Query", {
                   },
                   author: true,
                   role: true
+                },
+                on_CodeSanboxComponent: {
+                  __typename: true,
+                  _id: true,
+
+                  _title: true,
+                  sandboxUrl: true,
+                  sourceCodeUrl: true
                 }
               }
             }

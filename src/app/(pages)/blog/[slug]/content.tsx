@@ -8,6 +8,7 @@ import {
   BlogVideo,
   Code,
   CodeBlock,
+  CodeSanbox,
   Heading2,
   Heading3,
   Intro,
@@ -81,6 +82,13 @@ export default function Content({
                   quote={props.quote?.json.content}
                   author={props.author}
                   role={props.role}
+                />
+              ),
+              CodeSanboxComponent: (props) => (
+                <CodeSanbox
+                  sandboxUrl={props.sandboxUrl}
+                  sourceCodeUrl={props.sourceCodeUrl}
+                  title={props._title}
                 />
               )
             }}
