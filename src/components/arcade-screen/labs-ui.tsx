@@ -5,9 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
-import { GameCovers } from "./game-covers"
 import { COLORS_THEME } from "./screen-ui"
-import { TextTag } from "./text-tags"
 
 interface Experiment {
   _title: string
@@ -127,14 +125,7 @@ export const LabsUI = () => {
                 height={16}
                 positionTop={0}
                 positionLeft={0}
-              >
-                <Container width="65%" height="100%" positionType="relative">
-                  <TextTag text="Experiments" icon />
-                </Container>
-                <Container width="35%" height="100%" positionType="relative">
-                  <TextTag text="Preview" icon />
-                </Container>
-              </Container>
+              ></Container>
             </Container>
 
             <Container
@@ -194,7 +185,6 @@ export const LabsUI = () => {
                   )}
                 </Container>
               </Container>
-              <GameCovers />
             </Container>
           </Container>
         </Container>
@@ -204,9 +194,7 @@ export const LabsUI = () => {
           positionType="absolute"
           positionBottom={32}
           positionRight={148}
-        >
-          <TextTag text="Lab V1.0" />
-        </Container>
+        ></Container>
       </Root>
     </>
   )
