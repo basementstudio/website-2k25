@@ -53,8 +53,17 @@ export const ArcadeLabsList = ({
             paddingTop={8}
             onHoverChange={(hover) => {
               if (hover) {
+                setCursorType("click")
                 setSelectedExperiment(data)
+              } else {
+                setCursorType("default")
               }
+            }}
+            onClick={() => {
+              window.open(
+                `https://lab.basement.studio/experiments/${data.url}`,
+                "_blank"
+              )
             }}
           >
             <Text
