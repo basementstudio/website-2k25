@@ -18,11 +18,13 @@ export const ArcadeWrapperTags = () => {
   const handleClose = useCallback(() => {
     handleNavigation("/")
 
+    console.log(scenes)
+
     const tabIndex = scenes?.[0]?.tabs.findIndex(
       (tab) => tab.tabName.toLowerCase() === "lab"
     )
 
-    setCurrentTabIndex(-1)
+    setCurrentTabIndex(tabIndex ?? 0)
   }, [handleNavigation, setCurrentTabIndex, scenes])
 
   return (
