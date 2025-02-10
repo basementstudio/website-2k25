@@ -53,16 +53,16 @@ export const renderTextureContext = createContext<{
   isPlaying: boolean
 }>({
   isInsideRenderTexture: false,
-  width: 2048,
-  height: 2048,
+  width: 1024,
+  height: 1024,
   aspect: 1,
   isPlaying: true
 })
 
 export const RenderTexture = ({
   isPlaying: _playing = true,
-  width = 2048,
-  height = 2048,
+  width = 1024,
+  height = 1024,
   attach,
   fbo: _fbo,
   onMapTexture,
@@ -86,7 +86,9 @@ export const RenderTexture = ({
           height,
           THREE.UnsignedInt248Type
         ),
-        format: RGBAFormat
+        format: RGBAFormat,
+        type: THREE.HalfFloatType,
+        anisotropy: 16
       })
     return fbo
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,6 +1,6 @@
 import { useVideoTexture } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { Suspense, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Mesh } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
@@ -25,7 +25,7 @@ export const ArcadeScreen = () => {
 
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
 
-  const renderTarget = useMemo(() => new WebGLRenderTarget(2024, 2024), [])
+  const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
   useEffect(() => {
     const screen = scene.getObjectByName("SM_ArcadeLab_Screen")

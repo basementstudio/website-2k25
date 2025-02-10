@@ -3,10 +3,17 @@ import {
   Container,
   DefaultProperties,
   FontFamilyProvider,
+  Image,
   Root,
   Text
 } from "@react-three/uikit"
+import { Separator } from "@react-three/uikit-default"
 import { Vector3 } from "three"
+
+import { ArcadeLabsList } from "./arcade-ui-components/arcade-labs-list"
+import { ArcadePreview } from "./arcade-ui-components/arcade-preview"
+import { ArcadeTitleTagsHeader } from "./arcade-ui-components/arcade-title-tags-header"
+import { ArcadeWrapperTags } from "./arcade-ui-components/arcade-wrapper-tags"
 
 interface ScreenUIProps {
   screenScale?: Vector3 | null
@@ -14,7 +21,7 @@ interface ScreenUIProps {
 
 export const COLORS_THEME = {
   primary: "#FF4D00",
-  black: "#000000"
+  black: "#0D0D0D"
 }
 
 export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
@@ -54,36 +61,108 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
             <Container
               width={"100%"}
               height={"100%"}
-              borderWidth={1}
+              borderWidth={1.5}
               borderColor={COLORS_THEME.primary}
               borderRadius={10}
+              paddingY={10}
+              flexDirection="column"
             >
-              <Text
-                fontSize={12}
-                color={COLORS_THEME.primary}
-                fontWeight="normal"
-                positionType="absolute"
-                positionTop={-3}
-                positionLeft={12}
-                paddingX={4}
-                backgroundColor={COLORS_THEME.black}
-                zIndexOffset={10}
+              <ArcadeWrapperTags />
+              <ArcadeTitleTagsHeader />
+              <Container
+                width={"100%"}
+                flexGrow={1}
+                zIndexOffset={16}
+                padding={10}
+                flexDirection="row"
+                gap={10}
               >
-                CLOSE
-              </Text>
-              <Text
-                fontSize={10}
-                color={COLORS_THEME.primary}
-                fontWeight="normal"
-                positionType="absolute"
-                positionBottom={-10}
-                positionRight={12}
-                paddingX={4}
-                backgroundColor={COLORS_THEME.black}
-                zIndexOffset={10}
-              >
-                LABS V1.0
-              </Text>
+                <ArcadeLabsList />
+                <ArcadePreview />
+              </Container>
+              <Container paddingX={10} width={"100%"} height={100}>
+                <Container
+                  width={"100%"}
+                  height={"100%"}
+                  borderWidth={1}
+                  borderColor={COLORS_THEME.primary}
+                  flexDirection="row"
+                >
+                  <Container
+                    width={"50%"}
+                    height={"100%"}
+                    positionType="relative"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Container
+                      backgroundColor={COLORS_THEME.black}
+                      positionType="absolute"
+                      width={"auto"}
+                      zIndexOffset={10}
+                      height={16}
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text
+                        fontSize={10}
+                        paddingX={4}
+                        color={COLORS_THEME.primary}
+                        zIndexOffset={10}
+                        positionTop={4}
+                      >
+                        PLAY BASEMENT CHRONICLES
+                      </Text>
+                    </Container>
+                    <Image
+                      src="/images/arcade-screen/chronicles.jpg"
+                      width={"100%"}
+                      height={"100%"}
+                      objectFit="cover"
+                      positionType="absolute"
+                    />
+                  </Container>
+                  <Separator
+                    width={1}
+                    backgroundColor={COLORS_THEME.primary}
+                    orientation="vertical"
+                  />
+                  <Container
+                    width={"50%"}
+                    height={"100%"}
+                    positionType="relative"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Container
+                      backgroundColor={COLORS_THEME.black}
+                      positionType="absolute"
+                      width={"auto"}
+                      zIndexOffset={10}
+                      height={16}
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text
+                        fontSize={10}
+                        paddingX={4}
+                        color={COLORS_THEME.primary}
+                        zIndexOffset={10}
+                        positionTop={4}
+                      >
+                        LOOPER (COOMING SOON)
+                      </Text>
+                    </Container>
+                    <Image
+                      src="/images/arcade-screen/chronicles.jpg"
+                      width={"100%"}
+                      height={"100%"}
+                      objectFit="cover"
+                      positionType="absolute"
+                    />
+                  </Container>
+                </Container>
+              </Container>
             </Container>
           </DefaultProperties>
         </FontFamilyProvider>
