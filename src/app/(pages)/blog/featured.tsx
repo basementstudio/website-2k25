@@ -84,7 +84,7 @@ export default function Featured({
                   <RichText content={post.intro?.json.content} />
                 </div>
                 <hr className="col-start-1 col-end-5 mt-4 w-full border-brand-w1/20" />
-                <div className="col-span-2 col-start-1 flex gap-1 text-p">
+                <div className="col-span-2 col-start-1 flex flex-wrap gap-1 text-p">
                   {post.categories?.map((category) => (
                     <p
                       key={category._title}

@@ -1,40 +1,12 @@
-import {
-  CodeBlock,
-  createCssVariablesTheme,
-  type Language
-} from "basehub/react-code-block"
+import { Language } from "basehub/react-code-block"
 import { HandlerProps } from "basehub/react-rich-text"
 import Image from "next/image"
-import { ReactNode } from "react"
 
 import { Link } from "@/components/primitives/link"
 
-import styles from "./code-block.module.css"
-
-const theme = createCssVariablesTheme({
-  name: "basement",
-  variablePrefix: "--bsmnt-",
-  variableDefaults: {
-    "color-text": "var(--bsmnt-color-text)",
-    "token-constant": "var(--bsmnt-token-constant)",
-    "token-string": "var(--bsmnt-token-string)",
-    "token-comment": "var(--bsmnt-token-comment)",
-    "token-keyword": "var(--bsmnt-token-keyword)",
-    "token-parameter": "var(--bsmnt-token-parameter)",
-    "token-function": "var(--bsmnt-token-function)",
-    "token-string-expression": "var(--bsmnt-token-string-expression)",
-    "token-punctuation": "var(--bsmnt-token-punctuation)",
-    "token-link": "var(--bsmnt-token-link)",
-    "token-tag": "var(--bsmnt-token-tag)",
-    "token-tag-name": "var(--bsmnt-token-tag-name)",
-    "token-attr-name": "var(--bsmnt-token-attr-name)",
-    "token-attr-value": "var(--bsmnt-token-attr-value)",
-    "token-operator": "var(--bsmnt-token-operator)",
-    "token-builtin": "var(--bsmnt-token-builtin)",
-    "token-class-name": "var(--bsmnt-token-class-name)"
-  },
-  fontStyle: true
-})
+import { BaseCodeBlock } from "./components/code-block"
+import styles from "./components/code-block.module.css"
+import { CodeGroupHeader } from "./components/code-block-header"
 
 export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
   if (!src) return null
@@ -115,27 +87,34 @@ export const Code = ({ children }: HandlerProps<"code">) => (
 export const Pre = ({ language, code }: HandlerProps<"pre">) => (
   <div className="w-full border-y border-brand-w2/20 bg-codeblock-k2 py-3">
     <div className={styles["code-block"]}>
-      <CodeBlock
-        snippets={[
-          { code: `${code}`, language: language as Language, id: "1" }
-        ]}
-        theme={theme}
-        components={{
-          div: ({ children, ...rest }: { children: ReactNode }) => (
-            <div className={styles.content} {...rest}>
-              {children}
-            </div>
-          ),
-          pre: ({ children, ...rest }: { children: ReactNode }) => (
-            <pre className={styles.pre} {...rest}>
-              {children}
-            </pre>
-          )
-        }}
-        lineNumbers={{
-          className: styles.line_indicator
-        }}
+      <BaseCodeBlock
+        snippets={[{ code: `${code}`, language: language, id: "1" }]}
       />
     </div>
   </div>
 )
+
+export const CodeBlock = ({
+  items
+}: {
+  items: {
+    _id: string
+    _title: string
+    codeSnippet: {
+      code: string
+      language: Language
+    }
+  }[]
+}) => {
+  return (
+    <div className="flex w-full flex-col gap-y-2">
+      <BaseCodeBlock
+        childrenTop={<CodeGroupHeader items={items} />}
+        snippets={items.map((file, idx) => ({
+          code: `${file.codeSnippet.code}`,
+          language: file.codeSnippet.language
+        }))}
+      />
+    </div>
+  )
+}

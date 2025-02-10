@@ -7,6 +7,7 @@ import {
   BlogLink,
   BlogVideo,
   Code,
+  CodeBlock,
   Heading2,
   Heading3,
   Intro,
@@ -69,9 +70,13 @@ export default function Content({
                   {props.children}
                 </Pre>
               ),
-              video: (props) => <BlogVideo {...props} />
+              video: (props) => <BlogVideo {...props} />,
               // TODO: add quote, sidenotes, codesandbox components
+              CodeBlockComponent: ({ files: { items } }) => (
+                <CodeBlock items={items} />
+              )
             }}
+            blocks={post?.content?.json.blocks}
           />
         </article>
         <BlogMeta categories={false} data={post as any} />

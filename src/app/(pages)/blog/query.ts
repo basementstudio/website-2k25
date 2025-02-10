@@ -18,7 +18,28 @@ export const query = fragmentOn("Query", {
             _title: true
           },
           content: {
-            json: { content: true }
+            json: {
+              content: true,
+              blocks: {
+                __typename: true,
+
+                on_CodeBlockComponent: {
+                  __typename: true,
+                  _id: true,
+
+                  files: {
+                    items: {
+                      _id: true,
+                      _title: true,
+                      codeSnippet: {
+                        code: true,
+                        language: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           hero: {
             heroImage: {
