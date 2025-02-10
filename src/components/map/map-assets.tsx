@@ -1,7 +1,7 @@
 "use client"
 
 import { useLoader, useThree } from "@react-three/fiber"
-import { useControls } from "leva"
+import { useControls, folder as levaFolder } from "leva"
 import { animate } from "motion"
 import { memo, Suspense, useEffect, useMemo, useRef } from "react"
 import {
@@ -77,6 +77,8 @@ const useMapAssets = (): Record<string, MapAssets> => {
     loadedLightmaps.forEach((map, index) => {
       const meshName = withLightmap[index].mesh
       map.flipY = true
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
       map.magFilter = NearestFilter
       map.colorSpace = NoColorSpace
 
@@ -90,6 +92,8 @@ const useMapAssets = (): Record<string, MapAssets> => {
     loadedAmbientOcclusion.forEach((map, index) => {
       const meshName = withAmbientOcclusion[index].mesh
       map.flipY = false
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
       map.magFilter = NearestFilter
       map.colorSpace = NoColorSpace
 
@@ -124,43 +128,57 @@ const MapAssets = () => {
   const elementsWithLightmaps = useRef<Mesh[]>([])
   const elementsWithAmbientOcclusion = useRef<Mesh[]>([])
 
-  useControls("lightmaps", {
-    intensity: {
-      value: 1.0,
-      min: 0.001,
-      max: 8,
-      step: 0.001,
-      onChange: (value) => {
-        elementsWithLightmaps.current.forEach((mesh) => {
-          const material = mesh.material as ShaderMaterial
-          material.uniforms.lightMapMultiplier.value = value
-        })
+  useControls({
+    lightmaps: levaFolder(
+      {
+        intensity: {
+          value: 1.0,
+          min: 0.001,
+          max: 8,
+          step: 0.001,
+          onChange: (value) => {
+            elementsWithLightmaps.current.forEach((mesh) => {
+              const material = mesh.material as ShaderMaterial
+              material.uniforms.lightMapMultiplier.value = value
+            })
+          }
+        }
+      },
+      {
+        collapsed: true
       }
-    }
+    )
   })
 
-  useControls("aomap", {
-    intensity: {
-      value: 1.0,
-      min: 0.001,
-      max: 8,
-      step: 0.001,
-      onChange: (value) => {
-        elementsWithAmbientOcclusion.current.forEach((mesh) => {
-          const material = mesh.material as ShaderMaterial
-          material.uniforms.aoMapMultiplier.value = value
-        })
+  useControls({
+    aomap: levaFolder(
+      {
+        intensity: {
+          value: 1.0,
+          min: 0.001,
+          max: 8,
+          step: 0.001,
+          onChange: (value) => {
+            elementsWithAmbientOcclusion.current.forEach((mesh) => {
+              const material = mesh.material as ShaderMaterial
+              material.uniforms.aoMapMultiplier.value = value
+            })
+          }
+        },
+        showCheckerboard: {
+          value: false,
+          onChange: (value) => {
+            elementsWithAmbientOcclusion.current.forEach((mesh) => {
+              const material = mesh.material as ShaderMaterial
+              material.uniforms.aoWithCheckerboard.value = value
+            })
+          }
+        }
+      },
+      {
+        collapsed: true
       }
-    },
-    showCheckerboard: {
-      value: false,
-      onChange: (value) => {
-        elementsWithAmbientOcclusion.current.forEach((mesh) => {
-          const material = mesh.material as ShaderMaterial
-          material.uniforms.aoWithCheckerboard.value = value
-        })
-      }
-    }
+    )
   })
 
   useEffect(() => {
