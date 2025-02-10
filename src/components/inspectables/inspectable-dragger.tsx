@@ -134,18 +134,16 @@ export const InspectableDragger = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled])
 
-  // TODO: find a parametric way to calculate the "Math.PI / 8" value
-
   useFrame(() => {
     ref.current?.rotation.set(
       rotationXSpring.get(),
-      rotationYSpring.get() - Math.PI / 8,
+      rotationYSpring.get() - Math.PI / 2,
       rotationZSpring.get()
     )
   })
 
   return (
-    <group rotation={[0, Math.PI / 8, 0]}>
+    <group rotation={[0, Math.PI / 2, 0]}>
       <group ref={ref} {...bind?.()}>
         {children}
       </group>

@@ -10,6 +10,7 @@ import {
   Box3,
   Group,
   Matrix4,
+  Mesh,
   PerspectiveCamera,
   Quaternion,
   Vector3
@@ -24,19 +25,17 @@ import {
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
 
 interface InspectableProps {
-  inspectable: {
-    url: string
-    position: { x: number; y: number; z: number }
-    id: string
-  }
+  mesh: Mesh
+  position: { x: number; y: number; z: number }
+  id: string
 }
 
-export const Inspectable = ({ inspectable }: InspectableProps) => {
-  const { scene } = useGLTF(inspectable.url)
+export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
   const { selected } = useInspectable()
   const currentScene = useCurrentScene()
   const [size, setSize] = useState<[number, number, number]>([0, 0, 0])
@@ -50,6 +49,28 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
   const camera = useThree((state) => state.camera) as PerspectiveCamera
 
+  const cameraConfig = useNavigationStore(
+    (state) => state.currentScene?.cameraConfig
+  )
+  const offsetY = useRef(0)
+
+  useEffect(() => {
+    if (!cameraConfig) return
+
+    const initialY = cameraConfig.position[1]
+    const targetY = cameraConfig.targetScrollY ?? -cameraConfig.position[1]
+
+    const handleScroll = () => {
+      const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)
+
+      offsetY.current = (targetY - initialY) * scrollProgress
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [cameraConfig])
+
   const ref = useRef<Group>(null)
   const primitiveRef = useRef<Group>(null)
 
@@ -57,51 +78,61 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
   const { setSelected } = useInspectable()
   const setCursorType = useMouseStore((state) => state.setCursorType)
-  const pathname = usePathname()
 
   // TODO: create an abstraction for inspectables group that can be enabled for each scene
-  const isInspectableEnabled =
-    pathname.startsWith("/showcase") || currentScene === "lab"
+  const isInspectableEnabled = true
 
   useEffect(() => {
     if (ref.current) {
-      const boundingBox = new Box3().setFromObject(scene)
+      const boundingBox = new Box3().setFromObject(mesh)
+
+      console.log(mesh.name)
+      console.log("scale", mesh.scale)
+      console.log("size", mesh.scale)
+
       const size = new Vector3()
       boundingBox.getSize(size)
 
       const center = new Vector3()
       boundingBox.getCenter(center)
-      scene.position.sub(center)
+      mesh.position.sub(center)
+      mesh.position.set(0, 0, 0)
 
       setSize([size.x, size.y, size.z])
     }
-  }, [scene])
+  }, [mesh])
+
+  useEffect(() => {
+    targetPosition.current.x.set(position.x)
+    targetPosition.current.y.set(position.y)
+    targetPosition.current.z.set(position.z)
+  }, [mesh])
 
   const handleAnimation = (withAnimation: boolean) => {
-    if (!isInspectableEnabled && selected === inspectable.id) return
+    if (!cameraConfig) return
+    if (!isInspectableEnabled && selected === id) return
 
-    const direction = new Vector3()
-    camera.getWorldDirection(direction)
-    const offset = new Vector3(0, 1, 0).cross(direction).normalize()
-    const viewportWidth = Math.min(camera.aspect, 1.855)
-    const xOffset = viewportWidth * X_OFFSET
-
-    direction.add(offset.multiplyScalar(-xOffset))
+    const direction = new Vector3(
+      cameraConfig.target[0] - cameraConfig.position[0],
+      cameraConfig.target[1] - cameraConfig.position[1],
+      cameraConfig.target[2] - cameraConfig.position[2]
+    )
+    direction.normalize()
 
     const target = targetPosition.current
 
     const config = withAnimation ? ANIMATION_CONFIG : { duration: 0 }
 
-    if (selected === inspectable.id && isInspectableEnabled) {
+    if (selected === id && isInspectableEnabled) {
       const maxDimension = TARGET_SIZE / Math.max(...size)
-      animate(target.x, camera.position.x + direction.x, config)
-      animate(target.y, camera.position.y + direction.y, config)
-      animate(target.z, camera.position.z + direction.z, config)
+      animate(target.x, cameraConfig?.position[0] + direction.x, config)
+      animate(target.y, cameraConfig?.position[1] + direction.y, config)
+      animate(target.z, cameraConfig?.position[2] + direction.z, config)
       animate(targetScale.current, maxDimension, config)
     } else {
-      animate(target.x, inspectable.position.x, config)
-      animate(target.y, inspectable.position.y, config)
-      animate(target.z, inspectable.position.z, config)
+      animate(target.x, position.x, config)
+      animate(target.y, position.y, config)
+      animate(target.z, position.z, config)
       animate(targetScale.current, 1, config)
     }
   }
@@ -115,16 +146,58 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
     return () => window.removeEventListener("resize", handleResize)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, inspectable, size, camera, isInspectableEnabled])
+  }, [selected, size, camera, isInspectableEnabled])
 
   useFrame(() => {
-    if (ref.current) {
-      const position = targetPosition.current
+    if (ref.current && cameraConfig) {
+      const targetQuaternion = new Quaternion()
+
+      const viewportWidth = Math.min(camera.aspect, 1.855)
+      const xOffset = viewportWidth * X_OFFSET
+
+      const direction = new Vector3(
+        cameraConfig.target[0] - cameraConfig.position[0],
+        cameraConfig.target[1] - cameraConfig.position[1],
+        cameraConfig.target[2] - cameraConfig.position[2]
+      )
+
+      direction.normalize()
+      // Get perpendicular vector by swapping x/z and negating one
+      const perpendicular = new Vector3(
+        -direction.z,
+        0,
+        direction.x
+      ).normalize()
+      // Move direction to the left by adding scaled perpendicular vector
+
+      const perpendicularMoved = perpendicular.multiplyScalar(xOffset)
+
+      if (selected === id) {
+        const lookAtMatrix = new Matrix4()
+        const upVector = new Vector3(0, 1, 0)
+
+        lookAtMatrix.lookAt(
+          new Vector3(
+            cameraConfig.position[0],
+            cameraConfig.position[1],
+            cameraConfig.position[2]
+          ),
+          ref.current.position,
+          upVector
+        )
+        targetQuaternion.setFromRotationMatrix(lookAtMatrix)
+        targetQuaternion.multiply(
+          new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
+        )
+
+        const direction = new Vector3()
+        direction.setFromMatrixColumn(lookAtMatrix, 2).negate()
+      }
 
       ref.current.position.set(
-        position.x.get(),
-        position.y.get(),
-        position.z.get()
+        targetPosition.current.x.get(),
+        targetPosition.current.y.get(),
+        targetPosition.current.z.get()
       )
 
       ref.current.scale.set(
@@ -133,25 +206,11 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
         targetScale.current.get()
       )
 
-      const targetQuaternion = new Quaternion()
-
-      if (selected === inspectable.id) {
-        const lookAtMatrix = new Matrix4()
-        const upVector = new Vector3(0, 1, 0)
-
-        lookAtMatrix.lookAt(camera.position, ref.current.position, upVector)
-        targetQuaternion.setFromRotationMatrix(lookAtMatrix)
-
-        const rotationX = new Quaternion()
-        rotationX.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
-        targetQuaternion.multiply(rotationX)
-      }
-
       const q = quaternion.get()
       const currentQuaternion = new Quaternion(q.x, q.y, q.z, q.w)
       currentQuaternion.slerp(targetQuaternion, SMOOTH_FACTOR)
       quaternion.set(currentQuaternion)
-      primitiveRef.current?.quaternion.copy(currentQuaternion)
+      ref.current?.quaternion.copy(currentQuaternion)
     }
   })
 
@@ -163,13 +222,13 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
             e.stopPropagation()
             return
           }
-          setSelected(inspectable.id)
+          setSelected(id)
           setCursorType("default")
         }}
         ref={ref}
         onPointerEnter={() => {
           if (!isInspectableEnabled) return
-          if (selected === inspectable.id) {
+          if (selected === id) {
             setCursorType("grab")
           } else {
             setCursorType("zoom")
@@ -180,11 +239,11 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
           setCursorType("default")
         }}
         onPointerDown={() => {
-          if (!isInspectableEnabled || selected !== inspectable.id) return
+          if (!isInspectableEnabled || selected !== id) return
           setCursorType("grabbing")
         }}
         onPointerUp={(e) => {
-          if (!isInspectableEnabled || selected !== inspectable.id) return
+          if (!isInspectableEnabled || selected !== id) return
           if (e.object === e.eventObject) {
             setCursorType("grab")
           } else {
@@ -193,19 +252,15 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
         }}
       >
         <InspectableDragger
-          key={inspectable.id}
-          enabled={selected === inspectable.id && isInspectableEnabled}
+          key={id}
+          enabled={selected === id && isInspectableEnabled}
           global={false}
           cursor={false}
           snap={true}
           speed={2}
         >
-          <group ref={primitiveRef}>
-            <primitive object={scene} />
-            <mesh position={[0, 0, 0]}>
-              <boxGeometry args={[...size]} key={scene.name} />
-              <meshBasicMaterial transparent opacity={0} />
-            </mesh>
+          <group ref={ref}>
+            <primitive object={mesh} />
           </group>
         </InspectableDragger>
       </group>

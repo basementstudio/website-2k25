@@ -19,6 +19,7 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { useMesh } from "@/hooks/use-mesh"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -33,7 +34,6 @@ import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 import { useCarAnimation } from "./use-car-animation"
 import { useGodrays } from "./use-godrays"
-import { useMesh } from "@/hooks/use-mesh"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -327,6 +327,32 @@ export const Map = memo(() => {
       "SM_BasketballHoop"
     ) as Mesh | null
     if (hoopMesh) useMesh.setState({ hoopMesh })
+
+    const names: string[] = [
+      "SM_EDGLRD",
+      "SM_MrBeast",
+      "SM_VercelShip2324",
+      "SM_Geist",
+      "SM_Swaggersouls",
+      "SM_PinkFloyd",
+      "SM_plant01"
+    ]
+
+    const inspectables = useMesh.getState().inspectableMeshes
+
+    if (inspectables.length === 0) {
+      const inspectableMeshes: Mesh[] = []
+
+      names.forEach((meshName) => {
+        const mesh = officeModel.getObjectByName(meshName) as Mesh | null
+        if (mesh) {
+          mesh.removeFromParent()
+          inspectableMeshes.push(mesh)
+        }
+      })
+
+      useMesh.setState({ inspectableMeshes })
+    }
   }, [
     officeModel,
     outdoorModel,
