@@ -1,13 +1,30 @@
 import { Text } from "@react-three/uikit"
 import { useRouter } from "next/navigation"
+import { useCallback } from "react"
 
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 import { COLORS_THEME } from "../screen-ui"
 
 export const ArcadeWrapperTags = () => {
   const setCursorType = useMouseStore((state) => state.setCursorType)
-  const router = useRouter()
+  const { handleNavigation } = useHandleNavigation()
+  const setCurrentTabIndex = useNavigationStore(
+    (state) => state.setCurrentTabIndex
+  )
+  const scenes = useNavigationStore((state) => state.scenes)
+  const handleClose = useCallback(() => {
+    handleNavigation("/")
+
+    const tabIndex = scenes?.[0]?.tabs.findIndex(
+      (tab) => tab.tabName.toLowerCase() === "lab"
+    )
+
+    setCurrentTabIndex(-1)
+  }, [handleNavigation, setCurrentTabIndex, scenes])
+
   return (
     <>
       <Text
@@ -21,10 +38,7 @@ export const ArcadeWrapperTags = () => {
         paddingX={4}
         backgroundColor={COLORS_THEME.black}
         zIndexOffset={10}
-        onClick={() => {
-          router.prefetch("/")
-          router.push("/")
-        }}
+        onClick={() => handleClose()}
         onHoverChange={(hover) => {
           if (hover) {
             setCursorType("click")
