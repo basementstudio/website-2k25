@@ -18,6 +18,7 @@ import { ArcadeWrapperTags } from "./arcade-ui-components/arcade-wrapper-tags"
 
 interface ScreenUIProps {
   screenScale?: Vector3 | null
+  onLoad?: () => void
 }
 
 export const COLORS_THEME = {
@@ -25,7 +26,7 @@ export const COLORS_THEME = {
   black: "#0D0D0D"
 }
 
-export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
+export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
 
   const [experiments, setExperiments] = useState<any[]>([])
@@ -41,8 +42,9 @@ export const ScreenUI = ({ screenScale }: ScreenUIProps) => {
           description: item.description as string | null
         }))
       )
+      onLoad?.()
     })
-  }, [])
+  }, [onLoad])
 
   return (
     <>

@@ -1,5 +1,7 @@
 import { useVideoTexture } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
+import dynamic from "next/dynamic"
+import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { Mesh } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
@@ -9,22 +11,32 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
-import { ScreenUI } from "./screen-ui"
+
+const ScreenUI = dynamic(
+  () =>
+    import("./screen-ui").then((mod) => ({
+      default: mod.ScreenUI
+    })),
+  {
+    loading: () => null,
+    ssr: false
+  }
+)
 
 export const ArcadeScreen = () => {
   const { scene } = useThree()
-
+  const pathname = usePathname()
   const currentScene = useCurrentScene()
+  const isLabRoute = pathname === "/lab"
 
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
   const [hasVisitedArcade, setHasVisitedArcade] = useState(false)
+  const [isScreenUILoaded, setIsScreenUILoaded] = useState(false)
 
   const { arcade } = useAssets()
-
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
-
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
   useEffect(() => {
@@ -45,10 +57,10 @@ export const ArcadeScreen = () => {
 
     videoTexture.flipY = false
 
-    if (currentScene === "lab") {
+    if (currentScene === "lab" && isLabRoute && isScreenUILoaded) {
       setHasVisitedArcade(true)
       screenMaterial.uniforms.map.value = renderTarget.texture
-    } else if (!hasVisitedArcade) {
+    } else if (!hasVisitedArcade || !isScreenUILoaded) {
       screenMaterial.uniforms.map.value = videoTexture
     }
 
@@ -58,7 +70,9 @@ export const ArcadeScreen = () => {
     renderTarget.texture,
     videoTexture,
     currentScene,
-    hasVisitedArcade
+    hasVisitedArcade,
+    isLabRoute,
+    isScreenUILoaded
   ])
 
   useFrame((_, delta) => {
@@ -76,7 +90,12 @@ export const ArcadeScreen = () => {
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
     >
-      <ScreenUI screenScale={screenScale} />
+      {isLabRoute && (
+        <ScreenUI
+          screenScale={screenScale}
+          onLoad={() => setIsScreenUILoaded(true)}
+        />
+      )}
     </RenderTexture>
   )
 }
