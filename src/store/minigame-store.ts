@@ -6,11 +6,16 @@ const HOOP_POSITION = { x: 5.23, y: 3.414, z: -14.412 }
 
 const FORWARD_STRENGTH = 0.045
 const UP_STRENGTH = 0.15
-const GAME_DURATION = 24
+const GAME_DURATION = 5
 
 interface PlayedBall {
   position: { x: number; y: number; z: number }
   velocity: { x: number; y: number; z: number }
+}
+
+interface StaticBall {
+  position: { x: number; y: number; z: number }
+  rotation: { x: number; y: number; z: number }
 }
 
 interface MinigameStore {
@@ -37,6 +42,8 @@ interface MinigameStore {
   playerRecord: number
   hasPlayed: boolean
 
+  staticBalls: StaticBall[]
+
   setScore: (score: number | ((prev: number) => number)) => void
   setTimeRemaining: (timeRemaining: number | ((prev: number) => number)) => void
   setIsGameActive: (isGameActive: boolean) => void
@@ -49,6 +56,8 @@ interface MinigameStore {
   addPlayedBall: (ball: PlayedBall) => void
   setReadyToPlay: (ready: boolean) => void
   setPlayedBallMaterial: (material: Material) => void
+  addStaticBall: (ball: StaticBall) => void
+  clearStaticBalls: () => void
 }
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
@@ -73,6 +82,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   playerRecord: 0,
   hasPlayed: false,
   playedBallMaterial: null,
+  staticBalls: [],
   setScore: (score) =>
     set({ score: typeof score === "function" ? score(get().score) : score }),
   setTimeRemaining: (timeRemaining) =>
@@ -94,5 +104,8 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
     set((state) => ({ playedBalls: [...state.playedBalls, ball] })),
   setReadyToPlay: (ready: boolean) => set({ readyToPlay: ready }),
   setPlayedBallMaterial: (material: Material) =>
-    set({ playedBallMaterial: material })
+    set({ playedBallMaterial: material }),
+  addStaticBall: (ball: StaticBall) =>
+    set((state) => ({ staticBalls: [...state.staticBalls, ball] })),
+  clearStaticBalls: () => set({ staticBalls: [] })
 }))

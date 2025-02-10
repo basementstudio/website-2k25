@@ -39,6 +39,7 @@ const PhysicsWorld = dynamic(
 )
 
 import { PlayedBasketballs } from "./basketball/played-basketballs"
+import StaticBasketballs from "./basketball/static-basketballs"
 import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
@@ -119,11 +120,15 @@ export const Scene = () => {
               <Map />
 
               <Suspense fallback={null}>
-                <PhysicsWorld paused={!isBasketball}>
-                  <HoopMinigame />
-                  <PlayedBasketballs />
-                </PhysicsWorld>
+                {isBasketball ? (
+                  <PhysicsWorld paused={!isBasketball}>
+                    <HoopMinigame />
+                    <PlayedBasketballs />
+                  </PhysicsWorld>
+                ) : null}
               </Suspense>
+
+              <StaticBasketballs />
 
               <CharacterInstanceConfig />
               <CharactersSpawn />
