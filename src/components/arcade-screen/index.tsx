@@ -59,41 +59,51 @@ export const ArcadeScreen = () => {
 
     videoTexture.flipY = false
     bootTexture.flipY = false
-    screenMaterial.uniforms.map.value = videoTexture
 
-    screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
+    // first time entering (show video texture)
+    if (!hasVisitedArcade) {
+      screenMaterial.uniforms.map.value = videoTexture
+      screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
 
-    let startTime = performance.now()
-    const duration = 2000
+      // when entering lab route
+      if (isLabRoute) {
+        screenMaterial.uniforms.map.value = bootTexture
+        screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
 
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime
-      const progress = Math.min(elapsed / duration, 1)
+        let startTime = performance.now()
+        const duration = 2000
 
-      screenMaterial.uniforms.uRevealProgress.value = progress
+        const animate = (currentTime: number) => {
+          const elapsed = currentTime - startTime
+          const progress = Math.min(elapsed / duration, 1)
 
-      if (progress < 1) {
+          screenMaterial.uniforms.uRevealProgress.value = progress
+
+          if (progress < 1) {
+            requestAnimationFrame(animate)
+          }
+
+          // if animation ends switch to render target texture
+          if (progress >= 1 && isScreenUILoaded) {
+            screenMaterial.uniforms.map.value = renderTarget.texture
+            setHasVisitedArcade(true)
+          } else if (progress >= 1) {
+            // show boot texture until UI is loaded
+            screenMaterial.uniforms.map.value = bootTexture
+          }
+        }
+
         requestAnimationFrame(animate)
       }
-
-      if (progress >= 1 && isScreenUILoaded) {
-        screenMaterial.uniforms.map.value = renderTarget.texture
-        setHasVisitedArcade(true)
-      }
-    }
-
-    if (isLabRoute) {
-      screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
-      screenMaterial.uniforms.map.value = bootTexture
-      requestAnimationFrame(animate)
+    } else {
+      // always use render target texture after first visit
+      screenMaterial.uniforms.map.value = renderTarget.texture
+      screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
     }
 
     arcadeScreen.material = screenMaterial
-
-    return () => {
-      screenMaterial.uniforms.uRevealProgress.value = 0
-    }
   }, [
+    hasVisitedArcade,
     arcadeScreen,
     renderTarget.texture,
     videoTexture,
@@ -102,12 +112,6 @@ export const ArcadeScreen = () => {
     isScreenUILoaded,
     bootTexture
   ])
-
-  useEffect(() => {
-    if (hasVisitedArcade) {
-      screenMaterial.uniforms.map.value = renderTarget.texture
-    }
-  }, [hasVisitedArcade, renderTarget])
 
   useFrame((_, delta) => {
     if (screenMaterial.uniforms.uTime) {
@@ -124,11 +128,7 @@ export const ArcadeScreen = () => {
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
     >
-      <mesh>
-        <planeGeometry />
-        <meshBasicMaterial color="red" />
-      </mesh>
-      {isLabRoute && (
+      {(hasVisitedArcade || isLabRoute) && (
         <ScreenUI
           screenScale={screenScale}
           onLoad={() => setIsScreenUILoaded(true)}
