@@ -88,6 +88,7 @@ const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 #pragma glslify: valueRemap = require('../utils/value-remap.glsl')
+#pragma glslify: basicLight = require('../utils/basic-light.glsl')
 
 void main() {
   float lightMapIntensity = lightMapIntensity * lightMapMultiplier;
@@ -164,23 +165,8 @@ void main() {
   vec3 lf = irradiance.rgb;
 
   if (isInspecting) {
-    float lightFactor = dot(vec3(1.0, 0.0, -1.0), normalize(vNormal));
-    lightFactor = valueRemap(lightFactor, 0.2, 1.0, 0.1, 1.0);
-    lightFactor = clamp(lightFactor, 0.0, 1.0);
-    lightFactor = pow(lightFactor, 2.0);
-    lightFactor *= 2.0;
-    lightFactor += 1.0;
-    lf *= lightFactor;
-  }
-
-  if (isInspecting) {
-    float lightFactor2 = dot(vec3(0, 0.0, 1.0), normalize(vNormal));
-    lightFactor2 = valueRemap(lightFactor2, 0.2, 1.0, 0.1, 1.0);
-    lightFactor2 = clamp(lightFactor2, 0.0, 1.0);
-    lightFactor2 = pow(lightFactor2, 2.0);
-    lightFactor2 *= 1.0;
-    lightFactor2 += 1.0;
-    lf *= lightFactor2;
+    lf *= basicLight(vNormal, vec3(1.0, 0.0, -1.0), 2.0);
+    lf *= basicLight(vNormal, vec3(0, 0.0, 1.0), 1.0);
   }
 
   if (lightMapIntensity > 0.0) {

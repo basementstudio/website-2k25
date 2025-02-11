@@ -1,13 +1,15 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 
 import { useMesh } from "@/hooks/use-mesh"
 
 import { Inspectable } from "./inspectable"
+import { useInspectable } from "./context"
 
 export const Inspectables = () => {
   const { inspectableMeshes } = useMesh()
+  const { setSelected } = useInspectable()
 
   const positions = useMemo(() => {
     return inspectableMeshes.map((mesh) => ({
@@ -16,6 +18,15 @@ export const Inspectables = () => {
       z: mesh.position.z
     }))
   }, [inspectableMeshes])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) setSelected(null)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [setSelected])
 
   return (
     <>

@@ -26,6 +26,7 @@ import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
+import { useScrollTo } from "@/hooks/use-scroll-to"
 
 interface InspectableProps {
   mesh: Mesh
@@ -207,6 +208,18 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
     return () => window.removeEventListener("resize", handleResize)
   }, [camera, cameraConfig])
 
+  const scrollTo = useScrollTo()
+
+  const handleSelection = () => {
+    scrollTo({
+      offset: 0,
+      behavior: "smooth",
+      callback: () => {
+        setSelected(id)
+      }
+    })
+  }
+
   return (
     <group
       onClick={(e) => {
@@ -214,8 +227,8 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
           e.stopPropagation()
           return
         }
-        setSelected(id)
         setCursorType("default")
+        handleSelection()
       }}
       ref={ref}
       onPointerEnter={(e) => {
