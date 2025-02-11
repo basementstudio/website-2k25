@@ -1,4 +1,4 @@
-import { useVideoTexture } from "@react-three/drei"
+import { useTexture, useVideoTexture } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
@@ -36,6 +36,8 @@ export const ArcadeScreen = () => {
   const [isScreenUILoaded, setIsScreenUILoaded] = useState(false)
 
   const { arcade } = useAssets()
+
+  const bootTexture = useTexture("/images/arcade-screen/boot.png")
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
@@ -56,24 +58,56 @@ export const ArcadeScreen = () => {
     if (!arcadeScreen) return
 
     videoTexture.flipY = false
+    bootTexture.flipY = false
+    screenMaterial.uniforms.map.value = videoTexture
 
-    if (currentScene === "lab" && isLabRoute && isScreenUILoaded) {
-      setHasVisitedArcade(true)
-      screenMaterial.uniforms.map.value = renderTarget.texture
-    } else if (!hasVisitedArcade || !isScreenUILoaded) {
-      screenMaterial.uniforms.map.value = videoTexture
+    screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
+
+    let startTime = performance.now()
+    const duration = 2000
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      screenMaterial.uniforms.uRevealProgress.value = progress
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      }
+
+      if (progress >= 1 && isScreenUILoaded) {
+        screenMaterial.uniforms.map.value = renderTarget.texture
+        setHasVisitedArcade(true)
+      }
+    }
+
+    if (isLabRoute) {
+      screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
+      screenMaterial.uniforms.map.value = bootTexture
+      requestAnimationFrame(animate)
     }
 
     arcadeScreen.material = screenMaterial
+
+    return () => {
+      screenMaterial.uniforms.uRevealProgress.value = 0
+    }
   }, [
     arcadeScreen,
     renderTarget.texture,
     videoTexture,
     currentScene,
-    hasVisitedArcade,
     isLabRoute,
-    isScreenUILoaded
+    isScreenUILoaded,
+    bootTexture
   ])
+
+  useEffect(() => {
+    if (hasVisitedArcade) {
+      screenMaterial.uniforms.map.value = renderTarget.texture
+    }
+  }, [hasVisitedArcade, renderTarget])
 
   useFrame((_, delta) => {
     if (screenMaterial.uniforms.uTime) {
@@ -90,6 +124,10 @@ export const ArcadeScreen = () => {
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
     >
+      <mesh>
+        <planeGeometry />
+        <meshBasicMaterial color="red" />
+      </mesh>
       {isLabRoute && (
         <ScreenUI
           screenScale={screenScale}

@@ -1,5 +1,6 @@
 uniform sampler2D map;
 uniform float uTime;
+uniform float uRevealProgress;
 varying vec2 vUv;
 
 #define TINT_R (1.33)
@@ -11,6 +12,7 @@ varying vec2 vUv;
 #define DISTORTION (0.3)
 #define NOISE_INTENSITY (0.05)
 #define TIME_SPEED (1.0)
+#define LINE_HEIGHT (0.05)
 
 vec2 curveRemapUV(vec2 uv) {
   uv = uv * 2.0 - 1.0;
@@ -36,6 +38,15 @@ void main() {
     remappedUv.y < 0.0 ||
     remappedUv.y > 1.0
   ) {
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    return;
+  }
+
+  // reveal
+  float currentLine = floor(remappedUv.y / LINE_HEIGHT);
+  float revealLine = floor(uRevealProgress / LINE_HEIGHT);
+
+  if (currentLine > revealLine) {
     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     return;
   }
