@@ -128,12 +128,12 @@ export const Scene = () => {
               <Map />
 
               <Suspense fallback={null}>
-                {isBasketball ? (
+                {isBasketball && (
                   <PhysicsWorld paused={!isBasketball}>
                     <HoopMinigame />
                     <PlayedBasketballs />
                   </PhysicsWorld>
-                ) : null}
+                )}
               </Suspense>
 
               <StaticBasketballs />
