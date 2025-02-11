@@ -377,7 +377,6 @@ export const Map = memo(() => {
       )}
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && <primitive position-x={-8.7} object={car} />}
-      <PlayedBasketballs />
       <BakesLoader />
       <ReflexesLoader />
     </group>
