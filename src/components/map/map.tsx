@@ -188,23 +188,18 @@ export const Map = memo(() => {
       setKeyframedNet(newNetMesh)
     }
 
-    const carMesh = outdoorModel?.getObjectByName("car01")
-    if (carMesh?.parent) {
-      carMesh.removeFromParent()
+    const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
+    const backWheel = carV5?.children.find(
+      (child) => child.name === "BACK-WHEEL"
+    ) as Mesh
+    const frontWheel = carV5?.children.find(
+      (child) => child.name === "FRONT-WHEEL"
+    ) as Mesh
 
-      const backWheel = carV5?.children.find(
-        (child) => child.name === "BACK-WHEEL"
-      ) as Mesh
-      const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
-      const frontWheel = carV5?.children.find(
-        (child) => child.name === "FRONT-WHEEL"
-      ) as Mesh
-
-      if (backWheel && car && frontWheel) {
-        useMesh.setState({
-          carMeshes: { backWheel, car, frontWheel }
-        })
-      }
+    if (backWheel && car && frontWheel) {
+      useMesh.setState({
+        carMeshes: { backWheel, car, frontWheel }
+      })
     }
 
     const traverse = (child: Object3D) => {

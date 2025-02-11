@@ -6,200 +6,22 @@ import { BufferAttribute, Mesh, Object3D, ShaderMaterial, Vector3 } from "three"
 
 import { easeInOutCubic } from "@/utils/animations"
 
-export type CarVariant =
-  | "DeLorean"
-  | "Nissan"
-  | "Mistery"
-  | "Simpsons"
-  | "Kitt"
-  | "DeLoreanFly"
-
-interface CMSTextures {
-  dodgeO: string
-  dodgeB: string
-  delorean: string
-  nissan: string
-  simpsons: string
-  knightRider: string
-  mistery: string
-}
-
-interface CarState {
-  isWaiting: boolean
-  waitTimeout: NodeJS.Timeout | null
-  isSoundPlaying: boolean
-  currentSpeed: number
-  isSlowingDown: boolean
-  isSpeedingUp: boolean
-  hasInitialized: boolean
-  isFlying: boolean
-}
-
-const CONSTANTS = {
-  BASE_SPEED: 0.175 / 1.25,
-  START_X: -9,
-  END_X: 9.5,
-  MIN_WAIT_TIME: 8000,
-  ADDED_WAIT_TIME: 6000,
-  SPEED_REDUCTION: 0.7,
-  SPEED_VARIATION: 0.5,
-  FLIGHT_PROBABILITY: 0.25
-}
-
-const TOTAL_DISTANCE = CONSTANTS.END_X - CONSTANTS.START_X
-
-const carState: CarState = {
-  isWaiting: false,
-  waitTimeout: null,
-  isSoundPlaying: false,
-  currentSpeed: CONSTANTS.BASE_SPEED,
-  isSlowingDown: false,
-  isSpeedingUp: false,
-  hasInitialized: false,
-  isFlying: false
-}
-
-// adds random waiting time between car passes
-const setRandomTimeout = () => {
-  const waitTime =
-    CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
-  carState.isWaiting = true
-  carState.isSoundPlaying = false
-
-  if (carState.waitTimeout) clearTimeout(carState.waitTimeout)
-
-  carState.waitTimeout = setTimeout(
-    () => (carState.isWaiting = false),
-    waitTime
-  )
-}
-
-// updates car speed and behavior (slow down/speed up chance)
-const updateCarSpeed = () => {
-  carState.currentSpeed = CONSTANTS.BASE_SPEED
-
-  const behavior = Math.random()
-
-  if (behavior < 0.9) {
-    carState.isSlowingDown = true
-    carState.isSpeedingUp = false
-  } else if (behavior < 0.5) {
-    carState.isSpeedingUp = true
-    carState.isSlowingDown = false
-    carState.currentSpeed *= CONSTANTS.SPEED_REDUCTION
-  } else {
-    carState.isSlowingDown = false
-    carState.isSpeedingUp = false
-  }
-}
-
-interface updateCarPositionProps {
-  carPosition: Vector3
-  progress: number
-  setTextureIndex: (value: SetStateAction<number>) => void
-  texturesLength: number
-  carGroup: Object3D
-}
-
-// config for each car shapekey
-interface CarConfig {
-  texture: string
-  morphTarget: CarVariant | null
-  uvSource: "uv2" | "originalUV" | "uv3" | "texcoord_4" | "texcoord_5"
-  probability: number
-  canFly?: boolean
-  wheelSize?: number
-  frontWheelOffset?: number
-  backWheelOffset?: number
-}
-
-const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
-  dodgeO: {
-    texture: "dodgeO",
-    morphTarget: null,
-    uvSource: "uv2",
-    probability: 0.425,
-    canFly: false,
-    wheelSize: 1,
-    frontWheelOffset: 0.2,
-    backWheelOffset: 0
-  },
-  delorean: {
-    texture: "delorean",
-    morphTarget: "DeLorean",
-    uvSource: "uv2",
-    probability: 0.025,
-    canFly: true,
-    wheelSize: 1.1,
-    frontWheelOffset: 0.15,
-    backWheelOffset: -0.05
-  },
-  knightRider: {
-    texture: "knightRider",
-    morphTarget: "Kitt",
-    uvSource: "texcoord_5",
-    probability: 0.025,
-    canFly: false,
-    wheelSize: 1,
-    frontWheelOffset: -0.12,
-    backWheelOffset: 0
-  },
-  nissan: {
-    texture: "nissan",
-    morphTarget: "Nissan",
-    uvSource: "originalUV",
-    probability: 0.025,
-    canFly: false,
-    wheelSize: 1,
-    frontWheelOffset: 0,
-    backWheelOffset: -0.02
-  },
-  simpsons: {
-    texture: "simpsons",
-    morphTarget: "Simpsons",
-    uvSource: "texcoord_4",
-    probability: 0.025,
-    canFly: false,
-    wheelSize: 1,
-    frontWheelOffset: 0.27,
-    backWheelOffset: 0
-  },
-  dodgeB: {
-    texture: "dodgeB",
-    morphTarget: null,
-    uvSource: "uv2",
-    probability: 0.425,
-    canFly: false,
-    wheelSize: 1,
-    frontWheelOffset: 0.25,
-    backWheelOffset: 0
-  },
-  mistery: {
-    texture: "mistery",
-    morphTarget: "Mistery",
-    uvSource: "uv3",
-    probability: 0.025,
-    canFly: false,
-    wheelSize: 1,
-    frontWheelOffset: 0,
-    backWheelOffset: 0
-  }
-}
-
-// randomly select a car configuration based on probability weights
-const getRandomCarConfig = (): CarConfig => {
-  const random = Math.random()
-  let cumulativeProbability = 0
-
-  for (const config of Object.values(CAR_CONFIGS)) {
-    cumulativeProbability += config.probability
-    if (random <= cumulativeProbability) {
-      return config
-    }
-  }
-
-  return Object.values(CAR_CONFIGS)[0]
-}
+import {
+  CAR_CONFIGS,
+  type CarConfig,
+  carState,
+  type CMSTextures,
+  CONSTANTS,
+  TOTAL_DISTANCE,
+  updateCarPositionProps,
+  type UseCarAnimationProps
+} from "./car.interfaces"
+import {
+  getRandomCarConfig,
+  runFirstCarPass,
+  setRandomTimeout,
+  updateCarSpeed
+} from "./car-utils"
 
 // sets up car morphing targets and UV mapping for textures
 const setupCarMorphAndUVs = (
@@ -357,15 +179,7 @@ const updateCarPosition = ({
   }
 }
 
-const runFirstCarPass = (carPosition: Vector3, carGroup: Object3D) => {
-  carState.hasInitialized = true
-  carPosition.x = CONSTANTS.START_X
-  carState.isWaiting = true
-  setRandomTimeout()
-  carGroup.visible = false
-}
-
-const animateCar = (
+export const animateCar = (
   car: Object3D,
   setTextureIndex: (value: SetStateAction<number>) => void,
   texturesLength: number
@@ -394,13 +208,6 @@ const animateCar = (
       carGroup: car
     })
   }
-}
-
-interface UseCarAnimationProps {
-  car: Mesh | null
-  frontWheel: Mesh | null
-  backWheel: Mesh | null
-  textures: CMSTextures
 }
 
 // main hook for the cars that handles:
