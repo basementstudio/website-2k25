@@ -1,12 +1,16 @@
+import { useLenis } from "lenis/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback } from "react"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { TRANSITION_DURATION } from "@/constants/transitions"
+import { useScrollTo } from "@/hooks/use-scroll-to"
 
 export const useHandleNavigation = () => {
+  const lenis = useLenis()
   const router = useRouter()
   const pathname = usePathname()
+  const scrollTo = useScrollTo()
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
   const setDisableCameraTransition = useNavigationStore(
     (state) => state.setDisableCameraTransition
@@ -25,35 +29,46 @@ export const useHandleNavigation = () => {
       if (!selectedScene) return
 
       if (window.scrollY < window.innerHeight) {
-        window.scrollTo({ top: 0, behavior: "smooth" })
         setCurrentScene(selectedScene)
+        lenis?.stop()
 
-        // Wait for scroll to complete before routing
-        const checkScroll = setInterval(() => {
-          if (window.scrollY === 0) {
-            clearInterval(checkScroll)
+        scrollTo({
+          offset: 0,
+          behavior: "smooth",
+          callback: () => {
             router.push(route, { scroll: false })
+            lenis?.start()
           }
-        }, 10)
+        })
       } else {
         document.documentElement.dataset.flip = "true"
-        document.body.style.overflow = "hidden"
-        setCurrentScene(selectedScene)
+        lenis?.stop()
         setDisableCameraTransition(true)
+        setCurrentScene(selectedScene)
 
         setTimeout(() => {
-          window.scrollTo({ top: 0, behavior: "instant" })
+          scrollTo({
+            offset: 0,
+            behavior: "instant",
+            callback: () => {
+              document.documentElement.dataset.flip = "false"
+              lenis?.start()
+            }
+          })
           router.push(route, { scroll: false })
-
-          setTimeout(() => {
-            document.documentElement.dataset.flip = "false"
-            document.body.style.overflow = "auto"
-          }, 10)
         }, TRANSITION_DURATION)
       }
     },
 
-    [router, setCurrentScene, scenes, pathname, setDisableCameraTransition]
+    [
+      router,
+      setCurrentScene,
+      scenes,
+      pathname,
+      setDisableCameraTransition,
+      lenis,
+      scrollTo
+    ]
   )
 
   return { handleNavigation }

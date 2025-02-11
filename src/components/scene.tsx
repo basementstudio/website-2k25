@@ -2,14 +2,15 @@
 
 import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
-import { Physics } from "@react-three/rapier"
 import dynamic from "next/dynamic"
-import { memo, useEffect, useRef, useState } from "react"
+import { Perf } from "r3f-perf"
+import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
-import { Perf } from "r3f-perf"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMinigameStore } from "@/store/minigame-store"
 
 import { Map } from "./map/map"
 import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
@@ -21,6 +22,25 @@ const HoopMinigame = dynamic(
   { ssr: false }
 )
 
+const PhysicsWorld = dynamic(
+  () =>
+    import("@react-three/rapier").then((mod) => {
+      const { Physics } = mod
+      return function PhysicsWrapper({
+        children,
+        paused
+      }: {
+        children: React.ReactNode
+        paused: boolean
+      }) {
+        return <Physics paused={paused}>{children}</Physics>
+      }
+    }),
+  { ssr: false }
+)
+
+import { PlayedBasketballs } from "./basketball/played-basketballs"
+import StaticBasketballs from "./basketball/static-basketballs"
 import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
@@ -46,6 +66,13 @@ export const Scene = () => {
     currentScene
   } = useNavigationStore()
   const isBasketball = currentScene?.name === "basketball"
+  const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
+
+  useEffect(() => {
+    if (!isBasketball) {
+      clearPlayedBalls()
+    }
+  }, [isBasketball, clearPlayedBalls])
 
   useEffect(() => {
     canvasRef.current.style.cursor = cursorTypeMap[cursorType]
@@ -97,10 +124,20 @@ export const Scene = () => {
               <Environment preset="studio" />
               <CameraController />
               <Sparkles />
-              <Physics paused={!isBasketball}>
-                <Map />
-                {isBasketball && <HoopMinigame />}
-              </Physics>
+
+              <Map />
+
+              <Suspense fallback={null}>
+                {isBasketball ? (
+                  <PhysicsWorld paused={!isBasketball}>
+                    <HoopMinigame />
+                    <PlayedBasketballs />
+                  </PhysicsWorld>
+                ) : null}
+              </Suspense>
+
+              <StaticBasketballs />
+
               <CharacterInstanceConfig />
               <CharactersSpawn />
             </>
