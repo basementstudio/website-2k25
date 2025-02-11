@@ -16,7 +16,20 @@ const pagesFragment = fragmentOn("Pages", {
     inspectableList: {
       items: {
         _id: true,
-        mesh: true
+        _title: true,
+        mesh: true,
+        specs: {
+          items: {
+            _id: true,
+            _title: true,
+            value: true
+          }
+        },
+        description: {
+          json: {
+            content: true
+          }
+        }
       }
     }
   }

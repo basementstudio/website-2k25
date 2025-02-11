@@ -148,13 +148,13 @@ void main() {
 
   #ifdef USE_EMISSIVE
   float ei = emissiveIntensity;
-  ei *= max(0.1, 1.0 - fadeFactor);
+  ei *= max(0.01, 1.0 - fadeFactor);
   irradiance += emissive * ei;
   #endif
 
   #ifdef USE_EMISSIVEMAP
   float ei = emissiveIntensity;
-  ei *= max(0.1, 1.0 - fadeFactor);
+  ei *= max(0.01, 1.0 - fadeFactor);
   vec4 emissiveColor = texture2D(emissiveMap, vUv);
   irradiance *= emissiveColor.rgb * ei;
   #endif
@@ -168,7 +168,7 @@ void main() {
     lightFactor = valueRemap(lightFactor, 0.2, 1.0, 0.1, 1.0);
     lightFactor = clamp(lightFactor, 0.0, 1.0);
     lightFactor = pow(lightFactor, 2.0);
-    lightFactor *= 3.0;
+    lightFactor *= 2.0;
     lightFactor += 1.0;
     lf *= lightFactor;
   }
@@ -178,7 +178,7 @@ void main() {
     lightFactor2 = valueRemap(lightFactor2, 0.2, 1.0, 0.1, 1.0);
     lightFactor2 = clamp(lightFactor2, 0.0, 1.0);
     lightFactor2 = pow(lightFactor2, 2.0);
-    lightFactor2 *= 3.0;
+    lightFactor2 *= 1.0;
     lightFactor2 += 1.0;
     lf *= lightFactor2;
   }
@@ -294,7 +294,7 @@ void main() {
   gl_FragColor.rgb = mix(gl_FragColor.rgb, transitionedFogColor, fogFactor);
 
   if (inspectingEnabled && !isInspecting) {
-    gl_FragColor.rgb *= max(0.1, 1.0 - fadeFactor);
+    gl_FragColor.rgb *= max(0.01, 1.0 - fadeFactor);
   }
 
   if (uLoaded < 1.0) {

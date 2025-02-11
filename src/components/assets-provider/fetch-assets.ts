@@ -25,8 +25,21 @@ export interface AssetsResult {
     url: string
   }[]
   inspectables: {
+    _title: string
     id: string
     mesh: string
+    specs: {
+      items: {
+        _id: string
+        _title: string
+        value: string
+      }[]
+    }
+    description: {
+      json: {
+        content: string
+      }
+    }
   }[]
   videos: {
     mesh: string
@@ -108,8 +121,11 @@ export async function fetchAssets(): Promise<AssetsResult> {
       intensity: item.intensity ?? 1
     })),
     inspectables: pages.inspectables.inspectableList.items.map((item) => ({
-      id: item._id,
-      mesh: item.mesh
+      _title: item._title ?? "",
+      id: item._id ?? "",
+      mesh: item.mesh ?? "",
+      specs: item.specs,
+      description: item.description
     })),
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",

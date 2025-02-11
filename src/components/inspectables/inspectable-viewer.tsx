@@ -7,11 +7,11 @@ const RichText = BaseRichText as unknown as React.ComponentType<{
   content: Node[]
 }>
 
+import { useAssets } from "@/components/assets-provider"
+import { AssetsResult } from "@/components/assets-provider/fetch-assets"
+import { useInspectable } from "@/components/inspectables/context"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { cn } from "@/utils/cn"
-
-import { useInspectable } from "./context"
-import { fetchInspectable, Inspectable } from "./fetch-inspectable"
 
 const Close = ({ handleClose }: { handleClose: () => void }) => (
   <button className="text-p text-brand-w1" tabIndex={0} onClick={handleClose}>
@@ -19,7 +19,7 @@ const Close = ({ handleClose }: { handleClose: () => void }) => (
   </button>
 )
 
-const Content = ({ data }: { data: Inspectable }) => (
+const Content = ({ data }: { data: AssetsResult["inspectables"] }) => (
   <>
     <h2 className="text-h2 text-brand-w1">{data._title}</h2>
     {data?.specs?.items && data.specs.items.length > 0 && (
@@ -44,8 +44,8 @@ const Content = ({ data }: { data: Inspectable }) => (
 
 export const InspectableViewer = () => {
   const { selected, setSelected } = useInspectable()
-  const [data, setData] = useState<Inspectable | null>(null)
-
+  const [data, setData] = useState<AssetsResult["inspectables"] | null>(null)
+  const { inspectables } = useAssets()
   useKeyPress("Escape", () => setSelected(""))
 
   useEffect(() => {
@@ -54,12 +54,15 @@ export const InspectableViewer = () => {
     if (!selected) return
 
     const fetchData = async () => {
-      const data = await fetchInspectable({ id: selected })
-      setData(data)
+      const inspectableData = inspectables.find(
+        (inspectable) => inspectable.mesh === selected
+      ) as unknown as AssetsResult["inspectables"]
+
+      setData(inspectableData)
     }
 
     fetchData()
-  }, [selected])
+  }, [selected, inspectables])
 
   const handleFocus = () => {
     window.scrollTo({
