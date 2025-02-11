@@ -56,7 +56,6 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
 }
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
-  console.log("[ContactScene] model url", modelUrl)
   const gltf = useGLTF(modelUrl)
   const mixerRef = useRef<AnimationMixer | null>(null)
 
