@@ -4,7 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, Suspense, useEffect, useRef, useState } from "react"
 
 import {
   Mesh,
