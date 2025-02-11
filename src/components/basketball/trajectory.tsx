@@ -4,6 +4,9 @@ import { RapierRigidBody } from "@react-three/rapier"
 import { useEffect, useRef } from "react"
 import { Vector3 } from "three"
 
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMinigameStore } from "@/store/minigame-store"
+
 interface TrajectoryProps {
   ballRef: React.RefObject<RapierRigidBody | null>
   isDragging: boolean
@@ -15,6 +18,9 @@ export const Trajectory = ({
   isDragging,
   isResetting
 }: TrajectoryProps) => {
+  const scene = useCurrentScene()
+  const isBasketball = scene === "basketball"
+  const readyToPlay = useMinigameStore((state) => state.readyToPlay)
   const maxPoints = 140
   const positions = useRef<Vector3[]>([])
   const lastPos = useRef<Vector3>(new Vector3())
@@ -25,16 +31,19 @@ export const Trajectory = ({
   const isUnmounting = useRef(false)
 
   useEffect(() => {
-    positions.current = Array(maxPoints)
-      .fill(null)
-      .map(() => new Vector3())
-    fadeOutPoints.current = []
-    activePoints.current = 0
-    opacity.current = 0.4
-    isUnmounting.current = false
+    const resetState = () => {
+      positions.current = Array(maxPoints)
+        .fill(null)
+        .map(() => new Vector3())
+      fadeOutPoints.current = []
+      activePoints.current = 0
+      opacity.current = 0.4
+      lastPos.current.set(0, 0, 0)
+      tempVec.current.set(0, 0, 0)
+    }
 
-    const lastPosRef = lastPos.current
-    const tempVecRef = tempVec.current
+    resetState()
+    isUnmounting.current = false
 
     return () => {
       isUnmounting.current = true
@@ -42,13 +51,15 @@ export const Trajectory = ({
       fadeOutPoints.current.length = 0
       activePoints.current = 0
       opacity.current = 0
-      lastPosRef.set(0, 0, 0)
-      tempVecRef.set(0, 0, 0)
     }
-  }, [])
+  }, [isBasketball, readyToPlay])
 
   useFrame((_, delta) => {
-    if (isUnmounting.current) return
+    if (!isBasketball || !readyToPlay || isUnmounting.current) {
+      activePoints.current = 0
+      fadeOutPoints.current.length = 0
+      return
+    }
 
     if (!ballRef.current || isDragging) {
       activePoints.current = 0
@@ -71,31 +82,46 @@ export const Trajectory = ({
       return
     }
 
-    const currentPos = ballRef.current.translation()
-    if (isNaN(currentPos.x) || isNaN(currentPos.y) || isNaN(currentPos.z)) {
-      return
-    }
-
-    tempVec.current.set(currentPos.x, currentPos.y, currentPos.z)
-
-    if (
-      activePoints.current === 0 ||
-      tempVec.current.distanceTo(lastPos.current) > 0.05
-    ) {
-      if (activePoints.current < maxPoints) {
-        positions.current[activePoints.current].copy(tempVec.current)
-        activePoints.current++
-      } else {
-        for (let i = 1; i < maxPoints; i++) {
-          positions.current[i - 1].copy(positions.current[i])
-        }
-        positions.current[maxPoints - 1].copy(tempVec.current)
+    try {
+      if (!ballRef.current.isValid?.()) {
+        return
       }
-      lastPos.current.copy(tempVec.current)
+
+      const currentPos = ballRef.current.translation()
+      if (
+        !currentPos ||
+        isNaN(currentPos.x) ||
+        isNaN(currentPos.y) ||
+        isNaN(currentPos.z)
+      ) {
+        return
+      }
+
+      tempVec.current.set(currentPos.x, currentPos.y, currentPos.z)
+
+      if (
+        activePoints.current === 0 ||
+        tempVec.current.distanceTo(lastPos.current) > 0.05
+      ) {
+        if (activePoints.current < maxPoints) {
+          positions.current[activePoints.current].copy(tempVec.current)
+          activePoints.current++
+        } else {
+          for (let i = 1; i < maxPoints; i++) {
+            positions.current[i - 1].copy(positions.current[i])
+          }
+          positions.current[maxPoints - 1].copy(tempVec.current)
+        }
+        lastPos.current.copy(tempVec.current)
+      }
+    } catch (error) {
+      activePoints.current = 0
+      fadeOutPoints.current.length = 0
+      return
     }
   })
 
-  if (opacity.current <= 0) return null
+  if (!isBasketball || !readyToPlay || opacity.current <= 0) return null
 
   const pointsToRender = isResetting
     ? fadeOutPoints.current

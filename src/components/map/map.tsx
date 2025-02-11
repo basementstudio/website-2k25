@@ -20,6 +20,7 @@ import {
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import {
   createGlobalShaderMaterial,
@@ -28,7 +29,6 @@ import {
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
-import { PlayedBasketballs } from "../basketball/played-basketballs"
 import { useInspectable } from "../inspectables/context"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
@@ -65,6 +65,7 @@ export const Map = memo(() => {
     routingElements: routingElementsPath,
     videos
   } = useAssets()
+  const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
@@ -91,7 +92,6 @@ export const Map = memo(() => {
     (store) => store.materialsRef
   )
 
-  //
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
 
@@ -199,13 +199,11 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    //
     const originalNet = officeModel.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel.getObjectByName("SM_BasketRed-v2")
 
     const carMesh = outdoorModel.getObjectByName("car01")
 
-    //
     if (originalNet) originalNet.removeFromParent()
     if (newNetMesh) {
       newNetMesh.removeFromParent()
@@ -347,6 +345,7 @@ export const Map = memo(() => {
     const hoopMesh = officeModel.getObjectByName(
       "SM_BasketballHoop"
     ) as Mesh | null
+
     if (hoopMesh) useMesh.setState({ hoopMesh })
 
     const inspectables = useMesh.getState().inspectableMeshes
@@ -408,9 +407,11 @@ export const Map = memo(() => {
           />
         )
       })}
+      {scene !== "basketball" && useMesh.getState().hoopMesh && (
+        <primitive object={useMesh.getState().hoopMesh as Mesh} />
+      )}
       {keyframedNet && <primitive object={keyframedNet} />}
       {car && <primitive position-x={-8.7} object={car} />}
-      <PlayedBasketballs />
       <MapAssetsLoader />
       <ReflexesLoader />
     </group>

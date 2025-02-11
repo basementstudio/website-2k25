@@ -1,9 +1,10 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh } from "three"
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
@@ -42,6 +43,14 @@ export const Basketball = ({
     () => (basketballModel.scene.children[0] as Mesh).geometry,
     [basketballModel]
   )
+
+  const originalMaterial = basketballModel.materials[
+    "Material.001"
+  ] as MeshStandardMaterial
+
+  const material = useMemo(() => {
+    return createGlobalShaderMaterial(originalMaterial, false)
+  }, [basketballModel])
 
   const handleCollision = (other: any) => {
     const randomVolume = 0.1 + Math.random() * 0.1
@@ -97,8 +106,8 @@ export const Basketball = ({
     >
       <mesh
         geometry={geometry}
-        material={basketballModel.materials["Material.001"]}
         scale={1.7}
+        material={originalMaterial}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
