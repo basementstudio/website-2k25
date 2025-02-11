@@ -1,10 +1,8 @@
 "use client"
 
-import { useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { useMotionValue } from "motion/react"
-import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import {
   Box3,
@@ -39,14 +37,14 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
   const { selected } = useInspectable()
   const currentScene = useCurrentScene()
   const [size, setSize] = useState<[number, number, number]>([0, 0, 0])
-
+  const perpendicularMoved = useRef(new Vector3())
   const targetPosition = useRef({
     x: new MotionValue(),
     y: new MotionValue(),
     z: new MotionValue()
   })
   const targetScale = useRef(new MotionValue())
-
+  const inspectingFactor = useRef(new MotionValue(0))
   const camera = useThree((state) => state.camera) as PerspectiveCamera
 
   const cameraConfig = useNavigationStore(
@@ -86,10 +84,6 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
     if (ref.current) {
       const boundingBox = new Box3().setFromObject(mesh)
 
-      console.log(mesh.name)
-      console.log("scale", mesh.scale)
-      console.log("size", mesh.scale)
-
       const size = new Vector3()
       boundingBox.getSize(size)
 
@@ -108,6 +102,8 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
     targetPosition.current.z.set(position.z)
   }, [mesh])
 
+  const isSelected = useRef(false)
+
   const handleAnimation = (withAnimation: boolean) => {
     if (!cameraConfig) return
     if (!isInspectableEnabled && selected === id) return
@@ -125,52 +121,40 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
 
     if (selected === id && isInspectableEnabled) {
       const maxDimension = TARGET_SIZE / Math.max(...size)
-      animate(target.x, cameraConfig?.position[0] + direction.x, config)
+      animate(
+        target.x,
+        cameraConfig?.position[0] + direction.x + perpendicularMoved.current.x,
+        config
+      )
       animate(target.y, cameraConfig?.position[1] + direction.y, config)
-      animate(target.z, cameraConfig?.position[2] + direction.z, config)
+      animate(
+        target.z,
+        cameraConfig?.position[2] + direction.z + perpendicularMoved.current.z,
+        config
+      )
       animate(targetScale.current, maxDimension, config)
+      animate(inspectingFactor.current, 1, config)
+      isSelected.current = true
     } else {
       animate(target.x, position.x, config)
       animate(target.y, position.y, config)
       animate(target.z, position.z, config)
       animate(targetScale.current, 1, config)
+      animate(inspectingFactor.current, 0, config).then(() => {
+        isSelected.current = false
+      })
     }
   }
 
   useEffect(() => {
     handleAnimation(true)
 
-    const handleResize = () => handleAnimation(false)
-
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, size, camera, isInspectableEnabled])
+  }, [selected, isInspectableEnabled])
 
   useFrame(() => {
     if (ref.current && cameraConfig) {
       const targetQuaternion = new Quaternion()
-
-      const viewportWidth = Math.min(camera.aspect, 1.855)
-      const xOffset = viewportWidth * X_OFFSET
-
-      const direction = new Vector3(
-        cameraConfig.target[0] - cameraConfig.position[0],
-        cameraConfig.target[1] - cameraConfig.position[1],
-        cameraConfig.target[2] - cameraConfig.position[2]
-      )
-
-      direction.normalize()
-      // Get perpendicular vector by swapping x/z and negating one
-      const perpendicular = new Vector3(
-        -direction.z,
-        0,
-        direction.x
-      ).normalize()
-      // Move direction to the left by adding scaled perpendicular vector
-
-      const perpendicularMoved = perpendicular.multiplyScalar(xOffset)
 
       if (selected === id) {
         const lookAtMatrix = new Matrix4()
@@ -178,9 +162,9 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
 
         lookAtMatrix.lookAt(
           new Vector3(
-            cameraConfig.position[0],
+            cameraConfig.position[0] + perpendicularMoved.current.x,
             cameraConfig.position[1],
-            cameraConfig.position[2]
+            cameraConfig.position[2] + perpendicularMoved.current.z
           ),
           ref.current.position,
           upVector
@@ -206,6 +190,14 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
         targetScale.current.get()
       )
 
+      const inspectingFactorValue = inspectingFactor.current.get()
+      mesh.traverse((child) => {
+        if (child instanceof Mesh) {
+          child.material.uniforms.inspectingFactor.value = inspectingFactorValue
+          child.material.uniforms.isInspecting.value = isSelected.current
+        }
+      })
+
       const q = quaternion.get()
       const currentQuaternion = new Quaternion(q.x, q.y, q.z, q.w)
       currentQuaternion.slerp(targetQuaternion, SMOOTH_FACTOR)
@@ -213,6 +205,30 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
       ref.current?.quaternion.copy(currentQuaternion)
     }
   })
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (!cameraConfig) return
+
+      const viewportWidth = Math.min(camera.aspect, 1.855)
+      const xOffset = viewportWidth * X_OFFSET
+
+      const dir = new Vector3(
+        cameraConfig.target[0] - cameraConfig.position[0],
+        cameraConfig.target[1] - cameraConfig.position[1],
+        cameraConfig.target[2] - cameraConfig.position[2]
+      ).normalize()
+
+      const perpendicular = new Vector3(-dir.z, 0, dir.x).normalize()
+
+      perpendicularMoved.current.copy(perpendicular.multiplyScalar(xOffset))
+    }
+
+    handleResize()
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [camera, cameraConfig])
 
   return (
     <>

@@ -2,8 +2,8 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { RigidBody } from "@react-three/rapier"
-import { useControls, folder as levaFolder } from "leva"
+import { folder as levaFolder, useControls } from "leva"
+import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Mesh,
@@ -19,6 +19,7 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useMesh } from "@/hooks/use-mesh"
 import {
   createGlobalShaderMaterial,
@@ -28,6 +29,7 @@ import {
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
 import { PlayedBasketballs } from "../basketball/played-basketballs"
+import { useInspectable } from "../inspectables/context"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
@@ -75,6 +77,9 @@ export const Map = memo(() => {
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
   const [godrayScene, setGodrayScene] = useState<SceneType>(null)
+
+  const { inspectables: inspectableAssets } = useAssets()
+  const { selected } = useInspectable()
 
   const [godrays, setGodrays] = useState<Mesh[]>([])
   useGodrays({ godrays })
@@ -130,6 +135,19 @@ export const Map = memo(() => {
     }
   })
 
+  const fadeFactor = useRef(new MotionValue())
+  const isInspecting = useRef(false)
+
+  useEffect(() => {
+    const easeDirection = selected ? 1 : 0
+
+    if (easeDirection === 1) isInspecting.current = true
+
+    animate(fadeFactor.current, easeDirection, ANIMATION_CONFIG).then(() => {
+      if (easeDirection === 0) isInspecting.current = false
+    })
+  }, [selected])
+
   useFrame(({ clock }) => {
     godrays.forEach((mesh) => {
       // @ts-ignore
@@ -146,6 +164,9 @@ export const Map = memo(() => {
       )
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
+
+      material.uniforms.inspectingEnabled.value = isInspecting.current
+      material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
 
     if (keyframedNet && isAnimating.current) {
@@ -328,22 +349,12 @@ export const Map = memo(() => {
     ) as Mesh | null
     if (hoopMesh) useMesh.setState({ hoopMesh })
 
-    const names: string[] = [
-      "SM_EDGLRD",
-      "SM_MrBeast",
-      "SM_VercelShip2324",
-      "SM_Geist",
-      "SM_Swaggersouls",
-      "SM_PinkFloyd",
-      "SM_plant01"
-    ]
-
     const inspectables = useMesh.getState().inspectableMeshes
 
     if (inspectables.length === 0) {
       const inspectableMeshes: Mesh[] = []
 
-      names.forEach((meshName) => {
+      inspectableAssets.forEach(({ mesh: meshName }) => {
         const mesh = officeModel.getObjectByName(meshName) as Mesh | null
         if (mesh) {
           mesh.removeFromParent()
@@ -354,6 +365,7 @@ export const Map = memo(() => {
       useMesh.setState({ inspectableMeshes })
     }
   }, [
+    inspectableAssets,
     officeModel,
     outdoorModel,
     godrayModel,

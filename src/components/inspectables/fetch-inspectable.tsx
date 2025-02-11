@@ -3,21 +3,22 @@
 import { basehub } from "basehub"
 
 export const fetchInspectable = async ({ id }: { id: string }) => {
-  const { threeDInteractions } = await basehub({
+  const { pages } = await basehub({
     next: { revalidate: 30 }
   }).query({
-    threeDInteractions: {
+    pages: {
       inspectables: {
         inspectableList: {
           __args: {
             filter: {
-              _sys_id: {
+              mesh: {
                 eq: id
               }
             }
           },
           items: {
             _title: true,
+            mesh: true,
             specs: {
               items: {
                 _id: true,
@@ -36,7 +37,7 @@ export const fetchInspectable = async ({ id }: { id: string }) => {
     }
   })
 
-  return threeDInteractions.inspectables.inspectableList.items[0]
+  return pages.inspectables.inspectableList.items[0]
 }
 
 export type Inspectable = Awaited<ReturnType<typeof fetchInspectable>>

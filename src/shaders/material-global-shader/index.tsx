@@ -65,7 +65,11 @@ export const createGlobalShaderMaterial = (
     uBasketballTransition: { value: 0 },
     uBasketballFogColorTransition: { value: 0 },
     uGodrayOpacity: { value: 0 },
-    uGodrayDensity: { value: 0 }
+    uGodrayDensity: { value: 0 },
+    inspectingEnabled: { value: false },
+    isInspecting: { value: false },
+    inspectingFactor: { value: 0 },
+    fadeFactor: { value: 0 }
   } as Record<string, { value: unknown }>
 
   if (defines?.LIGHT) {

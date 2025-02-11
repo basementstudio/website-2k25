@@ -11,6 +11,17 @@ import {
   sfxFragment
 } from "./fragments"
 
+const pagesFragment = fragmentOn("Pages", {
+  inspectables: {
+    inspectableList: {
+      items: {
+        _id: true,
+        mesh: true
+      }
+    }
+  }
+})
+
 const assetsFragment = fragmentOn("ThreeDInteractions", {
   map: mapFragment,
   cameraStates: cameraStateFragment,
@@ -25,9 +36,11 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
 })
 
 interface Query {
+  pages: typeof pagesFragment
   threeDInteractions: typeof assetsFragment
 }
 
 export const assetsQuery: Query = {
+  pages: pagesFragment,
   threeDInteractions: assetsFragment
 }

@@ -26,7 +26,7 @@ export interface AssetsResult {
   }[]
   inspectables: {
     id: string
-    url: string
+    mesh: string
   }[]
   videos: {
     mesh: string
@@ -81,7 +81,7 @@ export interface AssetsResult {
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
-  const { threeDInteractions } = await basehub({
+  const { threeDInteractions, pages } = await basehub({
     next: { revalidate: 30 }
   }).query(assetsQuery)
 
@@ -107,12 +107,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
       url: item.file?.url ?? "",
       intensity: item.intensity ?? 1
     })),
-    inspectables: threeDInteractions.inspectables.inspectableList.items.map(
-      (item) => ({
-        id: item._id,
-        url: item.model?.file?.url ?? ""
-      })
-    ),
+    inspectables: pages.inspectables.inspectableList.items.map((item) => ({
+      id: item._id,
+      mesh: item.mesh
+    })),
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",

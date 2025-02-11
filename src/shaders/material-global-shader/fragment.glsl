@@ -78,6 +78,12 @@ uniform bool isBasketball;
 uniform float uBasketballTransition;
 uniform float uBasketballFogColorTransition;
 
+// Inspectable
+uniform bool inspectingEnabled;
+uniform bool isInspecting;
+uniform float inspectingFactor;
+uniform float fadeFactor;
+
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
@@ -141,15 +147,41 @@ void main() {
   );
 
   #ifdef USE_EMISSIVE
-  irradiance += emissive * emissiveIntensity;
+  float ei = emissiveIntensity;
+  ei *= max(0.1, 1.0 - fadeFactor);
+  irradiance += emissive * ei;
   #endif
 
   #ifdef USE_EMISSIVEMAP
+  float ei = emissiveIntensity;
+  ei *= max(0.1, 1.0 - fadeFactor);
   vec4 emissiveColor = texture2D(emissiveMap, vUv);
-  irradiance *= emissiveColor.rgb * emissiveIntensity;
+  irradiance *= emissiveColor.rgb * ei;
   #endif
 
   float basketballLightMapIntensity = 0.12;
+
+  vec3 lf = irradiance.rgb;
+
+  if (isInspecting) {
+    float lightFactor = dot(vec3(1.0, 0.0, -1.0), normalize(vNormal));
+    lightFactor = valueRemap(lightFactor, 0.2, 1.0, 0.1, 1.0);
+    lightFactor = clamp(lightFactor, 0.0, 1.0);
+    lightFactor = pow(lightFactor, 2.0);
+    lightFactor *= 3.0;
+    lightFactor += 1.0;
+    lf *= lightFactor;
+  }
+
+  if (isInspecting) {
+    float lightFactor2 = dot(vec3(0, 0.0, 1.0), normalize(vNormal));
+    lightFactor2 = valueRemap(lightFactor2, 0.2, 1.0, 0.1, 1.0);
+    lightFactor2 = clamp(lightFactor2, 0.0, 1.0);
+    lightFactor2 = pow(lightFactor2, 2.0);
+    lightFactor2 *= 3.0;
+    lightFactor2 += 1.0;
+    lf *= lightFactor2;
+  }
 
   if (lightMapIntensity > 0.0) {
     float transitionedLightMapIntensity = mix(
@@ -159,6 +191,8 @@ void main() {
     );
     irradiance *= lightMapSample * transitionedLightMapIntensity;
   }
+
+  irradiance = mix(irradiance, lf, inspectingFactor);
 
   // Combine wave color
   irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
@@ -258,6 +292,10 @@ void main() {
     uBasketballFogColorTransition
   );
   gl_FragColor.rgb = mix(gl_FragColor.rgb, transitionedFogColor, fogFactor);
+
+  if (inspectingEnabled && !isInspecting) {
+    gl_FragColor.rgb *= max(0.1, 1.0 - fadeFactor);
+  }
 
   if (uLoaded < 1.0) {
     // Loading effect
