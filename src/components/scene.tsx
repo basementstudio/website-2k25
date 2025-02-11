@@ -4,13 +4,11 @@ import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { Perf } from "r3f-perf"
-import { Perf } from "r3f-perf"
 import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { Map } from "./map/map"
