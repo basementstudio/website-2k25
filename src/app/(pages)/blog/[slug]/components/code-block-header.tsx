@@ -97,7 +97,7 @@ export const CopyButton = () => {
 
   return (
     <button
-      className="absolute right-3 top-9 z-50 text-brand-w1"
+      className="absolute right-3 top-9 z-50 text-brand-w1 opacity-0 transition-all duration-200 group-hover:opacity-100"
       onClick={onCopy}
     >
       <svg

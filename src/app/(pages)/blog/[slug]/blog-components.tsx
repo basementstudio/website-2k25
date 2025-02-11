@@ -108,7 +108,7 @@ export const CodeBlock = ({
   }[]
 }) => {
   return (
-    <div className="flex w-full flex-col gap-y-2">
+    <div className="group flex w-full flex-col gap-y-2">
       <BaseCodeBlock
         childrenTop={<CodeGroupHeader items={items} />}
         snippets={items.map((file) => ({
@@ -159,19 +159,25 @@ export const CodeSanbox = ({
   const finalUrl = sandboxUrl + "?view=preview&hideNavigation=1"
 
   return (
-    <div className="flex w-full flex-col gap-y-2">
+    <div className="flex w-full flex-col gap-y-4">
       <h3 className="text-p text-brand-w2">{title}</h3>
 
       <div className="min-h-[500px] w-full overflow-hidden rounded-md border border-brand-w1/20"></div>
 
       <div className="flex gap-x-2">
         {sourceCodeUrl ? (
-          <Link href={sourceCodeUrl} className="text-p text-brand-w1 underline">
+          <Link
+            href={sourceCodeUrl}
+            className="rounded-md border border-brand-g1 px-2 py-1.5 text-p text-brand-w1"
+          >
             Source code
           </Link>
         ) : null}
 
-        <Link href={finalUrl} className="text-p text-brand-w1 underline">
+        <Link
+          href={finalUrl}
+          className="rounded-md border border-brand-g1 px-2 py-1.5 text-p text-brand-w1"
+        >
           Open in CodeSandbox
         </Link>
       </div>
