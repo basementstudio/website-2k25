@@ -43,7 +43,7 @@ const CONSTANTS = {
   ADDED_WAIT_TIME: 6000,
   SPEED_REDUCTION: 0.7,
   SPEED_VARIATION: 0.5,
-  FLIGHT_PROBABILITY: 0.25
+  FLIGHT_PROBABILITY: 0.99
 }
 
 const TOTAL_DISTANCE = CONSTANTS.END_X - CONSTANTS.START_X
@@ -198,7 +198,9 @@ const setupCarMorphAndUVs = (
   car: Mesh,
   mirroredCar: Mesh | undefined,
   config: CarConfig,
-  originalUVRef: React.RefObject<Float32Array | null>
+  originalUVRef: React.RefObject<Float32Array | null>,
+  frontWheel: Mesh | null,
+  backWheel: Mesh | null
 ) => {
   if (!car.morphTargetDictionary || !car.morphTargetInfluences) return
 
@@ -289,6 +291,12 @@ const setupCarMorphAndUVs = (
   updateUVs(car)
   if (mirroredCar) {
     updateUVs(mirroredCar)
+  }
+  if (frontWheel) {
+    updateUVs(frontWheel)
+  }
+  if (backWheel) {
+    updateUVs(backWheel)
   }
 }
 
@@ -418,7 +426,14 @@ export const useCarAnimation = ({
 
     if (carGroupRef.current) {
       const mirroredCar = carGroupRef.current.children[1] as Mesh
-      setupCarMorphAndUVs(car, mirroredCar, currentConfig, originalUVRef)
+      setupCarMorphAndUVs(
+        car,
+        mirroredCar,
+        currentConfig,
+        originalUVRef,
+        frontWheel,
+        backWheel
+      )
 
       if (
         frontWheel &&
