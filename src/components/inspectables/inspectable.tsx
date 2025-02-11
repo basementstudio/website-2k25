@@ -35,7 +35,6 @@ interface InspectableProps {
 
 export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
   const { selected } = useInspectable()
-  const currentScene = useCurrentScene()
   const [size, setSize] = useState<[number, number, number]>([0, 0, 0])
   const perpendicularMoved = useRef(new Vector3())
   const targetPosition = useRef({
@@ -46,31 +45,11 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
   const targetScale = useRef(new MotionValue())
   const inspectingFactor = useRef(new MotionValue(0))
   const camera = useThree((state) => state.camera) as PerspectiveCamera
+  const ref = useRef<Group>(null)
 
   const cameraConfig = useNavigationStore(
     (state) => state.currentScene?.cameraConfig
   )
-  const offsetY = useRef(0)
-
-  useEffect(() => {
-    if (!cameraConfig) return
-
-    const initialY = cameraConfig.position[1]
-    const targetY = cameraConfig.targetScrollY ?? -cameraConfig.position[1]
-
-    const handleScroll = () => {
-      const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)
-
-      offsetY.current = (targetY - initialY) * scrollProgress
-    }
-
-    window.addEventListener("scroll", handleScroll, { passive: true })
-
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [cameraConfig])
-
-  const ref = useRef<Group>(null)
-  const primitiveRef = useRef<Group>(null)
 
   const quaternion = useMotionValue(new Quaternion())
 
@@ -108,11 +87,9 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
     if (!cameraConfig) return
     if (!isInspectableEnabled && selected === id) return
 
-    const direction = new Vector3(
-      cameraConfig.target[0] - cameraConfig.position[0],
-      cameraConfig.target[1] - cameraConfig.position[1],
-      cameraConfig.target[2] - cameraConfig.position[2]
-    )
+    // Get Camera Direction
+    const { target: t, position: p } = cameraConfig
+    const direction = new Vector3(t[0] - p[0], t[1] - p[1], t[2] - p[2])
     direction.normalize()
 
     const target = targetPosition.current
@@ -120,19 +97,18 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
     const config = withAnimation ? ANIMATION_CONFIG : { duration: 0 }
 
     if (selected === id && isInspectableEnabled) {
-      const maxDimension = TARGET_SIZE / Math.max(...size)
-      animate(
-        target.x,
+      const desiredScale = TARGET_SIZE / Math.max(...size)
+
+      const desiredDirection = new Vector3(
         cameraConfig?.position[0] + direction.x + perpendicularMoved.current.x,
-        config
+        cameraConfig?.position[1] + direction.y,
+        cameraConfig?.position[2] + direction.z + perpendicularMoved.current.z
       )
-      animate(target.y, cameraConfig?.position[1] + direction.y, config)
-      animate(
-        target.z,
-        cameraConfig?.position[2] + direction.z + perpendicularMoved.current.z,
-        config
-      )
-      animate(targetScale.current, maxDimension, config)
+
+      animate(target.x, desiredDirection.x, config)
+      animate(target.y, desiredDirection.y, config)
+      animate(target.z, desiredDirection.z, config)
+      animate(targetScale.current, desiredScale, config)
       animate(inspectingFactor.current, 1, config)
       isSelected.current = true
     } else {
@@ -227,6 +203,7 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
     handleResize()
 
     window.addEventListener("resize", handleResize)
+
     return () => window.removeEventListener("resize", handleResize)
   }, [camera, cameraConfig])
 

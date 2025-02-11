@@ -19,7 +19,7 @@ const Close = ({ handleClose }: { handleClose: () => void }) => (
   </button>
 )
 
-const Content = ({ data }: { data: AssetsResult["inspectables"] }) => (
+const Content = ({ data }: { data: AssetsResult["inspectables"][number] }) => (
   <>
     <h2 className="text-h2 text-brand-w1">{data._title}</h2>
     {data?.specs?.items && data.specs.items.length > 0 && (
@@ -44,7 +44,9 @@ const Content = ({ data }: { data: AssetsResult["inspectables"] }) => (
 
 export const InspectableViewer = () => {
   const { selected, setSelected } = useInspectable()
-  const [data, setData] = useState<AssetsResult["inspectables"] | null>(null)
+  const [data, setData] = useState<AssetsResult["inspectables"][number] | null>(
+    null
+  )
   const { inspectables } = useAssets()
   useKeyPress("Escape", () => setSelected(""))
 
@@ -56,9 +58,9 @@ export const InspectableViewer = () => {
     const fetchData = async () => {
       const inspectableData = inspectables.find(
         (inspectable) => inspectable.mesh === selected
-      ) as unknown as AssetsResult["inspectables"]
+      )
 
-      setData(inspectableData)
+      setData(inspectableData ?? null)
     }
 
     fetchData()
