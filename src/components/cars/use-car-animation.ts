@@ -59,6 +59,7 @@ const carState: CarState = {
   isFlying: false
 }
 
+// adds random waiting time between car passes
 const setRandomTimeout = () => {
   const waitTime =
     CONSTANTS.MIN_WAIT_TIME + Math.random() * CONSTANTS.ADDED_WAIT_TIME
@@ -67,9 +68,13 @@ const setRandomTimeout = () => {
 
   if (carState.waitTimeout) clearTimeout(carState.waitTimeout)
 
-  carState.waitTimeout = setTimeout(() => (carState.isWaiting = false), 1000)
+  carState.waitTimeout = setTimeout(
+    () => (carState.isWaiting = false),
+    waitTime
+  )
 }
 
+// updates car speed and behavior (slow down/speed up chance)
 const updateCarSpeed = () => {
   carState.currentSpeed = CONSTANTS.BASE_SPEED
 
@@ -96,6 +101,7 @@ interface updateCarPositionProps {
   carGroup: Object3D
 }
 
+// config for each car shapekey
 interface CarConfig {
   texture: string
   morphTarget: CarVariant | null
@@ -112,7 +118,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "dodgeO",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.05,
+    probability: 0.425,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.2,
@@ -122,7 +128,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "delorean",
     morphTarget: "DeLorean",
     uvSource: "uv2",
-    probability: 0.05,
+    probability: 0.025,
     canFly: true,
     wheelSize: 1.1,
     frontWheelOffset: 0.15,
@@ -132,7 +138,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "knightRider",
     morphTarget: "Kitt",
     uvSource: "texcoord_5",
-    probability: 0.05,
+    probability: 0.025,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: -0.12,
@@ -142,7 +148,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "nissan",
     morphTarget: "Nissan",
     uvSource: "originalUV",
-    probability: 0.75,
+    probability: 0.025,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0,
@@ -152,7 +158,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "simpsons",
     morphTarget: "Simpsons",
     uvSource: "texcoord_4",
-    probability: 0.05,
+    probability: 0.025,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.27,
@@ -162,7 +168,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "dodgeB",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.05,
+    probability: 0.425,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.25,
@@ -172,7 +178,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "mistery",
     morphTarget: "Mistery",
     uvSource: "uv3",
-    probability: 0.05,
+    probability: 0.025,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0,
@@ -180,6 +186,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
   }
 }
 
+// randomly select a car configuration based on probability weights
 const getRandomCarConfig = (): CarConfig => {
   const random = Math.random()
   let cumulativeProbability = 0
@@ -194,6 +201,7 @@ const getRandomCarConfig = (): CarConfig => {
   return Object.values(CAR_CONFIGS)[0]
 }
 
+// sets up car morphing targets and UV mapping for textures
 const setupCarMorphAndUVs = (
   car: Mesh,
   mirroredCar: Mesh | undefined,
@@ -255,7 +263,8 @@ const setupCarMorphAndUVs = (
     }
   }
 
-  // very specific dont touchy
+  // keeps uvs updated for each car shape key, adding new car shapekeys will require updating this function,
+  // as uv names dont get exported from blender
   const updateUVs = (mesh: Mesh) => {
     if (!mesh.geometry.attributes.uv) return
 
@@ -310,11 +319,11 @@ const setupCarMorphAndUVs = (
   }
 }
 
+// core animation loop for car movement and position updates
 const updateCarPosition = ({
   carPosition,
   progress,
   setTextureIndex,
-  texturesLength,
   carGroup
 }: updateCarPositionProps) => {
   if (carState.isSlowingDown) {
@@ -394,6 +403,11 @@ interface UseCarAnimationProps {
   textures: CMSTextures
 }
 
+// main hook for the cars that handles:
+// - texture loading and application
+// - wheel rotation and positioning
+// - car morphing and UV mapping
+// - flying animation for DeLorean
 export const useCarAnimation = ({
   car,
   frontWheel,
