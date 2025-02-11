@@ -1,3 +1,4 @@
+import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 import Image from "next/image"
 
@@ -50,6 +51,22 @@ const Blog = async (props: { params: Params }) => {
       }}
     </Pump>
   )
+}
+
+export async function generateStaticParams() {
+  const data = await basehub({ cache: "no-store" }).query({
+    pages: {
+      blog: {
+        posts: {
+          items: { _slug: true }
+        }
+      }
+    }
+  })
+
+  return data.pages.blog.posts.items.map((post) => ({
+    slug: post._slug
+  }))
 }
 
 export default Blog

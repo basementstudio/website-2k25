@@ -37,13 +37,15 @@ export default function More({
         {morePosts.map((post) => (
           <div key={post._title} className="group relative">
             <Link href={`/blog/${post._slug}`} className="flex gap-x-2 py-2">
-              <Image
-                src={post.hero?.heroImage?.url ?? ""}
-                alt={post._title}
-                width={136}
-                height={60}
-                className="overflow-clip border border-brand-w1/20"
-              />
+              <div className="with-dots relative h-[60px] w-[136px] overflow-clip border border-brand-w1/20">
+                {post.hero?.heroImage?.url && (
+                  <Image
+                    src={post.hero?.heroImage?.url ?? ""}
+                    alt={post._title}
+                    fill
+                  />
+                )}
+              </div>
 
               <div className="flex w-full justify-between gap-y-2">
                 <h3 className="w-full max-w-[70%] text-h3 text-brand-w2">
