@@ -6,11 +6,26 @@ export const modelsItemFragment = fragmentOn("ModelsItem", {
   }
 })
 
+export const characterFragment = fragmentOn("Characters", {
+  model: {
+    file: {
+      url: true
+    }
+  },
+  textureBody: {
+    url: true
+  },
+  textureFaces: {
+    url: true
+  }
+})
+
 export const mapFragment = fragmentOn("Map", {
   model: modelsItemFragment,
   office: modelsItemFragment,
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
+  routingElements: modelsItemFragment,
   maps: {
     items: {
       _title: true,
@@ -61,32 +76,6 @@ export const cameraStateFragment = fragmentOn("CameraStates", {
   }
 })
 
-export const clickableFragment = fragmentOn("Clickables", {
-  mesh: modelsItemFragment,
-  clickables: {
-    items: {
-      _title: true,
-      framePositionX: true,
-      framePositionY: true,
-      framePositionZ: true,
-      frameRotationX: true,
-      frameRotationY: true,
-      frameRotationZ: true,
-      frameSizeX: true,
-      frameSizeY: true,
-      hoverName: true,
-      arrowPositionX: true,
-      arrowPositionY: true,
-      arrowPositionZ: true,
-      arrowScale: true,
-      arrowRotationX: true,
-      arrowRotationY: true,
-      arrowRotationZ: true,
-      route: true
-    }
-  }
-})
-
 export const inspectableFragment = fragmentOn("Inspectables", {
   inspectableList: {
     items: {
@@ -120,6 +109,61 @@ export const sfxFragment = fragmentOn("Sfx", {
 
 export const arcadeFragment = fragmentOn("Arcade", {
   idleScreen: {
+    url: true
+  }
+})
+
+export const sceneFragment = fragmentOn("Scenes", {
+  scenes: {
+    items: {
+      _title: true,
+      cameraConfig: {
+        posX: true,
+        posY: true,
+        posZ: true,
+        tarX: true,
+        tarY: true,
+        tarZ: true,
+        fov: true,
+        targetScrollY: true,
+        offsetMultiplier: true
+      },
+      tabs: {
+        items: {
+          _title: true,
+          tabRoute: true,
+          tabHoverName: true,
+          tabClickableName: true,
+          plusShapeScale: true
+        }
+      }
+    }
+  }
+})
+
+export const carFragment = fragmentOn("Car", {
+  carModel: {
+    url: true
+  },
+  dodgeOTexture: {
+    url: true
+  },
+  dodgeBTexture: {
+    url: true
+  },
+  deloreanTexture: {
+    url: true
+  },
+  nissanTexture: {
+    url: true
+  },
+  simpsonsTexture: {
+    url: true
+  },
+  knightRiderTexture: {
+    url: true
+  },
+  misteryTexture: {
     url: true
   }
 })

@@ -4,7 +4,6 @@ import { Toolbar as BasehubToolbar } from "basehub/next-toolbar"
 
 import { AssetsProvider } from "@/components/assets-provider"
 import { fetchAssets } from "@/components/assets-provider/fetch-assets"
-import { CameraRouteHandler } from "@/components/camera-route-handler"
 import { Scene } from "@/components/scene"
 
 const Toolbar = BasehubToolbar as unknown as React.ComponentType
@@ -12,12 +11,16 @@ const Toolbar = BasehubToolbar as unknown as React.ComponentType
 import type { Metadata } from "next"
 import { Geist } from "next/font/google"
 
+import Contact from "@/components/contact/contact"
 import { Grid } from "@/components/grid"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Navbar } from "@/components/layout/navbar"
+import { NavigationHandler } from "@/components/navigation-handler"
+import { Transitions } from "@/components/transitions"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
+import LenisScrollProvider from "@/providers/lenis-provider"
 
 export const metadata: Metadata = {
   title: {
@@ -39,19 +42,25 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
+      <Transitions />
       <Toolbar />
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body className={cn(geistSans.variable)}>
-            <Navbar />
-            <CameraRouteHandler />
-            <div className="sticky top-0 h-screen w-full">
-              <Scene />
-              <Grid />
-              <InspectableViewer />
-            </div>
-            {children}
-            <AppHooks />
+            <LenisScrollProvider>
+              <Navbar />
+
+              <NavigationHandler />
+              <div className="canvas-container sticky top-0 h-screen w-full">
+                <Scene />
+                <Grid />
+                <InspectableViewer />
+              </div>
+
+              <div className="layout-container">{children}</div>
+              <AppHooks />
+              <Contact />
+            </LenisScrollProvider>
           </body>
         </InspectableProvider>
       </AssetsProvider>

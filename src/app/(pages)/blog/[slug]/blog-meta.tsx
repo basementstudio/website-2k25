@@ -1,6 +1,5 @@
-import Link from "next/link"
-
 import { LinkedInIcon, XIcon } from "@/components/icons/icons"
+import { Link } from "@/components/primitives/link"
 import { formatDate } from "@/utils/format-date"
 
 const socialLinks = [
@@ -87,8 +86,6 @@ export default function BlogMeta({
                 <Link
                   key={index}
                   href={social.href(data._slug, data._title)}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="transition-opacity hover:opacity-80"
                   aria-label={social.label}
                 >

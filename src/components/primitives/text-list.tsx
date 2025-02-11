@@ -1,8 +1,16 @@
 import { Fragment, ReactNode } from "react"
 
-export const TextList = ({ value }: { value: ReactNode[] }) => {
+import { cn } from "@/utils/cn"
+
+export const TextList = ({
+  value,
+  className
+}: {
+  value: ReactNode[]
+  className?: string
+}) => {
   return (
-    <p className="inline-flex flex-wrap gap-x-1 text-p">
+    <p className={cn("inline-flex flex-wrap gap-x-1 text-p", className)}>
       {value.map((v, i) => (
         <Fragment key={i}>
           {v}

@@ -1,16 +1,22 @@
 import { OrthographicCamera } from "@react-three/drei"
-import { useControls } from "leva"
+import { useControls, folder as levaFolder } from "leva"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
-import { ShaderMaterial, Texture, Vector2 } from "three"
+import {
+  OrthographicCamera as ThreeOrthographicCamera,
+  ShaderMaterial,
+  Texture,
+  Vector2
+} from "three"
 
-import { useCameraStore } from "@/store/app-store"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import postFrag from "./post.frag"
 import postVert from "./post.vert"
 
 interface PostProcessingProps {
   mainTexture: Texture
+  cameraRef: React.RefObject<ThreeOrthographicCamera | null>
 }
 
 const material = new ShaderMaterial({
@@ -45,46 +51,56 @@ const material = new ShaderMaterial({
   }
 })
 
-export function PostProcessing({ mainTexture }: PostProcessingProps) {
-  const pathname = usePathname()
+export function PostProcessing({
+  mainTexture,
+  cameraRef
+}: PostProcessingProps) {
+  const scene = useCurrentScene()
 
-  useControls("basics", {
-    contrast: {
-      value: 1.02,
-      min: 0.0,
-      max: 2.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uContrast.value = value
+  useControls({
+    basics: levaFolder(
+      {
+        contrast: {
+          value: 1.02,
+          min: 0.0,
+          max: 2.0,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uContrast.value = value
+          }
+        },
+        brightness: {
+          value: 0.31,
+          min: 0.0,
+          max: 2.0,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uBrightness.value = value
+          }
+        },
+        exposure: {
+          value: 0.54,
+          min: 0.0,
+          max: 4.0,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uExposure.value = value
+          }
+        },
+        gamma: {
+          value: 0.73,
+          min: 0.0,
+          max: 2.2,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uGamma.value = value
+          }
+        }
+      },
+      {
+        collapsed: true
       }
-    },
-    brightness: {
-      value: 0.31,
-      min: 0.0,
-      max: 2.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uBrightness.value = value
-      }
-    },
-    exposure: {
-      value: 0.54,
-      min: 0.0,
-      max: 4.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uExposure.value = value
-      }
-    },
-    gamma: {
-      value: 0.73,
-      min: 0.0,
-      max: 2.2,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uGamma.value = value
-      }
-    }
+    )
   })
 
   useControls("bloom", {
@@ -117,76 +133,83 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     }
   })
 
-  useControls("saturation mask", {
-    debugEllipse: {
-      value: false,
-      onChange(value) {
-        material.uniforms.uDebugEllipse.value = value
+  useControls({
+    "saturation mask": levaFolder(
+      {
+        debugEllipse: {
+          value: false,
+          onChange(value) {
+            material.uniforms.uDebugEllipse.value = value
+          }
+        },
+        ellipseCenterX: {
+          value: 0.5,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseCenter.value.x = value
+          }
+        },
+        ellipseCenterY: {
+          value: 0.61,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseCenter.value.y = value
+          }
+        },
+        ellipseSizeX: {
+          value: 0.13,
+          min: 0,
+          max: 2,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseSize.value.x = value
+          }
+        },
+        ellipseSizeY: {
+          value: 0.09,
+          min: 0,
+          max: 2,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseSize.value.y = value
+          }
+        },
+        ellipseSoftness: {
+          value: 0.78,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uEllipseSoftness.value = value
+          }
+        },
+        vignetteStrength: {
+          value: 1.0,
+          min: 0,
+          max: 1,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uVignetteStrength.value = value
+          }
+        },
+        vignetteSoftness: {
+          value: 0.18,
+          min: 0,
+          max: 2,
+          step: 0.01,
+          onChange(value) {
+            material.uniforms.uVignetteSoftness.value = value
+          }
+        }
+      },
+      {
+        collapsed: true
       }
-    },
-    ellipseCenterX: {
-      value: 0.5,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseCenter.value.x = value
-      }
-    },
-    ellipseCenterY: {
-      value: 0.61,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseCenter.value.y = value
-      }
-    },
-    ellipseSizeX: {
-      value: 0.13,
-      min: 0,
-      max: 2,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseSize.value.x = value
-      }
-    },
-    ellipseSizeY: {
-      value: 0.09,
-      min: 0,
-      max: 2,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseSize.value.y = value
-      }
-    },
-    ellipseSoftness: {
-      value: 0.78,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uEllipseSoftness.value = value
-      }
-    },
-    vignetteStrength: {
-      value: 1.0,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uVignetteStrength.value = value
-      }
-    },
-    vignetteSoftness: {
-      value: 0.18,
-      min: 0,
-      max: 2,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uVignetteSoftness.value = value
-      }
-    }
+    )
   })
 
   useEffect(() => {
@@ -209,11 +232,9 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
   }, [mainTexture])
 
   useEffect(() => {
-    const isBasketball = pathname === "/basketball"
+    const isBasketball = scene === "basketball"
     const startSaturationValue = material.uniforms.uSaturation.value
     const endSaturationValue = isBasketball ? 0.0 : 1.0
-    const startContrastValue = material.uniforms.uContrast.value
-    const endContrastValue = isBasketball ? 1.63 : 1.02
     const startVignetteValue = material.uniforms.uVignetteStrength.value
     const endVignetteValue = isBasketball ? 1.0 : 0.0
     const duration = 800
@@ -235,10 +256,6 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         startSaturationValue +
         (endSaturationValue - startSaturationValue) * easeProgress
 
-      // material.uniforms.uContrast.value =
-      //   startContrastValue +
-      //   (endContrastValue - startContrastValue) * easeProgress
-
       material.uniforms.uVignetteStrength.value =
         startVignetteValue +
         (endVignetteValue - startVignetteValue) * easeProgress
@@ -251,16 +268,15 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
     animationFrame = requestAnimationFrame(animate)
 
     return () => {
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame)
-      }
+      if (animationFrame) cancelAnimationFrame(animationFrame)
     }
-  }, [pathname])
+  }, [scene])
 
   return (
     <>
       <OrthographicCamera
         manual
+        ref={cameraRef}
         position={[0, 0, 1]}
         left={-0.5}
         right={0.5}
@@ -268,10 +284,6 @@ export function PostProcessing({ mainTexture }: PostProcessingProps) {
         bottom={-0.5}
         near={0.1}
         far={1000}
-        ref={(r) => {
-          // @ts-ignore
-          if (r) useCameraStore.setState({ postProcessingCamera: r })
-        }}
       />
       <mesh>
         <planeGeometry args={[1, 1]} />

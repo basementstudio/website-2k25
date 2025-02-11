@@ -13,6 +13,7 @@ export const createGlobalShaderMaterial = (
   defines?: {
     GLASS?: boolean
     GODRAY?: boolean
+    LIGHT?: boolean
   }
 ) => {
   const {
@@ -22,10 +23,54 @@ export const createGlobalShaderMaterial = (
     metalness,
     roughness,
     alphaMap,
-    emissiveMap
+    emissiveMap,
+    userData = {}
   } = baseMaterial
 
+  const { lightDirection = null } = userData
+
   const emissiveColor = new Color("#FF4D00").multiplyScalar(9)
+
+  const uniforms = {
+    uColor: { value: emissiveColor },
+    uProgress: { value: 0.0 },
+    uReverse: { value: reverse },
+    map: { value: map },
+    lightMap: { value: null },
+    lightMapIntensity: { value: 0.0 },
+    lightMapMultiplier: { value: 1.0 },
+    aoMap: { value: null },
+    aoMapIntensity: { value: 0.0 },
+    aoMapMultiplier: { value: 1.0 },
+    metalness: { value: metalness },
+    roughness: { value: roughness },
+    mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
+    baseColor: { value: baseColor },
+    opacity: { value: baseOpacity },
+    noiseFactor: { value: 0.5 },
+    uLoaded: { value: 0 },
+    uTime: { value: 0.0 },
+    alphaMap: { value: alphaMap },
+    emissive: { value: baseMaterial.emissive || new Vector3() },
+    emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
+    fogColor: { value: new Vector3(0.4, 0.4, 0.4) },
+    fogDensity: { value: 0.05 },
+    fogDepth: { value: 6.0 },
+    uJitter: { value: 512.0 },
+    glassReflex: { value: null },
+    emissiveMap: { value: emissiveMap },
+
+    aoWithCheckerboard: { value: false },
+    isBasketball: { value: false },
+    uBasketballTransition: { value: 0 },
+    uBasketballFogColorTransition: { value: 0 },
+    uGodrayOpacity: { value: 0 },
+    uGodrayDensity: { value: 0 }
+  } as Record<string, { value: unknown }>
+
+  if (defines?.LIGHT) {
+    uniforms["lightDirection"] = { value: lightDirection }
+  }
 
   const material = new ShaderMaterial({
     name: GLOBAL_SHADER_MATERIAL_NAME,
@@ -37,44 +82,10 @@ export const createGlobalShaderMaterial = (
         baseMaterial.emissiveIntensity !== 0 && emissiveMap === null,
       USE_EMISSIVEMAP: emissiveMap !== null,
       GLASS: defines?.GLASS,
-      GODRAY: defines?.GODRAY
+      GODRAY: defines?.GODRAY,
+      LIGHT: Boolean(defines?.LIGHT)
     },
-    uniforms: {
-      uColor: { value: emissiveColor },
-      uProgress: { value: 0.0 },
-      uReverse: { value: reverse },
-      map: { value: map },
-      lightMap: { value: null },
-      lightMapIntensity: { value: 0.0 },
-      lightMapMultiplier: { value: 1.0 },
-      aoMap: { value: null },
-      aoMapIntensity: { value: 0.0 },
-      aoMapMultiplier: { value: 1.0 },
-      metalness: { value: metalness },
-      roughness: { value: roughness },
-      mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
-      baseColor: { value: baseColor },
-      opacity: { value: baseOpacity },
-      noiseFactor: { value: 0.5 },
-      uLoaded: { value: 0 },
-      uTime: { value: 0.0 },
-      alphaMap: { value: alphaMap },
-      emissive: { value: baseMaterial.emissive || new Vector3() },
-      emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
-      fogColor: { value: new Vector3(0.4, 0.4, 0.4) },
-      fogDensity: { value: 0.05 },
-      fogDepth: { value: 6.0 },
-      uJitter: { value: 512.0 },
-      glassReflex: { value: null },
-      emissiveMap: { value: emissiveMap },
-
-      aoWithCheckerboard: { value: false },
-      isBasketball: { value: false },
-      uBasketballTransition: { value: 0 },
-      uBasketballFogColorTransition: { value: 0 },
-      uGodrayOpacity: { value: 0 },
-      uGodrayDensity: { value: 0 }
-    },
+    uniforms,
     transparent:
       baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
     vertexShader,
@@ -115,6 +126,7 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
     },
     setIsBasketball: (value) => {
       const materials = get().materialsRef
+
       Object.values(materials).forEach((material) => {
         material.uniforms.isBasketball.value = value
 
@@ -137,29 +149,25 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
         const animate = () => {
           const currentTime = performance.now()
 
-          // Main transition
           const elapsed = currentTime - startTime
           const progress = Math.min(elapsed / duration, 1)
-          const easeProgress =
-            progress < 0.5
-              ? 2 * progress * progress
-              : -1 + (4 - 2 * progress) * progress
-          material.uniforms.uBasketballTransition.value =
-            startValue + (endValue - startValue) * easeProgress
 
           const elapsedFog = currentTime - startFogTime
           const fogProgress = Math.min(elapsedFog / fogDuration, 1)
 
-          const easeFogProgress =
-            fogProgress < 0.5
-              ? 2 * fogProgress * fogProgress
-              : -1 + (4 - 2 * fogProgress) * fogProgress
-          material.uniforms.uBasketballFogColorTransition.value =
-            startFogValue + (endFogValue - startFogValue) * easeFogProgress
+          const transitionValue =
+            startValue + (endValue - startValue) * progress
+          const fogValue =
+            startFogValue + (endFogValue - startFogValue) * fogProgress
+
+          material.uniforms.uBasketballTransition.value = transitionValue
+          material.uniforms.uBasketballFogColorTransition.value = fogValue
 
           if (progress < 1 || fogProgress < 1) {
             material.userData.animationFrame = requestAnimationFrame(animate)
           } else {
+            material.uniforms.uBasketballTransition.value = endValue
+            material.uniforms.uBasketballFogColorTransition.value = endFogValue
             delete material.userData.animationFrame
           }
         }

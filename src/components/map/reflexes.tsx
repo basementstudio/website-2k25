@@ -26,8 +26,10 @@ function useReflexes(): Record<string, Texture> {
     return loadedMaps.reduce(
       (acc, map, index) => {
         map.flipY = true
-        map.magFilter = NearestFilter
         map.colorSpace = NoColorSpace
+        map.generateMipmaps = false
+        map.minFilter = NearestFilter
+        map.magFilter = NearestFilter
         acc[glassReflexes[index].mesh] = map
         return acc
       },
