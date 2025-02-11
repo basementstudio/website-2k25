@@ -3,6 +3,7 @@ import Image from "next/image"
 
 import { query } from "../query"
 import Content from "./content"
+import More from "./more"
 import BlogTitle from "./title"
 
 type Params = Promise<{ slug: string }>
@@ -37,13 +38,12 @@ const Blog = async (props: { params: Params }) => {
                 />
               )}
             </div>
-            <div className="mt-screen relative z-20 bg-brand-k">
-              <div className="pb-25 flex flex-col gap-40">
+            <div className="mt-screen relative z-20 bg-brand-k pb-24">
+              <div className="pb-25 flex flex-col gap-24">
                 <BlogTitle data={data} slug={resolvedParams.slug} />
                 <Content data={data} slug={resolvedParams.slug} />
+                <More data={data} slug={resolvedParams.slug} />
               </div>
-              {/* TODO: stupid method to hide gaps, must rework how we cover scene with blog image */}
-              <div className="absolute -bottom-36 left-0 h-36 w-full bg-brand-k" />
             </div>
           </>
         )
