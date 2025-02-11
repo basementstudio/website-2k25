@@ -43,7 +43,7 @@ const CONSTANTS = {
   ADDED_WAIT_TIME: 6000,
   SPEED_REDUCTION: 0.7,
   SPEED_VARIATION: 0.5,
-  FLIGHT_PROBABILITY: 0.99
+  FLIGHT_PROBABILITY: 0.25
 }
 
 const TOTAL_DISTANCE = CONSTANTS.END_X - CONSTANTS.START_X
@@ -112,7 +112,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "dodgeO",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.375,
+    probability: 0.05,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.2,
@@ -142,7 +142,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "nissan",
     morphTarget: "Nissan",
     uvSource: "originalUV",
-    probability: 0.05,
+    probability: 0.75,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0,
@@ -162,7 +162,7 @@ const CAR_CONFIGS: Record<keyof CMSTextures, CarConfig> = {
     texture: "dodgeB",
     morphTarget: null,
     uvSource: "uv2",
-    probability: 0.375,
+    probability: 0.05,
     canFly: false,
     wheelSize: 1,
     frontWheelOffset: 0.25,
@@ -199,6 +199,8 @@ const setupCarMorphAndUVs = (
   mirroredCar: Mesh | undefined,
   config: CarConfig,
   originalUVRef: React.RefObject<Float32Array | null>,
+  originalFrontWheelUVRef: React.RefObject<Float32Array | null>,
+  originalBackWheelUVRef: React.RefObject<Float32Array | null>,
   frontWheel: Mesh | null,
   backWheel: Mesh | null
 ) => {
@@ -258,13 +260,21 @@ const setupCarMorphAndUVs = (
     if (!mesh.geometry.attributes.uv) return
 
     let newUVs: ArrayLike<number> | undefined
+    const isWheel = mesh.name === "FRONT-WHEEL" || mesh.name === "BACK-WHEEL"
 
     switch (config.uvSource) {
       case "uv2":
         newUVs = mesh.geometry.attributes.uv2?.array
         break
       case "originalUV":
-        newUVs = originalUVRef.current || undefined
+        if (isWheel) {
+          newUVs =
+            mesh.name === "FRONT-WHEEL"
+              ? originalFrontWheelUVRef.current || undefined
+              : originalBackWheelUVRef.current || undefined
+        } else {
+          newUVs = originalUVRef.current || undefined
+        }
         break
       case "uv3":
         newUVs = mesh.geometry.attributes.uv3?.array
@@ -392,6 +402,8 @@ export const useCarAnimation = ({
 }: UseCarAnimationProps) => {
   const carGroupRef = useRef<Object3D | null>(null)
   const originalUVRef = useRef<Float32Array | null>(null)
+  const originalFrontWheelUVRef = useRef<Float32Array | null>(null)
+  const originalBackWheelUVRef = useRef<Float32Array | null>(null)
   const [textureIndex, setTextureIndex] = useState(0)
   const flyingTime = useRef(0)
   const wheelRotation = useRef(0)
@@ -431,6 +443,8 @@ export const useCarAnimation = ({
         mirroredCar,
         currentConfig,
         originalUVRef,
+        originalFrontWheelUVRef,
+        originalBackWheelUVRef,
         frontWheel,
         backWheel
       )
@@ -504,12 +518,27 @@ export const useCarAnimation = ({
       originalUVRef.current = new Float32Array(car.geometry.attributes.uv.array)
     }
 
+    // Store original wheel UVs
+    if (
+      frontWheel?.geometry.attributes.uv &&
+      !originalFrontWheelUVRef.current
+    ) {
+      originalFrontWheelUVRef.current = new Float32Array(
+        frontWheel.geometry.attributes.uv.array
+      )
+    }
+    if (backWheel?.geometry.attributes.uv && !originalBackWheelUVRef.current) {
+      originalBackWheelUVRef.current = new Float32Array(
+        backWheel.geometry.attributes.uv.array
+      )
+    }
+
     // initialize with uv2 since its used for the default cars
     if (car.geometry.attributes.uv && car.geometry.attributes.uv2) {
       car.geometry.attributes.uv.array.set(car.geometry.attributes.uv2.array)
       car.geometry.attributes.uv.needsUpdate = true
     }
-  }, [car])
+  }, [car, frontWheel, backWheel])
 
   useEffect(() => {
     if (!car) return
