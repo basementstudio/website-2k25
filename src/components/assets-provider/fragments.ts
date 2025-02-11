@@ -6,6 +6,20 @@ export const modelsItemFragment = fragmentOn("ModelsItem", {
   }
 })
 
+export const characterFragment = fragmentOn("Characters", {
+  model: {
+    file: {
+      url: true
+    }
+  },
+  textureBody: {
+    url: true
+  },
+  textureFaces: {
+    url: true
+  }
+})
+
 export const mapFragment = fragmentOn("Map", {
   model: modelsItemFragment,
   office: modelsItemFragment,

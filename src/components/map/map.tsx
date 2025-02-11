@@ -2,7 +2,7 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { useControls } from "leva"
+import { folder as levaFolder, useControls } from "leva"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -18,6 +18,7 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import {
   createGlobalShaderMaterial,
@@ -26,7 +27,6 @@ import {
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
-import { PlayedBasketballs } from "../basketball/played-basketballs"
 import Cars from "../cars/cars"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
@@ -63,6 +63,7 @@ export const Map = memo(() => {
     videos,
     car
   } = useAssets()
+  const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
@@ -84,25 +85,38 @@ export const Map = memo(() => {
     (store) => store.materialsRef
   )
 
-  //
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-  const { fogColor, fogDensity, fogDepth } = useControls("fog", {
-    fogColor: {
-      x: 0.4,
-      y: 0.4,
-      z: 0.4
-    },
-    fogDensity: 0.05,
-    fogDepth: 9.0
+  const { fogColor, fogDensity, fogDepth } = useControls({
+    fog: levaFolder(
+      {
+        fogColor: {
+          x: 0.4,
+          y: 0.4,
+          z: 0.4
+        },
+        fogDensity: 0.05,
+        fogDepth: 9.0
+      },
+      {
+        collapsed: true
+      }
+    )
   })
 
   const colorPickerRef = useRef<Mesh>(null)
-  const { showColorPicker } = useControls("color picker", {
-    showColorPicker: false
+  const { showColorPicker } = useControls({
+    "color picker": levaFolder(
+      {
+        showColorPicker: false
+      },
+      {
+        collapsed: true
+      }
+    )
   })
 
   const { godraysOpacity } = useControls("godrays", {
@@ -148,7 +162,7 @@ export const Map = memo(() => {
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
-    routingElementsModel.traverse((child) => {
+    routingElementsModel?.traverse((child) => {
       if (child instanceof Mesh) {
         const matchingTab = currentScene?.tabs?.find((tab) =>
           child.name.includes(tab.tabClickableName)
@@ -162,34 +176,35 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    //
-    const originalNet = officeModel.getObjectByName("SM_BasketRed")
-    const newNetMesh = basketballNetModel.getObjectByName("SM_BasketRed-v2")
+    const originalNet = officeModel?.getObjectByName("SM_BasketRed")
+    const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
 
-    if (originalNet) originalNet.removeFromParent()
-    if (newNetMesh) {
+    if (originalNet?.parent) {
+      originalNet.removeFromParent()
+    }
+
+    if (newNetMesh?.parent) {
       newNetMesh.removeFromParent()
       setKeyframedNet(newNetMesh)
     }
 
-    const carMesh = outdoorModel.getObjectByName("car01")
-    if (carMesh) {
+    const carMesh = outdoorModel?.getObjectByName("car01")
+    if (carMesh?.parent) {
       carMesh.removeFromParent()
-      useMesh.setState({
-        carMeshes: {
-          backWheel:
-            (carV5.children.find(
-              (child) => child.name === "BACK-WHEEL"
-            ) as Mesh) ?? null,
-          car:
-            (carV5.children.find((child) => child.name === "CAR") as Mesh) ??
-            null,
-          frontWheel:
-            (carV5.children.find(
-              (child) => child.name === "FRONT-WHEEL"
-            ) as Mesh) ?? null
-        }
-      })
+
+      const backWheel = carV5?.children.find(
+        (child) => child.name === "BACK-WHEEL"
+      ) as Mesh
+      const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
+      const frontWheel = carV5?.children.find(
+        (child) => child.name === "FRONT-WHEEL"
+      ) as Mesh
+
+      if (backWheel && car && frontWheel) {
+        useMesh.setState({
+          carMeshes: { backWheel, car, frontWheel }
+        })
+      }
     }
 
     const traverse = (child: Object3D) => {
@@ -237,6 +252,16 @@ export const Map = memo(() => {
           currentMaterial.name === "BSM_MTL_LightLibrary" ||
           currentMaterial.name === "BSM-MTL-Backup"
 
+        const isPlant = meshChild.name === "SM_plant01001"
+
+        if (isPlant) {
+          currentMaterial.userData.lightDirection = new Vector3(
+            0,
+            3,
+            1
+          ).normalize()
+        }
+
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
               createGlobalShaderMaterial(
@@ -244,7 +269,8 @@ export const Map = memo(() => {
                 false,
                 {
                   GLASS: isGlass,
-                  GODRAY: false
+                  GODRAY: false,
+                  LIGHT: isPlant
                 }
               )
             )
@@ -253,7 +279,8 @@ export const Map = memo(() => {
               false,
               {
                 GLASS: isGlass,
-                GODRAY: false
+                GODRAY: false,
+                LIGHT: isPlant
               }
             )
 
@@ -314,7 +341,10 @@ export const Map = memo(() => {
     const hoopMesh = officeModel.getObjectByName(
       "SM_BasketballHoop"
     ) as Mesh | null
-    if (hoopMesh) useMesh.setState({ hoopMesh })
+    if (hoopMesh) {
+      hoopMesh.removeFromParent()
+      useMesh.setState({ hoopMesh })
+    }
   }, [
     officeModel,
     outdoorModel,
@@ -359,8 +389,10 @@ export const Map = memo(() => {
           />
         )
       })}
+      {scene !== "basketball" && useMesh.getState().hoopMesh && (
+        <primitive object={useMesh.getState().hoopMesh as Mesh} />
+      )}
       {keyframedNet && <primitive object={keyframedNet} />}
-      <PlayedBasketballs />
       <MapAssetsLoader />
       <ReflexesLoader />
 
