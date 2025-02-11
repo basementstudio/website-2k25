@@ -1,5 +1,6 @@
 import { useTexture, useVideoTexture } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
+import { animate } from "motion"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -70,32 +71,22 @@ export const ArcadeScreen = () => {
         screenMaterial.uniforms.map.value = bootTexture
         screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
 
-        let animationStarted = false
-        const startAnimation = () => {
-          if (animationStarted) return
-          animationStarted = true
-
-          const startTime = performance.now()
-          const duration = 2000
-
-          const animate = (currentTime: number) => {
-            const elapsed = currentTime - startTime
-            const progress = Math.min(elapsed / duration, 1)
-
+        animate(0, 1, {
+          duration: 2,
+          ease: [0.43, 0.13, 0.23, 0.96],
+          onUpdate: (progress) => {
             screenMaterial.uniforms.uRevealProgress.value = progress
-
-            if (progress < 1) {
-              requestAnimationFrame(animate)
-            } else {
-              screenMaterial.uniforms.map.value = renderTarget.texture
-              setHasVisitedArcade(true)
-            }
+          },
+          onComplete: () => {
+            // Add a small delay to ensure the animation is fully complete
+            setTimeout(() => {
+              if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
+                screenMaterial.uniforms.map.value = renderTarget.texture
+                setHasVisitedArcade(true)
+              }
+            }, 100)
           }
-
-          requestAnimationFrame(animate)
-        }
-
-        startAnimation()
+        })
       } else {
         screenMaterial.uniforms.map.value = videoTexture
         screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
@@ -103,7 +94,6 @@ export const ArcadeScreen = () => {
     } else {
       // always use render target texture after first visit
       screenMaterial.uniforms.map.value = renderTarget.texture
-      screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
     }
 
     arcadeScreen.material = screenMaterial
