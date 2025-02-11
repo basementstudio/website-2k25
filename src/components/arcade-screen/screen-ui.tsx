@@ -5,7 +5,7 @@ import {
   FontFamilyProvider,
   Root
 } from "@react-three/uikit"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Vector3 } from "three"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
@@ -28,6 +28,8 @@ export const COLORS_THEME = {
 
 export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
+  const onLoadRef = useRef(onLoad)
+  onLoadRef.current = onLoad
 
   const [experiments, setExperiments] = useState<any[]>([])
   const [selectedExperiment, setSelectedExperiment] = useState<any>(null)
@@ -35,16 +37,16 @@ export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
   useEffect(() => {
     fetchLaboratory().then((data) => {
       setExperiments(
-        data.projectList.items.map((item) => ({
+        data.projectList.items.map((item: any) => ({
           _title: item._title,
           url: item.url,
           cover: item.cover,
           description: item.description as string | null
         }))
       )
-      onLoad?.()
+      onLoadRef.current?.()
     })
-  }, [onLoad])
+  }, [])
 
   return (
     <>

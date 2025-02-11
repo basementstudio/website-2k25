@@ -34,7 +34,6 @@ export const ArcadeScreen = () => {
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
   const [hasVisitedArcade, setHasVisitedArcade] = useState(false)
-  const [isScreenUILoaded, setIsScreenUILoaded] = useState(false)
 
   const { arcade } = useAssets()
 
@@ -78,13 +77,10 @@ export const ArcadeScreen = () => {
             screenMaterial.uniforms.uRevealProgress.value = progress
           },
           onComplete: () => {
-            // Add a small delay to ensure the animation is fully complete
-            setTimeout(() => {
-              if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
-                screenMaterial.uniforms.map.value = renderTarget.texture
-                setHasVisitedArcade(true)
-              }
-            }, 100)
+            if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
+              screenMaterial.uniforms.map.value = renderTarget.texture
+              setHasVisitedArcade(true)
+            }
           }
         })
       } else {
@@ -122,10 +118,7 @@ export const ArcadeScreen = () => {
       raycasterMesh={arcadeScreen}
     >
       {(hasVisitedArcade || isLabRoute) && (
-        <ScreenUI
-          screenScale={screenScale}
-          onLoad={() => setIsScreenUILoaded(true)}
-        />
+        <ScreenUI screenScale={screenScale} />
       )}
     </RenderTexture>
   )
