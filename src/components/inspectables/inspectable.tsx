@@ -231,55 +231,45 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
   }, [camera, cameraConfig])
 
   return (
-    <>
-      <group
-        onClick={(e) => {
-          if (!isInspectableEnabled) {
-            e.stopPropagation()
-            return
-          }
-          setSelected(id)
-          setCursorType("default")
-        }}
-        ref={ref}
-        onPointerEnter={() => {
-          if (!isInspectableEnabled) return
-          if (selected === id) {
-            setCursorType("grab")
-          } else {
-            setCursorType("zoom")
-          }
-        }}
-        onPointerLeave={() => {
-          if (!isInspectableEnabled) return
-          setCursorType("default")
-        }}
-        onPointerDown={() => {
-          if (!isInspectableEnabled || selected !== id) return
-          setCursorType("grabbing")
-        }}
-        onPointerUp={(e) => {
-          if (!isInspectableEnabled || selected !== id) return
-          if (e.object === e.eventObject) {
-            setCursorType("grab")
-          } else {
-            setCursorType("default")
-          }
-        }}
+    <group
+      onClick={(e) => {
+        if (!isInspectableEnabled || (selected && selected !== id)) {
+          e.stopPropagation()
+          return
+        }
+        setSelected(id)
+        setCursorType("default")
+      }}
+      ref={ref}
+      onPointerEnter={(e) => {
+        if (!isInspectableEnabled || (selected && selected !== id)) return
+        setCursorType(selected === id ? "grab" : "zoom")
+      }}
+      onPointerLeave={() => {
+        if (!isInspectableEnabled || (selected && selected !== id)) return
+        setCursorType("default")
+      }}
+      onPointerDown={() => {
+        if (!isInspectableEnabled || (selected && selected !== id)) return
+        setCursorType("grabbing")
+      }}
+      onPointerUp={(e) => {
+        if (!isInspectableEnabled || (selected && selected !== id)) return
+        setCursorType(e.object === e.eventObject ? "grab" : "default")
+      }}
+    >
+      <InspectableDragger
+        key={id}
+        enabled={selected === id && isInspectableEnabled}
+        global={false}
+        cursor={false}
+        snap={true}
+        speed={2}
       >
-        <InspectableDragger
-          key={id}
-          enabled={selected === id && isInspectableEnabled}
-          global={false}
-          cursor={false}
-          snap={true}
-          speed={2}
-        >
-          <group ref={ref}>
-            <primitive object={mesh} />
-          </group>
-        </InspectableDragger>
-      </group>
-    </>
+        <group ref={ref}>
+          <primitive object={mesh} />
+        </group>
+      </InspectableDragger>
+    </group>
   )
 }
