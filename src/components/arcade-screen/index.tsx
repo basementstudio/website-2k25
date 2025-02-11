@@ -102,7 +102,6 @@ export const ArcadeScreen = () => {
     arcadeScreen,
     renderTarget.texture,
     videoTexture,
-    currentScene,
     isLabRoute,
     isScreenUILoaded,
     bootTexture
