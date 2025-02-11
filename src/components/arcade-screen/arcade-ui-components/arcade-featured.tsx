@@ -23,7 +23,8 @@ export const ArcadeFeatured = () => {
           positionType="relative"
           alignItems="center"
           justifyContent="center"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             window.open(`https://chronicles.basement.studio/`, "_blank")
           }}
           onHoverChange={(hover) => {

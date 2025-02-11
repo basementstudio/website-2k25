@@ -59,7 +59,8 @@ export const ArcadeLabsList = ({
                 setCursorType("default")
               }
             }}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation()
               window.open(
                 `https://lab.basement.studio/experiments/${data.url}`,
                 "_blank"
@@ -88,7 +89,8 @@ export const ArcadeLabsList = ({
                     : COLORS_THEME.primary
                 }
                 fontWeight="normal"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation()
                   window.open(
                     `https://github.com/basementstudio/basement-laboratory/tree/main/src/experiments/${data.url}`,
                     "_blank"
@@ -113,7 +115,8 @@ export const ArcadeLabsList = ({
                     : COLORS_THEME.primary
                 }
                 fontWeight="normal"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation()
                   window.open(
                     `https://lab.basement.studio/experiments/${data.url}`,
                     "_blank"
