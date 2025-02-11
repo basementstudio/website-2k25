@@ -37,7 +37,12 @@ export const ArcadeScreen = () => {
 
   const { arcade } = useAssets()
 
-  const bootTexture = useTexture("/images/arcade-screen/boot.png")
+  const bootTexture = useTexture(
+    "/images/arcade-screen/boot.png",
+    (texture) => {
+      texture.flipY = false
+    }
+  )
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
@@ -58,42 +63,42 @@ export const ArcadeScreen = () => {
     if (!arcadeScreen) return
 
     videoTexture.flipY = false
-    bootTexture.flipY = false
 
     // first time entering (show video texture)
     if (!hasVisitedArcade) {
-      screenMaterial.uniforms.map.value = videoTexture
-      screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
-
-      // when entering lab route
       if (isLabRoute) {
         screenMaterial.uniforms.map.value = bootTexture
         screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
 
-        let startTime = performance.now()
-        const duration = 2000
+        let animationStarted = false
+        const startAnimation = () => {
+          if (animationStarted) return
+          animationStarted = true
 
-        const animate = (currentTime: number) => {
-          const elapsed = currentTime - startTime
-          const progress = Math.min(elapsed / duration, 1)
+          const startTime = performance.now()
+          const duration = 2000
 
-          screenMaterial.uniforms.uRevealProgress.value = progress
+          const animate = (currentTime: number) => {
+            const elapsed = currentTime - startTime
+            const progress = Math.min(elapsed / duration, 1)
 
-          if (progress < 1) {
-            requestAnimationFrame(animate)
+            screenMaterial.uniforms.uRevealProgress.value = progress
+
+            if (progress < 1) {
+              requestAnimationFrame(animate)
+            } else if (isScreenUILoaded) {
+              screenMaterial.uniforms.map.value = renderTarget.texture
+              setHasVisitedArcade(true)
+            }
           }
 
-          // if animation ends switch to render target texture
-          if (progress >= 1 && isScreenUILoaded) {
-            screenMaterial.uniforms.map.value = renderTarget.texture
-            setHasVisitedArcade(true)
-          } else if (progress >= 1) {
-            // show boot texture until UI is loaded
-            screenMaterial.uniforms.map.value = bootTexture
-          }
+          requestAnimationFrame(animate)
         }
 
-        requestAnimationFrame(animate)
+        startAnimation()
+      } else {
+        screenMaterial.uniforms.map.value = videoTexture
+        screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
       }
     } else {
       // always use render target texture after first visit
