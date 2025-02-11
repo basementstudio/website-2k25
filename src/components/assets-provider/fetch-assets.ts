@@ -85,7 +85,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
   }).query(assetsQuery)
 
   return {
-    office: threeDInteractions.map.office?.file?.url ?? "",
+    office: threeDInteractions.map.officeV2?.file?.url ?? "",
     outdoor: threeDInteractions.map.outdoor?.file?.url ?? "",
     godrays: threeDInteractions.map.godrays?.file?.url ?? "",
     bakes: threeDInteractions.map.bakes.items.map((item) => ({
