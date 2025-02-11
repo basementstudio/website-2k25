@@ -42,31 +42,29 @@ void main() {
     return;
   }
 
-  // reveal
-  float currentLine = floor(remappedUv.y / LINE_HEIGHT);
-  float revealLine = floor(uRevealProgress / LINE_HEIGHT);
-
-  if (currentLine > revealLine) {
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    return;
-  }
-
-  vec3 color = texture2D(map, remappedUv).rgb;
-  float luma = dot(color, vec3(0.8, 0.1, 0.1));
-
-  // apply tint
+  // get texture color and apply tint
+  vec3 textureColor = texture2D(map, remappedUv).rgb;
+  float luma = dot(textureColor, vec3(0.8, 0.1, 0.1));
   vec3 tint = vec3(1.0, 0.302, 0.0);
   tint.r *= TINT_R;
   tint.g *= TINT_G;
-  color.rgb = luma * tint * BRIGHTNESS;
+  textureColor = luma * tint * BRIGHTNESS;
 
-  // add scanlines
-  float scanline = sin(remappedUv.y * SCANLINE_COUNT) * 0.5 + 0.5;
-  color *= 1.0 - scanline * SCANLINE_INTENSITY;
+  // apply reveal to texture
+  float currentLine = floor(remappedUv.y / LINE_HEIGHT);
+  float revealLine = floor(uRevealProgress / LINE_HEIGHT);
+  float textureVisibility = currentLine <= revealLine ? 0.8 : 0.0;
 
-  // add noise
+  // start with black background and blend with revealed texture
+  vec3 color = mix(vec3(0.0), textureColor, textureVisibility);
+
+  // add noise that's always visible (reduced intensity)
   float noise = random(remappedUv + vec2(uTime * TIME_SPEED)) * NOISE_INTENSITY;
-  color += noise;
+  color += noise * 0.1;
+
+  // add scanlines that are always visible (reduced intensity)
+  float scanline = sin(remappedUv.y * SCANLINE_COUNT) * 0.5 + 0.5;
+  color += (1.0 - scanline * SCANLINE_INTENSITY) * 0.05;
 
   // add vignette
   vec2 vignetteUv = remappedUv * 2.0 - 1.0;
