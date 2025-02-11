@@ -13,6 +13,9 @@ varying vec2 vUv;
 #define NOISE_INTENSITY (0.05)
 #define TIME_SPEED (1.0)
 #define LINE_HEIGHT (0.05)
+#define MASK_INTENSITY (0.3)
+#define MASK_SIZE (12.0)
+#define MASK_BORDER (0.4)
 
 vec2 curveRemapUV(vec2 uv) {
   uv = uv * 2.0 - 1.0;
@@ -25,6 +28,30 @@ vec2 curveRemapUV(vec2 uv) {
 // random function
 float random(vec2 st) {
   return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
+  // RGB cell and subcell coordinates
+  vec2 coord = uv * resolution / MASK_SIZE;
+  vec2 subcoord = coord * vec2(6.0, 1.0);
+
+  // Offset for staggering every other cell
+  vec2 cell_offset = vec2(0.0, fract(floor(coord.x) * 0.5));
+
+  // Compute the RGB color index from 0 to 2
+  float ind = mod(floor(subcoord.x), 3.0);
+  // Convert that value to an RGB color (multiplied to maintain brightness)
+  vec3 mask_color = vec3(ind == 0.0, ind == 1.0, ind == 2.0) * 3.0;
+
+  // Signed subcell uvs
+  vec2 cell_uv = fract(subcoord + cell_offset) * 2.0 - 1.0;
+  // X and y borders - using power of 4 instead of 2 for sharper transitions
+  vec2 border = 1.0 - cell_uv * cell_uv * cell_uv * cell_uv * MASK_BORDER;
+  // Blend x and y mask borders
+  mask_color *= border.x * border.y;
+
+  // Apply mask to color
+  return color * (1.0 + (mask_color - 1.0) * MASK_INTENSITY);
 }
 
 void main() {
@@ -70,6 +97,9 @@ void main() {
   vec2 vignetteUv = remappedUv * 2.0 - 1.0;
   float vignette = 1.0 - dot(vignetteUv, vignetteUv) * VIGNETTE_STRENGTH;
   color *= vignette;
+
+  // Apply CRT RGB mask
+  color = applyCRTMask(color, remappedUv, vec2(1024.0, 1024.0)); // Adjust resolution as needed
 
   gl_FragColor = vec4(color, 1.0);
 }
