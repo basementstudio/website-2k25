@@ -86,7 +86,7 @@ export const ArcadeScreen = () => {
 
             if (progress < 1) {
               requestAnimationFrame(animate)
-            } else if (isScreenUILoaded) {
+            } else {
               screenMaterial.uniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
             }
