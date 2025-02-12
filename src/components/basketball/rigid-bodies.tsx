@@ -9,17 +9,31 @@ export default function RigidBodies({
 }: {
   hoopPosition: { x: number; y: number; z: number }
 }) {
-  const { setScore } = useMinigameStore()
+  const {
+    setScore,
+    scoreMultiplier,
+    incrementConsecutiveScores,
+    resetConsecutiveScores,
+    setJustScored
+  } = useMinigameStore()
   const { playSoundFX } = useSiteAudio()
 
   const randomPitch = 0.95 + Math.random() * 0.1
 
   const handleScore = () => {
-    setScore((prev) => prev + 10)
+    const baseScore = 10
+    const multipliedScore = Math.floor(baseScore * scoreMultiplier)
+    setScore((prev) => prev + multipliedScore)
+    incrementConsecutiveScores()
     playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
 
     // event for net animation
     window.dispatchEvent(new Event("basketball-score"))
+  }
+
+  const handleMiss = () => {
+    setJustScored(false)
+    resetConsecutiveScores()
   }
 
   return (
@@ -30,7 +44,10 @@ export default function RigidBodies({
         name="wall"
         position={[hoopPosition.x, hoopPosition.y, hoopPosition.z - 0.1]}
       >
-        <CuboidCollider args={[2.5, 3.5, 0.1]} />
+        <CuboidCollider
+          args={[2.5, 3.5, 0.1]}
+          onIntersectionEnter={handleMiss}
+        />
       </RigidBody>
 
       {/* invisible floor */}
@@ -39,7 +56,7 @@ export default function RigidBodies({
         name="floor"
         position={[hoopPosition.x, -0.08, hoopPosition.z + 3]}
       >
-        <CuboidCollider args={[6, 0.1, 6]} />
+        <CuboidCollider args={[6, 0.1, 6]} onIntersectionEnter={handleMiss} />
       </RigidBody>
 
       {/* arcade collider */}

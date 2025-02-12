@@ -67,6 +67,9 @@ export const HoopMinigame = () => {
     addPlayedBall,
     readyToPlay,
     setReadyToPlay,
+    resetConsecutiveScores,
+    justScored,
+    setJustScored,
     hasPlayed
   } = useMinigameStore()
 
@@ -79,6 +82,8 @@ export const HoopMinigame = () => {
     setTimeRemaining(gameDuration)
     setIsGameActive(false)
     setShotMetrics({ angle: "0.0", probability: "0.0" })
+    resetConsecutiveScores()
+    setJustScored(false)
 
     if (!hasPlayed) {
       setScore(0)
@@ -104,6 +109,8 @@ export const HoopMinigame = () => {
     setTimeRemaining,
     setIsGameActive,
     setShotMetrics,
+    resetConsecutiveScores,
+    setJustScored,
     hasPlayed
   ])
 
@@ -154,6 +161,11 @@ export const HoopMinigame = () => {
         resetProgress.current = 0
         bounceCount.current = 0
         isThrowable.current = true
+
+        if (!justScored) {
+          resetConsecutiveScores()
+        }
+        setJustScored(false)
       } catch (error) {
         console.warn("Failed to reset ball position")
         setIsResetting(false)
@@ -166,7 +178,10 @@ export const HoopMinigame = () => {
       resetProgress,
       bounceCount,
       isThrowable,
-      isBasketball
+      isBasketball,
+      resetConsecutiveScores,
+      justScored,
+      setJustScored
     ]
   )
 
