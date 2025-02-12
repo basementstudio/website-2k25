@@ -64,7 +64,7 @@ export const Map = memo(() => {
     car,
     fogStates
   } = useAssets()
-  console.log(fogStates)
+
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
