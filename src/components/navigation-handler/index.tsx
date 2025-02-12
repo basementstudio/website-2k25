@@ -94,7 +94,7 @@ export const NavigationHandler = () => {
     }
   }, [setCurrentTabIndex, pathname])
 
-  useEffect(() => setSelected(null), [scene])
+  useEffect(() => setSelected(null), [setSelected])
 
   useKeyPress("Tab", handleKeyDown)
   useKeyPress(
@@ -119,7 +119,7 @@ export const NavigationHandler = () => {
         handleNavigation("/")
         setCurrentTabIndex(tabIndex)
       }
-    }, [scene, handleNavigation, pathname, scenes])
+    }, [scene, handleNavigation, pathname, scenes, setCurrentTabIndex])
   )
 
   return null
