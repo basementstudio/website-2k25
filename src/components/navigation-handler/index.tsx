@@ -30,10 +30,6 @@ export const NavigationHandler = () => {
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
-  const setPreviousTabIndex = useNavigationStore(
-    (state) => state.setPreviousTabIndex
-  )
-  const previousTabIndex = useNavigationStore((state) => state.previousTabIndex)
   const setCurrentTabIndex = useNavigationStore(
     (state) => state.setCurrentTabIndex
   )
@@ -54,17 +50,12 @@ export const NavigationHandler = () => {
       setCurrentScene(currentScene)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    scenes,
-    setSelected,
-    setPreviousTabIndex,
-    setCurrentTabIndex,
-    previousTabIndex
-  ])
+  }, [scenes, setSelected, setCurrentTabIndex])
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key !== "Tab" || !isCanvasTabMode) return
+
       if (!currentScene?.tabs?.length) {
         setIsCanvasTabMode(false)
         return
@@ -72,6 +63,13 @@ export const NavigationHandler = () => {
 
       e.preventDefault()
       const newIndex = e.shiftKey ? currentTabIndex - 1 : currentTabIndex + 1
+
+      // add boundaries
+      if (newIndex < 0 || newIndex >= currentScene.tabs.length) {
+        setIsCanvasTabMode(false)
+        return
+      }
+
       setCurrentTabIndex(newIndex)
 
       if (
@@ -96,7 +94,7 @@ export const NavigationHandler = () => {
     }
   }, [setCurrentTabIndex, pathname])
 
-  useEffect(() => setSelected(null), [scene])
+  useEffect(() => setSelected(null), [setSelected])
 
   useKeyPress("Tab", handleKeyDown)
   useKeyPress(
@@ -121,7 +119,7 @@ export const NavigationHandler = () => {
         handleNavigation("/")
         setCurrentTabIndex(tabIndex)
       }
-    }, [scene, handleNavigation, pathname, scenes])
+    }, [scene, handleNavigation, pathname, scenes, setCurrentTabIndex])
   )
 
   return null
