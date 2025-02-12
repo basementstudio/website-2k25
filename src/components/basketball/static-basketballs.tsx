@@ -41,6 +41,7 @@ const StaticBasketballs = () => {
     <>
       {staticBalls.map((ball, index) => (
         <mesh
+          raycast={() => null}
           key={index}
           geometry={geometry}
           material={originalMaterial}
