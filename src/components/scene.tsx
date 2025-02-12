@@ -9,7 +9,6 @@ import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { Map } from "./map/map"
