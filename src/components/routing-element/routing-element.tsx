@@ -91,12 +91,16 @@ export const RoutingElement = ({
     isCanvasTabMode,
     currentScene,
     currentTabIndex,
-    node.name,
+    node,
     hoverName,
     navigate,
     route,
     scenes,
-    pathname
+    pathname,
+    setCurrentTabIndex,
+    currentScene?.tabs,
+    router,
+    setHoverText
   ])
 
   return (
