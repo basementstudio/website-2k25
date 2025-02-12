@@ -60,15 +60,7 @@ export const useHandleNavigation = () => {
       }
     },
 
-    [
-      router,
-      setCurrentScene,
-      scenes,
-      pathname,
-      setDisableCameraTransition,
-      lenis,
-      scrollTo
-    ]
+    [router, setCurrentScene, scenes, pathname, setDisableCameraTransition]
   )
 
   return { handleNavigation }
