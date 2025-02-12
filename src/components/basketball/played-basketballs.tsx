@@ -99,6 +99,7 @@ export const PlayedBasketballs = () => {
           }}
         >
           <mesh
+            raycast={() => null}
             geometry={geometry}
             material={originalMaterial}
             scale={1.7}
