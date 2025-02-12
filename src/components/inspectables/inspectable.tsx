@@ -14,12 +14,7 @@ import {
   Vector3
 } from "three"
 
-import {
-  ANIMATION_CONFIG,
-  SMOOTH_FACTOR,
-  TARGET_SIZE,
-  X_OFFSET
-} from "@/constants/inspectables"
+import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
@@ -31,9 +26,17 @@ interface InspectableProps {
   mesh: Mesh
   position: { x: number; y: number; z: number }
   id: string
+  xOffset: number
+  sizeTarget: number
 }
 
-export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
+export const Inspectable = ({
+  mesh,
+  position,
+  id,
+  xOffset,
+  sizeTarget
+}: InspectableProps) => {
   const { selected } = useInspectable()
   const [size, setSize] = useState<[number, number, number]>([0, 0, 0])
   const perpendicularMoved = useRef(new Vector3())
@@ -90,16 +93,16 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
 
     // calculate X offset based on camera aspect ratio
     const viewportWidth = Math.min(camera.aspect, 1.855072463768116)
-    const xOffset = viewportWidth * X_OFFSET
+    const offset = viewportWidth * xOffset
     const perpendicular = new Vector3(-direction.z, 0, direction.x).normalize()
-    perpendicularMoved.current.copy(perpendicular.multiplyScalar(xOffset))
+    perpendicularMoved.current.copy(perpendicular.multiplyScalar(offset))
 
     const target = targetPosition.current
 
     const config = withAnimation ? ANIMATION_CONFIG : { duration: 0 }
 
     if (selected === id && isInspectableEnabled) {
-      const desiredScale = TARGET_SIZE / Math.max(...size)
+      const desiredScale = sizeTarget / Math.max(...size)
 
       const desiredDirection = new Vector3(
         cameraConfig?.position[0] + direction.x + perpendicularMoved.current.x,

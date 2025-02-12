@@ -29,7 +29,9 @@ const pagesFragment = fragmentOn("Pages", {
           json: {
             content: true
           }
-        }
+        },
+        xOffset: true,
+        sizeTarget: true
       }
     }
   }

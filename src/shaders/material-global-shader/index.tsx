@@ -1,4 +1,4 @@
-import { MeshStandardMaterial, Texture, Vector3 } from "three"
+import { MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
