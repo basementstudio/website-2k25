@@ -53,8 +53,8 @@ export default function Sandbox({ keyName }: SandboxProps) {
           autoReload: true,
           autorun: true,
           classes: {
-            "sp-tabs": s.tabs,
-            "sp-tab-button": s.tabButton
+            "sp-tab-container": s.tabContainer,
+            "cm-scroller": s.scroller
           },
           visibleFiles: templateConfig?.editableFiles || undefined,
           activeFile: templateConfig?.activeFile || undefined
@@ -89,13 +89,14 @@ export default function Sandbox({ keyName }: SandboxProps) {
             </div>
           </div>
 
-          <SandpackCodeEditor
-            closableTabs={false}
-            showLineNumbers
-            showTabs
-            initMode="user-visible"
-            className="!h-full"
-          />
+          <div className="relative max-h-full overflow-auto">
+            <SandpackCodeEditor
+              closableTabs={false}
+              showLineNumbers
+              showTabs
+              initMode="user-visible"
+            />
+          </div>
         </SandpackLayout>
       </SandpackProvider>
     </div>

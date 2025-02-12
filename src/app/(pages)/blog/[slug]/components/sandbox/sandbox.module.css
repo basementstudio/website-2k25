@@ -1,6 +1,7 @@
-.tabs {
+.tabContainer {
+  padding-right: 0 !important;
 }
 
-.tabButton {
-  outline: none;
+.scroller {
+  overflow-x: auto;
 }

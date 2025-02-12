@@ -80,8 +80,8 @@ export const ListItem = ({ children }: HandlerProps<"li">) => (
 )
 
 export const Code = ({ children }: HandlerProps<"code">) => (
-  <code className="md:tracking-2 font-mono text-blog font-semibold">
-    ‘{children}’
+  <code className="md:tracking-2 rounded-md border border-brand-g2 bg-codeblock-k2 px-1 font-mono text-p font-semibold">
+    {children}
   </code>
 )
 
