@@ -55,6 +55,7 @@ export const NavigationHandler = () => {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key !== "Tab" || !isCanvasTabMode) return
+
       if (!currentScene?.tabs?.length) {
         setIsCanvasTabMode(false)
         return
@@ -62,6 +63,13 @@ export const NavigationHandler = () => {
 
       e.preventDefault()
       const newIndex = e.shiftKey ? currentTabIndex - 1 : currentTabIndex + 1
+
+      // add boundaries
+      if (newIndex < 0 || newIndex >= currentScene.tabs.length) {
+        setIsCanvasTabMode(false)
+        return
+      }
+
       setCurrentTabIndex(newIndex)
 
       if (
