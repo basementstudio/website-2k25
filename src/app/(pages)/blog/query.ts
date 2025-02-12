@@ -50,7 +50,7 @@ export const query = fragmentOn("Query", {
                   author: true,
                   role: true
                 },
-                on_CodeSanboxComponent: {
+                on_CodeSandboxComponent: {
                   __typename: true,
                   _id: true,
 
