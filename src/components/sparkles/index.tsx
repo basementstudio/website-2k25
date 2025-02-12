@@ -31,7 +31,7 @@ export const Sparkle = (props: SparklesProps) => (
 export const Sparkles = () => (
   <>
     {SPAWN_POINTS.map((point, index) => (
-      <mesh key={index} position={point.position}>
+      <mesh key={index} position={point.position} raycast={() => null}>
         <Sparkle {...BASE_CONFIG} count={point.count} scale={point.scale} />
       </mesh>
     ))}
