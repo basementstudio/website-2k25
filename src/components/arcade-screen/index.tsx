@@ -37,12 +37,9 @@ export const ArcadeScreen = () => {
 
   const { arcade } = useAssets()
 
-  const bootTexture = useTexture(
-    "/images/arcade-screen/boot.png",
-    (texture) => {
-      texture.flipY = false
-    }
-  )
+  const bootTexture = useTexture(arcade.boot, (texture) => {
+    texture.flipY = false
+  })
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 

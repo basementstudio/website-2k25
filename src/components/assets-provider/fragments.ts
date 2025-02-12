@@ -94,6 +94,9 @@ export const arcadeFragment = fragmentOn("Arcade", {
   },
   placeholderLab: {
     url: true
+  },
+  boot: {
+    url: true
   }
 })
 
