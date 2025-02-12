@@ -3,6 +3,7 @@ import { Pump } from "basehub/react-pump"
 import Image from "next/image"
 
 import { query } from "../query"
+import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import Content from "./content"
 import More from "./more"
 import BlogTitle from "./title"
@@ -46,6 +47,9 @@ const Blog = async (props: { params: Params }) => {
                 <More data={data} slug={resolvedParams.slug} />
               </div>
             </div>
+
+            {/* SSR CSS for Sandpack when using CodeSandbox */}
+            <SandPackCSS />
           </>
         )
       }}

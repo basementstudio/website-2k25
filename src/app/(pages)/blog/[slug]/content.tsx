@@ -20,6 +20,7 @@ import {
   UnorderedList
 } from "./blog-components"
 import BlogMeta from "./blog-meta"
+import Sandbox from "./components/sandbox"
 
 export default function Content({
   data,
@@ -84,13 +85,7 @@ export default function Content({
                   role={props.role}
                 />
               ),
-              CodeSanboxComponent: (props) => (
-                <CodeSanbox
-                  sandboxUrl={props.sandboxUrl}
-                  sourceCodeUrl={props.sourceCodeUrl}
-                  title={props._title}
-                />
-              )
+              CodeSanboxComponent: (props) => <Sandbox />
             }}
             blocks={post?.content?.json.blocks}
           />
