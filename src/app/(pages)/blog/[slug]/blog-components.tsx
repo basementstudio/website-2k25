@@ -50,11 +50,11 @@ export const Paragraph = ({ children }: HandlerProps<"p">) => (
 )
 
 export const Heading2 = ({ children }: HandlerProps<"h2">) => (
-  <h2 className="text-h2 text-brand-w2">{children}</h2>
+  <h2 className="text-pretty text-h2 text-brand-w2">{children}</h2>
 )
 
 export const Heading3 = ({ children }: HandlerProps<"h3">) => (
-  <h3 className="text-h3 text-brand-w2">{children}</h3>
+  <h3 className="text-pretty text-h3 text-brand-w2">{children}</h3>
 )
 
 export const BlogLink = ({ children, href }: HandlerProps<"a">) => (

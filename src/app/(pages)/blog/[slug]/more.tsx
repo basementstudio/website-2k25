@@ -52,9 +52,11 @@ export default function More({
                   {post._title}
                 </h3>
 
-                <p className="text-p text-brand-g1">
-                  {formatDate(post.date ?? "")}
-                </p>
+                {post.date ? (
+                  <p className="text-p text-brand-g1">
+                    {formatDate(post.date ?? "")}
+                  </p>
+                ) : null}
               </div>
 
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

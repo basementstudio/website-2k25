@@ -40,10 +40,10 @@ export default function BlogList({
         {posts.map((post) => (
           <div
             key={post._slug}
-            className="group relative col-span-12 border-b border-brand-w1/20 py-2"
+            className="group relative col-span-12 border-b border-brand-w1/20"
           >
             <Link
-              className="col-span-12 grid grid-cols-12 gap-2"
+              className="col-span-12 grid grid-cols-12 gap-2 py-2"
               href={`/blog/${post._slug}`}
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -71,9 +71,11 @@ export default function BlogList({
                   </p>
                 ))}
               </div>
-              <p className="col-span-1 col-start-11 text-p text-brand-w2">
-                {formatDate(post.date || "")}
-              </p>
+              {post.date ? (
+                <p className="col-span-1 col-start-11 text-p text-brand-w2">
+                  {formatDate(post.date || "")}
+                </p>
+              ) : null}
             </Link>
           </div>
         ))}
