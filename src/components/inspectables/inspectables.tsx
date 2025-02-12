@@ -41,11 +41,11 @@ export const Inspectables = () => {
           id={mesh.name}
           xOffset={
             inspectables.find((inspectable) => inspectable.mesh === mesh.name)
-              ?.xOffset
+              ?.xOffset ?? 0
           }
           sizeTarget={
             inspectables.find((inspectable) => inspectable.mesh === mesh.name)
-              ?.sizeTarget
+              ?.sizeTarget ?? 0.5
           }
         />
       ))}
