@@ -149,13 +149,17 @@ void main() {
 
   #ifdef USE_EMISSIVE
   float ei = emissiveIntensity;
-  ei *= max(0.01, 1.0 - fadeFactor);
+  if (inspectingEnabled && !isInspecting) {
+    ei *= max(0.01, 1.0 - fadeFactor);
+  }
   irradiance += emissive * ei;
   #endif
 
   #ifdef USE_EMISSIVEMAP
   float ei = emissiveIntensity;
-  ei *= max(0.01, 1.0 - fadeFactor);
+  if (inspectingEnabled && !isInspecting) {
+    ei *= max(0.01, 1.0 - fadeFactor);
+  }
   vec4 emissiveColor = texture2D(emissiveMap, vUv);
   irradiance *= emissiveColor.rgb * ei;
   #endif

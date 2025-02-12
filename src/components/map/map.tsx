@@ -4,7 +4,7 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, useEffect, Suspense, useRef, useState } from "react"
 
 import {
   Mesh,
@@ -37,6 +37,7 @@ import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
+import { AnimationPlaybackControls } from "motion/react"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -137,15 +138,22 @@ export const Map = memo(() => {
 
   const fadeFactor = useRef(new MotionValue())
   const isInspecting = useRef(false)
+  const tl = useRef<AnimationPlaybackControls | null>(null)
 
   useEffect(() => {
     const easeDirection = selected ? 1 : 0
 
     if (easeDirection === 1) isInspecting.current = true
 
-    animate(fadeFactor.current, easeDirection, ANIMATION_CONFIG).then(() => {
+    tl.current = animate(fadeFactor.current, easeDirection, ANIMATION_CONFIG)
+
+    tl.current.complete = () => {
       if (easeDirection === 0) isInspecting.current = false
-    })
+    }
+
+    tl.current.play()
+
+    return () => tl.current?.stop()
   }, [selected])
 
   useFrame(({ clock }) => {

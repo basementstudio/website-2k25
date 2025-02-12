@@ -20,7 +20,6 @@ import {
   TARGET_SIZE,
   X_OFFSET
 } from "@/constants/inspectables"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
@@ -256,9 +255,13 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
         snap={true}
         speed={2}
       >
-        <group ref={ref}>
+        <group>
           <primitive object={mesh} />
         </group>
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[...size]} />
+          <meshBasicMaterial opacity={0} transparent />
+        </mesh>
       </InspectableDragger>
     </group>
   )
