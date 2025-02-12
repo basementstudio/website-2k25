@@ -1,31 +1,35 @@
 import { SandpackThemeProp } from "@codesandbox/sandpack-react"
 
+import config from "@/../tailwind.config"
+
+const colors = config.theme.extend.colors
+
 export const BASEMENT_THEME: SandpackThemeProp = {
   colors: {
-    surface1: "#000000",
-    surface2: "#252525",
-    surface3: "#191919",
-    clickable: "#999999",
-    base: "#808080",
-    disabled: "#4D4D4D",
-    hover: "#C5C5C5",
-    accent: "#e6e6e6",
-    error: "#ff4d00",
-    errorSurface: "#000000"
+    surface1: colors.brand.k,
+    surface2: colors.brand.g2,
+    surface3: colors.brand.g2,
+    clickable: colors.brand.w2,
+    base: colors.brand.g1,
+    disabled: colors.brand.g2,
+    hover: colors.brand.w1,
+    accent: colors.brand.w1,
+    error: colors.brand.o,
+    errorSurface: colors.brand.k
   },
   syntax: {
-    plain: "#ffffff",
+    plain: colors.brand.w1,
     comment: {
-      color: "#757575",
+      color: colors.brand.g1,
       fontStyle: "italic"
     },
-    keyword: "#4dffb9",
-    tag: "#4dffb9",
-    punctuation: "#ffffff",
-    definition: "#ff4d00",
-    property: "#e6e6e6",
-    static: "#ff4d00",
-    string: "#00ff9b"
+    keyword: colors.brand.g,
+    tag: colors.brand.o,
+    punctuation: colors.brand.g,
+    definition: colors.brand.o,
+    property: colors.brand.o,
+    static: colors.brand.o,
+    string: colors.brand.w2
   },
   font: {
     size: "0.75rem",
