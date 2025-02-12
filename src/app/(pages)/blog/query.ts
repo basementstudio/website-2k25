@@ -55,8 +55,7 @@ export const query = fragmentOn("Query", {
                   _id: true,
 
                   _title: true,
-                  sandboxUrl: true,
-                  sourceCodeUrl: true
+                  sandboxKey: true
                 }
               }
             }

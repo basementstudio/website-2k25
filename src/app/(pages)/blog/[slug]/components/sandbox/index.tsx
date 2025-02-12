@@ -11,56 +11,59 @@ import { useState } from "react"
 
 import { cn } from "@/utils/cn"
 
+import { getSandbox } from "./list"
 import s from "./sandbox.module.css"
+import {
+  CustomTemplateName,
+  DefaultTemplateName,
+  defaultTemplates,
+  getTemplateConfig
+} from "./templates"
+import { BASEMENT_THEME } from "./theme"
 import SandboxToolbar from "./toolbar"
 
-export default function Sandbox() {
+interface SandboxProps {
+  keyName: string
+}
+
+export default function Sandbox({ keyName }: SandboxProps) {
   const [activeTab, setActiveTab] = useState<"preview" | "console">("preview")
+
+  const sandbox = getSandbox(keyName)
+  if (!sandbox) return null
+
+  const isDefaultTemplate = defaultTemplates.includes(
+    sandbox?.template as DefaultTemplateName
+  )
+
+  const templateConfig = isDefaultTemplate
+    ? undefined
+    : getTemplateConfig(sandbox?.template as CustomTemplateName)
 
   return (
     <div className="mt-24 w-full">
       <SandpackProvider
-        template="react-ts"
+        template={
+          isDefaultTemplate
+            ? (sandbox?.template as DefaultTemplateName)
+            : (templateConfig?.extends as DefaultTemplateName)
+        }
+        customSetup={!isDefaultTemplate ? templateConfig : undefined}
         options={{
           autoReload: true,
           autorun: true,
           classes: {
             "sp-tabs": s.tabs,
             "sp-tab-button": s.tabButton
-          }
-        }}
-        theme={{
-          colors: {
-            surface1: "#000000",
-            surface2: "#252525",
-            surface3: "#191919",
-            clickable: "#999999",
-            base: "#808080",
-            disabled: "#4D4D4D",
-            hover: "#C5C5C5",
-            accent: "#e6e6e6",
-            error: "#ff4d00",
-            errorSurface: "#000000"
           },
-          syntax: {
-            plain: "#ffffff",
-            comment: {
-              color: "#757575",
-              fontStyle: "italic"
-            },
-            keyword: "#4dffb9",
-            tag: "#4dffb9",
-            punctuation: "#ffffff",
-            definition: "#ff4d00",
-            property: "#e6e6e6",
-            static: "#ff4d00",
-            string: "#00ff9b"
-          },
-          font: {
-            body: "var(--font-geist-sans)",
-            mono: "var(--font-geist-mono)"
-          }
+          visibleFiles: templateConfig?.editableFiles || undefined,
+          activeFile: templateConfig?.activeFile || undefined
         }}
+        files={{
+          ...templateConfig?.files,
+          ...sandbox?.files
+        }}
+        theme={BASEMENT_THEME}
       >
         <SandpackLayout className="!grid !h-[640px] !grid-cols-2">
           <div className="grid h-full grid-rows-[42px_1fr] bg-brand-k">

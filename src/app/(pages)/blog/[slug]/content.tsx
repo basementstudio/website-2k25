@@ -85,7 +85,9 @@ export default function Content({
                   role={props.role}
                 />
               ),
-              CodeSanboxComponent: (props) => <Sandbox />
+              CodeSanboxComponent: (props) => (
+                <Sandbox keyName={props.sandboxKey} />
+              )
             }}
             blocks={post?.content?.json.blocks}
           />
