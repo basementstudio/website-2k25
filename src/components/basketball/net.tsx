@@ -99,7 +99,7 @@ export const Net = ({ mesh }: NetProps) => {
         const sensorInfluence = distToSensor < 0.5 ? 2.0 : 0
         const hoopInfluence =
           distToSensor < 1.5 ? (1.5 - distToSensor) * 0.8 : 0.0
-        const totalInfluence = Math.max(sensorInfluence, hoopInfluence)
+        const totalInfluence = Math.max(sensorInfluence, hoopInfluence) * 0.5
 
         materialRef.current.uniforms.uBallPosition.value.copy(ballWorldPos)
         materialRef.current.uniforms.uBallInfluence.value = totalInfluence
