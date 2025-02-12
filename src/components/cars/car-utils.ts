@@ -11,10 +11,7 @@ export const setRandomTimeout = () => {
 
   if (carState.waitTimeout) clearTimeout(carState.waitTimeout)
 
-  carState.waitTimeout = setTimeout(
-    () => (carState.isWaiting = false),
-    waitTime
-  )
+  carState.waitTimeout = setTimeout(() => (carState.isWaiting = false), 1000)
 }
 
 // updates car speed and behavior (slow down/speed up chance)
