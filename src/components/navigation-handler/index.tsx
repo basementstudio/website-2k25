@@ -30,10 +30,6 @@ export const NavigationHandler = () => {
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
-  const setPreviousTabIndex = useNavigationStore(
-    (state) => state.setPreviousTabIndex
-  )
-  const previousTabIndex = useNavigationStore((state) => state.previousTabIndex)
   const setCurrentTabIndex = useNavigationStore(
     (state) => state.setCurrentTabIndex
   )
@@ -54,13 +50,7 @@ export const NavigationHandler = () => {
       setCurrentScene(currentScene)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    scenes,
-    setSelected,
-    setPreviousTabIndex,
-    setCurrentTabIndex,
-    previousTabIndex
-  ])
+  }, [scenes, setSelected, setCurrentTabIndex])
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
