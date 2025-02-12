@@ -14,7 +14,11 @@ import { useInspectable } from "./context"
 import { fetchInspectable, Inspectable } from "./fetch-inspectable"
 
 const Close = ({ handleClose }: { handleClose: () => void }) => (
-  <button className="text-paragraph text-brand-w1" onClick={handleClose}>
+  <button
+    className="text-paragraph text-brand-w1"
+    tabIndex={0}
+    onClick={handleClose}
+  >
     (X) <span className="actionable">Close</span>
   </button>
 )
@@ -65,12 +69,20 @@ export const InspectableViewer = () => {
     fetchData()
   }, [selected])
 
+  const handleFocus = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }
+
   return (
     <div
       className={cn(
         "pointer-events-none absolute inset-0 top-9 z-10 items-center",
         selected ? "flex" : "hidden"
       )}
+      onFocus={handleFocus}
     >
       <div className="grid-layout h-full">
         <div className="pointer-events-auto col-start-2 col-end-5 grid grid-rows-[auto_1fr_auto]">

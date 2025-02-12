@@ -41,7 +41,7 @@ export const Values = ({ data }: { data: QueryType }) => {
                         alt={image.alt ?? ""}
                         width={image.width}
                         height={image.height}
-                        className="aspect-[205/109] w-full object-cover"
+                        className="h-full w-full object-cover"
                       />
                     </div>
                   </div>

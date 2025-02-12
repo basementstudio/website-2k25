@@ -5,12 +5,14 @@ uniform float uJitter;
 varying vec2 vUv;
 varying vec3 vWorldPosition;
 varying vec3 vMvPosition;
+varying vec3 vNormal;
 
 varying vec2 vUv2;
 
 void main() {
   vUv = uv;
   vUv2 = uv1;
+  vNormal = normal;
 
   vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
   vec4 worldPosition = modelMatrix * vec4(position, 1.0);
@@ -22,4 +24,5 @@ void main() {
 
   // gl_Position.xy /= gl_Position.w;
   // gl_Position.xy = floor(gl_Position.xy * uJitter) / uJitter * gl_Position.w;
+
 }

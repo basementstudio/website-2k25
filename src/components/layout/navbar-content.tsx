@@ -1,22 +1,24 @@
 "use client"
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { CameraStateKeys } from "@/store/app-store"
 import { cn } from "@/utils/cn"
+
+import { useContactStore } from "../contact/contact-store"
+import { Grid } from "@/components/grid"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
     fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 93 14"
+    viewBox="0 0 107 15"
     className={className}
   >
-    <path d="M3.279 5.128c.352-1.488 1.28-1.904 3.2-1.904 2.848 0 3.504.704 3.504 4.288v1.392c0 3.568-.672 4.288-3.664 4.288-1.776 0-2.816-.832-3.12-2.496V13H.223V.2h3.056v4.928Zm.016 4.496c.096.608.656.928 1.728.928 1.472 0 1.744-.32 1.744-1.712V7.608c0-1.424-.272-1.744-1.744-1.744-1.088 0-1.648.416-1.728 1.28v2.48Zm7.712.608c0-2.464.576-2.928 3.664-2.928l3.04-.016v-.544c0-1.104-.256-1.296-1.6-1.296-1.504 0-1.776.192-1.744 1.296h-3.04V6.36c0-2.64.704-3.136 4.448-3.136h.736c3.568 0 4.24.512 4.24 3.312V13h-3.04v-1.696c-.416 1.28-1.488 1.872-2.992 1.888-3.136.096-3.712-.368-3.712-2.96Zm3.2.032c0 .64.24.768 1.488.768h.16c1.344-.032 1.856-.32 1.856-1.072v-.416l-2.512.016c-.832 0-.992.112-.992.704Zm7.568-.256V9.8h2.88v.208c0 .736.4.944 1.888.944 1.376 0 1.744-.16 1.744-.736 0-.384-.336-.64-1.744-.896-.56-.112-2.016-.336-2.976-.704-1.312-.512-1.648-1.232-1.648-2.512 0-2.448.704-2.88 4.336-2.88h.736c3.568 0 4.24.496 4.24 3.232v.288h-3.04v-.288c0-.784-.336-1.008-1.568-1.008-1.184 0-1.504.16-1.504.752 0 .4.288.592 1.328.752 1.568.256 2.304.448 3.136.688 1.52.448 1.888 1.328 1.888 2.8 0 2.304-.736 2.752-4.768 2.752h-.736c-3.52 0-4.192-.512-4.192-3.184Zm10.624-1.792c0-4.224.736-4.992 4.656-4.992h.736c3.952 0 4.688.704 4.688 4.512V9.24h-6.88v.048c0 1.392.288 1.664 1.84 1.664 1.488 0 1.76-.176 1.76-.992h3.2c0 2.72-.72 3.232-4.608 3.232h-.736c-3.92 0-4.656-.784-4.656-4.976Zm3.2-1.232h3.68c-.016-1.296-.336-1.536-1.84-1.536-1.552 0-1.84.24-1.84 1.488v.048ZM43.823 13V3.416h3.04V5.24c.336-1.44 1.152-2.016 2.576-2.016 2.432 0 2.96.384 3.088 2.208.352-1.52 1.328-2.208 2.944-2.208 2.928 0 3.472.56 3.472 3.568L58.959 13h-3.04V7.256c0-1.248-.208-1.488-1.424-1.488-1.024 0-1.552.528-1.584 1.584L52.927 13h-3.024V7.256c0-1.248-.24-1.488-1.456-1.488-1.056 0-1.584.56-1.584 1.68V13h-3.04Zm16.32-4.784c0-4.224.736-4.992 4.672-4.992h.736c3.92 0 4.656.704 4.656 4.512V9.24h-6.88v.048c0 1.392.288 1.664 1.872 1.664 1.472 0 1.744-.176 1.744-.992h3.184c0 2.72-.72 3.232-4.576 3.232h-.736c-3.936 0-4.672-.784-4.672-4.976Zm3.184-1.232h3.696c-.016-1.296-.336-1.536-1.824-1.536-1.584 0-1.872.24-1.872 1.488v.048ZM71.535 13V3.416h3.04v1.936c.368-1.552 1.296-2.128 3.056-2.128 2.784 0 3.312.56 3.312 3.568L80.959 13h-3.04V7.512c0-1.472-.256-1.744-1.664-1.744-1.104 0-1.664.496-1.68 1.52V13h-3.04Zm10.208-7.04V3.416h1.104V1.352h2.88v2.064h2.736V5.96h-2.736v3.36c0 .8.176.96 1.12.96h1.76V13h-2.08c-3.216 0-3.84-.512-3.84-3.216V5.96h-.944ZM89.759 13v-2.72h2.736V13h-2.736Z" />
+    <path d="M3.54378 5.68462c.40819-1.71646 1.48431-2.19633 3.71077-2.19633 3.30255 0 4.06325.81209 4.06325 4.94636v1.60575c0 4.1158-.7792 4.9463-4.24879 4.9463-2.05947 0-3.26547-.9597-3.618-2.8792v2.6578H0V0h3.54378v5.68462Zm.01856 5.18628c.11132.7014.76071 1.0705 2.00381 1.0705 1.70696 0 2.02237-.3691 2.02237-1.97485V8.54539c0-1.64263-.31541-2.01176-2.02237-2.01176-1.26166 0-1.91104.47987-2.00381 1.47652v2.86075Zm8.94296.7014c0-2.84234.6679-3.37758 4.2488-3.37758l3.5252-.01846v-.62752c0-1.27351-.2968-1.49499-1.8553-1.49499-1.7441 0-2.0595.22148-2.0224 1.49499h-3.5252v-.44296c0-3.04534.8163-3.61749 5.1579-3.61749h.8535c4.1375 0 4.9168.59061 4.9168 3.82051v7.4565h-3.5253v-1.9564c-.4824 1.4765-1.7255 2.1594-3.4695 2.1778-3.6366.1108-4.3045-.4245-4.3045-3.4144Zm3.7108.0369c0 .7382.2783.8859 1.7255.8859h.1855c1.5585-.0369 2.1522-.3691 2.1522-1.2366v-.4799l-2.9129.0185c-.9648 0-1.1503.1292-1.1503.8121Zm8.7759-.2953v-.24h3.3397v.24c0 .849.4639 1.0889 2.1894 1.0889 1.5956 0 2.0223-.1846 2.0223-.849 0-.4429-.3896-.7383-2.0223-1.0336-.6494-.1292-2.3378-.3875-3.451-.81204-1.5215-.59061-1.9111-1.42116-1.9111-2.89769 0-2.82385.8164-3.32218 5.0281-3.32218h.8535c4.1375 0 4.9167.57215 4.9167 3.72823v.33222h-3.5252v-.33222c0-.90437-.3896-1.16277-1.8183-1.16277-1.3729 0-1.744.18457-1.744.86746 0 .46142.3339.6829 1.5399.86746 1.8183.29531 2.6718.51679 3.6366.79363 1.7626.51679 2.1894 1.5319 2.1894 3.2299 0 2.6578-.8535 3.1745-5.5291 3.1745h-.8535c-4.0818 0-4.8611-.5906-4.8611-3.6728Zm12.3198-2.06716c0-4.87253.8535-5.75845 5.3991-5.75845h.8535c4.5828 0 5.4363.81209 5.4363 5.20475V10.428h-7.9782v.0553c0 1.6058.334 1.9195 2.1337 1.9195 1.7255 0 2.041-.203 2.041-1.1443h3.7107c0 3.1376-.8349 3.7282-5.3435 3.7282h-.8535c-4.5456 0-5.3991-.9043-5.3991-5.73996Zm3.7107-1.42115h4.2674c-.0185-1.49499-.3896-1.77184-2.1337-1.77184-1.7997 0-2.1337.27685-2.1337 1.71647v.05537Zm9.5367 6.93971V3.70977h3.5252v2.10405c.3897-1.66109 1.3359-2.32553 2.9872-2.32553 2.8202 0 3.4325.44296 3.5809 2.54701.4082-1.75338 1.54-2.54701 3.4139-2.54701 3.3954 0 4.0262.64598 4.0262 4.11582l.0186 7.16119h-3.5253V8.13935c0-1.43962-.2412-1.71646-1.6513-1.71646-1.1874 0-1.7997.60906-1.8368 1.8272l.0186 6.51521h-3.5067V8.13935c0-1.43962-.2783-1.71646-1.6884-1.71646-1.2246 0-1.8369.64598-1.8369 1.93794v6.40447h-3.5252Zm18.9249-5.51856c0-4.87253.8535-5.75845 5.4178-5.75845h.8534c4.5457 0 5.3992.81209 5.3992 5.20475V10.428h-7.9781v.0553c0 1.6058.3339 1.9195 2.1708 1.9195 1.7069 0 2.0223-.203 2.0223-1.1443h3.6922c0 3.1376-.8349 3.7282-5.3064 3.7282h-.8534c-4.5643 0-5.4178-.9043-5.4178-5.73996Zm3.6923-1.42115h4.2859c-.0186-1.49499-.3896-1.77184-2.1151-1.77184-1.8369 0-2.1708.27685-2.1708 1.71647v.05537Zm9.5181 6.93971V3.70977h3.5252v2.23325c.4267-1.79029 1.5029-2.45473 3.5438-2.45473 3.2284 0 3.8406.64598 3.8406 4.11582l.0186 7.16119h-3.5252V8.43465c0-1.698-.2969-2.01176-1.9296-2.01176-1.2803 0-1.9296.57215-1.9482 1.75337v6.58904h-3.5252Zm11.8373-8.12094V3.70977h1.2802v-2.3809h3.3397v2.3809h3.1723v2.93459h-3.1723v3.87584c0 .9229.2041 1.1074 1.2993 1.1074h2.04v3.1377h-2.412c-3.7289 0-4.4525-.5907-4.4525-3.7098V6.64436h-1.0947Zm9.2952 8.12094v-3.1377H107v3.1377h-3.173Z" />
   </svg>
 )
 
@@ -25,89 +27,95 @@ interface NavbarContentProps {
     title: string
     href: string
     count?: number
-    routeName: CameraStateKeys
   }[]
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
   const [music, setMusic] = useState(true)
   const { setVolumeMaster } = useSiteAudio()
-  const isOnTab = useIsOnTab()
-  const router = useRouter()
 
-  const handleNavigation = useCallback(
-    (route: string, cameraState: CameraStateKeys) => {
-      router.push(route, { scroll: false })
-    },
-    [router]
-  )
+  const { handleNavigation } = useHandleNavigation()
+
+  const { setIsContactOpen, isContactOpen } = useContactStore()
+
+  const isOnTab = useIsOnTab()
+
+  const pathname = usePathname()
 
   const handleMute = () => {
     setVolumeMaster(music ? 0 : 1)
     setMusic(!music)
   }
 
-  useEffect(() => {
-    if (!isOnTab) {
-      setVolumeMaster(0)
-    } else {
-      setVolumeMaster(music ? 1 : 0)
-    }
-  }, [isOnTab, music, setVolumeMaster])
+  useEffect(
+    () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
+    [isOnTab, music, setVolumeMaster]
+  )
 
   return (
     <nav
       className={cn(
-        "fixed top-0 z-navbar flex h-9 w-full items-center justify-between",
+        "fixed top-0 z-navbar flex w-full flex-col items-center justify-center",
         "[background-image:linear-gradient(#000000_1px,transparent_1px),linear-gradient(to_right,#000000_1px,rgba(0,0,0,0.7)_1px)] [background-position-y:1px] [background-size:2px_2px]",
         "after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-brand-w1/30"
       )}
     >
-      <div className="grid-layout">
+      <div className="grid-layout h-9">
         <button
-          onClick={() => handleNavigation("/", "home")}
-          className="col-start-1 col-end-3"
+          onClick={() => handleNavigation("/")}
+          className="col-start-1 col-end-3 w-fit"
         >
-          <Logo className="h-3.5 text-brand-w1" />
+          <Logo className="h-[0.9375rem] text-brand-w1" />
         </button>
 
         <div className="ga-5 col-start-3 col-end-11 flex w-full justify-center gap-5">
           {links.map((link) => (
-            <button
-              className="space-x-1 text-p text-brand-w1 transition-colors duration-300 hover:text-brand-o"
-              key={link.href}
-              onClick={() => handleNavigation(link.href, link.routeName)}
-            >
-              <span>{link.title}</span>
+            <div key={link.href} className="flex items-center gap-1 text-p">
+              <button
+                className={cn(
+                  "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+                  link.href === pathname && "!text-brand-o"
+                )}
+                onClick={() => handleNavigation(link.href)}
+              >
+                {link.title}
+              </button>
               {link.count && (
                 <sup className="text-caption text-brand-g1">({link.count})</sup>
               )}
-            </button>
+            </div>
           ))}
         </div>
 
         <div className="col-start-11 col-end-13 ml-auto flex items-center gap-5">
           <button
             onClick={handleMute}
-            className="space-x-1 text-p text-brand-w2"
+            className="inline-flex w-18 items-center space-x-1 text-p text-brand-w2"
+            aria-label={music ? "Turn music off" : "Turn music on"}
           >
             <span>Music:</span>
+
             <span
               className={cn(
-                "uppercase",
+                "inline-block w-6 text-left uppercase",
                 music ? "text-brand-w1" : "text-brand-g1"
               )}
             >
               {music ? "On" : "Off"}
             </span>
           </button>
-          <Link
-            href="mailto:hello@basement.studio"
+          <button
+            id="nav-contact"
+            onClick={() => setIsContactOpen(!isContactOpen)}
             className="text-p capitalize text-brand-w1"
           >
-            Work with us
-          </Link>
+            {isContactOpen ? "Close" : "Contact Us"}
+          </button>
         </div>
+      </div>
+      <Grid />
+      <div className="mx-auto -mb-px h-px w-full max-w-full px-1.75">
+        <div className="with-dots h-px" />
       </div>
     </nav>
   )
