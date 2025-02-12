@@ -61,7 +61,8 @@ export const Map = memo(() => {
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
     videos,
-    car
+    car,
+    fogStates
   } = useAssets()
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
@@ -129,6 +130,15 @@ export const Map = memo(() => {
   })
 
   useFrame(({ clock }) => {
+    // Get current fog state based on scene
+    const currentFogState = fogStates?.find(
+      (state) => state.title.toLowerCase() === scene.toLowerCase()
+    ) ?? {
+      fogColor: { r: 0.4, g: 0.4, b: 0.4 },
+      fogDensity: 0.05,
+      fogDepth: 9
+    }
+
     godrays.forEach((mesh) => {
       // @ts-ignore
       mesh.material.uniforms.uGodrayDensity.value = godraysOpacity
@@ -136,14 +146,6 @@ export const Map = memo(() => {
 
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
-
-      material.uniforms.fogColor.value = new Vector3(
-        fogColor.x,
-        fogColor.y,
-        fogColor.z
-      )
-      material.uniforms.fogDensity.value = fogDensity
-      material.uniforms.fogDepth.value = fogDepth
     })
 
     if (keyframedNet && isAnimating.current) {
@@ -159,6 +161,31 @@ export const Map = memo(() => {
         : 0.0
     }
   })
+
+  // handle for transition between scenes
+  useEffect(() => {
+    if (!fogStates) return
+
+    const currentFogState = fogStates.find(
+      (state) => state.title.toLowerCase() === scene.toLowerCase()
+    ) ?? {
+      fogColor: { r: 0.4, g: 0.4, b: 0.4 },
+      fogDensity: 0.05,
+      fogDepth: 9
+    }
+
+    useCustomShaderMaterial
+      .getState()
+      .updateFogSettings(
+        new Vector3(
+          currentFogState.fogColor.r,
+          currentFogState.fogColor.g,
+          currentFogState.fogColor.b
+        ),
+        currentFogState.fogDensity,
+        currentFogState.fogDepth
+      )
+  }, [scene, fogStates])
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
@@ -368,7 +395,8 @@ export const Map = memo(() => {
     routingElementsModel,
     videos,
     currentScene,
-    carV5
+    carV5,
+    fogStates
   ])
 
   useEffect(() => {

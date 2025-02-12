@@ -5,6 +5,7 @@ import {
   cameraStateFragment,
   carFragment,
   characterFragment,
+  fogStateFragment,
   inspectableFragment,
   mapFragment,
   modelsItemFragment,
@@ -15,6 +16,7 @@ import {
 const assetsFragment = fragmentOn("ThreeDInteractions", {
   map: mapFragment,
   cameraStates: cameraStateFragment,
+  fogStates: fogStateFragment,
   inspectables: inspectableFragment,
   sfx: sfxFragment,
   basketball: modelsItemFragment,

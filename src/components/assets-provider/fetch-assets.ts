@@ -49,6 +49,16 @@ export interface AssetsResult {
     offsetMultiplier?: number
     targetScrollY?: number
   }[]
+  fogStates: {
+    title: string
+    fogColor: {
+      r: number
+      g: number
+      b: number
+    }
+    fogDensity: number
+    fogDepth: number
+  }[]
   sfx: {
     basketballTheme: string
     basketballSwoosh: string
@@ -166,6 +176,16 @@ export async function fetchAssets(): Promise<AssetsResult> {
         targetScrollY: item.targetScrollY ?? -1.5
       })
     ),
+    fogStates: threeDInteractions.fogStates.fogStates.items.map((item) => ({
+      title: item._title,
+      fogColor: {
+        r: item.fogColorR ?? 0,
+        g: item.fogColorG ?? 0,
+        b: item.fogColorB ?? 0
+      },
+      fogDensity: item.fogDensity ?? 0,
+      fogDepth: item.fogDepth ?? 0
+    })),
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
       cameraConfig: {

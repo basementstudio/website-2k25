@@ -76,6 +76,20 @@ export const cameraStateFragment = fragmentOn("CameraStates", {
   }
 })
 
+export const fogStateFragment = fragmentOn("FogStates", {
+  _title: true,
+  fogStates: {
+    items: {
+      _title: true,
+      fogColorR: true,
+      fogColorG: true,
+      fogColorB: true,
+      fogDensity: true,
+      fogDepth: true
+    }
+  }
+})
+
 export const inspectableFragment = fragmentOn("Inspectables", {
   inspectableList: {
     items: {
