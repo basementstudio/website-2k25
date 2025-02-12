@@ -14,10 +14,6 @@ import {
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
-import {
-  animateNet,
-  NET_ANIMATION_SPEED
-} from "@/components/basketball/basketball-utils"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import {
@@ -27,6 +23,7 @@ import {
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
+import { Net } from "../basketball/net"
 import Cars from "../cars/cars"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
@@ -77,6 +74,7 @@ export const Map = memo(() => {
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
   const [godrayScene, setGodrayScene] = useState<SceneType>(null)
+  const [net, setNet] = useState<Object3D | null>(null)
 
   const [godrays, setGodrays] = useState<Mesh[]>([])
   useGodrays({ godrays })
@@ -86,7 +84,6 @@ export const Map = memo(() => {
   )
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
-  const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
@@ -146,12 +143,6 @@ export const Map = memo(() => {
       material.uniforms.fogDepth.value = fogDepth
     })
 
-    if (keyframedNet && isAnimating.current) {
-      const mesh = keyframedNet as Mesh
-      animationProgress.current += NET_ANIMATION_SPEED
-      isAnimating.current = animateNet(mesh, animationProgress.current)
-    }
-
     if (colorPickerRef.current) {
       // @ts-ignore
       colorPickerRef.current.material.uniforms.opacity.value = showColorPicker
@@ -179,13 +170,11 @@ export const Map = memo(() => {
     const originalNet = officeModel?.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
 
-    if (originalNet?.parent) {
+    if (originalNet?.parent && newNetMesh?.parent) {
       originalNet.removeFromParent()
-    }
-
-    if (newNetMesh?.parent) {
       newNetMesh.removeFromParent()
-      setKeyframedNet(newNetMesh)
+
+      setNet(originalNet!)
     }
 
     const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
@@ -387,7 +376,7 @@ export const Map = memo(() => {
       {scene !== "basketball" && useMesh.getState().hoopMesh && (
         <primitive object={useMesh.getState().hoopMesh as Mesh} />
       )}
-      {keyframedNet && <primitive object={keyframedNet} />}
+      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
       <MapAssetsLoader />
       <ReflexesLoader />
 
