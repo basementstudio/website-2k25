@@ -70,9 +70,10 @@ export const RoutingElement = ({
           const tabIndex = scenes[0].tabs.findIndex(
             (tab) => tab.tabName.toLowerCase() === trimmedPathname
           )
+
           navigate(route)
           if (route === "/") {
-            setCurrentTabIndex(tabIndex)
+            setCurrentTabIndex(tabIndex === -1 ? 0 : tabIndex)
           }
         }
       }
@@ -90,12 +91,16 @@ export const RoutingElement = ({
     isCanvasTabMode,
     currentScene,
     currentTabIndex,
-    node.name,
+    node,
     hoverName,
     navigate,
     route,
     scenes,
-    pathname
+    pathname,
+    setCurrentTabIndex,
+    currentScene?.tabs,
+    router,
+    setHoverText
   ])
 
   return (
@@ -121,6 +126,7 @@ export const RoutingElement = ({
           if (activeRoute) return
           navigate(route)
           setCursorType("default")
+          setCurrentTabIndex(-1)
         }}
       >
         <mesh
