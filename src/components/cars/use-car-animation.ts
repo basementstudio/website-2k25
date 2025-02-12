@@ -1,5 +1,6 @@
 import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
+import { folder as levaFolder, useControls } from "leva"
 import type { SetStateAction } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { BufferAttribute, Mesh, Object3D, ShaderMaterial, Vector3 } from "three"
@@ -370,7 +371,10 @@ export const useCarAnimation = ({
         mirrorLine: { value: 0.0 },
         morphTargetInfluences: { value: car.morphTargetInfluences },
         activeMorphIndex: { value: -1 },
-        isUsingCorrectUV: { value: 0.0 }
+        isUsingCorrectUV: { value: 0.0 },
+        fogColor: { value: new Vector3(0.4, 0.4, 0.4) },
+        fogDensity: { value: 0.05 },
+        fogDepth: { value: 6.0 }
       },
       vertexShader: `
         #include <morphtarget_pars_vertex>
@@ -380,6 +384,7 @@ export const useCarAnimation = ({
         varying vec2 vUv;
         varying vec3 vPosition;
         varying float vIsMirrored;
+        varying vec3 vMvPosition;
         uniform float activeMorphIndex;
         uniform float isUsingCorrectUV;
 
@@ -391,17 +396,22 @@ export const useCarAnimation = ({
           vUv = uv; 
           vIsMirrored = position.z < 0.0 ? 1.0 : 0.0;
           vPosition = transformed;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
+          vMvPosition = mvPosition.xyz;
+          gl_Position = projectionMatrix * mvPosition;
         }
       `,
       fragmentShader: `
         uniform sampler2D map;
         uniform float mirrorLine;
         uniform float isUsingCorrectUV;
+        uniform vec3 fogColor;
+        uniform float fogDensity;
+        uniform float fogDepth;
 
         varying vec2 vUv;
         varying vec3 vPosition;
         varying float vIsMirrored;
+        varying vec3 vMvPosition;
 
         void main() {
           vec2 finalUV = vUv;
@@ -410,7 +420,12 @@ export const useCarAnimation = ({
           }
 
           vec4 texColor = texture2D(map, finalUV);
-          gl_FragColor = texColor;
+
+          float fogDepthValue = min(vMvPosition.z + fogDepth, 0.0);
+          float fogFactor = 1.0 - exp(-fogDensity * fogDensity * fogDepthValue * fogDepthValue);
+          fogFactor = clamp(fogFactor, 0.0, 1.0);
+          
+          gl_FragColor = vec4(mix(texColor.rgb, fogColor, fogFactor), texColor.a);
         }
       `
     })
