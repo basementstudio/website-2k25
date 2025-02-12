@@ -9,7 +9,6 @@ import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Sparkles } from "@/components/sparkles"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { Map } from "./map/map"
@@ -128,12 +127,12 @@ export const Scene = () => {
               <Map />
 
               <Suspense fallback={null}>
-                {isBasketball ? (
+                {isBasketball && (
                   <PhysicsWorld paused={!isBasketball}>
                     <HoopMinigame />
                     <PlayedBasketballs />
                   </PhysicsWorld>
-                ) : null}
+                )}
               </Suspense>
 
               <StaticBasketballs />
