@@ -65,10 +65,7 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
 
       const size = new Vector3()
       boundingBox.getSize(size)
-
-      const center = new Vector3()
       boundingBox.getCenter(center)
-      mesh.position.sub(center)
       mesh.position.set(0, 0, 0)
 
       setSize([size.x, size.y, size.z])
@@ -91,6 +88,12 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
     const { target: t, position: p } = cameraConfig
     const direction = new Vector3(t[0] - p[0], t[1] - p[1], t[2] - p[2])
     direction.normalize()
+
+    // calculate X offset based on camera aspect ratio
+    const viewportWidth = Math.min(camera.aspect, 1.855072463768116)
+    const xOffset = viewportWidth * X_OFFSET
+    const perpendicular = new Vector3(-direction.z, 0, direction.x).normalize()
+    perpendicularMoved.current.copy(perpendicular.multiplyScalar(xOffset))
 
     const target = targetPosition.current
 
@@ -125,6 +128,11 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
   useEffect(() => {
     handleAnimation(true)
 
+    const handleResize = () => handleAnimation(false)
+
+    window.addEventListener("resize", handleResize)
+
+    return () => window.removeEventListener("resize", handleResize)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, isInspectableEnabled])
 
@@ -181,31 +189,6 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
       ref.current?.quaternion.copy(currentQuaternion)
     }
   })
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (!cameraConfig) return
-
-      const viewportWidth = Math.min(camera.aspect, 1.855)
-      const xOffset = viewportWidth * X_OFFSET
-
-      const dir = new Vector3(
-        cameraConfig.target[0] - cameraConfig.position[0],
-        cameraConfig.target[1] - cameraConfig.position[1],
-        cameraConfig.target[2] - cameraConfig.position[2]
-      ).normalize()
-
-      const perpendicular = new Vector3(-dir.z, 0, dir.x).normalize()
-
-      perpendicularMoved.current.copy(perpendicular.multiplyScalar(xOffset))
-    }
-
-    handleResize()
-
-    window.addEventListener("resize", handleResize)
-
-    return () => window.removeEventListener("resize", handleResize)
-  }, [camera, cameraConfig])
 
   const scrollTo = useScrollTo()
 

@@ -154,6 +154,9 @@ export const CustomCamera = () => {
 
       easing.damp3(panTargetDelta, newDelta, 0.5, dt)
       easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
+    } else {
+      easing.damp3(panTargetDelta, 0, 0.5, dt)
+      easing.damp3(panLookAtDelta, 0, 0.25, dt)
     }
 
     if (disableCameraTransition || firstRender) {
