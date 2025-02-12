@@ -31,7 +31,10 @@ const pagesFragment = fragmentOn("Pages", {
           }
         },
         xOffset: true,
-        sizeTarget: true
+        sizeTarget: true,
+        scenes: {
+          _title: true
+        }
       }
     }
   }
@@ -39,7 +42,6 @@ const pagesFragment = fragmentOn("Pages", {
 
 const assetsFragment = fragmentOn("ThreeDInteractions", {
   map: mapFragment,
-  inspectables: inspectableFragment,
   sfx: sfxFragment,
   basketball: modelsItemFragment,
   basketballNet: modelsItemFragment,

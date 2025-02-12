@@ -7,11 +7,13 @@ import { useMesh } from "@/hooks/use-mesh"
 import { Inspectable } from "./inspectable"
 import { useInspectable } from "./context"
 import { useAssets } from "../assets-provider"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 export const Inspectables = () => {
   const { inspectableMeshes } = useMesh()
   const { setSelected } = useInspectable()
   const { inspectables } = useAssets()
+  const scene = useCurrentScene()
 
   const positions = useMemo(() => {
     return inspectableMeshes.map((mesh) => ({
@@ -31,6 +33,8 @@ export const Inspectables = () => {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [setSelected])
 
+  useEffect(() => setSelected(null), [scene])
+
   return (
     <>
       {inspectableMeshes.map((mesh, index) => (
@@ -46,6 +50,10 @@ export const Inspectables = () => {
           sizeTarget={
             inspectables.find((inspectable) => inspectable.mesh === mesh.name)
               ?.sizeTarget ?? 0.5
+          }
+          scenes={
+            inspectables.find((inspectable) => inspectable.mesh === mesh.name)
+              ?.scenes ?? []
           }
         />
       ))}

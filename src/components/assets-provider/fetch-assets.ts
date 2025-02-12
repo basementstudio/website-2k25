@@ -44,6 +44,9 @@ export interface AssetsResult {
     mesh: string
     xOffset: number
     sizeTarget: number
+    scenes: {
+      _title: string
+    }[]
   }[]
   videos: {
     mesh: string
@@ -131,7 +134,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
       description: item.description,
       mesh: item.mesh ?? "",
       xOffset: item.xOffset ?? 0,
-      sizeTarget: item.sizeTarget ?? 0
+      sizeTarget: item.sizeTarget ?? 0,
+      scenes: item.scenes
     })),
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
