@@ -31,7 +31,7 @@ export const Net = ({ mesh }: NetProps) => {
       uniforms: {
         uTime: { value: 0 },
         uWaveAmplitude: { value: 0.015 },
-        uWaveFrequency: { value: 4.0 },
+        uWaveFrequency: { value: 6.0 },
         uWaveSpeed: { value: 2.0 },
         map: { value: texture },
         uBallPosition: { value: new THREE.Vector3() },
@@ -99,7 +99,7 @@ export const Net = ({ mesh }: NetProps) => {
         const sensorInfluence = distToSensor < 0.5 ? 2.0 : 0
         const hoopInfluence =
           distToSensor < 1.5 ? (1.5 - distToSensor) * 0.8 : 0.0
-        const totalInfluence = Math.max(sensorInfluence, hoopInfluence) * 0.5
+        const totalInfluence = Math.max(sensorInfluence, hoopInfluence) * 0.1
 
         materialRef.current.uniforms.uBallPosition.value.copy(ballWorldPos)
         materialRef.current.uniforms.uBallInfluence.value = totalInfluence
