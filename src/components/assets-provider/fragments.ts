@@ -110,6 +110,9 @@ export const sfxFragment = fragmentOn("Sfx", {
 export const arcadeFragment = fragmentOn("Arcade", {
   idleScreen: {
     url: true
+  },
+  placeholderLab: {
+    url: true
   }
 })
 

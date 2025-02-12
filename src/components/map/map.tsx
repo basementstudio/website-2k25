@@ -368,7 +368,11 @@ export const Map = memo(() => {
       "SM_BasketballHoop"
     ) as Mesh | null
 
-    if (hoopMesh) useMesh.setState({ hoopMesh })
+    if (hoopMesh) {
+      hoopMesh.removeFromParent()
+      hoopMesh.raycast = () => null
+      useMesh.setState({ hoopMesh })
+    }
 
     const inspectables = useMesh.getState().inspectableMeshes
 
@@ -385,6 +389,25 @@ export const Map = memo(() => {
 
       useMesh.setState({ inspectableMeshes })
     }
+
+    const netMesh = basketballNetModel.getObjectByName("Net") as Mesh | null
+    if (netMesh) {
+      netMesh.raycast = () => null
+    }
+
+    const disableRaycasting = (scene: THREE.Object3D) => {
+      scene.traverse((child) => {
+        if ("isMesh" in child) {
+          const meshChild = child as Mesh
+          if (meshChild.name === "SM_ArcadeLab_Screen") return
+          meshChild.raycast = () => null
+        }
+      })
+    }
+
+    disableRaycasting(officeModel)
+    disableRaycasting(outdoorModel)
+    disableRaycasting(godrayModel)
   }, [
     inspectableAssets,
     officeModel,

@@ -10,7 +10,7 @@ import { useMinigameStore } from "@/store/minigame-store"
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
 
 const Basketball = () => {
-  const { playerName, hasPlayed, score, isGameActive, timeRemaining } =
+  const { playerName, hasPlayed, score, isGameActive, timeRemaining, scoreMultiplier } =
     useMinigameStore()
 
   const { handleNavigation } = useHandleNavigation()
@@ -42,6 +42,14 @@ const Basketball = () => {
               <div className="corner-borders relative flex w-1/2 -translate-x-[0.5px] items-center justify-center">
                 <p>{Math.floor(score)} Pts.</p>
               </div>
+            </div>
+
+            <div className="col-span-1 col-start-8 mt-24 flex h-10 items-center justify-center">
+              <p
+                className={`${geistMono.className} text-paragraph text-brand-w1`}
+              >
+                {scoreMultiplier}x
+              </p>
             </div>
 
             <Scoreboard className="col-span-1 col-start-10 mt-24 text-paragraph" />
