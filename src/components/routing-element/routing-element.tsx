@@ -126,6 +126,7 @@ export const RoutingElement = ({
           if (activeRoute) return
           navigate(route)
           setCursorType("default")
+          setCurrentTabIndex(-1)
         }}
       >
         <mesh
