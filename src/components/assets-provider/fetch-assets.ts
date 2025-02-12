@@ -151,9 +151,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
     fogStates: threeDInteractions.fogStates.fogStates.items.map((item) => ({
       title: item._title,
       fogColor: {
-        r: item.fogColorR ?? 0,
-        g: item.fogColorG ?? 0,
-        b: item.fogColorB ?? 0
+        r: item.fogColor.r ?? 0,
+        g: item.fogColor.g ?? 0,
+        b: item.fogColor.b ?? 0
       },
       fogDensity: item.fogDensity ?? 0,
       fogDepth: item.fogDepth ?? 0

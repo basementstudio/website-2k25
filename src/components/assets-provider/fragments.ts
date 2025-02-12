@@ -62,9 +62,11 @@ export const fogStateFragment = fragmentOn("FogStates", {
   fogStates: {
     items: {
       _title: true,
-      fogColorR: true,
-      fogColorG: true,
-      fogColorB: true,
+      fogColor: {
+        r: true,
+        g: true,
+        b: true
+      },
       fogDensity: true,
       fogDepth: true
     }
