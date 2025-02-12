@@ -1,5 +1,11 @@
 import { TemplateName } from "../templates"
-import { daylightShapesSketch } from "./daylight-sandbox"
+import {
+  daylightGridNoiseSketch,
+  daylightGridScaleSketch,
+  daylightGridSketch,
+  daylightShapesSketch,
+  daylightVogelScaleSketch
+} from "./daylight-sandbox"
 
 export type SandboxFiles = {
   [key: string]: string
@@ -17,12 +23,42 @@ export type Sandbox = {
  */
 export const getSandbox = (key: string) => {
   switch (key) {
-    case "test-sandbox":
+    case "daylight-shapes":
       return {
         files: {
           "sketch.js": daylightShapesSketch
         },
         template: "p5"
       }
+    case "daylight-grid":
+      return {
+        files: {
+          "sketch.js": daylightGridSketch
+        },
+        template: "p5"
+      }
+    case "daylight-grid-noise":
+      return {
+        files: {
+          "sketch.js": daylightGridNoiseSketch
+        },
+        template: "p5"
+      }
+    case "daylight-grid-scale":
+      return {
+        files: {
+          "sketch.js": daylightGridScaleSketch
+        },
+        template: "p5"
+      }
+    case "daylight-vogel-scale":
+      return {
+        files: {
+          "sketch.js": daylightVogelScaleSketch
+        },
+        template: "p5"
+      }
+    default:
+      return null
   }
 }
