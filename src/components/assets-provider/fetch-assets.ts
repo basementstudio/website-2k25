@@ -34,22 +34,6 @@ export interface AssetsResult {
     url: string
     intensity: number
   }[]
-  cameraStates: {
-    title: string
-    position: {
-      x: number
-      y: number
-      z: number
-    }
-    target: {
-      x: number
-      y: number
-      z: number
-    }
-    fov?: number
-    offsetMultiplier?: number
-    targetScrollY?: number
-  }[]
   sfx: {
     basketballTheme: string
     basketballSwoosh: string
@@ -152,24 +136,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
         misteryTexture: threeDInteractions.car.misteryTexture?.url ?? ""
       }
     },
-    cameraStates: threeDInteractions.cameraStates.cameraStates.items.map(
-      (item) => ({
-        title: item._title,
-        fov: item.fov ?? 60,
-        position: {
-          x: item.posX ?? 0,
-          y: item.posY ?? 0,
-          z: item.posZ ?? 0
-        },
-        target: {
-          x: item.tarX ?? 0,
-          y: item.tarY ?? 0,
-          z: item.tarZ ?? 0
-        },
-        offsetMultiplier: item.offsetMultiplier ?? 1,
-        targetScrollY: item.targetScrollY ?? -1.5
-      })
-    ),
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
       cameraConfig: {
