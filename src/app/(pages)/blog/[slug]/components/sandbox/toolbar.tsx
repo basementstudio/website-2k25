@@ -51,7 +51,7 @@ export default function SandboxToolbar({
       <div className="flex items-center gap-x-4">
         <button
           className={cn(
-            "text-p text-brand-g1",
+            "!text-p text-brand-g1",
             activeTab === "preview" && "text-brand-w1"
           )}
           onClick={() => setActiveTab("preview")}
@@ -60,7 +60,7 @@ export default function SandboxToolbar({
         </button>
         <button
           className={cn(
-            "text-p text-brand-g1",
+            "!text-p text-brand-g1",
             activeTab === "console" && "text-brand-w1"
           )}
           onClick={() => setActiveTab("console")}
@@ -81,7 +81,7 @@ export default function SandboxToolbar({
             <Tooltip.Content
               side="top"
               sideOffset={12}
-              className="rounded-md border border-brand-g2 bg-brand-k px-2 py-1 text-p text-brand-g1"
+              className="rounded-md border border-brand-g2 bg-brand-k px-2 py-1 text-p text-brand-w2"
             >
               <p>Open in CodeSandbox</p>
             </Tooltip.Content>
@@ -102,7 +102,7 @@ export default function SandboxToolbar({
               <Tooltip.Content
                 side="top"
                 sideOffset={12}
-                className="rounded-md border border-brand-g2 bg-brand-k px-2 py-1 text-p text-brand-g1"
+                className="rounded-md border border-brand-g2 bg-brand-k px-2 py-1 text-p text-brand-w2"
               >
                 <p>{action.label}</p>
               </Tooltip.Content>

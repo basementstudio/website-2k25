@@ -28,6 +28,7 @@ export const BASEMENT_THEME: SandpackThemeProp = {
     string: "#00ff9b"
   },
   font: {
+    size: "0.75rem",
     body: "var(--font-geist-sans)",
     mono: "var(--font-geist-mono)"
   }

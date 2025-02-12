@@ -89,12 +89,13 @@ export default function Sandbox({ keyName }: SandboxProps) {
             </div>
           </div>
 
-          <div className="relative max-h-full overflow-auto">
+          <div className="relative h-full overflow-auto">
             <SandpackCodeEditor
               closableTabs={false}
               showLineNumbers
               showTabs
               initMode="user-visible"
+              className="!h-full"
             />
           </div>
         </SandpackLayout>
