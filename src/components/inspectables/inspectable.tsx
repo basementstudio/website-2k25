@@ -65,7 +65,6 @@ export const Inspectable = ({ mesh, position, id }: InspectableProps) => {
 
       const size = new Vector3()
       boundingBox.getSize(size)
-      boundingBox.getCenter(center)
       mesh.position.set(0, 0, 0)
 
       setSize([size.x, size.y, size.z])
