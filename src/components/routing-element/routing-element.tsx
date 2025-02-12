@@ -70,9 +70,10 @@ export const RoutingElement = ({
           const tabIndex = scenes[0].tabs.findIndex(
             (tab) => tab.tabName.toLowerCase() === trimmedPathname
           )
+
           navigate(route)
           if (route === "/") {
-            setCurrentTabIndex(tabIndex)
+            setCurrentTabIndex(tabIndex === -1 ? 0 : tabIndex)
           }
         }
       }
