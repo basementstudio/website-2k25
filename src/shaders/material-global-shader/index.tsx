@@ -1,3 +1,4 @@
+import { animate as animateMotion } from "motion"
 import { MeshStandardMaterial, Texture, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
@@ -135,34 +136,18 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
       Object.values(materials).forEach((material) => {
         material.uniforms.isBasketball.value = value
 
-        const startValue = material.uniforms.uBasketballTransition.value
-        const endValue = value ? 1 : 0
-        const duration = 2000
-        const startTime = performance.now()
-
-        if (material.userData.animationFrame) {
-          cancelAnimationFrame(material.userData.animationFrame)
-        }
-
-        const animate = () => {
-          const currentTime = performance.now()
-          const elapsed = currentTime - startTime
-          const progress = Math.min(elapsed / duration, 1)
-
-          const transitionValue =
-            startValue + (endValue - startValue) * progress
-
-          material.uniforms.uBasketballTransition.value = transitionValue
-
-          if (progress < 1) {
-            material.userData.animationFrame = requestAnimationFrame(animate)
-          } else {
-            material.uniforms.uBasketballTransition.value = endValue
-            delete material.userData.animationFrame
+        // Animate basketball transition
+        animateMotion(
+          material.uniforms.uBasketballTransition.value as number,
+          value ? 1 : 0,
+          {
+            duration: 2,
+            ease: [0.4, 0, 0.2, 1],
+            onUpdate: (latest) => {
+              material.uniforms.uBasketballTransition.value = latest
+            }
           }
-        }
-
-        material.userData.animationFrame = requestAnimationFrame(animate)
+        )
       })
     },
     updateFogSettings: (
@@ -174,51 +159,37 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
 
       Object.values(materials).forEach((material) => {
         const startFogColor = material.uniforms.fogColor.value as Vector3
-        const startFogDensity = material.uniforms.fogDensity.value as number
-        const startFogDepth = material.uniforms.fogDepth.value as number
-        const duration = 800 // Same duration as we had for basketball transitions
 
-        if (material.userData.fogAnimationFrame) {
-          cancelAnimationFrame(material.userData.fogAnimationFrame)
-        }
+        const axes: Array<"x" | "y" | "z"> = ["x", "y", "z"]
+        axes.forEach((axis) => {
+          animateMotion(startFogColor[axis], newFogColor[axis], {
+            duration: 0.2,
+            ease: [0.4, 0, 0.2, 1],
+            onUpdate: (latest) => {
+              material.uniforms.fogColor.value[axis] = latest
+            }
+          })
+        })
 
-        const startTime = performance.now()
-
-        const animate = () => {
-          const currentTime = performance.now()
-          const elapsed = currentTime - startTime
-          const progress = Math.min(elapsed / duration, 1)
-
-          // Smooth easing function
-          const easeProgress =
-            progress < 0.5
-              ? 2 * progress * progress
-              : -1 + (4 - 2 * progress) * progress
-
-          // Interpolate all fog values
-          material.uniforms.fogColor.value = new Vector3(
-            startFogColor.x + (newFogColor.x - startFogColor.x) * easeProgress,
-            startFogColor.y + (newFogColor.y - startFogColor.y) * easeProgress,
-            startFogColor.z + (newFogColor.z - startFogColor.z) * easeProgress
-          )
-
-          material.uniforms.fogDensity.value =
-            startFogDensity + (newFogDensity - startFogDensity) * easeProgress
-
-          material.uniforms.fogDepth.value =
-            startFogDepth + (newFogDepth - startFogDepth) * easeProgress
-
-          if (progress < 1) {
-            material.userData.fogAnimationFrame = requestAnimationFrame(animate)
-          } else {
-            material.uniforms.fogColor.value = newFogColor
-            material.uniforms.fogDensity.value = newFogDensity
-            material.uniforms.fogDepth.value = newFogDepth
-            delete material.userData.fogAnimationFrame
+        animateMotion(
+          material.uniforms.fogDensity.value as number,
+          newFogDensity,
+          {
+            duration: 0.8,
+            ease: [0.4, 0, 0.2, 1],
+            onUpdate: (latest) => {
+              material.uniforms.fogDensity.value = latest
+            }
           }
-        }
+        )
 
-        material.userData.fogAnimationFrame = requestAnimationFrame(animate)
+        animateMotion(material.uniforms.fogDepth.value as number, newFogDepth, {
+          duration: 0.8,
+          ease: [0.4, 0, 0.2, 1],
+          onUpdate: (latest) => {
+            material.uniforms.fogDepth.value = latest
+          }
+        })
       })
     }
   })
