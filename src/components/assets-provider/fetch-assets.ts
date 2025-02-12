@@ -36,15 +36,17 @@ export interface AssetsResult {
     intensity: number
   }[]
   fogStates: {
-    title: string
-    fogColor: {
-      r: number
-      g: number
-      b: number
-    }
-    fogDensity: number
-    fogDepth: number
-  }[]
+    items: {
+      _title: string
+      fogColor: {
+        r: number
+        g: number
+        b: number
+      }
+      fogDensity: number
+      fogDepth: number
+    }[]
+  }
   sfx: {
     basketballTheme: string
     basketballSwoosh: string
@@ -128,6 +130,18 @@ export async function fetchAssets(): Promise<AssetsResult> {
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
+    fogStates: {
+      items: threeDInteractions.fogStates.fogStates.items.map((item) => ({
+        _title: item._title,
+        fogColor: {
+          r: (item.fogColor.r ?? 0) / 255,
+          g: (item.fogColor.g ?? 0) / 255,
+          b: (item.fogColor.b ?? 0) / 255
+        },
+        fogDensity: item.fogDensity ?? 0,
+        fogDepth: item.fogDepth ?? 0
+      }))
+    },
     sfx: {
       basketballTheme: threeDInteractions.sfx.basketballTheme?.url ?? "",
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
@@ -148,16 +162,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
         misteryTexture: threeDInteractions.car.misteryTexture?.url ?? ""
       }
     },
-    fogStates: threeDInteractions.fogStates.fogStates.items.map((item) => ({
-      title: item._title,
-      fogColor: {
-        r: item.fogColor.r ?? 0,
-        g: item.fogColor.g ?? 0,
-        b: item.fogColor.b ?? 0
-      },
-      fogDensity: item.fogDensity ?? 0,
-      fogDepth: item.fogDepth ?? 0
-    })),
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
       cameraConfig: {

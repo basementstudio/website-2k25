@@ -64,6 +64,7 @@ export const Map = memo(() => {
     car,
     fogStates
   } = useAssets()
+  console.log(fogStates)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
@@ -91,22 +92,6 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-  const { fogColor, fogDensity, fogDepth } = useControls({
-    fog: levaFolder(
-      {
-        fogColor: {
-          x: 0.4,
-          y: 0.4,
-          z: 0.4
-        },
-        fogDensity: 0.05,
-        fogDepth: 9.0
-      },
-      {
-        collapsed: true
-      }
-    )
-  })
 
   const colorPickerRef = useRef<Mesh>(null)
   const { showColorPicker } = useControls({
@@ -130,15 +115,6 @@ export const Map = memo(() => {
   })
 
   useFrame(({ clock }) => {
-    // Get current fog state based on scene
-    const currentFogState = fogStates?.find(
-      (state) => state.title.toLowerCase() === scene.toLowerCase()
-    ) ?? {
-      fogColor: { r: 0.4, g: 0.4, b: 0.4 },
-      fogDensity: 0.05,
-      fogDepth: 9
-    }
-
     godrays.forEach((mesh) => {
       // @ts-ignore
       mesh.material.uniforms.uGodrayDensity.value = godraysOpacity
@@ -166,8 +142,8 @@ export const Map = memo(() => {
   useEffect(() => {
     if (!fogStates) return
 
-    const currentFogState = fogStates.find(
-      (state) => state.title.toLowerCase() === scene.toLowerCase()
+    const currentFogState = fogStates.items.find(
+      (state) => state._title.toLowerCase() === scene.toLowerCase()
     ) ?? {
       fogColor: { r: 0.4, g: 0.4, b: 0.4 },
       fogDensity: 0.05,

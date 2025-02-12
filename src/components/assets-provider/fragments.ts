@@ -58,7 +58,6 @@ export const mapFragment = fragmentOn("Map", {
 })
 
 export const fogStateFragment = fragmentOn("FogStates", {
-  _title: true,
   fogStates: {
     items: {
       _title: true,
