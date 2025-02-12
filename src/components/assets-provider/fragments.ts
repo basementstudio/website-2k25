@@ -21,7 +21,6 @@ export const characterFragment = fragmentOn("Characters", {
 })
 
 export const mapFragment = fragmentOn("Map", {
-  model: modelsItemFragment,
   office: modelsItemFragment,
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
@@ -54,24 +53,6 @@ export const mapFragment = fragmentOn("Map", {
         url: true
       },
       intensity: true
-    }
-  }
-})
-
-export const cameraStateFragment = fragmentOn("CameraStates", {
-  _title: true,
-  cameraStates: {
-    items: {
-      _title: true,
-      fov: true,
-      posX: true,
-      posY: true,
-      posZ: true,
-      tarX: true,
-      tarY: true,
-      tarZ: true,
-      offsetMultiplier: true,
-      targetScrollY: true
     }
   }
 })
@@ -112,6 +93,9 @@ export const arcadeFragment = fragmentOn("Arcade", {
     url: true
   },
   placeholderLab: {
+    url: true
+  },
+  boot: {
     url: true
   }
 })
