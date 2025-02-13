@@ -142,8 +142,13 @@ export const Map = memo(() => {
   useEffect(() => {
     if (!fogStates) return
 
+    const normalizedSceneName =
+      scene.toLowerCase() === "/" ? "home" : scene.toLowerCase()
+
     const currentFogState = fogStates.items.find(
-      (state) => state._title.toLowerCase() === scene.toLowerCase()
+      (state) =>
+        state._title.toLowerCase().replace(/[^a-z0-9]/g, "") ===
+        normalizedSceneName.replace(/[^a-z0-9]/g, "")
     ) ?? {
       fogColor: { r: 0.4, g: 0.4, b: 0.4 },
       fogDensity: 0.05,
