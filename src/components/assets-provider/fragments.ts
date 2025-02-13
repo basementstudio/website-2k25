@@ -26,7 +26,7 @@ export const carGameFragment = fragmentOn("CarGame", {
       url: true
     }
   },
-  antena: {
+  antenna: {
     file: {
       url: true
     }

@@ -1,6 +1,6 @@
 /** Inspired by https://github.com/isaac-mason/sketches/blob/main/sketches/rapier/arcade-vehicle-controller/src/sketch.tsx */
 
-import { useKeyboardControls } from "@react-three/drei"
+import { useGLTF, useKeyboardControls } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import {
   BallCollider,
@@ -12,6 +12,9 @@ import {
 } from "@react-three/rapier"
 import { useRef } from "react"
 import * as THREE from "three"
+import type { GLTF } from "three/examples/jsm/Addons.js"
+
+import { useAssets } from "@/components/assets-provider"
 
 import { CarControls } from "./scene"
 
@@ -81,7 +84,36 @@ const _bodyEuler = new THREE.Euler()
 const _cameraPosition = new THREE.Vector3()
 const _impulse = new THREE.Vector3()
 
+interface AntennaGLTF extends GLTF {
+  nodes: {
+    Antenna: THREE.Group
+  }
+}
+
+interface BodyGLTF extends GLTF {
+  nodes: {
+    Body: THREE.Group
+  }
+}
+
 export const Car = (props: RigidBodyProps) => {
+  const {
+    carGame: { antenna, body, wheel }
+  } = useAssets()
+
+  const antennaModel = useGLTF(antenna) as any as AntennaGLTF
+  const bodyModel = useGLTF(body)
+  const wheelModel = useGLTF(wheel)
+
+  Object.entries({
+    antennaModel,
+    bodyModel,
+    wheelModel
+  }).forEach(([key, value]) => {
+    console.log(key + "nodes:")
+    console.log(Object.keys(value.nodes))
+  })
+
   const { rapier, world } = useRapier()
 
   const bodyRef = useRef<RapierRigidBody>(null!)

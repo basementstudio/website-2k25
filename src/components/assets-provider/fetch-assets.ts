@@ -175,7 +175,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
     },
     carGame: {
       body: threeDInteractions.carGame.body?.file?.url ?? "",
-      antenna: threeDInteractions.carGame.antena?.file?.url ?? "",
+      antenna: threeDInteractions.carGame.antenna?.file?.url ?? "",
       wheel: threeDInteractions.carGame.wheel?.file?.url ?? ""
     }
   }
