@@ -21,6 +21,7 @@ import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
 import { useScrollTo } from "@/hooks/use-scroll-to"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 interface InspectableProps {
   mesh: Mesh
@@ -28,6 +29,7 @@ interface InspectableProps {
   id: string
   xOffset: number
   sizeTarget: number
+  scenes: string[]
 }
 
 export const Inspectable = ({
@@ -35,7 +37,8 @@ export const Inspectable = ({
   position,
   id,
   xOffset,
-  sizeTarget
+  sizeTarget,
+  scenes
 }: InspectableProps) => {
   const { selected } = useInspectable()
   const [size, setSize] = useState<[number, number, number]>([0, 0, 0])
@@ -193,21 +196,28 @@ export const Inspectable = ({
   })
 
   const scrollTo = useScrollTo()
+  const currentScene = useCurrentScene()
 
   const handleSelection = () => {
-    scrollTo({
-      offset: 0,
-      behavior: "smooth",
-      callback: () => {
-        setSelected(id)
-      }
-    })
+    if (scenes.some((scene) => scene === currentScene)) {
+      scrollTo({
+        offset: 0,
+        behavior: "smooth",
+        callback: () => {
+          setSelected(id)
+        }
+      })
+    }
   }
 
   return (
     <group
       onClick={(e) => {
-        if (!isInspectableEnabled || (selected && selected !== id)) {
+        if (
+          !isInspectableEnabled ||
+          (selected && selected !== id) ||
+          !scenes.some((scene) => scene === currentScene)
+        ) {
           e.stopPropagation()
           return
         }
@@ -216,19 +226,39 @@ export const Inspectable = ({
       }}
       ref={ref}
       onPointerEnter={(e) => {
-        if (!isInspectableEnabled || (selected && selected !== id)) return
+        if (
+          !isInspectableEnabled ||
+          (selected && selected !== id) ||
+          !scenes.some((scene) => scene === currentScene)
+        )
+          return
         setCursorType(selected === id ? "grab" : "zoom")
       }}
       onPointerLeave={() => {
-        if (!isInspectableEnabled || (selected && selected !== id)) return
+        if (
+          !isInspectableEnabled ||
+          (selected && selected !== id) ||
+          !scenes.some((scene) => scene === currentScene)
+        )
+          return
         setCursorType("default")
       }}
       onPointerDown={() => {
-        if (!isInspectableEnabled || (selected && selected !== id)) return
+        if (
+          !isInspectableEnabled ||
+          (selected && selected !== id) ||
+          !scenes.some((scene) => scene === currentScene)
+        )
+          return
         setCursorType("grabbing")
       }}
       onPointerUp={(e) => {
-        if (!isInspectableEnabled || (selected && selected !== id)) return
+        if (
+          !isInspectableEnabled ||
+          (selected && selected !== id) ||
+          !scenes.some((scene) => scene === currentScene)
+        )
+          return
         setCursorType(e.object === e.eventObject ? "grab" : "default")
       }}
     >
