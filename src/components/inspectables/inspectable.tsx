@@ -2,7 +2,7 @@
 
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
-import { useMotionValue } from "motion/react"
+import { AnimationPlaybackControls, useMotionValue } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 import {
   Box3,
@@ -64,6 +64,7 @@ export const Inspectable = ({
   const targetScale = useRef(new MotionValue())
 
   const inspectingFactor = useRef(new MotionValue())
+  const inspectingFactorTL = useRef<AnimationPlaybackControls | null>(null)
 
   const quaternion = useMotionValue(new Quaternion())
 
@@ -116,16 +117,23 @@ export const Inspectable = ({
       animate(target.y, desiredDirection.y, config)
       animate(target.z, desiredDirection.z, config)
       animate(targetScale.current, desiredScale, config)
-      animate(inspectingFactor.current, 1, config)
+
+      inspectingFactorTL.current?.stop()
+      inspectingFactorTL.current = animate(inspectingFactor.current, 1, config)
+      inspectingFactorTL.current.play()
       isSelected.current = true
     } else {
       animate(target.x, position.x, config)
       animate(target.y, position.y, config)
       animate(target.z, position.z, config)
       animate(targetScale.current, 1, config)
-      animate(inspectingFactor.current, 0, config).then(() => {
+
+      inspectingFactorTL.current?.stop()
+      inspectingFactorTL.current = animate(inspectingFactor.current, 0, config)
+      inspectingFactorTL.current.complete = () => {
         isSelected.current = false
-      })
+      }
+      inspectingFactorTL.current.play()
     }
   }
 
