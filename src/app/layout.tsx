@@ -18,9 +18,9 @@ import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
+import LenisScrollProvider from "@/providers/lenis-provider"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
-import LenisScrollProvider from "@/providers/lenis-provider"
 
 export const metadata: Metadata = {
   title: {

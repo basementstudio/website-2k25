@@ -8,18 +8,20 @@ import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useInspectable } from "@/components/inspectables/context"
 import { cn } from "@/utils/cn"
 
+type InspectableData = AssetsResult["inspectables"][number]
+
 const Close = ({ handleClose }: { handleClose: () => void }) => (
   <button className="text-p text-brand-w1" tabIndex={0} onClick={handleClose}>
     (X) Close
   </button>
 )
 
-const Content = ({ data }: { data: AssetsResult["inspectables"][number] }) => (
+const Content = ({ data }: { data: InspectableData }) => (
   <>
     <h2 className="text-h2 text-brand-w1">{data._title}</h2>
-    {data?.specs?.items && data.specs.items.length > 0 && (
+    {data?.specs && data.specs.length > 0 && (
       <div className="flex flex-col border-t border-brand-w1/20">
-        {data.specs.items.map((spec) => (
+        {data.specs.map((spec) => (
           <Fragment key={spec._id}>
             <div className="grid grid-cols-7 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75">
               <h3 className="col-span-2 text-p text-brand-g1">{spec._title}</h3>
@@ -38,11 +40,9 @@ const Content = ({ data }: { data: AssetsResult["inspectables"][number] }) => (
 )
 
 export const InspectableViewer = () => {
-  const { selected, setSelected } = useInspectable()
-  const [data, setData] = useState<AssetsResult["inspectables"][number] | null>(
-    null
-  )
   const { inspectables } = useAssets()
+  const { selected, setSelected } = useInspectable()
+  const [data, setData] = useState<InspectableData | null>(null)
 
   useEffect(() => {
     setData(null)
@@ -60,20 +60,12 @@ export const InspectableViewer = () => {
     fetchData()
   }, [selected, inspectables])
 
-  const handleFocus = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    })
-  }
-
   return (
     <div
       className={cn(
         "pointer-events-none absolute inset-0 top-9 z-10 items-center",
         selected ? "flex" : "hidden"
       )}
-      onFocus={handleFocus}
     >
       <div className="grid-layout h-full">
         <div className="col-start-1 col-end-9 my-3 border border-brand-w1/20" />

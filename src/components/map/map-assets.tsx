@@ -1,7 +1,7 @@
 "use client"
 
 import { useLoader, useThree } from "@react-three/fiber"
-import { useControls, folder as levaFolder } from "leva"
+import { folder as levaFolder, useControls } from "leva"
 import { animate } from "motion"
 import { memo, Suspense, useEffect, useMemo, useRef } from "react"
 import {
@@ -15,9 +15,8 @@ import {
 } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
+import { useAssets } from "@/components/assets-provider"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
-
-import { useAssets } from "../assets-provider"
 
 interface MapAssets {
   lightmap?: Texture

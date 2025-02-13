@@ -382,11 +382,13 @@ export const Map = memo(() => {
         const mesh = officeModel.getObjectByName(meshName) as Mesh | null
         if (mesh) {
           mesh.removeFromParent()
+
           mesh.userData.position = {
             x: mesh.position.x,
             y: mesh.position.y,
             z: mesh.position.z
           }
+
           inspectableMeshes.push(mesh)
         }
       })

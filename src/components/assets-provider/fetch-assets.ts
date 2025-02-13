@@ -1,5 +1,6 @@
 import { basehub } from "basehub"
 
+import { RichTextJson } from "../../../.basehub/schema"
 import { assetsQuery } from "./query"
 
 export interface AssetsResult {
@@ -30,17 +31,11 @@ export interface AssetsResult {
     id: string
     _title: string
     specs: {
-      items: {
-        _id: string
-        _title: string
-        value: string
-      }[]
-    }
-    description: {
-      json: {
-        content: string
-      }
-    }
+      _id: string
+      _title: string
+      value: string
+    }[]
+    description: any
     mesh: string
     xOffset: number
     sizeTarget: number
@@ -128,7 +123,11 @@ export async function fetchAssets(): Promise<AssetsResult> {
     inspectables: pages.inspectables.inspectableList.items.map((item) => ({
       id: item._id ?? "",
       _title: item._title ?? "",
-      specs: item.specs,
+      specs: item.specs.items.map((item) => ({
+        _id: item._id,
+        _title: item._title,
+        value: item.value ?? ""
+      })),
       description: item.description,
       mesh: item.mesh ?? "",
       xOffset: item.xOffset ?? 0,

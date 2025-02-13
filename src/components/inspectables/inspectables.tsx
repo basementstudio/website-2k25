@@ -30,11 +30,11 @@ export const Inspectables = () => {
   return (
     <>
       {inspectableMeshes.map((mesh) => {
-        const i = inspectables.find(
+        const inspectable = inspectables.find(
           (inspectable) => inspectable.mesh === mesh.name
         )
 
-        if (!i) return null
+        if (!inspectable) return null
 
         return (
           <Inspectable
@@ -42,9 +42,9 @@ export const Inspectables = () => {
             id={mesh.name}
             mesh={mesh}
             position={mesh.userData.position}
-            xOffset={i.xOffset}
-            sizeTarget={i.sizeTarget}
-            scenes={i.scenes}
+            xOffset={inspectable.xOffset}
+            sizeTarget={inspectable.sizeTarget}
+            scenes={inspectable.scenes}
           />
         )
       })}
