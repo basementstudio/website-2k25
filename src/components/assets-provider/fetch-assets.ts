@@ -1,6 +1,5 @@
 import { basehub } from "basehub"
 
-import { RichTextJson } from "../../../.basehub/schema"
 import { assetsQuery } from "./query"
 
 export interface AssetsResult {
