@@ -118,9 +118,9 @@ export const Inspectable = ({
 
       inspectingFactorTL.current?.stop()
       inspectingFactorTL.current = animate(inspectingFactor.current, 0, config)
-      inspectingFactorTL.current.complete = () => {
+      inspectingFactorTL.current.then(() => {
         isSelected.current = false
-      }
+      })
       inspectingFactorTL.current.play()
     }
   }

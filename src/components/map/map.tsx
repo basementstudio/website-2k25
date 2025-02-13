@@ -146,9 +146,9 @@ export const Map = memo(() => {
 
     tl.current = animate(fadeFactor.current, easeDirection, ANIMATION_CONFIG)
 
-    tl.current.complete = () => {
+    tl.current.then(() => {
       if (easeDirection === 0) isInspecting.current = false
-    }
+    })
 
     tl.current.play()
 
