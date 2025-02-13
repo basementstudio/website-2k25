@@ -1,4 +1,4 @@
-import { Environment, PerspectiveCamera, useGLTF } from "@react-three/drei"
+import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import {
   Container,
@@ -12,14 +12,10 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import {
   AnimationMixer,
   Box3,
-  DepthTexture,
-  DoubleSide,
   Group,
-  HalfFloatType,
   LoopRepeat,
   Mesh,
   MeshBasicMaterial,
-  RGBFormat,
   SkinnedMesh,
   Vector3,
   WebGLRenderTarget
@@ -269,6 +265,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         const oldMaterial = node.material
         const basicMaterial = new MeshBasicMaterial()
 
+        // TODO: use the global material
         // console.log(`Material for ${node.name}:`, {
         //   hasMap: "map" in oldMaterial && oldMaterial.map !== null,
         //   hasColor: "color" in oldMaterial,

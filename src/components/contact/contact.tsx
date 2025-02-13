@@ -1,5 +1,4 @@
 "use client"
-import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect } from "react"
 
 import { useDisableScroll } from "@/hooks/use-disable-scroll"

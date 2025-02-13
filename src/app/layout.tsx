@@ -1,7 +1,5 @@
 import "@/styles/globals.css"
 
-// @ts-expect-error: partytown is not typed
-import { Partytown } from "@builder.io/partytown/react"
 import { Toolbar as BasehubToolbar } from "basehub/next-toolbar"
 
 import { AssetsProvider } from "@/components/assets-provider"
