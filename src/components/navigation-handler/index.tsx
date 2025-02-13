@@ -27,6 +27,7 @@ export const NavigationHandler = () => {
   const scenes: IScene[] = useAssets().scenes
   const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()
+  const { selected } = useInspectable()
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
@@ -100,6 +101,11 @@ export const NavigationHandler = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
+      if (selected) {
+        setSelected(null)
+        return
+      }
+
       if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
         return
 
@@ -119,7 +125,14 @@ export const NavigationHandler = () => {
         handleNavigation("/")
         setCurrentTabIndex(tabIndex)
       }
-    }, [scene, handleNavigation, pathname, scenes, setCurrentTabIndex])
+    }, [
+      scene,
+      handleNavigation,
+      pathname,
+      scenes,
+      setCurrentTabIndex,
+      selected
+    ])
   )
 
   return null

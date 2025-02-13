@@ -3,14 +3,9 @@
 import { RichText as BaseRichText } from "basehub/react-rich-text"
 import { Fragment, useEffect, useState } from "react"
 
-const RichText = BaseRichText as unknown as React.ComponentType<{
-  content: Node[]
-}>
-
 import { useAssets } from "@/components/assets-provider"
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useInspectable } from "@/components/inspectables/context"
-import { useKeyPress } from "@/hooks/use-key-press"
 import { cn } from "@/utils/cn"
 
 const Close = ({ handleClose }: { handleClose: () => void }) => (
@@ -36,7 +31,7 @@ const Content = ({ data }: { data: AssetsResult["inspectables"][number] }) => (
     )}
     <div className="mr-14 text-p text-brand-w1">
       {data?.description?.json?.content && (
-        <RichText content={data.description.json.content as any} />
+        <BaseRichText content={data.description.json.content as any} />
       )}
     </div>
   </>
@@ -48,7 +43,6 @@ export const InspectableViewer = () => {
     null
   )
   const { inspectables } = useAssets()
-  useKeyPress("Escape", () => setSelected(""))
 
   useEffect(() => {
     setData(null)
