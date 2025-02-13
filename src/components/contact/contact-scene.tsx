@@ -23,8 +23,12 @@ import {
 
 import { RenderTexture } from "../arcade-screen/render-texture"
 import { createScreenMaterial } from "../arcade-screen/screen-material"
-import { COLORS_THEME } from "../arcade-screen/screen-ui"
 import { PhoneAnimationHandler } from "./contact-anims"
+
+const COLORS_THEME = {
+  primary: "#FF4D00",
+  black: "#0D0D0D"
+}
 
 const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
   const aspect = screenScale ? screenScale.x / screenScale.y : 1

@@ -1,9 +1,11 @@
 "use client"
 
+import { Canvas } from "@react-three/fiber"
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import { lazy, useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
+import ContactScene from "./contact-scene"
 
 const Fallback = lazy(() => import("./fallback"))
 
@@ -45,6 +47,10 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         camera={{ position: [0, 0.082, 5.25], fov: 25 }}
         gl={{ antialias: false }}
       />
+
+      {/* <Canvas>
+        <ContactScene modelUrl={contactPhone} />
+      </Canvas> */}
     </>
   )
 }
