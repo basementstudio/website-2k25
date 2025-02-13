@@ -136,20 +136,15 @@ export const Map = memo(() => {
   })
 
   const fadeFactor = useRef(new MotionValue())
-  const isInspecting = useRef(false)
+  const inspectingEnabled = useRef(false)
   const tl = useRef<AnimationPlaybackControls | null>(null)
 
   useEffect(() => {
     const easeDirection = selected ? 1 : 0
 
-    if (easeDirection === 1) isInspecting.current = true
+    if (easeDirection === 1) inspectingEnabled.current = true
 
     tl.current = animate(fadeFactor.current, easeDirection, ANIMATION_CONFIG)
-
-    tl.current.then(() => {
-      if (easeDirection === 0) isInspecting.current = false
-    })
-
     tl.current.play()
 
     return () => tl.current?.stop()
@@ -172,7 +167,7 @@ export const Map = memo(() => {
       material.uniforms.fogDensity.value = fogDensity
       material.uniforms.fogDepth.value = fogDepth
 
-      material.uniforms.inspectingEnabled.value = isInspecting.current
+      material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
 

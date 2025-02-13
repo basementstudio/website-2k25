@@ -67,7 +67,6 @@ export const createGlobalShaderMaterial = (
     uGodrayOpacity: { value: 0 },
     uGodrayDensity: { value: 0 },
     inspectingEnabled: { value: false },
-    isInspecting: { value: false },
     inspectingFactor: { value: 0 },
     fadeFactor: { value: 0 }
   } as Record<string, { value: unknown }>

@@ -3,7 +3,7 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls, useMotionValue } from "motion/react"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   Box3,
   Group,
@@ -47,6 +47,7 @@ export const Inspectable = ({
   const camera = useThree((state) => state.camera) as PerspectiveCamera
   const setCursorType = useMouseStore((state) => state.setCursorType)
   const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
+
   const perpendicularMoved = useRef(new Vector3())
 
   const size = useRef({ x: 0, y: 0, z: 0 })
@@ -118,14 +119,19 @@ export const Inspectable = ({
 
       inspectingFactorTL.current?.stop()
       inspectingFactorTL.current = animate(inspectingFactor.current, 0, config)
-      inspectingFactorTL.current.then(() => {
-        isSelected.current = false
-      })
       inspectingFactorTL.current.play()
+      isSelected.current = false
     }
   }
 
+  const [firstRender, setFirstRender] = useState(true)
+
   useEffect(() => {
+    if (firstRender) {
+      setFirstRender(false)
+      return
+    }
+
     if (mesh && !size.current.x) {
       const boundingBox = new Box3().setFromObject(mesh)
 
@@ -148,7 +154,7 @@ export const Inspectable = ({
 
     return () => window.removeEventListener("resize", handleResize)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  })
+  }, [selected, firstRender])
 
   useFrame(() => {
     if (ref.current && camConfig) {
@@ -187,7 +193,6 @@ export const Inspectable = ({
       mesh.traverse((child) => {
         if (child instanceof Mesh) {
           child.material.uniforms.inspectingFactor.value = inspectingFactorValue
-          child.material.uniforms.isInspecting.value = isSelected.current
         }
       })
     }
