@@ -3,7 +3,7 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls, useMotionValue } from "motion/react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import {
   Box3,
   Group,
@@ -47,10 +47,9 @@ export const Inspectable = ({
   const camera = useThree((state) => state.camera) as PerspectiveCamera
   const setCursorType = useMouseStore((state) => state.setCursorType)
   const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
-
-  const [size, setSize] = useState<[number, number, number]>([0, 0, 0])
-
   const perpendicularMoved = useRef(new Vector3())
+
+  const size = useRef({ x: 0, y: 0, z: 0 })
 
   const isSelected = useRef(false)
 
@@ -67,18 +66,6 @@ export const Inspectable = ({
   const inspectingFactorTL = useRef<AnimationPlaybackControls | null>(null)
 
   const quaternion = useMotionValue(new Quaternion())
-
-  useEffect(() => {
-    if (ref.current) {
-      const boundingBox = new Box3().setFromObject(mesh)
-
-      const size = new Vector3()
-      boundingBox.getSize(size)
-      mesh.position.set(0, 0, 0)
-
-      setSize([size.x, size.y, size.z])
-    }
-  }, [mesh])
 
   useEffect(() => {
     targetPosition.current.x.set(position.x)
@@ -105,7 +92,8 @@ export const Inspectable = ({
     const config = withAnimation ? ANIMATION_CONFIG : { duration: 0 }
 
     if (selected === id) {
-      const desiredScale = sizeTarget / Math.max(...size)
+      const desiredScale =
+        sizeTarget / Math.max(size.current.x, size.current.y, size.current.z)
 
       const desiredDirection = new Vector3(
         camConfig?.position[0] + direction.x + perpendicularMoved.current.x,
@@ -138,6 +126,20 @@ export const Inspectable = ({
   }
 
   useEffect(() => {
+    if (mesh && !size.current.x) {
+      const boundingBox = new Box3().setFromObject(mesh)
+
+      const s = new Vector3()
+      boundingBox.getSize(s)
+      mesh.position.set(0, 0, 0)
+
+      if (isNaN(s.x) || isNaN(s.y) || isNaN(s.z)) return
+
+      size.current.x = s.x
+      size.current.y = s.y
+      size.current.z = s.z
+    }
+
     handleAnimation(true)
 
     const handleResize = () => handleAnimation(false)
@@ -258,7 +260,9 @@ export const Inspectable = ({
       >
         <primitive object={mesh} />
         <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[...size]} />
+          <boxGeometry
+            args={[size.current.x, size.current.y, size.current.z]}
+          />
           <meshBasicMaterial opacity={0} transparent />
         </mesh>
       </InspectableDragger>
