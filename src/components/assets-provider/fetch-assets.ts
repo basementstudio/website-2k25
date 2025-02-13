@@ -78,6 +78,11 @@ export interface AssetsResult {
     textureBody: string
     textureFaces: string
   }
+  carGame: {
+    body: string
+    antenna: string
+    wheel: string
+  }
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -170,6 +175,11 @@ export async function fetchAssets(): Promise<AssetsResult> {
       model: threeDInteractions.characters.model.file?.url ?? "",
       textureBody: threeDInteractions.characters.textureBody?.url,
       textureFaces: threeDInteractions.characters.textureFaces?.url
+    },
+    carGame: {
+      body: threeDInteractions.carGame.body?.file?.url ?? "",
+      antenna: threeDInteractions.carGame.antena?.file?.url ?? "",
+      wheel: threeDInteractions.carGame.wheel?.file?.url ?? ""
     }
   }
 }

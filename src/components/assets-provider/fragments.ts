@@ -20,6 +20,24 @@ export const characterFragment = fragmentOn("Characters", {
   }
 })
 
+export const carGameFragment = fragmentOn("CarGame", {
+  body: {
+    file: {
+      url: true
+    }
+  },
+  antena: {
+    file: {
+      url: true
+    }
+  },
+  wheel: {
+    file: {
+      url: true
+    }
+  }
+})
+
 export const mapFragment = fragmentOn("Map", {
   model: modelsItemFragment,
   office: modelsItemFragment,
