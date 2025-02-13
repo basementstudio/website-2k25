@@ -13,7 +13,6 @@ void main() {
   vUv = uv;
   vUv2 = uv1;
 
-  // Transform normal to world space for correct lighting
   vNormal = normalize(normalMatrix * normal);
 
   vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
@@ -26,5 +25,4 @@ void main() {
 
   // gl_Position.xy /= gl_Position.w;
   // gl_Position.xy = floor(gl_Position.xy * uJitter) / uJitter * gl_Position.w;
-
 }

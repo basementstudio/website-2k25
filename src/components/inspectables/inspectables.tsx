@@ -1,27 +1,19 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useEffect } from "react"
 
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 
-import { Inspectable } from "./inspectable"
-import { useInspectable } from "./context"
 import { useAssets } from "../assets-provider"
-import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useInspectable } from "./context"
+import { Inspectable } from "./inspectable"
 
 export const Inspectables = () => {
   const { inspectableMeshes } = useMesh()
   const { setSelected } = useInspectable()
   const { inspectables } = useAssets()
   const scene = useCurrentScene()
-
-  const positions = useMemo(() => {
-    return inspectableMeshes.map((mesh) => ({
-      x: mesh.position.x,
-      y: mesh.position.y,
-      z: mesh.position.z
-    }))
-  }, [inspectableMeshes])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,30 +25,29 @@ export const Inspectables = () => {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [setSelected])
 
-  useEffect(() => setSelected(null), [scene])
+  useEffect(() => setSelected(null), [scene, setSelected])
 
   return (
     <>
-      {inspectableMeshes.map((mesh, index) => (
-        <Inspectable
-          key={mesh.name}
-          mesh={mesh}
-          position={positions[index]}
-          id={mesh.name}
-          xOffset={
-            inspectables.find((inspectable) => inspectable.mesh === mesh.name)
-              ?.xOffset ?? 0
-          }
-          sizeTarget={
-            inspectables.find((inspectable) => inspectable.mesh === mesh.name)
-              ?.sizeTarget ?? 0.5
-          }
-          scenes={
-            inspectables.find((inspectable) => inspectable.mesh === mesh.name)
-              ?.scenes ?? []
-          }
-        />
-      ))}
+      {inspectableMeshes.map((mesh, index) => {
+        const i = inspectables.find(
+          (inspectable) => inspectable.mesh === mesh.name
+        )
+
+        if (!i) return null
+
+        return (
+          <Inspectable
+            key={mesh.name}
+            mesh={mesh}
+            position={mesh.userData.position}
+            id={mesh.name}
+            xOffset={i.xOffset}
+            sizeTarget={i.sizeTarget}
+            scenes={i.scenes}
+          />
+        )
+      })}
     </>
   )
 }

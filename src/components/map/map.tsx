@@ -4,8 +4,8 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
-import { memo, useEffect, Suspense, useRef, useState } from "react"
-
+import { AnimationPlaybackControls } from "motion/react"
+import { memo, Suspense, useEffect, useRef, useState } from "react"
 import {
   Mesh,
   MeshStandardMaterial,
@@ -30,14 +30,13 @@ import {
 
 import { ArcadeScreen } from "../arcade-screen"
 import { useAssets } from "../assets-provider"
-import { useInspectable } from "../inspectables/context"
 import Cars from "../cars/cars"
+import { useInspectable } from "../inspectables/context"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
-import { AnimationPlaybackControls } from "motion/react"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -383,6 +382,11 @@ export const Map = memo(() => {
         const mesh = officeModel.getObjectByName(meshName) as Mesh | null
         if (mesh) {
           mesh.removeFromParent()
+          mesh.userData.position = {
+            x: mesh.position.x,
+            y: mesh.position.y,
+            z: mesh.position.z
+          }
           inspectableMeshes.push(mesh)
         }
       })
