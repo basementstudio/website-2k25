@@ -19,6 +19,8 @@ export interface AssetsResult {
   }[]
   arcade: {
     idleScreen: string
+    placeholderLab: string
+    boot: string
   }
   glassReflexes: {
     mesh: string
@@ -32,22 +34,6 @@ export interface AssetsResult {
     mesh: string
     url: string
     intensity: number
-  }[]
-  cameraStates: {
-    title: string
-    position: {
-      x: number
-      y: number
-      z: number
-    }
-    target: {
-      x: number
-      y: number
-      z: number
-    }
-    fov?: number
-    offsetMultiplier?: number
-    targetScrollY?: number
   }[]
   sfx: {
     basketballTheme: string
@@ -73,6 +59,18 @@ export interface AssetsResult {
       plusShapeScale: number
     }[]
   }[]
+  car: {
+    carModel: string
+    textures: {
+      dodgeOTexture: string
+      dodgeBTexture: string
+      deloreanTexture: string
+      nissanTexture: string
+      simpsonsTexture: string
+      knightRiderTexture: string
+      misteryTexture: string
+    }
+  }
   characters: {
     model: string
     textureBody: string
@@ -102,7 +100,11 @@ export async function fetchAssets(): Promise<AssetsResult> {
       ambientOcclusionIntensity: item.ambientOcclusionIntensity ?? 1
     })),
     routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
-    arcade: { idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "" },
+    arcade: {
+      idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "",
+      placeholderLab: threeDInteractions.arcade.placeholderLab?.url ?? "",
+      boot: threeDInteractions.arcade.boot?.url ?? ""
+    },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
       mesh: item._title,
       url: item.file?.url ?? ""
@@ -128,24 +130,19 @@ export async function fetchAssets(): Promise<AssetsResult> {
       basketballThump: threeDInteractions.sfx.basketballThump?.url ?? "",
       basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? ""
     },
-    cameraStates: threeDInteractions.cameraStates.cameraStates.items.map(
-      (item) => ({
-        title: item._title,
-        fov: item.fov ?? 60,
-        position: {
-          x: item.posX ?? 0,
-          y: item.posY ?? 0,
-          z: item.posZ ?? 0
-        },
-        target: {
-          x: item.tarX ?? 0,
-          y: item.tarY ?? 0,
-          z: item.tarZ ?? 0
-        },
-        offsetMultiplier: item.offsetMultiplier ?? 1,
-        targetScrollY: item.targetScrollY ?? -1.5
-      })
-    ),
+    car: {
+      carModel: threeDInteractions.car.carModel?.url ?? "",
+      textures: {
+        dodgeOTexture: threeDInteractions.car.dodgeOTexture?.url ?? "",
+        dodgeBTexture: threeDInteractions.car.dodgeBTexture?.url ?? "",
+        deloreanTexture: threeDInteractions.car.deloreanTexture?.url ?? "",
+        nissanTexture: threeDInteractions.car.nissanTexture?.url ?? "",
+        simpsonsTexture: threeDInteractions.car.simpsonsTexture?.url ?? "",
+        knightRiderTexture:
+          threeDInteractions.car.knightRiderTexture?.url ?? "",
+        misteryTexture: threeDInteractions.car.misteryTexture?.url ?? ""
+      }
+    },
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
       cameraConfig: {

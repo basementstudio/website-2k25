@@ -1,6 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
-import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 
@@ -10,6 +9,7 @@ import {
   handlePointerUp as utilsHandlePointerUp
 } from "@/components/basketball/basketball-utils"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -18,7 +18,6 @@ import { easeInOutCubic } from "@/utils/animations"
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
 import { Trajectory } from "./trajectory"
-import { useMesh } from "@/hooks/use-mesh"
 
 export const HoopMinigame = () => {
   const { playSoundFX } = useSiteAudio()
@@ -67,7 +66,11 @@ export const HoopMinigame = () => {
     setHasPlayed,
     addPlayedBall,
     readyToPlay,
-    setReadyToPlay
+    setReadyToPlay,
+    resetConsecutiveScores,
+    justScored,
+    setJustScored,
+    hasPlayed
   } = useMinigameStore()
 
   const resetState = useCallback(() => {
@@ -76,10 +79,15 @@ export const HoopMinigame = () => {
     isThrowable.current = true
     setIsResetting(false)
     setIsDragging(false)
-    setScore(0)
     setTimeRemaining(gameDuration)
     setIsGameActive(false)
     setShotMetrics({ angle: "0.0", probability: "0.0" })
+    resetConsecutiveScores()
+    setJustScored(false)
+
+    if (!hasPlayed) {
+      setScore(0)
+    }
 
     startResetPos.current = new Vector3(
       initialPosition.x,
@@ -100,7 +108,10 @@ export const HoopMinigame = () => {
     setScore,
     setTimeRemaining,
     setIsGameActive,
-    setShotMetrics
+    setShotMetrics,
+    resetConsecutiveScores,
+    setJustScored,
+    hasPlayed
   ])
 
   useEffect(() => {
@@ -118,7 +129,6 @@ export const HoopMinigame = () => {
         clearInterval(timerInterval.current)
         timerInterval.current = null
       }
-      resetState()
     }
   }, [
     isBasketball,
@@ -131,7 +141,8 @@ export const HoopMinigame = () => {
     setScore,
     setTimeRemaining,
     setShotMetrics,
-    resetState
+    resetState,
+    hasPlayed
   ])
 
   const resetBallToInitialPosition = useCallback(
@@ -150,6 +161,11 @@ export const HoopMinigame = () => {
         resetProgress.current = 0
         bounceCount.current = 0
         isThrowable.current = true
+
+        if (!justScored) {
+          resetConsecutiveScores()
+        }
+        setJustScored(false)
       } catch (error) {
         console.warn("Failed to reset ball position")
         setIsResetting(false)
@@ -162,7 +178,10 @@ export const HoopMinigame = () => {
       resetProgress,
       bounceCount,
       isThrowable,
-      isBasketball
+      isBasketball,
+      resetConsecutiveScores,
+      justScored,
+      setJustScored
     ]
   )
 
@@ -180,30 +199,39 @@ export const HoopMinigame = () => {
           if (prev <= 1) {
             if (timerInterval.current) {
               clearInterval(timerInterval.current)
-              playSoundFX("TIMEOUT_BUZZER")
-            }
-            setIsGameActive(false)
-            setHasPlayed(true)
-            setReadyToPlay(false)
 
-            if (ballRef.current) {
-              const currentPos = ballRef.current.translation()
-              const currentVel = ballRef.current.linvel()
+              // release ball if held after game timeout
+              if (isDragging && ballRef.current) {
+                setIsDragging(false)
+                ballRef.current.setBodyType(0, true)
+              }
 
-              addPlayedBall({
-                position: {
-                  x: currentPos.x,
-                  y: currentPos.y,
-                  z: currentPos.z
-                },
-                velocity: {
-                  x: currentVel.x,
-                  y: currentVel.y,
-                  z: currentVel.z
+              setTimeout(() => {
+                playSoundFX("TIMEOUT_BUZZER")
+
+                if (ballRef.current) {
+                  const currentPos = ballRef.current.translation()
+                  const currentVel = ballRef.current.linvel()
+
+                  addPlayedBall({
+                    position: {
+                      x: currentPos.x,
+                      y: currentPos.y,
+                      z: currentPos.z
+                    },
+                    velocity: {
+                      x: currentVel.x,
+                      y: currentVel.y,
+                      z: currentVel.z
+                    }
+                  })
                 }
-              })
-            }
 
+                setIsGameActive(false)
+                setHasPlayed(true)
+                setReadyToPlay(false)
+              }, 100)
+            }
             return gameDuration
           }
           return prev - 1
@@ -218,7 +246,9 @@ export const HoopMinigame = () => {
     setHasPlayed,
     addPlayedBall,
     setReadyToPlay,
-    playSoundFX
+    playSoundFX,
+    isDragging,
+    setIsDragging
   ])
 
   const handlePointerUp = useCallback(() => {
@@ -297,7 +327,7 @@ export const HoopMinigame = () => {
     }
 
     // score decay
-    if (score > 0) {
+    if (score > 0 && isGameActive) {
       setScore((prev) => Math.max(0, prev - 1 * delta))
     }
 
@@ -386,7 +416,7 @@ export const HoopMinigame = () => {
 
   return (
     <>
-      {hoopMesh && (
+      {isBasketball && hoopMesh && (
         <RigidBody type="fixed" colliders="trimesh">
           <primitive object={hoopMesh} />
         </RigidBody>
@@ -404,11 +434,11 @@ export const HoopMinigame = () => {
             handlePointerUp={handlePointerUp}
           />
 
-          <Trajectory
+          {/* <Trajectory
             ballRef={ballRef}
             isDragging={isDragging}
             isResetting={isResetting}
-          />
+          /> */}
         </>
       )}
 
