@@ -1,9 +1,3 @@
-// Polyfill document for worker context
-if (typeof document === "undefined") {
-  // @ts-ignore
-  self.document = {}
-}
-
 import { render } from "@react-three/offscreen"
 
 import ContactScene from "@/components/contact/contact-scene"

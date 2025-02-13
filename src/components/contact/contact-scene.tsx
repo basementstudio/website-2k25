@@ -4,7 +4,6 @@ import {
   Container,
   DefaultProperties,
   FontFamilyProvider,
-  Input,
   Root,
   Text
 } from "@react-three/uikit"
@@ -106,27 +105,28 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
                   paddingX={16}
                   paddingTop={24}
                 >
-                  <Input
-                    defaultValue={"NAME"}
-                    color={COLORS_THEME.primary}
+                  <Container
+                    width={"50%"}
+                    height={"10%"}
                     borderColor={COLORS_THEME.primary}
                     borderWidth={0}
                     borderBottomWidth={1}
                     paddingX={8}
                     paddingY={16}
+                  >
+                    <Text color={COLORS_THEME.primary}>NAME</Text>
+                  </Container>
+                  <Container
                     width={"50%"}
                     height={"10%"}
-                  />
-                  <Input
-                    defaultValue={"COMPANY"}
                     borderColor={COLORS_THEME.primary}
                     borderWidth={0}
                     borderBottomWidth={1}
                     paddingX={8}
                     paddingY={16}
-                    width={"50%"}
-                    height={"10%"}
-                  />
+                  >
+                    <Text color={COLORS_THEME.primary}>COMPANY</Text>
+                  </Container>
                 </Container>
                 <Container
                   width="100%"
@@ -136,36 +136,39 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
                   paddingX={16}
                   gap={8}
                 >
-                  <Input
-                    defaultValue={"EMAIL"}
-                    borderColor={COLORS_THEME.primary}
-                    borderWidth={0}
-                    borderBottomWidth={1}
-                    paddingX={8}
-                    paddingY={16}
+                  <Container
                     width={"100%"}
                     height={"10%"}
-                  />
-                  <Input
-                    defaultValue={"BUDGET (OPTIONAL)"}
                     borderColor={COLORS_THEME.primary}
                     borderWidth={0}
                     borderBottomWidth={1}
                     paddingX={8}
                     paddingY={16}
+                  >
+                    <Text color={COLORS_THEME.primary}>EMAIL</Text>
+                  </Container>
+                  <Container
                     width={"100%"}
                     height={"10%"}
-                  />
-                  <Input
-                    defaultValue={"MESSAGE"}
                     borderColor={COLORS_THEME.primary}
                     borderWidth={0}
                     borderBottomWidth={1}
                     paddingX={8}
                     paddingY={16}
+                  >
+                    <Text color={COLORS_THEME.primary}>BUDGET (OPTIONAL)</Text>
+                  </Container>
+                  <Container
                     width={"100%"}
                     height={80}
-                  />
+                    borderColor={COLORS_THEME.primary}
+                    borderWidth={0}
+                    borderBottomWidth={1}
+                    paddingX={8}
+                    paddingY={16}
+                  >
+                    <Text color={COLORS_THEME.primary}>MESSAGE</Text>
+                  </Container>
                 </Container>
                 <Container
                   display="flex"
@@ -240,7 +243,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const screen = gltf.scene.children[0].getObjectByName(
       "SCREEN"
     ) as SkinnedMesh
-    console.log(gltf.scene.children[0].children)
+    // console.log(gltf.scene.children[0].children)
     setScreenMesh(screen)
 
     if (screen) {

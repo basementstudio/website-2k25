@@ -24,8 +24,8 @@ importers:
         specifier: 9.0.0-rc.6
         version: 9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0)
       '@react-three/offscreen':
-        specifier: ^0.0.8
-        version: 0.0.8(@react-three/fiber@9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0)
+        specifier: 1.0.0-rc.1
+        version: 1.0.0-rc.1(@react-three/fiber@9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0)
       '@react-three/rapier':
         specifier: ^1.5.0
         version: 1.5.0(@react-three/fiber@9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react@19.0.0)(three@0.172.0)
@@ -1050,8 +1050,8 @@ packages:
       react-native:
         optional: true
 
-  '@react-three/offscreen@0.0.8':
-    resolution: {integrity: sha512-YXPWYKSCqsqXBcOqLPhY9vA3PThJCOfzGFj2RfNqkEAOeClNsJ+PN9rxREu2QC3yWuKgFS5oD2pK9yuhErvI9w==}
+  '@react-three/offscreen@1.0.0-rc.1':
+    resolution: {integrity: sha512-f8BsnFthc6KeXl0wDY8iv8RFAsFYJIhv4UwdZDZ1t4lJv9u2ujIEqwXwxLOFKU7LMznzUiyuHBbew1HcbR0frQ==}
     peerDependencies:
       '@react-three/fiber': '>=8.0.0'
       react: '>=18.0'
@@ -4920,12 +4920,13 @@ snapshots:
       - '@types/react'
       - immer
 
-  '@react-three/offscreen@0.0.8(@react-three/fiber@9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0)':
+  '@react-three/offscreen@1.0.0-rc.1(@react-three/fiber@9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0)':
     dependencies:
       '@react-three/fiber': 9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0)
       mitt: 3.0.1
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
+      react-use-measure: 2.1.7(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       three: 0.172.0
 
   '@react-three/rapier@1.5.0(@react-three/fiber@9.0.0-rc.6(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react@19.0.0)(three@0.172.0)':
