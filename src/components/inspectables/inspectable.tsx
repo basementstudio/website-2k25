@@ -258,7 +258,7 @@ export const Inspectable = ({
         snap={true}
         speed={2}
       >
-        <primitive object={mesh} />
+        <primitive object={mesh} raycast={() => null} />
         <mesh position={[0, 0, 0]}>
           <boxGeometry
             args={[size.current.x, size.current.y, size.current.z]}
