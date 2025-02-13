@@ -3,12 +3,12 @@
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect } from "react"
 
+import { useAssets } from "@/components/assets-provider"
+import { useInspectable } from "@/components/inspectables/context"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
 
-import { useAssets } from "../assets-provider"
-import { useInspectable } from "../inspectables/context"
 import { IScene } from "./navigation.interface"
 import { useNavigationStore } from "./navigation-store"
 

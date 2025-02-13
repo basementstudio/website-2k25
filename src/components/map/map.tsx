@@ -16,10 +16,16 @@ import {
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
+import { ArcadeScreen } from "@/components/arcade-screen"
+import { useAssets } from "@/components/assets-provider"
 import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import Cars from "@/components/cars/cars"
+import { useInspectable } from "@/components/inspectables/context"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
@@ -28,12 +34,6 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 
-import { ArcadeScreen } from "../arcade-screen"
-import { useAssets } from "../assets-provider"
-import Cars from "../cars/cars"
-import { useInspectable } from "../inspectables/context"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
-import { RoutingElement } from "../routing-element/routing-element"
 import { MapAssetsLoader } from "./map-assets"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"

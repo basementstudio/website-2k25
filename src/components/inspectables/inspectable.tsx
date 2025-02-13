@@ -14,14 +14,14 @@ import {
   Vector3
 } from "three"
 
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useScrollTo } from "@/hooks/use-scroll-to"
 
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
-import { useScrollTo } from "@/hooks/use-scroll-to"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 
 interface InspectableProps {
   mesh: Mesh
