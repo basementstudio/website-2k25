@@ -2,7 +2,6 @@
 
 import { Canvas } from "@react-three/fiber"
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
-import Script from "next/script"
 import { lazy, useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"

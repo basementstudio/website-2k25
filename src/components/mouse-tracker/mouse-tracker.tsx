@@ -10,6 +10,8 @@ import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { create } from "zustand"
 
+import { useNavigationStore } from "../navigation-handler/navigation-store"
+
 type CursorType =
   | "default"
   | "hover"
@@ -18,21 +20,12 @@ type CursorType =
   | "grabbing"
   | "inspect"
   | "zoom"
+
 interface MouseStore {
   hoverText: string | null
   setHoverText: (text: string | null) => void
   cursorType: CursorType
   setCursorType: (type: CursorType) => void
-}
-
-const cursorClasses = {
-  default: "default",
-  hover: "pointer",
-  click: "pointer",
-  grab: "grab",
-  grabbing: "grabbing",
-  inspect: "help",
-  zoom: "zoom-in"
 }
 
 export const useMouseStore = create<MouseStore>((set) => ({
@@ -47,8 +40,6 @@ export const MouseTracker = ({
 }: {
   canvasRef: React.RefObject<HTMLCanvasElement>
 }) => {
-  const pathname = usePathname()
-
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const springX = useSpring(x, { damping: 50, stiffness: 500 })
@@ -56,7 +47,7 @@ export const MouseTracker = ({
 
   const hoverText = useMouseStore((state) => state.hoverText)
   const setHoverText = useMouseStore((state) => state.setHoverText)
-  const cursorType = useMouseStore((state) => state.cursorType)
+  const currentScene = useNavigationStore((state) => state.currentScene)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -89,18 +80,7 @@ export const MouseTracker = ({
     return () => {
       setHoverText(null)
     }
-  }, [pathname])
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    document.body.style.cursor = cursorClasses[cursorType]
-
-    return () => {
-      document.body.style.cursor = "default"
-    }
-  }, [cursorType, canvasRef, pathname])
+  }, [currentScene, setHoverText])
 
   return (
     <AnimatePresence>

@@ -6,8 +6,21 @@ export const modelsItemFragment = fragmentOn("ModelsItem", {
   }
 })
 
+export const characterFragment = fragmentOn("Characters", {
+  model: {
+    file: {
+      url: true
+    }
+  },
+  textureBody: {
+    url: true
+  },
+  textureFaces: {
+    url: true
+  }
+})
+
 export const mapFragment = fragmentOn("Map", {
-  model: modelsItemFragment,
   office: modelsItemFragment,
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
@@ -40,24 +53,6 @@ export const mapFragment = fragmentOn("Map", {
         url: true
       },
       intensity: true
-    }
-  }
-})
-
-export const cameraStateFragment = fragmentOn("CameraStates", {
-  _title: true,
-  cameraStates: {
-    items: {
-      _title: true,
-      fov: true,
-      posX: true,
-      posY: true,
-      posZ: true,
-      tarX: true,
-      tarY: true,
-      tarZ: true,
-      offsetMultiplier: true,
-      targetScrollY: true
     }
   }
 })
@@ -96,6 +91,12 @@ export const sfxFragment = fragmentOn("Sfx", {
 export const arcadeFragment = fragmentOn("Arcade", {
   idleScreen: {
     url: true
+  },
+  placeholderLab: {
+    url: true
+  },
+  boot: {
+    url: true
   }
 })
 
@@ -124,5 +125,32 @@ export const sceneFragment = fragmentOn("Scenes", {
         }
       }
     }
+  }
+})
+
+export const carFragment = fragmentOn("Car", {
+  carModel: {
+    url: true
+  },
+  dodgeOTexture: {
+    url: true
+  },
+  dodgeBTexture: {
+    url: true
+  },
+  deloreanTexture: {
+    url: true
+  },
+  nissanTexture: {
+    url: true
+  },
+  simpsonsTexture: {
+    url: true
+  },
+  knightRiderTexture: {
+    url: true
+  },
+  misteryTexture: {
+    url: true
   }
 })

@@ -12,10 +12,14 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import {
   AnimationMixer,
   Box3,
+  DepthTexture,
+  DoubleSide,
   Group,
+  HalfFloatType,
   LoopRepeat,
   Mesh,
   MeshBasicMaterial,
+  RGBFormat,
   SkinnedMesh,
   Vector3,
   WebGLRenderTarget
@@ -248,6 +252,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
       screenMaterial.needsUpdate = true
       screenMaterial.uniforms.map.value = renderTarget.texture
+      screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
       screen.material = screenMaterial
     }
   }, [gltf.scene, renderTarget.texture, screenMaterial])
@@ -307,10 +312,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   return (
     <>
-      <group scale={8} ref={phoneGroupRef}>
-        <primitive position-y={-0.05} object={gltf.scene} />
-      </group>
-
       <RenderTexture
         isPlaying={true}
         fbo={renderTarget}
@@ -319,6 +320,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       >
         <PhoneScreenUI screenScale={screenScale} />
       </RenderTexture>
+
+      <group scale={8} ref={phoneGroupRef}>
+        <primitive position-y={-0.05} object={gltf.scene} />
+      </group>
     </>
   )
 }

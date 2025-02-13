@@ -19,6 +19,8 @@ import { InspectableProvider } from "@/components/inspectables/context"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
+import { Transitions } from "@/components/transitions"
+import LenisScrollProvider from "@/providers/lenis-provider"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
 
@@ -42,27 +44,28 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
-      <head>
-        <Partytown debug={true} forward={["dataLayer.push"]} />
-      </head>
+      <Transitions />
+      <Toolbar />
+      <AssetsProvider assets={assets}>
+        <InspectableProvider>
+          <body className={cn(geistSans.variable)}>
+            <LenisScrollProvider>
+              <Navbar />
 
-      <body className={cn(geistSans.variable)}>
-        <Toolbar />
-        <AssetsProvider assets={assets}>
-          <InspectableProvider>
-            <Navbar />
-            <NavigationHandler />
-            <div className="sticky top-0 h-screen w-full">
-              <Scene />
-              <Grid />
-              <InspectableViewer />
-            </div>
-            {children}
-            <AppHooks />
-            <Contact />
-          </InspectableProvider>
-        </AssetsProvider>
-      </body>
+              <NavigationHandler />
+              <div className="canvas-container sticky top-0 h-screen w-full">
+                <Scene />
+                <Grid />
+                <InspectableViewer />
+              </div>
+
+              <div className="layout-container">{children}</div>
+              <AppHooks />
+              <Contact />
+            </LenisScrollProvider>
+          </body>
+        </InspectableProvider>
+      </AssetsProvider>
     </html>
   )
 }

@@ -4,8 +4,8 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { useMotionValue } from "motion/react"
-import { usePathname, useRouter } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { usePathname } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
 import {
   Box3,
   Group,
@@ -21,7 +21,7 @@ import {
   TARGET_SIZE,
   X_OFFSET
 } from "@/constants/inspectables"
-import { useKeyPress } from "@/hooks/use-key-press"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useInspectable } from "./context"
@@ -38,6 +38,7 @@ interface InspectableProps {
 export const Inspectable = ({ inspectable }: InspectableProps) => {
   const { scene } = useGLTF(inspectable.url)
   const { selected } = useInspectable()
+  const currentScene = useCurrentScene()
   const [size, setSize] = useState<[number, number, number]>([0, 0, 0])
 
   const targetPosition = useRef({
@@ -56,10 +57,11 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
 
   const { setSelected } = useInspectable()
   const setCursorType = useMouseStore((state) => state.setCursorType)
-  const router = useRouter()
   const pathname = usePathname()
 
-  const isInspectableEnabled = pathname.startsWith("/showcase")
+  // TODO: create an abstraction for inspectables group that can be enabled for each scene
+  const isInspectableEnabled =
+    pathname.startsWith("/showcase") || currentScene === "lab"
 
   useEffect(() => {
     if (ref.current) {
@@ -74,15 +76,6 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
       setSize([size.x, size.y, size.z])
     }
   }, [scene])
-
-  useKeyPress(
-    "Escape",
-    useCallback(() => {
-      if (pathname.startsWith("/showcase") && !selected) {
-        router.push("/", { scroll: false })
-      }
-    }, [pathname, selected, router])
-  )
 
   const handleAnimation = (withAnimation: boolean) => {
     if (!isInspectableEnabled && selected === inspectable.id) return
@@ -176,7 +169,11 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
         ref={ref}
         onPointerEnter={() => {
           if (!isInspectableEnabled) return
-          setCursorType(selected === inspectable.id ? "grab" : "zoom")
+          if (selected === inspectable.id) {
+            setCursorType("grab")
+          } else {
+            setCursorType("zoom")
+          }
         }}
         onPointerLeave={() => {
           if (!isInspectableEnabled) return
@@ -186,9 +183,13 @@ export const Inspectable = ({ inspectable }: InspectableProps) => {
           if (!isInspectableEnabled || selected !== inspectable.id) return
           setCursorType("grabbing")
         }}
-        onPointerUp={() => {
+        onPointerUp={(e) => {
           if (!isInspectableEnabled || selected !== inspectable.id) return
-          setCursorType("grab")
+          if (e.object === e.eventObject) {
+            setCursorType("grab")
+          } else {
+            setCursorType("default")
+          }
         }}
       >
         <InspectableDragger

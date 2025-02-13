@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { Link } from "@/components/primitives/link"
 
 export const Contact = () => (
   <div className="grid-layout">

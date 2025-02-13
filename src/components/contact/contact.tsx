@@ -1,5 +1,6 @@
 "use client"
-import { useEffect } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { useCallback, useEffect } from "react"
 
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
@@ -8,7 +9,16 @@ import ContactCanvas from "./contact-canvas"
 import { useContactStore } from "./contact-store"
 
 const Contact = () => {
-  const { isContactOpen } = useContactStore()
+  const { isContactOpen, setIsContactOpen } = useContactStore()
+
+  useKeyPress(
+    "Escape",
+    useCallback(() => {
+      if (isContactOpen) {
+        setIsContactOpen(false)
+      }
+    }, [isContactOpen, setIsContactOpen])
+  )
 
   useDisableScroll(isContactOpen)
 

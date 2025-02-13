@@ -8,8 +8,6 @@ export const query = fragmentOn("Query", {
       projectList: {
         items: {
           _title: true,
-          cover: IMAGE_FRAGMENT,
-          icon: IMAGE_FRAGMENT,
           showcase: {
             items: {
               image: IMAGE_FRAGMENT
@@ -23,7 +21,9 @@ export const query = fragmentOn("Query", {
             year: true,
             categories: {
               _title: true
-            }
+            },
+            cover: IMAGE_FRAGMENT,
+            icon: IMAGE_FRAGMENT
           }
         }
       }
