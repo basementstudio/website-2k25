@@ -57,21 +57,6 @@ export const mapFragment = fragmentOn("Map", {
   }
 })
 
-export const fogStateFragment = fragmentOn("FogStates", {
-  fogStates: {
-    items: {
-      _title: true,
-      fogColor: {
-        r: true,
-        g: true,
-        b: true
-      },
-      fogDensity: true,
-      fogDepth: true
-    }
-  }
-})
-
 export const inspectableFragment = fragmentOn("Inspectables", {
   inspectableList: {
     items: {
@@ -138,6 +123,15 @@ export const sceneFragment = fragmentOn("Scenes", {
           tabClickableName: true,
           plusShapeScale: true
         }
+      },
+      fogConfig: {
+        fogColor: {
+          r: true,
+          g: true,
+          b: true
+        },
+        fogDensity: true,
+        fogDepth: true
       }
     }
   }

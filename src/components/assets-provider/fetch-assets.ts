@@ -35,18 +35,6 @@ export interface AssetsResult {
     url: string
     intensity: number
   }[]
-  fogStates: {
-    items: {
-      _title: string
-      fogColor: {
-        r: number
-        g: number
-        b: number
-      }
-      fogDensity: number
-      fogDepth: number
-    }[]
-  }
   sfx: {
     basketballTheme: string
     basketballSwoosh: string
@@ -70,6 +58,15 @@ export interface AssetsResult {
       tabClickableName: string
       plusShapeScale: number
     }[]
+    fogConfig: {
+      fogColor: {
+        r: number
+        g: number
+        b: number
+      }
+      fogDensity: number
+      fogDepth: number
+    }
   }[]
   car: {
     carModel: string
@@ -130,18 +127,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
-    fogStates: {
-      items: threeDInteractions.fogStates.fogStates.items.map((item) => ({
-        _title: item._title,
-        fogColor: {
-          r: (item.fogColor.r ?? 0) / 255,
-          g: (item.fogColor.g ?? 0) / 255,
-          b: (item.fogColor.b ?? 0) / 255
-        },
-        fogDensity: item.fogDensity ?? 0,
-        fogDepth: item.fogDepth ?? 0
-      }))
-    },
     sfx: {
       basketballTheme: threeDInteractions.sfx.basketballTheme?.url ?? "",
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
@@ -185,7 +170,16 @@ export async function fetchAssets(): Promise<AssetsResult> {
         tabHoverName: tab.tabHoverName ?? "",
         tabClickableName: tab.tabClickableName ?? "",
         plusShapeScale: tab.plusShapeScale ?? 1
-      }))
+      })),
+      fogConfig: {
+        fogColor: {
+          r: (item.fogConfig.fogColor.r ?? 0) / 255,
+          g: (item.fogConfig.fogColor.g ?? 0) / 255,
+          b: (item.fogConfig.fogColor.b ?? 0) / 255
+        },
+        fogDensity: item.fogConfig.fogDensity ?? 0,
+        fogDepth: item.fogConfig.fogDepth ?? 0
+      }
     })),
     characters: {
       model: threeDInteractions.characters.model.file?.url ?? "",

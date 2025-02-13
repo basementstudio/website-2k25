@@ -62,7 +62,7 @@ export const Map = memo(() => {
     routingElements: routingElementsPath,
     videos,
     car,
-    fogStates
+    scenes
   } = useAssets()
 
   const scene = useCurrentScene()
@@ -138,35 +138,37 @@ export const Map = memo(() => {
     }
   })
 
-  // handle for transition between scenes
   useEffect(() => {
-    if (!fogStates) return
+    if (!scene || !scenes) return
 
     const normalizedSceneName =
       scene.toLowerCase() === "/" ? "home" : scene.toLowerCase()
 
-    const currentFogState = fogStates.items.find(
-      (state) =>
-        state._title.toLowerCase().replace(/[^a-z0-9]/g, "") ===
+    const currentSceneConfig = scenes.find(
+      (sceneData) =>
+        sceneData.name.toLowerCase().replace(/[^a-z0-9]/g, "") ===
         normalizedSceneName.replace(/[^a-z0-9]/g, "")
-    ) ?? {
-      fogColor: { r: 0.4, g: 0.4, b: 0.4 },
-      fogDensity: 0.05,
-      fogDepth: 9
+    )
+
+    if (!currentSceneConfig) {
+      useCustomShaderMaterial
+        .getState()
+        .updateFogSettings(new Vector3(0.4, 0.4, 0.4), 0.05, 9)
+      return
     }
 
     useCustomShaderMaterial
       .getState()
       .updateFogSettings(
         new Vector3(
-          currentFogState.fogColor.r,
-          currentFogState.fogColor.g,
-          currentFogState.fogColor.b
+          currentSceneConfig.fogConfig.fogColor.r,
+          currentSceneConfig.fogConfig.fogColor.g,
+          currentSceneConfig.fogConfig.fogColor.b
         ),
-        currentFogState.fogDensity,
-        currentFogState.fogDepth
+        currentSceneConfig.fogConfig.fogDensity,
+        currentSceneConfig.fogConfig.fogDepth
       )
-  }, [scene, fogStates])
+  }, [scene, scenes])
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
@@ -376,8 +378,7 @@ export const Map = memo(() => {
     routingElementsModel,
     videos,
     currentScene,
-    carV5,
-    fogStates
+    carV5
   ])
 
   useEffect(() => {

@@ -4,7 +4,6 @@ import {
   arcadeFragment,
   carFragment,
   characterFragment,
-  fogStateFragment,
   inspectableFragment,
   mapFragment,
   modelsItemFragment,
@@ -14,7 +13,6 @@ import {
 
 const assetsFragment = fragmentOn("ThreeDInteractions", {
   map: mapFragment,
-  fogStates: fogStateFragment,
   inspectables: inspectableFragment,
   sfx: sfxFragment,
   basketball: modelsItemFragment,
