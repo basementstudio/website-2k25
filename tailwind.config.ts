@@ -29,35 +29,6 @@ export default {
         }
       },
       fontSize: {
-        // TODO: remove once we finish the migration to the new fonts
-        heading: [
-          "4.1875rem",
-          {
-            lineHeight: "4rem"
-          }
-        ],
-        subheading: [
-          "1.5rem",
-          {
-            lineHeight: "1.75rem"
-          }
-        ],
-        paragraph: [
-          "0.75rem",
-          {
-            lineHeight: "1rem",
-            letterSpacing: "0.01em"
-          }
-        ],
-        blog: [
-          "0.875rem",
-          {
-            lineHeight: "1.25rem",
-            letterSpacing: "0.02em"
-          }
-        ],
-        // ------------------------------
-
         h1: [
           "4.375rem",
           {
@@ -104,6 +75,13 @@ export default {
             lineHeight: "0.5rem",
             letterSpacing: "0.0em",
             fontWeight: "600"
+          }
+        ],
+        blog: [
+          "0.875rem",
+          {
+            lineHeight: "1.25rem",
+            letterSpacing: "0.02em"
           }
         ]
       },

@@ -46,7 +46,7 @@ export const Intro = ({ children }: HandlerProps<"p">) => (
 )
 
 export const Paragraph = ({ children }: HandlerProps<"p">) => (
-  <p className="text-pretty text-p text-brand-w2">{children}</p>
+  <p className="text-pretty text-blog text-brand-w2">{children}</p>
 )
 
 export const Heading2 = ({ children }: HandlerProps<"h2">) => (
@@ -64,19 +64,19 @@ export const BlogLink = ({ children, href }: HandlerProps<"a">) => (
 )
 
 export const OrderedList = ({ children }: HandlerProps<"ol">) => (
-  <ol className="list-decimal pl-3.5 text-brand-w2 marker:text-p marker:text-brand-o">
+  <ol className="list-decimal pl-3.5 text-brand-w2 marker:text-brand-o [&_ol]:marker:!text-brand-g1">
     {children}
   </ol>
 )
 
 export const UnorderedList = ({ children }: HandlerProps<"ul">) => (
-  <ul className="list-disc pl-3.5 text-brand-w2 marker:text-brand-o">
+  <ul className="blog-list list-none pl-3.5 text-brand-w2 marker:text-brand-o [&_ul]:marker:!text-brand-g1">
     {children}
   </ul>
 )
 
 export const ListItem = ({ children }: HandlerProps<"li">) => (
-  <li className="text-brand-w2 marker:text-brand-o">{children}</li>
+  <li className="blog-list-item text-brand-w2 marker:text-p">{children}</li>
 )
 
 export const Code = ({ children }: HandlerProps<"code">) => (

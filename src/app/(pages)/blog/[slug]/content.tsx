@@ -36,7 +36,7 @@ export default function Content({
     <div className="grid-layout">
       <div className="col-span-12 flex flex-col items-center justify-start">
         {post && <BlogMeta categories data={post as any} />}
-        <article className="col-span-12 flex max-w-[900px] flex-col items-start text-brand-w2 [&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-6 [&>p+p]:!mt-[7px]">
+        <article className="col-span-12 flex max-w-[846px] flex-col items-start text-brand-w2 [&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-6 [&>p+p]:!mt-[7px]">
           <RichText
             content={intro}
             components={{

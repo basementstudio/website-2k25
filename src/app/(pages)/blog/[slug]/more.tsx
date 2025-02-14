@@ -29,7 +29,7 @@ export default function More({
     .slice(0, 3)
 
   return (
-    <div className="mx-auto flex w-full max-w-[900px] flex-col justify-start gap-y-4">
+    <div className="mx-auto flex w-full max-w-[846px] flex-col justify-start gap-y-4">
       <h2 className="text-h4 text-brand-g1">More from the blog</h2>
 
       <div className="flex flex-col divide-y divide-brand-g1">

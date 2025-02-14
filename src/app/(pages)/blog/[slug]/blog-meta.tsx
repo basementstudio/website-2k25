@@ -61,7 +61,7 @@ export default function BlogMeta({
         </Link>
       )}
       <div className="col-span-10 col-start-2 flex justify-center">
-        <div className="flex w-full max-w-[900px] flex-col gap-3">
+        <div className="flex w-full max-w-[846px] flex-col gap-3">
           {!categories && <hr className="mt-10 border-brand-w1/20" />}
           {categories && (
             <div className="flex gap-1">

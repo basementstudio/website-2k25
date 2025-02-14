@@ -118,3 +118,35 @@ input:focus,
 a:focus {
   @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500;
 }
+
+.blog-list {
+  & li {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      top: 9px;
+
+      width: 4px;
+      height: 4px;
+
+      background-color: theme("colors.brand.o");
+    }
+  }
+}
+
+.blog-list-item {
+  @apply marker:text-brand-o;
+
+  & ol {
+    @apply marker:text-brand-g1;
+  }
+
+  & ul {
+    li {
+      @apply before:!bg-brand-g1;
+    }
+  }
+}
