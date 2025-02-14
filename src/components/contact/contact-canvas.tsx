@@ -6,6 +6,7 @@ import { lazy, useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
 import ContactScene from "./contact-scene"
+import UiOverlay from "./ui/ui-overlay"
 
 const Fallback = lazy(() => import("./fallback"))
 
@@ -48,9 +49,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         gl={{ antialias: false }}
       />
 
-      {/* <Canvas>
-        <ContactScene modelUrl={contactPhone} />
-      </Canvas> */}
+      <UiOverlay className="fixed left-[42.5%] top-[53.5%] h-max w-[530px] -translate-x-1/2 -translate-y-1/2 bg-black opacity-50" />
     </>
   )
 }
