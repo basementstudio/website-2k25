@@ -1,5 +1,4 @@
 import { RichText } from "basehub/react-rich-text"
-import Image from "next/image"
 
 import { QueryType } from "../query"
 import {
@@ -8,7 +7,6 @@ import {
   BlogVideo,
   Code,
   CodeBlock,
-  CodeSanbox,
   Heading2,
   Heading3,
   Intro,
@@ -17,6 +15,7 @@ import {
   Paragraph,
   Pre,
   QuoteWithAuthor,
+  SideNote,
   UnorderedList
 } from "./blog-components"
 import BlogMeta from "./blog-meta"
@@ -87,6 +86,9 @@ export default function Content({
               ),
               CodeSandboxComponent: (props) => (
                 <Sandbox keyName={props.sandboxKey} />
+              ),
+              SideNoteComponent: (props) => (
+                <SideNote>{props.content?.json.content}</SideNote>
               )
             }}
             blocks={post?.content?.json.blocks}

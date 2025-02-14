@@ -1,5 +1,5 @@
 import { Language } from "basehub/react-code-block"
-import { HandlerProps } from "basehub/react-rich-text"
+import { HandlerProps, RichTextProps } from "basehub/react-rich-text"
 import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
@@ -131,7 +131,7 @@ export const QuoteWithAuthor = ({
 }) => {
   return (
     <div className="flex gap-x-4">
-      <div className="h-full w-1.5 bg-brand-o" />
+      <div className="h-full w-0.5 bg-brand-o" />
 
       <div className="flex flex-col gap-y-2.5">
         <div className="[&>*]:text-h4 [&>*]:text-brand-w2">
@@ -147,40 +147,16 @@ export const QuoteWithAuthor = ({
   )
 }
 
-export const CodeSanbox = ({
-  sandboxUrl,
-  sourceCodeUrl,
-  title
+export const SideNote = ({
+  children
 }: {
-  sandboxUrl: string | null
-  sourceCodeUrl?: string | null
-  title: string
-}) => {
-  const finalUrl = sandboxUrl + "?view=preview&hideNavigation=1"
+  children: RichTextProps["content"]
+}) => (
+  <div className="flex w-full flex-col gap-2 rounded-sm border border-brand-g2 bg-codeblock-k2 px-6 py-4">
+    <p className="text-p text-brand-w1">Note</p>
 
-  return (
-    <div className="flex w-full flex-col gap-y-4">
-      <h3 className="text-p text-brand-w2">{title}</h3>
-
-      <div className="min-h-[500px] w-full overflow-hidden rounded-md border border-brand-w1/20"></div>
-
-      <div className="flex gap-x-2">
-        {sourceCodeUrl ? (
-          <Link
-            href={sourceCodeUrl}
-            className="rounded-md border border-brand-g1 px-2 py-1.5 text-p text-brand-w1"
-          >
-            Source code
-          </Link>
-        ) : null}
-
-        <Link
-          href={finalUrl}
-          className="rounded-md border border-brand-g1 px-2 py-1.5 text-p text-brand-w1"
-        >
-          Open in CodeSandbox
-        </Link>
-      </div>
+    <div className="[&>*]:text-brand-g1">
+      <RichText>{children}</RichText>
     </div>
-  )
-}
+  </div>
+)

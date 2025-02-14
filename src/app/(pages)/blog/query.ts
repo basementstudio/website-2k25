@@ -56,6 +56,16 @@ export const query = fragmentOn("Query", {
 
                   _title: true,
                   sandboxKey: true
+                },
+                on_SideNoteComponent: {
+                  __typename: true,
+                  _id: true,
+
+                  content: {
+                    json: {
+                      content: true
+                    }
+                  }
                 }
               }
             }
