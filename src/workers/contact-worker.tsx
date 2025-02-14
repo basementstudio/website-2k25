@@ -1,20 +1,59 @@
 import { render } from "@react-three/offscreen"
+import { create } from "zustand"
 
 import ContactScene from "@/components/contact/contact-scene"
 
 console.log("Worker script loaded")
 console.log("OffscreenCanvas support:", typeof OffscreenCanvas !== "undefined")
 
-self.onmessage = (e: MessageEvent<{ type: string; modelUrl: string }>) => {
-  console.log("Worker received message:", e.data)
-  const { type, modelUrl } = e.data
-  if (type === "load-model") {
-    console.log("[ContactWorker] loading model", modelUrl)
+interface WorkerStore {
+  formData: {
+    name: string
+    company: string
+    email: string
+    budget: string
+    message: string
+  }
+  updateFormData: (formData: WorkerStore["formData"]) => void
+}
+
+export const useWorkerStore = create<WorkerStore>((set) => ({
+  formData: {
+    name: "",
+    company: "",
+    email: "",
+    budget: "",
+    message: ""
+  },
+  updateFormData: (formData) => {
+    console.log("[WorkerStore] Updating form data:", formData)
+    set({ formData })
+  }
+}))
+
+let scene: any = null
+
+self.onmessage = (
+  e: MessageEvent<{
+    type: string
+    modelUrl?: string
+    formData?: WorkerStore["formData"]
+  }>
+) => {
+  const { type, modelUrl, formData } = e.data
+
+  if (type === "load-model" && modelUrl) {
     try {
-      render(<ContactScene modelUrl={modelUrl} />)
+      scene = <ContactScene modelUrl={modelUrl} />
+      render(scene)
     } catch (error) {
       console.error("[ContactWorker] Error rendering scene:", error)
     }
+  }
+
+  // Forward text changes to the scene
+  if (type === "update-form" && formData) {
+    self.postMessage({ type: "update-form", formData })
   }
 }
 

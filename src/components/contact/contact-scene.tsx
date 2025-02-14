@@ -13,6 +13,8 @@ import {
   WebGLRenderTarget
 } from "three"
 
+import { useWorkerStore } from "@/workers/contact-worker"
+
 import { RenderTexture } from "../arcade-screen/render-texture"
 import { createScreenMaterial } from "../arcade-screen/screen-material"
 import { PhoneAnimationHandler } from "./contact-anims"
@@ -22,6 +24,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const gltf = useGLTF(modelUrl)
   const animationMixerRef = useRef<AnimationMixer | null>(null)
   const phoneGroupRef = useRef<Group>(null)
+  const updateFormData = useWorkerStore((state) => state.updateFormData)
 
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
@@ -35,10 +38,23 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
 
   useEffect(() => {
+    // Listen to form updates from the worker
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data.type === "update-form") {
+        console.log("[ContactScene] Received form update:", e.data.formData)
+        updateFormData(e.data.formData)
+      }
+    }
+
+    self.addEventListener("message", handleMessage)
+    return () => self.removeEventListener("message", handleMessage)
+  }, [updateFormData])
+
+  useEffect(() => {
     const screen = gltf.scene.children[0].getObjectByName(
       "SCREEN"
     ) as SkinnedMesh
-    // console.log(gltf.scene.children[0].children)
+
     setScreenMesh(screen)
 
     if (screen) {

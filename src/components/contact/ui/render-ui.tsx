@@ -1,11 +1,34 @@
 import { PerspectiveCamera } from "@react-three/drei"
-import { DefaultProperties, FontFamilyProvider, Root } from "@react-three/uikit"
-import { Container, Text } from "@react-three/uikit"
+import {
+  Container,
+  DefaultProperties,
+  FontFamilyProvider,
+  Root,
+  Text
+} from "@react-three/uikit"
 import { Vector3 } from "three"
+
+import { useWorkerStore } from "@/workers/contact-worker"
 
 import { ffflauta } from "./ffflauta"
 
-const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
+interface WorkerState {
+  formData: {
+    name: string
+    company: string
+    email: string
+    budget: string
+    message: string
+  }
+}
+
+const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
+  const formData = useWorkerStore((state: WorkerState) => {
+    console.log("[PhoneScreenUI] Worker store state:", state.formData)
+    return state.formData
+  })
+  const scale = screenScale.x * 0.0015
+
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
 
   const COLORS_THEME = {
@@ -95,7 +118,9 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
                     paddingX={8}
                     paddingY={16}
                   >
-                    <Text color={COLORS_THEME.primary}>NAME</Text>
+                    <Text color={COLORS_THEME.primary}>
+                      {formData.name || "NAME"}
+                    </Text>
                   </Container>
                   <Container
                     width={"50%"}
@@ -106,7 +131,9 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
                     paddingX={8}
                     paddingY={16}
                   >
-                    <Text color={COLORS_THEME.primary}>COMPANY</Text>
+                    <Text color={COLORS_THEME.primary}>
+                      {formData.company || "COMPANY"}
+                    </Text>
                   </Container>
                 </Container>
                 <Container
@@ -126,7 +153,9 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
                     paddingX={8}
                     paddingY={16}
                   >
-                    <Text color={COLORS_THEME.primary}>EMAIL</Text>
+                    <Text color={COLORS_THEME.primary}>
+                      {formData.email || "EMAIL"}
+                    </Text>
                   </Container>
                   <Container
                     width={"100%"}
@@ -137,7 +166,9 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
                     paddingX={8}
                     paddingY={16}
                   >
-                    <Text color={COLORS_THEME.primary}>BUDGET (OPTIONAL)</Text>
+                    <Text color={COLORS_THEME.primary}>
+                      {formData.budget || "BUDGET (OPTIONAL)"}
+                    </Text>
                   </Container>
                   <Container
                     width={"100%"}
@@ -148,7 +179,9 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
                     paddingX={8}
                     paddingY={16}
                   >
-                    <Text color={COLORS_THEME.primary}>MESSAGE</Text>
+                    <Text color={COLORS_THEME.primary}>
+                      {formData.message || "MESSAGE"}
+                    </Text>
                   </Container>
                 </Container>
                 <Container

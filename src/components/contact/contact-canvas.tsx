@@ -1,11 +1,10 @@
 "use client"
 
-import { Canvas } from "@react-three/fiber"
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import { lazy, useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
-import ContactScene from "./contact-scene"
+import { useContactStore } from "./contact-store"
 import UiOverlay from "./ui/ui-overlay"
 
 const Fallback = lazy(() => import("./fallback"))
@@ -13,6 +12,7 @@ const Fallback = lazy(() => import("./fallback"))
 const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   const { contactPhone } = useAssets()
   const [worker, setWorker] = useState<Worker>()
+  const setStoreWorker = useContactStore((state) => state.setWorker)
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -22,6 +22,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
       }
     )
     setWorker(newWorker)
+    setStoreWorker(newWorker)
 
     if (contactPhone) {
       newWorker.postMessage({
@@ -32,8 +33,9 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
 
     return () => {
       newWorker.terminate()
+      setStoreWorker(null)
     }
-  }, [contactPhone])
+  }, [contactPhone, setStoreWorker])
 
   if (!worker) {
     return <Fallback />
@@ -49,7 +51,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         gl={{ antialias: false }}
       />
 
-      <UiOverlay className="fixed left-[42.5%] top-[53.5%] h-max w-[530px] -translate-x-1/2 -translate-y-1/2 bg-black opacity-50" />
+      <UiOverlay className="fixed left-[42.5%] top-[53.5%] h-max w-[530px] -translate-x-1/2 -translate-y-1/2 opacity-0" />
     </>
   )
 }
