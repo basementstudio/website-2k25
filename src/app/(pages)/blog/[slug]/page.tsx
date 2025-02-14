@@ -1,6 +1,5 @@
 import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
-import Image from "next/image"
 
 import { query } from "../query"
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
@@ -17,30 +16,10 @@ const Blog = async (props: { params: Params }) => {
     <Pump queries={[query]}>
       {async ([data]) => {
         "use server"
-        const heroImage =
-          data.pages.blog.posts.items.find(
-            (post) => post._slug === resolvedParams.slug
-          )?.hero?.heroImage?.url || ""
 
         return (
           <>
-            <div className="fixed top-0 z-10 h-screen w-full">
-              {heroImage && (
-                <Image
-                  src={heroImage}
-                  alt={
-                    data.pages.blog.posts.items.find(
-                      (post) => post._slug === resolvedParams.slug
-                    )?._title || ""
-                  }
-                  width={1920}
-                  height={1080}
-                  className="h-full w-full object-cover"
-                  priority
-                />
-              )}
-            </div>
-            <div className="relative z-20 mt-[-10vh] bg-brand-k pb-24">
+            <div className="relative bg-brand-k pb-24 pt-16">
               <div className="pb-25 flex flex-col gap-24">
                 <BlogTitle data={data} slug={resolvedParams.slug} />
                 <Content data={data} slug={resolvedParams.slug} />

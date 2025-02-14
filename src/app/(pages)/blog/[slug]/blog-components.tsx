@@ -19,7 +19,7 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
           src={src}
           width={width ?? 1920}
           height={height ?? 1080}
-          className="w-[62.23%] object-contain"
+          className="aspect-video object-cover"
           alt={alt ?? "Blog image"}
         />
       </div>
