@@ -23,6 +23,7 @@ import {
 import { RenderTexture } from "../arcade-screen/render-texture"
 import { createScreenMaterial } from "../arcade-screen/screen-material"
 import { PhoneAnimationHandler } from "./contact-anims"
+import { ffflauta } from "./ffflauta"
 
 const COLORS_THEME = {
   primary: "#FF4D00",
@@ -53,7 +54,7 @@ const PhoneScreenUI = ({ screenScale }: { screenScale?: Vector3 | null }) => {
       >
         <FontFamilyProvider
           ffflauta={{
-            normal: "/fonts/ffflauta.json"
+            normal: ffflauta
           }}
         >
           <DefaultProperties
