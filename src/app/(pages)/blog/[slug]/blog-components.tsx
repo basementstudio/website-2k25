@@ -64,9 +64,9 @@ export const BlogLink = ({ children, href }: HandlerProps<"a">) => (
 )
 
 export const OrderedList = ({ children }: HandlerProps<"ol">) => (
-  <ul className="list-decimal pl-3.5 text-brand-w2 marker:text-brand-o">
+  <ol className="list-decimal pl-3.5 text-brand-w2 marker:text-p marker:text-brand-o">
     {children}
-  </ul>
+  </ol>
 )
 
 export const UnorderedList = ({ children }: HandlerProps<"ul">) => (
@@ -86,12 +86,10 @@ export const Code = ({ children }: HandlerProps<"code">) => (
 )
 
 export const Pre = ({ language, code }: HandlerProps<"pre">) => (
-  <div className="w-full border-y border-brand-w2/20 bg-codeblock-k2 py-3">
-    <div className={styles["code-block"]}>
-      <BaseCodeBlock
-        snippets={[{ code: `${code}`, language: language, id: "1" }]}
-      />
-    </div>
+  <div className="w-full">
+    <BaseCodeBlock
+      snippets={[{ code: `${code}`, language: language, id: "1" }]}
+    />
   </div>
 )
 
@@ -113,7 +111,8 @@ export const CodeBlock = ({
         childrenTop={<CodeGroupHeader items={items} />}
         snippets={items.map((file) => ({
           code: `${file.codeSnippet.code}`,
-          language: file.codeSnippet.language
+          language: file.codeSnippet.language,
+          label: file._title
         }))}
       />
     </div>
@@ -152,7 +151,7 @@ export const SideNote = ({
 }: {
   children: RichTextProps["content"]
 }) => (
-  <div className="flex w-full flex-col gap-2 rounded-sm border border-brand-g2 bg-codeblock-k2 px-6 py-4">
+  <div className="flex w-full flex-col gap-2 rounded-[4px] border border-brand-g2 bg-codeblock-k2 px-6 py-4">
     <p className="text-p text-brand-w1">Note</p>
 
     <div className="[&>*]:text-brand-g1">

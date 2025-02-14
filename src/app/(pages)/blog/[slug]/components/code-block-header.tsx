@@ -41,10 +41,6 @@ export const CodeGroupHeader = ({
         >
           <Tabs.List className="flex items-center gap-x-4">
             {snippets.map((snippet) => {
-              const idx = snippet.id.split("-")[2]
-
-              const label = items.at(Number(idx))?._title
-
               return (
                 <Tabs.Trigger
                   key={snippet.id}
@@ -55,8 +51,8 @@ export const CodeGroupHeader = ({
                     className={cn(
                       snippet.id === activeSnippet.id && "text-brand-w1"
                     )}
-                    label={label}
-                    language={label?.split(".").at(-1) as Language}
+                    label={snippet.label}
+                    language={snippet.label?.split(".").at(-1) as Language}
                   />
                 </Tabs.Trigger>
               )

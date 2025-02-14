@@ -10,6 +10,7 @@ interface CodeBlockProps {
   snippets: ComponentProps<typeof CodeBlock>["snippets"]
   childrenTop?: ReactNode
   childrenBottom?: ReactNode
+  singleFile?: boolean
 }
 
 const theme = createCssVariablesTheme({
@@ -40,12 +41,13 @@ const theme = createCssVariablesTheme({
 export const BaseCodeBlock = ({
   childrenTop,
   childrenBottom,
-  snippets
+  snippets,
+  singleFile
 }: CodeBlockProps) => {
   return (
     <CodeBlock
-      childrenTop={childrenTop}
-      childrenBottom={childrenBottom}
+      childrenTop={singleFile ? null : childrenTop}
+      childrenBottom={singleFile ? null : childrenBottom}
       snippets={snippets}
       theme={theme}
       components={{
