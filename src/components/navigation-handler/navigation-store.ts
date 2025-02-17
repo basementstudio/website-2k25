@@ -19,9 +19,6 @@ export const useNavigationStore = create<{
   currentTabIndex: number
   setCurrentTabIndex: (index: number) => void
 
-  stairVisibility: boolean
-  setStairVisibility: (visibility: boolean) => void
-
   disableCameraTransition: boolean
   setDisableCameraTransition: (disable: boolean) => void
 
@@ -40,9 +37,6 @@ export const useNavigationStore = create<{
 
   currentTabIndex: -1,
   setCurrentTabIndex: (index) => set({ currentTabIndex: index }),
-
-  stairVisibility: false,
-  setStairVisibility: (visibility) => set({ stairVisibility: visibility }),
 
   disableCameraTransition: false,
   setDisableCameraTransition: (disable) =>
