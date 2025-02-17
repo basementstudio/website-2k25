@@ -1,6 +1,5 @@
 import { CameraControls } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { useControls } from "leva"
 import { easing } from "maath"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
@@ -31,8 +30,6 @@ export const CustomCamera = () => {
     useNavigationStore.getState().disableCameraTransition
   const setDisableCameraTransition =
     useNavigationStore.getState().setDisableCameraTransition
-
-  const { debugBoundaries } = useControls({ debugBoundaries: false })
 
   const progress = useRef(1)
 
@@ -220,22 +217,8 @@ export const CustomCamera = () => {
   return (
     <>
       <CameraControls makeDefault ref={cameraControlsRef} />
-      <mesh
-        ref={planeRef}
-        position={planePosition() ?? [0, 0, 0]}
-        visible={debugBoundaries}
-      >
-        <planeGeometry args={[1, 1]} />
-        <meshBasicMaterial color="green" transparent wireframe />
-      </mesh>
-      <mesh
-        ref={planeBoundaryRef}
-        position={planePosition() ?? [0, 0, 0]}
-        visible={debugBoundaries}
-      >
-        <planeGeometry args={[1, 1]} />
-        <meshBasicMaterial color="red" transparent wireframe opacity={0.5} />
-      </mesh>
+      <mesh ref={planeRef} position={planePosition() ?? [0, 0, 0]} />
+      <mesh ref={planeBoundaryRef} position={planePosition() ?? [0, 0, 0]} />
     </>
   )
 }
