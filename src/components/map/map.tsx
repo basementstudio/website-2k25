@@ -53,6 +53,11 @@ const createVideoTexture = (url: string) => {
 
 type SceneType = Object3D<Object3DEventMap> | null
 
+// Constants moved outside component
+const STAIRS_VISIBILITY_THRESHOLD = 1.8
+const frustum = new THREE.Frustum()
+const projScreenMatrix = new THREE.Matrix4()
+
 export const Map = memo(() => {
   const {
     office: officePath,
@@ -163,24 +168,16 @@ export const Map = memo(() => {
 
     if (!stairsRef.current || !mainCamera) return
 
-    const frustum = new THREE.Frustum()
-    const projScreenMatrix = new THREE.Matrix4()
     projScreenMatrix.multiplyMatrices(
       mainCamera.projectionMatrix,
       mainCamera.matrixWorldInverse
     )
     frustum.setFromProjectionMatrix(projScreenMatrix)
 
-    // Check if stairs are in view
-    const isInView = frustum.containsPoint(stairsRef.current.position)
     const distance = mainCamera.position.distanceTo(stairsRef.current.position)
-    const THRESHOLD = 1.2
-
-    if (distance > THRESHOLD || isInView) {
-      stairsRef.current.visible = true
-    } else {
-      stairsRef.current.visible = false
-    }
+    stairsRef.current.visible =
+      distance > STAIRS_VISIBILITY_THRESHOLD ||
+      frustum.containsPoint(stairsRef.current.position)
   })
 
   useEffect(() => {
