@@ -192,12 +192,15 @@ export const CustomCamera = () => {
 
   // fov handler
   useFrame(() => {
-    const controls = cameraControlsRef.current
-    if (!controls || !(controls.camera instanceof PerspectiveCamera)) return
+    if (
+      !cameraControlsRef.current ||
+      !(cameraControlsRef.current.camera instanceof PerspectiveCamera)
+    )
+      return
 
-    if (controls.camera.fov !== currentFov.current) {
-      controls.camera.fov = currentFov.current
-      controls.camera.updateProjectionMatrix()
+    if (cameraControlsRef.current.camera.fov !== currentFov.current) {
+      cameraControlsRef.current.camera.fov = currentFov.current
+      cameraControlsRef.current.camera.updateProjectionMatrix()
     }
   })
 
