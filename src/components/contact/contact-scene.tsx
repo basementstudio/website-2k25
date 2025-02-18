@@ -26,6 +26,11 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const phoneGroupRef = useRef<Group>(null)
   const updateFormData = useWorkerStore((state) => state.updateFormData)
 
+  console.log(
+    "[scene] all animations",
+    gltf.animations.map((a) => a.name)
+  )
+
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
@@ -136,7 +141,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         <PhoneScreenUI screenScale={screenScale} />
       </RenderTexture>
 
-      <group scale={8} ref={phoneGroupRef}>
+      <group scale={6} ref={phoneGroupRef}>
         <primitive position-y={-0.05} object={gltf.scene} />
       </group>
     </>
