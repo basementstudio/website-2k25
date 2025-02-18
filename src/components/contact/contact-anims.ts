@@ -7,14 +7,11 @@ import {
 } from "three"
 
 export type PhoneAnimationName =
-  | "IN"
-  | "IN"
-  | "Idle"
-  | "Idle"
-  | "Buttons-1"
-  | "Buttons-2"
-  | "Buttons-3"
-  | "ArmatureAction"
+  | "antena"
+  | "antena.003"
+  | "Iddle4"
+  | "Intro.001"
+  | "ruedita"
 
 interface AnimationOptions {
   loop?: boolean
@@ -61,13 +58,12 @@ class PhoneAnimationHandler {
 
   private isValidAnimationName(name: string): name is PhoneAnimationName {
     return [
-      "L-IN",
-      "R-IN",
-      "L-Idle",
-      "R-Idle",
-      "Buttons-1",
-      "Buttons-2",
-      "Buttons-3"
+      "IN",
+      "antena",
+      "antena.003",
+      "Idle4",
+      "Intro.001",
+      "ruedita"
     ].includes(name)
   }
 

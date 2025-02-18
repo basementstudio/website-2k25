@@ -109,13 +109,30 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const mixer = new AnimationMixer(gltf.scene)
     animationMixerRef.current = mixer
 
-    const action = mixer.clipAction(gltf.animations[0])
-    action.play()
-    action.setLoop(LoopRepeat, 1)
-    action.clampWhenFinished = true
+    const enterAnimation = gltf.animations[0]
+    const idleAnimation = gltf.animations.find((a) => a.name === "Iddle4")
+
+    const enterAction = mixer.clipAction(enterAnimation)
+    const idleAction = mixer.clipAction(idleAnimation!)
+
+    idleAction.setLoop(LoopRepeat, Infinity)
+    idleAction.clampWhenFinished = false
+
+    enterAction.setLoop(LoopRepeat, 1)
+    enterAction.clampWhenFinished = true
+
+    const onAnimationFinished = (e: any) => {
+      if (e.action === enterAction) {
+        idleAction.play()
+      }
+    }
+
+    enterAction.play()
+    mixer.addEventListener("finished", onAnimationFinished)
 
     return () => {
       mixer.stopAllAction()
+      mixer.removeEventListener("finished", onAnimationFinished)
       animationMixerRef.current = null
     }
   }, [gltf, glass])
