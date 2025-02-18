@@ -107,14 +107,18 @@ export const CustomCamera = () => {
     progress.current = 0
   }, [cameraConfig])
 
+  const prevTargetY = useRef(0)
+  const prevLookAtY = useRef(0)
+  const prevFov = useRef(0)
+
   // camera position and target handler
   useFrame((_, dt) => {
     const controls = cameraControlsRef.current
     if (!controls || !cameraConfig || !lenis) return
 
-    const prevTargetY = targetPosition.y
-    const prevLookAtY = targetLookAt.y
-    const prevFov = currentFov.current
+    prevTargetY.current = targetPosition.y
+    prevLookAtY.current = targetLookAt.y
+    prevFov.current = currentFov.current
 
     targetPosition.set(...cameraConfig.position)
     targetLookAt.set(...cameraConfig.target)
@@ -144,14 +148,15 @@ export const CustomCamera = () => {
       const easeValue = easeInOutCubic(progress.current)
 
       if (progress.current === dt / ANIMATION_DURATION) {
-        currentPos.y = prevTargetY
-        currentTarget.y = prevLookAtY
-        currentFov.current = prevFov
+        currentPos.y = prevTargetY.current
+        currentTarget.y = prevLookAtY.current
+        currentFov.current = prevFov.current
       }
 
       currentPos.lerp(targetPosition, easeValue)
       currentTarget.lerp(targetLookAt, easeValue)
-      currentFov.current = prevFov + (targetFov.current - prevFov) * easeValue
+      currentFov.current =
+        prevFov.current + (targetFov.current - prevFov.current) * easeValue
 
       const pos = currentPos.clone().add(panTargetDelta)
       controls.setPosition(pos.x, pos.y, pos.z, false)
