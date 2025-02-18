@@ -3,7 +3,7 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls, useMotionValue } from "motion/react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   Box3,
   Group,
@@ -68,6 +68,12 @@ export const Inspectable = ({
 
   const quaternion = useMotionValue(new Quaternion())
 
+  const [firstRender, setFirstRender] = useState(true)
+
+  const [offsetedBoundingBox, setOffsetedBoundingBox] = useState<
+    [number, number, number]
+  >([0, 0, 0])
+
   useEffect(() => {
     targetPosition.current.x.set(position.x)
     targetPosition.current.y.set(position.y)
@@ -124,8 +130,6 @@ export const Inspectable = ({
     }
   }
 
-  const [firstRender, setFirstRender] = useState(true)
-
   useEffect(() => {
     if (firstRender) {
       setFirstRender(false)
@@ -138,6 +142,13 @@ export const Inspectable = ({
       const s = new Vector3()
       boundingBox.getSize(s)
       mesh.position.set(0, 0, 0)
+      const center = new Vector3()
+      boundingBox.getCenter(center)
+      setOffsetedBoundingBox([
+        center.x - position.x,
+        center.y - position.y,
+        center.z - position.z
+      ])
 
       if (isNaN(s.x) || isNaN(s.y) || isNaN(s.z)) return
 
@@ -156,14 +167,19 @@ export const Inspectable = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, firstRender])
 
+  const vRef = useMemo(() => {
+    return {
+      targetQuaternion: new Quaternion(),
+      lookAtMatrix: new Matrix4(),
+      upVector: new Vector3(0, 1, 0)
+    }
+  }, [])
+
   useFrame(() => {
     if (ref.current && camConfig) {
-      const targetQuaternion = new Quaternion()
+      const { targetQuaternion, lookAtMatrix, upVector } = vRef
 
       if (selected === id) {
-        const lookAtMatrix = new Matrix4()
-        const upVector = new Vector3(0, 1, 0)
-
         const cameraPosition = new Vector3(...camConfig.position)
         cameraPosition.add(perpendicularMoved.current)
         lookAtMatrix.lookAt(cameraPosition, ref.current.position, upVector)
@@ -264,7 +280,7 @@ export const Inspectable = ({
         speed={2}
       >
         <primitive object={mesh} raycast={() => null} />
-        <mesh position={[0, 0, 0]}>
+        <mesh position={[...offsetedBoundingBox]}>
           <boxGeometry
             args={[size.current.x, size.current.y, size.current.z]}
           />
