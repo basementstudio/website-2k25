@@ -32,36 +32,43 @@ float random(vec2 st) {
 }
 
 vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
-  // RGB cell and subcell coordinates
+  // Simplified vertical RGB stripes
   vec2 coord = uv * resolution / MASK_SIZE;
-  vec2 subcoord = coord * vec2(6.0, 1.0);
+  float xCoord = coord.x * 5.0;
 
-  // Offset for staggering every other cell
-  vec2 cell_offset = vec2(0.0, fract(floor(coord.x) * 0.5));
+  // Calculate smooth transitions between stripes
+  float ind = mod(floor(xCoord), 3.0);
+  float blend = smoothstep(0.3, 0.7, fract(xCoord));
 
-  // Compute the RGB color index from 0 to 2
-  float ind = mod(floor(subcoord.x), 3.0);
-  // Convert that value to an RGB color (multiplied to maintain brightness)
-  vec3 mask_color;
+  // Create the RGB mask colors
+  vec3 mask_color1, mask_color2;
   if (isRGBMonochrome) {
     if (ind == 0.0) {
-      mask_color = vec3(1.5, 0.6, 0.0) * 3.0;
+      mask_color1 = vec3(1.5, 0.6, 0.0) * 3.0;
+      mask_color2 = vec3(0.8, 0.2, 0.0) * 3.0;
     } else if (ind == 1.0) {
-      mask_color = vec3(0.8, 0.2, 0.0) * 3.0;
+      mask_color1 = vec3(0.8, 0.2, 0.0) * 3.0;
+      mask_color2 = vec3(0.4, 0.1, 0.0) * 3.0;
     } else {
-      mask_color = vec3(0.4, 0.1, 0.0) * 3.0;
+      mask_color1 = vec3(0.4, 0.1, 0.0) * 3.0;
+      mask_color2 = vec3(1.5, 0.6, 0.0) * 3.0;
     }
   } else {
-    // Original RGB mask
-    mask_color = vec3(ind == 0.0, ind == 1.0, ind == 2.0) * 3.0;
+    // Original RGB mask with smooth transitions
+    if (ind == 0.0) {
+      mask_color1 = vec3(1.0, 0.0, 0.0) * 3.0;
+      mask_color2 = vec3(0.0, 1.0, 0.0) * 3.0;
+    } else if (ind == 1.0) {
+      mask_color1 = vec3(0.0, 1.0, 0.0) * 3.0;
+      mask_color2 = vec3(0.0, 0.0, 1.0) * 3.0;
+    } else {
+      mask_color1 = vec3(0.0, 0.0, 1.0) * 3.0;
+      mask_color2 = vec3(1.0, 0.0, 0.0) * 3.0;
+    }
   }
 
-  // Signed subcell uvs
-  vec2 cell_uv = fract(subcoord + cell_offset) * 2.0 - 1.0;
-  // X and y borders - using power of 4 instead of 2 for sharper transitions
-  vec2 border = 1.0 - cell_uv * cell_uv * cell_uv * cell_uv * MASK_BORDER;
-  // Blend x and y mask borders
-  mask_color *= border.x * border.y;
+  // Blend between adjacent mask colors
+  vec3 mask_color = mix(mask_color1, mask_color2, blend);
 
   float maskIntensity = isRGBMonochrome ? MASK_INTENSITY * 1.5 : MASK_INTENSITY;
   return color * (1.0 + (mask_color - 1.0) * maskIntensity);
