@@ -2,7 +2,7 @@ import { CameraControls } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { easing } from "maath"
 import { useLenis } from "lenis/react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, useMemo } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
@@ -51,6 +51,28 @@ export const CustomCamera = () => {
 
   const lenis = useLenis()
 
+  const boundariesRef = useRef({
+    maxOffset: 0,
+    targetPosition: { x: 0, z: 0 },
+    rightVector: { x: 0, z: 0 },
+    planePosition: { x: 0, z: 0 },
+    offset: 0,
+    pos: { x: 0, z: 0 }
+  })
+
+  const divisor = useMemo(() => {
+    const width = window.innerWidth
+    if (width <= 1100) return 0.32
+    if (width <= 1200) return 0.36
+    if (width <= 1500) return 0.4
+    if (width <= 1600) return 0.8
+    return 0.8
+  }, [])
+
+  const offsetMultiplier = useMemo(() => {
+    return cameraConfig?.offsetMultiplier ?? 2
+  }, [cameraConfig])
+
   useEffect(() => {
     const controls = cameraControlsRef.current
     const camera = controls?.camera as PerspectiveCamera
@@ -84,15 +106,6 @@ export const CustomCamera = () => {
     if (!cameraConfig) return
     progress.current = 0
   }, [cameraConfig])
-
-  const calculateDivisor = useCallback(() => {
-    const width = window.innerWidth
-    if (width <= 1100) return 0.32
-    if (width <= 1200) return 0.36
-    if (width <= 1500) return 0.4
-    if (width <= 1600) return 0.8
-    return 0.8
-  }, [window.innerWidth])
 
   // camera position and target handler
   useFrame((_, dt) => {
@@ -157,34 +170,50 @@ export const CustomCamera = () => {
   })
 
   // boundaries handler
+  const b = boundariesRef.current
+  const plane = planeRef.current
+  const boundary = planeBoundaryRef.current
+
+  const basePosition = useMemo(() => {
+    if (!cameraConfig) return null
+    return calculatePlanePosition(cameraConfig)
+  }, [cameraConfig])
+
+  const np = useMemo(() => {
+    if (!basePosition) return null
+    return calculateNewPosition(b.planePosition, b.targetPosition)
+  }, [basePosition, b.planePosition, b.targetPosition])
+
   useFrame(({ pointer }, dt) => {
-    const plane = planeRef.current
-    const boundary = planeBoundaryRef.current
-    if (!plane || !boundary || !cameraConfig || selected) return
-
-    const maxOffset = (boundary.scale.x - plane.scale.x) / 2
-    const basePosition = calculatePlanePosition(cameraConfig)
-    const right = calculateMovementVectors(basePosition, cameraConfig)
-
-    const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
-    const offset = pointer.x * maxOffset * offsetMultiplier
-
-    const xPos = right.x * offset
-    const zPos = right.z * offset
-
-    const tp = {
-      x: basePosition[0] + xPos,
-      z: basePosition[2] + zPos
-    }
-    const np = calculateNewPosition(
-      { x: plane.position.x, z: plane.position.z },
-      tp
+    if (
+      !plane ||
+      !boundary ||
+      !cameraConfig ||
+      selected ||
+      !basePosition ||
+      !np
     )
+      return
+
+    b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
+    b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
+
+    b.offset = pointer.x * b.maxOffset * offsetMultiplier
+
+    b.pos.x = b.rightVector.x * b.offset
+    b.pos.z = b.rightVector.z * b.offset
+
+    b.targetPosition.x = basePosition[0] + b.pos.x
+    b.targetPosition.z = basePosition[2] + b.pos.z
+
+    b.planePosition.x = plane.position.x
+    b.planePosition.z = plane.position.z
+
     plane.position.setX(np.x)
     plane.position.setZ(np.z)
 
-    newDelta.set(xPos, 0, zPos)
-    newLookAtDelta.set(xPos / calculateDivisor(), 0, zPos)
+    newDelta.set(b.pos.x, 0, b.pos.z)
+    newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
 
     easing.damp3(panTargetDelta, newDelta, 0.5, dt)
     easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
