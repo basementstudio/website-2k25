@@ -1,7 +1,8 @@
 import { CameraControls } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { easing } from "maath"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useLenis } from "lenis/react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
@@ -28,7 +29,6 @@ const ANIMATION_DURATION = 2
 
 export const CustomCamera = () => {
   const { selected } = useInspectable()
-
   const [firstRender, setFirstRender] = useState(true)
 
   const cameraControlsRef = useRef<CameraControls>(null)
@@ -45,7 +45,11 @@ export const CustomCamera = () => {
 
   const targetFov = useRef<number>(60)
   const currentFov = useRef<number>(60)
-  const offsetY = useRef(0)
+
+  const initialY = cameraConfig?.position[1] ?? 0
+  const targetY = cameraConfig?.targetScrollY ?? -initialY
+
+  const lenis = useLenis()
 
   useEffect(() => {
     const controls = cameraControlsRef.current
@@ -79,19 +83,6 @@ export const CustomCamera = () => {
   useEffect(() => {
     if (!cameraConfig) return
     progress.current = 0
-
-    const initialY = cameraConfig.position[1]
-    const targetY = cameraConfig.targetScrollY ?? -cameraConfig.position[1]
-
-    const handleScroll = () => {
-      const scrollProgress = Math.min(1, window.scrollY / window.innerHeight)
-
-      offsetY.current = (targetY - initialY) * scrollProgress
-    }
-
-    window.addEventListener("scroll", handleScroll, { passive: true })
-
-    return () => window.removeEventListener("scroll", handleScroll)
   }, [cameraConfig])
 
   const calculateDivisor = useCallback(() => {
@@ -106,18 +97,28 @@ export const CustomCamera = () => {
   // camera position and target handler
   useFrame((_, dt) => {
     const controls = cameraControlsRef.current
-    if (!controls || !cameraConfig) return
+    if (!controls || !cameraConfig || !lenis) return
 
+    // Store the previous scroll-adjusted position
+    const prevTargetY = targetPosition.y
+    const prevLookAtY = targetLookAt.y
+
+    // Reset base positions
     targetPosition.set(...cameraConfig.position)
     targetLookAt.set(...cameraConfig.target)
     targetFov.current = cameraConfig.fov ?? 60
-    targetPosition.y += offsetY.current
-    targetLookAt.y += offsetY.current
+
+    // Calculate new scroll-adjusted positions
+    const scrollFactor = Math.min(1, lenis.scroll / window.innerHeight)
+    const yOffset = (targetY - initialY) * scrollFactor
+    targetPosition.y += yOffset
+    targetLookAt.y += yOffset
 
     if (disableCameraTransition || firstRender) {
+      // On first render or disabled transition, set positions directly
       progress.current = 1
-      currentPos.set(...cameraConfig.position)
-      currentTarget.set(...cameraConfig.target)
+      currentPos.copy(targetPosition)
+      currentTarget.copy(targetLookAt)
       currentFov.current = cameraConfig.fov ?? 60
 
       const finalPos = currentPos.clone().add(panTargetDelta)
@@ -127,9 +128,16 @@ export const CustomCamera = () => {
 
       setTimeout(() => setDisableCameraTransition(false), TRANSITION_DURATION)
     } else if (progress.current < 1) {
+      // During transition, smoothly interpolate from the previous scroll-adjusted position
       progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
-
       const easeValue = easeInOutCubic(progress.current)
+
+      // Start from the previous scroll-adjusted position
+      if (progress.current === dt / ANIMATION_DURATION) {
+        // First frame of transition
+        currentPos.y = prevTargetY
+        currentTarget.y = prevLookAtY
+      }
 
       currentPos.lerp(targetPosition, easeValue)
       currentTarget.lerp(targetLookAt, easeValue)
@@ -139,10 +147,6 @@ export const CustomCamera = () => {
 
       const lookAt = currentTarget.clone().add(panLookAtDelta)
       controls.setTarget(lookAt.x, lookAt.y, lookAt.z, false)
-
-      currentFov.current =
-        currentFov.current +
-        (targetFov.current - currentFov.current) * easeValue
     } else {
       const pos = targetPosition.clone().add(panTargetDelta)
       controls.setPosition(pos.x, pos.y, pos.z, false)
