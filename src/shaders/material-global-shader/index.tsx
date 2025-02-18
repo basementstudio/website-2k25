@@ -165,8 +165,7 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
         const axes: Array<"x" | "y" | "z"> = ["x", "y", "z"]
         axes.forEach((axis) => {
           animateMotion(startFogColor[axis], newFogColor[axis], {
-            duration: 2.5,
-            // duration: isBasketballTransition ? 2.5 : 2.5,
+            duration: 2,
             ease: [0.4, 0, 0.2, 1],
             onUpdate: (latest) => {
               material.uniforms.fogColor.value[axis] = latest
