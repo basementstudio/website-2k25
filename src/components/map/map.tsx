@@ -53,6 +53,11 @@ const createVideoTexture = (url: string) => {
 
 type SceneType = Object3D<Object3DEventMap> | null
 
+// Constants moved outside component
+const STAIRS_VISIBILITY_THRESHOLD = 1.8
+const frustum = new THREE.Frustum()
+const projScreenMatrix = new THREE.Matrix4()
+
 export const Map = memo(() => {
   const {
     office: officePath,
@@ -61,10 +66,13 @@ export const Map = memo(() => {
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
     videos,
-    car
+    car,
+    scenes
   } = useAssets()
+
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
+  const mainCamera = useNavigationStore((state) => state.mainCamera)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
@@ -90,23 +98,8 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-  const { fogColor, fogDensity, fogDepth } = useControls({
-    fog: levaFolder(
-      {
-        fogColor: {
-          x: 0.4,
-          y: 0.4,
-          z: 0.4
-        },
-        fogDensity: 0.05,
-        fogDepth: 9.0
-      },
-      {
-        collapsed: true
-      }
-    )
-  })
 
+  const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
   const { showColorPicker } = useControls({
     "color picker": levaFolder(
@@ -136,14 +129,6 @@ export const Map = memo(() => {
 
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
-
-      material.uniforms.fogColor.value = new Vector3(
-        fogColor.x,
-        fogColor.y,
-        fogColor.z
-      )
-      material.uniforms.fogDensity.value = fogDensity
-      material.uniforms.fogDepth.value = fogDepth
     })
 
     if (keyframedNet && isAnimating.current) {
@@ -158,7 +143,52 @@ export const Map = memo(() => {
         ? 1.0
         : 0.0
     }
+
+    if (!stairsRef.current || !mainCamera) return
+
+    projScreenMatrix.multiplyMatrices(
+      mainCamera.projectionMatrix,
+      mainCamera.matrixWorldInverse
+    )
+    frustum.setFromProjectionMatrix(projScreenMatrix)
+
+    const distance = mainCamera.position.distanceTo(stairsRef.current.position)
+    stairsRef.current.visible =
+      distance > STAIRS_VISIBILITY_THRESHOLD ||
+      frustum.containsPoint(stairsRef.current.position)
   })
+
+  useEffect(() => {
+    if (!scene || !scenes) return
+
+    const normalizedSceneName =
+      scene.toLowerCase() === "/" ? "home" : scene.toLowerCase()
+
+    const currentSceneConfig = scenes.find(
+      (sceneData) =>
+        sceneData.name.toLowerCase().replace(/[^a-z0-9]/g, "") ===
+        normalizedSceneName.replace(/[^a-z0-9]/g, "")
+    )
+
+    if (!currentSceneConfig) {
+      useCustomShaderMaterial
+        .getState()
+        .updateFogSettings(new Vector3(0.4, 0.4, 0.4), 0.05, 9)
+      return
+    }
+
+    useCustomShaderMaterial
+      .getState()
+      .updateFogSettings(
+        new Vector3(
+          currentSceneConfig.fogConfig.fogColor.r,
+          currentSceneConfig.fogConfig.fogColor.g,
+          currentSceneConfig.fogConfig.fogColor.b
+        ),
+        currentSceneConfig.fogConfig.fogDensity,
+        currentSceneConfig.fogConfig.fogDepth
+      )
+  }, [scene, scenes])
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
@@ -205,6 +235,10 @@ export const Map = memo(() => {
     const traverse = (child: Object3D) => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
+      }
+
+      if (child.name === "SM_Stair3" && child instanceof THREE.Mesh) {
+        stairsRef.current = child
       }
 
       if ("isMesh" in child) {

@@ -57,6 +57,15 @@ export interface AssetsResult {
       tabClickableName: string
       plusShapeScale: number
     }[]
+    fogConfig: {
+      fogColor: {
+        r: number
+        g: number
+        b: number
+      }
+      fogDensity: number
+      fogDepth: number
+    }
   }[]
   car: {
     carModel: string
@@ -159,7 +168,16 @@ export async function fetchAssets(): Promise<AssetsResult> {
         tabHoverName: tab.tabHoverName ?? "",
         tabClickableName: tab.tabClickableName ?? "",
         plusShapeScale: tab.plusShapeScale ?? 1
-      }))
+      })),
+      fogConfig: {
+        fogColor: {
+          r: (item.fogConfig.fogColor.r ?? 0) / 255,
+          g: (item.fogConfig.fogColor.g ?? 0) / 255,
+          b: (item.fogConfig.fogColor.b ?? 0) / 255
+        },
+        fogDensity: item.fogConfig.fogDensity ?? 0,
+        fogDepth: item.fogConfig.fogDepth ?? 0
+      }
     })),
     characters: {
       model: threeDInteractions.characters.model.file?.url ?? "",

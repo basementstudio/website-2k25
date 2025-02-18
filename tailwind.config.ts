@@ -29,35 +29,6 @@ export default {
         }
       },
       fontSize: {
-        // TODO: remove once we finish the migration to the new fonts
-        heading: [
-          "4.1875rem",
-          {
-            lineHeight: "4rem"
-          }
-        ],
-        subheading: [
-          "1.5rem",
-          {
-            lineHeight: "1.75rem"
-          }
-        ],
-        paragraph: [
-          "0.75rem",
-          {
-            lineHeight: "1rem",
-            letterSpacing: "0.01em"
-          }
-        ],
-        blog: [
-          "0.875rem",
-          {
-            lineHeight: "1.25rem",
-            letterSpacing: "0.02em"
-          }
-        ],
-        // ------------------------------
-
         h1: [
           "4.375rem",
           {
@@ -105,6 +76,22 @@ export default {
             letterSpacing: "0.0em",
             fontWeight: "600"
           }
+        ],
+        blog: [
+          "1",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
+        ],
+        "h4-blog": [
+          "1.125rem",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "-0.02em",
+            fontWeight: "600"
+          }
         ]
       },
       spacing: {
@@ -121,7 +108,8 @@ export default {
         "61": "15.25rem"
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)"]
+        sans: ["var(--font-geist-sans)"],
+        mono: ["var(--font-geist-mono)"]
       },
       maxWidth: {
         full: "120rem"
