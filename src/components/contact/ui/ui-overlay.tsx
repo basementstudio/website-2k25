@@ -68,44 +68,31 @@ const UiOverlay = ({ className }: { className?: string }) => {
             placeholder="MESSAGE"
             value={formData.message}
             onChange={(e) => updateFormField("message", e.target.value)}
-            className="mb-4 h-12 w-full bg-purple-50 p-2 focus:outline-none focus:ring-1 focus:ring-purple-200"
+            className="mb-1 h-12 w-full bg-purple-50 p-2 focus:outline-none focus:ring-1 focus:ring-purple-200"
           />
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-yellow-100 p-2 text-center transition-colors hover:bg-yellow-200 disabled:opacity-50"
+            className="w-full bg-yellow-100 p-2 text-center hover:bg-yellow-200 disabled:opacity-50"
           >
             {submitting ? "SUBMITTING..." : "SUBMIT MESSAGE ->"}
           </button>
 
           <div className="mt-4 flex justify-between">
             <div className="flex gap-2">
-              <a
-                href="#"
-                className="bg-green-100 px-2 transition-colors hover:bg-green-200"
-              >
-                X (TWITTER)
+              <a href="#" className="bg-green-100 px-4 hover:bg-green-200">
+                TWITTER
               </a>
-              ,
-              <a
-                href="#"
-                className="bg-red-100 px-2 transition-colors hover:bg-red-200"
-              >
+              <a href="#" className="bg-red-100 px-1 hover:bg-red-200">
                 INSTAGRAM
               </a>
               ,
-              <a
-                href="#"
-                className="bg-blue-100 px-2 transition-colors hover:bg-blue-200"
-              >
+              <a href="#" className="bg-blue-100 px-1 hover:bg-blue-200">
                 GITHUB
               </a>
             </div>
-            <a
-              href="#"
-              className="bg-pink-100 px-2 transition-colors hover:bg-pink-200"
-            >
+            <a href="#" className="bg-pink-100 px-1 hover:bg-pink-200">
               HELLO@BASEMENT.STUDIO
             </a>
           </div>
