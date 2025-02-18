@@ -17,7 +17,8 @@ import { easeInOutCubic } from "@/utils/animations"
 
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
-import { Trajectory } from "./trajectory"
+
+const distance = 4
 
 export const HoopMinigame = () => {
   const { playSoundFX } = useSiteAudio()
@@ -299,7 +300,6 @@ export const HoopMinigame = () => {
         throwVelocity.current.y = mousePos.current.y - lastMousePos.current.y
         lastMousePos.current.copy(mousePos.current)
 
-        const distance = 4
         dragPos.current.set(pointer.x, pointer.y, 0.5)
         dragPos.current.unproject(camera)
         dragPos.current.sub(camera.position).normalize()

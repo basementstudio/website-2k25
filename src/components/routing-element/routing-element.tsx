@@ -103,51 +103,80 @@ export const RoutingElement = ({
     setHoverText
   ])
 
+  const handlePointerEnter = useCallback(
+    (e: any) => {
+      e.stopPropagation()
+      if (activeRoute) return
+      setHover(true)
+      router.prefetch(route)
+      setCursorType("click")
+      setHoverText(hoverName)
+    },
+    [activeRoute, route, hoverName]
+  )
+
+  const handlePointerLeave = useCallback(
+    (e: any) => {
+      e.stopPropagation()
+      if (activeRoute) return
+      setHover(false)
+      setHoverText(null)
+      setCursorType("default")
+    },
+    [activeRoute]
+  )
+
+  const handleClick = useCallback(
+    (e: any) => {
+      e.stopPropagation()
+      if (activeRoute) return
+      navigate(route)
+      setCursorType("default")
+      setCurrentTabIndex(-1)
+    },
+    [activeRoute, navigate, route, setCurrentTabIndex]
+  )
+
+  const meshProps = useMemo(
+    () => ({
+      position: [node.position.x, node.position.y, node.position.z] as [
+        number,
+        number,
+        number
+      ],
+      rotation: node.rotation
+    }),
+    [node.position.x, node.position.y, node.position.z, node.rotation]
+  )
+
   return (
     <>
       <group
-        onPointerEnter={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          setHover(true)
-          router.prefetch(route)
-          setCursorType("click")
-          setHoverText(hoverName)
-        }}
-        onPointerLeave={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          setHover(false)
-          setHoverText(null)
-          setCursorType("default")
-        }}
-        onClick={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          navigate(route)
-          setCursorType("default")
-          setCurrentTabIndex(-1)
-        }}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+        onClick={handleClick}
       >
         <mesh
           ref={meshRef}
           geometry={node.geometry}
-          position={[node.position.x, node.position.y, node.position.z]}
-          rotation={node.rotation}
+          position={meshProps.position}
+          rotation={meshProps.rotation}
         >
           <meshBasicMaterial transparent opacity={0} />
         </mesh>
       </group>
-      {hover && (
-        <>
-          <RoutingPlane
-            position={[node.position.x, node.position.y, node.position.z]}
-            scale={[1, 1]}
-            rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
-            geometry={node.geometry}
-          />
-        </>
-      )}
+
+      <RoutingPlane
+        visible={hover}
+        position={meshProps.position}
+        scale={[1, 1]}
+        rotation={[
+          meshProps.rotation.x,
+          meshProps.rotation.y,
+          meshProps.rotation.z
+        ]}
+        geometry={node.geometry}
+      />
     </>
   )
 }

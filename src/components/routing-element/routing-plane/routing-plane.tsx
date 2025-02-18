@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, memo } from "react"
 import {
   BufferGeometry,
   PlaneGeometry,
@@ -10,42 +10,45 @@ import {
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
 
-export const RoutingPlane = ({
-  position,
-  rotation,
-  geometry,
-  scale
-}: {
-  position: [number, number, number]
-  rotation: [number, number, number]
-  geometry: BufferGeometry
-  scale: [number, number]
-}) => {
-  const material = useMemo(
-    () =>
-      new ShaderMaterial({
-        uniforms: {
-          thickness: {
-            value: 1.0
-          }
-        },
-        depthTest: false,
-        transparent: true,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader
-      }),
-    []
-  )
+export const RoutingPlane = memo(
+  ({
+    position,
+    rotation,
+    geometry,
+    scale,
+    visible
+  }: {
+    position: [number, number, number]
+    rotation: [number, number, number]
+    geometry: BufferGeometry
+    scale: [number, number]
+    visible: boolean
+  }) => {
+    const material = useMemo(
+      () =>
+        new ShaderMaterial({
+          uniforms: {
+            thickness: {
+              value: 1.0
+            }
+          },
+          depthTest: false,
+          transparent: true,
+          vertexShader: vertexShader,
+          fragmentShader: fragmentShader
+        }),
+      []
+    )
 
-  const squareMaterial = useMemo(
-    () =>
-      new ShaderMaterial({
-        uniforms: {
-          color: { value: [1.0, 1.0, 1.0] },
-          baseSize: { value: 0.05 },
-          minViewSize: { value: 0.01 }
-        },
-        vertexShader: `
+    const squareMaterial = useMemo(
+      () =>
+        new ShaderMaterial({
+          uniforms: {
+            color: { value: [1.0, 1.0, 1.0] },
+            baseSize: { value: 0.05 },
+            minViewSize: { value: 0.01 }
+          },
+          vertexShader: `
           uniform float baseSize;
           uniform float minViewSize;
           varying vec2 vUv;
@@ -63,7 +66,7 @@ export const RoutingPlane = ({
             gl_Position = projectionMatrix * modelViewMatrix * vec4(scaledPosition, 1.0);
           }
         `,
-        fragmentShader: `
+          fragmentShader: `
           varying vec2 vUv;
           void main() {
             float thickness = 0.2;
@@ -73,55 +76,67 @@ export const RoutingPlane = ({
             gl_FragColor = vec4(vec3(1.0), plus);
           }
         `,
-        transparent: true,
-        depthTest: false
-      }),
-    []
-  )
+          transparent: true,
+          depthTest: false
+        }),
+      []
+    )
 
-  const squareGeometry = useMemo(() => new PlaneGeometry(0.05, 0.05), [])
+    const squareGeometry = useMemo(() => new PlaneGeometry(0.05, 0.05), [])
 
-  const squares =
-    geometry.attributes.position && geometry.attributes.normal ? (
+    const squareData = useMemo(() => {
+      if (!geometry.attributes.position || !geometry.attributes.normal)
+        return null
+
+      const positions = geometry.attributes.position.array
+      const normals = geometry.attributes.normal.array
+      const count = geometry.attributes.position.count
+      const result = new Array(count)
+      const baseVector = new Vector3(0, 0, 1)
+
+      for (let i = 0; i < count; i++) {
+        const x = positions[i * 3] * scale[0]
+        const y = positions[i * 3 + 1] * scale[1]
+        const z = positions[i * 3 + 2]
+
+        const quaternion = new Quaternion().setFromUnitVectors(
+          baseVector,
+          new Vector3(normals[i * 3], normals[i * 3 + 1], normals[i * 3 + 2])
+        )
+
+        result[i] = {
+          position: [x, y, z] as [number, number, number],
+          quaternion
+        }
+      }
+
+      return result
+    }, [geometry.attributes.position, geometry.attributes.normal, scale])
+
+    const squares = squareData ? (
       <>
-        {Array.from({ length: geometry.attributes.position.count }).map(
-          (_, i) => {
-            const x = geometry.attributes.position.array[i * 3] * scale[0]
-            const y = geometry.attributes.position.array[i * 3 + 1] * scale[1]
-            const z = geometry.attributes.position.array[i * 3 + 2]
-
-            const nx = geometry.attributes.normal.array[i * 3]
-            const ny = geometry.attributes.normal.array[i * 3 + 1]
-            const nz = geometry.attributes.normal.array[i * 3 + 2]
-
-            const quaternion = new Quaternion().setFromUnitVectors(
-              new Vector3(0, 0, 1),
-              new Vector3(nx, ny, nz)
-            )
-
-            return (
-              <mesh
-                key={i}
-                geometry={squareGeometry}
-                material={squareMaterial}
-                position={[x, y, z]}
-                quaternion={quaternion}
-                scale={[1, 1, 1]}
-              />
-            )
-          }
-        )}
+        {squareData.map((data, i) => (
+          <mesh
+            key={i}
+            geometry={squareGeometry}
+            material={squareMaterial}
+            position={data.position}
+            quaternion={data.quaternion}
+            scale={[1, 1, 1]}
+          />
+        ))}
       </>
     ) : null
 
-  return (
-    <group position={position} rotation={rotation}>
-      <mesh
-        geometry={geometry}
-        material={material}
-        scale={[scale[0], scale[1], 1]}
-      />
-      {squares}
-    </group>
-  )
-}
+    return (
+      <group position={position} rotation={rotation} visible={visible}>
+        <mesh
+          geometry={geometry}
+          material={material}
+          scale={[scale[0], scale[1], 1]}
+        />
+        {squares}
+      </group>
+    )
+  }
+)
