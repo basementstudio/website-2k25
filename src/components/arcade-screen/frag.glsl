@@ -15,7 +15,7 @@ varying vec2 vUv;
 #define TIME_SPEED (1.0)
 #define LINE_HEIGHT (0.05)
 #define MASK_INTENSITY (0.3)
-#define MASK_SIZE (12.0)
+#define MASK_SIZE (10.0)
 #define MASK_BORDER (0.4)
 
 vec2 curveRemapUV(vec2 uv) {
@@ -34,7 +34,7 @@ float random(vec2 st) {
 vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
   // Simplified vertical RGB stripes
   vec2 coord = uv * resolution / MASK_SIZE;
-  float xCoord = coord.x * 5.0;
+  float xCoord = coord.x * 6.0;
 
   // Calculate smooth transitions between stripes
   float ind = mod(floor(xCoord), 3.0);
