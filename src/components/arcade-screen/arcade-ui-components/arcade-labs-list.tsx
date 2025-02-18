@@ -42,7 +42,7 @@ export const ArcadeLabsList = ({
             paddingLeft={8}
             paddingRight={8}
             height={24}
-            borderBottomWidth={1}
+            borderBottomWidth={idx === experiments.length - 1 ? 0 : 1}
             borderRightWidth={1}
             backgroundColor={
               selectedExperiment && selectedExperiment._title === data._title
