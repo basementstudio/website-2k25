@@ -107,10 +107,12 @@ export const CustomCamera = () => {
     targetLookAt.set(...cameraConfig.target)
     targetFov.current = cameraConfig.fov ?? 60
 
-    const scrollFactor = Math.min(1, lenis.scroll / window.innerHeight)
-    const yOffset = (targetY - initialY) * scrollFactor
-    targetPosition.y += yOffset
-    targetLookAt.y += yOffset
+    if (!disableCameraTransition) {
+      const scrollFactor = Math.min(1, lenis.scroll / window.innerHeight)
+      const yOffset = (targetY - initialY) * scrollFactor
+      targetPosition.y += yOffset
+      targetLookAt.y += yOffset
+    }
 
     if (disableCameraTransition || firstRender) {
       progress.current = 1
