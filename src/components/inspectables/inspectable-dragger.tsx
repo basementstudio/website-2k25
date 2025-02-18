@@ -77,17 +77,17 @@ export const InspectableDragger = ({
   const rotationYSpring = useSpring(rotationY, config)
   const rotationZSpring = useSpring(rotationZ, config)
 
-  React.useEffect(() => {
-    if (global && cursor && enabled) {
-      explDomElement.style.cursor = "grab"
-      gl.domElement.style.cursor = ""
-      return () => {
-        explDomElement.style.cursor = "default"
-        gl.domElement.style.cursor = "default"
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [global, cursor, explDomElement, enabled])
+  // React.useEffect(() => {
+  //   if (global && cursor && enabled) {
+  //     explDomElement.style.cursor = "grab"
+  //     gl.domElement.style.cursor = ""
+  //     return () => {
+  //       explDomElement.style.cursor = "default"
+  //       gl.domElement.style.cursor = "default"
+  //     }
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [global, cursor, explDomElement, enabled])
 
   const bind = useGesture(
     {

@@ -6,7 +6,6 @@ import {
   useMotionValue,
   useSpring
 } from "motion/react"
-import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { create } from "zustand"
 
@@ -86,14 +85,14 @@ export const MouseTracker = ({
     <AnimatePresence>
       {hoverText && (
         <motion.div
-          className="pointer-events-none fixed z-50 bg-black text-paragraph text-brand-w1"
+          className="text-paragraph pointer-events-none fixed z-50 bg-black text-brand-w1"
           style={{ x: springX, y: springY }}
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <motion.div className="bg-black text-paragraph text-brand-w1">
+          <motion.div className="text-paragraph bg-black text-brand-w1">
             {`[${hoverText}]`}
           </motion.div>
         </motion.div>

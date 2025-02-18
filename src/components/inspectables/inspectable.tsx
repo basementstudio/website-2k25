@@ -235,7 +235,7 @@ export const Inspectable = ({
           e.stopPropagation()
           return
         }
-        setCursorType("default")
+        setCursorType("grab")
         handleSelection()
       }}
       onPointerEnter={(e) => {
@@ -244,7 +244,7 @@ export const Inspectable = ({
           !scenes.some((scene) => scene === currentScene)
         )
           return
-        setCursorType(selected === id ? "grab" : "zoom")
+        if (!selected) setCursorType("zoom")
       }}
       onPointerLeave={() => {
         if (
@@ -252,32 +252,17 @@ export const Inspectable = ({
           !scenes.some((scene) => scene === currentScene)
         )
           return
-        setCursorType("default")
-      }}
-      onPointerDown={() => {
-        if (
-          (selected && selected !== id) ||
-          !scenes.some((scene) => scene === currentScene)
-        )
-          return
-        setCursorType("grabbing")
-      }}
-      onPointerUp={(e) => {
-        if (
-          (selected && selected !== id) ||
-          !scenes.some((scene) => scene === currentScene)
-        )
-          return
-        setCursorType(e.object === e.eventObject ? "grab" : "default")
+        if (!selected) setCursorType("default")
       }}
     >
       <InspectableDragger
         key={id}
-        enabled={selected === id && true}
-        global={false}
-        cursor={false}
+        enabled={selected === id}
+        global={true}
+        cursor={selected === id}
         snap={true}
         speed={2}
+        domElement={document.querySelector("#canvas canvas") as HTMLElement}
       >
         <primitive object={mesh} raycast={() => null} />
         <mesh position={[...offsetedBoundingBox]}>
