@@ -78,10 +78,19 @@ export default {
           }
         ],
         blog: [
-          "0.875rem",
+          "1",
           {
-            lineHeight: "1.25rem",
-            letterSpacing: "0.02em"
+            lineHeight: "1.5rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
+        ],
+        "h4-blog": [
+          "1.125rem",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "-0.02em",
+            fontWeight: "600"
           }
         ]
       },

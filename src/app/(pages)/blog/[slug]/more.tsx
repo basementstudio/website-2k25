@@ -32,12 +32,12 @@ export default function More({
     <div className="mx-auto flex w-full max-w-[846px] flex-col justify-start gap-y-4">
       <h2 className="text-h4 text-brand-g1">More from the blog</h2>
 
-      <div className="flex flex-col divide-y divide-brand-g1">
+      <div className="flex flex-col divide-y divide-brand-g1/30">
         <div />
         {morePosts.map((post) => (
           <div key={post._title} className="group relative">
             <Link href={`/blog/${post._slug}`} className="flex gap-x-2 py-2">
-              <div className="with-dots relative h-[60px] w-[136px] overflow-clip border border-brand-w1/20">
+              <div className="relative h-[60px] w-[136px] overflow-clip after:absolute after:inset-0 after:border after:border-brand-w1/20">
                 {post.hero?.heroImage?.url && (
                   <Image
                     src={post.hero?.heroImage?.url ?? ""}

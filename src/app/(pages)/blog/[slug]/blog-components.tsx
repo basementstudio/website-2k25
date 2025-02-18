@@ -42,7 +42,7 @@ export const BlogVideo = (props: HandlerProps<"video">) => (
 )
 
 export const Intro = ({ children }: HandlerProps<"p">) => (
-  <p className="mb-10 text-h3 text-brand-w2">{children}</p>
+  <p className="mb-6 text-h3 text-brand-w2">{children}</p>
 )
 
 export const Paragraph = ({ children }: HandlerProps<"p">) => (
@@ -64,19 +64,21 @@ export const BlogLink = ({ children, href }: HandlerProps<"a">) => (
 )
 
 export const OrderedList = ({ children }: HandlerProps<"ol">) => (
-  <ol className="list-decimal pl-3.5 text-brand-w2 marker:text-brand-o [&_ol]:marker:!text-brand-g1">
+  <ol className="list-decimal pl-5 text-brand-w2 marker:text-brand-o [&_ol]:marker:!text-brand-g1">
     {children}
   </ol>
 )
 
 export const UnorderedList = ({ children }: HandlerProps<"ul">) => (
-  <ul className="blog-list list-none pl-3.5 text-brand-w2 marker:text-brand-o [&_ul]:marker:!text-brand-g1">
+  <ul className="blog-list list-none pl-5 text-brand-w2 marker:text-brand-o [&_ul]:marker:!text-brand-g1">
     {children}
   </ul>
 )
 
 export const ListItem = ({ children }: HandlerProps<"li">) => (
-  <li className="blog-list-item text-brand-w2 marker:text-p">{children}</li>
+  <li className="blog-list-item pl-2 text-brand-w2 marker:text-p">
+    {children}
+  </li>
 )
 
 export const Code = ({ children }: HandlerProps<"code">) => (
@@ -133,7 +135,7 @@ export const QuoteWithAuthor = ({
       <div className="h-full w-0.5 bg-brand-o" />
 
       <div className="flex flex-col gap-y-2.5">
-        <div className="[&>*]:text-h4 [&>*]:text-brand-w2">
+        <div className="[&>*]:text-h4-blog [&>*]:text-brand-w2">
           <RichText>{quote}</RichText>
         </div>
 
@@ -151,11 +153,17 @@ export const SideNote = ({
 }: {
   children: RichTextProps["content"]
 }) => (
-  <div className="flex w-full flex-col gap-2 rounded-[4px] border border-brand-g2 bg-codeblock-k2 px-6 py-4">
-    <p className="text-p text-brand-w1">Note</p>
+  <div className="flex w-full flex-col gap-2 rounded-[0.25rem] border border-brand-g2 bg-codeblock-k2 px-6 py-4">
+    <p className="text-blog text-brand-w1">Note</p>
 
     <div className="[&>*]:text-brand-g1">
-      <RichText>{children}</RichText>
+      <RichText
+        components={{
+          p: ({ children }) => <p className="text-blog">{children}</p>
+        }}
+      >
+        {children}
+      </RichText>
     </div>
   </div>
 )
