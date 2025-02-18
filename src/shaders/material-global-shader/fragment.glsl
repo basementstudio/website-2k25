@@ -209,22 +209,15 @@ void main() {
   #endif
 
   // Fog
-  float basketballFogDensity = 0.25;
-  float basketballFogDepth = 8.0;
-
-  float transitionedFogDepth = mix(fogDepth, basketballFogDepth, uBasketballTransition);
-  float transitionedFogDensity = mix(fogDensity, basketballFogDensity, uBasketballTransition);
-
-  float fogDepthValue = min(vMvPosition.z + transitionedFogDepth, 0.0);
+  float fogDepthValue = min(vMvPosition.z + fogDepth, 0.0);
   float fogFactor = 1.0 -
-    exp(-transitionedFogDensity *
-    transitionedFogDensity *
+    exp(-fogDensity *
+    fogDensity *
     fogDepthValue *
     fogDepthValue);
 
   fogFactor = clamp(fogFactor, 0.0, 1.0);
-  vec3 transitionedFogColor = mix(fogColor, fogColor / 20.0, uBasketballFogColorTransition);
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, transitionedFogColor, fogFactor);
+  gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
 
   if(uLoaded < 1.0) {
     // Loading effect

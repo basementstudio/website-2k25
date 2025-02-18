@@ -123,6 +123,15 @@ export const sceneFragment = fragmentOn("Scenes", {
           tabClickableName: true,
           plusShapeScale: true
         }
+      },
+      fogConfig: {
+        fogColor: {
+          r: true,
+          g: true,
+          b: true
+        },
+        fogDensity: true,
+        fogDepth: true
       }
     }
   }
