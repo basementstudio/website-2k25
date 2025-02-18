@@ -2,7 +2,7 @@ import { CameraControls } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { easing } from "maath"
 import { useLenis } from "lenis/react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, useMemo } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
@@ -25,6 +25,8 @@ const currentPos = new Vector3()
 const currentTarget = new Vector3()
 const newDelta = new Vector3()
 const newLookAtDelta = new Vector3()
+const finalPos = new Vector3()
+const finalLookAt = new Vector3()
 const ANIMATION_DURATION = 2
 
 export const CustomCamera = () => {
@@ -50,6 +52,28 @@ export const CustomCamera = () => {
   const targetY = cameraConfig?.targetScrollY ?? -initialY
 
   const lenis = useLenis()
+
+  const boundariesRef = useRef({
+    maxOffset: 0,
+    targetPosition: { x: 0, z: 0 },
+    rightVector: { x: 0, z: 0 },
+    planePosition: { x: 0, z: 0 },
+    offset: 0,
+    pos: { x: 0, z: 0 }
+  })
+
+  const divisor = useMemo(() => {
+    const width = window.innerWidth
+    if (width <= 1100) return 0.32
+    if (width <= 1200) return 0.36
+    if (width <= 1500) return 0.4
+    if (width <= 1600) return 0.8
+    return 0.8
+  }, [])
+
+  const offsetMultiplier = useMemo(() => {
+    return cameraConfig?.offsetMultiplier ?? 2
+  }, [cameraConfig])
 
   useEffect(() => {
     const controls = cameraControlsRef.current
@@ -85,33 +109,28 @@ export const CustomCamera = () => {
     progress.current = 0
   }, [cameraConfig])
 
-  const calculateDivisor = useCallback(() => {
-    const width = window.innerWidth
-    if (width <= 1100) return 0.32
-    if (width <= 1200) return 0.36
-    if (width <= 1500) return 0.4
-    if (width <= 1600) return 0.8
-    return 0.8
-  }, [window.innerWidth])
+  const prevTargetY = useRef(0)
+  const prevLookAtY = useRef(0)
+  const prevFov = useRef(0)
+  const controls = cameraControlsRef.current
 
   // camera position and target handler
   useFrame((_, dt) => {
-    const controls = cameraControlsRef.current
     if (!controls || !cameraConfig || !lenis) return
 
-    const prevTargetY = targetPosition.y
-    const prevLookAtY = targetLookAt.y
-    const prevFov = currentFov.current
+    prevTargetY.current = targetPosition.y
+    prevLookAtY.current = targetLookAt.y
+    prevFov.current = currentFov.current
 
     targetPosition.set(...cameraConfig.position)
     targetLookAt.set(...cameraConfig.target)
     targetFov.current = cameraConfig.fov ?? 60
 
     if (!disableCameraTransition) {
-      const scrollFactor = Math.min(1, lenis.scroll / window.innerHeight)
-      const yOffset = (targetY - initialY) * scrollFactor
-      targetPosition.y += yOffset
-      targetLookAt.y += yOffset
+      targetPosition.y +=
+        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
+      targetLookAt.y +=
+        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
     }
 
     if (disableCameraTransition || firstRender) {
@@ -120,8 +139,8 @@ export const CustomCamera = () => {
       currentTarget.copy(targetLookAt)
       currentFov.current = targetFov.current
 
-      const finalPos = currentPos.clone().add(panTargetDelta)
-      const finalLookAt = currentTarget.clone().add(panLookAtDelta)
+      finalPos.copy(currentPos).add(panTargetDelta)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
       controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
       controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
 
@@ -131,60 +150,79 @@ export const CustomCamera = () => {
       const easeValue = easeInOutCubic(progress.current)
 
       if (progress.current === dt / ANIMATION_DURATION) {
-        currentPos.y = prevTargetY
-        currentTarget.y = prevLookAtY
-        currentFov.current = prevFov
+        currentPos.y = prevTargetY.current
+        currentTarget.y = prevLookAtY.current
+        currentFov.current = prevFov.current
       }
 
       currentPos.lerp(targetPosition, easeValue)
       currentTarget.lerp(targetLookAt, easeValue)
-      currentFov.current = prevFov + (targetFov.current - prevFov) * easeValue
+      currentFov.current =
+        prevFov.current + (targetFov.current - prevFov.current) * easeValue
 
-      const pos = currentPos.clone().add(panTargetDelta)
-      controls.setPosition(pos.x, pos.y, pos.z, false)
+      finalPos.copy(currentPos).add(panTargetDelta)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
+      controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
+      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
 
-      const lookAt = currentTarget.clone().add(panLookAtDelta)
-      controls.setTarget(lookAt.x, lookAt.y, lookAt.z, false)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
+      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
     } else {
-      const pos = targetPosition.clone().add(panTargetDelta)
-      controls.setPosition(pos.x, pos.y, pos.z, false)
+      finalPos.copy(targetPosition).add(panTargetDelta)
+      controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
 
-      const lookAt = targetLookAt.clone().add(panLookAtDelta)
-      controls.setTarget(lookAt.x, lookAt.y, lookAt.z, false)
+      finalLookAt.copy(targetLookAt).add(panLookAtDelta)
+      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
     }
 
     if (firstRender) setFirstRender(false)
   })
 
   // boundaries handler
+  const b = boundariesRef.current
+  const plane = planeRef.current
+  const boundary = planeBoundaryRef.current
+
+  const basePosition = useMemo(() => {
+    if (!cameraConfig) return null
+    return calculatePlanePosition(cameraConfig)
+  }, [cameraConfig])
+
+  const np = useMemo(() => {
+    if (!basePosition) return null
+    return calculateNewPosition(b.planePosition, b.targetPosition)
+  }, [basePosition, b.planePosition, b.targetPosition])
+
   useFrame(({ pointer }, dt) => {
-    const plane = planeRef.current
-    const boundary = planeBoundaryRef.current
-    if (!plane || !boundary || !cameraConfig || selected) return
-
-    const maxOffset = (boundary.scale.x - plane.scale.x) / 2
-    const basePosition = calculatePlanePosition(cameraConfig)
-    const right = calculateMovementVectors(basePosition, cameraConfig)
-
-    const offsetMultiplier = cameraConfig.offsetMultiplier ?? 2
-    const offset = pointer.x * maxOffset * offsetMultiplier
-
-    const xPos = right.x * offset
-    const zPos = right.z * offset
-
-    const tp = {
-      x: basePosition[0] + xPos,
-      z: basePosition[2] + zPos
-    }
-    const np = calculateNewPosition(
-      { x: plane.position.x, z: plane.position.z },
-      tp
+    if (
+      !plane ||
+      !boundary ||
+      !cameraConfig ||
+      selected ||
+      !basePosition ||
+      !np
     )
+      return
+
+    b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
+    b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
+
+    b.offset = pointer.x * b.maxOffset * offsetMultiplier
+
+    b.pos.x = b.rightVector.x * b.offset
+    b.pos.z = b.rightVector.z * b.offset
+
+    b.targetPosition.x = basePosition[0] + b.pos.x
+    b.targetPosition.z = basePosition[2] + b.pos.z
+
+    b.planePosition.x = plane.position.x
+    b.planePosition.z = plane.position.z
+
     plane.position.setX(np.x)
     plane.position.setZ(np.z)
 
-    newDelta.set(xPos, 0, zPos)
-    newLookAtDelta.set(xPos / calculateDivisor(), 0, zPos)
+    newDelta.set(b.pos.x, 0, b.pos.z)
+    newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
 
     easing.damp3(panTargetDelta, newDelta, 0.5, dt)
     easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
@@ -192,12 +230,15 @@ export const CustomCamera = () => {
 
   // fov handler
   useFrame(() => {
-    const controls = cameraControlsRef.current
-    if (!controls || !(controls.camera instanceof PerspectiveCamera)) return
+    if (
+      !cameraControlsRef.current ||
+      !(cameraControlsRef.current.camera instanceof PerspectiveCamera)
+    )
+      return
 
-    if (controls.camera.fov !== currentFov.current) {
-      controls.camera.fov = currentFov.current
-      controls.camera.updateProjectionMatrix()
+    if (cameraControlsRef.current.camera.fov !== currentFov.current) {
+      cameraControlsRef.current.camera.fov = currentFov.current
+      cameraControlsRef.current.camera.updateProjectionMatrix()
     }
   })
 
