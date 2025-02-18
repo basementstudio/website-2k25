@@ -8,7 +8,9 @@ import {
   LoopRepeat,
   Mesh,
   MeshBasicMaterial,
+  PerspectiveCamera,
   SkinnedMesh,
+  Vector2,
   Vector3,
   WebGLRenderTarget
 } from "three"
@@ -26,11 +28,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const phoneGroupRef = useRef<Group>(null)
   const updateFormData = useWorkerStore((state) => state.updateFormData)
 
-  console.log(
-    "[scene] all animations",
-    gltf.animations.map((a) => a.name)
-  )
-
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
@@ -46,7 +43,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     // Listen to form updates from the worker
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "update-form") {
-        console.log("[ContactScene] Received form update:", e.data.formData)
         updateFormData(e.data.formData)
       }
     }
@@ -88,13 +84,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         const oldMaterial = node.material
         const basicMaterial = new MeshBasicMaterial()
 
-        // TODO: use the global material
-        // console.log(`Material for ${node.name}:`, {
-        //   hasMap: "map" in oldMaterial && oldMaterial.map !== null,
-        //   hasColor: "color" in oldMaterial,
-        //   isTransparent: oldMaterial.transparent,
-        //   opacity: oldMaterial.opacity
-        // })
+        // TODO: use global material?
 
         if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
         if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
@@ -137,11 +127,61 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     }
   }, [gltf, glass])
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     animationMixerRef.current?.update(delta)
 
     if (screenMaterial.uniforms.uTime) {
       screenMaterial.uniforms.uTime.value += delta
+    }
+
+    // broadcast screen data
+    if (
+      screenMesh &&
+      screenPosition &&
+      state.camera instanceof PerspectiveCamera
+    ) {
+      const screenWorldPos = screenMesh.getWorldPosition(new Vector3())
+
+      // const cameraMatrix = state.camera.matrixWorldInverse.clone()
+      const cameraMatrix = state.camera.matrixWorld.clone()
+
+      // mesh matrix
+      const meshMatrix = screenMesh.matrixWorld.clone()
+
+      // project position to screen space
+      const tempV = screenWorldPos.clone()
+      tempV.project(state.camera)
+
+      // Convert to pixel coordinates
+      const widthHalf = state.size.width / 2
+      const heightHalf = state.size.height / 2
+      const screenX = tempV.x * widthHalf + widthHalf
+      const screenY = -tempV.y * heightHalf + heightHalf
+
+      // distance from camera, 25 fov
+      const distance = screenWorldPos.distanceTo(state.camera.position)
+      const vFov = (state.camera.fov * Math.PI) / 180
+
+      const scaleFactor = 1 / (2 * Math.tan(vFov / 2))
+      const scale = distance * scaleFactor
+
+      // Calculate dimensions based on the screen mesh's actual size
+      const box = new Box3().setFromObject(screenMesh)
+      const size = box.getSize(new Vector3())
+
+      // Adjust viewport scaling based on FOV
+      const width = size.x * state.viewport.width * scaleFactor
+      const height = size.y * state.viewport.height * scaleFactor
+
+      self.postMessage({
+        type: "update-screen-data",
+        position: new Vector2(screenX, screenY),
+        dimensions: new Vector2(width, height),
+        scale,
+        distance,
+        matrix: Array.from(meshMatrix.elements),
+        cameraMatrix: Array.from(cameraMatrix.elements)
+      })
     }
   })
 

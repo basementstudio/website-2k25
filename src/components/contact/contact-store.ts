@@ -1,3 +1,4 @@
+import { Vector2, Vector3 } from "three"
 import { create } from "zustand"
 
 interface ContactStore {
@@ -16,6 +17,24 @@ interface ContactStore {
   ) => void
   worker: Worker | null
   setWorker: (worker: Worker | null) => void
+  screenPosition: Vector2 | null
+  screenDimensions: Vector2 | null
+  screenTransform: {
+    scale: number
+    distance: number
+    matrix: number[]
+    cameraMatrix: number[]
+  } | null
+  updateScreenData: (
+    position: Vector2,
+    dimensions: Vector2,
+    transform: {
+      scale: number
+      distance: number
+      matrix: number[]
+      cameraMatrix: number[]
+    }
+  ) => void
 }
 
 export const useContactStore = create<ContactStore>((set) => ({
@@ -35,9 +54,6 @@ export const useContactStore = create<ContactStore>((set) => ({
         [field]: value.toUpperCase()
       }
 
-      console.log("[ContactStore] Updating field:", field, "with value:", value)
-      console.log("[ContactStore] Worker exists:", !!state.worker)
-
       // Send form updates to the worker
       if (state.worker) {
         state.worker.postMessage({
@@ -49,7 +65,34 @@ export const useContactStore = create<ContactStore>((set) => ({
       return { formData: newFormData }
     }),
   worker: null,
-  setWorker: (worker) => set({ worker })
+  setWorker: (worker) => {
+    if (worker) {
+      worker.addEventListener("message", (e) => {
+        if (e.data.type === "update-screen-data") {
+          set({
+            screenPosition: e.data.position,
+            screenDimensions: e.data.dimensions,
+            screenTransform: {
+              scale: e.data.scale,
+              distance: e.data.distance,
+              matrix: e.data.matrix,
+              cameraMatrix: e.data.cameraMatrix
+            }
+          })
+        }
+      })
+    }
+    set({ worker })
+  },
+  screenPosition: null,
+  screenDimensions: null,
+  screenTransform: null,
+  updateScreenData: (position, dimensions, transform) =>
+    set({
+      screenPosition: position,
+      screenDimensions: dimensions,
+      screenTransform: transform
+    })
 }))
 
 if (typeof window !== "undefined") {
