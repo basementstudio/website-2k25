@@ -150,11 +150,14 @@ export const Inspectable = ({
         center.z - position.z
       ])
 
-      if (isNaN(s.x) || isNaN(s.y) || isNaN(s.z)) return
-
-      size.current.x = s.x
-      size.current.y = s.y
-      size.current.z = s.z
+      if (isNaN(s.x) || isNaN(s.y) || isNaN(s.z)) {
+        console.warn("Inspectable bounding box is NaN", id)
+        setTimeout(() => setFirstRender(true), 100)
+      } else {
+        size.current.x = s.x
+        size.current.y = s.y
+        size.current.z = s.z
+      }
     }
 
     handleAnimation(true)

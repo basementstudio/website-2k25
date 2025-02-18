@@ -400,8 +400,6 @@ export const Map = memo(() => {
       inspectableAssets.forEach(({ mesh: meshName }) => {
         const mesh = officeModel.getObjectByName(meshName) as Mesh | null
         if (mesh) {
-          mesh.removeFromParent()
-
           mesh.userData.position = {
             x: mesh.position.x,
             y: mesh.position.y,
