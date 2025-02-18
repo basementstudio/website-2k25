@@ -27,7 +27,7 @@ export const ArcadeWrapperTags = () => {
   return (
     <>
       <Text
-        fontSize={12}
+        fontSize={10}
         color={COLORS_THEME.primary}
         fontWeight="normal"
         positionType="absolute"
@@ -49,7 +49,7 @@ export const ArcadeWrapperTags = () => {
         CLOSE [ESC]
       </Text>
       <Text
-        fontSize={10}
+        fontSize={9}
         color={COLORS_THEME.primary}
         fontWeight="normal"
         positionType="absolute"
