@@ -32,26 +32,23 @@ float random(vec2 st) {
 }
 
 vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
-  // Simplified vertical RGB stripes
   vec2 coord = uv * resolution / MASK_SIZE;
   float xCoord = coord.x * 6.0;
 
-  // Calculate smooth transitions between stripes
   float ind = mod(floor(xCoord), 3.0);
   float blend = smoothstep(0.3, 0.7, fract(xCoord));
 
-  // Create the RGB mask colors
   vec3 mask_color1, mask_color2;
   if (isRGBMonochrome) {
     if (ind == 0.0) {
-      mask_color1 = vec3(1.5, 0.6, 0.0) * 3.0;
-      mask_color2 = vec3(0.8, 0.2, 0.0) * 3.0;
+      mask_color1 = vec3(1.2, 0.3, 0.0) * 2.0;
+      mask_color2 = vec3(0.6, 0.1, 0.0) * 2.0;
     } else if (ind == 1.0) {
-      mask_color1 = vec3(0.8, 0.2, 0.0) * 3.0;
-      mask_color2 = vec3(0.4, 0.1, 0.0) * 3.0;
+      mask_color1 = vec3(0.6, 0.1, 0.0) * 2.0;
+      mask_color2 = vec3(0.3, 0.05, 0.0) * 2.0;
     } else {
-      mask_color1 = vec3(0.4, 0.1, 0.0) * 3.0;
-      mask_color2 = vec3(1.5, 0.6, 0.0) * 3.0;
+      mask_color1 = vec3(0.3, 0.05, 0.0) * 2.0;
+      mask_color2 = vec3(1.2, 0.3, 0.0) * 2.0;
     }
   } else {
     // Original RGB mask with smooth transitions

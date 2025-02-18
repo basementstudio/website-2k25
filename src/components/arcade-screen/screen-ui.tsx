@@ -23,7 +23,7 @@ interface ScreenUIProps {
 
 export const COLORS_THEME = {
   primary: "#FF4D00",
-  black: "#0D0D0D"
+  black: "#070707"
 }
 
 export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
