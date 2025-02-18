@@ -1,5 +1,4 @@
 import { RichText } from "basehub/react-rich-text"
-import Image from "next/image"
 
 import { QueryType } from "../query"
 import {
@@ -7,6 +6,7 @@ import {
   BlogLink,
   BlogVideo,
   Code,
+  CodeBlock,
   Heading2,
   Heading3,
   Intro,
@@ -14,9 +14,12 @@ import {
   OrderedList,
   Paragraph,
   Pre,
+  QuoteWithAuthor,
+  SideNote,
   UnorderedList
 } from "./blog-components"
 import BlogMeta from "./blog-meta"
+import Sandbox from "./components/sandbox"
 
 export default function Content({
   data,
@@ -33,7 +36,7 @@ export default function Content({
     <div className="grid-layout">
       <div className="col-span-12 flex flex-col items-center justify-start">
         {post && <BlogMeta categories data={post as any} />}
-        <article className="col-span-12 flex max-w-[900px] flex-col items-start text-brand-w2 [&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-6 [&>p+p]:!mt-[7px]">
+        <article className="col-span-12 flex max-w-[846px] flex-col items-start text-brand-w2 [&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-6 [&>p+p]:!mt-[7px]">
           <RichText
             content={intro}
             components={{
@@ -69,9 +72,26 @@ export default function Content({
                   {props.children}
                 </Pre>
               ),
-              video: (props) => <BlogVideo {...props} />
+              video: (props) => <BlogVideo {...props} />,
               // TODO: add quote, sidenotes, codesandbox components
+              CodeBlockComponent: ({ files: { items } }) => (
+                <CodeBlock items={items} />
+              ),
+              QuoteWithAuthorComponent: (props) => (
+                <QuoteWithAuthor
+                  quote={props.quote?.json.content}
+                  author={props.author}
+                  role={props.role}
+                />
+              ),
+              CodeSandboxComponent: (props) => (
+                <Sandbox keyName={props.sandboxKey} />
+              ),
+              SideNoteComponent: (props) => (
+                <SideNote>{props.content?.json.content}</SideNote>
+              )
             }}
+            blocks={post?.content?.json.blocks}
           />
         </article>
         <BlogMeta categories={false} data={post as any} />
