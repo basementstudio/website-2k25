@@ -1,9 +1,9 @@
 "use client"
 
-import { RichText } from "basehub/react-rich-text"
 import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
+import { RichText } from "@/components/primitives/rich-text"
 import { formatDate } from "@/utils/format-date"
 
 import { Filters } from "./filters"
@@ -40,9 +40,9 @@ export default function Featured({
   return (
     <section className="grid-layout">
       <div className="col-span-12 grid grid-cols-12">
-        <div className="col-span-12 col-start-1 grid grid-cols-12 gap-2 border-b border-brand-w1/20 pb-3">
-          <h2 className="col-span-3 col-start-1 text-subheading capitalize text-brand-w2">
-            latest news
+        <div className="col-span-12 col-start-1 grid grid-cols-12 items-end gap-2 border-b border-brand-w1/20 pb-2">
+          <h2 className="col-span-3 col-start-5 text-h3 text-brand-g1">
+            Latest News
           </h2>
           <div className="col-span-2 col-start-9 flex items-end">
             <Filters
@@ -76,15 +76,21 @@ export default function Featured({
                   )}
                 </div>
               </div>
-              <h2 className="col-start-5 col-end-8 py-3 text-subheading text-brand-w2">
+              <h2 className="col-start-5 col-end-8 py-1 text-h2 text-brand-w2">
                 {post._title}
               </h2>
-              <div className="relative col-span-4 col-start-9 grid grid-cols-4 content-start gap-y-2 py-3">
-                <div className="col-start-1 col-end-4 block text-paragraph text-brand-w2">
-                  <RichText content={post.intro?.json.content} />
+              <div className="relative col-span-4 col-start-9 grid grid-cols-4 content-start gap-y-4 py-1">
+                <div className="col-start-1 col-end-4 block text-brand-w2">
+                  <RichText
+                    components={{
+                      p: ({ children }) => <p className="text-h4">{children}</p>
+                    }}
+                  >
+                    {post.intro?.json.content}
+                  </RichText>
                 </div>
-                <hr className="col-start-1 col-end-5 mt-4 w-full border-brand-w1/20" />
-                <div className="col-span-2 col-start-1 flex gap-1">
+                <hr className="col-start-1 col-end-5 w-full border-dashed border-brand-w1/20" />
+                <div className="col-span-2 col-start-1 flex flex-wrap gap-1 text-p">
                   {post.categories?.map((category) => (
                     <p
                       key={category._title}
@@ -94,7 +100,7 @@ export default function Featured({
                     </p>
                   ))}
                 </div>
-                <p className="col-span-2 col-start-3 text-paragraph text-brand-w2">
+                <p className="text-paragraph col-span-2 col-start-3 text-p text-brand-w2">
                   {formatDate(post.date || "")}
                 </p>
               </div>
