@@ -66,8 +66,10 @@ export const Map = memo(() => {
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
     videos,
-    car
+    car,
+    scenes
   } = useAssets()
+
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
@@ -96,22 +98,6 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-  const { fogColor, fogDensity, fogDepth } = useControls({
-    fog: levaFolder(
-      {
-        fogColor: {
-          x: 0.4,
-          y: 0.4,
-          z: 0.4
-        },
-        fogDensity: 0.05,
-        fogDepth: 9.0
-      },
-      {
-        collapsed: true
-      }
-    )
-  })
 
   const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
@@ -143,14 +129,6 @@ export const Map = memo(() => {
 
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
-
-      material.uniforms.fogColor.value = new Vector3(
-        fogColor.x,
-        fogColor.y,
-        fogColor.z
-      )
-      material.uniforms.fogDensity.value = fogDensity
-      material.uniforms.fogDepth.value = fogDepth
     })
 
     if (keyframedNet && isAnimating.current) {
@@ -179,6 +157,38 @@ export const Map = memo(() => {
       distance > STAIRS_VISIBILITY_THRESHOLD ||
       frustum.containsPoint(stairsRef.current.position)
   })
+
+  useEffect(() => {
+    if (!scene || !scenes) return
+
+    const normalizedSceneName =
+      scene.toLowerCase() === "/" ? "home" : scene.toLowerCase()
+
+    const currentSceneConfig = scenes.find(
+      (sceneData) =>
+        sceneData.name.toLowerCase().replace(/[^a-z0-9]/g, "") ===
+        normalizedSceneName.replace(/[^a-z0-9]/g, "")
+    )
+
+    if (!currentSceneConfig) {
+      useCustomShaderMaterial
+        .getState()
+        .updateFogSettings(new Vector3(0.4, 0.4, 0.4), 0.05, 9)
+      return
+    }
+
+    useCustomShaderMaterial
+      .getState()
+      .updateFogSettings(
+        new Vector3(
+          currentSceneConfig.fogConfig.fogColor.r,
+          currentSceneConfig.fogConfig.fogColor.g,
+          currentSceneConfig.fogConfig.fogColor.b
+        ),
+        currentSceneConfig.fogConfig.fogDensity,
+        currentSceneConfig.fogConfig.fogDepth
+      )
+  }, [scene, scenes])
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
