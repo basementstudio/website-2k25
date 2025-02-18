@@ -53,6 +53,11 @@ const createVideoTexture = (url: string) => {
 
 type SceneType = Object3D<Object3DEventMap> | null
 
+// Constants moved outside component
+const STAIRS_VISIBILITY_THRESHOLD = 1.8
+const frustum = new THREE.Frustum()
+const projScreenMatrix = new THREE.Matrix4()
+
 export const Map = memo(() => {
   const {
     office: officePath,
@@ -65,6 +70,7 @@ export const Map = memo(() => {
   } = useAssets()
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
+  const mainCamera = useNavigationStore((state) => state.mainCamera)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
@@ -107,6 +113,7 @@ export const Map = memo(() => {
     )
   })
 
+  const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
   const { showColorPicker } = useControls({
     "color picker": levaFolder(
@@ -158,6 +165,19 @@ export const Map = memo(() => {
         ? 1.0
         : 0.0
     }
+
+    if (!stairsRef.current || !mainCamera) return
+
+    projScreenMatrix.multiplyMatrices(
+      mainCamera.projectionMatrix,
+      mainCamera.matrixWorldInverse
+    )
+    frustum.setFromProjectionMatrix(projScreenMatrix)
+
+    const distance = mainCamera.position.distanceTo(stairsRef.current.position)
+    stairsRef.current.visible =
+      distance > STAIRS_VISIBILITY_THRESHOLD ||
+      frustum.containsPoint(stairsRef.current.position)
   })
 
   useEffect(() => {
@@ -205,6 +225,10 @@ export const Map = memo(() => {
     const traverse = (child: Object3D) => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
+      }
+
+      if (child.name === "SM_Stair3" && child instanceof THREE.Mesh) {
+        stairsRef.current = child
       }
 
       if ("isMesh" in child) {
