@@ -39,7 +39,7 @@
   position: sticky;
   left: 0;
   background-color: theme("colors.codeblock.k2");
-  color: theme("colors.brand.g1");
+  color: theme("colors.brand.g2");
   user-select: none;
   width: 44px !important;
   text-align: end;

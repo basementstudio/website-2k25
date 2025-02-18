@@ -4,16 +4,16 @@ import { formatDate } from "@/utils/format-date"
 
 const socialLinks = [
   {
-    Icon: XIcon,
-    href: (slug: string, title: string) =>
-      `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://basement.studio/blog/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
-    label: "Share on X"
-  },
-  {
     Icon: LinkedInIcon,
     href: (slug: string) =>
       `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`https://basement.studio/blog/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
     label: "Share on LinkedIn"
+  },
+  {
+    Icon: XIcon,
+    href: (slug: string, title: string) =>
+      `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://basement.studio/blog/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
+    label: "Share on X"
   }
 ]
 
@@ -54,14 +54,14 @@ export default function BlogMeta({
   categories: boolean
 }) {
   return (
-    <div className="grid-layout relative text-paragraph">
+    <div className="grid-layout relative text-p">
       {categories && (
         <Link href="/blog" className="col-span-1 col-start-1 text-brand-w1">
           ← <span className="underline">Blog</span>
         </Link>
       )}
       <div className="col-span-10 col-start-2 flex justify-center">
-        <div className="flex w-full max-w-[900px] flex-col gap-3">
+        <div className="flex w-full max-w-[846px] flex-col gap-3">
           {!categories && <hr className="mt-10 border-brand-w1/20" />}
           {categories && (
             <div className="flex gap-1">
@@ -76,8 +76,9 @@ export default function BlogMeta({
             </div>
           )}
           <div className="flex justify-between">
-            <p className="text-brand-g1">
-              {formatDate(data.date || "")} ·{" "}
+            <p className="inline-flex items-center gap-x-2 text-brand-w2">
+              {formatDate(data.date || "")}{" "}
+              <span className="inline-block size-1 bg-brand-g1" />{" "}
               {data.authors?.map((author) => author._title).join(", ") ||
                 "basement.studio"}
             </p>
