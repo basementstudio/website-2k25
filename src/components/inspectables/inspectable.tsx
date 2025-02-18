@@ -245,6 +245,7 @@ export const Inspectable = ({
         )
           return
         if (!selected) setCursorType("zoom")
+        else if (selected === id) setCursorType("grab")
       }}
       onPointerLeave={() => {
         if (
