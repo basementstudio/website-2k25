@@ -25,6 +25,8 @@ const currentPos = new Vector3()
 const currentTarget = new Vector3()
 const newDelta = new Vector3()
 const newLookAtDelta = new Vector3()
+const finalPos = new Vector3()
+const finalLookAt = new Vector3()
 const ANIMATION_DURATION = 2
 
 export const CustomCamera = () => {
@@ -108,23 +110,20 @@ export const CustomCamera = () => {
   }, [cameraConfig])
 
   // camera position and target handler
-  useFrame((_, dt) => {
-    const controls = cameraControlsRef.current
-    if (!controls || !cameraConfig || !lenis) return
+  const controls = cameraControlsRef.current
 
-    const prevTargetY = targetPosition.y
-    const prevLookAtY = targetLookAt.y
-    const prevFov = currentFov.current
+  useFrame((_, dt) => {
+    if (!controls || !cameraConfig || !lenis) return
 
     targetPosition.set(...cameraConfig.position)
     targetLookAt.set(...cameraConfig.target)
     targetFov.current = cameraConfig.fov ?? 60
 
     if (!disableCameraTransition) {
-      const scrollFactor = Math.min(1, lenis.scroll / window.innerHeight)
-      const yOffset = (targetY - initialY) * scrollFactor
-      targetPosition.y += yOffset
-      targetLookAt.y += yOffset
+      targetPosition.y +=
+        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
+      targetLookAt.y +=
+        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
     }
 
     if (disableCameraTransition || firstRender) {
@@ -133,8 +132,8 @@ export const CustomCamera = () => {
       currentTarget.copy(targetLookAt)
       currentFov.current = targetFov.current
 
-      const finalPos = currentPos.clone().add(panTargetDelta)
-      const finalLookAt = currentTarget.clone().add(panLookAtDelta)
+      finalPos.copy(currentPos).add(panTargetDelta)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
       controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
       controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
 
@@ -144,26 +143,28 @@ export const CustomCamera = () => {
       const easeValue = easeInOutCubic(progress.current)
 
       if (progress.current === dt / ANIMATION_DURATION) {
-        currentPos.y = prevTargetY
-        currentTarget.y = prevLookAtY
-        currentFov.current = prevFov
+        currentPos.y = targetPosition.y
+        currentTarget.y = targetLookAt.y
+        currentFov.current = currentFov.current
       }
 
       currentPos.lerp(targetPosition, easeValue)
       currentTarget.lerp(targetLookAt, easeValue)
-      currentFov.current = prevFov + (targetFov.current - prevFov) * easeValue
+      currentFov.current =
+        currentFov.current +
+        (targetFov.current - currentFov.current) * easeValue
 
-      const pos = currentPos.clone().add(panTargetDelta)
-      controls.setPosition(pos.x, pos.y, pos.z, false)
+      finalPos.copy(currentPos).add(panTargetDelta)
+      controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
 
-      const lookAt = currentTarget.clone().add(panLookAtDelta)
-      controls.setTarget(lookAt.x, lookAt.y, lookAt.z, false)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
+      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
     } else {
-      const pos = targetPosition.clone().add(panTargetDelta)
-      controls.setPosition(pos.x, pos.y, pos.z, false)
+      finalPos.copy(targetPosition).add(panTargetDelta)
+      controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
 
-      const lookAt = targetLookAt.clone().add(panLookAtDelta)
-      controls.setTarget(lookAt.x, lookAt.y, lookAt.z, false)
+      finalLookAt.copy(targetLookAt).add(panLookAtDelta)
+      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
     }
 
     if (firstRender) setFirstRender(false)
