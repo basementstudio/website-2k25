@@ -1,6 +1,7 @@
 uniform sampler2D map;
 uniform float uTime;
 uniform float uRevealProgress;
+uniform bool isRGBMonochrome;
 varying vec2 vUv;
 
 #define TINT_R (1.33)
@@ -41,7 +42,19 @@ vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
   // Compute the RGB color index from 0 to 2
   float ind = mod(floor(subcoord.x), 3.0);
   // Convert that value to an RGB color (multiplied to maintain brightness)
-  vec3 mask_color = vec3(ind == 0.0, ind == 1.0, ind == 2.0) * 3.0;
+  vec3 mask_color;
+  if (isRGBMonochrome) {
+    if (ind == 0.0) {
+      mask_color = vec3(1.5, 0.6, 0.0) * 3.0;
+    } else if (ind == 1.0) {
+      mask_color = vec3(0.8, 0.2, 0.0) * 3.0;
+    } else {
+      mask_color = vec3(0.4, 0.1, 0.0) * 3.0;
+    }
+  } else {
+    // Original RGB mask
+    mask_color = vec3(ind == 0.0, ind == 1.0, ind == 2.0) * 3.0;
+  }
 
   // Signed subcell uvs
   vec2 cell_uv = fract(subcoord + cell_offset) * 2.0 - 1.0;
@@ -50,8 +63,8 @@ vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
   // Blend x and y mask borders
   mask_color *= border.x * border.y;
 
-  // Apply mask to color
-  return color * (1.0 + (mask_color - 1.0) * MASK_INTENSITY);
+  float maskIntensity = isRGBMonochrome ? MASK_INTENSITY * 1.5 : MASK_INTENSITY;
+  return color * (1.0 + (mask_color - 1.0) * maskIntensity);
 }
 
 void main() {
