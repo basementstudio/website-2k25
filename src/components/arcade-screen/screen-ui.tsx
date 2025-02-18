@@ -5,7 +5,7 @@ import {
   FontFamilyProvider,
   Root
 } from "@react-three/uikit"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Vector3 } from "three"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
