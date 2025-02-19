@@ -15,6 +15,7 @@ interface ContactStore {
     field: keyof ContactStore["formData"],
     value: string
   ) => void
+  clearFormData: () => void
   worker: Worker | null
   setWorker: (worker: Worker | null) => void
   screenPosition: Vector2 | null
@@ -47,6 +48,25 @@ export const useContactStore = create<ContactStore>((set) => ({
     budget: "",
     message: ""
   },
+  clearFormData: () =>
+    set((state) => {
+      const emptyFormData = {
+        name: "",
+        company: "",
+        email: "",
+        budget: "",
+        message: ""
+      }
+
+      if (state.worker) {
+        state.worker.postMessage({
+          type: "update-form",
+          formData: emptyFormData
+        })
+      }
+
+      return { formData: emptyFormData }
+    }),
   updateFormField: (field, value) =>
     set((state) => {
       const newFormData = {

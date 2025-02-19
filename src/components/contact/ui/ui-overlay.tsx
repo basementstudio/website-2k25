@@ -6,7 +6,7 @@ import { cn } from "@/utils/cn"
 import { useContactStore } from "../contact-store"
 
 const UiOverlay = ({ className }: { className?: string }) => {
-  const { formData, updateFormField } = useContactStore()
+  const { formData, updateFormField, clearFormData } = useContactStore()
   const [submitting, setSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,6 +22,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
       console.error("An unexpected error occurred", err)
     } finally {
       setSubmitting(false)
+      clearFormData()
     }
   }
 
