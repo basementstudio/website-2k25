@@ -21,21 +21,25 @@ export const characterFragment = fragmentOn("Characters", {
 })
 
 export const mapFragment = fragmentOn("Map", {
+  officeV2: modelsItemFragment,
   office: modelsItemFragment,
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
   routingElements: modelsItemFragment,
-  maps: {
+  bakes: {
     items: {
       _title: true,
       lightmap: {
         url: true
       },
-      lightmapIntensity: true,
       ambientOcclusion: {
         url: true
       },
-      ambientOcclusionIntensity: true
+      meshes: {
+        items: {
+          _title: true
+        }
+      }
     }
   },
   glassReflexes: {
@@ -123,6 +127,15 @@ export const sceneFragment = fragmentOn("Scenes", {
           tabClickableName: true,
           plusShapeScale: true
         }
+      },
+      fogConfig: {
+        fogColor: {
+          r: true,
+          g: true,
+          b: true
+        },
+        fogDensity: true,
+        fogDepth: true
       }
     }
   }

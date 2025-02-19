@@ -1,5 +1,7 @@
 import { RichText } from "basehub/react-rich-text"
 
+import { cn } from "@/utils/cn"
+
 import { QueryType } from "../query"
 import {
   BlogImage,
@@ -36,7 +38,26 @@ export default function Content({
     <div className="grid-layout">
       <div className="col-span-12 flex flex-col items-center justify-start">
         {post && <BlogMeta categories data={post as any} />}
-        <article className="col-span-12 flex max-w-[846px] flex-col items-start text-brand-w2 [&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-6 [&>p+p]:!mt-[7px]">
+        <article
+          className={cn(
+            "col-span-12 flex max-w-[846px] flex-col items-start text-brand-w2",
+            // Default spacing between text elements
+            "[&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-6 [&>p+p]:!mt-[7px]",
+            // Spacing for media elements (image, video, sandbox)
+            "[&>.image]:mb-[24px] [&>.image]:mt-[88px] [&>.video]:mb-[24px] [&>.video]:mt-[88px]",
+            // spacing for consecutive elements of same type
+            "[&>.image+.image]:!mt-[24px]",
+
+            "[&>.image+.video]:!mt-[24px]",
+            "[&>.image+div>.sandbox]:!mt-[24px]",
+            "[&>.video+.video]:!mt-[24px]",
+            "[&>.video+.image]:!mt-[24px]",
+            "[&>.video+div>.sandbox]:!mt-[24px]",
+            "[&>div>.sandbox+.image]:!mt-[24px]",
+            "[&>div>.sandbox+.video]:!mt-[24px]",
+            "[&>div>.sandbox+div>.sandbox]:!mt-[24px]"
+          )}
+        >
           <RichText
             content={intro}
             components={{
