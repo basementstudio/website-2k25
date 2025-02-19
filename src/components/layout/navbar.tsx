@@ -14,7 +14,7 @@ export const Navbar = () => (
     {async ([data]) => {
       "use server"
 
-      const projects = data.pages.projects.projectList.items.length
+      const projects = data.company.projects.projectList.items.length
       const posts = data.pages.blog.posts.items.length
 
       const LINKS: NavbarLink[] = [
