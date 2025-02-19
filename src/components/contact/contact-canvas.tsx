@@ -51,7 +51,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         gl={{ antialias: false }}
       />
 
-      <UiOverlay className="fixed left-[42.5%] top-[53.5%] h-max w-[530px] -translate-x-1/2 -translate-y-1/2 opacity-40" />
+      <UiOverlay className="fixed left-[43.3vw] top-[32.6vw] aspect-[16/10] w-[33%] -translate-x-1/2 -translate-y-1/2 opacity-30 [perspective:800px]" />
     </>
   )
 }
