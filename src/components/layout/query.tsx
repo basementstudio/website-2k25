@@ -8,6 +8,13 @@ export const query = fragmentOn("Query", {
           _slug: true
         }
       }
+    },
+    showcase: {
+      projectList: {
+        items: {
+          _slug: true
+        }
+      }
     }
   },
   company: {
@@ -18,13 +25,6 @@ export const query = fragmentOn("Query", {
       newsletter: {
         json: {
           content: true
-        }
-      }
-    },
-    projects: {
-      projectList: {
-        items: {
-          _slug: true
         }
       }
     }
