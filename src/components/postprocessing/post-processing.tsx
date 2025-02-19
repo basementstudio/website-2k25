@@ -105,52 +105,6 @@ export function PostProcessing({
   })
 
   useControls({
-    basics: levaFolder(
-      {
-        contrast: {
-          value: 1.02,
-          min: 0.0,
-          max: 2.0,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uContrast.value = value
-          }
-        },
-        brightness: {
-          value: 0.31,
-          min: 0.0,
-          max: 2.0,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uBrightness.value = value
-          }
-        },
-        exposure: {
-          value: 0.54,
-          min: 0.0,
-          max: 4.0,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uExposure.value = value
-          }
-        },
-        gamma: {
-          value: 0.73,
-          min: 0.0,
-          max: 2.2,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uGamma.value = value
-          }
-        }
-      },
-      {
-        collapsed: true
-      }
-    )
-  })
-
-  useControls({
     "saturation mask": levaFolder(
       {
         debugEllipse: {
