@@ -35,7 +35,6 @@ const addLightmap = (update: TextureUpdate) => {
   const material = update.mesh.material as ShaderMaterial
   material.uniforms.lightMap.value = update.texture
   material.uniforms.lightMapIntensity.value = 1
-  material.uniforms.lightMapMultiplier.value = 1
 }
 
 const addAmbientOcclusion = (update: TextureUpdate) => {
@@ -43,7 +42,6 @@ const addAmbientOcclusion = (update: TextureUpdate) => {
   const material = update.mesh.material as ShaderMaterial
   material.uniforms.aoMap.value = update.texture
   material.uniforms.aoMapIntensity.value = 1
-  material.uniforms.aoMapMultiplier.value = 1
 }
 
 const useBakes = (): Record<string, Bake> => {

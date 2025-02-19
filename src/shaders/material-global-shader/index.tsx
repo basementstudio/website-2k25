@@ -41,10 +41,8 @@ export const createGlobalShaderMaterial = (
     map: { value: map },
     lightMap: { value: null },
     lightMapIntensity: { value: 0.0 },
-    lightMapMultiplier: { value: 1.0 },
     aoMap: { value: null },
     aoMapIntensity: { value: 0.0 },
-    aoMapMultiplier: { value: 1.0 },
     metalness: { value: metalness },
     roughness: { value: roughness },
     mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
@@ -63,10 +61,6 @@ export const createGlobalShaderMaterial = (
     glassReflex: { value: null },
     emissiveMap: { value: emissiveMap },
 
-    aoWithCheckerboard: { value: false },
-    isBasketball: { value: false },
-    uBasketballTransition: { value: 0 },
-    uBasketballFogColorTransition: { value: 0 },
     uGodrayOpacity: { value: 0 },
     uGodrayDensity: { value: 0 }
   } as Record<string, { value: unknown }>
@@ -119,7 +113,6 @@ interface CustomShaderMaterialStore {
   materialsRef: Record<string, ShaderMaterial>
   addMaterial: (material: ShaderMaterial) => void
   removeMaterial: (id: number) => void
-  setIsBasketball: (value: boolean) => void
   updateFogSettings: (
     { color, density, depth }: FogSettings,
     instant?: boolean
@@ -136,26 +129,6 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
     removeMaterial: (id) => {
       const materials = get().materialsRef
       delete materials[id]
-    },
-    setIsBasketball: (value) => {
-      const materials = get().materialsRef
-
-      Object.values(materials).forEach((material) => {
-        material.uniforms.isBasketball.value = value
-
-        // Animate basketball transition
-        animate(
-          material.uniforms.uBasketballTransition.value as number,
-          value ? 1 : 0,
-          {
-            duration: 2,
-            ease: [0.4, 0, 0.2, 1],
-            onUpdate: (latest) => {
-              material.uniforms.uBasketballTransition.value = latest
-            }
-          }
-        )
-      })
     },
     updateFogSettings: (
       { color, density, depth }: FogSettings,

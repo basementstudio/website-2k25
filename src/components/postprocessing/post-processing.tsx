@@ -1,6 +1,5 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { useEffect, useMemo, useRef } from "react"
 import {
@@ -37,23 +36,14 @@ const material = new ShaderMaterial({
     uExposure: { value: 1 },
     uGamma: { value: 1 },
 
-    // bloom
-    uBloomStrength: { value: 1 },
-    uBloomRadius: { value: 1 },
-    uBloomThreshold: { value: 1 },
-
     // Vignette
     uVignetteRadius: { value: 0.9 },
     uVignetteSpread: { value: 0.5 },
 
-    // Others
-    uSaturation: { value: 1.0 },
-    uEllipseCenter: { value: new Vector2(0.5, 0.61) },
-    uEllipseSize: { value: new Vector2(0.13, 0.09) },
-    uEllipseSoftness: { value: 0.78 },
-    uDebugEllipse: { value: false },
-    uVignetteStrength: { value: 1.0 },
-    uVignetteSoftness: { value: 0.18 }
+    // Bloom
+    uBloomStrength: { value: 1 },
+    uBloomRadius: { value: 1 },
+    uBloomThreshold: { value: 1 }
   }
 })
 
@@ -114,85 +104,6 @@ export function PostProcessing({
     material.uniforms.uBloomThreshold.value = targets.bloomThreshold.get()
   })
 
-  useControls({
-    "saturation mask": levaFolder(
-      {
-        debugEllipse: {
-          value: false,
-          onChange(value) {
-            material.uniforms.uDebugEllipse.value = value
-          }
-        },
-        ellipseCenterX: {
-          value: 0.5,
-          min: 0,
-          max: 1,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uEllipseCenter.value.x = value
-          }
-        },
-        ellipseCenterY: {
-          value: 0.61,
-          min: 0,
-          max: 1,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uEllipseCenter.value.y = value
-          }
-        },
-        ellipseSizeX: {
-          value: 0.13,
-          min: 0,
-          max: 2,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uEllipseSize.value.x = value
-          }
-        },
-        ellipseSizeY: {
-          value: 0.09,
-          min: 0,
-          max: 2,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uEllipseSize.value.y = value
-          }
-        },
-        ellipseSoftness: {
-          value: 0.78,
-          min: 0,
-          max: 1,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uEllipseSoftness.value = value
-          }
-        },
-        vignetteStrength: {
-          value: 1.0,
-          min: 0,
-          max: 1,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uVignetteStrength.value = value
-          }
-        },
-        vignetteSoftness: {
-          value: 0.18,
-          min: 0,
-          max: 2,
-          step: 0.01,
-          onChange(value) {
-            material.uniforms.uVignetteSoftness.value = value
-          }
-        }
-      },
-      {
-        collapsed: true
-      }
-    )
-  })
-
   useEffect(() => {
     const controller = new AbortController()
     const { signal } = controller
@@ -211,47 +122,6 @@ export function PostProcessing({
 
     return () => controller.abort()
   }, [mainTexture])
-
-  useEffect(() => {
-    const isBasketball = scene === "basketball"
-    const startSaturationValue = material.uniforms.uSaturation.value
-    const endSaturationValue = isBasketball ? 0.0 : 1.0
-    const startVignetteValue = material.uniforms.uVignetteStrength.value
-    const endVignetteValue = isBasketball ? 1.0 : 0.0
-    const duration = 800
-
-    const startTime = performance.now()
-    let animationFrame: number
-
-    const animate = () => {
-      const currentTime = performance.now()
-      const elapsed = currentTime - startTime
-      const progress = Math.min(elapsed / duration, 1)
-
-      const easeProgress =
-        progress < 0.5
-          ? 2 * progress * progress
-          : -1 + (4 - 2 * progress) * progress
-
-      material.uniforms.uSaturation.value =
-        startSaturationValue +
-        (endSaturationValue - startSaturationValue) * easeProgress
-
-      material.uniforms.uVignetteStrength.value =
-        startVignetteValue +
-        (endVignetteValue - startVignetteValue) * easeProgress
-
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate)
-      }
-    }
-
-    animationFrame = requestAnimationFrame(animate)
-
-    return () => {
-      if (animationFrame) cancelAnimationFrame(animationFrame)
-    }
-  }, [scene])
 
   return (
     <>

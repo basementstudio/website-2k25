@@ -6,28 +6,21 @@ uniform sampler2D uMainTexture;
 uniform vec2 resolution;
 uniform float uPixelRatio;
 uniform float uTolerance;
-uniform float uBrightness;
 
-uniform float uVignetteRadius;
-uniform float uVignetteSpread;
-
-uniform float uBloomStrength;
-uniform float uBloomRadius;
-uniform float uBloomThreshold;
-
-// post
+// Basics
 uniform float uGamma;
 uniform float uContrast;
 uniform float uExposure;
-uniform float uSaturation;
+uniform float uBrightness;
 
-uniform vec2 uEllipseCenter;
-uniform vec2 uEllipseSize;
-uniform float uEllipseSoftness;
-uniform bool uDebugEllipse;
+// Vignette
+uniform float uVignetteRadius;
+uniform float uVignetteSpread;
 
-uniform float uVignetteStrength;
-uniform float uVignetteSoftness;
+// Bloom
+uniform float uBloomStrength;
+uniform float uBloomRadius;
+uniform float uBloomThreshold;
 
 varying vec2 vUv;
 
@@ -164,37 +157,9 @@ vec3 ACESFilmicToneMapping(vec3 color) {
 
 }
 
-vec3 adjustSaturation(vec3 color, float saturation) {
-  float gray = dot(color, vec3(0.2126, 0.7152, 0.0722));
-  vec2 normalizedPos = (vUv - uEllipseCenter) / uEllipseSize;
-
-  float ellipseDistance = length(normalizedPos);
-  float ellipseMask = smoothstep(1.0 + uEllipseSoftness, 0.3, ellipseDistance);
-
-  float vignetteDistance = length((vUv - vec2(0.5)) * 2.0);
-  float vignetteMask = smoothstep(
-    0.0,
-    1.0 + uVignetteSoftness,
-    vignetteDistance
-  );
-  float finalVignette = vignetteMask * (1.0 - ellipseMask) * uVignetteStrength;
-
-  float finalSaturation = mix(saturation, 1.0, ellipseMask);
-  vec3 result = mix(vec3(gray), color, finalSaturation);
-
-  result *= 1.0 - finalVignette;
-
-  if (uDebugEllipse) {
-    return mix(result, vec3(1.0, 0.0, 0.0), ellipseMask * 0.5);
-  }
-
-  return result;
-}
-
 vec3 tonemap(vec3 color) {
   color.rgb *= uBrightness;
   color = contrast(color, uContrast);
-  color = adjustSaturation(color, uSaturation);
   color = invertedGamma(color, uGamma);
   color = ACESFilmicToneMapping(color);
   return color;
