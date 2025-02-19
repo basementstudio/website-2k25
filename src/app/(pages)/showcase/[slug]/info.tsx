@@ -85,18 +85,20 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
         <div />
       </ul>
 
-      {entry.project?.description?.json?.content ? (
+      {entry.project?.content?.json?.content ? (
         <div className="flex flex-col gap-2">
-          <RichText>{entry.project?.description?.json?.content}</RichText>
+          <RichText>{entry.project?.content?.json?.content}</RichText>
         </div>
       ) : null}
 
-      <Link
-        href={entry.project?.caseStudy || ""}
-        className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
-      >
-        View Case Study <Arrow className="size-4" />
-      </Link>
+      {entry.project?.caseStudy ? (
+        <Link
+          href={entry.project?.caseStudy || ""}
+          className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
+        >
+          View Case Study <Arrow className="size-4" />
+        </Link>
+      ) : null}
     </div>
 
     <RelatedProjects baseSlug={entry.project?._slug || ""} />

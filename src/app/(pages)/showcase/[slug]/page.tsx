@@ -17,7 +17,7 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
       queries={[
         {
           pages: {
-            projects: {
+            showcase: {
               projectList: {
                 __args: {
                   first: 1,
@@ -39,7 +39,7 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
       {async ([data]) => {
         "use server"
 
-        const entry = data.pages.projects.projectList.items[0]
+        const entry = data.pages.showcase.projectList.items[0]
         if (!entry) return notFound()
 
         return <ProjectWrapper entry={entry} />
@@ -52,13 +52,13 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
 export const generateStaticParams = async () => {
   const {
     pages: {
-      projects: {
+      showcase: {
         projectList: { items }
       }
     }
   } = await basehub({ cache: "no-store" }).query({
     pages: {
-      projects: {
+      showcase: {
         projectList: {
           items: {
             project: {
