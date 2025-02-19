@@ -10,10 +10,10 @@ import {
   Vector2
 } from "three"
 
+import { useAssets } from "@/components/assets-provider"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
-import { useAssets } from "../assets-provider"
 import postFrag from "./post.frag"
 import postVert from "./post.vert"
 
@@ -64,44 +64,51 @@ export function PostProcessing({
   const scene = useCurrentScene()
   const assets = useAssets()
 
-  const tContrast = useMemo(() => new MotionValue(), [])
-  const tBrightness = useMemo(() => new MotionValue(), [])
-  const tExposure = useMemo(() => new MotionValue(), [])
-  const tGamma = useMemo(() => new MotionValue(), [])
-  const tVignetteRadius = useMemo(() => new MotionValue(), [])
-  const tVignetteSpread = useMemo(() => new MotionValue(), [])
-  const tBloomStrength = useMemo(() => new MotionValue(), [])
-  const tBloomRadius = useMemo(() => new MotionValue(), [])
-  const tBloomThreshold = useMemo(() => new MotionValue(), [])
+  const targets = useMemo(
+    () => ({
+      contrast: new MotionValue(),
+      brightness: new MotionValue(),
+      exposure: new MotionValue(),
+      gamma: new MotionValue(),
+      vignetteRadius: new MotionValue(),
+      vignetteSpread: new MotionValue(),
+      bloomStrength: new MotionValue(),
+      bloomRadius: new MotionValue(),
+      bloomThreshold: new MotionValue()
+    }),
+    []
+  )
 
   useEffect(() => {
     const config = true ? ANIMATION_CONFIG : { duration: 0 }
 
-    const post = assets.scenes.find((s) => s.name === scene)?.postprocessing
+    const p = assets.scenes.find((s) => s.name === scene)?.postprocessing
 
-    if (post) {
-      animate(tContrast, post.contrast, config)
-      animate(tBrightness, post.brightness, config)
-      animate(tExposure, post.exposure, config)
-      animate(tGamma, post.gamma, config)
-      animate(tVignetteRadius, post.vignetteRadius, config)
-      animate(tVignetteSpread, post.vignetteSpread, config)
-      animate(tBloomStrength, post.bloomStrength, config)
-      animate(tBloomRadius, post.bloomRadius, config)
-      animate(tBloomThreshold, post.bloomThreshold, config)
+    if (p) {
+      animate(targets.contrast, p.contrast, config)
+      animate(targets.brightness, p.brightness, config)
+      animate(targets.exposure, p.exposure, config)
+      animate(targets.gamma, p.gamma, config)
+      animate(targets.vignetteRadius, p.vignetteRadius, config)
+      animate(targets.vignetteSpread, p.vignetteSpread, config)
+      animate(targets.bloomStrength, p.bloomStrength, config)
+      animate(targets.bloomRadius, p.bloomRadius, config)
+      animate(targets.bloomThreshold, p.bloomThreshold, config)
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene])
 
   useFrame(() => {
-    material.uniforms.uContrast.value = tContrast.get()
-    material.uniforms.uBrightness.value = tBrightness.get()
-    material.uniforms.uExposure.value = tExposure.get()
-    material.uniforms.uGamma.value = tGamma.get()
-    material.uniforms.uVignetteRadius.value = tVignetteRadius.get()
-    material.uniforms.uVignetteSpread.value = tVignetteSpread.get()
-    material.uniforms.uBloomStrength.value = tBloomStrength.get()
-    material.uniforms.uBloomRadius.value = tBloomRadius.get()
-    material.uniforms.uBloomThreshold.value = tBloomThreshold.get()
+    material.uniforms.uContrast.value = targets.contrast.get()
+    material.uniforms.uBrightness.value = targets.brightness.get()
+    material.uniforms.uExposure.value = targets.exposure.get()
+    material.uniforms.uGamma.value = targets.gamma.get()
+    material.uniforms.uVignetteRadius.value = targets.vignetteRadius.get()
+    material.uniforms.uVignetteSpread.value = targets.vignetteSpread.get()
+    material.uniforms.uBloomStrength.value = targets.bloomStrength.get()
+    material.uniforms.uBloomRadius.value = targets.bloomRadius.get()
+    material.uniforms.uBloomThreshold.value = targets.bloomThreshold.get()
   })
 
   useControls({
