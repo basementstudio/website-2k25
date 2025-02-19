@@ -7,9 +7,6 @@ import { QueryType } from "./query"
 
 export const FeaturedProjects = ({ data }: { data: QueryType }) => {
   const p = data.pages.homepage.featuredProjects.projectList.items
-
-  console.log(p)
-
   return (
     <div className="grid-layout !gap-y-14">
       {p.map((p, idx) => (
