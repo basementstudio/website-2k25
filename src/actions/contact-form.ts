@@ -18,6 +18,7 @@ export async function submitContactForm(formData: ContactFormData) {
       },
       body: JSON.stringify({
         from: "hello@basement.studio",
+        // sales@basement.studio
         to: ["tobimocc@gmail.com"],
         subject: `${formData.name} - ${formData.company} | Contact Us <basement.studio>`,
         html: `
