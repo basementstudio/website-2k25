@@ -7,7 +7,10 @@ export const screenMaterial = new ShaderMaterial({
   uniforms: {
     uTime: { value: 0 },
     map: { value: null },
-    iResolution: { value: [480.0, 576.0] }
+    iResolutionY: { value: 390.0 },
+    iResolutionX: { value: 250.0 },
+    uBrightness: { value: 7.0 },
+    uIsMonochrome: { value: true }
   },
   vertexShader: vert,
   fragmentShader: frag

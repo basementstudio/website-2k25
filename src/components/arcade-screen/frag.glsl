@@ -1,5 +1,8 @@
 uniform sampler2D map;
-uniform vec2 iResolution;
+uniform float iResolutionY;
+uniform float iResolutionX;
+uniform float uBrightness;
+uniform bool uIsMonochrome;
 
 varying vec2 vUv;
 
@@ -43,26 +46,25 @@ float GetScanline(vec2 vUV) {
   vec2 dx = dFdx(vUV);
   vec2 dy = dFdy(vUV);
   float dV = length(vec2(dx.y, dy.y));
-  float fResult = sin(vUV.y * 12.0) * 0.35 + 0.65;
+  float fResult = sin(vUV.y * 12.0) * 0.15 + 0.85;
   return mix(fResult, 1.0, min(1.0, dV * 1.3));
 }
 
 void main() {
-  vec2 vPixelCoord = vUv * iResolution;
+  vec2 vPixelCoord = vUv * vec2(iResolutionX, iResolutionY);
   vec3 vPixelMatrix = GetPixelMatrix(vPixelCoord);
   float fScanline = GetScanline(vPixelCoord);
 
   vec4 color = texture2D(map, vUv);
   vec3 vResult = color.rgb * vPixelMatrix * fScanline;
 
-  // Convert to monochrome (grayscale)
-  float gray = dot(vResult, vec3(0.299, 0.587, 0.114));
+  if (uIsMonochrome) {
+    float gray = dot(vResult, vec3(0.299, 0.587, 0.114));
+    vec3 orangeTint = vec3(1.0, 0.1, 0.0);
+    vResult = vec3(gray) * orangeTint;
+  }
 
-  // Define orange tint color - adjusted for stronger orange
-  vec3 orangeTint = vec3(1.0, 0.2, 0.0);
-
-  // Blend grayscale with orange tint
-  vResult = vec3(gray) * orangeTint;
+  vResult *= uBrightness;
 
   gl_FragColor = vec4(vResult, color.a);
 }

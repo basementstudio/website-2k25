@@ -44,26 +44,9 @@ export const ArcadeScreen = () => {
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
-  const { resolution } = useControls({
-    resolution: {
-      value: { x: 280, y: 376 },
-      x: {
-        min: 80,
-        max: 960,
-        step: 1,
-        onChange: (value: number) => {
-          screenMaterial.uniforms.iResolution.value[0] = value
-        }
-      },
-      y: {
-        min: 80,
-        max: 1152,
-        step: 1,
-        onChange: (value: number) => {
-          screenMaterial.uniforms.iResolution.value[1] = value
-        }
-      }
-    }
+  const { iResolutionX, iResolutionY } = useControls({
+    iResolutionX: { value: 250.0, min: 100.0, max: 1000.0, step: 10 },
+    iResolutionY: { value: 390.0, min: 10.0, max: 1000.0, step: 10 }
   })
 
   useEffect(() => {
@@ -83,7 +66,8 @@ export const ArcadeScreen = () => {
     if (!arcadeScreen) return
 
     videoTexture.flipY = false
-    screenMaterial.uniforms.iResolution.value = [resolution.x, resolution.y]
+    screenMaterial.uniforms.iResolutionX.value = iResolutionX
+    screenMaterial.uniforms.iResolutionY.value = iResolutionY
 
     // first time entering (show video texture)
     if (!hasVisitedArcade) {
@@ -120,7 +104,8 @@ export const ArcadeScreen = () => {
     videoTexture,
     isLabRoute,
     bootTexture,
-    resolution
+    iResolutionX,
+    iResolutionY
   ])
 
   useFrame((_, delta) => {
