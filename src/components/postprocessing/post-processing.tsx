@@ -1,5 +1,5 @@
 import { OrthographicCamera } from "@react-three/drei"
-import { useControls, folder as levaFolder } from "leva"
+import { folder as levaFolder, useControls } from "leva"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import {
@@ -34,7 +34,7 @@ const material = new ShaderMaterial({
     uNoiseFactor: { value: 0.0 },
     uBloomStrength: { value: 0.9 },
     uBloomRadius: { value: 10 },
-    uBloomThreshold: { value: 1.5 },
+    uBloomThreshold: { value: 5 },
 
     // adjustments
     uContrast: { value: 1 },
@@ -105,7 +105,7 @@ export function PostProcessing({
 
   useControls("bloom", {
     bloomThreshold: {
-      value: 1,
+      value: 5,
       min: 0.0,
       max: 10.0,
       step: 0.01,
