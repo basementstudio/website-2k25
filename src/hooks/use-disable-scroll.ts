@@ -1,15 +1,21 @@
-import { useEffect } from "react"
+import { useLenis } from "lenis/react"
+import { useEffect, useRef } from "react"
 
 export const useDisableScroll = (bool: boolean) => {
+  const lenisInstance = useLenis()
+  const lenisRef = useRef(lenisInstance)
+
+  useEffect(() => {
+    lenisRef.current = lenisInstance
+  }, [lenisInstance])
+
   useEffect(() => {
     if (bool) {
-      document.body.style.overflow = "hidden"
+      lenisRef.current?.stop()
     } else {
-      document.body.style.overflow = "unset"
+      lenisRef.current?.start()
     }
   }, [bool])
 
-  return () => {
-    document.body.style.overflow = "unset"
-  }
+  return () => {}
 }
