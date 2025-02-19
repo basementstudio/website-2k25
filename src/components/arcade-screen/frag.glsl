@@ -14,7 +14,7 @@ varying vec2 vUv;
 #define TIME_SPEED (1.0)
 #define LINE_HEIGHT (0.05)
 #define MASK_INTENSITY (0.3)
-#define MASK_SIZE (14.0)
+#define MASK_SIZE (8.0)
 #define MASK_BORDER (0.4)
 
 vec2 curveRemapUV(vec2 uv) {
