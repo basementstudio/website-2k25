@@ -136,6 +136,17 @@ export const sceneFragment = fragmentOn("Scenes", {
         },
         fogDensity: true,
         fogDepth: true
+      },
+      postprocessing: {
+        contrast: true,
+        brightness: true,
+        exposure: true,
+        gamma: true,
+        vignetteRadius: true,
+        vignetteSpread: true,
+        bloomStrength: true,
+        bloomRadius: true,
+        bloomThreshold: true
       }
     }
   }

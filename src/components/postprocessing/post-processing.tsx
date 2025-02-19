@@ -1,7 +1,8 @@
 import { OrthographicCamera } from "@react-three/drei"
+import { useFrame } from "@react-three/fiber"
 import { folder as levaFolder, useControls } from "leva"
-import { usePathname } from "next/navigation"
-import { useEffect } from "react"
+import { animate, MotionValue } from "motion"
+import { useEffect, useMemo } from "react"
 import {
   OrthographicCamera as ThreeOrthographicCamera,
   ShaderMaterial,
@@ -9,8 +10,10 @@ import {
   Vector2
 } from "three"
 
+import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
+import { useAssets } from "../assets-provider"
 import postFrag from "./post.frag"
 import postVert from "./post.vert"
 
@@ -24,23 +27,26 @@ const material = new ShaderMaterial({
   fragmentShader: postFrag,
   uniforms: {
     uMainTexture: { value: null },
-    uEnableShader: { value: false },
     aspect: { value: 1 },
     resolution: { value: new Vector2(1, 1) },
     uPixelRatio: { value: 1 },
-    uPalette: { value: null },
-    uBias: { value: 0.0 },
-    uColorMultiplier: { value: 1.0 },
-    uNoiseFactor: { value: 0.0 },
-    uBloomStrength: { value: 0.9 },
-    uBloomRadius: { value: 10 },
-    uBloomThreshold: { value: 5 },
 
-    // adjustments
+    // Basics
     uContrast: { value: 1 },
-    uExposure: { value: 1.2 },
-    uGamma: { value: 2.2 },
     uBrightness: { value: 1 },
+    uExposure: { value: 1 },
+    uGamma: { value: 1 },
+
+    // bloom
+    uBloomStrength: { value: 1 },
+    uBloomRadius: { value: 1 },
+    uBloomThreshold: { value: 1 },
+
+    // Vignette
+    uVignetteRadius: { value: 0.9 },
+    uVignetteSpread: { value: 0.5 },
+
+    // Others
     uSaturation: { value: 1.0 },
     uEllipseCenter: { value: new Vector2(0.5, 0.61) },
     uEllipseSize: { value: new Vector2(0.13, 0.09) },
@@ -56,6 +62,47 @@ export function PostProcessing({
   cameraRef
 }: PostProcessingProps) {
   const scene = useCurrentScene()
+  const assets = useAssets()
+
+  const tContrast = useMemo(() => new MotionValue(), [])
+  const tBrightness = useMemo(() => new MotionValue(), [])
+  const tExposure = useMemo(() => new MotionValue(), [])
+  const tGamma = useMemo(() => new MotionValue(), [])
+  const tVignetteRadius = useMemo(() => new MotionValue(), [])
+  const tVignetteSpread = useMemo(() => new MotionValue(), [])
+  const tBloomStrength = useMemo(() => new MotionValue(), [])
+  const tBloomRadius = useMemo(() => new MotionValue(), [])
+  const tBloomThreshold = useMemo(() => new MotionValue(), [])
+
+  useEffect(() => {
+    const config = true ? ANIMATION_CONFIG : { duration: 0 }
+
+    const post = assets.scenes.find((s) => s.name === scene)?.postprocessing
+
+    if (post) {
+      animate(tContrast, post.contrast, config)
+      animate(tBrightness, post.brightness, config)
+      animate(tExposure, post.exposure, config)
+      animate(tGamma, post.gamma, config)
+      animate(tVignetteRadius, post.vignetteRadius, config)
+      animate(tVignetteSpread, post.vignetteSpread, config)
+      animate(tBloomStrength, post.bloomStrength, config)
+      animate(tBloomRadius, post.bloomRadius, config)
+      animate(tBloomThreshold, post.bloomThreshold, config)
+    }
+  }, [scene])
+
+  useFrame(() => {
+    material.uniforms.uContrast.value = tContrast.get()
+    material.uniforms.uBrightness.value = tBrightness.get()
+    material.uniforms.uExposure.value = tExposure.get()
+    material.uniforms.uGamma.value = tGamma.get()
+    material.uniforms.uVignetteRadius.value = tVignetteRadius.get()
+    material.uniforms.uVignetteSpread.value = tVignetteSpread.get()
+    material.uniforms.uBloomStrength.value = tBloomStrength.get()
+    material.uniforms.uBloomRadius.value = tBloomRadius.get()
+    material.uniforms.uBloomThreshold.value = tBloomThreshold.get()
+  })
 
   useControls({
     basics: levaFolder(
@@ -101,36 +148,6 @@ export function PostProcessing({
         collapsed: true
       }
     )
-  })
-
-  useControls("bloom", {
-    bloomThreshold: {
-      value: 5,
-      min: 0.0,
-      max: 10.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uBloomThreshold.value = value
-      }
-    },
-    bloomStrength: {
-      value: 0.15,
-      min: 0.0,
-      max: 2.0,
-      step: 0.01,
-      onChange(value) {
-        material.uniforms.uBloomStrength.value = value
-      }
-    },
-    bloomRadius: {
-      value: 5.0,
-      min: 1.0,
-      max: 64.0,
-      step: 1,
-      onChange(value) {
-        material.uniforms.uBloomRadius.value = value
-      }
-    }
   })
 
   useControls({
