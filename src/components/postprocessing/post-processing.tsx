@@ -71,7 +71,7 @@ export function PostProcessing({
   )
 
   useEffect(() => {
-    const config = firstRender.current ? ANIMATION_CONFIG : { duration: 0 }
+    const config = !firstRender.current ? ANIMATION_CONFIG : { duration: 0 }
 
     const p = assets.scenes.find((s) => s.name === scene)?.postprocessing
 
