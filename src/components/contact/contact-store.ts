@@ -11,6 +11,8 @@ interface ContactStore {
     budget: string
     message: string
   }
+  focusedElement: string | null
+  setFocusedElement: (elementId: string | null) => void
   updateFormField: (
     field: keyof ContactStore["formData"],
     value: string
@@ -48,6 +50,18 @@ export const useContactStore = create<ContactStore>((set) => ({
     budget: "",
     message: ""
   },
+  focusedElement: null,
+  setFocusedElement: (elementId) =>
+    set((state) => {
+      if (state.worker) {
+        // console.log("[ContactStore] Updating focus to:", elementId)
+        state.worker.postMessage({
+          type: "update-focus",
+          focusedElement: elementId
+        })
+      }
+      return { focusedElement: elementId }
+    }),
   clearFormData: () =>
     set((state) => {
       const emptyFormData = {

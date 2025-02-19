@@ -14,7 +14,9 @@ interface WorkerStore {
     budget: string
     message: string
   }
+  focusedElement: string | null
   updateFormData: (formData: WorkerStore["formData"]) => void
+  updateFocusedElement: (elementId: string | null) => void
 }
 
 export const useWorkerStore = create<WorkerStore>((set) => ({
@@ -25,9 +27,14 @@ export const useWorkerStore = create<WorkerStore>((set) => ({
     budget: "",
     message: ""
   },
+  focusedElement: null,
   updateFormData: (formData) => {
     console.log("[WorkerStore] Updating form data:", formData)
     set({ formData })
+  },
+  updateFocusedElement: (elementId) => {
+    console.log("[WorkerStore] Updating focused element:", elementId)
+    set({ focusedElement: elementId })
   }
 }))
 
@@ -38,9 +45,10 @@ self.onmessage = (
     type: string
     modelUrl?: string
     formData?: WorkerStore["formData"]
+    focusedElement?: string | null
   }>
 ) => {
-  const { type, modelUrl, formData } = e.data
+  const { type, modelUrl, formData, focusedElement } = e.data
 
   if (type === "load-model" && modelUrl) {
     try {
@@ -53,7 +61,12 @@ self.onmessage = (
 
   // Forward text changes to the scene
   if (type === "update-form" && formData) {
-    self.postMessage({ type: "update-form", formData })
+    useWorkerStore.getState().updateFormData(formData)
+  }
+
+  // Handle focus updates
+  if (type === "update-focus") {
+    useWorkerStore.getState().updateFocusedElement(focusedElement!)
   }
 }
 

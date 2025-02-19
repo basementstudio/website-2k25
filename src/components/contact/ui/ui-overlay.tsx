@@ -6,7 +6,8 @@ import { cn } from "@/utils/cn"
 import { useContactStore } from "../contact-store"
 
 const UiOverlay = ({ className }: { className?: string }) => {
-  const { formData, updateFormField, clearFormData } = useContactStore()
+  const { formData, updateFormField, clearFormData, setFocusedElement } =
+    useContactStore()
   const [submitting, setSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,8 +27,6 @@ const UiOverlay = ({ className }: { className?: string }) => {
     }
   }
 
-  // focus:ring-1 focus:ring-brand-o ??
-
   return (
     <div className={cn(className)}>
       <div
@@ -43,13 +42,17 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 type="text"
                 value={formData.name}
                 onChange={(e) => updateFormField("name", e.target.value)}
-                className="selec w-1/2 bg-transparent p-2 text-transparent focus:outline-none"
+                onFocus={() => setFocusedElement("name")}
+                onBlur={() => setFocusedElement(null)}
+                className="selec remove-focus-styles w-1/2 bg-transparent p-2 text-transparent"
               />
               <input
                 type="text"
                 value={formData.company}
                 onChange={(e) => updateFormField("company", e.target.value)}
-                className="w-1/2 bg-transparent p-2 text-transparent focus:outline-none"
+                onFocus={() => setFocusedElement("company")}
+                onBlur={() => setFocusedElement(null)}
+                className="remove-focus-styles w-1/2 bg-transparent p-2 text-transparent"
               />
             </div>
 
@@ -58,44 +61,72 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 type="email"
                 value={formData.email}
                 onChange={(e) => updateFormField("email", e.target.value)}
-                className="mb-0 w-full bg-transparent p-2 text-transparent focus:outline-none"
+                onFocus={() => setFocusedElement("email")}
+                onBlur={() => setFocusedElement(null)}
+                className="remove-focus-styles mb-0 w-full bg-transparent p-2 text-transparent"
               />
 
               <input
                 type="text"
                 value={formData.budget}
                 onChange={(e) => updateFormField("budget", e.target.value)}
-                className="-mt-0 mb-0 w-full bg-transparent p-2 text-transparent focus:outline-none"
+                onFocus={() => setFocusedElement("budget")}
+                onBlur={() => setFocusedElement(null)}
+                className="remove-focus-styles -mt-0 mb-0 w-full bg-transparent p-2 text-transparent"
               />
 
               <textarea
                 value={formData.message}
                 onChange={(e) => updateFormField("message", e.target.value)}
-                className="mt-4 h-12 w-full resize-none bg-transparent p-2 tracking-[0.18em] text-transparent focus:outline-none"
+                onFocus={() => setFocusedElement("message")}
+                onBlur={() => setFocusedElement(null)}
+                className="remove-focus-styles mt-4 h-12 w-full resize-none bg-transparent p-2 text-transparent"
               />
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="mt-6 w-full p-2 text-center disabled:opacity-50"
+              onFocus={() => setFocusedElement("submit")}
+              onBlur={() => setFocusedElement(null)}
+              className="remove-focus-styles mt-6 w-full p-2 text-center disabled:opacity-50"
             >
               {submitting ? "SUBMITTING..." : "SUBMIT MESSAGE ->"}
             </button>
 
             <div className="mt-8 flex justify-between">
               <div className="flex gap-2">
-                <a href="#" className="px-4">
+                <a
+                  href="#"
+                  onFocus={() => setFocusedElement("twitter")}
+                  onBlur={() => setFocusedElement(null)}
+                  className="remove-focus-styles px-4"
+                >
                   TWITTER
                 </a>
-                <a href="#" className="px-1">
+                <a
+                  href="#"
+                  onFocus={() => setFocusedElement("instagram")}
+                  onBlur={() => setFocusedElement(null)}
+                  className="remove-focus-styles px-1"
+                >
                   INSTAGRAM
                 </a>
-                <a href="#" className="px-1">
+                <a
+                  href="#"
+                  onFocus={() => setFocusedElement("github")}
+                  onBlur={() => setFocusedElement(null)}
+                  className="remove-focus-styles px-1"
+                >
                   GITHUB
                 </a>
               </div>
-              <a href="#" className="px-1">
+              <a
+                href="#"
+                onFocus={() => setFocusedElement("email")}
+                onBlur={() => setFocusedElement(null)}
+                className="remove-focus-styles px-1"
+              >
                 HELLO@BASEMENT.STUDIO
               </a>
             </div>

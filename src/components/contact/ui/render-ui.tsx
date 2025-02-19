@@ -20,20 +20,22 @@ interface WorkerState {
     budget: string
     message: string
   }
+  focusedElement: string | null
 }
 
 const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
-  const formData = useWorkerStore((state: WorkerState) => {
-    console.log("[PhoneScreenUI] Worker store state:", state.formData)
-    return state.formData
-  })
+  const formData = useWorkerStore((state: WorkerState) => state.formData)
+  const focusedElement = useWorkerStore(
+    (state: WorkerState) => state.focusedElement
+  )
   const scale = screenScale.x * 0.0015
 
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
 
   const COLORS_THEME = {
     primary: "#FF4D00",
-    black: "#0D0D0D"
+    black: "#0D0D0D",
+    focus: "#FF4D00"
   }
 
   return (
@@ -112,6 +114,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                   <Container
                     width={"50%"}
                     height={"10%"}
+                    backgroundColor={
+                      focusedElement === "name"
+                        ? COLORS_THEME.focus
+                        : COLORS_THEME.black
+                    }
                     borderColor={COLORS_THEME.primary}
                     borderWidth={0}
                     borderBottomWidth={1}
@@ -125,6 +132,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                   <Container
                     width={"50%"}
                     height={"10%"}
+                    backgroundColor={
+                      focusedElement === "company"
+                        ? COLORS_THEME.focus
+                        : COLORS_THEME.black
+                    }
                     borderColor={COLORS_THEME.primary}
                     borderWidth={0}
                     borderBottomWidth={1}
@@ -147,6 +159,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                   <Container
                     width={"100%"}
                     height={"10%"}
+                    backgroundColor={
+                      focusedElement === "email"
+                        ? COLORS_THEME.focus
+                        : COLORS_THEME.black
+                    }
                     borderColor={COLORS_THEME.primary}
                     borderWidth={0}
                     borderBottomWidth={1}
@@ -160,6 +177,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                   <Container
                     width={"100%"}
                     height={"10%"}
+                    backgroundColor={
+                      focusedElement === "budget"
+                        ? COLORS_THEME.focus
+                        : COLORS_THEME.black
+                    }
                     borderColor={COLORS_THEME.primary}
                     borderWidth={0}
                     borderBottomWidth={1}
@@ -173,6 +195,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                   <Container
                     width={"100%"}
                     height={80}
+                    backgroundColor={
+                      focusedElement === "message"
+                        ? COLORS_THEME.focus
+                        : COLORS_THEME.black
+                    }
                     borderColor={COLORS_THEME.primary}
                     borderWidth={0}
                     borderBottomWidth={1}
@@ -193,15 +220,25 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                   paddingX={16}
                   width="100%"
                 >
-                  <Text
+                  <Container
                     width="100%"
+                    backgroundColor={
+                      focusedElement === "submit"
+                        ? COLORS_THEME.focus
+                        : COLORS_THEME.black
+                    }
                     borderColor={COLORS_THEME.primary}
-                    paddingY={8}
-                    textAlign="center"
                     borderWidth={1}
+                    paddingY={8}
                   >
-                    SUBMIT MESSAGE -{">"}
-                  </Text>
+                    <Text
+                      width="100%"
+                      color={COLORS_THEME.primary}
+                      textAlign="center"
+                    >
+                      SUBMIT MESSAGE -{">"}
+                    </Text>
+                  </Container>
                 </Container>
               </Container>
             </Container>
