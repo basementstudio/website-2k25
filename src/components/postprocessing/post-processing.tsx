@@ -2,7 +2,7 @@ import { OrthographicCamera } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import {
   OrthographicCamera as ThreeOrthographicCamera,
   ShaderMaterial,
@@ -63,6 +63,7 @@ export function PostProcessing({
 }: PostProcessingProps) {
   const scene = useCurrentScene()
   const assets = useAssets()
+  const firstRender = useRef(true)
 
   const targets = useMemo(
     () => ({
@@ -80,7 +81,7 @@ export function PostProcessing({
   )
 
   useEffect(() => {
-    const config = true ? ANIMATION_CONFIG : { duration: 0 }
+    const config = firstRender.current ? ANIMATION_CONFIG : { duration: 0 }
 
     const p = assets.scenes.find((s) => s.name === scene)?.postprocessing
 
@@ -94,6 +95,8 @@ export function PostProcessing({
       animate(targets.bloomStrength, p.bloomStrength, config)
       animate(targets.bloomRadius, p.bloomRadius, config)
       animate(targets.bloomThreshold, p.bloomThreshold, config)
+
+      firstRender.current = false
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

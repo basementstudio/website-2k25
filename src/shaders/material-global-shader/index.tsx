@@ -1,7 +1,9 @@
-import { animate as animateMotion } from "motion"
+import { animate } from "motion"
 import { MeshStandardMaterial, Texture, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
+
+import { ANIMATION_CONFIG } from "@/constants/inspectables"
 
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
@@ -104,6 +106,12 @@ export const createGlobalShaderMaterial = (
   return material
 }
 
+interface FogSettings {
+  color: Vector3
+  density: number
+  depth: number
+}
+
 interface CustomShaderMaterialStore {
   /**
    * Will not cause re-renders to use this object
@@ -113,9 +121,8 @@ interface CustomShaderMaterialStore {
   removeMaterial: (id: number) => void
   setIsBasketball: (value: boolean) => void
   updateFogSettings: (
-    newFogColor: Vector3,
-    newFogDensity: number,
-    newFogDepth: number
+    { color, density, depth }: FogSettings,
+    instant?: boolean
   ) => void
 }
 
@@ -137,7 +144,7 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
         material.uniforms.isBasketball.value = value
 
         // Animate basketball transition
-        animateMotion(
+        animate(
           material.uniforms.uBasketballTransition.value as number,
           value ? 1 : 0,
           {
@@ -151,46 +158,33 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
       })
     },
     updateFogSettings: (
-      newFogColor: Vector3,
-      newFogDensity: number,
-      newFogDepth: number
+      { color, density, depth }: FogSettings,
+      instant?: boolean
     ) => {
       const materials = get().materialsRef
 
       Object.values(materials).forEach((material) => {
         const startFogColor = material.uniforms.fogColor.value as Vector3
-        const isBasketballTransition = material.uniforms.isBasketball
-          .value as boolean
+
+        const config = !instant ? ANIMATION_CONFIG : { duration: 0 }
 
         const axes: Array<"x" | "y" | "z"> = ["x", "y", "z"]
         axes.forEach((axis) => {
-          animateMotion(startFogColor[axis], newFogColor[axis], {
-            duration: 2,
-            ease: [0.4, 0, 0.2, 1],
-            onUpdate: (latest) => {
-              material.uniforms.fogColor.value[axis] = latest
-            }
+          animate(startFogColor[axis], color[axis], {
+            ...config,
+            onUpdate: (latest) =>
+              (material.uniforms.fogColor.value[axis] = latest)
           })
         })
 
-        animateMotion(
-          material.uniforms.fogDensity.value as number,
-          newFogDensity,
-          {
-            duration: 0.8,
-            ease: [0.4, 0, 0.2, 1],
-            onUpdate: (latest) => {
-              material.uniforms.fogDensity.value = latest
-            }
-          }
-        )
+        animate(material.uniforms.fogDensity.value as number, density, {
+          ...config,
+          onUpdate: (latest) => (material.uniforms.fogDensity.value = latest)
+        })
 
-        animateMotion(material.uniforms.fogDepth.value as number, newFogDepth, {
-          duration: 0.8,
-          ease: [0.4, 0, 0.2, 1],
-          onUpdate: (latest) => {
-            material.uniforms.fogDepth.value = latest
-          }
+        animate(material.uniforms.fogDepth.value as number, depth, {
+          ...config,
+          onUpdate: (latest) => (material.uniforms.fogDepth.value = latest)
         })
       })
     }
