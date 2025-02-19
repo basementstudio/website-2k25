@@ -12,6 +12,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
+import { useControls } from "leva"
 
 const ScreenUI = dynamic(
   () =>
@@ -43,6 +44,28 @@ export const ArcadeScreen = () => {
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
+  const { resolution } = useControls({
+    resolution: {
+      value: { x: 280, y: 376 },
+      x: {
+        min: 80,
+        max: 960,
+        step: 1,
+        onChange: (value: number) => {
+          screenMaterial.uniforms.iResolution.value[0] = value
+        }
+      },
+      y: {
+        min: 80,
+        max: 1152,
+        step: 1,
+        onChange: (value: number) => {
+          screenMaterial.uniforms.iResolution.value[1] = value
+        }
+      }
+    }
+  })
+
   useEffect(() => {
     const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
     setArcadeScreen(screen as Mesh)
@@ -60,6 +83,7 @@ export const ArcadeScreen = () => {
     if (!arcadeScreen) return
 
     videoTexture.flipY = false
+    screenMaterial.uniforms.iResolution.value = [resolution.x, resolution.y]
 
     // first time entering (show video texture)
     if (!hasVisitedArcade) {
@@ -82,7 +106,6 @@ export const ArcadeScreen = () => {
         })
       } else {
         screenMaterial.uniforms.map.value = videoTexture
-        screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
       }
     } else {
       // always use render target texture after first visit
@@ -96,7 +119,8 @@ export const ArcadeScreen = () => {
     renderTarget.texture,
     videoTexture,
     isLabRoute,
-    bootTexture
+    bootTexture,
+    resolution
   ])
 
   useFrame((_, delta) => {

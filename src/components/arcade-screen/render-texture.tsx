@@ -51,16 +51,16 @@ export const renderTextureContext = createContext<{
   isPlaying: boolean
 }>({
   isInsideRenderTexture: false,
-  width: 2048,
-  height: 2048,
+  width: 1000,
+  height: 1000,
   aspect: 1,
   isPlaying: true
 })
 
 export const RenderTexture = ({
   isPlaying: _playing = true,
-  width = 2048,
-  height = 2048,
+  width = 1000,
+  height = 1000,
   attach,
   fbo: _fbo,
   onMapTexture,
