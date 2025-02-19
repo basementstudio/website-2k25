@@ -24,6 +24,9 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const animationMixerRef = useRef<AnimationMixer | null>(null)
   const phoneGroupRef = useRef<Group>(null)
   const updateFormData = useWorkerStore((state) => state.updateFormData)
+  const updateFocusedElement = useWorkerStore(
+    (state) => state.updateFocusedElement
+  )
 
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
@@ -41,12 +44,14 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "update-form") {
         updateFormData(e.data.formData)
+      } else if (e.data.type === "update-focus") {
+        updateFocusedElement(e.data.focusedElement)
       }
     }
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
-  }, [updateFormData])
+  }, [updateFormData, updateFocusedElement])
 
   useEffect(() => {
     const screen = gltf.scene.children[0].getObjectByName(

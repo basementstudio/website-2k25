@@ -61,12 +61,18 @@ self.onmessage = (
 
   // Forward text changes to the scene
   if (type === "update-form" && formData) {
+    console.log("[ContactWorker] Received form update:", formData)
     useWorkerStore.getState().updateFormData(formData)
   }
 
   // Handle focus updates
   if (type === "update-focus") {
-    useWorkerStore.getState().updateFocusedElement(focusedElement!)
+    console.log("[ContactWorker] Received focus update:", focusedElement)
+    if (focusedElement === undefined) {
+      console.warn("[ContactWorker] Received undefined focusedElement")
+      return
+    }
+    useWorkerStore.getState().updateFocusedElement(focusedElement)
   }
 }
 

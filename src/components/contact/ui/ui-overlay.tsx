@@ -100,7 +100,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                   href="#"
                   onFocus={() => setFocusedElement("twitter")}
                   onBlur={() => setFocusedElement(null)}
-                  className="remove-focus-styles px-4"
+                  className="remove-focus-styles px-4 text-transparent"
                 >
                   TWITTER
                 </a>
@@ -108,7 +108,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                   href="#"
                   onFocus={() => setFocusedElement("instagram")}
                   onBlur={() => setFocusedElement(null)}
-                  className="remove-focus-styles px-1"
+                  className="remove-focus-styles px-1 text-transparent"
                 >
                   INSTAGRAM
                 </a>
@@ -116,7 +116,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                   href="#"
                   onFocus={() => setFocusedElement("github")}
                   onBlur={() => setFocusedElement(null)}
-                  className="remove-focus-styles px-1"
+                  className="remove-focus-styles px-1 text-transparent"
                 >
                   GITHUB
                 </a>
@@ -125,7 +125,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 href="#"
                 onFocus={() => setFocusedElement("email")}
                 onBlur={() => setFocusedElement(null)}
-                className="remove-focus-styles px-1"
+                className="remove-focus-styles px-1 text-transparent"
               >
                 HELLO@BASEMENT.STUDIO
               </a>

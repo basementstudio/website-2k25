@@ -6,6 +6,7 @@ import {
   Root,
   Text
 } from "@react-three/uikit"
+import { useEffect } from "react"
 import { Vector3 } from "three"
 
 import { useWorkerStore } from "@/workers/contact-worker"
@@ -28,14 +29,21 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
   const focusedElement = useWorkerStore(
     (state: WorkerState) => state.focusedElement
   )
-  const scale = screenScale.x * 0.0015
+
+  useEffect(() => {
+    console.log("[PhoneScreenUI] Focus changed to:", focusedElement)
+  }, [focusedElement])
+
+  useEffect(() => {
+    console.log("[PhoneScreenUI] Form data updated:", formData)
+  }, [formData])
 
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
 
   const COLORS_THEME = {
     primary: "#FF4D00",
     black: "#0D0D0D",
-    focus: "#FF4D00"
+    focus: "#1E1E1E"
   }
 
   return (
