@@ -1,6 +1,7 @@
 "use client"
 
-import { useLoader, useThree } from "@react-three/fiber"
+import { useFrame, useLoader, useThree } from "@react-three/fiber"
+import { useControls } from "leva"
 import { animate } from "motion"
 import { memo, Suspense, useEffect, useMemo } from "react"
 import {
@@ -125,6 +126,25 @@ const Bakes = () => {
   const bakes = useBakes()
 
   const scene = useThree((state) => state.scene)
+
+  const { lightmapIntensity, ambientOcclusion } = useControls({
+    lightmapIntensity: { value: 1, min: 0, max: 24, step: 0.01 },
+    ambientOcclusion: { value: 1, min: 0, max: 24, step: 0.01 }
+  })
+
+  useFrame(() => {
+    Object.values(shaderMaterialsRef).forEach((material) => {
+      if (material.uniforms.lightMap.value) {
+        material.uniforms.lightMapIntensity.value = lightmapIntensity
+      }
+    })
+
+    Object.values(shaderMaterialsRef).forEach((material) => {
+      if (material.uniforms.aoMap.value) {
+        material.uniforms.aoMapIntensity.value = ambientOcclusion
+      }
+    })
+  })
 
   useEffect(() => {
     animate(0, 1, {
