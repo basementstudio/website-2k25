@@ -10,7 +10,7 @@ import { QueryItemType } from "./query"
 export function ProjectGallery({ entry }: { entry: QueryItemType }) {
   const { viewMode } = useProjectContext()
 
-  const showcase = entry.project?.showcase?.items
+  const showcase = entry.showcase.items
     .map((item) => item.image)
     .filter((image) => image !== null)
 
@@ -21,7 +21,7 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
         viewMode === "grid" ? "grid-cols-2" : "grid-cols-1"
       )}
     >
-      {showcase?.map((image, idx) => (
+      {showcase.map((image, idx) => (
         <div
           key={image.url}
           className={cn(

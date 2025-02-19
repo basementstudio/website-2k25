@@ -97,7 +97,7 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
               )}
             >
               <div className="grid grid-cols-12 gap-2 pb-0.5 pt-10.5">
-                {item.project?.showcase?.items.map((item, index) => (
+                {item.showcase.items.map((item, index) => (
                   <Image
                     key={index}
                     src={item.image?.url ?? ""}

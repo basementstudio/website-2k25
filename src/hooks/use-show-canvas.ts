@@ -3,12 +3,9 @@
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
-const BLACKLISTED_PATHS = [
-  /^\/blog\/\d+$/,
-  /^\/blog\/[^\/]+$/,
-  /^\/showcase\/\d+$/,
-  /^\/showcase\/[^\/]+$/
-]
+// add regext that matches /blog/[slug],
+// but not /blog
+const BLACKLISTED_PATHS = [/^\/blog\/\d+$/, /^\/blog\/[^\/]+$/]
 
 export const useShowCanvas = () => {
   const pathname = usePathname()

@@ -13,10 +13,10 @@ import { RelatedProjects } from "./related"
 
 export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
   <div className="col-span-2 flex h-full flex-col gap-4">
-    <div className="sticky top-12 mb-48 flex flex-col gap-4">
+    <div className="sticky top-11 mb-48 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <Link
-          href="/showcase"
+          href="/projects"
           className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
         >
           <Arrow className="size-4 rotate-180" /> All Projects
@@ -85,20 +85,18 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
         <div />
       </ul>
 
-      {entry.project?.content?.json?.content ? (
+      {entry.project?.description?.json?.content ? (
         <div className="flex flex-col gap-2">
-          <RichText>{entry.project?.content?.json?.content}</RichText>
+          <RichText>{entry.project?.description?.json?.content}</RichText>
         </div>
       ) : null}
 
-      {entry.project?.caseStudy ? (
-        <Link
-          href={entry.project?.caseStudy || ""}
-          className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
-        >
-          View Case Study <Arrow className="size-4" />
-        </Link>
-      ) : null}
+      <Link
+        href={entry.project?.caseStudy || ""}
+        className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
+      >
+        View Case Study <Arrow className="size-4" />
+      </Link>
     </div>
 
     <RelatedProjects baseSlug={entry.project?._slug || ""} />

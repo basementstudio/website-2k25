@@ -6,6 +6,11 @@ export const projectFragment = fragmentOn("ProjectList", {
   items: {
     _slug: true,
     _title: true,
+    showcase: {
+      items: {
+        image: IMAGE_FRAGMENT
+      }
+    },
     project: {
       _slug: true,
       client: {
@@ -17,7 +22,7 @@ export const projectFragment = fragmentOn("ProjectList", {
         _title: true
       },
       projectWebsite: true,
-      content: {
+      description: {
         json: {
           content: true
         }
@@ -30,12 +35,7 @@ export const projectFragment = fragmentOn("ProjectList", {
         _title: true
       },
       cover: IMAGE_FRAGMENT,
-      icon: IMAGE_FRAGMENT,
-      showcase: {
-        items: {
-          image: IMAGE_FRAGMENT
-        }
-      }
+      icon: IMAGE_FRAGMENT
     }
   }
 })
