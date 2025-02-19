@@ -19,7 +19,6 @@ import { useWorkerStore } from "@/workers/contact-worker"
 
 import { RenderTexture } from "../arcade-screen/render-texture"
 import { createScreenMaterial } from "../arcade-screen/screen-material"
-import { PhoneAnimationHandler } from "./contact-anims"
 import PhoneScreenUI from "./ui/render-ui"
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
@@ -99,10 +98,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const mixer = new AnimationMixer(gltf.scene)
     animationMixerRef.current = mixer
 
-    const enterAnimation = gltf.animations[0]
+    const enterAnimation = gltf.animations.find((a) => a.name === "antena")
     const idleAnimation = gltf.animations.find((a) => a.name === "Iddle4")
 
-    const enterAction = mixer.clipAction(enterAnimation)
+    const enterAction = mixer.clipAction(enterAnimation!)
     const idleAction = mixer.clipAction(idleAnimation!)
 
     idleAction.setLoop(LoopRepeat, Infinity)

@@ -8,20 +8,18 @@ import { useContactStore } from "../contact-store"
 const UiOverlay = ({ className }: { className?: string }) => {
   const { formData, updateFormField } = useContactStore()
   const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    setError(null)
 
     try {
       const result = await submitContactForm(formData)
       if (!result.success) {
-        setError(result.error || "Failed to submit form")
+        console.error("Failed to submit form", result.error)
       }
     } catch (err) {
-      setError("An unexpected error occurred")
+      console.error("An unexpected error occurred", err)
     } finally {
       setSubmitting(false)
     }
