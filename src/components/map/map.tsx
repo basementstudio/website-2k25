@@ -30,7 +30,7 @@ import { useAssets } from "../assets-provider"
 import Cars from "../cars/cars"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
-import { MapAssetsLoader } from "./map-assets"
+import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
 
@@ -442,7 +442,7 @@ export const Map = memo(() => {
         <primitive object={useMesh.getState().hoopMesh as Mesh} />
       )}
       {keyframedNet && <primitive object={keyframedNet} />}
-      <MapAssetsLoader />
+      <BakesLoader />
       <ReflexesLoader />
 
       <Suspense fallback={null}>

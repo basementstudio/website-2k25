@@ -77,7 +77,7 @@ export default function BlogMeta({
           )}
           <div className="flex justify-between">
             <p className="inline-flex items-center gap-x-2 text-brand-w2">
-              {formatDate(data.date || "")}{" "}
+              {data.date ? formatDate(data.date) : null}
               <span className="inline-block size-1 bg-brand-g1" />{" "}
               {data.authors?.map((author) => author._title).join(", ") ||
                 "basement.studio"}
