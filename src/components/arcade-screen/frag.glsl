@@ -1,7 +1,6 @@
 uniform sampler2D map;
 uniform float uTime;
 uniform float uRevealProgress;
-uniform bool isRGBMonochrome;
 varying vec2 vUv;
 
 #define TINT_R (1.33)
@@ -39,63 +38,47 @@ vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
   float blend = smoothstep(0.3, 0.7, fract(xCoord));
 
   vec3 mask_color1, mask_color2;
-  if (isRGBMonochrome) {
-    if (ind == 0.0) {
-      mask_color1 = vec3(1.2, 0.3, 0.0) * 2.0;
-      mask_color2 = vec3(0.6, 0.1, 0.0) * 2.0;
-    } else if (ind == 1.0) {
-      mask_color1 = vec3(0.6, 0.1, 0.0) * 2.0;
-      mask_color2 = vec3(0.3, 0.05, 0.0) * 2.0;
-    } else {
-      mask_color1 = vec3(0.3, 0.05, 0.0) * 2.0;
-      mask_color2 = vec3(1.2, 0.3, 0.0) * 2.0;
-    }
+
+  if (ind == 0.0) {
+    mask_color1 = vec3(1.2, 0.3, 0.0) * 2.0;
+    mask_color2 = vec3(0.6, 0.1, 0.0) * 2.0;
+  } else if (ind == 1.0) {
+    mask_color1 = vec3(0.6, 0.1, 0.0) * 2.0;
+    mask_color2 = vec3(0.3, 0.05, 0.0) * 2.0;
   } else {
-    // Original RGB mask with smooth transitions
-    if (ind == 0.0) {
-      mask_color1 = vec3(1.0, 0.0, 0.0) * 3.0;
-      mask_color2 = vec3(0.0, 1.0, 0.0) * 3.0;
-    } else if (ind == 1.0) {
-      mask_color1 = vec3(0.0, 1.0, 0.0) * 3.0;
-      mask_color2 = vec3(0.0, 0.0, 1.0) * 3.0;
-    } else {
-      mask_color1 = vec3(0.0, 0.0, 1.0) * 3.0;
-      mask_color2 = vec3(1.0, 0.0, 0.0) * 3.0;
-    }
+    mask_color1 = vec3(0.3, 0.05, 0.0) * 2.0;
+    mask_color2 = vec3(1.2, 0.3, 0.0) * 2.0;
   }
 
-  // Blend between adjacent mask colors
+  // blend between adjacent mask colors
   vec3 mask_color = mix(mask_color1, mask_color2, blend);
 
-  float maskIntensity = isRGBMonochrome ? MASK_INTENSITY * 1.5 : MASK_INTENSITY;
+  float maskIntensity = MASK_INTENSITY * 1.5;
   return color * (1.0 + (mask_color - 1.0) * maskIntensity);
 }
 
 void main() {
-  // curve remap
+  // add curved uv
   vec2 remappedUv = curveRemapUV(vUv);
+  vec3 textureColor = vec3(0.0);
 
-  // discard pixels outside the curved area
+  // texture boundaries
   if (
-    remappedUv.x < 0.0 ||
-    remappedUv.x > 1.0 ||
-    remappedUv.y < 0.0 ||
-    remappedUv.y > 1.0
+    remappedUv.x >= 0.0 &&
+    remappedUv.x <= 1.0 &&
+    remappedUv.y >= 0.0 &&
+    remappedUv.y <= 1.0
   ) {
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    return;
+    textureColor = texture2D(map, remappedUv).rgb;
   }
 
-  // get texture color and apply tint
-  vec3 textureColor = texture2D(map, remappedUv).rgb;
   float luma = dot(textureColor, vec3(0.8, 0.1, 0.1));
   vec3 tint = vec3(1.0, 0.302, 0.0);
   tint.r *= TINT_R;
   tint.g *= TINT_G;
   textureColor = luma * tint * BRIGHTNESS;
 
-  // apply reveal to texture
-  float currentLine = floor(remappedUv.y / LINE_HEIGHT);
+  float currentLine = floor(vUv.y / LINE_HEIGHT);
   float revealLine = floor(uRevealProgress / LINE_HEIGHT);
   float textureVisibility = currentLine <= revealLine ? 0.8 : 0.0;
 
@@ -103,20 +86,20 @@ void main() {
   vec3 color = mix(vec3(0.0), textureColor, textureVisibility);
 
   // add noise that's always visible (reduced intensity)
-  float noise = random(remappedUv + vec2(uTime * TIME_SPEED)) * NOISE_INTENSITY;
+  float noise = random(vUv + vec2(uTime * TIME_SPEED)) * NOISE_INTENSITY;
   color += noise * 0.1;
 
   // add scanlines that are always visible (reduced intensity)
-  float scanline = sin(remappedUv.y * SCANLINE_COUNT) * 0.5 + 0.5;
+  float scanline = sin(vUv.y * SCANLINE_COUNT) * 0.5 + 0.5;
   color += (1.0 - scanline * SCANLINE_INTENSITY) * 0.05;
 
   // add vignette
-  vec2 vignetteUv = remappedUv * 2.0 - 1.0;
+  vec2 vignetteUv = vUv * 2.0 - 1.0;
   float vignette = 1.0 - dot(vignetteUv, vignetteUv) * VIGNETTE_STRENGTH;
   color *= vignette;
 
-  // Apply CRT RGB mask
-  color = applyCRTMask(color, remappedUv, vec2(1024.0, 1024.0)); // Adjust resolution as needed
+  // add crt
+  color = applyCRTMask(color, vUv, vec2(1024.0, 1024.0));
 
   gl_FragColor = vec4(color, 1.0);
 }

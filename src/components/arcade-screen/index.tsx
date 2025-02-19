@@ -12,7 +12,6 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
-import { useControls } from "leva"
 
 const ScreenUI = dynamic(
   () =>
@@ -44,13 +43,6 @@ export const ArcadeScreen = () => {
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
-  const { isRGBMonochrome } = useControls({
-    isRGBMonochrome: {
-      value: false,
-      label: "RGB Monochrome"
-    }
-  })
-
   useEffect(() => {
     const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
     setArcadeScreen(screen as Mesh)
@@ -74,7 +66,6 @@ export const ArcadeScreen = () => {
       if (isLabRoute) {
         screenMaterial.uniforms.map.value = bootTexture
         screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
-        screenMaterial.uniforms.isRGBMonochrome = { value: isRGBMonochrome }
 
         animate(0, 1, {
           duration: 2,
@@ -92,12 +83,10 @@ export const ArcadeScreen = () => {
       } else {
         screenMaterial.uniforms.map.value = videoTexture
         screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
-        screenMaterial.uniforms.isRGBMonochrome = { value: isRGBMonochrome }
       }
     } else {
       // always use render target texture after first visit
       screenMaterial.uniforms.map.value = renderTarget.texture
-      screenMaterial.uniforms.isRGBMonochrome = { value: isRGBMonochrome }
     }
 
     arcadeScreen.material = screenMaterial
@@ -107,8 +96,7 @@ export const ArcadeScreen = () => {
     renderTarget.texture,
     videoTexture,
     isLabRoute,
-    bootTexture,
-    isRGBMonochrome
+    bootTexture
   ])
 
   useFrame((_, delta) => {
