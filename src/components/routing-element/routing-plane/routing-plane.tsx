@@ -5,12 +5,12 @@ import {
   Quaternion,
   ShaderMaterial,
   Vector3,
-  EdgesGeometry,
-  LineBasicMaterial
+  EdgesGeometry
 } from "three"
 
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
+import { useFrame } from "@react-three/fiber"
 
 export const RoutingPlane = ({
   position,
@@ -30,14 +30,32 @@ export const RoutingPlane = ({
       new ShaderMaterial({
         uniforms: {
           thickness: {
-            value: 1.0
-          }
+            value: 0.01
+          },
+          opacity: { value: 0.2 }
         },
+        vertexShader: `
+          varying vec3 vWorldPosition;
+          
+          void main() {
+            vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float thickness;
+          uniform float opacity;
+          varying vec3 vWorldPosition;
+          
+          void main() {
+            vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+            float pattern = sin((vWorldPosition.x + vWorldPosition.y + vWorldPosition.z) * 10.0) * 0.5 + 0.5;
+            pattern = smoothstep(0.5 - thickness, 0.5 + thickness, pattern);
+            gl_FragColor = vec4(1.0, 1.0, 1.0, pattern * opacity);
+          }
+        `,
         depthTest: false,
-        transparent: true,
-        opacity: 0.1,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader
+        transparent: true
       }),
     []
   )
@@ -122,10 +140,32 @@ export const RoutingPlane = ({
   const edgesGeometry = useMemo(() => new EdgesGeometry(geometry), [geometry])
   const edgesMaterial = useMemo(
     () =>
-      new LineBasicMaterial({
-        color: 0xffffff,
+      new ShaderMaterial({
+        uniforms: {
+          thickness: { value: 0.05 },
+          opacity: { value: 0.2 }
+        },
+        vertexShader: `
+          varying vec3 vWorldPosition;
+          
+          void main() {
+            vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float thickness;
+          uniform float opacity;
+          varying vec3 vWorldPosition;
+          
+          void main() {
+            vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+            float pattern = sin((vWorldPosition.x + vWorldPosition.y + vWorldPosition.z) * 10.0) * 0.5 + 0.5;
+            pattern = smoothstep(0.5 - thickness, 0.5 + thickness, pattern);
+            gl_FragColor = vec4(1.0, 1.0, 1.0, pattern * opacity);
+          }
+        `,
         transparent: true,
-        opacity: 0.2,
         depthTest: false
       }),
     []
