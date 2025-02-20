@@ -53,7 +53,8 @@ const cursorTypeMap = {
   grabbing: "grabbing",
   inspect: "help",
   zoom: "zoom-in",
-  "not-allowed": "not-allowed"
+  "not-allowed": "not-allowed",
+  alias: "alias"
 } as const
 
 export const Scene = () => {
