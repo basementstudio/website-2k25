@@ -138,16 +138,16 @@ export const RoutingElement = ({
           <meshBasicMaterial transparent opacity={0} />
         </mesh>
       </group>
-      {hover && (
-        <>
-          <RoutingPlane
-            position={[node.position.x, node.position.y, node.position.z]}
-            scale={[1, 1]}
-            rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
-            geometry={node.geometry}
-          />
-        </>
-      )}
+
+      <>
+        <RoutingPlane
+          position={[node.position.x, node.position.y, node.position.z]}
+          scale={[1, 1]}
+          rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
+          geometry={node.geometry}
+          visible={hover}
+        />
+      </>
     </>
   )
 }

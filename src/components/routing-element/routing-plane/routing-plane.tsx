@@ -14,12 +14,14 @@ export const RoutingPlane = ({
   position,
   rotation,
   geometry,
-  scale
+  scale,
+  visible
 }: {
   position: [number, number, number]
   rotation: [number, number, number]
   geometry: BufferGeometry
   scale: [number, number]
+  visible: boolean
 }) => {
   const material = useMemo(
     () =>
@@ -115,7 +117,7 @@ export const RoutingPlane = ({
     ) : null
 
   return (
-    <group position={position} rotation={rotation}>
+    <group position={position} rotation={rotation} visible={visible}>
       <mesh
         geometry={geometry}
         material={material}
