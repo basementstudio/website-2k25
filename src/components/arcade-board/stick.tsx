@@ -6,11 +6,13 @@ import { Mesh } from "three"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useAssets } from "../assets-provider"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const [stickIsGrabbed, setStickIsGrabbed] = useState(false)
   const { setCursorType } = useMouseStore()
   const { playSoundFX } = useSiteAudio()
+  const scene = useCurrentScene()
   const { sfx } = useAssets()
   const state = useRef(0)
 
@@ -19,11 +21,13 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
 
   const handleGrabStick = () => {
+    if (scene !== "lab") return
     setStickIsGrabbed(true)
     setCursorType("grabbing")
   }
 
   const handleReleaseStick = () => {
+    if (scene !== "lab") return
     setStickIsGrabbed(false)
     resetStick()
   }
@@ -126,7 +130,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         onPointerDown={() => handleGrabStick()}
       >
         <cylinderGeometry args={[0.02, 0.02, 0.06, 12]} />
-        <meshBasicMaterial opacity={0} />
+        <meshBasicMaterial opacity={0} transparent />
       </mesh>
       <mesh
         position={[
@@ -155,7 +159,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         }}
       >
         <sphereGeometry args={[0.2, 12, 12]} />
-        <meshBasicMaterial opacity={0} />
+        <meshBasicMaterial opacity={0} transparent />
       </mesh>
     </group>
   )
