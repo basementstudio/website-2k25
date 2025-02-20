@@ -89,6 +89,18 @@ export const sfxFragment = fragmentOn("Sfx", {
   },
   basketballBuzzer: {
     url: true
+  },
+  arcade: {
+    buttons: {
+      items: {
+        press: {
+          url: true
+        },
+        release: {
+          url: true
+        }
+      }
+    }
   }
 })
 

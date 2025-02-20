@@ -10,6 +10,8 @@ export type SiteAudioSFXKey =
   | "BASKETBALL_NET"
   | "BASKETBALL_THUMP"
   | "TIMEOUT_BUZZER"
+  | `ARCADE_BUTTON_${number}_PRESS`
+  | `ARCADE_BUTTON_${number}_RELEASE`
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
@@ -60,7 +62,7 @@ export function useInitializeAudioContext(element?: HTMLElement) {
 
 export function SiteAudioSFXsLoader(): null {
   const player = useSiteAudioStore((s) => s.player)
-  const { GAME_AUDIO_SFX } = useAudioUrls()
+  const { GAME_AUDIO_SFX, ARCADE_AUDIO_SFX } = useAudioUrls()
 
   useEffect(() => {
     if (!player) return
@@ -77,6 +79,17 @@ export function SiteAudioSFXsLoader(): null {
             )
             source.setVolume(SFX_VOLUME)
             newSources[audioKey] = source
+          })
+        )
+
+        await Promise.all(
+          ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
+            const source = await player.loadAudioFromURL(button.PRESS)
+            source.setVolume(SFX_VOLUME)
+            newSources[`ARCADE_BUTTON_${index}_PRESS`] = source
+            const sourceRelease = await player.loadAudioFromURL(button.RELEASE)
+            sourceRelease.setVolume(SFX_VOLUME)
+            newSources[`ARCADE_BUTTON_${index}_RELEASE`] = sourceRelease
           })
         )
 

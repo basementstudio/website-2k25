@@ -40,6 +40,12 @@ export interface AssetsResult {
     basketballNet: string
     basketballThump: string
     basketballBuzzer: string
+    arcade: {
+      buttons: {
+        press: string
+        release: string
+      }[]
+    }
   }
   scenes: {
     name: string
@@ -141,7 +147,13 @@ export async function fetchAssets(): Promise<AssetsResult> {
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
       basketballNet: threeDInteractions.sfx.basketballNet?.url ?? "",
       basketballThump: threeDInteractions.sfx.basketballThump?.url ?? "",
-      basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? ""
+      basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? "",
+      arcade: {
+        buttons: threeDInteractions.sfx.arcade.buttons.items.map((item) => ({
+          press: item.press?.url ?? "",
+          release: item.release?.url ?? ""
+        }))
+      }
     },
     car: {
       carModel: threeDInteractions.car.carModel?.url ?? "",
