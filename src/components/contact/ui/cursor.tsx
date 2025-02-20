@@ -5,14 +5,33 @@ interface CursorProps {
   visible: boolean
   chars: number
   marginTop?: number
+  text?: string
 }
 
-const Cursor = ({ visible, chars, marginTop }: CursorProps) => {
+const Cursor = ({ visible, chars, marginTop, text = "" }: CursorProps) => {
   const [isBlinking, setIsBlinking] = useState(true)
-  const positionLeftRef = useRef(8)
 
-  // M char width measured as 9.75ish
-  // I char causes a bigger gap, revise
+  const charWidths: { [key: string]: number } = {
+    I: 3,
+    "!": 3,
+    ".": 3,
+    ",": 3,
+    ":": 3,
+    default: 9.8
+  }
+
+  const calculateCursorPosition = (text: string, cursorPos: number) => {
+    // base padding
+    let position = 8
+
+    const relevantText = text.slice(0, cursorPos)
+
+    for (const char of relevantText) {
+      position += charWidths[char] || charWidths.default
+    }
+
+    return position
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,13 +43,15 @@ const Cursor = ({ visible, chars, marginTop }: CursorProps) => {
 
   if (!visible) return null
 
+  const cursorPosition = calculateCursorPosition(text, chars)
+
   return (
     <Container
       width={1}
       height={16}
       backgroundColor={isBlinking ? "#FFFFFF" : "#000000"}
       positionType="absolute"
-      positionLeft={positionLeftRef.current + chars * 9.8}
+      positionLeft={cursorPosition}
       positionTop={marginTop || 0}
     />
   )

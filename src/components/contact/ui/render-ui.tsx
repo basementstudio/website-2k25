@@ -135,6 +135,7 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Cursor
                       visible={focusedElement === "name"}
                       chars={cursorPosition}
+                      text={formData.name}
                     />
                   </Container>
                   <Container
@@ -157,6 +158,7 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Cursor
                       visible={focusedElement === "company"}
                       chars={cursorPosition}
+                      text={formData.company}
                     />
                   </Container>
                 </Container>
@@ -188,6 +190,7 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Cursor
                       visible={focusedElement === "email"}
                       chars={cursorPosition}
+                      text={formData.email}
                     />
                   </Container>
                   <Container
@@ -210,6 +213,7 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Cursor
                       visible={focusedElement === "budget"}
                       chars={cursorPosition}
+                      text={formData.budget}
                     />
                   </Container>
                   <Container
@@ -249,6 +253,7 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Cursor
                       visible={focusedElement === "message"}
                       chars={cursorPosition}
+                      text={formData.message}
                       marginTop={8}
                     />
                   </Container>
