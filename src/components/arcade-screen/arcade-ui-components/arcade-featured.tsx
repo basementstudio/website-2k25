@@ -30,7 +30,7 @@ export const ArcadeFeatured = () => {
           }}
           onHoverChange={(hover) => {
             if (hover) {
-              setCursorType("click")
+              setCursorType("alias")
               setIsHovering(true)
             } else {
               setCursorType("default")
