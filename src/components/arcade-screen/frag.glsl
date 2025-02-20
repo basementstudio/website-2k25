@@ -2,12 +2,11 @@ uniform sampler2D map;
 uniform float uTime;
 uniform float uRevealProgress;
 varying vec2 vUv;
+varying vec3 vPosition;
 
 #define TINT_R (1.33)
 #define TINT_G (0.11)
 #define BRIGHTNESS (15.0)
-#define SCANLINE_INTENSITY (0.5)
-#define SCANLINE_COUNT (800.0)
 #define VIGNETTE_STRENGTH (0.1)
 #define DISTORTION (0.3)
 #define NOISE_INTENSITY (0.3)
@@ -18,6 +17,8 @@ varying vec2 vUv;
 #define MASK_BORDER (0.4)
 #define INTERFERENCE1 (0.4)
 #define INTERFERENCE2 (0.001)
+#define SCANLINE_INTENSITY (0.2)
+#define SCANLINE_COUNT (200.0)
 
 vec2 curveRemapUV(vec2 uv) {
   uv = uv * 2.0 - 1.0;
@@ -30,33 +31,6 @@ vec2 curveRemapUV(vec2 uv) {
 // random function
 float random(vec2 st) {
   return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-}
-
-vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
-  vec2 coord = uv * resolution / MASK_SIZE;
-  float xCoord = coord.x * 6.0;
-
-  float ind = mod(floor(xCoord), 3.0);
-  float blend = smoothstep(0.3, 0.7, fract(xCoord));
-
-  vec3 mask_color1, mask_color2;
-
-  if (ind == 0.0) {
-    mask_color1 = vec3(1.2, 0.3, 0.0) * 2.0;
-    mask_color2 = vec3(0.6, 0.1, 0.0) * 2.0;
-  } else if (ind == 1.0) {
-    mask_color1 = vec3(0.6, 0.1, 0.0) * 2.0;
-    mask_color2 = vec3(0.3, 0.05, 0.0) * 2.0;
-  } else {
-    mask_color1 = vec3(0.3, 0.05, 0.0) * 2.0;
-    mask_color2 = vec3(1.2, 0.3, 0.0) * 2.0;
-  }
-
-  // blend between adjacent mask colors
-  vec3 mask_color = mix(mask_color1, mask_color2, blend);
-
-  float maskIntensity = MASK_INTENSITY * 1.5;
-  return color * (1.0 + (mask_color - 1.0) * maskIntensity);
 }
 
 float peak(float x, float xpos, float scale) {
@@ -103,18 +77,15 @@ void main() {
   // start with black background and blend with revealed texture
   vec3 color = mix(vec3(0.0), textureColor, textureVisibility);
 
-  // add noise that's always visible (reduced intensity)
-  float noise = random(vUv + vec2(uTime * TIME_SPEED)) * NOISE_INTENSITY;
-  color += noise * 0.1;
-
-  // add scanlines that are always visible (reduced intensity)
-  float scanline = sin(vUv.y * SCANLINE_COUNT) * 0.5 + 0.5;
-  color += (1.0 - scanline * SCANLINE_INTENSITY) * 0.05;
-
   // add vignette
   vec2 vignetteUv = vUv * 2.0 - 1.0;
   float vignette = 1.0 - dot(vignetteUv, vignetteUv) * VIGNETTE_STRENGTH;
   color *= vignette;
+
+  // add scanlines
+  float scanline = step(0.5, fract(vPosition.y * SCANLINE_COUNT));
+  scanline = 1.0 - scanline * SCANLINE_INTENSITY;
+  color *= scanline;
 
   gl_FragColor = vec4(color, 1.0);
 }
