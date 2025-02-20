@@ -9,16 +9,16 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
-  const [stickIsGrabbed, setStickIsGrabbed] = useState(false)
+  const scene = useCurrentScene()
   const { setCursorType } = useMouseStore()
   const { playSoundFX } = useSiteAudio()
-  const scene = useCurrentScene()
   const { sfx } = useAssets()
-  const state = useRef(0)
 
   const availableSounds = sfx.arcade.sticks.length
-
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
+
+  const [stickIsGrabbed, setStickIsGrabbed] = useState(false)
+  const state = useRef(0)
 
   const handleGrabStick = () => {
     if (scene !== "lab") return
