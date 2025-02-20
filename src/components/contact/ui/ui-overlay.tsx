@@ -117,7 +117,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 onSelect={handleCursorPosition}
                 onKeyUp={handleCursorPosition}
                 onClick={handleCursorPosition}
-                className="remove-focus-styles mt-4 h-12 w-full resize-none bg-transparent p-2 text-transparent"
+                className="remove-focus-styles h-16 w-full resize-none bg-transparent p-2 text-start align-text-top text-transparent"
               />
             </div>
 

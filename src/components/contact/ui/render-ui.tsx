@@ -226,9 +226,26 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     paddingX={8}
                     paddingY={16}
                   >
-                    <Text positionType="absolute" color={COLORS_THEME.primary}>
-                      {formData.message || "MESSAGE"}
-                    </Text>
+                    {formData.message ? (
+                      <Container display="flex" flexDirection="column" gap={4}>
+                        {formData.message.split("\n").map((line, index) => (
+                          <Text
+                            key={index}
+                            positionType="relative"
+                            color={COLORS_THEME.primary}
+                          >
+                            {line || " "}
+                          </Text>
+                        ))}
+                      </Container>
+                    ) : (
+                      <Text
+                        positionType="absolute"
+                        color={COLORS_THEME.primary}
+                      >
+                        MESSAGE
+                      </Text>
+                    )}
                     <Cursor
                       visible={focusedElement === "message"}
                       chars={cursorPosition}
