@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { useState } from "react"
 
 import { submitContactForm } from "@/actions/contact-form"
@@ -133,33 +134,36 @@ const UiOverlay = ({ className }: { className?: string }) => {
 
             <div className="mt-8 flex justify-between">
               <div className="flex gap-2">
-                <a
-                  href="#"
+                <Link
+                  href="https://x.com/basementstudio"
+                  target="_blank"
                   onFocus={() => setFocusedElement("twitter")}
                   onBlur={() => setFocusedElement(null)}
                   className="remove-focus-styles px-4 text-transparent"
                 >
                   TWITTER
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  href="https://www.instagram.com/basementdotstudio/"
+                  target="_blank"
                   onFocus={() => setFocusedElement("instagram")}
                   onBlur={() => setFocusedElement(null)}
                   className="remove-focus-styles px-1 text-transparent"
                 >
                   INSTAGRAM
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  href="https://github.com/basementstudio"
+                  target="_blank"
                   onFocus={() => setFocusedElement("github")}
                   onBlur={() => setFocusedElement(null)}
                   className="remove-focus-styles px-1 text-transparent"
                 >
                   GITHUB
-                </a>
+                </Link>
               </div>
               <a
-                href="#"
+                href="mailto:hello@basement.studio"
                 onFocus={() => setFocusedElement("email")}
                 onBlur={() => setFocusedElement(null)}
                 className="remove-focus-styles px-1 text-transparent"
