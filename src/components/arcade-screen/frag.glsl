@@ -22,6 +22,10 @@ varying vec3 vPosition;
 #define NOISE_SCALE (500.0)
 #define NOISE_OPACITY (0.02)
 
+#define SCAN_SPEED (5.0)
+#define SCAN_CYCLE (10.0)
+#define SCAN_DISTORTION (0.003)
+
 vec2 curveRemapUV(vec2 uv) {
   uv = uv * 2.0 - 1.0;
   vec2 offset = abs(uv.yx) / vec2(5.0, 5.0);
@@ -40,6 +44,15 @@ float peak(float x, float xpos, float scale) {
 }
 
 void main() {
+  // add cycle to scan line
+  float scanCycleTime = mod(uTime * SCAN_SPEED, SCAN_CYCLE + 40.0);
+  float scanPos;
+  if (scanCycleTime < SCAN_CYCLE) {
+    scanPos = scanCycleTime / SCAN_CYCLE;
+  } else {
+    scanPos = 1.0;
+  }
+
   // add interference
   float scany = round(vUv.y * 1024.0);
 
@@ -54,6 +67,11 @@ void main() {
   interferenceUv.x += ifx1 - ifx2;
 
   vec2 remappedUv = curveRemapUV(interferenceUv);
+  // add horizontal distortion near scan line
+  float scanDistortion =
+    exp(-pow((vUv.y - scanPos) * 160.0, 2.0)) * SCAN_DISTORTION;
+  remappedUv.x += scanDistortion;
+
   vec3 textureColor = vec3(0.0);
 
   // texture boundaries
