@@ -3,6 +3,7 @@ import { Container, Text } from "@react-three/uikit"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 
 import { COLORS_THEME } from "../screen-ui"
+import { useState } from "react"
 
 interface ArcadeLabsListProps {
   experiments: any[]
@@ -31,6 +32,11 @@ export const ArcadeLabsList = ({
       scrollbarBorderColor={COLORS_THEME.black}
       scrollbarBorderWidth={2}
       scrollbarColor={COLORS_THEME.primary}
+      onHoverChange={(hover) => {
+        if (!hover) {
+          setSelectedExperiment(null)
+        }
+      }}
     >
       {experiments &&
         experiments.map((data, idx) => (
@@ -53,7 +59,7 @@ export const ArcadeLabsList = ({
             paddingTop={8}
             onHoverChange={(hover) => {
               if (hover) {
-                setCursorType("click")
+                setCursorType("alias")
                 setSelectedExperiment(data)
               } else {
                 setCursorType("default")
@@ -96,13 +102,6 @@ export const ArcadeLabsList = ({
                     "_blank"
                   )
                 }}
-                onHoverChange={(hover) => {
-                  if (hover) {
-                    setCursorType("click")
-                  } else {
-                    setCursorType("default")
-                  }
-                }}
               >
                 CODE
               </Text>
@@ -122,19 +121,69 @@ export const ArcadeLabsList = ({
                     "_blank"
                   )
                 }}
-                onHoverChange={(hover) => {
-                  if (hover) {
-                    setCursorType("click")
-                  } else {
-                    setCursorType("default")
-                  }
-                }}
               >
                 LIVE
               </Text>
             </Container>
           </Container>
         ))}
+      <ViewMore
+        isLoaded={experiments.length > 0}
+        setSelectedExperiment={setSelectedExperiment}
+      />
+    </Container>
+  )
+}
+
+const ViewMore = ({
+  isLoaded,
+  setSelectedExperiment
+}: {
+  isLoaded: boolean
+  setSelectedExperiment: (experiment: any) => void
+}) => {
+  const [isViewMoreHovered, setIsViewMoreHovered] = useState(false)
+  const setCursorType = useMouseStore((state) => state.setCursorType)
+
+  if (!isLoaded) return null
+  return (
+    <Container
+      flexDirection="row"
+      justifyContent="center"
+      width={"100%"}
+      paddingLeft={8}
+      paddingRight={8}
+      height={24}
+      borderBottomWidth={0}
+      borderRightWidth={1}
+      backgroundColor={
+        isViewMoreHovered ? COLORS_THEME.primary : COLORS_THEME.black
+      }
+      borderColor={COLORS_THEME.primary}
+      paddingTop={8}
+      onClick={() => {
+        window.open("https://basement.studio/lab", "_blank")
+      }}
+      onHoverChange={(hover) => {
+        if (hover) {
+          setSelectedExperiment(null)
+          setIsViewMoreHovered(true)
+          setCursorType("alias")
+        } else {
+          setSelectedExperiment(null)
+          setIsViewMoreHovered(false)
+          setCursorType("default")
+        }
+      }}
+    >
+      <Text
+        fontSize={10}
+        color={isViewMoreHovered ? COLORS_THEME.black : COLORS_THEME.primary}
+        fontWeight="normal"
+        zIndexOffset={10}
+      >
+        VIEW MORE
+      </Text>
     </Container>
   )
 }

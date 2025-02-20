@@ -3,6 +3,18 @@
 @tailwind utilities;
 
 @layer utilities {
+  .remove-focus-styles {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+    ring: 0 !important;
+    --tw-ring-offset-width: 0 !important;
+    --tw-ring-offset-color: transparent !important;
+    --tw-ring-color: transparent !important;
+    --tw-ring-offset-shadow: 0 0 transparent !important;
+    --tw-ring-shadow: 0 0 transparent !important;
+  }
+
   .grid-layout {
     @apply mx-auto grid w-full max-w-full grid-cols-12 gap-2 px-4;
   }
@@ -117,4 +129,49 @@ button:focus,
 input:focus,
 a:focus {
   @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500;
+}
+
+.blog-list {
+  & li {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      top: 9px;
+
+      width: 4px;
+      height: 4px;
+
+      background-color: theme("colors.brand.o");
+    }
+  }
+}
+
+.blog-list-item {
+  @apply marker:text-brand-o;
+
+  & ol {
+    @apply marker:text-brand-g1;
+  }
+
+  & ul {
+    li {
+      @apply before:!bg-brand-g1;
+    }
+  }
+}
+
+@font-face {
+  font-family: "FFFlauta";
+  font-weight: 100;
+  font-style: normal;
+  src: url("fonts/FFFlauta-100.woff2") format("woff2");
+}
+
+.ffflauta {
+  font-family: "FFFlauta";
+  font-weight: 100;
+  font-style: normal;
 }

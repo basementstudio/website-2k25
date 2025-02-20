@@ -1,9 +1,11 @@
 import { Pump } from "basehub/react-pump"
 
+import { useContactStore } from "@/components/contact/contact-store"
 import { Grid } from "@/components/grid"
 import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
+import InternalLinks from "./internal-links"
 import { query } from "./query"
 import { StayConnected } from "./stay-connected"
 
@@ -23,7 +25,7 @@ export const Footer = () => (
     {async ([data]) => {
       "use server"
 
-      const projects = data.pages.projects.projectList.items.length
+      const projects = data.pages.showcase.projectList.items.length
       const posts = data.pages.blog.posts.items.length
 
       const LINKS = [
@@ -52,10 +54,6 @@ export const Footer = () => (
         {
           title: "Laboratory",
           href: "/lab"
-        },
-        {
-          title: "Contact Us",
-          href: "/contact"
         }
       ]
 
@@ -89,31 +87,6 @@ export const Footer = () => (
   </Pump>
 )
 
-interface InternalLinksProps {
-  className?: string
-  links: {
-    title: string
-    href: string
-    count?: number
-  }[]
-}
-
-const InternalLinks = ({ className, links }: InternalLinksProps) => (
-  <ul className={cn("flex flex-col gap-y-1 text-p text-brand-g1", className)}>
-    {links.map((link) => (
-      <li key={link.title}>
-        <Link className="flex gap-x-0.5 text-h2 text-brand-w1" href={link.href}>
-          <span className="actionable">{link.title}</span>
-          {link.count && (
-            <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
-              <span className="tabular-nums">({link.count})</span>
-            </sup>
-          )}
-        </Link>
-      </li>
-    ))}
-  </ul>
-)
 interface SocialLinksProps {
   className?: string
   links: { twitter: string; instagram: string; github: string }

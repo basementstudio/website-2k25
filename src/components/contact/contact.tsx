@@ -1,15 +1,26 @@
 "use client"
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 
+import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
+import { cn } from "@/utils/cn"
 
 import ContactCanvas from "./contact-canvas"
 import { useContactStore } from "./contact-store"
 
 const Contact = () => {
-  const { setIsContactOpen, isContactOpen } = useContactStore()
+  const { isContactOpen, setIsContactOpen } = useContactStore()
 
-  useKeyPress("Escape", () => setIsContactOpen(false))
+  useKeyPress(
+    "Escape",
+    useCallback(() => {
+      if (isContactOpen) {
+        setIsContactOpen(false)
+      }
+    }, [isContactOpen, setIsContactOpen])
+  )
+
+  useDisableScroll(isContactOpen)
 
   useEffect(() => {
     if (isContactOpen) {
@@ -21,11 +32,27 @@ const Contact = () => {
   }, [isContactOpen])
 
   return (
-    <div
-      className={`fixed inset-0 z-50 ${isContactOpen ? "visible" : "hidden"}`}
-    >
-      <ContactCanvas isContactOpen={isContactOpen} />
-    </div>
+    <>
+      <div
+        className={cn(
+          "fixed inset-0 z-50 transition-opacity duration-300 ease-in-out",
+          isContactOpen
+            ? "block opacity-100"
+            : "pointer-events-none hidden opacity-0"
+        )}
+      >
+        <ContactCanvas isContactOpen={isContactOpen} />
+      </div>
+
+      <div
+        className={cn(
+          "fixed inset-0 z-40 transition-[backdrop-filter,opacity] duration-1000 ease-in-out",
+          isContactOpen
+            ? "bg-black/50 backdrop-blur"
+            : "pointer-events-none opacity-0"
+        )}
+      />
+    </>
   )
 }
 

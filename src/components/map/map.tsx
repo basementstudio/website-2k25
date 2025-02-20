@@ -30,7 +30,7 @@ import { useAssets } from "../assets-provider"
 import Cars from "../cars/cars"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
-import { MapAssetsLoader } from "./map-assets"
+import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
 
@@ -53,6 +53,11 @@ const createVideoTexture = (url: string) => {
 
 type SceneType = Object3D<Object3DEventMap> | null
 
+// Constants moved outside component
+const STAIRS_VISIBILITY_THRESHOLD = 1.8
+const frustum = new THREE.Frustum()
+const projScreenMatrix = new THREE.Matrix4()
+
 export const Map = memo(() => {
   const {
     office: officePath,
@@ -61,10 +66,13 @@ export const Map = memo(() => {
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
     videos,
-    car
+    car,
+    scenes
   } = useAssets()
+  const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
+  const mainCamera = useNavigationStore((state) => state.mainCamera)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
@@ -90,26 +98,11 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-  const { fogColor, fogDensity, fogDepth } = useControls({
-    fog: levaFolder(
-      {
-        fogColor: {
-          x: 0.4,
-          y: 0.4,
-          z: 0.4
-        },
-        fogDensity: 0.05,
-        fogDepth: 9.0
-      },
-      {
-        collapsed: true
-      }
-    )
-  })
 
+  const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
   const { showColorPicker } = useControls({
-    "color picker": levaFolder(
+    "Color picker": levaFolder(
       {
         showColorPicker: false
       },
@@ -119,8 +112,8 @@ export const Map = memo(() => {
     )
   })
 
-  const { godraysOpacity } = useControls("godrays", {
-    godraysOpacity: {
+  const { opacity } = useControls("God Rays", {
+    opacity: {
       value: 0.5,
       min: 0.0,
       max: 5.0,
@@ -131,19 +124,11 @@ export const Map = memo(() => {
   useFrame(({ clock }) => {
     godrays.forEach((mesh) => {
       // @ts-ignore
-      mesh.material.uniforms.uGodrayDensity.value = godraysOpacity
+      mesh.material.uniforms.uGodrayDensity.value = opacity
     })
 
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
-
-      material.uniforms.fogColor.value = new Vector3(
-        fogColor.x,
-        fogColor.y,
-        fogColor.z
-      )
-      material.uniforms.fogDensity.value = fogDensity
-      material.uniforms.fogDepth.value = fogDepth
     })
 
     if (keyframedNet && isAnimating.current) {
@@ -158,7 +143,43 @@ export const Map = memo(() => {
         ? 1.0
         : 0.0
     }
+
+    if (!stairsRef.current || !mainCamera) return
+
+    projScreenMatrix.multiplyMatrices(
+      mainCamera.projectionMatrix,
+      mainCamera.matrixWorldInverse
+    )
+    frustum.setFromProjectionMatrix(projScreenMatrix)
+
+    const distance = mainCamera.position.distanceTo(stairsRef.current.position)
+    stairsRef.current.visible =
+      distance > STAIRS_VISIBILITY_THRESHOLD ||
+      frustum.containsPoint(stairsRef.current.position)
   })
+
+  useEffect(() => {
+    const fogConfig = scenes.find((s) => s.name === scene)?.fogConfig
+
+    if (!fogConfig) return
+
+    useCustomShaderMaterial.getState().updateFogSettings(
+      {
+        color: new Vector3(
+          fogConfig.fogColor.r,
+          fogConfig.fogColor.g,
+          fogConfig.fogColor.b
+        ),
+        density: fogConfig.fogDensity,
+        depth: fogConfig.fogDepth
+      },
+      firstRender.current
+    )
+
+    firstRender.current = false
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene])
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
@@ -205,6 +226,10 @@ export const Map = memo(() => {
     const traverse = (child: Object3D) => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
+      }
+
+      if (child.name === "SM_Stair3" && child instanceof THREE.Mesh) {
+        stairsRef.current = child
       }
 
       if ("isMesh" in child) {
@@ -408,7 +433,7 @@ export const Map = memo(() => {
         <primitive object={useMesh.getState().hoopMesh as Mesh} />
       )}
       {keyframedNet && <primitive object={keyframedNet} />}
-      <MapAssetsLoader />
+      <BakesLoader />
       <ReflexesLoader />
 
       <Suspense fallback={null}>

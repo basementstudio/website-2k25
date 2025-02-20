@@ -38,8 +38,10 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
             key={item._title + index}
             className={cn(
               "relative",
-              firstItem ? "col-span-6 row-span-2" : "col-span-3",
-              "group aspect-[418/296] cursor-pointer after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
+              firstItem
+                ? "col-span-6 row-span-2 h-full"
+                : "col-span-3 aspect-[418/296]",
+              "group cursor-pointer after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
               item.disabled && "pointer-events-none"
             )}
           >
@@ -62,7 +64,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
                 width={item.project?.cover?.width ?? 0}
                 height={item.project?.cover?.height ?? 0}
                 className={cn(
-                  "absolute inset-0 object-cover opacity-0 transition-opacity duration-300",
+                  "absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300",
                   !item.disabled && "opacity-100 group-hover:opacity-70"
                 )}
                 priority
@@ -77,7 +79,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
                 >
                   <div className="grid grid-cols-6 gap-2 bg-brand-k">
                     <p className="col-span-2 px-2 text-p leading-none text-brand-w2">
-                      {item.project?.client?._title}
+                      {item.project?._title}
                     </p>
 
                     <p className="col-span-4 inline-flex flex-wrap text-pretty px-2 text-p leading-none text-brand-w2">

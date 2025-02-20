@@ -12,6 +12,7 @@ import {
   WebGLRenderTarget
 } from "three"
 
+import { useContactStore } from "../contact/contact-store"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { PostProcessing } from "./post-processing"
 
@@ -38,6 +39,8 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
 
+  const { isContactOpen } = useContactStore()
+
   useEffect(() => {
     const resizeCallback = () => {
       mainTarget.setSize(window.innerWidth, window.innerHeight)
@@ -49,15 +52,17 @@ function RendererInner({ sceneChildren }: RendererProps) {
   useFrame(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return
 
-    gl.outputColorSpace = LinearSRGBColorSpace
-    gl.toneMapping = NoToneMapping
-    gl.setRenderTarget(mainTarget)
-    gl.render(mainScene, mainCamera)
+    if (!isContactOpen) {
+      gl.outputColorSpace = LinearSRGBColorSpace
+      gl.toneMapping = NoToneMapping
+      gl.setRenderTarget(mainTarget)
+      gl.render(mainScene, mainCamera)
 
-    gl.outputColorSpace = SRGBColorSpace
-    gl.toneMapping = NoToneMapping
-    gl.setRenderTarget(null)
-    gl.render(postProcessingScene, postProcessingCameraRef.current)
+      gl.outputColorSpace = SRGBColorSpace
+      gl.toneMapping = NoToneMapping
+      gl.setRenderTarget(null)
+      gl.render(postProcessingScene, postProcessingCameraRef.current)
+    }
   }, 1)
 
   return (

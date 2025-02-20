@@ -3,13 +3,13 @@
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
+import { Grid } from "@/components/grid"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
 import { useContactStore } from "../contact/contact-store"
-import { Grid } from "@/components/grid"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -105,11 +105,12 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
             </span>
           </button>
           <button
+            disabled={isContactOpen}
             id="nav-contact"
             onClick={() => setIsContactOpen(!isContactOpen)}
-            className="text-p capitalize text-brand-w1"
+            className="text-p capitalize text-brand-w1 disabled:text-brand-g1"
           >
-            {isContactOpen ? "Close" : "Contact Us"}
+            Contact Us
           </button>
         </div>
       </div>

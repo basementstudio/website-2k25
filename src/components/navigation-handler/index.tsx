@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect } from "react"
 
+import { useContactStore } from "@/components/contact/contact-store"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
@@ -100,6 +101,8 @@ export const NavigationHandler = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
+      if (useContactStore.getState().isContactOpen) return
+
       if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
         return
 

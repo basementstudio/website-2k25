@@ -11,7 +11,7 @@ import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { RenderTexture } from "./render-texture"
-import { screenMaterial } from "./screen-material"
+import { createScreenMaterial } from "./screen-material"
 
 const ScreenUI = dynamic(
   () =>
@@ -41,7 +41,8 @@ export const ArcadeScreen = () => {
     texture.flipY = false
   })
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
-  const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
+  const screenMaterial = useMemo(() => createScreenMaterial(), [])
+  const renderTarget = useMemo(() => new WebGLRenderTarget(2024, 2024), [])
 
   useEffect(() => {
     const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
@@ -96,7 +97,8 @@ export const ArcadeScreen = () => {
     renderTarget.texture,
     videoTexture,
     isLabRoute,
-    bootTexture
+    bootTexture,
+    screenMaterial
   ])
 
   useFrame((_, delta) => {
