@@ -54,7 +54,6 @@ export const useContactStore = create<ContactStore>((set) => ({
   setFocusedElement: (elementId) =>
     set((state) => {
       if (state.worker) {
-        console.log("[ContactStore] Updating focus to:", elementId)
         state.worker.postMessage({
           type: "update-focus",
           focusedElement: elementId

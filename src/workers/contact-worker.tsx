@@ -3,9 +3,6 @@ import { create } from "zustand"
 
 import ContactScene from "@/components/contact/contact-scene"
 
-console.log("Worker script loaded")
-console.log("OffscreenCanvas support:", typeof OffscreenCanvas !== "undefined")
-
 interface WorkerStore {
   formData: {
     name: string
@@ -29,11 +26,9 @@ export const useWorkerStore = create<WorkerStore>((set) => ({
   },
   focusedElement: null,
   updateFormData: (formData) => {
-    console.log("[WorkerStore] Updating form data:", formData)
     set({ formData })
   },
   updateFocusedElement: (elementId) => {
-    console.log("[WorkerStore] Updating focused element:", elementId)
     set({ focusedElement: elementId })
   }
 }))
@@ -61,13 +56,11 @@ self.onmessage = (
 
   // Forward text changes to the scene
   if (type === "update-form" && formData) {
-    console.log("[ContactWorker] Received form update:", formData)
     useWorkerStore.getState().updateFormData(formData)
   }
 
   // Handle focus updates
   if (type === "update-focus") {
-    console.log("[ContactWorker] Received focus update:", focusedElement)
     if (focusedElement === undefined) {
       console.warn("[ContactWorker] Received undefined focusedElement")
       return

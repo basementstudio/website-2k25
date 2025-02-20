@@ -3,6 +3,7 @@ import { useCallback, useEffect } from "react"
 
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
+import { cn } from "@/utils/cn"
 
 import ContactCanvas from "./contact-canvas"
 import { useContactStore } from "./contact-store"
@@ -33,21 +34,23 @@ const Contact = () => {
   return (
     <>
       <div
-        className={`fixed inset-0 z-50 transition-opacity duration-300 ease-in-out ${
+        className={cn(
+          "fixed inset-0 z-50 transition-opacity duration-300 ease-in-out",
           isContactOpen
             ? "block opacity-100"
             : "pointer-events-none hidden opacity-0"
-        }`}
+        )}
       >
         <ContactCanvas isContactOpen={isContactOpen} />
       </div>
 
       <div
-        className={`fixed inset-0 z-40 transition-[backdrop-filter,opacity] duration-1000 ease-in-out ${
+        className={cn(
+          "fixed inset-0 z-40 transition-[backdrop-filter,opacity] duration-1000 ease-in-out",
           isContactOpen
             ? "bg-black/50 backdrop-blur"
             : "pointer-events-none opacity-0"
-        }`}
+        )}
       />
     </>
   )

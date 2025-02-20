@@ -10,6 +10,7 @@ import { Vector3 } from "three"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
 
+import { ffflauta } from "../../../public/fonts/ffflauta"
 import { ArcadeFeatured } from "./arcade-ui-components/arcade-featured"
 import { ArcadeLabsList } from "./arcade-ui-components/arcade-labs-list"
 import { ArcadePreview } from "./arcade-ui-components/arcade-preview"
@@ -71,7 +72,7 @@ export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
       >
         <FontFamilyProvider
           ffflauta={{
-            normal: "/fonts/ffflauta.json"
+            normal: ffflauta
           }}
         >
           <DefaultProperties

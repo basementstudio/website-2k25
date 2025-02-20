@@ -108,7 +108,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
             disabled={isContactOpen}
             id="nav-contact"
             onClick={() => setIsContactOpen(!isContactOpen)}
-            className={`text-p capitalize text-brand-w1 disabled:text-brand-g1`}
+            className="text-p capitalize text-brand-w1 disabled:text-brand-g1"
           >
             Contact Us
           </button>

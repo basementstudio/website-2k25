@@ -57,12 +57,12 @@ function RendererInner({ sceneChildren }: RendererProps) {
       gl.toneMapping = NoToneMapping
       gl.setRenderTarget(mainTarget)
       gl.render(mainScene, mainCamera)
-    }
 
-    gl.outputColorSpace = SRGBColorSpace
-    gl.toneMapping = NoToneMapping
-    gl.setRenderTarget(null)
-    gl.render(postProcessingScene, postProcessingCameraRef.current)
+      gl.outputColorSpace = SRGBColorSpace
+      gl.toneMapping = NoToneMapping
+      gl.setRenderTarget(null)
+      gl.render(postProcessingScene, postProcessingCameraRef.current)
+    }
   }, 1)
 
   return (

@@ -89,9 +89,9 @@ const UiOverlay = ({ className }: { className?: string }) => {
               disabled={submitting}
               onFocus={() => setFocusedElement("submit")}
               onBlur={() => setFocusedElement(null)}
-              className="remove-focus-styles mt-6 w-full p-2 text-center disabled:opacity-50"
+              className="remove-focus-styles mt-6 w-full p-2 text-center text-transparent"
             >
-              {submitting ? "SUBMITTING..." : "SUBMIT MESSAGE ->"}
+              SUBMIT MESSAGE &gt;
             </button>
 
             <div className="mt-8 flex justify-between">

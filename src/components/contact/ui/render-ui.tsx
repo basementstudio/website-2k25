@@ -11,7 +11,7 @@ import { Vector3 } from "three"
 
 import { useWorkerStore } from "@/workers/contact-worker"
 
-import { ffflauta } from "./ffflauta"
+import { ffflauta } from "../../../../public/fonts/ffflauta"
 
 interface WorkerState {
   formData: {
@@ -29,14 +29,6 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
   const focusedElement = useWorkerStore(
     (state: WorkerState) => state.focusedElement
   )
-
-  useEffect(() => {
-    console.log("[PhoneScreenUI] Focus changed to:", focusedElement)
-  }, [focusedElement])
-
-  useEffect(() => {
-    console.log("[PhoneScreenUI] Form data updated:", formData)
-  }, [formData])
 
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
 
@@ -228,7 +220,7 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                   paddingX={16}
                   width="100%"
                 >
-                  <Container
+                  <Text
                     width="100%"
                     backgroundColor={
                       focusedElement === "submit"
@@ -238,15 +230,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     borderColor={COLORS_THEME.primary}
                     borderWidth={1}
                     paddingY={8}
+                    color={COLORS_THEME.primary}
+                    textAlign="center"
                   >
-                    <Text
-                      width="100%"
-                      color={COLORS_THEME.primary}
-                      textAlign="center"
-                    >
-                      SUBMIT MESSAGE -{">"}
-                    </Text>
-                  </Container>
+                    SUBMIT MESSAGE &gt;
+                  </Text>
                 </Container>
               </Container>
             </Container>
