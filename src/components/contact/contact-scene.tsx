@@ -2,10 +2,11 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
+  AnimationAction,
   AnimationMixer,
   Box3,
   Group,
-  LoopRepeat,
+  LoopOnce,
   Mesh,
   MeshBasicMaterial,
   SkinnedMesh,
@@ -23,6 +24,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const gltf = useGLTF(modelUrl)
   const animationMixerRef = useRef<AnimationMixer | null>(null)
   const phoneGroupRef = useRef<Group>(null)
+  const idleTimeRef = useRef<number>(0)
+  const currentIdleAnimationRef = useRef<AnimationAction | null>(null)
 
   const updateFormData = useWorkerStore((state) => state.updateFormData)
   const updateFocusedElement = useWorkerStore(
@@ -45,6 +48,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "update-form") {
         updateFormData(e.data.formData)
+        idleTimeRef.current = 0
       } else if (e.data.type === "update-focus") {
         updateFocusedElement(e.data.focusedElement, e.data.cursorPosition)
       }
@@ -87,8 +91,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         const oldMaterial = node.material
         const basicMaterial = new MeshBasicMaterial()
 
-        // TODO: use global material?
-
         if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
         if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
         if ("transparent" in oldMaterial)
@@ -103,15 +105,20 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     animationMixerRef.current = mixer
 
     const enterAnimation = gltf.animations.find((a) => a.name === "Intro.001")
-    const enterAction = mixer.clipAction(enterAnimation!)
 
-    enterAction.setLoop(LoopRepeat, 1)
+    if (!enterAnimation) {
+      console.warn("Intro.001 animation not found")
+      return
+    }
+
+    const enterAction = mixer.clipAction(enterAnimation)
+    enterAction.setLoop(LoopOnce, 1)
     enterAction.clampWhenFinished = true
-
     enterAction.fadeIn(0.05)
 
     const onAnimationFinished = (e: any) => {
       if (e.action === enterAction) {
+        idleTimeRef.current = 0
       }
     }
 
@@ -125,11 +132,44 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     }
   }, [gltf, glass])
 
+  const playRandomIdleAnimation = () => {
+    if (!animationMixerRef.current) return
+
+    const idleAnimations = ["antena", "antena.003", "ruedita"]
+    const randomAnim =
+      idleAnimations[Math.floor(Math.random() * idleAnimations.length)]
+
+    const animation = gltf.animations.find((a) => a.name === randomAnim)
+    if (!animation) return
+
+    if (currentIdleAnimationRef.current) {
+      currentIdleAnimationRef.current.fadeOut(0.5)
+    }
+
+    const action = animationMixerRef.current.clipAction(animation)
+    action.setLoop(LoopOnce, 1)
+    action.clampWhenFinished = true
+    action.reset()
+    action.fadeIn(0.5)
+    action.play()
+
+    currentIdleAnimationRef.current = action
+  }
+
   useFrame((state, delta) => {
     animationMixerRef.current?.update(delta)
 
     if (screenMaterial.uniforms.uTime) {
       screenMaterial.uniforms.uTime.value += delta
+    }
+
+    idleTimeRef.current += delta
+
+    const IDLE_TIMEOUT = Math.random() * 5 + 15
+
+    if (idleTimeRef.current > IDLE_TIMEOUT) {
+      playRandomIdleAnimation()
+      idleTimeRef.current = 0
     }
   })
 
