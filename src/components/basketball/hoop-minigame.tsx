@@ -11,7 +11,6 @@ import {
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
@@ -22,15 +21,11 @@ import { Trajectory } from "./trajectory"
 export const HoopMinigame = () => {
   const { playSoundFX } = useSiteAudio()
   const [isBasketball, setIsBasketball] = useState(false)
-  const { setIsBasketball: setIsBasketballShader } = useCustomShaderMaterial()
   const scene = useCurrentScene()
 
   useEffect(() => {
     setIsBasketball(scene === "basketball")
-    setIsBasketballShader(scene === "basketball")
-
-    return () => setIsBasketballShader(false)
-  }, [scene, setIsBasketballShader, setIsBasketball])
+  }, [scene, setIsBasketball])
 
   const ballRef = useRef<RapierRigidBody>(null)
   const mousePos = useRef(new Vector2())

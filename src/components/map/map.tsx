@@ -69,7 +69,7 @@ export const Map = memo(() => {
     car,
     scenes
   } = useAssets()
-
+  const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
@@ -102,7 +102,7 @@ export const Map = memo(() => {
   const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
   const { showColorPicker } = useControls({
-    "color picker": levaFolder(
+    "Color picker": levaFolder(
       {
         showColorPicker: false
       },
@@ -112,8 +112,8 @@ export const Map = memo(() => {
     )
   })
 
-  const { godraysOpacity } = useControls("godrays", {
-    godraysOpacity: {
+  const { opacity } = useControls("God Rays", {
+    opacity: {
       value: 0.5,
       min: 0.0,
       max: 5.0,
@@ -124,7 +124,7 @@ export const Map = memo(() => {
   useFrame(({ clock }) => {
     godrays.forEach((mesh) => {
       // @ts-ignore
-      mesh.material.uniforms.uGodrayDensity.value = godraysOpacity
+      mesh.material.uniforms.uGodrayDensity.value = opacity
     })
 
     Object.values(shaderMaterialsRef).forEach((material) => {
@@ -159,36 +159,27 @@ export const Map = memo(() => {
   })
 
   useEffect(() => {
-    if (!scene || !scenes) return
+    const fogConfig = scenes.find((s) => s.name === scene)?.fogConfig
 
-    const normalizedSceneName =
-      scene.toLowerCase() === "/" ? "home" : scene.toLowerCase()
+    if (!fogConfig) return
 
-    const currentSceneConfig = scenes.find(
-      (sceneData) =>
-        sceneData.name.toLowerCase().replace(/[^a-z0-9]/g, "") ===
-        normalizedSceneName.replace(/[^a-z0-9]/g, "")
+    useCustomShaderMaterial.getState().updateFogSettings(
+      {
+        color: new Vector3(
+          fogConfig.fogColor.r,
+          fogConfig.fogColor.g,
+          fogConfig.fogColor.b
+        ),
+        density: fogConfig.fogDensity,
+        depth: fogConfig.fogDepth
+      },
+      firstRender.current
     )
 
-    if (!currentSceneConfig) {
-      useCustomShaderMaterial
-        .getState()
-        .updateFogSettings(new Vector3(0.4, 0.4, 0.4), 0.05, 9)
-      return
-    }
+    firstRender.current = false
 
-    useCustomShaderMaterial
-      .getState()
-      .updateFogSettings(
-        new Vector3(
-          currentSceneConfig.fogConfig.fogColor.r,
-          currentSceneConfig.fogConfig.fogColor.g,
-          currentSceneConfig.fogConfig.fogColor.b
-        ),
-        currentSceneConfig.fogConfig.fogDensity,
-        currentSceneConfig.fogConfig.fogDepth
-      )
-  }, [scene, scenes])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene])
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}

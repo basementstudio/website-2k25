@@ -6,33 +6,35 @@ uniform sampler2D uMainTexture;
 uniform vec2 resolution;
 uniform float uPixelRatio;
 uniform float uTolerance;
+
+// Basics
+uniform float uGamma;
+uniform float uContrast;
+uniform float uExposure;
 uniform float uBrightness;
 
-uniform float uBias;
-uniform float uColorMultiplier;
-uniform float uNoiseFactor;
+// Vignette
+uniform float uVignetteRadius;
+uniform float uVignetteSpread;
 
+// Bloom
 uniform float uBloomStrength;
 uniform float uBloomRadius;
 uniform float uBloomThreshold;
 
-// post
-uniform float uGamma;
-uniform float uContrast;
-uniform float uExposure;
-uniform float uSaturation;
-
-uniform vec2 uEllipseCenter;
-uniform vec2 uEllipseSize;
-uniform float uEllipseSoftness;
-uniform bool uDebugEllipse;
-
-uniform float uVignetteStrength;
-uniform float uVignetteSoftness;
-
 varying vec2 vUv;
 
 const float GOLDEN_ANGLE = 2.399963229728653;
+
+float getVignetteFactor(vec2 uv) {
+  vec2 center = vec2(0.5, 0.5);
+  float radius = uVignetteRadius;
+  float spread = uVignetteSpread;
+
+  float vignetteFactor =
+    1.0 - smoothstep(radius, radius - spread, length(uv - center));
+  return vignetteFactor;
+}
 
 float hash(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
@@ -79,12 +81,12 @@ vec3 agxDefaultContrastApprox(vec3 x) {
   vec3 x2 = x * x;
   vec3 x4 = x2 * x2;
   return +15.5 * x4 * x2 -
-    40.14 * x4 * x +
-    31.96 * x4 -
-    6.868 * x2 * x +
-    0.4298 * x2 +
-    0.1191 * x -
-    0.00232;
+  40.14 * x4 * x +
+  31.96 * x4 -
+  6.868 * x2 * x +
+  0.4298 * x2 +
+  0.1191 * x -
+  0.00232;
 }
 
 vec3 agxLook(vec3 color) {
@@ -128,12 +130,18 @@ vec3 RRTAndODTFit(vec3 v) {
 
 vec3 ACESFilmicToneMapping(vec3 color) {
   // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
-  const mat3 ACESInputMat = mat3(vec3(0.59719, 0.076, 0.0284), // transposed from source
-  vec3(0.35458, 0.90834, 0.13383), vec3(0.04823, 0.01566, 0.83777));
+  const mat3 ACESInputMat = mat3(
+    vec3(0.59719, 0.076, 0.0284), // transposed from source
+    vec3(0.35458, 0.90834, 0.13383),
+    vec3(0.04823, 0.01566, 0.83777)
+  );
 
   // ODT_SAT => XYZ => D60_2_D65 => sRGB
-  const mat3 ACESOutputMat = mat3(vec3(1.60475, -0.10208, -0.00327), // transposed from source
-  vec3(-0.53108, 1.10813, -0.07276), vec3(-0.07367, -0.00605, 1.07602));
+  const mat3 ACESOutputMat = mat3(
+    vec3(1.60475, -0.10208, -0.00327), // transposed from source
+    vec3(-0.53108, 1.10813, -0.07276),
+    vec3(-0.07367, -0.00605, 1.07602)
+  );
 
   color *= uExposure / 0.6;
 
@@ -149,33 +157,9 @@ vec3 ACESFilmicToneMapping(vec3 color) {
 
 }
 
-vec3 adjustSaturation(vec3 color, float saturation) {
-  float gray = dot(color, vec3(0.2126, 0.7152, 0.0722));
-  vec2 normalizedPos = (vUv - uEllipseCenter) / uEllipseSize;
-
-  float ellipseDistance = length(normalizedPos);
-  float ellipseMask = smoothstep(1.0 + uEllipseSoftness, 0.3, ellipseDistance);
-
-  float vignetteDistance = length((vUv - vec2(0.5)) * 2.0);
-  float vignetteMask = smoothstep(0.0, 1.0 + uVignetteSoftness, vignetteDistance);
-  float finalVignette = vignetteMask * (1.0 - ellipseMask) * uVignetteStrength;
-
-  float finalSaturation = mix(saturation, 1.0, ellipseMask);
-  vec3 result = mix(vec3(gray), color, finalSaturation);
-
-  result *= 1.0 - finalVignette;
-
-  if(uDebugEllipse) {
-    return mix(result, vec3(1.0, 0.0, 0.0), ellipseMask * 0.5);
-  }
-
-  return result;
-}
-
 vec3 tonemap(vec3 color) {
   color.rgb *= uBrightness;
   color = contrast(color, uContrast);
-  color = adjustSaturation(color, uSaturation);
   color = invertedGamma(color, uGamma);
   color = ACESFilmicToneMapping(color);
   return color;
@@ -197,21 +181,24 @@ void main() {
   float totalWeight = 0.0;
   float phi = hash(pixelatedUv) * 6.28; // Random rotation angle
 
-  for(int i = 1; i < SAMPLE_COUNT; i++) {
-    vec2 sampleOffset = vogelDiskSample(i, SAMPLE_COUNT, phi) * uBloomRadius / resolution;
+  for (int i = 1; i < SAMPLE_COUNT; i++) {
+    vec2 sampleOffset =
+      vogelDiskSample(i, SAMPLE_COUNT, phi) * uBloomRadius / resolution;
     float dist = length(sampleOffset);
 
     // Gaussian-like falloff
     float weight = 1.0 / dist;
 
     // Sample color at offset position
-    vec3 sampleColor = texture2D(uMainTexture, pixelatedUv + sampleOffset + vec2(1.0 / resolution.x, 1.0 / resolution.y)).rgb;
+    vec3 sampleColor = texture2D(
+      uMainTexture,
+      pixelatedUv + sampleOffset + vec2(1.0 / resolution.x, 1.0 / resolution.y)
+    ).rgb;
 
     // Only add to bloom if brightness is above threshold
     float brightness = dot(sampleColor, vec3(0.2126, 0.7152, 0.0722));
     totalWeight += weight;
-    if(brightness > uBloomThreshold)
-      bloom += sampleColor * weight;
+    if (brightness > uBloomThreshold) bloom += sampleColor * weight;
   }
 
   // Normalize bloom and apply chess pattern
@@ -221,6 +208,10 @@ void main() {
   // Add bloom to result with strength control
   color += bloomColor;
   color = clamp(color, 0.0, 1.0);
+
+  // Vignette
+  float vignetteFactor = getVignetteFactor(vUv);
+  color = mix(color, vec3(0.0), vignetteFactor);
 
   gl_FragColor = vec4(color, 1.0);
 

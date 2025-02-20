@@ -66,6 +66,17 @@ export interface AssetsResult {
       fogDensity: number
       fogDepth: number
     }
+    postprocessing: {
+      contrast: number
+      brightness: number
+      exposure: number
+      gamma: number
+      vignetteRadius: number
+      vignetteSpread: number
+      bloomStrength: number
+      bloomRadius: number
+      bloomThreshold: number
+    }
   }[]
   car: {
     carModel: string
@@ -177,6 +188,17 @@ export async function fetchAssets(): Promise<AssetsResult> {
         },
         fogDensity: item.fogConfig.fogDensity ?? 0,
         fogDepth: item.fogConfig.fogDepth ?? 0
+      },
+      postprocessing: {
+        contrast: item.postprocessing?.contrast ?? 1,
+        brightness: item.postprocessing?.brightness ?? 1,
+        exposure: item.postprocessing?.exposure ?? 1,
+        gamma: item.postprocessing?.gamma ?? 1,
+        vignetteRadius: item.postprocessing?.vignetteRadius ?? 1,
+        vignetteSpread: item.postprocessing?.vignetteSpread ?? 1,
+        bloomStrength: item.postprocessing?.bloomStrength ?? 1,
+        bloomRadius: item.postprocessing?.bloomRadius ?? 1,
+        bloomThreshold: item.postprocessing?.bloomThreshold ?? 1
       }
     })),
     characters: {
