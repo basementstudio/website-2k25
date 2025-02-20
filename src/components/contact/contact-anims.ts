@@ -57,14 +57,9 @@ class PhoneAnimationHandler {
   }
 
   private isValidAnimationName(name: string): name is PhoneAnimationName {
-    return [
-      "IN",
-      "antena",
-      "antena.003",
-      "Idle4",
-      "Intro.001",
-      "ruedita"
-    ].includes(name)
+    return ["antena", "antena.003", "Idle4", "Intro.001", "ruedita"].includes(
+      name
+    )
   }
 
   playAnimation(

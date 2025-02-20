@@ -23,6 +23,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const gltf = useGLTF(modelUrl)
   const animationMixerRef = useRef<AnimationMixer | null>(null)
   const phoneGroupRef = useRef<Group>(null)
+
   const updateFormData = useWorkerStore((state) => state.updateFormData)
   const updateFocusedElement = useWorkerStore(
     (state) => state.updateFocusedElement
@@ -101,21 +102,16 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const mixer = new AnimationMixer(gltf.scene)
     animationMixerRef.current = mixer
 
-    const enterAnimation = gltf.animations.find((a) => a.name === "antena")
-    // const idleAnimation = gltf.animations.find((a) => a.name === "Iddle4")
-
+    const enterAnimation = gltf.animations.find((a) => a.name === "Intro.001")
     const enterAction = mixer.clipAction(enterAnimation!)
-    // const idleAction = mixer.clipAction(idleAnimation!)
-
-    // idleAction.setLoop(LoopRepeat, Infinity)
-    // idleAction.clampWhenFinished = false
 
     enterAction.setLoop(LoopRepeat, 1)
     enterAction.clampWhenFinished = true
 
+    enterAction.fadeIn(0.05)
+
     const onAnimationFinished = (e: any) => {
       if (e.action === enterAction) {
-        // idleAction.play()
       }
     }
 
