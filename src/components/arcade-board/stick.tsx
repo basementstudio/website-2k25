@@ -4,11 +4,22 @@ import { useRef, useState } from "react"
 import { Mesh } from "three"
 
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
+import { useAssets } from "../assets-provider"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const [stickIsGrabbed, setStickIsGrabbed] = useState(false)
   const { setCursorType } = useMouseStore()
   const direction = useRef(0)
+
+  const { playSoundFX } = useSiteAudio()
+  const {
+    sfx: {
+      arcade: { sticks: stickSounds }
+    }
+  } = useAssets()
+
+  const desiredSoundFX = useRef(Math.floor(Math.random() * stickSounds.length))
 
   const handleGrabStick = () => {
     setCursorType("grab")
@@ -57,15 +68,27 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       currentDirection = y > 0 ? 3 : 4
     }
 
-    if (direction.current !== currentDirection) {
-      animate(stick.rotation, targetRotation, {
-        type: "spring",
-        stiffness: 2000,
-        damping: 64,
-        restDelta: 0
-      })
-      direction.current = currentDirection
+    if (direction.current === currentDirection) return
+
+    if (direction.current !== 0) {
+      desiredSoundFX.current = Math.floor(Math.random() * stickSounds.length)
     }
+
+    animate(stick.rotation, targetRotation, {
+      type: "spring",
+      stiffness: 2000,
+      damping: 64,
+      restDelta: 0
+    })
+
+    playSoundFX(
+      `ARCADE_STICK_${desiredSoundFX.current}_${
+        currentDirection === 0 ? "RELEASE" : "PRESS"
+      }`,
+      0.2
+    )
+
+    direction.current = currentDirection
   }
 
   const resetStick = () => {
@@ -83,6 +106,10 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         restDelta: 0
       }
     )
+
+    if (direction.current !== 0) {
+      playSoundFX(`ARCADE_STICK_${desiredSoundFX.current}_RELEASE`, 0.2)
+    }
     direction.current = 0
   }
 

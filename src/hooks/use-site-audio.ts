@@ -12,6 +12,8 @@ export type SiteAudioSFXKey =
   | "TIMEOUT_BUZZER"
   | `ARCADE_BUTTON_${number}_PRESS`
   | `ARCADE_BUTTON_${number}_RELEASE`
+  | `ARCADE_STICK_${number}_PRESS`
+  | `ARCADE_STICK_${number}_RELEASE`
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
@@ -90,6 +92,17 @@ export function SiteAudioSFXsLoader(): null {
             const sourceRelease = await player.loadAudioFromURL(button.RELEASE)
             sourceRelease.setVolume(SFX_VOLUME)
             newSources[`ARCADE_BUTTON_${index}_RELEASE`] = sourceRelease
+          })
+        )
+
+        await Promise.all(
+          ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
+            const source = await player.loadAudioFromURL(stick.PRESS)
+            source.setVolume(SFX_VOLUME)
+            newSources[`ARCADE_STICK_${index}_PRESS`] = source
+            const sourceRelease = await player.loadAudioFromURL(stick.RELEASE)
+            sourceRelease.setVolume(SFX_VOLUME)
+            newSources[`ARCADE_STICK_${index}_RELEASE`] = sourceRelease
           })
         )
 

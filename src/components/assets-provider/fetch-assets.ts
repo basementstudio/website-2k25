@@ -45,6 +45,10 @@ export interface AssetsResult {
         press: string
         release: string
       }[]
+      sticks: {
+        press: string
+        release: string
+      }[]
     }
   }
   scenes: {
@@ -150,6 +154,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
       basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? "",
       arcade: {
         buttons: threeDInteractions.sfx.arcade.buttons.items.map((item) => ({
+          press: item.press?.url ?? "",
+          release: item.release?.url ?? ""
+        })),
+        sticks: threeDInteractions.sfx.arcade.sticks.items.map((item) => ({
           press: item.press?.url ?? "",
           release: item.release?.url ?? ""
         }))

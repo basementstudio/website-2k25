@@ -100,6 +100,16 @@ export const sfxFragment = fragmentOn("Sfx", {
           url: true
         }
       }
+    },
+    sticks: {
+      items: {
+        press: {
+          url: true
+        },
+        release: {
+          url: true
+        }
+      }
     }
   }
 })

@@ -17,6 +17,10 @@ export function useAudioUrls() {
       BUTTONS: sfx.arcade.buttons.map((item) => ({
         PRESS: item.press,
         RELEASE: item.release
+      })),
+      STICKS: sfx.arcade.sticks.map((item) => ({
+        PRESS: item.press,
+        RELEASE: item.release
       }))
     }
   } as const
