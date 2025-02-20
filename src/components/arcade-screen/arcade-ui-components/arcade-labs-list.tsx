@@ -3,6 +3,7 @@ import { Container, Text } from "@react-three/uikit"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 
 import { COLORS_THEME } from "../screen-ui"
+import { useState } from "react"
 
 interface ArcadeLabsListProps {
   experiments: any[]
@@ -47,7 +48,7 @@ export const ArcadeLabsList = ({
             paddingLeft={8}
             paddingRight={8}
             height={24}
-            borderBottomWidth={idx === experiments.length - 1 ? 0 : 1}
+            borderBottomWidth={1}
             borderRightWidth={1}
             backgroundColor={
               selectedExperiment && selectedExperiment._title === data._title
@@ -140,6 +141,52 @@ export const ArcadeLabsList = ({
             </Container>
           </Container>
         ))}
+      <ViewMore isLoaded={experiments.length > 0} />
+    </Container>
+  )
+}
+
+const ViewMore = ({ isLoaded }: { isLoaded: boolean }) => {
+  const [isViewMoreHovered, setIsViewMoreHovered] = useState(false)
+  const setCursorType = useMouseStore((state) => state.setCursorType)
+
+  if (!isLoaded) return null
+  return (
+    <Container
+      flexDirection="row"
+      justifyContent="center"
+      width={"100%"}
+      paddingLeft={8}
+      paddingRight={8}
+      height={24}
+      borderBottomWidth={0}
+      borderRightWidth={1}
+      backgroundColor={
+        isViewMoreHovered ? COLORS_THEME.primary : COLORS_THEME.black
+      }
+      borderColor={COLORS_THEME.primary}
+      paddingTop={8}
+      onClick={() => {
+        window.open("https://basement.studio/lab", "_blank")
+      }}
+      onHoverChange={(hover) => {
+        if (hover) {
+          setIsViewMoreHovered(true)
+          setCursorType("alias")
+        } else {
+          setIsViewMoreHovered(false)
+          setCursorType("default")
+        }
+      }}
+    >
+      <Text
+        fontSize={10}
+        color={isViewMoreHovered ? COLORS_THEME.black : COLORS_THEME.primary}
+        fontWeight="normal"
+        zIndexOffset={10}
+      >
+        VIEW MORE
+      </Text>
     </Container>
   )
 }
