@@ -154,6 +154,10 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Text color={COLORS_THEME.primary}>
                       {formData.company || "COMPANY"}
                     </Text>
+                    <Cursor
+                      visible={focusedElement === "company"}
+                      chars={cursorPosition}
+                    />
                   </Container>
                 </Container>
                 <Container
@@ -181,6 +185,10 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Text color={COLORS_THEME.primary}>
                       {formData.email || "EMAIL"}
                     </Text>
+                    <Cursor
+                      visible={focusedElement === "email"}
+                      chars={cursorPosition}
+                    />
                   </Container>
                   <Container
                     width={"100%"}
@@ -199,6 +207,10 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Text color={COLORS_THEME.primary}>
                       {formData.budget || "BUDGET (OPTIONAL)"}
                     </Text>
+                    <Cursor
+                      visible={focusedElement === "budget"}
+                      chars={cursorPosition}
+                    />
                   </Container>
                   <Container
                     width={"100%"}
@@ -214,9 +226,14 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     paddingX={8}
                     paddingY={16}
                   >
-                    <Text color={COLORS_THEME.primary}>
+                    <Text positionType="absolute" color={COLORS_THEME.primary}>
                       {formData.message || "MESSAGE"}
                     </Text>
+                    <Cursor
+                      visible={focusedElement === "message"}
+                      chars={cursorPosition}
+                      marginTop={8}
+                    />
                   </Container>
                 </Container>
                 <Container
