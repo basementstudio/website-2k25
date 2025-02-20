@@ -17,7 +17,7 @@ varying vec3 vPosition;
 #define MASK_BORDER (0.4)
 #define INTERFERENCE1 (0.4)
 #define INTERFERENCE2 (0.001)
-#define SCANLINE_INTENSITY (0.2)
+#define SCANLINE_INTENSITY (0.25)
 #define SCANLINE_COUNT (200.0)
 #define NOISE_SCALE (500.0)
 #define NOISE_OPACITY (0.02)
@@ -45,7 +45,7 @@ float peak(float x, float xpos, float scale) {
 
 void main() {
   // add cycle to scan line
-  float scanCycleTime = mod(uTime * SCAN_SPEED, SCAN_CYCLE + 40.0);
+  float scanCycleTime = mod(uTime * SCAN_SPEED, SCAN_CYCLE + 50.0);
   float scanPos;
   if (scanCycleTime < SCAN_CYCLE) {
     scanPos = scanCycleTime / SCAN_CYCLE;
