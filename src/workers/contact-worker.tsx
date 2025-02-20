@@ -12,8 +12,9 @@ interface WorkerStore {
     message: string
   }
   focusedElement: string | null
+  cursorPosition: number
   updateFormData: (formData: WorkerStore["formData"]) => void
-  updateFocusedElement: (elementId: string | null) => void
+  updateFocusedElement: (elementId: string | null, cursorPos?: number) => void
 }
 
 export const useWorkerStore = create<WorkerStore>((set) => ({
@@ -25,11 +26,12 @@ export const useWorkerStore = create<WorkerStore>((set) => ({
     message: ""
   },
   focusedElement: null,
+  cursorPosition: 0,
   updateFormData: (formData) => {
     set({ formData })
   },
-  updateFocusedElement: (elementId) => {
-    set({ focusedElement: elementId })
+  updateFocusedElement: (elementId, cursorPos = 0) => {
+    set({ focusedElement: elementId, cursorPosition: cursorPos })
   }
 }))
 
@@ -41,9 +43,10 @@ self.onmessage = (
     modelUrl?: string
     formData?: WorkerStore["formData"]
     focusedElement?: string | null
+    cursorPosition?: number
   }>
 ) => {
-  const { type, modelUrl, formData, focusedElement } = e.data
+  const { type, modelUrl, formData, focusedElement, cursorPosition } = e.data
 
   if (type === "load-model" && modelUrl) {
     try {
@@ -65,7 +68,9 @@ self.onmessage = (
       console.warn("[ContactWorker] Received undefined focusedElement")
       return
     }
-    useWorkerStore.getState().updateFocusedElement(focusedElement)
+    useWorkerStore
+      .getState()
+      .updateFocusedElement(focusedElement, cursorPosition)
   }
 }
 

@@ -12,7 +12,8 @@ interface ContactStore {
     message: string
   }
   focusedElement: string | null
-  setFocusedElement: (elementId: string | null) => void
+  cursorPosition: number
+  setFocusedElement: (elementId: string | null, cursorPos?: number) => void
   updateFormField: (
     field: keyof ContactStore["formData"],
     value: string
@@ -51,15 +52,17 @@ export const useContactStore = create<ContactStore>((set) => ({
     message: ""
   },
   focusedElement: null,
-  setFocusedElement: (elementId) =>
+  cursorPosition: 0,
+  setFocusedElement: (elementId, cursorPos = 0) =>
     set((state) => {
       if (state.worker) {
         state.worker.postMessage({
           type: "update-focus",
-          focusedElement: elementId
+          focusedElement: elementId,
+          cursorPosition: cursorPos
         })
       }
-      return { focusedElement: elementId }
+      return { focusedElement: elementId, cursorPosition: cursorPos }
     }),
   clearFormData: () =>
     set((state) => {

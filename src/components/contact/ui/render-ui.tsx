@@ -6,12 +6,12 @@ import {
   Root,
   Text
 } from "@react-three/uikit"
-import { useEffect } from "react"
 import { Vector3 } from "three"
 
 import { useWorkerStore } from "@/workers/contact-worker"
 
 import { ffflauta } from "../../../../public/fonts/ffflauta"
+import Cursor from "./cursor"
 
 interface WorkerState {
   formData: {
@@ -22,12 +22,16 @@ interface WorkerState {
     message: string
   }
   focusedElement: string | null
+  cursorPosition: number
 }
 
 const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
   const formData = useWorkerStore((state: WorkerState) => state.formData)
   const focusedElement = useWorkerStore(
     (state: WorkerState) => state.focusedElement
+  )
+  const cursorPosition = useWorkerStore(
+    (state: WorkerState) => state.cursorPosition
   )
 
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
@@ -128,6 +132,10 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Text color={COLORS_THEME.primary}>
                       {formData.name || "NAME"}
                     </Text>
+                    <Cursor
+                      visible={focusedElement === "name"}
+                      chars={cursorPosition}
+                    />
                   </Container>
                   <Container
                     width={"50%"}

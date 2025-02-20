@@ -45,7 +45,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       if (e.data.type === "update-form") {
         updateFormData(e.data.formData)
       } else if (e.data.type === "update-focus") {
-        updateFocusedElement(e.data.focusedElement)
+        updateFocusedElement(e.data.focusedElement, e.data.cursorPosition)
       }
     }
 
