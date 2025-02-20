@@ -1,15 +1,23 @@
 "use client"
 
+import { RichTextNode } from "basehub/api-transaction"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
+import { Grid } from "@/components/grid"
+import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
+import { useMedia } from "@/hooks/use-media"
+import { usePreventScroll } from "@/hooks/use-prevent-scroll"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
+import { mergeRefs } from "@/utils/mergeRefs"
 
 import { useContactStore } from "../contact/contact-store"
-import { Grid } from "@/components/grid"
+import { Portal } from "../primitives/portal"
+import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
+import { StayConnected } from "./stay-connected"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -28,24 +36,27 @@ interface NavbarContentProps {
     href: string
     count?: number
   }[]
+
+  socialLinks: {
+    twitter: string
+    instagram: string
+    github: string
+  }
+
+  newsletter: RichTextNode[]
 }
 
-export const NavbarContent = ({ links }: NavbarContentProps) => {
+export const NavbarContent = ({
+  links,
+  socialLinks,
+  newsletter
+}: NavbarContentProps) => {
   const [music, setMusic] = useState(true)
   const { setVolumeMaster } = useSiteAudio()
 
   const { handleNavigation } = useHandleNavigation()
 
-  const { setIsContactOpen, isContactOpen } = useContactStore()
-
   const isOnTab = useIsOnTab()
-
-  const pathname = usePathname()
-
-  const handleMute = () => {
-    setVolumeMaster(music ? 0 : 1)
-    setMusic(!music)
-  }
 
   useEffect(
     () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
@@ -55,7 +66,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
   return (
     <nav
       className={cn(
-        "fixed top-0 z-navbar flex w-full flex-col items-center justify-center",
+        "fixed top-0 z-navbar flex w-full flex-col items-center justify-center bg-brand-k lg:bg-transparent",
         "[background-image:linear-gradient(#000000_1px,transparent_1px),linear-gradient(to_right,#000000_1px,rgba(0,0,0,0.7)_1px)] [background-position-y:1px] [background-size:2px_2px]",
         "after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-brand-w1/30"
       )}
@@ -63,60 +74,171 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
       <div className="grid-layout h-9">
         <button
           onClick={() => handleNavigation("/")}
-          className="col-start-1 col-end-3 w-fit"
+          className="col-span-1 w-fit lg:col-start-1 lg:col-end-3"
         >
           <Logo className="h-[0.9375rem] text-brand-w1" />
         </button>
 
-        <div className="ga-5 col-start-3 col-end-11 flex w-full justify-center gap-5">
-          {links.map((link) => (
-            <div key={link.href} className="flex items-center gap-1 text-p">
-              <button
-                className={cn(
-                  "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
-                  link.href === pathname && "!text-brand-o"
-                )}
-                onClick={() => handleNavigation(link.href)}
-              >
-                {link.title}
-              </button>
-              {link.count && (
-                <sup className="text-caption text-brand-g1">({link.count})</sup>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="col-start-11 col-end-13 ml-auto flex items-center gap-5">
-          <button
-            onClick={handleMute}
-            className="inline-flex w-18 items-center space-x-1 text-p text-brand-w2"
-            aria-label={music ? "Turn music off" : "Turn music on"}
-          >
-            <span>Music:</span>
-
-            <span
-              className={cn(
-                "inline-block w-6 text-left uppercase",
-                music ? "text-brand-w1" : "text-brand-g1"
-              )}
-            >
-              {music ? "On" : "Off"}
-            </span>
-          </button>
-          <button
-            id="nav-contact"
-            onClick={() => setIsContactOpen(!isContactOpen)}
-            className="text-p capitalize text-brand-w1"
-          >
-            {isContactOpen ? "Close" : "Contact Us"}
-          </button>
-        </div>
+        <DesktopContent
+          links={links}
+          music={music}
+          setMusic={setMusic}
+          socialLinks={socialLinks}
+          newsletter={newsletter}
+        />
+        <MobileContent
+          links={links}
+          socialLinks={socialLinks}
+          newsletter={newsletter}
+        />
       </div>
       <Grid />
       <div className="mx-auto -mb-px h-px w-full max-w-full px-1.75">
         <div className="with-dots h-px" />
       </div>
     </nav>
+  )
+}
+
+interface ContentProps extends NavbarContentProps {
+  music: boolean
+  setMusic: (music: boolean) => void
+}
+
+const DesktopContent = ({ links, music, setMusic }: ContentProps) => {
+  const { setVolumeMaster } = useSiteAudio()
+
+  const { handleNavigation } = useHandleNavigation()
+
+  const { setIsContactOpen, isContactOpen } = useContactStore()
+
+  const pathname = usePathname()
+
+  const handleMute = () => {
+    setVolumeMaster(music ? 0 : 1)
+    setMusic(!music)
+  }
+
+  return (
+    <>
+      <div className="ga-5 col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
+        {links.map((link) => (
+          <div key={link.href} className="flex items-center gap-1 text-p">
+            <button
+              className={cn(
+                "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+                link.href === pathname && "!text-brand-o"
+              )}
+              onClick={() => handleNavigation(link.href)}
+            >
+              {link.title}
+            </button>
+            {link.count && (
+              <sup className="text-caption text-brand-g1">({link.count})</sup>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="col-start-11 col-end-13 ml-auto hidden items-center gap-5 lg:flex">
+        <button
+          onClick={handleMute}
+          className="inline-flex w-18 items-center space-x-1 text-p text-brand-w2"
+          aria-label={music ? "Turn music off" : "Turn music on"}
+        >
+          <span>Music:</span>
+
+          <span
+            className={cn(
+              "inline-block w-6 text-left uppercase",
+              music ? "text-brand-w1" : "text-brand-g1"
+            )}
+          >
+            {music ? "On" : "Off"}
+          </span>
+        </button>
+        <button
+          id="nav-contact"
+          onClick={() => setIsContactOpen(!isContactOpen)}
+          className="text-p capitalize text-brand-w1"
+        >
+          {isContactOpen ? "Close" : "Contact Us"}
+        </button>
+      </div>
+    </>
+  )
+}
+
+const MobileContent = ({
+  links,
+  socialLinks,
+  newsletter
+}: NavbarContentProps) => {
+  const isMobile = useMedia("(max-width: 1024px)")
+  const [isOpen, setIsOpen] = useState(false)
+
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const menuHandlerRef = useRef<HTMLButtonElement>(null)
+
+  const { focusTrapRef } = useFocusTrap(isOpen, menuHandlerRef)
+  usePreventScroll(isOpen)
+
+  const memoizedMenu = useMemo(() => {
+    return (
+      <Portal id="mobile-menu">
+        <div
+          ref={mergeRefs(mobileMenuRef, focusTrapRef)}
+          className={cn(
+            "grid-layout invisible fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full grid-rows-2 bg-brand-k py-6 opacity-0",
+            { "visible opacity-100": isOpen && isMobile }
+          )}
+        >
+          <Grid />
+          <InternalLinks links={links} className="col-span-4" />
+
+          <div className="col-span-4 flex h-full flex-col justify-end gap-y-16">
+            <StayConnected content={newsletter} />
+
+            <div className="flex flex-col items-start gap-y-2">
+              <SocialLinks links={socialLinks} />
+              <Copyright />
+            </div>
+          </div>
+        </div>
+      </Portal>
+    )
+  }, [
+    isOpen,
+    focusTrapRef,
+    mobileMenuRef,
+    isMobile,
+    links,
+    newsletter,
+    socialLinks
+  ])
+
+  return (
+    <div className="col-start-4 col-end-5 grid items-center justify-end gap-5 lg:hidden">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex w-18 flex-col gap-1"
+        aria-label={isOpen ? "Close menu" : "Open menu"}
+        ref={menuHandlerRef}
+      >
+        <span
+          className={cn(
+            "h-px w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
+            { "translate-y-[2.5px] rotate-[5deg]": isOpen }
+          )}
+        />
+        <span
+          className={cn(
+            "h-px w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
+            { "-translate-y-[2.5px] -rotate-[5deg]": isOpen }
+          )}
+        />
+      </button>
+      {memoizedMenu}
+    </div>
   )
 }
