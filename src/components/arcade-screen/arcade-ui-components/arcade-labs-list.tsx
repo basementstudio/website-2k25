@@ -102,13 +102,6 @@ export const ArcadeLabsList = ({
                     "_blank"
                   )
                 }}
-                onHoverChange={(hover) => {
-                  if (hover) {
-                    setCursorType("alias")
-                  } else {
-                    setCursorType("default")
-                  }
-                }}
               >
                 CODE
               </Text>
@@ -127,13 +120,6 @@ export const ArcadeLabsList = ({
                     `https://lab.basement.studio/experiments/${data.url}`,
                     "_blank"
                   )
-                }}
-                onHoverChange={(hover) => {
-                  if (hover) {
-                    setCursorType("alias")
-                  } else {
-                    setCursorType("default")
-                  }
                 }}
               >
                 LIVE
