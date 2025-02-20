@@ -79,7 +79,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
             <div className="flex flex-col gap-2">
               <input
                 id="email"
-                type="email"
+                type="text"
                 value={formData.email}
                 onChange={(e) => updateFormField("email", e.target.value)}
                 onFocus={(e) => {
@@ -89,7 +89,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 onSelect={handleCursorPosition}
                 onKeyUp={handleCursorPosition}
                 onClick={handleCursorPosition}
-                className="remove-focus-styles mb-0 w-full bg-transparent p-2 text-transparent"
+                className="remove-focus-styles w-full bg-transparent p-2 text-transparent"
               />
 
               <input
@@ -104,7 +104,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 onSelect={handleCursorPosition}
                 onKeyUp={handleCursorPosition}
                 onClick={handleCursorPosition}
-                className="remove-focus-styles -mt-0 mb-0 w-full bg-transparent p-2 text-transparent"
+                className="remove-focus-styles w-full bg-transparent p-2 text-transparent"
               />
 
               <textarea
@@ -164,7 +164,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
               </div>
               <a
                 href="mailto:hello@basement.studio"
-                onFocus={() => setFocusedElement("email")}
+                onFocus={() => setFocusedElement("mailto-link")}
                 onBlur={() => setFocusedElement(null)}
                 className="remove-focus-styles px-1 text-transparent"
               >
