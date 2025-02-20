@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import { useMemo } from "react"
 
 import { Grid } from "@/components/grid"
 
@@ -16,13 +17,10 @@ const BLACKLISTED_PATHS = [
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname()
-  let shouldShowCanvas
+  const shouldShowCanvas = useMemo(() => {
+    return !BLACKLISTED_PATHS.some((path) => pathname.match(path))
+  }, [pathname])
 
-  if (BLACKLISTED_PATHS.some((path) => pathname.match(path))) {
-    shouldShowCanvas = false
-  } else {
-    shouldShowCanvas = true
-  }
 
   return (
     <>
