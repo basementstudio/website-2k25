@@ -16,6 +16,8 @@ varying vec2 vUv;
 #define MASK_INTENSITY (0.3)
 #define MASK_SIZE (8.0)
 #define MASK_BORDER (0.4)
+#define INTERFERENCE1 (0.4)
+#define INTERFERENCE2 (0.001)
 
 vec2 curveRemapUV(vec2 uv) {
   uv = uv * 2.0 - 1.0;
@@ -57,9 +59,25 @@ vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
   return color * (1.0 + (mask_color - 1.0) * maskIntensity);
 }
 
+float peak(float x, float xpos, float scale) {
+  return clamp((1.0 - x) * scale * log(1.0 / abs(x - xpos)), 0.0, 1.0);
+}
+
 void main() {
-  // add curved uv
-  vec2 remappedUv = curveRemapUV(vUv);
+  // add interference
+  float scany = round(vUv.y * 1024.0);
+
+  float r = random(vec2(0.0, scany) + vec2(uTime * 0.001));
+  if (r > 0.995) {
+    r *= 3.0;
+  }
+  float ifx1 = INTERFERENCE1 * 2.0 / 1024.0 * r;
+  float ifx2 = INTERFERENCE2 * (r * peak(vUv.y, 0.2, 0.2));
+
+  vec2 interferenceUv = vUv;
+  interferenceUv.x += ifx1 - ifx2;
+
+  vec2 remappedUv = curveRemapUV(interferenceUv);
   vec3 textureColor = vec3(0.0);
 
   // texture boundaries
