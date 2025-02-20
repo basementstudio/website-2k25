@@ -1,13 +1,29 @@
 "use client"
 
+import { usePathname } from "next/navigation"
+
 import { Grid } from "@/components/grid"
-import { useShowCanvas } from "@/hooks/use-show-canvas"
 
 import { InspectableViewer } from "../inspectables/inspectable-viewer"
 import { Scene } from "../scene"
 
+const BLACKLISTED_PATHS = [
+  /^\/blog\/\d+$/,
+  /^\/blog\/[^\/]+$/,
+  /^\/showcase\/\d+$/,
+  /^\/showcase\/[^\/]+$/
+]
+
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
-  const shouldShowCanvas = useShowCanvas()
+  const pathname = usePathname()
+  let shouldShowCanvas
+
+  if (BLACKLISTED_PATHS.some((path) => pathname.match(path))) {
+    shouldShowCanvas = false
+  } else {
+    shouldShowCanvas = true
+  }
+
   return (
     <>
       {shouldShowCanvas && (
