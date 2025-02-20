@@ -19,6 +19,8 @@ varying vec3 vPosition;
 #define INTERFERENCE2 (0.001)
 #define SCANLINE_INTENSITY (0.2)
 #define SCANLINE_COUNT (200.0)
+#define NOISE_SCALE (500.0)
+#define NOISE_OPACITY (0.02)
 
 vec2 curveRemapUV(vec2 uv) {
   uv = uv * 2.0 - 1.0;
@@ -86,6 +88,11 @@ void main() {
   float scanline = step(0.5, fract(vPosition.y * SCANLINE_COUNT));
   scanline = 1.0 - scanline * SCANLINE_INTENSITY;
   color *= scanline;
+
+  // Add noise overlay
+  vec2 noiseUv = gl_FragCoord.xy / NOISE_SCALE;
+  float noise = random(noiseUv + uTime * 0.1);
+  color = mix(color, color + vec3(noise), NOISE_OPACITY);
 
   gl_FragColor = vec4(color, 1.0);
 }
