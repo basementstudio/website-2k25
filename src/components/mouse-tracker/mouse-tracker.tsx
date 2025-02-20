@@ -20,7 +20,7 @@ type CursorType =
   | "inspect"
   | "zoom"
   | "not-allowed"
-
+  | "alias"
 interface MouseStore {
   hoverText: string | null
   setHoverText: (text: string | null) => void
