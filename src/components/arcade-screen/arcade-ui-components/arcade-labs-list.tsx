@@ -141,12 +141,21 @@ export const ArcadeLabsList = ({
             </Container>
           </Container>
         ))}
-      <ViewMore isLoaded={experiments.length > 0} />
+      <ViewMore
+        isLoaded={experiments.length > 0}
+        setSelectedExperiment={setSelectedExperiment}
+      />
     </Container>
   )
 }
 
-const ViewMore = ({ isLoaded }: { isLoaded: boolean }) => {
+const ViewMore = ({
+  isLoaded,
+  setSelectedExperiment
+}: {
+  isLoaded: boolean
+  setSelectedExperiment: (experiment: any) => void
+}) => {
   const [isViewMoreHovered, setIsViewMoreHovered] = useState(false)
   const setCursorType = useMouseStore((state) => state.setCursorType)
 
@@ -171,9 +180,11 @@ const ViewMore = ({ isLoaded }: { isLoaded: boolean }) => {
       }}
       onHoverChange={(hover) => {
         if (hover) {
+          setSelectedExperiment(null)
           setIsViewMoreHovered(true)
           setCursorType("alias")
         } else {
+          setSelectedExperiment(null)
           setIsViewMoreHovered(false)
           setCursorType("default")
         }
