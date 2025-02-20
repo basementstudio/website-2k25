@@ -10,7 +10,7 @@ varying vec2 vUv;
 #define SCANLINE_COUNT (800.0)
 #define VIGNETTE_STRENGTH (0.1)
 #define DISTORTION (0.3)
-#define NOISE_INTENSITY (0.5)
+#define NOISE_INTENSITY (0.3)
 #define TIME_SPEED (1.0)
 #define LINE_HEIGHT (0.05)
 #define MASK_INTENSITY (0.3)
@@ -115,9 +115,6 @@ void main() {
   vec2 vignetteUv = vUv * 2.0 - 1.0;
   float vignette = 1.0 - dot(vignetteUv, vignetteUv) * VIGNETTE_STRENGTH;
   color *= vignette;
-
-  // add crt
-  color = applyCRTMask(color, vUv, vec2(1024.0, 1024.0));
 
   gl_FragColor = vec4(color, 1.0);
 }
