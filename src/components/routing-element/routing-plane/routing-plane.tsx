@@ -4,7 +4,9 @@ import {
   PlaneGeometry,
   Quaternion,
   ShaderMaterial,
-  Vector3
+  Vector3,
+  EdgesGeometry,
+  LineBasicMaterial
 } from "three"
 
 import fragmentShader from "./fragment.glsl"
@@ -33,6 +35,7 @@ export const RoutingPlane = ({
         },
         depthTest: false,
         transparent: true,
+        opacity: 0.1,
         vertexShader: vertexShader,
         fragmentShader: fragmentShader
       }),
@@ -116,11 +119,30 @@ export const RoutingPlane = ({
       </>
     ) : null
 
+  const edgesGeometry = useMemo(() => new EdgesGeometry(geometry), [geometry])
+  const edgesMaterial = useMemo(
+    () =>
+      new LineBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.2,
+        depthTest: false
+      }),
+    []
+  )
+
   return (
     <group position={position} rotation={rotation} visible={visible}>
-      <mesh geometry={geometry} scale={[scale[0], scale[1], 1]}>
-        <meshBasicMaterial color="red" transparent opacity={0.5} />
-      </mesh>
+      <mesh
+        geometry={geometry}
+        material={material}
+        scale={[scale[0], scale[1], 1]}
+      ></mesh>
+      <lineSegments
+        geometry={edgesGeometry}
+        material={edgesMaterial}
+        scale={[scale[0], scale[1], 1]}
+      />
       {squares}
     </group>
   )
