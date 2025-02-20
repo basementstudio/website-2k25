@@ -10,18 +10,17 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const [stickIsGrabbed, setStickIsGrabbed] = useState(false)
   const { setCursorType } = useMouseStore()
-  const direction = useRef(0)
-
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
+  const state = useRef(0)
 
   const availableSounds = sfx.arcade.sticks.length
 
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
 
   const handleGrabStick = () => {
-    setCursorType("grabbing")
     setStickIsGrabbed(true)
+    setCursorType("grabbing")
   }
 
   const handleReleaseStick = () => {
@@ -40,7 +39,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     const minOffset = 0.02
 
     let targetRotation
-    let currentDirection
+    let currentState
 
     if (absX < minOffset && absZ < minOffset) {
       targetRotation = {
@@ -48,26 +47,26 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         y: 0,
         z: 0
       }
-      currentDirection = 0
+      currentState = 0
     } else if (absX > absZ) {
       targetRotation = {
         x: 0,
         y: 0,
         z: x > 0 ? -maxTilt : maxTilt
       }
-      currentDirection = x > 0 ? 1 : 2
+      currentState = x > 0 ? 1 : 2
     } else {
       targetRotation = {
         x: y > 0 ? -maxTilt : maxTilt,
         y: 0,
         z: 0
       }
-      currentDirection = y > 0 ? 3 : 4
+      currentState = y > 0 ? 3 : 4
     }
 
-    if (direction.current === currentDirection) return
+    if (state.current === currentState) return
 
-    if (direction.current !== 0) {
+    if (state.current !== 0) {
       desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
     }
 
@@ -80,12 +79,12 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
     playSoundFX(
       `ARCADE_STICK_${desiredSoundFX.current}_${
-        currentDirection === 0 ? "RELEASE" : "PRESS"
+        currentState === 0 ? "RELEASE" : "PRESS"
       }`,
       0.2
     )
 
-    direction.current = currentDirection
+    state.current = currentState
   }
 
   const resetStick = () => {
@@ -104,10 +103,10 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       }
     )
 
-    if (direction.current !== 0) {
+    if (state.current !== 0) {
       playSoundFX(`ARCADE_STICK_${desiredSoundFX.current}_RELEASE`, 0.2)
     }
-    direction.current = 0
+    state.current = 0
   }
 
   return (
@@ -116,8 +115,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       <mesh
         position={[
           stick.position.x,
-          stick.position.y + 0.073 * Math.sin((69 * Math.PI) / 180),
-          stick.position.z + 0.073 * Math.cos((69 * Math.PI) / 180)
+          stick.position.y + 0.07 * Math.sin((69 * Math.PI) / 180),
+          stick.position.z + 0.07 * Math.cos((69 * Math.PI) / 180)
         ]}
         rotation={[(16 * Math.PI) / 180, 0, 0]}
         onPointerEnter={() => setCursorType("grab")}
@@ -126,8 +125,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         }}
         onPointerDown={() => handleGrabStick()}
       >
-        <cylinderGeometry args={[0.02, 0.02, 0.065, 24]} />
-        <meshBasicMaterial transparent opacity={0} />
+        <cylinderGeometry args={[0.02, 0.02, 0.06, 12]} />
+        <meshBasicMaterial opacity={0} />
       </mesh>
       <mesh
         position={[
@@ -141,11 +140,6 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
             handleStickMove(e)
           }
         }}
-        onPointerEnter={(e) => {
-          if (stickIsGrabbed) {
-            e.stopPropagation()
-          }
-        }}
         onPointerLeave={(e) => {
           if (stickIsGrabbed) {
             e.stopPropagation()
@@ -155,14 +149,13 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         }}
         onPointerUp={(e) => {
           if (stickIsGrabbed) {
-            e.stopPropagation()
-            setCursorType("grab")
+            setCursorType(state.current === 0 ? "grab" : "default")
             handleReleaseStick()
           }
         }}
       >
         <sphereGeometry args={[0.2, 12, 12]} />
-        <meshBasicMaterial transparent opacity={0} />
+        <meshBasicMaterial opacity={0} />
       </mesh>
     </group>
   )
