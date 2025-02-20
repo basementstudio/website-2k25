@@ -125,7 +125,7 @@ const Bakes = () => {
 
   const scene = useThree((state) => state.scene)
 
-  const { lightmapIntensity, ambientOcclusion } = useControls({
+  const { lightmapIntensity, ambientOcclusion } = useControls("Bakes", {
     lightmapIntensity: { value: 1, min: 0, max: 24, step: 0.01 },
     ambientOcclusion: { value: 1, min: 0, max: 24, step: 0.01 }
   })

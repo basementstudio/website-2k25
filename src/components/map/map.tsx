@@ -102,7 +102,7 @@ export const Map = memo(() => {
   const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
   const { showColorPicker } = useControls({
-    "color picker": levaFolder(
+    "Color picker": levaFolder(
       {
         showColorPicker: false
       },
@@ -112,8 +112,8 @@ export const Map = memo(() => {
     )
   })
 
-  const { godraysOpacity } = useControls("godrays", {
-    godraysOpacity: {
+  const { opacity } = useControls("God Rays", {
+    opacity: {
       value: 0.5,
       min: 0.0,
       max: 5.0,
@@ -124,7 +124,7 @@ export const Map = memo(() => {
   useFrame(({ clock }) => {
     godrays.forEach((mesh) => {
       // @ts-ignore
-      mesh.material.uniforms.uGodrayDensity.value = godraysOpacity
+      mesh.material.uniforms.uGodrayDensity.value = opacity
     })
 
     Object.values(shaderMaterialsRef).forEach((material) => {

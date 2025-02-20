@@ -1,5 +1,6 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
+import { useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { useEffect, useMemo, useRef } from "react"
 import {
@@ -15,6 +16,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import postFrag from "./post.frag"
 import postVert from "./post.vert"
+import { usePostprocessingSettings } from "./use-postprocessing-settings"
 
 interface PostProcessingProps {
   mainTexture: Texture
@@ -55,6 +57,16 @@ export function PostProcessing({
   const assets = useAssets()
   const firstRender = useRef(true)
 
+  const {
+    basics,
+    bloom,
+    vignette,
+    setBasics,
+    setBloom,
+    setVignette,
+    hasChanged
+  } = usePostprocessingSettings()
+
   const targets = useMemo(
     () => ({
       contrast: new MotionValue(),
@@ -86,6 +98,26 @@ export function PostProcessing({
       animate(targets.bloomRadius, p.bloomRadius, config)
       animate(targets.bloomThreshold, p.bloomThreshold, config)
 
+      setBasics({
+        contrast: p.contrast,
+        brightness: p.brightness,
+        exposure: p.exposure,
+        gamma: p.gamma
+      })
+
+      setBloom({
+        strength: p.bloomStrength,
+        radius: p.bloomRadius,
+        threshold: p.bloomThreshold
+      })
+
+      setVignette({
+        radius: p.vignetteRadius,
+        spread: p.vignetteSpread
+      })
+
+      hasChanged.current = false
+
       firstRender.current = false
     }
 
@@ -93,15 +125,28 @@ export function PostProcessing({
   }, [scene])
 
   useFrame(() => {
-    material.uniforms.uContrast.value = targets.contrast.get()
-    material.uniforms.uBrightness.value = targets.brightness.get()
-    material.uniforms.uExposure.value = targets.exposure.get()
-    material.uniforms.uGamma.value = targets.gamma.get()
-    material.uniforms.uVignetteRadius.value = targets.vignetteRadius.get()
-    material.uniforms.uVignetteSpread.value = targets.vignetteSpread.get()
-    material.uniforms.uBloomStrength.value = targets.bloomStrength.get()
-    material.uniforms.uBloomRadius.value = targets.bloomRadius.get()
-    material.uniforms.uBloomThreshold.value = targets.bloomThreshold.get()
+    if (!hasChanged.current) {
+      material.uniforms.uContrast.value = targets.contrast.get()
+      material.uniforms.uBrightness.value = targets.brightness.get()
+      material.uniforms.uExposure.value = targets.exposure.get()
+      material.uniforms.uGamma.value = targets.gamma.get()
+      material.uniforms.uVignetteRadius.value = targets.vignetteRadius.get()
+      material.uniforms.uVignetteSpread.value = targets.vignetteSpread.get()
+      material.uniforms.uBloomStrength.value = targets.bloomStrength.get()
+      material.uniforms.uBloomRadius.value = targets.bloomRadius.get()
+      material.uniforms.uBloomThreshold.value = targets.bloomThreshold.get()
+    } else {
+      console.log(basics, vignette, bloom)
+      material.uniforms.uContrast.value = basics.contrast
+      material.uniforms.uBrightness.value = basics.brightness
+      material.uniforms.uExposure.value = basics.exposure
+      material.uniforms.uGamma.value = basics.gamma
+      material.uniforms.uVignetteRadius.value = vignette.radius
+      material.uniforms.uVignetteSpread.value = vignette.spread
+      material.uniforms.uBloomStrength.value = bloom.strength
+      material.uniforms.uBloomRadius.value = bloom.radius
+      material.uniforms.uBloomThreshold.value = bloom.threshold
+    }
   })
 
   useEffect(() => {
