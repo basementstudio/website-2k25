@@ -420,12 +420,16 @@ export const Map = memo(() => {
           (tab) => tab.tabClickableName === node.name
         )
 
+        const isLabGroup = node.name.includes("LaboratoryHome_Hover")
+        const groupName = isLabGroup ? "laboratory-home" : undefined
+
         return (
           <RoutingElement
             key={node.name}
             node={node}
             route={matchingTab?.tabRoute ?? ""}
             hoverName={matchingTab?.tabHoverName ?? node.name}
+            groupName={groupName}
           />
         )
       })}

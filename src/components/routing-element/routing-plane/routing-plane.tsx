@@ -118,11 +118,9 @@ export const RoutingPlane = ({
 
   return (
     <group position={position} rotation={rotation} visible={visible}>
-      <mesh
-        geometry={geometry}
-        material={material}
-        scale={[scale[0], scale[1], 1]}
-      />
+      <mesh geometry={geometry} scale={[scale[0], scale[1], 1]}>
+        <meshBasicMaterial color="red" transparent opacity={0.5} />
+      </mesh>
       {squares}
     </group>
   )
