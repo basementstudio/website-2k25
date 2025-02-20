@@ -7,25 +7,25 @@ import { Stick } from "./stick"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useAssets } from "../assets-provider"
 import { useRef } from "react"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 export const ArcadeBoard = () => {
-  const {
-    arcade: { buttons, sticks }
-  } = useMesh()
-
+  const { arcade } = useMesh()
+  const { sfx } = useAssets()
   const { setCursorType } = useMouseStore()
   const { playSoundFX } = useSiteAudio()
-  const {
-    sfx: {
-      arcade: { buttons: buttonSounds }
-    }
-  } = useAssets()
-  const availableSounds = buttonSounds.length
   const somethingIsPressed = useRef(false)
+  const scene = useCurrentScene()
+
+  const availableSounds = sfx.arcade.buttons.length
+
+  const { buttons, sticks } = arcade
 
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
 
   const handleClick = (buttonName: string, isDown: boolean) => {
+    if (scene !== "lab") return
+
     const angle = 69 * (Math.PI / 180)
     const dz = -0.0075 * Math.cos(angle)
     const dy = -0.0075 * Math.sin(angle)

@@ -13,21 +13,18 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const direction = useRef(0)
 
   const { playSoundFX } = useSiteAudio()
-  const {
-    sfx: {
-      arcade: { sticks: stickSounds }
-    }
-  } = useAssets()
+  const { sfx } = useAssets()
 
-  const desiredSoundFX = useRef(Math.floor(Math.random() * stickSounds.length))
+  const availableSounds = sfx.arcade.sticks.length
+
+  const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
 
   const handleGrabStick = () => {
-    setCursorType("grab")
+    setCursorType("grabbing")
     setStickIsGrabbed(true)
   }
 
   const handleReleaseStick = () => {
-    setCursorType("default")
     setStickIsGrabbed(false)
     resetStick()
   }
@@ -40,7 +37,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     const absZ = Math.abs(y)
 
     const maxTilt = 0.15
-    const minOffset = 0.025
+    const minOffset = 0.02
 
     let targetRotation
     let currentDirection
@@ -71,7 +68,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     if (direction.current === currentDirection) return
 
     if (direction.current !== 0) {
-      desiredSoundFX.current = Math.floor(Math.random() * stickSounds.length)
+      desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
     }
 
     animate(stick.rotation, targetRotation, {
@@ -152,12 +149,14 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         onPointerLeave={(e) => {
           if (stickIsGrabbed) {
             e.stopPropagation()
+            setCursorType("default")
             handleReleaseStick()
           }
         }}
         onPointerUp={(e) => {
           if (stickIsGrabbed) {
             e.stopPropagation()
+            setCursorType("grab")
             handleReleaseStick()
           }
         }}
