@@ -31,6 +31,11 @@ export const ArcadeLabsList = ({
       scrollbarBorderColor={COLORS_THEME.black}
       scrollbarBorderWidth={2}
       scrollbarColor={COLORS_THEME.primary}
+      onHoverChange={(hover) => {
+        if (!hover) {
+          setSelectedExperiment(null)
+        }
+      }}
     >
       {experiments &&
         experiments.map((data, idx) => (
