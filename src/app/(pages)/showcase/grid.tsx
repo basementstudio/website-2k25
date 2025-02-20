@@ -79,7 +79,7 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
                 >
                   <div className="grid grid-cols-6 gap-2 bg-brand-k">
                     <p className="col-span-2 px-2 text-p leading-none text-brand-w2">
-                      {item.project?.client?._title}
+                      {item.project?._title}
                     </p>
 
                     <p className="col-span-4 inline-flex flex-wrap text-pretty px-2 text-p leading-none text-brand-w2">
