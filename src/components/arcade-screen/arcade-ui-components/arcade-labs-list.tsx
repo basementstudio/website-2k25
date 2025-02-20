@@ -59,7 +59,7 @@ export const ArcadeLabsList = ({
             paddingTop={8}
             onHoverChange={(hover) => {
               if (hover) {
-                setCursorType("click")
+                setCursorType("alias")
                 setSelectedExperiment(data)
               } else {
                 setCursorType("default")
@@ -104,7 +104,7 @@ export const ArcadeLabsList = ({
                 }}
                 onHoverChange={(hover) => {
                   if (hover) {
-                    setCursorType("click")
+                    setCursorType("alias")
                   } else {
                     setCursorType("default")
                   }
@@ -130,7 +130,7 @@ export const ArcadeLabsList = ({
                 }}
                 onHoverChange={(hover) => {
                   if (hover) {
-                    setCursorType("click")
+                    setCursorType("alias")
                   } else {
                     setCursorType("default")
                   }
