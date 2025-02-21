@@ -21,6 +21,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
   const [stickIsGrabbed, setStickIsGrabbed] = useState(false)
   const state = useRef(0)
+  const sequence = useRef<number[]>([])
+  const expectedSequence = [3, 0, 3, 0, 4, 0, 4, 0, 2, 0, 1, 0, 2, 0, 1]
 
   const handleGrabStick = () => {
     if (scene !== "lab") return
@@ -74,6 +76,23 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     }
 
     animate(stick.rotation, targetRotation, STICK_ANIMATION)
+
+    sequence.current.push(currentState)
+
+    const seqLength = sequence.current.length
+    if (seqLength > expectedSequence.length) {
+      sequence.current = sequence.current.slice(-expectedSequence.length)
+    }
+
+    if (
+      sequence.current.length === expectedSequence.length &&
+      sequence.current.every(
+        (value, index) => value === expectedSequence[index]
+      )
+    ) {
+      console.log("KONAMI CODE UNLOCKED")
+      sequence.current = []
+    }
 
     playSoundFX(
       `ARCADE_STICK_${desiredSoundFX.current}_${
