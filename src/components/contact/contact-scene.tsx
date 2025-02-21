@@ -34,7 +34,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const isContactOpen = useWorkerStore((state) => state.isContactOpen)
 
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
-  const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
 
   const glass = gltf.scene.children[0].getObjectByName("GLASS") as
@@ -72,11 +71,13 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
     setScreenMesh(screen)
 
+    if (glass) {
+      glass.visible = false
+    }
+
     if (screen) {
       const box = new Box3().setFromObject(screen)
       const size = box.getSize(new Vector3())
-      const center = box.getCenter(new Vector3())
-      setScreenPosition(center)
       setScreenScale(size)
 
       screenMaterial.needsUpdate = true
@@ -84,14 +85,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
       screen.material = screenMaterial
     }
-  }, [gltf.scene, renderTarget.texture, screenMaterial])
+  }, [gltf.scene, renderTarget.texture, screenMaterial, glass])
 
   useEffect(() => {
     if (!gltf.scene || !gltf.animations.length) return
-
-    if (glass) {
-      glass.visible = false
-    }
 
     gltf.scene.traverse((node) => {
       if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
@@ -111,14 +108,19 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const mixer = new AnimationMixer(gltf.scene)
     animationMixerRef.current = mixer
 
-    const enterAnimation = gltf.animations.find((a) => a.name === "Intro.001")
+    const introAnim = gltf.animations.find((a) => a.name === "Intro.001")
+    const outroAnim = gltf.animations.find((a) => a.name === "Outro-v2")
 
-    if (!enterAnimation) {
-      console.warn("Intro.001 animation not found")
+    if (!introAnim || !outroAnim) {
+      console.warn(
+        introAnim,
+        outroAnim,
+        "Intro.001 or outro-v2 animation not found"
+      )
       return
     }
 
-    const enterAction = mixer.clipAction(enterAnimation)
+    const enterAction = mixer.clipAction(introAnim)
     enterAction.setLoop(LoopOnce, 1)
     enterAction.clampWhenFinished = true
     enterAction.fadeIn(0.05)
@@ -129,15 +131,22 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       }
     }
 
-    enterAction.play()
-    mixer.addEventListener("finished", onAnimationFinished)
+    if (isContactOpen) {
+      enterAction.play()
+      mixer.addEventListener("finished", onAnimationFinished)
+    } else {
+      mixer.stopAllAction()
+      mixer.setTime(0)
+      enterAction.reset()
+      animationMixerRef.current = null
+    }
 
     return () => {
       mixer.stopAllAction()
       mixer.removeEventListener("finished", onAnimationFinished)
       animationMixerRef.current = null
     }
-  }, [gltf, glass])
+  }, [gltf, isContactOpen])
 
   const playRandomIdleAnimation = () => {
     if (!animationMixerRef.current) return
@@ -164,6 +173,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   }
 
   useFrame((state, delta) => {
+    // TODO: check if this is needed
     if (!isContactOpen) return
 
     animationMixerRef.current?.update(delta)
@@ -182,7 +192,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     }
   })
 
-  if (!screenMesh || !screenPosition || !screenScale) return null
+  if (!screenMesh || !screenScale) return null
 
   return (
     <>
