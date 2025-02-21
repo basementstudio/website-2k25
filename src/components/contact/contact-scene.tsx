@@ -18,20 +18,24 @@ import { useWorkerStore } from "@/workers/contact-worker"
 
 import { RenderTexture } from "../arcade-screen/render-texture"
 import { createScreenMaterial } from "../arcade-screen/screen-material"
+import { PhoneAnimationHandler } from "./contact-anims"
 import PhoneScreenUI from "./ui/render-ui"
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const gltf = useGLTF(modelUrl)
   const animationMixerRef = useRef<AnimationMixer | null>(null)
+  const animationHandlerRef = useRef<PhoneAnimationHandler | null>(null)
   const phoneGroupRef = useRef<Group>(null)
   const idleTimeRef = useRef<number>(0)
-  const currentIdleAnimationRef = useRef<AnimationAction | null>(null)
+
+  console.log(gltf.animations)
 
   const updateFormData = useWorkerStore((state) => state.updateFormData)
   const updateFocusedElement = useWorkerStore(
     (state) => state.updateFocusedElement
   )
   const isContactOpen = useWorkerStore((state) => state.isContactOpen)
+  const isClosing = useWorkerStore((state) => state.isClosing)
 
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
@@ -52,10 +56,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       } else if (e.data.type === "update-focus") {
         updateFocusedElement(e.data.focusedElement, e.data.cursorPosition)
       } else if (e.data.type === "update-contact-open") {
-        console.log(
-          "[ContactScene] Received update-contact-open:",
-          e.data.isContactOpen
-        )
         useWorkerStore.getState().setIsContactOpen(e.data.isContactOpen)
       }
     }
@@ -107,88 +107,86 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
     const mixer = new AnimationMixer(gltf.scene)
     animationMixerRef.current = mixer
-
-    const introAnim = gltf.animations.find((a) => a.name === "Intro.001")
-    const outroAnim = gltf.animations.find((a) => a.name === "Outro-v2")
-
-    if (!introAnim || !outroAnim) {
-      console.warn(
-        introAnim,
-        outroAnim,
-        "Intro.001 or outro-v2 animation not found"
-      )
-      return
-    }
-
-    const enterAction = mixer.clipAction(introAnim)
-    enterAction.setLoop(LoopOnce, 1)
-    enterAction.clampWhenFinished = true
-    enterAction.fadeIn(0.05)
-
-    const onAnimationFinished = (e: any) => {
-      if (e.action === enterAction) {
-        idleTimeRef.current = 0
-      }
-    }
-
-    if (isContactOpen) {
-      enterAction.play()
-      mixer.addEventListener("finished", onAnimationFinished)
-    } else {
-      mixer.stopAllAction()
-      mixer.setTime(0)
-      enterAction.reset()
-      animationMixerRef.current = null
-    }
+    animationHandlerRef.current = new PhoneAnimationHandler(
+      mixer,
+      gltf.animations
+    )
 
     return () => {
       mixer.stopAllAction()
-      mixer.removeEventListener("finished", onAnimationFinished)
       animationMixerRef.current = null
+      animationHandlerRef.current = null
     }
-  }, [gltf, isContactOpen])
+  }, [gltf])
+
+  // Handle animation states
+  useEffect(() => {
+    const handler = animationHandlerRef.current
+    if (!handler) return
+
+    if (isClosing) {
+      const action = handler.playAnimation("Outro-v2", {
+        type: "transition",
+        clampWhenFinished: true,
+        fadeInDuration: 0.05,
+        onComplete: () => {
+          console.log("Outro animation complete")
+        }
+      })
+    } else if (isContactOpen) {
+      // sometimes positioning is off when re-entering the scene
+      phoneGroupRef.current?.position.set(0, -0.05, 0)
+
+      const action = handler.playAnimation("Intro.001", {
+        type: "transition",
+        clampWhenFinished: true,
+        fadeInDuration: 0.05,
+        onComplete: () => {
+          idleTimeRef.current = 0
+        }
+      })
+    } else {
+      handler.stopAllAnimations(0.05)
+    }
+  }, [isContactOpen, isClosing])
 
   const playRandomIdleAnimation = () => {
-    if (!animationMixerRef.current) return
+    const handler = animationHandlerRef.current
+    if (!handler) return
 
-    const idleAnimations = ["antena", "antena.003", "ruedita"]
+    const idleAnimations = ["antena", "antena.003", "ruedita"] as const
     const randomAnim =
       idleAnimations[Math.floor(Math.random() * idleAnimations.length)]
 
-    const animation = gltf.animations.find((a) => a.name === randomAnim)
-    if (!animation) return
-
-    if (currentIdleAnimationRef.current) {
-      currentIdleAnimationRef.current.fadeOut(0.5)
-    }
-
-    const action = animationMixerRef.current.clipAction(animation)
-    action.setLoop(LoopOnce, 1)
-    action.clampWhenFinished = true
-    action.reset()
-    action.fadeIn(0.5)
-    action.play()
-
-    currentIdleAnimationRef.current = action
+    handler.playAnimation(randomAnim, {
+      type: "idle",
+      clampWhenFinished: true,
+      loop: false,
+      weight: 1,
+      fadeInDuration: 0.2,
+      fadeOutDuration: 0.2
+    })
   }
 
   useFrame((state, delta) => {
-    // TODO: check if this is needed
-    if (!isContactOpen) return
+    const handler = animationHandlerRef.current
+    if (!handler) return
 
-    animationMixerRef.current?.update(delta)
+    handler.update(delta)
 
     if (screenMaterial.uniforms.uTime) {
       screenMaterial.uniforms.uTime.value += delta
     }
 
-    idleTimeRef.current += delta
+    if (isContactOpen && !isClosing) {
+      idleTimeRef.current += delta
 
-    const IDLE_TIMEOUT = Math.random() * 5 + 15
+      const IDLE_TIMEOUT = Math.random() * 5 + 15
 
-    if (idleTimeRef.current > IDLE_TIMEOUT) {
-      playRandomIdleAnimation()
-      idleTimeRef.current = 0
+      if (idleTimeRef.current > IDLE_TIMEOUT) {
+        playRandomIdleAnimation()
+        idleTimeRef.current = 0
+      }
     }
   })
 

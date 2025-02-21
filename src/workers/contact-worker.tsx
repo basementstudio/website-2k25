@@ -14,6 +14,7 @@ interface WorkerStore {
   focusedElement: string | null
   cursorPosition: number
   isContactOpen: boolean
+  isClosing: boolean
   updateFormData: (formData: WorkerStore["formData"]) => void
   updateFocusedElement: (elementId: string | null, cursorPos?: number) => void
   setIsContactOpen: (isOpen: boolean) => void
@@ -30,6 +31,7 @@ export const useWorkerStore = create<WorkerStore>((set) => ({
   focusedElement: null,
   cursorPosition: 0,
   isContactOpen: false,
+  isClosing: false,
   updateFormData: (formData) => {
     set({ formData })
   },
@@ -37,7 +39,14 @@ export const useWorkerStore = create<WorkerStore>((set) => ({
     set({ focusedElement: elementId, cursorPosition: cursorPos })
   },
   setIsContactOpen: (isOpen) => {
-    set({ isContactOpen: isOpen })
+    if (!isOpen) {
+      set({ isClosing: true })
+      setTimeout(() => {
+        set({ isContactOpen: false, isClosing: false })
+      }, 1000)
+    } else {
+      set({ isContactOpen: true, isClosing: false })
+    }
   }
 }))
 
@@ -88,7 +97,12 @@ self.onmessage = (
   }
 
   if (type === "update-contact-open" && typeof isContactOpen === "boolean") {
-    useWorkerStore.getState().setIsContactOpen(isContactOpen)
+    const store = useWorkerStore.getState()
+    if (isContactOpen === false) {
+      store.setIsContactOpen(false)
+    } else {
+      store.setIsContactOpen(true)
+    }
   }
 }
 
