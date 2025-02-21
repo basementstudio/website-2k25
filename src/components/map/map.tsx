@@ -420,7 +420,9 @@ export const Map = memo(() => {
           (tab) => tab.tabClickableName === node.name
         )
 
-        const isLabGroup = node.name === "LaboratoryHome_Hover"
+        const isLabGroup =
+          node.name === "LaboratoryHome_HoverA" ||
+          node.name === "LaboratoryHome_HoverB"
         const groupName = isLabGroup ? "laboratory-home" : undefined
 
         return (
