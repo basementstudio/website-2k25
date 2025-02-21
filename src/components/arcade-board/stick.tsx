@@ -3,10 +3,12 @@ import { animate } from "motion"
 import { useRef, useState } from "react"
 import { Mesh } from "three"
 
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
-import { useAssets } from "../assets-provider"
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+import { useAssets } from "@/components/assets-provider"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+
+import { MIN_OFFSET, MAX_TILT, BOARD_ANGLE, STICK_ANIMATION } from "./constants"
 
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const scene = useCurrentScene()
@@ -39,13 +41,10 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     const absX = Math.abs(x)
     const absZ = Math.abs(y)
 
-    const maxTilt = 0.15
-    const minOffset = 0.02
-
     let targetRotation
     let currentState
 
-    if (absX < minOffset && absZ < minOffset) {
+    if (absX < MIN_OFFSET && absZ < MIN_OFFSET) {
       targetRotation = {
         x: 0,
         y: 0,
@@ -56,12 +55,12 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       targetRotation = {
         x: 0,
         y: 0,
-        z: x > 0 ? -maxTilt : maxTilt
+        z: x > 0 ? -MAX_TILT : MAX_TILT
       }
       currentState = x > 0 ? 1 : 2
     } else {
       targetRotation = {
-        x: y > 0 ? -maxTilt : maxTilt,
+        x: y > 0 ? -MAX_TILT : MAX_TILT,
         y: 0,
         z: 0
       }
@@ -74,12 +73,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
     }
 
-    animate(stick.rotation, targetRotation, {
-      type: "spring",
-      stiffness: 2000,
-      damping: 64,
-      restDelta: 0
-    })
+    animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
     playSoundFX(
       `ARCADE_STICK_${desiredSoundFX.current}_${
@@ -99,12 +93,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         y: 0,
         z: 0
       },
-      {
-        type: "spring",
-        stiffness: 2000,
-        damping: 64,
-        restDelta: 0
-      }
+      STICK_ANIMATION
     )
 
     if (state.current !== 0) {
@@ -119,8 +108,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       <mesh
         position={[
           stick.position.x,
-          stick.position.y + 0.07 * Math.sin((69 * Math.PI) / 180),
-          stick.position.z + 0.07 * Math.cos((69 * Math.PI) / 180)
+          stick.position.y + 0.07 * Math.sin((BOARD_ANGLE * Math.PI) / 180),
+          stick.position.z + 0.07 * Math.cos((BOARD_ANGLE * Math.PI) / 180)
         ]}
         rotation={[(16 * Math.PI) / 180, 0, 0]}
         onPointerEnter={() => setCursorType("grab")}
@@ -135,8 +124,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       <mesh
         position={[
           stick.position.x,
-          stick.position.y + 0.07 * Math.sin((69 * Math.PI) / 180),
-          stick.position.z + 0.07 * Math.cos((69 * Math.PI) / 180)
+          stick.position.y + 0.07 * Math.sin((BOARD_ANGLE * Math.PI) / 180),
+          stick.position.z + 0.07 * Math.cos((BOARD_ANGLE * Math.PI) / 180)
         ]}
         onPointerMove={(e) => {
           if (stickIsGrabbed) {

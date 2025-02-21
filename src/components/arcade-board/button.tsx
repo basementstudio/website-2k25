@@ -1,10 +1,13 @@
 import { useRef } from "react"
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
-import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useAssets } from "../assets-provider"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { Mesh } from "three"
 import { animate } from "motion"
+
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useAssets } from "@/components/assets-provider"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+
+import { BOARD_ANGLE, BUTTON_ANIMATION } from "./constants"
 
 export const Button = ({ button }: { button: Mesh }) => {
   const scene = useCurrentScene()
@@ -18,7 +21,7 @@ export const Button = ({ button }: { button: Mesh }) => {
   const handleClick = (isDown: boolean) => {
     if (scene !== "lab") return
 
-    const angle = 69 * (Math.PI / 180)
+    const angle = BOARD_ANGLE * (Math.PI / 180)
     const dz = -0.0075 * Math.cos(angle)
     const dy = -0.0075 * Math.sin(angle)
 
@@ -37,12 +40,7 @@ export const Button = ({ button }: { button: Mesh }) => {
       z: button.userData.originalPosition.z + (isDown ? dz : 0)
     }
 
-    animate(button.position, targetPosition, {
-      type: "spring",
-      stiffness: 2000,
-      damping: 64,
-      restDelta: 0
-    })
+    animate(button.position, targetPosition, BUTTON_ANIMATION)
   }
 
   const isPressed = useRef(false)
