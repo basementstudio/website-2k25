@@ -10,44 +10,38 @@ import {
 
 const material = new ShaderMaterial({
   uniforms: {
-    lineSpacing: { value: 0.15 },
-    lineWidth: { value: 0.14 },
-    lineOpacity: { value: 0.1 }
+    lineSpacing: { value: 0.01 },
+    lineWidth: { value: 0.21 },
+    lineOpacity: { value: 0.3 },
+    aspectRatio: { value: 1.0 }
   },
   vertexShader: `
-    varying vec3 vWorldPosition;
-    varying float vViewZ;
-    
-    void main() {
-      vec4 worldPos = modelMatrix * vec4(position, 1.0);
-      vec4 viewPos = viewMatrix * worldPos;
-      vViewZ = abs(viewPos.z);
-      vWorldPosition = worldPos.xyz;
-      gl_Position = projectionMatrix * viewPos;
-    }
+   varying vec4 vPos;
+
+	void main() {
+		vPos = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+		gl_Position = vPos;
+	}
   `,
   fragmentShader: `
-    uniform float lineSpacing;
-    uniform float lineWidth;
-    uniform float lineOpacity;
-    varying vec3 vWorldPosition;
-    varying float vViewZ;
+   varying vec4 vPos;
+   uniform float aspectRatio;
+   uniform float lineSpacing;
+   uniform float lineWidth;
+   uniform float lineOpacity;
+  
+  void main() {
+    vec2 vCoords = vPos.xy;
+    vCoords /= vPos.w;
+    vCoords = vCoords * 0.5 + 0.5;
+    
+    vCoords.x *= aspectRatio;
 
-    void main() {
-      // scale pattern based on distance from camera
-      float scaledSpacing = lineSpacing * (vViewZ / 10.0);
-      
-      // add diagonal pattern using world position instead of view position
-      float diagonal = (vWorldPosition.x + vWorldPosition.y) / scaledSpacing;
-      
-      // add pattern
-      float pattern = fract(diagonal);
-      
-      // add lines
-      float line = step(pattern, lineWidth);
-      
-      gl_FragColor = vec4(vec3(1.0), line * lineOpacity);
-    }
+    float diagonal = (vCoords.x + vCoords.y) / lineSpacing;
+    float pattern = fract(diagonal);
+    float line = step(pattern, lineWidth);
+    gl_FragColor = vec4(vec3(1.0), line * lineOpacity);
+  }
   `,
   depthTest: false,
   depthWrite: false,
@@ -165,6 +159,18 @@ export const RoutingPlane = ({
     ) : null
 
   const edgesGeometry = useMemo(() => new EdgesGeometry(geometry), [geometry])
+
+  useMemo(() => {
+    const updateAspectRatio = () => {
+      const aspectRatio = window.innerWidth / window.innerHeight
+      material.uniforms.aspectRatio.value = aspectRatio
+    }
+
+    updateAspectRatio()
+
+    window.addEventListener("resize", updateAspectRatio)
+    return () => window.removeEventListener("resize", updateAspectRatio)
+  }, [])
 
   return (
     <group position={position} rotation={rotation} visible={visible}>
