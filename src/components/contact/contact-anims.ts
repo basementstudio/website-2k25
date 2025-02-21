@@ -6,6 +6,10 @@ import {
   LoopRepeat
 } from "three"
 
+/**
+ * Defines the valid animation names for the phone model.
+ * These correspond to the actual animation clips in the 3D model.
+ */
 export type PhoneAnimationName =
   | "antena"
   | "antena.003"
@@ -14,26 +18,47 @@ export type PhoneAnimationName =
   | "ruedita"
   | "Outro-v2"
 
+/**
+ * Defines the type of animation:
+ * - 'transition': One-shot animations that transition between states
+ * - 'idle': Continuous animations that can loop and blend with others
+ */
 type AnimationType = "transition" | "idle"
 
+/**
+ * Configuration options for playing animations
+ */
 interface AnimationOptions {
-  type?: AnimationType
-  loop?: boolean
-  clampWhenFinished?: boolean
-  fadeInDuration?: number
-  fadeOutDuration?: number
-  weight?: number
-  onComplete?: () => void
+  type?: AnimationType // Whether this is a transition or idle animation
+  loop?: boolean // Should the animation loop
+  clampWhenFinished?: boolean // Keep the final frame when animation ends
+  fadeInDuration?: number // Duration of fade-in transition
+  fadeOutDuration?: number // Duration of fade-out transition
+  weight?: number // Animation influence weight (for blending)
+  onComplete?: () => void // Callback when animation completes
 }
 
+/**
+ * Handles the playback and management of phone model animations.
+ * Provides functionality for:
+ * - Playing and stopping individual animations
+ * - Managing transitions between animations
+ * - Handling animation blending and weights
+ * - Coordinating multiple simultaneous animations
+ */
 class PhoneAnimationHandler {
-  private mixer: AnimationMixer
-  private clips: Map<PhoneAnimationName, AnimationClip>
-  private actions: Map<PhoneAnimationName, AnimationAction>
-  private onCompleteCallbacks: Map<PhoneAnimationName, () => void>
-  private currentTransition: PhoneAnimationName | null = null
-  private activeIdleAnimations: Set<PhoneAnimationName> = new Set()
+  private mixer: AnimationMixer // Three.js animation system
+  private clips: Map<PhoneAnimationName, AnimationClip> // Stores animation data
+  private actions: Map<PhoneAnimationName, AnimationAction> // Stores playable animations
+  private onCompleteCallbacks: Map<PhoneAnimationName, () => void> // Completion callbacks
+  private currentTransition: PhoneAnimationName | null = null // Currently playing transition
+  private activeIdleAnimations: Set<PhoneAnimationName> = new Set() // Currently playing idle animations
 
+  /**
+   * Initializes the animation handler with a mixer and animation clips
+   * @param mixer - Three.js AnimationMixer instance
+   * @param animations - Array of animation clips from the 3D model
+   */
   constructor(mixer: AnimationMixer, animations: AnimationClip[]) {
     this.mixer = mixer
     this.clips = new Map()
@@ -47,7 +72,10 @@ class PhoneAnimationHandler {
       }
     })
 
-    // Set up the finish listener
+    /**
+     * Event listener for animation completion
+     * Handles cleanup and triggers callbacks when animations finish
+     */
     this.mixer.addEventListener("finished", (e) => {
       const action = e.action
       const name = this.findAnimationNameByAction(action)
@@ -68,6 +96,11 @@ class PhoneAnimationHandler {
     })
   }
 
+  /**
+   * Validates if a given animation name is one of the supported animations
+   * @param name - Name to validate
+   * @returns True if the name is a valid animation name
+   */
   private isValidAnimationName(name: string): name is PhoneAnimationName {
     return [
       "antena",
@@ -79,6 +112,12 @@ class PhoneAnimationHandler {
     ].includes(name)
   }
 
+  /**
+   * Finds the animation name associated with a given AnimationAction
+   * Used for mapping Three.js animation actions back to our named animations
+   * @param action - The AnimationAction to look up
+   * @returns The animation name or null if not found
+   */
   private findAnimationNameByAction(
     action: AnimationAction
   ): PhoneAnimationName | null {
@@ -88,6 +127,11 @@ class PhoneAnimationHandler {
     return null
   }
 
+  /**
+   * Gets an existing AnimationAction or creates a new one for the given animation
+   * @param name - Name of the animation
+   * @returns The AnimationAction or null if the animation doesn't exist
+   */
   private getOrCreateAction(name: PhoneAnimationName): AnimationAction | null {
     if (this.actions.has(name)) {
       return this.actions.get(name)!
@@ -104,6 +148,16 @@ class PhoneAnimationHandler {
     return action
   }
 
+  /**
+   * Plays an animation with the specified options
+   * Handles both transition and idle animations differently:
+   * - Transition animations: Stop other animations and play exclusively
+   * - Idle animations: Can blend with other idle animations
+   *
+   * @param name - Name of the animation to play
+   * @param options - Configuration options for playback
+   * @returns The created AnimationAction or null if animation not found
+   */
   playAnimation(
     name: PhoneAnimationName,
     options: AnimationOptions = {}
@@ -166,6 +220,11 @@ class PhoneAnimationHandler {
     return action
   }
 
+  /**
+   * Stops a specific animation with a fade out
+   * @param name - Name of the animation to stop
+   * @param fadeOutDuration - Duration of the fade out in seconds
+   */
   stopAnimation(name: PhoneAnimationName, fadeOutDuration = 0.2): void {
     const action = this.actions.get(name)
     if (!action) return
@@ -180,6 +239,10 @@ class PhoneAnimationHandler {
     }, fadeOutDuration * 1000)
   }
 
+  /**
+   * Stops all currently playing animations
+   * @param fadeOutDuration - Duration of the fade out in seconds
+   */
   stopAllAnimations(fadeOutDuration = 0.2): void {
     // Stop transition animation
     if (this.currentTransition) {
@@ -195,6 +258,11 @@ class PhoneAnimationHandler {
     this.currentTransition = null
   }
 
+  /**
+   * Updates the animation system
+   * Must be called every frame in the render loop
+   * @param deltaTime - Time elapsed since last frame in seconds
+   */
   update(deltaTime: number): void {
     this.mixer.update(deltaTime)
   }
