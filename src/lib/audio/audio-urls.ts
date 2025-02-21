@@ -12,6 +12,16 @@ export function useAudioUrls() {
       BASKETBALL_NET: sfx.basketballNet,
       BASKETBALL_THUMP: sfx.basketballThump,
       TIMEOUT_BUZZER: sfx.basketballBuzzer
+    },
+    ARCADE_AUDIO_SFX: {
+      BUTTONS: sfx.arcade.buttons.map((item) => ({
+        PRESS: item.press,
+        RELEASE: item.release
+      })),
+      STICKS: sfx.arcade.sticks.map((item) => ({
+        PRESS: item.press,
+        RELEASE: item.release
+      }))
     }
   } as const
 }
