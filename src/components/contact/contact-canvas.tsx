@@ -37,6 +37,15 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
     }
   }, [contactPhone, setStoreWorker])
 
+  useEffect(() => {
+    if (worker) {
+      worker.postMessage({
+        type: "update-contact-open",
+        isContactOpen
+      })
+    }
+  }, [worker, isContactOpen])
+
   if (!worker) {
     return <Fallback />
   }

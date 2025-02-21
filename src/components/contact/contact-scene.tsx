@@ -31,6 +31,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const updateFocusedElement = useWorkerStore(
     (state) => state.updateFocusedElement
   )
+  const isContactOpen = useWorkerStore((state) => state.isContactOpen)
 
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
@@ -51,6 +52,12 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         idleTimeRef.current = 0
       } else if (e.data.type === "update-focus") {
         updateFocusedElement(e.data.focusedElement, e.data.cursorPosition)
+      } else if (e.data.type === "update-contact-open") {
+        console.log(
+          "[ContactScene] Received update-contact-open:",
+          e.data.isContactOpen
+        )
+        useWorkerStore.getState().setIsContactOpen(e.data.isContactOpen)
       }
     }
 
@@ -157,6 +164,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   }
 
   useFrame((state, delta) => {
+    if (!isContactOpen) return
+
     animationMixerRef.current?.update(delta)
 
     if (screenMaterial.uniforms.uTime) {

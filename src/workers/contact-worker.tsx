@@ -13,8 +13,10 @@ interface WorkerStore {
   }
   focusedElement: string | null
   cursorPosition: number
+  isContactOpen: boolean
   updateFormData: (formData: WorkerStore["formData"]) => void
   updateFocusedElement: (elementId: string | null, cursorPos?: number) => void
+  setIsContactOpen: (isOpen: boolean) => void
 }
 
 export const useWorkerStore = create<WorkerStore>((set) => ({
@@ -27,11 +29,15 @@ export const useWorkerStore = create<WorkerStore>((set) => ({
   },
   focusedElement: null,
   cursorPosition: 0,
+  isContactOpen: false,
   updateFormData: (formData) => {
     set({ formData })
   },
   updateFocusedElement: (elementId, cursorPos = 0) => {
     set({ focusedElement: elementId, cursorPosition: cursorPos })
+  },
+  setIsContactOpen: (isOpen) => {
+    set({ isContactOpen: isOpen })
   }
 }))
 
@@ -44,9 +50,17 @@ self.onmessage = (
     formData?: WorkerStore["formData"]
     focusedElement?: string | null
     cursorPosition?: number
+    isContactOpen?: boolean
   }>
 ) => {
-  const { type, modelUrl, formData, focusedElement, cursorPosition } = e.data
+  const {
+    type,
+    modelUrl,
+    formData,
+    focusedElement,
+    cursorPosition,
+    isContactOpen
+  } = e.data
 
   if (type === "load-model" && modelUrl) {
     try {
@@ -71,6 +85,10 @@ self.onmessage = (
     useWorkerStore
       .getState()
       .updateFocusedElement(focusedElement, cursorPosition)
+  }
+
+  if (type === "update-contact-open" && typeof isContactOpen === "boolean") {
+    useWorkerStore.getState().setIsContactOpen(isContactOpen)
   }
 }
 
