@@ -38,8 +38,8 @@ const material = new ShaderMaterial({
     vCoords.x *= aspectRatio;
 
     float diagonal = (vCoords.x - vCoords.y) / lineSpacing;
-    float pattern = fract(diagonal);
-    float line = step(pattern, lineWidth);
+    float pattern = abs(fract(diagonal) - 0.5) * 2.0;
+    float line = smoothstep(1.0 - lineWidth, 1.0, 1.0 - pattern);
     gl_FragColor = vec4(vec3(1.0), line * lineOpacity);
   }
   `,
