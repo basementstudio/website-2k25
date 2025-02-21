@@ -1,5 +1,5 @@
 import { useGLTF } from "@react-three/drei"
-import { GroupProps, useFrame } from "@react-three/fiber"
+import { useFrame } from "@react-three/fiber"
 import { forwardRef, useMemo, useRef, useState } from "react"
 import {
   Color,
@@ -33,9 +33,10 @@ interface MotoNodes extends GLTF {
   }
 }
 
-export interface MotorcycleProps extends GroupProps {
+export interface MotorcycleProps {
   onIntersectionEnter?: OnIntersectCallback
   color?: Color
+  position?: [number, number, number]
 }
 
 export const Motorcycle = forwardRef<Group, MotorcycleProps>(

@@ -1,4 +1,4 @@
-import { GroupProps, useFrame, useThree } from "@react-three/fiber"
+import { useFrame, useThree } from "@react-three/fiber"
 import { useMemo, useRef } from "react"
 import {
   BufferGeometry,
@@ -64,9 +64,9 @@ export const Grid = ({
   divisions: _divisions = 1,
   caps = false,
   ...props
-}: GridProps & GroupProps) => {
+}: GridProps) => {
   const { camera } = useThree()
-  const lineRef = useRef<LineSegments>()
+  const lineRef = useRef<LineSegments>(null)
 
   const [divisionsX, divisionsY] = useMemo(() => {
     if (Array.isArray(_divisions)) {
