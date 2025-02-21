@@ -20,15 +20,13 @@ export const ArcadePreview = ({ selectedExperiment }: ArcadePreviewProps) => {
         borderColor={COLORS_THEME.primary}
         positionType="relative"
       >
-        {selectedExperiment && (
-          <Image
-            positionType="absolute"
-            src={selectedExperiment?.cover?.url ?? arcade.placeholderLab}
-            width={"100%"}
-            height={"100%"}
-            objectFit="cover"
-          />
-        )}
+        <Image
+          positionType="absolute"
+          src={selectedExperiment?.cover?.url ?? arcade.placeholderLab}
+          width={"100%"}
+          height={"100%"}
+          objectFit="cover"
+        />
       </Container>
       <Text fontSize={10} color={COLORS_THEME.primary}>
         {(selectedExperiment?.description?.toUpperCase() || "").slice(0, 100) +
