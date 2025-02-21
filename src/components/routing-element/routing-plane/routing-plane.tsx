@@ -10,41 +10,43 @@ import {
 
 const material = new ShaderMaterial({
   uniforms: {
-    lineSpacing: { value: 0.5 },
-    lineWidth: { value: 0.3 }
+    lineSpacing: { value: 0.15 },
+    lineWidth: { value: 0.14 },
+    lineOpacity: { value: 0.1 }
   },
   vertexShader: `
-    varying vec3 vWorldPosition;
+    varying vec3 vViewPosition;
     varying float vViewZ;
     
     void main() {
       vec4 worldPos = modelMatrix * vec4(position, 1.0);
       vec4 viewPos = viewMatrix * worldPos;
       vViewZ = abs(viewPos.z);
-      vWorldPosition = worldPos.xyz;
+      vViewPosition = viewPos.xyz;
       gl_Position = projectionMatrix * viewPos;
     }
   `,
   fragmentShader: `
     uniform float lineSpacing;
     uniform float lineWidth;
-    varying vec3 vWorldPosition;
+    uniform float lineOpacity;
+    varying vec3 vViewPosition;
     varying float vViewZ;
 
     void main() {
-      // Scale the pattern based on distance from camera
+      // scale pattern based on distance from camera
       float scaledSpacing = lineSpacing * (vViewZ / 10.0);
       
-      // Create 45-degree diagonal pattern using world position
-      float diagonal = (vWorldPosition.x + vWorldPosition.y) / scaledSpacing;
+      // add diagonal pattern
+      float diagonal = (vViewPosition.x + vViewPosition.y) / scaledSpacing;
       
-      // Create repeating pattern
+      // add pattern
       float pattern = fract(diagonal);
       
-      // Create lines with smooth edges
+      // add lines
       float line = step(pattern, lineWidth);
       
-      gl_FragColor = vec4(vec3(1.0), line * 0.8);
+      gl_FragColor = vec4(vec3(1.0), line * lineOpacity);
     }
   `,
   depthTest: false,
