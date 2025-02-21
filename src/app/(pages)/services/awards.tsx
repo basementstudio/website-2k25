@@ -82,7 +82,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
                   {award.project?._title}
                 </span>
                 <span className="col-span-2 text-p text-brand-w2">
-                  {formatDate(award.date)}
+                  {formatDate(award.date, false, "UTC")}
                 </span>
               </Link>
 
