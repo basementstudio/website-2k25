@@ -12,7 +12,7 @@ const material = new ShaderMaterial({
   uniforms: {
     lineSpacing: { value: 0.01 },
     lineWidth: { value: 0.21 },
-    lineOpacity: { value: 0.3 },
+    lineOpacity: { value: 0.2 },
     aspectRatio: { value: 1.0 }
   },
   vertexShader: `
