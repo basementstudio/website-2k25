@@ -8,31 +8,29 @@ import {
   EdgesGeometry
 } from "three"
 
-import fragmentShader from "./fragment.glsl"
-import vertexShader from "./vertex.glsl"
-import { useFrame } from "@react-three/fiber"
-
 export const RoutingPlane = ({
   position,
   rotation,
   geometry,
   scale,
-  visible
+  visible,
+  groupName
 }: {
   position: [number, number, number]
   rotation: [number, number, number]
   geometry: BufferGeometry
   scale: [number, number]
   visible: boolean
+  groupName?: string
 }) => {
   const material = useMemo(
     () =>
       new ShaderMaterial({
         uniforms: {
           thickness: {
-            value: 0.01
+            value: 0.0002
           },
-          opacity: { value: 0.2 }
+          opacity: { value: 0.1 }
         },
         vertexShader: `
           varying vec3 vWorldPosition;
@@ -49,8 +47,8 @@ export const RoutingPlane = ({
           
           void main() {
             vec3 viewDir = normalize(cameraPosition - vWorldPosition);
-            float pattern = sin((vWorldPosition.x + vWorldPosition.y + vWorldPosition.z) * 10.0) * 0.5 + 0.5;
-            pattern = smoothstep(0.5 - thickness, 0.5 + thickness, pattern);
+            float pattern = sin((vWorldPosition.x + vWorldPosition.y + vWorldPosition.z) * 120.0) * 0.5 + 0.5;
+            pattern = smoothstep(0.5 - thickness, thickness, pattern);
             gl_FragColor = vec4(1.0, 1.0, 1.0, pattern * opacity);
           }
         `,
@@ -59,7 +57,41 @@ export const RoutingPlane = ({
       }),
     []
   )
-
+  const screenSpaceMaterial = useMemo(
+    () =>
+      new ShaderMaterial({
+        uniforms: {
+          thickness: {
+            value: 0.0002
+          },
+          opacity: { value: 0.05 }
+        },
+        vertexShader: `
+          varying vec4 vClipPos;
+          
+          void main() {
+            vec4 clipPos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            vClipPos = clipPos;
+            gl_Position = clipPos;
+          }
+        `,
+        fragmentShader: `
+          uniform float thickness;
+          uniform float opacity;
+          varying vec4 vClipPos;
+          
+          void main() {
+            vec2 screenPos = vClipPos.xy / vClipPos.w;
+            float pattern = sin((screenPos.x + screenPos.y) * 320.0) * 0.5 + 0.5;
+            pattern = smoothstep(0.5 - thickness, thickness * 0.001, pattern);
+            gl_FragColor = vec4(1.0, 1.0, 1.0, pattern * opacity);
+          }
+        `,
+        depthTest: false,
+        transparent: true
+      }),
+    []
+  )
   const squareMaterial = useMemo(
     () =>
       new ShaderMaterial({
@@ -103,7 +135,6 @@ export const RoutingPlane = ({
   )
 
   const squareGeometry = useMemo(() => new PlaneGeometry(0.05, 0.05), [])
-
   const squares =
     geometry.attributes.position && geometry.attributes.normal ? (
       <>
@@ -130,6 +161,7 @@ export const RoutingPlane = ({
                 position={[x, y, z]}
                 quaternion={quaternion}
                 scale={[1, 1, 1]}
+                visible={groupName ? false : true}
               />
             )
           }
@@ -142,7 +174,6 @@ export const RoutingPlane = ({
     () =>
       new ShaderMaterial({
         uniforms: {
-          thickness: { value: 0.05 },
           opacity: { value: 0.2 }
         },
         vertexShader: `
@@ -154,15 +185,11 @@ export const RoutingPlane = ({
           }
         `,
         fragmentShader: `
-          uniform float thickness;
           uniform float opacity;
           varying vec3 vWorldPosition;
           
           void main() {
-            vec3 viewDir = normalize(cameraPosition - vWorldPosition);
-            float pattern = sin((vWorldPosition.x + vWorldPosition.y + vWorldPosition.z) * 10.0) * 0.5 + 0.5;
-            pattern = smoothstep(0.5 - thickness, 0.5 + thickness, pattern);
-            gl_FragColor = vec4(1.0, 1.0, 1.0, pattern * opacity);
+            gl_FragColor = vec4(1.0, 1.0, 1.0, opacity);
           }
         `,
         transparent: true,
@@ -175,13 +202,14 @@ export const RoutingPlane = ({
     <group position={position} rotation={rotation} visible={visible}>
       <mesh
         geometry={geometry}
-        material={material}
+        material={groupName ? screenSpaceMaterial : material}
         scale={[scale[0], scale[1], 1]}
       ></mesh>
       <lineSegments
         geometry={edgesGeometry}
         material={edgesMaterial}
         scale={[scale[0], scale[1], 1]}
+        visible={groupName ? false : true}
       />
       {squares}
     </group>

@@ -7,7 +7,6 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingPlane } from "./routing-plane/routing-plane"
-import { useThree } from "@react-three/fiber"
 
 interface RoutingElementProps {
   node: Mesh
@@ -192,6 +191,7 @@ export const RoutingElement = ({
         rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
         geometry={node.geometry}
         visible={hover}
+        groupName={groupName}
       />
     </>
   )
