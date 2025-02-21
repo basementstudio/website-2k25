@@ -15,14 +15,14 @@ const material = new ShaderMaterial({
     lineOpacity: { value: 0.1 }
   },
   vertexShader: `
-    varying vec3 vViewPosition;
+    varying vec3 vWorldPosition;
     varying float vViewZ;
     
     void main() {
       vec4 worldPos = modelMatrix * vec4(position, 1.0);
       vec4 viewPos = viewMatrix * worldPos;
       vViewZ = abs(viewPos.z);
-      vViewPosition = viewPos.xyz;
+      vWorldPosition = worldPos.xyz;
       gl_Position = projectionMatrix * viewPos;
     }
   `,
@@ -30,15 +30,15 @@ const material = new ShaderMaterial({
     uniform float lineSpacing;
     uniform float lineWidth;
     uniform float lineOpacity;
-    varying vec3 vViewPosition;
+    varying vec3 vWorldPosition;
     varying float vViewZ;
 
     void main() {
       // scale pattern based on distance from camera
       float scaledSpacing = lineSpacing * (vViewZ / 10.0);
       
-      // add diagonal pattern
-      float diagonal = (vViewPosition.x + vViewPosition.y) / scaledSpacing;
+      // add diagonal pattern using world position instead of view position
+      float diagonal = (vWorldPosition.x + vWorldPosition.y) / scaledSpacing;
       
       // add pattern
       float pattern = fract(diagonal);
