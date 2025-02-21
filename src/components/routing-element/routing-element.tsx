@@ -190,7 +190,7 @@ export const RoutingElement = ({
         scale={[1, 1]}
         rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
         geometry={node.geometry}
-        visible={hover}
+        visible={true}
         groupName={groupName}
       />
     </>

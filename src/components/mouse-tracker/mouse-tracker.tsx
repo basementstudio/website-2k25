@@ -93,7 +93,7 @@ export const MouseTracker = ({
           exit={{ opacity: 0, scale: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <motion.div className="text-paragraph bg-black text-brand-w1">
+          <motion.div className="bg-black text-[12px] text-brand-w1">
             {`[${hoverText}]`}
           </motion.div>
         </motion.div>

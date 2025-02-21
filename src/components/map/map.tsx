@@ -185,8 +185,8 @@ export const Map = memo(() => {
     const routingNodes: Record<string, Mesh> = {}
     routingElementsModel?.traverse((child) => {
       if (child instanceof Mesh) {
-        const matchingTab = currentScene?.tabs?.find((tab) =>
-          child.name.includes(tab.tabClickableName)
+        const matchingTab = currentScene?.tabs?.find(
+          (tab) => child.name === tab.tabClickableName
         )
 
         if (matchingTab) {
@@ -420,7 +420,7 @@ export const Map = memo(() => {
           (tab) => tab.tabClickableName === node.name
         )
 
-        const isLabGroup = node.name.includes("LaboratoryHome_Hover")
+        const isLabGroup = node.name === "LaboratoryHome_Hover"
         const groupName = isLabGroup ? "laboratory-home" : undefined
 
         return (

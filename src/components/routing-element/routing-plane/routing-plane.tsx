@@ -8,6 +8,110 @@ import {
   EdgesGeometry
 } from "three"
 
+const material = new ShaderMaterial({
+  uniforms: {
+    lineSpacing: { value: 0.5 },
+    lineWidth: { value: 0.3 }
+  },
+  vertexShader: `
+    varying vec3 vWorldPosition;
+    varying float vViewZ;
+    
+    void main() {
+      vec4 worldPos = modelMatrix * vec4(position, 1.0);
+      vec4 viewPos = viewMatrix * worldPos;
+      vViewZ = abs(viewPos.z);
+      vWorldPosition = worldPos.xyz;
+      gl_Position = projectionMatrix * viewPos;
+    }
+  `,
+  fragmentShader: `
+    uniform float lineSpacing;
+    uniform float lineWidth;
+    varying vec3 vWorldPosition;
+    varying float vViewZ;
+
+    void main() {
+      // Scale the pattern based on distance from camera
+      float scaledSpacing = lineSpacing * (vViewZ / 10.0);
+      
+      // Create 45-degree diagonal pattern using world position
+      float diagonal = (vWorldPosition.x + vWorldPosition.y) / scaledSpacing;
+      
+      // Create repeating pattern
+      float pattern = fract(diagonal);
+      
+      // Create lines with smooth edges
+      float line = step(pattern, lineWidth);
+      
+      gl_FragColor = vec4(vec3(1.0), line * 0.8);
+    }
+  `,
+  depthTest: false,
+  depthWrite: false,
+  transparent: true
+})
+const squareMaterial = new ShaderMaterial({
+  uniforms: {
+    color: { value: [1.0, 1.0, 1.0] },
+    baseSize: { value: 0.05 },
+    minViewSize: { value: 0.01 }
+  },
+  vertexShader: `
+    uniform float baseSize;
+    uniform float minViewSize;
+    varying vec2 vUv;
+
+    void main() {
+      vUv = uv;
+      
+      vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+      float distanceToCamera = length(cameraPosition - worldPosition.xyz);
+      
+      float scaleFactor = max(minViewSize, baseSize * pow(distanceToCamera / 5.0, 1.2));
+      float scale = scaleFactor / baseSize;
+      
+      vec3 scaledPosition = position * scale;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(scaledPosition, 1.0);
+    }
+  `,
+  fragmentShader: `
+    varying vec2 vUv;
+    void main() {
+      float thickness = 0.2;
+      float vertical = step(0.5 - thickness/2.0, vUv.x) * step(vUv.x, 0.5 + thickness/2.0);
+      float horizontal = step(0.5 - thickness/2.0, vUv.y) * step(vUv.y, 0.5 + thickness/2.0);
+      float plus = max(vertical, horizontal);
+      gl_FragColor = vec4(vec3(1.0), plus);
+    }
+  `,
+  transparent: true,
+  depthTest: false
+})
+const edgesMaterial = new ShaderMaterial({
+  uniforms: {
+    opacity: { value: 0.2 }
+  },
+  vertexShader: `
+        varying vec3 vWorldPosition;
+        
+        void main() {
+          vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+  fragmentShader: `
+        uniform float opacity;
+        varying vec3 vWorldPosition;
+        
+        void main() {
+          gl_FragColor = vec4(1.0, 1.0, 1.0, opacity);
+        }
+      `,
+  transparent: true,
+  depthTest: false
+})
+
 export const RoutingPlane = ({
   position,
   rotation,
@@ -23,117 +127,6 @@ export const RoutingPlane = ({
   visible: boolean
   groupName?: string
 }) => {
-  const material = useMemo(
-    () =>
-      new ShaderMaterial({
-        uniforms: {
-          thickness: {
-            value: 0.0002
-          },
-          opacity: { value: 0.1 }
-        },
-        vertexShader: `
-          varying vec3 vWorldPosition;
-          
-          void main() {
-            vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform float thickness;
-          uniform float opacity;
-          varying vec3 vWorldPosition;
-          
-          void main() {
-            vec3 viewDir = normalize(cameraPosition - vWorldPosition);
-            float pattern = sin((vWorldPosition.x + vWorldPosition.y + vWorldPosition.z) * 120.0) * 0.5 + 0.5;
-            pattern = smoothstep(0.5 - thickness, thickness, pattern);
-            gl_FragColor = vec4(1.0, 1.0, 1.0, pattern * opacity);
-          }
-        `,
-        depthTest: false,
-        transparent: true
-      }),
-    []
-  )
-  const screenSpaceMaterial = useMemo(
-    () =>
-      new ShaderMaterial({
-        uniforms: {
-          thickness: {
-            value: 0.0002
-          },
-          opacity: { value: 0.05 }
-        },
-        vertexShader: `
-          varying vec4 vClipPos;
-          
-          void main() {
-            vec4 clipPos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            vClipPos = clipPos;
-            gl_Position = clipPos;
-          }
-        `,
-        fragmentShader: `
-          uniform float thickness;
-          uniform float opacity;
-          varying vec4 vClipPos;
-          
-          void main() {
-            vec2 screenPos = vClipPos.xy / vClipPos.w;
-            float pattern = sin((screenPos.x + screenPos.y) * 320.0) * 0.5 + 0.5;
-            pattern = smoothstep(0.5 - thickness, thickness * 0.001, pattern);
-            gl_FragColor = vec4(1.0, 1.0, 1.0, pattern * opacity);
-          }
-        `,
-        depthTest: false,
-        transparent: true
-      }),
-    []
-  )
-  const squareMaterial = useMemo(
-    () =>
-      new ShaderMaterial({
-        uniforms: {
-          color: { value: [1.0, 1.0, 1.0] },
-          baseSize: { value: 0.05 },
-          minViewSize: { value: 0.01 }
-        },
-        vertexShader: `
-          uniform float baseSize;
-          uniform float minViewSize;
-          varying vec2 vUv;
-
-          void main() {
-            vUv = uv;
-            
-            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-            float distanceToCamera = length(cameraPosition - worldPosition.xyz);
-            
-            float scaleFactor = max(minViewSize, baseSize * pow(distanceToCamera / 5.0, 1.2));
-            float scale = scaleFactor / baseSize;
-            
-            vec3 scaledPosition = position * scale;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(scaledPosition, 1.0);
-          }
-        `,
-        fragmentShader: `
-          varying vec2 vUv;
-          void main() {
-            float thickness = 0.2;
-            float vertical = step(0.5 - thickness/2.0, vUv.x) * step(vUv.x, 0.5 + thickness/2.0);
-            float horizontal = step(0.5 - thickness/2.0, vUv.y) * step(vUv.y, 0.5 + thickness/2.0);
-            float plus = max(vertical, horizontal);
-            gl_FragColor = vec4(vec3(1.0), plus);
-          }
-        `,
-        transparent: true,
-        depthTest: false
-      }),
-    []
-  )
-
   const squareGeometry = useMemo(() => new PlaneGeometry(0.05, 0.05), [])
   const squares =
     geometry.attributes.position && geometry.attributes.normal ? (
@@ -170,40 +163,13 @@ export const RoutingPlane = ({
     ) : null
 
   const edgesGeometry = useMemo(() => new EdgesGeometry(geometry), [geometry])
-  const edgesMaterial = useMemo(
-    () =>
-      new ShaderMaterial({
-        uniforms: {
-          opacity: { value: 0.2 }
-        },
-        vertexShader: `
-          varying vec3 vWorldPosition;
-          
-          void main() {
-            vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform float opacity;
-          varying vec3 vWorldPosition;
-          
-          void main() {
-            gl_FragColor = vec4(1.0, 1.0, 1.0, opacity);
-          }
-        `,
-        transparent: true,
-        depthTest: false
-      }),
-    []
-  )
 
   return (
     <group position={position} rotation={rotation} visible={visible}>
       <mesh
         geometry={geometry}
-        material={groupName ? screenSpaceMaterial : material}
         scale={[scale[0], scale[1], 1]}
+        material={material}
       ></mesh>
       <lineSegments
         geometry={edgesGeometry}
