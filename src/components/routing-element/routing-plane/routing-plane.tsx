@@ -11,7 +11,7 @@ import {
 const material = new ShaderMaterial({
   uniforms: {
     lineSpacing: { value: 0.01 },
-    lineWidth: { value: 0.21 },
+    lineWidth: { value: 0.15 },
     lineOpacity: { value: 0.2 },
     aspectRatio: { value: 1.0 }
   },
@@ -37,7 +37,7 @@ const material = new ShaderMaterial({
     
     vCoords.x *= aspectRatio;
 
-    float diagonal = (vCoords.x + vCoords.y) / lineSpacing;
+    float diagonal = (vCoords.x - vCoords.y) / lineSpacing;
     float pattern = fract(diagonal);
     float line = step(pattern, lineWidth);
     gl_FragColor = vec4(vec3(1.0), line * lineOpacity);
