@@ -14,6 +14,12 @@ export type SiteAudioSFXKey =
   | `ARCADE_BUTTON_${number}_RELEASE`
   | `ARCADE_STICK_${number}_PRESS`
   | `ARCADE_STICK_${number}_RELEASE`
+  | "BLOG_OPEN_DOOR"
+  | "BLOG_CLOSE_DOOR"
+  | "BLOG_LOCKED_DOOR_A"
+  | "BLOG_LOCKED_DOOR_B"
+  | "BLOG_LIGHTS_ON"
+  | "BLOG_LIGHTS_OFF"
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
@@ -64,11 +70,12 @@ export function useInitializeAudioContext(element?: HTMLElement) {
 
 export function SiteAudioSFXsLoader(): null {
   const player = useSiteAudioStore((s) => s.player)
-  const { GAME_AUDIO_SFX, ARCADE_AUDIO_SFX } = useAudioUrls()
+  const { GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX } = useAudioUrls()
 
   useEffect(() => {
     if (!player) return
 
+    // TODO: dont load audio sources if the user is not in the scene where the audio will be played
     const loadAudioSources = async () => {
       const newSources = {} as Record<SiteAudioSFXKey, AudioSource>
 
@@ -105,6 +112,17 @@ export function SiteAudioSFXsLoader(): null {
             newSources[`ARCADE_STICK_${index}_RELEASE`] = sourceRelease
           })
         )
+
+        await Promise.all(
+          Object.keys(BLOG_AUDIO_SFX).map(async (key) => {
+            const source = await player.loadAudioFromURL(
+              BLOG_AUDIO_SFX[key as keyof typeof BLOG_AUDIO_SFX]
+            )
+            source.setVolume(SFX_VOLUME)
+            newSources[`BLOG_${key}` as SiteAudioSFXKey] = source
+          })
+        )
+        console.log(newSources)
 
         useSiteAudioStore.setState({
           audioSfxSources: newSources

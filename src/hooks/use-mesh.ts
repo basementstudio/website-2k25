@@ -14,6 +14,10 @@ export interface MeshStore {
     buttons: Mesh[] | null
     sticks: Mesh[] | null
   }
+  blog: {
+    lockedDoor: Mesh | null
+    door: Mesh | null
+  }
 }
 
 /** Global store for extracted meshes */
@@ -27,5 +31,9 @@ export const useMesh = create<MeshStore>()((set) => ({
   arcade: {
     buttons: null,
     sticks: null
+  },
+  blog: {
+    lockedDoor: null,
+    door: null
   }
 }))

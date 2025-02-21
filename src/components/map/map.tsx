@@ -15,6 +15,7 @@ import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { ArcadeBoard } from "@/components/arcade-board"
+import { LockedDoor } from "@/components/locked-door"
 import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
 import {
@@ -412,6 +413,21 @@ export const Map = memo(() => {
       })
     }
 
+    if (!useMesh.getState().blog.lockedDoor && !useMesh.getState().blog.door) {
+      const lockedDoor = officeModel?.getObjectByName("SM_00_012") as Mesh
+      lockedDoor.userData.originalRotation = {
+        x: lockedDoor.rotation.x,
+        y: lockedDoor.rotation.y,
+        z: lockedDoor.rotation.z
+      }
+      const door = officeModel?.getObjectByName("SM_00_010") as Mesh
+      if (lockedDoor?.parent) lockedDoor.removeFromParent()
+      if (door?.parent) door.removeFromParent()
+      useMesh.setState({
+        blog: { lockedDoor, door }
+      })
+    }
+
     disableRaycasting(officeModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
@@ -445,6 +461,7 @@ export const Map = memo(() => {
       <primitive object={godrayScene} />
       <ArcadeScreen />
       <ArcadeBoard />
+      <LockedDoor />
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(

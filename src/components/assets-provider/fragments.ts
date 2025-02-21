@@ -90,6 +90,24 @@ export const sfxFragment = fragmentOn("Sfx", {
   basketballBuzzer: {
     url: true
   },
+  openDoor: {
+    url: true
+  },
+  closeDoor: {
+    url: true
+  },
+  lockedDoorA: {
+    url: true
+  },
+  lockedDoorB: {
+    url: true
+  },
+  lightsOn: {
+    url: true
+  },
+  lightsOff: {
+    url: true
+  },
   arcade: {
     buttons: {
       items: {
