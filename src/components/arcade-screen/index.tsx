@@ -13,6 +13,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
 import { useArcadeScreenStore } from "@/store/arcade-store"
+import { MainScene } from "../arcade-game/main-scene"
 
 const ScreenUI = dynamic(
   () =>
@@ -61,8 +62,6 @@ export const ArcadeScreen = () => {
   useEffect(() => {
     if (!arcadeScreen) return
 
-    videoTexture.flipY = false
-
     // first time entering (show video texture)
     if (!hasVisitedArcade) {
       if (isLabRoute) {
@@ -77,6 +76,7 @@ export const ArcadeScreen = () => {
           },
           onComplete: () => {
             if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
+              screenMaterial.uniforms.uFlipY.value = true
               screenMaterial.uniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
             }
@@ -116,9 +116,10 @@ export const ArcadeScreen = () => {
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
     >
-      {(hasVisitedArcade || isLabRoute) && (
+      {/*(hasVisitedArcade || isLabRoute) && (
         <ScreenUI screenScale={screenScale} />
-      )}
+      )*/}
+      <MainScene />
     </RenderTexture>
   )
 }

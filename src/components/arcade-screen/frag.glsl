@@ -1,6 +1,7 @@
 uniform sampler2D map;
 uniform float uTime;
 uniform float uRevealProgress;
+uniform bool uFlipY;
 varying vec2 vUv;
 varying vec3 vPosition;
 
@@ -44,6 +45,11 @@ float peak(float x, float xpos, float scale) {
 }
 
 void main() {
+  vec2 remappedUv = vUv;
+  if (uFlipY) {
+    remappedUv.y = 1.0 - remappedUv.y;
+  }
+
   // add cycle to scan line
   float scanCycleTime = mod(uTime * SCAN_SPEED, SCAN_CYCLE + 50.0);
   float scanPos;
@@ -63,25 +69,27 @@ void main() {
   float ifx1 = INTERFERENCE1 * 2.0 / 1024.0 * r;
   float ifx2 = INTERFERENCE2 * (r * peak(vUv.y, 0.2, 0.2));
 
-  vec2 interferenceUv = vUv;
+  vec2 interferenceUv = remappedUv;
   interferenceUv.x += ifx1 - ifx2;
 
-  vec2 remappedUv = curveRemapUV(interferenceUv);
   // add horizontal distortion near scan line
   float scanDistortion =
-    exp(-pow((vUv.y - scanPos) * 160.0, 2.0)) * SCAN_DISTORTION;
-  remappedUv.x += scanDistortion;
+    exp(-pow((interferenceUv.y - scanPos) * 160.0, 2.0)) * SCAN_DISTORTION;
+  interferenceUv.x += scanDistortion;
+
+  // Apply curve distortion
+  interferenceUv = curveRemapUV(interferenceUv);
 
   vec3 textureColor = vec3(0.0);
 
   // texture boundaries
   if (
-    remappedUv.x >= 0.0 &&
-    remappedUv.x <= 1.0 &&
-    remappedUv.y >= 0.0 &&
-    remappedUv.y <= 1.0
+    interferenceUv.x >= 0.0 &&
+    interferenceUv.x <= 1.0 &&
+    interferenceUv.y >= 0.0 &&
+    interferenceUv.y <= 1.0
   ) {
-    textureColor = texture2D(map, remappedUv).rgb;
+    textureColor = texture2D(map, interferenceUv).rgb;
   }
 
   float luma = dot(textureColor, vec3(0.8, 0.1, 0.1));
