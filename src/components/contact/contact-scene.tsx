@@ -36,6 +36,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   )
   const isContactOpen = useWorkerStore((state) => state.isContactOpen)
   const isClosing = useWorkerStore((state) => state.isClosing)
+  const setIsContactOpen = useWorkerStore((state) => state.setIsContactOpen)
 
   const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
@@ -56,13 +57,13 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       } else if (e.data.type === "update-focus") {
         updateFocusedElement(e.data.focusedElement, e.data.cursorPosition)
       } else if (e.data.type === "update-contact-open") {
-        useWorkerStore.getState().setIsContactOpen(e.data.isContactOpen)
+        setIsContactOpen(e.data.isContactOpen)
       }
     }
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
-  }, [updateFormData, updateFocusedElement])
+  }, [updateFormData, updateFocusedElement, setIsContactOpen])
 
   useEffect(() => {
     const screen = gltf.scene.children[0].getObjectByName(
@@ -135,7 +136,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       })
     } else if (isContactOpen) {
       // sometimes positioning is off when re-entering the scene
-      phoneGroupRef.current?.position.set(0, -0.05, 0)
 
       const action = handler.playAnimation("Intro.001", {
         type: "transition",
