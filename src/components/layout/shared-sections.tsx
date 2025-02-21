@@ -8,7 +8,12 @@ interface InternalLinksProps {
 }
 
 export const InternalLinks = ({ className, links }: InternalLinksProps) => (
-  <ul className={cn("flex flex-col gap-y-1 !text-h2 text-brand-g1", className)}>
+  <ul
+    className={cn(
+      "!text-mobile-h2 flex flex-col gap-y-1 text-brand-g1 lg:!text-h2",
+      className
+    )}
+  >
     {links.map((link) => (
       <li key={link.title}>
         <Link className="flex gap-x-0.5 text-brand-w1" href={link.href}>
@@ -30,7 +35,12 @@ interface SocialLinksProps {
 }
 
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
-  <div className={cn("flex gap-x-1 !text-p text-brand-g1", className)}>
+  <div
+    className={cn(
+      "!text-mobile-p flex gap-x-1 text-brand-g1 lg:!text-p",
+      className
+    )}
+  >
     <Link
       className="actionable text-brand-w1"
       href={links.twitter}
@@ -58,7 +68,12 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
 )
 
 export const Copyright = ({ className }: { className?: string }) => (
-  <p className={cn("text-right !text-p text-brand-g1", className)}>
+  <p
+    className={cn(
+      "!text-mobile-p text-right text-brand-g1 lg:!text-p",
+      className
+    )}
+  >
     © basement.studio LLC {new Date().getFullYear()} all rights reserved
   </p>
 )
@@ -69,7 +84,7 @@ export const SoDa = ({ className }: { className?: string }) => (
   >
     <Link
       className={cn(
-        "text-right !text-p font-semibold text-brand-w1",
+        "!text-mobile-p text-right font-semibold text-brand-w1 lg:!text-p",
         className
       )}
       href="https://www.sodaspeaks.com/"

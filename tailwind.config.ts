@@ -101,6 +101,14 @@ export default {
             fontWeight: "600"
           }
         ],
+        "mobile-p": [
+          "0.6875rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
+        ],
         c: [
           "0.5rem",
           {
