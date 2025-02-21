@@ -60,7 +60,7 @@ export const ArcadeFeatured = () => {
             </Text>
           </Container>
           <Image
-            src="/images/arcade-screen/chronicles.jpg"
+            src="/images/arcade-screen/chronicles.png"
             width={"100%"}
             height={"100%"}
             objectFit="cover"
@@ -106,7 +106,7 @@ export const ArcadeFeatured = () => {
             </Text>
           </Container>
           <Image
-            src="/images/arcade-screen/looper.jpg"
+            src="/images/arcade-screen/looper.png"
             width={"100%"}
             height={"100%"}
             objectFit="cover"

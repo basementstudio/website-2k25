@@ -60,8 +60,18 @@ export const Heading3 = ({ children }: HandlerProps<"h3">) => (
   </h3>
 )
 
-export const BlogLink = ({ children, href }: HandlerProps<"a">) => (
-  <Link href={href} className="font-semibold text-brand-w1 underline">
+export const BlogLink = ({
+  children,
+  href,
+  target,
+  rel
+}: HandlerProps<"a">) => (
+  <Link
+    href={href}
+    target={target as "_blank" | "_self"}
+    rel={rel}
+    className="font-semibold text-brand-w1 underline"
+  >
     {children}
   </Link>
 )

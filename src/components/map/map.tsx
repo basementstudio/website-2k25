@@ -14,6 +14,9 @@ import {
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
+import { ArcadeBoard } from "@/components/arcade-board"
+import { ArcadeScreen } from "@/components/arcade-screen"
+import { useAssets } from "@/components/assets-provider"
 import {
   animateNet,
   NET_ANIMATION_SPEED
@@ -25,8 +28,6 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 
-import { ArcadeScreen } from "../arcade-screen"
-import { useAssets } from "../assets-provider"
 import Cars from "../cars/cars"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
@@ -382,6 +383,35 @@ export const Map = memo(() => {
       })
     }
 
+    if (
+      !useMesh.getState().arcade.buttons &&
+      !useMesh.getState().arcade.sticks
+    ) {
+      let arcadeButtons: Mesh[] = []
+      for (let i = 1; i <= 14; i++) {
+        const button = officeModel?.getObjectByName(`02_BT_${i}`) as Mesh
+        if (button?.parent) button.removeFromParent()
+        button.userData.originalPosition = {
+          x: button.position.x,
+          y: button.position.y,
+          z: button.position.z
+        }
+        if (button) arcadeButtons.push(button)
+      }
+
+      const leftStick = officeModel?.getObjectByName("02_JYTK_L") as Mesh
+      if (leftStick?.parent) leftStick.removeFromParent()
+      const rightStick = officeModel?.getObjectByName("02_JYTK_R") as Mesh
+      if (rightStick?.parent) rightStick.removeFromParent()
+
+      useMesh.setState({
+        arcade: {
+          buttons: arcadeButtons,
+          sticks: [leftStick, rightStick]
+        }
+      })
+    }
+
     disableRaycasting(officeModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
@@ -414,6 +444,7 @@ export const Map = memo(() => {
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
       <ArcadeScreen />
+      <ArcadeBoard />
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
