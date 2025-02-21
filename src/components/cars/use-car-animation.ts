@@ -1,6 +1,5 @@
 import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { folder as levaFolder, useControls } from "leva"
 import type { SetStateAction } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { BufferAttribute, Mesh, Object3D, ShaderMaterial, Vector3 } from "three"

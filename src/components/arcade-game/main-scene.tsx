@@ -5,6 +5,7 @@ import { CAMERA_NAMES, useGame } from "./lib/use-game"
 import { Physics } from "@react-three/rapier"
 import { COLORS } from "./lib/colors"
 import { NPCs } from "./npc"
+import { Debug } from "./debug"
 
 export const MainScene = () => {
   const activeCameraTop = useGame(
@@ -35,6 +36,7 @@ export const MainScene = () => {
       <Player />
       <Road />
       <NPCs />
+      <Debug />
     </Physics>
   )
 }
