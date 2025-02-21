@@ -16,6 +16,7 @@ import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { ArcadeBoard } from "@/components/arcade-board"
 import { LockedDoor } from "@/components/locked-door"
+import { BlogDoor } from "@/components/blog-door"
 import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
 import {
@@ -421,6 +422,11 @@ export const Map = memo(() => {
         z: lockedDoor.rotation.z
       }
       const door = officeModel?.getObjectByName("SM_00_010") as Mesh
+      door.userData.originalPosition = {
+        x: door.position.x,
+        y: door.position.y,
+        z: door.position.z
+      }
       if (lockedDoor?.parent) lockedDoor.removeFromParent()
       if (door?.parent) door.removeFromParent()
       useMesh.setState({
@@ -461,6 +467,7 @@ export const Map = memo(() => {
       <primitive object={godrayScene} />
       <ArcadeScreen />
       <ArcadeBoard />
+      <BlogDoor />
       <LockedDoor />
 
       {Object.values(routingNodes).map((node) => {

@@ -122,7 +122,6 @@ export function SiteAudioSFXsLoader(): null {
             newSources[`BLOG_${key}` as SiteAudioSFXKey] = source
           })
         )
-        console.log(newSources)
 
         useSiteAudioStore.setState({
           audioSfxSources: newSources

@@ -18,13 +18,9 @@ export const LockedDoor = () => {
 
     isLockedDoorOpen.current = true
 
-    let targetPosition = {
-      x: r.x + 0.1,
-      y: r.y,
-      z: r.z
-    }
+    let target = { x: r.x + 0.1, y: r.y, z: r.z }
 
-    animate(lockedDoor?.rotation, targetPosition)
+    animate(lockedDoor?.rotation, target)
 
     const randomIndex = Math.random() > 0.5 ? "A" : "B"
     playSoundFX(`BLOG_LOCKED_DOOR_${randomIndex}`, 0.2)

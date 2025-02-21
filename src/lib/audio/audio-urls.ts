@@ -14,8 +14,8 @@ export function useAudioUrls() {
       TIMEOUT_BUZZER: sfx.basketballBuzzer
     },
     BLOG_AUDIO_SFX: {
-      // OPEN_DOOR: sfx.openDoor,
-      // CLOSE_DOOR: sfx.closeDoor,
+      OPEN_DOOR: sfx.openDoor,
+      CLOSE_DOOR: sfx.closeDoor,
       LOCKED_DOOR_A: sfx.lockedDoorA,
       LOCKED_DOOR_B: sfx.lockedDoorB
       // LIGHTS_ON: sfx.lightsOn,
