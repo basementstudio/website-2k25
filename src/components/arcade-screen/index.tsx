@@ -12,6 +12,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
+import { useArcadeScreenStore } from "@/store/arcade-store"
 
 const ScreenUI = dynamic(
   () =>
@@ -39,6 +40,7 @@ export const ArcadeScreen = () => {
 
   const bootTexture = useTexture(arcade.boot, (texture) => {
     texture.flipY = false
+    useArcadeScreenStore.getState().setBootTexture(texture)
   })
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])

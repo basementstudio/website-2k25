@@ -9,6 +9,7 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { MIN_OFFSET, MAX_TILT, BOARD_ANGLE, STICK_ANIMATION } from "./constants"
+import { useArcadeScreenStore } from "@/store/arcade-store"
 
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const scene = useCurrentScene()
@@ -23,6 +24,10 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const state = useRef(0)
   const sequence = useRef<number[]>([])
   const expectedSequence = [3, 0, 3, 0, 4, 0, 4, 0, 2, 0, 1, 0, 2, 0, 1]
+
+  const switchToBootTexture = useArcadeScreenStore(
+    (state) => state.switchToBootTexture
+  )
 
   const handleGrabStick = () => {
     if (scene !== "lab") return
@@ -91,6 +96,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       )
     ) {
       console.log("KONAMI CODE UNLOCKED")
+      switchToBootTexture()
       sequence.current = []
     }
 
