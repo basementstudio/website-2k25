@@ -14,12 +14,11 @@ export function useAudioUrls() {
       TIMEOUT_BUZZER: sfx.basketballBuzzer
     },
     BLOG_AUDIO_SFX: {
-      OPEN_DOOR: sfx.openDoor,
-      CLOSE_DOOR: sfx.closeDoor,
-      LOCKED_DOOR_A: sfx.lockedDoorA,
-      LOCKED_DOOR_B: sfx.lockedDoorB
-      // LIGHTS_ON: sfx.lightsOn,
-      // LIGHTS_OFF: sfx.lightsOff
+      LOCKED_DOOR: sfx.blog.lockedDoor,
+      DOOR: sfx.blog.door.map((item) => ({
+        OPEN: item.open,
+        CLOSE: item.close
+      }))
     },
     ARCADE_AUDIO_SFX: {
       BUTTONS: sfx.arcade.buttons.map((item) => ({

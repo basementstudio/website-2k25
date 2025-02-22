@@ -1,17 +1,28 @@
-import { useMesh } from "@/hooks/use-mesh"
 import { animate } from "motion"
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useRef } from "react"
+
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMesh } from "@/hooks/use-mesh"
+import { useSiteAudio } from "@/hooks/use-site-audio"
+
+import { useAssets } from "../assets-provider"
+import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 
 export const LockedDoor = () => {
   const { blog } = useMesh()
   const { lockedDoor } = blog
-  const { playSoundFX } = useSiteAudio()
+
+  const scene = useCurrentScene()
   const { setCursorType } = useMouseStore()
+  const { playSoundFX } = useSiteAudio()
+  const { sfx } = useAssets()
+
+  const availableSounds = sfx.blog.lockedDoor.length
+
   const isLockedDoorOpen = useRef(false)
 
   const handleClick = () => {
+    if (scene !== "blog") return
     if (isLockedDoorOpen.current) return
 
     const r = lockedDoor?.userData.originalRotation
@@ -22,8 +33,8 @@ export const LockedDoor = () => {
 
     animate(lockedDoor?.rotation, target)
 
-    const randomIndex = Math.random() > 0.5 ? "A" : "B"
-    playSoundFX(`BLOG_LOCKED_DOOR_${randomIndex}`, 0.2)
+    const randomSound = Math.floor(Math.random() * availableSounds)
+    playSoundFX(`BLOG_LOCKED_DOOR_${randomSound}`, 0.2)
 
     setTimeout(() => {
       animate(lockedDoor?.rotation, r)

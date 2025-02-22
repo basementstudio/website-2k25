@@ -14,12 +14,9 @@ export type SiteAudioSFXKey =
   | `ARCADE_BUTTON_${number}_RELEASE`
   | `ARCADE_STICK_${number}_PRESS`
   | `ARCADE_STICK_${number}_RELEASE`
-  | "BLOG_OPEN_DOOR"
-  | "BLOG_CLOSE_DOOR"
-  | "BLOG_LOCKED_DOOR_A"
-  | "BLOG_LOCKED_DOOR_B"
-  | "BLOG_LIGHTS_ON"
-  | "BLOG_LIGHTS_OFF"
+  | `BLOG_LOCKED_DOOR_${number}`
+  | `BLOG_DOOR_${number}_OPEN`
+  | `BLOG_DOOR_${number}_CLOSE`
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
@@ -114,15 +111,24 @@ export function SiteAudioSFXsLoader(): null {
         )
 
         await Promise.all(
-          Object.keys(BLOG_AUDIO_SFX).map(async (key) => {
-            const source = await player.loadAudioFromURL(
-              BLOG_AUDIO_SFX[key as keyof typeof BLOG_AUDIO_SFX]
-            )
+          BLOG_AUDIO_SFX.LOCKED_DOOR.map(async (lockedDoor, index) => {
+            const source = await player.loadAudioFromURL(lockedDoor)
             source.setVolume(SFX_VOLUME)
-            newSources[`BLOG_${key}` as SiteAudioSFXKey] = source
+            newSources[`BLOG_LOCKED_DOOR_${index}`] = source
           })
         )
 
+        await Promise.all(
+          BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
+            const source = await player.loadAudioFromURL(door.OPEN)
+            source.setVolume(SFX_VOLUME)
+            newSources[`BLOG_DOOR_${index}_OPEN`] = source
+            const sourceClose = await player.loadAudioFromURL(door.CLOSE)
+            sourceClose.setVolume(SFX_VOLUME)
+            newSources[`BLOG_DOOR_${index}_CLOSE`] = sourceClose
+          })
+        )
+        console.log(newSources)
         useSiteAudioStore.setState({
           audioSfxSources: newSources
         })

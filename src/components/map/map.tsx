@@ -15,14 +15,14 @@ import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { ArcadeBoard } from "@/components/arcade-board"
-import { LockedDoor } from "@/components/locked-door"
-import { BlogDoor } from "@/components/blog-door"
 import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
 import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { BlogDoor } from "@/components/blog-door"
+import { LockedDoor } from "@/components/locked-door"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import {
@@ -422,10 +422,10 @@ export const Map = memo(() => {
         z: lockedDoor.rotation.z
       }
       const door = officeModel?.getObjectByName("SM_00_010") as Mesh
-      door.userData.originalPosition = {
-        x: door.position.x,
-        y: door.position.y,
-        z: door.position.z
+      door.userData.originalRotation = {
+        x: door.rotation.x,
+        y: door.rotation.y,
+        z: door.rotation.z
       }
       if (lockedDoor?.parent) lockedDoor.removeFromParent()
       if (door?.parent) door.removeFromParent()

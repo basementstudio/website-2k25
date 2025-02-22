@@ -40,12 +40,13 @@ export interface AssetsResult {
     basketballNet: string
     basketballThump: string
     basketballBuzzer: string
-    openDoor: string
-    closeDoor: string
-    lockedDoorA: string
-    lockedDoorB: string
-    lightsOn: string
-    lightsOff: string
+    blog: {
+      lockedDoor: string[]
+      door: {
+        open: string
+        close: string
+      }[]
+    }
     arcade: {
       buttons: {
         press: string
@@ -158,12 +159,15 @@ export async function fetchAssets(): Promise<AssetsResult> {
       basketballNet: threeDInteractions.sfx.basketballNet?.url ?? "",
       basketballThump: threeDInteractions.sfx.basketballThump?.url ?? "",
       basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? "",
-      openDoor: threeDInteractions.sfx.openDoor?.url ?? "",
-      closeDoor: threeDInteractions.sfx.closeDoor?.url ?? "",
-      lockedDoorA: threeDInteractions.sfx.lockedDoorA?.url ?? "",
-      lockedDoorB: threeDInteractions.sfx.lockedDoorB?.url ?? "",
-      lightsOn: threeDInteractions.sfx.lightsOn?.url ?? "",
-      lightsOff: threeDInteractions.sfx.lightsOff?.url ?? "",
+      blog: {
+        lockedDoor: threeDInteractions.sfx.blog.lockedDoor.items.map(
+          (item) => item.sound?.url ?? ""
+        ),
+        door: threeDInteractions.sfx.blog.door.items.map((item) => ({
+          open: item.open?.url ?? "",
+          close: item.close?.url ?? ""
+        }))
+      },
       arcade: {
         buttons: threeDInteractions.sfx.arcade.buttons.items.map((item) => ({
           press: item.press?.url ?? "",
