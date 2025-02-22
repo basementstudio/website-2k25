@@ -1,11 +1,11 @@
+import { animate } from "motion"
 import { useRef } from "react"
 import { Mesh } from "three"
-import { animate } from "motion"
 
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useAssets } from "@/components/assets-provider"
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { BOARD_ANGLE, BUTTON_ANIMATION } from "./constants"
 

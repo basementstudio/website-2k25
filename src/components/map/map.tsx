@@ -21,6 +21,8 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { BlogDoor } from "@/components/blog-door"
+import { LockedDoor } from "@/components/locked-door"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import {
@@ -412,6 +414,26 @@ export const Map = memo(() => {
       })
     }
 
+    if (!useMesh.getState().blog.lockedDoor && !useMesh.getState().blog.door) {
+      const lockedDoor = officeModel?.getObjectByName("SM_00_012") as Mesh
+      lockedDoor.userData.originalRotation = {
+        x: lockedDoor.rotation.x,
+        y: lockedDoor.rotation.y,
+        z: lockedDoor.rotation.z
+      }
+      const door = officeModel?.getObjectByName("SM_00_010") as Mesh
+      door.userData.originalRotation = {
+        x: door.rotation.x,
+        y: door.rotation.y,
+        z: door.rotation.z
+      }
+      if (lockedDoor?.parent) lockedDoor.removeFromParent()
+      if (door?.parent) door.removeFromParent()
+      useMesh.setState({
+        blog: { lockedDoor, door }
+      })
+    }
+
     disableRaycasting(officeModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
@@ -445,6 +467,8 @@ export const Map = memo(() => {
       <primitive object={godrayScene} />
       <ArcadeScreen />
       <ArcadeBoard />
+      <BlogDoor />
+      <LockedDoor />
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
