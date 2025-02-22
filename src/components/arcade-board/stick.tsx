@@ -1,6 +1,6 @@
 import { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -21,6 +21,26 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
   const [stickIsGrabbed, setStickIsGrabbed] = useState(false)
   const state = useRef(0)
+  const sequence = useRef<number[]>([])
+  const expectedSequence = [
+    3,
+    0,
+    3,
+    0,
+    4,
+    0,
+    4,
+    0,
+    2,
+    0,
+    1,
+    0,
+    2,
+    0,
+    1,
+    "02_BT_7",
+    "02_BT_4"
+  ]
 
   const handleGrabStick = () => {
     if (scene !== "lab") return
@@ -75,6 +95,23 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
     animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
+    sequence.current.push(currentState)
+
+    const seqLength = sequence.current.length
+    if (seqLength > expectedSequence.length) {
+      sequence.current = sequence.current.slice(-expectedSequence.length)
+    }
+
+    if (
+      sequence.current.length === expectedSequence.length &&
+      sequence.current.every(
+        (value, index) => value === expectedSequence[index]
+      )
+    ) {
+      console.log("EXTENDED KONAMI CODE UNLOCKED")
+      sequence.current = []
+    }
+
     playSoundFX(
       `ARCADE_STICK_${desiredSoundFX.current}_${
         currentState === 0 ? "RELEASE" : "PRESS"
@@ -101,6 +138,36 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     }
     state.current = 0
   }
+
+  useEffect(() => {
+    const handleButtonPress = (event: CustomEvent) => {
+      const buttonName = event.detail.buttonName
+      sequence.current.push(buttonName)
+
+      const seqLength = sequence.current.length
+      if (seqLength > expectedSequence.length) {
+        sequence.current = sequence.current.slice(-expectedSequence.length)
+      }
+
+      if (
+        sequence.current.length === expectedSequence.length &&
+        sequence.current.every(
+          (value, index) => value === expectedSequence[index]
+        )
+      ) {
+        console.log("EXTENDED KONAMI CODE UNLOCKED")
+        sequence.current = []
+      }
+    }
+
+    window.addEventListener("buttonPressed", handleButtonPress as EventListener)
+    return () => {
+      window.removeEventListener(
+        "buttonPressed",
+        handleButtonPress as EventListener
+      )
+    }
+  }, [])
 
   return (
     <group key={stick.name}>
