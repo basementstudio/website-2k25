@@ -136,7 +136,6 @@ export function PostProcessing({
       material.uniforms.uBloomRadius.value = targets.bloomRadius.get()
       material.uniforms.uBloomThreshold.value = targets.bloomThreshold.get()
     } else {
-      console.log(basics, vignette, bloom)
       material.uniforms.uContrast.value = basics.contrast
       material.uniforms.uBrightness.value = basics.brightness
       material.uniforms.uExposure.value = basics.exposure
