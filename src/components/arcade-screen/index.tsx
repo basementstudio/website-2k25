@@ -14,6 +14,7 @@ import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
 import { useArcadeScreenStore } from "@/store/arcade-store"
 import { MainScene } from "../arcade-game/main-scene"
+import { ArcadePatas } from "../arcade-patas"
 
 const ScreenUI = dynamic(
   () =>
@@ -76,7 +77,7 @@ export const ArcadeScreen = () => {
           },
           onComplete: () => {
             if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
-              screenMaterial.uniforms.uFlipY.value = true
+              screenMaterial.uniforms.uFlipY.value = false
               screenMaterial.uniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
             }
@@ -116,10 +117,7 @@ export const ArcadeScreen = () => {
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
     >
-      {/*(hasVisitedArcade || isLabRoute) && (
-        <ScreenUI screenScale={screenScale} />
-      )*/}
-      <MainScene />
+      <ArcadePatas />
     </RenderTexture>
   )
 }
