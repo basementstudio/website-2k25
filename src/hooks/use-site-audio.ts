@@ -128,7 +128,7 @@ export function SiteAudioSFXsLoader(): null {
             newSources[`BLOG_DOOR_${index}_CLOSE`] = sourceClose
           })
         )
-        console.log(newSources)
+
         useSiteAudioStore.setState({
           audioSfxSources: newSources
         })
