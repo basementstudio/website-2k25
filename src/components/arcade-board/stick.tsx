@@ -38,6 +38,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     2,
     0,
     1,
+    0,
     "02_BT_7",
     "02_BT_4"
   ]
@@ -52,6 +53,23 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     if (scene !== "lab") return
     setStickIsGrabbed(false)
     resetStick()
+  }
+
+  const checkSequence = () => {
+    const seqLength = sequence.current.length
+    if (seqLength > expectedSequence.length) {
+      sequence.current = sequence.current.slice(-expectedSequence.length)
+    }
+
+    if (
+      sequence.current.length === expectedSequence.length &&
+      sequence.current.every(
+        (value, index) => value === expectedSequence[index]
+      )
+    ) {
+      console.log("EXTENDED KONAMI CODE UNLOCKED")
+      sequence.current = []
+    }
   }
 
   const handleStickMove = (e: ThreeEvent<PointerEvent>) => {
@@ -96,21 +114,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
     sequence.current.push(currentState)
-
-    const seqLength = sequence.current.length
-    if (seqLength > expectedSequence.length) {
-      sequence.current = sequence.current.slice(-expectedSequence.length)
-    }
-
-    if (
-      sequence.current.length === expectedSequence.length &&
-      sequence.current.every(
-        (value, index) => value === expectedSequence[index]
-      )
-    ) {
-      console.log("EXTENDED KONAMI CODE UNLOCKED")
-      sequence.current = []
-    }
+    checkSequence()
 
     playSoundFX(
       `ARCADE_STICK_${desiredSoundFX.current}_${
@@ -143,21 +147,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     const handleButtonPress = (event: CustomEvent) => {
       const buttonName = event.detail.buttonName
       sequence.current.push(buttonName)
-
-      const seqLength = sequence.current.length
-      if (seqLength > expectedSequence.length) {
-        sequence.current = sequence.current.slice(-expectedSequence.length)
-      }
-
-      if (
-        sequence.current.length === expectedSequence.length &&
-        sequence.current.every(
-          (value, index) => value === expectedSequence[index]
-        )
-      ) {
-        console.log("EXTENDED KONAMI CODE UNLOCKED")
-        sequence.current = []
-      }
+      checkSequence()
     }
 
     window.addEventListener("buttonPressed", handleButtonPress as EventListener)
