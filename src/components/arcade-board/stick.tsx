@@ -3,12 +3,12 @@ import { animate } from "motion"
 import { useRef, useState } from "react"
 import { Mesh } from "three"
 
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useAssets } from "@/components/assets-provider"
-import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 
-import { MIN_OFFSET, MAX_TILT, BOARD_ANGLE, STICK_ANIMATION } from "./constants"
+import { BOARD_ANGLE, MAX_TILT, MIN_OFFSET, STICK_ANIMATION } from "./constants"
 
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const scene = useCurrentScene()
