@@ -12,6 +12,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { RenderTexture } from "./render-texture"
 import { screenMaterial } from "./screen-material"
+import { useArcadeStore } from "@/store/arcade-store"
 
 const ScreenUI = dynamic(
   () =>
@@ -29,7 +30,10 @@ export const ArcadeScreen = () => {
   const pathname = usePathname()
   const currentScene = useCurrentScene()
   const isLabRoute = pathname === "/lab"
-
+  const hasUnlockedKonami = useArcadeStore((state) => state.hasUnlockedKonami)
+  const setHasUnlockedKonami = useArcadeStore(
+    (state) => state.setHasUnlockedKonami
+  )
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
@@ -61,8 +65,8 @@ export const ArcadeScreen = () => {
 
     videoTexture.flipY = false
 
-    // first time entering (show video texture)
-    if (!hasVisitedArcade) {
+    // Show boot animation when first entering or when Konami code is entered
+    if (!hasVisitedArcade || hasUnlockedKonami) {
       if (isLabRoute) {
         screenMaterial.uniforms.map.value = bootTexture
         screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
@@ -77,6 +81,10 @@ export const ArcadeScreen = () => {
             if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
               screenMaterial.uniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
+              // Reset Konami code state after animation
+              if (hasUnlockedKonami) {
+                setHasUnlockedKonami(false)
+              }
             }
           }
         })
@@ -96,7 +104,9 @@ export const ArcadeScreen = () => {
     renderTarget.texture,
     videoTexture,
     isLabRoute,
-    bootTexture
+    bootTexture,
+    hasUnlockedKonami,
+    setHasUnlockedKonami
   ])
 
   useFrame((_, delta) => {

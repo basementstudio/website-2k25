@@ -9,12 +9,16 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { BOARD_ANGLE, MAX_TILT, MIN_OFFSET, STICK_ANIMATION } from "./constants"
+import { useArcadeStore } from "@/store/arcade-store"
 
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const scene = useCurrentScene()
   const { setCursorType } = useMouseStore()
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
+  const setHasUnlockedKonami = useArcadeStore(
+    (state) => state.setHasUnlockedKonami
+  )
 
   const availableSounds = sfx.arcade.sticks.length
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
@@ -68,6 +72,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       )
     ) {
       console.log("EXTENDED KONAMI CODE UNLOCKED")
+      setHasUnlockedKonami(true)
       sequence.current = []
     }
   }
