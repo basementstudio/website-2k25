@@ -1,5 +1,5 @@
-import { Text } from "@react-three/uikit"
-import { useCallback } from "react"
+import { Container, Text } from "@react-three/uikit"
+import { useCallback, useEffect, useState } from "react"
 
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
@@ -9,10 +9,10 @@ import { COLORS_THEME } from "../screen-ui"
 
 export const ArcadeWrapperTags = () => {
   const setCursorType = useMouseStore((state) => state.setCursorType)
-  const { handleNavigation } = useHandleNavigation()
   const setCurrentTabIndex = useNavigationStore(
     (state) => state.setCurrentTabIndex
   )
+  const { handleNavigation } = useHandleNavigation()
   const scenes = useNavigationStore((state) => state.scenes)
   const handleClose = useCallback(() => {
     handleNavigation("/")
@@ -24,30 +24,41 @@ export const ArcadeWrapperTags = () => {
     setCurrentTabIndex(tabIndex ?? -1)
   }, [handleNavigation, setCurrentTabIndex, scenes])
 
+  const [hoverClose, setHoverClose] = useState(false)
+
   return (
     <>
-      <Text
-        fontSize={10}
-        color={COLORS_THEME.primary}
-        fontWeight="normal"
+      <Container
         positionType="absolute"
-        positionTop={-3}
-        positionLeft={12}
-        height={10}
-        paddingX={4}
-        backgroundColor={COLORS_THEME.black}
+        positionTop={-8}
+        positionLeft={10}
+        backgroundColor={hoverClose ? COLORS_THEME.primary : COLORS_THEME.black}
+        height={16}
+        paddingX={0}
         zIndexOffset={10}
         onClick={() => handleClose()}
         onHoverChange={(hover) => {
           if (hover) {
             setCursorType("click")
+            setHoverClose(true)
           } else {
             setCursorType("default")
+            setHoverClose(false)
           }
         }}
       >
-        CLOSE [ESC]
-      </Text>
+        <Text
+          fontSize={10}
+          color={hoverClose ? COLORS_THEME.black : COLORS_THEME.primary}
+          positionTop={4}
+          fontWeight="normal"
+          height={16}
+          paddingX={4}
+          zIndexOffset={10}
+        >
+          CLOSE [ESC]
+        </Text>
+      </Container>
       <Text
         fontSize={9}
         color={COLORS_THEME.primary}
