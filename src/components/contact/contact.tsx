@@ -9,7 +9,7 @@ import ContactCanvas from "./contact-canvas"
 import { useContactStore } from "./contact-store"
 
 const Contact = () => {
-  const { isContactOpen, setIsContactOpen } = useContactStore()
+  const { isContactOpen, isClosing, setIsContactOpen } = useContactStore()
 
   useKeyPress(
     "Escape",
@@ -47,7 +47,11 @@ const Contact = () => {
       <div
         className={cn(
           "fixed inset-0 z-40 transition-[backdrop-filter,opacity] duration-1000 ease-in-out",
-          isContactOpen ? "bg-black/60" : "pointer-events-none opacity-0"
+          isContactOpen && !isClosing
+            ? "bg-black/60"
+            : isClosing
+              ? "pointer-events-none bg-black/60 opacity-0"
+              : "pointer-events-none opacity-0"
         )}
       />
     </>
