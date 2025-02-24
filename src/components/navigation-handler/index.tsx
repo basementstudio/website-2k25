@@ -69,11 +69,9 @@ export const NavigationHandler = () => {
       const labTabs = useArcadeStore.getState().labTabs
       const labTabIndex = useArcadeStore.getState().labTabIndex
 
-      // If we're in the lab route
       if (pathname === "/lab") {
-        // Handle forward tab navigation
         if (!e.shiftKey) {
-          // Handle entering lab tabs from first tab
+          // hanlde enter labtabs
           if (currentTabIndex === 0 && !isInLabTab) {
             setIsInLabTab(true)
             setLabTabIndex(0)
@@ -81,37 +79,37 @@ export const NavigationHandler = () => {
             return
           }
 
-          // Handle tab navigation within lab tabs
+          //handle lab tab navigation
           if (isInLabTab) {
             const nextIndex = labTabIndex + 1
             if (nextIndex < labTabs.length) {
               setLabTabIndex(nextIndex)
               return
             }
-            // Exit lab tab mode if we're at the end
+            // exit lab tabmode
             setIsInLabTab(false)
             setCurrentTabIndex(1)
             return
           }
         }
-        // Handle backward tab navigation (Shift+Tab)
+        // sift tab
         else {
-          // Handle entering lab tabs from second tab
+          // handle enter
           if (currentTabIndex === 1) {
             setIsInLabTab(true)
-            setLabTabIndex(labTabs.length - 1) // Start from last lab tab
+            setLabTabIndex(labTabs.length - 1)
             setCurrentTabIndex(-1)
             return
           }
 
-          // Handle backward navigation within lab tabs
+          // backward navigation
           if (isInLabTab) {
             const prevIndex = labTabIndex - 1
             if (prevIndex >= 0) {
               setLabTabIndex(prevIndex)
               return
             }
-            // Exit lab tab mode if we're at the start
+            // exit lab tab mode if we are at the start
             setIsInLabTab(false)
             setCurrentTabIndex(0)
             return
@@ -119,7 +117,7 @@ export const NavigationHandler = () => {
         }
       }
 
-      // Handle regular tab navigation outside lab tabs
+      // regular tab navigation
       const newIndex = e.shiftKey ? currentTabIndex - 1 : currentTabIndex + 1
 
       if (newIndex < 0 || newIndex >= currentScene.tabs.length) {

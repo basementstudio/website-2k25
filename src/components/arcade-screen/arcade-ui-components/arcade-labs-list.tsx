@@ -3,7 +3,7 @@ import { Container, Text } from "@react-three/uikit"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 
 import { COLORS_THEME } from "../screen-ui"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useArcadeStore } from "@/store/arcade-store"
 
 interface ArcadeLabsListProps {
@@ -20,6 +20,7 @@ export const ArcadeLabsList = ({
   const setCursorType = useMouseStore((state) => state.setCursorType)
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
+  const scrollContainerRef = useRef<any>(null)
 
   useEffect(() => {
     if (isInLabTab && labTabIndex > 0 && labTabIndex <= experiments.length) {
@@ -29,8 +30,28 @@ export const ArcadeLabsList = ({
     }
   }, [labTabIndex, isInLabTab, experiments, setSelectedExperiment])
 
+  useEffect(() => {
+    if (scrollContainerRef.current && labTabIndex >= 7) {
+      const scrollStep = 24
+      const maxScroll = 277
+      const scrollOffset = (labTabIndex - 7) * scrollStep
+
+      const newScroll =
+        scrollOffset <= 0 ? 0 : Math.min(scrollOffset, maxScroll)
+
+      if (scrollContainerRef.current.scrollPosition.value) {
+        scrollContainerRef.current.scrollPosition.value = [0, newScroll]
+      } else {
+        scrollContainerRef.current.scrollPosition.v = [0, newScroll]
+      }
+
+      scrollContainerRef.current.forceUpdate?.()
+    }
+  }, [labTabIndex])
+
   return (
     <Container
+      ref={scrollContainerRef}
       width={"60%"}
       height={"100%"}
       borderWidth={1}
