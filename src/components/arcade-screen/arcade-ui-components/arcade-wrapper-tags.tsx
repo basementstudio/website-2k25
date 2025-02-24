@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 import { COLORS_THEME } from "../screen-ui"
 import { useArcadeStore } from "@/store/arcade-store"
@@ -36,6 +37,15 @@ export const ArcadeWrapperTags = () => {
       setHoverClose(false)
     }
   }, [isInLabTab, labTabIndex])
+
+  useKeyPress(
+    "Enter",
+    useCallback(() => {
+      if (isInLabTab && labTabIndex === 0) {
+        handleClose()
+      }
+    }, [isInLabTab, labTabIndex, handleClose])
+  )
 
   return (
     <>
