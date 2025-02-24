@@ -29,7 +29,7 @@ export const NavigationHandler = () => {
   const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()
   const setLabTabIndex = useArcadeStore((state) => state.setLabTabIndex)
-  const labTabIndex = useArcadeStore((state) => state.labTabIndex)
+
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
   const setCurrentTabIndex = useNavigationStore(
