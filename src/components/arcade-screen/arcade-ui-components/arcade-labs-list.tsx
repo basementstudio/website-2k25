@@ -22,6 +22,9 @@ export const ArcadeLabsList = ({
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const scrollContainerRef = useRef<any>(null)
+  const [sourceHoverStates, setSourceHoverStates] = useState<boolean[]>(
+    new Array(experiments.length).fill(false)
+  )
 
   const handleExperimentClick = useCallback((data: any) => {
     window.open(`https://lab.basement.studio/experiments/${data.url}`, "_blank")
@@ -96,63 +99,77 @@ export const ArcadeLabsList = ({
               flexDirection="row"
               justifyContent="space-between"
               width={"100%"}
-              paddingLeft={8}
-              paddingRight={8}
               height={24}
               borderBottomWidth={1}
               borderRightWidth={1}
-              backgroundColor={
-                isHovered ? COLORS_THEME.primary : COLORS_THEME.black
-              }
               borderColor={COLORS_THEME.primary}
-              paddingTop={8}
-              onHoverChange={(hover) => {
-                if (hover) {
-                  setCursorType("alias")
-                  setSelectedExperiment(data)
-                } else {
-                  setCursorType("default")
-                }
-              }}
-              onClick={(e) => {
-                e.stopPropagation()
-                handleExperimentClick(data)
-              }}
+              alignItems="center"
             >
-              <Text
-                fontSize={10}
-                color={isHovered ? COLORS_THEME.black : COLORS_THEME.primary}
-                fontWeight="normal"
-                zIndexOffset={10}
+              <Container
+                marginLeft={1}
+                paddingTop={9}
+                paddingX={8}
+                width={"85%"}
+                backgroundColor={
+                  isHovered ? COLORS_THEME.primary : COLORS_THEME.black
+                }
+                onHoverChange={(hover) => {
+                  if (hover) {
+                    setCursorType("alias")
+                    setSelectedExperiment(data)
+                  } else {
+                    setCursorType("default")
+                  }
+                }}
               >
-                {data._title.toUpperCase()}
-              </Text>
-              <Container width={"auto"} gap={8}>
                 <Text
-                  fontSize={9}
+                  fontSize={10}
+                  zIndexOffset={10}
                   color={isHovered ? COLORS_THEME.black : COLORS_THEME.primary}
-                  fontWeight="normal"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    window.open(
-                      `https://github.com/basementstudio/basement-laboratory/tree/main/src/experiments/${data.url}`,
-                      "_blank"
-                    )
-                  }}
                 >
-                  CODE
+                  {data._title.toUpperCase()}
                 </Text>
-                <Text
-                  fontSize={9}
-                  color={isHovered ? COLORS_THEME.black : COLORS_THEME.primary}
-                  fontWeight="normal"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleExperimentClick(data)
-                  }}
-                >
-                  LIVE
+              </Container>
+              <Container
+                paddingTop={9}
+                paddingX={8}
+                positionType="relative"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(
+                    `https://github.com/basementstudio/basement-laboratory/tree/main/src/experiments/${data.url}`,
+                    "_blank"
+                  )
+                }}
+                onHoverChange={(hover) => {
+                  if (hover) {
+                    setCursorType("alias")
+                    setSourceHoverStates((prev) => {
+                      const newStates = [...prev]
+                      newStates[idx] = true
+                      return newStates
+                    })
+                  } else {
+                    setCursorType("default")
+                    setSourceHoverStates((prev) => {
+                      const newStates = [...prev]
+                      newStates[idx] = false
+                      return newStates
+                    })
+                  }
+                }}
+              >
+                <Text fontSize={10} zIndexOffset={10}>
+                  SOURCE
                 </Text>
+                <Container
+                  width={45}
+                  height={1}
+                  positionTop={16}
+                  positionType="absolute"
+                  backgroundColor={COLORS_THEME.primary}
+                  visibility={sourceHoverStates[idx] ? "visible" : "hidden"}
+                />
               </Container>
             </Container>
           )
