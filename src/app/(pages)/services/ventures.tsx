@@ -5,11 +5,11 @@ import { QueryType } from "./query"
 export const VenturesBanner = ({ data }: { data: QueryType }) => {
   return (
     <div className="grid-layout">
-      <h2 className="col-start-3 col-end-6 text-h2 text-brand-g1">
+      <h2 className="col-span-full text-mobile-h2 text-brand-g1 lg:col-start-3 lg:col-end-6 lg:text-h2">
         {data.pages.services.ventures.title}
       </h2>
 
-      <div className="col-start-1 col-end-13 -mt-0.75 [&_p]:text-pretty [&_p]:text-h1 [&_p]:text-brand-w1">
+      <div className="col-span-full -mt-0.75 [&_p]:text-pretty [&_p]:!text-mobile-h1 [&_p]:text-brand-w1 lg:[&_p]:!text-h1">
         <RichText>
           {data.pages.services.ventures.content?.json.content}
         </RichText>

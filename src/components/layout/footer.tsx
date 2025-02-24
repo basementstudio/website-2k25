@@ -75,7 +75,7 @@ export const Footer = () => (
           <Grid />
 
           <div className="grid-layout lg:mt-9">
-            <Logo className="col-span-12 mx-auto border-b border-brand-w1/30 pb-4 text-brand-w2 lg:pb-0" />
+            <Logo className="col-span-full mx-auto border-b border-brand-w1/30 pb-4 text-brand-w2 lg:pb-0" />
           </div>
 
           <div className="grid-layout relative grid-rows-[auto_auto_56px] !gap-y-10 pb-2 pt-4 lg:grid-rows-[auto] lg:items-end lg:!gap-y-2 lg:py-0">
