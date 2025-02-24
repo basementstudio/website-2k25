@@ -78,22 +78,31 @@ export const Footer = () => (
             <Logo className="col-span-12 mx-auto border-b border-brand-w1/30 pb-4 text-brand-w2 lg:pb-0" />
           </div>
 
-          <div className="grid-layout relative grid-rows-[auto_auto_60px] items-end !gap-y-10 pb-2 pt-4 lg:grid-rows-[auto] lg:!gap-y-2 lg:py-0">
-            <StayConnected
-              className="col-start-1 col-end-5 row-start-2 lg:row-auto"
-              content={data.company.social.newsletter.json.content}
-            />
-
+          <div className="grid-layout relative grid-rows-[auto_auto_56px] !gap-y-10 pb-2 pt-4 lg:grid-rows-[auto] lg:items-end lg:!gap-y-2 lg:py-0">
             <InternalLinks
               className="col-start-1 col-end-3 row-start-1 lg:col-start-7 lg:col-end-9"
               links={LINKS}
             />
 
-            <SoDa className="col-span-full row-start-3 lg:col-start-9 lg:col-end-11 lg:row-auto" />
+            <SocialLinks
+              className="col-start-3 col-end-5 row-start-1 ml-auto lg:hidden"
+              links={data.company.social}
+            />
+
+            <StayConnected
+              className="col-start-1 col-end-5 row-start-2 lg:row-auto"
+              content={data.company.social.newsletter.json.content}
+            />
+
+            <SoDa className="hidden lg:col-start-9 lg:col-end-11 lg:row-auto lg:flex" />
+
+            <div className="col-span-full row-start-3 flex flex-col justify-end gap-y-4 lg:hidden">
+              <SoDa className="items-end" />
+              <Copyright className="text-left" />
+            </div>
 
             <div className="col-start-11 col-end-13 hidden translate-y-[3px] flex-col items-end gap-y-2 lg:flex">
               <SocialLinks links={data.company.social} />
-
               <Copyright />
             </div>
           </div>
