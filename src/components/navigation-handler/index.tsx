@@ -28,7 +28,8 @@ export const NavigationHandler = () => {
   const scenes: IScene[] = useAssets().scenes
   const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()
-
+  const setLabTabIndex = useArcadeStore((state) => state.setLabTabIndex)
+  const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
   const setCurrentTabIndex = useNavigationStore(
@@ -65,6 +66,7 @@ export const NavigationHandler = () => {
       e.preventDefault()
       const isInLabTab = useArcadeStore.getState().isInLabTab
       const setIsInLabTab = useArcadeStore.getState().setIsInLabTab
+      const labTabs = useArcadeStore.getState().labTabs
 
       // If we're in the lab route
       if (pathname === "/lab") {
@@ -72,13 +74,20 @@ export const NavigationHandler = () => {
         if (!e.shiftKey && currentTabIndex === 0) {
           if (!isInLabTab) {
             setIsInLabTab(true)
+            setLabTabIndex(0)
             setCurrentTabIndex(-1)
             return
           }
         }
 
-        // Handle forward tab from lab tab
-        if (!e.shiftKey && currentTabIndex === -1 && isInLabTab) {
+        // Handle tab navigation within lab tabs
+        if (!e.shiftKey && isInLabTab) {
+          const nextIndex = labTabIndex + 1
+          if (nextIndex < labTabs.length) {
+            setLabTabIndex(nextIndex)
+            return
+          }
+          // Exit lab tab mode if we're at the end
           setIsInLabTab(false)
           setCurrentTabIndex(1)
           return
@@ -124,7 +133,8 @@ export const NavigationHandler = () => {
       currentTabIndex,
       currentScene,
       setIsCanvasTabMode,
-      pathname
+      pathname,
+      labTabIndex
     ]
   )
 
