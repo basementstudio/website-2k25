@@ -17,6 +17,9 @@ interface ArcadeStore {
 
   currentLabTabIndex: number
   setCurrentLabTabIndex: (index: number) => void
+
+  isSourceButtonSelected: boolean
+  setIsSourceButtonSelected: (value: boolean) => void
 }
 
 export const useArcadeStore = create<ArcadeStore>((set) => ({
@@ -34,5 +37,8 @@ export const useArcadeStore = create<ArcadeStore>((set) => ({
   setLabTabs: (tabs) => set({ labTabs: tabs }),
 
   currentLabTabIndex: -1,
-  setCurrentLabTabIndex: (index) => set({ currentLabTabIndex: index })
+  setCurrentLabTabIndex: (index) => set({ currentLabTabIndex: index }),
+
+  isSourceButtonSelected: false,
+  setIsSourceButtonSelected: (value) => set({ isSourceButtonSelected: value })
 }))

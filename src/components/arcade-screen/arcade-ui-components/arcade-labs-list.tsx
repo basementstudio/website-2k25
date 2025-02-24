@@ -28,6 +28,9 @@ export const ArcadeLabsList = ({
   const [mouseHoveredExperiment, setMouseHoveredExperiment] =
     useState<any>(null)
   const [hasMouseInteracted, setHasMouseInteracted] = useState(false)
+  const isSourceButtonSelected = useArcadeStore(
+    (state) => state.isSourceButtonSelected
+  )
 
   const handleExperimentClick = useCallback((data: any) => {
     window.open(`https://lab.basement.studio/experiments/${data.url}`, "_blank")
@@ -97,8 +100,16 @@ export const ArcadeLabsList = ({
             (!hasMouseInteracted &&
               !mouseHoveredExperiment &&
               isInLabTab &&
-              labTabIndex === idx + 1) ||
+              labTabIndex === idx + 1 &&
+              !isSourceButtonSelected) ||
             (selectedExperiment && selectedExperiment._title === data._title)
+
+          const isSourceHovered =
+            !hasMouseInteracted &&
+            !mouseHoveredExperiment &&
+            isInLabTab &&
+            labTabIndex === idx + 1 &&
+            isSourceButtonSelected
 
           return (
             <Container
@@ -178,7 +189,7 @@ export const ArcadeLabsList = ({
                   positionTop={16}
                   positionType="absolute"
                   backgroundColor={COLORS_THEME.primary}
-                  visibility={sourceHoverStates[idx] ? "visible" : "hidden"}
+                  visibility={isSourceHovered ? "visible" : "hidden"}
                 />
               </Container>
             </Container>
@@ -204,6 +215,9 @@ const ViewMore = ({
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const experiments = useArcadeStore((state) => state.labTabs)
+  const isSourceButtonSelected = useArcadeStore(
+    (state) => state.isSourceButtonSelected
+  )
 
   const handleViewMoreClick = useCallback(() => {
     window.open("https://basement.studio/lab", "_blank")
