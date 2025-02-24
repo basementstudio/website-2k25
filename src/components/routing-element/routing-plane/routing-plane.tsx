@@ -1,18 +1,18 @@
 import { useMemo } from "react"
 import {
   BufferGeometry,
+  EdgesGeometry,
   PlaneGeometry,
   Quaternion,
   ShaderMaterial,
-  Vector3,
-  EdgesGeometry
+  Vector3
 } from "three"
 
 const material = new ShaderMaterial({
   uniforms: {
     lineSpacing: { value: 0.01 },
-    lineWidth: { value: 0.15 },
-    lineOpacity: { value: 0.2 },
+    lineWidth: { value: 0.2 },
+    lineOpacity: { value: 0.1 },
     aspectRatio: { value: 1.0 }
   },
   vertexShader: `
@@ -86,7 +86,7 @@ const squareMaterial = new ShaderMaterial({
 })
 const edgesMaterial = new ShaderMaterial({
   uniforms: {
-    opacity: { value: 0.2 }
+    opacity: { value: 0.1 }
   },
   vertexShader: `
         varying vec3 vWorldPosition;
