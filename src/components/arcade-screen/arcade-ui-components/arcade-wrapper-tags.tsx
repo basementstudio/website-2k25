@@ -6,6 +6,7 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 import { COLORS_THEME } from "../screen-ui"
+import { useArcadeStore } from "@/store/arcade-store"
 
 export const ArcadeWrapperTags = () => {
   const setCursorType = useMouseStore((state) => state.setCursorType)
@@ -14,6 +15,7 @@ export const ArcadeWrapperTags = () => {
   )
   const { handleNavigation } = useHandleNavigation()
   const scenes = useNavigationStore((state) => state.scenes)
+  const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const handleClose = useCallback(() => {
     handleNavigation("/")
 
@@ -25,6 +27,14 @@ export const ArcadeWrapperTags = () => {
   }, [handleNavigation, setCurrentTabIndex, scenes])
 
   const [hoverClose, setHoverClose] = useState(false)
+
+  useEffect(() => {
+    if (isInLabTab) {
+      setHoverClose(true)
+    } else {
+      setHoverClose(false)
+    }
+  }, [isInLabTab])
 
   return (
     <>

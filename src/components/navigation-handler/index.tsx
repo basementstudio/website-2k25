@@ -11,6 +11,7 @@ import { useAssets } from "../assets-provider"
 import { useInspectable } from "../inspectables/context"
 import { IScene } from "./navigation.interface"
 import { useNavigationStore } from "./navigation-store"
+import { useArcadeStore } from "@/store/arcade-store"
 
 export const NavigationHandler = () => {
   const pathname = usePathname()
@@ -62,11 +63,48 @@ export const NavigationHandler = () => {
       }
 
       e.preventDefault()
+      const isInLabTab = useArcadeStore.getState().isInLabTab
+      const setIsInLabTab = useArcadeStore.getState().setIsInLabTab
+
+      // If we're in the lab route
+      if (pathname === "/lab") {
+        // Handle forward tab on first tab
+        if (!e.shiftKey && currentTabIndex === 0) {
+          if (!isInLabTab) {
+            setIsInLabTab(true)
+            setCurrentTabIndex(-1)
+            return
+          }
+        }
+
+        // Handle forward tab from lab tab
+        if (!e.shiftKey && currentTabIndex === -1 && isInLabTab) {
+          setIsInLabTab(false)
+          setCurrentTabIndex(1)
+          return
+        }
+
+        // Handle shift+tab into lab tab
+        if (e.shiftKey && currentTabIndex === 1) {
+          setIsInLabTab(true)
+          setCurrentTabIndex(-1)
+          return
+        }
+
+        // Handle shift+tab out of lab tab
+        if (e.shiftKey && currentTabIndex === -1 && isInLabTab) {
+          setIsInLabTab(false)
+          setCurrentTabIndex(0)
+          return
+        }
+      }
+
       const newIndex = e.shiftKey ? currentTabIndex - 1 : currentTabIndex + 1
 
       // add boundaries
       if (newIndex < 0 || newIndex >= currentScene.tabs.length) {
         setIsCanvasTabMode(false)
+        setIsInLabTab(false)
         return
       }
 
@@ -77,6 +115,7 @@ export const NavigationHandler = () => {
         (!e.shiftKey && currentTabIndex === currentScene.tabs.length - 1)
       ) {
         setIsCanvasTabMode(false)
+        setIsInLabTab(false)
       }
     },
     [
@@ -84,7 +123,8 @@ export const NavigationHandler = () => {
       setCurrentTabIndex,
       currentTabIndex,
       currentScene,
-      setIsCanvasTabMode
+      setIsCanvasTabMode,
+      pathname
     ]
   )
 
