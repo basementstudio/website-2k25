@@ -154,6 +154,9 @@ export const Map = memo(() => {
 
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
+
+      material.uniforms.inspectingEnabled.value = inspectingEnabled.current
+      material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
 
     if (keyframedNet && isAnimating.current) {
