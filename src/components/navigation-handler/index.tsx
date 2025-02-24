@@ -67,50 +67,61 @@ export const NavigationHandler = () => {
       const isInLabTab = useArcadeStore.getState().isInLabTab
       const setIsInLabTab = useArcadeStore.getState().setIsInLabTab
       const labTabs = useArcadeStore.getState().labTabs
+      const labTabIndex = useArcadeStore.getState().labTabIndex
 
       // If we're in the lab route
       if (pathname === "/lab") {
-        // Handle forward tab on first tab
-        if (!e.shiftKey && currentTabIndex === 0) {
-          if (!isInLabTab) {
+        // Handle forward tab navigation
+        if (!e.shiftKey) {
+          // Handle entering lab tabs from first tab
+          if (currentTabIndex === 0 && !isInLabTab) {
             setIsInLabTab(true)
             setLabTabIndex(0)
             setCurrentTabIndex(-1)
             return
           }
-        }
 
-        // Handle tab navigation within lab tabs
-        if (!e.shiftKey && isInLabTab) {
-          const nextIndex = labTabIndex + 1
-          if (nextIndex < labTabs.length) {
-            setLabTabIndex(nextIndex)
+          // Handle tab navigation within lab tabs
+          if (isInLabTab) {
+            const nextIndex = labTabIndex + 1
+            if (nextIndex < labTabs.length) {
+              setLabTabIndex(nextIndex)
+              return
+            }
+            // Exit lab tab mode if we're at the end
+            setIsInLabTab(false)
+            setCurrentTabIndex(1)
             return
           }
-          // Exit lab tab mode if we're at the end
-          setIsInLabTab(false)
-          setCurrentTabIndex(1)
-          return
         }
+        // Handle backward tab navigation (Shift+Tab)
+        else {
+          // Handle entering lab tabs from second tab
+          if (currentTabIndex === 1) {
+            setIsInLabTab(true)
+            setLabTabIndex(labTabs.length - 1) // Start from last lab tab
+            setCurrentTabIndex(-1)
+            return
+          }
 
-        // Handle shift+tab into lab tab
-        if (e.shiftKey && currentTabIndex === 1) {
-          setIsInLabTab(true)
-          setCurrentTabIndex(-1)
-          return
-        }
-
-        // Handle shift+tab out of lab tab
-        if (e.shiftKey && currentTabIndex === -1 && isInLabTab) {
-          setIsInLabTab(false)
-          setCurrentTabIndex(0)
-          return
+          // Handle backward navigation within lab tabs
+          if (isInLabTab) {
+            const prevIndex = labTabIndex - 1
+            if (prevIndex >= 0) {
+              setLabTabIndex(prevIndex)
+              return
+            }
+            // Exit lab tab mode if we're at the start
+            setIsInLabTab(false)
+            setCurrentTabIndex(0)
+            return
+          }
         }
       }
 
+      // Handle regular tab navigation outside lab tabs
       const newIndex = e.shiftKey ? currentTabIndex - 1 : currentTabIndex + 1
 
-      // add boundaries
       if (newIndex < 0 || newIndex >= currentScene.tabs.length) {
         setIsCanvasTabMode(false)
         setIsInLabTab(false)
@@ -133,8 +144,7 @@ export const NavigationHandler = () => {
       currentTabIndex,
       currentScene,
       setIsCanvasTabMode,
-      pathname,
-      labTabIndex
+      pathname
     ]
   )
 
