@@ -12,32 +12,7 @@ import {
 } from "./fragments"
 
 const pagesFragment = fragmentOn("Pages", {
-  inspectables: {
-    inspectableList: {
-      items: {
-        _id: true,
-        _title: true,
-        mesh: true,
-        specs: {
-          items: {
-            _id: true,
-            _title: true,
-            value: true
-          }
-        },
-        description: {
-          json: {
-            content: true
-          }
-        },
-        xOffset: true,
-        sizeTarget: true,
-        scenes: {
-          _title: true
-        }
-      }
-    }
-  }
+  inspectables: inspectableFragment
 })
 
 const assetsFragment = fragmentOn("ThreeDInteractions", {

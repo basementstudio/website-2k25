@@ -28,6 +28,7 @@ interface InspectableProps {
   mesh: Mesh
   position: { x: number; y: number; z: number }
   xOffset: number
+  yOffset: number
   sizeTarget: number
   scenes: string[]
 }
@@ -37,6 +38,7 @@ export const Inspectable = ({
   mesh,
   position,
   xOffset,
+  yOffset,
   sizeTarget,
   scenes
 }: InspectableProps) => {
@@ -104,7 +106,7 @@ export const Inspectable = ({
 
       const desiredDirection = new Vector3(
         camConfig?.position[0] + direction.x + perpendicularMoved.current.x,
-        camConfig?.position[1] + direction.y,
+        camConfig?.position[1] + direction.y + yOffset,
         camConfig?.position[2] + direction.z + perpendicularMoved.current.z
       )
 
@@ -185,6 +187,7 @@ export const Inspectable = ({
       if (selected === id) {
         const cameraPosition = new Vector3(...camConfig.position)
         cameraPosition.add(perpendicularMoved.current)
+        cameraPosition.y += yOffset
         lookAtMatrix.lookAt(cameraPosition, ref.current.position, upVector)
 
         targetQuaternion.setFromRotationMatrix(lookAtMatrix)

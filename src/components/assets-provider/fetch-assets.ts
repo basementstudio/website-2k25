@@ -36,6 +36,7 @@ export interface AssetsResult {
     description: any
     mesh: string
     xOffset: number
+    yOffset: number
     sizeTarget: number
     scenes: string[]
   }[]
@@ -165,6 +166,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
       description: item.description,
       mesh: item.mesh ?? "",
       xOffset: item.xOffset ?? 0,
+      yOffset: item.yOffset ?? 0,
       sizeTarget: item.sizeTarget ?? 0,
       scenes: item.scenes?.map((item) => item._title) ?? []
     })),

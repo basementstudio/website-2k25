@@ -43,6 +43,7 @@ export const Inspectables = () => {
             mesh={mesh}
             position={mesh.userData.position}
             xOffset={inspectable.xOffset}
+            yOffset={inspectable.yOffset}
             sizeTarget={inspectable.sizeTarget}
             scenes={inspectable.scenes}
           />
