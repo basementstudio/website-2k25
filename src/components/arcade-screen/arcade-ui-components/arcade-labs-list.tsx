@@ -105,8 +105,7 @@ export const ArcadeLabsList = ({
             (selectedExperiment?._title === data._title &&
               !isSourceButtonSelected &&
               labTabIndex === idx + 1) ||
-            (mouseHoveredExperiment?._title === data._title &&
-              !isSourceButtonSelected)
+            mouseHoveredExperiment?._title === data._title
 
           const isSourceHovered =
             (!hasMouseInteracted &&
