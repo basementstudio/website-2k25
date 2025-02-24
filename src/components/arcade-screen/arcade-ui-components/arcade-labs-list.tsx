@@ -3,7 +3,7 @@ import { Container, Text } from "@react-three/uikit"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 
 import { COLORS_THEME } from "../screen-ui"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useArcadeStore } from "@/store/arcade-store"
 
 interface ArcadeLabsListProps {
@@ -20,6 +20,14 @@ export const ArcadeLabsList = ({
   const setCursorType = useMouseStore((state) => state.setCursorType)
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
+
+  useEffect(() => {
+    if (isInLabTab && labTabIndex > 0 && labTabIndex <= experiments.length) {
+      setSelectedExperiment(experiments[labTabIndex - 1])
+    } else {
+      setSelectedExperiment(null)
+    }
+  }, [labTabIndex, isInLabTab, experiments, setSelectedExperiment])
 
   return (
     <Container
@@ -137,6 +145,11 @@ const ViewMore = ({
 }) => {
   const [isViewMoreHovered, setIsViewMoreHovered] = useState(false)
   const setCursorType = useMouseStore((state) => state.setCursorType)
+  const labTabIndex = useArcadeStore((state) => state.labTabIndex)
+  const isInLabTab = useArcadeStore((state) => state.isInLabTab)
+  const experiments = useArcadeStore((state) => state.labTabs)
+
+  const isSelected = isInLabTab && labTabIndex === experiments.length - 3
 
   if (!isLoaded) return null
   return (
@@ -150,7 +163,9 @@ const ViewMore = ({
       borderBottomWidth={0}
       borderRightWidth={1}
       backgroundColor={
-        isViewMoreHovered ? COLORS_THEME.primary : COLORS_THEME.black
+        isViewMoreHovered || isSelected
+          ? COLORS_THEME.primary
+          : COLORS_THEME.black
       }
       borderColor={COLORS_THEME.primary}
       paddingTop={8}
@@ -171,7 +186,11 @@ const ViewMore = ({
     >
       <Text
         fontSize={10}
-        color={isViewMoreHovered ? COLORS_THEME.black : COLORS_THEME.primary}
+        color={
+          isViewMoreHovered || isSelected
+            ? COLORS_THEME.black
+            : COLORS_THEME.primary
+        }
         fontWeight="normal"
         zIndexOffset={10}
       >

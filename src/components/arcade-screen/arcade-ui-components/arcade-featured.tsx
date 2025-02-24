@@ -5,10 +5,24 @@ import React, { useState } from "react"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 
 import { COLORS_THEME } from "../screen-ui"
+import { useArcadeStore } from "@/store/arcade-store"
 
 export const ArcadeFeatured = () => {
   const setCursorType = useMouseStore((state) => state.setCursorType)
-  const [isHovering, setIsHovering] = useState(false)
+
+  const [hoveredSection, setHoveredSection] = useState({
+    chronicles: false,
+    looper: false
+  })
+
+  const isInLabTab = useArcadeStore((state) => state.isInLabTab)
+  const labTabIndex = useArcadeStore((state) => state.labTabIndex)
+  const experiments = useArcadeStore((state) => state.labTabs)
+
+  const isChroniclesSelected =
+    isInLabTab && labTabIndex === experiments.length - 2
+  const isLooperSelected = isInLabTab && labTabIndex === experiments.length - 1
+
   return (
     <Container paddingX={10} width={"100%"} height={100}>
       <Container
@@ -29,18 +43,20 @@ export const ArcadeFeatured = () => {
             window.open(`https://chronicles.basement.studio/`, "_blank")
           }}
           onHoverChange={(hover) => {
-            if (hover) {
+            if (hover || isChroniclesSelected) {
               setCursorType("alias")
-              setIsHovering(true)
+              setHoveredSection((prev) => ({ ...prev, chronicles: true }))
             } else {
               setCursorType("default")
-              setIsHovering(false)
+              setHoveredSection((prev) => ({ ...prev, chronicles: false }))
             }
           }}
         >
           <Container
             backgroundColor={
-              isHovering ? COLORS_THEME.primary : COLORS_THEME.black
+              hoveredSection.chronicles || isChroniclesSelected
+                ? COLORS_THEME.primary
+                : COLORS_THEME.black
             }
             positionType="absolute"
             width={"auto"}
@@ -52,7 +68,11 @@ export const ArcadeFeatured = () => {
             <Text
               fontSize={8}
               paddingX={4}
-              color={isHovering ? COLORS_THEME.black : COLORS_THEME.primary}
+              color={
+                hoveredSection.chronicles || isChroniclesSelected
+                  ? COLORS_THEME.black
+                  : COLORS_THEME.primary
+              }
               zIndexOffset={10}
               positionTop={4}
             >
@@ -79,15 +99,21 @@ export const ArcadeFeatured = () => {
           alignItems="center"
           justifyContent="center"
           onHoverChange={(hover) => {
-            if (hover) {
+            if (hover || isLooperSelected) {
               setCursorType("not-allowed")
+              setHoveredSection((prev) => ({ ...prev, looper: true }))
             } else {
               setCursorType("default")
+              setHoveredSection((prev) => ({ ...prev, looper: false }))
             }
           }}
         >
           <Container
-            backgroundColor={COLORS_THEME.black}
+            backgroundColor={
+              hoveredSection.looper || isLooperSelected
+                ? COLORS_THEME.primary
+                : COLORS_THEME.black
+            }
             positionType="absolute"
             width={"auto"}
             zIndexOffset={10}
@@ -98,7 +124,11 @@ export const ArcadeFeatured = () => {
             <Text
               fontSize={8}
               paddingX={4}
-              color={COLORS_THEME.primary}
+              color={
+                hoveredSection.looper || isLooperSelected
+                  ? COLORS_THEME.black
+                  : COLORS_THEME.primary
+              }
               zIndexOffset={10}
               positionTop={4}
             >
