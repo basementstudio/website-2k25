@@ -65,21 +65,35 @@ export const ArcadeLabsList = ({
   }, [labTabIndex, isInLabTab, experiments, setSelectedExperiment])
 
   useEffect(() => {
-    if (scrollContainerRef.current && labTabIndex >= 7) {
-      const scrollStep = 24
-      const maxScroll = 277
-      const scrollOffset = (labTabIndex - 7) * scrollStep
-
-      const newScroll =
-        scrollOffset <= 0 ? 0 : Math.min(scrollOffset, maxScroll)
-
-      if (scrollContainerRef.current.scrollPosition.value) {
-        scrollContainerRef.current.scrollPosition.value = [0, newScroll]
-      } else {
-        scrollContainerRef.current.scrollPosition.v = [0, newScroll]
+    if (scrollContainerRef.current) {
+      // Reset scroll position when returning to first experiments
+      if (labTabIndex <= 6) {
+        if (scrollContainerRef.current.scrollPosition.value) {
+          scrollContainerRef.current.scrollPosition.value = [0, 0]
+        } else {
+          scrollContainerRef.current.scrollPosition.v = [0, 0]
+        }
+        scrollContainerRef.current.forceUpdate?.()
+        return
       }
 
-      scrollContainerRef.current.forceUpdate?.()
+      // Existing scroll logic for later items
+      if (labTabIndex >= 7) {
+        const scrollStep = 24
+        const maxScroll = 277
+        const scrollOffset = (labTabIndex - 7) * scrollStep
+
+        const newScroll =
+          scrollOffset <= 0 ? 0 : Math.min(scrollOffset, maxScroll)
+
+        if (scrollContainerRef.current.scrollPosition.value) {
+          scrollContainerRef.current.scrollPosition.value = [0, newScroll]
+        } else {
+          scrollContainerRef.current.scrollPosition.v = [0, newScroll]
+        }
+
+        scrollContainerRef.current.forceUpdate?.()
+      }
     }
   }, [labTabIndex])
 
