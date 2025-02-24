@@ -25,6 +25,9 @@ export const ArcadeLabsList = ({
   const [sourceHoverStates, setSourceHoverStates] = useState<boolean[]>(
     new Array(experiments.length).fill(false)
   )
+  const [mouseHoveredExperiment, setMouseHoveredExperiment] =
+    useState<any>(null)
+  const [hasMouseInteracted, setHasMouseInteracted] = useState(false)
 
   const handleExperimentClick = useCallback((data: any) => {
     window.open(`https://lab.basement.studio/experiments/${data.url}`, "_blank")
@@ -42,6 +45,7 @@ export const ArcadeLabsList = ({
   useEffect(() => {
     if (isInLabTab && labTabIndex > 0 && labTabIndex <= experiments.length) {
       setSelectedExperiment(experiments[labTabIndex - 1])
+      setHasMouseInteracted(false)
     } else {
       setSelectedExperiment(null)
     }
@@ -90,7 +94,10 @@ export const ArcadeLabsList = ({
       {experiments &&
         experiments.map((data, idx) => {
           const isHovered =
-            (isInLabTab && labTabIndex === idx + 1) ||
+            (!hasMouseInteracted &&
+              !mouseHoveredExperiment &&
+              isInLabTab &&
+              labTabIndex === idx + 1) ||
             (selectedExperiment && selectedExperiment._title === data._title)
 
           return (
@@ -117,8 +124,11 @@ export const ArcadeLabsList = ({
                   if (hover) {
                     setCursorType("alias")
                     setSelectedExperiment(data)
+                    setMouseHoveredExperiment(data)
+                    setHasMouseInteracted(true)
                   } else {
                     setCursorType("default")
+                    setMouseHoveredExperiment(null)
                   }
                 }}
               >
