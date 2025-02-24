@@ -137,7 +137,13 @@ export const Inspectable = ({
     }
 
     if (mesh && !size.current.x) {
+      mesh.rotation.set(0, 0, 0)
       const boundingBox = new Box3().setFromObject(mesh)
+      mesh.rotation.set(
+        mesh.userData.rotation.x,
+        mesh.userData.rotation.y,
+        mesh.userData.rotation.z
+      )
 
       const s = new Vector3()
       boundingBox.getSize(s)

@@ -410,6 +410,12 @@ export const Map = memo(() => {
             z: mesh.position.z
           }
 
+          mesh.userData.rotation = {
+            x: mesh.rotation.x,
+            y: mesh.rotation.y,
+            z: mesh.rotation.z
+          }
+
           inspectableMeshes.push(mesh)
         }
       })
