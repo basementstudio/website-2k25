@@ -178,7 +178,20 @@ const ViewMore = ({
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const experiments = useArcadeStore((state) => state.labTabs)
 
+  const handleViewMoreClick = useCallback(() => {
+    window.open("https://basement.studio/lab", "_blank")
+  }, [])
+
   const isSelected = isInLabTab && labTabIndex === experiments.length - 3
+
+  useKeyPress(
+    "Enter",
+    useCallback(() => {
+      if (isSelected) {
+        handleViewMoreClick()
+      }
+    }, [isSelected, handleViewMoreClick])
+  )
 
   if (!isLoaded) return null
   return (
@@ -198,9 +211,7 @@ const ViewMore = ({
       }
       borderColor={COLORS_THEME.primary}
       paddingTop={8}
-      onClick={() => {
-        window.open("https://basement.studio/lab", "_blank")
-      }}
+      onClick={handleViewMoreClick}
       onHoverChange={(hover) => {
         if (hover) {
           setSelectedExperiment(null)
