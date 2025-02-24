@@ -6,12 +6,12 @@ import {
   Root,
   Text
 } from "@react-three/uikit"
-import { useEffect } from "react"
 import { Vector3 } from "three"
 
 import { useWorkerStore } from "@/workers/contact-worker"
 
 import { ffflauta } from "../../../../public/fonts/ffflauta"
+import Cursor from "./cursor"
 
 interface WorkerState {
   formData: {
@@ -22,12 +22,16 @@ interface WorkerState {
     message: string
   }
   focusedElement: string | null
+  cursorPosition: number
 }
 
 const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
   const formData = useWorkerStore((state: WorkerState) => state.formData)
   const focusedElement = useWorkerStore(
     (state: WorkerState) => state.focusedElement
+  )
+  const cursorPosition = useWorkerStore(
+    (state: WorkerState) => state.cursorPosition
   )
 
   const aspect = screenScale ? screenScale.x / screenScale.y : 1
@@ -128,6 +132,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Text color={COLORS_THEME.primary}>
                       {formData.name || "NAME"}
                     </Text>
+                    <Cursor
+                      visible={focusedElement === "name"}
+                      chars={cursorPosition}
+                      text={formData.name}
+                    />
                   </Container>
                   <Container
                     width={"50%"}
@@ -146,6 +155,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Text color={COLORS_THEME.primary}>
                       {formData.company || "COMPANY"}
                     </Text>
+                    <Cursor
+                      visible={focusedElement === "company"}
+                      chars={cursorPosition}
+                      text={formData.company}
+                    />
                   </Container>
                 </Container>
                 <Container
@@ -173,6 +187,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Text color={COLORS_THEME.primary}>
                       {formData.email || "EMAIL"}
                     </Text>
+                    <Cursor
+                      visible={focusedElement === "email"}
+                      chars={cursorPosition}
+                      text={formData.email}
+                    />
                   </Container>
                   <Container
                     width={"100%"}
@@ -191,6 +210,11 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     <Text color={COLORS_THEME.primary}>
                       {formData.budget || "BUDGET (OPTIONAL)"}
                     </Text>
+                    <Cursor
+                      visible={focusedElement === "budget"}
+                      chars={cursorPosition}
+                      text={formData.budget}
+                    />
                   </Container>
                   <Container
                     width={"100%"}
@@ -206,9 +230,32 @@ const PhoneScreenUI = ({ screenScale }: { screenScale: Vector3 }) => {
                     paddingX={8}
                     paddingY={16}
                   >
-                    <Text color={COLORS_THEME.primary}>
-                      {formData.message || "MESSAGE"}
-                    </Text>
+                    {formData.message ? (
+                      <Container display="flex" flexDirection="column" gap={4}>
+                        {formData.message.split("\n").map((line, index) => (
+                          <Text
+                            key={index}
+                            positionType="relative"
+                            color={COLORS_THEME.primary}
+                          >
+                            {line || " "}
+                          </Text>
+                        ))}
+                      </Container>
+                    ) : (
+                      <Text
+                        positionType="absolute"
+                        color={COLORS_THEME.primary}
+                      >
+                        MESSAGE
+                      </Text>
+                    )}
+                    <Cursor
+                      visible={focusedElement === "message"}
+                      chars={cursorPosition}
+                      text={formData.message}
+                      marginTop={8}
+                    />
                   </Container>
                 </Container>
                 <Container

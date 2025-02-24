@@ -13,6 +13,11 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   const { contactPhone } = useAssets()
   const [worker, setWorker] = useState<Worker>()
   const setStoreWorker = useContactStore((state) => state.setWorker)
+  const { screenPosition, screenDimensions, screenTransform } = useContactStore(
+    (state) => state
+  )
+
+  console.log(screenPosition, screenDimensions, screenTransform)
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -37,6 +42,15 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
     }
   }, [contactPhone, setStoreWorker])
 
+  useEffect(() => {
+    if (worker) {
+      worker.postMessage({
+        type: "update-contact-open",
+        isContactOpen
+      })
+    }
+  }, [worker, isContactOpen])
+
   if (!worker) {
     return <Fallback />
   }
@@ -47,11 +61,12 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         worker={worker}
         fallback={<Fallback />}
         frameloop={isContactOpen ? "always" : "never"}
+        // 0.875 = z / 6 || 5.25 s6
         camera={{ position: [0, 0.082, 5.25], fov: 25 }}
         gl={{ antialias: false }}
       />
 
-      <UiOverlay className="fixed left-[43.6vw] top-[32.6vw] aspect-[16/10] w-[33%] -translate-x-1/2 -translate-y-1/2 opacity-100 [perspective:800px]" />
+      <UiOverlay className="fixed left-[43.6vw] top-[54.4vh] aspect-[16/10] w-[33%] -translate-x-1/2 -translate-y-1/2 opacity-100 [perspective:800px]" />
     </>
   )
 }

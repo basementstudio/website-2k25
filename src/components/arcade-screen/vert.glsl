@@ -10,6 +10,7 @@ varying float vMapIndex;
 
 varying vec2 vUv;
 varying vec3 vNormal;
+varying vec3 vPosition;
 
 void main() {
     #include <uv_vertex>
@@ -23,6 +24,7 @@ void main() {
 
     vUv = uv;
     vNormal = normal;
+    vPosition = position;
 
     #ifdef USE_MULTI_MAP
     vMapIndex = mapIndex;

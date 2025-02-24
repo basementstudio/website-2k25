@@ -12,8 +12,12 @@ interface WorkerStore {
     message: string
   }
   focusedElement: string | null
+  cursorPosition: number
+  isContactOpen: boolean
+  isClosing: boolean
   updateFormData: (formData: WorkerStore["formData"]) => void
-  updateFocusedElement: (elementId: string | null) => void
+  updateFocusedElement: (elementId: string | null, cursorPos?: number) => void
+  setIsContactOpen: (isOpen: boolean) => void
 }
 
 export const useWorkerStore = create<WorkerStore>((set) => ({
@@ -25,11 +29,24 @@ export const useWorkerStore = create<WorkerStore>((set) => ({
     message: ""
   },
   focusedElement: null,
+  cursorPosition: 0,
+  isContactOpen: false,
+  isClosing: false,
   updateFormData: (formData) => {
     set({ formData })
   },
-  updateFocusedElement: (elementId) => {
-    set({ focusedElement: elementId })
+  updateFocusedElement: (elementId, cursorPos = 0) => {
+    set({ focusedElement: elementId, cursorPosition: cursorPos })
+  },
+  setIsContactOpen: (isOpen) => {
+    if (!isOpen) {
+      set({ isClosing: true })
+      setTimeout(() => {
+        set({ isContactOpen: false, isClosing: false })
+      }, 1000)
+    } else {
+      set({ isContactOpen: true, isClosing: false })
+    }
   }
 }))
 
@@ -41,9 +58,18 @@ self.onmessage = (
     modelUrl?: string
     formData?: WorkerStore["formData"]
     focusedElement?: string | null
+    cursorPosition?: number
+    isContactOpen?: boolean
   }>
 ) => {
-  const { type, modelUrl, formData, focusedElement } = e.data
+  const {
+    type,
+    modelUrl,
+    formData,
+    focusedElement,
+    cursorPosition,
+    isContactOpen
+  } = e.data
 
   if (type === "load-model" && modelUrl) {
     try {
@@ -65,7 +91,18 @@ self.onmessage = (
       console.warn("[ContactWorker] Received undefined focusedElement")
       return
     }
-    useWorkerStore.getState().updateFocusedElement(focusedElement)
+    useWorkerStore
+      .getState()
+      .updateFocusedElement(focusedElement, cursorPosition)
+  }
+
+  if (type === "update-contact-open" && typeof isContactOpen === "boolean") {
+    const store = useWorkerStore.getState()
+    if (isContactOpen === false) {
+      store.setIsContactOpen(false)
+    } else {
+      store.setIsContactOpen(true)
+    }
   }
 }
 

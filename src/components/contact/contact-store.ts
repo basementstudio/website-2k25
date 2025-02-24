@@ -3,6 +3,7 @@ import { create } from "zustand"
 
 interface ContactStore {
   isContactOpen: boolean
+  isClosing: boolean
   setIsContactOpen: (isContactOpen: boolean) => void
   formData: {
     name: string
@@ -12,7 +13,8 @@ interface ContactStore {
     message: string
   }
   focusedElement: string | null
-  setFocusedElement: (elementId: string | null) => void
+  cursorPosition: number
+  setFocusedElement: (elementId: string | null, cursorPos?: number) => void
   updateFormField: (
     field: keyof ContactStore["formData"],
     value: string
@@ -42,7 +44,45 @@ interface ContactStore {
 
 export const useContactStore = create<ContactStore>((set) => ({
   isContactOpen: false,
-  setIsContactOpen: (isContactOpen) => set({ isContactOpen }),
+  isClosing: false,
+  setIsContactOpen: (isContactOpen) => {
+    if (!isContactOpen) {
+      set((state) => {
+        if (state.worker) {
+          state.worker.postMessage({
+            type: "update-contact-open",
+            isContactOpen: false,
+            isClosing: true
+          })
+        }
+        return { isClosing: true }
+      })
+
+      setTimeout(() => {
+        set((state) => {
+          if (state.worker) {
+            state.worker.postMessage({
+              type: "update-contact-open",
+              isContactOpen: false,
+              isClosing: false
+            })
+          }
+          return { isContactOpen: false, isClosing: false }
+        })
+      }, 1000)
+    } else {
+      set((state) => {
+        if (state.worker) {
+          state.worker.postMessage({
+            type: "update-contact-open",
+            isContactOpen: true,
+            isClosing: false
+          })
+        }
+        return { isContactOpen: true, isClosing: false }
+      })
+    }
+  },
   formData: {
     name: "",
     company: "",
@@ -51,15 +91,17 @@ export const useContactStore = create<ContactStore>((set) => ({
     message: ""
   },
   focusedElement: null,
-  setFocusedElement: (elementId) =>
+  cursorPosition: 0,
+  setFocusedElement: (elementId, cursorPos = 0) =>
     set((state) => {
       if (state.worker) {
         state.worker.postMessage({
           type: "update-focus",
-          focusedElement: elementId
+          focusedElement: elementId,
+          cursorPosition: cursorPos
         })
       }
-      return { focusedElement: elementId }
+      return { focusedElement: elementId, cursorPosition: cursorPos }
     }),
   clearFormData: () =>
     set((state) => {
