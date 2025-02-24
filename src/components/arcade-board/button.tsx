@@ -1,5 +1,5 @@
 import { animate } from "motion"
-import { useRef } from "react"
+import { useRef, useEffect } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -17,6 +17,7 @@ export const Button = ({ button }: { button: Mesh }) => {
 
   const availableSounds = sfx.arcade.buttons.length
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
+  const isPressed = useRef(false)
 
   const handleClick = (isDown: boolean) => {
     if (scene !== "lab") return
@@ -52,7 +53,41 @@ export const Button = ({ button }: { button: Mesh }) => {
     animate(button.position, targetPosition, BUTTON_ANIMATION)
   }
 
-  const isPressed = useRef(false)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (scene !== "lab") return
+
+      if (!isPressed.current) {
+        if (
+          (event.key.toLowerCase() === "a" && button.name === "02_BT_7") ||
+          (event.key.toLowerCase() === "b" && button.name === "02_BT_4")
+        ) {
+          isPressed.current = true
+          handleClick(true)
+        }
+      }
+    }
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (scene !== "lab") return
+
+      if (
+        (event.key.toLowerCase() === "a" && button.name === "02_BT_7") ||
+        (event.key.toLowerCase() === "b" && button.name === "02_BT_4")
+      ) {
+        isPressed.current = false
+        handleClick(false)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keyup", handleKeyUp)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      window.removeEventListener("keyup", handleKeyUp)
+    }
+  }, [scene, button.name])
 
   return (
     <group key={button.name}>
