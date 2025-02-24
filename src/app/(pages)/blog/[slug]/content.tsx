@@ -76,7 +76,13 @@ export default function Content({
                 <Heading3 id={props.id}>{props.children}</Heading3>
               ),
               a: (props) => (
-                <BlogLink href={props.href}>{props.children}</BlogLink>
+                <BlogLink
+                  href={props.href}
+                  target={props.target}
+                  rel={props.rel}
+                >
+                  {props.children}
+                </BlogLink>
               ),
               ul: (props) => (
                 <UnorderedList isTasksList={false}>

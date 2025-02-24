@@ -14,10 +14,15 @@ import {
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
+import { ArcadeBoard } from "@/components/arcade-board"
+import { ArcadeScreen } from "@/components/arcade-screen"
+import { useAssets } from "@/components/assets-provider"
 import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { BlogDoor } from "@/components/blog-door"
+import { LockedDoor } from "@/components/locked-door"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import {
@@ -25,8 +30,6 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 
-import { ArcadeScreen } from "../arcade-screen"
-import { useAssets } from "../assets-provider"
 import Cars from "../cars/cars"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingElement } from "../routing-element/routing-element"
@@ -185,8 +188,8 @@ export const Map = memo(() => {
     const routingNodes: Record<string, Mesh> = {}
     routingElementsModel?.traverse((child) => {
       if (child instanceof Mesh) {
-        const matchingTab = currentScene?.tabs?.find((tab) =>
-          child.name.includes(tab.tabClickableName)
+        const matchingTab = currentScene?.tabs?.find(
+          (tab) => child.name === tab.tabClickableName
         )
 
         if (matchingTab) {
@@ -382,6 +385,55 @@ export const Map = memo(() => {
       })
     }
 
+    if (
+      !useMesh.getState().arcade.buttons &&
+      !useMesh.getState().arcade.sticks
+    ) {
+      let arcadeButtons: Mesh[] = []
+      for (let i = 1; i <= 14; i++) {
+        const button = officeModel?.getObjectByName(`02_BT_${i}`) as Mesh
+        if (button?.parent) button.removeFromParent()
+        button.userData.originalPosition = {
+          x: button.position.x,
+          y: button.position.y,
+          z: button.position.z
+        }
+        if (button) arcadeButtons.push(button)
+      }
+
+      const leftStick = officeModel?.getObjectByName("02_JYTK_L") as Mesh
+      if (leftStick?.parent) leftStick.removeFromParent()
+      const rightStick = officeModel?.getObjectByName("02_JYTK_R") as Mesh
+      if (rightStick?.parent) rightStick.removeFromParent()
+
+      useMesh.setState({
+        arcade: {
+          buttons: arcadeButtons,
+          sticks: [leftStick, rightStick]
+        }
+      })
+    }
+
+    if (!useMesh.getState().blog.lockedDoor && !useMesh.getState().blog.door) {
+      const lockedDoor = officeModel?.getObjectByName("SM_00_012") as Mesh
+      lockedDoor.userData.originalRotation = {
+        x: lockedDoor.rotation.x,
+        y: lockedDoor.rotation.y,
+        z: lockedDoor.rotation.z
+      }
+      const door = officeModel?.getObjectByName("SM_00_010") as Mesh
+      door.userData.originalRotation = {
+        x: door.rotation.x,
+        y: door.rotation.y,
+        z: door.rotation.z
+      }
+      if (lockedDoor?.parent) lockedDoor.removeFromParent()
+      if (door?.parent) door.removeFromParent()
+      useMesh.setState({
+        blog: { lockedDoor, door }
+      })
+    }
+
     disableRaycasting(officeModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
@@ -414,11 +466,19 @@ export const Map = memo(() => {
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
       <ArcadeScreen />
+      <ArcadeBoard />
+      <BlogDoor />
+      <LockedDoor />
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
           (tab) => tab.tabClickableName === node.name
         )
+
+        const isLabGroup =
+          node.name === "LaboratoryHome_HoverA" ||
+          node.name === "LaboratoryHome_HoverB"
+        const groupName = isLabGroup ? "laboratory-home" : undefined
 
         return (
           <RoutingElement
@@ -426,6 +486,7 @@ export const Map = memo(() => {
             node={node}
             route={matchingTab?.tabRoute ?? ""}
             hoverName={matchingTab?.tabHoverName ?? node.name}
+            groupName={groupName}
           />
         )
       })}

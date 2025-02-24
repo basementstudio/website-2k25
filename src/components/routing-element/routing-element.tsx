@@ -12,12 +12,14 @@ interface RoutingElementProps {
   node: Mesh
   route: string
   hoverName: string
+  groupName?: string
 }
 
 export const RoutingElement = ({
   node,
   route,
-  hoverName
+  hoverName,
+  groupName
 }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
@@ -28,7 +30,8 @@ export const RoutingElement = ({
     isCanvasTabMode,
     currentScene,
     scenes,
-    setCurrentTabIndex
+    setCurrentTabIndex,
+    setEnteredByKeyboard
   } = useNavigationStore()
   const { handleNavigation } = useHandleNavigation()
 
@@ -71,6 +74,7 @@ export const RoutingElement = ({
             (tab) => tab.tabName.toLowerCase() === trimmedPathname
           )
 
+          setEnteredByKeyboard(true)
           navigate(route)
           if (route === "/") {
             setCurrentTabIndex(tabIndex === -1 ? 0 : tabIndex)
@@ -100,30 +104,76 @@ export const RoutingElement = ({
     setCurrentTabIndex,
     currentScene?.tabs,
     router,
-    setHoverText
+    setHoverText,
+    setEnteredByKeyboard
   ])
+
+  useEffect(() => {
+    if (!groupName) return
+
+    const handleGroupHover = (e: CustomEvent) => {
+      if (e.detail.groupName === groupName && e.detail.hover !== hover) {
+        setHover(e.detail.hover)
+        if (e.detail.hover) {
+          router.prefetch(route)
+          setCursorType("click")
+          setHoverText(hoverName)
+        } else {
+          setHoverText(null)
+          setCursorType("default")
+        }
+      }
+    }
+
+    window.addEventListener("group-hover" as any, handleGroupHover)
+    return () =>
+      window.removeEventListener("group-hover" as any, handleGroupHover)
+  }, [groupName, hover, route, hoverName, router, setCursorType, setHoverText])
+
+  const handlePointerEnter = (e: any) => {
+    e.stopPropagation()
+    if (activeRoute) return
+
+    setHover(true)
+    router.prefetch(route)
+    setCursorType("click")
+    setHoverText(hoverName)
+
+    if (groupName) {
+      window.dispatchEvent(
+        new CustomEvent("group-hover", {
+          detail: { groupName, hover: true }
+        })
+      )
+    }
+  }
+
+  const handlePointerLeave = (e: any) => {
+    e.stopPropagation()
+    if (activeRoute) return
+
+    setHover(false)
+    setHoverText(null)
+    setCursorType("default")
+
+    if (groupName) {
+      window.dispatchEvent(
+        new CustomEvent("group-hover", {
+          detail: { groupName, hover: false }
+        })
+      )
+    }
+  }
 
   return (
     <>
       <group
-        onPointerEnter={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          setHover(true)
-          router.prefetch(route)
-          setCursorType("click")
-          setHoverText(hoverName)
-        }}
-        onPointerLeave={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          setHover(false)
-          setHoverText(null)
-          setCursorType("default")
-        }}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
         onClick={(e) => {
           e.stopPropagation()
           if (activeRoute) return
+          setEnteredByKeyboard(false)
           navigate(route)
           setCursorType("default")
           setCurrentTabIndex(-1)
@@ -138,16 +188,15 @@ export const RoutingElement = ({
           <meshBasicMaterial transparent opacity={0} />
         </mesh>
       </group>
-      {hover && (
-        <>
-          <RoutingPlane
-            position={[node.position.x, node.position.y, node.position.z]}
-            scale={[1, 1]}
-            rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
-            geometry={node.geometry}
-          />
-        </>
-      )}
+
+      <RoutingPlane
+        position={[node.position.x, node.position.y, node.position.z]}
+        scale={[1, 1]}
+        rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
+        geometry={node.geometry}
+        visible={hover}
+        groupName={groupName}
+      />
     </>
   )
 }

@@ -76,11 +76,11 @@ function CharactersSpawnInner() {
       />
 
       {/* Blog */}
-      <Character
+      {/* <Character
         position={[10.15, 4.2, -17.6]}
         rotation={[0, Math.PI * 0.8, 0]}
         animationName={CharacterAnimationName.Floor2}
-      />
+      /> */}
 
       {/* Debug */}
 
