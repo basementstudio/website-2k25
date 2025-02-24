@@ -169,6 +169,7 @@ export const ArcadeLabsList = ({
                 onHoverChange={(hover) => {
                   if (hover) {
                     setCursorType("alias")
+                    setSelectedExperiment(data)
                     setSourceHoverStates((prev) => {
                       const newStates = [...prev]
                       newStates[idx] = true
@@ -181,6 +182,9 @@ export const ArcadeLabsList = ({
                       newStates[idx] = false
                       return newStates
                     })
+                    if (!mouseHoveredExperiment) {
+                      setSelectedExperiment(null)
+                    }
                   }
                 }}
               >
