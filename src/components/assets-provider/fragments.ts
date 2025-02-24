@@ -21,21 +21,25 @@ export const characterFragment = fragmentOn("Characters", {
 })
 
 export const mapFragment = fragmentOn("Map", {
+  officeV2: modelsItemFragment,
   office: modelsItemFragment,
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
   routingElements: modelsItemFragment,
-  maps: {
+  bakes: {
     items: {
       _title: true,
       lightmap: {
         url: true
       },
-      lightmapIntensity: true,
       ambientOcclusion: {
         url: true
       },
-      ambientOcclusionIntensity: true
+      meshes: {
+        items: {
+          _title: true
+        }
+      }
     }
   },
   glassReflexes: {
@@ -85,6 +89,47 @@ export const sfxFragment = fragmentOn("Sfx", {
   },
   basketballBuzzer: {
     url: true
+  },
+  blog: {
+    lockedDoor: {
+      items: {
+        sound: {
+          url: true
+        }
+      }
+    },
+    door: {
+      items: {
+        open: {
+          url: true
+        },
+        close: {
+          url: true
+        }
+      }
+    }
+  },
+  arcade: {
+    buttons: {
+      items: {
+        press: {
+          url: true
+        },
+        release: {
+          url: true
+        }
+      }
+    },
+    sticks: {
+      items: {
+        press: {
+          url: true
+        },
+        release: {
+          url: true
+        }
+      }
+    }
   }
 })
 
@@ -123,6 +168,26 @@ export const sceneFragment = fragmentOn("Scenes", {
           tabClickableName: true,
           plusShapeScale: true
         }
+      },
+      fogConfig: {
+        fogColor: {
+          r: true,
+          g: true,
+          b: true
+        },
+        fogDensity: true,
+        fogDepth: true
+      },
+      postprocessing: {
+        contrast: true,
+        brightness: true,
+        exposure: true,
+        gamma: true,
+        vignetteRadius: true,
+        vignetteSpread: true,
+        bloomStrength: true,
+        bloomRadius: true,
+        bloomThreshold: true
       }
     }
   }

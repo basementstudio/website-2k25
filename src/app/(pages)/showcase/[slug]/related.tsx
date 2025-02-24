@@ -8,7 +8,7 @@ import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
   const allPosts = await basehub({ cache: "no-store" }).query({
     pages: {
-      projects: {
+      showcase: {
         projectList: {
           items: {
             _id: true
@@ -20,13 +20,13 @@ export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
 
   const entry = await basehub({ cache: "no-store" }).query({
     pages: {
-      projects: {
+      showcase: {
         projectList: {
           __args: {
             first: 2,
             skip: Math.floor(
               Math.random() *
-                (allPosts.pages.projects.projectList.items.length - 1)
+                (allPosts.pages.showcase.projectList.items.length - 1)
             ),
 
             filter: {
@@ -55,7 +55,7 @@ export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
 
       <ul className="flex flex-col divide-y divide-brand-w1/20">
         <div />
-        {entry.pages.projects.projectList.items.map((item, index) => (
+        {entry.pages.showcase.projectList.items.map((item, index) => (
           <Link
             href={`/showcase/${item.project?._slug}`}
             key={index}

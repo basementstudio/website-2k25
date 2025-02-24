@@ -16,14 +16,17 @@ import {
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
+import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
 import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { BlogDoor } from "@/components/blog-door"
 import Cars from "@/components/cars/cars"
 import { useInspectable } from "@/components/inspectables/context"
+import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
@@ -34,7 +37,7 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 
-import { MapAssetsLoader } from "./map-assets"
+import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
 
@@ -70,8 +73,10 @@ export const Map = memo(() => {
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
     videos,
-    car
+    car,
+    scenes
   } = useAssets()
+  const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
@@ -103,27 +108,11 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-  const { fogColor, fogDensity, fogDepth } = useControls({
-    fog: levaFolder(
-      {
-        fogColor: {
-          x: 0.4,
-          y: 0.4,
-          z: 0.4
-        },
-        fogDensity: 0.05,
-        fogDepth: 9.0
-      },
-      {
-        collapsed: true
-      }
-    )
-  })
 
   const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
   const { showColorPicker } = useControls({
-    "color picker": levaFolder(
+    "Color picker": levaFolder(
       {
         showColorPicker: false
       },
@@ -133,8 +122,8 @@ export const Map = memo(() => {
     )
   })
 
-  const { godraysOpacity } = useControls("godrays", {
-    godraysOpacity: {
+  const { opacity } = useControls("God Rays", {
+    opacity: {
       value: 0.5,
       min: 0.0,
       max: 5.0,
@@ -160,22 +149,11 @@ export const Map = memo(() => {
   useFrame(({ clock }) => {
     godrays.forEach((mesh) => {
       // @ts-ignore
-      mesh.material.uniforms.uGodrayDensity.value = godraysOpacity
+      mesh.material.uniforms.uGodrayDensity.value = opacity
     })
 
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
-
-      material.uniforms.fogColor.value = new Vector3(
-        fogColor.x,
-        fogColor.y,
-        fogColor.z
-      )
-      material.uniforms.fogDensity.value = fogDensity
-      material.uniforms.fogDepth.value = fogDepth
-
-      material.uniforms.inspectingEnabled.value = inspectingEnabled.current
-      material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
 
     if (keyframedNet && isAnimating.current) {
@@ -206,11 +184,34 @@ export const Map = memo(() => {
   })
 
   useEffect(() => {
+    const fogConfig = scenes.find((s) => s.name === scene)?.fogConfig
+
+    if (!fogConfig) return
+
+    useCustomShaderMaterial.getState().updateFogSettings(
+      {
+        color: new Vector3(
+          fogConfig.fogColor.r,
+          fogConfig.fogColor.g,
+          fogConfig.fogColor.b
+        ),
+        density: fogConfig.fogDensity,
+        depth: fogConfig.fogDepth
+      },
+      firstRender.current
+    )
+
+    firstRender.current = false
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene])
+
+  useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
     routingElementsModel?.traverse((child) => {
       if (child instanceof Mesh) {
-        const matchingTab = currentScene?.tabs?.find((tab) =>
-          child.name.includes(tab.tabClickableName)
+        const matchingTab = currentScene?.tabs?.find(
+          (tab) => child.name === tab.tabClickableName
         )
 
         if (matchingTab) {
@@ -428,6 +429,55 @@ export const Map = memo(() => {
       })
     }
 
+    if (
+      !useMesh.getState().arcade.buttons &&
+      !useMesh.getState().arcade.sticks
+    ) {
+      let arcadeButtons: Mesh[] = []
+      for (let i = 1; i <= 14; i++) {
+        const button = officeModel?.getObjectByName(`02_BT_${i}`) as Mesh
+        if (button?.parent) button.removeFromParent()
+        button.userData.originalPosition = {
+          x: button.position.x,
+          y: button.position.y,
+          z: button.position.z
+        }
+        if (button) arcadeButtons.push(button)
+      }
+
+      const leftStick = officeModel?.getObjectByName("02_JYTK_L") as Mesh
+      if (leftStick?.parent) leftStick.removeFromParent()
+      const rightStick = officeModel?.getObjectByName("02_JYTK_R") as Mesh
+      if (rightStick?.parent) rightStick.removeFromParent()
+
+      useMesh.setState({
+        arcade: {
+          buttons: arcadeButtons,
+          sticks: [leftStick, rightStick]
+        }
+      })
+    }
+
+    if (!useMesh.getState().blog.lockedDoor && !useMesh.getState().blog.door) {
+      const lockedDoor = officeModel?.getObjectByName("SM_00_012") as Mesh
+      lockedDoor.userData.originalRotation = {
+        x: lockedDoor.rotation.x,
+        y: lockedDoor.rotation.y,
+        z: lockedDoor.rotation.z
+      }
+      const door = officeModel?.getObjectByName("SM_00_010") as Mesh
+      door.userData.originalRotation = {
+        x: door.rotation.x,
+        y: door.rotation.y,
+        z: door.rotation.z
+      }
+      if (lockedDoor?.parent) lockedDoor.removeFromParent()
+      if (door?.parent) door.removeFromParent()
+      useMesh.setState({
+        blog: { lockedDoor, door }
+      })
+    }
+
     disableRaycasting(officeModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
@@ -461,11 +511,19 @@ export const Map = memo(() => {
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
       <ArcadeScreen />
+      <ArcadeBoard />
+      <BlogDoor />
+      <LockedDoor />
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
           (tab) => tab.tabClickableName === node.name
         )
+
+        const isLabGroup =
+          node.name === "LaboratoryHome_HoverA" ||
+          node.name === "LaboratoryHome_HoverB"
+        const groupName = isLabGroup ? "laboratory-home" : undefined
 
         return (
           <RoutingElement
@@ -473,6 +531,7 @@ export const Map = memo(() => {
             node={node}
             route={matchingTab?.tabRoute ?? ""}
             hoverName={matchingTab?.tabHoverName ?? node.name}
+            groupName={groupName}
           />
         )
       })}
@@ -480,7 +539,7 @@ export const Map = memo(() => {
         <primitive object={useMesh.getState().hoopMesh as Mesh} />
       )}
       {keyframedNet && <primitive object={keyframedNet} />}
-      <MapAssetsLoader />
+      <BakesLoader />
       <ReflexesLoader />
 
       <Suspense fallback={null}>

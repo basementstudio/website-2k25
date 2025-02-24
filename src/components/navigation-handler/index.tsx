@@ -22,7 +22,9 @@ export const NavigationHandler = () => {
     setIsCanvasTabMode,
     currentScene,
     setCurrentScene,
-    currentTabIndex
+    currentTabIndex,
+    enteredByKeyboard,
+    setEnteredByKeyboard
   } = useNavigationStore()
   const scenes: IScene[] = useAssets().scenes
   const { handleNavigation } = useHandleNavigation()
@@ -122,8 +124,13 @@ export const NavigationHandler = () => {
         scene === "lab" ||
         scene === "showcase"
       ) {
+        const enteredByKeyboard =
+          useNavigationStore.getState().enteredByKeyboard
         handleNavigation("/")
-        setCurrentTabIndex(tabIndex)
+        if (enteredByKeyboard) {
+          setCurrentTabIndex(tabIndex)
+        }
+        setEnteredByKeyboard(false)
       }
     }, [
       scene,

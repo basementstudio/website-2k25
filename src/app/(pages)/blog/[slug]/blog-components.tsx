@@ -6,14 +6,13 @@ import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
 
 import { BaseCodeBlock } from "./components/code-block"
-import styles from "./components/code-block.module.css"
 import { CodeGroupHeader } from "./components/code-block-header"
 
 export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
   if (!src) return null
 
   return (
-    <div className="relative min-h-[312px] w-full after:absolute after:inset-0 after:border after:border-brand-w1/20">
+    <div className="image relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
       <div className="with-dots grid h-full w-full place-items-center">
         <Image
           src={src}
@@ -28,14 +27,14 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
 }
 
 export const BlogVideo = (props: HandlerProps<"video">) => (
-  <div className="relative min-h-[312px] w-full after:absolute after:inset-0 after:border after:border-brand-w1/20">
+  <div className="video relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
     <div className="with-dots grid h-full w-full place-items-center">
       <video
         autoPlay
         loop
         muted
         {...props}
-        className="w-[62.23%] object-contain"
+        className="aspect-video object-cover"
       />
     </div>
   </div>
@@ -50,15 +49,29 @@ export const Paragraph = ({ children }: HandlerProps<"p">) => (
 )
 
 export const Heading2 = ({ children }: HandlerProps<"h2">) => (
-  <h2 className="text-pretty text-h2 text-brand-w2">{children}</h2>
+  <h2 className="text-pretty text-h2 text-brand-w2 [&_b]:font-semibold">
+    {children}
+  </h2>
 )
 
 export const Heading3 = ({ children }: HandlerProps<"h3">) => (
-  <h3 className="text-pretty text-h3 text-brand-w2">{children}</h3>
+  <h3 className="text-pretty text-h3 text-brand-w2 [&_b]:font-semibold">
+    {children}
+  </h3>
 )
 
-export const BlogLink = ({ children, href }: HandlerProps<"a">) => (
-  <Link href={href} className="font-semibold text-brand-w1 underline">
+export const BlogLink = ({
+  children,
+  href,
+  target,
+  rel
+}: HandlerProps<"a">) => (
+  <Link
+    href={href}
+    target={target as "_blank" | "_self"}
+    rel={rel}
+    className="font-semibold text-brand-w1 underline"
+  >
     {children}
   </Link>
 )
@@ -108,7 +121,7 @@ export const CodeBlock = ({
   }[]
 }) => {
   return (
-    <div className="group flex w-full flex-col gap-y-2">
+    <div className="sandbox group flex w-full flex-col gap-y-2">
       <BaseCodeBlock
         childrenTop={<CodeGroupHeader items={items} />}
         snippets={items.map((file) => ({

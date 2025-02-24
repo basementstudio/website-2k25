@@ -6,9 +6,9 @@ export const ArcadeTitleTagsHeader = () => {
   return (
     <Container
       width={"100%"}
-      height={20}
+      height={10}
       positionType="relative"
-      paddingTop={10}
+      marginTop={8}
       paddingX={16}
     >
       <Container

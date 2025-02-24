@@ -26,7 +26,6 @@ uniform float uTime;
 // lightmap
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
-uniform float lightMapMultiplier;
 
 // lights
 #ifdef LIGHT
@@ -36,8 +35,6 @@ uniform vec3 lightDirection;
 // aomap
 uniform sampler2D aoMap;
 uniform float aoMapIntensity;
-uniform float aoMapMultiplier;
-uniform bool aoWithCheckerboard;
 
 uniform float noiseFactor;
 uniform bool uReverse;
@@ -73,11 +70,6 @@ uniform float uGodrayOpacity;
 uniform float uGodrayDensity;
 #endif
 
-// Basketball
-uniform bool isBasketball;
-uniform float uBasketballTransition;
-uniform float uBasketballFogColorTransition;
-
 // Inspectable
 uniform bool inspectingEnabled;
 uniform bool isInspecting;
@@ -91,14 +83,12 @@ const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 #pragma glslify: basicLight = require('../utils/basic-light.glsl')
 
 void main() {
-  float lightMapIntensity = lightMapIntensity * lightMapMultiplier;
-  float aoMapIntensity = aoMapIntensity * aoMapMultiplier;
-
   vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
   vec2 checkerPos = floor(shiftedFragCoord * 0.5);
   float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
 
   VoxelData voxel = getVoxel(vWorldPosition, voxelSize, noiseBigScale, noiseSmallScale);
+
   // Distance from center
   float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));
 
@@ -120,7 +110,6 @@ void main() {
   }
 
   // Render as solid color
-
   vec4 mapSample = vec4(1.0);
 
   #ifdef USE_MAP
@@ -157,7 +146,6 @@ void main() {
   irradiance *= emissiveColor.rgb * ei;
   #endif
 
-  float basketballLightMapIntensity = 0.12;
 
   vec3 lf = irradiance.rgb;
 
@@ -167,9 +155,7 @@ void main() {
   }
 
   if(lightMapIntensity > 0.0) {
-    float transitionedLightMapIntensity = mix(lightMapIntensity, basketballLightMapIntensity, uBasketballTransition);
-
-    irradiance *= lightMapSample * transitionedLightMapIntensity;
+    irradiance *= lightMapSample * lightMapIntensity;
   }
 
   irradiance = mix(irradiance, lf, inspectingFactor);
@@ -199,15 +185,8 @@ void main() {
   }
 
   if(aoMapIntensity > 0.0) {
-    if(aoWithCheckerboard) {
-      float halfAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 0.5 + 1.0;
-      float moreAmbientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 1.5 + 1.0;
-
-      irradiance = mix(irradiance * halfAmbientOcclusion, irradiance * moreAmbientOcclusion, pattern);
-    } else {
-      float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
-      irradiance *= ambientOcclusion;
-    }
+    float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+    irradiance *= ambientOcclusion;
   }
 
   #ifdef LIGHT
@@ -234,22 +213,15 @@ void main() {
   #endif
 
   // Fog
-  float basketballFogDensity = 0.25;
-  float basketballFogDepth = 8.0;
-
-  float transitionedFogDepth = mix(fogDepth, basketballFogDepth, uBasketballTransition);
-  float transitionedFogDensity = mix(fogDensity, basketballFogDensity, uBasketballTransition);
-
-  float fogDepthValue = min(vMvPosition.z + transitionedFogDepth, 0.0);
+  float fogDepthValue = min(vMvPosition.z + fogDepth, 0.0);
   float fogFactor = 1.0 -
-    exp(-transitionedFogDensity *
-    transitionedFogDensity *
+    exp(-fogDensity *
+    fogDensity *
     fogDepthValue *
     fogDepthValue);
 
   fogFactor = clamp(fogFactor, 0.0, 1.0);
-  vec3 transitionedFogColor = mix(fogColor, fogColor / 20.0, uBasketballFogColorTransition);
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, transitionedFogColor, fogFactor);
+  gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
 
 
   if (inspectingEnabled && !(inspectingFactor > 0.0)) {

@@ -47,7 +47,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
         <p>x{data.company.awards.awardList.items.length}</p>
       </div>
       <ul
-        className="relative col-span-12 text-paragraph text-brand-w1"
+        className="text-paragraph relative col-span-12 text-brand-w1"
         onMouseMove={(e) => {
           const coordinates = getRelativeCoordinates(
             e,
@@ -79,10 +79,10 @@ export const Awards = ({ data }: { data: QueryType }) => {
               >
                 <span className="col-span-3 text-h4">{award.title}</span>
                 <span className="col-span-2 text-p text-brand-w2">
-                  {award.project._title}
+                  {award.project?._title}
                 </span>
                 <span className="col-span-2 text-p text-brand-w2">
-                  {formatDate(award.date)}
+                  {formatDate(award.date, false, "UTC")}
                 </span>
               </Link>
 

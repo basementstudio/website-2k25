@@ -5,7 +5,7 @@ import {
   FontFamilyProvider,
   Root
 } from "@react-three/uikit"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Vector3 } from "three"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
@@ -23,7 +23,7 @@ interface ScreenUIProps {
 
 export const COLORS_THEME = {
   primary: "#FF4D00",
-  black: "#0D0D0D"
+  black: "#070707"
 }
 
 export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
@@ -54,19 +54,20 @@ export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
       <PerspectiveCamera
         manual
         makeDefault
-        position={[0, 0, 4]}
+        position={[0, 0, 4.01]}
         rotation={[0, 0, Math.PI]}
         aspect={aspect}
       />
       <Root
-        width={578}
-        height={370}
+        width={590}
+        height={390}
         transformScaleX={-1}
         backgroundColor={COLORS_THEME.black}
         positionType="relative"
         display="flex"
         flexDirection="column"
-        padding={12}
+        paddingY={24}
+        paddingX={18}
       >
         <FontFamilyProvider
           ffflauta={{

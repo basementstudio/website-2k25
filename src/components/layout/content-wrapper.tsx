@@ -1,13 +1,27 @@
 "use client"
 
+import { usePathname } from "next/navigation"
+import { useMemo } from "react"
+
 import { Grid } from "@/components/grid"
-import { useShowCanvas } from "@/hooks/use-show-canvas"
 
 import { InspectableViewer } from "../inspectables/inspectable-viewer"
 import { Scene } from "../scene"
 
+const BLACKLISTED_PATHS = [
+  /^\/blog\/\d+$/,
+  /^\/blog\/[^\/]+$/,
+  /^\/showcase\/\d+$/,
+  /^\/showcase\/[^\/]+$/
+]
+
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
-  const shouldShowCanvas = useShowCanvas()
+  const pathname = usePathname()
+  const shouldShowCanvas = useMemo(() => {
+    return !BLACKLISTED_PATHS.some((path) => pathname.match(path))
+  }, [pathname])
+
+
   return (
     <>
       {shouldShowCanvas && (

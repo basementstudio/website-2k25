@@ -10,12 +10,11 @@ export interface AssetsResult {
   basketballNet: string
   contactPhone: string
   routingElements: string
-  mapAssets: {
-    mesh: string
+  bakes: {
+    title: string
     lightmap: string
-    lightmapIntensity: number
     ambientOcclusion: string
-    ambientOcclusionIntensity: number
+    meshes: string[]
   }[]
   arcade: {
     idleScreen: string
@@ -51,6 +50,23 @@ export interface AssetsResult {
     basketballNet: string
     basketballThump: string
     basketballBuzzer: string
+    blog: {
+      lockedDoor: string[]
+      door: {
+        open: string
+        close: string
+      }[]
+    }
+    arcade: {
+      buttons: {
+        press: string
+        release: string
+      }[]
+      sticks: {
+        press: string
+        release: string
+      }[]
+    }
   }
   scenes: {
     name: string
@@ -68,6 +84,26 @@ export interface AssetsResult {
       tabClickableName: string
       plusShapeScale: number
     }[]
+    fogConfig: {
+      fogColor: {
+        r: number
+        g: number
+        b: number
+      }
+      fogDensity: number
+      fogDepth: number
+    }
+    postprocessing: {
+      contrast: number
+      brightness: number
+      exposure: number
+      gamma: number
+      vignetteRadius: number
+      vignetteSpread: number
+      bloomStrength: number
+      bloomRadius: number
+      bloomThreshold: number
+    }
   }[]
   car: {
     carModel: string
@@ -94,15 +130,14 @@ export async function fetchAssets(): Promise<AssetsResult> {
   }).query(assetsQuery)
 
   return {
-    office: threeDInteractions.map.office?.file?.url ?? "",
+    office: threeDInteractions.map.officeV2?.file?.url ?? "",
     outdoor: threeDInteractions.map.outdoor?.file?.url ?? "",
     godrays: threeDInteractions.map.godrays?.file?.url ?? "",
-    mapAssets: threeDInteractions.map.maps.items.map((item) => ({
-      mesh: item._title,
+    bakes: threeDInteractions.map.bakes.items.map((item) => ({
+      title: item._title,
       lightmap: item.lightmap?.url ?? "",
-      lightmapIntensity: item.lightmapIntensity ?? 1,
       ambientOcclusion: item.ambientOcclusion?.url ?? "",
-      ambientOcclusionIntensity: item.ambientOcclusionIntensity ?? 1
+      meshes: item.meshes.items.map((mesh) => mesh._title)
     })),
     routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
     arcade: {
@@ -141,7 +176,26 @@ export async function fetchAssets(): Promise<AssetsResult> {
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
       basketballNet: threeDInteractions.sfx.basketballNet?.url ?? "",
       basketballThump: threeDInteractions.sfx.basketballThump?.url ?? "",
-      basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? ""
+      basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? "",
+      blog: {
+        lockedDoor: threeDInteractions.sfx.blog.lockedDoor.items.map(
+          (item) => item.sound?.url ?? ""
+        ),
+        door: threeDInteractions.sfx.blog.door.items.map((item) => ({
+          open: item.open?.url ?? "",
+          close: item.close?.url ?? ""
+        }))
+      },
+      arcade: {
+        buttons: threeDInteractions.sfx.arcade.buttons.items.map((item) => ({
+          press: item.press?.url ?? "",
+          release: item.release?.url ?? ""
+        })),
+        sticks: threeDInteractions.sfx.arcade.sticks.items.map((item) => ({
+          press: item.press?.url ?? "",
+          release: item.release?.url ?? ""
+        }))
+      }
     },
     car: {
       carModel: threeDInteractions.car.carModel?.url ?? "",
@@ -179,7 +233,27 @@ export async function fetchAssets(): Promise<AssetsResult> {
         tabHoverName: tab.tabHoverName ?? "",
         tabClickableName: tab.tabClickableName ?? "",
         plusShapeScale: tab.plusShapeScale ?? 1
-      }))
+      })),
+      fogConfig: {
+        fogColor: {
+          r: (item.fogConfig.fogColor.r ?? 0) / 255,
+          g: (item.fogConfig.fogColor.g ?? 0) / 255,
+          b: (item.fogConfig.fogColor.b ?? 0) / 255
+        },
+        fogDensity: item.fogConfig.fogDensity ?? 0,
+        fogDepth: item.fogConfig.fogDepth ?? 0
+      },
+      postprocessing: {
+        contrast: item.postprocessing?.contrast ?? 1,
+        brightness: item.postprocessing?.brightness ?? 1,
+        exposure: item.postprocessing?.exposure ?? 1,
+        gamma: item.postprocessing?.gamma ?? 1,
+        vignetteRadius: item.postprocessing?.vignetteRadius ?? 1,
+        vignetteSpread: item.postprocessing?.vignetteSpread ?? 1,
+        bloomStrength: item.postprocessing?.bloomStrength ?? 1,
+        bloomRadius: item.postprocessing?.bloomRadius ?? 1,
+        bloomThreshold: item.postprocessing?.bloomThreshold ?? 1
+      }
     })),
     characters: {
       model: threeDInteractions.characters.model.file?.url ?? "",

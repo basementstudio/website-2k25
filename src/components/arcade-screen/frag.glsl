@@ -2,20 +2,29 @@ uniform sampler2D map;
 uniform float uTime;
 uniform float uRevealProgress;
 varying vec2 vUv;
+varying vec3 vPosition;
 
 #define TINT_R (1.33)
 #define TINT_G (0.11)
 #define BRIGHTNESS (15.0)
-#define SCANLINE_INTENSITY (0.5)
-#define SCANLINE_COUNT (800.0)
 #define VIGNETTE_STRENGTH (0.1)
 #define DISTORTION (0.3)
-#define NOISE_INTENSITY (0.05)
+#define NOISE_INTENSITY (0.3)
 #define TIME_SPEED (1.0)
 #define LINE_HEIGHT (0.05)
 #define MASK_INTENSITY (0.3)
-#define MASK_SIZE (12.0)
+#define MASK_SIZE (8.0)
 #define MASK_BORDER (0.4)
+#define INTERFERENCE1 (0.4)
+#define INTERFERENCE2 (0.001)
+#define SCANLINE_INTENSITY (0.25)
+#define SCANLINE_COUNT (200.0)
+#define NOISE_SCALE (500.0)
+#define NOISE_OPACITY (0.02)
+
+#define SCAN_SPEED (5.0)
+#define SCAN_CYCLE (10.0)
+#define SCAN_DISTORTION (0.003)
 
 vec2 curveRemapUV(vec2 uv) {
   uv = uv * 2.0 - 1.0;
@@ -30,76 +39,78 @@ float random(vec2 st) {
   return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
-vec3 applyCRTMask(vec3 color, vec2 uv, vec2 resolution) {
-  // RGB cell and subcell coordinates
-  vec2 coord = uv * resolution / MASK_SIZE;
-  vec2 subcoord = coord * vec2(6.0, 1.0);
-
-  // Offset for staggering every other cell
-  vec2 cell_offset = vec2(0.0, fract(floor(coord.x) * 0.5));
-
-  // Compute the RGB color index from 0 to 2
-  float ind = mod(floor(subcoord.x), 3.0);
-  // Convert that value to an RGB color (multiplied to maintain brightness)
-  vec3 mask_color = vec3(ind == 0.0, ind == 1.0, ind == 2.0) * 3.0;
-
-  // Signed subcell uvs
-  vec2 cell_uv = fract(subcoord + cell_offset) * 2.0 - 1.0;
-  // X and y borders - using power of 4 instead of 2 for sharper transitions
-  vec2 border = 1.0 - cell_uv * cell_uv * cell_uv * cell_uv * MASK_BORDER;
-  // Blend x and y mask borders
-  mask_color *= border.x * border.y;
-
-  // Apply mask to color
-  return color * (1.0 + (mask_color - 1.0) * MASK_INTENSITY);
+float peak(float x, float xpos, float scale) {
+  return clamp((1.0 - x) * scale * log(1.0 / abs(x - xpos)), 0.0, 1.0);
 }
 
 void main() {
-  // curve remap
-  vec2 remappedUv = curveRemapUV(vUv);
-
-  // discard pixels outside the curved area
-  if (
-    remappedUv.x < 0.0 ||
-    remappedUv.x > 1.0 ||
-    remappedUv.y < 0.0 ||
-    remappedUv.y > 1.0
-  ) {
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    return;
+  // add cycle to scan line
+  float scanCycleTime = mod(uTime * SCAN_SPEED, SCAN_CYCLE + 50.0);
+  float scanPos;
+  if (scanCycleTime < SCAN_CYCLE) {
+    scanPos = scanCycleTime / SCAN_CYCLE;
+  } else {
+    scanPos = 1.0;
   }
 
-  // get texture color and apply tint
-  vec3 textureColor = texture2D(map, remappedUv).rgb;
+  // add interference
+  float scany = round(vUv.y * 1024.0);
+
+  float r = random(vec2(0.0, scany) + vec2(uTime * 0.001));
+  if (r > 0.995) {
+    r *= 3.0;
+  }
+  float ifx1 = INTERFERENCE1 * 2.0 / 1024.0 * r;
+  float ifx2 = INTERFERENCE2 * (r * peak(vUv.y, 0.2, 0.2));
+
+  vec2 interferenceUv = vUv;
+  interferenceUv.x += ifx1 - ifx2;
+
+  vec2 remappedUv = curveRemapUV(interferenceUv);
+  // add horizontal distortion near scan line
+  float scanDistortion =
+    exp(-pow((vUv.y - scanPos) * 160.0, 2.0)) * SCAN_DISTORTION;
+  remappedUv.x += scanDistortion;
+
+  vec3 textureColor = vec3(0.0);
+
+  // texture boundaries
+  if (
+    remappedUv.x >= 0.0 &&
+    remappedUv.x <= 1.0 &&
+    remappedUv.y >= 0.0 &&
+    remappedUv.y <= 1.0
+  ) {
+    textureColor = texture2D(map, remappedUv).rgb;
+  }
+
   float luma = dot(textureColor, vec3(0.8, 0.1, 0.1));
   vec3 tint = vec3(1.0, 0.302, 0.0);
   tint.r *= TINT_R;
   tint.g *= TINT_G;
   textureColor = luma * tint * BRIGHTNESS;
 
-  // apply reveal to texture
-  float currentLine = floor(remappedUv.y / LINE_HEIGHT);
+  float currentLine = floor(vUv.y / LINE_HEIGHT);
   float revealLine = floor(uRevealProgress / LINE_HEIGHT);
   float textureVisibility = currentLine <= revealLine ? 0.8 : 0.0;
 
   // start with black background and blend with revealed texture
   vec3 color = mix(vec3(0.0), textureColor, textureVisibility);
 
-  // add noise that's always visible (reduced intensity)
-  float noise = random(remappedUv + vec2(uTime * TIME_SPEED)) * NOISE_INTENSITY;
-  color += noise * 0.1;
-
-  // add scanlines that are always visible (reduced intensity)
-  float scanline = sin(remappedUv.y * SCANLINE_COUNT) * 0.5 + 0.5;
-  color += (1.0 - scanline * SCANLINE_INTENSITY) * 0.05;
-
   // add vignette
-  vec2 vignetteUv = remappedUv * 2.0 - 1.0;
+  vec2 vignetteUv = vUv * 2.0 - 1.0;
   float vignette = 1.0 - dot(vignetteUv, vignetteUv) * VIGNETTE_STRENGTH;
   color *= vignette;
 
-  // Apply CRT RGB mask
-  color = applyCRTMask(color, remappedUv, vec2(1024.0, 1024.0)); // Adjust resolution as needed
+  // add scanlines
+  float scanline = step(0.5, fract(vPosition.y * SCANLINE_COUNT));
+  scanline = 1.0 - scanline * SCANLINE_INTENSITY;
+  color *= scanline;
+
+  // Add noise overlay
+  vec2 noiseUv = gl_FragCoord.xy / NOISE_SCALE;
+  float noise = random(noiseUv + uTime * 0.1);
+  color = mix(color, color + vec3(noise), NOISE_OPACITY);
 
   gl_FragColor = vec4(color, 1.0);
 }
