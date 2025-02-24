@@ -30,7 +30,8 @@ export const RoutingElement = ({
     isCanvasTabMode,
     currentScene,
     scenes,
-    setCurrentTabIndex
+    setCurrentTabIndex,
+    setEnteredByKeyboard
   } = useNavigationStore()
   const { handleNavigation } = useHandleNavigation()
 
@@ -73,6 +74,7 @@ export const RoutingElement = ({
             (tab) => tab.tabName.toLowerCase() === trimmedPathname
           )
 
+          setEnteredByKeyboard(true)
           navigate(route)
           if (route === "/") {
             setCurrentTabIndex(tabIndex === -1 ? 0 : tabIndex)
@@ -102,7 +104,8 @@ export const RoutingElement = ({
     setCurrentTabIndex,
     currentScene?.tabs,
     router,
-    setHoverText
+    setHoverText,
+    setEnteredByKeyboard
   ])
 
   useEffect(() => {
@@ -170,6 +173,7 @@ export const RoutingElement = ({
         onClick={(e) => {
           e.stopPropagation()
           if (activeRoute) return
+          setEnteredByKeyboard(false)
           navigate(route)
           setCursorType("default")
           setCurrentTabIndex(-1)
