@@ -22,6 +22,9 @@ export const useNavigationStore = create<{
   disableCameraTransition: boolean
   setDisableCameraTransition: (disable: boolean) => void
 
+  enteredByKeyboard: boolean
+  setEnteredByKeyboard: (value: boolean) => void
+
   resetTabIndex: () => void
 }>((set) => ({
   scenes: null,
@@ -41,6 +44,9 @@ export const useNavigationStore = create<{
   disableCameraTransition: false,
   setDisableCameraTransition: (disable) =>
     set({ disableCameraTransition: disable }),
+
+  enteredByKeyboard: false,
+  setEnteredByKeyboard: (value) => set({ enteredByKeyboard: value }),
 
   resetTabIndex: () => set({ currentTabIndex: 0 })
 }))
