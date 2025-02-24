@@ -218,7 +218,7 @@ export const ArcadeLabsList = ({
                 </Text>
                 <Container
                   width={45}
-                  height={1}
+                  height={2}
                   positionTop={16}
                   positionType="absolute"
                   backgroundColor={
