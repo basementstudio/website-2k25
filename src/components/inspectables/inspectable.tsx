@@ -91,7 +91,7 @@ export const Inspectable = ({
     direction.normalize()
 
     // calculate X offset based on camera aspect ratio
-    const viewportWidth = Math.min(camera.aspect, 1.855072463768116)
+    const viewportWidth = Math.min(camera.aspect, 1920 / window.innerHeight)
     const offset = viewportWidth * xOffset
     const perpendicular = new Vector3(-direction.z, 0, direction.x).normalize()
     perpendicularMoved.current.copy(perpendicular.multiplyScalar(offset))
@@ -197,6 +197,8 @@ export const Inspectable = ({
 
         const direction = new Vector3()
         direction.setFromMatrixColumn(lookAtMatrix, 2).negate()
+      } else {
+        targetQuaternion.identity()
       }
 
       const t = targetPosition.current
