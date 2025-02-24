@@ -66,15 +66,19 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       sequence.current = sequence.current.slice(-expectedSequence.length)
     }
 
-    if (
-      sequence.current.length === expectedSequence.length &&
-      sequence.current.every(
-        (value, index) => value === expectedSequence[index]
-      )
-    ) {
-      console.log("EXTENDED KONAMI CODE UNLOCKED")
-      setHasUnlockedKonami(true)
-      sequence.current = []
+    const filteredSequence = sequence.current.filter((value) => value !== 0)
+    const filteredExpected = expectedSequence.filter((value) => value !== 0)
+
+    if (filteredSequence.length === filteredExpected.length) {
+      if (
+        filteredSequence.every(
+          (value, index) => value === filteredExpected[index]
+        )
+      ) {
+        console.log("EXTENDED KONAMI CODE UNLOCKED")
+        setHasUnlockedKonami(true)
+        sequence.current = []
+      }
     }
   }
 
