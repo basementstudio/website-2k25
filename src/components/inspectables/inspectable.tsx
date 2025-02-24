@@ -68,8 +68,6 @@ export const Inspectable = ({
   const inspectingFactor = useRef(new MotionValue())
   const inspectingFactorTL = useRef<AnimationPlaybackControls | null>(null)
 
-  const quaternion = useMotionValue(new Quaternion())
-
   const [firstRender, setFirstRender] = useState(true)
 
   const [offsetedBoundingBox, setOffsetedBoundingBox] = useState<
@@ -207,10 +205,7 @@ export const Inspectable = ({
       const s = targetScale.current
       ref.current.scale.set(s.get(), s.get(), s.get())
 
-      const currentQuaternion = quaternion.get()
-      currentQuaternion.slerp(targetQuaternion, SMOOTH_FACTOR)
-      quaternion.set(currentQuaternion)
-      ref.current?.quaternion.copy(currentQuaternion)
+      ref.current?.quaternion.slerp(targetQuaternion, SMOOTH_FACTOR)
 
       const inspectingFactorValue = inspectingFactor.current.get()
 
