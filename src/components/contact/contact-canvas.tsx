@@ -13,6 +13,11 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   const { contactPhone } = useAssets()
   const [worker, setWorker] = useState<Worker>()
   const setStoreWorker = useContactStore((state) => state.setWorker)
+  const { screenPosition, screenDimensions, screenTransform } = useContactStore(
+    (state) => state
+  )
+
+  console.log(screenPosition, screenDimensions, screenTransform)
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -61,7 +66,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         gl={{ antialias: false }}
       />
 
-      <UiOverlay className="fixed left-[43.6vw] top-[32.6vw] aspect-[16/10] w-[33%] -translate-x-1/2 -translate-y-1/2 opacity-100 [perspective:800px]" />
+      <UiOverlay className="fixed left-[43.6vw] top-[54.4vh] aspect-[16/10] w-[33vw] -translate-x-1/2 -translate-y-1/2 opacity-100 [perspective:800px]" />
     </>
   )
 }

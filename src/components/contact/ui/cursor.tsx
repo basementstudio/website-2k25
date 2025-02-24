@@ -17,6 +17,7 @@ const Cursor = ({ visible, chars, marginTop, text = "" }: CursorProps) => {
     ".": 3,
     ",": 3,
     ":": 3,
+    " ": 5,
     default: 9.8
   }
 

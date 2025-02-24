@@ -58,7 +58,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 onSelect={handleCursorPosition}
                 onKeyUp={handleCursorPosition}
                 onClick={handleCursorPosition}
-                className="selec remove-focus-styles w-1/2 bg-transparent p-2 text-transparent"
+                className="selec remove-focus-styles w-1/2 bg-white/40 p-2 text-transparent"
               />
               <input
                 id="company"
@@ -72,7 +72,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 onSelect={handleCursorPosition}
                 onKeyUp={handleCursorPosition}
                 onClick={handleCursorPosition}
-                className="remove-focus-styles w-1/2 bg-transparent p-2 text-transparent"
+                className="remove-focus-styles w-1/2 bg-white/40 p-2 text-transparent"
               />
             </div>
 
@@ -89,7 +89,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 onSelect={handleCursorPosition}
                 onKeyUp={handleCursorPosition}
                 onClick={handleCursorPosition}
-                className="remove-focus-styles w-full bg-transparent p-2 text-transparent"
+                className="remove-focus-styles w-full bg-white/40 p-2 text-transparent"
               />
 
               <input
@@ -104,7 +104,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 onSelect={handleCursorPosition}
                 onKeyUp={handleCursorPosition}
                 onClick={handleCursorPosition}
-                className="remove-focus-styles w-full bg-transparent p-2 text-transparent"
+                className="remove-focus-styles w-full bg-white/40 p-2 text-transparent"
               />
 
               <textarea
@@ -118,7 +118,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
                 onSelect={handleCursorPosition}
                 onKeyUp={handleCursorPosition}
                 onClick={handleCursorPosition}
-                className="remove-focus-styles h-16 w-full resize-none bg-transparent p-2 text-start align-text-top text-transparent"
+                className="remove-focus-styles h-16 w-full resize-none bg-white/40 p-2 text-start align-text-top text-transparent"
               />
             </div>
 
