@@ -12,12 +12,14 @@ interface RoutingElementProps {
   node: Mesh
   route: string
   hoverName: string
+  groupName?: string
 }
 
 export const RoutingElement = ({
   node,
   route,
-  hoverName
+  hoverName,
+  groupName
 }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
@@ -103,24 +105,68 @@ export const RoutingElement = ({
     setHoverText
   ])
 
-  return (
-    <>
-      <group
-        onPointerEnter={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          setHover(true)
+  useEffect(() => {
+    if (!groupName) return
+
+    const handleGroupHover = (e: CustomEvent) => {
+      if (e.detail.groupName === groupName && e.detail.hover !== hover) {
+        setHover(e.detail.hover)
+        if (e.detail.hover) {
           router.prefetch(route)
           setCursorType("click")
           setHoverText(hoverName)
-        }}
-        onPointerLeave={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          setHover(false)
+        } else {
           setHoverText(null)
           setCursorType("default")
-        }}
+        }
+      }
+    }
+
+    window.addEventListener("group-hover" as any, handleGroupHover)
+    return () =>
+      window.removeEventListener("group-hover" as any, handleGroupHover)
+  }, [groupName, hover, route, hoverName, router, setCursorType, setHoverText])
+
+  const handlePointerEnter = (e: any) => {
+    e.stopPropagation()
+    if (activeRoute) return
+
+    setHover(true)
+    router.prefetch(route)
+    setCursorType("click")
+    setHoverText(hoverName)
+
+    if (groupName) {
+      window.dispatchEvent(
+        new CustomEvent("group-hover", {
+          detail: { groupName, hover: true }
+        })
+      )
+    }
+  }
+
+  const handlePointerLeave = (e: any) => {
+    e.stopPropagation()
+    if (activeRoute) return
+
+    setHover(false)
+    setHoverText(null)
+    setCursorType("default")
+
+    if (groupName) {
+      window.dispatchEvent(
+        new CustomEvent("group-hover", {
+          detail: { groupName, hover: false }
+        })
+      )
+    }
+  }
+
+  return (
+    <>
+      <group
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
         onClick={(e) => {
           e.stopPropagation()
           if (activeRoute) return
@@ -138,16 +184,15 @@ export const RoutingElement = ({
           <meshBasicMaterial transparent opacity={0} />
         </mesh>
       </group>
-      {hover && (
-        <>
-          <RoutingPlane
-            position={[node.position.x, node.position.y, node.position.z]}
-            scale={[1, 1]}
-            rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
-            geometry={node.geometry}
-          />
-        </>
-      )}
+
+      <RoutingPlane
+        position={[node.position.x, node.position.y, node.position.z]}
+        scale={[1, 1]}
+        rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
+        geometry={node.geometry}
+        visible={hover}
+        groupName={groupName}
+      />
     </>
   )
 }
