@@ -31,6 +31,9 @@ export const NavigationHandler = () => {
   const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()
   const setLabTabIndex = useArcadeStore((state) => state.setLabTabIndex)
+  const setIsSourceButtonSelected = useArcadeStore(
+    (state) => state.setIsSourceButtonSelected
+  )
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
@@ -70,50 +73,93 @@ export const NavigationHandler = () => {
       const setIsInLabTab = useArcadeStore.getState().setIsInLabTab
       const labTabs = useArcadeStore.getState().labTabs
       const labTabIndex = useArcadeStore.getState().labTabIndex
+      const isSourceButtonSelected =
+        useArcadeStore.getState().isSourceButtonSelected
 
       if (pathname === "/lab") {
         if (!e.shiftKey) {
-          // hanlde enter labtabs
+          // handle enter labtabs
           if (currentTabIndex === 0 && !isInLabTab) {
             setIsInLabTab(true)
             setLabTabIndex(0)
             setCurrentTabIndex(-1)
+            setIsSourceButtonSelected(false)
             return
           }
 
-          //handle lab tab navigation
+          // handle lab tab navigation
           if (isInLabTab) {
-            const nextIndex = labTabIndex + 1
-            if (nextIndex < labTabs.length) {
-              setLabTabIndex(nextIndex)
+            if (labTabIndex === 0) {
+              setLabTabIndex(1)
+              setIsSourceButtonSelected(false)
               return
             }
-            // exit lab tabmode
-            setIsInLabTab(false)
-            setCurrentTabIndex(1)
-            return
+
+            if (isSourceButtonSelected) {
+              // move to next experiment or featured item
+              const nextIndex = labTabIndex + 1
+              if (nextIndex < labTabs.length) {
+                setLabTabIndex(nextIndex)
+                setIsSourceButtonSelected(false)
+                return
+              }
+              // exit lab tabmode
+              setIsInLabTab(false)
+              setCurrentTabIndex(1)
+              return
+            } else {
+              // check if current item is not a featured item
+              const currentTab = labTabs[labTabIndex]
+              if (currentTab?.type === "experiment") {
+                setIsSourceButtonSelected(true)
+                return
+              } else {
+                // if it's a featured item or button, move to next
+                const nextIndex = labTabIndex + 1
+                if (nextIndex < labTabs.length) {
+                  setLabTabIndex(nextIndex)
+                  return
+                }
+                // exit lab tabmode
+                setIsInLabTab(false)
+                setCurrentTabIndex(1)
+                return
+              }
+            }
           }
-        }
-        // sift tab
-        else {
-          // handle enter
-          if (currentTabIndex === 1) {
+        } else {
+          // handle shift+tab
+          if (isInLabTab) {
+            if (isSourceButtonSelected) {
+              // move back to experiment title
+              setIsSourceButtonSelected(false)
+              return
+            } else {
+              // move to previous experiment or close button
+              const prevIndex = labTabIndex - 1
+              if (prevIndex >= 0) {
+                const prevTab = labTabs[prevIndex]
+                if (prevTab?.type === "experiment") {
+                  setLabTabIndex(prevIndex)
+                  setIsSourceButtonSelected(true)
+                  return
+                } else {
+                  setLabTabIndex(prevIndex)
+                  setIsSourceButtonSelected(false)
+                  return
+                }
+              }
+              // exit lab tab mode if we are at the start
+              setIsInLabTab(false)
+              setCurrentTabIndex(0)
+              return
+            }
+          } else if (currentTabIndex === 1) {
+            // when shift-tabbing from scene tab index 1 return to lab tabs
             setIsInLabTab(true)
             setLabTabIndex(labTabs.length - 1)
+            setIsSourceButtonSelected(false)
             setCurrentTabIndex(-1)
-            return
-          }
-
-          // backward navigation
-          if (isInLabTab) {
-            const prevIndex = labTabIndex - 1
-            if (prevIndex >= 0) {
-              setLabTabIndex(prevIndex)
-              return
-            }
-            // exit lab tab mode if we are at the start
-            setIsInLabTab(false)
-            setCurrentTabIndex(0)
             return
           }
         }
