@@ -39,10 +39,20 @@ export const ArcadeLabsList = ({
   useKeyPress(
     "Enter",
     useCallback(() => {
-      if (isInLabTab && labTabIndex > 0 && labTabIndex <= experiments.length) {
-        handleExperimentClick(experiments[labTabIndex - 1])
+      if (isInLabTab) {
+        if (mouseHoveredExperiment) {
+          handleExperimentClick(mouseHoveredExperiment)
+        } else if (labTabIndex > 0 && labTabIndex <= experiments.length) {
+          handleExperimentClick(experiments[labTabIndex - 1])
+        }
       }
-    }, [isInLabTab, labTabIndex, experiments, handleExperimentClick])
+    }, [
+      isInLabTab,
+      labTabIndex,
+      experiments,
+      handleExperimentClick,
+      mouseHoveredExperiment
+    ])
   )
 
   useEffect(() => {
@@ -126,31 +136,38 @@ export const ArcadeLabsList = ({
               borderRightWidth={1}
               borderColor={COLORS_THEME.primary}
               alignItems="center"
+              backgroundColor={
+                isHovered || isSourceHovered
+                  ? COLORS_THEME.primary
+                  : COLORS_THEME.black
+              }
+              onClick={() => handleExperimentClick(data)}
+              onHoverChange={(hover) => {
+                if (hover) {
+                  setCursorType("alias")
+                  setSelectedExperiment(data)
+                  setMouseHoveredExperiment(data)
+                  setHasMouseInteracted(true)
+                } else {
+                  setCursorType("default")
+                  setMouseHoveredExperiment(null)
+                }
+              }}
             >
               <Container
                 marginLeft={1}
                 paddingTop={9}
                 paddingX={8}
                 width={"85%"}
-                backgroundColor={
-                  isHovered ? COLORS_THEME.primary : COLORS_THEME.black
-                }
-                onHoverChange={(hover) => {
-                  if (hover) {
-                    setCursorType("alias")
-                    setSelectedExperiment(data)
-                    setMouseHoveredExperiment(data)
-                    setHasMouseInteracted(true)
-                  } else {
-                    setCursorType("default")
-                    setMouseHoveredExperiment(null)
-                  }
-                }}
               >
                 <Text
                   fontSize={10}
                   zIndexOffset={10}
-                  color={isHovered ? COLORS_THEME.black : COLORS_THEME.primary}
+                  color={
+                    isHovered || isSourceHovered
+                      ? COLORS_THEME.black
+                      : COLORS_THEME.primary
+                  }
                 >
                   {data._title.toUpperCase()}
                 </Text>
@@ -187,8 +204,16 @@ export const ArcadeLabsList = ({
                     }
                   }
                 }}
+                zIndexOffset={12}
               >
-                <Text fontSize={10} zIndexOffset={10}>
+                <Text
+                  fontSize={10}
+                  color={
+                    isHovered || isSourceHovered
+                      ? COLORS_THEME.black
+                      : COLORS_THEME.primary
+                  }
+                >
                   SOURCE
                 </Text>
                 <Container
@@ -196,7 +221,11 @@ export const ArcadeLabsList = ({
                   height={1}
                   positionTop={16}
                   positionType="absolute"
-                  backgroundColor={COLORS_THEME.primary}
+                  backgroundColor={
+                    isHovered || isSourceHovered
+                      ? COLORS_THEME.black
+                      : COLORS_THEME.primary
+                  }
                   visibility={isSourceHovered ? "visible" : "hidden"}
                 />
               </Container>
@@ -223,9 +252,6 @@ const ViewMore = ({
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const experiments = useArcadeStore((state) => state.labTabs)
-  const isSourceButtonSelected = useArcadeStore(
-    (state) => state.isSourceButtonSelected
-  )
 
   const handleViewMoreClick = useCallback(() => {
     window.open("https://basement.studio/lab", "_blank")
