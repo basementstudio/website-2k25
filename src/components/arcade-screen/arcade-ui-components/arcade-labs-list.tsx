@@ -3,8 +3,9 @@ import { Container, Text } from "@react-three/uikit"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 
 import { COLORS_THEME } from "../screen-ui"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useArcadeStore } from "@/store/arcade-store"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 interface ArcadeLabsListProps {
   experiments: any[]
@@ -21,6 +22,19 @@ export const ArcadeLabsList = ({
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const scrollContainerRef = useRef<any>(null)
+
+  const handleExperimentClick = useCallback((data: any) => {
+    window.open(`https://lab.basement.studio/experiments/${data.url}`, "_blank")
+  }, [])
+
+  useKeyPress(
+    "Enter",
+    useCallback(() => {
+      if (isInLabTab && labTabIndex > 0 && labTabIndex <= experiments.length) {
+        handleExperimentClick(experiments[labTabIndex - 1])
+      }
+    }, [isInLabTab, labTabIndex, experiments, handleExperimentClick])
+  )
 
   useEffect(() => {
     if (isInLabTab && labTabIndex > 0 && labTabIndex <= experiments.length) {
@@ -102,10 +116,7 @@ export const ArcadeLabsList = ({
               }}
               onClick={(e) => {
                 e.stopPropagation()
-                window.open(
-                  `https://lab.basement.studio/experiments/${data.url}`,
-                  "_blank"
-                )
+                handleExperimentClick(data)
               }}
             >
               <Text
@@ -137,10 +148,7 @@ export const ArcadeLabsList = ({
                   fontWeight="normal"
                   onClick={(e) => {
                     e.stopPropagation()
-                    window.open(
-                      `https://lab.basement.studio/experiments/${data.url}`,
-                      "_blank"
-                    )
+                    handleExperimentClick(data)
                   }}
                 >
                   LIVE
