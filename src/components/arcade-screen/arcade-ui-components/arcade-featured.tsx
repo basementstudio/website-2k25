@@ -1,8 +1,9 @@
 import { Container, Image, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import React, { useState } from "react"
+import React, { useState, useCallback } from "react"
 
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 import { COLORS_THEME } from "../screen-ui"
 import { useArcadeStore } from "@/store/arcade-store"
@@ -23,6 +24,33 @@ export const ArcadeFeatured = () => {
     isInLabTab && labTabIndex === experiments.length - 2
   const isLooperSelected = isInLabTab && labTabIndex === experiments.length - 1
 
+  const handleChroniclesClick = useCallback(() => {
+    window.open("https://chronicles.basement.studio", "_blank")
+  }, [])
+
+  useKeyPress(
+    "Enter",
+    useCallback(() => {
+      if (isChroniclesSelected) {
+        handleChroniclesClick()
+      }
+    }, [isChroniclesSelected, handleChroniclesClick])
+  )
+
+  // Looper is not clickable yet, but we'll keep the structure consistent
+  const handleLooperClick = useCallback(() => {
+    // Will be implemented when Looper is ready
+  }, [])
+
+  useKeyPress(
+    "Enter",
+    useCallback(() => {
+      if (isLooperSelected) {
+        handleLooperClick()
+      }
+    }, [isLooperSelected, handleLooperClick])
+  )
+
   return (
     <Container paddingX={10} width={"100%"} height={100}>
       <Container
@@ -38,10 +66,7 @@ export const ArcadeFeatured = () => {
           positionType="relative"
           alignItems="center"
           justifyContent="center"
-          onClick={(e) => {
-            e.stopPropagation()
-            window.open(`https://chronicles.basement.studio/`, "_blank")
-          }}
+          onClick={handleChroniclesClick}
           onHoverChange={(hover) => {
             if (hover || isChroniclesSelected) {
               setCursorType("alias")
