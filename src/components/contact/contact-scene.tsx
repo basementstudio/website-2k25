@@ -2,11 +2,9 @@ import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
-  AnimationAction,
   AnimationMixer,
   Box3,
   Group,
-  LoopOnce,
   Mesh,
   MeshBasicMaterial,
   SkinnedMesh,
@@ -27,6 +25,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const animationHandlerRef = useRef<PhoneAnimationHandler | null>(null)
   const phoneGroupRef = useRef<Group>(null)
   const idleTimeRef = useRef<number>(0)
+  const lastPositionRef = useRef<Vector3 | null>(null)
 
   console.log(gltf.animations)
 
@@ -47,6 +46,27 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   const renderTarget = useMemo(() => new WebGLRenderTarget(2024, 2024), [])
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
+
+  const { mixer, handler } = useMemo(() => {
+    if (!gltf.scene || !gltf.animations.length)
+      return { mixer: null, handler: null }
+
+    const mixer = new AnimationMixer(gltf.scene)
+    const handler = new PhoneAnimationHandler(mixer, gltf.animations)
+
+    return { mixer, handler }
+  }, [gltf.scene, gltf.animations])
+
+  useEffect(() => {
+    animationMixerRef.current = mixer
+    animationHandlerRef.current = handler
+
+    return () => {
+      if (mixer) mixer.stopAllAction()
+      animationMixerRef.current = null
+      animationHandlerRef.current = null
+    }
+  }, [mixer, handler])
 
   useEffect(() => {
     // Listen to form updates from the worker
@@ -92,6 +112,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     if (!gltf.scene || !gltf.animations.length) return
 
     gltf.scene.traverse((node) => {
+      node.frustumCulled = false
+
       if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
         const oldMaterial = node.material
         const basicMaterial = new MeshBasicMaterial()
@@ -105,39 +127,26 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         node.material = basicMaterial
       }
     })
-
-    const mixer = new AnimationMixer(gltf.scene)
-    animationMixerRef.current = mixer
-    animationHandlerRef.current = new PhoneAnimationHandler(
-      mixer,
-      gltf.animations
-    )
-
-    return () => {
-      mixer.stopAllAction()
-      animationMixerRef.current = null
-      animationHandlerRef.current = null
-    }
   }, [gltf])
 
-  // Handle animation states
   useEffect(() => {
     const handler = animationHandlerRef.current
     if (!handler) return
 
+    if (phoneGroupRef.current && lastPositionRef.current) {
+      phoneGroupRef.current.position.copy(lastPositionRef.current)
+    }
+
     if (isClosing) {
-      const action = handler.playAnimation("Outro-v2", {
+      handler.playAnimation("Outro-v2", {
         type: "transition",
         clampWhenFinished: true,
-        fadeInDuration: 0.05,
         onComplete: () => {
           console.log("Outro animation complete")
         }
       })
     } else if (isContactOpen) {
-      // sometimes positioning is off when re-entering the scene
-
-      const action = handler.playAnimation("Intro.001", {
+      handler.playAnimation("Intro.001", {
         type: "transition",
         clampWhenFinished: true,
         fadeInDuration: 0.05,
@@ -145,14 +154,12 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
           idleTimeRef.current = 0
         }
       })
-    } else {
-      handler.stopAllAnimations(0.05)
     }
   }, [isContactOpen, isClosing])
 
   const playRandomIdleAnimation = () => {
     const handler = animationHandlerRef.current
-    if (!handler) return
+    if (!handler || isClosing || !isContactOpen) return
 
     const idleAnimations = ["antena", "antena.003", "ruedita"] as const
     const randomAnim =

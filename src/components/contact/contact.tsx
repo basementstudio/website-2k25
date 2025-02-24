@@ -47,9 +47,7 @@ const Contact = () => {
       <div
         className={cn(
           "fixed inset-0 z-40 transition-[backdrop-filter,opacity] duration-1000 ease-in-out",
-          isContactOpen
-            ? "bg-black/50 backdrop-blur"
-            : "pointer-events-none opacity-0"
+          isContactOpen ? "bg-black/60" : "pointer-events-none opacity-0"
         )}
       />
     </>
