@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react"
 
 import { useAudioUrls } from "@/lib/audio/audio-urls"
-import { FADE_DURATION, THEME_SONG_VOLUME } from "@/lib/audio/constants"
+import { AMBIENT_VOLUME, FADE_DURATION } from "@/lib/audio/constants"
 
 import { useCurrentScene } from "./use-current-scene"
 import { useSiteAudioStore } from "./use-site-audio"
@@ -68,7 +68,7 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
       gainNode.gain.cancelScheduledValues(currentTime)
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(
-        THEME_SONG_VOLUME,
+        AMBIENT_VOLUME,
         currentTime + FADE_DURATION
       )
 
