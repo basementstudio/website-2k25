@@ -3,13 +3,13 @@
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
+import { Grid } from "@/components/grid"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
 import { useContactStore } from "../contact/contact-store"
-import { Grid } from "@/components/grid"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -68,7 +68,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
           <Logo className="h-[0.9375rem] text-brand-w1" />
         </button>
 
-        <div className="ga-5 col-start-3 col-end-11 flex w-full justify-center gap-5">
+        <div className="col-start-3 col-end-11 flex w-full justify-center gap-5">
           {links.map((link) => (
             <div key={link.href} className="flex items-center gap-1 text-p">
               <button

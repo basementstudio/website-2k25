@@ -10,6 +10,7 @@ interface CarMeshes {
 export interface MeshStore {
   hoopMesh: Mesh | null
   carMeshes: CarMeshes
+  inspectableMeshes: Mesh[]
   arcade: {
     buttons: Mesh[] | null
     sticks: Mesh[] | null
@@ -28,6 +29,7 @@ export const useMesh = create<MeshStore>()((set) => ({
     car: null,
     frontWheel: null
   },
+  inspectableMeshes: [],
   arcade: {
     buttons: null,
     sticks: null

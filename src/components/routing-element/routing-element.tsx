@@ -4,6 +4,7 @@ import { Mesh } from "three"
 
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
+import { useInspectable } from "../inspectables/context"
 import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingPlane } from "./routing-plane/routing-plane"
@@ -34,12 +35,13 @@ export const RoutingElement = ({
     setEnteredByKeyboard
   } = useNavigationStore()
   const { handleNavigation } = useHandleNavigation()
+  const { selected } = useInspectable()
 
   const [hover, setHover] = useState(false)
 
   const activeRoute = useMemo(() => {
-    return pathname === route
-  }, [pathname, route])
+    return pathname === route || selected
+  }, [pathname, route, selected])
 
   const meshRef = useRef<Mesh | null>(null)
 

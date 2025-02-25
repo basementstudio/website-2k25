@@ -1,8 +1,8 @@
 import { CameraControls } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { easing } from "maath"
 import { useLenis } from "lenis/react"
-import { useCallback, useEffect, useRef, useState, useMemo } from "react"
+import { easing } from "maath"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, PerspectiveCamera, Vector3 } from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
@@ -132,7 +132,6 @@ export const CustomCamera = () => {
       targetLookAt.y +=
         (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
     }
-
     if (disableCameraTransition || firstRender) {
       progress.current = 1
       currentPos.copy(targetPosition)
@@ -194,15 +193,7 @@ export const CustomCamera = () => {
   }, [basePosition, b.planePosition, b.targetPosition])
 
   useFrame(({ pointer }, dt) => {
-    if (
-      !plane ||
-      !boundary ||
-      !cameraConfig ||
-      selected ||
-      !basePosition ||
-      !np
-    )
-      return
+    if (!plane || !boundary || !cameraConfig || !basePosition || !np) return
 
     b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
     b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
@@ -221,11 +212,16 @@ export const CustomCamera = () => {
     plane.position.setX(np.x)
     plane.position.setZ(np.z)
 
-    newDelta.set(b.pos.x, 0, b.pos.z)
-    newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
+    if (!selected) {
+      newDelta.set(b.pos.x, 0, b.pos.z)
+      newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
 
-    easing.damp3(panTargetDelta, newDelta, 0.5, dt)
-    easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
+      easing.damp3(panTargetDelta, newDelta, 0.5, dt)
+      easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
+    } else {
+      easing.damp3(panTargetDelta, 0, 0.5, dt)
+      easing.damp3(panLookAtDelta, 0, 0.25, dt)
+    }
   })
 
   // fov handler
