@@ -44,8 +44,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     0,
     1,
     0,
-    "02_BT_13",
-    "02_BT_10"
+    "02_BT_10",
+    "02_BT_13"
   ]
 
   const handleGrabStick = () => {

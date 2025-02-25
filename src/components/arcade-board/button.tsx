@@ -10,8 +10,8 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { BOARD_ANGLE, BUTTON_ANIMATION } from "./constants"
 
 const VALID_BUTTONS = {
-  "02_BT_13": "b",
-  "02_BT_10": "a"
+  "02_BT_10": "b",
+  "02_BT_13": "a"
 } as const
 
 export const Button = ({ button }: { button: Mesh }) => {
