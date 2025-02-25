@@ -31,7 +31,10 @@ interface NavbarContentProps {
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
-  const [music, setMusic] = useState(true)
+  const [music, setMusic] = useState(() => {
+    const savedMusicPreference = localStorage.getItem("music-enabled")
+    return savedMusicPreference === "true"
+  })
   const { setVolumeMaster } = useSiteAudio()
 
   const { handleNavigation } = useHandleNavigation()

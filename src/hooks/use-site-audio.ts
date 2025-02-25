@@ -52,7 +52,15 @@ export function useInitializeAudioContext(element?: HTMLElement) {
     const targetElement = element || document
     const unlock = () => {
       if (!player) {
-        useSiteAudioStore.setState({ player: new WebAudioPlayer() })
+        const newPlayer = new WebAudioPlayer()
+        const savedMusicPreference = localStorage.getItem("music-enabled")
+
+        if (savedMusicPreference === "true") {
+          newPlayer.volume = 1
+        } else {
+          newPlayer.volume = 0
+        }
+        useSiteAudioStore.setState({ player: newPlayer })
       } else {
         targetElement.removeEventListener("click", unlock)
       }
@@ -138,7 +146,7 @@ export function SiteAudioSFXsLoader(): null {
     }
 
     loadAudioSources()
-  }, [player, GAME_AUDIO_SFX])
+  }, [player, GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX])
 
   return null
 }
@@ -175,7 +183,11 @@ export function useGameThemeSong() {
 export function useSiteAudio(): SiteAudioHook {
   const player = useSiteAudioStore((s) => s.player)
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
-  const [volumeMaster, _setVolumeMaster] = useState(player ? player.volume : 1)
+  const [volumeMaster, _setVolumeMaster] = useState(() => {
+    const savedMusicPreference = localStorage.getItem("music-enabled")
+
+    return savedMusicPreference === "true" ? 1 : 0
+  })
 
   const togglePlayMaster = useCallback(() => {
     if (!player) return
@@ -195,6 +207,7 @@ export function useSiteAudio(): SiteAudioHook {
 
       player.volume = volume
       _setVolumeMaster(volume)
+      localStorage.setItem("music-enabled", volume > 0 ? "true" : "false")
     },
     [player]
   )
