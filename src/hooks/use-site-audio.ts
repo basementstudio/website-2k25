@@ -34,6 +34,8 @@ interface SiteAudioHook {
   volumeMaster: number
   playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
   getSoundFXSource: (key: SiteAudioSFXKey) => AudioSource | null
+  music: boolean
+  handleMute: () => void
 }
 
 const useSiteAudioStore = create<SiteAudioStore>(() => ({
@@ -53,13 +55,19 @@ export function useInitializeAudioContext(element?: HTMLElement) {
     const unlock = () => {
       if (!player) {
         const newPlayer = new WebAudioPlayer()
-        const savedMusicPreference = localStorage.getItem("music-enabled")
+        const hasInteractedBefore = localStorage.getItem("has-interacted")
 
-        if (savedMusicPreference === "true") {
+        if (!hasInteractedBefore) {
+          localStorage.setItem("has-interacted", "true")
+          localStorage.setItem("music-enabled", "true")
           newPlayer.volume = 1
+
+          window.dispatchEvent(new Event("firstInteraction"))
         } else {
-          newPlayer.volume = 0
+          const savedMusicPreference = localStorage.getItem("music-enabled")
+          newPlayer.volume = savedMusicPreference === "true" ? 1 : 0
         }
+
         useSiteAudioStore.setState({ player: newPlayer })
       } else {
         targetElement.removeEventListener("click", unlock)
@@ -183,16 +191,38 @@ export function useGameThemeSong() {
 export function useSiteAudio(): SiteAudioHook {
   const player = useSiteAudioStore((s) => s.player)
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
+
+  const [music, setMusic] = useState(() => {
+    const hasInteractedBefore = localStorage.getItem("has-interacted")
+    if (!hasInteractedBefore) return false
+    const savedMusicPreference = localStorage.getItem("music-enabled")
+    return savedMusicPreference === "true"
+  })
+
   const [volumeMaster, _setVolumeMaster] = useState(() => {
     const savedMusicPreference = localStorage.getItem("music-enabled")
-
     return savedMusicPreference === "true" ? 1 : 0
   })
+
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      setMusic(true)
+    }
+
+    window.addEventListener("firstInteraction", handleFirstInteraction)
+    return () =>
+      window.removeEventListener("firstInteraction", handleFirstInteraction)
+  }, [])
 
   const togglePlayMaster = useCallback(() => {
     if (!player) return
     player.isPlaying ? player.pause() : player.resume()
   }, [player])
+
+  const handleMute = useCallback(() => {
+    setVolumeMaster(music ? 0 : 1)
+    setMusic(!music)
+  }, [music])
 
   const setVolumeMaster = useCallback(
     (volume: number) => {
@@ -238,6 +268,8 @@ export function useSiteAudio(): SiteAudioHook {
     setVolumeMaster,
     volumeMaster,
     playSoundFX,
-    getSoundFXSource
+    getSoundFXSource,
+    music,
+    handleMute
   }
 }
