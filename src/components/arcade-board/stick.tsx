@@ -81,10 +81,68 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     }
   }
 
+  const setLabTabIndex = useArcadeStore((state) => state.setLabTabIndex)
+  const labTabIndex = useArcadeStore((state) => state.labTabIndex)
+  const setIsInLabTab = useArcadeStore((state) => state.setIsInLabTab)
+  const labTabs = useArcadeStore((state) => state.labTabs)
+
   const handleKeyboardInput = useCallback(
     (direction: number) => {
       if (scene !== "lab") return
       if (stick.name !== "02_JYTK_L") return
+
+      setIsInLabTab(true)
+      if (labTabIndex === -1) {
+        setLabTabIndex(0)
+        return
+      }
+
+      const isSourceButtonSelected =
+        useArcadeStore.getState().isSourceButtonSelected
+      const setIsSourceButtonSelected =
+        useArcadeStore.getState().setIsSourceButtonSelected
+
+      if (direction === 4) {
+        // DOWN
+        if (labTabIndex === 0) {
+          // move from close to first experiment
+          setLabTabIndex(1)
+          setIsSourceButtonSelected(false)
+        } else {
+          // Move to next experiment/item
+          const nextIndex = labTabIndex + 1
+          if (nextIndex < labTabs.length) {
+            setLabTabIndex(nextIndex)
+            setIsSourceButtonSelected(false)
+          }
+        }
+      } else if (direction === 3) {
+        // UP
+        if (isSourceButtonSelected) {
+          // From SOURCE button, move back to experiment title
+          setIsSourceButtonSelected(false)
+        } else if (labTabIndex > 1) {
+          // move to previous
+          const prevIndex = labTabIndex - 1
+          setLabTabIndex(prevIndex)
+          setIsSourceButtonSelected(false)
+        } else if (labTabIndex === 1) {
+          // move from first to close
+          setLabTabIndex(0)
+          setIsSourceButtonSelected(false)
+        }
+      } else if (direction === 1) {
+        // RIGHT
+        const currentTab = labTabs[labTabIndex]
+        if (currentTab?.type === "experiment" && !isSourceButtonSelected) {
+          setIsSourceButtonSelected(true)
+        }
+      } else if (direction === 2) {
+        // LEFT
+        if (isSourceButtonSelected) {
+          setIsSourceButtonSelected(false)
+        }
+      }
 
       const targetRotation = {
         x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
@@ -112,7 +170,15 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         state.current = direction
       }
     },
-    [scene, stick.name, availableSounds, playSoundFX]
+    [
+      scene,
+      stick.name,
+      availableSounds,
+      playSoundFX,
+      labTabIndex,
+      setLabTabIndex,
+      labTabs
+    ]
   )
 
   const handleKeyUp = useCallback(() => {
