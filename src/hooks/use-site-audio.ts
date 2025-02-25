@@ -187,17 +187,21 @@ export function useSiteAudio(): SiteAudioHook {
   const player = useSiteAudioStore((s) => s.player)
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
 
-  // check user's audio preference
-  const savedMusicPreference = localStorage.getItem("music-enabled")
+  // Initialize state with defaults
+  const [music, setMusic] = useState(false)
+  const [volumeMaster, _setVolumeMaster] = useState(0)
 
-  // music off by default, unless user had it on
-  const [music, setMusic] = useState(savedMusicPreference === "true")
-  const [volumeMaster, _setVolumeMaster] = useState(
-    savedMusicPreference === "true" ? 1 : 0
-  )
-
-  // turn on music on first interaction, except if there's no saved preference
+  // Load preferences after mount
   useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const savedMusicPreference = localStorage.getItem("music-enabled")
+    if (savedMusicPreference === "true") {
+      setMusic(true)
+      _setVolumeMaster(1)
+    }
+
+    // First interaction handler
     if (savedMusicPreference === null) {
       const handleFirstInteraction = () => {
         setMusic(true)
@@ -209,7 +213,7 @@ export function useSiteAudio(): SiteAudioHook {
       return () =>
         window.removeEventListener("firstInteraction", handleFirstInteraction)
     }
-  }, [savedMusicPreference])
+  }, [])
 
   const togglePlayMaster = useCallback(() => {
     if (!player) return
@@ -217,13 +221,14 @@ export function useSiteAudio(): SiteAudioHook {
   }, [player])
 
   const handleMute = useCallback(() => {
+    if (typeof window === "undefined") return
     setVolumeMaster(music ? 0 : 1)
     setMusic(!music)
   }, [music])
 
   const setVolumeMaster = useCallback(
     (volume: number) => {
-      if (!player) return
+      if (!player || typeof window === "undefined") return
       const gainNode = player.masterOutput
       const currentTime = player.audioContext.currentTime
       const FADE_DURATION = 0.75

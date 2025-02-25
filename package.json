@@ -57,7 +57,6 @@
     "glsl-constants": "^2.0.1",
     "glslify-loader": "^2.0.0",
     "postcss": "^8",
-    "postcss-nesting": "^13.0.1",
     "prettier": "^3.3.3",
     "prettier-plugin-glsl": "^0.2.0",
     "prettier-plugin-tailwindcss": "^0.6.9",
