@@ -1,5 +1,5 @@
 import { animate } from "motion"
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useCallback } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -8,6 +8,11 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { BOARD_ANGLE, BUTTON_ANIMATION } from "./constants"
+
+const VALID_BUTTONS = {
+  "02_BT_13": "b",
+  "02_BT_10": "a"
+} as const
 
 export const Button = ({ button }: { button: Mesh }) => {
   const scene = useCurrentScene()
@@ -19,75 +24,73 @@ export const Button = ({ button }: { button: Mesh }) => {
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
   const isPressed = useRef(false)
 
-  const handleClick = (isDown: boolean) => {
-    if (scene !== "lab") return
-
-    // add button name to the sequence
-    if (isDown && (button.name === "02_BT_7" || button.name === "02_BT_4")) {
-      window.dispatchEvent(
-        new CustomEvent("buttonPressed", {
-          detail: { buttonName: button.name }
-        })
-      )
-    }
-
-    const angle = BOARD_ANGLE * (Math.PI / 180)
-    const dz = -0.0075 * Math.cos(angle)
-    const dy = -0.0075 * Math.sin(angle)
-
-    playSoundFX(
-      `ARCADE_BUTTON_${desiredSoundFX.current}_${isDown ? "PRESS" : "RELEASE"}`,
-      0.2
-    )
-
-    if (isDown) {
-      desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
-    }
-
-    const targetPosition = {
-      x: button.userData.originalPosition.x,
-      y: button.userData.originalPosition.y + (isDown ? dy : 0),
-      z: button.userData.originalPosition.z + (isDown ? dz : 0)
-    }
-
-    animate(button.position, targetPosition, BUTTON_ANIMATION)
-  }
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+  const handleButtonInteraction = useCallback(
+    (isDown: boolean) => {
       if (scene !== "lab") return
 
-      if (!isPressed.current) {
-        if (
-          (event.key.toLowerCase() === "a" && button.name === "02_BT_7") ||
-          (event.key.toLowerCase() === "b" && button.name === "02_BT_4")
-        ) {
+      // dispatch button event
+      if (isDown && button.name in VALID_BUTTONS) {
+        window.dispatchEvent(
+          new CustomEvent("buttonPressed", {
+            detail: { buttonName: button.name }
+          })
+        )
+      }
+
+      const angle = BOARD_ANGLE * (Math.PI / 180)
+      const offset = isDown ? -0.0075 : 0
+      const targetPosition = {
+        x: button.userData.originalPosition.x,
+        y: button.userData.originalPosition.y + offset * Math.sin(angle),
+        z: button.userData.originalPosition.z + offset * Math.cos(angle)
+      }
+
+      playSoundFX(
+        `ARCADE_BUTTON_${desiredSoundFX.current}_${isDown ? "PRESS" : "RELEASE"}`,
+        0.2
+      )
+
+      if (isDown) {
+        desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
+      }
+
+      animate(button.position, targetPosition, BUTTON_ANIMATION)
+    },
+    [
+      scene,
+      button.name,
+      button.userData.originalPosition,
+      button.position,
+      playSoundFX
+    ]
+  )
+
+  // keyboard controls
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if (scene !== "lab") return
+
+      const isKeyDown = event.type === "keydown"
+      const buttonKey = VALID_BUTTONS[button.name as keyof typeof VALID_BUTTONS]
+
+      if (buttonKey && event.key.toLowerCase() === buttonKey) {
+        if (isKeyDown && !isPressed.current) {
           isPressed.current = true
-          handleClick(true)
+          handleButtonInteraction(true)
+        } else if (!isKeyDown && isPressed.current) {
+          isPressed.current = false
+          handleButtonInteraction(false)
         }
       }
     }
 
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (scene !== "lab") return
-
-      if (
-        (event.key.toLowerCase() === "a" && button.name === "02_BT_7") ||
-        (event.key.toLowerCase() === "b" && button.name === "02_BT_4")
-      ) {
-        isPressed.current = false
-        handleClick(false)
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("keyup", handleKeyUp)
-
+    window.addEventListener("keydown", handleKey)
+    window.addEventListener("keyup", handleKey)
     return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-      window.removeEventListener("keyup", handleKeyUp)
+      window.removeEventListener("keydown", handleKey)
+      window.removeEventListener("keyup", handleKey)
     }
-  }, [scene, button.name])
+  }, [scene, button.name, handleButtonInteraction])
 
   return (
     <group key={button.name}>
@@ -103,13 +106,13 @@ export const Button = ({ button }: { button: Mesh }) => {
           e.stopPropagation()
           setCursorType("click")
           isPressed.current = true
-          handleClick(true)
+          handleButtonInteraction(true)
         }}
         onPointerUp={(e) => {
           e.stopPropagation()
           if (isPressed.current) {
             isPressed.current = false
-            handleClick(false)
+            handleButtonInteraction(false)
           }
         }}
         onPointerLeave={(e) => {
@@ -117,7 +120,7 @@ export const Button = ({ button }: { button: Mesh }) => {
           setCursorType("default")
           if (isPressed.current) {
             isPressed.current = false
-            handleClick(false)
+            handleButtonInteraction(false)
           }
         }}
       >
