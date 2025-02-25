@@ -1,5 +1,7 @@
 "use server"
 
+import { generateEmailTemplate } from "./template"
+
 interface ContactFormData {
   name: string
   company: string
@@ -20,14 +22,7 @@ export async function submitContactForm(formData: ContactFormData) {
         from: "hello@basement.studio",
         to: ["sales@basement.studio"],
         subject: `${formData.name} - ${formData.company} | Contact Us <basement.studio>`,
-        html: `
-          <h1>Contact Form</h1>
-          <p><strong>Name:</strong> ${formData.name}</p>
-          <p><strong>Company:</strong> ${formData.company}</p>
-          <p><strong>Email:</strong> ${formData.email}</p>
-          <p><strong>Budget:</strong> ${formData.budget}</p>
-          <p><strong>Message:</strong> ${formData.message}</p>
-        `
+        html: generateEmailTemplate(formData)
       })
     })
 
