@@ -9,10 +9,10 @@ import { Box3, Vector3, WebGLRenderTarget } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { createScreenMaterial } from "@/shaders/material-screen"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { RenderTexture } from "./render-texture"
-import { createScreenMaterial } from "./screen-material"
 
 const ScreenUI = dynamic(
   () =>

@@ -1,7 +1,7 @@
 import { ShaderMaterial } from "three"
 
-import frag from "./frag.glsl"
-import vert from "./vert.glsl"
+import fragmentShader from "./fragment.glsl"
+import vertexShader from "./vertex.glsl"
 
 export const createScreenMaterial = () =>
   new ShaderMaterial({
@@ -10,6 +10,6 @@ export const createScreenMaterial = () =>
       map: { value: null },
       uRevealProgress: { value: 1.0 }
     },
-    vertexShader: vert,
-    fragmentShader: frag
+    vertexShader,
+    fragmentShader
   })
