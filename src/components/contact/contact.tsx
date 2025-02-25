@@ -1,6 +1,7 @@
 "use client"
 import { useCallback, useEffect } from "react"
 
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { cn } from "@/utils/cn"
@@ -10,6 +11,7 @@ import { useContactStore } from "./contact-store"
 
 const Contact = () => {
   const { isContactOpen, isClosing, setIsContactOpen } = useContactStore()
+  const scene = useCurrentScene()
 
   useKeyPress(
     "Escape",
@@ -21,6 +23,10 @@ const Contact = () => {
   )
 
   useDisableScroll(isContactOpen)
+
+  useEffect(() => {
+    setIsContactOpen(false)
+  }, [scene, setIsContactOpen])
 
   useEffect(() => {
     if (isContactOpen) {

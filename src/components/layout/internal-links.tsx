@@ -1,10 +1,8 @@
 "use client"
 
-import Link from "next/link"
-
+import { useContactStore } from "@/components/contact/contact-store"
+import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
-
-import { useContactStore } from "../contact/contact-store"
 
 interface InternalLinksProps {
   className?: string
