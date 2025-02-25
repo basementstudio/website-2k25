@@ -84,7 +84,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const handleKeyboardInput = useCallback(
     (direction: number) => {
       if (scene !== "lab") return
-      if (stick.name !== "02_JYTK_R") return
+      if (stick.name !== "02_JYTK_L") return
 
       const targetRotation = {
         x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
@@ -116,25 +116,25 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   )
 
   const handleKeyUp = useCallback(() => {
-    if (scene !== "lab" || stick.name !== "02_JYTK_R") return
+    if (scene !== "lab" || stick.name !== "02_JYTK_L") return
     handleKeyboardInput(3)
     setTimeout(() => handleKeyboardInput(0), 100)
   }, [scene, stick.name, handleKeyboardInput])
 
   const handleKeyDown = useCallback(() => {
-    if (scene !== "lab" || stick.name !== "02_JYTK_R") return
+    if (scene !== "lab" || stick.name !== "02_JYTK_L") return
     handleKeyboardInput(4)
     setTimeout(() => handleKeyboardInput(0), 100)
   }, [scene, stick.name, handleKeyboardInput])
 
   const handleKeyLeft = useCallback(() => {
-    if (scene !== "lab" || stick.name !== "02_JYTK_R") return
+    if (scene !== "lab" || stick.name !== "02_JYTK_L") return
     handleKeyboardInput(2)
     setTimeout(() => handleKeyboardInput(0), 100)
   }, [scene, stick.name, handleKeyboardInput])
 
   const handleKeyRight = useCallback(() => {
-    if (scene !== "lab" || stick.name !== "02_JYTK_R") return
+    if (scene !== "lab" || stick.name !== "02_JYTK_L") return
     handleKeyboardInput(1)
     setTimeout(() => handleKeyboardInput(0), 100)
   }, [scene, stick.name, handleKeyboardInput])
