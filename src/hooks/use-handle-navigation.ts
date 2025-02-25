@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef } from "react"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
+import { useArcadeStore } from "@/store/arcade-store"
 
 export const useHandleNavigation = () => {
   const lenisInstance = useLenis()
@@ -46,6 +47,9 @@ export const useHandleNavigation = () => {
           offset: 0,
           behavior: "smooth",
           callback: () => {
+            if (route !== "/lab") {
+              useArcadeStore.getState().setIsInLabTab(false)
+            }
             router.push(route, { scroll: false })
             lenisRef.current?.start()
           }
@@ -65,6 +69,9 @@ export const useHandleNavigation = () => {
               lenisRef.current?.start()
             }
           })
+          if (route !== "/lab") {
+            useArcadeStore.getState().setIsInLabTab(false)
+          }
           router.push(route, { scroll: false })
         }, TRANSITION_DURATION)
       }
