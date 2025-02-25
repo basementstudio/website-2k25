@@ -31,8 +31,7 @@ interface NavbarContentProps {
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
-  const [music, setMusic] = useState(true)
-  const { setVolumeMaster } = useSiteAudio()
+  const { music, handleMute, setVolumeMaster } = useSiteAudio()
 
   const { handleNavigation } = useHandleNavigation()
 
@@ -41,11 +40,6 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
   const isOnTab = useIsOnTab()
 
   const pathname = usePathname()
-
-  const handleMute = () => {
-    setVolumeMaster(music ? 0 : 1)
-    setMusic(!music)
-  }
 
   useEffect(
     () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
