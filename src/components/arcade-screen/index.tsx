@@ -46,7 +46,7 @@ export const ArcadeScreen = () => {
   })
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
-  const renderTarget = useMemo(() => new WebGLRenderTarget(2024, 2024), [])
+  const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
   useEffect(() => {
     const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
