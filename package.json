@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.19.11",
+    "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-checkbox": "^1.1.3",
     "@radix-ui/react-tabs": "^1.1.3",
