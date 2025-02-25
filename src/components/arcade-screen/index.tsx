@@ -9,10 +9,10 @@ import { Box3, Vector3, WebGLRenderTarget } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { createScreenMaterial } from "@/shaders/material-screen"
+import { useArcadeStore } from "@/store/arcade-store"
 
 import { RenderTexture } from "./render-texture"
-import { screenMaterial } from "./screen-material"
-import { useArcadeStore } from "@/store/arcade-store"
 
 const ScreenUI = dynamic(
   () =>
@@ -45,6 +45,7 @@ export const ArcadeScreen = () => {
     texture.flipY = false
   })
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
+  const screenMaterial = useMemo(() => createScreenMaterial(), [])
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
   useEffect(() => {
@@ -104,6 +105,7 @@ export const ArcadeScreen = () => {
     videoTexture,
     isLabRoute,
     bootTexture,
+    screenMaterial,
     hasUnlockedKonami,
     setHasUnlockedKonami
   ])

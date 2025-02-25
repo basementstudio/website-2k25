@@ -4,14 +4,15 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect } from "react"
 
 import { useAssets } from "@/components/assets-provider"
+import { useContactStore } from "@/components/contact/contact-store"
 import { useInspectable } from "@/components/inspectables/context"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
+import { useArcadeStore } from "@/store/arcade-store"
 
 import { IScene } from "./navigation.interface"
 import { useNavigationStore } from "./navigation-store"
-import { useArcadeStore } from "@/store/arcade-store"
 
 export const NavigationHandler = () => {
   const pathname = usePathname()
@@ -206,6 +207,7 @@ export const NavigationHandler = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
+      if (useContactStore.getState().isContactOpen) return
       if (selected) {
         setSelected(null)
         return
