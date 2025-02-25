@@ -298,7 +298,8 @@ export const Map = memo(() => {
         const isGlass =
           currentMaterial.name === "BSM_MTL_Glass" ||
           currentMaterial.name === "BSM_MTL_LightLibrary" ||
-          currentMaterial.name === "BSM-MTL-Backup"
+          currentMaterial.name === "BSM-MTL-Backup" ||
+          currentMaterial.name === "MTL_LightBox"
 
         const isPlant = meshChild.name === "SM_plant01001"
 

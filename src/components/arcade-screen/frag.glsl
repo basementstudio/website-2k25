@@ -17,10 +17,10 @@ varying vec3 vPosition;
 #define MASK_BORDER (0.4)
 #define INTERFERENCE1 (0.4)
 #define INTERFERENCE2 (0.001)
-#define SCANLINE_INTENSITY (0.25)
+#define SCANLINE_INTENSITY (0.2)
 #define SCANLINE_COUNT (200.0)
 #define NOISE_SCALE (500.0)
-#define NOISE_OPACITY (0.02)
+#define NOISE_OPACITY (0.01)
 
 #define SCAN_SPEED (5.0)
 #define SCAN_CYCLE (10.0)
@@ -102,15 +102,25 @@ void main() {
   float vignette = 1.0 - dot(vignetteUv, vignetteUv) * VIGNETTE_STRENGTH;
   color *= vignette;
 
-  // add scanlines
-  float scanline = step(0.5, fract(vPosition.y * SCANLINE_COUNT));
-  scanline = 1.0 - scanline * SCANLINE_INTENSITY;
-  color *= scanline;
-
   // Add noise overlay
   vec2 noiseUv = gl_FragCoord.xy / NOISE_SCALE;
   float noise = random(noiseUv + uTime * 0.1);
   color = mix(color, color + vec3(noise), NOISE_OPACITY);
+
+  // add orange tint to black areas
+  vec3 orangeTint = vec3(0.2, 0.05, 0.0);
+  float blackThreshold = 0.01;
+  float luminance = dot(color, vec3(0.299, 0.587, 0.114));
+  color = mix(color + orangeTint * 0.1, color, step(blackThreshold, luminance));
+
+  // add scanlines
+  float scanline = step(0.5, fract(vPosition.y * SCANLINE_COUNT));
+  scanline = mix(1.0, 0.7, scanline * SCANLINE_INTENSITY);
+  color = mix(
+    color,
+    color * scanline + vec3(0.1, 0.025, 0.0) * (1.0 - scanline),
+    0.5
+  );
 
   gl_FragColor = vec4(color, 1.0);
 }
