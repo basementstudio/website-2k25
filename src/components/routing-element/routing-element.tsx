@@ -186,6 +186,7 @@ export const RoutingElement = ({
           geometry={node.geometry}
           position={[node.position.x, node.position.y, node.position.z]}
           rotation={node.rotation}
+          renderOrder={1}
         >
           <meshBasicMaterial transparent opacity={0} />
         </mesh>
