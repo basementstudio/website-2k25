@@ -11,7 +11,7 @@ varying vec3 vPosition;
 #define DISTORTION (0.3)
 #define NOISE_INTENSITY (0.3)
 #define TIME_SPEED (1.0)
-#define LINE_HEIGHT (0.05)
+#define LINE_HEIGHT (0.1)
 #define MASK_INTENSITY (0.3)
 #define MASK_SIZE (8.0)
 #define MASK_BORDER (0.4)

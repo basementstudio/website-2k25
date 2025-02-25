@@ -31,8 +31,7 @@ interface NavbarContentProps {
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
-  const [music, setMusic] = useState(true)
-  const { setVolumeMaster } = useSiteAudio()
+  const { music, handleMute, setVolumeMaster } = useSiteAudio()
 
   const { handleNavigation } = useHandleNavigation()
 
@@ -41,11 +40,6 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
   const isOnTab = useIsOnTab()
 
   const pathname = usePathname()
-
-  const handleMute = () => {
-    setVolumeMaster(music ? 0 : 1)
-    setMusic(!music)
-  }
 
   useEffect(
     () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
@@ -68,7 +62,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
           <Logo className="h-[0.9375rem] text-brand-w1" />
         </button>
 
-        <div className="ga-5 col-start-3 col-end-11 flex w-full justify-center gap-5">
+        <div className="col-start-3 col-end-11 flex w-full justify-center gap-5">
           {links.map((link) => (
             <div key={link.href} className="flex items-center gap-1 text-p">
               <button
