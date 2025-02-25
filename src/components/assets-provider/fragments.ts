@@ -65,10 +65,25 @@ export const inspectableFragment = fragmentOn("Inspectables", {
   inspectableList: {
     items: {
       _id: true,
-      model: {
-        file: {
-          url: true
+      _title: true,
+      mesh: true,
+      specs: {
+        items: {
+          _id: true,
+          _title: true,
+          value: true
         }
+      },
+      description: {
+        json: {
+          content: true
+        }
+      },
+      xOffset: true,
+      yOffset: true,
+      sizeTarget: true,
+      scenes: {
+        _title: true
       }
     }
   }

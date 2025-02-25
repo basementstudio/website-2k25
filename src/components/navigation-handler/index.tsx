@@ -3,12 +3,12 @@
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect } from "react"
 
+import { useAssets } from "@/components/assets-provider"
+import { useInspectable } from "@/components/inspectables/context"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
 
-import { useAssets } from "../assets-provider"
-import { useInspectable } from "../inspectables/context"
 import { IScene } from "./navigation.interface"
 import { useNavigationStore } from "./navigation-store"
 
@@ -29,6 +29,7 @@ export const NavigationHandler = () => {
   const scenes: IScene[] = useAssets().scenes
   const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()
+  const { selected } = useInspectable()
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
@@ -102,6 +103,11 @@ export const NavigationHandler = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
+      if (selected) {
+        setSelected(null)
+        return
+      }
+
       if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
         return
 
@@ -126,7 +132,14 @@ export const NavigationHandler = () => {
         }
         setEnteredByKeyboard(false)
       }
-    }, [scene, handleNavigation, pathname, scenes, setCurrentTabIndex])
+    }, [
+      scene,
+      handleNavigation,
+      pathname,
+      scenes,
+      setCurrentTabIndex,
+      selected
+    ])
   )
 
   return null

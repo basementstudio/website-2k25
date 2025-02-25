@@ -70,10 +70,17 @@ uniform float uGodrayOpacity;
 uniform float uGodrayDensity;
 #endif
 
+// Inspectable
+uniform bool inspectingEnabled;
+uniform bool isInspecting;
+uniform float inspectingFactor;
+uniform float fadeFactor;
+
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 #pragma glslify: valueRemap = require('../utils/value-remap.glsl')
+#pragma glslify: basicLight = require('../utils/basic-light.glsl')
 
 void main() {
   vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
@@ -121,20 +128,37 @@ void main() {
   vec3 irradiance = mix(color * (1.0 - metalness), // Diffuse component
   metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
   metalness);
-
+  
   #ifdef USE_EMISSIVE
-  irradiance += emissive * emissiveIntensity;
+  float ei = emissiveIntensity;
+  if (inspectingEnabled && !(inspectingFactor > 0.0)) {
+    ei *=  1.0 - fadeFactor;
+  }
+  irradiance += emissive * ei;
   #endif
 
   #ifdef USE_EMISSIVEMAP
+  float ei = emissiveIntensity;
+  if (inspectingEnabled && !(inspectingFactor > 0.0)) {
+    ei *=  1.0 - fadeFactor;
+  }
   vec4 emissiveColor = texture2D(emissiveMap, vUv);
-  irradiance *= emissiveColor.rgb * emissiveIntensity;
+  irradiance *= emissiveColor.rgb * ei;
   #endif
 
+
+  vec3 lf = irradiance.rgb;
+
+  if (inspectingFactor > 0.0) {
+    lf *= basicLight(vNormal, vec3(1.0, 0.0, -1.0), 2.0);
+    lf *= basicLight(vNormal, vec3(0, 0.0, 1.0), 1.0);
+  }
 
   if(lightMapIntensity > 0.0) {
     irradiance *= lightMapSample * lightMapIntensity;
   }
+
+  irradiance = mix(irradiance, lf, inspectingFactor);
 
   // Combine wave color
   irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
@@ -200,6 +224,12 @@ void main() {
 
   fogFactor = clamp(fogFactor, 0.0, 1.0);
   gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
+
+
+  if (inspectingEnabled && !(inspectingFactor > 0.0)) {
+    gl_FragColor.rgb *=  1.0 - fadeFactor;
+  }
+
 
   if(uLoaded < 1.0) {
     // Loading effect
