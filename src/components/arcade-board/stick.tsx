@@ -114,7 +114,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
           if (currentTab?.title === "CHRONICLES") {
             return
           }
-          // Move to next experiment/item
+          // move to next experiment/item
           const nextIndex = labTabIndex + 1
           if (nextIndex < labTabs.length) {
             setLabTabIndex(nextIndex)
@@ -124,7 +124,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       } else if (direction === 3) {
         // UP
         if (isSourceButtonSelected) {
-          // From SOURCE button, move back to experiment title
+          // from SOURCE button, move back to experiment title
           setIsSourceButtonSelected(false)
         } else if (labTabIndex > 1) {
           const currentTab = labTabs[labTabIndex]
@@ -148,7 +148,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         if (currentTab?.type === "experiment" && !isSourceButtonSelected) {
           setIsSourceButtonSelected(true)
         } else if (currentTab?.title === "CHRONICLES") {
-          // Move from Chronicles to Looper
+          // move from Chronicles to Looper
           const nextIndex = labTabIndex + 1
           if (nextIndex < labTabs.length) {
             setLabTabIndex(nextIndex)
@@ -162,7 +162,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         } else {
           const currentTab = labTabs[labTabIndex]
           if (currentTab?.title === "LOOPER (COMING SOON)") {
-            // Move from Looper back to Chronicles
+            // move from Looper back to chronicles
             setLabTabIndex(labTabIndex - 1)
             setIsSourceButtonSelected(false)
           }
@@ -278,6 +278,10 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
     animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
+    if (currentState !== 0) {
+      handleKeyboardInput(currentState)
+    }
+
     sequence.current.push(currentState)
     checkSequence()
 
@@ -304,6 +308,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
     if (state.current !== 0) {
       playSoundFX(`ARCADE_STICK_${desiredSoundFX.current}_RELEASE`, 0.2)
+      // Reset navigation state when stick is released
+      handleKeyboardInput(0)
     }
     state.current = 0
   }
