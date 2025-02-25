@@ -162,16 +162,3 @@ a:focus {
     }
   }
 }
-
-@font-face {
-  font-family: "FFFlauta";
-  font-weight: 100;
-  font-style: normal;
-  src: url("fonts/FFFlauta-100.woff2") format("woff2");
-}
-
-.ffflauta {
-  font-family: "FFFlauta";
-  font-weight: 100;
-  font-style: normal;
-}

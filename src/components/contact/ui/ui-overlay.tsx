@@ -1,10 +1,18 @@
+import localFont from "next/font/local"
 import Link from "next/link"
 import { useState } from "react"
 
 import { submitContactForm } from "@/actions/contact-form"
+import { useContactStore } from "@/components/contact/contact-store"
 import { cn } from "@/utils/cn"
 
-import { useContactStore } from "../contact-store"
+const ffflauta = localFont({
+  src: "../../../styles/fonts/FFFlauta-100.woff2",
+  display: "swap",
+  weight: "100",
+  style: "normal",
+  fallback: ["monospace"]
+})
 
 const UiOverlay = ({ className }: { className?: string }) => {
   const {
@@ -49,7 +57,7 @@ const UiOverlay = ({ className }: { className?: string }) => {
           transform: "rotateX(4deg)"
         }}
       >
-        <div className="ffflauta font-mono text-xs text-opacity-0">
+        <div className={cn("text-xs text-opacity-0", ffflauta.className)}>
           <form onSubmit={handleSubmit} className="px-4 py-4">
             <div className="mb-2 flex gap-4">
               <input

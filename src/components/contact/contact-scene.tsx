@@ -12,10 +12,11 @@ import {
   WebGLRenderTarget
 } from "three"
 
-import { RenderTexture } from "@/components/arcade-screen/render-texture"
-import { createScreenMaterial } from "@/shaders/material-screen"
 import { useWorkerStore } from "@/workers/contact-worker"
 
+import { createScreenMaterial } from "@/shaders/material-screen"
+
+import { RenderTexture } from "@/components/arcade-screen/render-texture"
 import { PhoneAnimationHandler } from "./contact-anims"
 import PhoneScreenUI from "./ui/render-ui"
 
