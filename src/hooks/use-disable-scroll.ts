@@ -9,13 +9,8 @@ export const useDisableScroll = (bool: boolean) => {
     lenisRef.current = lenisInstance
   }, [lenisInstance])
 
-  useEffect(() => {
-    if (bool) {
-      lenisRef.current?.stop()
-    } else {
-      lenisRef.current?.start()
-    }
-  }, [bool])
-
-  return () => {}
+  useEffect(
+    () => (bool ? lenisRef.current?.stop() : lenisRef.current?.start()),
+    [bool]
+  )
 }

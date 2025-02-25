@@ -35,10 +35,8 @@ const Contact = () => {
     <>
       <div
         className={cn(
-          "fixed inset-0 z-50 transition-opacity duration-300 ease-in-out",
-          isContactOpen
-            ? "block opacity-100"
-            : "pointer-events-none hidden opacity-0"
+          "fixed inset-0 z-50",
+          isContactOpen ? "block" : "pointer-events-none hidden"
         )}
       >
         <ContactCanvas isContactOpen={isContactOpen} />
@@ -46,12 +44,8 @@ const Contact = () => {
 
       <div
         className={cn(
-          "fixed inset-0 z-40 transition-[backdrop-filter,opacity] duration-1000 ease-in-out",
-          isContactOpen && !isClosing
-            ? "bg-black/60"
-            : isClosing
-              ? "pointer-events-none bg-black/60 opacity-0"
-              : "pointer-events-none opacity-0"
+          "pointer-events-none fixed inset-0 z-40 bg-black/90 transition-[backdrop-filter,opacity] duration-1000",
+          !isContactOpen || isClosing ? "opacity-0" : "opacity-100"
         )}
       />
     </>

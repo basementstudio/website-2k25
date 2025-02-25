@@ -99,10 +99,12 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
             </span>
           </button>
           <button
-            disabled={isContactOpen}
             id="nav-contact"
             onClick={() => setIsContactOpen(!isContactOpen)}
-            className="text-p capitalize text-brand-w1 transition-colors duration-300 hover:text-brand-o disabled:text-brand-g1 disabled:line-through"
+            className={cn(
+              "!text-p capitalize text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+              isContactOpen && "text-brand-g1"
+            )}
           >
             Contact Us
           </button>
