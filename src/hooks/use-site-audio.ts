@@ -55,17 +55,12 @@ export function useInitializeAudioContext(element?: HTMLElement) {
     const unlock = () => {
       if (!player) {
         const newPlayer = new WebAudioPlayer()
-        const hasInteractedBefore = localStorage.getItem("has-interacted")
+        const savedMusicPreference = localStorage.getItem("music-enabled")
 
-        if (!hasInteractedBefore) {
-          localStorage.setItem("has-interacted", "true")
-          localStorage.setItem("music-enabled", "true")
-          newPlayer.volume = 1
+        newPlayer.volume = savedMusicPreference === "true" ? 1 : 0
 
+        if (savedMusicPreference === null) {
           window.dispatchEvent(new Event("firstInteraction"))
-        } else {
-          const savedMusicPreference = localStorage.getItem("music-enabled")
-          newPlayer.volume = savedMusicPreference === "true" ? 1 : 0
         }
 
         useSiteAudioStore.setState({ player: newPlayer })
@@ -192,27 +187,29 @@ export function useSiteAudio(): SiteAudioHook {
   const player = useSiteAudioStore((s) => s.player)
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
 
-  const [music, setMusic] = useState(() => {
-    const hasInteractedBefore = localStorage.getItem("has-interacted")
-    if (!hasInteractedBefore) return false
-    const savedMusicPreference = localStorage.getItem("music-enabled")
-    return savedMusicPreference === "true"
-  })
+  // check user's audio preference
+  const savedMusicPreference = localStorage.getItem("music-enabled")
 
-  const [volumeMaster, _setVolumeMaster] = useState(() => {
-    const savedMusicPreference = localStorage.getItem("music-enabled")
-    return savedMusicPreference === "true" ? 1 : 0
-  })
+  // music off by default, unless user had it on
+  const [music, setMusic] = useState(savedMusicPreference === "true")
+  const [volumeMaster, _setVolumeMaster] = useState(
+    savedMusicPreference === "true" ? 1 : 0
+  )
 
+  // turn on music on first interaction, except if there's no saved preference
   useEffect(() => {
-    const handleFirstInteraction = () => {
-      setMusic(true)
-    }
+    if (savedMusicPreference === null) {
+      const handleFirstInteraction = () => {
+        setMusic(true)
+        _setVolumeMaster(1)
+        localStorage.setItem("music-enabled", "true")
+      }
 
-    window.addEventListener("firstInteraction", handleFirstInteraction)
-    return () =>
-      window.removeEventListener("firstInteraction", handleFirstInteraction)
-  }, [])
+      window.addEventListener("firstInteraction", handleFirstInteraction)
+      return () =>
+        window.removeEventListener("firstInteraction", handleFirstInteraction)
+    }
+  }, [savedMusicPreference])
 
   const togglePlayMaster = useCallback(() => {
     if (!player) return
