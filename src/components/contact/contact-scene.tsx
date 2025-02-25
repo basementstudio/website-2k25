@@ -12,11 +12,10 @@ import {
   WebGLRenderTarget
 } from "three"
 
+import { RenderTexture } from "@/components/arcade-screen/render-texture"
+import { createScreenMaterial } from "@/shaders/material-screen"
 import { useWorkerStore } from "@/workers/contact-worker"
 
-import { createScreenMaterial } from "@/shaders/material-screen"
-
-import { RenderTexture } from "@/components/arcade-screen/render-texture"
 import { PhoneAnimationHandler } from "./contact-anims"
 import PhoneScreenUI from "./ui/render-ui"
 
@@ -27,8 +26,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const phoneGroupRef = useRef<Group>(null)
   const idleTimeRef = useRef<number>(0)
   const lastPositionRef = useRef<Vector3 | null>(null)
-
-  console.log(gltf.animations)
 
   const updateFormData = useWorkerStore((state) => state.updateFormData)
   const updateFocusedElement = useWorkerStore(
@@ -45,7 +42,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     | Mesh
     | undefined
 
-  const renderTarget = useMemo(() => new WebGLRenderTarget(2024, 2024), [])
+  const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
 
   const { mixer, handler } = useMemo(() => {

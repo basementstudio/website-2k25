@@ -13,11 +13,6 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   const { contactPhone } = useAssets()
   const [worker, setWorker] = useState<Worker>()
   const setStoreWorker = useContactStore((state) => state.setWorker)
-  const { screenPosition, screenDimensions, screenTransform } = useContactStore(
-    (state) => state
-  )
-
-  console.log(screenPosition, screenDimensions, screenTransform)
 
   useEffect(() => {
     const newWorker = new Worker(
