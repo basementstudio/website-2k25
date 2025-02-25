@@ -118,31 +118,33 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const handleKeyUp = useCallback(() => {
     if (scene !== "lab" || stick.name !== "02_JYTK_L") return
     handleKeyboardInput(3)
-    setTimeout(() => handleKeyboardInput(0), 100)
   }, [scene, stick.name, handleKeyboardInput])
 
   const handleKeyDown = useCallback(() => {
     if (scene !== "lab" || stick.name !== "02_JYTK_L") return
     handleKeyboardInput(4)
-    setTimeout(() => handleKeyboardInput(0), 100)
   }, [scene, stick.name, handleKeyboardInput])
 
   const handleKeyLeft = useCallback(() => {
     if (scene !== "lab" || stick.name !== "02_JYTK_L") return
     handleKeyboardInput(2)
-    setTimeout(() => handleKeyboardInput(0), 100)
   }, [scene, stick.name, handleKeyboardInput])
 
   const handleKeyRight = useCallback(() => {
     if (scene !== "lab" || stick.name !== "02_JYTK_L") return
     handleKeyboardInput(1)
-    setTimeout(() => handleKeyboardInput(0), 100)
   }, [scene, stick.name, handleKeyboardInput])
 
   useKeyPress("ArrowUp", handleKeyUp)
   useKeyPress("ArrowDown", handleKeyDown)
   useKeyPress("ArrowLeft", handleKeyLeft)
   useKeyPress("ArrowRight", handleKeyRight)
+
+  // Add key release handlers
+  useKeyPress("ArrowUp", () => handleKeyboardInput(0), "keyup")
+  useKeyPress("ArrowDown", () => handleKeyboardInput(0), "keyup")
+  useKeyPress("ArrowLeft", () => handleKeyboardInput(0), "keyup")
+  useKeyPress("ArrowRight", () => handleKeyboardInput(0), "keyup")
 
   const handleStickMove = (e: ThreeEvent<PointerEvent>) => {
     const x = e.point.x - e.eventObject.position.x + offsetX
