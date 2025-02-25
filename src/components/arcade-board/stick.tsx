@@ -232,6 +232,12 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     }
   }, [])
 
+  useEffect(() => {
+    if (!stickIsGrabbed) {
+      resetStick()
+    }
+  }, [stickIsGrabbed])
+
   return (
     <group key={stick.name}>
       <primitive object={stick} />
@@ -244,9 +250,20 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         rotation={[(16 * Math.PI) / 180, 0, 0]}
         onPointerEnter={() => setCursorType("grab")}
         onPointerLeave={() => {
-          if (!stickIsGrabbed) setCursorType("default")
+          if (!stickIsGrabbed) {
+            handleReleaseStick()
+            setCursorType("default")
+          }
         }}
         onPointerDown={() => handleGrabStick()}
+        onPointerUp={() => {
+          setCursorType(state.current === 0 ? "grab" : "default")
+          handleReleaseStick()
+        }}
+        onPointerCancel={() => {
+          setCursorType("default")
+          handleReleaseStick()
+        }}
       >
         <cylinderGeometry args={[0.02, 0.02, 0.06, 12]} />
         <meshBasicMaterial opacity={0} transparent />
@@ -263,6 +280,13 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
             handleStickMove(e)
           }
         }}
+        onPointerUp={(e) => {
+          if (stickIsGrabbed) {
+            e.stopPropagation()
+            setCursorType(state.current === 0 ? "grab" : "default")
+            handleReleaseStick()
+          }
+        }}
         onPointerLeave={(e) => {
           if (stickIsGrabbed) {
             e.stopPropagation()
@@ -270,9 +294,10 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
             handleReleaseStick()
           }
         }}
-        onPointerUp={(e) => {
+        onPointerCancel={(e) => {
           if (stickIsGrabbed) {
-            setCursorType(state.current === 0 ? "grab" : "default")
+            e.stopPropagation()
+            setCursorType("default")
             handleReleaseStick()
           }
         }}
