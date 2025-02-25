@@ -109,6 +109,11 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
           setLabTabIndex(1)
           setIsSourceButtonSelected(false)
         } else {
+          const currentTab = labTabs[labTabIndex]
+
+          if (currentTab?.title === "CHRONICLES") {
+            return
+          }
           // Move to next experiment/item
           const nextIndex = labTabIndex + 1
           if (nextIndex < labTabs.length) {
@@ -122,6 +127,12 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
           // From SOURCE button, move back to experiment title
           setIsSourceButtonSelected(false)
         } else if (labTabIndex > 1) {
+          const currentTab = labTabs[labTabIndex]
+          const prevTab = labTabs[labTabIndex - 1]
+
+          if (currentTab?.title === "LOOPER (COMING SOON)") {
+            return
+          }
           // move to previous
           const prevIndex = labTabIndex - 1
           setLabTabIndex(prevIndex)
@@ -136,11 +147,25 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         const currentTab = labTabs[labTabIndex]
         if (currentTab?.type === "experiment" && !isSourceButtonSelected) {
           setIsSourceButtonSelected(true)
+        } else if (currentTab?.title === "CHRONICLES") {
+          // Move from Chronicles to Looper
+          const nextIndex = labTabIndex + 1
+          if (nextIndex < labTabs.length) {
+            setLabTabIndex(nextIndex)
+            setIsSourceButtonSelected(false)
+          }
         }
       } else if (direction === 2) {
         // LEFT
         if (isSourceButtonSelected) {
           setIsSourceButtonSelected(false)
+        } else {
+          const currentTab = labTabs[labTabIndex]
+          if (currentTab?.title === "LOOPER (COMING SOON)") {
+            // Move from Looper back to Chronicles
+            setLabTabIndex(labTabIndex - 1)
+            setIsSourceButtonSelected(false)
+          }
         }
       }
 
