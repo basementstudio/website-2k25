@@ -44,8 +44,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     0,
     1,
     0,
-    "02_BT_7",
-    "02_BT_4"
+    "02_BT_4",
+    "02_BT_7"
   ]
 
   const handleGrabStick = () => {
@@ -75,7 +75,6 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
           (value, index) => value === filteredExpected[index]
         )
       ) {
-        console.log("EXTENDED KONAMI CODE UNLOCKED")
         setHasUnlockedKonami(true)
         sequence.current = []
       }

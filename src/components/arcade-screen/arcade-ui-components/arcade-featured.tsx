@@ -37,9 +37,8 @@ export const ArcadeFeatured = () => {
     }, [isChroniclesSelected, handleChroniclesClick])
   )
 
-  // Looper is not clickable yet, but we'll keep the structure consistent
   const handleLooperClick = useCallback(() => {
-    // Will be implemented when Looper is ready
+    //TODO: ADD LOOPER
   }, [])
 
   useKeyPress(

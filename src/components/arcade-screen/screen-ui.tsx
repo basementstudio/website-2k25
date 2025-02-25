@@ -35,7 +35,6 @@ export interface LabTab {
   isClickable: boolean
 }
 
-// This would go in your arcade store or a new store
 export const createLabTabs = (experiments: any[]): LabTab[] => {
   const tabs: LabTab[] = [
     // Close button
@@ -73,7 +72,7 @@ export const createLabTabs = (experiments: any[]): LabTab[] => {
       isClickable: true
     },
 
-    // Looper (coming soon)
+    // Looper
     {
       id: "looper",
       type: "featured",
@@ -103,7 +102,7 @@ export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
       }))
       setExperiments(experiments)
 
-      // Initialize lab tabs
+      // initialize lab tabs
       const labTabs = createLabTabs(experiments)
       useArcadeStore.getState().setLabTabs(labTabs)
 

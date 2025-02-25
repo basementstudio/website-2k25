@@ -22,7 +22,7 @@ export const Button = ({ button }: { button: Mesh }) => {
   const handleClick = (isDown: boolean) => {
     if (scene !== "lab") return
 
-    // Add button name to the global sequence when pressed
+    // add button name to the sequence
     if (isDown && (button.name === "02_BT_7" || button.name === "02_BT_4")) {
       window.dispatchEvent(
         new CustomEvent("buttonPressed", {

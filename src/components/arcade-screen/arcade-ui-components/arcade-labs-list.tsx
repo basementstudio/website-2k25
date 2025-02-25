@@ -66,7 +66,7 @@ export const ArcadeLabsList = ({
 
   useEffect(() => {
     if (scrollContainerRef.current) {
-      // Reset scroll position when returning to first experiments
+      // reset scroll
       if (labTabIndex <= 6) {
         if (scrollContainerRef.current.scrollPosition.value) {
           scrollContainerRef.current.scrollPosition.value = [0, 0]
@@ -77,7 +77,6 @@ export const ArcadeLabsList = ({
         return
       }
 
-      // Existing scroll logic for later items
       if (labTabIndex >= 7) {
         const scrollStep = 24
         const maxScroll = 277

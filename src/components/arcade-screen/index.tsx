@@ -65,7 +65,6 @@ export const ArcadeScreen = () => {
 
     videoTexture.flipY = false
 
-    // Show boot animation when first entering or when Konami code is entered
     if (!hasVisitedArcade || hasUnlockedKonami) {
       if (isLabRoute) {
         screenMaterial.uniforms.map.value = bootTexture
@@ -81,7 +80,7 @@ export const ArcadeScreen = () => {
             if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
               screenMaterial.uniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
-              // Reset Konami code state after animation
+              // reset Konami code after animation
               if (hasUnlockedKonami) {
                 setHasUnlockedKonami(false)
               }

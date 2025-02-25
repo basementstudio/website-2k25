@@ -24,7 +24,6 @@ export const NavigationHandler = () => {
     currentScene,
     setCurrentScene,
     currentTabIndex,
-    enteredByKeyboard,
     setEnteredByKeyboard
   } = useNavigationStore()
   const scenes: IScene[] = useAssets().scenes
