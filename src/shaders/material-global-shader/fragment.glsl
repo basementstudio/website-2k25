@@ -128,11 +128,11 @@ void main() {
   vec3 irradiance = mix(color * (1.0 - metalness), // Diffuse component
   metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
   metalness);
-
+  
   #ifdef USE_EMISSIVE
   float ei = emissiveIntensity;
   if (inspectingEnabled && !(inspectingFactor > 0.0)) {
-    ei *= max(0.01, 1.0 - fadeFactor);
+    ei *=  1.0 - fadeFactor;
   }
   irradiance += emissive * ei;
   #endif
@@ -140,7 +140,7 @@ void main() {
   #ifdef USE_EMISSIVEMAP
   float ei = emissiveIntensity;
   if (inspectingEnabled && !(inspectingFactor > 0.0)) {
-    ei *= max(0.01, 1.0 - fadeFactor);
+    ei *=  1.0 - fadeFactor;
   }
   vec4 emissiveColor = texture2D(emissiveMap, vUv);
   irradiance *= emissiveColor.rgb * ei;
@@ -225,7 +225,7 @@ void main() {
 
 
   if (inspectingEnabled && !(inspectingFactor > 0.0)) {
-    gl_FragColor.rgb *= max(0.01, 1.0 - fadeFactor);
+    gl_FragColor.rgb *=  1.0 - fadeFactor;
   }
 
 
