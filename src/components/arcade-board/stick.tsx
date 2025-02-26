@@ -126,9 +126,9 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         if (isSourceButtonSelected) {
           // from SOURCE button, move back to experiment title
           setIsSourceButtonSelected(false)
+          setLabTabIndex(labTabIndex - 1)
         } else if (labTabIndex > 1) {
           const currentTab = labTabs[labTabIndex]
-          const prevTab = labTabs[labTabIndex - 1]
 
           if (currentTab?.title === "LOOPER (COMING SOON)") {
             return
@@ -279,6 +279,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
     if (currentState !== 0) {
+      console.log("first")
       handleKeyboardInput(currentState)
     }
 
