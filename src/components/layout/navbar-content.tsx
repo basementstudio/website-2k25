@@ -10,6 +10,7 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
 import { useContactStore } from "../contact/contact-store"
+import MusicToggle from "./music-toggle"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -83,22 +84,6 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
 
         <div className="col-start-11 col-end-13 ml-auto flex items-center gap-5">
           <button
-            onClick={handleMute}
-            className="inline-flex w-18 items-center space-x-1 text-p text-brand-w2"
-            aria-label={music ? "Turn music off" : "Turn music on"}
-          >
-            <span>Music:</span>
-
-            <span
-              className={cn(
-                "inline-block w-6 text-left uppercase",
-                music ? "text-brand-w1" : "text-brand-g1"
-              )}
-            >
-              {music ? "On" : "Off"}
-            </span>
-          </button>
-          <button
             id="nav-contact"
             onClick={() => setIsContactOpen(!isContactOpen)}
             className={cn(
@@ -107,6 +92,13 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
             )}
           >
             Contact Us
+          </button>
+          <button
+            onClick={handleMute}
+            className="inline-flex w-18 items-center space-x-1 text-p text-brand-w2"
+            aria-label={music ? "Turn music off" : "Turn music on"}
+          >
+            <MusicToggle music={music} />
           </button>
         </div>
       </div>
