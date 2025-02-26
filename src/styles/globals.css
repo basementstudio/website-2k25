@@ -3,6 +3,18 @@
 @tailwind utilities;
 
 @layer utilities {
+  .remove-focus-styles {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+    ring: 0 !important;
+    --tw-ring-offset-width: 0 !important;
+    --tw-ring-offset-color: transparent !important;
+    --tw-ring-color: transparent !important;
+    --tw-ring-offset-shadow: 0 0 transparent !important;
+    --tw-ring-shadow: 0 0 transparent !important;
+  }
+
   .grid-layout {
     @apply mx-auto grid w-full max-w-full grid-cols-12 gap-2 px-4;
   }
