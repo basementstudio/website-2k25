@@ -278,6 +278,7 @@ export const Map = memo(() => {
 
         const video = videos.find((video) => video.mesh === meshChild.name)
 
+        // TODO: we need to omit SM_TvScreen_4 to put our own render texture on it
         if (video) {
           const videoTexture = createVideoTexture(video.url)
 

@@ -41,6 +41,7 @@ const PhysicsWorld = dynamic(
 import { PlayedBasketballs } from "./basketball/played-basketballs"
 import StaticBasketballs from "./basketball/static-basketballs"
 import { CameraController } from "./camera/camera-controller"
+import CCTVCamera from "./camera/cctv-camera"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
@@ -152,6 +153,8 @@ export const Scene = () => {
             zIndex: 1000
           }}
         /> */}
+
+        <CCTVCamera />
       </Canvas>
     </div>
   )
