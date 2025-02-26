@@ -2,6 +2,7 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
+import { Physics } from "@react-three/rapier"
 import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
@@ -37,6 +38,7 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 
+import { Lamp } from "../lamp"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -524,6 +526,9 @@ export const Map = memo(() => {
       <ArcadeBoard />
       <BlogDoor />
       <LockedDoor />
+      <Physics debug interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
+        <Lamp />
+      </Physics>
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(

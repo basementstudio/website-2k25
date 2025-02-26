@@ -68,6 +68,9 @@ importers:
       maath:
         specifier: ^0.10.8
         version: 0.10.8(@types/three@0.170.0)(three@0.172.0)
+      meshline:
+        specifier: ^3.3.1
+        version: 3.3.1(three@0.172.0)
       motion:
         specifier: 12.0.0-alpha.2
         version: 12.0.0-alpha.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -169,11 +172,6 @@ packages:
 
   '@basehub/mutation-api-helpers@2.0.4':
     resolution: {integrity: sha512-pvFIUUMSLRxRqyuXUeiHSnBLys9SvL+OGJeg2uDDfRkGBnTX+k4kexbA1Ze/5UAa/O+jiJJffOvyliBhIuw3Zg==}
-
-  '@builder.io/partytown@0.10.3':
-    resolution: {integrity: sha512-N2SWA3c5vEad3rgdAFM3zMb6uc7aXqibkgAz4ijvYzycgQXJ4dE5oH6fGFMXSQWj6ayVlLT1/CmpflYUJHfmQg==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
 
   '@chevrotain/cst-dts-gen@10.5.0':
     resolution: {integrity: sha512-lhmC/FyqQ2o7pGK4Om+hzuDrm9rhFYIJ/AXoQBeongmn870Xeb0L6oGEiuR8nohFNL5sMaQEJWCxr1oIVIVXrw==}
@@ -4330,8 +4328,6 @@ snapshots:
       - enquirer
 
   '@basehub/mutation-api-helpers@2.0.4': {}
-
-  '@builder.io/partytown@0.10.3': {}
 
   '@chevrotain/cst-dts-gen@10.5.0':
     dependencies:
