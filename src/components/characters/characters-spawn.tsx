@@ -1,8 +1,9 @@
+import { useFrame } from "@react-three/fiber"
 import { memo, useRef } from "react"
+import { Euler, Group } from "three"
+
 import { Character } from "."
 import { CharacterAnimationName } from "./character-instancer"
-import { Euler, Group } from "three"
-import { useFrame } from "@react-three/fiber"
 
 export const CharactersSpawn = memo(CharactersSpawnInner)
 
@@ -35,32 +36,32 @@ function CharactersSpawnInner() {
       {/* Services */}
       <Character
         position={[3.6, 0.95, -6.5]}
-        rotation={[0, Math.PI, 0]}
-        animationName={CharacterAnimationName.Floor1}
+        // rotation={[0, Math.PI, 0]}
+        animationName={CharacterAnimationName.Floor}
       />
       <Character
         position={[5.3, 0.55, -6.7]}
-        rotation={new Euler(0.04, Math.PI * 1.2, -0.3, "ZXY")}
+        // rotation={new Euler(0.04, Math.PI * 1.2, -0.3, "ZXY")}
         animationName={CharacterAnimationName.Chill}
       />
 
       {/* Main */}
       <Character
         position={[2.8, 0, -12.6]}
-        rotation={[0, Math.PI * 0.7, 0]}
-        animationName={CharacterAnimationName.Idle1}
+        // rotation={[0, Math.PI * 0.7, 0]}
+        animationName={CharacterAnimationName["Iddle-01"]}
       />
 
       <Character
         position={[3.8, 0, -13.5]}
-        rotation={[0, Math.PI * -0.3, 0]}
-        animationName={CharacterAnimationName.Idle2}
+        // rotation={[0, Math.PI * -0.3, 0]}
+        animationName={CharacterAnimationName["Iddle-02"]}
       />
 
       <Character
-        position={[4.6, 0.05, -17.5]}
-        rotation={[0, Math.PI * -0.22, 0]}
-        animationName={CharacterAnimationName.Sit2}
+        position={[4.6, 0.1, -17.5]}
+        rotation={[0, Math.PI * -0.7, 0]}
+        animationName={CharacterAnimationName.Sit}
       />
 
       {/* Upstairs */}
