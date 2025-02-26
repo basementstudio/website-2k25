@@ -2,15 +2,15 @@ import { fragmentOn } from "basehub"
 
 export const query = fragmentOn("Query", {
   pages: {
-    projects: {
-      projectList: {
+    blog: {
+      posts: {
         items: {
           _slug: true
         }
       }
     },
-    blog: {
-      posts: {
+    showcase: {
+      projectList: {
         items: {
           _slug: true
         }

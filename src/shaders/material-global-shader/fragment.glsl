@@ -4,6 +4,7 @@ varying vec2 vUv;
 varying vec2 vUv2;
 varying vec3 vWorldPosition;
 varying vec3 vMvPosition;
+varying vec3 vNormal;
 
 const float voxelSize = 10.0;
 const float noiseBigScale = 1.0;
@@ -25,13 +26,15 @@ uniform float uTime;
 // lightmap
 uniform sampler2D lightMap;
 uniform float lightMapIntensity;
-uniform float lightMapMultiplier;
+
+// lights
+#ifdef LIGHT
+uniform vec3 lightDirection;
+#endif
 
 // aomap
 uniform sampler2D aoMap;
 uniform float aoMapIntensity;
-uniform float aoMapMultiplier;
-uniform bool aoWithCheckerboard;
 
 uniform float noiseFactor;
 uniform bool uReverse;
@@ -67,29 +70,25 @@ uniform float uGodrayOpacity;
 uniform float uGodrayDensity;
 #endif
 
-// Basketball
-uniform bool isBasketball;
-uniform float uBasketballTransition;
-uniform float uBasketballFogColorTransition;
+// Inspectable
+uniform bool inspectingEnabled;
+uniform bool isInspecting;
+uniform float inspectingFactor;
+uniform float fadeFactor;
 
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
 #pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
+#pragma glslify: valueRemap = require('../utils/value-remap.glsl')
+#pragma glslify: basicLight = require('../utils/basic-light.glsl')
 
 void main() {
-  float lightMapIntensity = lightMapIntensity * lightMapMultiplier;
-  float aoMapIntensity = aoMapIntensity * aoMapMultiplier;
-
   vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
   vec2 checkerPos = floor(shiftedFragCoord * 0.5);
   float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
 
-  VoxelData voxel = getVoxel(
-    vWorldPosition,
-    voxelSize,
-    noiseBigScale,
-    noiseSmallScale
-  );
+  VoxelData voxel = getVoxel(vWorldPosition, voxelSize, noiseBigScale, noiseSmallScale);
+
   // Distance from center
   float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));
 
@@ -101,17 +100,16 @@ void main() {
   float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
 
   // Render as wireframe
-  if (uReverse) {
+  if(uReverse) {
     gl_FragColor = vec4(uColor, 1.0);
 
-    if (wave <= 0.0) {
+    if(wave <= 0.0) {
       discard;
     }
     return;
   }
 
   // Render as solid color
-
   vec4 mapSample = vec4(1.0);
 
   #ifdef USE_MAP
@@ -127,31 +125,40 @@ void main() {
   vec3 metallicReflection = mix(vec3(0.04), color, metalness);
 
   // Combine base color, metallic reflection, and lightmap
-  vec3 irradiance = mix(
-    color * (1.0 - metalness), // Diffuse component
-    metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
-    metalness
-  );
-
+  vec3 irradiance = mix(color * (1.0 - metalness), // Diffuse component
+  metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
+  metalness);
+  
   #ifdef USE_EMISSIVE
-  irradiance += emissive * emissiveIntensity;
+  float ei = emissiveIntensity;
+  if (inspectingEnabled && !(inspectingFactor > 0.0)) {
+    ei *=  1.0 - fadeFactor;
+  }
+  irradiance += emissive * ei;
   #endif
 
   #ifdef USE_EMISSIVEMAP
+  float ei = emissiveIntensity;
+  if (inspectingEnabled && !(inspectingFactor > 0.0)) {
+    ei *=  1.0 - fadeFactor;
+  }
   vec4 emissiveColor = texture2D(emissiveMap, vUv);
-  irradiance *= emissiveColor.rgb * emissiveIntensity;
+  irradiance *= emissiveColor.rgb * ei;
   #endif
 
-  float basketballLightMapIntensity = 0.12;
 
-  if (lightMapIntensity > 0.0) {
-    float transitionedLightMapIntensity = mix(
-      lightMapIntensity,
-      basketballLightMapIntensity,
-      uBasketballTransition
-    );
-    irradiance *= lightMapSample * transitionedLightMapIntensity;
+  vec3 lf = irradiance.rgb;
+
+  if (inspectingFactor > 0.0) {
+    lf *= basicLight(vNormal, vec3(1.0, 0.0, -1.0), 2.0);
+    lf *= basicLight(vNormal, vec3(0, 0.0, 1.0), 1.0);
   }
+
+  if(lightMapIntensity > 0.0) {
+    irradiance *= lightMapSample * lightMapIntensity;
+  }
+
+  irradiance = mix(irradiance, lf, inspectingFactor);
 
   // Combine wave color
   irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
@@ -173,35 +180,33 @@ void main() {
   opacityResult *= alpha;
   #endif
 
-  if (opacityResult <= 0.0) {
+  if(opacityResult <= 0.0) {
     discard;
   }
 
-  if (aoMapIntensity > 0.0) {
-    if (aoWithCheckerboard) {
-      float halfAmbientOcclusion =
-        (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 0.5 + 1.0;
-      float moreAmbientOcclusion =
-        (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity * 1.5 + 1.0;
-
-      irradiance = mix(
-        irradiance * halfAmbientOcclusion,
-        irradiance * moreAmbientOcclusion,
-        pattern
-      );
-    } else {
-      float ambientOcclusion =
-        (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
-      irradiance *= ambientOcclusion;
-    }
+  if(aoMapIntensity > 0.0) {
+    float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+    irradiance *= ambientOcclusion;
   }
+
+  #ifdef LIGHT
+  float lightFactor = dot(lightDirection, normalize(vNormal));
+  lightFactor = valueRemap(lightFactor, 0.2, 1.0, 0.1, 1.0);
+  lightFactor = clamp(lightFactor, 0.0, 1.0);
+  lightFactor = pow(lightFactor, 2.0);
+  lightFactor *= 3.0;
+  lightFactor += 1.0;
+  irradiance *= lightFactor;
+  #endif
 
   gl_FragColor = vec4(irradiance, opacityResult);
 
   #ifdef GLASS
   // TODO: when implementing parallax and multiple reflections, add controls in basehub to resize the reflection map
   vec4 reflexSample = texture2D(glassReflex, vUv * vec2(0.75, 1.0));
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.1);
+  if (reflexSample.a > 0.0) {
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.1);
+  }
   gl_FragColor.a *= pattern;
   #endif
 
@@ -210,54 +215,31 @@ void main() {
   #endif
 
   // Fog
-  float basketballFogDensity = 0.25;
-  float basketballFogDepth = 8.0;
-
-  float transitionedFogDepth = mix(
-    fogDepth,
-    basketballFogDepth,
-    uBasketballTransition
-  );
-  float transitionedFogDensity = mix(
-    fogDensity,
-    basketballFogDensity,
-    uBasketballTransition
-  );
-
-  float fogDepthValue = min(vMvPosition.z + transitionedFogDepth, 0.0);
-  float fogFactor =
-    1.0 -
-    exp(
-      -transitionedFogDensity *
-        transitionedFogDensity *
-        fogDepthValue *
-        fogDepthValue
-    );
+  float fogDepthValue = min(vMvPosition.z + fogDepth, 0.0);
+  float fogFactor = 1.0 -
+    exp(-fogDensity *
+    fogDensity *
+    fogDepthValue *
+    fogDepthValue);
 
   fogFactor = clamp(fogFactor, 0.0, 1.0);
-  vec3 transitionedFogColor = mix(
-    fogColor,
-    fogColor / 20.0,
-    uBasketballFogColorTransition
-  );
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, transitionedFogColor, fogFactor);
+  gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
 
-  if (uLoaded < 1.0) {
+
+  if (inspectingEnabled && !(inspectingFactor > 0.0)) {
+    gl_FragColor.rgb *=  1.0 - fadeFactor;
+  }
+
+
+  if(uLoaded < 1.0) {
     // Loading effect
     float colorBump = (uTime + voxel.noiseBig * 20.0) * 0.1;
     colorBump = fract(colorBump) * 20.0;
     colorBump = clamp(colorBump, 0.0, 1.0);
     colorBump = 1.0 - pow(colorBump, 0.3);
 
-    float loadingColor = max(
-      voxel.edgeFactor * 0.2,
-      colorBump * voxel.fillFactor * 3.0
-    );
+    float loadingColor = max(voxel.edgeFactor * 0.2, colorBump * voxel.fillFactor * 3.0);
 
-    gl_FragColor.rgb = mix(
-      gl_FragColor.rgb,
-      vec3(loadingColor),
-      step(uLoaded, voxel.noiseSmall)
-    );
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(loadingColor), step(uLoaded, voxel.noiseSmall));
   }
 }

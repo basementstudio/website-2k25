@@ -10,6 +10,13 @@ export type SiteAudioSFXKey =
   | "BASKETBALL_NET"
   | "BASKETBALL_THUMP"
   | "TIMEOUT_BUZZER"
+  | `ARCADE_BUTTON_${number}_PRESS`
+  | `ARCADE_BUTTON_${number}_RELEASE`
+  | `ARCADE_STICK_${number}_PRESS`
+  | `ARCADE_STICK_${number}_RELEASE`
+  | `BLOG_LOCKED_DOOR_${number}`
+  | `BLOG_DOOR_${number}_OPEN`
+  | `BLOG_DOOR_${number}_CLOSE`
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
@@ -27,6 +34,8 @@ interface SiteAudioHook {
   volumeMaster: number
   playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
   getSoundFXSource: (key: SiteAudioSFXKey) => AudioSource | null
+  music: boolean
+  handleMute: () => void
 }
 
 const useSiteAudioStore = create<SiteAudioStore>(() => ({
@@ -45,7 +54,16 @@ export function useInitializeAudioContext(element?: HTMLElement) {
     const targetElement = element || document
     const unlock = () => {
       if (!player) {
-        useSiteAudioStore.setState({ player: new WebAudioPlayer() })
+        const newPlayer = new WebAudioPlayer()
+        const savedMusicPreference = localStorage.getItem("music-enabled")
+
+        newPlayer.volume = savedMusicPreference === "true" ? 1 : 0
+
+        if (savedMusicPreference === null) {
+          window.dispatchEvent(new Event("firstInteraction"))
+        }
+
+        useSiteAudioStore.setState({ player: newPlayer })
       } else {
         targetElement.removeEventListener("click", unlock)
       }
@@ -60,11 +78,12 @@ export function useInitializeAudioContext(element?: HTMLElement) {
 
 export function SiteAudioSFXsLoader(): null {
   const player = useSiteAudioStore((s) => s.player)
-  const { GAME_AUDIO_SFX } = useAudioUrls()
+  const { GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX } = useAudioUrls()
 
   useEffect(() => {
     if (!player) return
 
+    // TODO: dont load audio sources if the user is not in the scene where the audio will be played
     const loadAudioSources = async () => {
       const newSources = {} as Record<SiteAudioSFXKey, AudioSource>
 
@@ -80,6 +99,47 @@ export function SiteAudioSFXsLoader(): null {
           })
         )
 
+        await Promise.all(
+          ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
+            const source = await player.loadAudioFromURL(button.PRESS)
+            source.setVolume(SFX_VOLUME)
+            newSources[`ARCADE_BUTTON_${index}_PRESS`] = source
+            const sourceRelease = await player.loadAudioFromURL(button.RELEASE)
+            sourceRelease.setVolume(SFX_VOLUME)
+            newSources[`ARCADE_BUTTON_${index}_RELEASE`] = sourceRelease
+          })
+        )
+
+        await Promise.all(
+          ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
+            const source = await player.loadAudioFromURL(stick.PRESS)
+            source.setVolume(SFX_VOLUME)
+            newSources[`ARCADE_STICK_${index}_PRESS`] = source
+            const sourceRelease = await player.loadAudioFromURL(stick.RELEASE)
+            sourceRelease.setVolume(SFX_VOLUME)
+            newSources[`ARCADE_STICK_${index}_RELEASE`] = sourceRelease
+          })
+        )
+
+        await Promise.all(
+          BLOG_AUDIO_SFX.LOCKED_DOOR.map(async (lockedDoor, index) => {
+            const source = await player.loadAudioFromURL(lockedDoor)
+            source.setVolume(SFX_VOLUME)
+            newSources[`BLOG_LOCKED_DOOR_${index}`] = source
+          })
+        )
+
+        await Promise.all(
+          BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
+            const source = await player.loadAudioFromURL(door.OPEN)
+            source.setVolume(SFX_VOLUME)
+            newSources[`BLOG_DOOR_${index}_OPEN`] = source
+            const sourceClose = await player.loadAudioFromURL(door.CLOSE)
+            sourceClose.setVolume(SFX_VOLUME)
+            newSources[`BLOG_DOOR_${index}_CLOSE`] = sourceClose
+          })
+        )
+
         useSiteAudioStore.setState({
           audioSfxSources: newSources
         })
@@ -89,7 +149,7 @@ export function SiteAudioSFXsLoader(): null {
     }
 
     loadAudioSources()
-  }, [player, GAME_AUDIO_SFX])
+  }, [player, GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX])
 
   return null
 }
@@ -126,16 +186,49 @@ export function useGameThemeSong() {
 export function useSiteAudio(): SiteAudioHook {
   const player = useSiteAudioStore((s) => s.player)
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
-  const [volumeMaster, _setVolumeMaster] = useState(player ? player.volume : 1)
+
+  // Initialize state with defaults
+  const [music, setMusic] = useState(false)
+  const [volumeMaster, _setVolumeMaster] = useState(0)
+
+  // Load preferences after mount
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const savedMusicPreference = localStorage.getItem("music-enabled")
+    if (savedMusicPreference === "true") {
+      setMusic(true)
+      _setVolumeMaster(1)
+    }
+
+    // First interaction handler
+    if (savedMusicPreference === null) {
+      const handleFirstInteraction = () => {
+        setMusic(true)
+        _setVolumeMaster(1)
+        localStorage.setItem("music-enabled", "true")
+      }
+
+      window.addEventListener("firstInteraction", handleFirstInteraction)
+      return () =>
+        window.removeEventListener("firstInteraction", handleFirstInteraction)
+    }
+  }, [])
 
   const togglePlayMaster = useCallback(() => {
     if (!player) return
     player.isPlaying ? player.pause() : player.resume()
   }, [player])
 
+  const handleMute = useCallback(() => {
+    if (typeof window === "undefined") return
+    setVolumeMaster(music ? 0 : 1)
+    setMusic(!music)
+  }, [music])
+
   const setVolumeMaster = useCallback(
     (volume: number) => {
-      if (!player) return
+      if (!player || typeof window === "undefined") return
       const gainNode = player.masterOutput
       const currentTime = player.audioContext.currentTime
       const FADE_DURATION = 0.75
@@ -146,6 +239,7 @@ export function useSiteAudio(): SiteAudioHook {
 
       player.volume = volume
       _setVolumeMaster(volume)
+      localStorage.setItem("music-enabled", volume > 0 ? "true" : "false")
     },
     [player]
   )
@@ -176,6 +270,8 @@ export function useSiteAudio(): SiteAudioHook {
     setVolumeMaster,
     volumeMaster,
     playSoundFX,
-    getSoundFXSource
+    getSoundFXSource,
+    music,
+    handleMute
   }
 }

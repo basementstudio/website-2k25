@@ -3,13 +3,13 @@
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
+import { Grid } from "@/components/grid"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
 import { useContactStore } from "../contact/contact-store"
-import { Grid } from "@/components/grid"
 
 const Logo = ({ className }: { className?: string }) => (
   <svg
@@ -31,8 +31,7 @@ interface NavbarContentProps {
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
-  const [music, setMusic] = useState(true)
-  const { setVolumeMaster } = useSiteAudio()
+  const { music, handleMute, setVolumeMaster } = useSiteAudio()
 
   const { handleNavigation } = useHandleNavigation()
 
@@ -41,11 +40,6 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
   const isOnTab = useIsOnTab()
 
   const pathname = usePathname()
-
-  const handleMute = () => {
-    setVolumeMaster(music ? 0 : 1)
-    setMusic(!music)
-  }
 
   useEffect(
     () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
@@ -68,7 +62,7 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
           <Logo className="h-[0.9375rem] text-brand-w1" />
         </button>
 
-        <div className="ga-5 col-start-3 col-end-11 flex w-full justify-center gap-5">
+        <div className="col-start-3 col-end-11 flex w-full justify-center gap-5">
           {links.map((link) => (
             <div key={link.href} className="flex items-center gap-1 text-p">
               <button
@@ -105,10 +99,14 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
             </span>
           </button>
           <button
+            id="nav-contact"
             onClick={() => setIsContactOpen(!isContactOpen)}
-            className="text-p capitalize text-brand-w1"
+            className={cn(
+              "!text-p capitalize text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+              isContactOpen && "text-brand-g1"
+            )}
           >
-            {isContactOpen ? "Close" : "Contact Us"}
+            Contact Us
           </button>
         </div>
       </div>

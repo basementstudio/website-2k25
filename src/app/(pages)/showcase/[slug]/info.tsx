@@ -13,10 +13,10 @@ import { RelatedProjects } from "./related"
 
 export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
   <div className="col-span-2 flex h-full flex-col gap-4">
-    <div className="sticky top-11 mb-48 flex flex-col gap-4">
+    <div className="sticky top-12 mb-48 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <Link
-          href="/projects"
+          href="/showcase"
           className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
         >
           <Arrow className="size-4 rotate-180" /> All Projects
@@ -31,13 +31,13 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
           label="Client"
           value={
             <span className="flex items-center gap-0.75">
-              {entry.icon ? (
+              {entry.project?.icon ? (
                 <span className="relative size-3.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
                   <Image
-                    src={entry.icon?.url}
+                    src={entry.project?.icon?.url}
                     fill
                     alt={
-                      entry.icon?.alt ||
+                      entry.project?.icon?.alt ||
                       entry.project?.client?._title ||
                       "Client logo"
                     }
@@ -85,18 +85,20 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
         <div />
       </ul>
 
-      {entry.project?.description?.json?.content ? (
+      {entry.project?.content?.json?.content ? (
         <div className="flex flex-col gap-2">
-          <RichText>{entry.project?.description?.json?.content}</RichText>
+          <RichText>{entry.project?.content?.json?.content}</RichText>
         </div>
       ) : null}
 
-      <Link
-        href={entry.project?.caseStudy || ""}
-        className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
-      >
-        View Case Study <Arrow className="size-4" />
-      </Link>
+      {entry.project?.caseStudy ? (
+        <Link
+          href={entry.project?.caseStudy || ""}
+          className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
+        >
+          View Case Study <Arrow className="size-4" />
+        </Link>
+      ) : null}
     </div>
 
     <RelatedProjects baseSlug={entry.project?._slug || ""} />

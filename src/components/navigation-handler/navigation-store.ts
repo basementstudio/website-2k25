@@ -3,10 +3,6 @@ import { create } from "zustand"
 
 import { IScene } from "./navigation.interface"
 
-interface TabIndices {
-  [key: string]: number
-}
-
 export const useNavigationStore = create<{
   scenes: IScene[] | null
   setScenes: (scenes: IScene[]) => void
@@ -23,14 +19,11 @@ export const useNavigationStore = create<{
   currentTabIndex: number
   setCurrentTabIndex: (index: number) => void
 
-  previousTabIndex: number
-  setPreviousTabIndex: (index: number) => void
-
-  stairVisibility: boolean
-  setStairVisibility: (visibility: boolean) => void
-
   disableCameraTransition: boolean
   setDisableCameraTransition: (disable: boolean) => void
+
+  enteredByKeyboard: boolean
+  setEnteredByKeyboard: (value: boolean) => void
 
   resetTabIndex: () => void
 
@@ -55,15 +48,12 @@ export const useNavigationStore = create<{
   currentTabIndex: -1,
   setCurrentTabIndex: (index) => set({ currentTabIndex: index }),
 
-  previousTabIndex: -1,
-  setPreviousTabIndex: (index) => set({ previousTabIndex: index }),
-
-  stairVisibility: false,
-  setStairVisibility: (visibility) => set({ stairVisibility: visibility }),
-
   disableCameraTransition: false,
   setDisableCameraTransition: (disable) =>
     set({ disableCameraTransition: disable }),
+
+  enteredByKeyboard: false,
+  setEnteredByKeyboard: (value) => set({ enteredByKeyboard: value }),
 
   resetTabIndex: () => set({ currentTabIndex: 0 }),
 

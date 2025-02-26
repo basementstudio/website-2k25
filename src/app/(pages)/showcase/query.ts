@@ -4,18 +4,12 @@ import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 
 export const query = fragmentOn("Query", {
   pages: {
-    projects: {
+    showcase: {
       projectList: {
         items: {
           _title: true,
-          cover: IMAGE_FRAGMENT,
-          icon: IMAGE_FRAGMENT,
-          showcase: {
-            items: {
-              image: IMAGE_FRAGMENT
-            }
-          },
           project: {
+            _title: true,
             _slug: true,
             client: {
               _title: true
@@ -23,6 +17,13 @@ export const query = fragmentOn("Query", {
             year: true,
             categories: {
               _title: true
+            },
+            cover: IMAGE_FRAGMENT,
+            icon: IMAGE_FRAGMENT,
+            showcase: {
+              items: {
+                image: IMAGE_FRAGMENT
+              }
             }
           }
         }

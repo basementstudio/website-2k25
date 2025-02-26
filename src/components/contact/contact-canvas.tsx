@@ -1,14 +1,18 @@
 "use client"
-import { Canvas } from "@react-three/offscreen"
+
+import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import { lazy, useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
+import { useContactStore } from "./contact-store"
+import UiOverlay from "./ui/ui-overlay"
 
 const Fallback = lazy(() => import("./fallback"))
 
 const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   const { contactPhone } = useAssets()
   const [worker, setWorker] = useState<Worker>()
+  const setStoreWorker = useContactStore((state) => state.setWorker)
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -18,6 +22,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
       }
     )
     setWorker(newWorker)
+    setStoreWorker(newWorker)
 
     if (contactPhone) {
       newWorker.postMessage({
@@ -28,24 +33,36 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
 
     return () => {
       newWorker.terminate()
+      setStoreWorker(null)
     }
-  }, [contactPhone])
+  }, [contactPhone, setStoreWorker])
 
-  console.log("[ContactCanvas] model url", contactPhone)
+  useEffect(() => {
+    if (worker) {
+      worker.postMessage({
+        type: "update-contact-open",
+        isContactOpen
+      })
+    }
+  }, [worker, isContactOpen])
 
   if (!worker) {
     return <Fallback />
   }
 
   return (
-    <Canvas
-      worker={worker}
-      fallback={<Fallback />}
-      shadows
-      frameloop={isContactOpen ? "always" : "never"}
-      camera={{ position: [0, 0.082, 5.25], fov: 25 }}
-      gl={{ antialias: false }}
-    />
+    <>
+      <OffscreenCanvas
+        worker={worker}
+        fallback={<Fallback />}
+        frameloop={isContactOpen ? "always" : "never"}
+        // 0.875 = z / 6 || 5.25 s6
+        camera={{ position: [0, 0.082, 5.25], fov: 25 }}
+        gl={{ antialias: false }}
+      />
+
+      <UiOverlay className="fixed left-[43.6vw] top-[54.4vh] aspect-[16/10] w-[33%] -translate-x-1/2 -translate-y-1/2 opacity-100 [perspective:800px]" />
+    </>
   )
 }
 
