@@ -226,21 +226,20 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
   const handleContinuousNavigation = useCallback(
     (direction: number) => {
+      if (navigationTimer.current) {
+        clearInterval(navigationTimer.current)
+        navigationTimer.current = null
+      }
+
       if (direction === 0) {
-        if (navigationTimer.current) {
-          clearInterval(navigationTimer.current)
-          navigationTimer.current = null
-        }
         return
       }
 
       handleLabNavigation(direction)
 
-      if (!navigationTimer.current) {
-        navigationTimer.current = setInterval(() => {
-          handleLabNavigation(direction)
-        }, 300)
-      }
+      navigationTimer.current = setInterval(() => {
+        handleLabNavigation(direction)
+      }, 300)
     },
     [handleLabNavigation]
   )
