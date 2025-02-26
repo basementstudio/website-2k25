@@ -470,7 +470,11 @@ export const Map = memo(() => {
       })
     }
 
-    if (!useMesh.getState().blog.lockedDoor && !useMesh.getState().blog.door) {
+    if (
+      !useMesh.getState().blog.lockedDoor &&
+      !useMesh.getState().blog.door &&
+      !useMesh.getState().blog.lamp
+    ) {
       const lockedDoor = officeModel?.getObjectByName("SM_00_012") as Mesh
       lockedDoor.userData.originalRotation = {
         x: lockedDoor.rotation.x,
@@ -483,10 +487,15 @@ export const Map = memo(() => {
         y: door.rotation.y,
         z: door.rotation.z
       }
+
+      const lamp = officeModel?.getObjectByName("Cube002") as Mesh
+
       if (lockedDoor?.parent) lockedDoor.removeFromParent()
       if (door?.parent) door.removeFromParent()
+      if (lamp?.parent) lamp.removeFromParent()
+
       useMesh.setState({
-        blog: { lockedDoor, door }
+        blog: { lockedDoor, door, lamp }
       })
     }
 
