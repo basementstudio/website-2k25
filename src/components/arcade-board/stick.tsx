@@ -36,13 +36,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const sequence = useRef<number[]>([])
   const navigationTimer = useRef<NodeJS.Timeout | null>(null)
 
-  const {
-    setLabTabIndex,
-    labTabIndex,
-    setIsInLabTab,
-    labTabs,
-    setIsSourceButtonSelected
-  } = useArcadeStore()
+  const { setLabTabIndex, setIsInLabTab, setIsSourceButtonSelected } =
+    useArcadeStore()
 
   const handleStickSound = (isRelease: boolean) => {
     if (state.current !== 0) {
@@ -148,8 +143,6 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     (direction: number) => {
       if (scene !== "lab") return
 
-      handleLabNavigation(direction)
-
       const targetRotation = {
         x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
         y: 0,
@@ -158,15 +151,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
       updateStickPosition(direction, targetRotation)
     },
-    [
-      scene,
-      stick.name,
-      availableSounds,
-      playSoundFX,
-      labTabIndex,
-      setLabTabIndex,
-      labTabs
-    ]
+    [scene, stick.name, availableSounds, playSoundFX]
   )
 
   const handleGrabStick = () => {
@@ -254,7 +239,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       if (!navigationTimer.current) {
         navigationTimer.current = setInterval(() => {
           handleLabNavigation(direction)
-        }, 200)
+        }, 300)
       }
     },
     [handleLabNavigation]
