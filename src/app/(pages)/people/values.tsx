@@ -7,7 +7,7 @@ import { QueryType } from "./query"
 
 export const Values = ({ data }: { data: QueryType }) => {
   return (
-    <section className="mb-44">
+    <section className="mb-18 lg:mb-44">
       <div className="grid-layout">
         <p className="col-span-full w-full border-b border-brand-w1/20 pb-2 text-mobile-h3 text-brand-g1 lg:text-h3">
           Our Values

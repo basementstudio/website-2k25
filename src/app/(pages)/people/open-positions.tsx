@@ -7,7 +7,7 @@ import { QueryType } from "./query"
 export const OpenPositions = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout !gap-y-6 lg:!gap-y-2">
-      <h2 className="relative z-20 col-span-full pt-[27px] text-mobile-h1 text-brand-w2 lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:text-h1">
+      <h2 className="relative z-20 col-span-full text-mobile-h1 text-brand-w2 lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:text-h1">
         Open Positions
       </h2>
 

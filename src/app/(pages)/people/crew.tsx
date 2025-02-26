@@ -24,7 +24,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
   )
 
   return (
-    <section className="grid-layout mb-44">
+    <section className="grid-layout mb-18 lg:mb-44">
       <div className="col-span-full -mb-6 flex items-end justify-between lg:col-start-5 lg:col-end-13">
         <h2 className="text-mobile-h1 text-brand-w2 lg:text-h2">The Crew</h2>
         <p className="text-mobile-h1 text-brand-g1 lg:text-h1">
