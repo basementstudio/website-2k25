@@ -526,7 +526,7 @@ export const Map = memo(() => {
       <ArcadeBoard />
       <BlogDoor />
       <LockedDoor />
-      <Physics debug interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
+      <Physics interpolate gravity={[0, -24, 0]} timeStep={1 / 60}>
         <Lamp />
       </Physics>
 
