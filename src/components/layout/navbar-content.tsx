@@ -31,8 +31,7 @@ interface NavbarContentProps {
 }
 
 export const NavbarContent = ({ links }: NavbarContentProps) => {
-  const [music, setMusic] = useState(true)
-  const { setVolumeMaster } = useSiteAudio()
+  const { music, handleMute, setVolumeMaster } = useSiteAudio()
 
   const { handleNavigation } = useHandleNavigation()
 
@@ -41,11 +40,6 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
   const isOnTab = useIsOnTab()
 
   const pathname = usePathname()
-
-  const handleMute = () => {
-    setVolumeMaster(music ? 0 : 1)
-    setMusic(!music)
-  }
 
   useEffect(
     () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
@@ -107,9 +101,12 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
           <button
             id="nav-contact"
             onClick={() => setIsContactOpen(!isContactOpen)}
-            className="text-p capitalize text-brand-w1"
+            className={cn(
+              "!text-p capitalize text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+              isContactOpen && "text-brand-g1"
+            )}
           >
-            {isContactOpen ? "Close" : "Contact Us"}
+            Contact Us
           </button>
         </div>
       </div>

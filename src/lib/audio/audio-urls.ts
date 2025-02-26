@@ -4,6 +4,9 @@ export function useAudioUrls() {
   const { sfx } = useAssets()
 
   return {
+    AMBIENCE: {
+      AMBIENCE: sfx.ambience
+    },
     GAME_THEME_SONGS: {
       BASKETBALL_AMBIENT: sfx.basketballTheme
     },
