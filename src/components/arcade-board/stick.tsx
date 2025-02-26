@@ -34,8 +34,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const [stickIsGrabbed, setStickIsGrabbed] = useState(false)
   const state = useRef(0)
   const sequence = useRef<number[]>([])
+  const navigationTimer = useRef<NodeJS.Timeout | null>(null)
 
-  // Lab navigation state
   const {
     setLabTabIndex,
     labTabIndex,
@@ -67,29 +67,31 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     handleStickSound(direction === 0)
     state.current = direction
 
-    handleLabNavigation(direction)
+    handleContinuousNavigation(direction)
   }
 
   const handleLabNavigation = (direction: number) => {
     if (stick.name !== "02_JYTK_L") return
 
     setIsInLabTab(true)
-    if (labTabIndex === -1) {
+    const currentLabTabIndex = useArcadeStore.getState().labTabIndex
+    const currentIsSourceButtonSelected =
+      useArcadeStore.getState().isSourceButtonSelected
+    const currentLabTabs = useArcadeStore.getState().labTabs
+
+    if (currentLabTabIndex === -1) {
       setLabTabIndex(0)
       return
     }
 
-    const isSourceButtonSelected =
-      useArcadeStore.getState().isSourceButtonSelected
-
     switch (direction) {
       case 4: // DOWN
-        if (labTabIndex === 0) {
+        if (currentLabTabIndex === 0) {
           setLabTabIndex(1)
           setIsSourceButtonSelected(false)
-        } else if (labTabs[labTabIndex]?.title !== "CHRONICLES") {
-          const nextIndex = labTabIndex + 1
-          if (nextIndex < labTabs.length) {
+        } else if (currentLabTabs[currentLabTabIndex]?.title !== "CHRONICLES") {
+          const nextIndex = currentLabTabIndex + 1
+          if (nextIndex < currentLabTabs.length) {
             setLabTabIndex(nextIndex)
             setIsSourceButtonSelected(false)
           }
@@ -97,27 +99,32 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         break
 
       case 3: // UP
-        if (isSourceButtonSelected) {
+        if (currentIsSourceButtonSelected) {
           setIsSourceButtonSelected(false)
-          setLabTabIndex(labTabIndex - 1)
-        } else if (labTabIndex > 1) {
-          if (labTabs[labTabIndex]?.title !== "LOOPER (COMING SOON)") {
-            setLabTabIndex(labTabIndex - 1)
+          setLabTabIndex(currentLabTabIndex - 1)
+        } else if (currentLabTabIndex > 1) {
+          if (
+            currentLabTabs[currentLabTabIndex]?.title !== "LOOPER (COMING SOON)"
+          ) {
+            setLabTabIndex(currentLabTabIndex - 1)
             setIsSourceButtonSelected(false)
           }
-        } else if (labTabIndex === 1) {
+        } else if (currentLabTabIndex === 1) {
           setLabTabIndex(0)
           setIsSourceButtonSelected(false)
         }
         break
 
       case 1: // RIGHT
-        const currentTab = labTabs[labTabIndex]
-        if (currentTab?.type === "experiment" && !isSourceButtonSelected) {
+        const currentTab = currentLabTabs[currentLabTabIndex]
+        if (
+          currentTab?.type === "experiment" &&
+          !currentIsSourceButtonSelected
+        ) {
           setIsSourceButtonSelected(true)
         } else if (currentTab?.title === "CHRONICLES") {
-          const nextIndex = labTabIndex + 1
-          if (nextIndex < labTabs.length) {
+          const nextIndex = currentLabTabIndex + 1
+          if (nextIndex < currentLabTabs.length) {
             setLabTabIndex(nextIndex)
             setIsSourceButtonSelected(false)
           }
@@ -125,10 +132,12 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         break
 
       case 2: // LEFT
-        if (isSourceButtonSelected) {
+        if (currentIsSourceButtonSelected) {
           setIsSourceButtonSelected(false)
-        } else if (labTabs[labTabIndex]?.title === "LOOPER (COMING SOON)") {
-          setLabTabIndex(labTabIndex - 1)
+        } else if (
+          currentLabTabs[currentLabTabIndex]?.title === "LOOPER (COMING SOON)"
+        ) {
+          setLabTabIndex(currentLabTabIndex - 1)
           setIsSourceButtonSelected(false)
         }
         break
@@ -230,6 +239,27 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     updateStickPosition(0, { x: 0, y: 0, z: 0 })
   }
 
+  const handleContinuousNavigation = useCallback(
+    (direction: number) => {
+      if (direction === 0) {
+        if (navigationTimer.current) {
+          clearInterval(navigationTimer.current)
+          navigationTimer.current = null
+        }
+        return
+      }
+
+      handleLabNavigation(direction)
+
+      if (!navigationTimer.current) {
+        navigationTimer.current = setInterval(() => {
+          handleLabNavigation(direction)
+        }, 200)
+      }
+    },
+    [handleLabNavigation]
+  )
+
   useEffect(() => {
     const canvas = document.querySelector("canvas")
     if (canvas) {
@@ -248,6 +278,15 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         "buttonPressed",
         handleButtonPress as EventListener
       )
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (navigationTimer.current) {
+        clearInterval(navigationTimer.current)
+        navigationTimer.current = null
+      }
     }
   }, [])
 
