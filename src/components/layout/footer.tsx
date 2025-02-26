@@ -63,10 +63,6 @@ export const Footer = () => (
         {
           title: "Laboratory",
           href: "/lab"
-        },
-        {
-          title: "Contact Us",
-          href: "/contact"
         }
       ]
 

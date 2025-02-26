@@ -9,9 +9,10 @@ import { Box3, Vector3, WebGLRenderTarget } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { createScreenMaterial } from "@/shaders/material-screen"
+import { useArcadeStore } from "@/store/arcade-store"
 
 import { RenderTexture } from "./render-texture"
-import { screenMaterial } from "./screen-material"
 
 const ScreenUI = dynamic(
   () =>
@@ -29,7 +30,10 @@ export const ArcadeScreen = () => {
   const pathname = usePathname()
   const currentScene = useCurrentScene()
   const isLabRoute = pathname === "/lab"
-
+  const hasUnlockedKonami = useArcadeStore((state) => state.hasUnlockedKonami)
+  const setHasUnlockedKonami = useArcadeStore(
+    (state) => state.setHasUnlockedKonami
+  )
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
@@ -41,6 +45,7 @@ export const ArcadeScreen = () => {
     texture.flipY = false
   })
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
+  const screenMaterial = useMemo(() => createScreenMaterial(), [])
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
   useEffect(() => {
@@ -61,8 +66,7 @@ export const ArcadeScreen = () => {
 
     videoTexture.flipY = false
 
-    // first time entering (show video texture)
-    if (!hasVisitedArcade) {
+    if (!hasVisitedArcade || hasUnlockedKonami) {
       if (isLabRoute) {
         screenMaterial.uniforms.map.value = bootTexture
         screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
@@ -77,6 +81,10 @@ export const ArcadeScreen = () => {
             if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
               screenMaterial.uniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
+              // reset Konami code after animation
+              if (hasUnlockedKonami) {
+                setHasUnlockedKonami(false)
+              }
             }
           }
         })
@@ -96,7 +104,10 @@ export const ArcadeScreen = () => {
     renderTarget.texture,
     videoTexture,
     isLabRoute,
-    bootTexture
+    bootTexture,
+    screenMaterial,
+    hasUnlockedKonami,
+    setHasUnlockedKonami
   ])
 
   useFrame((_, delta) => {

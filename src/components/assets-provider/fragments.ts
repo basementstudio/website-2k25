@@ -65,10 +65,25 @@ export const inspectableFragment = fragmentOn("Inspectables", {
   inspectableList: {
     items: {
       _id: true,
-      model: {
-        file: {
-          url: true
+      _title: true,
+      mesh: true,
+      specs: {
+        items: {
+          _id: true,
+          _title: true,
+          value: true
         }
+      },
+      description: {
+        json: {
+          content: true
+        }
+      },
+      xOffset: true,
+      yOffset: true,
+      sizeTarget: true,
+      scenes: {
+        _title: true
       }
     }
   }
@@ -89,6 +104,25 @@ export const sfxFragment = fragmentOn("Sfx", {
   },
   basketballBuzzer: {
     url: true
+  },
+  blog: {
+    lockedDoor: {
+      items: {
+        sound: {
+          url: true
+        }
+      }
+    },
+    door: {
+      items: {
+        open: {
+          url: true
+        },
+        close: {
+          url: true
+        }
+      }
+    }
   },
   arcade: {
     buttons: {
@@ -111,6 +145,9 @@ export const sfxFragment = fragmentOn("Sfx", {
         }
       }
     }
+  },
+  ambience: {
+    url: true
   }
 })
 

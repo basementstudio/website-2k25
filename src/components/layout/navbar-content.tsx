@@ -51,9 +51,7 @@ export const NavbarContent = ({
   socialLinks,
   newsletter
 }: NavbarContentProps) => {
-  const [music, setMusic] = useState(true)
-  const { setVolumeMaster } = useSiteAudio()
-
+  const { music, handleMute, setVolumeMaster } = useSiteAudio()
   const { handleNavigation } = useHandleNavigation()
 
   const isOnTab = useIsOnTab()
@@ -82,7 +80,7 @@ export const NavbarContent = ({
         <DesktopContent
           links={links}
           music={music}
-          setMusic={setMusic}
+          handleMute={handleMute}
           socialLinks={socialLinks}
           newsletter={newsletter}
         />
@@ -102,22 +100,14 @@ export const NavbarContent = ({
 
 interface ContentProps extends NavbarContentProps {
   music: boolean
-  setMusic: (music: boolean) => void
+  handleMute: () => void
 }
 
-const DesktopContent = ({ links, music, setMusic }: ContentProps) => {
-  const { setVolumeMaster } = useSiteAudio()
-
+const DesktopContent = ({ links, music, handleMute }: ContentProps) => {
   const { handleNavigation } = useHandleNavigation()
-
   const { setIsContactOpen, isContactOpen } = useContactStore()
 
   const pathname = usePathname()
-
-  const handleMute = () => {
-    setVolumeMaster(music ? 0 : 1)
-    setMusic(!music)
-  }
 
   return (
     <>

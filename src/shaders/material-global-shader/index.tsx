@@ -1,5 +1,5 @@
 import { animate } from "motion"
-import { MeshStandardMaterial, Texture, Vector3 } from "three"
+import { MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
@@ -62,7 +62,10 @@ export const createGlobalShaderMaterial = (
     emissiveMap: { value: emissiveMap },
 
     uGodrayOpacity: { value: 0 },
-    uGodrayDensity: { value: 0 }
+    uGodrayDensity: { value: 0 },
+    inspectingEnabled: { value: false },
+    inspectingFactor: { value: 0 },
+    fadeFactor: { value: 0 }
   } as Record<string, { value: unknown }>
 
   if (defines?.LIGHT) {

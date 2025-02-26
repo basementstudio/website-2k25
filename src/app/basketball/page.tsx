@@ -10,8 +10,14 @@ import { useMinigameStore } from "@/store/minigame-store"
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
 
 const Basketball = () => {
-  const { playerName, hasPlayed, score, isGameActive, timeRemaining, scoreMultiplier } =
-    useMinigameStore()
+  const {
+    playerName,
+    hasPlayed,
+    score,
+    isGameActive,
+    timeRemaining,
+    scoreMultiplier
+  } = useMinigameStore()
 
   const { handleNavigation } = useHandleNavigation()
 

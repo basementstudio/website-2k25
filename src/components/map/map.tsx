@@ -3,6 +3,8 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { folder as levaFolder, useControls } from "leva"
+import { animate, MotionValue } from "motion"
+import { AnimationPlaybackControls } from "motion/react"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -21,6 +23,13 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { BlogDoor } from "@/components/blog-door"
+import Cars from "@/components/cars/cars"
+import { useInspectable } from "@/components/inspectables/context"
+import { LockedDoor } from "@/components/locked-door"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { RoutingElement } from "@/components/routing-element/routing-element"
+import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import {
@@ -28,9 +37,6 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 
-import Cars from "../cars/cars"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
-import { RoutingElement } from "../routing-element/routing-element"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -87,6 +93,9 @@ export const Map = memo(() => {
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
   const [godrayScene, setGodrayScene] = useState<SceneType>(null)
 
+  const { inspectables: inspectableAssets } = useAssets()
+  const { selected } = useInspectable()
+
   const [godrays, setGodrays] = useState<Mesh[]>([])
   useGodrays({ godrays })
 
@@ -122,6 +131,21 @@ export const Map = memo(() => {
     }
   })
 
+  const fadeFactor = useRef(new MotionValue())
+  const inspectingEnabled = useRef(false)
+  const tl = useRef<AnimationPlaybackControls | null>(null)
+
+  useEffect(() => {
+    const easeDirection = selected ? 1 : 0
+
+    if (easeDirection === 1) inspectingEnabled.current = true
+
+    tl.current = animate(fadeFactor.current, easeDirection, ANIMATION_CONFIG)
+    tl.current.play()
+
+    return () => tl.current?.stop()
+  }, [selected])
+
   useFrame(({ clock }) => {
     godrays.forEach((mesh) => {
       // @ts-ignore
@@ -130,6 +154,9 @@ export const Map = memo(() => {
 
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
+
+      material.uniforms.inspectingEnabled.value = inspectingEnabled.current
+      material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
 
     if (keyframedNet && isAnimating.current) {
@@ -186,8 +213,8 @@ export const Map = memo(() => {
     const routingNodes: Record<string, Mesh> = {}
     routingElementsModel?.traverse((child) => {
       if (child instanceof Mesh) {
-        const matchingTab = currentScene?.tabs?.find((tab) =>
-          child.name.includes(tab.tabClickableName)
+        const matchingTab = currentScene?.tabs?.find(
+          (tab) => child.name === tab.tabClickableName
         )
 
         if (matchingTab) {
@@ -271,7 +298,8 @@ export const Map = memo(() => {
         const isGlass =
           currentMaterial.name === "BSM_MTL_Glass" ||
           currentMaterial.name === "BSM_MTL_LightLibrary" ||
-          currentMaterial.name === "BSM-MTL-Backup"
+          currentMaterial.name === "BSM-MTL-Backup" ||
+          currentMaterial.name === "MTL_LightBox"
 
         const isPlant = meshChild.name === "SM_plant01001"
 
@@ -362,10 +390,38 @@ export const Map = memo(() => {
     const hoopMesh = officeModel.getObjectByName(
       "SM_BasketballHoop"
     ) as Mesh | null
+
     if (hoopMesh) {
       hoopMesh.removeFromParent()
       hoopMesh.raycast = () => null
       useMesh.setState({ hoopMesh })
+    }
+
+    const inspectables = useMesh.getState().inspectableMeshes
+
+    if (inspectables.length === 0) {
+      const inspectableMeshes: Mesh[] = []
+
+      inspectableAssets.forEach(({ mesh: meshName }) => {
+        const mesh = officeModel.getObjectByName(meshName) as Mesh | null
+        if (mesh) {
+          mesh.userData.position = {
+            x: mesh.position.x,
+            y: mesh.position.y,
+            z: mesh.position.z
+          }
+
+          mesh.userData.rotation = {
+            x: mesh.rotation.x,
+            y: mesh.rotation.y,
+            z: mesh.rotation.z
+          }
+
+          inspectableMeshes.push(mesh)
+        }
+      })
+
+      useMesh.setState({ inspectableMeshes })
     }
 
     const netMesh = basketballNetModel.getObjectByName("Net") as Mesh | null
@@ -412,10 +468,31 @@ export const Map = memo(() => {
       })
     }
 
+    if (!useMesh.getState().blog.lockedDoor && !useMesh.getState().blog.door) {
+      const lockedDoor = officeModel?.getObjectByName("SM_00_012") as Mesh
+      lockedDoor.userData.originalRotation = {
+        x: lockedDoor.rotation.x,
+        y: lockedDoor.rotation.y,
+        z: lockedDoor.rotation.z
+      }
+      const door = officeModel?.getObjectByName("SM_00_010") as Mesh
+      door.userData.originalRotation = {
+        x: door.rotation.x,
+        y: door.rotation.y,
+        z: door.rotation.z
+      }
+      if (lockedDoor?.parent) lockedDoor.removeFromParent()
+      if (door?.parent) door.removeFromParent()
+      useMesh.setState({
+        blog: { lockedDoor, door }
+      })
+    }
+
     disableRaycasting(officeModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
   }, [
+    inspectableAssets,
     officeModel,
     outdoorModel,
     godrayModel,
@@ -445,11 +522,18 @@ export const Map = memo(() => {
       <primitive object={godrayScene} />
       <ArcadeScreen />
       <ArcadeBoard />
+      <BlogDoor />
+      <LockedDoor />
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
           (tab) => tab.tabClickableName === node.name
         )
+
+        const isLabGroup =
+          node.name === "LaboratoryHome_HoverA" ||
+          node.name === "LaboratoryHome_HoverB"
+        const groupName = isLabGroup ? "laboratory-home" : undefined
 
         return (
           <RoutingElement
@@ -457,6 +541,7 @@ export const Map = memo(() => {
             node={node}
             route={matchingTab?.tabRoute ?? ""}
             hoverName={matchingTab?.tabHoverName ?? node.name}
+            groupName={groupName}
           />
         )
       })}

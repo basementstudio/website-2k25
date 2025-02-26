@@ -9,7 +9,9 @@ import { useEffect, useRef, useState } from "react"
 import { Vector3 } from "three"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
+import { useArcadeStore } from "@/store/arcade-store"
 
+import { ffflauta } from "../../../public/fonts/ffflauta"
 import { ArcadeFeatured } from "./arcade-ui-components/arcade-featured"
 import { ArcadeLabsList } from "./arcade-ui-components/arcade-labs-list"
 import { ArcadePreview } from "./arcade-ui-components/arcade-preview"
@@ -23,7 +25,64 @@ interface ScreenUIProps {
 
 export const COLORS_THEME = {
   primary: "#FF4D00",
-  black: "#070707"
+  black: "#000"
+}
+
+export interface LabTab {
+  id: string
+  type: "button" | "experiment" | "featured"
+  title: string
+  url?: string
+  isClickable: boolean
+}
+
+export const createLabTabs = (experiments: any[]): LabTab[] => {
+  const tabs: LabTab[] = [
+    // Close button
+    {
+      id: "close",
+      type: "button",
+      title: "CLOSE [ESC]",
+      isClickable: true
+    },
+
+    // Experiments
+    ...experiments.map((exp) => ({
+      id: `experiment-${exp._title}`,
+      type: "experiment" as const,
+      title: exp._title.toUpperCase(),
+      url: `https://lab.basement.studio/experiments/${exp.url}`,
+      isClickable: true
+    })),
+
+    // View More button
+    {
+      id: "view-more",
+      type: "button",
+      title: "VIEW MORE",
+      url: "https://basement.studio/lab",
+      isClickable: true
+    },
+
+    // Chronicles
+    {
+      id: "chronicles",
+      type: "featured",
+      title: "CHRONICLES",
+      url: "https://chronicles.basement.studio",
+      isClickable: true
+    },
+
+    // Looper
+    {
+      id: "looper",
+      type: "featured",
+      title: "LOOPER (COMING SOON)",
+      isClickable: false
+    }
+  ]
+
+  return tabs
 }
 
 export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
@@ -36,14 +95,18 @@ export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
 
   useEffect(() => {
     fetchLaboratory().then((data) => {
-      setExperiments(
-        data.projectList.items.map((item: any) => ({
-          _title: item._title,
-          url: item.url,
-          cover: item.cover,
-          description: item.description as string | null
-        }))
-      )
+      const experiments = data.projectList.items.map((item: any) => ({
+        _title: item._title,
+        url: item.url,
+        cover: item.cover,
+        description: item.description as string | null
+      }))
+      setExperiments(experiments)
+
+      // initialize lab tabs
+      const labTabs = createLabTabs(experiments)
+      useArcadeStore.getState().setLabTabs(labTabs)
+
       onLoadRef.current?.()
     })
   }, [])
@@ -71,7 +134,7 @@ export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
       >
         <FontFamilyProvider
           ffflauta={{
-            normal: "/fonts/ffflauta.json"
+            normal: ffflauta
           }}
         >
           <DefaultProperties

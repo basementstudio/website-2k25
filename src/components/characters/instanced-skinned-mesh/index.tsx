@@ -13,8 +13,8 @@ import {
 import { create } from "zustand"
 
 import {
-  InstancedUniformParams,
-  InstancedBatchedSkinnedMesh
+  InstancedBatchedSkinnedMesh,
+  InstancedUniformParams
 } from "./instanced-skinned-mesh"
 
 type GroupProps = React.ComponentProps<"group">
@@ -120,6 +120,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       useInstancedMesh.setState({
         instancedMesh: instancer
       })
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refs, count, propMaterial])
 
     const instancedMesh = useInstancedMesh((state) => state.instancedMesh)

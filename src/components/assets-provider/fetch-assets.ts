@@ -27,7 +27,18 @@ export interface AssetsResult {
   }[]
   inspectables: {
     id: string
-    url: string
+    _title: string
+    specs: {
+      _id: string
+      _title: string
+      value: string
+    }[]
+    description: any
+    mesh: string
+    xOffset: number
+    yOffset: number
+    sizeTarget: number
+    scenes: string[]
   }[]
   videos: {
     mesh: string
@@ -35,11 +46,19 @@ export interface AssetsResult {
     intensity: number
   }[]
   sfx: {
+    ambience: string
     basketballTheme: string
     basketballSwoosh: string
     basketballNet: string
     basketballThump: string
     basketballBuzzer: string
+    blog: {
+      lockedDoor: string[]
+      door: {
+        open: string
+        close: string
+      }[]
+    }
     arcade: {
       buttons: {
         press: string
@@ -108,7 +127,7 @@ export interface AssetsResult {
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
-  const { threeDInteractions } = await basehub({
+  const { threeDInteractions, pages } = await basehub({
     next: { revalidate: 30 }
   }).query(assetsQuery)
 
@@ -137,21 +156,40 @@ export async function fetchAssets(): Promise<AssetsResult> {
       url: item.file?.url ?? "",
       intensity: item.intensity ?? 1
     })),
-    inspectables: threeDInteractions.inspectables.inspectableList.items.map(
-      (item) => ({
-        id: item._id,
-        url: item.model?.file?.url ?? ""
-      })
-    ),
+    inspectables: pages.inspectables.inspectableList.items.map((item) => ({
+      id: item._id ?? "",
+      _title: item._title ?? "",
+      specs: item.specs.items.map((item) => ({
+        _id: item._id,
+        _title: item._title,
+        value: item.value ?? ""
+      })),
+      description: item.description,
+      mesh: item.mesh ?? "",
+      xOffset: item.xOffset ?? 0,
+      yOffset: item.yOffset ?? 0,
+      sizeTarget: item.sizeTarget ?? 0,
+      scenes: item.scenes?.map((item) => item._title) ?? []
+    })),
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
     sfx: {
+      ambience: threeDInteractions.sfx.ambience?.url ?? "",
       basketballTheme: threeDInteractions.sfx.basketballTheme?.url ?? "",
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
       basketballNet: threeDInteractions.sfx.basketballNet?.url ?? "",
       basketballThump: threeDInteractions.sfx.basketballThump?.url ?? "",
       basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? "",
+      blog: {
+        lockedDoor: threeDInteractions.sfx.blog.lockedDoor.items.map(
+          (item) => item.sound?.url ?? ""
+        ),
+        door: threeDInteractions.sfx.blog.door.items.map((item) => ({
+          open: item.open?.url ?? "",
+          close: item.close?.url ?? ""
+        }))
+      },
       arcade: {
         buttons: threeDInteractions.sfx.arcade.buttons.items.map((item) => ({
           press: item.press?.url ?? "",
