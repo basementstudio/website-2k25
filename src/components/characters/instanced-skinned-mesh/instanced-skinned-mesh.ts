@@ -177,7 +177,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       })
     }
 
-
     this.material.onBeforeCompile = (shader) => {
       if (this.boneTexture === null) this.computeBoneTexture()
 
@@ -203,22 +202,32 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
   // texutres used to store instance data
   private dataTextures: Map<string, THREE.DataTexture> = new Map()
 
-  public addInstancedUniform(name: string, defaultValue: number | number[], type: THREE.TextureDataType = THREE.FloatType): THREE.DataTexture {
+  public addInstancedUniform(
+    name: string,
+    defaultValue: number | number[],
+    type: THREE.TextureDataType = THREE.FloatType
+  ): THREE.DataTexture {
     const textureSize = Math.ceil(Math.sqrt(this.maxInstanceCount))
+
     const totalPixels = textureSize * textureSize
 
     let format: THREE.PixelFormat = THREE.RGBAFormat
 
-    const arrayDefault = Array.isArray(defaultValue) ? defaultValue : [defaultValue]
+    const arrayDefault = Array.isArray(defaultValue)
+      ? defaultValue
+      : [defaultValue]
 
     if (arrayDefault.length === 1) {
-      format = type === THREE.FloatType ? THREE.RedFormat : THREE.RedIntegerFormat
+      format =
+        type === THREE.FloatType ? THREE.RedFormat : THREE.RedIntegerFormat
     } else if (arrayDefault.length === 2) {
       format = type === THREE.FloatType ? THREE.RGFormat : THREE.RGIntegerFormat
     } else if (arrayDefault.length === 3) {
-      format = type === THREE.FloatType ? THREE.RGBFormat : THREE.RGBIntegerFormat
+      format =
+        type === THREE.FloatType ? THREE.RGBFormat : THREE.RGBIntegerFormat
     } else if (arrayDefault.length === 4) {
-      format = type === THREE.FloatType ? THREE.RGBAFormat : THREE.RGBAIntegerFormat
+      format =
+        type === THREE.FloatType ? THREE.RGBAFormat : THREE.RGBAIntegerFormat
     }
 
     let data: Float32Array | Uint32Array | Uint8Array | Int32Array | null = null
@@ -226,18 +235,26 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       data = new Float32Array(totalPixels * arrayDefault.length)
     } else if (type === THREE.IntType) {
       data = new Int32Array(totalPixels * arrayDefault.length)
+      console.warn("Int types for samplers might not work in windows.")
     } else if (type === THREE.UnsignedIntType) {
       data = new Uint32Array(totalPixels * arrayDefault.length)
+      console.warn("Uint types for samplers might not work in windows.")
     }
 
     if (!data) {
-      throw new Error('Invalid type');
+      throw new Error("Invalid type")
     }
 
     for (let i = 0; i < totalPixels; i++) {
       data.set(arrayDefault, i * arrayDefault.length)
     }
-    const texture = new THREE.DataTexture(data, textureSize, textureSize, format, type)
+    const texture = new THREE.DataTexture(
+      data,
+      textureSize,
+      textureSize,
+      format,
+      type
+    )
     texture.needsUpdate = true
     this.dataTextures.set(name, texture)
     return texture
@@ -376,10 +393,14 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     return instanceId
   }
 
-  public setInstanceUniform(instanceId: number, name: string, value: number | number[]) {
+  public setInstanceUniform(
+    instanceId: number,
+    name: string,
+    value: number | number[]
+  ) {
     const texture = this.dataTextures.get(name)
     if (!texture) {
-      console.warn('Setting data on non-existent uniform', name)
+      console.warn("Setting data on non-existent uniform", name)
       return
     }
 
