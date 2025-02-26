@@ -139,19 +139,19 @@ export const Scene = () => {
 
               <StaticBasketballs />
 
-              <CharacterInstanceConfig />
-              <CharactersSpawn />
+              {/* <CharacterInstanceConfig />
+              <CharactersSpawn /> */}
             </>
           }
         />
-        <Perf
+        {/* <Perf
           style={{
             position: "absolute",
             top: 40,
             right: 10,
             zIndex: 1000
           }}
-        />
+        /> */}
       </Canvas>
     </div>
   )

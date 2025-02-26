@@ -28,6 +28,7 @@ const newLookAtDelta = new Vector3()
 const finalPos = new Vector3()
 const finalLookAt = new Vector3()
 const ANIMATION_DURATION = 2
+const NOT_FOUND_DURATION = 12
 
 interface Props {
   transition404Progress?: number
@@ -138,10 +139,12 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
         setTransitionPhase("to-home")
         progress.current = 0
 
-        currentPos.set(8.8, 1.15, -13.6)
-        currentTarget.set(8.96, 1.15, -14)
-        currentFov.current = 60
+        // tv viewing camera position
+        currentPos.set(8.76, 1.13, -13)
+        currentTarget.set(8.95, 1.12, -13.83)
+        currentFov.current = 30
 
+        // target: home camera
         if (cameraConfig) {
           targetPosition.set(...cameraConfig.position)
           targetLookAt.set(...cameraConfig.target)
@@ -158,7 +161,7 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
         return
       }
 
-      progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
+      progress.current = Math.min(progress.current + dt / NOT_FOUND_DURATION, 1)
       const easeValue = easeInOutCubic(progress.current)
 
       currentPos.lerp(targetPosition, easeValue)
@@ -183,6 +186,7 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
 
     if (transition404Progress > 0) {
       if (!transitionPhase) {
+        // tv camera?
         currentPos.set(8.8, 1.15, -13.2)
         currentTarget.set(9, 1.15, -14)
         currentFov.current = targetFov.current
