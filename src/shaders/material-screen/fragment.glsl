@@ -1,6 +1,7 @@
 uniform sampler2D map;
 uniform float uTime;
 uniform float uRevealProgress;
+uniform float uFlip;
 varying vec2 vUv;
 varying vec3 vPosition;
 
@@ -67,6 +68,11 @@ void main() {
   interferenceUv.x += ifx1 - ifx2;
 
   vec2 remappedUv = curveRemapUV(interferenceUv);
+
+  if (uFlip == 1.0) {
+    remappedUv.y = 1.0 - remappedUv.y;
+  }
+
   // add horizontal distortion near scan line
   float scanDistortion =
     exp(-pow((vUv.y - scanPos) * 160.0, 2.0)) * SCAN_DISTORTION;

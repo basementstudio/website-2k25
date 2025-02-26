@@ -113,7 +113,6 @@ export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
 
   return (
     <>
-      <color attach="background" args={["#000000"]} />
       <PerspectiveCamera
         manual
         makeDefault

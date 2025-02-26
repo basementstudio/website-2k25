@@ -1,4 +1,8 @@
-import { useTexture, useVideoTexture } from "@react-three/drei"
+import {
+  PerspectiveCamera,
+  useTexture,
+  useVideoTexture
+} from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate } from "motion"
 import dynamic from "next/dynamic"
@@ -13,6 +17,9 @@ import { createScreenMaterial } from "@/shaders/material-screen"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { RenderTexture } from "./render-texture"
+import { Physics } from "@react-three/rapier"
+import { Player } from "../arcade-game/player"
+import { Road } from "../arcade-game/road"
 
 const ScreenUI = dynamic(
   () =>
@@ -81,9 +88,8 @@ export const ArcadeScreen = () => {
             if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
               screenMaterial.uniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
-              // reset Konami code after animation
               if (hasUnlockedKonami) {
-                setHasUnlockedKonami(false)
+                screenMaterial.uniforms.uFlip = { value: 1 }
               }
             }
           }
@@ -125,9 +131,31 @@ export const ArcadeScreen = () => {
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
     >
-      {(hasVisitedArcade || isLabRoute) && (
+      {(hasVisitedArcade || isLabRoute) && !hasUnlockedKonami && (
         <ScreenUI screenScale={screenScale} />
       )}
+      {hasUnlockedKonami && <Game />}
     </RenderTexture>
+  )
+}
+
+const Game = () => {
+  return (
+    <>
+      <Physics>
+        <PerspectiveCamera
+          makeDefault
+          position={[30, 20, 20]}
+          fov={15}
+          ref={(camera) => {
+            if (camera) {
+              camera.lookAt(0, 1.5, 0)
+            }
+          }}
+        />
+        <Player />
+        <Road />
+      </Physics>
+    </>
   )
 }
