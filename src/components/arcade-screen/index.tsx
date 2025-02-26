@@ -20,6 +20,7 @@ import { RenderTexture } from "./render-texture"
 import { Physics } from "@react-three/rapier"
 import { Player } from "../arcade-game/player"
 import { Road } from "../arcade-game/road"
+import { NPCs } from "../arcade-game/npc"
 
 const ScreenUI = dynamic(
   () =>
@@ -155,6 +156,7 @@ const Game = () => {
         />
         <Player />
         <Road />
+        <NPCs />
       </Physics>
     </>
   )
