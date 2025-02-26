@@ -1,7 +1,7 @@
 import { useGLTF, useTexture } from "@react-three/drei"
 import { memo, useMemo } from "react"
 import type * as THREE from "three"
-import { BufferAttribute, FloatType, UnsignedIntType } from "three"
+import { BufferAttribute, FloatType, IntType, UnsignedIntType } from "three"
 
 import { useAssets } from "../assets-provider"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
@@ -109,6 +109,7 @@ function CharacterInstanceConfigInner() {
     material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: 2 }
 
     return material
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textureBody, textureFaces, nodes])
 
   return (
@@ -119,7 +120,7 @@ function CharacterInstanceConfigInner() {
         animations={animations}
         count={MAX_CHARACTERS_INSTANCES}
         instancedUniforms={[
-          { name: "uMapIndex", defaultValue: 0, type: UnsignedIntType },
+          { name: "uMapIndex", defaultValue: 0, type: FloatType },
           // used to select face, body textures
           { name: "uMapOffset", defaultValue: [0, 0], type: FloatType }
         ]}

@@ -7,8 +7,7 @@
 #ifdef USE_MULTI_MAP
 // attribute float mapIndex;
 varying float vMapIndex;
-
-uniform usampler2D uMapIndex;
+uniform sampler2D uMapIndex;
 #endif
 
 uniform sampler2D uMapOffset;
@@ -44,6 +43,7 @@ void main() {
   #ifdef USE_MULTI_MAP
   ivec2 mapIndexCoord = getSampleCoord(uMapIndex, batchId);
   vMapIndex = float(texelFetch(uMapIndex, mapIndexCoord, 0).x);
+  // vMapIndex = 0.0;
   #endif
 
   ivec2 mapOffsetCoord = getSampleCoord(uMapOffset, batchId);
