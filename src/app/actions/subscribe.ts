@@ -26,7 +26,8 @@ export async function subscribe(formData: FormData) {
       },
       body: JSON.stringify({
         email_address: email,
-        status: "subscribed"
+        status: "subscribed",
+        tags: ["Newsletter"]
       })
     })
 
