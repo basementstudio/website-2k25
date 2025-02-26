@@ -10,7 +10,7 @@ interface InternalLinksProps {
 export const InternalLinks = ({ className, links }: InternalLinksProps) => (
   <ul
     className={cn(
-      "!text-mobile-h2 flex flex-col gap-y-1 text-brand-g1 lg:!text-h2",
+      "flex flex-col gap-y-1 !text-mobile-h2 text-brand-g1 lg:!text-h2",
       className
     )}
   >
@@ -37,7 +37,7 @@ interface SocialLinksProps {
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div
     className={cn(
-      "!text-mobile-p flex gap-x-1 text-brand-g1 lg:!text-p",
+      "flex gap-x-1 !text-mobile-p text-brand-g1 lg:!text-p",
       className
     )}
   >
@@ -70,7 +70,7 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
 export const Copyright = ({ className }: { className?: string }) => (
   <p
     className={cn(
-      "!text-mobile-p text-right text-brand-g1 lg:!text-p",
+      "text-right !text-mobile-p text-brand-g1 lg:!text-p",
       className
     )}
   >
@@ -84,7 +84,7 @@ export const SoDa = ({ className }: { className?: string }) => (
   >
     <Link
       className={cn(
-        "!text-mobile-p text-right font-semibold text-brand-w1 lg:!text-p",
+        "text-right !text-mobile-p font-semibold text-brand-w1 lg:!text-p",
         className
       )}
       href="https://www.sodaspeaks.com/"
