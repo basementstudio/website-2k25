@@ -1,5 +1,6 @@
 "use client"
 
+import { useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 
 import { Filters } from "./filters"
@@ -18,7 +19,12 @@ export type CategoryItem = {
 }
 
 export const ProjectList = ({ data }: { data: QueryType }) => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const searchParams = useSearchParams()
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    searchParams.get("category")
+      ? [decodeURIComponent(searchParams.get("category")!)]
+      : []
+  )
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
 
   const categories = useMemo(() => {

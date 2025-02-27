@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import { RichText } from "@/components/primitives/rich-text"
 
 import { QueryType } from "./query"
@@ -25,7 +27,14 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
               key={c._title}
               className="col-span-2 mt-1.25 flex flex-col gap-y-6 text-brand-w1"
             >
-              <h4 className="actionable text-h4">{c._title}</h4>
+              <h4 className="text-h4">
+                <Link
+                  className="actionable"
+                  href={`/showcase?category=${encodeURIComponent(c._title)}`}
+                >
+                  {c._title}
+                </Link>
+              </h4>
 
               <p className="-mt-1 text-h4">{c.description}</p>
 
