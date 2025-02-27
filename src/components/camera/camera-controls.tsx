@@ -142,7 +142,7 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
         // tv viewing camera position
         currentPos.set(8.76, 1.13, -13)
         currentTarget.set(8.95, 1.12, -13.83)
-        currentFov.current = 30
+        currentFov.current = 20
 
         // target: home camera
         if (cameraConfig) {

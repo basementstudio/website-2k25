@@ -32,14 +32,14 @@ export const cctvConfig = {
   }),
   shouldBakeCCTV: false,
   frameCounter: 0,
-  framesPerUpdate: 8,
+  framesPerUpdate: 16,
   camera: new PerspectiveCamera(30, 1, 0.1, 1000)
 }
 
 cctvConfig.camera.position.set(8.4, 3.85, -6.4)
 cctvConfig.camera.lookAt(new Vector3(6.8, 3.2, -8.51))
-cctvConfig.camera.fov = 60
-// cctvConfig.camera.aspect = ???
+cctvConfig.camera.fov = 100
+cctvConfig.camera.aspect = 16 / 9
 cctvConfig.camera.updateProjectionMatrix()
 
 export const Renderer = memo(RendererInner)
