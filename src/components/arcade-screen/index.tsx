@@ -21,6 +21,10 @@ import { Physics } from "@react-three/rapier"
 import { Player } from "../arcade-game/player"
 import { Road } from "../arcade-game/road"
 import { NPCs } from "../arcade-game/npc"
+import { DefaultProperties, Root, Text } from "@react-three/uikit"
+import { FontFamilyProvider } from "@react-three/uikit"
+import { COLORS_THEME } from "./screen-ui"
+import { ffflauta } from "../../../public/fonts/ffflauta"
 
 const ScreenUI = dynamic(
   () =>
@@ -143,7 +147,40 @@ export const ArcadeScreen = () => {
 const Game = ({ visible }: { visible: boolean }) => {
   return (
     <group visible={visible}>
-      <Physics paused={!visible}>
+      <group position={[0, 5.3, 8]}>
+        <Root
+          width={1000}
+          height={690}
+          positionType="relative"
+          display="flex"
+          flexDirection="column"
+          paddingY={24}
+          paddingX={18}
+        >
+          <FontFamilyProvider
+            ffflauta={{
+              normal: ffflauta
+            }}
+          >
+            <DefaultProperties
+              fontFamily={"ffflauta"}
+              fontSize={32}
+              fontWeight={"normal"}
+              color={COLORS_THEME.primary}
+            >
+              <Text
+                width={"100%"}
+                textAlign="center"
+                positionType="absolute"
+                positionBottom={100}
+              >
+                Press [SPACE] to start
+              </Text>
+            </DefaultProperties>
+          </FontFamilyProvider>
+        </Root>
+      </group>
+      <Physics>
         <PerspectiveCamera
           makeDefault
           position={[30, 20, 20]}
