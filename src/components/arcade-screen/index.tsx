@@ -218,14 +218,9 @@ const Game = ({ visible }: { visible: boolean }) => {
           setGameOver(false)
           setGameStarted(true)
           setSpeed(GAME_SPEED)
-        } else {
-          // Toggle between speeds
-          const newSpeed =
-            speedRef.current === DEFAULT_SPEED ? GAME_SPEED : DEFAULT_SPEED
-          setSpeed(newSpeed)
-          if (newSpeed === GAME_SPEED && !gameStarted) {
-            setGameStarted(true)
-          }
+        } else if (!gameStarted) {
+          setGameStarted(true)
+          setSpeed(GAME_SPEED)
         }
       }
     }
@@ -271,7 +266,7 @@ const Game = ({ visible }: { visible: boolean }) => {
               textAlign={"center"}
             >
               <Text positionType="absolute" positionTop={0} positionLeft={50}>
-                pts: {`${scoreDisplay}`}
+                score: {`${scoreDisplay}`}
               </Text>
               {!gameStarted && !gameOver && <Text>Press [SPACE] to start</Text>}
               {gameStarted && gameOver && (
