@@ -282,12 +282,39 @@ export const Map = memo(() => {
         if (meshChild.name === "SM_TvScreen_4") {
           useMesh.setState({ cctv: { screen: meshChild } })
           const texture = cctvConfig.renderTarget.texture
-          texture.rotation = Math.PI
-          texture.center.set(0.5, 0.5)
-          texture.repeat.x = -1
-          meshChild.material = new THREE.MeshBasicMaterial({
-            map: texture,
-            toneMapped: false
+
+          meshChild.material = new THREE.ShaderMaterial({
+            uniforms: {
+              tDiffuse: { value: texture }
+            },
+            vertexShader: `
+              varying vec2 vUv;
+              void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `,
+            fragmentShader: `
+              uniform sampler2D tDiffuse;
+              varying vec2 vUv;
+              void main() {
+                // transform the uv
+                vec2 transformedUv = vUv;
+                transformedUv.x = 1.0 - transformedUv.x; 
+                transformedUv -= 0.5; 
+                float cosR = -1.0;
+                float sinR = 0.0; 
+                vec2 rotatedUv = vec2(
+                  transformedUv.x * cosR - transformedUv.y * sinR,
+                  transformedUv.x * sinR + transformedUv.y * cosR
+                );
+                rotatedUv += 0.5; 
+                
+                vec4 color = texture2D(tDiffuse, rotatedUv);
+                float grayscale = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+                gl_FragColor = vec4(vec3(grayscale), color.a);
+              }
+            `
           })
           return
         }

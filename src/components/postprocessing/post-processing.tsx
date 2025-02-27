@@ -1,6 +1,5 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { useEffect, useMemo, useRef } from "react"
 import {
