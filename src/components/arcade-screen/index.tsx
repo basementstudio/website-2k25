@@ -25,6 +25,7 @@ import { DefaultProperties, Root, Text } from "@react-three/uikit"
 import { FontFamilyProvider } from "@react-three/uikit"
 import { COLORS_THEME } from "./screen-ui"
 import { ffflauta } from "../../../public/fonts/ffflauta"
+import { useGame } from "../arcade-game/lib/use-game"
 
 const ScreenUI = dynamic(
   () =>
@@ -145,6 +146,17 @@ export const ArcadeScreen = () => {
 }
 
 const Game = ({ visible }: { visible: boolean }) => {
+  useEffect(() => {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === " ") {
+        useGame.setState({ gameStarted: true })
+      }
+    })
+    return () => {
+      window.removeEventListener("keydown", (e) => {})
+    }
+  }, [])
+
   return (
     <group visible={visible}>
       <group position={[0, 5.3, 8]}>

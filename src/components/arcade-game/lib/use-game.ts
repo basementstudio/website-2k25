@@ -18,6 +18,8 @@ export interface GameStore {
   setLine: (line: number) => void
   addLine: (ammount?: number) => void
   gameOver: boolean
+  gameStarted: boolean
+  setGameStarted: (started: boolean) => void
 
   // debug
   showHitBoxes: boolean
@@ -26,6 +28,7 @@ export interface GameStore {
 export const useGame = create<GameStore>((set) => {
   return {
     activeCamera: "player",
+    gameStarted: false,
     gameOver: false,
     currentLine: 0,
     showHitBoxes: false,
@@ -36,6 +39,9 @@ export const useGame = create<GameStore>((set) => {
       set((state) => {
         return { currentLine: state.currentLine + ammount }
       })
+    },
+    setGameStarted: (started: boolean) => {
+      set({ gameStarted: started })
     }
   } as const satisfies GameStore
 })
