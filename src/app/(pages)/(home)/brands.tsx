@@ -9,12 +9,14 @@ import { QueryType } from "./query"
 
 export const Brands = ({ data }: { data: QueryType }) => {
   const isDesktop = useMedia("(min-width: 1024px)")
+  const isTablet = useMedia("(min-width: 768px)")
 
   const rows = useMemo(() => {
     const brands =
       data.company.clients?.clientList.items.filter((c) => c.logo) ?? []
 
-    const chunkSize = isDesktop ? 9 : 3
+    const chunkSize = isDesktop ? 9 : isTablet ? 6 : 4
+
     return brands.reduce<
       { logo: string | null; website: string | null; _id: string }[][]
     >((acc, brand, index) => {
@@ -25,12 +27,12 @@ export const Brands = ({ data }: { data: QueryType }) => {
       acc[rowIndex].push(brand)
       return acc
     }, [])
-  }, [data.company.clients?.clientList.items, isDesktop])
+  }, [data.company.clients?.clientList.items, isDesktop, isTablet])
 
   return (
     <section className="grid-layout !gap-y-0">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="text-mobile-h3 col-span-full mb-2 text-brand-g1 lg:col-start-3 lg:col-end-6 lg:text-h3">
+        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-6 lg:text-h3">
           Trusted by Visionaries
         </h3>
 
@@ -42,7 +44,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
           {rows.map((row, index) => (
             <div
               key={`brands-row-${index}`}
-              className="flex items-center gap-x-9 py-3"
+              className="flex items-center justify-between gap-x-2 py-3 sm:gap-x-9 md:justify-start"
             >
               {row.map((brand) => (
                 <Link
@@ -50,6 +52,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
                   target="_blank"
                   key={brand._id}
                   dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
+                  className="[&>svg]:w-16 sm:[&>svg]:w-auto"
                 />
               ))}
             </div>
