@@ -51,9 +51,12 @@ export const NavbarContent = ({ links }: NavbarContentProps) => {
 
   const scrollPercentage = useMemo(
     () =>
-      (scrollY + window.innerHeight) / document.documentElement.scrollHeight,
+      (scrollY + (typeof window !== "undefined" ? window.innerHeight : 0)) /
+      (typeof document !== "undefined"
+        ? document.documentElement.scrollHeight
+        : 0),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scrollY, document.documentElement.scrollHeight, window.innerHeight]
+    [scrollY]
   )
 
   return (
