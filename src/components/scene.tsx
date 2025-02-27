@@ -139,8 +139,8 @@ export const Scene = () => {
 
               <StaticBasketballs />
 
-              {/* <CharacterInstanceConfig />
-              <CharactersSpawn /> */}
+              <CharacterInstanceConfig />
+              <CharactersSpawn />
             </>
           }
         />

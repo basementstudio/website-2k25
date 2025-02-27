@@ -60,6 +60,11 @@ function RendererInner({ sceneChildren }: RendererProps) {
 
       gl.outputColorSpace = SRGBColorSpace
       gl.toneMapping = NoToneMapping
+      // set render target to cctv screen
+      // pov?
+      // guardar un objeto export de cctv, tenga render target y shootSwitch algo asi
+      // que indique si tenemos que switchear o no, no usar estados, simplemente un boolean y listo
+      // back home -> should bake cctv off
       gl.setRenderTarget(null)
       gl.render(postProcessingScene, postProcessingCameraRef.current)
     }
