@@ -37,7 +37,6 @@ const material = new ShaderMaterial({
     uBrightness: { value: 1 },
     uExposure: { value: 1 },
     uGamma: { value: 1 },
-    u404Transition: { value: 0.0 },
 
     // Vignette
     uVignetteRadius: { value: 0.9 },
@@ -167,46 +166,6 @@ export function PostProcessing({
 
     return () => controller.abort()
   }, [mainTexture])
-
-  useEffect(() => {
-    const is404 = scene === "404"
-    const start404Value = material.uniforms.u404Transition.value
-    const end404Value = is404 ? 1.0 : 0.0
-
-    material.defines = {
-      ...(material.defines || {}),
-      IS_404_SCENE: is404
-    }
-    material.needsUpdate = true
-
-    const duration = 700
-    const startTime = performance.now()
-    let animationFrame: number
-
-    const animate = () => {
-      const currentTime = performance.now()
-      const elapsed = currentTime - startTime
-      const progress = Math.min(elapsed / duration, 1)
-
-      const easeProgress =
-        progress < 0.5
-          ? 2 * progress * progress
-          : -1 + (4 - 2 * progress) * progress
-
-      material.uniforms.u404Transition.value =
-        start404Value + (end404Value - start404Value) * easeProgress
-
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate)
-      }
-    }
-
-    animationFrame = requestAnimationFrame(animate)
-
-    return () => {
-      if (animationFrame) cancelAnimationFrame(animationFrame)
-    }
-  }, [scene])
 
   useFrame(({ clock }) => {
     material.uniforms.uTime.value = clock.elapsedTime

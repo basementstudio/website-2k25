@@ -33,8 +33,8 @@ export default function NotFound() {
 
   return (
     <>
-      <div className="fixed top-9 z-30 flex h-[calc(100dvh-36px)] w-full px-20 py-14">
-        <div className="relative grid h-full w-full place-items-center p-14">
+      <div className="fixed top-9 z-30 grid h-[calc(100dvh-36px)] w-full place-items-center">
+        <div className="relative grid aspect-[4/3] h-full max-h-[768px] w-full max-w-[1024px] place-items-center p-14">
           <div className="absolute left-0 top-0">
             <div className="h-[60px] w-[2px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
             <div className="absolute top-0 h-[2px] w-[60px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />

@@ -31,7 +31,6 @@ uniform float uEllipseSoftness;
 uniform bool uDebugEllipse;
 
 // 404
-uniform bool uIs404;
 uniform float u404Transition;
 
 uniform float uTime;
@@ -191,11 +190,6 @@ vec3 tonemap(vec3 color) {
   color = invertedGamma(color, uGamma);
   color = ACESFilmicToneMapping(color);
 
-  #ifdef IS_404_SCENE
-  float gray = dot(color, vec3(0.299, 0.587, 0.114));
-  color = mix(color, vec3(gray), u404Transition);
-  #endif
-
   return color;
 }
 
@@ -249,29 +243,9 @@ void main() {
   bloom /= totalWeight + 0.0001;
   vec3 bloomColor = bloom * uBloomStrength * checkerPattern;
 
-  #ifdef IS_404_SCENE
-  float bloomGray = dot(bloomColor, vec3(0.299, 0.587, 0.114));
-  bloomColor = vec3(bloomGray);
-  #endif
-
   // Add bloom to result with strength control
   color += bloomColor;
   color = clamp(color, 0.0, 1.0);
-
-  #ifdef IS_404_SCENE
-  // Apply CRT effect
-  float count = resolution.y * DENSITY;
-  float scanline = sin(vUv.y * count);
-  vec3 scanlines = vec3(scanline);
-
-  color += color * scanlines * OPACITY_SCANLINE;
-  color += color * vec3(random(vUv * uTime)) * OPACITY_NOISE;
-
-  // Add additional time-based noise
-  vec2 noiseUv = vUv + uTime * 0.1;
-  float timeNoise = random(noiseUv) * 0.02;
-  color += vec3(timeNoise);
-  #endif
 
   // Vignette
   float vignetteFactor = getVignetteFactor(vUv);
