@@ -19,6 +19,9 @@ export interface MeshStore {
     lockedDoor: Mesh | null
     door: Mesh | null
   }
+  cctv: {
+    screen: Mesh | null
+  }
 }
 
 /** Global store for extracted meshes */
@@ -37,5 +40,8 @@ export const useMesh = create<MeshStore>()((set) => ({
   blog: {
     lockedDoor: null,
     door: null
+  },
+  cctv: {
+    screen: null
   }
 }))

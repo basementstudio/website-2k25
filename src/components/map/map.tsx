@@ -37,6 +37,7 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 
+import CCTVCamera from "../camera/cctv-camera"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -279,7 +280,7 @@ export const Map = memo(() => {
         const video = videos.find((video) => video.mesh === meshChild.name)
 
         // TODO: we need to omit SM_TvScreen_4 to put our own render texture on it
-        if (video) {
+        if (video && meshChild.name !== "SM_TvScreen_4") {
           const videoTexture = createVideoTexture(video.url)
 
           currentMaterial.map = videoTexture
@@ -294,6 +295,11 @@ export const Map = memo(() => {
           currentMaterial.emissiveMap.generateMipmaps = false
           currentMaterial.emissiveMap.magFilter = THREE.NearestFilter
           currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
+        }
+
+        if (meshChild.name === "SM_TvScreen_4") {
+          meshChild.userData.hasGlobalMaterial = true
+          useMesh.setState({ cctv: { screen: meshChild } })
         }
 
         const isGlass =
@@ -556,6 +562,8 @@ export const Map = memo(() => {
       <Suspense fallback={null}>
         <Cars />
       </Suspense>
+
+      <CCTVCamera />
     </group>
   )
 })

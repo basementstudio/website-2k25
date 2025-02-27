@@ -41,7 +41,6 @@ const PhysicsWorld = dynamic(
 import { PlayedBasketballs } from "./basketball/played-basketballs"
 import StaticBasketballs from "./basketball/static-basketballs"
 import { CameraController } from "./camera/camera-controller"
-import CCTVCamera from "./camera/cctv-camera"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
@@ -145,16 +144,14 @@ export const Scene = () => {
             </>
           }
         />
-        {/* <Perf
+        <Perf
           style={{
             position: "absolute",
             top: 40,
             right: 10,
             zIndex: 1000
           }}
-        /> */}
-
-        <CCTVCamera />
+        />
       </Canvas>
     </div>
   )
