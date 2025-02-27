@@ -7,6 +7,7 @@ import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
 import { TextList } from "@/components/primitives/text-list"
 
+import { Back } from "./back"
 import { Filters } from "./gallery-filter"
 import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
@@ -15,12 +16,7 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
   <div className="col-span-2 flex h-full flex-col gap-4">
     <div className="sticky top-12 flex h-[calc(100vh-56px)] flex-col gap-4">
       <div className="flex items-center justify-between">
-        <Link
-          href="/showcase?s=true"
-          className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
-        >
-          <Arrow className="size-4 rotate-180" /> All Projects
-        </Link>
+        <Back />
 
         <Filters />
       </div>
@@ -59,15 +55,7 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
         />
         <InfoItem
           label="Awards"
-          value={
-            <TextList
-              value={["Awwwards", "CSS Design Awards"].map((a) => (
-                <p key={a} className="text-brand-w1">
-                  {a}
-                </p>
-              ))}
-            />
-          }
+          value={<TextList value={["Awwwards", "CSS Design Awards"]} />}
         />
         <InfoItem
           label="Website"

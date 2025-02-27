@@ -2,6 +2,8 @@ import { LinkedInIcon, XIcon } from "@/components/icons/icons"
 import { Link } from "@/components/primitives/link"
 import { formatDate } from "@/utils/format-date"
 
+import { Back } from "./back"
+
 const socialLinks = [
   {
     Icon: LinkedInIcon,
@@ -55,14 +57,7 @@ export default function BlogMeta({
 }) {
   return (
     <div className="grid-layout relative text-p">
-      {categories && (
-        <Link
-          href="/blog?s=true"
-          className="col-span-1 col-start-1 text-brand-w1"
-        >
-          ← <span className="underline">Blog</span>
-        </Link>
-      )}
+      <Back />
       <div className="col-span-10 col-start-2 flex justify-center">
         <div className="flex w-full max-w-[846px] flex-col gap-3">
           {!categories && <hr className="mt-10 border-brand-w1/20" />}
