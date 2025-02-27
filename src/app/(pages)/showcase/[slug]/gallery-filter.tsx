@@ -62,7 +62,7 @@ export const Filters = () => {
   const { viewMode, setViewMode } = useProjectContext()
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="hidden items-center gap-1 lg:flex">
       <GalleryFilter
         mode="grid"
         viewMode={viewMode}
