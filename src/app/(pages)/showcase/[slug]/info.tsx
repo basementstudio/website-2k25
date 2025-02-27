@@ -16,7 +16,7 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
     <div className="sticky top-12 flex h-[calc(100vh-56px)] flex-col gap-4">
       <div className="flex items-center justify-between">
         <Link
-          href="/showcase"
+          href="/showcase?s=true"
           className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
         >
           <Arrow className="size-4 rotate-180" /> All Projects

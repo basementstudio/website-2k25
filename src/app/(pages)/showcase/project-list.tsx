@@ -1,7 +1,8 @@
 "use client"
 
+import { useLenis } from "lenis/react"
 import { useSearchParams } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { Filters } from "./filters"
 import { Grid } from "./grid"
@@ -19,6 +20,8 @@ export type CategoryItem = {
 }
 
 export const ProjectList = ({ data }: { data: QueryType }) => {
+  const lenis = useLenis()
+
   const searchParams = useSearchParams()
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     searchParams.get("category")
@@ -26,6 +29,10 @@ export const ProjectList = ({ data }: { data: QueryType }) => {
       : []
   )
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
+
+  useEffect(() => {
+    if (searchParams.get("s")) lenis?.scrollTo("#projects", { immediate: true })
+  }, [searchParams, lenis])
 
   const categories = useMemo(() => {
     const categoryMap = new Map<string, number>()

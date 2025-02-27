@@ -11,7 +11,7 @@ const Projects = () => (
       "use server"
 
       return (
-        <div className="flex flex-col gap-24">
+        <div id="projects" className="flex scroll-m-4 flex-col gap-24">
           <Hero data={data} />
           <Suspense fallback={null}>
             <ProjectList data={data} />

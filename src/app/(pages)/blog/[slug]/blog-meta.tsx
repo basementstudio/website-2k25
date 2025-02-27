@@ -56,7 +56,10 @@ export default function BlogMeta({
   return (
     <div className="grid-layout relative text-p">
       {categories && (
-        <Link href="/blog" className="col-span-1 col-start-1 text-brand-w1">
+        <Link
+          href="/blog?s=true"
+          className="col-span-1 col-start-1 text-brand-w1"
+        >
           ← <span className="underline">Blog</span>
         </Link>
       )}

@@ -1,4 +1,5 @@
 import { Pump } from "basehub/react-pump"
+import { Suspense } from "react"
 
 import BlogList from "./blog-list"
 import BlogPosts from "./blogs"
@@ -19,12 +20,17 @@ const Blogs = () => (
       ).filter((c): c is string => c !== undefined)
 
       return (
-        <div className="pb-25 relative flex flex-col gap-40 bg-brand-k">
+        <div
+          id="blog"
+          className="pb-25 relative flex flex-col gap-40 bg-brand-k"
+        >
           <Hero data={data} />
-          <BlogPosts data={data} categories={categories}>
-            <Featured />
-            <BlogList />
-          </BlogPosts>
+          <Suspense fallback={null}>
+            <BlogPosts data={data} categories={categories}>
+              <Featured />
+              <BlogList />
+            </BlogPosts>
+          </Suspense>
         </div>
       )
     }}

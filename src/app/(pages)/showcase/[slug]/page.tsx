@@ -9,6 +9,8 @@ interface ProjectPostProps {
   params: Promise<{ slug: string }>
 }
 
+export const dynamic = "force-static"
+
 const ProjectPost = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
 

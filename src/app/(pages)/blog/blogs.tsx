@@ -1,6 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import { useLenis } from "lenis/react"
+import { useSearchParams } from "next/navigation"
+import React, { useEffect, useState } from "react"
 
 import { QueryType } from "./query"
 
@@ -20,7 +22,14 @@ export default function BlogPosts({
   data: QueryType
   categories: string[]
 }) {
+  const searchParams = useSearchParams()
+  const lenis = useLenis()
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+
+  useEffect(() => {
+    if (searchParams.get("s")) lenis?.scrollTo("#blog", { immediate: true })
+  }, [searchParams, lenis])
 
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
