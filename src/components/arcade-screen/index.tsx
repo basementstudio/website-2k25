@@ -205,10 +205,14 @@ const Game = ({ visible }: { visible: boolean }) => {
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.code === "Escape") {
-        event.stopPropagation() // Prevent global ESC handler from running
+        event.stopPropagation()
         setIsInGame(false)
         setSpeed(DEFAULT_SPEED)
         setGameStarted(false)
+
+        // Reset player position to center lane
+        useGame.setState({ currentLine: 0 })
+
         if (gameOver) {
           setGameOver(false)
         }
@@ -218,6 +222,7 @@ const Game = ({ visible }: { visible: boolean }) => {
           setGameOver(false)
           setGameStarted(true)
           setSpeed(GAME_SPEED)
+          useGame.setState({ currentLine: 0 })
         } else if (!gameStarted) {
           setGameStarted(true)
           setSpeed(GAME_SPEED)

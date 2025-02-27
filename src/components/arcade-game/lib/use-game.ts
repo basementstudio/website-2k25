@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import { LINES } from "../road/use-road"
 
 export const PLAYER_CAMERA = "player" as const
 export const ORBIT_CAMERA = "orbit" as const
@@ -37,7 +38,14 @@ export const useGame = create<GameStore>((set) => {
     },
     addLine: (ammount = 1) => {
       set((state) => {
-        return { currentLine: state.currentLine + ammount }
+        const newLine = state.currentLine + ammount
+
+        const clampedLine = Math.max(
+          -(LINES - 1) / 2,
+          Math.min((LINES - 1) / 2, newLine)
+        )
+
+        return { currentLine: clampedLine }
       })
     },
     setGameStarted: (started: boolean) => {

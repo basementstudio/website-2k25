@@ -3,14 +3,12 @@ import { Group, Vector3 } from "three"
 import { useConnector } from "../lib/connector"
 import { useSubscribe } from "../lib/subscribable"
 
-import { CAMERA_NAMES, useGame } from "../lib/use-game"
+import { useGame } from "../lib/use-game"
 import { useFrame } from "@react-three/fiber"
 import { clamp, clampLerp, lerp, normalizeDelta, round } from "../lib/math"
 import { DEFAULT_SPEED, lineWidth, useRoad } from "../road/use-road"
 
 import { Motorcycle } from "../motorcycle"
-import { PerspectiveCamera } from "@react-three/drei"
-import { degToRad } from "three/src/math/MathUtils.js"
 import { DeathAnimation } from "./death-animation"
 import { useKeyControls } from "../lib/use-controls"
 
