@@ -20,6 +20,19 @@ interface RendererProps {
   sceneChildren: React.ReactNode
 }
 
+export const cctvConfig = {
+  renderTarget: new WebGLRenderTarget(1024, 1024, {
+    type: HalfFloatType,
+    format: RGBAFormat,
+    colorSpace: LinearSRGBColorSpace,
+    minFilter: NearestFilter,
+    magFilter: NearestFilter
+  }),
+  shouldBakeCCTV: false,
+  frameCounter: 0,
+  framesPerUpdate: 8
+}
+
 export const Renderer = memo(RendererInner)
 
 function RendererInner({ sceneChildren }: RendererProps) {
@@ -38,6 +51,8 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingScene = useMemo(() => new Scene(), [])
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
+  const currentScene = useNavigationStore((state) => state.currentScene?.name)
+  const previousScene = useNavigationStore((state) => state.previousScene?.name)
 
   const { isContactOpen } = useContactStore()
 
@@ -48,6 +63,12 @@ function RendererInner({ sceneChildren }: RendererProps) {
     window.addEventListener("resize", resizeCallback)
     return () => window.removeEventListener("resize", resizeCallback)
   }, [mainTarget])
+
+  useEffect(() => {
+    if (currentScene === "404" && previousScene !== "404") {
+      cctvConfig.shouldBakeCCTV = true
+    }
+  }, [currentScene, previousScene])
 
   useFrame(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return
@@ -60,11 +81,19 @@ function RendererInner({ sceneChildren }: RendererProps) {
 
       gl.outputColorSpace = SRGBColorSpace
       gl.toneMapping = NoToneMapping
-      // set render target to cctv screen
-      // pov?
-      // guardar un objeto export de cctv, tenga render target y shootSwitch algo asi
-      // que indique si tenemos que switchear o no, no usar estados, simplemente un boolean y listo
-      // back home -> should bake cctv off
+
+      // Update CCTV texture at reduced framerate
+      cctvConfig.frameCounter =
+        (cctvConfig.frameCounter + 1) % cctvConfig.framesPerUpdate
+      if (cctvConfig.frameCounter === 0 || cctvConfig.shouldBakeCCTV) {
+        gl.setRenderTarget(cctvConfig.renderTarget)
+        gl.render(mainScene, mainCamera)
+
+        if (cctvConfig.shouldBakeCCTV) {
+          cctvConfig.shouldBakeCCTV = false
+        }
+      }
+
       gl.setRenderTarget(null)
       gl.render(postProcessingScene, postProcessingCameraRef.current)
     }
