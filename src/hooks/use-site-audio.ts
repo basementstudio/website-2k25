@@ -17,6 +17,8 @@ export type SiteAudioSFXKey =
   | `BLOG_LOCKED_DOOR_${number}`
   | `BLOG_DOOR_${number}_OPEN`
   | `BLOG_DOOR_${number}_CLOSE`
+  | `BLOG_LAMP_${number}_PULL`
+  | `BLOG_LAMP_${number}_RELEASE`
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
@@ -137,6 +139,17 @@ export function SiteAudioSFXsLoader(): null {
             const sourceClose = await player.loadAudioFromURL(door.CLOSE)
             sourceClose.setVolume(SFX_VOLUME)
             newSources[`BLOG_DOOR_${index}_CLOSE`] = sourceClose
+          })
+        )
+
+        await Promise.all(
+          BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
+            const source = await player.loadAudioFromURL(lamp.PULL)
+            source.setVolume(SFX_VOLUME)
+            newSources[`BLOG_LAMP_${index}_PULL`] = source
+            const sourceRelease = await player.loadAudioFromURL(lamp.RELEASE)
+            sourceRelease.setVolume(SFX_VOLUME)
+            newSources[`BLOG_LAMP_${index}_RELEASE`] = sourceRelease
           })
         )
 

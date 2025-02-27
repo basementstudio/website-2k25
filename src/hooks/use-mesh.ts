@@ -18,6 +18,7 @@ export interface MeshStore {
     lockedDoor: Mesh | null
     door: Mesh | null
     lamp: Mesh | null
+    lampTargets: Mesh[] | null
   }
   inspectableMeshes: Mesh[]
 }
@@ -37,7 +38,8 @@ export const useMesh = create<MeshStore>()((set) => ({
   blog: {
     lockedDoor: null,
     door: null,
-    lamp: null
+    lamp: null,
+    lampTargets: null
   },
   inspectableMeshes: []
 }))

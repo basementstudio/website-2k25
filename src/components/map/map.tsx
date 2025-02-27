@@ -473,7 +473,8 @@ export const Map = memo(() => {
     if (
       !useMesh.getState().blog.lockedDoor &&
       !useMesh.getState().blog.door &&
-      !useMesh.getState().blog.lamp
+      !useMesh.getState().blog.lamp &&
+      !useMesh.getState().blog.lampTargets
     ) {
       const lockedDoor = officeModel?.getObjectByName("SM_00_012") as Mesh
       lockedDoor.userData.originalRotation = {
@@ -494,8 +495,17 @@ export const Map = memo(() => {
       if (door?.parent) door.removeFromParent()
       if (lamp?.parent) lamp.removeFromParent()
 
+      const lampTargets: Mesh[] = []
+      for (let i = 1; i <= 7; i++) {
+        const target = officeModel?.getObjectByName(
+          `SM_06_0${i}`
+        ) as Mesh | null
+
+        if (target) lampTargets.push(target)
+      }
+
       useMesh.setState({
-        blog: { lockedDoor, door, lamp }
+        blog: { lockedDoor, door, lamp, lampTargets }
       })
     }
 

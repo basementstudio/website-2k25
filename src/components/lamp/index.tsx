@@ -1,25 +1,50 @@
-// @ts-nocheck
-
-import { extend, useFrame, useThree } from "@react-three/fiber"
-import {
-  BallCollider,
-  CuboidCollider,
-  CylinderCollider,
-  RigidBody,
-  useRopeJoint,
-  useSphericalJoint
-} from "@react-three/rapier"
+import { extend, useFrame, useLoader, useThree } from "@react-three/fiber"
+import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
+import { EXRLoader } from "three/examples/jsm/Addons.js"
 
+import { useAssets } from "@/components/assets-provider"
 import { useMesh } from "@/hooks/use-mesh"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
 export const Lamp = () => {
-  const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef() // prettier-ignore
-  const vec = new THREE.Vector3(), dir = new THREE.Vector3() // prettier-ignore
+  const band = useRef<any>(null)
+
+  const j0 = useRef<any>(null)
+  const j1 = useRef<any>(null)
+  const j2 = useRef<any>(null)
+  const j3 = useRef<any>(null)
+
+  const jointRefs = useRef({
+    j0_j1: null,
+    j1_j2: null,
+    j2_j3: null
+  })
+
+  const j0_j1 = useRopeJoint(j0, j1, [[0, 0, 0], [0, 0, 0], 0.02]) // prettier-ignore
+  const j1_j2 = useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 0.02]) // prettier-ignore
+  const j2_j3 = useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 0.02]) // prettier-ignore
+
+  useEffect(() => {
+    // @ts-ignore
+    jointRefs.current = { j0_j1, j1_j2, j2_j3 }
+  }, [j0_j1, j1_j2, j2_j3])
+
+  const vec = useMemo(() => new THREE.Vector3(), [])
+  const dir = useMemo(() => new THREE.Vector3(), [])
+
+  const { sfx } = useAssets()
+  const { playSoundFX } = useSiteAudio()
+  const availableSounds = sfx.blog.lamp.length
+  const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
+
+  const { blog } = useMesh()
+  const { lamp, lampTargets } = blog
+
   const { width, height } = useThree((state) => state.size)
   const [curve] = useState(
     () =>
@@ -30,86 +55,75 @@ export const Lamp = () => {
         new THREE.Vector3()
       ])
   )
-  const [dragged, drag] = useState(false)
+  const [dragged, drag] = useState<any>(null)
   const [shouldToggle, setShouldToggle] = useState(false)
-  const [light, setLight] = useState(false)
+  const [light, setLight] = useState(true)
 
-  const { blog } = useMesh()
-  const { lamp } = blog
-  // Store references to the joints
-  const jointRefs = useRef({
-    fixed_j1: null,
-    j1_j2: null,
-    j2_j3: null,
-    j3_card: null
-  })
+  const {
+    lamp: { extraLightmap }
+  } = useAssets()
 
-  // Capture joint references
-  const fixed_j1 = useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 0.02]) // prettier-ignore
-  const j1_j2 = useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 0.02]) // prettier-ignore
-  const j2_j3 = useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 0.02]) // prettier-ignore
-  const j3_card = useSphericalJoint(j3, card, [[0, 0, 0], [0, 0.02, 0]]) // prettier-ignore
+  const lightmap = useLoader(EXRLoader, extraLightmap)
 
-  // Store joint references on mount
   useEffect(() => {
-    jointRefs.current = { fixed_j1, j1_j2, j2_j3, j3_card }
-  }, [fixed_j1, j1_j2, j2_j3, j3_card])
+    lightmap.flipY = true
+    lightmap.generateMipmaps = false
+    lightmap.minFilter = THREE.NearestFilter
+    lightmap.magFilter = THREE.NearestFilter
+    lightmap.colorSpace = THREE.NoColorSpace
+  }, [lightmap])
 
-  // Function to calculate tension between two points with a rest length
-  const calculateTension = (point1, point2) => {
-    const distance = new THREE.Vector3().copy(point1).sub(point2).length()
+  useEffect(() => {
+    if (lampTargets) {
+      for (const target of lampTargets) {
+        // @ts-ignore
+        target.material.uniforms.lampLightmap.value = lightmap
+      }
+    }
+  }, [lightmap, lampTargets])
 
-    // Tension is proportional to the difference between current length and rest length
-    // Positive value means stretching (tension), negative means compression
-    return distance
-  }
+  const tension = (point1: THREE.Vector3, point2: THREE.Vector3) =>
+    new THREE.Vector3().copy(point1).sub(point2).length()
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera)
       dir.copy(vec).sub(state.camera.position).normalize()
       vec.add(dir.multiplyScalar(state.camera.position.length() * 0.079))
-      ;[card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp())
-      card.current?.setNextKinematicTranslation({
+      ;[j1, j2, j3, j0].forEach((ref) => ref.current?.wakeUp())
+      j3.current?.setNextKinematicTranslation({
         x: vec.x - dragged.x,
         y: vec.y - dragged.y,
         z: vec.z - dragged.z
       })
     }
-    if (fixed.current) {
+
+    if (j0.current) {
       // Calculate catmul curve
       curve.points[0].copy(j3.current.translation())
       curve.points[1].copy(j2.current.translation())
       curve.points[2].copy(j1.current.translation())
-      curve.points[3].copy(fixed.current.translation())
+      curve.points[3].copy(j0.current.translation())
       band.current.geometry.setPoints(curve.getPoints(32))
 
       // Calculate and log tension for each joint
-      const fixedPos = fixed.current.translation()
+      const j0Pos = j0.current.translation()
       const j1Pos = j1.current.translation()
       const j2Pos = j2.current.translation()
       const j3Pos = j3.current.translation()
-      const cardPos = card.current.translation()
 
-      const tension_fixed_j1 = calculateTension(fixedPos, j1Pos)
-      const tension_j1_j2 = calculateTension(j1Pos, j2Pos)
-      const tension_j2_j3 = calculateTension(j2Pos, j3Pos)
-      const tension_j3_card = calculateTension(j3Pos, cardPos, 0.02)
+      const tension_j0_j1 = tension(j0Pos, j1Pos)
+      const tension_j1_j2 = tension(j1Pos, j2Pos)
+      const tension_j2_j3 = tension(j2Pos, j3Pos)
 
-      // Calculate max tension across all joints
-      const maxTension = Math.max(
-        tension_fixed_j1,
-        tension_j1_j2,
-        tension_j2_j3,
-        tension_j3_card
-      )
+      const maxTension = Math.max(tension_j0_j1, tension_j1_j2, tension_j2_j3)
 
       if (!shouldToggle) {
-        if (maxTension > 0.05) {
-          setShouldToggle(true)
-        }
+        if (maxTension > 0.05 && dragged !== null) setShouldToggle(true)
       } else if (shouldToggle) {
-        if (maxTension < 0.05) {
+        if (maxTension > 0.07 && dragged !== null) drag(null)
+        else if (maxTension < 0.045) {
+          console.log("false")
           setShouldToggle(false)
         }
       }
@@ -117,82 +131,100 @@ export const Lamp = () => {
   })
 
   useEffect(() => {
+    playSoundFX(
+      `BLOG_LAMP_${desiredSoundFX.current}_${shouldToggle ? "PULL" : "RELEASE"}`,
+      0.4
+    )
+
     if (!shouldToggle) {
-      if (lamp) {
-        lamp.material.uniforms.opacity.value = light ? 1 : 0
-      }
       setLight(!light)
+      desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldToggle])
 
-  console.log(lamp)
+  useEffect(() => {
+    // @ts-ignore
+    if (lamp) lamp.material.uniforms.opacity.value = light ? 0 : 1
+    if (lampTargets) {
+      for (const target of lampTargets) {
+        if (target instanceof THREE.Mesh) {
+          // @ts-ignore
+          target.material.uniforms.lightLampEnabled.value = light
+        }
+      }
+    }
+  }, [light, lamp, lampTargets])
 
   return (
     <>
       <group position={[10.644, 4.3254, -17.832]}>
+        <RigidBody ref={j0} angularDamping={2} linearDamping={2} type="fixed" />
+
         <RigidBody
-          ref={fixed}
-          angularDamping={2}
-          linearDamping={2}
-          type="fixed"
-        />
-        <RigidBody
-          position={[0, -0.035, 0]}
           ref={j1}
+          position={[0, -0.02, 0]}
           angularDamping={2}
           linearDamping={2}
         >
           <BallCollider args={[0.01]} />
         </RigidBody>
+
         <RigidBody
-          position={[0, -0.07, 0]}
           ref={j2}
+          position={[0, -0.04, 0]}
           angularDamping={2}
           linearDamping={2}
         >
           <BallCollider args={[0.01]} />
         </RigidBody>
+
         <RigidBody
-          position={[0, -0.105, 0]}
           ref={j3}
-          angularDamping={2}
-          linearDamping={2}
-        >
-          <BallCollider args={[0.01]} />
-        </RigidBody>
-        <RigidBody
-          position={[0, -0.14, 0]}
-          ref={card}
+          position={[0, -0.06, 0]}
           angularDamping={2}
           linearDamping={2}
           type={dragged ? "kinematicPosition" : "dynamic"}
         >
-          <CylinderCollider args={[0.015, 0.015, 0.04]} />
+          <BallCollider args={[0.01]} />
           <mesh
-            onPointerUp={(e) => (
-              e.target.releasePointerCapture(e.pointerId), drag(false)
-            )}
-            onPointerDown={(e) => (
-              e.target.setPointerCapture(e.pointerId),
-              drag(
-                new THREE.Vector3()
-                  .copy(e.point)
-                  .sub(vec.copy(card.current.translation()))
-              )
-            )}
+            onPointerUp={(e) => {
+              // @ts-ignore
+              e?.target?.releasePointerCapture?.(e.pointerId)
+              drag(null)
+            }}
+            onPointerDown={(e) => {
+              // @ts-ignore
+              e?.target?.setPointerCapture?.(e.pointerId)
+
+              const vec = new THREE.Vector3()
+              vec.copy(e.point)
+              vec.sub(vec.copy(j3.current.translation()))
+
+              drag(vec)
+            }}
           >
-            <sphereGeometry args={[0.01, 32, 32]} />
-            <meshBasicMaterial color="white" side={THREE.DoubleSide} />
+            <sphereGeometry args={[0.02, 32, 32]} />
+            <meshPhongMaterial
+              color="white"
+              transparent
+              opacity={0}
+              side={THREE.DoubleSide}
+            />
           </mesh>
         </RigidBody>
       </group>
+
       <mesh ref={band}>
+        {/* @ts-ignore */}
         <meshLineGeometry />
+        {/* @ts-ignore */}
         <meshLineMaterial
           color="white"
           resolution={[width, height]}
           lineWidth={0.01}
         />
+
         {lamp && <primitive object={lamp} />}
       </mesh>
     </>
