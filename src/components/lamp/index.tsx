@@ -1,3 +1,4 @@
+import { Line } from "@react-three/drei"
 import { extend, useFrame, useLoader, useThree } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
@@ -6,12 +7,16 @@ import * as THREE from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
 export const Lamp = () => {
+  const setCursorType = useMouseStore((state) => state.setCursorType)
+
   const band = useRef<any>(null)
 
   const j0 = useRef<any>(null)
@@ -45,16 +50,34 @@ export const Lamp = () => {
   const { blog } = useMesh()
   const { lamp, lampTargets } = blog
 
+  const material = useMemo(() => {
+    const material = createGlobalShaderMaterial(
+      new THREE.MeshStandardMaterial({
+        color: "#B8860B"
+      }),
+      false,
+      {
+        LIGHT: true
+      }
+    )
+
+    material.uniforms.lightDirection.value = new THREE.Vector3(0, 1, 0)
+
+    return material
+  }, [])
+
   const { width, height } = useThree((state) => state.size)
-  const [curve] = useState(
+  const curve = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
         new THREE.Vector3(),
         new THREE.Vector3(),
         new THREE.Vector3(),
         new THREE.Vector3()
-      ])
+      ]),
+    []
   )
+
   const [dragged, drag] = useState<any>(null)
   const [shouldToggle, setShouldToggle] = useState(false)
   const [light, setLight] = useState(true)
@@ -104,7 +127,7 @@ export const Lamp = () => {
       curve.points[1].copy(j2.current.translation())
       curve.points[2].copy(j1.current.translation())
       curve.points[3].copy(j0.current.translation())
-      band.current.geometry.setPoints(curve.getPoints(32))
+      band.current.geometry.setPoints(curve.getPoints(8))
 
       // Calculate and log tension for each joint
       const j0Pos = j0.current.translation()
@@ -119,11 +142,12 @@ export const Lamp = () => {
       const maxTension = Math.max(tension_j0_j1, tension_j1_j2, tension_j2_j3)
 
       if (!shouldToggle) {
-        if (maxTension > 0.05 && dragged !== null) setShouldToggle(true)
+        if (maxTension > 0.065 && dragged !== null) setShouldToggle(true)
       } else if (shouldToggle) {
-        if (maxTension > 0.07 && dragged !== null) drag(null)
-        else if (maxTension < 0.045) {
-          console.log("false")
+        if (maxTension > 0.08 && dragged !== null) {
+          drag(null)
+          setCursorType("default")
+        } else if (maxTension < 0.045) {
           setShouldToggle(false)
         }
       }
@@ -158,7 +182,7 @@ export const Lamp = () => {
 
   return (
     <>
-      <group position={[10.644, 4.3254, -17.832]}>
+      <group position={[10.644, 4.3, -17.832]}>
         <RigidBody ref={j0} angularDamping={2} linearDamping={2} type="fixed" />
 
         <RigidBody
@@ -203,26 +227,38 @@ export const Lamp = () => {
 
               drag(vec)
             }}
+            onPointerEnter={() => setCursorType("grab")}
+            onPointerLeave={() => setCursorType("default")}
           >
-            <sphereGeometry args={[0.02, 32, 32]} />
-            <meshPhongMaterial
-              color="white"
-              transparent
-              opacity={0}
-              side={THREE.DoubleSide}
-            />
+            <sphereGeometry args={[0.015, 16, 16]} />
+            <meshBasicMaterial transparent opacity={0} />
+          </mesh>
+
+          <mesh material={material}>
+            <sphereGeometry args={[0.005, 16, 16]} />
           </mesh>
         </RigidBody>
+
+        <mesh
+          position={[0.2, 0.175, 0.15]}
+          rotation={[0, Math.PI / 3, -Math.PI / 18]}
+          onPointerEnter={() => drag(null)}
+        >
+          <planeGeometry args={[0.4, 0.4]} />
+          <meshBasicMaterial opacity={0} transparent />
+        </mesh>
       </group>
+
+      {lamp && <primitive object={lamp} />}
 
       <mesh ref={band}>
         {/* @ts-ignore */}
         <meshLineGeometry />
         {/* @ts-ignore */}
         <meshLineMaterial
-          color="white"
+          color="#B8860B"
           resolution={[width, height]}
-          lineWidth={0.01}
+          lineWidth={0.0075}
         />
 
         {lamp && <primitive object={lamp} />}

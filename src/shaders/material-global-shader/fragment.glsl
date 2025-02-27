@@ -72,7 +72,6 @@ uniform float uGodrayDensity;
 
 // Inspectable
 uniform bool inspectingEnabled;
-uniform bool isInspecting;
 uniform float inspectingFactor;
 uniform float fadeFactor;
 
@@ -168,6 +167,11 @@ void main() {
     irradiance *= lightMapSample * lightMapIntensity;
   }
 
+  if(aoMapIntensity > 0.0) {
+    float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+    irradiance *= ambientOcclusion;
+  }
+
   irradiance = mix(irradiance, lf, inspectingFactor);
 
   // Combine wave color
@@ -192,11 +196,6 @@ void main() {
 
   if(opacityResult <= 0.0) {
     discard;
-  }
-
-  if(aoMapIntensity > 0.0) {
-    float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
-    irradiance *= ambientOcclusion;
   }
 
   #ifdef LIGHT
