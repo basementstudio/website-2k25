@@ -44,24 +44,24 @@ export const Footer = () => (
         },
         {
           title: "People",
-          href: "/people",
-          count: posts
+          href: "/people"
         },
         {
           title: "Blog",
-          href: "/blog"
+          href: "/blog",
+          count: posts
         },
         {
-          title: "Laboratory",
+          title: "Lab",
           href: "/lab"
         }
       ]
 
       return (
-        <footer className="relative z-10 flex h-screen flex-col justify-between bg-brand-k pb-4">
+        <footer className="relative z-10 flex h-screen flex-col justify-between bg-brand-k pb-4 pt-0 lg:pt-16">
           <Grid />
 
-          <div className="grid-layout mt-9">
+          <div className="grid-layout">
             <Logo className="col-span-12 mx-auto text-brand-w2" />
           </div>
 
@@ -130,15 +130,21 @@ const SoDa = ({ className }: { className?: string }) => (
   <div
     className={cn("flex w-full translate-y-2 items-center gap-2", className)}
   >
-    <Link
+    <p
       className={cn(
         "text-right !text-p font-semibold text-brand-w1",
         className
       )}
-      href="https://www.sodaspeaks.com/"
     >
-      Proud Member of SoDA
-    </Link>
+      Proud Member of{" "}
+      <Link
+        href="https://www.sodaspeaks.com/"
+        target="_blank"
+        className="actionable"
+      >
+        SoDA
+      </Link>
+    </p>
 
     <SodaLogo className="size-6 text-brand-w1" />
   </div>

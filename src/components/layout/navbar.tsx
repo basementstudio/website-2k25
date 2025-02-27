@@ -41,7 +41,7 @@ export const Navbar = () => (
           count: posts
         },
         {
-          title: "Laboratory",
+          title: "Lab",
           href: "/lab"
         }
       ]
