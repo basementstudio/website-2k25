@@ -1,7 +1,7 @@
 import { useGLTF, useTexture } from "@react-three/drei"
 import { memo, useMemo } from "react"
 import type * as THREE from "three"
-import { BufferAttribute, FloatType, IntType, UnsignedIntType } from "three"
+import { BufferAttribute, FloatType } from "three"
 
 import { useAssets } from "../assets-provider"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
@@ -14,26 +14,27 @@ const {
 } = createInstancedSkinnedMesh()
 
 export enum CharacterAnimationName {
-  Chill = "Chill",
-  Fall = "Fall",
-  Floor1 = "Floor1",
-  Floor2 = "Floor2",
-  Idle1 = "Idle1",
-  Idle2 = "Idle2",
-  Sit1 = "Sit1",
-  Sit2 = "Sit2",
-  Talking = "Talking",
-  Walking = "Walking",
-  Working = "Working"
+  "Chill" = "Chill",
+  "Floor" = "Floor",
+  "Floor2" = "Floor2",
+  "Iddle-01" = "Iddle-01",
+  "Iddle-02" = "Iddle-02",
+  "Sit" = "Sit",
+  "Character-RigAction" = "Character-RigAction",
+  "Talking" = "Talking",
+  "Talking2" = "Talking2",
+  "Talking3" = "Talking3",
+  "Walking" = "Walking",
+  "Working" = "Working"
 }
 
 interface CharactersGLTF {
   nodes: {
-    BODY: THREE.SkinnedMesh
-    ARMS: THREE.SkinnedMesh
+    Body: THREE.SkinnedMesh
+    Arms: THREE.SkinnedMesh
     CHARACTER: THREE.Object3D
     CHARACTERS: THREE.Group
-    HEAD: THREE.SkinnedMesh
+    Head_1: THREE.SkinnedMesh
     "Cesar-Glass": THREE.SkinnedMesh
     "Facu-Glass": THREE.SkinnedMesh
     "Flauta-Glass": THREE.SkinnedMesh
@@ -116,7 +117,7 @@ function CharacterInstanceConfigInner() {
     <>
       <CharacterInstancedMesh
         material={material}
-        mesh={[nodes.BODY, nodes.HEAD, nodes.ARMS]}
+        mesh={[nodes.Body, nodes.Head_1, nodes.Arms]}
         animations={animations}
         count={MAX_CHARACTERS_INSTANCES}
         instancedUniforms={[
