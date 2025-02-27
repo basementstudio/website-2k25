@@ -6,9 +6,11 @@ import {
   NearestFilter,
   NoToneMapping,
   OrthographicCamera,
+  PerspectiveCamera,
   RGBAFormat,
   Scene,
   SRGBColorSpace,
+  Vector3,
   WebGLRenderTarget
 } from "three"
 
@@ -30,8 +32,15 @@ export const cctvConfig = {
   }),
   shouldBakeCCTV: false,
   frameCounter: 0,
-  framesPerUpdate: 8
+  framesPerUpdate: 8,
+  camera: new PerspectiveCamera(30, 1, 0.1, 1000)
 }
+
+cctvConfig.camera.position.set(8.4, 3.85, -6.4)
+cctvConfig.camera.lookAt(new Vector3(6.8, 3.2, -8.51))
+cctvConfig.camera.fov = 60
+// cctvConfig.camera.aspect = ???
+cctvConfig.camera.updateProjectionMatrix()
 
 export const Renderer = memo(RendererInner)
 
@@ -87,7 +96,7 @@ function RendererInner({ sceneChildren }: RendererProps) {
         (cctvConfig.frameCounter + 1) % cctvConfig.framesPerUpdate
       if (cctvConfig.frameCounter === 0 || cctvConfig.shouldBakeCCTV) {
         gl.setRenderTarget(cctvConfig.renderTarget)
-        gl.render(mainScene, mainCamera)
+        gl.render(mainScene, cctvConfig.camera)
 
         if (cctvConfig.shouldBakeCCTV) {
           cctvConfig.shouldBakeCCTV = false
