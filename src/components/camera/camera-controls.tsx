@@ -151,9 +151,6 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
           targetFov.current = cameraConfig.fov ?? 60
         }
 
-        controls.setPosition(8.8, 1.15, -13.6, false)
-        controls.setTarget(8.96, 1.15, -14, false)
-
         if (controls.camera instanceof PerspectiveCamera) {
           controls.camera.fov = currentFov.current
           controls.camera.updateProjectionMatrix()
@@ -174,42 +171,6 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
         const material = controls.camera.userData.postProcessingMaterial
         if (material) {
           material.uniforms.u404Transition.value = 1 - easeValue
-        }
-      }
-
-      finalPos.copy(currentPos).add(panTargetDelta)
-      finalLookAt.copy(currentTarget).add(panLookAtDelta)
-      controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
-      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
-      return
-    }
-
-    if (transition404Progress > 0) {
-      if (!transitionPhase) {
-        // tv camera?
-        currentPos.set(8.8, 1.15, -13.2)
-        currentTarget.set(9, 1.15, -14)
-        currentFov.current = targetFov.current
-
-        if (cameraConfig) {
-          targetPosition.set(...cameraConfig.position)
-          targetLookAt.set(...cameraConfig.target)
-          targetFov.current = cameraConfig.fov ?? 60
-        }
-
-        controls.setPosition(8.8, 1.15, -13.2, false)
-        controls.setTarget(9, 1.15, -14, false)
-      }
-
-      const easeValue = easeInOutCubic(1 - transition404Progress)
-
-      currentPos.lerp(targetPosition, easeValue)
-      currentTarget.lerp(targetLookAt, easeValue)
-
-      if (controls.camera instanceof PerspectiveCamera) {
-        const material = controls.camera.userData.postProcessingMaterial
-        if (material) {
-          material.uniforms.u404Transition.value = transition404Progress
         }
       }
 
