@@ -173,6 +173,10 @@ const MobileContent = ({
   const { focusTrapRef } = useFocusTrap(isOpen, menuHandlerRef)
   usePreventScroll(isOpen)
 
+  const handleChangeLink = () => {
+    setIsOpen(false)
+  }
+
   const memoizedMenu = useMemo(() => {
     return (
       <Portal id="mobile-menu">
@@ -184,7 +188,11 @@ const MobileContent = ({
           )}
         >
           <Grid />
-          <InternalLinks links={links} className="col-span-4" />
+          <InternalLinks
+            links={links}
+            handleChangeLink={handleChangeLink}
+            className="col-span-4"
+          />
 
           <div className="col-span-4 flex h-full flex-col justify-end gap-y-16">
             <StayConnected content={newsletter} />

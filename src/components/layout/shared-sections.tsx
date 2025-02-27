@@ -5,9 +5,14 @@ import { cn } from "@/utils/cn"
 interface InternalLinksProps {
   className?: string
   links: { title: string; href: string; count?: number }[]
+  handleChangeLink?: () => void
 }
 
-export const InternalLinks = ({ className, links }: InternalLinksProps) => (
+export const InternalLinks = ({
+  className,
+  links,
+  handleChangeLink
+}: InternalLinksProps) => (
   <ul
     className={cn(
       "flex flex-col gap-y-1 !text-mobile-h2 text-brand-g1 lg:!text-h2",
@@ -16,7 +21,11 @@ export const InternalLinks = ({ className, links }: InternalLinksProps) => (
   >
     {links.map((link) => (
       <li key={link.title}>
-        <Link className="flex gap-x-0.5 text-brand-w1" href={link.href}>
+        <Link
+          className="flex gap-x-0.5 text-brand-w1"
+          href={link.href}
+          onClick={handleChangeLink}
+        >
           <span className="actionable">{link.title}</span>
           {link.count && (
             <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
