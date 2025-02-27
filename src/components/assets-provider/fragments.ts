@@ -22,7 +22,6 @@ export const characterFragment = fragmentOn("Characters", {
 
 export const mapFragment = fragmentOn("Map", {
   officeV2: modelsItemFragment,
-  office: modelsItemFragment,
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
   routingElements: modelsItemFragment,
