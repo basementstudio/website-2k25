@@ -112,7 +112,6 @@ export const Player = () => {
 
   // Handle game lost
   const onIntersectionEnterCallback = useCallback(() => {
-    if (gameLostRef.current) return
     gameLostRef.current = true
     useGame.setState({ gameOver: true })
     setTimeout(() => {
