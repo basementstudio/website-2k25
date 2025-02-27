@@ -96,7 +96,7 @@ export const Filters = ({
             <button
               key={category.name}
               className={cn(
-                "flex w-max gap-x-1.25 !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
+                "flex w-max gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
                 selectedCategories.includes(category.name) && "text-brand-w1",
                 // if no categories selected, show all as active
                 selectedCategories.length === 0 && "text-brand-w1"
