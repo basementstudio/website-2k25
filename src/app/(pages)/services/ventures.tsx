@@ -9,7 +9,7 @@ export const VenturesBanner = ({ data }: { data: QueryType }) => {
         {data.pages.services.ventures.title}
       </h2>
 
-      <div className="col-start-1 col-end-13 -mt-0.75 [&_p]:text-pretty [&_p]:text-h1 [&_p]:text-brand-w1">
+      <div className="col-start-1 col-end-13 -mt-0.75 [&_p]:text-balance [&_p]:text-h1 [&_p]:text-brand-w1">
         <RichText>
           {data.pages.services.ventures.content?.json.content}
         </RichText>

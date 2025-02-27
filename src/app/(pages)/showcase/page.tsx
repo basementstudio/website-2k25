@@ -1,4 +1,5 @@
 import { Pump } from "basehub/react-pump"
+import { Suspense } from "react"
 
 import { Hero } from "./hero"
 import { ProjectList } from "./project-list"
@@ -12,7 +13,9 @@ const Projects = () => (
       return (
         <div className="flex flex-col gap-24">
           <Hero data={data} />
-          <ProjectList data={data} />
+          <Suspense fallback={null}>
+            <ProjectList data={data} />
+          </Suspense>
         </div>
       )
     }}
