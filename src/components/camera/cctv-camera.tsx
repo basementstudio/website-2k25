@@ -9,7 +9,7 @@ import { createScreenMaterial } from "@/shaders/material-screen"
 import { RenderTexture } from "../arcade-screen/render-texture"
 
 const CCTVCamera = () => {
-  const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 768), [])
+  const renderTarget = useMemo(() => new WebGLRenderTarget(800, 450), [])
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
   const cctvScreen = useMesh((state) => state.cctv.screen)
   const boxRef = useRef<Mesh>(null)
@@ -48,16 +48,10 @@ const CCTVCamera = () => {
         isPlaying={true}
       >
         <color attach="background" args={["#000000"]} />
-        <PerspectiveCamera
-          manual
-          makeDefault
-          position={[0, 0, 4]}
-          rotation={[0, 0, Math.PI]}
-          fov={60}
-        />
-        <mesh ref={boxRef} scale={2}>
+        <PerspectiveCamera manual makeDefault position={[0, 0, 4]} fov={60} />
+        <mesh ref={boxRef} scale={3.5}>
           <boxGeometry />
-          <meshBasicMaterial color="orange" />
+          <meshBasicMaterial wireframe color="orange" />
         </mesh>
       </RenderTexture>
     </>
