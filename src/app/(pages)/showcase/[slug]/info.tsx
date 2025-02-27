@@ -13,7 +13,7 @@ import { RelatedProjects } from "./related"
 
 export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
   <div className="col-span-2 flex h-full flex-col gap-4">
-    <div className="sticky top-12 mb-48 flex flex-col gap-4">
+    <div className="sticky top-12 flex h-[calc(100vh-56px)] flex-col gap-4">
       <div className="flex items-center justify-between">
         <Link
           href="/showcase"
@@ -62,9 +62,9 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
           value={
             <TextList
               value={["Awwwards", "CSS Design Awards"].map((a) => (
-                <Link key={a} href={a} className="actionable text-brand-w1">
+                <p key={a} className="text-brand-w1">
                   {a}
-                </Link>
+                </p>
               ))}
             />
           }
@@ -75,6 +75,7 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
             <Link
               key={entry.project?.client?.website}
               href={entry.project?.client?.website || ""}
+              target="_blank"
               className="actionable inline-flex items-center gap-1 text-brand-w1"
             >
               {entry.project?.projectWebsite}{" "}
@@ -99,8 +100,11 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
           View Case Study <Arrow className="size-4" />
         </Link>
       ) : null}
-    </div>
 
-    <RelatedProjects baseSlug={entry.project?._slug || ""} />
+      <RelatedProjects
+        baseSlug={entry.project?._slug || ""}
+        className="mt-auto"
+      />
+    </div>
   </div>
 )
