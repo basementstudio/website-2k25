@@ -11,22 +11,18 @@ import { useArcadeStore } from "@/store/arcade-store"
 
 export const ArcadeWrapperTags = () => {
   const setCursorType = useMouseStore((state) => state.setCursorType)
+
+  const { handleNavigation } = useHandleNavigation()
+  const isInLabTab = useArcadeStore((state) => state.isInLabTab)
+  const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const setCurrentTabIndex = useNavigationStore(
     (state) => state.setCurrentTabIndex
   )
-  const { handleNavigation } = useHandleNavigation()
-  const scenes = useNavigationStore((state) => state.scenes)
-  const isInLabTab = useArcadeStore((state) => state.isInLabTab)
-  const labTabIndex = useArcadeStore((state) => state.labTabIndex)
 
   const handleClose = useCallback(() => {
     handleNavigation("/")
-    const tabIndex = scenes?.[0]?.tabs.findIndex(
-      (tab) => tab.tabName.toLowerCase() === "lab"
-    )
-
-    setCurrentTabIndex(tabIndex ?? -1)
-  }, [handleNavigation, setCurrentTabIndex, scenes])
+    setCurrentTabIndex(-1)
+  }, [handleNavigation, setCurrentTabIndex])
 
   const [hoverClose, setHoverClose] = useState(false)
 

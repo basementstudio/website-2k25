@@ -168,3 +168,61 @@ export default /* glsl */`
 ```
 
 It basically loops over each possible morph targets and adds it's transformation based on influence.
+
+### Samping morph targets in batched mesh
+
+Since batched meshes support multiple geometries with different morph targets counts, we need to store an offset for each geometry and also how many morph targets each geometry has.
+
+`MorphDictionary`: An object containing the morphTarget offset for each geometry.
+
+```ts
+export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
+  private morphDictionary = {
+    geometryA: {
+      morphTarget1: 0,
+      morphTarget2: 4
+    },
+    geometryB: {
+      morphTarget1: 11
+    }
+  }
+}
+```
+
+`MorphOffsets`: An array containing the offset for each morph target.
+
+```ts
+export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
+  // Length is equal to MAX_INSTANCE_COUNT
+  private morphOffsets: Float32Array
+
+  constructor() {
+    super()
+    this.morphOffsets = new Float32Array(MAX_INSTANCE_COUNT).fill(0)
+  }
+}
+```
+
+`MorphInfluences`: An array containing the influence for each instance on their selected morph target.
+
+```ts
+export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
+  // Length is equal to MAX_INSTANCE_COUNT
+  private morphInfluences: Float32Array
+
+  constructor() {
+    super()
+    this.morphInfluences = new Float32Array(MAX_INSTANCE_COUNT).fill(0)
+  }
+}
+```
+
+## Limitations
+
+Due to the scope of this project, this implementation will only support selecting a single morph target at a time.
+
+A possible implementation for multiple morph targets should store a constant `MAX_MORPH_TARGETS` and use it to store the influences for each morph target.
+
+Since multiple geometries can have different morph targets, the `MAX_MORPH_TARGETS` will be the maximum of all morph targets.
+
+Then each intance will have to access the offset and stride for their geometry and add the influences to the correct morph target.

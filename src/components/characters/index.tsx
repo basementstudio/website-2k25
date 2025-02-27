@@ -1,11 +1,11 @@
 import type { ElementProps } from "@react-three/fiber"
+import { useMemo } from "react"
 import { Group } from "three"
 
 import {
   CharacterAnimationName,
   CharacterPosition
 } from "./character-instancer"
-import { useMemo } from "react"
 
 interface CharacterProps extends ElementProps<typeof Group> {
   animationName: CharacterAnimationName
