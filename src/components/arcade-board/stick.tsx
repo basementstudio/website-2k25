@@ -25,9 +25,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const { setCursorType } = useMouseStore()
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
-  const setHasUnlockedKonami = useArcadeStore(
-    (state) => state.setHasUnlockedKonami
-  )
+  const setIsInGame = useArcadeStore((state) => state.setIsInGame)
 
   const availableSounds = sfx.arcade.sticks.length
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
@@ -58,7 +56,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
     sequence.current.push(direction)
-    checkSequence({ sequence: sequence.current, setHasUnlockedKonami })
+    checkSequence({ sequence: sequence.current, setIsInGame })
     handleStickSound(direction === 0)
     state.current = direction
 
@@ -253,7 +251,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     const handleButtonPress = (event: CustomEvent) => {
       const buttonName = event.detail.buttonName
       sequence.current.push(buttonName)
-      checkSequence({ sequence: sequence.current, setHasUnlockedKonami })
+      checkSequence({ sequence: sequence.current, setIsInGame })
     }
 
     window.addEventListener("buttonPressed", handleButtonPress as EventListener)

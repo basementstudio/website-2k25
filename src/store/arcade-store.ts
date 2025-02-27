@@ -2,8 +2,8 @@ import { LabTab } from "@/components/arcade-screen/screen-ui"
 import { create } from "zustand"
 
 interface ArcadeStore {
-  hasUnlockedKonami: boolean
-  setHasUnlockedKonami: (value: boolean) => void
+  isInGame: boolean
+  setIsInGame: (value: boolean) => void
   resetArcadeScreen: () => void
 
   isInLabTab: boolean
@@ -23,9 +23,9 @@ interface ArcadeStore {
 }
 
 export const useArcadeStore = create<ArcadeStore>((set) => ({
-  hasUnlockedKonami: false,
-  setHasUnlockedKonami: (value) => set({ hasUnlockedKonami: value }),
-  resetArcadeScreen: () => set({ hasUnlockedKonami: false, isInLabTab: false }),
+  isInGame: false,
+  setIsInGame: (value) => set({ isInGame: value }),
+  resetArcadeScreen: () => set({ isInGame: false, isInLabTab: false }),
 
   isInLabTab: false,
   setIsInLabTab: (value) => set({ isInLabTab: value }),

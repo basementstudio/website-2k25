@@ -23,6 +23,7 @@ export interface RoadStore {
   pivotRef: { current: number }
   // chunks of objects that will move twords the X axis and desappear at some point
   chunks: Chunk[]
+  setSpeed: (speed: number) => void
 }
 
 export const getMovementAmount = (speed: number, delta: number) =>
@@ -30,10 +31,17 @@ export const getMovementAmount = (speed: number, delta: number) =>
 
 const initialChunks = Array.from({ length: TOTAL_CHUNKS }, () => getNewChunk())
 
-export const DEFAULT_SPEED = 0.02
+export const DEFAULT_SPEED = 0.0
+export const GAME_SPEED = 0.02
 
-export const useRoad = create<RoadStore>(() => ({
+export const useRoad = create<RoadStore>((set) => ({
   speedRef: { current: DEFAULT_SPEED },
   pivotRef: { current: 0 },
-  chunks: initialChunks
+  chunks: initialChunks,
+  setSpeed: (speed: number) => {
+    set((state) => ({
+      ...state,
+      speedRef: { current: speed }
+    }))
+  }
 }))

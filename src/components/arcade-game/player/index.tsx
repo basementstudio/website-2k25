@@ -17,9 +17,6 @@ import { useKeyControls } from "../lib/use-controls"
 const maxRotation = Math.PI
 
 export const Player = () => {
-  const activeCamera = useGame(
-    (s) => s.activeCamera === CAMERA_NAMES.PLAYER_CAMERA
-  )
   const containerRef = useRef<Group | null>(null)
   const carRef = useRef<Group | null>(null)
   const carPositionCopy = useMemo(() => new Vector3(), [])
@@ -104,6 +101,12 @@ export const Player = () => {
       useGame.setState({ gameOver: false })
       gameLostRef.current = false
       roadSpeedRef.current = DEFAULT_SPEED
+
+      // Instead of removing and nullifying, just reset position
+      if (carRef.current) {
+        carRef.current.position.set(0, 0, 0)
+        carRef.current.rotation.set(0, 0, 0)
+      }
     })
   }, [roadSpeedRef])
 
@@ -127,12 +130,6 @@ export const Player = () => {
 
   return (
     <group ref={containerRef}>
-      <PerspectiveCamera
-        makeDefault={activeCamera}
-        fov={30}
-        position={[0, 10, 20]}
-        rotation={[degToRad(-20), 0, 0]}
-      />
       {gameOver ? (
         <group position={carPositionCopy}>
           <DeathAnimation />

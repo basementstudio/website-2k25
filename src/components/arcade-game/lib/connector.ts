@@ -56,10 +56,11 @@ export const useConnector = create<ConnectorStore>((set, get) => {
   const restart = subscribable()
 
   onLose.addCallback(() => {
-    const injectedCallback = (window as any).loseCallback as () => void
-
-    if (injectedCallback) {
-      injectedCallback()
+    if (typeof window !== "undefined") {
+      const injectedCallback = (window as any).loseCallback as () => void
+      if (injectedCallback) {
+        injectedCallback()
+      }
     }
   })
 
@@ -113,5 +114,6 @@ export const useConnector = create<ConnectorStore>((set, get) => {
   } as const satisfies ConnectorStore
 })
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(window as any).connector = useConnector
+if (typeof window !== "undefined") {
+  ;(window as any).connector = useConnector
+}

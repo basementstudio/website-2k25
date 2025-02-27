@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { forwardRef, useMemo, useRef, useState } from "react"
+import { forwardRef, useMemo, useRef, useState, useEffect } from "react"
 import {
   Color,
   Euler,
@@ -21,6 +21,7 @@ import { useGame } from "../lib/use-game"
 import { mergeRefs } from "react-merge-refs"
 import { OnIntersectCallback, Sensor, SensorInterface } from "../sensors"
 import { GLTF } from "three/examples/jsm/Addons.js"
+import { useConnector } from "../lib/connector"
 
 interface MotoNodes extends GLTF {
   nodes: {
@@ -143,9 +144,36 @@ export const Motorcycle = forwardRef<Group, MotorcycleProps>(
     )
 
     const sensorRef = useRef<SensorInterface | null>(null)
-
-    // I dont wan't the sensor to be active untily its position is correct
     const [startedSensor, setStartedSensor] = useState(false)
+
+    // Cleanup sensor on unmount
+    useEffect(() => {
+      return () => {
+        if (sensorRef.current) {
+          // Reset sensor state
+          sensorRef.current.active = false
+          startedRef.current = false
+          setStartedSensor(false)
+        }
+      }
+    }, [])
+
+    useEffect(() => {
+      const handleRestart = () => {
+        if (sensorRef.current) {
+          sensorRef.current.active = true
+          startedRef.current = true
+          setStartedSensor(true)
+        }
+      }
+
+      useConnector.getState().subscribable.restart.addCallback(handleRestart)
+      return () => {
+        useConnector
+          .getState()
+          .subscribable.restart.removeCallback(handleRestart)
+      }
+    }, [])
 
     useFrame(() => {
       if (!light) return

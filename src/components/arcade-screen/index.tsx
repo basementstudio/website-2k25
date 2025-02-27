@@ -25,6 +25,12 @@ import { DefaultProperties, Root, Text } from "@react-three/uikit"
 import { FontFamilyProvider } from "@react-three/uikit"
 import { COLORS_THEME } from "./screen-ui"
 import { ffflauta } from "../../../public/fonts/ffflauta"
+import { degToRad } from "three/src/math/MathUtils.js"
+import {
+  useRoad,
+  DEFAULT_SPEED,
+  GAME_SPEED
+} from "../arcade-game/road/use-road"
 import { useGame } from "../arcade-game/lib/use-game"
 
 const ScreenUI = dynamic(
@@ -43,10 +49,7 @@ export const ArcadeScreen = () => {
   const pathname = usePathname()
   const currentScene = useCurrentScene()
   const isLabRoute = pathname === "/lab"
-  const hasUnlockedKonami = useArcadeStore((state) => state.hasUnlockedKonami)
-  const setHasUnlockedKonami = useArcadeStore(
-    (state) => state.setHasUnlockedKonami
-  )
+  const isInGame = useArcadeStore((state) => state.isInGame)
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
@@ -79,7 +82,7 @@ export const ArcadeScreen = () => {
 
     videoTexture.flipY = false
 
-    if (!hasVisitedArcade || hasUnlockedKonami) {
+    if (!hasVisitedArcade || isInGame) {
       if (isLabRoute) {
         screenMaterial.uniforms.map.value = bootTexture
         screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
@@ -94,8 +97,10 @@ export const ArcadeScreen = () => {
             if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
               screenMaterial.uniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
-              if (hasUnlockedKonami) {
+              if (isInGame) {
                 screenMaterial.uniforms.uFlip = { value: 1 }
+              } else {
+                screenMaterial.uniforms.uFlip = { value: 0 }
               }
             }
           }
@@ -103,10 +108,12 @@ export const ArcadeScreen = () => {
       } else {
         screenMaterial.uniforms.map.value = videoTexture
         screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
+        screenMaterial.uniforms.uFlip = { value: 0 }
       }
     } else {
       // always use render target texture after first visit
       screenMaterial.uniforms.map.value = renderTarget.texture
+      screenMaterial.uniforms.uFlip = { value: isInGame ? 1 : 0 }
     }
 
     arcadeScreen.material = screenMaterial
@@ -118,8 +125,7 @@ export const ArcadeScreen = () => {
     isLabRoute,
     bootTexture,
     screenMaterial,
-    hasUnlockedKonami,
-    setHasUnlockedKonami
+    isInGame
   ])
 
   useFrame((_, delta) => {
@@ -128,7 +134,24 @@ export const ArcadeScreen = () => {
     }
   })
 
-  if (!arcadeScreen || !screenPosition || !screenScale) return null
+  const CAMERA_CONFIGS = useMemo(() => {
+    if (!arcadeScreen || !screenPosition || !screenScale) return null
+
+    return {
+      ui: {
+        position: [0, 0, 4.01] as [number, number, number],
+        rotation: [0, 0, Math.PI] as [number, number, number],
+        aspect: screenScale ? screenScale.x / screenScale.y : 1
+      },
+      game: {
+        position: [0, 10, 20] as [number, number, number],
+        rotation: [degToRad(-20), 0, 0] as [number, number, number],
+        fov: 30
+      }
+    }
+  }, [arcadeScreen, screenPosition, screenScale])
+
+  if (!CAMERA_CONFIGS || !arcadeScreen) return null
 
   return (
     <RenderTexture
@@ -137,25 +160,51 @@ export const ArcadeScreen = () => {
       useGlobalPointer={false}
       raycasterMesh={arcadeScreen}
     >
-      {(hasVisitedArcade || isLabRoute) && !hasUnlockedKonami && (
-        <ScreenUI screenScale={screenScale} />
-      )}
-      <Game visible={(hasVisitedArcade || isLabRoute) && hasUnlockedKonami} />
+      <PerspectiveCamera
+        makeDefault
+        {...(!isInGame ? CAMERA_CONFIGS.ui : CAMERA_CONFIGS.game)}
+      />
+
+      {(hasVisitedArcade || isLabRoute) && !isInGame && <ScreenUI />}
+      <Game visible={(hasVisitedArcade || isLabRoute) && isInGame} />
     </RenderTexture>
   )
 }
 
 const Game = ({ visible }: { visible: boolean }) => {
+  const setSpeed = useRoad((s) => s.setSpeed)
+  const speedRef = useRoad((s) => s.speedRef)
+  const gameOver = useGame((s) => s.gameOver)
+  const setGameOver = useGame((s) => s.setGameOver)
+  const gameStarted = useGame((s) => s.gameStarted)
+  const setGameStarted = useGame((s) => s.setGameStarted)
+
   useEffect(() => {
-    window.addEventListener("keydown", (e) => {
-      if (e.key === " ") {
-        useGame.setState({ gameStarted: true })
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        if (gameOver) {
+          // Restart game
+          setGameOver(false)
+          setGameStarted(true)
+          setSpeed(GAME_SPEED)
+        } else {
+          // Toggle between speeds
+          const newSpeed =
+            speedRef.current === DEFAULT_SPEED ? GAME_SPEED : DEFAULT_SPEED
+          setSpeed(newSpeed)
+          if (newSpeed === GAME_SPEED && !gameStarted) {
+            setGameStarted(true)
+          }
+        }
       }
-    })
-    return () => {
-      window.removeEventListener("keydown", (e) => {})
     }
-  }, [])
+
+    window.addEventListener("keydown", handleKeyPress)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress)
+    }
+  }, [setSpeed, speedRef, gameOver, setGameOver, gameStarted, setGameStarted])
 
   return (
     <group visible={visible}>
@@ -180,29 +229,18 @@ const Game = ({ visible }: { visible: boolean }) => {
               fontWeight={"normal"}
               color={COLORS_THEME.primary}
             >
-              <Text
-                width={"100%"}
-                textAlign="center"
-                positionType="absolute"
-                positionBottom={100}
-              >
-                Press [SPACE] to start
+              <Text>
+                {gameOver
+                  ? "Press [SPACE] to restart"
+                  : gameStarted
+                    ? ""
+                    : "Press [SPACE] to start"}
               </Text>
             </DefaultProperties>
           </FontFamilyProvider>
         </Root>
       </group>
       <Physics>
-        <PerspectiveCamera
-          makeDefault
-          position={[30, 20, 20]}
-          fov={15}
-          ref={(camera) => {
-            if (camera) {
-              camera.lookAt(0, 1.5, 0)
-            }
-          }}
-        />
         <Player />
         <Road />
         <NPCs />

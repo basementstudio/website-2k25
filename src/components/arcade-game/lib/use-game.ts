@@ -20,7 +20,7 @@ export interface GameStore {
   gameOver: boolean
   gameStarted: boolean
   setGameStarted: (started: boolean) => void
-
+  setGameOver: (over: boolean) => void
   // debug
   showHitBoxes: boolean
 }
@@ -42,6 +42,9 @@ export const useGame = create<GameStore>((set) => {
     },
     setGameStarted: (started: boolean) => {
       set({ gameStarted: started })
+    },
+    setGameOver: (over: boolean) => {
+      set({ gameOver: over })
     }
   } as const satisfies GameStore
 })
