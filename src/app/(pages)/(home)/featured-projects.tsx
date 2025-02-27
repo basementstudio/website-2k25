@@ -21,7 +21,7 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
               <Link href={`/showcase/${p.project?._slug}`}>{p._title}</Link>
             </h2>
 
-            <div className="col-span-12 w-full max-w-[95%] [&_p]:text-h2 [&_p]:text-brand-w2">
+            <div className="col-span-12 w-full max-w-[95%] [&_p]:text-pretty [&_p]:text-h2 [&_p]:text-brand-w2">
               <p>{p.excerpt}</p>
             </div>
 
