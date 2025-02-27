@@ -135,15 +135,15 @@ export const ArcadeScreen = () => {
       {(hasVisitedArcade || isLabRoute) && !hasUnlockedKonami && (
         <ScreenUI screenScale={screenScale} />
       )}
-      {hasUnlockedKonami && <Game />}
+      <Game visible={(hasVisitedArcade || isLabRoute) && hasUnlockedKonami} />
     </RenderTexture>
   )
 }
 
-const Game = () => {
+const Game = ({ visible }: { visible: boolean }) => {
   return (
-    <>
-      <Physics>
+    <group visible={visible}>
+      <Physics paused={!visible}>
         <PerspectiveCamera
           makeDefault
           position={[30, 20, 20]}
@@ -158,6 +158,6 @@ const Game = () => {
         <Road />
         <NPCs />
       </Physics>
-    </>
+    </group>
   )
 }
