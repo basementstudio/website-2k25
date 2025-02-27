@@ -7,7 +7,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { animate } from "motion"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { Mesh } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
@@ -178,10 +178,41 @@ const Game = ({ visible }: { visible: boolean }) => {
   const setGameOver = useGame((s) => s.setGameOver)
   const gameStarted = useGame((s) => s.gameStarted)
   const setGameStarted = useGame((s) => s.setGameStarted)
+  const scoreRef = useRef(0)
+  const [scoreDisplay, setScoreDisplay] = useState(0)
+  const lastUpdateTimeRef = useRef(0)
+  const setIsInGame = useArcadeStore((state) => state.setIsInGame)
+
+  useFrame((_, delta) => {
+    if (gameStarted && !gameOver) {
+      lastUpdateTimeRef.current += delta
+      if (lastUpdateTimeRef.current >= 0.1) {
+        scoreRef.current += 1
+        setScoreDisplay(scoreRef.current)
+        lastUpdateTimeRef.current = 0
+      }
+    }
+  })
+
+  useEffect(() => {
+    if (gameStarted && !gameOver) {
+      scoreRef.current = 0
+      setScoreDisplay(0)
+      lastUpdateTimeRef.current = 0
+    }
+  }, [gameStarted, gameOver])
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
+      if (event.code === "Escape") {
+        event.stopPropagation() // Prevent global ESC handler from running
+        setIsInGame(false)
+        setSpeed(DEFAULT_SPEED)
+        setGameStarted(false)
+        if (gameOver) {
+          setGameOver(false)
+        }
+      } else if (event.code === "Space") {
         if (gameOver) {
           // Restart game
           setGameOver(false)
@@ -204,7 +235,15 @@ const Game = ({ visible }: { visible: boolean }) => {
     return () => {
       window.removeEventListener("keydown", handleKeyPress)
     }
-  }, [setSpeed, speedRef, gameOver, setGameOver, gameStarted, setGameStarted])
+  }, [
+    setSpeed,
+    speedRef,
+    gameOver,
+    setGameOver,
+    gameStarted,
+    setGameStarted,
+    setIsInGame
+  ])
 
   return (
     <group visible={visible}>
@@ -217,6 +256,7 @@ const Game = ({ visible }: { visible: boolean }) => {
           flexDirection="column"
           paddingY={24}
           paddingX={18}
+          justifyContent={"flex-end"}
         >
           <FontFamilyProvider
             ffflauta={{
@@ -228,14 +268,18 @@ const Game = ({ visible }: { visible: boolean }) => {
               fontSize={32}
               fontWeight={"normal"}
               color={COLORS_THEME.primary}
+              textAlign={"center"}
             >
-              <Text>
-                {gameOver
-                  ? "Press [SPACE] to restart"
-                  : gameStarted
-                    ? ""
-                    : "Press [SPACE] to start"}
+              <Text positionType="absolute" positionTop={0} positionLeft={50}>
+                pts: {`${scoreDisplay}`}
               </Text>
+              {!gameStarted && !gameOver && <Text>Press [SPACE] to start</Text>}
+              {gameStarted && gameOver && (
+                <>
+                  <Text>Press [SPACE] to restart</Text>
+                  <Text fontSize={20}>Press [ESC] to return</Text>
+                </>
+              )}
             </DefaultProperties>
           </FontFamilyProvider>
         </Root>

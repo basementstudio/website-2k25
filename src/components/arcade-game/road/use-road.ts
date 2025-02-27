@@ -32,7 +32,7 @@ export const getMovementAmount = (speed: number, delta: number) =>
 const initialChunks = Array.from({ length: TOTAL_CHUNKS }, () => getNewChunk())
 
 export const DEFAULT_SPEED = 0.0
-export const GAME_SPEED = 0.02
+export const GAME_SPEED = 0.04
 
 export const useRoad = create<RoadStore>((set) => ({
   speedRef: { current: DEFAULT_SPEED },

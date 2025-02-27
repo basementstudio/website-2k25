@@ -213,6 +213,8 @@ export const NavigationHandler = () => {
         return
       }
 
+      if (useArcadeStore.getState().isInGame) return
+
       if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
         return
 
