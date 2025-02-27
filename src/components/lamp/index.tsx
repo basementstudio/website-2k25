@@ -14,10 +14,15 @@ import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
+const colorWhenOn = new THREE.Color("#B8860B")
+const colorWhenOff = new THREE.Color("#614700")
+
 export const Lamp = () => {
   const setCursorType = useMouseStore((state) => state.setCursorType)
 
   const band = useRef<any>(null)
+
+  const lampHandle = useRef<any>(null)
 
   const j0 = useRef<any>(null)
   const j1 = useRef<any>(null)
@@ -53,7 +58,7 @@ export const Lamp = () => {
   const material = useMemo(() => {
     const material = createGlobalShaderMaterial(
       new THREE.MeshStandardMaterial({
-        color: "#B8860B"
+        color: colorWhenOn
       }),
       false,
       {
@@ -170,25 +175,41 @@ export const Lamp = () => {
   useEffect(() => {
     // @ts-ignore
     if (lamp) lamp.material.uniforms.opacity.value = light ? 0 : 1
+    if (lampHandle) {
+      // @ts-ignore
+      lampHandle.current.material.uniforms.baseColor.value = light
+        ? colorWhenOff
+        : colorWhenOn
+    }
+    if (band) {
+      // @ts-ignore
+      band.current.material.color = light ? colorWhenOff : colorWhenOn
+    }
     if (lampTargets) {
       for (const target of lampTargets) {
         if (target instanceof THREE.Mesh) {
           // @ts-ignore
           target.material.uniforms.lightLampEnabled.value = light
+          // @ts-ignore
         }
       }
     }
-  }, [light, lamp, lampTargets])
+  }, [light, lamp, lampTargets, material])
 
   return (
     <>
       <group position={[10.644, 4.3, -17.832]}>
-        <RigidBody ref={j0} angularDamping={2} linearDamping={2} type="fixed" />
+        <RigidBody
+          ref={j0}
+          angularDamping={100}
+          linearDamping={2}
+          type="fixed"
+        />
 
         <RigidBody
           ref={j1}
           position={[0, -0.02, 0]}
-          angularDamping={2}
+          angularDamping={100}
           linearDamping={2}
         >
           <BallCollider args={[0.01]} />
@@ -197,7 +218,7 @@ export const Lamp = () => {
         <RigidBody
           ref={j2}
           position={[0, -0.04, 0]}
-          angularDamping={2}
+          angularDamping={100}
           linearDamping={2}
         >
           <BallCollider args={[0.01]} />
@@ -206,7 +227,7 @@ export const Lamp = () => {
         <RigidBody
           ref={j3}
           position={[0, -0.06, 0]}
-          angularDamping={2}
+          angularDamping={100}
           linearDamping={2}
           type={dragged ? "kinematicPosition" : "dynamic"}
         >
@@ -234,7 +255,7 @@ export const Lamp = () => {
             <meshBasicMaterial transparent opacity={0} />
           </mesh>
 
-          <mesh material={material}>
+          <mesh material={material} ref={lampHandle}>
             <sphereGeometry args={[0.005, 16, 16]} />
           </mesh>
         </RigidBody>
@@ -256,7 +277,7 @@ export const Lamp = () => {
         <meshLineGeometry />
         {/* @ts-ignore */}
         <meshLineMaterial
-          color="#B8860B"
+          color={colorWhenOn}
           resolution={[width, height]}
           lineWidth={0.0075}
         />
