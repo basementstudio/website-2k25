@@ -37,6 +37,7 @@ interface MotoNodes extends GLTF {
 export interface MotorcycleProps {
   onIntersectionEnter?: OnIntersectCallback
   color?: Color
+  position?: [number, number, number]
 }
 
 export const Motorcycle = forwardRef<Group, MotorcycleProps>(

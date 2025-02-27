@@ -23,3 +23,5 @@ export const Car = forwardRef<Group>((props, ref) => {
     </group>
   )
 })
+
+Car.displayName = "Car"
