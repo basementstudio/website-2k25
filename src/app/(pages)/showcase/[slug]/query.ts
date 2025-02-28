@@ -7,6 +7,7 @@ export const projectFragment = fragmentOn("ProjectList", {
     _slug: true,
     _title: true,
     project: {
+      _id: true,
       _slug: true,
       client: {
         _title: true,

@@ -12,7 +12,11 @@ import { Filters } from "./gallery-filter"
 import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
 
-export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
+export const ProjectInfo = ({
+  entry
+}: {
+  entry: QueryItemType & { awards: { title: string }[] }
+}) => (
   <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-2 lg:row-start-auto">
     <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-12 lg:mb-48 lg:h-[calc(100vh-64px)]">
       <div className="flex items-center justify-between">
@@ -55,8 +59,9 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
         />
         <InfoItem
           label="Awards"
-          value={<TextList value={["Awwwards", "CSS Design Awards"]} />}
+          value={<TextList value={entry.awards?.map((a) => a.title) || []} />}
         />
+
         <InfoItem
           label="Website"
           value={
@@ -66,8 +71,12 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
               target="_blank"
               className="actionable inline-flex items-center gap-1 text-brand-w1"
             >
-              {entry.project?.projectWebsite}{" "}
-              <ExternalLinkIcon className="size-2" />
+              {entry.project?.projectWebsite ? (
+                <>
+                  {entry.project?.projectWebsite}{" "}
+                  <ExternalLinkIcon className="size-2" />
+                </>
+              ) : null}
             </Link>
           }
         />

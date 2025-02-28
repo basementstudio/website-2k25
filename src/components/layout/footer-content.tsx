@@ -112,7 +112,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
   return (
     <footer
       ref={footerRef}
-      className="relative z-10 flex flex-col justify-between bg-brand-k pb-4 lg:h-screen"
+      className="relative flex flex-col justify-between bg-brand-k pb-4 lg:h-screen"
     >
       <Grid />
 
