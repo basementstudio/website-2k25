@@ -8,7 +8,7 @@ import { animate } from "motion"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState, useRef } from "react"
-import { Mesh } from "three"
+import { Mesh, ShaderMaterial } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -20,7 +20,7 @@ import { RenderTexture } from "./render-texture"
 import { Player } from "../arcade-game/player"
 import { Road } from "../arcade-game/road"
 import { NPCs } from "../arcade-game/npc"
-import { DefaultProperties, Root, Text } from "@react-three/uikit"
+import { Container, DefaultProperties, Root, Text } from "@react-three/uikit"
 import { FontFamilyProvider } from "@react-three/uikit"
 import { COLORS_THEME } from "./screen-ui"
 import { ffflauta } from "../../../public/fonts/ffflauta"
@@ -166,12 +166,21 @@ export const ArcadeScreen = () => {
       />
 
       {(hasVisitedArcade || isLabRoute) && !isInGame && <ScreenUI />}
-      <Game visible={(hasVisitedArcade || isLabRoute) && isInGame} />
+      <Game
+        visible={(hasVisitedArcade || isLabRoute) && isInGame}
+        screenMaterial={screenMaterial}
+      />
     </RenderTexture>
   )
 }
 
-const Game = ({ visible }: { visible: boolean }) => {
+const Game = ({
+  visible,
+  screenMaterial
+}: {
+  visible: boolean
+  screenMaterial: ShaderMaterial
+}) => {
   const setSpeed = useRoad((s) => s.setSpeed)
   const speedRef = useRoad((s) => s.speedRef)
   const gameOver = useGame((s) => s.gameOver)
@@ -191,28 +200,40 @@ const Game = ({ visible }: { visible: boolean }) => {
         setScoreDisplay(scoreRef.current)
         lastUpdateTimeRef.current = 0
       }
+
+      // ensure uIsGameRunning is consistently updated during gameplay
+      if (screenMaterial.uniforms.uIsGameRunning.value !== 1.0) {
+        screenMaterial.uniforms.uIsGameRunning.value = 1.0
+        screenMaterial.needsUpdate = true
+      }
+    } else if (screenMaterial.uniforms.uIsGameRunning.value !== 0.0) {
+      screenMaterial.uniforms.uIsGameRunning.value = 0.0
+      screenMaterial.needsUpdate = true
     }
   })
 
   useEffect(() => {
     if (gameStarted && !gameOver) {
+      screenMaterial.uniforms.uIsGameRunning.value = 1.0
+      screenMaterial.needsUpdate = true
       scoreRef.current = 0
       setScoreDisplay(0)
       lastUpdateTimeRef.current = 0
+    } else {
+      screenMaterial.uniforms.uIsGameRunning.value = 0.0
+      screenMaterial.needsUpdate = true
     }
-  }, [gameStarted, gameOver])
+  }, [gameStarted, gameOver, screenMaterial])
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.code === "Escape") {
         if (gameStarted) {
-          // First escape press - just exit game mode
           setGameStarted(false)
           setSpeed(DEFAULT_SPEED)
           setGameOver(false)
           setIsInGame(false)
 
-          // reset player position to center lane
           useGame.setState({ currentLine: 0 })
         } else {
           // Second escape press - navigate away
@@ -221,7 +242,6 @@ const Game = ({ visible }: { visible: boolean }) => {
           setGameStarted(false)
           setGameOver(false)
 
-          // reset player position to center lane
           useGame.setState({ currentLine: 0 })
 
           // Navigate away
@@ -284,13 +304,34 @@ const Game = ({ visible }: { visible: boolean }) => {
               <Text positionType="absolute" positionTop={0} positionLeft={50}>
                 score: {`${scoreDisplay}`}
               </Text>
-              {!gameStarted && !gameOver && <Text>Press [SPACE] to start</Text>}
-              {gameStarted && gameOver && (
-                <>
-                  <Text>Press [SPACE] to restart</Text>
-                  <Text fontSize={20}>Press [ESC] to return</Text>
-                </>
-              )}
+
+              <Container
+                backgroundColor={COLORS_THEME.black}
+                width={900}
+                height={100}
+                paddingTop={24}
+                positionType="absolute"
+                positionLeft={"5%"}
+                flexDirection="column"
+                alignItems="center"
+              >
+                <Container backgroundColor={COLORS_THEME.black}>
+                  <Text textAlign="center">
+                    {gameStarted && gameOver
+                      ? "Press [SPACE] to restart"
+                      : !gameStarted
+                        ? "Press [SPACE] to start"
+                        : ""}
+                  </Text>
+                </Container>
+                {gameStarted && gameOver && (
+                  <Container backgroundColor={COLORS_THEME.black}>
+                    <Text textAlign="center" fontSize={20}>
+                      Press [ESC] to return
+                    </Text>
+                  </Container>
+                )}
+              </Container>
             </DefaultProperties>
           </FontFamilyProvider>
         </Root>

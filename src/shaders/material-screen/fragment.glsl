@@ -2,6 +2,7 @@ uniform sampler2D map;
 uniform float uTime;
 uniform float uRevealProgress;
 uniform float uFlip;
+uniform float uIsGameRunning;
 varying vec2 vUv;
 varying vec3 vPosition;
 
@@ -71,6 +72,84 @@ void main() {
 
   if (uFlip == 1.0) {
     remappedUv.y = 1.0 - remappedUv.y;
+
+    // add pixelation that excludes a center square
+    float pixelSize = 100.0;
+    vec2 centeredUv = remappedUv - 0.5;
+
+    // square parameters directly in the main function
+    float squareWidth = 0.6;
+    float squareHeight = 0.1;
+    float squareX = -0.01;
+    float squareY = -0.38;
+    vec3 squareColor = vec3(0.0, 1.0, 1.0);
+
+    squareWidth *= 0.5;
+    squareHeight *= 0.5;
+
+    vec2 squareCenter = vec2(squareX, squareY);
+    vec2 relativeToSquare = centeredUv - squareCenter;
+
+    // score square parameters
+    float centerSquareWidth = 0.2;
+    float centerSquareHeight = 0.2;
+    vec3 centerSquareColor = vec3(1.0, 0.5, 0.0);
+    float centerSquareX = -0.35;
+    float centerSquareY = 0.5;
+
+    centerSquareWidth *= 0.5;
+    centerSquareHeight *= 0.5;
+
+    vec2 centerSquareCenter = vec2(centerSquareX, centerSquareY);
+    vec2 relativeToCenterSquare = centeredUv - centerSquareCenter;
+
+    bool insideSquare =
+      abs(relativeToSquare.x) < squareWidth &&
+      abs(relativeToSquare.y) < squareHeight;
+
+    bool insideCenterSquare =
+      abs(relativeToCenterSquare.x) < centerSquareWidth &&
+      abs(relativeToCenterSquare.y) < centerSquareHeight;
+
+    vec3 textureColor = vec3(0.0);
+
+    // texture boundaries (moved up from below)
+    if (
+      remappedUv.x >= 0.0 &&
+      remappedUv.x <= 1.0 &&
+      remappedUv.y >= 0.0 &&
+      remappedUv.y <= 1.0
+    ) {
+      textureColor = texture2D(map, remappedUv).rgb;
+    }
+
+    // apply pixelation everywhere except in score
+
+    if (
+      uIsGameRunning == 1.0 && !insideCenterSquare ||
+      uIsGameRunning == 0.0 && !insideSquare && !insideCenterSquare
+    ) {
+      remappedUv = floor(remappedUv * pixelSize) / pixelSize;
+
+      if (
+        remappedUv.x >= 0.0 &&
+        remappedUv.x <= 1.0 &&
+        remappedUv.y >= 0.0 &&
+        remappedUv.y <= 1.0
+      ) {
+        textureColor = texture2D(map, remappedUv).rgb;
+      }
+    }
+
+    // show the center square  when uFlip is 1.0 (game mode) and uIsGameRunning is 0.0 (game not started)
+    if (insideCenterSquare && uIsGameRunning == 0.0) {
+      textureColor = mix(textureColor, centerSquareColor, 0.3);
+    }
+
+    // show the square when uFlip is 1.0 (game mode) and uIsGameRunning is 0.0 (game not started)
+    if (insideSquare && uIsGameRunning == 0.0) {
+      textureColor = mix(textureColor, squareColor, 0.3);
+    }
   }
 
   // add horizontal distortion near scan line

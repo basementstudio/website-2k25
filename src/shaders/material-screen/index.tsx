@@ -9,7 +9,8 @@ export const createScreenMaterial = () =>
       uTime: { value: 0 },
       map: { value: null },
       uRevealProgress: { value: 1.0 },
-      uFlip: { value: 0 }
+      uFlip: { value: 0 },
+      uIsGameRunning: { value: 0.0 }
     },
     vertexShader,
     fragmentShader
