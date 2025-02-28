@@ -20,6 +20,8 @@ export interface AssetsResult {
     idleScreen: string
     placeholderLab: string
     boot: string
+    chronicles: string
+    looper: string
   }
   glassReflexes: {
     mesh: string
@@ -152,7 +154,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
     arcade: {
       idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "",
       placeholderLab: threeDInteractions.arcade.placeholderLab?.url ?? "",
-      boot: threeDInteractions.arcade.boot?.url ?? ""
+      boot: threeDInteractions.arcade.boot?.url ?? "",
+      chronicles: threeDInteractions.arcade.chronicles?.url ?? "",
+      looper: threeDInteractions.arcade.looper?.url ?? ""
     },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
       mesh: item._title,

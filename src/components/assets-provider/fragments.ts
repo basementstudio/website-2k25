@@ -169,6 +169,12 @@ export const arcadeFragment = fragmentOn("Arcade", {
   },
   boot: {
     url: true
+  },
+  chronicles: {
+    url: true
+  },
+  looper: {
+    url: true
   }
 })
 
