@@ -2,7 +2,6 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { Physics } from "@react-three/rapier"
 import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
@@ -42,12 +41,36 @@ import { Lamp } from "../lamp"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
+import dynamic from "next/dynamic"
 
 export type GLTFResult = GLTF & {
   nodes: {
     [key: string]: Mesh
   }
 }
+
+const PhysicsWorld = dynamic(
+  () =>
+    import("@react-three/rapier").then((mod) => {
+      const { Physics } = mod
+      return function PhysicsWrapper({
+        children,
+        paused,
+        gravity
+      }: {
+        children: React.ReactNode
+        paused: boolean
+        gravity: [number, number, number]
+      }) {
+        return (
+          <Physics paused={paused} gravity={gravity}>
+            {children}
+          </Physics>
+        )
+      }
+    }),
+  { ssr: false }
+)
 
 const createVideoTexture = (url: string) => {
   const videoElement = document.createElement("video")
@@ -545,9 +568,14 @@ export const Map = memo(() => {
       <ArcadeBoard />
       <BlogDoor />
       <LockedDoor />
-      <Physics interpolate gravity={[0, -24, 0]} timeStep={1 / 60}>
-        <Lamp />
-      </Physics>
+
+      {/* TODO: shut down physics after x seconds of not being in blog scene */}
+      {/* TODO: basketball should use the same physics world */}
+      <Suspense fallback={null}>
+        <PhysicsWorld gravity={[0, -24, 0]} paused={scene !== "blog"}>
+          <Lamp />
+        </PhysicsWorld>
+      </Suspense>
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
