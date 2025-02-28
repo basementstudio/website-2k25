@@ -32,23 +32,23 @@ export default function BlogList({
 
   return (
     <section className="grid-layout pb-[35px]">
-      <div className="col-span-12 grid grid-cols-12 gap-2">
-        <h2 className="col-span-7 col-start-5 border-brand-w1/20 text-h3 text-brand-g1">
+      <div className="col-span-full grid grid-cols-12 gap-2">
+        <h2 className="col-span-full border-brand-w1/20 text-mobile-h3 text-brand-g1 lg:col-span-7 lg:col-start-5 lg:text-h3">
           More News
         </h2>
 
-        <div className="col-span-12 col-start-1 grid w-full grid-cols-12 gap-x-2 border-t border-brand-w1/20">
+        <div className="col-span-full grid w-full grid-cols-12 gap-x-2 border-t border-brand-w1/20 lg:col-start-1">
           {posts.map((post) => (
             <div
               key={post._slug}
-              className="group relative col-span-12 border-b border-brand-w1/20"
+              className="group relative col-span-full border-b border-brand-w1/20"
             >
               <Link
-                className="col-span-12 grid grid-cols-12 gap-2 py-2"
+                className="col-span-full grid grid-cols-12 gap-2 py-2 pb-4 lg:pb-0"
                 href={`/blog/${post._slug}`}
               >
                 <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="relative col-span-2 h-[124px] w-full max-w-[276px] overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20">
+                <div className="relative col-span-full aspect-[418/228] w-full overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-2 lg:aspect-auto lg:h-[124px] lg:max-w-[276px]">
                   <div className="with-dots h-full w-full">
                     {post.hero?.heroImage?.url && (
                       <Image
@@ -61,21 +61,21 @@ export default function BlogList({
                     )}
                   </div>
                 </div>
-                <p className="col-start-5 col-end-8 text-h3 text-brand-w2">
+                <p className="col-span-full text-mobile-h3 text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-h3">
                   {post._title}
                 </p>
-                <div className="col-span-2 col-start-9 flex gap-1">
+                <div className="col-span-6 flex gap-1 lg:col-start-9 lg:col-end-12">
                   {post.categories?.map((category) => (
                     <p
                       key={category._title}
-                      className="h-max w-max bg-brand-g2 px-1 text-p text-brand-w2"
+                      className="h-max w-max bg-brand-g2 px-1 text-mobile-p text-brand-w2 lg:text-p"
                     >
                       {category._title}
                     </p>
                   ))}
                 </div>
                 {post.date ? (
-                  <p className="col-span-1 col-start-11 text-p text-brand-w2">
+                  <p className="col-span-6 text-mobile-p text-brand-w2 lg:col-start-11 lg:text-p">
                     {formatDate(post.date || "")}
                   </p>
                 ) : null}

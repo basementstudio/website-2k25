@@ -29,8 +29,10 @@ export default function More({
     .slice(0, 3)
 
   return (
-    <div className="mx-auto flex w-full max-w-[846px] flex-col justify-start gap-y-4">
-      <h2 className="text-h4 text-brand-g1">More from the blog</h2>
+    <div className="mx-auto flex w-full max-w-[846px] flex-col justify-start gap-y-4 px-4 lg:px-0">
+      <h2 className="text-mobile-h4 text-brand-g1 lg:text-h4">
+        More from the blog
+      </h2>
 
       <div className="flex flex-col divide-y divide-brand-g1/30">
         <div />
@@ -42,18 +44,20 @@ export default function More({
                   <Image
                     src={post.hero?.heroImage?.url ?? ""}
                     alt={post._title}
-                    fill
+                    width={272}
+                    height={120}
+                    className="h-full w-full object-cover"
                   />
                 )}
               </div>
 
               <div className="flex w-full justify-between gap-y-2">
-                <h3 className="w-full max-w-[70%] text-h3 text-brand-w2">
+                <h3 className="text-mobile-h3 line-clamp-2 w-full max-w-[70%] text-brand-w2 lg:text-h3">
                   {post._title}
                 </h3>
 
                 {post.date ? (
-                  <p className="text-p text-brand-g1">
+                  <p className="text-mobile-p flex-1 text-right text-brand-g1 lg:flex-auto lg:text-p">
                     {formatDate(post.date ?? "")}
                   </p>
                 ) : null}

@@ -1,6 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+
+import { useMedia } from "@/hooks/use-media"
 
 import { Filters } from "./filters"
 import { Grid } from "./grid"
@@ -20,6 +22,13 @@ export type CategoryItem = {
 export const ProjectList = ({ data }: { data: QueryType }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
+
+  const isDesktop = useMedia("(min-width: 1024px)")
+
+  // set view mode to grid on mobile
+  useEffect(() => {
+    if (!isDesktop) setViewMode("grid")
+  }, [isDesktop])
 
   const categories = useMemo(() => {
     const categoryMap = new Map<string, number>()

@@ -16,7 +16,7 @@
   }
 
   .grid-layout {
-    @apply mx-auto grid w-full max-w-full grid-cols-12 gap-2 px-4;
+    @apply mx-auto grid w-full max-w-full grid-cols-4 gap-2 px-4 lg:grid-cols-12;
   }
 
   .corner-borders {

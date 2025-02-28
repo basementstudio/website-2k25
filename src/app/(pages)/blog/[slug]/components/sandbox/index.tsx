@@ -65,7 +65,7 @@ export default function Sandbox({ keyName }: SandboxProps) {
         }}
         theme={BASEMENT_THEME}
       >
-        <SandpackLayout className="!grid !h-[640px] !grid-cols-2">
+        <SandpackLayout className="!grid !h-[640px] w-full grid-rows-2 lg:!grid-cols-2 lg:grid-rows-1">
           <div className="grid h-full grid-rows-[42px_1fr] bg-brand-k">
             <SandboxToolbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
