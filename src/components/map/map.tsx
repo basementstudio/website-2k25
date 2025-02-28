@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber"
 import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
+import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -38,12 +39,11 @@ import {
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
-import { cctvConfig } from "../postprocessing/renderer"
 import { Lamp } from "../lamp"
+import { cctvConfig } from "../postprocessing/renderer"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
-import dynamic from "next/dynamic"
 
 export type GLTFResult = GLTF & {
   nodes: {
