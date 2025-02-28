@@ -151,10 +151,13 @@ export function SiteAudioSFXsLoader(): null {
 
         await Promise.all(
           BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
-            const source = await player.loadAudioFromURL(lamp.PULL)
+            const source = await player.loadAudioFromURL(lamp.PULL, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_LAMP_${index}_PULL`] = source
-            const sourceRelease = await player.loadAudioFromURL(lamp.RELEASE)
+            const sourceRelease = await player.loadAudioFromURL(
+              lamp.RELEASE,
+              true
+            )
             sourceRelease.setVolume(SFX_VOLUME)
             newSources[`BLOG_LAMP_${index}_RELEASE`] = sourceRelease
           })

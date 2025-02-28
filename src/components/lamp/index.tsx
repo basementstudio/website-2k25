@@ -185,7 +185,7 @@ export const Lamp = () => {
   useEffect(() => {
     playSoundFX(
       `BLOG_LAMP_${desiredSoundFX.current}_${shouldToggle ? "PULL" : "RELEASE"}`,
-      0.4
+      0.1
     )
 
     if (!shouldToggle) {
