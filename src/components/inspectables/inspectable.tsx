@@ -275,7 +275,10 @@ export const Inspectable = ({
         domElement={document.querySelector("#canvas canvas") as HTMLElement}
       >
         <primitive object={mesh} raycast={() => null} />
-        <mesh position={[...offsetedBoundingBox]}>
+        <mesh
+          position={[...offsetedBoundingBox]}
+          rotation={[mesh.rotation.x, mesh.rotation.y, mesh.rotation.z]}
+        >
           <boxGeometry
             args={[size.current.x, size.current.y, size.current.z]}
           />
