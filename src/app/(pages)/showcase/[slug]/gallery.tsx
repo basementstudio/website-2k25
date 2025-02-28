@@ -17,8 +17,8 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
   return (
     <div
       className={cn(
-        "col-span-10 grid gap-2 transition-all duration-300",
-        viewMode === "grid" ? "grid-cols-2" : "grid-cols-1"
+        "col-span-full grid gap-2 transition-all duration-300 lg:col-span-10",
+        viewMode === "grid" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
       )}
     >
       {showcase?.map((image, idx) => (
@@ -27,7 +27,9 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
           className={cn(
             "relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20",
             // each 3 images put one full width
-            viewMode === "grid" && (idx + 1) % 3 === 0 && "col-span-2"
+            viewMode === "grid" &&
+              (idx + 1) % 3 === 0 &&
+              "col-span-1 lg:col-span-2"
           )}
         >
           <div className="with-dots h-full w-full after:absolute after:inset-0">

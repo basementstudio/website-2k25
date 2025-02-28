@@ -22,7 +22,7 @@ const Blogs = () => (
       return (
         <div
           id="blog"
-          className="pb-25 relative flex flex-col gap-40 bg-brand-k"
+          className="pb-25 relative flex flex-col gap-18 bg-brand-k lg:gap-40"
         >
           <Hero data={data} />
           <Suspense fallback={null}>

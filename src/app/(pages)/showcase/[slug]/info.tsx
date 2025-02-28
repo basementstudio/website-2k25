@@ -13,8 +13,8 @@ import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
 
 export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
-  <div className="col-span-2 flex h-full flex-col gap-4">
-    <div className="sticky top-12 flex h-[calc(100vh-56px)] flex-col gap-4">
+  <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-2 lg:row-start-auto">
+    <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-12 lg:mb-48">
       <div className="flex items-center justify-between">
         <Back />
 
@@ -91,7 +91,7 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
 
       <RelatedProjects
         baseSlug={entry.project?._slug || ""}
-        className="mt-auto"
+        className="mt-auto hidden lg:flex"
       />
     </div>
   </div>

@@ -7,7 +7,6 @@ import { useAssets } from "@/components/assets-provider"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useKeyPress } from "@/hooks/use-key-press"
 
 import {
   ArrowKey,
@@ -25,9 +24,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const { setCursorType } = useMouseStore()
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
-  const setHasUnlockedKonami = useArcadeStore(
-    (state) => state.setHasUnlockedKonami
-  )
+  const setIsInGame = useArcadeStore((state) => state.setIsInGame)
+  const isInGame = useArcadeStore((state) => state.isInGame)
 
   const availableSounds = sfx.arcade.sticks.length
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
@@ -49,6 +47,15 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     )
   }
 
+  const dispatchStickMoveEvent = (direction: number) => {
+    if (isInGame) {
+      const event = new CustomEvent("arcadeStickMove", {
+        detail: { direction }
+      })
+      window.dispatchEvent(event)
+    }
+  }
+
   const updateStickPosition = (
     direction: number,
     targetRotation: { x: number; y: number; z: number }
@@ -58,11 +65,15 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
     sequence.current.push(direction)
-    checkSequence({ sequence: sequence.current, setHasUnlockedKonami })
+    checkSequence({ sequence: sequence.current, setIsInGame })
     handleStickSound(direction === 0)
     state.current = direction
 
-    handleContinuousNavigation(direction)
+    dispatchStickMoveEvent(direction)
+
+    if (!isInGame) {
+      handleContinuousNavigation(direction)
+    }
   }
 
   const handleLabNavigation = (direction: number) => {
@@ -141,7 +152,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
   const handleKeyboardInput = useCallback(
     (direction: number) => {
-      if (scene !== "lab") return
+      if (scene !== "lab" && !isInGame) return
 
       const targetRotation = {
         x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
@@ -151,43 +162,20 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
       updateStickPosition(direction, targetRotation)
     },
-    [scene, stick.name, availableSounds, playSoundFX]
+    [scene, stick.name, availableSounds, playSoundFX, isInGame]
   )
 
   const handleGrabStick = () => {
-    if (scene !== "lab") return
+    if (scene !== "lab" && !isInGame) return
     setStickIsGrabbed(true)
     setCursorType("grabbing")
   }
 
   const handleReleaseStick = () => {
-    if (scene !== "lab") return
+    if (scene !== "lab" && !isInGame) return
     setStickIsGrabbed(false)
     resetStick()
   }
-
-  const handleKeyPress = useCallback(
-    (key: ArrowKey) => {
-      if (scene !== "lab" || stick.name !== "02_JYTK_L") return
-      handleKeyboardInput(KEY_DIRECTION_MAP[key])
-    },
-    [scene, stick.name, handleKeyboardInput]
-  )
-
-  const handleKeyRelease = useCallback(() => {
-    if (scene !== "lab" || stick.name !== "02_JYTK_L") return
-    handleKeyboardInput(0)
-  }, [scene, stick.name, handleKeyboardInput])
-
-  useKeyPress("ArrowUp", () => handleKeyPress("ArrowUp"))
-  useKeyPress("ArrowDown", () => handleKeyPress("ArrowDown"))
-  useKeyPress("ArrowLeft", () => handleKeyPress("ArrowLeft"))
-  useKeyPress("ArrowRight", () => handleKeyPress("ArrowRight"))
-
-  useKeyPress("ArrowUp", handleKeyRelease, "keyup")
-  useKeyPress("ArrowDown", handleKeyRelease, "keyup")
-  useKeyPress("ArrowLeft", handleKeyRelease, "keyup")
-  useKeyPress("ArrowRight", handleKeyRelease, "keyup")
 
   const handleStickMove = (e: ThreeEvent<PointerEvent>) => {
     const x = e.point.x - e.eventObject.position.x + offsetX
@@ -253,17 +241,34 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     const handleButtonPress = (event: CustomEvent) => {
       const buttonName = event.detail.buttonName
       sequence.current.push(buttonName)
-      checkSequence({ sequence: sequence.current, setHasUnlockedKonami })
+      checkSequence({ sequence: sequence.current, setIsInGame })
+    }
+
+    const handleGameStateChange = () => {
+      resetStick()
     }
 
     window.addEventListener("buttonPressed", handleButtonPress as EventListener)
+    window.addEventListener(
+      "gameStateChange",
+      handleGameStateChange as EventListener
+    )
+
     return () => {
       window.removeEventListener(
         "buttonPressed",
         handleButtonPress as EventListener
       )
+      window.removeEventListener(
+        "gameStateChange",
+        handleGameStateChange as EventListener
+      )
     }
   }, [])
+
+  useEffect(() => {
+    resetStick()
+  }, [isInGame])
 
   useEffect(() => {
     return () => {
@@ -273,6 +278,49 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (isInGame) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (scene !== "lab" || isInGame) return
+      if (stick.name !== "02_JYTK_L") return
+
+      switch (event.key) {
+        case "ArrowUp":
+          handleKeyboardInput(KEY_DIRECTION_MAP.ArrowUp)
+          break
+        case "ArrowDown":
+          handleKeyboardInput(KEY_DIRECTION_MAP.ArrowDown)
+          break
+        case "ArrowLeft":
+          handleKeyboardInput(KEY_DIRECTION_MAP.ArrowLeft)
+          break
+        case "ArrowRight":
+          handleKeyboardInput(KEY_DIRECTION_MAP.ArrowRight)
+          break
+      }
+    }
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (scene !== "lab" || isInGame) return
+      if (stick.name !== "02_JYTK_L") return
+
+      if (
+        ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)
+      ) {
+        handleKeyboardInput(0)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keyup", handleKeyUp)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      window.removeEventListener("keyup", handleKeyUp)
+    }
+  }, [isInGame, handleKeyboardInput, scene, stick.name])
 
   return (
     <group key={stick.name}>

@@ -20,6 +20,8 @@ export interface AssetsResult {
     idleScreen: string
     placeholderLab: string
     boot: string
+    chronicles: string
+    looper: string
   }
   glassReflexes: {
     mesh: string
@@ -57,6 +59,10 @@ export interface AssetsResult {
       door: {
         open: string
         close: string
+      }[]
+      lamp: {
+        pull: string
+        release: string
       }[]
     }
     arcade: {
@@ -124,6 +130,9 @@ export interface AssetsResult {
     textureBody: string
     textureFaces: string
   }
+  lamp: {
+    extraLightmap: string
+  }
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -145,7 +154,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
     arcade: {
       idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "",
       placeholderLab: threeDInteractions.arcade.placeholderLab?.url ?? "",
-      boot: threeDInteractions.arcade.boot?.url ?? ""
+      boot: threeDInteractions.arcade.boot?.url ?? "",
+      chronicles: threeDInteractions.arcade.chronicles?.url ?? "",
+      looper: threeDInteractions.arcade.looper?.url ?? ""
     },
     glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
       mesh: item._title,
@@ -188,6 +199,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
         door: threeDInteractions.sfx.blog.door.items.map((item) => ({
           open: item.open?.url ?? "",
           close: item.close?.url ?? ""
+        })),
+        lamp: threeDInteractions.sfx.blog.lamp.items.map((item) => ({
+          pull: item.pull?.url ?? "",
+          release: item.release?.url ?? ""
         }))
       },
       arcade: {
@@ -263,6 +278,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
       model: threeDInteractions.characters.model.file?.url ?? "",
       textureBody: threeDInteractions.characters.textureBody?.url,
       textureFaces: threeDInteractions.characters.textureFaces?.url
+    },
+    lamp: {
+      extraLightmap: threeDInteractions.lamp.extraLightmap?.url ?? ""
     }
   }
 }

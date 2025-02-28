@@ -56,9 +56,16 @@ export default function BlogMeta({
   categories: boolean
 }) {
   return (
-    <div className="grid-layout relative text-p">
-      <Back />
-      <div className="col-span-10 col-start-2 flex justify-center">
+    <div className="grid-layout relative !px-0 text-p">
+      {categories && (
+        <Link
+          href="/blog"
+          className="col-span-full text-brand-w1 lg:col-span-1 lg:col-start-1"
+        >
+          ← <span className="underline">Blog</span>
+        </Link>
+      )}
+      <div className="col-span-full flex justify-center lg:col-span-10 lg:col-start-2">
         <div className="flex w-full max-w-[846px] flex-col gap-3">
           {!categories && <hr className="mt-10 border-brand-w1/20" />}
           {categories && (
@@ -66,7 +73,7 @@ export default function BlogMeta({
               {data.categories?.map((category) => (
                 <p
                   key={category._title}
-                  className="h-max w-max bg-brand-g2 px-1 text-[11px] text-brand-w2"
+                  className="text-mobile-p h-max w-max bg-brand-g2 px-1 text-brand-w2 lg:text-p"
                 >
                   {category._title}
                 </p>

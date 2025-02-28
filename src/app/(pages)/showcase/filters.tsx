@@ -74,7 +74,7 @@ export const Filters = ({
 
   return (
     <div className="grid-layout items-end pb-2">
-      <div className="col-span-1 flex items-center gap-1 text-p text-brand-g1">
+      <div className="col-span-1 hidden items-center gap-1 text-p text-brand-g1 lg:flex">
         <ViewSelector
           mode="grid"
           viewMode={viewMode}
@@ -88,7 +88,7 @@ export const Filters = ({
         />
       </div>
 
-      <div className="col-start-7 col-end-13 flex flex-col gap-2">
+      <div className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13">
         <p className="text-p text-brand-g1">Filters</p>
 
         <ul className="flex flex-wrap gap-x-4 gap-y-1">
@@ -96,7 +96,7 @@ export const Filters = ({
             <button
               key={category.name}
               className={cn(
-                "flex w-max gap-x-1.25 !text-h2 text-brand-g1 transition-colors duration-300",
+                "flex w-max gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
                 selectedCategories.includes(category.name) && "text-brand-w1",
                 // if no categories selected, show all as active
                 selectedCategories.length === 0 && "text-brand-w1"

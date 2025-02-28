@@ -17,6 +17,8 @@ export type SiteAudioSFXKey =
   | `BLOG_LOCKED_DOOR_${number}`
   | `BLOG_DOOR_${number}_OPEN`
   | `BLOG_DOOR_${number}_CLOSE`
+  | `BLOG_LAMP_${number}_PULL`
+  | `BLOG_LAMP_${number}_RELEASE`
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
@@ -92,7 +94,8 @@ export function SiteAudioSFXsLoader(): null {
           Object.keys(GAME_AUDIO_SFX).map(async (key) => {
             const audioKey = key as SiteAudioSFXKey
             const source = await player.loadAudioFromURL(
-              GAME_AUDIO_SFX[audioKey as keyof typeof GAME_AUDIO_SFX]
+              GAME_AUDIO_SFX[audioKey as keyof typeof GAME_AUDIO_SFX],
+              true // Mark as SFX
             )
             source.setVolume(SFX_VOLUME)
             newSources[audioKey] = source
@@ -101,10 +104,13 @@ export function SiteAudioSFXsLoader(): null {
 
         await Promise.all(
           ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
-            const source = await player.loadAudioFromURL(button.PRESS)
+            const source = await player.loadAudioFromURL(button.PRESS, true)
             source.setVolume(SFX_VOLUME)
             newSources[`ARCADE_BUTTON_${index}_PRESS`] = source
-            const sourceRelease = await player.loadAudioFromURL(button.RELEASE)
+            const sourceRelease = await player.loadAudioFromURL(
+              button.RELEASE,
+              true
+            )
             sourceRelease.setVolume(SFX_VOLUME)
             newSources[`ARCADE_BUTTON_${index}_RELEASE`] = sourceRelease
           })
@@ -112,10 +118,13 @@ export function SiteAudioSFXsLoader(): null {
 
         await Promise.all(
           ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
-            const source = await player.loadAudioFromURL(stick.PRESS)
+            const source = await player.loadAudioFromURL(stick.PRESS, true)
             source.setVolume(SFX_VOLUME)
             newSources[`ARCADE_STICK_${index}_PRESS`] = source
-            const sourceRelease = await player.loadAudioFromURL(stick.RELEASE)
+            const sourceRelease = await player.loadAudioFromURL(
+              stick.RELEASE,
+              true
+            )
             sourceRelease.setVolume(SFX_VOLUME)
             newSources[`ARCADE_STICK_${index}_RELEASE`] = sourceRelease
           })
@@ -123,7 +132,7 @@ export function SiteAudioSFXsLoader(): null {
 
         await Promise.all(
           BLOG_AUDIO_SFX.LOCKED_DOOR.map(async (lockedDoor, index) => {
-            const source = await player.loadAudioFromURL(lockedDoor)
+            const source = await player.loadAudioFromURL(lockedDoor, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_LOCKED_DOOR_${index}`] = source
           })
@@ -131,12 +140,26 @@ export function SiteAudioSFXsLoader(): null {
 
         await Promise.all(
           BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
-            const source = await player.loadAudioFromURL(door.OPEN)
+            const source = await player.loadAudioFromURL(door.OPEN, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_DOOR_${index}_OPEN`] = source
-            const sourceClose = await player.loadAudioFromURL(door.CLOSE)
+            const sourceClose = await player.loadAudioFromURL(door.CLOSE, true)
             sourceClose.setVolume(SFX_VOLUME)
             newSources[`BLOG_DOOR_${index}_CLOSE`] = sourceClose
+          })
+        )
+
+        await Promise.all(
+          BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
+            const source = await player.loadAudioFromURL(lamp.PULL, true)
+            source.setVolume(SFX_VOLUME)
+            newSources[`BLOG_LAMP_${index}_PULL`] = source
+            const sourceRelease = await player.loadAudioFromURL(
+              lamp.RELEASE,
+              true
+            )
+            sourceRelease.setVolume(SFX_VOLUME)
+            newSources[`BLOG_LAMP_${index}_RELEASE`] = sourceRelease
           })
         )
 
@@ -229,7 +252,7 @@ export function useSiteAudio(): SiteAudioHook {
   const setVolumeMaster = useCallback(
     (volume: number) => {
       if (!player || typeof window === "undefined") return
-      const gainNode = player.masterOutput
+      const gainNode = player.musicChannel
       const currentTime = player.audioContext.currentTime
       const FADE_DURATION = 0.75
 
@@ -237,7 +260,7 @@ export function useSiteAudio(): SiteAudioHook {
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(volume, currentTime + FADE_DURATION)
 
-      player.volume = volume
+      player.musicVolume = volume
       _setVolumeMaster(volume)
       localStorage.setItem("music-enabled", volume > 0 ? "true" : "false")
     },

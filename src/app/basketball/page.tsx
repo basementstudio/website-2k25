@@ -34,12 +34,12 @@ const Basketball = () => {
           <div className="grid-layout h-full">
             <button
               onClick={() => handleNavigation("/")}
-              className="pointer-events-auto col-span-1 col-start-2 mt-24 h-max text-paragraph text-brand-w1"
+              className="text-paragraph pointer-events-auto col-span-1 col-start-2 mt-24 h-max text-brand-w1"
             >
               (X) <span className="underline">Close Game</span>
             </button>
             <div
-              className={`${geistMono.className} col-span-2 col-start-6 mt-24 flex h-10 select-none text-paragraph uppercase text-brand-w2`}
+              className={`${geistMono.className} text-paragraph col-span-2 col-start-6 mt-24 flex h-10 select-none uppercase text-brand-w2`}
             >
               <div className="corner-borders relative flex w-1/2 translate-x-[0.5px] items-center justify-center">
                 <p>{formatTime(timeRemaining)}</p>
@@ -58,7 +58,7 @@ const Basketball = () => {
               </p>
             </div>
 
-            <Scoreboard className="col-span-1 col-start-10 mt-24 text-paragraph" />
+            <Scoreboard className="text-paragraph col-span-1 col-start-10 mt-24" />
           </div>
         </div>
       )}

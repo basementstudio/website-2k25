@@ -16,6 +16,7 @@ export const Navbar = () => (
 
       const projects = data.pages.showcase.projectList.items.length
       const posts = data.pages.blog.posts.items.length
+      const newsletter = data.company.social.newsletter.json.content
 
       const LINKS: NavbarLink[] = [
         {
@@ -46,7 +47,13 @@ export const Navbar = () => (
         }
       ]
 
-      return <NavbarContent links={LINKS} />
+      return (
+        <NavbarContent
+          links={LINKS}
+          socialLinks={data.company.social}
+          newsletter={newsletter}
+        />
+      )
     }}
   </Pump>
 )

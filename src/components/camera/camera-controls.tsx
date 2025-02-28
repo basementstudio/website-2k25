@@ -28,10 +28,21 @@ const newLookAtDelta = new Vector3()
 const finalPos = new Vector3()
 const finalLookAt = new Vector3()
 const ANIMATION_DURATION = 2
+const NOT_FOUND_DURATION = 12
 
-export const CustomCamera = () => {
+interface Props {
+  transition404Progress?: number
+}
+
+export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
   const { selected } = useInspectable()
   const [firstRender, setFirstRender] = useState(true)
+  const [transitionPhase, setTransitionPhase] = useState<
+    "to-origin" | "to-home" | null
+  >(null)
+
+  const currentScene = useNavigationStore((state) => state.currentScene?.name)
+  const previousScene = useNavigationStore((state) => state.previousScene?.name)
 
   const cameraControlsRef = useRef<CameraControls>(null)
   const planeRef = useRef<Mesh>(null)
@@ -114,13 +125,63 @@ export const CustomCamera = () => {
   const prevFov = useRef(0)
   const controls = cameraControlsRef.current
 
-  // camera position and target handler
   useFrame((_, dt) => {
-    if (!controls || !cameraConfig || !lenis) return
+    if (!controls) return
 
     prevTargetY.current = targetPosition.y
     prevLookAtY.current = targetLookAt.y
     prevFov.current = currentFov.current
+
+    const is404ToHome = currentScene === "home" && previousScene === "404"
+
+    if (is404ToHome) {
+      if (!transitionPhase) {
+        setTransitionPhase("to-home")
+        progress.current = 0
+
+        // tv viewing camera position
+        currentPos.set(8.76, 1.13, -13)
+        currentTarget.set(8.95, 1.12, -13.83)
+        currentFov.current = 20
+
+        // target: home camera
+        if (cameraConfig) {
+          targetPosition.set(...cameraConfig.position)
+          targetLookAt.set(...cameraConfig.target)
+          targetFov.current = cameraConfig.fov ?? 60
+        }
+
+        if (controls.camera instanceof PerspectiveCamera) {
+          controls.camera.fov = currentFov.current
+          controls.camera.updateProjectionMatrix()
+        }
+        return
+      }
+
+      progress.current = Math.min(progress.current + dt / NOT_FOUND_DURATION, 1)
+      const easeValue = easeInOutCubic(progress.current)
+
+      currentPos.lerp(targetPosition, easeValue)
+      currentTarget.lerp(targetLookAt, easeValue)
+      currentFov.current =
+        currentFov.current +
+        (targetFov.current - currentFov.current) * easeValue
+
+      if (controls.camera instanceof PerspectiveCamera) {
+        const material = controls.camera.userData.postProcessingMaterial
+        if (material) {
+          material.uniforms.u404Transition.value = 1 - easeValue
+        }
+      }
+
+      finalPos.copy(currentPos).add(panTargetDelta)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
+      controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
+      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
+      return
+    }
+
+    if (!cameraConfig || !lenis) return
 
     targetPosition.set(...cameraConfig.position)
     targetLookAt.set(...cameraConfig.target)

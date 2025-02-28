@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from "react"
 
 import { useWatchPathname } from "@/hooks/use-watch-pathname"
 
+import { useMedia } from "@/hooks/use-media"
+
 import { Filters } from "./filters"
 import { Grid } from "./grid"
 import { List } from "./list"
@@ -37,6 +39,12 @@ export const ProjectList = ({ data }: { data: QueryType }) => {
     if (currentPathname === "/showcase" && prevPathname.includes("/showcase"))
       lenis?.scrollTo("#projects", { immediate: true })
   }, [lenis, currentPathname, prevPathname])
+  const isDesktop = useMedia("(min-width: 1024px)")
+
+  // set view mode to grid on mobile
+  useEffect(() => {
+    if (!isDesktop) setViewMode("grid")
+  }, [isDesktop])
 
   const categories = useMemo(() => {
     const categoryMap = new Map<string, number>()

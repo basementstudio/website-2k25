@@ -58,7 +58,7 @@ export async function RelatedProjects({
 
   return (
     <div className={cn("mt-auto flex flex-col gap-2", className)}>
-      <h4 className="text-h4 text-brand-g1">More Projects</h4>
+      <h4 className="text-mobile-h4 text-brand-g1 lg:text-h4">More Projects</h4>
 
       <ul className="flex flex-col divide-y divide-brand-w1/20">
         <div />

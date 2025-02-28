@@ -35,7 +35,8 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
         if (!themeSong && isBasketballPage && !isInitialized.current) {
           isInitialized.current = true
           const newThemeSong = await player.loadAudioFromURL(
-            GAME_THEME_SONGS.BASKETBALL_AMBIENT
+            GAME_THEME_SONGS.BASKETBALL_AMBIENT,
+            false
           )
           newThemeSong.loop = true
           newThemeSong.setVolume(0)

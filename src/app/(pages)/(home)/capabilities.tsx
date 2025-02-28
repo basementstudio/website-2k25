@@ -10,15 +10,15 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
 
   return (
     <div className="grid-layout">
-      <h3 className="col-start-3 mb-2 text-h3 text-brand-g1">
+      <h3 className="text-mobile-h3 col-span-full mb-2 text-brand-g1 lg:col-start-3 lg:text-h3">
         {capabilities._title}
       </h3>
 
-      <div className="col-span-12 [&_p]:text-h1">
+      <div className="[&_p]:text-mobile-h1 col-span-full lg:[&_p]:text-h1">
         <RichText>{capabilities.intro?.json?.content}</RichText>
       </div>
 
-      <div className="grid-layout relative col-span-12 mt-16 !gap-x-4 !px-0">
+      <div className="grid-layout relative col-span-full mt-16 !hidden !gap-x-4 !px-0 lg:!grid">
         <div className="absolute inset-x-0 top-9 h-px w-full bg-brand-w1/30" />
 
         <div className="col-start-3 col-end-11 grid grid-cols-8 gap-6">

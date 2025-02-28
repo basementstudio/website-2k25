@@ -1,12 +1,11 @@
 import { animate } from "motion"
 import { useRef } from "react"
 
+import { useAssets } from "@/components/assets-provider"
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-
-import { useAssets } from "../assets-provider"
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 
 export const LockedDoor = () => {
   const { blog } = useMesh()

@@ -5,20 +5,26 @@ import { QueryType } from "./query"
 export const Intro = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout">
-      <article className="col-span-8 flex flex-col gap-4 text-brand-w1">
+      <article className="col-span-full flex flex-col gap-4 text-brand-w1 lg:col-span-8">
         <div>
           <RichText
             components={{
-              p: ({ children }) => <h1 className="text-h1">{children}</h1>
+              p: ({ children }) => (
+                <h1 className="text-mobile-h1 lg:text-h1">{children}</h1>
+              )
             }}
           >
             {data.pages.homepage.intro.title?.json.content}
           </RichText>
         </div>
-        <div className="grid grid-cols-2">
+        <div className="w-[80%] lg:w-[60%]">
           <RichText
             components={{
-              p: ({ children }) => <p className="!text-h4">{children}</p>
+              p: ({ children }) => (
+                <p className="text-mobile-h4 text-pretty lg:text-h4">
+                  {children}
+                </p>
+              )
             }}
           >
             {data.pages.homepage.intro.subtitle?.json.content}
@@ -26,7 +32,7 @@ export const Intro = ({ data }: { data: QueryType }) => {
         </div>
       </article>
 
-      <article className="col-start-11 col-end-13">
+      <article className="col-start-11 col-end-13 hidden lg:block">
         <B />
       </article>
     </section>
