@@ -3,6 +3,7 @@ import { MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
+// TODO: this config is wrong for the fog transition
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 
 import fragmentShader from "./fragment.glsl"

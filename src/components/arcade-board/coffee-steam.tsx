@@ -1,31 +1,21 @@
-import steamFrag from "@/shaders/steam/steam.frag"
-import steamVert from "@/shaders/steam/steam.vert"
 import { useTexture } from "@react-three/drei"
-
-import perlin from "@/shaders/steam/perlin.jpg"
-import { useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
-import { ShaderMaterial, RepeatWrapping } from "three"
+import { useEffect, useMemo } from "react"
+import { RepeatWrapping } from "three"
+
+import { createSteamMaterial } from "@/shaders/steam"
+import perlin from "@/shaders/steam/perlin.jpg"
 
 const CoffeeSteam = () => {
   const noise = useTexture(perlin.src)
   noise.wrapT = RepeatWrapping
   noise.wrapS = RepeatWrapping
 
-  const material = useMemo(() => {
-    return new ShaderMaterial({
-      transparent: true,
-      side: 2,
-      depthWrite: false,
-      depthTest: false,
-      uniforms: {
-        uTime: { value: 0 },
-        uNoise: { value: noise }
-      },
-      fragmentShader: steamFrag,
-      vertexShader: steamVert
-    })
-  }, [noise])
+  const material = useMemo(() => createSteamMaterial(), [])
+
+  useEffect(() => {
+    material.uniforms.uNoise.value = noise
+  }, [noise, material])
 
   useFrame(({ clock }) => {
     material.uniforms.uTime.value = clock.getElapsedTime()
