@@ -37,6 +37,7 @@ interface Props {
 export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
   const { selected } = useInspectable()
   const [firstRender, setFirstRender] = useState(true)
+  const [cameraReady, setCameraReady] = useState(false)
   const [transitionPhase, setTransitionPhase] = useState<
     "to-origin" | "to-home" | null
   >(null)
@@ -111,6 +112,13 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
     ;[plane, boundary].forEach((mesh) => mesh.lookAt(...cameraConfig.position))
     boundary.scale.set(width * 0.6, height, 1)
     plane.scale.set(width * 0.4, height, 1)
+
+    // Set initial camera position and target
+    controls.setPosition(...cameraConfig.position, false)
+    controls.setTarget(...cameraConfig.target, false)
+
+    // Mark camera as ready after positioning
+    setCameraReady(true)
 
     return () => controls.dispose()
   }, [])
@@ -304,9 +312,26 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
     [cameraConfig]
   )
 
+  useEffect(() => {
+    if (!cameraControlsRef.current || !cameraConfig) return
+
+    // Position camera immediately on mount
+    const controls = cameraControlsRef.current
+    controls.setPosition(...cameraConfig.position, false)
+    controls.setTarget(...cameraConfig.target, false)
+
+    // Mark camera as ready
+    setCameraReady(true)
+  }, [cameraControlsRef.current, cameraConfig])
+
   return (
     <>
-      <CameraControls makeDefault ref={cameraControlsRef} />
+      <CameraControls
+        makeDefault
+        ref={cameraControlsRef}
+        enabled={cameraReady}
+      />
+
       <mesh ref={planeRef} position={planePosition() ?? [0, 0, 0]} />
       <mesh ref={planeBoundaryRef} position={planePosition() ?? [0, 0, 0]} />
     </>
