@@ -74,7 +74,7 @@ void main() {
     remappedUv.y = 1.0 - remappedUv.y;
 
     // add pixelation that excludes a center square
-    float pixelSize = 248.0;
+    float pixelSize = 360.0;
     vec2 centeredUv = remappedUv - 0.5;
 
     // square parameters directly in the main function
