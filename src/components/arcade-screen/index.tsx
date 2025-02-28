@@ -329,7 +329,7 @@ const Game = ({
                 {gameStarted && gameOver && (
                   <Container backgroundColor={COLORS_THEME.black}>
                     <Text textAlign="center" fontSize={20}>
-                      PRESS [ESC] TO RETURN
+                      PRESS [ESC] TO EXIT
                     </Text>
                   </Container>
                 )}
