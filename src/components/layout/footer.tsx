@@ -1,6 +1,5 @@
 import { Pump } from "basehub/react-pump"
 
-import { useContactStore } from "@/components/contact/contact-store"
 import { Grid } from "@/components/grid"
 import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"

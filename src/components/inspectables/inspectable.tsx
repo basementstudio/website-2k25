@@ -2,7 +2,7 @@
 
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
-import { AnimationPlaybackControls, useMotionValue } from "motion/react"
+import { AnimationPlaybackControls } from "motion/react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
   Box3,

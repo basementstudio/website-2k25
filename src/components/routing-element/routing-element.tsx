@@ -2,11 +2,11 @@ import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
 
+import { useInspectable } from "@/components/inspectables/context"
+import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
-import { useInspectable } from "../inspectables/context"
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { RoutingPlane } from "./routing-plane/routing-plane"
 
 interface RoutingElementProps {

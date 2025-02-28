@@ -1,8 +1,9 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
+import { useContactStore } from "@/components/contact/contact-store"
 import { Grid } from "@/components/grid"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
@@ -10,7 +11,6 @@ import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
-import { useContactStore } from "../contact/contact-store"
 import MusicToggle from "./music-toggle"
 
 const Logo = ({ className }: { className?: string }) => (
