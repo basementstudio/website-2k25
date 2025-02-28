@@ -21,6 +21,10 @@ export function useAudioUrls() {
       DOOR: sfx.blog.door.map((item) => ({
         OPEN: item.open,
         CLOSE: item.close
+      })),
+      LAMP: sfx.blog.lamp.map((item) => ({
+        PULL: item.pull,
+        RELEASE: item.release
       }))
     },
     ARCADE_AUDIO_SFX: {

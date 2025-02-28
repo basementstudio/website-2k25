@@ -72,9 +72,12 @@ uniform float uGodrayDensity;
 
 // Inspectable
 uniform bool inspectingEnabled;
-uniform bool isInspecting;
 uniform float inspectingFactor;
 uniform float fadeFactor;
+
+// Lamp
+uniform sampler2D lampLightmap;
+uniform bool lightLampEnabled;
 
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 
@@ -119,7 +122,13 @@ void main() {
   // Combine texture and base color
   vec3 color = baseColor * mapSample.rgb;
 
-  vec3 lightMapSample = texture2D(lightMap, vUv2).rgb;
+  vec3 lightMapSample = vec3(0.0);
+  
+  if (lightLampEnabled) {
+    lightMapSample = texture2D(lampLightmap, vUv2).rgb;
+  } else {
+    lightMapSample = texture2D(lightMap, vUv2).rgb;
+  }
 
   // Apply metalness to affect the reflection intensity
   vec3 metallicReflection = mix(vec3(0.04), color, metalness);
@@ -158,6 +167,11 @@ void main() {
     irradiance *= lightMapSample * lightMapIntensity;
   }
 
+  if(aoMapIntensity > 0.0) {
+    float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+    irradiance *= ambientOcclusion;
+  }
+
   irradiance = mix(irradiance, lf, inspectingFactor);
 
   // Combine wave color
@@ -182,11 +196,6 @@ void main() {
 
   if(opacityResult <= 0.0) {
     discard;
-  }
-
-  if(aoMapIntensity > 0.0) {
-    float ambientOcclusion = (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
-    irradiance *= ambientOcclusion;
   }
 
   #ifdef LIGHT

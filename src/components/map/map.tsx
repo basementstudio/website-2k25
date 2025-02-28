@@ -37,15 +37,40 @@ import {
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 
+import { Lamp } from "../lamp"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
+import dynamic from "next/dynamic"
 
 export type GLTFResult = GLTF & {
   nodes: {
     [key: string]: Mesh
   }
 }
+
+const PhysicsWorld = dynamic(
+  () =>
+    import("@react-three/rapier").then((mod) => {
+      const { Physics } = mod
+      return function PhysicsWrapper({
+        children,
+        paused,
+        gravity
+      }: {
+        children: React.ReactNode
+        paused: boolean
+        gravity: [number, number, number]
+      }) {
+        return (
+          <Physics paused={paused} gravity={gravity}>
+            {children}
+          </Physics>
+        )
+      }
+    }),
+  { ssr: false }
+)
 
 const createVideoTexture = (url: string) => {
   const videoElement = document.createElement("video")
@@ -468,7 +493,12 @@ export const Map = memo(() => {
       })
     }
 
-    if (!useMesh.getState().blog.lockedDoor && !useMesh.getState().blog.door) {
+    if (
+      !useMesh.getState().blog.lockedDoor &&
+      !useMesh.getState().blog.door &&
+      !useMesh.getState().blog.lamp &&
+      !useMesh.getState().blog.lampTargets
+    ) {
       const lockedDoor = officeModel?.getObjectByName("SM_00_012") as Mesh
       lockedDoor.userData.originalRotation = {
         x: lockedDoor.rotation.x,
@@ -481,10 +511,24 @@ export const Map = memo(() => {
         y: door.rotation.y,
         z: door.rotation.z
       }
+
+      const lamp = officeModel?.getObjectByName("Cube002") as Mesh
+
       if (lockedDoor?.parent) lockedDoor.removeFromParent()
       if (door?.parent) door.removeFromParent()
+      if (lamp?.parent) lamp.removeFromParent()
+
+      const lampTargets: Mesh[] = []
+      for (let i = 1; i <= 7; i++) {
+        const target = officeModel?.getObjectByName(
+          `SM_06_0${i}`
+        ) as Mesh | null
+
+        if (target) lampTargets.push(target)
+      }
+
       useMesh.setState({
-        blog: { lockedDoor, door }
+        blog: { lockedDoor, door, lamp, lampTargets }
       })
     }
 
@@ -524,6 +568,14 @@ export const Map = memo(() => {
       <ArcadeBoard />
       <BlogDoor />
       <LockedDoor />
+
+      {/* TODO: shut down physics after x seconds of not being in blog scene */}
+      {/* TODO: basketball should use the same physics world */}
+      <Suspense fallback={null}>
+        <PhysicsWorld gravity={[0, -24, 0]} paused={scene !== "blog"}>
+          <Lamp />
+        </PhysicsWorld>
+      </Suspense>
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(

@@ -65,7 +65,11 @@ export const createGlobalShaderMaterial = (
     uGodrayDensity: { value: 0 },
     inspectingEnabled: { value: false },
     inspectingFactor: { value: 0 },
-    fadeFactor: { value: 0 }
+    fadeFactor: { value: 0 },
+
+    // Lamp
+    lampLightmap: { value: null },
+    lightLampEnabled: { value: false }
   } as Record<string, { value: unknown }>
 
   if (defines?.LIGHT) {
