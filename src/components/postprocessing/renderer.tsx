@@ -14,8 +14,9 @@ import {
   WebGLRenderTarget
 } from "three"
 
-import { useContactStore } from "../contact/contact-store"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
+import { useContactStore } from "@/components/contact/contact-store"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+
 import { PostProcessing } from "./post-processing"
 
 interface RendererProps {

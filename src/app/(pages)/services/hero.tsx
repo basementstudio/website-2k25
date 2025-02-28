@@ -38,8 +38,10 @@ export const Hero = ({ data, className }: HeroProps) => {
   }
 
   return (
-    <section className={cn("grid-layout", className)}>
-      <h1 className="col-start-1 col-end-6 text-h1 text-brand-w2">Services</h1>
+    <section className={cn("grid-layout !gap-y-4 lg:!gap-y-2", className)}>
+      <h1 className="col-span-full text-mobile-h1 text-brand-w2 lg:col-start-1 lg:col-end-6 lg:text-h1">
+        Services
+      </h1>
       <Image
         alt=""
         src={data.pages.services.imageSequence.items[indexImage].image.url}
@@ -47,11 +49,11 @@ export const Hero = ({ data, className }: HeroProps) => {
         height={
           data.pages.services.imageSequence.items[indexImage].image.height
         }
-        className="col-start-6 col-end-8"
+        className="col-span-1 lg:col-start-6 lg:col-end-8"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={cleanup}
       />
-      <div className="col-start-9 col-end-13 flex flex-col gap-4 text-h4 text-brand-w2">
+      <div className="col-start-2 col-end-5 flex flex-col gap-4 text-mobile-h4 text-brand-w2 lg:col-start-9 lg:col-end-13 lg:text-h4">
         <RichText content={data.pages.services.intro.json.content} />
       </div>
     </section>
