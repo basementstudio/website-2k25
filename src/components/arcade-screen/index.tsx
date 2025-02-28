@@ -201,18 +201,18 @@ const Game = ({
         lastUpdateTimeRef.current = 0
       }
 
-      // ensure uIsGameRunning is consistently updated during gameplay
-      if (screenMaterial.uniforms.uIsGameRunning.value !== 1.0) {
-        screenMaterial.uniforms.uIsGameRunning.value = 1.0
-        screenMaterial.needsUpdate = true
-      }
-    } else if (screenMaterial.uniforms.uIsGameRunning.value !== 0.0) {
+      // Set game running value without conditional check to prevent flickering
+      screenMaterial.uniforms.uIsGameRunning.value = 1.0
+      screenMaterial.needsUpdate = true
+    } else {
+      // Set game not running value without conditional check
       screenMaterial.uniforms.uIsGameRunning.value = 0.0
       screenMaterial.needsUpdate = true
     }
   })
 
   useEffect(() => {
+    // Ensure the material is updated immediately when game state changes
     if (gameStarted && !gameOver) {
       screenMaterial.uniforms.uIsGameRunning.value = 1.0
       screenMaterial.needsUpdate = true
@@ -306,12 +306,12 @@ const Game = ({
               </Text>
 
               <Container
+                width={600}
                 backgroundColor={COLORS_THEME.black}
-                width={900}
                 height={100}
                 paddingTop={24}
                 positionType="absolute"
-                positionLeft={"5%"}
+                positionLeft={"20%"}
                 flexDirection="column"
                 alignItems="center"
               >
