@@ -77,6 +77,48 @@ export function useKeyControls() {
   }, [])
 }
 
+const stickDirectionMap = {
+  1: "right",
+  2: "left",
+  3: "forward",
+  4: "backward",
+  0: null
+} as const
+
+export function useStickControls() {
+  useEffect(() => {
+    const handleStickMove = (event: CustomEvent) => {
+      const { direction } = event.detail
+
+      setControl("left", false)
+      setControl("right", false)
+      setControl("forward", false)
+      setControl("backward", false)
+
+      if (direction === 0) return
+
+      const control =
+        stickDirectionMap[direction as keyof typeof stickDirectionMap]
+
+      if (control) {
+        setControl(control as ControlKey, true)
+        if (keyCallbacks[control as ControlKey]) {
+          keyCallbacks[control as ControlKey]!()
+        }
+      }
+    }
+
+    window.addEventListener("arcadeStickMove", handleStickMove as EventListener)
+
+    return () => {
+      window.removeEventListener(
+        "arcadeStickMove",
+        handleStickMove as EventListener
+      )
+    }
+  }, [])
+}
+
 export function useKey(key: string, callack: () => void, deps: unknown[] = []) {
   useEffect(() => {
     const handleKeydown = ({ key: k }: KeyboardEvent) => {

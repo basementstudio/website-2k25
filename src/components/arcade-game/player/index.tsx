@@ -10,7 +10,7 @@ import { DEFAULT_SPEED, lineWidth, useRoad } from "../road/use-road"
 
 import { Motorcycle } from "../motorcycle"
 import { DeathAnimation } from "./death-animation"
-import { useKeyControls } from "../lib/use-controls"
+import { useKeyControls, useStickControls } from "../lib/use-controls"
 
 const maxRotation = Math.PI
 
@@ -20,9 +20,8 @@ export const Player = () => {
   const carPositionCopy = useMemo(() => new Vector3(), [])
 
   const refs = useRef({
-    // position from the last frame
     prevPosition: 0,
-    // position for the current frame
+
     position: 0
   })
   const currentLine = useGame((s) => s.currentLine)
@@ -65,11 +64,9 @@ export const Player = () => {
     const direction = refs.current.position - refs.current.prevPosition
     refs.current.prevPosition = refs.current.position
 
-    //set position
     carRef.current.position.x = round(refs.current.position, 1) * lineWidth
     carPositionCopy.copy(carRef.current.position)
 
-    //set rotations
     carRef.current.rotation.z = lerp(
       carRef.current.rotation.z,
       -direction * maxRotation * 0.5,
@@ -87,20 +84,17 @@ export const Player = () => {
   const gameLostRef = useRef(false)
   const roadSpeedRef = useRoad((s) => s.speedRef)
 
-  // Reset game
+  // reset game
   useEffect(() => {
     useConnector.getState().subscribable.restart.addCallback(() => {
-      // reset position and rotation
       refs.current.position = 0
       refs.current.prevPosition = 0
       useGame.setState({ currentLine: 0 })
 
-      // reset game over state
       useGame.setState({ gameOver: false })
       gameLostRef.current = false
       roadSpeedRef.current = DEFAULT_SPEED
 
-      // Instead of removing and nullifying, just reset position
       if (carRef.current) {
         carRef.current.position.set(0, 0, 0)
         carRef.current.rotation.set(0, 0, 0)
@@ -108,7 +102,6 @@ export const Player = () => {
     })
   }, [roadSpeedRef])
 
-  // Handle game lost
   const onIntersectionEnterCallback = useCallback(() => {
     gameLostRef.current = true
     useGame.setState({ gameOver: true })
@@ -124,6 +117,7 @@ export const Player = () => {
   })
 
   useKeyControls()
+  useStickControls()
 
   return (
     <group ref={containerRef}>

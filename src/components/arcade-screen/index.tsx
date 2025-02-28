@@ -110,7 +110,6 @@ export const ArcadeScreen = () => {
         screenMaterial.uniforms.uFlip = { value: 0 }
       }
     } else {
-      // always use render target texture after first visit
       screenMaterial.uniforms.map.value = renderTarget.texture
       screenMaterial.uniforms.uFlip = { value: isInGame ? 1 : 0 }
     }
@@ -212,7 +211,6 @@ const Game = ({
   })
 
   useEffect(() => {
-    // Ensure the material is updated immediately when game state changes
     if (gameStarted && !gameOver) {
       screenMaterial.uniforms.uIsGameRunning.value = 1.0
       screenMaterial.needsUpdate = true
@@ -223,6 +221,11 @@ const Game = ({
       screenMaterial.uniforms.uIsGameRunning.value = 0.0
       screenMaterial.needsUpdate = true
     }
+
+    const event = new CustomEvent("gameStateChange", {
+      detail: { gameStarted, gameOver }
+    })
+    window.dispatchEvent(event)
   }, [gameStarted, gameOver, screenMaterial])
 
   useEffect(() => {
@@ -236,7 +239,6 @@ const Game = ({
 
           useGame.setState({ currentLine: 0 })
         } else {
-          // Second escape press - navigate away
           setIsInGame(false)
           setSpeed(DEFAULT_SPEED)
           setGameStarted(false)
@@ -244,12 +246,10 @@ const Game = ({
 
           useGame.setState({ currentLine: 0 })
 
-          // Navigate away
           useArcadeStore.getState().resetArcadeScreen()
         }
       } else if (event.code === "Space") {
         if (gameOver) {
-          // Restart game
           setGameOver(false)
           setGameStarted(true)
           setSpeed(GAME_SPEED)
