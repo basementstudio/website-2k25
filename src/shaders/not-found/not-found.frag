@@ -8,9 +8,18 @@ float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
+vec2 shakeOffset(float time, float intensity) {
+    vec2 shake = vec2(random(vec2(time * 0.3)) * 2.0 - 1.0, random(vec2(time * 0.2)) * 2.0 - 1.0);
+
+    float shakeBurst = step(0.58, random(vec2(floor(time * 0.5))));
+    return shake * intensity * shakeBurst;
+}
+
 void main() {
-    // transform the uv
-    vec2 transformedUv = vUv;
+    float shakeIntensity = 0.0005;
+    vec2 shake = shakeOffset(uTime, shakeIntensity);
+
+    vec2 transformedUv = vUv + shake;
     transformedUv.x = 1.0 - transformedUv.x;
     transformedUv -= 0.5;
     float cosR = -1.0;
@@ -18,7 +27,20 @@ void main() {
     vec2 rotatedUv = vec2(transformedUv.x * cosR - transformedUv.y * sinR, transformedUv.x * sinR + transformedUv.y * cosR);
     rotatedUv += 0.5;
 
-    vec4 color = texture2D(tDiffuse, rotatedUv);
+    float aberrationAmount = 0.0001;
+    aberrationAmount += random(vec2(floor(uTime * 0.2))) * 0.002;
+
+    vec4 colorR = texture2D(tDiffuse, rotatedUv + vec2(aberrationAmount, 0.0));
+    vec4 colorG = texture2D(tDiffuse, rotatedUv);
+    vec4 colorB = texture2D(tDiffuse, rotatedUv - vec2(aberrationAmount, 0.0));
+
+    vec4 color = vec4(colorR.r, colorG.g, colorB.b, colorG.a);
+
+    float bleedAmount = 0.5;
+    vec4 colorBleedUp = texture2D(tDiffuse, rotatedUv + vec2(0.0, 0.002));
+    vec4 colorBleedDown = texture2D(tDiffuse, rotatedUv - vec2(0.0, 0.002));
+    color += (colorBleedUp + colorBleedDown) * bleedAmount;
+
     float bloomGray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
     color = vec4(vec3(bloomGray), color.a);
 
@@ -30,14 +52,19 @@ void main() {
     float distortion = sin(uTime * 2.0 + vUv.y * 10.0) * 0.001;
     color.rgb += color.rgb * scanline * (0.35 + distortion);
 
-    float glitchLine = step(0.98, random(vec2(floor(vUv.y * 20.0), floor(uTime * .05))));
-    color.rgb += glitchLine * 0.01;
+    float glitchLine = step(0.98, random(vec2(floor(vUv.y * 20.0), floor(uTime * 0.05))));
+    color.rgb += glitchLine * .001;
 
-    // noise
     vec2 noiseUv = vUv + uTime * 5.0;
     float noise = random(noiseUv);
-    color.rgb += noise * 0.15;
+    float noisePulse = 0.15 + 0.05 * sin(uTime * 0.5);
+    color.rgb += noise * noisePulse;
+
+    float interference = sin(vUv.y * 10.0 + uTime * 10.0) * 0.02 *
+        random(vec2(floor(uTime * 2.)));
+    color.rgb += interference;
 
     float grayscale = dot(color.rgb, vec3(0.299, 0.587, 0.114));
-    gl_FragColor = vec4(vec3(grayscale), color.a);
+    vec3 tint = vec3(0.85, 0.95, 1.0);
+    gl_FragColor = vec4(vec3(grayscale) * tint, color.a);
 }
