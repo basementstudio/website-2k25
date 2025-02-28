@@ -19,7 +19,6 @@ import { ArcadeTitleTagsHeader } from "./arcade-ui-components/arcade-title-tags-
 import { ArcadeWrapperTags } from "./arcade-ui-components/arcade-wrapper-tags"
 
 interface ScreenUIProps {
-  screenScale?: Vector3 | null
   onLoad?: () => void
 }
 
@@ -85,8 +84,7 @@ export const createLabTabs = (experiments: any[]): LabTab[] => {
   return tabs
 }
 
-export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
-  const aspect = screenScale ? screenScale.x / screenScale.y : 1
+export const ScreenUI = ({ onLoad }: ScreenUIProps) => {
   const onLoadRef = useRef(onLoad)
   onLoadRef.current = onLoad
 
@@ -113,14 +111,6 @@ export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
 
   return (
     <>
-      <color attach="background" args={["#000000"]} />
-      <PerspectiveCamera
-        manual
-        makeDefault
-        position={[0, 0, 4.01]}
-        rotation={[0, 0, Math.PI]}
-        aspect={aspect}
-      />
       <Root
         width={590}
         height={390}

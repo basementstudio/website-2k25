@@ -7,9 +7,11 @@ import { useKeyPress } from "@/hooks/use-key-press"
 
 import { COLORS_THEME } from "../screen-ui"
 import { useArcadeStore } from "@/store/arcade-store"
+import { useAssets } from "@/components/assets-provider"
 
 export const ArcadeFeatured = () => {
   const setCursorType = useMouseStore((state) => state.setCursorType)
+  const { arcade } = useAssets()
 
   const [hoveredSection, setHoveredSection] = useState({
     chronicles: false,
@@ -104,7 +106,7 @@ export const ArcadeFeatured = () => {
             </Text>
           </Container>
           <Image
-            src="/images/arcade-screen/chronicles.png"
+            src={arcade.chronicles}
             width={"100%"}
             height={"100%"}
             objectFit="cover"
@@ -160,7 +162,7 @@ export const ArcadeFeatured = () => {
             </Text>
           </Container>
           <Image
-            src="/images/arcade-screen/looper.png"
+            src={arcade.looper}
             width={"100%"}
             height={"100%"}
             objectFit="cover"

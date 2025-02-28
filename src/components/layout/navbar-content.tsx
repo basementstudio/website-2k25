@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import { Grid } from "@/components/grid"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
@@ -56,10 +57,14 @@ export const NavbarContent = ({
 
   const isOnTab = useIsOnTab()
 
+  const scene = useCurrentScene()
+
   useEffect(
     () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
     [isOnTab, music, setVolumeMaster]
   )
+
+  if (scene === "404") return null
 
   return (
     <nav

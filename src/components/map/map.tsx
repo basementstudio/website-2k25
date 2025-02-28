@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber"
 import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
+import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -36,7 +37,10 @@ import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
+import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
+import { Lamp } from "../lamp"
+import { cctvConfig } from "../postprocessing/renderer"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -46,6 +50,29 @@ export type GLTFResult = GLTF & {
     [key: string]: Mesh
   }
 }
+
+const PhysicsWorld = dynamic(
+  () =>
+    import("@react-three/rapier").then((mod) => {
+      const { Physics } = mod
+      return function PhysicsWrapper({
+        children,
+        paused,
+        gravity
+      }: {
+        children: React.ReactNode
+        paused: boolean
+        gravity: [number, number, number]
+      }) {
+        return (
+          <Physics paused={paused} gravity={gravity}>
+            {children}
+          </Physics>
+        )
+      }
+    }),
+  { ssr: false }
+)
 
 const createVideoTexture = (url: string) => {
   const videoElement = document.createElement("video")
@@ -108,6 +135,7 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
+  const timeRef = useRef(0)
 
   const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
@@ -147,6 +175,8 @@ export const Map = memo(() => {
   }, [selected])
 
   useFrame(({ clock }) => {
+    timeRef.current = clock.getElapsedTime()
+
     godrays.forEach((mesh) => {
       // @ts-ignore
       mesh.material.uniforms.uGodrayDensity.value = opacity
@@ -158,6 +188,12 @@ export const Map = memo(() => {
       material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
+
+    if (useMesh.getState().cctv?.screen?.material) {
+      // @ts-ignore
+      useMesh.getState().cctv.screen.material.uniforms.uTime.value =
+        clock.getElapsedTime()
+    }
 
     if (keyframedNet && isAnimating.current) {
       const mesh = keyframedNet as Mesh
@@ -277,6 +313,28 @@ export const Map = memo(() => {
         }
 
         const video = videos.find((video) => video.mesh === meshChild.name)
+
+        if (meshChild.name === "SM_TvScreen_4") {
+          useMesh.setState({ cctv: { screen: meshChild } })
+          const texture = cctvConfig.renderTarget.texture
+
+          meshChild.material = new THREE.ShaderMaterial({
+            uniforms: {
+              tDiffuse: { value: texture },
+              uTime: { value: timeRef.current },
+              resolution: { value: new THREE.Vector2(1024, 1024) }
+            },
+            vertexShader: `
+              varying vec2 vUv;
+              void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `,
+            fragmentShader: notFoundFrag
+          })
+          return
+        }
 
         if (video) {
           const videoTexture = createVideoTexture(video.url)
@@ -468,7 +526,12 @@ export const Map = memo(() => {
       })
     }
 
-    if (!useMesh.getState().blog.lockedDoor && !useMesh.getState().blog.door) {
+    if (
+      !useMesh.getState().blog.lockedDoor &&
+      !useMesh.getState().blog.door &&
+      !useMesh.getState().blog.lamp &&
+      !useMesh.getState().blog.lampTargets
+    ) {
       const lockedDoor = officeModel?.getObjectByName("SM_00_012") as Mesh
       lockedDoor.userData.originalRotation = {
         x: lockedDoor.rotation.x,
@@ -481,10 +544,24 @@ export const Map = memo(() => {
         y: door.rotation.y,
         z: door.rotation.z
       }
+
+      const lamp = officeModel?.getObjectByName("Cube002") as Mesh
+
       if (lockedDoor?.parent) lockedDoor.removeFromParent()
       if (door?.parent) door.removeFromParent()
+      if (lamp?.parent) lamp.removeFromParent()
+
+      const lampTargets: Mesh[] = []
+      for (let i = 1; i <= 7; i++) {
+        const target = officeModel?.getObjectByName(
+          `SM_06_0${i}`
+        ) as Mesh | null
+
+        if (target) lampTargets.push(target)
+      }
+
       useMesh.setState({
-        blog: { lockedDoor, door }
+        blog: { lockedDoor, door, lamp, lampTargets }
       })
     }
 
@@ -524,6 +601,14 @@ export const Map = memo(() => {
       <ArcadeBoard />
       <BlogDoor />
       <LockedDoor />
+
+      {/* TODO: shut down physics after x seconds of not being in blog scene */}
+      {/* TODO: basketball should use the same physics world */}
+      <Suspense fallback={null}>
+        <PhysicsWorld gravity={[0, -24, 0]} paused={scene !== "blog"}>
+          <Lamp />
+        </PhysicsWorld>
+      </Suspense>
 
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(

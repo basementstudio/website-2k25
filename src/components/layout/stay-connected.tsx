@@ -1,11 +1,11 @@
 import { RichTextNode } from "basehub/api-transaction"
 import { RichText } from "basehub/react-rich-text"
 
+import { subscribe } from "@/app/actions/subscribe"
 import { Input } from "@/components/primitives/input"
 import { cn } from "@/utils/cn"
 
 import { Arrow } from "../primitives/icons/arrow"
-import { submitNewsletter } from "./newsletter"
 
 interface StayConnectedProps {
   content: RichTextNode[]
@@ -28,7 +28,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           }}
         />
       </div>
-      <form action={submitNewsletter} className="flex flex-col gap-4">
+      <form action={subscribe} className="flex flex-col gap-4">
         <Input
           placeholder="Enter your Email"
           required

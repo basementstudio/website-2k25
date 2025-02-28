@@ -1,6 +1,5 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { useEffect, useMemo, useRef } from "react"
 import {
@@ -31,6 +30,7 @@ const material = new ShaderMaterial({
     aspect: { value: 1 },
     resolution: { value: new Vector2(1, 1) },
     uPixelRatio: { value: 1 },
+    uTime: { value: 0.0 },
 
     // Basics
     uContrast: { value: 1 },
@@ -166,6 +166,10 @@ export function PostProcessing({
 
     return () => controller.abort()
   }, [mainTexture])
+
+  useFrame(({ clock }) => {
+    material.uniforms.uTime.value = clock.elapsedTime
+  })
 
   return (
     <>
