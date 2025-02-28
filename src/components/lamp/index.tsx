@@ -1,13 +1,15 @@
-import { Line } from "@react-three/drei"
 import { extend, useFrame, useLoader, useThree } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
+import { animate } from "motion"
 import { useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
+import { useInspectable } from "@/components/inspectables/context"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
@@ -16,9 +18,11 @@ extend({ MeshLineGeometry, MeshLineMaterial })
 
 const colorWhenOn = new THREE.Color("#f2f2f2")
 const colorWhenOff = new THREE.Color("#595959")
+const colorWhenInspecting = new THREE.Color("#000000")
 
 export const Lamp = () => {
   const setCursorType = useMouseStore((state) => state.setCursorType)
+  const { selected } = useInspectable()
 
   const band = useRef<any>(null)
 
@@ -113,6 +117,24 @@ export const Lamp = () => {
   const tension = (point1: THREE.Vector3, point2: THREE.Vector3) =>
     new THREE.Vector3().copy(point1).sub(point2).length()
 
+  useEffect(() => {
+    if (selected) {
+      // @ts-ignore
+      animate(
+        band.current.material.color,
+        colorWhenInspecting,
+        ANIMATION_CONFIG
+      )
+    } else {
+      // @ts-ignore
+      animate(
+        band.current.material.color,
+        light ? colorWhenOff : colorWhenOn,
+        ANIMATION_CONFIG
+      )
+    }
+  }, [selected])
+
   useFrame((state) => {
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera)
@@ -184,7 +206,9 @@ export const Lamp = () => {
     }
     if (band) {
       // @ts-ignore
-      band.current.material.color = light ? colorWhenOff : colorWhenOn
+      band.current.material.color = light
+        ? colorWhenOff.clone()
+        : colorWhenOn.clone()
     }
     if (lampTargets) {
       for (const target of lampTargets) {
