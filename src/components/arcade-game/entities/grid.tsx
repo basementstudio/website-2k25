@@ -1,12 +1,9 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { useMemo, useRef } from "react"
-import {
-  BufferGeometry,
-  Float32BufferAttribute,
-  LineSegments,
-  ShaderMaterial,
-  Vector3
-} from "three"
+import { Group, LineSegments, ShaderMaterial, Vector2 } from "three"
+import { Line2 } from "three/examples/jsm/lines/Line2.js"
+import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
+import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import { setMaterialUniforms } from "../lib/uniforms"
 import { COLORS } from "../lib/colors"
 
@@ -22,18 +19,23 @@ const gridMaterial = new ShaderMaterial({
   uniforms: {
     u_color: { value: COLORS.cyan },
     u_color2: { value: COLORS.violet },
-    u_cameraPosition: { value: [0, 0, 0] }
+    u_cameraPosition: { value: [0, 0, 0] },
+    u_lineWidth: { value: 19.0 }
   },
   vertexShader: /* glsl */ `
+    uniform float u_lineWidth;
     attribute float lineDirection;
     varying vec3 v_worldPosition;
     varying float v_lineDirection;
 
-
     void main() {
       v_lineDirection = lineDirection;
       v_worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      
+      vec4 viewPos = modelViewMatrix * vec4(position, 1.0);
+      vec4 projectedPos = projectionMatrix * viewPos;
+      gl_Position = projectedPos;
+      gl_PointSize = u_lineWidth;
     }
   `,
   fragmentShader: /* glsl */ `
@@ -56,8 +58,7 @@ const gridMaterial = new ShaderMaterial({
       gl_FragColor = vec4(color, clamp(fade, 0.0, 1.0));
     }
   `,
-  transparent: true,
-  linewidth: 2
+  transparent: true
 })
 
 export const Grid = ({
@@ -78,17 +79,28 @@ export const Grid = ({
   }, [divisions])
 
   const lines = useMemo(() => {
-    const points = []
-    const types = []
+    const group = new Group()
 
     const stepX = (size * 2) / divisionsX
 
     for (let i = 0; i <= divisionsX; i++) {
       const position = -size + i * stepX
 
-      points.push(new Vector3(position, 0, -size))
-      points.push(new Vector3(position, 0, size))
-      types.push(0, 0) // vertical
+      const positions = [position, 0, -size, position, 0, size]
+
+      const geometry = new LineGeometry()
+      geometry.setPositions(positions)
+
+      const material = new LineMaterial({
+        color: COLORS.cyan,
+        linewidth: 5,
+        resolution: new Vector2(window.innerWidth, window.innerHeight),
+        transparent: true,
+        opacity: 0.8
+      })
+
+      const line = new Line2(geometry, material)
+      group.add(line)
     }
 
     const stepY = (size * 2) / divisionsY
@@ -96,26 +108,43 @@ export const Grid = ({
     for (let i = 0; i <= divisionsY; i++) {
       const position = -size + i * stepY
 
-      points.push(new Vector3(-size, 0, position))
-      points.push(new Vector3(size, 0, position))
-      types.push(1, 1) // horizontal
+      const positions = [-size, 0, position, size, 0, position]
+
+      const geometry = new LineGeometry()
+      geometry.setPositions(positions)
+
+      const material = new LineMaterial({
+        color: COLORS.violet,
+        linewidth: 5,
+        resolution: new Vector2(window.innerWidth, window.innerHeight),
+        transparent: true,
+        opacity: 0.8
+      })
+
+      const line = new Line2(geometry, material)
+      group.add(line)
     }
 
     if (caps) {
-      points.push(new Vector3(-size, 0, -size))
-      points.push(new Vector3(size, 0, -size))
-      types.push(1, 1) // horizontal
+      const bottomGeometry = new LineGeometry()
+      bottomGeometry.setPositions([-size, 0, -size, size, 0, -size])
 
-      points.push(new Vector3(-size, 0, size))
-      points.push(new Vector3(size, 0, size))
-      types.push(1, 1) // horizontal
+      const topGeometry = new LineGeometry()
+      topGeometry.setPositions([-size, 0, size, size, 0, size])
+
+      const material = new LineMaterial({
+        color: COLORS.violet,
+        linewidth: 5,
+        resolution: new Vector2(window.innerWidth, window.innerHeight),
+        transparent: true,
+        opacity: 0.8
+      })
+
+      group.add(new Line2(bottomGeometry, material.clone()))
+      group.add(new Line2(topGeometry, material.clone()))
     }
 
-    const geometry = new BufferGeometry().setFromPoints(points)
-    geometry.setAttribute("lineDirection", new Float32BufferAttribute(types, 1))
-    const line = new LineSegments(geometry, gridMaterial)
-
-    return line
+    return group
   }, [size, divisionsX, divisionsY, caps])
 
   useFrame(() => {

@@ -74,14 +74,14 @@ void main() {
     remappedUv.y = 1.0 - remappedUv.y;
 
     // add pixelation that excludes a center square
-    float pixelSize = 360.0;
+    float pixelSize = 300.0;
     vec2 centeredUv = remappedUv - 0.5;
 
     // square parameters directly in the main function
-    float squareWidth = 0.3;
+    float squareWidth = 0.25;
     float squareHeight = 0.05;
     float squareX = -0.01;
-    float squareY = -0.38;
+    float squareY = -0.4;
 
     vec2 squareCenter = vec2(squareX, squareY);
     vec2 relativeToSquare = centeredUv - squareCenter;
@@ -116,7 +116,6 @@ void main() {
     }
 
     // apply pixelation everywhere except in score
-
     if (
       uIsGameRunning > 0.5 && !insideCenterSquare ||
       uIsGameRunning <= 0.5 && !insideSquare && !insideCenterSquare

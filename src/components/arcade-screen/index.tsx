@@ -314,6 +314,8 @@ const Game = ({
                 positionLeft={"20%"}
                 flexDirection="column"
                 alignItems="center"
+                positionBottom={-10}
+                visibility={gameStarted ? "hidden" : "visible"}
               >
                 <Container backgroundColor={COLORS_THEME.black}>
                   <Text textAlign="center">
