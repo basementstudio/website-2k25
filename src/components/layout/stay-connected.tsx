@@ -1,7 +1,7 @@
 import { RichTextNode } from "basehub/api-transaction"
 import { RichText } from "basehub/react-rich-text"
 
-import { submitContactForm } from "@/actions/contact-form"
+import { subscribe } from "@/app/actions/subscribe"
 import { Input } from "@/components/primitives/input"
 import { cn } from "@/utils/cn"
 
@@ -28,18 +28,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           }}
         />
       </div>
-      <form
-        action={async (formData) => {
-          "use server"
-          await submitContactForm({
-            email: formData.get("email") as string,
-            name: "",
-            company: "",
-            message: "Add me to the newsletter."
-          })
-        }}
-        className="flex flex-col gap-4"
-      >
+      <form action={subscribe} className="flex flex-col gap-4">
         <Input
           placeholder="Enter your Email"
           required
