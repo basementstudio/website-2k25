@@ -36,26 +36,26 @@ export default function Content({
 
   return (
     <div className="grid-layout">
-      <div className="col-span-12 flex flex-col items-center justify-start">
+      <div className="col-span-full flex flex-col items-center justify-start">
         {post && <BlogMeta categories data={post as any} />}
         <article
           className={cn(
-            "col-span-12 flex max-w-[846px] flex-col items-start text-brand-w2",
+            "col-span-full flex w-full flex-col items-start text-brand-w2 lg:max-w-[846px]",
             // Default spacing between text elements
-            "[&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-6 [&>p+p]:!mt-[7px]",
+            "[&>*]:mt-6 sm:[&>*]:mt-8 lg:[&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-4 lg:[&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-4 lg:[&>h3]:mb-6 [&>p+p]:!mt-[5px] lg:[&>p+p]:!mt-[7px]",
             // Spacing for media elements (image, video, sandbox)
-            "[&>.image]:mb-[24px] [&>.image]:mt-[88px] [&>.video]:mb-[24px] [&>.video]:mt-[88px]",
+            "[&>.image]:mb-[16px] [&>.image]:mt-[40px] sm:[&>.image]:mt-[60px] lg:[&>.image]:mb-[24px] lg:[&>.image]:mt-[88px]",
+            "[&>.video]:mb-[16px] [&>.video]:mt-[40px] sm:[&>.video]:mt-[60px] lg:[&>.video]:mb-[24px] lg:[&>.video]:mt-[88px]",
             // spacing for consecutive elements of same type
-            "[&>.image+.image]:!mt-[24px]",
-
-            "[&>.image+.video]:!mt-[24px]",
-            "[&>.image+div>.sandbox]:!mt-[24px]",
-            "[&>.video+.video]:!mt-[24px]",
-            "[&>.video+.image]:!mt-[24px]",
-            "[&>.video+div>.sandbox]:!mt-[24px]",
-            "[&>div>.sandbox+.image]:!mt-[24px]",
-            "[&>div>.sandbox+.video]:!mt-[24px]",
-            "[&>div>.sandbox+div>.sandbox]:!mt-[24px]"
+            "[&>.image+.image]:!mt-[16px] lg:[&>.image+.image]:!mt-[24px]",
+            "[&>.image+.video]:!mt-[16px] lg:[&>.image+.video]:!mt-[24px]",
+            "[&>.image+div>.sandbox]:!mt-[16px] lg:[&>.image+div>.sandbox]:!mt-[24px]",
+            "[&>.video+.video]:!mt-[16px] lg:[&>.video+.video]:!mt-[24px]",
+            "[&>.video+.image]:!mt-[16px] lg:[&>.video+.image]:!mt-[24px]",
+            "[&>.video+div>.sandbox]:!mt-[16px] lg:[&>.video+div>.sandbox]:!mt-[24px]",
+            "[&>div>.sandbox+.image]:!mt-[16px] lg:[&>div>.sandbox+.image]:!mt-[24px]",
+            "[&>div>.sandbox+.video]:!mt-[16px] lg:[&>div>.sandbox+.video]:!mt-[24px]",
+            "[&>div>.sandbox+div>.sandbox]:!mt-[16px] lg:[&>div>.sandbox+div>.sandbox]:!mt-[24px]"
           )}
         >
           <RichText

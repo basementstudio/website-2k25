@@ -24,14 +24,14 @@ export const Crew = ({ data }: { data: QueryType }) => {
   )
 
   return (
-    <section className="grid-layout mb-44">
-      <div className="col-start-5 col-end-13 -mb-6 flex items-end justify-between">
-        <h2 className="text-h2 text-brand-w2">The Crew</h2>
-        <p className="text-h1 text-brand-g1">
+    <section className="grid-layout mb-18 lg:mb-44">
+      <div className="col-span-full -mb-6 flex items-end justify-between lg:col-start-5 lg:col-end-13">
+        <h2 className="text-mobile-h1 text-brand-w2 lg:text-h2">The Crew</h2>
+        <p className="text-mobile-h1 text-brand-g1 lg:text-h1">
           x{data.company.people.peopleList.items.length}
         </p>
       </div>
-      <div className="col-start-1 col-end-5 flex flex-col gap-5">
+      <div className="hidden flex-col gap-5 lg:col-start-1 lg:col-end-5 lg:flex">
         {Object.entries(groupedPeople).map(([department, people], index) => (
           <div key={department}>
             <div className="grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1">
@@ -78,47 +78,150 @@ export const Crew = ({ data }: { data: QueryType }) => {
           </div>
         ))}
       </div>
-      <div className="col-start-5 col-end-13 grid h-fit grid-cols-8 gap-2 pt-6">
-        {data.company.people.peopleList.items.map((person) => (
-          <div
-            key={person._title}
-            className={
-              "with-dots group relative aspect-[136/156] bg-brand-k text-brand-w1/20"
-            }
-            onMouseEnter={() => setHoveredPerson(person._title)}
-            onMouseLeave={() => setHoveredPerson(null)}
-          >
-            <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
-              {person.image ? (
-                <Image src={person.image.url} alt={person._title} fill />
-              ) : (
-                <Placeholder width={134} height={156} />
-              )}
-            </div>
+      <DesktopFaces
+        data={data}
+        setHoveredPerson={setHoveredPerson}
+        hoveredPerson={hoveredPerson}
+      />
+      <MobileFaces
+        data={groupedPeople}
+        setHoveredPerson={setHoveredPerson}
+        hoveredPerson={hoveredPerson}
+      />
+    </section>
+  )
+}
 
+export const DesktopFaces = ({
+  data,
+  setHoveredPerson,
+  hoveredPerson
+}: {
+  data: QueryType
+  setHoveredPerson: (person: string | null) => void
+  hoveredPerson: string | null
+}) => {
+  return (
+    <div className="col-span-full hidden h-fit grid-cols-8 gap-2 pt-6 lg:col-start-5 lg:col-end-13 lg:grid">
+      {data.company.people.peopleList.items.map((person) => (
+        <Face
+          key={person._title}
+          person={person}
+          setHoveredPerson={setHoveredPerson}
+          hoveredPerson={hoveredPerson}
+        />
+      ))}
+      <CrewFooter
+        spanStart={8 - (data.company.people.peopleList.items.length % 8)}
+        spanEnd={8 - (data.company.people.peopleList.items.length % 8)}
+      />
+    </div>
+  )
+}
+
+export const MobileFaces = ({
+  data,
+  setHoveredPerson,
+  hoveredPerson
+}: {
+  data: Record<string, QueryType["company"]["people"]["peopleList"]["items"]>
+  setHoveredPerson: (person: string | null) => void
+  hoveredPerson: string | null
+}) => {
+  return (
+    <div className="col-span-full flex flex-col gap-4 py-6 lg:hidden">
+      {Object.entries(data).map(([department, people]) => (
+        <article key={department} className="flex flex-col gap-2">
+          <p className="text-mobile-h4 text-brand-g1">{department}</p>
+
+          <div className="grid grid-cols-4 gap-2">
+            {people.map((person) => (
+              <Face
+                key={person._title}
+                person={person}
+                setHoveredPerson={setHoveredPerson}
+                hoveredPerson={hoveredPerson}
+              />
+            ))}
+
+            {/* placeholder for empty columns */}
             <div
               className={cn(
-                "with-diagonal-lines pointer-events-none !absolute inset-0 opacity-0 transition-opacity duration-300",
-                { "opacity-100": hoveredPerson === person._title }
+                "with-dots relative h-full w-full border border-brand-w1/20 text-brand-w1/20",
+                { hidden: people.length % 4 === 0 }
               )}
-            />
+              style={{
+                gridColumn: `span ${4 - (people.length % 4)} / span ${4 - (people.length % 4)}`
+              }}
+            >
+              <div className="with-diagonal-lines absolute inset-0 h-full w-full" />
+            </div>
           </div>
-        ))}
-        <div
-          className="with-diagonal-lines relative flex min-h-32 items-center justify-center bg-brand-k"
-          style={{
-            gridColumn: `span ${8 - (data.company.people.peopleList.items.length % 8)} / span ${8 - (data.company.people.peopleList.items.length % 8)}`
-          }}
-        >
-          <Link
-            href="/"
-            className="relative z-10 flex h-4 gap-1 bg-brand-k text-p text-brand-w1"
-          >
-            <span className="actionable">Join the Crew</span>{" "}
-            <Arrow className="size-4" />
-          </Link>
-        </div>
+        </article>
+      ))}
+
+      <CrewFooter spanStart={1} spanEnd={13} />
+    </div>
+  )
+}
+
+export const Face = ({
+  person,
+  setHoveredPerson,
+  hoveredPerson
+}: {
+  person: QueryType["company"]["people"]["peopleList"]["items"][0]
+  setHoveredPerson: (person: string | null) => void
+  hoveredPerson: string | null
+}) => {
+  return (
+    <div
+      key={person._title}
+      className={
+        "with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]"
+      }
+      onMouseEnter={() => setHoveredPerson(person._title)}
+      onMouseLeave={() => setHoveredPerson(null)}
+    >
+      <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+        {person.image ? (
+          <Image src={person.image.url} alt={person._title} fill />
+        ) : (
+          <Placeholder width={134} height={156} />
+        )}
       </div>
-    </section>
+
+      <div
+        className={cn(
+          "with-diagonal-lines pointer-events-none !absolute inset-0 opacity-0 transition-opacity duration-300",
+          { "opacity-100": hoveredPerson === person._title }
+        )}
+      />
+    </div>
+  )
+}
+
+export const CrewFooter = ({
+  spanStart,
+  spanEnd
+}: {
+  spanStart: number
+  spanEnd: number
+}) => {
+  return (
+    <div
+      className="with-diagonal-lines relative col-span-full flex min-h-32 items-center justify-center bg-brand-k"
+      style={{
+        gridColumn: `span ${spanStart} / span ${spanEnd}`
+      }}
+    >
+      <Link
+        href="/"
+        className="relative z-10 flex h-4 gap-1 bg-brand-k text-p text-brand-w1"
+      >
+        <span className="actionable">Join the Crew</span>{" "}
+        <Arrow className="size-4" />
+      </Link>
+    </div>
   )
 }

@@ -19,8 +19,8 @@ const Blog = async (props: { params: Params }) => {
 
         return (
           <>
-            <div className="relative bg-brand-k pb-24 pt-12">
-              <div className="pb-25 flex flex-col gap-24">
+            <div className="relative bg-brand-k pt-12 lg:pb-24">
+              <div className="lg:pb-25 flex flex-col gap-24">
                 <BlogTitle data={data} slug={resolvedParams.slug} />
                 <Content data={data} slug={resolvedParams.slug} />
                 <More data={data} slug={resolvedParams.slug} />
