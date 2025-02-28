@@ -30,7 +30,7 @@ export const cctvConfig = {
     minFilter: NearestFilter,
     magFilter: NearestFilter
   }),
-  shouldBakeCCTV: false,
+  shouldBakeCCTV: true,
   frameCounter: 0,
   framesPerUpdate: 16,
   camera: new PerspectiveCamera(30, 1, 0.1, 1000)
@@ -60,8 +60,6 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingScene = useMemo(() => new Scene(), [])
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
-  const currentScene = useNavigationStore((state) => state.currentScene?.name)
-  const previousScene = useNavigationStore((state) => state.previousScene?.name)
 
   const { isContactOpen } = useContactStore()
 
@@ -72,12 +70,6 @@ function RendererInner({ sceneChildren }: RendererProps) {
     window.addEventListener("resize", resizeCallback)
     return () => window.removeEventListener("resize", resizeCallback)
   }, [mainTarget])
-
-  useEffect(() => {
-    if (currentScene === "404" && previousScene !== "404") {
-      cctvConfig.shouldBakeCCTV = true
-    }
-  }, [currentScene, previousScene])
 
   useFrame(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return

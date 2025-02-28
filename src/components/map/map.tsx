@@ -319,6 +319,7 @@ export const Map = memo(() => {
           const texture = cctvConfig.renderTarget.texture
 
           meshChild.material = new THREE.ShaderMaterial({
+            side: THREE.DoubleSide,
             uniforms: {
               tDiffuse: { value: texture },
               uTime: { value: timeRef.current },
