@@ -22,16 +22,21 @@ void main() {
     float bloomGray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
     color = vec4(vec3(bloomGray), color.a);
 
-    // scanlines
-    float count = resolution.y * 0.45;
-    float scanline = sin(vUv.y * count + uTime);
-    vec3 scanlines = vec3(scanline);
-    color.rgb += color.rgb * scanlines * 0.35; 
+    float scanlineCount = resolution.y * 0.45;
+    float scanlineSpeed = -uTime * 15.0;
+    float glitchOffset = random(vec2(uTime * 0.1)) * 0.02;
+    float scanline = sin(vUv.y * scanlineCount + scanlineSpeed + glitchOffset);
+
+    float distortion = sin(uTime * 2.0 + vUv.y * 10.0) * 0.001;
+    color.rgb += color.rgb * scanline * (0.35 + distortion);
+
+    float glitchLine = step(0.98, random(vec2(floor(vUv.y * 20.0), floor(uTime * .05))));
+    color.rgb += glitchLine * 0.01;
 
     // noise
-    vec2 noiseUv = vUv + uTime * 0.1;
-    float noise = random(noiseUv + uTime);
-    color.rgb += noise * 0.1;
+    vec2 noiseUv = vUv + uTime * 5.0;
+    float noise = random(noiseUv);
+    color.rgb += noise * 0.15;
 
     float grayscale = dot(color.rgb, vec3(0.299, 0.587, 0.114));
     gl_FragColor = vec4(vec3(grayscale), color.a);

@@ -164,6 +164,12 @@ export const Map = memo(() => {
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
 
+    if (useMesh.getState().cctv?.screen?.material) {
+      // @ts-ignore
+      useMesh.getState().cctv.screen.material.uniforms.uTime.value =
+        clock.getElapsedTime()
+    }
+
     if (keyframedNet && isAnimating.current) {
       const mesh = keyframedNet as Mesh
       animationProgress.current += NET_ANIMATION_SPEED
