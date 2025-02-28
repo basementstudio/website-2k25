@@ -1,5 +1,5 @@
 import { CameraControls } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { useFrame, useThree } from "@react-three/fiber"
 import { useLenis } from "lenis/react"
 import { easing } from "maath"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -27,20 +27,20 @@ const newDelta = new Vector3()
 const newLookAtDelta = new Vector3()
 const finalPos = new Vector3()
 const finalLookAt = new Vector3()
-const ANIMATION_DURATION = 2
+const initialCurrentPos = new Vector3()
+const initialCurrentTarget = new Vector3()
+const ANIMATION_DURATION = 1
 const NOT_FOUND_DURATION = 12
 
-interface Props {
-  transition404Progress?: number
-}
-
-export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
+export const CustomCamera = () => {
   const { selected } = useInspectable()
   const [firstRender, setFirstRender] = useState(true)
+  const [isInitialized, setIsInitialized] = useState(false)
   const [transitionPhase, setTransitionPhase] = useState<
     "to-origin" | "to-home" | null
   >(null)
 
+  const { camera: defaultCamera } = useThree()
   const currentScene = useNavigationStore((state) => state.currentScene?.name)
   const previousScene = useNavigationStore((state) => state.previousScene?.name)
 
@@ -55,11 +55,13 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
     useNavigationStore.getState().setDisableCameraTransition
 
   const progress = useRef(1)
-
   const targetFov = useRef<number>(60)
   const currentFov = useRef<number>(60)
+  const initialFov = useRef<number>(60)
+  const prevCameraConfig = useRef(cameraConfig)
+  const isTransitioning = useRef(false)
 
-  const initialY = cameraConfig?.position[1] ?? 0
+  const initialY = cameraConfig?.position?.[1] ?? 0
   const targetY = cameraConfig?.targetScrollY ?? -initialY
 
   const lenis = useLenis()
@@ -86,17 +88,86 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
     return cameraConfig?.offsetMultiplier ?? 2
   }, [cameraConfig])
 
+  const isCameraReady = useMemo(() => {
+    return (
+      !!cameraConfig &&
+      !!cameraConfig.position &&
+      !!cameraConfig.target &&
+      cameraConfig.position.length === 3 &&
+      cameraConfig.target.length === 3
+    )
+  }, [cameraConfig])
+
+  useEffect(() => {
+    if (defaultCamera) {
+      const originalVisibility = defaultCamera.visible
+      defaultCamera.visible = false
+
+      return () => {
+        defaultCamera.visible = originalVisibility
+      }
+    }
+  }, [defaultCamera])
+
+  useEffect(() => {
+    if (cameraConfig && prevCameraConfig.current !== cameraConfig) {
+      if (isInitialized && prevCameraConfig.current) {
+        initialCurrentPos.copy(currentPos)
+        initialCurrentTarget.copy(currentTarget)
+        initialFov.current = currentFov.current
+
+        progress.current = 0
+        isTransitioning.current = true
+      }
+      prevCameraConfig.current = cameraConfig
+    }
+  }, [cameraConfig, isInitialized])
+
   useEffect(() => {
     const controls = cameraControlsRef.current
     const camera = controls?.camera as PerspectiveCamera
 
     const [plane, boundary] = [planeRef.current, planeBoundaryRef.current]
-    if (!controls || !plane || !boundary || !camera || !cameraConfig) return
+    if (
+      !controls ||
+      !plane ||
+      !boundary ||
+      !camera ||
+      !isCameraReady ||
+      !cameraConfig
+    )
+      return
 
     controls.disconnect()
 
     //TODO: remove this
     useNavigationStore.getState().setMainCamera(camera)
+
+    targetFov.current = cameraConfig.fov ?? 60
+
+    targetPosition.set(...cameraConfig.position)
+    targetLookAt.set(...cameraConfig.target)
+
+    if (!isInitialized) {
+      currentFov.current = cameraConfig.fov ?? 60
+      currentPos.copy(targetPosition)
+      currentTarget.copy(targetLookAt)
+
+      controls.setPosition(
+        targetPosition.x,
+        targetPosition.y,
+        targetPosition.z,
+        false
+      )
+      controls.setTarget(targetLookAt.x, targetLookAt.y, targetLookAt.z, false)
+
+      if (camera instanceof PerspectiveCamera) {
+        camera.fov = currentFov.current
+        camera.updateProjectionMatrix()
+      }
+
+      setIsInitialized(true)
+    }
 
     const planePos = calculatePlanePosition(cameraConfig)
     const distance = Math.hypot(
@@ -113,24 +184,18 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
     plane.scale.set(width * 0.4, height, 1)
 
     return () => controls.dispose()
-  }, [])
+  }, [cameraConfig, isCameraReady, isInitialized])
 
   useEffect(() => {
     if (!cameraConfig) return
+    if (isInitialized) return
     progress.current = 0
-  }, [cameraConfig])
+  }, [cameraConfig, isInitialized])
 
-  const prevTargetY = useRef(0)
-  const prevLookAtY = useRef(0)
-  const prevFov = useRef(0)
   const controls = cameraControlsRef.current
 
   useFrame((_, dt) => {
-    if (!controls) return
-
-    prevTargetY.current = targetPosition.y
-    prevLookAtY.current = targetLookAt.y
-    prevFov.current = currentFov.current
+    if (!controls || !isCameraReady || !cameraConfig) return
 
     const is404ToHome = currentScene === "home" && previousScene === "404"
 
@@ -138,18 +203,21 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
       if (!transitionPhase) {
         setTransitionPhase("to-home")
         progress.current = 0
+        isTransitioning.current = true
 
         // tv viewing camera position
         currentPos.set(8.76, 1.13, -13)
         currentTarget.set(8.95, 1.12, -13.83)
         currentFov.current = 20
 
-        // target: home camera
-        if (cameraConfig) {
-          targetPosition.set(...cameraConfig.position)
-          targetLookAt.set(...cameraConfig.target)
-          targetFov.current = cameraConfig.fov ?? 60
-        }
+        // store initial positions for interpolation
+        initialCurrentPos.copy(currentPos)
+        initialCurrentTarget.copy(currentTarget)
+        initialFov.current = currentFov.current
+
+        targetPosition.set(...cameraConfig.position)
+        targetLookAt.set(...cameraConfig.target)
+        targetFov.current = cameraConfig.fov ?? 60
 
         if (controls.camera instanceof PerspectiveCamera) {
           controls.camera.fov = currentFov.current
@@ -161,11 +229,11 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
       progress.current = Math.min(progress.current + dt / NOT_FOUND_DURATION, 1)
       const easeValue = easeInOutCubic(progress.current)
 
-      currentPos.lerp(targetPosition, easeValue)
-      currentTarget.lerp(targetLookAt, easeValue)
+      currentPos.lerpVectors(initialCurrentPos, targetPosition, easeValue)
+      currentTarget.lerpVectors(initialCurrentTarget, targetLookAt, easeValue)
       currentFov.current =
-        currentFov.current +
-        (targetFov.current - currentFov.current) * easeValue
+        initialFov.current +
+        (targetFov.current - initialFov.current) * easeValue
 
       if (controls.camera instanceof PerspectiveCamera) {
         const material = controls.camera.userData.postProcessingMaterial
@@ -178,10 +246,15 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
       finalLookAt.copy(currentTarget).add(panLookAtDelta)
       controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
       controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
+
+      if (progress.current === 1) {
+        isTransitioning.current = false
+      }
+
       return
     }
 
-    if (!cameraConfig || !lenis) return
+    if (!lenis) return
 
     targetPosition.set(...cameraConfig.position)
     targetLookAt.set(...cameraConfig.target)
@@ -193,8 +266,10 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
       targetLookAt.y +=
         (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
     }
+
     if (disableCameraTransition || firstRender) {
       progress.current = 1
+      isTransitioning.current = false
       currentPos.copy(targetPosition)
       currentTarget.copy(targetLookAt)
       currentFov.current = targetFov.current
@@ -205,28 +280,24 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
       controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
 
       setTimeout(() => setDisableCameraTransition(false), TRANSITION_DURATION)
-    } else if (progress.current < 1) {
+    } else if (isTransitioning.current && progress.current < 1) {
       progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
       const easeValue = easeInOutCubic(progress.current)
 
-      if (progress.current === dt / ANIMATION_DURATION) {
-        currentPos.y = prevTargetY.current
-        currentTarget.y = prevLookAtY.current
-        currentFov.current = prevFov.current
-      }
-
-      currentPos.lerp(targetPosition, easeValue)
-      currentTarget.lerp(targetLookAt, easeValue)
+      currentPos.lerpVectors(initialCurrentPos, targetPosition, easeValue)
+      currentTarget.lerpVectors(initialCurrentTarget, targetLookAt, easeValue)
       currentFov.current =
-        prevFov.current + (targetFov.current - prevFov.current) * easeValue
+        initialFov.current +
+        (targetFov.current - initialFov.current) * easeValue
 
       finalPos.copy(currentPos).add(panTargetDelta)
       finalLookAt.copy(currentTarget).add(panLookAtDelta)
       controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
       controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
 
-      finalLookAt.copy(currentTarget).add(panLookAtDelta)
-      controls.setTarget(finalLookAt.x, finalLookAt.y, finalLookAt.z, false)
+      if (progress.current === 1) {
+        isTransitioning.current = false
+      }
     } else {
       finalPos.copy(targetPosition).add(panTargetDelta)
       controls.setPosition(finalPos.x, finalPos.y, finalPos.z, false)
@@ -244,7 +315,7 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
   const boundary = planeBoundaryRef.current
 
   const basePosition = useMemo(() => {
-    if (!cameraConfig) return null
+    if (!cameraConfig) return [0, 0, 0] as [number, number, number]
     return calculatePlanePosition(cameraConfig)
   }, [cameraConfig])
 
@@ -254,7 +325,15 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
   }, [basePosition, b.planePosition, b.targetPosition])
 
   useFrame(({ pointer }, dt) => {
-    if (!plane || !boundary || !cameraConfig || !basePosition || !np) return
+    if (
+      !plane ||
+      !boundary ||
+      !basePosition ||
+      !np ||
+      !cameraConfig ||
+      !isCameraReady
+    )
+      return
 
     b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
     b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
@@ -299,10 +378,11 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
     }
   })
 
-  const planePosition = useCallback(
-    () => (cameraConfig ? calculatePlanePosition(cameraConfig) : null),
-    [cameraConfig]
-  )
+  const planePosition = useCallback(() => basePosition, [basePosition])
+
+  if (!isCameraReady) {
+    return null
+  }
 
   return (
     <>
