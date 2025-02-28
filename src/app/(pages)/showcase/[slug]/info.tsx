@@ -14,7 +14,7 @@ import { RelatedProjects } from "./related"
 
 export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
   <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-2 lg:row-start-auto">
-    <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-12 lg:mb-48">
+    <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-12 lg:mb-48 lg:h-[calc(100vh-64px)]">
       <div className="flex items-center justify-between">
         <Back />
 
@@ -73,6 +73,15 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
         />
         <div />
       </ul>
+
+      <div className="relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:hidden">
+        <Image
+          src={entry.project?.cover?.url || ""}
+          alt={entry.project?.cover?.alt || ""}
+          fill
+          className="object-cover"
+        />
+      </div>
 
       {entry.project?.content?.json?.content ? (
         <div className="flex flex-col gap-2">
