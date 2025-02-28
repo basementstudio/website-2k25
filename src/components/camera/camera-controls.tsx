@@ -30,7 +30,11 @@ const finalLookAt = new Vector3()
 const ANIMATION_DURATION = 2
 const NOT_FOUND_DURATION = 12
 
-export const CustomCamera = () => {
+interface Props {
+  transition404Progress?: number
+}
+
+export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
   const { selected } = useInspectable()
   const [firstRender, setFirstRender] = useState(true)
   const [transitionPhase, setTransitionPhase] = useState<
@@ -81,6 +85,53 @@ export const CustomCamera = () => {
   const offsetMultiplier = useMemo(() => {
     return cameraConfig?.offsetMultiplier ?? 2
   }, [cameraConfig])
+
+  // Initialize camera position on mount for root route
+  useEffect(() => {
+    const controls = cameraControlsRef.current
+    if (!controls || !cameraConfig) return
+
+    // Set initial camera position and target based on cameraConfig
+    if (firstRender) {
+      currentPos.set(...cameraConfig.position)
+      currentTarget.set(...cameraConfig.target)
+      currentFov.current = cameraConfig.fov ?? 60
+
+      controls.setPosition(
+        cameraConfig.position[0],
+        cameraConfig.position[1],
+        cameraConfig.position[2],
+        false
+      )
+      controls.setTarget(
+        cameraConfig.target[0],
+        cameraConfig.target[1],
+        cameraConfig.target[2],
+        false
+      )
+
+      if (controls.camera instanceof PerspectiveCamera) {
+        controls.camera.fov = currentFov.current
+        controls.camera.updateProjectionMatrix()
+      }
+
+      setFirstRender(false)
+    }
+  }, [cameraConfig, firstRender])
+
+  // Update camera when scene changes
+  useEffect(() => {
+    const controls = cameraControlsRef.current
+    if (!controls || !cameraConfig) return
+
+    // Reset progress to trigger camera animation to new position
+    progress.current = 0
+
+    // Update target values
+    targetPosition.set(...cameraConfig.position)
+    targetLookAt.set(...cameraConfig.target)
+    targetFov.current = cameraConfig.fov ?? 60
+  }, [currentScene, cameraConfig])
 
   useEffect(() => {
     const controls = cameraControlsRef.current
@@ -177,13 +228,13 @@ export const CustomCamera = () => {
       return
     }
 
-    if (!cameraConfig || !lenis) return
+    if (!cameraConfig) return
 
     targetPosition.set(...cameraConfig.position)
     targetLookAt.set(...cameraConfig.target)
     targetFov.current = cameraConfig.fov ?? 60
 
-    if (!disableCameraTransition) {
+    if (lenis && !disableCameraTransition) {
       targetPosition.y +=
         (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
       targetLookAt.y +=
