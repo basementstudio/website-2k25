@@ -10,7 +10,6 @@ interface CarMeshes {
 export interface MeshStore {
   hoopMesh: Mesh | null
   carMeshes: CarMeshes
-  inspectableMeshes: Mesh[]
   arcade: {
     buttons: Mesh[] | null
     sticks: Mesh[] | null
@@ -18,10 +17,13 @@ export interface MeshStore {
   blog: {
     lockedDoor: Mesh | null
     door: Mesh | null
+    lamp: Mesh | null
+    lampTargets: Mesh[] | null
   }
   cctv: {
     screen: Mesh | null
   }
+  inspectableMeshes: Mesh[]
 }
 
 /** Global store for extracted meshes */
@@ -32,16 +34,18 @@ export const useMesh = create<MeshStore>()((set) => ({
     car: null,
     frontWheel: null
   },
-  inspectableMeshes: [],
   arcade: {
     buttons: null,
     sticks: null
   },
   blog: {
     lockedDoor: null,
-    door: null
+    door: null,
+    lamp: null,
+    lampTargets: null
   },
   cctv: {
     screen: null
-  }
+  },
+  inspectableMeshes: []
 }))

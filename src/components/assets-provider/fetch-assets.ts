@@ -58,6 +58,10 @@ export interface AssetsResult {
         open: string
         close: string
       }[]
+      lamp: {
+        pull: string
+        release: string
+      }[]
     }
     arcade: {
       buttons: {
@@ -124,6 +128,9 @@ export interface AssetsResult {
     textureBody: string
     textureFaces: string
   }
+  lamp: {
+    extraLightmap: string
+  }
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -188,6 +195,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
         door: threeDInteractions.sfx.blog.door.items.map((item) => ({
           open: item.open?.url ?? "",
           close: item.close?.url ?? ""
+        })),
+        lamp: threeDInteractions.sfx.blog.lamp.items.map((item) => ({
+          pull: item.pull?.url ?? "",
+          release: item.release?.url ?? ""
         }))
       },
       arcade: {
@@ -263,6 +274,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
       model: threeDInteractions.characters.model.file?.url ?? "",
       textureBody: threeDInteractions.characters.textureBody?.url,
       textureFaces: threeDInteractions.characters.textureFaces?.url
+    },
+    lamp: {
+      extraLightmap: threeDInteractions.lamp.extraLightmap?.url ?? ""
     }
   }
 }
