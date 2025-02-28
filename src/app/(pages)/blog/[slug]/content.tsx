@@ -1,4 +1,5 @@
 import { RichText } from "basehub/react-rich-text"
+import { Tweet } from "react-tweet"
 
 import { cn } from "@/utils/cn"
 
@@ -116,6 +117,11 @@ export default function Content({
               ),
               SideNoteComponent: (props) => (
                 <SideNote>{props.content?.json.content}</SideNote>
+              ),
+              TweetComponent: (props) => (
+                <div className="dark grid w-full place-items-center">
+                  <Tweet id={props.tweetId} />
+                </div>
               )
             }}
             blocks={post?.content?.json.blocks}

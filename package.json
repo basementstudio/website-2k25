@@ -38,6 +38,7 @@
     "raw-loader": "^4.0.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-tweet": "^3.2.2",
     "tailwind-merge": "^2.5.4",
     "three": "^0.172.0",
     "zustand": "^5.0.1"

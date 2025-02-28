@@ -30,18 +30,18 @@ export default {
       },
       fontSize: {
         h1: [
-          "4.375rem",
+          "5.3rem",
           {
-            lineHeight: "4.25rem",
-            letterSpacing: "-0.03em",
+            lineHeight: "4.2rem",
+            letterSpacing: "-0.06em",
             fontWeight: "600"
           }
         ],
         h2: [
           "2.375rem",
           {
-            lineHeight: "2.5rem",
-            letterSpacing: "-0.03em",
+            lineHeight: "2.1rem",
+            letterSpacing: "-0.05em",
             fontWeight: "600"
           }
         ],

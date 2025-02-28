@@ -162,3 +162,20 @@ a:focus {
     }
   }
 }
+
+/* tweet component */
+
+.react-tweet-theme {
+  --tweet-bg-color: theme("colors.brand.k") !important;
+  --tweet-bg-color-hover: rgba(255, 255, 255, 0.05) !important;
+  --tweet-border: 1px solid theme("colors.brand.g2") !important;
+  --tweet-color-blue-secondary-hover: rgba(255, 255, 255, 0.05) !important;
+  --tweet-skeleton-gradient: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  ) !important;
+
+  max-width: 100% !important;
+}

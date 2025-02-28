@@ -66,6 +66,12 @@ export const query = fragmentOn("Query", {
                       content: true
                     }
                   }
+                },
+                on_TweetComponent: {
+                  __typename: true,
+                  _id: true,
+
+                  tweetId: true
                 }
               }
             }
