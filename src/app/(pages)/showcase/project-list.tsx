@@ -4,6 +4,8 @@ import { useLenis } from "lenis/react"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
+import { useWatchPathname } from "@/hooks/use-watch-pathname"
+
 import { Filters } from "./filters"
 import { Grid } from "./grid"
 import { List } from "./list"
@@ -21,6 +23,7 @@ export type CategoryItem = {
 
 export const ProjectList = ({ data }: { data: QueryType }) => {
   const lenis = useLenis()
+  const { currentPathname, prevPathname } = useWatchPathname()
 
   const searchParams = useSearchParams()
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -31,8 +34,9 @@ export const ProjectList = ({ data }: { data: QueryType }) => {
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
 
   useEffect(() => {
-    if (searchParams.get("s")) lenis?.scrollTo("#projects", { immediate: true })
-  }, [searchParams, lenis])
+    if (currentPathname === "/showcase" && prevPathname.includes("/showcase"))
+      lenis?.scrollTo("#projects", { immediate: true })
+  }, [lenis, currentPathname, prevPathname])
 
   const categories = useMemo(() => {
     const categoryMap = new Map<string, number>()

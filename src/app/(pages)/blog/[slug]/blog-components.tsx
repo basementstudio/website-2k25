@@ -12,13 +12,15 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
   if (!src) return null
 
   return (
-    <div className="image relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
+    <div
+      className="image relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20"
+      style={{ aspectRatio: width ? `${width}/${height}` : "16/9" }}
+    >
       <div className="with-dots grid h-full w-full place-items-center">
         <Image
           src={src}
-          width={width ?? 1920}
-          height={height ?? 1080}
-          className="aspect-video object-cover"
+          fill
+          className="object-cover"
           alt={alt ?? "Blog image"}
         />
       </div>
@@ -35,6 +37,7 @@ export const BlogVideo = (props: HandlerProps<"video">) => (
         muted
         {...props}
         className="aspect-video object-cover"
+        playsInline
       />
     </div>
   </div>
@@ -147,7 +150,7 @@ export const QuoteWithAuthor = ({
     <div className="flex gap-x-4">
       <div className="h-full w-0.5 bg-brand-o" />
 
-      <div className="flex flex-col gap-y-2.5">
+      <div className="flex w-full flex-col gap-y-2.5">
         <div className="[&>*]:text-h4-blog [&>*]:text-brand-w2">
           <RichText>{quote}</RichText>
         </div>

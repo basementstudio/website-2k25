@@ -1,8 +1,9 @@
 "use client"
 
 import { useLenis } from "lenis/react"
-import { useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
+
+import { useWatchPathname } from "@/hooks/use-watch-pathname"
 
 import { QueryType } from "./query"
 
@@ -22,14 +23,14 @@ export default function BlogPosts({
   data: QueryType
   categories: string[]
 }) {
-  const searchParams = useSearchParams()
   const lenis = useLenis()
-
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const { currentPathname, prevPathname } = useWatchPathname()
 
   useEffect(() => {
-    if (searchParams.get("s")) lenis?.scrollTo("#blog", { immediate: true })
-  }, [searchParams, lenis])
+    if (currentPathname === "/blog" && prevPathname.includes("/blog"))
+      lenis?.scrollTo("#blog", { immediate: true })
+  }, [lenis, currentPathname, prevPathname])
 
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
