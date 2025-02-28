@@ -30,11 +30,7 @@ const finalLookAt = new Vector3()
 const ANIMATION_DURATION = 2
 const NOT_FOUND_DURATION = 12
 
-interface Props {
-  transition404Progress?: number
-}
-
-export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
+export const CustomCamera = () => {
   const { selected } = useInspectable()
   const [firstRender, setFirstRender] = useState(true)
   const [transitionPhase, setTransitionPhase] = useState<

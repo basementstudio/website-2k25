@@ -13,6 +13,7 @@ export const CameraController = () => {
   const [isFlyMode, setIsFlyMode] = useState(true)
   const { camera } = useThree()
   const setMainCamera = useNavigationStore((state) => state.setMainCamera)
+  const currentScene = useNavigationStore((state) => state.currentScene)
 
   useControls("camera", {
     orbitMode: {
@@ -41,6 +42,10 @@ export const CameraController = () => {
 
   if (isFlyMode) {
     return <WasdControls />
+  }
+
+  if (!currentScene?.cameraConfig) {
+    return null
   }
 
   return <CustomCamera />
