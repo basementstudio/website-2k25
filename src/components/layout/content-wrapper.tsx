@@ -21,7 +21,6 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
     return !BLACKLISTED_PATHS.some((path) => pathname.match(path))
   }, [pathname])
 
-
   return (
     <>
       {shouldShowCanvas && (
