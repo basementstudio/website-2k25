@@ -112,8 +112,8 @@ export const ScreenUI = ({ onLoad }: ScreenUIProps) => {
   return (
     <>
       <Root
-        width={770}
-        height={400}
+        width={590}
+        height={390}
         transformScaleX={-1}
         backgroundColor={COLORS_THEME.black}
         positionType="relative"

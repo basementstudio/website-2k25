@@ -141,7 +141,8 @@ export const ArcadeScreen = () => {
       ui: {
         position: [0, 0, 4.01] as [number, number, number],
         rotation: [0, 0, Math.PI] as [number, number, number],
-        aspect: screenScale ? screenScale.x / screenScale.y : 1
+        aspect: screenScale ? screenScale.x / screenScale.y : 1,
+        manual: true
       },
       game: {
         position: [0, 10, 20] as [number, number, number],
@@ -149,7 +150,7 @@ export const ArcadeScreen = () => {
         fov: 30
       }
     }
-  }, [arcadeScreen, screenPosition, screenScale])
+  }, [arcadeScreen, screenPosition])
 
   if (!CAMERA_CONFIGS || !arcadeScreen) return null
 
