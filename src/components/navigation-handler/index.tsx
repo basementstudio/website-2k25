@@ -42,8 +42,6 @@ export const NavigationHandler = () => {
     (state) => state.setCurrentTabIndex
   )
 
-  useEffect(() => setScenes(scenes), [scenes, setScenes])
-
   useEffect(() => {
     if (!scenes.length) return
 
@@ -54,8 +52,18 @@ export const NavigationHandler = () => {
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
-    if (currentScene && currentScene.name !== scene)
+    if (!currentScene) {
+      // Handle 404
+      const notFoundScene = scenes.find((scene) => scene.name === "404")
+      if (notFoundScene) {
+        setCurrentScene(notFoundScene)
+      }
+      return
+    }
+
+    if (currentScene.name !== scene) {
       setCurrentScene(currentScene)
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenes, setSelected, setCurrentTabIndex])
