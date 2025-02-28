@@ -5,6 +5,7 @@ import {
   carFragment,
   characterFragment,
   inspectableFragment,
+  lampFragment,
   mapFragment,
   modelsItemFragment,
   sceneFragment,
@@ -24,7 +25,8 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
   arcade: arcadeFragment,
   scenes: sceneFragment,
   car: carFragment,
-  characters: characterFragment
+  characters: characterFragment,
+  lamp: lampFragment
 })
 
 interface Query {
