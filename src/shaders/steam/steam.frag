@@ -25,6 +25,7 @@ void main() {
 
     vec3 baseColor = vec3(0.92, 0.78, 0.62);
 
+    // mix steam with checker pattern
     float alpha = steam * (checkerPattern > 0.5 ? 1.0 : 0.0);
     vec4 color = vec4(baseColor, alpha);
 
