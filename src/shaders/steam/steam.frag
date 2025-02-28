@@ -18,7 +18,15 @@ void main() {
     steam *= smoothstep(0.0, 0.15, vUv.y);
     steam *= 1.0 - smoothstep(0.85, 1.0, vUv.y);
 
-    vec4 color = vec4(0.92, 0.78, 0.62, steam);
+    float pixelRatio = 1.0;
+    float checkerSize = 2.0 * pixelRatio;
+    vec2 checkerPos = floor(gl_FragCoord.xy / checkerSize);
+    float checkerPattern = mod(checkerPos.x + checkerPos.y, 2.0);
+
+    vec3 baseColor = vec3(0.92, 0.78, 0.62);
+
+    float alpha = steam * (checkerPattern > 0.5 ? 1.0 : 0.0);
+    vec4 color = vec4(baseColor, alpha);
 
     gl_FragColor = color;
 
