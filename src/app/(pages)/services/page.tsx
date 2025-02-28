@@ -15,8 +15,8 @@ const ServicesPage = () => (
       "use server"
 
       return (
-        <div className="flex flex-col gap-44">
-          <Hero data={data} className="-mb-11" />
+        <div className="flex flex-col gap-18 lg:gap-44">
+          <Hero data={data} className="lg:-mb-11" />
           <Services data={data} />
           <Testimonials data={data} />
           <Awards data={data} />

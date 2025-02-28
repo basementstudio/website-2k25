@@ -12,8 +12,8 @@ import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
 
 export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
-  <div className="col-span-2 flex h-full flex-col gap-4">
-    <div className="sticky top-12 mb-48 flex flex-col gap-4">
+  <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-2 lg:row-start-auto">
+    <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-12 lg:mb-48">
       <div className="flex items-center justify-between">
         <Link
           href="/showcase"
@@ -62,9 +62,9 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
           value={
             <TextList
               value={["Awwwards", "CSS Design Awards"].map((a) => (
-                <Link key={a} href={a} className="actionable text-brand-w1">
+                <p key={a} className="actionable text-brand-w1">
                   {a}
-                </Link>
+                </p>
               ))}
             />
           }
@@ -101,6 +101,9 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
       ) : null}
     </div>
 
-    <RelatedProjects baseSlug={entry.project?._slug || ""} />
+    <RelatedProjects
+      baseSlug={entry.project?._slug || ""}
+      className="hidden lg:flex"
+    />
   </div>
 )

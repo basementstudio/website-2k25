@@ -4,8 +4,15 @@ import Image from "next/image"
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
 import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
+import { cn } from "@/utils/cn"
 
-export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
+export async function RelatedProjects({
+  baseSlug,
+  className
+}: {
+  baseSlug: string
+  className?: string
+}) {
   const allPosts = await basehub({ cache: "no-store" }).query({
     pages: {
       showcase: {
@@ -50,8 +57,8 @@ export async function RelatedProjects({ baseSlug }: { baseSlug: string }) {
   })
 
   return (
-    <div className="mt-auto flex flex-col gap-2">
-      <h4 className="text-h4 text-brand-g1">More Projects</h4>
+    <div className={cn("mt-auto flex flex-col gap-2", className)}>
+      <h4 className="text-mobile-h4 text-brand-g1 lg:text-h4">More Projects</h4>
 
       <ul className="flex flex-col divide-y divide-brand-w1/20">
         <div />
