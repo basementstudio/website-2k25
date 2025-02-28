@@ -67,7 +67,7 @@ export const Footer = () => (
       ]
 
       return (
-        <footer className="relative z-10 flex flex-col justify-between bg-brand-k pb-4 pt-24 lg:h-screen">
+        <footer className="relative z-10 flex flex-col justify-between bg-brand-k pb-4 lg:h-screen">
           <Grid />
 
           <div className="grid-layout lg:mt-9">
