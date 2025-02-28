@@ -34,6 +34,7 @@ export const NavigationHandler = () => {
   const setIsSourceButtonSelected = useArcadeStore(
     (state) => state.setIsSourceButtonSelected
   )
+  const isInGame = useArcadeStore((state) => state.isInGame)
   const { selected } = useInspectable()
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
@@ -76,7 +77,7 @@ export const NavigationHandler = () => {
       const labTabIndex = useArcadeStore.getState().labTabIndex
       const isSourceButtonSelected =
         useArcadeStore.getState().isSourceButtonSelected
-
+      const isInGame = useArcadeStore.getState().isInGame
       if (pathname === "/lab") {
         if (!e.shiftKey) {
           // handle enter labtabs
@@ -207,13 +208,12 @@ export const NavigationHandler = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
+      if (isInGame) return
       if (useContactStore.getState().isContactOpen) return
       if (selected) {
         setSelected(null)
         return
       }
-
-      if (useArcadeStore.getState().isInGame) return
 
       if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
         return
@@ -245,7 +245,8 @@ export const NavigationHandler = () => {
       pathname,
       scenes,
       setCurrentTabIndex,
-      selected
+      selected,
+      isInGame
     ])
   )
 

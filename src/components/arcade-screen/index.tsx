@@ -17,7 +17,6 @@ import { createScreenMaterial } from "@/shaders/material-screen"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { RenderTexture } from "./render-texture"
-import { Physics } from "@react-three/rapier"
 import { Player } from "../arcade-game/player"
 import { Road } from "../arcade-game/road"
 import { NPCs } from "../arcade-game/npc"
@@ -206,16 +205,27 @@ const Game = ({ visible }: { visible: boolean }) => {
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.code === "Escape") {
-        event.stopPropagation()
-        setIsInGame(false)
-        setSpeed(DEFAULT_SPEED)
-        setGameStarted(false)
-
-        // Reset player position to center lane
-        useGame.setState({ currentLine: 0 })
-
-        if (gameOver) {
+        if (gameStarted) {
+          // First escape press - just exit game mode
+          setGameStarted(false)
+          setSpeed(DEFAULT_SPEED)
           setGameOver(false)
+          setIsInGame(false)
+
+          // reset player position to center lane
+          useGame.setState({ currentLine: 0 })
+        } else {
+          // Second escape press - navigate away
+          setIsInGame(false)
+          setSpeed(DEFAULT_SPEED)
+          setGameStarted(false)
+          setGameOver(false)
+
+          // reset player position to center lane
+          useGame.setState({ currentLine: 0 })
+
+          // Navigate away
+          useArcadeStore.getState().resetArcadeScreen()
         }
       } else if (event.code === "Space") {
         if (gameOver) {
@@ -285,11 +295,10 @@ const Game = ({ visible }: { visible: boolean }) => {
           </FontFamilyProvider>
         </Root>
       </group>
-      <Physics>
-        <Player />
-        <Road />
-        <NPCs />
-      </Physics>
+
+      <Player />
+      <Road />
+      <NPCs />
     </group>
   )
 }
