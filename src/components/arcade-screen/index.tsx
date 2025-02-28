@@ -302,7 +302,7 @@ const Game = ({
               textAlign={"center"}
             >
               <Text positionType="absolute" positionTop={0} positionLeft={50}>
-                score: {`${scoreDisplay}`}
+                SCORE: {`${scoreDisplay}`}
               </Text>
 
               <Container
@@ -320,16 +320,16 @@ const Game = ({
                 <Container backgroundColor={COLORS_THEME.black}>
                   <Text textAlign="center">
                     {gameStarted && gameOver
-                      ? "Press [SPACE] to restart"
+                      ? "Press [SPACE] to restart".toUpperCase()
                       : !gameStarted
-                        ? "Press [SPACE] to start"
+                        ? "Press [SPACE] to start".toUpperCase()
                         : ""}
                   </Text>
                 </Container>
                 {gameStarted && gameOver && (
                   <Container backgroundColor={COLORS_THEME.black}>
                     <Text textAlign="center" fontSize={20}>
-                      Press [ESC] to return
+                      PRESS [ESC] TO RETURN
                     </Text>
                   </Container>
                 )}
