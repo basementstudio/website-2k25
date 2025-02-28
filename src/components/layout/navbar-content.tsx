@@ -84,7 +84,7 @@ export const NavbarContent = ({
         "fixed top-0 z-navbar flex w-full flex-col items-center justify-center bg-brand-k transition-transform duration-300 lg:bg-transparent",
         "[background-image:linear-gradient(#000000_1px,transparent_1px),linear-gradient(to_right,#000000_1px,rgba(0,0,0,0.7)_1px)] [background-position-y:1px] [background-size:2px_2px]",
         "after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-brand-w1/30",
-        scrollPercentage > 0.95 && "-translate-y-full"
+        scrollPercentage > 0.99 && "-translate-y-full"
       )}
     >
       <div className="grid-layout h-9">
