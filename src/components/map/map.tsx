@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber"
 import { folder as levaFolder, useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
+import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import {
   Mesh,
@@ -36,12 +37,13 @@ import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
+import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
 import { Lamp } from "../lamp"
+import { cctvConfig } from "../postprocessing/renderer"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
-import dynamic from "next/dynamic"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -133,6 +135,7 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
+  const timeRef = useRef(0)
 
   const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
@@ -172,6 +175,8 @@ export const Map = memo(() => {
   }, [selected])
 
   useFrame(({ clock }) => {
+    timeRef.current = clock.getElapsedTime()
+
     godrays.forEach((mesh) => {
       // @ts-ignore
       mesh.material.uniforms.uGodrayDensity.value = opacity
@@ -183,6 +188,12 @@ export const Map = memo(() => {
       material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
+
+    if (useMesh.getState().cctv?.screen?.material) {
+      // @ts-ignore
+      useMesh.getState().cctv.screen.material.uniforms.uTime.value =
+        clock.getElapsedTime()
+    }
 
     if (keyframedNet && isAnimating.current) {
       const mesh = keyframedNet as Mesh
@@ -302,6 +313,28 @@ export const Map = memo(() => {
         }
 
         const video = videos.find((video) => video.mesh === meshChild.name)
+
+        if (meshChild.name === "SM_TvScreen_4") {
+          useMesh.setState({ cctv: { screen: meshChild } })
+          const texture = cctvConfig.renderTarget.texture
+
+          meshChild.material = new THREE.ShaderMaterial({
+            uniforms: {
+              tDiffuse: { value: texture },
+              uTime: { value: timeRef.current },
+              resolution: { value: new THREE.Vector2(1024, 1024) }
+            },
+            vertexShader: `
+              varying vec2 vUv;
+              void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `,
+            fragmentShader: notFoundFrag
+          })
+          return
+        }
 
         if (video) {
           const videoTexture = createVideoTexture(video.url)
