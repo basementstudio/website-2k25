@@ -1,6 +1,8 @@
 uniform sampler2D map;
 uniform float uTime;
 uniform float uRevealProgress;
+uniform float uFlip;
+uniform float uIsGameRunning;
 varying vec2 vUv;
 varying vec3 vPosition;
 
@@ -67,6 +69,77 @@ void main() {
   interferenceUv.x += ifx1 - ifx2;
 
   vec2 remappedUv = curveRemapUV(interferenceUv);
+
+  if (uFlip == 1.0) {
+    remappedUv.y = 1.0 - remappedUv.y;
+
+    // add pixelation that excludes a center square
+    float pixelSize = 300.0;
+    vec2 centeredUv = remappedUv - 0.5;
+
+    // square parameters directly in the main function
+    float squareWidth = 0.25;
+    float squareHeight = 0.05;
+    float squareX = -0.01;
+    float squareY = -0.4;
+
+    vec2 squareCenter = vec2(squareX, squareY);
+    vec2 relativeToSquare = centeredUv - squareCenter;
+
+    // score square parameters
+    float centerSquareWidth = 0.2;
+    float centerSquareHeight = 0.2;
+    float centerSquareX = -0.35;
+    float centerSquareY = 0.5;
+
+    vec2 centerSquareCenter = vec2(centerSquareX, centerSquareY);
+    vec2 relativeToCenterSquare = centeredUv - centerSquareCenter;
+
+    bool insideSquare =
+      abs(relativeToSquare.x) < squareWidth &&
+      abs(relativeToSquare.y) < squareHeight;
+
+    bool insideCenterSquare =
+      abs(relativeToCenterSquare.x) < centerSquareWidth &&
+      abs(relativeToCenterSquare.y) < centerSquareHeight;
+
+    vec3 textureColor = vec3(0.0);
+
+    // texture boundaries (moved up from below)
+    if (
+      remappedUv.x >= 0.0 &&
+      remappedUv.x <= 1.0 &&
+      remappedUv.y >= 0.0 &&
+      remappedUv.y <= 1.0
+    ) {
+      textureColor = texture2D(map, remappedUv).rgb;
+    }
+
+    // apply pixelation everywhere except in score
+    if (
+      uIsGameRunning > 0.5 && !insideCenterSquare ||
+      uIsGameRunning <= 0.5 && !insideSquare && !insideCenterSquare
+    ) {
+      remappedUv = floor(remappedUv * pixelSize) / pixelSize;
+
+      if (
+        remappedUv.x >= 0.0 &&
+        remappedUv.x <= 1.0 &&
+        remappedUv.y >= 0.0 &&
+        remappedUv.y <= 1.0
+      ) {
+        textureColor = texture2D(map, remappedUv).rgb;
+      }
+    }
+
+    // Only show the square when game is NOT running
+    if (insideSquare && uIsGameRunning <= 0.5) {
+      // Apply some visual effect to the square to make it visible
+      vec3 squareColor = vec3(1.0, 1.0, 0.0); // Yellow color
+      textureColor = mix(textureColor, squareColor, 0.3);
+    }
+  }
+
   // add horizontal distortion near scan line
   float scanDistortion =
     exp(-pow((vUv.y - scanPos) * 160.0, 2.0)) * SCAN_DISTORTION;
