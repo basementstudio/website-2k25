@@ -14,8 +14,8 @@ import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
-const colorWhenOn = new THREE.Color("#B8860B")
-const colorWhenOff = new THREE.Color("#614700")
+const colorWhenOn = new THREE.Color("#f2f2f2")
+const colorWhenOff = new THREE.Color("#595959")
 
 export const Lamp = () => {
   const setCursorType = useMouseStore((state) => state.setCursorType)
@@ -154,6 +154,7 @@ export const Lamp = () => {
           setCursorType("default")
         } else if (maxTension < 0.045) {
           setShouldToggle(false)
+          if (dragged === null) setCursorType("default")
         }
       }
     }
@@ -236,11 +237,13 @@ export const Lamp = () => {
             onPointerUp={(e) => {
               // @ts-ignore
               e?.target?.releasePointerCapture?.(e.pointerId)
+              setCursorType(dragged !== null ? "grab" : "default")
               drag(null)
             }}
             onPointerDown={(e) => {
               // @ts-ignore
               e?.target?.setPointerCapture?.(e.pointerId)
+              setCursorType("grabbing")
 
               const vec = new THREE.Vector3()
               vec.copy(e.point)
@@ -251,23 +254,42 @@ export const Lamp = () => {
             onPointerEnter={() => setCursorType("grab")}
             onPointerLeave={() => setCursorType("default")}
           >
-            <sphereGeometry args={[0.015, 16, 16]} />
-            <meshBasicMaterial transparent opacity={0} />
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshBasicMaterial opacity={0} transparent />
           </mesh>
 
           <mesh material={material} ref={lampHandle}>
-            <sphereGeometry args={[0.005, 16, 16]} />
+            <sphereGeometry args={[0.005, 8, 8]} />
           </mesh>
         </RigidBody>
 
-        <mesh
-          position={[0.2, 0.175, 0.15]}
+        <Constraint
+          position={[0.2, 0.2, 0.15]}
           rotation={[0, Math.PI / 3, -Math.PI / 18]}
-          onPointerEnter={() => drag(null)}
-        >
-          <planeGeometry args={[0.4, 0.4]} />
-          <meshBasicMaterial opacity={0} transparent />
-        </mesh>
+          args={[0.4, 0.4]}
+          onEnter={() => drag(null)}
+        />
+
+        <Constraint
+          position={[0.2, 0, 0.55]}
+          rotation={[0, Math.PI / 3, -Math.PI / 5]}
+          args={[0.4, 1]}
+          onEnter={() => drag(null)}
+        />
+
+        <Constraint
+          position={[0.2, 0, -0.2]}
+          rotation={[0, Math.PI / 3, 0]}
+          args={[0.4, 1]}
+          onEnter={() => drag(null)}
+        />
+
+        <Constraint
+          position={[0.2, -0.4, 0.55]}
+          rotation={[0, Math.PI / 3, 0]}
+          args={[1, 0.4]}
+          onEnter={() => drag(null)}
+        />
       </group>
 
       {lamp && <primitive object={lamp} />}
@@ -279,7 +301,7 @@ export const Lamp = () => {
         <meshLineMaterial
           color={colorWhenOn}
           resolution={[width, height]}
-          lineWidth={0.0075}
+          lineWidth={0.005}
         />
 
         {lamp && <primitive object={lamp} />}
@@ -287,3 +309,17 @@ export const Lamp = () => {
     </>
   )
 }
+
+interface ConstraintProps {
+  position: [number, number, number]
+  rotation: [number, number, number]
+  args: [number, number]
+  onEnter?: () => void
+}
+
+const Constraint = ({ position, rotation, args, onEnter }: ConstraintProps) => (
+  <mesh position={position} rotation={rotation} onPointerEnter={onEnter}>
+    <planeGeometry args={args} />
+    <meshBasicMaterial opacity={0} transparent />
+  </mesh>
+)
