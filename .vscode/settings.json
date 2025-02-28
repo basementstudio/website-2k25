@@ -25,5 +25,8 @@
   },
   "[less]": {
     "editor.formatOnSave": true
+  },
+  "[glsl]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }
