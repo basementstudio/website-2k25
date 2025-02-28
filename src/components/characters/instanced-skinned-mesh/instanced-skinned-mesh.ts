@@ -1,9 +1,33 @@
 /* eslint-disable react/no-is-mounted */
 import * as THREE from "three"
 
+import { subscribable } from "@/lib/subscribable"
+
 THREE.ShaderChunk.skinning_pars_vertex =
   THREE.ShaderChunk.skinning_pars_vertex +
   /* glsl */ `
+      ivec2 calcCoord(int size, int id) {
+        int j = int(id);
+        int x = j % size;
+        int y = j / size;
+        return ivec2(x, y);
+      }
+      
+      ivec2 getSampleCoord(const sampler2D mapSampler, const float batchId) {
+        int size = textureSize(mapSampler, 0).x;
+        return calcCoord(size, int(batchId));
+      }
+      
+      ivec2 getSampleCoord(const usampler2D mapSampler, const float batchId) {
+        int size = textureSize(mapSampler, 0).x;
+        return calcCoord(size, int(batchId));
+      }
+
+      ivec2 getSampleCoord(const isampler2D mapSampler, const float batchId) {
+        int size = textureSize(mapSampler, 0).x;
+        return calcCoord(size, int(batchId));
+      }
+
       #ifdef USE_BATCHED_SKINNING
 
           attribute vec4 skinIndex;
@@ -39,6 +63,29 @@ THREE.ShaderChunk.skinning_pars_vertex =
               return mat4( v1, v2, v3, v4 );
 
           }
+
+      #endif
+
+      #ifdef USE_BATCHED_MORPHS
+
+      uniform highp sampler2D morphDataTexture;
+      uniform highp isampler2D uActiveMorphs;
+
+      int getActiveMorphOffset() {
+        float batchId = getIndirectIndex(gl_DrawID);
+        ivec2 mapIndexCoord = getSampleCoord(uActiveMorphs, batchId);
+        return int(texelFetch(uActiveMorphs, mapIndexCoord, 0).x);
+      }
+
+      vec4 getMorphTransform() {
+        int activeMorphOffset = getActiveMorphOffset();
+        if(activeMorphOffset == -1) {
+          return vec4(0.0);
+        }
+
+        ivec2 morphDataCoord = getSampleCoord(morphDataTexture, float(activeMorphOffset + gl_VertexID));
+        return texelFetch(morphDataTexture, morphDataCoord, 0);
+      }
 
       #endif
   `
@@ -85,6 +132,12 @@ THREE.ShaderChunk.skinning_vertex =
           skinned += weightedBoneMatW * skinVertex;
 
           transformed = skinned.xyz;
+
+      #endif
+
+      #ifdef USE_BATCHED_MORPHS
+
+      transformed += getMorphTransform().xyz;
 
       #endif
   `
@@ -178,14 +231,26 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     }
 
     this.material.onBeforeCompile = (shader) => {
-      if (this.boneTexture === null) this.computeBoneTexture()
+      if (this.boneTexture === null && this.useAnimations)
+        this.computeBoneTexture()
+
+      if (this.shouldComputeMorphTargets) this.computeMorphTexture()
 
       shader.defines ??= {}
-      shader.defines.USE_BATCHED_SKINNING = ""
-      shader.uniforms.batchingKeyframeTexture = {
-        value: this.batchingKeyframeTexture
+      if (this.useAnimations) {
+        shader.defines.USE_BATCHED_SKINNING = ""
+        shader.uniforms.batchingKeyframeTexture = {
+          value: this.batchingKeyframeTexture
+        }
+        shader.uniforms.boneTexture = { value: this.boneTexture }
       }
-      shader.uniforms.boneTexture = { value: this.boneTexture }
+
+      if (this.useMorphs) {
+        shader.defines.USE_BATCHED_MORPHS = ""
+        shader.uniforms.morphDataTexture = {
+          value: this.morphTexture
+        }
+      }
 
       this.dataTextures.forEach((texture, name) => {
         if (!shader.uniforms[name]) {
@@ -194,8 +259,15 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
           shader.uniforms[name].value = texture
         }
       })
+
+      this.programCompiled = true
+      this.programCompiledSubscribable.runCallbacks()
     }
   }
+
+  private programCompiled = false
+
+  private programCompiledSubscribable = subscribable()
 
   private geometries: Map<string, number> = new Map()
 
@@ -230,7 +302,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
         type === THREE.FloatType ? THREE.RGBAFormat : THREE.RGBAIntegerFormat
     }
 
-    let data: Float32Array | Uint32Array | Uint8Array | Int32Array | null = null
+    let data: Float32Array | Uint32Array | Int32Array | null = null
     if (type === THREE.FloatType) {
       data = new Float32Array(totalPixels * arrayDefault.length)
     } else if (type === THREE.IntType) {
@@ -260,6 +332,9 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     return texture
   }
 
+  private geometryData: Map<number, THREE.BufferGeometry> = new Map()
+  private morphDicts: Map<number, Record<string, number>> = new Map()
+
   public addGeometry(
     geometry: THREE.BufferGeometry,
     reservedVertexRange?: number,
@@ -272,17 +347,195 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       reservedIndexRange
     )
     this.geometries.set(name, id)
+    this.geometryData.set(id, geometry)
+
     return id
+  }
+
+  private shouldComputeMorphTargets = false
+  private useMorphs = false
+
+  public addMorphGeometry(
+    geometryNameOrId: string | number,
+    morphDict: Record<string, number>
+  ): void {
+    const id =
+      typeof geometryNameOrId === "string"
+        ? this.geometries.get(geometryNameOrId)
+        : geometryNameOrId
+
+    if (typeof id !== "number") {
+      throw new Error("Geometry not found")
+    }
+
+    const geometry = this.geometryData.get(id)
+
+    if (!geometry) {
+      throw new Error("Geometry not found")
+    }
+
+    this.morphDicts.set(id, morphDict)
+    this.shouldComputeMorphTargets = true
+    this.useMorphs = true
+  }
+
+  /** An object containing the offset for each morph target
+   * {
+   *   [geometryId]: {
+   *     [morphTargetName]: offset
+   *   }
+   * }
+   */
+  private morphOffsetsDict: Map<number, Record<string, number>> = new Map()
+
+  private morphTexture: THREE.DataTexture | null = null
+
+  public computeMorphTexture(): void {
+    // It needs to be 4 because RGB format is not supported anymore:
+    // https://discourse.threejs.org/t/using-three-rgbaformat-instead-of-three-rgbformat/37048
+    const componentSize = 4 //xyza
+
+    // number of pixels needed to store all morph targets
+    let offset = 0
+
+    // Loop through all the geometries (and their morph dictionaries)
+    for (const [geometryId, morphDict] of this.morphDicts) {
+      const geometry = this.geometryData.get(geometryId)
+
+      if (!geometry) {
+        throw new Error("Geometry not found")
+      }
+
+      const morphTargets = geometry.morphAttributes.position
+
+      // use morhDicts to get the offset of each morph target
+      for (const [morphName, morphIndex] of Object.entries(morphDict)) {
+        const morphTarget = morphTargets[morphIndex]
+        // store the offset start for each morph target
+        this.morphOffsetsDict.set(geometryId, {
+          ...(this.morphOffsetsDict.get(geometryId) || {}),
+          [morphName]: offset
+        })
+        // add the number of components to the offset
+        offset += morphTarget.count
+      }
+    }
+    let size = Math.sqrt(offset)
+    size = Math.ceil(size)
+
+    console.log("geometry offsets:", this.morphOffsetsDict)
+
+    const morphData = new Float32Array(size * size * componentSize)
+    morphData.fill(0)
+
+    // Fill dataTexture with morph offsets
+    for (const [geometryId, morphDict] of this.morphDicts) {
+      const geometry = this.geometryData.get(geometryId)
+      if (!geometry) {
+        throw new Error("Geometry not found")
+      }
+
+      for (const [morphName, morphIndex] of Object.entries(morphDict)) {
+        const morphTarget = geometry.morphAttributes.position[morphIndex]
+        if (!morphTarget) {
+          throw new Error("Morph target not found")
+        }
+
+        const geometryOffset = this.getMorphOffset(geometryId, morphName)
+        if (typeof geometryOffset !== "number") {
+          throw new Error("Morph offset not found")
+        }
+
+        console.log("Geometry offset", geometryOffset)
+
+        for (
+          let vertexIndex = 0;
+          vertexIndex < morphTarget.count;
+          vertexIndex++
+        ) {
+          const index =
+            geometryOffset * componentSize + vertexIndex * componentSize
+
+          morphData[index] = morphTarget.array[vertexIndex * 3]
+          morphData[index + 1] = morphTarget.array[vertexIndex * 3 + 1]
+          morphData[index + 2] = morphTarget.array[vertexIndex * 3 + 2]
+          morphData[index + 3] = 0
+        }
+      }
+    }
+
+    this.morphTexture = new THREE.DataTexture(
+      morphData,
+      size,
+      size,
+      THREE.RGBAFormat,
+      THREE.FloatType
+    )
+
+    this.morphTexture.needsUpdate = true
+    this.shouldComputeMorphTargets = false
+
+    console.log("Morph texture", this.morphTexture)
+
+    this.addInstancedUniform("uActiveMorphs", -1, THREE.IntType)
+  }
+
+  private _setInstanceMorph = (
+    instanceId: number,
+    geometryId: number,
+    morphName?: string
+  ): void => {
+    let geometryOffset =
+      typeof morphName === "string"
+        ? this.getMorphOffset(geometryId, morphName)
+        : -1 // disabled
+    if (typeof geometryOffset !== "number") {
+      console.warn("Invalid morph name", morphName)
+      geometryOffset = -1
+    }
+
+    this.setInstanceUniform(instanceId, "uActiveMorphs", geometryOffset)
+  }
+
+  public setInstanceMorph(
+    instanceId: number,
+    geometryId: number,
+    morphName?: string
+  ): void {
+    if (this.programCompiled) {
+      return this._setInstanceMorph(instanceId, geometryId, morphName)
+    }
+
+    this.programCompiledSubscribable.addCallback(() =>
+      this._setInstanceMorph(instanceId, geometryId, morphName)
+    )
+  }
+
+  private getMorphOffset(
+    geometryId: number,
+    morphName: string
+  ): number | undefined {
+    return this.morphOffsetsDict.get(geometryId)?.[morphName]
+  }
+
+  public getMorphIndex(
+    geometryId: number,
+    morphName: string
+  ): number | undefined {
+    return this.morphDicts.get(geometryId)?.[morphName]
   }
 
   public getGeometryId(name: string): number {
     return this.geometries.get(name) || 0
   }
 
+  private useAnimations = false
+
   public addAnimation(
     skeleton: THREE.Skeleton,
     clip: THREE.AnimationClip
   ): number {
+    this.useAnimations = true
     clip.optimize()
 
     this.skeletons.push(skeleton)
@@ -424,6 +677,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
 
   /** Tick animations */
   public update(delta: number): void {
+    if (!this.useAnimations) return
     for (let i = 0; i < this.instanceData.length; i++) {
       const instance = this.instanceData[i]
       if (!instance.active) continue

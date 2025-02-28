@@ -173,32 +173,48 @@ It basically loops over each possible morph targets and adds it's transformation
 
 Since batched meshes support multiple geometries with different morph targets counts, we need to store an offset for each geometry and also how many morph targets each geometry has.
 
-`MorphDictionary`: An object containing the morphTarget offset for each geometry.
+`MorphDictionary`: An object maping morph names to their index.
 
 ```ts
 export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
   private morphDictionary = {
     geometryA: {
       morphTarget1: 0,
-      morphTarget2: 4
+      morphTarget2: 1
     },
     geometryB: {
-      morphTarget1: 11
+      morphTarget1: 0
     }
   }
 }
 ```
 
-`MorphOffsets`: An array containing the offset for each morph target.
+`MorphOffsets`: An object maping morph names to their offset on the dataTexture.
+
+```ts
+export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
+  private morphDictionary = {
+    geometryA: {
+      morphTarget1: 0,
+      morphTarget2: 128
+    },
+    geometryB: {
+      morphTarget1: 312
+    }
+  }
+}
+```
+
+`InstanceMorphOffset`: An array containing the selected morph target object for each instance.
 
 ```ts
 export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
   // Length is equal to MAX_INSTANCE_COUNT
-  private morphOffsets: Float32Array
+  private instanceMorphOffset: Float32Array
 
   constructor() {
     super()
-    this.morphOffsets = new Float32Array(MAX_INSTANCE_COUNT).fill(0)
+    this.instanceMorphOffset = new Float32Array(MAX_INSTANCE_COUNT).fill(0)
   }
 }
 ```

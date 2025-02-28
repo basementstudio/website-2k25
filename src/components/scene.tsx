@@ -43,6 +43,7 @@ import StaticBasketballs from "./basketball/static-basketballs"
 import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
+import { DebugMorph } from "./characters/debug-morph"
 import { Debug } from "./debug"
 
 const cursorTypeMap = {
@@ -121,9 +122,9 @@ export const Scene = () => {
           sceneChildren={
             <>
               <color attach="background" args={["#000"]} />
-              <Inspectables />
-              <Environment preset="studio" />
               <CameraController />
+              {/* <Inspectables />
+              <Environment preset="studio" />
               <Sparkles />
 
               <Map />
@@ -137,10 +138,12 @@ export const Scene = () => {
                 )}
               </Suspense>
 
-              <StaticBasketballs />
+              <StaticBasketballs /> */}
 
-              <CharacterInstanceConfig />
-              <CharactersSpawn />
+              {/* <CharacterInstanceConfig />
+              <CharactersSpawn /> */}
+
+              <DebugMorph />
             </>
           }
         />
