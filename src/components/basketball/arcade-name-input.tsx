@@ -126,7 +126,7 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
 
   return (
     <div className={cn("flex gap-4", className)}>
-      <div className="corner-borders flex gap-2 text-subheading font-bold">
+      <div className="corner-borders text-subheading flex gap-2 font-bold">
         {letters.map((letter, index) => (
           <LetterSlot
             key={index}

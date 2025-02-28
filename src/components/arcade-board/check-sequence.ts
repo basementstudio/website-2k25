@@ -2,10 +2,10 @@ import { EXPECTED_SEQUENCE } from "./constants"
 
 export const checkSequence = ({
   sequence,
-  setHasUnlockedKonami
+  setIsInGame
 }: {
   sequence: number[]
-  setHasUnlockedKonami: (hasUnlockedKonami: boolean) => void
+  setIsInGame: (isInGame: boolean) => void
 }) => {
   const seqLength = sequence.length
   if (seqLength > EXPECTED_SEQUENCE.length) {
@@ -21,7 +21,7 @@ export const checkSequence = ({
         (value, index) => value === filteredExpected[index]
       )
     ) {
-      setHasUnlockedKonami(true)
+      setIsInGame(true)
       sequence = []
     }
   }
