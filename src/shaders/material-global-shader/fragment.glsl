@@ -176,6 +176,7 @@ void main() {
   if (aoMapIntensity > 0.0) {
     float ambientOcclusion =
       (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
+
     irradiance *= ambientOcclusion;
   }
 
@@ -203,12 +204,6 @@ void main() {
 
   if (opacityResult <= 0.0) {
     discard;
-  }
-
-  if (aoMapIntensity > 0.0) {
-    float ambientOcclusion =
-      (texture2D(aoMap, vUv2).r - 1.0) * aoMapIntensity + 1.0;
-    irradiance *= ambientOcclusion;
   }
 
   #ifdef LIGHT

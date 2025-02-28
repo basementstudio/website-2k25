@@ -20,6 +20,9 @@ export interface MeshStore {
     lamp: Mesh | null
     lampTargets: Mesh[] | null
   }
+  cctv: {
+    screen: Mesh | null
+  }
   inspectableMeshes: Mesh[]
 }
 
@@ -40,6 +43,9 @@ export const useMesh = create<MeshStore>()((set) => ({
     door: null,
     lamp: null,
     lampTargets: null
+  },
+  cctv: {
+    screen: null
   },
   inspectableMeshes: []
 }))
