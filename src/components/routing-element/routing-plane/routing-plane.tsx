@@ -1,4 +1,5 @@
-import { useMemo, useEffect } from "react"
+import { animate } from "motion"
+import { useEffect, useMemo } from "react"
 import {
   BufferGeometry,
   EdgesGeometry,
@@ -7,7 +8,6 @@ import {
   ShaderMaterial,
   Vector3
 } from "three"
-import { animate } from "motion"
 
 export const RoutingPlane = ({
   position,

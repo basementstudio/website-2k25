@@ -4,9 +4,8 @@ import { usePathname } from "next/navigation"
 import { useMemo } from "react"
 
 import { Grid } from "@/components/grid"
-
-import { InspectableViewer } from "../inspectables/inspectable-viewer"
-import { Scene } from "../scene"
+import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
+import { Scene } from "@/components/scene"
 
 const BLACKLISTED_PATHS = [
   /^\/blog\/\d+$/,
@@ -20,7 +19,6 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
   const shouldShowCanvas = useMemo(() => {
     return !BLACKLISTED_PATHS.some((path) => pathname.match(path))
   }, [pathname])
-
 
   return (
     <>

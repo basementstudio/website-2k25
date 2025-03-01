@@ -1,0 +1,27 @@
+.root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: repeating-linear-gradient(
+    transparent 0,
+    transparent calc(2.25rem - 1px),
+    theme("colors.brand.g2") calc(2.25rem - 1px),
+    theme("colors.brand.g2") 2.25rem
+  );
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .root::before {
+    background: repeating-linear-gradient(
+      transparent 0,
+      transparent calc(4.1rem - 1px),
+      theme("colors.brand.g2") calc(4.1rem - 1px),
+      theme("colors.brand.g2") 4.1rem
+    );
+  }
+}
+.root {
+  position: relative;
+}

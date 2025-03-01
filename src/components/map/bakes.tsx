@@ -15,9 +15,8 @@ import {
 } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
+import { useAssets } from "@/components/assets-provider"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
-
-import { useAssets } from "../assets-provider"
 
 interface Bake {
   lightmap?: Texture

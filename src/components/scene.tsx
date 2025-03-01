@@ -8,13 +8,15 @@ import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
+import { Map } from "@/components/map/map"
+import {
+  MouseTracker,
+  useMouseStore
+} from "@/components/mouse-tracker/mouse-tracker"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
 import { useMinigameStore } from "@/store/minigame-store"
-
-import { Map } from "./map/map"
-import { MouseTracker, useMouseStore } from "./mouse-tracker/mouse-tracker"
-import { useNavigationStore } from "./navigation-handler/navigation-store"
-import { Renderer } from "./postprocessing/renderer"
 
 const HoopMinigame = dynamic(
   () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),

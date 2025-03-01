@@ -41,11 +41,15 @@ export const BlogVideo = (props: HandlerProps<"video">) => (
 )
 
 export const Intro = ({ children }: HandlerProps<"p">) => (
-  <p className="mb-6 text-h3 text-brand-w2">{children}</p>
+  <p className="mb-6 text-h3 text-brand-w2 [&_b]:font-bold [&_b]:text-brand-w1">
+    {children}
+  </p>
 )
 
 export const Paragraph = ({ children }: HandlerProps<"p">) => (
-  <p className="text-pretty text-blog text-brand-w2">{children}</p>
+  <p className="text-pretty text-blog text-brand-w2 [&_b]:font-bold [&_b]:text-brand-w1">
+    {children}
+  </p>
 )
 
 export const Heading2 = ({ children }: HandlerProps<"h2">) => (
@@ -101,7 +105,7 @@ export const Code = ({ children }: HandlerProps<"code">) => (
 )
 
 export const Pre = ({ language, code }: HandlerProps<"pre">) => (
-  <div className="w-full">
+  <div className="w-full overflow-hidden">
     <BaseCodeBlock
       snippets={[{ code: `${code}`, language: language, id: "1" }]}
     />

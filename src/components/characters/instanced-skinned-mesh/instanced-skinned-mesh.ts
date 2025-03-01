@@ -705,7 +705,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       instance.time += delta * instance.timeSpeed
       instance.time = THREE.MathUtils.clamp(
         instance.time - // eslint-disable-next-line prettier/prettier
-        Math.floor(instance.time / clip.duration) * clip.duration,
+          Math.floor(instance.time / clip.duration) * clip.duration,
         0,
         clip.duration
       )

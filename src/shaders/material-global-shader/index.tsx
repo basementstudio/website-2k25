@@ -3,6 +3,7 @@ import { MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
+// TODO: this config is wrong for the fog transition
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 
 import fragmentShader from "./fragment.glsl"
@@ -57,7 +58,6 @@ export const createGlobalShaderMaterial = (
     fogColor: { value: new Vector3(0.4, 0.4, 0.4) },
     fogDensity: { value: 0.05 },
     fogDepth: { value: 6.0 },
-    uJitter: { value: 512.0 },
     glassReflex: { value: null },
     emissiveMap: { value: emissiveMap },
 
@@ -65,7 +65,11 @@ export const createGlobalShaderMaterial = (
     uGodrayDensity: { value: 0 },
     inspectingEnabled: { value: false },
     inspectingFactor: { value: 0 },
-    fadeFactor: { value: 0 }
+    fadeFactor: { value: 0 },
+
+    // Lamp
+    lampLightmap: { value: null },
+    lightLampEnabled: { value: false }
   } as Record<string, { value: unknown }>
 
   if (defines?.LIGHT) {

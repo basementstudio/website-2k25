@@ -121,6 +121,16 @@ export const sfxFragment = fragmentOn("Sfx", {
           url: true
         }
       }
+    },
+    lamp: {
+      items: {
+        pull: {
+          url: true
+        },
+        release: {
+          url: true
+        }
+      }
     }
   },
   arcade: {
@@ -158,6 +168,12 @@ export const arcadeFragment = fragmentOn("Arcade", {
     url: true
   },
   boot: {
+    url: true
+  },
+  chronicles: {
+    url: true
+  },
+  looper: {
     url: true
   }
 })
@@ -233,6 +249,12 @@ export const carFragment = fragmentOn("Car", {
     url: true
   },
   misteryTexture: {
+    url: true
+  }
+})
+
+export const lampFragment = fragmentOn("LampComponent", {
+  extraLightmap: {
     url: true
   }
 })
