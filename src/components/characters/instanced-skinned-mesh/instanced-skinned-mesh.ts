@@ -432,8 +432,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     let size = Math.sqrt(offset)
     size = Math.ceil(size)
 
-    console.log("geometry offsets:", this.morphOffsetsDict)
-
     const morphData = new Float32Array(size * size * componentSize)
     morphData.fill(0)
 
@@ -454,8 +452,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
         if (typeof geometryOffset !== "number") {
           throw new Error("Morph offset not found")
         }
-
-        console.log("Geometry offset", geometryOffset)
 
         for (
           let vertexIndex = 0;
@@ -483,8 +479,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
 
     this.morphTexture.needsUpdate = true
     this.shouldComputeMorphTargets = false
-
-    console.log("Morph texture", this.morphTexture)
 
     this.addInstancedUniform("uActiveMorphs", -1, THREE.IntType)
   }
@@ -705,7 +699,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       instance.time += delta * instance.timeSpeed
       instance.time = THREE.MathUtils.clamp(
         instance.time - // eslint-disable-next-line prettier/prettier
-          Math.floor(instance.time / clip.duration) * clip.duration,
+        Math.floor(instance.time / clip.duration) * clip.duration,
         0,
         clip.duration
       )

@@ -31,8 +31,6 @@ function CharactersSpawnInner() {
   //   </group>
   // )
 
-  return null
-
   return (
     <>
       {/* Services */}
