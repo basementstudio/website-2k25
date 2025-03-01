@@ -44,7 +44,7 @@ const getRandomBodyId = () => {
 }
 
 export function Character({ animationName, ...props }: CharacterProps) {
-  const characterId = useMemo(() => 27, [])
+  const characterId = useMemo(() => getRandomFaceId(), [])
   const characterConfiguration = useMemo(
     () => characterConfigurations.find((c) => c.faceId === characterId),
     [characterId]

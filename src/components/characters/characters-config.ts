@@ -50,40 +50,29 @@ export enum BodyMorphTargets {
 
 export const characterConfigurations: Character[] = [
   {
-    faceId: 6,
-    faceMorph: FaceMorphTargets.Flauta,
+    faceId: 0,
+    faceMorph: FaceMorphTargets.Berna,
     bodyMorph: BodyMorphTargets.Man2
   },
   {
-    faceId: 28,
-    faceMorph: FaceMorphTargets.Jose,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-
-  {
-    faceId: 18,
-    faceMorph: FaceMorphTargets.Nacho,
-    bodyMorph: BodyMorphTargets.Man2
+    faceId: 0,
+    faceMorph: FaceMorphTargets.Ani,
+    bodyMorph: BodyMorphTargets.Woman1
   },
   {
-    faceId: 15,
-    faceMorph: FaceMorphTargets.Mago,
+    faceId: 1,
+    faceMorph: FaceMorphTargets.Cesar,
     bodyMorph: BodyMorphTargets.Man2
   },
   {
-    faceId: 10,
-    faceMorph: FaceMorphTargets.Alan,
+    faceId: 2,
+    faceMorph: FaceMorphTargets.Chueco,
     bodyMorph: BodyMorphTargets.Man2
   },
   {
     faceId: 4,
     faceMorph: FaceMorphTargets.Delfina,
     bodyMorph: BodyMorphTargets.Woman1
-  },
-  {
-    faceId: 20,
-    faceMorph: FaceMorphTargets.Naza,
-    bodyMorph: BodyMorphTargets.Man2
   },
   {
     faceId: 4,
@@ -96,43 +85,8 @@ export const characterConfigurations: Character[] = [
     bodyMorph: BodyMorphTargets.Man2
   },
   {
-    faceId: 24,
-    faceMorph: FaceMorphTargets.Tomas,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 19,
-    faceMorph: FaceMorphTargets.Nat,
-    bodyMorph: BodyMorphTargets.Woman1
-  },
-  {
-    faceId: 17,
-    faceMorph: FaceMorphTargets.Matata,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 2,
-    faceMorph: FaceMorphTargets.Chueco,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 16,
-    faceMorph: FaceMorphTargets.Stanti,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 0,
-    faceMorph: FaceMorphTargets.Berna,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 1,
-    faceMorph: FaceMorphTargets.Cesar,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 22,
-    faceMorph: FaceMorphTargets.Fede,
+    faceId: 6,
+    faceMorph: FaceMorphTargets.Flauta,
     bodyMorph: BodyMorphTargets.Man2
   },
   {
@@ -146,43 +100,13 @@ export const characterConfigurations: Character[] = [
     bodyMorph: BodyMorphTargets.Man2
   },
   {
-    faceId: 19,
-    faceMorph: FaceMorphTargets.Kalu,
+    faceId: 10,
+    faceMorph: FaceMorphTargets.Alan,
     bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 23,
-    faceMorph: FaceMorphTargets.YoungNico,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 30,
-    faceMorph: FaceMorphTargets.Stef,
-    bodyMorph: BodyMorphTargets.Woman1
-  },
-  {
-    faceId: 29,
-    faceMorph: FaceMorphTargets.Val,
-    bodyMorph: BodyMorphTargets.Woman1
   },
   {
     faceId: 12,
     faceMorph: FaceMorphTargets.Kalil,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 21,
-    faceMorph: FaceMorphTargets.Nico,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 25,
-    faceMorph: FaceMorphTargets.Facu,
-    bodyMorph: BodyMorphTargets.Man2
-  },
-  {
-    faceId: 28,
-    faceMorph: FaceMorphTargets.Vitto,
     bodyMorph: BodyMorphTargets.Man2
   },
   {
@@ -191,7 +115,67 @@ export const characterConfigurations: Character[] = [
     bodyMorph: BodyMorphTargets.Woman1
   },
   {
+    faceId: 15,
+    faceMorph: FaceMorphTargets.Mago,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 16,
+    faceMorph: FaceMorphTargets.Stanti,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 17,
+    faceMorph: FaceMorphTargets.Matata,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 18,
+    faceMorph: FaceMorphTargets.Nacho,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 19,
+    faceMorph: FaceMorphTargets.Nat,
+    bodyMorph: BodyMorphTargets.Woman1
+  },
+  {
+    faceId: 19,
+    faceMorph: FaceMorphTargets.Kalu,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 20,
+    faceMorph: FaceMorphTargets.Naza,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 21,
+    faceMorph: FaceMorphTargets.Nico,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 22,
+    faceMorph: FaceMorphTargets.Fede,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 23,
+    faceMorph: FaceMorphTargets.YoungNico,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 24,
+    faceMorph: FaceMorphTargets.Tomas,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
     faceId: 25,
+    faceMorph: FaceMorphTargets.Facu,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 26,
     faceMorph: FaceMorphTargets.Maca,
     bodyMorph: BodyMorphTargets.Woman1
   },
@@ -201,14 +185,28 @@ export const characterConfigurations: Character[] = [
     bodyMorph: BodyMorphTargets.Man2
   },
   {
+    faceId: 28,
+    faceMorph: FaceMorphTargets.Vitto,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 29,
+    faceMorph: FaceMorphTargets.Jose,
+    bodyMorph: BodyMorphTargets.Man2
+  },
+  {
+    faceId: 30,
+    faceMorph: FaceMorphTargets.Val,
+    bodyMorph: BodyMorphTargets.Woman1
+  },
+  {
     faceId: 29,
     faceMorph: FaceMorphTargets.JJ,
     bodyMorph: BodyMorphTargets.Man2
   },
-
   {
-    faceId: 0,
-    faceMorph: FaceMorphTargets.Ani,
+    faceId: 31,
+    faceMorph: FaceMorphTargets.Stef,
     bodyMorph: BodyMorphTargets.Woman1
   }
 ]
