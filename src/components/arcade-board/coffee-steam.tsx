@@ -3,8 +3,8 @@ import { useFrame } from "@react-three/fiber"
 import { useEffect, useMemo } from "react"
 import { RepeatWrapping } from "three"
 
-import { createSteamMaterial } from "@/shaders/steam"
-import perlin from "@/shaders/steam/perlin.jpg"
+import { createSteamMaterial } from "@/shaders/material-steam"
+import perlin from "@/shaders/material-steam/perlin.jpg"
 
 const CoffeeSteam = () => {
   const noise = useTexture(perlin.src)

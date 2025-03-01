@@ -1,20 +1,14 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
-import { useEffect, useMemo, useRef } from "react"
-import {
-  OrthographicCamera as ThreeOrthographicCamera,
-  ShaderMaterial,
-  Texture,
-  Vector2
-} from "three"
+import { memo, useEffect, useMemo, useRef } from "react"
+import { OrthographicCamera as ThreeOrthographicCamera, Texture } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
-import postFrag from "./post.frag"
-import postVert from "./post.vert"
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
 
 interface PostProcessingProps {
@@ -22,40 +16,12 @@ interface PostProcessingProps {
   cameraRef: React.RefObject<ThreeOrthographicCamera | null>
 }
 
-const material = new ShaderMaterial({
-  vertexShader: postVert,
-  fragmentShader: postFrag,
-  uniforms: {
-    uMainTexture: { value: null },
-    aspect: { value: 1 },
-    resolution: { value: new Vector2(1, 1) },
-    uPixelRatio: { value: 1 },
-    uTime: { value: 0.0 },
-
-    // Basics
-    uContrast: { value: 1 },
-    uBrightness: { value: 1 },
-    uExposure: { value: 1 },
-    uGamma: { value: 1 },
-
-    // Vignette
-    uVignetteRadius: { value: 0.9 },
-    uVignetteSpread: { value: 0.5 },
-
-    // Bloom
-    uBloomStrength: { value: 1 },
-    uBloomRadius: { value: 1 },
-    uBloomThreshold: { value: 1 }
-  }
-})
-
-export function PostProcessing({
-  mainTexture,
-  cameraRef
-}: PostProcessingProps) {
+const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
   const scene = useCurrentScene()
   const assets = useAssets()
   const firstRender = useRef(true)
+
+  const material = useMemo(() => createPostProcessingMaterial(), [])
 
   const {
     basics,
@@ -191,3 +157,5 @@ export function PostProcessing({
     </>
   )
 }
+
+export const PostProcessing = memo(Inner)

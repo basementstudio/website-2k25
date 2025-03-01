@@ -47,7 +47,8 @@ float getVignetteFactor(vec2 uv) {
   float radius = uVignetteRadius;
   float spread = uVignetteSpread;
 
-  float vignetteFactor = 1.0 - smoothstep(radius, radius - spread, length(uv - center));
+  float vignetteFactor =
+    1.0 - smoothstep(radius, radius - spread, length(uv - center));
   return vignetteFactor;
 }
 
@@ -84,11 +85,18 @@ vec3 RRTAndODTFit(vec3 v) {
 
 vec3 ACESFilmicToneMapping(vec3 color) {
   // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
-  const mat3 ACESInputMat = mat3(vec3(0.59719, 0.076, 0.0284), vec3(0.35458, 0.90834, 0.13383), vec3(0.04823, 0.01566, 0.83777));
+  const mat3 ACESInputMat = mat3(
+    vec3(0.59719, 0.076, 0.0284),
+    vec3(0.35458, 0.90834, 0.13383),
+    vec3(0.04823, 0.01566, 0.83777)
+  );
 
   // ODT_SAT => XYZ => D60_2_D65 => sRGB
-  const mat3 ACESOutputMat = mat3(vec3(1.60475, -0.10208, -0.00327), // transposed from source
-  vec3(-0.53108, 1.10813, -0.07276), vec3(-0.07367, -0.00605, 1.07602));
+  const mat3 ACESOutputMat = mat3(
+    vec3(1.60475, -0.10208, -0.00327), // transposed from source
+    vec3(-0.53108, 1.10813, -0.07276),
+    vec3(-0.07367, -0.00605, 1.07602)
+  );
 
   color *= uExposure / 0.6;
 
@@ -117,7 +125,9 @@ float random(vec2 st) {
 }
 
 float blend(const float x, const float y) {
-  return x < 0.5 ? 2.0 * x * y : 1.0 - 2.0 * (1.0 - x) * (1.0 - y);
+  return x < 0.5
+    ? 2.0 * x * y
+    : 1.0 - 2.0 * (1.0 - x) * (1.0 - y);
 }
 
 vec3 blend(const vec3 x, const vec3 y, const float opacity) {
@@ -141,21 +151,24 @@ void main() {
   float totalWeight = 0.0;
   float phi = hash(pixelatedUv) * 6.28; // Random rotation angle
 
-  for(int i = 1; i < SAMPLE_COUNT; i++) {
-    vec2 sampleOffset = vogelDiskSample(i, SAMPLE_COUNT, phi) * uBloomRadius / resolution;
+  for (int i = 1; i < SAMPLE_COUNT; i++) {
+    vec2 sampleOffset =
+      vogelDiskSample(i, SAMPLE_COUNT, phi) * uBloomRadius / resolution;
     float dist = length(sampleOffset);
 
     // Gaussian-like falloff
     float weight = 1.0 / dist;
 
     // Sample color at offset position
-    vec3 sampleColor = texture2D(uMainTexture, pixelatedUv + sampleOffset + vec2(1.0 / resolution.x, 1.0 / resolution.y)).rgb;
+    vec3 sampleColor = texture2D(
+      uMainTexture,
+      pixelatedUv + sampleOffset + vec2(1.0 / resolution.x, 1.0 / resolution.y)
+    ).rgb;
 
     // Only add to bloom if brightness is above threshold
     float brightness = dot(sampleColor, vec3(0.2126, 0.7152, 0.0722));
     totalWeight += weight;
-    if(brightness > uBloomThreshold)
-      bloom += sampleColor * weight;
+    if (brightness > uBloomThreshold) bloom += sampleColor * weight;
   }
 
   // Normalize bloom and apply chess pattern
