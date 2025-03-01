@@ -1,6 +1,6 @@
 import { useFrame } from "@react-three/fiber"
 import { memo, useRef } from "react"
-import { Euler, Group } from "three"
+import { Group } from "three"
 
 import { Character } from "."
 import { CharacterAnimationName } from "./character-instancer"
@@ -16,20 +16,20 @@ function CharactersSpawnInner() {
     }
   })
 
-  // return (
-  //   <group position={[4, 0, -13]}>
-  //     {Array.from({ length: 5 }).map((_, rowIndex) =>
-  //       Array.from({ length: 5 }).map((_, colIndex) => (
-  //         <Character
-  //           key={`${rowIndex}-${colIndex}`}
-  //           position={[rowIndex * 1, 0, colIndex * 1]}
-  //           rotation={[0, 0, 0]}
-  //           animationName={CharacterAnimationName.Idle2}
-  //         />
-  //       ))
-  //     )}
-  //   </group>
-  // )
+  return (
+    <group position={[4, 0, -13]}>
+      {Array.from({ length: 5 }).map((_, rowIndex) =>
+        Array.from({ length: 5 }).map((_, colIndex) => (
+          <Character
+            key={`${rowIndex}-${colIndex}`}
+            position={[rowIndex * 1, 0, colIndex * 1]}
+            rotation={[0, Math.PI / -2, 0]}
+            animationName={CharacterAnimationName["Walking"]}
+          />
+        ))
+      )}
+    </group>
+  )
 
   return (
     <>

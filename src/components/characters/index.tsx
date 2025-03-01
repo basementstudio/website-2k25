@@ -6,6 +6,7 @@ import {
   CharacterAnimationName,
   CharacterPosition
 } from "./character-instancer"
+import { characterConfigurations } from "./characters-config"
 
 interface CharacterProps extends ElementProps<typeof Group> {
   animationName: CharacterAnimationName
@@ -43,9 +44,15 @@ const getRandomBodyId = () => {
 }
 
 export function Character({ animationName, ...props }: CharacterProps) {
+  const characterId = useMemo(() => 27, [])
+  const characterConfiguration = useMemo(
+    () => characterConfigurations.find((c) => c.faceId === characterId),
+    [characterId]
+  )
+
   const selectedFaceOffset = useMemo(
-    () => getTextureCoord(getRandomFaceId(), facesGrid),
-    []
+    () => getTextureCoord(characterId, facesGrid),
+    [characterId]
   )
   const selectedBodyOffset = useMemo(
     () => getTextureCoord(getRandomBodyId(), bodyGrid),
@@ -58,6 +65,7 @@ export function Character({ animationName, ...props }: CharacterProps) {
         timeSpeed={1}
         geometryId={0}
         animationName={animationName}
+        activeMorphName={characterConfiguration?.bodyMorph}
         uniforms={{
           uMapOffset: {
             value: selectedBodyOffset
@@ -67,6 +75,7 @@ export function Character({ animationName, ...props }: CharacterProps) {
       <CharacterPosition
         timeSpeed={1}
         geometryId={1}
+        activeMorphName={characterConfiguration?.faceMorph}
         animationName={animationName}
         uniforms={{
           uMapIndex: {
@@ -81,6 +90,7 @@ export function Character({ animationName, ...props }: CharacterProps) {
         timeSpeed={1}
         geometryId={2}
         animationName={animationName}
+        activeMorphName={characterConfiguration?.bodyMorph}
         uniforms={{
           uMapIndex: {
             value: 1

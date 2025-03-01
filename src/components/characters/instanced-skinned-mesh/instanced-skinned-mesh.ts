@@ -71,6 +71,8 @@ THREE.ShaderChunk.skinning_pars_vertex =
       uniform highp sampler2D morphDataTexture;
       uniform highp isampler2D uActiveMorphs;
 
+      attribute int vertexIndex;
+
       int getActiveMorphOffset() {
         float batchId = getIndirectIndex(gl_DrawID);
         ivec2 mapIndexCoord = getSampleCoord(uActiveMorphs, batchId);
@@ -83,7 +85,7 @@ THREE.ShaderChunk.skinning_pars_vertex =
           return vec4(0.0);
         }
 
-        ivec2 morphDataCoord = getSampleCoord(morphDataTexture, float(activeMorphOffset + gl_VertexID));
+        ivec2 morphDataCoord = getSampleCoord(morphDataTexture, float(activeMorphOffset + vertexIndex));
         return texelFetch(morphDataTexture, morphDataCoord, 0);
       }
 
@@ -340,6 +342,13 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     reservedVertexRange?: number,
     reservedIndexRange?: number
   ): number {
+    // create a vertexIndex attribute
+    const arr = new Int32Array(geometry.attributes.position.count)
+    for (let i = 0; i < arr.length; i++) {
+      arr[i] = i
+    }
+    geometry.setAttribute("vertexIndex", new THREE.BufferAttribute(arr, 1))
+
     const name = geometry.name
     const id = super.addGeometry(
       geometry,
