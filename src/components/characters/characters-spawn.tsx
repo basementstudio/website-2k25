@@ -16,46 +16,41 @@ function CharactersSpawnInner() {
     }
   })
 
-  return (
-    <group position={[4, 0, -13]}>
-      {Array.from({ length: 5 }).map((_, rowIndex) =>
-        Array.from({ length: 5 }).map((_, colIndex) => (
-          <Character
-            key={`${rowIndex}-${colIndex}`}
-            position={[rowIndex * 1, 0, colIndex * 1]}
-            rotation={[0, Math.PI / -2, 0]}
-            animationName={CharacterAnimationName["Walking"]}
-          />
-        ))
-      )}
-    </group>
-  )
+  // return (
+  //   <group position={[4, 0, -13]}>
+  //     {Array.from({ length: 5 }).map((_, rowIndex) =>
+  //       Array.from({ length: 5 }).map((_, colIndex) => (
+  //         <Character
+  //           key={`${rowIndex}-${colIndex}`}
+  //           position={[rowIndex * 1, 0, colIndex * 1]}
+  //           rotation={[0, Math.PI / -2, 0]}
+  //           animationName={CharacterAnimationName["Walking"]}
+  //         />
+  //       ))
+  //     )}
+  //   </group>
+  // )
 
   return (
     <>
       {/* Services */}
       <Character
-        position={[3.6, 0.95, -6.5]}
-        // rotation={[0, Math.PI, 0]}
+        position={[3.6, 0.9, -6.5]}
+        rotation={[0, Math.PI * 0.1, 0]}
         animationName={CharacterAnimationName.Floor}
       />
       <Character
         position={[5.3, 0.55, -6.7]}
-        // rotation={new Euler(0.04, Math.PI * 1.2, -0.3, "ZXY")}
+        rotation={[0, Math.PI * 0.7, 0]}
         animationName={CharacterAnimationName.Chill}
       />
 
       {/* Main */}
-      <Character
-        position={[2.8, 0, -12.6]}
-        // rotation={[0, Math.PI * 0.7, 0]}
-        animationName={CharacterAnimationName["Iddle-01"]}
-      />
 
       <Character
-        position={[3.8, 0, -13.5]}
-        // rotation={[0, Math.PI * -0.3, 0]}
-        animationName={CharacterAnimationName["Iddle-02"]}
+        position={[4, 0.1, -10.5]}
+        rotation={[0, 0, 0]}
+        animationName={CharacterAnimationName["Sit"]}
       />
 
       <Character
