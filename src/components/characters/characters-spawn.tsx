@@ -1,6 +1,6 @@
 import { useFrame } from "@react-three/fiber"
 import { memo, useRef } from "react"
-import { Group } from "three"
+import { Color, Group } from "three"
 
 import { Character } from "."
 import { CharacterAnimationName } from "./character-instancer"
@@ -38,11 +38,21 @@ function CharactersSpawnInner() {
         position={[3.6, 0.9, -6.5]}
         rotation={[0, Math.PI * 0.1, 0]}
         animationName={CharacterAnimationName.Floor}
+        uniforms={{
+          uLightDirection: {
+            value: [0.2, 1, 1, 1]
+          }
+        }}
       />
       <Character
         position={[5.3, 0.55, -6.7]}
         rotation={[0, Math.PI * 0.7, 0]}
         animationName={CharacterAnimationName.Chill}
+        uniforms={{
+          uLightDirection: {
+            value: [-1, 0, 0, 1]
+          }
+        }}
       />
 
       {/* Main */}
@@ -56,7 +66,29 @@ function CharactersSpawnInner() {
       <Character
         position={[4.6, 0.1, -17.5]}
         rotation={[0, Math.PI * -0.7, 0]}
-        animationName={CharacterAnimationName.Sit}
+        animationName={CharacterAnimationName.Working}
+        initialTime={0.5}
+        uniforms={{
+          uLightDirection: {
+            value: [-1, 0, 0, 1]
+          },
+          uLightColor: {
+            value: [...new Color("#a9abff").toArray(), 1]
+          }
+        }}
+      />
+      <Character
+        position={[3.5, 0.1, -16]}
+        rotation={[0, Math.PI * -0.12, 0]}
+        animationName={CharacterAnimationName.Working}
+        uniforms={{
+          uLightDirection: {
+            value: [-1, 0, 0, 1]
+          },
+          uLightColor: {
+            value: [...new Color("#a9abff").toArray(), 1]
+          }
+        }}
       />
 
       {/* Upstairs */}
@@ -64,6 +96,11 @@ function CharactersSpawnInner() {
         position={[3.05, 3.85, -27]}
         rotation={[0, Math.PI * -0.1, 0]}
         animationName={CharacterAnimationName.Working}
+        uniforms={{
+          uLightDirection: {
+            value: [2, 2, 0, 1]
+          }
+        }}
       />
       <Character
         position={[6.8, 3.85, -26.9]}

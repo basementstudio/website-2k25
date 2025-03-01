@@ -7,9 +7,12 @@ import {
   CharacterPosition
 } from "./character-instancer"
 import { characterConfigurations } from "./characters-config"
+import { InstanceUniform } from "./instanced-skinned-mesh"
 
 interface CharacterProps extends ElementProps<typeof Group> {
   animationName: CharacterAnimationName
+  uniforms?: Record<string, InstanceUniform>
+  initialTime?: number
 }
 
 // total faces
@@ -43,7 +46,12 @@ const getRandomBodyId = () => {
   return Math.floor(Math.random() * numBody)
 }
 
-export function Character({ animationName, ...props }: CharacterProps) {
+export function Character({
+  animationName,
+  uniforms,
+  initialTime,
+  ...props
+}: CharacterProps) {
   const characterId = useMemo(() => getRandomFaceId(), [])
   const characterConfiguration = useMemo(
     () => characterConfigurations.find((c) => c.faceId === characterId),
@@ -65,11 +73,13 @@ export function Character({ animationName, ...props }: CharacterProps) {
         timeSpeed={1}
         geometryId={0}
         animationName={animationName}
+        initialTime={initialTime}
         activeMorphName={characterConfiguration?.bodyMorph}
         uniforms={{
           uMapOffset: {
             value: selectedBodyOffset
-          }
+          },
+          ...uniforms
         }}
       />
       <CharacterPosition
@@ -77,18 +87,21 @@ export function Character({ animationName, ...props }: CharacterProps) {
         geometryId={1}
         activeMorphName={characterConfiguration?.faceMorph}
         animationName={animationName}
+        initialTime={initialTime}
         uniforms={{
           uMapIndex: {
             value: 1
           },
           uMapOffset: {
             value: selectedFaceOffset
-          }
+          },
+          ...uniforms
         }}
       />
       <CharacterPosition
         timeSpeed={1}
         geometryId={2}
+        initialTime={initialTime}
         animationName={animationName}
         activeMorphName={characterConfiguration?.bodyMorph}
         uniforms={{
@@ -97,7 +110,8 @@ export function Character({ animationName, ...props }: CharacterProps) {
           },
           uMapOffset: {
             value: selectedFaceOffset
-          }
+          },
+          ...uniforms
         }}
       />
     </group>

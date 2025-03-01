@@ -31,7 +31,7 @@ interface InstancedMeshStore {
   instancedMesh: InstancedBatchedSkinnedMesh | null
 }
 
-interface InstanceUniform {
+export interface InstanceUniform {
   value: number | number[]
 }
 
