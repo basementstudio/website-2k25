@@ -70,7 +70,7 @@ export const characterConfigurations: Character[] = [
     bodyMorph: BodyMorphTargets.Man2
   },
   {
-    faceId: 4,
+    faceId: 3,
     faceMorph: FaceMorphTargets.Delfina,
     bodyMorph: BodyMorphTargets.Woman1
   },

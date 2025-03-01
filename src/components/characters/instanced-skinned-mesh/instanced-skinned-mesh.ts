@@ -183,7 +183,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
   /** Where in the bone texture each animation starts */
   private offsets: number[] = []
   /** Frames per second, will be used to transform animations into a texture */
-  private fps: number = 30
+  private fps: number = 25
 
   private instanceData: InstanceData[] = []
 

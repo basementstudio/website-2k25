@@ -62,12 +62,12 @@ function CharactersSpawnInner() {
       {/* Upstairs */}
       <Character
         position={[3.05, 3.85, -27]}
-        rotation={[0, Math.PI * 0.5, 0]}
+        rotation={[0, Math.PI * -0.1, 0]}
         animationName={CharacterAnimationName.Working}
       />
       <Character
-        position={[6.75, 3.85, -26.9]}
-        rotation={[0, Math.PI * 0.6, 0]}
+        position={[6.8, 3.85, -26.9]}
+        rotation={[0, Math.PI * -0.1, 0]}
         animationName={CharacterAnimationName.Working}
       />
 
