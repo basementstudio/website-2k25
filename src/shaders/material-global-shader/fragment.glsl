@@ -245,20 +245,21 @@ void main() {
 
   if (uLoaded < 1.0) {
     // Loading effect
-    float colorBump = (uTime + voxel.noiseBig * 20.0) * 0.1;
-    colorBump = fract(colorBump) * 20.0;
-    colorBump = clamp(colorBump, 0.0, 1.0);
-    colorBump = 1.0 - pow(colorBump, 0.3);
+    // float colorBump = (uTime + voxel.noiseBig * 20.0) * 0.1;
+    // colorBump = fract(colorBump) * 20.0;
+    // colorBump = clamp(colorBump, 0.0, 1.0);
+    // colorBump = 1.0 - pow(colorBump, 0.3);
 
-    float loadingColor = max(
-      voxel.edgeFactor * 0.2,
-      colorBump * voxel.fillFactor * 3.0
-    );
+    // float loadingColor = max(
+    //   voxel.edgeFactor * 0.2,
+    //   colorBump * voxel.fillFactor * 3.0
+    // );
 
     gl_FragColor.rgb = mix(
       gl_FragColor.rgb,
-      vec3(loadingColor),
+      vec3(0.0),
       step(uLoaded, voxel.noiseSmall)
     );
+    gl_FragColor.a = mix(gl_FragColor.a, 0.0, step(uLoaded, voxel.noiseSmall));
   }
 }

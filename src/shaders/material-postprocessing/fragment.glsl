@@ -7,6 +7,8 @@ uniform vec2 resolution;
 uniform float uPixelRatio;
 uniform float uTolerance;
 
+uniform float uOpacity;
+
 // Basics
 uniform float uGamma;
 uniform float uContrast;
@@ -142,6 +144,24 @@ void main() {
   vec2 pixelatedUv = floor(vUv * resolution / 2.0) * 2.0 / resolution;
 
   vec4 baseColorSample = texture2D(uMainTexture, vUv);
+
+  vec4 basePixelatedSample = texture2D(
+    uMainTexture,
+    floor(vUv * resolution / 8.0) * 8.0 / resolution
+  );
+  float baseBrightness = dot(
+    tonemap(basePixelatedSample.rgb),
+    vec3(0.2126, 0.7152, 0.0722)
+  );
+  float alpha = 1.0;
+  float reveal = 1.0 - uOpacity;
+  reveal = clamp(reveal, 0.0, 1.0);
+  reveal = pow(reveal, 4.0);
+  reveal *= 1.0;
+  if (baseBrightness < reveal || uOpacity == 0.0) {
+    alpha = 0.0;
+  }
+
   vec3 color = baseColorSample.rgb;
 
   color = tonemap(color);
@@ -183,7 +203,7 @@ void main() {
   float vignetteFactor = getVignetteFactor(vUv);
   color = mix(color, vec3(0.0), vignetteFactor);
 
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(color, alpha);
 
   #include <colorspace_fragment>
 }

@@ -9,6 +9,7 @@ import {
   Mesh,
   NearestFilter,
   NoColorSpace,
+  RawShaderMaterial,
   ShaderMaterial,
   Texture,
   TextureLoader
@@ -19,6 +20,7 @@ import { useAssets } from "@/components/assets-provider"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 
 import { cctvConfig } from "../postprocessing/renderer"
+import { useAppLoadingStore } from "../loading/app-loading-handler"
 
 interface Bake {
   lightmap?: Texture
@@ -117,6 +119,11 @@ const useBakes = (): Record<string, Bake> => {
   return meshMaps
 }
 
+/** Attach a material to this array and it will change its uOpacity onLoad */
+export const revealOpacityMaterials = new Set<
+  ShaderMaterial | RawShaderMaterial
+>()
+
 const Bakes = () => {
   const shaderMaterialsRef = useCustomShaderMaterial(
     (store) => store.materialsRef
@@ -145,13 +152,22 @@ const Bakes = () => {
     })
   })
 
+  const { setIsLoading } = useAppLoadingStore()
+
   useEffect(() => {
+    setIsLoading(false)
     animate(0, 1, {
-      duration: 1.5,
+      duration: 1,
       ease: "easeIn",
+      delay: 0.7,
       onUpdate: (latest) => {
         Object.values(shaderMaterialsRef).forEach((material) => {
-          material.uniforms.uLoaded.value = latest
+          material.uniforms.uLoaded.value = 1
+        })
+        revealOpacityMaterials.forEach((material) => {
+          if ("uOpacity" in material.uniforms) {
+            material.uniforms.uOpacity.value = latest
+          }
         })
       },
       onComplete: () => {

@@ -1,11 +1,18 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useMemo } from "react"
-
+import { Suspense, useMemo } from "react"
+import dynamic from "next/dynamic"
 import { Grid } from "@/components/grid"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
-import { Scene } from "@/components/scene"
+
+const Scene = dynamic(
+  () => import("@/components/scene").then((mod) => mod.Scene),
+  {
+    ssr: false,
+    loading: () => null
+  }
+)
 
 const BLACKLISTED_PATHS = [
   /^\/blog\/\d+$/,
@@ -24,7 +31,9 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
     <>
       {shouldShowCanvas && (
         <div className="canvas-container sticky top-0 h-screen w-full">
-          <Scene />
+          <Suspense fallback={null}>
+            <Scene />
+          </Suspense>
           <Grid />
           <InspectableViewer />
         </div>

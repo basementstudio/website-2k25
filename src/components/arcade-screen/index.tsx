@@ -31,6 +31,7 @@ import {
   GAME_SPEED
 } from "../arcade-game/road/use-road"
 import { useGame } from "../arcade-game/lib/use-game"
+import { revealOpacityMaterials } from "../map/bakes"
 
 const ScreenUI = dynamic(
   () =>

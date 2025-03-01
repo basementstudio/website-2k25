@@ -5,6 +5,7 @@ import vertexShader from "./vertex.glsl"
 
 export const createScreenMaterial = () =>
   new ShaderMaterial({
+    transparent: true,
     uniforms: {
       uTime: { value: 0 },
       map: { value: null },

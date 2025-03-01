@@ -16,6 +16,7 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
+import { useAppLoadingStore } from "../loading/app-loading-handler"
 
 const panTargetDelta = new Vector3()
 const panLookAtDelta = new Vector3()
@@ -238,6 +239,13 @@ export const CustomCamera = ({ transition404Progress = 0 }: Props) => {
     if (firstRender) setFirstRender(false)
   })
 
+  useFrame(() => {
+    if (!cameraControlsRef.current) return
+
+    const c = cameraControlsRef.current.camera as PerspectiveCamera
+    // console.log("updating cameras")
+    useAppLoadingStore.getState().updateCamera(finalPos, finalLookAt, c.fov)
+  })
   // boundaries handler
   const b = boundariesRef.current
   const plane = planeRef.current

@@ -14,6 +14,7 @@ import Contact from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { ContentWrapper } from "@/components/layout/content-wrapper"
 import { Navbar } from "@/components/layout/navbar"
+import AppLoadingHandler from "@/components/loading/app-loading-handler"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import LenisScrollProvider from "@/providers/lenis-provider"
@@ -52,6 +53,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
           <body
             className={cn(geistSans.variable, geistMono.variable, "font-sans")}
           >
+            <AppLoadingHandler />
             <LenisScrollProvider>
               <Navbar />
 
