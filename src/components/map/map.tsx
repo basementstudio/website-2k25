@@ -316,11 +316,20 @@ export const Map = memo(() => {
 
         if (meshChild.name === "SM_TvScreen_4") {
           useMesh.setState({ cctv: { screen: meshChild } })
-          const texture = cctvConfig.renderTarget.texture
+          const texture = cctvConfig.renderTarget.read.texture
+
+          const diffuseUniform = {
+            value: texture
+          }
+
+          cctvConfig.renderTarget.onSwap(() => {
+            diffuseUniform.value = cctvConfig.renderTarget.read.texture
+          })
 
           meshChild.material = new THREE.ShaderMaterial({
+            side: THREE.DoubleSide,
             uniforms: {
-              tDiffuse: { value: texture },
+              tDiffuse: diffuseUniform,
               uTime: { value: timeRef.current },
               resolution: { value: new THREE.Vector2(1024, 1024) }
             },

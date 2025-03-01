@@ -16,6 +16,7 @@ import {
 
 import { useContactStore } from "@/components/contact/contact-store"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { doubleFbo } from "@/utils/double-fbo"
 
 import { PostProcessing } from "./post-processing"
 
@@ -24,14 +25,14 @@ interface RendererProps {
 }
 
 export const cctvConfig = {
-  renderTarget: new WebGLRenderTarget(1024, 1024, {
+  renderTarget: doubleFbo(1024, 1024, {
     type: HalfFloatType,
     format: RGBAFormat,
     colorSpace: LinearSRGBColorSpace,
     minFilter: NearestFilter,
     magFilter: NearestFilter
   }),
-  shouldBakeCCTV: false,
+  shouldBakeCCTV: true,
   frameCounter: 0,
   framesPerUpdate: 16,
   camera: new PerspectiveCamera(30, 1, 0.1, 1000)
@@ -82,31 +83,27 @@ function RendererInner({ sceneChildren }: RendererProps) {
 
   useFrame(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return
+    if (isContactOpen) return
 
-    if (!isContactOpen) {
-      gl.outputColorSpace = LinearSRGBColorSpace
-      gl.toneMapping = NoToneMapping
-      gl.setRenderTarget(mainTarget)
-      gl.render(mainScene, mainCamera)
+    gl.outputColorSpace = LinearSRGBColorSpace
+    gl.toneMapping = NoToneMapping
+    gl.setRenderTarget(mainTarget)
+    gl.render(mainScene, mainCamera)
 
-      gl.outputColorSpace = SRGBColorSpace
-      gl.toneMapping = NoToneMapping
+    gl.outputColorSpace = SRGBColorSpace
+    gl.toneMapping = NoToneMapping
 
-      // Update CCTV texture at reduced framerate
-      cctvConfig.frameCounter =
-        (cctvConfig.frameCounter + 1) % cctvConfig.framesPerUpdate
-      if (cctvConfig.frameCounter === 0 || cctvConfig.shouldBakeCCTV) {
-        gl.setRenderTarget(cctvConfig.renderTarget)
-        gl.render(mainScene, cctvConfig.camera)
-
-        if (cctvConfig.shouldBakeCCTV) {
-          cctvConfig.shouldBakeCCTV = false
-        }
-      }
-
-      gl.setRenderTarget(null)
-      gl.render(postProcessingScene, postProcessingCameraRef.current)
+    // CCTV 404
+    if (cctvConfig.shouldBakeCCTV) {
+      // bake both read and write textures
+      cctvConfig.shouldBakeCCTV = false
+      gl.setRenderTarget(cctvConfig.renderTarget.write)
+      gl.render(mainScene, cctvConfig.camera)
+      cctvConfig.renderTarget.swap()
     }
+
+    gl.setRenderTarget(null)
+    gl.render(postProcessingScene, postProcessingCameraRef.current)
   }, 1)
 
   return (

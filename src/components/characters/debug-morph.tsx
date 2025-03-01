@@ -24,8 +24,6 @@ const material = new MeshLambertMaterial({
 export function DebugMorph() {
   const { nodes } = useGLTF("/cosos.glb") as any
 
-  // console.log(nodes.Sphere)
-
   return (
     <>
       <DebugInstancedMesh

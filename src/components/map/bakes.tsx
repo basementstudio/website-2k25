@@ -18,6 +18,8 @@ import { EXRLoader } from "three/examples/jsm/Addons.js"
 import { useAssets } from "@/components/assets-provider"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 
+import { cctvConfig } from "../postprocessing/renderer"
+
 interface Bake {
   lightmap?: Texture
   aomap?: Texture
@@ -151,6 +153,9 @@ const Bakes = () => {
         Object.values(shaderMaterialsRef).forEach((material) => {
           material.uniforms.uLoaded.value = latest
         })
+      },
+      onComplete: () => {
+        cctvConfig.shouldBakeCCTV = true
       }
     })
 
