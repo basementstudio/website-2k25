@@ -35,12 +35,12 @@ function CharactersSpawnInner() {
     <>
       {/* Services */}
       <Character
-        position={[3.6, 0.9, -6.5]}
+        position={[3.6, 0.9, -6.8]}
         rotation={[0, Math.PI * 0.1, 0]}
-        animationName={CharacterAnimationName.Floor}
+        animationName={CharacterAnimationName.Floor2}
         uniforms={{
           uLightDirection: {
-            value: [0.2, 1, 1, 1]
+            value: [0.2, 0.5, 1.5, 1]
           }
         }}
       />
@@ -50,7 +50,7 @@ function CharactersSpawnInner() {
         animationName={CharacterAnimationName.Chill}
         uniforms={{
           uLightDirection: {
-            value: [-1, 0, 0, 1]
+            value: [-2, 0.5, 0, 1]
           }
         }}
       />
