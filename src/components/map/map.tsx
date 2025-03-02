@@ -139,23 +139,29 @@ export const Map = memo(() => {
 
   const stairsRef = useRef<Mesh | null>(null)
   const colorPickerRef = useRef<Mesh>(null)
-  const { showColorPicker } = useControls({
-    "Color picker": levaFolder(
-      {
-        showColorPicker: false
-      },
-      {
-        collapsed: true
+  useControls("Color Picker", {
+    showColorPicker: {
+      value: false,
+      onChange: (value) => {
+        if (colorPickerRef.current) {
+          colorPickerRef.current.visible = value
+        }
       }
-    )
+    }
   })
 
-  const { opacity } = useControls("God Rays", {
+  useControls("God Rays", {
     opacity: {
-      value: 0.5,
+      value: 1,
       min: 0.0,
       max: 5.0,
-      step: 0.001
+      step: 0.001,
+      onChange: (value) => {
+        godrays.forEach((mesh) => {
+          // @ts-ignore
+          mesh.material.uniforms.uGodrayDensity.value = value
+        })
+      }
     }
   })
 
@@ -177,11 +183,6 @@ export const Map = memo(() => {
   useFrame(({ clock }) => {
     timeRef.current = clock.getElapsedTime()
 
-    godrays.forEach((mesh) => {
-      // @ts-ignore
-      mesh.material.uniforms.uGodrayDensity.value = opacity
-    })
-
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
 
@@ -199,13 +200,6 @@ export const Map = memo(() => {
       const mesh = keyframedNet as Mesh
       animationProgress.current += NET_ANIMATION_SPEED
       isAnimating.current = animateNet(mesh, animationProgress.current)
-    }
-
-    if (colorPickerRef.current) {
-      // @ts-ignore
-      colorPickerRef.current.material.uniforms.opacity.value = showColorPicker
-        ? 1.0
-        : 0.0
     }
 
     if (!stairsRef.current || !mainCamera) return
@@ -316,11 +310,20 @@ export const Map = memo(() => {
 
         if (meshChild.name === "SM_TvScreen_4") {
           useMesh.setState({ cctv: { screen: meshChild } })
-          const texture = cctvConfig.renderTarget.texture
+          const texture = cctvConfig.renderTarget.read.texture
+
+          const diffuseUniform = {
+            value: texture
+          }
+
+          cctvConfig.renderTarget.onSwap(() => {
+            diffuseUniform.value = cctvConfig.renderTarget.read.texture
+          })
 
           meshChild.material = new THREE.ShaderMaterial({
+            side: THREE.DoubleSide,
             uniforms: {
-              tDiffuse: { value: texture },
+              tDiffuse: diffuseUniform,
               uTime: { value: timeRef.current },
               resolution: { value: new THREE.Vector2(1024, 1024) }
             },
@@ -391,6 +394,14 @@ export const Map = memo(() => {
               }
             )
 
+        if (isGlass) {
+          Array.isArray(newMaterials)
+            ? newMaterials.forEach((material) => {
+                material.depthWrite = false
+              })
+            : (newMaterials.depthWrite = false)
+        }
+
         meshChild.material = newMaterials
 
         meshChild.userData.hasGlobalMaterial = true
@@ -434,6 +445,12 @@ export const Map = memo(() => {
                 GODRAY: true
               }
             )
+
+        Array.isArray(newMaterials)
+          ? newMaterials.forEach((material) => {
+              material.depthWrite = false
+            })
+          : (newMaterials.depthWrite = false)
 
         meshChild.material = newMaterials
         meshChild.userData.hasGlobalMaterial = true

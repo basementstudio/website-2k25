@@ -26,7 +26,7 @@ interface PointerHandlerParams {
   ballRef: RefObject<RapierRigidBody | null>
   mousePos: RefObject<Vector2>
   lastMousePos: RefObject<Vector2>
-  dragStartPos: RefObject<Vector3>
+  dragStartPos: Vector3
   initialGrabPos: RefObject<Vector3>
   hasMovedSignificantly: RefObject<boolean>
   isThrowable: RefObject<boolean>
@@ -37,7 +37,7 @@ interface PointerHandlerParams {
 
 interface HandlePointerUpParams {
   ballRef: RefObject<RapierRigidBody | null>
-  dragStartPos: RefObject<Vector3>
+  dragStartPos: Vector3
   hasMovedSignificantly: RefObject<boolean>
   isThrowable: RefObject<boolean>
   hoopPosition: Position
@@ -216,7 +216,7 @@ export const handlePointerDown = ({
 
   if (ballRef.current) {
     const pos = ballRef.current.translation()
-    dragStartPos.current.set(pos.x, pos.y, pos.z)
+    dragStartPos.set(pos.x, pos.y, pos.z)
     initialGrabPos.current.set(pos.x, pos.y, pos.z)
 
     mousePos.current.x = (event.clientX / window.innerWidth) * 2 - 1
@@ -252,9 +252,9 @@ export const handlePointerMove = ({
     }
 
     const dragDelta = new Vector3(
-      dragStartPos.current.x - currentPos.x,
-      dragStartPos.current.y - currentPos.y,
-      dragStartPos.current.z - currentPos.z
+      dragStartPos.x - currentPos.x,
+      dragStartPos.y - currentPos.y,
+      dragStartPos.z - currentPos.z
     )
 
     const metrics = calculateShotMetrics(currentPos, hoopPosition, dragDelta)
@@ -283,13 +283,13 @@ export const handlePointerUp = ({
 
     const currentPos = ballRef.current.translation()
     const dragDelta = new Vector3(
-      dragStartPos.current.x - currentPos.x,
-      dragStartPos.current.y - currentPos.y,
-      dragStartPos.current.z - currentPos.z
-    )
+      dragStartPos.x - currentPos.x,
+      dragStartPos.y - currentPos.y,
+      dragStartPos.z - currentPos.z
+    ).multiplyScalar(1.1)
 
     const dragDistance = dragDelta.length()
-    const verticalDragDistance = dragStartPos.current.y - currentPos.y
+    const verticalDragDistance = dragStartPos.y - currentPos.y
 
     if (
       dragDistance > 0.1 &&

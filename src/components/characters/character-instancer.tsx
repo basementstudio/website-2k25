@@ -1,7 +1,7 @@
 import { useGLTF, useTexture } from "@react-three/drei"
 import { memo, useMemo } from "react"
 import type * as THREE from "three"
-import { BufferAttribute, FloatType } from "three"
+import { BufferAttribute, Color, FloatType } from "three"
 
 import { useAssets } from "../assets-provider"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
@@ -123,7 +123,18 @@ function CharacterInstanceConfigInner() {
         instancedUniforms={[
           { name: "uMapIndex", defaultValue: 0, type: FloatType },
           // used to select face, body textures
-          { name: "uMapOffset", defaultValue: [0, 0], type: FloatType }
+          { name: "uMapOffset", defaultValue: [0, 0], type: FloatType },
+
+          {
+            name: "uLightDirection",
+            defaultValue: [-0.2, 1, 1, 1],
+            type: FloatType
+          },
+          {
+            name: "uLightColor",
+            defaultValue: [...new Color("#ffeec0").toArray(), 3],
+            type: FloatType
+          }
         ]}
       />
     </>

@@ -83,7 +83,7 @@ export const BlogDoor = () => {
         >
           <mesh position={[0, 0, 0.345]}>
             <boxGeometry args={[0.02, 1.1, 0.65, 32]} />
-            <meshBasicMaterial opacity={0} transparent />
+            <meshBasicMaterial opacity={0} transparent depthWrite={false} />
           </mesh>
         </group>
       </group>

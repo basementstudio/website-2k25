@@ -1,17 +1,16 @@
-import Link from "next/link"
-
+import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
 interface InternalLinksProps {
   className?: string
   links: { title: string; href: string; count?: number }[]
-  handleChangeLink?: () => void
+  onClick?: () => void
 }
 
 export const InternalLinks = ({
   className,
   links,
-  handleChangeLink
+  onClick
 }: InternalLinksProps) => (
   <ul
     className={cn(
@@ -24,7 +23,7 @@ export const InternalLinks = ({
         <Link
           className="flex gap-x-0.5 text-brand-w1"
           href={link.href}
-          onClick={handleChangeLink}
+          onClick={onClick}
         >
           <span className="actionable">{link.title}</span>
           {link.count && (
