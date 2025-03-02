@@ -1,5 +1,5 @@
 import { animate } from "motion"
-import { useRef, useEffect, useCallback } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -125,7 +125,7 @@ export const Button = ({ button }: { button: Mesh }) => {
         }}
       >
         <sphereGeometry args={[0.02, 6, 6]} />
-        <meshBasicMaterial transparent opacity={0} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
     </group>
   )

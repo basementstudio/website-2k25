@@ -282,7 +282,7 @@ export const Inspectable = ({
           <boxGeometry
             args={[size.current.x, size.current.y, size.current.z]}
           />
-          <meshBasicMaterial opacity={0} transparent />
+          <meshBasicMaterial opacity={0} transparent depthWrite={false} />
         </mesh>
       </InspectableDragger>
     </group>
