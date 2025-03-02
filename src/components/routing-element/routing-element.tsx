@@ -7,8 +7,6 @@ import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
-import { RoutingPlane } from "./routing-plane/routing-plane"
-
 interface RoutingElementProps {
   node: Mesh
   route: string
@@ -187,19 +185,85 @@ export const RoutingElement = ({
           position={[node.position.x, node.position.y, node.position.z]}
           rotation={node.rotation}
           renderOrder={1}
+          visible={hover}
         >
-          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          <shaderMaterial
+            depthWrite={false}
+            depthTest={false}
+            fragmentShader={`
+              varying vec2 vUv;
+              varying vec4 vPos;
+              uniform vec2 resolution;
+              
+              void main() {
+                // Define a fixed border thickness in pixels
+                float borderThickness = 1.5;
+                
+                // Calculate the distance from each edge in screen space
+                // First, calculate derivatives to get pixel-sized measurements
+                vec2 dwdx = dFdx(vUv);
+                vec2 dwdy = dFdy(vUv);
+                float pixelWidth = sqrt(dwdx.x * dwdx.x + dwdy.x * dwdy.x);
+                float pixelHeight = sqrt(dwdx.y * dwdx.y + dwdy.y * dwdy.y);
+                
+                // Convert border thickness to UV space based on pixel size
+                vec2 uvBorderSize = vec2(
+                  borderThickness * pixelWidth,
+                  borderThickness * pixelHeight
+                );
+                
+                // Calculate distance from each edge in normalized space
+                vec2 distFromEdge = min(vUv, 1.0 - vUv);
+                
+                // Check if we're within the border
+                bool isBorder = 
+                  distFromEdge.x < uvBorderSize.x || 
+                  distFromEdge.y < uvBorderSize.y;
+                
+                // Calculate diagonal pattern based on screen position
+                vec2 vCoords = vPos.xy;
+                vCoords /= vPos.w;
+                vCoords = vCoords * 0.5 + 0.5;
+                
+                // Apply aspect ratio correction
+                float aspectRatio = resolution.x / resolution.y;
+                vCoords.x *= aspectRatio;
+                
+                // Diagonal pattern parameters
+                float lineSpacing = 0.01;
+                float lineWidth = 0.15;
+                float lineOpacity = 0.15;
+                
+                // Calculate diagonal pattern
+                float diagonal = (vCoords.x - vCoords.y) / lineSpacing;
+                float pattern = abs(fract(diagonal) - 0.5) * 2.0;
+                float line = smoothstep(1.0 - lineWidth, 1.0, 1.0 - pattern);
+                
+                // Final color: combine border and diagonals
+                if (isBorder) {
+                  gl_FragColor = vec4(1.0, 1.0, 1.0, 0.2); // White color for border
+                } else {
+                  gl_FragColor = vec4(vec3(1.0), line * lineOpacity); // Diagonal pattern inside
+                }
+              }
+            `}
+            vertexShader={`
+              varying vec2 vUv;
+              varying vec4 vPos;
+              
+              void main() {
+                vUv = uv;
+                vPos = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+                gl_Position = vPos;
+              }
+            `}
+            transparent={true}
+            uniforms={{
+              resolution: { value: [window.innerWidth, window.innerHeight] }
+            }}
+          />
         </mesh>
       </group>
-
-      <RoutingPlane
-        position={[node.position.x, node.position.y, node.position.z]}
-        scale={[1, 1]}
-        rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
-        geometry={node.geometry}
-        visible={hover}
-        groupName={groupName}
-      />
     </>
   )
 }
