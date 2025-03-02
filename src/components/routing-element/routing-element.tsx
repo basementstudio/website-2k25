@@ -1,11 +1,15 @@
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Mesh } from "three"
+import { Mesh, ShaderMaterial } from "three"
+import { memo } from "react"
 
 import { useInspectable } from "@/components/inspectables/context"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
+
+import fragmentShader from "./frag.glsl"
+import vertexShader from "./vert.glsl"
 
 interface RoutingElementProps {
   node: Mesh
@@ -14,7 +18,25 @@ interface RoutingElementProps {
   groupName?: string
 }
 
-export const RoutingElement = ({
+const routingMaterial = new ShaderMaterial({
+  depthWrite: false,
+  depthTest: false,
+  transparent: true,
+  uniforms: {
+    resolution: { value: [window.innerWidth, window.innerHeight] }
+  },
+  fragmentShader: fragmentShader,
+  vertexShader: vertexShader
+})
+
+const updateMaterialResolution = () => {
+  routingMaterial.uniforms.resolution.value = [
+    window.innerWidth,
+    window.innerHeight
+  ]
+}
+
+const RoutingElementComponent = ({
   node,
   route,
   hoverName,
@@ -36,25 +58,131 @@ export const RoutingElement = ({
   const { selected } = useInspectable()
 
   const [hover, setHover] = useState(false)
-
-  const activeRoute = useMemo(() => {
-    return pathname === route || selected
-  }, [pathname, route, selected])
-
   const meshRef = useRef<Mesh | null>(null)
 
-  useEffect(() => {
-    if (activeRoute) setHover(false)
-  }, [activeRoute])
+  const activeRoute = useMemo(
+    () => pathname === route || selected,
+    [pathname, route, selected]
+  )
 
   const navigate = useCallback(
-    (route: string) => {
-      handleNavigation(`${!route.startsWith("/") ? "/" : ""}${route}`)
+    (routePath: string) => {
+      handleNavigation(`${!routePath.startsWith("/") ? "/" : ""}${routePath}`)
     },
     [handleNavigation]
   )
 
+  const groupHoverHandlers = useMemo(() => {
+    if (!groupName) return null
+
+    return {
+      dispatchGroupHover: (isHovering: boolean) => {
+        window.dispatchEvent(
+          new CustomEvent("group-hover", {
+            detail: { groupName, hover: isHovering }
+          })
+        )
+      },
+      handleGroupHover: (e: CustomEvent) => {
+        if (e.detail.groupName === groupName && e.detail.hover !== hover) {
+          setHover(e.detail.hover)
+          if (e.detail.hover) {
+            router.prefetch(route)
+            setCursorType("click")
+            setHoverText(hoverName)
+          } else {
+            setHoverText(null)
+            setCursorType("default")
+          }
+        }
+      }
+    }
+  }, [groupName, hover, route, hoverName, router, setCursorType, setHoverText])
+
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Enter" && scenes) {
+        const trimmedPathname = pathname.replace("/", "")
+        const tabIndex = scenes[0].tabs.findIndex(
+          (tab) => tab.tabName.toLowerCase() === trimmedPathname
+        )
+
+        setEnteredByKeyboard(true)
+        navigate(route)
+        if (route === "/") {
+          setCurrentTabIndex(tabIndex === -1 ? 0 : tabIndex)
+        }
+      }
+    },
+    [
+      navigate,
+      pathname,
+      route,
+      scenes,
+      setCurrentTabIndex,
+      setEnteredByKeyboard
+    ]
+  )
+
+  const handlePointerEnter = useCallback(
+    (e: any) => {
+      e.stopPropagation()
+      if (activeRoute) return
+
+      setHover(true)
+      router.prefetch(route)
+      setCursorType("click")
+      setHoverText(hoverName)
+
+      groupHoverHandlers?.dispatchGroupHover(true)
+    },
+    [
+      activeRoute,
+      groupHoverHandlers,
+      hoverName,
+      route,
+      router,
+      setCursorType,
+      setHoverText
+    ]
+  )
+
+  const handlePointerLeave = useCallback(
+    (e: any) => {
+      e.stopPropagation()
+      if (activeRoute) return
+
+      setHover(false)
+      setHoverText(null)
+      setCursorType("default")
+
+      groupHoverHandlers?.dispatchGroupHover(false)
+    },
+    [activeRoute, groupHoverHandlers, setCursorType, setHoverText]
+  )
+
+  const handleClick = useCallback(
+    (e: any) => {
+      e.stopPropagation()
+      if (activeRoute) return
+
+      setEnteredByKeyboard(false)
+      navigate(route)
+      setCursorType("default")
+      setCurrentTabIndex(-1)
+    },
+    [
+      activeRoute,
+      navigate,
+      route,
+      setCursorType,
+      setCurrentTabIndex,
+      setEnteredByKeyboard
+    ]
+  )
+
   useEffect(() => {
+    if (activeRoute) setHover(false)
     if (!isCanvasTabMode || !currentScene?.tabs) {
       setHover(false)
       setHoverText(null)
@@ -67,22 +195,7 @@ export const RoutingElement = ({
       router.prefetch(route)
       setHoverText(hoverName)
 
-      const handleKeyPress = (event: KeyboardEvent) => {
-        if (event.key === "Enter" && scenes) {
-          const trimmedPathname = pathname.replace("/", "")
-          const tabIndex = scenes[0].tabs.findIndex(
-            (tab) => tab.tabName.toLowerCase() === trimmedPathname
-          )
-
-          setEnteredByKeyboard(true)
-          navigate(route)
-          if (route === "/") {
-            setCurrentTabIndex(tabIndex === -1 ? 0 : tabIndex)
-          }
-        }
-      }
       window.addEventListener("keydown", handleKeyPress)
-
       return () => {
         window.removeEventListener("keydown", handleKeyPress)
         if (!isCanvasTabMode) setHoverText(null)
@@ -92,170 +205,53 @@ export const RoutingElement = ({
       if (!isCanvasTabMode) setHoverText(null)
     }
   }, [
+    activeRoute,
     isCanvasTabMode,
-    currentScene,
-    currentTabIndex,
-    node,
-    hoverName,
-    navigate,
-    route,
-    scenes,
-    pathname,
-    setCurrentTabIndex,
     currentScene?.tabs,
+    currentTabIndex,
+    node.name,
+    hoverName,
+    route,
     router,
     setHoverText,
-    setEnteredByKeyboard
+    handleKeyPress
   ])
 
   useEffect(() => {
-    if (!groupName) return
+    if (!groupName || !groupHoverHandlers) return
 
-    const handleGroupHover = (e: CustomEvent) => {
-      if (e.detail.groupName === groupName && e.detail.hover !== hover) {
-        setHover(e.detail.hover)
-        if (e.detail.hover) {
-          router.prefetch(route)
-          setCursorType("click")
-          setHoverText(hoverName)
-        } else {
-          setHoverText(null)
-          setCursorType("default")
-        }
-      }
-    }
-
-    window.addEventListener("group-hover" as any, handleGroupHover)
+    window.addEventListener(
+      "group-hover" as any,
+      groupHoverHandlers.handleGroupHover
+    )
     return () =>
-      window.removeEventListener("group-hover" as any, handleGroupHover)
-  }, [groupName, hover, route, hoverName, router, setCursorType, setHoverText])
-
-  const handlePointerEnter = (e: any) => {
-    e.stopPropagation()
-    if (activeRoute) return
-
-    setHover(true)
-    router.prefetch(route)
-    setCursorType("click")
-    setHoverText(hoverName)
-
-    if (groupName) {
-      window.dispatchEvent(
-        new CustomEvent("group-hover", {
-          detail: { groupName, hover: true }
-        })
+      window.removeEventListener(
+        "group-hover" as any,
+        groupHoverHandlers.handleGroupHover
       )
-    }
-  }
+  }, [groupName, groupHoverHandlers])
 
-  const handlePointerLeave = (e: any) => {
-    e.stopPropagation()
-    if (activeRoute) return
-
-    setHover(false)
-    setHoverText(null)
-    setCursorType("default")
-
-    if (groupName) {
-      window.dispatchEvent(
-        new CustomEvent("group-hover", {
-          detail: { groupName, hover: false }
-        })
-      )
-    }
-  }
+  useEffect(() => {
+    updateMaterialResolution()
+  }, [])
 
   return (
-    <>
-      <group
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
-        onClick={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          setEnteredByKeyboard(false)
-          navigate(route)
-          setCursorType("default")
-          setCurrentTabIndex(-1)
-        }}
-      >
-        <mesh
-          ref={meshRef}
-          geometry={node.geometry}
-          position={[node.position.x, node.position.y, node.position.z]}
-          rotation={node.rotation}
-          renderOrder={1}
-          visible={hover}
-        >
-          <shaderMaterial
-            depthWrite={false}
-            depthTest={false}
-            fragmentShader={`
-              varying vec2 vUv;
-              varying vec4 vPos;
-              uniform vec2 resolution;
-              
-              void main() {
-                // add border
-                float borderThickness = 1.3;
-                
-                vec2 dwdx = dFdx(vUv);
-                vec2 dwdy = dFdy(vUv);
-                float pixelWidth = sqrt(dwdx.x * dwdx.x + dwdy.x * dwdy.x);
-                float pixelHeight = sqrt(dwdx.y * dwdx.y + dwdy.y * dwdy.y);
-                
-                vec2 uvBorderSize = vec2(
-                  borderThickness * pixelWidth,
-                  borderThickness * pixelHeight
-                );
-                
-                vec2 distFromEdge = min(vUv, 1.0 - vUv);
-                
-                bool isBorder = 
-                  distFromEdge.x < uvBorderSize.x || 
-                  distFromEdge.y < uvBorderSize.y;
-                
-                // add diagonals
-                vec2 vCoords = vPos.xy;
-                vCoords /= vPos.w;
-                vCoords = vCoords * 0.5 + 0.5;
-
-                float aspectRatio = resolution.x / resolution.y;
-                vCoords.x *= aspectRatio;
-                
-                float lineSpacing = 0.006;
-                float lineWidth = 0.15;
-                float lineOpacity = 0.15;
-                
-                float diagonal = (vCoords.x - vCoords.y) / (lineSpacing * sqrt(2.0));
-                float pattern = abs(fract(diagonal) - 0.5) * 2.0;
-                float line = smoothstep(1.0 - lineWidth, 1.0, 1.0 - pattern);
-                
-                
-                if (isBorder) {
-                  gl_FragColor = vec4(1.0, 1.0, 1.0, 0.2); // White color for border
-                } else {
-                  gl_FragColor = vec4(vec3(1.0), line * lineOpacity); // Diagonal pattern inside
-                }
-              }
-            `}
-            vertexShader={`
-              varying vec2 vUv;
-              varying vec4 vPos;
-              
-              void main() {
-                vUv = uv;
-                vPos = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
-                gl_Position = vPos;
-              }
-            `}
-            transparent={true}
-            uniforms={{
-              resolution: { value: [window.innerWidth, window.innerHeight] }
-            }}
-          />
-        </mesh>
-      </group>
-    </>
+    <group
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      onClick={handleClick}
+    >
+      <mesh
+        ref={meshRef}
+        geometry={node.geometry}
+        position={[node.position.x, node.position.y, node.position.z]}
+        rotation={node.rotation}
+        renderOrder={1}
+        visible={hover}
+        material={routingMaterial}
+      />
+    </group>
   )
 }
+
+export const RoutingElement = memo(RoutingElementComponent)
