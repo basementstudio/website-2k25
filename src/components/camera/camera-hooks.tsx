@@ -12,6 +12,7 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 const ANIMATION_DURATION = 1
 
@@ -125,6 +126,10 @@ export const useCameraMovement = (
   boundaries: ReturnType<typeof useBoundaries>,
   isInitialized: boolean
 ) => {
+  const disableCameraTransition =
+    useNavigationStore.getState().disableCameraTransition
+  const setDisableCameraTransition =
+    useNavigationStore.getState().setDisableCameraTransition
   const divisor = useResponsiveDivisor()
   const offsetMultiplier = useMemo(() => {
     return cameraConfig?.offsetMultiplier ?? 2
@@ -151,6 +156,7 @@ export const useCameraMovement = (
   const progress = useRef(1)
   const isTransitioning = useRef(false)
   const prevCameraConfig = useRef(cameraConfig)
+  const firstRender = useRef(true)
 
   useEffect(() => {
     if (cameraConfig && prevCameraConfig.current !== cameraConfig) {
@@ -159,8 +165,19 @@ export const useCameraMovement = (
         initialCurrentTarget.copy(currentTarget)
         initialFov.current = currentFov.current
         targetFov.current = cameraConfig.fov
-        progress.current = 0
-        isTransitioning.current = true
+
+        if (!disableCameraTransition) {
+          progress.current = 0
+          isTransitioning.current = true
+        } else {
+          progress.current = 1
+          isTransitioning.current = false
+
+          setTimeout(
+            () => setDisableCameraTransition(false),
+            ANIMATION_DURATION * 1000
+          )
+        }
       }
       prevCameraConfig.current = cameraConfig
     }
@@ -170,7 +187,9 @@ export const useCameraMovement = (
     currentPos,
     currentTarget,
     initialCurrentPos,
-    initialCurrentTarget
+    initialCurrentTarget,
+    disableCameraTransition,
+    setDisableCameraTransition
   ])
 
   useFrame(({ pointer }, dt) => {
@@ -181,12 +200,10 @@ export const useCameraMovement = (
 
     if (!plane || !boundary || !basePosition || !np || !cameraConfig) return
 
-    // boundaries
     b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
     b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
     b.offset = pointer.x * b.maxOffset * offsetMultiplier
 
-    // plane positions
     b.pos.x = b.rightVector.x * b.offset
     b.pos.z = b.rightVector.z * b.offset
     b.targetPosition.x = basePosition[0] + b.pos.x
@@ -194,19 +211,39 @@ export const useCameraMovement = (
     b.planePosition.x = plane.position.x
     b.planePosition.z = plane.position.z
 
-    // update plane position
     plane.position.setX(np.x)
     plane.position.setZ(np.z)
 
-    // camera movement
     const newDelta = new THREE.Vector3(b.pos.x, 0, b.pos.z)
     const newLookAtDelta = new THREE.Vector3(b.pos.x / divisor, 0, b.pos.z)
 
     easing.damp3(panTargetDelta, newDelta, 0.5, dt)
     easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
 
-    // camera transition
-    if (isTransitioning.current && progress.current < 1) {
+    if (cameraConfig) {
+      targetPosition.set(...cameraConfig.position)
+      targetLookAt.set(...cameraConfig.target)
+      targetFov.current = cameraConfig.fov
+    }
+
+    if (!disableCameraTransition && lenis) {
+      targetPosition.y +=
+        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
+      targetLookAt.y +=
+        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
+    }
+
+    if (disableCameraTransition || firstRender.current) {
+      progress.current = 1
+      currentPos.copy(targetPosition)
+      currentTarget.copy(targetLookAt)
+      currentFov.current = targetFov.current
+      isTransitioning.current = false
+
+      if (firstRender.current) {
+        firstRender.current = false
+      }
+    } else if (isTransitioning.current && progress.current < 1) {
       progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
       const easeValue = easeInOutCubic(progress.current)
 
@@ -223,17 +260,8 @@ export const useCameraMovement = (
       currentPos.copy(targetPosition)
       currentTarget.copy(targetLookAt)
       currentFov.current = targetFov.current
-
-      // apply scroll-based position adjustment
-      if (lenis) {
-        currentPos.y +=
-          (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
-        currentTarget.y +=
-          (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
-      }
     }
 
-    // update camera
     if (cameraRef.current) {
       const finalPos = currentPos.clone().add(panTargetDelta)
       const finalLookAt = currentTarget.clone().add(panLookAtDelta)
