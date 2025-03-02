@@ -62,7 +62,7 @@ export const createGlobalShaderMaterial = (
     emissiveMap: { value: emissiveMap },
 
     uGodrayOpacity: { value: 0 },
-    uGodrayDensity: { value: 0 },
+    uGodrayDensity: { value: 1.0 },
     inspectingEnabled: { value: false },
     inspectingFactor: { value: 0 },
     fadeFactor: { value: 0 },
