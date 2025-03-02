@@ -187,7 +187,7 @@ const MobileContent = ({
           <Grid />
           <InternalLinks
             links={links}
-            handleChangeLink={handleChangeLink}
+            onClick={handleChangeLink}
             className="col-span-4"
           />
 
