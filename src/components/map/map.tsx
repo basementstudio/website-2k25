@@ -400,6 +400,14 @@ export const Map = memo(() => {
               }
             )
 
+        if (isGlass) {
+          Array.isArray(newMaterials)
+            ? newMaterials.forEach((material) => {
+                material.depthWrite = false
+              })
+            : (newMaterials.depthWrite = false)
+        }
+
         meshChild.material = newMaterials
 
         meshChild.userData.hasGlobalMaterial = true
@@ -443,6 +451,12 @@ export const Map = memo(() => {
                 GODRAY: true
               }
             )
+
+        Array.isArray(newMaterials)
+          ? newMaterials.forEach((material) => {
+              material.depthWrite = false
+            })
+          : (newMaterials.depthWrite = false)
 
         meshChild.material = newMaterials
         meshChild.userData.hasGlobalMaterial = true
