@@ -196,50 +196,42 @@ export const RoutingElement = ({
               uniform vec2 resolution;
               
               void main() {
-                // Define a fixed border thickness in pixels
-                float borderThickness = 1.5;
+                // add border
+                float borderThickness = 1.3;
                 
-                // Calculate the distance from each edge in screen space
-                // First, calculate derivatives to get pixel-sized measurements
                 vec2 dwdx = dFdx(vUv);
                 vec2 dwdy = dFdy(vUv);
                 float pixelWidth = sqrt(dwdx.x * dwdx.x + dwdy.x * dwdy.x);
                 float pixelHeight = sqrt(dwdx.y * dwdx.y + dwdy.y * dwdy.y);
                 
-                // Convert border thickness to UV space based on pixel size
                 vec2 uvBorderSize = vec2(
                   borderThickness * pixelWidth,
                   borderThickness * pixelHeight
                 );
                 
-                // Calculate distance from each edge in normalized space
                 vec2 distFromEdge = min(vUv, 1.0 - vUv);
                 
-                // Check if we're within the border
                 bool isBorder = 
                   distFromEdge.x < uvBorderSize.x || 
                   distFromEdge.y < uvBorderSize.y;
                 
-                // Calculate diagonal pattern based on screen position
+                // add diagonals
                 vec2 vCoords = vPos.xy;
                 vCoords /= vPos.w;
                 vCoords = vCoords * 0.5 + 0.5;
-                
-                // Apply aspect ratio correction
+
                 float aspectRatio = resolution.x / resolution.y;
                 vCoords.x *= aspectRatio;
                 
-                // Diagonal pattern parameters
-                float lineSpacing = 0.01;
+                float lineSpacing = 0.006;
                 float lineWidth = 0.15;
                 float lineOpacity = 0.15;
                 
-                // Calculate diagonal pattern
-                float diagonal = (vCoords.x - vCoords.y) / lineSpacing;
+                float diagonal = (vCoords.x - vCoords.y) / (lineSpacing * sqrt(2.0));
                 float pattern = abs(fract(diagonal) - 0.5) * 2.0;
                 float line = smoothstep(1.0 - lineWidth, 1.0, 1.0 - pattern);
                 
-                // Final color: combine border and diagonals
+                
                 if (isBorder) {
                   gl_FragColor = vec4(1.0, 1.0, 1.0, 0.2); // White color for border
                 } else {
