@@ -281,7 +281,10 @@ export const Map = memo(() => {
       })
     }
 
-    const traverse = (child: Object3D) => {
+    const traverse = (
+      child: Object3D,
+      overrides?: { FOG?: boolean; GODRAY?: boolean }
+    ) => {
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
       }
@@ -379,8 +382,9 @@ export const Map = memo(() => {
                 false,
                 {
                   GLASS: isGlass,
-                  GODRAY: false,
-                  LIGHT: isPlant
+                  LIGHT: isPlant,
+                  GODRAY: overrides?.GODRAY,
+                  FOG: overrides?.FOG
                 }
               )
             )
@@ -389,8 +393,9 @@ export const Map = memo(() => {
               false,
               {
                 GLASS: isGlass,
-                GODRAY: false,
-                LIGHT: isPlant
+                LIGHT: isPlant,
+                GODRAY: overrides?.GODRAY,
+                FOG: overrides?.FOG
               }
             )
 
@@ -410,52 +415,14 @@ export const Map = memo(() => {
 
     officeModel.traverse((child) => traverse(child))
 
-    routingElementsModel.traverse((child) => traverse(child))
+    routingElementsModel.traverse((child) => traverse(child, { FOG: false }))
 
-    outdoorModel.traverse((child) => traverse(child))
+    outdoorModel.traverse((child) => traverse(child, { FOG: false }))
+
+    godrayModel.traverse((child) => traverse(child, { GODRAY: true }))
 
     godrayModel.traverse((child) => {
-      if ("isMesh" in child) {
-        const meshChild = child as Mesh
-        const alreadyReplaced = meshChild.userData.hasGlobalMaterial
-        if (alreadyReplaced) return
-
-        const currentMaterial = meshChild.material as MeshStandardMaterial
-
-        if (currentMaterial.map) {
-          currentMaterial.map.generateMipmaps = false
-          currentMaterial.map.magFilter = THREE.NearestFilter
-          currentMaterial.map.minFilter = THREE.NearestFilter
-        }
-
-        const newMaterials = Array.isArray(currentMaterial)
-          ? currentMaterial.map((material) =>
-              createGlobalShaderMaterial(
-                material as MeshStandardMaterial,
-                false,
-                {
-                  GODRAY: true
-                }
-              )
-            )
-          : createGlobalShaderMaterial(
-              currentMaterial as MeshStandardMaterial,
-              false,
-              {
-                GODRAY: true
-              }
-            )
-
-        Array.isArray(newMaterials)
-          ? newMaterials.forEach((material) => {
-              material.depthWrite = false
-            })
-          : (newMaterials.depthWrite = false)
-
-        meshChild.material = newMaterials
-        meshChild.userData.hasGlobalMaterial = true
-        setGodrays((prev) => [...prev, meshChild])
-      }
+      if (child instanceof Mesh) setGodrays((prev) => [...prev, child])
     })
 
     setOfficeScene(officeModel)

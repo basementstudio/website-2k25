@@ -3,8 +3,7 @@ import { MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
-// TODO: this config is wrong for the fog transition
-import { ANIMATION_CONFIG } from "@/constants/inspectables"
+import { TRANSITION_DURATION } from "@/constants/transitions"
 
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
@@ -18,6 +17,7 @@ export const createGlobalShaderMaterial = (
     GLASS?: boolean
     GODRAY?: boolean
     LIGHT?: boolean
+    FOG?: boolean
   }
 ) => {
   const {
@@ -85,9 +85,10 @@ export const createGlobalShaderMaterial = (
       USE_EMISSIVE:
         baseMaterial.emissiveIntensity !== 0 && emissiveMap === null,
       USE_EMISSIVEMAP: emissiveMap !== null,
-      GLASS: defines?.GLASS,
-      GODRAY: defines?.GODRAY,
-      LIGHT: Boolean(defines?.LIGHT)
+      GLASS: defines?.GLASS !== undefined ? Boolean(defines?.GLASS) : false,
+      GODRAY: defines?.GODRAY !== undefined ? Boolean(defines?.GODRAY) : false,
+      LIGHT: defines?.LIGHT !== undefined ? Boolean(defines?.LIGHT) : false,
+      FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true
     },
     uniforms,
     transparent:
@@ -146,7 +147,9 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
       Object.values(materials).forEach((material) => {
         const startFogColor = material.uniforms.fogColor.value as Vector3
 
-        const config = !instant ? ANIMATION_CONFIG : { duration: 0 }
+        const config = !instant
+          ? { duration: TRANSITION_DURATION / 1000 }
+          : { duration: 0 }
 
         const axes: Array<"x" | "y" | "z"> = ["x", "y", "z"]
         axes.forEach((axis) => {

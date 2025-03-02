@@ -55,9 +55,11 @@ uniform float emissiveIntensity;
 #endif
 
 // Fog
+#ifdef FOG
 uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float fogDepth;
+#endif
 
 // Glass
 #ifdef GLASS
@@ -232,12 +234,14 @@ void main() {
   #endif
 
   // Fog
+  #ifdef FOG
   float fogDepthValue = min(vMvPosition.z + fogDepth, 0.0);
   float fogFactor =
     1.0 - exp(-fogDensity * fogDensity * fogDepthValue * fogDepthValue);
 
   fogFactor = clamp(fogFactor, 0.0, 1.0);
   gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
+  #endif
 
   if (inspectingEnabled && !(inspectingFactor > 0.0)) {
     gl_FragColor.rgb *= 1.0 - fadeFactor;
