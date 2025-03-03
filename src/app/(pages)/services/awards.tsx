@@ -66,12 +66,13 @@ export const Awards = ({ data }: { data: QueryType }) => {
 
   const handleRevealLeave = useCallback(() => {
     setIsRevealing(false)
+    setHoveredItemId(null)
   }, [])
 
   // cell animation
   const cellVariants: Variants = {
     hidden: {
-      scale: 0.9,
+      scale: 0.95,
       opacity: 0
     },
     visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
@@ -90,7 +91,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
     },
     exit: ({ manhattanDistance }: { manhattanDistance: number }) => {
       const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
-
       const normalizedDistance = manhattanDistance / maxDistance
 
       return {
@@ -214,7 +214,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
               duration: 0.8,
               ease: easeInOutCubic
             }}
-            className="pointer-events-none fixed right-4 z-50 grid h-[307.73px] w-[232px] grid-cols-1 overflow-hidden"
+            className="pointer-events-none fixed right-4 z-50 flex h-[307.73px] w-[232px] overflow-hidden"
           >
             {/* SVG Mask for grid reveal */}
             <svg
@@ -227,8 +227,9 @@ export const Awards = ({ data }: { data: QueryType }) => {
               <defs>
                 <clipPath id="grid-mask">
                   <AnimatePresence mode="wait" initial={false}>
-                    {isRevealing
-                      ? gridCells.map((cell) => (
+                    {isRevealing ? (
+                      <>
+                        {gridCells.map((cell) => (
                           <motion.rect
                             key={cell.index}
                             custom={{
@@ -238,13 +239,29 @@ export const Awards = ({ data }: { data: QueryType }) => {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            x={cell.col * (certificateWidth / GRID_COLS)}
-                            y={cell.row * (certificateHeight / GRID_ROWS)}
-                            width={certificateWidth / GRID_COLS}
-                            height={certificateHeight / GRID_ROWS}
+                            x={cell.col * (certificateWidth / GRID_COLS) - 0.5}
+                            y={cell.row * (certificateHeight / GRID_ROWS) - 0.5}
+                            width={certificateWidth / GRID_COLS + 1}
+                            height={certificateHeight / GRID_ROWS + 1}
                           />
-                        ))
-                      : null}
+                        ))}
+                        <motion.rect
+                          key="full-mask"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{
+                            opacity: 0,
+                            transition: { duration: 0.1, delay: 0 }
+                          }}
+                          transition={{ delay: 0.8, duration: 0.2 }}
+                          x="-1"
+                          y="-1"
+                          width={certificateWidth + 2}
+                          height={certificateHeight + 2}
+                          fill="white"
+                        />
+                      </>
+                    ) : null}
                   </AnimatePresence>
                 </clipPath>
               </defs>
