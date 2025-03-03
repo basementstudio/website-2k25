@@ -1,13 +1,13 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three"
+import { Mesh, MeshStandardMaterial } from "three"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
+import { useCursor } from "@/hooks/use-mouse"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -34,7 +34,7 @@ export const Basketball = ({
   handlePointerUp
 }: BasketballProps) => {
   const { playSoundFX } = useSiteAudio()
-
+  const setCursor = useCursor()
   const { basketball } = useAssets()
   const basketballModel = useGLTF(basketball)
   const bounceCount = useRef(0)
@@ -83,13 +83,11 @@ export const Basketball = ({
     resetBallToInitialPosition()
   }
 
-  const setCursorType = useMouseStore((state) => state.setCursorType)
-
   useEffect(() => {
     if (isDragging) {
-      setCursorType("grabbing")
+      setCursor("grabbing")
     }
-  }, [isDragging, setCursorType])
+  }, [isDragging])
 
   return (
     <RigidBody
@@ -112,8 +110,8 @@ export const Basketball = ({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerEnter={() => !isDragging && setCursorType("grab")}
-        onPointerLeave={() => !isDragging && setCursorType("default")}
+        onPointerEnter={() => !isDragging && setCursor("grab")}
+        onPointerLeave={() => !isDragging && setCursor("default")}
         material-metalness={0}
         material-roughness={0.8}
       />
