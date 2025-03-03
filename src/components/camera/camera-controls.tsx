@@ -1,5 +1,5 @@
 import { PerspectiveCamera } from "@react-three/drei"
-import { useRef, useState, useEffect } from "react"
+import { useRef, useState } from "react"
 import * as THREE from "three"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
@@ -7,8 +7,7 @@ import { calculatePlanePosition } from "./camera-utils"
 import {
   useBoundaries,
   useCameraMovement,
-  useCameraSetup,
-  useCameraTransitionState
+  useCameraSetup
 } from "./camera-hooks"
 
 export const CustomCamera = () => {
@@ -17,11 +16,6 @@ export const CustomCamera = () => {
   const planeBoundaryRef = useRef<THREE.Mesh>(null)
   const cameraConfig = useNavigationStore.getState().currentScene?.cameraConfig
   const [isInitialized, setIsInitialized] = useState(false)
-  const isCameraTransitioning = useCameraTransitionState()
-
-  useEffect(() => {
-    console.log("Camera transition state:", isCameraTransitioning)
-  }, [isCameraTransitioning])
 
   const boundaries = useBoundaries(cameraConfig)
   const { currentPos, currentTarget, targetPosition, targetLookAt } =
