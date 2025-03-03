@@ -17,14 +17,13 @@ interface useCursorProps {
 
 type CursorType =
   | "default"
-  | "hover"
-  | "click"
   | "grab"
   | "grabbing"
   | "inspect"
-  | "zoom"
+  | "zoom-in"
   | "not-allowed"
   | "alias"
+  | "pointer"
 
 const OFFSET = 16
 const DEBOUNCE_WAIT = 5

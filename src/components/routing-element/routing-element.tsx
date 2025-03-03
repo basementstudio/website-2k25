@@ -89,7 +89,7 @@ const RoutingElementComponent = ({
           setHover(e.detail.hover)
           if (e.detail.hover) {
             router.prefetch(route)
-            setCursor("hover", hoverName)
+            setCursor("pointer", hoverName)
           } else {
             setCursor("default", null)
           }
@@ -129,7 +129,7 @@ const RoutingElementComponent = ({
       if (activeRoute) return
 
       setHover(true)
-      setCursor("hover", hoverName)
+      setCursor("pointer", hoverName)
       router.prefetch(route)
 
       groupHoverHandlers?.dispatchGroupHover(true)
@@ -176,7 +176,7 @@ const RoutingElementComponent = ({
     if (currentTab && currentTab.tabClickableName === node.name) {
       setHover(true)
       router.prefetch(route)
-      setCursor("hover", hoverName)
+      setCursor("pointer", hoverName)
 
       window.addEventListener("keydown", handleKeyPress)
       return () => {
@@ -226,7 +226,7 @@ const RoutingElementComponent = ({
         onClick={handleClick}
         position={[node.position.x, node.position.y, node.position.z]}
         rotation={node.rotation}
-        visible={true}
+        visible={hover}
       >
         <mesh
           ref={meshRef}
@@ -238,7 +238,7 @@ const RoutingElementComponent = ({
       <group
         position={[node.position.x, node.position.y, node.position.z]}
         rotation={node.rotation}
-        visible={true}
+        visible={hover}
       >
         <RoutingPlus geometry={node.geometry} />
       </group>
