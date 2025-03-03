@@ -221,7 +221,8 @@ export const sceneFragment = fragmentOn("Scenes", {
         bloomStrength: true,
         bloomRadius: true,
         bloomThreshold: true
-      }
+      },
+      carsVisible: true
     }
   }
 })
