@@ -1,4 +1,5 @@
 import { RichText } from "basehub/react-rich-text"
+import Image from "next/image"
 import { Tweet } from "react-tweet"
 
 import { cn } from "@/utils/cn"
@@ -23,6 +24,7 @@ import {
 } from "./blog-components"
 import BlogMeta from "./blog-meta"
 import Sandbox from "./components/sandbox"
+import CustomTweet from "./components/tweet"
 
 export default function Content({
   data,
@@ -109,12 +111,7 @@ export default function Content({
               SideNoteComponent: (props) => (
                 <SideNote>{props.content?.json.content}</SideNote>
               ),
-              TweetComponent: (props) => (
-                // TODO: replace avatar img with a custom component
-                <div className="dark mx-auto grid w-full max-w-[500px] place-items-center">
-                  <Tweet id={props.tweetId} />
-                </div>
-              )
+              TweetComponent: (props) => <CustomTweet id={props.tweetId} />
             }}
             blocks={post?.content?.json.blocks}
           />
