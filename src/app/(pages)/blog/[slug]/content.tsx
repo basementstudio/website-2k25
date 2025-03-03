@@ -1,4 +1,6 @@
 import { RichText } from "basehub/react-rich-text"
+import Image from "next/image"
+import { Tweet } from "react-tweet"
 
 import { cn } from "@/utils/cn"
 
@@ -22,6 +24,7 @@ import {
 } from "./blog-components"
 import BlogMeta from "./blog-meta"
 import Sandbox from "./components/sandbox"
+import CustomTweet from "./components/tweet"
 
 export default function Content({
   data,
@@ -41,21 +44,12 @@ export default function Content({
         <article
           className={cn(
             "col-span-full flex w-full flex-col items-start text-brand-w2 lg:max-w-[846px]",
-            // Default spacing between text elements
-            "[&>*]:mt-6 sm:[&>*]:mt-8 lg:[&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-4 lg:[&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-4 lg:[&>h3]:mb-6 [&>p+p]:!mt-[5px] lg:[&>p+p]:!mt-[7px]",
-            // Spacing for media elements (image, video, sandbox)
-            "[&>.image]:mb-[16px] [&>.image]:mt-[40px] sm:[&>.image]:mt-[60px] lg:[&>.image]:mb-[24px] lg:[&>.image]:mt-[88px]",
-            "[&>.video]:mb-[16px] [&>.video]:mt-[40px] sm:[&>.video]:mt-[60px] lg:[&>.video]:mb-[24px] lg:[&>.video]:mt-[88px]",
-            // spacing for consecutive elements of same type
-            "[&>.image+.image]:!mt-[16px] lg:[&>.image+.image]:!mt-[24px]",
-            "[&>.image+.video]:!mt-[16px] lg:[&>.image+.video]:!mt-[24px]",
-            "[&>.image+div>.sandbox]:!mt-[16px] lg:[&>.image+div>.sandbox]:!mt-[24px]",
-            "[&>.video+.video]:!mt-[16px] lg:[&>.video+.video]:!mt-[24px]",
-            "[&>.video+.image]:!mt-[16px] lg:[&>.video+.image]:!mt-[24px]",
-            "[&>.video+div>.sandbox]:!mt-[16px] lg:[&>.video+div>.sandbox]:!mt-[24px]",
-            "[&>div>.sandbox+.image]:!mt-[16px] lg:[&>div>.sandbox+.image]:!mt-[24px]",
-            "[&>div>.sandbox+.video]:!mt-[16px] lg:[&>div>.sandbox+.video]:!mt-[24px]",
-            "[&>div>.sandbox+div>.sandbox]:!mt-[16px] lg:[&>div>.sandbox+div>.sandbox]:!mt-[24px]"
+            // 24px between elements
+            "[&>*]:mt-6",
+            // 32px to headings
+            "[&>h2]:mt-12",
+            // 32 px to custom blocks
+            "[&>.custom-block]:mt-12"
           )}
         >
           <RichText
@@ -100,12 +94,12 @@ export default function Content({
                 </Pre>
               ),
               video: (props) => <BlogVideo {...props} />,
-              // TODO: add quote, sidenotes, codesandbox components
               CodeBlockComponent: ({ files: { items } }) => (
                 <CodeBlock items={items} />
               ),
               QuoteWithAuthorComponent: (props) => (
                 <QuoteWithAuthor
+                  avatar={props.avatar}
                   quote={props.quote?.json.content}
                   author={props.author}
                   role={props.role}
@@ -116,7 +110,8 @@ export default function Content({
               ),
               SideNoteComponent: (props) => (
                 <SideNote>{props.content?.json.content}</SideNote>
-              )
+              ),
+              TweetComponent: (props) => <CustomTweet id={props.tweetId} />
             }}
             blocks={post?.content?.json.blocks}
           />
