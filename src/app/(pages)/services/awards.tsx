@@ -24,8 +24,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [translateY, setTranslateY] = useState(0)
   const positionRef = useRef({ x: 0, y: 0 })
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
-  const certificateWidth = 232
-  const certificateHeight = 307.73
+
+  const certificateDimensions = { width: 232, height: 307.73 }
 
   const [isRevealing, setIsRevealing] = useState(false)
 
@@ -147,11 +147,14 @@ export const Awards = ({ data }: { data: QueryType }) => {
     const halfScreenWidth = windowSize.width / 2
     let boundedX = Math.max(mouseX, halfScreenWidth)
 
-    boundedX = Math.min(boundedX, windowSize.width - certificateWidth - 16)
+    boundedX = Math.min(
+      boundedX,
+      windowSize.width - certificateDimensions.width - 16
+    )
 
     const boundedY = Math.max(
       0,
-      Math.min(mouseY, windowSize.height - certificateHeight)
+      Math.min(mouseY, windowSize.height - certificateDimensions.height)
     )
 
     positionRef.current = { x: boundedX, y: boundedY }
@@ -159,8 +162,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
     debouncedMousePosition,
     debouncedHoveredItemId,
     windowSize,
-    certificateWidth,
-    certificateHeight
+    certificateDimensions.width,
+    certificateDimensions.height
   ])
 
   return (
@@ -196,6 +199,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
                   {formatDate(award.date, false, "UTC")}
                 </span>
               </Link>
+              <div className="with-diagonal-lines pointer-events-none !absolute -top-px bottom-0 left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             </li>
           ))}
         </ul>
@@ -204,8 +208,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
           <motion.div
             animate={{
               top: positionRef.current.y,
-              left: positionRef.current.x + 16,
-              opacity: hoveredItemId ? 1 : 1
+              // left: positionRef.current.x + 16,
+              opacity: 1
             }}
             initial={{
               opacity: 0
@@ -239,10 +243,20 @@ export const Awards = ({ data }: { data: QueryType }) => {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            x={cell.col * (certificateWidth / GRID_COLS) - 0.5}
-                            y={cell.row * (certificateHeight / GRID_ROWS) - 0.5}
-                            width={certificateWidth / GRID_COLS + 1}
-                            height={certificateHeight / GRID_ROWS + 1}
+                            x={
+                              cell.col *
+                                (certificateDimensions.width / GRID_COLS) -
+                              0.5
+                            }
+                            y={
+                              cell.row *
+                                (certificateDimensions.height / GRID_ROWS) -
+                              0.5
+                            }
+                            width={certificateDimensions.width / GRID_COLS + 1}
+                            height={
+                              certificateDimensions.height / GRID_ROWS + 1
+                            }
                           />
                         ))}
                         <motion.rect
@@ -256,8 +270,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
                           transition={{ delay: 0.8, duration: 0.2 }}
                           x="-1"
                           y="-1"
-                          width={certificateWidth + 2}
-                          height={certificateHeight + 2}
+                          width={certificateDimensions.width + 2}
+                          height={certificateDimensions.height + 2}
                           fill="white"
                         />
                       </>
@@ -279,7 +293,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
                   y: translateY
                 }}
                 transition={{
-                  duration: 0.8,
+                  duration: 0.4,
                   ease: easeInOutCubic
                 }}
               >
