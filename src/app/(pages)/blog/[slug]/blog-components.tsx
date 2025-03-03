@@ -128,7 +128,7 @@ export const CodeBlock = ({
   }[]
 }) => {
   return (
-    <div className="sandbox group flex w-full flex-col gap-y-2">
+    <div className="custom-block sandbox group flex w-full flex-col gap-y-2">
       <BaseCodeBlock
         childrenTop={<CodeGroupHeader items={items} />}
         snippets={items.map((file) => ({
@@ -151,7 +151,7 @@ export const QuoteWithAuthor = ({
   role?: string | null
 }) => {
   return (
-    <div className="flex gap-x-4">
+    <div className="custom-block flex gap-x-4">
       <div className="h-full w-0.5 bg-brand-o" />
 
       <div className="flex w-full flex-col gap-y-2.5">
@@ -173,7 +173,7 @@ export const SideNote = ({
 }: {
   children: RichTextProps["content"]
 }) => (
-  <div className="flex w-full flex-col gap-2 rounded-[0.25rem] border border-brand-g2 bg-codeblock-k2 px-6 py-4">
+  <div className="custom-block flex w-full flex-col gap-2 rounded-[0.25rem] border border-brand-g2 bg-codeblock-k2 px-6 py-4">
     <p className="text-blog text-brand-w1">Note</p>
 
     <div className="[&>*]:text-brand-g1">

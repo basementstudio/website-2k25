@@ -45,7 +45,9 @@ export default function Content({
             // 24px between elements
             "[&>*]:mt-6",
             // 32px to headings
-            "[&>h2]:mt-12"
+            "[&>h2]:mt-12",
+            // 32 px to custom blocks
+            "[&>.custom-block]:mt-12"
           )}
         >
           <RichText
