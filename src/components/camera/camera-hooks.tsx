@@ -19,6 +19,13 @@ const ANIMATION_DURATION = 1
 export type CameraRef = React.RefObject<THREE.PerspectiveCamera | null>
 export type MeshRef = React.RefObject<THREE.Mesh | null>
 
+export const useCameraTransitionState = () => {
+  const isCameraTransitioning = useNavigationStore(
+    (state) => state.isCameraTransitioning
+  )
+  return isCameraTransitioning
+}
+
 export const useResponsiveDivisor = () => {
   return useMemo(() => {
     const width = window.innerWidth
@@ -130,6 +137,9 @@ export const useCameraMovement = (
     useNavigationStore.getState().disableCameraTransition
   const setDisableCameraTransition =
     useNavigationStore.getState().setDisableCameraTransition
+  const setIsCameraTransitioning =
+    useNavigationStore.getState().setIsCameraTransitioning
+
   const divisor = useResponsiveDivisor()
   const offsetMultiplier = useMemo(() => {
     return cameraConfig?.offsetMultiplier ?? 2
@@ -169,9 +179,11 @@ export const useCameraMovement = (
         if (!disableCameraTransition) {
           progress.current = 0
           isTransitioning.current = true
+          setIsCameraTransitioning(true)
         } else {
           progress.current = 1
           isTransitioning.current = false
+          setIsCameraTransitioning(false)
 
           setTimeout(
             () => setDisableCameraTransition(false),
@@ -189,7 +201,8 @@ export const useCameraMovement = (
     initialCurrentPos,
     initialCurrentTarget,
     disableCameraTransition,
-    setDisableCameraTransition
+    setDisableCameraTransition,
+    setIsCameraTransitioning
   ])
 
   useFrame(({ pointer }, dt) => {
@@ -239,6 +252,7 @@ export const useCameraMovement = (
       currentTarget.copy(targetLookAt)
       currentFov.current = targetFov.current
       isTransitioning.current = false
+      setIsCameraTransitioning(false)
 
       if (firstRender.current) {
         firstRender.current = false
@@ -255,6 +269,7 @@ export const useCameraMovement = (
 
       if (progress.current === 1) {
         isTransitioning.current = false
+        setIsCameraTransitioning(false)
       }
     } else {
       currentPos.copy(targetPosition)
