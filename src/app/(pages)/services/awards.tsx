@@ -21,6 +21,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null)
   const [translateY, setTranslateY] = useState(0)
   const positionRef = useRef({ x: 0, y: 0 })
+  const opacityRef = useRef(0)
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
   const certificateWidth = 232
   const certificateHeight = 307.73
@@ -41,6 +42,10 @@ export const Awards = ({ data }: { data: QueryType }) => {
 
   const handleMouseLeave = useCallback(() => {
     setHoveredItemId(null)
+  }, [])
+
+  const handleFadeInOut = useCallback(() => {
+    opacityRef.current = opacityRef.current === 0 ? 1 : 0
   }, [])
 
   useEffect(() => {
@@ -108,7 +113,11 @@ export const Awards = ({ data }: { data: QueryType }) => {
         <p>x{data.company.awards.awardList.items.length}</p>
       </div>
       <div className="relative col-span-full">
-        <ul className="text-paragraph col-span-full text-brand-w1">
+        <ul
+          onMouseEnter={handleFadeInOut}
+          onMouseLeave={handleFadeInOut}
+          className="text-paragraph col-span-full text-brand-w1"
+        >
           {sortedAwards.map((award) => (
             <li
               key={award._id}
@@ -123,7 +132,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
                 <span className="col-span-6 text-mobile-p lg:col-span-3 lg:text-h4">
                   {award.title}
                 </span>
-                <span className="col-start-7 col-end-10 text-mobile-p text-brand-w2 lg:col-span-2 lg:text-p">
+                <span className="col-start-7 col-end-10 text-mobile-p text-brand-w2 lg:col-span-3 lg:text-p">
                   {award.project?._title}
                 </span>
                 <span className="col-start-10 col-end-13 text-right text-mobile-p text-brand-w2 lg:col-span-2 lg:text-left lg:text-p">
@@ -138,10 +147,12 @@ export const Awards = ({ data }: { data: QueryType }) => {
           <motion.div
             animate={{
               top: positionRef.current.y,
-              left: positionRef.current.x + 16
+              left: positionRef.current.x + 16,
+              scale: opacityRef.current,
+              opacity: opacityRef.current
             }}
             transition={{
-              duration: 1.25,
+              duration: 0.8,
               ease: easeInOutCubic
             }}
             className="pointer-events-none fixed z-50 grid h-[307.73px] w-[232px] grid-cols-1 overflow-hidden"
