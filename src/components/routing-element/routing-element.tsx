@@ -88,7 +88,7 @@ const RoutingElementComponent = ({
           setHover(e.detail.hover)
           if (e.detail.hover) {
             router.prefetch(route)
-            setCursor("pointer", hoverName)
+            setCursor("hover", hoverName)
           } else {
             setCursor("default", null)
           }
@@ -128,7 +128,7 @@ const RoutingElementComponent = ({
       if (activeRoute) return
 
       setHover(true)
-      setCursor("pointer", hoverName)
+      setCursor("hover", hoverName)
       router.prefetch(route)
 
       groupHoverHandlers?.dispatchGroupHover(true)
@@ -175,7 +175,7 @@ const RoutingElementComponent = ({
     if (currentTab && currentTab.tabClickableName === node.name) {
       setHover(true)
       router.prefetch(route)
-      setCursor("pointer", hoverName)
+      setCursor("hover", hoverName)
 
       window.addEventListener("keydown", handleKeyPress)
       return () => {
