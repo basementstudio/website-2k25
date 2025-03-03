@@ -68,7 +68,7 @@ export const BlogDoor = () => {
           position={door.position}
           onPointerEnter={(e) => {
             e.stopPropagation()
-            setCursor("hover")
+            setCursor("pointer")
           }}
           onPointerLeave={(e) => {
             e.stopPropagation()
