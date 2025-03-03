@@ -26,7 +26,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [previousImageId, setPreviousImageId] = useState<number | null>(null)
   const positionRef = useRef({ x: 0, y: 0 })
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
-  const rafRef = useRef<number | null>(null)
 
   const certificateDimensions = { width: 232, height: 307.73 }
 
@@ -85,7 +84,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
         scale: 1,
         opacity: 1,
         transition: {
-          duration: 1.2,
+          duration: 1.4,
           delay: normalizedDistance * 0.3,
           ease: [0.16, 1, 0.3, 1],
           type: "keyframes"
@@ -101,7 +100,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
         opacity: 0,
         willChange: "transform, opacity",
         transition: {
-          duration: 1.2,
+          duration: 1.4,
           delay: (1 - normalizedDistance) * 0.3,
           ease: [0.16, 1, 0.3, 1],
           type: "keyframes"
@@ -125,7 +124,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
   }, [])
 
   useEffect(() => {
-    if (debouncedHoveredItemId === null) {
+    if (hoveredItemId === null) {
       return
     }
 
@@ -133,13 +132,13 @@ export const Awards = ({ data }: { data: QueryType }) => {
       (award) => award.certificate
     )
     const hoveredIndex = awardsWithCertificates.findIndex(
-      (award) => award.numericId === debouncedHoveredItemId
+      (award) => award.numericId === hoveredItemId
     )
 
     if (hoveredIndex !== -1) {
-      if (debouncedHoveredItemId !== currentImageId) {
+      if (hoveredItemId !== currentImageId) {
         setPreviousImageId(currentImageId)
-        setCurrentImageId(debouncedHoveredItemId)
+        setCurrentImageId(hoveredItemId)
       }
 
       const newTranslateY = -hoveredIndex * IMAGE_HEIGHT
@@ -147,10 +146,10 @@ export const Awards = ({ data }: { data: QueryType }) => {
         setTranslateY(newTranslateY)
       }
     }
-  }, [debouncedHoveredItemId, sortedAwards, translateY, currentImageId])
+  }, [hoveredItemId, sortedAwards, translateY, currentImageId])
 
   useEffect(() => {
-    if (hoveredItemId === null) {
+    if (!isRevealing) {
       return
     }
 
@@ -170,28 +169,14 @@ export const Awards = ({ data }: { data: QueryType }) => {
       Math.min(mouseY, windowSize.height - certificateDimensions.height)
     )
 
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current)
-    }
-
-    rafRef.current = requestAnimationFrame(() => {
-      positionRef.current = { x: boundedX, y: boundedY }
-    })
+    positionRef.current = { x: boundedX, y: boundedY }
   }, [
     mousePosition,
-    hoveredItemId,
     windowSize,
     certificateDimensions.width,
-    certificateDimensions.height
+    certificateDimensions.height,
+    isRevealing
   ])
-
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current)
-      }
-    }
-  }, [])
 
   return (
     <div className="grid-layout">
@@ -234,12 +219,12 @@ export const Awards = ({ data }: { data: QueryType }) => {
         {isDesktop && (
           <motion.div
             animate={{
-              top: positionRef.current.y,
-              left: positionRef.current.x + 16,
-              opacity: 1
+              x: positionRef.current.x,
+              y: positionRef.current.y
             }}
             initial={{
-              opacity: 0
+              x: positionRef.current.x,
+              y: positionRef.current.y
             }}
             transition={{
               duration: 0.6,
@@ -250,9 +235,11 @@ export const Awards = ({ data }: { data: QueryType }) => {
             }}
             style={{
               willChange: "transform",
-              transform: "translateZ(0)"
+              position: "fixed",
+              top: 4,
+              left: 4
             }}
-            className="pointer-events-none fixed right-4 z-50 flex h-[307.73px] w-[232px] overflow-hidden"
+            className="pointer-events-none z-50 flex h-[307.73px] w-[232px] overflow-hidden"
           >
             {/* SVG Mask for grid reveal */}
             <svg
