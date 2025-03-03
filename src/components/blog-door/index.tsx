@@ -3,19 +3,20 @@ import { useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { DOOR_ANIMATION_CLOSE, DOOR_ANIMATION_OPEN } from "./constants"
+import { useCursor } from "@/hooks/use-mouse"
 
 export const BlogDoor = () => {
   const { blog } = useMesh()
   const { door } = blog
 
   const scene = useCurrentScene()
-  const { setCursorType } = useMouseStore()
+  const setCursor = useCursor()
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
 
@@ -67,17 +68,17 @@ export const BlogDoor = () => {
           position={door.position}
           onPointerEnter={(e) => {
             e.stopPropagation()
-            setCursorType("click")
+            setCursor("pointer")
           }}
           onPointerLeave={(e) => {
             e.stopPropagation()
-            setCursorType("default")
+            setCursor("default")
           }}
           onClick={(e) => {
             e.stopPropagation()
             if (doorHoverRef.current) {
               handleClick()
-              setCursorType("default")
+              setCursor("default")
             }
           }}
         >

@@ -2,6 +2,8 @@ import { LinkedInIcon, XIcon } from "@/components/icons/icons"
 import { Link } from "@/components/primitives/link"
 import { formatDate } from "@/utils/format-date"
 
+import { Back } from "./back"
+
 const socialLinks = [
   {
     Icon: LinkedInIcon,
@@ -71,7 +73,7 @@ export default function BlogMeta({
               {data.categories?.map((category) => (
                 <p
                   key={category._title}
-                  className="h-max w-max bg-brand-g2 px-1 text-mobile-p text-brand-w2 lg:text-p"
+                  className="text-mobile-p h-max w-max bg-brand-g2 px-1 text-brand-w2 lg:text-p"
                 >
                   {category._title}
                 </p>

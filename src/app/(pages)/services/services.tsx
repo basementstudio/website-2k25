@@ -20,7 +20,7 @@ export const Services = ({ data }: { data: QueryType }) => {
             {category._title}
           </h3>
           <hr className="col-span-7 -mt-px border-brand-w1/30 lg:-mt-px" />
-          <div className="col-span-5 text-mobile-h2 text-brand-w2 lg:text-h2">
+          <div className="col-span-5 text-mobile-h2 text-brand-w2 lg:pr-4 lg:text-h2">
             <RichText>{category.description?.json.content}</RichText>
           </div>
         </article>

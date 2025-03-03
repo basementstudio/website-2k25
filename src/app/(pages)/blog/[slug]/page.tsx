@@ -9,6 +9,8 @@ import BlogTitle from "./title"
 
 type Params = Promise<{ slug: string }>
 
+export const dynamic = "force-static"
+
 const Blog = async (props: { params: Params }) => {
   const resolvedParams = await props.params
 

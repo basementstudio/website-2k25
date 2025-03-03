@@ -8,11 +8,12 @@ import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useInspectable } from "@/components/inspectables/context"
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
+import { useCursor } from "@/hooks/use-mouse"
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
@@ -21,9 +22,8 @@ const colorWhenOff = new THREE.Color("#595959")
 const colorWhenInspecting = new THREE.Color("#000000")
 
 export const Lamp = () => {
-  const setCursorType = useMouseStore((state) => state.setCursorType)
   const { selected } = useInspectable()
-
+  const setCursor = useCursor()
   const band = useRef<any>(null)
 
   const lampHandle = useRef<any>(null)
@@ -179,10 +179,10 @@ export const Lamp = () => {
       } else if (shouldToggle) {
         if (maxTension > 0.08 && dragged) {
           drag(false)
-          setCursorType("default")
+          setCursor("default")
         } else if (maxTension < 0.045) {
           setShouldToggle(false)
-          if (dragged === null) setCursorType("default")
+          if (dragged === null) setCursor("default")
         }
       }
     }
@@ -267,18 +267,18 @@ export const Lamp = () => {
             onPointerUp={(e) => {
               // @ts-ignore
               e?.target?.releasePointerCapture?.(e.pointerId)
-              setCursorType(dragged ? "grab" : "default")
+              setCursor(dragged ? "grab" : "default")
               drag(false)
             }}
             onPointerDown={(e) => {
               // @ts-ignore
               e?.target?.setPointerCapture?.(e.pointerId)
-              setCursorType("grabbing")
+              setCursor("grabbing")
 
               drag(true)
             }}
-            onPointerEnter={() => setCursorType("grab")}
-            onPointerLeave={() => setCursorType("default")}
+            onPointerEnter={() => setCursor("grab")}
+            onPointerLeave={() => setCursor("default")}
           >
             <sphereGeometry args={[0.02, 8, 8]} />
             <meshBasicMaterial opacity={0} transparent depthWrite={false} />
