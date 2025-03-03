@@ -13,6 +13,7 @@ import {
   easeInOutCubic
 } from "./camera-utils"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
+import { useInspectable } from "../inspectables/context"
 
 const ANIMATION_DURATION = 1
 
@@ -139,6 +140,7 @@ export const useCameraMovement = (
     useNavigationStore.getState().setDisableCameraTransition
   const setIsCameraTransitioning =
     useNavigationStore.getState().setIsCameraTransitioning
+  const { selected } = useInspectable()
 
   const divisor = useResponsiveDivisor()
   const offsetMultiplier = useMemo(() => {
@@ -162,6 +164,9 @@ export const useCameraMovement = (
 
   const initialY = cameraConfig?.position?.[1] ?? 0
   const targetY = cameraConfig?.targetScrollY ?? -initialY
+
+  const newDelta = useMemo(() => new THREE.Vector3(), [])
+  const newLookAtDelta = useMemo(() => new THREE.Vector3(), [])
 
   const progress = useRef(1)
   const isTransitioning = useRef(false)
@@ -227,11 +232,16 @@ export const useCameraMovement = (
     plane.position.setX(np.x)
     plane.position.setZ(np.z)
 
-    const newDelta = new THREE.Vector3(b.pos.x, 0, b.pos.z)
-    const newLookAtDelta = new THREE.Vector3(b.pos.x / divisor, 0, b.pos.z)
+    if (!selected) {
+      newDelta.set(b.pos.x, 0, b.pos.z)
+      newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
 
-    easing.damp3(panTargetDelta, newDelta, 0.5, dt)
-    easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
+      easing.damp3(panTargetDelta, newDelta, 0.5, dt)
+      easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
+    } else {
+      easing.damp3(panTargetDelta, 0, 0.5, dt)
+      easing.damp3(panLookAtDelta, 0, 0.25, dt)
+    }
 
     if (cameraConfig) {
       targetPosition.set(...cameraConfig.position)
