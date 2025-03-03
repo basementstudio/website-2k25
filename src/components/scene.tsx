@@ -1,18 +1,14 @@
 "use client"
 
-import { Environment } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { Perf } from "r3f-perf"
-import { Suspense, useEffect, useRef } from "react"
+import { Suspense, useEffect } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map/map"
-import {
-  MouseTracker,
-  useMouseStore
-} from "@/components/mouse-tracker/mouse-tracker"
+
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
@@ -46,22 +42,9 @@ import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
-
-const cursorTypeMap = {
-  default: "default",
-  hover: "pointer",
-  click: "pointer",
-  grab: "grab",
-  grabbing: "grabbing",
-  inspect: "help",
-  zoom: "zoom-in",
-  "not-allowed": "not-allowed",
-  alias: "alias"
-} as const
+import { useCursor } from "@/hooks/use-mouse"
 
 export const Scene = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null!)
-  const cursorType = useMouseStore((state) => state.cursorType)
   const {
     isCanvasTabMode,
     setIsCanvasTabMode,
@@ -76,10 +59,6 @@ export const Scene = () => {
       clearPlayedBalls()
     }
   }, [isBasketball, clearPlayedBalls])
-
-  useEffect(() => {
-    canvasRef.current.style.cursor = cursorTypeMap[cursorType]
-  }, [cursorType])
 
   useEffect(() => {
     setIsCanvasTabMode(isCanvasTabMode)
@@ -102,12 +81,10 @@ export const Scene = () => {
 
   return (
     <div className="absolute inset-0">
-      <MouseTracker canvasRef={canvasRef} />
       <Debug />
       <Canvas
         id="canvas"
         tabIndex={0}
-        ref={canvasRef}
         onFocus={handleFocus}
         onBlur={handleBlur}
         gl={{
@@ -117,7 +94,7 @@ export const Scene = () => {
           toneMapping: THREE.ACESFilmicToneMapping
         }}
         camera={{ fov: 60 }}
-        className="outline-none focus-visible:outline-none"
+        className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none"
       >
         <Renderer
           sceneChildren={
@@ -125,11 +102,8 @@ export const Scene = () => {
               <color attach="background" args={["#000"]} />
               <CameraController />
               <Inspectables />
-              <Environment preset="studio" />
               <Sparkles />
-
               <Map />
-
               <Suspense fallback={null}>
                 {isBasketball && (
                   <PhysicsWorld paused={!isBasketball}>
@@ -138,7 +112,6 @@ export const Scene = () => {
                   </PhysicsWorld>
                 )}
               </Suspense>
-
               <StaticBasketballs />
 
               <CharacterInstanceConfig />

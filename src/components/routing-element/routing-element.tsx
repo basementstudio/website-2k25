@@ -4,12 +4,12 @@ import { Mesh, ShaderMaterial } from "three"
 import { memo } from "react"
 
 import { useInspectable } from "@/components/inspectables/context"
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 import fragmentShader from "./frag.glsl"
 import vertexShader from "./vert.glsl"
+import { useCursor } from "@/hooks/use-mouse"
 
 interface RoutingElementProps {
   node: Mesh
@@ -44,8 +44,8 @@ const RoutingElementComponent = ({
 }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
-  const setHoverText = useMouseStore((state) => state.setHoverText)
-  const setCursorType = useMouseStore((state) => state.setCursorType)
+  const setCursor = useCursor("default")
+
   const {
     currentTabIndex,
     isCanvasTabMode,
@@ -88,16 +88,14 @@ const RoutingElementComponent = ({
           setHover(e.detail.hover)
           if (e.detail.hover) {
             router.prefetch(route)
-            setCursorType("click")
-            setHoverText(hoverName)
+            setCursor("pointer", hoverName)
           } else {
-            setHoverText(null)
-            setCursorType("default")
+            setCursor("default", null)
           }
         }
       }
     }
-  }, [groupName, hover, route, hoverName, router, setCursorType, setHoverText])
+  }, [groupName, hover, route, hoverName, router])
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -130,21 +128,12 @@ const RoutingElementComponent = ({
       if (activeRoute) return
 
       setHover(true)
+      setCursor("pointer", hoverName)
       router.prefetch(route)
-      setCursorType("click")
-      setHoverText(hoverName)
 
       groupHoverHandlers?.dispatchGroupHover(true)
     },
-    [
-      activeRoute,
-      groupHoverHandlers,
-      hoverName,
-      route,
-      router,
-      setCursorType,
-      setHoverText
-    ]
+    [activeRoute, groupHoverHandlers, hoverName, route, router]
   )
 
   const handlePointerLeave = useCallback(
@@ -153,12 +142,12 @@ const RoutingElementComponent = ({
       if (activeRoute) return
 
       setHover(false)
-      setHoverText(null)
-      setCursorType("default")
+
+      setCursor("default", null)
 
       groupHoverHandlers?.dispatchGroupHover(false)
     },
-    [activeRoute, groupHoverHandlers, setCursorType, setHoverText]
+    [activeRoute, groupHoverHandlers]
   )
 
   const handleClick = useCallback(
@@ -168,24 +157,17 @@ const RoutingElementComponent = ({
 
       setEnteredByKeyboard(false)
       navigate(route)
-      setCursorType("default")
+      setCursor("default")
       setCurrentTabIndex(-1)
     },
-    [
-      activeRoute,
-      navigate,
-      route,
-      setCursorType,
-      setCurrentTabIndex,
-      setEnteredByKeyboard
-    ]
+    [activeRoute, navigate, route, setCurrentTabIndex, setEnteredByKeyboard]
   )
 
   useEffect(() => {
     if (activeRoute) setHover(false)
     if (!isCanvasTabMode || !currentScene?.tabs) {
       setHover(false)
-      setHoverText(null)
+      setCursor("default", null)
       return
     }
 
@@ -193,16 +175,16 @@ const RoutingElementComponent = ({
     if (currentTab && currentTab.tabClickableName === node.name) {
       setHover(true)
       router.prefetch(route)
-      setHoverText(hoverName)
+      setCursor("pointer", hoverName)
 
       window.addEventListener("keydown", handleKeyPress)
       return () => {
         window.removeEventListener("keydown", handleKeyPress)
-        if (!isCanvasTabMode) setHoverText(null)
+        setCursor("default", null)
       }
     } else {
       setHover(false)
-      if (!isCanvasTabMode) setHoverText(null)
+      setCursor("default", null)
     }
   }, [
     activeRoute,
@@ -213,7 +195,7 @@ const RoutingElementComponent = ({
     hoverName,
     route,
     router,
-    setHoverText,
+
     handleKeyPress
   ])
 

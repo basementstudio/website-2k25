@@ -2,15 +2,14 @@ import { Container, Image, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
 import React, { useState, useCallback } from "react"
 
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useKeyPress } from "@/hooks/use-key-press"
 
 import { COLORS_THEME } from "../screen-ui"
 import { useArcadeStore } from "@/store/arcade-store"
 import { useAssets } from "@/components/assets-provider"
+import { useCursor } from "@/hooks/use-mouse"
 
 export const ArcadeFeatured = () => {
-  const setCursorType = useMouseStore((state) => state.setCursorType)
   const { arcade } = useAssets()
 
   const [hoveredSection, setHoveredSection] = useState({
@@ -21,7 +20,7 @@ export const ArcadeFeatured = () => {
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const experiments = useArcadeStore((state) => state.labTabs)
-
+  const setCursor = useCursor()
   const isChroniclesSelected =
     isInLabTab && labTabIndex === experiments.length - 2
   const isLooperSelected = isInLabTab && labTabIndex === experiments.length - 1
@@ -70,10 +69,10 @@ export const ArcadeFeatured = () => {
           onClick={handleChroniclesClick}
           onHoverChange={(hover) => {
             if (hover || isChroniclesSelected) {
-              setCursorType("alias")
+              setCursor("alias")
               setHoveredSection((prev) => ({ ...prev, chronicles: true }))
             } else {
-              setCursorType("default")
+              setCursor("default")
               setHoveredSection((prev) => ({ ...prev, chronicles: false }))
             }
           }}
@@ -126,10 +125,10 @@ export const ArcadeFeatured = () => {
           justifyContent="center"
           onHoverChange={(hover) => {
             if (hover || isLooperSelected) {
-              setCursorType("not-allowed")
+              setCursor("not-allowed")
               setHoveredSection((prev) => ({ ...prev, looper: true }))
             } else {
-              setCursorType("default")
+              setCursor("default")
               setHoveredSection((prev) => ({ ...prev, looper: false }))
             }
           }}
