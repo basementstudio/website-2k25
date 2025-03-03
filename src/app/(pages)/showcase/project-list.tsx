@@ -1,6 +1,10 @@
 "use client"
 
+import { useLenis } from "lenis/react"
+import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
+
+import { useWatchPathname } from "@/hooks/use-watch-pathname"
 
 import { useMedia } from "@/hooks/use-media"
 
@@ -20,9 +24,21 @@ export type CategoryItem = {
 }
 
 export const ProjectList = ({ data }: { data: QueryType }) => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const lenis = useLenis()
+  const { currentPathname, prevPathname } = useWatchPathname()
+
+  const searchParams = useSearchParams()
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    searchParams.get("category")
+      ? [decodeURIComponent(searchParams.get("category")!)]
+      : []
+  )
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
 
+  useEffect(() => {
+    if (currentPathname === "/showcase" && prevPathname.includes("/showcase"))
+      lenis?.scrollTo("#projects", { immediate: true })
+  }, [lenis, currentPathname, prevPathname])
   const isDesktop = useMedia("(min-width: 1024px)")
 
   // set view mode to grid on mobile

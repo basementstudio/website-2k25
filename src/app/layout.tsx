@@ -16,6 +16,7 @@ import { ContentWrapper } from "@/components/layout/content-wrapper"
 import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
+import { PathnameProvider } from "@/hooks/use-watch-pathname"
 import LenisScrollProvider from "@/providers/lenis-provider"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
@@ -53,13 +54,15 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             className={cn(geistSans.variable, geistMono.variable, "font-sans")}
           >
             <LenisScrollProvider>
-              <Navbar />
+              <PathnameProvider>
+                <Navbar />
 
-              <NavigationHandler />
+                <NavigationHandler />
 
-              <ContentWrapper>{children}</ContentWrapper>
-              <AppHooks />
-              <Contact />
+                <ContentWrapper>{children}</ContentWrapper>
+                <AppHooks />
+                <Contact />
+              </PathnameProvider>
             </LenisScrollProvider>
           </body>
         </InspectableProvider>

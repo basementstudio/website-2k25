@@ -6,6 +6,7 @@ import { useMemo } from "react"
 import { Grid } from "@/components/grid"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Scene } from "@/components/scene"
+import { cn } from "@/utils/cn"
 
 const BLACKLISTED_PATHS = [
   /^\/blog\/\d+$/,
@@ -23,14 +24,18 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       {shouldShowCanvas && (
-        <div className="canvas-container sticky top-0 h-screen w-full">
+        <div className="canvas-container sticky top-0 h-screen w-full lg:fixed">
           <Scene />
           <Grid />
           <InspectableViewer />
         </div>
       )}
 
-      <div className="layout-container">{children}</div>
+      <div
+        className={cn("layout-container", shouldShowCanvas && "lg:mt-[100dvh]")}
+      >
+        {children}
+      </div>
     </>
   )
 }
