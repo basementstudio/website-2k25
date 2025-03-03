@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import { useEffect, useRef } from "react"
 
 import { Grid } from "@/components/grid"
@@ -39,6 +40,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
     position: "static",
     top: "0"
   })
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!footerRef.current) return
@@ -56,7 +58,6 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
           top: previousSibling.style.top
         }
 
-        previousSibling.style.zIndex = "-1"
         previousSibling.style.position = "sticky"
         previousSibling.style.top = offset + "px"
       }
@@ -64,8 +65,11 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
       handleResize()
       window.addEventListener("resize", handleResize)
 
+      const timeoutId = setTimeout(handleResize, 100)
+
       return () => {
         window.removeEventListener("resize", handleResize)
+        clearTimeout(timeoutId)
       }
     } else {
       return () => {
@@ -75,7 +79,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
         }
       }
     }
-  }, [isDesktop])
+  }, [isDesktop, pathname])
 
   const projects = data.pages.showcase.projectList.items.length
   const posts = data.pages.blog.posts.items.length
@@ -112,7 +116,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
   return (
     <footer
       ref={footerRef}
-      className="relative flex flex-col justify-between bg-brand-k pb-4 lg:h-[calc(100dvh+1px)]"
+      className="relative z-10 flex flex-col justify-between bg-brand-k pb-4 lg:h-[calc(100dvh+1px)]"
     >
       <Grid />
 
