@@ -7,7 +7,7 @@ interface useCursorProps {
     | "grab"
     | "grabbing"
     | "inspect"
-    | "zoom"
+    | "zoom-in"
     | "not-allowed"
     | "alias"
     | "pointer"

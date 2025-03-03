@@ -253,7 +253,7 @@ export const Inspectable = ({
           !scenes.some((scene) => scene === currentScene)
         )
           return
-        if (!selected) setCursor("zoom")
+        if (!selected) setCursor("zoom-in")
         else if (selected === id) setCursor("grab")
       }}
       onPointerLeave={() => {
