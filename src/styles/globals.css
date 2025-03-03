@@ -179,4 +179,13 @@ a:focus {
 
   max-width: 100% !important;
   border-radius: 0 !important;
+
+  & div[class*="media"],
+  & div[class*="replies"] {
+    border-radius: 0 !important;
+
+    & > a {
+      border-radius: 0 !important;
+    }
+  }
 }
