@@ -2,7 +2,7 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { folder as levaFolder, useControls } from "leva"
+import { useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
@@ -25,7 +25,6 @@ import {
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
 import { BlogDoor } from "@/components/blog-door"
-import Cars from "@/components/cars/cars"
 import { useInspectable } from "@/components/inspectables/context"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
@@ -44,6 +43,7 @@ import notFoundFrag from "@/shaders/not-found/not-found.frag"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
+import { OutdoorCars } from "../outdoor-cars"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -100,7 +100,6 @@ export const Map = memo(() => {
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
     videos,
-    car,
     scenes
   } = useAssets()
   const firstRender = useRef(true)
@@ -114,7 +113,6 @@ export const Map = memo(() => {
   const { scene: routingElementsModel } = useGLTF(
     routingElementsPath
   ) as unknown as GLTFResult
-  const { scene: carV5 } = useGLTF(car.carModel) as unknown as GLTFResult
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
@@ -265,20 +263,6 @@ export const Map = memo(() => {
     if (newNetMesh?.parent) {
       newNetMesh.removeFromParent()
       setKeyframedNet(newNetMesh)
-    }
-
-    const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
-    const backWheel = carV5?.children.find(
-      (child) => child.name === "BACK-WHEEL"
-    ) as Mesh
-    const frontWheel = carV5?.children.find(
-      (child) => child.name === "FRONT-WHEEL"
-    ) as Mesh
-
-    if (backWheel && car && frontWheel) {
-      useMesh.setState({
-        carMeshes: { backWheel, car, frontWheel }
-      })
     }
 
     const traverse = (
@@ -560,8 +544,7 @@ export const Map = memo(() => {
     basketballNetModel,
     routingElementsModel,
     videos,
-    currentScene,
-    carV5
+    currentScene
   ])
 
   useEffect(() => {
@@ -593,7 +576,7 @@ export const Map = memo(() => {
           <Lamp />
         </PhysicsWorld>
       </Suspense>
-
+      <OutdoorCars />
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
           (tab) => tab.tabClickableName === node.name
@@ -620,10 +603,6 @@ export const Map = memo(() => {
       {keyframedNet && <primitive object={keyframedNet} />}
       <BakesLoader />
       <ReflexesLoader />
-
-      <Suspense fallback={null}>
-        <Cars />
-      </Suspense>
     </group>
   )
 })

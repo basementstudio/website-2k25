@@ -272,8 +272,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
         bloomStrength: item.postprocessing?.bloomStrength ?? 1,
         bloomRadius: item.postprocessing?.bloomRadius ?? 1,
         bloomThreshold: item.postprocessing?.bloomThreshold ?? 1
-      },
-      carsVisible: item.carsVisible ?? false
+      }
     })),
     characters: {
       model: threeDInteractions.characters.model.file?.url ?? "",
