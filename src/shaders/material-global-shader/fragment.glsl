@@ -5,6 +5,7 @@ varying vec2 vUv2;
 varying vec3 vWorldPosition;
 varying vec3 vMvPosition;
 varying vec3 vNormal;
+varying vec3 vViewDirection;
 
 const float voxelSize = 10.0;
 const float noiseBigScale = 1.0;
@@ -167,8 +168,14 @@ void main() {
   vec3 lf = irradiance.rgb;
 
   if (inspectingFactor > 0.0) {
-    lf *= basicLight(vNormal, vec3(1.0, 0.0, -1.0), 2.0);
-    lf *= basicLight(vNormal, vec3(0, 0.0, 1.0), 1.0);
+    // Key light
+    lf *= basicLight(vNormal, vViewDirection, 4.0);
+    // Fill light
+    vec3 fillLightDir = normalize(cross(vViewDirection, vec3(0.0, 1.0, 0.0)));
+    lf *= basicLight(vNormal, fillLightDir, 2.0);
+    // Rim light
+    vec3 rimLightDir = normalize(-vViewDirection + vec3(0.0, 0.5, 0.0));
+    lf *= basicLight(vNormal, rimLightDir, 3.0);
   }
 
   if (lightMapIntensity > 0.0) {
