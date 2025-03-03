@@ -2,18 +2,15 @@ import { useMemo } from "react"
 import { BufferGeometry, Float32BufferAttribute } from "three"
 
 export const RoutingPlus = ({ geometry }: { geometry: BufferGeometry }) => {
-  // Create points geometry from the provided geometry
   const pointsGeometry = useMemo(() => {
     if (!geometry.attributes.position || !geometry.attributes.normal)
       return null
 
-    // Create a new buffer geometry for the points
     const pointsGeo = new BufferGeometry()
 
-    // Extract positions from the original geometry
     const positions = []
     const colors = []
-    const whiteColor = [1, 1, 1] // RGB for white
+    const whiteColor = [1, 1, 1]
 
     for (let i = 0; i < geometry.attributes.position.count; i++) {
       const x = geometry.attributes.position.array[i * 3]
@@ -21,10 +18,9 @@ export const RoutingPlus = ({ geometry }: { geometry: BufferGeometry }) => {
       const z = geometry.attributes.position.array[i * 3 + 2]
 
       positions.push(x, y, z)
-      colors.push(...whiteColor) // Add white color for each point
+      colors.push(...whiteColor)
     }
 
-    // Set attributes
     pointsGeo.setAttribute("position", new Float32BufferAttribute(positions, 3))
     pointsGeo.setAttribute("color", new Float32BufferAttribute(colors, 3))
 
@@ -46,9 +42,9 @@ export const RoutingPlus = ({ geometry }: { geometry: BufferGeometry }) => {
       float thickness = 0.25;
 
       if (abs(coord.x) < thickness || abs(coord.y) < thickness) {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); // White color for the cross
+        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
       } else {
-        discard; // Transparent for everything else
+        discard; 
       }
     }
   `

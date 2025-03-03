@@ -30,16 +30,20 @@ void main() {
   vCoords.x *= aspectRatio;
 
   float lineSpacing = 0.006;
-  float lineWidth = 0.15;
+  float lineThickness = 0.2;
   float lineOpacity = 0.15;
 
   float diagonal = (vCoords.x - vCoords.y) / (lineSpacing * sqrt(2.0));
-  float pattern = abs(fract(diagonal) - 0.5) * 2.0;
-  float line = smoothstep(1.0 - lineWidth, 1.0, 1.0 - pattern);
+  float center = 0.5;
+  float halfWidth = lineThickness * 0.5;
+  float pattern =
+    smoothstep(center - halfWidth, center, fract(diagonal)) -
+    smoothstep(center, center + halfWidth, fract(diagonal));
+  float line = pattern;
 
   if (isBorder) {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 0.2); // White color for border
+    gl_FragColor = vec4(1.0, 1.0, 1.0, 0.2);
   } else {
-    gl_FragColor = vec4(vec3(1.0), line * lineOpacity); // Diagonal pattern inside
+    gl_FragColor = vec4(vec3(1.0), line * lineOpacity);
   }
 }
