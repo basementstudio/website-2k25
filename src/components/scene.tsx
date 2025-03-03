@@ -123,9 +123,9 @@ export const Scene = () => {
           sceneChildren={
             <>
               <color attach="background" args={["#000"]} />
+              <CameraController />
               <Inspectables />
               <Environment preset="studio" />
-              <CameraController />
               <Sparkles />
 
               <Map />

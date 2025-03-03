@@ -10,13 +10,27 @@ interface LinkProps {
   className?: string
   target?: "_blank" | "_self"
   rel?: string
+  onClick?: () => void
 }
 
-export const Link = ({ href, children, className, target, rel }: LinkProps) => {
+export const Link = ({
+  href,
+  children,
+  className,
+  target,
+  rel,
+  onClick
+}: LinkProps) => {
   const { handleNavigation } = useHandleNavigation()
 
   return href.includes("http") || href.includes("mailto") ? (
-    <NextLink href={href} className={className} target={target} rel={rel}>
+    <NextLink
+      href={href}
+      className={className}
+      target={target}
+      rel={rel}
+      onClick={onClick}
+    >
       {children}
     </NextLink>
   ) : (
@@ -25,6 +39,7 @@ export const Link = ({ href, children, className, target, rel }: LinkProps) => {
       onClick={(e) => {
         e.preventDefault()
         handleNavigation(href)
+        onClick?.()
       }}
       className={className}
     >

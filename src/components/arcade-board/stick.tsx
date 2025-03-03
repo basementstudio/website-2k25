@@ -1,13 +1,15 @@
 import { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
-import { useRef, useState, useEffect, useCallback } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useArcadeStore } from "@/store/arcade-store"
 
+import { checkSequence } from "./check-sequence"
 import {
   ArrowKey,
   BOARD_ANGLE,
@@ -16,8 +18,6 @@ import {
   MIN_OFFSET,
   STICK_ANIMATION
 } from "./constants"
-import { useArcadeStore } from "@/store/arcade-store"
-import { checkSequence } from "./check-sequence"
 
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const scene = useCurrentScene()
@@ -350,7 +350,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         }}
       >
         <cylinderGeometry args={[0.02, 0.02, 0.06, 12]} />
-        <meshBasicMaterial opacity={0} transparent />
+        <meshBasicMaterial opacity={0} transparent depthWrite={false} />
       </mesh>
       <mesh
         position={[
@@ -383,7 +383,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         }}
       >
         <sphereGeometry args={[0.2, 12, 12]} />
-        <meshBasicMaterial opacity={0} transparent />
+        <meshBasicMaterial opacity={0} transparent depthWrite={false} />
       </mesh>
     </group>
   )

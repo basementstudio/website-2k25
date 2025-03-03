@@ -87,7 +87,7 @@ export const Lamp = () => {
     []
   )
 
-  const [dragged, drag] = useState<any>(null)
+  const [dragged, drag] = useState(false)
   const [shouldToggle, setShouldToggle] = useState(false)
   const [light, setLight] = useState(true)
 
@@ -140,27 +140,33 @@ export const Lamp = () => {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera)
       dir.copy(vec).sub(state.camera.position).normalize()
       vec.add(dir.multiplyScalar(state.camera.position.length() * 0.079))
+
+      const delta = new THREE.Vector3().copy(vec).sub(j3.current.translation())
+      if (delta.length() > 0.1) {
+        drag(false)
+        return
+      }
+
       ;[j1, j2, j3, j0].forEach((ref) => ref.current?.wakeUp())
       j3.current?.setNextKinematicTranslation({
-        x: vec.x - dragged.x,
-        y: vec.y - dragged.y,
-        z: vec.z - dragged.z
+        x: vec.x,
+        y: vec.y,
+        z: vec.z
       })
     }
 
     if (j0.current) {
       // Calculate catmul curve
-      curve.points[0].copy(j3.current.translation())
-      curve.points[1].copy(j2.current.translation())
-      curve.points[2].copy(j1.current.translation())
-      curve.points[3].copy(j0.current.translation())
-      band.current.geometry.setPoints(curve.getPoints(8))
-
-      // Calculate and log tension for each joint
       const j0Pos = j0.current.translation()
       const j1Pos = j1.current.translation()
       const j2Pos = j2.current.translation()
       const j3Pos = j3.current.translation()
+
+      curve.points[0].copy(j3Pos)
+      curve.points[1].copy(j2Pos)
+      curve.points[2].copy(j1Pos)
+      curve.points[3].copy(j0Pos)
+      band.current.geometry.setPoints(curve.getPoints(8))
 
       const tension_j0_j1 = tension(j0Pos, j1Pos)
       const tension_j1_j2 = tension(j1Pos, j2Pos)
@@ -169,10 +175,10 @@ export const Lamp = () => {
       const maxTension = Math.max(tension_j0_j1, tension_j1_j2, tension_j2_j3)
 
       if (!shouldToggle) {
-        if (maxTension > 0.065 && dragged !== null) setShouldToggle(true)
+        if (maxTension > 0.065 && dragged) setShouldToggle(true)
       } else if (shouldToggle) {
-        if (maxTension > 0.08 && dragged !== null) {
-          drag(null)
+        if (maxTension > 0.08 && dragged) {
+          drag(false)
           setCursorType("default")
         } else if (maxTension < 0.045) {
           setShouldToggle(false)
@@ -261,25 +267,21 @@ export const Lamp = () => {
             onPointerUp={(e) => {
               // @ts-ignore
               e?.target?.releasePointerCapture?.(e.pointerId)
-              setCursorType(dragged !== null ? "grab" : "default")
-              drag(null)
+              setCursorType(dragged ? "grab" : "default")
+              drag(false)
             }}
             onPointerDown={(e) => {
               // @ts-ignore
               e?.target?.setPointerCapture?.(e.pointerId)
               setCursorType("grabbing")
 
-              const vec = new THREE.Vector3()
-              vec.copy(e.point)
-              vec.sub(vec.copy(j3.current.translation()))
-
-              drag(vec)
+              drag(true)
             }}
             onPointerEnter={() => setCursorType("grab")}
             onPointerLeave={() => setCursorType("default")}
           >
             <sphereGeometry args={[0.02, 8, 8]} />
-            <meshBasicMaterial opacity={0} transparent />
+            <meshBasicMaterial opacity={0} transparent depthWrite={false} />
           </mesh>
 
           <mesh material={material} ref={lampHandle}>
@@ -291,28 +293,28 @@ export const Lamp = () => {
           position={[0.2, 0.2, 0.15]}
           rotation={[0, Math.PI / 3, -Math.PI / 18]}
           args={[0.4, 0.4]}
-          onEnter={() => drag(null)}
+          onEnter={() => drag(false)}
         />
 
         <Constraint
           position={[0.2, 0, 0.55]}
           rotation={[0, Math.PI / 3, -Math.PI / 5]}
           args={[0.4, 1]}
-          onEnter={() => drag(null)}
+          onEnter={() => drag(false)}
         />
 
         <Constraint
           position={[0.2, 0, -0.2]}
           rotation={[0, Math.PI / 3, 0]}
           args={[0.4, 1]}
-          onEnter={() => drag(null)}
+          onEnter={() => drag(false)}
         />
 
         <Constraint
           position={[0.2, -0.4, 0.55]}
           rotation={[0, Math.PI / 3, 0]}
           args={[1, 0.4]}
-          onEnter={() => drag(null)}
+          onEnter={() => drag(false)}
         />
       </group>
 
@@ -344,6 +346,6 @@ interface ConstraintProps {
 const Constraint = ({ position, rotation, args, onEnter }: ConstraintProps) => (
   <mesh position={position} rotation={rotation} onPointerEnter={onEnter}>
     <planeGeometry args={args} />
-    <meshBasicMaterial opacity={0} transparent />
+    <meshBasicMaterial opacity={0} transparent depthWrite={false} />
   </mesh>
 )

@@ -18,6 +18,7 @@ import { useScrollStore } from "@/providers/lenis-provider"
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
+import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
 import { StayConnected } from "./stay-connected"
 
@@ -151,19 +152,10 @@ const DesktopContent = ({ links, music, handleMute }: ContentProps) => {
       <div className="col-start-11 col-end-13 ml-auto hidden items-center gap-5 lg:flex">
         <button
           onClick={handleMute}
-          className="inline-flex w-18 items-center space-x-1 text-p text-brand-w2"
+          className="inline-flex items-center space-x-1 text-p text-brand-w2"
           aria-label={music ? "Turn music off" : "Turn music on"}
         >
-          <span>Music:</span>
-
-          <span
-            className={cn(
-              "inline-block w-6 text-left uppercase",
-              music ? "text-brand-w1" : "text-brand-g1"
-            )}
-          >
-            {music ? "On" : "Off"}
-          </span>
+          <MusicToggle music={music} />
         </button>
         <button
           id="nav-contact"
@@ -208,7 +200,7 @@ const MobileContent = ({
           <Grid />
           <InternalLinks
             links={links}
-            handleChangeLink={handleChangeLink}
+            onClick={handleChangeLink}
             className="col-span-4"
           />
 

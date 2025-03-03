@@ -138,10 +138,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     if (isClosing) {
       handler.playAnimation("Outro-v2", {
         type: "transition",
-        clampWhenFinished: true,
-        onComplete: () => {
-          console.log("Outro animation complete")
-        }
+        clampWhenFinished: true
       })
     } else if (isContactOpen) {
       handler.playAnimation("Intro.001", {

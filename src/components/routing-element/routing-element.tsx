@@ -188,7 +188,7 @@ export const RoutingElement = ({
           rotation={node.rotation}
           renderOrder={1}
         >
-          <meshBasicMaterial transparent opacity={0} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
       </group>
 
