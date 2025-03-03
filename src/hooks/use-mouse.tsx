@@ -170,7 +170,7 @@ export const MouseTracker = memo(() => {
       {hoverText && (
         <motion.div
           ref={mouseElementRef}
-          className="text-paragraph pointer-events-none fixed z-50 bg-brand-k text-[12px] text-brand-w1"
+          className="pointer-events-none fixed z-50 bg-brand-k text-xs text-brand-w1"
           style={{ x: springX, y: springY }}
           {...animationProps}
         >
