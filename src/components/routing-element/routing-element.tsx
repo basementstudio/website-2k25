@@ -238,7 +238,7 @@ const RoutingElementComponent = ({
       <group
         position={[node.position.x, node.position.y, node.position.z]}
         rotation={node.rotation}
-        visible={hover}
+        visible={hover && !groupName}
       >
         <RoutingPlus geometry={node.geometry} />
       </group>
