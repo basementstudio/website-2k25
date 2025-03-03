@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 
 import { Grid } from "@/components/grid"
 import { useMedia } from "@/hooks/use-media"
@@ -42,44 +42,46 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
   })
   const pathname = usePathname()
 
-  useEffect(() => {
+  const handleResize = useCallback(() => {
     if (!footerRef.current) return
     const { previousSibling } = footerRef.current
     if (!(previousSibling instanceof HTMLElement)) return
 
     if (isDesktop) {
-      const handleResize = () => {
-        if (!footerRef.current) return
-        const elementHeight = previousSibling.offsetHeight
-        const offset = window.innerHeight - elementHeight
+      const elementHeight = previousSibling.offsetHeight
+      const offset = window.innerHeight - elementHeight
 
-        previousValuesRef.current = {
-          position: previousSibling.style.position,
-          top: previousSibling.style.top
-        }
-
-        previousSibling.style.position = "sticky"
-        previousSibling.style.top = offset + "px"
+      previousValuesRef.current = {
+        position: previousSibling.style.position,
+        top: previousSibling.style.top
       }
 
-      handleResize()
-      window.addEventListener("resize", handleResize)
-
-      const timeoutId = setTimeout(handleResize, 100)
-
-      return () => {
-        window.removeEventListener("resize", handleResize)
-        clearTimeout(timeoutId)
-      }
+      previousSibling.style.position = "sticky"
+      previousSibling.style.top = offset + "px"
     } else {
-      return () => {
-        if (previousValuesRef.current) {
-          previousSibling.style.position = previousValuesRef.current.position
-          previousSibling.style.top = previousValuesRef.current.top
-        }
-      }
+      previousSibling.style.position = previousValuesRef.current.position
+      previousSibling.style.top = previousValuesRef.current.top
     }
-  }, [isDesktop, pathname])
+  }, [isDesktop])
+
+  // Handle sticky position on resize
+  useEffect(() => {
+    handleResize()
+    window.addEventListener("resize", handleResize)
+
+    return () => {
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [handleResize])
+
+  // Handle sticky position on path change
+  useEffect(() => {
+    const timeout = setTimeout(handleResize, 250)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [handleResize, pathname])
 
   const projects = data.pages.showcase.projectList.items.length
   const posts = data.pages.blog.posts.items.length

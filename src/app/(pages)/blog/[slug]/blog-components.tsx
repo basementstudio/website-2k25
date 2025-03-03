@@ -44,7 +44,7 @@ export const BlogVideo = (props: HandlerProps<"video">) => (
 )
 
 export const Intro = ({ children }: HandlerProps<"p">) => (
-  <p className="mb-6 text-h3 text-brand-w2 [&_b]:font-bold [&_b]:text-brand-w1">
+  <p className="text-h3 text-brand-w2 [&_b]:font-bold [&_b]:text-brand-w1">
     {children}
   </p>
 )
