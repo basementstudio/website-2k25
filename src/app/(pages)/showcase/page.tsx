@@ -11,15 +11,15 @@ const Projects = () => (
       "use server"
 
       return (
-        <div
-          id="projects"
-          className="flex scroll-m-4 flex-col gap-18 lg:gap-24"
-        >
-          <Hero data={data} />
-          <Suspense fallback={null}>
-            <ProjectList data={data} />
-          </Suspense>
-        </div>
+        <>
+          <div id="projects" className="-translate-y-[36px]" />
+          <div className="flex scroll-m-4 flex-col gap-18 lg:gap-24">
+            <Hero data={data} />
+            <Suspense fallback={null}>
+              <ProjectList data={data} />
+            </Suspense>
+          </div>
+        </>
       )
     }}
   </Pump>

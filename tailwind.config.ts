@@ -19,7 +19,8 @@ export default {
           o2: "#FF2B00",
           r: "#E60002",
           y: "#FFCD1A",
-          g: "#00FF9B"
+          g: "#00FF9B",
+          white: "#FFFFFF"
         },
         codeblock: {
           o: "#FF4D00",
@@ -122,7 +123,7 @@ export default {
           {
             lineHeight: "1.5rem",
             letterSpacing: "0.0em",
-            fontWeight: "600"
+            fontWeight: "500"
           }
         ],
         "h4-blog": [
@@ -130,7 +131,7 @@ export default {
           {
             lineHeight: "1.5rem",
             letterSpacing: "-0.02em",
-            fontWeight: "600"
+            fontWeight: "500"
           }
         ]
       },

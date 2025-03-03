@@ -20,18 +20,18 @@ const Blogs = () => (
       ).filter((c): c is string => c !== undefined)
 
       return (
-        <div
-          id="blog"
-          className="pb-25 relative flex flex-col gap-18 bg-brand-k lg:gap-40"
-        >
-          <Hero data={data} />
-          <Suspense fallback={null}>
-            <BlogPosts data={data} categories={categories}>
-              <Featured />
-              <BlogList />
-            </BlogPosts>
-          </Suspense>
-        </div>
+        <>
+          <div id="blog" className="-translate-y-[36px]" />
+          <div className="pb-25 relative flex flex-col gap-18 bg-brand-k lg:gap-40">
+            <Hero data={data} />
+            <Suspense fallback={null}>
+              <BlogPosts data={data} categories={categories}>
+                <Featured />
+                <BlogList />
+              </BlogPosts>
+            </Suspense>
+          </div>
+        </>
       )
     }}
   </Pump>

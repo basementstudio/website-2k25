@@ -92,12 +92,12 @@ export default function Content({
                 </Pre>
               ),
               video: (props) => <BlogVideo {...props} />,
-              // TODO: add quote, sidenotes, codesandbox components
               CodeBlockComponent: ({ files: { items } }) => (
                 <CodeBlock items={items} />
               ),
               QuoteWithAuthorComponent: (props) => (
                 <QuoteWithAuthor
+                  avatar={props.avatar}
                   quote={props.quote?.json.content}
                   author={props.author}
                   role={props.role}
@@ -110,7 +110,8 @@ export default function Content({
                 <SideNote>{props.content?.json.content}</SideNote>
               ),
               TweetComponent: (props) => (
-                <div className="dark grid w-full place-items-center">
+                // TODO: replace avatar img with a custom component
+                <div className="dark mx-auto grid w-full max-w-[500px] place-items-center">
                   <Tweet id={props.tweetId} />
                 </div>
               )
