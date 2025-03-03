@@ -22,6 +22,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const mousePosition = useMousePosition()
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null)
   const [translateY, setTranslateY] = useState(0)
+  const [currentImageId, setCurrentImageId] = useState<number | null>(null)
+  const [previousImageId, setPreviousImageId] = useState<number | null>(null)
   const positionRef = useRef({ x: 0, y: 0 })
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
   const rafRef = useRef<number | null>(null)
@@ -30,8 +32,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
 
   const [isRevealing, setIsRevealing] = useState(false)
 
-  const debouncedMousePosition = useDebounce(mousePosition, 50)
-  const debouncedHoveredItemId = useDebounce(hoveredItemId, 100)
+  const debouncedHoveredItemId = useDebounce(hoveredItemId, 10)
 
   const sortedAwards = data.company.awards.awardList.items
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -74,8 +75,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const cellVariants: Variants = {
     hidden: {
       scale: 0.95,
-      opacity: 0,
-      willChange: "transform, opacity"
+      opacity: 0
     },
     visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
       const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
@@ -84,7 +84,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
       return {
         scale: 1,
         opacity: 1,
-        willChange: "transform, opacity",
         transition: {
           duration: 1.2,
           delay: normalizedDistance * 0.3,
@@ -138,24 +137,32 @@ export const Awards = ({ data }: { data: QueryType }) => {
     )
 
     if (hoveredIndex !== -1) {
-      setTranslateY(-hoveredIndex * IMAGE_HEIGHT)
+      if (debouncedHoveredItemId !== currentImageId) {
+        setPreviousImageId(currentImageId)
+        setCurrentImageId(debouncedHoveredItemId)
+      }
+
+      const newTranslateY = -hoveredIndex * IMAGE_HEIGHT
+      if (newTranslateY !== translateY) {
+        setTranslateY(newTranslateY)
+      }
     }
-  }, [debouncedHoveredItemId, sortedAwards])
+  }, [debouncedHoveredItemId, sortedAwards, translateY, currentImageId])
 
   useEffect(() => {
-    if (debouncedHoveredItemId === null) {
+    if (hoveredItemId === null) {
       return
     }
 
-    const mouseX = debouncedMousePosition.x || 0
-    const mouseY = debouncedMousePosition.y || 0
+    const mouseX = mousePosition.x || 0
+    const mouseY = mousePosition.y || 0
 
     const halfScreenWidth = windowSize.width / 2
     let boundedX = Math.max(mouseX, halfScreenWidth)
 
     boundedX = Math.min(
-      boundedX,
-      windowSize.width - certificateDimensions.width - 16
+      boundedX + 128,
+      windowSize.width - certificateDimensions.width - 32
     )
 
     const boundedY = Math.max(
@@ -171,8 +178,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
       positionRef.current = { x: boundedX, y: boundedY }
     })
   }, [
-    debouncedMousePosition,
-    debouncedHoveredItemId,
+    mousePosition,
+    hoveredItemId,
     windowSize,
     certificateDimensions.width,
     certificateDimensions.height
@@ -228,7 +235,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
           <motion.div
             animate={{
               top: positionRef.current.y,
-              // left: positionRef.current.x + 16,
+              left: positionRef.current.x + 16,
               opacity: 1
             }}
             initial={{
@@ -316,32 +323,43 @@ export const Awards = ({ data }: { data: QueryType }) => {
               }}
             >
               <motion.div
-                className="flex flex-col"
-                animate={{
-                  y: translateY
-                }}
-                transition={{
-                  duration: 0.6,
-                  ease: easeInOutCubic,
-                  type: "tween"
-                }}
+                className="relative h-full w-full"
                 style={{
-                  willChange: "transform"
+                  willChange: "transform, filter"
                 }}
               >
                 {sortedAwards
                   .filter((award) => award.certificate)
-                  .map((award) => (
-                    <Image
-                      key={award._id}
-                      src={award.certificate?.url || ""}
-                      alt={award.certificate?.alt ?? ""}
-                      width={award.certificate?.width}
-                      height={award.certificate?.height}
-                      className="max-h-[307.73px] w-full object-cover"
-                      data-numeric-id={award.numericId}
-                    />
-                  ))}
+                  .map((award) => {
+                    return (
+                      <motion.div
+                        key={award._id}
+                        animate={{
+                          opacity:
+                            award.numericId === currentImageId
+                              ? 1
+                              : award.numericId === previousImageId
+                                ? 0.5
+                                : 0.5,
+                          zIndex: award.numericId === currentImageId ? 2 : 1
+                        }}
+                        transition={{
+                          opacity: { duration: 0.1, ease: easeInOutCubic },
+                          zIndex: { duration: 0 }
+                        }}
+                        className="absolute left-0 top-0 h-full w-full"
+                      >
+                        <Image
+                          src={award.certificate?.url || ""}
+                          alt={award.certificate?.alt ?? ""}
+                          width={award.certificate?.width}
+                          height={award.certificate?.height}
+                          className="max-h-[307.73px] w-full object-cover"
+                          data-numeric-id={award.numericId}
+                        />
+                      </motion.div>
+                    )
+                  })}
               </motion.div>
             </motion.div>
           </motion.div>
