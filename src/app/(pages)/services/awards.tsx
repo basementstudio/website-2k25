@@ -2,20 +2,31 @@
 
 import { motion } from "motion/react"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Link } from "@/components/primitives/link"
+import { useDebounce } from "@/hooks/use-debounce"
 import { useMedia } from "@/hooks/use-media"
+import useMousePosition from "@/hooks/use-mouse-pos"
 import { easeInOutCubic } from "@/utils/animations"
 import { formatDate } from "@/utils/format-date"
 
 import { QueryType } from "./query"
 
+const IMAGE_HEIGHT = 307.73
+
 export const Awards = ({ data }: { data: QueryType }) => {
   const isDesktop = useMedia("(min-width: 1024px)")
+  const mousePosition = useMousePosition()
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null)
   const [translateY, setTranslateY] = useState(0)
-  const IMAGE_HEIGHT = 307.73
+  const positionRef = useRef({ x: 0, y: 0 })
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
+  const certificateWidth = 232
+  const certificateHeight = 307.73
+
+  const debouncedMousePosition = useDebounce(mousePosition, 150)
+  const debouncedHoveredItemId = useDebounce(hoveredItemId, 200)
 
   const sortedAwards = data.company.awards.awardList.items
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -24,16 +35,30 @@ export const Awards = ({ data }: { data: QueryType }) => {
       numericId: index + 1
     }))
 
-  const handleMouseEnter = (id: number) => {
+  const handleMouseEnter = useCallback((id: number) => {
     setHoveredItemId(id)
-  }
+  }, [])
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setHoveredItemId(null)
-  }
+  }, [])
 
   useEffect(() => {
-    if (hoveredItemId === null) {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
+    }
+
+    handleResize()
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
+  useEffect(() => {
+    if (debouncedHoveredItemId === null) {
       return
     }
 
@@ -41,13 +66,40 @@ export const Awards = ({ data }: { data: QueryType }) => {
       (award) => award.certificate
     )
     const hoveredIndex = awardsWithCertificates.findIndex(
-      (award) => award.numericId === hoveredItemId
+      (award) => award.numericId === debouncedHoveredItemId
     )
 
     if (hoveredIndex !== -1) {
       setTranslateY(-hoveredIndex * IMAGE_HEIGHT)
     }
-  }, [hoveredItemId, sortedAwards])
+  }, [debouncedHoveredItemId, sortedAwards])
+
+  useEffect(() => {
+    if (debouncedHoveredItemId === null) {
+      return
+    }
+
+    const mouseX = debouncedMousePosition.x || 0
+    const mouseY = debouncedMousePosition.y || 0
+
+    const halfScreenWidth = windowSize.width / 2
+    let boundedX = Math.max(mouseX, halfScreenWidth)
+
+    boundedX = Math.min(boundedX, windowSize.width - certificateWidth - 16)
+
+    const boundedY = Math.max(
+      0,
+      Math.min(mouseY, windowSize.height - certificateHeight)
+    )
+
+    positionRef.current = { x: boundedX, y: boundedY }
+  }, [
+    debouncedMousePosition,
+    debouncedHoveredItemId,
+    windowSize,
+    certificateWidth,
+    certificateHeight
+  ])
 
   return (
     <div className="grid-layout">
@@ -83,7 +135,17 @@ export const Awards = ({ data }: { data: QueryType }) => {
         </ul>
 
         {isDesktop && (
-          <div className="absolute right-8 top-0 z-50 grid h-[307.73px] w-[232px] grid-cols-1 overflow-hidden">
+          <motion.div
+            animate={{
+              top: positionRef.current.y,
+              left: positionRef.current.x + 16
+            }}
+            transition={{
+              duration: 1.25,
+              ease: easeInOutCubic
+            }}
+            className="pointer-events-none fixed z-50 grid h-[307.73px] w-[232px] grid-cols-1 overflow-hidden"
+          >
             <motion.div
               className="flex flex-col"
               animate={{
@@ -108,7 +170,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
                   />
                 ))}
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
