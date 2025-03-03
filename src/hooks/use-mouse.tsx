@@ -179,3 +179,5 @@ export const MouseTracker = memo(() => {
     </AnimatePresence>
   )
 })
+
+MouseTracker.displayName = "MouseTracker"
