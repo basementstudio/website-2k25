@@ -24,13 +24,14 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [translateY, setTranslateY] = useState(0)
   const positionRef = useRef({ x: 0, y: 0 })
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
+  const rafRef = useRef<number | null>(null)
 
   const certificateDimensions = { width: 232, height: 307.73 }
 
   const [isRevealing, setIsRevealing] = useState(false)
 
-  const debouncedMousePosition = useDebounce(mousePosition, 150)
-  const debouncedHoveredItemId = useDebounce(hoveredItemId, 200)
+  const debouncedMousePosition = useDebounce(mousePosition, 50)
+  const debouncedHoveredItemId = useDebounce(hoveredItemId, 100)
 
   const sortedAwards = data.company.awards.awardList.items
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -73,7 +74,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const cellVariants: Variants = {
     hidden: {
       scale: 0.95,
-      opacity: 0
+      opacity: 0,
+      willChange: "transform, opacity"
     },
     visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
       const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
@@ -82,10 +84,12 @@ export const Awards = ({ data }: { data: QueryType }) => {
       return {
         scale: 1,
         opacity: 1,
+        willChange: "transform, opacity",
         transition: {
-          duration: 0.6,
-          delay: normalizedDistance * 0.4,
-          ease: [0.16, 1, 0.3, 1]
+          duration: 1.2,
+          delay: normalizedDistance * 0.3,
+          ease: [0.16, 1, 0.3, 1],
+          type: "keyframes"
         }
       }
     },
@@ -96,10 +100,12 @@ export const Awards = ({ data }: { data: QueryType }) => {
       return {
         scale: 0,
         opacity: 0,
+        willChange: "transform, opacity",
         transition: {
-          duration: 0.6,
-          delay: (1 - normalizedDistance) * 0.4,
-          ease: [0.16, 1, 0.3, 1]
+          duration: 1.2,
+          delay: (1 - normalizedDistance) * 0.3,
+          ease: [0.16, 1, 0.3, 1],
+          type: "keyframes"
         }
       }
     }
@@ -157,7 +163,13 @@ export const Awards = ({ data }: { data: QueryType }) => {
       Math.min(mouseY, windowSize.height - certificateDimensions.height)
     )
 
-    positionRef.current = { x: boundedX, y: boundedY }
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+    }
+
+    rafRef.current = requestAnimationFrame(() => {
+      positionRef.current = { x: boundedX, y: boundedY }
+    })
   }, [
     debouncedMousePosition,
     debouncedHoveredItemId,
@@ -165,6 +177,14 @@ export const Awards = ({ data }: { data: QueryType }) => {
     certificateDimensions.width,
     certificateDimensions.height
   ])
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
+    }
+  }, [])
 
   return (
     <div className="grid-layout">
@@ -215,8 +235,15 @@ export const Awards = ({ data }: { data: QueryType }) => {
               opacity: 0
             }}
             transition={{
-              duration: 0.8,
-              ease: easeInOutCubic
+              duration: 0.6,
+              ease: easeInOutCubic,
+              type: "spring",
+              damping: 20,
+              stiffness: 200
+            }}
+            style={{
+              willChange: "transform",
+              transform: "translateZ(0)"
             }}
             className="pointer-events-none fixed right-4 z-50 flex h-[307.73px] w-[232px] overflow-hidden"
           >
@@ -265,7 +292,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
                           animate={{ opacity: 1 }}
                           exit={{
                             opacity: 0,
-                            transition: { duration: 0.1, delay: 0 }
+                            transition: { duration: 0.2, delay: 0 }
                           }}
                           transition={{ delay: 0.8, duration: 0.2 }}
                           x="-1"
@@ -284,7 +311,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
             <motion.div
               className="h-full w-full overflow-hidden"
               style={{
-                clipPath: "url(#grid-mask)"
+                clipPath: "url(#grid-mask)",
+                willChange: "transform"
               }}
             >
               <motion.div
@@ -293,8 +321,12 @@ export const Awards = ({ data }: { data: QueryType }) => {
                   y: translateY
                 }}
                 transition={{
-                  duration: 0.4,
-                  ease: easeInOutCubic
+                  duration: 0.6,
+                  ease: easeInOutCubic,
+                  type: "tween"
+                }}
+                style={{
+                  willChange: "transform"
                 }}
               >
                 {sortedAwards
