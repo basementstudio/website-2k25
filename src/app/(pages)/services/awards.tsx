@@ -1,8 +1,8 @@
 "use client"
 
-import { motion } from "motion/react"
+import { AnimatePresence, motion, Variants } from "motion/react"
 import Image from "next/image"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { Link } from "@/components/primitives/link"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -14,6 +14,8 @@ import { formatDate } from "@/utils/format-date"
 import { QueryType } from "./query"
 
 const IMAGE_HEIGHT = 307.73
+const GRID_COLS = 8
+const GRID_ROWS = 10
 
 export const Awards = ({ data }: { data: QueryType }) => {
   const isDesktop = useMedia("(min-width: 1024px)")
@@ -21,10 +23,11 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null)
   const [translateY, setTranslateY] = useState(0)
   const positionRef = useRef({ x: 0, y: 0 })
-  const opacityRef = useRef(0)
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
   const certificateWidth = 232
   const certificateHeight = 307.73
+
+  const [isRevealing, setIsRevealing] = useState(false)
 
   const debouncedMousePosition = useDebounce(mousePosition, 150)
   const debouncedHoveredItemId = useDebounce(hoveredItemId, 200)
@@ -36,6 +39,19 @@ export const Awards = ({ data }: { data: QueryType }) => {
       numericId: index + 1
     }))
 
+  // Generate grid cells with Manhattan distance ordering
+  const gridCells = useMemo(() => {
+    const cells = []
+    for (let row = 0; row < GRID_ROWS; row++) {
+      for (let col = 0; col < GRID_COLS; col++) {
+        const index = row * GRID_COLS + col
+        const manhattanDistance = row + col
+        cells.push({ row, col, index, manhattanDistance })
+      }
+    }
+    return cells
+  }, [])
+
   const handleMouseEnter = useCallback((id: number) => {
     setHoveredItemId(id)
   }, [])
@@ -44,9 +60,50 @@ export const Awards = ({ data }: { data: QueryType }) => {
     setHoveredItemId(null)
   }, [])
 
-  const handleFadeInOut = useCallback(() => {
-    opacityRef.current = opacityRef.current === 0 ? 1 : 0
+  const handleRevealEnter = useCallback(() => {
+    setIsRevealing(true)
   }, [])
+
+  const handleRevealLeave = useCallback(() => {
+    setIsRevealing(false)
+  }, [])
+
+  // cell animation
+  const cellVariants: Variants = {
+    hidden: {
+      scale: 0.9,
+      opacity: 0
+    },
+    visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
+      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
+      const normalizedDistance = manhattanDistance / maxDistance
+
+      return {
+        scale: 1,
+        opacity: 1,
+        transition: {
+          duration: 0.6,
+          delay: normalizedDistance * 0.4,
+          ease: [0.16, 1, 0.3, 1]
+        }
+      }
+    },
+    exit: ({ manhattanDistance }: { manhattanDistance: number }) => {
+      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
+
+      const normalizedDistance = manhattanDistance / maxDistance
+
+      return {
+        scale: 0,
+        opacity: 0,
+        transition: {
+          duration: 0.6,
+          delay: (1 - normalizedDistance) * 0.4,
+          ease: [0.16, 1, 0.3, 1]
+        }
+      }
+    }
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -114,8 +171,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
       </div>
       <div className="relative col-span-full">
         <ul
-          onMouseEnter={handleFadeInOut}
-          onMouseLeave={handleFadeInOut}
+          onMouseEnter={handleRevealEnter}
+          onMouseLeave={handleRevealLeave}
           className="text-paragraph col-span-full text-brand-w1"
         >
           {sortedAwards.map((award) => (
@@ -148,38 +205,81 @@ export const Awards = ({ data }: { data: QueryType }) => {
             animate={{
               top: positionRef.current.y,
               left: positionRef.current.x + 16,
-              scale: opacityRef.current,
-              opacity: opacityRef.current
+              opacity: hoveredItemId ? 1 : 1
+            }}
+            initial={{
+              opacity: 0
             }}
             transition={{
               duration: 0.8,
               ease: easeInOutCubic
             }}
-            className="pointer-events-none fixed z-50 grid h-[307.73px] w-[232px] grid-cols-1 overflow-hidden"
+            className="pointer-events-none fixed right-4 z-50 grid h-[307.73px] w-[232px] grid-cols-1 overflow-hidden"
           >
+            {/* SVG Mask for grid reveal */}
+            <svg
+              width="0"
+              height="0"
+              className="absolute"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <defs>
+                <clipPath id="grid-mask">
+                  <AnimatePresence mode="wait" initial={false}>
+                    {isRevealing
+                      ? gridCells.map((cell) => (
+                          <motion.rect
+                            key={cell.index}
+                            custom={{
+                              manhattanDistance: cell.manhattanDistance
+                            }}
+                            variants={cellVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            x={cell.col * (certificateWidth / GRID_COLS)}
+                            y={cell.row * (certificateHeight / GRID_ROWS)}
+                            width={certificateWidth / GRID_COLS}
+                            height={certificateHeight / GRID_ROWS}
+                          />
+                        ))
+                      : null}
+                  </AnimatePresence>
+                </clipPath>
+              </defs>
+            </svg>
+
             <motion.div
-              className="flex flex-col"
-              animate={{
-                y: translateY
-              }}
-              transition={{
-                duration: 0.8,
-                ease: easeInOutCubic
+              className="h-full w-full overflow-hidden"
+              style={{
+                clipPath: "url(#grid-mask)"
               }}
             >
-              {sortedAwards
-                .filter((award) => award.certificate)
-                .map((award) => (
-                  <Image
-                    key={award._id}
-                    src={award.certificate?.url || ""}
-                    alt={award.certificate?.alt ?? ""}
-                    width={award.certificate?.width}
-                    height={award.certificate?.height}
-                    className="max-h-[307.73px] w-full object-cover"
-                    data-numeric-id={award.numericId}
-                  />
-                ))}
+              <motion.div
+                className="flex flex-col"
+                animate={{
+                  y: translateY
+                }}
+                transition={{
+                  duration: 0.8,
+                  ease: easeInOutCubic
+                }}
+              >
+                {sortedAwards
+                  .filter((award) => award.certificate)
+                  .map((award) => (
+                    <Image
+                      key={award._id}
+                      src={award.certificate?.url || ""}
+                      alt={award.certificate?.alt ?? ""}
+                      width={award.certificate?.width}
+                      height={award.certificate?.height}
+                      className="max-h-[307.73px] w-full object-cover"
+                      data-numeric-id={award.numericId}
+                    />
+                  ))}
+              </motion.div>
             </motion.div>
           </motion.div>
         )}
