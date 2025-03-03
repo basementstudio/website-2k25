@@ -3,7 +3,7 @@
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { Perf } from "r3f-perf"
-import { Suspense, useEffect } from "react"
+import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
@@ -42,7 +42,7 @@ import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
-import { useCursor } from "@/hooks/use-mouse"
+import { MouseTracker } from "@/hooks/use-mouse"
 
 export const Scene = () => {
   const {
@@ -51,6 +51,7 @@ export const Scene = () => {
     setCurrentTabIndex,
     currentScene
   } = useNavigationStore()
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
 
@@ -80,54 +81,58 @@ export const Scene = () => {
   const handleBlur = () => setIsCanvasTabMode(false)
 
   return (
-    <div className="absolute inset-0">
-      <Debug />
-      <Canvas
-        id="canvas"
-        tabIndex={0}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        gl={{
-          antialias: true,
-          alpha: false,
-          outputColorSpace: THREE.SRGBColorSpace,
-          toneMapping: THREE.ACESFilmicToneMapping
-        }}
-        camera={{ fov: 60 }}
-        className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none"
-      >
-        <Renderer
-          sceneChildren={
-            <>
-              <color attach="background" args={["#000"]} />
-              <CameraController />
-              <Inspectables />
-              <Sparkles />
-              <Map />
-              <Suspense fallback={null}>
-                {isBasketball && (
-                  <PhysicsWorld paused={!isBasketball}>
-                    <HoopMinigame />
-                    <PlayedBasketballs />
-                  </PhysicsWorld>
-                )}
-              </Suspense>
-              <StaticBasketballs />
-
-              <CharacterInstanceConfig />
-              <CharactersSpawn />
-            </>
-          }
-        />
-        <Perf
-          style={{
-            position: "absolute",
-            top: 40,
-            right: 10,
-            zIndex: 1000
+    <>
+      <div className="absolute inset-0">
+        <Debug />
+        <Canvas
+          id="canvas"
+          ref={canvasRef}
+          tabIndex={0}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          gl={{
+            antialias: true,
+            alpha: false,
+            outputColorSpace: THREE.SRGBColorSpace,
+            toneMapping: THREE.ACESFilmicToneMapping
           }}
-        />
-      </Canvas>
-    </div>
+          camera={{ fov: 60 }}
+          className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none"
+        >
+          <Renderer
+            sceneChildren={
+              <>
+                <color attach="background" args={["#000"]} />
+                <CameraController />
+                <Inspectables />
+                <Sparkles />
+                <Map />
+                <Suspense fallback={null}>
+                  {isBasketball && (
+                    <PhysicsWorld paused={!isBasketball}>
+                      <HoopMinigame />
+                      <PlayedBasketballs />
+                    </PhysicsWorld>
+                  )}
+                </Suspense>
+                <StaticBasketballs />
+
+                <CharacterInstanceConfig />
+                <CharactersSpawn />
+              </>
+            }
+          />
+          <Perf
+            style={{
+              position: "absolute",
+              top: 40,
+              right: 10,
+              zIndex: 1000
+            }}
+          />
+        </Canvas>
+      </div>
+      <MouseTracker />
+    </>
   )
 }
