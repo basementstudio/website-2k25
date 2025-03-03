@@ -23,11 +23,11 @@ const routingMaterial = new ShaderMaterial({
   depthWrite: false,
   depthTest: false,
   transparent: true,
-  uniforms: {
-    resolution: { value: [window.innerWidth, window.innerHeight] }
-  },
   fragmentShader: fragmentShader,
-  vertexShader: vertexShader
+  vertexShader: vertexShader,
+  uniforms: {
+    resolution: { value: [] }
+  }
 })
 
 const updateMaterialResolution = () => {
