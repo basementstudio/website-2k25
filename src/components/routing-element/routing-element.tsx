@@ -10,6 +10,7 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import fragmentShader from "./frag.glsl"
 import vertexShader from "./vert.glsl"
 import { useCursor } from "@/hooks/use-mouse"
+import { RoutingPlus } from "./routing-plus"
 
 interface RoutingElementProps {
   node: Mesh
@@ -218,21 +219,30 @@ const RoutingElementComponent = ({
   }, [])
 
   return (
-    <group
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-      onClick={handleClick}
-    >
-      <mesh
-        ref={meshRef}
-        geometry={node.geometry}
+    <>
+      <group
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+        onClick={handleClick}
         position={[node.position.x, node.position.y, node.position.z]}
         rotation={node.rotation}
-        renderOrder={1}
-        visible={hover}
-        material={routingMaterial}
-      />
-    </group>
+        visible={true}
+      >
+        <mesh
+          ref={meshRef}
+          geometry={node.geometry}
+          renderOrder={1}
+          material={routingMaterial}
+        />
+      </group>
+      <group
+        position={[node.position.x, node.position.y, node.position.z]}
+        rotation={node.rotation}
+        visible={true}
+      >
+        <RoutingPlus geometry={node.geometry} />
+      </group>
+    </>
   )
 }
 
