@@ -23,7 +23,7 @@ export const Link = ({
 }: LinkProps) => {
   const { handleNavigation } = useHandleNavigation()
 
-  return href.includes("http") ? (
+  return href.includes("http") || href.includes("mailto") ? (
     <NextLink
       href={href}
       className={className}

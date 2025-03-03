@@ -14,7 +14,6 @@ import {
   Vector3
 } from "three"
 
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -22,6 +21,7 @@ import { useScrollTo } from "@/hooks/use-scroll-to"
 
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
+import { useCursor } from "@/hooks/use-mouse"
 
 interface InspectableProps {
   id: string
@@ -47,9 +47,9 @@ export const Inspectable = ({
   const { selected } = useInspectable()
   const { setSelected } = useInspectable()
   const camera = useThree((state) => state.camera) as PerspectiveCamera
-  const setCursorType = useMouseStore((state) => state.setCursorType)
-  const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
 
+  const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
+  const setCursor = useCursor()
   const perpendicularMoved = useRef(new Vector3())
 
   const size = useRef({ x: 0, y: 0, z: 0 })
@@ -244,7 +244,7 @@ export const Inspectable = ({
           e.stopPropagation()
           return
         }
-        setCursorType("grab")
+        setCursor("grab")
         handleSelection()
       }}
       onPointerEnter={(e) => {
@@ -253,8 +253,8 @@ export const Inspectable = ({
           !scenes.some((scene) => scene === currentScene)
         )
           return
-        if (!selected) setCursorType("zoom")
-        else if (selected === id) setCursorType("grab")
+        if (!selected) setCursor("zoom-in")
+        else if (selected === id) setCursor("grab")
       }}
       onPointerLeave={() => {
         if (
@@ -262,7 +262,7 @@ export const Inspectable = ({
           !scenes.some((scene) => scene === currentScene)
         )
           return
-        if (!selected) setCursorType("default")
+        if (!selected) setCursor("default")
       }}
     >
       <InspectableDragger

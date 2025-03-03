@@ -1,11 +1,10 @@
 import { Container, Text } from "@react-three/uikit"
 
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
-
 import { COLORS_THEME } from "../screen-ui"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useArcadeStore } from "@/store/arcade-store"
 import { useKeyPress } from "@/hooks/use-key-press"
+import { useCursor } from "@/hooks/use-mouse"
 
 interface ArcadeLabsListProps {
   experiments: any[]
@@ -18,13 +17,13 @@ export const ArcadeLabsList = ({
   selectedExperiment,
   setSelectedExperiment
 }: ArcadeLabsListProps) => {
-  const setCursorType = useMouseStore((state) => state.setCursorType)
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const scrollContainerRef = useRef<any>(null)
   const [sourceHoverStates, setSourceHoverStates] = useState<boolean[]>(
     new Array(experiments.length).fill(false)
   )
+  const setCursor = useCursor()
   const [mouseHoveredExperiment, setMouseHoveredExperiment] =
     useState<any>(null)
   const [hasMouseInteracted, setHasMouseInteracted] = useState(false)
@@ -157,12 +156,12 @@ export const ArcadeLabsList = ({
               onClick={() => handleExperimentClick(data)}
               onHoverChange={(hover) => {
                 if (hover) {
-                  setCursorType("alias")
+                  setCursor("alias")
                   setSelectedExperiment(data)
                   setMouseHoveredExperiment(data)
                   setHasMouseInteracted(true)
                 } else {
-                  setCursorType("default")
+                  setCursor("default")
                   setMouseHoveredExperiment(null)
                 }
               }}
@@ -198,7 +197,7 @@ export const ArcadeLabsList = ({
                 }}
                 onHoverChange={(hover) => {
                   if (hover) {
-                    setCursorType("alias")
+                    setCursor("alias")
                     setSelectedExperiment(data)
                     setSourceHoverStates((prev) => {
                       const newStates = [...prev]
@@ -206,7 +205,7 @@ export const ArcadeLabsList = ({
                       return newStates
                     })
                   } else {
-                    setCursorType("default")
+                    setCursor("default")
                     setSourceHoverStates((prev) => {
                       const newStates = [...prev]
                       newStates[idx] = false
@@ -261,11 +260,10 @@ const ViewMore = ({
   setSelectedExperiment: (experiment: any) => void
 }) => {
   const [isViewMoreHovered, setIsViewMoreHovered] = useState(false)
-  const setCursorType = useMouseStore((state) => state.setCursorType)
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const experiments = useArcadeStore((state) => state.labTabs)
-
+  const setCursor = useCursor()
   const handleViewMoreClick = useCallback(() => {
     window.open("https://basement.studio/lab", "_blank")
   }, [])
@@ -304,11 +302,11 @@ const ViewMore = ({
         if (hover) {
           setSelectedExperiment(null)
           setIsViewMoreHovered(true)
-          setCursorType("alias")
+          setCursor("alias")
         } else {
           setSelectedExperiment(null)
           setIsViewMoreHovered(false)
-          setCursorType("default")
+          setCursor("default")
         }
       }}
     >

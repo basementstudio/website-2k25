@@ -5,7 +5,11 @@ import { ProjectPeople } from "./people"
 import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
 
-export const ProjectWrapper = ({ entry }: { entry: QueryItemType }) => (
+export const ProjectWrapper = ({
+  entry
+}: {
+  entry: QueryItemType & { awards: { title: string }[] }
+}) => (
   <ProjectProvider>
     <div className="grid-layout min-h-screen pt-12">
       <ProjectGallery entry={entry} />

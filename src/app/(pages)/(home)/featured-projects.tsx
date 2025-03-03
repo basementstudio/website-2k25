@@ -15,15 +15,15 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
           className="grid-layout group col-span-full !px-0"
         >
           <article className="grid-layout col-span-full items-end !px-0 lg:col-span-6">
-            <p className="text-mobile-h1 col-span-1 -mb-2 text-brand-g1 lg:col-span-4 lg:text-h1">
+            <p className="col-span-1 -mb-2 text-mobile-h1 text-brand-g1 lg:col-span-4 lg:text-h1">
               {idx + 1}
             </p>
 
-            <h2 className="actionable text-mobile-h3 col-span-3 -mb-2 text-brand-w1 lg:col-span-8 lg:text-h2">
+            <h2 className="actionable col-span-3 -mb-2 text-mobile-h3 text-brand-w1 lg:col-span-8 lg:text-h2">
               <Link href={`/showcase/${p.project?._slug}`}>{p._title}</Link>
             </h2>
 
-            <div className="[&_p]:text-mobile-h3 col-span-full w-full max-w-[95%] [&_p]:text-brand-w2 lg:[&_p]:text-h2">
+            <div className="col-span-full mt-2 w-full max-w-[95%] [&_p]:text-mobile-h3 [&_p]:text-brand-w2 lg:[&_p]:text-h2">
               <p>{p.excerpt}</p>
             </div>
 

@@ -41,7 +41,7 @@ export default function Sandbox({ keyName }: SandboxProps) {
     : getTemplateConfig(sandbox?.template as CustomTemplateName)
 
   return (
-    <div className="mt-24 w-full">
+    <div className="custom-block w-full">
       <SandpackProvider
         template={
           isDefaultTemplate

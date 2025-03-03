@@ -62,10 +62,10 @@
   }
 
   .with-dots {
-    --tw-gradient-stops: theme("colors.brand.w1") 0px,
-      theme("colors.brand.w1") 1px, transparent 1px,
-      transparent calc(100% - 1px), theme("colors.brand.w1") calc(100% - 1px),
-      theme("colors.brand.w1") 100%;
+    --tw-gradient-stops:
+      theme("colors.brand.w1") 0px, theme("colors.brand.w1") 1px,
+      transparent 1px, transparent calc(100% - 1px),
+      theme("colors.brand.w1") calc(100% - 1px), theme("colors.brand.w1") 100%;
 
     @apply relative;
     @apply after:pointer-events-none after:absolute after:left-0 after:right-0 after:top-0 after:z-10 after:h-px after:bg-gradient-to-r;
@@ -159,6 +159,33 @@ a:focus {
   & ul {
     li {
       @apply before:!bg-brand-g1;
+    }
+  }
+}
+
+/* tweet component */
+
+.react-tweet-theme {
+  --tweet-bg-color: theme("colors.brand.k") !important;
+  --tweet-bg-color-hover: rgba(255, 255, 255, 0.05) !important;
+  --tweet-border: 1px solid theme("colors.brand.g2") !important;
+  --tweet-color-blue-secondary-hover: rgba(255, 255, 255, 0.05) !important;
+  --tweet-skeleton-gradient: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  ) !important;
+
+  max-width: 100% !important;
+  border-radius: 0 !important;
+
+  & div[class*="media"],
+  & div[class*="replies"] {
+    border-radius: 0 !important;
+
+    & > a {
+      border-radius: 0 !important;
     }
   }
 }

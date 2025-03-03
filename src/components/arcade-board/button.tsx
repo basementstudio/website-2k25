@@ -3,11 +3,12 @@ import { useCallback, useEffect, useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { BOARD_ANGLE, BUTTON_ANIMATION } from "./constants"
+import { useCursor } from "@/hooks/use-mouse"
 
 const VALID_BUTTONS = {
   "02_BT_10": "b",
@@ -16,10 +17,10 @@ const VALID_BUTTONS = {
 
 export const Button = ({ button }: { button: Mesh }) => {
   const scene = useCurrentScene()
-  const { setCursorType } = useMouseStore()
+  const setCursor = useCursor()
+
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
-
   const availableSounds = sfx.arcade.buttons.length
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
   const isPressed = useRef(false)
@@ -100,11 +101,11 @@ export const Button = ({ button }: { button: Mesh }) => {
         scale={[1, 0.6, 1]}
         onPointerEnter={(e) => {
           e.stopPropagation()
-          setCursorType("hover")
+          setCursor("pointer")
         }}
         onPointerDown={(e) => {
           e.stopPropagation()
-          setCursorType("click")
+          setCursor("pointer")
           isPressed.current = true
           handleButtonInteraction(true)
         }}
@@ -117,7 +118,7 @@ export const Button = ({ button }: { button: Mesh }) => {
         }}
         onPointerLeave={(e) => {
           e.stopPropagation()
-          setCursorType("default")
+          setCursor("default")
           if (isPressed.current) {
             isPressed.current = false
             handleButtonInteraction(false)
