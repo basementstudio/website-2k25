@@ -18,12 +18,12 @@ THREE.ShaderChunk.skinning_pars_vertex =
         return calcCoord(size, int(batchId));
       }
       
-      ivec2 getSampleCoord(const usampler2D mapSampler, const float batchId) {
+      ivec2 getUSampleCoord(const usampler2D mapSampler, const float batchId) {
         int size = textureSize(mapSampler, 0).x;
         return calcCoord(size, int(batchId));
       }
 
-      ivec2 getSampleCoord(const isampler2D mapSampler, const float batchId) {
+      ivec2 getISampleCoord(const isampler2D mapSampler, const float batchId) {
         int size = textureSize(mapSampler, 0).x;
         return calcCoord(size, int(batchId));
       }
@@ -69,14 +69,14 @@ THREE.ShaderChunk.skinning_pars_vertex =
       #ifdef USE_BATCHED_MORPHS
 
       uniform highp sampler2D morphDataTexture;
-      uniform highp isampler2D uActiveMorphs;
+      uniform highp usampler2D uActiveMorphs;
 
       attribute int vertexIndex;
 
       int getActiveMorphOffset() {
         float batchId = getIndirectIndex(gl_DrawID);
-        ivec2 mapIndexCoord = getSampleCoord(uActiveMorphs, batchId);
-        return int(texelFetch(uActiveMorphs, mapIndexCoord, 0).x);
+        ivec2 mapIndexCoord = getUSampleCoord(uActiveMorphs, batchId);
+        return int(texelFetch(uActiveMorphs, mapIndexCoord, 0).x) - 1;
       }
 
       vec4 getMorphTransform() {
@@ -329,6 +329,15 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       format,
       type
     )
+
+    console.log("creating texture", {
+      name,
+      data,
+      textureSize,
+      format,
+      type
+    })
+
     texture.needsUpdate = true
     this.dataTextures.set(name, texture)
     return texture
@@ -480,7 +489,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     this.morphTexture.needsUpdate = true
     this.shouldComputeMorphTargets = false
 
-    this.addInstancedUniform("uActiveMorphs", -1, THREE.IntType)
+    this.addInstancedUniform("uActiveMorphs", 0, THREE.UnsignedIntType)
   }
 
   private _setInstanceMorph = (
@@ -497,7 +506,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       geometryOffset = -1
     }
 
-    this.setInstanceUniform(instanceId, "uActiveMorphs", geometryOffset)
+    this.setInstanceUniform(instanceId, "uActiveMorphs", geometryOffset + 1)
   }
 
   public setInstanceMorph(
