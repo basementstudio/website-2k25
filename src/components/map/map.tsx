@@ -133,7 +133,7 @@ export const Map = memo(() => {
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
-  const [net, setNet] = useState<Object3D | null>(null)
+  const [net, setNet] = useState<Mesh | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
@@ -260,12 +260,13 @@ export const Map = memo(() => {
     const originalNet = officeModel?.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
 
-    if (originalNet?.parent && newNetMesh?.parent) {
-      originalNet.removeFromParent()
-
+    if (newNetMesh?.parent) {
       newNetMesh.removeFromParent()
+    }
 
-      setNet(originalNet!)
+    if (originalNet?.parent) {
+      originalNet.removeFromParent()
+      setNet(originalNet as Mesh)
     }
 
     // const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
@@ -619,7 +620,6 @@ export const Map = memo(() => {
         <primitive object={useMesh.getState().hoopMesh as Mesh} />
       )}
       {net && net instanceof THREE.Mesh && <Net mesh={net} />}
-
       <BakesLoader />
       <ReflexesLoader />
 
