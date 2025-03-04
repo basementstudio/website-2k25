@@ -8,49 +8,49 @@ import { QueryType } from "./query"
 export const FeaturedProjects = ({ data }: { data: QueryType }) => {
   const p = data.pages.homepage.featuredProjects.projectList.items
   return (
-    <div className="grid-layout !gap-y-14">
-      {p.map((p, idx) => (
-        <section
-          key={p.project?._slug}
-          className="grid-layout group col-span-full !px-0"
-        >
-          <article className="grid-layout col-span-full items-end !px-0 lg:col-span-6">
-            <p className="col-span-1 -mb-2 text-mobile-h1 text-brand-g1 lg:col-span-4 lg:text-h1">
-              {idx + 1}
-            </p>
+    <div className="grid-layout !gap-y-4">
+      <h2 className="col-span-full mb-4 text-mobile-h1 text-brand-w2 lg:text-h1">
+        Featured projects
+      </h2>
 
-            <h2 className="actionable col-span-3 -mb-2 text-mobile-h3 text-brand-w1 lg:col-span-8 lg:text-h2">
-              <Link href={`/showcase/${p.project?._slug}`}>{p._title}</Link>
-            </h2>
-
-            <div className="col-span-full mt-2 w-full max-w-[95%] [&_p]:text-mobile-h3 [&_p]:text-brand-w2 lg:[&_p]:text-h2">
-              <p>{p.excerpt}</p>
-            </div>
-
-            <div className="with-dots relative col-span-full mt-4 aspect-video overflow-clip lg:hidden">
+      {p.map((project) => (
+        <div key={project._title} className="grid-layout col-span-full !px-0">
+          <div className="relative col-span-7 after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+            <div className="with-dots relative h-full w-full">
               <Image
-                src={p.project?.cover?.url ?? ""}
-                alt={p.project?.cover?.alt ?? ""}
-                fill
-                className="border border-brand-w1/20 object-cover"
+                src={project.cover?.url ?? ""}
+                alt={project._title}
+                width={project.cover?.width ?? 0}
+                height={project.cover?.height ?? 0}
               />
             </div>
+          </div>
+          <div className="col-span-2 flex flex-col gap-y-4">
+            <p className="text-mobile-h4 text-brand-w2 lg:text-h4">
+              {project.excerpt}
+            </p>
 
             <TextList
-              value={p.project?.categories?.map((c) => c._title) ?? []}
-              className="actionable col-span-4 mt-4 gap-y-1 !text-h4 text-brand-w1"
-            />
-          </article>
-
-          <div className="relative col-span-full hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100 lg:col-span-6">
-            <Image
-              src={p.project?.cover?.url ?? ""}
-              alt={p.project?.cover?.alt ?? ""}
-              fill
-              className="object-cover"
+              value={
+                project.project?.categories?.map((category) => (
+                  <p
+                    key={category._title}
+                    className="actionable text-mobile-h4 text-brand-w1 lg:text-h4"
+                  >
+                    {category._title}
+                  </p>
+                )) ?? []
+              }
             />
           </div>
-        </section>
+
+          <Link
+            href={`/showcase/${project.project?._slug}`}
+            className="actionable h-max text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
+          >
+            {project._title}
+          </Link>
+        </div>
       ))}
     </div>
   )

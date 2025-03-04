@@ -37,7 +37,8 @@ export const query = fragmentOn("Query", {
               categories: {
                 _title: true
               }
-            }
+            },
+            cover: IMAGE_FRAGMENT
           }
         }
       }
