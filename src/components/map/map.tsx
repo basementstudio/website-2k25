@@ -41,10 +41,10 @@ import {
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
 import { Net } from "../basketball/net"
+import { OutdoorCars } from "../outdoor-cars"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
-import { OutdoorCars } from "../outdoor-cars"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -648,8 +648,8 @@ export const Map = memo(() => {
           />
         )
       })}
-      {scene !== "basketball" && useMesh.getState().hoopMesh && (
-        <primitive object={useMesh.getState().hoopMesh as Mesh} />
+      {useMesh.getState().hoopMeshes.hoop && (
+        <primitive object={useMesh.getState().hoopMeshes.hoop as Mesh} />
       )}
       {net && net instanceof THREE.Mesh && <Net mesh={net} />}
       <BakesLoader />
