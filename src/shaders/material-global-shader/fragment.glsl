@@ -182,13 +182,13 @@ void main() {
     vec3 rimLightDir = normalize(-vViewDirection + vec3(0.0, 0.5, 0.0));
     lf *= basicLight(vNormal, rimLightDir, 3.0);
 
-    // Sample matcap texture using normal and view direction
     #ifdef MATCAP
-    vec3 r = reflect(-vViewDirection, vNormal);
-    float m = 2.0 * sqrt(pow(r.x, 2.0) + pow(r.y, 2.0) + pow(r.z + 1.0, 2.0));
-    vec2 matcapUv = r.xy / m + 0.5;
-    vec3 matcapColor = texture2D(matcap, matcapUv).rgb;
-    lf *= matcapColor;
+    vec3 x = normalize(vec3(-vViewDirection.z, 0.0, vViewDirection.x));
+    vec3 y = cross(vViewDirection, x);
+    vec2 muv =
+      vec2(dot(x, normalize(vNormal)), dot(y, normalize(vNormal))) * 0.495 +
+      0.5;
+    lf *= texture2D(matcap, muv).rgb;
     #endif
   }
 
