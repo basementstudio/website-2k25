@@ -23,13 +23,16 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      {shouldShowCanvas && (
-        <div className="canvas-container sticky top-0 h-screen w-full lg:fixed">
-          <Scene />
-          <Grid />
-          <InspectableViewer />
-        </div>
-      )}
+      <div
+        className={cn(
+          "canvas-container sticky top-0 h-screen w-full lg:fixed",
+          !shouldShowCanvas && "pointer-events-none invisible opacity-0"
+        )}
+      >
+        <Scene />
+        <Grid />
+        <InspectableViewer />
+      </div>
 
       <div
         className={cn("layout-container", shouldShowCanvas && "lg:mt-[100dvh]")}
