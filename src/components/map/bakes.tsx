@@ -1,7 +1,6 @@
 "use client"
 
-import { useFrame, useLoader, useThree } from "@react-three/fiber"
-import { useControls } from "leva"
+import { useLoader, useThree } from "@react-three/fiber"
 import { animate } from "motion"
 import { memo, Suspense, useEffect, useMemo } from "react"
 import {
@@ -23,6 +22,7 @@ import { cctvConfig } from "../postprocessing/renderer"
 interface Bake {
   lightmap?: Texture
   aomap?: Texture
+  matcap?: Texture
 }
 
 interface TextureUpdate {
@@ -45,8 +45,14 @@ const addAmbientOcclusion = (update: TextureUpdate) => {
   material.uniforms.aoMapIntensity.value = 1
 }
 
+const addMatcap = (update: TextureUpdate) => {
+  if (!update.mesh.userData.hasGlobalMaterial) return
+  const material = update.mesh.material as ShaderMaterial
+  material.uniforms.matcap.value = update.texture
+}
+
 const useBakes = (): Record<string, Bake> => {
-  const { bakes } = useAssets()
+  const { bakes, matcaps } = useAssets()
 
   const withLightmap = useMemo(
     () => bakes.filter((bake) => bake.lightmap),
@@ -68,50 +74,61 @@ const useBakes = (): Record<string, Bake> => {
     withAmbientOcclusion.map((bake) => bake.ambientOcclusion)
   )
 
+  const loadedMatcaps = useLoader(
+    TextureLoader,
+    matcaps.map((matcap) => matcap.file)
+  )
+
   const meshMaps = useMemo(() => {
     const maps: Record<string, Bake> = {}
 
-    bakes.forEach((bake) => {
-      loadedLightmaps.forEach((map, index) => {
-        const meshNames = withLightmap[index].meshes
-        map.flipY = true
-        map.generateMipmaps = false
-        map.minFilter = NearestFilter
-        map.magFilter = NearestFilter
-        map.colorSpace = NoColorSpace
+    loadedLightmaps.forEach((map, index) => {
+      const meshNames = withLightmap[index].meshes
+      map.flipY = true
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
+      map.magFilter = NearestFilter
+      map.colorSpace = NoColorSpace
 
-        for (const meshName of meshNames) {
-          if (!maps[meshName]) {
-            maps[meshName] = {}
-          }
-          maps[meshName].lightmap = map
+      for (const meshName of meshNames) {
+        if (!maps[meshName]) {
+          maps[meshName] = {}
         }
-      })
+        maps[meshName].lightmap = map
+      }
+    })
 
-      loadedAmbientOcclusion.forEach((map, index) => {
-        const meshNames = withAmbientOcclusion[index].meshes
-        map.flipY = false
-        map.generateMipmaps = false
-        map.minFilter = NearestFilter
-        map.magFilter = NearestFilter
-        map.colorSpace = NoColorSpace
+    loadedAmbientOcclusion.forEach((map, index) => {
+      const meshNames = withAmbientOcclusion[index].meshes
+      map.flipY = false
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
+      map.magFilter = NearestFilter
+      map.colorSpace = NoColorSpace
 
-        for (const meshName of meshNames) {
-          if (!maps[meshName]) {
-            maps[meshName] = {}
-          }
-          maps[meshName].aomap = map
+      for (const meshName of meshNames) {
+        if (!maps[meshName]) {
+          maps[meshName] = {}
         }
-      })
+        maps[meshName].aomap = map
+      }
+    })
+
+    loadedMatcaps.forEach((map, index) => {
+      if (!maps[matcaps[index].mesh]) {
+        maps[matcaps[index].mesh] = {}
+      }
+      maps[matcaps[index].mesh].matcap = map
     })
 
     return maps
   }, [
-    bakes,
     loadedLightmaps,
     loadedAmbientOcclusion,
     withLightmap,
-    withAmbientOcclusion
+    withAmbientOcclusion,
+    matcaps,
+    loadedMatcaps
   ])
 
   return meshMaps
@@ -125,25 +142,6 @@ const Bakes = () => {
   const bakes = useBakes()
 
   const scene = useThree((state) => state.scene)
-
-  const { lightmapIntensity, ambientOcclusion } = useControls("Bakes", {
-    lightmapIntensity: { value: 1, min: 0, max: 24, step: 0.01 },
-    ambientOcclusion: { value: 1, min: 0, max: 24, step: 0.01 }
-  })
-
-  useFrame(() => {
-    Object.values(shaderMaterialsRef).forEach((material) => {
-      if (material.uniforms.lightMap.value) {
-        material.uniforms.lightMapIntensity.value = lightmapIntensity
-      }
-    })
-
-    Object.values(shaderMaterialsRef).forEach((material) => {
-      if (material.uniforms.aoMap.value) {
-        material.uniforms.aoMapIntensity.value = ambientOcclusion
-      }
-    })
-  })
 
   useEffect(() => {
     animate(0, 1, {
@@ -174,6 +172,12 @@ const Bakes = () => {
           addAmbientOcclusion({
             mesh: meshOrGroup,
             texture: maps.aomap
+          })
+        }
+        if (maps.matcap) {
+          addMatcap({
+            mesh: meshOrGroup,
+            texture: maps.matcap
           })
         }
       } else if (meshOrGroup instanceof Group) {

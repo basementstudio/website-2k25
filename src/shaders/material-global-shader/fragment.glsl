@@ -62,6 +62,11 @@ uniform float fogDensity;
 uniform float fogDepth;
 #endif
 
+// Matcap
+#ifdef MATCAP
+uniform sampler2D matcap;
+#endif
+
 // Glass
 #ifdef GLASS
 uniform sampler2D glassReflex;
@@ -176,6 +181,15 @@ void main() {
     // Rim light
     vec3 rimLightDir = normalize(-vViewDirection + vec3(0.0, 0.5, 0.0));
     lf *= basicLight(vNormal, rimLightDir, 3.0);
+
+    // Sample matcap texture using normal and view direction
+    #ifdef MATCAP
+    vec3 r = reflect(-vViewDirection, vNormal);
+    float m = 2.0 * sqrt(pow(r.x, 2.0) + pow(r.y, 2.0) + pow(r.z + 1.0, 2.0));
+    vec2 matcapUv = r.xy / m + 0.5;
+    vec3 matcapColor = texture2D(matcap, matcapUv).rgb;
+    lf *= matcapColor;
+    #endif
   }
 
   if (lightMapIntensity > 0.0) {

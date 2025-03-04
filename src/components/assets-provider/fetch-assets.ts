@@ -16,6 +16,10 @@ export interface AssetsResult {
     ambientOcclusion: string
     meshes: string[]
   }[]
+  matcaps: {
+    mesh: string
+    file: string
+  }[]
   arcade: {
     idleScreen: string
     placeholderLab: string
@@ -150,6 +154,14 @@ export async function fetchAssets(): Promise<AssetsResult> {
       ambientOcclusion: item.ambientOcclusion?.url ?? "",
       meshes: item.meshes.items.map((mesh) => mesh._title)
     })),
+    glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
+      mesh: item._title,
+      url: item.file?.url ?? ""
+    })),
+    matcaps: threeDInteractions.map.matcaps.items.map((item) => ({
+      mesh: item._title,
+      file: item.file?.url ?? ""
+    })),
     routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
     arcade: {
       idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "",
@@ -158,10 +170,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
       chronicles: threeDInteractions.arcade.chronicles?.url ?? "",
       looper: threeDInteractions.arcade.looper?.url ?? ""
     },
-    glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
-      mesh: item._title,
-      url: item.file?.url ?? ""
-    })),
     videos: threeDInteractions.map.videos.items.map((item) => ({
       mesh: item._title,
       url: item.file?.url ?? "",

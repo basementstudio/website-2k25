@@ -49,6 +49,14 @@ export const mapFragment = fragmentOn("Map", {
       }
     }
   },
+  matcaps: {
+    items: {
+      _title: true,
+      file: {
+        url: true
+      }
+    }
+  },
   videos: {
     items: {
       _title: true,
