@@ -17,11 +17,11 @@ import {
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useCursor } from "@/hooks/use-mouse"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
-import { useCursor } from "@/hooks/use-mouse"
 
 interface InspectableProps {
   id: string
@@ -29,6 +29,7 @@ interface InspectableProps {
   position: { x: number; y: number; z: number }
   xOffset: number
   yOffset: number
+  xRotationOffset: number
   sizeTarget: number
   scenes: string[]
 }
@@ -39,6 +40,7 @@ export const Inspectable = ({
   position,
   xOffset,
   yOffset,
+  xRotationOffset,
   sizeTarget,
   scenes
 }: InspectableProps) => {
@@ -196,7 +198,7 @@ export const Inspectable = ({
 
         targetQuaternion.setFromRotationMatrix(lookAtMatrix)
         const q = new Quaternion()
-        q.setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
+        q.setFromAxisAngle(vRef.upVector, -Math.PI / 2 + xRotationOffset)
         targetQuaternion.multiply(q)
 
         const direction = new Vector3()

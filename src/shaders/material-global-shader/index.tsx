@@ -18,6 +18,7 @@ export const createGlobalShaderMaterial = (
     GODRAY?: boolean
     LIGHT?: boolean
     FOG?: boolean
+    MATCAP?: boolean
   }
 ) => {
   const {
@@ -76,6 +77,11 @@ export const createGlobalShaderMaterial = (
     uniforms["lightDirection"] = { value: lightDirection }
   }
 
+  if (defines?.MATCAP) {
+    uniforms["matcap"] = { value: null }
+    uniforms["glassMatcap"] = { value: false }
+  }
+
   const material = new ShaderMaterial({
     name: GLOBAL_SHADER_MATERIAL_NAME,
     defines: {
@@ -88,7 +94,8 @@ export const createGlobalShaderMaterial = (
       GLASS: defines?.GLASS !== undefined ? Boolean(defines?.GLASS) : false,
       GODRAY: defines?.GODRAY !== undefined ? Boolean(defines?.GODRAY) : false,
       LIGHT: defines?.LIGHT !== undefined ? Boolean(defines?.LIGHT) : false,
-      FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true
+      FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
+      MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false
     },
     uniforms,
     transparent:
