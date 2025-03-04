@@ -11,8 +11,6 @@ import {
   useState
 } from "react"
 import * as THREE from "three"
-import { Mesh } from "three"
-import { RGBAFormat, Scene } from "three"
 
 interface R3FObject {
   __r3f: {
@@ -34,15 +32,15 @@ export interface PaintCanvasProps {
   /** Callback called when a new depthTexture is used */
   onDepthTexture?: (texture: THREE.DepthTexture) => void
   /** Use a custom render target */
-  fbo?: THREE.WebGLRenderTarget
+  fbo: THREE.WebGLRenderTarget
   /** A scene to use as a container */
-  containerScene?: Scene
+  containerScene?: THREE.Scene
   /** Use global mouse coordinate to calculate raycast */
   useGlobalPointer?: boolean
   /** Priority of the render frame */
   renderPriority?: number
   /* mesh to use for raycasting */
-  raycasterMesh?: Mesh
+  raycasterMesh?: THREE.Mesh
 }
 
 export const renderTextureContext = createContext<{
@@ -53,18 +51,18 @@ export const renderTextureContext = createContext<{
   isPlaying: boolean
 }>({
   isInsideRenderTexture: false,
-  width: 2048,
-  height: 2048,
+  width: 1024,
+  height: 1024,
   aspect: 1,
   isPlaying: true
 })
 
 export const RenderTexture = ({
   isPlaying: _playing = true,
-  width = 2048,
-  height = 2048,
+  width = 1024,
+  height = 1024,
   attach,
-  fbo: _fbo,
+  fbo,
   onMapTexture,
   onDepthTexture,
   containerScene,
@@ -74,23 +72,6 @@ export const RenderTexture = ({
   raycasterMesh
 }: PropsWithChildren<PaintCanvasProps>) => {
   // once the canvas is loaded, force render
-
-  const fbo = useMemo(() => {
-    const fbo =
-      _fbo ||
-      new THREE.WebGLRenderTarget(width, height, {
-        samples: 16,
-        stencilBuffer: true,
-        depthTexture: new THREE.DepthTexture(
-          width,
-          height,
-          THREE.UnsignedInt248Type
-        ),
-        format: RGBAFormat
-      })
-    return fbo
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_fbo])
 
   useEffect(() => {
     if (onMapTexture) {
@@ -107,7 +88,7 @@ export const RenderTexture = ({
   }, [fbo.depthTexture, onDepthTexture])
 
   const portalScene = useMemo(() => {
-    return containerScene || new Scene()
+    return containerScene || new THREE.Scene()
   }, [containerScene])
 
   const isPlayingRef = useRef(_playing)
@@ -201,7 +182,7 @@ export const RenderTexture = ({
             {/* Without an element that receives pointer events state.pointer will always be 0/0 */}
             <group onPointerOver={() => null} />
           </SceneContainer>,
-          portalScene as Scene,
+          portalScene as THREE.Scene,
           {
             events: {
               compute: useGlobalPointer ? viewportUvCompute : uvCompute,

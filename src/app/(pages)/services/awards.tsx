@@ -5,6 +5,7 @@ import Image from "next/image"
 import { MouseEvent, useState } from "react"
 
 import { Link } from "@/components/primitives/link"
+import { useMedia } from "@/hooks/use-media"
 import { formatDate } from "@/utils/format-date"
 
 import { QueryType } from "./query"
@@ -13,6 +14,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const [mouseY, setMouseY] = useState(0)
   const [hoveredHeight, setHoveredHeight] = useState(0)
+  const isDesktop = useMedia("(min-width: 1024px)")
 
   function getRelativeCoordinates(
     event: MouseEvent<HTMLElement>,
@@ -42,12 +44,12 @@ export const Awards = ({ data }: { data: QueryType }) => {
 
   return (
     <div className="grid-layout">
-      <div className="col-span-12 flex gap-2 text-h2 text-brand-g1">
+      <div className="col-span-full flex gap-2 text-mobile-h2 text-brand-g1 lg:text-h2">
         <h2>Awards</h2>
         <p>x{data.company.awards.awardList.items.length}</p>
       </div>
       <ul
-        className="relative col-span-12 text-paragraph text-brand-w1"
+        className="text-paragraph relative col-span-full text-brand-w1"
         onMouseMove={(e) => {
           const coordinates = getRelativeCoordinates(
             e,
@@ -77,16 +79,18 @@ export const Awards = ({ data }: { data: QueryType }) => {
                 href={award.awardUrl ?? ""}
                 className="item relative col-span-12 grid grid-cols-12 items-center gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
               >
-                <span className="col-span-3 text-h4">{award.title}</span>
-                <span className="col-span-2 text-p text-brand-w2">
-                  {award.project._title}
+                <span className="col-span-6 text-mobile-p lg:col-span-3 lg:text-h4">
+                  {award.title}
                 </span>
-                <span className="col-span-2 text-p text-brand-w2">
-                  {formatDate(award.date)}
+                <span className="col-start-7 col-end-10 text-mobile-p text-brand-w2 lg:col-span-2 lg:text-p">
+                  {award.project?._title}
+                </span>
+                <span className="col-start-10 col-end-13 text-right text-mobile-p text-brand-w2 lg:col-span-2 lg:text-left lg:text-p">
+                  {formatDate(award.date, false, "UTC")}
                 </span>
               </Link>
 
-              {award.certificate ? (
+              {award.certificate && isDesktop ? (
                 <motion.div
                   className="absolute right-64 z-10 h-[313px] w-[232px] opacity-0"
                   animate={{

@@ -72,20 +72,34 @@ export class AudioSource {
 export class WebAudioPlayer {
   public audioContext: AudioContext
   public masterOutput: GainNode
+  public musicChannel: GainNode
+  public sfxChannel: GainNode
   public isPlaying: boolean
   public volume: number
+  public musicVolume: number
 
   constructor() {
     this.audioContext = new (window.AudioContext || window.AudioContext)()
     this.masterOutput = this.audioContext.createGain()
-    this.audioContext.createBufferSource
     this.masterOutput.gain.value = 1
     this.masterOutput.connect(this.audioContext.destination)
+
+    // music channel
+    this.musicChannel = this.audioContext.createGain()
+    this.musicChannel.gain.value = 1
+    this.musicChannel.connect(this.masterOutput)
+
+    // SFX channel
+    this.sfxChannel = this.audioContext.createGain()
+    this.sfxChannel.gain.value = 1
+    this.sfxChannel.connect(this.masterOutput)
+
     this.isPlaying = true
     this.volume = 1
+    this.musicVolume = 1
   }
 
-  loadAudioFromURL(url: string): Promise<AudioSource> {
+  loadAudioFromURL(url: string, isSFX: boolean = false): Promise<AudioSource> {
     return new Promise((resolve, reject) => {
       fetch(url)
         .then((response) => response.arrayBuffer())
@@ -93,7 +107,12 @@ export class WebAudioPlayer {
           return this.audioContext.decodeAudioData(
             arrayBuffer,
             (buffer) => {
-              resolve(new AudioSource(this, buffer))
+              const source = new AudioSource(this, buffer)
+              source.outputNode.disconnect()
+              source.outputNode.connect(
+                isSFX ? this.sfxChannel : this.musicChannel
+              )
+              resolve(source)
             },
             (error) => {
               console.error("Error loading audio from URL:", error)
@@ -107,6 +126,11 @@ export class WebAudioPlayer {
   setVolume(volume: number) {
     this.masterOutput.gain.value = volume
     this.volume = volume
+  }
+
+  setMusicVolume(volume: number) {
+    this.musicChannel.gain.value = volume
+    this.musicVolume = volume
   }
 
   pause() {

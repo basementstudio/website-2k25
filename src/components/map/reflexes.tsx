@@ -12,7 +12,7 @@ import {
   TextureLoader
 } from "three"
 
-import { useAssets } from "../assets-provider"
+import { useAssets } from "@/components/assets-provider"
 
 function useReflexes(): Record<string, Texture> {
   const { glassReflexes } = useAssets()

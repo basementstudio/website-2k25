@@ -2,34 +2,39 @@ import { fragmentOn } from "basehub"
 
 import {
   arcadeFragment,
-  cameraStateFragment,
-  carFragment,
   characterFragment,
   inspectableFragment,
+  lampFragment,
   mapFragment,
+  // carFragment,
   modelsItemFragment,
   sceneFragment,
   sfxFragment
 } from "./fragments"
 
+const pagesFragment = fragmentOn("Pages", {
+  inspectables: inspectableFragment
+})
+
 const assetsFragment = fragmentOn("ThreeDInteractions", {
   map: mapFragment,
-  cameraStates: cameraStateFragment,
-  inspectables: inspectableFragment,
   sfx: sfxFragment,
   basketball: modelsItemFragment,
   basketballNet: modelsItemFragment,
   contactPhone: modelsItemFragment,
   arcade: arcadeFragment,
   scenes: sceneFragment,
-  car: carFragment,
-  characters: characterFragment
+  // car: carFragment,
+  characters: characterFragment,
+  lamp: lampFragment
 })
 
 interface Query {
+  pages: typeof pagesFragment
   threeDInteractions: typeof assetsFragment
 }
 
 export const assetsQuery: Query = {
+  pages: pagesFragment,
   threeDInteractions: assetsFragment
 }

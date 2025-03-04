@@ -3,7 +3,6 @@ import { ReactLenis, useLenis } from "lenis/react"
 import { FC, useRef } from "react"
 import { create } from "zustand"
 
-// Create a store to share scroll progress
 interface ScrollStore {
   scrollY: number
   setScrollY: (y: number) => void

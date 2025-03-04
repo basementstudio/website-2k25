@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { useEffect, useRef } from "react"
 import type { Group } from "three"
 
@@ -47,7 +49,13 @@ const Cars = () => {
   return (
     <>
       {car && (
-        <group scale={0.8} position-x={-9} position-z={7.7} ref={groupRef} />
+        <group
+          raycast={() => null}
+          scale={0.8}
+          position-x={-9}
+          position-z={7.7}
+          ref={groupRef}
+        />
       )}
     </>
   )

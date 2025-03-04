@@ -13,8 +13,8 @@ import {
 import { create } from "zustand"
 
 import {
-  InstancedUniformParams,
-  InstancedBatchedSkinnedMesh
+  InstancedBatchedSkinnedMesh,
+  InstancedUniformParams
 } from "./instanced-skinned-mesh"
 
 type GroupProps = React.ComponentProps<"group">
@@ -23,7 +23,7 @@ interface InstancesProviderProps {
   mesh: SkinnedMesh | SkinnedMesh[]
   material?: Material
   count: number
-  animations: AnimationClip[]
+  animations?: AnimationClip[]
   instancedUniforms?: InstancedUniformParams[]
 }
 
@@ -31,7 +31,7 @@ interface InstancedMeshStore {
   instancedMesh: InstancedBatchedSkinnedMesh | null
 }
 
-interface InstanceUniform {
+export interface InstanceUniform {
   value: number | number[]
 }
 
@@ -43,6 +43,7 @@ export interface InstancePositionProps<T extends string> {
   geometryName?: T
   geometryId?: number
   uniforms?: Record<string, InstanceUniform>
+  activeMorphName?: string
 }
 
 export const createInstancedSkinnedMesh = <T extends string>() => {
@@ -106,20 +107,31 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
 
       if (Array.isArray(mesh)) {
         mesh.forEach((m) => {
-          instancer.addGeometry(m.geometry)
+          const id = instancer.addGeometry(m.geometry)
+          if (m.morphTargetDictionary) {
+            instancer.addMorphGeometry(id, m.morphTargetDictionary)
+          }
         })
       } else {
-        instancer.addGeometry(mesh.geometry)
+        const id = instancer.addGeometry(mesh.geometry)
+        if (mesh.morphTargetDictionary) {
+          instancer.addMorphGeometry(id, mesh.morphTargetDictionary)
+        }
       }
 
-      animations.forEach((animation) => {
-        const skeleton = Array.isArray(mesh) ? mesh[0].skeleton : mesh.skeleton
-        instancer.addAnimation(skeleton, animation)
-      })
+      if (animations) {
+        animations.forEach((animation) => {
+          const skeleton = Array.isArray(mesh)
+            ? mesh[0].skeleton
+            : mesh.skeleton
+          instancer.addAnimation(skeleton, animation)
+        })
+      }
 
       useInstancedMesh.setState({
         instancedMesh: instancer
       })
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refs, count, propMaterial])
 
     const instancedMesh = useInstancedMesh((state) => state.instancedMesh)
@@ -149,6 +161,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       geometryName,
       geometryId,
       uniforms,
+      activeMorphName,
       ...props
     },
     ref
@@ -267,6 +280,23 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       // apply positionMatrix to the instance
       instancedMesh.setMatrixAt(instanceId.current, positionMatrix)
     })
+
+    useEffect(() => {
+      if (!instancedMesh) return
+      if (instanceId.current === null) return
+      if (activeMorphName === undefined) return
+
+      const resolvedGeometryId =
+        typeof geometryId === "number"
+          ? geometryId
+          : instancedMesh.getGeometryId(geometryName as any) || 0
+
+      instancedMesh.setInstanceMorph(
+        instanceId.current,
+        resolvedGeometryId,
+        activeMorphName
+      )
+    }, [instancedMesh, activeMorphName, geometryId, geometryName])
 
     return <primitive object={group} ref={ref} {...props} />
   })

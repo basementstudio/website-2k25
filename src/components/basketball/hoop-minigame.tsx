@@ -11,7 +11,6 @@ import {
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
@@ -22,22 +21,25 @@ import { Trajectory } from "./trajectory"
 export const HoopMinigame = () => {
   const { playSoundFX } = useSiteAudio()
   const [isBasketball, setIsBasketball] = useState(false)
-  const { setIsBasketball: setIsBasketballShader } = useCustomShaderMaterial()
   const scene = useCurrentScene()
 
   useEffect(() => {
     setIsBasketball(scene === "basketball")
-    setIsBasketballShader(scene === "basketball")
-
-    return () => setIsBasketballShader(false)
-  }, [scene, setIsBasketballShader, setIsBasketball])
+  }, [scene, setIsBasketball])
 
   const ballRef = useRef<RapierRigidBody>(null)
   const mousePos = useRef(new Vector2())
   const lastMousePos = useRef(new Vector2())
   const throwVelocity = useRef(new Vector2())
-  const dragPos = useRef(new Vector3())
-  const dragStartPos = useRef(new Vector3())
+
+  // Use a ref to store vectors for position calculations to avoid recreating them each frame
+  const positionVectors = useRef({
+    dragPos: new Vector3(),
+    dragStartPos: new Vector3(),
+    currentBallPos: new Vector3(),
+    targetPos: new Vector3()
+  }).current
+
   const { camera } = useThree()
   const bounceCount = useRef(0)
   const resetProgress = useRef(0)
@@ -67,6 +69,9 @@ export const HoopMinigame = () => {
     addPlayedBall,
     readyToPlay,
     setReadyToPlay,
+    resetConsecutiveScores,
+    justScored,
+    setJustScored,
     hasPlayed
   } = useMinigameStore()
 
@@ -79,6 +84,8 @@ export const HoopMinigame = () => {
     setTimeRemaining(gameDuration)
     setIsGameActive(false)
     setShotMetrics({ angle: "0.0", probability: "0.0" })
+    resetConsecutiveScores()
+    setJustScored(false)
 
     if (!hasPlayed) {
       setScore(0)
@@ -89,8 +96,10 @@ export const HoopMinigame = () => {
       initialPosition.y,
       initialPosition.z
     )
-    dragPos.current = new Vector3()
-    dragStartPos.current = new Vector3()
+    positionVectors.dragPos = new Vector3()
+    positionVectors.dragStartPos = new Vector3()
+    positionVectors.currentBallPos = new Vector3()
+    positionVectors.targetPos = new Vector3()
     mousePos.current = new Vector2()
     lastMousePos.current = new Vector2()
     throwVelocity.current = new Vector2()
@@ -104,6 +113,8 @@ export const HoopMinigame = () => {
     setTimeRemaining,
     setIsGameActive,
     setShotMetrics,
+    resetConsecutiveScores,
+    setJustScored,
     hasPlayed
   ])
 
@@ -154,6 +165,11 @@ export const HoopMinigame = () => {
         resetProgress.current = 0
         bounceCount.current = 0
         isThrowable.current = true
+
+        if (!justScored) {
+          resetConsecutiveScores()
+        }
+        setJustScored(false)
       } catch (error) {
         console.warn("Failed to reset ball position")
         setIsResetting(false)
@@ -166,7 +182,10 @@ export const HoopMinigame = () => {
       resetProgress,
       bounceCount,
       isThrowable,
-      isBasketball
+      isBasketball,
+      resetConsecutiveScores,
+      justScored,
+      setJustScored
     ]
   )
 
@@ -239,7 +258,7 @@ export const HoopMinigame = () => {
   const handlePointerUp = useCallback(() => {
     utilsHandlePointerUp({
       ballRef,
-      dragStartPos,
+      dragStartPos: positionVectors.dragStartPos,
       hasMovedSignificantly,
       isThrowable,
       hoopPosition,
@@ -285,22 +304,48 @@ export const HoopMinigame = () => {
         lastMousePos.current.copy(mousePos.current)
 
         const distance = 4
-        dragPos.current.set(pointer.x, pointer.y, 0.5)
-        dragPos.current.unproject(camera)
-        dragPos.current.sub(camera.position).normalize()
-        dragPos.current.multiplyScalar(distance)
-        dragPos.current.add(camera.position)
+        positionVectors.targetPos.set(pointer.x, pointer.y, 0.5)
+        positionVectors.targetPos.unproject(camera)
+        positionVectors.targetPos.sub(camera.position).normalize()
+        positionVectors.targetPos.multiplyScalar(distance)
+        positionVectors.targetPos.add(camera.position)
 
-        dragPos.current.x = Math.max(4.8, Math.min(5.6, dragPos.current.x))
-        dragPos.current.y = Math.max(1, Math.min(3, dragPos.current.y))
-        dragPos.current.z = Math.max(-11.2, Math.min(-10.2, dragPos.current.z))
+        // Apply constraints to the target position
+        positionVectors.targetPos.x = Math.max(
+          4.8,
+          Math.min(5.6, positionVectors.targetPos.x)
+        )
+        positionVectors.targetPos.y = Math.max(
+          1,
+          Math.min(3, positionVectors.targetPos.y)
+        )
+        positionVectors.targetPos.z = Math.max(
+          -11.2,
+          Math.min(-10.2, positionVectors.targetPos.z)
+        )
+
+        // Get current ball position
+        const translation = ballRef.current.translation()
+        positionVectors.currentBallPos.set(
+          translation.x,
+          translation.y,
+          translation.z
+        )
+
+        // Interpolate towards the target position with smooth lerp
+        const lerpFactor = 0.002 // Adjust this value for smoother or more responsive movement
+        positionVectors.dragPos.lerpVectors(
+          positionVectors.currentBallPos,
+          positionVectors.targetPos,
+          Math.min(1, lerpFactor * (1 / delta)) // Scale by delta to ensure consistent speed
+        )
 
         if (
-          !isNaN(dragPos.current.x) &&
-          !isNaN(dragPos.current.y) &&
-          !isNaN(dragPos.current.z)
+          !isNaN(positionVectors.dragPos.x) &&
+          !isNaN(positionVectors.dragPos.y) &&
+          !isNaN(positionVectors.dragPos.z)
         ) {
-          ballRef.current.setTranslation(dragPos.current, true)
+          ballRef.current.setTranslation(positionVectors.dragPos, true)
         } else {
           setIsDragging(false)
           resetBallToInitialPosition()
@@ -362,7 +407,7 @@ export const HoopMinigame = () => {
         ballRef,
         mousePos,
         lastMousePos,
-        dragStartPos,
+        dragStartPos: positionVectors.dragStartPos,
         initialGrabPos,
         hasMovedSignificantly,
         isThrowable,
@@ -383,7 +428,7 @@ export const HoopMinigame = () => {
         ballRef,
         mousePos,
         lastMousePos,
-        dragStartPos,
+        dragStartPos: positionVectors.dragStartPos,
         initialGrabPos,
         hasMovedSignificantly,
         isThrowable,

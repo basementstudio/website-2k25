@@ -30,6 +30,7 @@ interface MinigameStore {
   isDragging: boolean
   isResetting: boolean
   hasHitRim: boolean
+  consecutiveScores: number
   scoreMultiplier: number
   lastScoreTime: number
   justScored: boolean
@@ -37,12 +38,11 @@ interface MinigameStore {
   playedBalls: PlayedBall[]
   readyToPlay: boolean
   playedBallMaterial: Material | null
+  staticBalls: StaticBall[]
 
   playerName: string | null
   playerRecord: number
   hasPlayed: boolean
-
-  staticBalls: StaticBall[]
 
   setScore: (score: number | ((prev: number) => number)) => void
   setTimeRemaining: (timeRemaining: number | ((prev: number) => number)) => void
@@ -55,6 +55,10 @@ interface MinigameStore {
   setHasPlayed: (hasPlayed: boolean) => void
   addPlayedBall: (ball: PlayedBall) => void
   setReadyToPlay: (ready: boolean) => void
+  incrementConsecutiveScores: () => void
+  resetConsecutiveScores: () => void
+  getMultiplier: () => number
+  setJustScored: (scored: boolean) => void
   setPlayedBallMaterial: (material: Material) => void
   addStaticBall: (ball: StaticBall) => void
   clearStaticBalls: () => void
@@ -73,6 +77,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   upStrength: UP_STRENGTH,
   gameDuration: GAME_DURATION,
   hasHitRim: false,
+  consecutiveScores: 0,
   scoreMultiplier: 1,
   lastScoreTime: 0,
   justScored: false,
@@ -84,6 +89,7 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   hasPlayed: false,
   playedBallMaterial: null,
   staticBalls: [],
+
   setScore: (score) =>
     set({ score: typeof score === "function" ? score(get().score) : score }),
   setTimeRemaining: (timeRemaining) =>
@@ -94,8 +100,6 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
           : timeRemaining
     }),
   setIsGameActive: (isGameActive: boolean) => {
-    const currentBalls = get().playedBalls
-
     set({
       isGameActive,
       ...(isGameActive
@@ -117,15 +121,37 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   setPlayerName: (playerName: string) => set({ playerName }),
   setHasPlayed: (hasPlayed: boolean) => set({ hasPlayed }),
   setPlayerRecord: (playerRecord: number) => set({ playerRecord }),
-  addPlayedBall: (ball: PlayedBall) => {
-    set((state) => ({ playedBalls: [...state.playedBalls, ball] }))
-  },
+  addPlayedBall: (ball: PlayedBall) =>
+    set((state) => ({ playedBalls: [...state.playedBalls, ball] })),
   setReadyToPlay: (ready: boolean) => set({ readyToPlay: ready }),
+  setJustScored: (scored: boolean) => set({ justScored: scored }),
+  incrementConsecutiveScores: () =>
+    set((state) => ({
+      consecutiveScores: Math.min(state.consecutiveScores + 1, 4),
+      scoreMultiplier: state.getMultiplier(),
+      justScored: true
+    })),
+  resetConsecutiveScores: () =>
+    set({ consecutiveScores: 0, scoreMultiplier: 1, justScored: false }),
+  getMultiplier: () => {
+    const consecutiveScores = get().consecutiveScores
+    switch (consecutiveScores) {
+      case 0:
+        return 1
+      case 1:
+        return 1.25
+      case 2:
+        return 1.5
+      case 3:
+        return 2.5
+      default:
+        return 5
+    }
+  },
   setPlayedBallMaterial: (material: Material) =>
     set({ playedBallMaterial: material }),
-  addStaticBall: (ball: StaticBall) => {
-    set((state) => ({ staticBalls: [...state.staticBalls, ball] }))
-  },
+  addStaticBall: (ball: StaticBall) =>
+    set((state) => ({ staticBalls: [...state.staticBalls, ball] })),
   clearStaticBalls: () => set({ staticBalls: [] }),
   clearPlayedBalls: () => set({ playedBalls: [] })
 }))

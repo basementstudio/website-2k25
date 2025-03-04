@@ -48,7 +48,7 @@ export default function Scoreboard({ className }: { className?: string }) {
 
   return (
     <div className={cn("flex select-none flex-col font-semibold", className)}>
-      <p className="pb-1 text-paragraph text-brand-w2">Leaderboard:</p>
+      <p className="text-paragraph pb-1 text-brand-w2">Leaderboard:</p>
       {isLoading ? (
         <p className="animate-pulse py-1 text-brand-g1">Loading</p>
       ) : (

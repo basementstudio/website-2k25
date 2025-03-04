@@ -1,8 +1,9 @@
+import { useFrame } from "@react-three/fiber"
 import { memo, useRef } from "react"
+import { Color, Group } from "three"
+
 import { Character } from "."
 import { CharacterAnimationName } from "./character-instancer"
-import { Euler, Group } from "three"
-import { useFrame } from "@react-three/fiber"
 
 export const CharactersSpawn = memo(CharactersSpawnInner)
 
@@ -22,8 +23,8 @@ function CharactersSpawnInner() {
   //         <Character
   //           key={`${rowIndex}-${colIndex}`}
   //           position={[rowIndex * 1, 0, colIndex * 1]}
-  //           rotation={[0, 0, 0]}
-  //           animationName={CharacterAnimationName.Idle2}
+  //           rotation={[0, Math.PI / -2, 0]}
+  //           animationName={CharacterAnimationName["Walking"]}
   //         />
   //       ))
   //     )}
@@ -34,53 +35,85 @@ function CharactersSpawnInner() {
     <>
       {/* Services */}
       <Character
-        position={[3.6, 0.95, -6.5]}
-        rotation={[0, Math.PI, 0]}
-        animationName={CharacterAnimationName.Floor1}
+        position={[3.6, 0.9, -6.8]}
+        rotation={[0, Math.PI * 0.1, 0]}
+        animationName={CharacterAnimationName.Floor2}
+        uniforms={{
+          uLightDirection: {
+            value: [0.2, 0.5, 1.5, 1]
+          }
+        }}
       />
       <Character
         position={[5.3, 0.55, -6.7]}
-        rotation={new Euler(0.04, Math.PI * 1.2, -0.3, "ZXY")}
+        rotation={[0, Math.PI * 0.7, 0]}
         animationName={CharacterAnimationName.Chill}
+        uniforms={{
+          uLightDirection: {
+            value: [-2, 0.5, 0, 1]
+          }
+        }}
       />
 
       {/* Main */}
+
       <Character
-        position={[2.8, 0, -12.6]}
-        rotation={[0, Math.PI * 0.7, 0]}
-        animationName={CharacterAnimationName.Idle1}
+        position={[4, 0.1, -10.5]}
+        rotation={[0, 0, 0]}
+        animationName={CharacterAnimationName["Sit"]}
       />
 
       <Character
-        position={[3.8, 0, -13.5]}
-        rotation={[0, Math.PI * -0.3, 0]}
-        animationName={CharacterAnimationName.Idle2}
+        position={[4.6, 0.1, -17.5]}
+        rotation={[0, Math.PI * -0.7, 0]}
+        animationName={CharacterAnimationName.Working}
+        initialTime={0.5}
+        uniforms={{
+          uLightDirection: {
+            value: [-1, 0, 0, 1]
+          },
+          uLightColor: {
+            value: [...new Color("#a9abff").toArray(), 1]
+          }
+        }}
       />
-
       <Character
-        position={[4.6, 0.05, -17.5]}
-        rotation={[0, Math.PI * -0.22, 0]}
-        animationName={CharacterAnimationName.Sit2}
+        position={[3.5, 0.1, -16]}
+        rotation={[0, Math.PI * -0.12, 0]}
+        animationName={CharacterAnimationName.Working}
+        uniforms={{
+          uLightDirection: {
+            value: [-1, 0, 0, 1]
+          },
+          uLightColor: {
+            value: [...new Color("#a9abff").toArray(), 1]
+          }
+        }}
       />
 
       {/* Upstairs */}
       <Character
         position={[3.05, 3.85, -27]}
-        rotation={[0, Math.PI * 0.5, 0]}
+        rotation={[0, Math.PI * -0.1, 0]}
         animationName={CharacterAnimationName.Working}
+        uniforms={{
+          uLightDirection: {
+            value: [2, 2, 0, 1]
+          }
+        }}
       />
       <Character
-        position={[6.75, 3.85, -26.9]}
-        rotation={[0, Math.PI * 0.6, 0]}
+        position={[6.8, 3.85, -26.9]}
+        rotation={[0, Math.PI * -0.1, 0]}
         animationName={CharacterAnimationName.Working}
       />
 
       {/* Blog */}
-      <Character
+      {/* <Character
         position={[10.15, 4.2, -17.6]}
         rotation={[0, Math.PI * 0.8, 0]}
         animationName={CharacterAnimationName.Floor2}
-      />
+      /> */}
 
       {/* Debug */}
 

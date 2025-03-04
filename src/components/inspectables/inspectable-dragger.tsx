@@ -77,17 +77,17 @@ export const InspectableDragger = ({
   const rotationYSpring = useSpring(rotationY, config)
   const rotationZSpring = useSpring(rotationZ, config)
 
-  React.useEffect(() => {
-    if (global && cursor && enabled) {
-      explDomElement.style.cursor = "grab"
-      gl.domElement.style.cursor = ""
-      return () => {
-        explDomElement.style.cursor = "default"
-        gl.domElement.style.cursor = "default"
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [global, cursor, explDomElement, enabled])
+  // React.useEffect(() => {
+  //   if (global && cursor && enabled) {
+  //     explDomElement.style.cursor = "grab"
+  //     gl.domElement.style.cursor = ""
+  //     return () => {
+  //       explDomElement.style.cursor = "default"
+  //       gl.domElement.style.cursor = "default"
+  //     }
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [global, cursor, explDomElement, enabled])
 
   const bind = useGesture(
     {
@@ -134,18 +134,16 @@ export const InspectableDragger = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled])
 
-  // TODO: find a parametric way to calculate the "Math.PI / 8" value
-
   useFrame(() => {
     ref.current?.rotation.set(
       rotationXSpring.get(),
-      rotationYSpring.get() - Math.PI / 8,
+      rotationYSpring.get() - Math.PI / 2,
       rotationZSpring.get()
     )
   })
 
   return (
-    <group rotation={[0, Math.PI / 8, 0]}>
+    <group rotation={[0, Math.PI / 2, 0]}>
       <group ref={ref} {...bind?.()}>
         {children}
       </group>

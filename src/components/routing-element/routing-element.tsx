@@ -1,60 +1,174 @@
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Mesh } from "three"
+import { Mesh, ShaderMaterial } from "three"
+import { memo } from "react"
 
+import { useInspectable } from "@/components/inspectables/context"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
-import { RoutingPlane } from "./routing-plane/routing-plane"
+import fragmentShader from "./frag.glsl"
+import vertexShader from "./vert.glsl"
+import { useCursor } from "@/hooks/use-mouse"
+import { RoutingPlus } from "./routing-plus"
 
 interface RoutingElementProps {
   node: Mesh
   route: string
   hoverName: string
+  groupName?: string
 }
 
-export const RoutingElement = ({
+const routingMaterial = new ShaderMaterial({
+  depthWrite: false,
+  depthTest: false,
+  transparent: true,
+  fragmentShader: fragmentShader,
+  vertexShader: vertexShader,
+  uniforms: {
+    resolution: { value: [] }
+  }
+})
+
+const updateMaterialResolution = () => {
+  routingMaterial.uniforms.resolution.value = [
+    window.innerWidth,
+    window.innerHeight
+  ]
+}
+
+const RoutingElementComponent = ({
   node,
   route,
-  hoverName
+  hoverName,
+  groupName
 }: RoutingElementProps) => {
   const router = useRouter()
   const pathname = usePathname()
-  const setHoverText = useMouseStore((state) => state.setHoverText)
-  const setCursorType = useMouseStore((state) => state.setCursorType)
+  const setCursor = useCursor("default")
+
   const {
     currentTabIndex,
     isCanvasTabMode,
     currentScene,
     scenes,
-    setCurrentTabIndex
+    setCurrentTabIndex,
+    setEnteredByKeyboard
   } = useNavigationStore()
   const { handleNavigation } = useHandleNavigation()
+  const { selected } = useInspectable()
 
   const [hover, setHover] = useState(false)
-
-  const activeRoute = useMemo(() => {
-    return pathname === route
-  }, [pathname, route])
-
   const meshRef = useRef<Mesh | null>(null)
 
-  useEffect(() => {
-    if (activeRoute) setHover(false)
-  }, [activeRoute])
+  const activeRoute = useMemo(
+    () => pathname === route || selected,
+    [pathname, route, selected]
+  )
 
   const navigate = useCallback(
-    (route: string) => {
-      handleNavigation(`${!route.startsWith("/") ? "/" : ""}${route}`)
+    (routePath: string) => {
+      handleNavigation(`${!routePath.startsWith("/") ? "/" : ""}${routePath}`)
     },
     [handleNavigation]
   )
 
+  const groupHoverHandlers = useMemo(() => {
+    if (!groupName) return null
+
+    return {
+      dispatchGroupHover: (isHovering: boolean) => {
+        window.dispatchEvent(
+          new CustomEvent("group-hover", {
+            detail: { groupName, hover: isHovering }
+          })
+        )
+      },
+      handleGroupHover: (e: CustomEvent) => {
+        if (e.detail.groupName === groupName && e.detail.hover !== hover) {
+          setHover(e.detail.hover)
+          if (e.detail.hover) {
+            router.prefetch(route)
+            setCursor("pointer", hoverName)
+          } else {
+            setCursor("default", null)
+          }
+        }
+      }
+    }
+  }, [groupName, hover, route, hoverName, router])
+
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Enter" && scenes) {
+        const trimmedPathname = pathname.replace("/", "")
+        const tabIndex = scenes[0].tabs.findIndex(
+          (tab) => tab.tabName.toLowerCase() === trimmedPathname
+        )
+
+        setEnteredByKeyboard(true)
+        navigate(route)
+        if (route === "/") {
+          setCurrentTabIndex(tabIndex === -1 ? 0 : tabIndex)
+        }
+      }
+    },
+    [
+      navigate,
+      pathname,
+      route,
+      scenes,
+      setCurrentTabIndex,
+      setEnteredByKeyboard
+    ]
+  )
+
+  const handlePointerEnter = useCallback(
+    (e: any) => {
+      e.stopPropagation()
+      if (activeRoute) return
+
+      setHover(true)
+      setCursor("pointer", hoverName)
+      router.prefetch(route)
+
+      groupHoverHandlers?.dispatchGroupHover(true)
+    },
+    [activeRoute, groupHoverHandlers, hoverName, route, router]
+  )
+
+  const handlePointerLeave = useCallback(
+    (e: any) => {
+      e.stopPropagation()
+      if (activeRoute) return
+
+      setHover(false)
+
+      setCursor("default", null)
+
+      groupHoverHandlers?.dispatchGroupHover(false)
+    },
+    [activeRoute, groupHoverHandlers]
+  )
+
+  const handleClick = useCallback(
+    (e: any) => {
+      e.stopPropagation()
+      if (activeRoute) return
+
+      setEnteredByKeyboard(false)
+      navigate(route)
+      setCursor("default")
+      setCurrentTabIndex(-1)
+    },
+    [activeRoute, navigate, route, setCurrentTabIndex, setEnteredByKeyboard]
+  )
+
   useEffect(() => {
+    if (activeRoute) setHover(false)
     if (!isCanvasTabMode || !currentScene?.tabs) {
       setHover(false)
-      setHoverText(null)
+      setCursor("default", null)
       return
     }
 
@@ -62,86 +176,74 @@ export const RoutingElement = ({
     if (currentTab && currentTab.tabClickableName === node.name) {
       setHover(true)
       router.prefetch(route)
-      setHoverText(hoverName)
+      setCursor("pointer", hoverName)
 
-      const handleKeyPress = (event: KeyboardEvent) => {
-        if (event.key === "Enter" && scenes) {
-          const trimmedPathname = pathname.replace("/", "")
-          const tabIndex = scenes[0].tabs.findIndex(
-            (tab) => tab.tabName.toLowerCase() === trimmedPathname
-          )
-          navigate(route)
-          if (route === "/") {
-            setCurrentTabIndex(tabIndex)
-          }
-        }
-      }
       window.addEventListener("keydown", handleKeyPress)
-
       return () => {
         window.removeEventListener("keydown", handleKeyPress)
-        if (!isCanvasTabMode) setHoverText(null)
+        setCursor("default", null)
       }
     } else {
       setHover(false)
-      if (!isCanvasTabMode) setHoverText(null)
+      setCursor("default", null)
     }
   }, [
+    activeRoute,
     isCanvasTabMode,
-    currentScene,
+    currentScene?.tabs,
     currentTabIndex,
     node.name,
     hoverName,
-    navigate,
     route,
-    scenes,
-    pathname
+    router,
+
+    handleKeyPress
   ])
+
+  useEffect(() => {
+    if (!groupName || !groupHoverHandlers) return
+
+    window.addEventListener(
+      "group-hover" as any,
+      groupHoverHandlers.handleGroupHover
+    )
+    return () =>
+      window.removeEventListener(
+        "group-hover" as any,
+        groupHoverHandlers.handleGroupHover
+      )
+  }, [groupName, groupHoverHandlers])
+
+  useEffect(() => {
+    updateMaterialResolution()
+  }, [])
 
   return (
     <>
       <group
-        onPointerEnter={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          setHover(true)
-          router.prefetch(route)
-          setCursorType("click")
-          setHoverText(hoverName)
-        }}
-        onPointerLeave={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          setHover(false)
-          setHoverText(null)
-          setCursorType("default")
-        }}
-        onClick={(e) => {
-          e.stopPropagation()
-          if (activeRoute) return
-          navigate(route)
-          setCursorType("default")
-        }}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+        onClick={handleClick}
+        position={[node.position.x, node.position.y, node.position.z]}
+        rotation={node.rotation}
+        visible={hover}
       >
         <mesh
           ref={meshRef}
           geometry={node.geometry}
-          position={[node.position.x, node.position.y, node.position.z]}
-          rotation={node.rotation}
-        >
-          <meshBasicMaterial transparent opacity={0} />
-        </mesh>
+          renderOrder={1}
+          material={routingMaterial}
+        />
       </group>
-      {hover && (
-        <>
-          <RoutingPlane
-            position={[node.position.x, node.position.y, node.position.z]}
-            scale={[1, 1]}
-            rotation={[node.rotation.x, node.rotation.y, node.rotation.z]}
-            geometry={node.geometry}
-          />
-        </>
-      )}
+      <group
+        position={[node.position.x, node.position.y, node.position.z]}
+        rotation={node.rotation}
+        visible={hover && !groupName}
+      >
+        <RoutingPlus geometry={node.geometry} />
+      </group>
     </>
   )
 }
+
+export const RoutingElement = memo(RoutingElementComponent)

@@ -5,34 +5,21 @@
 #include <normal_pars_vertex>
 
 #ifdef USE_MULTI_MAP
-// attribute float mapIndex;
 varying float vMapIndex;
-
-uniform usampler2D uMapIndex;
+uniform sampler2D uMapIndex;
 #endif
+
+uniform lowp sampler2D uLightColor;
+uniform lowp sampler2D uLightDirection;
+
+varying vec4 vLightColor;
+varying vec4 vLightDirection;
 
 uniform sampler2D uMapOffset;
 
 varying vec2 vUv;
 varying vec3 vDebug;
 varying vec2 vMapOffset;
-
-ivec2 calcCoord(int size, int id) {
-  int j = int(id);
-  int x = j % size;
-  int y = j / size;
-  return ivec2(x, y);
-}
-
-ivec2 getSampleCoord(const sampler2D mapSampler, const float batchId) {
-  int size = textureSize(mapSampler, 0).x;
-  return calcCoord(size, int(batchId));
-}
-
-ivec2 getSampleCoord(const usampler2D mapSampler, const float batchId) {
-  int size = textureSize(mapSampler, 0).x;
-  return calcCoord(size, int(batchId));
-}
 
 void main() {
   vUv = uv;
@@ -41,13 +28,21 @@ void main() {
   // batch Info
   float batchId = getIndirectIndex(gl_DrawID);
 
+  // multi map select
   #ifdef USE_MULTI_MAP
   ivec2 mapIndexCoord = getSampleCoord(uMapIndex, batchId);
   vMapIndex = float(texelFetch(uMapIndex, mapIndexCoord, 0).x);
   #endif
 
+  // map offset for selecting submaps
   ivec2 mapOffsetCoord = getSampleCoord(uMapOffset, batchId);
   vMapOffset = texelFetch(uMapOffset, mapOffsetCoord, 0).xy;
+
+  // light direction and color
+  ivec2 lightDirectionCoord = getSampleCoord(uLightDirection, batchId);
+  vLightDirection = texelFetch(uLightDirection, lightDirectionCoord, 0);
+  ivec2 lightColorCoord = getSampleCoord(uLightColor, batchId);
+  vLightColor = texelFetch(uLightColor, lightColorCoord, 0);
 
   #include <batching_vertex>
 

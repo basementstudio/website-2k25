@@ -97,16 +97,18 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
               )}
             >
               <div className="grid grid-cols-12 gap-2 pb-0.5 pt-10.5">
-                {item.showcase.items.map((item, index) => (
-                  <Image
-                    key={index}
-                    src={item.image?.url ?? ""}
-                    alt={item.image?.alt ?? ""}
-                    width={item.image?.width ?? 0}
-                    height={item.image?.height ?? 0}
-                    className="col-span-2"
-                  />
-                ))}
+                {item.project?.showcase?.items
+                  .slice(0, 6)
+                  .map((item, index) => (
+                    <Image
+                      key={index}
+                      src={item.image?.url ?? ""}
+                      alt={item.image?.alt ?? ""}
+                      width={item.image?.width ?? 0}
+                      height={item.image?.height ?? 0}
+                      className="col-span-2"
+                    />
+                  ))}
               </div>
             </AccordionPrimitive.Content>
           </AccordionPrimitive.Trigger>

@@ -15,8 +15,10 @@ export default function BlogTitle({
   const title = findBlogTitle(data, slug)
 
   return (
-    <section className="grid-layout text-heading uppercase">
-      <h1 className="col-start-1 col-end-10 text-brand-w2">{title}</h1>
+    <section className="grid-layout text-mobile-h1 lg:text-h1">
+      <h1 className="col-span-full text-brand-w1 lg:col-start-1 lg:col-end-11">
+        {title}
+      </h1>
     </section>
   )
 }

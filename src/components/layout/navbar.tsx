@@ -14,8 +14,9 @@ export const Navbar = () => (
     {async ([data]) => {
       "use server"
 
-      const projects = data.pages.projects.projectList.items.length
+      const projects = data.pages.showcase.projectList.items.length
       const posts = data.pages.blog.posts.items.length
+      const newsletter = data.company.social.newsletter.json.content
 
       const LINKS: NavbarLink[] = [
         {
@@ -41,12 +42,18 @@ export const Navbar = () => (
           count: posts
         },
         {
-          title: "Laboratory",
+          title: "Lab",
           href: "/lab"
         }
       ]
 
-      return <NavbarContent links={LINKS} />
+      return (
+        <NavbarContent
+          links={LINKS}
+          socialLinks={data.company.social}
+          newsletter={newsletter}
+        />
+      )
     }}
   </Pump>
 )

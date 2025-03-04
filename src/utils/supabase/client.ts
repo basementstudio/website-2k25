@@ -18,8 +18,9 @@ export const createClient = () =>
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-// Helper to generate a semi-persistent client ID
 const getClientId = () => {
+  if (typeof window === "undefined") return ""
+
   let clientId = localStorage.getItem("basketball_client_id")
   if (!clientId) {
     clientId = crypto.randomUUID()

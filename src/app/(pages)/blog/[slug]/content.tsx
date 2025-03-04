@@ -1,5 +1,8 @@
 import { RichText } from "basehub/react-rich-text"
 import Image from "next/image"
+import { Tweet } from "react-tweet"
+
+import { cn } from "@/utils/cn"
 
 import { QueryType } from "../query"
 import {
@@ -7,6 +10,7 @@ import {
   BlogLink,
   BlogVideo,
   Code,
+  CodeBlock,
   Heading2,
   Heading3,
   Intro,
@@ -14,9 +18,13 @@ import {
   OrderedList,
   Paragraph,
   Pre,
+  QuoteWithAuthor,
+  SideNote,
   UnorderedList
 } from "./blog-components"
 import BlogMeta from "./blog-meta"
+import Sandbox from "./components/sandbox"
+import CustomTweet from "./components/tweet"
 
 export default function Content({
   data,
@@ -31,9 +39,19 @@ export default function Content({
 
   return (
     <div className="grid-layout">
-      <div className="col-span-12 flex flex-col items-center justify-start">
+      <div className="col-span-full flex flex-col items-center justify-start">
         {post && <BlogMeta categories data={post as any} />}
-        <article className="col-span-12 flex max-w-[900px] flex-col items-start text-brand-w2 [&>*]:mt-10 [&>h2+p]:!mt-0 [&>h2]:mb-6 [&>h3+p]:!mt-0 [&>h3]:mb-6 [&>p+p]:!mt-[7px]">
+        <article
+          className={cn(
+            "col-span-full flex w-full flex-col items-start text-brand-w2 lg:max-w-[846px]",
+            // 24px between elements
+            "[&>*]:mt-6",
+            // 32px to headings
+            "[&>h2]:mt-12",
+            // 32 px to custom blocks
+            "[&>.custom-block]:mt-12"
+          )}
+        >
           <RichText
             content={intro}
             components={{
@@ -52,7 +70,13 @@ export default function Content({
                 <Heading3 id={props.id}>{props.children}</Heading3>
               ),
               a: (props) => (
-                <BlogLink href={props.href}>{props.children}</BlogLink>
+                <BlogLink
+                  href={props.href}
+                  target={props.target}
+                  rel={props.rel}
+                >
+                  {props.children}
+                </BlogLink>
               ),
               ul: (props) => (
                 <UnorderedList isTasksList={false}>
@@ -69,9 +93,27 @@ export default function Content({
                   {props.children}
                 </Pre>
               ),
-              video: (props) => <BlogVideo {...props} />
-              // TODO: add quote, sidenotes, codesandbox components
+              video: (props) => <BlogVideo {...props} />,
+              CodeBlockComponent: ({ files: { items } }) => (
+                <CodeBlock items={items} />
+              ),
+              QuoteWithAuthorComponent: (props) => (
+                <QuoteWithAuthor
+                  avatar={props.avatar}
+                  quote={props.quote?.json.content}
+                  author={props.author}
+                  role={props.role}
+                />
+              ),
+              CodeSandboxComponent: (props) => (
+                <Sandbox keyName={props.sandboxKey} />
+              ),
+              SideNoteComponent: (props) => (
+                <SideNote>{props.content?.json.content}</SideNote>
+              ),
+              TweetComponent: (props) => <CustomTweet id={props.tweetId} />
             }}
+            blocks={post?.content?.json.blocks}
           />
         </article>
         <BlogMeta categories={false} data={post as any} />

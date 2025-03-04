@@ -1,11 +1,15 @@
+import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
-import Image from "next/image"
 
 import { query } from "../query"
+import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import Content from "./content"
+import More from "./more"
 import BlogTitle from "./title"
 
 type Params = Promise<{ slug: string }>
+
+export const dynamic = "force-static"
 
 const Blog = async (props: { params: Params }) => {
   const resolvedParams = await props.params
@@ -14,42 +18,40 @@ const Blog = async (props: { params: Params }) => {
     <Pump queries={[query]}>
       {async ([data]) => {
         "use server"
-        const heroImage =
-          data.pages.blog.posts.items.find(
-            (post) => post._slug === resolvedParams.slug
-          )?.hero?.heroImage?.url || ""
 
         return (
           <>
-            <div className="fixed top-0 z-10 h-screen w-full">
-              {heroImage && (
-                <Image
-                  src={heroImage}
-                  alt={
-                    data.pages.blog.posts.items.find(
-                      (post) => post._slug === resolvedParams.slug
-                    )?._title || ""
-                  }
-                  width={1920}
-                  height={1080}
-                  className="h-full w-full object-cover"
-                  priority
-                />
-              )}
-            </div>
-            <div className="mt-screen relative z-20 bg-brand-k">
-              <div className="pb-25 flex flex-col gap-40">
+            <div className="relative bg-brand-k pt-12 lg:pb-24">
+              <div className="lg:pb-25 flex flex-col gap-24">
                 <BlogTitle data={data} slug={resolvedParams.slug} />
                 <Content data={data} slug={resolvedParams.slug} />
+                <More data={data} slug={resolvedParams.slug} />
               </div>
-              {/* TODO: stupid method to hide gaps, must rework how we cover scene with blog image */}
-              <div className="absolute -bottom-36 left-0 h-36 w-full bg-brand-k" />
             </div>
+
+            {/* SSR CSS for Sandpack when using CodeSandbox */}
+            <SandPackCSS />
           </>
         )
       }}
     </Pump>
   )
+}
+
+export async function generateStaticParams() {
+  const data = await basehub({ cache: "no-store" }).query({
+    pages: {
+      blog: {
+        posts: {
+          items: { _slug: true }
+        }
+      }
+    }
+  })
+
+  return data.pages.blog.posts.items.map((post) => ({
+    slug: post._slug
+  }))
 }
 
 export default Blog

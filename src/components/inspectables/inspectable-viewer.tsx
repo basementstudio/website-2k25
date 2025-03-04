@@ -3,58 +3,46 @@
 import { RichText as BaseRichText } from "basehub/react-rich-text"
 import { Fragment, useEffect, useState } from "react"
 
-const RichText = BaseRichText as unknown as React.ComponentType<{
-  content: Node[]
-}>
-
-import { useKeyPress } from "@/hooks/use-key-press"
+import { useAssets } from "@/components/assets-provider"
+import { AssetsResult } from "@/components/assets-provider/fetch-assets"
+import { useInspectable } from "@/components/inspectables/context"
 import { cn } from "@/utils/cn"
 
-import { useInspectable } from "./context"
-import { fetchInspectable, Inspectable } from "./fetch-inspectable"
+type InspectableData = AssetsResult["inspectables"][number]
 
 const Close = ({ handleClose }: { handleClose: () => void }) => (
-  <button
-    className="text-paragraph text-brand-w1"
-    tabIndex={0}
-    onClick={handleClose}
-  >
-    (X) <span className="actionable">Close</span>
+  <button className="text-p text-brand-w1" tabIndex={0} onClick={handleClose}>
+    (X) Close
   </button>
 )
 
-const Content = ({ data }: { data: Inspectable }) => (
+const Content = ({ data }: { data: InspectableData }) => (
   <>
-    <h2 className="text-subheading text-brand-w1">{data._title}</h2>
-    {data?.specs?.items && data.specs.items.length > 0 && (
+    <h2 className="text-h2 text-brand-w1">{data._title}</h2>
+    {data?.specs && data.specs.length > 0 && (
       <div className="flex flex-col border-t border-brand-w1/20">
-        {data.specs.items.map((spec) => (
+        {data.specs.map((spec) => (
           <Fragment key={spec._id}>
-            <div className="grid grid-cols-3 gap-2 border-b border-brand-w1/20 pb-0.5 pt-px">
-              <h3 className="col-span-1 text-paragraph text-brand-g1">
-                {spec._title}
-              </h3>
-              <p className="col-span-2 text-paragraph text-brand-w2">
-                {spec.value}
-              </p>
+            <div className="grid grid-cols-7 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75">
+              <h3 className="col-span-2 text-p text-brand-g1">{spec._title}</h3>
+              <p className="col-span-5 text-p text-brand-w2">{spec.value}</p>
             </div>
           </Fragment>
         ))}
       </div>
     )}
-    <div className="mr-14 text-paragraph text-brand-w1">
+    <div className="mr-14 text-p text-brand-w1">
       {data?.description?.json?.content && (
-        <RichText content={data.description.json.content as any} />
+        <BaseRichText content={data.description.json.content as any} />
       )}
     </div>
   </>
 )
 
 export const InspectableViewer = () => {
+  const { inspectables } = useAssets()
   const { selected, setSelected } = useInspectable()
-  const [data, setData] = useState<Inspectable | null>(null)
-
-  useKeyPress("Escape", () => setSelected(""))
+  const [data, setData] = useState<InspectableData | null>(null)
 
   useEffect(() => {
     setData(null)
@@ -62,19 +50,15 @@ export const InspectableViewer = () => {
     if (!selected) return
 
     const fetchData = async () => {
-      const data = await fetchInspectable({ id: selected })
-      setData(data)
+      const inspectableData = inspectables.find(
+        (inspectable) => inspectable.mesh === selected
+      )
+
+      setData(inspectableData ?? null)
     }
 
     fetchData()
-  }, [selected])
-
-  const handleFocus = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    })
-  }
+  }, [selected, inspectables])
 
   return (
     <div
@@ -82,19 +66,19 @@ export const InspectableViewer = () => {
         "pointer-events-none absolute inset-0 top-9 z-10 items-center",
         selected ? "flex" : "hidden"
       )}
-      onFocus={handleFocus}
     >
       <div className="grid-layout h-full">
-        <div className="pointer-events-auto col-start-2 col-end-5 grid grid-rows-[auto_1fr_auto]">
-          <div className="row-span-1 flex h-[8.5rem] w-full items-end">
-            <Close handleClose={() => setSelected(null)} />
+        <div className="col-start-1 col-end-9 my-3 border border-brand-w1/20" />
+        <div className="pointer-events-auto col-start-9 col-end-13 grid grid-cols-8">
+          <div className="col-start-2 col-end-9 flex flex-col gap-18">
+            <div className="row-span-1 flex h-44 w-full items-end">
+              <Close handleClose={() => setSelected(null)} />
+            </div>
+            <div className="row-span-1 flex flex-col justify-center gap-4">
+              {data && <Content data={data} />}
+            </div>
           </div>
-          <div className="row-span-1 flex flex-col justify-center gap-4">
-            {data && <Content data={data} />}
-          </div>
-          <div className="row-span-1 h-[8.5rem] w-full" />
         </div>
-        <div className="col-start-5 col-end-13 my-2 border border-brand-w1/20" />
       </div>
     </div>
   )

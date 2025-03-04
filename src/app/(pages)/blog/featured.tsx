@@ -1,9 +1,9 @@
 "use client"
 
-import { RichText } from "basehub/react-rich-text"
 import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
+import { RichText } from "@/components/primitives/rich-text"
 import { formatDate } from "@/utils/format-date"
 
 import { Filters } from "./filters"
@@ -39,12 +39,12 @@ export default function Featured({
 
   return (
     <section className="grid-layout">
-      <div className="col-span-12 grid grid-cols-12">
-        <div className="col-span-12 col-start-1 grid grid-cols-12 gap-2 border-b border-brand-w1/20 pb-3">
-          <h2 className="col-span-3 col-start-1 text-subheading capitalize text-brand-w2">
-            latest news
+      <div className="col-span-full grid grid-cols-12">
+        <div className="col-span-full grid grid-cols-12 items-end gap-2 border-b border-brand-w1/20 pb-2">
+          <h2 className="col-span-full text-mobile-h3 text-brand-g1 lg:col-span-3 lg:col-start-5 lg:text-h3">
+            Latest News
           </h2>
-          <div className="col-span-2 col-start-9 flex items-end">
+          <div className="col-span-full row-start-1 flex items-end lg:col-span-2 lg:col-start-9 lg:row-start-auto">
             <Filters
               selectedCategories={selectedCategories}
               setSelectedCategories={setSelectedCategories}
@@ -55,15 +55,15 @@ export default function Featured({
         {featuredPosts.map((post) => (
           <div
             key={post._slug}
-            className="group relative col-span-12 border-b border-brand-w1/20"
+            className="group relative col-span-full border-b border-brand-w1/20"
           >
             <Link
-              className="col-span-12 grid grid-cols-12 gap-2 py-2"
+              className="col-span-full grid grid-cols-12 gap-2 py-2 pb-4 lg:pb-0"
               href={`/blog/${post._slug}`}
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-              <div className="relative col-span-3 aspect-[418/228] overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20">
+              <div className="relative col-span-full aspect-[418/228] overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-3">
                 <div className="with-dots h-full w-full">
                   {post.hero?.heroImage?.url && (
                     <Image
@@ -76,15 +76,21 @@ export default function Featured({
                   )}
                 </div>
               </div>
-              <h2 className="col-start-5 col-end-8 py-3 text-subheading text-brand-w2">
+              <h2 className="col-span-full py-1 text-mobile-h2 text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-h2">
                 {post._title}
               </h2>
-              <div className="relative col-span-4 col-start-9 grid grid-cols-4 content-start gap-y-2 py-3">
-                <div className="col-start-1 col-end-4 block text-paragraph text-brand-w2">
-                  <RichText content={post.intro?.json.content} />
+              <div className="relative col-span-full grid grid-cols-4 content-start gap-y-4 py-1 lg:col-span-4 lg:col-start-9">
+                <div className="col-span-full block text-brand-w2 lg:col-span-4">
+                  <RichText
+                    components={{
+                      p: ({ children }) => <p className="text-h4">{children}</p>
+                    }}
+                  >
+                    {post.intro?.json.content}
+                  </RichText>
                 </div>
-                <hr className="col-start-1 col-end-5 mt-4 w-full border-brand-w1/20" />
-                <div className="col-span-2 col-start-1 flex gap-1">
+                <hr className="col-start-1 col-end-5 hidden w-full border-dashed border-brand-w1/20 lg:block" />
+                <div className="col-span-2 col-start-1 flex flex-wrap gap-1 text-p">
                   {post.categories?.map((category) => (
                     <p
                       key={category._title}
@@ -94,7 +100,7 @@ export default function Featured({
                     </p>
                   ))}
                 </div>
-                <p className="col-span-2 col-start-3 text-paragraph text-brand-w2">
+                <p className="text-paragraph col-span-2 col-start-3 text-p text-brand-w2">
                   {formatDate(post.date || "")}
                 </p>
               </div>

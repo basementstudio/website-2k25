@@ -19,7 +19,8 @@ export default {
           o2: "#FF2B00",
           r: "#E60002",
           y: "#FFCD1A",
-          g: "#00FF9B"
+          g: "#00FF9B",
+          white: "#FFFFFF"
         },
         codeblock: {
           o: "#FF4D00",
@@ -29,39 +30,18 @@ export default {
         }
       },
       fontSize: {
-        // TODO: remove once we finish the migration to the new fonts
-        heading: [
-          "4.1875rem",
-          {
-            lineHeight: "4rem"
-          }
-        ],
-        subheading: [
-          "1.5rem",
-          {
-            lineHeight: "1.75rem"
-          }
-        ],
-        paragraph: [
-          "0.75rem",
-          {
-            lineHeight: "1rem",
-            letterSpacing: "0.01em"
-          }
-        ],
-        blog: [
-          "0.875rem",
-          {
-            lineHeight: "1.25rem",
-            letterSpacing: "0.02em"
-          }
-        ],
-        // ------------------------------
-
         h1: [
-          "4.375rem",
+          "5.3rem",
           {
-            lineHeight: "4.25rem",
+            lineHeight: "4.2rem",
+            letterSpacing: "-0.06em",
+            fontWeight: "600"
+          }
+        ],
+        "mobile-h1": [
+          "2.25rem",
+          {
+            lineHeight: "2.25rem",
             letterSpacing: "-0.03em",
             fontWeight: "600"
           }
@@ -69,8 +49,16 @@ export default {
         h2: [
           "2.375rem",
           {
-            lineHeight: "2.5rem",
-            letterSpacing: "-0.03em",
+            lineHeight: "2.1rem",
+            letterSpacing: "-0.05em",
+            fontWeight: "600"
+          }
+        ],
+        "mobile-h2": [
+          "1.5rem",
+          {
+            lineHeight: "1.75rem",
+            letterSpacing: "-0.02em",
             fontWeight: "600"
           }
         ],
@@ -82,8 +70,24 @@ export default {
             fontWeight: "600"
           }
         ],
+        "mobile-h3": [
+          "1.25rem",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "-0.02em",
+            fontWeight: "600"
+          }
+        ],
         h4: [
           "1.125rem",
+          {
+            lineHeight: "1.25rem",
+            letterSpacing: "-0.02em",
+            fontWeight: "600"
+          }
+        ],
+        "mobile-h4": [
+          "0.875rem",
           {
             lineHeight: "1.25rem",
             letterSpacing: "-0.02em",
@@ -98,12 +102,36 @@ export default {
             fontWeight: "600"
           }
         ],
+        "mobile-p": [
+          "0.6875rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
+        ],
         c: [
           "0.5rem",
           {
             lineHeight: "0.5rem",
             letterSpacing: "0.0em",
             fontWeight: "600"
+          }
+        ],
+        blog: [
+          "1",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "0.0em",
+            fontWeight: "500"
+          }
+        ],
+        "h4-blog": [
+          "1.125rem",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "-0.02em",
+            fontWeight: "500"
           }
         ]
       },
@@ -121,7 +149,8 @@ export default {
         "61": "15.25rem"
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)"]
+        sans: ["var(--font-geist-sans)"],
+        mono: ["var(--font-geist-mono)"]
       },
       maxWidth: {
         full: "120rem"

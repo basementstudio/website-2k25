@@ -1,7 +1,9 @@
 import Image from "next/image"
 
+import { InfoItem } from "@/components/primitives/info-item"
 import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
+import { TextList } from "@/components/primitives/text-list"
 import { cn } from "@/utils/cn"
 
 import { FilteredProjectType } from "./project-list"
@@ -29,75 +31,80 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
   const placeholders = calculatePlaceholders()
 
   return (
-    <div className="grid-layout">
+    <div className="grid-layout !gap-y-8 lg:!gap-y-2">
       {projects.map((item, index) => {
         const firstItem = index === 0
 
         return (
-          <div
+          <article
             key={item._title + index}
             className={cn(
-              "relative",
-              firstItem ? "col-span-6 row-span-2" : "col-span-3",
-              "group aspect-[418/296] cursor-pointer after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
+              "relative flex flex-col gap-y-2 lg:gap-y-0",
+              firstItem
+                ? "col-span-full lg:col-span-6 lg:row-span-2 lg:h-full"
+                : "col-span-full lg:col-span-3",
               item.disabled && "pointer-events-none"
             )}
           >
-            <Link
-              href={`/showcase/${item.project?._slug}`}
-              className={cn("with-dots block h-full w-full", {
-                "pointer-events-none": item.disabled
-              })}
-            >
-              {item.disabled && (
-                <Placeholder
-                  className="absolute inset-0 text-brand-w1/20"
-                  width={firstItem ? 836 : 418}
-                  height={firstItem ? 592 : 296}
-                />
-              )}
-              <Image
-                src={item.project?.cover?.url ?? ""}
-                alt={item.project?.cover?.alt ?? ""}
-                width={item.project?.cover?.width ?? 0}
-                height={item.project?.cover?.height ?? 0}
-                className={cn(
-                  "absolute inset-0 object-cover opacity-0 transition-opacity duration-300",
-                  !item.disabled && "opacity-100 group-hover:opacity-70"
+            <div className="group relative aspect-[418/296] cursor-pointer after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full">
+              <Link
+                href={`/showcase/${item.project?._slug}`}
+                className={cn("with-dots block h-full w-full", {
+                  "pointer-events-none": item.disabled
+                })}
+              >
+                {item.disabled && (
+                  <Placeholder
+                    className="absolute inset-0 text-brand-w1/20"
+                    width={firstItem ? 836 : 418}
+                    height={firstItem ? 592 : 296}
+                  />
                 )}
-                priority
-              />
-
-              {!item.disabled && (
-                <div
+                <Image
+                  src={item.project?.cover?.url ?? ""}
+                  alt={item.project?.cover?.alt ?? ""}
+                  width={item.project?.cover?.width ?? 0}
+                  height={item.project?.cover?.height ?? 0}
                   className={cn(
-                    "pointer-events-none absolute inset-0 flex h-[calc(25%-6px)] flex-col justify-end text-p font-semibold opacity-0 transition-opacity duration-300 group-hover:opacity-100",
-                    firstItem && "h-[calc(12.5%-7px)]"
+                    "absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300",
+                    !item.disabled && "opacity-100 group-hover:opacity-70"
                   )}
-                >
-                  <div className="grid grid-cols-6 gap-2 bg-brand-k">
-                    <p className="col-span-2 px-2 text-p leading-none text-brand-w2">
-                      {item.project?.client?._title}
-                    </p>
+                  priority
+                />
 
-                    <p className="col-span-4 inline-flex flex-wrap text-pretty px-2 text-p leading-none text-brand-w2">
-                      {item.project?.categories?.map((cat, idx) => (
-                        <span key={cat._title}>
-                          {cat._title}
-                          {idx !==
-                            (item.project?.categories?.length ?? 0) - 1 && (
-                            <span className="inline-block px-1 text-brand-g1">
-                              ,
-                            </span>
-                          )}
-                        </span>
-                      ))}
-                    </p>
+                {!item.disabled && (
+                  <div
+                    className={cn(
+                      "pointer-events-none absolute inset-0 flex h-[calc(25%-6px)] flex-col justify-end text-p font-semibold opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100",
+                      firstItem && "h-[calc(12.5%-7px)]"
+                    )}
+                  >
+                    <div className="grid grid-cols-6 gap-2 bg-brand-k">
+                      <p className="col-span-2 px-2 text-p leading-none text-brand-w2">
+                        {item.project?._title}
+                      </p>
+
+                      <p className="col-span-4 inline-flex flex-wrap text-pretty px-2 text-p leading-none text-brand-w2">
+                        {item.project?.categories?.map((cat, idx) => (
+                          <span key={cat._title}>
+                            {cat._title}
+                            {idx !==
+                              (item.project?.categories?.length ?? 0) - 1 && (
+                              <span className="inline-block px-1 text-brand-g1">
+                                ,
+                              </span>
+                            )}
+                          </span>
+                        ))}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
-            </Link>
-          </div>
+                )}
+              </Link>
+            </div>
+
+            <MobileInfo item={item} />
+          </article>
         )
       })}
 
@@ -105,9 +112,31 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
       {placeholders.map((_, index) => (
         <div
           key={`placeholder-${index}`}
-          className="with-diagonal-lines col-span-3 aspect-[418/296] [&.with-diagonal-lines]:after:animate-none [&.with-diagonal-lines]:after:from-brand-w1/[0.20]"
+          className="with-diagonal-lines hidden aspect-[418/296] lg:col-span-3 [&.with-diagonal-lines]:after:animate-none [&.with-diagonal-lines]:after:from-brand-w1/[0.20]"
         />
       ))}
+    </div>
+  )
+}
+
+const MobileInfo = ({ item }: { item: FilteredProjectType }) => {
+  return (
+    <div className="col-span-full flex flex-col divide-y divide-brand-w1/20 lg:hidden">
+      <InfoItem label="Client" value={item.project?.client?._title} />
+      <InfoItem
+        label="Type"
+        value={
+          <TextList
+            value={
+              item.project?.categories?.map((cat) => (
+                <span key={cat._title}>{cat._title}</span>
+              )) || []
+            }
+            className="text-p"
+          />
+        }
+      />
+      <div />
     </div>
   )
 }
