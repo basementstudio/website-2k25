@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 
 import { useAssets } from "@/components/assets-provider"
 import { useContactStore } from "@/components/contact/contact-store"
@@ -17,6 +17,7 @@ import { useNavigationStore } from "./navigation-store"
 export const NavigationHandler = () => {
   const pathname = usePathname()
   const { setSelected } = useInspectable()
+  const previousPathRef = useRef(pathname)
 
   const setScenes = useNavigationStore((state) => state.setScenes)
   const {
@@ -42,6 +43,29 @@ export const NavigationHandler = () => {
   const setCurrentTabIndex = useNavigationStore(
     (state) => state.setCurrentTabIndex
   )
+
+  // handle camera transition when navigating back and forth
+  useEffect(() => {
+    if (!scenes.length || !pathname || previousPathRef.current === pathname) {
+      previousPathRef.current = pathname
+      return
+    }
+
+    const expectedScene =
+      pathname === "/"
+        ? scenes.find((scene) => scene.name.toLowerCase() === "home")
+        : scenes.find((scene) => scene.name === pathname.split("/")[1])
+
+    if (
+      expectedScene &&
+      currentScene &&
+      expectedScene.name !== currentScene.name
+    ) {
+      setCurrentScene(expectedScene)
+    }
+
+    previousPathRef.current = pathname
+  }, [pathname, scenes, currentScene, setCurrentScene])
 
   useEffect(() => {
     if (!scenes.length) return
@@ -85,7 +109,7 @@ export const NavigationHandler = () => {
       const labTabIndex = useArcadeStore.getState().labTabIndex
       const isSourceButtonSelected =
         useArcadeStore.getState().isSourceButtonSelected
-      const isInGame = useArcadeStore.getState().isInGame
+
       if (pathname === "/lab") {
         if (!e.shiftKey) {
           // handle enter labtabs

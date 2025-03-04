@@ -25,7 +25,7 @@ import {
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
 import { BlogDoor } from "@/components/blog-door"
-import Cars from "@/components/cars/cars"
+// import Cars from "@/components/cars/cars"
 import { useInspectable } from "@/components/inspectables/context"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
@@ -100,7 +100,7 @@ export const Map = memo(() => {
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
     videos,
-    car,
+    // car,
     scenes
   } = useAssets()
   const firstRender = useRef(true)
@@ -114,7 +114,7 @@ export const Map = memo(() => {
   const { scene: routingElementsModel } = useGLTF(
     routingElementsPath
   ) as unknown as GLTFResult
-  const { scene: carV5 } = useGLTF(car.carModel) as unknown as GLTFResult
+  // const { scene: carV5 } = useGLTF(car.carModel) as unknown as GLTFResult
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
@@ -267,19 +267,19 @@ export const Map = memo(() => {
       setKeyframedNet(newNetMesh)
     }
 
-    const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
-    const backWheel = carV5?.children.find(
-      (child) => child.name === "BACK-WHEEL"
-    ) as Mesh
-    const frontWheel = carV5?.children.find(
-      (child) => child.name === "FRONT-WHEEL"
-    ) as Mesh
+    // const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
+    // const backWheel = carV5?.children.find(
+    //   (child) => child.name === "BACK-WHEEL"
+    // ) as Mesh
+    // const frontWheel = carV5?.children.find(
+    //   (child) => child.name === "FRONT-WHEEL"
+    // ) as Mesh
 
-    if (backWheel && car && frontWheel) {
-      useMesh.setState({
-        carMeshes: { backWheel, car, frontWheel }
-      })
-    }
+    // if (backWheel && car && frontWheel) {
+    //   useMesh.setState({
+    //     carMeshes: { backWheel, car, frontWheel }
+    //   })
+    // }
 
     const traverse = (
       child: Object3D,
@@ -560,8 +560,8 @@ export const Map = memo(() => {
     basketballNetModel,
     routingElementsModel,
     videos,
-    currentScene,
-    carV5
+    currentScene
+    // carV5
   ])
 
   useEffect(() => {
@@ -621,9 +621,9 @@ export const Map = memo(() => {
       <BakesLoader />
       <ReflexesLoader />
 
-      <Suspense fallback={null}>
+      {/* <Suspense fallback={null}>
         <Cars />
-      </Suspense>
+      </Suspense> */}
     </group>
   )
 })
