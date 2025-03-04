@@ -49,6 +49,15 @@ export const mapFragment = fragmentOn("Map", {
       }
     }
   },
+  matcaps: {
+    items: {
+      _title: true,
+      file: {
+        url: true
+      },
+      isGlass: true
+    }
+  },
   videos: {
     items: {
       _title: true,
@@ -80,6 +89,7 @@ export const inspectableFragment = fragmentOn("Inspectables", {
       },
       xOffset: true,
       yOffset: true,
+      xRotationOffset: true,
       sizeTarget: true,
       scenes: {
         _title: true

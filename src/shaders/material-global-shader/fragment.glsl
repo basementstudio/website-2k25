@@ -62,6 +62,12 @@ uniform float fogDensity;
 uniform float fogDepth;
 #endif
 
+// Matcap
+#ifdef MATCAP
+uniform sampler2D matcap;
+uniform bool glassMatcap;
+#endif
+
 // Glass
 #ifdef GLASS
 uniform sampler2D glassReflex;
@@ -176,6 +182,15 @@ void main() {
     // Rim light
     vec3 rimLightDir = normalize(-vViewDirection + vec3(0.0, 0.5, 0.0));
     lf *= basicLight(vNormal, rimLightDir, 3.0);
+
+    #ifdef MATCAP
+    vec3 x = normalize(vec3(-vViewDirection.z, 0.0, vViewDirection.x));
+    vec3 y = cross(vViewDirection, x);
+    vec2 muv =
+      vec2(dot(x, normalize(vNormal)), dot(y, normalize(vNormal))) * 0.495 +
+      0.5;
+    lf *= texture2D(matcap, muv).rgb;
+    #endif
   }
 
   if (lightMapIntensity > 0.0) {
@@ -253,6 +268,12 @@ void main() {
   if (inspectingEnabled && !(inspectingFactor > 0.0)) {
     gl_FragColor.rgb *= 1.0 - fadeFactor;
   }
+
+  #ifdef MATCAP
+  if (glassMatcap) {
+    gl_FragColor.a *= pattern * inspectingFactor;
+  }
+  #endif
 
   if (uLoaded < 1.0) {
     // Loading effect

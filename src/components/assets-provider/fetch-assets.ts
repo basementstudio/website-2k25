@@ -16,6 +16,11 @@ export interface AssetsResult {
     ambientOcclusion: string
     meshes: string[]
   }[]
+  matcaps: {
+    mesh: string
+    file: string
+    isGlass: boolean
+  }[]
   arcade: {
     idleScreen: string
     placeholderLab: string
@@ -39,6 +44,7 @@ export interface AssetsResult {
     mesh: string
     xOffset: number
     yOffset: number
+    xRotationOffset: number
     sizeTarget: number
     scenes: string[]
   }[]
@@ -141,6 +147,15 @@ export async function fetchAssets(): Promise<AssetsResult> {
       ambientOcclusion: item.ambientOcclusion?.url ?? "",
       meshes: item.meshes.items.map((mesh) => mesh._title)
     })),
+    glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
+      mesh: item._title,
+      url: item.file?.url ?? ""
+    })),
+    matcaps: threeDInteractions.map.matcaps.items.map((item) => ({
+      mesh: item._title,
+      file: item.file?.url ?? "",
+      isGlass: item.isGlass ?? false
+    })),
     routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
     arcade: {
       idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "",
@@ -149,10 +164,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
       chronicles: threeDInteractions.arcade.chronicles?.url ?? "",
       looper: threeDInteractions.arcade.looper?.url ?? ""
     },
-    glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
-      mesh: item._title,
-      url: item.file?.url ?? ""
-    })),
     videos: threeDInteractions.map.videos.items.map((item) => ({
       mesh: item._title,
       url: item.file?.url ?? "",
@@ -170,6 +181,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
       mesh: item.mesh ?? "",
       xOffset: item.xOffset ?? 0,
       yOffset: item.yOffset ?? 0,
+      xRotationOffset: item.xRotationOffset ?? 0,
       sizeTarget: item.sizeTarget ?? 0,
       scenes: item.scenes?.map((item) => item._title) ?? []
     })),
@@ -207,6 +219,19 @@ export async function fetchAssets(): Promise<AssetsResult> {
         }))
       }
     },
+    // car: {
+    //   carModel: threeDInteractions.car.carModel?.url ?? "",
+    //   textures: {
+    //     dodgeOTexture: threeDInteractions.car.dodgeOTexture?.url ?? "",
+    //     dodgeBTexture: threeDInteractions.car.dodgeBTexture?.url ?? "",
+    //     deloreanTexture: threeDInteractions.car.deloreanTexture?.url ?? "",
+    //     nissanTexture: threeDInteractions.car.nissanTexture?.url ?? "",
+    //     simpsonsTexture: threeDInteractions.car.simpsonsTexture?.url ?? "",
+    //     knightRiderTexture:
+    //       threeDInteractions.car.knightRiderTexture?.url ?? "",
+    //     misteryTexture: threeDInteractions.car.misteryTexture?.url ?? ""
+    //   }
+    // },
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
       cameraConfig: {
