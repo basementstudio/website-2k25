@@ -31,10 +31,12 @@ const Content = ({ data }: { data: InspectableData }) => (
         ))}
       </div>
     )}
-    <div className="mr-14 text-p text-brand-w1">
-      {data?.description?.json?.content && (
-        <BaseRichText content={data.description.json.content as any} />
-      )}
+    <div className="grid grid-cols-7 gap-2 text-p text-brand-w1">
+      <div className="col-span-5">
+        {data?.description?.json?.content && (
+          <BaseRichText content={data.description.json.content as any} />
+        )}
+      </div>
     </div>
   </>
 )
