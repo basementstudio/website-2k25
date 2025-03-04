@@ -3,11 +3,11 @@ import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial } from "three"
 
+import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
-import { useCursor } from "@/hooks/use-mouse"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -49,7 +49,7 @@ export const Basketball = ({
   ] as MeshStandardMaterial
 
   const material = useMemo(() => {
-    return createGlobalShaderMaterial(originalMaterial, false)
+    return createGlobalShaderMaterial(originalMaterial, true)
   }, [basketballModel])
 
   const handleCollision = (other: any) => {

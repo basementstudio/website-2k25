@@ -40,10 +40,11 @@ import {
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
+import { Net } from "../basketball/net"
+import { OutdoorCars } from "../outdoor-cars"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
-import { OutdoorCars } from "../outdoor-cars"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -135,6 +136,7 @@ export const Map = memo(() => {
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
+  const [net, setNet] = useState<Mesh | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
@@ -249,13 +251,13 @@ export const Map = memo(() => {
     const originalNet = officeModel?.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
 
-    if (originalNet?.parent) {
-      originalNet.removeFromParent()
-    }
-
     if (newNetMesh?.parent) {
       newNetMesh.removeFromParent()
-      setKeyframedNet(newNetMesh)
+    }
+
+    if (originalNet?.parent) {
+      originalNet.removeFromParent()
+      setNet(originalNet as Mesh)
     }
 
     // const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
@@ -425,14 +427,34 @@ export const Map = memo(() => {
     setOutdoorScene(outdoorModel)
     setGodrayScene(godrayModel)
 
-    const hoopMesh = officeModel.getObjectByName(
-      "SM_BasketballHoop"
-    ) as Mesh | null
+    const hoop = officeModel.getObjectByName("SM_BasketballHoop")
+    const hoopGlass = officeModel.getObjectByName("SM_BasketballGlass")
 
-    if (hoopMesh) {
-      hoopMesh.removeFromParent()
-      hoopMesh.raycast = () => null
-      useMesh.setState({ hoopMesh })
+    if (hoop) {
+      hoop.raycast = () => null
+
+      if (hoop instanceof Mesh) {
+        hoop.visible = true
+
+        if (!hoop.userData.originalMaterial) {
+          hoop.userData.originalMaterial = hoop.material
+        }
+      }
+
+      if (hoopGlass instanceof Mesh) {
+        hoopGlass.visible = true
+
+        if (!hoopGlass.userData.originalMaterial) {
+          hoopGlass.userData.originalMaterial = hoopGlass.material
+        }
+      }
+
+      useMesh.setState({
+        hoopMeshes: {
+          hoop: hoop as Mesh,
+          hoopGlass: hoopGlass as Mesh
+        }
+      })
     }
 
     const inspectables = useMesh.getState().inspectableMeshes
@@ -626,10 +648,10 @@ export const Map = memo(() => {
           />
         )
       })}
-      {scene !== "basketball" && useMesh.getState().hoopMesh && (
-        <primitive object={useMesh.getState().hoopMesh as Mesh} />
+      {useMesh.getState().hoopMeshes.hoop && (
+        <primitive object={useMesh.getState().hoopMeshes.hoop as Mesh} />
       )}
-      {keyframedNet && <primitive object={keyframedNet} />}
+      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
       <BakesLoader />
       <ReflexesLoader />
     </group>
