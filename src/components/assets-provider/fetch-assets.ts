@@ -113,18 +113,18 @@ export interface AssetsResult {
       bloomThreshold: number
     }
   }[]
-  car: {
-    carModel: string
-    textures: {
-      dodgeOTexture: string
-      dodgeBTexture: string
-      deloreanTexture: string
-      nissanTexture: string
-      simpsonsTexture: string
-      knightRiderTexture: string
-      misteryTexture: string
-    }
-  }
+  // car: {
+  //   carModel: string
+  //   textures: {
+  //     dodgeOTexture: string
+  //     dodgeBTexture: string
+  //     deloreanTexture: string
+  //     nissanTexture: string
+  //     simpsonsTexture: string
+  //     knightRiderTexture: string
+  //     misteryTexture: string
+  //   }
+  // }
   characters: {
     model: string
     textureBody: string
@@ -216,19 +216,19 @@ export async function fetchAssets(): Promise<AssetsResult> {
         }))
       }
     },
-    car: {
-      carModel: threeDInteractions.car.carModel?.url ?? "",
-      textures: {
-        dodgeOTexture: threeDInteractions.car.dodgeOTexture?.url ?? "",
-        dodgeBTexture: threeDInteractions.car.dodgeBTexture?.url ?? "",
-        deloreanTexture: threeDInteractions.car.deloreanTexture?.url ?? "",
-        nissanTexture: threeDInteractions.car.nissanTexture?.url ?? "",
-        simpsonsTexture: threeDInteractions.car.simpsonsTexture?.url ?? "",
-        knightRiderTexture:
-          threeDInteractions.car.knightRiderTexture?.url ?? "",
-        misteryTexture: threeDInteractions.car.misteryTexture?.url ?? ""
-      }
-    },
+    // car: {
+    //   carModel: threeDInteractions.car.carModel?.url ?? "",
+    //   textures: {
+    //     dodgeOTexture: threeDInteractions.car.dodgeOTexture?.url ?? "",
+    //     dodgeBTexture: threeDInteractions.car.dodgeBTexture?.url ?? "",
+    //     deloreanTexture: threeDInteractions.car.deloreanTexture?.url ?? "",
+    //     nissanTexture: threeDInteractions.car.nissanTexture?.url ?? "",
+    //     simpsonsTexture: threeDInteractions.car.simpsonsTexture?.url ?? "",
+    //     knightRiderTexture:
+    //       threeDInteractions.car.knightRiderTexture?.url ?? "",
+    //     misteryTexture: threeDInteractions.car.misteryTexture?.url ?? ""
+    //   }
+    // },
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
       cameraConfig: {
