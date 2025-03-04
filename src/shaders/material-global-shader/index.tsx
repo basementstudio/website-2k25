@@ -19,6 +19,7 @@ export const createGlobalShaderMaterial = (
     LIGHT?: boolean
     FOG?: boolean
     MATCAP?: boolean
+    CLOUDS?: boolean
   }
 ) => {
   const {
@@ -95,7 +96,8 @@ export const createGlobalShaderMaterial = (
       GODRAY: defines?.GODRAY !== undefined ? Boolean(defines?.GODRAY) : false,
       LIGHT: defines?.LIGHT !== undefined ? Boolean(defines?.LIGHT) : false,
       FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
-      MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false
+      MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
+      CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false
     },
     uniforms,
     transparent:
