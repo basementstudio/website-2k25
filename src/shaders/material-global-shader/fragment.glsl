@@ -133,6 +133,10 @@ void main() {
   mapSample = texture2D(map, vUv * mapRepeat);
   #endif
 
+  #ifdef CLOUDS
+  mapSample = texture2D(map, vec2(vUv.x - uTime * 0.01, vUv.y));
+  #endif
+
   // Combine texture and base color
   vec3 color = baseColor * mapSample.rgb;
 

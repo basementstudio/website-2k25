@@ -301,6 +301,8 @@ export const Map = memo(() => {
 
         const matcap = matcaps?.find((matcap) => matcap.mesh === meshChild.name)
 
+        const clouds = meshChild.name === "cloudy_01"
+
         if (meshChild.name === "SM_TvScreen_4") {
           useMesh.setState({ cctv: { screen: meshChild } })
           const texture = cctvConfig.renderTarget.read.texture
@@ -375,7 +377,8 @@ export const Map = memo(() => {
                   LIGHT: isPlant,
                   GODRAY: overrides?.GODRAY,
                   FOG: overrides?.FOG,
-                  MATCAP: matcap !== undefined
+                  MATCAP: matcap !== undefined,
+                  CLOUDS: clouds
                 }
               )
             )
@@ -387,7 +390,8 @@ export const Map = memo(() => {
                 LIGHT: isPlant,
                 GODRAY: overrides?.GODRAY,
                 FOG: overrides?.FOG,
-                MATCAP: matcap !== undefined
+                MATCAP: matcap !== undefined,
+                CLOUDS: clouds
               }
             )
 
