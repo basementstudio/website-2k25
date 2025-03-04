@@ -1,5 +1,6 @@
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrame } from "@react-three/fiber"
+import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { Mesh } from "three"
 
@@ -17,6 +18,7 @@ interface StreetLane {
 }
 
 export const OutdoorCars = () => {
+  const pathname = usePathname()
   const { outdoorCarsMeshes: cars } = useMesh()
   const [carUpdateCounter, setCarUpdateCounter] = useState(0)
 
@@ -24,6 +26,10 @@ export const OutdoorCars = () => {
     if (!cars?.length) return
     STREET_LANES.forEach((lane) => generateRandomCar(lane, 0))
   }, [cars])
+
+  const carsVisible = useMemo(() => {
+    return pathname === "/services" || pathname === "/people"
+  }, [pathname])
 
   const STREET_LANES: StreetLane[] = useMemo(
     () => [
@@ -113,7 +119,7 @@ export const OutdoorCars = () => {
       }
     })
 
-    if (needsUpdate) {
+    if (needsUpdate && carsVisible) {
       setCarUpdateCounter((prev) => prev + 1)
     }
   })
@@ -121,6 +127,12 @@ export const OutdoorCars = () => {
   return STREET_LANES.map((lane, index) => {
     if (!lane.car) return null
 
-    return <primitive key={`${index}-${carUpdateCounter}`} object={lane.car} />
+    return (
+      <primitive
+        visible={carsVisible}
+        key={`${index}-${carUpdateCounter}`}
+        object={lane.car}
+      />
+    )
   })
 }
