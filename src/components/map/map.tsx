@@ -429,14 +429,34 @@ export const Map = memo(() => {
     setOutdoorScene(outdoorModel)
     setGodrayScene(godrayModel)
 
-    const hoopMesh = officeModel.getObjectByName(
-      "SM_BasketballHoop"
-    ) as Mesh | null
+    const hoop = officeModel.getObjectByName("SM_BasketballHoop")
+    const hoopGlass = officeModel.getObjectByName("SM_BasketballGlass")
 
-    if (hoopMesh) {
-      hoopMesh.removeFromParent()
-      hoopMesh.raycast = () => null
-      useMesh.setState({ hoopMesh })
+    if (hoop) {
+      hoop.raycast = () => null
+
+      if (hoop instanceof Mesh) {
+        hoop.visible = true
+
+        if (!hoop.userData.originalMaterial) {
+          hoop.userData.originalMaterial = hoop.material
+        }
+      }
+
+      if (hoopGlass instanceof Mesh) {
+        hoopGlass.visible = true
+
+        if (!hoopGlass.userData.originalMaterial) {
+          hoopGlass.userData.originalMaterial = hoopGlass.material
+        }
+      }
+
+      useMesh.setState({
+        hoopMeshes: {
+          hoop: hoop as Mesh,
+          hoopGlass: hoopGlass as Mesh
+        }
+      })
     }
 
     const inspectables = useMesh.getState().inspectableMeshes
@@ -614,9 +634,7 @@ export const Map = memo(() => {
           />
         )
       })}
-      {scene !== "basketball" && useMesh.getState().hoopMesh && (
-        <primitive object={useMesh.getState().hoopMesh as Mesh} />
-      )}
+
       {keyframedNet && <primitive object={keyframedNet} />}
       <BakesLoader />
       <ReflexesLoader />
