@@ -329,14 +329,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       type
     )
 
-    console.log("creating texture", {
-      name,
-      data,
-      textureSize,
-      format,
-      type
-    })
-
     texture.needsUpdate = true
     this.dataTextures.set(name, texture)
     return texture
