@@ -6,7 +6,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { useGesture } from "@use-gesture/react"
 import { useMotionValue, useSpring } from "motion/react"
 import * as React from "react"
-import { Group, MathUtils, Vector3 } from "three"
+import { Group, MathUtils } from "three"
 
 export type InspectableDraggerProps = {
   snap?: boolean
@@ -150,5 +150,3 @@ export const InspectableDragger = ({
     </group>
   )
 }
-
-//0.23
