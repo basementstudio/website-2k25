@@ -2,7 +2,7 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { folder as levaFolder, useControls } from "leva"
+import { useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
@@ -99,8 +99,10 @@ export const Map = memo(() => {
     godrays: godraysPath,
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
+    inspectables: inspectableAssets,
     videos,
     // car,
+    matcaps,
     scenes
   } = useAssets()
   const firstRender = useRef(true)
@@ -120,7 +122,6 @@ export const Map = memo(() => {
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
   const [godrayScene, setGodrayScene] = useState<SceneType>(null)
 
-  const { inspectables: inspectableAssets } = useAssets()
   const { selected } = useInspectable()
 
   const [godrays, setGodrays] = useState<Mesh[]>([])
@@ -138,30 +139,13 @@ export const Map = memo(() => {
   const timeRef = useRef(0)
 
   const stairsRef = useRef<Mesh | null>(null)
-  const colorPickerRef = useRef<Mesh>(null)
-  useControls("Color Picker", {
-    showColorPicker: {
-      value: false,
-      onChange: (value) => {
-        if (colorPickerRef.current) {
-          colorPickerRef.current.visible = value
-        }
-      }
-    }
-  })
 
-  useControls("God Rays", {
-    opacity: {
-      value: 1,
+  const { godrayOpacity } = useControls("God Rays", {
+    godrayOpacity: {
+      value: 1.25,
       min: 0.0,
       max: 5.0,
-      step: 0.001,
-      onChange: (value) => {
-        godrays.forEach((mesh) => {
-          // @ts-ignore
-          mesh.material.uniforms.uGodrayDensity.value = value
-        })
-      }
+      step: 0.001
     }
   })
 
@@ -201,6 +185,11 @@ export const Map = memo(() => {
       animationProgress.current += NET_ANIMATION_SPEED
       isAnimating.current = animateNet(mesh, animationProgress.current)
     }
+
+    godrays.forEach((mesh) => {
+      // @ts-ignore
+      mesh.material.uniforms.uGodrayDensity.value = godrayOpacity
+    })
 
     if (!stairsRef.current || !mainCamera) return
 
@@ -296,9 +285,6 @@ export const Map = memo(() => {
       if ("isMesh" in child) {
         const meshChild = child as Mesh
 
-        if (meshChild.name === "SM_ColorChecker_")
-          colorPickerRef.current = meshChild
-
         const alreadyReplaced = meshChild.userData.hasGlobalMaterial
         if (alreadyReplaced) return
 
@@ -310,6 +296,8 @@ export const Map = memo(() => {
         }
 
         const video = videos.find((video) => video.mesh === meshChild.name)
+
+        const matcap = matcaps?.find((matcap) => matcap.mesh === meshChild.name)
 
         if (meshChild.name === "SM_TvScreen_4") {
           useMesh.setState({ cctv: { screen: meshChild } })
@@ -384,7 +372,8 @@ export const Map = memo(() => {
                   GLASS: isGlass,
                   LIGHT: isPlant,
                   GODRAY: overrides?.GODRAY,
-                  FOG: overrides?.FOG
+                  FOG: overrides?.FOG,
+                  MATCAP: matcap !== undefined
                 }
               )
             )
@@ -395,7 +384,8 @@ export const Map = memo(() => {
                 GLASS: isGlass,
                 LIGHT: isPlant,
                 GODRAY: overrides?.GODRAY,
-                FOG: overrides?.FOG
+                FOG: overrides?.FOG,
+                MATCAP: matcap !== undefined
               }
             )
 
