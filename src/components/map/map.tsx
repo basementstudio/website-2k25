@@ -40,6 +40,7 @@ import {
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
+import { Net } from "../basketball/net"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -135,6 +136,7 @@ export const Map = memo(() => {
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
   const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
+  const [net, setNet] = useState<Mesh | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
@@ -249,13 +251,13 @@ export const Map = memo(() => {
     const originalNet = officeModel?.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
 
-    if (originalNet?.parent) {
-      originalNet.removeFromParent()
-    }
-
     if (newNetMesh?.parent) {
       newNetMesh.removeFromParent()
-      setKeyframedNet(newNetMesh)
+    }
+
+    if (originalNet?.parent) {
+      originalNet.removeFromParent()
+      setNet(originalNet as Mesh)
     }
 
     // const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
@@ -646,8 +648,10 @@ export const Map = memo(() => {
           />
         )
       })}
-
-      {keyframedNet && <primitive object={keyframedNet} />}
+      {scene !== "basketball" && useMesh.getState().hoopMesh && (
+        <primitive object={useMesh.getState().hoopMesh as Mesh} />
+      )}
+      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
       <BakesLoader />
       <ReflexesLoader />
     </group>
