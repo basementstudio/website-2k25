@@ -29,6 +29,7 @@ interface InspectableProps {
   position: { x: number; y: number; z: number }
   xOffset: number
   yOffset: number
+  xRotationOffset: number
   sizeTarget: number
   scenes: string[]
 }

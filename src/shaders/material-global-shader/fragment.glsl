@@ -271,9 +271,8 @@ void main() {
 
   #ifdef MATCAP
   if (glassMatcap) {
-    gl_FragColor.a *= inspectingFactor;
+    gl_FragColor.a *= pattern * inspectingFactor;
   }
-  gl_FragColor.a *= pattern;
   #endif
 
   if (uLoaded < 1.0) {
