@@ -49,6 +49,7 @@ export const query = fragmentOn("Query", {
       clientList: {
         items: {
           _id: true,
+          _title: true,
           logo: true,
           website: true
         }
