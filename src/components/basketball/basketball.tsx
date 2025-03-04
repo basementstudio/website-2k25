@@ -105,7 +105,7 @@ export const Basketball = ({
       <mesh
         geometry={geometry}
         scale={1.7}
-        material={material}
+        material={originalMaterial}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
