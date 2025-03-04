@@ -89,6 +89,7 @@ export const inspectableFragment = fragmentOn("Inspectables", {
       },
       xOffset: true,
       yOffset: true,
+      xRotationOffset: true,
       sizeTarget: true,
       scenes: {
         _title: true

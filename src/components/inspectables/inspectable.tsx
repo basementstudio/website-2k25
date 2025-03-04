@@ -39,6 +39,7 @@ export const Inspectable = ({
   position,
   xOffset,
   yOffset,
+  xRotationOffset,
   sizeTarget,
   scenes
 }: InspectableProps) => {
@@ -196,7 +197,7 @@ export const Inspectable = ({
 
         targetQuaternion.setFromRotationMatrix(lookAtMatrix)
         const q = new Quaternion()
-        q.setFromAxisAngle(vRef.upVector, -Math.PI / 2)
+        q.setFromAxisAngle(vRef.upVector, -Math.PI / 2 + xRotationOffset)
         targetQuaternion.multiply(q)
 
         const direction = new Vector3()

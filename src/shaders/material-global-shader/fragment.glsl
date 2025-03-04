@@ -273,6 +273,7 @@ void main() {
   if (glassMatcap) {
     gl_FragColor.a *= inspectingFactor;
   }
+  gl_FragColor.a *= pattern;
   #endif
 
   if (uLoaded < 1.0) {
