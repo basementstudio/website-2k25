@@ -22,7 +22,10 @@ import { cctvConfig } from "../postprocessing/renderer"
 interface Bake {
   lightmap?: Texture
   aomap?: Texture
-  matcap?: Texture
+  matcap?: {
+    texture: Texture
+    isGlass: boolean
+  }
 }
 
 interface TextureUpdate {
@@ -45,10 +48,11 @@ const addAmbientOcclusion = (update: TextureUpdate) => {
   material.uniforms.aoMapIntensity.value = 1
 }
 
-const addMatcap = (update: TextureUpdate) => {
+const addMatcap = (update: TextureUpdate, isGlass: boolean) => {
   if (!update.mesh.userData.hasGlobalMaterial) return
   const material = update.mesh.material as ShaderMaterial
   material.uniforms.matcap.value = update.texture
+  material.uniforms.glassMatcap.value = isGlass
 }
 
 const useBakes = (): Record<string, Bake> => {
@@ -118,7 +122,10 @@ const useBakes = (): Record<string, Bake> => {
       if (!maps[matcaps[index].mesh]) {
         maps[matcaps[index].mesh] = {}
       }
-      maps[matcaps[index].mesh].matcap = map
+      maps[matcaps[index].mesh].matcap = {
+        texture: map,
+        isGlass: matcaps[index].isGlass
+      }
     })
 
     return maps
@@ -175,10 +182,13 @@ const Bakes = () => {
           })
         }
         if (maps.matcap) {
-          addMatcap({
-            mesh: meshOrGroup,
-            texture: maps.matcap
-          })
+          addMatcap(
+            {
+              mesh: meshOrGroup,
+              texture: maps.matcap.texture
+            },
+            maps.matcap.isGlass
+          )
         }
       } else if (meshOrGroup instanceof Group) {
         meshOrGroup.traverse((child) => {
@@ -194,6 +204,15 @@ const Bakes = () => {
                 mesh: child,
                 texture: maps.aomap
               })
+            }
+            if (maps.matcap) {
+              addMatcap(
+                {
+                  mesh: child,
+                  texture: maps.matcap.texture
+                },
+                maps.matcap.isGlass
+              )
             }
           }
         })

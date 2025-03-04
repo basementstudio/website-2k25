@@ -65,6 +65,7 @@ uniform float fogDepth;
 // Matcap
 #ifdef MATCAP
 uniform sampler2D matcap;
+uniform bool glassMatcap;
 #endif
 
 // Glass
@@ -267,6 +268,12 @@ void main() {
   if (inspectingEnabled && !(inspectingFactor > 0.0)) {
     gl_FragColor.rgb *= 1.0 - fadeFactor;
   }
+
+  #ifdef MATCAP
+  if (glassMatcap) {
+    gl_FragColor.a *= inspectingFactor;
+  }
+  #endif
 
   if (uLoaded < 1.0) {
     // Loading effect

@@ -19,6 +19,7 @@ export interface AssetsResult {
   matcaps: {
     mesh: string
     file: string
+    isGlass: boolean
   }[]
   arcade: {
     idleScreen: string
@@ -160,7 +161,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
     })),
     matcaps: threeDInteractions.map.matcaps.items.map((item) => ({
       mesh: item._title,
-      file: item.file?.url ?? ""
+      file: item.file?.url ?? "",
+      isGlass: item.isGlass ?? false
     })),
     routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
     arcade: {

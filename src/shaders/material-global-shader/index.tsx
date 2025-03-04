@@ -79,6 +79,7 @@ export const createGlobalShaderMaterial = (
 
   if (defines?.MATCAP) {
     uniforms["matcap"] = { value: null }
+    uniforms["glassMatcap"] = { value: false }
   }
 
   const material = new ShaderMaterial({

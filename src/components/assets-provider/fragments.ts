@@ -54,7 +54,8 @@ export const mapFragment = fragmentOn("Map", {
       _title: true,
       file: {
         url: true
-      }
+      },
+      isGlass: true
     }
   },
   videos: {
