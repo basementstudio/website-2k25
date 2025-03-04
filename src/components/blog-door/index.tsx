@@ -3,13 +3,12 @@ import { useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
+import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { DOOR_ANIMATION_CLOSE, DOOR_ANIMATION_OPEN } from "./constants"
-import { useCursor } from "@/hooks/use-mouse"
 
 export const BlogDoor = () => {
   const { blog } = useMesh()
