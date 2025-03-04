@@ -1,15 +1,17 @@
 import { usePathname } from "next/navigation"
-import { useAssets } from "../assets-provider"
 import { useMemo } from "react"
+import { useMesh } from "@/hooks/use-mesh"
 
 export const OutdoorCars = () => {
   const pathname = usePathname()
+  const { outdoorCarsMeshes } = useMesh()
+  console.log(outdoorCarsMeshes)
 
   const visible = useMemo(() => {
     return pathname === "/services" || pathname === "/people"
   }, [pathname])
 
-  console.log(visible)
+  if (!visible) return null
 
-  return <></>
+  return <group visible={visible}></group>
 }

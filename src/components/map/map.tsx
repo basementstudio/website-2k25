@@ -100,7 +100,8 @@ export const Map = memo(() => {
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
     videos,
-    scenes
+    scenes,
+    outdoorCars
   } = useAssets()
   const firstRender = useRef(true)
   const scene = useCurrentScene()
@@ -109,6 +110,9 @@ export const Map = memo(() => {
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
+  const { scene: outdoorCarsModel } = useGLTF(
+    outdoorCars.model
+  ) as unknown as GLTFResult
   const { scene: basketballNetModel } = useGLTF(basketballNetPath)
   const { scene: routingElementsModel } = useGLTF(
     routingElementsPath
@@ -494,6 +498,21 @@ export const Map = memo(() => {
       })
     }
 
+    outdoorCarsModel.traverse((child) => traverse(child, { FOG: false }))
+    if (
+      !useMesh.getState().outdoorCarsMeshes ||
+      Object.keys(useMesh.getState().outdoorCarsMeshes).length === 0
+    ) {
+      const outdoorCarsMeshes: (Mesh | null)[] = []
+
+      outdoorCarsModel.children.forEach((child) => {
+        if (child instanceof Mesh) {
+          outdoorCarsMeshes.push(child)
+        }
+      })
+      useMesh.setState({ outdoorCarsMeshes })
+    }
+
     if (
       !useMesh.getState().blog.lockedDoor &&
       !useMesh.getState().blog.door &&
@@ -536,6 +555,7 @@ export const Map = memo(() => {
     disableRaycasting(officeModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
+    disableRaycasting(outdoorCarsModel)
   }, [
     inspectableAssets,
     officeModel,
@@ -544,7 +564,8 @@ export const Map = memo(() => {
     basketballNetModel,
     routingElementsModel,
     videos,
-    currentScene
+    currentScene,
+    outdoorCars
   ])
 
   useEffect(() => {
