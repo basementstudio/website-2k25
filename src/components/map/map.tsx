@@ -3,7 +3,6 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { useControls } from "leva"
-import { useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
@@ -103,7 +102,8 @@ export const Map = memo(() => {
     inspectables: inspectableAssets,
     videos,
     scenes,
-    outdoorCars
+    outdoorCars,
+    matcaps
   } = useAssets()
   const firstRender = useRef(true)
   const scene = useCurrentScene()
