@@ -1,7 +1,6 @@
 import { useMesh } from "@/hooks/use-mesh"
-import { Html } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { Fragment, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Mesh } from "three"
 
 interface StreetLane {
