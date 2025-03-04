@@ -5,7 +5,6 @@ import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { Link } from "@/components/primitives/link"
-import { useDebounce } from "@/hooks/use-debounce"
 import { useMedia } from "@/hooks/use-media"
 import useMousePosition from "@/hooks/use-mouse-pos"
 import { easeInOutCubic } from "@/utils/animations"
@@ -30,8 +29,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const certificateDimensions = { width: 232, height: 307.73 }
 
   const [isRevealing, setIsRevealing] = useState(false)
-
-  const debouncedHoveredItemId = useDebounce(hoveredItemId, 10)
 
   const sortedAwards = data.company.awards.awardList.items
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
