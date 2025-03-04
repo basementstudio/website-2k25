@@ -142,7 +142,7 @@ export const Map = memo(() => {
 
   const { godrayOpacity } = useControls("God Rays", {
     godrayOpacity: {
-      value: 1,
+      value: 1.25,
       min: 0.0,
       max: 5.0,
       step: 0.001
