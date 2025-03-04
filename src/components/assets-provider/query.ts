@@ -2,11 +2,11 @@ import { fragmentOn } from "basehub"
 
 import {
   arcadeFragment,
+  carFragment,
   characterFragment,
   inspectableFragment,
   lampFragment,
   mapFragment,
-  // carFragment,
   modelsItemFragment,
   sceneFragment,
   sfxFragment
@@ -24,7 +24,7 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
   contactPhone: modelsItemFragment,
   arcade: arcadeFragment,
   scenes: sceneFragment,
-  // car: carFragment,
+  outdoorCars: carFragment,
   characters: characterFragment,
   lamp: lampFragment
 })

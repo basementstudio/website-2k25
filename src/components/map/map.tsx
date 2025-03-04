@@ -25,7 +25,6 @@ import {
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
 import { BlogDoor } from "@/components/blog-door"
-// import Cars from "@/components/cars/cars"
 import { useInspectable } from "@/components/inspectables/context"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
@@ -45,6 +44,7 @@ import { Net } from "../basketball/net"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
+import { OutdoorCars } from "../outdoor-cars"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -102,9 +102,9 @@ export const Map = memo(() => {
     routingElements: routingElementsPath,
     inspectables: inspectableAssets,
     videos,
-    // car,
-    matcaps,
-    scenes
+    scenes,
+    outdoorCars,
+    matcaps
   } = useAssets()
   const firstRender = useRef(true)
   const scene = useCurrentScene()
@@ -113,11 +113,13 @@ export const Map = memo(() => {
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
+  const { scene: outdoorCarsModel } = useGLTF(
+    outdoorCars.model
+  ) as unknown as GLTFResult
   const { scene: basketballNetModel } = useGLTF(basketballNetPath)
   const { scene: routingElementsModel } = useGLTF(
     routingElementsPath
   ) as unknown as GLTFResult
-  // const { scene: carV5 } = useGLTF(car.carModel) as unknown as GLTFResult
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
@@ -502,6 +504,21 @@ export const Map = memo(() => {
       })
     }
 
+    outdoorCarsModel.traverse((child) => traverse(child, { FOG: false }))
+    if (
+      !useMesh.getState().outdoorCarsMeshes ||
+      Object.keys(useMesh.getState().outdoorCarsMeshes).length === 0
+    ) {
+      const outdoorCarsMeshes: (Mesh | null)[] = []
+
+      outdoorCarsModel.children.forEach((child) => {
+        if (child instanceof Mesh) {
+          outdoorCarsMeshes.push(child)
+        }
+      })
+      useMesh.setState({ outdoorCarsMeshes })
+    }
+
     if (
       !useMesh.getState().blog.lockedDoor &&
       !useMesh.getState().blog.door &&
@@ -544,6 +561,7 @@ export const Map = memo(() => {
     disableRaycasting(officeModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
+    disableRaycasting(outdoorCarsModel)
   }, [
     inspectableAssets,
     officeModel,
@@ -552,8 +570,8 @@ export const Map = memo(() => {
     basketballNetModel,
     routingElementsModel,
     videos,
-    currentScene
-    // carV5
+    currentScene,
+    outdoorCars
   ])
 
   useEffect(() => {
@@ -585,7 +603,7 @@ export const Map = memo(() => {
           <Lamp />
         </PhysicsWorld>
       </Suspense>
-
+      <OutdoorCars />
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
           (tab) => tab.tabClickableName === node.name
@@ -612,10 +630,6 @@ export const Map = memo(() => {
       {net && net instanceof THREE.Mesh && <Net mesh={net} />}
       <BakesLoader />
       <ReflexesLoader />
-
-      {/* <Suspense fallback={null}>
-        <Cars />
-      </Suspense> */}
     </group>
   )
 })
