@@ -2,11 +2,11 @@ import { fragmentOn } from "basehub"
 
 import {
   arcadeFragment,
+  carFragment,
   characterFragment,
   inspectableFragment,
   lampFragment,
   mapFragment,
-  // carFragment,
   modelsItemFragment,
   sceneFragment,
   sfxFragment
