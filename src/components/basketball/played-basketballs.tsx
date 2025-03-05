@@ -33,12 +33,15 @@ export const PlayedBasketballs = () => {
   )
 
   const originalMaterial = basketballModel.materials[
-    "Material.001"
+    "Material.002"
   ] as MeshStandardMaterial
 
   const material = useMemo(() => {
-    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false)
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
+      LIGHT: true
+    })
     mat.uniforms.uLoaded.value = 1
+    mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
     return mat
   }, [originalMaterial])
 
