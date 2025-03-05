@@ -2,7 +2,7 @@
 
 import { useLenis } from "lenis/react"
 import { useSearchParams } from "next/navigation"
-import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useMedia } from "@/hooks/use-media"
 import { useWatchPathname } from "@/hooks/use-watch-pathname"
@@ -42,6 +42,7 @@ ViewModeSelector.displayName = "ViewModeSelector"
 export const ProjectList = memo(({ data }: { data: QueryType }) => {
   const lenis = useLenis()
   const { currentPathname, prevPathname } = useWatchPathname()
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const searchParams = useSearchParams()
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -52,8 +53,22 @@ export const ProjectList = memo(({ data }: { data: QueryType }) => {
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
 
   useEffect(() => {
-    if (currentPathname === "/showcase" && prevPathname.includes("/showcase"))
-      lenis?.scrollTo("#projects", { immediate: true })
+    if (currentPathname === "/showcase" && prevPathname.includes("/showcase")) {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        lenis?.scrollTo("#projects", {
+          immediate: true
+        })
+      }, 50)
+    }
+
+    return (): void => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+    }
   }, [lenis, currentPathname, prevPathname])
 
   const isDesktop = useMedia("(min-width: 1024px)")

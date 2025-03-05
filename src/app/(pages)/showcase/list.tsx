@@ -25,7 +25,8 @@ const AccordionListItem = memo(
           "grid-layout [&:last-of-type>button]:border-b [&[data-state=closed]_.view-project]:opacity-0",
           disabled
             ? "[&[data-state=open]_.view-project]:opacity-30"
-            : "[&[data-state=open]_.view-project]:opacity-100"
+            : "[&[data-state=open]_.view-project]:opacity-100",
+          "[&[data-state=open]]:will-change-[opacity,transform]"
         )}
         value={index.toString()}
       >
@@ -84,7 +85,9 @@ const AccordionListItem = memo(
           <AccordionPrimitive.Content
             className={cn(
               "col-span-12",
-              "overflow-hidden transition-opacity duration-300 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
+              "overflow-hidden transition-[transform,opacity] duration-300",
+              "data-[state=closed]:translate-y-[-10px] data-[state=closed]:opacity-0",
+              "data-[state=open]:translate-y-0 data-[state=open]:opacity-100",
               disabled && "opacity-30"
             )}
           >
