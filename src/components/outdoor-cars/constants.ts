@@ -8,7 +8,7 @@ export interface StreetLane {
   startDelay: number | null
   nextStartTime: number | null
   isMoving: boolean
-  rotation?: [number, number, number]
+  rotate: boolean
   frontWheels?: Mesh | null
   backWheels?: Mesh | null
   audioId: number
@@ -16,12 +16,12 @@ export interface StreetLane {
 
 export const CONFIG = {
   speed: {
-    min: 50,
+    min: 40,
     max: 60
   },
   delay: {
-    min: 2,
-    max: 10
+    min: 1,
+    max: 20
   }
 }
 

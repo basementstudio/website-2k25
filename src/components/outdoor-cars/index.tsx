@@ -48,6 +48,18 @@ export const OutdoorCars = () => {
         startDelay: null,
         nextStartTime: null,
         isMoving: false,
+        rotate: false,
+        audioId: 0
+      },
+      {
+        initialPosition: [-50, -0.2, 9],
+        targetPosition: [50, -0.2, 9],
+        car: null,
+        speed: null,
+        startDelay: null,
+        nextStartTime: null,
+        isMoving: false,
+        rotate: true,
         audioId: 0
       }
     ],
@@ -71,8 +83,8 @@ export const OutdoorCars = () => {
         lane.backWheels = lane.car.children[1] as Mesh
       }
 
-      if (lane.rotation && lane.car) {
-        lane.car.rotation.z = lane.rotation[2]
+      if (lane.rotate && lane.car) {
+        lane.car.rotation.z = lane.rotate ? -Math.PI / 2 : 0
       }
     }
 
