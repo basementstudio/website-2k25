@@ -1,8 +1,11 @@
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrame } from "@react-three/fiber"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { Fragment, useEffect, useMemo, useRef, useState } from "react"
 import { Mesh } from "three"
+import * as THREE from "three"
+import { PositionalAudio } from "@react-three/drei"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 
 interface StreetLane {
   initialPosition: [number, number, number]
@@ -34,8 +37,8 @@ export const OutdoorCars = () => {
   const STREET_LANES: StreetLane[] = useMemo(
     () => [
       {
-        initialPosition: [10, -0.2, 4],
-        targetPosition: [-15, -0.2, 4],
+        initialPosition: [40, -0.2, 4],
+        targetPosition: [-40, -0.2, 4],
         car: null,
         speed: null,
         startDelay: null,
@@ -43,8 +46,8 @@ export const OutdoorCars = () => {
         isMoving: false
       },
       {
-        initialPosition: [-13, -0.2, 9],
-        targetPosition: [10, -0.2, 9],
+        initialPosition: [-40, -0.2, 9],
+        targetPosition: [40, -0.2, 9],
         car: null,
         speed: null,
         startDelay: null,
@@ -124,15 +127,39 @@ export const OutdoorCars = () => {
     }
   })
 
-  return STREET_LANES.map((lane, index) => {
-    if (!lane.car) return null
+  const audioRef = useRef<THREE.PositionalAudio>(null)
+  const { music } = useSiteAudio()
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.setDistanceModel("exponential")
+      audioRef.current.setRolloffFactor(2)
+      audioRef.current.setRefDistance(1)
+      audioRef.current.setMaxDistance(10)
+      audioRef.current.setVolume(music ? 5 : 0)
+    }
+  }, [music])
 
-    return (
-      <primitive
-        visible={carsVisible}
-        key={`${index}-${carUpdateCounter}`}
-        object={lane.car}
-      />
-    )
-  })
+  return (
+    <>
+      {STREET_LANES.map((lane, index) => {
+        if (!lane.car) return null
+
+        return (
+          <Fragment key={`${index}-${carUpdateCounter}`}>
+            <primitive visible={carsVisible} object={lane.car}>
+              {index === 0 && (
+                <PositionalAudio
+                  ref={audioRef}
+                  url="/car.mp3"
+                  distance={5}
+                  autoplay
+                  loop
+                />
+              )}
+            </primitive>
+          </Fragment>
+        )
+      })}
+    </>
+  )
 }
