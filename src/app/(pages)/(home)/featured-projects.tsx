@@ -11,29 +11,36 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
 
   return (
     <div className="grid-layout mt-12 !gap-y-4">
-      <div className="sticky top-0 col-span-full">
-        <h2
-          className={cn(
-            "col-span-full bg-brand-k pb-4 pt-12 text-mobile-h1 text-brand-w2 lg:pt-14 lg:text-h1"
-          )}
-        >
-          Featured projects
-        </h2>
-      </div>
-
       {p.map((project, index) => (
-        <ProjectItem key={project._title} project={project} index={index} />
+        <div
+          key={project._title}
+          className={cn(
+            "col-span-full",
+            "sticky top-[6.7rem] lg:top-[8.7rem]",
+            index === 0 && "!top-0 lg:!top-0"
+          )}
+          style={{ zIndex: index + 1 }}
+        >
+          {index === 0 && (
+            <h2
+              className={cn(
+                "col-span-full bg-brand-k pb-6 pt-12 !text-mobile-h1 text-brand-w2 lg:pt-14 lg:!text-h1"
+              )}
+            >
+              Featured projects
+            </h2>
+          )}
+          <ProjectItem project={project} />
+        </div>
       ))}
     </div>
   )
 }
 
 const ProjectItem = ({
-  project,
-  index
+  project
 }: {
   project: QueryType["pages"]["homepage"]["featuredProjects"]["projectList"]["items"][0]
-  index: number
 }) => {
   return (
     <div
@@ -43,10 +50,8 @@ const ProjectItem = ({
         "transition-transform duration-300",
         "[background-image:linear-gradient(#000000_1px,transparent_1px),linear-gradient(to_right,#000000_1px,rgba(0,0,0,0.7)_1px)] [background-position-y:1px] [background-size:2px_2px]",
         "border-t border-brand-w1/30",
-        "sticky top-24 lg:top-[9.5rem]",
         "stacked-card col-span-full"
       )}
-      style={{ zIndex: index + 1 }}
     >
       <div className="relative col-span-7 after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
         <div className="with-dots relative h-full w-full">
@@ -79,7 +84,7 @@ const ProjectItem = ({
 
       <Link
         href={`/showcase/${project.project?._slug}`}
-        className="actionable h-max text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
+        className="actionable h-max pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
       >
         {project._title}
       </Link>
