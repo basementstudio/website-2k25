@@ -1,4 +1,5 @@
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
+import { memo, useCallback } from "react"
 
 import { cn } from "@/utils/cn"
 
@@ -32,22 +33,25 @@ interface ViewSelectorProps {
   setViewMode: (mode: "grid" | "rows") => void
 }
 
-const ViewSelector = ({ mode, viewMode, setViewMode }: ViewSelectorProps) => (
-  <CheckboxPrimitive.Root
-    className={cn(
-      "flex cursor-pointer items-center justify-center gap-1 transition-colors duration-300",
-      viewMode === mode ? "text-brand-w1" : "text-brand-g1"
-    )}
-    value={mode}
-    checked={viewMode === mode}
-    onCheckedChange={() => setViewMode(mode)}
-  >
-    {mode === "grid" ? <GridIcon /> : <RowIcon />}
-    <span className={cn(viewMode === mode && "actionable")}>
-      {mode.charAt(0).toUpperCase() + mode.slice(1)}
-    </span>
-  </CheckboxPrimitive.Root>
+const ViewSelector = memo(
+  ({ mode, viewMode, setViewMode }: ViewSelectorProps) => (
+    <CheckboxPrimitive.Root
+      className={cn(
+        "flex cursor-pointer items-center justify-center gap-1 transition-colors duration-300",
+        viewMode === mode ? "text-brand-w1" : "text-brand-g1"
+      )}
+      value={mode}
+      checked={viewMode === mode}
+      onCheckedChange={() => setViewMode(mode)}
+    >
+      {mode === "grid" ? <GridIcon /> : <RowIcon />}
+      <span className={cn(viewMode === mode && "actionable")}>
+        {mode.charAt(0).toUpperCase() + mode.slice(1)}
+      </span>
+    </CheckboxPrimitive.Root>
+  )
 )
+ViewSelector.displayName = "ViewSelector"
 
 interface FiltersProps {
   categories: CategoryItem[]
@@ -57,67 +61,73 @@ interface FiltersProps {
   setSelectedCategories: (categories: string[]) => void
 }
 
-export const Filters = ({
-  categories,
-  selectedCategories,
-  setSelectedCategories,
-  viewMode,
-  setViewMode
-}: FiltersProps) => {
-  const categoryHandler = (category: string, checked: boolean) => {
-    setSelectedCategories(
-      checked
-        ? [...selectedCategories, category]
-        : selectedCategories.filter((c) => c !== category)
+export const Filters = memo(
+  ({
+    categories,
+    selectedCategories,
+    setSelectedCategories,
+    viewMode,
+    setViewMode
+  }: FiltersProps) => {
+    const categoryHandler = useCallback(
+      (category: string, checked: boolean) => {
+        setSelectedCategories(
+          checked
+            ? [...selectedCategories, category]
+            : selectedCategories.filter((c) => c !== category)
+        )
+      },
+      [selectedCategories, setSelectedCategories]
+    )
+
+    return (
+      <div className="grid-layout items-end pb-2">
+        <div className="col-span-1 hidden items-center gap-1 text-p text-brand-g1 lg:flex">
+          <ViewSelector
+            mode="grid"
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+          />
+          {" , "}
+          <ViewSelector
+            mode="rows"
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+          />
+        </div>
+
+        <div className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13">
+          <p className="text-p text-brand-g1">Filters</p>
+
+          <ul className="flex flex-wrap gap-x-4 gap-y-1">
+            {categories.map((category) => (
+              <button
+                key={category.name}
+                className={cn(
+                  "flex w-max gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
+                  selectedCategories.includes(category.name) && "text-brand-w1",
+                  // if no categories selected, show all as active
+                  selectedCategories.length === 0 && "text-brand-w1"
+                )}
+                onClick={() =>
+                  categoryHandler(
+                    category.name,
+                    !selectedCategories.includes(category.name)
+                  )
+                }
+              >
+                <span className="actionable">{category.name}</span>
+                {category.count && (
+                  <sup className="translate-y-1.5 text-p !font-semibold text-brand-g1">
+                    ({category.count})
+                  </sup>
+                )}
+              </button>
+            ))}
+          </ul>
+        </div>
+      </div>
     )
   }
-
-  return (
-    <div className="grid-layout items-end pb-2">
-      <div className="col-span-1 hidden items-center gap-1 text-p text-brand-g1 lg:flex">
-        <ViewSelector
-          mode="grid"
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-        />
-        {" , "}
-        <ViewSelector
-          mode="rows"
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-        />
-      </div>
-
-      <div className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13">
-        <p className="text-p text-brand-g1">Filters</p>
-
-        <ul className="flex flex-wrap gap-x-4 gap-y-1">
-          {categories.map((category) => (
-            <button
-              key={category.name}
-              className={cn(
-                "flex w-max gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
-                selectedCategories.includes(category.name) && "text-brand-w1",
-                // if no categories selected, show all as active
-                selectedCategories.length === 0 && "text-brand-w1"
-              )}
-              onClick={() =>
-                categoryHandler(
-                  category.name,
-                  !selectedCategories.includes(category.name)
-                )
-              }
-            >
-              <span className="actionable">{category.name}</span>
-              {category.count && (
-                <sup className="translate-y-1.5 text-p !font-semibold text-brand-g1">
-                  ({category.count})
-                </sup>
-              )}
-            </button>
-          ))}
-        </ul>
-      </div>
-    </div>
-  )
-}
+)
+Filters.displayName = "Filters"
