@@ -60,6 +60,7 @@ export interface AssetsResult {
     basketballNet: string
     basketballThump: string
     basketballBuzzer: string
+    carOutdoor: string
     blog: {
       lockedDoor: string[]
       door: {
@@ -189,6 +190,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
     sfx: {
+      carOutdoor: threeDInteractions.sfx.outdoorCarsPassingBy?.url ?? "",
       ambience: threeDInteractions.sfx.ambience?.url ?? "",
       basketballTheme: threeDInteractions.sfx.basketballTheme?.url ?? "",
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",

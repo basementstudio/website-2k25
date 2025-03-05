@@ -36,6 +36,9 @@ export function useAudioUrls() {
         PRESS: item.press,
         RELEASE: item.release
       }))
+    },
+    OUTDOOR_CARS: {
+      CARS_PASSING_BY: sfx.carOutdoor
     }
   } as const
 }

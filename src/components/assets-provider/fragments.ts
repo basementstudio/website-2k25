@@ -167,6 +167,9 @@ export const sfxFragment = fragmentOn("Sfx", {
   },
   ambience: {
     url: true
+  },
+  outdoorCarsPassingBy: {
+    url: true
   }
 })
 
