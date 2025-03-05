@@ -4,11 +4,13 @@ import { useEffect, useState } from "react"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
+import { cn } from "@/utils/cn"
 
 export default function NotFound() {
   const { handleNavigation } = useHandleNavigation()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const [formattedTime, setFormattedTime] = useState("00:00:00:00")
+  const [fadeOutHtml, setFadeOutHtml] = useState(false)
 
   useEffect(() => {
     const updateTime = () => {
@@ -29,11 +31,26 @@ export default function NotFound() {
     return () => clearInterval(interval)
   }, [])
 
+  const goBack = () => {
+    setFadeOutHtml(true)
+
+    setTimeout(() => {
+      handleNavigation("/")
+    }, 500)
+  }
+
   if (currentScene?.name !== "404") return null
 
   return (
     <>
-      <div className="fixed top-9 z-30 grid h-[calc(100dvh-36px)] w-full place-items-center">
+      <div
+        className={cn(
+          "fixed top-9 z-30 grid h-[calc(100dvh-36px)] w-full place-items-center",
+          fadeOutHtml
+            ? "opacity-0 transition-opacity duration-500"
+            : "[animation:fade-in_1500ms_ease-in-out_1_normal_none_running]"
+        )}
+      >
         <div className="relative grid aspect-[4/3] h-full max-h-[768px] w-full max-w-[1024px] place-items-center p-14">
           <div className="absolute left-0 top-0">
             <div className="h-[60px] w-[2px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
@@ -66,10 +83,7 @@ export default function NotFound() {
             <span className="absolute right-0 top-0">security cam 4870</span>
             <span className="absolute bottom-0 right-0">{formattedTime}</span>
 
-            <button
-              onClick={() => handleNavigation("/")}
-              className="uppercase underline"
-            >
+            <button onClick={() => goBack()} className="uppercase underline">
               <span>go back home</span>
             </button>
           </div>
