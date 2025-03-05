@@ -218,7 +218,14 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
     const deltaY = e.clientY - dragStartPosition.current.y
 
     let direction = 0
-    const threshold = 10
+    const threshold = 20
+
+    if (Math.abs(deltaX) <= threshold && Math.abs(deltaY) <= threshold) {
+      if (state.current !== 0) {
+        updateStickPosition(0, { x: 0, y: 0, z: 0 })
+      }
+      return
+    }
 
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       if (Math.abs(deltaX) > threshold) {
