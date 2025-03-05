@@ -23,14 +23,28 @@ const StaticBasketballs = () => {
     [basketballModel]
   )
 
-  const originalMaterial = useMemo(
-    () => basketballModel.materials["Material.001"] as MeshStandardMaterial,
-    [basketballModel]
-  )
+  const originalMaterial = basketballModel.materials[
+    "Material.001"
+  ] as MeshStandardMaterial
+
+  const material = useMemo(() => {
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false)
+    mat.uniforms.uLoaded.value = 1
+    return mat
+  }, [originalMaterial])
 
   useEffect(() => {
     if (!playedBallMaterial) {
-      const material = createGlobalShaderMaterial(originalMaterial, true)
+      // Create a clone of the original material to avoid modifying the shared instance
+      const clonedMaterial = originalMaterial.clone()
+
+      // Create a new global shader material
+      const material = createGlobalShaderMaterial(clonedMaterial, false)
+
+      // Skip the preload animation by setting uLoaded to 1
+      material.uniforms.uLoaded.value = 1
+
+      // Set the played ball material in the store
       setPlayedBallMaterial(material)
     }
   }, [originalMaterial, playedBallMaterial, setPlayedBallMaterial])
@@ -44,12 +58,11 @@ const StaticBasketballs = () => {
           raycast={() => null}
           key={index}
           geometry={geometry}
-          material={originalMaterial}
+          material={material}
           position={[ball.position.x, ball.position.y, ball.position.z]}
           rotation={[ball.rotation.x, ball.rotation.y, ball.rotation.z]}
           scale={1.7}
-          material-metalness={0}
-          material-roughness={0.8}
+          userData={{ hasGlobalMaterial: true }}
         />
       ))}
     </>
