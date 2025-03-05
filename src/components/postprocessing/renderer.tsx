@@ -32,7 +32,6 @@ export const cctvConfig = {
     minFilter: NearestFilter,
     magFilter: NearestFilter
   }),
-  shouldBakeCCTV: true,
   frameCounter: 0,
   framesPerUpdate: 16,
   camera: new PerspectiveCamera(30, 1, 0.1, 1000)
@@ -63,7 +62,6 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
   const currentScene = useNavigationStore((state) => state.currentScene?.name)
-  const previousScene = useNavigationStore((state) => state.previousScene?.name)
 
   const { isContactOpen } = useContactStore()
 
@@ -75,12 +73,6 @@ function RendererInner({ sceneChildren }: RendererProps) {
     return () => window.removeEventListener("resize", resizeCallback)
   }, [mainTarget])
 
-  useEffect(() => {
-    if (currentScene === "404" && previousScene !== "404") {
-      cctvConfig.shouldBakeCCTV = true
-    }
-  }, [currentScene, previousScene])
-
   useFrame(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return
     if (isContactOpen) return
@@ -90,18 +82,13 @@ function RendererInner({ sceneChildren }: RendererProps) {
     gl.setRenderTarget(mainTarget)
     gl.render(mainScene, mainCamera)
 
+    // 404 scene on tv
+    gl.setRenderTarget(cctvConfig.renderTarget.write)
+    gl.render(mainScene, cctvConfig.camera)
+    cctvConfig.renderTarget.swap()
+
     gl.outputColorSpace = SRGBColorSpace
     gl.toneMapping = NoToneMapping
-
-    // CCTV 404
-    if (cctvConfig.shouldBakeCCTV) {
-      // bake both read and write textures
-      cctvConfig.shouldBakeCCTV = false
-      gl.setRenderTarget(cctvConfig.renderTarget.write)
-      gl.render(mainScene, cctvConfig.camera)
-      cctvConfig.renderTarget.swap()
-    }
-
     gl.setRenderTarget(null)
     gl.render(postProcessingScene, postProcessingCameraRef.current)
   }, 1)

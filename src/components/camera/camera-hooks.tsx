@@ -1,10 +1,13 @@
 import { useFrame } from "@react-three/fiber"
+import { useLenis } from "lenis/react"
 import { easing } from "maath"
 import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
-import { useLenis } from "lenis/react"
 
 import { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+
+import { useInspectable } from "../inspectables/context"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import {
   calculateMovementVectors,
   calculateNewPosition,
@@ -12,10 +15,9 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
-import { useInspectable } from "../inspectables/context"
 
 const ANIMATION_DURATION = 1
+const ANIMATION_DURATION_FROM_404 = 4
 
 export type CameraRef = React.RefObject<THREE.PerspectiveCamera | null>
 export type MeshRef = React.RefObject<THREE.Mesh | null>
@@ -140,7 +142,16 @@ export const useCameraMovement = (
     useNavigationStore.getState().setDisableCameraTransition
   const setIsCameraTransitioning =
     useNavigationStore.getState().setIsCameraTransitioning
+  const previousScene = useNavigationStore.getState().previousScene
   const { selected } = useInspectable()
+
+  // Determine if we're transitioning from the 404 page
+  const isTransitioningFrom404 = previousScene?.name === "404"
+
+  // Use the appropriate animation duration
+  const animationDuration = isTransitioningFrom404
+    ? ANIMATION_DURATION_FROM_404
+    : ANIMATION_DURATION
 
   const divisor = useResponsiveDivisor()
   const offsetMultiplier = useMemo(() => {
@@ -192,7 +203,7 @@ export const useCameraMovement = (
 
           setTimeout(
             () => setDisableCameraTransition(false),
-            ANIMATION_DURATION * 1000
+            animationDuration * 1000
           )
         }
       }
@@ -207,7 +218,8 @@ export const useCameraMovement = (
     initialCurrentTarget,
     disableCameraTransition,
     setDisableCameraTransition,
-    setIsCameraTransitioning
+    setIsCameraTransitioning,
+    animationDuration
   ])
 
   useFrame(({ pointer }, dt) => {
@@ -268,7 +280,7 @@ export const useCameraMovement = (
         firstRender.current = false
       }
     } else if (isTransitioning.current && progress.current < 1) {
-      progress.current = Math.min(progress.current + dt / ANIMATION_DURATION, 1)
+      progress.current = Math.min(progress.current + dt / animationDuration, 1)
       const easeValue = easeInOutCubic(progress.current)
 
       currentPos.lerpVectors(initialCurrentPos, targetPosition, easeValue)
