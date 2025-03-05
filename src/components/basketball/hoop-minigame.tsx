@@ -441,7 +441,6 @@ export const HoopMinigame = () => {
   )
 
   const hoopMeshes = useMesh((state) => state.hoopMeshes)
-  console.log(hoopMeshes)
 
   const clonedHoopRef = useRef<THREE.Mesh | null>(null)
 
