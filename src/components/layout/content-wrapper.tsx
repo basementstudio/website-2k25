@@ -30,8 +30,8 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
           !shouldShowCanvas && "pointer-events-none invisible opacity-0"
         )}
       >
-        {/* <Scene /> */}
-        {/* <InspectableViewer /> */}
+        <Scene />
+        <InspectableViewer />
         <ScrollDown />
       </div>
 
