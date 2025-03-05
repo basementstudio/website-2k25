@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three"
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three"
 
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
@@ -45,12 +45,15 @@ export const Basketball = ({
   }, [basketballModel])
 
   const originalMaterial = basketballModel.materials[
-    "Material.001"
+    "Material.002"
   ] as MeshStandardMaterial
 
   const material = useMemo(() => {
-    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false)
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
+      LIGHT: true
+    })
     mat.uniforms.uLoaded.value = 1
+    mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
     return mat
   }, [originalMaterial])
 
