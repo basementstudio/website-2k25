@@ -57,9 +57,9 @@ export const createGlobalShaderMaterial = (
     alphaMap: { value: alphaMap },
     emissive: { value: baseMaterial.emissive || new Vector3() },
     emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
-    fogColor: { value: new Vector3(0.4, 0.4, 0.4) },
+    fogColor: { value: new Vector3(0.2, 0.2, 0.2) },
     fogDensity: { value: 0.05 },
-    fogDepth: { value: 6.0 },
+    fogDepth: { value: 9.0 },
     glassReflex: { value: null },
     emissiveMap: { value: emissiveMap },
 
