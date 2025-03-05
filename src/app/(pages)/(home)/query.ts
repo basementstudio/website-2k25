@@ -37,7 +37,8 @@ export const query = fragmentOn("Query", {
               categories: {
                 _title: true
               }
-            }
+            },
+            cover: IMAGE_FRAGMENT
           }
         }
       }
@@ -48,6 +49,7 @@ export const query = fragmentOn("Query", {
       clientList: {
         items: {
           _id: true,
+          _title: true,
           logo: true,
           website: true
         }
