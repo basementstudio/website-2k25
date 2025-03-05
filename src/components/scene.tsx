@@ -8,11 +8,18 @@ import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map/map"
-
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
+import { MouseTracker } from "@/hooks/use-mouse"
 import { useMinigameStore } from "@/store/minigame-store"
+
+import { PlayedBasketballs } from "./basketball/played-basketballs"
+import StaticBasketballs from "./basketball/static-basketballs"
+import { CameraController } from "./camera/camera-controller"
+import { CharacterInstanceConfig } from "./characters/character-instancer"
+import { CharactersSpawn } from "./characters/characters-spawn"
+import { Debug } from "./debug"
 
 const HoopMinigame = dynamic(
   () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
@@ -35,14 +42,6 @@ const PhysicsWorld = dynamic(
     }),
   { ssr: false }
 )
-
-import { PlayedBasketballs } from "./basketball/played-basketballs"
-import StaticBasketballs from "./basketball/static-basketballs"
-import { CameraController } from "./camera/camera-controller"
-import { CharacterInstanceConfig } from "./characters/character-instancer"
-import { CharactersSpawn } from "./characters/characters-spawn"
-import { Debug } from "./debug"
-import { MouseTracker } from "@/hooks/use-mouse"
 
 export const Scene = () => {
   const {

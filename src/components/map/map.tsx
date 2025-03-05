@@ -562,7 +562,7 @@ export const Map = memo(() => {
         z: door.rotation.z
       }
 
-      const lamp = officeModel?.getObjectByName("Cube002") as Mesh
+      const lamp = officeModel?.getObjectByName("SM_LightMeshBlog") as Mesh
 
       if (lockedDoor?.parent) lockedDoor.removeFromParent()
       if (door?.parent) door.removeFromParent()
