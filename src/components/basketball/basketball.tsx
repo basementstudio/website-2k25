@@ -44,8 +44,6 @@ export const Basketball = ({
     return geo
   }, [basketballModel])
 
-  console.log("geo", geometry)
-
   const originalMaterial = basketballModel.materials[
     "Material.002"
   ] as MeshStandardMaterial
