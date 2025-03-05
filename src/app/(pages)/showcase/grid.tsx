@@ -78,7 +78,7 @@ export const Grid = memo(
             >
               <div
                 className={cn(
-                  "group relative aspect-[418/296] cursor-pointer after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full",
+                  "group relative aspect-video cursor-pointer after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full",
                   "will-change-[opacity,transform] hover:will-change-auto"
                 )}
               >
@@ -91,8 +91,8 @@ export const Grid = memo(
                   {item.disabled || !item.project?.cover ? (
                     <Placeholder
                       className="absolute inset-0 text-brand-w1/20"
-                      width={firstItem ? 836 : 418}
-                      height={firstItem ? 592 : 296}
+                      width={firstItem ? 844 : 418}
+                      height={firstItem ? 478 : 235}
                     />
                   ) : null}
 
@@ -114,7 +114,7 @@ export const Grid = memo(
         {placeholders.map((_, index) => (
           <div
             key={`placeholder-${index}`}
-            className="with-diagonal-lines contain-paint hidden aspect-[418/296] lg:col-span-3 [&.with-diagonal-lines]:after:animate-none [&.with-diagonal-lines]:after:from-brand-w1/[0.20]"
+            className="with-diagonal-lines contain-paint hidden aspect-video lg:col-span-3 [&.with-diagonal-lines]:after:animate-none [&.with-diagonal-lines]:after:from-brand-w1/[0.20]"
           />
         ))}
       </div>
