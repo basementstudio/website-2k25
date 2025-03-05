@@ -110,9 +110,6 @@ export const NavbarContent = ({
         />
       </div>
       <Grid />
-      <div className="mx-auto -mb-px h-px w-full max-w-full px-1.75">
-        <div className="with-dots h-px" />
-      </div>
     </nav>
   )
 }

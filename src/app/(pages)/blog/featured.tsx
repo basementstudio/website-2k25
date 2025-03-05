@@ -44,7 +44,7 @@ export default function Featured({
           <h2 className="col-span-full text-mobile-h3 text-brand-g1 lg:col-span-3 lg:col-start-5 lg:text-h3">
             Latest News
           </h2>
-          <div className="col-span-full row-start-1 flex items-end lg:col-span-2 lg:col-start-9 lg:row-start-auto">
+          <div className="col-span-full row-start-1 flex items-end lg:col-span-3 lg:col-start-9 lg:row-start-auto">
             <Filters
               selectedCategories={selectedCategories}
               setSelectedCategories={setSelectedCategories}
@@ -58,12 +58,12 @@ export default function Featured({
             className="group relative col-span-full border-b border-brand-w1/20"
           >
             <Link
-              className="col-span-full grid grid-cols-12 gap-2 py-2 pb-4 lg:pb-0"
+              className="col-span-full grid grid-cols-12 gap-2 py-2 pb-4 lg:pb-2"
               href={`/blog/${post._slug}`}
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-              <div className="relative col-span-full aspect-[418/228] overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-3">
+              <div className="relative col-span-full my-auto aspect-[418/228] overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-3">
                 <div className="with-dots h-full w-full">
                   {post.hero?.heroImage?.url && (
                     <Image

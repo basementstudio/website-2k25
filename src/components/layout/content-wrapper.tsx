@@ -8,6 +8,8 @@ import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Scene } from "@/components/scene"
 import { cn } from "@/utils/cn"
 
+import { ScrollDown } from "../primitives/scroll-down"
+
 const BLACKLISTED_PATHS = [
   /^\/blog\/\d+$/,
   /^\/blog\/[^\/]+$/,
@@ -23,13 +25,17 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      {shouldShowCanvas && (
-        <div className="canvas-container sticky top-0 h-screen w-full lg:fixed">
-          <Scene />
-          <Grid />
-          <InspectableViewer />
-        </div>
-      )}
+      <div
+        className={cn(
+          "canvas-container sticky top-0 h-screen w-full lg:fixed",
+          !shouldShowCanvas && "pointer-events-none invisible opacity-0"
+        )}
+      >
+        <Scene />
+        <Grid />
+        <InspectableViewer />
+        <ScrollDown />
+      </div>
 
       <div
         className={cn("layout-container", shouldShowCanvas && "lg:mt-[100dvh]")}

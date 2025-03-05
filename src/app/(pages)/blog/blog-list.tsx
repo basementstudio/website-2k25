@@ -44,11 +44,11 @@ export default function BlogList({
               className="group relative col-span-full border-b border-brand-w1/20"
             >
               <Link
-                className="col-span-full grid grid-cols-12 gap-2 py-2 pb-4 lg:pb-0"
+                className="col-span-full grid grid-cols-12 gap-2 py-2 pb-4 lg:pb-2"
                 href={`/blog/${post._slug}`}
               >
                 <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="relative col-span-full aspect-[418/228] w-full overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-2 lg:aspect-auto lg:h-[124px] lg:max-w-[276px]">
+                <div className="relative col-span-full my-auto aspect-[418/228] w-full overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-2 lg:aspect-auto lg:h-[124px] lg:max-w-[276px]">
                   <div className="with-dots h-full w-full">
                     {post.hero?.heroImage?.url && (
                       <Image
@@ -61,10 +61,10 @@ export default function BlogList({
                     )}
                   </div>
                 </div>
-                <p className="col-span-full text-mobile-h3 text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-h3">
+                <p className="lg:col-span-[auto] col-span-full text-mobile-h3 text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-h3">
                   {post._title}
                 </p>
-                <div className="col-span-6 flex gap-1 lg:col-start-9 lg:col-end-12">
+                <div className="col-span-6 flex gap-1 lg:col-span-2 lg:col-start-9 lg:col-end-10">
                   {post.categories?.map((category) => (
                     <p
                       key={category._title}
@@ -75,7 +75,7 @@ export default function BlogList({
                   ))}
                 </div>
                 {post.date ? (
-                  <p className="col-span-6 text-mobile-p text-brand-w2 lg:col-start-11 lg:text-p">
+                  <p className="col-span-6 text-mobile-p text-brand-w2 lg:col-span-2 lg:col-start-11 lg:text-p">
                     {formatDate(post.date || "")}
                   </p>
                 ) : null}
