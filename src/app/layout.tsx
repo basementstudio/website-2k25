@@ -9,6 +9,7 @@ const Toolbar = BasehubToolbar as unknown as React.ComponentType
 
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { Suspense } from "react"
 
 import Contact from "@/components/contact/contact"
 import { ReactScan } from "@/components/debug/react-scan"
@@ -47,9 +48,11 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
-      <head>
-        <ReactScan />
-      </head>
+      <Suspense fallback={null}>
+        <head>
+          <ReactScan />
+        </head>
+      </Suspense>
       <Transitions />
       <Toolbar />
       <AssetsProvider assets={assets}>
