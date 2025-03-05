@@ -60,7 +60,7 @@ export const Grid = memo(
     )
 
     return (
-      <div className="grid-layout !gap-y-8 lg:!gap-y-2">
+      <div className="grid-layout contain-layout !gap-y-8 lg:!gap-y-2">
         {projects.map((item, index) => {
           const firstItem = index === 0
 
@@ -72,10 +72,16 @@ export const Grid = memo(
                 firstItem
                   ? "col-span-full lg:col-span-6 lg:row-span-2 lg:h-full"
                   : "col-span-full lg:col-span-3",
-                item.disabled && "pointer-events-none"
+                item.disabled && "pointer-events-none",
+                "contain-paint"
               )}
             >
-              <div className="group relative aspect-[418/296] cursor-pointer after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full">
+              <div
+                className={cn(
+                  "group relative aspect-[418/296] cursor-pointer after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full",
+                  "will-change-[opacity,transform] hover:will-change-auto"
+                )}
+              >
                 <Link
                   href={`/showcase/${item.project?._slug}`}
                   className={cn("with-dots block h-full w-full", {
@@ -105,11 +111,10 @@ export const Grid = memo(
           )
         })}
 
-        {/* Add placeholder items to fill the grid */}
         {placeholders.map((_, index) => (
           <div
             key={`placeholder-${index}`}
-            className="with-diagonal-lines hidden aspect-[418/296] lg:col-span-3 [&.with-diagonal-lines]:after:animate-none [&.with-diagonal-lines]:after:from-brand-w1/[0.20]"
+            className="with-diagonal-lines contain-paint hidden aspect-[418/296] lg:col-span-3 [&.with-diagonal-lines]:after:animate-none [&.with-diagonal-lines]:after:from-brand-w1/[0.20]"
           />
         ))}
       </div>

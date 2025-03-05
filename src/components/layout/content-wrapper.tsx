@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation"
 import { useMemo } from "react"
 
-import { Grid } from "@/components/grid"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import { Scene } from "@/components/scene"
 import { cn } from "@/utils/cn"
@@ -31,9 +30,8 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
           !shouldShowCanvas && "pointer-events-none invisible opacity-0"
         )}
       >
-        <Scene />
-        <Grid />
-        <InspectableViewer />
+        {/* <Scene /> */}
+        {/* <InspectableViewer /> */}
         <ScrollDown />
       </div>
 
