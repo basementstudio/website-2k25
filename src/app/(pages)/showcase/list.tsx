@@ -41,7 +41,8 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
           <AccordionPrimitive.Trigger
             className={cn(
               "[&[data-state=open]_.diagonal-lines]:opacity-0",
-              "group relative col-span-12 grid cursor-nesw-resize grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300"
+              "group relative col-span-12 grid cursor-nesw-resize grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300",
+              item.disabled && "pointer-events-none"
             )}
             disabled={item.disabled}
           >
@@ -107,6 +108,7 @@ export const List = ({ projects }: { projects: FilteredProjectType[] }) => {
                       width={item.image?.width ?? 0}
                       height={item.image?.height ?? 0}
                       className="col-span-2"
+                      priority
                     />
                   ))}
               </div>

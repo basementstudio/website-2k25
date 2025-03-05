@@ -1,5 +1,6 @@
 import Image from "next/image"
 
+import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { InfoItem } from "@/components/primitives/info-item"
 import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
@@ -53,53 +54,21 @@ export const Grid = ({ projects }: { projects: FilteredProjectType[] }) => {
                   "pointer-events-none": item.disabled
                 })}
               >
-                {item.disabled && (
+                {item.disabled || !item.project?.cover ? (
                   <Placeholder
                     className="absolute inset-0 text-brand-w1/20"
                     width={firstItem ? 836 : 418}
                     height={firstItem ? 592 : 296}
                   />
-                )}
-                <Image
-                  src={item.project?.cover?.url ?? ""}
-                  alt={item.project?.cover?.alt ?? ""}
-                  width={item.project?.cover?.width ?? 0}
-                  height={item.project?.cover?.height ?? 0}
-                  className={cn(
-                    "absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300",
-                    !item.disabled && "opacity-100 group-hover:opacity-70"
-                  )}
-                  priority
-                />
+                ) : null}
 
-                {!item.disabled && (
-                  <div
-                    className={cn(
-                      "pointer-events-none absolute inset-0 flex h-[calc(25%-6px)] flex-col justify-end text-p font-semibold opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100",
-                      firstItem && "h-[calc(12.5%-7px)]"
-                    )}
-                  >
-                    <div className="grid grid-cols-6 gap-2 bg-brand-k">
-                      <p className="col-span-2 px-2 text-p leading-none text-brand-w2">
-                        {item.project?._title}
-                      </p>
-
-                      <p className="col-span-4 inline-flex flex-wrap text-pretty px-2 text-p leading-none text-brand-w2">
-                        {item.project?.categories?.map((cat, idx) => (
-                          <span key={cat._title}>
-                            {cat._title}
-                            {idx !==
-                              (item.project?.categories?.length ?? 0) - 1 && (
-                              <span className="inline-block px-1 text-brand-g1">
-                                ,
-                              </span>
-                            )}
-                          </span>
-                        ))}
-                      </p>
-                    </div>
-                  </div>
-                )}
+                {item.project?.cover ? (
+                  <ImageWithVideoOverlay
+                    image={item.project?.cover}
+                    video={item.project?.coverVideo}
+                    disabled={item.disabled}
+                  />
+                ) : null}
               </Link>
             </div>
 
