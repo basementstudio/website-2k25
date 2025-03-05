@@ -158,9 +158,6 @@ const Bakes = () => {
         Object.values(shaderMaterialsRef).forEach((material) => {
           material.uniforms.uLoaded.value = latest
         })
-      },
-      onComplete: () => {
-        cctvConfig.shouldBakeCCTV = true
       }
     })
 
