@@ -12,7 +12,7 @@ type InspectableData = AssetsResult["inspectables"][number]
 
 const Close = ({ handleClose }: { handleClose: () => void }) => (
   <button className="text-p text-brand-w1" tabIndex={0} onClick={handleClose}>
-    (X) Close
+    Close [ESC]
   </button>
 )
 
@@ -23,15 +23,15 @@ const Content = ({ data }: { data: InspectableData }) => (
       <div className="flex flex-col border-t border-brand-w1/20">
         {data.specs.map((spec) => (
           <Fragment key={spec._id}>
-            <div className="grid grid-cols-7 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75">
+            <div className="grid grid-cols-6 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75">
               <h3 className="col-span-2 text-p text-brand-g1">{spec._title}</h3>
-              <p className="col-span-5 text-p text-brand-w2">{spec.value}</p>
+              <p className="col-span-4 text-p text-brand-w2">{spec.value}</p>
             </div>
           </Fragment>
         ))}
       </div>
     )}
-    <div className="grid grid-cols-7 gap-2 text-p text-brand-w1">
+    <div className="grid grid-cols-6 gap-2 text-p text-brand-w1">
       <div className="col-span-5">
         {data?.description?.json?.content && (
           <BaseRichText content={data.description.json.content as any} />
@@ -70,9 +70,9 @@ export const InspectableViewer = () => {
       )}
     >
       <div className="grid-layout h-full">
-        <div className="col-start-1 col-end-9 my-3 border border-brand-w1/20" />
+        <div className="col-start-1 col-end-9 my-4 border border-brand-w1/20" />
         <div className="pointer-events-auto col-start-9 col-end-13 grid grid-cols-8">
-          <div className="col-start-2 col-end-9 flex flex-col gap-18">
+          <div className="col-start-2 col-end-8 flex flex-col gap-18">
             <div className="row-span-1 flex h-44 w-full items-end">
               <Close handleClose={() => setSelected(null)} />
             </div>

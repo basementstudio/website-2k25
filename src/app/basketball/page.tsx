@@ -34,9 +34,9 @@ const Basketball = () => {
           <div className="grid-layout h-full">
             <button
               onClick={() => handleNavigation("/")}
-              className="pointer-events-auto col-span-1 col-start-2 mt-24 h-max text-p text-brand-w1"
+              className="pointer-events-auto col-span-2 col-start-2 mt-24 h-max text-p text-brand-w1"
             >
-              (X) <span className="underline">Close Game</span>
+              Close Game [ESC]
             </button>
             <div
               className={`${geistMono.className} col-span-2 col-start-6 mt-24 flex h-10 select-none text-p uppercase text-brand-w2`}
