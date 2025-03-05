@@ -25,7 +25,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      {/* <div
+      <div
         className={cn(
           "canvas-container sticky top-0 h-screen w-full lg:fixed",
           !shouldShowCanvas && "pointer-events-none invisible opacity-0"
@@ -35,7 +35,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
         <Grid />
         <InspectableViewer />
         <ScrollDown />
-      </div> */}
+      </div>
 
       <div
         className={cn("layout-container", shouldShowCanvas && "lg:mt-[100dvh]")}
