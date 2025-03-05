@@ -57,3 +57,19 @@ export function ExternalLinkIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
+export function ArrowDownIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 8 9"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M0.497844 3.886L3.92984 7.307L7.33984 3.897L7.33984 5.426L3.91884 8.836L0.497844 5.415L0.497844 3.886ZM3.26984 -1.77905e-07L4.57884 -1.20687e-07L4.57884 8.055L3.26984 8.055L3.26984 -1.77905e-07Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
