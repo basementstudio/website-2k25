@@ -88,7 +88,7 @@ export const ProjectInfo = ({
           src={entry.project?.cover?.url || ""}
           alt={entry.project?.cover?.alt || ""}
           fill
-          className="object-cover"
+          className="with-dots relative object-cover"
         />
       </div>
 
