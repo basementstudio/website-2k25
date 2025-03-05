@@ -1,6 +1,6 @@
 import { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -11,16 +11,14 @@ import { useArcadeStore } from "@/store/arcade-store"
 
 import { checkSequence } from "./check-sequence"
 import {
-  ArrowKey,
   BOARD_ANGLE,
   KEY_DIRECTION_MAP,
   MAX_TILT,
-  MIN_OFFSET,
   STICK_ANIMATION
 } from "./constants"
 import { useCursor } from "@/hooks/use-mouse"
 
-export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
+export const Stick = ({ stick }: { stick: Mesh }) => {
   const scene = useCurrentScene()
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
@@ -29,15 +27,15 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
   const availableSounds = sfx.arcade.sticks.length
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
-  const [stickIsGrabbed, setStickIsGrabbed] = useState(false)
   const state = useRef(0)
   const sequence = useRef<number[]>([])
   const navigationTimer = useRef<NodeJS.Timeout | null>(null)
-
+  const setCursor = useCursor()
   const { setLabTabIndex, setIsInLabTab, setIsSourceButtonSelected } =
     useArcadeStore()
 
-  const setCursor = useCursor()
+  const isDragging = useRef(false)
+  const dragStartPosition = useRef({ x: 0, y: 0 })
 
   const handleStickSound = (isRelease: boolean) => {
     if (state.current !== 0) {
@@ -167,49 +165,6 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     [scene, stick.name, availableSounds, playSoundFX, isInGame]
   )
 
-  const handleGrabStick = () => {
-    if (scene !== "lab" && !isInGame) return
-    setStickIsGrabbed(true)
-    setCursor("grabbing")
-  }
-
-  const handleReleaseStick = () => {
-    if (scene !== "lab" && !isInGame) return
-    setStickIsGrabbed(false)
-    resetStick()
-  }
-
-  const handleStickMove = (e: ThreeEvent<PointerEvent>) => {
-    const x = e.point.x - e.eventObject.position.x + offsetX
-    const y = e.point.y - e.eventObject.position.y
-
-    const absX = Math.abs(x)
-    const absZ = Math.abs(y)
-
-    let targetRotation
-    let currentState
-
-    if (absX < MIN_OFFSET && absZ < MIN_OFFSET) {
-      targetRotation = { x: 0, y: 0, z: 0 }
-      currentState = 0
-    } else if (absX > absZ) {
-      targetRotation = {
-        x: 0,
-        y: 0,
-        z: x > 0 ? -MAX_TILT : MAX_TILT
-      }
-      currentState = x > 0 ? 1 : 2
-    } else {
-      targetRotation = {
-        x: y > 0 ? -MAX_TILT : MAX_TILT,
-        y: 0,
-        z: 0
-      }
-      currentState = y > 0 ? 3 : 4
-    }
-    updateStickPosition(currentState, targetRotation)
-  }
-
   const resetStick = () => {
     updateStickPosition(0, { x: 0, y: 0, z: 0 })
   }
@@ -234,12 +189,77 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
     [handleLabNavigation]
   )
 
-  useEffect(() => {
-    const canvas = document.querySelector("canvas")
-    if (canvas) {
-      canvas.style.touchAction = "none"
+  const handlePointerDown = useCallback(
+    (e: ThreeEvent<PointerEvent>) => {
+      if (scene !== "lab" && !isInGame) return
+      if (stick.name !== "02_JYTK_L" && !isInGame) return
+
+      e.stopPropagation()
+      isDragging.current = true
+      dragStartPosition.current = { x: e.clientX, y: e.clientY }
+      setCursor("grabbing")
+
+      if (state.current === 0) {
+        handleStickSound(false)
+      }
+
+      const target = e.target as unknown as HTMLElement
+      if (target && "setPointerCapture" in target) {
+        target.setPointerCapture(e.pointerId)
+      }
+    },
+    [scene, isInGame, stick.name]
+  )
+
+  const handlePointerMove = useCallback((e: ThreeEvent<PointerEvent>) => {
+    if (!isDragging.current) return
+
+    const deltaX = e.clientX - dragStartPosition.current.x
+    const deltaY = e.clientY - dragStartPosition.current.y
+
+    let direction = 0
+    const threshold = 10
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (Math.abs(deltaX) > threshold) {
+        direction =
+          deltaX > 0
+            ? KEY_DIRECTION_MAP.ArrowRight
+            : KEY_DIRECTION_MAP.ArrowLeft
+      }
+    } else {
+      if (Math.abs(deltaY) > threshold) {
+        direction =
+          deltaY > 0 ? KEY_DIRECTION_MAP.ArrowDown : KEY_DIRECTION_MAP.ArrowUp
+      }
     }
 
+    if (direction !== 0) {
+      const targetRotation = {
+        x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
+        y: 0,
+        z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
+      }
+
+      updateStickPosition(direction, targetRotation)
+    }
+  }, [])
+
+  const handlePointerUp = useCallback((e: ThreeEvent<PointerEvent>) => {
+    if (!isDragging.current) return
+
+    isDragging.current = false
+    setCursor("grab")
+
+    const target = e.target as unknown as HTMLElement
+    if (target && "releasePointerCapture" in target) {
+      target.releasePointerCapture(e.pointerId)
+    }
+
+    resetStick()
+  }, [])
+
+  useEffect(() => {
     const handleButtonPress = (event: CustomEvent) => {
       const buttonName = event.detail.buttonName
       sequence.current.push(buttonName)
@@ -265,19 +285,6 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         "gameStateChange",
         handleGameStateChange as EventListener
       )
-    }
-  }, [])
-
-  useEffect(() => {
-    resetStick()
-  }, [isInGame])
-
-  useEffect(() => {
-    return () => {
-      if (navigationTimer.current) {
-        clearInterval(navigationTimer.current)
-        navigationTimer.current = null
-      }
     }
   }, [])
 
@@ -327,66 +334,26 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   return (
     <group key={stick.name}>
       <primitive object={stick} />
-      <mesh
-        position={[
-          stick.position.x,
-          stick.position.y + 0.07 * Math.sin((BOARD_ANGLE * Math.PI) / 180),
-          stick.position.z + 0.07 * Math.cos((BOARD_ANGLE * Math.PI) / 180)
-        ]}
-        rotation={[(16 * Math.PI) / 180, 0, 0]}
+      <group
         onPointerEnter={() => setCursor("grab")}
-        onPointerLeave={() => {
-          if (!stickIsGrabbed) {
-            handleReleaseStick()
-            setCursor("default")
-          }
-        }}
-        onPointerDown={() => handleGrabStick()}
-        onPointerUp={() => {
-          handleReleaseStick()
-          setCursor(state.current === 0 ? "grab" : "default")
-        }}
-        onPointerCancel={() => {
-          handleReleaseStick()
-          setCursor("default")
-        }}
+        onPointerLeave={() => !isDragging.current && setCursor("default")}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
       >
-        <cylinderGeometry args={[0.02, 0.02, 0.06, 12]} />
-        <meshBasicMaterial opacity={0} transparent depthWrite={false} />
-      </mesh>
-      <mesh
-        position={[
-          stick.position.x,
-          stick.position.y + 0.07 * Math.sin((BOARD_ANGLE * Math.PI) / 180),
-          stick.position.z + 0.07 * Math.cos((BOARD_ANGLE * Math.PI) / 180)
-        ]}
-        onPointerMove={(e) => {
-          if (stickIsGrabbed) {
-            handleStickMove(e)
-          }
-        }}
-        onPointerUp={(e) => {
-          if (stickIsGrabbed) {
-            handleReleaseStick()
-            setCursor(state.current === 0 ? "grab" : "default")
-          }
-        }}
-        onPointerLeave={(e) => {
-          if (stickIsGrabbed) {
-            handleReleaseStick()
-            setCursor("default")
-          }
-        }}
-        onPointerCancel={(e) => {
-          if (stickIsGrabbed) {
-            handleReleaseStick()
-            setCursor("default")
-          }
-        }}
-      >
-        <sphereGeometry args={[0.2, 12, 12]} />
-        <meshBasicMaterial opacity={0} transparent depthWrite={false} />
-      </mesh>
+        <mesh
+          position={[
+            stick.position.x,
+            stick.position.y + 0.05 * Math.sin((BOARD_ANGLE * Math.PI) / 180),
+            stick.position.z + 0.05 * Math.cos((BOARD_ANGLE * Math.PI) / 180)
+          ]}
+          rotation={[(16 * Math.PI) / 180, 0, 0]}
+        >
+          <cylinderGeometry args={[0.03, 0.03, 0.12, 12]} />
+          <meshBasicMaterial opacity={0} transparent />
+        </mesh>
+      </group>
     </group>
   )
 }
