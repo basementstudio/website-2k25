@@ -16,7 +16,7 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
           key={project._title}
           className={cn(
             "col-span-full",
-            "sticky top-[6.7rem] lg:top-[8.7rem]",
+            "sticky top-[6.7rem] lg:top-[9.2rem]",
             index === 0 && "!top-0 lg:!top-0"
           )}
           style={{ zIndex: index + 1 }}
