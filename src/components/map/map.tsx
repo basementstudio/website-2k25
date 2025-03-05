@@ -278,6 +278,38 @@ export const Map = memo(() => {
       child: Object3D,
       overrides?: { FOG?: boolean; GODRAY?: boolean }
     ) => {
+      if (child.name === "SM_TvScreen_4" && "isMesh" in child) {
+        const meshChild = child as Mesh
+        useMesh.setState({ cctv: { screen: meshChild } })
+        const texture = cctvConfig.renderTarget.read.texture
+
+        const diffuseUniform = {
+          value: texture
+        }
+
+        cctvConfig.renderTarget.onSwap(() => {
+          diffuseUniform.value = cctvConfig.renderTarget.read.texture
+        })
+
+        meshChild.material = new THREE.ShaderMaterial({
+          side: THREE.DoubleSide,
+          uniforms: {
+            tDiffuse: diffuseUniform,
+            uTime: { value: timeRef.current },
+            resolution: { value: new THREE.Vector2(1024, 1024) }
+          },
+          vertexShader: `
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: notFoundFrag
+        })
+        return
+      }
+
       if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
       }
@@ -304,37 +336,6 @@ export const Map = memo(() => {
         const matcap = matcaps?.find((matcap) => matcap.mesh === meshChild.name)
 
         const clouds = meshChild.name === "cloudy_01"
-
-        if (meshChild.name === "SM_TvScreen_4") {
-          useMesh.setState({ cctv: { screen: meshChild } })
-          const texture = cctvConfig.renderTarget.read.texture
-
-          const diffuseUniform = {
-            value: texture
-          }
-
-          cctvConfig.renderTarget.onSwap(() => {
-            diffuseUniform.value = cctvConfig.renderTarget.read.texture
-          })
-
-          meshChild.material = new THREE.ShaderMaterial({
-            side: THREE.DoubleSide,
-            uniforms: {
-              tDiffuse: diffuseUniform,
-              uTime: { value: timeRef.current },
-              resolution: { value: new THREE.Vector2(1024, 1024) }
-            },
-            vertexShader: `
-              varying vec2 vUv;
-              void main() {
-                vUv = uv;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-              }
-            `,
-            fragmentShader: notFoundFrag
-          })
-          return
-        }
 
         if (video) {
           const videoTexture = createVideoTexture(video.url)
