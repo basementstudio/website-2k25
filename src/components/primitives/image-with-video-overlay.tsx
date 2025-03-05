@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useState } from "react"
+import { useRef, useState } from "react"
 
 import { ImageFragment, VideoFragment } from "@/lib/basehub/fragments"
 import { cn } from "@/utils/cn"
@@ -18,17 +18,30 @@ export const ImageWithVideoOverlay = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0
+      }
+    }, 300)
+  }
 
   return (
     <div
       className={cn("relative h-full w-full transition-opacity duration-300", {
         "pointer-events-none opacity-0": disabled
       })}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false)
-        setIsVideoLoaded(false)
+      onMouseEnter={() => {
+        setIsHovered(true)
+        if (videoRef.current) {
+          videoRef.current.play()
+        }
       }}
+      onMouseLeave={handleMouseLeave}
     >
       <Image
         src={image.url ?? ""}
@@ -37,18 +50,19 @@ export const ImageWithVideoOverlay = ({
         fill
         className="object-cover"
       />
-      {video && isHovered && (
+      {video && (
         <video
+          ref={videoRef}
           src={video.url ?? ""}
           preload="none"
           muted
           loop
-          autoPlay
+          autoPlay={isHovered}
           playsInline
           onLoadedData={() => setIsVideoLoaded(true)}
           className={cn(
             "absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
-            isVideoLoaded ? "opacity-100" : "opacity-0"
+            isHovered && isVideoLoaded ? "opacity-100" : "opacity-0"
           )}
         />
       )}
