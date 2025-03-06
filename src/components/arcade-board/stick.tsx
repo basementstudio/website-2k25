@@ -199,10 +199,6 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
       dragStartPosition.current = { x: e.clientX, y: e.clientY }
       setCursor("grabbing")
 
-      if (state.current === 0) {
-        handleStickSound(false)
-      }
-
       const target = e.target as unknown as HTMLElement
       if (target && "setPointerCapture" in target) {
         target.setPointerCapture(e.pointerId)
