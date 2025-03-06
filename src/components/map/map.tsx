@@ -88,11 +88,6 @@ const createVideoTexture = (url: string) => {
 
 type SceneType = Object3D<Object3DEventMap> | null
 
-// Constants moved outside component
-const STAIRS_VISIBILITY_THRESHOLD = 1.8
-const frustum = new THREE.Frustum()
-const projScreenMatrix = new THREE.Matrix4()
-
 export const Map = memo(() => {
   const {
     office: officePath,
@@ -194,19 +189,6 @@ export const Map = memo(() => {
       // @ts-ignore
       mesh.material.uniforms.uGodrayDensity.value = godrayOpacity
     })
-
-    if (!stairsRef.current || !mainCamera) return
-
-    projScreenMatrix.multiplyMatrices(
-      mainCamera.projectionMatrix,
-      mainCamera.matrixWorldInverse
-    )
-    frustum.setFromProjectionMatrix(projScreenMatrix)
-
-    const distance = mainCamera.position.distanceTo(stairsRef.current.position)
-    stairsRef.current.visible =
-      distance > STAIRS_VISIBILITY_THRESHOLD ||
-      frustum.containsPoint(stairsRef.current.position)
   })
 
   useEffect(() => {
@@ -292,7 +274,7 @@ export const Map = memo(() => {
         })
 
         meshChild.material = new THREE.ShaderMaterial({
-          side: THREE.DoubleSide,
+          side: THREE.FrontSide,
           uniforms: {
             tDiffuse: diffuseUniform,
             uTime: { value: timeRef.current },
@@ -310,12 +292,15 @@ export const Map = memo(() => {
         return
       }
 
-      if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
+      // Homepage Floor
+      if (child.name === "SM_03_03" && child instanceof THREE.Mesh) {
         child.material.side = THREE.FrontSide
       }
 
-      if (child.name === "SM_Stair3" && child instanceof THREE.Mesh) {
+      // Homepage Stairs
+      if (child.name === "SM_03_01" && child instanceof THREE.Mesh) {
         stairsRef.current = child
+        child.material.side = THREE.FrontSide
       }
 
       if ("isMesh" in child) {
@@ -325,6 +310,7 @@ export const Map = memo(() => {
         if (alreadyReplaced) return
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
+
         if (currentMaterial.map) {
           currentMaterial.map.generateMipmaps = false
           currentMaterial.map.magFilter = THREE.NearestFilter
