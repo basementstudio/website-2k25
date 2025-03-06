@@ -65,10 +65,22 @@ export const PlayedBasketballs = () => {
             const position = rigidBody.translation()
             const rotation = rigidBody.rotation()
 
-            addStaticBall({
-              position: { x: position.x, y: position.y, z: position.z },
-              rotation: { x: rotation.x, y: rotation.y, z: rotation.z }
-            })
+            // avoid creating ball in mid-air
+            if (position.y > 0.36) {
+              addStaticBall({
+                position: {
+                  x: position.x,
+                  y: 0.26,
+                  z: position.z
+                },
+                rotation: { x: rotation.x, y: rotation.y, z: rotation.z }
+              })
+            } else {
+              addStaticBall({
+                position: { x: position.x, y: position.y, z: position.z },
+                rotation: { x: rotation.x, y: rotation.y, z: rotation.z }
+              })
+            }
 
             processedBalls.current.add(index)
           }
