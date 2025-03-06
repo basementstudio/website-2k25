@@ -148,15 +148,7 @@ void main() {
     lightMapSample = texture2D(lightMap, vUv2).rgb;
   }
 
-  // Apply metalness to affect the reflection intensity
-  vec3 metallicReflection = mix(vec3(0.04), color, metalness);
-
-  // Combine base color, metallic reflection, and lightmap
-  vec3 irradiance = mix(
-    color * (1.0 - metalness), // Diffuse component
-    metallicReflection * lightMapSample * (1.0 - roughness), // Metallic reflection with roughness
-    metalness
-  );
+  vec3 irradiance = color;
 
   #ifdef USE_EMISSIVE
   float ei = emissiveIntensity;
