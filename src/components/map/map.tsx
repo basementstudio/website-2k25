@@ -24,11 +24,13 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { useInspectable } from "@/components/inspectables/context"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { OutdoorCars } from "@/components/outdoor-cars"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
@@ -40,8 +42,6 @@ import {
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
-import { Net } from "../basketball/net"
-import { OutdoorCars } from "../outdoor-cars"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -106,7 +106,6 @@ export const Map = memo(() => {
   const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
-  const mainCamera = useNavigationStore((state) => state.mainCamera)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
@@ -280,17 +279,6 @@ export const Map = memo(() => {
         return
       }
 
-      // Homepage Floor
-      if (child.name === "SM_03_03" && child instanceof THREE.Mesh) {
-        child.material.side = THREE.FrontSide
-      }
-
-      // Homepage Stairs
-      if (child.name === "SM_03_01" && child instanceof THREE.Mesh) {
-        stairsRef.current = child
-        child.material.side = THREE.FrontSide
-      }
-
       if ("isMesh" in child) {
         const meshChild = child as Mesh
 
@@ -364,6 +352,17 @@ export const Map = memo(() => {
         meshChild.material = newMaterials
 
         meshChild.userData.hasGlobalMaterial = true
+
+        // Homepage Floor
+        if (child.name === "SM_03_03" && child instanceof THREE.Mesh) {
+          child.material.side = THREE.FrontSide
+        }
+
+        // Homepage Stairs
+        if (child.name === "SM_03_01" && child instanceof THREE.Mesh) {
+          stairsRef.current = child
+          child.material.side = THREE.FrontSide
+        }
       }
     }
 
