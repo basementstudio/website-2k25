@@ -1,6 +1,6 @@
 "use client"
 
-import { AnimatePresence, motion, Variants } from "motion/react"
+import { AnimatePresence, motion, type Variants } from "motion/react"
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
@@ -9,7 +9,7 @@ import { useMedia } from "@/hooks/use-media"
 import useMousePosition from "@/hooks/use-mouse-pos"
 import { formatDate } from "@/utils/format-date"
 
-import { QueryType } from "./query"
+import type { QueryType } from "./query"
 
 const IMAGE_HEIGHT = 307.73
 const GRID_COLS = 8
@@ -36,11 +36,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
         })),
     [data.company.awards.awardList.items]
   )
-
-  // Get all awards with certificates
-  const awardsWithCertificates = useMemo(() => {
-    return sortedAwards.filter((award) => award.certificate?.url)
-  }, [sortedAwards])
 
   const gridCells = useMemo(() => {
     const cells = []
@@ -94,6 +89,16 @@ export const Awards = ({ data }: { data: QueryType }) => {
       }
     }
   }, [hoveredItemId, sortedAwards, translateY, currentImageId])
+
+  // preload award images
+  useEffect(() => {
+    sortedAwards
+      .filter((award) => award.certificate)
+      .forEach((award) => {
+        const img = new globalThis.Image()
+        img.src = award.certificate?.url || ""
+      })
+  }, [sortedAwards])
 
   // cell animation
   const cellVariants: Variants = {
@@ -276,31 +281,26 @@ export const Awards = ({ data }: { data: QueryType }) => {
                       height={award.certificate?.height}
                       className="max-h-[307.73px] w-full object-cover"
                       data-numeric-id={award.numericId}
-                      sizes="232px"
                     />
                   </div>
                 ))}
           </div>
         </motion.div>
       )}
-
-      <div
-        className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"
-        aria-hidden="true"
-      >
-        {awardsWithCertificates.map((award) => (
-          <Image
-            key={`preload-${award._id}`}
-            src={award.certificate?.url || ""}
-            alt=""
-            width={232}
-            height={award.certificate?.height || 307}
-            priority={true}
-            sizes="232px"
-            quality={90}
-            loading="eager"
-          />
-        ))}
+      {/* preloaded images */}
+      <div className="hidden">
+        {sortedAwards
+          .filter((award) => award.certificate)
+          .map((award) => (
+            <Image
+              key={`preload-${award._id}`}
+              src={award.certificate?.url || ""}
+              alt=""
+              width={award.certificate?.width}
+              height={award.certificate?.height}
+              priority={true}
+            />
+          ))}
       </div>
     </>
   )
