@@ -99,7 +99,9 @@ export const Map = memo(() => {
     videos,
     scenes,
     outdoorCars,
-    matcaps
+    matcaps,
+    glassMaterials,
+    doubleSideElements
   } = useAssets()
   const firstRender = useRef(true)
   const scene = useCurrentScene()
@@ -242,20 +244,6 @@ export const Map = memo(() => {
       setNet(originalNet as Mesh)
     }
 
-    // const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
-    // const backWheel = carV5?.children.find(
-    //   (child) => child.name === "BACK-WHEEL"
-    // ) as Mesh
-    // const frontWheel = carV5?.children.find(
-    //   (child) => child.name === "FRONT-WHEEL"
-    // ) as Mesh
-
-    // if (backWheel && car && frontWheel) {
-    //   useMesh.setState({
-    //     carMeshes: { backWheel, car, frontWheel }
-    //   })
-    // }
-
     const traverse = (
       child: Object3D,
       overrides?: { FOG?: boolean; GODRAY?: boolean }
@@ -317,14 +305,18 @@ export const Map = memo(() => {
           currentMaterial.map.minFilter = THREE.NearestFilter
         }
 
-        const video = videos.find((video) => video.mesh === meshChild.name)
+        const withVideo = videos.find((video) => video.mesh === meshChild.name)
+        const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
+        const isClouds = meshChild.name === "cloudy_01"
+        const isGlass = glassMaterials.includes(currentMaterial.name)
 
-        const matcap = matcaps?.find((matcap) => matcap.mesh === meshChild.name)
+        // TODO: Implement simple side once we finish the entire scene
+        // currentMaterial.side = doubleSideElements.includes(meshChild.name)
+        //   ? THREE.DoubleSide
+        //   : THREE.FrontSide
 
-        const clouds = meshChild.name === "cloudy_01"
-
-        if (video) {
-          const videoTexture = createVideoTexture(video.url)
+        if (withVideo) {
+          const videoTexture = createVideoTexture(withVideo.url)
 
           currentMaterial.map = videoTexture
           currentMaterial.map.flipY = false
@@ -334,26 +326,10 @@ export const Map = memo(() => {
           currentMaterial.map.minFilter = THREE.NearestFilter
 
           currentMaterial.emissiveMap = videoTexture
-          currentMaterial.emissiveIntensity = video.intensity
+          currentMaterial.emissiveIntensity = withVideo.intensity
           currentMaterial.emissiveMap.generateMipmaps = false
           currentMaterial.emissiveMap.magFilter = THREE.NearestFilter
           currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
-        }
-
-        const isGlass =
-          currentMaterial.name === "BSM_MTL_Glass" ||
-          currentMaterial.name === "BSM_MTL_LightLibrary" ||
-          currentMaterial.name === "BSM-MTL-Backup" ||
-          currentMaterial.name === "MTL_LightBox"
-
-        const isPlant = meshChild.name === "SM_plant01001"
-
-        if (isPlant) {
-          currentMaterial.userData.lightDirection = new Vector3(
-            0,
-            3,
-            1
-          ).normalize()
         }
 
         const newMaterials = Array.isArray(currentMaterial)
@@ -363,12 +339,12 @@ export const Map = memo(() => {
                 false,
                 {
                   GLASS: isGlass,
-                  LIGHT: isPlant,
+                  LIGHT: false,
                   GODRAY: overrides?.GODRAY,
                   FOG: overrides?.FOG,
-                  MATCAP: matcap !== undefined,
-                  VIDEO: video !== undefined,
-                  CLOUDS: clouds
+                  MATCAP: withMatcap !== undefined,
+                  VIDEO: withVideo !== undefined,
+                  CLOUDS: isClouds
                 }
               )
             )
@@ -377,12 +353,12 @@ export const Map = memo(() => {
               false,
               {
                 GLASS: isGlass,
-                LIGHT: isPlant,
+                LIGHT: false,
                 GODRAY: overrides?.GODRAY,
                 FOG: overrides?.FOG,
-                MATCAP: matcap !== undefined,
-                VIDEO: video !== undefined,
-                CLOUDS: clouds
+                MATCAP: withMatcap !== undefined,
+                VIDEO: withVideo !== undefined,
+                CLOUDS: isClouds
               }
             )
 
