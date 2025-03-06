@@ -63,7 +63,8 @@ export const HoopMinigame = () => {
     dragPos: new Vector3(),
     dragStartPos: new Vector3(),
     currentBallPos: new Vector3(),
-    targetPos: new Vector3()
+    targetPos: new Vector3(),
+    currentRot: new Vector3()
   }).current
 
   const { camera } = useThree()
@@ -74,6 +75,7 @@ export const HoopMinigame = () => {
   const hasMovedSignificantly = useRef(false)
   const initialGrabPos = useRef(new Vector3())
   const isThrowable = useRef(true)
+  const isUnmounting = useRef(false)
 
   const resetState = useCallback(() => {
     resetProgress.current = 0
@@ -100,6 +102,7 @@ export const HoopMinigame = () => {
     positionVectors.dragStartPos = new Vector3()
     positionVectors.currentBallPos = new Vector3()
     positionVectors.targetPos = new Vector3()
+    positionVectors.currentRot = new Vector3()
     mousePos.current = new Vector2()
     lastMousePos.current = new Vector2()
     throwVelocity.current = new Vector2()
@@ -145,7 +148,8 @@ export const HoopMinigame = () => {
     setIsGameActive,
     setIsDragging,
     setTimeRemaining,
-    gameDuration
+    gameDuration,
+    setScore
   ])
 
   useEffect(() => {
@@ -243,12 +247,15 @@ export const HoopMinigame = () => {
               setTimeout(() => {
                 playSoundFX("TIMEOUT_BUZZER")
 
-                if (ballRef.current) {
+                // if the ball is still in play, we add it to played balls
+                // only if it doesn't already exist there
+                if (ballRef.current && !isUnmounting.current) {
                   try {
                     const currentPos = ballRef.current.translation()
                     const currentVel = ballRef.current.linvel()
+                    const currentRot = ballRef.current.rotation()
 
-                    // Make sure this ball is added to played balls
+                    // check if ball was added already
                     const alreadyAdded = playedBalls.some(
                       (ball) =>
                         Math.abs(ball.position.x - currentPos.x) < 0.1 &&
@@ -256,8 +263,7 @@ export const HoopMinigame = () => {
                         Math.abs(ball.position.z - currentPos.z) < 0.1
                     )
 
-                    if (!alreadyAdded) {
-                      // add the current dynamic ball to played balls for processing
+                    if (!alreadyAdded && !isUnmounting.current) {
                       addPlayedBall({
                         position: {
                           x: currentPos.x,
@@ -268,20 +274,16 @@ export const HoopMinigame = () => {
                           x: currentVel.x,
                           y: currentVel.y,
                           z: currentVel.z
+                        },
+                        rotation: {
+                          x: currentRot.x,
+                          y: currentRot.y,
+                          z: currentRot.z
                         }
                       })
                     }
                   } catch (error) {
                     console.warn("Final ball check failed:", error)
-                    // fallback: add a ball at the initial position
-                    addPlayedBall({
-                      position: {
-                        x: initialPosition.x,
-                        y: 0.26,
-                        z: initialPosition.z
-                      },
-                      velocity: { x: 0, y: 0, z: 0 }
-                    })
                   }
                 }
 
@@ -307,8 +309,7 @@ export const HoopMinigame = () => {
     playSoundFX,
     isDragging,
     setIsDragging,
-    playedBalls,
-    initialPosition
+    playedBalls
   ])
 
   const handlePointerUp = useCallback(() => {
@@ -389,6 +390,8 @@ export const HoopMinigame = () => {
           translation.z
         )
 
+        const rotation = ballRef.current.rotation()
+        positionVectors.currentRot.set(rotation.x, rotation.y, rotation.z)
         // Interpolate towards the target position with smooth lerp
         const lerpFactor = 0.002 // Adjust this value for smoother or more responsive movement
         positionVectors.dragPos.lerpVectors(
@@ -411,11 +414,6 @@ export const HoopMinigame = () => {
         console.warn("Failed to update ball position, physics might be paused")
         setIsDragging(false)
       }
-    }
-
-    // score decay
-    if (score > 0 && isGameActive) {
-      setScore((prev) => Math.max(0, prev - 1 * delta))
     }
 
     // reset ball anim
@@ -456,6 +454,19 @@ export const HoopMinigame = () => {
       }
     }
   })
+
+  // Add safety for unmounting
+  useEffect(() => {
+    return () => {
+      isUnmounting.current = true
+
+      // Clear references to prevent errors during unmount
+      if (timerInterval.current) {
+        clearInterval(timerInterval.current)
+        timerInterval.current = null
+      }
+    }
+  }, [])
 
   const handlePointerDown = useCallback(
     (event: any) => {

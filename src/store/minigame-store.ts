@@ -11,6 +11,7 @@ const GAME_DURATION = 24
 interface PlayedBall {
   position: { x: number; y: number; z: number }
   velocity: { x: number; y: number; z: number }
+  rotation: { x: number; y: number; z: number }
 }
 
 interface StaticBall {
