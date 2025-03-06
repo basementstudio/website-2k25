@@ -1,5 +1,6 @@
 "use client"
 
+import MuxPlayer, { MuxPlayerRefAttributes } from "@mux/mux-player-react"
 import Image from "next/image"
 import { useRef, useState } from "react"
 
@@ -18,15 +19,13 @@ export const ImageWithVideoOverlay = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const videoRef = useRef<MuxPlayerRefAttributes>(null)
 
   const handleMouseLeave = () => {
     setIsHovered(false)
 
     setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.currentTime = 0
-      }
+      if (videoRef.current) videoRef.current.currentTime = 0
     }, 300)
   }
 
@@ -51,19 +50,21 @@ export const ImageWithVideoOverlay = ({
         className="object-cover"
       />
       {video && (
-        <video
-          ref={videoRef}
-          src={video.url ?? ""}
-          preload="none"
-          muted
-          loop
-          autoPlay={isHovered}
-          playsInline
+        <MuxPlayer
+          src={video.url}
+          onCanPlay={() => setIsVideoLoaded(true)}
           onLoadedData={() => setIsVideoLoaded(true)}
+          style={{ "--controls": "none" } as React.CSSProperties}
           className={cn(
             "absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
             isHovered && isVideoLoaded ? "opacity-100" : "opacity-0"
           )}
+          muted
+          streamType="on-demand"
+          autoPlay={isHovered}
+          loop
+          playsInline
+          ref={videoRef}
         />
       )}
     </div>
