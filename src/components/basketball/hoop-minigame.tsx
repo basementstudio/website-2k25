@@ -49,7 +49,8 @@ export const HoopMinigame = () => {
     justScored,
     setJustScored,
     hasPlayed,
-    clearPlayedBalls
+    clearPlayedBalls,
+    playedBalls
   } = useMinigameStore()
 
   const ballRef = useRef<RapierRigidBody>(null)
@@ -243,27 +244,51 @@ export const HoopMinigame = () => {
                 playSoundFX("TIMEOUT_BUZZER")
 
                 if (ballRef.current) {
-                  const currentPos = ballRef.current.translation()
-                  const currentVel = ballRef.current.linvel()
+                  try {
+                    const currentPos = ballRef.current.translation()
+                    const currentVel = ballRef.current.linvel()
 
-                  addPlayedBall({
-                    position: {
-                      x: currentPos.x,
-                      y: currentPos.y,
-                      z: currentPos.z
-                    },
-                    velocity: {
-                      x: currentVel.x,
-                      y: currentVel.y,
-                      z: currentVel.z
+                    // Make sure this ball is added to played balls
+                    const alreadyAdded = playedBalls.some(
+                      (ball) =>
+                        Math.abs(ball.position.x - currentPos.x) < 0.1 &&
+                        Math.abs(ball.position.y - currentPos.y) < 0.1 &&
+                        Math.abs(ball.position.z - currentPos.z) < 0.1
+                    )
+
+                    if (!alreadyAdded) {
+                      // add the current dynamic ball to played balls for processing
+                      addPlayedBall({
+                        position: {
+                          x: currentPos.x,
+                          y: currentPos.y,
+                          z: currentPos.z
+                        },
+                        velocity: {
+                          x: currentVel.x,
+                          y: currentVel.y,
+                          z: currentVel.z
+                        }
+                      })
                     }
-                  })
+                  } catch (error) {
+                    console.warn("Final ball check failed:", error)
+                    // fallback: add a ball at the initial position
+                    addPlayedBall({
+                      position: {
+                        x: initialPosition.x,
+                        y: 0.26,
+                        z: initialPosition.z
+                      },
+                      velocity: { x: 0, y: 0, z: 0 }
+                    })
+                  }
                 }
 
                 setIsGameActive(false)
                 setHasPlayed(true)
                 setReadyToPlay(false)
-              }, 100)
+              }, 50)
             }
             return gameDuration
           }
@@ -281,7 +306,9 @@ export const HoopMinigame = () => {
     setReadyToPlay,
     playSoundFX,
     isDragging,
-    setIsDragging
+    setIsDragging,
+    playedBalls,
+    initialPosition
   ])
 
   const handlePointerUp = useCallback(() => {

@@ -59,14 +59,6 @@ export default function RigidBodies({
         <CuboidCollider args={[6, 0.1, 6]} onIntersectionEnter={handleMiss} />
       </RigidBody>
 
-      {/* <mesh
-        position={[hoopPosition.x, 0.26, hoopPosition.z + 3]}
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
-        <sphereGeometry args={[0.27, 8, 8]} />
-        <meshBasicMaterial color="red" />
-      </mesh> */}
-
       {/* arcade collider */}
       <RigidBody type="fixed" name="arcade" position={[2.943, 1.1, -14.257]}>
         <CuboidCollider args={[0.52, 1, 0.52]} />
