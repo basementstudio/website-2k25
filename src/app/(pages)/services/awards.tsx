@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { Link } from "@/components/primitives/link"
 import { useMedia } from "@/hooks/use-media"
-import { easeInOutCubic } from "@/utils/animations"
 import { formatDate } from "@/utils/format-date"
 
 import { QueryType } from "./query"
@@ -18,13 +17,10 @@ const GRID_ROWS = 10
 export const Awards = ({ data }: { data: QueryType }) => {
   const isDesktop = useMedia("(min-width: 1024px)")
   const sectionRef = useRef<HTMLDivElement>(null)
-  const mousePosition = useRef({ x: 0, y: 0 })
-  const rafRef = useRef<number>(0)
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null)
   const [translateY, setTranslateY] = useState(0)
   const [currentImageId, setCurrentImageId] = useState<number | null>(null)
   const [previousImageId, setPreviousImageId] = useState<number | null>(null)
-  const positionRef = useRef({ x: 0, y: 0 })
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
   const [isRevealing, setIsRevealing] = useState(false)
 
@@ -41,7 +37,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
     [data.company.awards.awardList.items]
   )
 
-  // Generate grid cells with Manhattan distance ordering
   const gridCells = useMemo(() => {
     const cells = []
     for (let row = 0; row < GRID_ROWS; row++) {
@@ -70,62 +65,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
     setIsRevealing(false)
     setHoveredItemId(null)
   }, [])
-
-  const updateMousePosition = useCallback(
-    (e: MouseEvent) => {
-      if (!isRevealing) return
-
-      const rect = sectionRef.current?.getBoundingClientRect()
-      if (!rect) return
-
-      // Get mouse position relative to viewport
-      const x = e.clientX
-      const y = e.clientY
-
-      mousePosition.current = { x, y }
-
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current)
-      }
-
-      rafRef.current = requestAnimationFrame(() => {
-        const halfScreenWidth = windowSize.width / 2
-        let boundedX = Math.max(mousePosition.current.x, halfScreenWidth)
-
-        boundedX = Math.min(
-          boundedX + 128,
-          windowSize.width - certificateDimensions.width - 32
-        )
-
-        // Use the actual mouse Y position, just ensure it stays within viewport bounds
-        const boundedY = Math.min(
-          Math.max(0, mousePosition.current.y),
-          windowSize.height - certificateDimensions.height
-        )
-
-        positionRef.current = { x: boundedX, y: boundedY }
-      })
-    },
-    [
-      isRevealing,
-      windowSize,
-      certificateDimensions.width,
-      certificateDimensions.height
-    ]
-  )
-
-  useEffect(() => {
-    const section = sectionRef.current
-    if (!section) return
-
-    section.addEventListener("mousemove", updateMousePosition)
-    return () => {
-      section.removeEventListener("mousemove", updateMousePosition)
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current)
-      }
-    }
-  }, [updateMousePosition])
 
   useEffect(() => {
     const handleResize = () => {
@@ -180,8 +119,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
         scale: 1,
         opacity: 1,
         transition: {
-          duration: 1.4,
-          delay: normalizedDistance * 0.3,
+          duration: 0.7,
+          delay: normalizedDistance * 0.15,
           ease: [0.16, 1, 0.3, 1],
           type: "keyframes"
         }
@@ -196,8 +135,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
         opacity: 0,
         willChange: "transform, opacity",
         transition: {
-          duration: 1.4,
-          delay: (1 - normalizedDistance) * 0.3,
+          duration: 0.7,
+          delay: (1 - normalizedDistance) * 0.15,
           ease: [0.16, 1, 0.3, 1],
           type: "keyframes"
         }
@@ -244,29 +183,18 @@ export const Awards = ({ data }: { data: QueryType }) => {
         </ul>
 
         {isDesktop && (
-          <motion.div
-            animate={{
-              x: positionRef.current.x,
-              y: positionRef.current.y
-            }}
-            initial={{
-              x: positionRef.current.x,
-              y: positionRef.current.y
-            }}
-            transition={{
-              duration: 0.6,
-              ease: easeInOutCubic,
-              type: "spring",
-              damping: 20,
-              stiffness: 200
-            }}
+          <div
             style={{
-              willChange: "transform",
               position: "fixed",
-              top: 4,
-              left: 4
+              top: "20px",
+              right: "20px",
+              zIndex: 50,
+              width: "232px",
+              height: "307.73px",
+              overflow: "hidden",
+              pointerEvents: "none"
             }}
-            className="pointer-events-none z-50 flex h-[307.73px] w-[232px] overflow-hidden"
+            className="flex"
           >
             {/* SVG Mask for grid reveal */}
             <svg
@@ -313,9 +241,9 @@ export const Awards = ({ data }: { data: QueryType }) => {
                           animate={{ opacity: 1 }}
                           exit={{
                             opacity: 0,
-                            transition: { duration: 0.2, delay: 0 }
+                            transition: { duration: 0.1, delay: 0 }
                           }}
-                          transition={{ delay: 0.8, duration: 0.2 }}
+                          transition={{ delay: 0.4, duration: 0.1 }}
                           x="-1"
                           y="-1"
                           width={certificateDimensions.width + 2}
@@ -329,40 +257,21 @@ export const Awards = ({ data }: { data: QueryType }) => {
               </defs>
             </svg>
 
-            <motion.div
+            <div
               className="h-full w-full overflow-hidden"
               style={{
-                clipPath: "url(#grid-mask)",
-                willChange: "transform"
+                clipPath: "url(#grid-mask)"
               }}
             >
-              <motion.div
-                className="relative h-full w-full"
-                style={{
-                  willChange: "transform, filter"
-                }}
-              >
-                {sortedAwards
-                  .filter((award) => award.certificate)
-                  .map((award) => {
-                    return (
-                      <motion.div
-                        key={award._id}
-                        animate={{
-                          opacity:
-                            award.numericId === currentImageId
-                              ? 1
-                              : award.numericId === previousImageId
-                                ? 0.5
-                                : 0.5,
-                          zIndex: award.numericId === currentImageId ? 2 : 1
-                        }}
-                        transition={{
-                          opacity: { duration: 0.1, ease: easeInOutCubic },
-                          zIndex: { duration: 0 }
-                        }}
-                        className="absolute left-0 top-0 h-full w-full"
-                      >
+              <div className="relative h-full w-full">
+                {currentImageId &&
+                  sortedAwards
+                    .filter(
+                      (award) =>
+                        award.numericId === currentImageId && award.certificate
+                    )
+                    .map((award) => (
+                      <div key={award._id} className="h-full w-full">
                         <Image
                           src={award.certificate?.url || ""}
                           alt={award.certificate?.alt ?? ""}
@@ -371,12 +280,11 @@ export const Awards = ({ data }: { data: QueryType }) => {
                           className="max-h-[307.73px] w-full object-cover"
                           data-numeric-id={award.numericId}
                         />
-                      </motion.div>
-                    )
-                  })}
-              </motion.div>
-            </motion.div>
-          </motion.div>
+                      </div>
+                    ))}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
