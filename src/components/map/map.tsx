@@ -292,7 +292,7 @@ export const Map = memo(() => {
         })
 
         meshChild.material = new THREE.ShaderMaterial({
-          side: THREE.DoubleSide,
+          side: THREE.FrontSide,
           uniforms: {
             tDiffuse: diffuseUniform,
             uTime: { value: timeRef.current },
@@ -325,6 +325,11 @@ export const Map = memo(() => {
         if (alreadyReplaced) return
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
+
+        if (currentMaterial.side !== undefined) {
+          currentMaterial.side = THREE.FrontSide
+        }
+
         if (currentMaterial.map) {
           currentMaterial.map.generateMipmaps = false
           currentMaterial.map.magFilter = THREE.NearestFilter
@@ -404,12 +409,18 @@ export const Map = memo(() => {
           Array.isArray(newMaterials)
             ? newMaterials.forEach((material) => {
                 material.depthWrite = false
+                material.side = THREE.FrontSide
               })
             : (newMaterials.depthWrite = false)
+        } else {
+          Array.isArray(newMaterials)
+            ? newMaterials.forEach((material) => {
+                material.side = THREE.FrontSide
+              })
+            : (newMaterials.side = THREE.FrontSide)
         }
 
         meshChild.material = newMaterials
-
         meshChild.userData.hasGlobalMaterial = true
       }
     }
