@@ -251,7 +251,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
           </svg>
 
           <div
-            className="h-full w-full overflow-hidden bg-red-500"
+            className="h-full w-full overflow-hidden"
             style={{
               clipPath: "url(#grid-mask)"
             }}
