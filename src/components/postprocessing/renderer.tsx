@@ -61,15 +61,17 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingScene = useMemo(() => new Scene(), [])
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
-  const currentScene = useNavigationStore((state) => state.currentScene?.name)
 
   const { isContactOpen } = useContactStore()
 
   useEffect(() => {
-    const resizeCallback = () => {
+    const resizeCallback = () =>
       mainTarget.setSize(window.innerWidth, window.innerHeight)
-    }
+
+    resizeCallback()
+
     window.addEventListener("resize", resizeCallback)
+
     return () => window.removeEventListener("resize", resizeCallback)
   }, [mainTarget])
 

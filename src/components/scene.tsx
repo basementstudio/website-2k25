@@ -55,9 +55,7 @@ export const Scene = () => {
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
 
   useEffect(() => {
-    if (!isBasketball) {
-      clearPlayedBalls()
-    }
+    if (!isBasketball) clearPlayedBalls()
   }, [isBasketball, clearPlayedBalls])
 
   useEffect(() => {
@@ -90,10 +88,10 @@ export const Scene = () => {
           onFocus={handleFocus}
           onBlur={handleBlur}
           gl={{
-            antialias: true,
+            antialias: false,
             alpha: false,
             outputColorSpace: THREE.SRGBColorSpace,
-            toneMapping: THREE.ACESFilmicToneMapping
+            toneMapping: THREE.NoToneMapping
           }}
           camera={{ fov: 60 }}
           className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none"
@@ -101,7 +99,6 @@ export const Scene = () => {
           <Renderer
             sceneChildren={
               <>
-                <color attach="background" args={["#000"]} />
                 <CameraController />
                 <Inspectables />
                 <Sparkles />
