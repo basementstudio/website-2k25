@@ -299,12 +299,6 @@ export const Map = memo(() => {
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
 
-        if (currentMaterial.map) {
-          currentMaterial.map.generateMipmaps = false
-          currentMaterial.map.magFilter = THREE.NearestFilter
-          currentMaterial.map.minFilter = THREE.NearestFilter
-        }
-
         const withVideo = videos.find((video) => video.mesh === meshChild.name)
         const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
         const isClouds = meshChild.name === "cloudy_01"
@@ -317,19 +311,16 @@ export const Map = memo(() => {
 
         if (withVideo) {
           const videoTexture = createVideoTexture(withVideo.url)
-
           currentMaterial.map = videoTexture
           currentMaterial.map.flipY = false
+          currentMaterial.emissiveMap = videoTexture
+          currentMaterial.emissiveIntensity = withVideo.intensity
+        }
 
+        if (currentMaterial.map) {
           currentMaterial.map.generateMipmaps = false
           currentMaterial.map.magFilter = THREE.NearestFilter
           currentMaterial.map.minFilter = THREE.NearestFilter
-
-          currentMaterial.emissiveMap = videoTexture
-          currentMaterial.emissiveIntensity = withVideo.intensity
-          currentMaterial.emissiveMap.generateMipmaps = false
-          currentMaterial.emissiveMap.magFilter = THREE.NearestFilter
-          currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
         }
 
         const newMaterials = Array.isArray(currentMaterial)
