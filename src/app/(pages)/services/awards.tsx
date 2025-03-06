@@ -37,6 +37,11 @@ export const Awards = ({ data }: { data: QueryType }) => {
     [data.company.awards.awardList.items]
   )
 
+  // Get all awards with certificates
+  const awardsWithCertificates = useMemo(() => {
+    return sortedAwards.filter((award) => award.certificate?.url)
+  }, [sortedAwards])
+
   const gridCells = useMemo(() => {
     const cells = []
     for (let row = 0; row < GRID_ROWS; row++) {
@@ -256,29 +261,47 @@ export const Awards = ({ data }: { data: QueryType }) => {
               clipPath: "url(#grid-mask)"
             }}
           >
-            <div className="relative h-full w-full">
-              {currentImageId &&
-                sortedAwards
-                  .filter(
-                    (award) =>
-                      award.numericId === currentImageId && award.certificate
-                  )
-                  .map((award) => (
-                    <div key={award._id} className="h-full w-full">
-                      <Image
-                        src={award.certificate?.url || ""}
-                        alt={award.certificate?.alt ?? ""}
-                        width={award.certificate?.width}
-                        height={award.certificate?.height}
-                        className="max-h-[307.73px] w-full object-cover"
-                        data-numeric-id={award.numericId}
-                      />
-                    </div>
-                  ))}
-            </div>
+            {currentImageId &&
+              sortedAwards
+                .filter(
+                  (award) =>
+                    award.numericId === currentImageId && award.certificate
+                )
+                .map((award) => (
+                  <div key={award._id} className="h-full w-full">
+                    <Image
+                      src={award.certificate?.url || ""}
+                      alt={award.certificate?.alt ?? ""}
+                      width={award.certificate?.width}
+                      height={award.certificate?.height}
+                      className="max-h-[307.73px] w-full object-cover"
+                      data-numeric-id={award.numericId}
+                      sizes="232px"
+                    />
+                  </div>
+                ))}
           </div>
         </motion.div>
       )}
+
+      <div
+        className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"
+        aria-hidden="true"
+      >
+        {awardsWithCertificates.map((award) => (
+          <Image
+            key={`preload-${award._id}`}
+            src={award.certificate?.url || ""}
+            alt=""
+            width={232}
+            height={award.certificate?.height || 307}
+            priority={true}
+            sizes="232px"
+            quality={90}
+            loading="eager"
+          />
+        ))}
+      </div>
     </>
   )
 }
