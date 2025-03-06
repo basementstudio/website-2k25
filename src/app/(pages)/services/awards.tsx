@@ -22,7 +22,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [translateY, setTranslateY] = useState(0)
   const [currentImageId, setCurrentImageId] = useState<number | null>(null)
   const [isRevealing, setIsRevealing] = useState(false)
-  const { x, y } = useMousePosition()
+  const { x, y } = useMousePosition(sectionRef)
 
   const certificateDimensions = { width: 232, height: 307.73 }
 
