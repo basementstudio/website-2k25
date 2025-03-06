@@ -248,19 +248,25 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
     }
   }, [])
 
-  const handlePointerUp = useCallback((e: ThreeEvent<PointerEvent>) => {
-    if (!isDragging.current) return
+  const handlePointerUp = useCallback(
+    (e: ThreeEvent<PointerEvent>) => {
+      if (!isDragging.current) return
 
-    isDragging.current = false
-    setCursor("grab")
+      isDragging.current = false
+      setCursor("grab")
 
-    const target = e.target as unknown as HTMLElement
-    if (target && "releasePointerCapture" in target) {
-      target.releasePointerCapture(e.pointerId)
-    }
+      const target = e.target as unknown as HTMLElement
+      if (target && "releasePointerCapture" in target) {
+        target.releasePointerCapture(e.pointerId)
+      }
 
-    resetStick()
-  }, [])
+      if (state.current !== 0) {
+        handleStickSound(true)
+      }
+      resetStick()
+    },
+    [handleStickSound, resetStick]
+  )
 
   useEffect(() => {
     const handleButtonPress = (event: CustomEvent) => {
