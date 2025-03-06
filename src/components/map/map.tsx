@@ -131,14 +131,11 @@ export const Map = memo(() => {
   )
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
-  const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
   const [net, setNet] = useState<Mesh | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
   const timeRef = useRef(0)
-
-  const stairsRef = useRef<Mesh | null>(null)
 
   const { godrayOpacity } = useControls("God Rays", {
     godrayOpacity: {
@@ -178,12 +175,6 @@ export const Map = memo(() => {
       // @ts-ignore
       useMesh.getState().cctv.screen.material.uniforms.uTime.value =
         clock.getElapsedTime()
-    }
-
-    if (keyframedNet && isAnimating.current) {
-      const mesh = keyframedNet as Mesh
-      animationProgress.current += NET_ANIMATION_SPEED
-      isAnimating.current = animateNet(mesh, animationProgress.current)
     }
 
     godrays.forEach((mesh) => {
@@ -360,7 +351,6 @@ export const Map = memo(() => {
 
         // Homepage Stairs
         if (child.name === "SM_03_01" && child instanceof THREE.Mesh) {
-          stairsRef.current = child
           child.material.side = THREE.FrontSide
         }
       }
