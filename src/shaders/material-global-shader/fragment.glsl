@@ -197,9 +197,11 @@ void main() {
     #endif
   }
 
+  #ifndef VIDEO
   if (lightMapIntensity > 0.0) {
     irradiance *= lightMapSample * lightMapIntensity;
   }
+  #endif
 
   if (aoMapIntensity > 0.0) {
     float ambientOcclusion =

@@ -381,6 +381,7 @@ export const Map = memo(() => {
                   GODRAY: overrides?.GODRAY,
                   FOG: overrides?.FOG,
                   MATCAP: matcap !== undefined,
+                  VIDEO: video !== undefined,
                   CLOUDS: clouds
                 }
               )
@@ -394,6 +395,7 @@ export const Map = memo(() => {
                 GODRAY: overrides?.GODRAY,
                 FOG: overrides?.FOG,
                 MATCAP: matcap !== undefined,
+                VIDEO: video !== undefined,
                 CLOUDS: clouds
               }
             )
