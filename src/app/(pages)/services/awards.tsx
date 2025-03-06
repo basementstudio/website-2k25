@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { Link } from "@/components/primitives/link"
 import { useMedia } from "@/hooks/use-media"
-import useMousePosition from "@/hooks/use-mouse-pos"
 import { easeInOutCubic } from "@/utils/animations"
 import { formatDate } from "@/utils/format-date"
 
@@ -18,24 +17,29 @@ const GRID_ROWS = 10
 
 export const Awards = ({ data }: { data: QueryType }) => {
   const isDesktop = useMedia("(min-width: 1024px)")
-  const mousePosition = useMousePosition()
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const mousePosition = useRef({ x: 0, y: 0 })
+  const rafRef = useRef<number>(0)
   const [hoveredItemId, setHoveredItemId] = useState<number | null>(null)
   const [translateY, setTranslateY] = useState(0)
   const [currentImageId, setCurrentImageId] = useState<number | null>(null)
   const [previousImageId, setPreviousImageId] = useState<number | null>(null)
   const positionRef = useRef({ x: 0, y: 0 })
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
+  const [isRevealing, setIsRevealing] = useState(false)
 
   const certificateDimensions = { width: 232, height: 307.73 }
 
-  const [isRevealing, setIsRevealing] = useState(false)
-
-  const sortedAwards = data.company.awards.awardList.items
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .map((award, index) => ({
-      ...award,
-      numericId: index + 1
-    }))
+  const sortedAwards = useMemo(
+    () =>
+      data.company.awards.awardList.items
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .map((award, index) => ({
+          ...award,
+          numericId: index + 1
+        })),
+    [data.company.awards.awardList.items]
+  )
 
   // Generate grid cells with Manhattan distance ordering
   const gridCells = useMemo(() => {
@@ -67,44 +71,61 @@ export const Awards = ({ data }: { data: QueryType }) => {
     setHoveredItemId(null)
   }, [])
 
-  // cell animation
-  const cellVariants: Variants = {
-    hidden: {
-      scale: 0.95,
-      opacity: 0
-    },
-    visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
-      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
-      const normalizedDistance = manhattanDistance / maxDistance
+  const updateMousePosition = useCallback(
+    (e: MouseEvent) => {
+      if (!isRevealing) return
 
-      return {
-        scale: 1,
-        opacity: 1,
-        transition: {
-          duration: 1.4,
-          delay: normalizedDistance * 0.3,
-          ease: [0.16, 1, 0.3, 1],
-          type: "keyframes"
-        }
+      const rect = sectionRef.current?.getBoundingClientRect()
+      if (!rect) return
+
+      // Get mouse position relative to viewport
+      const x = e.clientX
+      const y = e.clientY
+
+      mousePosition.current = { x, y }
+
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
       }
-    },
-    exit: ({ manhattanDistance }: { manhattanDistance: number }) => {
-      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
-      const normalizedDistance = manhattanDistance / maxDistance
 
-      return {
-        scale: 0,
-        opacity: 0,
-        willChange: "transform, opacity",
-        transition: {
-          duration: 1.4,
-          delay: (1 - normalizedDistance) * 0.3,
-          ease: [0.16, 1, 0.3, 1],
-          type: "keyframes"
-        }
+      rafRef.current = requestAnimationFrame(() => {
+        const halfScreenWidth = windowSize.width / 2
+        let boundedX = Math.max(mousePosition.current.x, halfScreenWidth)
+
+        boundedX = Math.min(
+          boundedX + 128,
+          windowSize.width - certificateDimensions.width - 32
+        )
+
+        // Use the actual mouse Y position, just ensure it stays within viewport bounds
+        const boundedY = Math.min(
+          Math.max(0, mousePosition.current.y),
+          windowSize.height - certificateDimensions.height
+        )
+
+        positionRef.current = { x: boundedX, y: boundedY }
+      })
+    },
+    [
+      isRevealing,
+      windowSize,
+      certificateDimensions.width,
+      certificateDimensions.height
+    ]
+  )
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    section.addEventListener("mousemove", updateMousePosition)
+    return () => {
+      section.removeEventListener("mousemove", updateMousePosition)
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
       }
     }
-  }
+  }, [updateMousePosition])
 
   useEffect(() => {
     const handleResize = () => {
@@ -145,38 +166,47 @@ export const Awards = ({ data }: { data: QueryType }) => {
     }
   }, [hoveredItemId, sortedAwards, translateY, currentImageId])
 
-  useEffect(() => {
-    if (!isRevealing) {
-      return
+  // cell animation
+  const cellVariants: Variants = {
+    hidden: {
+      scale: 0.95,
+      opacity: 0
+    },
+    visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
+      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
+      const normalizedDistance = manhattanDistance / maxDistance
+
+      return {
+        scale: 1,
+        opacity: 1,
+        transition: {
+          duration: 1.4,
+          delay: normalizedDistance * 0.3,
+          ease: [0.16, 1, 0.3, 1],
+          type: "keyframes"
+        }
+      }
+    },
+    exit: ({ manhattanDistance }: { manhattanDistance: number }) => {
+      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
+      const normalizedDistance = manhattanDistance / maxDistance
+
+      return {
+        scale: 0,
+        opacity: 0,
+        willChange: "transform, opacity",
+        transition: {
+          duration: 1.4,
+          delay: (1 - normalizedDistance) * 0.3,
+          ease: [0.16, 1, 0.3, 1],
+          type: "keyframes"
+        }
+      }
     }
-
-    const mouseX = mousePosition.x || 0
-    const mouseY = mousePosition.y || 0
-
-    const halfScreenWidth = windowSize.width / 2
-    let boundedX = Math.max(mouseX, halfScreenWidth)
-
-    boundedX = Math.min(
-      boundedX + 128,
-      windowSize.width - certificateDimensions.width - 32
-    )
-
-    const boundedY = Math.max(
-      0,
-      Math.min(mouseY, windowSize.height - certificateDimensions.height)
-    )
-
-    positionRef.current = { x: boundedX, y: boundedY }
-  }, [
-    mousePosition,
-    windowSize,
-    certificateDimensions.width,
-    certificateDimensions.height,
-    isRevealing
-  ])
+  }
 
   return (
-    <div className="grid-layout">
+    <div className="grid-layout" ref={sectionRef}>
       <div className="col-span-full flex gap-2 text-mobile-h2 text-brand-g1 lg:text-h2">
         <h2>Awards</h2>
         <p>x{data.company.awards.awardList.items.length}</p>

@@ -197,9 +197,11 @@ void main() {
     #endif
   }
 
+  #ifndef VIDEO
   if (lightMapIntensity > 0.0) {
     irradiance *= lightMapSample * lightMapIntensity;
   }
+  #endif
 
   if (aoMapIntensity > 0.0) {
     float ambientOcclusion =
@@ -247,10 +249,12 @@ void main() {
   gl_FragColor = vec4(irradiance, opacityResult);
 
   #ifdef GLASS
-  // TODO: when implementing parallax and multiple reflections, add controls in basehub to resize the reflection map
-  vec4 reflexSample = texture2D(glassReflex, vUv * vec2(0.75, 1.0));
+  vec4 reflexSample = texture2D(
+    glassReflex,
+    vUv * 0.75 + vViewDirection.xy * vec2(-0.25, 0.25) + vec2(0.125)
+  );
   if (reflexSample.a > 0.0) {
-    gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.1);
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, reflexSample.rgb, 0.075);
   }
   gl_FragColor.a *= pattern;
   #endif
