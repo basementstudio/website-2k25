@@ -5,7 +5,7 @@ const INITIAL_POSITION = { x: 5.2, y: 1.3, z: -10.7 }
 const HOOP_POSITION = { x: 5.23, y: 3.414, z: -14.412 }
 
 const FORWARD_STRENGTH = 0.045
-const UP_STRENGTH = 0.15
+const UP_STRENGTH = 0.125
 const GAME_DURATION = 24
 
 interface PlayedBall {
@@ -64,6 +64,7 @@ interface MinigameStore {
   addStaticBall: (ball: StaticBall) => void
   clearStaticBalls: () => void
   clearPlayedBalls: () => void
+  removePlayedBall: (index: number) => void
 }
 
 export const useMinigameStore = create<MinigameStore>()((set, get) => ({
@@ -154,5 +155,9 @@ export const useMinigameStore = create<MinigameStore>()((set, get) => ({
   addStaticBall: (ball: StaticBall) =>
     set((state) => ({ staticBalls: [...state.staticBalls, ball] })),
   clearStaticBalls: () => set({ staticBalls: [] }),
-  clearPlayedBalls: () => set({ playedBalls: [] })
+  clearPlayedBalls: () => set({ playedBalls: [] }),
+  removePlayedBall: (index: number) =>
+    set((state) => ({
+      playedBalls: state.playedBalls.filter((_, i) => i !== index)
+    }))
 }))

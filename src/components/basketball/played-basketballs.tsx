@@ -9,7 +9,7 @@ import { useMinigameStore } from "@/store/minigame-store"
 
 import { useAssets } from "../assets-provider"
 
-const VELOCITY_THRESHOLD = 0.1
+const VELOCITY_THRESHOLD = 0.05
 
 export const PlayedBasketballs = () => {
   const { basketball } = useAssets()
@@ -20,6 +20,7 @@ export const PlayedBasketballs = () => {
   )
 
   const addStaticBall = useMinigameStore((state) => state.addStaticBall)
+  const removePlayedBall = useMinigameStore((state) => state.removePlayedBall)
   const isGameActive = useMinigameStore((state) => state.isGameActive)
 
   // @ts-ignore
@@ -31,6 +32,8 @@ export const PlayedBasketballs = () => {
       {
         checkCount: number
         lastCheck: number
+        latestPosition: { x: number; y: number; z: number }
+        latestRotation: { x: number; y: number; z: number }
       }
     >
   >(new Map())
@@ -84,6 +87,55 @@ export const PlayedBasketballs = () => {
   }, [isGameActive])
 
   useFrame(() => {
+    if (isUnmounting.current) return
+
+    rigidBodies.current.forEach((rigidBody, index) => {
+      if (
+        !rigidBody ||
+        processedBalls.current.has(index) ||
+        isUnmounting.current
+      )
+        return
+
+      try {
+        const position = rigidBody.translation()
+        const rotation = rigidBody.rotation()
+
+        if (!ballsToProcess.current.has(index)) {
+          ballsToProcess.current.set(index, {
+            checkCount: 0,
+            lastCheck: Date.now(),
+            latestPosition: {
+              x: position.x,
+              y: position.y,
+              z: position.z
+            },
+            latestRotation: {
+              x: rotation.x,
+              y: rotation.y,
+              z: rotation.z
+            }
+          })
+        } else {
+          const ballData = ballsToProcess.current.get(index)!
+          ballData.latestPosition = {
+            x: position.x,
+            y: position.y,
+            z: position.z
+          }
+          ballData.latestRotation = {
+            x: rotation.x,
+            y: rotation.y,
+            z: rotation.z
+          }
+        }
+      } catch (error) {
+        console.error("Error during position tracking:", error)
+      }
+    })
+  })
+
+  useFrame(() => {
     if (isUnmounting.current || isGameActive) return
 
     frameCounter.current++
@@ -94,8 +146,8 @@ export const PlayedBasketballs = () => {
     // get current time since deactivation
     const timeSinceDeactivation = Date.now() - gameDeactivationTime.current
 
-    // handle safe physics checks for the first 2 seconds after game ends
-    if (timeSinceDeactivation < 2000 && playedBalls.length > 0) {
+    // handle safe physics checks for the first 3 seconds after game ends
+    if (timeSinceDeactivation < 3000 && playedBalls.length > 0) {
       // check unprocessed rigid bodies
       rigidBodies.current.forEach((rigidBody, index) => {
         if (
@@ -107,10 +159,33 @@ export const PlayedBasketballs = () => {
 
         // track unprocessed ball
         if (!ballsToProcess.current.has(index)) {
-          ballsToProcess.current.set(index, {
-            checkCount: 0,
-            lastCheck: Date.now()
-          })
+          try {
+            const position = rigidBody.translation()
+            const rotation = rigidBody.rotation()
+
+            ballsToProcess.current.set(index, {
+              checkCount: 0,
+              lastCheck: Date.now(),
+              latestPosition: {
+                x: position.x,
+                y: position.y,
+                z: position.z
+              },
+              latestRotation: {
+                x: rotation.x,
+                y: rotation.y,
+                z: rotation.z
+              }
+            })
+          } catch (error) {
+            console.error("Error during position tracking:", error)
+            ballsToProcess.current.set(index, {
+              checkCount: 0,
+              lastCheck: Date.now(),
+              latestPosition: playedBalls[index].position,
+              latestRotation: playedBalls[index].rotation
+            })
+          }
         }
 
         try {
@@ -136,6 +211,17 @@ export const PlayedBasketballs = () => {
 
             position = rigidBody.translation()
             rotation = rigidBody.rotation()
+
+            ballData.latestPosition = {
+              x: position.x,
+              y: position.y,
+              z: position.z
+            }
+            ballData.latestRotation = {
+              x: rotation.x,
+              y: rotation.y,
+              z: rotation.z
+            }
           } catch (error) {
             console.warn("Error accessing physics properties:", error)
             processedBalls.current.add(index)
@@ -145,8 +231,8 @@ export const PlayedBasketballs = () => {
           // ball has stopped or is moving very slowly
           if (speed < VELOCITY_THRESHOLD) {
             // don't process balls that are too high off the ground yet
-            if (position.y > 0.6 && ballData.checkCount < 10) {
-              // let it fall naturally for a bit
+            if (position.y > 0.5 && ballData.checkCount < 20) {
+              // let it fall naturally for a bit longer
               return
             }
 
@@ -162,9 +248,10 @@ export const PlayedBasketballs = () => {
             })
 
             processedBalls.current.add(index)
+            removePlayedBall(index)
           }
           // force process ball if for some reason its still moving
-          else if (ballData.checkCount > 15) {
+          else if (ballData.checkCount >= 30) {
             addStaticBall({
               position: {
                 x: position.x,
@@ -175,6 +262,7 @@ export const PlayedBasketballs = () => {
             })
 
             processedBalls.current.add(index)
+            removePlayedBall(index)
           }
         } catch (error) {
           console.warn("Error during velocity check:", error)
@@ -182,9 +270,9 @@ export const PlayedBasketballs = () => {
         }
       })
     }
-    // after 2 seconds, ensure any remaining balls are processed
+    // after 2.5 seconds, ensure any remaining balls are processed
     else if (
-      timeSinceDeactivation >= 2000 &&
+      timeSinceDeactivation >= 2500 &&
       !hasAddedFallbackBalls.current &&
       playedBalls.length > 0
     ) {
@@ -193,15 +281,20 @@ export const PlayedBasketballs = () => {
       // process remaining balls
       playedBalls.forEach((ball, index) => {
         if (!processedBalls.current.has(index)) {
+          const ballData = ballsToProcess.current.get(index)
+          const position = ballData ? ballData.latestPosition : ball.position
+          const rotation = ballData ? ballData.latestRotation : ball.rotation
+
           addStaticBall({
             position: {
-              x: ball.position.x,
-              y: ball.position.y > 0.36 ? 0.26 : ball.position.y,
-              z: ball.position.z
+              x: position.x,
+              y: position.y > 0.36 ? 0.26 : position.y,
+              z: position.z
             },
-            rotation: { x: 0, y: 0, z: 0 }
+            rotation: rotation
           })
           processedBalls.current.add(index)
+          removePlayedBall(index)
         }
       })
     }

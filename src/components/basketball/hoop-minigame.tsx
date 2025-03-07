@@ -50,6 +50,7 @@ export const HoopMinigame = () => {
     setJustScored,
     hasPlayed,
     clearPlayedBalls,
+    removePlayedBall,
     playedBalls
   } = useMinigameStore()
 
@@ -134,6 +135,7 @@ export const HoopMinigame = () => {
         timerInterval.current = null
       }
 
+      removePlayedBall(0)
       clearPlayedBalls()
 
       setIsGameActive(false)
@@ -149,7 +151,8 @@ export const HoopMinigame = () => {
     setIsDragging,
     setTimeRemaining,
     gameDuration,
-    setScore
+    setScore,
+    removePlayedBall
   ])
 
   useEffect(() => {
