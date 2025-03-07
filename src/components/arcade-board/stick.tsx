@@ -37,138 +37,110 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
   const dragStartPosition = useRef({ x: 0, y: 0 })
   const movementTimeout = useRef<NodeJS.Timeout | null>(null)
 
-  const handleStickSound = (isRelease: boolean) => {
-    if (state.current !== 0) {
-      desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
-    }
-    playSoundFX(
-      `ARCADE_STICK_${desiredSoundFX.current}_${isRelease ? "RELEASE" : "PRESS"}`,
-      0.2
-    )
-  }
+  const handleStickSound = useCallback(
+    (isRelease: boolean) => {
+      if (state.current !== 0) {
+        desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
+      }
+      playSoundFX(
+        `ARCADE_STICK_${desiredSoundFX.current}_${isRelease ? "RELEASE" : "PRESS"}`,
+        0.2
+      )
+    },
+    [availableSounds, playSoundFX]
+  )
 
-  const dispatchStickMoveEvent = (direction: number) => {
-    if (isInGame) {
-      const event = new CustomEvent("arcadeStickMove", {
-        detail: { direction }
-      })
-      window.dispatchEvent(event)
-    }
-  }
+  const dispatchStickMoveEvent = useCallback(
+    (direction: number) => {
+      if (isInGame) {
+        const event = new CustomEvent("arcadeStickMove", {
+          detail: { direction }
+        })
+        window.dispatchEvent(event)
+      }
+    },
+    [isInGame]
+  )
 
-  const updateStickPosition = (
-    direction: number,
-    targetRotation: { x: number; y: number; z: number }
-  ) => {
-    if (direction !== 0 && state.current === direction) return
+  const handleLabNavigation = useCallback(
+    (direction: number) => {
+      if (stick.name !== "02_JYTK_L") return
 
-    animate(stick.rotation, targetRotation, STICK_ANIMATION)
+      setIsInLabTab(true)
+      const currentLabTabIndex = useArcadeStore.getState().labTabIndex
+      const currentIsSourceButtonSelected =
+        useArcadeStore.getState().isSourceButtonSelected
+      const currentLabTabs = useArcadeStore.getState().labTabs
 
-    sequence.current.push(direction)
-    checkSequence({ sequence: sequence.current, setIsInGame })
-    handleStickSound(direction === 0)
-    state.current = direction
+      if (currentLabTabIndex === -1) {
+        setLabTabIndex(0)
+        return
+      }
 
-    dispatchStickMoveEvent(direction)
+      switch (direction) {
+        case 4: // DOWN
+          if (currentLabTabIndex === 0) {
+            setLabTabIndex(1)
+            setIsSourceButtonSelected(false)
+          } else if (
+            currentLabTabs[currentLabTabIndex]?.title !== "CHRONICLES"
+          ) {
+            const nextIndex = currentLabTabIndex + 1
+            if (nextIndex < currentLabTabs.length) {
+              setLabTabIndex(nextIndex)
+              setIsSourceButtonSelected(false)
+            }
+          }
+          break
 
-    if (!isInGame) {
-      handleContinuousNavigation(direction)
-    }
-  }
-
-  const handleLabNavigation = (direction: number) => {
-    if (stick.name !== "02_JYTK_L") return
-
-    setIsInLabTab(true)
-    const currentLabTabIndex = useArcadeStore.getState().labTabIndex
-    const currentIsSourceButtonSelected =
-      useArcadeStore.getState().isSourceButtonSelected
-    const currentLabTabs = useArcadeStore.getState().labTabs
-
-    if (currentLabTabIndex === -1) {
-      setLabTabIndex(0)
-      return
-    }
-
-    switch (direction) {
-      case 4: // DOWN
-        if (currentLabTabIndex === 0) {
-          setLabTabIndex(1)
-          setIsSourceButtonSelected(false)
-        } else if (currentLabTabs[currentLabTabIndex]?.title !== "CHRONICLES") {
-          const nextIndex = currentLabTabIndex + 1
-          if (nextIndex < currentLabTabs.length) {
-            setLabTabIndex(nextIndex)
+        case 3: // UP
+          if (currentIsSourceButtonSelected) {
+            setIsSourceButtonSelected(false)
+            setLabTabIndex(currentLabTabIndex - 1)
+          } else if (currentLabTabIndex > 1) {
+            if (
+              currentLabTabs[currentLabTabIndex]?.title !==
+              "LOOPER (COMING SOON)"
+            ) {
+              setLabTabIndex(currentLabTabIndex - 1)
+              setIsSourceButtonSelected(false)
+            }
+          } else if (currentLabTabIndex === 1) {
+            setLabTabIndex(0)
             setIsSourceButtonSelected(false)
           }
-        }
-        break
+          break
 
-      case 3: // UP
-        if (currentIsSourceButtonSelected) {
-          setIsSourceButtonSelected(false)
-          setLabTabIndex(currentLabTabIndex - 1)
-        } else if (currentLabTabIndex > 1) {
+        case 1: // RIGHT
+          const currentTab = currentLabTabs[currentLabTabIndex]
           if (
-            currentLabTabs[currentLabTabIndex]?.title !== "LOOPER (COMING SOON)"
+            currentTab?.type === "experiment" &&
+            !currentIsSourceButtonSelected
+          ) {
+            setIsSourceButtonSelected(true)
+          } else if (currentTab?.title === "CHRONICLES") {
+            const nextIndex = currentLabTabIndex + 1
+            if (nextIndex < currentLabTabs.length) {
+              setLabTabIndex(nextIndex)
+              setIsSourceButtonSelected(false)
+            }
+          }
+          break
+
+        case 2: // LEFT
+          if (currentIsSourceButtonSelected) {
+            setIsSourceButtonSelected(false)
+          } else if (
+            currentLabTabs[currentLabTabIndex]?.title === "LOOPER (COMING SOON)"
           ) {
             setLabTabIndex(currentLabTabIndex - 1)
             setIsSourceButtonSelected(false)
           }
-        } else if (currentLabTabIndex === 1) {
-          setLabTabIndex(0)
-          setIsSourceButtonSelected(false)
-        }
-        break
-
-      case 1: // RIGHT
-        const currentTab = currentLabTabs[currentLabTabIndex]
-        if (
-          currentTab?.type === "experiment" &&
-          !currentIsSourceButtonSelected
-        ) {
-          setIsSourceButtonSelected(true)
-        } else if (currentTab?.title === "CHRONICLES") {
-          const nextIndex = currentLabTabIndex + 1
-          if (nextIndex < currentLabTabs.length) {
-            setLabTabIndex(nextIndex)
-            setIsSourceButtonSelected(false)
-          }
-        }
-        break
-
-      case 2: // LEFT
-        if (currentIsSourceButtonSelected) {
-          setIsSourceButtonSelected(false)
-        } else if (
-          currentLabTabs[currentLabTabIndex]?.title === "LOOPER (COMING SOON)"
-        ) {
-          setLabTabIndex(currentLabTabIndex - 1)
-          setIsSourceButtonSelected(false)
-        }
-        break
-    }
-  }
-
-  const handleKeyboardInput = useCallback(
-    (direction: number) => {
-      if (scene !== "lab" && !isInGame) return
-
-      const targetRotation = {
-        x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
-        y: 0,
-        z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
+          break
       }
-
-      updateStickPosition(direction, targetRotation)
     },
-    [scene, stick.name, availableSounds, playSoundFX, isInGame]
+    [setLabTabIndex, setIsSourceButtonSelected, setIsInLabTab, stick]
   )
-
-  const resetStick = () => {
-    state.current = 0
-    updateStickPosition(0, { x: 0, y: 0, z: 0 })
-  }
 
   const handleContinuousNavigation = useCallback(
     (direction: number) => {
@@ -190,6 +162,54 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
     [handleLabNavigation]
   )
 
+  const updateStickPosition = useCallback(
+    (
+      direction: number,
+      targetRotation: { x: number; y: number; z: number }
+    ) => {
+      if (direction !== 0 && state.current === direction) return
+
+      animate(stick.rotation, targetRotation, STICK_ANIMATION)
+
+      sequence.current.push(direction)
+      checkSequence({ sequence: sequence.current, setIsInGame })
+      handleStickSound(direction === 0)
+      state.current = direction
+
+      dispatchStickMoveEvent(direction)
+
+      if (!isInGame) {
+        handleContinuousNavigation(direction)
+      }
+    },
+    [
+      stick.rotation,
+      handleStickSound,
+      isInGame,
+      setIsInGame,
+      dispatchStickMoveEvent,
+      handleContinuousNavigation
+    ]
+  )
+
+  const handleKeyboardInput = useCallback(
+    (direction: number) => {
+      const targetRotation = {
+        x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
+        y: 0,
+        z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
+      }
+
+      updateStickPosition(direction, targetRotation)
+    },
+    [updateStickPosition]
+  )
+
+  const resetStick = useCallback(() => {
+    state.current = 0
+    updateStickPosition(0, { x: 0, y: 0, z: 0 })
+  }, [updateStickPosition])
+
   const handlePointerDown = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
       if (scene !== "lab" && !isInGame) return
@@ -205,7 +225,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
         target.setPointerCapture(e.pointerId)
       }
     },
-    [scene, isInGame, stick.name]
+    [scene, isInGame, setCursor, stick]
   )
 
   const handlePointerMove = useCallback(
@@ -269,7 +289,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
       }
       resetStick()
     },
-    [handleStickSound, resetStick]
+    [handleStickSound, resetStick, setCursor]
   )
 
   useEffect(() => {
@@ -299,15 +319,12 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
         handleGameStateChange as EventListener
       )
     }
-  }, [])
+  }, [resetStick, setIsInGame])
 
   useEffect(() => {
-    if (isInGame) return
+    if (isInGame || scene !== "lab" || stick.name !== "02_JYTK_L") return
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (scene !== "lab" || isInGame) return
-      if (stick.name !== "02_JYTK_L") return
-
       switch (event.key) {
         case "ArrowUp":
           handleKeyboardInput(KEY_DIRECTION_MAP.ArrowUp)
@@ -325,9 +342,6 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
     }
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (scene !== "lab" || isInGame) return
-      if (stick.name !== "02_JYTK_L") return
-
       if (
         ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)
       ) {
@@ -343,6 +357,15 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
       window.removeEventListener("keyup", handleKeyUp)
     }
   }, [isInGame, handleKeyboardInput, scene, stick.name])
+
+  useEffect(() => {
+    return () => {
+      if (navigationTimer.current) {
+        clearInterval(navigationTimer.current)
+        navigationTimer.current = null
+      }
+    }
+  }, [])
 
   return (
     <group key={stick.name}>
