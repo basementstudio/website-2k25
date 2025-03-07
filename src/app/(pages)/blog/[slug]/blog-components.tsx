@@ -30,12 +30,7 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
 }
 
 export const BlogVideo = (props: HandlerProps<"video">) => (
-  <div
-    className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20"
-    style={{
-      aspectRatio: props.width ? `${props.width}/${props.height}` : "16/9"
-    }}
-  >
+  <div className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
     <div className="with-dots grid h-full w-full place-items-center">
       <video
         autoPlay
