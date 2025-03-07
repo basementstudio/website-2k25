@@ -19,11 +19,8 @@ export const Net = ({ mesh }: NetProps) => {
   const isDragging = useMinigameStore((state) => state.isDragging)
 
   const shaderMaterial = useMemo(() => {
-    const material = Array.isArray(mesh.material)
-      ? mesh.material[0]
-      : mesh.material
-    const texture =
-      material instanceof THREE.MeshStandardMaterial ? material.map : null
+    const originalMaterial = mesh.userData.originalMaterial || mesh.material
+    const texture = originalMaterial?.map
 
     return new THREE.ShaderMaterial({
       vertexShader,
@@ -36,15 +33,19 @@ export const Net = ({ mesh }: NetProps) => {
         map: { value: texture },
         uBallPosition: { value: new THREE.Vector3() },
         uBallInfluence: { value: 0.0 },
-        uScoreAnimation: { value: 0.0 }
+        uScoreAnimation: { value: 0.0 },
+        uDeltaTime: { value: 0.0 }
       },
+      transparent: true,
       side: THREE.DoubleSide
     })
-  }, [mesh.material])
+  }, [mesh])
 
   useEffect(() => {
     if (mesh && mesh.isMesh) {
-      const originalMaterial = mesh.material
+      if (!mesh.userData.originalMaterial) {
+        mesh.userData.originalMaterial = mesh.material
+      }
 
       mesh.material = shaderMaterial
       materialRef.current = shaderMaterial
@@ -61,7 +62,7 @@ export const Net = ({ mesh }: NetProps) => {
 
       return () => {
         if (mesh) {
-          mesh.material = originalMaterial
+          mesh.material = mesh.userData.originalMaterial
         }
         window.removeEventListener("basketball-score", handleScore)
       }

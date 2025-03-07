@@ -20,10 +20,6 @@ import { GLTF } from "three/examples/jsm/Addons.js"
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
-import {
-  animateNet,
-  NET_ANIMATION_SPEED
-} from "@/components/basketball/basketball-utils"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { useInspectable } from "@/components/inspectables/context"
@@ -222,16 +218,18 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    const originalNet = officeModel?.getObjectByName("SM_BasketRed")
-    const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
+    if (officeModel && basketballNetModel) {
+      const originalNet = officeModel.getObjectByName("SM_BasketRed")
+      const newNetMesh = officeModel.getObjectByName("Cylinder")
 
-    if (newNetMesh?.parent) {
-      newNetMesh.removeFromParent()
-    }
+      if (originalNet) {
+        originalNet.removeFromParent()
+      }
 
-    if (originalNet?.parent) {
-      originalNet.removeFromParent()
-      setNet(originalNet as Mesh)
+      if (newNetMesh) {
+        setNet(newNetMesh as Mesh)
+        newNetMesh.removeFromParent()
+      }
     }
 
     const traverse = (
