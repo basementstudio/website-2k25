@@ -18,12 +18,12 @@ THREE.ShaderChunk.skinning_pars_vertex =
         return calcCoord(size, int(batchId));
       }
       
-      ivec2 getSampleCoord(const usampler2D mapSampler, const float batchId) {
+      ivec2 getUSampleCoord(const usampler2D mapSampler, const float batchId) {
         int size = textureSize(mapSampler, 0).x;
         return calcCoord(size, int(batchId));
       }
 
-      ivec2 getSampleCoord(const isampler2D mapSampler, const float batchId) {
+      ivec2 getISampleCoord(const isampler2D mapSampler, const float batchId) {
         int size = textureSize(mapSampler, 0).x;
         return calcCoord(size, int(batchId));
       }
@@ -75,7 +75,7 @@ THREE.ShaderChunk.skinning_pars_vertex =
 
       int getActiveMorphOffset() {
         float batchId = getIndirectIndex(gl_DrawID);
-        ivec2 mapIndexCoord = getSampleCoord(uActiveMorphs, batchId);
+        ivec2 mapIndexCoord = getISampleCoord(uActiveMorphs, batchId);
         return int(texelFetch(uActiveMorphs, mapIndexCoord, 0).x);
       }
 
@@ -299,6 +299,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     } else if (arrayDefault.length === 3) {
       format =
         type === THREE.FloatType ? THREE.RGBFormat : THREE.RGBIntegerFormat
+      console.error("RGBFormat is not supported anymore, use RGBAFormat instead.")
     } else if (arrayDefault.length === 4) {
       format =
         type === THREE.FloatType ? THREE.RGBAFormat : THREE.RGBAIntegerFormat
@@ -309,10 +310,8 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       data = new Float32Array(totalPixels * arrayDefault.length)
     } else if (type === THREE.IntType) {
       data = new Int32Array(totalPixels * arrayDefault.length)
-      console.warn("Int types for samplers might not work in windows.")
     } else if (type === THREE.UnsignedIntType) {
       data = new Uint32Array(totalPixels * arrayDefault.length)
-      console.warn("Uint types for samplers might not work in windows.")
     }
 
     if (!data) {
@@ -329,6 +328,7 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       format,
       type
     )
+
     texture.needsUpdate = true
     this.dataTextures.set(name, texture)
     return texture

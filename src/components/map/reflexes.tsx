@@ -25,7 +25,7 @@ function useReflexes(): Record<string, Texture> {
   const reflexes = useMemo(() => {
     return loadedMaps.reduce(
       (acc, map, index) => {
-        map.flipY = true
+        map.flipY = false
         map.colorSpace = NoColorSpace
         map.generateMipmaps = false
         map.minFilter = NearestFilter

@@ -22,6 +22,9 @@ export const useNavigationStore = create<{
   disableCameraTransition: boolean
   setDisableCameraTransition: (disable: boolean) => void
 
+  isCameraTransitioning: boolean
+  setIsCameraTransitioning: (isTransitioning: boolean) => void
+
   enteredByKeyboard: boolean
   setEnteredByKeyboard: (value: boolean) => void
 
@@ -51,6 +54,10 @@ export const useNavigationStore = create<{
   disableCameraTransition: false,
   setDisableCameraTransition: (disable) =>
     set({ disableCameraTransition: disable }),
+
+  isCameraTransitioning: false,
+  setIsCameraTransitioning: (isTransitioning) =>
+    set({ isCameraTransitioning: isTransitioning }),
 
   enteredByKeyboard: false,
   setEnteredByKeyboard: (value) => set({ enteredByKeyboard: value }),

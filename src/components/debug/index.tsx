@@ -1,4 +1,5 @@
 import { Leva } from "leva"
+import Head from "next/head"
 import { useSearchParams } from "next/navigation"
 import { memo, Suspense, useEffect, useState } from "react"
 

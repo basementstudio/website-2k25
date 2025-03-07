@@ -24,7 +24,7 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
   contactPhone: modelsItemFragment,
   arcade: arcadeFragment,
   scenes: sceneFragment,
-  car: carFragment,
+  outdoorCars: carFragment,
   characters: characterFragment,
   lamp: lampFragment
 })

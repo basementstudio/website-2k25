@@ -3,8 +3,7 @@ import { MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
-// TODO: this config is wrong for the fog transition
-import { ANIMATION_CONFIG } from "@/constants/inspectables"
+import { TRANSITION_DURATION } from "@/constants/transitions"
 
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
@@ -18,6 +17,10 @@ export const createGlobalShaderMaterial = (
     GLASS?: boolean
     GODRAY?: boolean
     LIGHT?: boolean
+    FOG?: boolean
+    VIDEO?: boolean
+    MATCAP?: boolean
+    CLOUDS?: boolean
   }
 ) => {
   const {
@@ -55,14 +58,14 @@ export const createGlobalShaderMaterial = (
     alphaMap: { value: alphaMap },
     emissive: { value: baseMaterial.emissive || new Vector3() },
     emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
-    fogColor: { value: new Vector3(0.4, 0.4, 0.4) },
+    fogColor: { value: new Vector3(0.2, 0.2, 0.2) },
     fogDensity: { value: 0.05 },
-    fogDepth: { value: 6.0 },
+    fogDepth: { value: 9.0 },
     glassReflex: { value: null },
     emissiveMap: { value: emissiveMap },
 
     uGodrayOpacity: { value: 0 },
-    uGodrayDensity: { value: 0 },
+    uGodrayDensity: { value: 1.0 },
     inspectingEnabled: { value: false },
     inspectingFactor: { value: 0 },
     fadeFactor: { value: 0 },
@@ -76,6 +79,11 @@ export const createGlobalShaderMaterial = (
     uniforms["lightDirection"] = { value: lightDirection }
   }
 
+  if (defines?.MATCAP) {
+    uniforms["matcap"] = { value: null }
+    uniforms["glassMatcap"] = { value: false }
+  }
+
   const material = new ShaderMaterial({
     name: GLOBAL_SHADER_MATERIAL_NAME,
     defines: {
@@ -85,9 +93,13 @@ export const createGlobalShaderMaterial = (
       USE_EMISSIVE:
         baseMaterial.emissiveIntensity !== 0 && emissiveMap === null,
       USE_EMISSIVEMAP: emissiveMap !== null,
-      GLASS: defines?.GLASS,
-      GODRAY: defines?.GODRAY,
-      LIGHT: Boolean(defines?.LIGHT)
+      GLASS: defines?.GLASS !== undefined ? Boolean(defines?.GLASS) : false,
+      GODRAY: defines?.GODRAY !== undefined ? Boolean(defines?.GODRAY) : false,
+      LIGHT: defines?.LIGHT !== undefined ? Boolean(defines?.LIGHT) : false,
+      FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
+      MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
+      VIDEO: defines?.VIDEO !== undefined ? Boolean(defines?.VIDEO) : false,
+      CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false
     },
     uniforms,
     transparent:
@@ -146,7 +158,9 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
       Object.values(materials).forEach((material) => {
         const startFogColor = material.uniforms.fogColor.value as Vector3
 
-        const config = !instant ? ANIMATION_CONFIG : { duration: 0 }
+        const config = !instant
+          ? { duration: TRANSITION_DURATION / 1000 }
+          : { duration: 0 }
 
         const axes: Array<"x" | "y" | "z"> = ["x", "y", "z"]
         axes.forEach((axis) => {

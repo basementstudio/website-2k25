@@ -2,17 +2,18 @@ import { animate } from "motion"
 import { useRef } from "react"
 
 import { useAssets } from "@/components/assets-provider"
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useCursor } from "@/hooks/use-mouse"
 
 export const LockedDoor = () => {
   const { blog } = useMesh()
   const { lockedDoor } = blog
 
   const scene = useCurrentScene()
-  const { setCursorType } = useMouseStore()
+  const setCursor = useCursor()
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
 
@@ -56,12 +57,12 @@ export const LockedDoor = () => {
               lockedDoor?.position.z + 0.09
             ]}
             rotation={[Math.PI / 2, 0, 0]}
-            onPointerEnter={() => setCursorType("click")}
-            onPointerLeave={() => setCursorType("default")}
+            onPointerEnter={() => setCursor("pointer")}
+            onPointerLeave={() => setCursor("default")}
             onClick={handleClick}
           >
             <cylinderGeometry args={[0.075, 0.075, 0.2, 32]} />
-            <meshStandardMaterial opacity={0} transparent />
+            <meshStandardMaterial opacity={0} transparent depthWrite={false} />
           </mesh>
         </group>
       )}

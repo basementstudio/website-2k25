@@ -49,6 +49,15 @@ export const mapFragment = fragmentOn("Map", {
       }
     }
   },
+  matcaps: {
+    items: {
+      _title: true,
+      file: {
+        url: true
+      },
+      isGlass: true
+    }
+  },
   videos: {
     items: {
       _title: true,
@@ -56,6 +65,16 @@ export const mapFragment = fragmentOn("Map", {
         url: true
       },
       intensity: true
+    }
+  },
+  glassMaterials: {
+    items: {
+      _title: true
+    }
+  },
+  doubleSideElements: {
+    items: {
+      _title: true
     }
   }
 })
@@ -80,6 +99,7 @@ export const inspectableFragment = fragmentOn("Inspectables", {
       },
       xOffset: true,
       yOffset: true,
+      xRotationOffset: true,
       sizeTarget: true,
       scenes: {
         _title: true
@@ -226,30 +246,11 @@ export const sceneFragment = fragmentOn("Scenes", {
   }
 })
 
-export const carFragment = fragmentOn("Car", {
-  carModel: {
-    url: true
-  },
-  dodgeOTexture: {
-    url: true
-  },
-  dodgeBTexture: {
-    url: true
-  },
-  deloreanTexture: {
-    url: true
-  },
-  nissanTexture: {
-    url: true
-  },
-  simpsonsTexture: {
-    url: true
-  },
-  knightRiderTexture: {
-    url: true
-  },
-  misteryTexture: {
-    url: true
+export const carFragment = fragmentOn("OutdoorCars", {
+  model: {
+    file: {
+      url: true
+    }
   }
 })
 

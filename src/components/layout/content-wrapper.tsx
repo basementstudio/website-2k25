@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation"
 import { Suspense, useMemo } from "react"
 import dynamic from "next/dynamic"
-import { Grid } from "@/components/grid"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 
 const Scene = dynamic(
@@ -13,6 +12,9 @@ const Scene = dynamic(
     loading: () => null
   }
 )
+import { cn } from "@/utils/cn"
+
+import { ScrollDown } from "../primitives/scroll-down"
 
 const BLACKLISTED_PATHS = [
   /^\/blog\/\d+$/,
@@ -29,17 +31,24 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      {shouldShowCanvas && (
-        <div className="canvas-container sticky top-0 h-screen w-full">
-          <Suspense fallback={null}>
-            <Scene />
-          </Suspense>
-          <Grid />
-          <InspectableViewer />
-        </div>
-      )}
+      <div
+        className={cn(
+          "canvas-container sticky top-0 h-screen w-full lg:fixed",
+          !shouldShowCanvas && "pointer-events-none invisible opacity-0"
+        )}
+      >
+        <Suspense fallback={null}>
+          <Scene />
+        </Suspense>
+        <InspectableViewer />
+        <ScrollDown />
+      </div>
 
-      <div className="layout-container">{children}</div>
+      <div
+        className={cn("layout-container", shouldShowCanvas && "lg:mt-[100dvh]")}
+      >
+        {children}
+      </div>
     </>
   )
 }

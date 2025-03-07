@@ -1,8 +1,8 @@
 import { useMesh } from "@/hooks/use-mesh"
 
 import { Button } from "./button"
-import { Stick } from "./stick"
 import CoffeeSteam from "./coffee-steam"
+import { Stick } from "./stick"
 
 export const ArcadeBoard = () => {
   const { arcade } = useMesh()

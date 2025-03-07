@@ -1,13 +1,15 @@
 import { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
-import { useRef, useState, useEffect, useCallback } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useArcadeStore } from "@/store/arcade-store"
 
+import { checkSequence } from "./check-sequence"
 import {
   ArrowKey,
   BOARD_ANGLE,
@@ -16,12 +18,10 @@ import {
   MIN_OFFSET,
   STICK_ANIMATION
 } from "./constants"
-import { useArcadeStore } from "@/store/arcade-store"
-import { checkSequence } from "./check-sequence"
+import { useCursor } from "@/hooks/use-mouse"
 
 export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const scene = useCurrentScene()
-  const { setCursorType } = useMouseStore()
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
   const setIsInGame = useArcadeStore((state) => state.setIsInGame)
@@ -36,6 +36,8 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
 
   const { setLabTabIndex, setIsInLabTab, setIsSourceButtonSelected } =
     useArcadeStore()
+
+  const setCursor = useCursor()
 
   const handleStickSound = (isRelease: boolean) => {
     if (state.current !== 0) {
@@ -168,7 +170,7 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
   const handleGrabStick = () => {
     if (scene !== "lab" && !isInGame) return
     setStickIsGrabbed(true)
-    setCursorType("grabbing")
+    setCursor("grabbing")
   }
 
   const handleReleaseStick = () => {
@@ -332,25 +334,25 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
           stick.position.z + 0.07 * Math.cos((BOARD_ANGLE * Math.PI) / 180)
         ]}
         rotation={[(16 * Math.PI) / 180, 0, 0]}
-        onPointerEnter={() => setCursorType("grab")}
+        onPointerEnter={() => setCursor("grab")}
         onPointerLeave={() => {
           if (!stickIsGrabbed) {
             handleReleaseStick()
-            setCursorType("default")
+            setCursor("default")
           }
         }}
         onPointerDown={() => handleGrabStick()}
         onPointerUp={() => {
           handleReleaseStick()
-          setCursorType(state.current === 0 ? "grab" : "default")
+          setCursor(state.current === 0 ? "grab" : "default")
         }}
         onPointerCancel={() => {
           handleReleaseStick()
-          setCursorType("default")
+          setCursor("default")
         }}
       >
         <cylinderGeometry args={[0.02, 0.02, 0.06, 12]} />
-        <meshBasicMaterial opacity={0} transparent />
+        <meshBasicMaterial opacity={0} transparent depthWrite={false} />
       </mesh>
       <mesh
         position={[
@@ -366,24 +368,24 @@ export const Stick = ({ stick, offsetX }: { stick: Mesh; offsetX: number }) => {
         onPointerUp={(e) => {
           if (stickIsGrabbed) {
             handleReleaseStick()
-            setCursorType(state.current === 0 ? "grab" : "default")
+            setCursor(state.current === 0 ? "grab" : "default")
           }
         }}
         onPointerLeave={(e) => {
           if (stickIsGrabbed) {
             handleReleaseStick()
-            setCursorType("default")
+            setCursor("default")
           }
         }}
         onPointerCancel={(e) => {
           if (stickIsGrabbed) {
             handleReleaseStick()
-            setCursorType("default")
+            setCursor("default")
           }
         }}
       >
         <sphereGeometry args={[0.2, 12, 12]} />
-        <meshBasicMaterial opacity={0} transparent />
+        <meshBasicMaterial opacity={0} transparent depthWrite={false} />
       </mesh>
     </group>
   )

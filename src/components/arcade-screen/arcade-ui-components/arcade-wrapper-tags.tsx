@@ -1,24 +1,22 @@
 import { Container, Text } from "@react-three/uikit"
 import { useCallback, useEffect, useState } from "react"
 
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
 
 import { COLORS_THEME } from "../screen-ui"
 import { useArcadeStore } from "@/store/arcade-store"
+import { useCursor } from "@/hooks/use-mouse"
 
 export const ArcadeWrapperTags = () => {
-  const setCursorType = useMouseStore((state) => state.setCursorType)
-
   const { handleNavigation } = useHandleNavigation()
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
   const setCurrentTabIndex = useNavigationStore(
     (state) => state.setCurrentTabIndex
   )
-
+  const setCursor = useCursor()
   const handleClose = useCallback(() => {
     handleNavigation("/")
     setCurrentTabIndex(-1)
@@ -56,10 +54,10 @@ export const ArcadeWrapperTags = () => {
         onClick={() => handleClose()}
         onHoverChange={(hover) => {
           if (hover) {
-            setCursorType("click")
+            setCursor("pointer")
             setHoverClose(true)
           } else {
-            setCursorType("default")
+            setCursor("default")
             setHoverClose(false)
           }
         }}

@@ -1,5 +1,7 @@
 import { fragmentOn } from "basehub"
 
+import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
+
 export const query = fragmentOn("Query", {
   pages: {
     blog: {
@@ -48,7 +50,8 @@ export const query = fragmentOn("Query", {
                     }
                   },
                   author: true,
-                  role: true
+                  role: true,
+                  avatar: IMAGE_FRAGMENT
                 },
                 on_CodeSandboxComponent: {
                   __typename: true,
@@ -66,6 +69,12 @@ export const query = fragmentOn("Query", {
                       content: true
                     }
                   }
+                },
+                on_TweetComponent: {
+                  __typename: true,
+                  _id: true,
+
+                  tweetId: true
                 }
               }
             }

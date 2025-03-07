@@ -14,10 +14,10 @@ import {
   Vector3
 } from "three"
 
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useCursor } from "@/hooks/use-mouse"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 
 import { useInspectable } from "./context"
@@ -29,6 +29,7 @@ interface InspectableProps {
   position: { x: number; y: number; z: number }
   xOffset: number
   yOffset: number
+  xRotationOffset: number
   sizeTarget: number
   scenes: string[]
 }
@@ -39,6 +40,7 @@ export const Inspectable = ({
   position,
   xOffset,
   yOffset,
+  xRotationOffset,
   sizeTarget,
   scenes
 }: InspectableProps) => {
@@ -47,9 +49,9 @@ export const Inspectable = ({
   const { selected } = useInspectable()
   const { setSelected } = useInspectable()
   const camera = useThree((state) => state.camera) as PerspectiveCamera
-  const setCursorType = useMouseStore((state) => state.setCursorType)
-  const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
 
+  const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
+  const setCursor = useCursor()
   const perpendicularMoved = useRef(new Vector3())
 
   const size = useRef({ x: 0, y: 0, z: 0 })
@@ -196,7 +198,7 @@ export const Inspectable = ({
 
         targetQuaternion.setFromRotationMatrix(lookAtMatrix)
         const q = new Quaternion()
-        q.setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
+        q.setFromAxisAngle(vRef.upVector, -Math.PI / 2 + xRotationOffset)
         targetQuaternion.multiply(q)
 
         const direction = new Vector3()
@@ -244,7 +246,7 @@ export const Inspectable = ({
           e.stopPropagation()
           return
         }
-        setCursorType("grab")
+        setCursor("grab")
         handleSelection()
       }}
       onPointerEnter={(e) => {
@@ -253,8 +255,8 @@ export const Inspectable = ({
           !scenes.some((scene) => scene === currentScene)
         )
           return
-        if (!selected) setCursorType("zoom")
-        else if (selected === id) setCursorType("grab")
+        if (!selected) setCursor("zoom-in")
+        else if (selected === id) setCursor("grab")
       }}
       onPointerLeave={() => {
         if (
@@ -262,7 +264,7 @@ export const Inspectable = ({
           !scenes.some((scene) => scene === currentScene)
         )
           return
-        if (!selected) setCursorType("default")
+        if (!selected) setCursor("default")
       }}
     >
       <InspectableDragger
@@ -282,7 +284,7 @@ export const Inspectable = ({
           <boxGeometry
             args={[size.current.x, size.current.y, size.current.z]}
           />
-          <meshBasicMaterial opacity={0} transparent />
+          <meshBasicMaterial opacity={0} transparent depthWrite={false} />
         </mesh>
       </InspectableDragger>
     </group>

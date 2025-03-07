@@ -162,3 +162,47 @@ a:focus {
     }
   }
 }
+
+/* tweet component */
+
+.react-tweet-theme {
+  --tweet-bg-color: theme("colors.brand.k") !important;
+  --tweet-bg-color-hover: rgba(255, 255, 255, 0.05) !important;
+  --tweet-border: 1px solid theme("colors.brand.g2") !important;
+  --tweet-color-blue-secondary-hover: rgba(255, 255, 255, 0.05) !important;
+  --tweet-skeleton-gradient: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  ) !important;
+
+  max-width: 100% !important;
+  border-radius: 0 !important;
+
+  & div[class*="media"],
+  & div[class*="replies"] {
+    border-radius: 0 !important;
+
+    & > a {
+      border-radius: 0 !important;
+    }
+  }
+}
+
+.stacked-card {
+  animation-name: progressiveOpacity;
+  animation-duration: 1ms; /* Firefox requires this to apply the animation */
+  animation-fill-mode: forwards;
+  animation-timeline: view(block);
+  animation-range: entry 0% cover 38%;
+}
+
+@keyframes progressiveOpacity {
+  0% {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    background-color: rgba(0, 0, 0, 1);
+  }
+}

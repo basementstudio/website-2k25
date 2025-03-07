@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import { RichText } from "@/components/primitives/rich-text"
 
 import { QueryType } from "./query"
@@ -19,13 +21,20 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
       <div className="grid-layout relative col-span-full mt-16 !hidden !gap-x-4 !px-0 lg:!grid">
         <div className="absolute inset-x-0 top-9 h-px w-full bg-brand-w1/30" />
 
-        <div className="col-start-3 col-end-11 grid grid-cols-8 gap-2">
+        <div className="col-start-3 col-end-11 grid grid-cols-8 gap-6">
           {categories.map((c) => (
             <div
               key={c._title}
               className="col-span-2 mt-1.25 flex flex-col gap-y-6 text-brand-w1"
             >
-              <h4 className="actionable text-h4">{c._title}</h4>
+              <h4 className="text-h4">
+                <Link
+                  className="actionable"
+                  href={`/showcase?category=${encodeURIComponent(c._title)}`}
+                >
+                  {c._title}
+                </Link>
+              </h4>
 
               <p className="-mt-1 text-h4">{c.description}</p>
 

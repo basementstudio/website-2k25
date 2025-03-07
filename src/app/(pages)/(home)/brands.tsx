@@ -1,13 +1,18 @@
 "use client"
 import Link from "next/link"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 
+import { ExternalLinkIcon } from "@/components/icons/icons"
 import { Arrow } from "@/components/primitives/icons/arrow"
+import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
+import { cn } from "@/utils/cn"
 
 import { QueryType } from "./query"
 
 export const Brands = ({ data }: { data: QueryType }) => {
+  const [hoveredBrand, setHoveredBrand] = useState<string | null>(null)
+  const debouncedHoveredBrand = useDebounceValue(hoveredBrand, 50)
   const isDesktop = useMedia("(min-width: 1024px)")
   const isTablet = useMedia("(min-width: 768px)")
 
@@ -29,12 +34,24 @@ export const Brands = ({ data }: { data: QueryType }) => {
     }, [])
   }, [data.company.clients?.clientList.items, isDesktop, isTablet])
 
+  const hoveredBrandData = useMemo(() => {
+    return data.company.clients?.clientList.items.find(
+      (c) => c._id === debouncedHoveredBrand
+    )
+  }, [data.company.clients?.clientList.items, debouncedHoveredBrand])
+
   return (
     <section className="grid-layout !gap-y-0">
       <div className="grid-layout col-span-full !px-0">
         <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-6 lg:text-h3">
           Trusted by Visionaries
         </h3>
+
+        {hoveredBrandData && isDesktop ? (
+          <h4 className="mb-2 inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:col-start-6 lg:col-end-9 lg:text-h3">
+            {hoveredBrandData._title} <ExternalLinkIcon className="size-4" />
+          </h4>
+        ) : null}
 
         <div className="col-span-12 h-px w-full bg-brand-w1/30" />
       </div>
@@ -52,7 +69,15 @@ export const Brands = ({ data }: { data: QueryType }) => {
                   target="_blank"
                   key={brand._id}
                   dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
-                  className="[&>svg]:w-16 sm:[&>svg]:w-auto"
+                  className={cn(
+                    "transition-opacity duration-300 [&>svg]:w-16 sm:[&>svg]:w-auto",
+                    {
+                      "opacity-50": debouncedHoveredBrand !== brand._id,
+                      "opacity-100": debouncedHoveredBrand === null
+                    }
+                  )}
+                  onMouseEnter={() => setHoveredBrand(brand._id)}
+                  onMouseLeave={() => setHoveredBrand(null)}
                 />
               ))}
             </div>

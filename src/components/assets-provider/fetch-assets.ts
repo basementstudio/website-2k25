@@ -16,6 +16,13 @@ export interface AssetsResult {
     ambientOcclusion: string
     meshes: string[]
   }[]
+  matcaps: {
+    mesh: string
+    file: string
+    isGlass: boolean
+  }[]
+  glassMaterials: string[]
+  doubleSideElements: string[]
   arcade: {
     idleScreen: string
     placeholderLab: string
@@ -39,6 +46,7 @@ export interface AssetsResult {
     mesh: string
     xOffset: number
     yOffset: number
+    xRotationOffset: number
     sizeTarget: number
     scenes: string[]
   }[]
@@ -113,17 +121,8 @@ export interface AssetsResult {
       bloomThreshold: number
     }
   }[]
-  car: {
-    carModel: string
-    textures: {
-      dodgeOTexture: string
-      dodgeBTexture: string
-      deloreanTexture: string
-      nissanTexture: string
-      simpsonsTexture: string
-      knightRiderTexture: string
-      misteryTexture: string
-    }
+  outdoorCars: {
+    model: string
   }
   characters: {
     model: string
@@ -150,7 +149,22 @@ export async function fetchAssets(): Promise<AssetsResult> {
       ambientOcclusion: item.ambientOcclusion?.url ?? "",
       meshes: item.meshes.items.map((mesh) => mesh._title)
     })),
+    glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
+      mesh: item._title,
+      url: item.file?.url ?? ""
+    })),
+    matcaps: threeDInteractions.map.matcaps.items.map((item) => ({
+      mesh: item._title,
+      file: item.file?.url ?? "",
+      isGlass: item.isGlass ?? false
+    })),
     routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
+    glassMaterials: threeDInteractions.map.glassMaterials.items.map(
+      (item) => item._title
+    ),
+    doubleSideElements: threeDInteractions.map.doubleSideElements.items.map(
+      (item) => item._title
+    ),
     arcade: {
       idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "",
       placeholderLab: threeDInteractions.arcade.placeholderLab?.url ?? "",
@@ -158,10 +172,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
       chronicles: threeDInteractions.arcade.chronicles?.url ?? "",
       looper: threeDInteractions.arcade.looper?.url ?? ""
     },
-    glassReflexes: threeDInteractions.map.glassReflexes.items.map((item) => ({
-      mesh: item._title,
-      url: item.file?.url ?? ""
-    })),
     videos: threeDInteractions.map.videos.items.map((item) => ({
       mesh: item._title,
       url: item.file?.url ?? "",
@@ -179,6 +189,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
       mesh: item.mesh ?? "",
       xOffset: item.xOffset ?? 0,
       yOffset: item.yOffset ?? 0,
+      xRotationOffset: item.xRotationOffset ?? 0,
       sizeTarget: item.sizeTarget ?? 0,
       scenes: item.scenes?.map((item) => item._title) ?? []
     })),
@@ -214,19 +225,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
           press: item.press?.url ?? "",
           release: item.release?.url ?? ""
         }))
-      }
-    },
-    car: {
-      carModel: threeDInteractions.car.carModel?.url ?? "",
-      textures: {
-        dodgeOTexture: threeDInteractions.car.dodgeOTexture?.url ?? "",
-        dodgeBTexture: threeDInteractions.car.dodgeBTexture?.url ?? "",
-        deloreanTexture: threeDInteractions.car.deloreanTexture?.url ?? "",
-        nissanTexture: threeDInteractions.car.nissanTexture?.url ?? "",
-        simpsonsTexture: threeDInteractions.car.simpsonsTexture?.url ?? "",
-        knightRiderTexture:
-          threeDInteractions.car.knightRiderTexture?.url ?? "",
-        misteryTexture: threeDInteractions.car.misteryTexture?.url ?? ""
       }
     },
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
@@ -278,6 +276,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
       model: threeDInteractions.characters.model.file?.url ?? "",
       textureBody: threeDInteractions.characters.textureBody?.url,
       textureFaces: threeDInteractions.characters.textureFaces?.url
+    },
+    outdoorCars: {
+      model: threeDInteractions.outdoorCars.model?.file?.url ?? ""
     },
     lamp: {
       extraLightmap: threeDInteractions.lamp.extraLightmap?.url ?? ""

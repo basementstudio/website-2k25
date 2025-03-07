@@ -2,7 +2,7 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { folder as levaFolder, useControls } from "leva"
+import { useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
@@ -24,12 +24,13 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
-import Cars from "@/components/cars/cars"
 import { useInspectable } from "@/components/inspectables/context"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { OutdoorCars } from "@/components/outdoor-cars"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
@@ -87,11 +88,6 @@ const createVideoTexture = (url: string) => {
 
 type SceneType = Object3D<Object3DEventMap> | null
 
-// Constants moved outside component
-const STAIRS_VISIBILITY_THRESHOLD = 1.8
-const frustum = new THREE.Frustum()
-const projScreenMatrix = new THREE.Matrix4()
-
 export const Map = memo(() => {
   const {
     office: officePath,
@@ -99,28 +95,32 @@ export const Map = memo(() => {
     godrays: godraysPath,
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
+    inspectables: inspectableAssets,
     videos,
-    car,
-    scenes
+    scenes,
+    outdoorCars,
+    matcaps,
+    glassMaterials,
+    doubleSideElements
   } = useAssets()
   const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
-  const mainCamera = useNavigationStore((state) => state.mainCamera)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
+  const { scene: outdoorCarsModel } = useGLTF(
+    outdoorCars.model
+  ) as unknown as GLTFResult
   const { scene: basketballNetModel } = useGLTF(basketballNetPath)
   const { scene: routingElementsModel } = useGLTF(
     routingElementsPath
   ) as unknown as GLTFResult
-  const { scene: carV5 } = useGLTF(car.carModel) as unknown as GLTFResult
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
   const [godrayScene, setGodrayScene] = useState<SceneType>(null)
 
-  const { inspectables: inspectableAssets } = useAssets()
   const { selected } = useInspectable()
 
   const [godrays, setGodrays] = useState<Mesh[]>([])
@@ -131,28 +131,15 @@ export const Map = memo(() => {
   )
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
-  const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
+  const [net, setNet] = useState<Mesh | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
   const timeRef = useRef(0)
 
-  const stairsRef = useRef<Mesh | null>(null)
-  const colorPickerRef = useRef<Mesh>(null)
-  const { showColorPicker } = useControls({
-    "Color picker": levaFolder(
-      {
-        showColorPicker: false
-      },
-      {
-        collapsed: true
-      }
-    )
-  })
-
-  const { opacity } = useControls("God Rays", {
-    opacity: {
-      value: 0.75,
+  const { godrayOpacity } = useControls("God Rays", {
+    godrayOpacity: {
+      value: 1.25,
       min: 0.0,
       max: 5.0,
       step: 0.001
@@ -177,11 +164,6 @@ export const Map = memo(() => {
   useFrame(({ clock }) => {
     timeRef.current = clock.getElapsedTime()
 
-    godrays.forEach((mesh) => {
-      // @ts-ignore
-      mesh.material.uniforms.uGodrayDensity.value = opacity
-    })
-
     Object.values(shaderMaterialsRef).forEach((material) => {
       material.uniforms.uTime.value = clock.getElapsedTime()
 
@@ -195,31 +177,10 @@ export const Map = memo(() => {
         clock.getElapsedTime()
     }
 
-    if (keyframedNet && isAnimating.current) {
-      const mesh = keyframedNet as Mesh
-      animationProgress.current += NET_ANIMATION_SPEED
-      isAnimating.current = animateNet(mesh, animationProgress.current)
-    }
-
-    if (colorPickerRef.current) {
+    godrays.forEach((mesh) => {
       // @ts-ignore
-      colorPickerRef.current.material.uniforms.opacity.value = showColorPicker
-        ? 1.0
-        : 0.0
-    }
-
-    if (!stairsRef.current || !mainCamera) return
-
-    projScreenMatrix.multiplyMatrices(
-      mainCamera.projectionMatrix,
-      mainCamera.matrixWorldInverse
-    )
-    frustum.setFromProjectionMatrix(projScreenMatrix)
-
-    const distance = mainCamera.position.distanceTo(stairsRef.current.position)
-    stairsRef.current.visible =
-      distance > STAIRS_VISIBILITY_THRESHOLD ||
-      frustum.containsPoint(stairsRef.current.position)
+      mesh.material.uniforms.uGodrayDensity.value = godrayOpacity
+    })
   })
 
   useEffect(() => {
@@ -264,118 +225,81 @@ export const Map = memo(() => {
     const originalNet = officeModel?.getObjectByName("SM_BasketRed")
     const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
 
-    if (originalNet?.parent) {
-      originalNet.removeFromParent()
-    }
-
     if (newNetMesh?.parent) {
       newNetMesh.removeFromParent()
-      setKeyframedNet(newNetMesh)
     }
 
-    const car = carV5?.children.find((child) => child.name === "CAR") as Mesh
-    const backWheel = carV5?.children.find(
-      (child) => child.name === "BACK-WHEEL"
-    ) as Mesh
-    const frontWheel = carV5?.children.find(
-      (child) => child.name === "FRONT-WHEEL"
-    ) as Mesh
-
-    if (backWheel && car && frontWheel) {
-      useMesh.setState({
-        carMeshes: { backWheel, car, frontWheel }
-      })
+    if (originalNet?.parent) {
+      originalNet.removeFromParent()
+      setNet(originalNet as Mesh)
     }
 
-    const traverse = (child: Object3D) => {
-      if (child.name === "SM_StairsFloor" && child instanceof THREE.Mesh) {
-        child.material.side = THREE.FrontSide
-      }
+    const traverse = (
+      child: Object3D,
+      overrides?: { FOG?: boolean; GODRAY?: boolean }
+    ) => {
+      if (child.name === "SM_TvScreen_4" && "isMesh" in child) {
+        const meshChild = child as Mesh
+        useMesh.setState({ cctv: { screen: meshChild } })
+        const texture = cctvConfig.renderTarget.read.texture
 
-      if (child.name === "SM_Stair3" && child instanceof THREE.Mesh) {
-        stairsRef.current = child
+        const diffuseUniform = {
+          value: texture
+        }
+
+        cctvConfig.renderTarget.onSwap(() => {
+          diffuseUniform.value = cctvConfig.renderTarget.read.texture
+        })
+
+        meshChild.material = new THREE.ShaderMaterial({
+          side: THREE.FrontSide,
+          uniforms: {
+            tDiffuse: diffuseUniform,
+            uTime: { value: timeRef.current },
+            resolution: { value: new THREE.Vector2(1024, 1024) }
+          },
+          vertexShader: `
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: notFoundFrag
+        })
+        return
       }
 
       if ("isMesh" in child) {
         const meshChild = child as Mesh
 
-        if (meshChild.name === "SM_ColorChecker_")
-          colorPickerRef.current = meshChild
-
         const alreadyReplaced = meshChild.userData.hasGlobalMaterial
         if (alreadyReplaced) return
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
+
+        const withVideo = videos.find((video) => video.mesh === meshChild.name)
+        const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
+        const isClouds = meshChild.name === "cloudy_01"
+        const isGlass = glassMaterials.includes(currentMaterial.name)
+
+        // TODO: Implement simple side once we finish the entire scene
+        // currentMaterial.side = doubleSideElements.includes(meshChild.name)
+        //   ? THREE.DoubleSide
+        //   : THREE.FrontSide
+
+        if (withVideo) {
+          const videoTexture = createVideoTexture(withVideo.url)
+          currentMaterial.map = videoTexture
+          currentMaterial.map.flipY = false
+          currentMaterial.emissiveMap = videoTexture
+          currentMaterial.emissiveIntensity = withVideo.intensity
+        }
+
         if (currentMaterial.map) {
           currentMaterial.map.generateMipmaps = false
           currentMaterial.map.magFilter = THREE.NearestFilter
           currentMaterial.map.minFilter = THREE.NearestFilter
-        }
-
-        const video = videos.find((video) => video.mesh === meshChild.name)
-
-        if (meshChild.name === "SM_TvScreen_4") {
-          useMesh.setState({ cctv: { screen: meshChild } })
-          const texture = cctvConfig.renderTarget.read.texture
-
-          const diffuseUniform = {
-            value: texture
-          }
-
-          cctvConfig.renderTarget.onSwap(() => {
-            diffuseUniform.value = cctvConfig.renderTarget.read.texture
-          })
-
-          meshChild.material = new THREE.ShaderMaterial({
-            side: THREE.DoubleSide,
-            uniforms: {
-              tDiffuse: diffuseUniform,
-              uTime: { value: timeRef.current },
-              resolution: { value: new THREE.Vector2(1024, 1024) }
-            },
-            vertexShader: `
-              varying vec2 vUv;
-              void main() {
-                vUv = uv;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-              }
-            `,
-            fragmentShader: notFoundFrag
-          })
-          return
-        }
-
-        if (video) {
-          const videoTexture = createVideoTexture(video.url)
-
-          currentMaterial.map = videoTexture
-          currentMaterial.map.flipY = false
-
-          currentMaterial.map.generateMipmaps = false
-          currentMaterial.map.magFilter = THREE.NearestFilter
-          currentMaterial.map.minFilter = THREE.NearestFilter
-
-          currentMaterial.emissiveMap = videoTexture
-          currentMaterial.emissiveIntensity = video.intensity
-          currentMaterial.emissiveMap.generateMipmaps = false
-          currentMaterial.emissiveMap.magFilter = THREE.NearestFilter
-          currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
-        }
-
-        const isGlass =
-          currentMaterial.name === "BSM_MTL_Glass" ||
-          currentMaterial.name === "BSM_MTL_LightLibrary" ||
-          currentMaterial.name === "BSM-MTL-Backup" ||
-          currentMaterial.name === "MTL_LightBox"
-
-        const isPlant = meshChild.name === "SM_plant01001"
-
-        if (isPlant) {
-          currentMaterial.userData.lightDirection = new Vector3(
-            0,
-            3,
-            1
-          ).normalize()
         }
 
         const newMaterials = Array.isArray(currentMaterial)
@@ -385,8 +309,12 @@ export const Map = memo(() => {
                 false,
                 {
                   GLASS: isGlass,
-                  GODRAY: false,
-                  LIGHT: isPlant
+                  LIGHT: false,
+                  GODRAY: overrides?.GODRAY,
+                  FOG: overrides?.FOG,
+                  MATCAP: withMatcap !== undefined,
+                  VIDEO: withVideo !== undefined,
+                  CLOUDS: isClouds
                 }
               )
             )
@@ -395,73 +323,83 @@ export const Map = memo(() => {
               false,
               {
                 GLASS: isGlass,
-                GODRAY: false,
-                LIGHT: isPlant
+                LIGHT: false,
+                GODRAY: overrides?.GODRAY,
+                FOG: overrides?.FOG,
+                MATCAP: withMatcap !== undefined,
+                VIDEO: withVideo !== undefined,
+                CLOUDS: isClouds
               }
             )
+
+        if (isGlass) {
+          Array.isArray(newMaterials)
+            ? newMaterials.forEach((material) => {
+                material.depthWrite = false
+              })
+            : (newMaterials.depthWrite = false)
+        }
 
         meshChild.material = newMaterials
 
         meshChild.userData.hasGlobalMaterial = true
+
+        // Homepage Floor
+        if (child.name === "SM_03_03" && child instanceof THREE.Mesh) {
+          child.material.side = THREE.FrontSide
+        }
+
+        // Homepage Stairs
+        if (child.name === "SM_03_01" && child instanceof THREE.Mesh) {
+          child.material.side = THREE.FrontSide
+        }
       }
     }
 
     officeModel.traverse((child) => traverse(child))
 
-    routingElementsModel.traverse((child) => traverse(child))
+    routingElementsModel.traverse((child) => traverse(child, { FOG: false }))
 
-    outdoorModel.traverse((child) => traverse(child))
+    outdoorModel.traverse((child) => traverse(child, { FOG: false }))
+
+    godrayModel.traverse((child) => traverse(child, { GODRAY: true }))
 
     godrayModel.traverse((child) => {
-      if ("isMesh" in child) {
-        const meshChild = child as Mesh
-        const alreadyReplaced = meshChild.userData.hasGlobalMaterial
-        if (alreadyReplaced) return
-
-        const currentMaterial = meshChild.material as MeshStandardMaterial
-
-        if (currentMaterial.map) {
-          currentMaterial.map.generateMipmaps = false
-          currentMaterial.map.magFilter = THREE.NearestFilter
-          currentMaterial.map.minFilter = THREE.NearestFilter
-        }
-
-        const newMaterials = Array.isArray(currentMaterial)
-          ? currentMaterial.map((material) =>
-              createGlobalShaderMaterial(
-                material as MeshStandardMaterial,
-                false,
-                {
-                  GODRAY: true
-                }
-              )
-            )
-          : createGlobalShaderMaterial(
-              currentMaterial as MeshStandardMaterial,
-              false,
-              {
-                GODRAY: true
-              }
-            )
-
-        meshChild.material = newMaterials
-        meshChild.userData.hasGlobalMaterial = true
-        setGodrays((prev) => [...prev, meshChild])
-      }
+      if (child instanceof Mesh) setGodrays((prev) => [...prev, child])
     })
 
     setOfficeScene(officeModel)
     setOutdoorScene(outdoorModel)
     setGodrayScene(godrayModel)
 
-    const hoopMesh = officeModel.getObjectByName(
-      "SM_BasketballHoop"
-    ) as Mesh | null
+    const hoop = officeModel.getObjectByName("SM_BasketballHoop")
+    const hoopGlass = officeModel.getObjectByName("SM_BasketballGlass")
 
-    if (hoopMesh) {
-      hoopMesh.removeFromParent()
-      hoopMesh.raycast = () => null
-      useMesh.setState({ hoopMesh })
+    if (hoop) {
+      hoop.raycast = () => null
+
+      if (hoop instanceof Mesh) {
+        hoop.visible = true
+
+        if (!hoop.userData.originalMaterial) {
+          hoop.userData.originalMaterial = hoop.material
+        }
+      }
+
+      if (hoopGlass instanceof Mesh) {
+        hoopGlass.visible = true
+
+        if (!hoopGlass.userData.originalMaterial) {
+          hoopGlass.userData.originalMaterial = hoopGlass.material
+        }
+      }
+
+      useMesh.setState({
+        hoopMeshes: {
+          hoop: hoop as Mesh,
+          hoopGlass: hoopGlass as Mesh
+        }
+      })
     }
 
     const inspectables = useMesh.getState().inspectableMeshes
@@ -535,6 +473,21 @@ export const Map = memo(() => {
       })
     }
 
+    outdoorCarsModel.traverse((child) => traverse(child, { FOG: false }))
+    if (
+      !useMesh.getState().outdoorCarsMeshes ||
+      Object.keys(useMesh.getState().outdoorCarsMeshes).length === 0
+    ) {
+      const outdoorCarsMeshes: (Mesh | null)[] = []
+
+      outdoorCarsModel.children.forEach((child) => {
+        if (child instanceof Mesh) {
+          outdoorCarsMeshes.push(child)
+        }
+      })
+      useMesh.setState({ outdoorCarsMeshes })
+    }
+
     if (
       !useMesh.getState().blog.lockedDoor &&
       !useMesh.getState().blog.door &&
@@ -554,7 +507,7 @@ export const Map = memo(() => {
         z: door.rotation.z
       }
 
-      const lamp = officeModel?.getObjectByName("Cube002") as Mesh
+      const lamp = officeModel?.getObjectByName("SM_LightMeshBlog") as Mesh
 
       if (lockedDoor?.parent) lockedDoor.removeFromParent()
       if (door?.parent) door.removeFromParent()
@@ -577,6 +530,7 @@ export const Map = memo(() => {
     disableRaycasting(officeModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
+    disableRaycasting(outdoorCarsModel)
   }, [
     inspectableAssets,
     officeModel,
@@ -586,7 +540,7 @@ export const Map = memo(() => {
     routingElementsModel,
     videos,
     currentScene,
-    carV5
+    outdoorCars
   ])
 
   useEffect(() => {
@@ -618,7 +572,7 @@ export const Map = memo(() => {
           <Lamp />
         </PhysicsWorld>
       </Suspense>
-
+      <OutdoorCars />
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
           (tab) => tab.tabClickableName === node.name
@@ -639,16 +593,12 @@ export const Map = memo(() => {
           />
         )
       })}
-      {scene !== "basketball" && useMesh.getState().hoopMesh && (
-        <primitive object={useMesh.getState().hoopMesh as Mesh} />
+      {useMesh.getState().hoopMeshes.hoop && (
+        <primitive object={useMesh.getState().hoopMeshes.hoop as Mesh} />
       )}
-      {keyframedNet && <primitive object={keyframedNet} />}
+      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
       <BakesLoader />
       <ReflexesLoader />
-
-      <Suspense fallback={null}>
-        <Cars />
-      </Suspense>
     </group>
   )
 })

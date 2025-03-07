@@ -9,14 +9,17 @@ const Toolbar = BasehubToolbar as unknown as React.ComponentType
 
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { Suspense } from "react"
 
 import Contact from "@/components/contact/contact"
+import { ReactScan } from "@/components/debug/react-scan"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { ContentWrapper } from "@/components/layout/content-wrapper"
 import { Navbar } from "@/components/layout/navbar"
 import AppLoadingHandler from "@/components/loading/app-loading-handler"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
+import { PathnameProvider } from "@/hooks/use-watch-pathname"
 import LenisScrollProvider from "@/providers/lenis-provider"
 import AppHooks from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
@@ -46,6 +49,11 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
+      <Suspense fallback={null}>
+        <head>
+          <ReactScan />
+        </head>
+      </Suspense>
       <Transitions />
       <Toolbar />
       <AssetsProvider assets={assets}>
@@ -55,13 +63,15 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
           >
             <AppLoadingHandler />
             <LenisScrollProvider>
-              <Navbar />
+              <PathnameProvider>
+                <Navbar />
 
-              <NavigationHandler />
+                <NavigationHandler />
 
-              <ContentWrapper>{children}</ContentWrapper>
-              <AppHooks />
-              <Contact />
+                <ContentWrapper>{children}</ContentWrapper>
+                <AppHooks />
+                <Contact />
+              </PathnameProvider>
             </LenisScrollProvider>
           </body>
         </InspectableProvider>

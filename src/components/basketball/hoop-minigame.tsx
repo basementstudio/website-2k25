@@ -2,6 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
+import * as THREE from "three"
 
 import {
   handlePointerDown as utilsHandlePointerDown,
@@ -16,7 +17,6 @@ import { easeInOutCubic } from "@/utils/animations"
 
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
-import { Trajectory } from "./trajectory"
 
 export const HoopMinigame = () => {
   const { playSoundFX } = useSiteAudio()
@@ -440,17 +440,42 @@ export const HoopMinigame = () => {
     [isDragging, hoopPosition, setIsDragging, setShotMetrics]
   )
 
-  const hoopMesh = useMesh((state) => state.hoopMesh)
+  const hoopMeshes = useMesh((state) => state.hoopMeshes)
+
+  const clonedHoopRef = useRef<THREE.Mesh | null>(null)
+
+  useEffect(() => {
+    if (hoopMeshes.hoop && !clonedHoopRef.current) {
+      clonedHoopRef.current = hoopMeshes.hoop.clone()
+
+      hoopMeshes.hoop.visible = true
+      if (hoopMeshes.hoopGlass) {
+        hoopMeshes.hoopGlass.visible = true
+      }
+    }
+
+    return () => {
+      if (hoopMeshes.hoop) {
+        hoopMeshes.hoop.visible = true
+      }
+      if (hoopMeshes.hoopGlass) {
+        hoopMeshes.hoopGlass.visible = true
+      }
+
+      clonedHoopRef.current = null
+    }
+  }, [hoopMeshes])
 
   if (!isBasketball) return null
 
   return (
     <>
-      {isBasketball && hoopMesh && (
+      {hoopMeshes.hoop && clonedHoopRef.current && (
         <RigidBody type="fixed" colliders="trimesh">
-          <primitive object={hoopMesh} />
+          <primitive object={clonedHoopRef.current} />
         </RigidBody>
       )}
+
       {readyToPlay && (
         <>
           <Basketball
