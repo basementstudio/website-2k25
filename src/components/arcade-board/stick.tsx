@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useArcadeStore } from "@/store/arcade-store"
 
@@ -16,7 +16,6 @@ import {
   MAX_TILT,
   STICK_ANIMATION
 } from "./constants"
-import { useCursor } from "@/hooks/use-mouse"
 
 export const Stick = ({ stick }: { stick: Mesh }) => {
   const scene = useCurrentScene()
@@ -36,6 +35,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
 
   const isDragging = useRef(false)
   const dragStartPosition = useRef({ x: 0, y: 0 })
+  const movementTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const handleStickSound = (isRelease: boolean) => {
     if (state.current !== 0) {
@@ -60,7 +60,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
     direction: number,
     targetRotation: { x: number; y: number; z: number }
   ) => {
-    if (state.current === direction) return
+    if (direction !== 0 && state.current === direction) return
 
     animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
@@ -166,6 +166,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
   )
 
   const resetStick = () => {
+    state.current = 0
     updateStickPosition(0, { x: 0, y: 0, z: 0 })
   }
 
@@ -207,46 +208,49 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
     [scene, isInGame, stick.name]
   )
 
-  const handlePointerMove = useCallback((e: ThreeEvent<PointerEvent>) => {
-    if (!isDragging.current) return
+  const handlePointerMove = useCallback(
+    (e: ThreeEvent<PointerEvent>) => {
+      if (!isDragging.current) return
 
-    const deltaX = e.clientX - dragStartPosition.current.x
-    const deltaY = e.clientY - dragStartPosition.current.y
+      const deltaX = e.clientX - dragStartPosition.current.x
+      const deltaY = e.clientY - dragStartPosition.current.y
 
-    let direction = 0
-    const threshold = 20
+      let direction = 0
+      const threshold = 20
 
-    if (Math.abs(deltaX) <= threshold && Math.abs(deltaY) <= threshold) {
-      if (state.current !== 0) {
-        updateStickPosition(0, { x: 0, y: 0, z: 0 })
-      }
-      return
-    }
-
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (Math.abs(deltaX) > threshold) {
-        direction =
-          deltaX > 0
-            ? KEY_DIRECTION_MAP.ArrowRight
-            : KEY_DIRECTION_MAP.ArrowLeft
-      }
-    } else {
-      if (Math.abs(deltaY) > threshold) {
-        direction =
-          deltaY > 0 ? KEY_DIRECTION_MAP.ArrowDown : KEY_DIRECTION_MAP.ArrowUp
-      }
-    }
-
-    if (direction !== 0) {
-      const targetRotation = {
-        x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
-        y: 0,
-        z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
+      if (Math.abs(deltaX) <= threshold && Math.abs(deltaY) <= threshold) {
+        if (state.current !== 0) {
+          updateStickPosition(0, { x: 0, y: 0, z: 0 })
+        }
+        return
       }
 
-      updateStickPosition(direction, targetRotation)
-    }
-  }, [])
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (Math.abs(deltaX) > threshold) {
+          direction =
+            deltaX > 0
+              ? KEY_DIRECTION_MAP.ArrowRight
+              : KEY_DIRECTION_MAP.ArrowLeft
+        }
+      } else {
+        if (Math.abs(deltaY) > threshold) {
+          direction =
+            deltaY > 0 ? KEY_DIRECTION_MAP.ArrowDown : KEY_DIRECTION_MAP.ArrowUp
+        }
+      }
+
+      if (direction !== 0) {
+        const targetRotation = {
+          x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
+          y: 0,
+          z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
+        }
+
+        updateStickPosition(direction, targetRotation)
+      }
+    },
+    [updateStickPosition]
+  )
 
   const handlePointerUp = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
