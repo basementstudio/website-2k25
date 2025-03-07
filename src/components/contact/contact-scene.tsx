@@ -116,7 +116,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     })
   }
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     const handler = animationHandlerRef.current
     if (!handler) return
 

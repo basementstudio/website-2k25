@@ -34,12 +34,7 @@ self.onmessage = (
     isContactOpen?: boolean
   }>
 ) => {
-  const {
-    type,
-    modelUrl,
-
-    isContactOpen
-  } = e.data
+  const { type, modelUrl, isContactOpen } = e.data
 
   if (type === "load-model" && modelUrl) {
     try {

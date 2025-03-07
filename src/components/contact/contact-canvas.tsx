@@ -38,7 +38,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
     if (worker) {
       worker.postMessage({
         type: "update-contact-open",
-        isContactOpen
+        isContactOpen: isContactOpen
       })
     }
   }, [worker, isContactOpen])
