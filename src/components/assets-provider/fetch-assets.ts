@@ -21,6 +21,8 @@ export interface AssetsResult {
     file: string
     isGlass: boolean
   }[]
+  glassMaterials: string[]
+  doubleSideElements: string[]
   arcade: {
     idleScreen: string
     placeholderLab: string
@@ -157,6 +159,12 @@ export async function fetchAssets(): Promise<AssetsResult> {
       isGlass: item.isGlass ?? false
     })),
     routingElements: threeDInteractions.map.routingElements?.file?.url ?? "",
+    glassMaterials: threeDInteractions.map.glassMaterials.items.map(
+      (item) => item._title
+    ),
+    doubleSideElements: threeDInteractions.map.doubleSideElements.items.map(
+      (item) => item._title
+    ),
     arcade: {
       idleScreen: threeDInteractions.arcade.idleScreen?.url ?? "",
       placeholderLab: threeDInteractions.arcade.placeholderLab?.url ?? "",

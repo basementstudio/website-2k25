@@ -48,7 +48,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
         </h3>
 
         {hoveredBrandData && isDesktop ? (
-          <h4 className="b-2 inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:col-start-6 lg:col-end-9 lg:text-h3">
+          <h4 className="mb-2 inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:col-start-6 lg:col-end-9 lg:text-h3">
             {hoveredBrandData._title} <ExternalLinkIcon className="size-4" />
           </h4>
         ) : null}
@@ -61,7 +61,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
           {rows.map((row, index) => (
             <div
               key={`brands-row-${index}`}
-              className="flex items-center justify-between gap-x-2 py-3 sm:gap-x-9 md:justify-start"
+              className="flex items-center justify-between py-3 md:justify-start"
             >
               {row.map((brand) => (
                 <Link
