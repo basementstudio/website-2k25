@@ -1,23 +1,11 @@
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, useState } from "react"
-import {
-  AnimationMixer,
-  Box3,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  SkinnedMesh,
-  Vector3,
-  WebGLRenderTarget
-} from "three"
+import { AnimationMixer, Group, Mesh, MeshBasicMaterial, Vector3 } from "three"
 
-import { RenderTexture } from "@/components/arcade-screen/render-texture"
-import { createScreenMaterial } from "@/shaders/material-screen"
 import { useWorkerStore } from "@/workers/contact-worker"
 
 import { PhoneAnimationHandler } from "./contact-anims"
-import PhoneScreenUI from "./ui/render-ui"
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const gltf = useGLTF(modelUrl)
@@ -27,23 +15,9 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const idleTimeRef = useRef<number>(0)
   const lastPositionRef = useRef<Vector3 | null>(null)
 
-  const updateFormData = useWorkerStore((state) => state.updateFormData)
-  const updateFocusedElement = useWorkerStore(
-    (state) => state.updateFocusedElement
-  )
   const isContactOpen = useWorkerStore((state) => state.isContactOpen)
   const isClosing = useWorkerStore((state) => state.isClosing)
   const setIsContactOpen = useWorkerStore((state) => state.setIsContactOpen)
-
-  const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
-  const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
-
-  const glass = gltf.scene.children[0].getObjectByName("GLASS") as
-    | Mesh
-    | undefined
-
-  const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
-  const screenMaterial = useMemo(() => createScreenMaterial(), [])
 
   const { mixer, handler } = useMemo(() => {
     if (!gltf.scene || !gltf.animations.length)
@@ -69,42 +43,14 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   useEffect(() => {
     // Listen to form updates from the worker
     const handleMessage = (e: MessageEvent) => {
-      if (e.data.type === "update-form") {
-        updateFormData(e.data.formData)
-        idleTimeRef.current = 0
-      } else if (e.data.type === "update-focus") {
-        updateFocusedElement(e.data.focusedElement, e.data.cursorPosition)
-      } else if (e.data.type === "update-contact-open") {
+      if (e.data.type === "update-contact-open") {
         setIsContactOpen(e.data.isContactOpen)
       }
     }
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
-  }, [updateFormData, updateFocusedElement, setIsContactOpen])
-
-  useEffect(() => {
-    const screen = gltf.scene.children[0].getObjectByName(
-      "SCREEN"
-    ) as SkinnedMesh
-
-    setScreenMesh(screen)
-
-    if (glass) {
-      glass.visible = false
-    }
-
-    if (screen) {
-      const box = new Box3().setFromObject(screen)
-      const size = box.getSize(new Vector3())
-      setScreenScale(size)
-
-      screenMaterial.needsUpdate = true
-      screenMaterial.uniforms.map.value = renderTarget.texture
-      screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
-      screen.material = screenMaterial
-    }
-  }, [gltf.scene, renderTarget.texture, screenMaterial, glass])
+  }, [setIsContactOpen])
 
   useEffect(() => {
     if (!gltf.scene || !gltf.animations.length) return
@@ -176,10 +122,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
     handler.update(delta)
 
-    if (screenMaterial.uniforms.uTime) {
-      screenMaterial.uniforms.uTime.value += delta
-    }
-
     if (isContactOpen && !isClosing) {
       idleTimeRef.current += delta
 
@@ -192,19 +134,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     }
   })
 
-  if (!screenMesh || !screenScale) return null
-
   return (
     <>
-      <RenderTexture
-        isPlaying={true}
-        fbo={renderTarget}
-        useGlobalPointer={false}
-        raycasterMesh={screenMesh}
-      >
-        <PhoneScreenUI screenScale={screenScale} />
-      </RenderTexture>
-
       <group scale={6} ref={phoneGroupRef}>
         <primitive position-y={-0.05} object={gltf.scene} />
       </group>

@@ -5,9 +5,6 @@ import { lazy, useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
 import { useContactStore } from "./contact-store"
-import UiOverlay from "./ui/ui-overlay"
-
-const Fallback = lazy(() => import("./fallback"))
 
 const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   const { contactPhone } = useAssets()
@@ -46,22 +43,17 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
     }
   }, [worker, isContactOpen])
 
-  if (!worker) {
-    return <Fallback />
-  }
+  if (!worker) return null
 
   return (
     <>
       <OffscreenCanvas
         worker={worker}
-        fallback={<Fallback />}
+        fallback={null}
         frameloop={isContactOpen ? "always" : "never"}
-        // 0.875 = z / 6 || 5.25 s6
         camera={{ position: [0, 0.082, 5.25], fov: 25 }}
         gl={{ antialias: false }}
       />
-
-      <UiOverlay className="fixed left-[43.6vw] top-[54.4vh] aspect-[16/10] w-[33%] -translate-x-1/2 -translate-y-1/2 opacity-100 [perspective:800px]" />
     </>
   )
 }
