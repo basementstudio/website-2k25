@@ -143,9 +143,12 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
         <button
           id="nav-contact"
           onClick={() => setIsContactOpen(!isContactOpen)}
-          className="text-p capitalize text-brand-w1"
+          className={cn(
+            "!text-p capitalize text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+            isContactOpen && "text-brand-g1"
+          )}
         >
-          {isContactOpen ? "Close" : "Contact Us"}
+          Contact Us
         </button>
       </div>
     </>
