@@ -21,6 +21,7 @@ export const OutdoorCars = () => {
   const pathname = usePathname()
   const { outdoorCarsMeshes: cars } = useMesh()
   const [carUpdateCounter, setCarUpdateCounter] = useState(0)
+  const [bothCarsReachedTarget, setBothCarsReachedTarget] = useState(false)
 
   useEffect(() => {
     if (!cars?.length) return
@@ -28,14 +29,17 @@ export const OutdoorCars = () => {
   }, [cars])
 
   const carsVisible = useMemo(() => {
-    return pathname === "/services" || pathname === "/people"
-  }, [pathname])
+    return (
+      (pathname === "/services" || pathname === "/people") &&
+      !bothCarsReachedTarget
+    )
+  }, [pathname, bothCarsReachedTarget])
 
   const STREET_LANES: StreetLane[] = useMemo(
     () => [
       {
-        initialPosition: [10, -0.2, 4],
-        targetPosition: [-15, -0.2, 4],
+        initialPosition: [50, -0.2, 4],
+        targetPosition: [-50, -0.2, 4],
         car: null,
         speed: null,
         startDelay: null,
@@ -43,8 +47,8 @@ export const OutdoorCars = () => {
         isMoving: false
       },
       {
-        initialPosition: [-13, -0.2, 9],
-        targetPosition: [10, -0.2, 9],
+        initialPosition: [-50, -0.2, 9],
+        targetPosition: [50, -0.2, 9],
         car: null,
         speed: null,
         startDelay: null,
@@ -90,6 +94,9 @@ export const OutdoorCars = () => {
 
   useFrame(({ clock }) => {
     let needsUpdate = false
+    let carsAtTarget = 0
+
+    if (!carsVisible) return
 
     STREET_LANES.forEach((lane) => {
       if (!lane.car || !lane.speed || lane.nextStartTime === null) return
@@ -113,11 +120,16 @@ export const OutdoorCars = () => {
           (direction > 0 && lane.car.position.x >= lane.targetPosition[0]) ||
           (direction < 0 && lane.car.position.x <= lane.targetPosition[0])
         ) {
+          carsAtTarget++
           generateRandomCar(lane, clock.elapsedTime)
           needsUpdate = true
         }
       }
     })
+
+    if (carsAtTarget === STREET_LANES.length) {
+      setBothCarsReachedTarget(true)
+    }
 
     if (needsUpdate && carsVisible) {
       setCarUpdateCounter((prev) => prev + 1)
