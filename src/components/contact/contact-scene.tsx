@@ -1,7 +1,15 @@
 import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { useFrame, useThree } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { AnimationMixer, Group, Mesh, MeshBasicMaterial, Vector3 } from "three"
+import {
+  AnimationMixer,
+  Bone,
+  Group,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  Vector3
+} from "three"
 
 import { useWorkerStore } from "@/workers/contact-worker"
 
@@ -18,6 +26,22 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const isContactOpen = useWorkerStore((state) => state.isContactOpen)
   const isClosing = useWorkerStore((state) => state.isClosing)
   const setIsContactOpen = useWorkerStore((state) => state.setIsContactOpen)
+  const camera = useThree((state) => state.camera)
+
+  const screenbone = gltf.nodes.Obj as Bone
+  const screenboneMatrix = screenbone.matrixWorld.toArray()
+  const screenCameraMatrix = camera.matrixWorld.toArray()
+
+  // Send matrix updates every frame when contact is open
+  useFrame(() => {
+    if (isContactOpen && !isClosing) {
+      self.postMessage({
+        type: "update-screen-skinned-matrix",
+        screenboneMatrix: screenbone.matrixWorld.toArray(),
+        cameraMatrix: camera.matrixWorld.toArray()
+      })
+    }
+  })
 
   const { mixer, handler } = useMemo(() => {
     if (!gltf.scene || !gltf.animations.length)
@@ -92,6 +116,11 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         clampWhenFinished: true,
         fadeInDuration: 0.05,
         onComplete: () => {
+          self.postMessage({
+            type: "update-screen-skinned-matrix",
+            screenboneMatrix: screenboneMatrix,
+            cameraMatrix: screenCameraMatrix
+          })
           idleTimeRef.current = 0
         }
       })
@@ -128,7 +157,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       const IDLE_TIMEOUT = Math.random() * 5 + 15
 
       if (idleTimeRef.current > IDLE_TIMEOUT) {
-        playRandomIdleAnimation()
+        //playRandomIdleAnimation()
         idleTimeRef.current = 0
       }
     }
