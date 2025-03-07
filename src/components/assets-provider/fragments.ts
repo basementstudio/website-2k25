@@ -76,6 +76,11 @@ export const mapFragment = fragmentOn("Map", {
     items: {
       _title: true
     }
+  },
+  wireframeModel: {
+    file: {
+      url: true
+    }
   }
 })
 

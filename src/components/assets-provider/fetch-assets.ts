@@ -4,6 +4,7 @@ import { assetsQuery } from "./query"
 
 export interface AssetsResult {
   office: string
+  officeWireframe: string
   outdoor: string
   godrays: string
   basketball: string
@@ -140,9 +141,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
   }).query(assetsQuery)
 
   return {
-    office: threeDInteractions.map.officeV2?.file?.url ?? "",
-    outdoor: threeDInteractions.map.outdoor?.file?.url ?? "",
-    godrays: threeDInteractions.map.godrays?.file?.url ?? "",
+    office: threeDInteractions.map.officeV2.file.url,
+    officeWireframe: threeDInteractions.map.wireframeModel.file.url,
+    outdoor: threeDInteractions.map.outdoor.file.url,
+    godrays: threeDInteractions.map.godrays.file.url,
     bakes: threeDInteractions.map.bakes.items.map((item) => ({
       title: item._title,
       lightmap: item.lightmap?.url ?? "",

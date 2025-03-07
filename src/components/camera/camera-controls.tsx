@@ -10,8 +10,6 @@ import {
   useCameraSetup
 } from "./camera-hooks"
 import { calculatePlanePosition } from "./camera-utils"
-import { useFrame } from "@react-three/fiber"
-import { useAppLoadingStore } from "../loading/app-loading-handler"
 
 export const CustomCamera = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null)
@@ -43,13 +41,6 @@ export const CustomCamera = () => {
     targetPosition,
     targetLookAt
   )
-
-  useFrame(() => {
-    if (!cameraRef.current) return
-
-    const c = cameraRef.current
-    useAppLoadingStore.getState().updateCamera(currentPos, currentTarget, c.fov)
-  })
 
   return (
     <>

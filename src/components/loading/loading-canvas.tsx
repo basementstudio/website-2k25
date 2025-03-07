@@ -1,10 +1,11 @@
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
-import { useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
+import { useEffect, useRef, useState } from "react"
 
 import { useStateToRef } from "@/hooks/use-state-to-ref"
+
 import { useAssets } from "../assets-provider"
-import { updateCameraSubscribable } from "./app-loading-handler"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 // Fallback component for when the worker fails or isn't supported
 const Fallback = dynamic(
@@ -29,7 +30,25 @@ function LoadingCanvas({
   const progressRef = useStateToRef(progress)
   const isVisibleRef = useStateToRef(isVisible)
 
-  const { routingElements } = useAssets()
+  const { officeWireframe } = useAssets()
+
+  const currentScene = useNavigationStore((state) => state.currentScene)
+
+  const loadedRef = useRef(false)
+
+  useEffect(() => {
+    if (!worker || !currentScene || loadedRef.current) return
+    console.log(worker, currentScene, loadedRef.current)
+
+    // Initialize the loading scene
+    worker.postMessage({
+      type: "update-camera-config",
+      cameraConfig: currentScene.cameraConfig
+    })
+
+    // loadedRef.current = true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worker, currentScene])
 
   useEffect(() => {
     // Create a new worker for the loading screen
@@ -42,10 +61,9 @@ function LoadingCanvas({
 
     setWorker(newWorker)
 
-    // Initialize the loading scene
     newWorker.postMessage({
       type: "initialize",
-      modelUrl: routingElements
+      modelUrl: officeWireframe
     })
 
     const handleError = (error: ErrorEvent) => {
@@ -54,45 +72,8 @@ function LoadingCanvas({
 
     newWorker.addEventListener("error", handleError)
 
-    newWorker.postMessage({
-      type: "update-camera",
-      cameraPosition: {
-        x: 0,
-        y: 0,
-        z: 5
-      },
-      cameraTarget: {
-        x: 0,
-        y: 0,
-        z: 0
-      },
-      cameraFov: 75
-    })
-
-    const cId = updateCameraSubscribable.addCallback(
-      (cameraPosition, cameraTarget, cameraFov) => {
-        newWorker.postMessage({
-          type: "update-camera",
-          cameraPosition: {
-            x: cameraPosition.x,
-            y: cameraPosition.y,
-            z: cameraPosition.z
-          },
-          cameraTarget: {
-            x: cameraTarget.x,
-            y: cameraTarget.y,
-            z: cameraTarget.z
-          },
-          cameraFov
-        })
-      }
-    )
-
     return () => {
       console.log("TERMINATED WORKER")
-
-      // newWorker.terminate()
-      // updateCameraSubscribable.removeCallback(cId)
     }
   }, [])
 
