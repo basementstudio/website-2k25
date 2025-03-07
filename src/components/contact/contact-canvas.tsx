@@ -1,7 +1,7 @@
 "use client"
 
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
-import { lazy, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
 import { useContactStore } from "./contact-store"
