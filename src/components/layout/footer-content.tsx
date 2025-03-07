@@ -1,10 +1,3 @@
-"use client"
-
-import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useRef } from "react"
-
-import { Grid } from "@/components/grid"
-import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 
 import { QueryType } from "./query"
@@ -34,55 +27,6 @@ const Logo = ({ className }: { className?: string }) => (
 )
 
 export const FooterContent = ({ data }: { data: QueryType }) => {
-  const isDesktop = useMedia("(min-width: 1024px)")
-  const footerRef = useRef<HTMLDivElement>(null)
-  const previousValuesRef = useRef<{ position: string; top: string }>({
-    position: "static",
-    top: "0"
-  })
-  const pathname = usePathname()
-
-  const handleResize = useCallback(() => {
-    if (!footerRef.current) return
-    const { previousSibling } = footerRef.current
-    if (!(previousSibling instanceof HTMLElement)) return
-
-    if (isDesktop) {
-      const elementHeight = previousSibling.offsetHeight
-      const offset = window.innerHeight - elementHeight
-
-      previousValuesRef.current = {
-        position: previousSibling.style.position,
-        top: previousSibling.style.top
-      }
-
-      previousSibling.style.position = "sticky"
-      previousSibling.style.top = offset + "px"
-    } else {
-      previousSibling.style.position = previousValuesRef.current.position
-      previousSibling.style.top = previousValuesRef.current.top
-    }
-  }, [isDesktop])
-
-  // Handle sticky position on resize
-  useEffect(() => {
-    handleResize()
-    window.addEventListener("resize", handleResize)
-
-    return () => {
-      window.removeEventListener("resize", handleResize)
-    }
-  }, [handleResize])
-
-  // Handle sticky position on path change
-  useEffect(() => {
-    const timeout = setTimeout(handleResize, 250)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [handleResize, pathname])
-
   const projects = data.pages.showcase.projectList.items.length
   const posts = data.pages.blog.posts.items.length
 
@@ -116,12 +60,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
   ]
 
   return (
-    <footer
-      ref={footerRef}
-      className="relative z-10 flex flex-col justify-between bg-brand-k pb-4 lg:h-[calc(100dvh+1px)]"
-    >
-      <Grid />
-
+    <footer className="relative z-10 flex flex-col justify-between bg-brand-k pb-4 lg:h-[calc(100dvh-2.25rem)]">
       <div className="grid-layout">
         <Logo className="col-span-full mx-auto border-b border-brand-w1/30 pb-2 text-brand-w2 lg:pb-0" />
       </div>

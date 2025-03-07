@@ -3,12 +3,13 @@ import { useRef, useState } from "react"
 import * as THREE from "three"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-import { calculatePlanePosition } from "./camera-utils"
+
 import {
   useBoundaries,
   useCameraMovement,
   useCameraSetup
 } from "./camera-hooks"
+import { calculatePlanePosition } from "./camera-utils"
 
 export const CustomCamera = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null)

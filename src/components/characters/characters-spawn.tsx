@@ -16,6 +16,8 @@ function CharactersSpawnInner() {
     }
   })
 
+  return null
+
   // return (
   //   <group position={[4, 0, -13]}>
   //     {Array.from({ length: 5 }).map((_, rowIndex) =>

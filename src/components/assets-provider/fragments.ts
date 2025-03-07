@@ -66,6 +66,16 @@ export const mapFragment = fragmentOn("Map", {
       },
       intensity: true
     }
+  },
+  glassMaterials: {
+    items: {
+      _title: true
+    }
+  },
+  doubleSideElements: {
+    items: {
+      _title: true
+    }
   }
 })
 

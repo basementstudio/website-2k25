@@ -2,11 +2,10 @@
 
 import { useLenis } from "lenis/react"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
-
-import { useWatchPathname } from "@/hooks/use-watch-pathname"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useMedia } from "@/hooks/use-media"
+import { useWatchPathname } from "@/hooks/use-watch-pathname"
 
 import { Filters } from "./filters"
 import { Grid } from "./grid"
@@ -23,9 +22,27 @@ export type CategoryItem = {
   count: number
 }
 
-export const ProjectList = ({ data }: { data: QueryType }) => {
+const ViewModeSelector = memo(
+  ({
+    viewMode,
+    projects
+  }: {
+    viewMode: "grid" | "rows"
+    projects: FilteredProjectType[]
+  }) => {
+    return viewMode === "grid" ? (
+      <Grid projects={projects} />
+    ) : (
+      <List projects={projects} />
+    )
+  }
+)
+ViewModeSelector.displayName = "ViewModeSelector"
+
+export const ProjectList = memo(({ data }: { data: QueryType }) => {
   const lenis = useLenis()
   const { currentPathname, prevPathname } = useWatchPathname()
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const searchParams = useSearchParams()
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -36,12 +53,26 @@ export const ProjectList = ({ data }: { data: QueryType }) => {
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
 
   useEffect(() => {
-    if (currentPathname === "/showcase" && prevPathname.includes("/showcase"))
-      lenis?.scrollTo("#projects", { immediate: true })
+    if (currentPathname === "/showcase" && prevPathname.includes("/showcase")) {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        lenis?.scrollTo("#projects", {
+          immediate: true
+        })
+      }, 50)
+    }
+
+    return (): void => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+    }
   }, [lenis, currentPathname, prevPathname])
+
   const isDesktop = useMedia("(min-width: 1024px)")
 
-  // set view mode to grid on mobile
   useEffect(() => {
     if (!isDesktop) setViewMode("grid")
   }, [isDesktop])
@@ -67,7 +98,7 @@ export const ProjectList = ({ data }: { data: QueryType }) => {
       .sort((a, b) => b.count - a.count)
   }, [data.pages.showcase.projectList.items])
 
-  const filteredProjects: FilteredProjectType[] = useMemo(() => {
+  const filteredProjects = useMemo(() => {
     return selectedCategories.length === 0
       ? data.pages.showcase.projectList.items
       : data.pages.showcase.projectList.items.map((item) => ({
@@ -78,21 +109,26 @@ export const ProjectList = ({ data }: { data: QueryType }) => {
         }))
   }, [data.pages.showcase.projectList.items, selectedCategories])
 
+  const handleSetSelectedCategories = useCallback((categories: string[]) => {
+    setSelectedCategories(categories)
+  }, [])
+
+  const handleSetViewMode = useCallback((mode: "grid" | "rows") => {
+    setViewMode(mode)
+  }, [])
+
   return (
     <section className="flex flex-col gap-2">
       <Filters
         categories={categories}
         selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
+        setSelectedCategories={handleSetSelectedCategories}
         viewMode={viewMode}
-        setViewMode={setViewMode}
+        setViewMode={handleSetViewMode}
       />
 
-      {viewMode === "grid" ? (
-        <Grid projects={filteredProjects} />
-      ) : (
-        <List projects={filteredProjects} />
-      )}
+      <ViewModeSelector viewMode={viewMode} projects={filteredProjects} />
     </section>
   )
-}
+})
+ProjectList.displayName = "ProjectList"

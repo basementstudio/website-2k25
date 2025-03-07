@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshStandardMaterial } from "three"
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three"
 
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
@@ -39,18 +39,23 @@ export const Basketball = ({
   const basketballModel = useGLTF(basketball)
   const bounceCount = useRef(0)
 
-  const geometry = useMemo(
-    () => (basketballModel.scene.children[0] as Mesh).geometry,
-    [basketballModel]
-  )
+  const geometry = useMemo(() => {
+    const geo = (basketballModel.scene.children[0] as Mesh).geometry
+    return geo
+  }, [basketballModel])
 
   const originalMaterial = basketballModel.materials[
-    "Material.001"
+    "Material.002"
   ] as MeshStandardMaterial
 
   const material = useMemo(() => {
-    return createGlobalShaderMaterial(originalMaterial, true)
-  }, [basketballModel])
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
+      LIGHT: true
+    })
+    mat.uniforms.uLoaded.value = 1
+    mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
+    return mat
+  }, [originalMaterial])
 
   const handleCollision = (other: any) => {
     const randomVolume = 0.1 + Math.random() * 0.1
@@ -105,15 +110,14 @@ export const Basketball = ({
       <mesh
         geometry={geometry}
         scale={1.7}
-        material={originalMaterial}
+        material={material}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerEnter={() => !isDragging && setCursor("grab")}
         onPointerLeave={() => !isDragging && setCursor("default")}
-        material-metalness={0}
-        material-roughness={0.8}
+        userData={{ hasGlobalMaterial: true }}
       />
     </RigidBody>
   )

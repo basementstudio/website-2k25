@@ -1,16 +1,16 @@
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Mesh, ShaderMaterial } from "three"
 import { memo } from "react"
+import { Mesh, ShaderMaterial } from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
+import { useCursor } from "@/hooks/use-mouse"
 
 import fragmentShader from "./frag.glsl"
-import vertexShader from "./vert.glsl"
-import { useCursor } from "@/hooks/use-mouse"
 import { RoutingPlus } from "./routing-plus"
+import vertexShader from "./vert.glsl"
 
 interface RoutingElementProps {
   node: Mesh
@@ -96,6 +96,7 @@ const RoutingElementComponent = ({
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupName, hover, route, hoverName, router])
 
   const handleKeyPress = useCallback(
@@ -134,6 +135,7 @@ const RoutingElementComponent = ({
 
       groupHoverHandlers?.dispatchGroupHover(true)
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [activeRoute, groupHoverHandlers, hoverName, route, router]
   )
 
@@ -148,6 +150,7 @@ const RoutingElementComponent = ({
 
       groupHoverHandlers?.dispatchGroupHover(false)
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [activeRoute, groupHoverHandlers]
   )
 
@@ -161,6 +164,7 @@ const RoutingElementComponent = ({
       setCursor("default")
       setCurrentTabIndex(-1)
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [activeRoute, navigate, route, setCurrentTabIndex, setEnteredByKeyboard]
   )
 
@@ -179,6 +183,7 @@ const RoutingElementComponent = ({
       setCursor("pointer", hoverName)
 
       window.addEventListener("keydown", handleKeyPress)
+
       return () => {
         window.removeEventListener("keydown", handleKeyPress)
         setCursor("default", null)
@@ -187,6 +192,7 @@ const RoutingElementComponent = ({
       setHover(false)
       setCursor("default", null)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeRoute,
     isCanvasTabMode,
@@ -196,7 +202,6 @@ const RoutingElementComponent = ({
     hoverName,
     route,
     router,
-
     handleKeyPress
   ])
 
@@ -215,7 +220,13 @@ const RoutingElementComponent = ({
   }, [groupName, groupHoverHandlers])
 
   useEffect(() => {
-    updateMaterialResolution()
+    const onResize = () => updateMaterialResolution()
+
+    window.addEventListener("resize", onResize)
+
+    onResize()
+
+    return () => window.removeEventListener("resize", onResize)
   }, [])
 
   return (

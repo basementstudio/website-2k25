@@ -33,15 +33,17 @@ export const PlayedBasketballs = () => {
   )
 
   const originalMaterial = basketballModel.materials[
-    "Material.001"
+    "Material.002"
   ] as MeshStandardMaterial
 
-  // useEffect(() => {
-  //   if (!playedBallMaterial) {
-  //     const material = createGlobalShaderMaterial(originalMaterial, true)
-  //     setPlayedBallMaterial(material)
-  //   }
-  // }, [basketballModel, playedBallMaterial, setPlayedBallMaterial])
+  const material = useMemo(() => {
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
+      LIGHT: true
+    })
+    mat.uniforms.uLoaded.value = 1
+    mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
+    return mat
+  }, [originalMaterial])
 
   useEffect(() => {
     if (isGameActive) {
@@ -101,10 +103,9 @@ export const PlayedBasketballs = () => {
           <mesh
             raycast={() => null}
             geometry={geometry}
-            material={originalMaterial}
+            material={material}
             scale={1.7}
-            material-metalness={0}
-            material-roughness={0.8}
+            userData={{ hasGlobalMaterial: true }}
           />
         </RigidBody>
       ))}

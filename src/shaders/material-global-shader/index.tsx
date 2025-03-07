@@ -18,6 +18,7 @@ export const createGlobalShaderMaterial = (
     GODRAY?: boolean
     LIGHT?: boolean
     FOG?: boolean
+    VIDEO?: boolean
     MATCAP?: boolean
     CLOUDS?: boolean
   }
@@ -57,9 +58,9 @@ export const createGlobalShaderMaterial = (
     alphaMap: { value: alphaMap },
     emissive: { value: baseMaterial.emissive || new Vector3() },
     emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
-    fogColor: { value: new Vector3(0.4, 0.4, 0.4) },
+    fogColor: { value: new Vector3(0.2, 0.2, 0.2) },
     fogDensity: { value: 0.05 },
-    fogDepth: { value: 6.0 },
+    fogDepth: { value: 9.0 },
     glassReflex: { value: null },
     emissiveMap: { value: emissiveMap },
 
@@ -97,6 +98,7 @@ export const createGlobalShaderMaterial = (
       LIGHT: defines?.LIGHT !== undefined ? Boolean(defines?.LIGHT) : false,
       FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
       MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
+      VIDEO: defines?.VIDEO !== undefined ? Boolean(defines?.VIDEO) : false,
       CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false
     },
     uniforms,
