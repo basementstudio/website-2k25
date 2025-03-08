@@ -16,6 +16,7 @@ import { ReactScan } from "@/components/debug/react-scan"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { ContentWrapper } from "@/components/layout/content-wrapper"
 import { Navbar } from "@/components/layout/navbar"
+import AppLoadingHandler from "@/components/loading/app-loading-handler"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import { PathnameProvider } from "@/hooks/use-watch-pathname"
@@ -48,18 +49,17 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
-      <Suspense fallback={null}>
-        <head>
-          <ReactScan />
-        </head>
-      </Suspense>
       <Transitions />
+      <head>
+        <link rel="preload" href={assets.officeWireframe} as="fetch" />
+      </head>
       <Toolbar />
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body
             className={cn(geistSans.variable, geistMono.variable, "font-sans")}
           >
+            <AppLoadingHandler />
             <LenisScrollProvider>
               <PathnameProvider>
                 <Navbar />
