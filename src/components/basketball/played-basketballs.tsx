@@ -40,7 +40,6 @@ export const PlayedBasketballs = () => {
     const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
       LIGHT: true
     })
-    mat.uniforms.uLoaded.value = 1
     mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
     return mat
   }, [originalMaterial])

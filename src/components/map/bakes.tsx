@@ -18,8 +18,8 @@ import { EXRLoader } from "three/examples/jsm/Addons.js"
 import { useAssets } from "@/components/assets-provider"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 
-import { cctvConfig } from "../postprocessing/renderer"
 import { useAppLoadingStore } from "../loading/app-loading-handler"
+import { cctvConfig } from "../postprocessing/renderer"
 
 interface Bake {
   lightmap?: Texture
@@ -157,29 +157,23 @@ const Bakes = () => {
 
   const scene = useThree((state) => state.scene)
 
-  const { setIsLoading } = useAppLoadingStore()
+  const setMainAppRunning = useAppLoadingStore(
+    (state) => state.setMainAppRunning
+  )
 
   useEffect(() => {
-    setIsLoading(false)
-    animate(0, 1, {
-      duration: 1,
-      ease: "easeIn",
-      delay: 0.7,
-      onUpdate: (latest) => {
-        Object.values(shaderMaterialsRef).forEach((material) => {
-          material.uniforms.uLoaded.value = 1
-        })
-        revealOpacityMaterials.forEach((material) => {
-          if ("uOpacity" in material.uniforms) {
-            material.uniforms.uOpacity.value = latest
-          }
-        })
-      },
-      onComplete: () => {
-        cctvConfig.shouldBakeCCTV = true
-      }
-    })
+    setMainAppRunning(true)
+    const timeout = setTimeout(() => {
+      cctvConfig.shouldBakeCCTV = true
+    }, 10)
+    setMainAppRunning(true)
 
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [setMainAppRunning])
+
+  useEffect(() => {
     Object.entries(bakes).forEach(([mesh, maps]) => {
       const meshOrGroup = scene.getObjectByName(mesh)
       if (!meshOrGroup) return

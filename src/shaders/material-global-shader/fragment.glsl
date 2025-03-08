@@ -7,21 +7,13 @@ varying vec3 vMvPosition;
 varying vec3 vNormal;
 varying vec3 vViewDirection;
 
-const float voxelSize = 10.0;
-const float noiseBigScale = 1.0;
-const float noiseSmallScale = 3.0;
-
 // base color
 uniform vec3 uColor;
 uniform vec3 baseColor;
 uniform sampler2D map;
 uniform vec2 mapRepeat;
 
-// wave
-uniform float uProgress;
-uniform float metalness;
-uniform float roughness;
-uniform float uLoaded;
+// other
 uniform float uTime;
 
 // lightmap
@@ -89,8 +81,6 @@ uniform sampler2D lampLightmap;
 uniform bool lightLampEnabled;
 
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
-
-#pragma glslify: _vModule = require('../utils/voxel.glsl', getVoxel = getVoxel, VoxelData = VoxelData)
 #pragma glslify: valueRemap = require('../utils/value-remap.glsl')
 #pragma glslify: basicLight = require('../utils/basic-light.glsl')
 
@@ -99,40 +89,15 @@ void main() {
   vec2 checkerPos = floor(shiftedFragCoord * 0.5);
   float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
 
-  VoxelData voxel = getVoxel(
-    vWorldPosition,
-    voxelSize,
-    noiseBigScale,
-    noiseSmallScale
-  );
-
-  // Distance from center
-  float dist = distance(voxel.center, vec3(2.0, 0.0, -16.0));
-
-  float distantceOffset = voxel.noiseBig * noiseFactor;
-  dist += distantceOffset * 2.0;
-
-  // Wave effect
-  float wave = step(dist, uProgress * 20.0);
-  float edge = step(dist, uProgress * 20.0 + 0.2) - wave;
-
-  // Render as wireframe
-  if (uReverse) {
-    gl_FragColor = vec4(uColor, 1.0);
-
-    if (wave <= 0.0) {
-      discard;
-    }
-    return;
-  }
-
   // Render as solid color
   vec4 mapSample = vec4(1.0);
 
+  // TODO: implement map matrix instead of mapRepeat
   #ifdef USE_MAP
   mapSample = texture2D(map, vUv * mapRepeat);
   #endif
 
+  // TODO: use map matrix to shift or move to a different shader to add lightning
   #ifdef CLOUDS
   mapSample = texture2D(map, vec2(vUv.x - uTime * 0.01, vUv.y));
   #endif
@@ -204,15 +169,7 @@ void main() {
 
   irradiance = mix(irradiance, lf, inspectingFactor);
 
-  // Combine wave color
-  irradiance = mix(irradiance, uColor * wave + uColor * edge, wave + edge);
-
-  // Reverse the opacity calculation and apply wave effect
-  float opacityResult;
-
-  opacityResult = 1.0 - wave;
-  opacityResult *= opacity;
-  irradiance = mix(irradiance, uColor, wave);
+  float opacityResult = 1.0;
 
   #ifdef IS_TRANSPARENT
   float mapAlpha = mapSample.a;
@@ -274,24 +231,4 @@ void main() {
     gl_FragColor.a *= pattern * inspectingFactor;
   }
   #endif
-
-  if (uLoaded < 1.0) {
-    // Loading effect
-    // float colorBump = (uTime + voxel.noiseBig * 20.0) * 0.1;
-    // colorBump = fract(colorBump) * 20.0;
-    // colorBump = clamp(colorBump, 0.0, 1.0);
-    // colorBump = 1.0 - pow(colorBump, 0.3);
-
-    // float loadingColor = max(
-    //   voxel.edgeFactor * 0.2,
-    //   colorBump * voxel.fillFactor * 3.0
-    // );
-
-    gl_FragColor.rgb = mix(
-      gl_FragColor.rgb,
-      vec3(0.0),
-      step(uLoaded, voxel.noiseSmall)
-    );
-    gl_FragColor.a = mix(gl_FragColor.a, 0.0, step(uLoaded, voxel.noiseSmall));
-  }
 }

@@ -11,34 +11,49 @@ export type UpdateCameraCallback = (
   cameraFov: number
 ) => void
 
+const loadingCanvasWorker = new Worker(
+  new URL("@/workers/loading-worker.tsx", import.meta.url),
+  {
+    type: "module"
+  }
+)
+
 interface AppLoadingState {
-  isLoading: boolean
-  progress: number
-  setIsLoading: (isLoading: boolean) => void
-  setProgress: (progress: number) => void
+  showLoadingCanvas: boolean
+  worker: Worker
+  setMainAppRunning: (isAppLoaded: boolean) => void
 }
 
 export const useAppLoadingStore = create<AppLoadingState>((set) => ({
-  isLoading: true,
-  progress: 0,
-  setIsLoading: (isLoading) => set({ isLoading }),
-  setProgress: (progress) => set({ progress })
+  /**
+   * Used to show/hide loading canvas
+   */
+  showLoadingCanvas: true,
+  /**
+   * Worker canvas for loading screen
+   */
+  worker: loadingCanvasWorker,
+  /**
+   * This function will tell the loading canvas that is ok to reveal the main app
+   */
+  setMainAppRunning: (isAppLoaded) => {
+    loadingCanvasWorker.postMessage({
+      type: "update-loading-status",
+      isAppLoaded
+    })
+  }
 }))
 
 function AppLoadingHandler() {
-  const { progress } = useAppLoadingStore()
-
-  // return null
-
-  return (
-    <LoadingCanvas
-      isVisible={true}
-      progress={progress}
-      onFinishLoading={() => {
-        // This callback can be used for any cleanup needed after loading is complete
-      }}
-    />
+  const showLoadingCanvas = useAppLoadingStore(
+    (state) => state.showLoadingCanvas
   )
+
+  if (!showLoadingCanvas) {
+    return null
+  }
+
+  return <LoadingCanvas />
 }
 
 export default AppLoadingHandler

@@ -12,7 +12,8 @@ export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
-  reverse: boolean,
+  /** TODO: remove reverse as it is not longer needed */
+  _reverse: boolean,
   defines?: {
     GLASS?: boolean
     GODRAY?: boolean
@@ -41,7 +42,6 @@ export const createGlobalShaderMaterial = (
   const uniforms = {
     uColor: { value: emissiveColor },
     uProgress: { value: 0.0 },
-    uReverse: { value: reverse },
     map: { value: map },
     lightMap: { value: null },
     lightMapIntensity: { value: 0.0 },
@@ -53,7 +53,6 @@ export const createGlobalShaderMaterial = (
     baseColor: { value: baseColor },
     opacity: { value: baseOpacity },
     noiseFactor: { value: 0.5 },
-    uLoaded: { value: 0 },
     uTime: { value: 0.0 },
     alphaMap: { value: alphaMap },
     emissive: { value: baseMaterial.emissive || new Vector3() },

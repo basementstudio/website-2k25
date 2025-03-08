@@ -132,7 +132,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
   minDistance = Math.min(minDistance, 5)
 
-  console.log(minDistance)
+  const cameraTravelDistance = targetCameraPosition.distanceTo(initialPosition)
 
   useFrame(({ scene, gl, clock }, delta) => {
     gl.clear(true, true)
@@ -143,13 +143,15 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       p.y = lerp(p.y, targetCameraPosition.y, delta * 8)
       p.z = lerp(p.z, targetCameraPosition.z, delta * 6)
 
-      target.lerp(targetCameraLookAt, Math.min(delta * 6, 1))
+      target.lerp(targetCameraLookAt, Math.min(delta * 3, 1))
 
       const distanceFromCameraToTaretPosition =
         p.distanceTo(targetCameraPosition)
 
       // remap fov transition to make it pretty
-      let l = 1 - clamp(distanceFromCameraToTaretPosition / 40, 0, 1)
+      let l =
+        1 -
+        clamp(distanceFromCameraToTaretPosition / cameraTravelDistance, 0, 1)
       l = Math.pow(l, 4)
       let fov = lerp(30, cameraConfig.fov, l)
 
