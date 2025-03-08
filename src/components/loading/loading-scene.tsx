@@ -1,11 +1,9 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { memo, useEffect, useMemo } from "react"
+import { memo, useMemo } from "react"
 import {
   Color,
   LineSegments,
-  Mesh,
-  MeshBasicMaterial,
   PerspectiveCamera as PerspectiveCameraType,
   ShaderMaterial,
   Vector3
@@ -14,13 +12,7 @@ import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
-import {
-  easeInOutCirc,
-  easeInOutCubic,
-  easeInOutCustom,
-  easeOutCustom,
-  smoothstep
-} from "@/utils/math/easings"
+import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp, lerp } from "@/utils/math/interpolation"
 import { goArroundTarget } from "@/utils/min-distance-addoung"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
