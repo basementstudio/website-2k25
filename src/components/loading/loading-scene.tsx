@@ -181,10 +181,8 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     cameraConfig?.target[2] ?? 0
   )
 
-  let minDistance = targetCameraPosition
-    .clone()
-    .sub(targetCameraLookAt)
-    .length()
+  let minDistance =
+    targetCameraPosition.clone().sub(targetCameraLookAt).length() - 0.05
 
   minDistance = Math.min(minDistance, 5)
 
