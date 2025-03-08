@@ -166,7 +166,6 @@ const Bakes = () => {
     const timeout = setTimeout(() => {
       cctvConfig.shouldBakeCCTV = true
     }, 10)
-    setMainAppRunning(true)
 
     return () => {
       clearTimeout(timeout)

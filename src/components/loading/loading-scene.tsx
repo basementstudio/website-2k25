@@ -1,6 +1,6 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { memo, useEffect } from "react"
+import { useEffect } from "react"
 import {
   Color,
   Mesh,
@@ -13,7 +13,6 @@ import { create } from "zustand"
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
 import { clamp, lerp } from "@/utils/math/interpolation"
 import { goArroundTarget } from "@/utils/min-distance-addoung"
-import { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
 
 interface LoadingWorkerStore {
   isAppLoaded: boolean
@@ -44,25 +43,29 @@ export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
   cameraConfig: null
 }))
 
-const handleMessage = ({
-  data: { type, cameraConfig, isAppLoaded, progress }
-}: LoadingWorkerMessageEvent) => {
-  if (type === "update-camera-config" && cameraConfig) {
-    useLoadingWorkerStore.setState({ cameraConfig })
-  }
+// const handleMessage = ({
+//   data: { type, cameraConfig, isAppLoaded, progress }
+// }: LoadingWorkerMessageEvent) => {
+//   if (type === "update-camera-config" && cameraConfig) {
+//     useLoadingWorkerStore.setState({ cameraConfig })
+//   }
 
-  if (type === "update-loading-status" && typeof isAppLoaded === "boolean") {
-    useLoadingWorkerStore.getState().setIsAppLoaded(isAppLoaded)
-  }
+//   if (type === "update-loading-status" && typeof isAppLoaded === "boolean") {
+//     useLoadingWorkerStore.getState().setIsAppLoaded(isAppLoaded)
+//   }
 
-  if (type === "update-progress" && typeof progress === "number") {
-    useLoadingWorkerStore.getState().setProgress(progress)
-  }
-}
+//   if (type === "update-progress" && typeof progress === "number") {
+//     useLoadingWorkerStore.getState().setProgress(progress)
+//   }
+// }
 
-self.addEventListener("message", handleMessage)
+// self.addEventListener("message", handleMessage)
 
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
+  console.log("aaaa")
+
+  return null
+
   const { cameraConfig } = useLoadingWorkerStore()
   const { scene } = useGLTF(modelUrl!)
   const camera = useThree((state) => state.camera) as PerspectiveCameraType
@@ -189,4 +192,15 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   )
 }
 
-export default memo(LoadingScene)
+// export default memo(LoadingScene)
+
+export default function A({ modelUrl }: { modelUrl: string }) {
+  console.log("aasdads", modelUrl)
+
+  return (
+    <mesh>
+      <boxGeometry />
+      <meshBasicMaterial color="red" />
+    </mesh>
+  )
+}

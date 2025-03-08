@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react"
 
 import { useAssets } from "../assets-provider"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
-import { useAppLoadingStore } from "./app-loading-handler"
 
 // Fallback component for when the worker fails or isn't supported
 const Fallback = dynamic(
@@ -12,11 +11,11 @@ const Fallback = dynamic(
   { ssr: false }
 )
 
-interface LoadingCanvasProps {}
+interface LoadingCanvasProps {
+  loadingCanvasWorker: Worker
+}
 
-function LoadingCanvas({}: LoadingCanvasProps) {
-  const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
-
+function LoadingCanvas({ loadingCanvasWorker }: LoadingCanvasProps) {
   const { officeWireframe } = useAssets()
 
   const currentScene = useNavigationStore((state) => state.currentScene)
@@ -61,7 +60,8 @@ function LoadingCanvas({}: LoadingCanvasProps) {
         worker={loadingCanvasWorker}
         fallback={<Fallback />}
         frameloop="always"
-        gl={{ antialias: false, alpha: true }}
+        camera={{ position: [0, 0, 100] }}
+        gl={{ antialias: true, alpha: true }}
       />
     </div>
   )

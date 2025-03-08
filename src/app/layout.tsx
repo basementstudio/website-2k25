@@ -49,11 +49,6 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
-      <Suspense fallback={null}>
-        <head>
-          <ReactScan />
-        </head>
-      </Suspense>
       <Transitions />
       <Toolbar />
       <AssetsProvider assets={assets}>
