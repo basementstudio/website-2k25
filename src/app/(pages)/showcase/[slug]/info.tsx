@@ -18,7 +18,7 @@ export const ProjectInfo = ({
   entry: QueryItemType & { awards: { title: string }[] }
 }) => (
   <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-2 lg:row-start-auto">
-    <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-12 lg:mb-0 lg:h-[calc(100vh-3.75rem)]">
+    <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-[calc(3.25rem+1px)] lg:mb-0 lg:h-[calc(100vh-4.25rem)]">
       <div className="flex items-center justify-between">
         <Back />
 
