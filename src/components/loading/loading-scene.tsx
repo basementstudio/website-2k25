@@ -1,16 +1,26 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { memo, useEffect } from "react"
+import { memo, useEffect, useMemo } from "react"
 import {
   Color,
+  LineSegments,
   Mesh,
   MeshBasicMaterial,
   PerspectiveCamera as PerspectiveCameraType,
+  ShaderMaterial,
   Vector3
 } from "three"
+import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import {
+  easeInOutCirc,
+  easeInOutCubic,
+  easeInOutCustom,
+  easeOutCustom,
+  smoothstep
+} from "@/utils/math/easings"
 import { clamp, lerp } from "@/utils/math/interpolation"
 import { goArroundTarget } from "@/utils/min-distance-addoung"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
@@ -62,23 +72,77 @@ const handleMessage = ({
 
 self.addEventListener("message", handleMessage)
 
+interface GLTFNodes extends GLTF {
+  nodes: {
+    Plane: LineSegments
+  }
+}
+
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { cameraConfig } = useLoadingWorkerStore()
-  const { scene } = useGLTF(modelUrl!)
+  const { scene, nodes } = useGLTF(modelUrl!) as any as GLTFNodes
   const camera = useThree((state) => state.camera) as PerspectiveCameraType
 
-  useEffect(() => {
-    if (scene) {
-      scene.traverse((child) => {
-        if (child instanceof Mesh) {
-          child.material = new MeshBasicMaterial({
-            color: "#FF4D00",
-            wireframe: true
-          })
+  const lines = useMemo(() => {
+    const l = nodes.Plane
+
+    l.material = new ShaderMaterial({
+      uniforms: {
+        uReveal: { value: 0 },
+        uColor: { value: new Color("#FF4D00") }
+      },
+      vertexShader: /*glsl*/ `
+        varying vec3 vWorldPosition;
+        void main() {
+          vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * viewMatrix * vec4(vWorldPosition, 1.0);
         }
-      })
-    }
-  }, [scene])
+      `,
+      fragmentShader: /*glsl*/ `
+        uniform float uReveal;
+        uniform vec3 uColor;
+        varying vec3 vWorldPosition;
+
+
+        float minPosition = -4.0;
+        float maxPosition = -30.0;
+
+        float valueRemap(float value, float min, float max, float newMin, float newMax) {
+          return newMin + (value - min) * (newMax - newMin) / (max - min);
+        }
+
+        float valueRemapClamp(float value, float min, float max, float newMin, float newMax) {
+          return clamp(valueRemap(value, min, max, newMin, newMax), newMin, newMax);
+        }
+
+        void main() {
+
+          float edgePos = valueRemap(uReveal, 0.0, 1.0, minPosition, maxPosition);
+
+          float reveal = vWorldPosition.z < edgePos ? 0.0 : 1.0;
+
+          gl_FragColor = vec4(vec3(reveal) * 0.7, 1.0);
+        }
+      `
+    })
+
+    return l
+  }, [nodes])
+
+  // useEffect(() => {
+  //   if (scene) {
+  //     console.log(nodes)
+
+  //     scene.traverse((child) => {
+  //       if (child instanceof Mesh) {
+  //         child.material = new MeshBasicMaterial({
+  //           color: "#FF4D00",
+  //           wireframe: true
+  //         })
+  //       }
+  //     })
+  //   }
+  // }, [scene])
 
   const gl = useThree((state) => state.gl)
 
@@ -134,25 +198,41 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
   const cameraTravelDistance = targetCameraPosition.distanceTo(initialPosition)
 
+  // camera.position.copy(initialPosition)
+  // camera.lookAt(target)
+  // useFrame(({ scene, gl, clock }, delta) => {
+  //   gl.render(scene, camera)
+  // }, 2)
+
   useFrame(({ scene, gl, clock }, delta) => {
+    // return
+    gl.setClearAlpha(1)
+    gl.setClearColor(new Color(0, 0, 0), 1)
     gl.clear(true, true)
 
-    if (cameraConfig && clock.elapsedTime > 1) {
-      // start transition after 1.5 seconds
-      p.x = lerp(p.x, targetCameraPosition.x, delta * 6)
-      p.y = lerp(p.y, targetCameraPosition.y, delta * 8)
-      p.z = lerp(p.z, targetCameraPosition.z, delta * 6)
+    /// reveal lines
+    let r = Math.min((clock.elapsedTime - 0.4) * 2, 1)
+    r = clamp(r, 0, 1)
+    r = easeInOutCirc(0, 1, r)
+    ;(lines.material as any).uniforms.uReveal.value = r
 
-      target.lerp(targetCameraLookAt, Math.min(delta * 3, 1))
+    if (cameraConfig && clock.elapsedTime > 1.5) {
+      // start transition after 1.5 seconds
+
+      target.lerp(targetCameraLookAt, Math.min(delta * 8, 1))
+
+      p.x = lerp(p.x, targetCameraPosition.x, delta * 8)
+      p.y = lerp(p.y, targetCameraPosition.y, delta * 10)
+      p.z = lerp(p.z, targetCameraPosition.z, delta * 8)
 
       const distanceFromCameraToTaretPosition =
-        p.distanceTo(targetCameraPosition)
+        camera.position.distanceTo(targetCameraPosition)
 
       // remap fov transition to make it pretty
       let l =
         1 -
         clamp(distanceFromCameraToTaretPosition / cameraTravelDistance, 0, 1)
-      l = Math.pow(l, 4)
+
       let fov = lerp(30, cameraConfig.fov, l)
 
       // two decimals is ok
@@ -174,7 +254,6 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
     if (distP < 0.01 && distT < 0.01) {
       // send message to stop
-      // TODO: delay to add some animation @tomasferrerasdev
       self.postMessage({ type: "loading-transition-complete" })
     }
 
@@ -183,7 +262,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
   return (
     <>
-      <primitive object={scene} />
+      <primitive object={lines} />
       <PerspectiveCamera position={initialPosition} makeDefault fov={30} />
     </>
   )
