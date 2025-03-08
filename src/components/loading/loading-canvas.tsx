@@ -15,21 +15,6 @@ const Fallback = dynamic(
 function LoadingCanvas() {
   const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
 
-  useEffect(() => {
-    const worker = new Worker(
-      new URL("@/workers/loading-worker.tsx", import.meta.url),
-      {
-        type: "module"
-      }
-    )
-
-    useAppLoadingStore.setState({ worker })
-
-    return () => {
-      worker.terminate()
-    }
-  }, [])
-
   const { officeWireframe } = useAssets()
 
   const currentScene = useNavigationStore((state) => state.currentScene)
@@ -49,8 +34,17 @@ function LoadingCanvas() {
   }, [loadingCanvasWorker, currentScene])
 
   useEffect(() => {
+    const worker = new Worker(
+      new URL("@/workers/loading-worker.tsx", import.meta.url),
+      {
+        type: "module"
+      }
+    )
+
+    useAppLoadingStore.setState({ worker })
+
     // start the loading scene
-    loadingCanvasWorker?.postMessage({
+    worker.postMessage({
       type: "initialize",
       modelUrl: officeWireframe
     })
@@ -59,9 +53,9 @@ function LoadingCanvas() {
       console.error("[LoadingCanvas] Worker error:", error)
     }
 
-    loadingCanvasWorker?.addEventListener("error", handleError)
+    worker.addEventListener("error", handleError)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadingCanvasWorker])
+  }, [])
 
   if (!loadingCanvasWorker) return null
 
