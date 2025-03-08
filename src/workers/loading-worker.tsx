@@ -11,18 +11,18 @@ export type LoadingWorkerMessageEvent = MessageEvent<{
   modelUrl?: string
 }>
 
-self.onmessage = (e: LoadingWorkerMessageEvent) => {
+self.addEventListener("message", (e: LoadingWorkerMessageEvent) => {
   const { type, modelUrl } = e.data
 
   if (type === "initialize" && modelUrl) {
     render(<LoadingScene modelUrl={modelUrl} />)
   }
-}
+})
 
-self.onerror = (error) => {
+self.addEventListener("error", (error) => {
   console.error("[LoadingWorker] Worker error:", error)
-}
+})
 
-self.onmessageerror = (error) => {
+self.addEventListener("messageerror", (error) => {
   console.error("[LoadingWorker] Message error:", error)
-}
+})

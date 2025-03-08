@@ -49,6 +49,14 @@ function LoadingCanvas() {
       modelUrl: officeWireframe
     })
 
+    worker.addEventListener("message", (e: MessageEvent<{ type: string }>) => {
+      const { type } = e.data
+
+      if (type === "loading-transition-complete") {
+        useAppLoadingStore.setState({ showLoadingCanvas: false })
+      }
+    })
+
     const handleError = (error: ErrorEvent) => {
       console.error("[LoadingCanvas] Worker error:", error)
     }
@@ -60,13 +68,12 @@ function LoadingCanvas() {
   if (!loadingCanvasWorker) return null
 
   return (
-    <div className="fixed inset-0 z-[200]">
+    <div className="absolute left-0 top-0 z-[200] h-screen w-screen">
       <OffscreenCanvas
         worker={loadingCanvasWorker}
-        fallback={null}
+        fallback={<Fallback />}
         frameloop="always"
-        camera={{ position: [0, 0, 100], fov: 50 }}
-        gl={{ antialias: true, alpha: false }}
+        gl={{ antialias: true, alpha: true }}
       />
     </div>
   )

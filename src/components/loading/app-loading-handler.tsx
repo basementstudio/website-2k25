@@ -1,18 +1,9 @@
 "use client"
 
-import dynamic from "next/dynamic"
-import { useEffect, useState } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
 
-// import LoadingCanvas from "./loading-canvas"
-
-const LoadingCanvas = dynamic(
-  () => import("./loading-canvas").then((mod) => mod.default),
-  {
-    ssr: false
-  }
-)
+import LoadingCanvas from "./loading-canvas"
 
 export type UpdateCameraCallback = (
   cameraPosition: Vector3,
@@ -21,6 +12,7 @@ export type UpdateCameraCallback = (
 ) => void
 
 interface AppLoadingState {
+  isCanvasInPage: boolean
   showLoadingCanvas: boolean
   worker: Worker | null
   setMainAppRunning: (isAppLoaded: boolean) => void
@@ -30,6 +22,7 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
   // const loadingCanvasWorker =
 
   const store: AppLoadingState = {
+    isCanvasInPage: false,
     /**
      * Used to show/hide loading canvas
      */
@@ -56,11 +49,11 @@ function AppLoadingHandler() {
     (state) => state.showLoadingCanvas
   )
 
-  const [hydrated, setHydrated] = useState(false)
+  const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
 
-  useEffect(() => {
-    setHydrated(true)
-  }, [])
+  if (!isCanvasInPage) {
+    return null
+  }
 
   if (!showLoadingCanvas) {
     return null
