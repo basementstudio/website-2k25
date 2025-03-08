@@ -1,6 +1,6 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { memo, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect } from "react"
 import {
   Color,
   Mesh,
@@ -11,6 +11,8 @@ import {
 import { create } from "zustand"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import { clamp, lerp } from "@/utils/math/interpolation"
+import { goArroundTarget } from "@/utils/min-distance-addoung"
 import { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
 
 interface LoadingWorkerStore {
@@ -24,20 +26,19 @@ interface LoadingWorkerStore {
   cameraConfig: ICameraConfig | null
 }
 
-const target = new Vector3(5, 2, -15)
-const position = target.clone().add(new Vector3(1, 1, 1).multiplyScalar(40))
-const tmpVector = new Vector3()
+const target = new Vector3(5, 0, -25)
+const initialPosition = target
+  .clone()
+  .add(new Vector3(1, 1, 1).multiplyScalar(70))
 
-const smoothstep = (a: number, b: number, t: number) => {
-  return a + (b - a) * t * t * (3 - 2 * t)
-}
+const p = initialPosition.clone()
 
 export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
   isAppLoaded: false,
   progress: 0,
   setIsAppLoaded: (isLoaded) => set({ isAppLoaded: isLoaded }),
   setProgress: (progress) => set({ progress: progress }),
-  cameraPosition: position,
+  cameraPosition: initialPosition,
   cameraFov: 50,
   cameraTarget: target,
   cameraConfig: null
@@ -61,22 +62,10 @@ const handleMessage = ({
 
 self.addEventListener("message", handleMessage)
 
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max)
-
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { cameraConfig } = useLoadingWorkerStore()
-
-  const camera = useThree((state) => state.camera) as PerspectiveCameraType
-
   const { scene } = useGLTF(modelUrl!)
-
-  // useEffect(() => {
-  //   // Listen to form updates from the worker
-
-  //   return () => self.removeEventListener("message", handleMessage)
-  // }, [])
+  const camera = useThree((state) => state.camera) as PerspectiveCameraType
 
   useEffect(() => {
     if (scene) {
@@ -96,62 +85,95 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   gl.setClearAlpha(0)
   gl.setClearColor(new Color(0, 0, 0), 0)
 
-  const ref = useRef<PerspectiveCameraType>(null)
+  /**
+   * Another approach, camera just appears there
+   * */
+
+  // const updated = useRef(false)
+  // useFrame(({camera}) => {
+  // if (cameraConfig && !updated.current) {
+  //   updated.current = true
+  //   camera.position.set(
+  //     cameraConfig.position[0],
+  //     cameraConfig.position[1],
+  //     cameraConfig.position[2]
+  //   )
+  //   target.set(
+  //     cameraConfig.target[0],
+  //     cameraConfig.target[1],
+  //     cameraConfig.target[2]
+  //   )
+  //   camera.lookAt(target)
+  //   camera.fov = cameraConfig.fov
+  //   camera.updateProjectionMatrix()
+  // }
+  // if (updated.current) {
+  //   gl.render(scene, camera)
+  // }
+  // return
+  // }, 1)
+
+  const targetCameraPosition = new Vector3(
+    cameraConfig?.position[0] ?? 0,
+    cameraConfig?.position[1] ?? 0,
+    cameraConfig?.position[2] ?? 0
+  )
+
+  const targetCameraLookAt = new Vector3(
+    cameraConfig?.target[0] ?? 0,
+    cameraConfig?.target[1] ?? 0,
+    cameraConfig?.target[2] ?? 0
+  )
+
+  let minDistance = targetCameraPosition
+    .clone()
+    .sub(targetCameraLookAt)
+    .length()
+
+  minDistance = Math.min(minDistance, 5)
+
+  console.log(minDistance)
 
   useFrame(({ scene, gl, clock }, delta) => {
-    const camera = ref.current
-    if (!camera) return
     gl.clear(true, true)
 
-    if (cameraConfig && clock.elapsedTime > 1.5) {
-      position.lerp(
-        {
-          x: cameraConfig.position[0],
-          y: cameraConfig.position[1],
-          z: cameraConfig.position[2]
-        },
-        delta * 5
-      )
+    if (cameraConfig && clock.elapsedTime > 1) {
+      // start transition after 1.5 seconds
+      p.x = lerp(p.x, targetCameraPosition.x, delta * 6)
+      p.y = lerp(p.y, targetCameraPosition.y, delta * 8)
+      p.z = lerp(p.z, targetCameraPosition.z, delta * 6)
 
-      target.lerp(
-        {
-          x: cameraConfig.target[0],
-          y: cameraConfig.target[1],
-          z: cameraConfig.target[2]
-        },
-        delta * 10
-      )
+      target.lerp(targetCameraLookAt, Math.min(delta * 6, 1))
 
-      const distanceFromCameraToTaretPosition = camera.position.distanceTo({
-        x: cameraConfig.position[0],
-        y: cameraConfig.position[1],
-        z: cameraConfig.position[2]
-      })
+      const distanceFromCameraToTaretPosition =
+        p.distanceTo(targetCameraPosition)
 
-      let l = 1 - clamp(distanceFromCameraToTaretPosition / 30, 0, 1)
-      l = smoothstep(0, 1, l)
-
+      // remap fov transition to make it pretty
+      let l = 1 - clamp(distanceFromCameraToTaretPosition / 40, 0, 1)
+      l = Math.pow(l, 4)
       let fov = lerp(30, cameraConfig.fov, l)
 
+      // two decimals is ok
       fov = Math.round(fov * 100) / 100
 
-      camera.fov = fov
+      if (Math.abs(camera.fov - fov) > 0.0000001) {
+        camera.fov = fov
+        camera.updateProjectionMatrix()
+      }
     }
 
-    camera.position.copy(position)
     camera.lookAt(target)
+    goArroundTarget(target, p, minDistance, "y")
 
-    camera.updateProjectionMatrix()
+    camera.position.lerp(p, Math.min(delta * 6, 1))
 
-    if (tmpVector.subVectors(camera.position, target).length() < 1) {
-      // vectors are too close, push them
+    const distP = camera.position.distanceTo(targetCameraPosition)
+    const distT = target.distanceTo(targetCameraLookAt)
 
-      // set tmpVector to direction from targetToPosition
-      tmpVector.subVectors(position, target)
-      tmpVector.normalize()
-      // min length is 1
-      tmpVector.multiplyScalar(1)
-      position.copy(target).add(tmpVector)
+    if (distP < 0.01 && distT < 0.01) {
+      // send message to stop
+      // TODO: delay to add some animation @tomasferrerasdev
+      self.postMessage({ type: "loading-transition-complete" })
     }
 
     gl.render(scene, camera)
@@ -160,7 +182,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   return (
     <>
       <primitive object={scene} />
-      <PerspectiveCamera ref={ref} makeDefault fov={30} />
+      <PerspectiveCamera position={initialPosition} makeDefault fov={30} />
     </>
   )
 }

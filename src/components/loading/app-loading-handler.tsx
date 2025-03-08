@@ -28,6 +28,8 @@ export const useAppLoadingStore = create<AppLoadingState>((set) => ({
 function AppLoadingHandler() {
   const { progress } = useAppLoadingStore()
 
+  // return null
+
   return (
     <LoadingCanvas
       isVisible={true}
