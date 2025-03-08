@@ -14,6 +14,7 @@ import { Sparkles } from "@/components/sparkles"
 import { MouseTracker } from "@/hooks/use-mouse"
 import { useMinigameStore } from "@/store/minigame-store"
 
+import ErrorBoundary from "./basketball/error-boundary"
 import { PlayedBasketballs } from "./basketball/played-basketballs"
 import StaticBasketballs from "./basketball/static-basketballs"
 import { CameraController } from "./camera/camera-controller"
@@ -106,8 +107,10 @@ export const Scene = () => {
                 <Suspense fallback={null}>
                   {isBasketball && (
                     <PhysicsWorld paused={!isBasketball}>
-                      <HoopMinigame />
-                      <PlayedBasketballs />
+                      <ErrorBoundary>
+                        <HoopMinigame />
+                        <PlayedBasketballs />
+                      </ErrorBoundary>
                     </PhysicsWorld>
                   )}
                 </Suspense>

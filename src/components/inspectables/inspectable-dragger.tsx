@@ -2,6 +2,7 @@
 // but using motion instead of spring as animation library.
 // https://github.com/pmndrs/drei/blob/master/src/web/PresentationControls.tsx
 
+import { useCursor } from "@/hooks/use-mouse"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useGesture } from "@use-gesture/react"
 import { useMotionValue, useSpring } from "motion/react"
@@ -76,24 +77,12 @@ export const InspectableDragger = ({
   const rotationXSpring = useSpring(rotationX, config)
   const rotationYSpring = useSpring(rotationY, config)
   const rotationZSpring = useSpring(rotationZ, config)
-
-  // React.useEffect(() => {
-  //   if (global && cursor && enabled) {
-  //     explDomElement.style.cursor = "grab"
-  //     gl.domElement.style.cursor = ""
-  //     return () => {
-  //       explDomElement.style.cursor = "default"
-  //       gl.domElement.style.cursor = "default"
-  //     }
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [global, cursor, explDomElement, enabled])
+  const setCursor = useCursor()
 
   const bind = useGesture(
     {
       onHover: ({ last }) => {
-        if (cursor && !global && enabled)
-          explDomElement.style.cursor = last ? "auto" : "grab"
+        if (cursor && !global && enabled) setCursor(last ? "default" : "grab")
       },
       onDrag: ({
         down,
@@ -101,7 +90,7 @@ export const InspectableDragger = ({
         memo: [oldY, oldX] = [rotationY.get(), rotationX.get()]
       }) => {
         if (!enabled) return [y, x]
-        if (cursor) explDomElement.style.cursor = down ? "grabbing" : "grab"
+        if (cursor) setCursor(down ? "grabbing" : "grab")
         x = MathUtils.clamp(
           oldX + (x / size.width) * Math.PI * speed,
           ...rAzimuth
@@ -129,7 +118,7 @@ export const InspectableDragger = ({
       rotationYSpring.set(rInitial[1])
       rotationZSpring.set(rInitial[2])
 
-      explDomElement.style.cursor = "auto"
+      setCursor("default")
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled])

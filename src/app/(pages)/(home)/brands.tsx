@@ -61,7 +61,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
           {rows.map((row, index) => (
             <div
               key={`brands-row-${index}`}
-              className="flex items-center justify-between gap-x-2 py-3 sm:gap-x-9 md:justify-start"
+              className="flex items-center justify-between py-3 md:justify-start"
             >
               {row.map((brand) => (
                 <Link

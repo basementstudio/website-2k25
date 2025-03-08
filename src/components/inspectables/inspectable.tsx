@@ -17,11 +17,11 @@ import {
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useCursor } from "@/hooks/use-mouse"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
+import { useCursor } from "@/hooks/use-mouse"
 
 interface InspectableProps {
   id: string
@@ -49,9 +49,8 @@ export const Inspectable = ({
   const { selected } = useInspectable()
   const { setSelected } = useInspectable()
   const camera = useThree((state) => state.camera) as PerspectiveCamera
-
-  const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
   const setCursor = useCursor()
+  const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
   const perpendicularMoved = useRef(new Vector3())
 
   const size = useRef({ x: 0, y: 0, z: 0 })
@@ -175,7 +174,6 @@ export const Inspectable = ({
     window.addEventListener("resize", handleResize)
 
     return () => window.removeEventListener("resize", handleResize)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, firstRender])
 
   const vRef = useMemo(() => {
