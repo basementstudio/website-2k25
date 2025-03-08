@@ -170,6 +170,7 @@ void main() {
   irradiance = mix(irradiance, lf, inspectingFactor);
 
   float opacityResult = 1.0;
+  opacityResult *= opacity;
 
   #ifdef IS_TRANSPARENT
   float mapAlpha = mapSample.a;
