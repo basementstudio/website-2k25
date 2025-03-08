@@ -1,3 +1,8 @@
+import { useAssets } from "../assets-provider"
+import LoadingScene from "./loading-scene"
+
 export function FallbackLoading() {
-  return <div className="fixed inset-0 z-[200] bg-black">Loading</div>
+  const { officeWireframe } = useAssets()
+
+  return <LoadingScene modelUrl={officeWireframe} />
 }

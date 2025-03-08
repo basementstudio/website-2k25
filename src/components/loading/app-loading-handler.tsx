@@ -1,10 +1,18 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
 
-import LoadingCanvas from "./loading-canvas"
+// import LoadingCanvas from "./loading-canvas"
+
+const LoadingCanvas = dynamic(
+  () => import("./loading-canvas").then((mod) => mod.default),
+  {
+    ssr: false
+  }
+)
 
 export type UpdateCameraCallback = (
   cameraPosition: Vector3,
@@ -18,13 +26,8 @@ interface AppLoadingState {
   setMainAppRunning: (isAppLoaded: boolean) => void
 }
 
-export const useAppLoadingStore = create<AppLoadingState>((set) => {
-  const loadingCanvasWorker =
-    typeof Worker !== "undefined"
-      ? new Worker(new URL("@/workers/loading-worker.tsx", import.meta.url), {
-          type: "module"
-        })
-      : null
+export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
+  // const loadingCanvasWorker =
 
   const store: AppLoadingState = {
     /**
@@ -34,12 +37,12 @@ export const useAppLoadingStore = create<AppLoadingState>((set) => {
     /**
      * Worker canvas for loading screen
      */
-    worker: loadingCanvasWorker,
+    worker: null,
     /**
      * This function will tell the loading canvas that is ok to reveal the main app
      */
     setMainAppRunning: (isAppLoaded) => {
-      loadingCanvasWorker?.postMessage({
+      get().worker?.postMessage({
         type: "update-loading-status",
         isAppLoaded
       })
@@ -52,7 +55,6 @@ function AppLoadingHandler() {
   const showLoadingCanvas = useAppLoadingStore(
     (state) => state.showLoadingCanvas
   )
-  const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
 
   const [hydrated, setHydrated] = useState(false)
 
@@ -60,11 +62,11 @@ function AppLoadingHandler() {
     setHydrated(true)
   }, [])
 
-  if (!showLoadingCanvas || !loadingCanvasWorker || !hydrated) {
+  if (!showLoadingCanvas) {
     return null
   }
 
-  return <LoadingCanvas loadingCanvasWorker={loadingCanvasWorker} />
+  return <LoadingCanvas />
 }
 
 export default AppLoadingHandler

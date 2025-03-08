@@ -1,6 +1,6 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { useEffect } from "react"
+import { memo, useEffect } from "react"
 import {
   Color,
   Mesh,
@@ -62,10 +62,6 @@ export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
 // self.addEventListener("message", handleMessage)
 
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
-  console.log("aaaa")
-
-  return null
-
   const { cameraConfig } = useLoadingWorkerStore()
   const { scene } = useGLTF(modelUrl!)
   const camera = useThree((state) => state.camera) as PerspectiveCameraType
@@ -192,15 +188,4 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   )
 }
 
-// export default memo(LoadingScene)
-
-export default function A({ modelUrl }: { modelUrl: string }) {
-  console.log("aasdads", modelUrl)
-
-  return (
-    <mesh>
-      <boxGeometry />
-      <meshBasicMaterial color="red" />
-    </mesh>
-  )
-}
+export default memo(LoadingScene)

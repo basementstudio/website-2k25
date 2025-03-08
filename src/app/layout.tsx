@@ -50,6 +50,9 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
       <Transitions />
+      <head>
+        <link rel="preload" href={assets.officeWireframe} as="fetch" />
+      </head>
       <Toolbar />
       <AssetsProvider assets={assets}>
         <InspectableProvider>

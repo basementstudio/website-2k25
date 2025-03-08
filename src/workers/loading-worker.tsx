@@ -15,9 +15,7 @@ self.onmessage = (e: LoadingWorkerMessageEvent) => {
   const { type, modelUrl } = e.data
 
   if (type === "initialize" && modelUrl) {
-    const scene = <LoadingScene modelUrl={modelUrl} />
-
-    render(scene)
+    render(<LoadingScene modelUrl={modelUrl} />)
   }
 }
 
