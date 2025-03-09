@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
 import { useContactStore } from "./contact-store"
-import PhoneHtml from "./phone-html"
+import ContactScreen from "./contact-screen"
 
 const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   const { contactPhone } = useAssets()
@@ -14,9 +14,11 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   const [matrices, setMatrices] = useState<{
     screenboneMatrix: number[] | null
     cameraMatrix: number[] | null
+    screenBonePosition: number[] | null
   }>({
     screenboneMatrix: null,
-    cameraMatrix: null
+    cameraMatrix: null,
+    screenBonePosition: null
   })
 
   useEffect(() => {
@@ -40,7 +42,8 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
       if (e.data.type === "update-screen-skinned-matrix") {
         setMatrices({
           screenboneMatrix: e.data.screenboneMatrix,
-          cameraMatrix: e.data.cameraMatrix
+          cameraMatrix: e.data.cameraMatrix,
+          screenBonePosition: e.data.screenBonePosition
         })
       }
     })
@@ -64,11 +67,12 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
 
   return (
     <>
-      <PhoneHtml
+      <ContactScreen
         screenboneMatrix={matrices.screenboneMatrix}
         cameraMatrix={matrices.cameraMatrix}
-        visible={isContactOpen}
-      />
+      >
+        <div className="h-[330px] w-[545px] bg-red-500" />
+      </ContactScreen>
       <OffscreenCanvas
         worker={worker}
         fallback={null}

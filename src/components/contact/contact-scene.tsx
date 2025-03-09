@@ -29,8 +29,11 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const camera = useThree((state) => state.camera)
 
   const screenbone = gltf.nodes.Obj as Bone
+
+  console.log(gltf)
   const screenboneMatrix = screenbone.matrixWorld.toArray()
   const screenCameraMatrix = camera.matrixWorld.toArray()
+  const screenBonePosition = screenbone.position.toArray()
 
   // Send matrix updates every frame when contact is open
   useFrame(() => {
@@ -38,7 +41,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       self.postMessage({
         type: "update-screen-skinned-matrix",
         screenboneMatrix: screenbone.matrixWorld.toArray(),
-        cameraMatrix: camera.matrixWorld.toArray()
+        cameraMatrix: camera.matrixWorld.toArray(),
+        screenBonePosition: screenbone.position.toArray()
       })
     }
   })
