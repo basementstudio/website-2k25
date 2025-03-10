@@ -10,16 +10,15 @@ import { LetterSlot } from "./letter-slot"
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 export const ArcadeNameInput = ({ className }: { className?: string }) => {
-  const {
-    setPlayerName,
-    score,
-    playerName: previousName,
-    setReadyToPlay,
-    setHasPlayed
-  } = useMinigameStore()
+  const playerName = useMinigameStore((s) => s.playerName)
+  const setPlayerName = useMinigameStore((s) => s.setPlayerName)
+  const score = useMinigameStore((s) => s.score)
+  const setReadyToPlay = useMinigameStore((s) => s.setReadyToPlay)
+  const setHasPlayed = useMinigameStore((s) => s.setHasPlayed)
+
   const [selectedSlot, setSelectedSlot] = useState(0)
   const [letters, setLetters] = useState(
-    previousName ? previousName.split("") : ["A", "A", "A"]
+    playerName ? playerName.split("") : ["A", "A", "A"]
   )
   const [nextLetters, setNextLetters] = useState<(string | null)[]>([
     null,
