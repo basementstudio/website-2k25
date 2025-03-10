@@ -56,8 +56,10 @@ export const ImageWithVideoOverlay = ({
           onLoadedData={() => setIsVideoLoaded(true)}
           style={{ "--controls": "none" } as React.CSSProperties}
           className={cn(
-            "absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
-            isHovered && isVideoLoaded ? "opacity-100" : "opacity-0"
+            "absolute inset-0 h-full w-full object-cover transition-all duration-300",
+            isHovered && isVideoLoaded
+              ? "visible opacity-100"
+              : "invisible opacity-0"
           )}
           muted
           streamType="on-demand"
