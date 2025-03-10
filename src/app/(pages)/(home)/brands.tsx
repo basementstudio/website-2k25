@@ -5,6 +5,7 @@ import { useMemo, useState } from "react"
 
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
@@ -49,21 +50,23 @@ export const Brands = ({ data }: { data: QueryType }) => {
           <AnimatePresence mode="wait">
             {hoveredBrandData && isDesktop ? (
               <motion.span
-                key="brand-name"
-                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
                 className="inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:text-h3"
+                exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: 10 }}
+                key="brand-name"
+                transition={ANIMATION_CONFIG}
               >
                 {hoveredBrandData._title}{" "}
                 <ExternalLinkIcon className="size-4" />
               </motion.span>
             ) : (
               <motion.span
-                key="visionaries"
-                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: 10 }}
+                key="visionaries"
+                transition={ANIMATION_CONFIG}
               >
                 Visionaries
               </motion.span>
