@@ -2,11 +2,10 @@ import { animate } from "motion"
 import { useRef } from "react"
 
 import { useAssets } from "@/components/assets-provider"
-
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCursor } from "@/hooks/use-mouse"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 
 export const LockedDoor = () => {
   const { blog } = useMesh()
@@ -34,7 +33,7 @@ export const LockedDoor = () => {
     animate(lockedDoor?.rotation, target)
 
     const randomSound = Math.floor(Math.random() * availableSounds)
-    playSoundFX(`BLOG_LOCKED_DOOR_${randomSound}`, 0.2)
+    playSoundFX(`BLOG_LOCKED_DOOR_${randomSound}`, 0.1)
 
     setTimeout(() => {
       animate(lockedDoor?.rotation, r)
