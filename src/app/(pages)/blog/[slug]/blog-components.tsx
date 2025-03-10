@@ -30,14 +30,14 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
 }
 
 export const BlogVideo = (props: HandlerProps<"video">) => (
-  <div className="video relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
+  <div className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
     <div className="with-dots grid h-full w-full place-items-center">
       <video
         autoPlay
         loop
         muted
         {...props}
-        className="aspect-video object-cover"
+        className="object-cover"
         playsInline
       />
     </div>
@@ -51,7 +51,7 @@ export const Intro = ({ children }: HandlerProps<"p">) => (
 )
 
 export const Paragraph = ({ children }: HandlerProps<"p">) => (
-  <p className="text-brand-white [&_b]:text-brand-white text-pretty text-blog [&_b]:font-bold">
+  <p className="text-pretty text-blog text-brand-white [&_b]:font-bold [&_b]:text-brand-white">
     {children}
   </p>
 )
@@ -154,15 +154,13 @@ export const QuoteWithAuthor = ({
   avatar?: ImageFragment | null
 }) => {
   return (
-    <div className="custom-block relative mb-4 flex gap-x-4 lg:-left-16 lg:!mb-16 lg:!mt-24 lg:w-[calc(100%+8rem)]">
-      <div className="h-full w-0.5 bg-brand-o lg:hidden" />
-
-      <div className="flex w-full flex-col gap-y-2.5 lg:text-center">
+    <div className="custom-block relative mb-4 flex gap-x-4">
+      <div className="flex w-full flex-col gap-y-2.5">
         <div className="[&>*]:text-mobile-h2 [&>*]:text-brand-w2 lg:[&>*]:text-h2">
           <RichText>{quote}</RichText>
         </div>
 
-        <div className="flex items-center gap-x-2 lg:justify-center">
+        <div className="flex flex-wrap items-center gap-x-2">
           {avatar ? (
             <Image
               src={avatar.url}

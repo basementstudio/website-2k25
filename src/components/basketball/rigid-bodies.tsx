@@ -9,13 +9,16 @@ export default function RigidBodies({
 }: {
   hoopPosition: { x: number; y: number; z: number }
 }) {
-  const {
-    setScore,
-    scoreMultiplier,
-    incrementConsecutiveScores,
-    resetConsecutiveScores,
-    setJustScored
-  } = useMinigameStore()
+  const setScore = useMinigameStore((s) => s.setScore)
+  const scoreMultiplier = useMinigameStore((s) => s.scoreMultiplier)
+  const incrementConsecutiveScores = useMinigameStore(
+    (s) => s.incrementConsecutiveScores
+  )
+  const resetConsecutiveScores = useMinigameStore(
+    (s) => s.resetConsecutiveScores
+  )
+  const setJustScored = useMinigameStore((s) => s.setJustScored)
+
   const { playSoundFX } = useSiteAudio()
 
   const randomPitch = 0.95 + Math.random() * 0.1

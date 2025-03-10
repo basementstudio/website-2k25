@@ -13,7 +13,8 @@ interface Score {
 }
 
 export default function Scoreboard({ className }: { className?: string }) {
-  const { isGameActive, hasPlayed } = useMinigameStore()
+  const isGameActive = useMinigameStore((s) => s.isGameActive)
+  const hasPlayed = useMinigameStore((s) => s.hasPlayed)
   const [highScores, setHighScores] = useState<Score[]>([])
   const [isLoading, setisLoading] = useState(true)
 
