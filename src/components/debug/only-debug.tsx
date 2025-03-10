@@ -9,7 +9,7 @@ export function OnlyDebug() {
   return (
     <>
       <ReactScan />
-      {/* <WebGlTunnelIn>
+      <WebGlTunnelIn>
         <Perf
           style={{
             position: "absolute",
@@ -18,7 +18,7 @@ export function OnlyDebug() {
             zIndex: 1000
           }}
         />
-      </WebGlTunnelIn> */}
+      </WebGlTunnelIn>
     </>
   )
 }
