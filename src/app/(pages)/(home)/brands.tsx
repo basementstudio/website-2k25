@@ -12,7 +12,7 @@ import { cn } from "@/utils/cn"
 
 import type { QueryType } from "./query"
 
-const DEBOUNCE_DELAY = 50
+const DEBOUNCE_DELAY = 150
 const BREAKPOINTS = {
   DESKTOP: "(min-width: 1024px)",
   TABLET: "(min-width: 768px)"
