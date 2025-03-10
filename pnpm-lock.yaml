@@ -11,6 +11,9 @@ importers:
       '@codesandbox/sandpack-react':
         specifier: ^2.19.11
         version: 2.20.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@joycostudio/marquee':
+        specifier: ^0.0.8
+        version: 0.0.8(react@19.0.0)
       '@mailchimp/mailchimp_marketing':
         specifier: ^3.0.80
         version: 3.0.80
@@ -595,6 +598,11 @@ packages:
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
+
+  '@joycostudio/marquee@0.0.8':
+    resolution: {integrity: sha512-Klc6dsonP6ALuEpQM0IGB5RRka95zwyzYi9/XXPc8HydDKghsRpX/9Uhir0xmioANfuesSj6RF2M6hsFq01CyQ==}
+    peerDependencies:
+      react: '>=16.8.0'
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -4883,6 +4891,10 @@ snapshots:
       strip-ansi-cjs: strip-ansi@6.0.1
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
+
+  '@joycostudio/marquee@0.0.8(react@19.0.0)':
+    dependencies:
+      react: 19.0.0
 
   '@jridgewell/gen-mapping@0.3.8':
     dependencies:
