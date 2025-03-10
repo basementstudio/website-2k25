@@ -3,12 +3,11 @@ import { useCallback, useEffect, useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { BOARD_ANGLE, BUTTON_ANIMATION } from "./constants"
-import { useCursor } from "@/hooks/use-mouse"
 
 const VALID_BUTTONS = {
   "02_BT_10": "b",
@@ -48,7 +47,7 @@ export const Button = ({ button }: { button: Mesh }) => {
 
       playSoundFX(
         `ARCADE_BUTTON_${desiredSoundFX.current}_${isDown ? "PRESS" : "RELEASE"}`,
-        0.2
+        0.35
       )
 
       if (isDown) {
