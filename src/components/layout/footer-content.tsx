@@ -63,7 +63,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
   return (
     <footer className="relative z-10 flex flex-col justify-between bg-brand-k pb-4 lg:h-[calc(100dvh-2.25rem)]">
       <div className="grid-layout">
-        <Flicker className="col-span-full">
+        <Flicker onView={true} className="col-span-full">
           <Logo className="mx-auto w-full border-b border-brand-w1/30 pb-2 text-brand-w2 lg:pb-0" />
         </Flicker>
       </div>
