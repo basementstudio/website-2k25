@@ -1,8 +1,9 @@
-import { useMesh } from "@/hooks/use-mesh"
 import { useFrame } from "@react-three/fiber"
-import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { Mesh } from "three"
+
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMesh } from "@/hooks/use-mesh"
 
 interface StreetLane {
   initialPosition: [number, number, number]
@@ -18,24 +19,27 @@ interface StreetLane {
 }
 
 export const OutdoorCars = () => {
-  const pathname = usePathname()
+  const scene = useCurrentScene()
   const { outdoorCarsMeshes: cars } = useMesh()
   const [carUpdateCounter, setCarUpdateCounter] = useState(0)
+  const [bothCarsReachedTarget, setBothCarsReachedTarget] = useState(false)
 
   useEffect(() => {
     if (!cars?.length) return
     STREET_LANES.forEach((lane) => generateRandomCar(lane, 0))
   }, [cars])
 
-  const carsVisible = useMemo(() => {
-    return pathname === "/services" || pathname === "/people"
-  }, [pathname])
+  const carsVisible = useMemo(
+    () =>
+      (scene === "services" || scene === "people") && !bothCarsReachedTarget,
+    [scene, bothCarsReachedTarget]
+  )
 
   const STREET_LANES: StreetLane[] = useMemo(
     () => [
       {
-        initialPosition: [10, -0.2, 4],
-        targetPosition: [-15, -0.2, 4],
+        initialPosition: [50, -0.2, 4],
+        targetPosition: [-50, -0.2, 4],
         car: null,
         speed: null,
         startDelay: null,
@@ -43,8 +47,8 @@ export const OutdoorCars = () => {
         isMoving: false
       },
       {
-        initialPosition: [-13, -0.2, 9],
-        targetPosition: [10, -0.2, 9],
+        initialPosition: [-50, -0.2, 9],
+        targetPosition: [50, -0.2, 9],
         car: null,
         speed: null,
         startDelay: null,
@@ -78,8 +82,8 @@ export const OutdoorCars = () => {
       }
     }
 
-    lane.speed = Math.floor(Math.random() * 30 + 10) // 10-40 km/h
-    lane.startDelay = Number((Math.random() * 10 + 10).toFixed(1)) // 10-20 seconds
+    lane.speed = Math.floor(Math.random() * 30 + 30) // 30-60 km/h
+    lane.startDelay = Number((Math.random() * 5 + 5).toFixed(1)) // 5-10 seconds
     lane.nextStartTime = currentTime + lane.startDelay
     lane.isMoving = false
 
@@ -90,6 +94,9 @@ export const OutdoorCars = () => {
 
   useFrame(({ clock }) => {
     let needsUpdate = false
+    let carsAtTarget = 0
+
+    if (!carsVisible) return
 
     STREET_LANES.forEach((lane) => {
       if (!lane.car || !lane.speed || lane.nextStartTime === null) return
@@ -113,11 +120,16 @@ export const OutdoorCars = () => {
           (direction > 0 && lane.car.position.x >= lane.targetPosition[0]) ||
           (direction < 0 && lane.car.position.x <= lane.targetPosition[0])
         ) {
+          carsAtTarget++
           generateRandomCar(lane, clock.elapsedTime)
           needsUpdate = true
         }
       }
     })
+
+    if (carsAtTarget === STREET_LANES.length) {
+      setBothCarsReachedTarget(true)
+    }
 
     if (needsUpdate && carsVisible) {
       setCarUpdateCounter((prev) => prev + 1)

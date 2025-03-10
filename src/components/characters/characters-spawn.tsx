@@ -16,7 +16,7 @@ function CharactersSpawnInner() {
     }
   })
 
-  return null
+  // return null
 
   // return (
   //   <group position={[4, 0, -13]}>

@@ -34,7 +34,8 @@ export const cctvConfig = {
   }),
   frameCounter: 0,
   framesPerUpdate: 16,
-  camera: new PerspectiveCamera(30, 1, 0.1, 1000)
+  camera: new PerspectiveCamera(30, 1, 0.1, 1000),
+  shouldBakeCCTV: false
 }
 
 cctvConfig.camera.position.set(8.4, 3.85, -6.4)
@@ -79,16 +80,21 @@ function RendererInner({ sceneChildren }: RendererProps) {
     if (!mainCamera || !postProcessingCameraRef.current) return
     if (isContactOpen) return
 
+    // main render
     gl.outputColorSpace = LinearSRGBColorSpace
     gl.toneMapping = NoToneMapping
     gl.setRenderTarget(mainTarget)
     gl.render(mainScene, mainCamera)
 
     // 404 scene on tv
-    gl.setRenderTarget(cctvConfig.renderTarget.write)
-    gl.render(mainScene, cctvConfig.camera)
-    cctvConfig.renderTarget.swap()
+    if (cctvConfig.shouldBakeCCTV) {
+      gl.setRenderTarget(cctvConfig.renderTarget.write)
+      gl.render(mainScene, cctvConfig.camera)
+      cctvConfig.renderTarget.swap()
+      cctvConfig.shouldBakeCCTV = false
+    }
 
+    // post processing
     gl.outputColorSpace = SRGBColorSpace
     gl.toneMapping = NoToneMapping
     gl.setRenderTarget(null)

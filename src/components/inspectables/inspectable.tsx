@@ -49,9 +49,8 @@ export const Inspectable = ({
   const { selected } = useInspectable()
   const { setSelected } = useInspectable()
   const camera = useThree((state) => state.camera) as PerspectiveCamera
-
-  const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
   const setCursor = useCursor()
+  const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
   const perpendicularMoved = useRef(new Vector3())
 
   const size = useRef({ x: 0, y: 0, z: 0 })
@@ -175,7 +174,6 @@ export const Inspectable = ({
     window.addEventListener("resize", handleResize)
 
     return () => window.removeEventListener("resize", handleResize)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, firstRender])
 
   const vRef = useMemo(() => {

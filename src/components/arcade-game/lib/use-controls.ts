@@ -88,22 +88,40 @@ const stickDirectionMap = {
 export function useStickControls() {
   useEffect(() => {
     const handleStickMove = (event: CustomEvent) => {
-      const { direction } = event.detail
+      const { direction, stick } = event.detail
 
-      setControl("left", false)
-      setControl("right", false)
-      setControl("forward", false)
-      setControl("backward", false)
+      // handle left stick
+      if (stick === "02_JYTK_L") {
+        setControl("left", false)
+        setControl("right", false)
+        setControl("forward", false)
+        setControl("backward", false)
 
-      if (direction === 0) return
+        if (direction === 0) return
 
-      const control =
-        stickDirectionMap[direction as keyof typeof stickDirectionMap]
+        const control =
+          stickDirectionMap[direction as keyof typeof stickDirectionMap]
 
-      if (control) {
-        setControl(control as ControlKey, true)
-        if (keyCallbacks[control as ControlKey]) {
-          keyCallbacks[control as ControlKey]!()
+        if (control) {
+          setControl(control as ControlKey, true)
+          if (keyCallbacks[control as ControlKey]) {
+            keyCallbacks[control as ControlKey]!()
+          }
+        }
+      }
+
+      // handle right stick
+      if (stick === "02_JYTK_R") {
+        if (direction === 0) return
+
+        const control =
+          stickDirectionMap[direction as keyof typeof stickDirectionMap]
+
+        if (control) {
+          setControl(control as ControlKey, true)
+          if (keyCallbacks[control as ControlKey]) {
+            keyCallbacks[control as ControlKey]!()
+          }
         }
       }
     }

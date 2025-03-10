@@ -8,6 +8,7 @@ import {
   Mesh,
   NearestFilter,
   NoColorSpace,
+  RawShaderMaterial,
   ShaderMaterial,
   Texture,
   TextureLoader
@@ -17,6 +18,7 @@ import { EXRLoader } from "three/examples/jsm/Addons.js"
 import { useAssets } from "@/components/assets-provider"
 import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
 
+import { useAppLoadingStore } from "../loading/app-loading-handler"
 import { cctvConfig } from "../postprocessing/renderer"
 
 interface Bake {
@@ -141,6 +143,11 @@ const useBakes = (): Record<string, Bake> => {
   return meshMaps
 }
 
+/** Attach a material to this array and it will change its uOpacity onLoad */
+export const revealOpacityMaterials = new Set<
+  ShaderMaterial | RawShaderMaterial
+>()
+
 const Bakes = () => {
   const shaderMaterialsRef = useCustomShaderMaterial(
     (store) => store.materialsRef
@@ -150,17 +157,22 @@ const Bakes = () => {
 
   const scene = useThree((state) => state.scene)
 
-  useEffect(() => {
-    animate(0, 1, {
-      duration: 1.5,
-      ease: "easeIn",
-      onUpdate: (latest) => {
-        Object.values(shaderMaterialsRef).forEach((material) => {
-          material.uniforms.uLoaded.value = latest
-        })
-      }
-    })
+  const setMainAppRunning = useAppLoadingStore(
+    (state) => state.setMainAppRunning
+  )
 
+  useEffect(() => {
+    setMainAppRunning(true)
+    const timeout = setTimeout(() => {
+      cctvConfig.shouldBakeCCTV = true
+    }, 10)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [setMainAppRunning])
+
+  useEffect(() => {
     Object.entries(bakes).forEach(([mesh, maps]) => {
       const meshOrGroup = scene.getObjectByName(mesh)
       if (!meshOrGroup) return

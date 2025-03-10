@@ -24,11 +24,13 @@ import {
   animateNet,
   NET_ANIMATION_SPEED
 } from "@/components/basketball/basketball-utils"
+import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { useInspectable } from "@/components/inspectables/context"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { OutdoorCars } from "@/components/outdoor-cars"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
@@ -40,8 +42,6 @@ import {
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
-import { Net } from "../basketball/net"
-import { OutdoorCars } from "../outdoor-cars"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -106,7 +106,6 @@ export const Map = memo(() => {
   const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
-  const mainCamera = useNavigationStore((state) => state.mainCamera)
   const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
@@ -132,14 +131,11 @@ export const Map = memo(() => {
   )
 
   const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
-  const [keyframedNet, setKeyframedNet] = useState<Object3D | null>(null)
   const [net, setNet] = useState<Mesh | null>(null)
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
   const timeRef = useRef(0)
-
-  const stairsRef = useRef<Mesh | null>(null)
 
   const { godrayOpacity } = useControls("God Rays", {
     godrayOpacity: {
@@ -179,12 +175,6 @@ export const Map = memo(() => {
       // @ts-ignore
       useMesh.getState().cctv.screen.material.uniforms.uTime.value =
         clock.getElapsedTime()
-    }
-
-    if (keyframedNet && isAnimating.current) {
-      const mesh = keyframedNet as Mesh
-      animationProgress.current += NET_ANIMATION_SPEED
-      isAnimating.current = animateNet(mesh, animationProgress.current)
     }
 
     godrays.forEach((mesh) => {
@@ -280,17 +270,6 @@ export const Map = memo(() => {
         return
       }
 
-      // Homepage Floor
-      if (child.name === "SM_03_03" && child instanceof THREE.Mesh) {
-        child.material.side = THREE.FrontSide
-      }
-
-      // Homepage Stairs
-      if (child.name === "SM_03_01" && child instanceof THREE.Mesh) {
-        stairsRef.current = child
-        child.material.side = THREE.FrontSide
-      }
-
       if ("isMesh" in child) {
         const meshChild = child as Mesh
 
@@ -298,12 +277,6 @@ export const Map = memo(() => {
         if (alreadyReplaced) return
 
         const currentMaterial = meshChild.material as MeshStandardMaterial
-
-        if (currentMaterial.map) {
-          currentMaterial.map.generateMipmaps = false
-          currentMaterial.map.magFilter = THREE.NearestFilter
-          currentMaterial.map.minFilter = THREE.NearestFilter
-        }
 
         const withVideo = videos.find((video) => video.mesh === meshChild.name)
         const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
@@ -317,19 +290,16 @@ export const Map = memo(() => {
 
         if (withVideo) {
           const videoTexture = createVideoTexture(withVideo.url)
-
           currentMaterial.map = videoTexture
           currentMaterial.map.flipY = false
+          currentMaterial.emissiveMap = videoTexture
+          currentMaterial.emissiveIntensity = withVideo.intensity
+        }
 
+        if (currentMaterial.map) {
           currentMaterial.map.generateMipmaps = false
           currentMaterial.map.magFilter = THREE.NearestFilter
           currentMaterial.map.minFilter = THREE.NearestFilter
-
-          currentMaterial.emissiveMap = videoTexture
-          currentMaterial.emissiveIntensity = withVideo.intensity
-          currentMaterial.emissiveMap.generateMipmaps = false
-          currentMaterial.emissiveMap.magFilter = THREE.NearestFilter
-          currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
         }
 
         const newMaterials = Array.isArray(currentMaterial)
@@ -373,6 +343,16 @@ export const Map = memo(() => {
         meshChild.material = newMaterials
 
         meshChild.userData.hasGlobalMaterial = true
+
+        // Homepage Floor
+        if (child.name === "SM_03_03" && child instanceof THREE.Mesh) {
+          child.material.side = THREE.FrontSide
+        }
+
+        // Homepage Stairs
+        if (child.name === "SM_03_01" && child instanceof THREE.Mesh) {
+          child.material.side = THREE.FrontSide
+        }
       }
     }
 

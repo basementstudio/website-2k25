@@ -10,6 +10,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
+import { revealOpacityMaterials } from "../map/bakes"
 
 interface PostProcessingProps {
   mainTexture: Texture
@@ -22,6 +23,13 @@ const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
   const firstRender = useRef(true)
 
   const material = useMemo(() => createPostProcessingMaterial(), [])
+
+  useEffect(() => {
+    revealOpacityMaterials.add(material)
+    return () => {
+      revealOpacityMaterials.delete(material)
+    }
+  }, [material])
 
   const {
     basics,
