@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three"
+import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
