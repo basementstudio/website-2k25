@@ -24,15 +24,9 @@ function DebugInner() {
   return (
     <div className="w-128 absolute bottom-8 right-64 z-50">
       <Leva collapsed fill hidden={!debug} />
-      {debug && <OnlyDebug />}
+      <Suspense fallback={null}>{debug && <OnlyDebug />}</Suspense>
     </div>
   )
 }
 
-export const Debug = memo(function DebugSuspense() {
-  return (
-    <Suspense fallback={null}>
-      <DebugInner />
-    </Suspense>
-  )
-})
+export const Debug = memo(DebugInner)

@@ -55,9 +55,10 @@ function debounce<T extends (...args: any[]) => any>(
 }
 
 export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
-  const events = useThree((state) => state.events)
   const gl = useThree((state) => state.gl)
-  const explDomElement = events.connected || gl.domElement
+  const connected = useThree((state) => state.events.connected)
+
+  const explDomElement = connected || gl.domElement
   const setHoverText = useMouseStore((state) => state.setHoverText)
 
   useEffect(() => {
