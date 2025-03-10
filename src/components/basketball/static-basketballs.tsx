@@ -31,7 +31,6 @@ const StaticBasketballs = () => {
     const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
       LIGHT: true
     })
-    mat.uniforms.uLoaded.value = 1
     mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
     return mat
   }, [originalMaterial])
@@ -42,8 +41,6 @@ const StaticBasketballs = () => {
       const material = createGlobalShaderMaterial(clonedMaterial, false, {
         LIGHT: true
       })
-
-      material.uniforms.uLoaded.value = 1
       material.uniforms.lightDirection.value = new Vector3(0, 0, 1)
       setPlayedBallMaterial(material)
     }

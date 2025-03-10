@@ -11,7 +11,7 @@ export const ProjectWrapper = ({
   entry: QueryItemType & { awards: { title: string }[] }
 }) => (
   <ProjectProvider>
-    <div className="grid-layout min-h-screen pt-12">
+    <div className="grid-layout min-h-screen pt-[calc(2.25rem+1px)]">
       <ProjectGallery entry={entry} />
       <ProjectInfo entry={entry} />
     </div>

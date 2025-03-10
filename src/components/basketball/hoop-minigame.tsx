@@ -10,6 +10,7 @@ import {
   handlePointerUp as utilsHandlePointerUp
 } from "@/components/basketball/basketball-utils"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -22,32 +23,7 @@ export const HoopMinigame = () => {
   const { playSoundFX } = useSiteAudio()
   const [isBasketball, setIsBasketball] = useState(false)
   const scene = useCurrentScene()
-
-  useEffect(() => {
-    setIsBasketball(scene === "basketball")
-  }, [scene, setIsBasketball])
-
-  const ballRef = useRef<RapierRigidBody>(null)
-  const mousePos = useRef(new Vector2())
-  const lastMousePos = useRef(new Vector2())
-  const throwVelocity = useRef(new Vector2())
-
-  // Use a ref to store vectors for position calculations to avoid recreating them each frame
-  const positionVectors = useRef({
-    dragPos: new Vector3(),
-    dragStartPos: new Vector3(),
-    currentBallPos: new Vector3(),
-    targetPos: new Vector3()
-  }).current
-
-  const { camera } = useThree()
-  const bounceCount = useRef(0)
-  const resetProgress = useRef(0)
-  const startResetPos = useRef(new Vector3())
-  const timerInterval = useRef<NodeJS.Timeout | null>(null)
-  const hasMovedSignificantly = useRef(false)
-  const initialGrabPos = useRef(new Vector3())
-  const isThrowable = useRef(true)
+  const isOnTab = useIsOnTab()
 
   const {
     gameDuration,
@@ -72,8 +48,35 @@ export const HoopMinigame = () => {
     resetConsecutiveScores,
     justScored,
     setJustScored,
-    hasPlayed
+    hasPlayed,
+    clearPlayedBalls,
+    removePlayedBall,
+    playedBalls
   } = useMinigameStore()
+
+  const ballRef = useRef<RapierRigidBody>(null)
+  const mousePos = useRef(new Vector2())
+  const lastMousePos = useRef(new Vector2())
+  const throwVelocity = useRef(new Vector2())
+
+  // Use a ref to store vectors for position calculations to avoid recreating them each frame
+  const positionVectors = useRef({
+    dragPos: new Vector3(),
+    dragStartPos: new Vector3(),
+    currentBallPos: new Vector3(),
+    targetPos: new Vector3(),
+    currentRot: new Vector3()
+  }).current
+
+  const { camera } = useThree()
+  const bounceCount = useRef(0)
+  const resetProgress = useRef(0)
+  const startResetPos = useRef(new Vector3())
+  const timerInterval = useRef<NodeJS.Timeout | null>(null)
+  const hasMovedSignificantly = useRef(false)
+  const initialGrabPos = useRef(new Vector3())
+  const isThrowable = useRef(true)
+  const isUnmounting = useRef(false)
 
   const resetState = useCallback(() => {
     resetProgress.current = 0
@@ -100,6 +103,7 @@ export const HoopMinigame = () => {
     positionVectors.dragStartPos = new Vector3()
     positionVectors.currentBallPos = new Vector3()
     positionVectors.targetPos = new Vector3()
+    positionVectors.currentRot = new Vector3()
     mousePos.current = new Vector2()
     lastMousePos.current = new Vector2()
     throwVelocity.current = new Vector2()
@@ -115,7 +119,40 @@ export const HoopMinigame = () => {
     setShotMetrics,
     resetConsecutiveScores,
     setJustScored,
-    hasPlayed
+    hasPlayed,
+    positionVectors
+  ])
+
+  useEffect(() => {
+    setIsBasketball(scene === "basketball")
+  }, [scene, setIsBasketball])
+
+  // stop round if we tab out of the page
+  useEffect(() => {
+    if (isBasketball && !isOnTab) {
+      if (timerInterval.current) {
+        clearInterval(timerInterval.current)
+        timerInterval.current = null
+      }
+
+      removePlayedBall(0)
+      clearPlayedBalls()
+
+      setIsGameActive(false)
+      setIsDragging(false)
+      setScore(0)
+      setTimeRemaining(gameDuration)
+    }
+  }, [
+    isOnTab,
+    isBasketball,
+    clearPlayedBalls,
+    setIsGameActive,
+    setIsDragging,
+    setTimeRemaining,
+    gameDuration,
+    setScore,
+    removePlayedBall
   ])
 
   useEffect(() => {
@@ -213,28 +250,50 @@ export const HoopMinigame = () => {
               setTimeout(() => {
                 playSoundFX("TIMEOUT_BUZZER")
 
-                if (ballRef.current) {
-                  const currentPos = ballRef.current.translation()
-                  const currentVel = ballRef.current.linvel()
+                // if the ball is still in play, we add it to played balls
+                // only if it doesn't already exist there
+                if (ballRef.current && !isUnmounting.current) {
+                  try {
+                    const currentPos = ballRef.current.translation()
+                    const currentVel = ballRef.current.linvel()
+                    const currentRot = ballRef.current.rotation()
 
-                  addPlayedBall({
-                    position: {
-                      x: currentPos.x,
-                      y: currentPos.y,
-                      z: currentPos.z
-                    },
-                    velocity: {
-                      x: currentVel.x,
-                      y: currentVel.y,
-                      z: currentVel.z
+                    // check if ball was added already
+                    const alreadyAdded = playedBalls.some(
+                      (ball) =>
+                        Math.abs(ball.position.x - currentPos.x) < 0.1 &&
+                        Math.abs(ball.position.y - currentPos.y) < 0.1 &&
+                        Math.abs(ball.position.z - currentPos.z) < 0.1
+                    )
+
+                    if (!alreadyAdded && !isUnmounting.current) {
+                      addPlayedBall({
+                        position: {
+                          x: currentPos.x,
+                          y: currentPos.y,
+                          z: currentPos.z
+                        },
+                        velocity: {
+                          x: currentVel.x,
+                          y: currentVel.y,
+                          z: currentVel.z
+                        },
+                        rotation: {
+                          x: currentRot.x,
+                          y: currentRot.y,
+                          z: currentRot.z
+                        }
+                      })
                     }
-                  })
+                  } catch (error) {
+                    console.warn("Final ball check failed:", error)
+                  }
                 }
 
                 setIsGameActive(false)
                 setHasPlayed(true)
                 setReadyToPlay(false)
-              }, 100)
+              }, 50)
             }
             return gameDuration
           }
@@ -252,7 +311,8 @@ export const HoopMinigame = () => {
     setReadyToPlay,
     playSoundFX,
     isDragging,
-    setIsDragging
+    setIsDragging,
+    playedBalls
   ])
 
   const handlePointerUp = useCallback(() => {
@@ -276,7 +336,8 @@ export const HoopMinigame = () => {
     upStrength,
     forwardStrength,
     startGame,
-    playSoundFX
+    playSoundFX,
+    positionVectors.dragStartPos
   ])
 
   useEffect(() => {
@@ -332,6 +393,8 @@ export const HoopMinigame = () => {
           translation.z
         )
 
+        const rotation = ballRef.current.rotation()
+        positionVectors.currentRot.set(rotation.x, rotation.y, rotation.z)
         // Interpolate towards the target position with smooth lerp
         const lerpFactor = 0.002 // Adjust this value for smoother or more responsive movement
         positionVectors.dragPos.lerpVectors(
@@ -354,11 +417,6 @@ export const HoopMinigame = () => {
         console.warn("Failed to update ball position, physics might be paused")
         setIsDragging(false)
       }
-    }
-
-    // score decay
-    if (score > 0 && isGameActive) {
-      setScore((prev) => Math.max(0, prev - 1 * delta))
     }
 
     // reset ball anim
@@ -400,6 +458,19 @@ export const HoopMinigame = () => {
     }
   })
 
+  // Add safety for unmounting
+  useEffect(() => {
+    return () => {
+      isUnmounting.current = true
+
+      // Clear references to prevent errors during unmount
+      if (timerInterval.current) {
+        clearInterval(timerInterval.current)
+        timerInterval.current = null
+      }
+    }
+  }, [])
+
   const handlePointerDown = useCallback(
     (event: any) => {
       utilsHandlePointerDown({
@@ -416,7 +487,7 @@ export const HoopMinigame = () => {
         setShotMetrics
       })
     },
-    [hoopPosition, setIsDragging, setShotMetrics]
+    [hoopPosition, setIsDragging, setShotMetrics, positionVectors.dragStartPos]
   )
 
   const handlePointerMove = useCallback(
@@ -437,7 +508,13 @@ export const HoopMinigame = () => {
         setShotMetrics
       })
     },
-    [isDragging, hoopPosition, setIsDragging, setShotMetrics]
+    [
+      isDragging,
+      hoopPosition,
+      setIsDragging,
+      setShotMetrics,
+      positionVectors.dragStartPos
+    ]
   )
 
   const hoopMeshes = useMesh((state) => state.hoopMeshes)
