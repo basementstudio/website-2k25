@@ -1,6 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
-import { memo, useCallback, useEffect, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 import * as THREE from "three"
 
@@ -486,7 +486,7 @@ const HoopMinigameInner = () => {
         setShotMetrics
       })
     },
-    [hoopPosition, setIsDragging, setShotMetrics, positionVectors.dragStartPos]
+    [hoopPosition]
   )
 
   const handlePointerMove = useCallback(
@@ -507,13 +507,7 @@ const HoopMinigameInner = () => {
         setShotMetrics
       })
     },
-    [
-      isDragging,
-      hoopPosition,
-      setIsDragging,
-      setShotMetrics,
-      positionVectors.dragStartPos
-    ]
+    [isDragging, hoopPosition]
   )
 
   const hoopMeshes = useMesh((state) => state.hoopMeshes)

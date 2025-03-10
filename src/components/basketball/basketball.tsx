@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
-import { RefObject, useEffect, useMemo, useRef } from "react"
+import { memo, RefObject, useCallback, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
 import { useCursor } from "@/hooks/use-mouse"
@@ -24,7 +24,7 @@ interface BasketballProps {
   handlePointerUp: (event: any) => void
 }
 
-export const Basketball = ({
+const BasketballInner = ({
   ballRef,
   initialPosition,
   isDragging,
@@ -44,9 +44,10 @@ export const Basketball = ({
     return geo
   }, [basketballModel])
 
-  const originalMaterial = basketballModel.materials[
-    "Material.002"
-  ] as MeshStandardMaterial
+  const originalMaterial = useMemo(
+    () => basketballModel.materials["Material.002"] as MeshStandardMaterial,
+    [basketballModel]
+  )
 
   const material = useMemo(() => {
     const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
@@ -56,42 +57,45 @@ export const Basketball = ({
     return mat
   }, [originalMaterial])
 
-  const handleCollision = (other: any) => {
-    const randomVolume = 0.1 + Math.random() * 0.1
-    const randomPitch = 0.95 + Math.random() * 0.1
-    const decreaseVolumeOnBounce = bounceCount.current > 0 ? 0.5 : 0.75
+  const handleCollision = useCallback(
+    (other: any) => {
+      const randomVolume = 0.1 + Math.random() * 0.1
+      const randomPitch = 0.95 + Math.random() * 0.1
+      const decreaseVolumeOnBounce = bounceCount.current > 0 ? 0.5 : 0.75
 
-    playSoundFX(
-      "BASKETBALL_THUMP",
-      randomVolume * decreaseVolumeOnBounce,
-      randomPitch
-    )
-    if (!isDragging) {
-      if (other.rigidBodyObject?.name === "floor") {
-        bounceCount.current += 1
+      playSoundFX(
+        "BASKETBALL_THUMP",
+        randomVolume * decreaseVolumeOnBounce,
+        randomPitch
+      )
+      if (!isDragging) {
+        if (other.rigidBodyObject?.name === "floor") {
+          bounceCount.current += 1
 
-        if (bounceCount.current >= 2) {
-          bounceCount.current = 0
-          if (ballRef.current) {
-            const currentPos = ballRef.current.translation()
-            ballRef.current.setBodyType(2)
-            resetBallToInitialPosition(currentPos)
+          if (bounceCount.current >= 2) {
+            bounceCount.current = 0
+            if (ballRef.current) {
+              const currentPos = ballRef.current.translation()
+              ballRef.current.setBodyType(2)
+              resetBallToInitialPosition(currentPos)
+            }
           }
         }
       }
-    }
-  }
+    },
+    [ballRef, isDragging, resetBallToInitialPosition, playSoundFX]
+  )
 
-  const handleSleep = () => {
+  const handleSleep = useCallback(() => {
     bounceCount.current = 0
     resetBallToInitialPosition()
-  }
+  }, [resetBallToInitialPosition])
 
   useEffect(() => {
     if (isDragging) {
       setCursor("grabbing")
     }
-  }, [isDragging])
+  }, [isDragging, setCursor])
 
   return (
     <RigidBody
@@ -106,18 +110,35 @@ export const Basketball = ({
       linearDamping={0.5}
       angularDamping={0.5}
     >
-      <mesh
-        geometry={geometry}
-        scale={1.7}
-        material={material}
-        rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerEnter={() => !isDragging && setCursor("grab")}
-        onPointerLeave={() => !isDragging && setCursor("default")}
-        userData={{ hasGlobalMaterial: true }}
-      />
+      {useMemo(() => {
+        const handlePointerEnter = () => !isDragging && setCursor("grab")
+        const handlePointerLeave = () => !isDragging && setCursor("default")
+
+        return (
+          <mesh
+            geometry={geometry}
+            scale={1.7}
+            material={material}
+            rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerEnter={handlePointerEnter}
+            onPointerLeave={handlePointerLeave}
+            userData={{ hasGlobalMaterial: true }}
+          />
+        )
+      }, [
+        geometry,
+        material,
+        handlePointerDown,
+        handlePointerMove,
+        handlePointerUp,
+        isDragging,
+        setCursor
+      ])}
     </RigidBody>
   )
 }
+
+export const Basketball = memo(BasketballInner)
