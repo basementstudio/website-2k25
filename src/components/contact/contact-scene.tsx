@@ -8,6 +8,7 @@ import {
   Matrix4,
   Mesh,
   MeshBasicMaterial,
+  SkinnedMesh,
   Vector3
 } from "three"
 
@@ -26,20 +27,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const isContactOpen = useWorkerStore((state) => state.isContactOpen)
   const isClosing = useWorkerStore((state) => state.isClosing)
   const setIsContactOpen = useWorkerStore((state) => state.setIsContactOpen)
-  const camera = useThree((state) => state.camera)
-
-  const screenbone = gltf.nodes.Obj as Bone
-
-  useFrame(() => {
-    if (isContactOpen) {
-      self.postMessage({
-        type: "update-screen-skinned-matrix",
-        screenboneMatrix: screenbone.matrixWorld.toArray(),
-        cameraMatrix: camera.matrixWorld.toArray(),
-        screenBonePosition: screenbone.position.toArray()
-      })
-    }
-  })
 
   const { mixer, handler } = useMemo(() => {
     if (!gltf.scene || !gltf.animations.length)
@@ -105,13 +92,15 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     if (isClosing) {
       self.postMessage({
         type: "scale-type",
-        scale: "reverse"
+        scale: "scale-down"
       })
 
-      handler.playAnimation("Outro-v2", {
-        type: "transition",
-        clampWhenFinished: true
-      })
+      setTimeout(() => {
+        handler.playAnimation("Outro-v2", {
+          type: "transition",
+          clampWhenFinished: true
+        })
+      }, 550)
     } else if (isContactOpen) {
       handler.playAnimation("Intro.001", {
         type: "transition",
@@ -120,7 +109,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         onComplete: () => {
           self.postMessage({
             type: "scale-type",
-            scale: "forward"
+            scale: "scale-up"
           })
           idleTimeRef.current = 0
         }

@@ -36,7 +36,7 @@ export const useContactStore = create<ContactStore>((set) => ({
           }
           return { isContactOpen: false, isClosing: false }
         })
-      }, 1000)
+      }, 1550)
     } else {
       set((state) => {
         if (state.worker) {

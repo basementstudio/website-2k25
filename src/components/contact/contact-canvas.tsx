@@ -48,9 +48,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
 
   return (
     <>
-      <ContactScreen worker={worker}>
-        <div className="h-[330px] w-[545px] bg-red-500" />
-      </ContactScreen>
+      <ContactScreen worker={worker} />
       <OffscreenCanvas
         worker={worker}
         fallback={null}
