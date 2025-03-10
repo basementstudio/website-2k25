@@ -180,8 +180,19 @@ export const sfxFragment = fragmentOn("Sfx", {
       }
     }
   },
-  ambience: {
-    url: true
+  music: {
+    aqua: {
+      url: true
+    },
+    rain: {
+      url: true
+    },
+    tiger: {
+      url: true
+    },
+    vhs: {
+      url: true
+    }
   }
 })
 

@@ -5,7 +5,11 @@ export function useAudioUrls() {
 
   return {
     AMBIENCE: {
-      AMBIENCE: sfx.ambience
+      AMBIENCE_DEFAULT: sfx.music.tiger,
+      AMBIENCE_RAIN: sfx.music.rain,
+      AMBIENCE_AQUA: sfx.music.aqua,
+      AMBIENCE_TIGER: sfx.music.tiger,
+      AMBIENCE_VHS: sfx.music.vhs
     },
     GAME_THEME_SONGS: {
       BASKETBALL_AMBIENT: sfx.basketballTheme

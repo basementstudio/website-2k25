@@ -35,7 +35,7 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
         if (!ostSong && !isInitialized.current) {
           isInitialized.current = true
           const newOstSong = await player.loadAudioFromURL(
-            AMBIENCE.AMBIENCE,
+            AMBIENCE.AMBIENCE_DEFAULT,
             false
           )
           newOstSong.loop = true

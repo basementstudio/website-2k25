@@ -57,7 +57,6 @@ export interface AssetsResult {
     intensity: number
   }[]
   sfx: {
-    ambience: string
     basketballTheme: string
     basketballSwoosh: string
     basketballNet: string
@@ -83,6 +82,12 @@ export interface AssetsResult {
         press: string
         release: string
       }[]
+    }
+    music: {
+      aqua: string
+      rain: string
+      tiger: string
+      vhs: string
     }
   }
   scenes: {
@@ -199,7 +204,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
     sfx: {
-      ambience: threeDInteractions.sfx.ambience?.url ?? "",
       basketballTheme: threeDInteractions.sfx.basketballTheme?.url ?? "",
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
       basketballNet: threeDInteractions.sfx.basketballNet?.url ?? "",
@@ -227,6 +231,12 @@ export async function fetchAssets(): Promise<AssetsResult> {
           press: item.press?.url ?? "",
           release: item.release?.url ?? ""
         }))
+      },
+      music: {
+        aqua: threeDInteractions.sfx.music.aqua.url,
+        rain: threeDInteractions.sfx.music.rain.url,
+        tiger: threeDInteractions.sfx.music.tiger.url,
+        vhs: threeDInteractions.sfx.music.vhs.url
       }
     },
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
