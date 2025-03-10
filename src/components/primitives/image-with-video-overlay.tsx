@@ -1,6 +1,6 @@
 "use client"
 
-import MuxPlayer, { MuxPlayerRefAttributes } from "@mux/mux-player-react"
+import MuxVideo from "@mux/mux-video-react"
 import Image from "next/image"
 import { useRef, useState } from "react"
 
@@ -19,7 +19,7 @@ export const ImageWithVideoOverlay = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
-  const videoRef = useRef<MuxPlayerRefAttributes>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   const handleMouseLeave = () => {
     setIsHovered(false)
@@ -50,7 +50,7 @@ export const ImageWithVideoOverlay = ({
         className="object-cover"
       />
       {video && (
-        <MuxPlayer
+        <MuxVideo
           src={video.url}
           onCanPlay={() => setIsVideoLoaded(true)}
           onLoadedData={() => setIsVideoLoaded(true)}
