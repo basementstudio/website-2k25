@@ -12,7 +12,7 @@ import { cn } from "@/utils/cn"
 
 import type { QueryType } from "./query"
 
-const DEBOUNCE_DELAY = 150
+const DEBOUNCE_DELAY = 50
 const BREAKPOINTS = {
   DESKTOP: "(min-width: 1024px)",
   TABLET: "(min-width: 768px)"
@@ -38,7 +38,7 @@ const BrandLogo = memo(
   }) => (
     <Link
       className={cn(
-        "actionable transition-opacity duration-300 [&>svg]:w-16 sm:[&>svg]:w-auto",
+        "actionable -my-[1px] py-[13px] transition-opacity duration-300 [&>svg]:w-16 sm:[&>svg]:w-auto",
         {
           "opacity-50": !isHovered,
           "opacity-100": isHovered
@@ -66,7 +66,7 @@ const BrandRow = memo(
     row: Array<{ logo: string | null; website: string | null; _id: string }>
     setHoveredBrand: (id: string | null) => void
   }) => (
-    <div className="flex items-center justify-between py-3 md:justify-start">
+    <div className="flex items-center justify-between md:justify-start">
       {row.map((brand) => (
         <BrandLogo
           key={brand._id}
