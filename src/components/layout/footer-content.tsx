@@ -1,5 +1,6 @@
 import { cn } from "@/utils/cn"
 
+import { Flicker } from "../primitives/flicker"
 import { QueryType } from "./query"
 import { Copyright, InternalLinks, SocialLinks, SoDa } from "./shared-sections"
 import { StayConnected } from "./stay-connected"
@@ -61,9 +62,9 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
 
   return (
     <footer className="relative z-10 flex flex-col justify-between bg-brand-k pb-4 lg:h-[calc(100dvh-2.25rem)]">
-      <div className="grid-layout">
+      <Flicker className="grid-layout">
         <Logo className="col-span-full mx-auto border-b border-brand-w1/30 pb-2 text-brand-w2 lg:pb-0" />
-      </div>
+      </Flicker>
 
       <div className="grid-layout relative grid-rows-[auto_auto_56px] !gap-y-10 pb-2 pt-4 lg:grid-rows-[auto] lg:items-end lg:!gap-y-2 lg:py-0">
         <InternalLinks

@@ -1,0 +1,56 @@
+@keyframes flicker {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  10% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 0;
+  }
+  70% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  95% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.flicker[data-active="true"] {
+  animation: flicker var(--flicker-duration) 1 forwards var(--flicker-delay);
+}
+
+.flicker:not([data-active="true"]):not([data-completed="true"]) {
+  opacity: 0;
+}
+
+.hidden {
+  opacity: 0 !important;
+}
