@@ -57,7 +57,7 @@ export const Basketball = ({
   }, [originalMaterial])
 
   const handleCollision = (other: any) => {
-    const randomVolume = 0.1 + Math.random() * 0.1
+    const randomVolume = 0.05 + Math.random() * 0.05
     const randomPitch = 0.95 + Math.random() * 0.1
     const decreaseVolumeOnBounce = bounceCount.current > 0 ? 0.5 : 0.75
 

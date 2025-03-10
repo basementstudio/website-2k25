@@ -247,7 +247,7 @@ const HoopMinigameInner = () => {
               }
 
               setTimeout(() => {
-                playSoundFX("TIMEOUT_BUZZER")
+                playSoundFX("TIMEOUT_BUZZER", 0.045)
 
                 // if the ball is still in play, we add it to played balls
                 // only if it doesn't already exist there
