@@ -23,10 +23,7 @@ export const ImageWithVideoOverlay = ({
 
   const handleMouseLeave = () => {
     setIsHovered(false)
-
-    setTimeout(() => {
-      if (videoRef.current) videoRef.current.currentTime = 0
-    }, 300)
+    if (videoRef.current) videoRef.current.pause()
   }
 
   return (
