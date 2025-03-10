@@ -17,7 +17,9 @@ export const Contact = () => {
           href="mailto:hello@basement.studio"
           className="relative z-10 col-span-3 h-max w-max bg-brand-k text-mobile-h2 text-brand-g1 lg:col-span-4 lg:text-h2"
         >
-          (hello@basement.studio)
+          <span className="actionable actionable-no-underline">
+            (hello@basement.studio)
+          </span>
         </Link>
 
         <div className="col-span-full lg:col-span-6">

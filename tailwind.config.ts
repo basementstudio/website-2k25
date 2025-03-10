@@ -175,6 +175,14 @@ export default {
           from: { opacity: "1" },
           to: { opacity: "0" }
         },
+        "actionable-blink": {
+          "25%,75%": {
+            "--opacity-hover-value": "100"
+          },
+          "50%,100%": {
+            "--opacity-hover-value": "var(--opacity-hover-anim-target)"
+          }
+        },
         "slide-up": {
           from: {
             transform: "translateY(100%)",
@@ -191,7 +199,9 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
         "fade-out": "fade-out 0.3s ease-out",
-        "slide-up": "slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
+        "slide-up": "slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+        "actionable-blink":
+          "actionable-blink var(--anim-duration) var(--anim-delay) linear infinite"
       }
     }
   },

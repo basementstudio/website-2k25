@@ -39,7 +39,30 @@
   }
 
   .actionable {
-    @apply font-semibold underline;
+    --anim-duration: 420ms;
+    --anim-delay: 0ms;
+    --opacity-hover-value: 100;
+    --opacity-hover-anim-target: 80;
+
+    --text-shadow-color: color-mix(
+      in srgb,
+      currentColor calc(var(--opacity-hover-value) * 1% * 0.5),
+      transparent
+    );
+    --color-mix: color-mix(
+      in srgb,
+      currentColor calc(var(--opacity-hover-value) * 1%),
+      transparent
+    );
+
+    color: var(--color-mix) !important;
+
+    &:not(.actionable-no-underline) {
+      @apply font-semibold underline;
+    }
+
+    @apply transition-colors duration-100 ease-linear hover:[text-shadow:0px_0px_30px_var(--text-shadow-color)];
+    @apply hover:animate-actionable-blink focus:animate-actionable-blink hover:no-underline hover:[--opacity-hover-value:var(--opacity-hover-anim-target)] focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
   }
 
   .actionable[target="_blank"] {

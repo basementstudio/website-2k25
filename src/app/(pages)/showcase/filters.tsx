@@ -37,16 +37,22 @@ const ViewSelector = memo(
   ({ mode, viewMode, setViewMode }: ViewSelectorProps) => (
     <CheckboxPrimitive.Root
       className={cn(
-        "flex cursor-pointer items-center justify-center gap-1 transition-colors duration-300",
-        viewMode === mode ? "text-brand-w1" : "text-brand-g1"
+        viewMode === mode
+          ? "cursor-default text-brand-w1"
+          : "cursor-pointer text-brand-g1"
       )}
       value={mode}
       checked={viewMode === mode}
       onCheckedChange={() => setViewMode(mode)}
     >
-      {mode === "grid" ? <GridIcon /> : <RowIcon />}
-      <span className={cn(viewMode === mode && "actionable")}>
-        {mode.charAt(0).toUpperCase() + mode.slice(1)}
+      <span
+        className={cn("flex items-center justify-center gap-1", {
+          ["underline"]: viewMode === mode,
+          ["actionable actionable-no-underline"]: viewMode !== mode
+        })}
+      >
+        {mode === "grid" ? <GridIcon /> : <RowIcon />}
+        <span>{mode.charAt(0).toUpperCase() + mode.slice(1)}</span>
       </span>
     </CheckboxPrimitive.Root>
   )
