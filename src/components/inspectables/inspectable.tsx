@@ -3,7 +3,7 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   Box3,
   Group,
@@ -44,8 +44,6 @@ export const Inspectable = ({
   sizeTarget,
   scenes
 }: InspectableProps) => {
-  console.log({ mesh })
-
   const currentScene = useCurrentScene()
   const scrollTo = useScrollTo()
   const { selected } = useInspectable()
@@ -133,16 +131,15 @@ export const Inspectable = ({
     }
   }
 
-  useLayoutEffect(() => {
-    if (!ref.current) return
-    // if (firstRender) {
-    //   setFirstRender(false)
-    //   return
-    // }
+  useEffect(() => {
+    if (firstRender) {
+      setFirstRender(false)
+      return
+    }
 
     if (mesh && !size.current.x) {
       mesh.rotation.set(0, 0, 0)
-      const boundingBox = new Box3().setFromObject(ref.current)
+      const boundingBox = new Box3().setFromObject(mesh)
       mesh.rotation.set(
         mesh.userData.rotation.x,
         mesh.userData.rotation.y,
@@ -162,7 +159,7 @@ export const Inspectable = ({
 
       if (isNaN(s.x) || isNaN(s.y) || isNaN(s.z)) {
         console.warn("Inspectable bounding box is NaN", id)
-        // setTimeout(() => setFirstRender(true), 100)
+        setTimeout(() => setFirstRender(true), 100)
       } else {
         size.current.x = s.x
         size.current.y = s.y
@@ -177,7 +174,7 @@ export const Inspectable = ({
     window.addEventListener("resize", handleResize)
 
     return () => window.removeEventListener("resize", handleResize)
-  }, [selected])
+  }, [selected, firstRender])
 
   const vRef = useMemo(() => {
     return {
