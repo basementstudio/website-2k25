@@ -2,7 +2,6 @@
 
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
-import { Perf } from "r3f-perf"
 import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
 
@@ -21,6 +20,7 @@ import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
+import { WebGlTunnelOut } from "./tunnel"
 
 const HoopMinigame = dynamic(
   () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
@@ -100,6 +100,7 @@ export const Scene = () => {
           <Renderer
             sceneChildren={
               <>
+                <WebGlTunnelOut />
                 <CameraController />
                 <Inspectables />
                 <Sparkles />
@@ -120,14 +121,6 @@ export const Scene = () => {
                 <CharactersSpawn />
               </>
             }
-          />
-          <Perf
-            style={{
-              position: "absolute",
-              top: 40,
-              right: 10,
-              zIndex: 1000
-            }}
           />
         </Canvas>
       </div>
