@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
-import { memo } from "react"
+import { memo, useCallback, useEffect, useState } from "react"
 import { create } from "zustand"
 
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
@@ -93,7 +92,9 @@ function SiteAudioSFXsLoaderInner(): null {
       const newSources = {} as Record<SiteAudioSFXKey, AudioSource>
 
       try {
-        await Promise.all(
+        const promises = []
+
+        promises.push(
           Object.keys(GAME_AUDIO_SFX).map(async (key) => {
             const audioKey = key as SiteAudioSFXKey
             const source = await player.loadAudioFromURL(
@@ -105,7 +106,7 @@ function SiteAudioSFXsLoaderInner(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
             const source = await player.loadAudioFromURL(button.PRESS, true)
             source.setVolume(SFX_VOLUME)
@@ -119,7 +120,7 @@ function SiteAudioSFXsLoaderInner(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
             const source = await player.loadAudioFromURL(stick.PRESS, true)
             source.setVolume(SFX_VOLUME)
@@ -133,7 +134,7 @@ function SiteAudioSFXsLoaderInner(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           BLOG_AUDIO_SFX.LOCKED_DOOR.map(async (lockedDoor, index) => {
             const source = await player.loadAudioFromURL(lockedDoor, true)
             source.setVolume(SFX_VOLUME)
@@ -141,7 +142,7 @@ function SiteAudioSFXsLoaderInner(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
             const source = await player.loadAudioFromURL(door.OPEN, true)
             source.setVolume(SFX_VOLUME)
@@ -152,7 +153,7 @@ function SiteAudioSFXsLoaderInner(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
             const source = await player.loadAudioFromURL(lamp.PULL, true)
             source.setVolume(SFX_VOLUME)
@@ -165,6 +166,8 @@ function SiteAudioSFXsLoaderInner(): null {
             newSources[`BLOG_LAMP_${index}_RELEASE`] = sourceRelease
           })
         )
+
+        await Promise.all(promises)
 
         useSiteAudioStore.setState({
           audioSfxSources: newSources

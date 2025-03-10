@@ -113,6 +113,9 @@ importers:
       three:
         specifier: ^0.172.0
         version: 0.172.0
+      tunnel-rat:
+        specifier: ^0.1.2
+        version: 0.1.2(@types/react@19.0.0)(react@19.0.0)
       zustand:
         specifier: ^5.0.1
         version: 5.0.1(@types/react@19.0.0)(react@19.0.0)(use-sync-external-store@1.4.0(react@19.0.0))

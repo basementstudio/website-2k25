@@ -12,11 +12,7 @@ export function AppHooks(): React.JSX.Element {
   useBasketballThemeSong()
   useWebsiteAmbience(true)
 
-  return (
-    <>
-      <SiteAudioSFXsLoader />
-    </>
-  )
+  return <SiteAudioSFXsLoader />
 }
 
 export default AppHooks

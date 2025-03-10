@@ -54,18 +54,19 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
     (direction: number) => {
       if (isInGame) {
         const event = new CustomEvent("arcadeStickMove", {
-          detail: { direction }
+          detail: {
+            direction,
+            stick: stick.name
+          }
         })
         window.dispatchEvent(event)
       }
     },
-    [isInGame]
+    [isInGame, stick.name]
   )
 
   const handleLabNavigation = useCallback(
     (direction: number) => {
-      if (stick.name !== "02_JYTK_L") return
-
       setIsInLabTab(true)
       const currentLabTabIndex = useArcadeStore.getState().labTabIndex
       const currentIsSourceButtonSelected =
@@ -213,7 +214,6 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
   const handlePointerDown = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
       if (scene !== "lab" && !isInGame) return
-      if (stick.name !== "02_JYTK_L" && !isInGame) return
 
       e.stopPropagation()
       isDragging.current = true
@@ -225,7 +225,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
         target.setPointerCapture(e.pointerId)
       }
     },
-    [scene, isInGame, setCursor, stick]
+    [scene, isInGame, setCursor]
   )
 
   const handlePointerMove = useCallback(
