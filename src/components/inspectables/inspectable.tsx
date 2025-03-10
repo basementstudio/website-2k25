@@ -3,7 +3,7 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Box3,
   Group,
@@ -16,7 +16,7 @@ import {
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
-import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 
@@ -25,8 +25,6 @@ import { InspectableDragger } from "./inspectable-dragger"
 
 interface InspectableProps {
   id: string
-  mesh: Mesh
-  position: { x: number; y: number; z: number }
   xOffset: number
   yOffset: number
   xRotationOffset: number
@@ -34,24 +32,36 @@ interface InspectableProps {
   scenes: string[]
 }
 
-export const Inspectable = ({
+export const Inspectable = memo(function InspectableInner({
   id,
-  mesh,
-  position,
   xOffset,
   yOffset,
   xRotationOffset,
   sizeTarget,
   scenes
-}: InspectableProps) => {
-  const currentScene = useCurrentScene()
+}: InspectableProps) {
+  const inspectableMeshes = useMesh((s) => s.inspectableMeshes)
+
+  const mesh = useMemo(
+    () => inspectableMeshes.find((mesh) => mesh.name === id),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [id]
+  )
+
+  const position = useMemo(() => mesh?.userData.position, [mesh])
+
+  const isActive = useNavigationStore((state) =>
+    scenes.some((scene) => scene === state.currentScene?.name)
+  )
+
   const scrollTo = useScrollTo()
+
   const { selected } = useInspectable()
   const { setSelected } = useInspectable()
   const camera = useThree((state) => state.camera) as PerspectiveCamera
+  const perpendicularMoved = useRef(new Vector3())
   const setCursor = useCursor()
   const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
-  const perpendicularMoved = useRef(new Vector3())
 
   const size = useRef({ x: 0, y: 0, z: 0 })
 
@@ -215,7 +225,7 @@ export const Inspectable = ({
 
       const inspectingFactorValue = inspectingFactor.current.get()
 
-      mesh.traverse((child) => {
+      mesh?.traverse((child) => {
         if (child instanceof Mesh) {
           child.material.uniforms.inspectingFactor.value = inspectingFactorValue
         }
@@ -224,7 +234,7 @@ export const Inspectable = ({
   })
 
   const handleSelection = () => {
-    if (scenes.some((scene) => scene === currentScene)) {
+    if (isActive) {
       scrollTo({
         offset: 0,
         behavior: "smooth",
@@ -233,14 +243,13 @@ export const Inspectable = ({
     }
   }
 
+  if (!mesh) return null
+
   return (
     <group
       ref={ref}
       onClick={(e) => {
-        if (
-          (selected && selected !== id) ||
-          !scenes.some((scene) => scene === currentScene)
-        ) {
+        if ((selected && selected !== id) || !isActive) {
           e.stopPropagation()
           return
         }
@@ -248,20 +257,12 @@ export const Inspectable = ({
         handleSelection()
       }}
       onPointerEnter={(e) => {
-        if (
-          (selected && selected !== id) ||
-          !scenes.some((scene) => scene === currentScene)
-        )
-          return
+        if ((selected && selected !== id) || !isActive) return
         if (!selected) setCursor("zoom-in")
         else if (selected === id) setCursor("grab")
       }}
       onPointerLeave={() => {
-        if (
-          (selected && selected !== id) ||
-          !scenes.some((scene) => scene === currentScene)
-        )
-          return
+        if ((selected && selected !== id) || !isActive) return
         if (!selected) setCursor("default")
       }}
     >
@@ -287,4 +288,4 @@ export const Inspectable = ({
       </InspectableDragger>
     </group>
   )
-}
+})
