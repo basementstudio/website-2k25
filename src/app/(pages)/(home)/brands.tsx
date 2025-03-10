@@ -1,4 +1,5 @@
 "use client"
+import { AnimatePresence, motion } from "motion/react"
 import Link from "next/link"
 import { useMemo, useState } from "react"
 
@@ -8,7 +9,7 @@ import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 
-import { QueryType } from "./query"
+import type { QueryType } from "./query"
 
 export const Brands = ({ data }: { data: QueryType }) => {
   const [hoveredBrand, setHoveredBrand] = useState<string | null>(null)
@@ -43,24 +44,41 @@ export const Brands = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout !gap-y-0">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-6 lg:text-h3">
-          Trusted by Visionaries
+        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-h3">
+          Trusted by{" "}
+          <AnimatePresence mode="wait">
+            {hoveredBrandData && isDesktop ? (
+              <motion.span
+                key="brand-name"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:text-h3"
+              >
+                {hoveredBrandData._title}{" "}
+                <ExternalLinkIcon className="size-4" />
+              </motion.span>
+            ) : (
+              <motion.span
+                key="visionaries"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                Visionaries
+              </motion.span>
+            )}
+          </AnimatePresence>
         </h3>
-
-        {hoveredBrandData && isDesktop ? (
-          <h4 className="mb-2 inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:col-start-6 lg:col-end-9 lg:text-h3">
-            {hoveredBrandData._title} <ExternalLinkIcon className="size-4" />
-          </h4>
-        ) : null}
 
         <div className="col-span-12 h-px w-full bg-brand-w1/30" />
       </div>
 
       <div className="relative col-span-full lg:col-start-3 lg:col-end-13">
         <div className="flex w-full flex-col divide-y divide-brand-w1/30">
-          {rows.map((row, index) => (
+          {rows.map((row, rowIndex) => (
             <div
-              key={`brands-row-${index}`}
+              key={`brands-row-${row[0]?._id ?? rowIndex}`}
               className="flex items-center justify-between py-3 md:justify-start"
             >
               {row.map((brand) => (
@@ -70,7 +88,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
                   key={brand._id}
                   dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
                   className={cn(
-                    "transition-opacity duration-300 [&>svg]:w-16 sm:[&>svg]:w-auto",
+                    "actionable transition-opacity duration-300 [&>svg]:w-16 sm:[&>svg]:w-auto",
                     {
                       "opacity-50": debouncedHoveredBrand !== brand._id,
                       "opacity-100": debouncedHoveredBrand === null
