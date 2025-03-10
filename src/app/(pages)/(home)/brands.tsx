@@ -89,9 +89,12 @@ export const Brands = ({ data }: { data: QueryType }) => {
       <div className="relative col-span-full -mt-px flex aspect-[5/1] items-end lg:col-start-3 lg:col-end-5 lg:aspect-[3.1/1]">
         <Link
           href="/showcase"
-          className="actionable relative z-10 flex items-center gap-x-1 bg-brand-k text-h4 text-brand-w1"
+          className="relative z-10 bg-brand-k text-h4 text-brand-w1"
         >
-          <span>Call to Action</span> <Arrow className="size-5" />
+          <span className="actionable flex items-center gap-x-1">
+            Call to Action
+            <Arrow className="size-5" />
+          </span>
         </Link>
 
         <div className="with-diagonal-lines !absolute inset-0" />

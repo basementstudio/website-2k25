@@ -61,9 +61,11 @@ export const Crew = ({ data }: { data: QueryType }) => {
                         <Fragment key={index}>
                           <Link
                             href={socialNetwork.link as string}
-                            className="actionable bg-brand-0 text-brand-w1"
+                            className="bg-brand-0 text-brand-w1"
                           >
-                            {socialNetwork.platform}
+                            <span className="actionable">
+                              {socialNetwork.platform}
+                            </span>
                           </Link>
                           {index < person.socialNetworks.items.length - 1 && (
                             <span>,</span>

@@ -58,11 +58,15 @@
     color: var(--color-mix) !important;
 
     &:not(.actionable-no-underline) {
-      @apply font-semibold underline;
+      --underline-height: max(0.06em, 1px);
+      @apply font-semibold;
+      @apply before:absolute before:-bottom-[round(var(--underline-height),1px)] before:left-0 before:h-[round(var(--underline-height),1px)] before:w-full before:bg-[var(--color-mix)] before:transition-opacity before:[--opacity-hover-value:100];
+      @apply hover:before:opacity-0;
     }
 
-    @apply transition-colors duration-100 ease-linear hover:[text-shadow:0px_0px_30px_var(--text-shadow-color)];
-    @apply hover:animate-actionable-blink focus:animate-actionable-blink hover:no-underline hover:[--opacity-hover-value:var(--opacity-hover-anim-target)] focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
+    @apply relative transition-colors duration-100 ease-linear;
+    @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
+    @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)] hover:[text-shadow:0px_0px_30px_var(--text-shadow-color)];
   }
 
   .actionable[target="_blank"] {
