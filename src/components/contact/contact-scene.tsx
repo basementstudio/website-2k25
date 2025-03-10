@@ -30,14 +30,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   const screenbone = gltf.nodes.Obj as Bone
 
-  console.log(gltf)
-  const screenboneMatrix = screenbone.matrixWorld.toArray()
-  const screenCameraMatrix = camera.matrixWorld.toArray()
-  const screenBonePosition = screenbone.position.toArray()
-
-  // Send matrix updates every frame when contact is open
   useFrame(() => {
-    if (isContactOpen && !isClosing) {
+    if (isContactOpen) {
       self.postMessage({
         type: "update-screen-skinned-matrix",
         screenboneMatrix: screenbone.matrixWorld.toArray(),
@@ -69,7 +63,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   }, [mixer, handler])
 
   useEffect(() => {
-    // Listen to form updates from the worker
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "update-contact-open") {
         setIsContactOpen(e.data.isContactOpen)
@@ -110,6 +103,11 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     }
 
     if (isClosing) {
+      self.postMessage({
+        type: "scale-type",
+        scale: "reverse"
+      })
+
       handler.playAnimation("Outro-v2", {
         type: "transition",
         clampWhenFinished: true
@@ -121,9 +119,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         fadeInDuration: 0.05,
         onComplete: () => {
           self.postMessage({
-            type: "update-screen-skinned-matrix",
-            screenboneMatrix: screenboneMatrix,
-            cameraMatrix: screenCameraMatrix
+            type: "scale-type",
+            scale: "forward"
           })
           idleTimeRef.current = 0
         }
@@ -161,7 +158,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       const IDLE_TIMEOUT = Math.random() * 5 + 15
 
       if (idleTimeRef.current > IDLE_TIMEOUT) {
-        //playRandomIdleAnimation()
+        playRandomIdleAnimation()
         idleTimeRef.current = 0
       }
     }

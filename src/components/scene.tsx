@@ -103,7 +103,7 @@ export const Scene = () => {
                 <CameraController />
                 <Inspectables />
                 <Sparkles />
-                <Map />
+
                 <Suspense fallback={null}>
                   {isBasketball && (
                     <PhysicsWorld paused={!isBasketball}>

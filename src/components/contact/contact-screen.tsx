@@ -1,51 +1,59 @@
-import { useEffect, useRef } from "react"
+import { useRef } from "react"
 import { Matrix4, PerspectiveCamera, Vector3 } from "three"
+import { useAnimationFrame } from "motion/react"
+import * as THREE from "three"
 
 const v1 = new Vector3()
 const tempMatrix = new Matrix4()
 const tempCamera = new PerspectiveCamera()
+const quaternion = new THREE.Quaternion()
+const position = new THREE.Vector3()
+const scale = new THREE.Vector3()
 
 interface ContactScreenProps {
-  screenboneMatrix: number[] | null
-  cameraMatrix: number[] | null
+  worker: Worker
   children?: React.ReactNode
 }
 
-const ContactScreen = ({
-  screenboneMatrix,
-  cameraMatrix,
-  children
-}: ContactScreenProps) => {
+const ContactScreen = ({ worker, children }: ContactScreenProps) => {
   const divRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (!divRef.current || !screenboneMatrix || !cameraMatrix) return
+  useAnimationFrame(() => {
+    if (!divRef.current) return
 
-    // Convert array to matrix
-    tempMatrix.fromArray(screenboneMatrix)
+    const handleWorkerMessage = (e: MessageEvent) => {
+      if (!divRef.current) return
 
-    // Set up camera with the matrix
-    tempCamera.matrixWorld.fromArray(cameraMatrix)
-    tempCamera.matrixWorldInverse.copy(tempCamera.matrixWorld).invert()
+      if (e.data.type === "update-screen-skinned-matrix") {
+        tempMatrix.fromArray(e.data.screenboneMatrix)
+        tempCamera.matrixWorld.fromArray(e.data.cameraMatrix)
+        tempCamera.matrixWorldInverse.copy(tempCamera.matrixWorld).invert()
 
-    // Get world position from matrix
-    const objectPos = v1.setFromMatrixPosition(tempMatrix)
+        tempMatrix.decompose(position, quaternion, scale)
 
-    // Project point to screen space
-    objectPos.project(tempCamera)
+        const euler = new THREE.Euler().setFromQuaternion(quaternion)
 
-    // Convert to pixel coordinates
-    const widthHalf = window.innerWidth / 2
-    const heightHalf = window.innerHeight / 2
-    const x = objectPos.x * widthHalf + widthHalf - 380
-    const y = -(objectPos.y * heightHalf) + heightHalf - 220
+        const rotX = -euler.x * (180 / Math.PI)
+        const rotY = -euler.y * (180 / Math.PI)
+        const rotZ = -euler.z * (180 / Math.PI)
 
-    // Get scale based on z distance
-    const scale = 1 / Math.max(1, -objectPos.z)
+        position.project(tempCamera)
 
-    // Apply transform
-    divRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
-  }, [screenboneMatrix, cameraMatrix])
+        const widthHalf = window.innerWidth / 2
+        const heightHalf = window.innerHeight / 2
+        const x = position.x * widthHalf + widthHalf - 380
+        const y = -(position.y * heightHalf) + heightHalf - 220
+
+        divRef.current.style.transform = `translate(${x}px, ${y}px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`
+      }
+    }
+
+    worker.addEventListener("message", handleWorkerMessage)
+
+    return () => {
+      worker.removeEventListener("message", handleWorkerMessage)
+    }
+  })
 
   return (
     <div
@@ -54,7 +62,6 @@ const ContactScreen = ({
         position: "absolute",
         top: 0,
         left: 0,
-        transform: "translate3d(0, 0, 0)",
         transformOrigin: "center",
         pointerEvents: "none",
         zIndex: 1000

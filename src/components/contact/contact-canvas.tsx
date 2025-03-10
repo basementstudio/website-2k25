@@ -11,15 +11,6 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
   const { contactPhone } = useAssets()
   const [worker, setWorker] = useState<Worker>()
   const setStoreWorker = useContactStore((state) => state.setWorker)
-  const [matrices, setMatrices] = useState<{
-    screenboneMatrix: number[] | null
-    cameraMatrix: number[] | null
-    screenBonePosition: number[] | null
-  }>({
-    screenboneMatrix: null,
-    cameraMatrix: null,
-    screenBonePosition: null
-  })
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -37,16 +28,6 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         modelUrl: contactPhone
       })
     }
-
-    newWorker.addEventListener("message", (e) => {
-      if (e.data.type === "update-screen-skinned-matrix") {
-        setMatrices({
-          screenboneMatrix: e.data.screenboneMatrix,
-          cameraMatrix: e.data.cameraMatrix,
-          screenBonePosition: e.data.screenBonePosition
-        })
-      }
-    })
 
     return () => {
       newWorker.terminate()
@@ -67,10 +48,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
 
   return (
     <>
-      <ContactScreen
-        screenboneMatrix={matrices.screenboneMatrix}
-        cameraMatrix={matrices.cameraMatrix}
-      >
+      <ContactScreen worker={worker}>
         <div className="h-[330px] w-[545px] bg-red-500" />
       </ContactScreen>
       <OffscreenCanvas
