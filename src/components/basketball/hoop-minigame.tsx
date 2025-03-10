@@ -1,6 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 import * as THREE from "three"
 
@@ -19,7 +19,7 @@ import { easeInOutCubic } from "@/utils/animations"
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
 
-export const HoopMinigame = () => {
+const HoopMinigameInner = () => {
   const { playSoundFX } = useSiteAudio()
   const [isBasketball, setIsBasketball] = useState(false)
   const scene = useCurrentScene()
@@ -578,3 +578,5 @@ export const HoopMinigame = () => {
     </>
   )
 }
+
+export const HoopMinigame = memo(HoopMinigameInner)
