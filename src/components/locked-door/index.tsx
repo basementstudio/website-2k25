@@ -33,7 +33,7 @@ export const LockedDoor = () => {
     animate(lockedDoor?.rotation, target)
 
     const randomSound = Math.floor(Math.random() * availableSounds)
-    playSoundFX(`BLOG_LOCKED_DOOR_${randomSound}`, 0.6)
+    playSoundFX(`BLOG_LOCKED_DOOR_${randomSound}`, 0.2)
 
     setTimeout(() => {
       animate(lockedDoor?.rotation, r)
