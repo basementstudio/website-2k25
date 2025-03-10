@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
+import { memo } from "react"
 import { create } from "zustand"
 
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
@@ -78,7 +79,9 @@ export function useInitializeAudioContext(element?: HTMLElement) {
   }, [element, player])
 }
 
-export function SiteAudioSFXsLoader(): null {
+export const SiteAudioSFXsLoader = memo(SiteAudioSFXsLoaderInner)
+
+function SiteAudioSFXsLoaderInner(): null {
   const player = useSiteAudioStore((s) => s.player)
   const { GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX } = useAudioUrls()
 
@@ -172,7 +175,8 @@ export function SiteAudioSFXsLoader(): null {
     }
 
     loadAudioSources()
-  }, [player, GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player])
 
   return null
 }

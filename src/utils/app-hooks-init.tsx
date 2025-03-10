@@ -7,13 +7,16 @@ import {
 } from "@/hooks/use-site-audio"
 import { useWebsiteAmbience } from "@/hooks/use-website-ambience"
 
-export function AppHooks(): null {
+export function AppHooks(): React.JSX.Element {
   useInitializeAudioContext()
   useBasketballThemeSong()
   useWebsiteAmbience(true)
-  SiteAudioSFXsLoader()
 
-  return null
+  return (
+    <>
+      <SiteAudioSFXsLoader />
+    </>
+  )
 }
 
 export default AppHooks
