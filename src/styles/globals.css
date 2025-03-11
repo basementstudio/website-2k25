@@ -39,11 +39,63 @@
   }
 
   .actionable {
-    @apply font-semibold underline;
+    --anim-duration: 600ms;
+    --anim-delay: calc(var(--anim-duration) / 5);
+    --opacity-hover-value: 100;
+    --opacity-hover-anim-target: 80;
+
+    --text-shadow-color: color-mix(
+      in srgb,
+      currentColor calc(var(--opacity-hover-value) * 1% * 0.5),
+      transparent
+    );
+    --color-mix: color-mix(
+      in srgb,
+      currentColor calc(var(--opacity-hover-value) * 1%),
+      transparent
+    );
+
+    --height: 0.89;
+
+    color: var(--color-mix) !important;
+    display: inline-flex;
+    align-items: center;
+    height: calc(var(--height) * 1em);
+    line-height: var(--height);
+
+    &:not(.actionable-no-underline) {
+      --underline-height: max(0.06em, 1px);
+      @apply font-semibold;
+      @apply before:absolute before:-bottom-[round(var(--underline-height),1px)] before:left-0 before:h-[round(var(--underline-height),1px)] before:w-full before:bg-[var(--color-mix)] before:[--opacity-hover-value:100];
+      @apply before:transition-opacity before:duration-[var(--anim-delay)] before:ease-linear;
+      @apply hover:before:opacity-0;
+    }
+
+    &:not(.actionable-inanimate) {
+      @apply relative transition-none duration-[var(--anim-delay)] ease-linear hover:transition-colors;
+      @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
+      @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)] hover:[text-shadow:0px_0px_30px_var(--text-shadow-color)];
+    }
+
+    @apply relative;
+    @apply active:animate-none;
   }
 
-  .actionable[target="_blank"] {
+  a[target="_blank"] {
     @apply cursor-alias;
+  }
+
+  .actionable-opacity {
+    --anim-duration: 600ms;
+    --anim-delay: calc(var(--anim-duration) / 5);
+    --opacity-hover-value: 100;
+    --opacity-hover-anim-target: 80;
+
+    opacity: calc(var(--opacity-hover-value) * 0.01);
+
+    @apply transition-none duration-[var(--anim-delay)] ease-linear hover:transition-opacity;
+    @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
+    @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)];
   }
 
   .text-h2.actionable,

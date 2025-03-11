@@ -3,7 +3,7 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Box3,
   Group,
@@ -13,45 +13,78 @@ import {
   Quaternion,
   Vector3
 } from "three"
+import { StoreApi, UseBoundStore } from "zustand"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
-import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useScrollTo } from "@/hooks/use-scroll-to"
+import { useSelectStore } from "@/hooks/use-select-store"
 
+import { useAssets } from "../assets-provider"
+import { ICameraConfig } from "../navigation-handler/navigation.interface"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
+import { MeshDiscardMaterial } from "@react-three/drei"
 
 interface InspectableProps {
   id: string
-  mesh: Mesh
-  position: { x: number; y: number; z: number }
-  xOffset: number
-  yOffset: number
-  xRotationOffset: number
-  sizeTarget: number
-  scenes: string[]
 }
 
-export const Inspectable = ({
-  id,
-  mesh,
-  position,
-  xOffset,
-  yOffset,
-  xRotationOffset,
-  sizeTarget,
-  scenes
-}: InspectableProps) => {
-  const currentScene = useCurrentScene()
+export const Inspectable = memo(function InspectableInner({
+  id
+}: InspectableProps) {
+  const setCursor = useCursor()
+
+  const [meshData, setMeshData] = useState<{
+    mesh: Mesh
+    position: Vector3
+  } | null>(null)
+
+  const mesh = meshData?.mesh
+  const position = meshData?.position
+
+  const { inspectables } = useAssets()
+
+  const { xOffset, yOffset, xRotationOffset, sizeTarget, scenes } =
+    useMemo(() => {
+      return inspectables.find((i) => i.mesh === id)!
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id])
+
+  useSelectStore(
+    useMesh,
+    (state) => state.inspectableMeshes.find((m) => m.name === id),
+    (mesh, prevMesh) => mesh?.uuid === prevMesh?.uuid,
+    (mesh) => {
+      if (mesh) {
+        setMeshData({ mesh, position: mesh.userData.position })
+      }
+    }
+  )
+
+  const isActive = useNavigationStore((state) =>
+    scenes.some((scene) => scene === state.currentScene?.name)
+  )
+
   const scrollTo = useScrollTo()
+
   const { selected } = useInspectable()
   const { setSelected } = useInspectable()
   const camera = useThree((state) => state.camera) as PerspectiveCamera
-  const setCursor = useCursor()
-  const camConfig = useNavigationStore((s) => s.currentScene?.cameraConfig)
   const perpendicularMoved = useRef(new Vector3())
+
+  const camConfigRef = useRef<ICameraConfig | undefined>(undefined)
+
+  useSelectStore(
+    useNavigationStore,
+    (state) => state.currentScene?.cameraConfig,
+    (camConfig, prevCamConfig) => camConfig === prevCamConfig,
+    (camConfig) => {
+      camConfigRef.current = camConfig
+    }
+  )
 
   const size = useRef({ x: 0, y: 0, z: 0 })
 
@@ -76,13 +109,15 @@ export const Inspectable = ({
   >([0, 0, 0])
 
   useEffect(() => {
+    if (!position) return
     targetPosition.current.x.set(position.x)
     targetPosition.current.y.set(position.y)
     targetPosition.current.z.set(position.z)
   }, [position])
 
   const handleAnimation = (withAnimation: boolean) => {
-    if (!camConfig) return
+    const camConfig = camConfigRef.current
+    if (!camConfig || !position) return
 
     // Get Camera Direction
     const { target: t, position: p } = camConfig
@@ -137,9 +172,11 @@ export const Inspectable = ({
       return
     }
 
+    if (!position) return
+
     if (mesh && !size.current.x) {
       mesh.rotation.set(0, 0, 0)
-      const boundingBox = new Box3().setFromObject(mesh)
+      const boundingBox = new Box3().setFromObject(mesh, true)
       mesh.rotation.set(
         mesh.userData.rotation.x,
         mesh.userData.rotation.y,
@@ -171,10 +208,10 @@ export const Inspectable = ({
 
     const handleResize = () => handleAnimation(false)
 
-    window.addEventListener("resize", handleResize)
+    window.addEventListener("resize", handleResize, { passive: true })
 
     return () => window.removeEventListener("resize", handleResize)
-  }, [selected, firstRender])
+  }, [selected, firstRender, mesh, position, id])
 
   const vRef = useMemo(() => {
     return {
@@ -185,46 +222,47 @@ export const Inspectable = ({
   }, [])
 
   useFrame(() => {
-    if (ref.current && camConfig) {
-      const { targetQuaternion, lookAtMatrix, upVector } = vRef
+    const camConfig = camConfigRef.current
+    if (!ref.current || !camConfig) return
+    const { targetQuaternion, lookAtMatrix, upVector } = vRef
 
-      if (selected === id) {
-        const cameraPosition = new Vector3(...camConfig.position)
-        cameraPosition.add(perpendicularMoved.current)
-        cameraPosition.y += yOffset
-        lookAtMatrix.lookAt(cameraPosition, ref.current.position, upVector)
+    if (selected === id) {
+      const cameraPosition = new Vector3(...camConfig.position)
+      cameraPosition.add(perpendicularMoved.current)
+      cameraPosition.y += yOffset
+      lookAtMatrix.lookAt(cameraPosition, ref.current.position, upVector)
 
-        targetQuaternion.setFromRotationMatrix(lookAtMatrix)
-        const q = new Quaternion()
-        q.setFromAxisAngle(vRef.upVector, -Math.PI / 2 + xRotationOffset)
-        targetQuaternion.multiply(q)
+      targetQuaternion.setFromRotationMatrix(lookAtMatrix)
+      const q = new Quaternion()
+      q.setFromAxisAngle(vRef.upVector, -Math.PI / 2 + xRotationOffset)
+      targetQuaternion.multiply(q)
 
-        const direction = new Vector3()
-        direction.setFromMatrixColumn(lookAtMatrix, 2).negate()
-      } else {
-        targetQuaternion.identity()
-      }
-
-      const t = targetPosition.current
-      ref.current.position.set(t.x.get(), t.y.get(), t.z.get())
-
-      const s = targetScale.current
-      ref.current.scale.set(s.get(), s.get(), s.get())
-
-      ref.current?.quaternion.slerp(targetQuaternion, SMOOTH_FACTOR)
-
-      const inspectingFactorValue = inspectingFactor.current.get()
-
-      mesh.traverse((child) => {
-        if (child instanceof Mesh) {
-          child.material.uniforms.inspectingFactor.value = inspectingFactorValue
-        }
-      })
+      const direction = new Vector3()
+      direction.setFromMatrixColumn(lookAtMatrix, 2).negate()
+    } else {
+      targetQuaternion.identity()
     }
+
+    const t = targetPosition.current
+
+    ref.current.position.set(t.x.get(), t.y.get(), t.z.get())
+
+    const s = targetScale.current
+    ref.current.scale.set(s.get(), s.get(), s.get())
+
+    ref.current?.quaternion.slerp(targetQuaternion, SMOOTH_FACTOR)
+
+    const inspectingFactorValue = inspectingFactor.current.get()
+
+    mesh?.traverse((child) => {
+      if (child instanceof Mesh) {
+        child.material.uniforms.inspectingFactor.value = inspectingFactorValue
+      }
+    })
   })
 
   const handleSelection = () => {
-    if (scenes.some((scene) => scene === currentScene)) {
+    if (isActive) {
       scrollTo({
         offset: 0,
         behavior: "smooth",
@@ -233,14 +271,13 @@ export const Inspectable = ({
     }
   }
 
+  if (!mesh) return null
+
   return (
     <group
       ref={ref}
       onClick={(e) => {
-        if (
-          (selected && selected !== id) ||
-          !scenes.some((scene) => scene === currentScene)
-        ) {
+        if ((selected && selected !== id) || !isActive) {
           e.stopPropagation()
           return
         }
@@ -248,20 +285,12 @@ export const Inspectable = ({
         handleSelection()
       }}
       onPointerEnter={(e) => {
-        if (
-          (selected && selected !== id) ||
-          !scenes.some((scene) => scene === currentScene)
-        )
-          return
+        if ((selected && selected !== id) || !isActive) return
         if (!selected) setCursor("zoom-in")
         else if (selected === id) setCursor("grab")
       }}
       onPointerLeave={() => {
-        if (
-          (selected && selected !== id) ||
-          !scenes.some((scene) => scene === currentScene)
-        )
-          return
+        if ((selected && selected !== id) || !isActive) return
         if (!selected) setCursor("default")
       }}
     >
@@ -282,9 +311,9 @@ export const Inspectable = ({
           <boxGeometry
             args={[size.current.x, size.current.y, size.current.z]}
           />
-          <meshBasicMaterial opacity={0} transparent depthWrite={false} />
+          <MeshDiscardMaterial />
         </mesh>
       </InspectableDragger>
     </group>
   )
-}
+})

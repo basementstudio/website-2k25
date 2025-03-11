@@ -1,10 +1,9 @@
 "use client"
 
 import { Canvas } from "@react-three/fiber"
-import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
-
+import dynamic from "next/dynamic"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
@@ -100,11 +99,19 @@ export const Scene = () => {
           <Renderer
             sceneChildren={
               <>
-                <WebGlTunnelOut />
-                <CameraController />
                 <Inspectables />
-                <Sparkles />
-
+                <Suspense fallback={null}>
+                  <Map />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <WebGlTunnelOut />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <CameraController />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <Sparkles />
+                </Suspense>
                 <Suspense fallback={null}>
                   {isBasketball && (
                     <PhysicsWorld paused={!isBasketball}>
@@ -115,10 +122,13 @@ export const Scene = () => {
                     </PhysicsWorld>
                   )}
                 </Suspense>
-                <StaticBasketballs />
-
-                <CharacterInstanceConfig />
-                <CharactersSpawn />
+                <Suspense fallback={null}>
+                  <StaticBasketballs />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <CharacterInstanceConfig />
+                  <CharactersSpawn />
+                </Suspense>
               </>
             }
           />

@@ -67,7 +67,7 @@ export function useFocusTrap(
 
     firstFocusableElementRef.current?.focus()
 
-    document.addEventListener("keydown", handleFocus)
+    document.addEventListener("keydown", handleFocus, { passive: true })
 
     return () => {
       document.removeEventListener("keydown", handleFocus)

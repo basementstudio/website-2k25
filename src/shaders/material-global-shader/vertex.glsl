@@ -9,7 +9,7 @@ varying vec2 vUv2;
 
 void main() {
   vUv = uv;
-  vUv2 = uv1;
+  vUv2 = uv1.x > 0.0 ? uv1 : uv;
 
   vNormal = normalize(normalMatrix * normal);
 

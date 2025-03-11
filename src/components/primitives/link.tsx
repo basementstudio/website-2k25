@@ -6,11 +6,18 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 interface LinkProps {
   href: string
-  children: React.ReactNode
+  children?: React.ReactNode
   className?: string
   target?: "_blank" | "_self"
   rel?: string
   onClick?: () => void
+  dangerouslySetInnerHTML?: {
+    __html: string
+  }
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
+  onFocus?: () => void
+  onBlur?: () => void
 }
 
 export const Link = ({
@@ -19,7 +26,8 @@ export const Link = ({
   className,
   target,
   rel,
-  onClick
+  onClick,
+  ...rest
 }: LinkProps) => {
   const { handleNavigation } = useHandleNavigation()
 
@@ -30,6 +38,7 @@ export const Link = ({
       target={target}
       rel={rel}
       onClick={onClick}
+      {...rest}
     >
       {children}
     </NextLink>
@@ -42,6 +51,7 @@ export const Link = ({
         onClick?.()
       }}
       className={className}
+      {...rest}
     >
       {children}
     </a>
