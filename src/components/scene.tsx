@@ -126,10 +126,10 @@ export const Scene = () => {
                 <Suspense fallback={null}>
                   <StaticBasketballs />
                 </Suspense>
-                <Suspense fallback={null}>
+                {/* <Suspense fallback={null}>
                   <CharacterInstanceConfig />
                   <CharactersSpawn />
-                </Suspense>
+                </Suspense> */}
               </>
             }
           />
