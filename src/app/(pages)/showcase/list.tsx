@@ -13,11 +13,13 @@ const AccordionListItem = memo(
   ({
     item,
     index,
-    disabled
+    disabled,
+    isOpen
   }: {
     item: FilteredProjectType
     index: number
     disabled: boolean
+    isOpen: boolean
   }) => {
     return (
       <AccordionPrimitive.Item
@@ -31,8 +33,9 @@ const AccordionListItem = memo(
         <AccordionPrimitive.Trigger
           className={cn(
             "[&[data-state=open]_.diagonal-lines]:opacity-0",
-            "group relative col-span-12 grid cursor-nesw-resize grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300",
-            disabled && "pointer-events-none"
+            "c group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300",
+            disabled && "pointer-events-none",
+            isOpen ? "cursor-n-resize" : "cursor-ns-resize"
           )}
           disabled={disabled}
         >
@@ -157,6 +160,7 @@ export const List = memo(
             item={item}
             index={index}
             disabled={!!item.disabled}
+            isOpen={itemOpen === index.toString()}
           />
         ))}
       </AccordionPrimitive.Root>
