@@ -60,7 +60,7 @@ export default function Scoreboard({ className }: { className?: string }) {
             key={`${score.player_name}-${score.score}-${score.created_at}`}
           >
             <p className="uppercase text-brand-g1">
-              <span>{score.country}</span>
+              <span className="mr-1">{score.country}</span>
               {score.player_name}
             </p>
             <p className="text-brand-w2">{score.score} pts</p>

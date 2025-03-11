@@ -37,7 +37,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from("scoreboard")
-      .select("player_name, score, created_at")
+      .select("player_name, score, created_at, country")
       .order("score", { ascending: false })
       .limit(25)
 

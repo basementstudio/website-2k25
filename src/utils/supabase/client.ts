@@ -38,6 +38,7 @@ export const getTopScores = async () => {
   }
 
   const { data, error } = await response.json()
+  console.log("data:", data)
   return { data: data || [], error }
 }
 
