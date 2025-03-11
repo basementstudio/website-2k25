@@ -4,10 +4,9 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
 const BLACKLISTED_PATHS = [
-  /^\/blog\/\d+$/,
-  /^\/blog\/[^\/]+$/,
   /^\/showcase\/\d+$/,
-  /^\/showcase\/[^\/]+$/
+  /^\/showcase\/[^\/]+$/,
+  /^\/post\/[^\/]+$/
 ]
 
 export const useShowCanvas = () => {

@@ -40,7 +40,6 @@ interface CharactersGLTF {
     "Flauta-Glass": THREE.SkinnedMesh
     "JJ-Glass": THREE.SkinnedMesh
     "Naza-Glass": THREE.SkinnedMesh
-    SM_Theo: THREE.SkinnedMesh
   }
   animations: THREE.AnimationClip[]
 }
@@ -64,6 +63,8 @@ export const setGeometryFloatAttribute = (
   )
 }
 
+const REQUIRED_KEYS = ["Body", "Head_1", "Arms"]
+
 function CharacterInstanceConfigInner() {
   const { characters } = useAssets()
 
@@ -74,6 +75,15 @@ function CharacterInstanceConfigInner() {
   const textureBody = useTexture(characters.textureBody)
   const textureFaces = useTexture(characters.textureFaces)
 
+  if (!REQUIRED_KEYS.every((key) => nodes[key as keyof typeof nodes])) {
+    console.error("INVALID CHARACTERS MODEL")
+    console.log("CURRENT NODES:")
+    console.log(nodes)
+
+    return null
+  }
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const material = useMemo(() => {
     // const bodyMapIndices = new Uint32Array(MAX_CHARACTERS_INSTANCES).fill(0)
     // nodes.BODY.geometry.setAttribute("instanceMapIndex", new InstancedBufferAttribute(mapIndices, 1))
