@@ -23,10 +23,7 @@ const AccordionListItem = memo(
       <AccordionPrimitive.Item
         key={index}
         className={cn(
-          "grid-layout [&:last-of-type>button]:border-b [&[data-state=closed]_.view-project]:opacity-0",
-          disabled
-            ? "[&[data-state=open]_.view-project]:opacity-30"
-            : "[&[data-state=open]_.view-project]:opacity-100",
+          "grid-layout [&:last-of-type>button]:border-b",
           "[&[data-state=open]]:will-change-[opacity,transform]"
         )}
         value={index.toString()}
@@ -76,7 +73,7 @@ const AccordionListItem = memo(
             </p>
             <Link
               href={`/showcase/${item.project?._slug}`}
-              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 opacity-0 transition-opacity duration-300"
+              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 duration-300"
             >
               <span className="actionable actionable-no-underline gap-x-1">
                 <span className="actionable actionable-inanimate">
@@ -91,19 +88,21 @@ const AccordionListItem = memo(
             className={cn(
               "col-span-12",
               "overflow-hidden transition-[transform,opacity,height] duration-300",
-              "data-[state=closed]:h-0 data-[state=closed]:translate-y-[-10px] data-[state=closed]:opacity-0",
-              "data-[state=open]:h-auto data-[state=open]:translate-y-0 data-[state=open]:opacity-100",
+              "data-[state=closed]:h-0",
+              "data-[state=open]:h-auto",
               disabled && "opacity-30"
             )}
+            forceMount
           >
             <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
               {item.project?.showcase?.items.slice(0, 6).map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0 }}
-                  animate={{
+                  whileInView={{
                     opacity: [null, 1, 0, 1, 0, 1]
                   }}
+                  viewport={{ once: true }}
                   transition={{
                     delay: index * 0.1,
                     duration: 0.3
@@ -116,7 +115,7 @@ const AccordionListItem = memo(
                     width={item.image?.width ?? 0}
                     height={item.image?.height ?? 0}
                     sizes="15vw"
-                    loading="eager"
+                    priority={index === 0}
                   />
                 </motion.div>
               ))}
