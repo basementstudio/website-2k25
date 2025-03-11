@@ -51,6 +51,9 @@ export const NavigationHandler = () => {
       return
     }
 
+    const isFromPostToBlog =
+      previousPathRef.current.startsWith("/post/") && pathname === "/blog"
+
     const expectedScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
@@ -59,7 +62,7 @@ export const NavigationHandler = () => {
     if (
       expectedScene &&
       currentScene &&
-      expectedScene.name !== currentScene.name
+      (expectedScene.name !== currentScene.name || isFromPostToBlog)
     ) {
       setCurrentScene(expectedScene)
     }
