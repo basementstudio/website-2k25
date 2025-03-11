@@ -11,7 +11,8 @@ const nextConfig: NextConfig = {
           as: "*.js"
         }
       }
-    }
+    },
+    ppr: true
   },
 
   images: {

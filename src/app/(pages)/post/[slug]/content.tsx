@@ -4,7 +4,6 @@ import { Tweet } from "react-tweet"
 
 import { cn } from "@/utils/cn"
 
-import { QueryType } from "../query"
 import {
   BlogImage,
   BlogLink,
@@ -25,6 +24,7 @@ import {
 import BlogMeta from "./blog-meta"
 import Sandbox from "./components/sandbox"
 import CustomTweet from "./components/tweet"
+import { QueryType } from "./query"
 
 export default function Content({
   data,

@@ -1,10 +1,12 @@
 import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 
-import { query } from "../query"
+import { client } from "@/service/basehub"
+
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import Content from "./content"
 import More from "./more"
+import { query } from "./query"
 import BlogTitle from "./title"
 
 type Params = Promise<{ slug: string }>
@@ -39,7 +41,7 @@ const Blog = async (props: { params: Params }) => {
 }
 
 export async function generateStaticParams() {
-  const data = await basehub({ cache: "no-store" }).query({
+  const data = await client().query({
     pages: {
       blog: {
         posts: {
