@@ -102,7 +102,7 @@ function SiteAudioSFXsLoaderInner(): null {
   useEffect(() => {
     if (!player) return
 
-    // TODO: dont load audio sources if the user is not in the scene where the audio will be played
+    // TODO: dont load audio sources if the user is not in the scene where the audio will be played!
     const loadAudioSources = async () => {
       const newSources = {} as Record<SiteAudioSFXKey, AudioSource>
 
