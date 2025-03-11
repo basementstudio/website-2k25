@@ -13,7 +13,7 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
   useEffect(() => {
     if (!worker) return
 
-    worker.addEventListener("message", (e) => {
+    const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "scale-type") {
         if (e.data.scale === "scale-up") {
           setIsVisible(true)
@@ -24,24 +24,34 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
 
       if (e.data.type === "update-screen-skinned-matrix") {
         const { screenboneMatrix, cameraMatrix } = e.data
+        const updatePosition = () => {
+          const boneMatrix = new THREE.Matrix4().fromArray(screenboneMatrix)
+          const camMatrix = new THREE.Matrix4().fromArray(cameraMatrix)
 
-        const boneMatrix = new THREE.Matrix4().fromArray(screenboneMatrix)
-        const camMatrix = new THREE.Matrix4().fromArray(cameraMatrix)
+          const position = new THREE.Vector3()
+          position.setFromMatrixPosition(boneMatrix)
 
-        const position = new THREE.Vector3()
-        position.setFromMatrixPosition(boneMatrix)
+          const camera = new THREE.PerspectiveCamera()
+          camera.matrixWorld.copy(camMatrix)
+          position.project(camera)
 
-        const camera = new THREE.PerspectiveCamera()
-        camera.matrixWorld.copy(camMatrix)
-        position.project(camera)
+          const screenOffset = window.innerWidth >= 1700 ? 350 : 360
+          const x = ((position.x + 1) * window.innerWidth) / 2 - screenOffset
+          const y = ((-position.y + 1) * window.innerHeight) / 2 + 116
 
-        const screenOffset = window.innerWidth >= 1700 ? 350 : 360
-        const x = ((position.x + 1) * window.innerWidth) / 2 - screenOffset
-        const y = ((-position.y + 1) * window.innerHeight) / 2 + 116
+          setScreenPosition({ x, y })
+        }
 
-        setScreenPosition({ x, y })
+        updatePosition()
+        window.addEventListener("resize", updatePosition)
       }
-    })
+    }
+
+    worker.addEventListener("message", handleMessage)
+
+    return () => {
+      worker.removeEventListener("message", handleMessage)
+    }
   }, [worker])
 
   const animation = useAnimation()
