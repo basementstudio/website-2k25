@@ -58,23 +58,35 @@ BrandLogo.displayName = "BrandLogo"
 const BrandRow = memo(
   ({
     row,
-    setHoveredBrand
+    setHoveredBrand,
+    debouncedHoveredBrand
   }: {
     debouncedHoveredBrand: string | null
     row: Array<{ logo: string | null; website: string | null; _id: string }>
     setHoveredBrand: (id: string | null) => void
   }) => (
-    <div className="flex items-center justify-between md:justify-start group-hover:[&>a:not(:hover)]:opacity-50">
+    <motion.div 
+      className="flex items-center justify-between md:justify-start"
+    >
       {row.map((brand) => (
-        <BrandLogo
+        <motion.a
           key={brand._id}
-          brand={brand}
+          dangerouslySetInnerHTML={{
+            __html: brand.logo ?? ""
+          }}
+          className="-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
+          href={brand.website ?? ""}
           onMouseEnter={() => setHoveredBrand(brand._id)}
           onMouseLeave={() => setHoveredBrand(null)}
-          className="transition-opacity duration-100 ease-linear"
+          rel="noopener noreferrer"
+          target="_blank"
+          animate={{ 
+            opacity: debouncedHoveredBrand ? (debouncedHoveredBrand === brand._id ? 1 : 0.5) : 1
+          }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
         />
       ))}
-    </div>
+    </motion.div>
   )
 )
 
@@ -97,6 +109,7 @@ const AnimatedTitle = memo(
           className="inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:text-h3"
           exit={{ opacity: 0, y: -10 }}
           initial={{ opacity: 0, y: 10 }}
+          transition={{ ease: "easeOut", duration: 0.2 }}
           key="brand-name"
         >
           {hoveredBrandData._title} <ExternalLinkIcon className="size-4" />
@@ -106,6 +119,7 @@ const AnimatedTitle = memo(
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           initial={{ opacity: 0, y: 10 }}
+          transition={{ ease: "easeOut", duration: 0.2 }}
           key="visionaries"
         >
           Visionaries
