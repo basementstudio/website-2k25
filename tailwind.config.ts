@@ -176,10 +176,10 @@ export default {
           to: { opacity: "0" }
         },
         "actionable-blink": {
-          "25%,75%": {
+          "20%,60%,100%": {
             "--opacity-hover-value": "100"
           },
-          "50%,100%": {
+          "40%,80%": {
             "--opacity-hover-value": "var(--opacity-hover-anim-target)"
           }
         },
@@ -201,7 +201,7 @@ export default {
         "fade-out": "fade-out 0.3s ease-out",
         "slide-up": "slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
         "actionable-blink":
-          "actionable-blink var(--anim-duration) var(--anim-delay) linear infinite"
+          "actionable-blink var(--anim-duration) var(--anim-delay) linear forwards"
       }
     }
   },
