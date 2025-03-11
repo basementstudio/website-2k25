@@ -8,13 +8,13 @@ const socialLinks = [
   {
     Icon: LinkedInIcon,
     href: (slug: string) =>
-      `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`https://basement.studio/blog/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
+      `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`https://basement.studio/post/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
     label: "Share on LinkedIn"
   },
   {
     Icon: XIcon,
     href: (slug: string, title: string) =>
-      `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://basement.studio/blog/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
+      `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://basement.studio/post/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
     label: "Share on X"
   }
 ]
@@ -73,7 +73,7 @@ export default function BlogMeta({
               {data.categories?.map((category) => (
                 <p
                   key={category._title}
-                  className="text-mobile-p h-max w-max bg-brand-g2 px-1 text-brand-w2 lg:text-p"
+                  className="h-max w-max bg-brand-g2 px-1 text-mobile-p text-brand-w2 lg:text-p"
                 >
                   {category._title}
                 </p>
