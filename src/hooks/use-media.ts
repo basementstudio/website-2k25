@@ -19,7 +19,9 @@ export const useMedia = (mediaQuery: string, initialValue?: boolean) => {
 
     changeHandler()
     if (typeof mediaQueryList.addEventListener === "function") {
-      mediaQueryList.addEventListener("change", changeHandler)
+      mediaQueryList.addEventListener("change", changeHandler, {
+        passive: true
+      })
       return () => {
         mediaQueryList.removeEventListener("change", changeHandler)
       }

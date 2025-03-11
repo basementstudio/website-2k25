@@ -4,34 +4,34 @@ import {
   useVideoTexture
 } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
+import { Container, DefaultProperties, Root, Text } from "@react-three/uikit"
+import { FontFamilyProvider } from "@react-three/uikit"
 import { animate } from "motion"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useState, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Mesh, ShaderMaterial } from "three"
 import { Box3, Vector3, WebGLRenderTarget } from "three"
+import { degToRad } from "three/src/math/MathUtils.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { createScreenMaterial } from "@/shaders/material-screen"
 import { useArcadeStore } from "@/store/arcade-store"
 
-import { RenderTexture } from "./render-texture"
+import { ffflauta } from "../../../public/fonts/ffflauta"
+import { useGame } from "../arcade-game/lib/use-game"
+import { NPCs } from "../arcade-game/npc"
 import { Player } from "../arcade-game/player"
 import { Road } from "../arcade-game/road"
-import { NPCs } from "../arcade-game/npc"
-import { Container, DefaultProperties, Root, Text } from "@react-three/uikit"
-import { FontFamilyProvider } from "@react-three/uikit"
-import { COLORS_THEME } from "./screen-ui"
-import { ffflauta } from "../../../public/fonts/ffflauta"
-import { degToRad } from "three/src/math/MathUtils.js"
 import {
-  useRoad,
   DEFAULT_SPEED,
-  GAME_SPEED
+  GAME_SPEED,
+  useRoad
 } from "../arcade-game/road/use-road"
-import { useGame } from "../arcade-game/lib/use-game"
 import { revealOpacityMaterials } from "../map/bakes"
+import { RenderTexture } from "./render-texture"
+import { COLORS_THEME } from "./screen-ui"
 
 const ScreenUI = dynamic(
   () =>
@@ -262,7 +262,7 @@ const Game = ({
       }
     }
 
-    window.addEventListener("keydown", handleKeyPress)
+    window.addEventListener("keydown", handleKeyPress, { passive: true })
 
     return () => {
       window.removeEventListener("keydown", handleKeyPress)
