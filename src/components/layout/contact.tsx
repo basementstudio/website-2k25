@@ -1,6 +1,8 @@
 "use client"
+
 import { Link } from "@/components/primitives/link"
 
+import TILE_IMAGE from "../../../public/images/tile.png"
 import { useContactStore } from "../contact/contact-store"
 
 export const Contact = () => {
@@ -28,14 +30,21 @@ export const Contact = () => {
             <br />
           </p>
           <button
-            onClick={() => setIsContactOpen(true)}
             className="relative z-10 col-span-full h-max w-max bg-brand-k text-mobile-h2 text-brand-w1 lg:col-start-6 lg:text-h2"
+            onClick={() => setIsContactOpen(true)}
+            type="button"
           >
             <span className="actionable">Get in Touch</span>
           </button>
         </div>
 
-        <div className="with-diagonal-lines !absolute inset-0" />
+        <div
+          className="!absolute inset-0"
+          style={{
+            backgroundImage: `url(${TILE_IMAGE.src})`,
+            backgroundRepeat: "repeat"
+          }}
+        />
       </div>
     </div>
   )
