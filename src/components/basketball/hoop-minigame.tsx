@@ -1,6 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { MathUtils, Vector2, Vector3 } from "three"
 import * as THREE from "three"
 
@@ -19,40 +19,39 @@ import { easeInOutCubic } from "@/utils/animations"
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
 
-export const HoopMinigame = () => {
+const HoopMinigameInner = () => {
   const { playSoundFX } = useSiteAudio()
   const [isBasketball, setIsBasketball] = useState(false)
   const scene = useCurrentScene()
   const isOnTab = useIsOnTab()
 
-  const {
-    gameDuration,
-    initialPosition,
-    hoopPosition,
-    forwardStrength,
-    upStrength,
-    score,
-    setScore,
-    setTimeRemaining,
-    isGameActive,
-    setIsGameActive,
-    isResetting,
-    setIsResetting,
-    isDragging,
-    setIsDragging,
-    setShotMetrics,
-    setHasPlayed,
-    addPlayedBall,
-    readyToPlay,
-    setReadyToPlay,
-    resetConsecutiveScores,
-    justScored,
-    setJustScored,
-    hasPlayed,
-    clearPlayedBalls,
-    removePlayedBall,
-    playedBalls
-  } = useMinigameStore()
+  const gameDuration = useMinigameStore((s) => s.gameDuration)
+  const initialPosition = useMinigameStore((s) => s.initialPosition)
+  const hoopPosition = useMinigameStore((s) => s.hoopPosition)
+  const forwardStrength = useMinigameStore((s) => s.forwardStrength)
+  const upStrength = useMinigameStore((s) => s.upStrength)
+  const setScore = useMinigameStore((s) => s.setScore)
+  const setTimeRemaining = useMinigameStore((s) => s.setTimeRemaining)
+  const isGameActive = useMinigameStore((s) => s.isGameActive)
+  const setIsGameActive = useMinigameStore((s) => s.setIsGameActive)
+  const isResetting = useMinigameStore((s) => s.isResetting)
+  const setIsResetting = useMinigameStore((s) => s.setIsResetting)
+  const isDragging = useMinigameStore((s) => s.isDragging)
+  const setIsDragging = useMinigameStore((s) => s.setIsDragging)
+  const setShotMetrics = useMinigameStore((s) => s.setShotMetrics)
+  const resetConsecutiveScores = useMinigameStore(
+    (s) => s.resetConsecutiveScores
+  )
+  const justScored = useMinigameStore((s) => s.justScored)
+  const setJustScored = useMinigameStore((s) => s.setJustScored)
+  const hasPlayed = useMinigameStore((s) => s.hasPlayed)
+  const clearPlayedBalls = useMinigameStore((s) => s.clearPlayedBalls)
+  const removePlayedBall = useMinigameStore((s) => s.removePlayedBall)
+  const addPlayedBall = useMinigameStore((s) => s.addPlayedBall)
+  const playedBalls = useMinigameStore((s) => s.playedBalls)
+  const readyToPlay = useMinigameStore((s) => s.readyToPlay)
+  const setHasPlayed = useMinigameStore((s) => s.setHasPlayed)
+  const setReadyToPlay = useMinigameStore((s) => s.setReadyToPlay)
 
   const ballRef = useRef<RapierRigidBody>(null)
   const mousePos = useRef(new Vector2())
@@ -248,7 +247,7 @@ export const HoopMinigame = () => {
               }
 
               setTimeout(() => {
-                playSoundFX("TIMEOUT_BUZZER")
+                playSoundFX("TIMEOUT_BUZZER", 0.045)
 
                 // if the ball is still in play, we add it to played balls
                 // only if it doesn't already exist there
@@ -578,3 +577,5 @@ export const HoopMinigame = () => {
     </>
   )
 }
+
+export const HoopMinigame = memo(HoopMinigameInner)

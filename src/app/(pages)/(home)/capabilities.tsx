@@ -1,5 +1,4 @@
-import Link from "next/link"
-
+import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
 
 import { QueryType } from "./query"
@@ -10,11 +9,11 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
 
   return (
     <div className="grid-layout">
-      <h3 className="text-mobile-h3 col-span-full mb-2 text-brand-g1 lg:col-start-3 lg:text-h3">
+      <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:text-h3">
         {capabilities._title}
       </h3>
 
-      <div className="[&_p]:text-mobile-h1 col-span-full lg:[&_p]:text-h1">
+      <div className="col-span-full [&_p]:text-mobile-h1 lg:[&_p]:text-h1">
         <RichText>{capabilities.intro?.json?.content}</RichText>
       </div>
 
@@ -29,10 +28,9 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
             >
               <h4 className="text-h4">
                 <Link
-                  className="actionable"
                   href={`/showcase?category=${encodeURIComponent(c._title)}`}
                 >
-                  {c._title}
+                  <span className="actionable">{c._title}</span>
                 </Link>
               </h4>
 

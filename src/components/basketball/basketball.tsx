@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three"
+import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
@@ -57,7 +57,7 @@ export const Basketball = ({
   }, [originalMaterial])
 
   const handleCollision = (other: any) => {
-    const randomVolume = 0.1 + Math.random() * 0.1
+    const randomVolume = 0.05 + Math.random() * 0.05
     const randomPitch = 0.95 + Math.random() * 0.1
     const decreaseVolumeOnBounce = bounceCount.current > 0 ? 0.5 : 0.75
 

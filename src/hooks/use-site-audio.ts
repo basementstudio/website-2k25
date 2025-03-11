@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { memo, useCallback, useEffect, useState } from "react"
 import { create } from "zustand"
 
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
@@ -70,7 +70,7 @@ export function useInitializeAudioContext(element?: HTMLElement) {
         targetElement.removeEventListener("click", unlock)
       }
     }
-    targetElement.addEventListener("click", unlock)
+    targetElement.addEventListener("click", unlock, { passive: true })
 
     return () => {
       targetElement.removeEventListener("click", unlock)
@@ -78,7 +78,9 @@ export function useInitializeAudioContext(element?: HTMLElement) {
   }, [element, player])
 }
 
-export function SiteAudioSFXsLoader(): null {
+export const SiteAudioSFXsLoader = memo(SiteAudioSFXsLoaderInner)
+
+function SiteAudioSFXsLoaderInner(): null {
   const player = useSiteAudioStore((s) => s.player)
   const { GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX } = useAudioUrls()
 
@@ -90,7 +92,9 @@ export function SiteAudioSFXsLoader(): null {
       const newSources = {} as Record<SiteAudioSFXKey, AudioSource>
 
       try {
-        await Promise.all(
+        const promises = []
+
+        promises.push(
           Object.keys(GAME_AUDIO_SFX).map(async (key) => {
             const audioKey = key as SiteAudioSFXKey
             const source = await player.loadAudioFromURL(
@@ -102,7 +106,7 @@ export function SiteAudioSFXsLoader(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
             const source = await player.loadAudioFromURL(button.PRESS, true)
             source.setVolume(SFX_VOLUME)
@@ -116,7 +120,7 @@ export function SiteAudioSFXsLoader(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
             const source = await player.loadAudioFromURL(stick.PRESS, true)
             source.setVolume(SFX_VOLUME)
@@ -130,7 +134,7 @@ export function SiteAudioSFXsLoader(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           BLOG_AUDIO_SFX.LOCKED_DOOR.map(async (lockedDoor, index) => {
             const source = await player.loadAudioFromURL(lockedDoor, true)
             source.setVolume(SFX_VOLUME)
@@ -138,7 +142,7 @@ export function SiteAudioSFXsLoader(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
             const source = await player.loadAudioFromURL(door.OPEN, true)
             source.setVolume(SFX_VOLUME)
@@ -149,7 +153,7 @@ export function SiteAudioSFXsLoader(): null {
           })
         )
 
-        await Promise.all(
+        promises.push(
           BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
             const source = await player.loadAudioFromURL(lamp.PULL, true)
             source.setVolume(SFX_VOLUME)
@@ -163,6 +167,8 @@ export function SiteAudioSFXsLoader(): null {
           })
         )
 
+        await Promise.all(promises)
+
         useSiteAudioStore.setState({
           audioSfxSources: newSources
         })
@@ -172,7 +178,8 @@ export function SiteAudioSFXsLoader(): null {
     }
 
     loadAudioSources()
-  }, [player, GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player])
 
   return null
 }

@@ -1,5 +1,5 @@
 import { createPortal, useFrame } from "@react-three/fiber"
-import { memo, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useId, useMemo, useRef } from "react"
 import {
   HalfFloatType,
   LinearSRGBColorSpace,
@@ -71,7 +71,7 @@ function RendererInner({ sceneChildren }: RendererProps) {
 
     resizeCallback()
 
-    window.addEventListener("resize", resizeCallback)
+    window.addEventListener("resize", resizeCallback, { passive: true })
 
     return () => window.removeEventListener("resize", resizeCallback)
   }, [mainTarget])

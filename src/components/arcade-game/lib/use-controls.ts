@@ -1,6 +1,7 @@
-import { useShallow } from "zustand/react/shallow"
-import { ControlKey, Controls, useConnector } from "./connector"
 import { useEffect } from "react"
+import { useShallow } from "zustand/react/shallow"
+
+import { ControlKey, Controls, useConnector } from "./connector"
 
 export function useControls<T extends ControlKey>(control: T): Controls[T]
 export function useControls<T extends ControlKey[]>(
@@ -64,12 +65,12 @@ export function useKeyControls() {
         keyCallbacks[control]!()
       }
     }
-    window.addEventListener("keydown", handleKeydown)
+    window.addEventListener("keydown", handleKeydown, { passive: true })
     const handleKeyup = ({ key }: KeyboardEvent) => {
       if (!isKeyCode(key)) return
       setControl(keyControlMap[key], false)
     }
-    window.addEventListener("keyup", handleKeyup)
+    window.addEventListener("keyup", handleKeyup, { passive: true })
     return () => {
       window.removeEventListener("keydown", handleKeydown)
       window.removeEventListener("keyup", handleKeyup)
@@ -88,22 +89,40 @@ const stickDirectionMap = {
 export function useStickControls() {
   useEffect(() => {
     const handleStickMove = (event: CustomEvent) => {
-      const { direction } = event.detail
+      const { direction, stick } = event.detail
 
-      setControl("left", false)
-      setControl("right", false)
-      setControl("forward", false)
-      setControl("backward", false)
+      // handle left stick
+      if (stick === "02_JYTK_L") {
+        setControl("left", false)
+        setControl("right", false)
+        setControl("forward", false)
+        setControl("backward", false)
 
-      if (direction === 0) return
+        if (direction === 0) return
 
-      const control =
-        stickDirectionMap[direction as keyof typeof stickDirectionMap]
+        const control =
+          stickDirectionMap[direction as keyof typeof stickDirectionMap]
 
-      if (control) {
-        setControl(control as ControlKey, true)
-        if (keyCallbacks[control as ControlKey]) {
-          keyCallbacks[control as ControlKey]!()
+        if (control) {
+          setControl(control as ControlKey, true)
+          if (keyCallbacks[control as ControlKey]) {
+            keyCallbacks[control as ControlKey]!()
+          }
+        }
+      }
+
+      // handle right stick
+      if (stick === "02_JYTK_R") {
+        if (direction === 0) return
+
+        const control =
+          stickDirectionMap[direction as keyof typeof stickDirectionMap]
+
+        if (control) {
+          setControl(control as ControlKey, true)
+          if (keyCallbacks[control as ControlKey]) {
+            keyCallbacks[control as ControlKey]!()
+          }
         }
       }
     }
