@@ -29,7 +29,7 @@ export const Inspectables = memo(function InspectablesInner() {
     if (selected) {
       const inspectableFx = inspectables.find((i) => i.mesh === selected)?.fx
 
-      playInspectableFX(inspectableFx ?? "", 0.2)
+      playInspectableFX(inspectableFx ?? "", 0.65)
     }
   }, [selected, inspectables, playInspectableFX])
 
