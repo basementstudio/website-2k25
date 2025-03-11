@@ -35,9 +35,19 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
           camera.matrixWorld.copy(camMatrix)
           position.project(camera)
 
-          const screenOffset = window.innerWidth >= 1700 ? 350 : 360
-          const x = ((position.x + 1) * window.innerWidth) / 2 - screenOffset
-          const y = ((-position.y + 1) * window.innerHeight) / 2 + 116
+          console.log(position)
+
+          const baseOffset = 350
+          const screenWidthFactor = Math.max(
+            0,
+            (1920 - window.innerWidth) / 1920
+          )
+          const additionalOffset = screenWidthFactor * 100
+
+          const x =
+            ((position.x + 1) * window.innerWidth) / 2 -
+            (baseOffset + additionalOffset)
+          const y = ((-position.y + 1) * window.innerHeight) / 2
 
           setScreenPosition({ x, y })
         }
@@ -82,7 +92,7 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
 
   return (
     <motion.div
-      className="absolute z-50 flex h-[346px] w-[559px] bg-brand-k px-4 pb-6 pt-5 font-bold"
+      className="absolute z-50 flex h-[346px] w-[559px] bg-transparent px-4 pb-6 pt-5 font-bold"
       style={{
         left: `${screenPosition.x}px`,
         top: `${screenPosition.y}px`,

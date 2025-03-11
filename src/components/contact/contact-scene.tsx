@@ -23,6 +23,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const phoneGroupRef = useRef<Group>(null)
   const idleTimeRef = useRef<number>(0)
   const lastPositionRef = useRef<Vector3 | null>(null)
+  const [screenMatrix, setScreenMatrix] = useState<Matrix4>(new Matrix4())
 
   const isContactOpen = useWorkerStore((state) => state.isContactOpen)
   const isClosing = useWorkerStore((state) => state.isClosing)
@@ -133,6 +134,13 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     }
   }, [isContactOpen, isClosing])
 
+  useEffect(() => {
+    if (!gltf.scene || !gltf.animations.length) return
+
+    const screenbone = gltf.nodes.Obj as Bone
+    setScreenMatrix(screenbone.matrixWorld)
+  }, [gltf])
+
   const playRandomIdleAnimation = () => {
     const handler = animationHandlerRef.current
     if (!handler || isClosing || !isContactOpen) return
@@ -172,7 +180,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   return (
     <>
       <group scale={6} ref={phoneGroupRef}>
-        <primitive position-y={-0.05} object={gltf.scene} />
+        <primitive position-y={-0.034} object={gltf.scene} />
       </group>
     </>
   )
