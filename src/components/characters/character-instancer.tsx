@@ -28,27 +28,20 @@ export enum CharacterAnimationName {
   "Working" = "Working"
 }
 
+const SKINNED_MESH_KEYS = ["head", "body", "arms"] as const
+
 interface CharactersGLTF {
   nodes: {
-    Body: THREE.SkinnedMesh
-    Arms: THREE.SkinnedMesh
-    CHARACTER: THREE.Object3D
-    CHARACTERS: THREE.Group
-    Head_1: THREE.SkinnedMesh
-    "Cesar-Glass": THREE.SkinnedMesh
-    "Facu-Glass": THREE.SkinnedMesh
-    "Flauta-Glass": THREE.SkinnedMesh
-    "JJ-Glass": THREE.SkinnedMesh
-    "Naza-Glass": THREE.SkinnedMesh
+    [key in (typeof SKINNED_MESH_KEYS)[number]]: THREE.SkinnedMesh
   }
   animations: THREE.AnimationClip[]
 }
 
 export { CharacterPosition, useCharacterMesh }
 
-const MAX_CHARACTERS = 40
+const MAX_CHARACTERS = 10
 
-const MAX_CHARACTERS_INSTANCES = MAX_CHARACTERS * 3
+const MAX_CHARACTERS_INSTANCES = MAX_CHARACTERS * 4
 
 // util, move from here
 export const setGeometryFloatAttribute = (
@@ -63,8 +56,6 @@ export const setGeometryFloatAttribute = (
   )
 }
 
-const REQUIRED_KEYS = ["Body", "Head_1", "Arms"]
-
 function CharacterInstanceConfigInner() {
   const { characters } = useAssets()
 
@@ -75,7 +66,7 @@ function CharacterInstanceConfigInner() {
   const textureBody = useTexture(characters.textureBody)
   const textureFaces = useTexture(characters.textureFaces)
 
-  if (!REQUIRED_KEYS.every((key) => nodes[key as keyof typeof nodes])) {
+  if (!SKINNED_MESH_KEYS.every((key) => nodes[key as keyof typeof nodes])) {
     console.error("INVALID CHARACTERS MODEL")
     console.log("CURRENT NODES:")
     console.log(nodes)
@@ -87,14 +78,14 @@ function CharacterInstanceConfigInner() {
     // const bodyMapIndices = new Uint32Array(MAX_CHARACTERS_INSTANCES).fill(0)
     // nodes.BODY.geometry.setAttribute("instanceMapIndex", new InstancedBufferAttribute(mapIndices, 1))
 
-    const bodyRepeat = 2
+    const bodyRepeat = 1
     textureBody.repeat.set(1 / bodyRepeat, 1 / bodyRepeat)
     textureBody.flipY = false
     textureBody.updateMatrix()
     textureBody.needsUpdate = true
     const material = getCharacterMaterial()
 
-    const facesRepeat = 6
+    const facesRepeat = 2
     textureFaces.repeat.set(1 / facesRepeat, 1 / facesRepeat)
     textureFaces.flipY = false
     textureFaces.updateMatrix()
@@ -118,6 +109,16 @@ function CharacterInstanceConfigInner() {
     material.uniforms.mapConfigs = { value: [bodyMapConfig, headMapConfig] }
     material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: 2 }
 
+    Object.keys(nodes).forEach((nodeKey) => {
+      const node = nodes[nodeKey as keyof typeof nodes]
+      if (node.morphTargetInfluences) {
+        node.morphTargetInfluences.map((_, index) => {
+          // node.morphTargetInfluences![index] = 0
+          nodes[nodeKey as keyof typeof nodes].morphTargetInfluences![index] = 0
+        })
+      }
+    })
+
     return material
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textureBody, textureFaces, nodes])
@@ -126,7 +127,7 @@ function CharacterInstanceConfigInner() {
     <>
       <CharacterInstancedMesh
         material={material}
-        mesh={[nodes.Body, nodes.Head_1, nodes.Arms]}
+        mesh={SKINNED_MESH_KEYS.map((key) => nodes[key as keyof typeof nodes])}
         animations={animations}
         count={MAX_CHARACTERS_INSTANCES}
         instancedUniforms={[

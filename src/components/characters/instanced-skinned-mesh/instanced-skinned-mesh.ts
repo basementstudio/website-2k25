@@ -95,6 +95,12 @@ THREE.ShaderChunk.skinning_pars_vertex =
 THREE.ShaderChunk.skinning_vertex =
   THREE.ShaderChunk.skinning_vertex +
   /* glsl */ `
+      #ifdef USE_BATCHED_MORPHS
+
+      transformed += getMorphTransform().xyz;
+
+      #endif
+
       #ifdef USE_BATCHED_SKINNING
 
           vec4 skinVertex = vec4( transformed, 1.0 );
@@ -134,12 +140,6 @@ THREE.ShaderChunk.skinning_vertex =
           skinned += weightedBoneMatW * skinVertex;
 
           transformed = skinned.xyz;
-
-      #endif
-
-      #ifdef USE_BATCHED_MORPHS
-
-      transformed += getMorphTransform().xyz;
 
       #endif
   `
@@ -481,6 +481,9 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     this.shouldComputeMorphTargets = false
 
     this.addInstancedUniform("uActiveMorphs", -1, THREE.IntType)
+
+    console.log(this.morphOffsetsDict);
+
   }
 
   private _setInstanceMorph = (

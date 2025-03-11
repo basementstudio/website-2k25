@@ -38,7 +38,7 @@ function CharactersSpawnInner() {
       {/* Services */}
       <Character
         position={[3.6, 0.9, -6.8]}
-        rotation={[0, Math.PI * 0.1, 0]}
+        rotation={[0, Math.PI * -1.1, 0]}
         animationName={CharacterAnimationName.Floor2}
         uniforms={{
           uLightDirection: {
@@ -48,7 +48,7 @@ function CharactersSpawnInner() {
       />
       <Character
         position={[5.3, 0.55, -6.7]}
-        rotation={[0, Math.PI * 0.7, 0]}
+        rotation={[0, Math.PI * -0.7, 0]}
         animationName={CharacterAnimationName.Chill}
         uniforms={{
           uLightDirection: {
@@ -61,13 +61,19 @@ function CharactersSpawnInner() {
 
       <Character
         position={[4, 0.1, -10.5]}
-        rotation={[0, 0, 0]}
+        rotation={[0, Math.PI * 0.5, 0]}
         animationName={CharacterAnimationName["Sit"]}
       />
 
       <Character
-        position={[4.6, 0.1, -17.5]}
-        rotation={[0, Math.PI * -0.7, 0]}
+        position={[3, 0, -13]}
+        rotation={[0, Math.PI * 1, 0]}
+        animationName={CharacterAnimationName["Iddle-02"]}
+      />
+
+      <Character
+        position={[4.6, 0.0, -17.5]}
+        rotation={[0, Math.PI * -0.2, 0]}
         animationName={CharacterAnimationName.Working}
         initialTime={0.5}
         uniforms={{
@@ -80,8 +86,8 @@ function CharactersSpawnInner() {
         }}
       />
       <Character
-        position={[3.5, 0.1, -16]}
-        rotation={[0, Math.PI * -0.12, 0]}
+        position={[3.22, 0, -16.6]}
+        rotation={[0, Math.PI * 0.4, 0]}
         animationName={CharacterAnimationName.Working}
         uniforms={{
           uLightDirection: {
@@ -95,8 +101,8 @@ function CharactersSpawnInner() {
 
       {/* Upstairs */}
       <Character
-        position={[3.05, 3.85, -27]}
-        rotation={[0, Math.PI * -0.1, 0]}
+        position={[3.05, 3.7, -27]}
+        rotation={[0, Math.PI * 0.5, 0]}
         animationName={CharacterAnimationName.Working}
         uniforms={{
           uLightDirection: {
@@ -105,8 +111,8 @@ function CharactersSpawnInner() {
         }}
       />
       <Character
-        position={[6.8, 3.85, -26.9]}
-        rotation={[0, Math.PI * -0.1, 0]}
+        position={[6.4, 3.7, -26.9]}
+        rotation={[0, Math.PI * 0.5, 0]}
         animationName={CharacterAnimationName.Working}
       />
 
