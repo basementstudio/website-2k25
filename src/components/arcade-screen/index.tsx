@@ -29,7 +29,6 @@ import {
   GAME_SPEED,
   useRoad
 } from "../arcade-game/road/use-road"
-import { revealOpacityMaterials } from "../map/bakes"
 import { RenderTexture } from "./render-texture"
 import { COLORS_THEME } from "./screen-ui"
 
@@ -146,7 +145,9 @@ export const ArcadeScreen = () => {
       game: {
         position: [0, 10, 20] as [number, number, number],
         rotation: [degToRad(-20), 0, 0] as [number, number, number],
-        fov: 30
+        fov: 30,
+        aspect: 16 / 9,
+        manual: true
       }
     }
   }, [arcadeScreen, screenPosition])
