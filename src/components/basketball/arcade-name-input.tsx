@@ -119,7 +119,7 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
   useKeyPress("Enter", handleEnter)
 
   useEffect(() => {
-    window.addEventListener("keypress", handleKeyPress)
+    window.addEventListener("keypress", handleKeyPress, { passive: true })
     return () => window.removeEventListener("keypress", handleKeyPress)
   }, [handleKeyPress])
 

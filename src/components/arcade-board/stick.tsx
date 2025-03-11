@@ -349,8 +349,8 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("keyup", handleKeyUp)
+    window.addEventListener("keydown", handleKeyDown, { passive: true })
+    window.addEventListener("keyup", handleKeyUp, { passive: true })
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
