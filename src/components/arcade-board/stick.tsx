@@ -36,7 +36,6 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
 
   const isDragging = useRef(false)
   const dragStartPosition = useRef({ x: 0, y: 0 })
-  const movementTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const handleStickSound = useCallback(
     (isRelease: boolean) => {
@@ -287,8 +286,8 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
 
       if (state.current !== 0) {
         handleStickSound(true)
+        resetStick()
       }
-      resetStick()
     },
     [handleStickSound, resetStick, setCursor]
   )
