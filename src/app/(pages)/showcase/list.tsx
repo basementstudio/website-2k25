@@ -93,6 +93,7 @@ const AccordionListItem = memo(
               "overflow-hidden transition-[transform,opacity,height] duration-300",
               "data-[state=closed]:h-0",
               "data-[state=open]:h-auto",
+              "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
               disabled && "opacity-30"
             )}
             forceMount
@@ -107,7 +108,6 @@ const AccordionListItem = memo(
                     whileInView={{
                       opacity: index === 0 ? [null, 1, 0, 1, 0, 1] : 1
                     }}
-                    viewport={{ once: true }}
                     transition={{
                       delay: index === 0 ? imgIndex * 0.1 : imgIndex * 0.05,
                       duration: 0.3
