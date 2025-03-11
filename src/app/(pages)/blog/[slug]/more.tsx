@@ -52,12 +52,12 @@ export default function More({
               </div>
 
               <div className="flex w-full justify-between gap-y-2">
-                <h3 className="text-mobile-h3 line-clamp-2 w-full max-w-[70%] text-brand-w2 lg:text-h3">
+                <h3 className="line-clamp-2 w-full max-w-[70%] text-mobile-h3 text-brand-w2 lg:text-h3">
                   {post._title}
                 </h3>
 
                 {post.date ? (
-                  <p className="text-mobile-p flex-1 text-right text-brand-g1 lg:flex-auto lg:text-p">
+                  <p className="flex-1 text-right text-mobile-p text-brand-g1 lg:flex-auto lg:text-p">
                     {formatDate(post.date ?? "")}
                   </p>
                 ) : null}

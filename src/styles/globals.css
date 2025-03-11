@@ -76,7 +76,7 @@
     @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)] hover:[text-shadow:0px_0px_30px_var(--text-shadow-color)];
   }
 
-  .actionable[target="_blank"] {
+  a[target="_blank"] {
     @apply cursor-alias;
   }
 
