@@ -19,10 +19,12 @@ export function useSelectStore<T, K, C extends (state: K) => void>(
   const storeRef = useRef(store)
   storeRef.current = store
 
+  const isFirstRender = useRef(true)
+
   useEffect(() => {
     const unsubscribe = storeRef.current.subscribe((state, prevState) => {
-      const currentSelector = selectorRef.current
       const currentComparison = comparisonRef.current
+      const currentSelector = selectorRef.current
       const currentCallback = callbackRef.current
 
       if (
@@ -33,6 +35,14 @@ export function useSelectStore<T, K, C extends (state: K) => void>(
         }
       }
     })
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      const state = storeRef.current.getState()
+      const currentSelector = selectorRef.current
+      const currentCallback = callbackRef.current
+      currentCallback(currentSelector(state))
+    }
 
     return unsubscribe
   }, [])

@@ -26,6 +26,7 @@ import { useAssets } from "../assets-provider"
 import { ICameraConfig } from "../navigation-handler/navigation.interface"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
+import { MeshDiscardMaterial } from "@react-three/drei"
 
 interface InspectableProps {
   id: string
@@ -175,7 +176,7 @@ export const Inspectable = memo(function InspectableInner({
 
     if (mesh && !size.current.x) {
       mesh.rotation.set(0, 0, 0)
-      const boundingBox = new Box3().setFromObject(mesh)
+      const boundingBox = new Box3().setFromObject(mesh, true)
       mesh.rotation.set(
         mesh.userData.rotation.x,
         mesh.userData.rotation.y,
@@ -310,7 +311,7 @@ export const Inspectable = memo(function InspectableInner({
           <boxGeometry
             args={[size.current.x, size.current.y, size.current.z]}
           />
-          <meshBasicMaterial opacity={0.5} transparent depthWrite={false} />
+          <MeshDiscardMaterial />
         </mesh>
       </InspectableDragger>
     </group>
