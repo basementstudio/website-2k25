@@ -68,14 +68,10 @@ export const Brands = ({ data }: { data: QueryType }) => {
                   href={brand.website ?? ""}
                   target="_blank"
                   key={brand._id}
-                  dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
-                  className={cn(
-                    "transition-opacity duration-300 [&>svg]:w-16 sm:[&>svg]:w-auto",
-                    {
-                      "opacity-50": debouncedHoveredBrand !== brand._id,
-                      "opacity-100": debouncedHoveredBrand === null
-                    }
-                  )}
+                  dangerouslySetInnerHTML={{
+                    __html: `<span class="actionable-opacity">${brand.logo}</span>`
+                  }}
+                  className="text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto [&>svg_path]:fill-current"
                   onMouseEnter={() => setHoveredBrand(brand._id)}
                   onMouseLeave={() => setHoveredBrand(null)}
                 />

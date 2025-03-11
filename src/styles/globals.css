@@ -74,6 +74,19 @@
     @apply cursor-alias;
   }
 
+  .actionable-opacity {
+    --anim-duration: 600ms;
+    --anim-delay: calc(var(--anim-duration) / 5);
+    --opacity-hover-value: 100;
+    --opacity-hover-anim-target: 80;
+
+    opacity: calc(var(--opacity-hover-value) * 0.01);
+
+    @apply transition-opacity duration-[var(--anim-delay)] ease-linear;
+    @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
+    @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)];
+  }
+
   .text-h2.actionable,
   .text-h2 .actionable {
     @apply underline-offset-[5px] [text-decoration-thickness:2px];
