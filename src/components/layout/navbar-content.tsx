@@ -123,7 +123,12 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
               )}
               onClick={() => handleNavigation(link.href)}
             >
-              <span className="actionable actionable-no-underline">
+              <span
+                className={cn(
+                  "actionable actionable-no-underline",
+                  link.href === pathname && "actionable-inanimate"
+                )}
+              >
                 {link.title}
               </span>
             </button>

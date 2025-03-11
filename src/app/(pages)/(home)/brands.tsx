@@ -1,14 +1,13 @@
 "use client"
 
 import { AnimatePresence, motion } from "motion/react"
-import Link from "next/link"
 import { memo, useMemo, useState } from "react"
 
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
-import { cn } from "@/utils/cn"
 
 import type { QueryType } from "./query"
 
