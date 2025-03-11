@@ -14,7 +14,8 @@ export function useAudioUrls() {
       BASKETBALL_THROW: sfx.basketballSwoosh,
       BASKETBALL_NET: sfx.basketballNet,
       BASKETBALL_THUMP: sfx.basketballThump,
-      TIMEOUT_BUZZER: sfx.basketballBuzzer
+      TIMEOUT_BUZZER: sfx.basketballBuzzer,
+      BASKETBALL_STREAK: sfx.basketballStreak
     },
     BLOG_AUDIO_SFX: {
       LOCKED_DOOR: sfx.blog.lockedDoor,

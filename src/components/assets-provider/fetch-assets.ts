@@ -63,6 +63,7 @@ export interface AssetsResult {
     basketballNet: string
     basketballThump: string
     basketballBuzzer: string
+    basketballStreak: string
     blog: {
       lockedDoor: string[]
       door: {
@@ -200,11 +201,12 @@ export async function fetchAssets(): Promise<AssetsResult> {
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
     sfx: {
       ambience: threeDInteractions.sfx.ambience?.url ?? "",
-      basketballTheme: threeDInteractions.sfx.basketballTheme?.url ?? "",
-      basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
-      basketballNet: threeDInteractions.sfx.basketballNet?.url ?? "",
-      basketballThump: threeDInteractions.sfx.basketballThump?.url ?? "",
-      basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? "",
+      basketballTheme: threeDInteractions.sfx.basketballTheme?.url,
+      basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url,
+      basketballNet: threeDInteractions.sfx.basketballNet?.url,
+      basketballThump: threeDInteractions.sfx.basketballThump?.url,
+      basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url,
+      basketballStreak: threeDInteractions.sfx.basketballStreak?.url,
       blog: {
         lockedDoor: threeDInteractions.sfx.blog.lockedDoor.items.map(
           (item) => item.sound?.url ?? ""
