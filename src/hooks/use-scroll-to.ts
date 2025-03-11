@@ -1,3 +1,5 @@
+import { useCallback } from "react"
+
 interface UseScrollToProps {
   offset: number
   behavior: "smooth" | "instant"
@@ -5,25 +7,30 @@ interface UseScrollToProps {
 }
 
 export const useScrollTo = () => {
-  const scrollTo = ({ offset, behavior, callback }: UseScrollToProps) => {
-    const fixedOffset = offset.toFixed()
+  const scrollTo = useCallback(
+    ({ offset, behavior, callback }: UseScrollToProps) => {
+      const fixedOffset = offset.toFixed()
 
-    const onScroll = () => {
-      if (window.scrollY.toFixed() === fixedOffset) {
-        window.removeEventListener("scroll", onScroll)
-        callback()
+      const onScroll = () => {
+        if (window.scrollY.toFixed() === fixedOffset) {
+          window.removeEventListener("scroll", onScroll)
+          callback()
+        }
       }
-    }
 
-    window.addEventListener("scroll", onScroll)
+      window.addEventListener("scroll", onScroll, {
+        passive: true
+      })
 
-    onScroll()
+      onScroll()
 
-    window.scrollTo({
-      top: offset,
-      behavior: behavior
-    })
-  }
+      window.scrollTo({
+        top: offset,
+        behavior: behavior
+      })
+    },
+    []
+  )
 
   return scrollTo
 }

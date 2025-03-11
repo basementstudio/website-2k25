@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext } from "react"
+import { createContext, useContext, useRef } from "react"
 
 import { AssetsResult } from "./fetch-assets"
 
@@ -8,9 +8,11 @@ const AssetContext = createContext<AssetsResult | null>(null)
 
 export function useAssets() {
   const assets = useContext(AssetContext)
+  const assetsRef = useRef(assets)
   if (!assets)
     throw new Error("useAssets must be used within an AssetsProvider")
-  return assets
+  // avoid re-renders if this changes
+  return assetsRef.current!
 }
 
 interface AssetsProviderProps {
