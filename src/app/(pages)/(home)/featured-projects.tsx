@@ -73,9 +73,9 @@ const ProjectItem = ({
             project.project?.categories?.map((category) => (
               <span
                 key={category._title}
-                className="actionable text-mobile-h4 text-brand-w1 lg:text-h4"
+                className="text-mobile-h4 text-brand-w1 lg:text-h4"
               >
-                {category._title}
+                <span className="actionable">{category._title}</span>
               </span>
             )) ?? []
           }
