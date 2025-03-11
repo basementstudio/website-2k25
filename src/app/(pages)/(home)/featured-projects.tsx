@@ -64,7 +64,7 @@ const ProjectItem = ({
           />
         </div>
       </div>
-      <div className="col-span-2 flex flex-col gap-y-4">
+      <div className="col-span-2 flex flex-col gap-y-4 flex justify-between">
         <p className="text-mobile-h4 text-brand-w2 lg:text-h4">
           {project.excerpt}
         </p>
@@ -74,7 +74,7 @@ const ProjectItem = ({
             project.project?.categories?.map((category) => (
               <span
                 key={category._title}
-                className="text-mobile-h4 text-brand-w1 lg:text-h4"
+                className="text-mobile-h4 text-brand-w1 lg:text-h3"
               >
                 <span className="actionable">{category._title}</span>
               </span>
