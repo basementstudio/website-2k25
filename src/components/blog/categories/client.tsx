@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
 import { cn } from "@/utils/cn"
@@ -30,9 +31,10 @@ export const CategoriesClient = ({
               : `/blog/${category?._slug}`
 
           return (
-            <a
+            <Link
               href={href}
               onClick={(e) => handleClick(e, href)}
+              prefetch
               key={category?._title}
               className={cn(
                 "flex w-max gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
@@ -40,7 +42,7 @@ export const CategoriesClient = ({
               )}
             >
               <span className="actionable">{category?._title}</span>
-            </a>
+            </Link>
           )
         })}
       </ul>

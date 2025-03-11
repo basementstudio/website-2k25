@@ -108,21 +108,12 @@ const PostFragment = fragmentOn("PostsItem", {
 
 export type Post = fragmentOn.infer<typeof PostFragment>
 
-export const fetchPosts = async (
-  skip?: number,
-  take?: number,
-  category?: string
-) => {
+export const fetchPosts = async (category?: string) => {
   const posts = await client().query({
     pages: {
       blog: {
         posts: {
-          items: {
-            ...PostFragment
-          },
           __args: {
-            ...(skip !== undefined && { skip }),
-            ...(take !== undefined && { first: take }),
             filter: {
               ...(category && {
                 categories: {
@@ -130,7 +121,11 @@ export const fetchPosts = async (
                 }
               })
             },
+            ...(!category && { skip: 1 }),
             orderBy: "date__DESC"
+          },
+          items: {
+            ...PostFragment
           },
           _meta: {
             filteredCount: true
