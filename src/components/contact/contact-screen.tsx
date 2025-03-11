@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { motion, useAnimation } from "motion/react"
+import * as THREE from "three"
 
 interface ContactScreenProps {
   worker: Worker
@@ -7,6 +8,7 @@ interface ContactScreenProps {
 
 const ContactScreen = ({ worker }: ContactScreenProps) => {
   const [isVisible, setIsVisible] = useState(false)
+  const [screenPosition, setScreenPosition] = useState({ x: 516, y: 329 })
 
   useEffect(() => {
     if (!worker) return
@@ -21,8 +23,23 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
       }
 
       if (e.data.type === "update-screen-skinned-matrix") {
-        const { screenboneMatrix, cameraMatrix, screenSize } = e.data
-        console.log(screenboneMatrix, cameraMatrix, screenSize)
+        const { screenboneMatrix, cameraMatrix } = e.data
+
+        const boneMatrix = new THREE.Matrix4().fromArray(screenboneMatrix)
+        const camMatrix = new THREE.Matrix4().fromArray(cameraMatrix)
+
+        const position = new THREE.Vector3()
+        position.setFromMatrixPosition(boneMatrix)
+
+        const camera = new THREE.PerspectiveCamera()
+        camera.matrixWorld.copy(camMatrix)
+        position.project(camera)
+
+        const screenOffset = window.innerWidth >= 1700 ? 350 : 360
+        const x = ((position.x + 1) * window.innerWidth) / 2 - screenOffset
+        const y = ((-position.y + 1) * window.innerHeight) / 2 + 116
+
+        setScreenPosition({ x, y })
       }
     })
   }, [worker])
@@ -55,14 +72,16 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
 
   return (
     <motion.div
-      className="absolute left-[516px] top-[329px] z-50 flex h-[346px] w-[559px] bg-brand-k px-4 pb-6 pt-5 font-bold"
-      initial={{ scaleX: 0, scaleY: 0 }}
-      animate={animation}
+      className="absolute z-50 flex h-[346px] w-[559px] bg-brand-k px-4 pb-6 pt-5 font-bold"
       style={{
+        left: `${screenPosition.x}px`,
+        top: `${screenPosition.y}px`,
         originX: 0.5,
         originY: 0.5,
         transformStyle: "preserve-3d"
       }}
+      initial={{ scaleX: 0, scaleY: 0 }}
+      animate={animation}
     >
       <div className="flex h-full w-full flex-col gap-9">
         <div className="relative h-full w-full border border-brand-o px-4 pt-6">
