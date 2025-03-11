@@ -54,10 +54,13 @@ export const NavigationHandler = () => {
     const isFromPostToBlog =
       previousPathRef.current.startsWith("/post/") && pathname === "/blog"
 
+    // Special handling for post pages
     const expectedScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
-        : scenes.find((scene) => scene.name === pathname.split("/")[1])
+        : pathname.startsWith("/post/")
+          ? scenes.find((scene) => scene.name === "blog") // Use blog scene for post pages
+          : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
     if (
       expectedScene &&
@@ -75,10 +78,13 @@ export const NavigationHandler = () => {
 
     setSelected(null)
 
+    // Special handling for post pages
     const currentScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
-        : scenes.find((scene) => scene.name === pathname.split("/")[1])
+        : pathname.startsWith("/post/")
+          ? scenes.find((scene) => scene.name === "blog") // Use blog scene for post pages
+          : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
     if (!currentScene) {
       // Handle 404
