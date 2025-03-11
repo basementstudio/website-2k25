@@ -180,7 +180,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   return (
     <>
       <group scale={6} ref={phoneGroupRef}>
-        <primitive position-y={-0.034} object={gltf.scene} />
+        <primitive position-y={-0.036} object={gltf.scene} />
       </group>
     </>
   )
