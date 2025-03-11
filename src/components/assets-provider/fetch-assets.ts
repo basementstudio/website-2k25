@@ -239,7 +239,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
         miamiHeatwave: threeDInteractions.sfx.arcade.miamiHeatwave?.url
       },
       contact: {
-        interference: threeDInteractions.sfx.contact.interference?.url ?? ""
+        interference: threeDInteractions.sfx.contact.interference?.url
       },
       music: {
         aqua: threeDInteractions.sfx.music.aqua.url,
