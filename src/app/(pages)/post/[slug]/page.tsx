@@ -1,10 +1,10 @@
 import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 
-import { query } from "../query"
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import Content from "./content"
 import More from "./more"
+import { query } from "./query"
 import BlogTitle from "./title"
 
 type Params = Promise<{ slug: string }>
