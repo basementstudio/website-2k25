@@ -9,6 +9,7 @@ import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { DOOR_ANIMATION_CLOSE, DOOR_ANIMATION_OPEN } from "./constants"
+import { MeshDiscardMaterial } from "@react-three/drei"
 
 export const BlogDoor = () => {
   const { blog } = useMesh()
@@ -83,7 +84,7 @@ export const BlogDoor = () => {
         >
           <mesh position={[0, 0, 0.345]}>
             <boxGeometry args={[0.02, 1.1, 0.65, 32]} />
-            <meshBasicMaterial opacity={0} transparent depthWrite={false} />
+            <MeshDiscardMaterial />
           </mesh>
         </group>
       </group>

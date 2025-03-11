@@ -1,3 +1,4 @@
+import { MeshDiscardMaterial } from "@react-three/drei"
 import { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
 import { useCallback, useEffect, useRef } from "react"
@@ -35,7 +36,6 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
 
   const isDragging = useRef(false)
   const dragStartPosition = useRef({ x: 0, y: 0 })
-  const movementTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const handleStickSound = useCallback(
     (isRelease: boolean) => {
@@ -286,8 +286,8 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
 
       if (state.current !== 0) {
         handleStickSound(true)
+        resetStick()
       }
-      resetStick()
     },
     [handleStickSound, resetStick, setCursor]
   )
@@ -387,7 +387,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
           rotation={[(16 * Math.PI) / 180, 0, 0]}
         >
           <cylinderGeometry args={[0.03, 0.03, 0.12, 12]} />
-          <meshBasicMaterial opacity={0} transparent />
+          <MeshDiscardMaterial />
         </mesh>
       </group>
     </group>

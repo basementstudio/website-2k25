@@ -61,29 +61,25 @@ ViewSelector.displayName = "ViewSelector"
 
 interface FiltersProps {
   categories: CategoryItem[]
-  selectedCategories: string[]
+  selectedCategory: string | null
   viewMode: "grid" | "rows"
   setViewMode: (mode: "grid" | "rows") => void
-  setSelectedCategories: (categories: string[]) => void
+  setSelectedCategory: (category: string | null) => void
 }
 
 export const Filters = memo(
   ({
     categories,
-    selectedCategories,
-    setSelectedCategories,
+    selectedCategory,
+    setSelectedCategory,
     viewMode,
     setViewMode
   }: FiltersProps) => {
     const categoryHandler = useCallback(
-      (category: string, checked: boolean) => {
-        setSelectedCategories(
-          checked
-            ? [...selectedCategories, category]
-            : selectedCategories.filter((c) => c !== category)
-        )
+      (category: string) => {
+        setSelectedCategory(selectedCategory === category ? null : category)
       },
-      [selectedCategories, setSelectedCategories]
+      [selectedCategory, setSelectedCategory]
     )
 
     return (
@@ -111,16 +107,11 @@ export const Filters = memo(
                 key={category.name}
                 className={cn(
                   "flex w-max gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
-                  selectedCategories.includes(category.name) && "text-brand-w1",
+                  selectedCategory === category.name && "text-brand-w1",
                   // if no categories selected, show all as active
-                  selectedCategories.length === 0 && "text-brand-w1"
+                  selectedCategory === null && "text-brand-w1"
                 )}
-                onClick={() =>
-                  categoryHandler(
-                    category.name,
-                    !selectedCategories.includes(category.name)
-                  )
-                }
+                onClick={() => categoryHandler(category.name)}
               >
                 <span className="actionable">{category.name}</span>
                 {category.count && (
