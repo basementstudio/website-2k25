@@ -1,6 +1,6 @@
 import Image from "next/image"
-import Link from "next/link"
 
+import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
 import { cn } from "@/utils/cn"
 

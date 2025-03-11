@@ -56,9 +56,10 @@ const TestimonialAuthor = memo(
         {name} <span>-</span>
         <Link
           href={handleLink || ""}
-          className="actionable text-mobile-h4 lg:text-h4"
+          className="text-mobile-h4 lg:text-h4"
+          target="_blank"
         >
-          {handle}
+          <span className="actionable">{handle}</span>
         </Link>
       </p>
 

@@ -39,7 +39,7 @@ export const OpenPositions = ({ data }: { data: QueryType }) => {
                 href={applyUrl ?? ""}
                 target="_blank"
                 className={cn(
-                  "relative col-span-full grid grid-cols-8 items-start gap-2 py-2 transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w2/20 hover:text-brand-w1 lg:col-start-5 lg:col-end-13 lg:items-center cursor-alias",
+                  "relative col-span-full grid grid-cols-8 items-start gap-2 py-2 transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w2/20 hover:text-brand-w1 lg:col-start-5 lg:col-end-13 lg:items-center",
                   { "pointer-events-none text-brand-w2/30": !isOpen }
                 )}
               >

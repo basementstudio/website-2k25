@@ -104,9 +104,11 @@ export const ProjectInfo = ({
       {entry.project?.caseStudy ? (
         <Link
           href={entry.project?.caseStudy || ""}
-          className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
+          className="inline-flex items-center gap-1 text-p text-brand-w1"
         >
-          View Case Study <Arrow className="size-4" />
+          <span className="actionable">
+            View Case Study <Arrow className="size-4" />
+          </span>
         </Link>
       ) : null}
 
