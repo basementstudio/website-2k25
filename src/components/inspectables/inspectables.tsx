@@ -28,7 +28,6 @@ export const Inspectables = memo(function InspectablesInner() {
   useEffect(() => {
     if (selected) {
       const inspectableFx = inspectables.find((i) => i.mesh === selected)?.fx
-      console.log("inspectableFx", inspectableFx)
 
       playInspectableFX(inspectableFx ?? "", 0.2)
     }

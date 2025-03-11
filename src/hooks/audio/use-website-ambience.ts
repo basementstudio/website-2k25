@@ -5,8 +5,8 @@ import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { AMBIENT_VOLUME, FADE_DURATION } from "@/lib/audio/constants"
 import { useArcadeStore } from "@/store/arcade-store"
 
-import { useSiteAudioStore } from "./use-site-audio"
 import { useCurrentScene } from "../use-current-scene"
+import { useSiteAudioStore } from "./use-site-audio"
 
 const CROSSFADE_DURATION = 4
 
@@ -86,9 +86,9 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
     if (currentTrack.current && nextTrack.current) {
       const currentTime = player.audioContext.currentTime
 
-      console.log(`Now playing: "${ambiencePlaylist[nextIndex].name}"`)
-      const upcomingIndex = (nextIndex + 1) % ambiencePlaylist.length
-      console.log(`Next up: "${ambiencePlaylist[upcomingIndex].name}"`)
+      // console.log(`Now playing: "${ambiencePlaylist[nextIndex].name}"`)
+      // const upcomingIndex = (nextIndex + 1) % ambiencePlaylist.length
+      // console.log(`Next up: "${ambiencePlaylist[upcomingIndex].name}"`)
 
       currentTrack.current.outputNode.gain.cancelScheduledValues(currentTime)
       currentTrack.current.outputNode.gain.setValueAtTime(
@@ -184,10 +184,10 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
             currentTrack.current.setVolume(AMBIENT_VOLUME)
             currentTrack.current.play()
 
-            console.log(`Now playing: "${ambiencePlaylist[0].name}"`)
-            console.log(
-              `Next up: "${ambiencePlaylist[1 % ambiencePlaylist.length].name}"`
-            )
+            // console.log(`Now playing: "${ambiencePlaylist[0].name}"`)
+            // console.log(
+            //   `Next up: "${ambiencePlaylist[1 % ambiencePlaylist.length].name}"`
+            // )
 
             nextTrack.current = tracks[1 % tracks.length]
 
