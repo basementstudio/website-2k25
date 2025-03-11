@@ -182,7 +182,7 @@ const RoutingElementComponent = ({
       router.prefetch(route)
       setCursor("pointer", hoverName)
 
-      window.addEventListener("keydown", handleKeyPress)
+      window.addEventListener("keydown", handleKeyPress, , { passive: true })
 
       return () => {
         window.removeEventListener("keydown", handleKeyPress)
@@ -222,7 +222,7 @@ const RoutingElementComponent = ({
   useEffect(() => {
     const onResize = () => updateMaterialResolution()
 
-    window.addEventListener("resize", onResize)
+    window.addEventListener("resize", onResize, { passive: true })
 
     onResize()
 

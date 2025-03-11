@@ -1,6 +1,7 @@
+import { MeshDiscardMaterial } from "@react-three/drei"
 import { animate } from "motion"
 import { useCallback, useEffect, useRef } from "react"
-import { Mesh } from "three"
+import type { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -8,7 +9,6 @@ import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { BOARD_ANGLE, BUTTON_ANIMATION } from "./constants"
-import { MeshDiscardMaterial } from "@react-three/drei"
 
 const VALID_BUTTONS = {
   "02_BT_10": "b",
@@ -85,8 +85,8 @@ export const Button = ({ button }: { button: Mesh }) => {
       }
     }
 
-    window.addEventListener("keydown", handleKey)
-    window.addEventListener("keyup", handleKey)
+    window.addEventListener("keydown", handleKey, { passive: true })
+    window.addEventListener("keyup", handleKey, { passive: true })
     return () => {
       window.removeEventListener("keydown", handleKey)
       window.removeEventListener("keyup", handleKey)

@@ -3,6 +3,7 @@ import { useKeyboardControls } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { ComponentRef, useEffect, useMemo, useRef, useState } from "react"
 import { Euler, Vector3 } from "three"
+
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 enum Controls {
@@ -128,12 +129,15 @@ function ControlsInner() {
       }
     }
 
-    window.addEventListener("pointerdown", onPointerDown, { signal })
+    window.addEventListener("pointerdown", onPointerDown, {
+      signal,
+      passive: true
+    })
     window.addEventListener("pointermove", onPointerMove, {
       signal,
       passive: true
     })
-    window.addEventListener("pointerup", onPointerUp, { signal })
+    window.addEventListener("pointerup", onPointerUp, { signal, passive: true })
     window.addEventListener("contextmenu", onContextMenu, { signal })
 
     return () => {

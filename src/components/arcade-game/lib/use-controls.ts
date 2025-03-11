@@ -1,6 +1,7 @@
-import { useShallow } from "zustand/react/shallow"
-import { ControlKey, Controls, useConnector } from "./connector"
 import { useEffect } from "react"
+import { useShallow } from "zustand/react/shallow"
+
+import { ControlKey, Controls, useConnector } from "./connector"
 
 export function useControls<T extends ControlKey>(control: T): Controls[T]
 export function useControls<T extends ControlKey[]>(
@@ -64,12 +65,12 @@ export function useKeyControls() {
         keyCallbacks[control]!()
       }
     }
-    window.addEventListener("keydown", handleKeydown)
+    window.addEventListener("keydown", handleKeydown, { passive: true })
     const handleKeyup = ({ key }: KeyboardEvent) => {
       if (!isKeyCode(key)) return
       setControl(keyControlMap[key], false)
     }
-    window.addEventListener("keyup", handleKeyup)
+    window.addEventListener("keyup", handleKeyup, { passive: true })
     return () => {
       window.removeEventListener("keydown", handleKeydown)
       window.removeEventListener("keyup", handleKeyup)
