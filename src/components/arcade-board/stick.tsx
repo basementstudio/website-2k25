@@ -1,7 +1,7 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
 import { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
-import { useCallback, useEffect, useRef } from "react"
+import { RefObject, useCallback, useEffect, useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -18,17 +18,22 @@ import {
   STICK_ANIMATION
 } from "./constants"
 
-export const Stick = ({ stick }: { stick: Mesh }) => {
+interface StickProps {
+  stick: Mesh
+  sequence: RefObject<(number | string)[]>
+}
+
+export const Stick = ({ stick, sequence }: StickProps) => {
   const scene = useCurrentScene()
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
-  const setIsInGame = useArcadeStore((state) => state.setIsInGame)
   const isInGame = useArcadeStore((state) => state.isInGame)
+  const setIsInGame = useArcadeStore((state) => state.setIsInGame)
 
   const availableSounds = sfx.arcade.sticks.length
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
   const state = useRef(0)
-  const sequence = useRef<number[]>([])
+
   const navigationTimer = useRef<NodeJS.Timeout | null>(null)
   const setCursor = useCursor()
   const { setLabTabIndex, setIsInLabTab, setIsSourceButtonSelected } =
@@ -166,19 +171,26 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
   const updateStickPosition = useCallback(
     (
       direction: number,
-      targetRotation: { x: number; y: number; z: number }
+      targetRotation: { x: number; y: number; z: number },
+      isKeyboardInput: boolean = false
     ) => {
       if (direction !== 0 && state.current === direction) return
 
       animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
-      sequence.current.push(direction)
-      checkSequence({ sequence: sequence.current, setIsInGame })
+      if (direction !== 0) {
+        sequence.current.push(direction)
+        checkSequence({ sequence: sequence.current, setIsInGame })
+      }
+
       handleStickSound(direction === 0)
       state.current = direction
 
-      dispatchStickMoveEvent(direction)
+      if (isKeyboardInput && isInGame) {
+        return
+      }
 
+      dispatchStickMoveEvent(direction)
       if (!isInGame) {
         handleContinuousNavigation(direction)
       }
@@ -201,7 +213,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
         z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
       }
 
-      updateStickPosition(direction, targetRotation)
+      updateStickPosition(direction, targetRotation, true)
     },
     [updateStickPosition]
   )
@@ -293,36 +305,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
   )
 
   useEffect(() => {
-    const handleButtonPress = (event: CustomEvent) => {
-      const buttonName = event.detail.buttonName
-      sequence.current.push(buttonName)
-      checkSequence({ sequence: sequence.current, setIsInGame })
-    }
-
-    const handleGameStateChange = () => {
-      resetStick()
-    }
-
-    window.addEventListener("buttonPressed", handleButtonPress as EventListener)
-    window.addEventListener(
-      "gameStateChange",
-      handleGameStateChange as EventListener
-    )
-
-    return () => {
-      window.removeEventListener(
-        "buttonPressed",
-        handleButtonPress as EventListener
-      )
-      window.removeEventListener(
-        "gameStateChange",
-        handleGameStateChange as EventListener
-      )
-    }
-  }, [resetStick, setIsInGame])
-
-  useEffect(() => {
-    if (isInGame || scene !== "lab" || stick.name !== "02_JYTK_L") return
+    if (scene !== "lab" || stick.name !== "02_JYTK_L") return
 
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
@@ -349,14 +332,14 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("keyup", handleKeyUp)
+    window.addEventListener("keydown", handleKeyDown, { passive: true })
+    window.addEventListener("keyup", handleKeyUp, { passive: true })
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
       window.removeEventListener("keyup", handleKeyUp)
     }
-  }, [isInGame, handleKeyboardInput, scene, stick.name])
+  }, [handleKeyboardInput, scene, stick.name])
 
   useEffect(() => {
     return () => {

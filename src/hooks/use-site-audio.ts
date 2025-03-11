@@ -79,7 +79,7 @@ export function useInitializeAudioContext(element?: HTMLElement) {
         targetElement.removeEventListener("click", unlock)
       }
     }
-    targetElement.addEventListener("click", unlock)
+    targetElement.addEventListener("click", unlock, { passive: true })
 
     return () => {
       targetElement.removeEventListener("click", unlock)
