@@ -50,6 +50,7 @@ export interface AssetsResult {
     xRotationOffset: number
     sizeTarget: number
     scenes: string[]
+    fx: string
   }[]
   videos: {
     mesh: string
@@ -203,7 +204,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
       yOffset: item.yOffset ?? 0,
       xRotationOffset: item.xRotationOffset ?? 0,
       sizeTarget: item.sizeTarget ?? 0,
-      scenes: item.scenes?.map((item) => item._title) ?? []
+      scenes: item.scenes?.map((item) => item._title) ?? [],
+      fx: item.fx?.url ?? ""
     })),
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
@@ -239,7 +241,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
         miamiHeatwave: threeDInteractions.sfx.arcade.miamiHeatwave?.url
       },
       contact: {
-        interference: threeDInteractions.sfx.contact.interference?.url
+        interference: threeDInteractions.sfx.contact.interference?.url ?? ""
       },
       music: {
         aqua: threeDInteractions.sfx.music.aqua.url,

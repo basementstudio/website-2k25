@@ -39,6 +39,11 @@ interface SiteAudioHook {
   volumeMaster: number
   playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
   getSoundFXSource: (key: SiteAudioSFXKey) => AudioSource | null
+  playInspectableFX: (
+    url: string,
+    volume?: number,
+    pitch?: number
+  ) => Promise<AudioSource | null>
   music: boolean
   handleMute: () => void
 }
@@ -355,6 +360,26 @@ export function useSiteAudio(): SiteAudioHook {
     [audioSfxSources]
   )
 
+  const playInspectableFX = useCallback(
+    async (url: string, volume = SFX_VOLUME, pitch = 1) => {
+      if (!player) return null
+
+      try {
+        const audioSource = await player.loadAudioFromURL(url, true)
+
+        audioSource.setVolume(volume)
+        audioSource.setPitch(pitch)
+        audioSource.play()
+
+        return audioSource
+      } catch (error) {
+        console.error("Failed to load or play custom sound effect:", error)
+        return null
+      }
+    },
+    [player]
+  )
+
   const getSoundFXSource = useCallback(
     (key: SiteAudioSFXKey): AudioSource | null =>
       audioSfxSources?.[key] ?? null,
@@ -370,6 +395,7 @@ export function useSiteAudio(): SiteAudioHook {
     volumeMaster,
     playSoundFX,
     getSoundFXSource,
+    playInspectableFX,
     music,
     handleMute
   }

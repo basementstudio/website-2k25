@@ -3,15 +3,17 @@
 import { memo, useEffect } from "react"
 
 import { useAssets } from "@/components/assets-provider"
+import { useSiteAudio } from "@/hooks/audio/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { useInspectable } from "./context"
 import { Inspectable } from "./inspectable"
 
 export const Inspectables = memo(function InspectablesInner() {
-  const { setSelected } = useInspectable()
+  const { selected, setSelected } = useInspectable()
   const { inspectables } = useAssets()
   const scene = useCurrentScene()
+  const { playInspectableFX } = useSiteAudio()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +24,15 @@ export const Inspectables = memo(function InspectablesInner() {
 
     return () => window.removeEventListener("scroll", handleScroll)
   }, [setSelected])
+
+  useEffect(() => {
+    if (selected) {
+      const inspectableFx = inspectables.find((i) => i.mesh === selected)?.fx
+      console.log("inspectableFx", inspectableFx)
+
+      playInspectableFX(inspectableFx ?? "")
+    }
+  }, [selected, inspectables, playInspectableFX])
 
   useEffect(() => setSelected(null), [scene, setSelected])
 

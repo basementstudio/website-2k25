@@ -1,5 +1,6 @@
 "use client"
 
+import { MeshDiscardMaterial } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
@@ -26,7 +27,6 @@ import { useAssets } from "../assets-provider"
 import { ICameraConfig } from "../navigation-handler/navigation.interface"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
-import { MeshDiscardMaterial } from "@react-three/drei"
 
 interface InspectableProps {
   id: string

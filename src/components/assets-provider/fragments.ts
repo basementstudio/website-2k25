@@ -108,6 +108,9 @@ export const inspectableFragment = fragmentOn("Inspectables", {
       sizeTarget: true,
       scenes: {
         _title: true
+      },
+      fx: {
+        url: true
       }
     }
   }
