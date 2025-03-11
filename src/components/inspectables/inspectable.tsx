@@ -195,7 +195,7 @@ export const Inspectable = memo(function InspectableInner({
       ])
 
       if (isNaN(s.x) || isNaN(s.y) || isNaN(s.z)) {
-        console.warn("Inspectable bounding box is NaN", id)
+        // TODO: we should be measuring an outer group to avoid the bounding box beeing nan the first time
         setTimeout(() => setFirstRender(true), 100)
       } else {
         size.current.x = s.x
