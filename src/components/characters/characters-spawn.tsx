@@ -66,12 +66,6 @@ function CharactersSpawnInner() {
       />
 
       <Character
-        position={[3, 0, -13]}
-        rotation={[0, Math.PI * 1, 0]}
-        animationName={CharacterAnimationName["Iddle-02"]}
-      />
-
-      <Character
         position={[4.6, 0.0, -17.5]}
         rotation={[0, Math.PI * -0.2, 0]}
         animationName={CharacterAnimationName.Working}
