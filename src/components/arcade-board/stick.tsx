@@ -166,7 +166,8 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
   const updateStickPosition = useCallback(
     (
       direction: number,
-      targetRotation: { x: number; y: number; z: number }
+      targetRotation: { x: number; y: number; z: number },
+      isKeyboardInput: boolean = false
     ) => {
       if (direction !== 0 && state.current === direction) return
 
@@ -177,8 +178,11 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
       handleStickSound(direction === 0)
       state.current = direction
 
-      dispatchStickMoveEvent(direction)
+      if (isKeyboardInput && isInGame) {
+        return
+      }
 
+      dispatchStickMoveEvent(direction)
       if (!isInGame) {
         handleContinuousNavigation(direction)
       }
@@ -201,7 +205,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
         z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
       }
 
-      updateStickPosition(direction, targetRotation)
+      updateStickPosition(direction, targetRotation, true)
     },
     [updateStickPosition]
   )
@@ -322,7 +326,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
   }, [resetStick, setIsInGame])
 
   useEffect(() => {
-    if (isInGame || scene !== "lab" || stick.name !== "02_JYTK_L") return
+    if (scene !== "lab" || stick.name !== "02_JYTK_L") return
 
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
@@ -356,7 +360,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
       window.removeEventListener("keydown", handleKeyDown)
       window.removeEventListener("keyup", handleKeyUp)
     }
-  }, [isInGame, handleKeyboardInput, scene, stick.name])
+  }, [handleKeyboardInput, scene, stick.name, isInGame])
 
   useEffect(() => {
     return () => {
