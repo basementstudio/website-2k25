@@ -29,9 +29,9 @@ export const Contact = () => {
           </p>
           <button
             onClick={() => setIsContactOpen(true)}
-            className="actionable relative z-10 col-span-full h-max w-max bg-brand-k text-mobile-h2 text-brand-w1 lg:col-start-6 lg:text-h2"
+            className="relative z-10 col-span-full h-max w-max bg-brand-k text-mobile-h2 text-brand-w1 lg:col-start-6 lg:text-h2"
           >
-            Get in Touch
+            <span className="actionable">Get in Touch</span>
           </button>
         </div>
 
