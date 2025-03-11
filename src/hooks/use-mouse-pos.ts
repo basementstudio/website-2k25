@@ -14,7 +14,9 @@ const useMousePosition = (ref?: React.RefObject<HTMLElement | null>) => {
 
     const refElement = ref?.current ?? window
 
-    refElement.addEventListener("mousemove", updateMousePosition)
+    refElement.addEventListener("mousemove", updateMousePosition, {
+      passive: true
+    })
 
     return () => {
       refElement.removeEventListener("mousemove", updateMousePosition)
