@@ -57,11 +57,12 @@ export const ProjectInfo = ({
             />
           }
         />
-        <InfoItem
-          label="Awards"
-          value={<TextList value={entry.awards?.map((a) => a.title) || []} />}
-        />
-
+        {entry.awards.length > 0 && (
+          <InfoItem
+            label="Awards"
+            value={<TextList value={entry.awards?.map((a) => a.title) || []} />}
+          />
+        )}
         <InfoItem
           label="Website"
           value={
