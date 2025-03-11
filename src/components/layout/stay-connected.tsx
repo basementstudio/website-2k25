@@ -27,7 +27,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           }}
         />
       </div>
-      <form action={subscribe} className="flex flex-col gap-4">
+      <form action={subscribe} className="flex max-w-[26.25rem] flex-col gap-4">
         <Input
           placeholder="Enter your Email"
           required
