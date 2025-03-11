@@ -19,6 +19,11 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
           setIsVisible(false)
         }
       }
+
+      if (e.data.type === "update-screen-skinned-matrix") {
+        const { screenboneMatrix, cameraMatrix, screenSize } = e.data
+        console.log(screenboneMatrix, cameraMatrix, screenSize)
+      }
     })
   }, [worker])
 

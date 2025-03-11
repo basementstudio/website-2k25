@@ -27,7 +27,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const isContactOpen = useWorkerStore((state) => state.isContactOpen)
   const isClosing = useWorkerStore((state) => state.isClosing)
   const setIsContactOpen = useWorkerStore((state) => state.setIsContactOpen)
-
+  const camera = useThree((state) => state.camera)
   const { mixer, handler } = useMemo(() => {
     if (!gltf.scene || !gltf.animations.length)
       return { mixer: null, handler: null }
@@ -107,9 +107,25 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         clampWhenFinished: true,
         fadeInDuration: 0.05,
         onComplete: () => {
+          const screen = gltf.scene.children[0].getObjectByName(
+            "SCREEN"
+          ) as SkinnedMesh
+          const screenbone = gltf.nodes.Obj as Bone
+
           self.postMessage({
             type: "scale-type",
             scale: "scale-up"
+          })
+          self.postMessage({
+            type: "update-screen-skinned-matrix",
+            screenboneMatrix: screenbone.matrixWorld.toArray(),
+            cameraMatrix: camera.matrixWorld.toArray(),
+            screenSize: {
+              width:
+                screen.geometry.boundingBox?.getSize(new Vector3())?.x || 0,
+              height:
+                screen.geometry.boundingBox?.getSize(new Vector3())?.y || 0
+            }
           })
           idleTimeRef.current = 0
         }
