@@ -37,8 +37,13 @@ export const CategoriesClient = ({
               prefetch
               key={category?._title}
               className={cn(
-                "flex w-max gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
-                activeCategory === category?._slug && "text-brand-w1"
+                "flex w-max gap-x-1.25 text-left !text-mobile-h2 transition-colors duration-300 lg:!text-h2",
+                activeCategory === category._slug ||
+                  (pathname === "/blog" && category._slug === "blog") ||
+                  !activeCategory ||
+                  activeCategory === "blog"
+                  ? "text-brand-w1"
+                  : "text-brand-g1"
               )}
             >
               <span className="actionable">{category?._title}</span>
