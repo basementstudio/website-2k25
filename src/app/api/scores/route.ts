@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
-
+import { headers } from "next/headers"
 import { createClient } from "@/utils/supabase/server"
+import { emojiFlag } from "@/utils/get-flag"
+import { geolocation } from "@vercel/functions"
 
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>()
 
@@ -92,6 +94,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 })
     }
 
+    const details = geolocation(request)
+
     const supabase = createClient()
 
     const { error } = await supabase
@@ -100,7 +104,8 @@ export async function POST(request: Request) {
         {
           player_name: playerName,
           score: Math.floor(score),
-          client_id: clientId
+          client_id: clientId,
+          country: details.flag || "🏳️"
         }
       ])
       .select()
