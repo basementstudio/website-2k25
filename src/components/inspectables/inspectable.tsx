@@ -13,7 +13,6 @@ import {
   Quaternion,
   Vector3
 } from "three"
-import { StoreApi, UseBoundStore } from "zustand"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
