@@ -50,7 +50,7 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
 
   return (
     <motion.div
-      className="absolute left-[516px] top-[330px] z-50 h-[344px] w-[556px] bg-brand-k"
+      className="absolute left-[516px] top-[329px] z-50 flex h-[346px] w-[559px] bg-brand-k px-4 pb-6 pt-5 font-bold"
       initial={{ scaleX: 0, scaleY: 0 }}
       animate={animation}
       style={{
@@ -58,7 +58,50 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
         originY: 0.5,
         transformStyle: "preserve-3d"
       }}
-    />
+    >
+      <div className="flex h-full w-full flex-col gap-9">
+        <div className="relative h-full w-full border border-brand-o px-4 pt-6">
+          <p className="absolute -top-3 left-3 bg-brand-k px-1 uppercase text-brand-o">
+            fill in the form
+          </p>
+          <form className="grid w-full grid-cols-2 gap-x-4 gap-y-2">
+            <input
+              type="text"
+              placeholder="NAME"
+              className="h-fit border-b border-dashed border-brand-o bg-transparent px-1 pb-2 uppercase text-brand-o/50 placeholder:text-brand-o/50"
+            />
+            <input
+              type="text"
+              placeholder="COMPANY"
+              className="h-fit border-b border-dashed border-brand-o bg-transparent px-1 pb-2 uppercase text-brand-o/50 placeholder:text-brand-o/50"
+            />
+            <input
+              type="email"
+              placeholder="EMAIL"
+              className="col-span-2 h-fit border-b border-dashed border-brand-o bg-transparent px-1 pb-2 uppercase text-brand-o/50 placeholder:text-brand-o/50"
+            />
+            <input
+              type="text"
+              placeholder="BUDGET (OPTIONAL)"
+              className="col-span-2 h-fit border-b border-dashed border-brand-o bg-transparent px-1 pb-2 uppercase text-brand-o/50 placeholder:text-brand-o/50"
+            />
+            <textarea
+              placeholder="MESSAGE"
+              className="focus col-span-2 h-full resize-none border-b border-dashed border-brand-o bg-transparent px-1 pb-2 uppercase text-brand-o/50 placeholder:text-brand-o/50"
+            />
+          </form>
+        </div>
+        <div className="flex items-center justify-between gap-2 text-[13px] uppercase text-brand-o">
+          <div className="flex items-center gap-2 underline underline-offset-4">
+            <p>x (twitter)</p>
+            <p>instagram</p>
+            <p>github</p>
+          </div>
+
+          <p>hello@basement.studio</p>
+        </div>
+      </div>
+    </motion.div>
   )
 }
 

@@ -147,7 +147,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       const IDLE_TIMEOUT = Math.random() * 5 + 15
 
       if (idleTimeRef.current > IDLE_TIMEOUT) {
-        playRandomIdleAnimation()
+        //playRandomIdleAnimation()
         idleTimeRef.current = 0
       }
     }
