@@ -1,13 +1,41 @@
-import Image from "next/image"
-import Link from "next/link"
+"use client"
 
+import Image from "next/image"
+
+import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
 import { formatDate } from "@/utils/format-date"
 
-import { fetchFeaturedPost } from "./basehub"
+import { Filters } from "./filters"
+import { QueryType } from "./query"
 
-export async function Featured() {
-  const post = await fetchFeaturedPost()
+interface FeaturedProps {
+  data?: QueryType
+  selectedCategories?: string[]
+  setSelectedCategories?: (categories: string[]) => void
+  categories?: string[]
+}
+
+export default function Featured({
+  data,
+  selectedCategories = [],
+  setSelectedCategories = () => {},
+  categories = []
+}: FeaturedProps) {
+  if (!data) return null
+
+  const posts = data.pages.blog.posts.items
+    .filter(
+      (post) =>
+        selectedCategories.length === 0 ||
+        post.categories?.some((cat) => selectedCategories.includes(cat._title))
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.date || "").getTime() - new Date(a.date || "").getTime()
+    )
+
+  const featuredPosts = [...posts].slice(0, 2)
 
   return (
     <section className="grid-layout">
@@ -16,15 +44,22 @@ export async function Featured() {
           <h2 className="col-span-full text-mobile-h3 text-brand-g1 lg:col-span-3 lg:col-start-5 lg:text-h3">
             Latest News
           </h2>
+          <div className="col-span-full row-start-1 flex items-end lg:col-span-3 lg:col-start-9 lg:row-start-auto">
+            <Filters
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              categories={categories}
+            />
+          </div>
         </div>
-        {post && (
+        {featuredPosts.map((post) => (
           <div
             key={post._slug}
             className="group relative col-span-full border-b border-brand-w1/20"
           >
             <Link
               className="col-span-full grid grid-cols-12 gap-2 py-2 pb-4 lg:pb-2"
-              href={`/post/${post._slug}`}
+              href={`/blog/${post._slug}`}
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -71,7 +106,7 @@ export async function Featured() {
               </div>
             </Link>
           </div>
-        )}
+        ))}
       </div>
     </section>
   )
