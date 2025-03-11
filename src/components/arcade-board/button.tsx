@@ -15,6 +15,11 @@ const VALID_BUTTONS = {
   "02_BT_13": "a"
 } as const
 
+const SECONDARY_BUTTONS = {
+  "02_BT_4": "b",
+  "02_BT_7": "a"
+} as const
+
 export const Button = ({ button }: { button: Mesh }) => {
   const scene = useCurrentScene()
   const setCursor = useCursor()
@@ -30,7 +35,10 @@ export const Button = ({ button }: { button: Mesh }) => {
       if (scene !== "lab") return
 
       // dispatch button event
-      if (isDown && button.name in VALID_BUTTONS) {
+      if (
+        isDown &&
+        (button.name in VALID_BUTTONS || button.name in SECONDARY_BUTTONS)
+      ) {
         window.dispatchEvent(
           new CustomEvent("buttonPressed", {
             detail: { buttonName: button.name }
