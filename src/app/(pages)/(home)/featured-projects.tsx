@@ -73,9 +73,9 @@ const ProjectItem = ({
             project.project?.categories?.map((category) => (
               <span
                 key={category._title}
-                className="actionable text-mobile-h4 text-brand-w1 lg:text-h4"
+                className="text-mobile-h4 text-brand-w1 lg:text-h4"
               >
-                {category._title}
+                <span className="actionable">{category._title}</span>
               </span>
             )) ?? []
           }
@@ -84,9 +84,9 @@ const ProjectItem = ({
 
       <Link
         href={`/showcase/${project.project?._slug}`}
-        className="actionable h-max pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
+        className="h-max pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
       >
-        {project._title}
+        <span className="actionable">{project._title}</span>
       </Link>
     </div>
   )
