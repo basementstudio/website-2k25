@@ -4,7 +4,7 @@ import { Tweet } from "react-tweet"
 
 import { cn } from "@/utils/cn"
 
-import { QueryType } from "../query"
+import { QueryType } from "./query"
 import {
   BlogImage,
   BlogLink,
