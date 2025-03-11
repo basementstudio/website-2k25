@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AudioSource } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { AMBIENT_VOLUME, FADE_DURATION } from "@/lib/audio/constants"
+import { useArcadeStore } from "@/store/arcade-store"
 
 import { useCurrentScene } from "./use-current-scene"
 import { useSiteAudioStore } from "./use-site-audio"
@@ -17,6 +18,7 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
   const fadeOutTimeout = useRef<NodeJS.Timeout | null>(null)
   const isInitialized = useRef(false)
   const isBasketballPage = scene === "basketball"
+  const isInGame = useArcadeStore((s) => s.isInGame)
 
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
   const loadedTracks = useRef<AudioSource[]>([])
@@ -219,12 +221,43 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
   ])
 
   useEffect(() => {
-    if (!currentTrack.current || !player || !isEnabled) return
+    if (!player) return
+
+    if (isBasketballPage || isInGame) {
+      if (currentTrack.current && currentTrack.current.isPlaying) {
+        const gainNode = currentTrack.current.outputNode
+        const currentTime = player.audioContext.currentTime
+
+        gainNode.gain.cancelScheduledValues(currentTime)
+        gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
+        gainNode.gain.linearRampToValueAtTime(0, currentTime + 0.5)
+
+        if (fadeOutTimeout.current) {
+          clearTimeout(fadeOutTimeout.current)
+        }
+
+        fadeOutTimeout.current = setTimeout(() => {
+          cleanup()
+          fadeOutTimeout.current = null
+        }, 600)
+      } else {
+        cleanup()
+      }
+
+      return () => {
+        if (fadeOutTimeout.current) {
+          clearTimeout(fadeOutTimeout.current)
+          fadeOutTimeout.current = null
+        }
+      }
+    }
+
+    if (!currentTrack.current || !isEnabled) return
 
     const gainNode = currentTrack.current.outputNode
     const currentTime = player.audioContext.currentTime
 
-    if (isEnabled && !isBasketballPage) {
+    if (isEnabled) {
       gainNode.gain.cancelScheduledValues(currentTime)
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(
@@ -246,9 +279,7 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
       }
 
       fadeOutTimeout.current = setTimeout(() => {
-        if (!isEnabled || isBasketballPage) {
-          cleanup()
-        }
+        cleanup()
       }, FADE_DURATION * 1000)
     }
 
@@ -258,5 +289,5 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
         fadeOutTimeout.current = null
       }
     }
-  }, [isEnabled, isBasketballPage, player, cleanup])
+  }, [isEnabled, isBasketballPage, isInGame, player, cleanup])
 }

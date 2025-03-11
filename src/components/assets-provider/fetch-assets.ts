@@ -82,6 +82,7 @@ export interface AssetsResult {
         press: string
         release: string
       }[]
+      miamiHeatwave: string
     }
     music: {
       aqua: string
@@ -230,7 +231,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
         sticks: threeDInteractions.sfx.arcade.sticks.items.map((item) => ({
           press: item.press?.url ?? "",
           release: item.release?.url ?? ""
-        }))
+        })),
+        miamiHeatwave: threeDInteractions.sfx.arcade.miamiHeatwave?.url
       },
       music: {
         aqua: threeDInteractions.sfx.music.aqua.url,

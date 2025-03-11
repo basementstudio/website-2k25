@@ -178,6 +178,9 @@ export const sfxFragment = fragmentOn("Sfx", {
           url: true
         }
       }
+    },
+    miamiHeatwave: {
+      url: true
     }
   },
   music: {

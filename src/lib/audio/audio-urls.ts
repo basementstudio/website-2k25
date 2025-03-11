@@ -39,7 +39,8 @@ export function useAudioUrls() {
       STICKS: sfx.arcade.sticks.map((item) => ({
         PRESS: item.press,
         RELEASE: item.release
-      }))
+      })),
+      MIAMI_HEATWAVE: sfx.arcade.miamiHeatwave
     }
   } as const
 }
