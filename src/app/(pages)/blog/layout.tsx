@@ -15,7 +15,7 @@ export default function BlogLayout({
         <Hero />
         <Featured />
 
-        <section className="grid-layout pb-[35px]" id="list">
+        <section className="grid-layout pb-[35px] pt-12" id="list">
           <div className="col-span-full grid grid-cols-12 gap-2">
             <h2 className="col-span-full mt-auto text-mobile-h3 text-brand-g1 lg:col-span-3 lg:col-start-5 lg:text-h3">
               More News
