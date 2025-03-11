@@ -46,7 +46,7 @@ const ViewSelector = memo(
       onCheckedChange={() => setViewMode(mode)}
     >
       <span
-        className={cn("flex items-center justify-center gap-1", {
+        className={cn("!flex items-center justify-center gap-1", {
           ["underline"]: viewMode === mode,
           ["actionable actionable-no-underline"]: viewMode !== mode
         })}

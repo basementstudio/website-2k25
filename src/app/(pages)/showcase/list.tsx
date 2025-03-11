@@ -1,4 +1,5 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
+import { motion } from "motion/react"
 import Image from "next/image"
 import { memo, useCallback, useEffect, useState } from "react"
 
@@ -77,8 +78,12 @@ const AccordionListItem = memo(
               href={`/showcase/${item.project?._slug}`}
               className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 opacity-0 transition-opacity duration-300"
             >
-              <span className="actionable">View Work</span>{" "}
-              <Arrow className="inline-block size-4" />
+              <span className="actionable actionable-no-underline gap-x-1">
+                <span className="actionable actionable-inanimate">
+                  View Work
+                </span>
+                <Arrow className="inline-block size-4" />
+              </span>
             </Link>
           </div>
 
@@ -90,23 +95,31 @@ const AccordionListItem = memo(
               "data-[state=open]:h-auto data-[state=open]:translate-y-0 data-[state=open]:opacity-100",
               disabled && "opacity-30"
             )}
-            // force mount to preload images
-            forceMount
           >
             <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
-              {item.project?.showcase?.items
-                .slice(0, 6)
-                .map((item, index) => (
+              {item.project?.showcase?.items.slice(0, 6).map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: [null, 1, 0, 1, 0, 1]
+                  }}
+                  transition={{
+                    delay: index * 0.1,
+                    duration: 0.3
+                  }}
+                  className="col-span-2"
+                >
                   <Image
-                    key={index}
                     src={item.image?.url ?? ""}
                     alt={item.image?.alt ?? ""}
                     width={item.image?.width ?? 0}
                     height={item.image?.height ?? 0}
-                    className="col-span-2"
-                    priority
+                    sizes="15vw"
+                    loading="eager"
                   />
-                ))}
+                </motion.div>
+              ))}
             </div>
           </AccordionPrimitive.Content>
         </AccordionPrimitive.Trigger>
