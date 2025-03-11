@@ -28,7 +28,7 @@ export enum CharacterAnimationName {
   "Working" = "Working"
 }
 
-const SKINNED_MESH_KEYS = ["head", "body", "arms"] as const
+const SKINNED_MESH_KEYS = ["head", "body", "arms", "JJ-Hair"] as const
 
 interface CharactersGLTF {
   nodes: {
@@ -110,6 +110,7 @@ function CharacterInstanceConfigInner() {
     material.uniforms.mapConfigs = { value: [bodyMapConfig, headMapConfig] }
     material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: 2 }
 
+    // disable morph targets
     Object.keys(nodes).forEach((nodeKey) => {
       const node = nodes[nodeKey as keyof typeof nodes]
       if (node.morphTargetInfluences) {

@@ -71,12 +71,6 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       let material = propMaterial ?? new MeshStandardMaterial()
 
       if (Array.isArray(mesh)) {
-        mesh.forEach((m) => {
-          console.log(
-            m.name + " vertex: " + m.geometry.attributes.position.count
-          )
-        })
-
         maxPos = mesh.reduce(
           (acc, m) => acc + m.geometry.attributes.position.count,
           0
@@ -100,8 +94,6 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
           material = mesh.material as MeshStandardMaterial
         }
       }
-
-      console.log("total vertices", maxPos)
 
       const instancer = new InstancedBatchedSkinnedMesh({
         maxInstanceCount: count,

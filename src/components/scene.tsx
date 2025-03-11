@@ -95,7 +95,7 @@ export const Scene = () => {
             toneMapping: THREE.NoToneMapping
           }}
           camera={{ fov: 60 }}
-          className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none"
+          className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
         >
           <Renderer
             sceneChildren={
@@ -126,10 +126,10 @@ export const Scene = () => {
                 <Suspense fallback={null}>
                   <StaticBasketballs />
                 </Suspense>
-                {/* <Suspense fallback={null}>
+                <Suspense fallback={null}>
                   <CharacterInstanceConfig />
                   <CharactersSpawn />
-                </Suspense> */}
+                </Suspense>
               </>
             }
           />

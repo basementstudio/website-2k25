@@ -482,8 +482,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
 
     this.addInstancedUniform("uActiveMorphs", -1, THREE.IntType)
 
-    console.log(this.morphOffsetsDict);
-
   }
 
   private _setInstanceMorph = (
