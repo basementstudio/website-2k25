@@ -27,24 +27,18 @@ const CHUNK_SIZES = {
 const BrandLogo = memo(
   ({
     brand,
-    isHovered,
     onMouseEnter,
     onMouseLeave
   }: {
     brand: { website: string | null; logo: string | null; _id: string }
-    isHovered: boolean
     onMouseEnter: () => void
     onMouseLeave: () => void
   }) => (
     <Link
-      className={cn(
-        "actionable -my-[1px] py-[13px] transition-opacity duration-300 [&>svg]:w-16 sm:[&>svg]:w-auto",
-        {
-          "opacity-50": !isHovered,
-          "opacity-100": isHovered
-        }
-      )}
-      dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
+      dangerouslySetInnerHTML={{
+        __html: `<span class="actionable-opacity">${brand.logo}</span>`
+      }}
+      className="-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
       href={brand.website ?? ""}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -59,7 +53,6 @@ BrandLogo.displayName = "BrandLogo"
 const BrandRow = memo(
   ({
     row,
-    debouncedHoveredBrand,
     setHoveredBrand
   }: {
     debouncedHoveredBrand: string | null
@@ -71,10 +64,6 @@ const BrandRow = memo(
         <BrandLogo
           key={brand._id}
           brand={brand}
-          isHovered={
-            debouncedHoveredBrand === null ||
-            debouncedHoveredBrand === brand._id
-          }
           onMouseEnter={() => setHoveredBrand(brand._id)}
           onMouseLeave={() => setHoveredBrand(null)}
         />
@@ -197,9 +186,12 @@ export const Brands = ({ data }: { data: QueryType }) => {
       <div className="relative col-span-full -mt-px flex aspect-[5/1] items-end lg:col-start-3 lg:col-end-5 lg:aspect-[3.1/1]">
         <Link
           href="/showcase"
-          className="relative z-10 flex items-center gap-x-1 bg-brand-k text-h4 text-brand-w1"
+          className="relative z-10 bg-brand-k text-h4 text-brand-w1"
         >
-          <span>Call to Action</span> <Arrow className="size-5" />
+          <span className="actionable flex items-center gap-x-1">
+            Call to Action
+            <Arrow className="size-5" />
+          </span>
         </Link>
       </div>
     </section>
