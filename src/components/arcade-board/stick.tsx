@@ -16,6 +16,7 @@ import {
   MAX_TILT,
   STICK_ANIMATION
 } from "./constants"
+import { MeshDiscardMaterial } from "@react-three/drei"
 
 export const Stick = ({ stick }: { stick: Mesh }) => {
   const scene = useCurrentScene()
@@ -387,7 +388,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
           rotation={[(16 * Math.PI) / 180, 0, 0]}
         >
           <cylinderGeometry args={[0.03, 0.03, 0.12, 12]} />
-          <meshBasicMaterial opacity={0} transparent />
+          <MeshDiscardMaterial />
         </mesh>
       </group>
     </group>
