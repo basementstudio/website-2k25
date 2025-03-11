@@ -16,8 +16,8 @@ export const RichText = ({ children, components }: CustomRichTextProps) => {
       content={children}
       components={{
         a: ({ children, href }) => (
-          <Link href={href} className="actionable text-brand-w1">
-            {children}
+          <Link href={href} className="text-brand-w1">
+            <span className="actionable">{children}</span>
           </Link>
         ),
         p: ({ children }) => <p className="text-p text-brand-w2">{children}</p>,

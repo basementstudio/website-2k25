@@ -71,7 +71,7 @@ function RendererInner({ sceneChildren }: RendererProps) {
 
     resizeCallback()
 
-    window.addEventListener("resize", resizeCallback)
+    window.addEventListener("resize", resizeCallback, { passive: true })
 
     return () => window.removeEventListener("resize", resizeCallback)
   }, [mainTarget])
