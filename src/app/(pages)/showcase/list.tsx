@@ -98,30 +98,32 @@ const AccordionListItem = memo(
             forceMount
           >
             <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
-              {item.project?.showcase?.items.slice(0, 6).map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0 }}
-                  whileInView={{
-                    opacity: [null, 1, 0, 1, 0, 1]
-                  }}
-                  viewport={{ once: true }}
-                  transition={{
-                    delay: index * 0.1,
-                    duration: 0.3
-                  }}
-                  className="col-span-2"
-                >
-                  <Image
-                    src={item.image?.url ?? ""}
-                    alt={item.image?.alt ?? ""}
-                    width={item.image?.width ?? 0}
-                    height={item.image?.height ?? 0}
-                    sizes="15vw"
-                    priority={index === 0}
-                  />
-                </motion.div>
-              ))}
+              {item.project?.showcase?.items
+                .slice(0, 6)
+                .map((item, imgIndex) => (
+                  <motion.div
+                    key={imgIndex}
+                    initial={{ opacity: 0 }}
+                    whileInView={{
+                      opacity: index === 0 ? [null, 1, 0, 1, 0, 1] : 1
+                    }}
+                    viewport={{ once: true }}
+                    transition={{
+                      delay: index === 0 ? imgIndex * 0.1 : imgIndex * 0.05,
+                      duration: 0.3
+                    }}
+                    className="col-span-2"
+                  >
+                    <Image
+                      src={item.image?.url ?? ""}
+                      alt={item.image?.alt ?? ""}
+                      width={item.image?.width ?? 0}
+                      height={item.image?.height ?? 0}
+                      sizes="15vw"
+                      priority={index === 0}
+                    />
+                  </motion.div>
+                ))}
             </div>
           </AccordionPrimitive.Content>
         </AccordionPrimitive.Trigger>
