@@ -182,7 +182,7 @@ const RoutingElementComponent = ({
       router.prefetch(route)
       setCursor("pointer", hoverName)
 
-      window.addEventListener("keydown", handleKeyPress, , { passive: true })
+      window.addEventListener("keydown", handleKeyPress, { passive: true })
 
       return () => {
         window.removeEventListener("keydown", handleKeyPress)
