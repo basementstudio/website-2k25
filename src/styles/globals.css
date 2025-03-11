@@ -71,9 +71,14 @@
       @apply hover:before:opacity-0;
     }
 
-    @apply relative transition-none duration-[var(--anim-delay)] ease-linear hover:transition-colors;
-    @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
-    @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)] hover:[text-shadow:0px_0px_30px_var(--text-shadow-color)];
+    &:not(.actionable-inanimate) {
+      @apply relative transition-none duration-[var(--anim-delay)] ease-linear hover:transition-colors;
+      @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
+      @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)] hover:[text-shadow:0px_0px_30px_var(--text-shadow-color)];
+    }
+
+    @apply relative;
+    @apply active:animate-none;
   }
 
   a[target="_blank"] {
