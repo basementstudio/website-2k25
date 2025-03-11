@@ -11,10 +11,12 @@ const nextConfig: NextConfig = {
           as: "*.js"
         }
       }
-    }
+    },
+    ppr: true
   },
 
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",

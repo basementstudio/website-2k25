@@ -48,7 +48,7 @@ const AccordionListItem = memo(
                 "duration-300 [&>*]:opacity-30 [&>*]:transition-opacity"
             )}
           >
-            <div className="relative col-span-5 flex items-center gap-2 text-h3 text-brand-w2 transition-opacity duration-300">
+            <div className="relative col-span-4 flex items-center gap-2 text-h3 text-brand-w2 transition-opacity duration-300">
               <Image
                 src={item.project?.icon?.url ?? ""}
                 alt={item.project?.icon?.alt ?? ""}
@@ -60,7 +60,7 @@ const AccordionListItem = memo(
               <p>{item.project?.client?._title}</p>
             </div>
 
-            <p className="relative col-start-7 col-end-10 inline-flex flex-wrap text-pretty text-p leading-none text-brand-w2">
+            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty text-p leading-none text-brand-w2">
               {item.project?.categories?.map((cat, idx) => (
                 <span key={cat._title}>
                   {cat._title}
@@ -70,7 +70,7 @@ const AccordionListItem = memo(
                 </span>
               ))}
             </p>
-            <p className="relative col-start-10 col-end-11 text-left text-p text-brand-w2">
+            <p className="relative col-start-11 col-end-12 text-left text-p text-brand-w2">
               {item.project?.year}
             </p>
             <Link
@@ -85,13 +85,15 @@ const AccordionListItem = memo(
           <AccordionPrimitive.Content
             className={cn(
               "col-span-12",
-              "overflow-hidden transition-[transform,opacity] duration-300",
-              "data-[state=closed]:translate-y-[-10px] data-[state=closed]:opacity-0",
-              "data-[state=open]:translate-y-0 data-[state=open]:opacity-100",
+              "overflow-hidden transition-[transform,opacity,height] duration-300",
+              "data-[state=closed]:h-0 data-[state=closed]:translate-y-[-10px] data-[state=closed]:opacity-0",
+              "data-[state=open]:h-auto data-[state=open]:translate-y-0 data-[state=open]:opacity-100",
               disabled && "opacity-30"
             )}
+            // force mount to preload images
+            forceMount
           >
-            <div className="grid grid-cols-12 gap-2 pb-0.5 pt-10.5">
+            <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
               {item.project?.showcase?.items
                 .slice(0, 6)
                 .map((item, index) => (

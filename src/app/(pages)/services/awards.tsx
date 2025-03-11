@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "@/components/primitives/link"
 import { useMedia } from "@/hooks/use-media"
 import useMousePosition from "@/hooks/use-mouse-pos"
+import { cn } from "@/utils/cn"
 import { formatDate } from "@/utils/format-date"
 
 import type { QueryType } from "./query"
@@ -22,7 +23,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [translateY, setTranslateY] = useState(0)
   const [currentImageId, setCurrentImageId] = useState<number | null>(null)
   const [isRevealing, setIsRevealing] = useState(false)
-  const { x, y } = useMousePosition(sectionRef)
+  const { x, y } = useMousePosition()
 
   const certificateDimensions = { width: 232, height: 307.73 }
 
@@ -89,16 +90,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
       }
     }
   }, [hoveredItemId, sortedAwards, translateY, currentImageId])
-
-  // preload award images
-  useEffect(() => {
-    sortedAwards
-      .filter((award) => award.certificate)
-      .forEach((award) => {
-        const img = new globalThis.Image()
-        img.src = award.certificate?.url || ""
-      })
-  }, [sortedAwards])
 
   // cell animation
   const cellVariants: Variants = {
@@ -183,7 +174,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
         <motion.div
           animate={{
             translateX: x! - 232 / 2,
-            translateY: y! - 307.73 / 2,
+            translateY: y! - 308 / 2,
             transition: {
               type: "spring",
               mass: 0.05
@@ -195,8 +186,8 @@ export const Awards = ({ data }: { data: QueryType }) => {
             left: 0,
             zIndex: 100,
             display: "flex",
-            width: "232px",
-            height: "307.73px",
+            width: 232,
+            height: 308,
             overflow: "hidden",
             pointerEvents: "none"
           }}
@@ -266,42 +257,25 @@ export const Awards = ({ data }: { data: QueryType }) => {
               clipPath: "url(#grid-mask)"
             }}
           >
-            {currentImageId &&
-              sortedAwards
-                .filter(
-                  (award) =>
-                    award.numericId === currentImageId && award.certificate
-                )
-                .map((award) => (
-                  <div key={award._id} className="h-full w-full">
-                    <Image
-                      src={award.certificate?.url || ""}
-                      alt={award.certificate?.alt ?? ""}
-                      width={award.certificate?.width}
-                      height={award.certificate?.height}
-                      className="max-h-[307.73px] w-full object-cover"
-                      data-numeric-id={award.numericId}
-                    />
-                  </div>
-                ))}
+            {sortedAwards
+              .filter((award) => award.certificate)
+              .map((award) => (
+                <div key={award._id} className="h-full w-full">
+                  <Image
+                    src={award.certificate?.url || ""}
+                    alt={award.certificate?.alt ?? ""}
+                    fill
+                    className={cn("max-h-[307.73px] w-full object-cover", {
+                      hidden: award.numericId !== currentImageId
+                    })}
+                    data-numeric-id={award.numericId}
+                    priority={true}
+                  />
+                </div>
+              ))}
           </div>
         </motion.div>
       )}
-      {/* preloaded images */}
-      <div className="hidden">
-        {sortedAwards
-          .filter((award) => award.certificate)
-          .map((award) => (
-            <Image
-              key={`preload-${award._id}`}
-              src={award.certificate?.url || ""}
-              alt=""
-              width={award.certificate?.width}
-              height={award.certificate?.height}
-              priority={true}
-            />
-          ))}
-      </div>
     </>
   )
 }

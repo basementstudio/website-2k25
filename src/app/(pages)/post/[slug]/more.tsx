@@ -1,9 +1,9 @@
 import Image from "next/image"
-import Link from "next/link"
 
+import { Link } from "@/components/primitives/link"
 import { formatDate } from "@/utils/format-date"
 
-import { QueryType } from "../query"
+import { QueryType } from "./query"
 
 export default function More({
   data,
@@ -38,7 +38,7 @@ export default function More({
         <div />
         {morePosts.map((post) => (
           <div key={post._title} className="group relative">
-            <Link href={`/blog/${post._slug}`} className="flex gap-x-2 py-2">
+            <Link href={`/post/${post._slug}`} className="flex gap-x-2 py-2">
               <div className="relative h-[60px] w-[136px] overflow-clip after:absolute after:inset-0 after:border after:border-brand-w1/20">
                 {post.hero?.heroImage?.url && (
                   <Image
@@ -52,12 +52,12 @@ export default function More({
               </div>
 
               <div className="flex w-full justify-between gap-y-2">
-                <h3 className="text-mobile-h3 line-clamp-2 w-full max-w-[70%] text-brand-w2 lg:text-h3">
+                <h3 className="line-clamp-2 w-full max-w-[70%] text-mobile-h3 text-brand-w2 lg:text-h3">
                   {post._title}
                 </h3>
 
                 {post.date ? (
-                  <p className="text-mobile-p flex-1 text-right text-brand-g1 lg:flex-auto lg:text-p">
+                  <p className="flex-1 text-right text-mobile-p text-brand-g1 lg:flex-auto lg:text-p">
                     {formatDate(post.date ?? "")}
                   </p>
                 ) : null}

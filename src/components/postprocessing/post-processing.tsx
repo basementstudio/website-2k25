@@ -9,6 +9,7 @@ import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
+import { revealOpacityMaterials } from "../map/bakes"
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
 
 interface PostProcessingProps {
@@ -22,6 +23,13 @@ const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
   const firstRender = useRef(true)
 
   const material = useMemo(() => createPostProcessingMaterial(), [])
+
+  useEffect(() => {
+    revealOpacityMaterials.add(material)
+    return () => {
+      revealOpacityMaterials.delete(material)
+    }
+  }, [material])
 
   const {
     basics,
@@ -126,7 +134,7 @@ const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
     }
 
     resize()
-    window.addEventListener("resize", resize, { signal })
+    window.addEventListener("resize", resize, { signal, passive: true })
 
     material.uniforms.uMainTexture.value = mainTexture
 

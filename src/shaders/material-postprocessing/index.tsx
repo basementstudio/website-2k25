@@ -7,10 +7,13 @@ export const createPostProcessingMaterial = () =>
   new ShaderMaterial({
     uniforms: {
       uMainTexture: { value: null },
+      // TODO implement depth based reveal
+      uDepthTexture: { value: null },
       aspect: { value: 1 },
       resolution: { value: new Vector2(1, 1) },
       uPixelRatio: { value: 1 },
       uTime: { value: 0.0 },
+      uOpacity: { value: 1.0 },
 
       // Basics
       uContrast: { value: 1 },

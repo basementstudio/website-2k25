@@ -39,11 +39,63 @@
   }
 
   .actionable {
-    @apply font-semibold underline;
+    --anim-duration: 300ms;
+    --anim-delay: calc(var(--anim-duration) / 5);
+    --opacity-hover-value: 100;
+    --opacity-hover-anim-target: 50;
+
+    --text-shadow-color: color-mix(
+      in srgb,
+      currentColor calc(var(--opacity-hover-value) * 1% * 0.5),
+      transparent
+    );
+    --color-mix: color-mix(
+      in srgb,
+      currentColor calc(var(--opacity-hover-value) * 1%),
+      transparent
+    );
+
+    --height: 0.89;
+
+    color: var(--color-mix) !important;
+    display: inline-flex;
+    align-items: center;
+    height: calc(var(--height) * 1em);
+    line-height: var(--height);
+
+    &:not(.actionable-no-underline) {
+      --underline-height: max(0.06em, 1px);
+      @apply font-semibold;
+      @apply before:absolute before:-bottom-[round(var(--underline-height),1px)] before:left-0 before:h-[round(var(--underline-height),1px)] before:w-full before:bg-[var(--color-mix)] before:[--opacity-hover-value:100];
+      @apply before:transition-opacity before:duration-[var(--anim-delay)] before:ease-linear;
+      @apply before:opacity-0 hover:before:opacity-100;
+    }
+
+    &:not(.actionable-inanimate) {
+      @apply relative transition-none !duration-[var(--anim-delay)] ease-linear hover:transition-colors;
+      @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
+      @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)] hover:[text-shadow:0px_0px_30px_var(--text-shadow-color)];
+    }
+
+    @apply relative;
+    @apply active:animate-none;
   }
 
-  .actionable[target="_blank"] {
+  a[target="_blank"] {
     @apply cursor-alias;
+  }
+
+  .actionable-opacity {
+    --anim-duration: 300ms;
+    --anim-delay: calc(var(--anim-duration) / 5);
+    --opacity-hover-value: 100;
+    --opacity-hover-anim-target: 50;
+
+    opacity: calc(var(--opacity-hover-value) * 0.01);
+
+    @apply transition-none !duration-[var(--anim-delay)] ease-linear hover:transition-opacity;
+    @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
+    @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)];
   }
 
   .text-h2.actionable,
@@ -78,13 +130,8 @@
   }
 
   .with-diagonal-lines:after {
-    background: repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 3.181989515px,
-      var(--tw-gradient-from) 3.181989515px,
-      var(--tw-gradient-from) 4.242640687px
-    );
+    background-image: url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23clip0_5291_41301)' stroke='%23fff' stroke-opacity='.15'%3E%3Cpath d='M-27 27 91-91M-27 35 91-83M-27 43 91-75M-27 51 91-67M-27 59 91-59M-27 67 91-51M-27 75 91-43M-27 83 91-35M-27 91 91-27M-27 99 91-19M-27 107 91-11M-27 115 91-3M-27 123 91 5M-27 131 91 13M-27 139 91 21M-27 147 91 29M-27 155 91 37'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_5291_41301'%3E%3Cpath fill='%23fff' d='M0 0h64v64H0z'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E");
+    background-repeat: repeat;
 
     /* TODO: Find some alternative method to display the animated diagonallines without causing glitches */
     /* animation: diagonalPatternAnimation 3s linear infinite; */
