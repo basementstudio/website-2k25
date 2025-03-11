@@ -1,8 +1,8 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
-import { ThreeEvent } from "@react-three/fiber"
+import type { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
 import { useCallback, useEffect, useRef } from "react"
-import { Mesh } from "three"
+import type { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -112,7 +112,8 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
           }
           break
 
-        case 1: // RIGHT
+        case 1: {
+          // RIGHT
           const currentTab = currentLabTabs[currentLabTabIndex]
           if (
             currentTab?.type === "experiment" &&
@@ -127,6 +128,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
             }
           }
           break
+        }
 
         case 2: // LEFT
           if (currentIsSourceButtonSelected) {
@@ -140,7 +142,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
           break
       }
     },
-    [setLabTabIndex, setIsSourceButtonSelected, setIsInLabTab, stick]
+    [setLabTabIndex, setIsSourceButtonSelected, setIsInLabTab]
   )
 
   const handleContinuousNavigation = useCallback(
