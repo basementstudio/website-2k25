@@ -1,7 +1,7 @@
 import { useCursor } from "@/hooks/use-mouse"
 import { routingMaterial } from "../routing-element/routing-element"
 import { useState, useCallback } from "react"
-import { useSkipTrack } from "@/hooks/audio/use-skip-track"
+import { useSkipTrack } from "@/hooks/use-skip-track"
 
 export const SpeakerHover = () => {
   const [hover, setHover] = useState(false)

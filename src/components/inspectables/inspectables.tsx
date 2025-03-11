@@ -3,7 +3,7 @@
 import { memo, useEffect } from "react"
 
 import { useAssets } from "@/components/assets-provider"
-import { useSiteAudio } from "@/hooks/audio/use-site-audio"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { useInspectable } from "./context"

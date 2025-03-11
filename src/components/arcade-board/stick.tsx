@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-import { useSiteAudio } from "@/hooks/audio/use-site-audio"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useCursor } from "@/hooks/use-mouse"
 import { useArcadeStore } from "@/store/arcade-store"

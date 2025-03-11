@@ -1,7 +1,7 @@
 import { CuboidCollider } from "@react-three/rapier"
 import { RigidBody } from "@react-three/rapier"
 
-import { useSiteAudio } from "@/hooks/audio/use-site-audio"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 
 export default function RigidBodies({

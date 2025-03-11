@@ -1,4 +1,4 @@
-import { useCurrentScene } from "../use-current-scene"
+import { useCurrentScene } from "./use-current-scene"
 import { useOfficeAmbience as useOfficeAmbienceHook } from "./use-site-audio"
 
 export function useOfficeAmbience() {
