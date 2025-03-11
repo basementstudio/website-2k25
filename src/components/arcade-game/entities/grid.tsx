@@ -2,10 +2,11 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { useMemo, useRef } from "react"
 import { Group, LineSegments, ShaderMaterial, Vector2 } from "three"
 import { Line2 } from "three/examples/jsm/lines/Line2.js"
-import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
-import { setMaterialUniforms } from "../lib/uniforms"
+import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
+
 import { COLORS } from "../lib/colors"
+import { setMaterialUniforms } from "../lib/uniforms"
 
 export interface GridProps {
   position?: [number, number, number]
