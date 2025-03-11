@@ -1,5 +1,5 @@
 import { createPortal, useFrame } from "@react-three/fiber"
-import { memo, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useId, useMemo, useRef } from "react"
 import {
   HalfFloatType,
   LinearSRGBColorSpace,

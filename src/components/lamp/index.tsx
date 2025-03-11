@@ -14,6 +14,7 @@ import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { useCursor } from "@/hooks/use-mouse"
+import { MeshDiscardMaterial } from "@react-three/drei"
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
@@ -281,7 +282,7 @@ export const Lamp = () => {
             onPointerLeave={() => setCursor("default")}
           >
             <sphereGeometry args={[0.02, 8, 8]} />
-            <meshBasicMaterial opacity={0} transparent depthWrite={false} />
+            <MeshDiscardMaterial />
           </mesh>
 
           <mesh material={material} ref={lampHandle}>
@@ -346,6 +347,6 @@ interface ConstraintProps {
 const Constraint = ({ position, rotation, args, onEnter }: ConstraintProps) => (
   <mesh position={position} rotation={rotation} onPointerEnter={onEnter}>
     <planeGeometry args={args} />
-    <meshBasicMaterial opacity={0} transparent depthWrite={false} />
+    <MeshDiscardMaterial />
   </mesh>
 )

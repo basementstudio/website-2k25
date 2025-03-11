@@ -1,13 +1,13 @@
 "use client"
 
 import { useThree } from "@react-three/fiber"
-import { memo, useEffect, useRef, useCallback, useState, useMemo } from "react"
 import {
   AnimatePresence,
   motion,
   useMotionValue,
   useSpring
 } from "motion/react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { create } from "zustand"
 
 interface useCursorProps {
@@ -55,9 +55,10 @@ function debounce<T extends (...args: any[]) => any>(
 }
 
 export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
-  const events = useThree((state) => state.events)
   const gl = useThree((state) => state.gl)
-  const explDomElement = events.connected || gl.domElement
+  const connected = useThree((state) => state.events.connected)
+
+  const explDomElement = connected || gl.domElement
   const setHoverText = useMouseStore((state) => state.setHoverText)
 
   useEffect(() => {
@@ -149,7 +150,9 @@ export const MouseTracker = memo(() => {
   )
 
   useEffect(() => {
-    window.addEventListener("mousemove", debouncedUpdateMousePosition)
+    window.addEventListener("mousemove", debouncedUpdateMousePosition, {
+      passive: true
+    })
     return () =>
       window.removeEventListener("mousemove", debouncedUpdateMousePosition)
   }, [debouncedUpdateMousePosition])
