@@ -62,9 +62,11 @@ export const Crew = ({ data }: { data: QueryType }) => {
                           <Link
                             href={socialNetwork.link as string}
                             target="_blank"
-                            className="actionable bg-brand-0 text-brand-w1 cursor-alias"
+                            className="actionable bg-brand-0 cursor-alias text-brand-w1"
                           >
-                            {socialNetwork.platform}
+                            <span className="actionable">
+                              {socialNetwork.platform}
+                            </span>
                           </Link>
                           {index < person.socialNetworks.items.length - 1 && (
                             <span>,</span>
@@ -219,10 +221,11 @@ export const CrewFooter = ({
       <Link
         href="/"
         target="_blank"
-        className="relative z-10 flex h-4 gap-1 bg-brand-k text-p text-brand-w1 cursor-alias"
+        className="relative z-10 flex h-4 cursor-alias gap-1 bg-brand-k text-p text-brand-w1"
       >
-        <span className="actionable">Join the Crew</span>{" "}
-        <Arrow className="size-4" />
+        <span className="actionable flex gap-1">
+          Join the Crew <Arrow className="size-4" />
+        </span>
       </Link>
     </div>
   )

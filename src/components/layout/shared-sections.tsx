@@ -49,28 +49,16 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
       className
     )}
   >
-    <Link
-      className="actionable text-brand-w1"
-      href={links.twitter}
-      target="_blank"
-    >
-      X (Twitter)
+    <Link className="text-brand-w1" href={links.twitter} target="_blank">
+      <span className="actionable">X (Twitter)</span>
     </Link>
     <span>,</span>
-    <Link
-      className="actionable text-brand-w1"
-      href={links.instagram}
-      target="_blank"
-    >
-      Instagram
+    <Link className="text-brand-w1" href={links.instagram} target="_blank">
+      <span className="actionable">Instagram</span>
     </Link>
     <span>,</span>
-    <Link
-      className="actionable text-brand-w1"
-      href={links.github}
-      target="_blank"
-    >
-      GitHub
+    <Link className="text-brand-w1" href={links.github} target="_blank">
+      <span className="actionable">GitHub</span>
     </Link>
   </div>
 )
