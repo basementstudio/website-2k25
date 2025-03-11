@@ -39,10 +39,10 @@
   }
 
   .actionable {
-    --anim-duration: 600ms;
+    --anim-duration: 300ms;
     --anim-delay: calc(var(--anim-duration) / 5);
     --opacity-hover-value: 100;
-    --opacity-hover-anim-target: 80;
+    --opacity-hover-anim-target: 50;
 
     --text-shadow-color: color-mix(
       in srgb,
@@ -68,11 +68,11 @@
       @apply font-semibold;
       @apply before:absolute before:-bottom-[round(var(--underline-height),1px)] before:left-0 before:h-[round(var(--underline-height),1px)] before:w-full before:bg-[var(--color-mix)] before:[--opacity-hover-value:100];
       @apply before:transition-opacity before:duration-[var(--anim-delay)] before:ease-linear;
-      @apply hover:before:opacity-0;
+      @apply before:opacity-0 hover:before:opacity-100;
     }
 
     &:not(.actionable-inanimate) {
-      @apply relative transition-none duration-[var(--anim-delay)] ease-linear hover:transition-colors;
+      @apply relative transition-none !duration-[var(--anim-delay)] ease-linear hover:transition-colors;
       @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
       @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)] hover:[text-shadow:0px_0px_30px_var(--text-shadow-color)];
     }
@@ -86,14 +86,14 @@
   }
 
   .actionable-opacity {
-    --anim-duration: 600ms;
+    --anim-duration: 300ms;
     --anim-delay: calc(var(--anim-duration) / 5);
     --opacity-hover-value: 100;
-    --opacity-hover-anim-target: 80;
+    --opacity-hover-anim-target: 50;
 
     opacity: calc(var(--opacity-hover-value) * 0.01);
 
-    @apply transition-none duration-[var(--anim-delay)] ease-linear hover:transition-opacity;
+    @apply transition-none !duration-[var(--anim-delay)] ease-linear hover:transition-opacity;
     @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
     @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)];
   }
