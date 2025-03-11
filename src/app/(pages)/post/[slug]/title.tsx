@@ -1,4 +1,4 @@
-import { QueryType } from "../query"
+import { QueryType } from "./query"
 
 function findBlogTitle(data: QueryType, slug: string): string {
   const post = data.pages.blog.posts.items.find((post) => post._slug === slug)
