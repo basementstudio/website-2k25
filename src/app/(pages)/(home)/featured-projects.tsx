@@ -87,7 +87,7 @@ const ProjectItem = ({
         href={`/showcase/${project.project?._slug}`}
         className="h-max pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
       >
-        <span className="actionable actionable-no-underline group gap-x-2">
+        <span className="actionable group gap-x-2">
           <span className="translate-x-6 transition-transform duration-200 ease-in-out group-hover:translate-x-0">
             {project._title}
           </span>
