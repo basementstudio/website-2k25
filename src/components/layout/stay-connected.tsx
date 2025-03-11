@@ -13,7 +13,7 @@ interface StayConnectedProps {
 
 export const StayConnected = ({ content, className }: StayConnectedProps) => {
   return (
-    <div className={cn("flex flex-col gap-6", className)}>
+    <div className={cn("flex flex-col gap-4", className)}>
       <div className="grid grid-cols-4 gap-2">
         <RichText
           content={content}
@@ -27,7 +27,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           }}
         />
       </div>
-      <form action={subscribe} className="flex max-w-[26.25rem] flex-col gap-4">
+      <form action={subscribe} className="flex max-w-[26.25rem] flex-col gap-2">
         <Input
           placeholder="Enter your Email"
           required
@@ -38,7 +38,9 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           type="submit"
           className="flex w-fit translate-y-1 items-center gap-1 text-p text-brand-g1"
         >
-          Roll me in <Arrow className="size-3" />
+          <span className="actionable actionable-no-underline gap-x-1 font-bold">
+            Roll me in <Arrow className="size-4" />
+          </span>
         </button>
       </form>
     </div>
