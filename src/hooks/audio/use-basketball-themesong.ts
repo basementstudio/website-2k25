@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef } from "react"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { FADE_DURATION, THEME_SONG_VOLUME } from "@/lib/audio/constants"
 
-import { useCurrentScene } from "./use-current-scene"
+import { useCurrentScene } from "../use-current-scene"
 import { useSiteAudioStore } from "./use-site-audio"
 
 export function useBasketballThemeSong(isEnabled: boolean = true) {

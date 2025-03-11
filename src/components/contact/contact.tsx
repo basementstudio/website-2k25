@@ -1,10 +1,10 @@
 "use client"
 import { useCallback, useEffect } from "react"
 
+import { useSiteAudio } from "@/hooks/audio/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
 import ContactCanvas from "./contact-canvas"

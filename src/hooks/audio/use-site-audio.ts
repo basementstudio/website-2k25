@@ -20,12 +20,14 @@ export type SiteAudioSFXKey =
   | `BLOG_LAMP_${number}_PULL`
   | `BLOG_LAMP_${number}_RELEASE`
   | "CONTACT_INTERFERENCE"
+  | "OFFICE_AMBIENCE"
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
   audioSfxSources: Record<SiteAudioSFXKey, AudioSource> | null
   themeSong: AudioSource | null
   ostSong: AudioSource | null
+  officeAmbience: AudioSource | null
 }
 
 interface SiteAudioHook {
@@ -45,7 +47,8 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
   player: null,
   audioSfxSources: null,
   themeSong: null,
-  ostSong: null
+  ostSong: null,
+  officeAmbience: null
 }))
 
 export { useSiteAudioStore }
@@ -87,7 +90,8 @@ function SiteAudioSFXsLoaderInner(): null {
     GAME_AUDIO_SFX,
     ARCADE_AUDIO_SFX,
     BLOG_AUDIO_SFX,
-    CONTACT_AUDIO_SFX
+    CONTACT_AUDIO_SFX,
+    OFFICE_AMBIENCE
   } = useAudioUrls()
 
   useEffect(() => {
@@ -184,6 +188,16 @@ function SiteAudioSFXsLoaderInner(): null {
           })()
         )
 
+        promises.push(
+          (async () => {
+            const source = await player.loadAudioFromURL(
+              OFFICE_AMBIENCE.OFFICE_AMBIENCE_DEFAULT
+            )
+            source.setVolume(0.1)
+            newSources["OFFICE_AMBIENCE"] = source
+          })()
+        )
+
         await Promise.all(promises)
 
         useSiteAudioStore.setState({
@@ -228,6 +242,44 @@ export function useGameThemeSong() {
 
     loadAudioSource()
   }, [player, GAME_THEME_SONGS])
+}
+
+export function useOfficeAmbience(desiredVolume: number = 0.1) {
+  const player = useSiteAudioStore((s) => s.player)
+  const officeAmbience = useSiteAudioStore((s) => s.officeAmbience)
+  const { OFFICE_AMBIENCE } = useAudioUrls()
+
+  useEffect(() => {
+    if (!player) return
+
+    const loadAudioSource = async () => {
+      try {
+        if (officeAmbience) return
+
+        const newOfficeAmbience = await Promise.resolve(
+          player.loadAudioFromURL(OFFICE_AMBIENCE.OFFICE_AMBIENCE_DEFAULT)
+        )
+
+        newOfficeAmbience.loop = true
+        newOfficeAmbience.setVolume(desiredVolume)
+        newOfficeAmbience.play()
+
+        useSiteAudioStore.setState({
+          officeAmbience: newOfficeAmbience
+        })
+      } catch (error) {
+        console.error("Error loading audio sources:", error)
+      }
+    }
+
+    loadAudioSource()
+  }, [player, OFFICE_AMBIENCE, officeAmbience])
+
+  useEffect(() => {
+    if (officeAmbience) {
+      officeAmbience.setVolume(desiredVolume)
+    }
+  }, [officeAmbience, desiredVolume])
 }
 
 export function useSiteAudio(): SiteAudioHook {

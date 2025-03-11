@@ -11,7 +11,7 @@ import { useInspectable } from "@/components/inspectables/context"
 
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useMesh } from "@/hooks/use-mesh"
-import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useSiteAudio } from "@/hooks/audio/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { useCursor } from "@/hooks/use-mouse"
 import { MeshDiscardMaterial } from "@react-three/drei"

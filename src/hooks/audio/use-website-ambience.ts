@@ -5,8 +5,8 @@ import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { AMBIENT_VOLUME, FADE_DURATION } from "@/lib/audio/constants"
 import { useArcadeStore } from "@/store/arcade-store"
 
-import { useCurrentScene } from "./use-current-scene"
 import { useSiteAudioStore } from "./use-site-audio"
+import { useCurrentScene } from "../use-current-scene"
 
 const CROSSFADE_DURATION = 4
 

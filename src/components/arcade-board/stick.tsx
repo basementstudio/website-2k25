@@ -1,12 +1,13 @@
+import { MeshDiscardMaterial } from "@react-three/drei"
 import { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
 import { useCallback, useEffect, useRef } from "react"
 import { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
+import { useSiteAudio } from "@/hooks/audio/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useCursor } from "@/hooks/use-mouse"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { checkSequence } from "./check-sequence"
@@ -16,7 +17,6 @@ import {
   MAX_TILT,
   STICK_ANIMATION
 } from "./constants"
-import { MeshDiscardMaterial } from "@react-three/drei"
 
 export const Stick = ({ stick }: { stick: Mesh }) => {
   const scene = useCurrentScene()

@@ -12,7 +12,7 @@ import {
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMesh } from "@/hooks/use-mesh"
-import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useSiteAudio } from "@/hooks/audio/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 

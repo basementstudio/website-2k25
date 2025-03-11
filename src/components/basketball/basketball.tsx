@@ -3,8 +3,8 @@ import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
+import { useSiteAudio } from "@/hooks/audio/use-site-audio"
 import { useCursor } from "@/hooks/use-mouse"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"

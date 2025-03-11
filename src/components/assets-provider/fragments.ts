@@ -201,6 +201,9 @@ export const sfxFragment = fragmentOn("Sfx", {
     interference: {
       url: true
     }
+  },
+  officeAmbience: {
+    url: true
   }
 })
 

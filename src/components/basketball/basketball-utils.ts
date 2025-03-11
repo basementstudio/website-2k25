@@ -2,7 +2,7 @@ import { RapierRigidBody } from "@react-three/rapier"
 import { RefObject } from "react"
 import { Mesh, Vector2, Vector3 } from "three"
 
-import { SiteAudioSFXKey } from "@/hooks/use-site-audio"
+import { SiteAudioSFXKey } from "@/hooks/audio/use-site-audio"
 
 interface Position {
   x: number

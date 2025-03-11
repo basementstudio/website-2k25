@@ -1,13 +1,14 @@
 "use client"
 
-import { useBasketballThemeSong } from "@/hooks/use-basketball-themesong"
-import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useKonamiSong } from "@/hooks/use-konami-song"
+import { useBasketballThemeSong } from "@/hooks/audio/use-basketball-themesong"
+import { useKonamiSong } from "@/hooks/audio/use-konami-song"
+import { useOfficeAmbience } from "@/hooks/audio/use-office-ambience"
 import {
   SiteAudioSFXsLoader,
   useInitializeAudioContext
-} from "@/hooks/use-site-audio"
-import { useWebsiteAmbience } from "@/hooks/use-website-ambience"
+} from "@/hooks/audio/use-site-audio"
+import { useWebsiteAmbience } from "@/hooks/audio/use-website-ambience"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useArcadeStore } from "@/store/arcade-store"
 
 export function AppHooks(): React.JSX.Element {
@@ -19,7 +20,12 @@ export function AppHooks(): React.JSX.Element {
 
   useInitializeAudioContext()
   useBasketballThemeSong()
+
+  // musical ambience
   useWebsiteAmbience(enableAmbience)
+
+  // office background
+  useOfficeAmbience()
 
   useKonamiSong()
 
