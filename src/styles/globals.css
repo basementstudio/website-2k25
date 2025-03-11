@@ -55,7 +55,13 @@
       transparent
     );
 
+    --height: 0.89;
+
     color: var(--color-mix) !important;
+    display: inline-flex;
+    align-items: center;
+    height: calc(var(--height) * 1em);
+    line-height: var(--height);
 
     &:not(.actionable-no-underline) {
       --underline-height: max(0.06em, 1px);
