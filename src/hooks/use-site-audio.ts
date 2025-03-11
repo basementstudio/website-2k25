@@ -19,6 +19,7 @@ export type SiteAudioSFXKey =
   | `BLOG_DOOR_${number}_CLOSE`
   | `BLOG_LAMP_${number}_PULL`
   | `BLOG_LAMP_${number}_RELEASE`
+  | "CONTACT_INTERFERENCE"
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
@@ -82,7 +83,12 @@ export const SiteAudioSFXsLoader = memo(SiteAudioSFXsLoaderInner)
 
 function SiteAudioSFXsLoaderInner(): null {
   const player = useSiteAudioStore((s) => s.player)
-  const { GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX } = useAudioUrls()
+  const {
+    GAME_AUDIO_SFX,
+    ARCADE_AUDIO_SFX,
+    BLOG_AUDIO_SFX,
+    CONTACT_AUDIO_SFX
+  } = useAudioUrls()
 
   useEffect(() => {
     if (!player) return
@@ -165,6 +171,17 @@ function SiteAudioSFXsLoaderInner(): null {
             sourceRelease.setVolume(SFX_VOLUME)
             newSources[`BLOG_LAMP_${index}_RELEASE`] = sourceRelease
           })
+        )
+
+        promises.push(
+          (async () => {
+            const source = await player.loadAudioFromURL(
+              CONTACT_AUDIO_SFX.INTERFERENCE,
+              true
+            )
+            source.setVolume(SFX_VOLUME)
+            newSources["CONTACT_INTERFERENCE"] = source
+          })()
         )
 
         await Promise.all(promises)

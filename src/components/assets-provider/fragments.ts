@@ -196,6 +196,11 @@ export const sfxFragment = fragmentOn("Sfx", {
     vhs: {
       url: true
     }
+  },
+  contact: {
+    interference: {
+      url: true
+    }
   }
 })
 

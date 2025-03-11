@@ -41,6 +41,9 @@ export function useAudioUrls() {
         RELEASE: item.release
       })),
       MIAMI_HEATWAVE: sfx.arcade.miamiHeatwave
+    },
+    CONTACT_AUDIO_SFX: {
+      INTERFERENCE: sfx.contact.interference
     }
   } as const
 }

@@ -90,6 +90,9 @@ export interface AssetsResult {
       tiger: string
       vhs: string
     }
+    contact: {
+      interference: string
+    }
   }
   scenes: {
     name: string
@@ -233,6 +236,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
           release: item.release?.url ?? ""
         })),
         miamiHeatwave: threeDInteractions.sfx.arcade.miamiHeatwave?.url
+      },
+      contact: {
+        interference: threeDInteractions.sfx.contact.interference?.url ?? ""
       },
       music: {
         aqua: threeDInteractions.sfx.music.aqua.url,
