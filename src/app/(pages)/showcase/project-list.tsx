@@ -45,10 +45,8 @@ export const ProjectList = memo(({ data }: { data: QueryType }) => {
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const searchParams = useSearchParams()
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    searchParams.get("category")
-      ? [decodeURIComponent(searchParams.get("category")!)]
-      : []
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    searchParams.get("category") ?? null
   )
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
 
@@ -99,18 +97,18 @@ export const ProjectList = memo(({ data }: { data: QueryType }) => {
   }, [data.pages.showcase.projectList.items])
 
   const filteredProjects = useMemo(() => {
-    return selectedCategories.length === 0
+    return selectedCategory === null
       ? data.pages.showcase.projectList.items
       : data.pages.showcase.projectList.items.map((item) => ({
           ...item,
-          disabled: !item.project?.categories?.some((cat) =>
-            selectedCategories.includes(cat._title)
+          disabled: !item.project?.categories?.some(
+            (cat) => selectedCategory === cat._title
           )
         }))
-  }, [data.pages.showcase.projectList.items, selectedCategories])
+  }, [data.pages.showcase.projectList.items, selectedCategory])
 
-  const handleSetSelectedCategories = useCallback((categories: string[]) => {
-    setSelectedCategories(categories)
+  const handleSetSelectedCategory = useCallback((category: string | null) => {
+    setSelectedCategory(category)
   }, [])
 
   const handleSetViewMode = useCallback((mode: "grid" | "rows") => {
@@ -121,8 +119,8 @@ export const ProjectList = memo(({ data }: { data: QueryType }) => {
     <section className="flex flex-col gap-2">
       <Filters
         categories={categories}
-        selectedCategories={selectedCategories}
-        setSelectedCategories={handleSetSelectedCategories}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={handleSetSelectedCategory}
         viewMode={viewMode}
         setViewMode={handleSetViewMode}
       />

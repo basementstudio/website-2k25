@@ -301,7 +301,7 @@ export const handlePointerUp = ({
       isThrowable.current = false
 
       const randomPitch = 0.95 + Math.random() * 0.1
-      playSoundFX("BASKETBALL_THROW", 0.5, randomPitch)
+      playSoundFX("BASKETBALL_THROW", 0.3, randomPitch)
 
       const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
       const rawVelocity = calculateThrowVelocity(
