@@ -1,5 +1,6 @@
 import Image from "next/image"
 
+import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
 import { cn } from "@/utils/cn"
@@ -86,7 +87,12 @@ const ProjectItem = ({
         href={`/showcase/${project.project?._slug}`}
         className="h-max pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
       >
-        <span className="actionable">{project._title}</span>
+        <span className="actionable actionable-no-underline group gap-x-2">
+          <span className="translate-x-6 transition-transform duration-200 ease-in-out group-hover:translate-x-0">
+            {project._title}
+          </span>
+          <Arrow className="size-6 opacity-0 transition-opacity delay-0 duration-100 ease-in-out hover:delay-200 group-hover:opacity-100" />
+        </span>
       </Link>
     </div>
   )
