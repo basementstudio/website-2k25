@@ -12,7 +12,7 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
       {posts.map((post) => (
         <div
           key={post._slug}
-          className="group relative col-span-full border-b border-brand-w1/20"
+          className="group relative col-span-full -mb-2 border-b border-brand-w1/20"
         >
           <Link
             className="col-span-full grid grid-cols-12 gap-2 py-2 pb-4 lg:pb-2"
