@@ -8,6 +8,7 @@ import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
+import { cn } from "@/utils/cn"
 
 import type { QueryType } from "./query"
 
@@ -27,17 +28,22 @@ const BrandLogo = memo(
   ({
     brand,
     onMouseEnter,
-    onMouseLeave
+    onMouseLeave,
+    className
   }: {
     brand: { website: string | null; logo: string | null; _id: string }
     onMouseEnter: () => void
     onMouseLeave: () => void
+    className?: string
   }) => (
     <Link
       dangerouslySetInnerHTML={{
-        __html: `<span class="actionable-opacity">${brand.logo}</span>`
+        __html: brand.logo ?? ""
       }}
-      className="-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
+      className={cn(
+        "-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto",
+        className
+      )}
       href={brand.website ?? ""}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -58,13 +64,14 @@ const BrandRow = memo(
     row: Array<{ logo: string | null; website: string | null; _id: string }>
     setHoveredBrand: (id: string | null) => void
   }) => (
-    <div className="flex items-center justify-between md:justify-start">
+    <div className="flex items-center justify-between md:justify-start group-hover:[&>a:not(:hover)]:opacity-50">
       {row.map((brand) => (
         <BrandLogo
           key={brand._id}
           brand={brand}
           onMouseEnter={() => setHoveredBrand(brand._id)}
           onMouseLeave={() => setHoveredBrand(null)}
+          className="transition-opacity duration-100 ease-linear"
         />
       ))}
     </div>
@@ -169,7 +176,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
       </div>
 
       <div className="relative col-span-full lg:col-start-3 lg:col-end-13">
-        <div className="flex w-full flex-col divide-y divide-brand-w1/30">
+        <div className="group flex w-full flex-col divide-y divide-brand-w1/30">
           {rows.map((row, rowIndex) => (
             <BrandRow
               key={`brands-row-${row[0]?._id ?? rowIndex}`}

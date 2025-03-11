@@ -8,13 +8,13 @@ const socialLinks = [
   {
     Icon: LinkedInIcon,
     href: (slug: string) =>
-      `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`https://basement.studio/blog/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
+      `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`https://basement.studio/post/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
     label: "Share on LinkedIn"
   },
   {
     Icon: XIcon,
     href: (slug: string, title: string) =>
-      `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://basement.studio/blog/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
+      `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://basement.studio/post/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
     label: "Share on X"
   }
 ]
@@ -57,14 +57,7 @@ export default function BlogMeta({
 }) {
   return (
     <div className="grid-layout relative !px-0 text-p">
-      {categories && (
-        <Link
-          href="/blog"
-          className="col-span-full text-brand-w1 lg:col-span-1 lg:col-start-1"
-        >
-          ← <span className="underline">Blog</span>
-        </Link>
-      )}
+      <Back />
       <div className="col-span-full flex justify-center lg:col-span-10 lg:col-start-2">
         <div className="flex w-full max-w-[846px] flex-col gap-3">
           {!categories && <hr className="mt-10 border-brand-w1/20" />}
