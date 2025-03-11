@@ -57,11 +57,12 @@ export const ProjectInfo = ({
             />
           }
         />
-        <InfoItem
-          label="Awards"
-          value={<TextList value={entry.awards?.map((a) => a.title) || []} />}
-        />
-
+        {entry.awards.length > 0 && (
+          <InfoItem
+            label="Awards"
+            value={<TextList value={entry.awards?.map((a) => a.title) || []} />}
+          />
+        )}
         <InfoItem
           label="Website"
           value={
@@ -69,14 +70,16 @@ export const ProjectInfo = ({
               key={entry.project?.client?.website}
               href={entry.project?.client?.website || ""}
               target="_blank"
-              className="actionable inline-flex items-center gap-1 text-brand-w1"
+              className="text-brand-w1"
             >
-              {entry.project?.projectWebsite ? (
-                <>
-                  {entry.project?.projectWebsite}{" "}
-                  <ExternalLinkIcon className="size-2" />
-                </>
-              ) : null}
+              <span className="actionable inline-flex items-center gap-1">
+                {entry.project?.projectWebsite ? (
+                  <>
+                    {entry.project?.projectWebsite}{" "}
+                    <ExternalLinkIcon className="size-2" />
+                  </>
+                ) : null}
+              </span>
             </Link>
           }
         />
@@ -101,9 +104,11 @@ export const ProjectInfo = ({
       {entry.project?.caseStudy ? (
         <Link
           href={entry.project?.caseStudy || ""}
-          className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
+          className="inline-flex items-center gap-1 text-p text-brand-w1"
         >
-          View Case Study <Arrow className="size-4" />
+          <span className="actionable">
+            View Case Study <Arrow className="size-4" />
+          </span>
         </Link>
       ) : null}
 

@@ -1,5 +1,5 @@
 import localFont from "next/font/local"
-import Link from "next/link"
+import { Link } from "@/components/primitives/link"
 import { useState } from "react"
 
 import { submitContactForm } from "@/actions/contact-form"
