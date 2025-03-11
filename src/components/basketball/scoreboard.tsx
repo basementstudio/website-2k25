@@ -10,6 +10,7 @@ interface Score {
   player_name: string
   score: number
   created_at: string
+  country: string
 }
 
 export default function Scoreboard({ className }: { className?: string }) {
@@ -58,7 +59,10 @@ export default function Scoreboard({ className }: { className?: string }) {
             className="flex justify-between border-b border-brand-w2/20 py-1"
             key={`${score.player_name}-${score.score}-${score.created_at}`}
           >
-            <p className="uppercase text-brand-g1">{score.player_name}</p>
+            <p className="uppercase text-brand-g1">
+              <span>{score.country}</span>
+              {score.player_name}
+            </p>
             <p className="text-brand-w2">{score.score} pts</p>
           </div>
         ))
