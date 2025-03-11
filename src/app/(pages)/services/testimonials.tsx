@@ -45,7 +45,8 @@ export const Testimonials = ({ data }: { data: QueryType }) => {
             {testimonial.name} <span>-</span>
             <Link
               href={testimonial.handleLink || ""}
-              className="text-mobile-h4 lg:text-h4"
+              className="cursor-alias text-mobile-h4 lg:text-h4"
+              target="_blank"
             >
               <span className="actionable">{testimonial.handle}</span>
             </Link>

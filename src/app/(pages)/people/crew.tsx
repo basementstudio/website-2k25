@@ -61,7 +61,8 @@ export const Crew = ({ data }: { data: QueryType }) => {
                         <Fragment key={index}>
                           <Link
                             href={socialNetwork.link as string}
-                            className="bg-brand-0 text-brand-w1"
+                            target="_blank"
+                            className="actionable bg-brand-0 cursor-alias text-brand-w1"
                           >
                             <span className="actionable">
                               {socialNetwork.platform}
@@ -219,7 +220,8 @@ export const CrewFooter = ({
     >
       <Link
         href="/"
-        className="relative z-10 h-4 bg-brand-k text-p text-brand-w1"
+        target="_blank"
+        className="relative z-10 flex h-4 cursor-alias gap-1 bg-brand-k text-p text-brand-w1"
       >
         <span className="actionable flex gap-1">
           Join the Crew <Arrow className="size-4" />

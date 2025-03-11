@@ -80,10 +80,11 @@ export const SoDa = ({ className }: { className?: string }) => (
   >
     <Link
       className={cn(
-        "text-right !text-mobile-p font-semibold text-brand-w1 lg:!text-p",
+        "text-right !text-mobile-p font-semibold text-brand-w1 lg:!text-p cursor-alias",
         className
       )}
       href="https://www.sodaspeaks.com/"
+      target="_blank"
     >
       Proud Member of SoDA
     </Link>
