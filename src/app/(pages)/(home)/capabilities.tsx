@@ -1,5 +1,4 @@
-import Link from "next/link"
-
+import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
 
 import { QueryType } from "./query"

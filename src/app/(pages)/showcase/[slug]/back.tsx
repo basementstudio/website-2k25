@@ -1,6 +1,5 @@
-import Link from "next/link"
-
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 
 export const Back = () => {
   return (
