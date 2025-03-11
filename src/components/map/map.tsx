@@ -358,7 +358,6 @@ export const Map = memo(() => {
     }
 
     officeModel.traverse((child) => traverse(child))
-    officeModel.traverse((child) => console.log(child))
 
     routingElementsModel.traverse((child) => traverse(child, { FOG: false }))
 

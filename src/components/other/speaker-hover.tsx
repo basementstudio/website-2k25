@@ -1,11 +1,38 @@
+import { useCursor } from "@/hooks/use-mouse"
+import { routingMaterial } from "../routing-element/routing-element"
+import { useState, useCallback } from "react"
+import { useSkipTrack } from "@/hooks/audio/use-skip-track"
+
 export const SpeakerHover = () => {
+  const [hover, setHover] = useState(false)
+  const setCursor = useCursor()
+  const skipToNextTrack = useSkipTrack()
+
+  const handlePointerEnter = useCallback(() => {
+    setHover(true)
+    setCursor("alias", "Play Next")
+  }, [setCursor])
+
+  const handlePointerLeave = useCallback(() => {
+    setHover(false)
+    setCursor("default", null)
+  }, [setCursor])
+
+  const handleClick = useCallback(() => {
+    skipToNextTrack()
+  }, [skipToNextTrack])
+
   return (
     <mesh
-      position={[3.6949, 3.3415, -14.396]}
-      quaternion={[0.061, 0.029, 0.425, 0.903]}
+      visible={hover}
+      material={routingMaterial}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      onClick={handleClick}
+      rotation={[Math.PI / 2, 0, Math.PI * 0.25]}
+      position={[3.6949, 3.52, -14.35]}
     >
-      <boxGeometry args={[0.28501, 0.21501, 0.47601]} />
-      <meshBasicMaterial color="red" />
+      <boxGeometry args={[0.28, 0.24, 0.42]} />
     </mesh>
   )
 }

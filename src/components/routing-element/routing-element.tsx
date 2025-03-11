@@ -19,7 +19,7 @@ interface RoutingElementProps {
   groupName?: string
 }
 
-const routingMaterial = new ShaderMaterial({
+export const routingMaterial = new ShaderMaterial({
   depthWrite: false,
   depthTest: false,
   transparent: true,

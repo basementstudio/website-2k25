@@ -10,6 +10,15 @@ import { useSiteAudioStore } from "./use-site-audio"
 
 const CROSSFADE_DURATION = 4
 
+// Add a global type declaration
+declare global {
+  interface Window {
+    __WEBSITE_AMBIENCE__?: {
+      advanceToNextTrack: () => void
+    }
+  }
+}
+
 export function useWebsiteAmbience(isEnabled: boolean = false) {
   const scene = useCurrentScene()
   const player = useSiteAudioStore((s) => s.player)
@@ -184,11 +193,6 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
             currentTrack.current.setVolume(AMBIENT_VOLUME)
             currentTrack.current.play()
 
-            // console.log(`Now playing: "${ambiencePlaylist[0].name}"`)
-            // console.log(
-            //   `Next up: "${ambiencePlaylist[1 % ambiencePlaylist.length].name}"`
-            // )
-
             nextTrack.current = tracks[1 % tracks.length]
 
             useSiteAudioStore.setState({
@@ -290,4 +294,18 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
       }
     }
   }, [isEnabled, isBasketballPage, isInGame, player, cleanup])
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && isEnabled) {
+      window.__WEBSITE_AMBIENCE__ = {
+        advanceToNextTrack
+      }
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.__WEBSITE_AMBIENCE__ = undefined
+      }
+    }
+  }, [advanceToNextTrack, isEnabled])
 }
