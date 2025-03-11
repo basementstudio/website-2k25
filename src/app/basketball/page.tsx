@@ -71,5 +71,4 @@ const Basketball = () => {
     </>
   )
 }
-
 export default Basketball
