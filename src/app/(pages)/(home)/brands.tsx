@@ -38,7 +38,7 @@ const BrandLogo = memo(
       dangerouslySetInnerHTML={{
         __html: `<span class="actionable-opacity">${brand.logo}</span>`
       }}
-      className="text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto [&>svg_path]:fill-current"
+      className="-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
       href={brand.website ?? ""}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
