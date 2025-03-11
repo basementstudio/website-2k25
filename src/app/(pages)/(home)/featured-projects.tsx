@@ -27,7 +27,7 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
                 "col-span-full bg-brand-k pb-6 pt-12 !text-mobile-h1 text-brand-w2 lg:pt-14 lg:!text-h1"
               )}
             >
-              Featured projects
+              Featured Projects
             </h2>
           )}
           <ProjectItem project={project} />
