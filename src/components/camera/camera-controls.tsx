@@ -46,7 +46,7 @@ export const CustomCamera = () => {
   return (
     <>
       <PerspectiveCamera makeDefault ref={cameraRef} />
-      <XROrigin scale={0.24} position={cameraConfig?.position} />
+      <XROrigin scale={1} position={cameraConfig?.position} />
       {cameraConfig && (
         <>
           <mesh
