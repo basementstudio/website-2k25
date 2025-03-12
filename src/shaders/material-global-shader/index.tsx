@@ -70,9 +70,9 @@ export const createGlobalShaderMaterial = (
     fadeFactor: { value: 0 },
 
     // XR - TODO: remove this and hardcode it in the material global shader
-    uGamma: { value: 0.9 },
-    uBrightness: { value: 1.0 },
-    uExposure: { value: 1.0 },
+    uGamma: { value: 0.8 },
+    uBrightness: { value: 0.6 },
+    uExposure: { value: 0.6 },
 
     // Lamp
     lampLightmap: { value: null },

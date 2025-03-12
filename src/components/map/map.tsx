@@ -153,7 +153,7 @@ export const Map = memo(() => {
   // TODO: Remove this and hardcode it in the material global shader
   const { gamma, brightness, exposure } = useControls("xr", {
     gamma: {
-      value: 0.9,
+      value: 0.8,
       min: 0.0,
       max: 1.0,
       step: 0.001
