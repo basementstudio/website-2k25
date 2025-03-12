@@ -125,7 +125,7 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
         }}
       >
         <div
-          className="relative flex h-[300px] w-[510px] bg-transparent"
+          className="crt relative flex h-[300px] w-[510px] bg-transparent"
           style={{
             transform: `perspective(300px) rotateY(.5deg) scale(${scale})`,
             transformOrigin: "center center"
@@ -187,8 +187,8 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
                   <button
                     className={`h-8 w-full border px-2 py-1 text-center ${
                       isValid
-                        ? "cursor-pointer border-brand-o"
-                        : "cursor-default border-brand-o/20"
+                        ? "cursor-pointer border-none bg-brand-o text-black"
+                        : "cursor-default border-brand-o/50 text-brand-o/50"
                     }`}
                   >
                     {submitting ? "SUBMITTING..." : "SUBMIT MESSAGE →"}
@@ -196,19 +196,33 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
                 </div>
               </form>
               <div className="flex items-center justify-between gap-2 text-[13px] uppercase text-brand-o">
-                <div className="flex items-center gap-2 underline underline-offset-4">
-                  <a href="" target="_blank">
+                <div className="flex items-center gap-2">
+                  <a
+                    href=""
+                    target="_blank"
+                    className="underline underline-offset-4"
+                  >
                     x (twitter)
                   </a>
-                  <a href="" target="_blank">
+                  <span>,</span>
+                  <a
+                    href=""
+                    target="_blank"
+                    className="underline underline-offset-4"
+                  >
                     instagram
                   </a>
-                  <a href="" target="_blank">
+                  <span>,</span>
+                  <a
+                    href=""
+                    target="_blank"
+                    className="underline underline-offset-4"
+                  >
                     github
                   </a>
                 </div>
 
-                <p>hello@basement.studio</p>
+                <a href="mailto:hello@basement.studio">hello@basement.studio</a>
               </div>
             </div>
           </div>
