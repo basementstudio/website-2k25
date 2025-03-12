@@ -144,11 +144,11 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
           id="nav-contact"
           onClick={() => setIsContactOpen(!isContactOpen)}
           className={cn(
-            "!text-p capitalize text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+            "!text-p capitalize text-brand-w1 hover:text-brand-o",
             isContactOpen && "text-brand-g1"
           )}
         >
-          Contact Us
+          <span className="actionable actionable-no-underline">Contact Us</span>
         </button>
       </div>
     </>

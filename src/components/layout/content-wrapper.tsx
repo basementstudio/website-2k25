@@ -19,10 +19,9 @@ import { useAppLoadingStore } from "../loading/app-loading-handler"
 import { ScrollDown } from "../primitives/scroll-down"
 
 const BLACKLISTED_PATHS = [
-  /^\/blog\/\d+$/,
-  /^\/blog\/[^\/]+$/,
   /^\/showcase\/\d+$/,
-  /^\/showcase\/[^\/]+$/
+  /^\/showcase\/[^\/]+$/,
+  /^\/post\/[^\/]+$/
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {

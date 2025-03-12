@@ -19,6 +19,9 @@ export default function RigidBodies({
   )
   const setJustScored = useMinigameStore((s) => s.setJustScored)
 
+  const consecutiveScores = useMinigameStore((s) => s.consecutiveScores)
+  const hasHitStreak = consecutiveScores === 2
+
   const { playSoundFX } = useSiteAudio()
 
   const randomPitch = 0.95 + Math.random() * 0.1
@@ -29,6 +32,10 @@ export default function RigidBodies({
     setScore((prev) => prev + multipliedScore)
     incrementConsecutiveScores()
     playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
+
+    if (hasHitStreak) {
+      playSoundFX("BASKETBALL_STREAK", 0.6)
+    }
 
     // event for net animation
     window.dispatchEvent(new Event("basketball-score"))

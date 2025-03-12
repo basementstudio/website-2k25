@@ -1,3 +1,4 @@
+import { MeshDiscardMaterial } from "@react-three/drei"
 import { animate, easeOut } from "motion"
 import { useRef } from "react"
 import { Mesh } from "three"
@@ -46,10 +47,13 @@ export const BlogDoor = () => {
     animate(door?.rotation, target, config)
     animate(doorHoverRef.current?.rotation, hoverTarget, config)
 
-    playSoundFX(
-      `BLOG_DOOR_${desiredSoundFX.current}_${!isOpen.current ? "OPEN" : "CLOSE"}`,
-      0.4
-    )
+    if (!isOpen.current) {
+      playSoundFX(`BLOG_DOOR_${desiredSoundFX.current}_OPEN`, 0.4)
+    } else {
+      setTimeout(() => {
+        playSoundFX(`BLOG_DOOR_${desiredSoundFX.current}_CLOSE`, 0.25)
+      }, 250)
+    }
 
     if (isOpen.current) {
       desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
@@ -83,7 +87,7 @@ export const BlogDoor = () => {
         >
           <mesh position={[0, 0, 0.345]}>
             <boxGeometry args={[0.02, 1.1, 0.65, 32]} />
-            <meshBasicMaterial opacity={0} transparent depthWrite={false} />
+            <MeshDiscardMaterial />
           </mesh>
         </group>
       </group>

@@ -1,7 +1,9 @@
-import { ThreeEvent } from "@react-three/fiber"
+import { MeshDiscardMaterial } from "@react-three/drei"
+import type { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
+import type { RefObject } from "react"
 import { useCallback, useEffect, useRef } from "react"
-import { Mesh } from "three"
+import type { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -17,17 +19,22 @@ import {
   STICK_ANIMATION
 } from "./constants"
 
-export const Stick = ({ stick }: { stick: Mesh }) => {
+interface StickProps {
+  stick: Mesh
+  sequence: RefObject<(number | string)[]>
+}
+
+export const Stick = ({ stick, sequence }: StickProps) => {
   const scene = useCurrentScene()
   const { playSoundFX } = useSiteAudio()
   const { sfx } = useAssets()
-  const setIsInGame = useArcadeStore((state) => state.setIsInGame)
   const isInGame = useArcadeStore((state) => state.isInGame)
+  const setIsInGame = useArcadeStore((state) => state.setIsInGame)
 
   const availableSounds = sfx.arcade.sticks.length
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
   const state = useRef(0)
-  const sequence = useRef<number[]>([])
+
   const navigationTimer = useRef<NodeJS.Timeout | null>(null)
   const setCursor = useCursor()
   const { setLabTabIndex, setIsInLabTab, setIsSourceButtonSelected } =
@@ -35,7 +42,6 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
 
   const isDragging = useRef(false)
   const dragStartPosition = useRef({ x: 0, y: 0 })
-  const movementTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const handleStickSound = useCallback(
     (isRelease: boolean) => {
@@ -112,7 +118,8 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
           }
           break
 
-        case 1: // RIGHT
+        case 1: {
+          // RIGHT
           const currentTab = currentLabTabs[currentLabTabIndex]
           if (
             currentTab?.type === "experiment" &&
@@ -127,6 +134,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
             }
           }
           break
+        }
 
         case 2: // LEFT
           if (currentIsSourceButtonSelected) {
@@ -140,7 +148,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
           break
       }
     },
-    [setLabTabIndex, setIsSourceButtonSelected, setIsInLabTab, stick]
+    [setLabTabIndex, setIsSourceButtonSelected, setIsInLabTab]
   )
 
   const handleContinuousNavigation = useCallback(
@@ -166,19 +174,26 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
   const updateStickPosition = useCallback(
     (
       direction: number,
-      targetRotation: { x: number; y: number; z: number }
+      targetRotation: { x: number; y: number; z: number },
+      isKeyboardInput: boolean = false
     ) => {
       if (direction !== 0 && state.current === direction) return
 
       animate(stick.rotation, targetRotation, STICK_ANIMATION)
 
-      sequence.current.push(direction)
-      checkSequence({ sequence: sequence.current, setIsInGame })
+      if (direction !== 0) {
+        sequence.current.push(direction)
+        checkSequence({ sequence: sequence.current, setIsInGame })
+      }
+
       handleStickSound(direction === 0)
       state.current = direction
 
-      dispatchStickMoveEvent(direction)
+      if (isKeyboardInput && isInGame) {
+        return
+      }
 
+      dispatchStickMoveEvent(direction)
       if (!isInGame) {
         handleContinuousNavigation(direction)
       }
@@ -186,9 +201,10 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
     [
       stick.rotation,
       handleStickSound,
-      isInGame,
-      setIsInGame,
       dispatchStickMoveEvent,
+      isInGame,
+      sequence,
+      setIsInGame,
       handleContinuousNavigation
     ]
   )
@@ -201,7 +217,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
         z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
       }
 
-      updateStickPosition(direction, targetRotation)
+      updateStickPosition(direction, targetRotation, true)
     },
     [updateStickPosition]
   )
@@ -286,43 +302,14 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
 
       if (state.current !== 0) {
         handleStickSound(true)
+        resetStick()
       }
-      resetStick()
     },
     [handleStickSound, resetStick, setCursor]
   )
 
   useEffect(() => {
-    const handleButtonPress = (event: CustomEvent) => {
-      const buttonName = event.detail.buttonName
-      sequence.current.push(buttonName)
-      checkSequence({ sequence: sequence.current, setIsInGame })
-    }
-
-    const handleGameStateChange = () => {
-      resetStick()
-    }
-
-    window.addEventListener("buttonPressed", handleButtonPress as EventListener)
-    window.addEventListener(
-      "gameStateChange",
-      handleGameStateChange as EventListener
-    )
-
-    return () => {
-      window.removeEventListener(
-        "buttonPressed",
-        handleButtonPress as EventListener
-      )
-      window.removeEventListener(
-        "gameStateChange",
-        handleGameStateChange as EventListener
-      )
-    }
-  }, [resetStick, setIsInGame])
-
-  useEffect(() => {
-    if (isInGame || scene !== "lab" || stick.name !== "02_JYTK_L") return
+    if (scene !== "lab" || stick.name !== "02_JYTK_L") return
 
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
@@ -349,14 +336,14 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("keyup", handleKeyUp)
+    window.addEventListener("keydown", handleKeyDown, { passive: true })
+    window.addEventListener("keyup", handleKeyUp, { passive: true })
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
       window.removeEventListener("keyup", handleKeyUp)
     }
-  }, [isInGame, handleKeyboardInput, scene, stick.name])
+  }, [handleKeyboardInput, scene, stick.name])
 
   useEffect(() => {
     return () => {
@@ -387,7 +374,7 @@ export const Stick = ({ stick }: { stick: Mesh }) => {
           rotation={[(16 * Math.PI) / 180, 0, 0]}
         >
           <cylinderGeometry args={[0.03, 0.03, 0.12, 12]} />
-          <meshBasicMaterial opacity={0} transparent />
+          <MeshDiscardMaterial />
         </mesh>
       </group>
     </group>

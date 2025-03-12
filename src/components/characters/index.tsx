@@ -6,7 +6,7 @@ import {
   CharacterAnimationName,
   CharacterPosition
 } from "./character-instancer"
-import { characterConfigurations } from "./characters-config"
+import { characterConfigurations, FaceMorphTargets } from "./characters-config"
 import { InstanceUniform } from "./instanced-skinned-mesh"
 
 interface CharacterProps extends ElementProps<typeof Group> {
@@ -16,9 +16,9 @@ interface CharacterProps extends ElementProps<typeof Group> {
 }
 
 // total faces
-const numFaces = 33
+const numFaces = 3
 // faces per row/column
-const facesGrid = 6
+const facesGrid = 2
 
 const possibleFaces = Array.from({ length: numFaces }, (_, i) => i)
 
@@ -39,7 +39,7 @@ const getTextureCoord = (id: number, gridEdgeRepeat: number) => {
   return [col / gridEdgeRepeat, row / gridEdgeRepeat] // uv offset
 }
 
-const bodyGrid = 2
+const bodyGrid = 1
 const numBody = bodyGrid * bodyGrid
 
 const getRandomBodyId = () => {
@@ -69,12 +69,15 @@ export function Character({
 
   return (
     <group {...props}>
+      {/* Body */}
       <CharacterPosition
         timeSpeed={1}
-        geometryId={0}
+        geometryId={1}
         animationName={animationName}
         initialTime={initialTime}
-        activeMorphName={characterConfiguration?.bodyMorph}
+        activeMorphName={
+          characterConfiguration?.bodyMorph ? "women" : undefined
+        }
         uniforms={{
           uMapOffset: {
             value: selectedBodyOffset
@@ -82,9 +85,10 @@ export function Character({
           ...uniforms
         }}
       />
+      {/* Head */}
       <CharacterPosition
         timeSpeed={1}
-        geometryId={1}
+        geometryId={0}
         activeMorphName={characterConfiguration?.faceMorph}
         animationName={animationName}
         initialTime={initialTime}
@@ -98,6 +102,7 @@ export function Character({
           ...uniforms
         }}
       />
+      {/* Arms */}
       <CharacterPosition
         timeSpeed={1}
         geometryId={2}
@@ -114,6 +119,25 @@ export function Character({
           ...uniforms
         }}
       />
+
+      {/* Hair */}
+      {characterConfiguration?.faceMorph === FaceMorphTargets.JJ && (
+        <CharacterPosition
+          timeSpeed={1}
+          geometryId={3}
+          initialTime={initialTime}
+          animationName={animationName}
+          uniforms={{
+            uMapIndex: {
+              value: 1
+            },
+            uMapOffset: {
+              value: selectedFaceOffset
+            },
+            ...uniforms
+          }}
+        />
+      )}
     </group>
   )
 }

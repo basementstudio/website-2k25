@@ -7,9 +7,10 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { animate } from "motion"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useState, useRef } from "react"
-import { Mesh, ShaderMaterial } from "three"
-import { Box3, Vector3, WebGLRenderTarget } from "three"
+import { Suspense, useEffect, useMemo, useState } from "react"
+import { Mesh, Vector3, WebGLRenderTarget } from "three"
+import { Box3 } from "three"
+import { degToRad } from "three/src/math/MathUtils.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -17,21 +18,17 @@ import { createScreenMaterial } from "@/shaders/material-screen"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { RenderTexture } from "./render-texture"
-import { Player } from "../arcade-game/player"
-import { Road } from "../arcade-game/road"
-import { NPCs } from "../arcade-game/npc"
-import { Container, DefaultProperties, Root, Text } from "@react-three/uikit"
-import { FontFamilyProvider } from "@react-three/uikit"
-import { COLORS_THEME } from "./screen-ui"
-import { ffflauta } from "../../../public/fonts/ffflauta"
-import { degToRad } from "three/src/math/MathUtils.js"
-import {
-  useRoad,
-  DEFAULT_SPEED,
-  GAME_SPEED
-} from "../arcade-game/road/use-road"
-import { useGame } from "../arcade-game/lib/use-game"
-import { revealOpacityMaterials } from "../map/bakes"
+
+const ArcadeGame = dynamic(
+  () =>
+    import("../arcade-game").then((mod) => ({
+      default: mod.ArcadeGame
+    })),
+  {
+    loading: () => null,
+    ssr: false
+  }
+)
 
 const ScreenUI = dynamic(
   () =>
@@ -144,9 +141,11 @@ export const ArcadeScreen = () => {
         manual: true
       },
       game: {
-        position: [0, 10, 20] as [number, number, number],
-        rotation: [degToRad(-20), 0, 0] as [number, number, number],
-        fov: 30
+        position: [0, 3, 14] as [number, number, number],
+        rotation: [degToRad(0), 0, 0] as [number, number, number],
+        fov: 30,
+        aspect: 16 / 9,
+        manual: true
       }
     }
   }, [arcadeScreen, screenPosition])
@@ -166,183 +165,12 @@ export const ArcadeScreen = () => {
       />
 
       {(hasVisitedArcade || isLabRoute) && !isInGame && <ScreenUI />}
-      <Game
-        visible={(hasVisitedArcade || isLabRoute) && isInGame}
-        screenMaterial={screenMaterial}
-      />
+      <Suspense fallback={null}>
+        <ArcadeGame
+          visible={(hasVisitedArcade || isLabRoute) && isInGame}
+          screenMaterial={screenMaterial}
+        />
+      </Suspense>
     </RenderTexture>
-  )
-}
-
-const Game = ({
-  visible,
-  screenMaterial
-}: {
-  visible: boolean
-  screenMaterial: ShaderMaterial
-}) => {
-  const setSpeed = useRoad((s) => s.setSpeed)
-  const speedRef = useRoad((s) => s.speedRef)
-  const gameOver = useGame((s) => s.gameOver)
-  const setGameOver = useGame((s) => s.setGameOver)
-  const gameStarted = useGame((s) => s.gameStarted)
-  const setGameStarted = useGame((s) => s.setGameStarted)
-  const scoreRef = useRef(0)
-  const [scoreDisplay, setScoreDisplay] = useState(0)
-  const lastUpdateTimeRef = useRef(0)
-  const setIsInGame = useArcadeStore((state) => state.setIsInGame)
-
-  useFrame((_, delta) => {
-    if (gameStarted && !gameOver) {
-      lastUpdateTimeRef.current += delta
-      if (lastUpdateTimeRef.current >= 0.1) {
-        scoreRef.current += 1
-        setScoreDisplay(scoreRef.current)
-        lastUpdateTimeRef.current = 0
-      }
-
-      // Set game running value without conditional check to prevent flickering
-      screenMaterial.uniforms.uIsGameRunning.value = 1.0
-      screenMaterial.needsUpdate = true
-    } else {
-      // Set game not running value without conditional check
-      screenMaterial.uniforms.uIsGameRunning.value = 0.0
-      screenMaterial.needsUpdate = true
-    }
-  })
-
-  useEffect(() => {
-    if (gameStarted && !gameOver) {
-      screenMaterial.uniforms.uIsGameRunning.value = 1.0
-      screenMaterial.needsUpdate = true
-      scoreRef.current = 0
-      setScoreDisplay(0)
-      lastUpdateTimeRef.current = 0
-    } else {
-      screenMaterial.uniforms.uIsGameRunning.value = 0.0
-      screenMaterial.needsUpdate = true
-    }
-
-    const event = new CustomEvent("gameStateChange", {
-      detail: { gameStarted, gameOver }
-    })
-    window.dispatchEvent(event)
-  }, [gameStarted, gameOver, screenMaterial])
-
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === "Escape") {
-        if (gameStarted) {
-          setGameStarted(false)
-          setSpeed(DEFAULT_SPEED)
-          setGameOver(false)
-          setIsInGame(false)
-
-          useGame.setState({ currentLine: 0 })
-        } else {
-          setIsInGame(false)
-          setSpeed(DEFAULT_SPEED)
-          setGameStarted(false)
-          setGameOver(false)
-
-          useGame.setState({ currentLine: 0 })
-
-          useArcadeStore.getState().resetArcadeScreen()
-        }
-      } else if (event.code === "Space") {
-        if (gameOver) {
-          setGameOver(false)
-          setGameStarted(true)
-          setSpeed(GAME_SPEED)
-          useGame.setState({ currentLine: 0 })
-        } else if (!gameStarted) {
-          setGameStarted(true)
-          setSpeed(GAME_SPEED)
-        }
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyPress)
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress)
-    }
-  }, [
-    setSpeed,
-    speedRef,
-    gameOver,
-    setGameOver,
-    gameStarted,
-    setGameStarted,
-    setIsInGame
-  ])
-
-  return (
-    <group visible={visible}>
-      <group position={[0, 5.3, 8]}>
-        <Root
-          width={1000}
-          height={690}
-          positionType="relative"
-          display="flex"
-          flexDirection="column"
-          paddingY={24}
-          paddingX={18}
-          justifyContent={"flex-end"}
-        >
-          <FontFamilyProvider
-            ffflauta={{
-              normal: ffflauta
-            }}
-          >
-            <DefaultProperties
-              fontFamily={"ffflauta"}
-              fontSize={32}
-              fontWeight={"normal"}
-              color={COLORS_THEME.primary}
-              textAlign={"center"}
-            >
-              <Text positionType="absolute" positionTop={0} positionLeft={50}>
-                SCORE: {`${scoreDisplay}`}
-              </Text>
-
-              <Container
-                width={600}
-                backgroundColor={COLORS_THEME.black}
-                height={100}
-                paddingTop={24}
-                positionType="absolute"
-                positionLeft={"20%"}
-                flexDirection="column"
-                alignItems="center"
-                positionBottom={-10}
-                visibility={gameStarted ? "hidden" : "visible"}
-              >
-                <Container backgroundColor={COLORS_THEME.black}>
-                  <Text textAlign="center">
-                    {gameStarted && gameOver
-                      ? "Press [SPACE] to restart".toUpperCase()
-                      : !gameStarted
-                        ? "Press [SPACE] to start".toUpperCase()
-                        : ""}
-                  </Text>
-                </Container>
-                {gameStarted && gameOver && (
-                  <Container backgroundColor={COLORS_THEME.black}>
-                    <Text textAlign="center" fontSize={20}>
-                      PRESS [ESC] TO EXIT
-                    </Text>
-                  </Container>
-                )}
-              </Container>
-            </DefaultProperties>
-          </FontFamilyProvider>
-        </Root>
-      </group>
-
-      <Player />
-      <Road />
-      <NPCs />
-    </group>
   )
 }

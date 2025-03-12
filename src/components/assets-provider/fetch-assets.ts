@@ -30,6 +30,8 @@ export interface AssetsResult {
     boot: string
     chronicles: string
     looper: string
+    palm: string
+    skybox: string
   }
   glassReflexes: {
     mesh: string
@@ -63,6 +65,7 @@ export interface AssetsResult {
     basketballNet: string
     basketballThump: string
     basketballBuzzer: string
+    basketballStreak: string
     blog: {
       lockedDoor: string[]
       door: {
@@ -172,7 +175,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
       placeholderLab: threeDInteractions.arcade.placeholderLab?.url ?? "",
       boot: threeDInteractions.arcade.boot?.url ?? "",
       chronicles: threeDInteractions.arcade.chronicles?.url ?? "",
-      looper: threeDInteractions.arcade.looper?.url ?? ""
+      looper: threeDInteractions.arcade.looper?.url ?? "",
+      palm: threeDInteractions.arcade.palm.url,
+      skybox: threeDInteractions.arcade.sky.url
     },
     videos: threeDInteractions.map.videos.items.map((item) => ({
       mesh: item._title,
@@ -200,11 +205,12 @@ export async function fetchAssets(): Promise<AssetsResult> {
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
     sfx: {
       ambience: threeDInteractions.sfx.ambience?.url ?? "",
-      basketballTheme: threeDInteractions.sfx.basketballTheme?.url ?? "",
-      basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url ?? "",
-      basketballNet: threeDInteractions.sfx.basketballNet?.url ?? "",
-      basketballThump: threeDInteractions.sfx.basketballThump?.url ?? "",
-      basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url ?? "",
+      basketballTheme: threeDInteractions.sfx.basketballTheme?.url,
+      basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url,
+      basketballNet: threeDInteractions.sfx.basketballNet?.url,
+      basketballThump: threeDInteractions.sfx.basketballThump?.url,
+      basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url,
+      basketballStreak: threeDInteractions.sfx.basketballStreak?.url,
       blog: {
         lockedDoor: threeDInteractions.sfx.blog.lockedDoor.items.map(
           (item) => item.sound?.url ?? ""

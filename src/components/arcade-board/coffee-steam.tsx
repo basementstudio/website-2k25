@@ -6,7 +6,7 @@ import { RepeatWrapping } from "three"
 import { createSteamMaterial } from "@/shaders/material-steam"
 import perlin from "@/shaders/material-steam/perlin.jpg"
 
-const CoffeeSteam = () => {
+export const CoffeeSteam = () => {
   const noise = useTexture(perlin.src)
   noise.wrapT = RepeatWrapping
   noise.wrapS = RepeatWrapping
@@ -28,5 +28,3 @@ const CoffeeSteam = () => {
     </mesh>
   )
 }
-
-export default CoffeeSteam

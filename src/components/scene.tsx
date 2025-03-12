@@ -95,16 +95,24 @@ export const Scene = () => {
             toneMapping: THREE.NoToneMapping
           }}
           camera={{ fov: 60 }}
-          className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none"
+          className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
         >
           <Renderer
             sceneChildren={
               <>
-                <WebGlTunnelOut />
-                <CameraController />
                 <Inspectables />
-                <Sparkles />
-                <Map />
+                <Suspense fallback={null}>
+                  <Map />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <WebGlTunnelOut />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <CameraController />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <Sparkles />
+                </Suspense>
                 <Suspense fallback={null}>
                   {isBasketball && (
                     <PhysicsWorld paused={!isBasketball}>
@@ -115,10 +123,13 @@ export const Scene = () => {
                     </PhysicsWorld>
                   )}
                 </Suspense>
-                <StaticBasketballs />
-
-                <CharacterInstanceConfig />
-                <CharactersSpawn />
+                <Suspense fallback={null}>
+                  <StaticBasketballs />
+                </Suspense>
+                <Suspense fallback={null}>
+                  <CharacterInstanceConfig />
+                  <CharactersSpawn />
+                </Suspense>
               </>
             }
           />

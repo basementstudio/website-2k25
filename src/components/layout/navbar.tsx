@@ -49,6 +49,7 @@ export const Navbar = () => (
 
       return (
         <NavbarContent
+          key={"navbar-content"}
           links={LINKS}
           socialLinks={data.company.social}
           newsletter={newsletter}

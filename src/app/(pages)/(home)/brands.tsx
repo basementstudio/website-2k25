@@ -1,11 +1,11 @@
 "use client"
 
 import { AnimatePresence, motion } from "motion/react"
-import Link from "next/link"
 import { memo, useMemo, useState } from "react"
 
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
@@ -27,24 +27,23 @@ const CHUNK_SIZES = {
 const BrandLogo = memo(
   ({
     brand,
-    isHovered,
     onMouseEnter,
-    onMouseLeave
+    onMouseLeave,
+    className
   }: {
     brand: { website: string | null; logo: string | null; _id: string }
-    isHovered: boolean
     onMouseEnter: () => void
     onMouseLeave: () => void
+    className?: string
   }) => (
     <Link
+      dangerouslySetInnerHTML={{
+        __html: brand.logo ?? ""
+      }}
       className={cn(
-        "actionable -my-[1px] py-[13px] transition-opacity duration-300 [&>svg]:w-16 sm:[&>svg]:w-auto",
-        {
-          "opacity-50": !isHovered,
-          "opacity-100": isHovered
-        }
+        "-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto",
+        className
       )}
-      dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
       href={brand.website ?? ""}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -59,24 +58,20 @@ BrandLogo.displayName = "BrandLogo"
 const BrandRow = memo(
   ({
     row,
-    debouncedHoveredBrand,
     setHoveredBrand
   }: {
     debouncedHoveredBrand: string | null
     row: Array<{ logo: string | null; website: string | null; _id: string }>
     setHoveredBrand: (id: string | null) => void
   }) => (
-    <div className="flex items-center justify-between md:justify-start">
+    <div className="flex items-center justify-between md:justify-start group-hover:[&>a:not(:hover)]:opacity-50">
       {row.map((brand) => (
         <BrandLogo
           key={brand._id}
           brand={brand}
-          isHovered={
-            debouncedHoveredBrand === null ||
-            debouncedHoveredBrand === brand._id
-          }
           onMouseEnter={() => setHoveredBrand(brand._id)}
           onMouseLeave={() => setHoveredBrand(null)}
+          className="transition-opacity duration-100 ease-linear"
         />
       ))}
     </div>
@@ -181,7 +176,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
       </div>
 
       <div className="relative col-span-full lg:col-start-3 lg:col-end-13">
-        <div className="flex w-full flex-col divide-y divide-brand-w1/30">
+        <div className="group flex w-full flex-col divide-y divide-brand-w1/30">
           {rows.map((row, rowIndex) => (
             <BrandRow
               key={`brands-row-${row[0]?._id ?? rowIndex}`}
@@ -192,15 +187,6 @@ export const Brands = ({ data }: { data: QueryType }) => {
           ))}
           <div />
         </div>
-      </div>
-
-      <div className="relative col-span-full -mt-px flex aspect-[5/1] items-end lg:col-start-3 lg:col-end-5 lg:aspect-[3.1/1]">
-        <Link
-          href="/showcase"
-          className="relative z-10 flex items-center gap-x-1 bg-brand-k text-h4 text-brand-w1"
-        >
-          <span>Call to Action</span> <Arrow className="size-5" />
-        </Link>
       </div>
     </section>
   )

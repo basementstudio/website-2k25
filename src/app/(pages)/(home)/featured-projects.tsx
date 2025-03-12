@@ -1,6 +1,7 @@
 import Image from "next/image"
-import Link from "next/link"
 
+import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
 import { cn } from "@/utils/cn"
 
@@ -27,7 +28,7 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
                 "col-span-full bg-brand-k pb-6 pt-12 !text-mobile-h1 text-brand-w2 lg:pt-14 lg:!text-h1"
               )}
             >
-              Featured projects
+              Featured Projects
             </h2>
           )}
           <ProjectItem project={project} />
@@ -63,7 +64,7 @@ const ProjectItem = ({
           />
         </div>
       </div>
-      <div className="col-span-2 flex flex-col gap-y-4">
+      <div className="col-span-2 flex flex-col gap-y-4 flex justify-between">
         <p className="text-mobile-h4 text-brand-w2 lg:text-h4">
           {project.excerpt}
         </p>
@@ -73,9 +74,9 @@ const ProjectItem = ({
             project.project?.categories?.map((category) => (
               <span
                 key={category._title}
-                className="actionable text-mobile-h4 text-brand-w1 lg:text-h4"
+                className="text-mobile-h4 text-brand-w1 lg:text-h3"
               >
-                {category._title}
+                <span className="actionable">{category._title}</span>
               </span>
             )) ?? []
           }
@@ -84,9 +85,14 @@ const ProjectItem = ({
 
       <Link
         href={`/showcase/${project.project?._slug}`}
-        className="actionable h-max pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
+        className="h-max pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
       >
-        {project._title}
+        <span className="actionable group gap-x-2">
+          <span className="translate-x-6 transition-transform duration-200 ease-in-out group-hover:translate-x-0">
+            {project._title}
+          </span>
+          <Arrow className="size-6 opacity-0 transition-opacity delay-0 duration-100 ease-in-out hover:delay-200 group-hover:opacity-100" />
+        </span>
       </Link>
     </div>
   )

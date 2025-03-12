@@ -10,6 +10,7 @@ export type SiteAudioSFXKey =
   | "BASKETBALL_NET"
   | "BASKETBALL_THUMP"
   | "TIMEOUT_BUZZER"
+  | "BASKETBALL_STREAK"
   | `ARCADE_BUTTON_${number}_PRESS`
   | `ARCADE_BUTTON_${number}_RELEASE`
   | `ARCADE_STICK_${number}_PRESS`
@@ -70,7 +71,7 @@ export function useInitializeAudioContext(element?: HTMLElement) {
         targetElement.removeEventListener("click", unlock)
       }
     }
-    targetElement.addEventListener("click", unlock)
+    targetElement.addEventListener("click", unlock, { passive: true })
 
     return () => {
       targetElement.removeEventListener("click", unlock)
