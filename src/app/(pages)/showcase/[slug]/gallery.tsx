@@ -29,7 +29,10 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
             // each 3 images put one full width
             viewMode === "grid" &&
               (idx + 1) % 3 === 0 &&
-              "col-span-1 lg:col-span-2"
+              "col-span-1 lg:col-span-2",
+
+            // hide first item on mobile,
+            idx === 0 && "hidden lg:block"
           )}
         >
           {/* if video, show video, image otherwise */}
