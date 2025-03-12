@@ -133,10 +133,6 @@ export const Scene = () => {
             <Suspense fallback={null}>
               <StaticBasketballs />
             </Suspense>
-            <Suspense fallback={null}>
-              <CharacterInstanceConfig />
-              <CharactersSpawn />
-            </Suspense>
           </XR>
         </Canvas>
       </div>

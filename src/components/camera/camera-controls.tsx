@@ -10,6 +10,7 @@ import {
   useCameraSetup
 } from "./camera-hooks"
 import { calculatePlanePosition } from "./camera-utils"
+import { XROrigin } from "@react-three/xr"
 
 export const CustomCamera = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null)
@@ -45,6 +46,7 @@ export const CustomCamera = () => {
   return (
     <>
       <PerspectiveCamera makeDefault ref={cameraRef} />
+      <XROrigin scale={0.24} position={cameraConfig?.position} />
       {cameraConfig && (
         <>
           <mesh
