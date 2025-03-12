@@ -216,7 +216,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
     sfx: {
-      ambience: threeDInteractions.sfx.ambience?.url ?? "",
       basketballTheme: threeDInteractions.sfx.basketballTheme?.url,
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url,
       basketballNet: threeDInteractions.sfx.basketballNet?.url,
