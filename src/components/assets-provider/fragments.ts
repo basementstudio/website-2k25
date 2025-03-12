@@ -39,21 +39,24 @@ export const carGameFragment = fragmentOn("CarGame", {
 })
 
 export const mapFragment = fragmentOn("Map", {
-  office: modelsItemFragment,
+  officeV2: modelsItemFragment,
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
   routingElements: modelsItemFragment,
-  maps: {
+  bakes: {
     items: {
       _title: true,
       lightmap: {
         url: true
       },
-      lightmapIntensity: true,
       ambientOcclusion: {
         url: true
       },
-      ambientOcclusionIntensity: true
+      meshes: {
+        items: {
+          _title: true
+        }
+      }
     }
   },
   glassReflexes: {
@@ -64,6 +67,15 @@ export const mapFragment = fragmentOn("Map", {
       }
     }
   },
+  matcaps: {
+    items: {
+      _title: true,
+      file: {
+        url: true
+      },
+      isGlass: true
+    }
+  },
   videos: {
     items: {
       _title: true,
@@ -72,6 +84,21 @@ export const mapFragment = fragmentOn("Map", {
       },
       intensity: true
     }
+  },
+  glassMaterials: {
+    items: {
+      _title: true
+    }
+  },
+  doubleSideElements: {
+    items: {
+      _title: true
+    }
+  },
+  wireframeModel: {
+    file: {
+      url: true
+    }
   }
 })
 
@@ -79,10 +106,26 @@ export const inspectableFragment = fragmentOn("Inspectables", {
   inspectableList: {
     items: {
       _id: true,
-      model: {
-        file: {
-          url: true
+      _title: true,
+      mesh: true,
+      specs: {
+        items: {
+          _id: true,
+          _title: true,
+          value: true
         }
+      },
+      description: {
+        json: {
+          content: true
+        }
+      },
+      xOffset: true,
+      yOffset: true,
+      xRotationOffset: true,
+      sizeTarget: true,
+      scenes: {
+        _title: true
       }
     }
   }
@@ -103,6 +146,60 @@ export const sfxFragment = fragmentOn("Sfx", {
   },
   basketballBuzzer: {
     url: true
+  },
+  blog: {
+    lockedDoor: {
+      items: {
+        sound: {
+          url: true
+        }
+      }
+    },
+    door: {
+      items: {
+        open: {
+          url: true
+        },
+        close: {
+          url: true
+        }
+      }
+    },
+    lamp: {
+      items: {
+        pull: {
+          url: true
+        },
+        release: {
+          url: true
+        }
+      }
+    }
+  },
+  arcade: {
+    buttons: {
+      items: {
+        press: {
+          url: true
+        },
+        release: {
+          url: true
+        }
+      }
+    },
+    sticks: {
+      items: {
+        press: {
+          url: true
+        },
+        release: {
+          url: true
+        }
+      }
+    }
+  },
+  ambience: {
+    url: true
   }
 })
 
@@ -114,6 +211,12 @@ export const arcadeFragment = fragmentOn("Arcade", {
     url: true
   },
   boot: {
+    url: true
+  },
+  chronicles: {
+    url: true
+  },
+  looper: {
     url: true
   }
 })
@@ -141,34 +244,41 @@ export const sceneFragment = fragmentOn("Scenes", {
           tabClickableName: true,
           plusShapeScale: true
         }
+      },
+      fogConfig: {
+        fogColor: {
+          r: true,
+          g: true,
+          b: true
+        },
+        fogDensity: true,
+        fogDepth: true
+      },
+      postprocessing: {
+        contrast: true,
+        brightness: true,
+        exposure: true,
+        gamma: true,
+        vignetteRadius: true,
+        vignetteSpread: true,
+        bloomStrength: true,
+        bloomRadius: true,
+        bloomThreshold: true
       }
     }
   }
 })
 
-export const carFragment = fragmentOn("Car", {
-  carModel: {
-    url: true
-  },
-  dodgeOTexture: {
-    url: true
-  },
-  dodgeBTexture: {
-    url: true
-  },
-  deloreanTexture: {
-    url: true
-  },
-  nissanTexture: {
-    url: true
-  },
-  simpsonsTexture: {
-    url: true
-  },
-  knightRiderTexture: {
-    url: true
-  },
-  misteryTexture: {
+export const carFragment = fragmentOn("OutdoorCars", {
+  model: {
+    file: {
+      url: true
+    }
+  }
+})
+
+export const lampFragment = fragmentOn("LampComponent", {
+  extraLightmap: {
     url: true
   }
 })

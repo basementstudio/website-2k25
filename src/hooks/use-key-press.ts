@@ -14,7 +14,7 @@ export const useKeyPress = (
       if (event.key === key) callback(event)
     }
 
-    window.addEventListener(event, handler)
+    window.addEventListener(event, handler, { passive: true })
 
     return () => window.removeEventListener(event, handler)
   }, [key, callback, event, isCanvasTabMode])

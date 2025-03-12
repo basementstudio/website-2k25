@@ -5,11 +5,13 @@ import {
   FontFamilyProvider,
   Root
 } from "@react-three/uikit"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Vector3 } from "three"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
+import { useArcadeStore } from "@/store/arcade-store"
 
+import { ffflauta } from "../../../public/fonts/ffflauta"
 import { ArcadeFeatured } from "./arcade-ui-components/arcade-featured"
 import { ArcadeLabsList } from "./arcade-ui-components/arcade-labs-list"
 import { ArcadePreview } from "./arcade-ui-components/arcade-preview"
@@ -17,17 +19,72 @@ import { ArcadeTitleTagsHeader } from "./arcade-ui-components/arcade-title-tags-
 import { ArcadeWrapperTags } from "./arcade-ui-components/arcade-wrapper-tags"
 
 interface ScreenUIProps {
-  screenScale?: Vector3 | null
   onLoad?: () => void
 }
 
 export const COLORS_THEME = {
   primary: "#FF4D00",
-  black: "#0D0D0D"
+  black: "#000"
 }
 
-export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
-  const aspect = screenScale ? screenScale.x / screenScale.y : 1
+export interface LabTab {
+  id: string
+  type: "button" | "experiment" | "featured"
+  title: string
+  url?: string
+  isClickable: boolean
+}
+
+export const createLabTabs = (experiments: any[]): LabTab[] => {
+  const tabs: LabTab[] = [
+    // Close button
+    {
+      id: "close",
+      type: "button",
+      title: "CLOSE [ESC]",
+      isClickable: true
+    },
+
+    // Experiments
+    ...experiments.map((exp) => ({
+      id: `experiment-${exp._title}`,
+      type: "experiment" as const,
+      title: exp._title.toUpperCase(),
+      url: `https://lab.basement.studio/experiments/${exp.url}`,
+      isClickable: true
+    })),
+
+    // View More button
+    {
+      id: "view-more",
+      type: "button",
+      title: "VIEW MORE",
+      url: "https://basement.studio/lab",
+      isClickable: true
+    },
+
+    // Chronicles
+    {
+      id: "chronicles",
+      type: "featured",
+      title: "CHRONICLES",
+      url: "https://chronicles.basement.studio",
+      isClickable: true
+    },
+
+    // Looper
+    {
+      id: "looper",
+      type: "featured",
+      title: "LOOPER (COMING SOON)",
+      isClickable: false
+    }
+  ]
+
+  return tabs
+}
+
+export const ScreenUI = ({ onLoad }: ScreenUIProps) => {
   const onLoadRef = useRef(onLoad)
   onLoadRef.current = onLoad
 
@@ -36,41 +93,38 @@ export const ScreenUI = ({ screenScale, onLoad }: ScreenUIProps) => {
 
   useEffect(() => {
     fetchLaboratory().then((data) => {
-      setExperiments(
-        data.projectList.items.map((item: any) => ({
-          _title: item._title,
-          url: item.url,
-          cover: item.cover,
-          description: item.description as string | null
-        }))
-      )
+      const experiments = data.projectList.items.map((item: any) => ({
+        _title: item._title,
+        url: item.url,
+        cover: item.cover,
+        description: item.description as string | null
+      }))
+      setExperiments(experiments)
+
+      // initialize lab tabs
+      const labTabs = createLabTabs(experiments)
+      useArcadeStore.getState().setLabTabs(labTabs)
+
       onLoadRef.current?.()
     })
   }, [])
 
   return (
     <>
-      <color attach="background" args={["#000000"]} />
-      <PerspectiveCamera
-        manual
-        makeDefault
-        position={[0, 0, 4]}
-        rotation={[0, 0, Math.PI]}
-        aspect={aspect}
-      />
       <Root
-        width={578}
-        height={370}
+        width={590}
+        height={390}
         transformScaleX={-1}
         backgroundColor={COLORS_THEME.black}
         positionType="relative"
         display="flex"
         flexDirection="column"
-        padding={12}
+        paddingY={24}
+        paddingX={18}
       >
         <FontFamilyProvider
           ffflauta={{
-            normal: "/fonts/ffflauta.json"
+            normal: ffflauta
           }}
         >
           <DefaultProperties

@@ -1,13 +1,56 @@
 import { Container, Image, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import React from "react"
+import React, { useState, useCallback } from "react"
 
-import { useMouseStore } from "@/components/mouse-tracker/mouse-tracker"
+import { useKeyPress } from "@/hooks/use-key-press"
 
 import { COLORS_THEME } from "../screen-ui"
+import { useArcadeStore } from "@/store/arcade-store"
+import { useAssets } from "@/components/assets-provider"
+import { useCursor } from "@/hooks/use-mouse"
 
 export const ArcadeFeatured = () => {
-  const setCursorType = useMouseStore((state) => state.setCursorType)
+  const { arcade } = useAssets()
+
+  const [hoveredSection, setHoveredSection] = useState({
+    chronicles: false,
+    looper: false
+  })
+
+  const isInLabTab = useArcadeStore((state) => state.isInLabTab)
+  const labTabIndex = useArcadeStore((state) => state.labTabIndex)
+  const experiments = useArcadeStore((state) => state.labTabs)
+  const setCursor = useCursor()
+  const isChroniclesSelected =
+    isInLabTab && labTabIndex === experiments.length - 2
+  const isLooperSelected = isInLabTab && labTabIndex === experiments.length - 1
+
+  const handleChroniclesClick = useCallback(() => {
+    window.open("https://chronicles.basement.studio", "_blank")
+  }, [])
+
+  useKeyPress(
+    "Enter",
+    useCallback(() => {
+      if (isChroniclesSelected) {
+        handleChroniclesClick()
+      }
+    }, [isChroniclesSelected, handleChroniclesClick])
+  )
+
+  const handleLooperClick = useCallback(() => {
+    //TODO: ADD LOOPER
+  }, [])
+
+  useKeyPress(
+    "Enter",
+    useCallback(() => {
+      if (isLooperSelected) {
+        handleLooperClick()
+      }
+    }, [isLooperSelected, handleLooperClick])
+  )
+
   return (
     <Container paddingX={10} width={"100%"} height={100}>
       <Container
@@ -23,20 +66,23 @@ export const ArcadeFeatured = () => {
           positionType="relative"
           alignItems="center"
           justifyContent="center"
-          onClick={(e) => {
-            e.stopPropagation()
-            window.open(`https://chronicles.basement.studio/`, "_blank")
-          }}
+          onClick={handleChroniclesClick}
           onHoverChange={(hover) => {
-            if (hover) {
-              setCursorType("click")
+            if (hover || isChroniclesSelected) {
+              setCursor("alias")
+              setHoveredSection((prev) => ({ ...prev, chronicles: true }))
             } else {
-              setCursorType("default")
+              setCursor("default")
+              setHoveredSection((prev) => ({ ...prev, chronicles: false }))
             }
           }}
         >
           <Container
-            backgroundColor={COLORS_THEME.black}
+            backgroundColor={
+              hoveredSection.chronicles || isChroniclesSelected
+                ? COLORS_THEME.primary
+                : COLORS_THEME.black
+            }
             positionType="absolute"
             width={"auto"}
             zIndexOffset={10}
@@ -47,7 +93,11 @@ export const ArcadeFeatured = () => {
             <Text
               fontSize={8}
               paddingX={4}
-              color={COLORS_THEME.primary}
+              color={
+                hoveredSection.chronicles || isChroniclesSelected
+                  ? COLORS_THEME.black
+                  : COLORS_THEME.primary
+              }
               zIndexOffset={10}
               positionTop={4}
             >
@@ -55,7 +105,7 @@ export const ArcadeFeatured = () => {
             </Text>
           </Container>
           <Image
-            src="/images/arcade-screen/chronicles.jpg"
+            src={arcade.chronicles}
             width={"100%"}
             height={"100%"}
             objectFit="cover"
@@ -73,9 +123,22 @@ export const ArcadeFeatured = () => {
           positionType="relative"
           alignItems="center"
           justifyContent="center"
+          onHoverChange={(hover) => {
+            if (hover || isLooperSelected) {
+              setCursor("not-allowed")
+              setHoveredSection((prev) => ({ ...prev, looper: true }))
+            } else {
+              setCursor("default")
+              setHoveredSection((prev) => ({ ...prev, looper: false }))
+            }
+          }}
         >
           <Container
-            backgroundColor={COLORS_THEME.black}
+            backgroundColor={
+              hoveredSection.looper || isLooperSelected
+                ? COLORS_THEME.primary
+                : COLORS_THEME.black
+            }
             positionType="absolute"
             width={"auto"}
             zIndexOffset={10}
@@ -86,7 +149,11 @@ export const ArcadeFeatured = () => {
             <Text
               fontSize={8}
               paddingX={4}
-              color={COLORS_THEME.primary}
+              color={
+                hoveredSection.looper || isLooperSelected
+                  ? COLORS_THEME.black
+                  : COLORS_THEME.primary
+              }
               zIndexOffset={10}
               positionTop={4}
             >
@@ -94,7 +161,7 @@ export const ArcadeFeatured = () => {
             </Text>
           </Container>
           <Image
-            src="/images/arcade-screen/looper.jpg"
+            src={arcade.looper}
             width={"100%"}
             height={"100%"}
             objectFit="cover"

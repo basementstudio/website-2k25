@@ -1,7 +1,7 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   experimental: {
     //dynamicIO: true,
     turbo: {
@@ -11,10 +11,12 @@ const nextConfig: NextConfig = {
           as: "*.js"
         }
       }
-    }
+    },
+    ppr: 'incremental'
   },
 
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",
@@ -30,7 +32,9 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "basement.studio",
         pathname: "**"
-      }
+      },
+      { protocol: "https", hostname: "pbs.twimg.com", pathname: "**" },
+      { protocol: "https", hostname: "abs.twimg.com", pathname: "**" }
     ]
   },
 

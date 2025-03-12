@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei"
 import { useEffect, useMemo } from "react"
-import { Mesh, MeshStandardMaterial } from "three"
+import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -23,14 +23,25 @@ const StaticBasketballs = () => {
     [basketballModel]
   )
 
-  const originalMaterial = useMemo(
-    () => basketballModel.materials["Material.001"] as MeshStandardMaterial,
-    [basketballModel]
-  )
+  const originalMaterial = basketballModel.materials[
+    "Material.002"
+  ] as MeshStandardMaterial
+
+  const material = useMemo(() => {
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
+      LIGHT: true
+    })
+    mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
+    return mat
+  }, [originalMaterial])
 
   useEffect(() => {
     if (!playedBallMaterial) {
-      const material = createGlobalShaderMaterial(originalMaterial, true)
+      const clonedMaterial = originalMaterial.clone()
+      const material = createGlobalShaderMaterial(clonedMaterial, false, {
+        LIGHT: true
+      })
+      material.uniforms.lightDirection.value = new Vector3(0, 0, 1)
       setPlayedBallMaterial(material)
     }
   }, [originalMaterial, playedBallMaterial, setPlayedBallMaterial])
@@ -44,12 +55,11 @@ const StaticBasketballs = () => {
           raycast={() => null}
           key={index}
           geometry={geometry}
-          material={originalMaterial}
+          material={material}
           position={[ball.position.x, ball.position.y, ball.position.z]}
           rotation={[ball.rotation.x, ball.rotation.y, ball.rotation.z]}
           scale={1.7}
-          material-metalness={0}
-          material-roughness={0.8}
+          userData={{ hasGlobalMaterial: true }}
         />
       ))}
     </>

@@ -7,20 +7,20 @@ import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
 import { TextList } from "@/components/primitives/text-list"
 
+import { Back } from "./back"
 import { Filters } from "./gallery-filter"
 import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
 
-export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
-  <div className="col-span-2 flex h-full flex-col gap-4">
-    <div className="sticky top-11 mb-48 flex flex-col gap-4">
+export const ProjectInfo = ({
+  entry
+}: {
+  entry: QueryItemType & { awards: { title: string }[] }
+}) => (
+  <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-2 lg:row-start-auto">
+    <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-[calc(3.25rem+1px)] lg:mb-0 lg:h-[calc(100vh-4.25rem)]">
       <div className="flex items-center justify-between">
-        <Link
-          href="/projects"
-          className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
-        >
-          <Arrow className="size-4 rotate-180" /> All Projects
-        </Link>
+        <Back />
 
         <Filters />
       </div>
@@ -57,48 +57,65 @@ export const ProjectInfo = ({ entry }: { entry: QueryItemType }) => (
             />
           }
         />
-        <InfoItem
-          label="Awards"
-          value={
-            <TextList
-              value={["Awwwards", "CSS Design Awards"].map((a) => (
-                <Link key={a} href={a} className="actionable text-brand-w1">
-                  {a}
-                </Link>
-              ))}
-            />
-          }
-        />
+        {entry.awards.length > 0 && (
+          <InfoItem
+            label="Awards"
+            value={<TextList value={entry.awards?.map((a) => a.title) || []} />}
+          />
+        )}
         <InfoItem
           label="Website"
           value={
             <Link
               key={entry.project?.client?.website}
               href={entry.project?.client?.website || ""}
-              className="actionable inline-flex items-center gap-1 text-brand-w1"
+              target="_blank"
+              className="text-brand-w1"
             >
-              {entry.project?.projectWebsite}{" "}
-              <ExternalLinkIcon className="size-2" />
+              <span className="actionable inline-flex items-center gap-1">
+                {entry.project?.projectWebsite ? (
+                  <>
+                    {entry.project?.projectWebsite}{" "}
+                    <ExternalLinkIcon className="size-2" />
+                  </>
+                ) : null}
+              </span>
             </Link>
           }
         />
         <div />
       </ul>
 
-      {entry.project?.description?.json?.content ? (
+      <div className="relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:hidden">
+        <Image
+          src={entry.project?.cover?.url || ""}
+          alt={entry.project?.cover?.alt || ""}
+          fill
+          className="with-dots relative object-cover"
+        />
+      </div>
+
+      {entry.project?.content?.json?.content ? (
         <div className="flex flex-col gap-2">
-          <RichText>{entry.project?.description?.json?.content}</RichText>
+          <RichText>{entry.project?.content?.json?.content}</RichText>
         </div>
       ) : null}
 
-      <Link
-        href={entry.project?.caseStudy || ""}
-        className="actionable inline-flex items-center gap-1 text-p text-brand-w1"
-      >
-        View Case Study <Arrow className="size-4" />
-      </Link>
-    </div>
+      {entry.project?.caseStudy ? (
+        <Link
+          href={entry.project?.caseStudy || ""}
+          className="inline-flex items-center gap-1 text-p text-brand-w1"
+        >
+          <span className="actionable">
+            View Case Study <Arrow className="size-4" />
+          </span>
+        </Link>
+      ) : null}
 
-    <RelatedProjects baseSlug={entry.project?._slug || ""} />
+      <RelatedProjects
+        baseSlug={entry.project?._slug || ""}
+        className="mt-auto hidden lg:flex"
+      />
+    </div>
   </div>
 )

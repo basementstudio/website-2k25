@@ -1,13 +1,13 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three"
+import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
+import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
-import { useMouseStore } from "../mouse-tracker/mouse-tracker"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -34,26 +34,30 @@ export const Basketball = ({
   handlePointerUp
 }: BasketballProps) => {
   const { playSoundFX } = useSiteAudio()
-
+  const setCursor = useCursor()
   const { basketball } = useAssets()
   const basketballModel = useGLTF(basketball)
   const bounceCount = useRef(0)
 
-  const geometry = useMemo(
-    () => (basketballModel.scene.children[0] as Mesh).geometry,
-    [basketballModel]
-  )
+  const geometry = useMemo(() => {
+    const geo = (basketballModel.scene.children[0] as Mesh).geometry
+    return geo
+  }, [basketballModel])
 
   const originalMaterial = basketballModel.materials[
-    "Material.001"
+    "Material.002"
   ] as MeshStandardMaterial
 
   const material = useMemo(() => {
-    return createGlobalShaderMaterial(originalMaterial, false)
-  }, [basketballModel])
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
+      LIGHT: true
+    })
+    mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
+    return mat
+  }, [originalMaterial])
 
   const handleCollision = (other: any) => {
-    const randomVolume = 0.1 + Math.random() * 0.1
+    const randomVolume = 0.05 + Math.random() * 0.05
     const randomPitch = 0.95 + Math.random() * 0.1
     const decreaseVolumeOnBounce = bounceCount.current > 0 ? 0.5 : 0.75
 
@@ -83,13 +87,11 @@ export const Basketball = ({
     resetBallToInitialPosition()
   }
 
-  const setCursorType = useMouseStore((state) => state.setCursorType)
-
   useEffect(() => {
     if (isDragging) {
-      setCursorType("grabbing")
+      setCursor("grabbing")
     }
-  }, [isDragging, setCursorType])
+  }, [isDragging])
 
   return (
     <RigidBody
@@ -107,15 +109,14 @@ export const Basketball = ({
       <mesh
         geometry={geometry}
         scale={1.7}
-        material={originalMaterial}
+        material={material}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerEnter={() => !isDragging && setCursorType("grab")}
-        onPointerLeave={() => !isDragging && setCursorType("default")}
-        material-metalness={0}
-        material-roughness={0.8}
+        onPointerEnter={() => !isDragging && setCursor("grab")}
+        onPointerLeave={() => !isDragging && setCursor("default")}
+        userData={{ hasGlobalMaterial: true }}
       />
     </RigidBody>
   )

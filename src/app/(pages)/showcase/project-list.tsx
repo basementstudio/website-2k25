@@ -1,6 +1,11 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useLenis } from "lenis/react"
+import { useSearchParams } from "next/navigation"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+
+import { useMedia } from "@/hooks/use-media"
+import { useWatchPathname } from "@/hooks/use-watch-pathname"
 
 import { Filters } from "./filters"
 import { Grid } from "./grid"
@@ -8,7 +13,7 @@ import { List } from "./list"
 import { QueryType } from "./query"
 
 export type FilteredProjectType =
-  QueryType["pages"]["projects"]["projectList"]["items"][number] & {
+  QueryType["pages"]["showcase"]["projectList"]["items"][number] & {
     disabled?: boolean
   }
 
@@ -17,14 +22,63 @@ export type CategoryItem = {
   count: number
 }
 
-export const ProjectList = ({ data }: { data: QueryType }) => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+const ViewModeSelector = memo(
+  ({
+    viewMode,
+    projects
+  }: {
+    viewMode: "grid" | "rows"
+    projects: FilteredProjectType[]
+  }) => {
+    return viewMode === "grid" ? (
+      <Grid projects={projects} />
+    ) : (
+      <List projects={projects} />
+    )
+  }
+)
+ViewModeSelector.displayName = "ViewModeSelector"
+
+export const ProjectList = memo(({ data }: { data: QueryType }) => {
+  const lenis = useLenis()
+  const { currentPathname, prevPathname } = useWatchPathname()
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const searchParams = useSearchParams()
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    searchParams.get("category") ?? null
+  )
   const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
+
+  useEffect(() => {
+    if (currentPathname === "/showcase" && prevPathname.includes("/showcase")) {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        lenis?.scrollTo("#projects", {
+          immediate: true
+        })
+      }, 50)
+    }
+
+    return (): void => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+    }
+  }, [lenis, currentPathname, prevPathname])
+
+  const isDesktop = useMedia("(min-width: 1024px)")
+
+  useEffect(() => {
+    if (!isDesktop) setViewMode("grid")
+  }, [isDesktop])
 
   const categories = useMemo(() => {
     const categoryMap = new Map<string, number>()
 
-    data.pages.projects.projectList.items.forEach((item) => {
+    data.pages.showcase.projectList.items.forEach((item) => {
       item?.project?.categories?.forEach((cat) => {
         if (cat._title) {
           categoryMap.set(cat._title, (categoryMap.get(cat._title) || 0) + 1)
@@ -40,34 +94,39 @@ export const ProjectList = ({ data }: { data: QueryType }) => {
         })
       )
       .sort((a, b) => b.count - a.count)
-  }, [data.pages.projects.projectList.items])
+  }, [data.pages.showcase.projectList.items])
 
-  const filteredProjects: FilteredProjectType[] = useMemo(() => {
-    return selectedCategories.length === 0
-      ? data.pages.projects.projectList.items
-      : data.pages.projects.projectList.items.map((item) => ({
+  const filteredProjects = useMemo(() => {
+    return selectedCategory === null
+      ? data.pages.showcase.projectList.items
+      : data.pages.showcase.projectList.items.map((item) => ({
           ...item,
-          disabled: !item.project?.categories?.some((cat) =>
-            selectedCategories.includes(cat._title)
+          disabled: !item.project?.categories?.some(
+            (cat) => selectedCategory === cat._title
           )
         }))
-  }, [data.pages.projects.projectList.items, selectedCategories])
+  }, [data.pages.showcase.projectList.items, selectedCategory])
+
+  const handleSetSelectedCategory = useCallback((category: string | null) => {
+    setSelectedCategory(category)
+  }, [])
+
+  const handleSetViewMode = useCallback((mode: "grid" | "rows") => {
+    setViewMode(mode)
+  }, [])
 
   return (
     <section className="flex flex-col gap-2">
       <Filters
         categories={categories}
-        selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={handleSetSelectedCategory}
         viewMode={viewMode}
-        setViewMode={setViewMode}
+        setViewMode={handleSetViewMode}
       />
 
-      {viewMode === "grid" ? (
-        <Grid projects={filteredProjects} />
-      ) : (
-        <List projects={filteredProjects} />
-      )}
+      <ViewModeSelector viewMode={viewMode} projects={filteredProjects} />
     </section>
   )
-}
+})
+ProjectList.displayName = "ProjectList"

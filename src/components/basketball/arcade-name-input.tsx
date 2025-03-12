@@ -10,16 +10,15 @@ import { LetterSlot } from "./letter-slot"
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 export const ArcadeNameInput = ({ className }: { className?: string }) => {
-  const {
-    setPlayerName,
-    score,
-    playerName: previousName,
-    setReadyToPlay,
-    setHasPlayed
-  } = useMinigameStore()
+  const playerName = useMinigameStore((s) => s.playerName)
+  const setPlayerName = useMinigameStore((s) => s.setPlayerName)
+  const score = useMinigameStore((s) => s.score)
+  const setReadyToPlay = useMinigameStore((s) => s.setReadyToPlay)
+  const setHasPlayed = useMinigameStore((s) => s.setHasPlayed)
+
   const [selectedSlot, setSelectedSlot] = useState(0)
   const [letters, setLetters] = useState(
-    previousName ? previousName.split("") : ["A", "A", "A"]
+    playerName ? playerName.split("") : ["A", "A", "A"]
   )
   const [nextLetters, setNextLetters] = useState<(string | null)[]>([
     null,
@@ -120,13 +119,13 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
   useKeyPress("Enter", handleEnter)
 
   useEffect(() => {
-    window.addEventListener("keypress", handleKeyPress)
+    window.addEventListener("keypress", handleKeyPress, { passive: true })
     return () => window.removeEventListener("keypress", handleKeyPress)
   }, [handleKeyPress])
 
   return (
     <div className={cn("flex gap-4", className)}>
-      <div className="corner-borders flex gap-2 text-subheading font-bold">
+      <div className="corner-borders text-subheading flex gap-2 font-bold">
         {letters.map((letter, index) => (
           <LetterSlot
             key={index}

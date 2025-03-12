@@ -1,45 +1,99 @@
 import Image from "next/image"
-import Link from "next/link"
 
-import { RichText } from "@/components/primitives/rich-text"
+import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
+import { cn } from "@/utils/cn"
 
 import { QueryType } from "./query"
 
 export const FeaturedProjects = ({ data }: { data: QueryType }) => {
-  const p = data.company.projects.projectList.items
+  const p = data.pages.homepage.featuredProjects.projectList.items
 
   return (
-    <div className="grid-layout !gap-y-14">
-      {p.map((p, idx) => (
-        <section key={p._slug} className="grid-layout group col-span-12 !px-0">
-          <article className="grid-layout col-span-6 items-end !px-0">
-            <p className="col-span-4 -mb-2 text-h1 text-brand-g1">{idx + 1}</p>
-
-            <h2 className="actionable col-span-8 -mb-2 text-h2 text-brand-w1">
-              <Link href={`/showcase/${p._slug}`}>{p._title}</Link>
+    <div className="grid-layout mt-12 !gap-y-4">
+      {p.map((project, index) => (
+        <div
+          key={project._title}
+          className={cn(
+            "col-span-full",
+            "sticky top-[6.7rem] lg:top-[9.2rem]",
+            index === 0 && "!top-0 lg:!top-0"
+          )}
+          style={{ zIndex: index + 1 }}
+        >
+          {index === 0 && (
+            <h2
+              className={cn(
+                "col-span-full bg-brand-k pb-6 pt-12 !text-mobile-h1 text-brand-w2 lg:pt-14 lg:!text-h1"
+              )}
+            >
+              Featured Projects
             </h2>
-
-            <div className="col-span-12 w-full max-w-[95%] [&_p]:text-h2 [&_p]:text-brand-w2">
-              <RichText>{p.description?.json?.content}</RichText>
-            </div>
-
-            <TextList
-              value={p.categories?.map((c) => c._title) ?? []}
-              className="actionable col-span-4 mt-4 gap-y-1 !text-h4 text-brand-w1"
-            />
-          </article>
-
-          <div className="relative col-span-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            <Image
-              src={p.cover?.url ?? ""}
-              alt={p.cover?.alt ?? ""}
-              fill
-              className="object-cover"
-            />
-          </div>
-        </section>
+          )}
+          <ProjectItem project={project} />
+        </div>
       ))}
+    </div>
+  )
+}
+
+const ProjectItem = ({
+  project
+}: {
+  project: QueryType["pages"]["homepage"]["featuredProjects"]["projectList"]["items"][0]
+}) => {
+  return (
+    <div
+      key={project._title}
+      className={cn(
+        "grid-layout bg-transparent !px-0 py-2",
+        "transition-transform duration-300",
+        "[background-image:linear-gradient(#000000_1px,transparent_1px),linear-gradient(to_right,#000000_1px,rgba(0,0,0,0.7)_1px)] [background-position-y:1px] [background-size:2px_2px]",
+        "border-t border-brand-w1/30",
+        "stacked-card col-span-full"
+      )}
+    >
+      <div className="relative col-span-7 after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+        <div className="with-dots relative h-full w-full">
+          <Image
+            src={project.cover?.url ?? ""}
+            alt={project._title}
+            width={project.cover?.width ?? 0}
+            height={project.cover?.height ?? 0}
+          />
+        </div>
+      </div>
+      <div className="col-span-2 flex flex-col gap-y-4 flex justify-between">
+        <p className="text-mobile-h4 text-brand-w2 lg:text-h4">
+          {project.excerpt}
+        </p>
+
+        <TextList
+          value={
+            project.project?.categories?.map((category) => (
+              <span
+                key={category._title}
+                className="text-mobile-h4 text-brand-w1 lg:text-h3"
+              >
+                <span className="actionable">{category._title}</span>
+              </span>
+            )) ?? []
+          }
+        />
+      </div>
+
+      <Link
+        href={`/showcase/${project.project?._slug}`}
+        className="h-max pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
+      >
+        <span className="actionable group gap-x-2">
+          <span className="translate-x-6 transition-transform duration-200 ease-in-out group-hover:translate-x-0">
+            {project._title}
+          </span>
+          <Arrow className="size-6 opacity-0 transition-opacity delay-0 duration-100 ease-in-out hover:delay-200 group-hover:opacity-100" />
+        </span>
+      </Link>
     </div>
   )
 }

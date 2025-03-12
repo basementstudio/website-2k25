@@ -24,6 +24,23 @@ export const query = fragmentOn("Query", {
             content: true
           }
         }
+      },
+      featuredProjects: {
+        projectList: {
+          items: {
+            _title: true,
+            excerpt: true,
+
+            project: {
+              _slug: true,
+              cover: IMAGE_FRAGMENT,
+              categories: {
+                _title: true
+              }
+            },
+            cover: IMAGE_FRAGMENT
+          }
+        }
       }
     }
   },
@@ -32,32 +49,13 @@ export const query = fragmentOn("Query", {
       clientList: {
         items: {
           _id: true,
+          _title: true,
           logo: true,
           website: true
         }
       }
     },
     projects: {
-      projectList: {
-        __args: {
-          filter: {
-            featured: true
-          }
-        },
-        items: {
-          _title: true,
-          description: {
-            json: {
-              content: true
-            }
-          },
-          categories: {
-            _title: true
-          },
-          _slug: true,
-          cover: IMAGE_FRAGMENT
-        }
-      },
       projectCategories: {
         items: {
           _title: true,

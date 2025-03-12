@@ -19,18 +19,28 @@ export const useNavigationStore = create<{
   currentTabIndex: number
   setCurrentTabIndex: (index: number) => void
 
-  stairVisibility: boolean
-  setStairVisibility: (visibility: boolean) => void
-
   disableCameraTransition: boolean
   setDisableCameraTransition: (disable: boolean) => void
 
+  isCameraTransitioning: boolean
+  setIsCameraTransitioning: (isTransitioning: boolean) => void
+
+  enteredByKeyboard: boolean
+  setEnteredByKeyboard: (value: boolean) => void
+
   resetTabIndex: () => void
+
+  previousScene: IScene | null
+  setPreviousScene: (scene: IScene | null) => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
   currentScene: null,
-  setCurrentScene: (scene) => set({ currentScene: scene }),
+  setCurrentScene: (scene) =>
+    set((state) => ({
+      previousScene: state.currentScene,
+      currentScene: scene
+    })),
 
   mainCamera: null,
   setMainCamera: (camera) => set({ mainCamera: camera }),
@@ -41,12 +51,19 @@ export const useNavigationStore = create<{
   currentTabIndex: -1,
   setCurrentTabIndex: (index) => set({ currentTabIndex: index }),
 
-  stairVisibility: false,
-  setStairVisibility: (visibility) => set({ stairVisibility: visibility }),
-
   disableCameraTransition: false,
   setDisableCameraTransition: (disable) =>
     set({ disableCameraTransition: disable }),
 
-  resetTabIndex: () => set({ currentTabIndex: 0 })
+  isCameraTransitioning: false,
+  setIsCameraTransitioning: (isTransitioning) =>
+    set({ isCameraTransitioning: isTransitioning }),
+
+  enteredByKeyboard: false,
+  setEnteredByKeyboard: (value) => set({ enteredByKeyboard: value }),
+
+  resetTabIndex: () => set({ currentTabIndex: 0 }),
+
+  previousScene: null,
+  setPreviousScene: (scene) => set({ previousScene: scene })
 }))

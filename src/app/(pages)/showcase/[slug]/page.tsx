@@ -9,6 +9,8 @@ interface ProjectPostProps {
   params: Promise<{ slug: string }>
 }
 
+export const dynamic = "force-static"
+
 const ProjectPost = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
 
@@ -17,7 +19,7 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
       queries={[
         {
           pages: {
-            projects: {
+            showcase: {
               projectList: {
                 __args: {
                   first: 1,
@@ -33,16 +35,39 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
               }
             }
           }
+        },
+        {
+          company: {
+            awards: {
+              awardList: {
+                items: {
+                  title: true,
+                  project: { _id: true }
+                }
+              }
+            }
+          }
         }
       ]}
     >
-      {async ([data]) => {
+      {async ([data, data2]) => {
         "use server"
 
-        const entry = data.pages.projects.projectList.items[0]
+        const entry = data.pages.showcase.projectList.items[0]
+
+        // add awwards
+        const awards = data2.company.awards.awardList.items.filter(
+          (award) => award.project?._id === entry.project?._id
+        )
+
+        const entryWithAwards = {
+          ...entry,
+          awards
+        }
+
         if (!entry) return notFound()
 
-        return <ProjectWrapper entry={entry} />
+        return <ProjectWrapper entry={entryWithAwards} />
       }}
     </Pump>
   )
@@ -52,13 +77,13 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
 export const generateStaticParams = async () => {
   const {
     pages: {
-      projects: {
+      showcase: {
         projectList: { items }
       }
     }
   } = await basehub({ cache: "no-store" }).query({
     pages: {
-      projects: {
+      showcase: {
         projectList: {
           items: {
             project: {
