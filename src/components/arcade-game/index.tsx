@@ -148,7 +148,9 @@ export const ArcadeGame = ({
               color={COLORS_THEME.primary}
               textAlign={"center"}
             >
-              <Text positionTop={-200}>SCORE: {`${scoreDisplay}`}</Text>
+              <Text color={COLORS_THEME.black} positionTop={-200}>
+                SCORE: {`${scoreDisplay}`}
+              </Text>
               <Container
                 width={600}
                 height={100}
