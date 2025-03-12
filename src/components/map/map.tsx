@@ -41,6 +41,7 @@ import { SpeakerHover } from "../other/speaker-hover"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
+import { useControls } from "leva"
 
 export type GLTFResult = GLTF & {
   nodes: {
