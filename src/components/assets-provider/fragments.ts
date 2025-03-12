@@ -117,6 +117,9 @@ export const inspectableFragment = fragmentOn("Inspectables", {
 })
 
 export const sfxFragment = fragmentOn("Sfx", {
+  ambience: {
+    url: true
+  },
   basketballTheme: {
     url: true
   },
@@ -130,6 +133,9 @@ export const sfxFragment = fragmentOn("Sfx", {
     url: true
   },
   basketballBuzzer: {
+    url: true
+  },
+  basketballStreak: {
     url: true
   },
   blog: {

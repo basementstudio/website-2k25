@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
-
 import { createClient } from "@/utils/supabase/server"
+import { geolocation } from "@vercel/functions"
+import { getTopScoresFromServer } from "@/utils/supabase/server"
 
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>()
 
@@ -29,23 +30,21 @@ function isRateLimited(clientId: string): boolean {
   return false
 }
 
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
-    const supabase = createClient()
+    const { data, error } = await getTopScoresFromServer()
 
-    const { data, error } = await supabase
-      .from("scoreboard")
-      .select("player_name, score, created_at")
-      .order("score", { ascending: false })
-      .limit(25)
+    if (error) {
+      return NextResponse.json({ error }, { status: 500 })
+    }
 
-    if (error) throw error
-
-    return NextResponse.json({ data: data || [] })
+    return NextResponse.json({ data })
   } catch (error) {
-    console.error("Error fetching scores:", error)
+    console.error("Error in scores API route:", error)
     return NextResponse.json(
-      { error: "Failed to fetch scores" },
+      { error: "Internal server error" },
       { status: 500 }
     )
   }
@@ -92,6 +91,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 })
     }
 
+    const details = geolocation(request)
+
     const supabase = createClient()
 
     const { error } = await supabase
@@ -100,7 +101,8 @@ export async function POST(request: Request) {
         {
           player_name: playerName,
           score: Math.floor(score),
-          client_id: clientId
+          client_id: clientId,
+          country: details.flag || "🏳️"
         }
       ])
       .select()
