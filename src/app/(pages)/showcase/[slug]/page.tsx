@@ -14,63 +14,66 @@ export const dynamic = "force-static"
 const ProjectPost = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
 
-  return (
-    <Pump
-      queries={[
-        {
-          pages: {
-            showcase: {
-              projectList: {
-                __args: {
-                  first: 1,
-                  filter: {
-                    project: {
-                      _sys_slug: {
-                        eq: slug
+  try {
+    return (
+      <Pump
+        queries={[
+          {
+            pages: {
+              showcase: {
+                projectList: {
+                  __args: {
+                    first: 1,
+                    filter: {
+                      project: {
+                        _sys_slug: {
+                          eq: slug
+                        }
                       }
                     }
-                  }
-                },
-                ...projectFragment
+                  },
+                  ...projectFragment
+                }
               }
             }
-          }
-        },
-        {
-          company: {
-            awards: {
-              awardList: {
-                items: {
-                  title: true,
-                  project: { _id: true }
+          },
+          {
+            company: {
+              awards: {
+                awardList: {
+                  items: {
+                    title: true,
+                    project: { _id: true }
+                  }
                 }
               }
             }
           }
-        }
-      ]}
-    >
-      {async ([data, data2]) => {
-        "use server"
+        ]}
+      >
+        {async ([data, data2]) => {
+          "use server"
 
-        const entry = data.pages.showcase.projectList.items[0]
+          const entry = data.pages.showcase.projectList.items.at(0)
+          if (!entry) return notFound()
 
-        // add awwards
-        const awards = data2.company.awards.awardList.items.filter(
-          (award) => award.project?._id === entry.project?._id
-        )
+          // add awwards
+          const awards = data2.company.awards.awardList.items.filter(
+            (award) => award.project?._id === entry.project?._id
+          )
 
-        const entryWithAwards = {
-          ...entry,
-          awards
-        }
+          const entryWithAwards = {
+            ...entry,
+            awards
+          }
 
-        if (!entry) return notFound()
-
-        return <ProjectWrapper entry={entryWithAwards} />
-      }}
-    </Pump>
-  )
+          return <ProjectWrapper entry={entryWithAwards} />
+        }}
+      </Pump>
+    )
+  } catch {
+    return notFound()
+  }
 }
 
 // generate static pages for all projects
