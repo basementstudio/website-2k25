@@ -8,6 +8,7 @@
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "prettier": "prettier --write .",
     "start": "next start",
+    "dev-https": "next dev --experimental-https",
     "lint": "next lint"
   },
   "dependencies": {
