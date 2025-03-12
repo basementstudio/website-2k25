@@ -51,19 +51,19 @@ export const Intro = ({ children }: HandlerProps<"p">) => (
 )
 
 export const Paragraph = ({ children }: HandlerProps<"p">) => (
-  <p className="text-pretty text-blog text-brand-white [&_b]:font-bold [&_b]:text-brand-white">
+  <p className="text-balance text-blog text-brand-white [&_b]:font-bold [&_b]:text-brand-white">
     {children}
   </p>
 )
 
 export const Heading2 = ({ children }: HandlerProps<"h2">) => (
-  <h2 className="text-pretty text-h2 text-brand-w1 [&_b]:font-semibold">
+  <h2 className="text-balance text-h2 text-brand-w1 [&_b]:font-semibold">
     {children}
   </h2>
 )
 
 export const Heading3 = ({ children }: HandlerProps<"h3">) => (
-  <h3 className="text-pretty text-h3 text-brand-w1 [&_b]:font-semibold">
+  <h3 className="text-balance text-h3 text-brand-w1 [&_b]:font-semibold">
     {children}
   </h3>
 )

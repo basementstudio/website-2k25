@@ -65,7 +65,7 @@ const ProjectItem = ({
         </div>
       </div>
       <div className="col-span-2 flex flex-col justify-between gap-y-4 pr-2 md:col-span-3 md:pr-12">
-        <p className="text-balance text-mobile-h4 text-brand-w2 lg:text-h3">
+        <p className="text-mobile-h4 text-brand-w2 lg:text-h3">
           {project.excerpt}
         </p>
 

@@ -47,7 +47,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const assets = await fetchAssets()
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <Transitions />
       <head>
         <link rel="preload" href={assets.officeWireframe} as="fetch" />
@@ -57,6 +57,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
         <InspectableProvider>
           <body
             className={cn(geistSans.variable, geistMono.variable, "font-sans")}
+            suppressHydrationWarning
           >
             <AppLoadingHandler />
             <LenisScrollProvider>
