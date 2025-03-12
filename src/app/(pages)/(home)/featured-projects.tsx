@@ -61,7 +61,7 @@ const ProjectItem = ({
           <div className="with-dots relative h-full w-full">
             <ImageWithVideoOverlay
               image={project.cover}
-              video={project.project?.coverVideo}
+              video={project.coverVideo || project.project?.coverVideo}
               className="aspect-video"
             />
           </div>

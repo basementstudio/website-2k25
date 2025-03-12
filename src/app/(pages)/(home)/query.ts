@@ -39,7 +39,8 @@ export const query = fragmentOn("Query", {
               },
               coverVideo: VIDEO_FRAGMENT
             },
-            cover: IMAGE_FRAGMENT
+            cover: IMAGE_FRAGMENT,
+            coverVideo: VIDEO_FRAGMENT
           }
         }
       }
