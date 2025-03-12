@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "motion/react"
 import { memo, useMemo, useState } from "react"
 
 import { ExternalLinkIcon } from "@/components/icons/icons"
-import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
@@ -24,57 +23,53 @@ const CHUNK_SIZES = {
   MOBILE: 4
 } as const
 
-const BrandLogo = memo(
-  ({
-    brand,
-    onMouseEnter,
-    onMouseLeave,
-    className
-  }: {
-    brand: { website: string | null; logo: string | null; _id: string }
-    onMouseEnter: () => void
-    onMouseLeave: () => void
-    className?: string
-  }) => (
-    <Link
-      dangerouslySetInnerHTML={{
-        __html: brand.logo ?? ""
+const SVGLogo = memo(({ svg }: { svg: string | null }) => {
+  if (!svg) return null
+  return (
+    <div
+      className="h-full w-full"
+      ref={(node) => {
+        if (node) node.innerHTML = svg
       }}
-      className={cn(
-        "-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto",
-        className
-      )}
-      href={brand.website ?? ""}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      rel="noopener noreferrer"
-      target="_blank"
     />
   )
-)
+})
 
-BrandLogo.displayName = "BrandLogo"
+SVGLogo.displayName = "SVGLogo"
 
 const BrandRow = memo(
   ({
     row,
-    setHoveredBrand
+    setHoveredBrand,
+    debouncedHoveredBrand
   }: {
     debouncedHoveredBrand: string | null
     row: Array<{ logo: string | null; website: string | null; _id: string }>
     setHoveredBrand: (id: string | null) => void
   }) => (
-    <div className="flex items-center justify-between md:justify-start group-hover:[&>a:not(:hover)]:opacity-50">
+    <motion.div className="flex items-center justify-between md:justify-start">
       {row.map((brand) => (
-        <BrandLogo
+        <motion.a
+          className="-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
+          href={brand.website ?? ""}
           key={brand._id}
-          brand={brand}
           onMouseEnter={() => setHoveredBrand(brand._id)}
           onMouseLeave={() => setHoveredBrand(null)}
-          className="transition-opacity duration-100 ease-linear"
-        />
+          rel="noopener noreferrer"
+          target="_blank"
+          animate={{
+            opacity: debouncedHoveredBrand
+              ? debouncedHoveredBrand === brand._id
+                ? 1
+                : 0.5
+              : 1
+          }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+        >
+          <SVGLogo svg={brand.logo} />
+        </motion.a>
       ))}
-    </div>
+    </motion.div>
   )
 )
 
@@ -98,6 +93,7 @@ const AnimatedTitle = memo(
           exit={{ opacity: 0, y: -10 }}
           initial={{ opacity: 0, y: 10 }}
           key="brand-name"
+          transition={{ ease: "easeOut", duration: 0.2 }}
         >
           {hoveredBrandData._title} <ExternalLinkIcon className="size-4" />
         </motion.span>
@@ -107,6 +103,7 @@ const AnimatedTitle = memo(
           exit={{ opacity: 0, y: -10 }}
           initial={{ opacity: 0, y: 10 }}
           key="visionaries"
+          transition={{ ease: "easeOut", duration: 0.2 }}
         >
           Visionaries
         </motion.span>
