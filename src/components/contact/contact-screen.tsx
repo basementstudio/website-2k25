@@ -198,7 +198,7 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
               <div className="flex items-center justify-between gap-2 text-[13px] uppercase text-brand-o">
                 <div className="flex items-center gap-2">
                   <a
-                    href=""
+                    href="https://x.com/basementstudio"
                     target="_blank"
                     className="underline underline-offset-4"
                   >
@@ -206,7 +206,7 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
                   </a>
                   <span>,</span>
                   <a
-                    href=""
+                    href="https://www.instagram.com/basementdotstudio/"
                     target="_blank"
                     className="underline underline-offset-4"
                   >
@@ -214,7 +214,7 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
                   </a>
                   <span>,</span>
                   <a
-                    href=""
+                    href="https://github.com/basementstudio"
                     target="_blank"
                     className="underline underline-offset-4"
                   >
@@ -222,7 +222,13 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
                   </a>
                 </div>
 
-                <a href="mailto:hello@basement.studio">hello@basement.studio</a>
+                <a
+                  href="mailto:hello@basement.studio"
+                  target="_blank"
+                  className="underline underline-offset-4"
+                >
+                  hello@basement.studio
+                </a>
               </div>
             </div>
           </div>
