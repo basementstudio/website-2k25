@@ -176,6 +176,10 @@ a:focus {
   @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500;
 }
 
+p {
+  @apply !text-balance;
+}
+
 .blog-list {
   & li {
     position: relative;
