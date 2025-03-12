@@ -25,15 +25,10 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
   contactPhone: modelsItemFragment,
   arcade: arcadeFragment,
   scenes: sceneFragment,
-
-  car: carFragment,
   characters: characterFragment,
   carGame: carGameFragment,
-
   outdoorCars: carFragment,
-  characters: characterFragment,
   lamp: lampFragment
-
 })
 
 interface Query {

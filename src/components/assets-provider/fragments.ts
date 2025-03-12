@@ -37,7 +37,6 @@ export const carGameFragment = fragmentOn("CarGame", {
     }
   }
 })
-
 export const mapFragment = fragmentOn("Map", {
   officeV2: modelsItemFragment,
   outdoor: modelsItemFragment,

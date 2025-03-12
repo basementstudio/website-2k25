@@ -134,11 +134,11 @@ export interface AssetsResult {
   carGame: {
     body: string
     antenna: string
-    wheel: string},
+    wheel: string
+  }
 
   lamp: {
     extraLightmap: string
-
   }
 }
 
@@ -286,18 +286,16 @@ export async function fetchAssets(): Promise<AssetsResult> {
       textureBody: threeDInteractions.characters.textureBody?.url,
       textureFaces: threeDInteractions.characters.textureFaces?.url
     },
-
     carGame: {
       body: threeDInteractions.carGame.body?.file?.url ?? "",
       antenna: threeDInteractions.carGame.antenna?.file?.url ?? "",
-      wheel: threeDInteractions.carGame.wheel?.file?.url ?? "",}
-
+      wheel: threeDInteractions.carGame.wheel?.file?.url ?? ""
+    },
     outdoorCars: {
       model: threeDInteractions.outdoorCars.model?.file?.url ?? ""
     },
     lamp: {
       extraLightmap: threeDInteractions.lamp.extraLightmap?.url ?? ""
-
     }
   }
 }
