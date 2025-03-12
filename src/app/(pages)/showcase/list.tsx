@@ -93,16 +93,14 @@ const AccordionListItem = memo(
 
           <AccordionPrimitive.Content
             className={cn(
+              "group",
               "col-span-12",
-              "overflow-hidden transition-[transform,opacity,height] duration-300",
-              "data-[state=closed]:h-0",
-              "data-[state=open]:h-auto",
+              "overflow-hidden",
               "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
               disabled && "opacity-30"
             )}
-            forceMount
           >
-            <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
+            <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4 transition-opacity duration-100 group-data-[state=closed]:opacity-0">
               {item.project?.showcase?.items
                 .slice(0, 6)
                 .map((item, imgIndex, array) => (
@@ -114,7 +112,8 @@ const AccordionListItem = memo(
                         index === 0 && !sectionSeen ? [null, 1, 0, 1, 0, 1] : 1
                     }}
                     transition={{
-                      delay: index === 0 ? imgIndex * 0.1 : imgIndex * 0.05,
+                      delay:
+                        (index === 0 ? imgIndex * 0.1 : imgIndex * 0.05) + 0.2,
                       duration: 0.3
                     }}
                     onAnimationComplete={() => {
