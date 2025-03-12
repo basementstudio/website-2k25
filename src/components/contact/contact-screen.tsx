@@ -125,7 +125,7 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
         }}
       >
         <div
-          className="crt relative flex h-[300px] w-[510px] bg-transparent"
+          className="relative flex h-[300px] w-[510px] bg-transparent"
           style={{
             transform: `perspective(300px) rotateY(.5deg) scale(${scale})`,
             transformOrigin: "center center"
