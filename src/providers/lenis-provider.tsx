@@ -26,6 +26,7 @@ const LenisScrollProvider: FC<LenisScrollProviderProps> = ({ children }) => {
     setScrollY(scroll)
   })
 
+  // Using Motion's useAnimationFrame as the main animation driver
   useAnimationFrame((time) => {
     lenisRef.current?.lenis?.raf(time)
   })

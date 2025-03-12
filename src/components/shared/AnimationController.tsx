@@ -3,7 +3,7 @@ import { useAnimationFrame } from "motion/react"
 import type { ReactNode } from "react"
 import { createContext, useContext } from "react"
 
-// Contexto para compartir el tiempo de animación
+// Context for sharing animation time
 interface AnimationContext {
   time: number
   delta: number
@@ -11,7 +11,7 @@ interface AnimationContext {
 
 const AnimationContext = createContext<AnimationContext>({ time: 0, delta: 0 })
 
-// Hook para acceder al tiempo de animación
+// Hook to access animation time
 export const useAnimationTime = () => useContext(AnimationContext)
 
 interface AnimationControllerProps {
@@ -19,27 +19,27 @@ interface AnimationControllerProps {
 }
 
 /**
- * Componente que usa Motion para controlar el ciclo de animación global
- * y sincroniza React Three Fiber con él
+ * Component that uses Motion to control the global animation cycle
+ * and synchronizes React Three Fiber with it
  */
 export function AnimationController({ children }: AnimationControllerProps) {
-  // Obtenemos invalidate de React Three Fiber
+  // Get invalidate from React Three Fiber
   const { invalidate } = useThree()
 
-  // Valores actuales de tiempo que se compartirán a través del contexto
+  // Current time values that will be shared through context
   const timeValues = { time: 0, delta: 0 }
 
-  // Usamos useAnimationFrame de Motion como nuestro único RAF
+  // Use Motion's useAnimationFrame as our single RAF
   useAnimationFrame((time, delta) => {
-    // Actualizamos los valores de tiempo
+    // Update time values
     timeValues.time = time
     timeValues.delta = delta
 
-    // Solicitamos a R3F que renderice un nuevo frame
+    // Request R3F to render a new frame
     invalidate()
 
-    // Aquí podrías también ejecutar otras actualizaciones globales
-    // que dependan del tiempo de animación
+    // Here you could also run other global updates
+    // that depend on animation time
   })
 
   return (
