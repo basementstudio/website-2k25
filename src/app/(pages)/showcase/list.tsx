@@ -14,12 +14,16 @@ const AccordionListItem = memo(
     item,
     index,
     disabled,
-    isOpen
+    isOpen,
+    sectionSeen,
+    onRevealFinished
   }: {
     item: FilteredProjectType
     index: number
     disabled: boolean
     isOpen: boolean
+    sectionSeen: boolean
+    onRevealFinished: () => void
   }) => {
     return (
       <AccordionPrimitive.Item
@@ -101,16 +105,22 @@ const AccordionListItem = memo(
             <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
               {item.project?.showcase?.items
                 .slice(0, 6)
-                .map((item, imgIndex) => (
+                .map((item, imgIndex, array) => (
                   <motion.div
                     key={imgIndex}
                     initial={{ opacity: 0 }}
                     whileInView={{
-                      opacity: index === 0 ? [null, 1, 0, 1, 0, 1] : 1
+                      opacity:
+                        index === 0 && !sectionSeen ? [null, 1, 0, 1, 0, 1] : 1
                     }}
                     transition={{
                       delay: index === 0 ? imgIndex * 0.1 : imgIndex * 0.05,
                       duration: 0.3
+                    }}
+                    onAnimationComplete={() => {
+                      if (array.length === imgIndex + 1 && !sectionSeen) {
+                        onRevealFinished()
+                      }
                     }}
                     className="col-span-2"
                   >
@@ -136,6 +146,17 @@ AccordionListItem.displayName = "AccordionListItem"
 export const List = memo(
   ({ projects }: { projects: FilteredProjectType[] }) => {
     const [itemOpen, setItemOpen] = useState<string>()
+    const [sectionSeen, setSectionSeen] = useState<boolean>(false)
+
+    useEffect(() => {
+      const sectionSeen = sessionStorage.getItem("showcase-section-seen")
+
+      setSectionSeen(sectionSeen === "true")
+
+      if (!sectionSeen) {
+        sessionStorage.setItem("showcase-section-seen", "true")
+      }
+    }, [])
 
     useEffect(() => {
       if (itemOpen && projects[parseInt(itemOpen)].disabled) {
@@ -163,6 +184,8 @@ export const List = memo(
             index={index}
             disabled={!!item.disabled}
             isOpen={itemOpen === index.toString()}
+            sectionSeen={sectionSeen}
+            onRevealFinished={() => setSectionSeen(true)}
           />
         ))}
       </AccordionPrimitive.Root>
