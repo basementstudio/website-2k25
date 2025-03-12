@@ -6,14 +6,17 @@ import {
   memo,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
-  useRef
+  useRef,
+  useState
 } from "react"
 
 // Context for sharing animation time
 interface AnimationContext {
   time: number
   delta: number
+  paused: boolean
 }
 
 const AnimationContext = createContext<AnimationContext | null>(null)
@@ -35,6 +38,8 @@ interface AnimationControllerProps {
   paused?: boolean
   // Optional performance option to skip frames
   frameSkip?: number
+  // Option to auto-pause when tab is not visible
+  pauseOnTabChange?: boolean
 }
 
 /**
@@ -44,14 +49,39 @@ interface AnimationControllerProps {
 function AnimationControllerImpl({
   children,
   paused = false,
-  frameSkip = 0
+  frameSkip = 0,
+  pauseOnTabChange = true
 }: AnimationControllerProps) {
   // Get invalidate from React Three Fiber
   const { invalidate } = useThree()
 
+  // State to track tab visibility
+  const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
+
+  // Combined paused state (manual pause or tab hidden)
+  const isPaused = paused || (pauseOnTabChange && !isTabVisible)
+
   // Use refs for internal values that don't need to trigger re-renders
   const timeValuesRef = useRef({ time: 0, delta: 0 })
   const frameCountRef = useRef(0)
+
+  // Setup visibility change listener
+  useEffect(() => {
+    if (!pauseOnTabChange) return
+
+    // Handler for visibility changes
+    const handleVisibilityChange = () => {
+      setIsTabVisible(!document.hidden)
+    }
+
+    // Add event listener
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    // Clean up
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [pauseOnTabChange])
 
   // Current time values exposed through context (memoized)
   const timeValues = useMemo(
@@ -61,15 +91,18 @@ function AnimationControllerImpl({
       },
       get delta() {
         return timeValuesRef.current.delta
+      },
+      get paused() {
+        return isPaused
       }
     }),
-    []
+    [isPaused]
   )
 
   // Memoize the animation callback to prevent recreating on each render
   const animationCallback = useCallback(
     (time: number, delta: number) => {
-      if (paused) return
+      if (isPaused) return
 
       // Skip frames if needed for performance
       if (frameSkip > 0) {
@@ -87,7 +120,7 @@ function AnimationControllerImpl({
       // Here you could also run other global updates
       // that depend on animation time
     },
-    [paused, frameSkip, invalidate]
+    [isPaused, frameSkip, invalidate]
   )
 
   // Use Motion's useAnimationFrame as our single RAF
