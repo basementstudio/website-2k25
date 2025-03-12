@@ -8,7 +8,7 @@ import { useArcadeStore } from "@/store/arcade-store"
 import { useCurrentScene } from "./use-current-scene"
 import { useSiteAudioStore } from "./use-site-audio"
 
-const CROSSFADE_DURATION = 4
+const CROSSFADE_DURATION = 1
 
 // Add a global type declaration
 declare global {

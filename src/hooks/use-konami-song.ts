@@ -84,7 +84,7 @@ export function useKonamiSong() {
 
     const gainNode = miamiHeatwaveSong.outputNode
     const currentTime = player.audioContext.currentTime
-    const ARCADE_VOLUME = 0.5
+    const ARCADE_VOLUME = 0.4
 
     if (isInGame) {
       gainNode.gain.cancelScheduledValues(currentTime)
@@ -107,17 +107,20 @@ export function useKonamiSong() {
         clearTimeout(fadeOutTimeout.current)
       }
 
-      fadeOutTimeout.current = setTimeout(() => {
-        cleanup()
+      fadeOutTimeout.current = setTimeout(
+        () => {
+          cleanup()
 
-        if (themeSong && !themeSong.isPlaying) {
-          themeSong.play()
-        }
+          if (themeSong && !themeSong.isPlaying) {
+            themeSong.play()
+          }
 
-        if (ostSong && !ostSong.isPlaying) {
-          ostSong.play()
-        }
-      }, FADE_DURATION * 1000)
+          if (ostSong && !ostSong.isPlaying) {
+            ostSong.play()
+          }
+        },
+        (FADE_DURATION * 1000) / 2
+      )
     }
 
     return () => {
