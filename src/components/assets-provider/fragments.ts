@@ -240,6 +240,9 @@ export const arcadeFragment = fragmentOn("Arcade", {
   },
   cityscape: {
     url: true
+  },
+  introScreen: {
+    url: true
   }
 })
 
