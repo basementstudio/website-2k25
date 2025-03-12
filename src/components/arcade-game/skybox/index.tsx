@@ -58,9 +58,17 @@ export const Skybox = () => {
 
       <mesh
         rotation={[0, 0, 0]}
-        position={[0, 5.8, -CHUNK_SIZE * TOTAL_CHUNKS + 10]}
+        position={[59, 5.8, -CHUNK_SIZE * TOTAL_CHUNKS + 10]}
       >
-        <planeGeometry args={[195 / 3, 40 / 3]} />
+        <planeGeometry args={[195 / 2.5, 40 / 2.5]} />
+        <meshBasicMaterial transparent map={cityscapeTexture} />
+      </mesh>
+      <mesh
+        scale={[-1, 1, 1]}
+        rotation={[0, 0, 0]}
+        position={[-59, 5.8, -CHUNK_SIZE * TOTAL_CHUNKS + 10]}
+      >
+        <planeGeometry args={[195 / 2.5, 40 / 2.5]} />
         <meshBasicMaterial transparent map={cityscapeTexture} />
       </mesh>
     </>
