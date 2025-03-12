@@ -108,6 +108,9 @@ export const inspectableFragment = fragmentOn("Inspectables", {
       sizeTarget: true,
       scenes: {
         _title: true
+      },
+      fx: {
+        url: true
       }
     }
   }
@@ -184,7 +187,32 @@ export const sfxFragment = fragmentOn("Sfx", {
           url: true
         }
       }
+    },
+    miamiHeatwave: {
+      url: true
     }
+  },
+  music: {
+    aqua: {
+      url: true
+    },
+    rain: {
+      url: true
+    },
+    tiger: {
+      url: true
+    },
+    vhs: {
+      url: true
+    }
+  },
+  contact: {
+    interference: {
+      url: true
+    }
+  },
+  officeAmbience: {
+    url: true
   }
 })
 

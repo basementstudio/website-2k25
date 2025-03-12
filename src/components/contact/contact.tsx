@@ -1,6 +1,7 @@
 "use client"
 import { useCallback, useEffect } from "react"
 
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
@@ -11,7 +12,11 @@ import { useContactStore } from "./contact-store"
 
 const Contact = () => {
   const { isContactOpen, isClosing, setIsContactOpen } = useContactStore()
+  const { playSoundFX } = useSiteAudio()
   const scene = useCurrentScene()
+  const isPeople = scene === "people"
+  const isBlog = scene === "blog"
+  const desiredVolume = isBlog ? 0.05 : 0.2
 
   useKeyPress(
     "Escape",
@@ -27,6 +32,14 @@ const Contact = () => {
   useEffect(() => {
     setIsContactOpen(false)
   }, [scene, setIsContactOpen])
+
+  useEffect(() => {
+    if (isPeople || isBlog) {
+      if (isContactOpen) {
+        playSoundFX("CONTACT_INTERFERENCE", desiredVolume)
+      }
+    }
+  }, [isContactOpen, isPeople, isBlog, playSoundFX])
 
   useEffect(() => {
     if (isContactOpen) {

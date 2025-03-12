@@ -6,7 +6,7 @@ import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
 import { cn } from "@/utils/cn"
 
-import { QueryType } from "./query"
+import type { QueryType } from "./query"
 
 export const FeaturedProjects = ({ data }: { data: QueryType }) => {
   const p = data.pages.homepage.featuredProjects.projectList.items
@@ -66,17 +66,19 @@ const ProjectItem = ({
           </div>
         )}
       </div>
-      <div className="col-span-2 flex flex-col justify-between gap-y-4">
-        <p className="text-mobile-h4 text-brand-w2 lg:text-h4">
+      <div className="col-span-2 flex flex-col justify-between gap-y-4 pr-2 md:col-span-3 md:pr-12">
+        <p className="text-balance text-mobile-h4 text-brand-w2 lg:text-h3">
           {project.excerpt}
         </p>
 
         <TextList
+          className="!flex-col"
+          showComma={false}
           value={
             project.project?.categories?.map((category) => (
               <span
                 key={category._title}
-                className="text-mobile-h4 text-brand-w1 lg:text-h3"
+                className="text-mobile-h4 text-brand-w1 lg:text-h4"
               >
                 <span className="actionable">{category._title}</span>
               </span>
@@ -87,9 +89,9 @@ const ProjectItem = ({
 
       <Link
         href={`/showcase/${project.project?._slug}`}
-        className="h-max pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
+        className="h-max w-max justify-self-end pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
       >
-        <span className="actionable group gap-x-2">
+        <span className="actionable group gap-x-2 [&:before]:delay-0 [&:before]:hover:delay-150">
           <span className="translate-x-6 transition-transform duration-200 ease-in-out group-hover:translate-x-0">
             {project._title}
           </span>

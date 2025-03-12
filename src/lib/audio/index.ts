@@ -8,6 +8,7 @@ export class AudioSource {
   private pausedAt = 0
   public loop = false
   private pitch = 1
+  private onEndedCallback: (() => void) | null = null
 
   constructor(audioPlayer: WebAudioPlayer, buffer: AudioBuffer) {
     this.audioContext = audioPlayer.audioContext
@@ -25,6 +26,10 @@ export class AudioSource {
     this.audioSource.loop = this.loop
     this.audioSource.playbackRate.value = this.pitch
     this.audioSource.connect(this.outputNode)
+
+    if (this.onEndedCallback) {
+      this.audioSource.onended = this.onEndedCallback
+    }
 
     let offset = this.pausedAt
     if (this.loop) {
@@ -65,6 +70,58 @@ export class AudioSource {
     this.pitch = pitch
     if (this.audioSource) {
       this.audioSource.playbackRate.value = pitch
+    }
+  }
+
+  // Add new methods for track playback monitoring
+
+  /**
+   * Get the total duration of the audio track in seconds
+   */
+  getDuration(): number {
+    return this.buffer.duration
+  }
+
+  /**
+   * Get the current playback position in seconds
+   */
+  getCurrentTime(): number {
+    if (!this.isPlaying) {
+      return this.pausedAt
+    }
+    return this.audioContext.currentTime - this.startedAt
+  }
+
+  /**
+   * Get the remaining time in seconds
+   */
+  getTimeRemaining(): number {
+    if (!this.isPlaying) {
+      return this.buffer.duration - this.pausedAt
+    }
+    return Math.max(
+      0,
+      this.buffer.duration - (this.audioContext.currentTime - this.startedAt)
+    )
+  }
+
+  /**
+   * Register a callback to be called when the track ends
+   */
+  onEnded(callback: () => void): void {
+    this.onEndedCallback = callback
+    if (this.audioSource) {
+      this.audioSource.onended = callback
+    }
+  }
+
+  /**
+   * Clear the onended callback
+   */
+  clearOnEnded(): void {
+    this.onEndedCallback = null
+    if (this.audioSource) {
+      this.audioSource.onended = null
     }
   }
 }
