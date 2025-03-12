@@ -10,6 +10,7 @@ export type SiteAudioSFXKey =
   | "BASKETBALL_NET"
   | "BASKETBALL_THUMP"
   | "TIMEOUT_BUZZER"
+  | "BASKETBALL_STREAK"
   | `ARCADE_BUTTON_${number}_PRESS`
   | `ARCADE_BUTTON_${number}_RELEASE`
   | `ARCADE_STICK_${number}_PRESS`
@@ -19,12 +20,15 @@ export type SiteAudioSFXKey =
   | `BLOG_DOOR_${number}_CLOSE`
   | `BLOG_LAMP_${number}_PULL`
   | `BLOG_LAMP_${number}_RELEASE`
+  | "CONTACT_INTERFERENCE"
+  | "OFFICE_AMBIENCE"
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
   audioSfxSources: Record<SiteAudioSFXKey, AudioSource> | null
   themeSong: AudioSource | null
   ostSong: AudioSource | null
+  officeAmbience: AudioSource | null
 }
 
 interface SiteAudioHook {
@@ -36,6 +40,11 @@ interface SiteAudioHook {
   volumeMaster: number
   playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
   getSoundFXSource: (key: SiteAudioSFXKey) => AudioSource | null
+  playInspectableFX: (
+    url: string,
+    volume?: number,
+    pitch?: number
+  ) => Promise<AudioSource | null>
   music: boolean
   handleMute: () => void
 }
@@ -44,7 +53,8 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
   player: null,
   audioSfxSources: null,
   themeSong: null,
-  ostSong: null
+  ostSong: null,
+  officeAmbience: null
 }))
 
 export { useSiteAudioStore }
@@ -82,12 +92,18 @@ export const SiteAudioSFXsLoader = memo(SiteAudioSFXsLoaderInner)
 
 function SiteAudioSFXsLoaderInner(): null {
   const player = useSiteAudioStore((s) => s.player)
-  const { GAME_AUDIO_SFX, ARCADE_AUDIO_SFX, BLOG_AUDIO_SFX } = useAudioUrls()
+  const {
+    GAME_AUDIO_SFX,
+    ARCADE_AUDIO_SFX,
+    BLOG_AUDIO_SFX,
+    CONTACT_AUDIO_SFX,
+    OFFICE_AMBIENCE
+  } = useAudioUrls()
 
   useEffect(() => {
     if (!player) return
 
-    // TODO: dont load audio sources if the user is not in the scene where the audio will be played
+    // TODO: dont load audio sources if the user is not in the scene where the audio will be played!
     const loadAudioSources = async () => {
       const newSources = {} as Record<SiteAudioSFXKey, AudioSource>
 
@@ -167,6 +183,27 @@ function SiteAudioSFXsLoaderInner(): null {
           })
         )
 
+        promises.push(
+          (async () => {
+            const source = await player.loadAudioFromURL(
+              CONTACT_AUDIO_SFX.INTERFERENCE,
+              true
+            )
+            source.setVolume(SFX_VOLUME)
+            newSources["CONTACT_INTERFERENCE"] = source
+          })()
+        )
+
+        promises.push(
+          (async () => {
+            const source = await player.loadAudioFromURL(
+              OFFICE_AMBIENCE.OFFICE_AMBIENCE_DEFAULT
+            )
+            source.setVolume(0.1)
+            newSources["OFFICE_AMBIENCE"] = source
+          })()
+        )
+
         await Promise.all(promises)
 
         useSiteAudioStore.setState({
@@ -211,6 +248,44 @@ export function useGameThemeSong() {
 
     loadAudioSource()
   }, [player, GAME_THEME_SONGS])
+}
+
+export function useOfficeAmbience(desiredVolume: number = 0.1) {
+  const player = useSiteAudioStore((s) => s.player)
+  const officeAmbience = useSiteAudioStore((s) => s.officeAmbience)
+  const { OFFICE_AMBIENCE } = useAudioUrls()
+
+  useEffect(() => {
+    if (!player) return
+
+    const loadAudioSource = async () => {
+      try {
+        if (officeAmbience) return
+
+        const newOfficeAmbience = await Promise.resolve(
+          player.loadAudioFromURL(OFFICE_AMBIENCE.OFFICE_AMBIENCE_DEFAULT)
+        )
+
+        newOfficeAmbience.loop = true
+        newOfficeAmbience.setVolume(desiredVolume)
+        newOfficeAmbience.play()
+
+        useSiteAudioStore.setState({
+          officeAmbience: newOfficeAmbience
+        })
+      } catch (error) {
+        console.error("Error loading audio sources:", error)
+      }
+    }
+
+    loadAudioSource()
+  }, [player, OFFICE_AMBIENCE, officeAmbience])
+
+  useEffect(() => {
+    if (officeAmbience) {
+      officeAmbience.setVolume(desiredVolume)
+    }
+  }, [officeAmbience, desiredVolume])
 }
 
 export function useSiteAudio(): SiteAudioHook {
@@ -286,6 +361,26 @@ export function useSiteAudio(): SiteAudioHook {
     [audioSfxSources]
   )
 
+  const playInspectableFX = useCallback(
+    async (url: string, volume = SFX_VOLUME, pitch = 1) => {
+      if (!player) return null
+
+      try {
+        const audioSource = await player.loadAudioFromURL(url, true)
+
+        audioSource.setVolume(volume)
+        audioSource.setPitch(pitch)
+        audioSource.play()
+
+        return audioSource
+      } catch (error) {
+        console.error("Failed to load or play custom sound effect:", error)
+        return null
+      }
+    },
+    [player]
+  )
+
   const getSoundFXSource = useCallback(
     (key: SiteAudioSFXKey): AudioSource | null =>
       audioSfxSources?.[key] ?? null,
@@ -301,6 +396,7 @@ export function useSiteAudio(): SiteAudioHook {
     volumeMaster,
     playSoundFX,
     getSoundFXSource,
+    playInspectableFX,
     music,
     handleMute
   }

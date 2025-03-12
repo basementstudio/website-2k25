@@ -1,10 +1,12 @@
 varying vec2 vUv;
 varying vec4 vPos;
 uniform vec2 resolution;
+uniform float opacity;
+uniform float borderPadding;
 
 void main() {
   // add border
-  float borderThickness = 1.3;
+  float borderThickness = 1.3 + borderPadding;
 
   vec2 dwdx = dFdx(vUv);
   vec2 dwdy = dFdy(vUv);
@@ -16,7 +18,15 @@ void main() {
     borderThickness * pixelHeight
   );
 
+  vec2 uvBorderPadding = vec2(
+    borderPadding * pixelWidth,
+    borderPadding * pixelHeight
+  );
+
   vec2 distFromEdge = min(vUv, 1.0 - vUv);
+
+  bool isPadding =
+    distFromEdge.x < uvBorderPadding.x || distFromEdge.y < uvBorderPadding.y;
 
   bool isBorder =
     distFromEdge.x < uvBorderSize.x || distFromEdge.y < uvBorderSize.y;
@@ -41,9 +51,13 @@ void main() {
     smoothstep(center, center + halfWidth, fract(diagonal));
   float line = pattern;
 
+  if (isPadding) {
+    discard;
+  }
+
   if (isBorder) {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 0.2);
+    gl_FragColor = vec4(1.0, 1.0, 1.0, 0.2 * opacity);
   } else {
-    gl_FragColor = vec4(vec3(1.0), line * lineOpacity);
+    gl_FragColor = vec4(vec3(1.0), line * lineOpacity * opacity);
   }
 }

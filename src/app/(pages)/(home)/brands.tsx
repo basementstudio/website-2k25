@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "motion/react"
 import { memo, useMemo, useState } from "react"
 
 import { ExternalLinkIcon } from "@/components/icons/icons"
-import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
@@ -14,7 +13,7 @@ import type { QueryType } from "./query"
 
 const DEBOUNCE_DELAY = 50
 const BREAKPOINTS = {
-  DESKTOP: "(min-width: 1024px)",
+  DESKTOP: "(min-width: 1280px)",
   TABLET: "(min-width: 768px)"
 } as const
 
@@ -24,57 +23,53 @@ const CHUNK_SIZES = {
   MOBILE: 4
 } as const
 
-const BrandLogo = memo(
-  ({
-    brand,
-    onMouseEnter,
-    onMouseLeave,
-    className
-  }: {
-    brand: { website: string | null; logo: string | null; _id: string }
-    onMouseEnter: () => void
-    onMouseLeave: () => void
-    className?: string
-  }) => (
-    <Link
-      dangerouslySetInnerHTML={{
-        __html: brand.logo ?? ""
+const SVGLogo = memo(({ svg }: { svg: string | null }) => {
+  if (!svg) return null
+  return (
+    <div
+      className="h-full w-full"
+      ref={(node) => {
+        if (node) node.innerHTML = svg
       }}
-      className={cn(
-        "-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto",
-        className
-      )}
-      href={brand.website ?? ""}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      rel="noopener noreferrer"
-      target="_blank"
     />
   )
-)
+})
 
-BrandLogo.displayName = "BrandLogo"
+SVGLogo.displayName = "SVGLogo"
 
 const BrandRow = memo(
   ({
     row,
-    setHoveredBrand
+    setHoveredBrand,
+    debouncedHoveredBrand
   }: {
     debouncedHoveredBrand: string | null
     row: Array<{ logo: string | null; website: string | null; _id: string }>
     setHoveredBrand: (id: string | null) => void
   }) => (
-    <div className="flex items-center justify-between md:justify-start group-hover:[&>a:not(:hover)]:opacity-50">
+    <motion.div className="flex items-center justify-between md:justify-start">
       {row.map((brand) => (
-        <BrandLogo
+        <motion.a
+          className="-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
+          href={brand.website ?? ""}
           key={brand._id}
-          brand={brand}
           onMouseEnter={() => setHoveredBrand(brand._id)}
           onMouseLeave={() => setHoveredBrand(null)}
-          className="transition-opacity duration-100 ease-linear"
-        />
+          rel="noopener noreferrer"
+          target="_blank"
+          animate={{
+            opacity: debouncedHoveredBrand
+              ? debouncedHoveredBrand === brand._id
+                ? 1
+                : 0.5
+              : 1
+          }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+        >
+          <SVGLogo svg={brand.logo} />
+        </motion.a>
       ))}
-    </div>
+    </motion.div>
   )
 )
 
@@ -98,6 +93,7 @@ const AnimatedTitle = memo(
           exit={{ opacity: 0, y: -10 }}
           initial={{ opacity: 0, y: 10 }}
           key="brand-name"
+          transition={{ ease: "easeOut", duration: 0.2 }}
         >
           {hoveredBrandData._title} <ExternalLinkIcon className="size-4" />
         </motion.span>
@@ -107,6 +103,7 @@ const AnimatedTitle = memo(
           exit={{ opacity: 0, y: -10 }}
           initial={{ opacity: 0, y: 10 }}
           key="visionaries"
+          transition={{ ease: "easeOut", duration: 0.2 }}
         >
           Visionaries
         </motion.span>
@@ -164,7 +161,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout !gap-y-0">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-h3">
+        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:text-h3 xl:col-start-2 xl:col-end-7 2xl:col-start-3">
           Trusted by{" "}
           <AnimatedTitle
             hoveredBrandData={hoveredBrandData}
@@ -175,7 +172,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
         <div className="col-span-12 h-px w-full bg-brand-w1/30" />
       </div>
 
-      <div className="relative col-span-full lg:col-start-3 lg:col-end-13">
+      <div className="relative col-span-full xl:col-start-2 xl:col-end-13 2xl:col-start-3">
         <div className="group flex w-full flex-col divide-y divide-brand-w1/30">
           {rows.map((row, rowIndex) => (
             <BrandRow
@@ -187,18 +184,6 @@ export const Brands = ({ data }: { data: QueryType }) => {
           ))}
           <div />
         </div>
-      </div>
-
-      <div className="relative col-span-full -mt-px flex aspect-[5/1] items-end lg:col-start-3 lg:col-end-5 lg:aspect-[3.1/1]">
-        <Link
-          href="/showcase"
-          className="relative z-10 bg-brand-k text-h4 text-brand-w1"
-        >
-          <span className="actionable flex items-center gap-x-1">
-            Call to Action
-            <Arrow className="size-5" />
-          </span>
-        </Link>
       </div>
     </section>
   )

@@ -1,4 +1,4 @@
-import { ValueAnimationTransition } from "motion/react"
+import type { ValueAnimationTransition } from "motion/react"
 
 export const MIN_OFFSET = 0.02
 export const MAX_TILT = 0.15

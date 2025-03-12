@@ -1,13 +1,14 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
-import { ThreeEvent } from "@react-three/fiber"
+import type { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
-import { RefObject, useCallback, useEffect, useRef } from "react"
-import { Mesh } from "three"
+import type { RefObject } from "react"
+import { useCallback, useEffect, useRef } from "react"
+import type { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useCursor } from "@/hooks/use-mouse"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { checkSequence } from "./check-sequence"
@@ -117,7 +118,8 @@ export const Stick = ({ stick, sequence }: StickProps) => {
           }
           break
 
-        case 1: // RIGHT
+        case 1: {
+          // RIGHT
           const currentTab = currentLabTabs[currentLabTabIndex]
           if (
             currentTab?.type === "experiment" &&
@@ -132,6 +134,7 @@ export const Stick = ({ stick, sequence }: StickProps) => {
             }
           }
           break
+        }
 
         case 2: // LEFT
           if (currentIsSourceButtonSelected) {
@@ -145,7 +148,7 @@ export const Stick = ({ stick, sequence }: StickProps) => {
           break
       }
     },
-    [setLabTabIndex, setIsSourceButtonSelected, setIsInLabTab, stick]
+    [setLabTabIndex, setIsSourceButtonSelected, setIsInLabTab]
   )
 
   const handleContinuousNavigation = useCallback(
@@ -198,9 +201,10 @@ export const Stick = ({ stick, sequence }: StickProps) => {
     [
       stick.rotation,
       handleStickSound,
-      isInGame,
-      setIsInGame,
       dispatchStickMoveEvent,
+      isInGame,
+      sequence,
+      setIsInGame,
       handleContinuousNavigation
     ]
   )
