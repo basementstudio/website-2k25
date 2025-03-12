@@ -113,7 +113,7 @@ const AccordionListItem = memo(
                     }}
                     transition={{
                       delay:
-                        (index === 0 ? imgIndex * 0.1 : imgIndex * 0.05) + 0.2,
+                        (index === 0 ? imgIndex * 0.1 : imgIndex * 0.05) + 0.1,
                       duration: 0.3
                     }}
                     onAnimationComplete={() => {
