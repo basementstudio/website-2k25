@@ -106,7 +106,9 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
         newLetters[selectedSlot] = pressedKey
         setLetters(newLetters)
 
-        setSelectedSlot((prev) => (prev + 1) % 3)
+        if (selectedSlot < 2) {
+          setSelectedSlot((prev) => prev + 1)
+        }
       }
     },
     [letters, selectedSlot]
@@ -123,17 +125,26 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
     return () => window.removeEventListener("keypress", handleKeyPress)
   }, [handleKeyPress])
 
+  const handleSlotClick = useCallback((index: number) => {
+    setSelectedSlot(index)
+  }, [])
+
   return (
     <div className={cn("flex gap-4", className)}>
       <div className="corner-borders text-subheading flex gap-2 font-bold">
         {letters.map((letter, index) => (
-          <LetterSlot
+          <div
             key={index}
-            currentLetter={letter}
-            nextLetter={nextLetters[index]}
-            direction={slideDirections[index]}
-            isSelected={selectedSlot === index}
-          />
+            onClick={() => handleSlotClick(index)}
+            className="cursor-pointer"
+          >
+            <LetterSlot
+              currentLetter={letter}
+              nextLetter={nextLetters[index]}
+              direction={slideDirections[index]}
+              isSelected={selectedSlot === index}
+            />
+          </div>
         ))}
       </div>
       <button

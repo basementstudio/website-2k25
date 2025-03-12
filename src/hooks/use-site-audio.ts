@@ -10,6 +10,7 @@ export type SiteAudioSFXKey =
   | "BASKETBALL_NET"
   | "BASKETBALL_THUMP"
   | "TIMEOUT_BUZZER"
+  | "BASKETBALL_STREAK"
   | `ARCADE_BUTTON_${number}_PRESS`
   | `ARCADE_BUTTON_${number}_RELEASE`
   | `ARCADE_STICK_${number}_PRESS`
