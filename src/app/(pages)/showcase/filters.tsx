@@ -4,6 +4,8 @@ import { memo, useCallback } from "react"
 import { cn } from "@/utils/cn"
 
 import { CategoryItem } from "./project-list"
+import { motion } from "motion/react"
+import { variants } from "./motion"
 
 const GridIcon = () => (
   <svg
@@ -84,7 +86,10 @@ export const Filters = memo(
 
     return (
       <div className="grid-layout items-end pb-2">
-        <div className="col-span-1 hidden items-center gap-1 text-p text-brand-g1 lg:flex">
+        <motion.div
+          variants={variants.item}
+          className="col-span-1 hidden items-center gap-1 text-p text-brand-g1 lg:flex"
+        >
           <ViewSelector
             mode="grid"
             viewMode={viewMode}
@@ -96,9 +101,12 @@ export const Filters = memo(
             viewMode={viewMode}
             setViewMode={setViewMode}
           />
-        </div>
+        </motion.div>
 
-        <div className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13">
+        <motion.div
+          variants={variants.item}
+          className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13"
+        >
           <p className="text-p text-brand-g1">Filters</p>
 
           <ul className="flex flex-wrap gap-x-4 gap-y-1">
@@ -122,7 +130,7 @@ export const Filters = memo(
               </button>
             ))}
           </ul>
-        </div>
+        </motion.div>
       </div>
     )
   }
