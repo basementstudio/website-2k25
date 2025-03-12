@@ -150,6 +150,28 @@ export const Map = memo(() => {
   const inspectingEnabled = useRef(false)
   const tl = useRef<AnimationPlaybackControls | null>(null)
 
+  // TODO: Remove this and hardcode it in the material global shader
+  const { gamma, brightness, exposure } = useControls("xr", {
+    gamma: {
+      value: 0.8,
+      min: 0.0,
+      max: 1.0,
+      step: 0.001
+    },
+    brightness: {
+      value: 0.6,
+      min: 0.0,
+      max: 1.0,
+      step: 0.001
+    },
+    exposure: {
+      value: 0.6,
+      min: 0.0,
+      max: 1.0,
+      step: 0.001
+    }
+  })
+
   useEffect(() => {
     const easeDirection = selected ? 1 : 0
 
@@ -169,6 +191,10 @@ export const Map = memo(() => {
 
       material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
+
+      material.uniforms.uGamma.value = gamma
+      material.uniforms.uBrightness.value = brightness
+      material.uniforms.uExposure.value = exposure
     })
 
     if (useMesh.getState().cctv?.screen?.material) {
