@@ -1,3 +1,4 @@
+import { MeshDiscardMaterial } from "@react-three/drei"
 import { animate, easeOut } from "motion"
 import { useRef } from "react"
 import { Mesh } from "three"
@@ -9,7 +10,6 @@ import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { DOOR_ANIMATION_CLOSE, DOOR_ANIMATION_OPEN } from "./constants"
-import { MeshDiscardMaterial } from "@react-three/drei"
 
 export const BlogDoor = () => {
   const { blog } = useMesh()
@@ -47,10 +47,13 @@ export const BlogDoor = () => {
     animate(door?.rotation, target, config)
     animate(doorHoverRef.current?.rotation, hoverTarget, config)
 
-    playSoundFX(
-      `BLOG_DOOR_${desiredSoundFX.current}_${!isOpen.current ? "OPEN" : "CLOSE"}`,
-      0.4
-    )
+    if (!isOpen.current) {
+      playSoundFX(`BLOG_DOOR_${desiredSoundFX.current}_OPEN`, 0.4)
+    } else {
+      setTimeout(() => {
+        playSoundFX(`BLOG_DOOR_${desiredSoundFX.current}_CLOSE`, 0.25)
+      }, 250)
+    }
 
     if (isOpen.current) {
       desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
