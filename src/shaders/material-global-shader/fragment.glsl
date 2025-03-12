@@ -7,6 +7,11 @@ varying vec3 vMvPosition;
 varying vec3 vNormal;
 varying vec3 vViewDirection;
 
+// XR
+uniform float uGamma;
+uniform float uBrightness;
+uniform float uExposure;
+
 // base color
 uniform vec3 uColor;
 uniform vec3 baseColor;
@@ -83,6 +88,21 @@ uniform bool lightLampEnabled;
 const float RECIPROCAL_PI = 1.0 / 3.14159265359;
 #pragma glslify: valueRemap = require('../utils/value-remap.glsl')
 #pragma glslify: basicLight = require('../utils/basic-light.glsl')
+
+vec3 invertedGamma(vec3 color, float gamma) {
+  return pow(color, vec3(gamma));
+}
+
+vec3 reinhardToneMapping(vec3 color, float exposure) {
+  return color / (color + vec3(exposure));
+}
+
+vec3 tonemap(vec3 color) {
+  color.rgb *= uBrightness;
+  color.rgb = invertedGamma(color.rgb, uGamma);
+  color.rgb = reinhardToneMapping(color.rgb, uExposure);
+  return color;
+}
 
 void main() {
   vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
@@ -232,4 +252,7 @@ void main() {
     gl_FragColor.a *= pattern * inspectingFactor;
   }
   #endif
+
+  // Clamp colors to valid range
+  gl_FragColor.rgb = tonemap(gl_FragColor.rgb);
 }
