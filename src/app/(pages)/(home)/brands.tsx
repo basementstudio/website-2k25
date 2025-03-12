@@ -13,7 +13,7 @@ import type { QueryType } from "./query"
 
 const DEBOUNCE_DELAY = 50
 const BREAKPOINTS = {
-  DESKTOP: "(min-width: 1024px)",
+  DESKTOP: "(min-width: 1280px)",
   TABLET: "(min-width: 768px)"
 } as const
 
@@ -161,7 +161,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout !gap-y-0">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-h3">
+        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:text-h3 xl:col-start-2 xl:col-end-7 2xl:col-start-3">
           Trusted by{" "}
           <AnimatedTitle
             hoveredBrandData={hoveredBrandData}
@@ -172,7 +172,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
         <div className="col-span-12 h-px w-full bg-brand-w1/30" />
       </div>
 
-      <div className="relative col-span-full lg:col-start-3 lg:col-end-13">
+      <div className="relative col-span-full xl:col-start-2 xl:col-end-13 2xl:col-start-3">
         <div className="group flex w-full flex-col divide-y divide-brand-w1/30">
           {rows.map((row, rowIndex) => (
             <BrandRow
