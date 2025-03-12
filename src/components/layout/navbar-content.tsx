@@ -118,19 +118,12 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
           <div key={link.href} className="flex items-center gap-1 text-p">
             <button
               className={cn(
-                "group space-x-1 text-brand-w1 hover:text-brand-o",
+                "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
                 link.href === pathname && "!text-brand-o"
               )}
               onClick={() => handleNavigation(link.href)}
             >
-              <span
-                className={cn(
-                  "actionable actionable-no-underline",
-                  link.href === pathname && "actionable-inanimate"
-                )}
-              >
-                {link.title}
-              </span>
+              {link.title}
             </button>
             {link.count && (
               <sup className="text-caption text-brand-g1">({link.count})</sup>

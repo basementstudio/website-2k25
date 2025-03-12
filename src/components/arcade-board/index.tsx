@@ -35,7 +35,7 @@ export const ArcadeBoard = () => {
         handleButtonPress as EventListener
       )
     }
-  }, [])
+  }, [setIsInGame])
 
   return (
     <>
