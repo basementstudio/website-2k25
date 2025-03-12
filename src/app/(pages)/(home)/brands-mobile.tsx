@@ -22,21 +22,21 @@ export const BrandsMobile = ({ data }: { data: QueryType }) => {
 
   const [ref1, marquee1] = useMarquee({
     speed: 25,
-    speedFactor: 0.1,
+    speedFactor: 0.2,
     direction: 1,
     play: isMobile
   })
 
   const [ref2, marquee2] = useMarquee({
     speed: 25,
-    speedFactor: 0.1,
+    speedFactor: 0.2,
     direction: -1,
     play: isMobile
   })
 
   const [ref3, marquee3] = useMarquee({
     speed: 25,
-    speedFactor: 0.1,
+    speedFactor: 0.2,
     direction: 1,
     play: isMobile
   })
