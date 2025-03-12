@@ -237,20 +237,3 @@ a:focus {
     }
   }
 }
-
-.stacked-card {
-  animation-name: progressiveOpacity;
-  animation-duration: 1ms; /* Firefox requires this to apply the animation */
-  animation-fill-mode: forwards;
-  animation-timeline: view(block);
-  animation-range: entry 0% cover 38%;
-}
-
-@keyframes progressiveOpacity {
-  0% {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-  100% {
-    background-color: rgba(0, 0, 0, 1);
-  }
-}

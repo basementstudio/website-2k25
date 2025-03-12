@@ -11,11 +11,13 @@ import { cn } from "@/utils/cn"
 export const ImageWithVideoOverlay = ({
   image,
   video,
-  disabled
+  disabled,
+  className
 }: {
   image: ImageFragment
   video?: VideoFragment | null
   disabled?: boolean
+  className?: string
 }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
@@ -28,9 +30,11 @@ export const ImageWithVideoOverlay = ({
 
   return (
     <div
-      className={cn("relative h-full w-full transition-opacity duration-300", {
-        "pointer-events-none opacity-0": disabled
-      })}
+      className={cn(
+        "relative h-full w-full transition-opacity duration-300",
+        className,
+        { "pointer-events-none opacity-0": disabled }
+      )}
       onMouseEnter={() => {
         setIsHovered(true)
         if (videoRef.current) {

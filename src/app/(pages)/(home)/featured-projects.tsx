@@ -1,6 +1,7 @@
 import Image from "next/image"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
 import { cn } from "@/utils/cn"
@@ -17,7 +18,7 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
           key={project._title}
           className={cn(
             "col-span-full",
-            "sticky top-[6.7rem] lg:top-[9.2rem]",
+            "sticky top-[6.7rem] lg:top-[9.3rem]",
             index === 0 && "!top-0 lg:!top-0"
           )}
           style={{ zIndex: index + 1 }}
@@ -49,22 +50,23 @@ const ProjectItem = ({
       className={cn(
         "grid-layout bg-transparent !px-0 py-2",
         "transition-transform duration-300",
-        "[background-image:linear-gradient(#000000_1px,transparent_1px),linear-gradient(to_right,#000000_1px,rgba(0,0,0,0.7)_1px)] [background-position-y:1px] [background-size:2px_2px]",
+        "bg-brand-k",
         "border-t border-brand-w1/30",
-        "stacked-card col-span-full"
+        "col-span-full"
       )}
     >
       <div className="relative col-span-7 after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
-        <div className="with-dots relative h-full w-full">
-          <Image
-            src={project.cover?.url ?? ""}
-            alt={project._title}
-            width={project.cover?.width ?? 0}
-            height={project.cover?.height ?? 0}
-          />
-        </div>
+        {project.cover && (
+          <div className="with-dots relative h-full w-full">
+            <ImageWithVideoOverlay
+              image={project.cover}
+              video={project.project?.coverVideo}
+              className="aspect-video"
+            />
+          </div>
+        )}
       </div>
-      <div className="col-span-2 flex flex-col gap-y-4 flex justify-between">
+      <div className="col-span-2 flex flex-col justify-between gap-y-4">
         <p className="text-mobile-h4 text-brand-w2 lg:text-h4">
           {project.excerpt}
         </p>
