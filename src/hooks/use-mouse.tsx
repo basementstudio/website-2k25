@@ -42,7 +42,7 @@ export const useMouseStore = create<MouseStore>((set) => ({
   setHoverText: (text: string | null) => set({ hoverText: text }),
   cursorType: "default",
   setCursorType: (type: CursorType) => set({ cursorType: type }),
-  marquee: null,
+  marquee: false,
   setMarquee: (marquee: boolean | null) => set({ marquee })
 }))
 
@@ -73,8 +73,9 @@ export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
       explDomElement.style.cursor = "default"
       gl.domElement.style.cursor = "default"
       setHoverText(null)
+      setMarquee(false)
     }
-  }, [defaultStyle, explDomElement, gl.domElement, setHoverText])
+  }, [defaultStyle, explDomElement, gl.domElement, setHoverText, setMarquee])
 
   const setCursor = useCallback(
     (
@@ -189,7 +190,14 @@ export const MouseTracker = memo(() => {
           style={{ x: springX, y: springY }}
           {...animationProps}
         >
-          {!marquee ? `[${hoverText}]` : <div>This will be a marquee</div>}
+          {!marquee ? (
+            `[${hoverText}]`
+          ) : (
+            <div style={{ display: "flex", gap: "2px" }}>
+              <span>[Now Playing]</span>
+              <Marquee text={hoverText} />
+            </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
@@ -197,3 +205,31 @@ export const MouseTracker = memo(() => {
 })
 
 MouseTracker.displayName = "MouseTracker"
+
+const Marquee = ({ text }: { text: string }) => {
+  return (
+    <div
+      className="marquee-container"
+      style={{
+        maxWidth: "140px",
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        position: "relative",
+        color: "white",
+        backgroundColor: "black"
+      }}
+    >
+      <div
+        style={{
+          display: "inline-flex",
+          width: "max-content",
+          whiteSpace: "nowrap",
+          animation: "marquee-translate 7s linear infinite"
+        }}
+      >
+        <span>{text}&nbsp;</span>
+        <span>{text}&nbsp;</span>
+      </div>
+    </div>
+  )
+}

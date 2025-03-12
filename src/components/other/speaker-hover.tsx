@@ -1,9 +1,11 @@
 import { useCallback, useState } from "react"
+import { ShaderMaterial } from "three"
 
 import { useCursor } from "@/hooks/use-mouse"
 import { useSkipTrack } from "@/hooks/use-skip-track"
 
-import { routingMaterial } from "../routing-element/routing-element"
+import fragmentShader from "../routing-element/frag.glsl"
+import vertexShader from "../routing-element/vert.glsl"
 
 export const SpeakerHover = () => {
   const [hover, setHover] = useState(false)
@@ -17,12 +19,25 @@ export const SpeakerHover = () => {
 
   const handlePointerLeave = useCallback(() => {
     setHover(false)
-    setCursor("default", null)
+    setCursor("default", null, false)
   }, [setCursor])
 
   const handleClick = useCallback(() => {
     skipToNextTrack()
   }, [skipToNextTrack])
+
+  const routingMaterial = new ShaderMaterial({
+    depthWrite: false,
+    depthTest: false,
+    transparent: true,
+    fragmentShader: fragmentShader,
+    vertexShader: vertexShader,
+    uniforms: {
+      resolution: { value: [] },
+      opacity: { value: 0 },
+      borderPadding: { value: 0 }
+    }
+  })
 
   return (
     <>
