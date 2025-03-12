@@ -94,9 +94,21 @@ const AccordionListItem = memo(
             forceMount
           >
             <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
-              {item.project?.showcase?.items
-                .slice(0, 6)
-                .map((item, index) => (
+              {item.project?.showcase?.items.slice(0, 6).map((item, index) => {
+                if (item.video) {
+                  return (
+                    <video
+                      key={index}
+                      src={item.video.url}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="col-span-2"
+                    />
+                  )
+                }
+
+                return (
                   <Image
                     key={index}
                     src={item.image?.url ?? ""}
@@ -106,7 +118,8 @@ const AccordionListItem = memo(
                     className="col-span-2"
                     priority
                   />
-                ))}
+                )
+              })}
             </div>
           </AccordionPrimitive.Content>
         </AccordionPrimitive.Trigger>
