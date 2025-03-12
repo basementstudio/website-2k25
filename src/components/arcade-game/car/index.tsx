@@ -2,6 +2,7 @@ import { useGLTF } from "@react-three/drei"
 import { forwardRef, useMemo } from "react"
 import { type Group } from "three"
 
+// eslint-disable-line
 export const Car = forwardRef<Group>(function InnerCar(props, ref) {
   const { nodes } = useGLTF("/low_poly_car_muscle_car_2.glb")
 
@@ -23,3 +24,5 @@ export const Car = forwardRef<Group>(function InnerCar(props, ref) {
     </group>
   )
 })
+
+Car.displayName = "Car"

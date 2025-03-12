@@ -1,12 +1,14 @@
-import { useMesh } from "@/hooks/use-mesh"
-import { OnIntersectCallback, Sensor, SensorInterface } from "../../sensors"
-import { forwardRef, useMemo, useRef, useState, useEffect } from "react"
-import { Color, Euler, Object3D, Quaternion, Vector3, type Group } from "three"
 import { useFrame } from "@react-three/fiber"
-import { useConnector } from "../../lib/connector"
-import { mergeRefs } from "react-merge-refs"
-import { useGame } from "../../lib/use-game"
 import { useControls } from "leva"
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react"
+import { mergeRefs } from "react-merge-refs"
+import { Color, Euler, type Group, Object3D, Quaternion, Vector3 } from "three"
+
+import { useMesh } from "@/hooks/use-mesh"
+
+import { useConnector } from "../../lib/connector"
+import { useGame } from "../../lib/use-game"
+import { OnIntersectCallback, Sensor, SensorInterface } from "../../sensors"
 
 export interface CarProps {
   onIntersectionEnter?: OnIntersectCallback
@@ -127,3 +129,5 @@ const motoColliderScale = [1.5, 3.5, 9].map((s) => s / 2) as [
   number,
   number
 ]
+
+Car.displayName = "Car"
