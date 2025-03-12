@@ -190,6 +190,9 @@ export const sfxFragment = fragmentOn("Sfx", {
     },
     miamiHeatwave: {
       url: true
+    },
+    heli: {
+      url: true
     }
   },
   music: {
