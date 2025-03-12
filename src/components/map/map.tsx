@@ -42,6 +42,7 @@ import {
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
+import { SpeakerHover } from "../other/speaker-hover"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -565,6 +566,8 @@ export const Map = memo(() => {
       <ArcadeBoard />
       <BlogDoor />
       <LockedDoor />
+
+      <SpeakerHover />
 
       {/* TODO: shut down physics after x seconds of not being in blog scene */}
       {/* TODO: basketball should use the same physics world */}

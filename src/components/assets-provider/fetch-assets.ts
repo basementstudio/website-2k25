@@ -52,6 +52,7 @@ export interface AssetsResult {
     xRotationOffset: number
     sizeTarget: number
     scenes: string[]
+    fx: string
   }[]
   videos: {
     mesh: string
@@ -59,7 +60,6 @@ export interface AssetsResult {
     intensity: number
   }[]
   sfx: {
-    ambience: string
     basketballTheme: string
     basketballSwoosh: string
     basketballNet: string
@@ -86,7 +86,18 @@ export interface AssetsResult {
         press: string
         release: string
       }[]
+      miamiHeatwave: string
     }
+    music: {
+      aqua: string
+      rain: string
+      tiger: string
+      vhs: string
+    }
+    contact: {
+      interference: string
+    }
+    officeAmbience: string
   }
   scenes: {
     name: string
@@ -198,13 +209,13 @@ export async function fetchAssets(): Promise<AssetsResult> {
       yOffset: item.yOffset ?? 0,
       xRotationOffset: item.xRotationOffset ?? 0,
       sizeTarget: item.sizeTarget ?? 0,
-      scenes: item.scenes?.map((item) => item._title) ?? []
+      scenes: item.scenes?.map((item) => item._title) ?? [],
+      fx: item.fx?.url ?? ""
     })),
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
     sfx: {
-      ambience: threeDInteractions.sfx.ambience?.url ?? "",
       basketballTheme: threeDInteractions.sfx.basketballTheme?.url,
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url,
       basketballNet: threeDInteractions.sfx.basketballNet?.url,
@@ -232,8 +243,19 @@ export async function fetchAssets(): Promise<AssetsResult> {
         sticks: threeDInteractions.sfx.arcade.sticks.items.map((item) => ({
           press: item.press?.url ?? "",
           release: item.release?.url ?? ""
-        }))
-      }
+        })),
+        miamiHeatwave: threeDInteractions.sfx.arcade.miamiHeatwave?.url
+      },
+      contact: {
+        interference: threeDInteractions.sfx.contact.interference?.url ?? ""
+      },
+      music: {
+        aqua: threeDInteractions.sfx.music.aqua.url,
+        rain: threeDInteractions.sfx.music.rain.url,
+        tiger: threeDInteractions.sfx.music.tiger.url,
+        vhs: threeDInteractions.sfx.music.vhs.url
+      },
+      officeAmbience: threeDInteractions.sfx.officeAmbience.url
     },
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
