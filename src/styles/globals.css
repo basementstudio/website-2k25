@@ -81,7 +81,10 @@
     @apply active:animate-none;
   }
 
-  a[target="_blank"] {
+  a[target="_blank"],
+  a[target="_blank"] *,
+  a[href^="mailto:"],
+  a[href^="mailto:"] * {
     @apply cursor-alias;
   }
 

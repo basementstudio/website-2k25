@@ -90,11 +90,11 @@ export const BrandsMobile = ({ data }: { data: QueryType }) => {
           <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-brand-k to-transparent" />
           <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-brand-k to-transparent" />
           <Marquee instance={[ref1, marquee1]}>
-            <div className="flex w-full items-center">
+            <div className="flex w-full items-center gap-x-2">
               {rows[0].map((brand) => (
                 <div
                   key={brand._id}
-                  className="px-2 [&>svg]:h-8 [&>svg]:w-auto"
+                  className="[&>svg]:h-8 [&>svg]:w-auto"
                   dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
                 />
               ))}
@@ -106,11 +106,11 @@ export const BrandsMobile = ({ data }: { data: QueryType }) => {
           <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-brand-k to-transparent" />
           <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-brand-k to-transparent" />
           <Marquee instance={[ref2, marquee2]}>
-            <div className="flex w-full items-center">
+            <div className="flex w-full items-center gap-x-2">
               {rows[1].map((brand) => (
                 <div
                   key={brand._id}
-                  className="px-2 [&>svg]:h-8 [&>svg]:w-auto"
+                  className="[&>svg]:h-8 [&>svg]:w-auto"
                   dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
                 />
               ))}
@@ -122,11 +122,11 @@ export const BrandsMobile = ({ data }: { data: QueryType }) => {
           <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-brand-k to-transparent" />
           <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-brand-k to-transparent" />
           <Marquee instance={[ref3, marquee3]}>
-            <div className="flex w-full items-center">
+            <div className="flex w-full items-center gap-x-2">
               {rows[2].map((brand) => (
                 <div
                   key={brand._id}
-                  className="px-2 [&>svg]:h-8 [&>svg]:w-auto"
+                  className="[&>svg]:h-8 [&>svg]:w-auto"
                   dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
                 />
               ))}
