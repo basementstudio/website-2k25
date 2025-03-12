@@ -23,7 +23,12 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const phoneGroupRef = useRef<Group>(null)
   const idleTimeRef = useRef<number>(0)
   const lastPositionRef = useRef<Vector3 | null>(null)
+
   const [screenMatrix, setScreenMatrix] = useState<Matrix4>(new Matrix4())
+
+  const debugMeshRef = useRef<Mesh>(null)
+
+  const tmp = new Vector3()
 
   const isContactOpen = useWorkerStore((state) => state.isContactOpen)
   const isClosing = useWorkerStore((state) => state.isClosing)
@@ -113,6 +118,19 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
           ) as SkinnedMesh
           const screenbone = gltf.nodes.Obj as Bone
 
+          if (!debugMeshRef.current) return
+          screenbone.getWorldPosition(tmp)
+          tmp.add(new Vector3(0, 0.2, 0))
+          debugMeshRef.current.position.copy(tmp)
+
+          const screenPos = tmp.clone().project(camera)
+
+          const normalizedScreenPos = {
+            x: (screenPos.x + 1) / 2,
+            y: (-screenPos.y + 1) / 2,
+            z: screenPos.z
+          }
+
           self.postMessage({
             type: "scale-type",
             scale: "scale-up"
@@ -126,8 +144,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
                 screen.geometry.boundingBox?.getSize(new Vector3())?.x || 0,
               height:
                 screen.geometry.boundingBox?.getSize(new Vector3())?.y || 0
-            }
+            },
+            screenPos: normalizedScreenPos
           })
+
           idleTimeRef.current = 0
         }
       })
@@ -168,6 +188,26 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     if (isContactOpen && !isClosing) {
       idleTimeRef.current += delta
 
+      const screenbone = gltf.nodes.Obj as Bone
+      if (screenbone && debugMeshRef.current) {
+        screenbone.getWorldPosition(tmp)
+        tmp.add(new Vector3(-0.0342, 0.043, 0))
+        debugMeshRef.current.position.copy(tmp)
+
+        const screenPos = tmp.clone().project(camera)
+
+        const normalizedScreenPos = {
+          x: (screenPos.x + 1) / 2,
+          y: (-screenPos.y + 1) / 2,
+          z: screenPos.z
+        }
+
+        self.postMessage({
+          type: "update-screen-skinned-matrix",
+          screenPos: normalizedScreenPos
+        })
+      }
+
       const IDLE_TIMEOUT = Math.random() * 5 + 15
 
       if (idleTimeRef.current > IDLE_TIMEOUT) {
@@ -179,7 +219,11 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   return (
     <>
-      <group scale={1} ref={phoneGroupRef}>
+      <mesh ref={debugMeshRef} renderOrder={2} visible={false}>
+        <sphereGeometry args={[0.05, 32, 32]} />
+        <meshBasicMaterial color="green" depthTest={false} transparent />
+      </mesh>
+      <group scale={1} ref={phoneGroupRef} position={[0, 0, 0]}>
         <primitive object={gltf.scene} />
       </group>
     </>

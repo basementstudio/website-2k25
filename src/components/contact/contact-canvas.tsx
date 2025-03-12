@@ -53,7 +53,7 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         worker={worker}
         fallback={null}
         frameloop={isContactOpen ? "always" : "never"}
-        camera={{ position: [0, 0.082, 5.25], fov: 25 }}
+        camera={{ position: [0, 0.2, 2], fov: 10 }}
         gl={{ antialias: false }}
       />
     </>
