@@ -1,5 +1,6 @@
 import { submitContactForm } from "@/actions/contact-form"
 import { useEffect, useRef, useState } from "react"
+import { motion, useAnimation } from "motion/react"
 
 interface ContactScreenProps {
   worker: Worker
@@ -68,6 +69,8 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
   const updatePositionRef = useRef<(() => void) | null>(null)
   const [screenPosition, setScreenPosition] = useState({ x: 0.5, y: 0.5, z: 0 })
   const [scale, setScale] = useState(1)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const animation = useAnimation()
 
   const { formData, submitting, handleInputChange, handleSubmit, isValid } =
     useContactForm()
@@ -78,10 +81,15 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "update-screen-skinned-matrix") {
         const { screenPos } = e.data
-
         requestAnimationFrame(() => {
           setScreenPosition(screenPos)
         })
+      } else if (e.data.type === "intro-complete") {
+        setIsAnimating(true)
+      } else if (e.data.type === "scale-type") {
+        if (e.data.scale === "scale-down") {
+          setIsAnimating(false)
+        }
       }
     }
 
@@ -112,6 +120,30 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
     }
   }, [])
 
+  useEffect(() => {
+    if (isAnimating) {
+      animation.start({
+        scaleX: [0, 0, 1, 1],
+        scaleY: [0, 0.01, 0.01, 1],
+        transition: {
+          duration: 0.6,
+          times: [0, 0.2, 0.6, 1],
+          ease: "easeOut"
+        }
+      })
+    } else {
+      animation.start({
+        scaleX: [1, 1, 0, 0],
+        scaleY: [1, 0.01, 0.01, 0],
+        transition: {
+          duration: 0.6,
+          times: [0, 0.4, 0.8, 1],
+          ease: "easeIn"
+        }
+      })
+    }
+  }, [isAnimating, animation])
+
   return (
     <>
       <div
@@ -120,22 +152,26 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
           position: "absolute",
           left: `${screenPosition.x * 100}%`,
           top: `${screenPosition.y * 100}%`,
-          transform: `translate(-50%, -50%) `,
+          transform: `translate(-50%, -50%)`,
           zIndex: 100
         }}
       >
         <div
-          className="relative flex h-[300px] w-[510px] bg-transparent"
+          className="relative flex w-[510px] bg-transparent"
           style={{
             transform: `perspective(300px) rotateY(.5deg) scale(${scale})`,
-            transformOrigin: "center center"
+            transformOrigin: "center bottom"
           }}
         >
-          <div className="h-full w-full">
+          <motion.div
+            className="h-full w-full"
+            initial={{ scaleX: 0, scaleY: 0 }}
+            animate={animation}
+          >
             <div className="flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o">
               <form
                 onSubmit={handleSubmit}
-                className="relative flex h-full w-full flex-col justify-between border border-brand-o pb-4 pt-6 uppercase"
+                className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase"
               >
                 <fieldset className="absolute -top-[10px] left-[10px]">
                   <legend className="bg-black px-1">fill in the form</legend>
@@ -231,7 +267,7 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
                 </a>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </>

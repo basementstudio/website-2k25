@@ -148,6 +148,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
             screenPos: normalizedScreenPos
           })
 
+          self.postMessage({
+            type: "intro-complete"
+          })
+
           idleTimeRef.current = 0
         }
       })
@@ -188,6 +192,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     if (isContactOpen && !isClosing) {
       idleTimeRef.current += delta
 
+      const IDLE_TIMEOUT = Math.random() * 5 + 15
+
       const screenbone = gltf.nodes.Obj as Bone
       if (screenbone && debugMeshRef.current) {
         screenbone.getWorldPosition(tmp)
@@ -207,8 +213,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
           screenPos: normalizedScreenPos
         })
       }
-
-      const IDLE_TIMEOUT = Math.random() * 5 + 15
 
       if (idleTimeRef.current > IDLE_TIMEOUT) {
         //playRandomIdleAnimation()
