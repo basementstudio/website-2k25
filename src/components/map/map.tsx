@@ -80,6 +80,7 @@ const createVideoTexture = (url: string) => {
   videoElement.src = url
   videoElement.loop = true
   videoElement.muted = true
+  videoElement.playsInline = true
   videoElement.crossOrigin = "anonymous"
   videoElement.play()
 
