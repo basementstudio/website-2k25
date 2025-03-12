@@ -21,6 +21,7 @@ import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
 import { WebGlTunnelOut } from "./tunnel"
+import { XR, createXRStore } from "@react-three/xr"
 
 const HoopMinigame = dynamic(
   () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
@@ -54,6 +55,7 @@ export const Scene = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
+  const store = createXRStore()
 
   useEffect(() => {
     if (!isBasketball) clearPlayedBalls()
@@ -80,8 +82,15 @@ export const Scene = () => {
 
   return (
     <>
+      <button
+        onClick={() => store.enterVR()}
+        className="translate-x-[-50% bg-white] absolute left-1/2 top-14 z-50"
+      >
+        Enter VR
+      </button>
       <div className="absolute inset-0">
         <Debug />
+
         <Canvas
           id="canvas"
           ref={canvasRef}
@@ -97,42 +106,38 @@ export const Scene = () => {
           camera={{ fov: 60 }}
           className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none"
         >
-          <Renderer
-            sceneChildren={
-              <>
-                <Inspectables />
-                <Suspense fallback={null}>
-                  <Map />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <WebGlTunnelOut />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <CameraController />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <Sparkles />
-                </Suspense>
-                <Suspense fallback={null}>
-                  {isBasketball && (
-                    <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary>
-                        <HoopMinigame />
-                        <PlayedBasketballs />
-                      </ErrorBoundary>
-                    </PhysicsWorld>
-                  )}
-                </Suspense>
-                <Suspense fallback={null}>
-                  <StaticBasketballs />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <CharacterInstanceConfig />
-                  <CharactersSpawn />
-                </Suspense>
-              </>
-            }
-          />
+          <XR store={store}>
+            <Inspectables />
+            <Suspense fallback={null}>
+              <Map />
+            </Suspense>
+            <Suspense fallback={null}>
+              <WebGlTunnelOut />
+            </Suspense>
+            <Suspense fallback={null}>
+              <CameraController />
+            </Suspense>
+            <Suspense fallback={null}>
+              <Sparkles />
+            </Suspense>
+            <Suspense fallback={null}>
+              {isBasketball && (
+                <PhysicsWorld paused={!isBasketball}>
+                  <ErrorBoundary>
+                    <HoopMinigame />
+                    <PlayedBasketballs />
+                  </ErrorBoundary>
+                </PhysicsWorld>
+              )}
+            </Suspense>
+            <Suspense fallback={null}>
+              <StaticBasketballs />
+            </Suspense>
+            <Suspense fallback={null}>
+              <CharacterInstanceConfig />
+              <CharactersSpawn />
+            </Suspense>
+          </XR>
         </Canvas>
       </div>
       <MouseTracker />

@@ -62,8 +62,6 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             <LenisScrollProvider>
               <HtmlTunnelOut />
               <PathnameProvider>
-                <Navbar />
-
                 <NavigationHandler />
 
                 <ContentWrapper>{children}</ContentWrapper>
