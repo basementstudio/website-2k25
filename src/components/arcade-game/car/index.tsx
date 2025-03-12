@@ -2,7 +2,8 @@ import { useGLTF } from "@react-three/drei"
 import { forwardRef, useMemo } from "react"
 import { type Group } from "three"
 
-export const Car = forwardRef<Group>((props, ref) => {
+// eslint-disable-line
+export const Car = forwardRef<Group>(function InnerCar(props, ref) {
   const { nodes } = useGLTF("/low_poly_car_muscle_car_2.glb")
 
   const scene = useMemo(() => {
