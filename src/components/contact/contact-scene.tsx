@@ -78,8 +78,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
         if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
         if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
-        if ("transparent" in oldMaterial)
-          basicMaterial.transparent = oldMaterial.transparent
+
         if ("opacity" in oldMaterial)
           basicMaterial.opacity = oldMaterial.opacity
         node.material = basicMaterial
