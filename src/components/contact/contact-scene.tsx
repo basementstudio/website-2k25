@@ -226,7 +226,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   return (
     <>
-      <mesh ref={debugMeshRef} renderOrder={2} visible={true}>
+      <mesh ref={debugMeshRef} renderOrder={2} visible={false}>
         <sphereGeometry args={[0.05, 32, 32]} />
         <meshBasicMaterial color="green" depthTest={false} transparent />
       </mesh>

@@ -105,27 +105,36 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
 
   useEffect(() => {
     const updateScale = () => {
-      const minHeight = 310
-      const minWidth = 510
+      const baseHeight = 310
+      const baseWidth = 510
 
       const viewportHeight = window.innerHeight
       const viewportWidth = window.innerWidth
 
-      const heightScale = (viewportHeight * 0.25) / minHeight
-      const widthScale = (viewportWidth * 0.8) / minWidth
+      const availableHeight = viewportHeight * 0.9
+      const availableWidth = viewportWidth * 1
 
-      let newScale = Math.min(1, heightScale, widthScale)
+      const heightScale = availableHeight / baseHeight
+      const widthScale = availableWidth / baseWidth
 
-      if (viewportWidth > 1200 && viewportHeight > 800) {
-        const largeScreenScale = Math.min(
-          1.4,
-          (viewportHeight * 0.3) / minHeight,
-          (viewportWidth * 0.85) / minWidth
-        )
-        newScale = largeScreenScale
+      let baseScale = Math.min(heightScale, widthScale)
+
+      const minScale = 0.6
+      const maxScale = 1.4
+
+      let smoothScale
+
+      if (baseScale < 0.8) {
+        smoothScale = Math.max(minScale, baseScale)
+      } else if (baseScale > 1.5) {
+        smoothScale = maxScale * (1 - Math.exp(-baseScale + 1.5))
+      } else {
+        smoothScale = 0.8 + (baseScale - 0.8) * 0.5
       }
 
-      setScale(newScale)
+      const finalScale = Math.max(minScale, Math.min(maxScale, smoothScale))
+
+      setScale(finalScale)
     }
 
     updateScale()
