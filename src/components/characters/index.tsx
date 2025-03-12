@@ -138,6 +138,22 @@ export function Character({
           }}
         />
       )}
+
+      {/* Glasses */}
+      {characterConfiguration?.faceMorph === FaceMorphTargets.JJ && (
+        <CharacterPosition
+          timeSpeed={1}
+          geometryId={4}
+          initialTime={initialTime}
+          animationName={animationName}
+          uniforms={{
+            uMapIndex: {
+              value: -1
+            },
+            ...uniforms
+          }}
+        />
+      )}
     </group>
   )
 }

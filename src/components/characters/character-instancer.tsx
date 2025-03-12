@@ -28,7 +28,13 @@ export enum CharacterAnimationName {
   "Working" = "Working"
 }
 
-const SKINNED_MESH_KEYS = ["head", "body", "arms", "JJ-Hair"] as const
+const SKINNED_MESH_KEYS = [
+  "head",
+  "body",
+  "arms",
+  "JJ-Hair",
+  "jj-glass"
+] as const
 
 interface CharactersGLTF {
   nodes: {
