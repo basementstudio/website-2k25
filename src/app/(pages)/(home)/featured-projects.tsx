@@ -12,7 +12,7 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
   const p = data.pages.homepage.featuredProjects.projectList.items
 
   return (
-    <div className="grid-layout mt-12 !gap-y-4">
+    <div className="grid-layout !gap-y-4">
       {p.map((project, index) => (
         <div
           key={project._title}
