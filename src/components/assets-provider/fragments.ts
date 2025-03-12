@@ -237,6 +237,9 @@ export const arcadeFragment = fragmentOn("Arcade", {
   },
   sky: {
     url: true
+  },
+  cityscape: {
+    url: true
   }
 })
 
