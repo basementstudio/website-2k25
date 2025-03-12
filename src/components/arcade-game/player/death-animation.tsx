@@ -13,7 +13,7 @@ interface Particle {
   dead: boolean
 }
 
-const PARTICLE_COUNT = 400
+const PARTICLE_COUNT = 100
 const BOX_SIZE = 0.4
 
 export function DeathAnimation() {
@@ -22,7 +22,7 @@ export function DeathAnimation() {
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       particles.push({
-        color: Math.random() > 0.3 ? new Color("black") : new Color("blue"),
+        color: new Color("white"),
         position: new Vector3(
           Math.random() * 1,
           Math.random() * 2 + BOX_SIZE / 2,
@@ -71,9 +71,13 @@ export function DeathAnimation() {
   })
 
   return (
-    <ParticlesInstnaces limit={PARTICLE_COUNT} ref={instancesRef as any}>
+    <ParticlesInstnaces
+      limit={PARTICLE_COUNT}
+      ref={instancesRef as any}
+      frustumCulled={false}
+    >
       <boxGeometry args={[BOX_SIZE, BOX_SIZE, BOX_SIZE]} />
-      <meshStandardMaterial color="blue" />
+      <meshBasicMaterial color="#828282" />
       {particles.map((particle, index) => (
         <ParticleInstance
           key={index}

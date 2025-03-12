@@ -1,5 +1,6 @@
 "use client"
 
+import { MeshDiscardMaterial } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
@@ -13,7 +14,6 @@ import {
   Quaternion,
   Vector3
 } from "three"
-import { StoreApi, UseBoundStore } from "zustand"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
@@ -26,7 +26,6 @@ import { useAssets } from "../assets-provider"
 import { ICameraConfig } from "../navigation-handler/navigation.interface"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
-import { MeshDiscardMaterial } from "@react-three/drei"
 
 interface InspectableProps {
   id: string
@@ -195,7 +194,7 @@ export const Inspectable = memo(function InspectableInner({
       ])
 
       if (isNaN(s.x) || isNaN(s.y) || isNaN(s.z)) {
-        console.warn("Inspectable bounding box is NaN", id)
+        // TODO: we should be measuring an outer group to avoid the bounding box beeing nan the first time
         setTimeout(() => setFirstRender(true), 100)
       } else {
         size.current.x = s.x

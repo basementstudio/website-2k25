@@ -29,11 +29,13 @@
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.0",
     "@use-gesture/react": "^10.3.1",
+    "@vercel/functions": "^2.0.0",
     "basehub": "8.0.0-canary.27",
     "clsx": "^2.1.1",
     "glslify-loader": "^2.0.0",
     "lenis": "^1.1.20",
     "leva": "^0.9.35",
+    "lodash.throttle": "^4.1.1",
     "maath": "^0.10.8",
     "meshline": "^3.3.1",
     "motion": "12.0.0-alpha.2",
@@ -52,6 +54,7 @@
     "zustand": "^5.0.1"
   },
   "devDependencies": {
+    "@types/lodash.throttle": "^4.1.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

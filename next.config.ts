@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
         }
       }
     },
-    ppr: true
+    ppr: 'incremental'
   },
 
   images: {

@@ -1,4 +1,4 @@
-import { RichTextNode } from "basehub/api-transaction"
+import type { RichTextNode } from "basehub/api-transaction"
 import { RichText } from "basehub/react-rich-text"
 
 import { subscribe } from "@/app/actions/subscribe"
@@ -13,8 +13,8 @@ interface StayConnectedProps {
 
 export const StayConnected = ({ content, className }: StayConnectedProps) => {
   return (
-    <div className={cn("flex flex-col gap-4", className)}>
-      <div className="grid grid-cols-4 gap-2">
+    <div className={cn("flex flex-col gap-6", className)}>
+      <div className="grid grid-cols-4 gap-4">
         <RichText
           content={content}
           components={{
@@ -22,13 +22,17 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
               <p className="col-span-3 text-h3 text-brand-w2">{children}</p>
             ),
             p: ({ children }) => (
-              <p className="col-span-3 text-p text-brand-w2">{children}</p>
+              <p className="col-span-3 text-h4 text-brand-w2">{children}</p>
             )
           }}
         />
       </div>
-      <form action={subscribe} className="flex max-w-[26.25rem] flex-col gap-2">
+      <form
+        action={subscribe}
+        className="flex max-w-[26.25rem] flex-col gap-4 text-h4"
+      >
         <Input
+          className="!h-6 !px-1 text-h4 leading-none"
           placeholder="Enter your Email"
           required
           type="email"
@@ -36,10 +40,10 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
         />
         <button
           type="submit"
-          className="flex w-fit translate-y-1 items-center gap-1 text-p text-brand-g1"
+          className="flex w-fit translate-y-1 items-center gap-1 text-h4 leading-none text-brand-g1"
         >
-          <span className="actionable actionable-no-underline gap-x-1 font-bold">
-            Roll me in <Arrow className="size-4" />
+          <span className="actionable actionable-no-underline gap-x-1 font-bold leading-none">
+            Roll Me In <Arrow className="size-5" />
           </span>
         </button>
       </form>

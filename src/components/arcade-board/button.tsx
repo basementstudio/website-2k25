@@ -68,9 +68,12 @@ export const Button = ({ button }: { button: Mesh }) => {
     [
       scene,
       button.name,
-      button.userData.originalPosition,
+      button.userData.originalPosition.x,
+      button.userData.originalPosition.y,
+      button.userData.originalPosition.z,
       button.position,
-      playSoundFX
+      playSoundFX,
+      availableSounds
     ]
   )
 
