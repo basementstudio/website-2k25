@@ -200,6 +200,12 @@ export const arcadeFragment = fragmentOn("Arcade", {
   },
   looper: {
     url: true
+  },
+  palm: {
+    url: true
+  },
+  sky: {
+    url: true
   }
 })
 
