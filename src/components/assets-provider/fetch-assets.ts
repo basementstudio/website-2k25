@@ -30,6 +30,8 @@ export interface AssetsResult {
     boot: string
     chronicles: string
     looper: string
+    palm: string
+    skybox: string
   }
   glassReflexes: {
     mesh: string
@@ -183,7 +185,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
       placeholderLab: threeDInteractions.arcade.placeholderLab?.url ?? "",
       boot: threeDInteractions.arcade.boot?.url ?? "",
       chronicles: threeDInteractions.arcade.chronicles?.url ?? "",
-      looper: threeDInteractions.arcade.looper?.url ?? ""
+      looper: threeDInteractions.arcade.looper?.url ?? "",
+      palm: threeDInteractions.arcade.palm.url,
+      skybox: threeDInteractions.arcade.sky.url
     },
     videos: threeDInteractions.map.videos.items.map((item) => ({
       mesh: item._title,

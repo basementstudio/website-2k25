@@ -1,3 +1,5 @@
+import { useMotionValue, useMotionValueEvent } from "motion/react"
+import { animate } from "motion/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { memo } from "react"
@@ -8,6 +10,7 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useCursor } from "@/hooks/use-mouse"
 
+import { valueRemap } from "../arcade-game/lib/math"
 import fragmentShader from "./frag.glsl"
 import { RoutingPlus } from "./routing-plus"
 import vertexShader from "./vert.glsl"
@@ -19,30 +22,38 @@ interface RoutingElementProps {
   groupName?: string
 }
 
-export const routingMaterial = new ShaderMaterial({
-  depthWrite: false,
-  depthTest: false,
-  transparent: true,
-  fragmentShader: fragmentShader,
-  vertexShader: vertexShader,
-  uniforms: {
-    resolution: { value: [] }
-  }
-})
-
-const updateMaterialResolution = () => {
-  routingMaterial.uniforms.resolution.value = [
-    window.innerWidth,
-    window.innerHeight
-  ]
-}
-
 const RoutingElementComponent = ({
   node,
   route,
   hoverName,
   groupName
 }: RoutingElementProps) => {
+  const { routingMaterial, updateMaterialResolution } = useMemo(() => {
+    const routingMaterial = new ShaderMaterial({
+      depthWrite: false,
+      depthTest: false,
+      transparent: true,
+      fragmentShader: fragmentShader,
+      vertexShader: vertexShader,
+      uniforms: {
+        resolution: { value: [] },
+        opacity: { value: 0 },
+        borderPadding: { value: 0 }
+      }
+    })
+
+    // routingMaterial.customProgramCacheKey = () => "routing-element-material"
+
+    const updateMaterialResolution = () => {
+      routingMaterial.uniforms.resolution.value = [
+        window.innerWidth,
+        window.innerHeight
+      ]
+    }
+
+    return { routingMaterial, updateMaterialResolution }
+  }, [])
+
   const router = useRouter()
   const pathname = usePathname()
   const setCursor = useCursor("default")
@@ -229,15 +240,40 @@ const RoutingElementComponent = ({
     return () => window.removeEventListener("resize", onResize)
   }, [])
 
+  const outlinesRef = useRef<Mesh>(null)
+  const crossRef = useRef<Mesh>(null)
+
+  const visibility = useMotionValue(0)
+
+  useEffect(() => {
+    const animation = animate(visibility, hover ? 1 : 0, {
+      duration: 0.16,
+      ease: "circOut"
+    })
+
+    return () => animation.stop()
+  }, [hover])
+
+  useMotionValueEvent(visibility, "change", (v) => {
+    const outlines = meshRef.current
+    const cross = crossRef.current
+    if (!outlines || !cross) return
+
+    const s = valueRemap(v, 0, 1, 10, 0)
+    routingMaterial.uniforms.borderPadding.value = s
+    routingMaterial.uniforms.opacity.value = v
+  })
+
   return (
     <>
       <group
+        ref={outlinesRef}
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
         onClick={handleClick}
         position={[node.position.x, node.position.y, node.position.z]}
         rotation={node.rotation}
-        visible={hover}
+        visible={true}
       >
         <mesh
           ref={meshRef}
@@ -250,6 +286,7 @@ const RoutingElementComponent = ({
         position={[node.position.x, node.position.y, node.position.z]}
         rotation={node.rotation}
         visible={hover && !groupName}
+        ref={crossRef}
       >
         <RoutingPlus geometry={node.geometry} />
       </group>
