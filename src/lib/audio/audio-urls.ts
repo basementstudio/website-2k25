@@ -5,7 +5,14 @@ export function useAudioUrls() {
 
   return {
     AMBIENCE: {
-      AMBIENCE: sfx.ambience
+      AMBIENCE_DEFAULT: sfx.music.tiger,
+      AMBIENCE_RAIN: sfx.music.rain,
+      AMBIENCE_AQUA: sfx.music.aqua,
+      AMBIENCE_TIGER: sfx.music.tiger,
+      AMBIENCE_VHS: sfx.music.vhs
+    },
+    OFFICE_AMBIENCE: {
+      OFFICE_AMBIENCE_DEFAULT: sfx.officeAmbience
     },
     GAME_THEME_SONGS: {
       BASKETBALL_AMBIENT: sfx.basketballTheme
@@ -36,7 +43,11 @@ export function useAudioUrls() {
       STICKS: sfx.arcade.sticks.map((item) => ({
         PRESS: item.press,
         RELEASE: item.release
-      }))
+      })),
+      MIAMI_HEATWAVE: sfx.arcade.miamiHeatwave
+    },
+    CONTACT_AUDIO_SFX: {
+      INTERFERENCE: sfx.contact.interference
     }
   } as const
 }

@@ -251,3 +251,38 @@ a:focus {
     background-color: rgba(0, 0, 0, 1);
   }
 }
+
+@keyframes marquee-translate {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.marquee-container::before,
+.marquee-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.marquee-container::before {
+  left: 0;
+  background: linear-gradient(to right, black, transparent);
+}
+
+.marquee-container::after {
+  right: 0;
+  background: linear-gradient(to left, black, transparent);
+}

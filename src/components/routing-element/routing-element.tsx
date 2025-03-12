@@ -1,3 +1,5 @@
+import { useMotionValue, useMotionValueEvent } from "motion/react"
+import { animate } from "motion/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { memo } from "react"
@@ -8,13 +10,10 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useCursor } from "@/hooks/use-mouse"
 
+import { valueRemap } from "../arcade-game/lib/math"
 import fragmentShader from "./frag.glsl"
 import { RoutingPlus } from "./routing-plus"
 import vertexShader from "./vert.glsl"
-import { useMotionValue, useMotionValueEvent } from "motion/react"
-import { valueRemap } from "../arcade-game/lib/math"
-import { animate } from "motion/react"
-import { useFrame } from "@react-three/fiber"
 
 interface RoutingElementProps {
   node: Mesh
