@@ -1,7 +1,9 @@
+import { useCallback, useState } from "react"
+
 import { useCursor } from "@/hooks/use-mouse"
-import { routingMaterial } from "../routing-element/routing-element"
-import { useState, useCallback } from "react"
 import { useSkipTrack } from "@/hooks/use-skip-track"
+
+import { routingMaterial } from "../routing-element/routing-element"
 
 export const SpeakerHover = () => {
   const [hover, setHover] = useState(false)
@@ -10,7 +12,7 @@ export const SpeakerHover = () => {
 
   const handlePointerEnter = useCallback(() => {
     setHover(true)
-    setCursor("pointer", "Play Next")
+    setCursor("pointer", "Now Playing: Aquiescence - Oasis", true)
   }, [setCursor])
 
   const handlePointerLeave = useCallback(() => {

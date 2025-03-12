@@ -33,13 +33,17 @@ interface MouseStore {
   setHoverText: (text: string | null) => void
   cursorType: CursorType
   setCursorType: (type: CursorType) => void
+  marquee: boolean | null
+  setMarquee: (marquee: boolean | null) => void
 }
 
 export const useMouseStore = create<MouseStore>((set) => ({
   hoverText: null,
   setHoverText: (text: string | null) => set({ hoverText: text }),
   cursorType: "default",
-  setCursorType: (type: CursorType) => set({ cursorType: type })
+  setCursorType: (type: CursorType) => set({ cursorType: type }),
+  marquee: null,
+  setMarquee: (marquee: boolean | null) => set({ marquee })
 }))
 
 function debounce<T extends (...args: any[]) => any>(
@@ -60,6 +64,7 @@ export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
 
   const explDomElement = connected || gl.domElement
   const setHoverText = useMouseStore((state) => state.setHoverText)
+  const setMarquee = useMouseStore((state) => state.setMarquee)
 
   useEffect(() => {
     explDomElement.style.cursor = defaultStyle
@@ -72,15 +77,22 @@ export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
   }, [defaultStyle, explDomElement, gl.domElement, setHoverText])
 
   const setCursor = useCallback(
-    (newStyle: useCursorProps["style"], text?: string | null) => {
+    (
+      newStyle: useCursorProps["style"],
+      text?: string | null,
+      marquee?: boolean | null
+    ) => {
       if (explDomElement) {
         explDomElement.style.cursor = newStyle
         if (text !== undefined) {
           setHoverText(text)
         }
+        if (marquee !== undefined) {
+          setMarquee(marquee)
+        }
       }
     },
-    [explDomElement, setHoverText]
+    [explDomElement, setHoverText, setMarquee]
   )
 
   return setCursor
@@ -95,6 +107,7 @@ export const MouseTracker = memo(() => {
   const springY = useSpring(y, springConfig)
 
   const hoverText = useMouseStore((state) => state.hoverText)
+  const marquee = useMouseStore((state) => state.marquee)
   const mouseElementRef = useRef<HTMLDivElement>(null)
 
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
@@ -176,7 +189,7 @@ export const MouseTracker = memo(() => {
           style={{ x: springX, y: springY }}
           {...animationProps}
         >
-          [{hoverText}]
+          {!marquee ? `[${hoverText}]` : <div>This will be a marquee</div>}
         </motion.div>
       )}
     </AnimatePresence>
