@@ -208,9 +208,12 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
           z: screenPos.z
         }
 
+        const scale = 1 + idleTimeRef.current * 0.1
+
         self.postMessage({
           type: "update-screen-skinned-matrix",
-          screenPos: normalizedScreenPos
+          screenPos: normalizedScreenPos,
+          scale: scale
         })
       }
 
@@ -223,7 +226,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   return (
     <>
-      <mesh ref={debugMeshRef} renderOrder={2} visible={false}>
+      <mesh ref={debugMeshRef} renderOrder={2} visible={true}>
         <sphereGeometry args={[0.05, 32, 32]} />
         <meshBasicMaterial color="green" depthTest={false} transparent />
       </mesh>

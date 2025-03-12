@@ -106,8 +106,25 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
   useEffect(() => {
     const updateScale = () => {
       const minHeight = 310
+      const minWidth = 510
+
       const viewportHeight = window.innerHeight
-      const newScale = Math.min(1, (viewportHeight * 0.32) / minHeight)
+      const viewportWidth = window.innerWidth
+
+      const heightScale = (viewportHeight * 0.25) / minHeight
+      const widthScale = (viewportWidth * 0.8) / minWidth
+
+      let newScale = Math.min(1, heightScale, widthScale)
+
+      if (viewportWidth > 1200 && viewportHeight > 800) {
+        const largeScreenScale = Math.min(
+          1.4,
+          (viewportHeight * 0.3) / minHeight,
+          (viewportWidth * 0.85) / minWidth
+        )
+        newScale = largeScreenScale
+      }
+
       setScale(newScale)
     }
 
@@ -159,8 +176,8 @@ const ContactScreen = ({ worker }: ContactScreenProps) => {
         <div
           className="relative flex w-[510px] bg-transparent"
           style={{
-            transform: `perspective(300px) rotateY(.5deg) scale(${scale})`,
-            transformOrigin: "center bottom"
+            transform: `perspective(400px) rotateY(0.5deg) scale(${scale})`,
+            transformOrigin: "center center"
           }}
         >
           <motion.div
