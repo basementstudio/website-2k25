@@ -60,7 +60,7 @@ const AccordionListItem = memo(
               <p>{item.project?.client?._title}</p>
             </div>
 
-            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty text-p leading-none text-brand-w2">
+            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-p leading-none text-brand-w2">
               {item.project?.categories?.map((cat, idx) => (
                 <span key={cat._title}>
                   {cat._title}
