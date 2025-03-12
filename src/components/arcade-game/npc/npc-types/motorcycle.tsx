@@ -5,9 +5,8 @@ import { useFrame } from "@react-three/fiber"
 
 import { CHUNK_SIZE, getMovementAmount, useRoad } from "../../road/use-road"
 import { normalizeDelta } from "../../lib/math"
-import { COLORS } from "../../lib/colors"
 import { useGame } from "../../lib/use-game"
-import { Motorcycle } from "../../motorcycle"
+import { Car } from "../../entities/car"
 
 export const MotorcycleNpc = ({ id, startingPosition }: NpcTypeMotorcycle) => {
   const npcPos = useRef(new Vector3(...startingPosition))
@@ -40,11 +39,5 @@ export const MotorcycleNpc = ({ id, startingPosition }: NpcTypeMotorcycle) => {
     }
   })
 
-  return (
-    <Motorcycle
-      position={startingPosition}
-      color={COLORS.redLight}
-      ref={vehicleRef}
-    />
-  )
+  return <Car position={startingPosition} ref={vehicleRef} />
 }

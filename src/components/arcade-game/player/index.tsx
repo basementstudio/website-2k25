@@ -11,6 +11,7 @@ import { DEFAULT_SPEED, lineWidth, useRoad } from "../road/use-road"
 import { Motorcycle } from "../motorcycle"
 import { DeathAnimation } from "./death-animation"
 import { useKeyControls, useStickControls } from "../lib/use-controls"
+import { Car } from "../entities/car"
 
 const maxRotation = Math.PI
 
@@ -127,10 +128,7 @@ export const Player = () => {
         </group>
       ) : (
         <group>
-          <Motorcycle
-            onIntersectionEnter={onIntersectionEnterCallback}
-            ref={carRef}
-          />
+          <Car onIntersectionEnter={onIntersectionEnterCallback} ref={carRef} />
         </group>
       )}
     </group>
