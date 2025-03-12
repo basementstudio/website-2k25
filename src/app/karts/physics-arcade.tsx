@@ -42,7 +42,7 @@ const WHEEL = {
 } as const
 
 const CAMERA = {
-  position: new THREE.Vector3(0, 0.06, 0.4),
+  position: new THREE.Vector3(0, 0.22, 2.9),
   lookAt: new THREE.Vector3(0, 0.07, 0)
 }
 
