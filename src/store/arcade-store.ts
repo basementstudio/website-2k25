@@ -1,5 +1,6 @@
-import { LabTab } from "@/components/arcade-screen/screen-ui"
 import { create } from "zustand"
+
+import { LabTab } from "@/components/arcade-screen/screen-ui"
 
 interface ArcadeStore {
   isInGame: boolean

@@ -1,6 +1,14 @@
 "use client"
 
-import { AnimatePresence, motion, type Variants } from "motion/react"
+import throttle from "lodash.throttle"
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  type Variants
+} from "motion/react"
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
@@ -13,8 +21,34 @@ import { formatDate } from "@/utils/format-date"
 import type { QueryType } from "./query"
 
 const IMAGE_HEIGHT = 307.73
-const GRID_COLS = 8
-const GRID_ROWS = 10
+const GRID_COLS = 6
+const GRID_ROWS = 8
+
+// Optimized hook for mouse position with throttling
+const useThrottledMousePosition = (delay = 16) => {
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+
+  const { x, y } = useMousePosition()
+
+  // Update positions with throttling
+  const updateMousePosition = useMemo(
+    () =>
+      throttle((newX: number, newY: number) => {
+        mouseX.set(newX)
+        mouseY.set(newY)
+      }, delay),
+    [mouseX, mouseY, delay]
+  )
+
+  useEffect(() => {
+    if (x !== null && y !== null) {
+      updateMousePosition(x, y)
+    }
+  }, [x, y, updateMousePosition])
+
+  return { mouseX, mouseY }
+}
 
 export const Awards = ({ data }: { data: QueryType }) => {
   const isDesktop = useMedia("(min-width: 1024px)")
@@ -23,7 +57,26 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [translateY, setTranslateY] = useState(0)
   const [currentImageId, setCurrentImageId] = useState<number | null>(null)
   const [isRevealing, setIsRevealing] = useState(false)
-  const { x, y } = useMousePosition()
+
+  // Use the throttled version for better performance
+  const { mouseX, mouseY } = useThrottledMousePosition()
+
+  // Transform position values directly
+  const rawCertificateX = useTransform(mouseX, (x) => x - 232 / 2)
+  const rawCertificateY = useTransform(mouseY, (y) => y - 308 / 2)
+
+  // Add spring effect for natural movement
+  const certificateX = useSpring(rawCertificateX, {
+    stiffness: 1000,
+    damping: 50,
+    mass: 0.05
+  })
+
+  const certificateY = useSpring(rawCertificateY, {
+    stiffness: 1000,
+    damping: 50,
+    mass: 0.05
+  })
 
   const certificateDimensions = { width: 232, height: 307.73 }
 
@@ -172,14 +225,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
       </div>
       {isDesktop && (
         <motion.div
-          animate={{
-            translateX: x! - 232 / 2,
-            translateY: y! - 308 / 2,
-            transition: {
-              type: "spring",
-              mass: 0.05
-            }
-          }}
           style={{
             position: "fixed",
             top: 0,
@@ -189,7 +234,10 @@ export const Awards = ({ data }: { data: QueryType }) => {
             width: 232,
             height: 308,
             overflow: "hidden",
-            pointerEvents: "none"
+            pointerEvents: "none",
+            x: certificateX,
+            y: certificateY,
+            willChange: "transform"
           }}
         >
           {/* SVG Mask for grid reveal */}

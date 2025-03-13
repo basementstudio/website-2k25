@@ -51,8 +51,12 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
             <div className="with-dots h-full w-full after:absolute after:inset-0">
               <Image
                 src={image?.url || ""}
+                width={image?.width}
+                height={image?.height}
                 alt={image?.alt || ""}
                 fill
+                blurDataURL={image?.blurDataURL}
+                placeholder="blur"
                 className="object-cover"
               />
             </div>

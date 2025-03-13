@@ -1,6 +1,6 @@
 import {
   RichText as BaseRichText,
-  RichTextProps
+  type RichTextProps
 } from "basehub/react-rich-text"
 
 import { Link } from "@/components/primitives/link"
@@ -20,7 +20,9 @@ export const RichText = ({ children, components }: CustomRichTextProps) => {
             <span className="actionable">{children}</span>
           </Link>
         ),
-        p: ({ children }) => <p className="text-p text-brand-w2">{children}</p>,
+        p: ({ children }) => (
+          <p className="text-balance text-p text-brand-w2">{children}</p>
+        ),
         ul: ({ children }) => <ul className="list-disc">{children}</ul>,
         ol: ({ children }) => <ol className="list-decimal">{children}</ol>,
         li: ({ children }) => <li className="text-brand-w1">{children}</li>,

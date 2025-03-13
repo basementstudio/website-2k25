@@ -1,20 +1,20 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import Image from "next/image"
-import { memo, useCallback, useEffect, useState } from "react"
+import Link from "next/link"
+import { memo, useCallback, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
-import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
-import { FilteredProjectType } from "./project-list"
+import { Project } from "./basehub"
 
 const AccordionListItem = memo(
   ({
-    item,
+    project,
     index,
     disabled
   }: {
-    item: FilteredProjectType
+    project: Project
     index: number
     disabled: boolean
   }) => {
@@ -50,31 +50,31 @@ const AccordionListItem = memo(
           >
             <div className="relative col-span-4 flex items-center gap-2 text-h3 text-brand-w2 transition-opacity duration-300">
               <Image
-                src={item.project?.icon?.url ?? ""}
-                alt={item.project?.icon?.alt ?? ""}
-                width={item.project?.icon?.width ?? 0}
-                height={item.project?.icon?.height ?? 0}
+                src={project.icon?.url ?? ""}
+                alt={project.icon?.alt ?? ""}
+                width={project.icon?.width ?? 0}
+                height={project.icon?.height ?? 0}
                 className="mb-px size-4.5 rounded-full border border-brand-w1/10"
                 priority
               />
-              <p>{item.project?.client?._title}</p>
+              <p>{project.client?._title}</p>
             </div>
 
             <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty text-p leading-none text-brand-w2">
-              {item.project?.categories?.map((cat, idx) => (
+              {project.categories?.map((cat, idx) => (
                 <span key={cat._title}>
                   {cat._title}
-                  {idx !== (item.project?.categories?.length ?? 0) - 1 && (
+                  {idx !== (project.categories?.length ?? 0) - 1 && (
                     <span className="inline-block px-1 text-brand-g1">,</span>
                   )}
                 </span>
               ))}
             </p>
             <p className="relative col-start-11 col-end-12 text-left text-p text-brand-w2">
-              {item.project?.year}
+              {project.year}
             </p>
             <Link
-              href={`/showcase/${item.project?._slug}`}
+              href={`/showcase/${project?._slug}`}
               className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 opacity-0 transition-opacity duration-300"
             >
               <span className="actionable">View Work</span>{" "}
@@ -90,11 +90,9 @@ const AccordionListItem = memo(
               "data-[state=open]:h-auto data-[state=open]:translate-y-0 data-[state=open]:opacity-100",
               disabled && "opacity-30"
             )}
-            // force mount to preload images
-            forceMount
           >
             <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
-              {item.project?.showcase?.items.slice(0, 6).map((item, index) => {
+              {project.showcase?.items.map((item, index) => {
                 if (item.video) {
                   return (
                     <video
@@ -116,6 +114,8 @@ const AccordionListItem = memo(
                     width={item.image?.width ?? 0}
                     height={item.image?.height ?? 0}
                     className="col-span-2"
+                    blurDataURL={item.image?.blurDataURL ?? ""}
+                    placeholder="blur"
                     priority
                   />
                 )
@@ -130,14 +130,14 @@ const AccordionListItem = memo(
 AccordionListItem.displayName = "AccordionListItem"
 
 export const List = memo(
-  ({ projects }: { projects: FilteredProjectType[] }) => {
+  ({
+    projects,
+    isProjectDisabled
+  }: {
+    projects: Project[]
+    isProjectDisabled: (project: Project) => boolean
+  }) => {
     const [itemOpen, setItemOpen] = useState<string>()
-
-    useEffect(() => {
-      if (itemOpen && projects[parseInt(itemOpen)].disabled) {
-        setItemOpen("")
-      }
-    }, [projects, itemOpen])
 
     const handleValueChange = useCallback((value: string) => {
       setItemOpen(value)
@@ -155,9 +155,9 @@ export const List = memo(
         {projects.map((item, index) => (
           <AccordionListItem
             key={item._title + index}
-            item={item}
+            project={item}
             index={index}
-            disabled={!!item.disabled}
+            disabled={isProjectDisabled(item)}
           />
         ))}
       </AccordionPrimitive.Root>

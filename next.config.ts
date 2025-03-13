@@ -3,7 +3,6 @@ import type { NextConfig } from "next"
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   experimental: {
-    //dynamicIO: true,
     turbo: {
       rules: {
         "*.{glsl,vert,frag,vs,fs}": {
@@ -12,7 +11,7 @@ const nextConfig: NextConfig = {
         }
       }
     },
-    ppr: 'incremental'
+    ppr: "incremental"
   },
 
   images: {

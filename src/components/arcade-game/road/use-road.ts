@@ -1,5 +1,6 @@
 /** The road store will handle the obstacles that the player runs into. */
 import { create } from "zustand"
+
 import { getNewChunk } from "./get-chunk"
 
 /** Max lines on the road */
@@ -32,7 +33,7 @@ export const getMovementAmount = (speed: number, delta: number) =>
 const initialChunks = Array.from({ length: TOTAL_CHUNKS }, () => getNewChunk())
 
 export const DEFAULT_SPEED = 0.0
-export const GAME_SPEED = 0.04
+export const GAME_SPEED = 0.08
 
 export const useRoad = create<RoadStore>((set) => ({
   speedRef: { current: DEFAULT_SPEED },
