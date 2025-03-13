@@ -7,10 +7,34 @@ import { useAssets } from "../assets-provider"
 import { useContactStore } from "./contact-store"
 import ContactScreen from "./contact-screen"
 
-const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
+const ContactCanvas = () => {
   const { contactPhone } = useAssets()
-  const [worker, setWorker] = useState<Worker>()
+  const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
+  const isContactOpen = useContactStore((state) => state.isContactOpen)
+  const [shouldRender, setShouldRender] = useState(false)
+
+  useEffect(() => {
+    if (isContactOpen) {
+      setShouldRender(true)
+    } else if (!isContactOpen && shouldRender) {
+      const safetyTimer = setTimeout(() => {
+        setShouldRender(false)
+      }, 3500)
+      return () => clearTimeout(safetyTimer)
+    }
+  }, [isContactOpen, shouldRender])
+
+  useEffect(() => {
+    if (!worker) return
+
+    const handleWorkerMessage = (e: MessageEvent) => {
+      if (e.data.type === "outro-complete") setShouldRender(false)
+    }
+
+    worker.addEventListener("message", handleWorkerMessage)
+    return () => worker.removeEventListener("message", handleWorkerMessage)
+  }, [worker])
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -19,7 +43,6 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         type: "module"
       }
     )
-    setWorker(newWorker)
     setStoreWorker(newWorker)
 
     if (contactPhone) {
@@ -48,11 +71,11 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
 
   return (
     <>
-      <ContactScreen worker={worker} />
+      <ContactScreen />
       <OffscreenCanvas
         worker={worker}
         fallback={null}
-        frameloop={isContactOpen ? "always" : "never"}
+        frameloop={shouldRender ? "always" : "never"}
         camera={{ position: [0, 0.2, 2], fov: 10 }}
         gl={{ antialias: false }}
       />

@@ -1,10 +1,7 @@
 import { submitContactForm } from "@/actions/contact-form"
 import { useEffect, useRef, useState } from "react"
 import { motion, useAnimation } from "motion/react"
-
-interface ContactScreenProps {
-  worker: Worker
-}
+import { useContactStore } from "./contact-store"
 
 interface FormData {
   name: string
@@ -64,13 +61,14 @@ const useContactForm = () => {
   return { formData, submitting, handleInputChange, handleSubmit, isValid }
 }
 
-const ContactScreen = ({ worker }: ContactScreenProps) => {
+const ContactScreen = () => {
   const contentRef = useRef<HTMLDivElement>(null)
   const updatePositionRef = useRef<(() => void) | null>(null)
   const [screenPosition, setScreenPosition] = useState({ x: 0.5, y: 0.5, z: 0 })
   const [scale, setScale] = useState(1)
   const [isAnimating, setIsAnimating] = useState(false)
   const animation = useAnimation()
+  const worker = useContactStore((state) => state.worker)
 
   const { formData, submitting, handleInputChange, handleSubmit, isValid } =
     useContactForm()

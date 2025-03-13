@@ -103,9 +103,7 @@ export const Scene = () => {
               sceneChildren={
                 <>
                   <Inspectables />
-                  <Suspense fallback={null}>
-                    <Map />
-                  </Suspense>
+
                   <Suspense fallback={null}>
                     <WebGlTunnelOut />
                   </Suspense>
@@ -127,10 +125,6 @@ export const Scene = () => {
                   </Suspense>
                   <Suspense fallback={null}>
                     <StaticBasketballs />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <CharacterInstanceConfig />
-                    <CharactersSpawn />
                   </Suspense>
                 </>
               }

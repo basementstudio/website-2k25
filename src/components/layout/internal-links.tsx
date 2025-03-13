@@ -35,7 +35,6 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => {
       ))}
       <li>
         <button
-          disabled={isContactOpen}
           onClick={() => setIsContactOpen(!isContactOpen)}
           className="flex gap-x-0.5 text-h2 text-brand-w1"
         >

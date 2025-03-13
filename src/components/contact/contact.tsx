@@ -11,7 +11,8 @@ import ContactCanvas from "./contact-canvas"
 import { useContactStore } from "./contact-store"
 
 const Contact = () => {
-  const { isContactOpen, isClosing, setIsContactOpen } = useContactStore()
+  const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
+  const isContactOpen = useContactStore((state) => state.isContactOpen)
   const { playSoundFX } = useSiteAudio()
   const scene = useCurrentScene()
   const isPeople = scene === "people"
@@ -21,17 +22,11 @@ const Contact = () => {
   useKeyPress(
     "Escape",
     useCallback(() => {
-      if (isContactOpen) {
-        setIsContactOpen(false)
-      }
-    }, [isContactOpen, setIsContactOpen])
+      setIsContactOpen(false)
+    }, [])
   )
 
   useDisableScroll(isContactOpen)
-
-  useEffect(() => {
-    setIsContactOpen(false)
-  }, [scene, setIsContactOpen])
 
   useEffect(() => {
     if (isPeople || isBlog) {
@@ -41,30 +36,15 @@ const Contact = () => {
     }
   }, [isContactOpen, isPeople, isBlog, playSoundFX])
 
-  useEffect(() => {
-    if (isContactOpen) {
-      const timer = setTimeout(() => {
-        window.dispatchEvent(new Event("resize"))
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-  }, [isContactOpen])
-
   return (
     <>
-      <div
-        className={cn(
-          "fixed inset-0 z-50",
-          isContactOpen ? "block" : "pointer-events-none hidden"
-        )}
-      >
-        <ContactCanvas isContactOpen={isContactOpen} />
+      <div className={cn("fixed inset-0 z-50 block")}>
+        <ContactCanvas />
       </div>
-
       <div
         className={cn(
-          "pointer-events-none fixed inset-0 z-40 bg-black/90 transition-[backdrop-filter,opacity] duration-1000",
-          !isContactOpen || isClosing ? "opacity-0" : "opacity-100"
+          "duration-600 pointer-events-none fixed inset-0 z-40 bg-black/90 transition-[backdrop-filter,opacity]",
+          !isContactOpen ? "opacity-0" : "opacity-100"
         )}
       />
     </>
