@@ -77,10 +77,17 @@ const HoopMinigameInner = () => {
   const isThrowable = useRef(true)
   const isUnmounting = useRef(false)
 
+  // Add a ref to track if the timer is ending
+  const isTimerEnding = useRef(false)
+  // Add a ref to track if the timer is below 0.4 seconds
+  const isTimerLow = useRef(false)
+
   const resetState = useCallback(() => {
     resetProgress.current = 0
     bounceCount.current = 0
     isThrowable.current = true
+    isTimerEnding.current = false
+    isTimerLow.current = false
     setIsResetting(false)
     setIsDragging(false)
     setTimeRemaining(gameDuration)
@@ -187,8 +194,19 @@ const HoopMinigameInner = () => {
 
   const resetBallToInitialPosition = useCallback(
     (position?: { x: number; y: number; z: number }) => {
-      if (!isBasketball || !ballRef.current) return
+      // Don't reset if timer is ending or component is unmounting
+      if (
+        !isBasketball ||
+        !ballRef.current ||
+        isTimerEnding.current ||
+        isUnmounting.current
+      )
+        return
+
       try {
+        // If already resetting, don't start another reset
+        if (isResetting) return
+
         // Create a new Vector3 instead of copying to avoid aliasing
         startResetPos.current = new Vector3(
           position?.x ?? initialPosition.x,
@@ -220,7 +238,8 @@ const HoopMinigameInner = () => {
       isBasketball,
       resetConsecutiveScores,
       justScored,
-      setJustScored
+      setJustScored,
+      isResetting
     ]
   )
 
@@ -232,12 +251,30 @@ const HoopMinigameInner = () => {
 
       setIsGameActive(true)
       setTimeRemaining(gameDuration)
+      isTimerLow.current = false
 
       timerInterval.current = setInterval(() => {
         setTimeRemaining((prev) => {
+          // Check if timer is below 0.4 seconds
+          if (prev <= 0.4) {
+            isTimerLow.current = true
+
+            // If the user is currently dragging the ball, release it
+            if (isDragging && ballRef.current) {
+              setIsDragging(false)
+              ballRef.current.setBodyType(0, true)
+            }
+          }
+
           if (prev <= 1) {
             if (timerInterval.current) {
               clearInterval(timerInterval.current)
+              timerInterval.current = null
+
+              // When timer is below 1 second, let the ball fall naturally
+              // Set a flag to prevent any reset attempts
+              isTimerEnding.current = true
+              isTimerLow.current = true
 
               // release ball if held after game timeout
               if (isDragging && ballRef.current) {
@@ -245,27 +282,25 @@ const HoopMinigameInner = () => {
                 ballRef.current.setBodyType(0, true)
               }
 
-              // If the ball is currently resetting, wait for it to finish
+              // If the ball is currently resetting, cancel the reset
               if (isResetting) {
-                console.log("Ball is resetting, waiting to end game...")
-                // Check again in a short while
-                setTimeout(() => {
-                  if (!isUnmounting.current) {
-                    playSoundFX("TIMEOUT_BUZZER", 0.045)
-                    setIsGameActive(false)
-                    setHasPlayed(true)
-                    setReadyToPlay(false)
-                  }
-                }, 500)
-                return 0
+                setIsResetting(false)
+
+                // If we have a ball reference, make sure it's a dynamic body
+                if (ballRef.current) {
+                  ballRef.current.setBodyType(0, true)
+                }
               }
 
+              // Let the ball fall naturally for a short time before ending the game
               setTimeout(() => {
+                if (isUnmounting.current) return
+
                 playSoundFX("TIMEOUT_BUZZER", 0.045)
 
                 // if the ball is still in play, we add it to played balls
                 // only if it doesn't already exist there
-                if (ballRef.current && !isUnmounting.current && !isResetting) {
+                if (ballRef.current && !isUnmounting.current) {
                   try {
                     // Create a completely separate copy of all ball data first
                     // to avoid any aliasing issues with the ball object
@@ -321,12 +356,15 @@ const HoopMinigameInner = () => {
                   }
                 }
 
+                // Reset the timer ending flag after game is over
+                isTimerEnding.current = false
+                isTimerLow.current = false
                 setIsGameActive(false)
                 setHasPlayed(true)
                 setReadyToPlay(false)
-              }, 50)
+              }, 500) // Increased timeout to give the ball more time to fall
             }
-            return gameDuration
+            return 0
           }
           return prev - 1
         })
@@ -527,17 +565,26 @@ const HoopMinigameInner = () => {
   useEffect(() => {
     return () => {
       isUnmounting.current = true
+      isTimerEnding.current = false
+      isTimerLow.current = false
 
       // Clear references to prevent errors during unmount
       if (timerInterval.current) {
         clearInterval(timerInterval.current)
         timerInterval.current = null
       }
+
+      // Ensure we're not in the middle of a reset when unmounting
+      setIsResetting(false)
+      resetProgress.current = 0
     }
-  }, [])
+  }, [setIsResetting])
 
   const handlePointerDown = useCallback(
     (event: any) => {
+      // Don't allow grabbing the ball when timer is low
+      if (isTimerLow.current) return
+
       utilsHandlePointerDown({
         event,
         ballRef,
@@ -629,6 +676,8 @@ const HoopMinigameInner = () => {
             handlePointerDown={handlePointerDown}
             handlePointerMove={handlePointerMove}
             handlePointerUp={handlePointerUp}
+            isTimerEnding={isTimerEnding.current}
+            isTimerLow={isTimerLow.current}
           />
 
           {/* <Trajectory

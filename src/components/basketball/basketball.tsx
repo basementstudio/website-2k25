@@ -22,6 +22,8 @@ interface BasketballProps {
   handlePointerDown: (event: any) => void
   handlePointerMove: (event: any) => void
   handlePointerUp: (event: any) => void
+  isTimerEnding?: boolean
+  isTimerLow?: boolean
 }
 
 export const Basketball = ({
@@ -31,7 +33,9 @@ export const Basketball = ({
   resetBallToInitialPosition,
   handlePointerDown,
   handlePointerMove,
-  handlePointerUp
+  handlePointerUp,
+  isTimerEnding = false,
+  isTimerLow = false
 }: BasketballProps) => {
   const { playSoundFX } = useSiteAudio()
   const setCursor = useCursor()
@@ -72,7 +76,7 @@ export const Basketball = ({
 
         if (bounceCount.current >= 1) {
           bounceCount.current = 0
-          if (ballRef.current) {
+          if (ballRef.current && !isTimerLow && !isTimerEnding) {
             const ball = ballRef.current
             const translation = ball.translation()
             const currentPos = {
@@ -89,15 +93,23 @@ export const Basketball = ({
   }
 
   const handleSleep = () => {
-    bounceCount.current = 0
-    resetBallToInitialPosition()
+    if (!isDragging && !isTimerEnding && !isTimerLow) {
+      bounceCount.current = 0
+      resetBallToInitialPosition()
+    }
   }
 
   useEffect(() => {
     if (isDragging) {
       setCursor("grabbing")
+    } else {
+      setCursor("default")
     }
-  }, [isDragging])
+
+    return () => {
+      setCursor("default")
+    }
+  }, [isDragging, setCursor])
 
   return (
     <RigidBody
@@ -117,10 +129,10 @@ export const Basketball = ({
         scale={1.7}
         material={material}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerEnter={() => !isDragging && setCursor("grab")}
+        onPointerDown={isTimerLow ? undefined : handlePointerDown}
+        onPointerMove={isTimerLow ? undefined : handlePointerMove}
+        onPointerUp={isTimerLow ? undefined : handlePointerUp}
+        onPointerEnter={() => !isDragging && !isTimerLow && setCursor("grab")}
         onPointerLeave={() => !isDragging && setCursor("default")}
         userData={{ hasGlobalMaterial: true }}
       />
