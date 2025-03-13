@@ -1,17 +1,15 @@
+import { useFrame } from "@react-three/fiber"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import { Group, Vector3 } from "three"
-import { useConnector } from "../lib/connector"
-import { useSubscribe } from "../lib/subscribable"
 
-import { useGame } from "../lib/use-game"
-import { useFrame } from "@react-three/fiber"
-import { clamp, clampLerp, lerp, normalizeDelta, round } from "../lib/math"
-import { DEFAULT_SPEED, lineWidth, useRoad } from "../road/use-road"
-
-import { Motorcycle } from "../motorcycle"
-import { DeathAnimation } from "./death-animation"
-import { useKeyControls, useStickControls } from "../lib/use-controls"
 import { Car } from "../entities/car"
+import { useConnector } from "../lib/connector"
+import { clamp, clampLerp, lerp, normalizeDelta, round } from "../lib/math"
+import { useSubscribe } from "../lib/subscribable"
+import { useKeyControls, useStickControls } from "../lib/use-controls"
+import { useGame } from "../lib/use-game"
+import { DEFAULT_SPEED, lineWidth, useRoad } from "../road/use-road"
+import { DeathAnimation } from "./death-animation"
 
 const maxRotation = Math.PI
 
@@ -65,7 +63,7 @@ export const Player = () => {
     const direction = refs.current.position - refs.current.prevPosition
     refs.current.prevPosition = refs.current.position
 
-    carRef.current.position.x = round(refs.current.position, 1) * lineWidth
+    carRef.current.position.x = refs.current.position * lineWidth
     carPositionCopy.copy(carRef.current.position)
 
     carRef.current.rotation.z = lerp(

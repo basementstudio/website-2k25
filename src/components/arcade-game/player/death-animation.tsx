@@ -77,7 +77,7 @@ export function DeathAnimation() {
       frustumCulled={false}
     >
       <boxGeometry args={[BOX_SIZE, BOX_SIZE, BOX_SIZE]} />
-      <meshBasicMaterial color="#828282" />
+      <meshBasicMaterial color="#888" />
       {particles.map((particle, index) => (
         <ParticleInstance
           key={index}

@@ -4,8 +4,8 @@ import { useGame } from "../lib/use-game"
 import {
   CHUNK_SIZE,
   LINES,
-  TOTAL_CHUNKS,
   lineWidth,
+  TOTAL_CHUNKS,
   useRoad
 } from "../road/use-road"
 import { MotorcycleNpc } from "./npc-types/motorcycle"
@@ -48,7 +48,7 @@ export const NPCs = () => {
   const speedRef = useRoad((s) => s.speedRef)
 
   useInterval({
-    delay: [200, 2000],
+    delay: [100, 300],
     callback: () => {
       if (gameStarted && speedRef.current !== 0) {
         addNpc(getMotorcycle())

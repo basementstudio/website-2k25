@@ -1,9 +1,10 @@
-import { useRef } from "react"
-import { CHUNK_SIZE, getMovementAmount, useRoad } from "./use-road"
 import { useFrame } from "@react-three/fiber"
+import { useRef } from "react"
 import { Group } from "three"
+
 import { normalizeDelta } from "../lib/math"
 import { getNewChunk } from "./get-chunk"
+import { CHUNK_SIZE, getMovementAmount, useRoad } from "./use-road"
 
 export const Road = () => {
   const groupRef = useRef<Group | null>(null)

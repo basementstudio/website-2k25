@@ -3,8 +3,8 @@ import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCursor } from "@/hooks/use-mouse"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
@@ -45,7 +45,7 @@ export const Basketball = ({
   }, [basketballModel])
 
   const originalMaterial = basketballModel.materials[
-    "Material.002"
+    "Material.001"
   ] as MeshStandardMaterial
 
   const material = useMemo(() => {
@@ -107,8 +107,8 @@ export const Basketball = ({
       angularDamping={0.5}
     >
       <mesh
+        scale={1.1}
         geometry={geometry}
-        scale={1.7}
         material={material}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
