@@ -32,9 +32,26 @@ const SKINNED_MESH_KEYS = [
   "head",
   "body",
   "arms",
-  "JJ-Hair",
-  "jj-glass"
+  "jj-hair",
+  "jj-glass",
+  "nat-hair"
 ] as const
+
+export enum CharacterMeshes {
+  head = 0,
+  body = 1,
+  arms = 2,
+  jjHair = 3,
+  jjGlass = 4,
+  natHair = 5
+}
+
+export enum CharacterTextureIds {
+  none = -1,
+  body = 0,
+  head = 1,
+  arms = 2
+}
 
 interface CharactersGLTF {
   nodes: {
@@ -71,6 +88,7 @@ function CharacterInstanceConfigInner() {
 
   const textureBody = useTexture(characters.textureBody)
   const textureFaces = useTexture(characters.textureFaces)
+  const textureArms = useTexture(characters.textureArms)
 
   if (!SKINNED_MESH_KEYS.every((key) => nodes[key as keyof typeof nodes])) {
     console.error("INVALID CHARACTERS MODEL")
@@ -98,6 +116,12 @@ function CharacterInstanceConfigInner() {
     textureFaces.updateMatrix()
     textureFaces.needsUpdate = true
 
+    const armsRepeat = 1
+    textureArms.repeat.set(1 / armsRepeat, 1 / armsRepeat)
+    textureArms.flipY = false
+    textureArms.updateMatrix()
+    textureArms.needsUpdate = true
+
     /** Character material accepts having more than one instance
      * each one can have a different map assigned
      */
@@ -113,8 +137,14 @@ function CharacterInstanceConfigInner() {
       map: textureFaces,
       mapTransform: textureFaces.matrix
     }
-    material.uniforms.mapConfigs = { value: [bodyMapConfig, headMapConfig] }
-    material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: 2 }
+    const armsMapConfig: MapConfig = {
+      map: textureArms,
+      mapTransform: textureArms.matrix
+    }
+    material.uniforms.mapConfigs = {
+      value: [bodyMapConfig, headMapConfig, armsMapConfig]
+    }
+    material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: 3 }
 
     // disable morph targets
     Object.keys(nodes).forEach((nodeKey) => {

@@ -17,6 +17,9 @@ export const characterFragment = fragmentOn("Characters", {
   },
   textureFaces: {
     url: true
+  },
+  textureArms: {
+    url: true
   }
 })
 
