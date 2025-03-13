@@ -1,12 +1,12 @@
-import { useRef } from "react"
-import { NpcTypeMotorcycle, useNpc } from "../use-npc"
-import { Group, Vector3 } from "three"
 import { useFrame } from "@react-three/fiber"
+import { useRef } from "react"
+import { Group, Vector3 } from "three"
 
-import { CHUNK_SIZE, getMovementAmount, useRoad } from "../../road/use-road"
+import { Car } from "../../entities/car"
 import { normalizeDelta } from "../../lib/math"
 import { useGame } from "../../lib/use-game"
-import { Car } from "../../entities/car"
+import { CHUNK_SIZE, getMovementAmount, useRoad } from "../../road/use-road"
+import { NpcTypeMotorcycle, useNpc } from "../use-npc"
 
 export const MotorcycleNpc = ({ id, startingPosition }: NpcTypeMotorcycle) => {
   const npcPos = useRef(new Vector3(...startingPosition))

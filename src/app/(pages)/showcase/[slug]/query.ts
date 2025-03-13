@@ -1,6 +1,6 @@
 import { fragmentOn } from "basehub"
 
-import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
+import { IMAGE_FRAGMENT, VIDEO_FRAGMENT } from "@/lib/basehub/fragments"
 
 export const projectFragment = fragmentOn("ProjectList", {
   items: {
@@ -34,7 +34,8 @@ export const projectFragment = fragmentOn("ProjectList", {
       icon: IMAGE_FRAGMENT,
       showcase: {
         items: {
-          image: IMAGE_FRAGMENT
+          image: IMAGE_FRAGMENT,
+          video: VIDEO_FRAGMENT
         }
       }
     }

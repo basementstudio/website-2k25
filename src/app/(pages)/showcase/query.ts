@@ -23,7 +23,8 @@ export const query = fragmentOn("Query", {
             icon: IMAGE_FRAGMENT,
             showcase: {
               items: {
-                image: IMAGE_FRAGMENT
+                image: IMAGE_FRAGMENT,
+                video: VIDEO_FRAGMENT
               }
             }
           }
