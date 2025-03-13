@@ -1,8 +1,8 @@
 "use client"
 
-import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
+import { useContactStore } from "../contact/contact-store"
 
 interface InternalLinksProps {
   className?: string
@@ -14,7 +14,8 @@ interface InternalLinksProps {
 }
 
 const InternalLinks = ({ className, links }: InternalLinksProps) => {
-  const { isContactOpen, setIsContactOpen } = useContactStore()
+  const isContactOpen = useContactStore((state) => state.isContactOpen)
+  const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
 
   return (
     <ul className={cn("flex flex-col gap-y-1 text-p text-brand-g1", className)}>

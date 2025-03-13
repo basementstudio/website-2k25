@@ -107,7 +107,8 @@ interface ContentProps extends NavbarContentProps {
 
 const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
   const { handleNavigation } = useHandleNavigation()
-  const { setIsContactOpen, isContactOpen } = useContactStore()
+  const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
+  const isContactOpen = useContactStore((state) => state.isContactOpen)
 
   const pathname = usePathname()
 

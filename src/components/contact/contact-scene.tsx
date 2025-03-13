@@ -1,11 +1,13 @@
 import { useAnimations, useGLTF } from "@react-three/drei"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Mesh, MeshBasicMaterial, LoopOnce, AnimationMixer } from "three"
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const { scene, animations } = useGLTF(modelUrl)
   const { actions, mixer } = useAnimations(animations, scene)
   const mixerRef = useRef<AnimationMixer | null>(null)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [isContactOpen, setIsContactOpen] = useState(false)
 
   // add mixer ref
   useEffect(() => {
@@ -21,6 +23,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       if (oppositeAnimName && actions[oppositeAnimName])
         actions[oppositeAnimName].stop()
 
+      setIsAnimating(true)
       const anim = actions[animName]
       anim.reset()
       anim.clampWhenFinished = true
@@ -31,6 +34,17 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       if (animName === "Outro-v2") {
         const onAnimationFinished = () => {
           self.postMessage({ type: "outro-complete" })
+          setIsAnimating(false)
+          setIsContactOpen(false)
+          mixer.removeEventListener("finished", onAnimationFinished)
+        }
+        mixer.addEventListener("finished", onAnimationFinished)
+      } else {
+        const onAnimationFinished = () => {
+          setIsAnimating(false)
+          if (animName === "Intro.001") {
+            setIsContactOpen(true)
+          }
           mixer.removeEventListener("finished", onAnimationFinished)
         }
         mixer.addEventListener("finished", onAnimationFinished)
@@ -40,12 +54,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   )
 
   const runIntro = useCallback(() => {
-    console.log("Running intro animation")
     playAnimation("Intro.001", "Outro-v2")
   }, [playAnimation])
 
   const runOutro = useCallback(() => {
-    console.log("Running outro animation")
     playAnimation("Outro-v2", "Intro.001")
   }, [playAnimation])
 
@@ -73,14 +85,27 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "update-contact-open") {
-        if (e.data.isContactOpen) runIntro()
-        if (!e.data.isContactOpen) runOutro()
+        if (isAnimating) {
+          self.postMessage({
+            type: "animation-rejected",
+            currentState: isContactOpen
+          })
+          return
+        }
+
+        if (e.data.isContactOpen === isContactOpen) return
+
+        if (e.data.isContactOpen && !isContactOpen) {
+          runIntro()
+        } else if (!e.data.isContactOpen && isContactOpen) {
+          runOutro()
+        }
       }
     }
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
-  }, [runIntro, runOutro])
+  }, [runIntro, runOutro, isAnimating, isContactOpen])
 
   return <primitive object={scene} />
 }
