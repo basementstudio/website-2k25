@@ -15,13 +15,15 @@ export const ImageWithVideoOverlay = ({
   video,
   disabled,
   className,
-  firstItem
+  firstItem = false,
+  variant = "home"
 }: {
   image: ImageFragment
   video?: VideoFragment | null
   disabled?: boolean
   className?: string
-  firstItem: boolean
+  firstItem?: boolean
+  variant?: "home" | "showcase"
 }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
@@ -80,8 +82,9 @@ export const ImageWithVideoOverlay = ({
       <Image
         src={image?.url ?? ""}
         alt={image?.alt ?? ""}
-        width={firstItem ? 960 : 480}
-        height={firstItem ? 540 : 270}
+        width={variant === "showcase" ? (firstItem ? 960 : 480) : undefined}
+        height={variant === "showcase" ? (firstItem ? 540 : 270) : undefined}
+        fill={variant === "home" ? true : false}
         blurDataURL={image?.blurDataURL ?? ""}
         placeholder="blur"
         className="h-full w-full object-cover"

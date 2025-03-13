@@ -54,7 +54,6 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
                 width={image?.width}
                 height={image?.height}
                 alt={image?.alt || ""}
-                fill
                 blurDataURL={image?.blurDataURL}
                 placeholder="blur"
                 className="object-cover"
