@@ -48,7 +48,7 @@ export const NPCs = () => {
   const speedRef = useRoad((s) => s.speedRef)
 
   useInterval({
-    delay: [200, 2000],
+    delay: [100, 300],
     callback: () => {
       if (gameStarted && speedRef.current !== 0) {
         addNpc(getMotorcycle())

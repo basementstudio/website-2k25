@@ -12,6 +12,7 @@ import { COLORS_THEME } from "../arcade-screen/screen-ui"
 import { useAssets } from "../assets-provider"
 import { useGame } from "./lib/use-game"
 import { NPCs } from "./npc"
+import { useNpc } from "./npc/use-npc"
 import { Player } from "./player"
 import { Road } from "./road"
 import { DEFAULT_SPEED, GAME_SPEED, useRoad } from "./road/use-road"
@@ -36,6 +37,7 @@ export const ArcadeGame = ({
   const setIsInGame = useArcadeStore((state) => state.setIsInGame)
   const { arcade } = useAssets()
   const introScreenTexture = useTexture(arcade.introScreen)
+  const clearNpcs = useNpc((s) => s.clearNpcs)
 
   useFrame((_, delta) => {
     if (gameStarted && !gameOver) {
@@ -100,6 +102,7 @@ export const ArcadeGame = ({
           setGameStarted(true)
           setSpeed(GAME_SPEED)
           useGame.setState({ currentLine: 0 })
+          clearNpcs()
         } else if (!gameStarted) {
           setGameStarted(true)
           setSpeed(GAME_SPEED)
@@ -119,7 +122,8 @@ export const ArcadeGame = ({
     setGameOver,
     gameStarted,
     setGameStarted,
-    setIsInGame
+    setIsInGame,
+    clearNpcs
   ])
 
   return (
