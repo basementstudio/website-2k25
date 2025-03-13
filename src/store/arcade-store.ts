@@ -20,9 +20,6 @@ interface ArcadeStore {
 
   isSourceButtonSelected: boolean
   setIsSourceButtonSelected: (value: boolean) => void
-
-  heliCamera: boolean
-  setHeliCamera: (value: boolean) => void
 }
 
 export const useArcadeStore = create<ArcadeStore>((set) => ({
@@ -43,8 +40,5 @@ export const useArcadeStore = create<ArcadeStore>((set) => ({
   setCurrentLabTabIndex: (index) => set({ currentLabTabIndex: index }),
 
   isSourceButtonSelected: false,
-  setIsSourceButtonSelected: (value) => set({ isSourceButtonSelected: value }),
-
-  heliCamera: false,
-  setHeliCamera: (value) => set({ heliCamera: value })
+  setIsSourceButtonSelected: (value) => set({ isSourceButtonSelected: value })
 }))

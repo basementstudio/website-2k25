@@ -15,7 +15,6 @@ export type SiteAudioSFXKey =
   | `ARCADE_BUTTON_${number}_RELEASE`
   | `ARCADE_STICK_${number}_PRESS`
   | `ARCADE_STICK_${number}_RELEASE`
-  | "ARCADE_HELI"
   | `BLOG_LOCKED_DOOR_${number}`
   | `BLOG_DOOR_${number}_OPEN`
   | `BLOG_DOOR_${number}_CLOSE`
@@ -149,17 +148,6 @@ function SiteAudioSFXsLoaderInner(): null {
             sourceRelease.setVolume(SFX_VOLUME)
             newSources[`ARCADE_STICK_${index}_RELEASE`] = sourceRelease
           })
-        )
-
-        promises.push(
-          (async () => {
-            const source = await player.loadAudioFromURL(
-              ARCADE_AUDIO_SFX.ARCADE_HELI,
-              true
-            )
-            source.setVolume(SFX_VOLUME)
-            newSources["ARCADE_HELI"] = source
-          })()
         )
 
         promises.push(

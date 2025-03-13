@@ -7,13 +7,8 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { animate } from "motion"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { Suspense, useEffect, useMemo, useRef, useState } from "react"
-import {
-  Mesh,
-  Vector3,
-  WebGLRenderTarget,
-  PerspectiveCamera as ThreePerspectiveCamera
-} from "three"
+import { Suspense, useEffect, useMemo, useState } from "react"
+import { Mesh, Vector3, WebGLRenderTarget } from "three"
 import { Box3 } from "three"
 import { degToRad } from "three/src/math/MathUtils.js"
 
@@ -52,14 +47,10 @@ export const ArcadeScreen = () => {
   const currentScene = useCurrentScene()
   const isLabRoute = pathname === "/lab"
   const isInGame = useArcadeStore((state) => state.isInGame)
-  const heliCamera = useArcadeStore((state) => state.heliCamera)
   const [arcadeScreen, setArcadeScreen] = useState<Mesh | null>(null)
   const [screenPosition, setScreenPosition] = useState<Vector3 | null>(null)
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
   const [hasVisitedArcade, setHasVisitedArcade] = useState(false)
-  const [cameraAnimationProgress, setCameraAnimationProgress] = useState(0)
-
-  const cameraRef = useRef<ThreePerspectiveCamera>(null)
 
   const { arcade } = useAssets()
 
@@ -137,45 +128,7 @@ export const ArcadeScreen = () => {
     if (screenMaterial.uniforms.uTime) {
       screenMaterial.uniforms.uTime.value += delta
     }
-
-    if (cameraRef.current && isInGame) {
-      const startPos = new Vector3(9, 10, 22) // heli position
-      const endPos = new Vector3(0, 3, 14) // game position
-
-      cameraRef.current.position.lerpVectors(
-        startPos,
-        endPos,
-        cameraAnimationProgress
-      )
-
-      cameraRef.current.lookAt(0, 0, 0)
-    }
   })
-
-  useEffect(() => {
-    if (!cameraRef.current) return
-
-    if (isInGame) {
-      cameraRef.current.position.set(0, 9, 20)
-      cameraRef.current.rotation.set(degToRad(0), 0, 0)
-      cameraRef.current.fov = 30
-      cameraRef.current.aspect = 16 / 9
-    }
-  }, [isInGame])
-
-  useEffect(() => {
-    if (heliCamera) {
-      animate(0, 1, {
-        duration: 2.5,
-        ease: [0.43, 0.13, 0.23, 0.96],
-        onUpdate: (progress) => {
-          setCameraAnimationProgress(progress)
-        }
-      })
-    } else {
-      setCameraAnimationProgress(0)
-    }
-  }, [heliCamera])
 
   const CAMERA_CONFIGS = useMemo(() => {
     if (!arcadeScreen || !screenPosition || !screenScale) return null
@@ -188,7 +141,6 @@ export const ArcadeScreen = () => {
         manual: true
       },
       game: {
-        heliPosition: [0, 9, 20] as [number, number, number],
         position: [0, 3, 14] as [number, number, number],
         rotation: [degToRad(0), 0, 0] as [number, number, number],
         fov: 30,
@@ -208,7 +160,6 @@ export const ArcadeScreen = () => {
       raycasterMesh={arcadeScreen}
     >
       <PerspectiveCamera
-        ref={cameraRef}
         makeDefault
         {...(!isInGame ? CAMERA_CONFIGS.ui : CAMERA_CONFIGS.game)}
       />

@@ -2,7 +2,7 @@ import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { Container, DefaultProperties, Root, Text } from "@react-three/uikit"
 import { FontFamilyProvider } from "@react-three/uikit"
-import { useEffect, useRef, useState, useMemo } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ShaderMaterial } from "three"
 
 import { useArcadeStore } from "@/store/arcade-store"
@@ -16,7 +16,6 @@ import { Player } from "./player"
 import { Road } from "./road"
 import { DEFAULT_SPEED, GAME_SPEED, useRoad } from "./road/use-road"
 import { Skybox } from "./skybox"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 
 export const ArcadeGame = ({
   visible,
@@ -37,9 +36,6 @@ export const ArcadeGame = ({
   const setIsInGame = useArcadeStore((state) => state.setIsInGame)
   const { arcade } = useAssets()
   const introScreenTexture = useTexture(arcade.introScreen)
-  const setHeliCamera = useArcadeStore((state) => state.setHeliCamera)
-  const heliCamera = useArcadeStore((state) => state.heliCamera)
-  const { playSoundFX } = useSiteAudio()
 
   useFrame((_, delta) => {
     if (gameStarted && !gameOver) {
@@ -91,7 +87,6 @@ export const ArcadeGame = ({
           setSpeed(DEFAULT_SPEED)
           setGameOver(false)
           setIsInGame(false)
-          setHeliCamera(false)
 
           useGame.setState({ currentLine: 0 })
         } else {
@@ -99,7 +94,6 @@ export const ArcadeGame = ({
           setSpeed(DEFAULT_SPEED)
           setGameStarted(false)
           setGameOver(false)
-          setHeliCamera(false)
 
           useGame.setState({ currentLine: 0 })
 
@@ -110,16 +104,10 @@ export const ArcadeGame = ({
           setGameOver(false)
           setGameStarted(true)
           setSpeed(GAME_SPEED)
-          setHeliCamera(true)
           useGame.setState({ currentLine: 0 })
         } else if (!gameStarted) {
           setGameStarted(true)
           setSpeed(GAME_SPEED)
-          playSoundFX("ARCADE_HELI", 0.6)
-
-          setTimeout(() => {
-            setHeliCamera(true)
-          }, 100)
         }
       }
     }
@@ -136,45 +124,18 @@ export const ArcadeGame = ({
     setGameOver,
     gameStarted,
     setGameStarted,
-    setIsInGame,
-    setHeliCamera
+    setIsInGame
   ])
 
-  const uiConfig = useMemo(() => {
-    return {
-      position: heliCamera
-        ? ([0, 5.3, 8] as [number, number, number])
-        : ([0, 2.8, 6] as [number, number, number]),
-      rotation: heliCamera
-        ? ([0, 0, 0] as [number, number, number])
-        : ([0, 0, 0] as [number, number, number])
-    }
-  }, [heliCamera])
-
-  // TODO: this doesn't work
-  const gameIntroLayerConfig = useMemo(() => {
-    return {
-      position: heliCamera
-        ? ([0, 5.3, 8] as [number, number, number])
-        : ([0, 3, 7] as [number, number, number]),
-      rotation: heliCamera
-        ? ([0, 0, 0] as [number, number, number])
-        : ([0, 0, 0] as [number, number, number])
-    }
-  }, [heliCamera])
   return (
     <group visible={visible}>
       {/* game intro screen */}
-      <mesh
-        visible={!gameStarted}
-        position={gameIntroLayerConfig.position}
-        rotation={gameIntroLayerConfig.rotation}
-      >
+      <mesh visible={!gameStarted} position={[0, 3, 7]}>
         <planeGeometry args={[6.65, 3.8]} />
         <meshBasicMaterial map={introScreenTexture} />
       </mesh>
 
-      <group position={uiConfig.position} rotation={uiConfig.rotation}>
+      <group position={[0, 5.3, 8]}>
         <Root
           width={1000}
           height={690}

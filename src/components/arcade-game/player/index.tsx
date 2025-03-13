@@ -65,7 +65,7 @@ export const Player = () => {
     const direction = refs.current.position - refs.current.prevPosition
     refs.current.prevPosition = refs.current.position
 
-    carRef.current.position.x = refs.current.position * lineWidth
+    carRef.current.position.x = round(refs.current.position, 1) * lineWidth
     carPositionCopy.copy(carRef.current.position)
 
     carRef.current.rotation.z = lerp(

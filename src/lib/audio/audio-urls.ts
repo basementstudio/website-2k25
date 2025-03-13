@@ -44,8 +44,7 @@ export function useAudioUrls() {
         PRESS: item.press,
         RELEASE: item.release
       })),
-      MIAMI_HEATWAVE: sfx.arcade.miamiHeatwave,
-      ARCADE_HELI: sfx.arcade.heli
+      MIAMI_HEATWAVE: sfx.arcade.miamiHeatwave
     },
     CONTACT_AUDIO_SFX: {
       INTERFERENCE: sfx.contact.interference

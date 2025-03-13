@@ -89,7 +89,6 @@ export interface AssetsResult {
         release: string
       }[]
       miamiHeatwave: string
-      heli: string
     }
     music: {
       aqua: string
@@ -249,8 +248,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
           press: item.press?.url ?? "",
           release: item.release?.url ?? ""
         })),
-        miamiHeatwave: threeDInteractions.sfx.arcade.miamiHeatwave?.url,
-        heli: threeDInteractions.sfx.arcade.heli.url
+        miamiHeatwave: threeDInteractions.sfx.arcade.miamiHeatwave?.url
       },
       contact: {
         interference: threeDInteractions.sfx.contact.interference?.url ?? ""
