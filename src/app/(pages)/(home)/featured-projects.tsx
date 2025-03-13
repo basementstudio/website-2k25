@@ -55,16 +55,20 @@ const ProjectItem = ({
       )}
     >
       <div className="relative col-span-7 after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
-        <div className="with-dots relative h-full w-full">
+        <div className="relative w-full h-full with-dots">
           <Image
-            src={project.cover?.url ?? ""}
-            alt={project._title}
-            width={project.cover?.width ?? 0}
+            alt={project._title ?? project.cover?.alt ?? ""}
+            blurDataURL={project.cover?.blurDataURL ?? ""}
+            draggable={false}
             height={project.cover?.height ?? 0}
+            placeholder="blur"
+            quality={100}
+            src={project.cover?.url ?? ""}
+            width={project.cover?.width ?? 0}
           />
         </div>
       </div>
-      <div className="col-span-2 flex flex-col justify-between gap-y-4 pr-2 md:col-span-3 md:pr-12">
+      <div className="flex flex-col justify-between col-span-2 pr-2 gap-y-4 md:col-span-3 md:pr-12">
         <p className="text-mobile-h4 text-brand-w2 lg:text-h3">
           {project.excerpt}
         </p>
@@ -90,10 +94,10 @@ const ProjectItem = ({
         className="h-max w-max justify-self-end pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
       >
         <span className="actionable group gap-x-2 [&:before]:delay-0 [&:before]:hover:delay-150">
-          <span className="translate-x-6 transition-transform duration-200 ease-in-out group-hover:translate-x-0">
+          <span className="transition-transform duration-200 ease-in-out translate-x-6 group-hover:translate-x-0">
             {project._title}
           </span>
-          <Arrow className="size-6 opacity-0 transition-opacity delay-0 duration-100 ease-in-out hover:delay-200 group-hover:opacity-100" />
+          <Arrow className="transition-opacity duration-100 ease-in-out opacity-0 size-6 delay-0 hover:delay-200 group-hover:opacity-100" />
         </span>
       </Link>
     </div>
