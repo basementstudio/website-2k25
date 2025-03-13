@@ -1,8 +1,10 @@
 import { PerspectiveCamera } from "@react-three/drei"
-import { useRef, useState } from "react"
+import { XROrigin } from "@react-three/xr"
+import { useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import {
   useBoundaries,
@@ -10,7 +12,6 @@ import {
   useCameraSetup
 } from "./camera-hooks"
 import { calculatePlanePosition } from "./camera-utils"
-import { XROrigin } from "@react-three/xr"
 
 export const CustomCamera = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null)
@@ -18,7 +19,7 @@ export const CustomCamera = () => {
   const planeBoundaryRef = useRef<THREE.Mesh>(null)
   const cameraConfig = useNavigationStore.getState().currentScene?.cameraConfig
   const [isInitialized, setIsInitialized] = useState(false)
-
+  const scene = useCurrentScene()
   const boundaries = useBoundaries(cameraConfig)
   const { currentPos, currentTarget, targetPosition, targetLookAt } =
     useCameraMovement(
@@ -43,10 +44,20 @@ export const CustomCamera = () => {
     targetLookAt
   )
 
+  const realPosition = useMemo(() => {
+    const y = scene === "blog" || scene === "people" ? 5.34971 : 0
+
+    return new THREE.Vector3(
+      cameraConfig?.position[0],
+      y,
+      cameraConfig?.position[2]
+    )
+  }, [cameraConfig, scene])
+
   return (
     <>
       <PerspectiveCamera makeDefault ref={cameraRef} />
-      <XROrigin scale={1} position={cameraConfig?.position} />
+      <XROrigin scale={1} position={realPosition} />
       {cameraConfig && (
         <>
           <mesh
