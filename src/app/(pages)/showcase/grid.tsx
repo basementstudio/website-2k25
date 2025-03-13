@@ -79,6 +79,7 @@ export const Grid = memo(
                       image={item.cover as ImageFragment}
                       video={item.coverVideo as VideoFragment}
                       firstItem={firstItem}
+                      variant="showcase"
                     />
                   ) : null}
                 </Link>

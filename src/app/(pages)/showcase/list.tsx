@@ -92,18 +92,34 @@ const AccordionListItem = memo(
             )}
           >
             <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
-              {project.showcase?.items.map((item, index) => (
-                <Image
-                  key={index}
-                  src={item.image?.url ?? ""}
-                  alt={item.image?.alt ?? ""}
-                  width={item.image?.width ?? 0}
-                  height={item.image?.height ?? 0}
-                  className="col-span-2"
-                  blurDataURL={item.image?.blurDataURL ?? ""}
-                  placeholder="blur"
-                />
-              ))}
+              {project.showcase?.items.map((item, index) => {
+                if (item.video) {
+                  return (
+                    <video
+                      key={index}
+                      src={item.video.url}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="col-span-2"
+                    />
+                  )
+                }
+
+                return (
+                  <Image
+                    key={index}
+                    src={item.image?.url ?? ""}
+                    alt={item.image?.alt ?? ""}
+                    width={item.image?.width ?? 0}
+                    height={item.image?.height ?? 0}
+                    className="col-span-2"
+                    blurDataURL={item.image?.blurDataURL ?? ""}
+                    placeholder="blur"
+                    priority
+                  />
+                )
+              })}
             </div>
           </AccordionPrimitive.Content>
         </AccordionPrimitive.Trigger>
