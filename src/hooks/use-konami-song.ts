@@ -38,6 +38,8 @@ export function useKonamiSong() {
         if (isInGame && !miamiHeatwaveSong && !isInitialized.current) {
           isInitialized.current = true
 
+          player.stopAllMusicTracks()
+
           if (themeSong && themeSong.isPlaying) {
             themeSong.pause()
           }
@@ -49,7 +51,8 @@ export function useKonamiSong() {
 
           const newMiamiHeatwaveSong = await player.loadAudioFromURL(
             ARCADE_AUDIO_SFX.MIAMI_HEATWAVE,
-            false
+            false, // not SFX
+            true // is game audio
           )
           newMiamiHeatwaveSong.loop = true
           newMiamiHeatwaveSong.setVolume(0)

@@ -10,6 +10,7 @@ export class AudioSource {
   private pitch = 1
   private onEndedCallback: (() => void) | null = null
   public isSFX: boolean = false
+  public isGameAudio: boolean = false
 
   constructor(
     audioPlayer: WebAudioPlayer,
@@ -142,9 +143,11 @@ export class WebAudioPlayer {
   public masterOutput: GainNode
   public musicChannel: GainNode
   public sfxChannel: GainNode
+  public gameChannel: GainNode
   public isPlaying: boolean
   public volume: number
   public musicVolume: number
+  public gameVolume: number
   private audioSources: Set<AudioSource> = new Set()
 
   constructor() {
@@ -163,12 +166,21 @@ export class WebAudioPlayer {
     this.sfxChannel.gain.value = 1
     this.sfxChannel.connect(this.masterOutput)
 
+    this.gameChannel = this.audioContext.createGain()
+    this.gameChannel.gain.value = 1
+    this.gameChannel.connect(this.masterOutput)
+
     this.isPlaying = true
     this.volume = 1
     this.musicVolume = 1
+    this.gameVolume = 1
   }
 
-  loadAudioFromURL(url: string, isSFX: boolean = false): Promise<AudioSource> {
+  loadAudioFromURL(
+    url: string,
+    isSFX: boolean = false,
+    isGameAudio: boolean = false
+  ): Promise<AudioSource> {
     return new Promise((resolve, reject) => {
       fetch(url)
         .then((response) => response.arrayBuffer())
@@ -178,9 +190,15 @@ export class WebAudioPlayer {
             (buffer) => {
               const source = new AudioSource(this, buffer, isSFX)
               source.outputNode.disconnect()
-              source.outputNode.connect(
-                isSFX ? this.sfxChannel : this.musicChannel
-              )
+
+              if (isGameAudio) {
+                source.outputNode.connect(this.gameChannel)
+                source.isGameAudio = true
+              } else if (isSFX) {
+                source.outputNode.connect(this.sfxChannel)
+              } else {
+                source.outputNode.connect(this.musicChannel)
+              }
 
               // Track this audio source
               this.audioSources.add(source)
@@ -201,10 +219,20 @@ export class WebAudioPlayer {
     return Array.from(this.audioSources)
   }
 
-  // Stop all music tracks (not SFX)
+  // Stop all music tracks (not SFX or game audio)
   stopAllMusicTracks(): void {
     this.audioSources.forEach((source) => {
-      if (!source.isSFX && source.isPlaying) {
+      if (!source.isSFX && !source.isGameAudio && source.isPlaying) {
+        source.clearOnEnded()
+        source.stop()
+      }
+    })
+  }
+
+  // Stop all game audio tracks
+  stopAllGameTracks(): void {
+    this.audioSources.forEach((source) => {
+      if (source.isGameAudio && source.isPlaying) {
         source.clearOnEnded()
         source.stop()
       }
@@ -219,6 +247,38 @@ export class WebAudioPlayer {
   setMusicVolume(volume: number) {
     this.musicChannel.gain.value = volume
     this.musicVolume = volume
+  }
+
+  setGameVolume(volume: number) {
+    this.gameChannel.gain.value = volume
+    this.gameVolume = volume
+  }
+
+  setMusicAndGameVolume(volume: number, fadeTime: number = 0.75) {
+    const currentTime = this.audioContext.currentTime
+
+    this.musicChannel.gain.cancelScheduledValues(currentTime)
+    this.musicChannel.gain.setValueAtTime(
+      this.musicChannel.gain.value,
+      currentTime
+    )
+    this.musicChannel.gain.linearRampToValueAtTime(
+      volume,
+      currentTime + fadeTime
+    )
+
+    this.gameChannel.gain.cancelScheduledValues(currentTime)
+    this.gameChannel.gain.setValueAtTime(
+      this.gameChannel.gain.value,
+      currentTime
+    )
+    this.gameChannel.gain.linearRampToValueAtTime(
+      volume,
+      currentTime + fadeTime
+    )
+
+    this.musicVolume = volume
+    this.gameVolume = volume
   }
 
   pause() {

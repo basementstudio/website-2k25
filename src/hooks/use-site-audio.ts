@@ -302,24 +302,27 @@ export function useSiteAudio(): SiteAudioHook {
     if (typeof window === "undefined") return
 
     const savedMusicPreference = localStorage.getItem("music-enabled")
-    // if (savedMusicPreference === "true") {
-    //   setMusic(true)
-    //   _setVolumeMaster(1)
-    // }
 
     // First interaction handler
     if (savedMusicPreference === null || savedMusicPreference === "true") {
       const handleFirstInteraction = () => {
         setMusic(true)
         _setVolumeMaster(1)
+
+        if (player) {
+          player.setMusicAndGameVolume(1)
+        }
+
         localStorage.setItem("music-enabled", "true")
       }
 
       window.addEventListener("firstInteraction", handleFirstInteraction)
       return () =>
         window.removeEventListener("firstInteraction", handleFirstInteraction)
+    } else if (savedMusicPreference === "false" && player) {
+      player.setMusicAndGameVolume(0)
     }
-  }, [])
+  }, [player])
 
   // Monitor ostSong changes to ensure proper audio state
   useEffect(() => {
@@ -353,15 +356,9 @@ export function useSiteAudio(): SiteAudioHook {
   const setVolumeMaster = useCallback(
     (volume: number) => {
       if (!player || typeof window === "undefined") return
-      const gainNode = player.musicChannel
-      const currentTime = player.audioContext.currentTime
-      const FADE_DURATION = 0.75
 
-      gainNode.gain.cancelScheduledValues(currentTime)
-      gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
-      gainNode.gain.linearRampToValueAtTime(volume, currentTime + FADE_DURATION)
+      player.setMusicAndGameVolume(volume)
 
-      player.musicVolume = volume
       _setVolumeMaster(volume)
       localStorage.setItem("music-enabled", volume > 0 ? "true" : "false")
     },
@@ -409,8 +406,14 @@ export function useSiteAudio(): SiteAudioHook {
   return {
     player,
     togglePlayMaster,
-    resumeMaster: () => player?.resume(),
-    pauseMaster: () => player?.pause(),
+    resumeMaster: () => {
+      if (!player) return
+      player.resume()
+    },
+    pauseMaster: () => {
+      if (!player) return
+      player.pause()
+    },
     setVolumeMaster,
     volumeMaster,
     playSoundFX,

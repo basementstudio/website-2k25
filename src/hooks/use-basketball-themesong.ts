@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
+import { AudioSource } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { FADE_DURATION, THEME_SONG_VOLUME } from "@/lib/audio/constants"
 
@@ -9,42 +10,46 @@ import { useSiteAudioStore } from "./use-site-audio"
 export function useBasketballThemeSong(isEnabled: boolean = true) {
   const scene = useCurrentScene()
   const player = useSiteAudioStore((s) => s.player)
-  const themeSong = useSiteAudioStore((s) => s.themeSong)
   const { GAME_THEME_SONGS } = useAudioUrls()
   const isBasketballPage = scene === "basketball"
   const fadeOutTimeout = useRef<NodeJS.Timeout | null>(null)
   const isInitialized = useRef(false)
+  const [basketballTheme, setBasketballTheme] = useState<AudioSource | null>(
+    null
+  )
 
   const cleanup = useCallback(() => {
     if (fadeOutTimeout.current) {
       clearTimeout(fadeOutTimeout.current)
       fadeOutTimeout.current = null
     }
-    if (themeSong) {
-      themeSong.stop()
-      useSiteAudioStore.setState({ themeSong: null })
+    if (basketballTheme) {
+      basketballTheme.stop()
+      setBasketballTheme(null)
     }
     isInitialized.current = false
-  }, [themeSong])
+  }, [basketballTheme])
 
   useEffect(() => {
     if (!player || !isEnabled) return
 
     const loadAudioSource = async () => {
       try {
-        if (!themeSong && isBasketballPage && !isInitialized.current) {
+        if (isBasketballPage && !basketballTheme && !isInitialized.current) {
           isInitialized.current = true
-          const newThemeSong = await player.loadAudioFromURL(
-            GAME_THEME_SONGS.BASKETBALL_AMBIENT,
-            false
-          )
-          newThemeSong.loop = true
-          newThemeSong.setVolume(0)
-          newThemeSong.play()
 
-          useSiteAudioStore.setState({
-            themeSong: newThemeSong
-          })
+          player.stopAllMusicTracks()
+
+          const newBasketballTheme = await player.loadAudioFromURL(
+            GAME_THEME_SONGS.BASKETBALL_AMBIENT,
+            false, // not SFX
+            true // game audio
+          )
+          newBasketballTheme.loop = true
+          newBasketballTheme.setVolume(0)
+          newBasketballTheme.play()
+
+          setBasketballTheme(newBasketballTheme)
         }
       } catch (error) {
         console.error("Error loading basketball theme song:", error)
@@ -61,7 +66,7 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
     }
   }, [
     player,
-    themeSong,
+    basketballTheme,
     isEnabled,
     isBasketballPage,
     cleanup,
@@ -69,9 +74,9 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
   ])
 
   useEffect(() => {
-    if (!themeSong || !player || !isEnabled) return
+    if (!basketballTheme || !player || !isEnabled) return
 
-    const gainNode = themeSong.outputNode
+    const gainNode = basketballTheme.outputNode
     const currentTime = player.audioContext.currentTime
 
     if (isBasketballPage) {
@@ -81,6 +86,11 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
         THEME_SONG_VOLUME,
         currentTime + FADE_DURATION
       )
+
+      if (fadeOutTimeout.current) {
+        clearTimeout(fadeOutTimeout.current)
+        fadeOutTimeout.current = null
+      }
     } else {
       gainNode.gain.cancelScheduledValues(currentTime)
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
@@ -100,5 +110,5 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
         fadeOutTimeout.current = null
       }
     }
-  }, [isBasketballPage, themeSong, player, isEnabled, cleanup])
+  }, [isBasketballPage, basketballTheme, player, isEnabled, cleanup])
 }

@@ -52,11 +52,12 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
   }, [AMBIENCE])
 
   const stopAllTracks = useCallback(() => {
-    if (player && player.stopAllMusicTracks) {
+    if (player) {
       player.stopAllMusicTracks()
       return
     }
 
+    // Fallback if player is not available
     if (loadedTracks.current.length > 0) {
       loadedTracks.current.forEach((track) => {
         if (track.isPlaying) {
@@ -145,7 +146,11 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
           const tracks: AudioSource[] = []
 
           for (const track of ambiencePlaylist) {
-            const audioSource = await player.loadAudioFromURL(track.url, false)
+            const audioSource = await player.loadAudioFromURL(
+              track.url,
+              false,
+              false
+            )
             audioSource.loop = false
             audioSource.setVolume(0)
             tracks.push(audioSource)
@@ -153,7 +158,7 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
 
           loadedTracks.current = tracks
 
-          if (tracks.length > 0) {
+          if (tracks.length > 0 && !isBasketballPage && !isInGame) {
             stopAllTracks()
 
             currentTrack.current = tracks[0]
@@ -187,7 +192,9 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
     AMBIENCE,
     ambiencePlaylist,
     setupTrackEndDetection,
-    stopAllTracks
+    stopAllTracks,
+    isBasketballPage,
+    isInGame
   ])
 
   useEffect(() => {
@@ -196,9 +203,7 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
     if (isBasketballPage || isInGame) {
       if (currentTrack.current && currentTrack.current.isPlaying) {
         currentTrack.current.stop()
-        cleanup()
-      } else {
-        cleanup()
+        currentTrack.current = null
       }
 
       return () => {
