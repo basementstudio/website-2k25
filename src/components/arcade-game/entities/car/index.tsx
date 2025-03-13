@@ -35,6 +35,23 @@ export const Car = forwardRef<Group, CarProps>(
       return cars[Math.floor(Math.random() * cars.length)]!.clone()
     }, [cars])
 
+    const wheelRefs = useRef<Object3D[]>([])
+
+    useEffect(() => {
+      wheelRefs.current = []
+      randomCar.traverse((child) => {
+        if (child.name.includes("WF") || child.name.includes("WB")) {
+          wheelRefs.current.push(child)
+        }
+      })
+    }, [randomCar])
+
+    useFrame((_, delta) => {
+      wheelRefs.current.forEach((wheel) => {
+        wheel.rotation.x += delta * 10
+      })
+    })
+
     const {
       position,
       direction,

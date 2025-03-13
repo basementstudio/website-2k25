@@ -164,7 +164,10 @@ export const ArcadeScreen = () => {
         {...(!isInGame ? CAMERA_CONFIGS.ui : CAMERA_CONFIGS.game)}
       />
 
-      {(hasVisitedArcade || isLabRoute) && !isInGame && <ScreenUI />}
+      <Suspense fallback={null}>
+        <ScreenUI visible={(hasVisitedArcade || isLabRoute) && !isInGame} />
+      </Suspense>
+
       <Suspense fallback={null}>
         <ArcadeGame
           visible={(hasVisitedArcade || isLabRoute) && isInGame}

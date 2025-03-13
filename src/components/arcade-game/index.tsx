@@ -1,3 +1,4 @@
+import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { Container, DefaultProperties, Root, Text } from "@react-three/uikit"
 import { FontFamilyProvider } from "@react-three/uikit"
@@ -8,6 +9,7 @@ import { useArcadeStore } from "@/store/arcade-store"
 
 import { ffflauta } from "../../../public/fonts/ffflauta"
 import { COLORS_THEME } from "../arcade-screen/screen-ui"
+import { useAssets } from "../assets-provider"
 import { useGame } from "./lib/use-game"
 import { NPCs } from "./npc"
 import { Player } from "./player"
@@ -32,6 +34,8 @@ export const ArcadeGame = ({
   const [scoreDisplay, setScoreDisplay] = useState(0)
   const lastUpdateTimeRef = useRef(0)
   const setIsInGame = useArcadeStore((state) => state.setIsInGame)
+  const { arcade } = useAssets()
+  const introScreenTexture = useTexture(arcade.introScreen)
 
   useFrame((_, delta) => {
     if (gameStarted && !gameOver) {
@@ -69,11 +73,6 @@ export const ArcadeGame = ({
     })
     window.dispatchEvent(event)
   }, [gameStarted, gameOver, screenMaterial])
-
-  // Debug
-  // useEffect(() => {
-  //   setIsInGame(true)
-  // }, [setIsInGame])
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -125,6 +124,12 @@ export const ArcadeGame = ({
 
   return (
     <group visible={visible}>
+      {/* game intro screen */}
+      <mesh visible={!gameStarted} position={[0, 3, 7]}>
+        <planeGeometry args={[6.65, 3.8]} />
+        <meshBasicMaterial map={introScreenTexture} />
+      </mesh>
+
       <group position={[0, 5.3, 8]}>
         <Root
           width={1000}
@@ -148,9 +153,11 @@ export const ArcadeGame = ({
               color={COLORS_THEME.primary}
               textAlign={"center"}
             >
-              <Text color={COLORS_THEME.black} positionTop={-200}>
-                SCORE: {`${scoreDisplay}`}
-              </Text>
+              {(gameStarted || gameOver) && (
+                <Text color={COLORS_THEME.black} positionTop={-200}>
+                  SCORE: {`${scoreDisplay}`}
+                </Text>
+              )}
               <Container
                 width={600}
                 height={100}
@@ -159,21 +166,27 @@ export const ArcadeGame = ({
                 positionLeft={"20%"}
                 flexDirection="column"
                 alignItems="center"
-                positionBottom={-60}
+                positionBottom={-64}
                 visibility={gameStarted ? "hidden" : "visible"}
               >
-                <Container paddingTop={10} backgroundColor={COLORS_THEME.black}>
-                  <Text textAlign="center">
-                    {gameStarted && gameOver
-                      ? "Press [SPACE] to restart".toUpperCase()
-                      : !gameStarted
-                        ? "Press [SPACE] to start".toUpperCase()
-                        : ""}
-                  </Text>
-                </Container>
                 {gameStarted && gameOver && (
-                  <Container backgroundColor={COLORS_THEME.black}>
-                    <Text textAlign="center" fontSize={15}>
+                  <Container paddingTop={10}>
+                    <Text
+                      textAlign="center"
+                      fontSize={16}
+                      color={COLORS_THEME.black}
+                    >
+                      PRESS [SPACE] TO RESTART
+                    </Text>
+                  </Container>
+                )}
+                {gameStarted && gameOver && (
+                  <Container>
+                    <Text
+                      textAlign="center"
+                      fontSize={16}
+                      color={COLORS_THEME.black}
+                    >
                       PRESS [ESC] TO EXIT
                     </Text>
                   </Container>
