@@ -125,8 +125,8 @@ export const Basketball = ({
       angularDamping={0.5}
     >
       <mesh
-        geometry={geometry}
         scale={1.1}
+        geometry={geometry}
         material={material}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={isTimerLow ? undefined : handlePointerDown}
