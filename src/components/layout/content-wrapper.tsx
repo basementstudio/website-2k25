@@ -21,7 +21,10 @@ import { ScrollDown } from "../primitives/scroll-down"
 const BLACKLISTED_PATHS = [
   /^\/showcase\/\d+$/,
   /^\/showcase\/[^\/]+$/,
-  /^\/post\/[^\/]+$/
+  /^\/post\/[^\/]+$/,
+  /^\/project\/[^\/]+$/
+  // temp
+  // /^\/showcase$/
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
