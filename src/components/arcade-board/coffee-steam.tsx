@@ -1,8 +1,9 @@
 import { useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { RepeatWrapping } from "three"
 
+import { usePausableTime } from "@/hooks/use-pausable-time"
 import { createSteamMaterial } from "@/shaders/material-steam"
 import perlin from "@/shaders/material-steam/perlin.jpg"
 
@@ -13,12 +14,14 @@ export const CoffeeSteam = () => {
 
   const material = useMemo(() => createSteamMaterial(), [])
 
+  const pausableTimeRef = usePausableTime()
+
   useEffect(() => {
     material.uniforms.uNoise.value = noise
   }, [noise, material])
 
-  useFrame(({ clock }) => {
-    material.uniforms.uTime.value = clock.getElapsedTime()
+  useFrame(() => {
+    material.uniforms.uTime.value = pausableTimeRef.current
   })
 
   return (
