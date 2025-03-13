@@ -159,8 +159,6 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
           loadedTracks.current = tracks
 
           if (tracks.length > 0 && !isBasketballPage && !isInGame) {
-            stopAllTracks()
-
             currentTrack.current = tracks[0]
             currentTrack.current.setVolume(AMBIENT_VOLUME)
             currentTrack.current.play()
@@ -200,49 +198,22 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
   useEffect(() => {
     if (!player) return
 
+    const gainNode = currentTrack.current?.outputNode
+    const currentTime = player?.audioContext.currentTime
+
+    if (!gainNode || !currentTime) return
+
     if (isBasketballPage || isInGame) {
-      if (currentTrack.current && currentTrack.current.isPlaying) {
-        currentTrack.current.stop()
-        currentTrack.current = null
-      }
-
-      return () => {
-        if (fadeOutTimeout.current) {
-          clearTimeout(fadeOutTimeout.current)
-          fadeOutTimeout.current = null
-        }
-      }
-    }
-
-    if (!currentTrack.current || !isEnabled) return
-
-    const gainNode = currentTrack.current.outputNode
-    const currentTime = player.audioContext.currentTime
-
-    if (isEnabled) {
+      gainNode.gain.cancelScheduledValues(currentTime)
+      gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
+      gainNode.gain.linearRampToValueAtTime(0, currentTime + FADE_DURATION)
+    } else if (isEnabled && currentTrack.current) {
       gainNode.gain.cancelScheduledValues(currentTime)
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(
         AMBIENT_VOLUME,
         currentTime + FADE_DURATION
       )
-
-      if (fadeOutTimeout.current) {
-        clearTimeout(fadeOutTimeout.current)
-        fadeOutTimeout.current = null
-      }
-    } else {
-      gainNode.gain.cancelScheduledValues(currentTime)
-      gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
-      gainNode.gain.linearRampToValueAtTime(0, currentTime + FADE_DURATION)
-
-      if (fadeOutTimeout.current) {
-        clearTimeout(fadeOutTimeout.current)
-      }
-
-      fadeOutTimeout.current = setTimeout(() => {
-        cleanup()
-      }, FADE_DURATION * 1000)
     }
 
     return () => {
@@ -251,7 +222,7 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
         fadeOutTimeout.current = null
       }
     }
-  }, [isEnabled, isBasketballPage, isInGame, player, cleanup, stopAllTracks])
+  }, [isEnabled, isBasketballPage, isInGame, player, currentTrack])
 
   useEffect(() => {
     if (typeof window !== "undefined" && isEnabled) {

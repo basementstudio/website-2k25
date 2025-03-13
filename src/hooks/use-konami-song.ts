@@ -10,8 +10,6 @@ import { useSiteAudioStore } from "./use-site-audio"
 export function useKonamiSong() {
   const isInGame = useArcadeStore((s) => s.isInGame)
   const player = useSiteAudioStore((s) => s.player)
-  const themeSong = useSiteAudioStore((s) => s.themeSong)
-  const ostSong = useSiteAudioStore((s) => s.ostSong)
   const { ARCADE_AUDIO_SFX } = useAudioUrls()
   const [miamiHeatwaveSong, setMiamiHeatwaveSong] =
     useState<AudioSource | null>(null)
@@ -38,21 +36,10 @@ export function useKonamiSong() {
         if (isInGame && !miamiHeatwaveSong && !isInitialized.current) {
           isInitialized.current = true
 
-          player.stopAllMusicTracks()
-
-          if (themeSong && themeSong.isPlaying) {
-            themeSong.pause()
-          }
-
-          if (ostSong && ostSong.isPlaying) {
-            ostSong.stop()
-            useSiteAudioStore.setState({ ostSong: null })
-          }
-
           const newMiamiHeatwaveSong = await player.loadAudioFromURL(
             ARCADE_AUDIO_SFX.MIAMI_HEATWAVE,
-            false, // not SFX
-            true // is game audio
+            false,
+            true
           )
           newMiamiHeatwaveSong.loop = true
           newMiamiHeatwaveSong.setVolume(0)
@@ -72,15 +59,7 @@ export function useKonamiSong() {
         cleanup()
       }
     }
-  }, [
-    player,
-    isInGame,
-    miamiHeatwaveSong,
-    themeSong,
-    ostSong,
-    cleanup,
-    ARCADE_AUDIO_SFX
-  ])
+  }, [player, isInGame, miamiHeatwaveSong, cleanup, ARCADE_AUDIO_SFX])
 
   useEffect(() => {
     if (!miamiHeatwaveSong || !player) return
@@ -109,21 +88,9 @@ export function useKonamiSong() {
       if (fadeOutTimeout.current) {
         clearTimeout(fadeOutTimeout.current)
       }
-
-      fadeOutTimeout.current = setTimeout(
-        () => {
-          cleanup()
-
-          if (themeSong && !themeSong.isPlaying) {
-            themeSong.play()
-          }
-
-          if (ostSong && !ostSong.isPlaying) {
-            ostSong.play()
-          }
-        },
-        (FADE_DURATION * 1000) / 2
-      )
+      fadeOutTimeout.current = setTimeout(() => {
+        cleanup()
+      }, FADE_DURATION * 1000)
     }
 
     return () => {
@@ -132,5 +99,5 @@ export function useKonamiSong() {
         fadeOutTimeout.current = null
       }
     }
-  }, [isInGame, miamiHeatwaveSong, player, themeSong, ostSong, cleanup])
+  }, [isInGame, miamiHeatwaveSong, player, cleanup])
 }

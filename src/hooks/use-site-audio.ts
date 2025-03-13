@@ -71,7 +71,7 @@ export function useInitializeAudioContext(element?: HTMLElement) {
 
         newPlayer.volume = savedMusicPreference === "true" ? 1 : 0
 
-        if (savedMusicPreference === null || savedMusicPreference === "true") {
+        if (savedMusicPreference === null) {
           window.dispatchEvent(new Event("firstInteraction"))
         }
 
@@ -304,7 +304,7 @@ export function useSiteAudio(): SiteAudioHook {
     const savedMusicPreference = localStorage.getItem("music-enabled")
 
     // First interaction handler
-    if (savedMusicPreference === null || savedMusicPreference === "true") {
+    if (savedMusicPreference === null) {
       const handleFirstInteraction = () => {
         setMusic(true)
         _setVolumeMaster(1)

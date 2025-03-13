@@ -38,8 +38,6 @@ export function useBasketballThemeSong(isEnabled: boolean = true) {
         if (isBasketballPage && !basketballTheme && !isInitialized.current) {
           isInitialized.current = true
 
-          player.stopAllMusicTracks()
-
           const newBasketballTheme = await player.loadAudioFromURL(
             GAME_THEME_SONGS.BASKETBALL_AMBIENT,
             false, // not SFX
