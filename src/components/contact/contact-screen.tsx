@@ -66,7 +66,7 @@ const ContactScreen = () => {
   const updatePositionRef = useRef<(() => void) | null>(null)
   const [screenPosition, setScreenPosition] = useState({ x: 0.5, y: 0.5, z: 0 })
   const [scale, setScale] = useState(1)
-  const [isAnimating, setIsAnimating] = useState(false)
+
   const animation = useAnimation()
   const worker = useContactStore((state) => state.worker)
 
@@ -76,18 +76,25 @@ const ContactScreen = () => {
   useEffect(() => {
     if (!worker) return
 
+    console.log("Worker connected:", !!worker)
+
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "update-screen-skinned-matrix") {
         const { screenPos } = e.data
         requestAnimationFrame(() => {
           setScreenPosition(screenPos)
         })
-      } else if (e.data.type === "intro-complete") {
-        setIsAnimating(true)
-      } else if (e.data.type === "scale-type") {
-        if (e.data.scale === "scale-down") {
-          setIsAnimating(false)
-        }
+      }
+      if (e.data.type === "intro-complete") {
+        animation.start({
+          scaleX: [0, 0, 1, 1],
+          scaleY: [0, 0.01, 0.01, 1],
+          transition: {
+            duration: 0.6,
+            times: [0, 0.2, 0.6, 1],
+            ease: "easeOut"
+          }
+        })
       }
     }
 
@@ -95,11 +102,12 @@ const ContactScreen = () => {
 
     return () => {
       worker.removeEventListener("message", handleMessage)
+
       if (updatePositionRef.current) {
         window.removeEventListener("resize", updatePositionRef.current)
       }
     }
-  }, [worker])
+  }, [worker, animation])
 
   useEffect(() => {
     const updateScale = () => {
@@ -143,30 +151,6 @@ const ContactScreen = () => {
       window.removeEventListener("resize", updateScale)
     }
   }, [])
-
-  useEffect(() => {
-    if (isAnimating) {
-      animation.start({
-        scaleX: [0, 0, 1, 1],
-        scaleY: [0, 0.01, 0.01, 1],
-        transition: {
-          duration: 0.6,
-          times: [0, 0.2, 0.6, 1],
-          ease: "easeOut"
-        }
-      })
-    } else {
-      animation.start({
-        scaleX: [1, 1, 0, 0],
-        scaleY: [1, 0.01, 0.01, 0],
-        transition: {
-          duration: 0.6,
-          times: [0, 0.4, 0.8, 1],
-          ease: "easeIn"
-        }
-      })
-    }
-  }, [isAnimating, animation])
 
   return (
     <>

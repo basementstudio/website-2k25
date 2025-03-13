@@ -88,8 +88,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       const oldMaterial = node.material
       const basicMaterial = new MeshBasicMaterial({
         color: "color" in oldMaterial ? oldMaterial.color : undefined,
-        map: "map" in oldMaterial ? oldMaterial.map : undefined,
-        opacity: "opacity" in oldMaterial ? oldMaterial.opacity : undefined
+        map: "map" in oldMaterial ? oldMaterial.map : undefined
       })
 
       node.material = basicMaterial
@@ -165,7 +164,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       <group scale={1} ref={phoneGroupRef} position={[0, 0, 0]}>
         <primitive object={scene} />
       </group>
-      <mesh ref={debugMeshRef} renderOrder={2} visible={true}>
+      <mesh ref={debugMeshRef} renderOrder={2} visible={false}>
         <sphereGeometry args={[0.05, 32, 32]} />
         <meshBasicMaterial color="green" depthTest={false} transparent />
       </mesh>
