@@ -107,8 +107,8 @@ export const Basketball = ({
       angularDamping={0.5}
     >
       <mesh
+        scale={1.1}
         geometry={geometry}
-        scale={1.25}
         material={material}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
         onPointerDown={handlePointerDown}
