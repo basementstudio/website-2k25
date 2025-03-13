@@ -2,7 +2,7 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { motion } from "motion/react"
 import Image from "next/image"
 import Link from "next/link"
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback, useRef, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { cn } from "@/utils/cn"
@@ -13,18 +13,13 @@ const AccordionListItem = memo(
   ({
     project,
     index,
-    disabled,
-    isOpen,
-    sectionSeen,
-    onRevealFinished
+    disabled
   }: {
     project: Project
     index: number
     disabled: boolean
-    isOpen: boolean
-    sectionSeen: boolean
-    onRevealFinished: () => void
   }) => {
+    const [firstItemSeen, setFirstItemSeen] = useState(false)
     return (
       <AccordionPrimitive.Item
         key={index}
@@ -36,7 +31,7 @@ const AccordionListItem = memo(
             "[&[data-state=open]_.diagonal-lines]:opacity-0",
             "group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300",
             disabled && "pointer-events-none",
-            isOpen ? "cursor-n-resize" : "cursor-ns-resize"
+            true ? "cursor-n-resize" : "cursor-ns-resize"
           )}
           disabled={disabled}
         >
@@ -132,18 +127,21 @@ const AccordionListItem = memo(
                     initial={{ opacity: 0 }}
                     whileInView={{
                       opacity:
-                        index === 0 && !sectionSeen ? [null, 1, 0, 1, 0, 1] : 1
+                        index === 0 && !firstItemSeen
+                          ? [null, 1, 0, 1, 0, 1]
+                          : 1
                     }}
                     transition={{
                       delay:
-                        (index === 0 && !sectionSeen
+                        (index === 0 && !firstItemSeen
                           ? imgIndex * 0.1
                           : imgIndex * 0.05) + 0.1,
                       duration: 0.3
                     }}
                     onAnimationComplete={() => {
-                      if (imgIndex === array.length - 1 && !sectionSeen) {
-                        onRevealFinished()
+                      if (firstItemSeen) return
+                      if (imgIndex === array.length - 1) {
+                        setFirstItemSeen(true)
                       }
                     }}
                     className="col-span-2"
@@ -191,9 +189,6 @@ export const List = memo(
             project={item}
             index={index}
             disabled={isProjectDisabled(item)}
-            isOpen={itemOpen === index.toString()}
-            sectionSeen={sectionSeen}
-            onRevealFinished={() => setSectionSeen(true)}
           />
         ))}
       </AccordionPrimitive.Root>
