@@ -31,6 +31,7 @@ import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -149,20 +150,18 @@ export const Map = memo(() => {
     return () => tl.current?.stop()
   }, [selected])
 
-  useFrame(({ clock }) => {
-    timeRef.current = clock.getElapsedTime()
+  useFrameCallback((_, __, elapsedTime) => {
+    timeRef.current = elapsedTime
 
-    Object.values(shaderMaterialsRef).forEach((material) => {
-      material.uniforms.uTime.value = clock.getElapsedTime()
-
+    for (const material of Object.values(shaderMaterialsRef)) {
+      material.uniforms.uTime.value = elapsedTime
       material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
-    })
+    }
 
     if (useMesh.getState().cctv?.screen?.material) {
       // @ts-ignore
-      useMesh.getState().cctv.screen.material.uniforms.uTime.value =
-        clock.getElapsedTime()
+      useMesh.getState().cctv.screen.material.uniforms.uTime.value = elapsedTime
     }
   })
 
@@ -316,11 +315,13 @@ export const Map = memo(() => {
             )
 
         if (isGlass) {
-          Array.isArray(newMaterials)
-            ? newMaterials.forEach((material) => {
-                material.depthWrite = false
-              })
-            : (newMaterials.depthWrite = false)
+          if (Array.isArray(newMaterials)) {
+            for (const material of newMaterials) {
+              material.depthWrite = false
+            }
+          } else {
+            newMaterials.depthWrite = false
+          }
         }
 
         meshChild.material = newMaterials
@@ -390,7 +391,7 @@ export const Map = memo(() => {
     if (inspectables.length === 0) {
       const inspectableMeshes: Mesh[] = []
 
-      inspectableAssets.forEach(({ mesh: meshName }) => {
+      for (const { mesh: meshName } of inspectableAssets) {
         const mesh = officeModel.getObjectByName(meshName) as Mesh | null
         if (mesh) {
           mesh.userData.position = {
@@ -407,7 +408,7 @@ export const Map = memo(() => {
 
           inspectableMeshes.push(mesh)
         }
-      })
+      }
 
       useMesh.setState({ inspectableMeshes })
     }
@@ -463,11 +464,11 @@ export const Map = memo(() => {
     ) {
       const outdoorCarsMeshes: (Mesh | null)[] = []
 
-      outdoorCarsModel.children.forEach((child) => {
+      for (const child of outdoorCarsModel.children) {
         if (child instanceof Mesh) {
           outdoorCarsMeshes.push(child)
         }
-      })
+      }
       useMesh.setState({ outdoorCarsMeshes })
     }
 

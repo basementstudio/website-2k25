@@ -12,6 +12,8 @@ import {
   useState
 } from "react"
 
+import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
+
 // Context for sharing animation time
 interface AnimationContext {
   time: number
@@ -125,6 +127,7 @@ function AnimationControllerImpl({
 
   // Use Motion's useAnimationFrame as our single RAF
   useAnimationFrame(animationCallback)
+  useGlobalFrameLoop()
 
   return (
     <AnimationContext.Provider value={timeValues}>
