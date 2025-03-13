@@ -158,9 +158,11 @@ export const ArcadeGame = ({
               color={COLORS_THEME.primary}
               textAlign={"center"}
             >
-              <Text color={COLORS_THEME.black} positionTop={-200}>
-                SCORE: {`${scoreDisplay}`}
-              </Text>
+              {(gameStarted || gameOver) && (
+                <Text color={COLORS_THEME.black} positionTop={-200}>
+                  SCORE: {`${scoreDisplay}`}
+                </Text>
+              )}
               <Container
                 width={600}
                 height={100}
@@ -172,15 +174,14 @@ export const ArcadeGame = ({
                 positionBottom={-60}
                 visibility={gameStarted ? "hidden" : "visible"}
               >
-                <Container paddingTop={10} backgroundColor={COLORS_THEME.black}>
-                  <Text textAlign="center">
-                    {gameStarted && gameOver
-                      ? "Press [SPACE] to restart".toUpperCase()
-                      : !gameStarted
-                        ? "Press [SPACE] to start".toUpperCase()
-                        : ""}
-                  </Text>
-                </Container>
+                {gameStarted && gameOver && (
+                  <Container
+                    paddingTop={10}
+                    backgroundColor={COLORS_THEME.black}
+                  >
+                    <Text textAlign="center">PRESS [SPACE] TO RESTART</Text>
+                  </Container>
+                )}
                 {gameStarted && gameOver && (
                   <Container backgroundColor={COLORS_THEME.black}>
                     <Text textAlign="center" fontSize={15}>
