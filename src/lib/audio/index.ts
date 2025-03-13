@@ -9,7 +9,7 @@ export class AudioSource {
   public loop = false
   private pitch = 1
   private onEndedCallback: (() => void) | null = null
-  public isSFX: boolean = false // Flag to identify if this is an SFX or music track
+  public isSFX: boolean = false
 
   constructor(
     audioPlayer: WebAudioPlayer,
@@ -25,7 +25,6 @@ export class AudioSource {
   }
 
   play() {
-    // Ensure we stop any existing playback before starting a new one
     if (this.isPlaying) {
       this.stop()
     }
@@ -87,8 +86,6 @@ export class AudioSource {
     }
   }
 
-  // Add new methods for track playback monitoring
-
   /**
    * Get the total duration of the audio track in seconds
    */
@@ -148,7 +145,7 @@ export class WebAudioPlayer {
   public isPlaying: boolean
   public volume: number
   public musicVolume: number
-  private audioSources: Set<AudioSource> = new Set() // Track all audio sources
+  private audioSources: Set<AudioSource> = new Set()
 
   constructor() {
     this.audioContext = new (window.AudioContext || window.AudioContext)()

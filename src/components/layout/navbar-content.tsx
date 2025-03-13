@@ -13,7 +13,6 @@ import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMedia } from "@/hooks/use-media"
 import { usePreventScroll } from "@/hooks/use-prevent-scroll"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useScrollStore } from "@/providers/lenis-provider"
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
