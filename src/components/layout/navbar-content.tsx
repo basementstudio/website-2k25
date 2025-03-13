@@ -13,7 +13,6 @@ import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMedia } from "@/hooks/use-media"
 import { usePreventScroll } from "@/hooks/use-prevent-scroll"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useScrollStore } from "@/providers/lenis-provider"
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
@@ -185,6 +184,7 @@ const MobileContent = memo(
               links={links}
               onClick={handleChangeLink}
               className="col-span-4"
+              onNav={true}
             />
 
             <div className="col-span-4 flex h-full flex-col justify-end gap-y-16">
@@ -212,7 +212,7 @@ const MobileContent = memo(
       <div className="col-start-4 col-end-5 grid items-center justify-end gap-5 lg:hidden">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex w-18 flex-col gap-1"
+          className="flex w-8 flex-col gap-1"
           aria-label={isOpen ? "Close menu" : "Open menu"}
           ref={menuHandlerRef}
         >
