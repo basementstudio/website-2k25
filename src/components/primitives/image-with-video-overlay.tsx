@@ -13,11 +13,17 @@ const MuxVideo = dynamic(() => import("@mux/mux-video-react"), { ssr: false })
 export const ImageWithVideoOverlay = ({
   image,
   video,
-  firstItem
+  disabled,
+  className,
+  firstItem = false,
+  variant = "home"
 }: {
-  image?: ImageFragment
-  video?: VideoFragment
-  firstItem: boolean
+  image: ImageFragment
+  video?: VideoFragment | null
+  disabled?: boolean
+  className?: string
+  firstItem?: boolean
+  variant?: "home" | "showcase"
 }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
@@ -65,15 +71,20 @@ export const ImageWithVideoOverlay = ({
 
   return (
     <div
-      className={cn("relative h-full w-full transition-opacity duration-300")}
+      className={cn(
+        "relative h-full w-full transition-opacity duration-300",
+        className,
+        { "pointer-events-none opacity-0": disabled }
+      )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <Image
         src={image?.url ?? ""}
         alt={image?.alt ?? ""}
-        width={firstItem ? 960 : 480}
-        height={firstItem ? 540 : 270}
+        width={variant === "showcase" ? (firstItem ? 960 : 480) : undefined}
+        height={variant === "showcase" ? (firstItem ? 540 : 270) : undefined}
+        fill={variant === "home" ? true : false}
         blurDataURL={image?.blurDataURL ?? ""}
         placeholder="blur"
         className="h-full w-full object-cover"
