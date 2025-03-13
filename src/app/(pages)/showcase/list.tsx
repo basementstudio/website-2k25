@@ -108,6 +108,7 @@ const AccordionListItem = memo(
                     autoPlay
                     playsInline
                     muted
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <Image
@@ -116,6 +117,7 @@ const AccordionListItem = memo(
                     alt={item.image?.alt ?? ""}
                     fill
                     sizes="(max-width: 1024px) 90vw, 15vw"
+                    priority
                   />
                 )
 
