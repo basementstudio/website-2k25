@@ -28,14 +28,28 @@ export const useHandleNavigation = () => {
     scrollToRef.current = scrollToFn
   }, [scrollToFn])
 
+  const getScene = useCallback(
+    (route: string) => {
+      if (route === "/")
+        return scenes?.find((scene) => scene.name.toLowerCase() === "home")
+
+      // strip the query params and hash if any, split by / and take the last part
+      const routeWithoutParams = route
+        .split("?")[0]
+        .split("#")[0]
+        .split("/")
+        .pop()
+
+      return scenes?.find((scene) => scene.name === routeWithoutParams)
+    },
+    [scenes]
+  )
+
   const handleNavigation = useCallback(
     (route: string) => {
       if (route === pathname) return
 
-      const selectedScene =
-        route === "/"
-          ? scenes?.find((scene) => scene.name.toLowerCase() === "home")
-          : scenes?.find((scene) => scene.name === route.split("/")[1])
+      const selectedScene = getScene(route)
 
       if (!selectedScene) return
 
