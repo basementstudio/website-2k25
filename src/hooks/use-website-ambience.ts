@@ -203,11 +203,27 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
 
     if (!gainNode || !currentTime) return
 
+    console.log("Ambience transition: ", {
+      isBasketballPage,
+      isInGame,
+      isEnabled,
+      hasTrack: !!currentTrack.current,
+      isPlaying: currentTrack.current?.isPlaying
+    })
+
     if (isBasketballPage || isInGame) {
       gainNode.gain.cancelScheduledValues(currentTime)
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(0, currentTime + FADE_DURATION)
     } else if (isEnabled && currentTrack.current) {
+      if (!currentTrack.current.isPlaying) {
+        currentTrack.current.play()
+
+        useSiteAudioStore.setState({
+          ostSong: currentTrack.current
+        })
+      }
+
       gainNode.gain.cancelScheduledValues(currentTime)
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(
