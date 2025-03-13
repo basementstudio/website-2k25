@@ -1,4 +1,5 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
+import { motion } from "motion/react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useState } from "react"
@@ -18,23 +19,19 @@ const AccordionListItem = memo(
     index: number
     disabled: boolean
   }) => {
+    const [firstItemSeen, setFirstItemSeen] = useState(false)
     return (
       <AccordionPrimitive.Item
         key={index}
-        className={cn(
-          "grid-layout [&:last-of-type>button]:border-b [&[data-state=closed]_.view-project]:opacity-0",
-          disabled
-            ? "[&[data-state=open]_.view-project]:opacity-30"
-            : "[&[data-state=open]_.view-project]:opacity-100",
-          "[&[data-state=open]]:will-change-[opacity,transform]"
-        )}
+        className="grid-layout [&:last-of-type>button]:border-b"
         value={index.toString()}
       >
         <AccordionPrimitive.Trigger
           className={cn(
             "[&[data-state=open]_.diagonal-lines]:opacity-0",
-            "group relative col-span-12 grid cursor-nesw-resize grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300",
-            disabled && "pointer-events-none"
+            "group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300",
+            disabled && "pointer-events-none",
+            true ? "cursor-n-resize" : "cursor-ns-resize"
           )}
           disabled={disabled}
         >
@@ -75,52 +72,85 @@ const AccordionListItem = memo(
             </p>
             <Link
               href={`/showcase/${project?._slug}`}
-              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 opacity-0 transition-opacity duration-300"
+              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2"
             >
-              <span className="actionable">View Work</span>{" "}
-              <Arrow className="inline-block size-4" />
+              <span className="actionable actionable-no-underline gap-x-1">
+                <span className="actionable actionable-inanimate">
+                  View Work
+                </span>
+                <Arrow className="inline-block size-4" />
+              </span>
             </Link>
           </div>
 
           <AccordionPrimitive.Content
             className={cn(
+              "group",
               "col-span-12",
-              "overflow-hidden transition-[transform,opacity,height] duration-300",
-              "data-[state=closed]:h-0 data-[state=closed]:translate-y-[-10px] data-[state=closed]:opacity-0",
-              "data-[state=open]:h-auto data-[state=open]:translate-y-0 data-[state=open]:opacity-100",
+              "overflow-hidden",
+              "will-change-[opacity,transform]",
+              "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
               disabled && "opacity-30"
             )}
           >
-            <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
-              {project.showcase?.items.map((item, index) => {
-                if (item.video) {
-                  return (
-                    <video
-                      key={index}
-                      src={item.video.url}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="col-span-2"
-                    />
-                  )
-                }
-
-                return (
+            <Link
+              href={`/showcase/${project?._slug}`}
+              className={cn(
+                "grid grid-cols-12 gap-2 pb-0.5 pt-4",
+                "transition-opacity duration-200 group-data-[state=closed]:opacity-0 group-data-[state=open]:opacity-100"
+              )}
+            >
+              {project.showcase?.items.map((item, imgIndex, array) => {
+                const elementToRender = item.video ? (
+                  <video
+                    key={imgIndex}
+                    src={item.video.url}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
                   <Image
-                    key={index}
+                    key={imgIndex}
                     src={item.image?.url ?? ""}
                     alt={item.image?.alt ?? ""}
-                    width={item.image?.width ?? 0}
-                    height={item.image?.height ?? 0}
-                    className="col-span-2"
-                    blurDataURL={item.image?.blurDataURL ?? ""}
-                    placeholder="blur"
+                    fill
+                    sizes="(max-width: 1024px) 90vw, 15vw"
                     priority
                   />
                 )
+
+                return (
+                  <motion.div
+                    key={imgIndex}
+                    initial={{ opacity: 0 }}
+                    whileInView={{
+                      opacity:
+                        index === 0 && !firstItemSeen
+                          ? [null, 1, 0, 1, 0, 1]
+                          : 1
+                    }}
+                    transition={{
+                      delay:
+                        (index === 0 && !firstItemSeen
+                          ? imgIndex * 0.1
+                          : imgIndex * 0.05) + 0.1,
+                      duration: 0.3
+                    }}
+                    onAnimationComplete={() => {
+                      if (firstItemSeen) return
+                      if (imgIndex === array.length - 1) {
+                        setFirstItemSeen(true)
+                      }
+                    }}
+                    className="relative col-span-2 aspect-video"
+                  >
+                    {elementToRender}
+                  </motion.div>
+                )
               })}
-            </div>
+            </Link>
           </AccordionPrimitive.Content>
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Item>
@@ -138,6 +168,7 @@ export const List = memo(
     isProjectDisabled: (project: Project) => boolean
   }) => {
     const [itemOpen, setItemOpen] = useState<string>()
+    const [sectionSeen, setSectionSeen] = useState<boolean>(false)
 
     const handleValueChange = useCallback((value: string) => {
       setItemOpen(value)

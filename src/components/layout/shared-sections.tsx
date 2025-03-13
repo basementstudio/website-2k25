@@ -1,41 +1,66 @@
+"use client"
+
 import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
+
+import { useContactStore } from "../contact/contact-store"
 
 interface InternalLinksProps {
   className?: string
   links: { title: string; href: string; count?: number }[]
   onClick?: () => void
+  onNav?: boolean
 }
 
 export const InternalLinks = ({
   className,
   links,
-  onClick
-}: InternalLinksProps) => (
-  <ul
-    className={cn(
-      "flex flex-col gap-y-1 !text-mobile-h2 text-brand-g1 lg:!text-h2",
-      className
-    )}
-  >
-    {links.map((link) => (
-      <li key={link.title}>
-        <Link
-          className="flex gap-x-0.5 text-brand-w1"
-          href={link.href}
-          onClick={onClick}
-        >
-          <span className="actionable">{link.title}</span>
-          {link.count && (
-            <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
-              <span className="tabular-nums">({link.count})</span>
-            </sup>
+  onClick,
+  onNav
+}: InternalLinksProps) => {
+  const { isContactOpen, setIsContactOpen } = useContactStore()
+
+  return (
+    <ul
+      className={cn(
+        "flex flex-col gap-y-1",
+        onNav ? "!text-[3.25rem] tracking-[-0.02em]" : "!text-mobile-h2",
+        "text-brand-w1 lg:!text-h2",
+        className
+      )}
+    >
+      {links.map((link) => (
+        <li key={link.title}>
+          <Link
+            className="flex gap-x-0.5 text-brand-w1"
+            href={link.href}
+            onClick={onClick}
+          >
+            <span className="actionable">{link.title}</span>
+            {link.count && (
+              <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
+                <span className="tabular-nums">({link.count})</span>
+              </sup>
+            )}
+          </Link>
+        </li>
+      ))}
+      <li>
+        <button
+          disabled={isContactOpen}
+          onClick={() => setIsContactOpen(!isContactOpen)}
+          className={cn(
+            "flex w-max flex-col gap-y-1",
+            onNav ? "!text-[3.25rem] tracking-[-0.02em]" : "!text-mobile-h2",
+            "text-brand-w1 lg:!text-h2"
           )}
-        </Link>
+        >
+          <span className="actionable">Contact Us</span>
+        </button>
       </li>
-    ))}
-  </ul>
-)
+    </ul>
+  )
+}
 
 interface SocialLinksProps {
   className?: string
@@ -49,15 +74,19 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
       className
     )}
   >
-    <Link className="text-brand-w1" href={links.twitter} target="_blank">
+    <Link className="h-max text-brand-w1" href={links.twitter} target="_blank">
       <span className="actionable">X (Twitter)</span>
     </Link>
     <span>,</span>
-    <Link className="text-brand-w1" href={links.instagram} target="_blank">
+    <Link
+      className="h-max text-brand-w1"
+      href={links.instagram}
+      target="_blank"
+    >
       <span className="actionable">Instagram</span>
     </Link>
     <span>,</span>
-    <Link className="text-brand-w1" href={links.github} target="_blank">
+    <Link className="h-max text-brand-w1" href={links.github} target="_blank">
       <span className="actionable">GitHub</span>
     </Link>
   </div>
