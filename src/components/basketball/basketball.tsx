@@ -73,8 +73,14 @@ export const Basketball = ({
         if (bounceCount.current >= 1) {
           bounceCount.current = 0
           if (ballRef.current) {
-            const currentPos = ballRef.current.translation()
-            ballRef.current.setBodyType(2)
+            const ball = ballRef.current
+            const translation = ball.translation()
+            const currentPos = {
+              x: translation.x,
+              y: translation.y,
+              z: translation.z
+            }
+            ball.setBodyType(2)
             resetBallToInitialPosition(currentPos)
           }
         }

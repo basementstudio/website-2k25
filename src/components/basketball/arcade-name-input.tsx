@@ -80,8 +80,8 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
     const playerName = letters.join("")
 
     try {
-      await submitScore(playerName, score)
-
+      // await submitScore(playerName, score)
+      await new Promise((resolve) => setTimeout(resolve, 200))
       setPlayerName(playerName)
       setReadyToPlay(true)
       setHasPlayed(false)

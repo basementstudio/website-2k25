@@ -189,12 +189,11 @@ const HoopMinigameInner = () => {
     (position?: { x: number; y: number; z: number }) => {
       if (!isBasketball || !ballRef.current) return
       try {
-        startResetPos.current.copy(
-          new Vector3(
-            position?.x ?? initialPosition.x,
-            position?.y ?? initialPosition.y,
-            position?.z ?? initialPosition.z
-          )
+        // Create a new Vector3 instead of copying to avoid aliasing
+        startResetPos.current = new Vector3(
+          position?.x ?? initialPosition.x,
+          position?.y ?? initialPosition.y,
+          position?.z ?? initialPosition.z
         )
 
         setIsResetting(true)
@@ -246,16 +245,49 @@ const HoopMinigameInner = () => {
                 ballRef.current.setBodyType(0, true)
               }
 
+              // If the ball is currently resetting, wait for it to finish
+              if (isResetting) {
+                console.log("Ball is resetting, waiting to end game...")
+                // Check again in a short while
+                setTimeout(() => {
+                  if (!isUnmounting.current) {
+                    playSoundFX("TIMEOUT_BUZZER", 0.045)
+                    setIsGameActive(false)
+                    setHasPlayed(true)
+                    setReadyToPlay(false)
+                  }
+                }, 500)
+                return 0
+              }
+
               setTimeout(() => {
                 playSoundFX("TIMEOUT_BUZZER", 0.045)
 
                 // if the ball is still in play, we add it to played balls
                 // only if it doesn't already exist there
-                if (ballRef.current && !isUnmounting.current) {
+                if (ballRef.current && !isUnmounting.current && !isResetting) {
                   try {
-                    const currentPos = ballRef.current.translation()
-                    const currentVel = ballRef.current.linvel()
-                    const currentRot = ballRef.current.rotation()
+                    // Create a completely separate copy of all ball data first
+                    // to avoid any aliasing issues with the ball object
+                    const ballTranslation = ballRef.current.translation()
+                    const ballVelocity = ballRef.current.linvel()
+                    const ballRotation = ballRef.current.rotation()
+
+                    const currentPos = {
+                      x: ballTranslation.x,
+                      y: ballTranslation.y,
+                      z: ballTranslation.z
+                    }
+                    const currentVel = {
+                      x: ballVelocity.x,
+                      y: ballVelocity.y,
+                      z: ballVelocity.z
+                    }
+                    const currentRot = {
+                      x: ballRotation.x,
+                      y: ballRotation.y,
+                      z: ballRotation.z
+                    }
 
                     // check if ball was added already
                     const alreadyAdded = playedBalls.some(
@@ -359,6 +391,7 @@ const HoopMinigameInner = () => {
 
     if (isDragging && ballRef.current) {
       try {
+        const ball = ballRef.current
         throwVelocity.current.x = mousePos.current.x - lastMousePos.current.x
         throwVelocity.current.y = mousePos.current.y - lastMousePos.current.y
         lastMousePos.current.copy(mousePos.current)
@@ -384,16 +417,18 @@ const HoopMinigameInner = () => {
           Math.min(-10.2, positionVectors.targetPos.z)
         )
 
-        // Get current ball position
-        const translation = ballRef.current.translation()
+        // Get current ball position - create a copy to avoid aliasing
+        const translation = ball.translation()
         positionVectors.currentBallPos.set(
           translation.x,
           translation.y,
           translation.z
         )
 
-        const rotation = ballRef.current.rotation()
+        // Get current ball rotation - create a copy to avoid aliasing
+        const rotation = ball.rotation()
         positionVectors.currentRot.set(rotation.x, rotation.y, rotation.z)
+
         // Interpolate towards the target position with smooth lerp
         const lerpFactor = 0.002 // Adjust this value for smoother or more responsive movement
         positionVectors.dragPos.lerpVectors(
@@ -407,7 +442,13 @@ const HoopMinigameInner = () => {
           !isNaN(positionVectors.dragPos.y) &&
           !isNaN(positionVectors.dragPos.z)
         ) {
-          ballRef.current.setTranslation(positionVectors.dragPos, true)
+          // Create a new position object to avoid aliasing
+          const newPosition = {
+            x: positionVectors.dragPos.x,
+            y: positionVectors.dragPos.y,
+            z: positionVectors.dragPos.z
+          }
+          ball.setTranslation(newPosition, true)
         } else {
           setIsDragging(false)
           resetBallToInitialPosition()
@@ -425,9 +466,16 @@ const HoopMinigameInner = () => {
         const progress = MathUtils.clamp(resetProgress.current, 0, 1)
         const easedProgress = easeInOutCubic(progress)
 
+        // Create a completely new Vector3 for the new position
+        const targetPosition = new Vector3(
+          initialPosition.x,
+          initialPosition.y,
+          initialPosition.z
+        )
+
         const newPosition = new Vector3().lerpVectors(
           startResetPos.current,
-          new Vector3(initialPosition.x, initialPosition.y, initialPosition.z),
+          targetPosition,
           easedProgress
         )
 
@@ -436,18 +484,36 @@ const HoopMinigameInner = () => {
           !isNaN(newPosition.y) &&
           !isNaN(newPosition.z)
         ) {
-          ballRef.current.setTranslation(newPosition, true)
+          // Create a plain object for the position to avoid any aliasing with Vector3
+          const positionToSet = {
+            x: newPosition.x,
+            y: newPosition.y,
+            z: newPosition.z
+          }
+          // Get a fresh reference to the ball
+          const ball = ballRef.current
+          ball.setTranslation(positionToSet, true)
         } else {
           console.warn("invalid position during ball reset")
           setIsResetting(false)
           resetProgress.current = 0
-          ballRef.current.setTranslation(initialPosition, true)
+          // Create a plain object for the position
+          const initialPos = {
+            x: initialPosition.x,
+            y: initialPosition.y,
+            z: initialPosition.z
+          }
+          // Get a fresh reference to the ball
+          const ball = ballRef.current
+          ball.setTranslation(initialPos, true)
         }
 
         if (progress === 1) {
           setIsResetting(false)
           resetProgress.current = 0
-          ballRef.current.setBodyType(2, true)
+          // Get a fresh reference to the ball
+          const ball = ballRef.current
+          ball.setBodyType(2, true)
         }
       } catch (error) {
         console.warn("Failed to reset ball animation, physics might be paused")
