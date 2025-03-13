@@ -3,8 +3,8 @@ import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCursor } from "@/hooks/use-mouse"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
@@ -70,7 +70,7 @@ export const Basketball = ({
       if (other.rigidBodyObject?.name === "floor") {
         bounceCount.current += 1
 
-        if (bounceCount.current >= 2) {
+        if (bounceCount.current >= 1) {
           bounceCount.current = 0
           if (ballRef.current) {
             const currentPos = ballRef.current.translation()

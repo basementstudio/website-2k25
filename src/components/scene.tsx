@@ -118,13 +118,13 @@ export const Scene = () => {
                     <PhysicsWorld paused={!isBasketball}>
                       <ErrorBoundary>
                         <HoopMinigame />
-                        <PlayedBasketballs />
+                        {/* <PlayedBasketballs /> */}
                       </ErrorBoundary>
                     </PhysicsWorld>
                   )}
                 </Suspense>
                 <Suspense fallback={null}>
-                  <StaticBasketballs />
+                  {/* <StaticBasketballs /> */}
                 </Suspense>
                 <Suspense fallback={null}>
                   <CharacterInstanceConfig />
