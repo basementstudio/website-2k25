@@ -11,7 +11,6 @@ import {
   useRef,
   useState
 } from "react"
-import type * as THREE from "three"
 
 // Context for sharing animation time
 interface AnimationContext {
@@ -53,41 +52,14 @@ function AnimationControllerImpl({
   frameSkip = 0,
   pauseOnTabChange = true
 }: AnimationControllerProps) {
-  // Get invalidate and state from React Three Fiber
-  const { invalidate, gl } = useThree()
-
-  // We need to access the internal three.js clock
-  const clockRef = useRef<THREE.Clock>()
-
-  // Initialize the clock reference
-  useEffect(() => {
-    // Access R3F's internal clock from the renderer
-    if (gl.info?.render) {
-      // Find the clock in the Three.js renderer
-      const renderer = gl as unknown as {
-        xr?: { getFrame: () => any }
-        info: { render: { frame: number } }
-        clocks?: Map<any, THREE.Clock>
-      }
-
-      // Store reference to the clock
-      if (renderer.clocks) {
-        const clocksArray = Array.from(renderer.clocks.values())
-        if (clocksArray.length > 0) {
-          clockRef.current = clocksArray[0]
-        }
-      }
-    }
-  }, [gl])
+  // Get invalidate from React Three Fiber
+  const { invalidate } = useThree()
 
   // State to track tab visibility
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
 
   // Combined paused state (manual pause or tab hidden)
   const isPaused = paused || (pauseOnTabChange && !isTabVisible)
-
-  // Previous pause state to detect changes
-  const wasPausedRef = useRef(isPaused)
 
   // Use refs for internal values that don't need to trigger re-renders
   const timeValuesRef = useRef({ time: 0, delta: 0 })
@@ -110,23 +82,6 @@ function AnimationControllerImpl({
       document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
   }, [pauseOnTabChange])
-
-  // Control the Three.js clock
-  useEffect(() => {
-    if (!clockRef.current) return
-
-    if (isPaused && !wasPausedRef.current) {
-      // Just paused - stop the clock
-      clockRef.current.stop()
-    } else if (!isPaused && wasPausedRef.current) {
-      // Just unpaused - start the clock without a huge delta jump
-      clockRef.current.start()
-      // Reset delta time to avoid jumps
-      clockRef.current.getDelta()
-    }
-
-    wasPausedRef.current = isPaused
-  }, [isPaused])
 
   // Current time values exposed through context (memoized)
   const timeValues = useMemo(
