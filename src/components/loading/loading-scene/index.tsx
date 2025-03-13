@@ -14,8 +14,7 @@ import { create } from "zustand"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
 import { easeInOutCirc } from "@/utils/math/easings"
-import { clamp, lerp } from "@/utils/math/interpolation"
-import { goArroundTarget } from "@/utils/min-distance-addoung"
+import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
 
 import { getSolidRevealMaterial } from "./materials/solid-reveal-material"
@@ -126,7 +125,8 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       // depthWrite: false,
       uniforms: {
         uReveal: { value: 0 },
-        uColor: { value: new Color("#FF4D00") }
+        uColor: { value: new Color("#FF4D00") },
+        uOpacity: { value: 0 }
       },
       vertexShader: /*glsl*/ `
         varying vec3 vWorldPosition;
@@ -147,6 +147,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       fragmentShader: /*glsl*/ `
         uniform float uReveal;
         uniform vec3 uColor;
+        uniform float uOpacity;
         varying vec3 vWorldPosition;
 
 
@@ -167,7 +168,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
           float reveal = vWorldPosition.z < edgePos ? 0.0 : 1.0;
 
-          gl_FragColor = vec4(vec3(reveal) * 0.7, 1.0);
+          gl_FragColor = vec4(vec3(uOpacity), 1.0);
         }
       `
     })
@@ -180,23 +181,30 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   gl.setClearAlpha(0)
   gl.setClearColor(new Color(0, 0, 0), 0)
 
-  const joseFeliz = true
+  const renderCount = useRef(0)
+
   /**
    * Another approach, camera just appears there
    * */
-
   const updated = useRef(false)
   useFrame(({ camera: C, scene, clock }) => {
-    if (!joseFeliz) {
-      return
-    }
+    renderCount.current++
+    const time = clock.elapsedTime
 
-    let r = Math.min(clock.elapsedTime * 1, 1)
+    let r = Math.min(time * 1, 1)
     r = clamp(r, 0, 1)
     r = easeInOutCirc(0, 1, r)
     ;(lines.material as any).uniforms.uReveal.value = r
 
-    let r2 = Math.min((clock.elapsedTime - 0.2) * 0.5, 1)
+    if (time < 0.5) {
+      lines.visible = Math.sin(time * 50) > 0
+      ;(lines.material as any).uniforms.uOpacity.value = 0.3
+    } else {
+      lines.visible = true
+      ;(lines.material as any).uniforms.uOpacity.value = 0.6
+    }
+
+    let r2 = Math.min(time - 0.2, 1)
     r2 = clamp(r2, 0, 1)
     r2 = easeInOutCirc(0, 1, r2)
     ;(solid.material as any).uniforms.uReveal.value = r2
@@ -224,87 +232,9 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     return
   }, 1)
 
-  const targetCameraPosition = new Vector3(
-    cameraConfig?.position[0] ?? 0,
-    cameraConfig?.position[1] ?? 0,
-    cameraConfig?.position[2] ?? 0
-  )
-
-  const targetCameraLookAt = new Vector3(
-    cameraConfig?.target[0] ?? 0,
-    cameraConfig?.target[1] ?? 0,
-    cameraConfig?.target[2] ?? 0
-  )
-
-  let minDistance =
-    targetCameraPosition.clone().sub(targetCameraLookAt).length() - 0.05
-
-  minDistance = Math.min(minDistance, 5)
-
-  const cameraTravelDistance = targetCameraPosition.distanceTo(initialPosition)
-
-  useFrame(({ scene, gl, clock }, delta) => {
-    if (joseFeliz) {
-      return
-    }
-
-    gl.setClearAlpha(1)
-    gl.setClearColor(new Color(0, 0, 0), 1)
-    gl.clear(true, true)
-
-    /// reveal lines
-    let r = Math.min((clock.elapsedTime - 0.4) * 2, 1)
-    r = clamp(r, 0, 1)
-    r = easeInOutCirc(0, 1, r)
-    ;(lines.material as any).uniforms.uReveal.value = r
-
-    if (cameraConfig && clock.elapsedTime > 1.5) {
-      // start transition after 1.5 seconds
-
-      target.lerp(targetCameraLookAt, Math.min(delta * 8, 1))
-
-      p.x = lerp(p.x, targetCameraPosition.x, delta * 8)
-      p.y = lerp(p.y, targetCameraPosition.y, delta * 10)
-      p.z = lerp(p.z, targetCameraPosition.z, delta * 8)
-
-      const distanceFromCameraToTaretPosition =
-        camera.position.distanceTo(targetCameraPosition)
-
-      // remap fov transition to make it pretty
-      let l =
-        1 -
-        clamp(distanceFromCameraToTaretPosition / cameraTravelDistance, 0, 1)
-
-      let fov = lerp(30, cameraConfig.fov, l)
-
-      // two decimals is ok
-      fov = Math.round(fov * 100) / 100
-
-      if (Math.abs(camera.fov - fov) > 0.0000001) {
-        camera.fov = fov
-        camera.updateProjectionMatrix()
-      }
-    }
-
-    camera.lookAt(target)
-    goArroundTarget(target, p, minDistance, "y")
-
-    camera.position.lerp(p, Math.min(delta * 6, 1))
-
-    const distP = camera.position.distanceTo(targetCameraPosition)
-    const distT = target.distanceTo(targetCameraLookAt)
-
-    if (distP < 0.01 && distT < 0.01) {
-      // send message to stop
-      // self.postMessage({ type: "loading-transition-complete" })
-    }
-
-    gl.render(scene, camera)
-  }, 1)
-
   return (
     <>
-      <primitive object={lines} />
+      <primitive visible={false} object={lines} />
       <primitive object={solid} />
       <PerspectiveCamera position={initialPosition} makeDefault fov={30} />
     </>
