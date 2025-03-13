@@ -2,7 +2,7 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { motion } from "motion/react"
 import Image from "next/image"
 import Link from "next/link"
-import { memo, useCallback, useRef, useState } from "react"
+import { memo, useCallback, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { cn } from "@/utils/cn"
@@ -108,16 +108,14 @@ const AccordionListItem = memo(
                     autoPlay
                     playsInline
                     muted
-                    className="col-span-2"
                   />
                 ) : (
                   <Image
                     key={imgIndex}
                     src={item.image?.url ?? ""}
                     alt={item.image?.alt ?? ""}
-                    width={item.image?.width ?? 0}
-                    height={item.image?.height ?? 0}
-                    className="col-span-2"
+                    fill
+                    sizes="(max-width: 1024px) 90vw, 15vw"
                   />
                 )
 
@@ -144,7 +142,7 @@ const AccordionListItem = memo(
                         setFirstItemSeen(true)
                       }
                     }}
-                    className="col-span-2"
+                    className="relative col-span-2 aspect-video"
                   >
                     {elementToRender}
                   </motion.div>
