@@ -1,8 +1,9 @@
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { ShaderMaterial } from "three"
 
 import { useCursor } from "@/hooks/use-mouse"
 import { useSkipTrack } from "@/hooks/use-skip-track"
+import { useCurrentTrackName } from "@/hooks/use-website-ambience"
 
 import fragmentShader from "../routing-element/frag.glsl"
 import vertexShader from "../routing-element/vert.glsl"
@@ -11,11 +12,26 @@ export const SpeakerHover = () => {
   const [hover, setHover] = useState(false)
   const setCursor = useCursor()
   const skipToNextTrack = useSkipTrack()
+  const currentTrackName = useCurrentTrackName()
+
+  useEffect(() => {
+    if (hover && currentTrackName) {
+      setCursor(
+        "pointer",
+        `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
+        true
+      )
+    }
+  }, [currentTrackName, hover, setCursor])
 
   const handlePointerEnter = useCallback(() => {
     setHover(true)
-    setCursor("pointer", "Now Playing: Aquiescence - Oasis", true)
-  }, [setCursor])
+    setCursor(
+      "pointer",
+      `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
+      true
+    )
+  }, [currentTrackName, setCursor])
 
   const handlePointerLeave = useCallback(() => {
     setHover(false)

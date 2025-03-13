@@ -291,6 +291,7 @@ export function useOfficeAmbience(desiredVolume: number = 0.1) {
 export function useSiteAudio(): SiteAudioHook {
   const player = useSiteAudioStore((s) => s.player)
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
+  const ostSong = useSiteAudioStore((s) => s.ostSong)
 
   // Initialize state with defaults
   const [music, setMusic] = useState(false)
@@ -319,6 +320,24 @@ export function useSiteAudio(): SiteAudioHook {
         window.removeEventListener("firstInteraction", handleFirstInteraction)
     }
   }, [])
+
+  // Monitor ostSong changes to ensure proper audio state
+  useEffect(() => {
+    if (!player || !ostSong) return
+
+    // When ostSong changes, ensure it's the only music track playing
+    // This is handled by the useWebsiteAmbience hook's stopAllTracks function
+    // This effect is just an additional safeguard
+
+    return () => {
+      // Cleanup function - if the ostSong reference is removed,
+      // make sure it's stopped to prevent audio leaks
+      if (ostSong && ostSong.isPlaying) {
+        ostSong.clearOnEnded()
+        ostSong.stop()
+      }
+    }
+  }, [player, ostSong])
 
   const togglePlayMaster = useCallback(() => {
     if (!player) return

@@ -9,17 +9,26 @@ export class AudioSource {
   public loop = false
   private pitch = 1
   private onEndedCallback: (() => void) | null = null
+  public isSFX: boolean = false // Flag to identify if this is an SFX or music track
 
-  constructor(audioPlayer: WebAudioPlayer, buffer: AudioBuffer) {
+  constructor(
+    audioPlayer: WebAudioPlayer,
+    buffer: AudioBuffer,
+    isSFX: boolean = false
+  ) {
     this.audioContext = audioPlayer.audioContext
     this.outputNode = this.audioContext.createGain()
     this.outputNode.connect(audioPlayer.masterOutput)
     this.buffer = buffer
     this.isPlaying = false
+    this.isSFX = isSFX
   }
 
   play() {
-    if (this.isPlaying) return
+    // Ensure we stop any existing playback before starting a new one
+    if (this.isPlaying) {
+      this.stop()
+    }
 
     this.audioSource = this.audioContext.createBufferSource()
     this.audioSource.buffer = this.buffer
@@ -52,8 +61,13 @@ export class AudioSource {
 
   stop() {
     if (this.audioSource) {
-      this.audioSource.disconnect()
-      this.audioSource.stop(0)
+      try {
+        this.audioSource.disconnect()
+        this.audioSource.stop(0)
+      } catch (error) {
+        // Ignore errors that might occur if the audio context is in a bad state
+        console.debug("Error stopping audio source:", error)
+      }
       this.audioSource = undefined
     }
 
@@ -134,6 +148,7 @@ export class WebAudioPlayer {
   public isPlaying: boolean
   public volume: number
   public musicVolume: number
+  private audioSources: Set<AudioSource> = new Set() // Track all audio sources
 
   constructor() {
     this.audioContext = new (window.AudioContext || window.AudioContext)()
@@ -164,11 +179,15 @@ export class WebAudioPlayer {
           return this.audioContext.decodeAudioData(
             arrayBuffer,
             (buffer) => {
-              const source = new AudioSource(this, buffer)
+              const source = new AudioSource(this, buffer, isSFX)
               source.outputNode.disconnect()
               source.outputNode.connect(
                 isSFX ? this.sfxChannel : this.musicChannel
               )
+
+              // Track this audio source
+              this.audioSources.add(source)
+
               resolve(source)
             },
             (error) => {
@@ -177,6 +196,21 @@ export class WebAudioPlayer {
             }
           )
         })
+    })
+  }
+
+  // Get all audio sources
+  getAllAudioSources(): AudioSource[] {
+    return Array.from(this.audioSources)
+  }
+
+  // Stop all music tracks (not SFX)
+  stopAllMusicTracks(): void {
+    this.audioSources.forEach((source) => {
+      if (!source.isSFX && source.isPlaying) {
+        source.clearOnEnded()
+        source.stop()
+      }
     })
   }
 

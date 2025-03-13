@@ -8,9 +8,6 @@ import { useArcadeStore } from "@/store/arcade-store"
 import { useCurrentScene } from "./use-current-scene"
 import { useSiteAudioStore } from "./use-site-audio"
 
-const CROSSFADE_DURATION = 1
-
-// Add a global type declaration
 declare global {
   interface Window {
     __WEBSITE_AMBIENCE__?: {
@@ -32,29 +29,43 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
   const loadedTracks = useRef<AudioSource[]>([])
   const currentTrack = useRef<AudioSource | null>(null)
-  const nextTrack = useRef<AudioSource | null>(null)
-  const crossfadeTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const ambiencePlaylist = useMemo(() => {
     return [
       {
-        name: "Chrome Tiger - Basement Jukebox",
+        name: "Chrome Tiger - Basement Jukebox 02:40",
         url: AMBIENCE.AMBIENCE_TIGER
       },
       {
-        name: "Perfect Waves - Basement Jukebox",
+        name: "Perfect Waves - Basement Jukebox 00:59",
         url: AMBIENCE.AMBIENCE_AQUA
       },
       {
-        name: "Tears In The Rain - Basement Jukebox",
+        name: "Tears In The Rain - Basement Jukebox 01:55",
         url: AMBIENCE.AMBIENCE_RAIN
       },
       {
-        name: "Cassette Kong - Basement Jukebox",
+        name: "Cassette Kong - Basement Jukebox 03:35",
         url: AMBIENCE.AMBIENCE_VHS
       }
     ]
   }, [AMBIENCE])
+
+  const stopAllTracks = useCallback(() => {
+    if (player && player.stopAllMusicTracks) {
+      player.stopAllMusicTracks()
+      return
+    }
+
+    if (loadedTracks.current.length > 0) {
+      loadedTracks.current.forEach((track) => {
+        if (track.isPlaying) {
+          track.clearOnEnded()
+          track.stop()
+        }
+      })
+    }
+  }, [player])
 
   const cleanup = useCallback(() => {
     if (fadeOutTimeout.current) {
@@ -62,20 +73,8 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
       fadeOutTimeout.current = null
     }
 
-    if (crossfadeTimeout.current) {
-      clearTimeout(crossfadeTimeout.current)
-      crossfadeTimeout.current = null
-    }
-
-    if (loadedTracks.current.length > 0) {
-      loadedTracks.current.forEach((track) => {
-        track.clearOnEnded()
-        if (track.isPlaying) {
-          track.stop()
-        }
-      })
-      loadedTracks.current = []
-    }
+    stopAllTracks()
+    loadedTracks.current = []
 
     if (ostSong) {
       ostSong.stop()
@@ -83,88 +82,52 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
     }
 
     currentTrack.current = null
-    nextTrack.current = null
     isInitialized.current = false
-  }, [ostSong])
+  }, [ostSong, stopAllTracks])
 
   const advanceToNextTrack = useCallback(() => {
     if (!player || !isEnabled || loadedTracks.current.length === 0) return
 
     const nextIndex = (currentTrackIndex + 1) % ambiencePlaylist.length
 
-    if (currentTrack.current && nextTrack.current) {
-      const currentTime = player.audioContext.currentTime
+    stopAllTracks()
 
-      // console.log(`Now playing: "${ambiencePlaylist[nextIndex].name}"`)
-      // const upcomingIndex = (nextIndex + 1) % ambiencePlaylist.length
-      // console.log(`Next up: "${ambiencePlaylist[upcomingIndex].name}"`)
+    currentTrack.current = loadedTracks.current[nextIndex]
 
-      currentTrack.current.outputNode.gain.cancelScheduledValues(currentTime)
-      currentTrack.current.outputNode.gain.setValueAtTime(
-        currentTrack.current.outputNode.gain.value,
-        currentTime
-      )
-      currentTrack.current.outputNode.gain.linearRampToValueAtTime(
-        0,
-        currentTime + CROSSFADE_DURATION
-      )
-
-      nextTrack.current.setVolume(0)
-      nextTrack.current.play()
-      nextTrack.current.outputNode.gain.cancelScheduledValues(currentTime)
-      nextTrack.current.outputNode.gain.setValueAtTime(0, currentTime)
-      nextTrack.current.outputNode.gain.linearRampToValueAtTime(
-        AMBIENT_VOLUME,
-        currentTime + CROSSFADE_DURATION
-      )
-
-      if (crossfadeTimeout.current) {
-        clearTimeout(crossfadeTimeout.current)
+    if (currentTrack.current) {
+      if (currentTrack.current.isPlaying) {
+        currentTrack.current.clearOnEnded()
+        currentTrack.current.stop()
       }
 
-      crossfadeTimeout.current = setTimeout(() => {
-        if (currentTrack.current && currentTrack.current.isPlaying) {
-          currentTrack.current.clearOnEnded()
-          currentTrack.current.stop()
-        }
+      currentTrack.current.setVolume(AMBIENT_VOLUME)
+      currentTrack.current.play()
 
-        currentTrack.current = nextTrack.current
+      useSiteAudioStore.setState({
+        ostSong: currentTrack.current
+      })
 
-        if (currentTrack.current) {
-          setupTrackEndDetection(currentTrack.current)
-        }
-
-        const upcomingIndex = (nextIndex + 1) % ambiencePlaylist.length
-        nextTrack.current = loadedTracks.current[upcomingIndex]
-
-        crossfadeTimeout.current = null
-      }, CROSSFADE_DURATION * 1000)
-
-      setCurrentTrackIndex(nextIndex)
+      setupTrackEndDetection(currentTrack.current)
     }
-  }, [currentTrackIndex, ambiencePlaylist.length, player, isEnabled])
+
+    setCurrentTrackIndex(nextIndex)
+  }, [
+    currentTrackIndex,
+    ambiencePlaylist.length,
+    player,
+    isEnabled,
+    stopAllTracks
+  ])
 
   const setupTrackEndDetection = useCallback(
     (track: AudioSource) => {
       if (!player || !track) return
 
-      const duration = track.getDuration()
-      const timeUntilCrossfade =
-        Math.max(0, duration - CROSSFADE_DURATION) * 1000
-
-      if (crossfadeTimeout.current) {
-        clearTimeout(crossfadeTimeout.current)
-      }
+      track.clearOnEnded()
 
       track.onEnded(() => {
         advanceToNextTrack()
       })
-
-      if (timeUntilCrossfade > 0) {
-        crossfadeTimeout.current = setTimeout(() => {
-          advanceToNextTrack()
-        }, timeUntilCrossfade)
-      }
     },
     [player, advanceToNextTrack]
   )
@@ -176,6 +139,8 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
       try {
         if (!isInitialized.current) {
           isInitialized.current = true
+
+          stopAllTracks()
 
           const tracks: AudioSource[] = []
 
@@ -189,11 +154,11 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
           loadedTracks.current = tracks
 
           if (tracks.length > 0) {
+            stopAllTracks()
+
             currentTrack.current = tracks[0]
             currentTrack.current.setVolume(AMBIENT_VOLUME)
             currentTrack.current.play()
-
-            nextTrack.current = tracks[1 % tracks.length]
 
             useSiteAudioStore.setState({
               ostSong: currentTrack.current
@@ -221,7 +186,8 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
     cleanup,
     AMBIENCE,
     ambiencePlaylist,
-    setupTrackEndDetection
+    setupTrackEndDetection,
+    stopAllTracks
   ])
 
   useEffect(() => {
@@ -229,21 +195,8 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
 
     if (isBasketballPage || isInGame) {
       if (currentTrack.current && currentTrack.current.isPlaying) {
-        const gainNode = currentTrack.current.outputNode
-        const currentTime = player.audioContext.currentTime
-
-        gainNode.gain.cancelScheduledValues(currentTime)
-        gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
-        gainNode.gain.linearRampToValueAtTime(0, currentTime + 0.5)
-
-        if (fadeOutTimeout.current) {
-          clearTimeout(fadeOutTimeout.current)
-        }
-
-        fadeOutTimeout.current = setTimeout(() => {
-          cleanup()
-          fadeOutTimeout.current = null
-        }, 600)
+        currentTrack.current.stop()
+        cleanup()
       } else {
         cleanup()
       }
@@ -293,7 +246,7 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
         fadeOutTimeout.current = null
       }
     }
-  }, [isEnabled, isBasketballPage, isInGame, player, cleanup])
+  }, [isEnabled, isBasketballPage, isInGame, player, cleanup, stopAllTracks])
 
   useEffect(() => {
     if (typeof window !== "undefined" && isEnabled) {
@@ -308,4 +261,16 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
       }
     }
   }, [advanceToNextTrack, isEnabled])
+
+  return {
+    currentTrack:
+      currentTrackIndex !== undefined
+        ? ambiencePlaylist[currentTrackIndex]
+        : null
+  }
+}
+
+export function useCurrentTrackName(): string | null {
+  const { currentTrack } = useWebsiteAmbience(true)
+  return currentTrack?.name || null
 }
