@@ -141,10 +141,6 @@ export const ArcadeScreen = () => {
     if (cameraRef.current && isInGame) {
       const startPos = new Vector3(9, 10, 22) // heli position
       const endPos = new Vector3(0, 3, 14) // game position
-      const startFov = 30
-      const endFov = 35
-      const startRotation = new Vector3(degToRad(0), 0, degToRad(12))
-      const endRotation = new Vector3(degToRad(0), 0, 0)
 
       cameraRef.current.position.lerpVectors(
         startPos,
@@ -152,21 +148,20 @@ export const ArcadeScreen = () => {
         cameraAnimationProgress
       )
 
-      cameraRef.current.rotation.x =
-        startRotation.x +
-        (endRotation.x - startRotation.x) * cameraAnimationProgress
-      cameraRef.current.rotation.y =
-        startRotation.y +
-        (endRotation.y - startRotation.y) * cameraAnimationProgress
-      cameraRef.current.rotation.z =
-        startRotation.z +
-        (endRotation.z - startRotation.z) * cameraAnimationProgress
-
-      cameraRef.current.fov =
-        startFov + (endFov - startFov) * cameraAnimationProgress
-      cameraRef.current.updateProjectionMatrix()
+      cameraRef.current.lookAt(0, 0, 0)
     }
   })
+
+  useEffect(() => {
+    if (!cameraRef.current) return
+
+    if (isInGame) {
+      cameraRef.current.position.set(0, 9, 20)
+      cameraRef.current.rotation.set(degToRad(0), 0, 0)
+      cameraRef.current.fov = 30
+      cameraRef.current.aspect = 16 / 9
+    }
+  }, [isInGame])
 
   useEffect(() => {
     if (heliCamera) {
@@ -175,15 +170,6 @@ export const ArcadeScreen = () => {
         ease: [0.43, 0.13, 0.23, 0.96],
         onUpdate: (progress) => {
           setCameraAnimationProgress(progress)
-        },
-        onComplete: () => {
-          if (cameraRef.current) {
-            cameraRef.current.position.set(0, 3, 14)
-            cameraRef.current.rotation.set(degToRad(0), 0, 0)
-            cameraRef.current.fov = 35
-            cameraRef.current.aspect = 16 / 9
-            cameraRef.current.updateProjectionMatrix()
-          }
         }
       })
     } else {
@@ -205,7 +191,7 @@ export const ArcadeScreen = () => {
         heliPosition: [0, 9, 20] as [number, number, number],
         position: [0, 3, 14] as [number, number, number],
         rotation: [degToRad(0), 0, 0] as [number, number, number],
-        fov: 60,
+        fov: 30,
         aspect: 16 / 9,
         manual: true
       }
@@ -224,7 +210,7 @@ export const ArcadeScreen = () => {
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
-        {...(!isInGame && CAMERA_CONFIGS.ui)}
+        {...(!isInGame ? CAMERA_CONFIGS.ui : CAMERA_CONFIGS.game)}
       />
 
       {(hasVisitedArcade || isLabRoute) && !isInGame && <ScreenUI />}
