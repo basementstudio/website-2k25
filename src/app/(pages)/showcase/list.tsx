@@ -96,17 +96,39 @@ const AccordionListItem = memo(
               "group",
               "col-span-12",
               "overflow-hidden",
+              "will-change-[opacity,transform]",
               "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
               disabled && "opacity-30"
             )}
           >
-            <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
+            <div
+              className={cn(
+                "grid grid-cols-12 gap-2 pb-0.5 pt-4",
+                "transition-opacity duration-200 group-data-[state=closed]:opacity-0 group-data-[state=open]:opacity-100"
+              )}
+            >
               {project.showcase?.items.map((item, imgIndex, array) => {
-                const MotionWrapper = ({
-                  children
-                }: {
-                  children: React.ReactNode
-                }) => (
+                const elementToRender = item.video ? (
+                  <video
+                    key={imgIndex}
+                    src={item.video.url}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="col-span-2"
+                  />
+                ) : (
+                  <Image
+                    key={imgIndex}
+                    src={item.image?.url ?? ""}
+                    alt={item.image?.alt ?? ""}
+                    width={item.image?.width ?? 0}
+                    height={item.image?.height ?? 0}
+                    className="col-span-2"
+                  />
+                )
+
+                return (
                   <motion.div
                     key={imgIndex}
                     initial={{ opacity: 0 }}
@@ -122,45 +144,14 @@ const AccordionListItem = memo(
                       duration: 0.3
                     }}
                     onAnimationComplete={() => {
-                      if (array.length === imgIndex + 1 && !sectionSeen) {
+                      if (imgIndex === array.length - 1 && !sectionSeen) {
                         onRevealFinished()
                       }
                     }}
                     className="col-span-2"
                   >
-                    {children}
+                    {elementToRender}
                   </motion.div>
-                )
-
-                if (item.video) {
-                  return (
-                    <MotionWrapper key={imgIndex}>
-                      <video
-                        key={imgIndex}
-                        src={item.video.url}
-                        autoPlay
-                        playsInline
-                        muted
-                        className="col-span-2"
-                      />
-                    </MotionWrapper>
-                  )
-                }
-
-                return (
-                  <MotionWrapper key={imgIndex}>
-                    <Image
-                      key={imgIndex}
-                      src={item.image?.url ?? ""}
-                      alt={item.image?.alt ?? ""}
-                      width={item.image?.width ?? 0}
-                      height={item.image?.height ?? 0}
-                      className="col-span-2"
-                      blurDataURL={item.image?.blurDataURL ?? ""}
-                      placeholder="blur"
-                      priority
-                    />
-                  </MotionWrapper>
                 )
               })}
             </div>
