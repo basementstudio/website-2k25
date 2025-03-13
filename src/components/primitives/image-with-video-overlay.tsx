@@ -11,11 +11,11 @@ import { cn } from "@/utils/cn"
 export const ImageWithVideoOverlay = ({
   image,
   video,
-  disabled
+  firstItem
 }: {
-  image: ImageFragment
-  video?: VideoFragment | null
-  disabled?: boolean
+  image?: ImageFragment
+  video?: VideoFragment
+  firstItem: boolean
 }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
@@ -28,9 +28,7 @@ export const ImageWithVideoOverlay = ({
 
   return (
     <div
-      className={cn("relative h-full w-full transition-opacity duration-300", {
-        "pointer-events-none opacity-0": disabled
-      })}
+      className={cn("relative h-full w-full transition-opacity duration-300")}
       onMouseEnter={() => {
         setIsHovered(true)
         if (videoRef.current) {
@@ -40,11 +38,14 @@ export const ImageWithVideoOverlay = ({
       onMouseLeave={handleMouseLeave}
     >
       <Image
-        src={image.url ?? ""}
-        alt={image.alt ?? ""}
-        priority
-        fill
-        className="object-cover"
+        src={image?.url ?? ""}
+        alt={image?.alt ?? ""}
+        width={firstItem ? 960 : 480}
+        height={firstItem ? 540 : 270}
+        blurDataURL={image?.blurDataURL ?? ""}
+        placeholder="blur"
+        className="h-full w-full object-cover"
+        priority={firstItem}
       />
       {video && (
         <MuxVideo
@@ -64,6 +65,7 @@ export const ImageWithVideoOverlay = ({
           loop
           playsInline
           ref={videoRef}
+          preload="metadata"
         />
       )}
     </div>
