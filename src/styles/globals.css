@@ -151,16 +151,6 @@ body {
   background-color: #ff4d00;
 }
 
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-* {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
 @keyframes diagonalPatternAnimation {
   from {
     background-position: 0 0;

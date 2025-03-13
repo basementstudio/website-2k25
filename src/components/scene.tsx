@@ -19,6 +19,7 @@ import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
+import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
 
 const HoopMinigame = dynamic(
@@ -83,6 +84,7 @@ export const Scene = () => {
         <Debug />
         <Canvas
           id="canvas"
+          frameloop="demand"
           ref={canvasRef}
           tabIndex={0}
           onFocus={handleFocus}
@@ -96,42 +98,44 @@ export const Scene = () => {
           camera={{ fov: 60 }}
           className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
         >
-          <Renderer
-            sceneChildren={
-              <>
-                <Inspectables />
-                <Suspense fallback={null}>
-                  <Map />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <WebGlTunnelOut />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <CameraController />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <Sparkles />
-                </Suspense>
-                <Suspense fallback={null}>
-                  {isBasketball && (
-                    <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary>
-                        <HoopMinigame />
-                        <PlayedBasketballs />
-                      </ErrorBoundary>
-                    </PhysicsWorld>
-                  )}
-                </Suspense>
-                <Suspense fallback={null}>
-                  <StaticBasketballs />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <CharacterInstanceConfig />
-                  <CharactersSpawn />
-                </Suspense>
-              </>
-            }
-          />
+          <AnimationController>
+            <Renderer
+              sceneChildren={
+                <>
+                  <Inspectables />
+                  <Suspense fallback={null}>
+                    <Map />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <WebGlTunnelOut />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <CameraController />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <Sparkles />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    {isBasketball && (
+                      <PhysicsWorld paused={!isBasketball}>
+                        <ErrorBoundary>
+                          <HoopMinigame />
+                          <PlayedBasketballs />
+                        </ErrorBoundary>
+                      </PhysicsWorld>
+                    )}
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <StaticBasketballs />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <CharacterInstanceConfig />
+                    <CharactersSpawn />
+                  </Suspense>
+                </>
+              }
+            />
+          </AnimationController>
         </Canvas>
       </div>
       <MouseTracker />
