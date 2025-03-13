@@ -12,29 +12,39 @@ const ContactCanvas = () => {
   const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
+  const setIsAnimating = useContactStore((state) => state.setIsAnimating)
   const [shouldRender, setShouldRender] = useState(false)
 
   useEffect(() => {
     if (isContactOpen) {
+      setIsAnimating(true)
       setShouldRender(true)
     } else if (!isContactOpen && shouldRender) {
+      setIsAnimating(true)
       const safetyTimer = setTimeout(() => {
         setShouldRender(false)
       }, 3500)
       return () => clearTimeout(safetyTimer)
     }
-  }, [isContactOpen, shouldRender])
+  }, [isContactOpen, shouldRender, setIsAnimating])
 
   useEffect(() => {
     if (!worker) return
 
     const handleWorkerMessage = (e: MessageEvent) => {
-      if (e.data.type === "outro-complete") setShouldRender(false)
+      if (e.data.type === "outro-complete") {
+        setShouldRender(false)
+        setIsAnimating(false)
+      } else if (e.data.type === "intro-complete") {
+        setIsAnimating(false)
+      } else if (e.data.type === "animation-rejected") {
+        setIsAnimating(false)
+      }
     }
 
     worker.addEventListener("message", handleWorkerMessage)
     return () => worker.removeEventListener("message", handleWorkerMessage)
-  }, [worker])
+  }, [worker, setIsAnimating])
 
   useEffect(() => {
     const newWorker = new Worker(

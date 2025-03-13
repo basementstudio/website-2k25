@@ -149,7 +149,7 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
             isContactOpen && "text-brand-g1"
           )}
         >
-          <span className="actionable actionable-no-underline">Contact Us</span>
+          <span className="actionable-no-underline">Contact Us</span>
         </button>
       </div>
     </>

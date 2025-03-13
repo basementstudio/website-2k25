@@ -27,6 +27,8 @@ self.onmessage = (
     })
   } else if (type === "outro-complete") {
     self.postMessage({ type: "outro-complete" })
+  } else if (type === "intro-complete") {
+    self.postMessage({ type: "intro-complete" })
   }
 }
 
