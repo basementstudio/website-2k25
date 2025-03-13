@@ -11,11 +11,13 @@ import { cn } from "@/utils/cn"
 export const ImageWithVideoOverlay = ({
   image,
   video,
-  disabled
+  disabled,
+  bigOne
 }: {
   image: ImageFragment
   video?: VideoFragment | null
   disabled?: boolean
+  bigOne?: boolean
 }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
@@ -44,6 +46,7 @@ export const ImageWithVideoOverlay = ({
         alt={image.alt ?? ""}
         priority
         fill
+        sizes={`(max-width: 1024px) ${bigOne ? "25vw" : "50vw"}, 90vw`}
         className="object-cover"
       />
       {video && (

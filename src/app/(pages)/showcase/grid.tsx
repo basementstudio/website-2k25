@@ -101,6 +101,7 @@ export const Grid = memo(
                       image={item.project?.cover}
                       video={item.project?.coverVideo}
                       disabled={item.disabled}
+                      bigOne={firstItem}
                     />
                   ) : null}
                 </Link>
