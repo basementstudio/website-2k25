@@ -38,19 +38,19 @@ export function useWebsiteAmbience(isEnabled: boolean = false) {
   const ambiencePlaylist = useMemo(() => {
     return [
       {
-        name: "tiger",
+        name: "Chrome Tiger - Basement Jukebox",
         url: AMBIENCE.AMBIENCE_TIGER
       },
       {
-        name: "aqua",
+        name: "Perfect Waves - Basement Jukebox",
         url: AMBIENCE.AMBIENCE_AQUA
       },
       {
-        name: "rain",
+        name: "Tears In The Rain - Basement Jukebox",
         url: AMBIENCE.AMBIENCE_RAIN
       },
       {
-        name: "vhs",
+        name: "Cassette Kong - Basement Jukebox",
         url: AMBIENCE.AMBIENCE_VHS
       }
     ]
