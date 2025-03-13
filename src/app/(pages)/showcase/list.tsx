@@ -28,16 +28,13 @@ const AccordionListItem = memo(
     return (
       <AccordionPrimitive.Item
         key={index}
-        className={cn(
-          "grid-layout [&:last-of-type>button]:border-b",
-          "[&[data-state=open]]:will-change-[opacity,transform]"
-        )}
+        className="grid-layout [&:last-of-type>button]:border-b"
         value={index.toString()}
       >
         <AccordionPrimitive.Trigger
           className={cn(
             "[&[data-state=open]_.diagonal-lines]:opacity-0",
-            "c group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300",
+            "group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300",
             disabled && "pointer-events-none",
             isOpen ? "cursor-n-resize" : "cursor-ns-resize"
           )}
@@ -80,7 +77,7 @@ const AccordionListItem = memo(
             </p>
             <Link
               href={`/showcase/${project?._slug}`}
-              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 opacity-0 transition-opacity duration-300"
+              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2"
             >
               <span className="actionable actionable-no-underline gap-x-1">
                 <span className="actionable actionable-inanimate">
@@ -101,7 +98,8 @@ const AccordionListItem = memo(
               disabled && "opacity-30"
             )}
           >
-            <div
+            <Link
+              href={`/showcase/${project?._slug}`}
               className={cn(
                 "grid grid-cols-12 gap-2 pb-0.5 pt-4",
                 "transition-opacity duration-200 group-data-[state=closed]:opacity-0 group-data-[state=open]:opacity-100"
@@ -154,7 +152,7 @@ const AccordionListItem = memo(
                   </motion.div>
                 )
               })}
-            </div>
+            </Link>
           </AccordionPrimitive.Content>
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Item>
