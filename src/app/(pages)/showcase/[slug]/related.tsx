@@ -1,7 +1,7 @@
 import Image from "next/image"
+import Link from "next/link"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
-import { Link } from "@/components/primitives/link"
 import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 import { client } from "@/service/basehub"
 import { cn } from "@/utils/cn"
