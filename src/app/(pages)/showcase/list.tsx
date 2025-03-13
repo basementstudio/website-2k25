@@ -149,22 +149,6 @@ export const List = memo(
     const [itemOpen, setItemOpen] = useState<string>()
     const [sectionSeen, setSectionSeen] = useState<boolean>(false)
 
-    useEffect(() => {
-      const sectionSeen = sessionStorage.getItem("showcase-section-seen")
-
-      setSectionSeen(sectionSeen === "true")
-
-      if (!sectionSeen) {
-        sessionStorage.setItem("showcase-section-seen", "true")
-      }
-    }, [])
-
-    useEffect(() => {
-      if (itemOpen && projects[parseInt(itemOpen)].disabled) {
-        setItemOpen("")
-      }
-    }, [projects, itemOpen])
-
     const handleValueChange = useCallback((value: string) => {
       setItemOpen(value)
     }, [])
