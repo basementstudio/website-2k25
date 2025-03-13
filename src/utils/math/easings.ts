@@ -9,11 +9,11 @@ export const easeInOutCubic = (a: number, b: number, t: number) => {
 export const easeInOutCirc = (a: number, b: number, t: number) => {
   if (t < 0.5) {
     // Ease in (first half)
-    return a + (b - a) * (0.5 - Math.sqrt(0.25 - Math.pow(t, 2)))
-  } else {
-    // Ease out (second half)
-    return a + (b - a) * (0.5 + Math.sqrt(0.25 - Math.pow(t - 1, 2)))
+    return a + (b - a) * (0.5 - Math.sqrt(0.25 - t ** 2))
   }
+
+  // Ease out (second half)
+  return a + (b - a) * (0.5 + Math.sqrt(0.25 - (t - 1) ** 2))
 }
 
 export const easeInCubic = (a: number, b: number, t: number) => {
@@ -30,7 +30,7 @@ export const easeOutCustom = (
   t: number,
   factor: number
 ) => {
-  return a + (b - a) * (1 - Math.pow(1 - t, factor))
+  return a + (b - a) * (1 - (1 - t) ** factor)
 }
 
 export const easeInOutCustom = (
@@ -41,9 +41,9 @@ export const easeInOutCustom = (
 ) => {
   if (t < 0.5) {
     // Ease in (first half)
-    return a + (b - a) * 0.5 * Math.pow(2 * t, factor)
-  } else {
-    // Ease out (second half)
-    return a + (b - a) * (1 - 0.5 * Math.pow(2 * (1 - t), factor))
+    return a + (b - a) * 0.5 * (2 * t) ** factor
   }
+
+  // Ease out (second half)
+  return a + (b - a) * (1 - 0.5 * (2 * (1 - t)) ** factor)
 }

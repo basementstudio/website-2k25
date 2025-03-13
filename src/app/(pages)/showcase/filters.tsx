@@ -3,7 +3,7 @@ import { memo, useCallback } from "react"
 
 import { cn } from "@/utils/cn"
 
-import { CategoryItem } from "./project-list"
+import { CategoryItem } from "./showcase-list/client"
 
 const GridIcon = () => (
   <svg
@@ -90,7 +90,6 @@ export const Filters = memo(
             viewMode={viewMode}
             setViewMode={setViewMode}
           />
-          {" , "}
           <ViewSelector
             mode="rows"
             viewMode={viewMode}
@@ -101,12 +100,12 @@ export const Filters = memo(
         <div className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13">
           <p className="text-p text-brand-g1">Filters</p>
 
-          <ul className="flex flex-wrap gap-x-4 gap-y-1">
+          <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {categories.map((category) => (
               <button
                 key={category.name}
                 className={cn(
-                  "flex w-max gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
+                  "flex w-max items-center gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
                   selectedCategory === category.name && "text-brand-w1",
                   // if no categories selected, show all as active
                   selectedCategory === null && "text-brand-w1"
@@ -114,11 +113,6 @@ export const Filters = memo(
                 onClick={() => categoryHandler(category.name)}
               >
                 <span className="actionable">{category.name}</span>
-                {category.count && (
-                  <sup className="translate-y-1.5 text-p !font-semibold text-brand-g1">
-                    ({category.count})
-                  </sup>
-                )}
               </button>
             ))}
           </ul>

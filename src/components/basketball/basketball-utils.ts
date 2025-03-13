@@ -215,7 +215,8 @@ export const handlePointerDown = ({
   setIsDragging(true)
 
   if (ballRef.current) {
-    const pos = ballRef.current.translation()
+    const ball = ballRef.current
+    const pos = ball.translation()
     dragStartPos.set(pos.x, pos.y, pos.z)
     initialGrabPos.current.set(pos.x, pos.y, pos.z)
 
@@ -239,7 +240,8 @@ export const handlePointerMove = ({
   mousePos.current.y = -(event.clientY / window.innerHeight) * 2 + 1
 
   if (ballRef.current) {
-    const currentPos = ballRef.current.translation()
+    const ball = ballRef.current
+    const currentPos = ball.translation()
 
     const moveDistance = new Vector3(
       initialGrabPos.current.x - currentPos.x,
@@ -281,7 +283,9 @@ export const handlePointerUp = ({
       startGame()
     }
 
-    const currentPos = ballRef.current.translation()
+    // Store single reference to ball at the start
+    const ball = ballRef.current
+    const currentPos = ball.translation()
     const dragDelta = new Vector3(
       dragStartPos.x - currentPos.x,
       dragStartPos.y - currentPos.y,
@@ -296,7 +300,8 @@ export const handlePointerUp = ({
       verticalDragDistance < -0.1 &&
       hasMovedSignificantly.current
     ) {
-      ballRef.current.setBodyType(0, true)
+      ball.setBodyType(0, true)
+
       // isthrowable set to false only if it has moved significantly
       isThrowable.current = false
 
@@ -319,10 +324,10 @@ export const handlePointerUp = ({
         currentPos,
         hoopPosition
       )
-      ballRef.current.applyImpulse(assistedVelocity, true)
-      ballRef.current.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
+      ball.applyImpulse(assistedVelocity, true)
+      ball.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
     } else {
-      ballRef.current.setBodyType(0, true)
+      ball.setBodyType(0, true)
     }
 
     setIsDragging(false)

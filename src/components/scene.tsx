@@ -13,8 +13,6 @@ import { MouseTracker } from "@/hooks/use-mouse"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import ErrorBoundary from "./basketball/error-boundary"
-import { PlayedBasketballs } from "./basketball/played-basketballs"
-import StaticBasketballs from "./basketball/static-basketballs"
 import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
@@ -118,13 +116,9 @@ export const Scene = () => {
                       <PhysicsWorld paused={!isBasketball}>
                         <ErrorBoundary>
                           <HoopMinigame />
-                          <PlayedBasketballs />
                         </ErrorBoundary>
                       </PhysicsWorld>
                     )}
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <StaticBasketballs />
                   </Suspense>
                 </>
               }
