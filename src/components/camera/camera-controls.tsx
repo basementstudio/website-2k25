@@ -45,7 +45,7 @@ export const CustomCamera = () => {
   )
 
   const realPosition = useMemo(() => {
-    const y = scene === "blog" || scene === "people" ? 5.34971 : 0
+    const y = scene === "blog" || scene === "people" ? 3.724 : 0
 
     return new THREE.Vector3(
       cameraConfig?.position[0],
