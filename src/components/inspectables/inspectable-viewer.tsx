@@ -31,12 +31,10 @@ const Content = ({ data }: { data: InspectableData }) => (
         ))}
       </div>
     )}
-    <div className="grid grid-cols-6 gap-2 text-p text-brand-w1">
-      <div className="col-span-5">
-        {data?.description?.json?.content && (
-          <BaseRichText content={data.description.json.content as any} />
-        )}
-      </div>
+    <div className="text-p text-brand-w1 [&>p]:!text-pretty">
+      {data?.description?.json?.content && (
+        <BaseRichText content={data.description.json.content as any} />
+      )}
     </div>
   </>
 )
@@ -70,15 +68,15 @@ export const InspectableViewer = () => {
       )}
     >
       <div className="grid-layout h-full">
-        <div className="col-start-1 col-end-9 my-4 border border-brand-w1/20" />
-        <div className="pointer-events-auto col-start-9 col-end-13 grid grid-cols-8">
-          <div className="col-start-2 col-end-8 flex flex-col gap-18">
-            <div className="row-span-1 flex h-44 w-full items-end">
-              <Close handleClose={() => setSelected(null)} />
-            </div>
-            <div className="row-span-1 flex flex-col justify-center gap-4">
-              {data && <Content data={data} />}
-            </div>
+        <div className="relative col-start-1 col-end-9 my-4 border border-brand-w1/20">
+          <div className="with-dots !absolute -inset-px" />
+        </div>
+        <div className="pointer-events-auto col-start-9 col-end-13 ml-2 flex flex-col gap-18">
+          <div className="row-span-1 flex h-44 w-full items-end">
+            <Close handleClose={() => setSelected(null)} />
+          </div>
+          <div className="row-span-1 flex flex-col justify-center gap-4">
+            {data && <Content data={data} />}
           </div>
         </div>
       </div>

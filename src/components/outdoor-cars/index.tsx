@@ -2,7 +2,6 @@ import { useFrame } from "@react-three/fiber"
 import { useEffect, useMemo, useState } from "react"
 import { Mesh } from "three"
 
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 
 interface StreetLane {
@@ -19,21 +18,13 @@ interface StreetLane {
 }
 
 export const OutdoorCars = () => {
-  const scene = useCurrentScene()
   const { outdoorCarsMeshes: cars } = useMesh()
   const [carUpdateCounter, setCarUpdateCounter] = useState(0)
-  const [bothCarsReachedTarget, setBothCarsReachedTarget] = useState(false)
 
   useEffect(() => {
     if (!cars?.length) return
     STREET_LANES.forEach((lane) => generateRandomCar(lane, 0))
   }, [cars])
-
-  const carsVisible = useMemo(
-    () =>
-      (scene === "services" || scene === "people") && !bothCarsReachedTarget,
-    [scene, bothCarsReachedTarget]
-  )
 
   const STREET_LANES: StreetLane[] = useMemo(
     () => [
@@ -82,7 +73,7 @@ export const OutdoorCars = () => {
       }
     }
 
-    lane.speed = Math.floor(Math.random() * 30 + 30) // 30-60 km/h
+    lane.speed = Math.floor(Math.random() * 30 + 50)
     lane.startDelay = Number((Math.random() * 5 + 5).toFixed(1)) // 5-10 seconds
     lane.nextStartTime = currentTime + lane.startDelay
     lane.isMoving = false
@@ -92,11 +83,9 @@ export const OutdoorCars = () => {
     }
   }
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
     let needsUpdate = false
     let carsAtTarget = 0
-
-    if (!carsVisible) return
 
     STREET_LANES.forEach((lane) => {
       if (!lane.car || !lane.speed || lane.nextStartTime === null) return
@@ -108,10 +97,11 @@ export const OutdoorCars = () => {
       if (lane.isMoving) {
         const direction =
           lane.targetPosition[0] > lane.initialPosition[0] ? 1 : -1
-        lane.car.position.x += lane.speed * 0.005 * direction
+        lane.car.position.x += lane.speed * 0.277778 * delta * direction
 
         if (lane.frontWheels && lane.backWheels) {
-          const wheelRotationSpeed = lane.speed * 0.01
+          const distanceTraveled = lane.speed * 0.277778 * delta // Speed in m/s * delta time
+          const wheelRotationSpeed = (distanceTraveled / Math.PI) * Math.PI
           lane.frontWheels.rotation.x += wheelRotationSpeed
           lane.backWheels.rotation.x += wheelRotationSpeed
         }
@@ -127,11 +117,7 @@ export const OutdoorCars = () => {
       }
     })
 
-    if (carsAtTarget === STREET_LANES.length) {
-      setBothCarsReachedTarget(true)
-    }
-
-    if (needsUpdate && carsVisible) {
+    if (needsUpdate) {
       setCarUpdateCounter((prev) => prev + 1)
     }
   })
@@ -139,12 +125,6 @@ export const OutdoorCars = () => {
   return STREET_LANES.map((lane, index) => {
     if (!lane.car) return null
 
-    return (
-      <primitive
-        visible={carsVisible}
-        key={`${index}-${carUpdateCounter}`}
-        object={lane.car}
-      />
-    )
+    return <primitive key={`${index}-${carUpdateCounter}`} object={lane.car} />
   })
 }

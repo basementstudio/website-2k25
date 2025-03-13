@@ -2,7 +2,6 @@
 
 import { useGLTF } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { useControls } from "leva"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
@@ -20,10 +19,6 @@ import { GLTF } from "three/examples/jsm/Addons.js"
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
-import {
-  animateNet,
-  NET_ANIMATION_SPEED
-} from "@/components/basketball/basketball-utils"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { useInspectable } from "@/components/inspectables/context"
@@ -42,6 +37,7 @@ import {
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
+import { SpeakerHover } from "../other/speaker-hover"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -80,6 +76,7 @@ const createVideoTexture = (url: string) => {
   videoElement.src = url
   videoElement.loop = true
   videoElement.muted = true
+  videoElement.playsInline = true
   videoElement.crossOrigin = "anonymous"
   videoElement.play()
 
@@ -137,15 +134,6 @@ export const Map = memo(() => {
   const isAnimating = useRef(false)
   const timeRef = useRef(0)
 
-  const { godrayOpacity } = useControls("God Rays", {
-    godrayOpacity: {
-      value: 1.25,
-      min: 0.0,
-      max: 5.0,
-      step: 0.001
-    }
-  })
-
   const fadeFactor = useRef(new MotionValue())
   const inspectingEnabled = useRef(false)
   const tl = useRef<AnimationPlaybackControls | null>(null)
@@ -176,11 +164,6 @@ export const Map = memo(() => {
       useMesh.getState().cctv.screen.material.uniforms.uTime.value =
         clock.getElapsedTime()
     }
-
-    godrays.forEach((mesh) => {
-      // @ts-ignore
-      mesh.material.uniforms.uGodrayDensity.value = godrayOpacity
-    })
   })
 
   useEffect(() => {
@@ -564,6 +547,8 @@ export const Map = memo(() => {
       <ArcadeBoard />
       <BlogDoor />
       <LockedDoor />
+
+      <SpeakerHover />
 
       {/* TODO: shut down physics after x seconds of not being in blog scene */}
       {/* TODO: basketball should use the same physics world */}
