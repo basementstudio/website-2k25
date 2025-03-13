@@ -21,7 +21,10 @@ import { ScrollDown } from "../primitives/scroll-down"
 const BLACKLISTED_PATHS = [
   /^\/showcase\/\d+$/,
   /^\/showcase\/[^\/]+$/,
-  /^\/post\/[^\/]+$/
+  /^\/post\/[^\/]+$/,
+  /^\/project\/[^\/]+$/
+  // temp
+  // /^\/showcase$/
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -44,7 +47,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
       <div
         className={cn(
           "canvas-container sticky top-0 h-screen w-full lg:fixed",
-          !shouldShowCanvas && "pointer-events-none invisible opacity-0"
+          !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
         )}
       >
         <Suspense fallback={null}>{isCanvasInPage && <Scene />}</Suspense>

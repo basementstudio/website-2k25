@@ -12,8 +12,8 @@ export const ProjectWrapper = ({
 }) => (
   <ProjectProvider>
     <div className="grid-layout min-h-screen pt-[calc(2.25rem+1px)]">
-      <ProjectGallery entry={entry} />
       <ProjectInfo entry={entry} />
+      <ProjectGallery entry={entry} />
     </div>
     {entry.project?._slug && (
       <div className="my-6 flex flex-col gap-y-12">

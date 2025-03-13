@@ -1,24 +1,24 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { motion } from "motion/react"
 import Image from "next/image"
-import { memo, useCallback, useEffect, useState } from "react"
+import Link from "next/link"
+import { memo, useCallback, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
-import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
-import { FilteredProjectType } from "./project-list"
+import { Project } from "./basehub"
 
 const AccordionListItem = memo(
   ({
-    item,
+    project,
     index,
     disabled,
     isOpen,
     sectionSeen,
     onRevealFinished
   }: {
-    item: FilteredProjectType
+    project: Project
     index: number
     disabled: boolean
     isOpen: boolean
@@ -55,32 +55,32 @@ const AccordionListItem = memo(
           >
             <div className="relative col-span-4 flex items-center gap-2 text-h3 text-brand-w2 transition-opacity duration-300">
               <Image
-                src={item.project?.icon?.url ?? ""}
-                alt={item.project?.icon?.alt ?? ""}
-                width={item.project?.icon?.width ?? 0}
-                height={item.project?.icon?.height ?? 0}
+                src={project.icon?.url ?? ""}
+                alt={project.icon?.alt ?? ""}
+                width={project.icon?.width ?? 0}
+                height={project.icon?.height ?? 0}
                 className="mb-px size-4.5 rounded-full border border-brand-w1/10"
                 priority
               />
-              <p>{item.project?.client?._title}</p>
+              <p>{project.client?._title}</p>
             </div>
 
-            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-p leading-none text-brand-w2">
-              {item.project?.categories?.map((cat, idx) => (
+            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty text-p leading-none text-brand-w2">
+              {project.categories?.map((cat, idx) => (
                 <span key={cat._title}>
                   {cat._title}
-                  {idx !== (item.project?.categories?.length ?? 0) - 1 && (
+                  {idx !== (project.categories?.length ?? 0) - 1 && (
                     <span className="inline-block px-1 text-brand-g1">,</span>
                   )}
                 </span>
               ))}
             </p>
             <p className="relative col-start-11 col-end-12 text-left text-p text-brand-w2">
-              {item.project?.year}
+              {project.year}
             </p>
             <Link
-              href={`/showcase/${item.project?._slug}`}
-              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 duration-300"
+              href={`/showcase/${project?._slug}`}
+              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2 opacity-0 transition-opacity duration-300"
             >
               <span className="actionable actionable-no-underline gap-x-1">
                 <span className="actionable actionable-inanimate">
@@ -100,10 +100,13 @@ const AccordionListItem = memo(
               disabled && "opacity-30"
             )}
           >
-            <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4 transition-opacity duration-100 group-data-[state=closed]:opacity-0">
-              {item.project?.showcase?.items
-                .slice(0, 6)
-                .map((item, imgIndex, array) => (
+            <div className="grid grid-cols-12 gap-2 pb-0.5 pt-4">
+              {project.showcase?.items.map((item, imgIndex, array) => {
+                const MotionWrapper = ({
+                  children
+                }: {
+                  children: React.ReactNode
+                }) => (
                   <motion.div
                     key={imgIndex}
                     initial={{ opacity: 0 }}
@@ -125,16 +128,41 @@ const AccordionListItem = memo(
                     }}
                     className="col-span-2"
                   >
+                    {children}
+                  </motion.div>
+                )
+
+                if (item.video) {
+                  return (
+                    <MotionWrapper key={imgIndex}>
+                      <video
+                        key={imgIndex}
+                        src={item.video.url}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="col-span-2"
+                      />
+                    </MotionWrapper>
+                  )
+                }
+
+                return (
+                  <MotionWrapper key={imgIndex}>
                     <Image
+                      key={imgIndex}
                       src={item.image?.url ?? ""}
                       alt={item.image?.alt ?? ""}
                       width={item.image?.width ?? 0}
                       height={item.image?.height ?? 0}
-                      sizes="15vw"
-                      priority={index === 0}
+                      className="col-span-2"
+                      blurDataURL={item.image?.blurDataURL ?? ""}
+                      placeholder="blur"
+                      priority
                     />
-                  </motion.div>
-                ))}
+                  </MotionWrapper>
+                )
+              })}
             </div>
           </AccordionPrimitive.Content>
         </AccordionPrimitive.Trigger>
@@ -145,7 +173,13 @@ const AccordionListItem = memo(
 AccordionListItem.displayName = "AccordionListItem"
 
 export const List = memo(
-  ({ projects }: { projects: FilteredProjectType[] }) => {
+  ({
+    projects,
+    isProjectDisabled
+  }: {
+    projects: Project[]
+    isProjectDisabled: (project: Project) => boolean
+  }) => {
     const [itemOpen, setItemOpen] = useState<string>()
     const [sectionSeen, setSectionSeen] = useState<boolean>(false)
 
@@ -165,9 +199,9 @@ export const List = memo(
         {projects.map((item, index) => (
           <AccordionListItem
             key={item._title + index}
-            item={item}
+            project={item}
             index={index}
-            disabled={!!item.disabled}
+            disabled={isProjectDisabled(item)}
             isOpen={itemOpen === index.toString()}
             sectionSeen={sectionSeen}
             onRevealFinished={() => setSectionSeen(true)}

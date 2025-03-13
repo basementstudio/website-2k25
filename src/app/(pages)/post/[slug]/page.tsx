@@ -1,5 +1,6 @@
 import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
+import { notFound } from "next/navigation"
 
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import Content from "./content"
@@ -14,28 +15,32 @@ export const dynamic = "force-static"
 const Blog = async (props: { params: Params }) => {
   const resolvedParams = await props.params
 
-  return (
-    <Pump queries={[query]}>
-      {async ([data]) => {
-        "use server"
+  try {
+    return (
+      <Pump queries={[query]}>
+        {async ([data]) => {
+          "use server"
 
-        return (
-          <>
-            <div className="relative bg-brand-k pt-12 lg:pb-24">
-              <div className="lg:pb-25 flex flex-col gap-24">
-                <BlogTitle data={data} slug={resolvedParams.slug} />
-                <Content data={data} slug={resolvedParams.slug} />
-                <More data={data} slug={resolvedParams.slug} />
+          return (
+            <>
+              <div className="relative bg-brand-k pt-12 lg:pb-24">
+                <div className="lg:pb-25 flex flex-col gap-24">
+                  <BlogTitle data={data} slug={resolvedParams.slug} />
+                  <Content data={data} slug={resolvedParams.slug} />
+                  <More data={data} slug={resolvedParams.slug} />
+                </div>
               </div>
-            </div>
 
-            {/* SSR CSS for Sandpack when using CodeSandbox */}
-            <SandPackCSS />
-          </>
-        )
-      }}
-    </Pump>
-  )
+              {/* SSR CSS for Sandpack when using CodeSandbox */}
+              <SandPackCSS />
+            </>
+          )
+        }}
+      </Pump>
+    )
+  } catch {
+    return notFound()
+  }
 }
 
 export async function generateStaticParams() {
