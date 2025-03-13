@@ -20,6 +20,7 @@ import { ArcadeWrapperTags } from "./arcade-ui-components/arcade-wrapper-tags"
 
 interface ScreenUIProps {
   onLoad?: () => void
+  visible: boolean
 }
 
 export const COLORS_THEME = {
@@ -84,7 +85,7 @@ export const createLabTabs = (experiments: any[]): LabTab[] => {
   return tabs
 }
 
-export const ScreenUI = ({ onLoad }: ScreenUIProps) => {
+export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
   const onLoadRef = useRef(onLoad)
   onLoadRef.current = onLoad
 
@@ -110,7 +111,7 @@ export const ScreenUI = ({ onLoad }: ScreenUIProps) => {
   }, [])
 
   return (
-    <>
+    <group visible={visible}>
       <Root
         width={590}
         height={390}
@@ -164,6 +165,6 @@ export const ScreenUI = ({ onLoad }: ScreenUIProps) => {
           </DefaultProperties>
         </FontFamilyProvider>
       </Root>
-    </>
+    </group>
   )
 }

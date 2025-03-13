@@ -1,10 +1,11 @@
 import { Container, Text } from "@react-three/uikit"
+import { useCallback, useEffect, useRef, useState } from "react"
 
-import { COLORS_THEME } from "../screen-ui"
-import { useState, useEffect, useRef, useCallback } from "react"
-import { useArcadeStore } from "@/store/arcade-store"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { useCursor } from "@/hooks/use-mouse"
+import { useArcadeStore } from "@/store/arcade-store"
+
+import { COLORS_THEME } from "../screen-ui"
 
 interface ArcadeLabsListProps {
   experiments: any[]
@@ -30,6 +31,7 @@ export const ArcadeLabsList = ({
   const isSourceButtonSelected = useArcadeStore(
     (state) => state.isSourceButtonSelected
   )
+  const isInGame = useArcadeStore((state) => state.isInGame)
 
   const handleExperimentClick = useCallback((data: any) => {
     window.open(`https://lab.basement.studio/experiments/${data.url}`, "_blank")
@@ -38,7 +40,7 @@ export const ArcadeLabsList = ({
   useKeyPress(
     "Enter",
     useCallback(() => {
-      if (isInLabTab) {
+      if (isInLabTab && !isInGame) {
         if (mouseHoveredExperiment) {
           handleExperimentClick(mouseHoveredExperiment)
         } else if (labTabIndex > 0 && labTabIndex <= experiments.length) {
@@ -50,7 +52,8 @@ export const ArcadeLabsList = ({
       labTabIndex,
       experiments,
       handleExperimentClick,
-      mouseHoveredExperiment
+      mouseHoveredExperiment,
+      isInGame
     ])
   )
 
