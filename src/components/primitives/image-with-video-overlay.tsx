@@ -34,18 +34,16 @@ export const ImageWithVideoOverlay = ({
   }, [])
 
   const handleMouseEnter = () => {
-    timeoutRef.current = setTimeout(() => {
-      setShouldLoadVideo(true)
-      setIsHovered(true)
+    setShouldLoadVideo(true)
+    setIsHovered(true)
 
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.play().catch((err) => {
-            console.log("[MouseEnter] Video play failed:", err)
-          })
-        }
-      }, 50) //check video is in DOC ready to play
-    }, 300) // timeout for user intent check to reduce network requests
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.play().catch((err) => {
+          console.log("[MouseEnter] Video play failed:", err)
+        })
+      }
+    }, 50) //check video is in DOC ready to play
   }
 
   const handleMouseLeave = () => {
