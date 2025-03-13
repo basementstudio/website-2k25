@@ -79,7 +79,7 @@ export const ArcadeScreen = () => {
 
     videoTexture.flipY = false
 
-    if (!hasVisitedArcade || isInGame) {
+    if (!hasVisitedArcade) {
       if (isLabRoute) {
         screenMaterial.uniforms.map.value = bootTexture
         screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
