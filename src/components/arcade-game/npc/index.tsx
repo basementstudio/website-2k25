@@ -4,8 +4,8 @@ import { useGame } from "../lib/use-game"
 import {
   CHUNK_SIZE,
   LINES,
-  TOTAL_CHUNKS,
   lineWidth,
+  TOTAL_CHUNKS,
   useRoad
 } from "../road/use-road"
 import { MotorcycleNpc } from "./npc-types/motorcycle"

@@ -74,11 +74,6 @@ export const ArcadeGame = ({
     window.dispatchEvent(event)
   }, [gameStarted, gameOver, screenMaterial])
 
-  // Debug
-  // useEffect(() => {
-  //   setIsInGame(true)
-  // }, [setIsInGame])
-
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.code === "Escape") {
@@ -171,20 +166,27 @@ export const ArcadeGame = ({
                 positionLeft={"20%"}
                 flexDirection="column"
                 alignItems="center"
-                positionBottom={-60}
+                positionBottom={-64}
                 visibility={gameStarted ? "hidden" : "visible"}
               >
                 {gameStarted && gameOver && (
-                  <Container
-                    paddingTop={10}
-                    backgroundColor={COLORS_THEME.black}
-                  >
-                    <Text textAlign="center">PRESS [SPACE] TO RESTART</Text>
+                  <Container paddingTop={10}>
+                    <Text
+                      textAlign="center"
+                      fontSize={16}
+                      color={COLORS_THEME.black}
+                    >
+                      PRESS [SPACE] TO RESTART
+                    </Text>
                   </Container>
                 )}
                 {gameStarted && gameOver && (
-                  <Container backgroundColor={COLORS_THEME.black}>
-                    <Text textAlign="center" fontSize={15}>
+                  <Container>
+                    <Text
+                      textAlign="center"
+                      fontSize={16}
+                      color={COLORS_THEME.black}
+                    >
                       PRESS [ESC] TO EXIT
                     </Text>
                   </Container>
