@@ -30,17 +30,17 @@ export const useHandleNavigation = () => {
 
   const getScene = useCallback(
     (route: string) => {
-      if (route === "/")
+      if (route === "/") {
         return scenes?.find((scene) => scene.name.toLowerCase() === "home")
+      }
 
-      // strip the query params and hash if any, split by / and take the last part
-      const routeWithoutParams = route
-        .split("?")[0]
-        .split("#")[0]
-        .split("/")
-        .pop()
+      // strip the query params and hash if any
+      const routeWithoutParams = route.split("?")[0].split("#")[0]
 
-      return scenes?.find((scene) => scene.name === routeWithoutParams)
+      // get the first segment after the leading slash
+      const finalRoute = routeWithoutParams.split("/").filter(Boolean)[0]
+
+      return scenes?.find((scene) => scene.name === finalRoute)
     },
     [scenes]
   )
