@@ -5,7 +5,7 @@ const INITIAL_POSITION = { x: 5.2, y: 1.3, z: -10.7 }
 const HOOP_POSITION = { x: 5.23, y: 3.414, z: -14.412 }
 
 const FORWARD_STRENGTH = 0.045
-const UP_STRENGTH = 0.125
+const UP_STRENGTH = 0.13
 const GAME_DURATION = 24
 
 interface PlayedBall {

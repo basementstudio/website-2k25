@@ -1,6 +1,7 @@
 "use client"
-import { ReactLenis, useLenis } from "lenis/react"
-import { FC, useRef } from "react"
+import { type LenisRef, ReactLenis, useLenis } from "lenis/react"
+import { useAnimationFrame } from "motion/react"
+import { type FC, useRef } from "react"
 import { create } from "zustand"
 
 interface ScrollStore {
@@ -18,11 +19,16 @@ type LenisScrollProviderProps = {
 }
 
 const LenisScrollProvider: FC<LenisScrollProviderProps> = ({ children }) => {
-  const lenisRef = useRef(null)
+  const lenisRef = useRef<LenisRef>(null)
   const setScrollY = useScrollStore((state) => state.setScrollY)
 
   useLenis(({ scroll }) => {
     setScrollY(scroll)
+  })
+
+  // Using Motion's useAnimationFrame as the main animation driver
+  useAnimationFrame((time) => {
+    lenisRef.current?.lenis?.raf(time)
   })
 
   return (
@@ -30,6 +36,7 @@ const LenisScrollProvider: FC<LenisScrollProviderProps> = ({ children }) => {
       ref={lenisRef}
       root
       options={{
+        autoRaf: false,
         lerp: 0.98,
         smoothWheel: true
       }}

@@ -63,8 +63,11 @@ export const createGlobalShaderMaterial = (
     glassReflex: { value: null },
     emissiveMap: { value: emissiveMap },
 
+    // God Rays
     uGodrayOpacity: { value: 0 },
-    uGodrayDensity: { value: 1.0 },
+    uGodrayDensity: { value: 0.75 },
+
+    // Inspectables
     inspectingEnabled: { value: false },
     inspectingFactor: { value: 0 },
     fadeFactor: { value: 0 },

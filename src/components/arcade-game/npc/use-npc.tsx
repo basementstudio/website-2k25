@@ -25,6 +25,7 @@ export interface NpcStore {
   npcs: NpcEntity[]
   addNpc: (npc: NpcEntity) => void
   removeNpc: (id: string) => void
+  clearNpcs: () => void
 }
 
 export const useNpc = create<NpcStore>((set) => ({
@@ -33,5 +34,6 @@ export const useNpc = create<NpcStore>((set) => ({
   removeNpc: (id) =>
     set((state) => ({
       npcs: state.npcs.filter((npc) => npc.id !== id)
-    }))
+    })),
+  clearNpcs: () => set({ npcs: [] })
 }))

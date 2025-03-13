@@ -24,7 +24,7 @@ const StaticBasketballs = () => {
   )
 
   const originalMaterial = basketballModel.materials[
-    "Material.002"
+    "Material.001"
   ] as MeshStandardMaterial
 
   const material = useMemo(() => {

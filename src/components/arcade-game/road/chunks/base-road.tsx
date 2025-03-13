@@ -42,9 +42,10 @@ export const BaseRoad = () => {
       {typeof showPalm === "number" && (
         <mesh
           rotation={[0, 0, 0]}
-          position={[(showPalm * CHUNK_SIZE) / 2 + 4 * showPalm, 5, 0]}
+          position={[(showPalm * CHUNK_SIZE) / 2 + 4 * showPalm, 4.2, 0]}
+          scale={[showPalm === 1 ? -1 : 1, 1, 1]}
         >
-          <planeGeometry args={[4, 10]} />
+          <planeGeometry args={[9, 9]} />
           <meshBasicMaterial map={palmTexture} transparent />
         </mesh>
       )}
