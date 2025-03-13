@@ -32,7 +32,8 @@ const ProjectFragment = fragmentOn("ProjectComponent", {
   icon: ImageFragment,
   showcase: {
     items: {
-      image: ImageFragment
+      image: ImageFragment,
+      video: VideoFragment
     },
     __args: {
       first: 6

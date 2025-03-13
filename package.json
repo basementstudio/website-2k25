@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.19.11",
+    "@joycostudio/marquee": "^0.0.8",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@mux/mux-video-react": "^0.24.3",
     "@radix-ui/react-accordion": "^1.2.2",

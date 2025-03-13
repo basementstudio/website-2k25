@@ -159,7 +159,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
   }, [brandsMap, debouncedHoveredBrand])
 
   return (
-    <section className="grid-layout !gap-y-0">
+    <section className="lg:grid-layout hidden !gap-y-0">
       <div className="grid-layout col-span-full !px-0">
         <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:text-h3 xl:col-start-2 xl:col-end-7 2xl:col-start-3">
           Trusted by{" "}
