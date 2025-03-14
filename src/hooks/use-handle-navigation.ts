@@ -90,7 +90,7 @@ export const useHandleNavigation = () => {
         }, TRANSITION_DURATION)
       }
     },
-    [router, setCurrentScene, scenes, pathname, setDisableCameraTransition]
+    [pathname, getScene, setCurrentScene, router, setDisableCameraTransition]
   )
 
   return { handleNavigation }
