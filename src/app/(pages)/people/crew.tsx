@@ -33,10 +33,10 @@ export const Crew = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout mb-18 lg:mb-44">
       <div className="col-span-full -mb-6 flex items-end justify-between lg:col-start-5 lg:col-end-13">
-        <h2 className="text-f-h1-mobile lg:text-f-h1 text-brand-w2">
+        <h2 className="text-f-h1-mobile text-brand-w2 lg:text-f-h1">
           The Crew
         </h2>
-        <p className="text-f-h1-mobile lg:text-f-h1 text-brand-g1">
+        <p className="text-f-h1-mobile text-brand-g1 lg:text-f-h1">
           {data.company.people.peopleList.items.length}
         </p>
       </div>
@@ -232,7 +232,7 @@ export const CrewFooter = ({
         target="_blank"
         className="relative z-10 flex h-4 gap-1 bg-brand-k text-p text-brand-w1"
       >
-        <span className="actionable flex gap-1">
+        <span className="actionable flex items-center gap-1">
           Join the Crew <Arrow className="size-4" />
         </span>
       </Link>

@@ -6,13 +6,7 @@ import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
-import {
-  Mesh,
-  MeshStandardMaterial,
-  Object3D,
-  Object3DEventMap,
-  Vector3
-} from "three"
+import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three"
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
@@ -95,13 +89,11 @@ export const Map = memo(() => {
     routingElements: routingElementsPath,
     inspectables: inspectableAssets,
     videos,
-    scenes,
     outdoorCars,
     matcaps,
     glassMaterials,
     doubleSideElements
   } = useAssets()
-  const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const { scene: officeModel } = useGLTF(office) as unknown as GLTFResult
@@ -169,29 +161,6 @@ export const Map = memo(() => {
         clock.getElapsedTime()
     }
   })
-
-  useEffect(() => {
-    const fogConfig = scenes.find((s) => s.name === scene)?.fogConfig
-
-    if (!fogConfig) return
-
-    useCustomShaderMaterial.getState().updateFogSettings(
-      {
-        color: new Vector3(
-          fogConfig.fogColor.r,
-          fogConfig.fogColor.g,
-          fogConfig.fogColor.b
-        ),
-        density: fogConfig.fogDensity,
-        depth: fogConfig.fogDepth
-      },
-      firstRender.current
-    )
-
-    firstRender.current = false
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene])
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}

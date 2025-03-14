@@ -37,6 +37,7 @@ const ViewSelector = memo(
   ({ mode, viewMode, setViewMode }: ViewSelectorProps) => (
     <CheckboxPrimitive.Root
       className={cn(
+        "h-4",
         viewMode === mode
           ? "cursor-default text-brand-w1"
           : "cursor-pointer text-brand-g1"
@@ -90,6 +91,7 @@ export const Filters = memo(
             viewMode={viewMode}
             setViewMode={setViewMode}
           />
+          <span className="text-brand-g1">,</span>
           <ViewSelector
             mode="rows"
             viewMode={viewMode}

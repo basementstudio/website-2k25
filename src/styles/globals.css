@@ -150,8 +150,7 @@ body {
 }
 
 *::selection {
-  color: #000;
-  background-color: #ff4d00;
+  @apply bg-brand-o text-brand-k;
 }
 
 @keyframes diagonalPatternAnimation {
@@ -166,7 +165,7 @@ body {
 button:focus,
 input:focus,
 a:focus {
-  @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500;
+  @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-o focus-visible:ring-offset-2 focus-visible:ring-offset-brand-k;
 }
 
 p {
