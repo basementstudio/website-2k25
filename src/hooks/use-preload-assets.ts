@@ -155,7 +155,7 @@ const collectUrls = (
   return urlSet
 }
 
-// Main preload function - optimized for maximum speed
+// Main preload function
 const preloadAllAssets = (obj: any) => {
   // Step 1: Collect all unique URLs
   const urls = collectUrls(obj)
