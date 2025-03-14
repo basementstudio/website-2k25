@@ -18,14 +18,19 @@ const Close = ({ handleClose }: { handleClose: () => void }) => (
 
 const Content = ({ data }: { data: InspectableData }) => (
   <>
-    <h2 className="text-h2 text-brand-w1">{data._title}</h2>
+    <h2 className="text-pretty text-h2 text-brand-w1">{data._title}</h2>
     {data?.specs && data.specs.length > 0 && (
       <div className="flex flex-col border-t border-brand-w1/20">
         {data.specs.map((spec) => (
           <Fragment key={spec._id}>
             <div className="grid grid-cols-6 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75">
               <h3 className="col-span-2 text-p text-brand-g1">{spec._title}</h3>
-              <p className="col-span-4 text-p text-brand-w2">{spec.value}</p>
+              <p
+                className="col-span-4 line-clamp-1 overflow-hidden text-ellipsis text-p text-brand-w2"
+                title={spec.value}
+              >
+                {spec.value}
+              </p>
             </div>
           </Fragment>
         ))}

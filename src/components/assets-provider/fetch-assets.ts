@@ -3,6 +3,7 @@ import { basehub } from "basehub"
 import { assetsQuery } from "./query"
 
 export interface AssetsResult {
+  officeItems: string
   office: string
   officeWireframe: string
   outdoor: string
@@ -117,15 +118,6 @@ export interface AssetsResult {
       tabClickableName: string
       plusShapeScale: number
     }[]
-    fogConfig: {
-      fogColor: {
-        r: number
-        g: number
-        b: number
-      }
-      fogDensity: number
-      fogDepth: number
-    }
     postprocessing: {
       contrast: number
       brightness: number
@@ -145,6 +137,7 @@ export interface AssetsResult {
     model: string
     textureBody: string
     textureFaces: string
+    textureArms: string
   }
   lamp: {
     extraLightmap: string
@@ -157,7 +150,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
   }).query(assetsQuery)
 
   return {
-    office: threeDInteractions.map.officeV2.file.url,
+    officeItems: threeDInteractions.map.officeItems.file.url,
+    office: threeDInteractions.map.office.file.url,
     officeWireframe: threeDInteractions.map.wireframeModel.file.url,
     outdoor: threeDInteractions.map.outdoor.file.url,
     godrays: threeDInteractions.map.godrays.file.url,
@@ -285,15 +279,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
         tabClickableName: tab.tabClickableName ?? "",
         plusShapeScale: tab.plusShapeScale ?? 1
       })),
-      fogConfig: {
-        fogColor: {
-          r: (item.fogConfig.fogColor.r ?? 0) / 255,
-          g: (item.fogConfig.fogColor.g ?? 0) / 255,
-          b: (item.fogConfig.fogColor.b ?? 0) / 255
-        },
-        fogDensity: item.fogConfig.fogDensity ?? 0,
-        fogDepth: item.fogConfig.fogDepth ?? 0
-      },
       postprocessing: {
         contrast: item.postprocessing?.contrast ?? 1,
         brightness: item.postprocessing?.brightness ?? 1,
@@ -309,7 +294,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
     characters: {
       model: threeDInteractions.characters.model.file?.url ?? "",
       textureBody: threeDInteractions.characters.textureBody?.url,
-      textureFaces: threeDInteractions.characters.textureFaces?.url
+      textureFaces: threeDInteractions.characters.textureFaces.url,
+      textureArms: threeDInteractions.characters.textureArms.url
     },
     outdoorCars: {
       model: threeDInteractions.outdoorCars.model?.file?.url ?? ""

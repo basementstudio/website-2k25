@@ -126,12 +126,6 @@ export const createGlobalShaderMaterial = (
   return material
 }
 
-interface FogSettings {
-  color: Vector3
-  density: number
-  depth: number
-}
-
 interface CustomShaderMaterialStore {
   /**
    * Will not cause re-renders to use this object
@@ -139,10 +133,6 @@ interface CustomShaderMaterialStore {
   materialsRef: Record<string, ShaderMaterial>
   addMaterial: (material: ShaderMaterial) => void
   removeMaterial: (id: number) => void
-  updateFogSettings: (
-    { color, density, depth }: FogSettings,
-    instant?: boolean
-  ) => void
 }
 
 export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
@@ -155,39 +145,6 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
     removeMaterial: (id) => {
       const materials = get().materialsRef
       delete materials[id]
-    },
-    updateFogSettings: (
-      { color, density, depth }: FogSettings,
-      instant?: boolean
-    ) => {
-      const materials = get().materialsRef
-
-      Object.values(materials).forEach((material) => {
-        const startFogColor = material.uniforms.fogColor.value as Vector3
-
-        const config = !instant
-          ? { duration: TRANSITION_DURATION / 1000 }
-          : { duration: 0 }
-
-        const axes: Array<"x" | "y" | "z"> = ["x", "y", "z"]
-        axes.forEach((axis) => {
-          animate(startFogColor[axis], color[axis], {
-            ...config,
-            onUpdate: (latest) =>
-              (material.uniforms.fogColor.value[axis] = latest)
-          })
-        })
-
-        animate(material.uniforms.fogDensity.value as number, density, {
-          ...config,
-          onUpdate: (latest) => (material.uniforms.fogDensity.value = latest)
-        })
-
-        animate(material.uniforms.fogDepth.value as number, depth, {
-          ...config,
-          onUpdate: (latest) => (material.uniforms.fogDepth.value = latest)
-        })
-      })
     }
   })
 )

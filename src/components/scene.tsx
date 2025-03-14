@@ -1,5 +1,6 @@
 "use client"
 
+import { Preload } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { createXRStore, XR } from "@react-three/xr"
 import dynamic from "next/dynamic"

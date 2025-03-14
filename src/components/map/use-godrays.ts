@@ -14,6 +14,9 @@ export const useGodrays = ({ godrays }: GodraysHandlerProps) => {
   useEffect(() => {
     godrays.forEach((mesh) => {
       const material = mesh.material as ShaderMaterial
+      material.depthWrite = false
+      material.depthTest = true
+      mesh.renderOrder = 2
 
       const shouldShow =
         (mesh.name === "GR_About" && scene === "services") ||

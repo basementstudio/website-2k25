@@ -68,6 +68,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      glsl-noise:
+        specifier: ^0.0.0
+        version: 0.0.0
       glslify-loader:
         specifier: ^2.0.0
         version: 2.0.0

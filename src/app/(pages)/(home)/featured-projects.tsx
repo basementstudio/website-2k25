@@ -1,5 +1,3 @@
-import Image from "next/image"
-
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { Link } from "@/components/primitives/link"
@@ -27,7 +25,7 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
           {index === 0 && (
             <h2
               className={cn(
-                "col-span-full bg-brand-k pb-6 pt-12 !text-mobile-h1 text-brand-w2 lg:pt-14 lg:!text-h1"
+                "!text-f-h1-mobile lg:!text-f-h1 col-span-full bg-brand-k pb-6 pt-12 text-brand-w2 lg:pt-14"
               )}
             >
               Featured Projects
@@ -58,13 +56,15 @@ const ProjectItem = ({
     >
       <div className="relative col-span-7 after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
         {project.cover && (
-          <div className="with-dots relative h-full w-full">
-            <ImageWithVideoOverlay
-              image={project.cover}
-              video={project.coverVideo || project.project?.coverVideo}
-              className="aspect-video"
-            />
-          </div>
+          <Link href={`/showcase/${project.project?._slug}`}>
+            <div className="with-dots relative h-full w-full">
+              <ImageWithVideoOverlay
+                image={project.cover}
+                video={project.coverVideo || project.project?.coverVideo}
+                className="aspect-video"
+              />
+            </div>
+          </Link>
         )}
       </div>
       <div className="col-span-2 flex flex-col justify-between gap-y-4 pr-2 md:col-span-3 md:pr-12">
@@ -81,7 +81,7 @@ const ProjectItem = ({
                 key={category._title}
                 className="text-mobile-h4 text-brand-w1 lg:text-h4"
               >
-                <span className="actionable">{category._title}</span>
+                {category._title}
               </span>
             )) ?? []
           }
