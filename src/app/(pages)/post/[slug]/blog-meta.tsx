@@ -57,9 +57,9 @@ export default function BlogMeta({
 }) {
   return (
     <div className="grid-layout relative !px-0 text-p">
-      <Back />
+      {categories && <Back />}
       <div className="col-span-full flex justify-center lg:col-span-10 lg:col-start-2">
-        <div className="flex w-full max-w-[846px] flex-col gap-3">
+        <div className="flex w-full flex-col gap-3 lg:max-w-[846px]">
           {!categories && <hr className="mt-10 border-brand-w1/20" />}
           {categories && (
             <div className="flex gap-1">
