@@ -1,6 +1,6 @@
 import { createInstances } from "@react-three/drei"
 import { type ComponentRef, useMemo, useRef } from "react"
-import { Color, type Vector3 } from "three"
+import { Color, Vector3 } from "three"
 
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 

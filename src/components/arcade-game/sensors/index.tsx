@@ -12,7 +12,7 @@ import {
   Matrix3,
   Matrix4,
   Quaternion,
-  type Vector3
+  Vector3
 } from "three"
 import { OBB } from "three/addons/math/OBB.js"
 

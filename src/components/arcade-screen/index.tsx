@@ -8,7 +8,7 @@ import { animate } from "motion"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { Suspense, useEffect, useMemo, useState } from "react"
-import { type Mesh, type Vector3, WebGLRenderTarget } from "three"
+import { type Mesh, Vector3, WebGLRenderTarget } from "three"
 import { Box3 } from "three"
 import { degToRad } from "three/src/math/MathUtils.js"
 

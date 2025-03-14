@@ -1,5 +1,5 @@
 import { memo, useRef } from "react"
-import type { Color, Group } from "three"
+import { Color, Group } from "three"
 
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 

@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { useEffect, useMemo, useRef } from "react"
-import type { Mesh, MeshStandardMaterial, Vector3 } from "three"
+import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
