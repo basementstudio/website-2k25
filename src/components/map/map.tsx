@@ -1,7 +1,6 @@
 "use client"
 
 import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
@@ -31,6 +30,7 @@ import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -153,7 +153,7 @@ export const Map = memo(() => {
     return () => tl.current?.stop()
   }, [selected])
 
-  useFrame(({ clock }) => {
+  useFrameCallback(({ clock }) => {
     timeRef.current = clock.getElapsedTime()
 
     Object.values(shaderMaterialsRef).forEach((material) => {

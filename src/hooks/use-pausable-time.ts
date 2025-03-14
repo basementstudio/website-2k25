@@ -1,5 +1,5 @@
 import { type RootState, useFrame } from "@react-three/fiber"
-import { useCallback, useEffect, useRef } from "react"
+import { useRef } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
 
@@ -9,44 +9,26 @@ import { useContactStore } from "@/components/contact/contact-store"
  */
 const MAX_DELTA = 1 / 15
 
-/**
- * Configuration for global time management
- */
+// Shared configuration across the application
+// Use only if you need exactly the same timing values everywhere
 export const globalFrameConfig = {
   isPaused: false,
   elapsedTime: 0,
-  delta: 0,
-
-  /**
-   * Resets the global elapsed time to zero
-   */
-  reset: () => {
-    globalFrameConfig.elapsedTime = 0
-  }
+  delta: 0
 }
 
 /**
  * Updates the global frame timing configuration
  * This should be called once in your root component
- *
- * @param options Optional configuration for custom pause conditions
  */
-export const useGlobalFrameLoop = (options?: {
-  shouldPause?: () => boolean
-}) => {
+export const useGlobalFrameLoop = () => {
   const { isContactOpen } = useContactStore()
 
-  // Update pause state based on contact or custom condition
-  useEffect(() => {
-    globalFrameConfig.isPaused = options?.shouldPause?.() ?? isContactOpen
-  }, [isContactOpen, options])
+  // Update pause state based on contact
+  globalFrameConfig.isPaused = isContactOpen
 
   // Update timing values with high priority (-100)
   useFrame((_, delta) => {
-    // Re-check pause state with latest values
-    globalFrameConfig.isPaused =
-      options?.shouldPause?.() ?? useContactStore.getState().isContactOpen
-
     if (!globalFrameConfig.isPaused) {
       globalFrameConfig.elapsedTime += delta
       globalFrameConfig.delta = Math.min(delta, MAX_DELTA)
@@ -55,82 +37,65 @@ export const useGlobalFrameLoop = (options?: {
 }
 
 /**
- * Legacy support - returns a ref with pausable time
+ * Hook that provides pausable time and delta values
+ * Local version that creates independent timing for each component
  *
- * @param options Optional configuration for custom pause conditions
+ * @returns An object with time and delta references
  */
-export const usePausableTimeRef = (options?: {
-  shouldPause?: () => boolean
-}) => {
+export const usePausableTime = () => {
   const { isContactOpen } = useContactStore()
   const pausableTimeRef = useRef(0)
+  const pausableDeltaRef = useRef(0)
   const lastTimeRef = useRef(0)
 
-  // Reset function
-  const reset = useCallback(() => {
-    pausableTimeRef.current = 0
-  }, [])
-
-  useFrame(({ clock }) => {
-    // Determine if we should pause based on contact or custom condition
-    const shouldPause = options?.shouldPause?.() ?? isContactOpen
-
+  useFrame(({ clock }, delta) => {
     // For accumulated time - only increment when not paused
-    if (!shouldPause) {
+    if (!isContactOpen) {
       const timeDelta = clock.getElapsedTime() - lastTimeRef.current
       pausableTimeRef.current += timeDelta
+
+      // For delta - use the actual delta when not paused, but clamped to prevent physics issues
+      pausableDeltaRef.current = Math.min(delta, MAX_DELTA)
+    } else {
+      // When paused, delta becomes zero
+      pausableDeltaRef.current = 0
     }
 
     // Always update the last recorded time
     lastTimeRef.current = clock.getElapsedTime()
   })
 
-  return { timeRef: pausableTimeRef, reset }
+  return {
+    time: pausableTimeRef,
+    delta: pausableDeltaRef
+  }
+}
+
+/**
+ * Legacy support for existing components - returns only the time reference
+ * @deprecated Use usePausableTime().time instead
+ */
+export const usePausableTimeRef = () => {
+  return usePausableTime().time
 }
 
 /**
  * Hook for components that need to run frame updates with proper pausing
+ * Uses the locally managed time rather than global time
  *
  * @param callback Function to execute each frame with proper delta timing
  * @param priority Optional priority for the frame callback
- * @param options Optional configuration for custom pause conditions and behaviors
  */
 export const useFrameCallback = (
   callback: (state: RootState, delta: number, elapsedTime: number) => void,
-  priority?: number,
-  options?: {
-    shouldPause?: () => boolean
-    initialTime?: number
-  }
+  priority?: number
 ) => {
-  const pausableTimeRef = useRef(options?.initialTime ?? 0)
-  const lastTimeRef = useRef(0)
+  const { time, delta } = usePausableTime()
 
-  // Reset function
-  const reset = useCallback(() => {
-    pausableTimeRef.current = options?.initialTime ?? 0
-  }, [options?.initialTime])
+  useFrame((state) => {
+    const { isContactOpen } = useContactStore.getState()
+    if (isContactOpen) return
 
-  useFrame((state, delta) => {
-    // Determine if we should pause based on contact or custom condition
-    const shouldPause =
-      options?.shouldPause?.() ?? useContactStore.getState().isContactOpen
-
-    // Skip callback execution when paused
-    if (shouldPause) return
-
-    // Update pausable time
-    const currentTime = state.clock.getElapsedTime()
-    const timeDelta = currentTime - lastTimeRef.current
-    pausableTimeRef.current += timeDelta
-    lastTimeRef.current = currentTime
-
-    // Apply delta clamping to prevent physics issues
-    const clampedDelta = Math.min(delta, MAX_DELTA)
-
-    // Execute callback with proper timing values
-    callback(state, clampedDelta, pausableTimeRef.current)
+    callback(state, delta.current, time.current)
   }, priority)
-
-  return { reset, currentTime: pausableTimeRef }
 }
