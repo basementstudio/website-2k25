@@ -15,6 +15,7 @@ const ASSET_TO_NOT_PRELOAD = [
 
 // Assets has different keys for the url.
 // This is a list of assets that have a different key for the url.
+// Reduce recursive calls number by specifying the asset url key.
 const ASSET_URL_SRC = [
   {
     key: "bakes",
