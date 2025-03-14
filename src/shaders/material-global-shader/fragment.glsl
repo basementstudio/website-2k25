@@ -11,6 +11,7 @@ varying vec3 vViewDirection;
 uniform vec3 uColor;
 uniform vec3 baseColor;
 uniform sampler2D map;
+uniform mat3 mapMatrix;
 uniform vec2 mapRepeat;
 
 // other
@@ -35,6 +36,7 @@ uniform bool uReverse;
 // transparency
 uniform float opacity;
 uniform sampler2D alphaMap;
+uniform mat3 alphaMapTransform;
 
 // emissive
 #ifdef USE_EMISSIVE
@@ -94,7 +96,8 @@ void main() {
 
   // TODO: implement map matrix instead of mapRepeat
   #ifdef USE_MAP
-  mapSample = texture2D(map, vUv * mapRepeat);
+  vec2 mapUv = (mapMatrix * vec3(vUv, 1.0)).xy;
+  mapSample = texture2D(map, mapUv * mapRepeat);
   #endif
 
   // TODO: use map matrix to shift or move to a different shader to add lightning
@@ -178,7 +181,8 @@ void main() {
   #endif
 
   #ifdef USE_ALPHA_MAP
-  float alpha = texture2D(alphaMap, vUv).r;
+  vec2 alphaMapUv = (alphaMapTransform * vec3(vUv, 1.0)).xy;
+  float alpha = texture2D(alphaMap, alphaMapUv).r;
   opacityResult *= alpha;
   #endif
 

@@ -1,6 +1,7 @@
-import { useFrame } from "@react-three/fiber"
 import { memo, useRef } from "react"
 import { Color, Group } from "three"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { Character } from "."
 import { CharacterAnimationName } from "./character-instancer"
@@ -10,7 +11,7 @@ export const CharactersSpawn = memo(CharactersSpawnInner)
 function CharactersSpawnInner() {
   const spinningTatoRef = useRef<Group>(null)
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (spinningTatoRef.current) {
       spinningTatoRef.current.rotation.y += 0.01
     }
@@ -36,16 +37,6 @@ function CharactersSpawnInner() {
   return (
     <>
       {/* Services */}
-      <Character
-        position={[3.6, 0.9, -6.8]}
-        rotation={[0, Math.PI * -1.1, 0]}
-        animationName={CharacterAnimationName.Floor2}
-        uniforms={{
-          uLightDirection: {
-            value: [0.2, 0.5, 1.5, 1]
-          }
-        }}
-      />
       <Character
         position={[5.3, 0.55, -6.7]}
         rotation={[0, Math.PI * -0.7, 0]}
@@ -93,9 +84,9 @@ function CharactersSpawnInner() {
         }}
       />
 
-      {/* Upstairs */}
+      {/* People */}
       <Character
-        position={[3.05, 3.7, -27]}
+        position={[3.05, 3.72, -27.4]}
         rotation={[0, Math.PI * 0.5, 0]}
         animationName={CharacterAnimationName.Working}
         uniforms={{
@@ -105,8 +96,13 @@ function CharactersSpawnInner() {
         }}
       />
       <Character
-        position={[6.4, 3.7, -26.9]}
+        position={[6.7, 3.7, -24.6]}
         rotation={[0, Math.PI * 0.5, 0]}
+        animationName={CharacterAnimationName.Working}
+      />
+      <Character
+        position={[12.3, 3.7, -27.15]}
+        rotation={[0, Math.PI * -0.5, 0]}
         animationName={CharacterAnimationName.Working}
       />
 

@@ -13,7 +13,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
         {capabilities._title}
       </h3>
 
-      <div className="col-span-full [&_p]:text-mobile-h1 lg:[&_p]:text-h1">
+      <div className="[&_p]:text-f-h1-mobile lg:[&_p]:text-f-h1 col-span-full">
         <RichText>{capabilities.intro?.json?.content}</RichText>
       </div>
 
@@ -28,7 +28,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
             >
               <h4 className="text-h4">
                 <Link
-                  href={`/showcase?category=${encodeURIComponent(c._title)}`}
+                  href={`/showcase?category=${encodeURIComponent(c._title)}#list`}
                 >
                   <span className="actionable">{c._title}</span>
                 </Link>

@@ -133,6 +133,39 @@ export default {
             letterSpacing: "-0.02em",
             fontWeight: "500"
           }
+        ],
+        // TODO: Update to use the new font
+        "f-h0": [
+          "6.125rem",
+          {
+            lineHeight: "5.5rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h0-mobile": [
+          "2.875rem",
+          {
+            lineHeight: "2.75rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h1": [
+          "4.75rem",
+          {
+            lineHeight: "4.25rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h1-mobile": [
+          "2.1875rem",
+          {
+            lineHeight: "2.25rem",
+            letterSpacing: "-0.03em",
+            fontWeight: "600"
+          }
         ]
       },
       spacing: {
@@ -195,8 +228,8 @@ export default {
         }
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "accordion-down": "accordion-down 0.2s ease-out forwards",
+        "accordion-up": "accordion-up 0.2s ease-out forwards",
         "fade-in": "fade-in 0.3s ease-out",
         "fade-out": "fade-out 0.3s ease-out",
         "slide-up": "slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)",

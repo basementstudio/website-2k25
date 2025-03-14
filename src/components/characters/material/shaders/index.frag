@@ -13,10 +13,10 @@ struct MapConfig {
 uniform MapConfig mapConfigs[MULTI_MAP_COUNT];
 varying float vMapIndex;
 
-vec3 sampleConfigMap(sampler2D map, mat3 mapTransform) {
+vec4 sampleConfigMap(sampler2D map, mat3 mapTransform) {
   vec2 mapUv = (mapTransform * vec3(vUv, 1.0)).xy;
   mapUv += vMapOffset;
-  return texture2D(map, mapUv).rgb;
+  return texture2D(map, mapUv);
 }
 #endif
 
@@ -31,19 +31,24 @@ float valueRemap(float value, float min, float max, float newMin, float newMax) 
 void main() {
   vec3 color = vec3(0.0);
 
+  vec4 mapSample = vec4(0.0);
+  float alpha = 1.0;
   #ifdef USE_MULTI_MAP //support only 4 maps
       #if MULTI_MAP_COUNT >= 1
-      if (vMapIndex < 0.5) color = sampleConfigMap(mapConfigs[0].map, mapConfigs[0].mapTransform);
+      if (vMapIndex < 0.5) mapSample = sampleConfigMap(mapConfigs[0].map, mapConfigs[0].mapTransform);
       #endif
       #if MULTI_MAP_COUNT >= 2
-      else if (vMapIndex < 1.5) color = sampleConfigMap(mapConfigs[1].map, mapConfigs[1].mapTransform);
+      else if (vMapIndex < 1.5) mapSample = sampleConfigMap(mapConfigs[1].map, mapConfigs[1].mapTransform);
       #endif
       #if MULTI_MAP_COUNT >= 3
-      else if (vMapIndex < 2.5) color = sampleConfigMap(mapConfigs[2].map, mapConfigs[2].mapTransform);
+      else if (vMapIndex < 2.5) mapSample = sampleConfigMap(mapConfigs[2].map, mapConfigs[2].mapTransform);
       #endif
       #if MULTI_MAP_COUNT >= 4
-      else if (vMapIndex < 3.5) color = sampleConfigMap(mapConfigs[3].map, mapConfigs[3].mapTransform);
+      else if (vMapIndex < 3.5) mapSample = sampleConfigMap(mapConfigs[3].map, mapConfigs[3].mapTransform);
       #endif
+
+    color = mapSample.rgb;
+    alpha *= mapSample.a;
   #endif
 
   color = gamma(color, 2.2);
@@ -58,7 +63,9 @@ void main() {
   color *= lightIntensity;
   color *= (vLightColor.rgb * vLightColor.a);
 
-  gl_FragColor = vec4(vec3(color), 1.0);
+  if(alpha < 0.8) discard;
+
+  gl_FragColor = vec4(vec3(color), 1.);
 
   // gl_FragColor = vec4(vDebug, 1.0);
 }

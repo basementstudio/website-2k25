@@ -13,6 +13,7 @@ const Scene = dynamic(
     loading: () => null
   }
 )
+import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
 import { cn } from "@/utils/cn"
 
 import { useAppLoadingStore } from "../loading/app-loading-handler"
@@ -47,7 +48,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
       <div
         className={cn(
           "canvas-container sticky top-0 h-screen w-full lg:fixed",
-          !shouldShowCanvas && "pointer-events-none invisible opacity-0"
+          !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
         )}
       >
         <Suspense fallback={null}>{isCanvasInPage && <Scene />}</Suspense>

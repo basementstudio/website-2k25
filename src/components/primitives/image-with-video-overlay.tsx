@@ -13,23 +13,28 @@ const MuxVideo = dynamic(() => import("@mux/mux-video-react"), { ssr: false })
 export const ImageWithVideoOverlay = ({
   image,
   video,
-  firstItem
+  disabled,
+  className,
+  firstItem = false,
+  variant = "home"
 }: {
-  image?: ImageFragment
-  video?: VideoFragment
-  firstItem: boolean
+  image: ImageFragment
+  video?: VideoFragment | null
+  disabled?: boolean
+  className?: string
+  firstItem?: boolean
+  variant?: "home" | "showcase"
 }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const cleanupRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
   }, [])
 
@@ -56,26 +61,30 @@ export const ImageWithVideoOverlay = ({
     if (videoRef.current) {
       videoRef.current.pause()
     }
-
-    setTimeout(() => {
-      // clean up memory
-      setShouldLoadVideo(false)
-    }, 5000)
   }
 
   return (
     <div
-      className={cn("relative h-full w-full transition-opacity duration-300")}
+      className={cn(
+        "relative h-full w-full transition-opacity duration-300",
+        className,
+        { "pointer-events-none opacity-0": disabled }
+      )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <Image
-        src={image?.url ?? ""}
-        alt={image?.alt ?? ""}
-        width={firstItem ? 960 : 480}
-        height={firstItem ? 540 : 270}
+        src={image.url ?? ""}
+        alt={image.alt ?? ""}
+        width={variant === "showcase" ? (firstItem ? 960 : 480) : undefined}
+        height={variant === "showcase" ? (firstItem ? 540 : 270) : undefined}
+        fill={variant === "home"}
+        sizes={
+          variant === "home"
+            ? `(max-width: 1024px) ${firstItem ? "25vw" : "50vw"}, 90vw`
+            : undefined
+        }
         blurDataURL={image?.blurDataURL ?? ""}
-        placeholder="blur"
         className="h-full w-full object-cover"
         priority={firstItem}
       />

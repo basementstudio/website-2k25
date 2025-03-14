@@ -48,7 +48,7 @@ export enum BodyMorphTargets {
 export const characterConfigurations: Character[] = [
   {
     faceId: 0,
-    faceMorph: FaceMorphTargets.Jose,
+    faceMorph: FaceMorphTargets.Jose
   },
   {
     faceId: 1,
@@ -57,6 +57,11 @@ export const characterConfigurations: Character[] = [
   },
   {
     faceId: 2,
-    faceMorph: FaceMorphTargets.Facu,
+    faceMorph: FaceMorphTargets.Facu
   },
+  {
+    faceId: 3,
+    faceMorph: FaceMorphTargets.Nat,
+    bodyMorph: BodyMorphTargets.Woman
+  }
 ]

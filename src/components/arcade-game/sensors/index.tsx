@@ -1,4 +1,3 @@
-import { useFrame } from "@react-three/fiber"
 import {
   forwardRef,
   useEffect,
@@ -9,14 +8,15 @@ import {
 } from "react"
 import {
   Euler,
-  LineSegments,
+  type LineSegments,
   Matrix3,
   Matrix4,
   Quaternion,
   Vector3
 } from "three"
-
 import { OBB } from "three/addons/math/OBB.js"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 export interface SensorInterface {
   id: string
@@ -115,7 +115,7 @@ export const Sensor = forwardRef<SensorInterface, SensorProps>(function Sensor(
    * Each sensor will test iself on each frame
    * Not the most performant thing, but I only have one with callbacks
    */
-  useFrame(() => {
+  useFrameCallback(() => {
     if (!active) return
 
     //update rotation matrix

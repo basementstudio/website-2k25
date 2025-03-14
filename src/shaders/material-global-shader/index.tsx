@@ -1,5 +1,5 @@
 import { animate } from "motion"
-import { MeshStandardMaterial, Vector3 } from "three"
+import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
@@ -43,6 +43,7 @@ export const createGlobalShaderMaterial = (
     uColor: { value: emissiveColor },
     uProgress: { value: 0.0 },
     map: { value: map },
+    mapMatrix: { value: new Matrix3().identity() },
     lightMap: { value: null },
     lightMapIntensity: { value: 0.0 },
     aoMap: { value: null },
@@ -55,6 +56,7 @@ export const createGlobalShaderMaterial = (
     noiseFactor: { value: 0.5 },
     uTime: { value: 0.0 },
     alphaMap: { value: alphaMap },
+    alphaMapTransform: { value: new Matrix3().identity() },
     emissive: { value: baseMaterial.emissive || new Vector3() },
     emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
     fogColor: { value: new Vector3(0.2, 0.2, 0.2) },
@@ -121,12 +123,6 @@ export const createGlobalShaderMaterial = (
   return material
 }
 
-interface FogSettings {
-  color: Vector3
-  density: number
-  depth: number
-}
-
 interface CustomShaderMaterialStore {
   /**
    * Will not cause re-renders to use this object
@@ -134,10 +130,6 @@ interface CustomShaderMaterialStore {
   materialsRef: Record<string, ShaderMaterial>
   addMaterial: (material: ShaderMaterial) => void
   removeMaterial: (id: number) => void
-  updateFogSettings: (
-    { color, density, depth }: FogSettings,
-    instant?: boolean
-  ) => void
 }
 
 export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
@@ -150,39 +142,6 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
     removeMaterial: (id) => {
       const materials = get().materialsRef
       delete materials[id]
-    },
-    updateFogSettings: (
-      { color, density, depth }: FogSettings,
-      instant?: boolean
-    ) => {
-      const materials = get().materialsRef
-
-      Object.values(materials).forEach((material) => {
-        const startFogColor = material.uniforms.fogColor.value as Vector3
-
-        const config = !instant
-          ? { duration: TRANSITION_DURATION / 1000 }
-          : { duration: 0 }
-
-        const axes: Array<"x" | "y" | "z"> = ["x", "y", "z"]
-        axes.forEach((axis) => {
-          animate(startFogColor[axis], color[axis], {
-            ...config,
-            onUpdate: (latest) =>
-              (material.uniforms.fogColor.value[axis] = latest)
-          })
-        })
-
-        animate(material.uniforms.fogDensity.value as number, density, {
-          ...config,
-          onUpdate: (latest) => (material.uniforms.fogDensity.value = latest)
-        })
-
-        animate(material.uniforms.fogDepth.value as number, depth, {
-          ...config,
-          onUpdate: (latest) => (material.uniforms.fogDepth.value = latest)
-        })
-      })
     }
   })
 )

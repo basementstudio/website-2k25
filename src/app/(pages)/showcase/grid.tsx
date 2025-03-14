@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { memo, useMemo } from "react"
+import { memo } from "react"
 
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { InfoItem } from "@/components/primitives/info-item"
@@ -79,6 +79,7 @@ export const Grid = memo(
                       image={item.cover as ImageFragment}
                       video={item.coverVideo as VideoFragment}
                       firstItem={firstItem}
+                      variant="showcase"
                     />
                   ) : null}
                 </Link>

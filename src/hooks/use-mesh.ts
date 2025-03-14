@@ -8,6 +8,10 @@ interface CarMeshes {
 }
 
 export interface MeshStore {
+  weather: {
+    rain: Mesh | null
+    loboMarino: Mesh | null
+  }
   hoopMeshes: {
     hoop: Mesh | null
     hoopGlass: Mesh | null
@@ -32,6 +36,10 @@ export interface MeshStore {
 
 /** Global store for extracted meshes */
 export const useMesh = create<MeshStore>()((set) => ({
+  weather: {
+    rain: null,
+    loboMarino: null
+  },
   hoopMeshes: {
     hoop: null,
     hoopGlass: null

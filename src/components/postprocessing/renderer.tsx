@@ -1,6 +1,7 @@
-import { createPortal, useFrame } from "@react-three/fiber"
+import { createPortal } from "@react-three/fiber"
 import { memo, useEffect, useId, useMemo, useRef } from "react"
 import {
+  DepthTexture,
   HalfFloatType,
   LinearSRGBColorSpace,
   NearestFilter,
@@ -14,8 +15,8 @@ import {
   WebGLRenderTarget
 } from "three"
 
-import { useContactStore } from "@/components/contact/contact-store"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { doubleFbo } from "@/utils/double-fbo"
 
 import { PostProcessing } from "./post-processing"
@@ -48,12 +49,15 @@ export const Renderer = memo(RendererInner)
 
 function RendererInner({ sceneChildren }: RendererProps) {
   const mainTarget = useMemo(() => {
+    const dt = new DepthTexture(window.innerWidth, window.innerHeight)
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
       type: HalfFloatType,
       format: RGBAFormat,
       colorSpace: LinearSRGBColorSpace,
       minFilter: NearestFilter,
-      magFilter: NearestFilter
+      magFilter: NearestFilter,
+      depthBuffer: true,
+      depthTexture: dt
     })
     return rt
   }, [])
@@ -62,8 +66,6 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingScene = useMemo(() => new Scene(), [])
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
-
-  const { isContactOpen } = useContactStore()
 
   useEffect(() => {
     const resizeCallback = () =>
@@ -76,9 +78,8 @@ function RendererInner({ sceneChildren }: RendererProps) {
     return () => window.removeEventListener("resize", resizeCallback)
   }, [mainTarget])
 
-  useFrame(({ gl }) => {
+  useFrameCallback(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return
-    if (isContactOpen) return
 
     // main render
     gl.outputColorSpace = LinearSRGBColorSpace
@@ -107,6 +108,7 @@ function RendererInner({ sceneChildren }: RendererProps) {
       {createPortal(
         <PostProcessing
           mainTexture={mainTarget.texture}
+          depthTexture={mainTarget.depthTexture!}
           cameraRef={postProcessingCameraRef}
         />,
         postProcessingScene

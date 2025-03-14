@@ -1,18 +1,18 @@
 import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
   AnimationMixer,
   Box3,
-  Group,
+  type Group,
   Mesh,
   MeshBasicMaterial,
-  SkinnedMesh,
+  type SkinnedMesh,
   Vector3,
   WebGLRenderTarget
 } from "three"
 
 import { RenderTexture } from "@/components/arcade-screen/render-texture"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createScreenMaterial } from "@/shaders/material-screen"
 import { useWorkerStore } from "@/workers/contact-worker"
 
@@ -170,7 +170,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     })
   }
 
-  useFrame((state, delta) => {
+  useFrameCallback((state, delta) => {
     const handler = animationHandlerRef.current
     if (!handler) return
 

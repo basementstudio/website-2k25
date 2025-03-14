@@ -37,6 +37,7 @@ const ViewSelector = memo(
   ({ mode, viewMode, setViewMode }: ViewSelectorProps) => (
     <CheckboxPrimitive.Root
       className={cn(
+        "h-4",
         viewMode === mode
           ? "cursor-default text-brand-w1"
           : "cursor-pointer text-brand-g1"
@@ -46,7 +47,7 @@ const ViewSelector = memo(
       onCheckedChange={() => setViewMode(mode)}
     >
       <span
-        className={cn("flex items-center justify-center gap-1", {
+        className={cn("!flex items-center justify-center gap-1", {
           ["underline"]: viewMode === mode,
           ["actionable actionable-no-underline"]: viewMode !== mode
         })}
@@ -90,6 +91,7 @@ export const Filters = memo(
             viewMode={viewMode}
             setViewMode={setViewMode}
           />
+          <span className="text-brand-g1">,</span>
           <ViewSelector
             mode="rows"
             viewMode={viewMode}
@@ -98,7 +100,7 @@ export const Filters = memo(
         </div>
 
         <div className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13">
-          <p className="text-p text-brand-g1">Filters</p>
+          <p className="text-p text-brand-g1">Categories</p>
 
           <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {categories.map((category) => (

@@ -81,7 +81,10 @@
     @apply active:animate-none;
   }
 
-  a[target="_blank"] {
+  a[target="_blank"],
+  a[target="_blank"] *,
+  a[href^="mailto:"],
+  a[href^="mailto:"] * {
     @apply cursor-alias;
   }
 
@@ -147,8 +150,7 @@ body {
 }
 
 *::selection {
-  color: #000;
-  background-color: #ff4d00;
+  @apply bg-brand-o text-brand-k;
 }
 
 @keyframes diagonalPatternAnimation {
@@ -163,7 +165,7 @@ body {
 button:focus,
 input:focus,
 a:focus {
-  @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500;
+  @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-o focus-visible:ring-offset-2 focus-visible:ring-offset-brand-k;
 }
 
 p {
@@ -228,24 +230,6 @@ p {
     }
   }
 }
-
-.stacked-card {
-  animation-name: progressiveOpacity;
-  animation-duration: 1ms; /* Firefox requires this to apply the animation */
-  animation-fill-mode: forwards;
-  animation-timeline: view(block);
-  animation-range: entry 0% cover 38%;
-}
-
-@keyframes progressiveOpacity {
-  0% {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-  100% {
-    background-color: rgba(0, 0, 0, 1);
-  }
-}
-
 @keyframes marquee-translate {
   0% {
     transform: translateX(0);

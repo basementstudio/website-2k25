@@ -49,9 +49,6 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <Transitions />
-      <head>
-        <link rel="preload" href={assets.officeWireframe} as="fetch" />
-      </head>
       <Toolbar />
       <AssetsProvider assets={assets}>
         <InspectableProvider>
@@ -68,7 +65,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
                 <NavigationHandler />
 
                 <ContentWrapper>{children}</ContentWrapper>
-                <AppHooks />
+                <AppHooks assets={assets} />
                 <Contact />
               </PathnameProvider>
             </LenisScrollProvider>

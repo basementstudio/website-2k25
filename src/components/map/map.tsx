@@ -1,18 +1,11 @@
 "use client"
 
 import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
-import {
-  Mesh,
-  MeshStandardMaterial,
-  Object3D,
-  Object3DEventMap,
-  Vector3
-} from "three"
+import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three"
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
@@ -31,6 +24,7 @@ import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -38,6 +32,7 @@ import {
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
 import { SpeakerHover } from "../other/speaker-hover"
+import { Weather } from "../weather"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -87,23 +82,25 @@ type SceneType = Object3D<Object3DEventMap> | null
 
 export const Map = memo(() => {
   const {
-    office: officePath,
+    officeItems,
+    office,
     outdoor: outdoorPath,
     godrays: godraysPath,
     basketballNet: basketballNetPath,
     routingElements: routingElementsPath,
     inspectables: inspectableAssets,
     videos,
-    scenes,
     outdoorCars,
     matcaps,
     glassMaterials,
     doubleSideElements
   } = useAssets()
-  const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
-  const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
+  const { scene: officeModel } = useGLTF(office) as unknown as GLTFResult
+  const { scene: officeItemsModel } = useGLTF(
+    officeItems
+  ) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
   const { scene: outdoorCarsModel } = useGLTF(
@@ -149,11 +146,9 @@ export const Map = memo(() => {
     return () => tl.current?.stop()
   }, [selected])
 
-  useFrame(({ clock }) => {
-    timeRef.current = clock.getElapsedTime()
-
+  useFrameCallback((_, delta) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
-      material.uniforms.uTime.value = clock.getElapsedTime()
+      material.uniforms.uTime.value += delta
 
       material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
@@ -161,33 +156,9 @@ export const Map = memo(() => {
 
     if (useMesh.getState().cctv?.screen?.material) {
       // @ts-ignore
-      useMesh.getState().cctv.screen.material.uniforms.uTime.value =
-        clock.getElapsedTime()
+      useMesh.getState().cctv.screen.material.uniforms.uTime.value += delta
     }
   })
-
-  useEffect(() => {
-    const fogConfig = scenes.find((s) => s.name === scene)?.fogConfig
-
-    if (!fogConfig) return
-
-    useCustomShaderMaterial.getState().updateFogSettings(
-      {
-        color: new Vector3(
-          fogConfig.fogColor.r,
-          fogConfig.fogColor.g,
-          fogConfig.fogColor.b
-        ),
-        density: fogConfig.fogDensity,
-        depth: fogConfig.fogDepth
-      },
-      firstRender.current
-    )
-
-    firstRender.current = false
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene])
 
   useEffect(() => {
     const routingNodes: Record<string, Mesh> = {}
@@ -340,16 +311,17 @@ export const Map = memo(() => {
     }
 
     officeModel.traverse((child) => traverse(child))
-
+    officeItemsModel.traverse((child) => traverse(child))
     routingElementsModel.traverse((child) => traverse(child, { FOG: false }))
-
     outdoorModel.traverse((child) => traverse(child, { FOG: false }))
-
     godrayModel.traverse((child) => traverse(child, { GODRAY: true }))
 
+    const godrays: Mesh[] = []
+
     godrayModel.traverse((child) => {
-      if (child instanceof Mesh) setGodrays((prev) => [...prev, child])
+      if (child instanceof Mesh) godrays.push(child)
     })
+    setGodrays((prev) => [...prev, ...godrays])
 
     setOfficeScene(officeModel)
     setOutdoorScene(outdoorModel)
@@ -385,13 +357,23 @@ export const Map = memo(() => {
       })
     }
 
+    const loboMarino = officeItemsModel.getObjectByName("SM_Lobo")
+    const rain = officeModel.getObjectByName("SM_Rain")
+
+    useMesh.setState({
+      weather: {
+        loboMarino: loboMarino as Mesh,
+        rain: rain as Mesh
+      }
+    })
+
     const inspectables = useMesh.getState().inspectableMeshes
 
     if (inspectables.length === 0) {
       const inspectableMeshes: Mesh[] = []
 
       inspectableAssets.forEach(({ mesh: meshName }) => {
-        const mesh = officeModel.getObjectByName(meshName) as Mesh | null
+        const mesh = officeItemsModel.getObjectByName(meshName) as Mesh | null
         if (mesh) {
           mesh.userData.position = {
             x: mesh.position.x,
@@ -511,6 +493,7 @@ export const Map = memo(() => {
     }
 
     disableRaycasting(officeModel)
+    disableRaycasting(officeItemsModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
     disableRaycasting(outdoorCarsModel)
@@ -541,6 +524,7 @@ export const Map = memo(() => {
   return (
     <group>
       <primitive object={officeScene} />
+      <primitive object={officeItemsModel} />
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
       <ArcadeScreen />
@@ -584,6 +568,7 @@ export const Map = memo(() => {
       {net && net instanceof THREE.Mesh && <Net mesh={net} />}
       <BakesLoader />
       <ReflexesLoader />
+      <Weather />
     </group>
   )
 })
