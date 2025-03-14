@@ -1,5 +1,6 @@
 "use client"
 
+import { Preload } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef } from "react"
@@ -131,6 +132,7 @@ export const Scene = () => {
               }
             />
           </AnimationController>
+          <Preload all />
         </Canvas>
       </div>
       <MouseTracker />
