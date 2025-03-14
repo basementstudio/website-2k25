@@ -8,6 +8,7 @@ import { Capabilities } from "./capabilities"
 import { FeaturedProjects } from "./featured-projects"
 import { Intro } from "./intro"
 import { query } from "./query"
+
 const Homepage = () => (
   <Pump queries={[query]}>
     {async ([data]) => {

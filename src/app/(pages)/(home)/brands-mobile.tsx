@@ -1,9 +1,8 @@
 "use client"
-import { useLenis } from "lenis/react"
-import { useMemo, useRef } from "react"
+
+import { useMemo } from "react"
 
 import { Marquee } from "@/components/primitives/marquee"
-import { useMedia } from "@/hooks/use-media"
 
 import { QueryType } from "./query"
 

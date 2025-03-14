@@ -55,6 +55,10 @@ function LoadingCanvas() {
       if (type === "loading-transition-complete") {
         useAppLoadingStore.setState({ showLoadingCanvas: false })
       }
+
+      if (type === "offscreen-canvas-loaded") {
+        useAppLoadingStore.setState({ offscreenCanvasReady: true })
+      }
     })
 
     const handleError = (error: ErrorEvent) => {
