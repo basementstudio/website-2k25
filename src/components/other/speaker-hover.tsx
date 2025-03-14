@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { ShaderMaterial } from "three"
 
+import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
 import { useCursor } from "@/hooks/use-mouse"
 
 import fragmentShader from "../routing-element/frag.glsl"
@@ -9,34 +10,35 @@ import vertexShader from "../routing-element/vert.glsl"
 export const SpeakerHover = () => {
   const [hover, setHover] = useState(false)
   const setCursor = useCursor()
-
-  const currentTrack = "placeholder track name"
+  const { currentTrackName, nextAmbienceTrack } = useAmbiencePlaylist()
 
   useEffect(() => {
-    if (hover && currentTrack) {
+    if (hover && currentTrackName) {
       setCursor(
         "pointer",
-        `${currentTrack || "Unknown Track - Unknown Artist ??:??"}`,
+        `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
         true
       )
     }
-  }, [currentTrack, hover, setCursor])
+  }, [currentTrackName, hover, setCursor])
 
   const handlePointerEnter = useCallback(() => {
     setHover(true)
     setCursor(
       "pointer",
-      `${currentTrack || "Unknown Track - Unknown Artist ??:??"}`,
+      `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
       true
     )
-  }, [currentTrack, setCursor])
+  }, [currentTrackName, setCursor])
 
   const handlePointerLeave = useCallback(() => {
     setHover(false)
     setCursor("default", null, false)
   }, [setCursor])
 
-  const handleClick = useCallback(() => {}, [])
+  const handleClick = useCallback(() => {
+    nextAmbienceTrack()
+  }, [nextAmbienceTrack])
 
   const routingMaterial = new ShaderMaterial({
     depthWrite: false,

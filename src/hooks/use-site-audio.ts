@@ -38,7 +38,7 @@ interface SiteAudioStore {
   audioSfxSources: Record<SiteAudioSFXKey, AudioSource> | null
   themeSong: AudioSource | null
   ostSong: AudioSource | null
-  officeAmbience: AudioSource | null
+
   music: boolean
   setMusic: (state: boolean) => void
   volumeMaster: number
@@ -75,7 +75,7 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
   audioSfxSources: null,
   themeSong: null,
   ostSong: null,
-  officeAmbience: null,
+
   music: true,
   setMusic: (state) => useSiteAudioStore.setState({ music: state }),
   volumeMaster: 1,
@@ -128,8 +128,7 @@ function SiteAudioSFXsLoaderInner(): null {
     GAME_AUDIO_SFX,
     ARCADE_AUDIO_SFX,
     BLOG_AUDIO_SFX,
-    CONTACT_AUDIO_SFX,
-    OFFICE_AMBIENCE
+    CONTACT_AUDIO_SFX
   } = useAudioUrls()
 
   useEffect(() => {
@@ -223,16 +222,6 @@ function SiteAudioSFXsLoaderInner(): null {
             )
             source.setVolume(SFX_VOLUME)
             newSources["CONTACT_INTERFERENCE"] = source
-          })()
-        )
-
-        promises.push(
-          (async () => {
-            const source = await player.loadAudioFromURL(
-              OFFICE_AMBIENCE.OFFICE_AMBIENCE_DEFAULT
-            )
-            source.setVolume(0.1)
-            newSources["OFFICE_AMBIENCE"] = source
           })()
         )
 

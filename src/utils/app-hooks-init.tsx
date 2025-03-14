@@ -1,7 +1,7 @@
 "use client"
 
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
-import { useManageAudio } from "@/hooks/use-manage-audio"
+import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
 import { usePreloadAssets } from "@/hooks/use-preload-assets"
 import {
   SiteAudioSFXsLoader,
@@ -16,7 +16,7 @@ export function AppHooks({
   usePreloadAssets(assets)
 
   useInitializeAudioContext()
-  useManageAudio()
+  useAmbiencePlaylist()
 
   return <SiteAudioSFXsLoader />
 }
