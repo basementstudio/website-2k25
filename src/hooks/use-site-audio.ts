@@ -74,7 +74,7 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
   setVolumeMaster: (volume) =>
     useSiteAudioStore.setState({ volumeMaster: volume }),
 
-  activeTrackType: BackgroundAudioType.AMBIENCE,
+  activeTrackType: "ambience" as BackgroundAudioType,
   setActiveTrackType: (type) =>
     useSiteAudioStore.setState({ activeTrackType: type }),
   currentAmbienceIndex: 0,
