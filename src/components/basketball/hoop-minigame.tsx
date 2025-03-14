@@ -13,6 +13,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMesh } from "@/hooks/use-mesh"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
@@ -24,7 +25,9 @@ const HoopMinigameInner = () => {
   const [isBasketball, setIsBasketball] = useState(false)
   const scene = useCurrentScene()
   const isOnTab = useIsOnTab()
-
+  const { GAME_THEME_SONGS } = useAudioUrls()
+  const basketballSong = GAME_THEME_SONGS.BASKETBALL_SONG
+  const { playBasketballSong } = useSiteAudio()
   const gameDuration = useMinigameStore((s) => s.gameDuration)
   const initialPosition = useMinigameStore((s) => s.initialPosition)
   const hoopPosition = useMinigameStore((s) => s.hoopPosition)
@@ -131,7 +134,10 @@ const HoopMinigameInner = () => {
 
   useEffect(() => {
     setIsBasketball(scene === "basketball")
-  }, [scene, setIsBasketball])
+    if (scene === "basketball") {
+      playBasketballSong(basketballSong)
+    }
+  }, [scene, setIsBasketball, playBasketballSong, basketballSong])
 
   // stop round if we tab out of the page
   useEffect(() => {

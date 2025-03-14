@@ -5,6 +5,8 @@ import { FontFamilyProvider } from "@react-three/uikit"
 import { useEffect, useRef, useState } from "react"
 import { ShaderMaterial } from "three"
 
+import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { ffflauta } from "../../../public/fonts/ffflauta"
@@ -34,10 +36,19 @@ export const ArcadeGame = ({
   const scoreRef = useRef(0)
   const [scoreDisplay, setScoreDisplay] = useState(0)
   const lastUpdateTimeRef = useRef(0)
+  const isInGame = useArcadeStore((state) => state.isInGame)
   const setIsInGame = useArcadeStore((state) => state.setIsInGame)
   const { arcade } = useAssets()
+  const { ARCADE_AUDIO_SFX } = useAudioUrls()
   const introScreenTexture = useTexture(arcade.introScreen)
   const clearNpcs = useNpc((s) => s.clearNpcs)
+  const { playArcadeSong } = useSiteAudio()
+
+  useEffect(() => {
+    if (isInGame && ARCADE_AUDIO_SFX.MIAMI_HEATWAVE) {
+      playArcadeSong(ARCADE_AUDIO_SFX.MIAMI_HEATWAVE)
+    }
+  }, [isInGame, ARCADE_AUDIO_SFX.MIAMI_HEATWAVE, playArcadeSong])
 
   useFrame((_, delta) => {
     if (gameStarted && !gameOver) {

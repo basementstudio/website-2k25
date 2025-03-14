@@ -8,6 +8,9 @@ import {
   SFX_VOLUME,
   THEME_SONG_VOLUME
 } from "@/lib/audio/constants"
+import { useArcadeStore } from "@/store/arcade-store"
+
+import { useCurrentScene } from "./use-current-scene"
 
 export enum BackgroundAudioType {
   AMBIENCE = "ambience"
@@ -36,6 +39,8 @@ interface SiteAudioStore {
   audioSfxSources: Record<SiteAudioSFXKey, AudioSource> | null
   themeSong: AudioSource | null
   ostSong: AudioSource | null
+  arcadeSong: AudioSource | null
+  basketballSong: AudioSource | null
 
   music: boolean
   setMusic: (state: boolean) => void
@@ -64,6 +69,8 @@ interface SiteAudioHook {
     volume?: number,
     pitch?: number
   ) => Promise<AudioSource | null>
+  playArcadeSong: (url: string) => Promise<void>
+  playBasketballSong: (url: string) => Promise<void>
   music: boolean
   handleMute: () => void
 }
@@ -73,6 +80,8 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
   audioSfxSources: null,
   themeSong: null,
   ostSong: null,
+  arcadeSong: null,
+  basketballSong: null,
 
   music: true,
   setMusic: (state) => useSiteAudioStore.setState({ music: state }),
@@ -348,6 +357,76 @@ export function useSiteAudio(): SiteAudioHook {
     [audioSfxSources]
   )
 
+  const playArcadeSong = useCallback(
+    async (url: string) => {
+      if (!player) return
+
+      const isInGame = useArcadeStore.getState().isInGame
+      if (!isInGame) return
+
+      try {
+        const currentArcadeSong = useSiteAudioStore.getState().arcadeSong
+        if (currentArcadeSong) {
+          currentArcadeSong.stop()
+        }
+
+        const source = await player.loadAudioFromURL(url, false, true)
+        source.loop = true
+        source.setVolume(0.15)
+        source.play()
+
+        useSiteAudioStore.setState({ arcadeSong: source })
+      } catch (error) {
+        console.error("Failed to load or play arcade song:", error)
+      }
+    },
+    [player]
+  )
+
+  const scene = useCurrentScene()
+
+  const playBasketballSong = useCallback(
+    async (url: string) => {
+      if (!player) return
+      const isBasketballScene = scene === "basketball"
+      if (!isBasketballScene) return
+
+      try {
+        const source = await player.loadAudioFromURL(url, false, true)
+        source.loop = true
+        source.setVolume(0.15)
+        source.play()
+
+        useSiteAudioStore.setState({ basketballSong: source })
+      } catch (error) {
+        console.error("Failed to load or play basketball song:", error)
+      }
+    },
+    [player, scene]
+  )
+
+  const isInGame = useArcadeStore((s) => s.isInGame)
+
+  useEffect(() => {
+    if (!isInGame) {
+      const currentArcadeSong = useSiteAudioStore.getState().arcadeSong
+      if (currentArcadeSong) {
+        currentArcadeSong.stop()
+        useSiteAudioStore.setState({ arcadeSong: null })
+      }
+    }
+  }, [isInGame])
+
+  useEffect(() => {
+    if (scene !== "basketball") {
+      const currentBasketballSong = useSiteAudioStore.getState().basketballSong
+      if (currentBasketballSong) {
+        currentBasketballSong.stop()
+        useSiteAudioStore.setState({ basketballSong: null })
+      }
+    }
+  }, [scene])
+
   return {
     player,
     togglePlayMaster,
@@ -364,6 +443,8 @@ export function useSiteAudio(): SiteAudioHook {
     playSoundFX,
     getSoundFXSource,
     playInspectableFX,
+    playArcadeSong,
+    playBasketballSong,
     music,
     handleMute
   }
