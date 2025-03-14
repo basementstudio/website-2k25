@@ -1,5 +1,6 @@
 import "@/styles/globals.css"
 
+import { Analytics } from "@vercel/analytics/react"
 import { Toolbar as BasehubToolbar } from "basehub/next-toolbar"
 
 import { AssetsProvider } from "@/components/assets-provider"
@@ -48,6 +49,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <Analytics />
       <Transitions />
       <Toolbar />
       <AssetsProvider assets={assets}>
