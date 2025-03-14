@@ -1,19 +1,20 @@
 "use client"
 
 import { useGLTF } from "@react-three/drei"
+import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
-import type { AnimationPlaybackControls } from "motion/react"
+import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import {
   Mesh,
-  type MeshStandardMaterial,
-  type Object3D,
-  type Object3DEventMap,
+  MeshStandardMaterial,
+  Object3D,
+  Object3DEventMap,
   Vector3
 } from "three"
 import * as THREE from "three"
-import type { GLTF } from "three/examples/jsm/Addons.js"
+import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
@@ -29,7 +30,7 @@ import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useMesh } from "@/hooks/use-mesh" 
+import { useMesh } from "@/hooks/use-mesh"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -40,7 +41,6 @@ import { SpeakerHover } from "../other/speaker-hover"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
-import { useFrame } from "@react-three/fiber"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -153,18 +153,20 @@ export const Map = memo(() => {
     return () => tl.current?.stop()
   }, [selected])
 
-  useFrame((_, elapsedTime) => {
-    timeRef.current = elapsedTime
+  useFrame(({ clock }) => {
+    timeRef.current = clock.getElapsedTime()
 
-    for (const material of Object.values(shaderMaterialsRef)) {
-      material.uniforms.uTime.value = elapsedTime
+    Object.values(shaderMaterialsRef).forEach((material) => {
+      material.uniforms.uTime.value = clock.getElapsedTime()
+
       material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
-    }
+    })
 
     if (useMesh.getState().cctv?.screen?.material) {
       // @ts-ignore
-      useMesh.getState().cctv.screen.material.uniforms.uTime.value = elapsedTime
+      useMesh.getState().cctv.screen.material.uniforms.uTime.value =
+        clock.getElapsedTime()
     }
   })
 
@@ -318,13 +320,11 @@ export const Map = memo(() => {
             )
 
         if (isGlass) {
-          if (Array.isArray(newMaterials)) {
-            for (const material of newMaterials) {
-              material.depthWrite = false
-            }
-          } else {
-            newMaterials.depthWrite = false
-          }
+          Array.isArray(newMaterials)
+            ? newMaterials.forEach((material) => {
+                material.depthWrite = false
+              })
+            : (newMaterials.depthWrite = false)
         }
 
         meshChild.material = newMaterials
@@ -412,7 +412,7 @@ export const Map = memo(() => {
 
           inspectableMeshes.push(mesh)
         }
-      }
+      })
 
       useMesh.setState({ inspectableMeshes })
     }
@@ -468,11 +468,11 @@ export const Map = memo(() => {
     ) {
       const outdoorCarsMeshes: (Mesh | null)[] = []
 
-      for (const child of outdoorCarsModel.children) {
+      outdoorCarsModel.children.forEach((child) => {
         if (child instanceof Mesh) {
           outdoorCarsMeshes.push(child)
         }
-      }
+      })
       useMesh.setState({ outdoorCarsMeshes })
     }
 
