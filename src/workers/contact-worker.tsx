@@ -29,6 +29,10 @@ self.onmessage = (
     self.postMessage({ type: "outro-complete" })
   } else if (type === "intro-complete") {
     self.postMessage({ type: "intro-complete" })
+  } else if (type === "start-outro") {
+    self.postMessage({ type: "start-outro" })
+  } else if (type === "run-outro-animation") {
+    self.postMessage({ type: "run-outro-animation" })
   }
 }
 

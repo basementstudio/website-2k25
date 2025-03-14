@@ -86,15 +86,42 @@ const ContactScreen = () => {
         })
       }
       if (e.data.type === "intro-complete") {
-        animation.start({
-          scaleX: [0, 0, 1, 1],
-          scaleY: [0, 0.01, 0.01, 1],
-          transition: {
-            duration: 0.6,
-            times: [0, 0.2, 0.6, 1],
-            ease: "easeOut"
-          }
-        })
+        animation
+          .start({
+            scaleX: [0, 0, 1, 1],
+            scaleY: [0, 0.01, 0.01, 1],
+            transition: {
+              duration: 0.6,
+              times: [0, 0.2, 0.6, 1],
+              ease: "easeOut"
+            }
+          })
+          .then(() => {
+            worker.postMessage({ type: "scale-animation-complete" })
+          })
+      }
+
+      if (e.data.type === "start-outro") {
+        animation
+          .start({
+            scaleX: [1, 1, 0, 0],
+            scaleY: [1, 0.01, 0.01, 0],
+            transition: {
+              duration: 0.6,
+              times: [0, 0.4, 0.8, 1],
+              ease: "easeIn"
+            }
+          })
+          .then(() => {
+            worker.postMessage({ type: "run-outro-animation" })
+          })
+      }
+
+      if (e.data.type === "outro-complete") {
+        console.log("complete")
+        setTimeout(() => {
+          worker.postMessage({ type: "scale-down-animation-complete" })
+        }, 1000)
       }
     }
 

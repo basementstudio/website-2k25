@@ -112,8 +112,14 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         if (e.data.isContactOpen && !isContactOpen) {
           runIntro()
         } else if (!e.data.isContactOpen && isContactOpen) {
-          runOutro()
+          // Instead of running outro directly, signal to run scale-down animation first
+          self.postMessage({ type: "start-outro" })
         }
+      }
+
+      // Add handler for the new message type
+      if (e.data.type === "run-outro-animation") {
+        runOutro()
       }
     }
 
@@ -143,12 +149,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
           z: screenPos.z
         }
 
-        const scale = 1 + idleTimeRef.current * 0.1
-
         self.postMessage({
           type: "update-screen-skinned-matrix",
           screenPos: normalizedScreenPos,
-          scale: scale
+          scale: 1 + idleTimeRef.current * 0.1
         })
       }
 

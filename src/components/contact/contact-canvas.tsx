@@ -39,6 +39,10 @@ const ContactCanvas = () => {
         setIsAnimating(false)
       } else if (e.data.type === "animation-rejected") {
         setIsAnimating(false)
+      } else if (e.data.type === "start-outro") {
+        worker.postMessage({ type: "start-outro" })
+      } else if (e.data.type === "run-outro-animation") {
+        worker.postMessage({ type: "run-outro-animation" })
       }
     }
 
