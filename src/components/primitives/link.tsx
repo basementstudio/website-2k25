@@ -55,7 +55,11 @@ export const Link = ({
       href={href}
       onClick={(e) => {
         e.preventDefault()
-        handleNavigation(href)
+        if (!href.includes("/showcase/")) {
+          handleNavigation(href)
+        } else {
+          router.push(href)
+        }
         onClick?.()
       }}
       onMouseEnter={handleMouseEnter}
