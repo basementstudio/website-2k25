@@ -548,7 +548,7 @@ export const Map = memo(() => {
       <BlogDoor />
       <LockedDoor />
 
-      <SpeakerHover />
+      {scene !== "basketball" && <SpeakerHover />}
 
       {/* TODO: shut down physics after x seconds of not being in blog scene */}
       {/* TODO: basketball should use the same physics world */}

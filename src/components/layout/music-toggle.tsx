@@ -3,13 +3,7 @@ import { useEffect, useRef } from "react"
 
 import { cn } from "@/utils/cn"
 
-const MusicToggle = ({
-  music,
-  visualState = music
-}: {
-  music: boolean
-  visualState?: boolean
-}) => {
+const MusicToggle = ({ music }: { music: boolean }) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const animationsRef = useRef<Array<{ cancel: () => void }>>([])
 
@@ -42,7 +36,7 @@ const MusicToggle = ({
 
     const bars = Array.from(svgRef.current.querySelectorAll("rect"))
 
-    if (visualState) {
+    if (music) {
       // Music is on - animate the bars
       bars.forEach((bar) => {
         const maxHeight = Math.floor(Math.random() * 5) + 8
@@ -92,13 +86,13 @@ const MusicToggle = ({
         bar.setAttribute("y", String(7.5 - 1))
       })
     }
-  }, [visualState])
+  }, [music])
 
   return (
     <span
       className={cn(
         "inline-block w-6 text-left",
-        visualState ? "text-brand-w1" : "text-brand-g1"
+        music ? "text-brand-w1" : "text-brand-g1"
       )}
     >
       <svg

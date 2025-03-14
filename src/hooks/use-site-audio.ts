@@ -290,30 +290,16 @@ export function useSiteAudio(): SiteAudioHook {
   const ostSong = useSiteAudioStore((s) => s.ostSong)
 
   // Initialize state with defaults
-  const [music, setMusic] = useState(true) // Music is ON by default
-  const [hasInteracted, setHasInteracted] = useState(false)
-  const [volumeMaster, _setVolumeMaster] = useState(0) // But volume is 0 until interaction
+  const [music, setMusic] = useState(true)
+  const [volumeMaster, _setVolumeMaster] = useState(1)
 
-  // Track first interaction
+  // Initialize audio system when player is available
   useEffect(() => {
-    if (typeof window === "undefined") return
+    if (!player) return
 
-    const handleFirstInteraction = () => {
-      setHasInteracted(true)
-
-      // Ensure music is on and volume is set to 1 after first interaction
-      setMusic(true)
-      _setVolumeMaster(1)
-
-      if (player) {
-        player.setMusicAndGameVolume(1)
-      }
-    }
-
-    window.addEventListener("firstInteraction", handleFirstInteraction)
-    return () =>
-      window.removeEventListener("firstInteraction", handleFirstInteraction)
-  }, [player])
+    // Set initial volume based on music state
+    player.setMusicAndGameVolume(music ? 1 : 0)
+  }, [player, music])
 
   // Monitor ostSong changes to ensure proper audio state
   useEffect(() => {
