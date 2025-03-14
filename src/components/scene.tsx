@@ -102,7 +102,9 @@ export const Scene = () => {
             <Renderer
               sceneChildren={
                 <>
-                  <Inspectables />
+                  <Suspense fallback={null}>
+                    <Inspectables />
+                  </Suspense>
                   <Suspense fallback={null}>
                     <Map />
                   </Suspense>
