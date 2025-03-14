@@ -151,6 +151,7 @@ export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
       const materials = get().materialsRef
       delete materials[id]
     },
+    // TODO: remove
     updateFogSettings: (
       { color, density, depth }: FogSettings,
       instant?: boolean
