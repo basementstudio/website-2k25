@@ -3,6 +3,8 @@ import { preload, PreloadAs } from "react-dom"
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 
+const ASSET_TO_NOT_PRELOAD = ["contactPhone"]
+
 const getAssetFormat = (url: string): PreloadAs => {
   const extension = url.split(".").pop()
   switch (extension) {
@@ -25,6 +27,7 @@ const getAssetFormat = (url: string): PreloadAs => {
 
 const preloadAllAssets = (obj: any) => {
   if (!obj) return
+  if (ASSET_TO_NOT_PRELOAD.includes(obj.key)) return
 
   if (typeof obj === "string" && obj.startsWith("https://")) {
     preload(obj, { as: getAssetFormat(obj) as PreloadAs })
@@ -36,6 +39,7 @@ const preloadAllAssets = (obj: any) => {
 }
 
 export const usePreloadAssets = (assets: AssetsResult) => {
+  console.log("usePreloadAssets", assets)
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
   if (offscreenCanvasReady) {
     preloadAllAssets(assets)
