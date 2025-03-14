@@ -89,7 +89,7 @@ const AnimatedTitle = memo(
       {hoveredBrandData && isDesktop ? (
         <motion.span
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:text-h3"
+          className="ml-px inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:text-h3"
           exit={{ opacity: 0, y: -10 }}
           initial={{ opacity: 0, y: 10 }}
           key="brand-name"

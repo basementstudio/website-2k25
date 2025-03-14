@@ -25,7 +25,7 @@ export const FeaturedProjects = ({ data }: { data: QueryType }) => {
           {index === 0 && (
             <h2
               className={cn(
-                "col-span-full bg-brand-k pb-6 pt-12 !text-mobile-h1 text-brand-w2 lg:pt-14 lg:!text-h1"
+                "!text-f-h1-mobile lg:!text-f-h1 col-span-full bg-brand-k pb-6 pt-12 text-brand-w2 lg:pt-14"
               )}
             >
               Featured Projects

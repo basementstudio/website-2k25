@@ -80,7 +80,7 @@ const TestimonialsComponent = ({ data }: { data: QueryType }) => {
       <div className={cn("relative col-span-full", styles.root)}>
         <div
           className={cn(
-            "mx-auto max-w-[1440px] text-center [&_a]:no-underline [&_p]:relative [&_p]:z-10 [&_p]:!text-mobile-h1 [&_p]:text-brand-w1 lg:[&_p]:!text-h1"
+            "[&_p]:!text-f-h1-mobile lg:[&_p]:!text-f-h1 mx-auto max-w-[1440px] text-center [&_a]:no-underline [&_p]:relative [&_p]:z-10 [&_p]:text-brand-w1"
           )}
         >
           <RichText>{testimonial.content?.json.content}</RichText>

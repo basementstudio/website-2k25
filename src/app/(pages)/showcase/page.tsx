@@ -4,7 +4,7 @@ import { ShowcaseList } from "./showcase-list"
 const ShowcaseIndexPage = () => (
   <>
     <div id="projects" className="-translate-y-[36px]" />
-    <div className="flex scroll-m-4 flex-col gap-18 lg:gap-24">
+    <div className="flex scroll-m-4 flex-col gap-9 lg:gap-24">
       <Hero />
       <ShowcaseList />
     </div>

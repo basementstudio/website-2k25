@@ -1,6 +1,6 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { memo, useMemo, useRef } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 import {
   Color,
   LineSegments,
@@ -114,6 +114,10 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       }
     }
   })
+
+  useEffect(() => {
+    self.postMessage({ type: "offscreen-canvas-loaded" })
+  }, [solid])
 
   const lines = useMemo(() => {
     const l = nodes.SM_Line

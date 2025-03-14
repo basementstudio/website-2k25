@@ -16,7 +16,7 @@ export async function Hero() {
   const length = await fetchPostsLength()
 
   return (
-    <section className="grid-layout text-mobile-h1 lg:text-h1">
+    <section className="grid-layout text-f-h0-mobile lg:text-f-h0">
       <h1 className="col-span-3 text-brand-w2 lg:col-start-1 lg:col-end-5">
         Blog
       </h1>
