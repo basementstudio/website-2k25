@@ -9,7 +9,8 @@ const ASSET_TO_NOT_PRELOAD = [
   "inspectables",
   "glassMaterials",
   "doubleSideElements",
-  "scenes"
+  "scenes",
+  "sfx"
 ]
 
 // Assets has different keys for the url.
@@ -170,6 +171,7 @@ const preloadAllAssets = (obj: any) => {
 
 export const usePreloadAssets = (assets: AssetsResult) => {
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
+  console.log(assets)
 
   if (offscreenCanvasReady) {
     preloadAllAssets(assets)
