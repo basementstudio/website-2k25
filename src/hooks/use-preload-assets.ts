@@ -45,7 +45,7 @@ const ASSET_URL_SRC = [
   }
 ]
 
-// Memoization cache for format detection
+// Memoization cache for assets url and format
 const assetUrlCache = new Map<
   string,
   { as: PreloadOptions["as"]; type: PreloadOptions["type"] }
