@@ -32,6 +32,7 @@ export function Weather() {
     const baseMaterial = new MeshStandardMaterial({
       color: new Color("white"),
       alphaMap: rainAlphaTexture,
+      opacity: 0.5,
       transparent: true
     })
     // cerate materialClose
@@ -48,7 +49,7 @@ export function Weather() {
       false
     )
     farMatrix.multiplyScalar(4)
-    // rainMaterialFar.uniforms.mapMatrix.value = farMatrix
+    rainMaterialFar.uniforms.mapMatrix.value = farMatrix
 
     return [rainMaterialClose, rainMaterialFar]
   }, [rainAlphaTexture, closeMatrix, farMatrix])
@@ -62,33 +63,32 @@ export function Weather() {
   useFrame(({ clock }, delta) => {
     const matClose = rainMaterialClose.uniforms.alphaMapTransform
       .value as Matrix3
-    // matClose.makeTranslation(0, clock.getElapsedTime() * 2)
 
-    const closeRepeat = 100
-    matClose.setUvTransform(
-      0,
-      clock.getElapsedTime() * 2,
-      closeRepeat,
-      closeRepeat,
-      0,
-      0,
-      0
-    )
+    const closeRepeat = 2
+    const closeOffsetY = clock.getElapsedTime() * 1.5
+    matClose.setUvTransform(0, closeOffsetY, closeRepeat, closeRepeat, 0, 0, 0)
 
-    // const matFar = rainMaterialFar.uniforms.alphaMapTransform.value as Matrix3
-    // matFar.makeTranslation(0, clock.getElapsedTime() * 4)
+    const matFar = rainMaterialFar.uniforms.alphaMapTransform.value as Matrix3
+
+    const farRepeat = 4
+    const farOffsetY = clock.getElapsedTime() * 3
+    matFar.setUvTransform(0, farOffsetY, farRepeat, farRepeat, 0, 0, 0)
   })
 
   return (
     <>
-      <mesh position={[3, 3, -4]} rotation-y={Math.PI} rotation-z={-0.1}>
+      <mesh position={[3, 3, -2]} rotation-y={Math.PI} rotation-z={0.3}>
         <planeGeometry args={[6, 6]} />
         <primitive object={rainMaterialClose} attach="material" />
       </mesh>
-      {/* <mesh position={[0, 5, 2]} rotation-y={Math.PI} rotation-z={-0.1}>
+      <mesh position={[0, 5, 2]} rotation-y={Math.PI} rotation-z={0.3}>
         <planeGeometry args={[10, 10]} />
         <primitive object={rainMaterialFar} attach="material" />
-      </mesh> */}
+      </mesh>
+      <mesh position={[1, 5, 5]} rotation-y={Math.PI} rotation-z={0.3}>
+        <planeGeometry args={[10, 10]} />
+        <primitive object={rainMaterialFar} attach="material" />
+      </mesh>
     </>
   )
 }
