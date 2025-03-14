@@ -164,7 +164,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
           Trusted by{" "}
           <AnimatedTitle
             hoveredBrandData={hoveredBrandData}
-            isDesktop={isDesktop}
+            enabled={isDesktop ?? false}
           />
         </h3>
       </div>
