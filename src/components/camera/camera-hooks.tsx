@@ -1,10 +1,10 @@
+import { useFrame } from "@react-three/fiber"
 import { useLenis } from "lenis/react"
 import { easing } from "maath"
 import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
-import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { useInspectable } from "../inspectables/context"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
@@ -222,7 +222,7 @@ export const useCameraMovement = (
     animationDuration
   ])
 
-  useFrameCallback(({ pointer }, dt) => {
+  useFrame(({ pointer }, dt) => {
     const { boundariesRef, basePosition, np } = boundaries
     const b = boundariesRef.current
     const plane = planeRef.current
