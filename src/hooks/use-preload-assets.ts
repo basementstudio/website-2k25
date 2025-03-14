@@ -3,6 +3,7 @@ import { preload, PreloadAs, PreloadOptions } from "react-dom"
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 
+// Assets that should not be preloaded
 const ASSET_TO_NOT_PRELOAD = [
   "contactPhone",
   "inspectables",
@@ -10,6 +11,9 @@ const ASSET_TO_NOT_PRELOAD = [
   "doubleSideElements",
   "scenes"
 ]
+
+// Assets has different keys for the url.
+// This is a list of assets that have a different key for the url.
 const ASSET_URL_SRC = [
   {
     key: "bakes",
@@ -41,41 +45,77 @@ const ASSET_URL_SRC = [
   }
 ]
 
+// Memoization cache for format detection
+const assetUrlCache = new Map<
+  string,
+  { as: PreloadOptions["as"]; type: PreloadOptions["type"] }
+>()
+
 const getAssetFormat = (
   url: string
 ): { as: PreloadOptions["as"]; type: PreloadOptions["type"] } => {
-  const extension = url.split(".").pop()
+  // Return from cache if already computed
+  if (assetUrlCache.has(url)) {
+    return assetUrlCache.get(url)!
+  }
+
+  const extension = url.split(".").pop()?.toLowerCase() || ""
+  let result: { as: PreloadOptions["as"]; type: PreloadOptions["type"] }
+
   switch (extension) {
     case "png":
-      return { as: "image", type: "image" }
+      result = { as: "image", type: "image/png" }
+      break
     case "jpg":
-      return { as: "image", type: "image" }
+      result = { as: "image", type: "image/jpeg" }
+      break
     case "jpeg":
-      return { as: "image", type: "image" }
+      result = { as: "image", type: "image/jpeg" }
+      break
     case "webp":
-      return { as: "image", type: "image" }
-    case "glb":
-      return { as: "fetch", type: "model" }
+      result = { as: "image", type: "image/webp" }
+      break
+    case "avif":
+      result = { as: "image", type: "image/avif" }
+      break
+    case "wav":
+      result = { as: "audio", type: "audio/wav" }
+      break
     case "mp3":
-      return { as: "audio", type: "audio" }
+      result = { as: "audio", type: "audio/mpeg" }
+      break
     case "mp4":
-      return { as: "video", type: "video" }
+      result = { as: "video", type: "video/mp4" }
+      break
     case "exr":
-      return { as: "fetch", type: "image/x-exr" }
+      result = { as: "fetch", type: "image/x-exr" }
+      break
     case "glb":
-      return { as: "fetch", type: "model/gltf-binary" }
+      result = { as: "fetch", type: "model/gltf-binary" }
+      break
+    case "gltf":
+      result = { as: "fetch", type: "model/gltf+json" }
+      break
     default:
-      return { as: "fetch", type: undefined }
+      result = { as: "fetch", type: undefined }
   }
+
+  // Cache the result
+  assetUrlCache.set(url, result)
+  return result
 }
 
-const preloadAllAssets = (obj: any, currentKey?: string) => {
-  if (!obj) return
-  if (ASSET_TO_NOT_PRELOAD.includes(currentKey ?? "")) return
+// Function to collect all URLs from the assets object
+const collectUrls = (
+  obj: any,
+  currentKey?: string,
+  urlSet = new Set<string>()
+) => {
+  if (!obj) return urlSet
+  if (ASSET_TO_NOT_PRELOAD.includes(currentKey ?? "")) return urlSet
 
   if (typeof obj === "string" && obj.startsWith("https://")) {
-    const { as, type } = getAssetFormat(obj)
-    preload(obj, { as, type })
+    urlSet.add(obj)
   } else if (Array.isArray(obj)) {
     // Check if we have a specific URL key for this array
     const urlMapping = ASSET_URL_SRC.find(
@@ -83,30 +123,54 @@ const preloadAllAssets = (obj: any, currentKey?: string) => {
     )
 
     if (urlMapping) {
-      // This is a special array where each item has a specific URL key
+      // Extract URLs from special array items
       obj.forEach((item) => {
         if (item && typeof item === "object" && urlMapping.urlKey in item) {
           const url = item[urlMapping.urlKey]
           if (typeof url === "string" && url.startsWith("https://")) {
-            const { as, type } = getAssetFormat(url)
-            preload(url, { as, type })
+            urlSet.add(url)
           }
         }
       })
     } else {
-      // Regular array, process each item recursively
-      obj.forEach((item) => preloadAllAssets(item))
+      // Process array items recursively
+      obj.forEach((item) => collectUrls(item, undefined, urlSet))
     }
   } else if (typeof obj === "object") {
-    // Process each key-value pair in the object
+    // Collect direct URL values
+    Object.values(obj).forEach((value) => {
+      if (typeof value === "string" && value.startsWith("https://")) {
+        urlSet.add(value)
+      }
+    })
+
+    // Process nested object properties
     Object.entries(obj).forEach(([key, value]) => {
-      preloadAllAssets(value, key)
+      collectUrls(value, key, urlSet)
     })
   }
+
+  return urlSet
+}
+
+// Main preload function - optimized for maximum speed
+const preloadAllAssets = (obj: any) => {
+  // Step 1: Collect all unique URLs
+  const urls = collectUrls(obj)
+
+  // Preload all URLs
+  urls.forEach((url) => {
+    const { as, type } = getAssetFormat(url)
+    preload(url, {
+      as,
+      type
+    })
+  })
 }
 
 export const usePreloadAssets = (assets: AssetsResult) => {
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
+
   if (offscreenCanvasReady) {
     preloadAllAssets(assets)
   }
