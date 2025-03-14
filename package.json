@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.19.11",
-    "@joycostudio/marquee": "^0.0.8",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@mux/mux-video-react": "^0.24.3",
     "@radix-ui/react-accordion": "^1.2.2",
@@ -31,6 +30,7 @@
     "@vercel/functions": "^2.0.0",
     "basehub": "8.0.0-canary.27",
     "clsx": "^2.1.1",
+    "glsl-noise": "^0.0.0",
     "glslify-loader": "^2.0.0",
     "lenis": "^1.1.20",
     "leva": "^0.9.35",

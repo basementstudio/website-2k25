@@ -1,8 +1,8 @@
 "use client"
-import { Marquee, useMarquee } from "@joycostudio/marquee/react"
 import { useLenis } from "lenis/react"
 import { useMemo, useRef } from "react"
 
+import { Marquee } from "@/components/primitives/marquee"
 import { useMedia } from "@/hooks/use-media"
 
 import { QueryType } from "./query"
@@ -18,31 +18,6 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 }
 
 export const BrandsMobile = ({ data }: { data: QueryType }) => {
-  const isMobile = useMedia("(max-width: 1024px)")
-
-  const [ref1, marquee1] = useMarquee({
-    speed: 25,
-    speedFactor: 0.2,
-    direction: 1,
-    play: isMobile
-  })
-
-  const [ref2, marquee2] = useMarquee({
-    speed: 25,
-    speedFactor: 0.2,
-    direction: -1,
-    play: isMobile
-  })
-
-  const [ref3, marquee3] = useMarquee({
-    speed: 25,
-    speedFactor: 0.2,
-    direction: 1,
-    play: isMobile
-  })
-
-  const lastSign = useRef<number>(1)
-
   const brands = useMemo(
     () => data.company.clients?.clientList.items.filter((c) => c.logo) ?? [],
     [data.company.clients?.clientList.items]
@@ -64,17 +39,6 @@ export const BrandsMobile = ({ data }: { data: QueryType }) => {
     ]
   }, [brands])
 
-  useLenis(({ velocity }) => {
-    if (!marquee1 || !marquee2 || !marquee3) return
-    const sign = Math.sign(velocity)
-    if (sign === 0) return
-    lastSign.current = sign
-    const speedFactor = (1 * sign + velocity / 10) * 0.1
-    marquee1.setSpeedFactor(speedFactor)
-    marquee2.setSpeedFactor(-speedFactor)
-    marquee3.setSpeedFactor(speedFactor)
-  })
-
   return (
     <section className="grid-layout isolate !gap-y-0 lg:!hidden">
       <div className="grid-layout col-span-full !px-0">
@@ -85,55 +49,33 @@ export const BrandsMobile = ({ data }: { data: QueryType }) => {
         <div className="col-span-full h-px w-full bg-brand-w1/30" />
       </div>
 
-      <div className="relative col-span-full flex flex-col divide-y divide-brand-w1/30">
-        <div className="relative py-2">
-          <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-brand-k to-transparent" />
-          <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-brand-k to-transparent" />
-          <Marquee instance={[ref1, marquee1]}>
-            <div className="flex w-full items-center gap-x-2">
-              {rows[0].map((brand) => (
-                <div
-                  key={brand._id}
-                  className="[&>svg]:h-8 [&>svg]:w-auto"
-                  dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
-                />
-              ))}
-            </div>
-          </Marquee>
-        </div>
-
-        <div className="relative py-2">
-          <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-brand-k to-transparent" />
-          <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-brand-k to-transparent" />
-          <Marquee instance={[ref2, marquee2]}>
-            <div className="flex w-full items-center gap-x-2">
-              {rows[1].map((brand) => (
-                <div
-                  key={brand._id}
-                  className="[&>svg]:h-8 [&>svg]:w-auto"
-                  dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
-                />
-              ))}
-            </div>
-          </Marquee>
-        </div>
-
-        <div className="relative py-2">
-          <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-brand-k to-transparent" />
-          <div className="absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-brand-k to-transparent" />
-          <Marquee instance={[ref3, marquee3]}>
-            <div className="flex w-full items-center gap-x-2">
-              {rows[2].map((brand) => (
-                <div
-                  key={brand._id}
-                  className="[&>svg]:h-8 [&>svg]:w-auto"
-                  dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
-                />
-              ))}
-            </div>
-          </Marquee>
-        </div>
+      <div className="relative col-span-full flex flex-col divide-y divide-brand-w1/30 border-b border-brand-w1/30">
+        {rows.map((row, index) => (
+          <MarqueeRow key={index} brands={row} index={index} />
+        ))}
       </div>
     </section>
   )
 }
+
+interface MarqueeRowProps {
+  brands: QueryType["company"]["clients"]["clientList"]["items"]
+  index: number
+}
+
+const MarqueeRow = ({ brands, index }: MarqueeRowProps) => (
+  <div className="relative py-2">
+    <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-brand-k to-transparent" />
+    <Marquee inverted={index % 2 === 0}>
+      <div className="flex w-full items-center gap-x-2">
+        {brands.map((brand) => (
+          <div
+            key={brand._id}
+            className="[&>svg]:h-8 [&>svg]:w-auto"
+            dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
+          />
+        ))}
+      </div>
+    </Marquee>
+  </div>
+)

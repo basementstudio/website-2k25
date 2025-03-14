@@ -1,7 +1,7 @@
 import Image from "next/image"
+import Link from "next/link"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
-import { Link } from "@/components/primitives/link"
 import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 import { client } from "@/service/basehub"
 import { cn } from "@/utils/cn"
@@ -73,12 +73,19 @@ export async function RelatedProjects({
                 <span className="relative size-4.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
                   <Image
                     src={item.project?.icon?.url}
-                    fill
+                    width={16}
+                    height={16}
+                    className="object-cover"
                     alt={item.project?.icon?.alt || "Client logo"}
                   />
                 </span>
               ) : null}
-              {item.project?._title}
+              <span
+                className="line-clamp-1 flex-1"
+                title={item.project?._title}
+              >
+                {item.project?._title}
+              </span>
             </span>
             <Arrow className="size-4" />
           </Link>

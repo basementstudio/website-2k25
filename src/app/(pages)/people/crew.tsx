@@ -23,6 +23,13 @@ export const Crew = ({ data }: { data: QueryType }) => {
     {} as Record<string, typeof data.company.people.peopleList.items>
   )
 
+  // sorting a - z
+  Object.keys(groupedPeople).forEach((department) => {
+    groupedPeople[department].sort((a, b) =>
+      a._title.localeCompare(b._title, undefined, { sensitivity: "base" })
+    )
+  })
+
   return (
     <section className="grid-layout mb-18 lg:mb-44">
       <div className="col-span-full -mb-6 flex items-end justify-between lg:col-start-5 lg:col-end-13">

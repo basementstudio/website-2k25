@@ -1,7 +1,9 @@
 import { OrthographicCamera } from "@react-three/drei"
+import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef } from "react"
-import type {
+import {
+  DepthTexture,
   OrthographicCamera as ThreeOrthographicCamera,
   Texture
 } from "three"
@@ -9,7 +11,6 @@ import type {
 import { useAssets } from "@/components/assets-provider"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
 import { revealOpacityMaterials } from "../map/bakes"
@@ -17,10 +18,15 @@ import { usePostprocessingSettings } from "./use-postprocessing-settings"
 
 interface PostProcessingProps {
   mainTexture: Texture
+  depthTexture: DepthTexture
   cameraRef: React.RefObject<ThreeOrthographicCamera | null>
 }
 
-const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
+const Inner = ({
+  mainTexture,
+  depthTexture,
+  cameraRef
+}: PostProcessingProps) => {
   const scene = useCurrentScene()
   const assets = useAssets()
   const firstRender = useRef(true)
@@ -101,7 +107,7 @@ const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene])
 
-  useFrameCallback(() => {
+  useFrame(() => {
     if (!hasChanged.current) {
       material.uniforms.uContrast.value = targets.contrast.get()
       material.uniforms.uBrightness.value = targets.brightness.get()
@@ -140,11 +146,14 @@ const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
     window.addEventListener("resize", resize, { signal, passive: true })
 
     material.uniforms.uMainTexture.value = mainTexture
+    material.uniforms.uDepthTexture.value = depthTexture
+
+    console.log(depthTexture)
 
     return () => controller.abort()
-  }, [mainTexture])
+  }, [mainTexture, depthTexture])
 
-  useFrameCallback(({ clock }) => {
+  useFrame(({ clock }) => {
     material.uniforms.uTime.value = clock.elapsedTime
   })
 

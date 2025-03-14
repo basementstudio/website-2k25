@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
+import { Link } from "@/components/primitives/link"
 import { Portal } from "@/components/primitives/portal"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
@@ -13,7 +14,6 @@ import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMedia } from "@/hooks/use-media"
 import { usePreventScroll } from "@/hooks/use-prevent-scroll"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useScrollStore } from "@/providers/lenis-provider"
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
@@ -116,7 +116,8 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
       <div className="ga-5 col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
         {links.map((link) => (
           <div key={link.href} className="flex items-center gap-1 text-p">
-            <button
+            <Link
+              href={link.href}
               className={cn(
                 "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
                 link.href === pathname && "!text-brand-o"
@@ -124,7 +125,7 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
               onClick={() => handleNavigation(link.href)}
             >
               {link.title}
-            </button>
+            </Link>
             {link.count && (
               <sup className="text-caption text-brand-g1">({link.count})</sup>
             )}
@@ -185,6 +186,7 @@ const MobileContent = memo(
               links={links}
               onClick={handleChangeLink}
               className="col-span-4"
+              onNav={true}
             />
 
             <div className="col-span-4 flex h-full flex-col justify-end gap-y-16">
@@ -212,7 +214,7 @@ const MobileContent = memo(
       <div className="col-start-4 col-end-5 grid items-center justify-end gap-5 lg:hidden">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex w-18 flex-col gap-1"
+          className="flex w-8 flex-col gap-1"
           aria-label={isOpen ? "Close menu" : "Open menu"}
           ref={menuHandlerRef}
         >

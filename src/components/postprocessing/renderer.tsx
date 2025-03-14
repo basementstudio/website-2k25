@@ -1,6 +1,7 @@
 import { createPortal } from "@react-three/fiber"
 import { memo, useEffect, useId, useMemo, useRef } from "react"
 import {
+  DepthTexture,
   HalfFloatType,
   LinearSRGBColorSpace,
   NearestFilter,
@@ -49,12 +50,15 @@ export const Renderer = memo(RendererInner)
 
 function RendererInner({ sceneChildren }: RendererProps) {
   const mainTarget = useMemo(() => {
+    const dt = new DepthTexture(window.innerWidth, window.innerHeight)
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
       type: HalfFloatType,
       format: RGBAFormat,
       colorSpace: LinearSRGBColorSpace,
       minFilter: NearestFilter,
-      magFilter: NearestFilter
+      magFilter: NearestFilter,
+      depthBuffer: true,
+      depthTexture: dt
     })
     return rt
   }, [])
@@ -108,6 +112,7 @@ function RendererInner({ sceneChildren }: RendererProps) {
       {createPortal(
         <PostProcessing
           mainTexture={mainTarget.texture}
+          depthTexture={mainTarget.depthTexture!}
           cameraRef={postProcessingCameraRef}
         />,
         postProcessingScene
