@@ -1,33 +1,33 @@
 import { create } from "zustand"
-
-interface ContactStore {
-  isContactOpen: boolean
-  setIsContactOpen: (isContactOpen: boolean) => void
-  isAnimating: boolean
-  setIsAnimating: (isAnimating: boolean) => void
-
-  isIntroComplete: boolean
-  setIsIntroComplete: (isComplete: boolean) => void
-  isScaleUpComplete: boolean
-  setIsScaleUpComplete: (isComplete: boolean) => void
-  isScaleDownComplete: boolean
-  setIsScaleDownComplete: (isComplete: boolean) => void
-  isOutroComplete: boolean
-  setIsOutroComplete: (isComplete: boolean) => void
-  hasBeenOpenedBefore: boolean
-  setHasBeenOpenedBefore: (hasBeenOpenedBefore: boolean) => void
-
-  worker: Worker | null
-  setWorker: (worker: Worker | null) => void
-}
+import { ContactStore } from "./contact.intercace"
 
 export const useContactStore = create<ContactStore>((set) => ({
   isContactOpen: false,
-  setIsContactOpen: (isContactOpen) => {
-    set((state) => {
-      if (state.isAnimating) {
-        return state
-      }
+  isAnimating: false,
+  worker: null,
+
+  isIntroComplete: false,
+  isScaleUpComplete: false,
+  isScaleDownComplete: false,
+  isOutroComplete: false,
+  hasBeenOpenedBefore: false,
+
+  setWorker: (worker: Worker | null) => set({ worker }),
+  setIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
+  setIsIntroComplete: (isComplete: boolean) =>
+    set({ isIntroComplete: isComplete }),
+  setIsScaleUpComplete: (isComplete: boolean) =>
+    set({ isScaleUpComplete: isComplete }),
+  setIsScaleDownComplete: (isComplete: boolean) =>
+    set({ isScaleDownComplete: isComplete }),
+  setIsOutroComplete: (isComplete: boolean) =>
+    set({ isOutroComplete: isComplete }),
+  setHasBeenOpenedBefore: (hasBeenOpenedBefore: boolean) =>
+    set({ hasBeenOpenedBefore }),
+
+  setIsContactOpen: (isContactOpen: boolean) => {
+    set((state: ContactStore) => {
+      if (state.isAnimating) return state
 
       if (isContactOpen && !state.isContactOpen) {
         if (
@@ -63,36 +63,5 @@ export const useContactStore = create<ContactStore>((set) => ({
 
       return { isContactOpen }
     })
-  },
-  isAnimating: false,
-  setIsAnimating: (isAnimating) => {
-    set({ isAnimating })
-  },
-
-  // Animation completion state
-  isIntroComplete: false,
-  setIsIntroComplete: (isComplete) => {
-    set({ isIntroComplete: isComplete })
-  },
-  isScaleUpComplete: false,
-  setIsScaleUpComplete: (isComplete) => {
-    set({ isScaleUpComplete: isComplete })
-  },
-  isScaleDownComplete: false,
-  setIsScaleDownComplete: (isComplete) => {
-    set({ isScaleDownComplete: isComplete })
-  },
-  isOutroComplete: false,
-  setIsOutroComplete: (isComplete) => {
-    set({ isOutroComplete: isComplete })
-  },
-  hasBeenOpenedBefore: false,
-  setHasBeenOpenedBefore: (hasBeenOpenedBefore) => {
-    set({ hasBeenOpenedBefore })
-  },
-
-  worker: null,
-  setWorker: (worker) => {
-    set({ worker })
   }
 }))
