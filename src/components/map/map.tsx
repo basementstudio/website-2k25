@@ -87,7 +87,8 @@ type SceneType = Object3D<Object3DEventMap> | null
 
 export const Map = memo(() => {
   const {
-    office: officePath,
+    modelWithNormals,
+    modelNoNormals,
     outdoor: outdoorPath,
     godrays: godraysPath,
     basketballNet: basketballNetPath,
@@ -103,7 +104,12 @@ export const Map = memo(() => {
   const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
-  const { scene: officeModel } = useGLTF(officePath) as unknown as GLTFResult
+  const { scene: officeModel } = useGLTF(
+    modelNoNormals
+  ) as unknown as GLTFResult
+  const { scene: officeModelWithNormals } = useGLTF(
+    modelWithNormals
+  ) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
   const { scene: outdoorCarsModel } = useGLTF(
@@ -340,16 +346,17 @@ export const Map = memo(() => {
     }
 
     officeModel.traverse((child) => traverse(child))
-
+    officeModelWithNormals.traverse((child) => traverse(child))
     routingElementsModel.traverse((child) => traverse(child, { FOG: false }))
-
     outdoorModel.traverse((child) => traverse(child, { FOG: false }))
-
     godrayModel.traverse((child) => traverse(child, { GODRAY: true }))
 
+    const godrays: Mesh[] = []
+
     godrayModel.traverse((child) => {
-      if (child instanceof Mesh) setGodrays((prev) => [...prev, child])
+      if (child instanceof Mesh) godrays.push(child)
     })
+    setGodrays((prev) => [...prev, ...godrays])
 
     setOfficeScene(officeModel)
     setOutdoorScene(outdoorModel)
@@ -391,7 +398,9 @@ export const Map = memo(() => {
       const inspectableMeshes: Mesh[] = []
 
       inspectableAssets.forEach(({ mesh: meshName }) => {
-        const mesh = officeModel.getObjectByName(meshName) as Mesh | null
+        const mesh = officeModelWithNormals.getObjectByName(
+          meshName
+        ) as Mesh | null
         if (mesh) {
           mesh.userData.position = {
             x: mesh.position.x,
@@ -511,6 +520,7 @@ export const Map = memo(() => {
     }
 
     disableRaycasting(officeModel)
+    disableRaycasting(officeModelWithNormals)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
     disableRaycasting(outdoorCarsModel)
@@ -541,6 +551,7 @@ export const Map = memo(() => {
   return (
     <group>
       <primitive object={officeScene} />
+      <primitive object={officeModelWithNormals} />
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
       <ArcadeScreen />

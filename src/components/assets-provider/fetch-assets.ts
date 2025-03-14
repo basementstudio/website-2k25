@@ -3,6 +3,8 @@ import { basehub } from "basehub"
 import { assetsQuery } from "./query"
 
 export interface AssetsResult {
+  modelWithNormals: string
+  modelNoNormals: string
   office: string
   officeWireframe: string
   outdoor: string
@@ -159,6 +161,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
 
   return {
     office: threeDInteractions.map.officeV2.file.url,
+    modelWithNormals: threeDInteractions.map.modelWithNormals.file.url,
+    modelNoNormals: threeDInteractions.map.modelNoNormals.file.url,
     officeWireframe: threeDInteractions.map.wireframeModel.file.url,
     outdoor: threeDInteractions.map.outdoor.file.url,
     godrays: threeDInteractions.map.godrays.file.url,
