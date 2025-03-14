@@ -85,14 +85,14 @@ export const OutdoorCars = () => {
     }
   }
 
-  useFrameCallback(({ clock }, delta) => {
+  useFrameCallback((_, delta, elapsedTime) => {
     let needsUpdate = false
     let carsAtTarget = 0
 
     STREET_LANES.forEach((lane) => {
       if (!lane.car || !lane.speed || lane.nextStartTime === null) return
 
-      if (!lane.isMoving && clock.elapsedTime >= lane.nextStartTime) {
+      if (!lane.isMoving && elapsedTime >= lane.nextStartTime) {
         lane.isMoving = true
       }
 
@@ -113,7 +113,7 @@ export const OutdoorCars = () => {
           (direction < 0 && lane.car.position.x <= lane.targetPosition[0])
         ) {
           carsAtTarget++
-          generateRandomCar(lane, clock.elapsedTime)
+          generateRandomCar(lane, elapsedTime)
           needsUpdate = true
         }
       }

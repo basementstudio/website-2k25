@@ -16,11 +16,11 @@ export const RoutingArrow = ({
   const meshRef = useRef<Mesh | null>(null)
   const camera = useThree((state) => state.camera)
 
-  useFrameCallback((state) => {
+  useFrameCallback((_, __, elapsedTime) => {
     if (meshRef.current) {
       meshRef.current.quaternion.copy(camera.quaternion)
       meshRef.current.rotateZ(rotation?.[2] ?? 0)
-      const offset = Math.sin(state.clock.elapsedTime * 3.5) * 0.03
+      const offset = Math.sin(elapsedTime * 3.5) * 0.03
 
       if (rotation?.[2] === -1.5708) {
         meshRef.current.position.x = (position?.[0] ?? 0) + offset

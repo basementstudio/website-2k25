@@ -1,6 +1,6 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
-import { memo, useMemo, useRef, useEffect } from "react"
 import { useThree } from "@react-three/fiber"
+import { memo, useEffect, useMemo, useRef } from "react"
 import {
   Color,
   LineSegments,
@@ -84,9 +84,9 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     return solid
   }, [nodes])
 
-  useFrameCallback(({ clock }) => {
+  useFrameCallback((_, __, elapsedTime) => {
     const material = solid.material as any
-    material.uniforms.uTime.value = clock.elapsedTime
+    material.uniforms.uTime.value = elapsedTime
   })
 
   const isAppLoaded = useLoadingWorkerStore((s) => s.isAppLoaded)
@@ -190,9 +190,9 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
    * Another approach, camera just appears there
    * */
   const updated = useRef(false)
-  useFrameCallback(({ camera: C, scene, clock }) => {
+  useFrameCallback(({ camera: C }, __, elapsedTime) => {
     renderCount.current++
-    const time = clock.elapsedTime
+    const time = elapsedTime
 
     let r = Math.min(time * 1, 1)
     r = clamp(r, 0, 1)

@@ -153,8 +153,8 @@ const Inner = ({
     return () => controller.abort()
   }, [mainTexture, depthTexture])
 
-  useFrameCallback(({ clock }) => {
-    material.uniforms.uTime.value = clock.elapsedTime
+  useFrameCallback((_, __, elapsedTime) => {
+    material.uniforms.uTime.value = elapsedTime
   })
 
   return (
