@@ -1,5 +1,6 @@
 "use client"
 
+import type { Metadata } from "next"
 import { Geist_Mono } from "next/font/google"
 
 import { ArcadeNameInput } from "@/components/basketball/arcade-name-input"
@@ -8,6 +9,11 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMinigameStore } from "@/store/minigame-store"
 
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
+
+export const metadata: Metadata = {
+  title: "Basketball",
+  description: "Basketball"
+}
 
 const Basketball = () => {
   const {
