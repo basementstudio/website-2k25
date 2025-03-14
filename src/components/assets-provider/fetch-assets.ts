@@ -118,15 +118,6 @@ export interface AssetsResult {
       tabClickableName: string
       plusShapeScale: number
     }[]
-    fogConfig: {
-      fogColor: {
-        r: number
-        g: number
-        b: number
-      }
-      fogDensity: number
-      fogDepth: number
-    }
     postprocessing: {
       contrast: number
       brightness: number
@@ -288,15 +279,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
         tabClickableName: tab.tabClickableName ?? "",
         plusShapeScale: tab.plusShapeScale ?? 1
       })),
-      fogConfig: {
-        fogColor: {
-          r: (item.fogConfig.fogColor.r ?? 0) / 255,
-          g: (item.fogConfig.fogColor.g ?? 0) / 255,
-          b: (item.fogConfig.fogColor.b ?? 0) / 255
-        },
-        fogDensity: item.fogConfig.fogDensity ?? 0,
-        fogDepth: item.fogConfig.fogDepth ?? 0
-      },
       postprocessing: {
         contrast: item.postprocessing?.contrast ?? 1,
         brightness: item.postprocessing?.brightness ?? 1,
