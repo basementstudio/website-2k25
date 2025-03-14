@@ -98,7 +98,7 @@ function CharactersSpawnInner() {
       <Character
         position={[6.54, 3.74, -24.7]}
         rotation={[0, Math.PI * 0.5, 0]}
-        animationName={CharacterAnimationName["People.02.b"]}
+        animationName={CharacterAnimationName["People.01.b"]}
       />
       <Character
         position={[12.3, 3.76, -27.15]}
@@ -110,7 +110,7 @@ function CharactersSpawnInner() {
       <Character
         position={[9.24, 3.71, -17.97]}
         rotation={[0, Math.PI * 0.2, 0]}
-        animationName={CharacterAnimationName["Blog.02"]}
+        animationName={CharacterAnimationName["Blog.01"]}
       />
 
       {/* Debug */}
