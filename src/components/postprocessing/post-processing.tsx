@@ -2,7 +2,7 @@ import { OrthographicCamera } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef } from "react"
-import {
+import type {
   DepthTexture,
   OrthographicCamera as ThreeOrthographicCamera,
   Texture
@@ -103,9 +103,23 @@ const Inner = ({
 
       firstRender.current = false
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene])
+  }, [
+    assets.scenes,
+    hasChanged,
+    scene,
+    setBasics,
+    setBloom,
+    setVignette,
+    targets.bloomRadius,
+    targets.bloomStrength,
+    targets.bloomThreshold,
+    targets.brightness,
+    targets.contrast,
+    targets.exposure,
+    targets.gamma,
+    targets.vignetteRadius,
+    targets.vignetteSpread
+  ])
 
   useFrame(() => {
     if (!hasChanged.current) {
@@ -148,10 +162,15 @@ const Inner = ({
     material.uniforms.uMainTexture.value = mainTexture
     material.uniforms.uDepthTexture.value = depthTexture
 
-    console.log(depthTexture)
-
     return () => controller.abort()
-  }, [mainTexture, depthTexture])
+  }, [
+    mainTexture,
+    depthTexture,
+    material.uniforms.uMainTexture,
+    material.uniforms.uDepthTexture,
+    material.uniforms.resolution.value,
+    material.uniforms.uPixelRatio
+  ])
 
   useFrame(({ clock }) => {
     material.uniforms.uTime.value = clock.elapsedTime
