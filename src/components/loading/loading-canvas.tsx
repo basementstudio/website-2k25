@@ -62,13 +62,17 @@ function LoadingCanvas() {
     }
 
     worker.addEventListener("error", handleError)
+
+    return () => {
+      worker.terminate()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (!loadingCanvasWorker) return null
 
   return (
-    <div className="absolute left-0 top-0 z-[200] h-screen w-screen">
+    <div className="absolute left-0 top-0 z-[200] h-screen w-full">
       <OffscreenCanvas
         worker={loadingCanvasWorker}
         fallback={<Fallback />}

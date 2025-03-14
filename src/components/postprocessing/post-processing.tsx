@@ -2,7 +2,11 @@ import { OrthographicCamera } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef } from "react"
-import { OrthographicCamera as ThreeOrthographicCamera, Texture } from "three"
+import {
+  DepthTexture,
+  OrthographicCamera as ThreeOrthographicCamera,
+  Texture
+} from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
@@ -14,10 +18,15 @@ import { usePostprocessingSettings } from "./use-postprocessing-settings"
 
 interface PostProcessingProps {
   mainTexture: Texture
+  depthTexture: DepthTexture
   cameraRef: React.RefObject<ThreeOrthographicCamera | null>
 }
 
-const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
+const Inner = ({
+  mainTexture,
+  depthTexture,
+  cameraRef
+}: PostProcessingProps) => {
   const scene = useCurrentScene()
   const assets = useAssets()
   const firstRender = useRef(true)
@@ -137,9 +146,12 @@ const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
     window.addEventListener("resize", resize, { signal, passive: true })
 
     material.uniforms.uMainTexture.value = mainTexture
+    material.uniforms.uDepthTexture.value = depthTexture
+
+    console.log(depthTexture)
 
     return () => controller.abort()
-  }, [mainTexture])
+  }, [mainTexture, depthTexture])
 
   useFrame(({ clock }) => {
     material.uniforms.uTime.value = clock.elapsedTime
