@@ -171,7 +171,6 @@ const preloadAllAssets = (obj: any) => {
 
 export const usePreloadAssets = (assets: AssetsResult) => {
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
-  console.log(assets)
 
   if (offscreenCanvasReady) {
     preloadAllAssets(assets)
