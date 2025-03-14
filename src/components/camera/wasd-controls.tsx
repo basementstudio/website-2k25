@@ -1,8 +1,9 @@
 import { KeyboardControls, PerspectiveCamera } from "@react-three/drei"
 import { useKeyboardControls } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
-import { ComponentRef, useEffect, useMemo, useRef, useState } from "react"
+import { type ComponentRef, useEffect, useMemo, useRef, useState } from "react"
 import { Euler, Vector3 } from "three"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 
@@ -53,7 +54,7 @@ function ControlsInner() {
 
   vectors.cameraEuler.order = "YXZ"
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (!cameraRef.current) return
     const { forward, backward, left, right, up, down, fast } = get()
 

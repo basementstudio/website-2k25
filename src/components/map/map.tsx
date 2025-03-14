@@ -1,7 +1,6 @@
 "use client"
 
 import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
@@ -25,6 +24,7 @@ import { RoutingElement } from "@/components/routing-element/routing-element"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -146,11 +146,9 @@ export const Map = memo(() => {
     return () => tl.current?.stop()
   }, [selected])
 
-  useFrame(({ clock }) => {
-    timeRef.current = clock.getElapsedTime()
-
+  useFrameCallback((_, delta) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
-      material.uniforms.uTime.value = clock.getElapsedTime()
+      material.uniforms.uTime.value += delta
 
       material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
@@ -158,8 +156,7 @@ export const Map = memo(() => {
 
     if (useMesh.getState().cctv?.screen?.material) {
       // @ts-ignore
-      useMesh.getState().cctv.screen.material.uniforms.uTime.value =
-        clock.getElapsedTime()
+      useMesh.getState().cctv.screen.material.uniforms.uTime.value += delta
     }
   })
 

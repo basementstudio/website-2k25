@@ -1,10 +1,10 @@
 import { useTexture } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { Container, DefaultProperties, Root, Text } from "@react-three/uikit"
 import { FontFamilyProvider } from "@react-three/uikit"
 import { useEffect, useRef, useState } from "react"
-import { ShaderMaterial } from "three"
+import type { ShaderMaterial } from "three"
 
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { ffflauta } from "../../../public/fonts/ffflauta"
@@ -39,7 +39,7 @@ export const ArcadeGame = ({
   const introScreenTexture = useTexture(arcade.introScreen)
   const clearNpcs = useNpc((s) => s.clearNpcs)
 
-  useFrame((_, delta) => {
+  useFrameCallback((_, delta) => {
     if (gameStarted && !gameOver) {
       lastUpdateTimeRef.current += delta
       if (lastUpdateTimeRef.current >= 0.1) {
