@@ -29,6 +29,8 @@ interface SiteAudioStore {
   themeSong: AudioSource | null
   ostSong: AudioSource | null
   officeAmbience: AudioSource | null
+  music: boolean
+  setMusic: (state: boolean) => void
 }
 
 interface SiteAudioHook {
@@ -54,7 +56,9 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
   audioSfxSources: null,
   themeSong: null,
   ostSong: null,
-  officeAmbience: null
+  officeAmbience: null,
+  music: true,
+  setMusic: (state) => useSiteAudioStore.setState({ music: state })
 }))
 
 export { useSiteAudioStore }
@@ -289,8 +293,9 @@ export function useSiteAudio(): SiteAudioHook {
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
   const ostSong = useSiteAudioStore((s) => s.ostSong)
 
-  // Initialize state with defaults
-  const [music, setMusic] = useState(true)
+  const music = useSiteAudioStore((s) => s.music)
+  const setMusic = useSiteAudioStore((s) => s.setMusic)
+
   const [volumeMaster, _setVolumeMaster] = useState(1)
 
   // Initialize audio system when player is available
@@ -299,6 +304,9 @@ export function useSiteAudio(): SiteAudioHook {
 
     // Set initial volume based on music state
     player.setMusicAndGameVolume(music ? 1 : 0)
+
+    // Update volumeMaster to match music state
+    _setVolumeMaster(music ? 1 : 0)
   }, [player, music])
 
   // Monitor ostSong changes to ensure proper audio state
@@ -336,7 +344,7 @@ export function useSiteAudio(): SiteAudioHook {
     if (player) {
       player.setMusicAndGameVolume(newVolume)
     }
-  }, [music, player])
+  }, [music, player, setMusic])
 
   const setVolumeMaster = useCallback(
     (volume: number) => {
@@ -347,7 +355,7 @@ export function useSiteAudio(): SiteAudioHook {
       _setVolumeMaster(volume)
       setMusic(volume > 0)
     },
-    [player]
+    [player, setMusic]
   )
 
   const playSoundFX = useCallback(

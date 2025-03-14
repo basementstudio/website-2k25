@@ -57,10 +57,13 @@ export const NavbarContent = memo(
     const isOnTab = useIsOnTab()
     const scene = useCurrentScene()
 
-    useEffect(
-      () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
-      [isOnTab, music, setVolumeMaster]
-    )
+    useEffect(() => {
+      if (isOnTab === false) {
+        setVolumeMaster(0)
+      } else if (isOnTab === true) {
+        setVolumeMaster(music ? 1 : 0)
+      }
+    }, [isOnTab, music, setVolumeMaster])
 
     if (scene === "404") return null
 

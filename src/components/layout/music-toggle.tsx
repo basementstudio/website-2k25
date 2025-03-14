@@ -6,11 +6,20 @@ import { cn } from "@/utils/cn"
 const MusicToggle = ({ music }: { music: boolean }) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const animationsRef = useRef<Array<{ cancel: () => void }>>([])
-  const [hasUserInteracted, setHasUserInteracted] = useState(false)
+  const [hasUserInteracted, setHasUserInteracted] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("hasUserInteracted") === "true" || false
+    }
+    return false
+  })
 
   useEffect(() => {
     const handleFirstInteraction = () => {
       setHasUserInteracted(true)
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("hasUserInteracted", "true")
+      }
     }
 
     document.addEventListener("click", handleFirstInteraction, { once: true })
