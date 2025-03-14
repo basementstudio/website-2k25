@@ -70,16 +70,14 @@ export const ProjectInfo = ({
               key={entry.project?.client?.website}
               href={entry.project?.client?.website || ""}
               target="_blank"
-              className="text-brand-w1"
+              className="line-clamp-1 flex items-center gap-1 text-brand-w1"
             >
-              <span className="actionable inline-flex items-center gap-1">
-                {entry.project?.projectWebsite ? (
-                  <>
-                    {entry.project?.projectWebsite}{" "}
-                    <ExternalLinkIcon className="size-2" />
-                  </>
-                ) : null}
-              </span>
+              {entry.project?.projectWebsite ? (
+                <>
+                  {entry.project?.projectWebsite}{" "}
+                  <ExternalLinkIcon className="size-2" />
+                </>
+              ) : null}
             </Link>
           }
         />
