@@ -19,7 +19,6 @@ export function AppHooks(): React.JSX.Element {
   const enableAmbience = !isInGame && !isBasketballPage
 
   useInitializeAudioContext()
-  useBasketballThemeSong()
 
   // musical ambience
   useWebsiteAmbience(enableAmbience)
@@ -27,7 +26,8 @@ export function AppHooks(): React.JSX.Element {
   // office background
   // useOfficeAmbience()
 
-  useKonamiSong()
+  // useKonamiSong()
+  // useBasketballThemeSong()
 
   return <SiteAudioSFXsLoader />
 }
