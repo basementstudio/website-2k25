@@ -13,7 +13,15 @@ import { useContactStore } from "./contact-store"
 const Contact = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
+  const isAnimating = useContactStore((state) => state.isAnimating)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
+  const isIntroComplete = useContactStore((state) => state.isIntroComplete)
+  const isScaleUpComplete = useContactStore((state) => state.isScaleUpComplete)
+  const isOutroComplete = useContactStore((state) => state.isOutroComplete)
+  const isScaleDownComplete = useContactStore(
+    (state) => state.isScaleDownComplete
+  )
+
   const { playSoundFX } = useSiteAudio()
   const scene = useCurrentScene()
   const isPeople = scene === "people"
@@ -21,11 +29,17 @@ const Contact = () => {
   const desiredVolume = isBlog ? 0.05 : 0.2
   const overlayRef = useRef<HTMLDivElement>(null)
 
+  const handleClose = useCallback(() => {
+    if (isIntroComplete && isScaleUpComplete && !isAnimating) {
+      setIsContactOpen(false)
+    }
+  }, [setIsContactOpen, isIntroComplete, isScaleUpComplete, isAnimating])
+
   useKeyPress(
     "Escape",
     useCallback(() => {
-      setIsContactOpen(false)
-    }, [setIsContactOpen])
+      handleClose()
+    }, [handleClose])
   )
 
   useDisableScroll(isContactOpen)
@@ -42,14 +56,16 @@ const Contact = () => {
     const overlay = overlayRef.current
     if (!overlay) return
 
-    // handle transition start
     const handleTransitionStart = () => {
       setIsAnimating(true)
     }
 
-    // handle transition end
     const handleTransitionEnd = () => {
-      setIsAnimating(false)
+      if (isContactOpen && isIntroComplete && isScaleUpComplete) {
+        setIsAnimating(false)
+      } else if (!isContactOpen && isOutroComplete && isScaleDownComplete) {
+        setIsAnimating(false)
+      }
     }
 
     overlay.addEventListener("transitionstart", handleTransitionStart)
@@ -59,7 +75,14 @@ const Contact = () => {
       overlay.removeEventListener("transitionstart", handleTransitionStart)
       overlay.removeEventListener("transitionend", handleTransitionEnd)
     }
-  }, [setIsAnimating])
+  }, [
+    setIsAnimating,
+    isContactOpen,
+    isIntroComplete,
+    isScaleUpComplete,
+    isOutroComplete,
+    isScaleDownComplete
+  ])
 
   return (
     <>

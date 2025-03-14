@@ -107,17 +107,25 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
           return
         }
 
-        if (e.data.isContactOpen === isContactOpen) return
+        if (e.data.isContactOpen === isContactOpen) {
+          return
+        }
 
         if (e.data.isContactOpen && !isContactOpen) {
           runIntro()
         } else if (!e.data.isContactOpen && isContactOpen) {
-          // Instead of running outro directly, signal to run scale-down animation first
           self.postMessage({ type: "start-outro" })
         }
       }
 
-      // Add handler for the new message type
+      if (e.data.type === "scale-animation-complete") {
+        self.postMessage({ type: "scale-animation-complete" })
+      }
+
+      if (e.data.type === "scale-down-animation-complete") {
+        self.postMessage({ type: "scale-down-animation-complete" })
+      }
+
       if (e.data.type === "run-outro-animation") {
         runOutro()
       }

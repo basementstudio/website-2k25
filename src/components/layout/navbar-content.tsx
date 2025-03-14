@@ -144,7 +144,9 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
         </button>
         <button
           id="nav-contact"
-          onClick={() => setIsContactOpen(!isContactOpen)}
+          onClick={() => {
+            setIsContactOpen(!isContactOpen)
+          }}
           className={cn(
             "!text-p capitalize text-brand-w1 hover:text-brand-o",
             isContactOpen && "text-brand-g1"

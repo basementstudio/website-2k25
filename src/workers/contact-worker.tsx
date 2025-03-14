@@ -33,6 +33,10 @@ self.onmessage = (
     self.postMessage({ type: "start-outro" })
   } else if (type === "run-outro-animation") {
     self.postMessage({ type: "run-outro-animation" })
+  } else if (type === "scale-animation-complete") {
+    self.postMessage({ type: "scale-animation-complete" })
+  } else if (type === "scale-down-animation-complete") {
+    self.postMessage({ type: "scale-down-animation-complete" })
   }
 }
 

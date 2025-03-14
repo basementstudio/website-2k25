@@ -12,21 +12,47 @@ const ContactCanvas = () => {
   const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
+  const isAnimating = useContactStore((state) => state.isAnimating)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
+  const setIsIntroComplete = useContactStore(
+    (state) => state.setIsIntroComplete
+  )
+  const setIsScaleUpComplete = useContactStore(
+    (state) => state.setIsScaleUpComplete
+  )
+  const setIsScaleDownComplete = useContactStore(
+    (state) => state.setIsScaleDownComplete
+  )
+  const setIsOutroComplete = useContactStore(
+    (state) => state.setIsOutroComplete
+  )
   const [shouldRender, setShouldRender] = useState(false)
 
   useEffect(() => {
     if (isContactOpen) {
       setIsAnimating(true)
       setShouldRender(true)
+      setIsIntroComplete(false)
+      setIsScaleUpComplete(false)
     } else if (!isContactOpen && shouldRender) {
       setIsAnimating(true)
+      setIsScaleDownComplete(false)
+      setIsOutroComplete(false)
+
       const safetyTimer = setTimeout(() => {
         setShouldRender(false)
       }, 3500)
       return () => clearTimeout(safetyTimer)
     }
-  }, [isContactOpen, shouldRender, setIsAnimating])
+  }, [
+    isContactOpen,
+    shouldRender,
+    setIsAnimating,
+    setIsIntroComplete,
+    setIsScaleUpComplete,
+    setIsScaleDownComplete,
+    setIsOutroComplete
+  ])
 
   useEffect(() => {
     if (!worker) return
@@ -35,20 +61,34 @@ const ContactCanvas = () => {
       if (e.data.type === "outro-complete") {
         setShouldRender(false)
         setIsAnimating(false)
+        setIsOutroComplete(true)
       } else if (e.data.type === "intro-complete") {
-        setIsAnimating(false)
+        setIsIntroComplete(true)
       } else if (e.data.type === "animation-rejected") {
         setIsAnimating(false)
       } else if (e.data.type === "start-outro") {
         worker.postMessage({ type: "start-outro" })
       } else if (e.data.type === "run-outro-animation") {
         worker.postMessage({ type: "run-outro-animation" })
+      } else if (e.data.type === "scale-animation-complete") {
+        setIsScaleUpComplete(true)
+        setIsAnimating(false)
+      } else if (e.data.type === "scale-down-animation-complete") {
+        setIsScaleDownComplete(true)
+        setIsAnimating(false)
       }
     }
 
     worker.addEventListener("message", handleWorkerMessage)
     return () => worker.removeEventListener("message", handleWorkerMessage)
-  }, [worker, setIsAnimating])
+  }, [
+    worker,
+    setIsAnimating,
+    setIsIntroComplete,
+    setIsScaleUpComplete,
+    setIsScaleDownComplete,
+    setIsOutroComplete
+  ])
 
   useEffect(() => {
     const newWorker = new Worker(

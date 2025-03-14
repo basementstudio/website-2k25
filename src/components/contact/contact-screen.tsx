@@ -76,8 +76,6 @@ const ContactScreen = () => {
   useEffect(() => {
     if (!worker) return
 
-    console.log("Worker connected:", !!worker)
-
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === "update-screen-skinned-matrix") {
         const { screenPos } = e.data
@@ -118,10 +116,9 @@ const ContactScreen = () => {
       }
 
       if (e.data.type === "outro-complete") {
-        console.log("complete")
         setTimeout(() => {
           worker.postMessage({ type: "scale-down-animation-complete" })
-        }, 1000)
+        }, 500)
       }
     }
 

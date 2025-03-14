@@ -101,7 +101,9 @@ export const Scene = () => {
               sceneChildren={
                 <>
                   <Inspectables />
-
+                  <Suspense>
+                    <Map />
+                  </Suspense>
                   <Suspense fallback={null}>
                     <WebGlTunnelOut />
                   </Suspense>
