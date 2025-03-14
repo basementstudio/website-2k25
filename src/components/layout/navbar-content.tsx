@@ -55,8 +55,28 @@ export const NavbarContent = memo(
     const { handleNavigation } = useHandleNavigation()
 
     const isOnTab = useIsOnTab()
-
+    const [hasInteracted, setHasInteracted] = useState(false)
     const scene = useCurrentScene()
+
+    useEffect(() => {
+      const trackFirstInteraction = () => {
+        setHasInteracted(true)
+
+        window.dispatchEvent(new Event("firstInteraction"))
+      }
+
+      window.addEventListener("click", trackFirstInteraction, { once: true })
+      window.addEventListener("keydown", trackFirstInteraction, { once: true })
+      window.addEventListener("touchstart", trackFirstInteraction, {
+        once: true
+      })
+
+      return () => {
+        window.removeEventListener("click", trackFirstInteraction)
+        window.removeEventListener("keydown", trackFirstInteraction)
+        window.removeEventListener("touchstart", trackFirstInteraction)
+      }
+    }, [])
 
     useEffect(
       () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
@@ -84,6 +104,7 @@ export const NavbarContent = memo(
           <DesktopContent
             links={links}
             music={music}
+            hasInteracted={hasInteracted}
             handleMute={handleMute}
             socialLinks={socialLinks}
             newsletter={newsletter}
@@ -102,59 +123,68 @@ NavbarContent.displayName = "NavbarContent"
 
 interface ContentProps extends NavbarContentProps {
   music: boolean
+  hasInteracted?: boolean
   handleMute: () => void
 }
 
-const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
-  const { handleNavigation } = useHandleNavigation()
-  const { setIsContactOpen, isContactOpen } = useContactStore()
+const DesktopContent = memo(
+  ({ links, music, hasInteracted = false, handleMute }: ContentProps) => {
+    const { handleNavigation } = useHandleNavigation()
+    const { setIsContactOpen, isContactOpen } = useContactStore()
 
-  const pathname = usePathname()
+    const pathname = usePathname()
 
-  return (
-    <>
-      <div className="ga-5 col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
-        {links.map((link) => (
-          <div key={link.href} className="flex items-center gap-1 text-p">
-            <Link
-              href={link.href}
-              className={cn(
-                "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
-                link.href === pathname && "!text-brand-o"
+    // If hasInteracted is true and music preference is on, then visualState should be true
+    // Otherwise, visualState should be false initially until interaction
+    const visualState = hasInteracted ? music : false
+
+    return (
+      <>
+        <div className="ga-5 col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
+          {links.map((link) => (
+            <div key={link.href} className="flex items-center gap-1 text-p">
+              <Link
+                href={link.href}
+                className={cn(
+                  "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+                  link.href === pathname && "!text-brand-o"
+                )}
+                onClick={() => handleNavigation(link.href)}
+              >
+                {link.title}
+              </Link>
+              {link.count && (
+                <sup className="text-caption text-brand-g1">({link.count})</sup>
               )}
-              onClick={() => handleNavigation(link.href)}
-            >
-              {link.title}
-            </Link>
-            {link.count && (
-              <sup className="text-caption text-brand-g1">({link.count})</sup>
-            )}
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
 
-      <div className="col-start-11 col-end-13 ml-auto hidden items-center gap-5 lg:flex">
-        <button
-          onClick={handleMute}
-          className="inline-flex items-center space-x-1 text-p text-brand-w2"
-          aria-label={music ? "Turn music off" : "Turn music on"}
-        >
-          <MusicToggle music={music} />
-        </button>
-        <button
-          id="nav-contact"
-          onClick={() => setIsContactOpen(!isContactOpen)}
-          className={cn(
-            "!text-p capitalize text-brand-w1 hover:text-brand-o",
-            isContactOpen && "text-brand-g1"
-          )}
-        >
-          <span className="actionable actionable-no-underline">Contact Us</span>
-        </button>
-      </div>
-    </>
-  )
-})
+        <div className="col-start-11 col-end-13 ml-auto hidden items-center gap-5 lg:flex">
+          <button
+            onClick={handleMute}
+            className="inline-flex items-center space-x-1 text-p text-brand-w2"
+            aria-label={music ? "Turn music off" : "Turn music on"}
+          >
+            <MusicToggle music={music} visualState={visualState} />
+          </button>
+          <button
+            id="nav-contact"
+            onClick={() => setIsContactOpen(!isContactOpen)}
+            className={cn(
+              "!text-p capitalize text-brand-w1 hover:text-brand-o",
+              isContactOpen && "text-brand-g1"
+            )}
+          >
+            <span className="actionable actionable-no-underline">
+              Contact Us
+            </span>
+          </button>
+        </div>
+      </>
+    )
+  }
+)
 DesktopContent.displayName = "DesktopContent"
 
 const MobileContent = memo(

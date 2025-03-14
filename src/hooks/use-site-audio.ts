@@ -69,9 +69,14 @@ export function useInitializeAudioContext(element?: HTMLElement) {
         const newPlayer = new WebAudioPlayer()
         const savedMusicPreference = localStorage.getItem("music-enabled")
 
-        newPlayer.volume = savedMusicPreference === "true" ? 1 : 0
+        // If user has a saved preference, apply it. Default to enabled (1) for first-time visitors.
+        const isMusicEnabled =
+          savedMusicPreference === null ? true : savedMusicPreference === "true"
+        newPlayer.volume = isMusicEnabled ? 1 : 0
 
         if (savedMusicPreference === null) {
+          // First time visitor
+          localStorage.setItem("music-enabled", "true") // Default to enabled
           window.dispatchEvent(new Event("firstInteraction"))
         }
 
@@ -293,7 +298,7 @@ export function useSiteAudio(): SiteAudioHook {
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
   const ostSong = useSiteAudioStore((s) => s.ostSong)
 
-  // Initialize state with defaults
+  // Initialize state with defaults, but we'll update from localStorage immediately after mount
   const [music, setMusic] = useState(false)
   const [volumeMaster, _setVolumeMaster] = useState(0)
 
@@ -303,7 +308,7 @@ export function useSiteAudio(): SiteAudioHook {
 
     const savedMusicPreference = localStorage.getItem("music-enabled")
 
-    // First interaction handler
+    // First time visitor (no saved preference)
     if (savedMusicPreference === null) {
       const handleFirstInteraction = () => {
         setMusic(true)
@@ -319,8 +324,15 @@ export function useSiteAudio(): SiteAudioHook {
       window.addEventListener("firstInteraction", handleFirstInteraction)
       return () =>
         window.removeEventListener("firstInteraction", handleFirstInteraction)
-    } else if (savedMusicPreference === "false" && player) {
-      player.setMusicAndGameVolume(0)
+    } else {
+      // Returning visitor - apply saved preference
+      const isMusicEnabled = savedMusicPreference === "true"
+      setMusic(isMusicEnabled)
+      _setVolumeMaster(isMusicEnabled ? 1 : 0)
+
+      if (player) {
+        player.setMusicAndGameVolume(isMusicEnabled ? 1 : 0)
+      }
     }
   }, [player])
 
@@ -349,9 +361,19 @@ export function useSiteAudio(): SiteAudioHook {
 
   const handleMute = useCallback(() => {
     if (typeof window === "undefined") return
-    setVolumeMaster(music ? 0 : 1)
-    setMusic(!music)
-  }, [music])
+
+    const newState = !music
+    const newVolume = newState ? 1 : 0
+
+    setMusic(newState)
+    _setVolumeMaster(newVolume)
+
+    if (player) {
+      player.setMusicAndGameVolume(newVolume)
+    }
+
+    localStorage.setItem("music-enabled", newState ? "true" : "false")
+  }, [music, player])
 
   const setVolumeMaster = useCallback(
     (volume: number) => {
@@ -360,6 +382,7 @@ export function useSiteAudio(): SiteAudioHook {
       player.setMusicAndGameVolume(volume)
 
       _setVolumeMaster(volume)
+      setMusic(volume > 0)
       localStorage.setItem("music-enabled", volume > 0 ? "true" : "false")
     },
     [player]
