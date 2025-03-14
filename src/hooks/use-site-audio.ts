@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useEffect } from "react"
 import { create } from "zustand"
 
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
@@ -32,53 +32,6 @@ export type SiteAudioSFXKey =
   | `BLOG_LAMP_${number}_RELEASE`
   | "CONTACT_INTERFERENCE"
   | "OFFICE_AMBIENCE"
-
-// const audioTracks = useMemo(() => {
-//   return {
-//     ambience: [
-//       {
-//         name: "Chrome Tiger - Basement Jukebox 02:40",
-//         url: AMBIENCE.AMBIENCE_TIGER,
-//         type: BackgroundAudioType.AMBIENCE,
-//         volume: AMBIENT_VOLUME
-//       },
-//       {
-//         name: "Perfect Waves - Basement Jukebox 00:59",
-//         url: AMBIENCE.AMBIENCE_AQUA,
-//         type: BackgroundAudioType.AMBIENCE,
-//         volume: AMBIENT_VOLUME
-//       },
-//       {
-//         name: "Tears In The Rain - Basement Jukebox 01:55",
-//         url: AMBIENCE.AMBIENCE_RAIN,
-//         type: BackgroundAudioType.AMBIENCE,
-//         volume: AMBIENT_VOLUME
-//       },
-//       {
-//         name: "Cassette Kong - Basement Jukebox 03:35",
-//         url: AMBIENCE.AMBIENCE_VHS,
-//         type: BackgroundAudioType.AMBIENCE,
-//         volume: AMBIENT_VOLUME
-//       }
-//     ],
-//     basketball: [
-//       {
-//         name: "Basketball Ambient",
-//         url: GAME_THEME_SONGS.BASKETBALL_AMBIENT,
-//         type: BackgroundAudioType.BASKETBALL,
-//         volume: THEME_SONG_VOLUME
-//       }
-//     ],
-//     konami: [
-//       {
-//         name: "Miami Heatwave",
-//         url: ARCADE_AUDIO_SFX.MIAMI_HEATWAVE,
-//         type: BackgroundAudioType.KONAMI,
-//         volume: 0.4
-//       }
-//     ]
-//   }
-// }, [AMBIENCE, GAME_THEME_SONGS, ARCADE_AUDIO_SFX])
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
