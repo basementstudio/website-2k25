@@ -6,7 +6,8 @@ import { useEffect, useState } from "react"
 const BLACKLISTED_PATHS = [
   /^\/showcase\/\d+$/,
   /^\/showcase\/[^\/]+$/,
-  /^\/post\/[^\/]+$/
+  /^\/post\/[^\/]+$/,
+  /^\/contact$/
 ]
 
 export const useShowCanvas = () => {
