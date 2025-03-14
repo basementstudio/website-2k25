@@ -1,5 +1,6 @@
 "use client"
 
+import { useSearchParams } from "next/navigation"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
 import { Project } from "@/app/(pages)/showcase/basehub"
@@ -34,9 +35,10 @@ ViewModeSelector.displayName = "ViewModeSelector"
 
 export const ShowcaseListClient = memo(
   ({ projects }: { projects: Project[] }) => {
+    const searchParams = useSearchParams()
     const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
-      null
+      searchParams.get("category") || null
     )
 
     const isProjectDisabled = useCallback(

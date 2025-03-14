@@ -69,6 +69,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
         <InternalLinks
           className="col-start-1 col-end-3 row-start-1 lg:col-start-7 lg:col-end-9"
           links={LINKS}
+          onNav={false}
         />
 
         <SocialLinks

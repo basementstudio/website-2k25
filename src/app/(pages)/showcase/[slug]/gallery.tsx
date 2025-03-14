@@ -57,6 +57,7 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
                 blurDataURL={image?.blurDataURL}
                 placeholder="blur"
                 className="object-cover"
+                priority={idx <= 3}
               />
             </div>
           )}

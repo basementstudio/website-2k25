@@ -80,14 +80,18 @@ export const ImageWithVideoOverlay = ({
       onMouseLeave={handleMouseLeave}
     >
       <Image
-        src={image?.url ?? ""}
-        alt={image?.alt ?? ""}
+        src={image.url ?? ""}
+        alt={image.alt ?? ""}
         width={variant === "showcase" ? (firstItem ? 960 : 480) : undefined}
         height={variant === "showcase" ? (firstItem ? 540 : 270) : undefined}
         fill={variant === "home" ? true : false}
+        sizes={
+          variant === "home"
+            ? `(max-width: 1024px) ${firstItem ? "25vw" : "50vw"}, 90vw`
+            : undefined
+        }
         blurDataURL={image?.blurDataURL ?? ""}
-        placeholder="blur"
-        className="h-full w-full object-cover"
+        className="object-cover"
         priority={firstItem}
       />
 

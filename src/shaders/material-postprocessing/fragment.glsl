@@ -3,6 +3,7 @@ precision highp float;
 const int SAMPLE_COUNT = 24;
 
 uniform sampler2D uMainTexture;
+uniform sampler2D uDepthTexture;
 uniform vec2 resolution;
 uniform float uPixelRatio;
 uniform float uTolerance;
