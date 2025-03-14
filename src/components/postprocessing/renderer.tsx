@@ -1,12 +1,12 @@
 import { createPortal, useFrame } from "@react-three/fiber"
-import { memo, useEffect, useId, useMemo, useRef } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 import {
   DepthTexture,
   HalfFloatType,
   LinearSRGBColorSpace,
   NearestFilter,
   NoToneMapping,
-  OrthographicCamera,
+  type OrthographicCamera,
   PerspectiveCamera,
   RGBAFormat,
   Scene,
@@ -111,7 +111,7 @@ function RendererInner({ sceneChildren }: RendererProps) {
       {createPortal(
         <PostProcessing
           mainTexture={mainTarget.texture}
-          depthTexture={mainTarget.depthTexture!}
+          depthTexture={mainTarget.depthTexture as DepthTexture}
           cameraRef={postProcessingCameraRef}
         />,
         postProcessingScene
