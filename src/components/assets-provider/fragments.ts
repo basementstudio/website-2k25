@@ -24,12 +24,12 @@ export const characterFragment = fragmentOn("Characters", {
 })
 
 export const mapFragment = fragmentOn("Map", {
-  modelNoNormals: {
+  office: {
     file: {
       url: true
     }
   },
-  modelWithNormals: {
+  officeItems: {
     file: {
       url: true
     }
