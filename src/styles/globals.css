@@ -165,6 +165,7 @@ body {
 
 button:focus,
 input:focus,
+textarea:focus,
 a:focus {
   @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500;
 }
