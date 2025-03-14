@@ -9,7 +9,6 @@ const Toolbar = BasehubToolbar as unknown as React.ComponentType
 
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import { preload, PreloadAs } from "react-dom"
 
 import Contact from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
@@ -44,46 +43,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono"
 })
 
-const getAssetFormat = (url: string): PreloadAs => {
-  const extension = url.split(".").pop()
-  switch (extension) {
-    case "png":
-      return "image"
-    case "jpg":
-      return "image"
-    case "jpeg":
-      return "image"
-    case "webp":
-      return "image"
-    case "glb":
-      return "fetch"
-    case "mp3":
-      return "audio"
-    default:
-      return "fetch"
-  }
-}
-
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const assets = await fetchAssets()
-
-  // Preload assets
-  const preloadAllAssets = (obj: any) => {
-    if (!obj) return
-
-    if (typeof obj === "string" && obj.startsWith("https://")) {
-      // Es una URL, precargar
-      preload(obj, { as: getAssetFormat(obj) as PreloadAs })
-    } else if (Array.isArray(obj)) {
-      // Es un array, recorrer cada elemento
-      obj.forEach((item) => preloadAllAssets(item))
-    } else if (typeof obj === "object") {
-      // Es un objeto, recorrer cada propiedad
-      Object.values(obj).forEach((value) => preloadAllAssets(value))
-    }
-  }
-
-  preloadAllAssets(assets)
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -107,7 +68,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
                 <NavigationHandler />
 
                 <ContentWrapper>{children}</ContentWrapper>
-                <AppHooks />
+                <AppHooks assets={assets} />
                 <Contact />
               </PathnameProvider>
             </LenisScrollProvider>
