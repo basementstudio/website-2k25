@@ -43,7 +43,7 @@ function CharactersSpawnInner() {
         animationName={CharacterAnimationName["Services.01"]}
         uniforms={{
           uLightDirection: {
-            value: [-2, 0.5, 0, 1]
+            value: [0, 0.5, 1, 1]
           }
         }}
       />
@@ -108,9 +108,14 @@ function CharactersSpawnInner() {
 
       {/* Blog */}
       <Character
-        position={[9.24, 3.71, -17.97]}
+        position={[9.24, 3.7, -17.97]}
         rotation={[0, Math.PI * 0.2, 0]}
         animationName={CharacterAnimationName["Blog.01"]}
+        uniforms={{
+          uLightDirection: {
+            value: [0.4, -0.4, -0.3, 1]
+          }
+        }}
       />
 
       {/* Debug */}
