@@ -36,8 +36,6 @@ const initialPosition = target
   .clone()
   .add(new Vector3(1, 1, 1).multiplyScalar(70))
 
-const p = initialPosition.clone()
-
 export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
   isAppLoaded: false,
   progress: 0,
@@ -77,7 +75,6 @@ interface GLTFNodes extends GLTF {
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { cameraConfig } = useLoadingWorkerStore()
   const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
-  const camera = useThree((state) => state.camera) as PerspectiveCameraType
 
   const solid = useMemo(() => {
     const solid = nodes.SM_Solid

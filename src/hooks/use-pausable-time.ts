@@ -72,14 +72,6 @@ export const usePausableTime = () => {
 }
 
 /**
- * Legacy support for existing components - returns only the time reference
- * @deprecated Use usePausableTime().time instead
- */
-export const usePausableTimeRef = () => {
-  return usePausableTime().time
-}
-
-/**
  * Hook for components that need to run frame updates with proper pausing
  * Uses the locally managed time rather than global time
  *
