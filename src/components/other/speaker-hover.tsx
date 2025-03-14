@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react"
 import { ShaderMaterial } from "three"
 
+import { useCurrentTrackName } from "@/hooks/use-background-music"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSkipTrack } from "@/hooks/use-skip-track"
-import { useCurrentTrackName } from "@/hooks/use-website-ambience"
 
 import fragmentShader from "../routing-element/frag.glsl"
 import vertexShader from "../routing-element/vert.glsl"
