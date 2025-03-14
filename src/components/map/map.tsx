@@ -87,8 +87,8 @@ type SceneType = Object3D<Object3DEventMap> | null
 
 export const Map = memo(() => {
   const {
-    modelWithNormals,
-    modelNoNormals,
+    officeItems,
+    office,
     outdoor: outdoorPath,
     godrays: godraysPath,
     basketballNet: basketballNetPath,
@@ -104,11 +104,9 @@ export const Map = memo(() => {
   const firstRender = useRef(true)
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
-  const { scene: officeModel } = useGLTF(
-    modelNoNormals
-  ) as unknown as GLTFResult
-  const { scene: officeModelWithNormals } = useGLTF(
-    modelWithNormals
+  const { scene: officeModel } = useGLTF(office) as unknown as GLTFResult
+  const { scene: officeItemsModel } = useGLTF(
+    officeItems
   ) as unknown as GLTFResult
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
@@ -346,7 +344,7 @@ export const Map = memo(() => {
     }
 
     officeModel.traverse((child) => traverse(child))
-    officeModelWithNormals.traverse((child) => traverse(child))
+    officeItemsModel.traverse((child) => traverse(child))
     routingElementsModel.traverse((child) => traverse(child, { FOG: false }))
     outdoorModel.traverse((child) => traverse(child, { FOG: false }))
     godrayModel.traverse((child) => traverse(child, { GODRAY: true }))
@@ -398,9 +396,7 @@ export const Map = memo(() => {
       const inspectableMeshes: Mesh[] = []
 
       inspectableAssets.forEach(({ mesh: meshName }) => {
-        const mesh = officeModelWithNormals.getObjectByName(
-          meshName
-        ) as Mesh | null
+        const mesh = officeItemsModel.getObjectByName(meshName) as Mesh | null
         if (mesh) {
           mesh.userData.position = {
             x: mesh.position.x,
@@ -520,7 +516,7 @@ export const Map = memo(() => {
     }
 
     disableRaycasting(officeModel)
-    disableRaycasting(officeModelWithNormals)
+    disableRaycasting(officeItemsModel)
     disableRaycasting(outdoorModel)
     disableRaycasting(godrayModel)
     disableRaycasting(outdoorCarsModel)
@@ -551,7 +547,7 @@ export const Map = memo(() => {
   return (
     <group>
       <primitive object={officeScene} />
-      <primitive object={officeModelWithNormals} />
+      <primitive object={officeItemsModel} />
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
       <ArcadeScreen />
