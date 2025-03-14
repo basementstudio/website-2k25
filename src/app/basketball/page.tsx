@@ -1,5 +1,6 @@
 "use client"
 
+import type { Metadata } from "next"
 import { Geist_Mono } from "next/font/google"
 
 import { ArcadeNameInput } from "@/components/basketball/arcade-name-input"

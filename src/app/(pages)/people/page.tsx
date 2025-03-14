@@ -1,10 +1,16 @@
 import { Pump } from "basehub/react-pump"
+import type { Metadata } from "next"
 
 import { Crew } from "./crew"
 import { Hero } from "./hero"
 import { OpenPositions } from "./open-positions"
 import { careersQuery } from "./query"
 import { Values } from "./values"
+
+export const metadata: Metadata = {
+  title: "People",
+  description: "Our people"
+}
 
 const About = () => (
   <Pump queries={[careersQuery]}>
