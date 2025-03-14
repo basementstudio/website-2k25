@@ -11,15 +11,40 @@ const MusicToggle = ({
   visualState?: boolean
 }) => {
   const svgRef = useRef<SVGSVGElement>(null)
+  const animationsRef = useRef<Array<{ cancel: () => void }>>([])
+
+  // Clean up animations when component unmounts
+  useEffect(() => {
+    return () => {
+      // Cancel any ongoing animations
+      if (animationsRef.current.length > 0) {
+        animationsRef.current.forEach((animation) => {
+          if (animation && typeof animation.cancel === "function") {
+            animation.cancel()
+          }
+        })
+        animationsRef.current = []
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (!svgRef.current) return
 
+    if (animationsRef.current.length > 0) {
+      animationsRef.current.forEach((animation) => {
+        if (animation && typeof animation.cancel === "function") {
+          animation.cancel()
+        }
+      })
+      animationsRef.current = []
+    }
+
     const bars = Array.from(svgRef.current.querySelectorAll("rect"))
-    const animations: Array<{ cancel: () => void }> = []
 
     if (visualState) {
-      bars.forEach((bar, index) => {
+      // Music is on - animate the bars
+      bars.forEach((bar) => {
         const maxHeight = Math.floor(Math.random() * 5) + 8
 
         const middleY = 7.5 - 1
@@ -57,21 +82,14 @@ const MusicToggle = ({
           }
         )
 
-        animations.push(heightAnimation)
-        animations.push(yAnimation)
+        animationsRef.current.push(heightAnimation)
+        animationsRef.current.push(yAnimation)
       })
     } else {
+      // Music is off - reset bars to flat state
       bars.forEach((bar) => {
         bar.setAttribute("height", "2")
         bar.setAttribute("y", String(7.5 - 1))
-      })
-    }
-
-    return () => {
-      animations.forEach((animation) => {
-        if (animation && typeof animation.cancel === "function") {
-          animation.cancel()
-        }
       })
     }
   }, [visualState])

@@ -58,17 +58,24 @@ export const NavbarContent = memo(
     const [hasInteracted, setHasInteracted] = useState(false)
     const scene = useCurrentScene()
 
+    // Track first user interaction and trigger audio
     useEffect(() => {
       const trackFirstInteraction = () => {
-        setHasInteracted(true)
+        // Only proceed if we haven't already recorded an interaction
+        if (!hasInteracted) {
+          console.log("First interaction detected - triggering audio")
+          setHasInteracted(true)
 
-        window.dispatchEvent(new Event("firstInteraction"))
+          // Dispatch event to trigger audio system
+          window.dispatchEvent(new Event("firstInteraction"))
+        }
       }
 
-      window.addEventListener("click", trackFirstInteraction, { once: true })
-      window.addEventListener("keydown", trackFirstInteraction, { once: true })
+      // Listen for any user interaction
+      window.addEventListener("click", trackFirstInteraction, { once: false })
+      window.addEventListener("keydown", trackFirstInteraction, { once: false })
       window.addEventListener("touchstart", trackFirstInteraction, {
-        once: true
+        once: false
       })
 
       return () => {
@@ -76,7 +83,7 @@ export const NavbarContent = memo(
         window.removeEventListener("keydown", trackFirstInteraction)
         window.removeEventListener("touchstart", trackFirstInteraction)
       }
-    }, [])
+    }, [hasInteracted])
 
     useEffect(
       () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
@@ -136,7 +143,7 @@ const DesktopContent = memo(
 
     // If hasInteracted is true and music preference is on, then visualState should be true
     // Otherwise, visualState should be false initially until interaction
-    const visualState = hasInteracted ? music : false
+    const visualState = hasInteracted && music
 
     return (
       <>

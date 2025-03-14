@@ -67,18 +67,9 @@ export function useInitializeAudioContext(element?: HTMLElement) {
     const unlock = () => {
       if (!player) {
         const newPlayer = new WebAudioPlayer()
-        const savedMusicPreference = localStorage.getItem("music-enabled")
 
-        // If user has a saved preference, apply it. Default to enabled (1) for first-time visitors.
-        const isMusicEnabled =
-          savedMusicPreference === null ? true : savedMusicPreference === "true"
-        newPlayer.volume = isMusicEnabled ? 1 : 0
-
-        if (savedMusicPreference === null) {
-          // First time visitor
-          localStorage.setItem("music-enabled", "true") // Default to enabled
-          window.dispatchEvent(new Event("firstInteraction"))
-        }
+        // Initialize with volume 0 until first interaction
+        newPlayer.volume = 0
 
         useSiteAudioStore.setState({ player: newPlayer })
       } else {
@@ -298,42 +289,30 @@ export function useSiteAudio(): SiteAudioHook {
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
   const ostSong = useSiteAudioStore((s) => s.ostSong)
 
-  // Initialize state with defaults, but we'll update from localStorage immediately after mount
-  const [music, setMusic] = useState(false)
-  const [volumeMaster, _setVolumeMaster] = useState(0)
+  // Initialize state with defaults
+  const [music, setMusic] = useState(true) // Music is ON by default
+  const [hasInteracted, setHasInteracted] = useState(false)
+  const [volumeMaster, _setVolumeMaster] = useState(0) // But volume is 0 until interaction
 
-  // Load preferences after mount
+  // Track first interaction
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    const savedMusicPreference = localStorage.getItem("music-enabled")
+    const handleFirstInteraction = () => {
+      setHasInteracted(true)
 
-    // First time visitor (no saved preference)
-    if (savedMusicPreference === null) {
-      const handleFirstInteraction = () => {
-        setMusic(true)
-        _setVolumeMaster(1)
-
-        if (player) {
-          player.setMusicAndGameVolume(1)
-        }
-
-        localStorage.setItem("music-enabled", "true")
-      }
-
-      window.addEventListener("firstInteraction", handleFirstInteraction)
-      return () =>
-        window.removeEventListener("firstInteraction", handleFirstInteraction)
-    } else {
-      // Returning visitor - apply saved preference
-      const isMusicEnabled = savedMusicPreference === "true"
-      setMusic(isMusicEnabled)
-      _setVolumeMaster(isMusicEnabled ? 1 : 0)
+      // Ensure music is on and volume is set to 1 after first interaction
+      setMusic(true)
+      _setVolumeMaster(1)
 
       if (player) {
-        player.setMusicAndGameVolume(isMusicEnabled ? 1 : 0)
+        player.setMusicAndGameVolume(1)
       }
     }
+
+    window.addEventListener("firstInteraction", handleFirstInteraction)
+    return () =>
+      window.removeEventListener("firstInteraction", handleFirstInteraction)
   }, [player])
 
   // Monitor ostSong changes to ensure proper audio state
@@ -371,8 +350,6 @@ export function useSiteAudio(): SiteAudioHook {
     if (player) {
       player.setMusicAndGameVolume(newVolume)
     }
-
-    localStorage.setItem("music-enabled", newState ? "true" : "false")
   }, [music, player])
 
   const setVolumeMaster = useCallback(
@@ -383,7 +360,6 @@ export function useSiteAudio(): SiteAudioHook {
 
       _setVolumeMaster(volume)
       setMusic(volume > 0)
-      localStorage.setItem("music-enabled", volume > 0 ? "true" : "false")
     },
     [player]
   )
