@@ -24,6 +24,16 @@ export const characterFragment = fragmentOn("Characters", {
 })
 
 export const mapFragment = fragmentOn("Map", {
+  modelNoNormals: {
+    file: {
+      url: true
+    }
+  },
+  modelWithNormals: {
+    file: {
+      url: true
+    }
+  },
   officeV2: modelsItemFragment,
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
