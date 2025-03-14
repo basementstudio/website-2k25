@@ -14,6 +14,7 @@ export type UpdateCameraCallback = (
 interface AppLoadingState {
   isCanvasInPage: boolean
   showLoadingCanvas: boolean
+  offscreenCanvasReady: boolean
   worker: Worker | null
   setMainAppRunning: (isAppLoaded: boolean) => void
 }
@@ -23,6 +24,10 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
 
   const store: AppLoadingState = {
     isCanvasInPage: false,
+    /**
+     * Used to check if the offscreen canvas is ready
+     */
+    offscreenCanvasReady: false,
     /**
      * Used to show/hide loading canvas
      */
