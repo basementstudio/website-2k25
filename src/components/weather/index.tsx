@@ -1,17 +1,9 @@
 import { useTexture } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { useMemo } from "react"
-import {
-  Color,
-  Matrix3,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  RepeatWrapping,
-  Texture,
-  Vector3
-} from "three"
+import { Color, Matrix3, MeshStandardMaterial, RepeatWrapping } from "three"
 
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
@@ -60,32 +52,32 @@ export function Weather() {
     rain.visible = false
   }
 
-  useFrame(({ clock }, delta) => {
+  useFrameCallback((_, delta, elapsedTime) => {
     const matClose = rainMaterialClose.uniforms.alphaMapTransform
       .value as Matrix3
 
     const closeRepeat = 2
-    const closeOffsetY = clock.getElapsedTime() * 1.5
+    const closeOffsetY = elapsedTime * 1.5
     matClose.setUvTransform(0, closeOffsetY, closeRepeat, closeRepeat, 0, 0, 0)
 
     const matFar = rainMaterialFar.uniforms.alphaMapTransform.value as Matrix3
 
     const farRepeat = 4
-    const farOffsetY = clock.getElapsedTime() * 3
+    const farOffsetY = elapsedTime * 3
     matFar.setUvTransform(0, farOffsetY, farRepeat, farRepeat, 0, 0, 0)
   })
 
   return (
     <>
-      <mesh position={[3, 3, -2]} rotation-y={Math.PI} rotation-z={0.3}>
+      <mesh position={[3, 3, -2]} rotation-y={Math.PI} rotation-z={-0.15}>
         <planeGeometry args={[6, 6]} />
         <primitive object={rainMaterialClose} attach="material" />
       </mesh>
-      <mesh position={[0, 5, 2]} rotation-y={Math.PI} rotation-z={0.3}>
+      <mesh position={[0, 5, 2]} rotation-y={Math.PI} rotation-z={-0.15}>
         <planeGeometry args={[10, 10]} />
         <primitive object={rainMaterialFar} attach="material" />
       </mesh>
-      <mesh position={[1, 5, 5]} rotation-y={Math.PI} rotation-z={0.3}>
+      <mesh position={[1, 5, 5]} rotation-y={Math.PI} rotation-z={-0.15}>
         <planeGeometry args={[10, 10]} />
         <primitive object={rainMaterialFar} attach="material" />
       </mesh>
