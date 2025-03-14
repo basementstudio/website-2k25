@@ -132,7 +132,6 @@ export const Scene = () => {
               }
             />
           </AnimationController>
-          <Preload all />
         </Canvas>
       </div>
       <MouseTracker />
