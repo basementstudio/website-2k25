@@ -98,7 +98,7 @@ export const Filters = memo(
         </div>
 
         <div className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13">
-          <p className="text-p text-brand-g1">Filters</p>
+          <p className="text-p text-brand-g1">Categories</p>
 
           <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {categories.map((category) => (

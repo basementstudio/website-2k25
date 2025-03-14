@@ -133,6 +133,23 @@ export default {
             letterSpacing: "-0.02em",
             fontWeight: "500"
           }
+        ],
+        // TODO: Update to use the new font
+        "f-h0": [
+          "6.125rem",
+          {
+            lineHeight: "5.5rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h0-mobile": [
+          "2.875rem",
+          {
+            lineHeight: "2.75rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
         ]
       },
       spacing: {
