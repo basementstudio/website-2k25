@@ -10,9 +10,7 @@ import {
 } from "@/lib/audio/constants"
 
 export enum BackgroundAudioType {
-  AMBIENCE = "ambience",
-  BASKETBALL = "basketball",
-  KONAMI = "konami"
+  AMBIENCE = "ambience"
 }
 
 export type SiteAudioSFXKey =
@@ -146,7 +144,7 @@ function SiteAudioSFXsLoaderInner(): null {
             const audioKey = key as SiteAudioSFXKey
             const source = await player.loadAudioFromURL(
               GAME_AUDIO_SFX[audioKey as keyof typeof GAME_AUDIO_SFX],
-              true // Mark as SFX
+              true
             )
             source.setVolume(SFX_VOLUME)
             newSources[audioKey] = source

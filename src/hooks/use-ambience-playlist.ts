@@ -1,3 +1,4 @@
+import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
 import { Playlist } from "@/lib/audio"
@@ -23,7 +24,9 @@ export function useAmbiencePlaylist() {
   const { AMBIENCE } = useAudioUrls()
 
   const scene = useCurrentScene()
-  const isBasketballScene = scene === "basketball"
+  const pathname = usePathname()
+  // TODO: find out why this condition works, but scene === "basketball" does not
+  const isBasketballScene = pathname === "/basketball"
   const isInGame = useArcadeStore((state) => state.isInGame)
   const gameCondition = isInGame && scene === "lab"
   const shouldMuteAmbience = isBasketballScene || gameCondition
@@ -155,12 +158,7 @@ export function useAmbiencePlaylist() {
 
   // Mute/unmute effect
   useEffect(() => {
-    if (
-      !player ||
-      !ambiencePlaylist ||
-      activeTrackType !== BackgroundAudioType.AMBIENCE
-    )
-      return
+    if (!player || !ambiencePlaylist) return
 
     // Define fade duration
     const fadeTime = 1 // seconds
@@ -192,14 +190,7 @@ export function useAmbiencePlaylist() {
     }
 
     return () => {}
-  }, [
-    scene,
-    shouldMuteAmbience,
-    isInGame,
-    player,
-    ambiencePlaylist,
-    activeTrackType
-  ])
+  }, [scene, shouldMuteAmbience, isInGame, player, ambiencePlaylist])
 
   return {
     ambiencePlaylist,
