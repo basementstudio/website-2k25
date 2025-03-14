@@ -139,6 +139,10 @@ export interface AssetsResult {
     textureFaces: string
     textureArms: string
   }
+  pets: {
+    model: string
+    texture: string
+  }
   lamp: {
     extraLightmap: string
   }
@@ -303,6 +307,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
       textureBody: threeDInteractions.characters.textureBody?.url,
       textureFaces: threeDInteractions.characters.textureFaces.url,
       textureArms: threeDInteractions.characters.textureArms.url
+    },
+    pets: {
+      model: threeDInteractions.characters.petModel.file.url,
+      texture: threeDInteractions.characters.petTexture.url
     },
     outdoorCars: {
       model: threeDInteractions.outdoorCars.model?.file?.url ?? ""

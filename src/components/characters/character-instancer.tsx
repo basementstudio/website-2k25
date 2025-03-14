@@ -157,8 +157,6 @@ function CharacterInstanceConfigInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textureBody, textureFaces, nodes])
 
-  console.log(animations.map((animation) => animation.name))
-
   return (
     <>
       <CharacterInstancedMesh
