@@ -153,11 +153,9 @@ export const Map = memo(() => {
     return () => tl.current?.stop()
   }, [selected])
 
-  useFrameCallback(({ clock }) => {
-    timeRef.current = clock.getElapsedTime()
-
+  useFrameCallback((_, delta) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
-      material.uniforms.uTime.value = clock.getElapsedTime()
+      material.uniforms.uTime.value += delta
 
       material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
@@ -165,8 +163,7 @@ export const Map = memo(() => {
 
     if (useMesh.getState().cctv?.screen?.material) {
       // @ts-ignore
-      useMesh.getState().cctv.screen.material.uniforms.uTime.value =
-        clock.getElapsedTime()
+      useMesh.getState().cctv.screen.material.uniforms.uTime.value += delta
     }
   })
 
