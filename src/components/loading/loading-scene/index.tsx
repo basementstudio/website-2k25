@@ -190,7 +190,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
    * Another approach, camera just appears there
    * */
   const updated = useRef(false)
-  useFrameCallback(({ camera: C }, __, elapsedTime) => {
+  useFrameCallback(({ camera: C, scene }, __, elapsedTime) => {
     renderCount.current++
     const time = elapsedTime
 
