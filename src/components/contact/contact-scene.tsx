@@ -73,22 +73,23 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   // add materials
   useEffect(() => {
-    if (!scene) return
+    if (!scene || !animations.length) return
 
     scene.traverse((node) => {
-      if (!(node instanceof Mesh) || !node.material || node.name === "SCREEN")
-        return
-
       node.frustumCulled = false
-      const oldMaterial = node.material
-      const basicMaterial = new MeshBasicMaterial({
-        color: "color" in oldMaterial ? oldMaterial.color : undefined,
-        map: "map" in oldMaterial ? oldMaterial.map : undefined
-      })
 
-      node.material = basicMaterial
+      if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
+        const oldMaterial = node.material
+        const basicMaterial = new MeshBasicMaterial()
+
+        if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
+        if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
+        if ("opacity" in oldMaterial)
+          basicMaterial.opacity = oldMaterial.opacity
+        node.material = basicMaterial
+      }
     })
-  }, [scene])
+  }, [scene, animations])
 
   // handle open
   useEffect(() => {

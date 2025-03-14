@@ -12,7 +12,6 @@ const ContactCanvas = () => {
   const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
-  const isAnimating = useContactStore((state) => state.isAnimating)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
   const setIsIntroComplete = useContactStore(
     (state) => state.setIsIntroComplete
