@@ -97,6 +97,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
   const sentMessage = useRef(false)
 
+  // Fade out canvas
   useFrame((_, delta) => {
     if (!isAppLoaded) return
 
@@ -200,7 +201,8 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       lines.visible = Math.sin(time * 50) > 0
       ;(lines.material as any).uniforms.uOpacity.value = 0.3
     } else {
-      lines.visible = true
+      // remove lines when app is loaded
+      lines.visible = !isAppLoaded
       ;(lines.material as any).uniforms.uOpacity.value = 0.6
     }
 
