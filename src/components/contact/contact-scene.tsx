@@ -22,6 +22,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const phoneGroupRef = useRef<Group>(null)
   const idleTimeRef = useRef<number>(0)
   const tmp = new Vector3()
+  const camera = useThree((state) => state.camera)
 
   // add mixer ref
   useEffect(() => {
@@ -45,25 +46,19 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       anim.play()
 
       // notify parent when animation is complete
-      if (animName === "Outro-v2") {
-        const onAnimationFinished = () => {
+      const onAnimationFinished = () => {
+        setIsAnimating(false)
+        mixer.removeEventListener("finished", onAnimationFinished)
+
+        if (animName === "Outro-v2") {
           self.postMessage({ type: "outro-complete" })
-          setIsAnimating(false)
           setIsContactOpen(false)
-          mixer.removeEventListener("finished", onAnimationFinished)
+        } else if (animName === "Intro.001") {
+          setIsContactOpen(true)
+          self.postMessage({ type: "intro-complete" })
         }
-        mixer.addEventListener("finished", onAnimationFinished)
-      } else {
-        const onAnimationFinished = () => {
-          setIsAnimating(false)
-          if (animName === "Intro.001") {
-            setIsContactOpen(true)
-            self.postMessage({ type: "intro-complete" })
-          }
-          mixer.removeEventListener("finished", onAnimationFinished)
-        }
-        mixer.addEventListener("finished", onAnimationFinished)
       }
+      mixer.addEventListener("finished", onAnimationFinished)
     },
     [actions, mixer]
   )
@@ -98,7 +93,9 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   // handle open
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
-      if (e.data.type === "update-contact-open") {
+      const { type, isContactOpen: newIsOpen } = e.data
+
+      if (type === "update-contact-open") {
         if (isAnimating) {
           self.postMessage({
             type: "animation-rejected",
@@ -107,35 +104,27 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
           return
         }
 
-        if (e.data.isContactOpen === isContactOpen) {
-          return
-        }
+        if (newIsOpen === isContactOpen) return
 
-        if (e.data.isContactOpen && !isContactOpen) {
+        if (newIsOpen && !isContactOpen) {
           runIntro()
-        } else if (!e.data.isContactOpen && isContactOpen) {
+        } else if (!newIsOpen && isContactOpen) {
           self.postMessage({ type: "start-outro" })
         }
-      }
-
-      if (e.data.type === "scale-animation-complete") {
-        self.postMessage({ type: "scale-animation-complete" })
-      }
-
-      if (e.data.type === "scale-down-animation-complete") {
-        self.postMessage({ type: "scale-down-animation-complete" })
-      }
-
-      if (e.data.type === "run-outro-animation") {
+      } else if (type === "run-outro-animation") {
         runOutro()
+      } else if (
+        ["scale-animation-complete", "scale-down-animation-complete"].includes(
+          type
+        )
+      ) {
+        self.postMessage({ type })
       }
     }
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
   }, [runIntro, runOutro, isAnimating, isContactOpen])
-
-  const camera = useThree((state) => state.camera)
 
   useFrame((_, delta) => {
     if (isContactOpen) {
