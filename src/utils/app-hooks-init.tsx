@@ -1,6 +1,6 @@
 "use client"
 
-import { AssetsResult } from "@/components/assets-provider/fetch-assets"
+import type { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useBasketballThemeSong } from "@/hooks/use-basketball-themesong"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useKonamiSong } from "@/hooks/use-konami-song"
