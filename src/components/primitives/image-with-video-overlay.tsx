@@ -30,12 +30,11 @@ export const ImageWithVideoOverlay = ({
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const cleanupRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
   }, [])
 
@@ -62,11 +61,6 @@ export const ImageWithVideoOverlay = ({
     if (videoRef.current) {
       videoRef.current.pause()
     }
-
-    setTimeout(() => {
-      // clean up memory
-      setShouldLoadVideo(false)
-    }, 5000)
   }
 
   return (
@@ -84,14 +78,14 @@ export const ImageWithVideoOverlay = ({
         alt={image.alt ?? ""}
         width={variant === "showcase" ? (firstItem ? 960 : 480) : undefined}
         height={variant === "showcase" ? (firstItem ? 540 : 270) : undefined}
-        fill={variant === "home" ? true : false}
+        fill={variant === "home"}
         sizes={
           variant === "home"
             ? `(max-width: 1024px) ${firstItem ? "25vw" : "50vw"}, 90vw`
             : undefined
         }
         blurDataURL={image?.blurDataURL ?? ""}
-        className="object-cover"
+        className="h-full w-full object-cover"
         priority={firstItem}
       />
 
