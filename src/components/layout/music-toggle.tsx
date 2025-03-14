@@ -1,16 +1,27 @@
 import { animate } from "motion"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { cn } from "@/utils/cn"
 
 const MusicToggle = ({ music }: { music: boolean }) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const animationsRef = useRef<Array<{ cancel: () => void }>>([])
+  const [hasUserInteracted, setHasUserInteracted] = useState(false)
 
-  // Clean up animations when component unmounts
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      setHasUserInteracted(true)
+    }
+
+    document.addEventListener("click", handleFirstInteraction, { once: true })
+
+    return () => {
+      document.removeEventListener("click", handleFirstInteraction)
+    }
+  }, [])
+
   useEffect(() => {
     return () => {
-      // Cancel any ongoing animations
       if (animationsRef.current.length > 0) {
         animationsRef.current.forEach((animation) => {
           if (animation && typeof animation.cancel === "function") {
@@ -36,8 +47,7 @@ const MusicToggle = ({ music }: { music: boolean }) => {
 
     const bars = Array.from(svgRef.current.querySelectorAll("rect"))
 
-    if (music) {
-      // Music is on - animate the bars
+    if (hasUserInteracted && music) {
       bars.forEach((bar) => {
         const maxHeight = Math.floor(Math.random() * 5) + 8
 
@@ -80,19 +90,18 @@ const MusicToggle = ({ music }: { music: boolean }) => {
         animationsRef.current.push(yAnimation)
       })
     } else {
-      // Music is off - reset bars to flat state
       bars.forEach((bar) => {
         bar.setAttribute("height", "2")
         bar.setAttribute("y", String(7.5 - 1))
       })
     }
-  }, [music])
+  }, [music, hasUserInteracted])
 
   return (
     <span
       className={cn(
         "inline-block w-6 text-left",
-        music ? "text-brand-w1" : "text-brand-g1"
+        hasUserInteracted && music ? "text-brand-w1" : "text-brand-g1"
       )}
     >
       <svg
