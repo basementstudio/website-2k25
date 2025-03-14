@@ -1,6 +1,7 @@
-import { useFrame } from "@react-three/fiber"
 import { memo, useRef } from "react"
-import { Color, Group } from "three"
+import type { Color, Group } from "three"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { Character } from "."
 import { CharacterAnimationName } from "./character-instancer"
@@ -10,7 +11,7 @@ export const CharactersSpawn = memo(CharactersSpawnInner)
 function CharactersSpawnInner() {
   const spinningTatoRef = useRef<Group>(null)
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (spinningTatoRef.current) {
       spinningTatoRef.current.rotation.y += 0.01
     }

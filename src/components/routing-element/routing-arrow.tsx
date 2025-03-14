@@ -1,6 +1,8 @@
-import { useFrame, useThree } from "@react-three/fiber"
+import { useThree } from "@react-three/fiber"
 import { useRef } from "react"
-import { Mesh } from "three"
+import type { Mesh } from "three"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 export const RoutingArrow = ({
   position,
@@ -14,7 +16,7 @@ export const RoutingArrow = ({
   const meshRef = useRef<Mesh | null>(null)
   const camera = useThree((state) => state.camera)
 
-  useFrame((state) => {
+  useFrameCallback((state) => {
     if (meshRef.current) {
       meshRef.current.quaternion.copy(camera.quaternion)
       meshRef.current.rotateZ(rotation?.[2] ?? 0)

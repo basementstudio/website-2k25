@@ -1,20 +1,21 @@
-import { useFrame } from "@react-three/fiber"
 import { forwardRef, useEffect, useMemo, useRef } from "react"
 import {
-  AnimationClip,
+  type AnimationClip,
   Group,
-  Material,
+  type Material,
   Matrix4,
   MeshStandardMaterial,
   Quaternion,
-  SkinnedMesh,
+  type SkinnedMesh,
   Vector3
 } from "three"
 import { create } from "zustand"
 
+import { useFrameCallback } from "@/hooks/use-pausable-time"
+
 import {
   InstancedBatchedSkinnedMesh,
-  InstancedUniformParams
+  type InstancedUniformParams
 } from "./instanced-skinned-mesh"
 
 type GroupProps = React.ComponentProps<"group">
@@ -136,7 +137,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
 
     const instancedMesh = useInstancedMesh((state) => state.instancedMesh)
 
-    useFrame((_, delta) => {
+    useFrameCallback((_, delta) => {
       if (!instancedMesh) return
 
       // play animations
@@ -254,13 +255,13 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       if (id === null) return
 
       if (uniforms) {
-        Object.entries(uniforms).forEach(([name, value]) => {
+        for (const [name, value] of Object.entries(uniforms)) {
           instancedMesh.setInstanceUniform(id, name, value.value)
-        })
+        }
       }
     }, [instancedMesh, uniforms])
 
-    useFrame(() => {
+    useFrameCallback(() => {
       // update instance position
       if (instanceId.current === null) return
       if (!instancedMesh) return

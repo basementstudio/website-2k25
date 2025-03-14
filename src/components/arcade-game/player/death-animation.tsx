@@ -1,7 +1,8 @@
 import { createInstances } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
-import { ComponentRef, useMemo, useRef } from "react"
-import { Color, Vector3 } from "three"
+import { type ComponentRef, useMemo, useRef } from "react"
+import { Color, type Vector3 } from "three"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 const [ParticlesInstnaces, ParticleInstance] = createInstances()
 
@@ -44,7 +45,7 @@ export function DeathAnimation() {
     null
   )
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (!instancesRef.current) return
 
     particles.forEach((particle, index) => {

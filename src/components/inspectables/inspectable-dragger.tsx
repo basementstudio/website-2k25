@@ -2,12 +2,14 @@
 // but using motion instead of spring as animation library.
 // https://github.com/pmndrs/drei/blob/master/src/web/PresentationControls.tsx
 
-import { useCursor } from "@/hooks/use-mouse"
-import { useFrame, useThree } from "@react-three/fiber"
+import { useThree } from "@react-three/fiber"
 import { useGesture } from "@use-gesture/react"
 import { useMotionValue, useSpring } from "motion/react"
 import * as React from "react"
-import { Group, MathUtils } from "three"
+import { type Group, MathUtils } from "three"
+
+import { useCursor } from "@/hooks/use-mouse"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 export type InspectableDraggerProps = {
   snap?: boolean
@@ -123,7 +125,7 @@ export const InspectableDragger = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled])
 
-  useFrame(() => {
+  useFrameCallback(() => {
     ref.current?.rotation.set(
       rotationXSpring.get(),
       rotationYSpring.get() - Math.PI / 2,

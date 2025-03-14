@@ -1,4 +1,4 @@
-import { createPortal, useFrame } from "@react-three/fiber"
+import { createPortal } from "@react-three/fiber"
 import { memo, useEffect, useId, useMemo, useRef } from "react"
 import {
   HalfFloatType,
@@ -16,6 +16,7 @@ import {
 
 import { useContactStore } from "@/components/contact/contact-store"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { doubleFbo } from "@/utils/double-fbo"
 
 import { PostProcessing } from "./post-processing"
@@ -76,7 +77,7 @@ function RendererInner({ sceneChildren }: RendererProps) {
     return () => window.removeEventListener("resize", resizeCallback)
   }, [mainTarget])
 
-  useFrame(({ gl }) => {
+  useFrameCallback(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return
     if (isContactOpen) return
 

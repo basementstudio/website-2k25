@@ -1,12 +1,15 @@
 import { OrthographicCamera } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef } from "react"
-import { OrthographicCamera as ThreeOrthographicCamera, Texture } from "three"
+import type {
+  OrthographicCamera as ThreeOrthographicCamera,
+  Texture
+} from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
 import { revealOpacityMaterials } from "../map/bakes"
@@ -98,7 +101,7 @@ const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene])
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (!hasChanged.current) {
       material.uniforms.uContrast.value = targets.contrast.get()
       material.uniforms.uBrightness.value = targets.brightness.get()
@@ -141,7 +144,7 @@ const Inner = ({ mainTexture, cameraRef }: PostProcessingProps) => {
     return () => controller.abort()
   }, [mainTexture])
 
-  useFrame(({ clock }) => {
+  useFrameCallback(({ clock }) => {
     material.uniforms.uTime.value = clock.elapsedTime
   })
 

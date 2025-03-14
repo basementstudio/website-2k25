@@ -1,5 +1,5 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
-import { extend, useFrame, useLoader, useThree } from "@react-three/fiber"
+import { extend, useLoader, useThree } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
@@ -12,6 +12,7 @@ import { useInspectable } from "@/components/inspectables/context"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
@@ -135,7 +136,7 @@ export const Lamp = () => {
     }
   }, [selected])
 
-  useFrame((state) => {
+  useFrameCallback((state) => {
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera)
       dir.copy(vec).sub(state.camera.position).normalize()

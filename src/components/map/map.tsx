@@ -1,20 +1,19 @@
 "use client"
 
 import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
-import { AnimationPlaybackControls } from "motion/react"
+import type { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import {
   Mesh,
-  MeshStandardMaterial,
-  Object3D,
-  Object3DEventMap,
+  type MeshStandardMaterial,
+  type Object3D,
+  type Object3DEventMap,
   Vector3
 } from "three"
 import * as THREE from "three"
-import { GLTF } from "three/examples/jsm/Addons.js"
+import type { GLTF } from "three/examples/jsm/Addons.js"
 
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"

@@ -1,9 +1,9 @@
 import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { Mesh, MeshStandardMaterial, Vector3 } from "three"
+import { useEffect, useMemo, useRef } from "react"
+import type { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 
@@ -85,7 +85,7 @@ export const PlayedBasketballs = () => {
     }
   }, [isGameActive])
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (isUnmounting.current) return
 
     rigidBodies.current.forEach((rigidBody, index) => {
@@ -134,7 +134,7 @@ export const PlayedBasketballs = () => {
     })
   })
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (isUnmounting.current || isGameActive) return
 
     frameCounter.current++

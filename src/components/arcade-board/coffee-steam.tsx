@@ -1,5 +1,4 @@
 import { useTexture } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { useEffect, useMemo } from "react"
 import { RepeatWrapping } from "three"
 
