@@ -38,6 +38,7 @@ import {
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
 import { SpeakerHover } from "../other/speaker-hover"
+import { Weather } from "../weather"
 import { BakesLoader } from "./bakes"
 import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
@@ -390,6 +391,16 @@ export const Map = memo(() => {
       })
     }
 
+    const loboMarino = officeItemsModel.getObjectByName("SM_Lobo")
+    const rain = officeModel.getObjectByName("SM_Rain")
+
+    useMesh.setState({
+      weather: {
+        loboMarino: loboMarino as Mesh,
+        rain: rain as Mesh
+      }
+    })
+
     const inspectables = useMesh.getState().inspectableMeshes
 
     if (inspectables.length === 0) {
@@ -591,6 +602,7 @@ export const Map = memo(() => {
       {net && net instanceof THREE.Mesh && <Net mesh={net} />}
       <BakesLoader />
       <ReflexesLoader />
+      <Weather />
     </group>
   )
 })

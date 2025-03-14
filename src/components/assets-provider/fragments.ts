@@ -94,6 +94,11 @@ export const mapFragment = fragmentOn("Map", {
     file: {
       url: true
     }
+  },
+  textures: {
+    rain: {
+      url: true
+    }
   }
 })
 
