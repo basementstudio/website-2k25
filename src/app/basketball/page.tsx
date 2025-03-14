@@ -10,11 +10,6 @@ import { useMinigameStore } from "@/store/minigame-store"
 
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: "variable" })
 
-export const metadata: Metadata = {
-  title: "Basketball",
-  description: "Basketball"
-}
-
 const Basketball = () => {
   const {
     playerName,
