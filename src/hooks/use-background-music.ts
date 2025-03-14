@@ -47,21 +47,24 @@ export function useBackgroundMusic(isEnabled: boolean = false) {
   const isInGame = useArcadeStore((s) => s.isInGame)
   const { AMBIENCE, GAME_THEME_SONGS, ARCADE_AUDIO_SFX } = useAudioUrls()
 
-  const isBasketballPage = scene === "basketball"
-  const [activeTrackType, setActiveTrackType] = useState<BackgroundAudioType>(
-    BackgroundAudioType.AMBIENCE
+  const activeTrackType = useSiteAudioStore((s) => s.activeTrackType)
+  const setActiveTrackType = useSiteAudioStore((s) => s.setActiveTrackType)
+  const currentAmbienceIndex = useSiteAudioStore((s) => s.currentAmbienceIndex)
+  const setCurrentAmbienceIndex = useSiteAudioStore(
+    (s) => s.setCurrentAmbienceIndex
   )
+  const isInitialized = useSiteAudioStore((s) => s.isBackgroundInitialized)
+  const setInitialized = useSiteAudioStore((s) => s.setBackgroundInitialized)
+
+  const isBasketballPage = scene === "basketball"
 
   // References to manage audio state across renders
   const fadeOutTimeout = useRef<NodeJS.Timeout | null>(null)
-  const isInitialized = useRef(false)
   const loadedTracks = useRef<Record<BackgroundAudioType, AudioSource[]>>({
     [BackgroundAudioType.AMBIENCE]: [],
     [BackgroundAudioType.BASKETBALL]: [],
     [BackgroundAudioType.KONAMI]: []
   })
-
-  const [currentAmbienceIndex, setCurrentAmbienceIndex] = useState(0)
   const currentActiveTrack = useRef<AudioSource | null>(null)
 
   // Define available audio tracks for each category
@@ -144,8 +147,8 @@ export function useBackgroundMusic(isEnabled: boolean = false) {
     }
 
     currentActiveTrack.current = null
-    isInitialized.current = false
-  }, [stopAllTracks])
+    setInitialized(false)
+  }, [stopAllTracks, setInitialized])
 
   // Transition to the next ambient track with smooth fading
   const advanceToNextTrack = useCallback(() => {
@@ -210,7 +213,14 @@ export function useBackgroundMusic(isEnabled: boolean = false) {
     } else {
       setCurrentAmbienceIndex(nextIndex)
     }
-  }, [player, isEnabled, currentAmbienceIndex, activeTrackType, stopAllTracks])
+  }, [
+    player,
+    isEnabled,
+    currentAmbienceIndex,
+    activeTrackType,
+    stopAllTracks,
+    setCurrentAmbienceIndex
+  ])
 
   // Set up end-of-track detection to automatically advance to next track
   const setupTrackEndDetection = useCallback(
@@ -234,8 +244,8 @@ export function useBackgroundMusic(isEnabled: boolean = false) {
 
     const loadTracks = async () => {
       try {
-        if (!isInitialized.current) {
-          isInitialized.current = true
+        if (!isInitialized) {
+          setInitialized(true)
 
           stopAllTracks()
 
@@ -274,7 +284,7 @@ export function useBackgroundMusic(isEnabled: boolean = false) {
         }
       } catch (error) {
         console.error("Error loading audio tracks:", error)
-        isInitialized.current = false
+        setInitialized(false)
       }
     }
 
@@ -293,12 +303,14 @@ export function useBackgroundMusic(isEnabled: boolean = false) {
     setupTrackEndDetection,
     stopAllTracks,
     isBasketballPage,
-    isInGame
+    isInGame,
+    isInitialized,
+    setInitialized
   ])
 
   // Handle scene changes and switch audio tracks accordingly
   useEffect(() => {
-    if (!player || !isInitialized.current) return
+    if (!player || !isInitialized) return
 
     let newActiveType = BackgroundAudioType.AMBIENCE
 
@@ -396,7 +408,9 @@ export function useBackgroundMusic(isEnabled: boolean = false) {
     activeTrackType,
     currentAmbienceIndex,
     audioTracks,
-    setupTrackEndDetection
+    setupTrackEndDetection,
+    isInitialized,
+    setActiveTrackType
   ])
 
   // Expose track advancement function to window for external control

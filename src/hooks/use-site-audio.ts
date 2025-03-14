@@ -5,6 +5,8 @@ import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { SFX_VOLUME, THEME_SONG_VOLUME } from "@/lib/audio/constants"
 
+import { BackgroundAudioType } from "./use-background-music"
+
 export type SiteAudioSFXKey =
   | "BASKETBALL_THROW"
   | "BASKETBALL_NET"
@@ -31,6 +33,15 @@ interface SiteAudioStore {
   officeAmbience: AudioSource | null
   music: boolean
   setMusic: (state: boolean) => void
+  volumeMaster: number
+  setVolumeMaster: (volume: number) => void
+
+  activeTrackType: BackgroundAudioType
+  setActiveTrackType: (type: BackgroundAudioType) => void
+  currentAmbienceIndex: number
+  setCurrentAmbienceIndex: (index: number) => void
+  isBackgroundInitialized: boolean
+  setBackgroundInitialized: (initialized: boolean) => void
 }
 
 interface SiteAudioHook {
@@ -58,7 +69,20 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
   ostSong: null,
   officeAmbience: null,
   music: true,
-  setMusic: (state) => useSiteAudioStore.setState({ music: state })
+  setMusic: (state) => useSiteAudioStore.setState({ music: state }),
+  volumeMaster: 1,
+  setVolumeMaster: (volume) =>
+    useSiteAudioStore.setState({ volumeMaster: volume }),
+
+  activeTrackType: BackgroundAudioType.AMBIENCE,
+  setActiveTrackType: (type) =>
+    useSiteAudioStore.setState({ activeTrackType: type }),
+  currentAmbienceIndex: 0,
+  setCurrentAmbienceIndex: (index) =>
+    useSiteAudioStore.setState({ currentAmbienceIndex: index }),
+  isBackgroundInitialized: false,
+  setBackgroundInitialized: (initialized) =>
+    useSiteAudioStore.setState({ isBackgroundInitialized: initialized })
 }))
 
 export { useSiteAudioStore }
@@ -295,8 +319,8 @@ export function useSiteAudio(): SiteAudioHook {
 
   const music = useSiteAudioStore((s) => s.music)
   const setMusic = useSiteAudioStore((s) => s.setMusic)
-
-  const [volumeMaster, _setVolumeMaster] = useState(1)
+  const volumeMaster = useSiteAudioStore((s) => s.volumeMaster)
+  const storeSetVolumeMaster = useSiteAudioStore((s) => s.setVolumeMaster)
 
   // Initialize audio system when player is available
   useEffect(() => {
@@ -306,8 +330,8 @@ export function useSiteAudio(): SiteAudioHook {
     player.setMusicAndGameVolume(music ? 1 : 0)
 
     // Update volumeMaster to match music state
-    _setVolumeMaster(music ? 1 : 0)
-  }, [player, music])
+    storeSetVolumeMaster(music ? 1 : 0)
+  }, [player, music, storeSetVolumeMaster])
 
   // Monitor ostSong changes to ensure proper audio state
   useEffect(() => {
@@ -339,12 +363,12 @@ export function useSiteAudio(): SiteAudioHook {
     const newVolume = newState ? 1 : 0
 
     setMusic(newState)
-    _setVolumeMaster(newVolume)
+    storeSetVolumeMaster(newVolume)
 
     if (player) {
       player.setMusicAndGameVolume(newVolume)
     }
-  }, [music, player, setMusic])
+  }, [music, player, setMusic, storeSetVolumeMaster])
 
   const setVolumeMaster = useCallback(
     (volume: number) => {
@@ -352,10 +376,10 @@ export function useSiteAudio(): SiteAudioHook {
 
       player.setMusicAndGameVolume(volume)
 
-      _setVolumeMaster(volume)
+      storeSetVolumeMaster(volume)
       setMusic(volume > 0)
     },
-    [player, setMusic]
+    [player, setMusic, storeSetVolumeMaster]
   )
 
   const playSoundFX = useCallback(
