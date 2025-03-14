@@ -150,6 +150,22 @@ export default {
             letterSpacing: "-0.04em",
             fontWeight: "600"
           }
+        ],
+        "f-h1": [
+          "4.75rem",
+          {
+            lineHeight: "4.25rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h1-mobile": [
+          "2.1875rem",
+          {
+            lineHeight: "2.25rem",
+            letterSpacing: "-0.03em",
+            fontWeight: "600"
+          }
         ]
       },
       spacing: {

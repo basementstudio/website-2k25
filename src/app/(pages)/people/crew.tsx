@@ -33,9 +33,11 @@ export const Crew = ({ data }: { data: QueryType }) => {
   return (
     <section className="grid-layout mb-18 lg:mb-44">
       <div className="col-span-full -mb-6 flex items-end justify-between lg:col-start-5 lg:col-end-13">
-        <h2 className="text-mobile-h1 text-brand-w2 lg:text-h2">The Crew</h2>
-        <p className="text-mobile-h1 text-brand-g1 lg:text-h1">
-          x{data.company.people.peopleList.items.length}
+        <h2 className="text-f-h1-mobile lg:text-f-h1 text-brand-w2">
+          The Crew
+        </h2>
+        <p className="text-f-h1-mobile lg:text-f-h1 text-brand-g1">
+          {data.company.people.peopleList.items.length}
         </p>
       </div>
       <div className="hidden flex-col gap-5 lg:col-start-1 lg:col-end-5 lg:flex">

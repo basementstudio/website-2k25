@@ -13,7 +13,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
         {capabilities._title}
       </h3>
 
-      <div className="col-span-full [&_p]:text-mobile-h1 lg:[&_p]:text-h1">
+      <div className="[&_p]:text-f-h1-mobile lg:[&_p]:text-f-h1 col-span-full">
         <RichText>{capabilities.intro?.json?.content}</RichText>
       </div>
 
