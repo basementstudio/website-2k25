@@ -41,9 +41,12 @@ VoxelData getVoxel(
   float noiseSmallScale
 ) {
   vec3 voxelCenter = round(pWorld * voxelSize) / voxelSize;
-  float noiseBig = cnoise4(vec4(voxelCenter * noiseBigScale, uTime * 0.05));
-  float noiseSmall = cnoise3(voxelCenter * noiseSmallScale);
-  float edgeFactor = isEdge(voxelCenter - pWorld, voxelSize);
+
+  vec3 noiseP = voxelCenter;
+  float noiseBig = cnoise4(vec4(  noiseP * noiseBigScale, uTime * 0.05));
+  float noiseSmall = cnoise3( noiseP * noiseSmallScale);
+  // float edgeFactor = isEdge(voxelCenter - pWorld, voxelSize);
+  float edgeFactor = 0.0;
   float fillFactor = 1.0 - edgeFactor;
 
   return VoxelData(
@@ -61,7 +64,10 @@ float valueRemap(float value, float inMin, float inMax, float outMin, float outM
 }
 
 void main() {
-  VoxelData voxel = getVoxel(vWorldPosition + vec3(0.0, 0.11, 0.1), 9.2, 0.2, 10.0);
+
+  vec3 p = vWorldPosition + vec3(0.0, 0.11, 0.1);
+
+  VoxelData voxel = getVoxel(p, 18.4, 0.2, 10.0);
 
   float edgeFactor = (1. - voxel.edgeFactor);
 
@@ -76,8 +82,9 @@ void main() {
   // remap so that it leaves a trail
   colorBump = valueRemap(colorBump, 0.0, 0.1, 1.0, 0.0);
   colorBump = clamp(colorBump, 0.0, 1.0);
-  colorBump *= edgeFactor;
-  colorBump *= uReveal;
+  colorBump = pow(colorBump, 2.);
+  // colorBump *= edgeFactor;
+  colorBump *= uReveal > pow(voxel.noiseSmall * 0.5 + 0.5, 2.) ? 1.0 : 0.0;
 
   if(voxel.noiseSmall * 0.5 + 0.5 < uScreenReveal) {
     discard;
