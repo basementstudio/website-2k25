@@ -1,15 +1,22 @@
 "use client"
 
+import { AssetsResult } from "@/components/assets-provider/fetch-assets"
+import { useManageAudio } from "@/hooks/use-manage-audio"
+import { usePreloadAssets } from "@/hooks/use-preload-assets"
 import {
   SiteAudioSFXsLoader,
-  useInitializeAudioContext,
-  useSiteAudio
+  useInitializeAudioContext
 } from "@/hooks/use-site-audio"
 
-export function AppHooks(): React.JSX.Element {
-  useInitializeAudioContext()
+export function AppHooks({
+  assets
+}: {
+  assets: AssetsResult
+}): React.JSX.Element {
+  usePreloadAssets(assets)
 
-  useSiteAudio()
+  useInitializeAudioContext()
+  useManageAudio()
 
   return <SiteAudioSFXsLoader />
 }
