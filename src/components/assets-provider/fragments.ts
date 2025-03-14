@@ -65,6 +65,11 @@ export const mapFragment = fragmentOn("Map", {
   },
   doubleSideElements: {
     items: titleFragment
+  },
+  textures: {
+    rain: {
+      url: true
+    }
   }
 })
 

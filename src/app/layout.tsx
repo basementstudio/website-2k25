@@ -1,5 +1,6 @@
 import "@/styles/globals.css"
 
+import { Analytics } from "@vercel/analytics/react"
 import { Toolbar as BasehubToolbar } from "basehub/next-toolbar"
 
 import { AssetsProvider } from "@/components/assets-provider"
@@ -7,6 +8,7 @@ import { fetchAssets } from "@/components/assets-provider/fetch-assets"
 
 const Toolbar = BasehubToolbar as unknown as React.ComponentType
 
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
@@ -48,6 +50,8 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <Analytics />
+      <SpeedInsights />
       <Transitions />
       <Toolbar />
       <AssetsProvider assets={assets}>

@@ -1,5 +1,5 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
-import { useFrame, useThree } from "@react-three/fiber"
+import { useThree } from "@react-three/fiber"
 import { memo, useEffect, useMemo, useRef } from "react"
 import {
   Color,
@@ -13,6 +13,7 @@ import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
@@ -34,8 +35,6 @@ const target = new Vector3(5, 0, -25)
 const initialPosition = target
   .clone()
   .add(new Vector3(1, 1, 1).multiplyScalar(70))
-
-const p = initialPosition.clone()
 
 export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
   isAppLoaded: false,
@@ -76,7 +75,6 @@ interface GLTFNodes extends GLTF {
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { cameraConfig } = useLoadingWorkerStore()
   const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
-  const camera = useThree((state) => state.camera) as PerspectiveCameraType
 
   const solid = useMemo(() => {
     const solid = nodes.SM_Solid
@@ -86,9 +84,9 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     return solid
   }, [nodes])
 
-  useFrame(({ clock }) => {
+  useFrameCallback((_, __, elapsedTime) => {
     const material = solid.material as any
-    material.uniforms.uTime.value = clock.elapsedTime
+    material.uniforms.uTime.value = elapsedTime
   })
 
   const isAppLoaded = useLoadingWorkerStore((s) => s.isAppLoaded)
@@ -98,7 +96,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const sentMessage = useRef(false)
 
   // Fade out canvas
-  useFrame((_, delta) => {
+  useFrameCallback((_, delta) => {
     if (!isAppLoaded) return
 
     if (uScreenReveal.current < 1) {
@@ -192,9 +190,9 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
    * Another approach, camera just appears there
    * */
   const updated = useRef(false)
-  useFrame(({ camera: C, scene, clock }) => {
+  useFrameCallback(({ camera: C, scene }, __, elapsedTime) => {
     renderCount.current++
-    const time = clock.elapsedTime
+    const time = elapsedTime
 
     let r = Math.min(time * 1, 1)
     r = clamp(r, 0, 1)

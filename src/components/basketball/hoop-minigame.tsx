@@ -1,8 +1,8 @@
-import { useFrame, useThree } from "@react-three/fiber"
-import { RapierRigidBody, RigidBody } from "@react-three/rapier"
+import { useThree } from "@react-three/fiber"
+import { type RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
+import type * as THREE from "three"
 import { MathUtils, Vector2, Vector3 } from "three"
-import * as THREE from "three"
 
 import {
   handlePointerDown as utilsHandlePointerDown,
@@ -12,6 +12,7 @@ import {
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -430,7 +431,7 @@ const HoopMinigameInner = () => {
     }
   }, [isDragging, isBasketball, handlePointerUp])
 
-  useFrame(({ pointer }, delta) => {
+  useFrameCallback(({ pointer }, delta) => {
     if (!isBasketball) return
 
     if (isDragging && ballRef.current) {

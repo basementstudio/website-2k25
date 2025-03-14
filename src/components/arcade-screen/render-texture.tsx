@@ -1,8 +1,13 @@
-import { createPortal, RootState, useFrame, useThree } from "@react-three/fiber"
-import { DomEvent } from "@react-three/fiber/dist/declarations/src/core/events"
+import {
+  createPortal,
+  type RootState,
+  useFrame,
+  useThree
+} from "@react-three/fiber"
+import type { DomEvent } from "@react-three/fiber/dist/declarations/src/core/events"
 import {
   createContext,
-  PropsWithChildren,
+  type PropsWithChildren,
   useCallback,
   useContext,
   useEffect,

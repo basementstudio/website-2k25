@@ -142,6 +142,10 @@ export interface AssetsResult {
   lamp: {
     extraLightmap: string
   }
+  // extra textures for things
+  mapTextures: {
+    rain: string
+  }
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -153,6 +157,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
     officeItems: threeDInteractions.map.officeItems.file.url,
     office: threeDInteractions.map.office.file.url,
     officeWireframe: threeDInteractions.map.wireframeModel.file.url,
+    mapTextures: {
+      rain: threeDInteractions.map.textures.rain.url
+    },
     outdoor: threeDInteractions.map.outdoor.file.url,
     godrays: threeDInteractions.map.godrays.file.url,
     bakes: threeDInteractions.map.bakes.items.map((item) => ({

@@ -1,8 +1,8 @@
-import { useFrame } from "@react-three/fiber"
 import { useEffect, useMemo, useState } from "react"
-import { Mesh } from "three"
+import type { Mesh } from "three"
 
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 interface StreetLane {
   initialPosition: [number, number, number]
@@ -23,7 +23,9 @@ export const OutdoorCars = () => {
 
   useEffect(() => {
     if (!cars?.length) return
-    STREET_LANES.forEach((lane) => generateRandomCar(lane, 0))
+    for (const lane of STREET_LANES) {
+      generateRandomCar(lane, 0)
+    }
   }, [cars])
 
   const STREET_LANES: StreetLane[] = useMemo(
@@ -83,14 +85,14 @@ export const OutdoorCars = () => {
     }
   }
 
-  useFrame(({ clock }, delta) => {
+  useFrameCallback((_, delta, elapsedTime) => {
     let needsUpdate = false
     let carsAtTarget = 0
 
     STREET_LANES.forEach((lane) => {
       if (!lane.car || !lane.speed || lane.nextStartTime === null) return
 
-      if (!lane.isMoving && clock.elapsedTime >= lane.nextStartTime) {
+      if (!lane.isMoving && elapsedTime >= lane.nextStartTime) {
         lane.isMoving = true
       }
 
@@ -111,7 +113,7 @@ export const OutdoorCars = () => {
           (direction < 0 && lane.car.position.x <= lane.targetPosition[0])
         ) {
           carsAtTarget++
-          generateRandomCar(lane, clock.elapsedTime)
+          generateRandomCar(lane, elapsedTime)
           needsUpdate = true
         }
       }

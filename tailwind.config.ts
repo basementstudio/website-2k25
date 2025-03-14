@@ -8,6 +8,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        "3xl": "1920px"
+      },
       colors: {
         brand: {
           w1: "#E6E6E6",

@@ -1,9 +1,9 @@
 import { useTexture } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { useRef } from "react"
-import { Mesh } from "three"
+import type { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { normalizeDelta } from "../lib/math"
 import { CHUNK_SIZE, TOTAL_CHUNKS } from "../road/use-road"
@@ -17,7 +17,7 @@ export const Skybox = () => {
 
   const SKY_PANEL_WIDTH = 220
 
-  useFrame((_, d) => {
+  useFrameCallback((_, d) => {
     const delta = normalizeDelta(d)
     if (!skyPanelLeft.current || !skyPanelRight.current) return
 

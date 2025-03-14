@@ -45,7 +45,7 @@ export const Grid = memo(
     const isMobile = useMedia("(max-width: 1024px)")
 
     return (
-      <div className="grid-layout contain-layout !gap-y-8 lg:!gap-y-2">
+      <div className="grid-layout contain-layout !gap-y-8 lg:!gap-y-3">
         {projects.map((item, index) => {
           const firstItem = index === 0
 

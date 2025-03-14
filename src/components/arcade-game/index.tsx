@@ -1,12 +1,12 @@
 import { useTexture } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { Container, DefaultProperties, Root, Text } from "@react-three/uikit"
 import { FontFamilyProvider } from "@react-three/uikit"
 import { useEffect, useRef, useState } from "react"
-import { ShaderMaterial } from "three"
+import type { ShaderMaterial } from "three"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { ffflauta } from "../../../public/fonts/ffflauta"
@@ -50,7 +50,7 @@ export const ArcadeGame = ({
     }
   }, [isInGame, ARCADE_AUDIO_SFX.MIAMI_HEATWAVE, playArcadeSong])
 
-  useFrame((_, delta) => {
+  useFrameCallback((_, delta) => {
     if (gameStarted && !gameOver) {
       lastUpdateTimeRef.current += delta
       if (lastUpdateTimeRef.current >= 0.1) {

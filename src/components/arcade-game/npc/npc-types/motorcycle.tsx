@@ -1,12 +1,13 @@
-import { useFrame } from "@react-three/fiber"
 import { useRef } from "react"
-import { Group, Vector3 } from "three"
+import { type Group, Vector3 } from "three"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { Car } from "../../entities/car"
 import { normalizeDelta } from "../../lib/math"
 import { useGame } from "../../lib/use-game"
 import { CHUNK_SIZE, getMovementAmount, useRoad } from "../../road/use-road"
-import { NpcTypeMotorcycle, useNpc } from "../use-npc"
+import { type NpcTypeMotorcycle, useNpc } from "../use-npc"
 
 export const MotorcycleNpc = ({ id, startingPosition }: NpcTypeMotorcycle) => {
   const npcPos = useRef(new Vector3(...startingPosition))
@@ -17,7 +18,7 @@ export const MotorcycleNpc = ({ id, startingPosition }: NpcTypeMotorcycle) => {
 
   const globalSpeedRef = useRoad((s) => s.speedRef)
 
-  useFrame((_, d) => {
+  useFrameCallback((_, d) => {
     if (!vehicleRef.current) return
 
     const delta = normalizeDelta(d)

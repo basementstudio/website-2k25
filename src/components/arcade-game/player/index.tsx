@@ -1,6 +1,7 @@
-import { useFrame } from "@react-three/fiber"
 import { useCallback, useEffect, useMemo, useRef } from "react"
-import { Group, Vector3 } from "three"
+import { type Group, Vector3 } from "three"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { Car } from "../entities/car"
 import { useConnector } from "../lib/connector"
@@ -38,7 +39,7 @@ export const Player = () => {
     addLine(1)
   })
 
-  useFrame((_, delta) => {
+  useFrameCallback((_, delta) => {
     if (!carRef.current) return
 
     const normalizedDelta = normalizeDelta(delta)
@@ -109,7 +110,7 @@ export const Player = () => {
     }, 1000)
   }, [])
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (gameOver) {
       roadSpeedRef.current = lerp(roadSpeedRef.current, 0, 0.05)
     }
