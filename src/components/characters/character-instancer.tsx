@@ -14,18 +14,14 @@ const {
 } = createInstancedSkinnedMesh()
 
 export enum CharacterAnimationName {
-  "Chill" = "Chill",
-  "Floor" = "Floor",
-  "Floor2" = "Floor2",
-  "Iddle-01" = "Iddle-01",
-  "Iddle-02" = "Iddle-02",
-  "Sit" = "Sit",
-  "Character-RigAction" = "Character-RigAction",
-  "Talking" = "Talking",
-  "Talking2" = "Talking2",
-  "Talking3" = "Talking3",
-  "Walking" = "Walking",
-  "Working" = "Working"
+  "Blog.01" = "Blog.01",
+  "Blog.02" = "Blog.02",
+  "People.01.a" = "People.01.a",
+  "People.01.b" = "People.01.b",
+  "People.02.a" = "People.02.a",
+  "People.02.b" = "People.02.b",
+  "Services.01" = "Services.01",
+  "Services.02" = "Services.02"
 }
 
 const SKINNED_MESH_KEYS = [
@@ -160,6 +156,8 @@ function CharacterInstanceConfigInner() {
     return material
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textureBody, textureFaces, nodes])
+
+  console.log(animations.map((animation) => animation.name))
 
   return (
     <>
