@@ -1,17 +1,15 @@
 "use client"
 
-import { useBackgroundMusic } from "@/hooks/use-background-music"
 import {
   SiteAudioSFXsLoader,
-  useInitializeAudioContext
+  useInitializeAudioContext,
+  useSiteAudio
 } from "@/hooks/use-site-audio"
 
 export function AppHooks(): React.JSX.Element {
   useInitializeAudioContext()
-  useBackgroundMusic(true)
 
-  // office background
-  // useOfficeAmbience()
+  useSiteAudio()
 
   return <SiteAudioSFXsLoader />
 }

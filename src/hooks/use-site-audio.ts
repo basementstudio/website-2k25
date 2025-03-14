@@ -1,11 +1,19 @@
-import { memo, useCallback, useEffect, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { create } from "zustand"
 
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
-import { SFX_VOLUME, THEME_SONG_VOLUME } from "@/lib/audio/constants"
+import {
+  AMBIENT_VOLUME,
+  SFX_VOLUME,
+  THEME_SONG_VOLUME
+} from "@/lib/audio/constants"
 
-import { BackgroundAudioType } from "./use-background-music"
+export enum BackgroundAudioType {
+  AMBIENCE = "ambience",
+  BASKETBALL = "basketball",
+  KONAMI = "konami"
+}
 
 export type SiteAudioSFXKey =
   | "BASKETBALL_THROW"
@@ -24,6 +32,53 @@ export type SiteAudioSFXKey =
   | `BLOG_LAMP_${number}_RELEASE`
   | "CONTACT_INTERFERENCE"
   | "OFFICE_AMBIENCE"
+
+// const audioTracks = useMemo(() => {
+//   return {
+//     ambience: [
+//       {
+//         name: "Chrome Tiger - Basement Jukebox 02:40",
+//         url: AMBIENCE.AMBIENCE_TIGER,
+//         type: BackgroundAudioType.AMBIENCE,
+//         volume: AMBIENT_VOLUME
+//       },
+//       {
+//         name: "Perfect Waves - Basement Jukebox 00:59",
+//         url: AMBIENCE.AMBIENCE_AQUA,
+//         type: BackgroundAudioType.AMBIENCE,
+//         volume: AMBIENT_VOLUME
+//       },
+//       {
+//         name: "Tears In The Rain - Basement Jukebox 01:55",
+//         url: AMBIENCE.AMBIENCE_RAIN,
+//         type: BackgroundAudioType.AMBIENCE,
+//         volume: AMBIENT_VOLUME
+//       },
+//       {
+//         name: "Cassette Kong - Basement Jukebox 03:35",
+//         url: AMBIENCE.AMBIENCE_VHS,
+//         type: BackgroundAudioType.AMBIENCE,
+//         volume: AMBIENT_VOLUME
+//       }
+//     ],
+//     basketball: [
+//       {
+//         name: "Basketball Ambient",
+//         url: GAME_THEME_SONGS.BASKETBALL_AMBIENT,
+//         type: BackgroundAudioType.BASKETBALL,
+//         volume: THEME_SONG_VOLUME
+//       }
+//     ],
+//     konami: [
+//       {
+//         name: "Miami Heatwave",
+//         url: ARCADE_AUDIO_SFX.MIAMI_HEATWAVE,
+//         type: BackgroundAudioType.KONAMI,
+//         volume: 0.4
+//       }
+//     ]
+//   }
+// }, [AMBIENCE, GAME_THEME_SONGS, ARCADE_AUDIO_SFX])
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
@@ -243,73 +298,6 @@ function SiteAudioSFXsLoaderInner(): null {
   }, [player])
 
   return null
-}
-
-export function useGameThemeSong() {
-  const player = useSiteAudioStore((s) => s.player)
-  const { GAME_THEME_SONGS } = useAudioUrls()
-
-  useEffect(() => {
-    if (!player) return
-
-    const loadAudioSource = async () => {
-      try {
-        const themeSong = await Promise.resolve(
-          player.loadAudioFromURL(GAME_THEME_SONGS.BASKETBALL_AMBIENT)
-        )
-
-        themeSong.loop = true
-        themeSong.setVolume(THEME_SONG_VOLUME)
-        themeSong.play()
-
-        useSiteAudioStore.setState({
-          themeSong
-        })
-      } catch (error) {
-        console.error("Error loading audio sources:", error)
-      }
-    }
-
-    loadAudioSource()
-  }, [player, GAME_THEME_SONGS])
-}
-
-export function useOfficeAmbience(desiredVolume: number = 0.1) {
-  const player = useSiteAudioStore((s) => s.player)
-  const officeAmbience = useSiteAudioStore((s) => s.officeAmbience)
-  const { OFFICE_AMBIENCE } = useAudioUrls()
-
-  useEffect(() => {
-    if (!player) return
-
-    const loadAudioSource = async () => {
-      try {
-        if (officeAmbience) return
-
-        const newOfficeAmbience = await Promise.resolve(
-          player.loadAudioFromURL(OFFICE_AMBIENCE.OFFICE_AMBIENCE_DEFAULT)
-        )
-
-        newOfficeAmbience.loop = true
-        newOfficeAmbience.setVolume(desiredVolume)
-        newOfficeAmbience.play()
-
-        useSiteAudioStore.setState({
-          officeAmbience: newOfficeAmbience
-        })
-      } catch (error) {
-        console.error("Error loading audio sources:", error)
-      }
-    }
-
-    loadAudioSource()
-  }, [player, OFFICE_AMBIENCE, officeAmbience])
-
-  useEffect(() => {
-    if (officeAmbience) {
-      officeAmbience.setVolume(desiredVolume)
-    }
-  }, [officeAmbience, desiredVolume])
 }
 
 export function useSiteAudio(): SiteAudioHook {

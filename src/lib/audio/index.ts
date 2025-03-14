@@ -166,6 +166,7 @@ export class WebAudioPlayer {
     this.sfxChannel.gain.value = 1
     this.sfxChannel.connect(this.masterOutput)
 
+    // game channel
     this.gameChannel = this.audioContext.createGain()
     this.gameChannel.gain.value = 1
     this.gameChannel.connect(this.masterOutput)
