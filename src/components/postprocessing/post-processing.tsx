@@ -148,8 +148,6 @@ const Inner = ({
     material.uniforms.uMainTexture.value = mainTexture
     material.uniforms.uDepthTexture.value = depthTexture
 
-    console.log(depthTexture)
-
     return () => controller.abort()
   }, [mainTexture, depthTexture])
 

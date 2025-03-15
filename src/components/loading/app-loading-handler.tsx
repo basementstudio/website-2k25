@@ -40,8 +40,6 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      * This function will tell the loading canvas that is ok to reveal the main app
      */
     setMainAppRunning: (isAppLoaded) => {
-      console.log("loaded")
-
       get().worker?.postMessage({
         type: "update-loading-status",
         isAppLoaded

@@ -38,28 +38,28 @@ function CharactersSpawnInner() {
     <>
       {/* Services */}
       <Character
-        position={[5.3, 0.55, -6.7]}
-        rotation={[0, Math.PI * -0.7, 0]}
-        animationName={CharacterAnimationName.Chill}
+        position={[4, 0.34, -6.55]}
+        rotation={[0, Math.PI, 0]}
+        animationName={CharacterAnimationName["Services.01"]}
         uniforms={{
           uLightDirection: {
-            value: [-2, 0.5, 0, 1]
+            value: [0, 0.5, 1, 1]
           }
         }}
       />
 
       {/* Main */}
 
-      <Character
+      {/* <Character
         position={[4, 0.1, -10.5]}
         rotation={[0, Math.PI * 0.5, 0]}
         animationName={CharacterAnimationName["Sit"]}
-      />
+      /> */}
 
       <Character
         position={[4.6, 0.0, -17.5]}
         rotation={[0, Math.PI * -0.2, 0]}
-        animationName={CharacterAnimationName.Working}
+        animationName={CharacterAnimationName["People.02.a"]}
         initialTime={0.5}
         uniforms={{
           uLightDirection: {
@@ -73,7 +73,7 @@ function CharactersSpawnInner() {
       <Character
         position={[3.22, 0, -16.6]}
         rotation={[0, Math.PI * 0.4, 0]}
-        animationName={CharacterAnimationName.Working}
+        animationName={CharacterAnimationName["People.02.a"]}
         uniforms={{
           uLightDirection: {
             value: [-1, 0, 0, 1]
@@ -86,9 +86,9 @@ function CharactersSpawnInner() {
 
       {/* People */}
       <Character
-        position={[3.05, 3.72, -27.4]}
+        position={[3.1, 3.74, -27.3]}
         rotation={[0, Math.PI * 0.5, 0]}
-        animationName={CharacterAnimationName.Working}
+        animationName={CharacterAnimationName["People.01.a"]}
         uniforms={{
           uLightDirection: {
             value: [2, 2, 0, 1]
@@ -96,22 +96,27 @@ function CharactersSpawnInner() {
         }}
       />
       <Character
-        position={[6.7, 3.7, -24.6]}
+        position={[6.54, 3.74, -24.7]}
         rotation={[0, Math.PI * 0.5, 0]}
-        animationName={CharacterAnimationName.Working}
+        animationName={CharacterAnimationName["People.01.b"]}
       />
       <Character
-        position={[12.3, 3.7, -27.15]}
+        position={[12.3, 3.76, -27.15]}
         rotation={[0, Math.PI * -0.5, 0]}
-        animationName={CharacterAnimationName.Working}
+        animationName={CharacterAnimationName["People.01.a"]}
       />
 
       {/* Blog */}
-      {/* <Character
-        position={[10.15, 4.2, -17.6]}
-        rotation={[0, Math.PI * 0.8, 0]}
-        animationName={CharacterAnimationName.Floor2}
-      /> */}
+      <Character
+        position={[9.24, 3.7, -17.97]}
+        rotation={[0, Math.PI * 0.2, 0]}
+        animationName={CharacterAnimationName["Blog.01"]}
+        uniforms={{
+          uLightDirection: {
+            value: [0.4, -0.4, -0.3, 1]
+          }
+        }}
+      />
 
       {/* Debug */}
 

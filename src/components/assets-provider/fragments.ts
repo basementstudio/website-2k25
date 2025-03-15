@@ -16,6 +16,14 @@ export const characterFragment = fragmentOn("Characters", {
   textureFaces: urlFragment,
   textureArms: {
     url: true
+  },
+  petModel: {
+    file: {
+      url: true
+    }
+  },
+  petTexture: {
+    url: true
   }
 })
 

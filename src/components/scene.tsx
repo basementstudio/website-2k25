@@ -19,6 +19,7 @@ import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
+import { Pets } from "./pets"
 import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
 
@@ -129,6 +130,9 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <CharacterInstanceConfig />
                     <CharactersSpawn />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <Pets />
                   </Suspense>
                 </>
               }
