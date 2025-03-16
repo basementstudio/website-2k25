@@ -16,6 +16,14 @@ export const characterFragment = fragmentOn("Characters", {
   textureFaces: urlFragment,
   textureArms: {
     url: true
+  },
+  petModel: {
+    file: {
+      url: true
+    }
+  },
+  petTexture: {
+    url: true
   }
 })
 
@@ -65,6 +73,11 @@ export const mapFragment = fragmentOn("Map", {
   },
   doubleSideElements: {
     items: titleFragment
+  },
+  textures: {
+    rain: {
+      url: true
+    }
   }
 })
 

@@ -1,16 +1,16 @@
 "use client"
 
 import { MeshDiscardMaterial } from "@react-three/drei"
-import { useFrame, useThree } from "@react-three/fiber"
+import { useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
-import { AnimationPlaybackControls } from "motion/react"
+import type { AnimationPlaybackControls } from "motion/react"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Box3,
-  Group,
+  type Group,
   Matrix4,
   Mesh,
-  PerspectiveCamera,
+  type PerspectiveCamera,
   Quaternion,
   Vector3
 } from "three"
@@ -19,11 +19,12 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useSelectStore } from "@/hooks/use-select-store"
 
 import { useAssets } from "../assets-provider"
-import { ICameraConfig } from "../navigation-handler/navigation.interface"
+import type { ICameraConfig } from "../navigation-handler/navigation.interface"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
 
@@ -220,7 +221,7 @@ export const Inspectable = memo(function InspectableInner({
     }
   }, [])
 
-  useFrame(() => {
+  useFrameCallback(() => {
     const camConfig = camConfigRef.current
     if (!ref.current || !camConfig) return
     const { targetQuaternion, lookAtMatrix, upVector } = vRef

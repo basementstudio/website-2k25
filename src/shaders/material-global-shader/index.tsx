@@ -1,5 +1,5 @@
 import { animate } from "motion"
-import { MeshStandardMaterial, Vector3 } from "three"
+import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
 
@@ -43,6 +43,7 @@ export const createGlobalShaderMaterial = (
     uColor: { value: emissiveColor },
     uProgress: { value: 0.0 },
     map: { value: map },
+    mapMatrix: { value: new Matrix3().identity() },
     lightMap: { value: null },
     lightMapIntensity: { value: 0.0 },
     aoMap: { value: null },
@@ -55,6 +56,7 @@ export const createGlobalShaderMaterial = (
     noiseFactor: { value: 0.5 },
     uTime: { value: 0.0 },
     alphaMap: { value: alphaMap },
+    alphaMapTransform: { value: new Matrix3().identity() },
     emissive: { value: baseMaterial.emissive || new Vector3() },
     emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
     fogColor: { value: new Vector3(0.2, 0.2, 0.2) },

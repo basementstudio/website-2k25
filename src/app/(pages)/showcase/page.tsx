@@ -1,5 +1,12 @@
+import type { Metadata } from "next"
+
 import { Hero } from "./hero"
 import { ShowcaseList } from "./showcase-list"
+
+export const metadata: Metadata = {
+  title: "Showcase",
+  description: "Our showcase"
+}
 
 const ShowcaseIndexPage = () => (
   <>

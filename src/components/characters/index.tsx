@@ -71,7 +71,7 @@ export function Character({
   )
 
   return (
-    <group {...props} scale={[0.9, 0.9, 0.9]}>
+    <group {...props}>
       {/* Body */}
       <CharacterPosition
         timeSpeed={1}
