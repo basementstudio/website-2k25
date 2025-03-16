@@ -1,5 +1,5 @@
-import { useEffect } from "react"
 import { nanoid } from "nanoid"
+import { useEffect } from "react"
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export interface Subscribable<T extends Function = () => void> {

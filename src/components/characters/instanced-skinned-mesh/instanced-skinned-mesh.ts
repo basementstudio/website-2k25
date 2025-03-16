@@ -299,7 +299,9 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     } else if (arrayDefault.length === 3) {
       format =
         type === THREE.FloatType ? THREE.RGBFormat : THREE.RGBIntegerFormat
-      console.error("RGBFormat is not supported anymore, use RGBAFormat instead.")
+      console.error(
+        "RGBFormat is not supported anymore, use RGBAFormat instead."
+      )
     } else if (arrayDefault.length === 4) {
       format =
         type === THREE.FloatType ? THREE.RGBAFormat : THREE.RGBAIntegerFormat
@@ -481,7 +483,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     this.shouldComputeMorphTargets = false
 
     this.addInstancedUniform("uActiveMorphs", -1, THREE.IntType)
-
   }
 
   private _setInstanceMorph = (

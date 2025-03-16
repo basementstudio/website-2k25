@@ -1,9 +1,9 @@
 import localFont from "next/font/local"
-import { Link } from "@/components/primitives/link"
 import { useState } from "react"
 
 import { submitContactForm } from "@/actions/contact-form"
 import { useContactStore } from "@/components/contact/contact-store"
+import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
 const ffflauta = localFont({

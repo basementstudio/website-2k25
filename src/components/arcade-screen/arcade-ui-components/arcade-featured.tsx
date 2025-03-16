@@ -1,13 +1,13 @@
 import { Container, Image, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
-import React, { useState, useCallback } from "react"
+import React, { useCallback, useState } from "react"
 
+import { useAssets } from "@/components/assets-provider"
 import { useKeyPress } from "@/hooks/use-key-press"
+import { useCursor } from "@/hooks/use-mouse"
+import { useArcadeStore } from "@/store/arcade-store"
 
 import { COLORS_THEME } from "../screen-ui"
-import { useArcadeStore } from "@/store/arcade-store"
-import { useAssets } from "@/components/assets-provider"
-import { useCursor } from "@/hooks/use-mouse"
 
 export const ArcadeFeatured = () => {
   const { arcade } = useAssets()

@@ -1,6 +1,7 @@
-import { useCallback, useMemo, useRef } from 'react'
-import { useStateToRef } from './use-state-to-ref'
-import { ShaderMaterial } from 'three'
+import { useCallback, useMemo, useRef } from "react"
+import { ShaderMaterial } from "three"
+
+import { useStateToRef } from "./use-state-to-ref"
 
 export interface Uniform<T = unknown> {
   value: T
@@ -22,9 +23,9 @@ export const useUniforms = <T extends Record<string, unknown>>(
   // memorize uniforms object
   const uniformsObject = useMemo(() => {
     const u: Partial<Uniforms<T>> = {}
-    const initialState = typeof state === 'function' ? state() : state
+    const initialState = typeof state === "function" ? state() : state
     Object.entries(initialState).forEach(([key, value]) => {
-      (u as any)[key] = { value }
+      ;(u as any)[key] = { value }
     })
     return u as Uniforms<T>
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -36,17 +37,19 @@ export const useUniforms = <T extends Record<string, unknown>>(
   const onUpdateRef = useStateToRef(options.onUpdate)
   const syncShaderRef = useStateToRef(options.syncShader)
 
-  const updateUniforms = useCallback((state: Partial<T>) => {
-    Object.entries(state).forEach(([key, value]) => {
-      (uniformsRef.current as any)[key].value = value
+  const updateUniforms = useCallback(
+    (state: Partial<T>) => {
+      Object.entries(state).forEach(([key, value]) => {
+        ;(uniformsRef.current as any)[key].value = value
 
-      if (syncShaderRef.current) {
-        syncShaderRef.current.uniforms[key].value = value
-      }
-    })
-    if (onUpdateRef.current) onUpdateRef.current(state)
-
-  }, [onUpdateRef, syncShaderRef])
+        if (syncShaderRef.current) {
+          syncShaderRef.current.uniforms[key].value = value
+        }
+      })
+      if (onUpdateRef.current) onUpdateRef.current(state)
+    },
+    [onUpdateRef, syncShaderRef]
+  )
 
   return [uniformsRef.current, updateUniforms] as const
 }

@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server"
-import { createClient } from "@/utils/supabase/server"
 import { geolocation } from "@vercel/functions"
+import { NextResponse } from "next/server"
+
+import { createClient } from "@/utils/supabase/server"
 import { getTopScoresFromServer } from "@/utils/supabase/server"
 
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>()

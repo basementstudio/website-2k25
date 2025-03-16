@@ -1,28 +1,27 @@
-import React from "react"
-import { FieldErrors } from "react-hook-form"
-
-export interface ContactFormValues {
-  name: string
-  email: string
-  message: string
-}
-
-export const ContactStatusHandler = ({
-  isSubmitted,
-  errors,
-  customError,
-  isSubmitting
+export const ContactStatus = ({
+  isSubmitted = false,
+  error = "",
+  isSubmitting = false
 }: {
-  isSubmitted: boolean
-  errors: FieldErrors<ContactFormValues>
-  customError: string | null
-  isSubmitting: boolean
+  isSubmitted?: boolean
+  error?: string
+  isSubmitting?: boolean
 }) => {
+  if (!isSubmitted && !error && !isSubmitting) return null
+
   return (
-    <>
-      {isSubmitted && (
-        <div className="flex items-center gap-2">
-          <p className="text-h4 text-[#00FF9B]">Form submitted</p>
+    <div className="flex items-center gap-2">
+      {isSubmitting && (
+        <p className="text-mobile-h3 text-[#E6E6E6] xl:text-h4">
+          Submitting...
+        </p>
+      )}
+
+      {isSubmitted && !isSubmitting && (
+        <>
+          <p className="text-mobile-h3 text-[#00FF9B] xl:text-h4">
+            Form submitted
+          </p>
           <svg
             width="20"
             height="20"
@@ -49,16 +48,12 @@ export const ContactStatusHandler = ({
               </clipPath>
             </defs>
           </svg>
-        </div>
+        </>
       )}
-      {(errors.email || errors.name || errors.message || customError) && (
-        <div className="flex items-center gap-2">
-          <p className="text-h4 text-[#F32D2D]">
-            {errors.name?.message ||
-              errors.email?.message ||
-              errors.message?.message ||
-              customError}
-          </p>
+
+      {error && !isSubmitting && (
+        <>
+          <p className="text-mobile-h3 text-[#F32D2D] xl:text-h4">{error}</p>
           <svg
             width="20"
             height="20"
@@ -85,8 +80,8 @@ export const ContactStatusHandler = ({
               </clipPath>
             </defs>
           </svg>
-        </div>
+        </>
       )}
-    </>
+    </div>
   )
 }

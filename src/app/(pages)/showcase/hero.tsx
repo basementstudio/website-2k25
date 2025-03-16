@@ -17,10 +17,10 @@ export async function Hero() {
 
   return (
     <section className="grid-layout">
-      <h1 className="lg:text-f-h0 text-f-h0-mobile col-span-3 text-brand-w2 lg:col-start-1 lg:col-end-7">
+      <h1 className="col-span-3 text-f-h0-mobile text-brand-w2 lg:col-start-1 lg:col-end-7 lg:text-f-h0">
         Showcase
       </h1>
-      <div className="lg:text-f-h0 text-f-h0-mobile col-span-1 text-brand-g1 lg:col-start-7 lg:col-end-12">
+      <div className="col-span-1 text-f-h0-mobile text-brand-g1 lg:col-start-7 lg:col-end-12 lg:text-f-h0">
         {length}
       </div>
     </section>
