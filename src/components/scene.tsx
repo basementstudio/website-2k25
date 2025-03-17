@@ -20,7 +20,6 @@ import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
 import { Pets } from "./pets"
-import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
 
 const HoopMinigame = dynamic(
@@ -42,6 +41,14 @@ const PhysicsWorld = dynamic(
         return <Physics paused={paused}>{children}</Physics>
       }
     }),
+  { ssr: false }
+)
+
+const AnimationController = dynamic(
+  () =>
+    import("./shared/AnimationController").then(
+      (mod) => mod.AnimationController
+    ),
   { ssr: false }
 )
 
