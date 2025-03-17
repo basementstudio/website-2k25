@@ -107,7 +107,8 @@ interface ContentProps extends NavbarContentProps {
 
 const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
   const { handleNavigation } = useHandleNavigation()
-  const { setIsContactOpen, isContactOpen } = useContactStore()
+  const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
+  const isContactOpen = useContactStore((state) => state.isContactOpen)
 
   const pathname = usePathname()
 
@@ -143,13 +144,15 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
         </button>
         <button
           id="nav-contact"
-          onClick={() => setIsContactOpen(!isContactOpen)}
+          onClick={() => {
+            setIsContactOpen(!isContactOpen)
+          }}
           className={cn(
             "!text-p capitalize text-brand-w1 hover:text-brand-o",
             isContactOpen && "text-brand-g1"
           )}
         >
-          <span className="actionable actionable-no-underline">Contact Us</span>
+          <span className="actionable-no-underline">Contact Us</span>
         </button>
       </div>
     </>

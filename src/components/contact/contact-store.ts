@@ -1,171 +1,67 @@
-import { Vector2, Vector3 } from "three"
 import { create } from "zustand"
-
-interface ContactStore {
-  isContactOpen: boolean
-  isClosing: boolean
-  setIsContactOpen: (isContactOpen: boolean) => void
-  formData: {
-    name: string
-    company: string
-    email: string
-    budget: string
-    message: string
-  }
-  focusedElement: string | null
-  cursorPosition: number
-  setFocusedElement: (elementId: string | null, cursorPos?: number) => void
-  updateFormField: (
-    field: keyof ContactStore["formData"],
-    value: string
-  ) => void
-  clearFormData: () => void
-  worker: Worker | null
-  setWorker: (worker: Worker | null) => void
-  screenPosition: Vector2 | null
-  screenDimensions: Vector2 | null
-  screenTransform: {
-    scale: number
-    distance: number
-    matrix: number[]
-    cameraMatrix: number[]
-  } | null
-  updateScreenData: (
-    position: Vector2,
-    dimensions: Vector2,
-    transform: {
-      scale: number
-      distance: number
-      matrix: number[]
-      cameraMatrix: number[]
-    }
-  ) => void
-}
+import { ContactStore } from "./contact.intercace"
 
 export const useContactStore = create<ContactStore>((set) => ({
   isContactOpen: false,
-  isClosing: false,
-  setIsContactOpen: (isContactOpen) => {
-    if (!isContactOpen) {
-      set((state) => {
-        if (state.worker) {
-          state.worker.postMessage({
-            type: "update-contact-open",
-            isContactOpen: false,
-            isClosing: true
-          })
-        }
-        return { isClosing: true }
-      })
-
-      setTimeout(() => {
-        set((state) => {
-          if (state.worker) {
-            state.worker.postMessage({
-              type: "update-contact-open",
-              isContactOpen: false,
-              isClosing: false
-            })
-          }
-          return { isContactOpen: false, isClosing: false }
-        })
-      }, 1000)
-    } else {
-      set((state) => {
-        if (state.worker) {
-          state.worker.postMessage({
-            type: "update-contact-open",
-            isContactOpen: true,
-            isClosing: false
-          })
-        }
-        return { isContactOpen: true, isClosing: false }
-      })
-    }
-  },
-  formData: {
-    name: "",
-    company: "",
-    email: "",
-    budget: "",
-    message: ""
-  },
-  focusedElement: null,
-  cursorPosition: 0,
-  setFocusedElement: (elementId, cursorPos = 0) =>
-    set((state) => {
-      if (state.worker) {
-        state.worker.postMessage({
-          type: "update-focus",
-          focusedElement: elementId,
-          cursorPosition: cursorPos
-        })
-      }
-      return { focusedElement: elementId, cursorPosition: cursorPos }
-    }),
-  clearFormData: () =>
-    set((state) => {
-      const emptyFormData = {
-        name: "",
-        company: "",
-        email: "",
-        budget: "",
-        message: ""
-      }
-
-      if (state.worker) {
-        state.worker.postMessage({
-          type: "update-form",
-          formData: emptyFormData
-        })
-      }
-
-      return { formData: emptyFormData }
-    }),
-  updateFormField: (field, value) =>
-    set((state) => {
-      const newFormData = {
-        ...state.formData,
-        [field]: value.toUpperCase()
-      }
-
-      // Send form updates to the worker
-      if (state.worker) {
-        state.worker.postMessage({
-          type: "update-form",
-          formData: newFormData
-        })
-      }
-
-      return { formData: newFormData }
-    }),
+  isAnimating: false,
   worker: null,
-  setWorker: (worker) => {
-    if (worker) {
-      worker.addEventListener("message", (e) => {
-        if (e.data.type === "update-screen-data") {
-          set({
-            screenPosition: e.data.position,
-            screenDimensions: e.data.dimensions,
-            screenTransform: {
-              scale: e.data.scale,
-              distance: e.data.distance,
-              matrix: e.data.matrix,
-              cameraMatrix: e.data.cameraMatrix
-            }
-          })
+
+  isIntroComplete: false,
+  isScaleUpComplete: false,
+  isScaleDownComplete: false,
+  isOutroComplete: false,
+  hasBeenOpenedBefore: false,
+
+  setWorker: (worker: Worker | null) => set({ worker }),
+  setIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
+  setIsIntroComplete: (isComplete: boolean) =>
+    set({ isIntroComplete: isComplete }),
+  setIsScaleUpComplete: (isComplete: boolean) =>
+    set({ isScaleUpComplete: isComplete }),
+  setIsScaleDownComplete: (isComplete: boolean) =>
+    set({ isScaleDownComplete: isComplete }),
+  setIsOutroComplete: (isComplete: boolean) =>
+    set({ isOutroComplete: isComplete }),
+  setHasBeenOpenedBefore: (hasBeenOpenedBefore: boolean) =>
+    set({ hasBeenOpenedBefore }),
+
+  setIsContactOpen: (isContactOpen: boolean) => {
+    set((state: ContactStore) => {
+      if (state.isAnimating) return state
+
+      if (isContactOpen && !state.isContactOpen) {
+        if (
+          state.hasBeenOpenedBefore &&
+          (!state.isOutroComplete || !state.isScaleDownComplete)
+        ) {
+          return state
         }
-      })
-    }
-    set({ worker })
-  },
-  screenPosition: null,
-  screenDimensions: null,
-  screenTransform: null,
-  updateScreenData: (position, dimensions, transform) =>
-    set({
-      screenPosition: position,
-      screenDimensions: dimensions,
-      screenTransform: transform
+
+        return {
+          isContactOpen,
+          isIntroComplete: false,
+          isScaleUpComplete: false,
+          isOutroComplete: true,
+          isScaleDownComplete: true,
+          hasBeenOpenedBefore: true
+        }
+      }
+
+      if (!isContactOpen && state.isContactOpen) {
+        if (!state.isIntroComplete || !state.isScaleUpComplete) {
+          return state
+        }
+
+        return {
+          isContactOpen,
+          isOutroComplete: false,
+          isScaleDownComplete: false,
+          isIntroComplete: true,
+          isScaleUpComplete: true
+        }
+      }
+
+      return { isContactOpen }
     })
+  }
 }))
