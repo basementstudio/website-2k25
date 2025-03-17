@@ -86,7 +86,12 @@ const Contact = () => {
 
   return (
     <>
-      <div className={cn("fixed inset-0 z-50")}>
+      <div
+        className={cn(
+          "fixed inset-0 z-50",
+          isContactOpen ? "pointer-events-auto" : "pointer-events-none"
+        )}
+      >
         <ContactCanvas />
       </div>
       <div

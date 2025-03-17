@@ -128,7 +128,6 @@ const ContactCanvas = () => {
       <OffscreenCanvas
         worker={worker}
         fallback={null}
-        className="pointer-events-none"
         frameloop={shouldRender ? "always" : "never"}
         camera={{ position: [0, 0.2, 2], fov: 10 }}
         gl={{ antialias: false }}
