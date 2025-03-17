@@ -51,19 +51,9 @@ interface NavbarContentProps {
 
 export const NavbarContent = memo(
   ({ links, socialLinks, newsletter }: NavbarContentProps) => {
-    const { music, handleMute, setVolumeMaster } = useSiteAudio()
+    const { music, handleMute } = useSiteAudio()
     const { handleNavigation } = useHandleNavigation()
-
-    const isOnTab = useIsOnTab()
     const scene = useCurrentScene()
-
-    useEffect(() => {
-      if (isOnTab === false) {
-        setVolumeMaster(0)
-      } else if (isOnTab === true) {
-        setVolumeMaster(music ? 1 : 0)
-      }
-    }, [isOnTab, music, setVolumeMaster])
 
     if (scene === "404") return null
 

@@ -257,6 +257,7 @@ export class WebAudioPlayer {
   }
 
   setMusicAndGameVolume(volume: number, fadeTime: number = 0.75) {
+    this.volume = volume
     const currentTime = this.audioContext.currentTime
 
     this.musicChannel.gain.cancelScheduledValues(currentTime)
@@ -367,24 +368,16 @@ export class Playlist {
   async play(): Promise<void> {
     if (this.tracks.length === 0) return
     if (this.isLoading) {
-      console.log(
-        "[Playlist] Play requested but loading is in progress - ignoring"
-      )
       return
     }
-
-    console.log("[Playlist] Play requested")
 
     if (this.currentIndex === -1) {
       // Start from beginning
       await this.playTrackAt(0)
     } else if (this.currentSource && !this.currentSource.isPlaying) {
       // Resume current track
-      console.log(`[Playlist] Resuming track at index ${this.currentIndex}`)
       this.currentSource.play()
       this.isPlaying = true
-    } else if (this.isPlaying) {
-      console.log("[Playlist] Already playing - ignoring play request")
     }
   }
 
@@ -394,7 +387,6 @@ export class Playlist {
   pause(): void {
     if (!this.currentSource || !this.isPlaying) return
 
-    console.log("[Playlist] Pausing playback")
     this.currentSource.pause()
     this.isPlaying = false
   }
@@ -405,7 +397,6 @@ export class Playlist {
   stop(): void {
     if (!this.currentSource && !this.isPlaying) return
 
-    console.log("[Playlist] Stopping playback")
     if (this.currentSource) {
       this.currentSource.clearOnEnded()
       this.currentSource.stop()
@@ -420,13 +411,9 @@ export class Playlist {
   async next(): Promise<void> {
     if (this.tracks.length === 0 || this.isLoading) return
 
-    console.log(
-      `[Playlist] Moving to next track from index: ${this.currentIndex}`
-    )
-
     // Make sure current track is properly stopped
     if (this.currentSource) {
-      this.currentSource.clearOnEnded() // Remove onEnded callback to prevent recursion
+      this.currentSource.clearOnEnded()
       this.currentSource.stop()
       this.currentSource = null
       this.isPlaying = false
@@ -437,10 +424,8 @@ export class Playlist {
     // Handle reaching the end
     if (nextIndex >= this.tracks.length) {
       if (this.options.loop) {
-        console.log(`[Playlist] Reached end, looping back to beginning`)
         nextIndex = 0 // Loop back to beginning
       } else {
-        console.log(`[Playlist] Reached end, stopping playlist`)
         this.stop()
         if (this.options.onPlaylistEnd) {
           this.options.onPlaylistEnd()
@@ -449,7 +434,6 @@ export class Playlist {
       }
     }
 
-    console.log(`[Playlist] Playing next track at index: ${nextIndex}`)
     await this.playTrackAt(nextIndex)
   }
 
@@ -494,9 +478,6 @@ export class Playlist {
   async jumpToTrack(index: number): Promise<void> {
     if (index < 0 || index >= this.tracks.length || this.isLoading) return
     if (index === this.currentIndex && this.isPlaying) {
-      console.log(
-        `[Playlist] Already playing track at index ${index} - ignoring jump request`
-      )
       return
     }
 
@@ -530,26 +511,20 @@ export class Playlist {
 
     // Prevent concurrent loading/playing operations
     if (this.isLoading) {
-      console.log(
-        `[Playlist] Loading in progress - ignoring request to play track at index ${index}`
-      )
       return
     }
 
-    console.log(`[Playlist] Attempting to play track at index: ${index}`)
     this.isLoading = true
 
     try {
       // Stop current track if different from target
       if (this.currentSource && this.currentIndex !== index) {
-        console.log(`[Playlist] Stopping current track before playing new one`)
         this.currentSource.clearOnEnded()
         this.currentSource.stop()
         this.currentSource = null
         this.isPlaying = false
       }
 
-      console.log(`[Playlist] Setting current index to: ${index}`)
       this.currentIndex = index
       await this.loadAndPlayTrack()
     } finally {
@@ -561,9 +536,6 @@ export class Playlist {
     if (this.currentIndex < 0 || this.currentIndex >= this.tracks.length) return
 
     const track = this.tracks[this.currentIndex]
-    console.log(
-      `[Playlist] Loading track: ${track.url}, index: ${this.currentIndex}`
-    )
 
     try {
       // Check if we already have this source loaded
@@ -576,8 +548,6 @@ export class Playlist {
         // Cache the loaded source
         this.loadedSources.set(track.url, source)
       } else {
-        console.log(`[Playlist] Using cached audio source for ${track.url}`)
-
         // Make sure it's stopped before reusing
         if (source.isPlaying) {
           source.clearOnEnded()
@@ -595,18 +565,12 @@ export class Playlist {
 
       // Set up callback for when track ends
       this.currentSource.onEnded(() => {
-        console.log(
-          `[Playlist] Track ended: ${track.url}, index: ${this.currentIndex}`
-        )
         // Only proceed if we're still playing this track
         if (this.isPlaying && this.currentSource) {
           this.next()
         }
       })
 
-      console.log(
-        `[Playlist] Playing track: ${track.url}, index: ${this.currentIndex}`
-      )
       this.currentSource.play()
       this.isPlaying = true
 

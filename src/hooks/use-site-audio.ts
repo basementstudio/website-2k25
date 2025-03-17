@@ -11,6 +11,7 @@ import {
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { useCurrentScene } from "./use-current-scene"
+import { useIsOnTab } from "./use-is-on-tab"
 
 export enum BackgroundAudioType {
   AMBIENCE = "ambience"
@@ -258,6 +259,19 @@ export function useSiteAudio(): SiteAudioHook {
   const setMusic = useSiteAudioStore((s) => s.setMusic)
   const volumeMaster = useSiteAudioStore((s) => s.volumeMaster)
   const storeSetVolumeMaster = useSiteAudioStore((s) => s.setVolumeMaster)
+
+  const isOnTab = useIsOnTab()
+
+  // Handle tab visibility changes
+  useEffect(() => {
+    if (!player) return
+
+    if (!isOnTab) {
+      player.setMusicAndGameVolume(0)
+    } else if (music) {
+      player.setMusicAndGameVolume(1)
+    }
+  }, [player, isOnTab, music])
 
   // Initialize audio system when player is available
   useEffect(() => {
