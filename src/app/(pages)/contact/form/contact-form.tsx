@@ -4,6 +4,7 @@ import { SubmitHandler, useForm } from "react-hook-form"
 import { ContactInput } from "./contact-input"
 import { useEffect, useState } from "react"
 import { ContactStatus } from "./contact-status"
+import { submitContactForm } from "@/actions/contact-form"
 
 type Inputs = {
   name: string
@@ -50,10 +51,36 @@ export const ContactForm = () => {
     return ""
   }
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setSubmitting(true)
     setIsSubmitted(false)
     setSubmitError("")
+
+    try {
+      const formData = {
+        name: data.name || "",
+        company: data.company || "",
+        email: data.email,
+        budget: data.budget || "",
+        message: data.message
+      }
+
+      const result = await submitContactForm(formData)
+
+      if (result.success) {
+        setIsSubmitted(true)
+        setSubmitError("")
+        reset()
+      } else {
+        setIsSubmitted(false)
+        setSubmitError(result.error || "Form submission failed")
+      }
+    } catch (error) {
+      setIsSubmitted(false)
+      setSubmitError("Form submission failed")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
