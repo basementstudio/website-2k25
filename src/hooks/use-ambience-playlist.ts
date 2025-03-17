@@ -1,6 +1,7 @@
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
+import { useTimeout } from "@/components/arcade-game/hooks/use-timeout"
 import { Playlist } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { AMBIENT_VOLUME } from "@/lib/audio/constants"
@@ -29,12 +30,12 @@ export function useAmbiencePlaylist() {
   // TODO: find out why this condition partially works, but scene === "basketball" does not, ever
   // const isBasketballScene = pathname === "/basketball"
 
-  // const isBasketball = useMinigameStore((s) => s.muteAmbienceBasket)
   const isBasketball = useMinigameStore((s) => s.isGameActive)
   const isInGame = useArcadeStore((state) => state.isInGame)
 
   const gameCondition = isInGame && scene === "lab"
-  const basketCondition = isBasketball && scene === "basketball"
+  // const basketCondition = isBasketball && scene === "basketball"
+  const basketCondition = scene === "basketball"
 
   const shouldMuteAmbience = basketCondition || gameCondition
 
@@ -172,16 +173,18 @@ export function useAmbiencePlaylist() {
 
     if (shouldMuteAmbience) {
       // Mute the ambience
-      const currentTime = player.audioContext.currentTime
-      player.musicChannel.gain.cancelScheduledValues(currentTime)
-      player.musicChannel.gain.setValueAtTime(
-        player.musicChannel.gain.value,
-        currentTime
-      )
-      player.musicChannel.gain.linearRampToValueAtTime(
-        0,
-        currentTime + fadeTime
-      )
+      setTimeout(() => {
+        const currentTime = player.audioContext.currentTime
+        player.musicChannel.gain.cancelScheduledValues(currentTime)
+        player.musicChannel.gain.setValueAtTime(
+          player.musicChannel.gain.value,
+          currentTime
+        )
+        player.musicChannel.gain.linearRampToValueAtTime(
+          0,
+          currentTime + fadeTime
+        )
+      }, 750)
     } else {
       // Unmute the ambience
       const currentTime = player.audioContext.currentTime
