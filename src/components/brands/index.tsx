@@ -28,34 +28,32 @@ const SVGLogo = memo(({ svg }: { svg: string | null }) => {
 
 SVGLogo.displayName = "SVGLogo"
 
-export const AnimatedTitle = memo(
-  ({ brandName, enabled }: { enabled: boolean; brandName: string }) => (
-    <AnimatePresence mode="wait">
-      {brandName && enabled ? (
-        <motion.span
-          animate={{ opacity: 1, y: 0 }}
-          className="ml-px inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:text-h3"
-          exit={{ opacity: 0, y: -10 }}
-          initial={{ opacity: 0, y: 10 }}
-          key="brand-name"
-          transition={{ ease: "easeOut", duration: 0.2 }}
-        >
-          {brandName} <ExternalLinkIcon className="size-4" />
-        </motion.span>
-      ) : (
-        <motion.span
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          initial={{ opacity: 0, y: 10 }}
-          key="visionaries"
-          transition={{ ease: "easeOut", duration: 0.2 }}
-        >
-          Visionaries
-        </motion.span>
-      )}
-    </AnimatePresence>
-  )
-)
+export const AnimatedTitle = memo(({ brandName }: { brandName: string }) => (
+  <AnimatePresence mode="wait">
+    {brandName ? (
+      <motion.span
+        animate={{ opacity: 1, y: 0 }}
+        className="ml-px inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:text-h3"
+        exit={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: 10 }}
+        key="brand-name"
+        transition={{ ease: "easeOut", duration: 0.2 }}
+      >
+        {brandName} <ExternalLinkIcon className="size-4" />
+      </motion.span>
+    ) : (
+      <motion.span
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: 10 }}
+        key="visionaries"
+        transition={{ ease: "easeOut", duration: 0.2 }}
+      >
+        Visionaries
+      </motion.span>
+    )}
+  </AnimatePresence>
+))
 
 AnimatedTitle.displayName = "AnimatedTitle"
 
@@ -82,11 +80,7 @@ export const BrandsContent = ({ brands }: { brands: Brand[] }) => {
           (1)
         </p>
         <h3 className="col-span-full text-mobile-h3 text-brand-g1 lg:col-start-2 lg:text-h3 2xl:col-start-3">
-          Trusted by{" "}
-          <AnimatedTitle
-            brandName={hoveredBrandName ?? ""}
-            enabled={isDesktop ?? false}
-          />
+          Trusted by <AnimatedTitle brandName={hoveredBrandName ?? ""} />
         </h3>
       </div>
 
