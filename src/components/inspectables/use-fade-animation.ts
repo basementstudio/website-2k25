@@ -9,7 +9,7 @@ import { useInspectable } from "./context"
 export const useFadeAnimation = () => {
   const { selected } = useInspectable()
   const inspectingEnabled = useRef(false)
-  const fadeFactor = useRef<MotionValue>(new MotionValue(0))
+  const fadeFactor = useRef<MotionValue>(new MotionValue())
   const tl = useRef<AnimationPlaybackControls | null>(null)
 
   useEffect(() => {
