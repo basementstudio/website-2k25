@@ -1,9 +1,10 @@
 "use client"
 
+import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useBasketballThemeSong } from "@/hooks/use-basketball-themesong"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useKonamiSong } from "@/hooks/use-konami-song"
-import { useOfficeAmbience } from "@/hooks/use-office-ambience"
+import { usePreloadAssets } from "@/hooks/use-preload-assets"
 import {
   SiteAudioSFXsLoader,
   useInitializeAudioContext
@@ -11,7 +12,11 @@ import {
 import { useWebsiteAmbience } from "@/hooks/use-website-ambience"
 import { useArcadeStore } from "@/store/arcade-store"
 
-export function AppHooks(): React.JSX.Element {
+export function AppHooks({
+  assets
+}: {
+  assets: AssetsResult
+}): React.JSX.Element {
   const isInGame = useArcadeStore((s) => s.isInGame)
   const scene = useCurrentScene()
   const isBasketballPage = scene === "basketball"
@@ -29,7 +34,8 @@ export function AppHooks(): React.JSX.Element {
 
   useKonamiSong()
 
+  // preload assets
+  usePreloadAssets(assets)
+
   return <SiteAudioSFXsLoader />
 }
-
-export default AppHooks

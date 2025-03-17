@@ -4,23 +4,22 @@ import { AnimatePresence, motion } from "motion/react"
 import { memo, useMemo, useState } from "react"
 
 import { ExternalLinkIcon } from "@/components/icons/icons"
-import { Link } from "@/components/primitives/link"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
-import { cn } from "@/utils/cn"
 
 import type { QueryType } from "./query"
 
 const DEBOUNCE_DELAY = 50
 const BREAKPOINTS = {
+  BIG_DESKTOP: "(min-width: 1536px)",
   DESKTOP: "(min-width: 1280px)",
   TABLET: "(min-width: 768px)"
 } as const
 
 const CHUNK_SIZES = {
+  BIG_DESKTOP: 9,
   DESKTOP: 9,
-  TABLET: 6,
-  MOBILE: 4
+  TABLET: 7
 } as const
 
 const SVGLogo = memo(({ svg }: { svg: string | null }) => {
@@ -47,7 +46,7 @@ const BrandRow = memo(
     row: Array<{ logo: string | null; website: string | null; _id: string }>
     setHoveredBrand: (id: string | null) => void
   }) => (
-    <motion.div className="flex items-center justify-between md:justify-start">
+    <div className="flex items-center justify-between md:justify-start">
       {row.map((brand) => (
         <motion.a
           className="-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
@@ -69,7 +68,7 @@ const BrandRow = memo(
           <SVGLogo svg={brand.logo} />
         </motion.a>
       ))}
-    </motion.div>
+    </div>
   )
 )
 
@@ -78,18 +77,18 @@ BrandRow.displayName = "BrandRow"
 const AnimatedTitle = memo(
   ({
     hoveredBrandData,
-    isDesktop
+    enabled
   }: {
+    enabled: boolean
     hoveredBrandData:
       | QueryType["company"]["clients"]["clientList"]["items"][0]
       | undefined
-    isDesktop: boolean | undefined
   }) => (
     <AnimatePresence mode="wait">
-      {hoveredBrandData && isDesktop ? (
+      {hoveredBrandData && enabled ? (
         <motion.span
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:text-h3"
+          className="ml-px inline-flex items-center gap-x-2 text-mobile-h3 text-brand-w1 lg:text-h3"
           exit={{ opacity: 0, y: -10 }}
           initial={{ opacity: 0, y: 10 }}
           key="brand-name"
@@ -118,7 +117,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
   const [hoveredBrand, setHoveredBrand] = useState<string | null>(null)
   const debouncedHoveredBrand = useDebounceValue(hoveredBrand, DEBOUNCE_DELAY)
   const isDesktop = useMedia(BREAKPOINTS.DESKTOP)
-  const isTablet = useMedia(BREAKPOINTS.TABLET)
+  const isBigDesktop = useMedia(BREAKPOINTS.BIG_DESKTOP)
 
   const brands = useMemo(
     () => data.company.clients?.clientList.items.filter((c) => c.logo) ?? [],
@@ -126,11 +125,11 @@ export const Brands = ({ data }: { data: QueryType }) => {
   )
 
   const rows = useMemo(() => {
-    const chunkSize = isDesktop
-      ? CHUNK_SIZES.DESKTOP
-      : isTablet
-        ? CHUNK_SIZES.TABLET
-        : CHUNK_SIZES.MOBILE
+    const chunkSize = isBigDesktop
+      ? CHUNK_SIZES.BIG_DESKTOP
+      : isDesktop
+        ? CHUNK_SIZES.DESKTOP
+        : CHUNK_SIZES.TABLET
 
     return brands.reduce<(typeof brands)[]>((acc, brand, index) => {
       const rowIndex = Math.floor(index / chunkSize)
@@ -140,7 +139,7 @@ export const Brands = ({ data }: { data: QueryType }) => {
       acc[rowIndex].push(brand)
       return acc
     }, [])
-  }, [brands, isDesktop, isTablet])
+  }, [brands, isBigDesktop, isDesktop])
 
   const brandsMap = useMemo(() => {
     const map = new Map()
@@ -161,19 +160,17 @@ export const Brands = ({ data }: { data: QueryType }) => {
   return (
     <section className="lg:grid-layout hidden !gap-y-0">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:text-h3 xl:col-start-2 xl:col-end-7 2xl:col-start-3">
+        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-2 lg:text-h3 2xl:col-start-3">
           Trusted by{" "}
           <AnimatedTitle
             hoveredBrandData={hoveredBrandData}
-            isDesktop={isDesktop}
+            enabled={isDesktop ?? false}
           />
         </h3>
-
-        <div className="col-span-12 h-px w-full bg-brand-w1/30" />
       </div>
 
-      <div className="relative col-span-full xl:col-start-2 xl:col-end-13 2xl:col-start-3">
-        <div className="group flex w-full flex-col divide-y divide-brand-w1/30">
+      <div className="relative col-span-full lg:col-start-2 2xl:col-start-3">
+        <div className="group flex w-fit flex-col divide-y divide-brand-w1/30">
           {rows.map((row, rowIndex) => (
             <BrandRow
               key={`brands-row-${row[0]?._id ?? rowIndex}`}

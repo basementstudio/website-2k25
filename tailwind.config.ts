@@ -8,6 +8,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        "3xl": "1920px"
+      },
       colors: {
         brand: {
           w1: "#E6E6E6",
@@ -132,6 +135,39 @@ export default {
             lineHeight: "1.5rem",
             letterSpacing: "-0.02em",
             fontWeight: "500"
+          }
+        ],
+        // TODO: Update to use the new font
+        "f-h0": [
+          "6.125rem",
+          {
+            lineHeight: "5.5rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h0-mobile": [
+          "2.875rem",
+          {
+            lineHeight: "2.75rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h1": [
+          "4.75rem",
+          {
+            lineHeight: "4.25rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h1-mobile": [
+          "2.1875rem",
+          {
+            lineHeight: "2.25rem",
+            letterSpacing: "-0.03em",
+            fontWeight: "600"
           }
         ]
       },

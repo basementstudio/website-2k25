@@ -13,6 +13,7 @@ const Scene = dynamic(
     loading: () => null
   }
 )
+
 import { cn } from "@/utils/cn"
 
 import { useAppLoadingStore } from "../loading/app-loading-handler"
@@ -23,8 +24,6 @@ const BLACKLISTED_PATHS = [
   /^\/showcase\/[^\/]+$/,
   /^\/post\/[^\/]+$/,
   /^\/project\/[^\/]+$/
-  // temp
-  // /^\/showcase$/
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {

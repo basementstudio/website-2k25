@@ -3,7 +3,11 @@ import { memo, useMemo } from "react"
 import type * as THREE from "three"
 import { BufferAttribute, Color, FloatType } from "three"
 
+import { useFrameCallback } from "@/hooks/use-pausable-time"
+useFadeAnimation
+
 import { useAssets } from "../assets-provider"
+import { useFadeAnimation } from "../inspectables/use-fade-animation"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
 import { getCharacterMaterial } from "./material/chartacter-material"
 
@@ -14,18 +18,14 @@ const {
 } = createInstancedSkinnedMesh()
 
 export enum CharacterAnimationName {
-  "Chill" = "Chill",
-  "Floor" = "Floor",
-  "Floor2" = "Floor2",
-  "Iddle-01" = "Iddle-01",
-  "Iddle-02" = "Iddle-02",
-  "Sit" = "Sit",
-  "Character-RigAction" = "Character-RigAction",
-  "Talking" = "Talking",
-  "Talking2" = "Talking2",
-  "Talking3" = "Talking3",
-  "Walking" = "Walking",
-  "Working" = "Working"
+  "Blog.01" = "Blog.01",
+  "Blog.02" = "Blog.02",
+  "People.01.a" = "People.01.a",
+  "People.01.b" = "People.01.b",
+  "People.02.a" = "People.02.a",
+  "People.02.b" = "People.02.b",
+  "Services.01" = "Services.01",
+  "Services.02" = "Services.02"
 }
 
 const SKINNED_MESH_KEYS = [
@@ -89,6 +89,14 @@ function CharacterInstanceConfigInner() {
   const textureBody = useTexture(characters.textureBody)
   const textureFaces = useTexture(characters.textureFaces)
   const textureArms = useTexture(characters.textureArms)
+
+  const { fadeFactor } = useFadeAnimation()
+
+  useFrameCallback(() => {
+    if (material) {
+      material.uniforms.fadeFactor.value = fadeFactor.current.get()
+    }
+  })
 
   if (!SKINNED_MESH_KEYS.every((key) => nodes[key as keyof typeof nodes])) {
     console.error("INVALID CHARACTERS MODEL")

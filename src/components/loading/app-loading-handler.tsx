@@ -1,5 +1,8 @@
 "use client"
 
+import { useLenis } from "lenis/react"
+import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
 
@@ -14,6 +17,7 @@ export type UpdateCameraCallback = (
 interface AppLoadingState {
   isCanvasInPage: boolean
   showLoadingCanvas: boolean
+  offscreenCanvasReady: boolean
   worker: Worker | null
   setMainAppRunning: (isAppLoaded: boolean) => void
 }
@@ -23,6 +27,10 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
 
   const store: AppLoadingState = {
     isCanvasInPage: false,
+    /**
+     * Used to check if the offscreen canvas is ready
+     */
+    offscreenCanvasReady: false,
     /**
      * Used to show/hide loading canvas
      */
@@ -35,8 +43,6 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      * This function will tell the loading canvas that is ok to reveal the main app
      */
     setMainAppRunning: (isAppLoaded) => {
-      console.log("loaded")
-
       get().worker?.postMessage({
         type: "update-loading-status",
         isAppLoaded
@@ -52,6 +58,17 @@ function AppLoadingHandler() {
   )
 
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
+
+  // TODO: update this once we cover "showcase navigation issue"
+  const lenis = useLenis()
+
+  useEffect(() => {
+    if (showLoadingCanvas && isCanvasInPage) {
+      lenis?.stop()
+    } else {
+      lenis?.start()
+    }
+  }, [showLoadingCanvas, lenis, isCanvasInPage])
 
   if (!isCanvasInPage) {
     return null

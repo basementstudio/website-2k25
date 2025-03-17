@@ -10,6 +10,9 @@ export function getCharacterMaterial() {
     uniforms: {
       uMapSampler: {
         value: null
+      },
+      fadeFactor: {
+        value: 0
       }
     }
   })

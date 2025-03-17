@@ -6,37 +6,39 @@ export const modelsItemFragment = fragmentOn("ModelsItem", {
   }
 })
 
+const urlFragment = { url: true }
+
+const titleFragment = { _title: true }
+
 export const characterFragment = fragmentOn("Characters", {
-  model: {
+  model: modelsItemFragment,
+  textureBody: urlFragment,
+  textureFaces: urlFragment,
+  textureArms: {
+    url: true
+  },
+  petModel: {
     file: {
       url: true
     }
   },
-  textureBody: {
-    url: true
-  },
-  textureFaces: {
-    url: true
-  },
-  textureArms: {
+  petTexture: {
     url: true
   }
 })
 
 export const mapFragment = fragmentOn("Map", {
-  officeV2: modelsItemFragment,
+  office: modelsItemFragment,
+  officeItems: modelsItemFragment,
   outdoor: modelsItemFragment,
   godrays: modelsItemFragment,
   routingElements: modelsItemFragment,
+  wireframeModel: modelsItemFragment,
   bakes: {
     items: {
       _title: true,
-      lightmap: {
-        url: true
-      },
-      ambientOcclusion: {
-        url: true
-      },
+      lightmap: urlFragment,
+      ambientOcclusion: urlFragment,
       meshes: {
         items: {
           _title: true
@@ -55,33 +57,25 @@ export const mapFragment = fragmentOn("Map", {
   matcaps: {
     items: {
       _title: true,
-      file: {
-        url: true
-      },
+      file: urlFragment,
       isGlass: true
     }
   },
   videos: {
     items: {
       _title: true,
-      file: {
-        url: true
-      },
+      file: urlFragment,
       intensity: true
     }
   },
   glassMaterials: {
-    items: {
-      _title: true
-    }
+    items: titleFragment
   },
   doubleSideElements: {
-    items: {
-      _title: true
-    }
+    items: titleFragment
   },
-  wireframeModel: {
-    file: {
+  textures: {
+    rain: {
       url: true
     }
   }
@@ -109,38 +103,20 @@ export const inspectableFragment = fragmentOn("Inspectables", {
       yOffset: true,
       xRotationOffset: true,
       sizeTarget: true,
-      scenes: {
-        _title: true
-      },
-      fx: {
-        url: true
-      }
+      scenes: titleFragment,
+      fx: urlFragment
     }
   }
 })
 
 export const sfxFragment = fragmentOn("Sfx", {
-  ambience: {
-    url: true
-  },
-  basketballTheme: {
-    url: true
-  },
-  basketballSwoosh: {
-    url: true
-  },
-  basketballNet: {
-    url: true
-  },
-  basketballThump: {
-    url: true
-  },
-  basketballBuzzer: {
-    url: true
-  },
-  basketballStreak: {
-    url: true
-  },
+  ambience: urlFragment,
+  basketballTheme: urlFragment,
+  basketballSwoosh: urlFragment,
+  basketballNet: urlFragment,
+  basketballThump: urlFragment,
+  basketballBuzzer: urlFragment,
+  basketballStreak: urlFragment,
   blog: {
     lockedDoor: {
       items: {
@@ -220,30 +196,14 @@ export const sfxFragment = fragmentOn("Sfx", {
 })
 
 export const arcadeFragment = fragmentOn("Arcade", {
-  idleScreen: {
-    url: true
-  },
-  placeholderLab: {
-    url: true
-  },
-  boot: {
-    url: true
-  },
-  chronicles: {
-    url: true
-  },
-  looper: {
-    url: true
-  },
-  palm: {
-    url: true
-  },
-  sky: {
-    url: true
-  },
-  cityscape: {
-    url: true
-  },
+  idleScreen: urlFragment,
+  placeholderLab: urlFragment,
+  boot: urlFragment,
+  chronicles: urlFragment,
+  looper: urlFragment,
+  palm: urlFragment,
+  sky: urlFragment,
+  cityscape: urlFragment,
   introScreen: {
     url: true
   }
@@ -273,15 +233,6 @@ export const sceneFragment = fragmentOn("Scenes", {
           plusShapeScale: true
         }
       },
-      fogConfig: {
-        fogColor: {
-          r: true,
-          g: true,
-          b: true
-        },
-        fogDensity: true,
-        fogDepth: true
-      },
       postprocessing: {
         contrast: true,
         brightness: true,
@@ -298,15 +249,9 @@ export const sceneFragment = fragmentOn("Scenes", {
 })
 
 export const carFragment = fragmentOn("OutdoorCars", {
-  model: {
-    file: {
-      url: true
-    }
-  }
+  model: modelsItemFragment
 })
 
 export const lampFragment = fragmentOn("LampComponent", {
-  extraLightmap: {
-    url: true
-  }
+  extraLightmap: urlFragment
 })

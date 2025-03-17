@@ -1,4 +1,5 @@
 import { Pump } from "basehub/react-pump"
+import type { Metadata } from "next"
 
 import { Contact } from "@/components/layout/contact"
 
@@ -8,6 +9,11 @@ import { query } from "./query"
 import { Services } from "./services"
 import { Testimonials } from "./testimonials"
 import { VenturesBanner } from "./ventures"
+
+export const metadata: Metadata = {
+  title: "Services",
+  description: "Our services"
+}
 
 const ServicesPage = () => (
   <Pump queries={[query]}>

@@ -1,7 +1,14 @@
+import type { Metadata } from "next"
+
 import { Categories } from "@/components/blog/categories"
 
 import { Featured } from "./featured"
 import { Hero } from "./hero"
+
+export const metadata: Metadata = {
+  title: "Blog",
+  description: "Our blog"
+}
 
 export default function BlogLayout({
   children

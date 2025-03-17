@@ -1,7 +1,7 @@
-import { useFrame } from "@react-three/fiber"
 import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import fragmentShader from "@/shaders/net-shader/fragment.glsl"
 import vertexShader from "@/shaders/net-shader/vertex.glsl"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -68,7 +68,7 @@ export const Net = ({ mesh }: NetProps) => {
     }
   }, [mesh, shaderMaterial])
 
-  useFrame((state, delta) => {
+  useFrameCallback((state, delta) => {
     if (materialRef.current) {
       timeRef.current += delta
       materialRef.current.uniforms.uTime.value = timeRef.current

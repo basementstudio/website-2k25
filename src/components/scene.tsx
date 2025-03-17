@@ -1,5 +1,6 @@
 "use client"
 
+import { Preload } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
@@ -17,6 +18,7 @@ import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
+import { Pets } from "./pets"
 import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
 
@@ -100,8 +102,10 @@ export const Scene = () => {
             <Renderer
               sceneChildren={
                 <>
-                  <Inspectables />
-                  <Suspense>
+                  <Suspense fallback={null}>
+                    <Inspectables />
+                  </Suspense>
+                  <Suspense fallback={null}>
                     <Map />
                   </Suspense>
                   <Suspense fallback={null}>
@@ -121,6 +125,13 @@ export const Scene = () => {
                         </ErrorBoundary>
                       </PhysicsWorld>
                     )}
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <CharacterInstanceConfig />
+                    <CharactersSpawn />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <Pets />
                   </Suspense>
                 </>
               }

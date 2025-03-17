@@ -86,7 +86,7 @@ const Contact = () => {
 
   return (
     <>
-      <div className={cn("fixed inset-0 z-50 block")}>
+      <div className={cn("fixed inset-0 z-50")}>
         <ContactCanvas />
       </div>
       <div

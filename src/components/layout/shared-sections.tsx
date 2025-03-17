@@ -32,7 +32,7 @@ export const InternalLinks = ({
       {links.map((link) => (
         <li key={link.title}>
           <Link
-            className="flex gap-x-0.5 text-brand-w1"
+            className="flex w-fit gap-x-0.5 text-brand-w1"
             href={link.href}
             onClick={onClick}
           >
