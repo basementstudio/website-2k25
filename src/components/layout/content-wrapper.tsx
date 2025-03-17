@@ -13,7 +13,7 @@ const Scene = dynamic(
     loading: () => null
   }
 )
-import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
+
 import { cn } from "@/utils/cn"
 
 import { useAppLoadingStore } from "../loading/app-loading-handler"
@@ -25,9 +25,6 @@ const BLACKLISTED_PATHS = [
   /^\/post\/[^\/]+$/,
   /^\/project\/[^\/]+$/,
   /^\/contact$/
-
-  // temp
-  // /^\/showcase$/
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
