@@ -7,7 +7,7 @@ import { ExternalLinkIcon } from "@/components/icons/icons"
 
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
-import { Brand, GetBreakpointRows } from "@/app/(pages)/(home)/brands"
+import { Brand } from "@/app/(pages)/(home)/brands"
 
 const DEBOUNCE_DELAY = 50
 const BREAKPOINTS = {
@@ -102,9 +102,11 @@ export const AnimatedTitle = memo(
 AnimatedTitle.displayName = "AnimatedTitle"
 
 export const BrandsContent = ({
-  brandsItemsRows
+  brands,
+  marqueeBrandsRows
 }: {
-  brandsItemsRows: GetBreakpointRows
+  brands: Brand[]
+  marqueeBrandsRows: Brand[][]
 }) => {
   const [hoveredBrand, setHoveredBrand] = useState<{
     id: string
@@ -113,19 +115,36 @@ export const BrandsContent = ({
   const debouncedHoveredBrand = useDebounceValue(hoveredBrand, DEBOUNCE_DELAY)
   const isDesktop = useMedia(BREAKPOINTS.DESKTOP)
 
-  const rows: Brand[][] = useMemo(() => {
-    return isDesktop ? brandsItemsRows.DESKTOP : brandsItemsRows.TABLET
-  }, [brandsItemsRows, isDesktop])
+  const displayBrands = useMemo(() => {
+    if (isDesktop === false) {
+      return marqueeBrandsRows.map((row, rowIndex) => (
+        <BrandRow
+          rowIndex={rowIndex}
+          key={`brands-row-${rowIndex}`}
+          row={row}
+          hoveredBrandId={debouncedHoveredBrand?.id}
+          setHoveredBrand={setHoveredBrand}
+        />
+      ))
+    }
+
+    return (
+      <BrandRow
+        rowIndex={0}
+        row={brands}
+        hoveredBrandId={debouncedHoveredBrand?.id}
+        setHoveredBrand={setHoveredBrand}
+      />
+    )
+  }, [brands, isDesktop, marqueeBrandsRows])
 
   const hoveredBrandName: string | undefined = useMemo(() => {
     if (debouncedHoveredBrand) {
-      return rows[debouncedHoveredBrand.rowIndex].find(
-        (row) => row._id === debouncedHoveredBrand.id
-      )?._title
+      return brands.find((row) => row._id === debouncedHoveredBrand.id)?._title
     } else {
       return undefined
     }
-  }, [rows, debouncedHoveredBrand])
+  }, [brands, debouncedHoveredBrand])
 
   return (
     <section className="lg:grid-layout hidden !gap-y-0">
@@ -141,16 +160,7 @@ export const BrandsContent = ({
 
       <div className="relative col-span-full lg:col-start-2 2xl:col-start-3">
         <div className="group flex w-fit flex-col divide-y divide-brand-w1/30">
-          {rows.map((row, rowIndex) => (
-            <BrandRow
-              rowIndex={rowIndex}
-              key={`brands-row-${rowIndex}`}
-              row={row}
-              hoveredBrandId={debouncedHoveredBrand?.id}
-              setHoveredBrand={setHoveredBrand}
-            />
-          ))}
-          <div />
+          {displayBrands}
         </div>
       </div>
     </section>
