@@ -121,6 +121,11 @@ const useBakes = (): Record<string, Bake> => {
     })
 
     loadedMatcaps.forEach((map, index) => {
+      map.flipY = false
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
+      map.magFilter = NearestFilter
+      map.colorSpace = NoColorSpace
       if (!maps[matcaps[index].mesh]) {
         maps[matcaps[index].mesh] = {}
       }
