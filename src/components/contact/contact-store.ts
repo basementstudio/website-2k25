@@ -1,4 +1,4 @@
-import { Vector2, Vector3 } from "three"
+import { Vector2 } from "three"
 import { create } from "zustand"
 
 interface ContactStore {
@@ -48,11 +48,24 @@ export const useContactStore = create<ContactStore>((set) => ({
   setIsContactOpen: (isContactOpen) => {
     if (!isContactOpen) {
       if (window.location.hash === "#contact") {
+        const targetPath = sessionStorage.getItem("pendingNavigation")
+
         window.history.pushState(
           null,
           "",
           window.location.pathname + window.location.search
         )
+
+        if (targetPath && targetPath !== window.location.pathname) {
+          setTimeout(() => {
+            window.dispatchEvent(
+              new CustomEvent("contactFormNavigate", {
+                detail: { path: targetPath }
+              })
+            )
+            sessionStorage.removeItem("pendingNavigation")
+          }, 50)
+        }
       }
 
       set((state) => {

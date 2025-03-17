@@ -3,6 +3,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useContactStore } from "@/components/contact/contact-store"
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
@@ -34,10 +35,7 @@ export const useHandleNavigation = () => {
         return scenes?.find((scene) => scene.name.toLowerCase() === "home")
       }
 
-      // strip the query params and hash if any
       const routeWithoutParams = route.split("?")[0].split("#")[0]
-
-      // get the first segment after the leading slash
       const finalRoute = routeWithoutParams.split("/").filter(Boolean)[0]
 
       return scenes?.find((scene) => scene.name === finalRoute)
@@ -48,6 +46,13 @@ export const useHandleNavigation = () => {
   const handleNavigation = useCallback(
     (route: string) => {
       if (route === pathname) return
+
+      const isContactOpen = useContactStore.getState().isContactOpen
+      if (isContactOpen) {
+        sessionStorage.setItem("pendingNavigation", route)
+        useContactStore.getState().setIsContactOpen(false)
+        return
+      }
 
       const selectedScene = getScene(route)
 

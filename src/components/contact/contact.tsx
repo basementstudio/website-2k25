@@ -1,5 +1,6 @@
 "use client"
 import { useCallback, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
@@ -14,6 +15,7 @@ const Contact = () => {
   const { isContactOpen, isClosing, setIsContactOpen } = useContactStore()
   const { playSoundFX } = useSiteAudio()
   const scene = useCurrentScene()
+  const router = useRouter()
   const isPeople = scene === "people"
   const isBlog = scene === "blog"
   const desiredVolume = isBlog ? 0.05 : 0.2
@@ -49,6 +51,34 @@ const Contact = () => {
       return () => clearTimeout(timer)
     }
   }, [isContactOpen])
+
+  useEffect(() => {
+    if (!isContactOpen && !isClosing) {
+      const pendingNav = sessionStorage.getItem("pendingNavigation")
+      if (pendingNav) {
+        console.log("Contact closed with pending navigation to:", pendingNav)
+      }
+    }
+  }, [isContactOpen, isClosing])
+
+  useEffect(() => {
+    const handleContactNavigation = (e: CustomEvent) => {
+      if (e.detail && e.detail.path) {
+        router.push(e.detail.path, { scroll: false })
+      }
+    }
+
+    window.addEventListener(
+      "contactFormNavigate",
+      handleContactNavigation as EventListener
+    )
+    return () => {
+      window.removeEventListener(
+        "contactFormNavigate",
+        handleContactNavigation as EventListener
+      )
+    }
+  }, [router])
 
   useEffect(() => {
     const handleHashChange = () => {
