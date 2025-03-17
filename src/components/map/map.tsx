@@ -1,8 +1,6 @@
 "use client"
 
 import { useGLTF } from "@react-three/drei"
-import { animate, MotionValue } from "motion"
-import { AnimationPlaybackControls } from "motion/react"
 import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three"
@@ -14,14 +12,12 @@ import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
-import { useInspectable } from "@/components/inspectables/context"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { OutdoorCars } from "@/components/outdoor-cars"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
-import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -31,6 +27,7 @@ import {
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
+import { useFadeAnimation } from "../inspectables/use-fade-animation"
 import { SpeakerHover } from "../other/speaker-hover"
 import { Weather } from "../weather"
 import { BakesLoader } from "./bakes"
@@ -115,8 +112,6 @@ export const Map = memo(() => {
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
   const [godrayScene, setGodrayScene] = useState<SceneType>(null)
 
-  const { selected } = useInspectable()
-
   const [godrays, setGodrays] = useState<Mesh[]>([])
   useGodrays({ godrays })
 
@@ -131,20 +126,7 @@ export const Map = memo(() => {
   const isAnimating = useRef(false)
   const timeRef = useRef(0)
 
-  const fadeFactor = useRef(new MotionValue())
-  const inspectingEnabled = useRef(false)
-  const tl = useRef<AnimationPlaybackControls | null>(null)
-
-  useEffect(() => {
-    const easeDirection = selected ? 1 : 0
-
-    if (easeDirection === 1) inspectingEnabled.current = true
-
-    tl.current = animate(fadeFactor.current, easeDirection, ANIMATION_CONFIG)
-    tl.current.play()
-
-    return () => tl.current?.stop()
-  }, [selected])
+  const { fadeFactor, inspectingEnabled } = useFadeAnimation()
 
   useFrameCallback((_, delta) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
