@@ -3,14 +3,8 @@ import { create } from "zustand"
 
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
-import {
-  AMBIENT_VOLUME,
-  SFX_VOLUME,
-  THEME_SONG_VOLUME
-} from "@/lib/audio/constants"
-import { useArcadeStore } from "@/store/arcade-store"
+import { SFX_VOLUME } from "@/lib/audio/constants"
 
-import { useCurrentScene } from "./use-current-scene"
 import { useIsOnTab } from "./use-is-on-tab"
 
 export enum BackgroundAudioType {
@@ -39,15 +33,11 @@ interface SiteAudioStore {
   player: WebAudioPlayer | null
   audioSfxSources: Record<SiteAudioSFXKey, AudioSource> | null
   themeSong: AudioSource | null
-  ostSong: AudioSource | null
   arcadeSong: AudioSource | null
   basketballSong: AudioSource | null
 
   music: boolean
   setMusic: (state: boolean) => void
-  volumeMaster: number
-  setVolumeMaster: (volume: number) => void
-
   activeTrackType: BackgroundAudioType
   setActiveTrackType: (type: BackgroundAudioType) => void
   currentAmbienceIndex: number
@@ -58,20 +48,12 @@ interface SiteAudioStore {
 
 interface SiteAudioHook {
   player: WebAudioPlayer | null
-  togglePlayMaster: () => void
-  resumeMaster: () => void
-  pauseMaster: () => void
-  setVolumeMaster: (volume: number) => void
-  volumeMaster: number
   playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
-  getSoundFXSource: (key: SiteAudioSFXKey) => AudioSource | null
   playInspectableFX: (
     url: string,
     volume?: number,
     pitch?: number
   ) => Promise<AudioSource | null>
-  playArcadeSong: (url: string) => Promise<void>
-  playBasketballSong: (url: string) => Promise<void>
   music: boolean
   handleMute: () => void
 }
@@ -80,16 +62,11 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
   player: null,
   audioSfxSources: null,
   themeSong: null,
-  ostSong: null,
   arcadeSong: null,
   basketballSong: null,
 
   music: true,
   setMusic: (state) => useSiteAudioStore.setState({ music: state }),
-  volumeMaster: 1,
-  setVolumeMaster: (volume) =>
-    useSiteAudioStore.setState({ volumeMaster: volume }),
-
   activeTrackType: "ambience" as BackgroundAudioType,
   setActiveTrackType: (type) =>
     useSiteAudioStore.setState({ activeTrackType: type }),
@@ -253,14 +230,19 @@ function SiteAudioSFXsLoaderInner(): null {
 export function useSiteAudio(): SiteAudioHook {
   const player = useSiteAudioStore((s) => s.player)
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
-  const ostSong = useSiteAudioStore((s) => s.ostSong)
 
   const music = useSiteAudioStore((s) => s.music)
   const setMusic = useSiteAudioStore((s) => s.setMusic)
-  const volumeMaster = useSiteAudioStore((s) => s.volumeMaster)
-  const storeSetVolumeMaster = useSiteAudioStore((s) => s.setVolumeMaster)
+
+  const { ARCADE_AUDIO_SFX, GAME_THEME_SONGS } = useAudioUrls()
 
   const isOnTab = useIsOnTab()
+
+  // Initialize audio system when player is available
+  useEffect(() => {
+    if (!player) return
+    player.setMusicAndGameVolume(music ? 1 : 0)
+  }, [player, music])
 
   // Handle tab visibility changes
   useEffect(() => {
@@ -273,40 +255,6 @@ export function useSiteAudio(): SiteAudioHook {
     }
   }, [player, isOnTab, music])
 
-  // Initialize audio system when player is available
-  useEffect(() => {
-    if (!player) return
-
-    // Set initial volume based on music state
-    player.setMusicAndGameVolume(music ? 1 : 0)
-
-    // Update volumeMaster to match music state
-    storeSetVolumeMaster(music ? 1 : 0)
-  }, [player, music, storeSetVolumeMaster])
-
-  // Monitor ostSong changes to ensure proper audio state
-  useEffect(() => {
-    if (!player || !ostSong) return
-
-    // When ostSong changes, ensure it's the only music track playing
-    // This is handled by the useWebsiteAmbience hook's stopAllTracks function
-    // This effect is just an additional safeguard
-
-    return () => {
-      // Cleanup function - if the ostSong reference is removed,
-      // make sure it's stopped to prevent audio leaks
-      if (ostSong && ostSong.isPlaying) {
-        ostSong.clearOnEnded()
-        ostSong.stop()
-      }
-    }
-  }, [player, ostSong])
-
-  const togglePlayMaster = useCallback(() => {
-    if (!player) return
-    player.isPlaying ? player.pause() : player.resume()
-  }, [player])
-
   const handleMute = useCallback(() => {
     if (typeof window === "undefined") return
 
@@ -314,24 +262,9 @@ export function useSiteAudio(): SiteAudioHook {
     const newVolume = newState ? 1 : 0
 
     setMusic(newState)
-    storeSetVolumeMaster(newVolume)
 
-    if (player) {
-      player.setMusicAndGameVolume(newVolume)
-    }
-  }, [music, player, setMusic, storeSetVolumeMaster])
-
-  const setVolumeMaster = useCallback(
-    (volume: number) => {
-      if (!player || typeof window === "undefined") return
-
-      player.setMusicAndGameVolume(volume)
-
-      storeSetVolumeMaster(volume)
-      setMusic(volume > 0)
-    },
-    [player, setMusic, storeSetVolumeMaster]
-  )
+    if (player) player.setMusicAndGameVolume(newVolume)
+  }, [music, player, setMusic])
 
   const playSoundFX = useCallback(
     (sfx: SiteAudioSFXKey, volume = SFX_VOLUME, pitch = 1) => {
@@ -365,100 +298,56 @@ export function useSiteAudio(): SiteAudioHook {
     [player]
   )
 
-  const getSoundFXSource = useCallback(
-    (key: SiteAudioSFXKey): AudioSource | null =>
-      audioSfxSources?.[key] ?? null,
-    [audioSfxSources]
-  )
+  const playArcadeSong = useCallback(async () => {
+    if (!player) return
 
-  const playArcadeSong = useCallback(
-    async (url: string) => {
-      if (!player) return
+    try {
+      const currentSong = useSiteAudioStore.getState().arcadeSong
+      if (currentSong) currentSong.stop()
 
-      const isInGame = useArcadeStore.getState().isInGame
-      if (!isInGame) return
+      const source = await player.loadAudioFromURL(
+        ARCADE_AUDIO_SFX.MIAMI_HEATWAVE,
+        false,
+        true
+      )
+      source.loop = true
+      source.setVolume(0.15)
+      source.play()
 
-      try {
-        const currentArcadeSong = useSiteAudioStore.getState().arcadeSong
-        if (currentArcadeSong) {
-          currentArcadeSong.stop()
-        }
-
-        const source = await player.loadAudioFromURL(url, false, true)
-        source.loop = true
-        source.setVolume(0.15)
-        source.play()
-
-        useSiteAudioStore.setState({ arcadeSong: source })
-      } catch (error) {
-        console.error("Failed to load or play arcade song:", error)
-      }
-    },
-    [player]
-  )
-
-  const scene = useCurrentScene()
-
-  const playBasketballSong = useCallback(
-    async (url: string) => {
-      if (!player) return
-      const isBasketballScene = scene === "basketball"
-      if (!isBasketballScene) return
-
-      try {
-        const source = await player.loadAudioFromURL(url, false, true)
-        source.loop = true
-        source.setVolume(0.15)
-        source.play()
-
-        useSiteAudioStore.setState({ basketballSong: source })
-      } catch (error) {
-        console.error("Failed to load or play basketball song:", error)
-      }
-    },
-    [player, scene]
-  )
-
-  const isInGame = useArcadeStore((s) => s.isInGame)
-
-  useEffect(() => {
-    if (!isInGame) {
-      const currentArcadeSong = useSiteAudioStore.getState().arcadeSong
-      if (currentArcadeSong) {
-        currentArcadeSong.stop()
-        useSiteAudioStore.setState({ arcadeSong: null })
-      }
+      useSiteAudioStore.setState({ arcadeSong: source })
+    } catch (error) {
+      console.error("Failed to load or play arcade song:", error)
     }
-  }, [isInGame])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player])
 
-  useEffect(() => {
-    if (scene !== "basketball") {
-      const currentBasketballSong = useSiteAudioStore.getState().basketballSong
-      if (currentBasketballSong) {
-        currentBasketballSong.stop()
-        useSiteAudioStore.setState({ basketballSong: null })
-      }
+  const playBasketballSong = useCallback(async () => {
+    if (!player) return
+
+    try {
+      const currentSong = useSiteAudioStore.getState().basketballSong
+      if (currentSong) currentSong.stop()
+
+      const source = await player.loadAudioFromURL(
+        GAME_THEME_SONGS.BASKETBALL_SONG,
+        false,
+        true
+      )
+      source.loop = true
+      source.setVolume(0.15)
+      source.play()
+
+      useSiteAudioStore.setState({ basketballSong: source })
+    } catch (error) {
+      console.error("Failed to load or play basketball song:", error)
     }
-  }, [scene])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player])
 
   return {
     player,
-    togglePlayMaster,
-    resumeMaster: () => {
-      if (!player) return
-      player.resume()
-    },
-    pauseMaster: () => {
-      if (!player) return
-      player.pause()
-    },
-    setVolumeMaster,
-    volumeMaster,
     playSoundFX,
-    getSoundFXSource,
     playInspectableFX,
-    playArcadeSong,
-    playBasketballSong,
     music,
     handleMute
   }

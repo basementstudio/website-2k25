@@ -1,14 +1,9 @@
-import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
-import { useTimeout } from "@/components/arcade-game/hooks/use-timeout"
 import { Playlist } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { AMBIENT_VOLUME } from "@/lib/audio/constants"
-import { useArcadeStore } from "@/store/arcade-store"
-import { useMinigameStore } from "@/store/minigame-store"
 
-import { useCurrentScene } from "./use-current-scene"
 import { BackgroundAudioType, useSiteAudioStore } from "./use-site-audio"
 
 const globalPlaylistRef: {
@@ -24,20 +19,6 @@ const globalPlaylistRef: {
 export function useAmbiencePlaylist() {
   const player = useSiteAudioStore((s) => s.player)
   const { AMBIENCE } = useAudioUrls()
-
-  const scene = useCurrentScene()
-  const pathname = usePathname()
-  // TODO: find out why this condition partially works, but scene === "basketball" does not, ever
-  // const isBasketballScene = pathname === "/basketball"
-
-  const isBasketball = useMinigameStore((s) => s.isGameActive)
-  const isInGame = useArcadeStore((state) => state.isInGame)
-
-  const gameCondition = isInGame && scene === "lab"
-  // const basketCondition = isBasketball && scene === "basketball"
-  const basketCondition = scene === "basketball"
-
-  const shouldMuteAmbience = basketCondition || gameCondition
 
   const activeTrackType = useSiteAudioStore((s) => s.activeTrackType)
   const isBackgroundInitialized = useSiteAudioStore(
@@ -55,8 +36,8 @@ export function useAmbiencePlaylist() {
     globalPlaylistRef.instance
   )
 
-  const ambienceTracks = useMemo(() => {
-    return [
+  const ambienceTracks = useMemo(
+    () => [
       {
         name: "Perfect Waves - Basement Jukebox 00:59",
         url: AMBIENCE.AMBIENCE_AQUA,
@@ -77,8 +58,9 @@ export function useAmbiencePlaylist() {
         url: AMBIENCE.AMBIENCE_VHS,
         volume: AMBIENT_VOLUME
       }
-    ]
-  }, [AMBIENCE])
+    ],
+    [AMBIENCE]
+  )
 
   useEffect(() => {
     // If we already have a global playlist instance, use it
@@ -107,31 +89,17 @@ export function useAmbiencePlaylist() {
 
     globalPlaylistRef.instance = ambience
     setAmbiencePlaylist(ambience)
-
-    return () => {}
   }, [player, ambienceTracks, setCurrentAmbienceIndex])
 
   useEffect(() => {
     if (!ambiencePlaylist) return
 
-    // Always check against the global state to prevent multiple play/stop calls
-    if (activeTrackType === BackgroundAudioType.AMBIENCE) {
-      if (!globalPlaylistRef.isPlaying) {
-        ambiencePlaylist.play()
-        globalPlaylistRef.isPlaying = true
-      }
-
-      if (!isBackgroundInitialized) {
-        setBackgroundInitialized(true)
-      }
-    } else {
-      if (globalPlaylistRef.isPlaying) {
-        ambiencePlaylist.stop()
-        globalPlaylistRef.isPlaying = false
-      }
+    if (!globalPlaylistRef.isPlaying) {
+      ambiencePlaylist.play()
+      globalPlaylistRef.isPlaying = true
     }
 
-    return () => {}
+    if (!isBackgroundInitialized) setBackgroundInitialized(true)
   }, [
     activeTrackType,
     ambiencePlaylist,
@@ -159,48 +127,8 @@ export function useAmbiencePlaylist() {
 
     window.addEventListener("beforeunload", handleBeforeUnload)
 
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload)
-    }
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
   }, [])
-
-  // Mute/unmute effect
-  useEffect(() => {
-    if (!player || !ambiencePlaylist) return
-
-    // Define fade duration
-    const fadeTime = 1 // seconds
-
-    if (shouldMuteAmbience) {
-      // Mute the ambience
-      setTimeout(() => {
-        const currentTime = player.audioContext.currentTime
-        player.musicChannel.gain.cancelScheduledValues(currentTime)
-        player.musicChannel.gain.setValueAtTime(
-          player.musicChannel.gain.value,
-          currentTime
-        )
-        player.musicChannel.gain.linearRampToValueAtTime(
-          0,
-          currentTime + fadeTime
-        )
-      }, 750)
-    } else {
-      // Unmute the ambience
-      const currentTime = player.audioContext.currentTime
-      player.musicChannel.gain.cancelScheduledValues(currentTime)
-      player.musicChannel.gain.setValueAtTime(
-        player.musicChannel.gain.value,
-        currentTime
-      )
-      player.musicChannel.gain.linearRampToValueAtTime(
-        player.musicVolume || AMBIENT_VOLUME,
-        currentTime + fadeTime
-      )
-    }
-
-    return () => {}
-  }, [scene, shouldMuteAmbience, isInGame, player, ambiencePlaylist])
 
   return {
     ambiencePlaylist,
@@ -209,11 +137,6 @@ export function useAmbiencePlaylist() {
     nextAmbienceTrack: () => {
       if (ambiencePlaylist) {
         ambiencePlaylist.next()
-      }
-    },
-    jumpToAmbienceTrack: (index: number) => {
-      if (ambiencePlaylist) {
-        ambiencePlaylist.jumpToTrack(index)
       }
     }
   }
