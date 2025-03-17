@@ -9,28 +9,11 @@ const MusicToggle = ({ music }: { music: boolean }) => {
   const [hasUserInteracted, setHasUserInteracted] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hasInteracted = localStorage.getItem("hasUserInteracted") === "true"
-      if (hasInteracted) {
-        setHasUserInteracted(true)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    const handleFirstInteraction = () => {
-      setHasUserInteracted(true)
-
-      if (typeof window !== "undefined") {
-        localStorage.setItem("hasUserInteracted", "true")
-      }
-    }
+    const handleFirstInteraction = () => setHasUserInteracted(true)
 
     document.addEventListener("click", handleFirstInteraction, { once: true })
 
-    return () => {
-      document.removeEventListener("click", handleFirstInteraction)
-    }
+    return () => document.removeEventListener("click", handleFirstInteraction)
   }, [])
 
   useEffect(() => {
