@@ -1,128 +1,44 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-
+import { SubmitHandler, useForm } from "react-hook-form"
 import { ContactInput } from "./contact-input"
-import { ContactStatus } from "./contact-status"
-import { submitContactForm } from "@/actions/contact-form"
 
-const contactFormSchema = z.object({
-  name: z.string().optional(),
-  company: z.string().optional(),
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .min(1, "Email is required"),
-  budget: z.string().optional(),
-  message: z.string().min(1, "Message is required")
-})
-
-type ContactFormValues = z.infer<typeof contactFormSchema>
+type Inputs = {
+  name: string
+  company: string
+  email: string
+  budget: string
+  message: string
+}
 
 export const ContactForm = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState("")
-
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    reset
-  } = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema),
-    defaultValues: {
-      name: "",
-      company: "",
-      email: "",
-      budget: "",
-      message: ""
-    }
-  })
-
-  useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      setIsSubmitted(false)
-    }
-  }, [errors])
-
-  useEffect(() => {
-    if (isSubmitted || submitError) {
-      const timer = setTimeout(() => {
-        setIsSubmitted(false)
-        setSubmitError("")
-        reset()
-      }, 4000)
-
-      return () => clearTimeout(timer)
-    }
-  }, [isSubmitted, submitError])
-
-  const getFirstErrorMessage = () => {
-    if (errors.email) return errors.email.message
-    if (errors.message) return errors.message.message
-    return ""
-  }
-
-  const onSubmit = async (data: ContactFormValues) => {
-    setSubmitting(true)
-    setIsSubmitted(false)
-    setSubmitError("")
-
-    try {
-      const formData = {
-        name: data.name || "",
-        company: data.company || "",
-        email: data.email,
-        budget: data.budget || "",
-        message: data.message
-      }
-
-      const result = await submitContactForm(formData)
-
-      if (result.success) {
-        setIsSubmitted(true)
-        setSubmitError("")
-        reset()
-      } else {
-        setIsSubmitted(false)
-        setSubmitError(result.error || "Form submission failed")
-      }
-    } catch (error) {
-      setIsSubmitted(false)
-      setSubmitError("Form submission failed")
-    } finally {
-      setSubmitting(false)
-    }
-  }
+    watch,
+    formState: { errors }
+  } = useForm<Inputs>()
+  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data)
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
       className="col-span-7 col-start-6 row-span-2 flex flex-col justify-between gap-6"
       aria-label="Contact form or additional information"
+      onSubmit={handleSubmit(onSubmit)}
     >
       <div className="flex h-full flex-col">
-        <ContactInput placeholder="Name" register={register("name")} />
-        <ContactInput placeholder="Company" register={register("company")} />
+        <ContactInput placeholder="Name" {...register("name")} />
+        <ContactInput placeholder="Company" {...register("company")} />
         <ContactInput
           placeholder="Email"
           type="email"
-          register={register("email")}
-          errors={errors}
+          {...register("email", { required: "Email is required" })}
         />
-        <ContactInput
-          placeholder="Budget (optional)"
-          register={register("budget")}
-        />
+        <ContactInput placeholder="Budget (optional)" {...register("budget")} />
         <ContactInput
           placeholder="Message"
           type="textarea"
-          register={register("message")}
-          errors={errors}
+          {...register("message", { required: "Message is required" })}
         />
       </div>
       <div className="flex flex-col items-start justify-between gap-4 xl:flex-row">
@@ -147,11 +63,6 @@ export const ContactForm = () => {
             />
           </svg>
         </button>
-        <ContactStatus
-          isSubmitted={isSubmitted}
-          error={submitError || getFirstErrorMessage()}
-          isSubmitting={submitting}
-        />
       </div>
     </form>
   )
