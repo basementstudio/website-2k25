@@ -66,7 +66,6 @@ export class AudioSource {
         this.audioSource.disconnect()
         this.audioSource.stop(0)
       } catch (error) {
-        // Ignore errors that might occur if the audio context is in a bad state
         console.debug("Error stopping audio source:", error)
       }
       this.audioSource = undefined
