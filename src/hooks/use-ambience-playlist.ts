@@ -25,8 +25,9 @@ export function useAmbiencePlaylist() {
 
   const scene = useCurrentScene()
   const pathname = usePathname()
-  // TODO: find out why this condition works, but scene === "basketball" does not
-  const isBasketballScene = pathname === "/basketball"
+  // TODO: find out why this condition partially works, but scene === "basketball" does not, ever
+  // const isBasketballScene = pathname === "/basketball"
+  const isBasketballScene = scene === "basketball"
   const isInGame = useArcadeStore((state) => state.isInGame)
   const gameCondition = isInGame && scene === "lab"
   const shouldMuteAmbience = isBasketballScene || gameCondition
@@ -165,6 +166,7 @@ export function useAmbiencePlaylist() {
 
     if (shouldMuteAmbience) {
       // Mute the ambience
+      console.log("should mute", shouldMuteAmbience, isBasketballScene)
       const currentTime = player.audioContext.currentTime
       player.musicChannel.gain.cancelScheduledValues(currentTime)
       player.musicChannel.gain.setValueAtTime(

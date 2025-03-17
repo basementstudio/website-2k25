@@ -4,9 +4,9 @@ import { FontFamilyProvider } from "@react-three/uikit"
 import { useEffect, useRef, useState } from "react"
 import type { ShaderMaterial } from "three"
 
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
-import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { ffflauta } from "../../../public/fonts/ffflauta"
