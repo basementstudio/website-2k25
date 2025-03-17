@@ -22,7 +22,7 @@ import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
 import { PathnameProvider } from "@/hooks/use-watch-pathname"
 import LenisScrollProvider from "@/providers/lenis-provider"
-import AppHooks from "@/utils/app-hooks-init"
+import { AppHooks } from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
 
 export const metadata: Metadata = {

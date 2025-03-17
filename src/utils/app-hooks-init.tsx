@@ -20,5 +20,3 @@ export function AppHooks({
 
   return <SiteAudioSFXsLoader />
 }
-
-export default AppHooks
