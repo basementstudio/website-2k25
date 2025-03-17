@@ -26,9 +26,6 @@ const HoopMinigameInner = () => {
   const [isBasketball, setIsBasketball] = useState(false)
   const scene = useCurrentScene()
   const isOnTab = useIsOnTab()
-  const { GAME_THEME_SONGS } = useAudioUrls()
-  const basketballSong = GAME_THEME_SONGS.BASKETBALL_SONG
-  const { playBasketballSong } = useSiteAudio()
   const gameDuration = useMinigameStore((s) => s.gameDuration)
   const initialPosition = useMinigameStore((s) => s.initialPosition)
   const hoopPosition = useMinigameStore((s) => s.hoopPosition)
@@ -135,10 +132,7 @@ const HoopMinigameInner = () => {
 
   useEffect(() => {
     setIsBasketball(scene === "basketball")
-    if (scene === "basketball") {
-      playBasketballSong(basketballSong)
-    }
-  }, [scene, setIsBasketball, playBasketballSong, basketballSong])
+  }, [scene, setIsBasketball])
 
   // stop round if we tab out of the page
   useEffect(() => {
