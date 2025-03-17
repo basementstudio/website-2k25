@@ -11,7 +11,8 @@ const nextConfig: NextConfig = {
         }
       }
     },
-    ppr: "incremental"
+    ppr: "incremental",
+    reactCompiler: true
   },
 
   images: {

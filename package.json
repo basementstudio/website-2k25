@@ -30,6 +30,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/functions": "^2.0.0",
     "@vercel/speed-insights": "^1.2.0",
+    "babel-plugin-react-compiler": "19.0.0-beta-3229e95-20250315",
     "basehub": "8.0.0-canary.27",
     "clsx": "^2.1.1",
     "glsl-noise": "^0.0.0",
