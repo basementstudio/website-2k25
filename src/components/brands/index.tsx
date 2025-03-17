@@ -76,12 +76,12 @@ export const BrandsContent = ({ brands }: { brands: Brand[] }) => {
   }, [brands, debouncedHoveredBrandId])
 
   return (
-    <section className="lg:grid-layout hidden !gap-y-0">
+    <section className="lg:grid-layout hidden !gap-y-4">
       <div className="grid-layout col-span-full !px-0">
         <p className="col-start-1 text-mobile-h3 text-brand-g1 lg:text-h3">
           (1)
         </p>
-        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-2 lg:text-h3 2xl:col-start-3">
+        <h3 className="col-span-full text-mobile-h3 text-brand-g1 lg:col-start-2 lg:text-h3 2xl:col-start-3">
           Trusted by{" "}
           <AnimatedTitle
             brandName={hoveredBrandName ?? ""}
