@@ -32,7 +32,7 @@ export const ContactForm = () => {
     formState: { errors },
     reset
   } = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema),
+    resolver: zodResolver(contactFormSchema) as any,
     defaultValues: {
       name: "",
       company: "",
