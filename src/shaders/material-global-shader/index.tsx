@@ -1,9 +1,6 @@
-import { animate } from "motion"
 import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
-
-import { TRANSITION_DURATION } from "@/constants/transitions"
 
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"

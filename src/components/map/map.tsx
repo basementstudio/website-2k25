@@ -219,10 +219,9 @@ export const Map = memo(() => {
         const isClouds = meshChild.name === "cloudy_01"
         const isGlass = glassMaterials.includes(currentMaterial.name)
 
-        // TODO: Implement simple side once we finish the entire scene
-        // currentMaterial.side = doubleSideElements.includes(meshChild.name)
-        //   ? THREE.DoubleSide
-        //   : THREE.FrontSide
+        currentMaterial.side = doubleSideElements.includes(meshChild.name)
+          ? THREE.DoubleSide
+          : THREE.FrontSide
 
         if (withVideo) {
           const videoTexture = createVideoTexture(withVideo.url)
