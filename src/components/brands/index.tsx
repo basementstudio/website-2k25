@@ -109,6 +109,7 @@ export const BrandsContent = ({ brands }: { brands: Brand[] }) => {
                   : 1
               }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
+              title={brand._title}
             >
               <div className="relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
                 <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
