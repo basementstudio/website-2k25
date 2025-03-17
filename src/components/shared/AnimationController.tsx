@@ -12,7 +12,10 @@ import {
   useState
 } from "react"
 
-import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
+import {
+  globalFrameConfig,
+  useGlobalFrameLoop
+} from "@/hooks/use-pausable-time"
 
 // Context for sharing animation time
 interface AnimationContext {
@@ -42,6 +45,8 @@ interface AnimationControllerProps {
   frameSkip?: number
   // Option to auto-pause when tab is not visible
   pauseOnTabChange?: boolean
+  // Option to pause animation when scroll Y exceeds this value
+  scrollPauseThreshold?: number
 }
 
 /**
@@ -52,7 +57,8 @@ function AnimationControllerImpl({
   children,
   paused = false,
   frameSkip = 0,
-  pauseOnTabChange = true
+  pauseOnTabChange = true,
+  scrollPauseThreshold
 }: AnimationControllerProps) {
   // Get invalidate from React Three Fiber
   const { invalidate } = useThree()
@@ -60,8 +66,36 @@ function AnimationControllerImpl({
   // State to track tab visibility
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
 
-  // Combined paused state (manual pause or tab hidden)
-  const isPaused = paused || (pauseOnTabChange && !isTabVisible)
+  // State to store viewport height
+  const [viewportHeight, setViewportHeight] = useState<number | undefined>(
+    typeof window !== "undefined" ? window.innerHeight : undefined
+  )
+
+  // Effect to update viewport height when window is resized
+  useEffect(() => {
+    // Only run in browser
+    if (typeof window === "undefined") return
+
+    // Function to update viewport height
+    const updateViewportHeight = () => {
+      setViewportHeight(window.innerHeight)
+    }
+
+    // Listen for resize events
+    window.addEventListener("resize", updateViewportHeight, { passive: true })
+
+    // Ensure we have the correct value initially
+    updateViewportHeight()
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", updateViewportHeight)
+    }
+  }, [])
+
+  // Combined paused state (manual pause, tab hidden, or global pause from scroll)
+  const isPaused =
+    paused || (pauseOnTabChange && !isTabVisible) || globalFrameConfig.isPaused
 
   // Use refs for internal values that don't need to trigger re-renders
   const timeValuesRef = useRef({ time: 0, delta: 0 })
@@ -127,7 +161,12 @@ function AnimationControllerImpl({
 
   // Use Motion's useAnimationFrame as our single RAF
   useAnimationFrame(animationCallback)
-  useGlobalFrameLoop()
+
+  // Use viewport height as threshold if no specific threshold is provided
+  // If scrollPauseThreshold is provided, it takes precedence
+  useGlobalFrameLoop(
+    scrollPauseThreshold !== undefined ? scrollPauseThreshold : viewportHeight
+  )
 
   return (
     <AnimationContext.Provider value={timeValues}>

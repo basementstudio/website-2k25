@@ -2,6 +2,7 @@ import { type RootState, useFrame } from "@react-three/fiber"
 import { useRef } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
+import { useScrollStore } from "@/providers/lenis-provider"
 
 /**
  * Maximum delta time to prevent physics issues on frame drops
@@ -21,11 +22,16 @@ export const globalFrameConfig = {
  * Updates the global frame timing configuration
  * This should be called once in your root component
  */
-export const useGlobalFrameLoop = () => {
+export const useGlobalFrameLoop = (scrollThreshold?: number) => {
   const { isContactOpen } = useContactStore()
+  const scrollY = useScrollStore((state) => state.scrollY)
 
-  // Update pause state based on contact
-  globalFrameConfig.isPaused = isContactOpen
+  // Determine if we should pause based on scroll position
+  const shouldPauseFromScroll =
+    scrollThreshold !== undefined && scrollY >= scrollThreshold
+
+  // Update pause state based on contact or scroll threshold
+  globalFrameConfig.isPaused = isContactOpen || shouldPauseFromScroll
 
   // Update timing values with high priority (-100)
   useFrame((_, delta) => {
