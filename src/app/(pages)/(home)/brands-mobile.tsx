@@ -1,7 +1,6 @@
 import { Marquee } from "@/components/primitives/marquee"
 
 import { fetchBrandsMobile } from "./basehub"
-import { QueryType } from "./query"
 
 export const BrandsMobile = async () => {
   const { rows } = await fetchBrandsMobile()

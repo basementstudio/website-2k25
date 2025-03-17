@@ -11,16 +11,14 @@ import { Brand } from "@/app/(pages)/(home)/brands"
 
 const DEBOUNCE_DELAY = 50
 const BREAKPOINTS = {
-  BIG_DESKTOP: "(min-width: 1536px)",
-  DESKTOP: "(min-width: 1280px)",
-  TABLET: "(min-width: 768px)"
+  DESKTOP: "(min-width: 1280px)"
 } as const
 
 const SVGLogo = memo(({ svg }: { svg: string | null }) => {
   if (!svg) return null
   return (
     <div
-      className="h-full w-full"
+      className="with-dots relative grid h-full w-full place-items-center"
       ref={(node) => {
         if (node) node.innerHTML = svg
       }}
@@ -29,46 +27,6 @@ const SVGLogo = memo(({ svg }: { svg: string | null }) => {
 })
 
 SVGLogo.displayName = "SVGLogo"
-
-export const BrandRow = memo(
-  ({
-    row,
-    rowIndex,
-    setHoveredBrand,
-    hoveredBrandId
-  }: {
-    hoveredBrandId: string | undefined
-    row: Brand[]
-    rowIndex: number
-    setHoveredBrand: (brand: { id: string; rowIndex: number } | null) => void
-  }) => (
-    <div className="flex items-center justify-between md:justify-start">
-      {row.map((brand) => (
-        <motion.a
-          className="-my-px py-[13px] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
-          href={brand.website ?? ""}
-          key={brand._id}
-          onMouseEnter={() => setHoveredBrand({ id: brand._id, rowIndex })}
-          onMouseLeave={() => setHoveredBrand(null)}
-          rel="noopener noreferrer"
-          target="_blank"
-          animate={{
-            opacity: hoveredBrandId
-              ? hoveredBrandId === brand._id
-                ? 1
-                : 0.5
-              : 1
-          }}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-        >
-          <SVGLogo svg={brand.logo} />
-        </motion.a>
-      ))}
-    </div>
-  )
-)
-
-BrandRow.displayName = "BrandRow"
 
 export const AnimatedTitle = memo(
   ({ brandName, enabled }: { enabled: boolean; brandName: string }) => (
@@ -101,54 +59,28 @@ export const AnimatedTitle = memo(
 
 AnimatedTitle.displayName = "AnimatedTitle"
 
-export const BrandsContent = ({
-  brands,
-  marqueeBrandsRows
-}: {
-  brands: Brand[]
-  marqueeBrandsRows: Brand[][]
-}) => {
-  const [hoveredBrand, setHoveredBrand] = useState<{
-    id: string
-    rowIndex: number
-  } | null>(null)
-  const debouncedHoveredBrand = useDebounceValue(hoveredBrand, DEBOUNCE_DELAY)
+export const BrandsContent = ({ brands }: { brands: Brand[] }) => {
+  const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
   const isDesktop = useMedia(BREAKPOINTS.DESKTOP)
-
-  const displayBrands = useMemo(() => {
-    if (isDesktop === false) {
-      return marqueeBrandsRows.map((row, rowIndex) => (
-        <BrandRow
-          rowIndex={rowIndex}
-          key={`brands-row-${rowIndex}`}
-          row={row}
-          hoveredBrandId={debouncedHoveredBrand?.id}
-          setHoveredBrand={setHoveredBrand}
-        />
-      ))
-    }
-
-    return (
-      <BrandRow
-        rowIndex={0}
-        row={brands}
-        hoveredBrandId={debouncedHoveredBrand?.id}
-        setHoveredBrand={setHoveredBrand}
-      />
-    )
-  }, [brands, isDesktop, marqueeBrandsRows])
+  const debouncedHoveredBrandId = useDebounceValue(
+    hoveredBrandId,
+    DEBOUNCE_DELAY
+  )
 
   const hoveredBrandName: string | undefined = useMemo(() => {
-    if (debouncedHoveredBrand) {
-      return brands.find((row) => row._id === debouncedHoveredBrand.id)?._title
+    if (debouncedHoveredBrandId) {
+      return brands.find((row) => row._id === debouncedHoveredBrandId)?._title
     } else {
       return undefined
     }
-  }, [brands, debouncedHoveredBrand])
+  }, [brands, debouncedHoveredBrandId])
 
   return (
     <section className="lg:grid-layout hidden !gap-y-0">
       <div className="grid-layout col-span-full !px-0">
+        <p className="col-start-1 text-mobile-h3 text-brand-g1 lg:text-h3">
+          (1)
+        </p>
         <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-2 lg:text-h3 2xl:col-start-3">
           Trusted by{" "}
           <AnimatedTitle
@@ -158,9 +90,32 @@ export const BrandsContent = ({
         </h3>
       </div>
 
-      <div className="relative col-span-full lg:col-start-2 2xl:col-start-3">
-        <div className="group flex w-fit flex-col divide-y divide-brand-w1/30">
-          {displayBrands}
+      <div className="relative col-span-full">
+        <div className="grid-rows-auto group grid grid-cols-6 gap-3 xl:grid-cols-8">
+          {brands.map((brand) => (
+            <motion.a
+              className="aspect-[202/110] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
+              href={brand.website ?? ""}
+              key={brand._id}
+              onMouseEnter={() => setHoveredBrandId(brand._id)}
+              onMouseLeave={() => setHoveredBrandId(null)}
+              rel="noopener noreferrer"
+              target="_blank"
+              animate={{
+                opacity: hoveredBrandId
+                  ? hoveredBrandId === brand._id
+                    ? 1
+                    : 0.5
+                  : 1
+              }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              <div className="relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+                <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <SVGLogo svg={brand.logo} />
+              </div>
+            </motion.a>
+          ))}
         </div>
       </div>
     </section>
