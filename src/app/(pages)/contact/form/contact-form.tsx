@@ -19,8 +19,6 @@ const contactFormSchema = z.object({
   message: z.string().min(1, "Message is required")
 })
 
-type ContactFormValues = z.infer<typeof contactFormSchema>
-
 export const ContactForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -31,8 +29,8 @@ export const ContactForm = () => {
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema) as any,
+  } = useForm({
+    resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
       company: "",
@@ -66,7 +64,7 @@ export const ContactForm = () => {
     return ""
   }
 
-  const onSubmit = async (data: ContactFormValues) => {
+  const onSubmit = async (data: z.infer<typeof contactFormSchema>) => {
     setSubmitting(true)
     setIsSubmitted(false)
     setSubmitError("")
