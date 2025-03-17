@@ -1,14 +1,16 @@
-import { UseFormRegisterReturn } from "react-hook-form"
+import { FieldErrors, UseFormRegisterReturn } from "react-hook-form"
 
 import { cn } from "@/utils/cn"
 
 export const ContactInput = ({
   placeholder,
   type = "text",
+  errors,
   ...registerProps
 }: {
   placeholder: string
   type?: string
+  errors?: FieldErrors
 } & UseFormRegisterReturn) => {
   return (
     <div
@@ -32,6 +34,9 @@ export const ContactInput = ({
         />
       )}
       <div className="relative z-10 h-px w-full bg-brand-g2" />
+      {errors && errors[registerProps.name] && (
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-full bg-[#F32D2D33]/30" />
+      )}
     </div>
   )
 }

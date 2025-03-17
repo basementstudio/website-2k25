@@ -68,12 +68,18 @@ export const ContactForm = () => {
         <ContactInput
           placeholder="Email"
           type="email"
+          errors={errors}
           {...register("email", { required: "Email is required" })}
         />
-        <ContactInput placeholder="Budget (optional)" {...register("budget")} />
+        <ContactInput
+          placeholder="Budget (optional)"
+          errors={errors}
+          {...register("budget")}
+        />
         <ContactInput
           placeholder="Message"
           type="textarea"
+          errors={errors}
           {...register("message", { required: "Message is required" })}
         />
       </div>
