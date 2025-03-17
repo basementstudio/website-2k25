@@ -31,8 +31,8 @@ export const ContactForm = () => {
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm({
-    resolver: zodResolver(contactFormSchema) as any,
+  } = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
       company: "",
@@ -40,7 +40,7 @@ export const ContactForm = () => {
       budget: "",
       message: ""
     }
-  }) as any
+  })
 
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
