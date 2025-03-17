@@ -56,7 +56,10 @@ function ControlsInner() {
 
   useFrameCallback(() => {
     if (!cameraRef.current) return
-    const { forward, backward, left, right, up, down, fast } = get()
+    const controls = get()
+    if (!controls) return
+
+    const { forward, backward, left, right, up, down, fast } = controls
 
     const speed = fast ? 0.1 : 0.05
 
