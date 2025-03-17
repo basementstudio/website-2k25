@@ -1,42 +1,10 @@
-"use client"
-
-import { useMemo } from "react"
-
 import { Marquee } from "@/components/primitives/marquee"
 
+import { fetchBrandsMobile } from "./basehub"
 import { QueryType } from "./query"
 
-// Function to shuffle array
-const shuffleArray = <T,>(array: T[]): T[] => {
-  const newArray = [...array]
-  for (let i = newArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[newArray[i], newArray[j]] = [newArray[j], newArray[i]]
-  }
-  return newArray
-}
-
-export const BrandsMobile = ({ data }: { data: QueryType }) => {
-  const brands = useMemo(
-    () => data.company.clients?.clientList.items.filter((c) => c.logo) ?? [],
-    [data.company.clients?.clientList.items]
-  )
-
-  const rows = useMemo(() => {
-    // Shuffle the brands first
-    const shuffledBrands = shuffleArray(brands)
-
-    // Create chunks with different sizes
-    const row1Size = Math.floor(shuffledBrands.length * 0.4) // 40% of logos
-    const row2Size = Math.floor(shuffledBrands.length * 0.35) // 35% of logos
-    // remaining logos go to row 3
-
-    return [
-      shuffledBrands.slice(0, row1Size),
-      shuffledBrands.slice(row1Size, row1Size + row2Size),
-      shuffledBrands.slice(row1Size + row2Size)
-    ]
-  }, [brands])
+export const BrandsMobile = async () => {
+  const { rows } = await fetchBrandsMobile()
 
   return (
     <section className="grid-layout isolate !gap-y-0 lg:!hidden">
@@ -58,7 +26,12 @@ export const BrandsMobile = ({ data }: { data: QueryType }) => {
 }
 
 interface MarqueeRowProps {
-  brands: QueryType["company"]["clients"]["clientList"]["items"]
+  brands: {
+    _id: string
+    _title: string
+    logo: string | null
+    website: string | null
+  }[]
   index: number
 }
 
