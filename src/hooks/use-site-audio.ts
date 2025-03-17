@@ -4,8 +4,11 @@ import { create } from "zustand"
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { SFX_VOLUME } from "@/lib/audio/constants"
+import { useArcadeStore } from "@/store/arcade-store"
 
+import { useCurrentScene } from "./use-current-scene"
 import { useIsOnTab } from "./use-is-on-tab"
+import { useMinigameStore } from "@/store/minigame-store"
 
 export enum BackgroundAudioType {
   AMBIENCE = "ambience"
@@ -32,7 +35,6 @@ export type SiteAudioSFXKey =
 interface SiteAudioStore {
   player: WebAudioPlayer | null
   audioSfxSources: Record<SiteAudioSFXKey, AudioSource> | null
-  themeSong: AudioSource | null
   arcadeSong: AudioSource | null
   basketballSong: AudioSource | null
 
@@ -61,7 +63,6 @@ interface SiteAudioHook {
 const useSiteAudioStore = create<SiteAudioStore>(() => ({
   player: null,
   audioSfxSources: null,
-  themeSong: null,
   arcadeSong: null,
   basketballSong: null,
 
@@ -343,6 +344,30 @@ export function useSiteAudio(): SiteAudioHook {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player])
+
+  const isIngame = useArcadeStore((s) => s.isInGame)
+  const scene = useCurrentScene()
+
+  useEffect(() => {
+    if (!player) return
+    if (
+      player.musicChannel.gain.value === 0 &&
+      player.gameChannel.gain.value === 0
+    ) {
+      return
+    }
+
+    if (isIngame && scene === "lab") {
+      player.setMusicVolume(0)
+      console.log("LAB")
+    } else if (scene === "basketball") {
+      console.log("BASKETBALL")
+      player.setMusicVolume(0)
+    } else {
+      console.log("OTHER")
+      player.setMusicVolume(1)
+    }
+  }, [player, scene, isIngame])
 
   return {
     player,
