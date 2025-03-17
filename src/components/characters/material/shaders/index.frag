@@ -5,6 +5,8 @@ varying vec3 vDebug;
 varying vec4 vLightColor;
 varying vec4 vLightDirection;
 
+uniform float fadeFactor;
+
 #ifdef USE_MULTI_MAP
 struct MapConfig {
   sampler2D map;
@@ -64,6 +66,8 @@ void main() {
   color *= (vLightColor.rgb * vLightColor.a);
 
   if(alpha < 0.8) discard;
+
+  color *= 1.0 - fadeFactor;
 
   gl_FragColor = vec4(vec3(color), 1.);
 
