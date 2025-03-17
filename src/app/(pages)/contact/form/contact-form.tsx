@@ -2,6 +2,8 @@
 
 import { SubmitHandler, useForm } from "react-hook-form"
 import { ContactInput } from "./contact-input"
+import { useEffect, useState } from "react"
+import { ContactStatus } from "./contact-status"
 
 type Inputs = {
   name: string
@@ -12,13 +14,47 @@ type Inputs = {
 }
 
 export const ContactForm = () => {
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState("")
+
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors }
+    formState: { errors },
+    reset
   } = useForm<Inputs>()
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data)
+
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      setIsSubmitted(false)
+    }
+  }, [errors])
+
+  useEffect(() => {
+    if (isSubmitted || submitError) {
+      const timer = setTimeout(() => {
+        setIsSubmitted(false)
+        setSubmitError("")
+        reset()
+      }, 4000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [isSubmitted, submitError])
+
+  const getFirstErrorMessage = () => {
+    if (errors.email) return errors.email.message
+    if (errors.message) return errors.message.message
+    return ""
+  }
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    setSubmitting(true)
+    setIsSubmitted(false)
+    setSubmitError("")
+  }
 
   return (
     <form
@@ -63,6 +99,11 @@ export const ContactForm = () => {
             />
           </svg>
         </button>
+        <ContactStatus
+          isSubmitted={isSubmitted}
+          error={submitError || getFirstErrorMessage()}
+          isSubmitting={submitting}
+        />
       </div>
     </form>
   )
