@@ -1,5 +1,8 @@
 "use client"
 
+import { useLenis } from "lenis/react"
+import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
 
@@ -55,6 +58,17 @@ function AppLoadingHandler() {
   )
 
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
+
+  // TODO: update this once we cover "showcase navigation issue"
+  const lenis = useLenis()
+
+  useEffect(() => {
+    if (showLoadingCanvas && isCanvasInPage) {
+      lenis?.stop()
+    } else {
+      lenis?.start()
+    }
+  }, [showLoadingCanvas, lenis, isCanvasInPage])
 
   if (!isCanvasInPage) {
     return null
