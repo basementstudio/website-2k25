@@ -8,11 +8,7 @@ import {
   useInitializeAudioContext
 } from "@/hooks/use-site-audio"
 
-export function AppHooks({
-  assets
-}: {
-  assets: AssetsResult
-}): React.JSX.Element {
+export const AppHooks = ({ assets }: { assets: AssetsResult }) => {
   usePreloadAssets(assets)
 
   useInitializeAudioContext()
