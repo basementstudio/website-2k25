@@ -22,6 +22,7 @@ import { Debug } from "./debug"
 import { Pets } from "./pets"
 import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
+import { useWebGLStore } from "@/store/webgl-store"
 
 const HoopMinigame = dynamic(
   () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
@@ -55,6 +56,13 @@ export const Scene = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
+
+  useEffect(() => {
+    const canvas = document.createElement("canvas")
+    const gl =
+      canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
+    useWebGLStore.setState({ isWebGLSupported: !!gl })
+  }, [])
 
   useEffect(() => {
     if (!isBasketball) clearPlayedBalls()

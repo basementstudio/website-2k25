@@ -1,7 +1,7 @@
 "use client"
 
 import { RichTextNode } from "basehub/api-transaction"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
@@ -20,6 +20,7 @@ import { mergeRefs } from "@/utils/mergeRefs"
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
 import { StayConnected } from "./stay-connected"
+import { useWebGLStore } from "@/store/webgl-store"
 
 const Logo = memo(({ className }: { className?: string }) => (
   <svg
@@ -110,6 +111,10 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
   const { setIsContactOpen, isContactOpen } = useContactStore()
 
   const pathname = usePathname()
+  const router = useRouter()
+  const isWebGLSupported = useWebGLStore((state) => state.isWebGLSupported)
+
+  console.log(isWebGLSupported)
 
   return (
     <>
@@ -143,13 +148,19 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
         </button>
         <button
           id="nav-contact"
-          onClick={() => setIsContactOpen(!isContactOpen)}
+          onClick={() => {
+            if (isWebGLSupported) {
+              setIsContactOpen(!isContactOpen)
+            } else {
+              router.push("/contact")
+            }
+          }}
           className={cn(
             "!text-p capitalize text-brand-w1 hover:text-brand-o",
             isContactOpen && "text-brand-g1"
           )}
         >
-          <span className="actionable actionable-no-underline">Contact Us</span>
+          <span>Contact Us</span>
         </button>
       </div>
     </>

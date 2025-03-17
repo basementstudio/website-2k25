@@ -29,7 +29,7 @@ export const ContactForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitSuccessful },
+    formState: { errors },
     reset
   } = useForm({
     resolver: zodResolver(contactFormSchema) as any,
@@ -91,7 +91,6 @@ export const ContactForm = () => {
         setSubmitError(result.error || "Form submission failed")
       }
     } catch (error) {
-      console.error("Form submission error:", error)
       setIsSubmitted(false)
       setSubmitError("Form submission failed")
     } finally {
