@@ -18,7 +18,7 @@ const Homepage = () => (
         <div className="flex flex-col gap-18 lg:gap-44">
           <Intro data={data} />
           <Brands data={data} />
-          <BrandsMobile data={data} />
+          <BrandsMobile />
           <FeaturedProjects data={data} />
           <Capabilities data={data} />
           <Contact />
