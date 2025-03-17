@@ -50,6 +50,24 @@ const Contact = () => {
     }
   }, [isContactOpen])
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const isContactHash = window.location.hash === "#contact"
+      if (isContactHash && !isContactOpen) {
+        setIsContactOpen(true)
+      } else if (!isContactHash && isContactOpen) {
+        setIsContactOpen(false)
+      }
+    }
+
+    handleHashChange()
+
+    window.addEventListener("hashchange", handleHashChange)
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange)
+    }
+  }, [isContactOpen, setIsContactOpen])
+
   return (
     <>
       <div

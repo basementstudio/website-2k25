@@ -47,6 +47,14 @@ export const useContactStore = create<ContactStore>((set) => ({
   isClosing: false,
   setIsContactOpen: (isContactOpen) => {
     if (!isContactOpen) {
+      if (window.location.hash === "#contact") {
+        window.history.pushState(
+          null,
+          "",
+          window.location.pathname + window.location.search
+        )
+      }
+
       set((state) => {
         if (state.worker) {
           state.worker.postMessage({
@@ -71,6 +79,14 @@ export const useContactStore = create<ContactStore>((set) => ({
         })
       }, 1000)
     } else {
+      if (window.location.hash !== "#contact") {
+        window.history.pushState(
+          null,
+          "",
+          window.location.pathname + window.location.search + "#contact"
+        )
+      }
+
       set((state) => {
         if (state.worker) {
           state.worker.postMessage({
