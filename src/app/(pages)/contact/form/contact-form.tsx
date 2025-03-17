@@ -1,8 +1,9 @@
 "use client"
-import { zodResolver } from "@hookform/resolvers/zod"
+
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 import { ContactInput } from "./contact-input"
 import { ContactStatus } from "./contact-status"
@@ -19,6 +20,8 @@ const contactFormSchema = z.object({
   message: z.string().min(1, "Message is required")
 })
 
+type ContactFormValues = z.infer<typeof contactFormSchema>
+
 export const ContactForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -29,7 +32,7 @@ export const ContactForm = () => {
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm({
+  } = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
@@ -64,7 +67,7 @@ export const ContactForm = () => {
     return ""
   }
 
-  const onSubmit = async (data: z.infer<typeof contactFormSchema>) => {
+  const onSubmit = async (data: ContactFormValues) => {
     setSubmitting(true)
     setIsSubmitted(false)
     setSubmitError("")
