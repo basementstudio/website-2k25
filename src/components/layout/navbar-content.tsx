@@ -114,8 +114,6 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
   const router = useRouter()
   const isWebGLSupported = useWebGLStore((state) => state.isWebGLSupported)
 
-  console.log(isWebGLSupported)
-
   return (
     <>
       <div className="ga-5 col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
