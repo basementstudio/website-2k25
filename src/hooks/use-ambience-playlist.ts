@@ -5,6 +5,7 @@ import { Playlist } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { AMBIENT_VOLUME } from "@/lib/audio/constants"
 import { useArcadeStore } from "@/store/arcade-store"
+import { useMinigameStore } from "@/store/minigame-store"
 
 import { useCurrentScene } from "./use-current-scene"
 import { BackgroundAudioType, useSiteAudioStore } from "./use-site-audio"
@@ -27,10 +28,15 @@ export function useAmbiencePlaylist() {
   const pathname = usePathname()
   // TODO: find out why this condition partially works, but scene === "basketball" does not, ever
   // const isBasketballScene = pathname === "/basketball"
-  const isBasketballScene = scene === "basketball"
+
+  // const isBasketball = useMinigameStore((s) => s.muteAmbienceBasket)
+  const isBasketball = useMinigameStore((s) => s.isGameActive)
   const isInGame = useArcadeStore((state) => state.isInGame)
+
   const gameCondition = isInGame && scene === "lab"
-  const shouldMuteAmbience = isBasketballScene || gameCondition
+  const basketCondition = isBasketball && scene === "basketball"
+
+  const shouldMuteAmbience = basketCondition || gameCondition
 
   const activeTrackType = useSiteAudioStore((s) => s.activeTrackType)
   const isBackgroundInitialized = useSiteAudioStore(
@@ -51,13 +57,13 @@ export function useAmbiencePlaylist() {
   const ambienceTracks = useMemo(() => {
     return [
       {
-        name: "Chrome Tiger - Basement Jukebox 02:40",
-        url: AMBIENCE.AMBIENCE_TIGER,
+        name: "Perfect Waves - Basement Jukebox 00:59",
+        url: AMBIENCE.AMBIENCE_AQUA,
         volume: AMBIENT_VOLUME
       },
       {
-        name: "Perfect Waves - Basement Jukebox 00:59",
-        url: AMBIENCE.AMBIENCE_AQUA,
+        name: "Chrome Tiger - Basement Jukebox 02:40",
+        url: AMBIENCE.AMBIENCE_TIGER,
         volume: AMBIENT_VOLUME
       },
       {
@@ -166,7 +172,6 @@ export function useAmbiencePlaylist() {
 
     if (shouldMuteAmbience) {
       // Mute the ambience
-      console.log("should mute", shouldMuteAmbience, isBasketballScene)
       const currentTime = player.audioContext.currentTime
       player.musicChannel.gain.cancelScheduledValues(currentTime)
       player.musicChannel.gain.setValueAtTime(
