@@ -2,6 +2,8 @@ import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
 
+import { client } from "@/service/basehub"
+
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import Content from "./content"
 import More from "./more"
@@ -44,7 +46,7 @@ const Blog = async (props: { params: Params }) => {
 }
 
 export async function generateStaticParams() {
-  const data = await basehub({ cache: "no-store" }).query({
+  const data = await client().query({
     pages: {
       blog: {
         posts: {

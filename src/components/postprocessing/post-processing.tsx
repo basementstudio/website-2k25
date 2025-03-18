@@ -8,12 +8,12 @@ import {
 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
+import { revealOpacityMaterials } from "@/components/map/bakes"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
-import { revealOpacityMaterials } from "../map/bakes"
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
 
 interface PostProcessingProps {
