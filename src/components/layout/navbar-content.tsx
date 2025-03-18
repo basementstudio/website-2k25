@@ -10,7 +10,6 @@ import { Portal } from "@/components/primitives/portal"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
-import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMedia } from "@/hooks/use-media"
 import { usePreventScroll } from "@/hooks/use-prevent-scroll"
 import { useSiteAudio } from "@/hooks/use-site-audio"
@@ -51,17 +50,9 @@ interface NavbarContentProps {
 
 export const NavbarContent = memo(
   ({ links, socialLinks, newsletter }: NavbarContentProps) => {
-    const { music, handleMute, setVolumeMaster } = useSiteAudio()
+    const { music, handleMute } = useSiteAudio()
     const { handleNavigation } = useHandleNavigation()
-
-    const isOnTab = useIsOnTab()
-
     const scene = useCurrentScene()
-
-    useEffect(
-      () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
-      [isOnTab, music, setVolumeMaster]
-    )
 
     if (scene === "404") return null
 
@@ -114,7 +105,7 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
 
   return (
     <>
-      <div className="ga-5 col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
+      <div className="col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
         {links.map((link) => (
           <div key={link.href} className="flex items-center gap-1 text-p">
             <Link

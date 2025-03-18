@@ -8,7 +8,6 @@ const ContactScreen = () => {
   const contentRef = useRef(null)
   const updatePositionRef = useRef<(() => void) | null>(null)
   const [screenPosition, setScreenPosition] = useState({ x: 0.5, y: 0.5, z: 0 })
-  const [scale, setScale] = useState(1)
   const animation = useAnimation()
   const worker = useContactStore((state) => state.worker)
 
@@ -101,33 +100,11 @@ const ContactScreen = () => {
   }, [worker, animation])
 
   useEffect(() => {
-    const updateScale = () => {
-      const baseHeight = 310
-      const baseWidth = 510
-      const viewportHeight = window.innerHeight
-      const viewportWidth = window.innerWidth
-
-      const heightScale = (viewportHeight * 0.9) / baseHeight
-      const widthScale = viewportWidth / baseWidth
-      let baseScale = Math.min(heightScale, widthScale)
-
-      let finalScale
-      if (baseScale < 0.8) {
-        finalScale = Math.max(0.6, baseScale)
-      } else if (baseScale > 1.5) {
-        finalScale = 1.4 * (1 - Math.exp(-baseScale + 1.5))
-      } else {
-        finalScale = 0.8 + (baseScale - 0.8) * 0.5
+    return () => {
+      if (updatePositionRef.current) {
+        window.removeEventListener("resize", updatePositionRef.current)
       }
-
-      setScale(Math.max(0.6, Math.min(1.4, finalScale)))
     }
-
-    updateScale()
-    window.addEventListener("resize", updateScale)
-    updatePositionRef.current = updateScale
-
-    return () => window.removeEventListener("resize", updateScale)
   }, [])
 
   return (
@@ -142,9 +119,9 @@ const ContactScreen = () => {
       }}
     >
       <div
-        className="relative flex w-[510px] bg-transparent"
+        className="relative flex h-[260px] w-[480px] bg-transparent"
         style={{
-          transform: `perspective(400px) rotateY(0.5deg) scale(${scale})`,
+          transform: `perspective(400px) rotateY(0.5deg)`,
           transformOrigin: "center center"
         }}
       >
@@ -202,7 +179,7 @@ const ContactScreen = () => {
                   value={formData.message}
                   onChange={handleInputChange}
                   placeholder="MESSAGE"
-                  className="col-span-2 h-16 resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  className="col-span-2 h-full resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
                 />
               </div>
 
@@ -218,41 +195,6 @@ const ContactScreen = () => {
                 </button>
               </div>
             </form>
-
-            <div className="flex items-center justify-between gap-2 text-[13px] uppercase text-brand-o">
-              <div className="flex items-center gap-2">
-                <a
-                  href="https://x.com/basementstudio"
-                  target="_blank"
-                  className="underline underline-offset-4"
-                >
-                  x (twitter)
-                </a>
-                <span>,</span>
-                <a
-                  href="https://www.instagram.com/basementdotstudio/"
-                  target="_blank"
-                  className="underline underline-offset-4"
-                >
-                  instagram
-                </a>
-                <span>,</span>
-                <a
-                  href="https://github.com/basementstudio"
-                  target="_blank"
-                  className="underline underline-offset-4"
-                >
-                  github
-                </a>
-              </div>
-              <a
-                href="mailto:hello@basement.studio"
-                target="_blank"
-                className="underline underline-offset-4"
-              >
-                hello@basement.studio
-              </a>
-            </div>
           </div>
         </motion.div>
       </div>
