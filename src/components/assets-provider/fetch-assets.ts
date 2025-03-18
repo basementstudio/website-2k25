@@ -1,5 +1,7 @@
 import { basehub } from "basehub"
 
+import { client } from "@/service/basehub"
+
 import { assetsQuery } from "./query"
 
 export interface AssetsResult {
@@ -153,9 +155,7 @@ export interface AssetsResult {
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
-  const { threeDInteractions, pages } = await basehub({
-    next: { revalidate: 30 }
-  }).query(assetsQuery)
+  const { threeDInteractions, pages } = await client().query(assetsQuery)
 
   return {
     officeItems: threeDInteractions.map.officeItems.file.url,

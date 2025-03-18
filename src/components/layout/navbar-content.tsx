@@ -2,7 +2,7 @@
 
 import { RichTextNode } from "basehub/api-transaction"
 import { usePathname } from "next/navigation"
-import { memo, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useMemo, useRef, useState } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
@@ -12,7 +12,6 @@ import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
 import { usePreventScroll } from "@/hooks/use-prevent-scroll"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
@@ -50,7 +49,6 @@ interface NavbarContentProps {
 
 export const NavbarContent = memo(
   ({ links, socialLinks, newsletter }: NavbarContentProps) => {
-    const { music, handleMute } = useSiteAudio()
     const { handleNavigation } = useHandleNavigation()
     const scene = useCurrentScene()
 
@@ -74,8 +72,6 @@ export const NavbarContent = memo(
 
           <DesktopContent
             links={links}
-            music={music}
-            handleMute={handleMute}
             socialLinks={socialLinks}
             newsletter={newsletter}
           />
@@ -91,12 +87,7 @@ export const NavbarContent = memo(
 )
 NavbarContent.displayName = "NavbarContent"
 
-interface ContentProps extends NavbarContentProps {
-  music: boolean
-  handleMute: () => void
-}
-
-const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
+const DesktopContent = memo(({ links }: NavbarContentProps) => {
   const { handleNavigation } = useHandleNavigation()
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
@@ -126,13 +117,7 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
       </div>
 
       <div className="col-start-11 col-end-13 ml-auto hidden items-center gap-5 lg:flex">
-        <button
-          onClick={handleMute}
-          className="inline-flex items-center space-x-1 text-p text-brand-w2"
-          aria-label={music ? "Turn music off" : "Turn music on"}
-        >
-          <MusicToggle music={music} />
-        </button>
+        <MusicToggle />
         <button
           id="nav-contact"
           onClick={() => {
