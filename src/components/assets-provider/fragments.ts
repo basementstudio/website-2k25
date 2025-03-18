@@ -255,3 +255,10 @@ export const carFragment = fragmentOn("OutdoorCars", {
 export const lampFragment = fragmentOn("LampComponent", {
   extraLightmap: urlFragment
 })
+
+export const physicsParamsFragment = fragmentOn("PhysicsParams", {
+  items: {
+    _title: true,
+    value: true
+  }
+})

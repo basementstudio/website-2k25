@@ -18,19 +18,30 @@ import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
 import { normalizeDelta } from "../arcade-game/lib/math"
+import { useAssets } from "../assets-provider"
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
   const { playSoundFX } = useSiteAudio()
+  const { physicsParams } = useAssets()
+
+  const us = physicsParams.find(
+    (param) => param._title === "forward strength"
+  )?.value
+  const fs = physicsParams.find(
+    (param) => param._title === "upward strength"
+  )?.value
+
   const [isBasketball, setIsBasketball] = useState(false)
   const scene = useCurrentScene()
   const isOnTab = useIsOnTab()
   const gameDuration = useMinigameStore((s) => s.gameDuration)
   const initialPosition = useMinigameStore((s) => s.initialPosition)
   const hoopPosition = useMinigameStore((s) => s.hoopPosition)
-  const forwardStrength = useMinigameStore((s) => s.forwardStrength)
-  const upStrength = useMinigameStore((s) => s.upStrength)
+  const forwardStrength = us ?? 0.023
+  const upStrength = fs ?? 0.09
+
   const setScore = useMinigameStore((s) => s.setScore)
   const setTimeRemaining = useMinigameStore((s) => s.setTimeRemaining)
   const isGameActive = useMinigameStore((s) => s.isGameActive)
