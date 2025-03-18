@@ -104,10 +104,10 @@ export const Copyright = ({ className }: { className?: string }) => (
 )
 
 export const SoDa = ({ className }: { className?: string }) => (
-  <div className={cn("flex w-full", className)}>
+  <div className={cn("mb-2 w-full", className)}>
     <Link
       className={cn(
-        "text-right !text-mobile-p font-semibold text-brand-w1 lg:!text-p",
+        "!block text-right !text-mobile-p font-semibold text-brand-w1 lg:!text-p",
         className
       )}
       href="https://www.sodaspeaks.com/"
@@ -128,6 +128,7 @@ const SodaLogo = ({ className }: { className?: string }) => (
     xmlns="http://www.w3.org/2000/svg"
     className={className}
   >
+    <title>SoDA</title>
     <path fill="currentColor" d="M0 0h20.727v24H0z" />
     <path
       className="fill-brand-k"
