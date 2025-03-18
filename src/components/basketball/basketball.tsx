@@ -49,7 +49,7 @@ export const Basketball = ({
   }, [basketballModel])
 
   const originalMaterial = basketballModel.materials[
-    "Material.001"
+    "Material.002"
   ] as MeshStandardMaterial
 
   const material = useMemo(() => {
