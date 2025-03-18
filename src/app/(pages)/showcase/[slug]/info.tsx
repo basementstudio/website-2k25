@@ -64,7 +64,12 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
             <InfoItem
               label="Awards"
               value={
-                <TextList value={entry.awards?.map((a) => a.title) || []} />
+                <TextList
+                  className="flex-col"
+                  hasWrapper
+                  showComma={false}
+                  value={entry.awards?.map((a) => a.title) || []}
+                />
               }
             />
           )}
