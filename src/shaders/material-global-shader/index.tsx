@@ -15,6 +15,7 @@ export const createGlobalShaderMaterial = (
     GLASS?: boolean
     GODRAY?: boolean
     LIGHT?: boolean
+    BASKETBALL?: boolean
     FOG?: boolean
     VIDEO?: boolean
     MATCAP?: boolean
@@ -81,6 +82,11 @@ export const createGlobalShaderMaterial = (
     uniforms["lightDirection"] = { value: lightDirection }
   }
 
+  if (defines?.BASKETBALL) {
+    uniforms["lightDirection"] = { value: lightDirection }
+    uniforms["backLightDirection"] = { value: new Vector3(0, 0, 1) }
+  }
+
   if (defines?.MATCAP) {
     uniforms["matcap"] = { value: null }
     uniforms["glassMatcap"] = { value: false }
@@ -102,6 +108,10 @@ export const createGlobalShaderMaterial = (
       GLASS: defines?.GLASS !== undefined ? Boolean(defines?.GLASS) : false,
       GODRAY: defines?.GODRAY !== undefined ? Boolean(defines?.GODRAY) : false,
       LIGHT: defines?.LIGHT !== undefined ? Boolean(defines?.LIGHT) : false,
+      BASKETBALL:
+        defines?.BASKETBALL !== undefined
+          ? Boolean(defines?.BASKETBALL)
+          : false,
       FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
       MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
       VIDEO: defines?.VIDEO !== undefined ? Boolean(defines?.VIDEO) : false,
