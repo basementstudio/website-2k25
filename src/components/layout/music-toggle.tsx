@@ -1,20 +1,13 @@
 import { animate } from "motion"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 
 import { cn } from "@/utils/cn"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 
-const MusicToggle = ({ music }: { music: boolean }) => {
+const MusicToggle = () => {
   const svgRef = useRef<SVGSVGElement>(null)
   const animationsRef = useRef<Array<{ cancel: () => void }>>([])
-  const [hasUserInteracted, setHasUserInteracted] = useState(false)
-
-  useEffect(() => {
-    const handleFirstInteraction = () => setHasUserInteracted(true)
-
-    document.addEventListener("click", handleFirstInteraction, { once: true })
-
-    return () => document.removeEventListener("click", handleFirstInteraction)
-  }, [])
+  const { music, handleMute } = useSiteAudio()
 
   useEffect(() => {
     return () => {
@@ -43,7 +36,7 @@ const MusicToggle = ({ music }: { music: boolean }) => {
 
     const bars = Array.from(svgRef.current.querySelectorAll("rect"))
 
-    if (hasUserInteracted && music) {
+    if (music) {
       bars.forEach((bar) => {
         const maxHeight = Math.floor(Math.random() * 5) + 8
 
@@ -91,31 +84,37 @@ const MusicToggle = ({ music }: { music: boolean }) => {
         bar.setAttribute("y", String(7.5 - 1))
       })
     }
-  }, [music, hasUserInteracted])
+  }, [music])
 
   return (
-    <span
-      className={cn(
-        "inline-block w-6 text-left",
-        hasUserInteracted && music ? "text-brand-w1" : "text-brand-g1"
-      )}
+    <button
+      onClick={handleMute}
+      className="inline-flex items-center space-x-1 text-p text-brand-w2"
+      aria-label={music ? "Turn music off" : "Turn music on"}
     >
-      <svg
-        ref={svgRef}
-        width="22"
-        height="15"
-        viewBox="0 0 22 15"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full"
+      <span
+        className={cn(
+          "inline-block w-6 text-left",
+          music ? "text-brand-w1" : "text-brand-g1"
+        )}
       >
-        <rect x="0" y="6.5" width="2" height="2" fill="currentColor" />
-        <rect x="5" y="6.5" width="2" height="2" fill="currentColor" />
-        <rect x="10" y="6.5" width="2" height="2" fill="currentColor" />
-        <rect x="15" y="6.5" width="2" height="2" fill="currentColor" />
-        <rect x="20" y="6.5" width="2" height="2" fill="currentColor" />
-      </svg>
-    </span>
+        <svg
+          ref={svgRef}
+          width="22"
+          height="15"
+          viewBox="0 0 22 15"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full"
+        >
+          <rect x="0" y="6.5" width="2" height="2" fill="currentColor" />
+          <rect x="5" y="6.5" width="2" height="2" fill="currentColor" />
+          <rect x="10" y="6.5" width="2" height="2" fill="currentColor" />
+          <rect x="15" y="6.5" width="2" height="2" fill="currentColor" />
+          <rect x="20" y="6.5" width="2" height="2" fill="currentColor" />
+        </svg>
+      </span>
+    </button>
   )
 }
 
