@@ -1,5 +1,13 @@
+import type { Metadata } from "next"
+
 import { ContactFooter } from "./contact-footer"
 import { ContactForm } from "./form/contact-form"
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description:
+    "Let's unlock together the next level of possibilities! Reach out."
+}
 
 const Contact = () => {
   return (
