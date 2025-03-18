@@ -141,6 +141,7 @@ export class AudioSource {
 export class WebAudioPlayer {
   public audioContext: AudioContext
   public masterOutput: GainNode
+  public ambienceChannel: GainNode
   public musicChannel: GainNode
   public sfxChannel: GainNode
   public gameChannel: GainNode
@@ -148,33 +149,42 @@ export class WebAudioPlayer {
   public volume: number
   public musicVolume: number
   public gameVolume: number
+  public ambienceVolume: number
   private audioSources: Set<AudioSource> = new Set()
 
   constructor() {
     this.audioContext = new (window.AudioContext || window.AudioContext)()
+
+    // master output
     this.masterOutput = this.audioContext.createGain()
     this.masterOutput.gain.value = 1
     this.masterOutput.connect(this.audioContext.destination)
 
+    // ambience channel
+    this.ambienceChannel = this.audioContext.createGain()
+    this.ambienceChannel.gain.value = 1
+    this.ambienceChannel.connect(this.masterOutput)
+
+    // game channel
+    this.gameChannel = this.audioContext.createGain()
+    this.gameChannel.gain.value = 1
+    this.gameChannel.connect(this.ambienceChannel)
+
     // music channel
     this.musicChannel = this.audioContext.createGain()
     this.musicChannel.gain.value = 1
-    this.musicChannel.connect(this.masterOutput)
+    this.musicChannel.connect(this.ambienceChannel)
 
     // SFX channel
     this.sfxChannel = this.audioContext.createGain()
     this.sfxChannel.gain.value = 1
     this.sfxChannel.connect(this.masterOutput)
 
-    // game channel
-    this.gameChannel = this.audioContext.createGain()
-    this.gameChannel.gain.value = 1
-    this.gameChannel.connect(this.masterOutput)
-
     this.isPlaying = true
     this.volume = 1
     this.musicVolume = 1
     this.gameVolume = 1
+    this.ambienceVolume = 1
   }
 
   loadAudioFromURL(
@@ -245,18 +255,7 @@ export class WebAudioPlayer {
     this.volume = volume
   }
 
-  setMusicVolume(volume: number) {
-    this.musicChannel.gain.value = volume
-    this.musicVolume = volume
-  }
-
-  setGameVolume(volume: number) {
-    this.gameChannel.gain.value = volume
-    this.gameVolume = volume
-  }
-
-  setMusicAndGameVolume(volume: number, fadeTime: number = 0.75) {
-    this.volume = volume
+  setMusicVolume(volume: number, fadeTime: number = 0.75) {
     const currentTime = this.audioContext.currentTime
 
     this.musicChannel.gain.cancelScheduledValues(currentTime)
@@ -269,6 +268,12 @@ export class WebAudioPlayer {
       currentTime + fadeTime
     )
 
+    this.musicVolume = volume
+  }
+
+  setGameVolume(volume: number, fadeTime: number = 0.75) {
+    const currentTime = this.audioContext.currentTime
+
     this.gameChannel.gain.cancelScheduledValues(currentTime)
     this.gameChannel.gain.setValueAtTime(
       this.gameChannel.gain.value,
@@ -279,8 +284,23 @@ export class WebAudioPlayer {
       currentTime + fadeTime
     )
 
-    this.musicVolume = volume
     this.gameVolume = volume
+  }
+
+  setAmbienceVolume(volume: number, fadeTime: number = 0.75) {
+    const currentTime = this.audioContext.currentTime
+
+    this.ambienceChannel.gain.cancelScheduledValues(currentTime)
+    this.ambienceChannel.gain.setValueAtTime(
+      this.ambienceChannel.gain.value,
+      currentTime
+    )
+    this.ambienceChannel.gain.linearRampToValueAtTime(
+      volume,
+      currentTime + fadeTime
+    )
+
+    this.ambienceVolume = volume
   }
 
   pause() {

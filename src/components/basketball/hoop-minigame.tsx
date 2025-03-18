@@ -14,7 +14,6 @@ import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
