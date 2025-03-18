@@ -56,6 +56,9 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
             label="Type"
             value={
               <TextList
+                className="flex-col"
+                hasWrapper
+                showComma={false}
                 value={entry.project?.categories?.map((c) => c._title) || []}
               />
             }
