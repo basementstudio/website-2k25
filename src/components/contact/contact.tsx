@@ -15,12 +15,6 @@ const Contact = () => {
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
-  const isIntroComplete = useContactStore((state) => state.isIntroComplete)
-  const isScaleUpComplete = useContactStore((state) => state.isScaleUpComplete)
-  const isOutroComplete = useContactStore((state) => state.isOutroComplete)
-  const isScaleDownComplete = useContactStore(
-    (state) => state.isScaleDownComplete
-  )
 
   const { playSoundFX } = useSiteAudio()
   const scene = useCurrentScene()
@@ -30,10 +24,10 @@ const Contact = () => {
   const overlayRef = useRef<HTMLDivElement>(null)
 
   const handleClose = useCallback(() => {
-    if (isIntroComplete && isScaleUpComplete && !isAnimating) {
+    if (!isAnimating) {
       setIsContactOpen(false)
     }
-  }, [setIsContactOpen, isIntroComplete, isScaleUpComplete, isAnimating])
+  }, [setIsContactOpen, isAnimating])
 
   useKeyPress(
     "Escape",
@@ -61,9 +55,7 @@ const Contact = () => {
     }
 
     const handleTransitionEnd = () => {
-      if (isContactOpen && isIntroComplete && isScaleUpComplete) {
-        setIsAnimating(false)
-      } else if (!isContactOpen && isOutroComplete && isScaleDownComplete) {
+      if (!isAnimating) {
         setIsAnimating(false)
       }
     }
@@ -75,14 +67,7 @@ const Contact = () => {
       overlay.removeEventListener("transitionstart", handleTransitionStart)
       overlay.removeEventListener("transitionend", handleTransitionEnd)
     }
-  }, [
-    setIsAnimating,
-    isContactOpen,
-    isIntroComplete,
-    isScaleUpComplete,
-    isOutroComplete,
-    isScaleDownComplete
-  ])
+  }, [setIsAnimating, isContactOpen])
 
   useEffect(() => {
     if (window.location.hash === "#contact" && !isContactOpen) {
