@@ -31,7 +31,15 @@ export const metadata: Metadata = {
     default: "basement.studio | We make cool shit that performs."
   },
   description:
-    "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality."
+    "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality.",
+  twitter: {
+    creator: "@basementstudio",
+    site: "@basementstudio",
+    card: "summary_large_image",
+    title: "basement.studio | We make cool shit that performs.",
+    description:
+      "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality."
+  }
 }
 
 // TODO: find a way to load font-feature-settings
