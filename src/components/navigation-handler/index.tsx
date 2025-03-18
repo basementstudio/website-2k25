@@ -40,6 +40,27 @@ export const NavigationHandler = () => {
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
+  useEffect(() => {
+    const handleContactFormNavigate = (event: CustomEvent) => {
+      const path = event.detail?.path
+      if (path) {
+        handleNavigation(path)
+      }
+    }
+
+    window.addEventListener(
+      "contactFormNavigate",
+      handleContactFormNavigate as EventListener
+    )
+
+    return () => {
+      window.removeEventListener(
+        "contactFormNavigate",
+        handleContactFormNavigate as EventListener
+      )
+    }
+  }, [handleNavigation])
+
   const setCurrentTabIndex = useNavigationStore(
     (state) => state.setCurrentTabIndex
   )

@@ -29,19 +29,63 @@ export const useContactStore = create<ContactStore>((set) => ({
     set((state: ContactStore) => {
       if (state.isAnimating) return state
 
-      if (isContactOpen) {
-        window.history.pushState(
-          null,
-          "",
-          window.location.pathname + "#contact"
-        )
-      } else {
-        if (window.location.hash === "#contact") {
-          window.history.pushState(null, "", window.location.pathname)
-        }
-      }
+      if (!isContactOpen) {
+        let targetPath: string | null = null
 
-      if (isContactOpen && !state.isContactOpen) {
+        if (window.location.hash === "#contact") {
+          targetPath = sessionStorage.getItem("pendingNavigation")
+
+          window.history.pushState(
+            null,
+            "",
+            window.location.pathname + window.location.search
+          )
+        }
+
+        if (!state.isIntroComplete || !state.isScaleUpComplete) {
+          return state
+        }
+
+        if (state.worker) {
+          state.worker.postMessage({
+            type: "update-contact-open",
+            isContactOpen: false,
+            isClosing: true
+          })
+        }
+
+        set({
+          isOutroComplete: false,
+          isScaleDownComplete: false
+        })
+
+        setTimeout(() => {
+          if (state.worker) {
+            state.worker.postMessage({
+              type: "update-contact-open",
+              isContactOpen: false,
+              isClosing: false
+            })
+          }
+
+          set({
+            isContactOpen: false,
+            isOutroComplete: true,
+            isScaleDownComplete: true
+          })
+
+          if (targetPath && targetPath !== window.location.pathname) {
+            window.dispatchEvent(
+              new CustomEvent("contactFormNavigate", {
+                detail: { path: targetPath }
+              })
+            )
+            sessionStorage.removeItem("pendingNavigation")
+          }
+        }, 1000)
+
+        return state
+      } else {
         if (
           state.hasBeenOpenedBefore &&
           (!state.isOutroComplete || !state.isScaleDownComplete)
@@ -49,8 +93,24 @@ export const useContactStore = create<ContactStore>((set) => ({
           return state
         }
 
+        if (window.location.hash !== "#contact") {
+          window.history.pushState(
+            null,
+            "",
+            window.location.pathname + window.location.search + "#contact"
+          )
+        }
+
+        if (state.worker) {
+          state.worker.postMessage({
+            type: "update-contact-open",
+            isContactOpen: true,
+            isClosing: false
+          })
+        }
+
         return {
-          isContactOpen,
+          isContactOpen: true,
           isIntroComplete: false,
           isScaleUpComplete: false,
           isOutroComplete: true,
@@ -58,22 +118,6 @@ export const useContactStore = create<ContactStore>((set) => ({
           hasBeenOpenedBefore: true
         }
       }
-
-      if (!isContactOpen && state.isContactOpen) {
-        if (!state.isIntroComplete || !state.isScaleUpComplete) {
-          return state
-        }
-
-        return {
-          isContactOpen,
-          isOutroComplete: false,
-          isScaleDownComplete: false,
-          isIntroComplete: true,
-          isScaleUpComplete: true
-        }
-      }
-
-      return { isContactOpen }
     })
   }
 }))
