@@ -1,3 +1,5 @@
+import { FADE_DURATION } from "./constants"
+
 export class AudioSource {
   public audioSource: AudioBufferSourceNode | undefined
   private audioContext: AudioContext
@@ -255,7 +257,7 @@ export class WebAudioPlayer {
     this.volume = volume
   }
 
-  setMusicVolume(volume: number, fadeTime: number = 1) {
+  setMusicVolume(volume: number, fadeTime: number = FADE_DURATION) {
     const currentTime = this.audioContext.currentTime
 
     this.musicChannel.gain.cancelScheduledValues(currentTime)
@@ -271,7 +273,7 @@ export class WebAudioPlayer {
     this.musicVolume = volume
   }
 
-  setGameVolume(volume: number, fadeTime: number = 1) {
+  setGameVolume(volume: number, fadeTime: number = FADE_DURATION) {
     const currentTime = this.audioContext.currentTime
 
     this.gameChannel.gain.cancelScheduledValues(currentTime)
@@ -287,7 +289,7 @@ export class WebAudioPlayer {
     this.gameVolume = volume
   }
 
-  setAmbienceVolume(volume: number, fadeTime: number = 1) {
+  setAmbienceVolume(volume: number, fadeTime: number = FADE_DURATION) {
     const currentTime = this.audioContext.currentTime
 
     this.ambienceChannel.gain.cancelScheduledValues(currentTime)

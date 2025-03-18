@@ -3,7 +3,7 @@ import { create } from "zustand"
 
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
-import { SFX_VOLUME } from "@/lib/audio/constants"
+import { AMBIENT_VOLUME, SFX_VOLUME } from "@/lib/audio/constants"
 import { useIsOnTab } from "./use-is-on-tab"
 import { useArcadeStore } from "@/store/arcade-store"
 import { useCurrentScene } from "./use-current-scene"
@@ -132,7 +132,7 @@ export const useInitializeAudioContext = () => {
 
         const source = await player.loadAudioFromURL(url, false, true)
         source.loop = true
-        source.setVolume(0.15)
+        source.setVolume(AMBIENT_VOLUME)
         source.play()
 
         useSiteAudioStore.setState({ gameThemeSong: source })
@@ -150,11 +150,11 @@ export const useInitializeAudioContext = () => {
     if (isIngame && scene === "lab") {
       player.setGameVolume(1)
       player.setMusicVolume(0)
-      playGameSong(GAME_THEME_SONGS.BASKETBALL_SONG)
+      playGameSong(ARCADE_AUDIO_SFX.MIAMI_HEATWAVE)
     } else if (scene === "basketball") {
       player.setGameVolume(1)
       player.setMusicVolume(0)
-      playGameSong(ARCADE_AUDIO_SFX.MIAMI_HEATWAVE)
+      playGameSong(GAME_THEME_SONGS.BASKETBALL_SONG)
     } else {
       player.setGameVolume(0)
       player.setMusicVolume(1)
