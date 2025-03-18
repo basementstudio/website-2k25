@@ -206,7 +206,7 @@ void main() {
   backLightFactor = clamp(backLightFactor, 0.0, 1.0);
   backLightFactor = pow(backLightFactor, 2.0);
 
-  lightFactor *= 6.0;
+  lightFactor *= 8.0;
   backLightFactor *= 4.0;
 
   lightFactor = max(lightFactor, backLightFactor * 1.5);

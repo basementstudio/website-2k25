@@ -249,7 +249,8 @@ export const handlePointerMove = ({
       initialGrabPos.current.z - currentPos.z
     ).length()
 
-    if (moveDistance > 0.2) {
+    // 0.2
+    if (moveDistance > 0.18) {
       hasMovedSignificantly.current = true
     }
 
@@ -322,7 +323,8 @@ export const handlePointerUp = ({
         hoopPosition
       )
       ball.applyImpulse(assistedVelocity, true)
-      ball.applyTorqueImpulse({ x: 0.015, y: 0, z: 0 }, true)
+      // ball throw's backspin
+      ball.applyTorqueImpulse({ x: 0.005, y: 0, z: 0 }, true)
     } else {
       ball.setBodyType(0, true)
     }
