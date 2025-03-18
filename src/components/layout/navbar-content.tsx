@@ -18,6 +18,7 @@ import { mergeRefs } from "@/utils/mergeRefs"
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
 import { StayConnected } from "./stay-connected"
+import { ContactButton } from "../primitives/contact-button"
 
 const Logo = memo(({ className }: { className?: string }) => (
   <svg
@@ -89,7 +90,6 @@ NavbarContent.displayName = "NavbarContent"
 
 const DesktopContent = memo(({ links }: NavbarContentProps) => {
   const { handleNavigation } = useHandleNavigation()
-  const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
 
   const pathname = usePathname()
@@ -118,18 +118,17 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
 
       <div className="col-start-11 col-end-13 ml-auto hidden items-center gap-5 lg:flex">
         <MusicToggle />
-        <button
-          id="nav-contact"
-          onClick={() => {
-            setIsContactOpen(!isContactOpen)
-          }}
-          className={cn(
-            "!text-p capitalize text-brand-w1 hover:text-brand-o",
-            isContactOpen && "text-brand-g1"
-          )}
-        >
-          <span className="actionable-no-underline">Contact Us</span>
-        </button>
+        <ContactButton>
+          <div
+            id="nav-contact"
+            className={cn(
+              "!text-p capitalize text-brand-w1 hover:text-brand-o",
+              isContactOpen && "text-brand-g1"
+            )}
+          >
+            <span className="actionable-no-underline">Contact Us</span>
+          </div>
+        </ContactButton>
       </div>
     </>
   )

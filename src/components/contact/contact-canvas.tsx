@@ -7,23 +7,24 @@ import { useAssets } from "../assets-provider"
 import { useContactStore } from "./contact-store"
 import ContactScreen from "./contact-screen"
 
+type WorkerMessageType =
+  | "outro-complete"
+  | "intro-complete"
+  | "animation-rejected"
+  | "start-outro"
+  | "run-outro-animation"
+  | "scale-animation-complete"
+  | "scale-down-animation-complete"
+
 const ContactCanvas = () => {
   const { contactPhone } = useAssets()
   const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
-  const setIsIntroComplete = useContactStore(
-    (state) => state.setIsIntroComplete
-  )
-  const setIsScaleUpComplete = useContactStore(
-    (state) => state.setIsScaleUpComplete
-  )
-  const setIsScaleDownComplete = useContactStore(
-    (state) => state.setIsScaleDownComplete
-  )
-  const setIsOutroComplete = useContactStore(
-    (state) => state.setIsOutroComplete
+  const setIntroCompleted = useContactStore((state) => state.setIntroCompleted)
+  const setClosingCompleted = useContactStore(
+    (state) => state.setClosingCompleted
   )
   const [shouldRender, setShouldRender] = useState(false)
 
@@ -31,12 +32,10 @@ const ContactCanvas = () => {
     if (isContactOpen) {
       setIsAnimating(true)
       setShouldRender(true)
-      setIsIntroComplete(false)
-      setIsScaleUpComplete(false)
+      setIntroCompleted(false)
     } else if (!isContactOpen && shouldRender) {
       setIsAnimating(true)
-      setIsScaleDownComplete(false)
-      setIsOutroComplete(false)
+      setClosingCompleted(false)
 
       const safetyTimer = setTimeout(() => {
         setShouldRender(false)
@@ -47,47 +46,44 @@ const ContactCanvas = () => {
     isContactOpen,
     shouldRender,
     setIsAnimating,
-    setIsIntroComplete,
-    setIsScaleUpComplete,
-    setIsScaleDownComplete,
-    setIsOutroComplete
+    setIntroCompleted,
+    setClosingCompleted
   ])
 
   useEffect(() => {
     if (!worker) return
 
     const handleWorkerMessage = (e: MessageEvent) => {
-      if (e.data.type === "outro-complete") {
-        setShouldRender(false)
-        setIsAnimating(false)
-        setIsOutroComplete(true)
-      } else if (e.data.type === "intro-complete") {
-        setIsIntroComplete(true)
-      } else if (e.data.type === "animation-rejected") {
-        setIsAnimating(false)
-      } else if (e.data.type === "start-outro") {
-        worker.postMessage({ type: "start-outro" })
-      } else if (e.data.type === "run-outro-animation") {
-        worker.postMessage({ type: "run-outro-animation" })
-      } else if (e.data.type === "scale-animation-complete") {
-        setIsScaleUpComplete(true)
-        setIsAnimating(false)
-      } else if (e.data.type === "scale-down-animation-complete") {
-        setIsScaleDownComplete(true)
+      const { type } = e.data
+
+      // Common handlers for frequent patterns
+      const setAnimComplete = (setCompleteFunc: (val: boolean) => void) => {
+        setCompleteFunc(true)
         setIsAnimating(false)
       }
+
+      const passThrough = () => worker.postMessage({ type })
+
+      const messageHandlers: Partial<Record<WorkerMessageType, () => void>> = {
+        "outro-complete": () => {
+          setShouldRender(false)
+          setAnimComplete(setClosingCompleted)
+        },
+        "animation-rejected": () => setIsAnimating(false),
+        "start-outro": passThrough,
+        "run-outro-animation": passThrough,
+        "scale-animation-complete": () => setAnimComplete(setIntroCompleted),
+        "scale-down-animation-complete": () =>
+          setAnimComplete(setClosingCompleted)
+      }
+
+      const handler = messageHandlers[type as WorkerMessageType]
+      if (handler) handler()
     }
 
     worker.addEventListener("message", handleWorkerMessage)
     return () => worker.removeEventListener("message", handleWorkerMessage)
-  }, [
-    worker,
-    setIsAnimating,
-    setIsIntroComplete,
-    setIsScaleUpComplete,
-    setIsScaleDownComplete,
-    setIsOutroComplete
-  ])
+  }, [worker, setIsAnimating, setIntroCompleted, setClosingCompleted])
 
   useEffect(() => {
     const newWorker = new Worker(
