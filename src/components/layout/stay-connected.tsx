@@ -14,15 +14,15 @@ interface StayConnectedProps {
 export const StayConnected = ({ content, className }: StayConnectedProps) => {
   return (
     <div className={cn("flex flex-col gap-6", className)}>
-      <div className="flex flex-col gap-4">
+      <div className="flex max-w-[26.25rem] flex-col gap-4">
         <RichText
           content={content}
           components={{
             h3: ({ children }) => (
-              <p className="text-h3 text-brand-w2">{children}</p>
+              <p className="!text-pretty text-h3 text-brand-w2">{children}</p>
             ),
             p: ({ children }) => (
-              <p className="text-h4 text-brand-w2">{children}</p>
+              <p className="!text-pretty text-h4 text-brand-w2">{children}</p>
             )
           }}
         />
