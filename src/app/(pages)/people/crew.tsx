@@ -55,7 +55,10 @@ export const Crew = ({ data }: { data: QueryType }) => {
         className={cn(
           "crew-list hidden flex-col gap-5 lg:col-start-1 lg:col-end-5 lg:flex",
           // make it sticky if the list is taller than the faces
-          { "sticky top-8": heightRef.current.list > heightRef.current.faces }
+          {
+            "lg:sticky lg:top-8":
+              heightRef.current.list > heightRef.current.faces
+          }
         )}
       >
         {Object.entries(groupedPeople).map(([department, people], index) => (
