@@ -60,8 +60,8 @@ interface SiteAudioHook {
 const useSiteAudioStore = create<SiteAudioStore>(() => ({
   player: null,
   audioSfxSources: null,
-  music: true,
   gameThemeSong: null,
+  music: false,
   setMusic: (state) => useSiteAudioStore.setState({ music: state }),
   activeTrackType: "ambience" as BackgroundAudioType,
   setActiveTrackType: (type) =>
@@ -81,6 +81,7 @@ export const useInitializeAudioContext = () => {
   const isIngame = useArcadeStore((s) => s.isInGame)
 
   const music = useSiteAudioStore((s) => s.music)
+  const setMusic = useSiteAudioStore((s) => s.setMusic)
   const scene = useCurrentScene()
 
   const isOnTab = useIsOnTab()
@@ -110,7 +111,9 @@ export const useInitializeAudioContext = () => {
       if (!player) {
         const newPlayer = new WebAudioPlayer()
 
+        setMusic(true)
         newPlayer.initAmbience()
+        setTimeout(() => newPlayer.setAmbienceVolume(1, 4), 100)
 
         useSiteAudioStore.setState({ player: newPlayer })
       } else {
