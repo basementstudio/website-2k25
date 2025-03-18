@@ -20,6 +20,7 @@ export const createGlobalShaderMaterial = (
     VIDEO?: boolean
     MATCAP?: boolean
     CLOUDS?: boolean
+    DAYLIGHT?: boolean
   }
 ) => {
   const {
@@ -91,6 +92,10 @@ export const createGlobalShaderMaterial = (
     uniforms["glassMatcap"] = { value: false }
   }
 
+  if (defines?.DAYLIGHT) {
+    uniforms["daylight"] = { value: true }
+  }
+
   const material = new ShaderMaterial({
     name: GLOBAL_SHADER_MATERIAL_NAME,
     defines: {
@@ -110,11 +115,16 @@ export const createGlobalShaderMaterial = (
       FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
       MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
       VIDEO: defines?.VIDEO !== undefined ? Boolean(defines?.VIDEO) : false,
-      CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false
+      CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false,
+      DAYLIGHT:
+        defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false
     },
     uniforms,
     transparent:
-      baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
+      baseOpacity < 1 ||
+      alphaMap !== null ||
+      baseMaterial.transparent ||
+      defines?.DAYLIGHT,
     vertexShader,
     fragmentShader,
     side: baseMaterial.side

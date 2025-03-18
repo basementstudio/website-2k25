@@ -77,6 +77,11 @@ uniform float uGodrayOpacity;
 uniform float uGodrayDensity;
 #endif
 
+// Daylight
+#ifdef DAYLIGHT
+uniform bool daylight;
+#endif
+
 // Inspectable
 uniform bool inspectingEnabled;
 uniform float inspectingFactor;
@@ -252,6 +257,12 @@ void main() {
   #ifdef MATCAP
   if (glassMatcap) {
     gl_FragColor.a *= pattern * inspectingFactor;
+  }
+  #endif
+
+  #ifdef DAYLIGHT
+  if (daylight) {
+    gl_FragColor.a = inspectingFactor;
   }
   #endif
 }
