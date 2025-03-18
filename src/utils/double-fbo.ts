@@ -1,5 +1,6 @@
-import { Subscribable, subscribable } from "@/lib/subscribable"
 import * as THREE from "three"
+
+import { Subscribable, subscribable } from "@/lib/subscribable"
 
 type SwapCallback = () => void
 
@@ -8,13 +9,13 @@ export type DoubleFBO = {
   write: THREE.WebGLRenderTarget
   swap: () => void
   dispose: () => void
-  onSwap: Subscribable<SwapCallback>['addCallback']
+  onSwap: Subscribable<SwapCallback>["addCallback"]
 }
 
 export const doubleFbo = (
   width: number,
   height: number,
-  options: THREE.RenderTargetOptions,
+  options: THREE.RenderTargetOptions
 ): DoubleFBO => {
   const swapSubscribable = subscribable<SwapCallback>()
 

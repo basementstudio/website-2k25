@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { ContactStatus } from "./contact-status"
 import { submitContactForm } from "@/actions/contact-form"
 
-type Inputs = {
+export type Inputs = {
   name: string
   company: string
   email: string

@@ -39,6 +39,11 @@ export function useAmbiencePlaylist() {
   const ambienceTracks = useMemo(
     () => [
       {
+        name: "Cassette Kong - Basement Jukebox 03:35",
+        url: AMBIENCE.AMBIENCE_VHS,
+        volume: AMBIENT_VOLUME
+      },
+      {
         name: "Perfect Waves - Basement Jukebox 00:59",
         url: AMBIENCE.AMBIENCE_AQUA,
         volume: AMBIENT_VOLUME
@@ -51,11 +56,6 @@ export function useAmbiencePlaylist() {
       {
         name: "Tears In The Rain - Basement Jukebox 01:55",
         url: AMBIENCE.AMBIENCE_RAIN,
-        volume: AMBIENT_VOLUME
-      },
-      {
-        name: "Cassette Kong - Basement Jukebox 03:35",
-        url: AMBIENCE.AMBIENCE_VHS,
         volume: AMBIENT_VOLUME
       }
     ],

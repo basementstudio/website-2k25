@@ -152,6 +152,10 @@ export interface AssetsResult {
   mapTextures: {
     rain: string
   }
+  physicsParams: {
+    _title: string
+    value: number
+  }[]
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
@@ -317,6 +321,10 @@ export async function fetchAssets(): Promise<AssetsResult> {
     },
     lamp: {
       extraLightmap: threeDInteractions.lamp.extraLightmap?.url ?? ""
-    }
+    },
+    physicsParams: threeDInteractions.physicsParams.items.map((item) => ({
+      _title: item._title,
+      value: item.value ?? 0
+    }))
   }
 }

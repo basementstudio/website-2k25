@@ -163,7 +163,12 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   return (
     <>
-      <group scale={1} ref={phoneGroupRef} position={[0, 0, 0]}>
+      <group
+        scale={1}
+        ref={phoneGroupRef}
+        position={[0, 0, 0]}
+        visible={isContactOpen || isAnimating}
+      >
         <primitive object={scene} />
       </group>
       <mesh ref={debugMeshRef} renderOrder={2} visible={false}>

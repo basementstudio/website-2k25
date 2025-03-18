@@ -44,6 +44,16 @@ const nextConfig: NextConfig = {
     })
 
     return config
+  },
+
+  async redirects() {
+    return [
+      {
+        source: "/about",
+        destination: "/services",
+        permanent: true
+      }
+    ]
   }
 }
 
