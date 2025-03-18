@@ -2,6 +2,8 @@ import { submitContactForm } from "@/actions/contact-form"
 import { useEffect, useRef, useState } from "react"
 import { motion, useAnimation } from "motion/react"
 import { useContactStore } from "./contact-store"
+import { SubmitHandler, useForm } from "react-hook-form"
+import { Inputs } from "@/app/(pages)/contact/form/contact-form"
 
 const ContactScreen = () => {
   // State
@@ -11,44 +13,9 @@ const ContactScreen = () => {
   const animation = useAnimation()
   const worker = useContactStore((state) => state.worker)
 
-  const [formData, setFormData] = useState({
-    name: "",
-    company: "",
-    email: "",
-    budget: "",
-    message: ""
-  })
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const isValid = formData.email.trim() !== "" && formData.message.trim() !== ""
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setSubmitting(true)
-
-    try {
-      const result = await submitContactForm(formData)
-      if (result.success) {
-        setFormData({
-          name: "",
-          company: "",
-          email: "",
-          budget: "",
-          message: ""
-        })
-      }
-    } catch (error) {
-      console.error("Failed to submit form:", error)
-    } finally {
-      setSubmitting(false)
-    }
-  }
+  const [submitError, setSubmitError] = useState("")
 
   useEffect(() => {
     if (!worker) return
@@ -99,13 +66,52 @@ const ContactScreen = () => {
     }
   }, [worker, animation])
 
-  useEffect(() => {
-    return () => {
-      if (updatePositionRef.current) {
-        window.removeEventListener("resize", updatePositionRef.current)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch
+  } = useForm<Inputs>()
+
+  // Watch the required fields
+  const email = watch("email")
+  const message = watch("message")
+
+  // Check if required fields have values
+  const isValid = !!email && !!message
+
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    setSubmitting(true)
+    setIsSubmitted(false)
+    setSubmitError("")
+
+    try {
+      const formData = {
+        name: data.name || "",
+        company: data.company || "",
+        email: data.email,
+        budget: data.budget || "",
+        message: data.message
       }
+
+      const result = await submitContactForm(formData)
+
+      if (result.success) {
+        setIsSubmitted(true)
+        setSubmitError("")
+        reset()
+      } else {
+        setIsSubmitted(false)
+        setSubmitError(result.error || "Form submission failed")
+      }
+    } catch (error) {
+      setIsSubmitted(false)
+      setSubmitError("Form submission failed")
+    } finally {
+      setSubmitting(false)
     }
-  }, [])
+  }
 
   return (
     <div
@@ -132,7 +138,7 @@ const ContactScreen = () => {
         >
           <div className="flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o">
             <form
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit(onSubmit)}
               className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase"
             >
               <fieldset className="absolute -top-[10px] left-[10px]">
@@ -142,44 +148,34 @@ const ContactScreen = () => {
               <div className="grid grid-cols-2 gap-2 px-4">
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
                   placeholder="NAME"
                   className="h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  {...register("name")}
                 />
                 <input
                   type="text"
-                  name="company"
-                  value={formData.company}
-                  onChange={handleInputChange}
                   placeholder="COMPANY"
                   className="h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  {...register("company")}
                 />
                 <input
                   required
                   type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
                   placeholder="EMAIL"
                   className="col-span-2 h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  {...register("email", { required: "Email is required" })}
                 />
                 <input
                   type="text"
-                  name="budget"
-                  value={formData.budget}
-                  onChange={handleInputChange}
                   placeholder="BUDGET (OPTIONAL)"
                   className="col-span-2 h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  {...register("budget")}
                 />
                 <textarea
                   required
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
                   placeholder="MESSAGE"
                   className="col-span-2 h-full resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  {...register("message", { required: "Message is required" })}
                 />
               </div>
 
