@@ -26,6 +26,10 @@ uniform float lightMapIntensity;
 uniform vec3 lightDirection;
 #endif
 
+#ifdef BASKETBALL
+uniform vec3 frontLightDirection;
+#endif
+
 // aomap
 uniform sampler2D aoMap;
 uniform float aoMapIntensity;
@@ -192,12 +196,28 @@ void main() {
 
   #ifdef LIGHT
   float lightFactor = dot(lightDirection, normalize(vNormal));
+
   lightFactor = valueRemap(lightFactor, 0.2, 1.0, 0.1, 1.0);
+
   lightFactor = clamp(lightFactor, 0.0, 1.0);
   lightFactor = pow(lightFactor, 2.0);
+
+  #ifdef BASKETBALL
+  float frontLightFactor = dot(frontLightDirection, normalize(vNormal));
+  frontLightFactor = valueRemap(frontLightFactor, 0.05, 1.0, 0.1, 1.0);
+  frontLightFactor = clamp(frontLightFactor, 0.0, 1.0);
+  frontLightFactor = pow(frontLightFactor, 2.0);
+  lightFactor = mix(lightFactor, frontLightFactor, 0.5);
+
+  lightFactor *= 4.5;
+  frontLightFactor += 10.0;
+  #else
   lightFactor *= 3.0;
+  #endif
+
   lightFactor += 1.0;
   irradiance *= lightFactor;
+  irradiance += 0.025;
   #endif
 
   gl_FragColor = vec4(irradiance, opacityResult);
