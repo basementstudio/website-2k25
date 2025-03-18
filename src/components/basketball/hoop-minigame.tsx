@@ -25,7 +25,6 @@ const HoopMinigameInner = () => {
   const [isBasketball, setIsBasketball] = useState(false)
   const scene = useCurrentScene()
   const isOnTab = useIsOnTab()
-
   const gameDuration = useMinigameStore((s) => s.gameDuration)
   const initialPosition = useMinigameStore((s) => s.initialPosition)
   const hoopPosition = useMinigameStore((s) => s.hoopPosition)
