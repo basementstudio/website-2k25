@@ -54,9 +54,11 @@ export const Basketball = ({
 
   const material = useMemo(() => {
     const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
-      LIGHT: true
+      LIGHT: true,
+      BASKETBALL: true
     })
-    mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
+    mat.uniforms.lightDirection.value = new Vector3(0, 1, -1)
+    mat.uniforms.backLightDirection.value = new Vector3(0, 0, 1)
     return mat
   }, [originalMaterial])
 
@@ -128,7 +130,7 @@ export const Basketball = ({
         scale={1.25}
         geometry={geometry}
         material={material}
-        rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
+        rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
         onPointerDown={isTimerLow ? undefined : handlePointerDown}
         onPointerMove={isTimerLow ? undefined : handlePointerMove}
         onPointerUp={isTimerLow ? undefined : handlePointerUp}
