@@ -47,6 +47,7 @@ interface HandlePointerUpParams {
   upStrength: number
   forwardStrength: number
   playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
+  throwVelocity: Vector2
 }
 
 interface MorphTargetMesh extends Mesh {
@@ -159,28 +160,52 @@ export const applyThrowAssistance = (
   return velocity
 }
 
-export const calculateThrowVelocity = (
-  dragDelta: Vector3,
-  currentPos: Position,
-  hoopPosition: Position,
-  dragDistance: number,
-  upStrength: number,
-  forwardStrength: number,
+interface ThrowVelocityParams {
+  dragDelta: Vector3
+  currentPos: Position
+  hoopPosition: Position
+  dragDistance: number
+  upStrength: number
+  forwardStrength: number
   ballHorizontalOffset: number
-): Velocity => {
+  pointerVelocity: Vector2
+}
+
+export const calculateThrowVelocity = ({
+  dragDelta,
+  currentPos,
+  hoopPosition,
+  dragDistance,
+  upStrength,
+  forwardStrength,
+  ballHorizontalOffset,
+  pointerVelocity
+}: ThrowVelocityParams): Velocity => {
   const baseThrowStrength = 0.85
-  const throwStrength = Math.min(baseThrowStrength * dragDistance, 3.0)
+
+  // calc pointer speed
+  const pointerSpeed = Math.sqrt(
+    pointerVelocity.x * pointerVelocity.x +
+      pointerVelocity.y * pointerVelocity.y
+  )
+
+  // cap pointer influence
+  const pointerSpeedInfluence = Math.min(pointerSpeed * 0.3, 1.5)
+
+  const distanceStrength = Math.min(baseThrowStrength * dragDistance, 3.0)
+  const throwStrength = distanceStrength * (1 + pointerSpeedInfluence)
 
   const distanceToHoop = new Vector3(
     hoopPosition.x - currentPos.x,
     hoopPosition.y - currentPos.y,
     hoopPosition.z - currentPos.z
   ).length()
+
   const heightDifference = hoopPosition.y - currentPos.y
 
   // sideshot correction
   const horizontalDistance = Math.abs(hoopPosition.x - currentPos.x)
-  const centeringForce = horizontalDistance * 0.023 // strong-ish centering force
+  const centeringForce = horizontalDistance * 0.022
   const centeringDirection = currentPos.x > hoopPosition.x ? 1 : -1
   const xCorrection = centeringForce * centeringDirection + ballHorizontalOffset
 
@@ -250,7 +275,7 @@ export const handlePointerMove = ({
     ).length()
 
     // 0.2
-    if (moveDistance > 0.18) {
+    if (moveDistance > 0.2) {
       hasMovedSignificantly.current = true
     }
 
@@ -276,7 +301,8 @@ export const handlePointerUp = ({
   startGame,
   upStrength,
   forwardStrength,
-  playSoundFX
+  playSoundFX,
+  throwVelocity
 }: HandlePointerUpParams) => {
   if (ballRef.current && isThrowable.current) {
     if (!isGameActive) {
@@ -293,29 +319,33 @@ export const handlePointerUp = ({
 
     const dragDistance = dragDelta.length()
     const verticalDragDistance = dragStartPos.y - currentPos.y
+    const pointerSpeed = Math.sqrt(
+      throwVelocity.x * throwVelocity.x + throwVelocity.y * throwVelocity.y
+    )
 
+    console.log(pointerSpeed)
     if (
       dragDistance > 0.1 &&
       verticalDragDistance < -0.1 &&
       hasMovedSignificantly.current
     ) {
       ball.setBodyType(0, true)
-
       isThrowable.current = false
 
       const randomPitch = 0.95 + Math.random() * 0.1
       playSoundFX("BASKETBALL_THROW", 0.3, randomPitch)
 
       const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
-      const rawVelocity = calculateThrowVelocity(
+      const rawVelocity = calculateThrowVelocity({
         dragDelta,
         currentPos,
         hoopPosition,
         dragDistance,
         upStrength,
         forwardStrength,
-        ballHorizontalOffset
-      )
+        ballHorizontalOffset,
+        pointerVelocity: throwVelocity
+      })
 
       const assistedVelocity = applyThrowAssistance(
         rawVelocity,
@@ -323,7 +353,6 @@ export const handlePointerUp = ({
         hoopPosition
       )
       ball.applyImpulse(assistedVelocity, true)
-      // ball throw's backspin
       ball.applyTorqueImpulse({ x: 0.005, y: 0, z: 0 }, true)
     } else {
       ball.setBodyType(0, true)

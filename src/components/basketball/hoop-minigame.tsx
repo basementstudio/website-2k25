@@ -395,7 +395,8 @@ const HoopMinigameInner = () => {
       startGame,
       upStrength,
       forwardStrength,
-      playSoundFX
+      playSoundFX,
+      throwVelocity: throwVelocity.current
     })
   }, [
     isGameActive,
