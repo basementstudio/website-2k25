@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useCallback, useLayoutEffect, useRef, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
@@ -34,12 +34,22 @@ export const Crew = ({ data }: { data: QueryType }) => {
     )
   })
 
-  useEffect(() => {
+  const updateHeightRef = useCallback(() => {
     const listHeight = document.querySelector(".crew-list")?.clientHeight ?? 0
     const facesHeight = document.querySelector(".crew-faces")?.clientHeight ?? 0
 
     heightRef.current = { list: listHeight, faces: facesHeight }
   }, [])
+
+  useLayoutEffect(() => {
+    updateHeightRef()
+
+    window.addEventListener("resize", updateHeightRef)
+
+    return () => {
+      window.removeEventListener("resize", updateHeightRef)
+    }
+  }, [updateHeightRef])
 
   return (
     <section className="grid-layout mb-18 lg:mb-44">
@@ -54,10 +64,9 @@ export const Crew = ({ data }: { data: QueryType }) => {
       <div
         className={cn(
           "crew-list hidden flex-col gap-5 lg:col-start-1 lg:col-end-5 lg:flex",
-          // make it sticky if the list is taller than the faces
           {
             "lg:sticky lg:top-8":
-              heightRef.current.list > heightRef.current.faces
+              heightRef.current.faces > heightRef.current.list
           }
         )}
       >
