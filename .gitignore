@@ -47,3 +47,6 @@ next-env.d.ts
 
 # BaseHub
 .basehub
+
+# million lint
+.million
