@@ -10,6 +10,7 @@ const ContactScreen = () => {
   const updatePositionRef = useRef<(() => void) | null>(null)
   const animation = useAnimation()
   const worker = useContactStore((state) => state.worker)
+  const closeContact = useContactStore.getState().setIsContactOpen
 
   const [submitting, setSubmitting] = useState(false)
   const [showSubmittedMessage, setShowSubmittedMessage] = useState(false)
@@ -109,7 +110,6 @@ const ContactScreen = () => {
           if (worker) {
             worker.postMessage({ type: "start-outro" })
 
-            const closeContact = useContactStore.getState().setIsContactOpen
             closeContact(false)
           }
         }, 2000)
@@ -151,6 +151,20 @@ const ContactScreen = () => {
             >
               <fieldset className="absolute -top-[10px] left-[10px]">
                 <legend className="bg-black px-1">fill in the form</legend>
+              </fieldset>
+
+              <fieldset className="absolute -top-[10px] right-[10px]">
+                <legend className="bg-black px-1">
+                  <button
+                    type="button"
+                    className="uppercase"
+                    onClick={() => {
+                      closeContact(false)
+                    }}
+                  >
+                    close
+                  </button>
+                </legend>
               </fieldset>
 
               <div className="grid grid-cols-2 gap-2 px-4">
