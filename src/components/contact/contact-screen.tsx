@@ -6,16 +6,12 @@ import { SubmitHandler, useForm } from "react-hook-form"
 import { Inputs } from "@/app/(pages)/contact/form/contact-form"
 
 const ContactScreen = () => {
-  // State
   const contentRef = useRef(null)
   const updatePositionRef = useRef<(() => void) | null>(null)
-  const [screenPosition, setScreenPosition] = useState({ x: 0.5, y: 0.5, z: 0 })
   const animation = useAnimation()
   const worker = useContactStore((state) => state.worker)
 
-  const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState("")
   const [showSubmittedMessage, setShowSubmittedMessage] = useState(false)
 
   useEffect(() => {
@@ -25,14 +21,18 @@ const ContactScreen = () => {
       const { type, screenPos } = e.data
 
       if (type === "update-screen-skinned-matrix") {
-        requestAnimationFrame(() => setScreenPosition(screenPos))
+        if (contentRef.current) {
+          const element = contentRef.current as HTMLDivElement
+          element.style.left = `${screenPos.x * 100}%`
+          element.style.top = `${screenPos.y * 100}%`
+        }
       } else if (type === "intro-complete") {
         animation
           .start({
             scaleX: [0, 0, 1, 1],
             scaleY: [0, 0.01, 0.01, 1],
             transition: {
-              duration: 0.6,
+              duration: 0.4,
               times: [0, 0.2, 0.6, 1],
               ease: "easeOut"
             }
@@ -44,7 +44,7 @@ const ContactScreen = () => {
             scaleX: [1, 1, 0, 0],
             scaleY: [1, 0.01, 0.01, 0],
             transition: {
-              duration: 0.6,
+              duration: 0.4,
               times: [0, 0.4, 0.8, 1],
               ease: "easeIn"
             }
@@ -82,8 +82,7 @@ const ContactScreen = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setSubmitting(true)
-    setIsSubmitted(false)
-    setSubmitError("")
+
     setShowSubmittedMessage(false)
 
     if (worker) {
@@ -102,8 +101,6 @@ const ContactScreen = () => {
       const result = await submitContactForm(formData)
 
       if (result.success) {
-        setIsSubmitted(true)
-        setSubmitError("")
         setShowSubmittedMessage(true)
 
         setTimeout(() => {
@@ -118,13 +115,7 @@ const ContactScreen = () => {
         }, 2000)
 
         reset()
-      } else {
-        setIsSubmitted(false)
-        setSubmitError(result.error || "Form submission failed")
       }
-    } catch (error) {
-      setIsSubmitted(false)
-      setSubmitError("Form submission failed")
     } finally {
       setSubmitting(false)
     }
@@ -135,8 +126,8 @@ const ContactScreen = () => {
       ref={contentRef}
       style={{
         position: "absolute",
-        left: `${screenPosition.x * 100}%`,
-        top: `${screenPosition.y * 100}%`,
+        left: "50%",
+        top: "50%",
         transform: `translate(-50%, -50%)`,
         zIndex: 100
       }}

@@ -43,9 +43,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       anim.reset()
       anim.clampWhenFinished = true
       anim.loop = LoopOnce
+
+      anim.timeScale = animName === "Outro-v2" ? 1.5 : 1.2
       anim.play()
 
-      // notify parent when animation is complete
       const onAnimationFinished = () => {
         setIsAnimating(false)
         mixer.removeEventListener("finished", onAnimationFinished)
