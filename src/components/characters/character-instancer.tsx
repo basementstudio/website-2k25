@@ -100,8 +100,6 @@ function CharacterInstanceConfigInner() {
 
   if (!SKINNED_MESH_KEYS.every((key) => nodes[key as keyof typeof nodes])) {
     console.error("INVALID CHARACTERS MODEL")
-    console.log("CURRENT NODES:")
-    console.log(nodes)
 
     return null
   }

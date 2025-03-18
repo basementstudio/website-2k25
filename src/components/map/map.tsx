@@ -12,12 +12,15 @@ import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
+import { useFadeAnimation } from "@/components/inspectables/use-fade-animation"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { SpeakerHover } from "@/components/other/speaker-hover"
 import { OutdoorCars } from "@/components/outdoor-cars"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
+import { Weather } from "@/components/weather"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -27,11 +30,7 @@ import {
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
-import { useFadeAnimation } from "../inspectables/use-fade-animation"
-import { SpeakerHover } from "../other/speaker-hover"
-import { Weather } from "../weather"
 import { BakesLoader } from "./bakes"
-import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
 
 export type GLTFResult = GLTF & {
@@ -298,12 +297,11 @@ export const Map = memo(() => {
     godrayModel.traverse((child) => traverse(child, { GODRAY: true }))
 
     const godrays: Mesh[] = []
-
     godrayModel.traverse((child) => {
       if (child instanceof Mesh) godrays.push(child)
     })
-    setGodrays((prev) => [...prev, ...godrays])
 
+    setGodrays(godrays)
     setOfficeScene(officeModel)
     setOutdoorScene(outdoorModel)
     setGodrayScene(godrayModel)
@@ -508,21 +506,36 @@ export const Map = memo(() => {
       <primitive object={officeItemsModel} />
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
+
+      {/*Arcade */}
       <ArcadeScreen />
       <ArcadeBoard />
+
+      {/*Blog */}
       <BlogDoor />
       <LockedDoor />
-
-      <SpeakerHover />
-
-      {/* TODO: shut down physics after x seconds of not being in blog scene */}
-      {/* TODO: basketball should use the same physics world */}
       <Suspense fallback={null}>
         <PhysicsWorld gravity={[0, -24, 0]} paused={scene !== "blog"}>
+          {/* TODO: shut down physics after x seconds of not being in blog scene */}
+          {/* TODO: basketball should use the same physics world */}
           <Lamp />
         </PhysicsWorld>
       </Suspense>
+
+      {/*Services */}
+      <Weather />
       <OutdoorCars />
+
+      {/* Basketball */}
+      {useMesh.getState().hoopMeshes.hoop && (
+        <primitive object={useMesh.getState().hoopMeshes.hoop as Mesh} />
+      )}
+      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
+
+      {/*Homepage */}
+      {scene === "home" && <SpeakerHover />}
+
+      {/* Routing */}
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
           (tab) => tab.tabClickableName === node.name
@@ -543,13 +556,8 @@ export const Map = memo(() => {
           />
         )
       })}
-      {useMesh.getState().hoopMeshes.hoop && (
-        <primitive object={useMesh.getState().hoopMeshes.hoop as Mesh} />
-      )}
-      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
+
       <BakesLoader />
-      <ReflexesLoader />
-      <Weather />
     </group>
   )
 })

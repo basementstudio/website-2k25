@@ -1,18 +1,93 @@
 "use client"
 
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
-import { lazy, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
 import { useContactStore } from "./contact-store"
-import UiOverlay from "./ui/ui-overlay"
+import ContactScreen from "./contact-screen"
 
-const Fallback = lazy(() => import("./fallback"))
-
-const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
+const ContactCanvas = () => {
   const { contactPhone } = useAssets()
-  const [worker, setWorker] = useState<Worker>()
+  const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
+  const isContactOpen = useContactStore((state) => state.isContactOpen)
+  const setIsAnimating = useContactStore((state) => state.setIsAnimating)
+  const setIsIntroComplete = useContactStore(
+    (state) => state.setIsIntroComplete
+  )
+  const setIsScaleUpComplete = useContactStore(
+    (state) => state.setIsScaleUpComplete
+  )
+  const setIsScaleDownComplete = useContactStore(
+    (state) => state.setIsScaleDownComplete
+  )
+  const setIsOutroComplete = useContactStore(
+    (state) => state.setIsOutroComplete
+  )
+  const [shouldRender, setShouldRender] = useState(false)
+
+  useEffect(() => {
+    if (isContactOpen) {
+      setIsAnimating(true)
+      setShouldRender(true)
+      setIsIntroComplete(false)
+      setIsScaleUpComplete(false)
+    } else if (!isContactOpen && shouldRender) {
+      setIsAnimating(true)
+      setIsScaleDownComplete(false)
+      setIsOutroComplete(false)
+
+      const safetyTimer = setTimeout(() => {
+        setShouldRender(false)
+      }, 3500)
+      return () => clearTimeout(safetyTimer)
+    }
+  }, [
+    isContactOpen,
+    shouldRender,
+    setIsAnimating,
+    setIsIntroComplete,
+    setIsScaleUpComplete,
+    setIsScaleDownComplete,
+    setIsOutroComplete
+  ])
+
+  useEffect(() => {
+    if (!worker) return
+
+    const handleWorkerMessage = (e: MessageEvent) => {
+      if (e.data.type === "outro-complete") {
+        setShouldRender(false)
+        setIsAnimating(false)
+        setIsOutroComplete(true)
+      } else if (e.data.type === "intro-complete") {
+        setIsIntroComplete(true)
+      } else if (e.data.type === "animation-rejected") {
+        setIsAnimating(false)
+      } else if (e.data.type === "start-outro") {
+        worker.postMessage({ type: "start-outro" })
+      } else if (e.data.type === "run-outro-animation") {
+        worker.postMessage({ type: "run-outro-animation" })
+      } else if (e.data.type === "scale-animation-complete") {
+        setIsScaleUpComplete(true)
+        setIsAnimating(false)
+      } else if (e.data.type === "scale-down-animation-complete") {
+        setIsScaleDownComplete(true)
+        setIsAnimating(false)
+      }
+    }
+
+    worker.addEventListener("message", handleWorkerMessage)
+    return () => worker.removeEventListener("message", handleWorkerMessage)
+  }, [
+    worker,
+    setIsAnimating,
+    setIsIntroComplete,
+    setIsScaleUpComplete,
+    setIsScaleDownComplete,
+    setIsOutroComplete
+  ])
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -21,7 +96,6 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         type: "module"
       }
     )
-    setWorker(newWorker)
     setStoreWorker(newWorker)
 
     if (contactPhone) {
@@ -41,27 +115,23 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
     if (worker) {
       worker.postMessage({
         type: "update-contact-open",
-        isContactOpen
+        isContactOpen: isContactOpen
       })
     }
   }, [worker, isContactOpen])
 
-  if (!worker) {
-    return <Fallback />
-  }
+  if (!worker) return null
 
   return (
     <>
+      <ContactScreen />
       <OffscreenCanvas
         worker={worker}
-        fallback={<Fallback />}
-        frameloop={isContactOpen ? "always" : "never"}
-        // 0.875 = z / 6 || 5.25 s6
-        camera={{ position: [0, 0.082, 5.25], fov: 25 }}
+        fallback={null}
+        frameloop={shouldRender ? "always" : "never"}
+        camera={{ position: [0, 0.2, 2], fov: 10 }}
         gl={{ antialias: false }}
       />
-
-      <UiOverlay className="fixed left-[43.6vw] top-[54.4vh] aspect-[16/10] w-[33%] -translate-x-1/2 -translate-y-1/2 opacity-100 [perspective:800px]" />
     </>
   )
 }

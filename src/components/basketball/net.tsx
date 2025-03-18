@@ -6,6 +6,8 @@ import fragmentShader from "@/shaders/net-shader/fragment.glsl"
 import vertexShader from "@/shaders/net-shader/vertex.glsl"
 import { useMinigameStore } from "@/store/minigame-store"
 
+import { normalizeDelta } from "../arcade-game/lib/math"
+
 interface NetProps {
   mesh: THREE.Mesh
 }
@@ -78,7 +80,7 @@ export const Net = ({ mesh }: NetProps) => {
         const decayRate = scoreAnimationRef.current > 0.5 ? 3.0 : 1.5
         scoreAnimationRef.current = Math.max(
           0,
-          scoreAnimationRef.current - delta * decayRate
+          scoreAnimationRef.current - normalizeDelta(delta) * decayRate
         )
         materialRef.current.uniforms.uScoreAnimation.value =
           scoreAnimationRef.current

@@ -2,7 +2,7 @@
 
 import { RichTextNode } from "basehub/api-transaction"
 import { usePathname } from "next/navigation"
-import { memo, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useMemo, useRef, useState } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
@@ -10,10 +10,8 @@ import { Portal } from "@/components/primitives/portal"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
-import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMedia } from "@/hooks/use-media"
 import { usePreventScroll } from "@/hooks/use-prevent-scroll"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
@@ -51,17 +49,8 @@ interface NavbarContentProps {
 
 export const NavbarContent = memo(
   ({ links, socialLinks, newsletter }: NavbarContentProps) => {
-    const { music, handleMute, setVolumeMaster } = useSiteAudio()
     const { handleNavigation } = useHandleNavigation()
-
-    const isOnTab = useIsOnTab()
-
     const scene = useCurrentScene()
-
-    useEffect(
-      () => setVolumeMaster(!isOnTab ? 0 : music ? 1 : 0),
-      [isOnTab, music, setVolumeMaster]
-    )
 
     if (scene === "404") return null
 
@@ -83,8 +72,6 @@ export const NavbarContent = memo(
 
           <DesktopContent
             links={links}
-            music={music}
-            handleMute={handleMute}
             socialLinks={socialLinks}
             newsletter={newsletter}
           />
@@ -100,20 +87,16 @@ export const NavbarContent = memo(
 )
 NavbarContent.displayName = "NavbarContent"
 
-interface ContentProps extends NavbarContentProps {
-  music: boolean
-  handleMute: () => void
-}
-
-const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
+const DesktopContent = memo(({ links }: NavbarContentProps) => {
   const { handleNavigation } = useHandleNavigation()
-  const { setIsContactOpen, isContactOpen } = useContactStore()
+  const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
+  const isContactOpen = useContactStore((state) => state.isContactOpen)
 
   const pathname = usePathname()
 
   return (
     <>
-      <div className="ga-5 col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
+      <div className="col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
         {links.map((link) => (
           <div key={link.href} className="flex items-center gap-1 text-p">
             <Link
@@ -134,22 +117,18 @@ const DesktopContent = memo(({ links, music, handleMute }: ContentProps) => {
       </div>
 
       <div className="col-start-11 col-end-13 ml-auto hidden items-center gap-5 lg:flex">
-        <button
-          onClick={handleMute}
-          className="inline-flex items-center space-x-1 text-p text-brand-w2"
-          aria-label={music ? "Turn music off" : "Turn music on"}
-        >
-          <MusicToggle music={music} />
-        </button>
+        <MusicToggle />
         <button
           id="nav-contact"
-          onClick={() => setIsContactOpen(!isContactOpen)}
+          onClick={() => {
+            setIsContactOpen(!isContactOpen)
+          }}
           className={cn(
             "!text-p capitalize text-brand-w1 hover:text-brand-o",
             isContactOpen && "text-brand-g1"
           )}
         >
-          <span className="actionable actionable-no-underline">Contact Us</span>
+          <span className="actionable-no-underline">Contact Us</span>
         </button>
       </div>
     </>

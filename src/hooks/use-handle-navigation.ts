@@ -6,6 +6,7 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
+import { useContactStore } from "@/components/contact/contact-store"
 
 export const useHandleNavigation = () => {
   const lenisInstance = useLenis()
@@ -48,6 +49,13 @@ export const useHandleNavigation = () => {
   const handleNavigation = useCallback(
     (route: string) => {
       if (route === pathname) return
+
+      const isContactOpen = useContactStore.getState().isContactOpen
+      if (isContactOpen) {
+        sessionStorage.setItem("pendingNavigation", route)
+        useContactStore.getState().setIsContactOpen(false)
+        return
+      }
 
       const selectedScene = getScene(route)
 

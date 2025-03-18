@@ -102,7 +102,7 @@ void main() {
 
   // TODO: use map matrix to shift or move to a different shader to add lightning
   #ifdef CLOUDS
-  mapSample = texture2D(map, vec2(vUv.x - uTime * 0.01, vUv.y));
+  mapSample = texture2D(map, vec2(vUv.x - uTime * 0.004, vUv.y));
   #endif
 
   // Combine texture and base color
