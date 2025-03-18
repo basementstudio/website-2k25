@@ -16,6 +16,7 @@ const ContactScreen = () => {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState("")
+  const [showSubmittedMessage, setShowSubmittedMessage] = useState(false)
 
   useEffect(() => {
     if (!worker) return
@@ -85,6 +86,7 @@ const ContactScreen = () => {
     setSubmitting(true)
     setIsSubmitted(false)
     setSubmitError("")
+    setShowSubmittedMessage(false)
 
     try {
       const formData = {
@@ -100,6 +102,11 @@ const ContactScreen = () => {
       if (result.success) {
         setIsSubmitted(true)
         setSubmitError("")
+        setShowSubmittedMessage(true)
+
+        setTimeout(() => {
+          setShowSubmittedMessage(false)
+        }, 4000)
         reset()
       } else {
         setIsSubmitted(false)
@@ -187,7 +194,11 @@ const ContactScreen = () => {
                       : "cursor-default border-brand-o/50 text-brand-o/50"
                   }`}
                 >
-                  {submitting ? "SUBMITTING..." : "SUBMIT MESSAGE →"}
+                  {submitting
+                    ? "SUBMITTING..."
+                    : showSubmittedMessage
+                      ? "FORM SUBMITTED ✓"
+                      : "SUBMIT MESSAGE →"}
                 </button>
               </div>
             </form>
