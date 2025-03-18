@@ -141,6 +141,7 @@ export const InspectableDragger = ({
           ? (() => {
               try {
                 const handlers = bind()
+                console.info("Correctly applied handlers", handlers)
                 return handlers || {}
               } catch (error) {
                 console.error("Error with gesture bind function:", error)
