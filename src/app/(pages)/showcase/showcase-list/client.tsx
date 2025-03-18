@@ -36,7 +36,27 @@ ViewModeSelector.displayName = "ViewModeSelector"
 export const ShowcaseListClient = memo(
   ({ projects }: { projects: Project[] }) => {
     const searchParams = useSearchParams()
-    const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
+    const isDesktop = useMedia("(min-width: 1024px)")
+
+    const getStoredPreference = () => {
+      if (typeof window === "undefined") return "grid"
+      const stored = localStorage.getItem("showcase-view-mode")
+      return stored === "rows" || stored === "grid" ? stored : "grid"
+    }
+
+    const [viewMode, setViewMode] = useState<"grid" | "rows">(
+      getStoredPreference()
+    )
+
+    useEffect(() => {
+      if (!isDesktop) {
+        setViewMode("grid")
+      } else {
+        const stored = getStoredPreference()
+        setViewMode(stored)
+      }
+    }, [isDesktop])
+
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
       searchParams.get("category") || null
     )
@@ -51,11 +71,11 @@ export const ShowcaseListClient = memo(
       [selectedCategory]
     )
 
-    const isDesktop = useMedia("(min-width: 1024px)")
-
     useEffect(() => {
-      if (!isDesktop) setViewMode("grid")
-    }, [isDesktop])
+      if (typeof window !== "undefined") {
+        window.location.hash = viewMode
+      }
+    }, [viewMode])
 
     const categories = useMemo(() => {
       const categoryMap = new Map<string, number>()
@@ -96,9 +116,15 @@ export const ShowcaseListClient = memo(
       setSelectedCategory(category)
     }, [])
 
-    const handleSetViewMode = useCallback((mode: "grid" | "rows") => {
-      setViewMode(mode)
-    }, [])
+    const handleSetViewMode = useCallback(
+      (mode: "grid" | "rows") => {
+        if (!isDesktop) return
+
+        setViewMode(mode)
+        localStorage.setItem("showcase-view-mode", mode)
+      },
+      [isDesktop]
+    )
 
     return (
       <section className="flex flex-col gap-2" id="list">
