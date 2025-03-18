@@ -1,7 +1,6 @@
 "use client"
 
 import { useLoader, useThree } from "@react-three/fiber"
-import { animate } from "motion"
 import { memo, Suspense, useEffect, useMemo } from "react"
 import {
   Group,
@@ -16,10 +15,8 @@ import {
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
-import { useCustomShaderMaterial } from "@/shaders/material-global-shader"
-
-import { useAppLoadingStore } from "../loading/app-loading-handler"
-import { cctvConfig } from "../postprocessing/renderer"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
+import { cctvConfig } from "@/components/postprocessing/renderer"
 
 interface Bake {
   lightmap?: Texture
@@ -28,6 +25,7 @@ interface Bake {
     texture: Texture
     isGlass: boolean
   }
+  reflex?: Texture
 }
 
 interface TextureUpdate {
@@ -57,8 +55,14 @@ const addMatcap = (update: TextureUpdate, isGlass: boolean) => {
   material.uniforms.glassMatcap.value = isGlass
 }
 
+const addReflex = (update: TextureUpdate) => {
+  if (!update.mesh.userData.hasGlobalMaterial) return
+  const material = update.mesh.material as ShaderMaterial
+  material.uniforms.glassReflex.value = update.texture
+}
+
 const useBakes = (): Record<string, Bake> => {
-  const { bakes, matcaps } = useAssets()
+  const { bakes, matcaps, glassReflexes } = useAssets()
 
   const withLightmap = useMemo(
     () => bakes.filter((bake) => bake.lightmap),
@@ -83,6 +87,11 @@ const useBakes = (): Record<string, Bake> => {
   const loadedMatcaps = useLoader(
     TextureLoader,
     matcaps.map((matcap) => matcap.file)
+  )
+
+  const loadedReflexes = useLoader(
+    TextureLoader,
+    glassReflexes.map((reflex) => reflex.url)
   )
 
   const meshMaps = useMemo(() => {
@@ -135,6 +144,20 @@ const useBakes = (): Record<string, Bake> => {
       }
     })
 
+    loadedReflexes.forEach((map, index) => {
+      map.flipY = false
+      map.colorSpace = NoColorSpace
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
+      map.magFilter = NearestFilter
+
+      const meshName = glassReflexes[index].mesh
+      if (!maps[meshName]) {
+        maps[meshName] = {}
+      }
+      maps[meshName].reflex = map
+    })
+
     return maps
   }, [
     loadedLightmaps,
@@ -142,7 +165,9 @@ const useBakes = (): Record<string, Bake> => {
     withLightmap,
     withAmbientOcclusion,
     matcaps,
-    loadedMatcaps
+    loadedMatcaps,
+    loadedReflexes,
+    glassReflexes
   ])
 
   return meshMaps
@@ -154,10 +179,6 @@ export const revealOpacityMaterials = new Set<
 >()
 
 const Bakes = () => {
-  const shaderMaterialsRef = useCustomShaderMaterial(
-    (store) => store.materialsRef
-  )
-
   const bakes = useBakes()
 
   const scene = useThree((state) => state.scene)
@@ -168,67 +189,37 @@ const Bakes = () => {
 
   useEffect(() => {
     setMainAppRunning(true)
-    const timeout = setTimeout(() => {
-      cctvConfig.shouldBakeCCTV = true
-    }, 10)
 
-    return () => {
-      clearTimeout(timeout)
-    }
+    const timeout = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
+
+    return () => clearTimeout(timeout)
   }, [setMainAppRunning])
 
   useEffect(() => {
+    const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
+      if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
+
+      if (maps.aomap) addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
+
+      if (maps.matcap) {
+        addMatcap(
+          { mesh: mesh, texture: maps.matcap.texture },
+          maps.matcap.isGlass
+        )
+      }
+
+      if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
+    }
+
     Object.entries(bakes).forEach(([mesh, maps]) => {
       const meshOrGroup = scene.getObjectByName(mesh)
       if (!meshOrGroup) return
 
       if (meshOrGroup instanceof Mesh) {
-        if (maps.lightmap) {
-          addLightmap({
-            mesh: meshOrGroup,
-            texture: maps.lightmap
-          })
-        }
-        if (maps.aomap) {
-          addAmbientOcclusion({
-            mesh: meshOrGroup,
-            texture: maps.aomap
-          })
-        }
-        if (maps.matcap) {
-          addMatcap(
-            {
-              mesh: meshOrGroup,
-              texture: maps.matcap.texture
-            },
-            maps.matcap.isGlass
-          )
-        }
+        addMaps({ mesh: meshOrGroup, maps })
       } else if (meshOrGroup instanceof Group) {
         meshOrGroup.traverse((child) => {
-          if (child instanceof Mesh) {
-            if (maps.lightmap) {
-              addLightmap({
-                mesh: child,
-                texture: maps.lightmap
-              })
-            }
-            if (maps.aomap) {
-              addAmbientOcclusion({
-                mesh: child,
-                texture: maps.aomap
-              })
-            }
-            if (maps.matcap) {
-              addMatcap(
-                {
-                  mesh: child,
-                  texture: maps.matcap.texture
-                },
-                maps.matcap.isGlass
-              )
-            }
-          }
+          if (child instanceof Mesh) addMaps({ mesh: child, maps })
         })
       }
     })

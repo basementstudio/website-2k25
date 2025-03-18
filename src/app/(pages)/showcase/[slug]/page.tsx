@@ -2,6 +2,8 @@ import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
 
+import { client } from "@/service/basehub"
+
 import { projectFragment } from "./query"
 import { ProjectWrapper } from "./wrapper"
 
@@ -84,7 +86,7 @@ export const generateStaticParams = async () => {
         projectList: { items }
       }
     }
-  } = await basehub({ cache: "no-store" }).query({
+  } = await client().query({
     pages: {
       showcase: {
         projectList: {
