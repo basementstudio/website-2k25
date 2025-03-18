@@ -135,7 +135,20 @@ export const InspectableDragger = ({
 
   return (
     <group rotation={[0, Math.PI / 2, 0]}>
-      <group ref={ref} {...bind?.()}>
+      <group
+        ref={ref}
+        {...(bind
+          ? (() => {
+              try {
+                const handlers = bind()
+                return handlers || {}
+              } catch (error) {
+                console.error("Error with gesture bind function:", error)
+                return {}
+              }
+            })()
+          : {})}
+      >
         {children}
       </group>
     </group>
