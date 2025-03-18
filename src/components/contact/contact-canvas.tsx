@@ -7,6 +7,15 @@ import { useAssets } from "../assets-provider"
 import { useContactStore } from "./contact-store"
 import ContactScreen from "./contact-screen"
 
+type WorkerMessageType =
+  | "outro-complete"
+  | "intro-complete"
+  | "animation-rejected"
+  | "start-outro"
+  | "run-outro-animation"
+  | "scale-animation-complete"
+  | "scale-down-animation-complete"
+
 const ContactCanvas = () => {
   const { contactPhone } = useAssets()
   const worker = useContactStore((state) => state.worker)
@@ -45,25 +54,31 @@ const ContactCanvas = () => {
     if (!worker) return
 
     const handleWorkerMessage = (e: MessageEvent) => {
-      if (e.data.type === "outro-complete") {
-        setShouldRender(false)
-        setIsAnimating(false)
-        setClosingCompleted(true)
-      } else if (e.data.type === "intro-complete") {
-        // Wait for scale animation to complete before setting intro complete
-      } else if (e.data.type === "animation-rejected") {
-        setIsAnimating(false)
-      } else if (e.data.type === "start-outro") {
-        worker.postMessage({ type: "start-outro" })
-      } else if (e.data.type === "run-outro-animation") {
-        worker.postMessage({ type: "run-outro-animation" })
-      } else if (e.data.type === "scale-animation-complete") {
-        setIntroCompleted(true)
-        setIsAnimating(false)
-      } else if (e.data.type === "scale-down-animation-complete") {
-        setClosingCompleted(true)
+      const { type } = e.data
+
+      // Common handlers for frequent patterns
+      const setAnimComplete = (setCompleteFunc: (val: boolean) => void) => {
+        setCompleteFunc(true)
         setIsAnimating(false)
       }
+
+      const passThrough = () => worker.postMessage({ type })
+
+      const messageHandlers: Partial<Record<WorkerMessageType, () => void>> = {
+        "outro-complete": () => {
+          setShouldRender(false)
+          setAnimComplete(setClosingCompleted)
+        },
+        "animation-rejected": () => setIsAnimating(false),
+        "start-outro": passThrough,
+        "run-outro-animation": passThrough,
+        "scale-animation-complete": () => setAnimComplete(setIntroCompleted),
+        "scale-down-animation-complete": () =>
+          setAnimComplete(setClosingCompleted)
+      }
+
+      const handler = messageHandlers[type as WorkerMessageType]
+      if (handler) handler()
     }
 
     worker.addEventListener("message", handleWorkerMessage)
