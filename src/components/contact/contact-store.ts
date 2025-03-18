@@ -29,6 +29,18 @@ export const useContactStore = create<ContactStore>((set) => ({
     set((state: ContactStore) => {
       if (state.isAnimating) return state
 
+      if (isContactOpen) {
+        window.history.pushState(
+          null,
+          "",
+          window.location.pathname + "#contact"
+        )
+      } else {
+        if (window.location.hash === "#contact") {
+          window.history.pushState(null, "", window.location.pathname)
+        }
+      }
+
       if (isContactOpen && !state.isContactOpen) {
         if (
           state.hasBeenOpenedBefore &&
