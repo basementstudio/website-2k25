@@ -1,4 +1,4 @@
-import { Marquee } from "@/components/primitives/marquee"
+import { cn } from "@/utils/cn"
 
 import { fetchBrandsMobile } from "./basehub"
 
@@ -15,9 +15,9 @@ export const BrandsMobile = async () => {
         <div className="col-span-full h-px w-full bg-brand-w1/30" />
       </div>
 
-      <div className="relative col-span-full flex flex-col divide-y divide-brand-w1/30 border-b border-brand-w1/30">
+      <div className="relative col-span-full flex flex-col">
         {rows.map((row, index) => (
-          <MarqueeRow key={index} brands={row} index={index} />
+          <BrandsGrid key={index} brands={row} absolute={index !== 0} />
         ))}
       </div>
     </section>
@@ -31,22 +31,43 @@ interface MarqueeRowProps {
     logo: string | null
     website: string | null
   }[]
-  index: number
+  absolute: boolean
 }
 
-const MarqueeRow = ({ brands, index }: MarqueeRowProps) => (
-  <div className="relative py-2">
-    <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-brand-k to-transparent" />
-    <Marquee inverted={index % 2 === 0}>
-      <div className="flex w-full items-center gap-x-2">
-        {brands.map((brand) => (
+const getPositionDelay = (position: number) => {
+  const seed = (position * 17 + 13) % 23
+  return (seed * 0.27) % 6
+}
+
+const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
+  <div className={cn("relative py-2", absolute && "absolute inset-0")}>
+    <div className="grid-rows-auto group grid grid-cols-3 gap-3">
+      {brands.map((brand, idx) => {
+        const delay = getPositionDelay(idx)
+
+        return (
           <div
             key={brand._id}
-            className="[&>svg]:h-8 [&>svg]:w-auto"
-            dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
-          />
-        ))}
-      </div>
-    </Marquee>
+            className={cn(
+              "relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
+              absolute && "animate-fade-in-out opacity-0",
+              !absolute && "animate-fade-out-in opacity-100"
+            )}
+            style={
+              {
+                "--anim-duration": "8s",
+                "--anim-delay": `${delay}s`,
+                animationTimingFunction: "cubic-bezier(0.4, 0, 0.6, 1)"
+              } as React.CSSProperties
+            }
+          >
+            <div
+              className="with-dots relative grid h-full w-full place-items-center px-2 py-4 [&>svg]:max-w-[100%]"
+              dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
+            />
+          </div>
+        )
+      })}
+    </div>
   </div>
 )

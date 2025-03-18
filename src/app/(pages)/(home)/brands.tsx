@@ -1,6 +1,7 @@
-import type { QueryType } from "./query"
-import { Scalars } from "../../../../.basehub/schema"
 import { BrandsContent } from "@/components/brands"
+
+import { Scalars } from "../../../../.basehub/schema"
+import type { QueryType } from "./query"
 
 export type Brand = {
   _id: Scalars["String"]

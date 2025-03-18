@@ -3,16 +3,11 @@
 import { AnimatePresence, motion } from "motion/react"
 import { memo, useMemo, useState } from "react"
 
-import { ExternalLinkIcon } from "@/components/icons/icons"
-
-import useDebounceValue from "@/hooks/use-debounce-value"
-import { useMedia } from "@/hooks/use-media"
 import { Brand } from "@/app/(pages)/(home)/brands"
+import { ExternalLinkIcon } from "@/components/icons/icons"
+import useDebounceValue from "@/hooks/use-debounce-value"
 
 const DEBOUNCE_DELAY = 50
-const BREAKPOINTS = {
-  DESKTOP: "(min-width: 1280px)"
-} as const
 
 const SVGLogo = memo(({ svg }: { svg: string | null }) => {
   if (!svg) return null
@@ -59,7 +54,6 @@ AnimatedTitle.displayName = "AnimatedTitle"
 
 export const BrandsContent = ({ brands }: { brands: Brand[] }) => {
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
-  const isDesktop = useMedia(BREAKPOINTS.DESKTOP)
   const debouncedHoveredBrandId = useDebounceValue(
     hoveredBrandId,
     DEBOUNCE_DELAY
