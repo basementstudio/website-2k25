@@ -17,6 +17,7 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
+import { normalizeDelta } from "../arcade-game/lib/math"
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
 
@@ -78,9 +79,7 @@ const HoopMinigameInner = () => {
   const isThrowable = useRef(true)
   const isUnmounting = useRef(false)
 
-  // Add a ref to track if the timer is ending
   const isTimerEnding = useRef(false)
-  // Add a ref to track if the timer is below 0.4 seconds
   const isTimerLow = useRef(false)
 
   const resetState = useCallback(() => {
@@ -297,7 +296,7 @@ const HoopMinigameInner = () => {
               setTimeout(() => {
                 if (isUnmounting.current) return
 
-                playSoundFX("TIMEOUT_BUZZER", 0.045)
+                playSoundFX("TIMEOUT_BUZZER", 0.06)
 
                 // if the ball is still in play, we add it to played balls
                 // only if it doesn't already exist there
@@ -431,8 +430,12 @@ const HoopMinigameInner = () => {
     if (isDragging && ballRef.current) {
       try {
         const ball = ballRef.current
-        throwVelocity.current.x = mousePos.current.x - lastMousePos.current.x
-        throwVelocity.current.y = mousePos.current.y - lastMousePos.current.y
+        const nd = normalizeDelta(delta)
+
+        throwVelocity.current.x =
+          (mousePos.current.x - lastMousePos.current.x) / nd
+        throwVelocity.current.y =
+          (mousePos.current.y - lastMousePos.current.y) / nd
         lastMousePos.current.copy(mousePos.current)
 
         const distance = 4
@@ -469,11 +472,11 @@ const HoopMinigameInner = () => {
         positionVectors.currentRot.set(rotation.x, rotation.y, rotation.z)
 
         // Interpolate towards the target position with smooth lerp
-        const lerpFactor = 0.002 // Adjust this value for smoother or more responsive movement
+        const lerpFactor = 0.002
         positionVectors.dragPos.lerpVectors(
           positionVectors.currentBallPos,
           positionVectors.targetPos,
-          Math.min(1, lerpFactor * (1 / delta)) // Scale by delta to ensure consistent speed
+          Math.min(1, lerpFactor * (1 / delta))
         )
 
         if (
@@ -680,12 +683,6 @@ const HoopMinigameInner = () => {
             isTimerEnding={isTimerEnding.current}
             isTimerLow={isTimerLow.current}
           />
-
-          {/* <Trajectory
-            ballRef={ballRef}
-            isDragging={isDragging}
-            isResetting={isResetting}
-          /> */}
         </>
       )}
 

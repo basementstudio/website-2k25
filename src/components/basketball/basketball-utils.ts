@@ -180,7 +180,7 @@ export const calculateThrowVelocity = (
 
   // sideshot correction
   const horizontalDistance = Math.abs(hoopPosition.x - currentPos.x)
-  const centeringForce = horizontalDistance * 0.05 // strong-ish centering force
+  const centeringForce = horizontalDistance * 0.023 // strong-ish centering force
   const centeringDirection = currentPos.x > hoopPosition.x ? 1 : -1
   const xCorrection = centeringForce * centeringDirection + ballHorizontalOffset
 
@@ -277,13 +277,11 @@ export const handlePointerUp = ({
   forwardStrength,
   playSoundFX
 }: HandlePointerUpParams) => {
-  // this prevents the ball from being clicked when it is not throwable
   if (ballRef.current && isThrowable.current) {
     if (!isGameActive) {
       startGame()
     }
 
-    // Store single reference to ball at the start
     const ball = ballRef.current
     const currentPos = ball.translation()
     const dragDelta = new Vector3(
@@ -302,7 +300,6 @@ export const handlePointerUp = ({
     ) {
       ball.setBodyType(0, true)
 
-      // isthrowable set to false only if it has moved significantly
       isThrowable.current = false
 
       const randomPitch = 0.95 + Math.random() * 0.1

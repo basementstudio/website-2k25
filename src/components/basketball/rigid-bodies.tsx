@@ -34,7 +34,7 @@ export default function RigidBodies({
     playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
 
     if (hasHitStreak) {
-      playSoundFX("BASKETBALL_STREAK", 0.6)
+      playSoundFX("BASKETBALL_STREAK", 0.06)
     }
 
     // event for net animation
