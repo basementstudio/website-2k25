@@ -204,7 +204,7 @@ const ContactScreen = () => {
               <div className="w-full px-4">
                 <button
                   className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 ${
-                    isValid
+                    isValid || showSubmittedMessage
                       ? "cursor-pointer border-none bg-brand-o text-black"
                       : "cursor-default border border-brand-o/50 text-brand-o/50"
                   }`}
