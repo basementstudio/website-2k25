@@ -11,11 +11,9 @@ export function useAudioUrls() {
       AMBIENCE_TIGER: sfx.music.tiger,
       AMBIENCE_VHS: sfx.music.vhs
     },
-    OFFICE_AMBIENCE: {
-      OFFICE_AMBIENCE_DEFAULT: sfx.officeAmbience
-    },
+
     GAME_THEME_SONGS: {
-      BASKETBALL_AMBIENT: sfx.basketballTheme
+      BASKETBALL_SONG: sfx.basketballTheme
     },
     GAME_AUDIO_SFX: {
       BASKETBALL_THROW: sfx.basketballSwoosh,

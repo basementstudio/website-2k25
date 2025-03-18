@@ -1,19 +1,50 @@
 import { animate } from "motion"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { cn } from "@/utils/cn"
 
 const MusicToggle = ({ music }: { music: boolean }) => {
   const svgRef = useRef<SVGSVGElement>(null)
+  const animationsRef = useRef<Array<{ cancel: () => void }>>([])
+  const [hasUserInteracted, setHasUserInteracted] = useState(false)
+
+  useEffect(() => {
+    const handleFirstInteraction = () => setHasUserInteracted(true)
+
+    document.addEventListener("click", handleFirstInteraction, { once: true })
+
+    return () => document.removeEventListener("click", handleFirstInteraction)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (animationsRef.current.length > 0) {
+        animationsRef.current.forEach((animation) => {
+          if (animation && typeof animation.cancel === "function") {
+            animation.cancel()
+          }
+        })
+        animationsRef.current = []
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (!svgRef.current) return
 
-    const bars = Array.from(svgRef.current.querySelectorAll("rect"))
-    const animations: Array<{ cancel: () => void }> = []
+    if (animationsRef.current.length > 0) {
+      animationsRef.current.forEach((animation) => {
+        if (animation && typeof animation.cancel === "function") {
+          animation.cancel()
+        }
+      })
+      animationsRef.current = []
+    }
 
-    if (music) {
-      bars.forEach((bar, index) => {
+    const bars = Array.from(svgRef.current.querySelectorAll("rect"))
+
+    if (hasUserInteracted && music) {
+      bars.forEach((bar) => {
         const maxHeight = Math.floor(Math.random() * 5) + 8
 
         const middleY = 7.5 - 1
@@ -51,8 +82,8 @@ const MusicToggle = ({ music }: { music: boolean }) => {
           }
         )
 
-        animations.push(heightAnimation)
-        animations.push(yAnimation)
+        animationsRef.current.push(heightAnimation)
+        animationsRef.current.push(yAnimation)
       })
     } else {
       bars.forEach((bar) => {
@@ -60,21 +91,13 @@ const MusicToggle = ({ music }: { music: boolean }) => {
         bar.setAttribute("y", String(7.5 - 1))
       })
     }
-
-    return () => {
-      animations.forEach((animation) => {
-        if (animation && typeof animation.cancel === "function") {
-          animation.cancel()
-        }
-      })
-    }
-  }, [music])
+  }, [music, hasUserInteracted])
 
   return (
     <span
       className={cn(
         "inline-block w-6 text-left",
-        music ? "text-brand-w1" : "text-brand-g1"
+        hasUserInteracted && music ? "text-brand-w1" : "text-brand-g1"
       )}
     >
       <svg
