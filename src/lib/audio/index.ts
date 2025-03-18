@@ -255,7 +255,7 @@ export class WebAudioPlayer {
     this.volume = volume
   }
 
-  setMusicVolume(volume: number, fadeTime: number = 0.75) {
+  setMusicVolume(volume: number, fadeTime: number = 1) {
     const currentTime = this.audioContext.currentTime
 
     this.musicChannel.gain.cancelScheduledValues(currentTime)
@@ -271,7 +271,7 @@ export class WebAudioPlayer {
     this.musicVolume = volume
   }
 
-  setGameVolume(volume: number, fadeTime: number = 0.75) {
+  setGameVolume(volume: number, fadeTime: number = 1) {
     const currentTime = this.audioContext.currentTime
 
     this.gameChannel.gain.cancelScheduledValues(currentTime)
@@ -287,7 +287,7 @@ export class WebAudioPlayer {
     this.gameVolume = volume
   }
 
-  setAmbienceVolume(volume: number, fadeTime: number = 0.75) {
+  setAmbienceVolume(volume: number, fadeTime: number = 1) {
     const currentTime = this.audioContext.currentTime
 
     this.ambienceChannel.gain.cancelScheduledValues(currentTime)
@@ -303,18 +303,8 @@ export class WebAudioPlayer {
     this.ambienceVolume = volume
   }
 
-  pause() {
-    if (!this.isPlaying) return
-    this.audioContext.suspend()
-
-    this.isPlaying = false
-  }
-
-  resume() {
-    if (this.isPlaying) return
-    this.audioContext.resume()
-
-    this.isPlaying = true
+  initAmbience() {
+    this.ambienceChannel.gain.value = 0
   }
 
   /**
