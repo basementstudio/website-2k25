@@ -140,14 +140,14 @@ const ContactScreen = () => {
         }}
       >
         <motion.div
-          className="h-full w-full"
+          className="crt h-full w-full"
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o">
+          <div className="flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o [text-shadow:0_0_8px_rgba(255,140,0,0.4)]">
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase"
+              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_10px_rgba(255,140,0,0.15)]"
             >
               <fieldset className="absolute -top-[10px] left-[10px]">
                 <legend className="bg-black px-1">fill in the form</legend>
@@ -157,7 +157,7 @@ const ContactScreen = () => {
                 <legend className="bg-black px-1">
                   <button
                     type="button"
-                    className="uppercase"
+                    className="uppercase transition-all duration-300 [text-shadow:0_0_8px_rgba(255,140,0,0.3)] hover:text-brand-o/90 hover:[text-shadow:0_0_8px_rgba(255,140,0,0.5)]"
                     onClick={() => {
                       closeContact(false)
                     }}
@@ -171,42 +171,42 @@ const ContactScreen = () => {
                 <input
                   type="text"
                   placeholder="NAME"
-                  className="h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  className="h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
                   {...register("name")}
                 />
                 <input
                   type="text"
                   placeholder="COMPANY"
-                  className="h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  className="h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
                   {...register("company")}
                 />
                 <input
                   required
                   type="email"
                   placeholder="EMAIL"
-                  className="col-span-2 h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  className="col-span-2 h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
                   {...register("email", { required: "Email is required" })}
                 />
                 <input
                   type="text"
                   placeholder="BUDGET (OPTIONAL)"
-                  className="col-span-2 h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  className="col-span-2 h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
                   {...register("budget")}
                 />
                 <textarea
                   required
                   placeholder="MESSAGE"
-                  className="col-span-2 h-full resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50"
+                  className="col-span-2 h-full resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
                   {...register("message", { required: "Message is required" })}
                 />
               </div>
 
               <div className="w-full px-4">
                 <button
-                  className={`h-8 w-full border px-2 py-1 text-center ${
+                  className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 ${
                     isValid
                       ? "cursor-pointer border-none bg-brand-o text-black"
-                      : "cursor-default border-brand-o/50 text-brand-o/50"
+                      : "cursor-default border border-brand-o/50 text-brand-o/50"
                   }`}
                 >
                   {submitting
