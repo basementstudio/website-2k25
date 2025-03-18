@@ -472,11 +472,11 @@ const HoopMinigameInner = () => {
         positionVectors.currentRot.set(rotation.x, rotation.y, rotation.z)
 
         // Interpolate towards the target position with smooth lerp
-        const lerpFactor = 0.002
+        const lerpFactor = 0.2
         positionVectors.dragPos.lerpVectors(
           positionVectors.currentBallPos,
           positionVectors.targetPos,
-          Math.min(1, lerpFactor * (1 / delta))
+          Math.min(1, lerpFactor * (1 / normalizeDelta(delta)))
         )
 
         if (
