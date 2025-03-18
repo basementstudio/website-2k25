@@ -75,11 +75,9 @@ const ContactScreen = () => {
     watch
   } = useForm<Inputs>()
 
-  // Watch the required fields
   const email = watch("email")
   const message = watch("message")
 
-  // Check if required fields have values
   const isValid = !!email && !!message
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -87,6 +85,10 @@ const ContactScreen = () => {
     setIsSubmitted(false)
     setSubmitError("")
     setShowSubmittedMessage(false)
+
+    if (worker) {
+      worker.postMessage({ type: "submit-clicked" })
+    }
 
     try {
       const formData = {
@@ -106,7 +108,15 @@ const ContactScreen = () => {
 
         setTimeout(() => {
           setShowSubmittedMessage(false)
-        }, 4000)
+
+          if (worker) {
+            worker.postMessage({ type: "start-outro" })
+
+            const closeContact = useContactStore.getState().setIsContactOpen
+            closeContact(false)
+          }
+        }, 2000)
+
         reset()
       } else {
         setIsSubmitted(false)

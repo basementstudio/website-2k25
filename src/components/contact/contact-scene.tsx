@@ -71,6 +71,14 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     playAnimation("Outro-v2", "Intro.001")
   }, [playAnimation])
 
+  const runButtonClick = useCallback(() => {
+    playAnimation("Button")
+  }, [playAnimation])
+
+  const runRuedita = useCallback(() => {
+    playAnimation("ruedita")
+  }, [playAnimation])
+
   // add materials
   useEffect(() => {
     if (!scene || !animations.length) return
@@ -120,6 +128,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         )
       ) {
         self.postMessage({ type })
+      } else if (type === "submit-clicked") {
+        runButtonClick()
       }
     }
 
@@ -155,7 +165,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       }
 
       if (idleTimeRef.current > IDLE_TIMEOUT) {
-        //playRandomIdleAnimation()
+        runRuedita()
         idleTimeRef.current = 0
       }
     }
