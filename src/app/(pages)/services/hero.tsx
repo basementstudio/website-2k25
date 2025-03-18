@@ -19,7 +19,7 @@ export const Hero = ({ data, className }: HeroProps) => {
         Services
       </h1>
       <Image
-        alt={data.pages.services.heroImage?.alt ?? ""}
+        alt={data.pages.services.heroImage?.alt ?? "Services image"}
         src={data.pages.services.heroImage?.url ?? ""}
         width={data.pages.services.heroImage?.width}
         height={data.pages.services.heroImage?.height}
