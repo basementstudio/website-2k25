@@ -6,22 +6,16 @@ export const useContactStore = create<ContactStore>((set) => ({
   isAnimating: false,
   worker: null,
 
-  isIntroComplete: false,
-  isScaleUpComplete: false,
-  isScaleDownComplete: false,
-  isOutroComplete: false,
+  introCompleted: false,
+  closingCompleted: true,
   hasBeenOpenedBefore: false,
 
   setWorker: (worker: Worker | null) => set({ worker }),
   setIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
-  setIsIntroComplete: (isComplete: boolean) =>
-    set({ isIntroComplete: isComplete }),
-  setIsScaleUpComplete: (isComplete: boolean) =>
-    set({ isScaleUpComplete: isComplete }),
-  setIsScaleDownComplete: (isComplete: boolean) =>
-    set({ isScaleDownComplete: isComplete }),
-  setIsOutroComplete: (isComplete: boolean) =>
-    set({ isOutroComplete: isComplete }),
+  setIntroCompleted: (isComplete: boolean) =>
+    set({ introCompleted: isComplete }),
+  setClosingCompleted: (isComplete: boolean) =>
+    set({ closingCompleted: isComplete }),
   setHasBeenOpenedBefore: (hasBeenOpenedBefore: boolean) =>
     set({ hasBeenOpenedBefore }),
 
@@ -42,7 +36,7 @@ export const useContactStore = create<ContactStore>((set) => ({
           )
         }
 
-        if (!state.isIntroComplete || !state.isScaleUpComplete) {
+        if (!state.introCompleted) {
           return state
         }
 
@@ -55,8 +49,7 @@ export const useContactStore = create<ContactStore>((set) => ({
         }
 
         set({
-          isOutroComplete: false,
-          isScaleDownComplete: false
+          closingCompleted: false
         })
 
         setTimeout(() => {
@@ -70,8 +63,7 @@ export const useContactStore = create<ContactStore>((set) => ({
 
           set({
             isContactOpen: false,
-            isOutroComplete: true,
-            isScaleDownComplete: true
+            closingCompleted: true
           })
 
           if (targetPath && targetPath !== window.location.pathname) {
@@ -86,10 +78,7 @@ export const useContactStore = create<ContactStore>((set) => ({
 
         return state
       } else {
-        if (
-          state.hasBeenOpenedBefore &&
-          (!state.isOutroComplete || !state.isScaleDownComplete)
-        ) {
+        if (state.hasBeenOpenedBefore && !state.closingCompleted) {
           return state
         }
 
@@ -111,10 +100,8 @@ export const useContactStore = create<ContactStore>((set) => ({
 
         return {
           isContactOpen: true,
-          isIntroComplete: false,
-          isScaleUpComplete: false,
-          isOutroComplete: true,
-          isScaleDownComplete: true,
+          introCompleted: false,
+          closingCompleted: true,
           hasBeenOpenedBefore: true
         }
       }

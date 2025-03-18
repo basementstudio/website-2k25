@@ -13,17 +13,9 @@ const ContactCanvas = () => {
   const setStoreWorker = useContactStore((state) => state.setWorker)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
-  const setIsIntroComplete = useContactStore(
-    (state) => state.setIsIntroComplete
-  )
-  const setIsScaleUpComplete = useContactStore(
-    (state) => state.setIsScaleUpComplete
-  )
-  const setIsScaleDownComplete = useContactStore(
-    (state) => state.setIsScaleDownComplete
-  )
-  const setIsOutroComplete = useContactStore(
-    (state) => state.setIsOutroComplete
+  const setIntroCompleted = useContactStore((state) => state.setIntroCompleted)
+  const setClosingCompleted = useContactStore(
+    (state) => state.setClosingCompleted
   )
   const [shouldRender, setShouldRender] = useState(false)
 
@@ -31,12 +23,10 @@ const ContactCanvas = () => {
     if (isContactOpen) {
       setIsAnimating(true)
       setShouldRender(true)
-      setIsIntroComplete(false)
-      setIsScaleUpComplete(false)
+      setIntroCompleted(false)
     } else if (!isContactOpen && shouldRender) {
       setIsAnimating(true)
-      setIsScaleDownComplete(false)
-      setIsOutroComplete(false)
+      setClosingCompleted(false)
 
       const safetyTimer = setTimeout(() => {
         setShouldRender(false)
@@ -47,10 +37,8 @@ const ContactCanvas = () => {
     isContactOpen,
     shouldRender,
     setIsAnimating,
-    setIsIntroComplete,
-    setIsScaleUpComplete,
-    setIsScaleDownComplete,
-    setIsOutroComplete
+    setIntroCompleted,
+    setClosingCompleted
   ])
 
   useEffect(() => {
@@ -60,9 +48,9 @@ const ContactCanvas = () => {
       if (e.data.type === "outro-complete") {
         setShouldRender(false)
         setIsAnimating(false)
-        setIsOutroComplete(true)
+        setClosingCompleted(true)
       } else if (e.data.type === "intro-complete") {
-        setIsIntroComplete(true)
+        // Wait for scale animation to complete before setting intro complete
       } else if (e.data.type === "animation-rejected") {
         setIsAnimating(false)
       } else if (e.data.type === "start-outro") {
@@ -70,24 +58,17 @@ const ContactCanvas = () => {
       } else if (e.data.type === "run-outro-animation") {
         worker.postMessage({ type: "run-outro-animation" })
       } else if (e.data.type === "scale-animation-complete") {
-        setIsScaleUpComplete(true)
+        setIntroCompleted(true)
         setIsAnimating(false)
       } else if (e.data.type === "scale-down-animation-complete") {
-        setIsScaleDownComplete(true)
+        setClosingCompleted(true)
         setIsAnimating(false)
       }
     }
 
     worker.addEventListener("message", handleWorkerMessage)
     return () => worker.removeEventListener("message", handleWorkerMessage)
-  }, [
-    worker,
-    setIsAnimating,
-    setIsIntroComplete,
-    setIsScaleUpComplete,
-    setIsScaleDownComplete,
-    setIsOutroComplete
-  ])
+  }, [worker, setIsAnimating, setIntroCompleted, setClosingCompleted])
 
   useEffect(() => {
     const newWorker = new Worker(
