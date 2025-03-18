@@ -57,8 +57,8 @@ export const Basketball = ({
       LIGHT: true,
       BASKETBALL: true
     })
-    mat.uniforms.lightDirection.value = new Vector3(0, 1, -0.5)
-    mat.uniforms.frontLightDirection.value = new Vector3(0, 0, 0.5)
+    mat.uniforms.lightDirection.value = new Vector3(0, 1, -1)
+    mat.uniforms.backLightDirection.value = new Vector3(0, 0, 1)
     return mat
   }, [originalMaterial])
 

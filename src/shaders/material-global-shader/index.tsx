@@ -83,7 +83,7 @@ export const createGlobalShaderMaterial = (
 
   if (defines?.BASKETBALL) {
     uniforms["lightDirection"] = { value: lightDirection }
-    uniforms["frontLightDirection"] = { value: new Vector3(0, 0, 1) }
+    uniforms["backLightDirection"] = { value: new Vector3(0, 0, 1) }
   }
 
   if (defines?.MATCAP) {
