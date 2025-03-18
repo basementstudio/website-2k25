@@ -13,7 +13,6 @@ export const formatDate = (
     timeZone: timeZone
   })
 
-// need to return a string like this {hour} am/pm · {month} {day}, {year}
 export const formatTestimonialDate = (date: string) => {
   const formattedDate = new Date(date)
   const hour = formattedDate.getHours()

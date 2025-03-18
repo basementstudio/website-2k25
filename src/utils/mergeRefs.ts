@@ -1,9 +1,9 @@
 export type ReactRef<T> = React.RefCallback<T> | React.MutableRefObject<T>
 
-export function assignRef<T = any>(
+export const assignRef = <T = any>(
   ref: ReactRef<T> | null | undefined,
   value: T
-) {
+) => {
   if (ref == null) return
 
   if (typeof ref === "function") {
@@ -18,10 +18,10 @@ export function assignRef<T = any>(
   }
 }
 
-export function mergeRefs<T>(...refs: (ReactRef<T> | null | undefined)[]) {
-  return (node: T | null) => {
+export const mergeRefs =
+  <T>(...refs: (ReactRef<T> | null | undefined)[]) =>
+  (node: T | null) => {
     refs.forEach((ref) => {
       assignRef(ref, node)
     })
   }
-}

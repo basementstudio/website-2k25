@@ -217,6 +217,7 @@ export const Map = memo(() => {
         const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
         const isClouds = meshChild.name === "cloudy_01"
         const isGlass = glassMaterials.includes(currentMaterial.name)
+        const isDaylight = meshChild.name === "DL_ScreenB"
 
         currentMaterial.side = doubleSideElements.includes(meshChild.name)
           ? THREE.DoubleSide
@@ -248,7 +249,8 @@ export const Map = memo(() => {
                   FOG: overrides?.FOG,
                   MATCAP: withMatcap !== undefined,
                   VIDEO: withVideo !== undefined,
-                  CLOUDS: isClouds
+                  CLOUDS: isClouds,
+                  DAYLIGHT: isDaylight
                 }
               )
             )
@@ -262,7 +264,8 @@ export const Map = memo(() => {
                 FOG: overrides?.FOG,
                 MATCAP: withMatcap !== undefined,
                 VIDEO: withVideo !== undefined,
-                CLOUDS: isClouds
+                CLOUDS: isClouds,
+                DAYLIGHT: isDaylight
               }
             )
 
@@ -277,16 +280,6 @@ export const Map = memo(() => {
         meshChild.material = newMaterials
 
         meshChild.userData.hasGlobalMaterial = true
-
-        // Homepage Floor
-        if (child.name === "SM_03_03" && child instanceof THREE.Mesh) {
-          child.material.side = THREE.FrontSide
-        }
-
-        // Homepage Stairs
-        if (child.name === "SM_03_01" && child instanceof THREE.Mesh) {
-          child.material.side = THREE.FrontSide
-        }
       }
     }
 
