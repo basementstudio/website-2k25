@@ -34,16 +34,16 @@ interface MarqueeRowProps {
   absolute: boolean
 }
 
-const getPositionDelay = (position: number) => {
-  const seed = (position * 17 + 13) % 23
-  return (seed * 0.27) % 6
+const getPositionDelay = (position: number, length: number) => {
+  const seed = (position * 23 + 17) % 31
+  return (seed * 1.5) % (length * 1.5)
 }
 
 const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
   <div className={cn("relative py-2", absolute && "absolute inset-0")}>
     <div className="grid-rows-auto group grid grid-cols-3 gap-3">
       {brands.map((brand, idx) => {
-        const delay = getPositionDelay(idx)
+        const delay = getPositionDelay(idx, brands.length)
 
         return (
           <div
@@ -55,7 +55,7 @@ const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
             )}
             style={
               {
-                "--anim-duration": "8s",
+                "--anim-duration": "16s",
                 "--anim-delay": `${delay}s`,
                 animationTimingFunction: "cubic-bezier(0.4, 0, 0.6, 1)"
               } as React.CSSProperties
