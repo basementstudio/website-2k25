@@ -1,4 +1,3 @@
-// import MillionLint from "@million/lint"
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {

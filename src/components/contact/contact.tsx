@@ -84,6 +84,24 @@ const Contact = () => {
     isScaleDownComplete
   ])
 
+  useEffect(() => {
+    if (window.location.hash === "#contact" && !isContactOpen) {
+      setIsContactOpen(true)
+    }
+
+    const handleHashChange = () => {
+      const hasContactHash = window.location.hash === "#contact"
+      if (hasContactHash !== isContactOpen) {
+        setIsContactOpen(hasContactHash)
+      }
+    }
+
+    window.addEventListener("hashchange", handleHashChange)
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange)
+    }
+  }, [isContactOpen, setIsContactOpen])
+
   return (
     <>
       <div

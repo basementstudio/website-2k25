@@ -127,7 +127,7 @@ export const Basketball = ({
       angularDamping={0.5}
     >
       <mesh
-        scale={1.1}
+        scale={1.25}
         geometry={geometry}
         material={material}
         rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
