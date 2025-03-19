@@ -115,15 +115,13 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Sparkles />
                   </Suspense>
-                  <Suspense fallback={null}>
-                    {isBasketball && (
-                      <PhysicsWorld paused={!isBasketball}>
-                        <ErrorBoundary>
-                          <HoopMinigame />
-                        </ErrorBoundary>
-                      </PhysicsWorld>
-                    )}
-                  </Suspense>
+                  {isBasketball && (
+                    <PhysicsWorld paused={!isBasketball}>
+                      <ErrorBoundary>
+                        <HoopMinigame />
+                      </ErrorBoundary>
+                    </PhysicsWorld>
+                  )}
                   <Suspense fallback={null}>
                     <CharacterInstanceConfig />
                     <CharactersSpawn />
