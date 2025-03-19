@@ -2,7 +2,7 @@
 
 import { Preload } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
-import { Suspense, useEffect, useRef } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 import dynamic from "next/dynamic"
 import { Inspectables } from "@/components/inspectables/inspectables"
@@ -12,6 +12,7 @@ import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
 import { MouseTracker } from "@/hooks/use-mouse"
 import { useMinigameStore } from "@/store/minigame-store"
+import { useTabKeyHandler } from "@/hooks/use-key-press"
 
 import ErrorBoundary from "./basketball/error-boundary"
 import { CameraController } from "./camera/camera-controller"
@@ -45,35 +46,49 @@ const PhysicsWorld = dynamic(
 )
 
 export const Scene = () => {
-  const {
-    isCanvasTabMode,
-    setIsCanvasTabMode,
-    setCurrentTabIndex,
-    currentScene
-  } = useNavigationStore()
+  const { setIsCanvasTabMode, currentScene, setCurrentTabIndex } =
+    useNavigationStore()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
+  const [isShiftPressed, setIsShiftPressed] = useState(false)
+
+  // Use our tab key handler to set currentTabIndex on first tab
+  useTabKeyHandler()
 
   useEffect(() => {
     if (!isBasketball) clearPlayedBalls()
   }, [isBasketball, clearPlayedBalls])
 
   useEffect(() => {
-    setIsCanvasTabMode(isCanvasTabMode)
-  }, [isCanvasTabMode, setIsCanvasTabMode])
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Shift") setIsShiftPressed(true)
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "Shift") setIsShiftPressed(false)
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keyup", handleKeyUp)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      window.removeEventListener("keyup", handleKeyUp)
+    }
+  }, [])
 
   const handleFocus = (e: React.FocusEvent) => {
     setIsCanvasTabMode(true)
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    })
 
-    if (e.relatedTarget?.id === "nav-contact") {
-      setCurrentTabIndex(0)
-    } else {
-      setCurrentTabIndex(currentScene?.tabs?.length ?? 0)
+    if (e.nativeEvent.detail === 0) {
+      const { setEnteredByKeyboard } = useNavigationStore.getState()
+      setEnteredByKeyboard(true)
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      })
     }
   }
   const handleBlur = () => setIsCanvasTabMode(false)
@@ -89,6 +104,14 @@ export const Scene = () => {
           tabIndex={0}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onKeyDown={(e) => {
+            if (
+              e.key === "Tab" &&
+              useNavigationStore.getState().isCanvasTabMode
+            ) {
+              e.preventDefault()
+            }
+          }}
           gl={{
             antialias: false,
             alpha: false,
