@@ -36,11 +36,6 @@ const ContactCanvas = () => {
     } else if (!isContactOpen && shouldRender) {
       setIsAnimating(true)
       setClosingCompleted(false)
-
-      const safetyTimer = setTimeout(() => {
-        setShouldRender(false)
-      }, 3500)
-      return () => clearTimeout(safetyTimer)
     }
   }, [
     isContactOpen,
@@ -66,15 +61,16 @@ const ContactCanvas = () => {
 
       const messageHandlers: Partial<Record<WorkerMessageType, () => void>> = {
         "outro-complete": () => {
-          setShouldRender(false)
           setAnimComplete(setClosingCompleted)
         },
         "animation-rejected": () => setIsAnimating(false),
         "start-outro": passThrough,
         "run-outro-animation": passThrough,
         "scale-animation-complete": () => setAnimComplete(setIntroCompleted),
-        "scale-down-animation-complete": () =>
+        "scale-down-animation-complete": () => {
+          setShouldRender(false)
           setAnimComplete(setClosingCompleted)
+        }
       }
 
       const handler = messageHandlers[type as WorkerMessageType]
