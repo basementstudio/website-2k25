@@ -9,7 +9,13 @@ import { LetterSlot } from "./letter-slot"
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-export const ArcadeNameInput = ({ className }: { className?: string }) => {
+export const ArcadeNameInput = ({
+  className,
+  isMobile
+}: {
+  className?: string
+  isMobile?: boolean
+}) => {
   const playerName = useMinigameStore((s) => s.playerName)
   const setPlayerName = useMinigameStore((s) => s.setPlayerName)
   const score = useMinigameStore((s) => s.score)

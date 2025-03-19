@@ -52,7 +52,7 @@ const Basketball = () => {
       {(hasPlayed && !playerName) || (hasPlayed && !isGameActive) ? (
         <div className="fixed top-0 grid min-h-screen w-full animate-fade-in place-items-center bg-brand-k/20">
           <div className="flex flex-col items-center gap-4">
-            <ArcadeNameInput />
+            <ArcadeNameInput isMobile />
           </div>
         </div>
       ) : null}
@@ -127,28 +127,29 @@ const MobileUI = ({
 }: MobileUIProps) => {
   return (
     <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in flex-col px-4 py-12">
-      <div className="relative flex items-center justify-center">
+      <div className="grid grid-cols-4 place-items-start gap-4">
         <button
           onClick={() => handleNavigation("/")}
-          className="corner-borders pointer-events-auto absolute left-0 px-4 text-mobile-h4 text-brand-w1"
+          className="pointer-events-auto absolute left-0 pl-4 text-mobile-p text-brand-w1"
         >
-          Close
+          [Close]
         </button>
 
-        <div className="flex font-mono text-mobile-p text-brand-w2">
-          <div className="relative flex items-center justify-center px-4">
+        <div className="col-span-2 col-start-2 flex w-full items-center justify-center gap-4 font-mono text-mobile-p text-brand-w2">
+          <div className="relative flex items-center justify-center">
             <p className="uppercase">{formatTime(timeRemaining)}</p>
           </div>
-          <div className="relative flex items-center justify-center px-4">
+          <div className="relative flex items-center justify-center">
             <p className="uppercase">{Math.floor(score)} Pts.</p>
           </div>
-          <div className="relative flex items-center justify-center px-4">
+          <div className="relative flex items-center justify-center">
             <p>{scoreMultiplier}x</p>
           </div>
         </div>
-      </div>
-      <div className="mt-4 w-1/5 justify-self-end">
-        <Scoreboard isMobile />
+
+        <div className="col-span-1 col-start-4 w-full">
+          <Scoreboard isMobile />
+        </div>
       </div>
     </div>
   )

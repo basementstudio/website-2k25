@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
-import { getTopScores, onScoreUpdate } from "@/utils/supabase/client"
+import { onScoreUpdate } from "@/utils/supabase/client"
 
 interface Score {
   player_name: string
@@ -28,7 +28,13 @@ export default function Scoreboard({
 
   const fetchScores = useCallback(async () => {
     try {
-      const { data, error } = await getTopScores()
+      const response = await fetch(`/api/scores?t=${new Date().getTime()}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache"
+        }
+      })
+      const { data, error } = await response.json()
       if (!error && data) {
         setHighScores(data)
       }
@@ -36,6 +42,10 @@ export default function Scoreboard({
       console.error("Failed to fetch scores:", error)
     }
   }, [])
+
+  useEffect(() => {
+    fetchScores()
+  }, [fetchScores])
 
   useEffect(() => {
     const unsubscribe = onScoreUpdate(() => fetchScores())
@@ -50,6 +60,9 @@ export default function Scoreboard({
     }
   }, [isGameActive, hasPlayed, fetchScores])
 
+  const mobileScores = highScores.slice(0, 6)
+  const topScores = isMobile ? mobileScores : highScores
+
   return (
     <div
       className={cn(
@@ -57,8 +70,8 @@ export default function Scoreboard({
         className
       )}
     >
-      {!isMobile && <p className="pb-1 text-brand-w2">Leaderboard:</p>}
-      {highScores.map((score, index) => (
+      <p className="pb-1 text-brand-w2">Leaderboard:</p>
+      {topScores.map((score, index) => (
         <div
           className={cn(
             "flex justify-between py-1",
