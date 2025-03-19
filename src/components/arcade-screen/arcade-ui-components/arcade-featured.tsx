@@ -66,7 +66,10 @@ export const ArcadeFeatured = () => {
           positionType="relative"
           alignItems="center"
           justifyContent="center"
-          onClick={handleChroniclesClick}
+          onClick={(e) => {
+            e.stopPropagation()
+            handleChroniclesClick()
+          }}
           onHoverChange={(hover) => {
             if (hover || isChroniclesSelected) {
               setCursor("alias")
