@@ -34,6 +34,7 @@
     "@vercel/speed-insights": "^1.2.0",
     "basehub": "8.0.0-canary.27",
     "clsx": "^2.1.1",
+    "detect-gpu": "^5.0.70",
     "glsl-noise": "^0.0.0",
     "glslify-loader": "^2.0.0",
     "lenis": "^1.1.20",

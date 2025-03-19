@@ -1,7 +1,7 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef } from "react"
-import {
+import type {
   DepthTexture,
   OrthographicCamera as ThreeOrthographicCamera,
   Texture
@@ -12,6 +12,7 @@ import { revealOpacityMaterials } from "@/components/map/bakes"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { usePerformanceOptimizer } from "@/hooks/use-performance-optimizer"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
@@ -107,26 +108,36 @@ const Inner = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene])
 
+  const { settings } = usePerformanceOptimizer()
+
   useFrameCallback(() => {
     if (!hasChanged.current) {
+      const bloomStrength = settings.bloomEnabled
+        ? targets.bloomStrength.get()
+        : 0
+      const bloomRadius = settings.bloomEnabled ? targets.bloomRadius.get() : 0
+
       material.uniforms.uContrast.value = targets.contrast.get()
       material.uniforms.uBrightness.value = targets.brightness.get()
       material.uniforms.uExposure.value = targets.exposure.get()
       material.uniforms.uGamma.value = targets.gamma.get()
       material.uniforms.uVignetteRadius.value = targets.vignetteRadius.get()
       material.uniforms.uVignetteSpread.value = targets.vignetteSpread.get()
-      material.uniforms.uBloomStrength.value = targets.bloomStrength.get()
-      material.uniforms.uBloomRadius.value = targets.bloomRadius.get()
+      material.uniforms.uBloomStrength.value = bloomStrength
+      material.uniforms.uBloomRadius.value = bloomRadius
       material.uniforms.uBloomThreshold.value = targets.bloomThreshold.get()
     } else {
+      const bloomStrength = settings.bloomEnabled ? bloom.strength : 0
+      const bloomRadius = settings.bloomEnabled ? bloom.radius : 0
+
       material.uniforms.uContrast.value = basics.contrast
       material.uniforms.uBrightness.value = basics.brightness
       material.uniforms.uExposure.value = basics.exposure
       material.uniforms.uGamma.value = basics.gamma
       material.uniforms.uVignetteRadius.value = vignette.radius
       material.uniforms.uVignetteSpread.value = vignette.spread
-      material.uniforms.uBloomStrength.value = bloom.strength
-      material.uniforms.uBloomRadius.value = bloom.radius
+      material.uniforms.uBloomStrength.value = bloomStrength
+      material.uniforms.uBloomRadius.value = bloomRadius
       material.uniforms.uBloomThreshold.value = bloom.threshold
     }
   })

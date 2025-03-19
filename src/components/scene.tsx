@@ -18,6 +18,7 @@ import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
+import PerformanceMonitorWrapper from "./performance/performance-monitor-wrapper"
 import { Pets } from "./pets"
 import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
@@ -97,41 +98,45 @@ export const Scene = () => {
           className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
         >
           <AnimationController>
-            <Renderer
-              sceneChildren={
-                <>
-                  <Suspense fallback={null}>
-                    <Inspectables />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Map />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <WebGlTunnelOut />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <CameraController />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Sparkles />
-                  </Suspense>
-                  {isBasketball && (
-                    <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary>
-                        <HoopMinigame />
-                      </ErrorBoundary>
-                    </PhysicsWorld>
-                  )}
-                  <Suspense fallback={null}>
-                    <CharacterInstanceConfig />
-                    <CharactersSpawn />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Pets />
-                  </Suspense>
-                </>
-              }
-            />
+            <PerformanceMonitorWrapper>
+              <Renderer
+                sceneChildren={
+                  <>
+                    <Suspense fallback={null}>
+                      <Inspectables />
+                    </Suspense>
+                    <Suspense fallback={null}>
+                      <Map />
+                    </Suspense>
+                    <Suspense fallback={null}>
+                      <WebGlTunnelOut />
+                    </Suspense>
+                    <Suspense fallback={null}>
+                      <CameraController />
+                    </Suspense>
+                    <Suspense fallback={null}>
+                      <Sparkles />
+                    </Suspense>
+                    <Suspense fallback={null}>
+                      {isBasketball && (
+                        <PhysicsWorld paused={!isBasketball}>
+                          <ErrorBoundary>
+                            <HoopMinigame />
+                          </ErrorBoundary>
+                        </PhysicsWorld>
+                      )}
+                    </Suspense>
+                    <Suspense fallback={null}>
+                      <CharacterInstanceConfig />
+                      <CharactersSpawn />
+                    </Suspense>
+                    <Suspense fallback={null}>
+                      <Pets />
+                    </Suspense>
+                  </>
+                }
+              />
+            </PerformanceMonitorWrapper>
           </AnimationController>
         </Canvas>
       </div>
