@@ -15,10 +15,12 @@ interface Score {
 
 export default function Scoreboard({
   className,
-  initialScores = []
+  initialScores = [],
+  isMobile
 }: {
   className?: string
   initialScores?: Score[]
+  isMobile?: boolean
 }) {
   const isGameActive = useMinigameStore((s) => s.isGameActive)
   const hasPlayed = useMinigameStore((s) => s.hasPlayed)
@@ -49,18 +51,28 @@ export default function Scoreboard({
   }, [isGameActive, hasPlayed, fetchScores])
 
   return (
-    <div className={cn("flex select-none flex-col font-semibold", className)}>
-      <p className="text-paragraph pb-1 text-brand-w2">Leaderboard:</p>
+    <div
+      className={cn(
+        "flex select-none flex-col text-mobile-p font-semibold",
+        className
+      )}
+    >
+      {!isMobile && <p className="pb-1 text-brand-w2">Leaderboard:</p>}
       {highScores.map((score, index) => (
         <div
-          className="flex justify-between border-b border-brand-w2/20 py-1"
+          className={cn(
+            "flex justify-between py-1",
+            !isMobile && "border-b border-brand-w2/20"
+          )}
           key={`${score.player_name}-${score.score}-${score.created_at}`}
         >
           <p className="uppercase text-brand-g1">
-            <span className="mr-1">{score.country}</span>
+            {!isMobile && <span className="mr-1">{score.country}</span>}
             {score.player_name}
           </p>
-          <p className="text-brand-w2">{score.score} pts</p>
+          <p className="text-brand-w2">
+            {score.score} {!isMobile && "pts"}
+          </p>
         </div>
       ))}
     </div>

@@ -118,16 +118,37 @@ interface MobileUIProps {
   scoreMultiplier: number
 }
 
-const MobileUI = ({ handleNavigation }: MobileUIProps) => {
+const MobileUI = ({
+  handleNavigation,
+  formatTime,
+  timeRemaining,
+  score,
+  scoreMultiplier
+}: MobileUIProps) => {
   return (
     <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in flex-col px-4 py-12">
-      <div>
+      <div className="relative flex items-center justify-center">
         <button
           onClick={() => handleNavigation("/")}
-          className="pointer-events-auto col-span-2 col-start-2 h-max text-p text-brand-w1"
+          className="corner-borders pointer-events-auto absolute left-0 px-4 text-mobile-h4 text-brand-w1"
         >
-          [Close Game]
+          Close
         </button>
+
+        <div className="flex font-mono text-mobile-p text-brand-w2">
+          <div className="relative flex items-center justify-center px-4">
+            <p className="uppercase">{formatTime(timeRemaining)}</p>
+          </div>
+          <div className="relative flex items-center justify-center px-4">
+            <p className="uppercase">{Math.floor(score)} Pts.</p>
+          </div>
+          <div className="relative flex items-center justify-center px-4">
+            <p>{scoreMultiplier}x</p>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 w-1/5 justify-self-end">
+        <Scoreboard isMobile />
       </div>
     </div>
   )
