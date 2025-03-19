@@ -184,7 +184,7 @@ export const MouseTracker = memo(() => {
   return (
     <AnimatePresence>
       {hoverText && (
-        <motion.div
+        <motion.p
           ref={mouseElementRef}
           className="pointer-events-none fixed z-50 bg-brand-k text-xs text-brand-w1"
           style={{ x: springX, y: springY }}
@@ -193,12 +193,12 @@ export const MouseTracker = memo(() => {
           {!marquee ? (
             `[${hoverText}]`
           ) : (
-            <div style={{ display: "flex", gap: "2px" }}>
+            <span className="flex gap-0.5">
               <span>[Now Playing]</span>
               <Marquee text={hoverText} />
-            </div>
+            </span>
           )}
-        </motion.div>
+        </motion.p>
       )}
     </AnimatePresence>
   )
@@ -208,28 +208,16 @@ MouseTracker.displayName = "MouseTracker"
 
 const Marquee = ({ text }: { text: string }) => {
   return (
-    <div
-      className="marquee-container"
-      style={{
-        maxWidth: "140px",
-        overflow: "hidden",
-        whiteSpace: "nowrap",
-        position: "relative",
-        color: "white",
-        backgroundColor: "black"
-      }}
-    >
-      <div
+    <span className="marquee-container relative max-w-[8.75rem] overflow-hidden whitespace-nowrap bg-black text-white">
+      <span
+        className="inline-flex w-max whitespace-nowrap"
         style={{
-          display: "inline-flex",
-          width: "max-content",
-          whiteSpace: "nowrap",
           animation: "marquee-translate 7s linear infinite"
         }}
       >
         <span>{text}&nbsp;</span>
         <span>{text}&nbsp;</span>
-      </div>
-    </div>
+      </span>
+    </span>
   )
 }
