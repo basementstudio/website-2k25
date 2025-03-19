@@ -5,7 +5,7 @@ import { ShowcaseList } from "./showcase-list"
 
 export const metadata: Metadata = {
   title: "Showcase",
-  description: "Our showcase"
+  description: `By now, you may be thinking "these guys are not serious enough", that these are not the droids you were looking for, because we don't look like yet another design agency.`
 }
 
 const ShowcaseIndexPage = () => (

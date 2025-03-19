@@ -26,6 +26,10 @@ uniform float lightMapIntensity;
 uniform vec3 lightDirection;
 #endif
 
+#ifdef BASKETBALL
+uniform vec3 backLightDirection;
+#endif
+
 // aomap
 uniform sampler2D aoMap;
 uniform float aoMapIntensity;
@@ -71,6 +75,11 @@ uniform sampler2D glassReflex;
 #ifdef GODRAY
 uniform float uGodrayOpacity;
 uniform float uGodrayDensity;
+#endif
+
+// Daylight
+#ifdef DAYLIGHT
+uniform bool daylight;
 #endif
 
 // Inspectable
@@ -195,7 +204,21 @@ void main() {
   lightFactor = valueRemap(lightFactor, 0.2, 1.0, 0.1, 1.0);
   lightFactor = clamp(lightFactor, 0.0, 1.0);
   lightFactor = pow(lightFactor, 2.0);
+
+  #ifdef BASKETBALL
+  float backLightFactor = dot(backLightDirection, normalize(vNormal));
+  backLightFactor = valueRemap(backLightFactor, 0.05, 1.0, 0.1, 1.0);
+  backLightFactor = clamp(backLightFactor, 0.0, 1.0);
+  backLightFactor = pow(backLightFactor, 2.0);
+
+  lightFactor *= 8.0;
+  backLightFactor *= 4.0;
+
+  lightFactor = max(lightFactor, backLightFactor * 1.5);
+  #else
   lightFactor *= 3.0;
+  #endif
+
   lightFactor += 1.0;
   irradiance *= lightFactor;
   #endif
@@ -234,6 +257,12 @@ void main() {
   #ifdef MATCAP
   if (glassMatcap) {
     gl_FragColor.a *= pattern * inspectingFactor;
+  }
+  #endif
+
+  #ifdef DAYLIGHT
+  if (daylight) {
+    gl_FragColor.a = inspectingFactor;
   }
   #endif
 }
