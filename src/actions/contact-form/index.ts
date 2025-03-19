@@ -20,7 +20,7 @@ export async function submitContactForm(formData: ContactFormData) {
       },
       body: JSON.stringify({
         from: "hello@basement.studio",
-        to: ["sales@basement.studio"],
+        to: ["tomas@basement.studio"],
         subject: `${formData.name} - ${formData.company} | Contact Us <basement.studio>`,
         html: generateEmailTemplate(formData)
       })
