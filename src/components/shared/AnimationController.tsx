@@ -56,9 +56,9 @@ function AnimationControllerImpl({
   frameSkip = 0,
   pauseOnTabChange = true
 }: AnimationControllerProps) {
-  const { invalidate } = useThree()
+  const { advance } = useThree()
 
-  const { showLoadingCanvas } = useAppLoadingStore()
+  const { canRunMainApp } = useAppLoadingStore()
 
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
   const [isScrollPaused, setIsScrollPaused] = useState(false)
@@ -67,7 +67,7 @@ function AnimationControllerImpl({
     paused ||
     (pauseOnTabChange && !isTabVisible) ||
     isScrollPaused ||
-    showLoadingCanvas
+    !canRunMainApp
 
   // Use refs for internal values that don't need to trigger re-renders
   const timeValuesRef = useRef({ time: 0, delta: 0 })
@@ -128,13 +128,13 @@ function AnimationControllerImpl({
       timeValuesRef.current.time = time
       timeValuesRef.current.delta = delta
 
-      // Request R3F to render a new frame
-      invalidate()
+      // Emit a render
+      advance(time * 0.001)
 
       // Here you could also run other global updates
       // that depend on animation time
     },
-    [isPaused, frameSkip, invalidate]
+    [isPaused, frameSkip, advance]
   )
 
   // Use Motion's useAnimationFrame as our single RAF

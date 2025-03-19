@@ -50,7 +50,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
           !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
         )}
       >
-        <Suspense fallback={null}>{isCanvasInPage && <Scene />}</Suspense>
+        {isCanvasInPage && <Scene />}
         <InspectableViewer />
         <ScrollDown />
       </div>
