@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Fragment, useState } from "react"
+import { Fragment, useCallback, useLayoutEffect, useRef, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
@@ -12,6 +12,10 @@ import { QueryType } from "./query"
 
 export const Crew = ({ data }: { data: QueryType }) => {
   const [hoveredPerson, setHoveredPerson] = useState<string | null>(null)
+  const heightRef = useRef({
+    list: 0,
+    faces: 0
+  })
 
   const groupedPeople = data.company.people.peopleList.items.reduce(
     (acc, person) => {
@@ -30,6 +34,23 @@ export const Crew = ({ data }: { data: QueryType }) => {
     )
   })
 
+  const updateHeightRef = useCallback(() => {
+    const listHeight = document.querySelector(".crew-list")?.clientHeight ?? 0
+    const facesHeight = document.querySelector(".crew-faces")?.clientHeight ?? 0
+
+    heightRef.current = { list: listHeight, faces: facesHeight }
+  }, [])
+
+  useLayoutEffect(() => {
+    updateHeightRef()
+
+    window.addEventListener("resize", updateHeightRef)
+
+    return () => {
+      window.removeEventListener("resize", updateHeightRef)
+    }
+  }, [updateHeightRef])
+
   return (
     <section className="grid-layout mb-18 lg:mb-44">
       <div className="col-span-full -mb-6 flex items-end justify-between lg:col-start-5 lg:col-end-13">
@@ -40,7 +61,15 @@ export const Crew = ({ data }: { data: QueryType }) => {
           {data.company.people.peopleList.items.length}
         </p>
       </div>
-      <div className="hidden flex-col gap-5 lg:col-start-1 lg:col-end-5 lg:flex">
+      <div
+        className={cn(
+          "crew-list hidden flex-col gap-5 lg:col-start-1 lg:col-end-5 lg:flex",
+          {
+            "lg:sticky lg:top-8":
+              heightRef.current.faces > heightRef.current.list
+          }
+        )}
+      >
         {Object.entries(groupedPeople).map(([department, people], index) => (
           <div key={department}>
             <div className="grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1">
@@ -94,6 +123,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
         data={data}
         setHoveredPerson={setHoveredPerson}
         hoveredPerson={hoveredPerson}
+        heightRef={heightRef.current}
       />
       <MobileFaces
         data={groupedPeople}
@@ -107,14 +137,21 @@ export const Crew = ({ data }: { data: QueryType }) => {
 export const DesktopFaces = ({
   data,
   setHoveredPerson,
-  hoveredPerson
+  hoveredPerson,
+  heightRef
 }: {
   data: QueryType
   setHoveredPerson: (person: string | null) => void
   hoveredPerson: string | null
+  heightRef: { list: number; faces: number }
 }) => {
   return (
-    <div className="col-span-full hidden h-fit grid-cols-8 gap-2 pt-6 lg:col-start-5 lg:col-end-13 lg:grid">
+    <div
+      className={cn(
+        "crew-faces col-span-full hidden h-fit grid-cols-8 gap-2 pt-6 lg:col-start-5 lg:col-end-13 lg:grid",
+        { "sticky top-8": heightRef.list > heightRef.faces }
+      )}
+    >
       {data.company.people.peopleList.items.map((person) => (
         <Face
           key={person._title}
