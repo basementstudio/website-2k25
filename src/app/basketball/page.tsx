@@ -81,15 +81,15 @@ const DesktopUI = ({
 }: DesktopUIProps) => {
   return (
     <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in p-3.5">
-      <div className="grid-layout h-full">
+      <div className="grid-layout mt-24 h-full">
         <button
           onClick={() => handleNavigation("/")}
-          className="pointer-events-auto col-span-2 col-start-2 mt-24 h-max text-p text-brand-w1"
+          className="pointer-events-auto col-span-2 col-start-2 h-max text-p text-brand-w1"
         >
           Close Game [ESC]
         </button>
         <div
-          className={`${geistMono.className} col-span-2 col-start-6 mt-24 flex h-10 select-none text-p uppercase text-brand-w2`}
+          className={`${geistMono.className} col-span-2 col-start-6 flex h-10 select-none text-p uppercase text-brand-w2`}
         >
           <div className="corner-borders relative flex w-1/2 translate-x-[0.5px] items-center justify-center">
             <p>{formatTime(timeRemaining)}</p>
@@ -100,13 +100,13 @@ const DesktopUI = ({
           </div>
         </div>
 
-        <div className="col-span-1 col-start-8 mt-24 flex h-10 items-center justify-center">
+        <div className="col-span-1 col-start-8 flex h-10 items-center justify-center">
           <p className={`${geistMono.className} text-p text-brand-w1`}>
             {scoreMultiplier}x
           </p>
         </div>
 
-        <Scoreboard className="col-span-1 col-start-10 mt-24 text-p" />
+        <Scoreboard className="col-span-2 col-start-10 ml-auto w-32 text-p" />
       </div>
     </div>
   )

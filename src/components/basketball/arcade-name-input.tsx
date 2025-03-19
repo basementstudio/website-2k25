@@ -90,6 +90,8 @@ export const ArcadeNameInput = ({
       setPlayerName(playerName)
       setReadyToPlay(true)
       setHasPlayed(false)
+      setLetters(["A", "A", "A"])
+      setSelectedSlot(0)
     } catch (error) {
       console.error("Failed to submit score:", error)
     } finally {
@@ -101,7 +103,9 @@ export const ArcadeNameInput = ({
     setPlayerName,
     isSubmitting,
     setReadyToPlay,
-    setHasPlayed
+    setHasPlayed,
+    setLetters,
+    setSelectedSlot
   ])
 
   const handleKeyPress = useCallback(
@@ -120,10 +124,11 @@ export const ArcadeNameInput = ({
     [letters, selectedSlot]
   )
 
-  useKeyPress("ArrowUp", handleArrowUp)
-  useKeyPress("ArrowDown", handleArrowDown)
+  useKeyPress("ArrowDown", handleArrowUp)
+  useKeyPress("ArrowUp", handleArrowDown)
   useKeyPress("ArrowLeft", handleArrowLeft)
   useKeyPress("ArrowRight", handleArrowRight)
+  useKeyPress("Backspace", handleArrowLeft)
   useKeyPress("Enter", handleEnter)
 
   useEffect(() => {
@@ -197,14 +202,14 @@ const MobileInput = () => {
   return (
     <div className="flex flex-col">
       <div className="flex gap-4">
-        <div className="corner-borders px-2">
+        <div className="corner-borasd">
           <input
             placeholder="AAA"
             type="text"
             value={inputValue.toUpperCase()}
             onChange={(e) => setInputValue(e.target.value)}
             maxLength={3}
-            className="no-focus-styles bg-transparent text-[1rem] font-semibold text-brand-w1 placeholder:text-brand-g1"
+            className="no-focus-styles w-16 bg-transparent text-center text-[1rem] font-semibold tracking-widest text-brand-w1 placeholder:text-brand-g1"
           />
         </div>
         <button
