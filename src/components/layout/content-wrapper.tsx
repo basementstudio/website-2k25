@@ -1,10 +1,19 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { Suspense, useEffect, useMemo } from "react"
 
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
-import { Scene } from "@/components/scene"
+
+const Scene = dynamic(
+  () => import("@/components/scene").then((mod) => mod.Scene),
+  {
+    ssr: false,
+    loading: () => null
+  }
+)
+
 import { cn } from "@/utils/cn"
 
 import { useAppLoadingStore } from "../loading/app-loading-handler"
@@ -41,7 +50,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
           !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
         )}
       >
-        <Suspense fallback={null}>{isCanvasInPage && <Scene />}</Suspense>
+        {isCanvasInPage && <Scene />}
         <InspectableViewer />
         <ScrollDown />
       </div>
