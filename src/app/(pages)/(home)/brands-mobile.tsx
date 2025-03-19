@@ -1,10 +1,12 @@
+"use client"
+
+import { useEffect, useState } from "react"
+
 import { cn } from "@/utils/cn"
 
-import { fetchBrandsMobile } from "./basehub"
+import { Brand } from "./brands"
 
-export const BrandsMobile = async () => {
-  const { rows } = await fetchBrandsMobile()
-
+export const BrandsMobile = ({ brandsMobile }: { brandsMobile: Brand[][] }) => {
   return (
     <section className="grid-layout isolate !gap-y-0 lg:!hidden">
       <div className="grid-layout col-span-full !px-0">
@@ -16,7 +18,7 @@ export const BrandsMobile = async () => {
       </div>
 
       <div className="relative col-span-full flex flex-col">
-        {rows.map((row, index) => (
+        {brandsMobile.map((row, index) => (
           <BrandsGrid key={index} brands={row} absolute={index !== 0} />
         ))}
       </div>
@@ -34,40 +36,55 @@ interface MarqueeRowProps {
   absolute: boolean
 }
 
-const getPositionDelay = (position: number, length: number) => {
-  const seed = (position * 23 + 17) % 31
-  return (seed * 1.5) % (length * 1.5)
+const CONFIG = {
+  CYCLE_DURATION: 10000,
+  MIN_GAP: 1, // Minimum gap between animations
+  SEQUENCE: [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
 }
 
-const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
-  <div className={cn("relative py-2", absolute && "absolute inset-0")}>
-    <div className="grid-rows-auto group grid grid-cols-3 gap-3">
-      {brands.map((brand, idx) => {
-        const delay = getPositionDelay(idx, brands.length)
+const getPositionDelay = (idx: number) => {
+  return Number((2 + 2 * Math.sin(1.2 * idx + Math.PI / 4)).toFixed(2))
+}
 
-        return (
-          <div
-            key={brand._id}
-            className={cn(
-              "relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
-              absolute && "animate-fade-in-out opacity-0",
-              !absolute && "animate-fade-out-in opacity-100"
-            )}
-            style={
-              {
-                "--anim-duration": "16s",
-                "--anim-delay": `${delay}s`,
-                animationTimingFunction: "cubic-bezier(0.4, 0, 0.6, 1)"
-              } as React.CSSProperties
-            }
-          >
+const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => {
+  const [switchState, setSwitchState] = useState(absolute)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSwitchState((prev) => !prev)
+    }, CONFIG.CYCLE_DURATION)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className={cn("relative py-2", absolute && "absolute inset-0")}>
+      <div className="grid-rows-auto group grid grid-cols-3 gap-3">
+        {brands.map((brand, idx) => {
+          const delay = getPositionDelay(idx)
+          return (
             <div
-              className="with-dots relative grid h-full w-full place-items-center px-2 py-4 [&>svg]:max-w-[100%]"
-              dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
-            />
-          </div>
-        )
-      })}
+              key={brand._id}
+              className={cn(
+                "relative h-full transition-opacity duration-500 after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
+                switchState && "opacity-0",
+                !switchState && "opacity-100",
+                "delay-[var(--delay)]"
+              )}
+              style={
+                {
+                  "--delay": `${delay}s`,
+                  animationTimingFunction: "cubic-bezier(0.4, 0, 0.6, 1)"
+                } as React.CSSProperties
+              }
+            >
+              <div
+                className="with-dots relative grid h-full w-full place-items-center px-2 py-4 [&>svg]:max-w-[100%]"
+                dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
+              />
+            </div>
+          )
+        })}
+      </div>
     </div>
-  </div>
-)
+  )
+}

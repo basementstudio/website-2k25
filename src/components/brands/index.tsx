@@ -52,7 +52,7 @@ export const AnimatedTitle = memo(({ brandName }: { brandName: string }) => (
 
 AnimatedTitle.displayName = "AnimatedTitle"
 
-export const BrandsContent = ({ brands }: { brands: Brand[] }) => {
+export const BrandsDesktop = ({ brands }: { brands: Brand[] }) => {
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
   const debouncedHoveredBrandId = useDebounceValue(
     hoveredBrandId,
@@ -111,4 +111,4 @@ export const BrandsContent = ({ brands }: { brands: Brand[] }) => {
   )
 }
 
-BrandsContent.displayName = "BrandsContent"
+BrandsDesktop.displayName = "BrandsDesktop"

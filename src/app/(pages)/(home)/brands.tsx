@@ -1,6 +1,7 @@
-import { BrandsContent } from "@/components/brands"
+import { BrandsDesktop } from "@/components/brands"
 
 import { Scalars } from "../../../../.basehub/schema"
+import { BrandsMobile } from "./brands-mobile"
 import type { QueryType } from "./query"
 
 export type Brand = {
@@ -14,5 +15,15 @@ export const Brands = ({ data }: { data: QueryType }) => {
   const brands =
     data.company.clients?.clientList.items.filter((c) => c.logo) ?? []
 
-  return <BrandsContent brands={brands} />
+  return (
+    <>
+      <BrandsDesktop brands={brands} />
+      <BrandsMobile
+        brandsMobile={[
+          brands.slice(0, brands.length / 2),
+          brands.slice(brands.length / 2)
+        ]}
+      />
+    </>
+  )
 }
