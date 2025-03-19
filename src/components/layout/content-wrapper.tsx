@@ -1,19 +1,10 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { Suspense, useEffect, useMemo } from "react"
 
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
-
-const Scene = dynamic(
-  () => import("@/components/scene").then((mod) => mod.Scene),
-  {
-    ssr: false,
-    loading: () => null
-  }
-)
-
+import { Scene } from "@/components/scene"
 import { cn } from "@/utils/cn"
 
 import { useAppLoadingStore } from "../loading/app-loading-handler"
