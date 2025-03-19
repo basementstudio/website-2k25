@@ -40,7 +40,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
                 </Link>
               </h4>
 
-              <p className="-mt-1 text-h4">{c.description}</p>
+              <p className="-mt-1 text-h4 text-brand-w2">{c.description}</p>
 
               <div className="flex flex-wrap gap-1">
                 {c.subCategories.items.map((s) => (

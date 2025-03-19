@@ -15,10 +15,10 @@ import { usePreventScroll } from "@/hooks/use-prevent-scroll"
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
+import { ContactButton } from "../primitives/contact-button"
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
 import { StayConnected } from "./stay-connected"
-import { ContactButton } from "../primitives/contact-button"
 
 const Logo = memo(({ className }: { className?: string }) => (
   <svg
@@ -189,10 +189,12 @@ const MobileContent = memo(
     ])
 
     return (
-      <div className="col-start-4 col-end-5 grid items-center justify-end gap-5 lg:hidden">
+      <div className="col-start-4 col-end-5 flex items-center justify-between gap-5 lg:hidden">
+        <MusicToggle />
+
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex w-8 flex-col gap-1"
+          className="flex w-10 flex-col gap-1"
           aria-label={isOpen ? "Close menu" : "Open menu"}
           ref={menuHandlerRef}
         >
