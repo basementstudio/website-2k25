@@ -156,7 +156,10 @@ export const ArcadeLabsList = ({
                   ? COLORS_THEME.primary
                   : COLORS_THEME.black
               }
-              onClick={() => handleExperimentClick(data)}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleExperimentClick(data)
+              }}
               onHoverChange={(hover) => {
                 if (hover) {
                   setCursor("alias")

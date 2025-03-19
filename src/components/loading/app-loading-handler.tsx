@@ -1,7 +1,6 @@
 "use client"
 
 import { useLenis } from "lenis/react"
-import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
@@ -17,9 +16,11 @@ export type UpdateCameraCallback = (
 interface AppLoadingState {
   isCanvasInPage: boolean
   showLoadingCanvas: boolean
+  canRunMainApp: boolean
   offscreenCanvasReady: boolean
   worker: Worker | null
   setMainAppRunning: (isAppLoaded: boolean) => void
+  setCanRunMainApp: (canRunMainApp: boolean) => void
 }
 
 export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
@@ -36,6 +37,10 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      */
     showLoadingCanvas: true,
     /**
+     * Used to check if the main app is running
+     */
+    canRunMainApp: false,
+    /**
      * Worker canvas for loading screen
      */
     worker: null,
@@ -47,6 +52,12 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
         type: "update-loading-status",
         isAppLoaded
       })
+    },
+    /**
+     * This function will tell the loading canvas that the main app can run
+     */
+    setCanRunMainApp: (canRunMainApp) => {
+      set({ canRunMainApp })
     }
   }
   return store
