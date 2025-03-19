@@ -187,28 +187,32 @@ const Bakes = () => {
     (state) => state.setMainAppRunning
   )
 
+  const setCanRunMainApp = useAppLoadingStore((state) => state.setCanRunMainApp)
+
   useEffect(() => {
-    setMainAppRunning(true)
+    setCanRunMainApp(true)
+    const timeout = setTimeout(() => {
+      setMainAppRunning(true)
+    }, 10)
+    const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
 
-    const timeout = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
-
-    return () => clearTimeout(timeout)
-  }, [setMainAppRunning])
+    return () => {
+      clearTimeout(timeout)
+      clearTimeout(timeout2)
+    }
+  }, [setMainAppRunning, setCanRunMainApp])
 
   useEffect(() => {
     const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
       if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
-
       if (maps.aomap) addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
-
+      if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
       if (maps.matcap) {
         addMatcap(
           { mesh: mesh, texture: maps.matcap.texture },
           maps.matcap.isGlass
         )
       }
-
-      if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
     }
 
     Object.entries(bakes).forEach(([mesh, maps]) => {

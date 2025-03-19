@@ -1,10 +1,10 @@
 "use client"
 
-import { Preload } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
+import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
-import dynamic from "next/dynamic"
+
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
@@ -46,37 +46,16 @@ const PhysicsWorld = dynamic(
 )
 
 export const Scene = () => {
-  const { setIsCanvasTabMode, currentScene, setCurrentTabIndex } =
-    useNavigationStore()
+  const { setIsCanvasTabMode, currentScene } = useNavigationStore()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
-  const [isShiftPressed, setIsShiftPressed] = useState(false)
 
-  // Use our tab key handler to set currentTabIndex on first tab
   useTabKeyHandler()
 
   useEffect(() => {
     if (!isBasketball) clearPlayedBalls()
   }, [isBasketball, clearPlayedBalls])
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Shift") setIsShiftPressed(true)
-    }
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === "Shift") setIsShiftPressed(false)
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("keyup", handleKeyUp)
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-      window.removeEventListener("keyup", handleKeyUp)
-    }
-  }, [])
 
   const handleFocus = (e: React.FocusEvent) => {
     setIsCanvasTabMode(true)
@@ -99,7 +78,7 @@ export const Scene = () => {
         <Debug />
         <Canvas
           id="canvas"
-          frameloop="demand"
+          frameloop="never"
           ref={canvasRef}
           tabIndex={0}
           onFocus={handleFocus}
@@ -140,15 +119,13 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Sparkles />
                   </Suspense>
-                  <Suspense fallback={null}>
-                    {isBasketball && (
-                      <PhysicsWorld paused={!isBasketball}>
-                        <ErrorBoundary>
-                          <HoopMinigame />
-                        </ErrorBoundary>
-                      </PhysicsWorld>
-                    )}
-                  </Suspense>
+                  {isBasketball && (
+                    <PhysicsWorld paused={!isBasketball}>
+                      <ErrorBoundary>
+                        <HoopMinigame />
+                      </ErrorBoundary>
+                    </PhysicsWorld>
+                  )}
                   <Suspense fallback={null}>
                     <CharacterInstanceConfig />
                     <CharactersSpawn />

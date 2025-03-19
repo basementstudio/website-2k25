@@ -2,11 +2,11 @@ import { useLenis } from "lenis/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 
+import { useContactStore } from "@/components/contact/contact-store"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
-import { useContactStore } from "@/components/contact/contact-store"
 
 export const useHandleNavigation = () => {
   const lenisInstance = useLenis()

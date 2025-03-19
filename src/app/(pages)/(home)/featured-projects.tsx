@@ -53,7 +53,7 @@ const ProjectItem = ({ project }: ProjectItemProps) => (
       "col-span-full"
     )}
   >
-    <div className="relative col-span-7 after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+    <div className="relative col-span-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-7">
       {project.cover && (
         <Link href={`/showcase/${project.project?._slug}`}>
           <div className="with-dots relative h-full w-full">
@@ -89,7 +89,7 @@ const ProjectItem = ({ project }: ProjectItemProps) => (
 
     <Link
       href={`/showcase/${project.project?._slug}`}
-      className="h-max w-max justify-self-end pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-span-2 lg:col-start-11 lg:text-h2"
+      className="col-span-2 h-max w-max justify-self-end pr-0.5 text-right text-mobile-h2 text-brand-w1 lg:col-start-11 lg:text-h2"
     >
       <span className="actionable group gap-x-2 [&:before]:delay-0 [&:before]:hover:delay-150">
         <span className="translate-x-6 transition-transform duration-200 ease-in-out group-hover:translate-x-0">
