@@ -17,7 +17,7 @@ export const ShowcaseImage = ({ project }: ShowcaseImageProps) => {
   return (
     <Link
       href={`/showcase/${project.project?._slug}`}
-      onMouseEnter={() => setCursor("zoom-in", "View project")}
+      onMouseEnter={() => setCursor("zoom-in", "View Project")}
       onMouseLeave={() => setCursor("default", null)}
     >
       <div className="with-dots relative h-full w-full">
