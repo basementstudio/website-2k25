@@ -13,7 +13,7 @@ export const ScrollDown = () => {
   if (shouldIgnore) return null
 
   return (
-    <div className="fixed bottom-8 left-1/2 flex w-fit -translate-x-1/2 items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1">
+    <div className="fixed bottom-8 left-1/2 -mb-3 flex w-fit -translate-x-1/2 items-center gap-x-2 bg-brand-k px-10 py-3 text-p text-brand-w1">
       Scroll to Explore <ArrowDownIcon className="size-2.5" />
     </div>
   )
