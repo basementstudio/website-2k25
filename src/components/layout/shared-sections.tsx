@@ -4,6 +4,7 @@ import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
 import { useContactStore } from "../contact/contact-store"
+import { Scramble } from "../primitives/scramble"
 
 interface InternalLinksProps {
   className?: string
@@ -36,7 +37,9 @@ export const InternalLinks = ({
             href={link.href}
             onClick={onClick}
           >
-            <span className="actionable">{link.title}</span>
+            <span className="actionable">
+              <Scramble text={link.title} />
+            </span>
             {link.count && (
               <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
                 <span className="tabular-nums">({link.count})</span>
