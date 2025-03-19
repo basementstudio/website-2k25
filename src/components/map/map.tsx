@@ -6,7 +6,6 @@ import { memo, Suspense, useEffect, useRef, useState } from "react"
 import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three"
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
-import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js"
 
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
@@ -33,7 +32,6 @@ import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
 import { BakesLoader } from "./bakes"
 import { useGodrays } from "./use-godrays"
-import { useThree } from "@react-three/fiber"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -95,36 +93,10 @@ export const Map = memo(() => {
   } = useAssets()
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
-  // to ktx2
-  const gl = useThree((state) => state.gl)
-  const { scene: officeModel } = useGLTF(
-    office,
-    undefined,
-    undefined,
-    (loader) => {
-      const ktx2loader = new KTX2Loader()
-      ktx2loader.setTranscoderPath(
-        "https://cdn.jsdelivr.net/gh/pmndrs/drei-assets/basis/"
-      )
-      ktx2loader.detectSupport(gl)
-      loader.setKTX2Loader(ktx2loader as any)
-    }
-  ) as unknown as GLTFResult
-
+  const { scene: officeModel } = useGLTF(office) as unknown as GLTFResult
   const { scene: officeItemsModel } = useGLTF(
-    officeItems,
-    undefined,
-    undefined,
-    (loader) => {
-      const ktx2loader = new KTX2Loader()
-      ktx2loader.setTranscoderPath(
-        "https://cdn.jsdelivr.net/gh/pmndrs/drei-assets/basis/"
-      )
-      ktx2loader.detectSupport(gl)
-      loader.setKTX2Loader(ktx2loader as any)
-    }
+    officeItems
   ) as unknown as GLTFResult
-
   const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
   const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
   const { scene: outdoorCarsModel } = useGLTF(
