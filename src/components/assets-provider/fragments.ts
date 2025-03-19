@@ -110,7 +110,6 @@ export const inspectableFragment = fragmentOn("Inspectables", {
 })
 
 export const sfxFragment = fragmentOn("Sfx", {
-  ambience: urlFragment,
   basketballTheme: urlFragment,
   basketballSwoosh: urlFragment,
   basketballNet: urlFragment,
