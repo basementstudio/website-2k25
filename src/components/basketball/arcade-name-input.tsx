@@ -204,7 +204,7 @@ const MobileInput = () => {
             value={inputValue.toUpperCase()}
             onChange={(e) => setInputValue(e.target.value)}
             maxLength={3}
-            className="bg-transparent text-[1rem] font-semibold text-brand-w1 placeholder:text-brand-g1"
+            className="no-focus-styles bg-transparent text-[1rem] font-semibold text-brand-w1 placeholder:text-brand-g1"
           />
         </div>
         <button
