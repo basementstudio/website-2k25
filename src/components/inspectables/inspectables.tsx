@@ -37,14 +37,9 @@ export const Inspectables = memo(function InspectablesInner() {
 
   return (
     <>
-      {inspectables.map((inspectableConfig) => {
-        return (
-          <Inspectable
-            key={inspectableConfig.mesh}
-            id={inspectableConfig.mesh}
-          />
-        )
-      })}
+      {inspectables.map((inspectableConfig) => (
+        <Inspectable key={inspectableConfig.mesh} id={inspectableConfig.mesh} />
+      ))}
     </>
   )
 })
