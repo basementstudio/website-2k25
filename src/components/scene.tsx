@@ -55,6 +55,7 @@ export const Scene = () => {
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
   const [dpr, setDpr] = useState(1.5) // Valor inicial del Device Pixel Ratio
+  const [enablePostProcessing, setEnablePostProcessing] = useState(true) // Estado para controlar el post-procesamiento
 
   useTabKeyHandler()
 
@@ -107,8 +108,14 @@ export const Scene = () => {
           className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
         >
           <PerformanceMonitor
-            onIncline={() => setDpr(Math.min(2, dpr + 0.5))}
-            onDecline={() => setDpr(Math.max(0.5, dpr - 0.5))}
+            onIncline={() => {
+              setDpr(Math.min(2, dpr + 0.5))
+              setEnablePostProcessing(true) // Active post-processing when performance improves
+            }}
+            onDecline={() => {
+              setDpr(Math.max(0.5, dpr - 0.5))
+              setEnablePostProcessing(false) // Disable post-processing when performance declines
+            }}
             bounds={(refreshRate) => [
               refreshRate > 120 ? 60 : 45,
               refreshRate > 120 ? 90 : 60
@@ -120,6 +127,7 @@ export const Scene = () => {
             <Bvh firstHitOnly>
               <AnimationController>
                 <Renderer
+                  enablePostProcessing={enablePostProcessing}
                   sceneChildren={
                     <>
                       <Suspense fallback={null}>

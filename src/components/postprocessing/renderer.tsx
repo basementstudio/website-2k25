@@ -23,6 +23,7 @@ import { PostProcessing } from "./post-processing"
 
 interface RendererProps {
   sceneChildren: React.ReactNode
+  enablePostProcessing?: boolean
 }
 
 export const cctvConfig = {
@@ -47,7 +48,10 @@ cctvConfig.camera.updateProjectionMatrix()
 
 export const Renderer = memo(RendererInner)
 
-function RendererInner({ sceneChildren }: RendererProps) {
+function RendererInner({
+  sceneChildren,
+  enablePostProcessing = true
+}: RendererProps) {
   const mainTarget = useMemo(() => {
     const dt = new DepthTexture(window.innerWidth, window.innerHeight)
     const rt = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
@@ -79,15 +83,21 @@ function RendererInner({ sceneChildren }: RendererProps) {
   }, [mainTarget])
 
   useFrameCallback(({ gl }) => {
-    if (!mainCamera || !postProcessingCameraRef.current) return
+    if (!mainCamera) return
+    if (!postProcessingCameraRef.current && enablePostProcessing) return
 
-    // main render
-    gl.outputColorSpace = LinearSRGBColorSpace
-    gl.toneMapping = NoToneMapping
-    gl.setRenderTarget(mainTarget)
+    if (enablePostProcessing) {
+      gl.outputColorSpace = LinearSRGBColorSpace
+      gl.toneMapping = NoToneMapping
+      gl.setRenderTarget(mainTarget)
+    } else {
+      gl.outputColorSpace = SRGBColorSpace
+      gl.toneMapping = NoToneMapping
+      gl.setRenderTarget(null)
+    }
+
     gl.render(mainScene, mainCamera)
 
-    // 404 scene on tv
     if (cctvConfig.shouldBakeCCTV) {
       gl.setRenderTarget(cctvConfig.renderTarget.write)
       gl.render(mainScene, cctvConfig.camera)
@@ -95,24 +105,26 @@ function RendererInner({ sceneChildren }: RendererProps) {
       cctvConfig.shouldBakeCCTV = false
     }
 
-    // post processing
-    gl.outputColorSpace = SRGBColorSpace
-    gl.toneMapping = NoToneMapping
-    gl.setRenderTarget(null)
-    gl.render(postProcessingScene, postProcessingCameraRef.current)
+    if (enablePostProcessing && postProcessingCameraRef.current) {
+      gl.outputColorSpace = SRGBColorSpace
+      gl.toneMapping = NoToneMapping
+      gl.setRenderTarget(null)
+      gl.render(postProcessingScene, postProcessingCameraRef.current)
+    }
   }, 1)
 
   return (
     <>
       {createPortal(sceneChildren, mainScene)}
-      {createPortal(
-        <PostProcessing
-          mainTexture={mainTarget.texture}
-          depthTexture={mainTarget.depthTexture!}
-          cameraRef={postProcessingCameraRef}
-        />,
-        postProcessingScene
-      )}
+      {enablePostProcessing &&
+        createPortal(
+          <PostProcessing
+            mainTexture={mainTarget.texture}
+            depthTexture={mainTarget.depthTexture!}
+            cameraRef={postProcessingCameraRef}
+          />,
+          postProcessingScene
+        )}
     </>
   )
 }
