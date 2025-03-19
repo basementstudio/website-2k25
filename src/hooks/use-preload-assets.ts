@@ -163,17 +163,12 @@ const preloadAllAssets = (obj: any) => {
   // Preload all URLs
   urls.forEach((url) => {
     const { as, type } = getAssetFormat(url)
-    preload(url, {
-      as,
-      type
-    })
+    preload(url, { as, type })
   })
 }
 
 export const usePreloadAssets = (assets: AssetsResult) => {
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
 
-  if (offscreenCanvasReady) {
-    preloadAllAssets(assets)
-  }
+  if (offscreenCanvasReady) preloadAllAssets(assets)
 }

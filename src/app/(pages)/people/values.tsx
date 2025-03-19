@@ -27,7 +27,7 @@ export const Values = ({ data }: { data: QueryType }) => {
               )}
               key={idx}
             >
-              <p className="text-f-h1-mobile lg:text-f-h1 col-span-full text-brand-w2 lg:col-start-1 lg:col-end-5">
+              <p className="col-span-full text-f-h1-mobile text-brand-w2 lg:col-start-1 lg:col-end-5 lg:text-f-h1">
                 {_title}
               </p>
               <div className="col-span-full lg:col-start-5 lg:col-end-8">

@@ -82,7 +82,7 @@ export const Scene = () => {
         <Debug />
         <Canvas
           id="canvas"
-          frameloop="demand"
+          frameloop="never"
           ref={canvasRef}
           tabIndex={0}
           onFocus={handleFocus}
@@ -115,15 +115,13 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Sparkles />
                   </Suspense>
-                  <Suspense fallback={null}>
-                    {isBasketball && (
-                      <PhysicsWorld paused={!isBasketball}>
-                        <ErrorBoundary>
-                          <HoopMinigame />
-                        </ErrorBoundary>
-                      </PhysicsWorld>
-                    )}
-                  </Suspense>
+                  {isBasketball && (
+                    <PhysicsWorld paused={!isBasketball}>
+                      <ErrorBoundary>
+                        <HoopMinigame />
+                      </ErrorBoundary>
+                    </PhysicsWorld>
+                  )}
                   <Suspense fallback={null}>
                     <CharacterInstanceConfig />
                     <CharactersSpawn />
