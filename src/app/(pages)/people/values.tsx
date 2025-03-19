@@ -32,14 +32,14 @@ export const Values = ({ data }: { data: QueryType }) => {
               </p>
               <div className="col-span-full lg:col-start-5 lg:col-end-8">
                 {image && (
-                  <div className="relative col-span-full aspect-[205/109] w-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-2">
+                  <div className="relative col-span-full aspect-[6/6] w-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-2">
                     <div className="with-dots">
                       <Image
                         src={image.url}
                         alt={image.alt ?? ""}
                         width={image.width}
                         height={image.height}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-fill"
                       />
                     </div>
                   </div>
