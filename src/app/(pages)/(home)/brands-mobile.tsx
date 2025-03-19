@@ -13,8 +13,6 @@ export const BrandsMobile = ({ brandsMobile }: { brandsMobile: Brand[][] }) => {
         <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-h3">
           Trusted by Visionaries
         </h3>
-
-        <div className="col-span-full h-px w-full bg-brand-w1/30" />
       </div>
 
       <div className="relative col-span-full flex flex-col">
