@@ -102,7 +102,6 @@ export interface AssetsResult {
     contact: {
       interference: string
     }
-    officeAmbience: string
   }
   scenes: {
     name: string
@@ -267,8 +266,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
         rain: threeDInteractions.sfx.music.rain.url,
         tiger: threeDInteractions.sfx.music.tiger.url,
         vhs: threeDInteractions.sfx.music.vhs.url
-      },
-      officeAmbience: threeDInteractions.sfx.officeAmbience.url
+      }
     },
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
