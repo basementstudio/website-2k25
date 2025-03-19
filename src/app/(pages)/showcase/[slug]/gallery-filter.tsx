@@ -8,7 +8,7 @@ import { useProjectContext } from "./context"
 
 interface GalleryFilterProps {
   mode: "grid" | "rows"
-  viewMode: "grid" | "rows"
+  viewMode: "grid" | "rows" | undefined
   setViewMode: (mode: "grid" | "rows") => void
 }
 

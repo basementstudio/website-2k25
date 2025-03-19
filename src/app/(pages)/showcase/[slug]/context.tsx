@@ -3,26 +3,24 @@
 import { createContext, use, useState, useEffect } from "react"
 
 interface ProjectContextType {
-  viewMode: "grid" | "rows"
+  viewMode: "grid" | "rows" | undefined
   setViewMode: (viewMode: "grid" | "rows") => void
 }
 
 export const ProjectContext = createContext<ProjectContextType>({
-  viewMode: "grid",
+  viewMode: undefined,
   setViewMode: () => {}
 })
 
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-  const [viewMode, setViewModeState] = useState<"grid" | "rows">("grid")
+  const [viewMode, setViewModeState] = useState<"grid" | "rows">()
 
   useEffect(() => {
     const stored = localStorage.getItem("project-gallery-view-mode")
     if (stored === "rows" || stored === "grid") {
-      const isDesktop = window.matchMedia("(min-width: 1024px)").matches
-
-      if (isDesktop) {
-        setViewModeState(stored)
-      }
+      setViewModeState(stored)
+    } else {
+      setViewModeState("grid")
     }
   }, [])
 
