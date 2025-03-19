@@ -196,8 +196,6 @@ export const MouseTracker = memo(() => {
     []
   )
 
-  console.log(hoverText)
-
   return (
     <AnimatePresence>
       {hoverText && (
