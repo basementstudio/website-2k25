@@ -59,23 +59,18 @@ function debounce<T extends (...args: any[]) => any>(
 }
 
 export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
-  const gl = useThree((state) => state.gl)
-  const connected = useThree((state) => state.events.connected)
-
-  const explDomElement = connected || gl.domElement
   const setHoverText = useMouseStore((state) => state.setHoverText)
   const setMarquee = useMouseStore((state) => state.setMarquee)
+  const setCursorType = useMouseStore((state) => state.setCursorType)
 
   useEffect(() => {
-    explDomElement.style.cursor = defaultStyle
-    gl.domElement.style.cursor = ""
+    setCursorType(defaultStyle)
     return () => {
-      explDomElement.style.cursor = "default"
-      gl.domElement.style.cursor = "default"
+      setCursorType("default")
       setHoverText(null)
       setMarquee(false)
     }
-  }, [defaultStyle, explDomElement, gl.domElement, setHoverText, setMarquee])
+  }, [defaultStyle, setCursorType, setHoverText, setMarquee])
 
   const setCursor = useCallback(
     (
@@ -83,20 +78,40 @@ export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
       text?: string | null,
       marquee?: boolean | null
     ) => {
-      if (explDomElement) {
-        explDomElement.style.cursor = newStyle
-        if (text !== undefined) {
-          setHoverText(text)
-        }
-        if (marquee !== undefined) {
-          setMarquee(marquee)
-        }
+      setCursorType(newStyle)
+      if (text !== undefined) {
+        setHoverText(text)
+      }
+      if (marquee !== undefined) {
+        setMarquee(marquee)
       }
     },
-    [explDomElement, setHoverText, setMarquee]
+    [setCursorType, setHoverText, setMarquee]
   )
 
   return setCursor
+}
+
+export const UpdateCanvasCursor = () => {
+  const gl = useThree((state) => state.gl)
+  const connected = useThree((state) => state.events.connected)
+
+  const explDomElement = connected || gl.domElement
+  const cursorType = useMouseStore((state) => state.cursorType)
+
+  useEffect(() => {
+    if (explDomElement) {
+      explDomElement.style.cursor = cursorType
+      gl.domElement.style.cursor = ""
+    }
+
+    return () => {
+      explDomElement.style.cursor = "default"
+      gl.domElement.style.cursor = "default"
+    }
+  }, [cursorType, explDomElement, gl.domElement.style])
+
+  return null
 }
 
 export const MouseTracker = memo(() => {
@@ -181,6 +196,8 @@ export const MouseTracker = memo(() => {
     []
   )
 
+  console.log(hoverText)
+
   return (
     <AnimatePresence>
       {hoverText && (
@@ -195,7 +212,7 @@ export const MouseTracker = memo(() => {
           ) : (
             <span className="flex gap-0.5">
               <span>[Now Playing]</span>
-              <Marquee text={hoverText} />
+              <Marquee text={hoverText ?? ""} />
             </span>
           )}
         </motion.p>

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { Suspense, useEffect, useMemo } from "react"
+import { useEffect, useMemo } from "react"
 
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 
@@ -14,6 +14,7 @@ const Scene = dynamic(
   }
 )
 
+import { MouseTracker } from "@/hooks/use-mouse"
 import { cn } from "@/utils/cn"
 
 import { useAppLoadingStore } from "../loading/app-loading-handler"
@@ -44,6 +45,10 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
+      <div className="pointer-events-none fixed top-0 z-50 h-screen w-full">
+        <MouseTracker />
+      </div>
+
       <div
         className={cn(
           "canvas-container sticky top-0 h-screen w-full lg:fixed",

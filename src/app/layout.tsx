@@ -15,6 +15,7 @@ import AppLoadingHandler from "@/components/loading/app-loading-handler"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
+import { MouseTracker } from "@/hooks/use-mouse"
 import { PathnameProvider } from "@/hooks/use-watch-pathname"
 import LenisScrollProvider from "@/providers/lenis-provider"
 import { AppHooks } from "@/utils/app-hooks-init"
@@ -59,7 +60,11 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body
-            className={cn(geistSans.variable, geistMono.variable, "font-sans")}
+            className={cn(
+              geistSans.variable,
+              geistMono.variable,
+              "relative font-sans"
+            )}
             suppressHydrationWarning
           >
             <AppLoadingHandler />
@@ -71,6 +76,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
                 <NavigationHandler />
 
                 <ContentWrapper>{children}</ContentWrapper>
+
                 <AppHooks assets={assets} />
                 <Contact />
               </PathnameProvider>

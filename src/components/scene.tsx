@@ -10,9 +10,9 @@ import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
-import { MouseTracker } from "@/hooks/use-mouse"
-import { useMinigameStore } from "@/store/minigame-store"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
+import { UpdateCanvasCursor } from "@/hooks/use-mouse"
+import { useMinigameStore } from "@/store/minigame-store"
 
 import ErrorBoundary from "./basketball/error-boundary"
 import { CameraController } from "./camera/camera-controller"
@@ -101,6 +101,7 @@ export const Scene = () => {
           className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
         >
           <AnimationController>
+            <UpdateCanvasCursor />
             <Renderer
               sceneChildren={
                 <>
@@ -139,7 +140,6 @@ export const Scene = () => {
           </AnimationController>
         </Canvas>
       </div>
-      <MouseTracker />
     </>
   )
 }

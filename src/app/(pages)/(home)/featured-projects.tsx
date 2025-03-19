@@ -5,6 +5,7 @@ import { TextList } from "@/components/primitives/text-list"
 import { cn } from "@/utils/cn"
 
 import type { QueryType } from "./query"
+import { ShowcaseImage } from "./showcase-image"
 
 export const FeaturedProjects = ({ data }: { data: QueryType }) => {
   const p = data.pages.homepage.featuredProjects.projectList.items
@@ -54,17 +55,7 @@ const ProjectItem = ({ project }: ProjectItemProps) => (
     )}
   >
     <div className="relative col-span-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-7">
-      {project.cover && (
-        <Link href={`/showcase/${project.project?._slug}`}>
-          <div className="with-dots relative h-full w-full">
-            <ImageWithVideoOverlay
-              image={project.cover}
-              video={project.coverVideo || project.project?.coverVideo}
-              className="aspect-video"
-            />
-          </div>
-        </Link>
-      )}
+      <ShowcaseImage project={project} />
     </div>
     <div className="col-span-2 flex flex-col justify-between gap-y-4 pr-2 md:col-span-3 md:pr-12">
       <p className="text-mobile-h4 text-brand-w2 lg:text-h3">
