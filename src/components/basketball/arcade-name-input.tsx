@@ -204,13 +204,13 @@ const MobileInput = () => {
             value={inputValue.toUpperCase()}
             onChange={(e) => setInputValue(e.target.value)}
             maxLength={3}
-            className="bg-transparent text-mobile-h4 text-brand-w1 placeholder:text-brand-g1"
+            className="bg-transparent text-[1rem] font-semibold text-brand-w1 placeholder:text-brand-g1"
           />
         </div>
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || !inputValue || inputValue.length !== 3}
-          className={`text-mobile-p text-brand-w1 disabled:opacity-50`}
+          className="text-mobile-p text-brand-w1 disabled:opacity-50"
         >
           {"Save Score ->"}
         </button>

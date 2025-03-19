@@ -189,7 +189,7 @@ const MobileContent = memo(
     ])
 
     return (
-      <div className="col-start-4 col-end-5 flex items-center justify-between gap-5 lg:hidden">
+      <div className="col-start-4 col-end-5 flex items-center justify-end gap-5 lg:hidden">
         <MusicToggle />
 
         <button

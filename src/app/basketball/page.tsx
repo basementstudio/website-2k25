@@ -31,23 +31,25 @@ const Basketball = () => {
 
   return (
     <>
-      {!hasPlayed && !isMobile ? (
-        <DesktopUI
-          handleNavigation={handleNavigation}
-          formatTime={formatTime}
-          timeRemaining={timeRemaining}
-          score={score}
-          scoreMultiplier={scoreMultiplier}
-        />
-      ) : (
-        <MobileUI
-          handleNavigation={handleNavigation}
-          formatTime={formatTime}
-          timeRemaining={timeRemaining}
-          score={score}
-          scoreMultiplier={scoreMultiplier}
-        />
-      )}
+      {!hasPlayed ? (
+        isMobile ? (
+          <MobileUI
+            handleNavigation={handleNavigation}
+            formatTime={formatTime}
+            timeRemaining={timeRemaining}
+            score={score}
+            scoreMultiplier={scoreMultiplier}
+          />
+        ) : (
+          <DesktopUI
+            handleNavigation={handleNavigation}
+            formatTime={formatTime}
+            timeRemaining={timeRemaining}
+            score={score}
+            scoreMultiplier={scoreMultiplier}
+          />
+        )
+      ) : null}
 
       {(hasPlayed && !playerName) || (hasPlayed && !isGameActive) ? (
         <div className="fixed top-0 grid min-h-screen w-full animate-fade-in place-items-center bg-brand-k/20">
