@@ -72,25 +72,7 @@ export const useCameraSetup = (
       setIsInitialized(true)
     }
 
-    const [plane, boundary] = [planeRef.current, planeBoundaryRef.current]
     return
-    if (!plane || !boundary || !cameraRef.current) return
-
-    const planePos = calculatePlanePosition(cameraConfig)
-    const distance = Math.hypot(
-      ...position.map((p: number, i: number) => p - planePos[i])
-    )
-    const { width, height } = calculateViewDimensions(
-      cameraRef.current,
-      distance,
-      cameraConfig
-    )
-
-    ;[plane, boundary].forEach((mesh) => {
-      mesh.lookAt(...(cameraConfig.position as [number, number, number]))
-    })
-    boundary.scale.set(width * 0.6, height, 1)
-    plane.scale.set(width * 0.4, height, 1)
   }, [
     cameraConfig,
     cameraRef,
