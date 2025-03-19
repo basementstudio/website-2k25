@@ -1,5 +1,9 @@
 "use client"
 
+import { PerformanceMonitor } from "@react-three/drei"
+import { AdaptiveDpr } from "@react-three/drei"
+import { AdaptiveEvents } from "@react-three/drei"
+import { Bvh } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
@@ -10,9 +14,9 @@ import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
+import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { MouseTracker } from "@/hooks/use-mouse"
 import { useMinigameStore } from "@/store/minigame-store"
-import { useTabKeyHandler } from "@/hooks/use-key-press"
 
 import ErrorBoundary from "./basketball/error-boundary"
 import { CameraController } from "./camera/camera-controller"
@@ -50,6 +54,7 @@ export const Scene = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
+  const [dpr, setDpr] = useState(1.5) // Valor inicial del Device Pixel Ratio
 
   useTabKeyHandler()
 
@@ -97,46 +102,61 @@ export const Scene = () => {
             outputColorSpace: THREE.SRGBColorSpace,
             toneMapping: THREE.NoToneMapping
           }}
+          dpr={dpr}
           camera={{ fov: 60 }}
           className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
         >
-          <AnimationController>
-            <Renderer
-              sceneChildren={
-                <>
-                  <Suspense fallback={null}>
-                    <Inspectables />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Map />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <WebGlTunnelOut />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <CameraController />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Sparkles />
-                  </Suspense>
-                  {isBasketball && (
-                    <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary>
-                        <HoopMinigame />
-                      </ErrorBoundary>
-                    </PhysicsWorld>
-                  )}
-                  <Suspense fallback={null}>
-                    <CharacterInstanceConfig />
-                    <CharactersSpawn />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Pets />
-                  </Suspense>
-                </>
-              }
-            />
-          </AnimationController>
+          <PerformanceMonitor
+            onIncline={() => setDpr(Math.min(2, dpr + 0.5))}
+            onDecline={() => setDpr(Math.max(0.5, dpr - 0.5))}
+            bounds={(refreshRate) => [
+              refreshRate > 120 ? 60 : 45,
+              refreshRate > 120 ? 90 : 60
+            ]}
+            flipflops={3}
+          >
+            <AdaptiveDpr />
+            <AdaptiveEvents />
+            <Bvh firstHitOnly>
+              <AnimationController>
+                <Renderer
+                  sceneChildren={
+                    <>
+                      <Suspense fallback={null}>
+                        <Inspectables />
+                      </Suspense>
+                      <Suspense fallback={null}>
+                        <Map />
+                      </Suspense>
+                      <Suspense fallback={null}>
+                        <WebGlTunnelOut />
+                      </Suspense>
+                      <Suspense fallback={null}>
+                        <CameraController />
+                      </Suspense>
+                      <Suspense fallback={null}>
+                        <Sparkles />
+                      </Suspense>
+                      {isBasketball && (
+                        <PhysicsWorld paused={!isBasketball}>
+                          <ErrorBoundary>
+                            <HoopMinigame />
+                          </ErrorBoundary>
+                        </PhysicsWorld>
+                      )}
+                      <Suspense fallback={null}>
+                        <CharacterInstanceConfig />
+                        <CharactersSpawn />
+                      </Suspense>
+                      <Suspense fallback={null}>
+                        <Pets />
+                      </Suspense>
+                    </>
+                  }
+                />
+              </AnimationController>
+            </Bvh>
+          </PerformanceMonitor>
         </Canvas>
       </div>
       <MouseTracker />
