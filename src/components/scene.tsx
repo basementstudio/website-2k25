@@ -2,9 +2,10 @@
 
 import { Preload } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
+import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
-import dynamic from "next/dynamic"
+
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
@@ -117,15 +118,13 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Sparkles />
                   </Suspense>
-                  <Suspense fallback={null}>
-                    {isBasketball && (
-                      <PhysicsWorld paused={!isBasketball}>
-                        <ErrorBoundary>
-                          <HoopMinigame />
-                        </ErrorBoundary>
-                      </PhysicsWorld>
-                    )}
-                  </Suspense>
+                  {isBasketball && (
+                    <PhysicsWorld paused={!isBasketball}>
+                      <ErrorBoundary>
+                        <HoopMinigame />
+                      </ErrorBoundary>
+                    </PhysicsWorld>
+                  )}
                   <Suspense fallback={null}>
                     <CharacterInstanceConfig />
                     <CharactersSpawn />
