@@ -60,11 +60,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body
-            className={cn(
-              geistSans.variable,
-              geistMono.variable,
-              "relative font-sans"
-            )}
+            className={cn(geistSans.variable, geistMono.variable, "font-sans")}
             suppressHydrationWarning
           >
             <AppLoadingHandler />
