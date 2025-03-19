@@ -24,7 +24,7 @@ export const InternalLinks = ({
     <ul
       className={cn(
         "flex flex-col gap-y-1",
-        onNav ? "!text-[3.25rem] tracking-[-0.02em]" : "!text-mobile-h2",
+        onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-mobile-h2",
         "text-brand-w1 lg:!text-h2",
         className
       )}
@@ -51,7 +51,7 @@ export const InternalLinks = ({
           onClick={() => setIsContactOpen(!isContactOpen)}
           className={cn(
             "flex w-max flex-col gap-y-1",
-            onNav ? "!text-[3.25rem] tracking-[-0.02em]" : "!text-mobile-h2",
+            onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-mobile-h2",
             "text-brand-w1 lg:!text-h2"
           )}
         >
