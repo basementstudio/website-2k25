@@ -73,6 +73,7 @@ export const useCameraSetup = (
     }
 
     const [plane, boundary] = [planeRef.current, planeBoundaryRef.current]
+    return
     if (!plane || !boundary || !cameraRef.current) return
 
     const planePos = calculatePlanePosition(cameraConfig)
@@ -230,7 +231,7 @@ export const useCameraMovement = (
 
     if (!plane || !boundary || !basePosition || !np || !cameraConfig) return
 
-    b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
+    b.maxOffset = (boundary.scale.x - plane.scale.x) * 0.5
     b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
     b.offset = pointer.x * b.maxOffset * offsetMultiplier
 
