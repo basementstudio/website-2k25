@@ -201,7 +201,6 @@ const MobileInput = () => {
           <input
             placeholder="AAA"
             type="text"
-            autoFocus
             value={inputValue.toUpperCase()}
             onChange={(e) => setInputValue(e.target.value)}
             maxLength={3}
