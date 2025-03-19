@@ -100,7 +100,7 @@ const Contact = () => {
       <div
         ref={overlayRef}
         className={cn(
-          "duration-600 pointer-events-none fixed inset-0 z-40 bg-black/90 transition-[backdrop-filter,opacity]",
+          "pointer-events-none fixed inset-0 z-40 bg-black/90 transition-all duration-300 ease-in-out",
           !isContactOpen ? "opacity-0" : "opacity-100"
         )}
       />

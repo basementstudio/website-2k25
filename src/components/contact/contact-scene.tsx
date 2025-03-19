@@ -43,9 +43,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       anim.reset()
       anim.clampWhenFinished = true
       anim.loop = LoopOnce
+
+      anim.timeScale = animName === "Outro-v2" ? 1.5 : 1.2
       anim.play()
 
-      // notify parent when animation is complete
       const onAnimationFinished = () => {
         setIsAnimating(false)
         mixer.removeEventListener("finished", onAnimationFinished)
@@ -69,6 +70,14 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
   const runOutro = useCallback(() => {
     playAnimation("Outro-v2", "Intro.001")
+  }, [playAnimation])
+
+  const runButtonClick = useCallback(() => {
+    playAnimation("Button")
+  }, [playAnimation])
+
+  const runRuedita = useCallback(() => {
+    playAnimation("ruedita")
   }, [playAnimation])
 
   // add materials
@@ -120,6 +129,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         )
       ) {
         self.postMessage({ type })
+      } else if (type === "submit-clicked") {
+        runButtonClick()
       }
     }
 
@@ -155,7 +166,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       }
 
       if (idleTimeRef.current > IDLE_TIMEOUT) {
-        //playRandomIdleAnimation()
+        runRuedita()
         idleTimeRef.current = 0
       }
     }
