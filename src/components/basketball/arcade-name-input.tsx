@@ -9,7 +9,13 @@ import { LetterSlot } from "./letter-slot"
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-export const ArcadeNameInput = ({ className }: { className?: string }) => {
+export const ArcadeNameInput = ({
+  className,
+  isMobile
+}: {
+  className?: string
+  isMobile?: boolean
+}) => {
   const playerName = useMinigameStore((s) => s.playerName)
   const setPlayerName = useMinigameStore((s) => s.setPlayerName)
   const score = useMinigameStore((s) => s.score)
@@ -129,7 +135,7 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
     setSelectedSlot(index)
   }, [])
 
-  return (
+  return !isMobile ? (
     <div className={cn("flex gap-4", className)}>
       <div className="corner-borders text-subheading flex gap-2 font-bold">
         {letters.map((letter, index) => (
@@ -157,6 +163,58 @@ export const ArcadeNameInput = ({ className }: { className?: string }) => {
       >
         {"Save Score ->"}
       </button>
+    </div>
+  ) : (
+    <MobileInput />
+  )
+}
+
+const MobileInput = () => {
+  const playerName = useMinigameStore((s) => s.playerName)
+  const setPlayerName = useMinigameStore((s) => s.setPlayerName)
+  const score = useMinigameStore((s) => s.score)
+  const setReadyToPlay = useMinigameStore((s) => s.setReadyToPlay)
+  const setHasPlayed = useMinigameStore((s) => s.setHasPlayed)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [inputValue, setInputValue] = useState(playerName || "")
+
+  const handleSubmit = async () => {
+    if (isSubmitting || !inputValue || inputValue.length !== 3) return
+    setIsSubmitting(true)
+
+    try {
+      await submitScore(inputValue.toUpperCase(), score)
+      setPlayerName(inputValue.toUpperCase())
+      setReadyToPlay(true)
+      setHasPlayed(false)
+    } catch (error) {
+      console.error("Failed to submit score:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col">
+      <div className="flex gap-4">
+        <div className="corner-borders px-2">
+          <input
+            placeholder="AAA"
+            type="text"
+            value={inputValue.toUpperCase()}
+            onChange={(e) => setInputValue(e.target.value)}
+            maxLength={3}
+            className="no-focus-styles bg-transparent text-[1rem] font-semibold text-brand-w1 placeholder:text-brand-g1"
+          />
+        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting || !inputValue || inputValue.length !== 3}
+          className="text-mobile-p text-brand-w1 disabled:opacity-50"
+        >
+          {"Save Score ->"}
+        </button>
+      </div>
     </div>
   )
 }

@@ -52,7 +52,7 @@ export const submitScore = async (playerName: string, score: number) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        playerName,
+        playerName: playerName.toUpperCase(),
         score: Math.floor(score),
         clientId,
         timestamp: Date.now()

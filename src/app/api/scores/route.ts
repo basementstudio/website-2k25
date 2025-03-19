@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server"
-import { createClient } from "@/utils/supabase/server"
 import { geolocation } from "@vercel/functions"
+import { NextResponse } from "next/server"
+
+import { createClient } from "@/utils/supabase/server"
 import { getTopScoresFromServer } from "@/utils/supabase/server"
 
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>()
@@ -31,21 +32,43 @@ function isRateLimited(clientId: string): boolean {
 }
 
 export const dynamic = "force-dynamic"
+export const fetchCache = "force-no-store"
+export const revalidate = 0
 
 export async function GET() {
   try {
     const { data, error } = await getTopScoresFromServer()
 
     if (error) {
-      return NextResponse.json({ error }, { status: 500 })
+      return NextResponse.json(
+        { error },
+        {
+          status: 500,
+          headers: {
+            "Cache-Control": "no-store, max-age=0"
+          }
+        }
+      )
     }
 
-    return NextResponse.json({ data })
+    return NextResponse.json(
+      { data },
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0"
+        }
+      }
+    )
   } catch (error) {
     console.error("Error in scores API route:", error)
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store, max-age=0"
+        }
+      }
     )
   }
 }
