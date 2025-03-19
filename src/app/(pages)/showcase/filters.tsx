@@ -44,7 +44,9 @@ const ViewSelector = memo(
       )}
       value={mode}
       checked={viewMode === mode}
-      onCheckedChange={() => setViewMode(mode)}
+      onCheckedChange={() => {
+        setViewMode(mode)
+      }}
     >
       <span
         className={cn("!flex items-center justify-center gap-1", {

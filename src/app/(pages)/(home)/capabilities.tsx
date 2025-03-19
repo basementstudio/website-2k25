@@ -34,7 +34,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
             >
               <h4 className="text-h4">
                 <Link
-                  href={`/showcase?category=${encodeURIComponent(c._title)}#list`}
+                  href={`/showcase?category=${encodeURIComponent(c._title)}`}
                 >
                   <span className="actionable">{c._title}</span>
                 </Link>
