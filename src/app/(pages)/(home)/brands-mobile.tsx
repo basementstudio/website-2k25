@@ -36,11 +36,7 @@ interface MarqueeRowProps {
   absolute: boolean
 }
 
-const CONFIG = {
-  CYCLE_DURATION: 10000,
-  MIN_GAP: 1, // Minimum gap between animations
-  SEQUENCE: [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
-}
+const CYCLE_DURATION = 10000
 
 const getPositionDelay = (idx: number) => {
   return Number((2 + 2 * Math.sin(1.2 * idx + Math.PI / 4)).toFixed(2))
@@ -52,7 +48,7 @@ const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setSwitchState((prev) => !prev)
-    }, CONFIG.CYCLE_DURATION)
+    }, CYCLE_DURATION)
     return () => clearInterval(interval)
   }, [])
 
