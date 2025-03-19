@@ -1,32 +1,6 @@
 import { IMAGE_FRAGMENT, VIDEO_FRAGMENT } from "@/lib/basehub/fragments"
 import { client } from "@/service/basehub"
 
-export const fetchBrandsMobile = async () => {
-  const brands = await client().query({
-    company: {
-      clients: {
-        clientList: {
-          items: {
-            _id: true,
-            _title: true,
-            logo: true,
-            website: true
-          }
-        }
-      }
-    }
-  })
-
-  const brandsLogos = brands.company.clients.clientList.items
-
-  return {
-    rows: [
-      brandsLogos.slice(0, brandsLogos.length / 2),
-      brandsLogos.slice(brandsLogos.length / 2)
-    ]
-  }
-}
-
 export const fetchHomepage = async () => {
   const homepage = await client().query({
     pages: {
