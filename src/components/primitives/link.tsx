@@ -11,6 +11,7 @@ interface LinkProps {
   className?: string
   target?: "_blank" | "_self"
   rel?: string
+  prefetch?: boolean
   onClick?: () => void
   dangerouslySetInnerHTML?: {
     __html: string
@@ -28,6 +29,7 @@ export const Link = ({
   target,
   rel,
   onClick,
+  prefetch,
   ...rest
 }: LinkProps) => {
   const { handleNavigation } = useHandleNavigation()
@@ -46,6 +48,7 @@ export const Link = ({
       target={target}
       rel={rel}
       onClick={onClick}
+      prefetch={prefetch}
       {...rest}
     >
       {children}
