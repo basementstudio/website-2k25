@@ -34,39 +34,29 @@ interface MarqueeRowProps {
   absolute: boolean
 }
 
-const CYCLE_DURATION = 10000
-
-const getPositionDelay = (idx: number) => {
-  return Number((2 + 2 * Math.sin(1.2 * idx + Math.PI / 4)).toFixed(2))
+const getPositionDelay = (position: number, length: number) => {
+  const seed = (position * 23 + 17) % 31
+  return (seed * 1.5) % (length * 1.5)
 }
 
 const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => {
-  const [switchState, setSwitchState] = useState(absolute)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSwitchState((prev) => !prev)
-    }, CYCLE_DURATION)
-    return () => clearInterval(interval)
-  }, [])
-
   return (
     <div className={cn("relative py-2", absolute && "absolute inset-0")}>
       <div className="grid-rows-auto group grid grid-cols-3 gap-3">
         {brands.map((brand, idx) => {
-          const delay = getPositionDelay(idx)
+          const delay = getPositionDelay(idx, brands.length)
           return (
             <div
               key={brand._id}
               className={cn(
-                "relative h-full transition-opacity duration-500 after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
-                switchState && "opacity-0",
-                !switchState && "opacity-100",
-                "delay-[var(--delay)]"
+                "relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
+                absolute && "animate-fade-in-out opacity-0",
+                !absolute && "animate-fade-out-in opacity-100"
               )}
               style={
                 {
-                  "--delay": `${delay}s`,
+                  "--anim-duration": "16s",
+                  "--anim-delay": `${delay}s`,
                   animationTimingFunction: "cubic-bezier(0.4, 0, 0.6, 1)"
                 } as React.CSSProperties
               }
