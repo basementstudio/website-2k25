@@ -14,8 +14,8 @@ export const Values = ({ data }: { data: QueryType }) => {
             <div
               key={_title}
               className={cn(
-                "sticky top-[calc(4rem+46px)] col-span-full flex items-center justify-center",
-                idx === 0 && "top-0"
+                "col-span-full flex items-center justify-center lg:sticky lg:top-[calc(4rem+46px)]",
+                idx === 0 && "lg:top-0"
               )}
             >
               <div
