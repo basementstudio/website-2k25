@@ -3,35 +3,58 @@ uniform float uTime;
 
 varying vec2 vUv;
 
+// Define constants outside main to allow compiler optimizations
+const float EDGE_LOWER = 0.0;
+const float EDGE_INNER = 0.15;
+const float EDGE_OUTER = 0.85;
+const float EDGE_UPPER = 1.0;
+const float STEAM_THRESHOLD = 0.45;
+const vec3 BASE_COLOR = vec3(0.92, 0.78, 0.62);
+const float STEAM_SPEED = 0.015;
+const float UV_SCALE_X = 0.5;
+const float UV_SCALE_Y = 0.3;
+const float GRADIENT_SCALE = 1.25;
+const float GRADIENT_OFFSET = 0.2;
+
 void main() {
-  vec2 steamUv = vUv;
-  steamUv.x *= 0.5;
-  steamUv.y *= 0.3;
-  steamUv.y -= uTime * 0.015;
+  // Combine UV calculations using multiply-add operations for better GPU utilization
+  vec2 steamUv = vec2(
+    vUv.x * UV_SCALE_X,
+    vUv.y * UV_SCALE_Y - uTime * STEAM_SPEED
+  );
 
   float steam = texture(uNoise, steamUv).r;
-  steam = smoothstep(0.45, 1.0, steam);
+  steam = smoothstep(STEAM_THRESHOLD, EDGE_UPPER, steam);
 
-  // fade edges
-  steam *= smoothstep(0.0, 0.15, vUv.x);
-  steam *= 1.0 - smoothstep(0.85, 1.0, vUv.x);
-  steam *= smoothstep(0.0, 0.15, vUv.y);
-  steam *= 1.0 - smoothstep(0.85, 1.0, vUv.y);
+  // Edge fade calculations - combined into fewer operations to reduce redundancy
+  float edgeFadeX =
+    smoothstep(EDGE_LOWER, EDGE_INNER, vUv.x) *
+    (1.0 - smoothstep(EDGE_OUTER, EDGE_UPPER, vUv.x));
+  float edgeFadeY =
+    smoothstep(EDGE_LOWER, EDGE_INNER, vUv.y) *
+    (1.0 - smoothstep(EDGE_OUTER, EDGE_UPPER, vUv.y));
 
-  vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
-  vec2 checkerPos = floor(shiftedFragCoord * 0.5);
-  float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
+  steam *= edgeFadeX * edgeFadeY;
 
-  vec3 baseColor = vec3(0.92, 0.78, 0.62);
+  // Simplified checkerboard pattern calculation - reduces arithmetic operations
+  float pattern = mod(
+    floor(gl_FragCoord.x * 0.5) + floor(gl_FragCoord.y * 0.5),
+    2.0
+  );
 
-  // mix steam with checker pattern
-  float alpha = steam * pattern;
+  // Optimized gradient calculation using more efficient arithmetic order
+  float gradient = clamp(
+    GRADIENT_OFFSET - GRADIENT_SCALE * vUv.y + 1.0,
+    0.0,
+    1.0
+  );
 
-  // Apply vertical gradient
-  float gradient = clamp(1.0 - vUv.y * 1.25 + 0.2, 0.0, 1.0);
-  alpha *= gradient;
+  float alpha = steam * pattern * gradient;
 
-  vec4 color = vec4(baseColor, alpha);
+  // Early fragment discard optimization - skips blending operations for invisible pixels
+  if (alpha < 0.001) {
+    discard;
+  }
 
-  gl_FragColor = color;
+  gl_FragColor = vec4(BASE_COLOR, alpha);
 }
