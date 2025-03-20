@@ -9,16 +9,14 @@ import { cn } from "@/utils/cn"
 
 import { Project } from "./basehub"
 
+interface AccordionListItemProps {
+  project: Project
+  index: number
+  disabled: boolean
+}
+
 const AccordionListItem = memo(
-  ({
-    project,
-    index,
-    disabled
-  }: {
-    project: Project
-    index: number
-    disabled: boolean
-  }) => {
+  ({ project, index, disabled }: AccordionListItemProps) => {
     const [firstItemSeen, setFirstItemSeen] = useState(false)
     return (
       <AccordionPrimitive.Item
@@ -45,7 +43,7 @@ const AccordionListItem = memo(
                 "duration-300 [&>*]:opacity-30 [&>*]:transition-opacity"
             )}
           >
-            <div className="relative col-span-4 flex items-center gap-2 text-h3 text-brand-w2 transition-opacity duration-300">
+            <div className="text-f-h3 relative col-span-4 flex items-center gap-2 text-brand-w2 transition-opacity duration-300">
               <Image
                 src={project.icon?.url ?? ""}
                 alt={project.icon?.alt ?? ""}
@@ -57,7 +55,7 @@ const AccordionListItem = memo(
               <p>{project.client?._title}</p>
             </div>
 
-            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty text-p leading-none text-brand-w2">
+            <p className="text-f-p relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty leading-none text-brand-w2">
               {project.categories?.map((cat, idx) => (
                 <span key={cat._title}>
                   {cat._title}
@@ -67,12 +65,12 @@ const AccordionListItem = memo(
                 </span>
               ))}
             </p>
-            <p className="relative col-start-11 col-end-12 text-left text-p text-brand-w2">
+            <p className="text-f-p relative col-start-11 col-end-12 text-left text-brand-w2">
               {project.year}
             </p>
             <Link
               href={`/showcase/${project?._slug}`}
-              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2"
+              className="view-project text-f-p relative col-start-12 col-end-13 space-x-px text-right text-brand-w2"
             >
               <span className="actionable actionable-no-underline gap-x-1">
                 <span className="actionable actionable-inanimate">
