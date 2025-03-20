@@ -1,4 +1,3 @@
-import { useGLTF } from "@react-three/drei"
 import { useEffect, useMemo } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
@@ -6,10 +5,10 @@ import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { useAssets } from "../assets-provider"
-
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 const StaticBasketballs = () => {
   const { basketball } = useAssets()
-  const basketballModel = useGLTF(basketball)
+  const basketballModel = useKTX2GLTF(basketball)
   const staticBalls = useMinigameStore((state) => state.staticBalls)
   const playedBallMaterial = useMinigameStore(
     (state) => state.playedBallMaterial
@@ -23,9 +22,20 @@ const StaticBasketballs = () => {
     [basketballModel]
   )
 
-  const originalMaterial = basketballModel.materials[
-    "Material.002"
-  ] as MeshStandardMaterial
+  const originalMaterial = useMemo(() => {
+    let material: MeshStandardMaterial | undefined
+    basketballModel.scene.traverse((node) => {
+      if (node instanceof Mesh && node.material) {
+        if (
+          node.material.name === "Material.002" ||
+          node.material instanceof MeshStandardMaterial
+        ) {
+          material = node.material as MeshStandardMaterial
+        }
+      }
+    })
+    return material as MeshStandardMaterial
+  }, [basketballModel])
 
   const material = useMemo(() => {
     const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {

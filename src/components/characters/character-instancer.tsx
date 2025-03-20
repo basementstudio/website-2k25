@@ -1,4 +1,4 @@
-import { useGLTF, useTexture } from "@react-three/drei"
+import { useTexture } from "@react-three/drei"
 import { memo, useMemo } from "react"
 import type * as THREE from "three"
 import { BufferAttribute, Color, FloatType } from "three"
@@ -10,6 +10,7 @@ import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
 import { getCharacterMaterial } from "./material/chartacter-material"
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 
 const {
   InstancePosition: CharacterPosition,
@@ -82,7 +83,7 @@ export const setGeometryFloatAttribute = (
 function CharacterInstanceConfigInner() {
   const { characters } = useAssets()
 
-  const { nodes, animations } = useGLTF(
+  const { nodes, animations } = useKTX2GLTF(
     characters.model
   ) as unknown as CharactersGLTF
 

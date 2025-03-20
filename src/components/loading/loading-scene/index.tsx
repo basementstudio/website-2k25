@@ -1,4 +1,4 @@
-import { PerspectiveCamera, useGLTF } from "@react-three/drei"
+import { PerspectiveCamera } from "@react-three/drei"
 import { useThree } from "@react-three/fiber"
 import { memo, useEffect, useMemo, useRef } from "react"
 import {
@@ -17,7 +17,7 @@ import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
-
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { getSolidRevealMaterial } from "./materials/solid-reveal-material"
 
 interface LoadingWorkerStore {
@@ -74,7 +74,7 @@ interface GLTFNodes extends GLTF {
 
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { cameraConfig } = useLoadingWorkerStore()
-  const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
+  const { nodes } = useKTX2GLTF(modelUrl!) as any as GLTFNodes
 
   const solid = useMemo(() => {
     const solid = nodes.SM_Solid
