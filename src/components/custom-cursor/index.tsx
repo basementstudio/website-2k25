@@ -100,17 +100,22 @@ export const CustomCursor = memo(() => {
       const desiredX = e.clientX + OFFSET
       const desiredY = e.clientY + OFFSET
 
-      const xPos =
-        desiredX + width > window.innerWidth
-          ? e.clientX - OFFSET - width
-          : desiredX
+      const defaultX = e.clientX - OFFSET - width
+      const defaultY = e.clientY - OFFSET - height
 
-      const yPos =
-        window.scrollY > window.innerHeight
-          ? desiredY
-          : desiredY + height > window.innerHeight - window.scrollY
-            ? e.clientY - OFFSET - height
-            : desiredY
+      const xPos = desiredX + width > window.innerWidth ? defaultX : desiredX
+
+      const isOutsideCanvas = window.scrollY > window.innerHeight
+
+      const yPos = isOutsideCanvas
+        ? desiredY + height > window.innerHeight
+          ? // if at window's bottom edge
+            defaultY
+          : desiredY
+        : desiredY + height > window.innerHeight - window.scrollY
+          ? // if at canvas's bottom edge
+            defaultY
+          : desiredY
 
       x.set(xPos)
       y.set(yPos)
