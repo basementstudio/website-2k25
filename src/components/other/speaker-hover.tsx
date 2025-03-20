@@ -19,7 +19,7 @@ export const SpeakerHover = () => {
           `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
           true
         )
-      : hover && setCursor("pointer", "Turn on music")
+      : hover && setCursor("pointer", "Turn on Music")
   }, [currentTrackName, music, hover, setCursor])
 
   const handlePointerLeave = useCallback(() => {
