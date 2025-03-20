@@ -1,8 +1,8 @@
-import { useAnimations, useGLTF, useTexture } from "@react-three/drei"
+import { useAnimations, useTexture } from "@react-three/drei"
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
-
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useAssets } from "../assets-provider"
 
 interface PetsGLTF extends GLTF {
@@ -22,7 +22,7 @@ export function Pets() {
     pets: { model, texture }
   } = useAssets()
 
-  const { scene, nodes, animations } = useGLTF(model) as unknown as PetsGLTF
+  const { scene, nodes, animations } = useKTX2GLTF(model) as unknown as PetsGLTF
   const pureTexture = useTexture(texture)
 
   const pure = useMemo(() => {

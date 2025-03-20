@@ -1,6 +1,5 @@
 "use client"
 
-import { useGLTF } from "@react-three/drei"
 import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three"
@@ -32,6 +31,7 @@ import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
 import { BakesLoader } from "./bakes"
 import { useGodrays } from "./use-godrays"
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -93,17 +93,22 @@ export const Map = memo(() => {
   } = useAssets()
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
-  const { scene: officeModel } = useGLTF(office) as unknown as GLTFResult
-  const { scene: officeItemsModel } = useGLTF(
+
+  const { scene: officeModel } = useKTX2GLTF(office) as unknown as GLTFResult
+  const { scene: officeItemsModel } = useKTX2GLTF(
     officeItems
   ) as unknown as GLTFResult
-  const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
-  const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
-  const { scene: outdoorCarsModel } = useGLTF(
+  const { scene: outdoorModel } = useKTX2GLTF(
+    outdoorPath
+  ) as unknown as GLTFResult
+  const { scene: godrayModel } = useKTX2GLTF(
+    godraysPath
+  ) as unknown as GLTFResult
+  const { scene: outdoorCarsModel } = useKTX2GLTF(
     outdoorCars.model
   ) as unknown as GLTFResult
-  const { scene: basketballNetModel } = useGLTF(basketballNetPath)
-  const { scene: routingElementsModel } = useGLTF(
+  const { scene: basketballNetModel } = useKTX2GLTF(basketballNetPath)
+  const { scene: routingElementsModel } = useKTX2GLTF(
     routingElementsPath
   ) as unknown as GLTFResult
 
