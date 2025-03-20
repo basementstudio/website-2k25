@@ -103,7 +103,12 @@ void main() {
   #endif
 
   #ifdef USE_EMISSIVEMAP
-  irradiance *= texture2D(emissiveMap, vUv).rgb * emissiveIntensity * fadeMult;
+    float ei = emissiveIntensity;
+    if (inspectingEnabled && !(inspectingFactor > 0.0)) {
+      ei *= 1.0 - fadeFactor;
+    }
+    vec4 emissiveColor = texture2D(emissiveMap, vUv);
+    irradiance *= emissiveColor.rgb * ei; 
   #endif
 
   vec3 lf = irradiance;
