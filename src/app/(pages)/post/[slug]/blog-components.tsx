@@ -4,6 +4,7 @@ import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
+import { Video } from "@/components/primitives/video"
 import { ImageFragment } from "@/lib/basehub/fragments"
 
 import { BaseCodeBlock } from "./components/code-block"
@@ -32,14 +33,7 @@ export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
 export const BlogVideo = (props: HandlerProps<"video">) => (
   <div className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
     <div className="with-dots grid h-full w-full place-items-center">
-      <video
-        autoPlay
-        loop
-        muted
-        {...props}
-        className="object-cover"
-        playsInline
-      />
+      <Video autoPlay loop muted {...props} className="object-cover" />
     </div>
   </div>
 )

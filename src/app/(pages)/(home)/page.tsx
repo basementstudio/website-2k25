@@ -18,7 +18,7 @@ const Homepage = async () => {
   const data = await fetchHomepage()
 
   return (
-    <div className="flex flex-col gap-18 lg:gap-44">
+    <div className="flex flex-col gap-18 lg:gap-32">
       <Intro data={data} />
       <Brands data={data} />
       <FeaturedProjects data={data} />

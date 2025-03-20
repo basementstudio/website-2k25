@@ -14,7 +14,7 @@ const SVGLogo = memo(({ svg }: { svg: string | null }) => {
   if (!svg) return null
   return (
     <div
-      className="with-dots relative grid h-full w-full place-items-center"
+      className="with-dots relative grid h-full w-full place-items-center px-2 [&>svg]:max-w-[100%]"
       ref={(node) => {
         if (node) node.innerHTML = svg
       }}
@@ -100,7 +100,7 @@ export const BrandsDesktop = ({ brands }: { brands: Brand[] }) => {
               <div className="relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
                 <div
                   className={cn(
-                    "with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300",
+                    "with-diagonal-lines pointer-events-none !absolute inset-0 opacity-0 transition-opacity duration-300",
                     hoveredBrandId === brand._id && "opacity-100"
                   )}
                 />

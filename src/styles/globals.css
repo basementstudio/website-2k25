@@ -142,6 +142,7 @@
 html {
   @apply scroll-smooth;
   font-feature-settings: "ss01";
+  color-scheme: dark;
 }
 
 body {
@@ -151,6 +152,16 @@ body {
 
 *::selection {
   @apply bg-brand-o text-brand-k;
+}
+
+img {
+  @apply select-none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
 }
 
 @keyframes diagonalPatternAnimation {
