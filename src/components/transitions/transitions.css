@@ -1,19 +1,22 @@
-body {
+.layout-container {
   --mask-in: url("/page-transition-sprite.svg");
   --mask-frames: 15;
   --mask-speed: 0.75;
   --speed: calc(var(--mask-speed, 0.5) * 1s);
   --size: 100vw;
-}
 
-.layout-container {
-  --position: 100%;
   mask-image: var(--mask-in);
   mask-repeat: repeat-y;
   mask-size: calc((var(--mask-frames) + 1) * var(--size)) var(--size);
-  transition: mask-position var(--speed) calc(var(--speed) * 0)
-    steps(var(--mask-frames));
   mask-position: var(--position, 100%) 0%;
+}
+
+[data-flip="false"] {
+  .layout-container {
+    --position: 100%;
+    transition: mask-position var(--speed) calc(var(--speed) * 0)
+      steps(var(--mask-frames));
+  }
 }
 
 [data-flip="true"] {
