@@ -9,13 +9,13 @@ import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
+import { CustomCursor } from "@/components/custom-cursor"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
-import { MouseTracker } from "@/hooks/use-mouse"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import ErrorBoundary from "./basketball/error-boundary"
@@ -167,7 +167,7 @@ export const Scene = () => {
           </PerformanceMonitor>
         </Canvas>
       </div>
-      <MouseTracker />
+      <CustomCursor />
     </>
   )
 }

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 const ShowcaseIndexPage = () => (
   <>
-    <div id="projects" className="-translate-y-[36px]" />
+    <div id="list" className="-translate-y-[3.25rem]" />
     <div className="flex scroll-m-4 flex-col gap-9 lg:gap-24">
       <Hero />
       <ShowcaseList />

@@ -169,6 +169,11 @@ a:focus {
   @apply focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-o focus-visible:ring-offset-2 focus-visible:ring-offset-brand-k;
 }
 
+.no-focus-styles:focus {
+  outline: none !important;
+  @apply ring-0 ring-offset-0 !important;
+}
+
 p {
   @apply !text-balance;
 }
@@ -233,10 +238,10 @@ p {
 }
 @keyframes marquee-translate {
   0% {
-    transform: translateX(0);
+    transform: translateX(2%);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-48%);
   }
 }
 

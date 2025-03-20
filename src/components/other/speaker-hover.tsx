@@ -1,35 +1,26 @@
 import { useCallback, useEffect, useState } from "react"
-import { ShaderMaterial } from "three"
 
 import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
 import { useCursor } from "@/hooks/use-mouse"
 
-import fragmentShader from "../routing-element/frag.glsl"
-import vertexShader from "../routing-element/vert.glsl"
+import { MeshDiscardMaterial } from "@react-three/drei"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 
 export const SpeakerHover = () => {
-  const [hover, setHover] = useState(false)
   const setCursor = useCursor()
   const { currentTrackName, nextAmbienceTrack } = useAmbiencePlaylist()
+  const { music, handleMute } = useSiteAudio()
+  const [hover, setHover] = useState(false)
 
   useEffect(() => {
-    if (hover && currentTrackName) {
-      setCursor(
-        "pointer",
-        `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
-        true
-      )
-    }
-  }, [currentTrackName, hover, setCursor])
-
-  const handlePointerEnter = useCallback(() => {
-    setHover(true)
-    setCursor(
-      "pointer",
-      `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
-      true
-    )
-  }, [currentTrackName, setCursor])
+    music && hover && currentTrackName
+      ? setCursor(
+          "pointer",
+          `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
+          true
+        )
+      : hover && setCursor("pointer", "Turn on Music")
+  }, [currentTrackName, music, hover, setCursor])
 
   const handlePointerLeave = useCallback(() => {
     setHover(false)
@@ -37,46 +28,43 @@ export const SpeakerHover = () => {
   }, [setCursor])
 
   const handleClick = useCallback(() => {
-    nextAmbienceTrack()
-  }, [nextAmbienceTrack])
-
-  const routingMaterial = new ShaderMaterial({
-    depthWrite: false,
-    depthTest: false,
-    transparent: true,
-    fragmentShader: fragmentShader,
-    vertexShader: vertexShader,
-    uniforms: {
-      resolution: { value: [] },
-      opacity: { value: 0 },
-      borderPadding: { value: 0 }
-    }
-  })
+    music ? nextAmbienceTrack() : handleMute()
+  }, [nextAmbienceTrack, music, handleMute])
 
   return (
     <>
       <mesh
-        visible={hover}
-        material={routingMaterial}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
+        onPointerEnter={(e) => {
+          e.stopPropagation()
+          setHover(true)
+        }}
+        onPointerLeave={(e) => {
+          e.stopPropagation()
+          handlePointerLeave()
+        }}
         onClick={handleClick}
         rotation={[Math.PI / 2, 0, Math.PI * 0.25]}
         position={[3.6949, 3.52, -14.35]}
       >
         <boxGeometry args={[0.28, 0.24, 0.42]} />
+        <MeshDiscardMaterial />
       </mesh>
 
       <mesh
-        visible={hover}
-        material={routingMaterial}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
+        onPointerEnter={(e) => {
+          e.stopPropagation()
+          setHover(true)
+        }}
+        onPointerLeave={(e) => {
+          e.stopPropagation()
+          handlePointerLeave()
+        }}
         onClick={handleClick}
         rotation={[-Math.PI / 2, 0, -Math.PI * 0.25]}
         position={[9.472, 3.52, -14.402]}
       >
         <boxGeometry args={[0.28, 0.24, 0.42]} />
+        <MeshDiscardMaterial />
       </mesh>
     </>
   )

@@ -13,7 +13,7 @@ export async function getTopScoresFromServer() {
     .from("scoreboard")
     .select("*")
     .order("score", { ascending: false })
-    .limit(10)
+    .limit(25)
 
   if (error) {
     console.error("Error fetching scores:", error)
