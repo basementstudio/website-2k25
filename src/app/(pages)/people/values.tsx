@@ -61,7 +61,7 @@ export const Values = ({ data }: { data: QueryType }) => {
                       </div>
                     )}
                   </div>
-                  <div className="col-span-full !text-pretty text-mobile-h4 text-brand-w2 sm:col-span-2 md:text-h4 lg:col-start-9 lg:col-end-13">
+                  <div className="text-f-h4-mobile md:text-f-h4 col-span-full !text-pretty text-brand-w2 sm:col-span-2 lg:col-start-9 lg:col-end-13">
                     <RichText content={description?.json?.content ?? []} />
                   </div>
                 </div>
