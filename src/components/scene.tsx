@@ -55,7 +55,12 @@ export const Scene = () => {
   useTabKeyHandler()
 
   useEffect(() => {
-    if (!isBasketball) clearPlayedBalls()
+    if (!isBasketball) {
+      clearPlayedBalls()
+      useMinigameStore.getState().setHasPlayed(false)
+      useMinigameStore.getState().setPlayerName("")
+      useMinigameStore.getState().setReadyToPlay(true)
+    }
   }, [isBasketball, clearPlayedBalls])
 
   useEffect(() => {
