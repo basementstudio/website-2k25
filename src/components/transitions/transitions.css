@@ -8,7 +8,6 @@ body {
 
 .layout-container {
   /* .canvas-container */
-  mask-image: var(--mask-image);
   mask-repeat: repeat-y;
   mask-size: calc((var(--mask-frames) + 1) * var(--size)) var(--size);
 }
@@ -43,7 +42,7 @@ body {
   } */
 }
 
-[data-disabled="true"] {
+/* [data-disabled="true"] {
   .layout-container {
     mask-image: none;
     --position: 100%;
@@ -55,4 +54,4 @@ body {
     --position: 100%;
     transition: mask-position 0s;
   } */
-}
+/* } */
