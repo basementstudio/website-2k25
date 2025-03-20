@@ -57,7 +57,6 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
       >
         {isCanvasInPage && <Scene />}
         <InspectableViewer />
-        <ScrollDown />
       </div>
 
       <div
