@@ -90,7 +90,7 @@ export default {
           }
         ],
         "mobile-h4": [
-          "0.875rem",
+          "1rem",
           {
             lineHeight: "1.25rem",
             letterSpacing: "-0.02em",
@@ -149,7 +149,7 @@ export default {
         "f-h0-mobile": [
           "2.875rem",
           {
-            lineHeight: "2.75rem",
+            lineHeight: "2.45rem",
             letterSpacing: "-0.04em",
             fontWeight: "600"
           }

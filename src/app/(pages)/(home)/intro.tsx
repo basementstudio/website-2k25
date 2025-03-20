@@ -19,7 +19,7 @@ export const Intro = ({ data }: { data: QueryType }) => {
             {data.pages.homepage.intro.title?.json.content}
           </RichText>
         </div>
-        <div className="w-[80%] lg:w-[60%]">
+        <div className="w-full lg:w-[60%]">
           <RichText
             components={{
               p: ({ children }) => (

@@ -26,7 +26,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
       </div>
 
       <div className="grid-layout relative col-span-full mt-16 !px-0">
-        <div className="col-start-1 col-end-11 grid grid-cols-2 gap-3 lg:col-start-2 lg:grid-cols-8 2xl:col-start-3">
+        <div className="col-start-1 col-end-11 grid grid-cols-2 gap-x-3 gap-y-8 lg:col-start-2 lg:grid-cols-8 2xl:col-start-3">
           {categories.map((c) => (
             <div
               key={c._title}
