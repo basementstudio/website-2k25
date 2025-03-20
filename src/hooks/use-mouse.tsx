@@ -59,8 +59,9 @@ export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
     ) => {
       if (text !== undefined) setHoverText(text)
       setMarquee(marquee !== undefined ? marquee : false)
+      setCursorType(newStyle)
     },
-    [setHoverText, setMarquee]
+    [setHoverText, setMarquee, setCursorType]
   )
 
   return setCursor

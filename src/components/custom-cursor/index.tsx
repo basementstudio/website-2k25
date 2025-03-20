@@ -106,9 +106,11 @@ export const CustomCursor = memo(() => {
           : desiredX
 
       const yPos =
-        desiredY + height > window.innerHeight - window.scrollY
-          ? e.clientY - OFFSET - height
-          : desiredY
+        window.scrollY > window.innerHeight
+          ? desiredY
+          : desiredY + height > window.innerHeight - window.scrollY
+            ? e.clientY - OFFSET - height
+            : desiredY
 
       x.set(xPos)
       y.set(yPos)
