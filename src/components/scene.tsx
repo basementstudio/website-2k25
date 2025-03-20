@@ -59,7 +59,7 @@ export const Scene = () => {
   }, [isBasketball, clearPlayedBalls])
 
   useEffect(() => {
-    if (window === undefined) return
+    if (typeof window === "undefined") return
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
