@@ -177,7 +177,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       <group
         scale={1}
         ref={phoneGroupRef}
-        position={[0, 0, 0]}
+        position={[0, -0.025, 0]}
         visible={isContactOpen || isAnimating}
       >
         <primitive object={scene} />

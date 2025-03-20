@@ -121,7 +121,7 @@ const ContactCanvas = () => {
         worker={worker}
         fallback={null}
         frameloop={shouldRender ? "always" : "never"}
-        camera={{ position: [0, 0.2, 2], fov: 10 }}
+        camera={{ position: [0, 0.2, 2], fov: 8.5 }}
         gl={{ antialias: false }}
       />
     </>
