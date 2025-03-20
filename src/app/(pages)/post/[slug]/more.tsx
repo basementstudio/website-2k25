@@ -38,11 +38,7 @@ export default function More({
         <div />
         {morePosts.map((post) => (
           <div key={post._title} className="group relative">
-            <Link
-              href={`/post/${post._slug}`}
-              className="flex gap-x-2 py-2"
-              prefetch={false}
-            >
+            <Link href={`/post/${post._slug}`} className="flex gap-x-2 py-2">
               <div className="relative h-[60px] w-[136px] overflow-clip after:absolute after:inset-0 after:border after:border-brand-w1/20">
                 {post.hero?.heroImage?.url && (
                   <Image

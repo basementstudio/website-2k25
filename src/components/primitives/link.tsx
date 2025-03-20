@@ -58,10 +58,11 @@ export const Link = ({
       href={href}
       onClick={(e) => {
         e.preventDefault()
-        if (!href.includes("/showcase/")) {
-          handleNavigation(href)
-        } else {
+        // if href is /post/*, router.push instead of handleNavigation
+        if (href.includes("/post/") || href.includes("/showcase/")) {
           router.push(href)
+        } else {
+          handleNavigation(href)
         }
         onClick?.()
       }}
