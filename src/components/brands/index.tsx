@@ -14,7 +14,7 @@ const SVGLogo = memo(({ svg }: { svg: string | null }) => {
   if (!svg) return null
   return (
     <div
-      className="with-dots relative grid h-full w-full place-items-center"
+      className="with-dots relative grid h-full w-full place-items-center px-2 [&>svg]:max-w-[100%]"
       ref={(node) => {
         if (node) node.innerHTML = svg
       }}
