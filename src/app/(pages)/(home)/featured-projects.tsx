@@ -67,7 +67,7 @@ const ProjectItem = ({ project }: ProjectItemProps) => (
       )}
     </div>
     <div className="col-span-2 flex flex-col justify-between gap-y-4 pr-2 md:col-span-3 md:pr-12">
-      <p className="text-mobile-h4 text-brand-w2 lg:text-h3">
+      <p className="text-f-h4-mobile lg:text-f-h4 text-brand-w2">
         {project.excerpt}
       </p>
 
@@ -78,7 +78,7 @@ const ProjectItem = ({ project }: ProjectItemProps) => (
           project.project?.categories?.map((category) => (
             <span
               key={category._title}
-              className="text-mobile-h4 text-brand-w1 lg:text-h4"
+              className="text-f-h4-mobile lg:text-f-h4 text-brand-w1"
             >
               {category._title}
             </span>
