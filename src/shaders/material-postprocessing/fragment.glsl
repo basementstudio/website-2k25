@@ -44,7 +44,7 @@ const float DENSITY = 0.9;
 const float OPACITY_SCANLINE = 0.24;
 const float OPACITY_NOISE = 0.01;
 
-// Constantes adicionales precalculadas
+// Additional precalculated constants
 const float PI_2 = 6.28318530718; // 2*PI
 
 varying vec2 vUv;
@@ -86,16 +86,16 @@ vec3 contrast(vec3 color, float contrast) {
   return (color - 0.5) * contrast + 0.5;
 }
 
-// Optimizamos la función RRTAndODTFit para reducir operaciones
+// Optimize the RRTAndODTFit function to reduce operations
 vec3 RRTAndODTFit(vec3 v) {
-  // Constantes precalculadas
+  // Precalculated constants
   const float c1 = 0.0245786;
   const float c2 = -0.000090537;
   const float c3 = 0.983729;
   const float c4 = 0.432951;
   const float c5 = 0.238081;
 
-  // Operaciones organizadas para minimizar cálculos
+  // Operations organized to minimize calculations
   vec3 v2 = v * v;
   vec3 a = v * c1 + v2 + c2;
   vec3 b = v * c4 + v2 * c3 + c5;
@@ -104,10 +104,10 @@ vec3 RRTAndODTFit(vec3 v) {
 }
 
 vec3 ACESFilmicToneMapping(vec3 color) {
-  // Constantes precalculadas para la exposición
+  // Precalculated constants for exposure
   const float EXPOSURE_ADJUST = 1.0 / 0.6;
 
-  // Matrices transpuestas para optimizar multiplicaciones
+  // Transposed matrices to optimize multiplications
   // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
   const mat3 ACESInputMat = mat3(
     0.59719, 0.35458, 0.04823,
@@ -122,13 +122,13 @@ vec3 ACESFilmicToneMapping(vec3 color) {
     -0.00327, -0.07276,  1.07602
   );
 
-  // Aplicar exposición ajustada
+  // Apply adjusted exposure
   color *= uExposure * EXPOSURE_ADJUST;
 
-  // Multiplicación de matriz optimizada (omitir multiplicaciones por 0)
+  // Optimized matrix multiplication (skip multiplications by 0)
   vec3 colorTransformed;
 
-  // Primera transformación: ACESInputMat * color
+  // First transformation: ACESInputMat * color
   colorTransformed.r =
     ACESInputMat[0][0] * color.r +
     ACESInputMat[0][1] * color.g +
@@ -145,7 +145,7 @@ vec3 ACESFilmicToneMapping(vec3 color) {
   // Apply RRT and ODT
   colorTransformed = RRTAndODTFit(colorTransformed);
 
-  // Segunda transformación: ACESOutputMat * colorTransformed
+  // Second transformation: ACESOutputMat * colorTransformed
   vec3 outputColor;
   outputColor.r =
     ACESOutputMat[0][0] * colorTransformed.r +
@@ -165,35 +165,41 @@ vec3 ACESFilmicToneMapping(vec3 color) {
 }
 
 vec3 tonemap(vec3 color) {
-  // Aplicamos brillo - aquí seguimos usando multiplicación directa
+  // Apply brightness - here we continue using direct multiplication
   color.rgb *= uBrightness;
 
-  // Aplicamos contraste
+  // Apply contrast
   color = contrast(color, uContrast);
 
-  // Aplicamos corrección gamma invertida
+  // Apply inverted gamma correction
   color = invertedGamma(color, uGamma);
 
-  // Aplicamos ACES Filmic Tone Mapping optimizado
+  // Apply optimized ACES Filmic Tone Mapping
   color = ACESFilmicToneMapping(color);
 
   return color;
 }
 
 float random(vec2 st) {
-  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+  // Precalculated constants
+  const vec2 k = vec2(12.9898, 78.233);
+  const float m = 43758.5453123;
+
+  // Optimized calculation
+  float dot_product = dot(st.xy, k);
+  return fract(sin(dot_product) * m);
 }
 
 float blend(const float x, const float y) {
-  // Usando mix con step para reducir la ramificación
+  // Use mix with step to reduce branching
   return mix(2.0 * x * y, 1.0 - 2.0 * (1.0 - x) * (1.0 - y), step(0.5, x));
 }
 
 vec3 blend(const vec3 x, const vec3 y, const float opacity) {
-  // Usando la versión optimizada de blend
+  // Using the optimized blend version
   vec3 z = vec3(blend(x.r, y.r), blend(x.g, y.g), blend(x.b, y.b));
 
-  // Optimización: uso directo del lerp/mix en lugar de operaciones manuales
+  // Optimization: direct use of lerp/mix instead of manual operations
   return mix(x, z, opacity);
 }
 
@@ -206,50 +212,56 @@ void main() {
   // Precalculate resolution divisions
   vec2 halfResolution = resolution / 2.0;
   vec2 eighthResolution = resolution / 8.0;
+  vec2 invResolution = 1.0 / resolution;
+  vec2 uvOffset = invResolution;
 
+  // Calculate pixelated coordinates only once
   vec2 pixelatedUv = floor(vUv * halfResolution) * 2.0 / resolution;
+  vec2 pixelatedUvEighth = floor(vUv * eighthResolution) * 8.0 / resolution;
 
+  // Optimized texture reading
   vec4 baseColorSample = texture2D(uMainTexture, vUv);
-
-  vec4 basePixelatedSample = texture2D(
-    uMainTexture,
-    floor(vUv * eighthResolution) * 8.0 / resolution
-  );
-
-  float baseBrightness = dot(
-    tonemap(basePixelatedSample.rgb),
-    LUMINANCE_FACTORS
-  );
-
-  float alpha = 1.0;
-  float reveal = 1.0 - uOpacity;
-  reveal = clamp(reveal, 0.0, 1.0);
-
-  reveal = reveal * reveal;
-  reveal = reveal * reveal;
-
-  if (baseBrightness < reveal || uOpacity == 0.0) {
-    alpha = 0.0;
-  }
-
   vec3 color = baseColorSample.rgb;
 
+  // Apply tonemap only once for the main color
   color = tonemap(color);
 
-  // Precalcular inverso de resolution para evitar divisiones repetidas
-  vec2 invResolution = 1.0 / resolution;
-  vec2 uvOffset = invResolution; // Antes era vec2(1.0 / resolution.x, 1.0 / resolution.y)
+  // Calculate alpha and check if we need the pixelated texture
+  float alpha = 1.0;
 
-  // Restauramos el cálculo del bloom como estaba originalmente
+  // Optimize opacity check
+  if (uOpacity < 0.001) {
+    // If opacity is almost zero, directly set alpha to 0
+    alpha = 0.0;
+  } else {
+    float reveal = 1.0 - uOpacity;
+    reveal = clamp(reveal, 0.0, 1.0);
+    reveal = reveal * reveal * reveal * reveal;
+
+    // Only calculate baseBrightness if necessary
+    if (reveal > 0.0) {
+      vec4 basePixelatedSample = texture2D(uMainTexture, pixelatedUvEighth);
+      float baseBrightness = dot(
+        tonemap(basePixelatedSample.rgb),
+        LUMINANCE_FACTORS
+      );
+
+      if (baseBrightness < reveal) {
+        alpha = 0.0;
+      }
+    }
+  }
+
+  // The bloom calculation remains exactly the same
   vec3 bloomColor = vec3(0.0);
 
   if (uBloomStrength > 0.001 && checkerPattern > 0.5) {
     // Apply bloom effect only when bloom strength is significant and on checker pattern
     vec3 bloom = vec3(0.0);
     float totalWeight = 0.0;
-    float phi = hash(pixelatedUv) * PI_2; // Random rotation angle, usando constante precalculada
+    float phi = hash(pixelatedUv) * PI_2; // Random rotation angle, using precalculated constant
 
-    // Precalculamos la división de uBloomRadius por resolution
+    // Precalculate the division of uBloomRadius by resolution
     vec2 bloomRadiusScaled = uBloomRadius * invResolution;
 
     for (int i = 1; i < SAMPLE_COUNT; i++) {
@@ -257,10 +269,10 @@ void main() {
         vogelDiskSample(i, SAMPLE_COUNT, phi) * bloomRadiusScaled;
       float dist = length(sampleOffset);
 
-      // Gaussian-like falloff - se evita la división cuando dist es muy pequeño
+      // Gaussian-like falloff - avoid division when dist is very small
       float weight = dist > 0.001 ? 1.0 / dist : 1000.0;
 
-      // Sample color at offset position - usamos las coordenadas precalculadas
+      // Sample color at offset position - use precalculated coordinates
       vec3 sampleColor = texture2D(
         uMainTexture,
         pixelatedUv + sampleOffset + uvOffset
@@ -269,15 +281,15 @@ void main() {
       // Only add to bloom if brightness is above threshold
       float brightness = dot(sampleColor, LUMINANCE_FACTORS);
 
-      // Evitar bifurcación condicional que puede ser costosa en GPUs
-      // Usar una versión de step() para simular el if-statement
+      // Avoid conditional branching which can be costly on GPUs
+      // Use a version of step() to simulate the if-statement
       float shouldAdd = step(uBloomThreshold, brightness);
       totalWeight += weight;
       bloom += sampleColor * weight * shouldAdd;
     }
 
-    // Normalize bloom and apply strength - evitamos la multiplicación por checkerPattern (ya lo verificamos en el if)
-    float safeWeight = max(totalWeight, 0.0001); // Evita la suma constante
+    // Normalize bloom and apply strength
+    float safeWeight = max(totalWeight, 0.0001);
     bloomColor = bloom / safeWeight * uBloomStrength;
   }
 
@@ -285,7 +297,7 @@ void main() {
   color += bloomColor;
   color = clamp(color, 0.0, 1.0);
 
-  // Restauramos la aplicación original del viñeteado
+  // The vignette application remains exactly the same
   float vignetteFactor = getVignetteFactor(vUv);
   color = mix(color, vec3(0.0), vignetteFactor);
 
