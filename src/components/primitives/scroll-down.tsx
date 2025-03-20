@@ -19,6 +19,7 @@ export const ScrollDown = () => {
 
   const scrollY = useMotionValue(0)
   const opacity = useTransform(scrollY, [0, 50], [1, 0])
+  const visibility = useTransform(opacity, [0, 1], ["hidden", "visible"])
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -40,7 +41,8 @@ export const ScrollDown = () => {
       href="#main-content"
       className="absolute -top-[3.25rem] left-1/2 flex w-fit -translate-x-1/2 items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1"
       style={{
-        opacity
+        opacity,
+        visibility
       }}
     >
       Scroll to Explore <ArrowDownIcon className="size-2.5" />
