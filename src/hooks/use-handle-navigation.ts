@@ -20,7 +20,6 @@ export const useHandleNavigation = () => {
     (state) => state.setDisableCameraTransition
   )
   const scenes = useNavigationStore((state) => state.scenes)
-  const transitioningRef = useRef(false)
 
   useEffect(() => {
     lenisRef.current = lenisInstance
@@ -78,8 +77,6 @@ export const useHandleNavigation = () => {
           }
         })
       } else {
-        if (transitioningRef.current) return
-        transitioningRef.current = true
         document.documentElement.dataset.flip = "true"
         lenisRef.current?.stop()
         setDisableCameraTransition(true)
@@ -97,7 +94,6 @@ export const useHandleNavigation = () => {
           if (route !== "/lab") {
             useArcadeStore.getState().setIsInLabTab(false)
           }
-          transitioningRef.current = false
           router.push(route, { scroll: false })
         }, TRANSITION_DURATION)
       }
