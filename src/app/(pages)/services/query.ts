@@ -58,7 +58,8 @@ export const query = fragmentOn("Query", {
           project: {
             _title: true
           },
-          certificate: IMAGE_FRAGMENT
+          certificate: IMAGE_FRAGMENT,
+          projectFallback: true
         }
       }
     },
