@@ -66,7 +66,8 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
                     "(closed)"
                   ) : (
                     <>
-                      Apply {/* specifically for large tablets */}
+                      Apply
+                      {/* specifically for large tablets */}
                       <span className="[@media(width:1024px)]:hidden">Now</span>
                       <Arrow className="size-4" />
                     </>
