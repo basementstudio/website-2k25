@@ -1,7 +1,6 @@
 "use client"
 
 import { useThree } from "@react-three/fiber"
-
 import { useCallback, useEffect } from "react"
 import { create } from "zustand"
 
@@ -39,23 +38,18 @@ export const useMouseStore = create<MouseStore>((set) => ({
 }))
 
 export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
-  const gl = useThree((state) => state.gl)
-  const connected = useThree((state) => state.events.connected)
-
-  const explDomElement = connected || gl.domElement
   const setHoverText = useMouseStore((state) => state.setHoverText)
   const setMarquee = useMouseStore((state) => state.setMarquee)
+  const setCursorType = useMouseStore((state) => state.setCursorType)
 
   useEffect(() => {
-    explDomElement.style.cursor = defaultStyle
-    gl.domElement.style.cursor = ""
+    setCursorType(defaultStyle)
     return () => {
-      explDomElement.style.cursor = "default"
-      gl.domElement.style.cursor = "default"
+      setCursorType("default")
       setHoverText(null)
       setMarquee(false)
     }
-  }, [defaultStyle, explDomElement, gl.domElement, setHoverText, setMarquee])
+  }, [defaultStyle, setCursorType, setHoverText, setMarquee])
 
   const setCursor = useCallback(
     (
@@ -63,13 +57,11 @@ export function useCursor(defaultStyle: useCursorProps["style"] = "default") {
       text?: string | null,
       marquee?: boolean | null
     ) => {
-      if (explDomElement) {
-        explDomElement.style.cursor = newStyle
-        if (text !== undefined) setHoverText(text)
-        setMarquee(marquee !== undefined ? marquee : false)
-      }
+      if (text !== undefined) setHoverText(text)
+      setMarquee(marquee !== undefined ? marquee : false)
+      setCursorType(newStyle)
     },
-    [explDomElement, setHoverText, setMarquee]
+    [setHoverText, setMarquee, setCursorType]
   )
 
   return setCursor
