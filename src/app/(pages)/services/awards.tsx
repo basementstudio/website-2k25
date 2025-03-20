@@ -186,7 +186,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
   return (
     <>
       <div className="grid-layout" ref={sectionRef}>
-        <div className="col-span-full flex gap-2 text-mobile-h2 text-brand-g1 lg:text-h2">
+        <div className="text-f-h3-mobile lg:text-f-h3 col-span-full flex gap-2 text-brand-g1">
           <h2>Awards</h2>
           <p>x{data.company.awards.awardList.items.length}</p>
         </div>
@@ -194,7 +194,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
           <ul
             onMouseEnter={handleRevealEnter}
             onMouseLeave={handleRevealLeave}
-            className="text-paragraph col-span-full text-brand-w1"
+            className="col-span-full text-brand-w1"
           >
             {sortedAwards.map((award) => (
               <li
@@ -203,20 +203,22 @@ export const Awards = ({ data }: { data: QueryType }) => {
                 onMouseLeave={handleMouseLeave}
                 className="group relative grid grid-cols-12 gap-2 [&:first-child>.item]:after:absolute [&:first-child>.item]:after:-top-px [&:first-child>.item]:after:left-0 [&:first-child>.item]:after:w-full [&:first-child>.item]:after:border-t [&:first-child>.item]:after:border-brand-w1/20"
               >
-                <Link
-                  href={award.awardUrl ?? ""}
-                  className="item relative col-span-12 grid grid-cols-12 items-center gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
-                >
-                  <span className="col-span-6 text-mobile-p lg:col-span-3 lg:text-h4">
+                <div className="item relative col-span-12 grid grid-cols-12 items-center gap-2 border-b border-brand-w1/20 pb-1 pt-0.75">
+                  <span className="text-f-p-mobile col-span-6 line-clamp-1 lg:col-span-3 lg:text-h3">
                     {award.title}
                   </span>
-                  <span className="col-start-7 col-end-10 text-mobile-p text-brand-w2 lg:col-span-3 lg:text-p">
-                    {award.project?._title}
+                  <span className="text-f-p-mobile lg:text-f-h4 col-start-7 col-end-10 line-clamp-1 text-brand-w2 lg:col-span-3">
+                    {award.project?._title ?? award.projectFallback}
                   </span>
-                  <span className="col-start-10 col-end-13 text-right text-mobile-p text-brand-w2 lg:col-span-2 lg:text-left lg:text-p">
-                    {formatDate(award.date, false, "UTC")}
+                  <span className="text-f-p-mobile lg:text-f-h4 col-span-3 text-right text-brand-w2 lg:col-span-2 lg:col-start-11">
+                    {formatDate(
+                      award.date,
+                      false,
+                      "UTC",
+                      isDesktop ? false : true
+                    )}
                   </span>
-                </Link>
+                </div>
                 <div className="with-diagonal-lines pointer-events-none !absolute -top-px bottom-0 left-0 right-0 opacity-0 transition-opacity duration-0 group-hover:opacity-100" />
               </li>
             ))}

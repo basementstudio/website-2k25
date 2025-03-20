@@ -6,7 +6,7 @@ export const BrandsMobile = ({ brandsMobile }: { brandsMobile: Brand[][] }) => {
   return (
     <section className="grid-layout isolate !gap-y-0 lg:!hidden">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-h3">
+        <h3 className="text-f-h3-mobile lg:text-f-h3 col-span-full mb-2 text-brand-g1 lg:col-start-3 lg:col-end-7">
           Trusted by Visionaries
         </h3>
       </div>
@@ -35,36 +35,35 @@ const getPositionDelay = (position: number, length: number) => {
   return (seed * 1.5) % (length * 1.5)
 }
 
-const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => {
-  return (
-    <div className={cn("relative py-2", absolute && "absolute inset-0")}>
-      <div className="grid-rows-auto group grid grid-cols-3 gap-3">
-        {brands.map((brand, idx) => {
-          const delay = getPositionDelay(idx, brands.length)
-          return (
+const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
+  <div className={cn("relative py-2", absolute && "absolute inset-0")}>
+    <div className="grid-rows-auto group grid grid-cols-3 gap-3">
+      {brands.map((brand, idx) => {
+        const delay = getPositionDelay(idx, brands.length)
+
+        return (
+          <div
+            key={brand._id}
+            className={cn(
+              "relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
+              absolute && "animate-fade-in-out opacity-0",
+              !absolute && "animate-fade-out-in opacity-100"
+            )}
+            style={
+              {
+                "--anim-duration": "16s",
+                "--anim-delay": `${delay}s`,
+                animationTimingFunction: "cubic-bezier(0.4, 0, 0.6, 1)"
+              } as React.CSSProperties
+            }
+          >
             <div
-              key={brand._id}
-              className={cn(
-                "relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
-                absolute && "animate-fade-in-out opacity-0",
-                !absolute && "animate-fade-out-in opacity-100"
-              )}
-              style={
-                {
-                  "--anim-duration": "16s",
-                  "--anim-delay": `${delay}s`,
-                  animationTimingFunction: "cubic-bezier(0.4, 0, 0.6, 1)"
-                } as React.CSSProperties
-              }
-            >
-              <div
-                className="with-dots relative grid h-full w-full place-items-center px-2 py-4 [&>svg]:max-w-[100%]"
-                dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
-              />
-            </div>
-          )
-        })}
-      </div>
+              className="with-dots relative grid h-full w-full place-items-center px-2 py-4 [&>svg]:max-w-[100%]"
+              dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
+            />
+          </div>
+        )
+      })}
     </div>
-  )
-}
+  </div>
+)

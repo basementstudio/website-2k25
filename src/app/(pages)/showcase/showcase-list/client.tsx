@@ -33,8 +33,12 @@ const ViewModeSelector = memo(
 )
 ViewModeSelector.displayName = "ViewModeSelector"
 
-export const ShowcaseListClient = memo(
-  ({ projects }: { projects: Project[] }) => {
+interface ShowcaseListClientProps {
+  projects: Project[]
+}
+
+export const ShowcaseListClient = memo<ShowcaseListClientProps>(
+  ({ projects }: ShowcaseListClientProps) => {
     const searchParams = useSearchParams()
     const isDesktop = useMedia("(min-width: 1024px)")
 
@@ -70,12 +74,6 @@ export const ShowcaseListClient = memo(
       },
       [selectedCategory]
     )
-
-    useEffect(() => {
-      if (typeof window !== "undefined") {
-        window.location.hash = viewMode
-      }
-    }, [viewMode])
 
     const categories = useMemo(() => {
       const categoryMap = new Map<string, number>()

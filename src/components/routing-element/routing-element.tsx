@@ -268,8 +268,14 @@ const RoutingElementComponent = ({
     <>
       <group
         ref={outlinesRef}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
+        onPointerEnter={(e) => {
+          e.stopPropagation()
+          handlePointerEnter(e)
+        }}
+        onPointerLeave={(e) => {
+          e.stopPropagation()
+          handlePointerLeave(e)
+        }}
         onClick={handleClick}
         position={[node.position.x, node.position.y, node.position.z]}
         rotation={node.rotation}

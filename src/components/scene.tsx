@@ -2,17 +2,17 @@
 
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
-import { Suspense, useEffect, useRef, useState } from "react"
+import { Suspense, useEffect, useRef } from "react"
 import * as THREE from "three"
 
+import { UpdateCanvasCursor } from "@/components/custom-cursor"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
-import { MouseTracker } from "@/hooks/use-mouse"
-import { useMinigameStore } from "@/store/minigame-store"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
+import { useMinigameStore } from "@/store/minigame-store"
 
 import ErrorBoundary from "./basketball/error-boundary"
 import { CameraController } from "./camera/camera-controller"
@@ -50,6 +50,7 @@ export const Scene = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
+  const userHasLeftWindow = useRef(false)
 
   useTabKeyHandler()
 
@@ -57,7 +58,28 @@ export const Scene = () => {
     if (!isBasketball) clearPlayedBalls()
   }, [isBasketball, clearPlayedBalls])
 
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        userHasLeftWindow.current = true
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange, {
+      passive: true
+    })
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [])
+
   const handleFocus = (e: React.FocusEvent) => {
+    if (userHasLeftWindow.current) {
+      userHasLeftWindow.current = false
+      return
+    }
+
     setIsCanvasTabMode(true)
 
     if (e.nativeEvent.detail === 0) {
@@ -101,6 +123,7 @@ export const Scene = () => {
           className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
         >
           <AnimationController>
+            <UpdateCanvasCursor />
             <Renderer
               sceneChildren={
                 <>
@@ -139,7 +162,6 @@ export const Scene = () => {
           </AnimationController>
         </Canvas>
       </div>
-      <MouseTracker />
     </>
   )
 }

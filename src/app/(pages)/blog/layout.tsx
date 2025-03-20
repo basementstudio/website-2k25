@@ -11,21 +11,21 @@ export const metadata: Metadata = {
     "We don't settle, we are intentional about building with surgical precision and creating extraordinary experiences. We go the extra mile, and then walk a couple more, just for fun."
 }
 
-export default function BlogLayout({
-  children
-}: {
+interface BlogLayoutProps {
   children: React.ReactNode
-}) {
+}
+
+export default function BlogLayout({ children }: BlogLayoutProps) {
   return (
     <>
-      <div id="blog" className="-translate-y-[36px]" />
+      <div id="list" className="-translate-y-[3.25rem]" />
       <div className="pb-25 relative flex flex-col gap-12 bg-brand-k lg:gap-20">
         <Hero />
         <Featured />
 
-        <section className="grid-layout pb-[35px] pt-12" id="list">
-          <div className="col-span-full -mb-2 grid grid-cols-12 border-b border-brand-w1/20 pb-2">
-            <h2 className="col-span-full mt-auto text-mobile-h3 text-brand-g1 lg:col-span-3 lg:col-start-5 lg:text-h3">
+        <section className="grid-layout pb-[35px] lg:pt-12" id="list">
+          <div className="col-span-full -mb-3 grid grid-cols-12 border-brand-w1/20 lg:border-b lg:pb-2">
+            <h2 className="text-f-h3-mobile lg:text-f-h3 col-span-full mt-auto text-brand-g1 lg:col-span-3 lg:col-start-5">
               More News
             </h2>
             <Categories />
