@@ -24,7 +24,7 @@ export default function BlogLayout({ children }: BlogLayoutProps) {
         <Featured />
 
         <section className="grid-layout pb-[35px] pt-12" id="list">
-          <div className="col-span-full -mb-2 grid grid-cols-12 border-b border-brand-w1/20 pb-2">
+          <div className="col-span-full -mb-3 grid grid-cols-12 border-b border-brand-w1/20 pb-2">
             <h2 className="col-span-full mt-auto text-mobile-h3 text-brand-g1 lg:col-span-3 lg:col-start-5 lg:text-h3">
               More News
             </h2>

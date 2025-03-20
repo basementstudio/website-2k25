@@ -65,7 +65,7 @@ export async function Featured() {
                     </p>
                   ))}
                 </div>
-                <p className="text-paragraph col-span-2 col-start-3 text-p text-brand-w2">
+                <p className="text-paragraph col-span-2 col-start-3 text-right text-p text-brand-w2 lg:text-left">
                   {formatDate(post.date || "")}
                 </p>
               </div>

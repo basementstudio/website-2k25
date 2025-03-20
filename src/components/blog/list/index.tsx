@@ -12,10 +12,10 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
       {posts.map((post) => (
         <div
           key={post._slug}
-          className="group relative col-span-full -mb-2 border-b border-brand-w1/20"
+          className="group relative col-span-full -mb-3 border-b border-brand-w1/20"
         >
           <Link
-            className="col-span-full grid grid-cols-12 gap-2 py-2 pb-4 lg:pb-2"
+            className="col-span-full grid grid-cols-12 gap-2 py-2 pb-2 lg:pb-2"
             href={`/post/${post._slug}`}
           >
             <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -46,7 +46,7 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
               ))}
             </div>
             {post.date ? (
-              <p className="col-span-6 text-mobile-p text-brand-w2 lg:col-span-2 lg:col-start-11 lg:text-p">
+              <p className="col-span-6 text-right text-mobile-p text-brand-w2 lg:col-span-2 lg:col-start-11 lg:text-left lg:text-p">
                 {formatDate(post.date || "")}
               </p>
             ) : null}
