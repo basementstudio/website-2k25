@@ -23,9 +23,9 @@ export const InternalLinks = ({
   return (
     <ul
       className={cn(
-        "flex flex-col gap-y-1",
-        onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-mobile-h2",
-        "text-brand-w1 lg:!text-h2",
+        "flex flex-col gap-y-2",
+        onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
+        "lg:!text-f-h2 text-brand-w1",
         className
       )}
     >
@@ -51,8 +51,8 @@ export const InternalLinks = ({
           onClick={() => setIsContactOpen(!isContactOpen)}
           className={cn(
             "flex w-max flex-col gap-y-1",
-            onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-mobile-h2",
-            "text-brand-w1 lg:!text-h2"
+            onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
+            "lg:!text-f-h2 text-brand-w1"
           )}
         >
           <span className="actionable">Contact Us</span>
@@ -70,7 +70,7 @@ interface SocialLinksProps {
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div
     className={cn(
-      "flex gap-x-1 !text-mobile-p text-brand-g1 lg:!text-p",
+      "!text-f-p-mobile lg:!text-f-p flex gap-x-1 text-brand-g1",
       className
     )}
   >
@@ -95,7 +95,7 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
 export const Copyright = ({ className }: { className?: string }) => (
   <p
     className={cn(
-      "text-right !text-mobile-p text-brand-g1 lg:!text-p",
+      "!text-f-p-mobile lg:!text-f-p text-right text-brand-g1",
       className
     )}
   >
