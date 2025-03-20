@@ -5,10 +5,12 @@ import { PerspectiveCamera } from "three"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { CustomCamera } from "./camera-controls"
+
 import { WasdControls } from "./wasd-controls"
+import { CurveVisualization } from "./curve-visualization"
 
 export const CameraController = () => {
-  const [isFlyMode, setIsFlyMode] = useState(true)
+  const [isFlyMode, setIsFlyMode] = useState(false)
   const { camera } = useThree()
   const setMainCamera = useNavigationStore((state) => state.setMainCamera)
 
@@ -27,9 +29,10 @@ export const CameraController = () => {
     }
   }, [camera, setMainCamera])
 
-  if (isFlyMode) {
-    return <WasdControls />
-  }
-
-  return <CustomCamera />
+  return (
+    <>
+      <CurveVisualization />
+      {isFlyMode ? <WasdControls /> : <CustomCamera />}
+    </>
+  )
 }
