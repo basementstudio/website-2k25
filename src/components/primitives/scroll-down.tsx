@@ -1,16 +1,23 @@
 "use client"
 
-import { motion, useMotionValue, useTransform } from "motion/react"
-import { useEffect } from "react"
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useTransform
+} from "motion/react"
+import { useEffect, useMemo } from "react"
 
 import { useCurrentScene } from "@/hooks/use-current-scene"
 
 import { ArrowDownIcon } from "../icons/icons"
+import { useInspectable } from "../inspectables/context"
 import { useAppLoadingStore } from "../loading/app-loading-handler"
 
 export const ScrollDown = () => {
   const scene = useCurrentScene()
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
+  const { selected } = useInspectable()
   const is404 = scene === "404"
   const isArcade = scene === "lab"
   const isBasketball = scene === "basketball"
@@ -20,6 +27,16 @@ export const ScrollDown = () => {
   const scrollY = useMotionValue(0)
   const opacity = useTransform(scrollY, [0, 50], [1, 0])
   const visibility = useTransform(opacity, [0, 1], ["hidden", "visible"])
+
+  const animationProps = useMemo(
+    () => ({
+      initial: { opacity: 0, scale: 0 },
+      animate: { opacity: 1, scale: 1 },
+      exit: { opacity: 0, scale: 0 },
+      transition: { duration: 0.2 }
+    }),
+    []
+  )
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -37,15 +54,20 @@ export const ScrollDown = () => {
   if (shouldIgnore || !canRunMainApp) return null
 
   return (
-    <motion.a
-      href="#main-content"
-      className="absolute -top-[3.25rem] left-1/2 flex w-fit -translate-x-1/2 items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1"
-      style={{
-        opacity,
-        visibility
-      }}
-    >
-      Scroll to Explore <ArrowDownIcon className="size-2.5" />
-    </motion.a>
+    <AnimatePresence>
+      {selected === null && (
+        <motion.a
+          href="#main-content"
+          className="absolute -top-[3.25rem] left-1/2 flex w-fit -translate-x-1/2 items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1"
+          style={{
+            opacity,
+            visibility
+          }}
+          {...animationProps}
+        >
+          Scroll to Explore <ArrowDownIcon className="size-2.5" />
+        </motion.a>
+      )}
+    </AnimatePresence>
   )
 }
