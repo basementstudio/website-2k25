@@ -11,13 +11,13 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
       Positions
     </h2>
 
-    <ul className="relative col-span-full text-p text-brand-w2 lg:row-start-1">
+    <ul className="relative col-span-full text-brand-w2 lg:row-start-1">
       <li className="group relative grid grid-cols-12 gap-2">
         <div className="relative col-span-full grid grid-cols-8 items-center gap-2 pb-2 text-brand-g1 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w2/20 lg:col-start-5 lg:col-end-13">
           <span className="text-f-h4-mobile lg:text-f-h4 col-start-1 col-end-5">
             Role
           </span>
-          <span className="col-start-5 col-end-7 text-mobile-h4 lg:text-h4">
+          <span className="text-f-h4-mobile lg:text-f-h4 col-start-5 col-end-7">
             Type
           </span>
           <span className="text-mobile-h4 lg:text-h4">Location</span>
