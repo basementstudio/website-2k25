@@ -10,6 +10,7 @@ export const CurveVisualization = () => {
   const progressRef = useRef(0)
   const speedRef = useRef(0.001)
   const lookAheadRef = useRef(0.1)
+  const [useSecondPath, setUseSecondPath] = useState(false)
 
   const FINAL_LOOK_TARGET = new THREE.Vector3(3.46, 5.23, -27.66)
   const hasPassedTransitionPointRef = useRef(false)
@@ -24,9 +25,21 @@ export const CurveVisualization = () => {
     new THREE.Vector3(2.41, 5.29, -28.77)
   ]
 
+  const POINTS_2 = [
+    new THREE.Vector3(2.41, 5.29, -28.77),
+    new THREE.Vector3(9, 5, -24),
+    new THREE.Vector3(12.3, 4.27, -16.49)
+  ]
+  const FINAL_LOOK_TARGET_2 = new THREE.Vector3(9.2, 4.4, -18.1)
+
+  const activePath = useSecondPath ? POINTS_2 : POINTS
+  const activeLookTarget = useSecondPath
+    ? FINAL_LOOK_TARGET_2
+    : FINAL_LOOK_TARGET
+
   const curve = useMemo(() => {
-    return new THREE.CatmullRomCurve3(POINTS, false, "catmullrom", 0.5)
-  }, [])
+    return new THREE.CatmullRomCurve3(activePath, false, "catmullrom", 0.5)
+  }, [activePath])
 
   const curvePoints = useMemo(() => {
     return curve.getPoints(100)
@@ -44,6 +57,23 @@ export const CurveVisualization = () => {
         if (!v) {
           hasPassedTransitionPointRef.current = false
           lookTargetLerpProgressRef.current = 0
+        }
+      }
+    },
+    useSecondPath: {
+      value: false,
+      onChange: (v) => {
+        setUseSecondPath(v)
+        progressRef.current = 0
+        hasPassedTransitionPointRef.current = false
+        lookTargetLerpProgressRef.current = 0
+
+        if (isAnimating && camera) {
+          const startPoint = curve.getPointAt(0)
+          camera.position.copy(startPoint)
+
+          const lookPoint = curve.getPointAt(lookAheadRef.current)
+          camera.lookAt(lookPoint)
         }
       }
     },
@@ -109,7 +139,7 @@ export const CurveVisualization = () => {
     }
 
     if (targetPointRef.current) {
-      targetPointRef.current.position.copy(FINAL_LOOK_TARGET)
+      targetPointRef.current.position.copy(activeLookTarget)
     }
 
     if (
@@ -133,7 +163,7 @@ export const CurveVisualization = () => {
 
       lookAtPos = curvePoint
         .clone()
-        .lerp(FINAL_LOOK_TARGET, lookTargetLerpProgressRef.current)
+        .lerp(activeLookTarget, lookTargetLerpProgressRef.current)
     } else {
       lookAtPos = curve.getPointAt(
         Math.min(progressRef.current + lookAheadRef.current, 1)
@@ -165,12 +195,26 @@ export const CurveVisualization = () => {
     <>
       <Line points={curvePoints} color="#ffff00" lineWidth={3} dashed={false} />
 
-      {POINTS.map((point, i) => (
+      {activePath.map((point, i) => (
         <mesh key={i} position={point}>
           <sphereGeometry args={[0.15, 16, 16]} />
           <meshBasicMaterial color="#ff0000" />
         </mesh>
       ))}
+
+      {useSecondPath
+        ? POINTS.map((point, i) => (
+            <mesh key={`inactive-${i}`} position={point}>
+              <sphereGeometry args={[0.1, 8, 8]} />
+              <meshBasicMaterial color="#880000" opacity={0.5} transparent />
+            </mesh>
+          ))
+        : POINTS_2.map((point, i) => (
+            <mesh key={`inactive-${i}`} position={point}>
+              <sphereGeometry args={[0.1, 8, 8]} />
+              <meshBasicMaterial color="#880000" opacity={0.5} transparent />
+            </mesh>
+          ))}
 
       {isAnimating && (
         <mesh ref={indicatorRef}>
@@ -187,6 +231,11 @@ export const CurveVisualization = () => {
       <mesh ref={targetPointRef}>
         <sphereGeometry args={[0.2, 16, 16]} />
         <meshBasicMaterial color="#ff00ff" />
+      </mesh>
+
+      <mesh position={useSecondPath ? FINAL_LOOK_TARGET : FINAL_LOOK_TARGET_2}>
+        <sphereGeometry args={[0.15, 8, 8]} />
+        <meshBasicMaterial color="#880088" opacity={0.5} transparent />
       </mesh>
     </>
   )
