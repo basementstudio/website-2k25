@@ -28,7 +28,7 @@ export const Values = ({ data }: { data: QueryType }) => {
                 {idx === 0 && (
                   <h2
                     className={cn(
-                      "col-span-full bg-brand-k pb-6 !text-mobile-h3 text-brand-g1 lg:!text-h3",
+                      "!text-f-h3-mobile lg:!text-f-h3 col-span-full bg-brand-k pb-6 text-brand-g1",
                       "border-b border-brand-w1/20"
                     )}
                   >
