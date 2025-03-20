@@ -21,7 +21,7 @@ export const CategoriesClient = ({
 
   return (
     <div className="col-span-full row-start-1 flex flex-col gap-1 pb-8 lg:col-span-3 lg:col-start-9 lg:row-start-auto lg:gap-2">
-      <p className="text-f-p-mobile lg:text-f-p text-brand-g1">Categories</p>
+      <p className="text-f-p-mobile lg:text-f-h3 text-brand-g1">Categories</p>
 
       <ul className="flex flex-col gap-y-1 lg:flex-row lg:flex-wrap lg:gap-x-4">
         {categories.map((category) => {
