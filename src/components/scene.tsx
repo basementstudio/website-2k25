@@ -50,6 +50,7 @@ export const Scene = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
+  const userHasLeftWindow = useRef(false)
 
   useTabKeyHandler()
 
@@ -57,7 +58,21 @@ export const Scene = () => {
     if (!isBasketball) clearPlayedBalls()
   }, [isBasketball, clearPlayedBalls])
 
+  useEffect(() => {
+    if (window === undefined) return
+    document.onvisibilitychange = () => {
+      if (document.visibilityState === "hidden") {
+        userHasLeftWindow.current = true
+      }
+    }
+  }, [])
+
   const handleFocus = (e: React.FocusEvent) => {
+    if (userHasLeftWindow.current) {
+      userHasLeftWindow.current = false
+      return
+    }
+
     setIsCanvasTabMode(true)
 
     if (e.nativeEvent.detail === 0) {
