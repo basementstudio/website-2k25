@@ -169,6 +169,70 @@ export default {
             letterSpacing: "-0.03em",
             fontWeight: "600"
           }
+        ],
+        "f-h2": [
+          "2.375rem",
+          {
+            lineHeight: "2.25rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h2-mobile": [
+          "1.5rem",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "-0.03em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h3": [
+          "1.5rem",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "-0.03em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h3-mobile": [
+          "1.25rem",
+          {
+            lineHeight: "1.25rem",
+            letterSpacing: "-0.03em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h4": [
+          "1.25rem",
+          {
+            lineHeight: "1.25rem",
+            letterSpacing: "-0.02em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h4-mobile": [
+          "0.9375rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "-0.02em",
+            fontWeight: "600"
+          }
+        ],
+        "f-p": [
+          "0.8125rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
+        ],
+        "f-p-mobile": [
+          "0.75rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
         ]
       },
       spacing: {

@@ -23,7 +23,7 @@ export const Intro = ({ data }: { data: QueryType }) => {
           <RichText
             components={{
               p: ({ children }) => (
-                <p className="text-balance text-mobile-h4 lg:text-h4">
+                <p className="text-f-h4-mobile lg:text-f-h4 text-balance">
                   {children}
                 </p>
               )

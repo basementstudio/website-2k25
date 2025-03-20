@@ -14,7 +14,8 @@ import {
 
 import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
 
-import { useAppLoadingStore } from "../loading/app-loading-handler"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
 // Context for sharing animation time
 interface AnimationContext {
@@ -63,10 +64,14 @@ function AnimationControllerImpl({
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
   const [isScrollPaused, setIsScrollPaused] = useState(false)
 
+  const disableCameraTransition = useNavigationStore(
+    (state) => state.disableCameraTransition
+  )
+
   const isPaused =
     paused ||
     (pauseOnTabChange && !isTabVisible) ||
-    isScrollPaused ||
+    (isScrollPaused && !disableCameraTransition) ||
     !canRunMainApp
 
   // Use refs for internal values that don't need to trigger re-renders
