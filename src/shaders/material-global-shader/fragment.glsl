@@ -339,6 +339,12 @@ void main() {
     gl_FragColor.rgb *= oneMinusFadeFactor;
   }
 
+  #ifdef MATCAP
+  if (glassMatcap) {
+    gl_FragColor.a *= pattern * inspectingFactor;
+  }
+  #endif
+
   #ifdef DAYLIGHT
   if (daylight) {
     gl_FragColor.a = inspectingFactor;
