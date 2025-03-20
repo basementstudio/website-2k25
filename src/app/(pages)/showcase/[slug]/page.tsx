@@ -59,7 +59,6 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
           const entry = data.pages.showcase.projectList.items.at(0)
           if (!entry) return notFound()
 
-          // add awwards
           const awards = data2.company.awards.awardList.items.filter(
             (award) => award.project?._id === entry.project?._id
           )
