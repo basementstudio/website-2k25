@@ -217,6 +217,22 @@ export default {
             letterSpacing: "-0.02em",
             fontWeight: "600"
           }
+        ],
+        "f-p": [
+          "0.8125rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
+        ],
+        "f-p-mobile": [
+          "0.75rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
         ]
       },
       spacing: {

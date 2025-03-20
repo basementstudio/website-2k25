@@ -19,10 +19,14 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           content={content}
           components={{
             h3: ({ children }) => (
-              <p className="!text-pretty text-h3 text-brand-w2">{children}</p>
+              <p className="text-f-p-mobile lg:text-f-h4 !text-pretty text-brand-w2">
+                {children}
+              </p>
             ),
             p: ({ children }) => (
-              <p className="!text-pretty text-h4 text-brand-w2">{children}</p>
+              <p className="text-f-p-mobile lg:text-f-h4 !text-pretty text-brand-w2">
+                {children}
+              </p>
             )
           }}
         />
