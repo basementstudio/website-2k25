@@ -52,18 +52,18 @@ const TestimonialAuthor = memo(
     role: QueryType["company"]["testimonials"]["services"]["role"]
   }) => (
     <div className="flex flex-col justify-center gap-1">
-      <p className="inline-flex items-center gap-x-2 text-mobile-h4 text-brand-w1 lg:text-h4">
+      <p className="text-f-h4-mobile lg:text-f-h4 inline-flex items-center gap-x-2 text-brand-w1">
         {name} <span>-</span>
         <Link
           href={handleLink || ""}
-          className="text-mobile-h4 lg:text-h4"
+          className="text-f-h4-mobile lg:text-f-h4"
           target="_blank"
         >
           <span className="actionable">{handle}</span>
         </Link>
       </p>
 
-      <div className="[&_*]:text-mobile-h4 [&_*]:text-brand-g1 lg:[&_*]:text-h4">
+      <div className="[&_*]:text-f-h4-mobile lg:[&_*]:text-f-h4 [&_*]:text-brand-g1">
         <RichText>{role?.json.content}</RichText>
       </div>
     </div>
@@ -80,7 +80,7 @@ const TestimonialsComponent = ({ data }: { data: QueryType }) => {
       <div className={cn("relative col-span-full", styles.root)}>
         <div
           className={cn(
-            "[&_p]:!text-f-h1-mobile lg:[&_p]:!text-f-h1 mx-auto max-w-[1440px] text-center [&_a]:no-underline [&_p]:relative [&_p]:z-10 [&_p]:text-brand-w1"
+            "mx-auto max-w-[1440px] text-center [&_a]:no-underline [&_p]:relative [&_p]:z-10 [&_p]:!text-f-h1-mobile [&_p]:text-brand-w1 lg:[&_p]:!text-f-h1"
           )}
         >
           <RichText>{testimonial.content?.json.content}</RichText>
