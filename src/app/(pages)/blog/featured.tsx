@@ -59,11 +59,11 @@ export async function Featured() {
                   </RichText>
                 </div>
                 <hr className="col-start-1 col-end-5 hidden w-full border-dashed border-brand-w1/20 lg:block" />
-                <div className="text-f-p-mobile col-span-2 col-start-1 flex flex-wrap gap-1">
+                <div className="text-f-p-mobile lg:text-f-p col-span-2 col-start-1 flex flex-wrap gap-1">
                   {post.categories?.map((category) => (
                     <p
                       key={category._title}
-                      className="text-f-p-mobile h-max w-max bg-brand-g2 px-1 text-brand-w2"
+                      className="text-f-p-mobile lg:text-f-p h-max w-max bg-brand-g2 px-1 text-brand-w2"
                     >
                       {category._title}
                     </p>
