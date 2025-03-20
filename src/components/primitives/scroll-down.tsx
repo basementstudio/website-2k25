@@ -21,7 +21,6 @@ export const ScrollDown = () => {
   const is404 = scene === "404"
   const isArcade = scene === "lab"
   const isBasketball = scene === "basketball"
-
   const shouldIgnore = is404 || isArcade || isBasketball
 
   const scrollY = useMotionValue(0)
@@ -51,22 +50,31 @@ export const ScrollDown = () => {
     }
   }, [scrollY])
 
-  if (shouldIgnore || !canRunMainApp) return null
+  if (shouldIgnore) return null
 
   return (
     <AnimatePresence>
-      {selected === null && (
-        <motion.a
-          href="#main-content"
-          className="absolute -top-[3.25rem] left-1/2 flex w-fit -translate-x-1/2 items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1"
-          style={{
-            opacity,
-            visibility
-          }}
-          {...animationProps}
+      {canRunMainApp && (
+        <motion.div
+          className="absolute -top-[3.25rem] left-1/2 -translate-x-1/2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 1, 0, 1, 0, 1] }}
+          transition={{ duration: 0.3, delay: 1.5 }}
         >
-          Scroll to Explore <ArrowDownIcon className="size-2.5" />
-        </motion.a>
+          {selected === null && (
+            <motion.a
+              href="#main-content"
+              className="user-select-none flex w-fit items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1"
+              style={{
+                opacity,
+                visibility
+              }}
+              {...animationProps}
+            >
+              Scroll to Explore <ArrowDownIcon className="size-2.5" />
+            </motion.a>
+          )}
+        </motion.div>
       )}
     </AnimatePresence>
   )
