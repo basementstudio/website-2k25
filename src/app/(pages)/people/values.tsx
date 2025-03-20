@@ -28,7 +28,7 @@ export const Values = ({ data }: { data: QueryType }) => {
                 {idx === 0 && (
                   <h2
                     className={cn(
-                      "col-span-full bg-brand-k pb-6 !text-mobile-h3 text-brand-g1 lg:!text-h3",
+                      "!text-f-h3-mobile lg:!text-f-h3 col-span-full bg-brand-k pb-6 text-brand-g1",
                       "border-b border-brand-w1/20"
                     )}
                   >
@@ -61,7 +61,7 @@ export const Values = ({ data }: { data: QueryType }) => {
                       </div>
                     )}
                   </div>
-                  <div className="col-span-full !text-pretty text-mobile-h4 text-brand-w2 lg:col-start-8 lg:col-end-12 lg:text-h4">
+                  <div className="text-f-h4-mobile lg:text-f-h4 col-span-full !text-pretty text-brand-w2 lg:col-start-8 lg:col-end-12">
                     <RichText content={description?.json?.content ?? []} />
                   </div>
                 </div>
