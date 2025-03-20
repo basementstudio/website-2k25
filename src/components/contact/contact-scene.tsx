@@ -1,22 +1,18 @@
 import { useAnimations, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useCallback, useEffect, useRef, useState } from "react"
-import {
-  Mesh,
-  MeshBasicMaterial,
-  LoopOnce,
-  AnimationMixer,
-  Group,
-  Vector3,
-  Bone
-} from "three"
+import { Mesh, MeshBasicMaterial, LoopOnce, Group, Vector3, Bone } from "three"
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const { scene, animations, nodes } = useGLTF(modelUrl)
   const { actions, mixer } = useAnimations(animations, scene)
-  const mixerRef = useRef<AnimationMixer | null>(null)
-  const [isAnimating, setIsAnimating] = useState(false)
   const [isContactOpen, setIsContactOpen] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [animationState, setAnimationState] = useState<
+    "idle" | "intro" | "button" | "outro" | "ruedita" | "antena"
+  >("idle")
+
+  const idleAnimations = ["ruedita", "antena"]
 
   const debugMeshRef = useRef<Mesh>(null)
   const phoneGroupRef = useRef<Group>(null)
@@ -24,83 +20,125 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const tmp = new Vector3()
   const camera = useThree((state) => state.camera)
 
-  // add mixer ref
-  useEffect(() => {
+  // run animations
+  const runIntro = useCallback(() => {
     if (mixer) {
-      mixerRef.current = mixer
+      mixer.stopAllAction()
     }
+    if (phoneGroupRef.current) {
+      phoneGroupRef.current.visible = true
+    }
+    setAnimationState("intro")
+    setIsAnimating(true)
   }, [mixer])
 
-  const playAnimation = useCallback(
-    (animName: string, oppositeAnimName?: string) => {
-      if (!actions[animName]) return
-
-      if (oppositeAnimName && actions[oppositeAnimName])
-        actions[oppositeAnimName].stop()
-
-      setIsAnimating(true)
-      const anim = actions[animName]
-      anim.reset()
-      anim.clampWhenFinished = true
-      anim.loop = LoopOnce
-
-      anim.timeScale = animName === "Outro-v2" ? 1.5 : 1.2
-      anim.play()
-
-      const onAnimationFinished = () => {
-        setIsAnimating(false)
-        mixer.removeEventListener("finished", onAnimationFinished)
-
-        if (animName === "Outro-v2") {
-          self.postMessage({ type: "outro-complete" })
-          setIsContactOpen(false)
-        } else if (animName === "Intro.001") {
-          setIsContactOpen(true)
-          self.postMessage({ type: "intro-complete" })
-        }
-      }
-      mixer.addEventListener("finished", onAnimationFinished)
-    },
-    [actions, mixer]
-  )
-
-  const runIntro = useCallback(() => {
-    playAnimation("Intro.001", "Outro-v2")
-  }, [playAnimation])
-
   const runOutro = useCallback(() => {
-    playAnimation("Outro-v2", "Intro.001")
-  }, [playAnimation])
+    setAnimationState("outro")
+    setIsAnimating(true)
+  }, [])
 
   const runButtonClick = useCallback(() => {
-    playAnimation("Button")
-  }, [playAnimation])
+    setAnimationState("button")
+    setIsAnimating(true)
+  }, [])
 
   const runRuedita = useCallback(() => {
-    playAnimation("ruedita")
-  }, [playAnimation])
+    setAnimationState("ruedita")
+    setIsAnimating(true)
+  }, [])
 
-  // add materials
+  const runAntena = useCallback(() => {
+    setAnimationState("antena")
+    setIsAnimating(true)
+  }, [])
+
+  const runRandomIdleAnimation = useCallback(() => {
+    if (isAnimating) return
+
+    const randomIndex = Math.floor(Math.random() * idleAnimations.length)
+    const animation = idleAnimations[randomIndex]
+
+    if (animation === "ruedita") {
+      runRuedita()
+    } else if (animation === "antena") {
+      runAntena()
+    }
+  }, [runRuedita, runAntena, isAnimating])
+
   useEffect(() => {
-    if (!scene || !animations.length) return
+    if (!actions || !mixer) return
 
-    scene.traverse((node) => {
-      node.frustumCulled = false
+    if (animationState === "idle") {
+      setIsAnimating(false)
+      return
+    }
 
-      if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
-        const oldMaterial = node.material
-        const basicMaterial = new MeshBasicMaterial()
+    const animationMap = {
+      intro: "Intro.001",
+      button: "Button",
+      outro: "Outro-v2",
+      ruedita: "ruedita",
+      antena: "antena.003"
+    }
 
-        if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
-        if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
-        if ("opacity" in oldMaterial)
-          basicMaterial.opacity = oldMaterial.opacity
-        node.material = basicMaterial
+    const actionName = animationMap[animationState]
+    const action = actions[actionName]
+
+    if (action) {
+      mixer.stopAllAction()
+
+      if (animationState === "intro") {
+        action.reset()
+        action.setLoop(LoopOnce, 1)
+        action.clampWhenFinished = true
+        action.timeScale = 1.2
+      } else {
+        action.reset()
+        action.setLoop(LoopOnce, 1)
+        action.clampWhenFinished = true
+
+        if (animationState === "outro") {
+          action.timeScale = 1.5
+        } else if (
+          animationState === "ruedita" ||
+          animationState === "antena"
+        ) {
+          action.timeScale = 1.0
+        } else {
+          action.timeScale = 1.2
+        }
       }
-    })
-  }, [scene, animations])
 
-  // handle open
+      const cleanupListeners = () => {
+        mixer.removeEventListener("finished", onAnimationFinished)
+      }
+
+      const onAnimationFinished = (e: any) => {
+        if (e.action !== action) return
+
+        setIsAnimating(false)
+        setAnimationState("idle")
+
+        if (animationState === "intro") {
+          setIsContactOpen(true)
+          self.postMessage({ type: "intro-complete" })
+        } else if (animationState === "outro") {
+          setIsContactOpen(false)
+          self.postMessage({ type: "outro-complete" })
+        }
+
+        cleanupListeners()
+      }
+
+      mixer.addEventListener("finished", onAnimationFinished)
+      action.play()
+
+      // Clean up function
+      return cleanupListeners
+    }
+  }, [animationState, actions, mixer])
+
+  // handle open and close
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       const { type, isContactOpen: newIsOpen } = e.data
@@ -136,10 +174,30 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
-  }, [runIntro, runOutro, isAnimating, isContactOpen])
+  }, [runIntro, runOutro, isAnimating, isContactOpen, runButtonClick])
+
+  // add materials
+  useEffect(() => {
+    if (!scene || !animations.length) return
+    console.log(actions)
+    scene.traverse((node) => {
+      node.frustumCulled = false
+
+      if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
+        const oldMaterial = node.material
+        const basicMaterial = new MeshBasicMaterial()
+
+        if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
+        if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
+        if ("opacity" in oldMaterial)
+          basicMaterial.opacity = oldMaterial.opacity
+        node.material = basicMaterial
+      }
+    })
+  }, [scene, animations])
 
   useFrame((_, delta) => {
-    if (isContactOpen) {
+    if (isContactOpen && !isAnimating) {
       idleTimeRef.current += delta
 
       const IDLE_TIMEOUT = Math.random() * 5 + 15
@@ -166,7 +224,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       }
 
       if (idleTimeRef.current > IDLE_TIMEOUT) {
-        runRuedita()
+        runRandomIdleAnimation()
         idleTimeRef.current = 0
       }
     }
@@ -178,7 +236,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         scale={1}
         ref={phoneGroupRef}
         position={[0, -0.025, 0]}
-        visible={isContactOpen || isAnimating}
+        visible={isAnimating || isContactOpen}
       >
         <primitive object={scene} />
       </group>
