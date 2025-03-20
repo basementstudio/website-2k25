@@ -103,31 +103,25 @@ void main() {
   #endif
 
   #ifdef USE_EMISSIVEMAP
-    float ei = emissiveIntensity;
-    if (inspectingEnabled && !(inspectingFactor > 0.0)) {
-      ei *= 1.0 - fadeFactor;
-    }
-    vec4 emissiveColor = texture2D(emissiveMap, vUv);
-    irradiance *= emissiveColor.rgb * ei; 
+  float ei = emissiveIntensity;
+  if (inspectingEnabled && !(inspectingFactor > 0.0)) {
+    ei *= 1.0 - fadeFactor;
+  }
+  vec4 emissiveColor = texture2D(emissiveMap, vUv);
+  irradiance *= emissiveColor.rgb * ei;
   #endif
 
-  vec3 lf = irradiance;
+  vec3 lf = irradiance.rgb;
 
   if (inspectingFactor > 0.0) {
-    lf *= basicLight(normal, viewDir, 4.0);
-    lf *= basicLight(
-      normal,
-      normalize(cross(viewDir, vec3(0.0, 1.0, 0.0))),
-      2.0
-    );
-    lf *= basicLight(normal, normalize(-viewDir + vec3(0.0, 0.5, 0.0)), 3.0);
-
-    #ifdef MATCAP
-    vec3 x = normalize(vec3(-viewDir.z, 0.0, viewDir.x));
-    vec3 y = cross(viewDir, x);
-    vec2 muv = vec2(dot(x, normal), dot(y, normal)) * 0.495 + 0.5;
-    lf *= texture2D(matcap, muv).rgb;
-    #endif
+    // Key light
+    lf *= basicLight(vNormal, vViewDirection, 4.0);
+    // Fill light
+    vec3 fillLightDir = normalize(cross(vViewDirection, vec3(0.0, 1.0, 0.0)));
+    lf *= basicLight(vNormal, fillLightDir, 2.0);
+    // Rim light
+    vec3 rimLightDir = normalize(-vViewDirection + vec3(0.0, 0.5, 0.0));
+    lf *= basicLight(vNormal, rimLightDir, 3.0);
   }
 
   #ifndef VIDEO
