@@ -15,7 +15,7 @@ interface HeroProps {
 export const Hero = ({ data, className }: HeroProps) => {
   return (
     <section className={cn("grid-layout !gap-y-4 lg:!gap-y-2", className)}>
-      <h1 className="col-span-full !text-[3.5rem] text-f-h0-mobile text-brand-w2 lg:col-start-1 lg:col-end-6 lg:text-f-h0">
+      <h1 className="col-span-full text-f-h0-mobile text-brand-w2 lg:col-start-1 lg:col-end-6 lg:text-f-h0">
         Services
       </h1>
       <Image
