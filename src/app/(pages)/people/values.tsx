@@ -46,7 +46,7 @@ export const Values = ({ data }: { data: QueryType }) => {
                   <p className="col-span-full text-f-h1-mobile text-brand-w2 lg:col-start-1 lg:col-end-5 lg:text-f-h1">
                     {_title}
                   </p>
-                  <div className="col-span-full sm:col-span-2 lg:col-start-5 lg:col-end-8">
+                  <div className="col-span-full sm:col-span-2 lg:col-start-5 lg:col-end-9">
                     {image && (
                       <div className="relative aspect-[6/6] w-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 sm:col-span-1 md:col-span-2">
                         <div className="with-dots h-full w-full">
@@ -61,7 +61,7 @@ export const Values = ({ data }: { data: QueryType }) => {
                       </div>
                     )}
                   </div>
-                  <div className="col-span-full !text-pretty text-mobile-h4 text-brand-w2 sm:col-span-2 md:text-h4 lg:col-start-8 lg:col-end-12">
+                  <div className="col-span-full !text-pretty text-mobile-h4 text-brand-w2 sm:col-span-2 md:text-h4 lg:col-start-9 lg:col-end-13">
                     <RichText content={description?.json?.content ?? []} />
                   </div>
                 </div>
