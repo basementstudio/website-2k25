@@ -142,6 +142,7 @@
 html {
   @apply scroll-smooth;
   font-feature-settings: "ss01";
+  color-scheme: dark;
 }
 
 body {
