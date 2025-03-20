@@ -20,7 +20,9 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
           <span className="text-f-h4-mobile lg:text-f-h4 col-start-5 col-end-7">
             Type
           </span>
-          <span className="text-f-h4-mobile lg:text-f-h4">Location</span>
+          <span className="text-f-h4-mobile lg:text-f-h4 hidden lg:inline-block">
+            Location
+          </span>
         </div>
       </li>
       {data.company.openPositions.openPositionsList.items.map(
@@ -48,31 +50,25 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
               </span>
               <div className="text-f-p-mobile lg:text-f-p col-start-5 col-end-7 flex flex-col">
                 <p>{type}</p>
-
-                <span className="actionable text-f-p-mobile lg:text-f-p flex items-center gap-1 pt-2 underline lg:hidden">
-                  {!isOpen ? (
-                    ""
-                  ) : (
-                    <>
-                      Apply Now <Arrow className="size-4" />
-                    </>
-                  )}
-                </span>
               </div>
-              <div className="col-start-7 col-end-9 flex w-full items-center justify-between">
-                <span className="text-f-p-mobile lg:text-f-p">{location}</span>
-                <span className="actionable text-f-p-mobile lg:text-f-p !hidden items-center gap-1 lg:[display:inline-flex_!important]">
+              <div className="col-start-7 col-end-9 flex w-full items-center justify-end lg:justify-between">
+                <span className="text-f-p-mobile lg:text-f-p hidden lg:inline-block">
+                  {location}
+                </span>
+                <p className="actionable text-f-p-mobile lg:text-f-p mt-[3px] gap-0.5 lg:mt-0">
                   {!isOpen ? (
                     "(closed)"
                   ) : (
                     <>
                       Apply
                       {/* specifically for large tablets */}
-                      <span className="[@media(width:1024px)]:hidden">Now</span>
+                      <span className="hidden lg:block [@media(width:1024px)]:hidden">
+                        Now
+                      </span>
                       <Arrow className="size-4" />
                     </>
                   )}
-                </span>
+                </p>
               </div>
             </Link>
           </li>
