@@ -60,10 +60,17 @@ export const Scene = () => {
 
   useEffect(() => {
     if (window === undefined) return
-    document.onvisibilitychange = () => {
+
+    const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         userHasLeftWindow.current = true
       }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange, {
+      passive: true
+    })
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
   }, [])
 
