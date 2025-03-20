@@ -5,7 +5,7 @@ import { cn } from "@/utils/cn"
 import { QueryType } from "./query"
 
 export const OpenPositions = ({ data }: { data: QueryType }) => (
-  <section className="grid-layout !gap-y-6 lg:!gap-y-2">
+  <section className="grid-layout !gap-y-6 pb-24 lg:!gap-y-2">
     <h2 className="relative z-20 col-span-full text-f-h1-mobile text-brand-w2 lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:text-f-h1">
       Open <br className="hidden lg:block" />
       Positions
