@@ -6,7 +6,7 @@ export const BrandsMobile = ({ brandsMobile }: { brandsMobile: Brand[][] }) => {
   return (
     <section className="grid-layout isolate !gap-y-0 lg:!hidden">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-h3">
+        <h3 className="text-f-h3-mobile lg:text-f-h3 col-span-full mb-2 text-brand-g1 lg:col-start-3 lg:col-end-7">
           Trusted by Visionaries
         </h3>
       </div>

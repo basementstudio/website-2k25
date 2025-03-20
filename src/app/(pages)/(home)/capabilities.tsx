@@ -9,7 +9,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
 
   return (
     <div className="grid-layout">
-      <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-2 lg:text-h3 2xl:col-start-3">
+      <h3 className="text-f-h3-mobile lg:text-f-h3 col-span-full mb-2 text-brand-g1 lg:col-start-2 2xl:col-start-3">
         {capabilities._title}
       </h3>
 
@@ -32,7 +32,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
               key={c._title}
               className="col-span-1 mt-1.25 flex flex-col gap-y-6 text-brand-w1 lg:col-span-2"
             >
-              <h4 className="text-h4">
+              <h4 className="text-f-h4-mobile lg:text-f-h4">
                 <Link
                   href={`/showcase?category=${encodeURIComponent(c._title)}`}
                 >
@@ -40,7 +40,9 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
                 </Link>
               </h4>
 
-              <p className="-mt-1 text-h4 text-brand-w2">{c.description}</p>
+              <p className="text-f-h4-mobile lg:text-f-h4 -mt-1 text-brand-w2">
+                {c.description}
+              </p>
 
               <div className="flex flex-wrap gap-1">
                 {c.subCategories.items.map((s) => (
