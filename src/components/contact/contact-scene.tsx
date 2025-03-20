@@ -1,7 +1,15 @@
 import { useAnimations, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Mesh, MeshBasicMaterial, LoopOnce, Group, Vector3, Bone } from "three"
+import {
+  Mesh,
+  MeshBasicMaterial,
+  LoopOnce,
+  Group,
+  Vector3,
+  Bone,
+  PerspectiveCamera
+} from "three"
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const { scene, animations, nodes } = useGLTF(modelUrl)
@@ -169,6 +177,9 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         self.postMessage({ type })
       } else if (type === "submit-clicked") {
         runButtonClick()
+      } else if (type === "window-resize") {
+        // Recalculate screen dimensions when window is resized
+        calculateAndSendScreenDimensions()
       }
     }
 
@@ -176,10 +187,140 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     return () => self.removeEventListener("message", handleMessage)
   }, [runIntro, runOutro, isAnimating, isContactOpen, runButtonClick])
 
+  // Function to calculate and send screen dimensions
+  const calculateAndSendScreenDimensions = useCallback(() => {
+    if (!scene) return
+
+    const screenObject = scene.getObjectByName("SCREEN")
+    if (!(screenObject && screenObject instanceof Mesh)) return
+
+    // Get the screen's bounding box
+    screenObject.geometry.computeBoundingBox()
+    const bbox = screenObject.geometry.boundingBox
+
+    if (!bbox) return
+
+    // Calculate screen dimensions in world units
+    const width = bbox.max.x - bbox.min.x
+    const height = bbox.max.y - bbox.min.y
+
+    // Debug logging
+    console.log("Recalculating screen dimensions...")
+    console.log("Camera position:", camera.position)
+    console.log("Screen position:", screenObject.position)
+
+    // We know from contact-canvas.tsx that camera is set with fov:8.5
+    const perspCamera = camera as PerspectiveCamera
+    const fov = (perspCamera.fov || 8.5) * (Math.PI / 180) // Convert to radians
+
+    // Calculate distance with fallback
+    const distance = Math.abs(
+      camera.position.z - (screenObject.position.z || 0)
+    )
+
+    // Get window height from worker context or use a fallback
+    // Define a way to access the self (worker) object with custom properties
+    const workerContext = self as any
+    const windowHeight =
+      workerContext.windowDimensions?.height || window.innerHeight || 1080
+
+    // Log all values going into the calculation
+    console.log("FOV (radians):", fov)
+    console.log("Distance:", distance)
+    console.log("windowHeight:", windowHeight)
+    console.log("Math.tan(fov/2):", Math.tan(fov / 2))
+
+    // Use safe calculation with fallbacks
+    let pixelsPerUnit = 0
+    try {
+      if (distance > 0 && fov > 0) {
+        pixelsPerUnit = windowHeight / (2 * Math.tan(fov / 2) * distance)
+      } else {
+        // Fallback to an estimated value if calculation would result in NaN
+        pixelsPerUnit = 300 // Reasonable default based on typical 3D scene scale
+        console.log("Using fallback pixelsPerUnit value")
+      }
+    } catch (e) {
+      console.error("Error calculating pixelsPerUnit:", e)
+      pixelsPerUnit = 300 // Fallback value
+    }
+
+    console.log("pixelsPerUnit:", pixelsPerUnit)
+
+    // Calculate pixel dimensions
+    const pixelWidth = width * pixelsPerUnit
+    const pixelHeight = height * pixelsPerUnit
+
+    console.log("Screen world dimensions:", { width, height })
+    console.log("Screen pixel dimensions:", {
+      pixelWidth: Math.round(pixelWidth),
+      pixelHeight: Math.round(pixelHeight)
+    })
+
+    // Only send valid dimensions
+    if (
+      !isNaN(pixelWidth) &&
+      !isNaN(pixelHeight) &&
+      pixelWidth > 0 &&
+      pixelHeight > 0 &&
+      pixelWidth < 2000 &&
+      pixelHeight < 2000
+    ) {
+      // Sanity check
+      // Send dimensions to the main thread
+      self.postMessage({
+        type: "screen-dimensions",
+        dimensions: {
+          width: Math.round(pixelWidth),
+          height: Math.round(pixelHeight)
+        }
+      })
+    } else {
+      console.error("Invalid screen dimensions calculated:", {
+        pixelWidth,
+        pixelHeight
+      })
+
+      // Attempt to calculate a more reasonable fallback based on screen object ratio
+      let fallbackWidth = 580 // Original fallback width
+      let fallbackHeight = 350 // Original fallback height
+
+      // If we have valid world dimensions, try to maintain aspect ratio
+      if (width > 0 && height > 0 && !isNaN(width) && !isNaN(height)) {
+        const aspectRatio = width / height
+        if (aspectRatio > 1) {
+          // Wider than tall
+          fallbackHeight = Math.round(fallbackWidth / aspectRatio)
+        } else {
+          // Taller than wide
+          fallbackWidth = Math.round(fallbackHeight * aspectRatio)
+        }
+      }
+
+      console.log("Using fallback dimensions with correct aspect ratio:", {
+        width: fallbackWidth,
+        height: fallbackHeight
+      })
+
+      // Send fallback dimensions
+      self.postMessage({
+        type: "screen-dimensions",
+        dimensions: {
+          width: fallbackWidth,
+          height: fallbackHeight
+        }
+      })
+    }
+  }, [scene, camera])
+
   // add materials
   useEffect(() => {
     if (!scene || !animations.length) return
-    console.log(actions)
+    console.log("SCREEN object:", scene.getObjectByName("SCREEN"))
+
+    // Calculate screen dimensions on initial load
+    calculateAndSendScreenDimensions()
+
     scene.traverse((node) => {
       node.frustumCulled = false
 
@@ -194,7 +335,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         node.material = basicMaterial
       }
     })
-  }, [scene, animations])
+  }, [scene, animations, calculateAndSendScreenDimensions])
 
   useFrame((_, delta) => {
     if (isContactOpen && !isAnimating) {

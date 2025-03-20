@@ -7,6 +7,14 @@ import { useAssets } from "../assets-provider"
 import { useContactStore } from "./contact-store"
 import ContactScreen from "./contact-screen"
 
+const debounce = (fn: Function, ms = 300) => {
+  let timeoutId: ReturnType<typeof setTimeout>
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn.apply(this, args), ms)
+  }
+}
+
 type WorkerMessageType =
   | "outro-complete"
   | "intro-complete"
@@ -51,7 +59,6 @@ const ContactCanvas = () => {
     const handleWorkerMessage = (e: MessageEvent) => {
       const { type } = e.data
 
-      // Common handlers for frequent patterns
       const setAnimComplete = (setCompleteFunc: (val: boolean) => void) => {
         setCompleteFunc(true)
         setIsAnimating(false)
@@ -93,11 +100,44 @@ const ContactCanvas = () => {
     if (contactPhone) {
       newWorker.postMessage({
         type: "load-model",
-        modelUrl: contactPhone
+        modelUrl: contactPhone,
+        windowDimensions: {
+          width: window.innerWidth,
+          height: window.innerHeight
+        }
       })
     }
 
+    const debouncedResizeHandler = debounce(() => {
+      if (newWorker) {
+        console.log("Sending debounced resize event to worker")
+        newWorker.postMessage({
+          type: "window-resize",
+          windowDimensions: {
+            width: window.innerWidth,
+            height: window.innerHeight
+          }
+        })
+      }
+    }, 250)
+
+    const handleResize = () => {
+      if (newWorker) {
+        newWorker.postMessage({
+          type: "window-resize",
+          windowDimensions: {
+            width: window.innerWidth,
+            height: window.innerHeight
+          }
+        })
+      }
+      debouncedResizeHandler()
+    }
+
+    window.addEventListener("resize", handleResize)
+
     return () => {
+      window.removeEventListener("resize", handleResize)
       newWorker.terminate()
       setStoreWorker(null)
     }

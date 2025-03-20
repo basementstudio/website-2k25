@@ -15,12 +15,16 @@ const ContactScreen = () => {
 
   const [submitting, setSubmitting] = useState(false)
   const [showSubmittedMessage, setShowSubmittedMessage] = useState(false)
+  const [screenDimensions, setScreenDimensions] = useState({
+    width: 580,
+    height: 350
+  })
 
   useEffect(() => {
     if (!worker) return
 
     const handleMessage = (e: MessageEvent) => {
-      const { type, screenPos } = e.data
+      const { type, screenPos, dimensions } = e.data
 
       if (type === "update-screen-skinned-matrix") {
         if (contentRef.current) {
@@ -57,6 +61,9 @@ const ContactScreen = () => {
           () => worker.postMessage({ type: "scale-down-animation-complete" }),
           500
         )
+      } else if (type === "screen-dimensions") {
+        console.log("Received screen dimensions:", dimensions)
+        setScreenDimensions(dimensions)
       }
     }
 
@@ -134,8 +141,10 @@ const ContactScreen = () => {
       }}
     >
       <div
-        className="relative flex h-[350px] w-[580px] bg-transparent"
+        className="relative flex bg-transparent"
         style={{
+          width: `${screenDimensions.width}px`,
+          height: `${screenDimensions.height}px`,
           transform: `perspective(400px) rotateY(0.5deg)`,
           transformOrigin: "center center"
         }}
