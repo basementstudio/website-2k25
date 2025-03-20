@@ -10,7 +10,7 @@ import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
-import { MouseTracker } from "@/hooks/use-mouse"
+import { CustomCursor } from "@/components/custom-cursor"
 import { useMinigameStore } from "@/store/minigame-store"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
 
@@ -139,7 +139,7 @@ export const Scene = () => {
           </AnimationController>
         </Canvas>
       </div>
-      <MouseTracker />
+      <CustomCursor />
     </>
   )
 }

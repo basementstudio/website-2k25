@@ -6,6 +6,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { MeshDiscardMaterial } from "@react-three/drei"
 
 export const LockedDoor = () => {
   const { blog } = useMesh()
@@ -61,7 +62,7 @@ export const LockedDoor = () => {
             onClick={handleClick}
           >
             <cylinderGeometry args={[0.075, 0.075, 0.2, 32]} />
-            <meshStandardMaterial opacity={0} transparent depthWrite={false} />
+            <MeshDiscardMaterial />
           </mesh>
         </group>
       )}
