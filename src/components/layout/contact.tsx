@@ -1,44 +1,25 @@
-"use client"
 import { Link } from "@/components/primitives/link"
 
-import { useContactStore } from "../contact/contact-store"
-
 export const Contact = () => {
-  const { setIsContactOpen } = useContactStore()
-
   return (
-    <div className="grid-layout">
-      <h2 className="col-span-full text-mobile-h2 text-brand-w1 lg:col-span-2 lg:text-h2">
-        Drop us a Line:
-      </h2>
+    <div className="grid-layout pb-32 pt-16">
+      <div className="relative col-span-full grid h-fit grid-cols-4 gap-2 !px-0 lg:col-span-10 lg:col-start-3 lg:grid-cols-10">
+        <h3 className="text-f-h3-mobile lg:text-f-h3 col-span-2 mb-2 text-brand-g1">
+          Contact
+        </h3>
 
-      <div className="relative col-span-full grid h-40 grid-cols-4 grid-rows-[2rem,1rem] gap-2 !px-0 lg:col-span-10 lg:grid-cols-10">
+        <p className="col-span-8 row-start-2 text-mobile-h1 text-brand-w2 lg:text-h1">
+          Let&apos;s make an impact together.
+        </p>
+
         <Link
           href="mailto:hello@basement.studio"
-          className="relative z-10 col-span-3 h-max w-max bg-brand-k text-mobile-h2 text-brand-g1 lg:col-span-4 lg:text-h2"
+          className="col-span-5 row-start-3 text-mobile-h1 text-brand-w1 lg:text-h1"
         >
-          <span className="actionable actionable-no-underline">
-            (hello@basement.studio)
-          </span>
+          <span className="actionable">hello@basement.studio</span>
         </Link>
 
-        <div className="col-span-full lg:col-span-6">
-          <p className="relative z-10 h-max w-full bg-brand-k text-mobile-h2 text-brand-w1 lg:w-max lg:text-h2">
-            Let&apos;s Make an Impact, Together.
-            <br />
-          </p>
-          <button
-            className="relative z-10 col-span-full h-max w-max bg-brand-k text-mobile-h2 text-brand-w1 lg:col-start-6 lg:text-h2"
-            onClick={() => {
-              setIsContactOpen(true)
-            }}
-            type="button"
-          >
-            <span className="actionable">Get in Touch</span>
-          </button>
-        </div>
-
-        <div className="with-diagonal-lines !absolute inset-0" />
+        <div className="with-diagonal-lines pointer-events-none !absolute inset-0" />
       </div>
     </div>
   )
