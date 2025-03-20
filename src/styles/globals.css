@@ -238,10 +238,10 @@ p {
 }
 @keyframes marquee-translate {
   0% {
-    transform: translateX(0);
+    transform: translateX(2%);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-48%);
   }
 }
 
