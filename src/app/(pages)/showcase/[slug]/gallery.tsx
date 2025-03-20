@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 
+import { Video } from "@/components/primitives/video"
 import { cn } from "@/utils/cn"
 
 import { useProjectContext } from "./context"
@@ -38,10 +39,9 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
           {/* if video, show video, image otherwise */}
           {video ? (
             <div className="with-dots h-full w-full after:absolute after:inset-0">
-              <video
+              <Video
                 src={video.url}
                 autoPlay
-                playsInline
                 muted
                 loop
                 className="h-full w-full object-cover"

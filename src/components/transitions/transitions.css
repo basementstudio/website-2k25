@@ -1,4 +1,7 @@
 body {
+  --mask-in: url("/page-transition-sprite.svg");
+  --mask-frames: 15;
+  --mask-speed: 0.75;
   --speed: calc(var(--mask-speed, 0.5) * 1s);
   --size: 100vw;
 }
