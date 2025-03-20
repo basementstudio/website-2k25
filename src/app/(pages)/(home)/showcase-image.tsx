@@ -13,6 +13,7 @@ interface ShowcaseImageProps {
 export const ShowcaseImage = ({ project }: ShowcaseImageProps) => {
   const setCursor = useCursor()
 
+  // TODO: Add required in basehub to avoid this
   if (!project.cover) return null
   return (
     <Link
