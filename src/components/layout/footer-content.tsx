@@ -75,7 +75,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
         />
 
         <SocialLinks
-          className="col-start-3 col-end-5 row-start-1 ml-auto lg:hidden"
+          className="col-start-1 col-end-5 row-start-2 lg:hidden"
           links={data.company.social}
         />
 

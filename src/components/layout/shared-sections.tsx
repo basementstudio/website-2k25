@@ -25,7 +25,7 @@ export const InternalLinks = ({
       className={cn(
         "flex flex-col gap-y-2",
         onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
-        "lg:!text-f-h2 text-brand-w1",
+        "text-brand-w1 lg:!text-f-h2",
         className
       )}
     >
@@ -52,7 +52,7 @@ export const InternalLinks = ({
           className={cn(
             "flex w-max flex-col gap-y-1",
             onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
-            "lg:!text-f-h2 text-brand-w1"
+            "text-brand-w1 lg:!text-f-h2"
           )}
         >
           <span className="actionable">Contact Us</span>
@@ -70,22 +70,24 @@ interface SocialLinksProps {
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div
     className={cn(
-      "!text-f-p-mobile lg:!text-f-p flex gap-x-1 text-brand-g1",
+      "flex flex-col gap-y-1 !text-f-h3-mobile text-brand-g1 lg:flex-row lg:gap-x-1 lg:!text-f-p",
       className
     )}
   >
     <Link className="h-max text-brand-w1" href={links.twitter} target="_blank">
       <span className="actionable">X (Twitter)</span>
+      <span className="lg:hidden">,</span>
     </Link>
-    <span>,</span>
+    <span className="hidden lg:inline-block">,</span>
     <Link
       className="h-max text-brand-w1"
       href={links.instagram}
       target="_blank"
     >
       <span className="actionable">Instagram</span>
+      <span className="lg:hidden">,</span>
     </Link>
-    <span>,</span>
+    <span className="hidden lg:inline-block">,</span>
     <Link className="h-max text-brand-w1" href={links.github} target="_blank">
       <span className="actionable">GitHub</span>
     </Link>
@@ -95,7 +97,7 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
 export const Copyright = ({ className }: { className?: string }) => (
   <p
     className={cn(
-      "!text-f-p-mobile lg:!text-f-p text-right text-brand-g1",
+      "text-right !text-f-p-mobile text-brand-g1 lg:!text-f-p",
       className
     )}
   >
