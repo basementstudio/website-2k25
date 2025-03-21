@@ -97,27 +97,40 @@ export const Crew = ({ data }: { data: QueryType }) => {
                       { "opacity-100": hoveredPerson === person._title }
                     )}
                   />
-                  <div className="col-span-1">{person._title}</div>
-                  <div className="col-span-1">{person.role}</div>
-                  <div className="col-span-2 flex justify-end gap-1 text-right text-brand-g1">
-                    {person.socialNetworks.items.map(
-                      (socialNetwork: any, index: number) => (
-                        <Fragment key={index}>
-                          <Link
-                            href={socialNetwork.link as string}
-                            target="_blank"
-                            className="bg-brand-0 text-brand-w1"
-                          >
-                            <span className="actionable">
-                              {socialNetwork.platform}
-                            </span>
-                          </Link>
-                          {index < person.socialNetworks.items.length - 1 && (
-                            <span>,</span>
-                          )}
-                        </Fragment>
-                      )
-                    )}
+                  <div
+                    className="col-span-1 line-clamp-1 hidden lg:inline xl:hidden"
+                    title={person._title}
+                  >
+                    {person._title.split(" ")[0]}
+                  </div>
+                  <div
+                    className="col-span-1 line-clamp-1 lg:hidden xl:inline"
+                    title={person._title}
+                  >
+                    {person._title}
+                  </div>
+                  <div className="col-span-3 flex justify-between gap-1 text-brand-w1">
+                    <span className="line-clamp-1">{person.role}</span>
+                    <div className="flex gap-1 text-right">
+                      {person.socialNetworks.items.map(
+                        (socialNetwork: any, index: number) => (
+                          <Fragment key={index}>
+                            <Link
+                              href={socialNetwork.link as string}
+                              target="_blank"
+                              className="bg-brand-0"
+                            >
+                              <span className="actionable">
+                                {socialNetwork.platform}
+                              </span>
+                            </Link>
+                            {index < person.socialNetworks.items.length - 1 && (
+                              <span>,</span>
+                            )}
+                          </Fragment>
+                        )
+                      )}
+                    </div>
                   </div>
                 </li>
               ))}
@@ -203,13 +216,14 @@ export const MobileFaces = ({
           {/* placeholder for empty columns */}
           <div
             className={cn(
-              "with-dots relative h-full w-full border border-brand-w1/20 text-brand-w1/20",
+              "relative h-full w-full border border-brand-w1/20 text-brand-w1/20",
               { hidden: people.length % 4 === 0 }
             )}
             style={{
               gridColumn: `span ${4 - (people.length % 4)} / span ${4 - (people.length % 4)}`
             }}
           >
+            <div className="with-dots !absolute -inset-px" />
             <div className="with-diagonal-lines absolute inset-0 h-full w-full" />
           </div>
         </div>
