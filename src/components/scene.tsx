@@ -103,7 +103,7 @@ export const Scene = () => {
     <>
       <div className="absolute inset-0">
         <Debug />
-        {/* <Canvas
+        <Canvas
           id="canvas"
           frameloop="never"
           ref={canvasRef}
@@ -165,7 +165,7 @@ export const Scene = () => {
               }
             />
           </AnimationController>
-        </Canvas> */}
+        </Canvas>
       </div>
     </>
   )
