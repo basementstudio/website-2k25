@@ -14,13 +14,13 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
     <ul className="relative col-span-full text-brand-w2 lg:row-start-1">
       <li className="group relative grid grid-cols-12 gap-2">
         <div className="relative col-span-full grid grid-cols-8 items-center gap-2 pb-2 text-brand-g1 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w2/20 lg:col-start-5 lg:col-end-13">
-          <span className="text-f-h4-mobile lg:text-f-h4 col-start-1 col-end-5">
+          <span className="col-start-1 col-end-5 text-f-h4-mobile lg:text-f-h4">
             Role
           </span>
-          <span className="text-f-h4-mobile lg:text-f-h4 col-start-5 col-end-7">
+          <span className="col-start-5 col-end-7 text-f-h4-mobile lg:text-f-h4">
             Type
           </span>
-          <span className="text-f-h4-mobile lg:text-f-h4 hidden lg:inline-block">
+          <span className="hidden text-f-h4-mobile lg:inline-block lg:text-f-h4">
             Location
           </span>
         </div>
@@ -28,15 +28,6 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
       {data.company.openPositions.openPositionsList.items.map(
         ({ _title, type, location, isOpen, applyUrl }, idx) => (
           <li key={idx} className="h- group relative grid grid-cols-12 gap-2">
-            <div
-              className={cn(
-                "with-diagonal-lines pointer-events-none !absolute -top-px bottom-0 left-0 right-0 transition-opacity duration-300",
-                {
-                  "opacity-0 group-hover:opacity-100": isOpen,
-                  hidden: !isOpen
-                }
-              )}
-            />
             <Link
               href={applyUrl ?? ""}
               target="_blank"
@@ -45,17 +36,26 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
                 { "pointer-events-none text-brand-w2/30": !isOpen }
               )}
             >
-              <span className="text-f-h3-mobile lg:text-f-h3 col-start-1 col-end-5">
+              <div
+                className={cn(
+                  "with-diagonal-lines pointer-events-none !absolute -top-px bottom-0 left-0 right-0 transition-opacity duration-300",
+                  {
+                    "opacity-0 group-hover:opacity-100": isOpen,
+                    hidden: !isOpen
+                  }
+                )}
+              />
+              <span className="col-start-1 col-end-5 text-f-h3-mobile lg:text-f-h3">
                 {_title}
               </span>
-              <div className="text-f-p-mobile lg:text-f-p col-start-5 col-end-7 flex flex-col">
+              <div className="col-start-5 col-end-7 flex flex-col text-f-p-mobile lg:text-f-p">
                 <p>{type}</p>
               </div>
               <div className="col-start-7 col-end-9 flex w-full items-center justify-end lg:justify-between">
-                <span className="text-f-p-mobile lg:text-f-p hidden lg:inline-block">
+                <span className="hidden text-f-p-mobile lg:inline-block lg:text-f-p">
                   {location}
                 </span>
-                <p className="actionable text-f-p-mobile lg:text-f-p mt-[3px] gap-0.5 lg:mt-0">
+                <p className="actionable mt-[3px] gap-0.5 text-f-p-mobile lg:mt-0 lg:text-f-p">
                   {!isOpen ? (
                     "(closed)"
                   ) : (
