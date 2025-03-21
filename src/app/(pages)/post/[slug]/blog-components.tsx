@@ -39,7 +39,7 @@ export const BlogVideo = (props: HandlerProps<"video">) => (
 )
 
 export const Intro = ({ children }: HandlerProps<"p">) => (
-  <p className="text-h3 text-brand-w2 [&_b]:font-bold [&_b]:text-brand-w1">
+  <p className="text-f-h3-mobile lg:text-f-h3 text-brand-w2 [&_b]:font-bold [&_b]:text-brand-w1">
     {children}
   </p>
 )
@@ -51,13 +51,13 @@ export const Paragraph = ({ children }: HandlerProps<"p">) => (
 )
 
 export const Heading2 = ({ children }: HandlerProps<"h2">) => (
-  <h2 className="text-balance text-h2 text-brand-w1 [&_b]:font-semibold">
+  <h2 className="text-f-h2-mobile lg:text-f-h2 text-balance text-brand-w1 [&_b]:font-semibold">
     {children}
   </h2>
 )
 
 export const Heading3 = ({ children }: HandlerProps<"h3">) => (
-  <h3 className="text-balance text-h3 text-brand-w1 [&_b]:font-semibold">
+  <h3 className="text-f-h3-mobile lg:text-f-h3 text-balance text-brand-w1 [&_b]:font-semibold">
     {children}
   </h3>
 )
@@ -136,48 +136,48 @@ export const CodeBlock = ({
   )
 }
 
+interface QuoteWithAuthorProps {
+  quote?: any
+  author?: string | null
+  role?: string | null
+  avatar?: ImageFragment | null
+}
+
 export const QuoteWithAuthor = ({
   quote,
   author,
   role,
   avatar
-}: {
-  quote?: any
-  author?: string | null
-  role?: string | null
-  avatar?: ImageFragment | null
-}) => {
-  return (
-    <div className="custom-block relative mb-4 flex gap-x-4">
-      <div className="flex w-full flex-col gap-y-2.5">
-        <div className="[&>*]:text-mobile-h2 [&>*]:text-brand-w2 lg:[&>*]:text-h2">
-          <RichText>{quote}</RichText>
-        </div>
+}: QuoteWithAuthorProps) => (
+  <div className="custom-block relative mb-4 flex gap-x-4">
+    <div className="flex w-full flex-col gap-y-2.5">
+      <div className="[&>*]:text-f-h2-mobile lg:text-f-h2 [&>*]:text-brand-w2">
+        <RichText>{quote}</RichText>
+      </div>
 
-        <div className="flex flex-wrap items-center gap-x-2">
-          {avatar ? (
-            <Image
-              src={avatar.url}
-              alt={avatar.alt ?? `Avatar for ${author}`}
-              width={avatar.width}
-              height={avatar.height}
-              className="size-8 rounded-full object-cover"
-            />
-          ) : null}
+      <div className="flex flex-wrap items-center gap-x-2">
+        {avatar ? (
+          <Image
+            src={avatar.url}
+            alt={avatar.alt ?? `Avatar for ${author}`}
+            width={avatar.width}
+            height={avatar.height}
+            className="size-8 rounded-full object-cover"
+          />
+        ) : null}
 
-          {author ? <p className="text-p text-brand-w2">{author}</p> : null}
-          {role ? <p className="text-p text-brand-g1">{role}</p> : null}
-        </div>
+        {author ? <p className="text-p text-brand-w2">{author}</p> : null}
+        {role ? <p className="text-p text-brand-g1">{role}</p> : null}
       </div>
     </div>
-  )
+  </div>
+)
+
+interface SideNoteProps {
+  children: RichTextProps["content"]
 }
 
-export const SideNote = ({
-  children
-}: {
-  children: RichTextProps["content"]
-}) => (
+export const SideNote = ({ children }: SideNoteProps) => (
   <div className="custom-block flex w-full flex-col gap-2 rounded-[0.25rem] border border-brand-g2 bg-codeblock-k2 px-6 py-4">
     <p className="text-blog text-brand-w1">Note</p>
 
