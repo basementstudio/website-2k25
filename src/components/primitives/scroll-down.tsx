@@ -63,7 +63,7 @@ export const ScrollDown = () => {
     <AnimatePresence>
       {canRunMainApp && (
         <motion.div
-          className="absolute -top-[3.25rem] left-1/2 -translate-x-1/2"
+          className="absolute -top-[6.25rem] bottom-0 left-0 right-0 flex justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 1, 0, 1, 0, 1] }}
           transition={{ duration: 0.3, delay: 1.5 }}
@@ -71,7 +71,7 @@ export const ScrollDown = () => {
           {selected === null && (
             <motion.button
               onClick={handleClick}
-              className="user-select-none flex w-fit items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1"
+              className="user-select-none mt-[3rem] flex h-max w-fit items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1"
               style={{
                 opacity,
                 visibility
