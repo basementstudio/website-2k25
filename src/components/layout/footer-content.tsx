@@ -67,26 +67,25 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
         <Logo className="col-span-full mx-auto border-b border-brand-w1/30 pb-2 text-brand-w2 lg:pb-4" />
       </div>
 
-      <div className="grid-layout relative grid-rows-[auto_auto_56px] !gap-y-10 pb-2 pt-4 lg:grid-rows-[auto] lg:items-end lg:!gap-y-2 lg:py-0">
+      <div className="grid-layout relative grid-rows-[auto_auto_28px] !gap-y-10 pb-2 pt-4 lg:grid-rows-[auto] lg:items-end lg:!gap-y-2 lg:py-0">
         <InternalLinks
-          className="col-start-1 col-end-3 row-start-1 lg:col-start-7 lg:col-end-9"
+          className="col-start-1 col-end-5 row-start-1 border-b border-brand-w1/30 pb-4 lg:col-start-7 lg:col-end-9 lg:border-none lg:pb-0"
           links={LINKS}
           onNav={false}
         />
 
-        <SocialLinks
-          className="col-start-3 col-end-5 row-start-1 ml-auto lg:hidden"
-          links={data.company.social}
-        />
-
         <StayConnected
-          className="col-start-1 col-end-5 row-start-2 lg:row-auto"
+          className="col-start-1 col-end-5 row-start-2 hidden lg:row-auto"
           content={data.company.social.newsletter.json.content}
         />
 
-        <div className="col-span-full row-start-3 flex flex-col justify-end gap-y-4 lg:hidden">
+        <div className="col-span-full row-start-3 flex flex-col justify-end gap-y-2 lg:hidden">
           {/* Jose Request */}
           {/* <SoDa className="items-end" /> */}
+          <SocialLinks
+            className="col-start-1 col-end-5 row-start-2 lg:hidden"
+            links={data.company.social}
+          />
           <Copyright className="text-left" />
         </div>
 

@@ -1,16 +1,39 @@
-import { useMouseStore } from "@/hooks/use-mouse"
-import { debounce } from "@/utils/debounce"
+import { useThree } from "@react-three/fiber"
 import {
   AnimatePresence,
   motion,
   useMotionValue,
   useSpring
 } from "motion/react"
-
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+
+import { useMouseStore } from "@/hooks/use-mouse"
+import { debounce } from "@/utils/debounce"
 
 const OFFSET = 16
 const DEBOUNCE_WAIT = 5
+
+export const UpdateCanvasCursor = () => {
+  const gl = useThree((state) => state.gl)
+  const connected = useThree((state) => state.events.connected)
+
+  const explDomElement = connected || gl.domElement
+  const cursorType = useMouseStore((state) => state.cursorType)
+
+  useEffect(() => {
+    if (explDomElement) {
+      explDomElement.style.cursor = cursorType
+      gl.domElement.style.cursor = ""
+    }
+
+    return () => {
+      explDomElement.style.cursor = "default"
+      gl.domElement.style.cursor = "default"
+    }
+  }, [cursorType, explDomElement, gl.domElement.style])
+
+  return null
+}
 
 const Marquee = ({ text }: { text: string }) => {
   const [key, setKey] = useState(0)
@@ -20,9 +43,8 @@ const Marquee = ({ text }: { text: string }) => {
   }, [text])
 
   return (
-    <div className="marquee-container relative w-36 overflow-hidden whitespace-nowrap bg-black text-white">
-      <div
-        key={key}
+    <span className="marquee-container relative max-w-[8.75rem] overflow-hidden whitespace-nowrap bg-black text-white">
+      <span
         className="inline-flex w-max whitespace-nowrap"
         style={{
           animation: "marquee-translate 7s linear infinite"
@@ -30,8 +52,8 @@ const Marquee = ({ text }: { text: string }) => {
       >
         <span>{text}&nbsp;</span>
         <span>{text}&nbsp;</span>
-      </div>
-    </div>
+      </span>
+    </span>
   )
 }
 
@@ -78,14 +100,21 @@ export const CustomCursor = memo(() => {
       const desiredX = e.clientX + OFFSET
       const desiredY = e.clientY + OFFSET
 
-      const xPos =
-        desiredX + width > window.innerWidth
-          ? e.clientX - OFFSET - width
-          : desiredX
+      const defaultX = e.clientX - OFFSET - width
+      const defaultY = e.clientY - OFFSET - height
 
-      const yPos =
-        desiredY + height > window.innerHeight - window.scrollY
-          ? e.clientY - OFFSET - height
+      const xPos = desiredX + width > window.innerWidth ? defaultX : desiredX
+
+      const isOutsideCanvas = window.scrollY > window.innerHeight
+
+      const yPos = isOutsideCanvas
+        ? desiredY + height > window.innerHeight
+          ? // if at window's bottom edge
+            defaultY
+          : desiredY
+        : desiredY + height > window.innerHeight - window.scrollY
+          ? // if at canvas's bottom edge
+            defaultY
           : desiredY
 
       x.set(xPos)
@@ -120,21 +149,21 @@ export const CustomCursor = memo(() => {
   return (
     <AnimatePresence>
       {hoverText && (
-        <motion.div
+        <motion.p
           ref={mouseElementRef}
-          className="pointer-events-none fixed z-50 bg-brand-k text-p text-brand-w1"
+          className="text-f-p-mobile lg:text-f-p pointer-events-none fixed z-50 bg-brand-k text-brand-w1"
           style={{ x: springX, y: springY }}
           {...animationProps}
         >
           {!marquee ? (
             `[${hoverText}]`
           ) : (
-            <div style={{ display: "flex", gap: "2px" }}>
+            <span className="flex gap-0.5">
               <span>[Now Playing]</span>
-              <Marquee text={hoverText} />
-            </div>
+              <Marquee text={hoverText ?? ""} />
+            </span>
           )}
-        </motion.div>
+        </motion.p>
       )}
     </AnimatePresence>
   )

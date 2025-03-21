@@ -18,16 +18,18 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
 
   return (
-    <ul className={cn("flex flex-col gap-y-1 text-p text-brand-g1", className)}>
+    <ul
+      className={cn(
+        "text-f-p-mobile lg:text-f-p flex flex-col gap-y-1 text-brand-g1",
+        className
+      )}
+    >
       {links.map((link) => (
         <li key={link.title}>
-          <Link
-            className="flex gap-x-0.5 text-h2 text-brand-w1"
-            href={link.href}
-          >
+          <Link className="flex gap-x-0.5 text-brand-w1" href={link.href}>
             <span className="actionable">{link.title}</span>
             {link.count && (
-              <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
+              <sup className="text-f-p-mobile lg:text-f-p translate-y-1.25 !font-medium text-brand-g1">
                 <span className="tabular-nums">({link.count})</span>
               </sup>
             )}
@@ -37,7 +39,7 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => {
       <li>
         <button
           onClick={() => setIsContactOpen(!isContactOpen)}
-          className="flex gap-x-0.5 text-h2 text-brand-w1"
+          className="flex gap-x-0.5 text-brand-w1"
         >
           <span className="actionable">Contact Us</span>
         </button>

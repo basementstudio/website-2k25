@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { Suspense, useEffect, useMemo } from "react"
+import { useEffect, useMemo } from "react"
 
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 
@@ -16,8 +16,8 @@ const Scene = dynamic(
 
 import { cn } from "@/utils/cn"
 
+import { CustomCursor } from "../custom-cursor"
 import { useAppLoadingStore } from "../loading/app-loading-handler"
-import { ScrollDown } from "../primitives/scroll-down"
 
 const BLACKLISTED_PATHS = [
   /^\/showcase\/\d+$/,
@@ -44,6 +44,10 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
+      <div className="pointer-events-none fixed top-0 z-50 h-screen w-full">
+        <CustomCursor />
+      </div>
+
       <div
         className={cn(
           "canvas-container sticky top-0 h-screen w-full lg:fixed",
@@ -52,7 +56,6 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
       >
         {isCanvasInPage && <Scene />}
         <InspectableViewer />
-        <ScrollDown />
       </div>
 
       <div

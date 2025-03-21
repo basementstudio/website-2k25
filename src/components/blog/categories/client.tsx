@@ -20,10 +20,10 @@ export const CategoriesClient = ({
   }
 
   return (
-    <div className="col-span-full row-start-1 flex flex-col gap-2 lg:col-span-3 lg:col-start-9 lg:row-start-auto">
-      <p className="text-p text-brand-g1">Categories</p>
+    <div className="col-span-full row-start-1 flex flex-col gap-1 pb-8 lg:col-span-3 lg:col-start-9 lg:row-start-auto lg:gap-2">
+      <p className="text-f-p-mobile lg:text-f-h3 text-brand-g1">Categories</p>
 
-      <ul className="flex flex-wrap gap-x-4 gap-y-1">
+      <ul className="flex flex-col gap-y-1 lg:flex-row lg:flex-wrap lg:gap-x-4">
         {categories.map((category) => {
           const href =
             activeCategory === category?._slug
@@ -37,7 +37,7 @@ export const CategoriesClient = ({
               prefetch
               key={category?._title}
               className={cn(
-                "flex w-max gap-x-1.25 text-left !text-mobile-h2 transition-colors duration-300 lg:!text-h2",
+                "!text-f-h2-mobile lg:!text-f-h2 flex w-max gap-x-1.25 text-left transition-colors duration-300",
                 activeCategory === category._slug ||
                   (pathname === "/blog" && category._slug === "blog") ||
                   !activeCategory ||

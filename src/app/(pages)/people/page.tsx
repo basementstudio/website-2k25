@@ -1,6 +1,8 @@
 import { Pump } from "basehub/react-pump"
 import type { Metadata } from "next"
 
+import { Contact } from "@/components/layout/contact"
+
 import { Crew } from "./crew"
 import { Hero } from "./hero"
 import { OpenPositions } from "./open-positions"
@@ -23,6 +25,7 @@ const About = () => (
           <Values data={data} />
           <Crew data={data} />
           <OpenPositions data={data} />
+          <Contact />
         </>
       )
     }}

@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 
+import { Video } from "@/components/primitives/video"
 import { cn } from "@/utils/cn"
 
 import { useProjectContext } from "./context"
@@ -17,7 +18,7 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
   return (
     <div
       className={cn(
-        "col-span-full grid gap-2 transition-all duration-300 lg:col-span-10",
+        "col-span-full grid gap-2 transition-all duration-300 lg:col-span-9 xl:col-span-10",
         viewMode === "grid" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
       )}
     >
@@ -38,10 +39,9 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
           {/* if video, show video, image otherwise */}
           {video ? (
             <div className="with-dots h-full w-full after:absolute after:inset-0">
-              <video
+              <Video
                 src={video.url}
                 autoPlay
-                playsInline
                 muted
                 loop
                 className="h-full w-full object-cover"

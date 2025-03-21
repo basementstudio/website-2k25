@@ -9,7 +9,9 @@ import { FeaturedProjects } from "./featured-projects"
 import { Intro } from "./intro"
 
 export const metadata: Metadata = {
-  title: "We make cool shit that performs.",
+  title: {
+    absolute: "basement.studio | We make cool shit that performs."
+  },
   description:
     "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality."
 }
@@ -18,7 +20,7 @@ const Homepage = async () => {
   const data = await fetchHomepage()
 
   return (
-    <div className="flex flex-col gap-18 lg:gap-44">
+    <div className="flex flex-col gap-18 lg:gap-32">
       <Intro data={data} />
       <Brands data={data} />
       <FeaturedProjects data={data} />

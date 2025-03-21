@@ -84,12 +84,12 @@ const DesktopUI = ({
       <div className="grid-layout mt-24 h-full">
         <button
           onClick={() => handleNavigation("/")}
-          className="pointer-events-auto col-span-2 col-start-2 h-max text-p text-brand-w1"
+          className="text-f-p-mobile lg:text-f-p pointer-events-auto col-span-2 col-start-2 h-max text-brand-w1"
         >
           Close Game [ESC]
         </button>
         <div
-          className={`${geistMono.className} col-span-2 col-start-6 flex h-10 select-none text-p uppercase text-brand-w2`}
+          className={`${geistMono.className} text-f-p-mobile lg:text-f-p col-span-2 col-start-6 flex h-10 select-none uppercase text-brand-w2`}
         >
           <div className="corner-borders relative flex w-1/2 translate-x-[0.5px] items-center justify-center">
             <p>{formatTime(timeRemaining)}</p>
@@ -101,12 +101,14 @@ const DesktopUI = ({
         </div>
 
         <div className="col-span-1 col-start-8 flex h-10 items-center justify-center">
-          <p className={`${geistMono.className} text-p text-brand-w1`}>
+          <p
+            className={`${geistMono.className} text-f-p-mobile lg:text-f-p text-brand-w1`}
+          >
             {scoreMultiplier}x
           </p>
         </div>
 
-        <Scoreboard className="col-span-2 col-start-10 ml-auto w-32 text-p" />
+        <Scoreboard className="text-f-p-mobile lg:text-f-p col-span-2 col-start-10 ml-auto w-32" />
       </div>
     </div>
   )
@@ -126,33 +128,31 @@ const MobileUI = ({
   timeRemaining,
   score,
   scoreMultiplier
-}: MobileUIProps) => {
-  return (
-    <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in flex-col px-4 py-12">
-      <div className="grid grid-cols-4 place-items-start gap-4">
-        <button
-          onClick={() => handleNavigation("/")}
-          className="pointer-events-auto absolute left-0 pl-4 text-mobile-p text-brand-w1"
-        >
-          [Close]
-        </button>
+}: MobileUIProps) => (
+  <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in flex-col px-4 py-12">
+    <div className="grid grid-cols-4 place-items-start gap-4">
+      <button
+        onClick={() => handleNavigation("/")}
+        className="text-f-p-mobile pointer-events-auto absolute left-0 pl-4 text-brand-w1"
+      >
+        [Close]
+      </button>
 
-        <div className="col-span-2 col-start-2 flex w-full items-center justify-center gap-4 font-mono text-mobile-p text-brand-w2">
-          <div className="relative flex items-center justify-center">
-            <p className="uppercase">{formatTime(timeRemaining)}</p>
-          </div>
-          <div className="relative flex items-center justify-center">
-            <p className="uppercase">{Math.floor(score)} Pts.</p>
-          </div>
-          <div className="relative flex items-center justify-center">
-            <p>{scoreMultiplier}x</p>
-          </div>
+      <div className="text-f-p-mobile col-span-2 col-start-2 flex w-full items-center justify-center gap-4 font-mono text-brand-w2">
+        <div className="relative flex items-center justify-center">
+          <p className="uppercase">{formatTime(timeRemaining)}</p>
         </div>
-
-        <div className="col-span-1 col-start-4 w-full">
-          <Scoreboard isMobile />
+        <div className="relative flex items-center justify-center">
+          <p className="uppercase">{Math.floor(score)} Pts.</p>
+        </div>
+        <div className="relative flex items-center justify-center">
+          <p>{scoreMultiplier}x</p>
         </div>
       </div>
+
+      <div className="col-span-1 col-start-4 w-full">
+        <Scoreboard isMobile />
+      </div>
     </div>
-  )
-}
+  </div>
+)

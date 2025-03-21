@@ -24,7 +24,7 @@ const MobileInfo = memo(({ project }: { project: Project }) => {
                 <span key={cat._title}>{cat._title}</span>
               )) || []
             }
-            className="text-p"
+            className="text-f-p-mobile lg:text-f-p"
           />
         }
       />

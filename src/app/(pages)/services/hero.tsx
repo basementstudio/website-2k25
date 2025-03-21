@@ -15,7 +15,7 @@ interface HeroProps {
 export const Hero = ({ data, className }: HeroProps) => {
   return (
     <section className={cn("grid-layout !gap-y-4 lg:!gap-y-2", className)}>
-      <h1 className="col-span-full !text-[3.5rem] text-f-h0-mobile text-brand-w2 lg:col-start-1 lg:col-end-6 lg:text-f-h0">
+      <h1 className="col-span-full text-f-h0-mobile text-brand-w2 lg:col-start-1 lg:col-end-6 lg:text-f-h0">
         Services
       </h1>
       <Image
@@ -25,7 +25,7 @@ export const Hero = ({ data, className }: HeroProps) => {
         height={data.pages.services.heroImage?.height}
         className="col-span-1 lg:col-start-6 lg:col-end-9"
       />
-      <div className="col-start-2 col-end-5 flex flex-col gap-4 text-mobile-h4 text-brand-w2 lg:col-start-9 lg:col-end-13 lg:text-h4">
+      <div className="text-f-h3-mobile lg:text-f-h4 col-start-2 col-end-5 flex flex-col gap-4 text-brand-w2 lg:col-start-9 lg:col-end-13">
         <RichText content={data.pages.services.intro.json.content} />
       </div>
     </section>
