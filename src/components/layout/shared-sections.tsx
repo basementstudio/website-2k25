@@ -38,7 +38,7 @@ export const InternalLinks = ({
           >
             <span className="actionable">{link.title}</span>
             {link.count && (
-              <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
+              <sup className="text-f-p-mobile lg:text-f-p translate-y-1.25 !font-medium text-brand-g1">
                 <span className="tabular-nums">({link.count})</span>
               </sup>
             )}
@@ -107,7 +107,7 @@ export const SoDa = ({ className }: { className?: string }) => (
   <div className={cn("mb-2 w-full", className)}>
     <Link
       className={cn(
-        "!block text-right !text-mobile-p font-semibold text-brand-w1 lg:!text-p",
+        "!text-f-p-mobile lg:!text-f-p !block text-right font-semibold text-brand-w1",
         className
       )}
       href="https://www.sodaspeaks.com/"

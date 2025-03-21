@@ -97,7 +97,10 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
     <>
       <div className="col-start-3 col-end-11 hidden w-full justify-center gap-5 lg:flex">
         {links.map((link) => (
-          <div key={link.href} className="flex items-center gap-1 text-p">
+          <div
+            key={link.href}
+            className="flex items-center gap-1 text-[0.75rem] font-semibold leading-4"
+          >
             <Link
               href={link.href}
               className={cn(
@@ -121,7 +124,7 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
           <div
             id="nav-contact"
             className={cn(
-              "!text-p capitalize text-brand-w1 hover:text-brand-o",
+              "text-[0.75rem] font-semibold leading-4 text-brand-w1 hover:text-brand-o",
               isContactOpen && "text-brand-g1"
             )}
           >

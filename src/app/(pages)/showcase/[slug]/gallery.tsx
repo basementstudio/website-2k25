@@ -18,7 +18,7 @@ export function ProjectGallery({ entry }: { entry: QueryItemType }) {
   return (
     <div
       className={cn(
-        "col-span-full grid gap-2 transition-all duration-300 lg:col-span-10",
+        "col-span-full grid gap-2 transition-all duration-300 lg:col-span-9 xl:col-span-10",
         viewMode === "grid" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
       )}
     >

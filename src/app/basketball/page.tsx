@@ -84,12 +84,12 @@ const DesktopUI = ({
       <div className="grid-layout mt-24 h-full">
         <button
           onClick={() => handleNavigation("/")}
-          className="pointer-events-auto col-span-2 col-start-2 h-max text-p text-brand-w1"
+          className="text-f-p-mobile lg:text-f-p pointer-events-auto col-span-2 col-start-2 h-max text-brand-w1"
         >
           Close Game [ESC]
         </button>
         <div
-          className={`${geistMono.className} col-span-2 col-start-6 flex h-10 select-none text-p uppercase text-brand-w2`}
+          className={`${geistMono.className} text-f-p-mobile lg:text-f-p col-span-2 col-start-6 flex h-10 select-none uppercase text-brand-w2`}
         >
           <div className="corner-borders relative flex w-1/2 translate-x-[0.5px] items-center justify-center">
             <p>{formatTime(timeRemaining)}</p>
@@ -101,12 +101,14 @@ const DesktopUI = ({
         </div>
 
         <div className="col-span-1 col-start-8 flex h-10 items-center justify-center">
-          <p className={`${geistMono.className} text-p text-brand-w1`}>
+          <p
+            className={`${geistMono.className} text-f-p-mobile lg:text-f-p text-brand-w1`}
+          >
             {scoreMultiplier}x
           </p>
         </div>
 
-        <Scoreboard className="col-span-2 col-start-10 ml-auto w-32 text-p" />
+        <Scoreboard className="text-f-p-mobile lg:text-f-p col-span-2 col-start-10 ml-auto w-32" />
       </div>
     </div>
   )

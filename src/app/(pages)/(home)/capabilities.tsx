@@ -13,18 +13,8 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
         {capabilities._title}
       </h3>
 
-      <div className="col-span-full [&_p]:text-f-h1-mobile lg:[&_p]:text-f-h1">
-        <RichText
-          components={{
-            p: ({ children }) => (
-              <p className="text-f-p-mobile text-brand-w2 lg:text-f-p">
-                {children}
-              </p>
-            )
-          }}
-        >
-          {capabilities.intro?.json?.content}
-        </RichText>
+      <div className="col-span-full text-brand-w2 [&_p]:text-f-h1-mobile lg:[&_p]:text-f-h1">
+        <RichText>{capabilities.intro?.json?.content}</RichText>
       </div>
 
       <div className="grid-layout relative col-span-full mt-16 !px-0">
@@ -51,7 +41,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
                   <p
                     key={s._title}
                     title={s._title}
-                    className="line-clamp-1 w-fit bg-brand-g2 px-1 text-f-p-mobile text-brand-w1 lg:text-f-p"
+                    className="text-f-p-mobile lg:text-f-p line-clamp-1 w-fit bg-brand-g2 px-1 text-brand-w1"
                   >
                     {s._title}
                   </p>

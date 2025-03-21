@@ -58,7 +58,9 @@ export async function RelatedProjects({
 
   return (
     <div className={cn("mt-auto flex flex-col gap-2", className)}>
-      <h4 className="text-mobile-h4 text-brand-g1 lg:text-h4">More Projects</h4>
+      <h4 className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
+        More Projects
+      </h4>
 
       <ul className="flex flex-col divide-y divide-brand-w1/20">
         <div />
@@ -66,7 +68,7 @@ export async function RelatedProjects({
           <Link
             href={`/showcase/${item.project?._slug}`}
             key={index}
-            className="flex items-center justify-between pb-1.75 pt-1.5 !text-p font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1"
+            className="!text-f-p-mobile lg:!text-f-p flex items-center justify-between pb-1.75 pt-1.5 font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1"
           >
             <span className="flex items-center gap-1.75">
               {item.project?.icon ? (
