@@ -19,7 +19,7 @@ export const InfoItem = ({
 }: InfoItemProps) => (
   <li
     className={cn(
-      "text-f-p-mobile lg:text-f-p grid grid-cols-4 items-start gap-2 py-1",
+      "line-clamp-1 grid grid-cols-4 items-start gap-2 py-1 text-f-p-mobile lg:text-f-p",
       className
     )}
   >
