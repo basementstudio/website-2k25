@@ -244,11 +244,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         }
       })
     } else {
-      console.error("Invalid screen dimensions calculated:", {
-        pixelWidth,
-        pixelHeight
-      })
-
       let fallbackWidth = 580
       let fallbackHeight = 350
 
@@ -276,6 +271,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     if (!scene || !animations.length) return
     calculateAndSendScreenDimensions()
 
+    console.log(scene)
     scene.traverse((node) => {
       node.frustumCulled = false
 
