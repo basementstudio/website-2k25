@@ -74,20 +74,22 @@ export const Crew = ({ data }: { data: QueryType }) => {
           <div key={department}>
             <div className="grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1">
               {index === 0 && (
-                <p className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
+                <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
                   A-Z
                 </p>
               )}
-              <p className="text-f-h4-mobile lg:text-f-h4 col-start-2 text-brand-g1">
+              <p className="col-start-2 text-f-h4-mobile text-brand-g1 lg:text-f-h4">
                 {department}
               </p>
             </div>
 
-            <ul className="text-f-p-mobile lg:text-f-p text-brand-w1">
+            <ul className="text-f-p-mobile text-brand-w1 lg:text-f-p">
               {people.map((person) => (
                 <li
                   key={person._title}
-                  className="group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
+                  className={cn(
+                    "group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
+                  )}
                   onMouseEnter={() => setHoveredPerson(person._title)}
                   onMouseLeave={() => setHoveredPerson(null)}
                 >
@@ -186,7 +188,7 @@ export const MobileFaces = ({
   <div className="col-span-full flex flex-col gap-4 py-6 lg:hidden">
     {Object.entries(data).map(([department, people]) => (
       <article key={department} className="flex flex-col gap-2">
-        <p className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
+        <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
           {department}
         </p>
 
@@ -233,15 +235,26 @@ export const Face = ({
 }: FaceProps) => (
   <div
     key={person._title}
-    className={
-      "with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]"
-    }
+    className={cn(
+      "with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]",
+      {
+        "opacity-50 transition-opacity duration-300":
+          hoveredPerson && hoveredPerson !== person._title
+      }
+    )}
     onMouseEnter={() => setHoveredPerson(person._title)}
     onMouseLeave={() => setHoveredPerson(null)}
   >
     <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
       {person.image ? (
-        <Image src={person.image.url} alt={person._title} fill />
+        <Image
+          src={person.image.url}
+          alt={person._title}
+          fill
+          className={cn("transition-opacity duration-300", {
+            "opacity-50": hoveredPerson && hoveredPerson !== person._title
+          })}
+        />
       ) : (
         <Placeholder width={134} height={156} />
       )}
@@ -271,7 +284,7 @@ export const CrewFooter = ({ spanStart, spanEnd }: CrewFooterProps) => (
     <Link
       href="/"
       target="_blank"
-      className="text-f-p-mobile lg:text-f-p relative z-10 flex h-4 gap-1 bg-brand-k text-brand-w1"
+      className="relative z-10 flex h-4 gap-1 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
     >
       <span className="actionable flex items-center gap-1">
         Join the Crew <Arrow className="size-4" />
