@@ -215,7 +215,7 @@ const MobileInput = () => {
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || !inputValue || inputValue.length !== 3}
-          className="text-mobile-p text-brand-w1 disabled:opacity-50"
+          className="text-f-p-mobile text-brand-w1 disabled:opacity-50"
         >
           {"Save Score ->"}
         </button>

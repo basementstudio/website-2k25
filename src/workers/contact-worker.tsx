@@ -2,12 +2,33 @@ import { render } from "@react-three/offscreen"
 
 import ContactScene from "@/components/contact/contact-scene"
 
-self.onmessage = ({ data }) => {
-  const { type, modelUrl, isContactOpen } = data
+let windowDimensions = {
+  width: 1920,
+  height: 1080
+}
 
-  // Handle model loading
+self.onmessage = ({ data }) => {
+  const {
+    type,
+    modelUrl,
+    isContactOpen,
+    windowDimensions: newDimensions
+  } = data
+
+  if (newDimensions) {
+    windowDimensions = newDimensions
+    console.log("[ContactWorker] Window dimensions updated:", windowDimensions)
+  }
+
+  if (type === "window-resize" && newDimensions) {
+    self.postMessage({ type: "window-resize" })
+    return
+  }
+
   if (type === "load-model" && modelUrl) {
     try {
+      // @ts-ignore - Pass window dimensions to the ContactScene
+      self.windowDimensions = windowDimensions
       render(<ContactScene modelUrl={modelUrl} />)
     } catch (error) {
       console.error("[ContactWorker] Error rendering scene:", error)
@@ -23,7 +44,9 @@ self.onmessage = ({ data }) => {
       "start-outro",
       "run-outro-animation",
       "scale-animation-complete",
-      "scale-down-animation-complete"
+      "scale-down-animation-complete",
+      "screen-dimensions",
+      "submit-clicked"
     ].includes(type)
   ) {
     self.postMessage({
@@ -33,7 +56,6 @@ self.onmessage = ({ data }) => {
   }
 }
 
-// Error handling
 self.onerror = (error) => console.error("[ContactWorker] Worker error:", error)
 self.onmessageerror = (error) =>
   console.error("[ContactWorker] Message error:", error)

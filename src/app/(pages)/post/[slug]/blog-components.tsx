@@ -91,13 +91,13 @@ export const UnorderedList = ({ children }: HandlerProps<"ul">) => (
 )
 
 export const ListItem = ({ children }: HandlerProps<"li">) => (
-  <li className="blog-list-item pl-2 text-brand-w2 marker:text-p">
+  <li className="blog-list-item marker:text-f-p-mobile lg:text-f-p pl-2 text-brand-w2">
     {children}
   </li>
 )
 
 export const Code = ({ children }: HandlerProps<"code">) => (
-  <code className="md:tracking-2 rounded-md border border-brand-g2 bg-codeblock-k2 px-1 font-mono text-p font-semibold">
+  <code className="md:tracking-2 text-f-p-mobile lg:text-f-p rounded-md border border-brand-g2 bg-codeblock-k2 px-1 font-mono font-semibold">
     {children}
   </code>
 )
@@ -166,8 +166,12 @@ export const QuoteWithAuthor = ({
           />
         ) : null}
 
-        {author ? <p className="text-p text-brand-w2">{author}</p> : null}
-        {role ? <p className="text-p text-brand-g1">{role}</p> : null}
+        {author ? (
+          <p className="text-f-p-mobile lg:text-f-p text-brand-w2">{author}</p>
+        ) : null}
+        {role ? (
+          <p className="text-f-p-mobile lg:text-f-p text-brand-g1">{role}</p>
+        ) : null}
       </div>
     </div>
   </div>
