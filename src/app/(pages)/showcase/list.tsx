@@ -55,7 +55,7 @@ const AccordionListItem = memo(
               <p>{project.client?._title}</p>
             </div>
 
-            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty text-f-h4 leading-none text-brand-w2">
+            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty text-f-p leading-none text-brand-w2">
               {project.categories?.map((cat, idx) => (
                 <span key={cat._title}>
                   {cat._title}
@@ -65,12 +65,12 @@ const AccordionListItem = memo(
                 </span>
               ))}
             </p>
-            <p className="relative col-start-11 col-end-12 text-left text-f-h4 text-brand-w2">
+            <p className="relative col-start-11 col-end-12 text-left text-f-p text-brand-w2">
               {project.year}
             </p>
             <Link
               href={`/showcase/${project?._slug}`}
-              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-f-h4 text-brand-w2"
+              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-f-p text-brand-w2"
             >
               <span className="actionable actionable-no-underline gap-x-1">
                 <span className="actionable actionable-inanimate">
