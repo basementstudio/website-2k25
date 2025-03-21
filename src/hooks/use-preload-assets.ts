@@ -19,7 +19,7 @@ const ASSET_TO_NOT_PRELOAD = [
 const ASSET_URL_SRC = [
   {
     key: "bakes",
-    urlKey: "lightmap"
+    urlKey: ["lightmap", "ambientOcclusion"]
   },
   {
     key: "characters",
@@ -127,12 +127,20 @@ const collectUrls = (
     if (urlMapping) {
       // Extract URLs from special array items
       obj.forEach((item) => {
-        if (item && typeof item === "object" && urlMapping.urlKey in item) {
-          const url = item[urlMapping.urlKey]
-          if (typeof url === "string" && url.startsWith("https://")) {
-            urlSet.add(url)
+        if (!item || typeof item !== "object") return
+
+        const urlKeys = Array.isArray(urlMapping.urlKey)
+          ? urlMapping.urlKey
+          : [urlMapping.urlKey]
+
+        urlKeys.forEach((key) => {
+          if (key in item) {
+            const url = item[key]
+            if (typeof url === "string" && url.startsWith("https://")) {
+              urlSet.add(url)
+            }
           }
-        }
+        })
       })
     } else {
       // Process array items recursively
