@@ -1,25 +1,26 @@
-import { useAnimations } from "@react-three/drei"
+import { useAnimations, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useCallback, useEffect, useRef, useState } from "react"
 import {
   Mesh,
   MeshBasicMaterial,
   LoopOnce,
-  AnimationMixer,
   Group,
   Vector3,
   Bone,
-  Object3D
+  PerspectiveCamera
 } from "three"
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
-import { GLTFResult } from "../map/map"
+
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
-  const { scene, animations } = useKTX2GLTF(modelUrl) as unknown as GLTFResult
+  const { scene, animations, nodes } = useGLTF(modelUrl)
   const { actions, mixer } = useAnimations(animations, scene)
-  const mixerRef = useRef<AnimationMixer | null>(null)
-  const [isAnimating, setIsAnimating] = useState(false)
   const [isContactOpen, setIsContactOpen] = useState(false)
-  const nodesRef = useRef<{ [name: string]: Object3D }>({})
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [animationState, setAnimationState] = useState<
+    "idle" | "intro" | "button" | "outro" | "ruedita" | "antena"
+  >("idle")
+
+  const idleAnimations = ["ruedita", "antena"]
 
   const debugMeshRef = useRef<Mesh>(null)
   const phoneGroupRef = useRef<Group>(null)
@@ -27,94 +28,125 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const tmp = new Vector3()
   const camera = useThree((state) => state.camera)
 
-  // add mixer ref
-  useEffect(() => {
+  // run animations
+  const runIntro = useCallback(() => {
     if (mixer) {
-      mixerRef.current = mixer
+      mixer.stopAllAction()
     }
+    if (phoneGroupRef.current) {
+      phoneGroupRef.current.visible = true
+    }
+    setAnimationState("intro")
+    setIsAnimating(true)
   }, [mixer])
 
-  // Extract nodes from the scene
-  useEffect(() => {
-    if (scene) {
-      const nodes: { [name: string]: Object3D } = {}
-      scene.traverse((object) => {
-        nodes[object.name] = object
-      })
-      nodesRef.current = nodes
-    }
-  }, [scene])
-
-  const playAnimation = useCallback(
-    (animName: string, oppositeAnimName?: string) => {
-      if (!actions[animName]) return
-
-      if (oppositeAnimName && actions[oppositeAnimName])
-        actions[oppositeAnimName].stop()
-
-      setIsAnimating(true)
-      const anim = actions[animName]
-      anim.reset()
-      anim.clampWhenFinished = true
-      anim.loop = LoopOnce
-
-      anim.timeScale = animName === "Outro-v2" ? 1.5 : 1.2
-      anim.play()
-
-      const onAnimationFinished = () => {
-        setIsAnimating(false)
-        mixer.removeEventListener("finished", onAnimationFinished)
-
-        if (animName === "Outro-v2") {
-          self.postMessage({ type: "outro-complete" })
-          setIsContactOpen(false)
-        } else if (animName === "Intro.001") {
-          setIsContactOpen(true)
-          self.postMessage({ type: "intro-complete" })
-        }
-      }
-      mixer.addEventListener("finished", onAnimationFinished)
-    },
-    [actions, mixer]
-  )
-
-  const runIntro = useCallback(() => {
-    playAnimation("Intro.001", "Outro-v2")
-  }, [playAnimation])
-
   const runOutro = useCallback(() => {
-    playAnimation("Outro-v2", "Intro.001")
-  }, [playAnimation])
+    setAnimationState("outro")
+    setIsAnimating(true)
+  }, [])
 
   const runButtonClick = useCallback(() => {
-    playAnimation("Button")
-  }, [playAnimation])
+    setAnimationState("button")
+    setIsAnimating(true)
+  }, [])
 
   const runRuedita = useCallback(() => {
-    playAnimation("ruedita")
-  }, [playAnimation])
+    setAnimationState("ruedita")
+    setIsAnimating(true)
+  }, [])
 
-  // add materials
+  const runAntena = useCallback(() => {
+    setAnimationState("antena")
+    setIsAnimating(true)
+  }, [])
+
+  const runRandomIdleAnimation = useCallback(() => {
+    if (isAnimating) return
+
+    const randomIndex = Math.floor(Math.random() * idleAnimations.length)
+    const animation = idleAnimations[randomIndex]
+
+    if (animation === "ruedita") {
+      runRuedita()
+    } else if (animation === "antena") {
+      runAntena()
+    }
+  }, [runRuedita, runAntena, isAnimating])
+
   useEffect(() => {
-    if (!scene || !animations.length) return
+    if (!actions || !mixer) return
 
-    scene.traverse((node) => {
-      node.frustumCulled = false
+    if (animationState === "idle") {
+      setIsAnimating(false)
+      return
+    }
 
-      if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
-        const oldMaterial = node.material
-        const basicMaterial = new MeshBasicMaterial()
+    const animationMap = {
+      intro: "Intro.001",
+      button: "Button",
+      outro: "Outro-v2",
+      ruedita: "ruedita",
+      antena: "antena.003"
+    }
 
-        if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
-        if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
-        if ("opacity" in oldMaterial)
-          basicMaterial.opacity = oldMaterial.opacity
-        node.material = basicMaterial
+    const actionName = animationMap[animationState]
+    const action = actions[actionName]
+
+    if (action) {
+      mixer.stopAllAction()
+
+      if (animationState === "intro") {
+        action.reset()
+        action.setLoop(LoopOnce, 1)
+        action.clampWhenFinished = true
+        action.timeScale = 1.2
+      } else {
+        action.reset()
+        action.setLoop(LoopOnce, 1)
+        action.clampWhenFinished = true
+
+        if (animationState === "outro") {
+          action.timeScale = 1.5
+        } else if (
+          animationState === "ruedita" ||
+          animationState === "antena"
+        ) {
+          action.timeScale = 1.0
+        } else {
+          action.timeScale = 1.2
+        }
       }
-    })
-  }, [scene, animations])
 
-  // handle open
+      const cleanupListeners = () => {
+        mixer.removeEventListener("finished", onAnimationFinished)
+      }
+
+      const onAnimationFinished = (e: any) => {
+        if (e.action !== action) return
+
+        setIsAnimating(false)
+        setAnimationState("idle")
+
+        if (animationState === "intro") {
+          setIsContactOpen(true)
+          self.postMessage({ type: "intro-complete" })
+        } else if (animationState === "outro") {
+          setIsContactOpen(false)
+          self.postMessage({ type: "outro-complete" })
+        }
+
+        cleanupListeners()
+      }
+
+      mixer.addEventListener("finished", onAnimationFinished)
+      action.play()
+
+      // Clean up function
+      return cleanupListeners
+    }
+  }, [animationState, actions, mixer])
+
+  // handle open and close
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       const { type, isContactOpen: newIsOpen } = e.data
@@ -145,20 +177,124 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         self.postMessage({ type })
       } else if (type === "submit-clicked") {
         runButtonClick()
+      } else if (type === "window-resize") {
+        // Recalculate screen dimensions when window is resized
+        calculateAndSendScreenDimensions()
       }
     }
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
-  }, [runIntro, runOutro, isAnimating, isContactOpen])
+  }, [runIntro, runOutro, isAnimating, isContactOpen, runButtonClick])
+
+  // Function to calculate and send screen dimensions
+  const calculateAndSendScreenDimensions = useCallback(() => {
+    if (!scene) return
+    const screenObject = scene.getObjectByName("SCREEN")
+    if (!(screenObject && screenObject instanceof Mesh)) return
+
+    // Get the screen's bounding box
+    screenObject.geometry.computeBoundingBox()
+    const bbox = screenObject.geometry.boundingBox
+
+    if (!bbox) return
+
+    const width = bbox.max.x - bbox.min.x
+    const height = bbox.max.y - bbox.min.y
+
+    const perspCamera = camera as PerspectiveCamera
+    const fov = (perspCamera.fov || 8.5) * (Math.PI / 180)
+
+    const distance = Math.abs(
+      camera.position.z - (screenObject.position.z || 0)
+    )
+
+    const workerContext = self as any
+    const windowHeight =
+      workerContext.windowDimensions?.height || window.innerHeight || 1080
+
+    // Use safe calculation with fallbacks
+    let pixelsPerUnit = 0
+    try {
+      if (distance > 0 && fov > 0) {
+        pixelsPerUnit = windowHeight / (2 * Math.tan(fov / 2) * distance)
+      } else {
+        pixelsPerUnit = 300
+      }
+    } catch (e) {
+      pixelsPerUnit = 300
+    }
+
+    const pixelWidth = width * pixelsPerUnit
+    const pixelHeight = height * pixelsPerUnit
+
+    if (
+      !isNaN(pixelWidth) &&
+      !isNaN(pixelHeight) &&
+      pixelWidth > 0 &&
+      pixelHeight > 0 &&
+      pixelWidth < 2000 &&
+      pixelHeight < 2000
+    ) {
+      self.postMessage({
+        type: "screen-dimensions",
+        dimensions: {
+          width: Math.round(pixelWidth),
+          height: Math.round(pixelHeight)
+        }
+      })
+    } else {
+      let fallbackWidth = 580
+      let fallbackHeight = 350
+
+      if (width > 0 && height > 0 && !isNaN(width) && !isNaN(height)) {
+        const aspectRatio = width / height
+        if (aspectRatio > 1) {
+          fallbackHeight = Math.round(fallbackWidth / aspectRatio)
+        } else {
+          fallbackWidth = Math.round(fallbackHeight * aspectRatio)
+        }
+      }
+
+      self.postMessage({
+        type: "screen-dimensions",
+        dimensions: {
+          width: fallbackWidth,
+          height: fallbackHeight
+        }
+      })
+    }
+  }, [scene, camera])
+
+  // add materials
+  useEffect(() => {
+    if (!scene || !animations.length) return
+    calculateAndSendScreenDimensions()
+
+    console.log(scene)
+    scene.traverse((node) => {
+      node.frustumCulled = false
+
+      if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
+        const oldMaterial = node.material
+        const basicMaterial = new MeshBasicMaterial()
+
+        if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
+        if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
+        if ("opacity" in oldMaterial)
+          basicMaterial.opacity = oldMaterial.opacity
+        node.material = basicMaterial
+      }
+    })
+  }, [scene, animations, calculateAndSendScreenDimensions])
 
   useFrame((_, delta) => {
-    if (isContactOpen) {
+    if (isContactOpen && !isAnimating) {
       idleTimeRef.current += delta
 
       const IDLE_TIMEOUT = Math.random() * 5 + 15
 
-      const screenbone = nodesRef.current.Obj as Bone | undefined
+      const screenbone = nodes.Obj as Bone
       if (screenbone && debugMeshRef.current) {
         screenbone.getWorldPosition(tmp)
         tmp.add(new Vector3(-0.0342, 0.043, 0))
@@ -180,7 +316,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       }
 
       if (idleTimeRef.current > IDLE_TIMEOUT) {
-        runRuedita()
+        runRandomIdleAnimation()
         idleTimeRef.current = 0
       }
     }
@@ -191,8 +327,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       <group
         scale={1}
         ref={phoneGroupRef}
-        position={[0, 0, 0]}
-        visible={isContactOpen || isAnimating}
+        position={[0, -0.025, 0]}
+        visible={isAnimating || isContactOpen}
       >
         <primitive object={scene} />
       </group>

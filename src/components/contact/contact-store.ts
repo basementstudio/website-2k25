@@ -26,16 +26,6 @@ export const useContactStore = create<ContactStore>((set) => ({
       if (!isContactOpen) {
         let targetPath: string | null = null
 
-        if (window.location.hash === "#contact") {
-          targetPath = sessionStorage.getItem("pendingNavigation")
-
-          window.history.pushState(
-            null,
-            "",
-            window.location.pathname + window.location.search
-          )
-        }
-
         if (!state.introCompleted) {
           return state
         }
@@ -80,14 +70,6 @@ export const useContactStore = create<ContactStore>((set) => ({
       } else {
         if (state.hasBeenOpenedBefore && !state.closingCompleted) {
           return state
-        }
-
-        if (window.location.hash !== "#contact") {
-          window.history.pushState(
-            null,
-            "",
-            window.location.pathname + window.location.search + "#contact"
-          )
         }
 
         if (state.worker) {
