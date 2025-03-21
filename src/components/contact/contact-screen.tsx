@@ -76,13 +76,7 @@ const ContactScreen = () => {
     }
   }, [worker, animation])
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    watch
-  } = useForm<Inputs>()
+  const { register, handleSubmit, reset, watch } = useForm<Inputs>()
 
   const email = watch("email")
   const message = watch("message")

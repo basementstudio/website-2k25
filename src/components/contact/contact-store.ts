@@ -56,6 +56,8 @@ export const useContactStore = create<ContactStore>((set) => ({
             closingCompleted: true
           })
 
+          document.dispatchEvent(new CustomEvent("contactClosed"))
+
           if (targetPath && targetPath !== window.location.pathname) {
             window.dispatchEvent(
               new CustomEvent("contactFormNavigate", {
