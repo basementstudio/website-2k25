@@ -186,7 +186,9 @@ export const MobileFaces = ({
   <div className="col-span-full flex flex-col gap-4 py-6 lg:hidden">
     {Object.entries(data).map(([department, people]) => (
       <article key={department} className="flex flex-col gap-2">
-        <p className="text-mobile-h4 text-brand-g1">{department}</p>
+        <p className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
+          {department}
+        </p>
 
         <div className="grid grid-cols-4 gap-2">
           {people.map((person) => (

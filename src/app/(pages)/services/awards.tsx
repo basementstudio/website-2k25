@@ -203,7 +203,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
                 className="group relative grid grid-cols-12 gap-2 [&:first-child>.item]:after:absolute [&:first-child>.item]:after:-top-px [&:first-child>.item]:after:left-0 [&:first-child>.item]:after:w-full [&:first-child>.item]:after:border-t [&:first-child>.item]:after:border-brand-w1/20"
               >
                 <div className="item relative col-span-12 grid grid-cols-12 items-center gap-2 border-b border-brand-w1/20 pb-1 pt-0.75">
-                  <span className="text-f-p-mobile col-span-6 line-clamp-1 lg:col-span-4 lg:text-h3 2xl:col-span-3">
+                  <span className="text-f-p-mobile lg:text-f-h3 col-span-6 line-clamp-1 lg:col-span-4 2xl:col-span-3">
                     {award.title}
                   </span>
                   <span className="text-f-p-mobile lg:text-f-h4 col-start-7 col-end-10 line-clamp-1 text-brand-w2 lg:col-span-4 2xl:col-span-3">
