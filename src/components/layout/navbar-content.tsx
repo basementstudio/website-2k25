@@ -10,6 +10,7 @@ import { Link } from "@/components/primitives/link"
 import { Portal } from "@/components/primitives/portal"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
+import useFirstRender from "@/hooks/use-first-render"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
@@ -146,6 +147,8 @@ const MobileContent = memo(
     const mobileMenuRef = useRef<HTMLDivElement>(null)
     const menuHandlerRef = useRef<HTMLButtonElement>(null)
 
+    const firstRender = useFirstRender()
+
     const { focusTrapRef } = useFocusTrap(isOpen, menuHandlerRef)
     // disable scroll when the menu is open and it's on mobile
     const shouldDisableScroll = useMemo(
@@ -206,29 +209,54 @@ const MobileContent = memo(
       socialLinks
     ])
 
+    const labelInitial = useMemo(
+      () =>
+        firstRender ? false : { opacity: 0, scaleY: 0.5, filter: "blur(4px)" },
+      [firstRender, isOpen]
+    )
+
+    const Label = ({ children }: { children: React.ReactNode }) => (
+      <motion.p
+        id="menu-button"
+        className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
+        initial={labelInitial}
+        animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
+        exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
+        transition={{ duration: 0.9, type: "spring", bounce: 0 }}
+      >
+        {children}
+      </motion.p>
+    )
+
     return (
-      <div className="col-start-4 col-end-5 flex items-center justify-end gap-5 lg:hidden">
+      <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
         <MusicToggle />
 
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex w-7 flex-col gap-[4px]"
-          aria-label={isOpen ? "Close menu" : "Open menu"}
-          ref={menuHandlerRef}
-        >
-          <span
-            className={cn(
-              "h-px w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
-              { "translate-y-[2.5px] rotate-[22.5deg]": isOpen }
-            )}
-          />
-          <span
-            className={cn(
-              "h-px w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
-              { "-translate-y-[2.5px] -rotate-[22.5deg]": isOpen }
-            )}
-          />
-        </button>
+        <div className="flex items-center gap-x-2">
+          <AnimatePresence mode="popLayout">
+            {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
+          </AnimatePresence>
+
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex w-7 flex-col gap-[4px]"
+            ref={menuHandlerRef}
+            aria-labelledby="menu-button"
+          >
+            <span
+              className={cn(
+                "h-px w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
+                { "translate-y-[2.5px] rotate-[22.5deg]": isOpen }
+              )}
+            />
+            <span
+              className={cn(
+                "h-px w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
+                { "-translate-y-[2.5px] -rotate-[22.5deg]": isOpen }
+              )}
+            />
+          </button>
+        </div>
 
         <AnimatePresence>{memoizedMenu}</AnimatePresence>
       </div>
