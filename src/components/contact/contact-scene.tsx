@@ -220,23 +220,13 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         pixelsPerUnit = windowHeight / (2 * Math.tan(fov / 2) * distance)
       } else {
         pixelsPerUnit = 300
-        console.log("Using fallback pixelsPerUnit value")
       }
     } catch (e) {
-      console.error("Error calculating pixelsPerUnit:", e)
       pixelsPerUnit = 300
     }
 
-    console.log("pixelsPerUnit:", pixelsPerUnit)
-
     const pixelWidth = width * pixelsPerUnit
     const pixelHeight = height * pixelsPerUnit
-
-    console.log("Screen world dimensions:", { width, height })
-    console.log("Screen pixel dimensions:", {
-      pixelWidth: Math.round(pixelWidth),
-      pixelHeight: Math.round(pixelHeight)
-    })
 
     if (
       !isNaN(pixelWidth) &&
