@@ -41,7 +41,7 @@ export async function Featured() {
                   )}
                 </div>
               </div>
-              <h2 className="text-f-h2-mobile col-span-full py-1 text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-h2">
+              <h2 className="text-f-h2-mobile lg:text-f-h2 col-span-full py-1 text-brand-w2 lg:col-start-5 lg:col-end-8">
                 {post._title}
               </h2>
               <div className="relative col-span-full grid grid-cols-4 content-start gap-y-4 py-1 lg:col-span-4 lg:col-start-9">

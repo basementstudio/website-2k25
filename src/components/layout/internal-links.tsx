@@ -26,10 +26,7 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => {
     >
       {links.map((link) => (
         <li key={link.title}>
-          <Link
-            className="flex gap-x-0.5 text-h2 text-brand-w1"
-            href={link.href}
-          >
+          <Link className="flex gap-x-0.5 text-brand-w1" href={link.href}>
             <span className="actionable">{link.title}</span>
             {link.count && (
               <sup className="text-f-p-mobile lg:text-f-p translate-y-1.25 !font-medium text-brand-g1">
@@ -42,7 +39,7 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => {
       <li>
         <button
           onClick={() => setIsContactOpen(!isContactOpen)}
-          className="flex gap-x-0.5 text-h2 text-brand-w1"
+          className="flex gap-x-0.5 text-brand-w1"
         >
           <span className="actionable">Contact Us</span>
         </button>
