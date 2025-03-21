@@ -236,7 +236,7 @@ const MobileContent = memo(
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex w-7 flex-col items-center justify-center gap-[4px] pl-1"
+            className="relative flex w-7 flex-col items-center justify-center gap-[4px] overflow-visible pl-1"
             ref={menuHandlerRef}
             aria-labelledby="menu-button"
           >
