@@ -17,7 +17,6 @@ self.onmessage = ({ data }) => {
 
   if (newDimensions) {
     windowDimensions = newDimensions
-    console.log("[ContactWorker] Window dimensions updated:", windowDimensions)
   }
 
   if (type === "window-resize" && newDimensions) {
