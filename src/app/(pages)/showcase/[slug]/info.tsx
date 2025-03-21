@@ -85,7 +85,8 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
                   target="_blank"
                   className="actionable line-clamp-1 flex items-center gap-1 text-brand-w1"
                 >
-                  {website} <ExternalLinkIcon className="size-2" />
+                  {website.replace(/^https?:\/\//, "")}
+                  <ExternalLinkIcon className="size-2" />
                 </Link>
               }
             />
@@ -112,7 +113,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
         {entry.project?.caseStudy ? (
           <Link
             href={entry.project?.caseStudy || ""}
-            className="text-f-p-mobile lg:text-f-p inline-flex items-center gap-1 text-brand-w1"
+            className="inline-flex items-center gap-1 text-f-p-mobile text-brand-w1 lg:text-f-p"
           >
             <span className="actionable">
               View Case Study <Arrow className="size-4" />
