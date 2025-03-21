@@ -1,7 +1,7 @@
 import { Link } from "@/components/primitives/link"
 
 export const Contact = () => (
-  <div className="grid-layout pb-32 pt-16">
+  <div className="grid-layout pb-16 pt-12 lg:pb-32 lg:pt-16">
     <div className="relative col-span-full grid h-fit grid-cols-4 gap-2 !px-0 lg:col-span-10 lg:col-start-2 lg:grid-cols-10 2xl:col-start-3">
       <h3 className="text-f-h3-mobile lg:text-f-h3 col-span-2 mb-2 text-brand-g1">
         Contact

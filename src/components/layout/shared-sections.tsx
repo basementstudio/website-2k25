@@ -70,7 +70,7 @@ interface SocialLinksProps {
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div
     className={cn(
-      "!text-f-p-mobile lg:!text-f-p flex gap-x-1 text-brand-g1",
+      "!text-f-h4-mobile lg:!text-f-p flex flex-row gap-x-1 text-brand-g1",
       className
     )}
   >
