@@ -70,24 +70,22 @@ interface SocialLinksProps {
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div
     className={cn(
-      "flex flex-col gap-y-1 !text-f-h3-mobile text-brand-g1 lg:flex-row lg:gap-x-1 lg:!text-f-p",
+      "flex flex-row gap-x-1 !text-f-h3-mobile text-brand-g1 lg:!text-f-p",
       className
     )}
   >
     <Link className="h-max text-brand-w1" href={links.twitter} target="_blank">
       <span className="actionable">X (Twitter)</span>
-      <span className="lg:hidden">,</span>
     </Link>
-    <span className="hidden lg:inline-block">,</span>
+    <span>,</span>
     <Link
       className="h-max text-brand-w1"
       href={links.instagram}
       target="_blank"
     >
       <span className="actionable">Instagram</span>
-      <span className="lg:hidden">,</span>
     </Link>
-    <span className="hidden lg:inline-block">,</span>
+    <span>,</span>
     <Link className="h-max text-brand-w1" href={links.github} target="_blank">
       <span className="actionable">GitHub</span>
     </Link>

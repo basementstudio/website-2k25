@@ -57,6 +57,11 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
       </div>
       <form
         action={formAction}
+        onSubmit={(e) => {
+          e.preventDefault()
+          const formData = new FormData(e.currentTarget)
+          formAction(formData)
+        }}
         className="flex max-w-[26.25rem] flex-col gap-4 text-f-h4-mobile lg:text-f-h4"
       >
         <Input
@@ -81,7 +86,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="text-f-h4-mobile !text-brand-g [height:_calc(0.89_*_1em)] lg:text-f-h4"
               >
-                Succesfully Subscribed
+                Subscribed Succesfully
               </motion.span>
             ) : (
               <motion.span

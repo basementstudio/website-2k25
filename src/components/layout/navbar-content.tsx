@@ -8,18 +8,16 @@ import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
 import { Portal } from "@/components/primitives/portal"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
-
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
 import { ContactButton } from "../primitives/contact-button"
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
-
-import { useDisableScroll } from "@/hooks/use-disable-scroll"
 
 const Logo = memo(({ className }: { className?: string }) => (
   <svg
