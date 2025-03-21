@@ -55,13 +55,14 @@
       transparent
     );
 
+    /* using this var in the height calculation causes a layout shift in safari */
     --height: 0.89;
 
     color: var(--color-mix) !important;
     display: inline-flex;
     align-items: center;
-    height: calc(var(--height) * 1em);
-    line-height: var(--height);
+    height: calc(0.89 * 1em);
+    line-height: 0.89;
 
     &:not(.actionable-no-underline) {
       --underline-height: max(0.06em, 1px);
