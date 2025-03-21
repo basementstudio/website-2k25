@@ -71,7 +71,7 @@ export const ScrollDown = () => {
           {selected === null && (
             <motion.button
               onClick={handleClick}
-              className="user-select-none flex w-fit items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1"
+              className="user-select-none text-f-p-mobile lg:text-f-p flex w-fit items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-brand-w1"
               style={{
                 opacity,
                 visibility

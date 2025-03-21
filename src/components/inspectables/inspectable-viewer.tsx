@@ -24,9 +24,11 @@ const Content = ({ data }: { data: InspectableData }) => (
         {data.specs.map((spec) => (
           <Fragment key={spec._id}>
             <div className="grid grid-cols-6 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75">
-              <h3 className="col-span-2 text-p text-brand-g1">{spec._title}</h3>
+              <h3 className="text-f-p-mobile lg:text-f-p col-span-2 text-brand-g1">
+                {spec._title}
+              </h3>
               <p
-                className="col-span-4 line-clamp-1 overflow-hidden text-ellipsis text-p text-brand-w2"
+                className="text-f-p-mobile lg:text-f-p col-span-4 line-clamp-1 overflow-hidden text-ellipsis text-brand-w2"
                 title={spec.value}
               >
                 {spec.value}
@@ -36,7 +38,7 @@ const Content = ({ data }: { data: InspectableData }) => (
         ))}
       </div>
     )}
-    <div className="text-p text-brand-w1 [&>p]:!text-pretty">
+    <div className="text-f-p-mobile lg:text-f-p text-brand-w1 [&>p]:!text-pretty">
       {data?.description?.json?.content && (
         <BaseRichText content={data.description.json.content as any} />
       )}
