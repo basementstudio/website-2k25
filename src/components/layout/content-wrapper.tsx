@@ -18,7 +18,6 @@ import { cn } from "@/utils/cn"
 
 import { CustomCursor } from "../custom-cursor"
 import { useAppLoadingStore } from "../loading/app-loading-handler"
-import { ScrollDown } from "../primitives/scroll-down"
 
 const BLACKLISTED_PATHS = [
   /^\/showcase\/\d+$/,
