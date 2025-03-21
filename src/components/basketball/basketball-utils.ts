@@ -323,7 +323,6 @@ export const handlePointerUp = ({
       throwVelocity.x * throwVelocity.x + throwVelocity.y * throwVelocity.y
     )
 
-    console.log(pointerSpeed)
     if (
       dragDistance > 0.1 &&
       verticalDragDistance < -0.1 &&
