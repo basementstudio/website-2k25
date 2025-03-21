@@ -11,14 +11,20 @@ import { cn } from "@/utils/cn"
 type InspectableData = AssetsResult["inspectables"][number]
 
 const Close = ({ handleClose }: { handleClose: () => void }) => (
-  <button className="text-p text-brand-w1" tabIndex={0} onClick={handleClose}>
+  <button
+    className="text-f-p-mobile lg:text-f-p text-brand-w1"
+    tabIndex={0}
+    onClick={handleClose}
+  >
     Close [ESC]
   </button>
 )
 
 const Content = ({ data }: { data: InspectableData }) => (
   <>
-    <h2 className="text-pretty text-h2 text-brand-w1">{data._title}</h2>
+    <h2 className="text-f-h2-mobile lg:text-f-h2 text-pretty text-brand-w1">
+      {data._title}
+    </h2>
     {data?.specs && data.specs.length > 0 && (
       <div className="flex flex-col border-t border-brand-w1/20">
         {data.specs.map((spec) => (
