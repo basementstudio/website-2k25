@@ -20,7 +20,7 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
           <span className="text-f-h4-mobile lg:text-f-h4 col-start-5 col-end-7">
             Type
           </span>
-          <span className="text-mobile-h4 lg:text-h4">Location</span>
+          <span className="text-f-h4-mobile lg:text-f-h4">Location</span>
         </div>
       </li>
       {data.company.openPositions.openPositionsList.items.map(
@@ -43,7 +43,7 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
                 { "pointer-events-none text-brand-w2/30": !isOpen }
               )}
             >
-              <span className="col-start-1 col-end-5 text-mobile-h3 lg:text-h3">
+              <span className="text-f-h3-mobile lg:text-f-h3 col-start-1 col-end-5">
                 {_title}
               </span>
               <span className="text-f-p-mobile lg:text-f-p col-start-5 col-end-7">

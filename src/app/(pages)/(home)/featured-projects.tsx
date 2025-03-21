@@ -59,7 +59,7 @@ const ProjectItem = ({ project }: ProjectItemProps) => (
     <div className="col-span-full flex flex-col justify-between gap-y-2 md:col-span-3 md:pr-12 lg:pr-2">
       <Link
         href={`/showcase/${project.project?._slug}`}
-        className="text-mobile-h2 text-brand-w1 md:hidden lg:text-h2"
+        className="text-f-h2-mobile lg:text-f-h2 text-brand-w1 md:hidden"
       >
         <span className="actionable">{project._title}</span>
       </Link>
@@ -86,7 +86,7 @@ const ProjectItem = ({ project }: ProjectItemProps) => (
 
     <Link
       href={`/showcase/${project.project?._slug}`}
-      className="hidden h-max w-max justify-self-end pr-0.5 text-right text-mobile-h2 text-brand-w1 md:block lg:col-span-2 lg:col-start-11 lg:text-h2"
+      className="text-f-h2-mobile lg:text-f-h2 hidden h-max w-max justify-self-end pr-0.5 text-right text-brand-w1 md:block lg:col-span-2 lg:col-start-11"
     >
       <span className="actionable group gap-x-2 [&:before]:delay-0 [&:before]:hover:delay-150">
         <span className="translate-x-6 transition-transform duration-200 ease-in-out group-hover:translate-x-0">
