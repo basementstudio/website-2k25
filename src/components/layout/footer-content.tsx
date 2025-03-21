@@ -80,7 +80,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
         />
 
         <StayConnected
-          className="col-start-1 col-end-5 row-start-2 lg:row-auto"
+          className="col-start-1 col-end-5 row-start-2 hidden lg:row-auto"
           content={data.company.social.newsletter.json.content}
         />
 

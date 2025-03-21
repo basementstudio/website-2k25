@@ -9,7 +9,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
 
   return (
     <div className="grid-layout">
-      <h3 className="text-f-h3-mobile lg:text-f-h3 col-span-full mb-2 text-brand-g1 lg:col-start-2 2xl:col-start-3">
+      <h3 className="col-span-full mb-2 text-f-h3-mobile text-brand-g1 lg:col-start-2 lg:text-f-h3 2xl:col-start-3">
         {capabilities._title}
       </h3>
 
@@ -17,7 +17,9 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
         <RichText
           components={{
             p: ({ children }) => (
-              <p className="text-p text-brand-w2">{children}</p>
+              <p className="text-f-p-mobile text-brand-w2 lg:text-f-p">
+                {children}
+              </p>
             )
           }}
         >
@@ -40,7 +42,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
                 </Link>
               </h4>
 
-              <p className="text-f-h4-mobile lg:text-f-h4 -mt-1 text-brand-w2">
+              <p className="-mt-1 text-f-h4-mobile text-brand-w2 lg:text-f-h4">
                 {c.description}
               </p>
 
@@ -49,7 +51,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
                   <p
                     key={s._title}
                     title={s._title}
-                    className="line-clamp-1 w-fit bg-brand-g2 px-1 text-p text-brand-w1"
+                    className="line-clamp-1 w-fit bg-brand-g2 px-1 text-f-p-mobile text-brand-w1 lg:text-f-p"
                   >
                     {s._title}
                   </p>
