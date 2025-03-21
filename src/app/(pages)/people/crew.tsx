@@ -140,11 +140,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
         hoveredPerson={debouncedHoveredPerson}
         heightRef={heightRef.current}
       />
-      <MobileFaces
-        data={groupedPeople}
-        setHoveredPerson={setHoveredPerson}
-        hoveredPerson={debouncedHoveredPerson}
-      />
+      <MobileFaces data={groupedPeople} />
     </section>
   )
 }
@@ -184,13 +180,9 @@ export const DesktopFaces = ({
 }
 
 export const MobileFaces = ({
-  data,
-  setHoveredPerson,
-  hoveredPerson
+  data
 }: {
   data: Record<string, QueryType["company"]["people"]["peopleList"]["items"]>
-  setHoveredPerson: (person: string | null) => void
-  hoveredPerson: string | null
 }) => (
   <div className="col-span-full flex flex-col gap-4 py-6 lg:hidden">
     {Object.entries(data).map(([department, people]) => (
