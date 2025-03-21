@@ -29,25 +29,25 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
         ({ _title, type, location, isOpen, applyUrl }, idx) => (
           <li
             key={idx}
-            className="group relative grid min-h-16 grid-cols-12 gap-2 lg:min-h-max"
+            className="relative grid min-h-16 grid-cols-12 gap-2 lg:min-h-max"
           >
-            <div
-              className={cn(
-                "with-diagonal-lines pointer-events-none !absolute -top-px bottom-0 left-0 right-0 transition-opacity duration-300",
-                {
-                  "opacity-0 group-hover:opacity-100": isOpen,
-                  hidden: !isOpen
-                }
-              )}
-            />
             <Link
               href={applyUrl ?? ""}
               target="_blank"
               className={cn(
-                "relative col-span-full grid grid-cols-8 items-start gap-2 py-4 transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w2/20 hover:text-brand-w1 lg:items-center lg:py-2 xl:col-start-5 xl:col-end-13",
+                "group relative col-span-full grid grid-cols-8 items-start gap-2 py-4 transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w2/20 hover:text-brand-w1 lg:items-center lg:py-2 xl:col-start-5 xl:col-end-13",
                 { "pointer-events-none text-brand-w2/30": !isOpen }
               )}
             >
+              <div
+                className={cn(
+                  "with-diagonal-lines pointer-events-none !absolute -top-px bottom-0 left-0 right-0 transition-opacity duration-300",
+                  {
+                    "opacity-0 group-hover:opacity-100": isOpen,
+                    hidden: !isOpen
+                  }
+                )}
+              />
               <span className="col-start-1 col-end-5 text-f-p-mobile lg:text-f-h3">
                 {_title}
               </span>
