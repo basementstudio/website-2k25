@@ -1,6 +1,7 @@
 "use client"
 
 import { RichTextNode } from "basehub/api-transaction"
+import { AnimatePresence, motion } from "motion/react"
 import { usePathname } from "next/navigation"
 import { memo, useMemo, useRef, useState } from "react"
 
@@ -8,18 +9,16 @@ import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
 import { Portal } from "@/components/primitives/portal"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
-
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
 import { ContactButton } from "../primitives/contact-button"
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
-
-import { useDisableScroll } from "@/hooks/use-disable-scroll"
 
 const Logo = memo(({ className }: { className?: string }) => (
   <svg
@@ -148,36 +147,53 @@ const MobileContent = memo(
     const menuHandlerRef = useRef<HTMLButtonElement>(null)
 
     const { focusTrapRef } = useFocusTrap(isOpen, menuHandlerRef)
-    useDisableScroll(isOpen)
+    // disable scroll when the menu is open and it's on mobile
+    const shouldDisableScroll = useMemo(
+      () => isOpen && Boolean(isMobile),
+      [isOpen, isMobile]
+    )
+    useDisableScroll(shouldDisableScroll)
 
     const handleChangeLink = () => {
       setIsOpen(false)
     }
 
     const memoizedMenu = useMemo(() => {
+      if (!isMobile || !isOpen) return null
+
       return (
         <Portal id="mobile-menu">
-          <div
+          <motion.div
             ref={mergeRefs(mobileMenuRef, focusTrapRef)}
             className={cn(
-              "grid-layout invisible fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full grid-rows-2 bg-brand-k py-6 opacity-0",
-              { "visible opacity-100": isOpen && isMobile }
+              "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6"
             )}
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            exit={{ scaleY: 0, transition: { delay: 0.35 } }}
+            transition={{ duration: 0.4, type: "spring", bounce: 0 }}
           >
             <InternalLinks
               links={links}
               onClick={handleChangeLink}
               className="col-span-4"
               onNav={true}
+              animated={true}
             />
 
-            <div className="col-span-4 flex h-full flex-col justify-end gap-y-16">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { delay: 0.4 } }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, type: "spring", bounce: 0 }}
+              className="col-span-4 flex h-full flex-col justify-end gap-y-16"
+            >
               <div className="flex flex-col items-start gap-y-2">
                 <SocialLinks links={socialLinks} />
                 <Copyright />
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </Portal>
       )
     }, [
@@ -213,7 +229,8 @@ const MobileContent = memo(
             )}
           />
         </button>
-        {memoizedMenu}
+
+        <AnimatePresence>{memoizedMenu}</AnimatePresence>
       </div>
     )
   }

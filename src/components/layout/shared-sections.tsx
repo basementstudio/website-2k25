@@ -1,5 +1,7 @@
 "use client"
 
+import { motion } from "motion/react"
+
 import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
@@ -10,27 +12,61 @@ interface InternalLinksProps {
   links: { title: string; href: string; count?: number }[]
   onClick?: () => void
   onNav?: boolean
+  animated?: boolean
 }
+
+const STAGER_DELAY = 0.2
+const STAGER_DURATION = 0.3
+const STAGER_STEPS = 0.1
+
+const getDelay = (idx: number, length: number, instant?: boolean) =>
+  (instant ? 0 : STAGER_DELAY) + (idx / length) * STAGER_STEPS
 
 export const InternalLinks = ({
   className,
   links,
   onClick,
-  onNav
+  onNav,
+  animated = false
 }: InternalLinksProps) => {
   const { isContactOpen, setIsContactOpen } = useContactStore()
+
+  const animateProps = animated
+    ? {
+        initial: { opacity: 0, y: 15 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -15 }
+      }
+    : {}
 
   return (
     <ul
       className={cn(
         "flex flex-col gap-y-2",
         onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
-        "lg:!text-f-h2 text-brand-w1",
+        "text-brand-w1 lg:!text-f-h2",
         className
       )}
     >
-      {links.map((link) => (
-        <li key={link.title}>
+      {links.map((link, idx) => (
+        <motion.li
+          key={`${link.title}-${idx}`}
+          {...animateProps}
+          animate={{
+            ...animateProps.animate,
+            transition: {
+              duration: STAGER_DURATION,
+              delay: getDelay(idx, links.length)
+            }
+          }}
+          exit={{
+            ...animateProps.exit,
+            transition: {
+              duration: STAGER_DURATION,
+              delay: getDelay(idx, links.length, true)
+            }
+          }}
+        >
           <Link
             className="flex w-fit gap-x-0.5 text-brand-w1"
             href={link.href}
@@ -38,26 +74,42 @@ export const InternalLinks = ({
           >
             <span className="actionable">{link.title}</span>
             {link.count && (
-              <sup className="text-f-p-mobile lg:text-f-p translate-y-1.25 !font-medium text-brand-g1">
+              <sup className="translate-y-1.25 text-f-p-mobile !font-medium text-brand-g1 lg:text-f-p">
                 <span className="tabular-nums">({link.count})</span>
               </sup>
             )}
           </Link>
-        </li>
+        </motion.li>
       ))}
-      <li>
+      <motion.li
+        {...animateProps}
+        animate={{
+          ...animateProps.animate,
+          transition: {
+            duration: STAGER_DURATION,
+            delay: getDelay(links.length, links.length)
+          }
+        }}
+        exit={{
+          ...animateProps.exit,
+          transition: {
+            duration: STAGER_DURATION,
+            delay: getDelay(links.length, links.length, true)
+          }
+        }}
+      >
         <button
           disabled={isContactOpen}
           onClick={() => setIsContactOpen(!isContactOpen)}
           className={cn(
             "flex w-max flex-col gap-y-1",
             onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
-            "lg:!text-f-h2 text-brand-w1"
+            "text-brand-w1 lg:!text-f-h2"
           )}
         >
           <span className="actionable">Contact Us</span>
         </button>
-      </li>
+      </motion.li>
     </ul>
   )
 }
@@ -70,7 +122,7 @@ interface SocialLinksProps {
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div
     className={cn(
-      "!text-f-p-mobile lg:!text-f-p flex gap-x-1 text-brand-g1",
+      "flex gap-x-1 !text-f-p-mobile text-brand-g1 lg:!text-f-p",
       className
     )}
   >
@@ -95,7 +147,7 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
 export const Copyright = ({ className }: { className?: string }) => (
   <p
     className={cn(
-      "!text-f-p-mobile lg:!text-f-p text-right text-brand-g1",
+      "text-right !text-f-p-mobile text-brand-g1 lg:!text-f-p",
       className
     )}
   >
@@ -107,7 +159,7 @@ export const SoDa = ({ className }: { className?: string }) => (
   <div className={cn("mb-2 w-full", className)}>
     <Link
       className={cn(
-        "!text-f-p-mobile lg:!text-f-p !block text-right font-semibold text-brand-w1",
+        "!block text-right !text-f-p-mobile font-semibold text-brand-w1 lg:!text-f-p",
         className
       )}
       href="https://www.sodaspeaks.com/"
