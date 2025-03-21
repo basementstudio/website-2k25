@@ -211,7 +211,7 @@ const MobileContent = memo(
           <motion.p
             id="menu-button"
             key={isOpen ? "close" : "menu"}
-            className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
+            className="text-f-p-mobile w-[2.4rem] origin-bottom text-center text-brand-w1"
             initial={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
             animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
@@ -236,7 +236,7 @@ const MobileContent = memo(
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="relative flex w-7 flex-col items-center justify-center gap-[4px] overflow-visible pl-1"
+            className="relative flex w-5 flex-col items-center justify-center gap-1 overflow-visible pl-1"
             ref={menuHandlerRef}
             aria-labelledby="menu-button"
           >
