@@ -33,22 +33,6 @@ export default {
         }
       },
       fontSize: {
-        h1: [
-          "5.3rem",
-          {
-            lineHeight: "4.2rem",
-            letterSpacing: "-0.06em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-h1": [
-          "2.25rem",
-          {
-            lineHeight: "2.25rem",
-            letterSpacing: "-0.03em",
-            fontWeight: "600"
-          }
-        ],
         h2: [
           "2.375rem",
           {

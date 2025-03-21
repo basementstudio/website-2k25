@@ -89,7 +89,7 @@ const MusicToggle = () => {
   return (
     <button
       onClick={handleMute}
-      className="inline-flex items-center space-x-1 text-p text-brand-w2"
+      className="text-f-p-mobile lg:text-f-p inline-flex items-center space-x-1 text-brand-w2"
       aria-label={music ? "Turn music off" : "Turn music on"}
     >
       <span
