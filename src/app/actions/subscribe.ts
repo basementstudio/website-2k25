@@ -1,6 +1,14 @@
 "use server"
 
-export async function subscribe(formData: FormData) {
+type State = {
+  success: boolean
+  message: string
+}
+
+export async function subscribe(
+  prevState: State,
+  formData: FormData
+): Promise<State> {
   try {
     const email = formData.get("email")
 
@@ -35,7 +43,12 @@ export async function subscribe(formData: FormData) {
       const errorData = await response.json()
       throw new Error(errorData.detail)
     }
+    return {
+      success: true,
+      message: "Successfully subscribed to the newsletter!"
+    }
   } catch (error) {
     console.error("Error:", error)
+    return { success: false, message: "An unexpected error occurred" }
   }
 }
