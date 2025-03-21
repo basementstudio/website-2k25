@@ -10,7 +10,6 @@ import { Link } from "@/components/primitives/link"
 import { Portal } from "@/components/primitives/portal"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
-import useFirstRender from "@/hooks/use-first-render"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
@@ -147,8 +146,6 @@ const MobileContent = memo(
     const mobileMenuRef = useRef<HTMLDivElement>(null)
     const menuHandlerRef = useRef<HTMLButtonElement>(null)
 
-    const firstRender = useFirstRender()
-
     const { focusTrapRef } = useFocusTrap(isOpen, menuHandlerRef)
     // disable scroll when the menu is open and it's on mobile
     const shouldDisableScroll = useMemo(
@@ -199,41 +196,32 @@ const MobileContent = memo(
           </motion.div>
         </Portal>
       )
-    }, [
-      isOpen,
-      focusTrapRef,
-      mobileMenuRef,
-      isMobile,
-      links,
-      newsletter,
-      socialLinks
-    ])
+    }, [isOpen, focusTrapRef, mobileMenuRef, isMobile, links, socialLinks])
 
-    const labelInitial = useMemo(
-      () =>
-        firstRender ? false : { opacity: 0, scaleY: 0.5, filter: "blur(4px)" },
-      [firstRender, isOpen]
-    )
-
-    const Label = ({ children }: { children: React.ReactNode }) => (
-      <motion.p
-        id="menu-button"
-        className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
-        initial={labelInitial}
-        animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
-        exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
-        transition={{ duration: 0.9, type: "spring", bounce: 0 }}
-      >
-        {children}
-      </motion.p>
-    )
+    const Label = useMemo(() => {
+      return function Label({ children }: { children: React.ReactNode }) {
+        return (
+          <motion.p
+            id="menu-button"
+            key={isOpen ? "close" : "menu"}
+            className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
+            initial={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
+            animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
+            transition={{ duration: 0.9, type: "spring", bounce: 0 }}
+          >
+            {children}
+          </motion.p>
+        )
+      }
+    }, [isOpen])
 
     return (
       <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
         <MusicToggle />
 
         <div className="flex items-center gap-x-2">
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="popLayout" initial={false}>
             {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
           </AnimatePresence>
 
