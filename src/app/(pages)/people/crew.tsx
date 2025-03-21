@@ -143,7 +143,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
       <MobileFaces
         data={groupedPeople}
         setHoveredPerson={setHoveredPerson}
-        hoveredPerson={hoveredPerson}
+        hoveredPerson={debouncedHoveredPerson}
       />
     </section>
   )
@@ -160,7 +160,6 @@ export const DesktopFaces = ({
   hoveredPerson: string | null
   heightRef: { list: number; faces: number }
 }) => {
-  const debouncedHoveredPerson = useDebounceValue(hoveredPerson, DEBOUNCE_TIME)
   return (
     <div
       className={cn(
@@ -173,7 +172,7 @@ export const DesktopFaces = ({
           key={person._title}
           person={person}
           setHoveredPerson={setHoveredPerson}
-          hoveredPerson={debouncedHoveredPerson}
+          hoveredPerson={hoveredPerson}
         />
       ))}
       <CrewFooter
