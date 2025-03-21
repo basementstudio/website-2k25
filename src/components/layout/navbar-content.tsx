@@ -221,9 +221,11 @@ const MobileContent = memo(
         <MusicToggle />
 
         <div className="flex items-center gap-x-2">
-          <AnimatePresence mode="popLayout" initial={false}>
-            {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
-          </AnimatePresence>
+          <button onClick={() => setIsOpen(!isOpen)}>
+            <AnimatePresence mode="popLayout" initial={false}>
+              {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
+            </AnimatePresence>
+          </button>
 
           <button
             onClick={() => setIsOpen(!isOpen)}
