@@ -271,7 +271,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     if (!scene || !animations.length) return
     calculateAndSendScreenDimensions()
 
-    console.log(scene)
     scene.traverse((node) => {
       node.frustumCulled = false
 
