@@ -76,6 +76,7 @@ export const NavbarContent = memo(
             socialLinks={socialLinks}
             newsletter={newsletter}
           />
+
           <MobileContent
             links={links}
             socialLinks={socialLinks}
@@ -132,7 +133,7 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
           <div
             id="nav-contact"
             className={cn(
-              "text-[0.75rem] font-semibold leading-4 text-brand-w1 hover:text-brand-o",
+              "text-[0.75rem] font-semibold leading-4 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
               isContactOpen && "text-brand-g1"
             )}
           >
