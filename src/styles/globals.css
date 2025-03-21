@@ -115,7 +115,7 @@
 
   .with-diagonal-lines {
     @apply relative overflow-hidden;
-    @apply after:pointer-events-none after:absolute after:-inset-12 after:from-brand-w1/[0.20];
+    @apply after:pointer-events-none after:absolute after:-inset-12;
   }
 
   .with-diagonal-lines:after {
