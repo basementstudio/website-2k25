@@ -61,7 +61,6 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
                   ) : (
                     <>
                       Apply
-                      {/* specifically for large tablets */}
                       <span className="hidden lg:block [@media(width:1024px)]:hidden">
                         Now
                       </span>

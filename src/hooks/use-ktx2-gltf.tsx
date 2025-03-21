@@ -6,21 +6,25 @@ type ExtendedGLTFLoader = {
   setKTX2Loader: (loader: any) => void
 }
 
+let cachedKTX2Loader: any = null
+
 export function useKTX2GLTF<T extends GLTF>(
   path: string,
   draco?: string,
   useCaching = true,
-  transcoderPath = "https://cdn.jsdelivr.net/gh/pmndrs/drei-assets/basis/" // instead of use the cdn transcoder, use a local one
+  transcoderPath = "https://cdn.jsdelivr.net/gh/pmndrs/drei-assets/basis/"
 ): T {
   const { gl } = useThree()
 
   return useGLTF(path, draco, useCaching, (loader: ExtendedGLTFLoader) => {
-    import("three/examples/jsm/loaders/KTX2Loader.js").then((module) => {
-      const KTX2Loader = module.KTX2Loader
-      const ktx2loader = new KTX2Loader()
-      ktx2loader.setTranscoderPath(transcoderPath)
-      ktx2loader.detectSupport(gl)
-      loader.setKTX2Loader(ktx2loader)
-    })
+    if (!cachedKTX2Loader) {
+      const ktx2LoaderModule = require("three/examples/jsm/loaders/KTX2Loader.js")
+      const KTX2Loader = ktx2LoaderModule.KTX2Loader
+      cachedKTX2Loader = new KTX2Loader()
+      cachedKTX2Loader.setTranscoderPath(transcoderPath)
+      cachedKTX2Loader.detectSupport(gl)
+    }
+
+    loader.setKTX2Loader(cachedKTX2Loader)
   }) as unknown as T
 }

@@ -110,7 +110,6 @@ const ContactCanvas = () => {
 
     const debouncedResizeHandler = debounce(() => {
       if (newWorker) {
-        console.log("Sending debounced resize event to worker")
         newWorker.postMessage({
           type: "window-resize",
           windowDimensions: {

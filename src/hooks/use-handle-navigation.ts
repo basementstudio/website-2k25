@@ -35,10 +35,7 @@ export const useHandleNavigation = () => {
         return scenes?.find((scene) => scene.name.toLowerCase() === "home")
       }
 
-      // strip the query params and hash if any
       const routeWithoutParams = route.split("?")[0].split("#")[0]
-
-      // get the first segment after the leading slash
       const finalRoute = routeWithoutParams.split("/").filter(Boolean)[0]
 
       return scenes?.find((scene) => scene.name === finalRoute)
@@ -51,12 +48,34 @@ export const useHandleNavigation = () => {
       if (route === pathname) return
 
       const isContactOpen = useContactStore.getState().isContactOpen
-      if (isContactOpen) {
+      const isContactAnimating = useContactStore.getState().isAnimating
+      const isContactClosingCompleted =
+        useContactStore.getState().closingCompleted
+
+      if (isContactOpen || isContactAnimating || !isContactClosingCompleted) {
+        const contactStore = useContactStore.getState()
         sessionStorage.setItem("pendingNavigation", route)
-        useContactStore.getState().setIsContactOpen(false)
+        contactStore.setIsContactOpen(false)
+
+        const handleContactClosed = () => {
+          if (contactStore.closingCompleted) {
+            sessionStorage.removeItem("pendingNavigation")
+            continueNavigation(route)
+            document.removeEventListener("contactClosed", handleContactClosed)
+          }
+        }
+
+        document.addEventListener("contactClosed", handleContactClosed)
         return
       }
 
+      continueNavigation(route)
+    },
+    [pathname, setCurrentScene, scenes, setDisableCameraTransition]
+  )
+
+  const continueNavigation = useCallback(
+    (route: string) => {
       const selectedScene = getScene(route)
 
       if (!selectedScene) return
@@ -98,7 +117,7 @@ export const useHandleNavigation = () => {
         }, TRANSITION_DURATION)
       }
     },
-    [router, setCurrentScene, scenes, pathname, setDisableCameraTransition]
+    [router, setCurrentScene, scenes, setDisableCameraTransition, getScene]
   )
 
   return { handleNavigation }
