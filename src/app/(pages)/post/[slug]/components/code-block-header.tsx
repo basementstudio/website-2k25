@@ -45,7 +45,7 @@ export const CodeGroupHeader = ({
                 <Tabs.Trigger
                   key={snippet.id}
                   value={snippet.id}
-                  className="text-p"
+                  className="text-f-p-mobile lg:text-f-p"
                 >
                   <HeaderItem
                     className={cn(
