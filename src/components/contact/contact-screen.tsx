@@ -43,7 +43,11 @@ const ContactScreen = () => {
               ease: "easeOut"
             }
           })
-          .then(() => worker.postMessage({ type: "scale-animation-complete" }))
+          .then(() => {
+            useContactStore.getState().setIntroCompleted(true)
+            useContactStore.getState().setIsAnimating(false)
+            worker.postMessage({ type: "scale-animation-complete" })
+          })
       } else if (type === "start-outro") {
         animation
           .start({
@@ -55,14 +59,15 @@ const ContactScreen = () => {
               ease: "easeIn"
             }
           })
-          .then(() => worker.postMessage({ type: "run-outro-animation" }))
+          .then(() => {
+            worker.postMessage({ type: "run-outro-animation" })
+          })
       } else if (type === "outro-complete") {
-        setTimeout(
-          () => worker.postMessage({ type: "scale-down-animation-complete" }),
-          500
-        )
+        setTimeout(() => {
+          useContactStore.getState().setIsAnimating(false)
+          worker.postMessage({ type: "scale-down-animation-complete" })
+        }, 500)
       } else if (type === "screen-dimensions") {
-        console.log("Received screen dimensions:", dimensions)
         setScreenDimensions(dimensions)
       }
     }
@@ -163,7 +168,10 @@ const ContactScreen = () => {
                     type="button"
                     className="uppercase transition-all duration-300 [text-shadow:0_0_8px_rgba(255,140,0,0.3)] hover:text-brand-o/90 hover:[text-shadow:0_0_8px_rgba(255,140,0,0.5)]"
                     onClick={() => {
-                      closeContact(false)
+                      const state = useContactStore.getState()
+                      if (!state.isAnimating) {
+                        closeContact(false)
+                      }
                     }}
                   >
                     close
