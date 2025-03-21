@@ -55,13 +55,14 @@
       transparent
     );
 
+    /* using this var in the height calculation causes a layout shift in safari */
     --height: 0.89;
 
     color: var(--color-mix) !important;
     display: inline-flex;
     align-items: center;
-    height: calc(var(--height) * 1em);
-    line-height: var(--height);
+    height: calc(0.89 * 1em);
+    line-height: 0.89;
 
     &:not(.actionable-no-underline) {
       --underline-height: max(0.06em, 1px);
@@ -99,21 +100,6 @@
     @apply transition-none !duration-[var(--anim-delay)] ease-linear hover:transition-opacity;
     @apply focus:animate-actionable-blink focus:[--opacity-hover-value:var(--opacity-hover-anim-target)];
     @apply hover:animate-actionable-blink hover:[--opacity-hover-value:var(--opacity-hover-anim-target)];
-  }
-
-  .text-h2.actionable,
-  .text-h2 .actionable {
-    @apply underline-offset-[5px] [text-decoration-thickness:2px];
-  }
-
-  .text-paragraph.actionable,
-  .text-paragraph .actionable {
-    @apply underline-offset-[1.5px] [text-decoration-thickness:0.5px];
-  }
-
-  .text-subheading.actionable,
-  .text-subheading .actionable {
-    @apply underline-offset-[3px] [text-decoration-thickness:1px];
   }
 
   .with-dots {

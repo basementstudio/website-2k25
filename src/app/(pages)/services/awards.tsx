@@ -185,7 +185,7 @@ export const Awards = ({ data }: { data: QueryType }) => {
   return (
     <>
       <div className="grid-layout" ref={sectionRef}>
-        <div className="text-f-h3-mobile lg:text-f-h3 col-span-full flex gap-2 text-brand-g1">
+        <div className="col-span-full flex gap-2 text-f-h3-mobile text-brand-g1 lg:text-f-h3">
           <h2>Awards</h2>
           <p>x{data.company.awards.awardList.items.length}</p>
         </div>
@@ -202,14 +202,14 @@ export const Awards = ({ data }: { data: QueryType }) => {
                 onMouseLeave={handleMouseLeave}
                 className="group relative grid grid-cols-12 gap-2 [&:first-child>.item]:after:absolute [&:first-child>.item]:after:-top-px [&:first-child>.item]:after:left-0 [&:first-child>.item]:after:w-full [&:first-child>.item]:after:border-t [&:first-child>.item]:after:border-brand-w1/20"
               >
-                <div className="item relative col-span-12 grid grid-cols-12 items-center gap-2 border-b border-brand-w1/20 pb-1 pt-0.75">
-                  <span className="text-f-p-mobile col-span-6 line-clamp-1 lg:col-span-4 lg:text-h3 2xl:col-span-3">
+                <div className="item relative col-span-12 grid grid-cols-12 items-center gap-2 border-b border-brand-w1/20 py-0 pb-1 pt-0.75 lg:py-1.5">
+                  <span className="col-span-6 line-clamp-1 text-f-p-mobile lg:col-span-4 lg:text-f-h3 2xl:col-span-3">
                     {award.title}
                   </span>
-                  <span className="text-f-p-mobile lg:text-f-h4 col-start-7 col-end-10 line-clamp-1 text-brand-w2 lg:col-span-4 2xl:col-span-3">
+                  <span className="col-start-7 col-end-10 line-clamp-1 text-f-p-mobile text-brand-w2 lg:col-span-4 lg:text-f-h4 2xl:col-span-3">
                     {award.project?._title ?? award.projectFallback}
                   </span>
-                  <span className="text-f-p-mobile lg:text-f-h4 col-span-3 text-right text-brand-w2 lg:col-span-3 lg:col-start-10">
+                  <span className="col-span-3 text-right text-f-p-mobile text-brand-w2 lg:col-span-3 lg:col-start-10 lg:text-f-h4">
                     {formatDate(
                       award.date,
                       false,

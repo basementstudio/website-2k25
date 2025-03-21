@@ -4,6 +4,7 @@ import { motion, useAnimation } from "motion/react"
 import { useContactStore } from "./contact-store"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { Inputs } from "@/app/(pages)/contact/form/contact-form"
+import { Link } from "../primitives/link"
 
 const ContactScreen = () => {
   const contentRef = useRef(null)
@@ -14,12 +15,16 @@ const ContactScreen = () => {
 
   const [submitting, setSubmitting] = useState(false)
   const [showSubmittedMessage, setShowSubmittedMessage] = useState(false)
+  const [screenDimensions, setScreenDimensions] = useState({
+    width: 580,
+    height: 350
+  })
 
   useEffect(() => {
     if (!worker) return
 
     const handleMessage = (e: MessageEvent) => {
-      const { type, screenPos } = e.data
+      const { type, screenPos, dimensions } = e.data
 
       if (type === "update-screen-skinned-matrix") {
         if (contentRef.current) {
@@ -38,7 +43,11 @@ const ContactScreen = () => {
               ease: "easeOut"
             }
           })
-          .then(() => worker.postMessage({ type: "scale-animation-complete" }))
+          .then(() => {
+            useContactStore.getState().setIntroCompleted(true)
+            useContactStore.getState().setIsAnimating(false)
+            worker.postMessage({ type: "scale-animation-complete" })
+          })
       } else if (type === "start-outro") {
         animation
           .start({
@@ -50,12 +59,16 @@ const ContactScreen = () => {
               ease: "easeIn"
             }
           })
-          .then(() => worker.postMessage({ type: "run-outro-animation" }))
+          .then(() => {
+            worker.postMessage({ type: "run-outro-animation" })
+          })
       } else if (type === "outro-complete") {
-        setTimeout(
-          () => worker.postMessage({ type: "scale-down-animation-complete" }),
-          500
-        )
+        setTimeout(() => {
+          useContactStore.getState().setIsAnimating(false)
+          worker.postMessage({ type: "scale-down-animation-complete" })
+        }, 500)
+      } else if (type === "screen-dimensions") {
+        setScreenDimensions(dimensions)
       }
     }
 
@@ -68,13 +81,7 @@ const ContactScreen = () => {
     }
   }, [worker, animation])
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    watch
-  } = useForm<Inputs>()
+  const { register, handleSubmit, reset, watch } = useForm<Inputs>()
 
   const email = watch("email")
   const message = watch("message")
@@ -133,24 +140,26 @@ const ContactScreen = () => {
       }}
     >
       <div
-        className="relative flex h-[260px] w-[480px] bg-transparent"
+        className="relative flex bg-transparent"
         style={{
+          width: `${screenDimensions.width}px`,
+          height: `${screenDimensions.height}px`,
           transform: `perspective(400px) rotateY(0.5deg)`,
           transformOrigin: "center center"
         }}
       >
         <motion.div
-          className="crt h-full w-full"
+          className="h-full w-full"
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o [text-shadow:0_0_8px_rgba(255,140,0,0.4)]">
+          <div className="relative flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o [text-shadow:0_0_8px_rgba(255,140,0,0.4)]">
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_10px_rgba(255,140,0,0.15)]"
+              className="crt relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_10px_rgba(255,140,0,0.15)]"
             >
               <fieldset className="absolute -top-[10px] left-[10px]">
-                <legend className="bg-black px-1">fill in the form</legend>
+                <legend className="bg-black px-1">CONTACT US</legend>
               </fieldset>
 
               <fieldset className="absolute -top-[10px] right-[10px]">
@@ -159,7 +168,10 @@ const ContactScreen = () => {
                     type="button"
                     className="uppercase transition-all duration-300 [text-shadow:0_0_8px_rgba(255,140,0,0.3)] hover:text-brand-o/90 hover:[text-shadow:0_0_8px_rgba(255,140,0,0.5)]"
                     onClick={() => {
-                      closeContact(false)
+                      const state = useContactStore.getState()
+                      if (!state.isAnimating) {
+                        closeContact(false)
+                      }
                     }}
                   >
                     close
@@ -167,36 +179,40 @@ const ContactScreen = () => {
                 </legend>
               </fieldset>
 
-              <div className="grid grid-cols-2 gap-2 px-4">
-                <input
-                  type="text"
-                  placeholder="NAME"
-                  className="h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
-                  {...register("name")}
-                />
-                <input
-                  type="text"
-                  placeholder="COMPANY"
-                  className="h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
-                  {...register("company")}
-                />
-                <input
-                  required
-                  type="email"
-                  placeholder="EMAIL"
-                  className="col-span-2 h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
-                  {...register("email", { required: "Email is required" })}
-                />
-                <input
-                  type="text"
-                  placeholder="BUDGET (OPTIONAL)"
-                  className="col-span-2 h-6 border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
-                  {...register("budget")}
-                />
+              <div className="flex h-full flex-col gap-2 px-4">
+                <div className="flex w-full items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="NAME"
+                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                    {...register("name")}
+                  />
+                  <input
+                    type="text"
+                    placeholder="COMPANY"
+                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                    {...register("company")}
+                  />
+                </div>
+                <div className="flex w-full items-center gap-2">
+                  <input
+                    required
+                    type="email"
+                    placeholder="EMAIL"
+                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                    {...register("email", { required: "Email is required" })}
+                  />
+                  <input
+                    type="text"
+                    placeholder="BUDGET (OPTIONAL)"
+                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                    {...register("budget")}
+                  />
+                </div>
                 <textarea
                   required
                   placeholder="MESSAGE"
-                  className="col-span-2 h-full resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                  className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
                   {...register("message", { required: "Message is required" })}
                 />
               </div>
@@ -213,10 +229,33 @@ const ContactScreen = () => {
                     ? "SUBMITTING..."
                     : showSubmittedMessage
                       ? "FORM SUBMITTED ✓"
-                      : "SUBMIT MESSAGE →"}
+                      : "SEND MESSAGE →"}
                 </button>
               </div>
             </form>
+            <div className="flex w-full items-center justify-between uppercase">
+              <div className="flex items-center gap-[2px]">
+                <Link href="https://x.com/basementstudio" target="_blank">
+                  <span className="actionable text-brand-o [text-shadow:0_0_8px_rgba(255,140,0,0.4)]">
+                    X (Twitter)
+                  </span>
+                </Link>
+                <span className="opacity-50">, </span>
+                <Link
+                  href="https://www.instagram.com/basementstudio"
+                  target="_blank"
+                >
+                  <span className="actionable">Instagram</span>
+                </Link>
+                <span className="opacity-50">, </span>
+                <Link href="https://github.com/basementstudio" target="_blank">
+                  <span className="actionable">GitHub</span>
+                </Link>
+              </div>
+              <Link href="mailto:hello@basement.studio">
+                <span className="actionable">(hello@basement.studio)</span>
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>

@@ -50,21 +50,28 @@ export const ScrollDown = () => {
     }
   }, [scrollY])
 
+  const handleClick = () => {
+    const mainElement = document.querySelector("main")
+    if (mainElement) {
+      mainElement.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
   if (shouldIgnore) return null
 
   return (
     <AnimatePresence>
       {canRunMainApp && (
         <motion.div
-          className="absolute -top-[3.25rem] left-1/2 -translate-x-1/2"
+          className="absolute -top-[6.25rem] flex w-full justify-center pb-[5rem] lg:-top-[3.25rem] lg:left-1/2 lg:w-max lg:-translate-x-1/2 lg:pb-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 1, 0, 1, 0, 1] }}
           transition={{ duration: 0.3, delay: 1.5 }}
         >
           {selected === null && (
-            <motion.a
-              href="#main-content"
-              className="user-select-none flex w-fit items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-p text-brand-w1"
+            <motion.button
+              onClick={handleClick}
+              className="user-select-none flex h-max w-fit items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-f-p-mobile text-brand-w1 lg:text-f-p"
               style={{
                 opacity,
                 visibility
@@ -72,7 +79,7 @@ export const ScrollDown = () => {
               {...animationProps}
             >
               Scroll to Explore <ArrowDownIcon className="size-2.5" />
-            </motion.a>
+            </motion.button>
           )}
         </motion.div>
       )}

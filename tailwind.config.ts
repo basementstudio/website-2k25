@@ -33,111 +33,14 @@ export default {
         }
       },
       fontSize: {
-        h1: [
-          "5.3rem",
-          {
-            lineHeight: "4.2rem",
-            letterSpacing: "-0.06em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-h1": [
-          "2.25rem",
-          {
-            lineHeight: "2.25rem",
-            letterSpacing: "-0.03em",
-            fontWeight: "600"
-          }
-        ],
-        h2: [
-          "2.375rem",
-          {
-            lineHeight: "2.1rem",
-            letterSpacing: "-0.05em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-h2": [
-          "1.5rem",
-          {
-            lineHeight: "1.75rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        h3: [
-          "1.5rem",
-          {
-            lineHeight: "1.75rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-h3": [
-          "1.25rem",
-          {
-            lineHeight: "1.5rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        h4: [
-          "1.125rem",
-          {
-            lineHeight: "1.25rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-h4": [
+        blog: [
           "1rem",
           {
-            lineHeight: "1.25rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        p: [
-          "0.75rem",
-          {
-            lineHeight: "1rem",
-            letterSpacing: "0.0em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-p": [
-          "0.6875rem",
-          {
-            lineHeight: "1rem",
-            letterSpacing: "0.0em",
-            fontWeight: "600"
-          }
-        ],
-        c: [
-          "0.5rem",
-          {
-            lineHeight: "0.5rem",
-            letterSpacing: "0.0em",
-            fontWeight: "600"
-          }
-        ],
-        blog: [
-          "1",
-          {
             lineHeight: "1.5rem",
             letterSpacing: "0.0em",
             fontWeight: "500"
           }
         ],
-        "h4-blog": [
-          "1.125rem",
-          {
-            lineHeight: "1.5rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "500"
-          }
-        ],
-        // TODO: Update to use the new font
         "f-h0": [
           "6.125rem",
           {

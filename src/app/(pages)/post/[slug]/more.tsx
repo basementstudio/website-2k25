@@ -30,7 +30,7 @@ export default function More({
 
   return (
     <div className="mx-auto flex w-full flex-col justify-start gap-y-4 px-4 lg:max-w-[846px] lg:px-0">
-      <h2 className="text-mobile-h4 text-brand-g1 lg:text-h4">
+      <h2 className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
         More from the blog
       </h2>
 
@@ -52,7 +52,7 @@ export default function More({
               </div>
 
               <div className="flex w-full justify-between gap-y-2">
-                <h3 className="line-clamp-2 w-full max-w-[70%] text-mobile-h3 text-brand-w2 lg:text-h3">
+                <h3 className="text-f-h3-mobile lg:text-f-h3 line-clamp-2 w-full max-w-[70%] text-brand-w2">
                   {post._title}
                 </h3>
 

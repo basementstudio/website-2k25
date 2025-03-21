@@ -24,21 +24,15 @@ export const useContactStore = create<ContactStore>((set) => ({
       if (state.isAnimating) return state
 
       if (!isContactOpen) {
-        let targetPath: string | null = null
-
-        if (window.location.hash === "#contact") {
-          targetPath = sessionStorage.getItem("pendingNavigation")
-
-          window.history.pushState(
-            null,
-            "",
-            window.location.pathname + window.location.search
-          )
-        }
-
         if (!state.introCompleted) {
           return state
         }
+
+        if (!state.isContactOpen) {
+          return state
+        }
+
+        set({ isAnimating: true })
 
         if (state.worker) {
           state.worker.postMessage({
@@ -63,32 +57,23 @@ export const useContactStore = create<ContactStore>((set) => ({
 
           set({
             isContactOpen: false,
-            closingCompleted: true
+            closingCompleted: true,
+            isAnimating: false
           })
 
-          if (targetPath && targetPath !== window.location.pathname) {
-            window.dispatchEvent(
-              new CustomEvent("contactFormNavigate", {
-                detail: { path: targetPath }
-              })
-            )
-            sessionStorage.removeItem("pendingNavigation")
-          }
+          document.dispatchEvent(new CustomEvent("contactClosed"))
         }, 1000)
 
-        return state
+        return { ...state, isAnimating: true }
       } else {
-        if (state.hasBeenOpenedBefore && !state.closingCompleted) {
+        if (
+          state.isContactOpen ||
+          (!state.closingCompleted && state.hasBeenOpenedBefore)
+        ) {
           return state
         }
 
-        if (window.location.hash !== "#contact") {
-          window.history.pushState(
-            null,
-            "",
-            window.location.pathname + window.location.search + "#contact"
-          )
-        }
+        set({ isAnimating: true })
 
         if (state.worker) {
           state.worker.postMessage({
@@ -99,10 +84,12 @@ export const useContactStore = create<ContactStore>((set) => ({
         }
 
         return {
+          ...state,
           isContactOpen: true,
           introCompleted: false,
           closingCompleted: true,
-          hasBeenOpenedBefore: true
+          hasBeenOpenedBefore: true,
+          isAnimating: true
         }
       }
     })
