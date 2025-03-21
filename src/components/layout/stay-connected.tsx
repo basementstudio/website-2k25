@@ -43,12 +43,12 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           content={content}
           components={{
             h3: ({ children }) => (
-              <p className="!text-pretty text-f-p-mobile text-brand-w2 lg:text-f-h4">
+              <p className="text-f-p-mobile lg:text-f-h4 !text-pretty text-brand-w2">
                 {children}
               </p>
             ),
             p: ({ children }) => (
-              <p className="!text-pretty text-f-p-mobile text-brand-w2 lg:text-f-h4">
+              <p className="text-f-p-mobile lg:text-f-h4 !text-pretty text-brand-w2">
                 {children}
               </p>
             )
@@ -62,10 +62,10 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           const formData = new FormData(e.currentTarget)
           formAction(formData)
         }}
-        className="flex max-w-[26.25rem] flex-col gap-4 text-f-h4-mobile lg:text-f-h4"
+        className="text-f-h4-mobile lg:text-f-h4 flex max-w-[26.25rem] flex-col gap-1"
       >
         <Input
-          className="!h-6 !px-1 text-f-h4-mobile lg:text-f-h4"
+          className="text-f-h4-mobile lg:text-f-h4 !h-6 !px-1"
           placeholder="Enter your Email"
           required
           type="email"
@@ -74,7 +74,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
         <button
           type="submit"
           disabled={state.success}
-          className="flex w-fit translate-y-1 items-center gap-1 overflow-hidden text-f-h4-mobile text-brand-g1 lg:text-f-h4"
+          className="text-f-h4-mobile lg:text-f-h4 ml-1 flex w-fit translate-y-1 items-center gap-1 overflow-hidden text-brand-g1"
         >
           <AnimatePresence mode="wait">
             {showSuccess ? (
@@ -84,7 +84,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -40, opacity: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="text-f-h4-mobile !text-brand-g [height:_calc(0.89_*_1em)] lg:text-f-h4"
+                className="text-f-h4-mobile lg:text-f-h4 !text-brand-g [height:_calc(0.89_*_1em)]"
               >
                 Subscribed Succesfully
               </motion.span>
@@ -95,7 +95,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -40, opacity: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="actionable actionable-no-underline gap-x-1 text-f-h4-mobile lg:text-f-h4"
+                className="actionable actionable-no-underline text-f-h4-mobile lg:text-f-h4 gap-x-1"
               >
                 Roll Me In <Arrow className="size-5" />
               </motion.span>
