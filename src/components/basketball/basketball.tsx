@@ -1,4 +1,3 @@
-import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
@@ -8,6 +7,7 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -40,7 +40,7 @@ export const Basketball = ({
   const { playSoundFX } = useSiteAudio()
   const setCursor = useCursor()
   const { basketball } = useAssets()
-  const basketballModel = useGLTF(basketball)
+  const basketballModel = useKTX2GLTF(basketball)
   const bounceCount = useRef(0)
 
   const geometry = useMemo(() => {
@@ -48,9 +48,10 @@ export const Basketball = ({
     return geo
   }, [basketballModel])
 
-  const originalMaterial = basketballModel.materials[
-    "Material.002"
-  ] as MeshStandardMaterial
+  const originalMaterial = useMemo(() => {
+    return (basketballModel.scene.children[0] as Mesh)
+      .material as MeshStandardMaterial
+  }, [basketballModel])
 
   const material = useMemo(() => {
     const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {

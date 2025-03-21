@@ -1,4 +1,4 @@
-import { useAnimations, useGLTF } from "@react-three/drei"
+import { useAnimations } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useCallback, useEffect, useRef, useState } from "react"
 import {
@@ -8,15 +8,18 @@ import {
   AnimationMixer,
   Group,
   Vector3,
-  Bone
+  Bone,
+  Object3D
 } from "three"
-
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
+import { GLTFResult } from "../map/map"
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
-  const { scene, animations, nodes } = useGLTF(modelUrl)
+  const { scene, animations } = useKTX2GLTF(modelUrl) as unknown as GLTFResult
   const { actions, mixer } = useAnimations(animations, scene)
   const mixerRef = useRef<AnimationMixer | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
   const [isContactOpen, setIsContactOpen] = useState(false)
+  const nodesRef = useRef<{ [name: string]: Object3D }>({})
 
   const debugMeshRef = useRef<Mesh>(null)
   const phoneGroupRef = useRef<Group>(null)
@@ -30,6 +33,17 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       mixerRef.current = mixer
     }
   }, [mixer])
+
+  // Extract nodes from the scene
+  useEffect(() => {
+    if (scene) {
+      const nodes: { [name: string]: Object3D } = {}
+      scene.traverse((object) => {
+        nodes[object.name] = object
+      })
+      nodesRef.current = nodes
+    }
+  }, [scene])
 
   const playAnimation = useCallback(
     (animName: string, oppositeAnimName?: string) => {
@@ -144,7 +158,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
       const IDLE_TIMEOUT = Math.random() * 5 + 15
 
-      const screenbone = nodes.Obj as Bone
+      const screenbone = nodesRef.current.Obj as Bone | undefined
       if (screenbone && debugMeshRef.current) {
         screenbone.getWorldPosition(tmp)
         tmp.add(new Vector3(-0.0342, 0.043, 0))
