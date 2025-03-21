@@ -1,17 +1,22 @@
 "use client"
 
+import { motion } from "motion/react"
 import Image from "next/image"
 import { Fragment, useCallback, useLayoutEffect, useRef, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
+import useDebounceValue from "@/hooks/use-debounce-value"
 import { cn } from "@/utils/cn"
 
 import { QueryType } from "./query"
 
+const DEBOUNCE_TIME = 10
+
 export const Crew = ({ data }: { data: QueryType }) => {
   const [hoveredPerson, setHoveredPerson] = useState<string | null>(null)
+  const debouncedHoveredPerson = useDebounceValue(hoveredPerson, DEBOUNCE_TIME)
   const heightRef = useRef({
     list: 0,
     faces: 0
@@ -74,27 +79,31 @@ export const Crew = ({ data }: { data: QueryType }) => {
           <div key={department}>
             <div className="grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1">
               {index === 0 && (
-                <p className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
+                <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
                   A-Z
                 </p>
               )}
-              <p className="text-f-h4-mobile lg:text-f-h4 col-start-2 text-brand-g1">
+              <p className="col-start-2 text-f-h4-mobile text-brand-g1 lg:text-f-h4">
                 {department}
               </p>
             </div>
 
-            <ul className="text-f-p-mobile lg:text-f-p text-brand-w1">
+            <ul className="text-f-p-mobile text-brand-w1 lg:text-f-p">
               {people.map((person) => (
                 <li
                   key={person._title}
-                  className="group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
+                  className={cn(
+                    "group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
+                  )}
                   onMouseEnter={() => setHoveredPerson(person._title)}
                   onMouseLeave={() => setHoveredPerson(null)}
                 >
                   <div
                     className={cn(
-                      "with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300",
-                      { "opacity-100": hoveredPerson === person._title }
+                      "with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-200",
+                      {
+                        "opacity-100": debouncedHoveredPerson === person._title
+                      }
                     )}
                   />
                   <div
@@ -141,14 +150,10 @@ export const Crew = ({ data }: { data: QueryType }) => {
       <DesktopFaces
         data={data}
         setHoveredPerson={setHoveredPerson}
-        hoveredPerson={hoveredPerson}
+        hoveredPerson={debouncedHoveredPerson}
         heightRef={heightRef.current}
       />
-      <MobileFaces
-        data={groupedPeople}
-        setHoveredPerson={setHoveredPerson}
-        hoveredPerson={hoveredPerson}
-      />
+      <MobileFaces data={groupedPeople} />
     </section>
   )
 }
@@ -188,29 +193,31 @@ export const DesktopFaces = ({
 }
 
 export const MobileFaces = ({
-  data,
-  setHoveredPerson,
-  hoveredPerson
+  data
 }: {
   data: Record<string, QueryType["company"]["people"]["peopleList"]["items"]>
-  setHoveredPerson: (person: string | null) => void
-  hoveredPerson: string | null
 }) => (
   <div className="col-span-full flex flex-col gap-4 py-6 lg:hidden">
     {Object.entries(data).map(([department, people]) => (
       <article key={department} className="flex flex-col gap-2">
-        <p className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
+        <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
           {department}
         </p>
 
         <div className="grid grid-cols-4 gap-2">
           {people.map((person) => (
-            <Face
+            <div
               key={person._title}
-              person={person}
-              setHoveredPerson={setHoveredPerson}
-              hoveredPerson={hoveredPerson}
-            />
+              className="with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]"
+            >
+              <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+                {person.image ? (
+                  <Image src={person.image.url} alt={person._title} fill />
+                ) : (
+                  <Placeholder width={134} height={156} />
+                )}
+              </div>
+            </div>
           ))}
 
           {/* placeholder for empty columns */}
@@ -245,17 +252,24 @@ export const Face = ({
   setHoveredPerson,
   hoveredPerson
 }: FaceProps) => (
-  <div
+  <motion.div
     key={person._title}
-    className={
-      "with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]"
-    }
+    className="with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]"
     onMouseEnter={() => setHoveredPerson(person._title)}
     onMouseLeave={() => setHoveredPerson(null)}
+    animate={{
+      opacity: hoveredPerson ? (hoveredPerson === person._title ? 1 : 0.5) : 1
+    }}
+    transition={{ duration: 0.2, ease: "easeInOut" }}
   >
     <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
       {person.image ? (
-        <Image src={person.image.url} alt={person._title} fill />
+        <Image
+          src={person.image.url}
+          alt={person._title}
+          fill
+          className="transition-opacity duration-200"
+        />
       ) : (
         <Placeholder width={134} height={156} />
       )}
@@ -263,11 +277,11 @@ export const Face = ({
 
     <div
       className={cn(
-        "with-diagonal-lines pointer-events-none !absolute inset-0 opacity-0 transition-opacity duration-300",
+        "with-diagonal-lines pointer-events-none !absolute inset-0 opacity-0 transition-opacity duration-200",
         { "opacity-100": hoveredPerson === person._title }
       )}
     />
-  </div>
+  </motion.div>
 )
 
 interface CrewFooterProps {
@@ -285,7 +299,7 @@ export const CrewFooter = ({ spanStart, spanEnd }: CrewFooterProps) => (
     <Link
       href="/"
       target="_blank"
-      className="text-f-p-mobile lg:text-f-p relative z-10 flex h-4 gap-1 bg-brand-k text-brand-w1"
+      className="relative z-10 flex h-4 gap-1 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
     >
       <span className="actionable flex items-center gap-1">
         Join the Crew <Arrow className="size-4" />
