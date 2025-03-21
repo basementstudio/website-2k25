@@ -106,7 +106,14 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
               href={link.href}
               className={cn(
                 "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
-                link.href === pathname && "!text-brand-o"
+                link.href === pathname && "!text-brand-o",
+                pathname.includes("/showcase/") &&
+                  link.href === "/showcase" &&
+                  "!text-brand-o",
+
+                pathname.includes("/post/") &&
+                  link.href === "/blog" &&
+                  "!text-brand-o"
               )}
               onClick={() => handleNavigation(link.href)}
             >
@@ -220,7 +227,7 @@ const MobileContent = memo(
       <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
         <MusicToggle />
 
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center">
           <button onClick={() => setIsOpen(!isOpen)}>
             <AnimatePresence mode="popLayout" initial={false}>
               {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
@@ -229,20 +236,20 @@ const MobileContent = memo(
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex w-7 flex-col gap-[4px]"
+            className="flex w-7 flex-col items-center justify-center gap-[4px] pl-1"
             ref={menuHandlerRef}
             aria-labelledby="menu-button"
           >
             <span
               className={cn(
-                "h-px w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
-                { "translate-y-[2.5px] rotate-[22.5deg]": isOpen }
+                "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
+                { "w-10/12 translate-y-[3px] rotate-[45deg]": isOpen }
               )}
             />
             <span
               className={cn(
-                "h-px w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
-                { "-translate-y-[2.5px] -rotate-[22.5deg]": isOpen }
+                "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
+                { "w-10/12 -translate-y-[2.5px] -rotate-[45deg]": isOpen }
               )}
             />
           </button>
