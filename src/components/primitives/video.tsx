@@ -7,6 +7,7 @@ export const Video = (props: Partial<Props>) => (
     controls={false}
     streamType="on-demand"
     playsInline
+    autoPlay={true}
     ref={props.ref}
     preload="auto"
   />
