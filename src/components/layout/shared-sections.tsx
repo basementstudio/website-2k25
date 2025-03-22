@@ -5,7 +5,7 @@ import { motion } from "motion/react"
 import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
 
-import { useContactStore } from "../contact/contact-store"
+import { useHandleContactButton } from "@/hooks/use-handle-contact"
 
 interface InternalLinksProps {
   className?: string
@@ -29,7 +29,7 @@ export const InternalLinks = ({
   onNav,
   animated = false
 }: InternalLinksProps) => {
-  const { isContactOpen, setIsContactOpen } = useContactStore()
+  const handleContactButton = useHandleContactButton()
 
   const animateProps = animated
     ? {
@@ -99,8 +99,7 @@ export const InternalLinks = ({
         }}
       >
         <button
-          disabled={isContactOpen}
-          onClick={() => setIsContactOpen(!isContactOpen)}
+          onClick={handleContactButton}
           className={cn(
             "flex w-max flex-col gap-y-1",
             onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
