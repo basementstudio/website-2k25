@@ -1,7 +1,6 @@
 "use client"
 
 import { createContext, use, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 
 interface ProjectContextType {
   viewMode: "grid" | "rows"
@@ -14,12 +13,15 @@ export const ProjectContext = createContext<ProjectContextType>({
 })
 
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const [viewMode, setViewModeState] = useState<"grid" | "rows">("grid")
+  const [viewMode, setViewModeState] = useState<"grid" | "rows">(() => {
+    if (typeof window === "undefined") return "grid"
+    const hash = window.location.hash.slice(1)
+    return (hash === "grid" || hash === "rows") ? hash : "grid"
+  })
 
   useEffect(() => {
-    // Always set #grid as default
-    if (typeof window !== "undefined") {
+    // Only set #grid if no hash is present
+    if (typeof window !== "undefined" && !window.location.hash) {
       window.location.hash = "grid"
     }
   }, [])
