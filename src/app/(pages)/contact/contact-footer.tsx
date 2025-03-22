@@ -9,14 +9,14 @@ export const ContactFooter = () => (
       <p>studio</p>
     </address>
     <nav
-      className="text-f-h3-mobile lg:text-f-h3 flex items-center gap-2"
+      className="flex items-center gap-2 text-f-h3-mobile lg:text-f-h3"
       aria-label="Social media links"
     >
       <a href="https://twitter.com/basementstudio" title="Twitter">
         x (twitter)
       </a>
       <span className="text-brand-g1">,</span>
-      <a href="https://instagram.com/basementstudio" title="Instagram">
+      <a href="https://www.instagram.com/basementdotstudio/" title="Instagram">
         instagram
       </a>
       <span className="text-brand-g1">,</span>

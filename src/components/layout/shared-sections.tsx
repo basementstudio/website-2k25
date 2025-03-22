@@ -122,7 +122,7 @@ interface SocialLinksProps {
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div
     className={cn(
-      "!text-f-h4-mobile lg:!text-f-p flex flex-row gap-x-1 text-brand-g1",
+      "flex flex-row gap-x-1 !text-f-h4-mobile text-brand-g1 lg:!text-f-p",
       className
     )}
   >
