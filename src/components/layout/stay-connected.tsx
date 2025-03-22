@@ -3,7 +3,7 @@
 import type { RichTextNode } from "basehub/api-transaction"
 import { RichText } from "basehub/react-rich-text"
 import { AnimatePresence, motion } from "motion/react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, startTransition } from "react"
 import { useActionState } from "react"
 
 import { subscribe } from "@/app/actions/subscribe"
@@ -24,6 +24,7 @@ const initialState = {
 export const StayConnected = ({ content, className }: StayConnectedProps) => {
   const [state, formAction] = useActionState(subscribe, initialState)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (state.success) {
@@ -35,6 +36,15 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
       return () => clearTimeout(timer)
     }
   }, [state])
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+    startTransition(() => {
+      formAction(new FormData(e.currentTarget))
+    })
+    setIsLoading(false)
+  }
 
   return (
     <div className={cn("flex-col gap-6 lg:flex", className)}>
@@ -56,7 +66,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
         />
       </div>
       <form
-        action={formAction}
+        onSubmit={handleSubmit}
         className="flex max-w-[26.25rem] flex-col gap-4 text-f-h4-mobile lg:text-f-h4"
       >
         <Input
@@ -68,12 +78,12 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
         />
         <button
           type="submit"
-          disabled={state.success}
+          disabled={state.success || isLoading}
           className="flex w-fit translate-y-1 items-center gap-1 overflow-hidden text-f-h4-mobile lg:text-f-h4"
         >
           <motion.div
             animate={{
-              color: state.success ? "#00ff9b" : "#666666"
+              color: state.success ? "#00ff9b" : state.message.includes("already") ? "#ff6b6b" : "#666666"
             }}
             transition={{ duration: 0.2 }}
           >
@@ -99,6 +109,17 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                     />
                   </motion.span>
                 </motion.span>
+              ) : state.message.includes("already") ? (
+                <motion.span
+                  key="error"
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -40, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="actionable actionable-no-underline flex h-[1.5em] items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
+                >
+                  Already Registered
+                </motion.span>
               ) : (
                 <motion.span
                   key="default"
@@ -108,7 +129,22 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   transition={{ duration: 0.2, ease: "easeOut" }}
                   className="actionable actionable-no-underline flex h-[1.5em] items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
                 >
-                  Roll Me In <Arrow className="size-5" />
+                  {isLoading ? (
+                    <>
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="inline-block"
+                      >
+                        ⭕
+                      </motion.span>
+                      <span>Rolling...</span>
+                    </>
+                  ) : (
+                    <>
+                      Roll Me In <Arrow className="size-5" />
+                    </>
+                  )}
                 </motion.span>
               )}
             </AnimatePresence>
