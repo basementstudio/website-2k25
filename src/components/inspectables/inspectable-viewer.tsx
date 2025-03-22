@@ -80,7 +80,7 @@ export const InspectableViewer = () => {
         selected ? "flex" : "hidden"
       )}
     >
-      <div className="grid-layout h-full">
+      <div className="grid-layout h-full !grid-cols-12">
         <div className="relative col-start-1 col-end-9 my-4 border border-brand-w1/20">
           <div className="with-dots !absolute -inset-px" />
         </div>
