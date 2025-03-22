@@ -122,7 +122,9 @@ export const Scene = () => {
             antialias: false,
             alpha: false,
             outputColorSpace: THREE.SRGBColorSpace,
-            toneMapping: THREE.NoToneMapping
+            toneMapping: THREE.NoToneMapping,
+            powerPreference: "high-performance",
+            precision: "mediump"
           }}
           camera={{ fov: 60 }}
           className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
@@ -134,19 +136,19 @@ export const Scene = () => {
                 <>
                   <Suspense fallback={null}>
                     <Inspectables />
-                  </Suspense>
-                  <Suspense fallback={null}>
                     <Map />
-                  </Suspense>
-                  <Suspense fallback={null}>
                     <WebGlTunnelOut />
-                  </Suspense>
-                  <Suspense fallback={null}>
                     <CameraController />
-                  </Suspense>
-                  <Suspense fallback={null}>
                     <Sparkles />
+                    {!isBasketball && (
+                      <>
+                        <CharacterInstanceConfig />
+                        <CharactersSpawn />
+                        <Pets />
+                      </>
+                    )}
                   </Suspense>
+
                   {isBasketball && (
                     <PhysicsWorld paused={!isBasketball}>
                       <ErrorBoundary>
@@ -154,13 +156,6 @@ export const Scene = () => {
                       </ErrorBoundary>
                     </PhysicsWorld>
                   )}
-                  <Suspense fallback={null}>
-                    <CharacterInstanceConfig />
-                    <CharactersSpawn />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Pets />
-                  </Suspense>
                 </>
               }
             />
