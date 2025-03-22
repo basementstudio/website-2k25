@@ -12,8 +12,7 @@ import {
   calculateMovementVectors,
   calculateNewPosition,
   calculatePlanePosition,
-  calculateViewDimensions,
-  easeInOutCubic
+  calculateViewDimensions
 } from "./camera-utils"
 
 const ANIMATION_DURATION = 1
@@ -85,9 +84,9 @@ export const useCameraSetup = (
       cameraConfig
     )
 
-    ;[plane, boundary].forEach((mesh) => {
+    for (const mesh of [plane, boundary]) {
       mesh.lookAt(...(cameraConfig.position as [number, number, number]))
-    })
+    }
     boundary.scale.set(width * 0.6, height, 1)
     plane.scale.set(width * 0.4, height, 1)
   }, [
@@ -105,6 +104,7 @@ export const useCameraSetup = (
 }
 
 export const useBoundaries = (cameraConfig: ICameraConfig | undefined) => {
+  // Store boundary-related values in a ref to avoid re-renders when they change
   const boundariesRef = useRef({
     maxOffset: 0,
     targetPosition: { x: 0, z: 0 },
@@ -114,11 +114,13 @@ export const useBoundaries = (cameraConfig: ICameraConfig | undefined) => {
     pos: { x: 0, z: 0 }
   })
 
+  // Memoize the base position calculation to avoid recalculation on every render
   const basePosition = useMemo(() => {
     if (!cameraConfig) return [0, 0, 0] as [number, number, number]
     return calculatePlanePosition(cameraConfig)
   }, [cameraConfig])
 
+  // Calculate new position only when basePosition changes
   const np = useMemo(() => {
     const b = boundariesRef.current
     if (!basePosition) return null
@@ -184,6 +186,13 @@ export const useCameraMovement = (
   const prevCameraConfig = useRef(cameraConfig)
   const firstRender = useRef(true)
 
+  // Reuse existing Vector3 objects instead of using .clone()
+  // Predefine temporary vectors for reuse
+  const finalPos = useMemo(() => new THREE.Vector3(), [])
+  const finalLookAt = useMemo(() => new THREE.Vector3(), [])
+
+  const ZERO_VECTOR = useMemo(() => new THREE.Vector3(0, 0, 0), [])
+
   useEffect(() => {
     if (cameraConfig && prevCameraConfig.current !== cameraConfig) {
       if (isInitialized && prevCameraConfig.current) {
@@ -230,10 +239,12 @@ export const useCameraMovement = (
 
     if (!plane || !boundary || !basePosition || !np || !cameraConfig) return
 
+    // Always update maxOffset and rightVector to maintain smooth panning
     b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
     b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
     b.offset = pointer.x * b.maxOffset * offsetMultiplier
 
+    // Calculate position based on mouse movement
     b.pos.x = b.rightVector.x * b.offset
     b.pos.z = b.rightVector.z * b.offset
     b.targetPosition.x = basePosition[0] + b.pos.x
@@ -241,18 +252,22 @@ export const useCameraMovement = (
     b.planePosition.x = plane.position.x
     b.planePosition.z = plane.position.z
 
+    // Update plane position for effective camera boundary
     plane.position.setX(np.x)
     plane.position.setZ(np.z)
 
     if (!selected) {
+      // Apply movement based on pointer position
       newDelta.set(b.pos.x, 0, b.pos.z)
       newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
 
+      // Use easing to smooth camera movement
       easing.damp3(panTargetDelta, newDelta, 0.5, dt)
       easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
     } else {
-      easing.damp3(panTargetDelta, 0, 0.5, dt)
-      easing.damp3(panLookAtDelta, 0, 0.25, dt)
+      // When an element is selected, reset camera to center position
+      easing.damp3(panTargetDelta, ZERO_VECTOR, 0.5, dt)
+      easing.damp3(panLookAtDelta, ZERO_VECTOR, 0.25, dt)
     }
 
     if (cameraConfig) {
@@ -260,13 +275,11 @@ export const useCameraMovement = (
       targetLookAt.set(...cameraConfig.target)
       targetFov.current = cameraConfig.fov
     }
-
-    if (!disableCameraTransition && lenis) {
-      targetPosition.y +=
-        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
-      targetLookAt.y +=
-        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
-    }
+    const scrollFactor =
+      (targetY - initialY) *
+      Math.min(1, lenis?.scroll ?? 0 / window.innerHeight)
+    targetPosition.y += scrollFactor
+    targetLookAt.y += scrollFactor
 
     if (disableCameraTransition || firstRender.current) {
       progress.current = 1
@@ -279,19 +292,28 @@ export const useCameraMovement = (
       if (firstRender.current) {
         firstRender.current = false
       }
-    } else if (isTransitioning.current && progress.current < 1) {
-      progress.current = Math.min(progress.current + dt / animationDuration, 1)
-      const easeValue = easeInOutCubic(progress.current)
+    } else if (isTransitioning.current) {
+      // Use damp3 for position and target
+      easing.damp3(currentPos, targetPosition, 0.5, dt)
+      easing.damp3(currentTarget, targetLookAt, 0.25, dt)
 
-      currentPos.lerpVectors(initialCurrentPos, targetPosition, easeValue)
-      currentTarget.lerpVectors(initialCurrentTarget, targetLookAt, easeValue)
-      currentFov.current =
-        initialFov.current +
-        (targetFov.current - initialFov.current) * easeValue
+      // For FOV we use a simple damp version
+      currentFov.current +=
+        (targetFov.current - currentFov.current) * 0.15 * (60 * dt)
 
-      if (progress.current === 1) {
+      // Check if we have come close enough to end the transition
+      if (
+        currentPos.distanceTo(targetPosition) < 0.01 &&
+        currentTarget.distanceTo(targetLookAt) < 0.01 &&
+        Math.abs(currentFov.current - targetFov.current) < 0.1
+      ) {
         isTransitioning.current = false
         setIsCameraTransitioning(false)
+
+        // Final alignment to avoid small differences
+        currentPos.copy(targetPosition)
+        currentTarget.copy(targetLookAt)
+        currentFov.current = targetFov.current
       }
     } else {
       currentPos.copy(targetPosition)
@@ -300,15 +322,20 @@ export const useCameraMovement = (
     }
 
     if (cameraRef.current) {
-      const finalPos = currentPos.clone().add(panTargetDelta)
-      const finalLookAt = currentTarget.clone().add(panLookAtDelta)
+      // Use pre-allocated vectors to avoid garbage collection pressure
+      finalPos.copy(currentPos).add(panTargetDelta)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
 
       cameraRef.current.position.copy(finalPos)
       cameraRef.current.lookAt(finalLookAt)
-      cameraRef.current.fov = currentFov.current
-      cameraRef.current.updateProjectionMatrix()
+
+      // Only update projection matrix when FOV changes to avoid expensive recalculations
+      if (cameraRef.current.fov !== currentFov.current) {
+        cameraRef.current.fov = currentFov.current
+        cameraRef.current.updateProjectionMatrix()
+      }
     }
-  })
+  }, 0)
 
   return { currentPos, currentTarget, targetPosition, targetLookAt }
 }

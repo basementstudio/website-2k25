@@ -1,26 +1,34 @@
-import { PerspectiveCamera } from "three"
+import type { PerspectiveCamera } from "three"
 
-import { ICameraConfig } from "../navigation-handler/navigation.interface"
+import type { ICameraConfig } from "../navigation-handler/navigation.interface"
 
 export const easeInOutCubic = (x: number): number => {
-  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
+  if (x < 0.5) {
+    // Replace power with direct multiplications (x³ = x * x * x)
+    return 4 * x * x * x
+  }
+  // Calculate (2*x-2) once and use multiplication instead of power
+  const t = -2 * x + 2
+  return 1 - (t * t * t) / 2
 }
 
 export const calculatePlanePosition = (cameraConfig: ICameraConfig) => {
   const [px, py, pz] = cameraConfig.position
   const [tx, ty, tz] = cameraConfig.target
-  const direction = {
-    x: tx - px,
-    y: ty - py,
-    z: tz - pz
-  }
-  const scale =
-    1 / Math.sqrt(direction.x ** 2 + direction.y ** 2 + direction.z ** 2)
-  return [
-    px + direction.x * scale,
-    py + direction.y * scale,
-    pz + direction.z * scale
-  ] as [number, number, number]
+
+  // Calculate differences once
+  const dx = tx - px
+  const dy = ty - py
+  const dz = tz - pz
+
+  // Use inverse square root (more efficient)
+  const invDist = 1 / Math.sqrt(dx * dx + dy * dy + dz * dz)
+
+  return [px + dx * invDist, py + dy * invDist, pz + dz * invDist] as [
+    number,
+    number,
+    number
+  ]
 }
 
 export const calculateMovementVectors = (
@@ -29,19 +37,17 @@ export const calculateMovementVectors = (
 ) => {
   const cameraPos = cameraConfig.position
 
-  // Direction from camera to plane
-  const directionVector = {
-    x: basePosition[0] - cameraPos[0],
-    z: basePosition[2] - cameraPos[2]
-  }
+  // Calculate once
+  const dx = basePosition[0] - cameraPos[0]
+  const dz = basePosition[2] - cameraPos[2]
 
-  // Normalize
-  const length = Math.sqrt(directionVector.x ** 2 + directionVector.z ** 2)
+  // Calculate inverse length (avoids repeated division)
+  const invLength = 1 / Math.sqrt(dx * dx + dz * dz)
 
   // Right vector (perpendicular to direction)
   return {
-    x: -directionVector.z / length,
-    z: directionVector.x / length
+    x: -dz * invLength,
+    z: dx * invLength
   }
 }
 
@@ -51,18 +57,27 @@ export const calculateNewPosition = (
   currentPos: Position,
   targetPos: Position,
   smoothFactor = 1
-): Position => ({
-  x: currentPos.x + (targetPos.x - currentPos.x) * smoothFactor,
-  z: currentPos.z + (targetPos.z - currentPos.z) * smoothFactor
-})
+): Position => {
+  // Skip calculations if smoothFactor is 1
+  if (smoothFactor === 1) return { ...targetPos }
+
+  return {
+    x: currentPos.x + (targetPos.x - currentPos.x) * smoothFactor,
+    z: currentPos.z + (targetPos.z - currentPos.z) * smoothFactor
+  }
+}
 
 export const calculateViewDimensions = (
   camera: PerspectiveCamera,
   distance: number,
   cameraConfig: ICameraConfig
 ) => {
-  const fovRadians = ((cameraConfig.fov ?? 55) * Math.PI) / 180
-  const height = 2 * Math.tan(fovRadians / 2) * distance
+  // Pre-calculate constants
+  const fovRad = ((cameraConfig.fov ?? 55) * Math.PI) / 180
+  const tanHalfFov = Math.tan(fovRad / 2)
+
+  // Reduce operations
+  const height = 2 * tanHalfFov * distance
   const width = height * camera.aspect
   return { width, height }
 }
