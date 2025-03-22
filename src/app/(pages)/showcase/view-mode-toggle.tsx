@@ -1,6 +1,6 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useEffect } from "react"
 
 import { useShowcaseContext } from "./showcase-list/context"
 
@@ -77,6 +77,23 @@ const ListIcon = () => (
 
 export const ViewModeToggle = memo(() => {
   const { viewMode, setViewMode } = useShowcaseContext()
+
+  useEffect(() => {
+    // Sync with URL hash on mount and hash changes
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1)
+      if (hash === "grid" || hash === "rows") {
+        setViewMode(hash)
+      }
+    }
+
+    // Initial sync
+    handleHashChange()
+
+    // Listen for hash changes
+    window.addEventListener("hashchange", handleHashChange)
+    return () => window.removeEventListener("hashchange", handleHashChange)
+  }, [setViewMode])
 
   return (
     <div className="flex items-center gap-2">
