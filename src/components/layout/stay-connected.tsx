@@ -3,7 +3,7 @@
 import type { RichTextNode } from "basehub/api-transaction"
 import { RichText } from "basehub/react-rich-text"
 import { AnimatePresence, motion } from "motion/react"
-import { useEffect, useState, startTransition } from "react"
+import { useState, startTransition } from "react"
 import { useActionState } from "react"
 
 import { subscribe } from "@/app/actions/subscribe"
@@ -16,34 +16,66 @@ interface StayConnectedProps {
   className?: string
 }
 
-const initialState = {
-  success: false,
-  message: ""
-}
+type FormState = "idle" | "loading" | "success" | "error"
+type ErrorType = "already_registered" | "invalid_email" | "general_error"
 
 export const StayConnected = ({ content, className }: StayConnectedProps) => {
-  const [state, formAction] = useActionState(subscribe, initialState)
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [state, formAction] = useActionState(subscribe, { success: false, message: "" })
+  const [formState, setFormState] = useState<FormState>("idle")
+  const [errorType, setErrorType] = useState<ErrorType>("general_error")
+  const [email, setEmail] = useState("")
 
-  useEffect(() => {
-    if (state.success) {
-      setShowSuccess(true)
-      const timer = setTimeout(() => {
-        setShowSuccess(false)
-        state.success = false
-      }, 2500)
-      return () => clearTimeout(timer)
-    }
-  }, [state])
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setIsLoading(true)
+    if (formState !== "idle") return
+
+    setFormState("loading")
+    const formData = new FormData()
+    formData.append("email", email)
+
     startTransition(() => {
-      formAction(new FormData(e.currentTarget))
+      formAction(formData)
     })
-    setIsLoading(false)
+
+    // Check the state after a short delay to allow the action to complete
+    setTimeout(() => {
+      if (state.message === "already registered") {
+        setFormState("error")
+        setErrorType("already_registered")
+        setTimeout(() => {
+          setFormState("idle")
+          setErrorType("general_error")
+          setEmail("")
+        }, 2000)
+      } else if (state.success) {
+        setFormState("success")
+        setTimeout(() => {
+          setFormState("idle")
+          setEmail("")
+        }, 2000)
+      } else {
+        setFormState("error")
+        setErrorType(state.message.toLowerCase().includes("email") ? "invalid_email" : "general_error")
+        setTimeout(() => {
+          setFormState("idle")
+          setErrorType("general_error")
+          setEmail("")
+        }, 2000)
+      }
+    }, 100)
+  }
+
+  const getErrorMessage = () => {
+    switch (errorType) {
+      case "already_registered":
+        return "Already Registered"
+      case "invalid_email":
+        return "Invalid Email"
+      case "general_error":
+        return "Something went wrong"
+      default:
+        return "Something went wrong"
+    }
   }
 
   return (
@@ -74,42 +106,62 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           placeholder="Enter your Email"
           required
           type="email"
-          name="email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value)
+            if (formState === "error") setFormState("idle")
+          }}
+          disabled={formState !== "idle"}
         />
         <button
           type="submit"
-          disabled={state.success || isLoading}
+          disabled={formState !== "idle" || !email}
           className="flex w-fit translate-y-1 items-center gap-1 overflow-hidden text-f-h4-mobile lg:text-f-h4"
         >
           <motion.div
             animate={{
-              color: state.success ? "#00ff9b" : state.message.includes("already") ? "#ff6b6b" : "#666666"
+              color: formState === "success" ? "#00ff9b" : formState === "error" ? "#ff6b6b" : "#666666"
             }}
             transition={{ duration: 0.2 }}
           >
             <AnimatePresence mode="wait">
-              {showSuccess ? (
+              {formState === "loading" ? (
+                <motion.span
+                  key="loading"
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -40, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="actionable actionable-no-underline flex h-[1.5em] items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
+                >
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="inline-block"
+                  >
+                    ⭕
+                  </motion.span>
+                  <span>Rolling...</span>
+                </motion.span>
+              ) : formState === "success" ? (
                 <motion.span
                   key="success"
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -40, opacity: 0 }}
-                  transition={{ duration: 0.1, ease: "easeOut" }}
-                  className="actionable pointer-events-none gap-1"
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="actionable actionable-no-underline flex h-[1.5em] items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
                 >
-                  Subscribed Succesfully
+                  Subscribed Successfully
                   <motion.span
                     initial={{ scale: 0 }}
-                    animate={{ scale: state.success ? 1 : 0 }}
-                    transition={{ duration: 0.1, ease: "easeOut" }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
                   >
-                    <Checkmark
-                      className="scale-75 text-brand-g"
-                      state={state.success}
-                    />
+                    <Checkmark className="scale-75 text-brand-g" state={true} />
                   </motion.span>
                 </motion.span>
-              ) : state.message.includes("already") ? (
+              ) : formState === "error" ? (
                 <motion.span
                   key="error"
                   initial={{ y: 40, opacity: 0 }}
@@ -118,7 +170,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   transition={{ duration: 0.2, ease: "easeOut" }}
                   className="actionable actionable-no-underline flex h-[1.5em] items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
                 >
-                  Already Registered
+                  {getErrorMessage()}
                 </motion.span>
               ) : (
                 <motion.span
@@ -129,22 +181,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   transition={{ duration: 0.2, ease: "easeOut" }}
                   className="actionable actionable-no-underline flex h-[1.5em] items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
                 >
-                  {isLoading ? (
-                    <>
-                      <motion.span
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="inline-block"
-                      >
-                        ⭕
-                      </motion.span>
-                      <span>Rolling...</span>
-                    </>
-                  ) : (
-                    <>
-                      Roll Me In <Arrow className="size-5" />
-                    </>
-                  )}
+                  Roll Me In <Arrow className="size-5" />
                 </motion.span>
               )}
             </AnimatePresence>

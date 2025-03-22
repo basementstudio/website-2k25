@@ -22,7 +22,7 @@ const TestimonialAvatar = memo(
           <Image
             alt={avatar.alt || ""}
             blurDataURL={avatar.blurDataURL}
-            className="size-12 lg:size-16"
+            className="size-16 lg:size-24"
             draggable={false}
             height={avatar.height}
             width={avatar.width}
