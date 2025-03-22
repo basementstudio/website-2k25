@@ -93,7 +93,8 @@ export const Crew = ({ data }: { data: QueryType }) => {
                 <li
                   key={person._title}
                   className={cn(
-                    "group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
+                    "group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75 transition-opacity duration-200",
+                    debouncedHoveredPerson && debouncedHoveredPerson !== person._title && "opacity-50"
                   )}
                   onMouseEnter={() => setHoveredPerson(person._title)}
                   onMouseLeave={() => setHoveredPerson(null)}
