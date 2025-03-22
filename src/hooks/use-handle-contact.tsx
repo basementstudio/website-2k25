@@ -1,10 +1,10 @@
 import { useRouter } from "next/navigation"
-import { useContactStore } from "../contact/contact-store"
+import { useContactStore } from "@/components/contact/contact-store"
 import { useWebgl } from "@/hooks/use-webgl"
 import { useCallback, useRef } from "react"
-import { useAppLoadingStore } from "../loading/app-loading-handler"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 
-export const ContactButton = ({ children }: { children: React.ReactNode }) => {
+export const useHandleContactButton = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
@@ -15,8 +15,9 @@ export const ContactButton = ({ children }: { children: React.ReactNode }) => {
 
   const handleClick = useCallback(() => {
     if (clickTimeoutRef.current || isAnimating || !canRunMainApp) return
+    const isMobile = window.innerWidth <= 768
 
-    if (webglEnabled) {
+    if (webglEnabled && !isMobile) {
       setIsContactOpen(!isContactOpen)
 
       clickTimeoutRef.current = setTimeout(() => {
@@ -34,5 +35,5 @@ export const ContactButton = ({ children }: { children: React.ReactNode }) => {
     canRunMainApp
   ])
 
-  return <button onClick={handleClick}>{children}</button>
+  return handleClick
 }
