@@ -242,7 +242,7 @@ const ContactScreen = () => {
                 </Link>
                 <span className="opacity-50">, </span>
                 <Link
-                  href="https://www.instagram.com/basementstudio"
+                  href="https://www.instagram.com/basementdotstudio"
                   target="_blank"
                 >
                   <span className="actionable">Instagram</span>

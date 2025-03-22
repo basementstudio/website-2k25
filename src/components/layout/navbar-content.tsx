@@ -16,9 +16,9 @@ import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 import { mergeRefs } from "@/utils/mergeRefs"
 
-import { ContactButton } from "../primitives/contact-button"
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
+import { useHandleContactButton } from "@/hooks/use-handle-contact"
 
 const ContextMenu = memo(({ x, y, onClose, onCopy }: { x: number; y: number; onClose: () => void; onCopy: () => void }) => {
   const [copied, setCopied] = useState(false)
@@ -188,6 +188,7 @@ export const NavbarContent = memo(
             socialLinks={socialLinks}
             newsletter={newsletter}
           />
+
           <MobileContent
             links={links}
             socialLinks={socialLinks}
@@ -203,6 +204,7 @@ NavbarContent.displayName = "NavbarContent"
 const DesktopContent = memo(({ links }: NavbarContentProps) => {
   const { handleNavigation } = useHandleNavigation()
   const isContactOpen = useContactStore((state) => state.isContactOpen)
+  const handleContactButton = useHandleContactButton()
 
   const pathname = usePathname()
 
@@ -240,17 +242,17 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
 
       <div className="col-start-11 col-end-13 ml-auto hidden items-center gap-5 lg:flex">
         <MusicToggle />
-        <ContactButton>
-          <div
-            id="nav-contact"
-            className={cn(
-              "text-[0.75rem] font-semibold leading-4 text-brand-w1 hover:text-brand-o",
-              isContactOpen && "text-brand-g1"
-            )}
-          >
-            <span className="actionable-no-underline">Contact Us</span>
-          </div>
-        </ContactButton>
+
+        <button
+          id="nav-contact"
+          onClick={handleContactButton}
+          className={cn(
+            "text-[0.75rem] font-semibold leading-4 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+            isContactOpen && "text-brand-g1"
+          )}
+        >
+          <span className="actionable-no-underline">Contact Us</span>
+        </button>
       </div>
     </>
   )
@@ -323,7 +325,7 @@ const MobileContent = memo(
           <motion.p
             id="menu-button"
             key={isOpen ? "close" : "menu"}
-            className="text-f-p-mobile w-[2.4rem] origin-bottom text-center text-brand-w1"
+            className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
             initial={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
             animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
