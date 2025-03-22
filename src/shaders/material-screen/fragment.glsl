@@ -40,10 +40,7 @@ vec2 curveRemapUV(vec2 uv) {
 
 // Random function
 float random(vec2 st) {
-  // More efficient hash algorithm that avoids sin()
-  vec3 p3 = fract(vec3(st.xyx) * vec3(0.1031, 0.103, 0.0973));
-  p3 += dot(p3, p3.yzx + 33.33);
-  return fract((p3.x + p3.y) * p3.z);
+  return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
 float peak(float x, float xpos, float scale) {
@@ -191,7 +188,7 @@ void main() {
 
   // Add noise overlay
   vec2 noiseUv = gl_FragCoord.xy / NOISE_SCALE;
-  float noise = random(noiseUv + uTime * 0.1);
+  float noise = random(noiseUv + uTime);
   color = mix(color, color + vec3(noise), NOISE_OPACITY);
 
   // Add orange tint to black areas
