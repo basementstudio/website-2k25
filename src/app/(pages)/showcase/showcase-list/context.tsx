@@ -1,20 +1,18 @@
 "use client"
 
 import { createContext, use, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 
-interface ProjectContextType {
+interface ShowcaseContextType {
   viewMode: "grid" | "rows"
   setViewMode: (viewMode: "grid" | "rows") => void
 }
 
-export const ProjectContext = createContext<ProjectContextType>({
+export const ShowcaseContext = createContext<ShowcaseContextType>({
   viewMode: "grid",
   setViewMode: () => {}
 })
 
-export function ProjectProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
+export function ShowcaseProvider({ children }: { children: React.ReactNode }) {
   const [viewMode, setViewModeState] = useState<"grid" | "rows">("grid")
 
   useEffect(() => {
@@ -40,17 +38,17 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <ProjectContext.Provider value={{ viewMode, setViewMode }}>
+    <ShowcaseContext.Provider value={{ viewMode, setViewMode }}>
       {children}
-    </ProjectContext.Provider>
+    </ShowcaseContext.Provider>
   )
 }
 
-export function useProjectContext() {
-  const context = use(ProjectContext)
+export function useShowcaseContext() {
+  const context = use(ShowcaseContext)
 
   if (!context)
-    throw new Error("useProjectContext must be used within a ProjectProvider")
+    throw new Error("useShowcaseContext must be used within a ShowcaseProvider")
 
   return context
-}
+} 
