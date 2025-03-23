@@ -1,8 +1,9 @@
 import { useRouter } from "next/navigation"
-import { useContactStore } from "@/components/contact/contact-store"
-import { useWebgl } from "@/hooks/use-webgl"
 import { useCallback, useRef } from "react"
+
+import { useContactStore } from "@/components/contact/contact-store"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
+import { useWebgl } from "@/hooks/use-webgl"
 
 export const useHandleContactButton = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
