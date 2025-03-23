@@ -1,5 +1,3 @@
-import { basehub } from "basehub"
-
 import { client } from "@/service/basehub"
 
 import { assetsQuery } from "./query"
