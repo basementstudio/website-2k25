@@ -87,8 +87,10 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
                   target="_blank"
                   className="actionable flex items-center gap-1 text-brand-w1"
                 >
-                  {website.replace(/^https?:\/\//, "")}
-                  <ExternalLinkIcon className="size-2" />
+                  <span className="max-w-[200px] truncate">
+                    {website.replace(/^https?:\/\//, "")}
+                  </span>
+                  <ExternalLinkIcon className="size-2 shrink-0" />
                 </Link>
               }
             />
