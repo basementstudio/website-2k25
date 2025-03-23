@@ -45,6 +45,7 @@ const Marquee = ({ text }: { text: string }) => {
   return (
     <span className="marquee-container relative max-w-[8.75rem] overflow-hidden whitespace-nowrap bg-black text-white">
       <span
+        key={key}
         className="inline-flex w-max whitespace-nowrap"
         style={{
           animation: "marquee-translate 7s linear infinite"
