@@ -4,7 +4,7 @@ import { Color, Group } from "three"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { Character } from "."
-import { CharacterAnimationName } from "./character-instancer"
+import { CharacterAnimationName } from "./characters-config"
 
 export const CharactersSpawn = memo(CharactersSpawnInner)
 
@@ -17,22 +17,20 @@ function CharactersSpawnInner() {
     }
   })
 
-  // return null
-
-  // return (
-  //   <group position={[4, 0, -13]}>
-  //     {Array.from({ length: 5 }).map((_, rowIndex) =>
-  //       Array.from({ length: 5 }).map((_, colIndex) => (
-  //         <Character
-  //           key={`${rowIndex}-${colIndex}`}
-  //           position={[rowIndex * 1, 0, colIndex * 1]}
-  //           rotation={[0, Math.PI / -2, 0]}
-  //           animationName={CharacterAnimationName["Walking"]}
-  //         />
-  //       ))
-  //     )}
-  //   </group>
-  // )
+  return (
+    <group position={[4, 0, -13]}>
+      {Array.from({ length: 2 }).map((_, rowIndex) =>
+        Array.from({ length: 2 }).map((_, colIndex) => (
+          <Character
+            key={`${rowIndex}-${colIndex}`}
+            position={[rowIndex * 1, 0, colIndex * 1]}
+            rotation={[0, Math.PI / -2, 0]}
+            animationName={CharacterAnimationName["Blog.01"]}
+          />
+        ))
+      )}
+    </group>
+  )
 
   return (
     <>
