@@ -1,6 +1,5 @@
 "use client"
 
-import { useThree } from "@react-three/fiber"
 import { useCallback, useEffect } from "react"
 import { create } from "zustand"
 

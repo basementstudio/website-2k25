@@ -3,14 +3,14 @@ import { memo, useMemo } from "react"
 import type * as THREE from "three"
 import { BufferAttribute, Color, FloatType } from "three"
 
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
-useFadeAnimation
 
 import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
+import { FACES_GRID_COLS, SKINNED_MESH_KEYS } from "./characters-config"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
 import { getCharacterMaterial } from "./material/chartacter-material"
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 
 const {
   InstancePosition: CharacterPosition,
@@ -18,52 +18,16 @@ const {
   InstancedMesh: CharacterInstancedMesh
 } = createInstancedSkinnedMesh()
 
-export enum CharacterAnimationName {
-  "Blog.01" = "Blog.01",
-  "Blog.02" = "Blog.02",
-  "People.01.a" = "People.01.a",
-  "People.01.b" = "People.01.b",
-  "People.02.a" = "People.02.a",
-  "People.02.b" = "People.02.b",
-  "Services.01" = "Services.01",
-  "Services.02" = "Services.02"
-}
-
-const SKINNED_MESH_KEYS = [
-  "head",
-  "body",
-  "arms",
-  "jj-hair",
-  "jj-glass",
-  "nat-hair"
-] as const
-
-export enum CharacterMeshes {
-  head = 0,
-  body = 1,
-  arms = 2,
-  jjHair = 3,
-  jjGlass = 4,
-  natHair = 5
-}
-
-export enum CharacterTextureIds {
-  none = -1,
-  body = 0,
-  head = 1,
-  arms = 2
-}
-
 interface CharactersGLTF {
   nodes: {
-    [key in (typeof SKINNED_MESH_KEYS)[number]]: THREE.SkinnedMesh
+    [_key in (typeof SKINNED_MESH_KEYS)[number]]: THREE.SkinnedMesh
   }
   animations: THREE.AnimationClip[]
 }
 
 export { CharacterPosition, useCharacterMesh }
 
-const MAX_CHARACTERS = 10
+const MAX_CHARACTERS = 12
 
 const MAX_CHARACTERS_INSTANCES = MAX_CHARACTERS * 4
 
@@ -90,6 +54,7 @@ function CharacterInstanceConfigInner() {
   const textureBody = useTexture(characters.textureBody)
   const textureFaces = useTexture(characters.textureFaces)
   const textureArms = useTexture(characters.textureArms)
+  const textureComic = useTexture(characters.textureComic)
 
   const { fadeFactor } = useFadeAnimation()
 
@@ -117,8 +82,7 @@ function CharacterInstanceConfigInner() {
     textureBody.needsUpdate = true
     const material = getCharacterMaterial()
 
-    const facesRepeat = 2
-    textureFaces.repeat.set(1 / facesRepeat, 1 / facesRepeat)
+    textureFaces.repeat.set(1 / FACES_GRID_COLS, 1 / FACES_GRID_COLS)
     textureFaces.flipY = false
     textureFaces.updateMatrix()
     textureFaces.needsUpdate = true
@@ -128,6 +92,10 @@ function CharacterInstanceConfigInner() {
     textureArms.flipY = false
     textureArms.updateMatrix()
     textureArms.needsUpdate = true
+
+    textureComic.flipY = false
+    textureComic.updateMatrix()
+    textureComic.needsUpdate = true
 
     /** Character material accepts having more than one instance
      * each one can have a different map assigned
@@ -148,10 +116,22 @@ function CharacterInstanceConfigInner() {
       map: textureArms,
       mapTransform: textureArms.matrix
     }
-    material.uniforms.mapConfigs = {
-      value: [bodyMapConfig, headMapConfig, armsMapConfig]
+    const comicMapConfig: MapConfig = {
+      map: textureComic,
+      mapTransform: textureComic.matrix
     }
-    material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: 3 }
+
+    const mapConfigs = [
+      bodyMapConfig,
+      headMapConfig,
+      armsMapConfig,
+      comicMapConfig
+    ]
+
+    material.uniforms.mapConfigs = {
+      value: mapConfigs
+    }
+    material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: mapConfigs.length }
 
     // disable morph targets
     Object.keys(nodes).forEach((nodeKey) => {
@@ -160,6 +140,7 @@ function CharacterInstanceConfigInner() {
         node.morphTargetInfluences.map((_, index) => {
           // node.morphTargetInfluences![index] = 0
           nodes[nodeKey as keyof typeof nodes].morphTargetInfluences![index] = 0
+          delete nodes[nodeKey as keyof typeof nodes].geometry.attributes.color
         })
       }
     })
@@ -167,6 +148,8 @@ function CharacterInstanceConfigInner() {
     return material
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textureBody, textureFaces, nodes])
+
+  // console.log(Object.values(nodes).filter(n => n.type === "SkinnedMesh").map(n => n.name))
 
   return (
     <>

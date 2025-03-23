@@ -1,11 +1,25 @@
 {
-  "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:prettier/recommended"
+  ],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["simple-import-sort", "@typescript-eslint", "prettier"],
+  "plugins": [
+    "simple-import-sort",
+    "@typescript-eslint",
+    "prettier"
+  ],
   "rules": {
     // TODO change prettier to "error" once current PRs are merged
     "prettier/prettier": "warn",
     "semi": "off",
+    "no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
     "arrow-body-style": "off",
     "prefer-arrow-callback": "off",
     "simple-import-sort/imports": "warn",
