@@ -20,7 +20,14 @@ import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
 
-const ContextMenu = memo(({ x, y, onClose, onCopy }: { x: number; y: number; onClose: () => void; onCopy: () => void }) => {
+interface ContextMenuProps {
+  x: number
+  y: number
+  onClose: () => void
+  onCopy: () => void
+}
+
+const ContextMenu = memo(({ x, y, onClose, onCopy }: ContextMenuProps) => {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -38,12 +45,12 @@ const ContextMenu = memo(({ x, y, onClose, onCopy }: { x: number; y: number; onC
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="fixed z-[9999] w-fit bg-brand-k p-1 shadow-lg"
+      className="fixed z-[9999] w-fit bg-brand-k p-0.5"
       style={{ left: x, top: y }}
     >
       <button
         onClick={handleCopy}
-        className="group flex w-full items-center gap-2 px-2 py-1.5 text-[0.75rem] font-semibold leading-4 text-brand-w1"
+        className="text-f-p-mobile lg:text-f-p group flex w-full items-center gap-2 px-2 py-1.5 font-semibold leading-4 text-brand-w1"
       >
         <AnimatePresence mode="wait">
           {copied ? (
@@ -77,21 +84,29 @@ const ContextMenu = memo(({ x, y, onClose, onCopy }: { x: number; y: number; onC
 ContextMenu.displayName = "ContextMenu"
 
 const Logo = memo(({ className }: { className?: string }) => {
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+  const [contextMenu, setContextMenu] = useState<{
+    x: number
+    y: number
+  } | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const isMobile = useMedia("(max-width: 1024px)")
 
-  const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    if (isMobile) return
-    e.preventDefault()
-    setContextMenu({ x: e.clientX, y: e.clientY })
-  }, [isMobile])
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      if (isMobile) return
+      e.preventDefault()
+      setContextMenu({ x: e.clientX, y: e.clientY })
+    },
+    [isMobile]
+  )
 
   const handleCopy = useCallback(() => {
-    const svg = document.querySelector('.logo-svg')
+    const svg = document.querySelector(".logo-svg")
+
     if (svg) {
       const svgString = svg.outerHTML
-      navigator.clipboard.writeText(svgString)
+      const cleanedSvg = svgString.replace(/class="[^"]*"/g, "")
+      navigator.clipboard.writeText(cleanedSvg)
     }
   }, [])
 
@@ -103,13 +118,9 @@ const Logo = memo(({ className }: { className?: string }) => {
       }
     }
 
-    if (contextMenu) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
+    if (contextMenu) document.addEventListener("mousedown", handleClickOutside)
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
+    return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [contextMenu])
 
   return (
@@ -325,7 +336,7 @@ const MobileContent = memo(
           <motion.p
             id="menu-button"
             key={isOpen ? "close" : "menu"}
-            className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
+            className="text-f-p-mobile w-[2.4rem] origin-bottom text-center text-brand-w1"
             initial={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
             animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
