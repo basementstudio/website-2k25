@@ -27,7 +27,7 @@ interface CharactersGLTF {
 
 export { CharacterPosition, useCharacterMesh }
 
-const MAX_CHARACTERS = 10
+const MAX_CHARACTERS = 12
 
 const MAX_CHARACTERS_INSTANCES = MAX_CHARACTERS * 4
 

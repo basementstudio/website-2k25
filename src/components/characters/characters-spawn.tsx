@@ -17,20 +17,20 @@ function CharactersSpawnInner() {
     }
   })
 
-  return (
-    <group position={[4, 0, -13]}>
-      {Array.from({ length: 2 }).map((_, rowIndex) =>
-        Array.from({ length: 2 }).map((_, colIndex) => (
-          <Character
-            key={`${rowIndex}-${colIndex}`}
-            position={[rowIndex * 1, 0, colIndex * 1]}
-            rotation={[0, Math.PI / -2, 0]}
-            animationName={CharacterAnimationName["Blog.01"]}
-          />
-        ))
-      )}
-    </group>
-  )
+  // return (
+  //   <group position={[4, 0, -13]}>
+  //     {Array.from({ length: 2 }).map((_, rowIndex) =>
+  //       Array.from({ length: 2 }).map((_, colIndex) => (
+  //         <Character
+  //           key={`${rowIndex}-${colIndex}`}
+  //           position={[rowIndex * 1, 0, colIndex * 1]}
+  //           rotation={[0, Math.PI / -2, 0]}
+  //           animationName={CharacterAnimationName["Blog.01"]}
+  //         />
+  //       ))
+  //     )}
+  //   </group>
+  // )
 
   return (
     <>
