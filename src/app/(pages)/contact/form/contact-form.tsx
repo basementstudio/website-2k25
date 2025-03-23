@@ -122,13 +122,11 @@ export const ContactForm = () => {
             width="31"
             height="31"
             viewBox="0 0 31 31"
-            fill="none"
+            fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"
+            className="text-brand-w1"
           >
-            <path
-              d="M25.44 30.3124V5.61643H0.856L6.4 0.128427L30.984 0.184426V24.8244L25.44 30.3124ZM0.408 25.8324L25.664 0.520425L30.648 5.44842L5.336 30.7604L0.408 25.8324Z"
-              fill="#E6E6E6"
-            />
+            <path d="M25.44 30.3124V5.61643H0.856L6.4 0.128427L30.984 0.184426V24.8244L25.44 30.3124ZM0.408 25.8324L25.664 0.520425L30.648 5.44842L5.336 30.7604L0.408 25.8324Z" />
           </svg>
         </button>
         <ContactStatus
