@@ -1,3 +1,5 @@
+precision mediump float; // Declare medium precision by default
+
 uniform sampler2D map;
 uniform float uTime;
 uniform float uRevealProgress;
@@ -36,17 +38,20 @@ vec2 curveRemapUV(vec2 uv) {
   return uv;
 }
 
-// random function
+// Random function
 float random(vec2 st) {
   return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
 float peak(float x, float xpos, float scale) {
-  return clamp((1.0 - x) * scale * log(1.0 / abs(x - xpos)), 0.0, 1.0);
+  float d = abs(x - xpos);
+  // Approximation of log(1/d) for small values
+  float approxLog = d > 0.001 ? -4.605 * d + 2.0 : 6.0;
+  return clamp((1.0 - x) * scale * approxLog, 0.0, 1.0);
 }
 
 void main() {
-  // add cycle to scan line
+  // Add cycle to scan line
   float scanCycleTime = mod(uTime * SCAN_SPEED, SCAN_CYCLE + 50.0);
   float scanPos;
   if (scanCycleTime < SCAN_CYCLE) {
@@ -55,7 +60,7 @@ void main() {
     scanPos = 1.0;
   }
 
-  // add interference
+  // Add interference
   float scany = round(vUv.y * 1024.0);
 
   float r = random(vec2(0.0, scany) + vec2(uTime * 0.001));
@@ -73,11 +78,11 @@ void main() {
   if (uFlip == 1.0) {
     remappedUv.y = 1.0 - remappedUv.y;
 
-    // add pixelation that excludes a center square
+    // Add pixelation that excludes a center square
     float pixelSize = 300.0;
     vec2 centeredUv = remappedUv - 0.5;
 
-    // square parameters directly in the main function
+    // Square parameters directly in the main function
     float squareWidth = 0.25;
     float squareHeight = 0.05;
     float squareX = -0.01;
@@ -85,8 +90,11 @@ void main() {
 
     vec2 squareCenter = vec2(squareX, squareY);
     vec2 relativeToSquare = centeredUv - squareCenter;
+    vec2 absRelToSquare = abs(relativeToSquare);
+    bool insideSquare =
+      absRelToSquare.x < squareWidth && absRelToSquare.y < squareHeight;
 
-    // score square parameters
+    // Score square parameters
     float centerSquareWidth = 0.2;
     float centerSquareHeight = 0.2;
     float centerSquareX = -0.35;
@@ -95,31 +103,30 @@ void main() {
     vec2 centerSquareCenter = vec2(centerSquareX, centerSquareY);
     vec2 relativeToCenterSquare = centeredUv - centerSquareCenter;
 
-    bool insideSquare =
-      abs(relativeToSquare.x) < squareWidth &&
-      abs(relativeToSquare.y) < squareHeight;
-
     bool insideCenterSquare =
       abs(relativeToCenterSquare.x) < centerSquareWidth &&
       abs(relativeToCenterSquare.y) < centerSquareHeight;
 
     vec3 textureColor = vec3(0.0);
 
-    // texture boundaries (moved up from below)
-    if (
+    // Calculate texture boundaries once at the beginning
+    bool validUV =
       remappedUv.x >= 0.0 &&
       remappedUv.x <= 1.0 &&
       remappedUv.y >= 0.0 &&
-      remappedUv.y <= 1.0
-    ) {
+      remappedUv.y <= 1.0;
+
+    // Use this variable where needed
+    if (validUV) {
       textureColor = texture2D(map, remappedUv).rgb;
     }
 
-    // apply pixelation everywhere except in score
-    if (
+    // Simplification of conditional logic
+    bool shouldApplyPixelation =
       uIsGameRunning > 0.5 && !insideCenterSquare ||
-      uIsGameRunning <= 0.5 && !insideSquare && !insideCenterSquare
-    ) {
+      uIsGameRunning <= 0.5 && !insideSquare && !insideCenterSquare;
+
+    if (shouldApplyPixelation) {
       remappedUv = floor(remappedUv * pixelSize) / pixelSize;
 
       if (
@@ -140,20 +147,23 @@ void main() {
     }
   }
 
-  // add horizontal distortion near scan line
-  float scanDistortion =
-    exp(-pow((vUv.y - scanPos) * 160.0, 2.0)) * SCAN_DISTORTION;
+  // Add horizontal distortion near scan line
+  float y = (vUv.y - scanPos) * 160.0;
+  float expApprox = 1.0 / (1.0 + y * y * 0.5 + y * y * y * y * 0.125);
+  float scanDistortion = expApprox * SCAN_DISTORTION;
   remappedUv.x += scanDistortion;
 
   vec3 textureColor = vec3(0.0);
 
-  // texture boundaries
-  if (
+  // Calculate texture boundaries once at the beginning
+  bool validUV =
     remappedUv.x >= 0.0 &&
     remappedUv.x <= 1.0 &&
     remappedUv.y >= 0.0 &&
-    remappedUv.y <= 1.0
-  ) {
+    remappedUv.y <= 1.0;
+
+  // Use this variable where needed
+  if (validUV) {
     textureColor = texture2D(map, remappedUv).rgb;
   }
 
@@ -167,26 +177,27 @@ void main() {
   float revealLine = floor(uRevealProgress / LINE_HEIGHT);
   float textureVisibility = currentLine <= revealLine ? 0.8 : 0.0;
 
-  // start with black background and blend with revealed texture
+  // Start with black background and blend with revealed texture
   vec3 color = mix(vec3(0.0), textureColor, textureVisibility);
 
-  // add vignette
+  // Add vignette
   vec2 vignetteUv = vUv * 2.0 - 1.0;
-  float vignette = 1.0 - dot(vignetteUv, vignetteUv) * VIGNETTE_STRENGTH;
+  float vignette =
+    1.0 - min(1.0, dot(vignetteUv, vignetteUv) * VIGNETTE_STRENGTH);
   color *= vignette;
 
   // Add noise overlay
   vec2 noiseUv = gl_FragCoord.xy / NOISE_SCALE;
-  float noise = random(noiseUv + uTime * 0.1);
+  float noise = random(noiseUv + uTime);
   color = mix(color, color + vec3(noise), NOISE_OPACITY);
 
-  // add orange tint to black areas
+  // Add orange tint to black areas
   vec3 orangeTint = vec3(0.2, 0.05, 0.0);
   float blackThreshold = 0.01;
   float luminance = dot(color, vec3(0.299, 0.587, 0.114));
   color = mix(color + orangeTint * 0.1, color, step(blackThreshold, luminance));
 
-  // add scanlines
+  // Add scanlines
   float scanline = step(0.5, fract(vPosition.y * SCANLINE_COUNT));
   scanline = mix(1.0, 0.7, scanline * SCANLINE_INTENSITY);
   color = mix(
