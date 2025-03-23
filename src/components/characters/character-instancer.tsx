@@ -54,6 +54,7 @@ function CharacterInstanceConfigInner() {
   const textureBody = useTexture(characters.textureBody)
   const textureFaces = useTexture(characters.textureFaces)
   const textureArms = useTexture(characters.textureArms)
+  const textureComic = useTexture(characters.textureComic)
 
   const { fadeFactor } = useFadeAnimation()
 
@@ -92,6 +93,10 @@ function CharacterInstanceConfigInner() {
     textureArms.updateMatrix()
     textureArms.needsUpdate = true
 
+    textureComic.flipY = false
+    textureComic.updateMatrix()
+    textureComic.needsUpdate = true
+
     /** Character material accepts having more than one instance
      * each one can have a different map assigned
      */
@@ -111,10 +116,22 @@ function CharacterInstanceConfigInner() {
       map: textureArms,
       mapTransform: textureArms.matrix
     }
-    material.uniforms.mapConfigs = {
-      value: [bodyMapConfig, headMapConfig, armsMapConfig]
+    const comicMapConfig: MapConfig = {
+      map: textureComic,
+      mapTransform: textureComic.matrix
     }
-    material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: 3 }
+
+    const mapConfigs = [
+      bodyMapConfig,
+      headMapConfig,
+      armsMapConfig,
+      comicMapConfig
+    ]
+
+    material.uniforms.mapConfigs = {
+      value: mapConfigs
+    }
+    material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: mapConfigs.length }
 
     // disable morph targets
     Object.keys(nodes).forEach((nodeKey) => {

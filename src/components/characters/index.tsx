@@ -2,12 +2,14 @@ import type { ElementProps } from "@react-three/fiber"
 import { useMemo } from "react"
 import { Group } from "three"
 
+import { CharacterPosition } from "./character-instancer"
 import {
   CharacterAnimationName,
   CharacterMeshes,
-  CharacterPosition,
-  CharacterTextureIds
-} from "./character-instancer"
+  CHARACTERS_MAX,
+  CharacterTextureIds,
+  FACES_GRID_COLS
+} from "./characters-config"
 import { characterConfigurations, FaceMorphTargets } from "./characters-config"
 import { InstanceUniform } from "./instanced-skinned-mesh"
 
@@ -17,18 +19,13 @@ interface CharacterProps extends ElementProps<typeof Group> {
   initialTime?: number
 }
 
-// total faces
-const numFaces = characterConfigurations.length
-// faces per row/column
-const facesGrid = 2
-
-const possibleFaces = Array.from({ length: numFaces }, (_, i) => i)
+const possibleFaces = Array.from({ length: CHARACTERS_MAX }, (_, i) => i)
 
 // Get a face from possible faces and remove it from the array
 const getRandomCharacterIndex = () => {
   // if no faces left, reset the array
   if (possibleFaces.length === 0) {
-    possibleFaces.push(...Array.from({ length: numFaces }, (_, i) => i))
+    possibleFaces.push(...Array.from({ length: CHARACTERS_MAX }, (_, i) => i))
   }
 
   const randomIndex = Math.floor(Math.random() * possibleFaces.length)
@@ -62,7 +59,7 @@ export function Character({
   )
 
   const selectedFaceOffset = useMemo(
-    () => getTextureCoord(characterConfiguration.faceId, facesGrid),
+    () => getTextureCoord(characterConfiguration.faceId, FACES_GRID_COLS),
     [characterConfiguration]
   )
   const selectedBodyOffset = useMemo(
@@ -122,28 +119,10 @@ export function Character({
       />
 
       {/* Hair */}
-      {characterConfiguration?.faceMorph === FaceMorphTargets.JJ && (
+      {characterConfiguration.hairGeometry && (
         <CharacterPosition
           timeSpeed={1}
-          geometryId={CharacterMeshes.jjHair}
-          initialTime={initialTime}
-          animationName={animationName}
-          uniforms={{
-            uMapIndex: {
-              value: CharacterTextureIds.head
-            },
-            uMapOffset: {
-              value: selectedFaceOffset
-            },
-            ...uniforms
-          }}
-        />
-      )}
-
-      {characterConfiguration?.faceMorph === FaceMorphTargets.Nat && (
-        <CharacterPosition
-          timeSpeed={1}
-          geometryId={CharacterMeshes.natHair}
+          geometryId={characterConfiguration.hairGeometry}
           initialTime={initialTime}
           animationName={animationName}
           uniforms={{
@@ -162,12 +141,28 @@ export function Character({
       {characterConfiguration?.faceMorph === FaceMorphTargets.JJ && (
         <CharacterPosition
           timeSpeed={1}
-          geometryId={CharacterMeshes.jjGlass}
+          geometryId={CharacterMeshes["jj-glass"]}
           initialTime={initialTime}
           animationName={animationName}
           uniforms={{
             uMapIndex: {
               value: CharacterTextureIds.none
+            },
+            ...uniforms
+          }}
+        />
+      )}
+
+      {/* Animation related entities */}
+      {animationName === CharacterAnimationName["Blog.01"] && (
+        <CharacterPosition
+          timeSpeed={1}
+          geometryId={CharacterMeshes.Comic}
+          animationName={animationName}
+          initialTime={initialTime}
+          uniforms={{
+            uMapIndex: {
+              value: CharacterTextureIds.comic
             },
             ...uniforms
           }}
