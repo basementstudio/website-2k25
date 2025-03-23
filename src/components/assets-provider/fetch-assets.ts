@@ -137,6 +137,7 @@ export interface AssetsResult {
     textureBody: string
     textureFaces: string
     textureArms: string
+    textureComic: string
   }
   pets: {
     model: string
@@ -306,7 +307,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
       model: threeDInteractions.characters.model.file?.url ?? "",
       textureBody: threeDInteractions.characters.textureBody?.url,
       textureFaces: threeDInteractions.characters.textureFaces.url,
-      textureArms: threeDInteractions.characters.textureArms.url
+      textureArms: threeDInteractions.characters.textureArms.url,
+      textureComic: threeDInteractions.characters.textureComic.url
     },
     pets: {
       model: threeDInteractions.characters.petModel.file.url,
