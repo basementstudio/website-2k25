@@ -6,7 +6,7 @@ type State = {
 }
 
 export async function subscribe(
-  prevState: State,
+  _prevState: State,
   formData: FormData
 ): Promise<State> {
   try {
@@ -60,7 +60,8 @@ export async function subscribe(
     console.error("Error:", error)
     return {
       success: false,
-      message: error instanceof Error ? error.message : "An unexpected error occurred"
+      message:
+        error instanceof Error ? error.message : "An unexpected error occurred"
     }
   }
 }
