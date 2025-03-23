@@ -79,21 +79,24 @@ export const Crew = ({ data }: { data: QueryType }) => {
           <div key={department}>
             <div className="grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1">
               {index === 0 && (
-                <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
+                <p className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
                   A-Z
                 </p>
               )}
-              <p className="col-start-2 text-f-h4-mobile text-brand-g1 lg:text-f-h4">
+              <p className="text-f-h4-mobile lg:text-f-h4 col-start-2 text-brand-g1">
                 {department}
               </p>
             </div>
 
-            <ul className="text-f-p-mobile text-brand-w1 lg:text-f-p">
+            <ul className="text-f-p-mobile lg:text-f-p text-brand-w1">
               {people.map((person) => (
                 <li
                   key={person._title}
                   className={cn(
-                    "group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
+                    "group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75 transition-colors duration-200",
+                    debouncedHoveredPerson &&
+                      debouncedHoveredPerson !== person._title &&
+                      "!text-brand-w1/50"
                   )}
                   onMouseEnter={() => setHoveredPerson(person._title)}
                   onMouseLeave={() => setHoveredPerson(null)}
@@ -118,7 +121,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
                   >
                     {person._title}
                   </div>
-                  <div className="col-span-3 flex justify-between gap-1 text-brand-w1">
+                  <div className="col-span-3 flex justify-between gap-1">
                     <span className="line-clamp-1">{person.role}</span>
                     <div className="flex gap-1 text-right">
                       {person.socialNetworks.items.map(
@@ -134,7 +137,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
                               </span>
                             </Link>
                             {index < person.socialNetworks.items.length - 1 && (
-                              <span>,</span>
+                              <span className="text-brand-g1">,</span>
                             )}
                           </Fragment>
                         )
@@ -200,7 +203,7 @@ export const MobileFaces = ({
   <div className="col-span-full flex flex-col gap-4 py-6 lg:hidden">
     {Object.entries(data).map(([department, people]) => (
       <article key={department} className="flex flex-col gap-2">
-        <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
+        <p className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
           {department}
         </p>
 
@@ -299,7 +302,7 @@ export const CrewFooter = ({ spanStart, spanEnd }: CrewFooterProps) => (
     <Link
       href="/"
       target="_blank"
-      className="relative z-10 flex h-4 gap-1 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
+      className="text-f-p-mobile lg:text-f-p relative z-10 flex h-4 gap-1 bg-brand-k text-brand-w1"
     >
       <span className="actionable flex items-center gap-1">
         Join the Crew <Arrow className="size-4" />

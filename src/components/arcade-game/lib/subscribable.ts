@@ -1,7 +1,6 @@
 import { useEffect } from "react"
 import { nanoid } from "nanoid"
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export interface Subscribable<T extends Function = () => void> {
   addCallback: (callback: T, id?: string) => string
   removeCallback: (id: string | T) => void
@@ -13,7 +12,6 @@ export interface Subscribable<T extends Function = () => void> {
 }
 
 export const subscribable = <
-  // eslint-disable-next-line @typescript-eslint/ban-types
   T extends Function = () => void
 >(): Subscribable<T> => {
   const callbacks: Record<string, T> = {}
@@ -24,7 +22,6 @@ export const subscribable = <
     return _id
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
   const removeCallback = (id: string | Function): void => {
     if (typeof id === "function") {
       const key = Object.keys(callbacks).find((k) => callbacks[k] === id)

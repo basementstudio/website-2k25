@@ -110,10 +110,15 @@ export const useInitializeAudioContext = () => {
     const unlock = () => {
       if (!player) {
         const newPlayer = new WebAudioPlayer()
+        const mPref = localStorage.getItem("musicEnabled")
+        const shouldEnableMusic = mPref === null ? true : mPref === "true"
 
-        setMusic(true)
+        setMusic(shouldEnableMusic)
         newPlayer.initAmbience()
-        setTimeout(() => newPlayer.setAmbienceVolume(1, 4), 100)
+
+        if (shouldEnableMusic) {
+          setTimeout(() => newPlayer.setAmbienceVolume(1, 4), 100)
+        }
 
         useSiteAudioStore.setState({ player: newPlayer })
       } else {
@@ -299,6 +304,8 @@ export function useSiteAudio(): SiteAudioHook {
 
     const newState = !music
     const newVolume = newState ? 1 : 0
+
+    localStorage.setItem("musicEnabled", String(newState))
 
     setMusic(newState)
 

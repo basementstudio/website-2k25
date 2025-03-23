@@ -24,6 +24,9 @@ export const characterFragment = fragmentOn("Characters", {
   },
   petTexture: {
     url: true
+  },
+  textureComic: {
+    url: true
   }
 })
 

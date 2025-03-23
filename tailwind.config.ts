@@ -21,6 +21,7 @@ export default {
           o: "#FF4D00",
           o2: "#FF2B00",
           r: "#E60002",
+          r2: "#FF4D4D",
           y: "#FFCD1A",
           g: "#00FF9B",
           white: "#FFFFFF"

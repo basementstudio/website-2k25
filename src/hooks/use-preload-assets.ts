@@ -1,4 +1,4 @@
-import { preload, PreloadAs, PreloadOptions } from "react-dom"
+import { preload, PreloadOptions } from "react-dom"
 
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"

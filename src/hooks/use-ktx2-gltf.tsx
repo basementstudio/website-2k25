@@ -12,7 +12,7 @@ export function useKTX2GLTF<T extends GLTF>(
   path: string,
   draco?: string,
   useCaching = true,
-  transcoderPath = "https://cdn.jsdelivr.net/gh/pmndrs/drei-assets/basis/"
+  transcoderPath = "/basis-transcoder/"
 ): T {
   const { gl } = useThree()
 
