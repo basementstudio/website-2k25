@@ -13,13 +13,6 @@
     // TODO change prettier to "error" once current PRs are merged
     "prettier/prettier": "warn",
     "semi": "off",
-    "no-unused-vars": [
-      "warn",
-      {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
-      }
-    ],
     "arrow-body-style": "off",
     "prefer-arrow-callback": "off",
     "simple-import-sort/imports": "warn",

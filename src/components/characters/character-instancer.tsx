@@ -20,7 +20,7 @@ const {
 
 interface CharactersGLTF {
   nodes: {
-    [_key in (typeof SKINNED_MESH_KEYS)[number]]: THREE.SkinnedMesh
+    [key in (typeof SKINNED_MESH_KEYS)[number]]: THREE.SkinnedMesh
   }
   animations: THREE.AnimationClip[]
 }

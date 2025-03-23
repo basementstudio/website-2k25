@@ -1,9 +1,8 @@
+import { MeshDiscardMaterial } from "@react-three/drei"
 import { useCallback, useEffect, useState } from "react"
 
 import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
 import { useCursor } from "@/hooks/use-mouse"
-
-import { MeshDiscardMaterial } from "@react-three/drei"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 export const SpeakerHover = () => {
