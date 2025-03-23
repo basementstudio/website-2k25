@@ -13,33 +13,33 @@ export const ProjectContext = createContext<ProjectContextType>({
 })
 
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-  const [viewMode, setViewModeState] = useState<"grid" | "rows">(() => {
-    if (typeof window === "undefined") return "grid"
-    const hash = window.location.hash.slice(1)
-    return (hash === "grid" || hash === "rows") ? hash : "grid"
-  })
+  const [viewMode, setViewModeState] = useState<"grid" | "rows">("grid")
 
   useEffect(() => {
-    // Only set #grid if no hash is present
-    if (typeof window !== "undefined" && !window.location.hash) {
+    const hash = window.location.hash.slice(1)
+    if (hash === "grid" || hash === "rows") {
+      setViewModeState(hash)
+    } else if (!window.location.hash) {
       window.location.hash = "grid"
     }
+
+    const handleHashChange = () => {
+      const newHash = window.location.hash.slice(1)
+      if (newHash === "grid" || newHash === "rows") {
+        setViewModeState(newHash)
+      } else if (newHash === "") {
+        setViewModeState("grid")
+      }
+    }
+
+    window.addEventListener("hashchange", handleHashChange)
+    return () => window.removeEventListener("hashchange", handleHashChange)
   }, [])
 
   const setViewMode = (mode: "grid" | "rows") => {
     window.location.hash = mode
     setViewModeState(mode)
   }
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      const newMode = (window.location.hash.slice(1) as "grid" | "rows") || "grid"
-      setViewModeState(newMode)
-    }
-
-    window.addEventListener("hashchange", handleHashChange)
-    return () => window.removeEventListener("hashchange", handleHashChange)
-  }, [])
 
   return (
     <ProjectContext.Provider value={{ viewMode, setViewMode }}>
