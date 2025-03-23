@@ -88,7 +88,7 @@ const TestimonialsComponent = ({ data }: { data: QueryType }) => {
         <div className="pointer-events-none absolute inset-0" />
       </div>
 
-      <div className="col-span-full mx-auto flex gap-x-4 lg:col-start-5 lg:col-end-9">
+      <div className="col-span-full mx-auto flex gap-x-4 lg:col-start-3 lg:col-end-11">
         <TestimonialAvatar avatar={testimonial.avatar} />
 
         <TestimonialAuthor
