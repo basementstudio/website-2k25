@@ -15,11 +15,12 @@ export default function NotFound() {
   useEffect(() => {
     const updateTime = () => {
       const time = new Date()
-        .toLocaleTimeString("en-US", {
+        .toLocaleTimeString("es-AR", {
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
-          hour12: false
+          hour12: false,
+          timeZone: "America/Argentina/Buenos_Aires"
         })
         .replace(/:/g, ":")
       setFormattedTime(`00:${time}`)
@@ -45,13 +46,13 @@ export default function NotFound() {
     <>
       <div
         className={cn(
-          "fixed inset-0 z-30 grid h-full w-full place-items-center p-6 lg:p-16",
+          "fixed inset-0 z-30 grid h-full w-full place-items-center p-6 lg:p-18",
           fadeOutHtml
             ? "opacity-0 transition-opacity duration-500"
             : "[animation:fade-in_1500ms_ease-in-out_1_normal_none_running]"
         )}
       >
-        <div className="relative mx-auto grid h-full w-full place-items-center p-14">
+        <div className="relative mx-auto grid h-full w-full place-items-center p-4 lg:p-12">
           <div className="absolute left-0 top-0">
             <div className="h-7 w-[2px] bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:h-14" />
             <div className="absolute top-0 h-[2px] w-7 bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:w-14" />
@@ -85,7 +86,7 @@ export default function NotFound() {
             <span className="absolute right-0 top-0 [text-shadow:0_0_10px_#fff]">
               Security cam 4870
             </span>
-            <span className="absolute bottom-0 right-0 [text-shadow:0_0_10px_#fff]">
+            <span className="absolute bottom-0 right-0 text-brand-g [text-shadow:0_0_10px_#00ff00]">
               {formattedTime}
             </span>
 
