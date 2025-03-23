@@ -131,19 +131,13 @@ const ContactScreen = () => {
   return (
     <div
       ref={contentRef}
-      style={{
-        position: "absolute",
-        left: "50%",
-        top: "50%",
-        transform: `translate(-50%, -50%)`,
-        zIndex: 100
-      }}
+      className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
     >
       <div
         className="relative flex bg-transparent"
         style={{
-          width: `${screenDimensions.width}px`,
-          height: `${screenDimensions.height}px`,
+          width: `${screenDimensions.width - 16}px`,
+          height: `${screenDimensions.height - 16}px`,
           transform: `perspective(400px) rotateY(0.5deg)`,
           transformOrigin: "center center"
         }}
@@ -156,7 +150,7 @@ const ContactScreen = () => {
           <div className="relative flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o [text-shadow:0_0_8px_rgba(255,140,0,0.4)]">
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="crt relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_10px_rgba(255,140,0,0.15)]"
+              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_10px_rgba(255,140,0,0.15)]"
             >
               <fieldset className="absolute -top-[10px] left-[10px]">
                 <legend className="bg-black px-1">CONTACT US</legend>
