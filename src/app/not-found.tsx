@@ -15,11 +15,12 @@ export default function NotFound() {
   useEffect(() => {
     const updateTime = () => {
       const time = new Date()
-        .toLocaleTimeString("en-US", {
+        .toLocaleTimeString("es-AR", {
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
-          hour12: false
+          hour12: false,
+          timeZone: "America/Argentina/Buenos_Aires"
         })
         .replace(/:/g, ":")
       setFormattedTime(`00:${time}`)
@@ -45,46 +46,55 @@ export default function NotFound() {
     <>
       <div
         className={cn(
-          "fixed top-9 z-30 grid h-[calc(100dvh-36px)] w-full place-items-center",
+          "fixed inset-0 z-30 grid h-full w-full place-items-center p-6 lg:p-18",
           fadeOutHtml
             ? "opacity-0 transition-opacity duration-500"
             : "[animation:fade-in_1500ms_ease-in-out_1_normal_none_running]"
         )}
       >
-        <div className="relative grid aspect-[4/3] h-full max-h-[768px] w-full max-w-[1024px] place-items-center p-14">
+        <div className="relative mx-auto grid h-full w-full place-items-center p-4 lg:p-12">
           <div className="absolute left-0 top-0">
-            <div className="h-[60px] w-[2px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
-            <div className="absolute top-0 h-[2px] w-[60px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
+            <div className="h-7 w-[2px] bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:h-14" />
+            <div className="absolute top-0 h-[2px] w-7 bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:w-14" />
           </div>
 
           <div className="absolute right-0 top-0">
-            <div className="h-[60px] w-[2px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
-            <div className="absolute right-0 top-0 h-[2px] w-[60px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
+            <div className="h-7 w-[2px] bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:h-14" />
+            <div className="absolute right-0 top-0 h-[2px] w-7 bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:w-14" />
           </div>
 
           <div className="absolute bottom-0 left-0">
-            <div className="h-[60px] w-[2px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
-            <div className="absolute bottom-0 h-[2px] w-[60px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
+            <div className="h-7 w-[2px] bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:h-14" />
+            <div className="absolute bottom-0 h-[2px] w-7 bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:w-14" />
           </div>
 
           <div className="absolute bottom-0 right-0">
-            <div className="h-[60px] w-[2px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
-            <div className="absolute bottom-0 right-0 h-[2px] w-[60px] bg-white shadow-[0_0_10px_#fff,0_0_20px_#fff]" />
+            <div className="h-7 w-[2px] bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:h-14" />
+            <div className="absolute bottom-0 right-0 h-[2px] w-7 bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:w-14" />
           </div>
 
-          <div className="relative grid h-full w-full place-items-center font-mono text-[1.375rem] uppercase text-white">
-            <span className="absolute left-0 top-0">error - 404</span>
+          <div className="text-f-h4-mobile lg:text-f-h4 relative grid h-full w-full place-items-center font-mono uppercase text-white">
+            <span className="absolute left-0 top-0 [text-shadow:0_0_10px_#fff]">
+              error - 404
+            </span>
 
             <div className="absolute bottom-0 left-0 flex items-center gap-2">
-              <div className="size-2 animate-pulse rounded-full bg-brand-r" />
-              <span>rec</span>
+              <div className="size-2 animate-pulse rounded-full bg-brand-r shadow-[0_0_10px_#ff0000]" />
+              <span className="[text-shadow:0_0_10px_#ff0000]">rec</span>
             </div>
 
-            <span className="absolute right-0 top-0">security cam 4870</span>
-            <span className="absolute bottom-0 right-0">{formattedTime}</span>
+            <span className="absolute right-0 top-0 [text-shadow:0_0_10px_#fff]">
+              Security cam 4870
+            </span>
+            <span className="absolute bottom-0 right-0 text-brand-g [text-shadow:0_0_10px_#00ff00]">
+              {formattedTime}
+            </span>
 
-            <button onClick={() => goBack()} className="uppercase underline">
-              <span>go back home</span>
+            <button
+              onClick={() => goBack()}
+              className="actionable actionable-no-underline uppercase"
+            >
+              Go Back Home
             </button>
           </div>
         </div>
