@@ -150,7 +150,7 @@ const ContactScreen = () => {
           <div className="relative z-20 flex h-full w-full flex-col justify-between gap-7 font-flauta text-[14px] text-brand-o">
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_10px_rgba(255,140,0,0.15)]"
+              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_5px_rgba(255,140,0,0.15)]"
             >
               <fieldset className="absolute -top-[10px] left-[10px] z-10 -ml-px p-0">
                 <legend className="bg-black px-1">CONTACT US</legend>
@@ -214,7 +214,7 @@ const ContactScreen = () => {
 
               <div className="w-full px-4">
                 <button
-                  className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 [box-shadow:0_0_10px_rgba(255,140,0,0.15)] ${
+                  className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 [box-shadow:0_0_5px_rgba(255,140,0,0.15)] ${
                     isValid || showSubmittedMessage
                       ? "cursor-pointer border-none bg-brand-o text-black"
                       : "cursor-default border border-brand-o"
