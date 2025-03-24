@@ -16,6 +16,7 @@ export const ShowcaseImage = ({ project }: ShowcaseImageProps) => {
 
   // TODO: Add required in basehub to avoid this
   if (!project.cover) return null
+
   return (
     <Link
       href={`/showcase/${project.project?._slug}`}
