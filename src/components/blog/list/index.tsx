@@ -32,21 +32,21 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
                 )}
               </div>
             </div>
-            <p className="lg:col-span-[auto] text-f-h3-mobile lg:text-f-h3 col-span-full text-brand-w2 lg:col-start-5 lg:col-end-8">
+            <p className="lg:col-span-[auto] relative col-span-full text-f-h3-mobile text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-f-h3">
               {post._title}
             </p>
-            <div className="col-span-6 flex gap-1 lg:col-span-2 lg:col-start-9 lg:col-end-10">
+            <div className="relative col-span-6 flex gap-1 lg:col-span-2 lg:col-start-9 lg:col-end-10">
               {post.categories?.map((category) => (
                 <p
                   key={category._title}
-                  className="text-f-p-mobile lg:text-f-p h-max w-max bg-brand-g2 px-1 text-brand-w2"
+                  className="h-max w-max bg-brand-g2 px-1 text-f-p-mobile text-brand-w2 lg:text-f-p"
                 >
                   {category._title}
                 </p>
               ))}
             </div>
             {post.date ? (
-              <p className="text-f-p-mobile lg:text-f-p col-span-6 text-right text-brand-w2 lg:col-span-2 lg:col-start-11 lg:text-left">
+              <p className="relative col-span-6 text-right text-f-p-mobile text-brand-w2 lg:col-span-2 lg:col-start-11 lg:text-left lg:text-f-p">
                 {formatDate(post.date || "")}
               </p>
             ) : null}
