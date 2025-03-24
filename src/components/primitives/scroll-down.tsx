@@ -63,7 +63,7 @@ export const ScrollDown = () => {
     <AnimatePresence>
       {canRunMainApp && (
         <motion.div
-          className="absolute -top-[calc(100vh-100dvh+3rem)] flex w-full justify-center pb-20 lg:left-1/2 lg:w-max lg:-translate-x-1/2 lg:pb-0"
+          className="absolute -top-[3rem] flex w-full justify-center pb-20 lg:left-1/2 lg:w-max lg:-translate-x-1/2 lg:pb-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 1, 0, 1, 0, 1] }}
           transition={{ duration: 0.3, delay: 1.5 }}
@@ -71,14 +71,16 @@ export const ScrollDown = () => {
           {selected === null && (
             <motion.button
               onClick={handleClick}
-              className="user-select-none text-f-p-mobile lg:text-f-p flex h-max w-fit items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-brand-w1"
+              className="-mx-4 -my-2 px-4 py-2"
               style={{
                 opacity,
                 visibility
               }}
               {...animationProps}
             >
-              Scroll to Explore <ArrowDownIcon className="size-2.5" />
+              <span className="user-select-none flex h-max w-fit items-center gap-x-2 bg-brand-k px-1.5 py-0.5 text-f-p-mobile text-brand-w1 lg:text-f-p">
+                Scroll to Explore <ArrowDownIcon className="size-2.5" />
+              </span>
             </motion.button>
           )}
         </motion.div>

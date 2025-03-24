@@ -1,3 +1,14 @@
+import xss from "xss"
+
+// strip any html syntax and possibles xss injections.
+const clean = (source: string) =>
+  xss(source, {
+    whiteList: {}, // empty, means filter out all tags
+    stripIgnoreTag: true, // filter out all HTML not in the whilelist
+    stripIgnoreTagBody: ["script"] // the script tag is a special case, we need
+    // to filter out its content
+  })
+
 export const generateEmailTemplate = (formData: {
   name: string
   company: string
@@ -72,7 +83,7 @@ export const generateEmailTemplate = (formData: {
             "
           >
             <div style="color: #666666">Name</div>
-            <div style="color: #e6e6e6">${formData.name}</div>
+            <div style="color: #e6e6e6">${clean(formData.name)}</div>
           </div>
 
           <div
@@ -85,7 +96,7 @@ export const generateEmailTemplate = (formData: {
             "
           >
             <div style="color: #666666">Company</div>
-            <div style="color: #e6e6e6">${formData.company}</div>
+            <div style="color: #e6e6e6">${clean(formData.company)}</div>
           </div>
 
           <div
@@ -98,7 +109,7 @@ export const generateEmailTemplate = (formData: {
             "
           >
             <div style="color: #666666">Email</div>
-            <div style="color: #e6e6e6">${formData.email}</div>
+            <div style="color: #e6e6e6">${clean(formData.email)}</div>
           </div>
 
           <div
@@ -111,7 +122,7 @@ export const generateEmailTemplate = (formData: {
             "
           >
             <div style="color: #666666">Budget</div>
-            <div style="color: #e6e6e6">${formData.budget || "N/A"}</div>
+            <div style="color: #e6e6e6">${formData.budget ? clean(formData.budget) : "N/A"}</div>
           </div>
 
           <div
@@ -132,7 +143,7 @@ export const generateEmailTemplate = (formData: {
                 border-left: 3px solid #ff4d00;
               "
             >
-              ${formData.message}
+              ${clean(formData.message)}
             </div>
           </div>
         </div>
@@ -140,7 +151,7 @@ export const generateEmailTemplate = (formData: {
 
       <div style="margin-top: 32px; display: flex">
         <a
-          href="mailto:${formData.email}"
+          href="mailto:${clean(formData.email)}"
           style="
             display: inline-block;
             background: linear-gradient(135deg, #ff4d00, #ff6a00);
@@ -153,7 +164,7 @@ export const generateEmailTemplate = (formData: {
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(255, 77, 0, 0.3);
           "
-          >Reply to ${formData.name} (${formData.email})</a
+          >Reply to ${clean(formData.name)} (${clean(formData.email)})</a
         >
       </div>
     </div>

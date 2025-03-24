@@ -13,7 +13,7 @@ export async function Featured() {
     <section className="grid-layout">
       <div className="col-span-full grid grid-cols-12">
         <div className="col-span-full grid grid-cols-12 items-end gap-2 border-b border-brand-w1/20 pb-2">
-          <h2 className="text-f-h3-mobile lg:text-f-h3 col-span-full text-brand-g1 lg:col-span-3 lg:col-start-5">
+          <h2 className="col-span-full text-f-h3-mobile text-brand-g1 lg:col-span-3 lg:col-start-5 lg:text-f-h3">
             Latest News
           </h2>
         </div>
@@ -41,7 +41,7 @@ export async function Featured() {
                   )}
                 </div>
               </div>
-              <h2 className="text-f-h2-mobile lg:text-f-h2 col-span-full py-1 text-brand-w2 lg:col-start-5 lg:col-end-8">
+              <h2 className="relative col-span-full py-1 text-f-h2-mobile text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-f-h2">
                 {post._title}
               </h2>
               <div className="relative col-span-full grid grid-cols-4 content-start gap-y-4 py-1 lg:col-span-4 lg:col-start-9">
@@ -58,18 +58,18 @@ export async function Featured() {
                     {post.intro?.json.content}
                   </RichText>
                 </div>
-                <hr className="col-start-1 col-end-5 hidden w-full border-dashed border-brand-w1/20 lg:block" />
-                <div className="text-f-p-mobile lg:text-f-p col-span-2 col-start-1 flex flex-wrap gap-1">
+                <hr className="relative col-start-1 col-end-5 hidden w-full border-dashed border-brand-w1/20 lg:block" />
+                <div className="relative col-span-2 col-start-1 flex flex-wrap gap-1 text-f-p-mobile lg:text-f-p">
                   {post.categories?.map((category) => (
                     <p
                       key={category._title}
-                      className="text-f-p-mobile lg:text-f-p h-max w-max bg-brand-g2 px-1 text-brand-w2"
+                      className="h-max w-max bg-brand-g2 px-1 text-f-p-mobile text-brand-w2 lg:text-f-p"
                     >
                       {category._title}
                     </p>
                   ))}
                 </div>
-                <p className="text-f-p-mobile lg:text-f-p col-span-2 col-start-3 text-right text-brand-w2 lg:text-left">
+                <p className="relative col-span-2 col-start-3 text-right text-f-p-mobile text-brand-w2 lg:text-left lg:text-f-p">
                   {formatDate(post.date || "")}
                 </p>
               </div>

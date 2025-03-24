@@ -1,12 +1,16 @@
+// 🦶🔫
 interface Character {
   // texture face ID
   faceId: number
   faceMorph: FaceMorphTargets
   bodyMorph?: BodyMorphTargets
   hairGeometry?: CharacterMeshes
+  lensGeomtry?: CharacterMeshes
 }
 
 export enum CharacterAnimationName {
+  "Home.01" = "Home.01",
+  "Home.02" = "Home.02",
   "Blog.01" = "Blog.01",
   "Blog.02" = "Blog.02",
   "People.01.a" = "People.01.a",
@@ -98,22 +102,28 @@ export enum FaceMorphTargets {
 }
 
 export enum BodyMorphTargets {
-  Woman = "woman"
+  Man = "man",
+  Woman = "woman",
 }
 
 export const characterConfigurations: Character[] = [
   {
     faceId: 0,
-    faceMorph: FaceMorphTargets.Jose
+    faceMorph: FaceMorphTargets.Jose,
+    bodyMorph: BodyMorphTargets.Man
   },
   {
     faceId: 1,
     faceMorph: FaceMorphTargets.JJ,
-    bodyMorph: BodyMorphTargets.Woman
+    bodyMorph: BodyMorphTargets.Woman,
+    hairGeometry: CharacterMeshes["jj-hair"],
+    lensGeomtry: CharacterMeshes["jj-glass"]
   },
   {
     faceId: 2,
-    faceMorph: FaceMorphTargets.Flauta
+    faceMorph: FaceMorphTargets.Flauta,
+    bodyMorph: BodyMorphTargets.Man,
+    lensGeomtry: CharacterMeshes["flauta-glass"]
   },
   {
     faceId: 3,
@@ -123,7 +133,9 @@ export const characterConfigurations: Character[] = [
   },
   {
     faceId: 4,
-    faceMorph: FaceMorphTargets.Facu
+    faceMorph: FaceMorphTargets.Facu,
+    bodyMorph: BodyMorphTargets.Man,
+    lensGeomtry: CharacterMeshes["facu-glass"]
   },
   {
     faceId: 5,
@@ -133,7 +145,8 @@ export const characterConfigurations: Character[] = [
   },
   {
     faceId: 6,
-    faceMorph: FaceMorphTargets.Lis
+    faceMorph: FaceMorphTargets.Lis,
+    bodyMorph: BodyMorphTargets.Man,
   },
   {
     faceId: 7,
@@ -143,7 +156,8 @@ export const characterConfigurations: Character[] = [
   },
   {
     faceId: 8,
-    faceMorph: FaceMorphTargets.Nico
+    faceMorph: FaceMorphTargets.Nico,
+    bodyMorph: BodyMorphTargets.Man,
   },
   {
     faceId: 9,

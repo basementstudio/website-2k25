@@ -14,3 +14,12 @@ export interface ContactStore {
   setHasBeenOpenedBefore: (hasBeenOpenedBefore: boolean) => void
   setIsContactOpen: (isContactOpen: boolean) => void
 }
+
+export const ANIMATION_TYPES = {
+  IDLE: "idle",
+  INTRO: "intro",
+  BUTTON: "button",
+  OUTRO: "outro",
+  RUEDITA: "ruedita",
+  ANTENA: "antena"
+}

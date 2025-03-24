@@ -23,12 +23,15 @@ type WorkerMessageType =
   | "run-outro-animation"
   | "scale-animation-complete"
   | "scale-down-animation-complete"
+  | "animation-starting"
+  | "animation-complete"
 
 const ContactCanvas = () => {
   const { contactPhone } = useAssets()
   const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
+  const isAnimating = useContactStore((state) => state.isAnimating)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
   const setIntroCompleted = useContactStore((state) => state.setIntroCompleted)
   const setClosingCompleted = useContactStore(
@@ -77,7 +80,9 @@ const ContactCanvas = () => {
         "scale-down-animation-complete": () => {
           setShouldRender(false)
           setAnimComplete(setClosingCompleted)
-        }
+        },
+        "animation-starting": () => setIsAnimating(true),
+        "animation-complete": () => setIsAnimating(false)
       }
 
       const handler = messageHandlers[type as WorkerMessageType]
@@ -159,7 +164,7 @@ const ContactCanvas = () => {
       <OffscreenCanvas
         worker={worker}
         fallback={null}
-        frameloop={shouldRender ? "always" : "never"}
+        frameloop={shouldRender || isAnimating ? "always" : "never"}
         camera={{ position: [0, 0.2, 2], fov: 8.5 }}
         gl={{ antialias: false }}
       />

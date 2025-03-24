@@ -20,6 +20,7 @@ import { PathnameProvider } from "@/hooks/use-watch-pathname"
 import LenisScrollProvider from "@/providers/lenis-provider"
 import { AppHooks } from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
+import localFont from "next/font/local"
 
 export const metadata: Metadata = {
   title: {
@@ -49,6 +50,11 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono"
 })
 
+const flauta = localFont({
+  src: "../../public/fonts/flauta.ttf",
+  variable: "--font-flauta"
+})
+
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const assets = await fetchAssets()
 
@@ -61,7 +67,12 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body
-            className={cn(geistSans.variable, geistMono.variable, "font-sans")}
+            className={cn(
+              geistSans.variable,
+              geistMono.variable,
+              flauta.variable,
+              "font-sans"
+            )}
             suppressHydrationWarning
           >
             <AppLoadingHandler />

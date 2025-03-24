@@ -15,6 +15,15 @@ export const careersQuery = fragmentOn("Query", {
         json: {
           content: true
         }
+      },
+      preOpenPositions: {
+        sideA: IMAGE_FRAGMENT,
+        sideB: IMAGE_FRAGMENT,
+        text: {
+          json: {
+            content: true
+          }
+        }
       }
     }
   },
