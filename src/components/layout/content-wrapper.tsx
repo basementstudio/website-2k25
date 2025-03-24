@@ -44,13 +44,13 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <div className="pointer-events-none fixed top-0 z-50 h-dvh w-full">
+      <div className="pointer-events-none fixed top-0 z-50 h-screen w-full">
         <CustomCursor />
       </div>
 
       <div
         className={cn(
-          "canvas-container sticky top-0 h-dvh w-full lg:fixed",
+          "canvas-container sticky top-0 h-screen w-full lg:fixed",
           !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
         )}
       >
