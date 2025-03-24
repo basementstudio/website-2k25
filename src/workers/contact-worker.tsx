@@ -45,7 +45,9 @@ self.onmessage = ({ data }) => {
       "scale-animation-complete",
       "scale-down-animation-complete",
       "screen-dimensions",
-      "submit-clicked"
+      "submit-clicked",
+      "animation-starting",
+      "animation-complete"
     ].includes(type)
   ) {
     self.postMessage({
