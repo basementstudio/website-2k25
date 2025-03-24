@@ -163,17 +163,12 @@ export const Map = memo(() => {
     setRoutingNodes(routingNodes)
 
     const netMesh = officeModel?.getObjectByName("SM_Red")
-    const { scene: vaNetMesh } = useKTX2GLTF(
-      basketballNetPath
-    ) as unknown as GLTFResult
 
-    // if (netMesh?.parent) {
-    //   netMesh.removeFromParent()
+    if (netMesh?.parent) {
+      netMesh.removeFromParent()
 
-    //   if (vaNetMesh) {
-    //     setNet(vaNetMesh.getObjectByName("SM_Red") as Mesh)
-    //   }
-    // }
+      setNet(basketballNetModel.children[0] as Mesh)
+    }
 
     const traverse = (
       child: Object3D,
@@ -524,7 +519,7 @@ export const Map = memo(() => {
       {useMesh.getState().hoopMeshes.hoop && (
         <primitive object={useMesh.getState().hoopMeshes.hoop as Mesh} />
       )}
-      {/* {net && net instanceof THREE.Mesh && <Net mesh={net} />} */}
+      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
 
       {/*Homepage */}
       {scene === "home" && <SpeakerHover />}

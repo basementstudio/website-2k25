@@ -1,4 +1,4 @@
-import { CuboidCollider } from "@react-three/rapier"
+import { CuboidCollider, CylinderCollider } from "@react-three/rapier"
 import { RigidBody } from "@react-three/rapier"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
@@ -84,9 +84,11 @@ export default function RigidBodies({
         ]}
         sensor
       >
-        <CuboidCollider
-          args={[0.05, 0.05, 0.05]}
+        <CylinderCollider
           onIntersectionEnter={handleScore}
+          position={[0, 0.18, 0]}
+          args={[0.02, 0.02]}
+          scale={[0.2, 8, 4]}
         />
 
         {/* stairs rigid body */}
