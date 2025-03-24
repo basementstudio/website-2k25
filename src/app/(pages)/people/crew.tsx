@@ -54,8 +54,6 @@ export const Crew = ({ data }: { data: QueryType }) => {
     return Object.values(groupedPeople).flat()
   }, [groupedPeople])
 
-  console.log(flattenedPeople)
-
   const updateHeightRef = useCallback(() => {
     const listHeight = document.querySelector(".crew-list")?.clientHeight ?? 0
     const facesHeight = document.querySelector(".crew-faces")?.clientHeight ?? 0
@@ -74,7 +72,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
   }, [updateHeightRef])
 
   return (
-    <section className="grid-layout mb-18 lg:mb-44">
+    <section className="grid-layout mb-18 lg:mb-48">
       <div className="col-span-full -mb-6 flex items-end justify-between lg:col-start-5 lg:col-end-13">
         <h2 className="text-f-h1-mobile text-brand-w2 lg:text-f-h1">
           The Crew

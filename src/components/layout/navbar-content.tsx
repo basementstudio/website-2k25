@@ -50,7 +50,7 @@ const ContextMenu = memo(({ x, y, onClose, onCopy }: ContextMenuProps) => {
     >
       <button
         onClick={handleCopy}
-        className="text-f-p-mobile lg:text-f-p group flex w-full items-center gap-2 px-2 py-1.5 font-semibold leading-4 text-brand-w1"
+        className="group flex w-full items-center gap-2 px-2 py-1.5 text-f-p-mobile font-semibold leading-4 text-brand-w1 lg:text-f-p"
       >
         <AnimatePresence mode="wait">
           {copied ? (
@@ -336,7 +336,7 @@ const MobileContent = memo(
           <motion.p
             id="menu-button"
             key={isOpen ? "close" : "menu"}
-            className="text-f-p-mobile w-[2.4rem] origin-bottom text-center text-brand-w1"
+            className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
             initial={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
             animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}

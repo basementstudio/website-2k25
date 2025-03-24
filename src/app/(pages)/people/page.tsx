@@ -8,6 +8,7 @@ import { Hero } from "./hero"
 import { OpenPositions } from "./open-positions"
 import { careersQuery } from "./query"
 import { Values } from "./values"
+import { PreOpenPositions } from "./pre-open-positions"
 
 export const metadata: Metadata = {
   title: "People",
@@ -24,6 +25,7 @@ const About = () => (
           <Hero data={data} />
           <Values data={data} />
           <Crew data={data} />
+          <PreOpenPositions data={data} />
           <OpenPositions data={data} />
           <Contact />
         </>

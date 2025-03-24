@@ -154,7 +154,8 @@ export default {
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
-        mono: ["var(--font-geist-mono)"]
+        mono: ["var(--font-geist-mono)"],
+        flauta: ["var(--font-flauta)"]
       },
       maxWidth: {
         full: "120rem"

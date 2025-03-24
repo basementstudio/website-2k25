@@ -69,6 +69,8 @@ export interface AssetsResult {
     basketballThump: string
     basketballBuzzer: string
     basketballStreak: string
+    knobTurning: string
+    antenna: string
     blog: {
       lockedDoor: string[]
       door: {
@@ -141,7 +143,8 @@ export interface AssetsResult {
   }
   pets: {
     model: string
-    texture: string
+    pureTexture: string
+    bostonTexture: string
   }
   lamp: {
     extraLightmap: string
@@ -233,6 +236,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
       basketballThump: threeDInteractions.sfx.basketballThump?.url,
       basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url,
       basketballStreak: threeDInteractions.sfx.basketballStreak?.url,
+      knobTurning: threeDInteractions.sfx.knobTurning?.url ?? "",
+      antenna: threeDInteractions.sfx.antenna?.url ?? "",
       blog: {
         lockedDoor: threeDInteractions.sfx.blog.lockedDoor.items.map(
           (item) => item.sound?.url ?? ""
@@ -312,7 +317,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
     },
     pets: {
       model: threeDInteractions.characters.petModel.file.url,
-      texture: threeDInteractions.characters.petTexture.url
+      pureTexture: threeDInteractions.characters.pureTexture.url,
+      bostonTexture: threeDInteractions.characters.bostonTexture.url
     },
     outdoorCars: {
       model: threeDInteractions.outdoorCars.model?.file?.url ?? ""

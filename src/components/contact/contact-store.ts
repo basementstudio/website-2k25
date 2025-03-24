@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { ContactStore } from "./contact.intercace"
+import { ContactStore } from "./contact.interface"
 
 export const useContactStore = create<ContactStore>((set) => ({
   isContactOpen: false,
