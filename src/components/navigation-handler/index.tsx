@@ -97,6 +97,16 @@ export const NavigationHandler = () => {
 
     setSelected(null)
 
+    if (pathname === "/contact") {
+      const expectedScene = scenes.find(
+        (scene) => scene.name.toLowerCase() === "home"
+      )
+      if (expectedScene) {
+        setCurrentScene(expectedScene)
+      }
+      return
+    }
+
     const currentScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")

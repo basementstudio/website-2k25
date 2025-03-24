@@ -50,7 +50,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
       <div
         className={cn(
-          "canvas-container sticky top-0 h-screen w-full lg:fixed",
+          "canvas-container sticky top-0 h-[100svh] w-full lg:fixed",
           !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
         )}
       >
