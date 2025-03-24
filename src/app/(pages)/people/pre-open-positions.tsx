@@ -9,19 +9,28 @@ export const PreOpenPositions = ({ data }: { data: QueryType }) => (
         content={data.pages.people.preOpenPositions.text.json.content}
       />
     </div>
-    <Image
-      src={data.pages.people.preOpenPositions.sideA.url}
-      alt=""
-      width={data.pages.people.preOpenPositions.sideA.width}
-      height={data.pages.people.preOpenPositions.sideA.height}
-      className="col-span-2 h-full w-full object-cover lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:h-fit"
-    />
-    <Image
-      src={data.pages.people.preOpenPositions.sideB.url}
-      alt=""
-      width={data.pages.people.preOpenPositions.sideB.width}
-      height={data.pages.people.preOpenPositions.sideB.height}
-      className="col-span-2 lg:col-start-5 lg:col-end-9 lg:row-start-1"
-    />
+    <div className="with-dots col-span-2 h-full w-full object-cover lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:h-fit">
+      <div className="relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+        <Image
+          src={data.pages.people.preOpenPositions.sideA.url}
+          alt=""
+          width={data.pages.people.preOpenPositions.sideA.width}
+          height={data.pages.people.preOpenPositions.sideA.height}
+          className="h-full w-full object-cover"
+        />
+      </div>
+    </div>
+
+    <div className="with-dots col-span-2 lg:col-start-5 lg:col-end-9 lg:row-start-1">
+      <div className="relative after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+        <Image
+          src={data.pages.people.preOpenPositions.sideB.url}
+          alt=""
+          width={data.pages.people.preOpenPositions.sideB.width}
+          height={data.pages.people.preOpenPositions.sideB.height}
+          className="h-full w-full object-cover"
+        />
+      </div>
+    </div>
   </section>
 )
