@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef } from "react"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
-import { useCurrentScene } from "@/hooks/use-current-scene"
+
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { cn } from "@/utils/cn"
@@ -19,10 +19,6 @@ const Contact = () => {
 
   const { playSoundFX } = useSiteAudio()
 
-  const scene = useCurrentScene()
-  const isPeople = scene === "people"
-  const isBlog = scene === "blog"
-  const desiredVolume = isBlog ? 0.05 : 0.2
   const overlayRef = useRef<HTMLDivElement>(null)
 
   const handleClose = useCallback(() => {
@@ -39,14 +35,6 @@ const Contact = () => {
   )
 
   useDisableScroll(isContactOpen)
-
-  useEffect(() => {
-    if (isPeople || isBlog) {
-      if (isContactOpen) {
-        playSoundFX("CONTACT_INTERFERENCE", desiredVolume)
-      }
-    }
-  }, [isContactOpen, isPeople, isBlog, playSoundFX, desiredVolume])
 
   useEffect(() => {
     if (!worker) return

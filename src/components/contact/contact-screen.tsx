@@ -5,6 +5,8 @@ import { useContactStore } from "./contact-store"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { Inputs } from "@/app/contact/form/contact-form"
 import Link from "next/link"
+import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 const ContactScreen = () => {
   const contentRef = useRef(null)
@@ -13,6 +15,11 @@ const ContactScreen = () => {
   const animation = useAnimation()
   const worker = useContactStore((state) => state.worker)
   const closeContact = useContactStore.getState().setIsContactOpen
+  const { playSoundFX } = useSiteAudio()
+  const scene = useCurrentScene()
+  const isPeople = scene === "people"
+  const isBlog = scene === "blog"
+  const desiredVolume = isBlog ? 0.07 : 0.22
 
   const [submitting, setSubmitting] = useState(false)
   const [showSubmittedMessage, setShowSubmittedMessage] = useState(false)
@@ -91,8 +98,12 @@ const ContactScreen = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setSubmitting(true)
-
     setShowSubmittedMessage(false)
+
+    // play interference sound when submitting
+    if (isPeople || isBlog) {
+      playSoundFX("CONTACT_INTERFERENCE", desiredVolume)
+    }
 
     if (worker) {
       worker.postMessage({ type: "submit-clicked" })
@@ -155,7 +166,7 @@ const ContactScreen = () => {
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="relative z-20 flex h-full w-full flex-col justify-between gap-7 font-flauta text-[14px] text-brand-o">
+          <div className="font-flauta relative z-20 flex h-full w-full flex-col justify-between gap-7 text-[14px] text-brand-o">
             <form
               ref={formRef}
               onSubmit={handleSubmit(onSubmit)}
