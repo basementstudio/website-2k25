@@ -15,8 +15,10 @@ const Contact = () => {
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
+  const worker = useContactStore((state) => state.worker)
 
   const { playSoundFX } = useSiteAudio()
+
   const scene = useCurrentScene()
   const isPeople = scene === "people"
   const isBlog = scene === "blog"
@@ -45,6 +47,25 @@ const Contact = () => {
       }
     }
   }, [isContactOpen, isPeople, isBlog, playSoundFX, desiredVolume])
+
+  useEffect(() => {
+    if (!worker) return
+
+    const handleWorkerMessage = (e: MessageEvent) => {
+      const { type } = e.data
+
+      if (type === "ruedita-animation-start") {
+        playSoundFX("CONTACT_KNOB_TURNING", 0.4)
+      } else if (type === "antena-animation-start") {
+        playSoundFX("CONTACT_ANTENNA", 0.4)
+      }
+    }
+
+    worker.addEventListener("message", handleWorkerMessage)
+    return () => {
+      worker.removeEventListener("message", handleWorkerMessage)
+    }
+  }, [worker, playSoundFX])
 
   useEffect(() => {
     const overlay = overlayRef.current
