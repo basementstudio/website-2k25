@@ -8,6 +8,7 @@ import Link from "next/link"
 
 const ContactScreen = () => {
   const contentRef = useRef(null)
+  const formRef = useRef<HTMLFormElement>(null)
   const updatePositionRef = useRef<(() => void) | null>(null)
   const animation = useAnimation()
   const worker = useContactStore((state) => state.worker)
@@ -128,6 +129,13 @@ const ContactScreen = () => {
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey && isValid && !submitting) {
+      e.preventDefault()
+      formRef.current?.requestSubmit()
+    }
+  }
+
   return (
     <div
       ref={contentRef}
@@ -149,6 +157,7 @@ const ContactScreen = () => {
         >
           <div className="relative z-20 flex h-full w-full flex-col justify-between gap-7 font-flauta text-[14px] text-brand-o">
             <form
+              ref={formRef}
               onSubmit={handleSubmit(onSubmit)}
               className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_5px_rgba(255,140,0,0.15)]"
             >
@@ -178,13 +187,15 @@ const ContactScreen = () => {
                   <input
                     type="text"
                     placeholder="NAME"
-                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
+                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                    onKeyDown={handleKeyDown}
                     {...register("name")}
                   />
                   <input
                     type="text"
                     placeholder="COMPANY"
-                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
+                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                    onKeyDown={handleKeyDown}
                     {...register("company")}
                   />
                 </div>
@@ -193,13 +204,15 @@ const ContactScreen = () => {
                     required
                     type="email"
                     placeholder="EMAIL"
-                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
+                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                    onKeyDown={handleKeyDown}
                     {...register("email", { required: "Email is required" })}
                   />
                   <input
                     type="text"
                     placeholder="BUDGET (OPTIONAL)"
-                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
+                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                    onKeyDown={handleKeyDown}
                     {...register("budget")}
                   />
                 </div>
@@ -207,7 +220,18 @@ const ContactScreen = () => {
                   required
                   autoComplete="off"
                   placeholder="MESSAGE"
-                  className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
+                  className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Enter" &&
+                      !e.shiftKey &&
+                      isValid &&
+                      !submitting
+                    ) {
+                      e.preventDefault()
+                      formRef.current?.requestSubmit()
+                    }
+                  }}
                   {...register("message", { required: "Message is required" })}
                 />
               </div>
