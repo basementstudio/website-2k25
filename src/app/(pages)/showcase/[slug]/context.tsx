@@ -1,44 +1,32 @@
 "use client"
 
-import { createContext, use, useEffect, useState } from "react"
+import { createContext, use, useState, useEffect } from "react"
 
 interface ProjectContextType {
-  viewMode: "grid" | "rows"
+  viewMode: "grid" | "rows" | undefined
   setViewMode: (viewMode: "grid" | "rows") => void
 }
 
 export const ProjectContext = createContext<ProjectContextType>({
-  viewMode: "grid",
+  viewMode: undefined,
   setViewMode: () => {}
 })
 
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-  const [viewMode, setViewModeState] = useState<"grid" | "rows">("grid")
+  const [viewMode, setViewModeState] = useState<"grid" | "rows">()
 
   useEffect(() => {
-    const hash = window.location.hash.slice(1)
-    if (hash === "grid" || hash === "rows") {
-      setViewModeState(hash)
-    } else if (!window.location.hash) {
-      window.location.hash = "grid"
+    const stored = localStorage.getItem("project-gallery-view-mode")
+    if (stored === "rows" || stored === "grid") {
+      setViewModeState(stored)
+    } else {
+      setViewModeState("grid")
     }
-
-    const handleHashChange = () => {
-      const newHash = window.location.hash.slice(1)
-      if (newHash === "grid" || newHash === "rows") {
-        setViewModeState(newHash)
-      } else if (newHash === "") {
-        setViewModeState("grid")
-      }
-    }
-
-    window.addEventListener("hashchange", handleHashChange)
-    return () => window.removeEventListener("hashchange", handleHashChange)
   }, [])
 
   const setViewMode = (mode: "grid" | "rows") => {
-    window.location.hash = mode
     setViewModeState(mode)
+    localStorage.setItem("project-gallery-view-mode", mode)
   }
 
   return (
