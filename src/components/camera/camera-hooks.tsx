@@ -155,7 +155,7 @@ export const useCameraMovement = (
 
   const divisor = useResponsiveDivisor()
   const offsetMultiplier = useMemo(() => {
-    return cameraConfig?.offsetMultiplier ?? 2
+    return cameraConfig?.offsetMultiplier ?? 0
   }, [cameraConfig])
 
   const lenis = useLenis()
@@ -244,7 +244,7 @@ export const useCameraMovement = (
     plane.position.setX(np.x)
     plane.position.setZ(np.z)
 
-    if (!selected) {
+    if (!selected && cameraConfig?.offsetMultiplier !== 0) {
       newDelta.set(b.pos.x, 0, b.pos.z)
       newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
 
