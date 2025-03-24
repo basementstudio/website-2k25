@@ -18,6 +18,7 @@ import { cn } from "@/utils/cn"
 import { formatDate } from "@/utils/format-date"
 
 import type { QueryType } from "./query"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 
 const IMAGE_HEIGHT = 307.73
 const GRID_COLS = 6
@@ -172,6 +173,7 @@ const HoverCertificate = memo(
     sortedAwards: any[]
     currentImageId: number
   }) => {
+    const { isSafari } = useDeviceDetect()
     const { mouseX, mouseY } = useThrottledMousePosition()
 
     // Use the throttled version for better performance
@@ -266,68 +268,79 @@ const HoverCertificate = memo(
         }}
       >
         {/* SVG Mask for grid reveal */}
-        <svg
-          width="0"
-          height="0"
-          className="absolute"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <defs>
-            <clipPath id="grid-mask">
-              <AnimatePresence mode="wait" initial={false}>
-                {isRevealing ? (
-                  <>
-                    {gridCells.map((cell) => (
+        {!isSafari && (
+          <svg
+            width="0"
+            height="0"
+            className="absolute"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <clipPath id="grid-mask">
+                <AnimatePresence mode="wait" initial={false}>
+                  {isRevealing ? (
+                    <>
+                      {gridCells.map((cell) => (
+                        <motion.rect
+                          key={cell.index}
+                          custom={{
+                            manhattanDistance: cell.manhattanDistance
+                          }}
+                          variants={cellVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                          x={
+                            cell.col *
+                              (certificateDimensions.width / GRID_COLS) -
+                            0.5
+                          }
+                          y={
+                            cell.row *
+                              (certificateDimensions.height / GRID_ROWS) -
+                            0.5
+                          }
+                          width={certificateDimensions.width / GRID_COLS + 1}
+                          height={certificateDimensions.height / GRID_ROWS + 1}
+                        />
+                      ))}
                       <motion.rect
-                        key={cell.index}
-                        custom={{
-                          manhattanDistance: cell.manhattanDistance
+                        key="full-mask"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{
+                          opacity: 0,
+                          transition: { duration: 0.1, delay: 0 }
                         }}
-                        variants={cellVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        x={
-                          cell.col * (certificateDimensions.width / GRID_COLS) -
-                          0.5
-                        }
-                        y={
-                          cell.row *
-                            (certificateDimensions.height / GRID_ROWS) -
-                          0.5
-                        }
-                        width={certificateDimensions.width / GRID_COLS + 1}
-                        height={certificateDimensions.height / GRID_ROWS + 1}
+                        transition={{ delay: 0.4, duration: 0.1 }}
+                        x="-1"
+                        y="-1"
+                        width={certificateDimensions.width + 2}
+                        height={certificateDimensions.height + 2}
+                        fill="white"
                       />
-                    ))}
-                    <motion.rect
-                      key="full-mask"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{
-                        opacity: 0,
-                        transition: { duration: 0.1, delay: 0 }
-                      }}
-                      transition={{ delay: 0.4, duration: 0.1 }}
-                      x="-1"
-                      y="-1"
-                      width={certificateDimensions.width + 2}
-                      height={certificateDimensions.height + 2}
-                      fill="white"
-                    />
-                  </>
-                ) : null}
-              </AnimatePresence>
-            </clipPath>
-          </defs>
-        </svg>
+                    </>
+                  ) : null}
+                </AnimatePresence>
+              </clipPath>
+            </defs>
+          </svg>
+        )}
 
         <div
-          className="h-full w-full overflow-hidden"
-          style={{
-            clipPath: "url(#grid-mask)"
-          }}
+          className={cn("h-full w-full overflow-hidden", {
+            "transition-opacity duration-300": isSafari,
+            "opacity-0": isSafari && !isRevealing,
+            "opacity-100": isSafari && isRevealing
+          })}
+          style={
+            isSafari
+              ? undefined
+              : {
+                  clipPath: "url(#grid-mask)"
+                }
+          }
         >
           {sortedAwards
             .filter((award) => award.certificate)
