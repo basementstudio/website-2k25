@@ -147,7 +147,7 @@ const ContactScreen = () => {
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="font-flauta relative flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o">
+          <div className="font-flauta relative z-20 flex h-full w-full flex-col justify-between gap-7 text-[14px] text-brand-o">
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase"
@@ -227,7 +227,7 @@ const ContactScreen = () => {
                 </button>
               </div>
             </form>
-            <div className="flex w-full items-center justify-between uppercase">
+            <div className="flex w-full items-center justify-between text-[12px] uppercase">
               <div className="flex items-center gap-[2px]">
                 <Link href="https://x.com/basementstudio" target="_blank">
                   <span className="">X (Twitter)</span>
