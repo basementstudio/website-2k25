@@ -50,6 +50,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       setIsAnimating(
         animationState === ANIMATION_TYPES.IDLE ? false : isAnimating
       )
+
       return
     }
 
@@ -77,6 +78,12 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA].includes(animationState)
     ) {
       action.timeScale = 1.0
+
+      if (animationState === ANIMATION_TYPES.RUEDITA) {
+        self.postMessage({ type: "ruedita-animation-start" })
+      } else if (animationState === ANIMATION_TYPES.ANTENA) {
+        self.postMessage({ type: "antena-animation-start" })
+      }
     } else {
       action.timeScale = 1.2
     }
@@ -113,6 +120,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       } else if (animationState === ANIMATION_TYPES.OUTRO) {
         setIsContactOpen(false)
         self.postMessage({ type: "outro-complete" })
+      } else if (animationState === ANIMATION_TYPES.RUEDITA) {
+        self.postMessage({ type: "ruedita-animation-complete" })
+      } else if (animationState === ANIMATION_TYPES.ANTENA) {
+        self.postMessage({ type: "antena-animation-complete" })
       }
     }
 
