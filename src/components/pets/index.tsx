@@ -61,9 +61,12 @@ export function Pets() {
     }
   } = useAssets()
 
-  const { scene, nodes, animations } = useKTX2GLTF(model) as unknown as PetsGLTF
   const pureTexture = useTexture(pureTextureUrl)
   const bostonTexture = useTexture(bostonTextureUrl)
+
+  const petsGltf = useKTX2GLTF(model) as unknown as PetsGLTF
+
+  const { scene, nodes, animations } = petsGltf
 
   const pureSkinned = useMemo(() => {
     const pureConfig = petConfigs[PetSkinnedName.PURE]
@@ -105,6 +108,29 @@ export function Pets() {
     return null
   }
 
+  return (
+    <PetsInner
+      pureSkinned={pureSkinned}
+      bostonSkinned={bostonSkinned}
+      animations={animations}
+      scene={scene}
+    />
+  )
+}
+
+interface PetsInnerProps {
+  pureSkinned: THREE.SkinnedMesh
+  bostonSkinned: THREE.SkinnedMesh
+  animations: THREE.AnimationClip[]
+  scene: THREE.Group<THREE.Object3DEventMap>
+}
+
+function PetsInner({
+  pureSkinned,
+  bostonSkinned,
+  animations,
+  scene
+}: PetsInnerProps) {
   const { actions } = useAnimations(animations, pureSkinned)
 
   const { actions: bostonActions } = useAnimations(animations, bostonSkinned)
