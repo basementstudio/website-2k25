@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { Link } from "../primitives/link"
 
 export const Contact = () => (
   <div className="grid-layout pb-16 pt-12 lg:pb-32 lg:pt-16">
