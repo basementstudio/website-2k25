@@ -90,6 +90,27 @@ export const useInitializeAudioContext = () => {
 
   const { ARCADE_AUDIO_SFX, GAME_THEME_SONGS } = useAudioUrls()
 
+  const init = useCallback(() => {
+    const targetElement = document
+
+    if (!player) {
+      const newPlayer = new WebAudioPlayer()
+      const mPref = localStorage.getItem("musicEnabled")
+      const shouldEnableMusic = mPref === null ? true : mPref === "true"
+
+      setMusic(shouldEnableMusic)
+      newPlayer.initAmbience()
+
+      if (shouldEnableMusic) {
+        setTimeout(() => newPlayer.setAmbienceVolume(1, 4), 100)
+      }
+
+      useSiteAudioStore.setState({ player: newPlayer })
+    } else {
+      targetElement.removeEventListener("click", init)
+    }
+  }, [player, setMusic])
+
   // Initialize audio system when player is available
   useEffect(() => {
     if (!player) return
@@ -107,29 +128,31 @@ export const useInitializeAudioContext = () => {
     }
   }, [player, isOnTab, music])
 
+  // handle pageview/pagehide, when user closes mobile app and comes back to the website
+  useEffect(() => {
+    const handlePageView = () => {
+      init()
+    }
+
+    const handlePageHide = () => {
+      document.removeEventListener("click", init)
+    }
+
+    window.addEventListener("pageshow", handlePageView)
+    window.addEventListener("pagehide", handlePageHide)
+
+    return () => {
+      window.removeEventListener("pageshow", handlePageView)
+      window.removeEventListener("pagehide", handlePageHide)
+    }
+  }, [player])
+
   useEffect(() => {
     const targetElement = document
-    const unlock = () => {
-      if (!player) {
-        const newPlayer = new WebAudioPlayer()
-        const mPref = localStorage.getItem("musicEnabled")
-        const shouldEnableMusic = mPref === null ? true : mPref === "true"
+    init()
+    targetElement.addEventListener("click", init, { passive: true })
 
-        setMusic(shouldEnableMusic)
-        newPlayer.initAmbience()
-
-        if (shouldEnableMusic) {
-          setTimeout(() => newPlayer.setAmbienceVolume(1, 4), 100)
-        }
-
-        useSiteAudioStore.setState({ player: newPlayer })
-      } else {
-        targetElement.removeEventListener("click", unlock)
-      }
-    }
-    targetElement.addEventListener("click", unlock, { passive: true })
-
-    return () => targetElement.removeEventListener("click", unlock)
+    return () => targetElement.removeEventListener("click", init)
   }, [player])
 
   const playGameSong = useCallback(
