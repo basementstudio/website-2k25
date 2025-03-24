@@ -152,6 +152,7 @@ export interface AssetsResult {
   // extra textures for things
   mapTextures: {
     rain: string
+    basketballVa: string
   }
   physicsParams: {
     _title: string
@@ -167,7 +168,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
     office: threeDInteractions.map.office.file.url,
     officeWireframe: threeDInteractions.map.wireframeModel.file.url,
     mapTextures: {
-      rain: threeDInteractions.map.textures.rain.url
+      rain: threeDInteractions.map.textures.rain.url,
+      basketballVa: threeDInteractions.map.textures.basketballVa.url
     },
     outdoor: threeDInteractions.map.outdoor.file.url,
     godrays: threeDInteractions.map.godrays.file.url,

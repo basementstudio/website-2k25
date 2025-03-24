@@ -7,6 +7,7 @@ import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import fragmentShader from "@/shaders/net-shader/fragment.glsl"
 import vertexShader from "@/shaders/net-shader/vertex.glsl"
+import { useAssets } from "../assets-provider"
 
 interface NetProps {
   mesh: Mesh
@@ -22,8 +23,9 @@ export const Net = ({ mesh }: NetProps) => {
   const progressRef = useRef(0)
   const isAnimatingRef = useRef(false)
   const textureRef = useRef<Texture | null>(null)
+  const { mapTextures } = useAssets()
 
-  const offsets = useLoader(EXRLoader, "/va-net-offset.exr")
+  const offsets = useLoader(EXRLoader, mapTextures.basketballVa)
 
   useEffect(() => {
     const handleScore = () => {
