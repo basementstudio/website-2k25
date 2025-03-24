@@ -28,6 +28,8 @@ export type SiteAudioSFXKey =
   | `BLOG_LAMP_${number}_PULL`
   | `BLOG_LAMP_${number}_RELEASE`
   | "CONTACT_INTERFERENCE"
+  | "CONTACT_KNOB_TURNING"
+  | "CONTACT_ANTENNA"
   | "OFFICE_AMBIENCE"
 
 interface SiteAudioStore {
@@ -272,6 +274,28 @@ function SiteAudioSFXsLoaderInner(): null {
             )
             source.setVolume(SFX_VOLUME)
             newSources["CONTACT_INTERFERENCE"] = source
+          })()
+        )
+
+        promises.push(
+          (async () => {
+            const source = await player.loadAudioFromURL(
+              CONTACT_AUDIO_SFX.KNOB_TURNING,
+              true
+            )
+            source.setVolume(SFX_VOLUME)
+            newSources["CONTACT_KNOB_TURNING"] = source
+          })()
+        )
+
+        promises.push(
+          (async () => {
+            const source = await player.loadAudioFromURL(
+              CONTACT_AUDIO_SFX.ANTENNA,
+              true
+            )
+            source.setVolume(SFX_VOLUME)
+            newSources["CONTACT_ANTENNA"] = source
           })()
         )
 

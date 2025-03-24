@@ -119,6 +119,9 @@ export const sfxFragment = fragmentOn("Sfx", {
   basketballThump: urlFragment,
   basketballBuzzer: urlFragment,
   basketballStreak: urlFragment,
+  knobTurning: urlFragment,
+  antenna: urlFragment,
+
   blog: {
     lockedDoor: {
       items: {
