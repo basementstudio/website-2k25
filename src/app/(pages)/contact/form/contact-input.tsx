@@ -22,14 +22,14 @@ export const ContactInput = ({
       {type === "textarea" ? (
         <textarea
           placeholder={placeholder}
-          className="remove-focus-styles h-full min-h-[320px] w-full resize-none bg-transparent text-start align-top text-[54px] text-f-h1-mobile font-semibold leading-none outline-none placeholder:text-brand-g2 xl:text-[56px] xl:tracking-[-2.24px]"
+          className="remove-focus-styles min-h-[120px] w-full resize-none bg-transparent text-start align-top text-[54px] text-f-h1-mobile font-semibold leading-none outline-none placeholder:text-brand-g2 placeholder:transition-colors focus:placeholder:text-brand-w2 md:min-h-[300px] xl:text-[56px] xl:tracking-[-2.24px]"
           {...registerProps}
         />
       ) : (
         <input
           type={type}
           placeholder={placeholder}
-          className="remove-focus-styles h-[56px] w-full bg-transparent text-f-h1-mobile font-semibold leading-none outline-none placeholder:text-brand-g2 xl:text-[56px] xl:tracking-[-2.24px]"
+          className="remove-focus-styles h-[56px] w-full bg-transparent text-f-h1-mobile font-semibold leading-none outline-none placeholder:text-brand-g2 placeholder:transition-colors focus:placeholder:text-brand-w2 xl:text-[56px] xl:tracking-[-2.24px]"
           {...registerProps}
         />
       )}

@@ -82,6 +82,13 @@
     @apply active:animate-none;
   }
 
+  .custom-underline {
+    --underline-height: max(0.06em, 1px);
+    @apply relative inline-block font-semibold;
+    @apply before:absolute before:-bottom-[round(var(--underline-height),1px)] before:left-0 before:h-[round(var(--underline-height),1px)] before:w-full before:bg-[var(--color-mix)] before:[--opacity-hover-value:100];
+    @apply before:transition-opacity before:duration-[var(--anim-delay)] before:ease-linear;
+  }
+
   a[target="_blank"],
   a[target="_blank"] *,
   a[href^="mailto:"],

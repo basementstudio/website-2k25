@@ -84,11 +84,11 @@ export const ContactForm = () => {
 
   return (
     <form
-      className="col-span-7 col-start-6 row-span-2 flex flex-col justify-between gap-6"
+      className="col-span-7 col-start-6 row-span-2 flex flex-col justify-between"
       aria-label="Contact form or additional information"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div className="flex h-full flex-col">
+      <div className="flex flex-col">
         <ContactInput placeholder="Name" {...register("name")} />
         <ContactInput placeholder="Company" {...register("company")} />
         <ContactInput
@@ -109,25 +109,24 @@ export const ContactForm = () => {
           {...register("message", { required: "Message is required" })}
         />
       </div>
-      <div className="flex flex-col items-start justify-between gap-4 xl:flex-row">
-        <button
-          type="submit"
-          className="flex h-[35px] items-start gap-3 xl:h-[56px]"
-        >
-          <p className="text-f-h1-mobile font-semibold leading-none xl:text-[56px] xl:tracking-[-2.24px]">
-            Submit Message
-          </p>
+      <div className="flex flex-col items-start justify-between gap-4 py-6 md:py-4 xl:flex-row">
+        <button type="submit">
+          <p className="actionable actionable-no-underline flex h-fit items-start gap-3 text-brand-w1">
+            <span className="text-f-h1-mobile font-semibold leading-none xl:text-[56px] xl:tracking-[-2.24px]">
+              Submit Message
+            </span>
 
-          <svg
-            width="31"
-            height="31"
-            viewBox="0 0 31 31"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-            className="text-brand-w1"
-          >
-            <path d="M25.44 30.3124V5.61643H0.856L6.4 0.128427L30.984 0.184426V24.8244L25.44 30.3124ZM0.408 25.8324L25.664 0.520425L30.648 5.44842L5.336 30.7604L0.408 25.8324Z" />
-          </svg>
+            <svg
+              className="h-[1.5em] w-[1.5em]"
+              width="31"
+              height="31"
+              viewBox="0 0 31 31"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M25.44 30.3124V5.61643H0.856L6.4 0.128427L30.984 0.184426V24.8244L25.44 30.3124ZM0.408 25.8324L25.664 0.520425L30.648 5.44842L5.336 30.7604L0.408 25.8324Z" />
+            </svg>
+          </p>
         </button>
         <ContactStatus
           isSubmitted={isSubmitted}
