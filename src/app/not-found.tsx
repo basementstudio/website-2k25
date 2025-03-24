@@ -96,7 +96,7 @@ export default function NotFound() {
               onClick={() => goBack()}
               className="actionable actionable-no-underline text-f-h3-mobile lg:text-f-h3 uppercase tracking-widest text-brand-w1"
             >
-              Return to Base
+              Go Back Home
             </button>
           </div>
         </div>
