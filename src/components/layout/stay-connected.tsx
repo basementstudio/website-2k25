@@ -24,6 +24,7 @@ const initialState = {
 export const StayConnected = ({ content, className }: StayConnectedProps) => {
   const [state, formAction] = useActionState(subscribe, initialState)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (state.success) {
@@ -35,6 +36,12 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
       return () => clearTimeout(timer)
     }
   }, [state])
+
+  const handleSubmit = async (formData: FormData) => {
+    setIsSubmitting(true)
+    await formAction(formData)
+    setIsSubmitting(false)
+  }
 
   return (
     <div className={cn("flex-col gap-6 lg:flex", className)}>
@@ -56,7 +63,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
         />
       </div>
       <form
-        action={formAction}
+        action={handleSubmit}
         className="flex max-w-[26.25rem] flex-col gap-4 text-f-h4-mobile lg:text-f-h4"
       >
         <Input
@@ -65,10 +72,11 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           required
           type="email"
           name="email"
+          disabled={isSubmitting}
         />
         <button
           type="submit"
-          disabled={state.success}
+          disabled={state.success || isSubmitting}
           className="flex w-fit translate-y-1 items-center gap-1 overflow-hidden text-f-h4-mobile lg:text-f-h4"
         >
           <motion.div
@@ -98,6 +106,24 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                       state={state.success}
                     />
                   </motion.span>
+                </motion.span>
+              ) : isSubmitting ? (
+                <motion.span
+                  key="loading"
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -40, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="actionable actionable-no-underline flex h-[1.5em] items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
+                >
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="inline-block"
+                  >
+                    ⭕
+                  </motion.span>
+                  Subscribing...
                 </motion.span>
               ) : (
                 <motion.span

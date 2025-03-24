@@ -1,6 +1,6 @@
 export const BASE_CONFIG = {
   color: "#bbb",
-  speed: 0.2,
+  speed: 0.3,
   size: 1
 }
 
@@ -13,7 +13,7 @@ export const SPAWN_POINTS: {
   {
     position: [6.2, 0.25, -11.2],
     scale: [0.6, 0.25, 1.2],
-    count: 80
+    count: 100
   },
   // Floor Right Light
   {
@@ -68,5 +68,11 @@ export const SPAWN_POINTS: {
     position: [4.1, 5.4, -25.6],
     scale: [1, 0.6, 3.75],
     count: 180
+  },
+  // Blog Light
+  {
+    position: [10.5, 4.09, -17.9],
+    scale: [0.2, 0.1, 0.000001],
+    count: 80
   }
 ]

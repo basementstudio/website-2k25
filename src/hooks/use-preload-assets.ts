@@ -1,4 +1,5 @@
 import { preload, PreloadAs, PreloadOptions } from "react-dom"
+import { useEffect } from "react"
 
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
@@ -10,8 +11,18 @@ const ASSET_TO_NOT_PRELOAD = [
   "glassMaterials",
   "doubleSideElements",
   "scenes",
-  "sfx"
+  "sfx",
+  "videos",
+  "outdoorCars",
+  "characters"
 ]
+
+// Assets with their preload priority
+const ASSET_PRIORITIES = {
+  HIGH: ["bakes", "matcaps", "lamp"],
+  MEDIUM: ["glassReflexes"],
+  LOW: ["videos", "outdoorCars", "characters"]
+} as const
 
 // Assets has different keys for the url.
 // This is a list of assets that have a different key for the url.
@@ -19,31 +30,38 @@ const ASSET_TO_NOT_PRELOAD = [
 const ASSET_URL_SRC = [
   {
     key: "bakes",
-    urlKey: ["lightmap", "ambientOcclusion"]
+    urlKey: ["lightmap", "ambientOcclusion"],
+    priority: "HIGH"
   },
   {
     key: "characters",
-    urlKey: "model"
+    urlKey: "model",
+    priority: "LOW"
   },
   {
     key: "glassReflexes",
-    urlKey: "url"
+    urlKey: "url",
+    priority: "MEDIUM"
   },
   {
     key: "lamp",
-    urlKey: "extraLightmap"
+    urlKey: "extraLightmap",
+    priority: "HIGH"
   },
   {
     key: "matcaps",
-    urlKey: "file"
+    urlKey: "file",
+    priority: "HIGH"
   },
   {
     key: "outdoorCars",
-    urlKey: "model"
+    urlKey: "model",
+    priority: "LOW"
   },
   {
     key: "videos",
-    urlKey: "url"
+    urlKey: "url",
+    priority: "LOW"
   }
 ]
 
@@ -66,39 +84,27 @@ const getAssetFormat = (
 
   switch (extension) {
     case "png":
-      result = { as: "image", type: "image/png" }
-      break
     case "jpg":
-      result = { as: "image", type: "image/jpeg" }
-      break
     case "jpeg":
-      result = { as: "image", type: "image/jpeg" }
-      break
     case "webp":
-      result = { as: "image", type: "image/webp" }
-      break
     case "avif":
-      result = { as: "image", type: "image/avif" }
+      result = { as: "image", type: `image/${extension}` }
       break
     case "wav":
-      result = { as: "audio", type: "audio/wav" }
-      break
     case "mp3":
-      result = { as: "audio", type: "audio/mpeg" }
+      result = { as: "audio", type: `audio/${extension}` }
       break
     case "mp4":
       result = { as: "video", type: "video/mp4" }
       break
     case "exr":
-      result = { as: "fetch", type: "image/x-exr" }
-      break
     case "glb":
-      result = { as: "fetch", type: "model/gltf-binary" }
-      break
     case "gltf":
-      result = { as: "fetch", type: "model/gltf+json" }
+      // For 3D models and special formats, use 'fetch' as the preload type
+      result = { as: "fetch", type: undefined }
       break
     default:
+      // Default to 'fetch' for unknown types
       result = { as: "fetch", type: undefined }
   }
 
@@ -111,10 +117,15 @@ const getAssetFormat = (
 const collectUrls = (
   obj: any,
   currentKey?: string,
-  urlSet = new Set<string>()
+  urlSet = new Set<string>(),
+  priority: keyof typeof ASSET_PRIORITIES = "HIGH"
 ) => {
   if (!obj) return urlSet
   if (ASSET_TO_NOT_PRELOAD.includes(currentKey ?? "")) return urlSet
+
+  // Check if this asset should be preloaded based on priority
+  const assetConfig = ASSET_URL_SRC.find(mapping => mapping.key === currentKey)
+  if (assetConfig && assetConfig.priority !== priority) return urlSet
 
   if (typeof obj === "string" && obj.startsWith("https://")) {
     urlSet.add(obj)
@@ -144,7 +155,7 @@ const collectUrls = (
       })
     } else {
       // Process array items recursively
-      obj.forEach((item) => collectUrls(item, undefined, urlSet))
+      obj.forEach((item) => collectUrls(item, undefined, urlSet, priority))
     }
   } else if (typeof obj === "object") {
     // Collect direct URL values
@@ -156,7 +167,7 @@ const collectUrls = (
 
     // Process nested object properties
     Object.entries(obj).forEach(([key, value]) => {
-      collectUrls(value, key, urlSet)
+      collectUrls(value, key, urlSet, priority)
     })
   }
 
@@ -165,18 +176,50 @@ const collectUrls = (
 
 // Main preload function
 const preloadAllAssets = (obj: any) => {
-  // Step 1: Collect all unique URLs
-  const urls = collectUrls(obj)
+  const timeouts: NodeJS.Timeout[] = []
 
-  // Preload all URLs
-  urls.forEach((url) => {
+  // Preload high priority assets first
+  const highPriorityUrls = collectUrls(obj, undefined, new Set(), "HIGH")
+  highPriorityUrls.forEach((url) => {
     const { as, type } = getAssetFormat(url)
     preload(url, { as, type })
   })
+
+  // Preload medium priority assets after a delay
+  timeouts.push(
+    setTimeout(() => {
+      const mediumPriorityUrls = collectUrls(obj, undefined, new Set(), "MEDIUM")
+      mediumPriorityUrls.forEach((url) => {
+        const { as, type } = getAssetFormat(url)
+        preload(url, { as, type })
+      })
+    }, 1000)
+  )
+
+  // Preload low priority assets after a longer delay
+  timeouts.push(
+    setTimeout(() => {
+      const lowPriorityUrls = collectUrls(obj, undefined, new Set(), "LOW")
+      lowPriorityUrls.forEach((url) => {
+        const { as, type } = getAssetFormat(url)
+        preload(url, { as, type })
+      })
+    }, 2000)
+  )
+
+  return () => {
+    // Cleanup function to clear timeouts
+    timeouts.forEach(clearTimeout)
+  }
 }
 
 export const usePreloadAssets = (assets: AssetsResult) => {
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
 
-  if (offscreenCanvasReady) preloadAllAssets(assets)
+  useEffect(() => {
+    if (offscreenCanvasReady) {
+      const cleanup = preloadAllAssets(assets)
+      return cleanup
+    }
+  }, [offscreenCanvasReady, assets])
 }

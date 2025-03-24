@@ -2,12 +2,12 @@ import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -116,16 +116,20 @@ export const Basketball = ({
 
   return (
     <RigidBody
-      restitution={0.85}
+      restitution={0.75}
       colliders="ball"
       ref={ballRef}
       type="fixed"
       position={[initialPosition.x, initialPosition.y, initialPosition.z]}
       onCollisionEnter={({ other }) => handleCollision(other)}
       onSleep={handleSleep}
-      friction={0.8}
-      linearDamping={0.5}
-      angularDamping={0.5}
+      friction={1.0}
+      linearDamping={0.6}
+      angularDamping={0.4}
+      mass={0.62}
+      ccd={true}
+      canSleep={false}
+      maxAngularVelocity={20}
     >
       <mesh
         scale={1.25}

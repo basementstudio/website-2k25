@@ -1,11 +1,18 @@
 uniform sampler2D map;
+uniform float uTime;
+uniform float uScoreAnimation;
+
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
 
 void main() {
-    vec4 texColor = texture2D(map, vUv);
-    vec4 white = vec4(2.0, 2.0, 2.0, 2.0);
+  // Sample the texture with animated UVs
+  vec4 texColor = texture2D(map, vUv);
 
-    gl_FragColor = white;
+  // Add a subtle pulsing glow during scoring
+  float glowIntensity = 1.0 + uScoreAnimation * 0.5;
+
+  // Preserve the texture's alpha for transparency
+  gl_FragColor = vec4(texColor.rgb * glowIntensity, texColor.a);
 }

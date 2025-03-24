@@ -133,27 +133,36 @@ export const applyThrowAssistance = (
   ).length()
 
   const horizontalOffset = Math.abs(hoopPosition.x - currentPos.x)
-  const offsetMultiplier = Math.max(0, 1 - horizontalOffset * 0.45)
+  const offsetMultiplier = Math.max(0, 1 - horizontalOffset * 0.5)
 
-  const inSweetSpot =
-    distanceToHoop > 3.0 && distanceToHoop < 4.4 && horizontalOffset < 0.6
+  const perfectSpot =
+    distanceToHoop > 3.1 && distanceToHoop < 4.2 && horizontalOffset < 0.5
+  const goodSpot =
+    distanceToHoop > 2.8 && distanceToHoop < 4.4 && horizontalOffset < 0.7
+  const closeSpot =
+    distanceToHoop > 2.4 && distanceToHoop < 3.2 && horizontalOffset < 0.4
 
-  const veryClose =
-    distanceToHoop > 2.6 && distanceToHoop < 3.4 && horizontalOffset < 0.4
-
-  if (veryClose) {
+  if (perfectSpot) {
     return {
-      x: velocity.x,
-      y: velocity.y * (1 + 0.45 * offsetMultiplier),
-      z: velocity.z * (1 + 0.35 * offsetMultiplier)
+      x: velocity.x * 0.95,
+      y: velocity.y * (1 + 0.3 * offsetMultiplier),
+      z: velocity.z * (1 + 0.2 * offsetMultiplier)
     }
   }
 
-  if (inSweetSpot) {
+  if (goodSpot) {
     return {
-      x: velocity.x,
-      y: velocity.y * (1 + 0.35 * offsetMultiplier),
-      z: velocity.z * (1 + 0.25 * offsetMultiplier)
+      x: velocity.x * 0.97,
+      y: velocity.y * (1 + 0.2 * offsetMultiplier),
+      z: velocity.z * (1 + 0.15 * offsetMultiplier)
+    }
+  }
+
+  if (closeSpot) {
+    return {
+      x: velocity.x * 0.98,
+      y: velocity.y * (1 + 0.15 * offsetMultiplier),
+      z: velocity.z * (1 + 0.1 * offsetMultiplier)
     }
   }
 
@@ -171,6 +180,42 @@ interface ThrowVelocityParams {
   pointerVelocity: Vector2
 }
 
+interface SpinCalculation {
+  torque: { x: number; y: number; z: number }
+  velocityModifier: Velocity
+}
+
+const calculateSpinEffect = (
+  dragDelta: Vector3,
+  pointerVelocity: Vector2,
+  throwStrength: number
+): SpinCalculation => {
+  // Calculate horizontal spin based on pointer movement
+  const horizontalSpin = pointerVelocity.x * 0.008
+
+  // Calculate vertical spin based on drag motion
+  const verticalSpin = -dragDelta.y * 0.006
+
+  // Calculate forward spin based on throw strength
+  const forwardSpin = throwStrength * 0.004
+
+  // Combine spins into torque
+  const torque = {
+    x: forwardSpin + verticalSpin,
+    y: horizontalSpin,
+    z: horizontalSpin * -0.5
+  }
+
+  // Calculate how spin affects velocity
+  const velocityModifier = {
+    x: horizontalSpin * throwStrength * 0.3,
+    y: verticalSpin * throwStrength * 0.2,
+    z: 0
+  }
+
+  return { torque, velocityModifier }
+}
+
 export const calculateThrowVelocity = ({
   dragDelta,
   currentPos,
@@ -180,20 +225,35 @@ export const calculateThrowVelocity = ({
   forwardStrength,
   ballHorizontalOffset,
   pointerVelocity
-}: ThrowVelocityParams): Velocity => {
-  const baseThrowStrength = 0.85
+}: ThrowVelocityParams): {
+  velocity: Velocity
+  spin: { x: number; y: number; z: number }
+} => {
+  const baseThrowStrength = 0.82
 
-  // calc pointer speed
   const pointerSpeed = Math.sqrt(
     pointerVelocity.x * pointerVelocity.x +
       pointerVelocity.y * pointerVelocity.y
   )
 
-  // cap pointer influence
-  const pointerSpeedInfluence = Math.min(pointerSpeed * 0.3, 1.5)
+  const pointerSpeedInfluence = Math.min(
+    Math.pow(pointerSpeed * 0.25, 1.2),
+    1.3
+  )
 
-  const distanceStrength = Math.min(baseThrowStrength * dragDistance, 3.0)
+  const distanceStrength = Math.min(
+    baseThrowStrength * Math.pow(dragDistance, 1.1),
+    2.8
+  )
+
   const throwStrength = distanceStrength * (1 + pointerSpeedInfluence)
+
+  // Calculate spin effects
+  const spinEffect = calculateSpinEffect(
+    dragDelta,
+    pointerVelocity,
+    throwStrength
+  )
 
   const distanceToHoop = new Vector3(
     hoopPosition.x - currentPos.x,
@@ -203,24 +263,37 @@ export const calculateThrowVelocity = ({
 
   const heightDifference = hoopPosition.y - currentPos.y
 
-  // sideshot correction
   const horizontalDistance = Math.abs(hoopPosition.x - currentPos.x)
-  const centeringForce = horizontalDistance * 0.022
+  const centeringForce = Math.pow(horizontalDistance, 1.2) * 0.02
   const centeringDirection = currentPos.x > hoopPosition.x ? 1 : -1
-  const xCorrection = centeringForce * centeringDirection + ballHorizontalOffset
+  const xCorrection =
+    centeringForce * centeringDirection + ballHorizontalOffset * 0.9
 
+  const arcMultiplier = distanceToHoop > 3 ? 1.25 : 1.4
+  const heightMultiplier = distanceToHoop > 3 ? 1.2 : 1.35
+
+  // Combine base velocity with spin effects
   return {
-    x: -dragDelta.x * throwStrength * 0.02 - xCorrection,
-    y:
-      heightDifference *
-      upStrength *
-      throwStrength *
-      (distanceToHoop > 2 ? 1.3 : 1.5),
-    z:
-      -distanceToHoop *
-      throwStrength *
-      forwardStrength *
-      (distanceToHoop > 2 ? 1.3 : 1.5)
+    velocity: {
+      x:
+        -dragDelta.x * throwStrength * 0.018 -
+        xCorrection +
+        spinEffect.velocityModifier.x,
+      y:
+        heightDifference *
+          upStrength *
+          throwStrength *
+          heightMultiplier *
+          (1 + Math.pow(distanceToHoop * 0.1, 1.1)) +
+        spinEffect.velocityModifier.y,
+      z:
+        -distanceToHoop *
+        throwStrength *
+        forwardStrength *
+        arcMultiplier *
+        (1 + Math.pow(distanceToHoop * 0.08, 1.1))
+    },
+    spin: spinEffect.torque
   }
 }
 
@@ -335,7 +408,7 @@ export const handlePointerUp = ({
       playSoundFX("BASKETBALL_THROW", 0.3, randomPitch)
 
       const ballHorizontalOffset = (currentPos.x - hoopPosition.x) * 0.04
-      const rawVelocity = calculateThrowVelocity({
+      const { velocity: rawVelocity, spin } = calculateThrowVelocity({
         dragDelta,
         currentPos,
         hoopPosition,
@@ -351,8 +424,9 @@ export const handlePointerUp = ({
         currentPos,
         hoopPosition
       )
+
       ball.applyImpulse(assistedVelocity, true)
-      ball.applyTorqueImpulse({ x: 0.005, y: 0, z: 0 }, true)
+      ball.applyTorqueImpulse(spin, true)
     } else {
       ball.setBodyType(0, true)
     }

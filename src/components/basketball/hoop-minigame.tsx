@@ -20,6 +20,7 @@ import { easeInOutCubic } from "@/utils/animations"
 import { normalizeDelta } from "../arcade-game/lib/math"
 import { useAssets } from "../assets-provider"
 import { Basketball } from "./basketball"
+import { GameTimer } from "./game-timer"
 import RigidBodies from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
@@ -694,6 +695,7 @@ const HoopMinigameInner = () => {
             isTimerEnding={isTimerEnding.current}
             isTimerLow={isTimerLow.current}
           />
+          <GameTimer />
         </>
       )}
 
