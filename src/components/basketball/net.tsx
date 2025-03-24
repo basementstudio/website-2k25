@@ -14,7 +14,7 @@ interface NetProps {
 }
 
 const TOTAL_FRAMES = 39
-const ANIMATION_SPEED = 12
+const ANIMATION_SPEED = 16
 const OFFSET_SCALE = 1.0
 
 export const Net = ({ mesh }: NetProps) => {
@@ -33,7 +33,7 @@ export const Net = ({ mesh }: NetProps) => {
       isAnimatingRef.current = true
     }
 
-    window.addEventListener("basketball-score", handleScore)
+    window.addEventListener("basketball-score", handleScore, { passive: true })
     return () => window.removeEventListener("basketball-score", handleScore)
   }, [])
 

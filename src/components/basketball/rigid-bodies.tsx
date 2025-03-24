@@ -86,10 +86,19 @@ export default function RigidBodies({
       >
         <CylinderCollider
           onIntersectionEnter={handleScore}
-          position={[0, 0.12, 0]}
+          position={[0, 0, 0]}
           args={[0.02, 0.02]}
           scale={[0.2, 8, 4]}
         />
+
+        <RigidBody position-y={-0.14} type="fixed" colliders="trimesh">
+          <mesh>
+            <cylinderGeometry
+              args={[0.21, 0.21, 0.6, 12, 1, true, 0, Math.PI * 2]}
+            />
+            <meshBasicMaterial visible={false} />
+          </mesh>
+        </RigidBody>
 
         {/* stairs rigid body */}
         <RigidBody position={[-5.2, -2.7, 14]} type="fixed">
