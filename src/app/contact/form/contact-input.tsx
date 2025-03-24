@@ -27,14 +27,14 @@ export const ContactInput = ({
       {type === "textarea" ? (
         <textarea
           placeholder={placeholder}
-          className="remove-focus-styles min-h-[90px] w-full resize-none bg-transparent text-start align-top text-f-h3-mobile font-semibold leading-none outline-none placeholder:text-brand-g2 placeholder:transition-colors focus:placeholder:text-brand-w2 md:min-h-[280px] md:text-[54px] xl:text-[56px] xl:tracking-[-2.24px]"
+          className="remove-focus-styles min-h-[90px] w-full resize-none bg-transparent text-start align-top text-f-h3-mobile font-semibold leading-none outline-none placeholder:text-brand-g2 placeholder:transition-colors focus:placeholder:text-brand-w2 xl:min-h-[280px] xl:text-[56px] xl:tracking-[-2.24px]"
           {...registerProps}
         />
       ) : (
         <input
           type={type}
           placeholder={placeholder}
-          className="remove-focus-styles w-full bg-transparent text-f-h3-mobile font-semibold leading-none outline-none placeholder:text-brand-g2 placeholder:transition-colors autofill:tracking-normal autofill:text-inherit focus:placeholder:text-brand-w2 md:h-[56px] xl:text-[56px] xl:tracking-[-2.24px]"
+          className="remove-focus-styles w-full bg-transparent text-f-h3-mobile font-semibold leading-none outline-none placeholder:text-brand-g2 placeholder:transition-colors autofill:tracking-normal autofill:text-inherit focus:placeholder:text-brand-w2 xl:h-[56px] xl:text-[56px] xl:tracking-[-2.24px]"
           {...registerProps}
         />
       )}

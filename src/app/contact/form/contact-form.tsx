@@ -112,14 +112,14 @@ export const ContactForm = () => {
         />
       </div>
       <div className="flex flex-col items-start justify-between gap-4 border-t border-brand-g2 xl:flex-row">
-        <button type="submit" className="pt-3 md:pt-6">
-          <p className="actionable actionable-no-underline flex !h-fit items-start gap-1.5 text-brand-w1 md:gap-3">
+        <button type="submit" className="pt-3 xl:pt-6">
+          <p className="actionable actionable-no-underline flex !h-fit items-start gap-1.5 text-brand-w1 xl:gap-3">
             <span className="text-f-h2-mobile font-semibold leading-none xl:text-[56px] xl:tracking-[-2.24px]">
               Submit Message
             </span>
 
             <svg
-              className="size-[0.7em] md:size-[1.5em]"
+              className="size-[0.7em] xl:size-[1.5em]"
               width="31"
               height="31"
               viewBox="0 0 31 31"
