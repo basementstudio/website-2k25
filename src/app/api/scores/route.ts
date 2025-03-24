@@ -118,11 +118,12 @@ export async function POST(request: Request) {
 
     const supabase = createClient()
 
-    // Check if a score exists for this player
+    // check if a score exists for this player
     const { data: existingScore } = await supabase
       .from("scoreboard")
       .select("id, score")
       .eq("player_name", playerName)
+      .eq("country", details.flag)
       .single()
 
     // if the new score is lower than existing one, just return
