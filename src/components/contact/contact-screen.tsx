@@ -29,7 +29,7 @@ const ContactScreen = () => {
       if (type === "update-screen-skinned-matrix") {
         if (contentRef.current) {
           const element = contentRef.current as HTMLDivElement
-          element.style.left = `${screenPos.x * 100}%`
+          element.style.left = `${screenPos.x * 100 + 0.2}%`
           element.style.top = `${screenPos.y * 100}%`
         }
       } else if (type === "intro-complete") {
