@@ -1,6 +1,6 @@
 import { useFrame, useLoader } from "@react-three/fiber"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { Mesh, ShaderMaterial, DoubleSide, Texture } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
@@ -15,7 +15,7 @@ interface NetProps {
 
 const TOTAL_FRAMES = 39
 const ANIMATION_SPEED = 16
-const OFFSET_SCALE = 1.0
+const OFFSET_SCALE = 1.5
 
 export const Net = ({ mesh }: NetProps) => {
   const meshRef = useRef<Mesh | null>(null)
@@ -23,6 +23,7 @@ export const Net = ({ mesh }: NetProps) => {
   const progressRef = useRef(0)
   const isAnimatingRef = useRef(false)
   const textureRef = useRef<Texture | null>(null)
+  const [isVisible, setIsVisible] = useState(false)
   const { mapTextures } = useAssets()
 
   const offsets = useLoader(EXRLoader, mapTextures.basketballVa)
@@ -65,6 +66,14 @@ export const Net = ({ mesh }: NetProps) => {
       materialRef.current = shaderMaterial
       meshRef.current = mesh
       meshRef.current.material = shaderMaterial
+
+      shaderMaterial.needsUpdate = true
+      texture.needsUpdate = true
+      offsets.needsUpdate = true
+
+      requestAnimationFrame(() => {
+        setIsVisible(true)
+      })
     }
   }, [mesh, offsets])
 
@@ -82,5 +91,7 @@ export const Net = ({ mesh }: NetProps) => {
     }
   })
 
-  return meshRef.current ? <primitive object={meshRef.current} /> : null
+  return meshRef.current ? (
+    <primitive object={meshRef.current} visible={isVisible} />
+  ) : null
 }
