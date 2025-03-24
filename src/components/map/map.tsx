@@ -162,17 +162,18 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    const originalNet = officeModel?.getObjectByName("SM_BasketRed")
-    const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
+    const netMesh = officeModel?.getObjectByName("SM_Red")
+    const { scene: vaNetMesh } = useKTX2GLTF(
+      basketballNetPath
+    ) as unknown as GLTFResult
 
-    if (newNetMesh?.parent) {
-      newNetMesh.removeFromParent()
-    }
+    // if (netMesh?.parent) {
+    //   netMesh.removeFromParent()
 
-    if (originalNet?.parent) {
-      originalNet.removeFromParent()
-      setNet(originalNet as Mesh)
-    }
+    //   if (vaNetMesh) {
+    //     setNet(vaNetMesh.getObjectByName("SM_Red") as Mesh)
+    //   }
+    // }
 
     const traverse = (
       child: Object3D,
@@ -371,11 +372,6 @@ export const Map = memo(() => {
       useMesh.setState({ inspectableMeshes })
     }
 
-    const netMesh = basketballNetModel.getObjectByName("Net") as Mesh | null
-    if (netMesh) {
-      netMesh.raycast = () => null
-    }
-
     const disableRaycasting = (scene: THREE.Object3D) => {
       scene.traverse((child) => {
         if ("isMesh" in child) {
@@ -528,7 +524,7 @@ export const Map = memo(() => {
       {useMesh.getState().hoopMeshes.hoop && (
         <primitive object={useMesh.getState().hoopMeshes.hoop as Mesh} />
       )}
-      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
+      {/* {net && net instanceof THREE.Mesh && <Net mesh={net} />} */}
 
       {/*Homepage */}
       {scene === "home" && <SpeakerHover />}
