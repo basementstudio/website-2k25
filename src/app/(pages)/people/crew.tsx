@@ -1,17 +1,22 @@
 "use client"
 
+import { motion } from "motion/react"
 import Image from "next/image"
 import { Fragment, useCallback, useLayoutEffect, useRef, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
+import useDebounceValue from "@/hooks/use-debounce-value"
 import { cn } from "@/utils/cn"
 
 import { QueryType } from "./query"
 
+const DEBOUNCE_TIME = 10
+
 export const Crew = ({ data }: { data: QueryType }) => {
   const [hoveredPerson, setHoveredPerson] = useState<string | null>(null)
+  const debouncedHoveredPerson = useDebounceValue(hoveredPerson, DEBOUNCE_TIME)
   const heightRef = useRef({
     list: 0,
     faces: 0
@@ -87,37 +92,57 @@ export const Crew = ({ data }: { data: QueryType }) => {
               {people.map((person) => (
                 <li
                   key={person._title}
-                  className="group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
+                  className={cn(
+                    "group relative grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1 pt-0.75 transition-colors duration-200",
+                    debouncedHoveredPerson &&
+                      debouncedHoveredPerson !== person._title &&
+                      "!text-brand-w1/50"
+                  )}
                   onMouseEnter={() => setHoveredPerson(person._title)}
                   onMouseLeave={() => setHoveredPerson(null)}
                 >
                   <div
                     className={cn(
-                      "with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300",
-                      { "opacity-100": hoveredPerson === person._title }
+                      "with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-200",
+                      {
+                        "opacity-100": debouncedHoveredPerson === person._title
+                      }
                     )}
                   />
-                  <div className="col-span-1">{person._title}</div>
-                  <div className="col-span-1">{person.role}</div>
-                  <div className="col-span-2 flex justify-end gap-1 text-right text-brand-g1">
-                    {person.socialNetworks.items.map(
-                      (socialNetwork: any, index: number) => (
-                        <Fragment key={index}>
-                          <Link
-                            href={socialNetwork.link as string}
-                            target="_blank"
-                            className="bg-brand-0 text-brand-w1"
-                          >
-                            <span className="actionable">
-                              {socialNetwork.platform}
-                            </span>
-                          </Link>
-                          {index < person.socialNetworks.items.length - 1 && (
-                            <span>,</span>
-                          )}
-                        </Fragment>
-                      )
-                    )}
+                  <div
+                    className="col-span-1 line-clamp-1 hidden lg:inline xl:hidden"
+                    title={person._title}
+                  >
+                    {person._title.split(" ")[0]}
+                  </div>
+                  <div
+                    className="col-span-1 line-clamp-1 lg:hidden xl:inline"
+                    title={person._title}
+                  >
+                    {person._title}
+                  </div>
+                  <div className="col-span-3 flex justify-between gap-1">
+                    <span className="line-clamp-1">{person.role}</span>
+                    <div className="flex gap-1 text-right">
+                      {person.socialNetworks.items.map(
+                        (socialNetwork: any, index: number) => (
+                          <Fragment key={index}>
+                            <Link
+                              href={socialNetwork.link as string}
+                              target="_blank"
+                              className="bg-brand-0"
+                            >
+                              <span className="actionable">
+                                {socialNetwork.platform}
+                              </span>
+                            </Link>
+                            {index < person.socialNetworks.items.length - 1 && (
+                              <span className="text-brand-g1">,</span>
+                            )}
+                          </Fragment>
+                        )
+                      )}
+                    </div>
                   </div>
                 </li>
               ))}
@@ -128,14 +153,10 @@ export const Crew = ({ data }: { data: QueryType }) => {
       <DesktopFaces
         data={data}
         setHoveredPerson={setHoveredPerson}
-        hoveredPerson={hoveredPerson}
+        hoveredPerson={debouncedHoveredPerson}
         heightRef={heightRef.current}
       />
-      <MobileFaces
-        data={groupedPeople}
-        setHoveredPerson={setHoveredPerson}
-        hoveredPerson={hoveredPerson}
-      />
+      <MobileFaces data={groupedPeople} />
     </section>
   )
 }
@@ -175,13 +196,9 @@ export const DesktopFaces = ({
 }
 
 export const MobileFaces = ({
-  data,
-  setHoveredPerson,
-  hoveredPerson
+  data
 }: {
   data: Record<string, QueryType["company"]["people"]["peopleList"]["items"]>
-  setHoveredPerson: (person: string | null) => void
-  hoveredPerson: string | null
 }) => (
   <div className="col-span-full flex flex-col gap-4 py-6 lg:hidden">
     {Object.entries(data).map(([department, people]) => (
@@ -192,24 +209,31 @@ export const MobileFaces = ({
 
         <div className="grid grid-cols-4 gap-2">
           {people.map((person) => (
-            <Face
+            <div
               key={person._title}
-              person={person}
-              setHoveredPerson={setHoveredPerson}
-              hoveredPerson={hoveredPerson}
-            />
+              className="with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]"
+            >
+              <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+                {person.image ? (
+                  <Image src={person.image.url} alt={person._title} fill />
+                ) : (
+                  <Placeholder width={134} height={156} />
+                )}
+              </div>
+            </div>
           ))}
 
           {/* placeholder for empty columns */}
           <div
             className={cn(
-              "with-dots relative h-full w-full border border-brand-w1/20 text-brand-w1/20",
+              "relative h-full w-full border border-brand-w1/20 text-brand-w1/20",
               { hidden: people.length % 4 === 0 }
             )}
             style={{
               gridColumn: `span ${4 - (people.length % 4)} / span ${4 - (people.length % 4)}`
             }}
           >
+            <div className="with-dots !absolute -inset-px" />
             <div className="with-diagonal-lines absolute inset-0 h-full w-full" />
           </div>
         </div>
@@ -231,17 +255,24 @@ export const Face = ({
   setHoveredPerson,
   hoveredPerson
 }: FaceProps) => (
-  <div
+  <motion.div
     key={person._title}
-    className={
-      "with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]"
-    }
+    className="with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 lg:aspect-[136/156]"
     onMouseEnter={() => setHoveredPerson(person._title)}
     onMouseLeave={() => setHoveredPerson(null)}
+    animate={{
+      opacity: hoveredPerson ? (hoveredPerson === person._title ? 1 : 0.5) : 1
+    }}
+    transition={{ duration: 0.2, ease: "easeInOut" }}
   >
     <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
       {person.image ? (
-        <Image src={person.image.url} alt={person._title} fill />
+        <Image
+          src={person.image.url}
+          alt={person._title}
+          fill
+          className="transition-opacity duration-200"
+        />
       ) : (
         <Placeholder width={134} height={156} />
       )}
@@ -249,11 +280,11 @@ export const Face = ({
 
     <div
       className={cn(
-        "with-diagonal-lines pointer-events-none !absolute inset-0 opacity-0 transition-opacity duration-300",
+        "with-diagonal-lines pointer-events-none !absolute inset-0 opacity-0 transition-opacity duration-200",
         { "opacity-100": hoveredPerson === person._title }
       )}
     />
-  </div>
+  </motion.div>
 )
 
 interface CrewFooterProps {

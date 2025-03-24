@@ -1,20 +1,24 @@
 import { useRouter } from "next/navigation"
-import { useContactStore } from "../contact/contact-store"
-import { useWebgl } from "@/hooks/use-webgl"
 import { useCallback, useRef } from "react"
 
-export const ContactButton = ({ children }: { children: React.ReactNode }) => {
+import { useContactStore } from "@/components/contact/contact-store"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
+import { useWebgl } from "@/hooks/use-webgl"
+
+export const useHandleContactButton = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
+  const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
   const router = useRouter()
   const webglEnabled = useWebgl()
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleClick = useCallback(() => {
-    if (clickTimeoutRef.current || isAnimating) return
+    if (clickTimeoutRef.current || isAnimating || !canRunMainApp) return
+    const isMobile = window.innerWidth <= 768
 
-    if (webglEnabled) {
+    if (webglEnabled && !isMobile) {
       setIsContactOpen(!isContactOpen)
 
       clickTimeoutRef.current = setTimeout(() => {
@@ -23,7 +27,14 @@ export const ContactButton = ({ children }: { children: React.ReactNode }) => {
     } else {
       router.push("/contact")
     }
-  }, [webglEnabled, isContactOpen, setIsContactOpen, router, isAnimating])
+  }, [
+    webglEnabled,
+    isContactOpen,
+    setIsContactOpen,
+    router,
+    isAnimating,
+    canRunMainApp
+  ])
 
-  return <button onClick={handleClick}>{children}</button>
+  return handleClick
 }

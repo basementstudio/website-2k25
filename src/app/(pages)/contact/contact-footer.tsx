@@ -16,7 +16,7 @@ export const ContactFooter = () => (
         x (twitter)
       </a>
       <span className="text-brand-g1">,</span>
-      <a href="https://instagram.com/basementstudio" title="Instagram">
+      <a href="https://www.instagram.com/basementdotstudio" title="Instagram">
         instagram
       </a>
       <span className="text-brand-g1">,</span>

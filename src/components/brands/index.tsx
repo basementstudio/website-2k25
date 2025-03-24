@@ -29,7 +29,7 @@ export const AnimatedTitle = memo(({ brandName }: { brandName: string }) => (
     {brandName ? (
       <motion.span
         animate={{ opacity: 1, y: 0 }}
-        className="text-f-h3-mobile lg:text-f-h3 ml-px inline-flex items-center gap-x-2 text-brand-w1"
+        className="ml-px inline-flex items-center gap-x-2 text-f-h3-mobile text-brand-w1 lg:text-f-h3"
         exit={{ opacity: 0, y: -10 }}
         initial={{ opacity: 0, y: 10 }}
         key="brand-name"
@@ -71,7 +71,7 @@ export const BrandsDesktop = ({ brands }: { brands: Brand[] }) => {
   return (
     <section className="lg:grid-layout hidden !gap-y-4">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="text-f-h3-mobile lg:text-f-h3 col-span-full text-brand-g1 lg:col-start-2 2xl:col-start-3">
+        <h3 className="col-span-full text-f-h3-mobile text-brand-g1 lg:col-start-2 lg:text-f-h3 2xl:col-start-3">
           Trusted by <AnimatedTitle brandName={hoveredBrandName ?? ""} />
         </h3>
       </div>

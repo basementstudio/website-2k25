@@ -22,7 +22,7 @@ const TestimonialAvatar = memo(
           <Image
             alt={avatar.alt || ""}
             blurDataURL={avatar.blurDataURL}
-            className="size-12 lg:size-16"
+            className="size-16 lg:size-24"
             draggable={false}
             height={avatar.height}
             width={avatar.width}
@@ -88,7 +88,7 @@ const TestimonialsComponent = ({ data }: { data: QueryType }) => {
         <div className="pointer-events-none absolute inset-0" />
       </div>
 
-      <div className="col-span-full mx-auto flex gap-x-4 lg:col-start-5 lg:col-end-9">
+      <div className="col-span-full mx-auto flex gap-x-4 lg:col-start-3 lg:col-end-11">
         <TestimonialAvatar avatar={testimonial.avatar} />
 
         <TestimonialAuthor

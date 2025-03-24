@@ -12,14 +12,14 @@ export const ContactStatus = ({
   return (
     <div className="flex items-center gap-2">
       {isSubmitting && (
-        <p className="text-f-h3-mobile xl:text-f-h4 text-[#E6E6E6]">
+        <p className="text-f-h3-mobile xl:text-f-h4 text-brand-w1">
           Submitting...
         </p>
       )}
 
       {isSubmitted && !isSubmitting && (
         <>
-          <p className="text-f-h3-mobile xl:text-f-h4 text-[#00FF9B]">
+          <p className="text-f-h3-mobile xl:text-f-h4 text-brand-g">
             Form submitted
           </p>
           <svg
@@ -53,9 +53,7 @@ export const ContactStatus = ({
 
       {error && !isSubmitting && (
         <>
-          <p className="text-f-h3-mobile xl:text-f-h4 text-[#F32D2D]">
-            {error}
-          </p>
+          <p className="text-f-h3-mobile xl:text-f-h4 text-brand-r2">{error}</p>
           <svg
             width="20"
             height="20"
@@ -68,7 +66,7 @@ export const ContactStatus = ({
                 fillRule="evenodd"
                 clipRule="evenodd"
                 d="M5.85786 0.000427246H14.1421L20 5.85829V14.1426L14.1421 20.0004H5.85786L0 14.1426V5.85829L5.85786 0.000427246ZM11 4.62543V5.62543V10.0004V11.0004H9V10.0004V5.62543V4.62543H11ZM10 15.0004C10.6904 15.0004 11.25 14.4408 11.25 13.7504C11.25 13.0601 10.6904 12.5004 10 12.5004C9.30964 12.5004 8.75 13.0601 8.75 13.7504C8.75 14.4408 9.30964 15.0004 10 15.0004Z"
-                fill="#F32D2D"
+                fill="#ff6b6b"
               />
             </g>
             <defs>

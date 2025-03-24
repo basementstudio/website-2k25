@@ -33,9 +33,9 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
           <InfoItem
             label="Client"
             value={
-              <span className="flex items-center gap-0.75">
+              <span className="flex min-w-0 items-center gap-0.75">
                 {entry.project?.icon ? (
-                  <span className="relative size-3.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
+                  <span className="relative size-3.5 shrink-0 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
                     <Image
                       src={entry.project?.icon?.url}
                       fill
@@ -47,7 +47,9 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
                     />
                   </span>
                 ) : null}
-                {entry.project?.client?._title}
+                <span className="truncate">
+                  {entry.project?.client?._title}
+                </span>
               </span>
             }
           />
@@ -78,14 +80,17 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
           )}
           {website && (
             <InfoItem
-              label="Website"
+              label="Link"
               value={
                 <Link
                   href={website}
                   target="_blank"
-                  className="actionable line-clamp-1 flex items-center gap-1 text-brand-w1"
+                  className="actionable flex items-center gap-1 text-brand-w1"
                 >
-                  {website} <ExternalLinkIcon className="size-2" />
+                  <span className="max-w-[200px] truncate">
+                    {website.replace(/^https?:\/\//, "")}
+                  </span>
+                  <ExternalLinkIcon className="size-2 shrink-0" />
                 </Link>
               }
             />
@@ -112,7 +117,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
         {entry.project?.caseStudy ? (
           <Link
             href={entry.project?.caseStudy || ""}
-            className="text-f-p-mobile lg:text-f-p inline-flex items-center gap-1 text-brand-w1"
+            className="inline-flex items-center gap-1 text-f-p-mobile text-brand-w1 lg:text-f-p"
           >
             <span className="actionable">
               View Case Study <Arrow className="size-4" />
