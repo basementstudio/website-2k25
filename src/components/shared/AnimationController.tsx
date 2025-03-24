@@ -12,10 +12,9 @@ import {
   useState
 } from "react"
 
-import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
-
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
 
 // Context for sharing animation time
 interface AnimationContext {
@@ -35,6 +34,31 @@ export const useAnimationTime = () => {
     )
   }
   return context
+}
+
+const detectRefreshRate = (): Promise<number> => {
+  return new Promise((resolve) => {
+    let times: number[] = []
+    let lastTime = performance.now()
+
+    const measureFrame = () => {
+      const now = performance.now()
+      times.push(now - lastTime)
+      lastTime = now
+
+      if (times.length < 50) {
+        requestAnimationFrame(measureFrame)
+      } else {
+        // Calculate the median frame time to filter out outliers
+        times.sort((a, b) => a - b)
+        const medianTime = times[Math.floor(times.length / 2)]
+        const refreshRate = Math.round(1000 / medianTime)
+        resolve(refreshRate)
+      }
+    }
+
+    requestAnimationFrame(measureFrame)
+  })
 }
 
 interface AnimationControllerProps {
@@ -58,6 +82,7 @@ function AnimationControllerImpl({
   pauseOnTabChange = true
 }: AnimationControllerProps) {
   const { advance } = useThree()
+  const [refreshRate, setRefreshRate] = useState<number>(60)
 
   const { canRunMainApp } = useAppLoadingStore()
 
@@ -77,6 +102,7 @@ function AnimationControllerImpl({
   // Use refs for internal values that don't need to trigger re-renders
   const timeValuesRef = useRef({ time: 0, delta: 0 })
   const frameCountRef = useRef(0)
+  const lastFrameTimeRef = useRef(0)
 
   useEffect(() => {
     if (!pauseOnTabChange) return
@@ -102,6 +128,13 @@ function AnimationControllerImpl({
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  useEffect(() => {
+    detectRefreshRate().then((rate) => {
+      setRefreshRate(rate)
+      console.log(`Detected screen refresh rate: ${rate}Hz`)
+    })
+  }, [])
+
   // Current time values exposed through context (memoized)
   const timeValues = useMemo(
     () => ({
@@ -123,11 +156,24 @@ function AnimationControllerImpl({
     (time: number, delta: number) => {
       if (isPaused) return
 
+      // Calculate the time between frames based on the screen's refresh rate
+      const minFrameTime = 1000 / refreshRate
+
+      // Check if enough time has passed since the last frame
+      const timeSinceLastFrame = time - lastFrameTimeRef.current
+      if (timeSinceLastFrame < minFrameTime) {
+        // Skip frame if we're running faster than the refresh rate
+        return
+      }
+
       // Skip frames if needed for performance
       if (frameSkip > 0) {
         frameCountRef.current = (frameCountRef.current + 1) % (frameSkip + 1)
         if (frameCountRef.current !== 0) return
       }
+
+      // Update last frame time
+      lastFrameTimeRef.current = time
 
       // Update time values in the ref
       timeValuesRef.current.time = time
@@ -139,7 +185,7 @@ function AnimationControllerImpl({
       // Here you could also run other global updates
       // that depend on animation time
     },
-    [isPaused, frameSkip, advance]
+    [isPaused, frameSkip, advance, refreshRate]
   )
 
   // Use Motion's useAnimationFrame as our single RAF
