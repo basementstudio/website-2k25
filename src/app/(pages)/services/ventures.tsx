@@ -27,6 +27,11 @@ export const VenturesBanner = ({ data }: { data: QueryType }) => (
   </div>
 )
 
-const CtaTargetBlank = (props: any) => {
-  return <a {...props} target="_blank" rel="noopener noreferrer" />
-}
+const CtaTargetBlank = (props: any) => (
+  <a
+    {...props}
+    target="_blank"
+    className="actionable"
+    rel="noopener noreferrer"
+  />
+)
