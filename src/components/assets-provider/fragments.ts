@@ -22,7 +22,10 @@ export const characterFragment = fragmentOn("Characters", {
       url: true
     }
   },
-  petTexture: {
+  pureTexture: {
+    url: true
+  },
+  bostonTexture: {
     url: true
   },
   textureComic: {
