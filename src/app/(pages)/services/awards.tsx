@@ -10,7 +10,7 @@ import {
   type Variants
 } from "motion/react"
 import Image from "next/image"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useMedia } from "@/hooks/use-media"
 import useMousePosition from "@/hooks/use-mouse-pos"
@@ -18,6 +18,7 @@ import { cn } from "@/utils/cn"
 import { formatDate } from "@/utils/format-date"
 
 import type { QueryType } from "./query"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 
 const IMAGE_HEIGHT = 307.73
 const GRID_COLS = 6
@@ -57,28 +58,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
   const [currentImageId, setCurrentImageId] = useState<number | null>(null)
   const [isRevealing, setIsRevealing] = useState(false)
 
-  // Use the throttled version for better performance
-  const { mouseX, mouseY } = useThrottledMousePosition()
-
-  // Transform position values directly
-  const rawCertificateX = useTransform(mouseX, (x) => x - 232 / 2)
-  const rawCertificateY = useTransform(mouseY, (y) => y - 308 / 2)
-
-  // Add spring effect for natural movement
-  const certificateX = useSpring(rawCertificateX, {
-    stiffness: 1000,
-    damping: 50,
-    mass: 0.05
-  })
-
-  const certificateY = useSpring(rawCertificateY, {
-    stiffness: 1000,
-    damping: 50,
-    mass: 0.05
-  })
-
-  const certificateDimensions = { width: 232, height: 307.73 }
-
   const sortedAwards = useMemo(
     () =>
       data.company.awards.awardList.items
@@ -89,18 +68,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
         })),
     [data.company.awards.awardList.items]
   )
-
-  const gridCells = useMemo(() => {
-    const cells = []
-    for (let row = 0; row < GRID_ROWS; row++) {
-      for (let col = 0; col < GRID_COLS; col++) {
-        const index = row * GRID_COLS + col
-        const manhattanDistance = row + col
-        cells.push({ row, col, index, manhattanDistance })
-      }
-    }
-    return cells
-  }, [])
 
   const handleMouseEnter = useCallback((id: number) => {
     setHoveredItemId(id)
@@ -142,45 +109,6 @@ export const Awards = ({ data }: { data: QueryType }) => {
       }
     }
   }, [hoveredItemId, sortedAwards, translateY, currentImageId])
-
-  // cell animation
-  const cellVariants: Variants = {
-    hidden: {
-      scale: 0.95,
-      opacity: 0
-    },
-    visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
-      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
-      const normalizedDistance = manhattanDistance / maxDistance
-
-      return {
-        scale: 1,
-        opacity: 1,
-        transition: {
-          duration: 0.7,
-          delay: normalizedDistance * 0.15,
-          ease: [0.16, 1, 0.3, 1],
-          type: "keyframes"
-        }
-      }
-    },
-    exit: ({ manhattanDistance }: { manhattanDistance: number }) => {
-      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
-      const normalizedDistance = manhattanDistance / maxDistance
-
-      return {
-        scale: 0,
-        opacity: 0,
-        willChange: "transform, opacity",
-        transition: {
-          duration: 0.7,
-          delay: (1 - normalizedDistance) * 0.15,
-          ease: [0.16, 1, 0.3, 1],
-          type: "keyframes"
-        }
-      }
-    }
-  }
 
   return (
     <>
@@ -225,23 +153,122 @@ export const Awards = ({ data }: { data: QueryType }) => {
         </div>
       </div>
       {isDesktop && (
-        <motion.div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            zIndex: 100,
-            display: "flex",
-            width: 232,
-            height: 308,
-            overflow: "hidden",
-            pointerEvents: "none",
-            x: certificateX,
-            y: certificateY,
-            willChange: "transform"
-          }}
-        >
-          {/* SVG Mask for grid reveal */}
+        <HoverCertificate
+          sortedAwards={sortedAwards}
+          currentImageId={currentImageId ?? 0}
+          isRevealing={isRevealing}
+        />
+      )}
+    </>
+  )
+}
+
+const HoverCertificate = memo(
+  ({
+    isRevealing,
+    sortedAwards,
+    currentImageId
+  }: {
+    isRevealing: boolean
+    sortedAwards: any[]
+    currentImageId: number
+  }) => {
+    const { isSafari } = useDeviceDetect()
+    const { mouseX, mouseY } = useThrottledMousePosition()
+
+    // Use the throttled version for better performance
+    // Transform position values directly
+    const rawCertificateX = useTransform(mouseX, (x) => x - 232 / 2)
+    const rawCertificateY = useTransform(mouseY, (y) => y - 308 / 2)
+
+    // Add spring effect for natural movement
+    const certificateX = useSpring(rawCertificateX, {
+      stiffness: 1000,
+      damping: 50,
+      mass: 0.05
+    })
+
+    const certificateY = useSpring(rawCertificateY, {
+      stiffness: 1000,
+      damping: 50,
+      mass: 0.05
+    })
+
+    const certificateDimensions = { width: 232, height: 307.73 }
+
+    const gridCells = useMemo(() => {
+      const cells = []
+      for (let row = 0; row < GRID_ROWS; row++) {
+        for (let col = 0; col < GRID_COLS; col++) {
+          const index = row * GRID_COLS + col
+          const manhattanDistance = row + col
+          cells.push({ row, col, index, manhattanDistance })
+        }
+      }
+      return cells
+    }, [])
+
+    // cell animation
+    const cellVariants: Variants = useMemo(
+      () => ({
+        hidden: {
+          scale: 0.95,
+          opacity: 0
+        },
+        visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
+          const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
+          const normalizedDistance = manhattanDistance / maxDistance
+
+          return {
+            scale: 1,
+            opacity: 1,
+            transition: {
+              duration: 0.7,
+              delay: normalizedDistance * 0.15,
+              ease: [0.16, 1, 0.3, 1],
+              type: "keyframes"
+            }
+          }
+        },
+        exit: ({ manhattanDistance }: { manhattanDistance: number }) => {
+          const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
+          const normalizedDistance = manhattanDistance / maxDistance
+
+          return {
+            scale: 0,
+            opacity: 0,
+            willChange: "transform, opacity",
+            transition: {
+              duration: 0.7,
+              delay: (1 - normalizedDistance) * 0.15,
+              ease: [0.16, 1, 0.3, 1],
+              type: "keyframes"
+            }
+          }
+        }
+      }),
+      []
+    )
+
+    return (
+      <motion.div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          zIndex: 100,
+          display: "flex",
+          width: 232,
+          height: 308,
+          overflow: "hidden",
+          pointerEvents: "none",
+          x: certificateX,
+          y: certificateY,
+          willChange: "transform"
+        }}
+      >
+        {/* SVG Mask for grid reveal */}
+        {!isSafari && (
           <svg
             width="0"
             height="0"
@@ -299,32 +326,42 @@ export const Awards = ({ data }: { data: QueryType }) => {
               </clipPath>
             </defs>
           </svg>
+        )}
 
-          <div
-            className="h-full w-full overflow-hidden"
-            style={{
-              clipPath: "url(#grid-mask)"
-            }}
-          >
-            {sortedAwards
-              .filter((award) => award.certificate)
-              .map((award) => (
-                <div key={award._id} className="h-full w-full">
-                  <Image
-                    src={award.certificate?.url || ""}
-                    alt={award.certificate?.alt ?? ""}
-                    fill
-                    className={cn("max-h-[307.73px] w-full object-cover", {
-                      hidden: award.numericId !== currentImageId
-                    })}
-                    data-numeric-id={award.numericId}
-                    priority={true}
-                  />
-                </div>
-              ))}
-          </div>
-        </motion.div>
-      )}
-    </>
-  )
-}
+        <div
+          className={cn("h-full w-full overflow-hidden", {
+            "transition-opacity duration-300": isSafari,
+            "opacity-0": isSafari && !isRevealing,
+            "opacity-100": isSafari && isRevealing
+          })}
+          style={
+            isSafari
+              ? undefined
+              : {
+                  clipPath: "url(#grid-mask)"
+                }
+          }
+        >
+          {sortedAwards
+            .filter((award) => award.certificate)
+            .map((award) => (
+              <div key={award._id} className="h-full w-full">
+                <Image
+                  src={award.certificate?.url || ""}
+                  alt={award.certificate?.alt ?? ""}
+                  fill
+                  className={cn("max-h-[307.73px] w-full object-cover", {
+                    hidden: award.numericId !== currentImageId
+                  })}
+                  data-numeric-id={award.numericId}
+                  priority={true}
+                />
+              </div>
+            ))}
+        </div>
+      </motion.div>
+    )
+  }
+)
+
+HoverCertificate.displayName = "HoverCertificate"
