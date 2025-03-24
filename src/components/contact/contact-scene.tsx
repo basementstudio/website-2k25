@@ -1,6 +1,6 @@
 import { useAnimations, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useMemo, useCallback, useEffect, useRef, useState } from "react"
 import {
   Mesh,
   MeshBasicMaterial,
@@ -24,7 +24,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const debugMeshRef = useRef<Mesh>(null)
   const phoneGroupRef = useRef<Group>(null)
   const idleTimeRef = useRef<number>(0)
-  const tmp = new Vector3()
+  const tmp = useMemo(() => new Vector3(), [])
   const camera = useThree((state) => state.camera)
 
   // animation runners
@@ -90,6 +90,26 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       if (animationState === ANIMATION_TYPES.INTRO) {
         setIsContactOpen(true)
         self.postMessage({ type: "intro-complete" })
+
+        const screenbone = nodes.Obj as Bone
+        if (screenbone && camera) {
+          const tmp = new Vector3()
+          screenbone.getWorldPosition(tmp)
+          tmp.add(new Vector3(-0.0342, 0.043, 0))
+
+          const screenPos = tmp.clone().project(camera)
+          const normalizedScreenPos = {
+            x: (screenPos.x + 1) / 2,
+            y: (-screenPos.y + 1) / 2,
+            z: screenPos.z
+          }
+
+          self.postMessage({
+            type: "update-screen-skinned-matrix",
+            screenPos: normalizedScreenPos,
+            scale: 1
+          })
+        }
       } else if (animationState === ANIMATION_TYPES.OUTRO) {
         setIsContactOpen(false)
         self.postMessage({ type: "outro-complete" })
@@ -100,7 +120,75 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     action.play()
 
     return () => mixer.removeEventListener("finished", onAnimationFinished)
-  }, [animationState, actions, mixer, isAnimating])
+  }, [animationState, actions, mixer, isAnimating, nodes, camera])
+
+  const calculateAndSendScreenDimensions = useCallback(() => {
+    if (!scene) return
+
+    const screenObject = scene.getObjectByName("SCREEN")
+    if (!(screenObject && screenObject instanceof Mesh)) return
+
+    screenObject.geometry.computeBoundingBox()
+    const bbox = screenObject.geometry.boundingBox
+    if (!bbox) return
+
+    const width = bbox.max.x - bbox.min.x
+    const height = bbox.max.y - bbox.min.y
+
+    const perspCamera = camera as PerspectiveCamera
+    const fov = (perspCamera.fov || 8.5) * (Math.PI / 180)
+    const distance = Math.abs(
+      camera.position.z - (screenObject.position.z || 0)
+    )
+    const workerContext = self as any
+    const windowHeight =
+      workerContext.windowDimensions?.height || window.innerHeight || 1080
+
+    let pixelsPerUnit = 0
+    try {
+      pixelsPerUnit =
+        distance > 0 && fov > 0
+          ? windowHeight / (2 * Math.tan(fov / 2) * distance)
+          : 300
+    } catch {
+      pixelsPerUnit = 300
+    }
+
+    const pixelWidth = width * pixelsPerUnit
+    const pixelHeight = height * pixelsPerUnit
+
+    const dimensions = {
+      width: 580,
+      height: 350
+    }
+
+    if (
+      !isNaN(pixelWidth) &&
+      !isNaN(pixelHeight) &&
+      pixelWidth > 0 &&
+      pixelHeight > 0 &&
+      pixelWidth < 2000 &&
+      pixelHeight < 2000
+    ) {
+      dimensions.width = Math.round(pixelWidth)
+      dimensions.height = Math.round(pixelHeight)
+    } else if (width > 0 && height > 0 && !isNaN(width) && !isNaN(height)) {
+      const aspectRatio = width / height
+      dimensions.height =
+        aspectRatio > 1
+          ? Math.round(dimensions.width / aspectRatio)
+          : dimensions.height
+      dimensions.width =
+        aspectRatio <= 1
+          ? Math.round(dimensions.height * aspectRatio)
+          : dimensions.width
+    }
+
+    self.postMessage({
+      type: "screen-dimensions",
+      dimensions
+    })
+  }, [scene, camera])
 
   // message handler
   useEffect(() => {
@@ -140,83 +228,12 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
-  }, [isAnimating, isContactOpen])
-
-  const calculateAndSendScreenDimensions = useCallback(() => {
-    if (!scene) return
-
-    const screenObject = scene.getObjectByName("SCREEN")
-    if (!(screenObject && screenObject instanceof Mesh)) return
-
-    screenObject.geometry.computeBoundingBox()
-    const bbox = screenObject.geometry.boundingBox
-    if (!bbox) return
-
-    const width = bbox.max.x - bbox.min.x
-    const height = bbox.max.y - bbox.min.y
-
-    const perspCamera = camera as PerspectiveCamera
-    const fov = (perspCamera.fov || 8.5) * (Math.PI / 180)
-    const distance = Math.abs(
-      camera.position.z - (screenObject.position.z || 0)
-    )
-    const workerContext = self as any
-    const windowHeight =
-      workerContext.windowDimensions?.height || window.innerHeight || 1080
-
-    let pixelsPerUnit = 0
-    try {
-      pixelsPerUnit =
-        distance > 0 && fov > 0
-          ? windowHeight / (2 * Math.tan(fov / 2) * distance)
-          : 300
-    } catch (e) {
-      pixelsPerUnit = 300
-    }
-
-    const pixelWidth = width * pixelsPerUnit
-    const pixelHeight = height * pixelsPerUnit
-
-    if (
-      !isNaN(pixelWidth) &&
-      !isNaN(pixelHeight) &&
-      pixelWidth > 0 &&
-      pixelHeight > 0 &&
-      pixelWidth < 2000 &&
-      pixelHeight < 2000
-    ) {
-      self.postMessage({
-        type: "screen-dimensions",
-        dimensions: {
-          width: Math.round(pixelWidth),
-          height: Math.round(pixelHeight)
-        }
-      })
-    } else {
-      let fallbackWidth = 580
-      let fallbackHeight = 350
-
-      if (width > 0 && height > 0 && !isNaN(width) && !isNaN(height)) {
-        const aspectRatio = width / height
-        fallbackHeight =
-          aspectRatio > 1
-            ? Math.round(fallbackWidth / aspectRatio)
-            : fallbackHeight
-        fallbackWidth =
-          aspectRatio <= 1
-            ? Math.round(fallbackHeight * aspectRatio)
-            : fallbackWidth
-      }
-
-      self.postMessage({
-        type: "screen-dimensions",
-        dimensions: {
-          width: fallbackWidth,
-          height: fallbackHeight
-        }
-      })
-    }
-  }, [scene, camera])
+  }, [
+    isAnimating,
+    isContactOpen,
+    runAnimation,
+    calculateAndSendScreenDimensions
+  ])
 
   // add materials
   useEffect(() => {
@@ -228,47 +245,32 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
       if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
         const oldMaterial = node.material
-        const basicMaterial = new MeshBasicMaterial()
-
-        if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
-        if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
-        if ("opacity" in oldMaterial)
-          basicMaterial.opacity = oldMaterial.opacity
-
+        const basicMaterial = new MeshBasicMaterial({
+          color: "color" in oldMaterial ? oldMaterial.color : undefined,
+          map: "map" in oldMaterial ? oldMaterial.map : undefined,
+          opacity: "opacity" in oldMaterial ? oldMaterial.opacity : undefined
+        })
         node.material = basicMaterial
       }
     })
   }, [scene, animations, calculateAndSendScreenDimensions])
 
   useFrame((_, delta) => {
-    if (isContactOpen && !isAnimating) {
-      idleTimeRef.current += delta
-      const IDLE_TIMEOUT = Math.random() * 5 + 15
+    if (!isContactOpen || isAnimating) return
 
-      const screenbone = nodes.Obj as Bone
-      if (screenbone && debugMeshRef.current) {
-        screenbone.getWorldPosition(tmp)
-        tmp.add(new Vector3(-0.0342, 0.043, 0))
-        debugMeshRef.current.position.copy(tmp)
+    idleTimeRef.current += delta
+    const IDLE_TIMEOUT = Math.random() * 5 + 15
 
-        const screenPos = tmp.clone().project(camera)
-        const normalizedScreenPos = {
-          x: (screenPos.x + 1) / 2,
-          y: (-screenPos.y + 1) / 2,
-          z: screenPos.z
-        }
+    const screenbone = nodes.Obj as Bone
+    if (screenbone && debugMeshRef.current) {
+      screenbone.getWorldPosition(tmp)
+      tmp.add(new Vector3(-0.0342, 0.043, 0))
+      debugMeshRef.current.position.copy(tmp)
+    }
 
-        self.postMessage({
-          type: "update-screen-skinned-matrix",
-          screenPos: normalizedScreenPos,
-          scale: 1 + idleTimeRef.current * 0.1
-        })
-      }
-
-      if (idleTimeRef.current > IDLE_TIMEOUT) {
-        runRandomIdleAnimation()
-        idleTimeRef.current = 0
-      }
+    if (idleTimeRef.current > IDLE_TIMEOUT) {
+      runRandomIdleAnimation()
+      idleTimeRef.current = 0
     }
   })
 
