@@ -1,11 +1,11 @@
-import { Link } from "@/components/primitives/link"
+import Link from "next/link"
 
 export const Contact = () => (
   <div className="grid-layout pb-16 pt-12 lg:pb-32 lg:pt-16">
     <div className="relative col-span-full grid h-fit grid-cols-4 gap-2 !px-0 lg:col-span-10 lg:col-start-2 lg:grid-cols-10 2xl:col-start-3">
       <div className="with-diagonal-lines pointer-events-none !absolute inset-0" />
 
-      <h3 className="text-f-h3-mobile lg:text-f-h3 relative col-span-2 mb-2 text-brand-g1">
+      <h3 className="relative col-span-2 mb-2 text-f-h3-mobile text-brand-g1 lg:text-f-h3">
         Contact
       </h3>
 
@@ -15,6 +15,7 @@ export const Contact = () => (
 
       <Link
         href="mailto:hello@basement.studio"
+        target="_blank"
         className="relative col-span-5 row-start-3 text-f-h1-mobile text-brand-w1 lg:text-f-h1"
       >
         <span className="actionable">hello@basement.studio</span>

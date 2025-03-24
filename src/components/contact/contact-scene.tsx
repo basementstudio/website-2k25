@@ -82,11 +82,11 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     }
 
     const animationMap = {
-      intro: "Intro.001",
+      intro: "Intro",
       button: "Button",
-      outro: "Outro-v2",
-      ruedita: "ruedita",
-      antena: "antena.003"
+      outro: "Outro",
+      ruedita: "Ruedita",
+      antena: "Antena"
     }
 
     const actionName = animationMap[animationState]

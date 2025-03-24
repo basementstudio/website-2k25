@@ -48,6 +48,7 @@
     "r3f-perf": "^7.2.3",
     "raw-loader": "^4.0.2",
     "react": "19.0.0",
+    "react-device-detect": "^2.2.3",
     "react-dom": "19.0.0",
     "react-hook-form": "^7.54.2",
     "react-merge-refs": "^2.1.1",
@@ -56,6 +57,7 @@
     "three": "^0.172.0",
     "tunnel-rat": "^0.1.2",
     "typescript-eslint": "^8.27.0",
+    "xss": "^1.0.15",
     "zustand": "^5.0.1"
   },
   "devDependencies": {
