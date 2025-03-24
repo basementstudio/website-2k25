@@ -14,8 +14,7 @@
 [data-flip="false"] {
   .layout-container {
     --position: 100%;
-    transition: mask-position var(--speed) calc(var(--speed) * 0)
-      steps(var(--mask-frames));
+    transition: none;
   }
 }
 
