@@ -26,7 +26,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const idleTimeRef = useRef<number>(0)
   const tmp = useMemo(() => new Vector3(), [])
   const camera = useThree((state) => state.camera)
-  console.log(scene)
+
   // animation runners
   const runAnimation = useCallback((type: string) => {
     setAnimationState(type)
