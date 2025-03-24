@@ -13,11 +13,11 @@ export const useIsOnTab = () => {
     setVisibilityState(document.visibilityState === "visible")
   }, [])
 
-  const handleLoad = useCallback(() => {
+  const handlePageShow = useCallback(() => {
     setVisibilityState(true)
   }, [])
 
-  const handleUnload = useCallback(() => {
+  const handlePageHide = useCallback(() => {
     setVisibilityState(false)
   }, [])
 
@@ -28,10 +28,10 @@ export const useIsOnTab = () => {
 
     // Handle Safari iOS app switching
     if (isSafariIOS()) {
-      window.addEventListener("load", handleLoad, {
+      window.addEventListener("pageshow", handlePageShow, {
         passive: true
       })
-      window.addEventListener("unload", handleUnload, {
+      window.addEventListener("pagehide", handlePageHide, {
         passive: true
       })
     }
@@ -39,11 +39,11 @@ export const useIsOnTab = () => {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange)
       if (isSafariIOS()) {
-        window.removeEventListener("load", handleLoad)
-        window.removeEventListener("unload", handleUnload)
+        window.removeEventListener("pageshow", handlePageShow)
+        window.removeEventListener("pagehide", handlePageHide)
       }
     }
-  }, [handleVisibilityChange, handleUnload])
+  }, [handleVisibilityChange, handlePageShow, handlePageHide])
 
   return visibilityState
 }
