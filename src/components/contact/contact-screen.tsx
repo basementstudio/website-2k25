@@ -4,7 +4,7 @@ import { motion, useAnimation } from "motion/react"
 import { useContactStore } from "./contact-store"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { Inputs } from "@/app/(pages)/contact/form/contact-form"
-import { Link } from "../primitives/link"
+import Link from "next/link"
 
 const ContactScreen = () => {
   const contentRef = useRef(null)
@@ -246,7 +246,7 @@ const ContactScreen = () => {
                   <span className="actionable">GitHub</span>
                 </Link>
               </div>
-              <Link href="mailto:hello@basement.studio">
+              <Link href="mailto:hello@basement.studio" target="_blank">
                 <span className="actionable">(hello@basement.studio)</span>
               </Link>
             </div>
