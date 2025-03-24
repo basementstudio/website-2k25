@@ -12,6 +12,8 @@ interface ContactFormData {
 
 export async function submitContactForm(formData: ContactFormData) {
   try {
+    const html = generateEmailTemplate(formData)
+
     const resendRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -22,7 +24,7 @@ export async function submitContactForm(formData: ContactFormData) {
         from: "hello@basement.studio",
         to: ["sales@basement.studio"],
         subject: `${formData.name} - ${formData.company} | Contact Us <basement.studio>`,
-        html: generateEmailTemplate(formData)
+        html
       })
     })
 
