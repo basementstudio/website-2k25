@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
-import { Suspense, useEffect, useRef } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { UpdateCanvasCursor } from "@/components/custom-cursor"
@@ -22,6 +22,7 @@ import { Debug } from "./debug"
 import { Pets } from "./pets"
 import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
+import { cn } from "@/utils/cn"
 
 const HoopMinigame = dynamic(
   () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
@@ -51,8 +52,27 @@ export const Scene = () => {
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
   const userHasLeftWindow = useRef(false)
+  const [isTouchOnly, setIsTouchOnly] = useState(false)
 
   useTabKeyHandler()
+
+  useEffect(() => {
+    const detectTouchOnly = () => {
+      const hasTouchScreen =
+        "ontouchstart" in window || navigator.maxTouchPoints > 0
+      const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches
+      const hasFinePointer = window.matchMedia("(pointer: fine)").matches
+
+      setIsTouchOnly(hasTouchScreen && hasCoarsePointer && !hasFinePointer)
+    }
+
+    detectTouchOnly()
+
+    // Re-detect on window resize as input capabilities might change
+    window.addEventListener("resize", detectTouchOnly)
+
+    return () => window.removeEventListener("resize", detectTouchOnly)
+  }, [])
 
   useEffect(() => {
     if (!isBasketball) {
@@ -125,7 +145,10 @@ export const Scene = () => {
             toneMapping: THREE.NoToneMapping
           }}
           camera={{ fov: 60 }}
-          className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
+          className={cn(
+            "pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none",
+            isTouchOnly && "!pointer-events-none"
+          )}
         >
           <AnimationController>
             <UpdateCanvasCursor />
