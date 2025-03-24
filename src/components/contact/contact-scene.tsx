@@ -86,6 +86,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       }
     } else {
       action.timeScale = 1.2
+
+      if (animationState === ANIMATION_TYPES.BUTTON) {
+        self.postMessage({ type: "button-animation-start" })
+      }
     }
 
     const onAnimationFinished = (e: any) => {
@@ -124,6 +128,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         self.postMessage({ type: "ruedita-animation-complete" })
       } else if (animationState === ANIMATION_TYPES.ANTENA) {
         self.postMessage({ type: "antena-animation-complete" })
+      } else if (animationState === ANIMATION_TYPES.BUTTON) {
+        self.postMessage({ type: "button-animation-complete" })
       }
     }
 
