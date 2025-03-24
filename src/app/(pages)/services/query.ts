@@ -20,7 +20,8 @@ export const query = fragmentOn("Query", {
           json: {
             content: true
           }
-        }
+        },
+        image: IMAGE_FRAGMENT
       }
     }
   },
