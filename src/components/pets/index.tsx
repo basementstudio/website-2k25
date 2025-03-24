@@ -42,7 +42,13 @@ const petConfigs: Record<string, PetConfig> = {
     skinnedName: PetSkinnedName.PURE,
     objectName: PetObjectName.PURE,
     animationNameIdle: PetAnimationName["PURE-Idle"],
-    animationNameAlt: PetAnimationName["PURE-Look"]
+    animationNameAlt: PetAnimationName["PURE-Idle"]
+  },
+  [PetSkinnedName.BOSTON]: {
+    skinnedName: PetSkinnedName.BOSTON,
+    objectName: PetObjectName.BOSTON,
+    animationNameIdle: PetAnimationName["BOSTON-Idle"],
+    animationNameAlt: PetAnimationName["BOSTON-Idle"]
   }
 } as const
 
@@ -59,32 +65,57 @@ export function Pets() {
   const pureTexture = useTexture(pureTextureUrl)
   const bostonTexture = useTexture(bostonTextureUrl)
 
-  const pure = useMemo(() => {
+  const pureSkinned = useMemo(() => {
     const pureConfig = petConfigs[PetSkinnedName.PURE]
-    const pure = nodes[pureConfig.skinnedName]
-    if (!pure) {
+    const pureSkinned = nodes[pureConfig.skinnedName]
+    const pureObject = nodes[pureConfig.objectName]
+    if (!pureSkinned || !pureObject) {
       return null
     }
     pureTexture.flipY = false
 
+    pureObject.position.set(3, 0, -12)
+    pureObject.rotation.y = Math.PI * 0.5
     pureTexture.needsUpdate = true
-    pure.material = new THREE.MeshBasicMaterial({ map: pureTexture })
-    return pure
+
+    pureSkinned.material = new THREE.MeshBasicMaterial({ map: pureTexture })
+    return pureSkinned
   }, [nodes, pureTexture])
 
-  if (!pure) {
+  const bostonSkinned = useMemo(() => {
+    const bostonConfig = petConfigs[PetSkinnedName.BOSTON]
+    const bostonSkinned = nodes[bostonConfig.skinnedName]
+    const bostonObject = nodes[bostonConfig.objectName]
+
+    if (!bostonSkinned || !bostonObject) {
+      return null
+    }
+
+    bostonTexture.flipY = false
+    bostonObject.position.set(9.21, 3.73, -16.5)
+    bostonObject.rotation.y = Math.PI * 0.6
+    bostonTexture.needsUpdate = true
+
+    bostonSkinned.material = new THREE.MeshBasicMaterial({ map: bostonTexture })
+    return bostonSkinned
+  }, [nodes, bostonTexture])
+
+  if (!pureSkinned || !bostonSkinned) {
     console.warn("Invalid pet config, mesh not found.")
     return null
   }
 
-  const { actions } = useAnimations(animations, pure)
+  const { actions } = useAnimations(animations, pureSkinned)
+
+  const { actions: bostonActions } = useAnimations(animations, bostonSkinned)
 
   useEffect(() => {
     actions[PetAnimationName["PURE-Idle"]]?.play()
-  }, [actions])
+    bostonActions[PetAnimationName["BOSTON-Idle"]]?.play()
+  }, [actions, bostonActions])
 
   return (
-    <group position={[3, 0, -12]} rotation-y={Math.PI * 0.5}>
+    <group>
       <primitive object={scene} />
     </group>
   )
