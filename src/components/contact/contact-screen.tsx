@@ -147,7 +147,7 @@ const ContactScreen = () => {
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="text-contact relative flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o">
+          <div className="font-flauta relative flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o">
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase"
@@ -160,7 +160,7 @@ const ContactScreen = () => {
                 <legend className="px-1">
                   <button
                     type="button"
-                    className="hover:text-contact/90 bg-[#050505] px-1 uppercase transition-all duration-300"
+                    className="hover:/90 bg-[#050505] px-1 uppercase transition-all duration-300"
                     onClick={() => {
                       const state = useContactStore.getState()
                       if (!state.isAnimating) {
@@ -216,7 +216,7 @@ const ContactScreen = () => {
                   className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 ${
                     isValid || showSubmittedMessage
                       ? "bg-contact cursor-pointer border-none text-black"
-                      : "border-contact/50 text-contact/50 cursor-default border border-brand-o"
+                      : "border-contact/50 cursor-default border border-brand-o"
                   }`}
                 >
                   {submitting
@@ -230,7 +230,7 @@ const ContactScreen = () => {
             <div className="flex w-full items-center justify-between uppercase">
               <div className="flex items-center gap-[2px]">
                 <Link href="https://x.com/basementstudio" target="_blank">
-                  <span className="text-contact">X (Twitter)</span>
+                  <span className="">X (Twitter)</span>
                 </Link>
                 <span className="opacity-50">, </span>
                 <Link
