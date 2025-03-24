@@ -136,8 +136,8 @@ const ContactScreen = () => {
       <div
         className="relative flex bg-transparent"
         style={{
-          width: `${screenDimensions.width - 16}px`,
-          height: `${screenDimensions.height - 16}px`,
+          width: `${screenDimensions.width}px`,
+          height: `${screenDimensions.height}px`,
           transform: `perspective(400px) rotateY(0.5deg)`,
           transformOrigin: "center center"
         }}
@@ -147,20 +147,20 @@ const ContactScreen = () => {
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="relative flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o [text-shadow:0_0_8px_rgba(255,140,0,0.4)]">
+          <div className="text-contact relative flex h-full w-full flex-col justify-between gap-7 text-[13px] text-brand-o">
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_10px_rgba(255,140,0,0.15)]"
+              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase"
             >
-              <fieldset className="absolute -top-[10px] left-[10px]">
-                <legend className="bg-black px-1">CONTACT US</legend>
+              <fieldset className="absolute -top-[10px] left-[10px] z-10 -ml-px p-0">
+                <legend className="bg-[#050505] px-1">CONTACT US</legend>
               </fieldset>
 
-              <fieldset className="absolute -top-[10px] right-[10px]">
-                <legend className="bg-black px-1">
+              <fieldset className="absolute -top-[10px] right-[10px] z-10 -mr-px p-0">
+                <legend className="px-1">
                   <button
                     type="button"
-                    className="uppercase transition-all duration-300 [text-shadow:0_0_8px_rgba(255,140,0,0.3)] hover:text-brand-o/90 hover:[text-shadow:0_0_8px_rgba(255,140,0,0.5)]"
+                    className="hover:text-contact/90 bg-[#050505] px-1 uppercase transition-all duration-300"
                     onClick={() => {
                       const state = useContactStore.getState()
                       if (!state.isAnimating) {
@@ -178,13 +178,13 @@ const ContactScreen = () => {
                   <input
                     type="text"
                     placeholder="NAME"
-                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                    className="border-contact h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
                     {...register("name")}
                   />
                   <input
                     type="text"
                     placeholder="COMPANY"
-                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                    className="border-contact h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
                     {...register("company")}
                   />
                 </div>
@@ -193,20 +193,20 @@ const ContactScreen = () => {
                     required
                     type="email"
                     placeholder="EMAIL"
-                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                    className="border-contact col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
                     {...register("email", { required: "Email is required" })}
                   />
                   <input
                     type="text"
                     placeholder="BUDGET (OPTIONAL)"
-                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                    className="border-contact col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
                     {...register("budget")}
                   />
                 </div>
                 <textarea
                   required
                   placeholder="MESSAGE"
-                  className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o/50 focus:[box-shadow:0_0_5px_rgba(255,140,0,0.3)]"
+                  className="border-contact col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
                   {...register("message", { required: "Message is required" })}
                 />
               </div>
@@ -215,8 +215,8 @@ const ContactScreen = () => {
                 <button
                   className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 ${
                     isValid || showSubmittedMessage
-                      ? "cursor-pointer border-none bg-brand-o text-black"
-                      : "cursor-default border border-brand-o/50 text-brand-o/50"
+                      ? "bg-contact cursor-pointer border-none text-black"
+                      : "border-contact/50 text-contact/50 cursor-default border border-brand-o"
                   }`}
                 >
                   {submitting
@@ -230,24 +230,22 @@ const ContactScreen = () => {
             <div className="flex w-full items-center justify-between uppercase">
               <div className="flex items-center gap-[2px]">
                 <Link href="https://x.com/basementstudio" target="_blank">
-                  <span className="actionable text-brand-o [text-shadow:0_0_8px_rgba(255,140,0,0.4)]">
-                    X (Twitter)
-                  </span>
+                  <span className="text-contact">X (Twitter)</span>
                 </Link>
                 <span className="opacity-50">, </span>
                 <Link
                   href="https://www.instagram.com/basementdotstudio"
                   target="_blank"
                 >
-                  <span className="actionable">Instagram</span>
+                  <span className="">Instagram</span>
                 </Link>
                 <span className="opacity-50">, </span>
                 <Link href="https://github.com/basementstudio" target="_blank">
-                  <span className="actionable">GitHub</span>
+                  <span className="">GitHub</span>
                 </Link>
               </div>
               <Link href="mailto:hello@basement.studio">
-                <span className="actionable">(hello@basement.studio)</span>
+                <span className="">(hello@basement.studio)</span>
               </Link>
             </div>
           </div>
