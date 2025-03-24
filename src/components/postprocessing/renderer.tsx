@@ -66,7 +66,6 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingScene = useMemo(() => new Scene(), [])
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
-  const lastFrameTime = useRef(performance.now())
 
   useEffect(() => {
     const resizeCallback = () =>
@@ -80,10 +79,6 @@ function RendererInner({ sceneChildren }: RendererProps) {
   }, [mainTarget])
 
   useFrameCallback(({ gl }) => {
-    const now = performance.now()
-    if (now - lastFrameTime.current < 1000 / 120) return
-    lastFrameTime.current = now
-
     if (!mainCamera || !postProcessingCameraRef.current) return
 
     // main render
