@@ -4,9 +4,9 @@ import { motion, useAnimation } from "motion/react"
 import { useContactStore } from "./contact-store"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { Inputs } from "@/app/contact/form/contact-form"
-import Link from "next/link"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { Link } from "../primitives/link"
 
 const ContactScreen = () => {
   const contentRef = useRef(null)
@@ -166,7 +166,7 @@ const ContactScreen = () => {
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="font-flauta relative z-20 flex h-full w-full flex-col justify-between gap-7 text-[14px] text-brand-o">
+          <div className="relative z-20 flex h-full w-full flex-col justify-between gap-7 font-flauta text-[14px] text-brand-o">
             <form
               ref={formRef}
               onSubmit={handleSubmit(onSubmit)}
