@@ -63,7 +63,7 @@ export const ScrollDown = () => {
     <AnimatePresence>
       {canRunMainApp && (
         <motion.div
-          className="absolute -top-12 flex w-full justify-center pb-20 lg:left-1/2 lg:w-max lg:-translate-x-1/2 lg:pb-0"
+          className="absolute -top-[calc(100vh-100dvh+3rem)] flex w-full justify-center pb-20 lg:left-1/2 lg:w-max lg:-translate-x-1/2 lg:pb-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 1, 0, 1, 0, 1] }}
           transition={{ duration: 0.3, delay: 1.5 }}
