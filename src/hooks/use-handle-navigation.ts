@@ -8,6 +8,18 @@ import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
 
+const handleTransitionEffectOn = () => {
+  document.documentElement.dataset.disabled = "false"
+  document.documentElement.dataset.flip = "true"
+}
+
+const handleTransitionEffectOff = () => {
+  document.documentElement.dataset.flip = "false"
+  setTimeout(() => {
+    document.documentElement.dataset.disabled = "true"
+  }, TRANSITION_DURATION)
+}
+
 export const useHandleNavigation = () => {
   const lenisInstance = useLenis()
   const lenisRef = useRef(lenisInstance)
@@ -96,7 +108,7 @@ export const useHandleNavigation = () => {
           }
         })
       } else {
-        document.documentElement.dataset.flip = "true"
+        handleTransitionEffectOn()
         lenisRef.current?.stop()
         setDisableCameraTransition(true)
         setCurrentScene(selectedScene)
@@ -106,7 +118,7 @@ export const useHandleNavigation = () => {
             offset: 0,
             behavior: "instant",
             callback: () => {
-              document.documentElement.dataset.flip = "false"
+              handleTransitionEffectOff()
               lenisRef.current?.start()
             }
           })

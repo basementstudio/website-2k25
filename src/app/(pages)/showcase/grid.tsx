@@ -62,7 +62,7 @@ export const Grid = memo(
             >
               <div
                 className={cn(
-                  "group relative aspect-video after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full",
+                  "group relative aspect-video max-w-[100%] after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full",
                   "will-change-[opacity,transform] hover:will-change-auto"
                 )}
               >
