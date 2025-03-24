@@ -83,6 +83,9 @@ export const mapFragment = fragmentOn("Map", {
   textures: {
     rain: {
       url: true
+    },
+    basketballVa: {
+      url: true
     }
   }
 })
