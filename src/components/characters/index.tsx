@@ -12,47 +12,22 @@ import {
 } from "./characters-config"
 import { characterConfigurations, FaceMorphTargets } from "./characters-config"
 import { InstanceUniform } from "./instanced-skinned-mesh"
+import { bodyGrid, getRandomBodyId, getTextureCoord } from "./character-utils"
 
 interface CharacterProps extends ElementProps<typeof Group> {
   animationName: CharacterAnimationName
   uniforms?: Record<string, InstanceUniform>
   initialTime?: number
-}
-
-const possibleFaces = Array.from({ length: CHARACTERS_MAX }, (_, i) => i)
-
-// Get a face from possible faces and remove it from the array
-const getRandomCharacterIndex = () => {
-  // if no faces left, reset the array
-  if (possibleFaces.length === 0) {
-    possibleFaces.push(...Array.from({ length: CHARACTERS_MAX }, (_, i) => i))
-  }
-
-  const randomIndex = Math.floor(Math.random() * possibleFaces.length)
-  return possibleFaces.splice(randomIndex, 1)[0]
-}
-
-const getTextureCoord = (id: number, gridEdgeRepeat: number) => {
-  let row = Math.floor(id / gridEdgeRepeat)
-  let col = id % gridEdgeRepeat
-  const uvOffset = [col / gridEdgeRepeat, row / gridEdgeRepeat] // uv offset
-  return uvOffset
-}
-
-const bodyGrid = 1
-const numBody = bodyGrid * bodyGrid
-
-const getRandomBodyId = () => {
-  return Math.floor(Math.random() * numBody)
+  characterId: number
 }
 
 export function Character({
   animationName,
   uniforms,
   initialTime,
+  characterId,
   ...props
 }: CharacterProps) {
-  const characterId = useMemo(() => getRandomCharacterIndex(), [])
   const characterConfiguration = useMemo(
     () => characterConfigurations[characterId],
     [characterId]
@@ -138,10 +113,10 @@ export function Character({
       )}
 
       {/* Glasses */}
-      {characterConfiguration?.faceMorph === FaceMorphTargets.JJ && (
+      {characterConfiguration.lensGeomtry && (
         <CharacterPosition
           timeSpeed={1}
-          geometryId={CharacterMeshes["jj-glass"]}
+          geometryId={characterConfiguration.lensGeomtry}
           initialTime={initialTime}
           animationName={animationName}
           uniforms={{
@@ -154,7 +129,8 @@ export function Character({
       )}
 
       {/* Animation related entities */}
-      {animationName === CharacterAnimationName["Blog.01"] && (
+      {(animationName === CharacterAnimationName["Blog.01"] ||
+        animationName === CharacterAnimationName["Blog.02"]) && (
         <CharacterPosition
           timeSpeed={1}
           geometryId={CharacterMeshes.Comic}
