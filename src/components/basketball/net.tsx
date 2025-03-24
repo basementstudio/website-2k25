@@ -2,7 +2,7 @@ import { useFrame, useLoader } from "@react-three/fiber"
 
 import { useEffect, useRef, useState } from "react"
 
-import { Mesh, ShaderMaterial, DoubleSide, Texture } from "three"
+import { Mesh, ShaderMaterial, DoubleSide, Texture, NearestFilter } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import fragmentShader from "@/shaders/net-shader/fragment.glsl"
@@ -46,6 +46,10 @@ export const Net = ({ mesh }: NetProps) => {
       const texture = originalMaterial.map.clone()
       texture.needsUpdate = true
       textureRef.current = texture
+
+      texture.magFilter = NearestFilter
+      texture.minFilter = NearestFilter
+      texture.generateMipmaps = false
 
       const shaderMaterial = new ShaderMaterial({
         vertexShader,
@@ -91,7 +95,9 @@ export const Net = ({ mesh }: NetProps) => {
     }
   })
 
-  return meshRef.current ? (
-    <primitive object={meshRef.current} visible={isVisible} />
-  ) : null
+  return (
+    meshRef.current && (
+      <primitive object={meshRef.current} visible={isVisible} />
+    )
+  )
 }
