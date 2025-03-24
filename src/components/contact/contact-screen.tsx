@@ -153,14 +153,14 @@ const ContactScreen = () => {
               className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_10px_rgba(255,140,0,0.15)]"
             >
               <fieldset className="absolute -top-[10px] left-[10px] z-10 -ml-px p-0">
-                <legend className="bg-[#050505] px-1">CONTACT US</legend>
+                <legend className="bg-black px-1">CONTACT US</legend>
               </fieldset>
 
               <fieldset className="absolute -top-[10px] right-[10px] z-10 -mr-px p-0">
                 <legend className="px-1">
                   <button
                     type="button"
-                    className="hover:/90 bg-[#050505] px-1 uppercase transition-all duration-300"
+                    className="hover:/90 bg-black px-1 uppercase transition-all duration-300"
                     onClick={() => {
                       const state = useContactStore.getState()
                       if (!state.isAnimating) {

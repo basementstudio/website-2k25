@@ -55,9 +55,13 @@ const Contact = () => {
       const { type } = e.data
 
       if (type === "ruedita-animation-start") {
-        playSoundFX("CONTACT_KNOB_TURNING", 0.4)
+        setTimeout(() => {
+          playSoundFX("CONTACT_KNOB_TURNING", 0.2)
+        }, 700)
       } else if (type === "antena-animation-start") {
-        playSoundFX("CONTACT_ANTENNA", 0.4)
+        setTimeout(() => {
+          playSoundFX("CONTACT_ANTENNA", 0.2)
+        }, 700)
       } else if (type === "button-animation-start") {
         setTimeout(() => {
           playSoundFX("ARCADE_BUTTON_0_PRESS", 0.4)
