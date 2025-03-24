@@ -57,6 +57,10 @@ const Contact = () => {
       if (type === "ruedita-animation-start") {
         setTimeout(() => {
           playSoundFX("CONTACT_KNOB_TURNING", 0.2)
+
+          setTimeout(() => {
+            playSoundFX("CONTACT_KNOB_TURNING", 0.2)
+          }, 700)
         }, 700)
       } else if (type === "antena-animation-start") {
         setTimeout(() => {
