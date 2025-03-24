@@ -154,8 +154,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       pixelsPerUnit = 300
     }
 
-    const pixelWidth = width * pixelsPerUnit
-    const pixelHeight = height * pixelsPerUnit
+    const pixelWidth = width * pixelsPerUnit + 40
+    const pixelHeight = height * pixelsPerUnit + 20
 
     const dimensions = {
       width: 580,
