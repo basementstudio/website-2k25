@@ -1,14 +1,13 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { memo, useCallback, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
 import { Project } from "@/app/(pages)/showcase/basehub"
 import { Filters } from "@/app/(pages)/showcase/filters"
 import { Grid } from "@/app/(pages)/showcase/grid"
 import { List } from "@/app/(pages)/showcase/list"
 import { useMedia } from "@/hooks/use-media"
-import { useShowcaseContext } from "./context"
 
 export type CategoryItem = {
   name: string
@@ -42,7 +41,25 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
   ({ projects }: ShowcaseListClientProps) => {
     const searchParams = useSearchParams()
     const isDesktop = useMedia("(min-width: 1024px)")
-    const { viewMode, setViewMode } = useShowcaseContext()
+
+    const getStoredPreference = () => {
+      if (typeof window === "undefined") return "grid"
+      const stored = localStorage.getItem("showcase-view-mode")
+      return stored === "rows" || stored === "grid" ? stored : "grid"
+    }
+
+    const [viewMode, setViewMode] = useState<"grid" | "rows">(
+      getStoredPreference()
+    )
+
+    useEffect(() => {
+      if (!isDesktop) {
+        setViewMode("grid")
+      } else {
+        const stored = getStoredPreference()
+        setViewMode(stored)
+      }
+    }, [isDesktop])
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
       searchParams.get("category") || null
@@ -52,7 +69,7 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
       (project: Project) => {
         if (selectedCategory === null) return false
         return !project?.categories?.some(
-          (category: { _title: string }) => selectedCategory === category._title
+          (category) => selectedCategory === category._title
         )
       },
       [selectedCategory]
@@ -62,7 +79,7 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
       const categoryMap = new Map<string, number>()
 
       projects.forEach((project) => {
-        project?.categories?.forEach((category: { _title: string }) => {
+        project?.categories?.forEach((category) => {
           if (category?._title) {
             categoryMap.set(
               category._title,
@@ -88,7 +105,7 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
         : projects.map((project) => ({
             ...project,
             disabled: !project?.categories?.some(
-              (category: { _title: string }) => selectedCategory === category._title
+              (category) => selectedCategory === category._title
             )
           }))
     }, [projects, selectedCategory])
@@ -100,9 +117,11 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
     const handleSetViewMode = useCallback(
       (mode: "grid" | "rows") => {
         if (!isDesktop) return
+
         setViewMode(mode)
+        localStorage.setItem("showcase-view-mode", mode)
       },
-      [isDesktop, setViewMode]
+      [isDesktop]
     )
 
     return (

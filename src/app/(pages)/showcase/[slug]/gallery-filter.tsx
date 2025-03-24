@@ -1,7 +1,6 @@
 "use client"
 
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
-import { useEffect, useState } from "react"
 
 import { cn } from "@/utils/cn"
 
@@ -42,53 +41,25 @@ export const GalleryFilter = ({
   mode,
   viewMode,
   setViewMode
-}: GalleryFilterProps) => {
-  const [isActive, setIsActive] = useState(false)
-
-  useEffect(() => {
-    const hash = window.location.hash.slice(1)
-    setIsActive(
-      hash === mode ||
-        (hash !== "grid" && hash !== "rows" && mode === "grid") ||
-        viewMode === mode
-    )
-  }, [mode, viewMode])
-
-  return (
-    <CheckboxPrimitive.Root
-      className={cn(
-        "flex cursor-pointer items-center justify-center gap-1 transition-colors duration-300",
-        isActive ? "text-brand-w1" : "text-brand-g1"
-      )}
-      value={mode}
-      checked={isActive}
-      onCheckedChange={() => {
-        setViewMode(mode)
-        setIsActive(true)
-      }}
-    >
-      {mode === "grid" ? <GridIcon /> : <RowIcon />}
-      <span className={cn("sr-only")}>
-        {mode.charAt(0).toUpperCase() + mode.slice(1)}
-      </span>
-    </CheckboxPrimitive.Root>
-  )
-}
+}: GalleryFilterProps) => (
+  <CheckboxPrimitive.Root
+    className={cn(
+      "flex cursor-pointer items-center justify-center gap-1 transition-colors duration-300",
+      viewMode === mode ? "text-brand-w1" : "text-brand-g1"
+    )}
+    value={mode}
+    checked={viewMode === mode}
+    onCheckedChange={() => setViewMode(mode)}
+  >
+    {mode === "grid" ? <GridIcon /> : <RowIcon />}
+    <span className={cn("sr-only")}>
+      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+    </span>
+  </CheckboxPrimitive.Root>
+)
 
 export const Filters = () => {
   const { viewMode, setViewMode } = useProjectContext()
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.slice(1)
-      if ((hash === "grid" || hash === "rows") && hash !== viewMode) {
-        setViewMode(hash)
-      }
-    }
-
-    window.addEventListener("hashchange", handleHashChange)
-    return () => window.removeEventListener("hashchange", handleHashChange)
-  }, [viewMode, setViewMode])
 
   return (
     <div className="hidden items-center gap-1 lg:flex">
