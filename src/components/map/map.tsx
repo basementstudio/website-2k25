@@ -162,13 +162,7 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    const netMesh = officeModel?.getObjectByName("SM_Red")
-
-    if (netMesh?.parent) {
-      netMesh.removeFromParent()
-
-      setNet(basketballNetModel.children[0] as Mesh)
-    }
+    setNet(basketballNetModel.children[0] as Mesh)
 
     const traverse = (
       child: Object3D,
