@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react"
 import { motion, useAnimation } from "motion/react"
 import { useContactStore } from "./contact-store"
 import { SubmitHandler, useForm } from "react-hook-form"
-import { Inputs } from "@/app/(pages)/contact/form/contact-form"
+import { Inputs } from "@/app/contact/form/contact-form"
 import Link from "next/link"
 
 const ContactScreen = () => {

@@ -88,7 +88,7 @@ export const ContactForm = () => {
       aria-label="Contact form or additional information"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div className="flex flex-col">
+      <div className="flex flex-1 flex-col">
         <ContactInput placeholder="Name" {...register("name")} />
         <ContactInput placeholder="Company" {...register("company")} />
         <ContactInput
@@ -103,21 +103,23 @@ export const ContactForm = () => {
           {...register("budget")}
         />
         <ContactInput
+          className="flex-1"
           placeholder="Message"
           type="textarea"
           errors={errors}
+          noBorder
           {...register("message", { required: "Message is required" })}
         />
       </div>
-      <div className="flex flex-col items-start justify-between gap-4 py-6 md:py-4 xl:flex-row">
-        <button type="submit">
-          <p className="actionable actionable-no-underline flex h-fit items-start gap-3 text-brand-w1">
-            <span className="text-f-h1-mobile font-semibold leading-none xl:text-[56px] xl:tracking-[-2.24px]">
+      <div className="flex flex-col items-start justify-between gap-4 border-t border-brand-g2 xl:flex-row">
+        <button type="submit" className="pt-3 md:pt-6">
+          <p className="actionable actionable-no-underline flex !h-fit items-start gap-1.5 text-brand-w1 md:gap-3">
+            <span className="text-f-h2-mobile font-semibold leading-none xl:text-[56px] xl:tracking-[-2.24px]">
               Submit Message
             </span>
 
             <svg
-              className="h-[1.5em] w-[1.5em]"
+              className="size-[0.7em] md:size-[1.5em]"
               width="31"
               height="31"
               viewBox="0 0 31 31"
