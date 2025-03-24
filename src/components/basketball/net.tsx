@@ -1,115 +1,103 @@
-import { useEffect, useMemo, useRef } from "react"
-import * as THREE from "three"
+import { useFrame, useLoader } from "@react-three/fiber"
 
-import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { useEffect, useRef, useState } from "react"
+
+import { Mesh, ShaderMaterial, DoubleSide, Texture, NearestFilter } from "three"
+import { EXRLoader } from "three/examples/jsm/Addons.js"
+
 import fragmentShader from "@/shaders/net-shader/fragment.glsl"
 import vertexShader from "@/shaders/net-shader/vertex.glsl"
-import { useMinigameStore } from "@/store/minigame-store"
-
-import { normalizeDelta } from "../arcade-game/lib/math"
+import { useAssets } from "../assets-provider"
 
 interface NetProps {
-  mesh: THREE.Mesh
+  mesh: Mesh
 }
 
+const TOTAL_FRAMES = 39
+const ANIMATION_SPEED = 16
+const OFFSET_SCALE = 1.5
+
 export const Net = ({ mesh }: NetProps) => {
-  const materialRef = useRef<THREE.ShaderMaterial | null>(null)
-  const timeRef = useRef(0)
-  const meshRef = useRef<THREE.Mesh | null>(null)
-  const scoreAnimationRef = useRef(0)
-  const hoopPosition = useMinigameStore((state) => state.hoopPosition)
-  const isDragging = useMinigameStore((state) => state.isDragging)
+  const meshRef = useRef<Mesh | null>(null)
+  const materialRef = useRef<ShaderMaterial | null>(null)
+  const progressRef = useRef(0)
+  const isAnimatingRef = useRef(false)
+  const textureRef = useRef<Texture | null>(null)
+  const [isVisible, setIsVisible] = useState(false)
+  const { mapTextures } = useAssets()
 
-  const shaderMaterial = useMemo(() => {
-    const material = Array.isArray(mesh.material)
-      ? mesh.material[0]
-      : mesh.material
-    const texture =
-      material instanceof THREE.MeshStandardMaterial ? material.map : null
-
-    return new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
-      uniforms: {
-        uTime: { value: 0 },
-        uWaveAmplitude: { value: 0.015 },
-        uWaveFrequency: { value: 6.0 },
-        uWaveSpeed: { value: 2.0 },
-        map: { value: texture },
-        uBallPosition: { value: new THREE.Vector3() },
-        uBallInfluence: { value: 0.0 },
-        uScoreAnimation: { value: 0.0 }
-      },
-      side: THREE.DoubleSide
-    })
-  }, [mesh.material])
+  const offsets = useLoader(EXRLoader, mapTextures.basketballVa)
 
   useEffect(() => {
-    if (mesh && mesh.isMesh) {
-      const originalMaterial = mesh.material
+    const handleScore = () => {
+      progressRef.current = TOTAL_FRAMES / 3 / ANIMATION_SPEED
+      isAnimatingRef.current = true
+    }
 
-      mesh.material = shaderMaterial
+    window.addEventListener("basketball-score", handleScore, { passive: true })
+    return () => window.removeEventListener("basketball-score", handleScore)
+  }, [])
+
+  useEffect(() => {
+    if (!mesh) return
+
+    const originalMaterial = mesh.material as any
+    if (originalMaterial && originalMaterial.map) {
+      const texture = originalMaterial.map.clone()
+      texture.needsUpdate = true
+      textureRef.current = texture
+
+      texture.magFilter = NearestFilter
+      texture.minFilter = NearestFilter
+      texture.generateMipmaps = false
+
+      const shaderMaterial = new ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        transparent: true,
+        side: DoubleSide,
+
+        uniforms: {
+          tDisplacement: { value: offsets },
+          map: { value: texture },
+          currentFrame: { value: 0 },
+          totalFrames: { value: TOTAL_FRAMES },
+          offsetScale: { value: OFFSET_SCALE },
+          vertexCount: { value: mesh.geometry.attributes.position.count }
+        }
+      })
+
       materialRef.current = shaderMaterial
       meshRef.current = mesh
+      meshRef.current.material = shaderMaterial
 
-      mesh.visible = true
-      mesh.updateMatrixWorld(true)
+      shaderMaterial.needsUpdate = true
+      texture.needsUpdate = true
+      offsets.needsUpdate = true
 
-      const handleScore = () => {
-        scoreAnimationRef.current = 1.0
-      }
-
-      window.addEventListener("basketball-score", handleScore)
-
-      return () => {
-        if (mesh) {
-          mesh.material = originalMaterial
-        }
-        window.removeEventListener("basketball-score", handleScore)
-      }
+      requestAnimationFrame(() => {
+        setIsVisible(true)
+      })
     }
-  }, [mesh, shaderMaterial])
+  }, [mesh, offsets])
 
-  useFrameCallback((state, delta) => {
-    if (materialRef.current) {
-      timeRef.current += delta
-      materialRef.current.uniforms.uTime.value = timeRef.current
+  useFrame((_, delta) => {
+    if (materialRef.current && isAnimatingRef.current) {
+      progressRef.current += delta
+      const currentFrame =
+        (progressRef.current * ANIMATION_SPEED) % TOTAL_FRAMES
+      materialRef.current.uniforms.currentFrame.value = currentFrame
 
-      // Decay score animation
-      if (scoreAnimationRef.current > 0) {
-        const decayRate = scoreAnimationRef.current > 0.5 ? 3.0 : 1.5
-        scoreAnimationRef.current = Math.max(
-          0,
-          scoreAnimationRef.current - normalizeDelta(delta) * decayRate
-        )
-        materialRef.current.uniforms.uScoreAnimation.value =
-          scoreAnimationRef.current
-      }
-
-      const basketball = state.scene.getObjectByName("basketball")
-      if (basketball && !isDragging) {
-        const ballWorldPos = new THREE.Vector3()
-        basketball.getWorldPosition(ballWorldPos)
-
-        const sensorPos = new THREE.Vector3(
-          hoopPosition.x - 0.04,
-          hoopPosition.y - 0.35,
-          hoopPosition.z + 0.35
-        )
-        const distToSensor = ballWorldPos.distanceTo(sensorPos)
-
-        const sensorInfluence = distToSensor < 0.5 ? 2.0 : 0
-        const hoopInfluence =
-          distToSensor < 1.5 ? (1.5 - distToSensor) * 0.8 : 0.0
-        const totalInfluence = Math.max(sensorInfluence, hoopInfluence) * 0.1
-
-        materialRef.current.uniforms.uBallPosition.value.copy(ballWorldPos)
-        materialRef.current.uniforms.uBallInfluence.value = totalInfluence
-      } else {
-        materialRef.current.uniforms.uBallInfluence.value = 0.0
+      if (currentFrame >= TOTAL_FRAMES - 1) {
+        isAnimatingRef.current = false
+        progressRef.current = 0
       }
     }
   })
 
-  return meshRef.current ? <primitive object={meshRef.current} /> : null
+  return (
+    meshRef.current && (
+      <primitive object={meshRef.current} visible={isVisible} />
+    )
+  )
 }
