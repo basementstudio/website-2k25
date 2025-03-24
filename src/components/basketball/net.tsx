@@ -1,7 +1,8 @@
 import { useFrame, useLoader } from "@react-three/fiber"
+
 import { useEffect, useRef } from "react"
 
-import { Mesh, MeshStandardMaterial, ShaderMaterial, DoubleSide } from "three"
+import { Mesh, ShaderMaterial, DoubleSide, Texture } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import fragmentShader from "@/shaders/net-shader/fragment.glsl"
@@ -20,14 +21,12 @@ export const Net = ({ mesh }: NetProps) => {
   const materialRef = useRef<ShaderMaterial | null>(null)
   const progressRef = useRef(0)
   const isAnimatingRef = useRef(false)
-
-  console.log("mesh texture", mesh.material)
+  const textureRef = useRef<Texture | null>(null)
 
   const offsets = useLoader(EXRLoader, "/va-net-offset.exr")
 
   useEffect(() => {
     const handleScore = () => {
-      // progressRef.current = 0
       progressRef.current = TOTAL_FRAMES / 3 / ANIMATION_SPEED
       isAnimatingRef.current = true
     }
@@ -38,25 +37,33 @@ export const Net = ({ mesh }: NetProps) => {
 
   useEffect(() => {
     if (!mesh) return
-    const mat = mesh.material as MeshStandardMaterial
 
-    const shaderMaterial = new ShaderMaterial({
-      vertexShader,
-      fragmentShader,
-      transparent: true,
+    const originalMaterial = mesh.material as any
+    if (originalMaterial && originalMaterial.map) {
+      const texture = originalMaterial.map.clone()
+      texture.needsUpdate = true
+      textureRef.current = texture
 
-      uniforms: {
-        tDisplacement: { value: offsets },
-        currentFrame: { value: 0 },
-        totalFrames: { value: TOTAL_FRAMES },
-        offsetScale: { value: OFFSET_SCALE },
-        vertexCount: { value: mesh.geometry.attributes.position.count }
-      }
-    })
+      const shaderMaterial = new ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        transparent: true,
+        side: DoubleSide,
 
-    materialRef.current = shaderMaterial
-    meshRef.current = mesh
-    meshRef.current.material = shaderMaterial
+        uniforms: {
+          tDisplacement: { value: offsets },
+          map: { value: texture },
+          currentFrame: { value: 0 },
+          totalFrames: { value: TOTAL_FRAMES },
+          offsetScale: { value: OFFSET_SCALE },
+          vertexCount: { value: mesh.geometry.attributes.position.count }
+        }
+      })
+
+      materialRef.current = shaderMaterial
+      meshRef.current = mesh
+      meshRef.current.material = shaderMaterial
+    }
   }, [mesh, offsets])
 
   useFrame((_, delta) => {
@@ -66,7 +73,6 @@ export const Net = ({ mesh }: NetProps) => {
         (progressRef.current * ANIMATION_SPEED) % TOTAL_FRAMES
       materialRef.current.uniforms.currentFrame.value = currentFrame
 
-      // Stop animating after one complete cycle
       if (currentFrame >= TOTAL_FRAMES - 1) {
         isAnimatingRef.current = false
         progressRef.current = 0

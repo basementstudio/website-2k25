@@ -86,7 +86,7 @@ export default function RigidBodies({
       >
         <CylinderCollider
           onIntersectionEnter={handleScore}
-          position={[0, 0.18, 0]}
+          position={[0, 0.15, 0]}
           args={[0.02, 0.02]}
           scale={[0.2, 8, 4]}
         />

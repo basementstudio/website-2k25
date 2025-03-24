@@ -11,7 +11,7 @@ varying vec2 vDisplacementUv;
 varying vec3 displacement;
 
 void main() {
-  vUv = vec2(uv.x, 1.0 - uv.y);
+  vUv = uv;
 
   vDisplacementUv = vec2(uv1.x, 1.0 - currentFrame / totalFrames);
 

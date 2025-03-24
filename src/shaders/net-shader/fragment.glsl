@@ -1,9 +1,6 @@
 varying vec2 vUv;
-varying vec2 vDisplacementUv;
-varying vec3 displacement;
+uniform sampler2D map;
 
 void main() {
-  vec3 color = vec3(1.5);
-
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = texture2D(map, vUv);
 }
