@@ -136,9 +136,9 @@ const ContactScreen = () => {
       <div
         className="relative flex bg-transparent"
         style={{
-          width: `${screenDimensions.width}px`,
-          height: `${screenDimensions.height}px`,
-          transform: `perspective(400px) rotateY(0.5deg)`,
+          width: "580px",
+          height: "350px",
+          transform: `perspective(400px) rotateY(0.5deg) scale(${screenDimensions.width / 580}, ${screenDimensions.height / 350})`,
           transformOrigin: "center center"
         }}
       >
