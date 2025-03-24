@@ -41,6 +41,10 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     if (isAnimating) return
     const animation =
       IDLE_ANIMATIONS[Math.floor(Math.random() * IDLE_ANIMATIONS.length)]
+
+    // Notify the main thread that an animation is starting
+    self.postMessage({ type: "animation-starting" })
+
     runAnimation(animation)
   }, [isAnimating, runAnimation])
 
@@ -126,8 +130,12 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         self.postMessage({ type: "outro-complete" })
       } else if (animationState === ANIMATION_TYPES.RUEDITA) {
         self.postMessage({ type: "ruedita-animation-complete" })
+        // Notify the main thread that the idle animation is complete
+        self.postMessage({ type: "animation-complete" })
       } else if (animationState === ANIMATION_TYPES.ANTENA) {
         self.postMessage({ type: "antena-animation-complete" })
+        // Notify the main thread that the idle animation is complete
+        self.postMessage({ type: "animation-complete" })
       } else if (animationState === ANIMATION_TYPES.BUTTON) {
         self.postMessage({ type: "button-animation-complete" })
       }
