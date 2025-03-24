@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Fragment, useCallback, useLayoutEffect, useRef, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
-import { Link } from "@/components/primitives/link"
+import Link from "next/link"
 import { Placeholder } from "@/components/primitives/placeholder"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { cn } from "@/utils/cn"
@@ -79,16 +79,16 @@ export const Crew = ({ data }: { data: QueryType }) => {
           <div key={department}>
             <div className="grid grid-cols-4 gap-2 border-b border-brand-w1/20 pb-1">
               {index === 0 && (
-                <p className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
+                <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
                   A-Z
                 </p>
               )}
-              <p className="text-f-h4-mobile lg:text-f-h4 col-start-2 text-brand-g1">
+              <p className="col-start-2 text-f-h4-mobile text-brand-g1 lg:text-f-h4">
                 {department}
               </p>
             </div>
 
-            <ul className="text-f-p-mobile lg:text-f-p text-brand-w1">
+            <ul className="text-f-p-mobile text-brand-w1 lg:text-f-p">
               {people.map((person) => (
                 <li
                   key={person._title}
@@ -203,7 +203,7 @@ export const MobileFaces = ({
   <div className="col-span-full flex flex-col gap-4 py-6 lg:hidden">
     {Object.entries(data).map(([department, people]) => (
       <article key={department} className="flex flex-col gap-2">
-        <p className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
+        <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
           {department}
         </p>
 
@@ -300,9 +300,9 @@ export const CrewFooter = ({ spanStart, spanEnd }: CrewFooterProps) => (
     }}
   >
     <Link
-      href="/"
+      href="mailto:careers@basement.studio"
       target="_blank"
-      className="text-f-p-mobile lg:text-f-p relative z-10 flex h-4 gap-1 bg-brand-k text-brand-w1"
+      className="relative z-10 flex h-4 gap-1 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
     >
       <span className="actionable flex items-center gap-1">
         Join the Crew <Arrow className="size-4" />
