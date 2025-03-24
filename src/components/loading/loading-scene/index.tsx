@@ -1,8 +1,9 @@
-import { PerspectiveCamera } from "@react-three/drei"
-import { useThree } from "@react-three/fiber"
+import { PerspectiveCamera, useGLTF } from "@react-three/drei"
+import { useFrame, useThree } from "@react-three/fiber"
 import { memo, useEffect, useMemo, useRef } from "react"
 import {
   Color,
+  Group,
   LineSegments,
   Mesh,
   PerspectiveCamera as PerspectiveCameraType,
@@ -13,11 +14,9 @@ import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
-import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { getSolidRevealMaterial } from "./materials/solid-reveal-material"
 
 interface LoadingWorkerStore {
@@ -68,23 +67,31 @@ self.addEventListener("message", handleMessage)
 interface GLTFNodes extends GLTF {
   nodes: {
     SM_Line: LineSegments
-    SM_Solid: Mesh
+    SM_Solid: Group
+    SM_Solid_1: Mesh
   }
 }
 
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { cameraConfig } = useLoadingWorkerStore()
-  const { nodes } = useKTX2GLTF(modelUrl!) as any as GLTFNodes
+  const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
+
+  console.log(nodes)
+
+  const solidParent = nodes.SM_Solid
 
   const solid = useMemo(() => {
-    const solid = nodes.SM_Solid
+    const solid = nodes.SM_Solid_1
+
+    // console.log(solid)
 
     solid.material = getSolidRevealMaterial()
 
     return solid
   }, [nodes])
 
-  useFrameCallback((_, __, elapsedTime) => {
+  useFrame(({ clock }) => {
+    const elapsedTime = clock.getElapsedTime()
     const material = solid.material as any
     material.uniforms.uTime.value = elapsedTime
   })
@@ -96,7 +103,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const sentMessage = useRef(false)
 
   // Fade out canvas
-  useFrameCallback((_, delta) => {
+  useFrame((_, delta) => {
     if (!isAppLoaded) return
 
     if (uScreenReveal.current < 1) {
@@ -119,6 +126,8 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
   const lines = useMemo(() => {
     const l = nodes.SM_Line
+
+    // console.log(l)
 
     l.renderOrder = 2
 
@@ -190,7 +199,8 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
    * Another approach, camera just appears there
    * */
   const updated = useRef(false)
-  useFrameCallback(({ camera: C, scene }, __, elapsedTime) => {
+  useFrame(({ camera: C, scene, clock }) => {
+    const elapsedTime = clock.getElapsedTime()
     renderCount.current++
     const time = elapsedTime
 
@@ -239,7 +249,9 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   return (
     <>
       <primitive visible={false} object={lines} />
-      <primitive object={solid} />
+      <primitive object={solidParent}>
+        <primitive object={solid} />
+      </primitive>
       <PerspectiveCamera position={initialPosition} makeDefault fov={30} />
     </>
   )

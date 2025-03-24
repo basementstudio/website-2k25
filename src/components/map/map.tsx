@@ -151,17 +151,7 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    const originalNet = officeModel?.getObjectByName("SM_BasketRed")
-    const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
-
-    if (newNetMesh?.parent) {
-      newNetMesh.removeFromParent()
-    }
-
-    if (originalNet?.parent) {
-      originalNet.removeFromParent()
-      setNet(originalNet as Mesh)
-    }
+    setNet(basketballNetModel.children[0] as Mesh)
 
     const traverse = (
       child: Object3D,
@@ -368,11 +358,6 @@ export const Map = memo(() => {
       })
 
       useMesh.setState({ inspectableMeshes })
-    }
-
-    const netMesh = basketballNetModel.getObjectByName("Net") as Mesh | null
-    if (netMesh) {
-      netMesh.raycast = () => null
     }
 
     const disableRaycasting = (scene: THREE.Object3D) => {

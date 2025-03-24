@@ -84,6 +84,8 @@ void main() {
   // colorBump *= edgeFactor;
   colorBump *= uReveal > pow(voxel.noiseSmall * 0.5 + 0.5, 2.) ? 1.0 : 0.0;
 
+  // fragColor = vec4(vec3(1.), 1.0);
+
   if(voxel.noiseSmall * 0.5 + 0.5 < uScreenReveal) {
     discard;
     return;
