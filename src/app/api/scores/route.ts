@@ -118,16 +118,31 @@ export async function POST(request: Request) {
 
     const supabase = createClient()
 
+    // Check if a score exists for this player
+    const { data: existingScore } = await supabase
+      .from("scoreboard")
+      .select("id, score")
+      .eq("player_name", playerName)
+      .single()
+
+    // if the new score is lower than existing one, just return
+    if (existingScore && score <= existingScore.score) {
+      return NextResponse.json({ success: true })
+    }
+
+    // if no existing score or new score is higher, upsert the record
     const { error } = await supabase
       .from("scoreboard")
-      .insert([
+      .upsert(
         {
+          ...(existingScore?.id ? { id: existingScore.id } : {}),
           player_name: playerName,
           score: Math.floor(score),
           client_id: clientId,
           country: details.flag || "🏳️"
-        }
-      ])
+        },
+        { onConflict: "id" }
+      )
       .select()
 
     if (error) {
