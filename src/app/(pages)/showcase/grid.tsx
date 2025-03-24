@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { memo } from "react"
 
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
@@ -10,6 +9,7 @@ import { ImageFragment } from "@/lib/basehub/fragments"
 import { cn } from "@/utils/cn"
 
 import { Project } from "./basehub"
+import { Link } from "@/components/primitives/link"
 
 const MobileInfo = memo(({ project }: { project: Project }) => {
   return (

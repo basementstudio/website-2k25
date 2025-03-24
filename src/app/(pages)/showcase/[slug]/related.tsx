@@ -1,10 +1,10 @@
 import Image from "next/image"
-import Link from "next/link"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 import { client } from "@/service/basehub"
 import { cn } from "@/utils/cn"
+import { Link } from "@/components/primitives/link"
 
 export async function RelatedProjects({
   baseSlug,
@@ -58,7 +58,7 @@ export async function RelatedProjects({
 
   return (
     <div className={cn("mt-auto flex flex-col gap-2", className)}>
-      <h4 className="text-f-h4-mobile lg:text-f-h4 text-brand-g1">
+      <h4 className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
         More Projects
       </h4>
 
@@ -68,7 +68,7 @@ export async function RelatedProjects({
           <Link
             href={`/showcase/${item.project?._slug}`}
             key={index}
-            className="!text-f-p-mobile lg:!text-f-p flex items-center justify-between pb-1.75 pt-1.5 font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1"
+            className="flex items-center justify-between pb-1.75 pt-1.5 !text-f-p-mobile font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1 lg:!text-f-p"
           >
             <span className="flex items-center gap-1.75">
               {item.project?.icon ? (
