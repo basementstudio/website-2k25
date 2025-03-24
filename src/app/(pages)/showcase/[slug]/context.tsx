@@ -13,20 +13,10 @@ export const ProjectContext = createContext<ProjectContextType>({
 })
 
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-  const [viewMode, setViewModeState] = useState<"grid" | "rows">()
-
-  useEffect(() => {
-    const stored = localStorage.getItem("project-gallery-view-mode")
-    if (stored === "rows" || stored === "grid") {
-      setViewModeState(stored)
-    } else {
-      setViewModeState("grid")
-    }
-  }, [])
+  const [viewMode, setViewModeState] = useState<"grid" | "rows">("grid")
 
   const setViewMode = (mode: "grid" | "rows") => {
     setViewModeState(mode)
-    localStorage.setItem("project-gallery-view-mode", mode)
   }
 
   return (

@@ -125,7 +125,7 @@ export const Scene = () => {
         <Debug />
         <Canvas
           id="canvas"
-          frameloop="never"
+          frameloop="demand"
           ref={canvasRef}
           tabIndex={0}
           onFocus={handleFocus}

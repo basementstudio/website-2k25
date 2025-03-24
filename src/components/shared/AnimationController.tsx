@@ -57,7 +57,7 @@ function AnimationControllerImpl({
   frameSkip = 0,
   pauseOnTabChange = true
 }: AnimationControllerProps) {
-  const { advance } = useThree()
+  const { invalidate } = useThree()
 
   const { canRunMainApp } = useAppLoadingStore()
 
@@ -134,12 +134,12 @@ function AnimationControllerImpl({
       timeValuesRef.current.delta = delta
 
       // Emit a render
-      advance(time * 0.001)
+      invalidate()
 
       // Here you could also run other global updates
       // that depend on animation time
     },
-    [isPaused, frameSkip, advance]
+    [isPaused, frameSkip, invalidate]
   )
 
   // Use Motion's useAnimationFrame as our single RAF
