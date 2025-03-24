@@ -147,7 +147,7 @@ const ContactScreen = () => {
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="font-flauta relative z-20 flex h-full w-full flex-col justify-between gap-7 text-[14px] text-brand-o">
+          <div className="relative z-20 flex h-full w-full flex-col justify-between gap-7 font-flauta text-[14px] text-brand-o">
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase"
@@ -215,8 +215,8 @@ const ContactScreen = () => {
                 <button
                   className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 ${
                     isValid || showSubmittedMessage
-                      ? "bg-contact cursor-pointer border-none text-black"
-                      : "border-contact/50 cursor-default border border-brand-o"
+                      ? "cursor-pointer border-none bg-brand-o text-black"
+                      : "cursor-default border border-brand-o border-brand-o/50"
                   }`}
                 >
                   {submitting
