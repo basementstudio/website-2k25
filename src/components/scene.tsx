@@ -121,12 +121,7 @@ export const Scene = () => {
 
   return (
     <>
-      <div
-        className={cn(
-          "absolute inset-0",
-          isTouchOnly && "pointer-events-none cursor-not-allowed"
-        )}
-      >
+      <div className="absolute inset-0">
         <Debug />
         <Canvas
           id="canvas"
@@ -150,7 +145,10 @@ export const Scene = () => {
             toneMapping: THREE.NoToneMapping
           }}
           camera={{ fov: 60 }}
-          className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
+          className={cn(
+            "pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none",
+            isTouchOnly && "!pointer-events-none"
+          )}
         >
           <AnimationController>
             <UpdateCanvasCursor />
