@@ -2,7 +2,14 @@
 
 import { motion } from "motion/react"
 import Image from "next/image"
-import { Fragment, useCallback, useLayoutEffect, useRef, useState } from "react"
+import {
+  Fragment,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import Link from "next/link"
@@ -22,22 +29,32 @@ export const Crew = ({ data }: { data: QueryType }) => {
     faces: 0
   })
 
-  const groupedPeople = data.company.people.peopleList.items.reduce(
-    (acc, person) => {
-      const department = person.department._title
-      if (!acc[department]) acc[department] = []
-      acc[department].push(person)
-      return acc
-    },
-    {} as Record<string, typeof data.company.people.peopleList.items>
-  )
-
-  // sorting a - z
-  Object.keys(groupedPeople).forEach((department) => {
-    groupedPeople[department].sort((a, b) =>
-      a._title.localeCompare(b._title, undefined, { sensitivity: "base" })
+  const groupedPeople = useMemo(() => {
+    const people = data.company.people.peopleList.items.reduce(
+      (acc, person) => {
+        const department = person.department._title
+        if (!acc[department]) acc[department] = []
+        acc[department].push(person)
+        return acc
+      },
+      {} as Record<string, typeof data.company.people.peopleList.items>
     )
-  })
+
+    // sorting a - z
+    Object.keys(people).forEach((department) => {
+      people[department].sort((a, b) =>
+        a._title.localeCompare(b._title, undefined, { sensitivity: "base" })
+      )
+    })
+
+    return people
+  }, [data.company.people.peopleList.items])
+
+  const flattenedPeople = useMemo(() => {
+    return Object.values(groupedPeople).flat()
+  }, [groupedPeople])
+
+  console.log(flattenedPeople)
 
   const updateHeightRef = useCallback(() => {
     const listHeight = document.querySelector(".crew-list")?.clientHeight ?? 0
@@ -151,7 +168,7 @@ export const Crew = ({ data }: { data: QueryType }) => {
         ))}
       </div>
       <DesktopFaces
-        data={data}
+        data={flattenedPeople}
         setHoveredPerson={setHoveredPerson}
         hoveredPerson={debouncedHoveredPerson}
         heightRef={heightRef.current}
@@ -167,7 +184,7 @@ export const DesktopFaces = ({
   hoveredPerson,
   heightRef
 }: {
-  data: QueryType
+  data: QueryType["company"]["people"]["peopleList"]["items"]
   setHoveredPerson: (person: string | null) => void
   hoveredPerson: string | null
   heightRef: { list: number; faces: number }
@@ -179,7 +196,7 @@ export const DesktopFaces = ({
         { "sticky top-8": heightRef.list > heightRef.faces }
       )}
     >
-      {data.company.people.peopleList.items.map((person) => (
+      {data.map((person) => (
         <Face
           key={person._title}
           person={person}
@@ -188,8 +205,8 @@ export const DesktopFaces = ({
         />
       ))}
       <CrewFooter
-        spanStart={8 - (data.company.people.peopleList.items.length % 8)}
-        spanEnd={8 - (data.company.people.peopleList.items.length % 8)}
+        spanStart={8 - (data.length % 8)}
+        spanEnd={8 - (data.length % 8)}
       />
     </div>
   )
