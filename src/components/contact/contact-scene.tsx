@@ -10,17 +10,16 @@ import {
   Bone,
   PerspectiveCamera
 } from "three"
+import { ANIMATION_TYPES } from "./contact.interface"
+
+const IDLE_ANIMATIONS = [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA]
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const { scene, animations, nodes } = useGLTF(modelUrl)
   const { actions, mixer } = useAnimations(animations, scene)
   const [isContactOpen, setIsContactOpen] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
-  const [animationState, setAnimationState] = useState<
-    "idle" | "intro" | "button" | "outro" | "ruedita" | "antena"
-  >("idle")
-
-  const idleAnimations = ["ruedita", "antena"]
+  const [animationState, setAnimationState] = useState(ANIMATION_TYPES.IDLE)
 
   const debugMeshRef = useRef<Mesh>(null)
   const phoneGroupRef = useRef<Group>(null)
@@ -28,125 +27,82 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const tmp = new Vector3()
   const camera = useThree((state) => state.camera)
 
-  // run animations
-  const runIntro = useCallback(() => {
-    if (mixer) {
-      mixer.stopAllAction()
-    }
-    if (phoneGroupRef.current) {
+  // animation runners
+  const runAnimation = useCallback((type: string) => {
+    setAnimationState(type)
+    setIsAnimating(true)
+
+    if (type === ANIMATION_TYPES.INTRO && phoneGroupRef.current) {
       phoneGroupRef.current.visible = true
     }
-    setAnimationState("intro")
-    setIsAnimating(true)
-  }, [mixer])
-
-  const runOutro = useCallback(() => {
-    setAnimationState("outro")
-    setIsAnimating(true)
-  }, [])
-
-  const runButtonClick = useCallback(() => {
-    setAnimationState("button")
-    setIsAnimating(true)
-  }, [])
-
-  const runRuedita = useCallback(() => {
-    setAnimationState("ruedita")
-    setIsAnimating(true)
-  }, [])
-
-  const runAntena = useCallback(() => {
-    setAnimationState("antena")
-    setIsAnimating(true)
   }, [])
 
   const runRandomIdleAnimation = useCallback(() => {
     if (isAnimating) return
+    const animation =
+      IDLE_ANIMATIONS[Math.floor(Math.random() * IDLE_ANIMATIONS.length)]
+    runAnimation(animation)
+  }, [isAnimating, runAnimation])
 
-    const randomIndex = Math.floor(Math.random() * idleAnimations.length)
-    const animation = idleAnimations[randomIndex]
-
-    if (animation === "ruedita") {
-      runRuedita()
-    } else if (animation === "antena") {
-      runAntena()
-    }
-  }, [runRuedita, runAntena, isAnimating])
-
+  // handle animations
   useEffect(() => {
-    if (!actions || !mixer) return
-
-    if (animationState === "idle") {
-      setIsAnimating(false)
+    if (!actions || !mixer || animationState === ANIMATION_TYPES.IDLE) {
+      setIsAnimating(
+        animationState === ANIMATION_TYPES.IDLE ? false : isAnimating
+      )
       return
     }
 
     const animationMap = {
-      intro: "Intro",
-      button: "Button",
-      outro: "Outro",
-      ruedita: "Ruedita",
-      antena: "Antena"
+      [ANIMATION_TYPES.INTRO]: "Intro",
+      [ANIMATION_TYPES.BUTTON]: "Button",
+      [ANIMATION_TYPES.OUTRO]: "Outro",
+      [ANIMATION_TYPES.RUEDITA]: "Ruedita",
+      [ANIMATION_TYPES.ANTENA]: "Antena"
     }
 
     const actionName = animationMap[animationState]
     const action = actions[actionName]
 
-    if (action) {
-      mixer.stopAllAction()
+    if (!action) return
 
-      if (animationState === "intro") {
-        action.reset()
-        action.setLoop(LoopOnce, 1)
-        action.clampWhenFinished = true
-        action.timeScale = 1.2
-      } else {
-        action.reset()
-        action.setLoop(LoopOnce, 1)
-        action.clampWhenFinished = true
+    mixer.stopAllAction()
+    action.reset()
+    action.setLoop(LoopOnce, 1)
+    action.clampWhenFinished = true
 
-        if (animationState === "outro") {
-          action.timeScale = 1.5
-        } else if (
-          animationState === "ruedita" ||
-          animationState === "antena"
-        ) {
-          action.timeScale = 1.0
-        } else {
-          action.timeScale = 1.2
-        }
-      }
-
-      const cleanupListeners = () => {
-        mixer.removeEventListener("finished", onAnimationFinished)
-      }
-
-      const onAnimationFinished = (e: any) => {
-        if (e.action !== action) return
-
-        setIsAnimating(false)
-        setAnimationState("idle")
-
-        if (animationState === "intro") {
-          setIsContactOpen(true)
-          self.postMessage({ type: "intro-complete" })
-        } else if (animationState === "outro") {
-          setIsContactOpen(false)
-          self.postMessage({ type: "outro-complete" })
-        }
-
-        cleanupListeners()
-      }
-
-      mixer.addEventListener("finished", onAnimationFinished)
-      action.play()
-
-      // Clean up function
-      return cleanupListeners
+    if (animationState === ANIMATION_TYPES.OUTRO) {
+      action.timeScale = 1.5
+    } else if (
+      [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA].includes(animationState)
+    ) {
+      action.timeScale = 1.0
+    } else {
+      action.timeScale = 1.2
     }
-  }, [animationState, actions, mixer])
 
-  // handle open and close
+    const onAnimationFinished = (e: any) => {
+      if (e.action !== action) return
+
+      setIsAnimating(false)
+      setAnimationState(ANIMATION_TYPES.IDLE)
+
+      if (animationState === ANIMATION_TYPES.INTRO) {
+        setIsContactOpen(true)
+        self.postMessage({ type: "intro-complete" })
+      } else if (animationState === ANIMATION_TYPES.OUTRO) {
+        setIsContactOpen(false)
+        self.postMessage({ type: "outro-complete" })
+      }
+    }
+
+    mixer.addEventListener("finished", onAnimationFinished)
+    action.play()
+
+    return () => mixer.removeEventListener("finished", onAnimationFinished)
+  }, [animationState, actions, mixer, isAnimating])
+
+  // message handler
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       const { type, isContactOpen: newIsOpen } = e.data
@@ -163,40 +119,37 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         if (newIsOpen === isContactOpen) return
 
         if (newIsOpen && !isContactOpen) {
-          runIntro()
+          runAnimation(ANIMATION_TYPES.INTRO)
         } else if (!newIsOpen && isContactOpen) {
           self.postMessage({ type: "start-outro" })
         }
       } else if (type === "run-outro-animation") {
-        runOutro()
+        runAnimation(ANIMATION_TYPES.OUTRO)
+      } else if (type === "submit-clicked") {
+        runAnimation(ANIMATION_TYPES.BUTTON)
+      } else if (type === "window-resize") {
+        calculateAndSendScreenDimensions()
       } else if (
         ["scale-animation-complete", "scale-down-animation-complete"].includes(
           type
         )
       ) {
         self.postMessage({ type })
-      } else if (type === "submit-clicked") {
-        runButtonClick()
-      } else if (type === "window-resize") {
-        // Recalculate screen dimensions when window is resized
-        calculateAndSendScreenDimensions()
       }
     }
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
-  }, [runIntro, runOutro, isAnimating, isContactOpen, runButtonClick])
+  }, [isAnimating, isContactOpen])
 
-  // Function to calculate and send screen dimensions
   const calculateAndSendScreenDimensions = useCallback(() => {
     if (!scene) return
+
     const screenObject = scene.getObjectByName("SCREEN")
     if (!(screenObject && screenObject instanceof Mesh)) return
 
-    // Get the screen's bounding box
     screenObject.geometry.computeBoundingBox()
     const bbox = screenObject.geometry.boundingBox
-
     if (!bbox) return
 
     const width = bbox.max.x - bbox.min.x
@@ -204,23 +157,19 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
     const perspCamera = camera as PerspectiveCamera
     const fov = (perspCamera.fov || 8.5) * (Math.PI / 180)
-
     const distance = Math.abs(
       camera.position.z - (screenObject.position.z || 0)
     )
-
     const workerContext = self as any
     const windowHeight =
       workerContext.windowDimensions?.height || window.innerHeight || 1080
 
-    // Use safe calculation with fallbacks
     let pixelsPerUnit = 0
     try {
-      if (distance > 0 && fov > 0) {
-        pixelsPerUnit = windowHeight / (2 * Math.tan(fov / 2) * distance)
-      } else {
-        pixelsPerUnit = 300
-      }
+      pixelsPerUnit =
+        distance > 0 && fov > 0
+          ? windowHeight / (2 * Math.tan(fov / 2) * distance)
+          : 300
     } catch (e) {
       pixelsPerUnit = 300
     }
@@ -249,11 +198,14 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
       if (width > 0 && height > 0 && !isNaN(width) && !isNaN(height)) {
         const aspectRatio = width / height
-        if (aspectRatio > 1) {
-          fallbackHeight = Math.round(fallbackWidth / aspectRatio)
-        } else {
-          fallbackWidth = Math.round(fallbackHeight * aspectRatio)
-        }
+        fallbackHeight =
+          aspectRatio > 1
+            ? Math.round(fallbackWidth / aspectRatio)
+            : fallbackHeight
+        fallbackWidth =
+          aspectRatio <= 1
+            ? Math.round(fallbackHeight * aspectRatio)
+            : fallbackWidth
       }
 
       self.postMessage({
@@ -282,6 +234,7 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
         if ("opacity" in oldMaterial)
           basicMaterial.opacity = oldMaterial.opacity
+
         node.material = basicMaterial
       }
     })
@@ -290,7 +243,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   useFrame((_, delta) => {
     if (isContactOpen && !isAnimating) {
       idleTimeRef.current += delta
-
       const IDLE_TIMEOUT = Math.random() * 5 + 15
 
       const screenbone = nodes.Obj as Bone
@@ -300,7 +252,6 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         debugMeshRef.current.position.copy(tmp)
 
         const screenPos = tmp.clone().project(camera)
-
         const normalizedScreenPos = {
           x: (screenPos.x + 1) / 2,
           y: (-screenPos.y + 1) / 2,
