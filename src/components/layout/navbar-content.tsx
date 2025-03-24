@@ -270,119 +270,117 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
 })
 DesktopContent.displayName = "DesktopContent"
 
-const MobileContent = memo(
-  ({ links, socialLinks, newsletter }: NavbarContentProps) => {
-    const isMobile = useMedia("(max-width: 1024px)")
-    const [isOpen, setIsOpen] = useState(false)
+const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
+  const isMobile = useMedia("(max-width: 1024px)")
+  const [isOpen, setIsOpen] = useState(false)
 
-    const mobileMenuRef = useRef<HTMLDivElement>(null)
-    const menuHandlerRef = useRef<HTMLButtonElement>(null)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const menuHandlerRef = useRef<HTMLButtonElement>(null)
 
-    const { focusTrapRef } = useFocusTrap(isOpen, menuHandlerRef)
-    // disable scroll when the menu is open and it's on mobile
-    const shouldDisableScroll = useMemo(
-      () => isOpen && Boolean(isMobile),
-      [isOpen, isMobile]
-    )
-    useDisableScroll(shouldDisableScroll)
+  const { focusTrapRef } = useFocusTrap(isOpen, menuHandlerRef)
+  // disable scroll when the menu is open and it's on mobile
+  const shouldDisableScroll = useMemo(
+    () => isOpen && Boolean(isMobile),
+    [isOpen, isMobile]
+  )
+  useDisableScroll(shouldDisableScroll)
 
-    const handleChangeLink = () => {
-      setIsOpen(false)
-    }
+  const handleChangeLink = () => {
+    setIsOpen(false)
+  }
 
-    const memoizedMenu = useMemo(() => {
-      if (!isMobile || !isOpen) return null
-
-      return (
-        <Portal id="mobile-menu">
-          <motion.div
-            ref={mergeRefs(mobileMenuRef, focusTrapRef)}
-            className={cn(
-              "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6"
-            )}
-            initial={{ scaleY: 0 }}
-            animate={{ scaleY: 1 }}
-            exit={{ scaleY: 0, transition: { delay: 0.35 } }}
-            transition={{ duration: 0.4, type: "spring", bounce: 0 }}
-          >
-            <InternalLinks
-              links={links}
-              onClick={handleChangeLink}
-              className="col-span-4"
-              onNav={true}
-              animated={true}
-            />
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 0.4 } }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4, type: "spring", bounce: 0 }}
-              className="col-span-4 flex h-full flex-col justify-end gap-y-16"
-            >
-              <div className="flex flex-col items-start gap-y-2">
-                <SocialLinks links={socialLinks} />
-                <Copyright />
-              </div>
-            </motion.div>
-          </motion.div>
-        </Portal>
-      )
-    }, [isOpen, focusTrapRef, mobileMenuRef, isMobile, links, socialLinks])
-
-    const Label = useMemo(() => {
-      return function Label({ children }: { children: React.ReactNode }) {
-        return (
-          <motion.p
-            id="menu-button"
-            key={isOpen ? "close" : "menu"}
-            className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
-            initial={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
-            animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
-            transition={{ duration: 0.9, type: "spring", bounce: 0 }}
-          >
-            {children}
-          </motion.p>
-        )
-      }
-    }, [isOpen])
+  const memoizedMenu = useMemo(() => {
+    if (!isMobile || !isOpen) return null
 
     return (
-      <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
-        <MusicToggle />
+      <Portal id="mobile-menu">
+        <motion.div
+          ref={mergeRefs(mobileMenuRef, focusTrapRef)}
+          className={cn(
+            "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6"
+          )}
+          initial={{ scaleY: 0 }}
+          animate={{ scaleY: 1 }}
+          exit={{ scaleY: 0, transition: { delay: 0.35 } }}
+          transition={{ duration: 0.4, type: "spring", bounce: 0 }}
+        >
+          <InternalLinks
+            links={links}
+            onClick={handleChangeLink}
+            className="col-span-4"
+            onNav={true}
+            animated={true}
+          />
 
-        <div className="flex items-center">
-          <button onClick={() => setIsOpen(!isOpen)}>
-            <AnimatePresence mode="popLayout" initial={false}>
-              {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
-            </AnimatePresence>
-          </button>
-
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="relative flex w-5 flex-col items-center justify-center gap-1 overflow-visible pl-1"
-            ref={menuHandlerRef}
-            aria-labelledby="menu-button"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { delay: 0.4 } }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, type: "spring", bounce: 0 }}
+            className="col-span-4 flex h-full flex-col justify-end gap-y-16"
           >
-            <span
-              className={cn(
-                "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
-                { "w-10/12 translate-y-[3px] rotate-[45deg]": isOpen }
-              )}
-            />
-            <span
-              className={cn(
-                "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
-                { "w-10/12 -translate-y-[2.5px] -rotate-[45deg]": isOpen }
-              )}
-            />
-          </button>
-        </div>
-
-        <AnimatePresence>{memoizedMenu}</AnimatePresence>
-      </div>
+            <div className="flex flex-col items-start gap-y-2">
+              <SocialLinks links={socialLinks} />
+              <Copyright />
+            </div>
+          </motion.div>
+        </motion.div>
+      </Portal>
     )
-  }
-)
+  }, [isOpen, focusTrapRef, mobileMenuRef, isMobile, links, socialLinks])
+
+  const Label = useMemo(() => {
+    return function Label({ children }: { children: React.ReactNode }) {
+      return (
+        <motion.p
+          id="menu-button"
+          key={isOpen ? "close" : "menu"}
+          className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
+          initial={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
+          animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
+          transition={{ duration: 0.9, type: "spring", bounce: 0 }}
+        >
+          {children}
+        </motion.p>
+      )
+    }
+  }, [isOpen])
+
+  return (
+    <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
+      <MusicToggle />
+
+      <div className="flex items-center">
+        <button onClick={() => setIsOpen(!isOpen)}>
+          <AnimatePresence mode="popLayout" initial={false}>
+            {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
+          </AnimatePresence>
+        </button>
+
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative flex w-5 flex-col items-center justify-center gap-1 overflow-visible pl-1"
+          ref={menuHandlerRef}
+          aria-labelledby="menu-button"
+        >
+          <span
+            className={cn(
+              "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
+              { "w-10/12 translate-y-[3px] rotate-[45deg]": isOpen }
+            )}
+          />
+          <span
+            className={cn(
+              "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
+              { "w-10/12 -translate-y-[2.5px] -rotate-[45deg]": isOpen }
+            )}
+          />
+        </button>
+      </div>
+
+      <AnimatePresence>{memoizedMenu}</AnimatePresence>
+    </div>
+  )
+})
 MobileContent.displayName = "MobileContent"
