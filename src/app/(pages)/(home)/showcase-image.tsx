@@ -12,13 +12,16 @@ interface ShowcaseImageProps {
 
 export const ShowcaseImage = ({ project }: ShowcaseImageProps) => {
   const setCursor = useCursor()
+  const isCursorHover = window.matchMedia("(hover: hover)").matches
 
   // TODO: Add required in basehub to avoid this
   if (!project.cover) return null
   return (
     <Link
       href={`/showcase/${project.project?._slug}`}
-      onMouseEnter={() => setCursor("zoom-in", "View Project")}
+      onMouseEnter={() => {
+        if (isCursorHover) setCursor("zoom-in", "View Project")
+      }}
       onMouseLeave={() => setCursor("default", null)}
     >
       <div className="with-dots relative h-full w-full">
