@@ -7,7 +7,7 @@ import { useThree } from "@react-three/fiber"
 import { animate } from "motion"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { Suspense, useEffect, useMemo, useState } from "react"
+import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import { type Mesh, Vector3, WebGLRenderTarget } from "three"
 import { Box3 } from "three"
 import { degToRad } from "three/src/math/MathUtils.js"
@@ -15,6 +15,7 @@ import { degToRad } from "three/src/math/MathUtils.js"
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { useVideoTextureResume } from "@/hooks/use-video-resume"
 import { createScreenMaterial } from "@/shaders/material-screen"
 import { useArcadeStore } from "@/store/arcade-store"
 
@@ -61,6 +62,9 @@ export const ArcadeScreen = () => {
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
+
+  // Use our custom hook to ensure video playback resumes when tab becomes visible
+  useVideoTextureResume(videoTexture)
 
   useEffect(() => {
     const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
