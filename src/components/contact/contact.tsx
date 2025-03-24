@@ -61,7 +61,7 @@ const Contact = () => {
       } else if (type === "button-animation-start") {
         setTimeout(() => {
           playSoundFX("ARCADE_BUTTON_0_PRESS", 0.4)
-        }, 600)
+        }, 700)
       }
     }
 

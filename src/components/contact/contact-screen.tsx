@@ -205,6 +205,7 @@ const ContactScreen = () => {
                 </div>
                 <textarea
                   required
+                  autoComplete="off"
                   placeholder="MESSAGE"
                   className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 placeholder:text-brand-o"
                   {...register("message", { required: "Message is required" })}
