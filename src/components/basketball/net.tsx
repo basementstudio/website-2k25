@@ -27,7 +27,8 @@ export const Net = ({ mesh }: NetProps) => {
 
   useEffect(() => {
     const handleScore = () => {
-      progressRef.current = 0
+      // progressRef.current = 0
+      progressRef.current = TOTAL_FRAMES / 3 / ANIMATION_SPEED
       isAnimatingRef.current = true
     }
 
