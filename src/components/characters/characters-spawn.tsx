@@ -110,7 +110,7 @@ function CharactersSpawnInner() {
       <Character
         characterId={getCharacterId(4)}
         position={[3.1, 3.71, -27.42]}
-        rotation={[0, Math.PI * 0.5, 0]}
+        rotation={[0, degToRad(80), 0]}
         animationName={CharacterAnimationName["People.01.a"]}
         uniforms={{
           uLightDirection: {

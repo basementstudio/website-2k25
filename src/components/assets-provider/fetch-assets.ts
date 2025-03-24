@@ -143,7 +143,8 @@ export interface AssetsResult {
   }
   pets: {
     model: string
-    texture: string
+    pureTexture: string
+    bostonTexture: string
   }
   lamp: {
     extraLightmap: string
@@ -316,7 +317,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
     },
     pets: {
       model: threeDInteractions.characters.petModel.file.url,
-      texture: threeDInteractions.characters.petTexture.url
+      pureTexture: threeDInteractions.characters.pureTexture.url,
+      bostonTexture: threeDInteractions.characters.bostonTexture.url
     },
     outdoorCars: {
       model: threeDInteractions.outdoorCars.model?.file?.url ?? ""
