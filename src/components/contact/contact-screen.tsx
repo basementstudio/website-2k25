@@ -171,17 +171,17 @@ const ContactScreen = () => {
           animate={animation}
         >
           <div className="absolute inset-0 scale-105 transform rounded-lg bg-brand-o/[7%] blur-[32px]"></div>
-          <div className="relative z-20 flex h-full w-full flex-col justify-between gap-7 rounded-sm font-flauta text-[14px] text-brand-o backdrop-blur-sm [backface-visibility:hidden] [box-shadow:0_0_50px_rgba(255,77,0,0.2),inset_0_0_15px_rgba(255,77,0,0.1),0_0_40px_rgba(255,77,0,0.3),inset_0_2px_2px_rgba(255,77,0,0.2)] [filter:brightness(1.1)_contrast(1.1)] [transform:translateZ(0)] before:pointer-events-none before:absolute before:inset-0 before:animate-[scan_10s_linear_infinite] before:bg-[linear-gradient(0deg,rgba(255,77,0,0.01)_1px,transparent_1px)] before:bg-[size:100%_2px] before:opacity-20 after:pointer-events-none after:absolute after:inset-0 after:bg-[radial-gradient(rgba(255,77,0,0.1)_1px,transparent_1px)] after:bg-[length:4px_4px] after:opacity-20">
+          <div className="relative z-20 flex h-full w-full flex-col justify-between gap-7 rounded-sm p-4 font-flauta text-[14px] text-brand-o backdrop-blur-sm [backface-visibility:hidden] [box-shadow:0_0_50px_rgba(255,77,0,0.2),inset_0_0_15px_rgba(255,77,0,0.1),0_0_40px_rgba(255,77,0,0.3),inset_0_2px_2px_rgba(255,77,0,0.2)] [filter:brightness(1.1)_contrast(1.1)] [transform:translateZ(0)] before:pointer-events-none before:absolute before:inset-0 before:animate-[scan_10s_linear_infinite] before:bg-[linear-gradient(0deg,rgba(255,77,0,0.01)_1px,transparent_1px)] before:bg-[size:100%_2px] before:opacity-20 after:pointer-events-none after:absolute after:inset-0 after:bg-[radial-gradient(rgba(255,77,0,0.1)_1px,transparent_1px)] after:bg-[length:4px_4px] after:opacity-20">
             <form
               ref={formRef}
               onSubmit={handleSubmit(onSubmit)}
               className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_5px_rgba(255,77,0,0.15)]"
             >
-              <div className="absolute -top-[10px] left-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.75)]">
+              <div className="absolute -top-[10px] left-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.8)]">
                 <span className="relative z-10 px-1">CONTACT US</span>
               </div>
 
-              <div className="absolute -top-[10px] right-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.75)]">
+              <div className="absolute -top-[10px] right-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.8)]">
                 <button
                   type="button"
                   className="relative z-10 px-1 uppercase transition-all duration-300 hover:bg-brand-o hover:text-black"
