@@ -3,7 +3,7 @@ import { extend, useLoader, useThree } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
@@ -22,7 +22,7 @@ const colorWhenOn = new THREE.Color("#f2f2f2")
 const colorWhenOff = new THREE.Color("#595959")
 const colorWhenInspecting = new THREE.Color("#000000")
 
-export const Lamp = () => {
+export const Lamp = memo(function LampInner() {
   const { selected } = useInspectable()
   const setCursor = useCursor()
   const band = useRef<any>(null)
@@ -335,7 +335,7 @@ export const Lamp = () => {
       </mesh>
     </>
   )
-}
+})
 
 interface ConstraintProps {
   position: [number, number, number]
