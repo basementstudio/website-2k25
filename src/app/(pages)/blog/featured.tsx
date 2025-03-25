@@ -1,10 +1,10 @@
 import Image from "next/image"
+import Link from "next/link"
 
 import { RichText } from "@/components/primitives/rich-text"
 import { formatDate } from "@/utils/format-date"
 
 import { fetchFeaturedPost } from "./basehub"
-import { Link } from "@/components/primitives/link"
 
 export async function Featured() {
   const post = await fetchFeaturedPost()

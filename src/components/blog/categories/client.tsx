@@ -1,9 +1,9 @@
 "use client"
 
+import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
 import { cn } from "@/utils/cn"
-import { Link } from "@/components/primitives/link"
 
 export const CategoriesClient = ({
   categories
