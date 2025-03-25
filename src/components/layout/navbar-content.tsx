@@ -166,6 +166,7 @@ interface NavbarContentProps {
     twitter: string
     instagram: string
     github: string
+    linkedIn: string
   }
 
   newsletter: RichTextNode[]
