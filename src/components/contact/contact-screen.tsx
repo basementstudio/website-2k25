@@ -170,7 +170,7 @@ const ContactScreen = () => {
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="absolute inset-0 scale-105 transform rounded-lg bg-brand-o/[2%] blur-[32px]"></div>
+          <div className="absolute inset-0 scale-105 transform rounded-lg blur-[32px]"></div>
           <div className="relative z-20 flex h-full w-full flex-col justify-between gap-2 rounded-sm p-2 font-flauta text-[14px] text-brand-o backdrop-blur-sm [backface-visibility:hidden] [filter:brightness(1.1)_contrast(1.1)] [transform:translateZ(0)] before:pointer-events-none before:absolute before:inset-0 before:animate-[scan_10s_linear_infinite] before:bg-[linear-gradient(0deg,rgba(255,77,0,0.01)_1px,transparent_1px)] before:bg-[size:100%_2px] before:opacity-20 after:pointer-events-none after:absolute after:inset-0 after:bg-[radial-gradient(rgba(255,77,0,0.1)_1px,transparent_1px)] after:bg-[length:4px_4px] after:opacity-20">
             <form
               ref={formRef}

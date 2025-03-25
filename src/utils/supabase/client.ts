@@ -44,6 +44,7 @@ export const getTopScores = async () => {
 
 export const submitScore = async (playerName: string, score: number) => {
   const clientId = getClientId()
+  const timestamp = Date.now()
 
   try {
     const response = await fetch("/api/scores", {
@@ -55,7 +56,8 @@ export const submitScore = async (playerName: string, score: number) => {
         playerName: playerName.toUpperCase(),
         score: Math.floor(score),
         clientId,
-        timestamp: Date.now()
+        timestamp,
+        timeWindowHash: await generateTimeWindowHash(timestamp)
       })
     })
 
@@ -78,4 +80,17 @@ export const submitScore = async (playerName: string, score: number) => {
       throw new Error("Failed to submit score: Unknown error")
     }
   }
+}
+
+async function generateTimeWindowHash(timestamp: number): Promise<string> {
+  const TIME_WINDOW = 30000
+  const timeWindow = Math.floor(timestamp / TIME_WINDOW) * TIME_WINDOW
+
+  const encoder = new TextEncoder()
+  const data = encoder.encode(timeWindow.toString())
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
+
+  return hashHex
 }

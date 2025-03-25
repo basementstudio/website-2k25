@@ -73,14 +73,14 @@ export default function NotFound() {
             <div className="absolute bottom-0 right-0 h-0.5 w-7 bg-brand-w1 shadow-[0_0_10px_#fff,0_0_20px_#fff] lg:w-14" />
           </div>
 
-          <div className="text-f-h4-mobile lg:text-f-h4 relative grid h-full w-full place-items-center font-mono uppercase text-brand-w1">
+          <div className="relative grid h-full w-full place-items-center font-mono text-f-h4-mobile uppercase text-brand-w1 lg:text-f-h4">
             <span className="absolute left-0 top-0 tracking-wider [text-shadow:0_0_10px_#fff]">
               ERROR - 404
             </span>
 
             <div className="absolute bottom-0 left-0 flex items-center gap-2">
               <div className="size-2 animate-pulse rounded-full bg-brand-r shadow-[0_0_10px_#ff0000]" />
-              <span className="font-bold tracking-widest text-brand-r [text-shadow:0_0_10px_#ff0000]">
+              <span className="font-bold tracking-widest text-brand-w1 [text-shadow:0_0_10px_#fff]">
                 REC
               </span>
             </div>
@@ -88,13 +88,13 @@ export default function NotFound() {
             <span className="absolute right-0 top-0 tracking-wider [text-shadow:0_0_10px_#fff]">
               SECURITY CAM 4870
             </span>
-            <span className="absolute bottom-0 right-0 font-bold tracking-[0.2em] text-brand-g [text-shadow:0_0_10px_#00ff00]">
+            <span className="absolute bottom-0 right-0 font-bold tracking-[0.2em] text-brand-w1 [text-shadow:0_0_10px_#fff]">
               {formattedTime}
             </span>
 
             <button
               onClick={() => goBack()}
-              className="actionable actionable-no-underline text-f-h3-mobile lg:text-f-h3 uppercase tracking-widest text-brand-w1"
+              className="actionable actionable-no-underline text-f-h3-mobile uppercase tracking-widest text-brand-w1 lg:text-f-h3"
             >
               Go Back Home
             </button>
