@@ -10,6 +10,7 @@ import {
   NearestFilter,
   OrthographicCamera,
   PerspectiveCamera as PerspectiveCameraType,
+  Raycaster,
   ShaderMaterial,
   Vector2,
   Vector3,
@@ -113,7 +114,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   })
 
   const flowDoubleFbo = useMemo(() => {
-    const fbo = doubleFbo(256 * 2, 256 * 2, {
+    const fbo = doubleFbo(1024, 1024, {
       magFilter: NearestFilter,
       minFilter: NearestFilter,
       type: HalfFloatType
@@ -244,15 +245,15 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
     if (time < 0.5) {
       lines.visible = Math.sin(time * 50) > 0
-      ;(lines.material as any).uniforms.uOpacity.value = 0.3
+      ;(lines.material as any).uniforms.uOpacity.value = 0.1
     } else {
       // remove lines when app is loaded
       lines.visible = true
-      ;(lines.material as any).uniforms.uOpacity.value = 0.6
+      ;(lines.material as any).uniforms.uOpacity.value = 0.3
     }
 
     if (uScreenReveal.current > 0) {
-      ;(lines.material as any).uniforms.uOpacity.value = 0.3
+      ;(lines.material as any).uniforms.uOpacity.value = 0.1
       if (uScreenReveal.current < 0.3) {
         lines.visible = Math.sin(time * 50) > 0
       } else {
@@ -299,16 +300,54 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     return oc
   }, [])
 
-  const [handlePointerMove, lerpMouseFloor, vRefsFloor] = useLerpMouse()
+  // const [handlePointerMove, lerpMouseFloor, vRefsFloor] = useLerpMouse()
 
-  const vrefs2 = useMemo(
+  const vRefsFloor = useMemo(
     () => ({
-      prevUv: new Vector2(0, 0)
+      uv: new Vector2(0, 0),
+      smoothPointer: new Vector2(0, 0),
+      prevSmoothPointer: new Vector2(0, 0),
+      depth: 0
     }),
     []
   )
 
+  const raycaster = new Raycaster()
+  const camera = useThree((s) => s.camera)
+  const pointer = useThree((s) => s.pointer)
+
   const renderFlow = (gl: WebGLRenderer, delta: number) => {
+    gl.setRenderTarget(null)
+
+    vRefsFloor.smoothPointer.lerp(pointer, Math.min(delta * 10, 1))
+    const distance = vRefsFloor.smoothPointer.distanceTo(
+      vRefsFloor.prevSmoothPointer
+    )
+    vRefsFloor.prevSmoothPointer.copy(vRefsFloor.smoothPointer)
+
+    // console.log(vRefsFloor.smoothPointer)
+
+    raycaster.setFromCamera(pointer, camera)
+    const intersects = raycaster.intersectObject(solid)
+
+    if (intersects.length) {
+      const sortedInt = intersects.sort((a, b) => a.distance - b.distance)
+
+      const int = sortedInt[0]
+      const distance = int.distance
+      vRefsFloor.depth = distance
+    }
+
+    vRefsFloor.uv.copy(vRefsFloor.smoothPointer)
+    // vRefsFloor.uv.subScalar(1)
+    // vRefsFloor.uv.multiplyScalar(0.5)
+
+    // console.log(vRefsFloor.uv)
+
+    // console.log(intersects)
+
+    // return
+
     gl.setRenderTarget(flowDoubleFbo.write)
     gl.render(flowScene, flowCamera)
     solidMaterial.uniforms.uFlowTexture.value = flowDoubleFbo.read.texture
@@ -318,16 +357,11 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
     flowMaterial.uniforms.uMouseDepth.value = vRefsFloor.depth
 
-    const distance = vRefsFloor.uv.distanceTo(vrefs2.prevUv)
-
     flowMaterial.uniforms.uMousePosition.value.set(
       vRefsFloor.uv.x,
       vRefsFloor.uv.y
     )
-    flowMaterial.uniforms.uMouseMoving.value = distance > 0.01 ? 1.0 : 0.0
-
-    vrefs2.prevUv.copy(vRefsFloor.uv)
-    lerpMouseFloor(delta)
+    flowMaterial.uniforms.uMouseMoving.value = distance > 0.001 ? 1.0 : 0.0
   }
 
   useFrame(({ gl }, delta) => {
@@ -352,7 +386,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     <>
       <primitive visible={false} object={lines} />
       <primitive object={solidParent}>
-        <group onPointerMove={handlePointerMove}>
+        <group>
           <primitive object={solid} />
         </group>
       </primitive>

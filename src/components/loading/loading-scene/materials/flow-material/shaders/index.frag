@@ -73,10 +73,10 @@ vec4 samplePrev(vec2 uv) {
 }
 
 void main() {
-  // if (uFrame < 3) {
-  //   fragColor = vec4(vec3(0.0, 0., 0.), 1.0);
-  //   return;
-  // }
+  if (uFrame < 3) {
+    fragColor = vec4(vec3(3., 100000., 0.), 1.0);
+    return;
+  }
 
   vec2 uv = vUv;
   vec2 p = vec2(0.5) - uv;
@@ -85,7 +85,7 @@ void main() {
   vec4 expandedSample = samplePrev(uv);
   vec3 color = expandedSample.rgb;
 
-  float circle = circleSdf(p, uMousePosition, 0.005);
+  float circle = circleSdf(p, uMousePosition, 0.01);
 
   if(circle < 0. && uMouseMoving > 0.) {
     color.r = uMouseDepth;
