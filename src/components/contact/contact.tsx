@@ -9,8 +9,10 @@ import { cn } from "@/utils/cn"
 
 import ContactCanvas from "./contact-canvas"
 import { useContactStore } from "./contact-store"
+import { useMedia } from "@/hooks/use-media"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 
-const Contact = () => {
+const RenderContact = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
@@ -109,6 +111,13 @@ const Contact = () => {
       />
     </>
   )
+}
+
+const Contact = () => {
+  const { isMobile } = useDeviceDetect()
+  const isMobileWidth = useMedia("(max-width: 400px)")
+
+  return isMobile || isMobileWidth ? null : <RenderContact />
 }
 
 export default Contact
