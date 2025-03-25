@@ -139,8 +139,29 @@ function PetsInner({
 
   useEffect(() => {
     actions[PetAnimationName["PURE-Idle"]]?.play()
-    bostonActions[PetAnimationName["BOSTON-Idle"]]?.play()
+
+    const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
+    if (bostonIdleAction) {
+      bostonIdleAction.timeScale = 0.7
+      bostonIdleAction.play()
+    }
   }, [actions, bostonActions])
+
+  const handleBostonHoverStart = () => {
+    setCursor("grab", "Boston")
+    const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
+    if (bostonIdleAction) {
+      bostonIdleAction.timeScale = 1.0
+    }
+  }
+
+  const handleBostonHoverEnd = () => {
+    setCursor("default", null)
+    const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
+    if (bostonIdleAction) {
+      bostonIdleAction.timeScale = 0.25
+    }
+  }
 
   return (
     <group>
@@ -160,8 +181,8 @@ function PetsInner({
       <mesh
         position={[9.73, 3.86, -16.7]}
         rotation={[0, Math.PI * 0.6, 0]}
-        onPointerOver={() => setCursor("grab", "Boston")}
-        onPointerOut={() => setCursor("default", null)}
+        onPointerOver={handleBostonHoverStart}
+        onPointerOut={handleBostonHoverEnd}
         visible={false}
       >
         <boxGeometry args={[0.3, 0.3, 0.5]} />
