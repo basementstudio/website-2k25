@@ -27,6 +27,7 @@ uniform float uVignetteSoftness;
 uniform float uBloomStrength;
 uniform float uBloomRadius;
 uniform float uBloomThreshold;
+uniform float uActiveBloom;
 
 // Color mask (basketball)
 uniform vec2 uEllipseCenter;
@@ -255,7 +256,7 @@ void main() {
   // The bloom calculation remains exactly the same
   vec3 bloomColor = vec3(0.0);
 
-  if (uBloomStrength > 0.001 && checkerPattern > 0.5) {
+  if (uBloomStrength > 0.001 && checkerPattern > 0.5 && uActiveBloom > 0.5) {
     // Apply bloom effect only when bloom strength is significant and on checker pattern
     vec3 bloom = vec3(0.0);
     float totalWeight = 0.0;

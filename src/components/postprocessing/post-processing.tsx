@@ -144,6 +144,8 @@ const Inner = ({
         : (window.innerWidth * 9) / 16
       material.uniforms.resolution.value.set(width, height)
       material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
+
+      material.uniforms.uActiveBloom.value = isDesktop ? 1 : 0
     }
 
     resize()
