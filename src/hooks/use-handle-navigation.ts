@@ -25,6 +25,7 @@ export const useHandleNavigation = () => {
   const lenisRef = useRef(lenisInstance)
   const router = useRouter()
   const pathname = usePathname()
+  const prevPathname = useRef<string | null>(null)
   const scrollToFn = useScrollTo()
   const scrollToRef = useRef(scrollToFn)
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
@@ -88,11 +89,14 @@ export const useHandleNavigation = () => {
 
   const continueNavigation = useCallback(
     (route: string) => {
-      const selectedScene = getScene(route)
+      const selectedScene = getScene(route === "/contact" ? "home" : route)
+
+      const goOrComeFromContactFallback =
+        route === "/contact" || prevPathname.current === "/contact"
 
       if (!selectedScene) return
 
-      if (window.scrollY < window.innerHeight) {
+      if (window.scrollY < window.innerHeight && !goOrComeFromContactFallback) {
         setCurrentScene(selectedScene)
         lenisRef.current?.stop()
 
@@ -103,6 +107,7 @@ export const useHandleNavigation = () => {
             if (route !== "/lab") {
               useArcadeStore.getState().setIsInLabTab(false)
             }
+            prevPathname.current = pathname
             router.push(route, { scroll: false })
             lenisRef.current?.start()
           }
@@ -125,6 +130,7 @@ export const useHandleNavigation = () => {
           if (route !== "/lab") {
             useArcadeStore.getState().setIsInLabTab(false)
           }
+          prevPathname.current = pathname
           router.push(route, { scroll: false })
         }, TRANSITION_DURATION)
       }
