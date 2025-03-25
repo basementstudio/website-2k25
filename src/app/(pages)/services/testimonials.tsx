@@ -28,7 +28,7 @@ const TestimonialAvatar = memo(
             width={avatar.width}
             placeholder="blur"
             quality={100}
-            sizes="(max-width: 768px) 48px, 64px"
+            sizes="(max-width: 1024px) 192px, 288px"
             src={avatar.url}
           />
         </div>
