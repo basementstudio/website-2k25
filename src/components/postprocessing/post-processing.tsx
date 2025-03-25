@@ -15,6 +15,7 @@ import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
+import { useMedia } from "@/hooks/use-media"
 
 interface PostProcessingProps {
   mainTexture: Texture
@@ -30,6 +31,7 @@ const Inner = ({
   const scene = useCurrentScene()
   const assets = useAssets()
   const firstRender = useRef(true)
+  const isDesktop = useMedia("(min-width: 1024px)")
 
   const material = useMemo(() => createPostProcessingMaterial(), [])
 
@@ -137,7 +139,7 @@ const Inner = ({
 
     const resize = () => {
       const width = window.innerWidth
-      const height = window.innerHeight
+      const height = isDesktop ? window.innerHeight : window.innerWidth
       material.uniforms.resolution.value.set(width, height)
       material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
     }
@@ -149,7 +151,7 @@ const Inner = ({
     material.uniforms.uDepthTexture.value = depthTexture
 
     return () => controller.abort()
-  }, [mainTexture, depthTexture])
+  }, [mainTexture, depthTexture, isDesktop])
 
   useFrameCallback((_, __, elapsedTime) => {
     material.uniforms.uTime.value = elapsedTime

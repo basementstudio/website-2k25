@@ -1,5 +1,5 @@
 import { createPortal } from "@react-three/fiber"
-import { memo, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   DepthTexture,
   HalfFloatType,
@@ -20,6 +20,7 @@ import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { doubleFbo } from "@/utils/double-fbo"
 
 import { PostProcessing } from "./post-processing"
+import { useMedia } from "@/hooks/use-media"
 
 interface RendererProps {
   sceneChildren: React.ReactNode
@@ -66,17 +67,21 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingScene = useMemo(() => new Scene(), [])
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
+  const isDesktop = useMedia("(min-width: 1024px)")
 
   useEffect(() => {
     const resizeCallback = () =>
-      mainTarget.setSize(window.innerWidth, window.innerHeight)
+      mainTarget.setSize(
+        window.innerWidth,
+        isDesktop ? window.innerHeight : window.innerWidth
+      )
 
     resizeCallback()
 
     window.addEventListener("resize", resizeCallback, { passive: true })
 
     return () => window.removeEventListener("resize", resizeCallback)
-  }, [mainTarget])
+  }, [mainTarget, isDesktop])
 
   useFrameCallback(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return
