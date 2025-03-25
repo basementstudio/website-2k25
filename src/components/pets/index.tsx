@@ -9,6 +9,9 @@ import { GLTF } from "three/examples/jsm/Addons.js"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useAssets } from "../assets-provider"
 import { useCursor } from "@/hooks/use-mouse"
+import { useFadeAnimation } from "../inspectables/use-fade-animation"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { Color } from "three"
 
 enum PetSkinnedName {
   PURE = "Pure-v1",
@@ -108,6 +111,21 @@ export function Pets() {
     return bostonSkinned
   }, [nodes, bostonTexture])
 
+  const { fadeFactor } = useFadeAnimation()
+
+  useFrameCallback(() => {
+    const f = 1 - fadeFactor.current.get()
+    if (bostonSkinned && bostonSkinned.material) {
+      const m = bostonSkinned.material as THREE.MeshBasicMaterial
+      m.color.set(new Color(f, f, f))
+    }
+
+    if (pureSkinned && pureSkinned.material) {
+      const m = pureSkinned.material as THREE.MeshBasicMaterial
+      m.color.set(new Color(f, f, f))
+    }
+  })
+
   if (!pureSkinned || !bostonSkinned) {
     console.warn("Invalid pet config, mesh not found.")
     return null
@@ -146,7 +164,7 @@ function PetsInner({
 
     const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
     if (bostonIdleAction) {
-      bostonIdleAction.timeScale = 0.7
+      bostonIdleAction.timeScale = 0.4
       bostonIdleAction.play()
     }
   }, [actions, bostonActions])
@@ -163,7 +181,7 @@ function PetsInner({
     setCursor("default", null)
     const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
     if (bostonIdleAction) {
-      bostonIdleAction.timeScale = 0.25
+      bostonIdleAction.timeScale = 0.4
     }
   }
 

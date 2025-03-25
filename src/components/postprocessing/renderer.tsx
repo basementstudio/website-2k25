@@ -73,7 +73,7 @@ function RendererInner({ sceneChildren }: RendererProps) {
     const resizeCallback = () =>
       mainTarget.setSize(
         window.innerWidth,
-        isDesktop ? window.innerHeight : window.innerWidth
+        isDesktop ? window.innerHeight : (window.innerWidth * 9) / 16
       )
 
     resizeCallback()

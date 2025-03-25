@@ -1,11 +1,8 @@
 import { PerspectiveCamera } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
-import { useRef, useState, useEffect, useMemo } from "react"
+import { useRef, useState, useMemo } from "react"
 import * as THREE from "three"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-import { useDeviceDetect } from "@/hooks/use-device-detect"
-import { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
 
 import {
   useBoundaries,
@@ -21,11 +18,10 @@ export const CustomCamera = () => {
   const currentScene = useNavigationStore((state) => state.currentScene)
   const cameraConfig = currentScene?.cameraConfig
   const [isInitialized, setIsInitialized] = useState(false)
-  const { isMobile } = useDeviceDetect()
 
   const finalCameraConfig = useMemo(() => {
     return cameraConfig
-  }, [isMobile, currentScene, cameraConfig])
+  }, [cameraConfig])
 
   const boundaries = useBoundaries(finalCameraConfig)
   const { currentPos, currentTarget, targetPosition, targetLookAt } =

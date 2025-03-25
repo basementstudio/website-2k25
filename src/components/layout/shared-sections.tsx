@@ -14,7 +14,6 @@ interface InternalLinksProps {
   onClick?: () => void
   onNav?: boolean
   animated?: boolean
-  showBasketball?: boolean
 }
 
 const STAGER_DELAY = 0.15
@@ -29,8 +28,7 @@ export const InternalLinks = ({
   links,
   onClick,
   onNav,
-  animated = false,
-  showBasketball = false
+  animated = false
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
   const isDesktop = useMedia("(min-width: 1024px)")
@@ -120,35 +118,6 @@ export const InternalLinks = ({
           <span className="actionable">Contact Us</span>
         </button>
       </motion.li>
-
-      {showBasketball && (
-        <motion.li
-          {...animateProps}
-          animate={{
-            ...animateProps.animate,
-            transition: {
-              duration: STAGER_DURATION,
-              delay: getDelay(links.length + 1, links.length + 1)
-            }
-          }}
-          exit={{
-            ...animateProps.exit,
-            transition: {
-              duration: STAGER_DURATION,
-              delay: getDelay(links.length + 1, links.length + 1, true)
-            }
-          }}
-          className="will-change-[transform,opacity]"
-        >
-          {/* <Link
-            className="flex w-fit gap-x-0.5 text-brand-w1"
-            href="/basketball"
-            onClick={onClick}
-          >
-            <span className="actionable">Basketball</span>
-          </Link> */}
-        </motion.li>
-      )}
     </ul>
   )
 }

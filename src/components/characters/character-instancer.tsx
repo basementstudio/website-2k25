@@ -131,7 +131,11 @@ function CharacterInstanceConfigInner() {
     material.uniforms.mapConfigs = {
       value: mapConfigs
     }
-    material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: mapConfigs.length }
+    material.defines = {
+      USE_MULTI_MAP: "",
+      USE_INSTANCED_LIGHT: "",
+      MULTI_MAP_COUNT: mapConfigs.length
+    }
 
     // disable morph targets
     Object.keys(nodes).forEach((nodeKey) => {
