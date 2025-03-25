@@ -310,9 +310,12 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
             "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6",
             "will-change-transform"
           )}
-          initial={{ transform: "translateY(-100%)" }}
-          animate={{ transform: "translateY(0%)" }}
-          exit={{ transform: "translateY(-100%)", transition: { delay: 0.35 } }}
+          initial={{ transform: "translate3d(0, -100%, 0)" }}
+          animate={{ transform: "translate3d(0, 0%, 0)" }}
+          exit={{
+            transform: "translate3d(0, -100%, 0)",
+            transition: { delay: 0.35 }
+          }}
           transition={{ duration: 0.4, type: "spring", bounce: 0 }}
         >
           <InternalLinks
