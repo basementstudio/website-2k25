@@ -31,7 +31,15 @@ export const InternalLinks = ({
   animated = false
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
-  const isMobile = useMedia("(max-width: 1024px)")
+  const isDesktop = useMedia("(min-width: 1024px)")
+
+  const filteredLinks = links.filter((link) => {
+    if (isDesktop || !link.href.includes("lab")) {
+      return true
+    }
+
+    return false
+  })
 
   const animateProps = animated
     ? {
@@ -50,7 +58,7 @@ export const InternalLinks = ({
         className
       )}
     >
-      {links.map((link, idx) => (
+      {filteredLinks.map((link, idx) => (
         <motion.li
           key={`${link.title}-${idx}`}
           {...animateProps}
@@ -70,14 +78,9 @@ export const InternalLinks = ({
           }}
         >
           <Link
-            className="flex w-fit gap-x-0.5 text-brand-w1"
-            href={
-              isMobile && link.title === "Lab"
-                ? "https://basement.studio/lab"
-                : link.href
-            }
+            className={cn("flex w-fit gap-x-0.5 text-brand-w1")}
+            href={link.href}
             onClick={onClick}
-            target={isMobile && link.title === "Lab" ? "_blank" : undefined}
           >
             <span className="actionable">{link.title}</span>
             {link.count && (
@@ -88,6 +91,7 @@ export const InternalLinks = ({
           </Link>
         </motion.li>
       ))}
+
       <motion.li
         {...animateProps}
         animate={{

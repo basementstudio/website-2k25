@@ -85,7 +85,7 @@ function LoadingCanvas() {
   return (
     <div
       className={cn(
-        "absolute left-0 top-0 z-[200] aspect-video w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
+        "absolute left-0 top-0 z-[200] h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
         isBasketball && !isDesktop && "inset-x-0 top-0 h-[100svh]",
         !canRunMainApp && "bg-black"
       )}
