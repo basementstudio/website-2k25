@@ -70,20 +70,25 @@ function AppLoadingHandler() {
   )
 
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
-  const isMobile = useMedia("(max-width: 1024px)")
+  const isDesktop = useMedia("(min-width: 1024px)")
 
   // TODO: update this once we cover "showcase navigation issue"
   const lenis = useLenis()
 
   useEffect(() => {
-    if (isMobile) return
+    if (!lenis) return
+
+    if (!isDesktop) {
+      lenis.start()
+      return
+    }
 
     if (showLoadingCanvas && isCanvasInPage) {
-      lenis?.stop()
+      lenis.stop()
     } else {
-      lenis?.start()
+      lenis.start()
     }
-  }, [showLoadingCanvas, lenis, isCanvasInPage, isMobile])
+  }, [showLoadingCanvas, lenis, isCanvasInPage, isDesktop])
 
   if (!isCanvasInPage) {
     return null
