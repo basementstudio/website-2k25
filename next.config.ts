@@ -2,6 +2,12 @@ import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
+  compiler: {
+    removeConsole: {
+      exclude: ["error", "warn"]
+    }
+  },
+
   experimental: {
     turbo: {
       rules: {
@@ -13,6 +19,7 @@ const nextConfig: NextConfig = {
     },
     ppr: "incremental"
   },
+  suppressWarnings: true,
 
   images: {
     formats: ["image/avif", "image/webp"],
@@ -42,6 +49,11 @@ const nextConfig: NextConfig = {
       test: /\.(glsl|vs|fs|vert|frag)$/,
       use: ["raw-loader", "glslify-loader"]
     })
+
+    // Filter warnings
+    config.infrastructureLogging = {
+      level: "error"
+    }
 
     return config
   },
