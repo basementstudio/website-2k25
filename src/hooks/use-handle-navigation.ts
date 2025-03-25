@@ -89,7 +89,7 @@ export const useHandleNavigation = () => {
 
   const continueNavigation = useCallback(
     (route: string) => {
-      const selectedScene = getScene(route === "/contact" ? "home" : route)
+      const selectedScene = getScene(route)
 
       const goOrComeFromContactFallback =
         route === "/contact" || prevPathname.current === "/contact"
