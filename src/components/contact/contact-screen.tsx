@@ -3,27 +3,49 @@
 import type React from "react"
 
 import { submitContactForm } from "@/actions/contact-form"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback, useMemo, memo } from "react"
 import { motion, useAnimation } from "motion/react"
 import { useContactStore } from "./contact-store"
+import { useShallow } from "zustand/react/shallow"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import type { Inputs } from "@/app/contact/form/contact-form"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { Link } from "../primitives/link"
 
-const ContactScreen = () => {
-  const contentRef = useRef(null)
+const ContactScreen = memo(() => {
+  const contentRef = useRef<HTMLDivElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const updatePositionRef = useRef<(() => void) | null>(null)
   const animation = useAnimation()
-  const worker = useContactStore((state) => state.worker)
-  const closeContact = useContactStore.getState().setIsContactOpen
+
+  const {
+    worker,
+    setIsContactOpen,
+    setIntroCompleted,
+    setIsAnimating,
+    isAnimating
+  } = useContactStore(
+    useShallow((state) => ({
+      worker: state.worker,
+      setIsContactOpen: state.setIsContactOpen,
+      setIntroCompleted: state.setIntroCompleted,
+      setIsAnimating: state.setIsAnimating,
+      isAnimating: state.isAnimating
+    }))
+  )
+
+  const closeContact = useCallback(
+    () => setIsContactOpen(false),
+    [setIsContactOpen]
+  )
+
   const { playSoundFX } = useSiteAudio()
   const scene = useCurrentScene()
-  const isPeople = scene === "people"
-  const isBlog = scene === "blog"
-  const desiredVolume = isBlog ? 0.07 : 0.22
+
+  const isPeople = useMemo(() => scene === "people", [scene])
+  const isBlog = useMemo(() => scene === "blog", [scene])
+  const desiredVolume = useMemo(() => (isBlog ? 0.07 : 0.22), [isBlog])
 
   const [submitting, setSubmitting] = useState(false)
   const [showSubmittedMessage, setShowSubmittedMessage] = useState(false)
@@ -32,15 +54,13 @@ const ContactScreen = () => {
     height: 350
   })
 
-  useEffect(() => {
-    if (!worker) return
-
-    const handleMessage = (e: MessageEvent) => {
+  const handleMessage = useCallback(
+    (e: MessageEvent) => {
       const { type, screenPos, dimensions } = e.data
 
       if (type === "update-screen-skinned-matrix") {
         if (contentRef.current) {
-          const element = contentRef.current as HTMLDivElement
+          const element = contentRef.current
           element.style.left = `${screenPos.x * 100 + 0.2}%`
           element.style.top = `${screenPos.y * 100}%`
         }
@@ -56,9 +76,9 @@ const ContactScreen = () => {
             }
           })
           .then(() => {
-            useContactStore.getState().setIntroCompleted(true)
-            useContactStore.getState().setIsAnimating(false)
-            worker.postMessage({ type: "scale-animation-complete" })
+            setIntroCompleted(true)
+            setIsAnimating(false)
+            worker?.postMessage({ type: "scale-animation-complete" })
           })
       } else if (type === "start-outro") {
         animation
@@ -72,17 +92,22 @@ const ContactScreen = () => {
             }
           })
           .then(() => {
-            worker.postMessage({ type: "run-outro-animation" })
+            worker?.postMessage({ type: "run-outro-animation" })
           })
       } else if (type === "outro-complete") {
         setTimeout(() => {
-          useContactStore.getState().setIsAnimating(false)
-          worker.postMessage({ type: "scale-down-animation-complete" })
+          setIsAnimating(false)
+          worker?.postMessage({ type: "scale-down-animation-complete" })
         }, 500)
       } else if (type === "screen-dimensions") {
         setScreenDimensions(dimensions)
       }
-    }
+    },
+    [animation, worker, setIntroCompleted, setIsAnimating]
+  )
+
+  useEffect(() => {
+    if (!worker) return
 
     worker.addEventListener("message", handleMessage)
     return () => {
@@ -91,65 +116,212 @@ const ContactScreen = () => {
         window.removeEventListener("resize", updatePositionRef.current)
       }
     }
-  }, [worker, animation])
+  }, [worker, handleMessage])
 
   const { register, handleSubmit, reset, watch } = useForm<Inputs>()
 
   const email = watch("email")
   const message = watch("message")
 
-  const isValid = !!email && !!message
+  const isValid = useMemo(() => !!email && !!message, [email, message])
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    setSubmitting(true)
-    setShowSubmittedMessage(false)
+  const onSubmit: SubmitHandler<Inputs> = useCallback(
+    async (data) => {
+      setSubmitting(true)
+      setShowSubmittedMessage(false)
 
-    // play interference sound when submitting
-    if (isPeople || isBlog) {
-      playSoundFX("CONTACT_INTERFERENCE", desiredVolume)
-    }
-
-    if (worker) {
-      worker.postMessage({ type: "submit-clicked" })
-    }
-
-    try {
-      const formData = {
-        name: data.name || "",
-        company: data.company || "",
-        email: data.email,
-        budget: data.budget || "",
-        message: data.message
+      if (isPeople || isBlog) {
+        playSoundFX("CONTACT_INTERFERENCE", desiredVolume)
       }
 
-      const result = await submitContactForm(formData)
-
-      if (result.success) {
-        setShowSubmittedMessage(true)
-
-        setTimeout(() => {
-          setShowSubmittedMessage(false)
-
-          if (worker) {
-            worker.postMessage({ type: "start-outro" })
-
-            closeContact(false)
-          }
-        }, 2000)
-
-        reset()
+      if (worker) {
+        worker.postMessage({ type: "submit-clicked" })
       }
-    } finally {
-      setSubmitting(false)
-    }
-  }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey && isValid && !submitting) {
-      e.preventDefault()
-      formRef.current?.requestSubmit()
+      try {
+        const formData = {
+          name: data.name || "",
+          company: data.company || "",
+          email: data.email,
+          budget: data.budget || "",
+          message: data.message
+        }
+
+        const result = await submitContactForm(formData)
+
+        if (result.success) {
+          setShowSubmittedMessage(true)
+
+          setTimeout(() => {
+            setShowSubmittedMessage(false)
+
+            if (worker) {
+              worker.postMessage({ type: "start-outro" })
+              closeContact()
+            }
+          }, 2000)
+
+          reset()
+        }
+      } finally {
+        setSubmitting(false)
+      }
+    },
+    [isPeople, isBlog, playSoundFX, desiredVolume, worker, closeContact, reset]
+  )
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey && isValid && !submitting) {
+        e.preventDefault()
+        formRef.current?.requestSubmit()
+      }
+    },
+    [isValid, submitting]
+  )
+
+  const handleClose = useCallback(() => {
+    if (!isAnimating) {
+      closeContact()
     }
-  }
+  }, [closeContact, isAnimating])
+
+  const transformStyle = useMemo(
+    () => ({
+      width: "580px",
+      height: "350px",
+      transform: `perspective(400px) rotateY(0.5deg) scale(${screenDimensions.width / 580}, ${screenDimensions.height / 350})`,
+      transformOrigin: "center center"
+    }),
+    [screenDimensions]
+  )
+
+  const formContent = useMemo(
+    () => (
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit(onSubmit)}
+        className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_5px_rgba(255,77,0,0.15)]"
+      >
+        <div className="absolute -top-[10px] left-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.8)]">
+          <span className="relative z-10 px-1">CONTACT US</span>
+        </div>
+
+        <div className="absolute -top-[10px] right-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.8)]">
+          <button
+            type="button"
+            className="relative z-10 px-1 uppercase transition-all duration-300 hover:bg-brand-o hover:text-black"
+            onClick={handleClose}
+          >
+            close
+          </button>
+        </div>
+
+        <div className="flex h-full flex-col gap-2 px-4">
+          <div className="flex w-full items-center gap-2">
+            <input
+              type="text"
+              placeholder="NAME"
+              className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
+              onKeyDown={handleKeyDown}
+              {...register("name")}
+            />
+            <input
+              type="text"
+              placeholder="COMPANY"
+              className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
+              onKeyDown={handleKeyDown}
+              {...register("company")}
+            />
+          </div>
+          <div className="flex w-full items-center gap-2">
+            <input
+              required
+              type="email"
+              placeholder="EMAIL"
+              className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
+              onKeyDown={handleKeyDown}
+              {...register("email", { required: "Email is required" })}
+            />
+            <input
+              type="text"
+              placeholder="BUDGET (OPTIONAL)"
+              className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
+              onKeyDown={handleKeyDown}
+              {...register("budget")}
+            />
+          </div>
+          <textarea
+            required
+            autoComplete="off"
+            placeholder="MESSAGE"
+            className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
+            onKeyDown={handleKeyDown}
+            {...register("message", { required: "Message is required" })}
+          />
+        </div>
+
+        <div className="w-full px-4">
+          <button
+            className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 [box-shadow:0_0_5px_rgba(255,77,0,0.15)] ${
+              isValid || showSubmittedMessage
+                ? "cursor-pointer border-none bg-brand-o text-black hover:bg-[#ff3d00]"
+                : "cursor-default border border-brand-o"
+            }`}
+          >
+            {submitting
+              ? "SUBMITTING..."
+              : showSubmittedMessage
+                ? "FORM SUBMITTED ✓"
+                : "SEND MESSAGE →"}
+          </button>
+        </div>
+      </form>
+    ),
+    [
+      handleSubmit,
+      onSubmit,
+      handleClose,
+      handleKeyDown,
+      register,
+      isValid,
+      showSubmittedMessage,
+      submitting
+    ]
+  )
+
+  const footerContent = useMemo(
+    () => (
+      <div className="flex w-full items-center justify-between text-[12px] uppercase">
+        <div className="flex items-center gap-[2px]">
+          <Link href="https://x.com/basementstudio" target="_blank">
+            <span className="actionable [text-shadow:0_0_10px_rgba(255,77,0,0.3)]">
+              X (Twitter)
+            </span>
+          </Link>
+          <span className="opacity-50">, </span>
+          <Link
+            href="https://www.instagram.com/basementdotstudio"
+            target="_blank"
+          >
+            <span className="actionable [text-shadow:0_0_10px_rgba(255,77,0,0.3)]">
+              Instagram
+            </span>
+          </Link>
+          <span className="opacity-50">, </span>
+          <Link href="https://github.com/basementstudio" target="_blank">
+            <span className="actionable [text-shadow:0_0_10px_rgba(255,77,0,0.3)]">
+              GitHub
+            </span>
+          </Link>
+        </div>
+        <Link href="mailto:hello@basement.studio" target="_blank">
+          <span className="actionable">(hello@basement.studio)</span>
+        </Link>
+      </div>
+    ),
+    []
+  )
 
   return (
     <div
@@ -158,12 +330,7 @@ const ContactScreen = () => {
     >
       <div
         className="relative flex bg-transparent [animation:flicker_0.15s_infinite]"
-        style={{
-          width: "580px",
-          height: "350px",
-          transform: `perspective(400px) rotateY(0.5deg) scale(${screenDimensions.width / 580}, ${screenDimensions.height / 350})`,
-          transformOrigin: "center center"
-        }}
+        style={transformStyle}
       >
         <motion.div
           className="relative h-full w-full [animation:scanline_6s_linear_infinite]"
@@ -172,132 +339,15 @@ const ContactScreen = () => {
         >
           <div className="absolute inset-0 scale-105 transform rounded-lg blur-[32px]"></div>
           <div className="relative z-20 flex h-full w-full flex-col justify-between gap-2 rounded-sm p-2 font-flauta text-[14px] text-brand-o backdrop-blur-sm [backface-visibility:hidden] [filter:brightness(1.1)_contrast(1.1)] [transform:translateZ(0)] before:pointer-events-none before:absolute before:inset-0 before:animate-[scan_10s_linear_infinite] before:bg-[linear-gradient(0deg,rgba(255,77,0,0.01)_1px,transparent_1px)] before:bg-[size:100%_2px] before:opacity-20 after:pointer-events-none after:absolute after:inset-0 after:bg-[radial-gradient(rgba(255,77,0,0.1)_1px,transparent_1px)] after:bg-[length:4px_4px] after:opacity-20">
-            <form
-              ref={formRef}
-              onSubmit={handleSubmit(onSubmit)}
-              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_5px_rgba(255,77,0,0.15)]"
-            >
-              <div className="absolute -top-[10px] left-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.8)]">
-                <span className="relative z-10 px-1">CONTACT US</span>
-              </div>
-
-              <div className="absolute -top-[10px] right-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.8)]">
-                <button
-                  type="button"
-                  className="relative z-10 px-1 uppercase transition-all duration-300 hover:bg-brand-o hover:text-black"
-                  onClick={() => {
-                    const state = useContactStore.getState()
-                    if (!state.isAnimating) {
-                      closeContact(false)
-                    }
-                  }}
-                >
-                  close
-                </button>
-              </div>
-
-              <div className="flex h-full flex-col gap-2 px-4">
-                <div className="flex w-full items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder="NAME"
-                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
-                    onKeyDown={handleKeyDown}
-                    {...register("name")}
-                  />
-                  <input
-                    type="text"
-                    placeholder="COMPANY"
-                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
-                    onKeyDown={handleKeyDown}
-                    {...register("company")}
-                  />
-                </div>
-                <div className="flex w-full items-center gap-2">
-                  <input
-                    required
-                    type="email"
-                    placeholder="EMAIL"
-                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
-                    onKeyDown={handleKeyDown}
-                    {...register("email", { required: "Email is required" })}
-                  />
-                  <input
-                    type="text"
-                    placeholder="BUDGET (OPTIONAL)"
-                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
-                    onKeyDown={handleKeyDown}
-                    {...register("budget")}
-                  />
-                </div>
-                <textarea
-                  required
-                  autoComplete="off"
-                  placeholder="MESSAGE"
-                  className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/70"
-                  onKeyDown={(e) => {
-                    if (
-                      e.key === "Enter" &&
-                      !e.shiftKey &&
-                      isValid &&
-                      !submitting
-                    ) {
-                      e.preventDefault()
-                      formRef.current?.requestSubmit()
-                    }
-                  }}
-                  {...register("message", { required: "Message is required" })}
-                />
-              </div>
-
-              <div className="w-full px-4">
-                <button
-                  className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 [box-shadow:0_0_5px_rgba(255,77,0,0.15)] ${
-                    isValid || showSubmittedMessage
-                      ? "cursor-pointer border-none bg-brand-o text-black hover:bg-[#ff3d00]"
-                      : "cursor-default border border-brand-o"
-                  }`}
-                >
-                  {submitting
-                    ? "SUBMITTING..."
-                    : showSubmittedMessage
-                      ? "FORM SUBMITTED ✓"
-                      : "SEND MESSAGE →"}
-                </button>
-              </div>
-            </form>
-            <div className="flex w-full items-center justify-between text-[12px] uppercase">
-              <div className="flex items-center gap-[2px]">
-                <Link href="https://x.com/basementstudio" target="_blank">
-                  <span className="actionable [text-shadow:0_0_10px_rgba(255,77,0,0.3)]">
-                    X (Twitter)
-                  </span>
-                </Link>
-                <span className="opacity-50">, </span>
-                <Link
-                  href="https://www.instagram.com/basementdotstudio"
-                  target="_blank"
-                >
-                  <span className="actionable [text-shadow:0_0_10px_rgba(255,77,0,0.3)]">
-                    Instagram
-                  </span>
-                </Link>
-                <span className="opacity-50">, </span>
-                <Link href="https://github.com/basementstudio" target="_blank">
-                  <span className="actionable [text-shadow:0_0_10px_rgba(255,77,0,0.3)]">
-                    GitHub
-                  </span>
-                </Link>
-              </div>
-              <Link href="mailto:hello@basement.studio" target="_blank">
-                <span className="actionable">(hello@basement.studio)</span>
-              </Link>
-            </div>
+            {formContent}
+            {footerContent}
           </div>
         </motion.div>
       </div>
     </div>
   )
-}
+})
+
+ContactScreen.displayName = "ContactScreen"
 
 export default ContactScreen
