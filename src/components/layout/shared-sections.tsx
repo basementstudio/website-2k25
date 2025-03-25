@@ -140,13 +140,13 @@ export const InternalLinks = ({
           }}
           className="will-change-[transform,opacity]"
         >
-          <Link
+          {/* <Link
             className="flex w-fit gap-x-0.5 text-brand-w1"
             href="/basketball"
             onClick={onClick}
           >
             <span className="actionable">Basketball</span>
-          </Link>
+          </Link> */}
         </motion.li>
       )}
     </ul>
