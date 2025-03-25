@@ -15,6 +15,7 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
+import { useMedia } from "@/hooks/use-media"
 
 const ANIMATION_DURATION = 1
 const ANIMATION_DURATION_FROM_404 = 4
@@ -145,6 +146,10 @@ export const useCameraMovement = (
   const previousScene = useNavigationStore.getState().previousScene
   const { selected } = useInspectable()
 
+  const lenis = useLenis()
+
+  const isDesktop = useMedia("(min-width: 1024px)")
+
   // Determine if we're transitioning from the 404 page
   const isTransitioningFrom404 = previousScene?.name === "404"
 
@@ -157,8 +162,6 @@ export const useCameraMovement = (
   const offsetMultiplier = useMemo(() => {
     return cameraConfig?.offsetMultiplier ?? 0
   }, [cameraConfig])
-
-  const lenis = useLenis()
 
   const panTargetDelta = useMemo(() => new THREE.Vector3(), [])
   const panLookAtDelta = useMemo(() => new THREE.Vector3(), [])
@@ -261,7 +264,7 @@ export const useCameraMovement = (
       targetFov.current = cameraConfig.fov
     }
 
-    if (!disableCameraTransition && lenis) {
+    if (!disableCameraTransition && lenis && isDesktop) {
       targetPosition.y +=
         (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
       targetLookAt.y +=
