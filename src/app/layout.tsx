@@ -2,7 +2,6 @@ import "@/styles/globals.css"
 
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Toolbar } from "basehub/next-toolbar"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
@@ -63,7 +62,6 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <Analytics />
       <SpeedInsights />
       <Transitions />
-      <Toolbar />
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body
