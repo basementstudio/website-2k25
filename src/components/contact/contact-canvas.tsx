@@ -1,19 +1,11 @@
 "use client"
 
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 
 import { useAssets } from "../assets-provider"
 import { useContactStore } from "./contact-store"
 import ContactScreen from "./contact-screen"
-
-const debounce = (fn: Function, ms = 300) => {
-  let timeoutId: ReturnType<typeof setTimeout>
-  return function (this: any, ...args: any[]) {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => fn.apply(this, args), ms)
-  }
-}
 
 type WorkerMessageType =
   | "outro-complete"
@@ -25,6 +17,12 @@ type WorkerMessageType =
   | "scale-down-animation-complete"
   | "animation-starting"
   | "animation-complete"
+  | "update-screen-skinned-matrix"
+  | "screen-dimensions"
+  | "submit-clicked"
+  | "window-resize"
+  | "load-model"
+  | "update-contact-open"
 
 const ContactCanvas = () => {
   const { contactPhone } = useAssets()
@@ -38,6 +36,48 @@ const ContactCanvas = () => {
     (state) => state.setClosingCompleted
   )
   const [shouldRender, setShouldRender] = useState(false)
+
+  const handleAnimationComplete = useCallback(
+    (setCompleteFunc: (val: boolean) => void) => {
+      setCompleteFunc(true)
+      setIsAnimating(false)
+    },
+    [setIsAnimating]
+  )
+
+  const handlePassThrough = useCallback(
+    (type: WorkerMessageType) => {
+      if (worker) {
+        worker.postMessage({ type })
+      }
+    },
+    [worker]
+  )
+
+  const messageHandlers = useMemo(
+    () =>
+      ({
+        "outro-complete": () => handleAnimationComplete(setClosingCompleted),
+        "animation-rejected": () => setIsAnimating(false),
+        "start-outro": () => handlePassThrough("start-outro"),
+        "run-outro-animation": () => handlePassThrough("run-outro-animation"),
+        "scale-animation-complete": () =>
+          handleAnimationComplete(setIntroCompleted),
+        "scale-down-animation-complete": () => {
+          setShouldRender(false)
+          handleAnimationComplete(setClosingCompleted)
+        },
+        "animation-starting": () => setIsAnimating(true),
+        "animation-complete": () => setIsAnimating(false)
+      }) as const,
+    [
+      handleAnimationComplete,
+      handlePassThrough,
+      setClosingCompleted,
+      setIntroCompleted,
+      setIsAnimating
+    ]
+  )
 
   useEffect(() => {
     if (isContactOpen) {
@@ -61,37 +101,13 @@ const ContactCanvas = () => {
 
     const handleWorkerMessage = (e: MessageEvent) => {
       const { type } = e.data
-
-      const setAnimComplete = (setCompleteFunc: (val: boolean) => void) => {
-        setCompleteFunc(true)
-        setIsAnimating(false)
-      }
-
-      const passThrough = () => worker.postMessage({ type })
-
-      const messageHandlers: Partial<Record<WorkerMessageType, () => void>> = {
-        "outro-complete": () => {
-          setAnimComplete(setClosingCompleted)
-        },
-        "animation-rejected": () => setIsAnimating(false),
-        "start-outro": passThrough,
-        "run-outro-animation": passThrough,
-        "scale-animation-complete": () => setAnimComplete(setIntroCompleted),
-        "scale-down-animation-complete": () => {
-          setShouldRender(false)
-          setAnimComplete(setClosingCompleted)
-        },
-        "animation-starting": () => setIsAnimating(true),
-        "animation-complete": () => setIsAnimating(false)
-      }
-
-      const handler = messageHandlers[type as WorkerMessageType]
+      const handler = messageHandlers[type as keyof typeof messageHandlers]
       if (handler) handler()
     }
 
     worker.addEventListener("message", handleWorkerMessage)
     return () => worker.removeEventListener("message", handleWorkerMessage)
-  }, [worker, setIsAnimating, setIntroCompleted, setClosingCompleted])
+  }, [worker, messageHandlers])
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -113,35 +129,32 @@ const ContactCanvas = () => {
       })
     }
 
-    const debouncedResizeHandler = debounce(() => {
-      if (newWorker) {
-        newWorker.postMessage({
-          type: "window-resize",
-          windowDimensions: {
-            width: window.innerWidth,
-            height: window.innerHeight
-          }
-        })
-      }
-    }, 250)
-
+    let rafId: number
     const handleResize = () => {
-      if (newWorker) {
-        newWorker.postMessage({
-          type: "window-resize",
-          windowDimensions: {
-            width: window.innerWidth,
-            height: window.innerHeight
-          }
-        })
+      if (rafId) {
+        cancelAnimationFrame(rafId)
       }
-      debouncedResizeHandler()
+
+      rafId = requestAnimationFrame(() => {
+        if (newWorker) {
+          newWorker.postMessage({
+            type: "window-resize",
+            windowDimensions: {
+              width: window.innerWidth,
+              height: window.innerHeight
+            }
+          })
+        }
+      })
     }
 
     window.addEventListener("resize", handleResize)
 
     return () => {
       window.removeEventListener("resize", handleResize)
+      if (rafId) {
+        cancelAnimationFrame(rafId)
+      }
       newWorker.terminate()
       setStoreWorker(null)
     }
