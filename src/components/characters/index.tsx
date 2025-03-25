@@ -144,6 +144,20 @@ export function Character({
           }}
         />
       )}
+      {animationName === CharacterAnimationName["Home.01"] && (
+        <CharacterPosition
+          timeSpeed={1}
+          geometryId={CharacterMeshes.Phone}
+          animationName={animationName}
+          initialTime={initialTime}
+          uniforms={{
+            uMapIndex: {
+              value: CharacterTextureIds.none
+            },
+            ...uniforms
+          }}
+        />
+      )}
     </group>
   )
 }
