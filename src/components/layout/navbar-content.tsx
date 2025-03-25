@@ -182,7 +182,7 @@ export const NavbarContent = memo(
     return (
       <nav
         className={cn(
-          "fixed top-0 z-navbar flex w-full flex-col items-center justify-center bg-brand-k transition-transform duration-300 lg:bg-transparent",
+          "fixed top-0 z-[1001] flex w-full flex-col items-center justify-center bg-brand-k transition-transform duration-300 lg:bg-transparent",
           "[background-image:linear-gradient(#000000_1px,transparent_1px),linear-gradient(to_right,#000000_1px,rgba(0,0,0,0.7)_1px)] [background-position-y:1px] [background-size:2px_2px]",
           "after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-brand-w1/10"
         )}
@@ -274,6 +274,7 @@ DesktopContent.displayName = "DesktopContent"
 const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
   const isMobile = useMedia("(max-width: 1024px)")
   const [isOpen, setIsOpen] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
 
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const menuHandlerRef = useRef<HTMLButtonElement>(null)
@@ -286,9 +287,17 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
   )
   useDisableScroll(shouldDisableScroll)
 
-  const handleChangeLink = () => {
+  const handleToggleMenu = useCallback(() => {
+    if (isAnimating) return
+    setIsAnimating(true)
+    setIsOpen(!isOpen)
+
+    setTimeout(() => setIsAnimating(false), 400)
+  }, [isOpen, isAnimating])
+
+  const handleChangeLink = useCallback(() => {
     setIsOpen(false)
-  }
+  }, [])
 
   const memoizedMenu = useMemo(() => {
     if (!isMobile || !isOpen) return null
@@ -331,7 +340,15 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
         </motion.div>
       </Portal>
     )
-  }, [isOpen, focusTrapRef, mobileMenuRef, isMobile, links, socialLinks])
+  }, [
+    isOpen,
+    focusTrapRef,
+    mobileMenuRef,
+    isMobile,
+    links,
+    socialLinks,
+    handleChangeLink
+  ])
 
   const Label = useMemo(() => {
     return function Label({ children }: { children: React.ReactNode }) {
@@ -340,19 +357,10 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
           id="menu-button"
           key={isOpen ? "close" : "menu"}
           className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
-          initial={{
-            opacity: 0,
-            transform: "translateY(10px)"
-          }}
-          animate={{
-            opacity: 1,
-            transform: "translateY(0px)"
-          }}
-          exit={{
-            opacity: 0,
-            transform: "translateY(10px)"
-          }}
-          transition={{ duration: 0.9, type: "spring", bounce: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
         >
           {children}
         </motion.p>
