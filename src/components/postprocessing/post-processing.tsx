@@ -139,7 +139,9 @@ const Inner = ({
 
     const resize = () => {
       const width = window.innerWidth
-      const height = isDesktop ? window.innerHeight : window.innerWidth
+      const height = isDesktop
+        ? window.innerHeight
+        : (window.innerWidth * 9) / 16
       material.uniforms.resolution.value.set(width, height)
       material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
     }
