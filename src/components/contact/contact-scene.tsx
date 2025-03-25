@@ -239,6 +239,8 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       } else if (type === "submit-clicked") {
         runAnimation(ANIMATION_TYPES.BUTTON)
       } else if (type === "window-resize") {
+        const workerContext = self as any
+        workerContext.windowDimensions = e.data.windowDimensions
         calculateAndSendScreenDimensions()
       } else if (
         ["scale-animation-complete", "scale-down-animation-complete"].includes(
