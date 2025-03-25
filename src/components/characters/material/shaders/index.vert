@@ -9,17 +9,24 @@ varying float vMapIndex;
 uniform sampler2D uMapIndex;
 #endif
 
+#ifdef USE_INSTANCED_LIGHT
 uniform lowp sampler2D uLightColor;
 uniform lowp sampler2D uLightDirection;
+#endif
+
+#ifdef USE_LIGHT
+uniform vec4 uLightColor;
+uniform vec4 uLightDirection;
+#endif
 
 varying vec4 vLightColor;
 varying vec4 vLightDirection;
 
 uniform sampler2D uMapOffset;
+varying vec2 vMapOffset;
 
 varying vec2 vUv;
 varying vec3 vDebug;
-varying vec2 vMapOffset;
 
 void main() {
   vUv = uv;
@@ -39,10 +46,17 @@ void main() {
   vMapOffset = texelFetch(uMapOffset, mapOffsetCoord, 0).xy;
 
   // light direction and color
+  #ifdef USE_INSTANCED_LIGHT
   ivec2 lightDirectionCoord = getSampleCoord(uLightDirection, batchId);
   vLightDirection = texelFetch(uLightDirection, lightDirectionCoord, 0);
   ivec2 lightColorCoord = getSampleCoord(uLightColor, batchId);
   vLightColor = texelFetch(uLightColor, lightColorCoord, 0);
+  #endif
+
+  #ifdef USE_LIGHT
+  vLightDirection = uLightDirection;
+  vLightColor = uLightColor;
+  #endif
 
   #include <batching_vertex>
 
