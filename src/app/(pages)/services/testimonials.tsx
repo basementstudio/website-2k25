@@ -52,7 +52,7 @@ const TestimonialAuthor = memo(
     role: QueryType["company"]["testimonials"]["services"]["role"]
   }) => (
     <div className="flex flex-col justify-center gap-1">
-      <p className="text-f-h4-mobile lg:text-f-h4 inline-flex items-center gap-x-2 text-brand-w1">
+      <p className="inline-flex items-center gap-x-2 text-f-h4-mobile text-brand-w1 lg:text-f-h4">
         {name} <span>-</span>
         <Link
           href={handleLink || ""}
@@ -63,8 +63,18 @@ const TestimonialAuthor = memo(
         </Link>
       </p>
 
-      <div className="[&_*]:text-f-h4-mobile lg:[&_*]:text-f-h4 [&_*]:text-brand-g1">
-        <RichText>{role?.json.content}</RichText>
+      <div className="[&_*]:text-f-h4-mobile [&_*]:text-brand-g1 lg:[&_*]:text-f-h4">
+        <RichText
+          components={{
+            a: ({ children, href }) => (
+              <Link target="_blank" href={href} className="actionable">
+                {children}
+              </Link>
+            )
+          }}
+        >
+          {role?.json.content}
+        </RichText>
       </div>
     </div>
   )
