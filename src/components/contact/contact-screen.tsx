@@ -1,9 +1,13 @@
+"use client"
+
+import type React from "react"
+
 import { submitContactForm } from "@/actions/contact-form"
 import { useEffect, useRef, useState } from "react"
 import { motion, useAnimation } from "motion/react"
 import { useContactStore } from "./contact-store"
-import { SubmitHandler, useForm } from "react-hook-form"
-import { Inputs } from "@/app/contact/form/contact-form"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import type { Inputs } from "@/app/contact/form/contact-form"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { Link } from "../primitives/link"
@@ -153,7 +157,7 @@ const ContactScreen = () => {
       className="contact-screen absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
     >
       <div
-        className="relative flex bg-transparent"
+        className="relative flex bg-transparent [animation:flicker_0.15s_infinite]"
         style={{
           width: "580px",
           height: "350px",
@@ -162,38 +166,35 @@ const ContactScreen = () => {
         }}
       >
         <motion.div
-          className="h-full w-full"
+          className="relative h-full w-full [animation:scanline_6s_linear_infinite]"
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="font-flauta relative z-20 flex h-full w-full flex-col justify-between gap-7 rounded-sm bg-[rgba(20,10,0,0.95)] text-[14px] text-brand-o backdrop-blur-sm [box-shadow:0_0_20px_rgba(255,77,0,0.2),inset_0_0_15px_rgba(255,77,0,0.1)] before:pointer-events-none before:absolute before:inset-0 before:animate-[scan_10s_linear_infinite] before:bg-[linear-gradient(0deg,rgba(255,77,0,0.1)_1px,transparent_1px)] before:bg-[size:100%_2px] before:opacity-20">
+          <div className="absolute inset-0 scale-105 transform rounded-lg bg-brand-o/[7%] blur-[32px]"></div>
+          <div className="relative z-20 flex h-full w-full flex-col justify-between gap-7 rounded-sm font-flauta text-[14px] text-brand-o backdrop-blur-sm [backface-visibility:hidden] [box-shadow:0_0_50px_rgba(255,77,0,0.2),inset_0_0_15px_rgba(255,77,0,0.1),0_0_40px_rgba(255,77,0,0.3),inset_0_2px_2px_rgba(255,77,0,0.2)] [filter:brightness(1.1)_contrast(1.1)] [transform:translateZ(0)] before:pointer-events-none before:absolute before:inset-0 before:animate-[scan_10s_linear_infinite] before:bg-[linear-gradient(0deg,rgba(255,77,0,0.01)_1px,transparent_1px)] before:bg-[size:100%_2px] before:opacity-20 after:pointer-events-none after:absolute after:inset-0 after:bg-[radial-gradient(rgba(255,77,0,0.1)_1px,transparent_1px)] after:bg-[length:4px_4px] after:opacity-20">
             <form
               ref={formRef}
               onSubmit={handleSubmit(onSubmit)}
               className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_5px_rgba(255,77,0,0.15)]"
             >
-              <fieldset className="absolute -top-[10px] left-[10px] z-10 -ml-px p-0">
-                <legend className="bg-[rgba(20,10,0,0.95)] px-1">
-                  CONTACT US
-                </legend>
-              </fieldset>
+              <div className="absolute -top-[10px] left-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.75)]">
+                <span className="relative z-10 px-1">CONTACT US</span>
+              </div>
 
-              <fieldset className="absolute -top-[10px] right-[10px] z-10 -mr-px p-0">
-                <legend className="px-1">
-                  <button
-                    type="button"
-                    className="bg-[rgba(20,10,0,0.95)] px-1 uppercase transition-all duration-300 hover:bg-brand-o hover:text-black"
-                    onClick={() => {
-                      const state = useContactStore.getState()
-                      if (!state.isAnimating) {
-                        closeContact(false)
-                      }
-                    }}
-                  >
-                    close
-                  </button>
-                </legend>
-              </fieldset>
+              <div className="absolute -top-[10px] right-[10px] z-10 px-1 before:absolute before:inset-0 before:top-[45%] before:-z-10 before:h-[1px] before:w-full before:bg-[rgba(20,10,0,0.75)]">
+                <button
+                  type="button"
+                  className="relative z-10 px-1 uppercase transition-all duration-300 hover:bg-brand-o hover:text-black"
+                  onClick={() => {
+                    const state = useContactStore.getState()
+                    if (!state.isAnimating) {
+                      closeContact(false)
+                    }
+                  }}
+                >
+                  close
+                </button>
+              </div>
 
               <div className="flex h-full flex-col gap-2 px-4">
                 <div className="flex w-full items-center gap-2">
