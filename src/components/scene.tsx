@@ -152,7 +152,7 @@ export const Scene = () => {
           camera={{ fov: 60 }}
           className={cn(
             "pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none",
-            isTouchOnly && "!pointer-events-none"
+            isTouchOnly && !isBasketball && "!pointer-events-none"
           )}
         >
           <AnimationController>
