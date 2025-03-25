@@ -118,34 +118,6 @@ export const InternalLinks = ({
           <span className="actionable">Contact Us</span>
         </button>
       </motion.li>
-
-      {showBasketball && (
-        <motion.li
-          {...animateProps}
-          animate={{
-            ...animateProps.animate,
-            transition: {
-              duration: STAGER_DURATION,
-              delay: getDelay(links.length + 1, links.length + 1)
-            }
-          }}
-          exit={{
-            ...animateProps.exit,
-            transition: {
-              duration: STAGER_DURATION,
-              delay: getDelay(links.length + 1, links.length + 1, true)
-            }
-          }}
-        >
-          <Link
-            className="flex w-fit gap-x-0.5 text-brand-w1"
-            href="/basketball"
-            onClick={onClick}
-          >
-            <span className="actionable">Basketball</span>
-          </Link>
-        </motion.li>
-      )}
     </ul>
   )
 }
