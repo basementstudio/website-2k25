@@ -76,14 +76,10 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { cameraConfig } = useLoadingWorkerStore()
   const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
 
-  console.log(nodes)
-
   const solidParent = nodes.SM_Solid
 
   const solid = useMemo(() => {
     const solid = nodes.SM_Solid_1
-
-    // console.log(solid)
 
     solid.material = getSolidRevealMaterial()
 
@@ -126,8 +122,6 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
   const lines = useMemo(() => {
     const l = nodes.SM_Line
-
-    // console.log(l)
 
     l.renderOrder = 2
 
