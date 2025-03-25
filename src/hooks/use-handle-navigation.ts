@@ -7,6 +7,7 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
+import { useMedia } from "./use-media"
 
 const handleTransitionEffectOn = () => {
   document.documentElement.dataset.disabled = "false"
@@ -25,7 +26,6 @@ export const useHandleNavigation = () => {
   const lenisRef = useRef(lenisInstance)
   const router = useRouter()
   const pathname = usePathname()
-  const prevPathname = useRef<string | null>(null)
   const scrollToFn = useScrollTo()
   const scrollToRef = useRef(scrollToFn)
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
@@ -33,6 +33,7 @@ export const useHandleNavigation = () => {
     (state) => state.setDisableCameraTransition
   )
   const scenes = useNavigationStore((state) => state.scenes)
+  const isMobile = useMedia("(max-width: 1024px)")
 
   useEffect(() => {
     lenisRef.current = lenisInstance
@@ -89,14 +90,11 @@ export const useHandleNavigation = () => {
 
   const continueNavigation = useCallback(
     (route: string) => {
-      const selectedScene = getScene(route === "/contact" ? "home" : route)
-
-      const goOrComeFromContactFallback =
-        route === "/contact" || prevPathname.current === "/contact"
+      const selectedScene = getScene(route)
 
       if (!selectedScene) return
 
-      if (window.scrollY < window.innerHeight && !goOrComeFromContactFallback) {
+      if (window.scrollY < window.innerHeight) {
         setCurrentScene(selectedScene)
         lenisRef.current?.stop()
 
@@ -107,13 +105,14 @@ export const useHandleNavigation = () => {
             if (route !== "/lab") {
               useArcadeStore.getState().setIsInLabTab(false)
             }
-            prevPathname.current = pathname
             router.push(route, { scroll: false })
             lenisRef.current?.start()
           }
         })
       } else {
-        handleTransitionEffectOn()
+        if (!isMobile) {
+          handleTransitionEffectOn()
+        }
         lenisRef.current?.stop()
         setDisableCameraTransition(true)
         setCurrentScene(selectedScene)
@@ -123,14 +122,15 @@ export const useHandleNavigation = () => {
             offset: 0,
             behavior: "instant",
             callback: () => {
-              handleTransitionEffectOff()
+              if (!isMobile) {
+                handleTransitionEffectOff()
+              }
               lenisRef.current?.start()
             }
           })
           if (route !== "/lab") {
             useArcadeStore.getState().setIsInLabTab(false)
           }
-          prevPathname.current = pathname
           router.push(route, { scroll: false })
         }, TRANSITION_DURATION)
       }

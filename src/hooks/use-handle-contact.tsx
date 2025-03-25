@@ -4,11 +4,9 @@ import { useCallback, useRef } from "react"
 import { useContactStore } from "@/components/contact/contact-store"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useWebgl } from "@/hooks/use-webgl"
-import { useHandleNavigation } from "./use-handle-navigation"
 
 export const useHandleContactButton = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
-  const { handleNavigation } = useHandleNavigation()
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
@@ -27,7 +25,7 @@ export const useHandleContactButton = () => {
         clickTimeoutRef.current = null
       }, 1000)
     } else {
-      handleNavigation("/contact")
+      router.push("/contact")
     }
   }, [
     webglEnabled,
