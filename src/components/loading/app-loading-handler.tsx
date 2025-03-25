@@ -6,6 +6,7 @@ import { Vector3 } from "three"
 import { create } from "zustand"
 
 import LoadingCanvas from "./loading-canvas"
+import { useMedia } from "@/hooks/use-media"
 
 export type UpdateCameraCallback = (
   cameraPosition: Vector3,
@@ -69,12 +70,13 @@ function AppLoadingHandler() {
   )
 
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
+  const isDesktop = useMedia("min-width: 1024px")
 
   // TODO: update this once we cover "showcase navigation issue"
   const lenis = useLenis()
 
   useEffect(() => {
-    if (showLoadingCanvas && isCanvasInPage) {
+    if (showLoadingCanvas && isCanvasInPage && isDesktop) {
       lenis?.stop()
     } else {
       lenis?.start()

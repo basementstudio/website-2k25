@@ -6,7 +6,7 @@ import { useAssets } from "../assets-provider"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useAppLoadingStore } from "./app-loading-handler"
 import { cn } from "@/utils/cn"
-import { useDeviceDetect } from "@/hooks/use-device-detect"
+
 import { useMedia } from "@/hooks/use-media"
 // Fallback component for when the worker fails or isn't supported
 const Fallback = dynamic(

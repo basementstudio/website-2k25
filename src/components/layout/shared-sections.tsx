@@ -31,7 +31,7 @@ export const InternalLinks = ({
   animated = false
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
-  const isDesktop = useMedia("(min-width: 1024px)")
+  const isMobile = useMedia("(max-width: 1024px)")
 
   const animateProps = animated
     ? {
@@ -73,12 +73,12 @@ export const InternalLinks = ({
           <Link
             className="flex w-fit gap-x-0.5 text-brand-w1"
             href={
-              !isDesktop && link.title === "Lab"
+              isMobile && link.title === "Lab"
                 ? "https://basement.studio/lab"
                 : link.href
             }
             onClick={onClick}
-            target={!isDesktop && link.title === "Lab" ? "_blank" : undefined}
+            target={isMobile && link.title === "Lab" ? "_blank" : undefined}
           >
             <span className="actionable">{link.title}</span>
             {link.count && (

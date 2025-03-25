@@ -9,15 +9,19 @@ import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
 
 const handleTransitionEffectOn = () => {
-  document.documentElement.dataset.disabled = "false"
-  document.documentElement.dataset.flip = "true"
+  if (window.innerWidth > 1024) {
+    document.documentElement.dataset.disabled = "false"
+    document.documentElement.dataset.flip = "true"
+  }
 }
 
 const handleTransitionEffectOff = () => {
-  document.documentElement.dataset.flip = "false"
-  setTimeout(() => {
-    document.documentElement.dataset.disabled = "true"
-  }, TRANSITION_DURATION)
+  if (window.innerWidth > 1024) {
+    document.documentElement.dataset.flip = "false"
+    setTimeout(() => {
+      document.documentElement.dataset.disabled = "true"
+    }, TRANSITION_DURATION)
+  }
 }
 
 export const useHandleNavigation = () => {
