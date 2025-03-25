@@ -1,4 +1,4 @@
-import { Link } from "@/components/primitives/link"
+import Link from "next/link"
 
 export const Back = () => (
   <Link
