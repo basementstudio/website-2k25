@@ -109,6 +109,7 @@ export const ImageWithVideoOverlay = ({
               : "invisible opacity-0"
           )}
           autoPlay={isHovered}
+          muted={true}
           ref={videoRef}
         />
       )}
