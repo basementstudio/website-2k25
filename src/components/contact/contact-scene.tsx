@@ -242,6 +242,26 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         const workerContext = self as any
         workerContext.windowDimensions = e.data.windowDimensions
         calculateAndSendScreenDimensions()
+
+        if (isContactOpen && nodes.Obj && camera) {
+          const screenbone = nodes.Obj as Bone
+          const tmp = new Vector3()
+          screenbone.getWorldPosition(tmp)
+          tmp.add(new Vector3(-0.0342, 0.043, 0))
+
+          const screenPos = tmp.clone().project(camera)
+          const normalizedScreenPos = {
+            x: (screenPos.x + 1) / 2,
+            y: (-screenPos.y + 1) / 2,
+            z: screenPos.z
+          }
+
+          self.postMessage({
+            type: "update-screen-skinned-matrix",
+            screenPos: normalizedScreenPos,
+            scale: 1
+          })
+        }
       } else if (
         ["scale-animation-complete", "scale-down-animation-complete"].includes(
           type
