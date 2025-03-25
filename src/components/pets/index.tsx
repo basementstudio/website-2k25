@@ -1,4 +1,8 @@
-import { useAnimations, useTexture } from "@react-three/drei"
+import {
+  MeshDiscardMaterial,
+  useAnimations,
+  useTexture
+} from "@react-three/drei"
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
@@ -168,7 +172,7 @@ function PetsInner({
       <primitive object={scene} />
 
       <mesh
-        position={[3.2, 0.3, -12]}
+        position={[3.2, 0.15, -12]}
         rotation={[0, Math.PI * 0.5, 0]}
         onPointerOver={(e) => {
           e.stopPropagation()
@@ -178,14 +182,29 @@ function PetsInner({
           e.stopPropagation()
           setCursor("default", null)
         }}
-        visible={false}
       >
-        <boxGeometry args={[0.5, 0.7, 0.8]} />
-        <meshBasicMaterial opacity={1} color={"red"} />
+        <boxGeometry args={[0.5, 0.3, 0.9]} />
+        <MeshDiscardMaterial />
       </mesh>
 
       <mesh
-        position={[9.73, 3.86, -16.7]}
+        position={[3.2, 0.4, -12.3]}
+        rotation={[0, Math.PI * 0.5, 0]}
+        onPointerOver={(e) => {
+          e.stopPropagation()
+          setCursor("grab", "Pure")
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation()
+          setCursor("default", null)
+        }}
+      >
+        <boxGeometry args={[0.5, 0.45, 0.25]} />
+        <MeshDiscardMaterial />
+      </mesh>
+
+      <mesh
+        position={[9.68, 3.84, -16.68]}
         rotation={[0, Math.PI * 0.6, 0]}
         onPointerOver={(e) => {
           e.stopPropagation()
@@ -195,10 +214,9 @@ function PetsInner({
           e.stopPropagation()
           handleBostonHoverEnd()
         }}
-        visible={false}
       >
-        <boxGeometry args={[0.3, 0.3, 0.5]} />
-        <meshBasicMaterial opacity={1} color={"blue"} />
+        <boxGeometry args={[0.25, 0.25, 0.45]} />
+        <MeshDiscardMaterial />
       </mesh>
     </group>
   )
