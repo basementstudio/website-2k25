@@ -14,7 +14,7 @@ import { valueRemap } from "../arcade-game/lib/math"
 import fragmentShader from "./frag.glsl"
 import { RoutingPlus } from "./routing-plus"
 import vertexShader from "./vert.glsl"
-import { useMedia } from "@/hooks/use-media"
+import { useThree } from "@react-three/fiber"
 
 interface RoutingElementProps {
   node: Mesh
@@ -29,7 +29,6 @@ const RoutingElementComponent = ({
   hoverName,
   groupName
 }: RoutingElementProps) => {
-  const isDesktop = useMedia("min-width: 1024px")
   const { routingMaterial, updateMaterialResolution } = useMemo(() => {
     const routingMaterial = new ShaderMaterial({
       depthWrite: false,
@@ -46,15 +45,17 @@ const RoutingElementComponent = ({
 
     // routingMaterial.customProgramCacheKey = () => "routing-element-material"
 
-    const updateMaterialResolution = () => {
-      routingMaterial.uniforms.resolution.value = [
-        window.innerWidth,
-        isDesktop ? window.innerHeight : (window.innerWidth * 9) / 16
-      ]
+    const updateMaterialResolution = (width: number, height: number) => {
+      routingMaterial.uniforms.resolution.value = [width, height]
     }
 
     return { routingMaterial, updateMaterialResolution }
   }, [])
+
+  const screenWidth = useThree((state) => state.size.width)
+  const screenHeight = useThree((state) => state.size.height)
+
+  updateMaterialResolution(screenWidth, screenHeight)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -231,16 +232,6 @@ const RoutingElementComponent = ({
         groupHoverHandlers.handleGroupHover
       )
   }, [groupName, groupHoverHandlers])
-
-  useEffect(() => {
-    const onResize = () => updateMaterialResolution()
-
-    window.addEventListener("resize", onResize, { passive: true })
-
-    onResize()
-
-    return () => window.removeEventListener("resize", onResize)
-  }, [])
 
   const outlinesRef = useRef<Mesh>(null)
   const crossRef = useRef<Mesh>(null)
