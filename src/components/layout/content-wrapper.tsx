@@ -49,7 +49,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
       <div
         className={cn(
-          "canvas-container relative top-0 aspect-video w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
+          "canvas-container relative top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
           !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
         )}
       >
