@@ -76,7 +76,7 @@ function LoadingCanvas() {
   if (!loadingCanvasWorker) return null
 
   return (
-    <div className="absolute left-0 top-0 z-[200] aspect-[16/10] w-full lg:fixed lg:aspect-auto lg:h-[100svh]">
+    <div className="absolute left-0 top-0 z-[200] aspect-square w-full lg:fixed lg:aspect-auto lg:h-[100svh]">
       <OffscreenCanvas
         worker={loadingCanvasWorker}
         fallback={<Fallback />}
