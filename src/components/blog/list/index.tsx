@@ -1,8 +1,8 @@
 import Image from "next/image"
+import Link from "next/link"
 
 import { fetchPosts } from "@/app/(pages)/blog/basehub"
 import { formatDate } from "@/utils/format-date"
-import { Link } from "@/components/primitives/link"
 
 export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
   const { posts } = await fetchPosts(params.slug ? params.slug[0] : undefined)
