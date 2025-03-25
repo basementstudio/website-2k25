@@ -15,6 +15,8 @@ export const createPostProcessingMaterial = () =>
       uTime: { value: 0.0 },
       uOpacity: { value: 1.0 },
 
+      uActiveBloom: { value: 1 },
+
       // Basics
       uContrast: { value: 1 },
       uBrightness: { value: 1 },
