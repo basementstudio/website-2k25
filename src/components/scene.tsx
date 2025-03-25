@@ -23,6 +23,7 @@ import { Pets } from "./pets"
 import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
 import { cn } from "@/utils/cn"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 
 const HoopMinigame = dynamic(
   () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
@@ -53,6 +54,7 @@ export const Scene = () => {
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
   const userHasLeftWindow = useRef(false)
   const [isTouchOnly, setIsTouchOnly] = useState(false)
+  const scene = useCurrentScene()
 
   useTabKeyHandler()
 
@@ -124,7 +126,8 @@ export const Scene = () => {
       <div
         className={cn(
           "absolute inset-0",
-          isBasketball && "inset-x-0 top-0 h-[100svh]"
+          (scene === "basketball" || scene === "lab" || scene === "404") &&
+            "inset-x-0 top-0 h-[100svh]"
         )}
       >
         <Debug />
