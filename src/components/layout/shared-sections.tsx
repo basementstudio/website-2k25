@@ -4,6 +4,7 @@ import { motion } from "motion/react"
 
 import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
+import { useMedia } from "@/hooks/use-media"
 
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
 
@@ -32,6 +33,7 @@ export const InternalLinks = ({
   showBasketball = false
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
+  const isMobile = useMedia("(max-width: 1024px)")
 
   const animateProps = animated
     ? {
@@ -71,8 +73,13 @@ export const InternalLinks = ({
         >
           <Link
             className="flex w-fit gap-x-0.5 text-brand-w1"
-            href={link.href}
+            href={
+              isMobile && link.title === "Lab"
+                ? "https://basement.studio/lab"
+                : link.href
+            }
             onClick={onClick}
+            target={isMobile && link.title === "Lab" ? "_blank" : undefined}
           >
             <span className="actionable">{link.title}</span>
             {link.count && (
