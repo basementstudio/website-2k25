@@ -44,7 +44,6 @@
     "motion": "12.0.0-alpha.2",
     "nanoid": "^5.1.2",
     "next": "15.2.2-canary.7",
-    "next-axiom": "^1.9.1",
     "next-sitemap": "^4.2.3",
     "r3f-perf": "^7.2.3",
     "raw-loader": "^4.0.2",

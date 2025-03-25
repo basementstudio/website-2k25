@@ -1,4 +1,4 @@
-const { withAxiom } = require("next-axiom")
+import MillionLint from "@million/lint";
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
@@ -54,8 +54,13 @@ const nextConfig: NextConfig = {
         destination: "/services",
         permanent: true
       }
-    ]
+    ];
   }
 }
 
-export default withAxiom(nextConfig)
+// export default MillionLint.next({
+//   enabled: true,
+//   rsc: true
+// })(nextConfig);
+
+export default nextConfig
