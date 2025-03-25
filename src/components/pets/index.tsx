@@ -142,34 +142,29 @@ function PetsInner({
     bostonActions[PetAnimationName["BOSTON-Idle"]]?.play()
   }, [actions, bostonActions])
 
-  useEffect(() => {
-    actions[PetAnimationName["PURE-Look"]]?.reset().fadeIn(0.5).play()
-    actions[PetAnimationName["PURE-Idle"]]?.fadeOut(0.5)
-  }, [actions])
-
   return (
     <group>
       <primitive object={scene} />
 
       <mesh
-        position={[3.2, 0, -12]}
+        position={[3.2, 0.3, -12]}
         rotation={[0, Math.PI * 0.5, 0]}
         onPointerOver={() => setCursor("grab", "Pure")}
         onPointerOut={() => setCursor("default", null)}
         visible={false}
       >
-        <boxGeometry args={[0.25, 0.8, 0.6]} />
+        <boxGeometry args={[0.5, 0.7, 0.8]} />
         <meshBasicMaterial opacity={1} color={"red"} />
       </mesh>
 
       <mesh
-        position={[9.7, 3.73, -16.63]}
+        position={[9.73, 3.86, -16.7]}
         rotation={[0, Math.PI * 0.6, 0]}
         onPointerOver={() => setCursor("grab", "Boston")}
         onPointerOut={() => setCursor("default", null)}
         visible={false}
       >
-        <boxGeometry args={[0.2, 0.3, 0.3]} />
+        <boxGeometry args={[0.3, 0.3, 0.5]} />
         <meshBasicMaterial opacity={1} color={"blue"} />
       </mesh>
     </group>
