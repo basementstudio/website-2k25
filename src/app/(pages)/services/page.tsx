@@ -5,7 +5,7 @@ import { Contact } from "@/components/layout/contact"
 
 import { Awards } from "./awards"
 import { Hero } from "./hero"
-import { query } from "./query"
+import { query, QueryType } from "./query"
 import { Services } from "./services"
 import { Testimonials } from "./testimonials"
 import { VenturesBanner } from "./ventures"
@@ -14,6 +14,17 @@ export const metadata: Metadata = {
   title: "Services",
   description:
     "We don't settle, we are intentional about building with surgical precision and creating extraordinary experiences. We go the extra mile, and then walk a couple more, just for fun."
+}
+
+export type Award = QueryType["company"]["awards"]["awardList"]["items"][number]
+
+const getSortedAwards = (awards: Award[]) => {
+  return awards
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .map((award, index) => ({
+      ...award,
+      numericId: index + 1
+    }))
 }
 
 const ServicesPage = () => (
@@ -26,7 +37,7 @@ const ServicesPage = () => (
           <Hero data={data} className="lg:-mb-11" />
           <Services data={data} />
           <Testimonials data={data} />
-          <Awards data={data} />
+          <Awards data={getSortedAwards(data.company.awards.awardList.items)} />
           <VenturesBanner data={data} />
           <Contact />
         </div>

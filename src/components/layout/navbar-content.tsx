@@ -19,6 +19,7 @@ import { mergeRefs } from "@/utils/mergeRefs"
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
+import { useLenis } from "lenis/react"
 
 interface ContextMenuProps {
   x: number
@@ -272,26 +273,22 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
 DesktopContent.displayName = "DesktopContent"
 
 const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
-  const isMobile = useMedia("(max-width: 1024px)")
+  const isDesktop = useMedia("(min-width: 1024px)")
   const [isOpen, setIsOpen] = useState(false)
+  const lenis = useLenis()
 
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const menuHandlerRef = useRef<HTMLButtonElement>(null)
 
   const { focusTrapRef } = useFocusTrap(isOpen, menuHandlerRef)
-  // disable scroll when the menu is open and it's on mobile
-  const shouldDisableScroll = useMemo(
-    () => isOpen && Boolean(isMobile),
-    [isOpen, isMobile]
-  )
-  useDisableScroll(shouldDisableScroll)
 
   const handleChangeLink = () => {
     setIsOpen(false)
+    lenis?.start()
   }
 
   const memoizedMenu = useMemo(() => {
-    if (!isMobile || !isOpen) return null
+    if (isDesktop || !isOpen) return null
 
     return (
       <Portal id="mobile-menu">
@@ -328,7 +325,7 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
         </motion.div>
       </Portal>
     )
-  }, [isOpen, focusTrapRef, mobileMenuRef, isMobile, links, socialLinks])
+  }, [isOpen, focusTrapRef, mobileMenuRef, isDesktop, links, socialLinks])
 
   const Label = useMemo(() => {
     return function Label({ children }: { children: React.ReactNode }) {
@@ -348,17 +345,27 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
     }
   }, [isOpen])
 
+  // TODO: fix this
+
+  const handleMenuClick = () => {
+    if (isOpen) {
+      setIsOpen(false)
+      lenis?.start()
+    } else {
+      setIsOpen(true)
+      lenis?.stop()
+    }
+  }
   return (
     <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
       <MusicToggle />
 
-      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center">
+      <button onClick={handleMenuClick} className="flex items-center">
         <AnimatePresence mode="popLayout" initial={false}>
           {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
         </AnimatePresence>
 
         <span
-          onClick={() => setIsOpen(!isOpen)}
           className="relative flex w-5 flex-col items-center justify-center gap-1 overflow-visible pl-1"
           ref={menuHandlerRef}
           aria-labelledby="menu-button"
