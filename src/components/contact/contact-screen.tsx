@@ -166,21 +166,23 @@ const ContactScreen = () => {
           initial={{ scaleX: 0, scaleY: 0 }}
           animate={animation}
         >
-          <div className="relative z-20 flex h-full w-full flex-col justify-between gap-7 font-flauta text-[14px] text-brand-o">
+          <div className="font-flauta relative z-20 flex h-full w-full flex-col justify-between gap-7 rounded-sm bg-[rgba(20,10,0,0.95)] text-[14px] text-brand-o backdrop-blur-sm [box-shadow:0_0_20px_rgba(255,77,0,0.2),inset_0_0_15px_rgba(255,77,0,0.1)] before:pointer-events-none before:absolute before:inset-0 before:animate-[scan_10s_linear_infinite] before:bg-[linear-gradient(0deg,rgba(255,77,0,0.1)_1px,transparent_1px)] before:bg-[size:100%_2px] before:opacity-20">
             <form
               ref={formRef}
               onSubmit={handleSubmit(onSubmit)}
-              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_5px_rgba(255,140,0,0.15)]"
+              className="relative flex h-full w-full flex-col justify-between gap-4 border border-brand-o pb-4 pt-6 uppercase [box-shadow:0_0_5px_rgba(255,77,0,0.15)]"
             >
               <fieldset className="absolute -top-[10px] left-[10px] z-10 -ml-px p-0">
-                <legend className="bg-black px-1">CONTACT US</legend>
+                <legend className="bg-[rgba(20,10,0,0.95)] px-1">
+                  CONTACT US
+                </legend>
               </fieldset>
 
               <fieldset className="absolute -top-[10px] right-[10px] z-10 -mr-px p-0">
                 <legend className="px-1">
                   <button
                     type="button"
-                    className="hover:/90 bg-black px-1 uppercase transition-all duration-300"
+                    className="bg-[rgba(20,10,0,0.95)] px-1 uppercase transition-all duration-300 hover:bg-brand-o hover:text-black"
                     onClick={() => {
                       const state = useContactStore.getState()
                       if (!state.isAnimating) {
@@ -198,14 +200,14 @@ const ContactScreen = () => {
                   <input
                     type="text"
                     placeholder="NAME"
-                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/50"
                     onKeyDown={handleKeyDown}
                     {...register("name")}
                   />
                   <input
                     type="text"
                     placeholder="COMPANY"
-                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                    className="h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/50"
                     onKeyDown={handleKeyDown}
                     {...register("company")}
                   />
@@ -215,14 +217,14 @@ const ContactScreen = () => {
                     required
                     type="email"
                     placeholder="EMAIL"
-                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/50"
                     onKeyDown={handleKeyDown}
                     {...register("email", { required: "Email is required" })}
                   />
                   <input
                     type="text"
                     placeholder="BUDGET (OPTIONAL)"
-                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                    className="col-span-2 h-8 w-full border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/50"
                     onKeyDown={handleKeyDown}
                     {...register("budget")}
                   />
@@ -231,7 +233,7 @@ const ContactScreen = () => {
                   required
                   autoComplete="off"
                   placeholder="MESSAGE"
-                  className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
+                  className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o/50"
                   onKeyDown={(e) => {
                     if (
                       e.key === "Enter" &&
@@ -249,9 +251,9 @@ const ContactScreen = () => {
 
               <div className="w-full px-4">
                 <button
-                  className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 [box-shadow:0_0_5px_rgba(255,140,0,0.15)] ${
+                  className={`h-8 w-full border px-2 py-1 text-center transition-all duration-300 [box-shadow:0_0_5px_rgba(255,77,0,0.15)] ${
                     isValid || showSubmittedMessage
-                      ? "cursor-pointer border-none bg-brand-o text-black"
+                      ? "cursor-pointer border-none bg-brand-o text-black hover:bg-[#ff3d00]"
                       : "cursor-default border border-brand-o"
                   }`}
                 >
@@ -266,7 +268,7 @@ const ContactScreen = () => {
             <div className="flex w-full items-center justify-between text-[12px] uppercase">
               <div className="flex items-center gap-[2px]">
                 <Link href="https://x.com/basementstudio" target="_blank">
-                  <span className="actionable [text-shadow:0_0_10px_rgba(255,140,0,0.15)]">
+                  <span className="actionable [text-shadow:0_0_10px_rgba(255,77,0,0.3)]">
                     X (Twitter)
                   </span>
                 </Link>
@@ -275,13 +277,13 @@ const ContactScreen = () => {
                   href="https://www.instagram.com/basementdotstudio"
                   target="_blank"
                 >
-                  <span className="actionable [text-shadow:0_0_10px_rgba(255,140,0,0.15)]">
+                  <span className="actionable [text-shadow:0_0_10px_rgba(255,77,0,0.3)]">
                     Instagram
                   </span>
                 </Link>
                 <span className="opacity-50">, </span>
                 <Link href="https://github.com/basementstudio" target="_blank">
-                  <span className="actionable [text-shadow:0_0_10px_rgba(255,140,0,0.15)]">
+                  <span className="actionable [text-shadow:0_0_10px_rgba(255,77,0,0.3)]">
                     GitHub
                   </span>
                 </Link>

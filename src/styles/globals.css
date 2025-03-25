@@ -166,6 +166,15 @@ img {
   }
 }
 
+@keyframes scan {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
 button:focus,
 input:focus,
 textarea:focus,
@@ -296,4 +305,58 @@ input:-webkit-autofill:active {
 .contact-screen select:-webkit-autofill:focus {
   -webkit-text-fill-color: #ff4d00;
   background: transparent;
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0.97;
+  }
+  5% {
+    opacity: 0.95;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  15% {
+    opacity: 0.95;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  25% {
+    opacity: 0.95;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(255, 77, 0, 0.05) 0.5%,
+      transparent 1%
+    );
+  }
+  50% {
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(255, 77, 0, 0.1) 0.5%,
+      transparent 1%
+    );
+  }
+  100% {
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(255, 77, 0, 0.05) 0.5%,
+      transparent 1%
+    );
+  }
 }
