@@ -25,9 +25,10 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
                   <Image
                     src={post.hero?.heroImage?.url}
                     alt={post.hero?.heroImage.alt || ""}
-                    width={276}
-                    height={124}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 276px"
                     className="h-full w-full object-cover"
+                    quality={100}
                   />
                 )}
               </div>
