@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/layout/navbar"
-import { Transitions } from "@/components/transitions"
 
 const ContactLayout = ({ children }: { children: React.ReactNode }) => (
   <>

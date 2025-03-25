@@ -7,18 +7,21 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
-import { useMedia } from "./use-media"
 
 const handleTransitionEffectOn = () => {
-  document.documentElement.dataset.disabled = "false"
-  document.documentElement.dataset.flip = "true"
+  if (window.innerWidth > 1024) {
+    document.documentElement.dataset.disabled = "false"
+    document.documentElement.dataset.flip = "true"
+  }
 }
 
 const handleTransitionEffectOff = () => {
-  document.documentElement.dataset.flip = "false"
-  setTimeout(() => {
-    document.documentElement.dataset.disabled = "true"
-  }, TRANSITION_DURATION)
+  if (window.innerWidth > 1024) {
+    document.documentElement.dataset.flip = "false"
+    setTimeout(() => {
+      document.documentElement.dataset.disabled = "true"
+    }, TRANSITION_DURATION)
+  }
 }
 
 export const useHandleNavigation = () => {
@@ -33,7 +36,6 @@ export const useHandleNavigation = () => {
     (state) => state.setDisableCameraTransition
   )
   const scenes = useNavigationStore((state) => state.scenes)
-  const isMobile = useMedia("(max-width: 1024px)")
 
   useEffect(() => {
     lenisRef.current = lenisInstance
@@ -110,9 +112,7 @@ export const useHandleNavigation = () => {
           }
         })
       } else {
-        if (!isMobile) {
-          handleTransitionEffectOn()
-        }
+        handleTransitionEffectOn()
         lenisRef.current?.stop()
         setDisableCameraTransition(true)
         setCurrentScene(selectedScene)
@@ -122,9 +122,7 @@ export const useHandleNavigation = () => {
             offset: 0,
             behavior: "instant",
             callback: () => {
-              if (!isMobile) {
-                handleTransitionEffectOff()
-              }
+              handleTransitionEffectOff()
               lenisRef.current?.start()
             }
           })
