@@ -63,7 +63,7 @@ export const ScrollDown = () => {
     <AnimatePresence>
       {canRunMainApp && (
         <motion.div
-          className="absolute -top-[3rem] flex w-full justify-center pb-20 lg:left-1/2 lg:w-max lg:-translate-x-1/2 lg:pb-0"
+          className="absolute -top-[3rem] hidden w-full justify-center pb-20 lg:left-1/2 lg:flex lg:w-max lg:-translate-x-1/2 lg:pb-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 1, 0, 1, 0, 1] }}
           transition={{ duration: 0.3, delay: 1.5 }}
@@ -71,7 +71,7 @@ export const ScrollDown = () => {
           {selected === null && (
             <motion.button
               onClick={handleClick}
-              className="-mx-4 -my-2 hidden px-4 py-2 lg:block"
+              className="-mx-4 -my-2 px-4 py-2"
               style={{
                 opacity,
                 visibility
