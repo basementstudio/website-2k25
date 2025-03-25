@@ -4,6 +4,7 @@ import { useLenis } from "lenis/react"
 import { useEffect } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
+import { useMedia } from "@/hooks/use-media"
 
 import LoadingCanvas from "./loading-canvas"
 
@@ -69,17 +70,18 @@ function AppLoadingHandler() {
   )
 
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
+  const isMobile = useMedia("(max-width: 1024px)")
 
   // TODO: update this once we cover "showcase navigation issue"
   const lenis = useLenis()
 
   useEffect(() => {
-    if (showLoadingCanvas && isCanvasInPage) {
+    if (showLoadingCanvas && isCanvasInPage && !isMobile) {
       lenis?.stop()
     } else {
       lenis?.start()
     }
-  }, [showLoadingCanvas, lenis, isCanvasInPage])
+  }, [showLoadingCanvas, lenis, isCanvasInPage, isMobile])
 
   if (!isCanvasInPage) {
     return null
