@@ -23,9 +23,9 @@ export const Hero = ({ data, className }: HeroProps) => {
         src={data.pages.services.heroImage?.url ?? ""}
         width={data.pages.services.heroImage?.width}
         height={data.pages.services.heroImage?.height}
-        className="col-span-1 lg:col-start-6 lg:col-end-9"
+        className="hidden lg:col-start-6 lg:col-end-9 lg:block"
       />
-      <div className="text-f-h3-mobile lg:text-f-h4 col-start-2 col-end-5 flex flex-col gap-4 text-brand-w2 lg:col-start-9 lg:col-end-13">
+      <div className="col-start-1 col-end-5 flex flex-col gap-4 text-f-h3-mobile text-brand-w2 lg:col-start-9 lg:col-end-13 lg:text-f-h4">
         <RichText content={data.pages.services.intro.json.content} />
       </div>
     </section>
