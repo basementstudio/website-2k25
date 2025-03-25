@@ -1,11 +1,11 @@
 import { useTexture } from "@react-three/drei"
-import { useMemo } from "react"
+import { memo, useMemo } from "react"
 
 import { useAssets } from "@/components/assets-provider"
 
 import { CHUNK_SIZE, LINES, lineWidth } from "../use-road"
 
-export const BaseRoad = () => {
+const BaseRoadInner = () => {
   const showPalm = useMemo(() => {
     const r = Math.random() < 0.3
 
@@ -52,3 +52,5 @@ export const BaseRoad = () => {
     </group>
   )
 }
+
+export const BaseRoad = memo(BaseRoadInner)
