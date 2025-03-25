@@ -151,7 +151,9 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    setNet(basketballNetModel.children[0] as Mesh)
+    if (!net && basketballNetModel?.children?.[0]) {
+      setNet(basketballNetModel.children[0] as Mesh)
+    }
 
     const traverse = (
       child: Object3D,
