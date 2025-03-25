@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react"
 
 import { ImageFragment, VideoFragment } from "@/lib/basehub/fragments"
 import { cn } from "@/utils/cn"
-import { useMedia } from "@/hooks/use-media"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 
 const Video = dynamic(
   () => import("@/components/primitives/video").then((mod) => mod.Video),
@@ -34,7 +34,7 @@ export const ImageWithVideoOverlay = ({
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const isDesktop = useMedia("(min-width: 1024px)")
+  const { isMobile } = useDeviceDetect()
 
   useEffect(() => {
     return () => {
@@ -93,8 +93,7 @@ export const ImageWithVideoOverlay = ({
         priority={firstItem}
       />
 
-      {/* Only render the video element when shouldLoadVideo is true */}
-      {video && shouldLoadVideo && isDesktop ? (
+      {video && shouldLoadVideo && !isMobile ? (
         <Video
           src={video.url}
           onCanPlay={() => {
