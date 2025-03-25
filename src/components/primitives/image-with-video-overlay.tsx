@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react"
 
 import { ImageFragment, VideoFragment } from "@/lib/basehub/fragments"
 import { cn } from "@/utils/cn"
+import { useMedia } from "@/hooks/use-media"
 
 const Video = dynamic(
   () => import("@/components/primitives/video").then((mod) => mod.Video),
@@ -33,6 +34,7 @@ export const ImageWithVideoOverlay = ({
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isDesktop = useMedia("(min-width: 1024px)")
 
   useEffect(() => {
     return () => {
@@ -92,7 +94,7 @@ export const ImageWithVideoOverlay = ({
       />
 
       {/* Only render the video element when shouldLoadVideo is true */}
-      {video && shouldLoadVideo && (
+      {video && shouldLoadVideo && isDesktop ? (
         <Video
           src={video.url}
           onCanPlay={() => {
@@ -112,7 +114,7 @@ export const ImageWithVideoOverlay = ({
           muted={true}
           ref={videoRef}
         />
-      )}
+      ) : null}
     </div>
   )
 }
