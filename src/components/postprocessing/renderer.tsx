@@ -1,4 +1,4 @@
-import { createPortal } from "@react-three/fiber"
+import { createPortal, useThree } from "@react-three/fiber"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   DepthTexture,
@@ -69,19 +69,12 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const mainCamera = useNavigationStore((state) => state.mainCamera)
   const isDesktop = useMedia("(min-width: 1024px)")
 
+  const screenWidth = useThree((state) => state.size.width)
+  const screenHeight = useThree((state) => state.size.height)
+
   useEffect(() => {
-    const resizeCallback = () =>
-      mainTarget.setSize(
-        window.innerWidth,
-        isDesktop ? window.innerHeight : (window.innerWidth * 9) / 16
-      )
-
-    resizeCallback()
-
-    window.addEventListener("resize", resizeCallback, { passive: true })
-
-    return () => window.removeEventListener("resize", resizeCallback)
-  }, [mainTarget, isDesktop])
+    mainTarget.setSize(screenWidth, screenHeight)
+  }, [mainTarget, screenWidth, screenHeight])
 
   useFrameCallback(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return
