@@ -1,6 +1,8 @@
 import { withSentryConfig } from "@sentry/nextjs"
 import type { NextConfig } from "next"
 
+const PRODUCTION = process.env.NODE_ENV === "production"
+
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   experimental: {
@@ -87,5 +89,10 @@ export default withSentryConfig(nextConfig, {
   // See the following for more information:
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
-  automaticVercelMonitors: true
+  automaticVercelMonitors: true,
+
+  // Disable source maps in development and preview
+  sourcemaps: {
+    disable: !PRODUCTION
+  }
 })
