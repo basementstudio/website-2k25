@@ -298,11 +298,12 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
         <motion.div
           ref={mergeRefs(mobileMenuRef, focusTrapRef)}
           className={cn(
-            "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6"
+            "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6",
+            "will-change-transform"
           )}
-          initial={{ scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          exit={{ scaleY: 0, transition: { delay: 0.35 } }}
+          initial={{ transform: "translateY(-100%)" }}
+          animate={{ transform: "translateY(0%)" }}
+          exit={{ transform: "translateY(-100%)", transition: { delay: 0.35 } }}
           transition={{ duration: 0.4, type: "spring", bounce: 0 }}
         >
           <InternalLinks
@@ -320,6 +321,7 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, type: "spring", bounce: 0 }}
             className="col-span-4 flex h-full flex-col justify-end gap-y-16"
+            style={{ willChange: "transform" }}
           >
             <div className="flex flex-col items-start gap-y-2">
               <SocialLinks links={socialLinks} />
@@ -338,9 +340,18 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
           id="menu-button"
           key={isOpen ? "close" : "menu"}
           className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
-          initial={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
-          animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
+          initial={{
+            opacity: 0,
+            transform: "translateY(10px)"
+          }}
+          animate={{
+            opacity: 1,
+            transform: "translateY(0px)"
+          }}
+          exit={{
+            opacity: 0,
+            transform: "translateY(10px)"
+          }}
           transition={{ duration: 0.9, type: "spring", bounce: 0 }}
         >
           {children}
