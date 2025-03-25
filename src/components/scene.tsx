@@ -121,7 +121,12 @@ export const Scene = () => {
 
   return (
     <>
-      <div className="absolute inset-0">
+      <div
+        className={cn(
+          "absolute inset-0",
+          isBasketball && "inset-x-0 top-0 h-[100svh]"
+        )}
+      >
         <Debug />
         <Canvas
           id="canvas"
