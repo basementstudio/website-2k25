@@ -16,6 +16,7 @@ import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
 import { useMedia } from "@/hooks/use-media"
+import { useThree } from "@react-three/fiber"
 
 interface PostProcessingProps {
   mainTexture: Texture
@@ -133,29 +134,22 @@ const Inner = ({
     }
   })
 
+  const screenWidth = useThree((state) => state.size.width)
+  const screenHeight = useThree((state) => state.size.height)
+
   useEffect(() => {
     const controller = new AbortController()
-    const { signal } = controller
 
-    const resize = () => {
-      const width = window.innerWidth
-      const height = isDesktop
-        ? window.innerHeight
-        : (window.innerWidth * 9) / 16
-      material.uniforms.resolution.value.set(width, height)
-      material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
+    material.uniforms.resolution.value.set(screenWidth, screenHeight)
+    material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
 
-      material.uniforms.uActiveBloom.value = isDesktop ? 1 : 0
-    }
-
-    resize()
-    window.addEventListener("resize", resize, { signal, passive: true })
+    material.uniforms.uActiveBloom.value = isDesktop ? 1 : 0
 
     material.uniforms.uMainTexture.value = mainTexture
     material.uniforms.uDepthTexture.value = depthTexture
 
     return () => controller.abort()
-  }, [mainTexture, depthTexture, isDesktop])
+  }, [mainTexture, depthTexture, isDesktop, screenWidth, screenHeight])
 
   useFrameCallback((_, __, elapsedTime) => {
     material.uniforms.uTime.value = elapsedTime

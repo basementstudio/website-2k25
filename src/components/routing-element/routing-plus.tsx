@@ -1,7 +1,7 @@
-import { useMemo } from "react"
+import { memo, useMemo } from "react"
 import { BufferGeometry, Float32BufferAttribute } from "three"
 
-export const RoutingPlus = ({ geometry }: { geometry: BufferGeometry }) => {
+const RoutingPlusInner = ({ geometry }: { geometry: BufferGeometry }) => {
   const pointsGeometry = useMemo(() => {
     if (!geometry.attributes.position || !geometry.attributes.normal)
       return null
@@ -62,3 +62,5 @@ export const RoutingPlus = ({ geometry }: { geometry: BufferGeometry }) => {
     </points>
   ) : null
 }
+
+export const RoutingPlus = memo(RoutingPlusInner)

@@ -7,6 +7,8 @@ import { BASE_CONFIG, SPAWN_POINTS } from "@/constants/sparkles"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
+
 import frag from "./frag.glsl"
 import vert from "./vert.glsl"
 
@@ -52,12 +54,18 @@ export const Sparkle = (props: SparklesProps) => {
   )
 }
 
-export const Sparkles = () => (
-  <>
-    {SPAWN_POINTS.map((point, index) => (
-      <mesh key={index} position={point.position} raycast={() => null}>
-        <Sparkle {...BASE_CONFIG} count={point.count} scale={point.scale} />
-      </mesh>
-    ))}
-  </>
-)
+export const Sparkles = () => {
+  const { isMobile } = useDeviceDetect()
+
+  if (isMobile) return null
+
+  return (
+    <>
+      {SPAWN_POINTS.map((point, index) => (
+        <mesh key={index} position={point.position} raycast={() => null}>
+          <Sparkle {...BASE_CONFIG} count={point.count} scale={point.scale} />
+        </mesh>
+      ))}
+    </>
+  )
+}

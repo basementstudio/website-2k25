@@ -53,7 +53,11 @@ export const AnimatedTitle = memo(({ brandName }: { brandName: string }) => (
 
 AnimatedTitle.displayName = "AnimatedTitle"
 
-export const BrandsDesktop = ({ brands }: { brands: Brand[] }) => {
+export const BrandsDesktop = memo(function BrandsDesktopInner({
+  brands
+}: {
+  brands: Brand[]
+}) {
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
   const debouncedHoveredBrandId = useDebounceValue(
     hoveredBrandId,
@@ -112,6 +116,4 @@ export const BrandsDesktop = ({ brands }: { brands: Brand[] }) => {
       </div>
     </section>
   )
-}
-
-BrandsDesktop.displayName = "BrandsDesktop"
+})
