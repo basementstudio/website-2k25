@@ -50,42 +50,42 @@ export const InternalLinks = ({
         className
       )}
     >
-      {links.map((link, idx) => (
-        <motion.li
-          key={`${link.title}-${idx}`}
-          {...animateProps}
-          animate={{
-            ...animateProps.animate,
-            transition: {
-              duration: STAGER_DURATION,
-              delay: getDelay(idx, links.length)
-            }
-          }}
-          exit={{
-            ...animateProps.exit,
-            transition: {
-              duration: STAGER_DURATION,
-              delay: getDelay(idx, links.length, true)
-            }
-          }}
-        >
-          <Link
-            className={cn(
-              "flex w-fit gap-x-0.5 text-brand-w1",
-              link.href.includes("lab") && "hidden"
-            )}
-            href={link.href}
-            onClick={onClick}
-          >
-            <span className="actionable">{link.title}</span>
-            {link.count && (
-              <sup className="translate-y-1.25 text-f-p-mobile !font-medium text-brand-g1 lg:text-f-p">
-                <span className="tabular-nums">({link.count})</span>
-              </sup>
-            )}
-          </Link>
-        </motion.li>
-      ))}
+      {links.map(
+        (link, idx) =>
+          !link.href.includes("lab") && (
+            <motion.li
+              key={`${link.title}-${idx}`}
+              {...animateProps}
+              animate={{
+                ...animateProps.animate,
+                transition: {
+                  duration: STAGER_DURATION,
+                  delay: getDelay(idx, links.length)
+                }
+              }}
+              exit={{
+                ...animateProps.exit,
+                transition: {
+                  duration: STAGER_DURATION,
+                  delay: getDelay(idx, links.length, true)
+                }
+              }}
+            >
+              <Link
+                className={cn("flex w-fit gap-x-0.5 text-brand-w1")}
+                href={link.href}
+                onClick={onClick}
+              >
+                <span className="actionable">{link.title}</span>
+                {link.count && (
+                  <sup className="translate-y-1.25 text-f-p-mobile !font-medium text-brand-g1 lg:text-f-p">
+                    <span className="tabular-nums">({link.count})</span>
+                  </sup>
+                )}
+              </Link>
+            </motion.li>
+          )
+      )}
       <motion.li
         {...animateProps}
         animate={{
