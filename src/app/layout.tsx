@@ -15,7 +15,6 @@ import AppLoadingHandler from "@/components/loading/app-loading-handler"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
-import { PathnameProvider } from "@/hooks/use-watch-pathname"
 import LenisScrollProvider from "@/providers/lenis-provider"
 import { AppHooks } from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
@@ -76,15 +75,13 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             <AppLoadingHandler />
             <LenisScrollProvider>
               <HtmlTunnelOut />
-              <PathnameProvider>
-                <Navbar />
+              <Navbar />
 
-                <NavigationHandler />
+              <NavigationHandler />
 
-                <ContentWrapper>{children}</ContentWrapper>
-                <AppHooks assets={assets} />
-                <Contact />
-              </PathnameProvider>
+              <ContentWrapper>{children}</ContentWrapper>
+              <AppHooks assets={assets} />
+              <Contact />
             </LenisScrollProvider>
           </body>
         </InspectableProvider>

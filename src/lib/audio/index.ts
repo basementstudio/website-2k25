@@ -30,7 +30,7 @@ export class AudioSource {
 
   play() {
     if (this.isPlaying) {
-      this.stop()
+      this?.stop()
     }
 
     this.audioSource = this.audioContext.createBufferSource()
@@ -58,7 +58,7 @@ export class AudioSource {
     /* Store it before this.stop flushes the startedAt */
     const elapsed = this.audioContext.currentTime - this.startedAt
     // eslint-disable-next-line react/no-is-mounted
-    this.stop()
+    this?.stop()
     this.pausedAt = elapsed
   }
 
@@ -66,7 +66,7 @@ export class AudioSource {
     if (this.audioSource) {
       try {
         this.audioSource.disconnect()
-        this.audioSource.stop(0)
+        this.audioSource?.stop(0)
       } catch (error) {
         console.debug("Error stopping audio source:", error)
       }
@@ -237,7 +237,7 @@ export class WebAudioPlayer {
     this.audioSources.forEach((source) => {
       if (!source.isSFX && !source.isGameAudio && source.isPlaying) {
         source.clearOnEnded()
-        source.stop()
+        source?.stop()
       }
     })
   }
@@ -247,7 +247,7 @@ export class WebAudioPlayer {
     this.audioSources.forEach((source) => {
       if (source.isGameAudio && source.isPlaying) {
         source.clearOnEnded()
-        source.stop()
+        source?.stop()
       }
     })
   }
@@ -387,7 +387,7 @@ export class Playlist {
       await this.playTrackAt(0)
     } else if (this.currentSource && !this.currentSource.isPlaying) {
       // Resume current track
-      this.currentSource.play()
+      this.currentSource?.play()
       this.isPlaying = true
     }
   }
@@ -410,7 +410,7 @@ export class Playlist {
 
     if (this.currentSource) {
       this.currentSource.clearOnEnded()
-      this.currentSource.stop()
+      this.currentSource?.stop()
       this.currentSource = null
     }
     this.isPlaying = false
@@ -425,7 +425,7 @@ export class Playlist {
     // Make sure current track is properly stopped
     if (this.currentSource) {
       this.currentSource.clearOnEnded()
-      this.currentSource.stop()
+      this.currentSource?.stop()
       this.currentSource = null
       this.isPlaying = false
     }
@@ -437,7 +437,7 @@ export class Playlist {
       if (this.options.loop) {
         nextIndex = 0 // Loop back to beginning
       } else {
-        this.stop()
+        this?.stop()
         if (this.options.onPlaylistEnd) {
           this.options.onPlaylistEnd()
         }
@@ -502,7 +502,7 @@ export class Playlist {
     tracks: Array<{ url: string; volume?: number; metadata?: any }>,
     startPlaying: boolean = false
   ): void {
-    this.stop()
+    this?.stop()
     this.tracks = [...tracks]
     this.currentIndex = -1
     // Clear the loaded sources cache when setting new tracks
@@ -531,7 +531,7 @@ export class Playlist {
       // Stop current track if different from target
       if (this.currentSource && this.currentIndex !== index) {
         this.currentSource.clearOnEnded()
-        this.currentSource.stop()
+        this.currentSource?.stop()
         this.currentSource = null
         this.isPlaying = false
       }
@@ -562,7 +562,7 @@ export class Playlist {
         // Make sure it's stopped before reusing
         if (source.isPlaying) {
           source.clearOnEnded()
-          source.stop()
+          source?.stop()
         }
       }
 
