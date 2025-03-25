@@ -22,6 +22,7 @@ export const query = fragmentOn("Query", {
       github: true,
       instagram: true,
       twitter: true,
+      linkedIn: true,
       newsletter: {
         json: {
           content: true
