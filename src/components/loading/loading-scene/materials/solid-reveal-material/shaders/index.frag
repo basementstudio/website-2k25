@@ -1,12 +1,19 @@
 precision highp float;
 
 in vec3 vWorldPosition;
+in float vDepth;
 
 out vec4 fragColor;
 
 uniform float uTime;
 uniform float uReveal;
 uniform float uScreenReveal;
+uniform vec2 uScreenSize;
+uniform sampler2D uFlowTexture;
+uniform vec3 cameraPosition;
+
+uniform mat4 viewMatrix; 
+uniform mat4 projectionMatrix;
 
 #pragma glslify: cnoise3 = require(glsl-noise/classic/3d)
 #pragma glslify: cnoise4 = require(glsl-noise/classic/4d)
@@ -61,11 +68,18 @@ float valueRemap(float value, float inMin, float inMax, float outMin, float outM
   return outMin + (outMax - outMin) * (value - inMin) / (inMax - inMin);
 }
 
+vec2 worldToUv(vec3 p) {
+  vec4 clipPos = projectionMatrix * viewMatrix * vec4(p, 1.0);
+  vec3 ndcPos = clipPos.xyz / clipPos.w;
+  vec2 screenUv = (ndcPos.xy + 1.0) * 0.5;
+  return screenUv;
+}
+
 void main() {
 
   vec3 p = vWorldPosition + vec3(0.0, 0.11, 0.1);
 
-  VoxelData voxel = getVoxel(p, 18.4, 0.2, 10.0);
+  VoxelData voxel = getVoxel(p, 12.4, 2., 20.0);
 
   float edgeFactor = (1. - voxel.edgeFactor);
 
@@ -84,18 +98,41 @@ void main() {
   // colorBump *= edgeFactor;
   colorBump *= uReveal > pow(voxel.noiseSmall * 0.5 + 0.5, 2.) ? 1.0 : 0.0;
 
-  // fragColor = vec4(vec3(1.), 1.0);
-
   if(voxel.noiseSmall * 0.5 + 0.5 < uScreenReveal) {
     discard;
     return;
   }
 
   fragColor = vec4(vec3(colorBump), 1.0);
+
+  //debug flow
+  // fragColor = vec4(vec3(0.0, 0.0, 0.0), 1.0);
+  
+  
+  // vec2 screenUv = ( gl_FragCoord.xy * 2.0 - uScreenSize ) / uScreenSize;
+  // screenUv *= vec2(0.5, 0.5);
+  // screenUv += vec2(0.5);
+
+  vec2 screenUv = worldToUv(voxel.center);
+
+  vec4 flowColor = texture(uFlowTexture, screenUv);
+
+
+  float distanceToCamera = distance(cameraPosition, voxel.center);
+
+  float flowCenter = flowColor.r;
+  float flowRadius = flowColor.g;
+
+  float flowSdf = abs(distanceToCamera - flowCenter);
+  flowSdf = abs(flowSdf - flowRadius);
+  flowSdf = 1. - flowSdf;
+  flowSdf -= voxel.noiseSmall;
+  flowSdf += pow(voxel.noiseBig, 2.) * 0.2;
+  flowSdf = valueRemap(flowSdf, 0.5, 1., 0., 1.);
+  flowSdf = clamp(flowSdf, 0.0, 1.0);
+  flowSdf = pow(flowSdf, 4.);
+
+  fragColor.rgb = vec3(flowSdf);
   return;
 
-
-  float loadingColor = colorBump * voxel.fillFactor * 3.0 * (1. - voxel.edgeFactor);
-
-  fragColor = vec4(vec3(loadingColor), 1.0);
 }
