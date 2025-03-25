@@ -23,6 +23,7 @@ import { Weather } from "@/components/weather"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
@@ -61,18 +62,6 @@ const PhysicsWorld = dynamic(
     }),
   { ssr: false }
 )
-
-const createVideoTexture = (url: string) => {
-  const videoElement = document.createElement("video")
-  videoElement.src = url
-  videoElement.loop = true
-  videoElement.muted = true
-  videoElement.playsInline = true
-  videoElement.crossOrigin = "anonymous"
-  videoElement.play()
-
-  return new THREE.VideoTexture(videoElement)
-}
 
 type SceneType = Object3D<Object3DEventMap> | null
 
@@ -162,16 +151,8 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    const originalNet = officeModel?.getObjectByName("SM_BasketRed")
-    const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
-
-    if (newNetMesh?.parent) {
-      newNetMesh.removeFromParent()
-    }
-
-    if (originalNet?.parent) {
-      originalNet.removeFromParent()
-      setNet(originalNet as Mesh)
+    if (!net && basketballNetModel?.children?.[0]) {
+      setNet(basketballNetModel.children[0] as Mesh)
     }
 
     const traverse = (
@@ -229,7 +210,17 @@ export const Map = memo(() => {
           : THREE.FrontSide
 
         if (withVideo) {
-          const videoTexture = createVideoTexture(withVideo.url)
+          const videoTexture = createVideoTextureWithResume(withVideo.url)
+
+          // Clean up old video texture if it exists
+          if (currentMaterial.map && "video" in (currentMaterial.map as any)) {
+            const oldTexture = currentMaterial.map as THREE.VideoTexture
+            if (oldTexture.userData && oldTexture.userData.cleanup) {
+              oldTexture.userData.cleanup()
+            }
+            oldTexture.dispose()
+          }
+
           currentMaterial.map = videoTexture
           currentMaterial.map.flipY = false
           currentMaterial.emissiveMap = videoTexture
@@ -369,11 +360,6 @@ export const Map = memo(() => {
       })
 
       useMesh.setState({ inspectableMeshes })
-    }
-
-    const netMesh = basketballNetModel.getObjectByName("Net") as Mesh | null
-    if (netMesh) {
-      netMesh.raycast = () => null
     }
 
     const disableRaycasting = (scene: THREE.Object3D) => {

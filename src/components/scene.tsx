@@ -121,7 +121,12 @@ export const Scene = () => {
 
   return (
     <>
-      <div className="absolute inset-0">
+      <div
+        className={cn(
+          "absolute inset-0",
+          isBasketball && "inset-x-0 top-0 h-[100svh]"
+        )}
+      >
         <Debug />
         <Canvas
           id="canvas"
@@ -147,7 +152,7 @@ export const Scene = () => {
           camera={{ fov: 60 }}
           className={cn(
             "pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none",
-            isTouchOnly && "!pointer-events-none"
+            isTouchOnly && !isBasketball && "!pointer-events-none"
           )}
         >
           <AnimationController>

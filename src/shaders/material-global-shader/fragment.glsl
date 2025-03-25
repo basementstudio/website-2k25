@@ -270,7 +270,7 @@ void main() {
   // Pattern calculation - Only for cases that can be verified at precompilation
   #if defined(GLASS) || defined(GODRAY) || defined(MATCAP) && defined(GLASS)
   // Only calculate the pattern when needed
-  vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
+  vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(2.0);
   vec2 checkerPos = floor(shiftedFragCoord * 0.5);
   float pattern = mod(checkerPos.x + checkerPos.y, 2.0);
   #endif
@@ -281,7 +281,7 @@ void main() {
   #if !defined(GLASS) && !defined(GODRAY)
   float pattern;
   if (glassMatcap) {
-    vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(1.0);
+    vec2 shiftedFragCoord = gl_FragCoord.xy + vec2(2.0);
     vec2 checkerPos = floor(shiftedFragCoord * 0.5);
     pattern = mod(checkerPos.x + checkerPos.y, 2.0);
   }

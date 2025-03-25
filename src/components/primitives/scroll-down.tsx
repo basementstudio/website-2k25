@@ -71,7 +71,7 @@ export const ScrollDown = () => {
           {selected === null && (
             <motion.button
               onClick={handleClick}
-              className="-mx-4 -my-2 px-4 py-2"
+              className="-mx-4 -my-2 hidden px-4 py-2 lg:block"
               style={{
                 opacity,
                 visibility

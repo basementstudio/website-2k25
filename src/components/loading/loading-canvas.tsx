@@ -5,7 +5,8 @@ import { useEffect, useRef } from "react"
 import { useAssets } from "../assets-provider"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useAppLoadingStore } from "./app-loading-handler"
-
+import { cn } from "@/utils/cn"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 // Fallback component for when the worker fails or isn't supported
 const Fallback = dynamic(
   () => import("./fallback-loading").then((mod) => mod.FallbackLoading),
@@ -18,6 +19,9 @@ function LoadingCanvas() {
   const { officeWireframe } = useAssets()
 
   const currentScene = useNavigationStore((state) => state.currentScene)
+  const isBasketball = currentScene?.name === "basketball"
+
+  const { isMobile } = useDeviceDetect()
 
   const loadedRef = useRef(false)
 
@@ -76,7 +80,12 @@ function LoadingCanvas() {
   if (!loadingCanvasWorker) return null
 
   return (
-    <div className="absolute left-0 top-0 z-[200] h-[100svh] w-full">
+    <div
+      className={cn(
+        "absolute left-0 top-0 z-[200] aspect-square w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
+        isBasketball && isMobile && "inset-x-0 top-0 h-[100svh]"
+      )}
+    >
       <OffscreenCanvas
         worker={loadingCanvasWorker}
         fallback={<Fallback />}

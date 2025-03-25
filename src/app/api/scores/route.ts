@@ -1,13 +1,29 @@
 import { geolocation } from "@vercel/functions"
 import { NextResponse } from "next/server"
-
 import { createClient } from "@/utils/supabase/server"
 import { getTopScoresFromServer } from "@/utils/supabase/server"
+import crypto from "crypto"
 
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>()
-
 const RATE_LIMIT_WINDOW = 60 * 1000
 const MAX_REQUESTS = 3
+const TIME_WINDOW = 30000
+
+async function generateTimeWindowHash(timestamp: number): Promise<string> {
+  const timeWindow = Math.floor(timestamp / TIME_WINDOW) * TIME_WINDOW
+
+  const hash = crypto.createHash("sha256")
+  hash.update(timeWindow.toString())
+  return hash.digest("hex")
+}
+
+async function isValidTimeWindowHash(
+  timestamp: number,
+  providedHash: string
+): Promise<boolean> {
+  const expectedHash = await generateTimeWindowHash(timestamp)
+  return expectedHash === providedHash
+}
 
 function isRateLimited(clientId: string): boolean {
   const now = Date.now()
@@ -75,14 +91,30 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { playerName, score, clientId, timestamp } = await request.json()
+    const { playerName, score, clientId, timestamp, timeWindowHash } =
+      await request.json()
+
+    // Validate hash first
+    if (!timeWindowHash || typeof timeWindowHash !== "string") {
+      return NextResponse.json(
+        { error: "Invalid time window hash" },
+        { status: 400 }
+      )
+    }
 
     // validate timestamp
     const now = Date.now()
     const timeDiff = Math.abs(now - timestamp)
 
-    if (!timestamp || typeof timestamp !== "number" || timeDiff > 30000) {
+    if (!timestamp || typeof timestamp !== "number" || timeDiff > TIME_WINDOW) {
       return NextResponse.json({ error: "Invalid timestamp" }, { status: 400 })
+    }
+
+    if (!(await isValidTimeWindowHash(timestamp, timeWindowHash))) {
+      return NextResponse.json(
+        { error: "Invalid time window verification" },
+        { status: 400 }
+      )
     }
 
     if (

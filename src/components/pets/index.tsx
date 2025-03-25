@@ -4,6 +4,7 @@ import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useAssets } from "../assets-provider"
+import { useCursor } from "@/hooks/use-mouse"
 
 enum PetSkinnedName {
   PURE = "Pure-v1",
@@ -132,17 +133,61 @@ function PetsInner({
   scene
 }: PetsInnerProps) {
   const { actions } = useAnimations(animations, pureSkinned)
-
   const { actions: bostonActions } = useAnimations(animations, bostonSkinned)
+
+  const setCursor = useCursor()
 
   useEffect(() => {
     actions[PetAnimationName["PURE-Idle"]]?.play()
-    bostonActions[PetAnimationName["BOSTON-Idle"]]?.play()
+
+    const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
+    if (bostonIdleAction) {
+      bostonIdleAction.timeScale = 0.7
+      bostonIdleAction.play()
+    }
   }, [actions, bostonActions])
+
+  const handleBostonHoverStart = () => {
+    setCursor("grab", "Boston")
+    const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
+    if (bostonIdleAction) {
+      bostonIdleAction.timeScale = 1.0
+    }
+  }
+
+  const handleBostonHoverEnd = () => {
+    setCursor("default", null)
+    const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
+    if (bostonIdleAction) {
+      bostonIdleAction.timeScale = 0.25
+    }
+  }
 
   return (
     <group>
       <primitive object={scene} />
+
+      <mesh
+        position={[3.2, 0.3, -12]}
+        rotation={[0, Math.PI * 0.5, 0]}
+        onPointerOver={() => setCursor("grab", "Pure")}
+        onPointerOut={() => setCursor("default", null)}
+        visible={false}
+      >
+        <boxGeometry args={[0.5, 0.7, 0.8]} />
+        <meshBasicMaterial opacity={1} color={"red"} />
+      </mesh>
+
+      <mesh
+        position={[9.73, 3.86, -16.7]}
+        rotation={[0, Math.PI * 0.6, 0]}
+        onPointerOver={handleBostonHoverStart}
+        onPointerOut={handleBostonHoverEnd}
+        visible={false}
+      >
+        <boxGeometry args={[0.3, 0.3, 0.5]} />
+        <meshBasicMaterial opacity={1} color={"blue"} />
+      </mesh>
     </group>
   )
 }
