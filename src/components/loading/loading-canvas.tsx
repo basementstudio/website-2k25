@@ -7,6 +7,7 @@ import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useAppLoadingStore } from "./app-loading-handler"
 import { cn } from "@/utils/cn"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
+import { useMedia } from "@/hooks/use-media"
 // Fallback component for when the worker fails or isn't supported
 const Fallback = dynamic(
   () => import("./fallback-loading").then((mod) => mod.FallbackLoading),
@@ -21,7 +22,7 @@ function LoadingCanvas() {
   const currentScene = useNavigationStore((state) => state.currentScene)
   const isBasketball = currentScene?.name === "basketball"
 
-  const { isMobile } = useDeviceDetect()
+  const isDesktop = useMedia("max-width: 1024px")
 
   const loadedRef = useRef(false)
 
@@ -82,8 +83,8 @@ function LoadingCanvas() {
   return (
     <div
       className={cn(
-        "absolute left-0 top-0 z-[200] aspect-square w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
-        isBasketball && isMobile && "inset-x-0 top-0 h-[100svh]"
+        "absolute left-0 top-0 z-[200] aspect-video w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
+        isBasketball && !isDesktop && "inset-x-0 top-0 h-[100svh]"
       )}
     >
       <OffscreenCanvas

@@ -55,11 +55,11 @@ function CharactersSpawnInner() {
       <Character
         position={[2.62, 0.4, -10.16]}
         rotation={[0, degToRad(-40), 0]}
-        animationName={CharacterAnimationName["Home.02"]}
+        animationName={CharacterAnimationName["Home.01"]}
         characterId={getCharacterId(0)}
         uniforms={{
           uLightDirection: {
-            value: [0, 0.5, 1, 1]
+            value: [0, 1, 1, 1]
           }
         }}
       />
@@ -122,8 +122,8 @@ function CharactersSpawnInner() {
       <Character
         characterId={getCharacterId(5)}
         position={[6.57, 3.71, -24.7]}
-        rotation={[0, Math.PI * 0.5, 0]}
-        animationName={CharacterAnimationName["People.01.b"]}
+        rotation={[0, degToRad(80), 0]}
+        animationName={CharacterAnimationName["People.02.a"]}
       />
       {/* People03 */}
       <Character

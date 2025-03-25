@@ -14,7 +14,6 @@ interface InternalLinksProps {
   onClick?: () => void
   onNav?: boolean
   animated?: boolean
-  showBasketball?: boolean
 }
 
 const STAGER_DELAY = 0.2
@@ -29,8 +28,7 @@ export const InternalLinks = ({
   links,
   onClick,
   onNav,
-  animated = false,
-  showBasketball = false
+  animated = false
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
   const isDesktop = useMedia("(min-width: 1024px)")
