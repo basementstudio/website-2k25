@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
     ppr: "incremental"
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production"
+    removeConsole: true
   },
 
   images: {
