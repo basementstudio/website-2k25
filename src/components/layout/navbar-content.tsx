@@ -353,14 +353,12 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
     <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
       <MusicToggle />
 
-      <div className="flex items-center">
-        <button onClick={() => setIsOpen(!isOpen)}>
-          <AnimatePresence mode="popLayout" initial={false}>
-            {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
-          </AnimatePresence>
-        </button>
+      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
+        </AnimatePresence>
 
-        <button
+        <span
           onClick={() => setIsOpen(!isOpen)}
           className="relative flex w-5 flex-col items-center justify-center gap-1 overflow-visible pl-1"
           ref={menuHandlerRef}
@@ -378,8 +376,8 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
               { "w-10/12 -translate-y-[2.5px] -rotate-[45deg]": isOpen }
             )}
           />
-        </button>
-      </div>
+        </span>
+      </button>
 
       <AnimatePresence>{memoizedMenu}</AnimatePresence>
     </div>
