@@ -7,6 +7,7 @@ import {
   MeshStandardMaterial,
   Quaternion,
   type SkinnedMesh,
+  Sphere,
   Vector3
 } from "three"
 import { create } from "zustand"
@@ -105,6 +106,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
       })
 
       instancer.frustumCulled = false
+      instancer.perObjectFrustumCulled = false
 
       if (Array.isArray(mesh)) {
         mesh.forEach((m) => {
