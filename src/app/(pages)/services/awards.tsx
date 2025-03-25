@@ -17,8 +17,8 @@ import useMousePosition from "@/hooks/use-mouse-pos"
 import { cn } from "@/utils/cn"
 import { formatDate } from "@/utils/format-date"
 
-import type { QueryType } from "./query"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
+import { Award } from "./page"
 
 const IMAGE_HEIGHT = 307.73
 const GRID_COLS = 6
@@ -50,52 +50,46 @@ const useThrottledMousePosition = (delay = 16) => {
   return { mouseX, mouseY }
 }
 
-export const Awards = ({ data }: { data: QueryType }) => {
+export const Awards = ({ data }: { data: Award[] }) => {
   const isDesktop = useMedia("(min-width: 1024px)")
   const sectionRef = useRef<HTMLDivElement>(null)
-  const [hoveredItemId, setHoveredItemId] = useState<number | null>(null)
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null)
   const [translateY, setTranslateY] = useState(0)
-  const [currentImageId, setCurrentImageId] = useState<number | null>(null)
+  const [currentImageId, setCurrentImageId] = useState<string | null>(null)
   const [isRevealing, setIsRevealing] = useState(false)
 
-  const sortedAwards = useMemo(
-    () =>
-      data.company.awards.awardList.items
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .map((award, index) => ({
-          ...award,
-          numericId: index + 1
-        })),
-    [data.company.awards.awardList.items]
+  const handleMouseEnter = useCallback(
+    (id: string) => {
+      if (!isDesktop) return
+      setHoveredItemId(id)
+    },
+    [isDesktop]
   )
 
-  const handleMouseEnter = useCallback((id: number) => {
-    setHoveredItemId(id)
-  }, [])
-
   const handleMouseLeave = useCallback(() => {
+    if (!isDesktop) return
     setHoveredItemId(null)
-  }, [])
+  }, [isDesktop])
 
   const handleRevealEnter = useCallback(() => {
+    if (!isDesktop) return
     setIsRevealing(true)
-  }, [])
+  }, [isDesktop])
 
   const handleRevealLeave = useCallback(() => {
+    if (!isDesktop) return
     setIsRevealing(false)
     setHoveredItemId(null)
-  }, [])
+  }, [isDesktop])
 
   useEffect(() => {
-    if (hoveredItemId === null) {
+    if (hoveredItemId === null || !isDesktop) {
       return
     }
 
-    const awardsWithCertificates = sortedAwards.filter(
-      (award) => award.certificate
-    )
+    const awardsWithCertificates = data.filter((award) => award.certificate)
     const hoveredIndex = awardsWithCertificates.findIndex(
-      (award) => award.numericId === hoveredItemId
+      (award) => award._id === hoveredItemId
     )
 
     if (hoveredIndex !== -1) {
@@ -108,14 +102,14 @@ export const Awards = ({ data }: { data: QueryType }) => {
         setTranslateY(newTranslateY)
       }
     }
-  }, [hoveredItemId, sortedAwards, translateY, currentImageId])
+  }, [hoveredItemId, data, translateY, currentImageId, isDesktop])
 
   return (
     <>
       <div className="grid-layout" ref={sectionRef}>
         <div className="col-span-full flex gap-2 text-f-h3-mobile text-brand-g1 lg:text-f-h3">
           <h2>Awards</h2>
-          <p>x{data.company.awards.awardList.items.length}</p>
+          <p>x{data.length}</p>
         </div>
         <div className="col-span-full">
           <ul
@@ -123,10 +117,10 @@ export const Awards = ({ data }: { data: QueryType }) => {
             onMouseLeave={handleRevealLeave}
             className="col-span-full text-brand-w1"
           >
-            {sortedAwards.map((award) => (
+            {data.map((award) => (
               <li
                 key={award._id}
-                onMouseEnter={() => handleMouseEnter(award.numericId)}
+                onMouseEnter={() => handleMouseEnter(award._id)}
                 onMouseLeave={handleMouseLeave}
                 className="group relative grid grid-cols-12 gap-2 [&:first-child>.item]:after:absolute [&:first-child>.item]:after:-top-px [&:first-child>.item]:after:left-0 [&:first-child>.item]:after:w-full [&:first-child>.item]:after:border-t [&:first-child>.item]:after:border-brand-w1/20"
               >
@@ -152,13 +146,11 @@ export const Awards = ({ data }: { data: QueryType }) => {
           </ul>
         </div>
       </div>
-      {isDesktop && (
-        <HoverCertificate
-          sortedAwards={sortedAwards}
-          currentImageId={currentImageId ?? 0}
-          isRevealing={isRevealing}
-        />
-      )}
+      <HoverCertificate
+        sortedAwards={data}
+        currentImageId={currentImageId ?? ""}
+        isRevealing={isRevealing}
+      />
     </>
   )
 }
@@ -170,8 +162,8 @@ const HoverCertificate = memo(
     currentImageId
   }: {
     isRevealing: boolean
-    sortedAwards: any[]
-    currentImageId: number
+    sortedAwards: Award[]
+    currentImageId: string
   }) => {
     const { isSafari } = useDeviceDetect()
     const { mouseX, mouseY } = useThrottledMousePosition()
@@ -249,6 +241,26 @@ const HoverCertificate = memo(
       }),
       []
     )
+
+    const renderCurrentCertificateImage = useMemo(() => {
+      const image = sortedAwards.find((award) => award._id === currentImageId)
+      if (!image) return null
+
+      return (
+        <div key={image._id} className="h-full w-full">
+          <Image
+            src={image.certificate?.url || ""}
+            alt={image.certificate?.alt ?? ""}
+            fill
+            className={cn("max-h-[307.73px] w-full object-cover", {
+              hidden: image._id !== currentImageId
+            })}
+            data-numeric-id={image._id}
+            priority={true}
+          />
+        </div>
+      )
+    }, [currentImageId, sortedAwards])
 
     return (
       <motion.div
@@ -342,22 +354,7 @@ const HoverCertificate = memo(
                 }
           }
         >
-          {sortedAwards
-            .filter((award) => award.certificate)
-            .map((award) => (
-              <div key={award._id} className="h-full w-full">
-                <Image
-                  src={award.certificate?.url || ""}
-                  alt={award.certificate?.alt ?? ""}
-                  fill
-                  className={cn("max-h-[307.73px] w-full object-cover", {
-                    hidden: award.numericId !== currentImageId
-                  })}
-                  data-numeric-id={award.numericId}
-                  priority={true}
-                />
-              </div>
-            ))}
+          {renderCurrentCertificateImage}
         </div>
       </motion.div>
     )
