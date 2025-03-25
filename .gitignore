@@ -50,3 +50,6 @@ next-env.d.ts
 
 # million lint
 .million
+
+# Sentry Config File
+.env.sentry-build-plugin
