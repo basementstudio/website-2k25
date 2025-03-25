@@ -192,9 +192,11 @@ export const Lamp = memo(function LampInner() {
 
   useEffect(() => {
     if (shouldToggle) {
-      track("lamp_pulled")
+      if (light) {
+        track("lamp_pulled")
+      }
     }
-  }, [shouldToggle])
+  }, [shouldToggle, light])
 
   useEffect(() => {
     playSoundFX(
