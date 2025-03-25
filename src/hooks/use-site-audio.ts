@@ -340,10 +340,14 @@ export function useSiteAudio(): SiteAudioHook {
     (sfx: SiteAudioSFXKey, volume = SFX_VOLUME, pitch = 1) => {
       if (!audioSfxSources) return
 
-      audioSfxSources[sfx].stop()
-      audioSfxSources[sfx].setVolume(volume)
-      audioSfxSources[sfx].setPitch(pitch)
-      audioSfxSources[sfx].play()
+      const sfxSource = audioSfxSources[sfx]
+
+      if (!sfxSource) return
+
+      sfxSource.stop()
+      sfxSource.setVolume(volume)
+      sfxSource.setPitch(pitch)
+      sfxSource.play()
     },
     [audioSfxSources]
   )
