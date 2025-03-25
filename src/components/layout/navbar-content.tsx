@@ -311,7 +311,6 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
             className="col-span-4"
             onNav={true}
             animated={true}
-            showBasketball={true}
           />
 
           <motion.div
