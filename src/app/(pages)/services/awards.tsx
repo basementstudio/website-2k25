@@ -26,8 +26,8 @@ const GRID_ROWS = 8
 
 // Optimized hook for mouse position with throttling
 const useThrottledMousePosition = (delay = 16) => {
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
+  const mouseX = useMotionValue(-1)
+  const mouseY = useMotionValue(-1)
 
   const { x, y } = useMousePosition()
 
@@ -244,7 +244,7 @@ const HoverCertificate = memo(
 
     const renderCurrentCertificateImage = useMemo(() => {
       const image = sortedAwards.find((award) => award._id === currentImageId)
-      if (!image) return null
+      if (!image || mouseX.get() < 0 || mouseY.get() < 0) return null
 
       return (
         <div key={image._id} className="h-full w-full">
