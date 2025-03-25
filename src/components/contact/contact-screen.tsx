@@ -151,8 +151,6 @@ const ContactScreen = () => {
     }
   }
 
-  return null
-
   return (
     <div
       ref={contentRef}
