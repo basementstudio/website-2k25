@@ -93,7 +93,6 @@ interface GLTFNodes extends GLTF {
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { cameraConfig } = useLoadingWorkerStore()
   const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
-  const camera = useThree((s) => s.camera)
 
   const solidParent = nodes.SM_Solid
 
