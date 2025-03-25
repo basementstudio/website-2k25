@@ -14,6 +14,7 @@ import { valueRemap } from "../arcade-game/lib/math"
 import fragmentShader from "./frag.glsl"
 import { RoutingPlus } from "./routing-plus"
 import vertexShader from "./vert.glsl"
+import { useMedia } from "@/hooks/use-media"
 
 interface RoutingElementProps {
   node: Mesh
@@ -28,6 +29,7 @@ const RoutingElementComponent = ({
   hoverName,
   groupName
 }: RoutingElementProps) => {
+  const isDesktop = useMedia("min-width: 1024px")
   const { routingMaterial, updateMaterialResolution } = useMemo(() => {
     const routingMaterial = new ShaderMaterial({
       depthWrite: false,
@@ -47,7 +49,7 @@ const RoutingElementComponent = ({
     const updateMaterialResolution = () => {
       routingMaterial.uniforms.resolution.value = [
         window.innerWidth,
-        window.innerHeight
+        isDesktop ? window.innerHeight : (window.innerWidth * 9) / 16
       ]
     }
 
