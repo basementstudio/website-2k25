@@ -312,16 +312,16 @@ input:-webkit-autofill:active {
     opacity: 0.97;
   }
   5% {
-    opacity: 0.95;
+    opacity: 0.96;
   }
   10% {
-    opacity: 0.9;
-  }
-  15% {
     opacity: 0.95;
   }
+  15% {
+    opacity: 0.94;
+  }
   20% {
-    opacity: 0.9;
+    opacity: 0.93;
   }
   25% {
     opacity: 0.95;
@@ -347,7 +347,7 @@ input:-webkit-autofill:active {
     background: repeating-linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(255, 77, 0, 0.1) 0.5%,
+      rgba(255, 77, 0, 0.06) 0.5%,
       transparent 1%
     );
   }
