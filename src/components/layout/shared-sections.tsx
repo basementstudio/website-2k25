@@ -35,9 +35,10 @@ export const InternalLinks = ({
 
   const animateProps = animated
     ? {
-        initial: { opacity: 0, y: 15 },
+        initial: { opacity: 0, y: 10 },
         animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: -15 }
+        exit: { opacity: 0, y: -10 },
+        transition: { duration: 0.2 }
       }
     : {}
 
@@ -51,24 +52,7 @@ export const InternalLinks = ({
       )}
     >
       {links.map((link, idx) => (
-        <motion.li
-          key={`${link.title}-${idx}`}
-          {...animateProps}
-          animate={{
-            ...animateProps.animate,
-            transition: {
-              duration: STAGER_DURATION,
-              delay: getDelay(idx, links.length)
-            }
-          }}
-          exit={{
-            ...animateProps.exit,
-            transition: {
-              duration: STAGER_DURATION,
-              delay: getDelay(idx, links.length, true)
-            }
-          }}
-        >
+        <motion.li key={`${link.title}-${idx}`} {...animateProps}>
           <Link
             className="flex w-fit gap-x-0.5 text-brand-w1"
             href={
@@ -88,23 +72,7 @@ export const InternalLinks = ({
           </Link>
         </motion.li>
       ))}
-      <motion.li
-        {...animateProps}
-        animate={{
-          ...animateProps.animate,
-          transition: {
-            duration: STAGER_DURATION,
-            delay: getDelay(links.length, links.length)
-          }
-        }}
-        exit={{
-          ...animateProps.exit,
-          transition: {
-            duration: STAGER_DURATION,
-            delay: getDelay(links.length, links.length, true)
-          }
-        }}
-      >
+      <motion.li {...animateProps}>
         <button
           onClick={handleContactButton}
           className={cn(

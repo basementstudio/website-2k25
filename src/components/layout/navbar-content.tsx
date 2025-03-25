@@ -279,16 +279,19 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
   const menuHandlerRef = useRef<HTMLButtonElement>(null)
 
   const { focusTrapRef } = useFocusTrap(isOpen, menuHandlerRef)
-  // disable scroll when the menu is open and it's on mobile
   const shouldDisableScroll = useMemo(
     () => isOpen && Boolean(isMobile),
     [isOpen, isMobile]
   )
   useDisableScroll(shouldDisableScroll)
 
-  const handleChangeLink = () => {
+  const handleChangeLink = useCallback(() => {
     setIsOpen(false)
-  }
+  }, [])
+
+  const toggleMenu = useCallback(() => {
+    setIsOpen((prev) => !prev)
+  }, [])
 
   const memoizedMenu = useMemo(() => {
     if (!isMobile || !isOpen) return null
@@ -298,37 +301,42 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
         <motion.div
           ref={mergeRefs(mobileMenuRef, focusTrapRef)}
           className={cn(
-            "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6"
+            "fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full bg-brand-k py-6",
+            "will-change-transform"
           )}
-          initial={{ scaleY: 0 }}
-          animate={{ scaleY: 1 }}
-          exit={{ scaleY: 0, transition: { delay: 0.35 } }}
-          transition={{ duration: 0.4, type: "spring", bounce: 0 }}
+          initial={{ translateY: "-100%" }}
+          animate={{ translateY: 0 }}
+          exit={{ translateY: "-100%" }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          <InternalLinks
-            links={links}
-            onClick={handleChangeLink}
-            className="col-span-4"
-            onNav={true}
-            animated={true}
-          />
+          <div className="grid-layout h-full">
+            <InternalLinks
+              links={links}
+              onClick={handleChangeLink}
+              className="col-span-4"
+              onNav={true}
+              animated={false}
+            />
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 0.4 } }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, type: "spring", bounce: 0 }}
-            className="col-span-4 flex h-full flex-col justify-end gap-y-16"
-          >
-            <div className="flex flex-col items-start gap-y-2">
-              <SocialLinks links={socialLinks} />
-              <Copyright />
+            <div className="col-span-4 flex h-full flex-col justify-end gap-y-16">
+              <div className="flex flex-col items-start gap-y-2">
+                <SocialLinks links={socialLinks} />
+                <Copyright />
+              </div>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </Portal>
     )
-  }, [isOpen, focusTrapRef, mobileMenuRef, isMobile, links, socialLinks])
+  }, [
+    isOpen,
+    focusTrapRef,
+    mobileMenuRef,
+    isMobile,
+    links,
+    socialLinks,
+    handleChangeLink
+  ])
 
   const Label = useMemo(() => {
     return function Label({ children }: { children: React.ReactNode }) {
@@ -337,10 +345,10 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
           id="menu-button"
           key={isOpen ? "close" : "menu"}
           className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
-          initial={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
-          animate={{ opacity: 1, scaleY: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scaleY: 0.5, filter: "blur(4px)" }}
-          transition={{ duration: 0.9, type: "spring", bounce: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
         >
           {children}
         </motion.p>
@@ -352,27 +360,27 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
     <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
       <MusicToggle />
 
-      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center">
+      <button onClick={toggleMenu} className="flex items-center">
         <AnimatePresence mode="popLayout" initial={false}>
           {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
         </AnimatePresence>
 
         <span
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggleMenu}
           className="relative flex w-5 flex-col items-center justify-center gap-1 overflow-visible pl-1"
           ref={menuHandlerRef}
           aria-labelledby="menu-button"
         >
           <span
             className={cn(
-              "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
-              { "w-10/12 translate-y-[3px] rotate-[45deg]": isOpen }
+              "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
+              { "translate-y-[3px] rotate-[45deg]": isOpen }
             )}
           />
           <span
             className={cn(
-              "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
-              { "w-10/12 -translate-y-[2.5px] -rotate-[45deg]": isOpen }
+              "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-transform duration-300 ease-in-out",
+              { "-translate-y-[2.5px] -rotate-[45deg]": isOpen }
             )}
           />
         </span>
