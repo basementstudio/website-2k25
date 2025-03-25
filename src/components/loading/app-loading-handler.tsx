@@ -76,7 +76,9 @@ function AppLoadingHandler() {
   const lenis = useLenis()
 
   useEffect(() => {
-    if (showLoadingCanvas && isCanvasInPage && !isMobile) {
+    if (isMobile) return
+
+    if (showLoadingCanvas && isCanvasInPage) {
       lenis?.stop()
     } else {
       lenis?.start()
