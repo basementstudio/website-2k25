@@ -1,14 +1,19 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
-import { useFrame, useThree } from "@react-three/fiber"
-import { memo, useEffect, useMemo, useRef } from "react"
+import { createPortal, useFrame, useThree } from "@react-three/fiber"
+import { memo, useCallback, useEffect, useMemo, useRef } from "react"
 import {
   Color,
   Group,
+  HalfFloatType,
   LineSegments,
   Mesh,
+  NearestFilter,
+  OrthographicCamera,
   PerspectiveCamera as PerspectiveCameraType,
   ShaderMaterial,
-  Vector3
+  Vector2,
+  Vector3,
+  WebGLRenderer
 } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
@@ -18,6 +23,9 @@ import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
 import { getSolidRevealMaterial } from "./materials/solid-reveal-material"
+import { getFlowMaterial } from "./materials/flow-material"
+import { doubleFbo } from "@/utils/double-fbo"
+import { useLerpMouse } from "./use-lerp-mouse"
 
 interface LoadingWorkerStore {
   isAppLoaded: boolean
@@ -45,6 +53,16 @@ export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
   cameraTarget: target,
   cameraConfig: null
 }))
+
+const valueRemap = (
+  value: number,
+  min: number,
+  max: number,
+  newMin: number,
+  newMax: number
+) => {
+  return newMin + ((value - min) * (newMax - newMin)) / (max - min)
+}
 
 const handleMessage = ({
   data: { type, cameraConfig, isAppLoaded, progress }
@@ -86,11 +104,32 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     return solid
   }, [nodes])
 
+  const solidMaterial = solid.material as ShaderMaterial
+
   useFrame(({ clock }) => {
     const elapsedTime = clock.getElapsedTime()
     const material = solid.material as any
     material.uniforms.uTime.value = elapsedTime
   })
+
+  const flowDoubleFbo = useMemo(() => {
+    const fbo = doubleFbo(256 * 2, 256 * 2, {
+      magFilter: NearestFilter,
+      minFilter: NearestFilter,
+      type: HalfFloatType
+    })
+    return fbo
+  }, [])
+
+  const flowMaterial = useMemo(() => {
+    const material = getFlowMaterial()
+    material.uniforms.uFeedbackTexture = { value: flowDoubleFbo.read.texture }
+    return material
+  }, [flowDoubleFbo])
+
+  const flowScene = useMemo(() => {
+    return new Group()
+  }, [])
 
   const isAppLoaded = useLoadingWorkerStore((s) => s.isAppLoaded)
 
@@ -208,8 +247,17 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       ;(lines.material as any).uniforms.uOpacity.value = 0.3
     } else {
       // remove lines when app is loaded
-      lines.visible = !isAppLoaded
+      lines.visible = true
       ;(lines.material as any).uniforms.uOpacity.value = 0.6
+    }
+
+    if (uScreenReveal.current > 0) {
+      ;(lines.material as any).uniforms.uOpacity.value = 0.3
+      if (uScreenReveal.current < 0.3) {
+        lines.visible = Math.sin(time * 50) > 0
+      } else {
+        lines.visible = false
+      }
     }
 
     let r2 = Math.min(time - 0.2, 1)
@@ -235,18 +283,99 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       camera.updateProjectionMatrix()
     }
     if (updated.current) {
+      // TODO re-enable this
+      solidMaterial.uniforms.uNear.value = camera.near
+      solidMaterial.uniforms.uFar.value = camera.far
+      gl.setRenderTarget(null)
       gl.render(scene, camera)
     }
     return
   }, 1)
 
+  const flowCamera = useMemo(() => {
+    const oc = new OrthographicCamera(-1, 1, 1, -1, 0.1, 100)
+    oc.position.set(0, 0, 1)
+    oc.lookAt(0, 0, 0)
+    return oc
+  }, [])
+
+  const [handlePointerMove, lerpMouseFloor, vRefsFloor] = useLerpMouse()
+
+  const vrefs2 = useMemo(
+    () => ({
+      prevUv: new Vector2(0, 0)
+    }),
+    []
+  )
+
+  const renderFlow = (gl: WebGLRenderer, delta: number) => {
+    gl.setRenderTarget(flowDoubleFbo.write)
+    gl.render(flowScene, flowCamera)
+    solidMaterial.uniforms.uFlowTexture.value = flowDoubleFbo.read.texture
+    flowDoubleFbo.swap()
+    flowMaterial.uniforms.uFeedbackTexture.value = flowDoubleFbo.read.texture
+    flowMaterial.uniforms.uFrame.value = renderCount.current
+
+    flowMaterial.uniforms.uMouseDepth.value = vRefsFloor.depth
+
+    const distance = vRefsFloor.uv.distanceTo(vrefs2.prevUv)
+
+    flowMaterial.uniforms.uMousePosition.value.set(
+      vRefsFloor.uv.x,
+      vRefsFloor.uv.y
+    )
+    flowMaterial.uniforms.uMouseMoving.value = distance > 0.01 ? 1.0 : 0.0
+
+    vrefs2.prevUv.copy(vRefsFloor.uv)
+    lerpMouseFloor(delta)
+  }
+
+  useFrame(({ gl }, delta) => {
+    const fps = 1 / delta
+
+    const shouldDoubleRender = fps < 100
+
+    const d = shouldDoubleRender ? delta / 2 : delta
+
+    renderFlow(gl, d)
+    if (shouldDoubleRender) {
+      renderFlow(gl, d)
+    }
+  }, 2)
+
+  const width = useThree((s) => s.size.width)
+  const height = useThree((s) => s.size.height)
+
+  solidMaterial.uniforms.uScreenSize.value.set(width, height)
+
   return (
     <>
       <primitive visible={false} object={lines} />
       <primitive object={solidParent}>
-        <primitive object={solid} />
+        <group onPointerMove={handlePointerMove}>
+          <primitive object={solid} />
+        </group>
       </primitive>
-      <PerspectiveCamera position={initialPosition} makeDefault fov={30} />
+      {/* Flow simulation (floor) */}
+      {createPortal(
+        <>
+          <primitive object={flowCamera} />
+          <mesh>
+            {/* Has to be 2x2 to fill the screen using pos attr */}
+            <planeGeometry args={[2, 2]} />
+            <primitive object={flowMaterial} />
+          </mesh>
+        </>,
+        flowScene
+      )}
+
+      <PerspectiveCamera
+        position={initialPosition}
+        makeDefault
+        fov={30}
+        near={0.1}
+        far={40}
+      />
     </>
   )
 }

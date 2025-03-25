@@ -15,7 +15,7 @@ export type DoubleFBO = {
 export const doubleFbo = (
   width: number,
   height: number,
-  options: THREE.RenderTargetOptions
+  options: THREE.RenderTargetOptions = {}
 ): DoubleFBO => {
   const swapSubscribable = subscribable<SwapCallback>()
 

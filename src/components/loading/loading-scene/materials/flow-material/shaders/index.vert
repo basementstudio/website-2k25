@@ -1,17 +1,16 @@
 in vec3 position;
 in vec2 uv;
 
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-uniform float uRenderCount;
+uniform sampler2D uFeedbackTexture;
 
 out vec2 vUv;
-out vec3 vWorldPosition;
+out vec2 vFlowSize;
+out vec2 dxy;
 
 void main() {
   vUv = uv;
-  vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-  
-  gl_Position = projectionMatrix * viewMatrix * vec4(vWorldPosition, 1.0);
+  ivec2 flowSize = textureSize(uFeedbackTexture, 0);
+  vFlowSize = vec2(float(flowSize.x), float(flowSize.y));
+  vec2 dxy = vec2(1.0 / vFlowSize.x, 1.0 / vFlowSize.y);
+  gl_Position = vec4(position, 1.0);
 }
