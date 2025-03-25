@@ -271,7 +271,7 @@ const ViewMore = ({
   const experiments = useArcadeStore((state) => state.labTabs)
   const setCursor = useCursor()
   const handleViewMoreClick = useCallback(() => {
-    window.open("https://basement.studio/lab", "_blank")
+    window.open("https://lab.basement.studio/", "_blank")
   }, [])
 
   const isSelected = isInLabTab && labTabIndex === experiments.length - 3

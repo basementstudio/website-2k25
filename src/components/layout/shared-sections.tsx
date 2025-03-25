@@ -71,11 +71,7 @@ export const InternalLinks = ({
         >
           <Link
             className="flex w-fit gap-x-0.5 text-brand-w1"
-            href={
-              isMobile && link.title === "Lab"
-                ? "https://basement.studio/lab"
-                : link.href
-            }
+            href={link.href}
             onClick={onClick}
             target={isMobile && link.title === "Lab" ? "_blank" : undefined}
           >

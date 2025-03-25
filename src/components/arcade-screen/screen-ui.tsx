@@ -60,7 +60,7 @@ export const createLabTabs = (experiments: any[]): LabTab[] => {
       id: "view-more",
       type: "button",
       title: "VIEW MORE",
-      url: "https://basement.studio/lab",
+      url: "https://lab.basement.studio/",
       isClickable: true
     },
 
