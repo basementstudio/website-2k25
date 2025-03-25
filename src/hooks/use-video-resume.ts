@@ -43,13 +43,21 @@ export const createVideoTextureWithResume = (url: string) => {
   videoElement.muted = true
   videoElement.playsInline = true
   videoElement.crossOrigin = "anonymous"
-  videoElement.play()
+  try {
+    videoElement.play().catch((err) => console.warn("Video play failed:", err))
+  } catch (error) {
+    console.error("Error playing video:", error)
+  }
 
   const handleVisibilityChange = () => {
     if (document.visibilityState === "visible") {
-      videoElement
-        .play()
-        .catch((err) => console.warn("Video play failed:", err))
+      try {
+        videoElement
+          .play()
+          .catch((err) => console.warn("Video play failed:", err))
+      } catch (error) {
+        console.error("Error playing video:", error)
+      }
     }
   }
 
