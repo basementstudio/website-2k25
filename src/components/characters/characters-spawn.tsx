@@ -122,8 +122,8 @@ function CharactersSpawnInner() {
       <Character
         characterId={getCharacterId(5)}
         position={[6.57, 3.71, -24.7]}
-        rotation={[0, Math.PI * 0.5, 0]}
-        animationName={CharacterAnimationName["People.01.b"]}
+        rotation={[0, degToRad(80), 0]}
+        animationName={CharacterAnimationName["People.02.a"]}
       />
       {/* People03 */}
       <Character
