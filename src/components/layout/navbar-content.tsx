@@ -166,6 +166,7 @@ interface NavbarContentProps {
     twitter: string
     instagram: string
     github: string
+    linkedIn: string
   }
 
   newsletter: RichTextNode[]
@@ -310,6 +311,7 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
             className="col-span-4"
             onNav={true}
             animated={true}
+            showBasketball={true}
           />
 
           <motion.div

@@ -4,6 +4,7 @@ import { motion } from "motion/react"
 
 import { Link } from "@/components/primitives/link"
 import { cn } from "@/utils/cn"
+import { useMedia } from "@/hooks/use-media"
 
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
 
@@ -13,6 +14,7 @@ interface InternalLinksProps {
   onClick?: () => void
   onNav?: boolean
   animated?: boolean
+  showBasketball?: boolean
 }
 
 const STAGER_DELAY = 0.2
@@ -27,9 +29,11 @@ export const InternalLinks = ({
   links,
   onClick,
   onNav,
-  animated = false
+  animated = false,
+  showBasketball = false
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
+  const isMobile = useMedia("(max-width: 1024px)")
 
   const animateProps = animated
     ? {
@@ -69,8 +73,13 @@ export const InternalLinks = ({
         >
           <Link
             className="flex w-fit gap-x-0.5 text-brand-w1"
-            href={link.href}
+            href={
+              isMobile && link.title === "Lab"
+                ? "https://basement.studio/lab"
+                : link.href
+            }
             onClick={onClick}
+            target={isMobile && link.title === "Lab" ? "_blank" : undefined}
           >
             <span className="actionable">{link.title}</span>
             {link.count && (
@@ -109,13 +118,46 @@ export const InternalLinks = ({
           <span className="actionable">Contact Us</span>
         </button>
       </motion.li>
+
+      {showBasketball && (
+        <motion.li
+          {...animateProps}
+          animate={{
+            ...animateProps.animate,
+            transition: {
+              duration: STAGER_DURATION,
+              delay: getDelay(links.length + 1, links.length + 1)
+            }
+          }}
+          exit={{
+            ...animateProps.exit,
+            transition: {
+              duration: STAGER_DURATION,
+              delay: getDelay(links.length + 1, links.length + 1, true)
+            }
+          }}
+        >
+          <Link
+            className="flex w-fit gap-x-0.5 text-brand-w1"
+            href="/basketball"
+            onClick={onClick}
+          >
+            <span className="actionable">Basketball</span>
+          </Link>
+        </motion.li>
+      )}
     </ul>
   )
 }
 
 interface SocialLinksProps {
   className?: string
-  links: { twitter: string; instagram: string; github: string }
+  links: {
+    twitter: string
+    instagram: string
+    github: string
+    linkedIn: string
+  }
 }
 
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
@@ -128,7 +170,7 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
     <Link className="h-max text-brand-w1" href={links.twitter} target="_blank">
       <span className="actionable">X (Twitter)</span>
     </Link>
-    <span>,</span>
+
     <Link
       className="h-max text-brand-w1"
       href={links.instagram}
@@ -136,9 +178,13 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
     >
       <span className="actionable">Instagram</span>
     </Link>
-    <span>,</span>
+
     <Link className="h-max text-brand-w1" href={links.github} target="_blank">
       <span className="actionable">GitHub</span>
+    </Link>
+
+    <Link className="h-max text-brand-w1" href={links.linkedIn} target="_blank">
+      <span className="actionable">LinkedIn</span>
     </Link>
   </div>
 )

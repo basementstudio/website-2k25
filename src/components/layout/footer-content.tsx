@@ -80,19 +80,23 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
         />
 
         <div className="col-span-full row-start-3 flex flex-col justify-end gap-y-2 lg:hidden">
-          {/* Jose Request */}
-          {/* <SoDa className="items-end" /> */}
           <SocialLinks
             className="col-start-1 col-end-5 row-start-2 lg:hidden"
-            links={data.company.social}
+            links={{
+              ...data.company.social,
+              linkedIn: data.company.social.linkedIn || ""
+            }}
           />
           <Copyright className="text-left" />
         </div>
 
         <div className="col-start-10 col-end-13 hidden translate-y-[3px] flex-col items-end gap-y-2 lg:flex">
-          {/* Jose Request */}
-          {/* <SoDa className="hidden lg:block" /> */}
-          <SocialLinks links={data.company.social} />
+          <SocialLinks
+            links={{
+              ...data.company.social,
+              linkedIn: data.company.social.linkedIn || ""
+            }}
+          />
           <Copyright />
         </div>
       </div>
