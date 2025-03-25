@@ -15,7 +15,6 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
-import { useDeviceDetect } from "@/hooks/use-device-detect"
 
 const ANIMATION_DURATION = 1
 const ANIMATION_DURATION_FROM_404 = 4
@@ -145,13 +144,6 @@ export const useCameraMovement = (
     useNavigationStore.getState().setIsCameraTransitioning
   const previousScene = useNavigationStore.getState().previousScene
   const { selected } = useInspectable()
-  const { isMobile } = useDeviceDetect()
-
-  useEffect(() => {
-    if (isMobile) {
-      setDisableCameraTransition(true)
-    }
-  }, [isMobile, setDisableCameraTransition])
 
   // Determine if we're transitioning from the 404 page
   const isTransitioningFrom404 = previousScene?.name === "404"
@@ -209,11 +201,10 @@ export const useCameraMovement = (
           isTransitioning.current = false
           setIsCameraTransitioning(false)
 
-          setTimeout(() => {
-            if (!isMobile) {
-              setDisableCameraTransition(false)
-            }
-          }, animationDuration * 1000)
+          setTimeout(
+            () => setDisableCameraTransition(false),
+            animationDuration * 1000
+          )
         }
       }
       prevCameraConfig.current = cameraConfig
@@ -228,8 +219,7 @@ export const useCameraMovement = (
     disableCameraTransition,
     setDisableCameraTransition,
     setIsCameraTransitioning,
-    animationDuration,
-    isMobile
+    animationDuration
   ])
 
   useFrameCallback(({ pointer }, dt) => {

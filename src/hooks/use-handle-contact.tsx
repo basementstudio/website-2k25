@@ -18,7 +18,7 @@ export const useHandleContactButton = () => {
 
   const handleClick = useCallback(() => {
     if (clickTimeoutRef.current || isAnimating || !canRunMainApp) return
-    const isMobile = window.innerWidth <= 768
+    const isMobile = window.innerWidth < 1024
 
     if (webglEnabled && !isMobile) {
       setIsContactOpen(!isContactOpen)
