@@ -81,29 +81,10 @@ void main() {
 
   VoxelData voxel = getVoxel(p, 12.4, 2., 20.0);
 
-  float edgeFactor = (1. - voxel.edgeFactor);
-
-  float colorBump = voxel.noiseBig * 1.5;
-  colorBump = clamp(colorBump, -1., 1.);
-  // add small offset
-  colorBump -= voxel.noiseSmall * 0.1;
-  // shift over time
-  colorBump += uTime * 0.2;
-  // make it loop repetitions
-  colorBump = fract(colorBump * 1.);
-  // remap so that it leaves a trail
-  colorBump = valueRemap(colorBump, 0.0, 0.1, 1.0, 0.0);
-  colorBump = clamp(colorBump, 0.0, 1.0);
-  colorBump = pow(colorBump, 2.);
-  // colorBump *= edgeFactor;
-  colorBump *= uReveal > pow(voxel.noiseSmall * 0.5 + 0.5, 2.) ? 1.0 : 0.0;
-
   if(voxel.noiseSmall * 0.5 + 0.5 < uScreenReveal) {
     discard;
     return;
   }
-
-  fragColor = vec4(vec3(colorBump), 1.0);
 
   //debug flow
   // fragColor = vec4(vec3(0.0, 0.0, 0.0), 1.0);
@@ -133,6 +114,7 @@ void main() {
   flowSdf = pow(flowSdf, 4.);
 
   fragColor.rgb = vec3(flowSdf);
+  fragColor.a = 1.0;
   return;
 
 }

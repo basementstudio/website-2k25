@@ -12,7 +12,8 @@ import {
   PerspectiveCamera as PerspectiveCameraType,
   ShaderMaterial,
   Vector2,
-  Vector3
+  Vector3,
+  WebGLRenderer
 } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
@@ -140,7 +141,6 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   // Fade out canvas
   useFrame((_, delta) => {
     if (!isAppLoaded) return
-    return
 
     if (uScreenReveal.current < 1) {
       uScreenReveal.current += delta
@@ -252,6 +252,15 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       ;(lines.material as any).uniforms.uOpacity.value = 0.6
     }
 
+    if (uScreenReveal.current > 0) {
+      ;(lines.material as any).uniforms.uOpacity.value = 0.3
+      if (uScreenReveal.current < 0.3) {
+        lines.visible = Math.sin(time * 50) > 0
+      } else {
+        lines.visible = false
+      }
+    }
+
     let r2 = Math.min(time - 0.2, 1)
     r2 = clamp(r2, 0, 1)
     r2 = easeInOutCirc(0, 1, r2)
@@ -300,7 +309,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     []
   )
 
-  useFrame(({ gl }, delta) => {
+  const renderFlow = (gl: WebGLRenderer, delta: number) => {
     gl.setRenderTarget(flowDoubleFbo.write)
     gl.render(flowScene, flowCamera)
     solidMaterial.uniforms.uFlowTexture.value = flowDoubleFbo.read.texture
@@ -320,6 +329,19 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
     vrefs2.prevUv.copy(vRefsFloor.uv)
     lerpMouseFloor(delta)
+  }
+
+  useFrame(({ gl }, delta) => {
+    const fps = 1 / delta
+
+    const shouldDoubleRender = fps < 100
+
+    const d = shouldDoubleRender ? delta / 2 : delta
+
+    renderFlow(gl, d)
+    if (shouldDoubleRender) {
+      renderFlow(gl, d)
+    }
   }, 2)
 
   const width = useThree((s) => s.size.width)
