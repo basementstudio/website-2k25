@@ -4,6 +4,7 @@ import * as THREE from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useAssets } from "../assets-provider"
+import { useCursor } from "@/hooks/use-mouse"
 
 enum PetSkinnedName {
   PURE = "Pure-v1",
@@ -132,17 +133,45 @@ function PetsInner({
   scene
 }: PetsInnerProps) {
   const { actions } = useAnimations(animations, pureSkinned)
-
   const { actions: bostonActions } = useAnimations(animations, bostonSkinned)
+
+  const setCursor = useCursor()
 
   useEffect(() => {
     actions[PetAnimationName["PURE-Idle"]]?.play()
     bostonActions[PetAnimationName["BOSTON-Idle"]]?.play()
   }, [actions, bostonActions])
 
+  useEffect(() => {
+    actions[PetAnimationName["PURE-Look"]]?.reset().fadeIn(0.5).play()
+    actions[PetAnimationName["PURE-Idle"]]?.fadeOut(0.5)
+  }, [actions])
+
   return (
     <group>
       <primitive object={scene} />
+
+      <mesh
+        position={[3.2, 0, -12]}
+        rotation={[0, Math.PI * 0.5, 0]}
+        onPointerOver={() => setCursor("grab", "Pure")}
+        onPointerOut={() => setCursor("default", null)}
+        visible={false}
+      >
+        <boxGeometry args={[0.25, 0.8, 0.6]} />
+        <meshBasicMaterial opacity={1} color={"red"} />
+      </mesh>
+
+      <mesh
+        position={[9.7, 3.73, -16.63]}
+        rotation={[0, Math.PI * 0.6, 0]}
+        onPointerOver={() => setCursor("grab", "Boston")}
+        onPointerOut={() => setCursor("default", null)}
+        visible={false}
+      >
+        <boxGeometry args={[0.2, 0.3, 0.3]} />
+        <meshBasicMaterial opacity={1} color={"blue"} />
+      </mesh>
     </group>
   )
 }

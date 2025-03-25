@@ -51,7 +51,10 @@ export const Navbar = () => (
         <NavbarContent
           key="navbar-content"
           links={LINKS}
-          socialLinks={data.company.social}
+          socialLinks={{
+            ...data.company.social,
+            linkedIn: data.company.social.linkedIn || ""
+          }}
           newsletter={newsletter}
         />
       )
