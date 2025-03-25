@@ -16,7 +16,7 @@ const Laboratory = async () => {
     /iPhone|iPad|iPod|Android|webOS|BlackBerry|Windows Phone/i.test(userAgent)
 
   if (isMobile) {
-    redirect("https://basement.studio/lab")
+    redirect("https://lab.basement.studio/")
   }
 
   return null
