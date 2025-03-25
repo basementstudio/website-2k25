@@ -105,9 +105,13 @@ const Logo = memo(({ className }: { className?: string }) => {
     const svg = document.querySelector(".logo-svg")
 
     if (svg) {
-      const svgString = svg.outerHTML
-      const cleanedSvg = svgString.replace(/class="[^"]*"/g, "")
-      navigator.clipboard.writeText(cleanedSvg)
+      try {
+        const svgString = svg.outerHTML
+        const cleanedSvg = svgString.replace(/class="[^"]*"/g, "")
+        navigator.clipboard.writeText(cleanedSvg)
+      } catch (error) {
+        console.error("Error copying logo:", error)
+      }
     }
   }, [])
 
