@@ -86,12 +86,12 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           content={content}
           components={{
             h3: ({ children }) => (
-              <p className="text-f-p-mobile lg:text-f-h4 !text-pretty text-brand-w2">
+              <p className="!text-pretty text-f-p-mobile text-brand-w2 lg:text-f-h4">
                 {children}
               </p>
             ),
             p: ({ children }) => (
-              <p className="text-f-p-mobile lg:text-f-h4 !text-pretty text-brand-w2">
+              <p className="!text-pretty text-f-p-mobile text-brand-w2 lg:text-f-h4">
                 {children}
               </p>
             )
@@ -100,10 +100,10 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
       </div>
       <form
         onSubmit={handleSubmit}
-        className="text-f-h4-mobile lg:text-f-h4 flex max-w-[26.25rem] flex-col gap-1"
+        className="flex max-w-[26.25rem] flex-col gap-1 text-f-h4-mobile lg:text-f-h4"
       >
         <Input
-          className="text-f-h4-mobile lg:text-f-h4 !h-6 !px-1"
+          className="!h-6 !px-1 text-f-h4-mobile lg:text-f-h4"
           placeholder="Enter your Email"
           required
           type="email"
@@ -117,7 +117,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
         <button
           type="submit"
           disabled={formState !== "idle" || !email}
-          className="text-f-h4-mobile lg:text-f-h4 ml-1 flex w-fit translate-y-1 items-center gap-1 overflow-hidden"
+          className="ml-1 flex w-fit translate-y-1 items-center gap-1 overflow-hidden text-f-h4-mobile lg:text-f-h4"
         >
           <motion.div
             animate={{
@@ -126,7 +126,9 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   ? "#00ff9b"
                   : formState === "error"
                     ? "#ff6b6b"
-                    : "#666666"
+                    : formState !== "idle" || !email
+                      ? "#666666"
+                      : "#e6e6e6"
             }}
             transition={{ duration: 0.2 }}
           >
@@ -138,7 +140,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -40, opacity: 0 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="text-f-h4-mobile lg:text-f-h4 flex items-center gap-x-1"
+                  className="flex items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
                 >
                   Subscribed Successfully
                   <motion.span
@@ -156,7 +158,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -40, opacity: 0 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="text-f-h4-mobile lg:text-f-h4 flex items-center gap-x-1"
+                  className="flex items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
                 >
                   {getErrorMessage()}
                 </motion.span>
@@ -167,7 +169,11 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -40, opacity: 0 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="actionable actionable-no-underline text-f-h4-mobile lg:text-f-h4 flex items-center gap-x-1"
+                  className={cn(
+                    "flex items-center gap-x-1 text-f-h4-mobile lg:text-f-h4",
+                    !(formState !== "idle" || !email) &&
+                      "actionable actionable-no-underline"
+                  )}
                 >
                   Roll Me In <Arrow className="size-5" />
                 </motion.span>
