@@ -308,13 +308,13 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
           ref={mergeRefs(mobileMenuRef, focusTrapRef)}
           className={cn(
             "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6",
-            "will-change-transform"
+            "will-change-[transform,opacity]"
           )}
           initial={{ transform: "translate3d(0, -100%, 0)" }}
           animate={{ transform: "translate3d(0, 0%, 0)" }}
           exit={{
             transform: "translate3d(0, -100%, 0)",
-            transition: { delay: 0.35 }
+            transition: { delay: 0.2 }
           }}
           transition={{ duration: 0.4, type: "spring", bounce: 0 }}
         >
@@ -327,11 +327,7 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
             showBasketball={true}
           />
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 0.4 } }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, type: "spring", bounce: 0 }}
+          <div
             className="col-span-4 flex h-full flex-col justify-end gap-y-16"
             style={{ willChange: "transform" }}
           >
@@ -339,7 +335,7 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
               <SocialLinks links={socialLinks} />
               <Copyright />
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </Portal>
     )
@@ -375,13 +371,13 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
     <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
       <MusicToggle />
 
-      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center">
+      <button onClick={() => handleToggleMenu} className="flex items-center">
         <AnimatePresence mode="popLayout" initial={false}>
           {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
         </AnimatePresence>
 
         <span
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleToggleMenu}
           className="relative flex w-5 flex-col items-center justify-center gap-1 overflow-visible pl-1"
           ref={menuHandlerRef}
           aria-labelledby="menu-button"

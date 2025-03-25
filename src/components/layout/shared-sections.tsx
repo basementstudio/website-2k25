@@ -17,9 +17,9 @@ interface InternalLinksProps {
   showBasketball?: boolean
 }
 
-const STAGER_DELAY = 0.2
-const STAGER_DURATION = 0.3
-const STAGER_STEPS = 0.1
+const STAGER_DELAY = 0.15
+const STAGER_DURATION = 0.25
+const STAGER_STEPS = 0.08
 
 const getDelay = (idx: number, length: number, instant?: boolean) =>
   (instant ? 0 : STAGER_DELAY) + (idx / length) * STAGER_STEPS
@@ -37,9 +37,9 @@ export const InternalLinks = ({
 
   const animateProps = animated
     ? {
-        initial: { opacity: 0, y: 15 },
-        animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: -15 }
+        initial: { opacity: 0, transform: "translate3d(0, 15px, 0)" },
+        animate: { opacity: 1, transform: "translate3d(0, 0px, 0)" },
+        exit: { opacity: 0, transform: "translate3d(0, -15px, 0)" }
       }
     : {}
 
@@ -70,6 +70,7 @@ export const InternalLinks = ({
               delay: getDelay(idx, links.length, true)
             }
           }}
+          className="will-change-[transform,opacity]"
         >
           <Link
             className="flex w-fit gap-x-0.5 text-brand-w1"
@@ -106,6 +107,7 @@ export const InternalLinks = ({
             delay: getDelay(links.length, links.length, true)
           }
         }}
+        className="will-change-[transform,opacity]"
       >
         <button
           onClick={handleContactButton}
@@ -136,6 +138,7 @@ export const InternalLinks = ({
               delay: getDelay(links.length + 1, links.length + 1, true)
             }
           }}
+          className="will-change-[transform,opacity]"
         >
           <Link
             className="flex w-fit gap-x-0.5 text-brand-w1"
