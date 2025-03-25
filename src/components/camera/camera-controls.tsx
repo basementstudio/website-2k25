@@ -24,13 +24,6 @@ export const CustomCamera = () => {
   const { isMobile } = useDeviceDetect()
 
   const finalCameraConfig = useMemo(() => {
-    if (isMobile && currentScene?.name === "home" && cameraConfig) {
-      return {
-        ...cameraConfig,
-        position: [8.38, 3, -11.5] as [number, number, number],
-        target: [8.38, 2.75, -12] as [number, number, number]
-      }
-    }
     return cameraConfig
   }, [isMobile, currentScene, cameraConfig])
 

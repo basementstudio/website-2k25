@@ -170,8 +170,14 @@ function PetsInner({
       <mesh
         position={[3.2, 0.3, -12]}
         rotation={[0, Math.PI * 0.5, 0]}
-        onPointerOver={() => setCursor("grab", "Pure")}
-        onPointerOut={() => setCursor("default", null)}
+        onPointerOver={(e) => {
+          e.stopPropagation()
+          setCursor("grab", "Pure")
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation()
+          setCursor("default", null)
+        }}
         visible={false}
       >
         <boxGeometry args={[0.5, 0.7, 0.8]} />
@@ -181,8 +187,14 @@ function PetsInner({
       <mesh
         position={[9.73, 3.86, -16.7]}
         rotation={[0, Math.PI * 0.6, 0]}
-        onPointerOver={handleBostonHoverStart}
-        onPointerOut={handleBostonHoverEnd}
+        onPointerOver={(e) => {
+          e.stopPropagation()
+          handleBostonHoverStart()
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation()
+          handleBostonHoverEnd()
+        }}
         visible={false}
       >
         <boxGeometry args={[0.3, 0.3, 0.5]} />

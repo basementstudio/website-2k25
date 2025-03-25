@@ -7,6 +7,7 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
+import { useMedia } from "./use-media"
 
 const handleTransitionEffectOn = () => {
   document.documentElement.dataset.disabled = "false"
@@ -32,6 +33,7 @@ export const useHandleNavigation = () => {
     (state) => state.setDisableCameraTransition
   )
   const scenes = useNavigationStore((state) => state.scenes)
+  const isDesktop = useMedia("(min-width: 1024px)")
 
   useEffect(() => {
     lenisRef.current = lenisInstance
@@ -58,6 +60,12 @@ export const useHandleNavigation = () => {
   const handleNavigation = useCallback(
     (route: string) => {
       if (route === pathname) return
+
+      if (!isDesktop) {
+        setDisableCameraTransition(true)
+        router.push(route, { scroll: false })
+        return
+      }
 
       const isContactOpen = useContactStore.getState().isContactOpen
       const isContactAnimating = useContactStore.getState().isAnimating
