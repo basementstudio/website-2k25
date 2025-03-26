@@ -90,6 +90,7 @@ export default function BlogMeta({
                   href={social.href(data._slug, data._title)}
                   className="transition-opacity hover:opacity-80"
                   aria-label={social.label}
+                  target="_blank"
                 >
                   <social.Icon className="text-brand-w1" />
                 </Link>
