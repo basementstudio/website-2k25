@@ -1,6 +1,5 @@
-import * as ReactDeviceDetect from "react-device-detect"
-
 import { useEffect, useState } from "react"
+import * as ReactDeviceDetect from "react-device-detect"
 
 type DD = {
   isMobile?: boolean

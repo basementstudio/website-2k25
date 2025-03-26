@@ -1,4 +1,5 @@
 import { create } from "zustand"
+
 import { Subscribable, subscribable } from "./subscribable"
 
 export interface Controls {
@@ -39,7 +40,7 @@ interface ConnectorStore {
   subscribable: Subscribables
   onLose: Subscribable
   actions: Actions
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   setControl: <T extends ControlKey = any>(
     control: T,
     value: Controls[T]

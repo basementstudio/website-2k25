@@ -20,12 +20,13 @@ import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import { doubleFbo } from "@/utils/double-fbo"
 import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
-import { getSolidRevealMaterial } from "./materials/solid-reveal-material"
+
 import { getFlowMaterial } from "./materials/flow-material"
-import { doubleFbo } from "@/utils/double-fbo"
+import { getSolidRevealMaterial } from "./materials/solid-reveal-material"
 import { useLerpMouse } from "./use-lerp-mouse"
 
 interface LoadingWorkerStore {

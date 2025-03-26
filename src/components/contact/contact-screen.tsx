@@ -1,12 +1,14 @@
-import { submitContactForm } from "@/actions/contact-form"
-import { useEffect, useRef, useState } from "react"
 import { motion, useAnimation } from "motion/react"
-import { useContactStore } from "./contact-store"
+import { useEffect, useRef, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
+
+import { submitContactForm } from "@/actions/contact-form"
 import { Inputs } from "@/app/contact/form/contact-form"
-import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useSiteAudio } from "@/hooks/use-site-audio"
+
 import { Link } from "../primitives/link"
+import { useContactStore } from "./contact-store"
 
 const ContactScreen = () => {
   const contentRef = useRef(null)

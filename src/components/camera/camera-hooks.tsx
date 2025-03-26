@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import { useMedia } from "@/hooks/use-media"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { useInspectable } from "../inspectables/context"
@@ -15,7 +16,6 @@ import {
   calculateViewDimensions,
   easeInOutCubic
 } from "./camera-utils"
-import { useMedia } from "@/hooks/use-media"
 
 const ANIMATION_DURATION = 1
 const ANIMATION_DURATION_FROM_404 = 4

@@ -1,9 +1,10 @@
 "use client"
 
 import { Link } from "@/components/primitives/link"
-import { cn } from "@/utils/cn"
-import { useContactStore } from "../contact/contact-store"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
+import { cn } from "@/utils/cn"
+
+import { useContactStore } from "../contact/contact-store"
 
 interface InternalLinksProps {
   className?: string

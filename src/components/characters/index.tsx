@@ -3,6 +3,7 @@ import { useMemo } from "react"
 import { Group } from "three"
 
 import { CharacterPosition } from "./character-instancer"
+import { bodyGrid, getRandomBodyId, getTextureCoord } from "./character-utils"
 import {
   CharacterAnimationName,
   CharacterMeshes,
@@ -12,7 +13,6 @@ import {
 } from "./characters-config"
 import { characterConfigurations, FaceMorphTargets } from "./characters-config"
 import { InstanceUniform } from "./instanced-skinned-mesh"
-import { bodyGrid, getRandomBodyId, getTextureCoord } from "./character-utils"
 
 interface CharacterProps extends ElementProps<typeof Group> {
   animationName: CharacterAnimationName

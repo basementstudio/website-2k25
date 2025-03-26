@@ -12,10 +12,9 @@ import {
   useState
 } from "react"
 
-import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
-
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
 
 // Context for sharing animation time
 interface AnimationContext {

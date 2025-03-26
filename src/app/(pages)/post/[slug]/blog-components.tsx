@@ -39,7 +39,7 @@ export const BlogVideo = (props: HandlerProps<"video">) => (
 )
 
 export const Intro = ({ children }: HandlerProps<"p">) => (
-  <p className="text-f-h3-mobile lg:text-f-h3 text-brand-w2 [&_b]:font-bold [&_b]:text-brand-w1">
+  <p className="text-f-h3-mobile text-brand-w2 lg:text-f-h3 [&_b]:font-bold [&_b]:text-brand-w1">
     {children}
   </p>
 )
@@ -51,13 +51,13 @@ export const Paragraph = ({ children }: HandlerProps<"p">) => (
 )
 
 export const Heading2 = ({ children }: HandlerProps<"h2">) => (
-  <h2 className="text-f-h2-mobile lg:text-f-h2 text-balance text-brand-w1 [&_b]:font-semibold">
+  <h2 className="text-balance text-f-h2-mobile text-brand-w1 lg:text-f-h2 [&_b]:font-semibold">
     {children}
   </h2>
 )
 
 export const Heading3 = ({ children }: HandlerProps<"h3">) => (
-  <h3 className="text-f-h3-mobile lg:text-f-h3 text-balance text-brand-w1 [&_b]:font-semibold">
+  <h3 className="text-balance text-f-h3-mobile text-brand-w1 lg:text-f-h3 [&_b]:font-semibold">
     {children}
   </h3>
 )
@@ -91,13 +91,13 @@ export const UnorderedList = ({ children }: HandlerProps<"ul">) => (
 )
 
 export const ListItem = ({ children }: HandlerProps<"li">) => (
-  <li className="blog-list-item marker:text-f-p-mobile lg:text-f-p pl-2 text-brand-w2">
+  <li className="blog-list-item pl-2 text-brand-w2 marker:text-f-p-mobile lg:text-f-p">
     {children}
   </li>
 )
 
 export const Code = ({ children }: HandlerProps<"code">) => (
-  <code className="md:tracking-2 text-f-p-mobile lg:text-f-p rounded-md border border-brand-g2 bg-codeblock-k2 px-1 font-mono font-semibold">
+  <code className="md:tracking-2 rounded-md border border-brand-g2 bg-codeblock-k2 px-1 font-mono text-f-p-mobile font-semibold lg:text-f-p">
     {children}
   </code>
 )
@@ -151,7 +151,7 @@ export const QuoteWithAuthor = ({
 }: QuoteWithAuthorProps) => (
   <div className="custom-block relative mb-4 flex gap-x-4">
     <div className="flex w-full flex-col gap-y-2.5">
-      <div className="[&>*]:text-f-h2-mobile lg:text-f-h2 [&>*]:text-brand-w2">
+      <div className="lg:text-f-h2 [&>*]:text-f-h2-mobile [&>*]:text-brand-w2">
         <RichText>{quote}</RichText>
       </div>
 
@@ -167,10 +167,10 @@ export const QuoteWithAuthor = ({
         ) : null}
 
         {author ? (
-          <p className="text-f-p-mobile lg:text-f-p text-brand-w2">{author}</p>
+          <p className="text-f-p-mobile text-brand-w2 lg:text-f-p">{author}</p>
         ) : null}
         {role ? (
-          <p className="text-f-p-mobile lg:text-f-p text-brand-g1">{role}</p>
+          <p className="text-f-p-mobile text-brand-g1 lg:text-f-p">{role}</p>
         ) : null}
       </div>
     </div>

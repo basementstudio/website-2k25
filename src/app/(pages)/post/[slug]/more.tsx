@@ -3,10 +3,10 @@
 import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
+import { useMedia } from "@/hooks/use-media"
 import { formatDate } from "@/utils/format-date"
 
 import { QueryType } from "./query"
-import { useMedia } from "@/hooks/use-media"
 
 export default function More({
   data,

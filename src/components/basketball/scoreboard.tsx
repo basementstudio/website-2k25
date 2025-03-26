@@ -66,7 +66,7 @@ export default function Scoreboard({
   return (
     <div
       className={cn(
-        "text-f-p-mobile lg:text-f-p flex select-none flex-col font-semibold",
+        "flex select-none flex-col text-f-p-mobile font-semibold lg:text-f-p",
         className
       )}
     >

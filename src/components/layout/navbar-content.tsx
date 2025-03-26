@@ -1,15 +1,17 @@
 "use client"
 
 import { RichTextNode } from "basehub/api-transaction"
+import { useLenis } from "lenis/react"
 import { AnimatePresence, motion } from "motion/react"
 import { usePathname } from "next/navigation"
-import { memo, useMemo, useRef, useState, useCallback, useEffect } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
 import { Portal } from "@/components/primitives/portal"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
+import { useHandleContactButton } from "@/hooks/use-handle-contact"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
@@ -17,8 +19,6 @@ import { mergeRefs } from "@/utils/mergeRefs"
 
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
-import { useHandleContactButton } from "@/hooks/use-handle-contact"
-import { useLenis } from "lenis/react"
 
 interface ContextMenuProps {
   x: number

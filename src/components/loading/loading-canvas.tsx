@@ -2,12 +2,12 @@ import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import dynamic from "next/dynamic"
 import { useEffect, useRef } from "react"
 
+import { useMedia } from "@/hooks/use-media"
+import { cn } from "@/utils/cn"
+
 import { useAssets } from "../assets-provider"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useAppLoadingStore } from "./app-loading-handler"
-import { cn } from "@/utils/cn"
-
-import { useMedia } from "@/hooks/use-media"
 // Fallback component for when the worker fails or isn't supported
 const Fallback = dynamic(
   () => import("./fallback-loading").then((mod) => mod.FallbackLoading),
@@ -34,8 +34,6 @@ function LoadingCanvas() {
       type: "update-camera-config",
       cameraConfig: currentScene.cameraConfig
     })
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingCanvasWorker, currentScene])
 
   useEffect(() => {

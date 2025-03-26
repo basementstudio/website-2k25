@@ -1,8 +1,8 @@
 import { animate } from "motion"
 import { useEffect, useRef } from "react"
 
-import { cn } from "@/utils/cn"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { cn } from "@/utils/cn"
 
 const MusicToggle = () => {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -89,7 +89,7 @@ const MusicToggle = () => {
   return (
     <button
       onClick={handleMute}
-      className="text-f-p-mobile lg:text-f-p inline-flex items-center space-x-1 text-brand-w2"
+      className="inline-flex items-center space-x-1 text-f-p-mobile text-brand-w2 lg:text-f-p"
       aria-label={music ? "Turn music off" : "Turn music on"}
     >
       <span

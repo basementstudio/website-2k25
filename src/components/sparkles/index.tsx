@@ -4,11 +4,10 @@ import { useRef } from "react"
 import * as THREE from "three"
 
 import { BASE_CONFIG, SPAWN_POINTS } from "@/constants/sparkles"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
-import { useDeviceDetect } from "@/hooks/use-device-detect"
-
 import frag from "./frag.glsl"
 import vert from "./vert.glsl"
 
