@@ -1,6 +1,6 @@
 import { useAssets } from "@/components/assets-provider"
 
-export function useAudioUrls() {
+export const useAudioUrls = () => {
   const { sfx } = useAssets()
 
   return {

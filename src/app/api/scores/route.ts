@@ -2,8 +2,8 @@ import { geolocation } from "@vercel/functions"
 import crypto from "crypto"
 import { NextResponse } from "next/server"
 
-import { createClient } from "@/utils/supabase/server"
-import { getTopScoresFromServer } from "@/utils/supabase/server"
+import { createClient } from "@/service/supabase/server"
+import { getTopScoresFromServer } from "@/service/supabase/server"
 
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>()
 const RATE_LIMIT_WINDOW = 60 * 1000

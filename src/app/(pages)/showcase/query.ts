@@ -1,6 +1,6 @@
 import { fragmentOn } from "basehub"
 
-import { IMAGE_FRAGMENT, VIDEO_FRAGMENT } from "@/lib/basehub/fragments"
+import { IMAGE_FRAGMENT, VIDEO_FRAGMENT } from "@/service/basehub/fragments"
 
 export const query = fragmentOn("Query", {
   pages: {
