@@ -32,8 +32,20 @@ export const metadata: Metadata = {
     site: "@basementstudio",
     card: "summary_large_image",
     title: "basement.studio | We make cool shit that performs.",
+    images: {
+      url: "https://assets.basehub.com/dd0abb74/8e8a566714b78747cf8000eb4befc62e/twitter-image.png",
+      width: 1200,
+      height: 642
+    },
     description:
       "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality."
+  },
+  openGraph: {
+    images: {
+      url: "https://assets.basehub.com/dd0abb74/a9e91ceaa32446785f03a8ee00a73d71/opengraph-image.gif",
+      width: 1200,
+      height: 642
+    }
   }
 }
 
