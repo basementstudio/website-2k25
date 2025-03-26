@@ -94,7 +94,8 @@ export default withSentryConfig(nextConfig, {
     disable: !RUN_SENTRY
   },
   reactComponentAnnotation: {
-    enabled: RUN_SENTRY
+    enabled: RUN_SENTRY,
+    ignoredComponents: ["Scene", "LoadingCanvas"]
   },
   telemetry: RUN_SENTRY
 })
