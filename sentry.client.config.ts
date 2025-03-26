@@ -4,8 +4,6 @@
 
 import * as Sentry from "@sentry/nextjs"
 
-const RUN_SENTRY = process.env.RUN_SENTRY === "true"
-
 Sentry.init({
   dsn: "https://15243be4e326fa49a8bdeb7fb73be5f0@o4509039968911360.ingest.us.sentry.io/4509039969894400",
 
@@ -24,6 +22,5 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
-  enabled: !RUN_SENTRY
+  debug: false
 })
