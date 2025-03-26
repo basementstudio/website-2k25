@@ -90,9 +90,14 @@ export default withSentryConfig(nextConfig, {
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true,
-
   // Disable source maps in development and preview
   sourcemaps: {
     disable: !PRODUCTION
-  }
+  },
+  // Enable React component annotations
+  reactComponentAnnotation: {
+    enabled: true
+  },
+
+  debug: PRODUCTION
 })
