@@ -1,12 +1,12 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
 import { extend, useLoader, useThree } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
+import { track } from "@vercel/analytics"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
-import { track } from "@vercel/analytics"
 
 import { useAssets } from "@/components/assets-provider"
 import { useInspectable } from "@/components/inspectables/context"

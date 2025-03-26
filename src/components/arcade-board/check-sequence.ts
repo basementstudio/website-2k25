@@ -1,4 +1,5 @@
 import { track } from "@vercel/analytics"
+
 import { EXPECTED_SEQUENCE } from "./constants"
 
 interface checkerProps {

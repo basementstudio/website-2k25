@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import localFont from "next/font/local"
 
 import { AssetsProvider } from "@/components/assets-provider"
 import { fetchAssets } from "@/components/assets-provider/fetch-assets"
@@ -18,7 +19,6 @@ import { HtmlTunnelOut } from "@/components/tunnel"
 import LenisScrollProvider from "@/providers/lenis-provider"
 import { AppHooks } from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
-import localFont from "next/font/local"
 
 export const metadata: Metadata = {
   title: {

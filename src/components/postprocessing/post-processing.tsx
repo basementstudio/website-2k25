@@ -1,4 +1,5 @@
 import { OrthographicCamera } from "@react-three/drei"
+import { useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef } from "react"
 import {
@@ -11,12 +12,11 @@ import { useAssets } from "@/components/assets-provider"
 import { revealOpacityMaterials } from "@/components/map/bakes"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMedia } from "@/hooks/use-media"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
-import { useMedia } from "@/hooks/use-media"
-import { useThree } from "@react-three/fiber"
 
 interface PostProcessingProps {
   mainTexture: Texture

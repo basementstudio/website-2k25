@@ -3,10 +3,9 @@
 import { motion } from "motion/react"
 
 import { Link } from "@/components/primitives/link"
-import { cn } from "@/utils/cn"
-import { useMedia } from "@/hooks/use-media"
-
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
+import { useMedia } from "@/hooks/use-media"
+import { cn } from "@/utils/cn"
 
 interface InternalLinksProps {
   className?: string

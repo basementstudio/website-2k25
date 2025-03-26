@@ -152,7 +152,7 @@ export const CustomCursor = memo(() => {
       {hoverText && (
         <motion.p
           ref={mouseElementRef}
-          className="text-f-p-mobile lg:text-f-p pointer-events-none fixed z-50 bg-brand-k text-brand-w1"
+          className="pointer-events-none fixed z-50 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
           style={{ x: springX, y: springY }}
           {...animationProps}
         >

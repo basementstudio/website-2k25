@@ -2,6 +2,7 @@ import { memo } from "react"
 
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { InfoItem } from "@/components/primitives/info-item"
+import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
 import { useMedia } from "@/hooks/use-media"
 import { VideoFragment } from "@/lib/basehub/fragments"
@@ -9,7 +10,6 @@ import { ImageFragment } from "@/lib/basehub/fragments"
 import { cn } from "@/utils/cn"
 
 import { Project } from "./basehub"
-import { Link } from "@/components/primitives/link"
 
 const MobileInfo = memo(({ project }: { project: Project }) => {
   return (

@@ -5,10 +5,10 @@ import Link from "next/link"
 import { memo, useCallback, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Video } from "@/components/primitives/video"
 import { cn } from "@/utils/cn"
 
 import { Project } from "./basehub"
-import { Video } from "@/components/primitives/video"
 
 interface AccordionListItemProps {
   project: Project

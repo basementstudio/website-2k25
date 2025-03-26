@@ -1,12 +1,11 @@
 import { useFrame, useLoader } from "@react-three/fiber"
-
 import { useEffect, useRef, useState } from "react"
-
-import { Mesh, ShaderMaterial, DoubleSide, Texture, NearestFilter } from "three"
+import { DoubleSide, Mesh, NearestFilter, ShaderMaterial, Texture } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import fragmentShader from "@/shaders/net-shader/fragment.glsl"
 import vertexShader from "@/shaders/net-shader/vertex.glsl"
+
 import { useAssets } from "../assets-provider"
 
 interface NetProps {

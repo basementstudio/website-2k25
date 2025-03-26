@@ -1,15 +1,16 @@
 import { useAnimations, useGLTF } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
-import { useMemo, useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
+  Bone,
+  Group,
+  LoopOnce,
   Mesh,
   MeshBasicMaterial,
-  LoopOnce,
-  Group,
-  Vector3,
-  Bone,
-  PerspectiveCamera
+  PerspectiveCamera,
+  Vector3
 } from "three"
+
 import { ANIMATION_TYPES } from "./contact.interface"
 
 const IDLE_ANIMATIONS = [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA]
