@@ -93,5 +93,8 @@ export default withSentryConfig(nextConfig, {
   sourcemaps: {
     disable: !RUN_SENTRY
   },
+  reactComponentAnnotation: {
+    enabled: RUN_SENTRY
+  },
   telemetry: RUN_SENTRY
 })
