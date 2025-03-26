@@ -5,9 +5,9 @@
 
 import * as Sentry from "@sentry/nextjs"
 
-const PRODUCTION = process.env.NODE_ENV === "production"
+const RUN_SENTRY = process.env.RUN_SENTRY === "true"
 
-if (PRODUCTION) {
+if (RUN_SENTRY) {
   Sentry.init({
     dsn: "https://15243be4e326fa49a8bdeb7fb73be5f0@o4509039968911360.ingest.us.sentry.io/4509039969894400",
 

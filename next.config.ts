@@ -1,7 +1,7 @@
 import { withSentryConfig } from "@sentry/nextjs"
 import type { NextConfig } from "next"
 
-const PRODUCTION = process.env.NODE_ENV === "production"
+const RUN_SENTRY = process.env.RUN_SENTRY === "true"
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
@@ -92,12 +92,12 @@ export default withSentryConfig(nextConfig, {
   automaticVercelMonitors: true,
   // Disable source maps in development and preview
   sourcemaps: {
-    disable: !PRODUCTION
+    disable: !RUN_SENTRY
   },
   // Enable React component annotations
   reactComponentAnnotation: {
     enabled: true
   },
 
-  debug: PRODUCTION
+  debug: RUN_SENTRY
 })
