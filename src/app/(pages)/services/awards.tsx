@@ -12,12 +12,12 @@ import {
 import Image from "next/image"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useMedia } from "@/hooks/use-media"
 import useMousePosition from "@/hooks/use-mouse-pos"
 import { cn } from "@/utils/cn"
 import { formatDate } from "@/utils/format-date"
 
-import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { Award } from "./page"
 
 const IMAGE_HEIGHT = 307.73

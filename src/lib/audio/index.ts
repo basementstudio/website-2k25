@@ -57,7 +57,7 @@ export class AudioSource {
   pause() {
     /* Store it before this.stop flushes the startedAt */
     const elapsed = this.audioContext.currentTime - this.startedAt
-    // eslint-disable-next-line react/no-is-mounted
+
     this?.stop()
     this.pausedAt = elapsed
   }

@@ -1,3 +1,4 @@
+import { useThree } from "@react-three/fiber"
 import { useMotionValue, useMotionValueEvent } from "motion/react"
 import { animate } from "motion/react"
 import { usePathname, useRouter } from "next/navigation"
@@ -14,7 +15,6 @@ import { valueRemap } from "../arcade-game/lib/math"
 import fragmentShader from "./frag.glsl"
 import { RoutingPlus } from "./routing-plus"
 import vertexShader from "./vert.glsl"
-import { useThree } from "@react-three/fiber"
 
 interface RoutingElementProps {
   node: Mesh

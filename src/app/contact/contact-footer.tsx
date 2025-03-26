@@ -1,4 +1,5 @@
 import { Pump } from "basehub/react-pump"
+
 import { query } from "@/components/layout/query"
 import { SocialLinks } from "@/components/layout/shared-sections"
 

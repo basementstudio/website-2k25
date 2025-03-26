@@ -1,10 +1,9 @@
 "use client"
 import { useCallback, useEffect, useRef } from "react"
 
-import { useSiteAudio } from "@/hooks/use-site-audio"
-
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
+import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
 import ContactCanvas from "./contact-canvas"

@@ -1,9 +1,9 @@
 import { CuboidCollider, CylinderCollider } from "@react-three/rapier"
 import { RigidBody } from "@react-three/rapier"
+import { track } from "@vercel/analytics"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
-import { track } from "@vercel/analytics"
 
 export default function RigidBodies({
   hoopPosition

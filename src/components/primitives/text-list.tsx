@@ -17,7 +17,7 @@ export const TextList = ({
 }: TextListProps) => (
   <p
     className={cn(
-      "text-f-p-mobile lg:text-f-p inline-flex flex-wrap gap-x-1",
+      "inline-flex flex-wrap gap-x-1 text-f-p-mobile lg:text-f-p",
       className
     )}
   >

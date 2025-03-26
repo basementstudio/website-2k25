@@ -41,7 +41,7 @@ export const Capabilities = ({ data }: { data: QueryType }) => {
                   <p
                     key={s._title}
                     title={s._title}
-                    className="text-f-p-mobile lg:text-f-p line-clamp-1 w-fit bg-brand-g2 px-1 text-brand-w1"
+                    className="line-clamp-1 w-fit bg-brand-g2 px-1 text-f-p-mobile text-brand-w1 lg:text-f-p"
                   >
                     {s._title}
                   </p>

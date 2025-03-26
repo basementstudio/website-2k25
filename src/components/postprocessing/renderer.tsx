@@ -16,11 +16,11 @@ import {
 } from "three"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useMedia } from "@/hooks/use-media"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { doubleFbo } from "@/utils/double-fbo"
 
 import { PostProcessing } from "./post-processing"
-import { useMedia } from "@/hooks/use-media"
 
 interface RendererProps {
   sceneChildren: React.ReactNode

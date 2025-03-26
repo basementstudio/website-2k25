@@ -4,10 +4,10 @@ import { useCallback, useEffect, useState } from "react"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useKeyPress } from "@/hooks/use-key-press"
+import { useCursor } from "@/hooks/use-mouse"
+import { useArcadeStore } from "@/store/arcade-store"
 
 import { COLORS_THEME } from "../screen-ui"
-import { useArcadeStore } from "@/store/arcade-store"
-import { useCursor } from "@/hooks/use-mouse"
 
 export const ArcadeWrapperTags = () => {
   const { handleNavigation } = useHandleNavigation()
