@@ -1,3 +1,4 @@
+import { track } from "@vercel/analytics"
 import { EXPECTED_SEQUENCE } from "./constants"
 
 interface checkerProps {
@@ -14,6 +15,7 @@ export const checkSequence = ({ sequence, setIsInGame }: checkerProps) => {
   if (sequence.length === EXPECTED_SEQUENCE.length) {
     if (sequence.every((value, index) => value === EXPECTED_SEQUENCE[index])) {
       setIsInGame(true)
+      track("konami_code_unlocked")
       sequence = []
     }
   }

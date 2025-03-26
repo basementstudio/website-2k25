@@ -12,6 +12,7 @@ import { useCursor } from "@/hooks/use-mouse"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { Color } from "three"
+import { track } from "@vercel/analytics"
 
 enum PetSkinnedName {
   PURE = "Pure-v1",
@@ -174,6 +175,7 @@ function PetsInner({
     const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
     if (bostonIdleAction) {
       bostonIdleAction.timeScale = 1.0
+      track("boston_pet")
     }
   }
 

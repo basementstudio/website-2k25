@@ -9,14 +9,14 @@ import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
 
 const handleTransitionEffectOn = () => {
-  if (window.innerWidth > 1024) {
+  if (window.innerWidth >= 1024) {
     document.documentElement.dataset.disabled = "false"
     document.documentElement.dataset.flip = "true"
   }
 }
 
 const handleTransitionEffectOff = () => {
-  if (window.innerWidth > 1024) {
+  if (window.innerWidth >= 1024) {
     document.documentElement.dataset.flip = "false"
     setTimeout(() => {
       document.documentElement.dataset.disabled = "true"
@@ -117,20 +117,23 @@ export const useHandleNavigation = () => {
         setDisableCameraTransition(true)
         setCurrentScene(selectedScene)
 
-        setTimeout(() => {
-          scrollToRef.current({
-            offset: 0,
-            behavior: "instant",
-            callback: () => {
-              handleTransitionEffectOff()
-              lenisRef.current?.start()
+        setTimeout(
+          () => {
+            scrollToRef.current({
+              offset: 0,
+              behavior: "instant",
+              callback: () => {
+                handleTransitionEffectOff()
+                lenisRef.current?.start()
+              }
+            })
+            if (route !== "/lab") {
+              useArcadeStore.getState().setIsInLabTab(false)
             }
-          })
-          if (route !== "/lab") {
-            useArcadeStore.getState().setIsInLabTab(false)
-          }
-          router.push(route, { scroll: false })
-        }, TRANSITION_DURATION)
+            router.push(route, { scroll: false })
+          },
+          window.innerWidth >= 1024 ? TRANSITION_DURATION : 0
+        )
       }
     },
     [router, setCurrentScene, scenes, setDisableCameraTransition, getScene]
