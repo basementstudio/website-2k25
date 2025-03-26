@@ -3,18 +3,18 @@ import { easing } from "maath"
 import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
+import { useInspectable } from "@/components/inspectables/context"
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useMedia } from "@/hooks/use-media"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { easeInOutCubic } from "@/utils/animations"
 
-import { useInspectable } from "../inspectables/context"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
 import {
   calculateMovementVectors,
   calculateNewPosition,
   calculatePlanePosition,
-  calculateViewDimensions,
-  easeInOutCubic
+  calculateViewDimensions
 } from "./camera-utils"
 
 const ANIMATION_DURATION = 1

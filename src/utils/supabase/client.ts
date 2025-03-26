@@ -42,6 +42,19 @@ export const getTopScores = async () => {
   return { data: data || [], error }
 }
 
+const generateTimeWindowHash = async (timestamp: number): Promise<string> => {
+  const TIME_WINDOW = 30000
+  const timeWindow = Math.floor(timestamp / TIME_WINDOW) * TIME_WINDOW
+
+  const encoder = new TextEncoder()
+  const data = encoder.encode(timeWindow.toString())
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
+
+  return hashHex
+}
+
 export const submitScore = async (playerName: string, score: number) => {
   const clientId = getClientId()
   const timestamp = Date.now()
@@ -80,17 +93,4 @@ export const submitScore = async (playerName: string, score: number) => {
       throw new Error("Failed to submit score: Unknown error")
     }
   }
-}
-
-async function generateTimeWindowHash(timestamp: number): Promise<string> {
-  const TIME_WINDOW = 30000
-  const timeWindow = Math.floor(timestamp / TIME_WINDOW) * TIME_WINDOW
-
-  const encoder = new TextEncoder()
-  const data = encoder.encode(timeWindow.toString())
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
-
-  return hashHex
 }

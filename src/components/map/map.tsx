@@ -29,7 +29,7 @@ import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
-import notFoundFrag from "@/shaders/not-found/not-found.frag"
+import { createNotFoundMaterial } from "@/shaders/material-not-found"
 
 import { BakesLoader } from "./bakes"
 import { useGodrays } from "./use-godrays"
@@ -117,7 +117,6 @@ export const Map = memo(() => {
 
   const animationProgress = useRef(0)
   const isAnimating = useRef(false)
-  const timeRef = useRef(0)
 
   const { fadeFactor, inspectingEnabled } = useFadeAnimation()
 
@@ -164,30 +163,14 @@ export const Map = memo(() => {
         useMesh.setState({ cctv: { screen: meshChild } })
         const texture = cctvConfig.renderTarget.read.texture
 
-        const diffuseUniform = {
-          value: texture
-        }
+        const diffuseUniform = { value: texture }
 
         cctvConfig.renderTarget.onSwap(() => {
           diffuseUniform.value = cctvConfig.renderTarget.read.texture
         })
 
-        meshChild.material = new THREE.ShaderMaterial({
-          side: THREE.FrontSide,
-          uniforms: {
-            tDiffuse: diffuseUniform,
-            uTime: { value: timeRef.current },
-            resolution: { value: new THREE.Vector2(1024, 1024) }
-          },
-          vertexShader: `
-            varying vec2 vUv;
-            void main() {
-              vUv = uv;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-          `,
-          fragmentShader: notFoundFrag
-        })
+        meshChild.material = createNotFoundMaterial(diffuseUniform)
+
         return
       }
 
@@ -235,24 +218,19 @@ export const Map = memo(() => {
 
         const newMaterials = Array.isArray(currentMaterial)
           ? currentMaterial.map((material) =>
-              createGlobalShaderMaterial(
-                material as MeshStandardMaterial,
-                false,
-                {
-                  GLASS: isGlass,
-                  LIGHT: false,
-                  GODRAY: overrides?.GODRAY,
-                  FOG: overrides?.FOG,
-                  MATCAP: withMatcap !== undefined,
-                  VIDEO: withVideo !== undefined,
-                  CLOUDS: isClouds,
-                  DAYLIGHT: isDaylight
-                }
-              )
+              createGlobalShaderMaterial(material as MeshStandardMaterial, {
+                GLASS: isGlass,
+                LIGHT: false,
+                GODRAY: overrides?.GODRAY,
+                FOG: overrides?.FOG,
+                MATCAP: withMatcap !== undefined,
+                VIDEO: withVideo !== undefined,
+                CLOUDS: isClouds,
+                DAYLIGHT: isDaylight
+              })
             )
           : createGlobalShaderMaterial(
               currentMaterial as MeshStandardMaterial,
-              false,
               {
                 GLASS: isGlass,
                 LIGHT: false,

@@ -54,7 +54,7 @@ export const Basketball = ({
   }, [basketballModel])
 
   const material = useMemo(() => {
-    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), {
       LIGHT: true,
       BASKETBALL: true
     })

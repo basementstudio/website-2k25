@@ -66,10 +66,7 @@ export const Lamp = memo(function LampInner() {
       new THREE.MeshStandardMaterial({
         color: colorWhenOn
       }),
-      false,
-      {
-        LIGHT: true
-      }
+      { LIGHT: true }
     )
 
     material.uniforms.lightDirection.value = new THREE.Vector3(0, 1, 0)

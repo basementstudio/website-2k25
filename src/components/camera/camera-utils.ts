@@ -2,10 +2,6 @@ import { PerspectiveCamera } from "three"
 
 import { ICameraConfig } from "../navigation-handler/navigation.interface"
 
-export const easeInOutCubic = (x: number): number => {
-  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
-}
-
 export const calculatePlanePosition = (cameraConfig: ICameraConfig) => {
   const [px, py, pz] = cameraConfig.position
   const [tx, ty, tz] = cameraConfig.target
