@@ -100,5 +100,12 @@ export default withSentryConfig(nextConfig, {
   },
 
   telemetry: RUN_SENTRY,
-  debug: RUN_SENTRY
+  debug: RUN_SENTRY,
+  bundleSizeOptimizations: {
+    excludeDebugStatements: !RUN_SENTRY,
+    excludeReplayIframe: !RUN_SENTRY,
+    excludeReplayShadowDom: !RUN_SENTRY,
+    excludeReplayWorker: !RUN_SENTRY,
+    excludeTracing: !RUN_SENTRY
+  }
 })
