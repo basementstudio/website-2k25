@@ -1,5 +1,5 @@
-import { createPortal, useFrame } from "@react-three/fiber"
-import { memo, useEffect, useId, useMemo, useRef } from "react"
+import { createPortal, useThree } from "@react-three/fiber"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   DepthTexture,
   HalfFloatType,
@@ -15,8 +15,9 @@ import {
   WebGLRenderTarget
 } from "three"
 
-import { useContactStore } from "@/components/contact/contact-store"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useMedia } from "@/hooks/use-media"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { doubleFbo } from "@/utils/double-fbo"
 
 import { PostProcessing } from "./post-processing"
@@ -66,23 +67,17 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingScene = useMemo(() => new Scene(), [])
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
+  const isDesktop = useMedia("(min-width: 1024px)")
 
-  const { isContactOpen } = useContactStore()
+  const screenWidth = useThree((state) => state.size.width)
+  const screenHeight = useThree((state) => state.size.height)
 
   useEffect(() => {
-    const resizeCallback = () =>
-      mainTarget.setSize(window.innerWidth, window.innerHeight)
+    mainTarget.setSize(screenWidth, screenHeight)
+  }, [mainTarget, screenWidth, screenHeight])
 
-    resizeCallback()
-
-    window.addEventListener("resize", resizeCallback, { passive: true })
-
-    return () => window.removeEventListener("resize", resizeCallback)
-  }, [mainTarget])
-
-  useFrame(({ gl }) => {
+  useFrameCallback(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current) return
-    if (isContactOpen) return
 
     // main render
     gl.outputColorSpace = LinearSRGBColorSpace

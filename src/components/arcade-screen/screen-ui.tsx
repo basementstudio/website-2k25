@@ -60,7 +60,7 @@ export const createLabTabs = (experiments: any[]): LabTab[] => {
       id: "view-more",
       type: "button",
       title: "VIEW MORE",
-      url: "https://basement.studio/lab",
+      url: "https://lab.basement.studio/",
       isClickable: true
     },
 
@@ -93,22 +93,23 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
   const [selectedExperiment, setSelectedExperiment] = useState<any>(null)
 
   useEffect(() => {
-    fetchLaboratory().then((data) => {
-      const experiments = data.projectList.items.map((item: any) => ({
-        _title: item._title,
-        url: item.url,
-        cover: item.cover,
-        description: item.description as string | null
-      }))
-      setExperiments(experiments)
+    if (visible) {
+      fetchLaboratory().then((data) => {
+        const experiments = data.projectList.items.map((item: any) => ({
+          _title: item._title,
+          url: item.url,
+          cover: item.cover,
+          description: item.description as string | null
+        }))
+        setExperiments(experiments)
 
-      // initialize lab tabs
-      const labTabs = createLabTabs(experiments)
-      useArcadeStore.getState().setLabTabs(labTabs)
+        const labTabs = createLabTabs(experiments)
+        useArcadeStore.getState().setLabTabs(labTabs)
 
-      onLoadRef.current?.()
-    })
-  }, [])
+        onLoadRef.current?.()
+      })
+    }
+  }, [visible])
 
   return (
     <group visible={visible}>

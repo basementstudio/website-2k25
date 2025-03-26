@@ -40,11 +40,31 @@ export const NavigationHandler = () => {
 
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
+  useEffect(() => {
+    const handleContactFormNavigate = (event: CustomEvent) => {
+      const path = event.detail?.path
+      if (path) {
+        handleNavigation(path)
+      }
+    }
+
+    window.addEventListener(
+      "contactFormNavigate",
+      handleContactFormNavigate as EventListener
+    )
+
+    return () => {
+      window.removeEventListener(
+        "contactFormNavigate",
+        handleContactFormNavigate as EventListener
+      )
+    }
+  }, [handleNavigation])
+
   const setCurrentTabIndex = useNavigationStore(
     (state) => state.setCurrentTabIndex
   )
 
-  // handle camera transition when navigating back and forth
   useEffect(() => {
     if (!scenes.length || !pathname || previousPathRef.current === pathname) {
       previousPathRef.current = pathname
@@ -54,12 +74,11 @@ export const NavigationHandler = () => {
     const isFromPostToBlog =
       previousPathRef.current.startsWith("/post/") && pathname === "/blog"
 
-    // Special handling for post pages
     const expectedScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
-          ? scenes.find((scene) => scene.name === "blog") // Use blog scene for post pages
+          ? scenes.find((scene) => scene.name === "blog")
           : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
     if (
@@ -78,16 +97,24 @@ export const NavigationHandler = () => {
 
     setSelected(null)
 
-    // Special handling for post pages
+    if (pathname === "/contact") {
+      const expectedScene = scenes.find(
+        (scene) => scene.name.toLowerCase() === "home"
+      )
+      if (expectedScene) {
+        setCurrentScene(expectedScene)
+      }
+      return
+    }
+
     const currentScene =
       pathname === "/"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
-          ? scenes.find((scene) => scene.name === "blog") // Use blog scene for post pages
+          ? scenes.find((scene) => scene.name === "blog")
           : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
     if (!currentScene) {
-      // Handle 404
       const notFoundScene = scenes.find((scene) => scene.name === "404")
       if (notFoundScene) {
         setCurrentScene(notFoundScene)
@@ -121,7 +148,6 @@ export const NavigationHandler = () => {
 
       if (pathname === "/lab") {
         if (!e.shiftKey) {
-          // handle enter labtabs
           if (currentTabIndex === 0 && !isInLabTab) {
             setIsInLabTab(true)
             setLabTabIndex(0)
@@ -130,7 +156,6 @@ export const NavigationHandler = () => {
             return
           }
 
-          // handle lab tab navigation
           if (isInLabTab) {
             if (labTabIndex === 0) {
               setLabTabIndex(1)
@@ -139,31 +164,28 @@ export const NavigationHandler = () => {
             }
 
             if (isSourceButtonSelected) {
-              // move to next experiment or featured item
               const nextIndex = labTabIndex + 1
               if (nextIndex < labTabs.length) {
                 setLabTabIndex(nextIndex)
                 setIsSourceButtonSelected(false)
                 return
               }
-              // exit lab tabmode
+
               setIsInLabTab(false)
               setCurrentTabIndex(1)
               return
             } else {
-              // check if current item is not a featured item
               const currentTab = labTabs[labTabIndex]
               if (currentTab?.type === "experiment") {
                 setIsSourceButtonSelected(true)
                 return
               } else {
-                // if it's a featured item or button, move to next
                 const nextIndex = labTabIndex + 1
                 if (nextIndex < labTabs.length) {
                   setLabTabIndex(nextIndex)
                   return
                 }
-                // exit lab tabmode
+
                 setIsInLabTab(false)
                 setCurrentTabIndex(1)
                 return
@@ -171,14 +193,11 @@ export const NavigationHandler = () => {
             }
           }
         } else {
-          // handle shift+tab
           if (isInLabTab) {
             if (isSourceButtonSelected) {
-              // move back to experiment title
               setIsSourceButtonSelected(false)
               return
             } else {
-              // move to previous experiment or close button
               const prevIndex = labTabIndex - 1
               if (prevIndex >= 0) {
                 const prevTab = labTabs[prevIndex]
@@ -192,13 +211,12 @@ export const NavigationHandler = () => {
                   return
                 }
               }
-              // exit lab tab mode if we are at the start
+
               setIsInLabTab(false)
               setCurrentTabIndex(0)
               return
             }
           } else if (currentTabIndex === 1) {
-            // when shift-tabbing from scene tab index 1 return to lab tabs
             setIsInLabTab(true)
             setLabTabIndex(labTabs.length - 1)
             setIsSourceButtonSelected(false)
@@ -208,24 +226,26 @@ export const NavigationHandler = () => {
         }
       }
 
-      // regular tab navigation
       const newIndex = e.shiftKey ? currentTabIndex - 1 : currentTabIndex + 1
 
       if (newIndex < 0 || newIndex >= currentScene.tabs.length) {
         setIsCanvasTabMode(false)
         setIsInLabTab(false)
+
+        setTimeout(() => {
+          const tabEvent = new KeyboardEvent("keydown", {
+            key: "Tab",
+            bubbles: true,
+            cancelable: true,
+            shiftKey: e.shiftKey
+          })
+          document.dispatchEvent(tabEvent)
+        }, 0)
+
         return
       }
 
       setCurrentTabIndex(newIndex)
-
-      if (
-        (e.shiftKey && currentTabIndex === 0) ||
-        (!e.shiftKey && currentTabIndex === currentScene.tabs.length - 1)
-      ) {
-        setIsCanvasTabMode(false)
-        setIsInLabTab(false)
-      }
     },
     [
       isCanvasTabMode,

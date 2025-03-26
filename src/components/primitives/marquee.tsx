@@ -10,7 +10,6 @@ const mod = (n: number, m: number) => ((n % m) + m) % m
 
 interface MarqueeProps {
   children: React.ReactNode
-  accelerated?: boolean
   speed?: number
   inverted?: boolean
   className?: string

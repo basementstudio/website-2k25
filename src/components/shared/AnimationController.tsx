@@ -12,6 +12,10 @@ import {
   useState
 } from "react"
 
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
+
 // Context for sharing animation time
 interface AnimationContext {
   time: number
@@ -52,36 +56,50 @@ function AnimationControllerImpl({
   frameSkip = 0,
   pauseOnTabChange = true
 }: AnimationControllerProps) {
-  // Get invalidate from React Three Fiber
   const { invalidate } = useThree()
 
-  // State to track tab visibility
-  const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
+  const { canRunMainApp } = useAppLoadingStore()
 
-  // Combined paused state (manual pause or tab hidden)
-  const isPaused = paused || (pauseOnTabChange && !isTabVisible)
+  const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
+  const [isScrollPaused, setIsScrollPaused] = useState(false)
+
+  const disableCameraTransition = useNavigationStore(
+    (state) => state.disableCameraTransition
+  )
+
+  const isPaused =
+    paused ||
+    (pauseOnTabChange && !isTabVisible) ||
+    (isScrollPaused && !disableCameraTransition) ||
+    !canRunMainApp
 
   // Use refs for internal values that don't need to trigger re-renders
   const timeValuesRef = useRef({ time: 0, delta: 0 })
   const frameCountRef = useRef(0)
 
-  // Setup visibility change listener
   useEffect(() => {
     if (!pauseOnTabChange) return
 
-    // Handler for visibility changes
-    const handleVisibilityChange = () => {
-      setIsTabVisible(!document.hidden)
-    }
+    const handleVisibilityChange = () => setIsTabVisible(!document.hidden)
 
-    // Add event listener
     document.addEventListener("visibilitychange", handleVisibilityChange)
 
-    // Clean up
-    return () => {
+    return () =>
       document.removeEventListener("visibilitychange", handleVisibilityChange)
-    }
   }, [pauseOnTabChange])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY
+      const viewportHeight = window.innerHeight
+      setIsScrollPaused(scrollPosition > viewportHeight)
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    handleScroll()
+
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   // Current time values exposed through context (memoized)
   const timeValues = useMemo(
@@ -114,7 +132,7 @@ function AnimationControllerImpl({
       timeValuesRef.current.time = time
       timeValuesRef.current.delta = delta
 
-      // Request R3F to render a new frame
+      // Emit a render
       invalidate()
 
       // Here you could also run other global updates
@@ -125,6 +143,7 @@ function AnimationControllerImpl({
 
   // Use Motion's useAnimationFrame as our single RAF
   useAnimationFrame(animationCallback)
+  useGlobalFrameLoop()
 
   return (
     <AnimationContext.Provider value={timeValues}>

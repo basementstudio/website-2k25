@@ -1,6 +1,9 @@
+"use client"
+
 import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
+import { useMedia } from "@/hooks/use-media"
 import { formatDate } from "@/utils/format-date"
 
 import { QueryType } from "./query"
@@ -12,6 +15,7 @@ export default function More({
   data: QueryType
   slug: string
 }) {
+  const isDesktop = useMedia("(min-width: 1024px)")
   const currentPost = data.pages.blog.posts.items.find(
     (post) => post._slug === slug
   )
@@ -29,8 +33,8 @@ export default function More({
     .slice(0, 3)
 
   return (
-    <div className="mx-auto flex w-full max-w-[846px] flex-col justify-start gap-y-4 px-4 lg:px-0">
-      <h2 className="text-mobile-h4 text-brand-g1 lg:text-h4">
+    <div className="mx-auto flex w-full flex-col justify-start gap-y-4 px-4 lg:max-w-[846px] lg:px-0">
+      <h2 className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
         More from the blog
       </h2>
 
@@ -52,13 +56,21 @@ export default function More({
               </div>
 
               <div className="flex w-full justify-between gap-y-2">
-                <h3 className="line-clamp-2 w-full max-w-[70%] text-mobile-h3 text-brand-w2 lg:text-h3">
+                <h3 className="line-clamp-2 w-full max-w-[70%] text-f-h3-mobile text-brand-w2 lg:text-f-h3">
                   {post._title}
                 </h3>
 
                 {post.date ? (
-                  <p className="flex-1 text-right text-mobile-p text-brand-g1 lg:flex-auto lg:text-p">
-                    {formatDate(post.date ?? "")}
+                  <p
+                    className="text-mobile-p lg:text-p flex-1 text-right text-brand-g1 lg:flex-auto"
+                    suppressHydrationWarning
+                  >
+                    {formatDate(
+                      post.date ?? "",
+                      false,
+                      undefined,
+                      isDesktop ? false : true
+                    )}
                   </p>
                 ) : null}
               </div>

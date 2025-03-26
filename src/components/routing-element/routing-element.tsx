@@ -1,3 +1,4 @@
+import { useThree } from "@react-three/fiber"
 import { useMotionValue, useMotionValueEvent } from "motion/react"
 import { animate } from "motion/react"
 import { usePathname, useRouter } from "next/navigation"
@@ -44,15 +45,17 @@ const RoutingElementComponent = ({
 
     // routingMaterial.customProgramCacheKey = () => "routing-element-material"
 
-    const updateMaterialResolution = () => {
-      routingMaterial.uniforms.resolution.value = [
-        window.innerWidth,
-        window.innerHeight
-      ]
+    const updateMaterialResolution = (width: number, height: number) => {
+      routingMaterial.uniforms.resolution.value = [width, height]
     }
 
     return { routingMaterial, updateMaterialResolution }
   }, [])
+
+  const screenWidth = useThree((state) => state.size.width)
+  const screenHeight = useThree((state) => state.size.height)
+
+  updateMaterialResolution(screenWidth, screenHeight)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -230,16 +233,6 @@ const RoutingElementComponent = ({
       )
   }, [groupName, groupHoverHandlers])
 
-  useEffect(() => {
-    const onResize = () => updateMaterialResolution()
-
-    window.addEventListener("resize", onResize, { passive: true })
-
-    onResize()
-
-    return () => window.removeEventListener("resize", onResize)
-  }, [])
-
   const outlinesRef = useRef<Mesh>(null)
   const crossRef = useRef<Mesh>(null)
 
@@ -268,8 +261,14 @@ const RoutingElementComponent = ({
     <>
       <group
         ref={outlinesRef}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
+        onPointerEnter={(e) => {
+          e.stopPropagation()
+          handlePointerEnter(e)
+        }}
+        onPointerLeave={(e) => {
+          e.stopPropagation()
+          handlePointerLeave(e)
+        }}
         onClick={handleClick}
         position={[node.position.x, node.position.y, node.position.z]}
         rotation={node.rotation}

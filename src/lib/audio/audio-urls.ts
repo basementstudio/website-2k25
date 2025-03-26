@@ -11,11 +11,9 @@ export function useAudioUrls() {
       AMBIENCE_TIGER: sfx.music.tiger,
       AMBIENCE_VHS: sfx.music.vhs
     },
-    OFFICE_AMBIENCE: {
-      OFFICE_AMBIENCE_DEFAULT: sfx.officeAmbience
-    },
+
     GAME_THEME_SONGS: {
-      BASKETBALL_AMBIENT: sfx.basketballTheme
+      BASKETBALL_SONG: sfx.basketballTheme
     },
     GAME_AUDIO_SFX: {
       BASKETBALL_THROW: sfx.basketballSwoosh,
@@ -47,7 +45,9 @@ export function useAudioUrls() {
       MIAMI_HEATWAVE: sfx.arcade.miamiHeatwave
     },
     CONTACT_AUDIO_SFX: {
-      INTERFERENCE: sfx.contact.interference
+      INTERFERENCE: sfx.contact.interference,
+      KNOB_TURNING: sfx.knobTurning,
+      ANTENNA: sfx.antenna
     }
   } as const
 }

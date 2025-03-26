@@ -1,9 +1,6 @@
 "use client"
 
-import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
-import { animate, MotionValue } from "motion"
-import { AnimationPlaybackControls } from "motion/react"
+import { useControls } from "leva"
 import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
 import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three"
@@ -15,27 +12,28 @@ import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
-import { useInspectable } from "@/components/inspectables/context"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { SpeakerHover } from "@/components/other/speaker-hover"
 import { OutdoorCars } from "@/components/outdoor-cars"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
-import { ANIMATION_CONFIG } from "@/constants/inspectables"
+import { Weather } from "@/components/weather"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
 import {
   createGlobalShaderMaterial,
   useCustomShaderMaterial
 } from "@/shaders/material-global-shader"
 import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
-import { SpeakerHover } from "../other/speaker-hover"
+import { useFadeAnimation } from "../inspectables/use-fade-animation"
 import { BakesLoader } from "./bakes"
-import { ReflexesLoader } from "./reflexes"
 import { useGodrays } from "./use-godrays"
-import { useControls } from "leva"
 
 export type GLTFResult = GLTF & {
   nodes: {
@@ -66,18 +64,6 @@ const PhysicsWorld = dynamic(
   { ssr: false }
 )
 
-const createVideoTexture = (url: string) => {
-  const videoElement = document.createElement("video")
-  videoElement.src = url
-  videoElement.loop = true
-  videoElement.muted = true
-  videoElement.playsInline = true
-  videoElement.crossOrigin = "anonymous"
-  videoElement.play()
-
-  return new THREE.VideoTexture(videoElement)
-}
-
 type SceneType = Object3D<Object3DEventMap> | null
 
 export const Map = memo(() => {
@@ -97,25 +83,28 @@ export const Map = memo(() => {
   } = useAssets()
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
-  const { scene: officeModel } = useGLTF(office) as unknown as GLTFResult
-  const { scene: officeItemsModel } = useGLTF(
+
+  const { scene: officeModel } = useKTX2GLTF(office) as unknown as GLTFResult
+  const { scene: officeItemsModel } = useKTX2GLTF(
     officeItems
   ) as unknown as GLTFResult
-  const { scene: outdoorModel } = useGLTF(outdoorPath) as unknown as GLTFResult
-  const { scene: godrayModel } = useGLTF(godraysPath) as unknown as GLTFResult
-  const { scene: outdoorCarsModel } = useGLTF(
+  const { scene: outdoorModel } = useKTX2GLTF(
+    outdoorPath
+  ) as unknown as GLTFResult
+  const { scene: godrayModel } = useKTX2GLTF(
+    godraysPath
+  ) as unknown as GLTFResult
+  const { scene: outdoorCarsModel } = useKTX2GLTF(
     outdoorCars.model
   ) as unknown as GLTFResult
-  const { scene: basketballNetModel } = useGLTF(basketballNetPath)
-  const { scene: routingElementsModel } = useGLTF(
+  const { scene: basketballNetModel } = useKTX2GLTF(basketballNetPath)
+  const { scene: routingElementsModel } = useKTX2GLTF(
     routingElementsPath
   ) as unknown as GLTFResult
 
   const [officeScene, setOfficeScene] = useState<SceneType>(null)
   const [outdoorScene, setOutdoorScene] = useState<SceneType>(null)
   const [godrayScene, setGodrayScene] = useState<SceneType>(null)
-
-  const { selected } = useInspectable()
 
   const [godrays, setGodrays] = useState<Mesh[]>([])
   useGodrays({ godrays })
@@ -131,61 +120,19 @@ export const Map = memo(() => {
   const isAnimating = useRef(false)
   const timeRef = useRef(0)
 
-  const fadeFactor = useRef(new MotionValue())
-  const inspectingEnabled = useRef(false)
-  const tl = useRef<AnimationPlaybackControls | null>(null)
+  const { fadeFactor, inspectingEnabled } = useFadeAnimation()
 
-  // TODO: Remove this and hardcode it in the material global shader
-  const { gamma, brightness, exposure } = useControls("xr", {
-    gamma: {
-      value: 0.8,
-      min: 0.0,
-      max: 1.0,
-      step: 0.001
-    },
-    brightness: {
-      value: 0.6,
-      min: 0.0,
-      max: 1.0,
-      step: 0.001
-    },
-    exposure: {
-      value: 0.6,
-      min: 0.0,
-      max: 1.0,
-      step: 0.001
-    }
-  })
-
-  useEffect(() => {
-    const easeDirection = selected ? 1 : 0
-
-    if (easeDirection === 1) inspectingEnabled.current = true
-
-    tl.current = animate(fadeFactor.current, easeDirection, ANIMATION_CONFIG)
-    tl.current.play()
-
-    return () => tl.current?.stop()
-  }, [selected])
-
-  useFrame(({ clock }) => {
-    timeRef.current = clock.getElapsedTime()
-
+  useFrameCallback((_, delta) => {
     Object.values(shaderMaterialsRef).forEach((material) => {
-      material.uniforms.uTime.value = clock.getElapsedTime()
+      material.uniforms.uTime.value += delta
 
       material.uniforms.inspectingEnabled.value = inspectingEnabled.current
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
-
-      material.uniforms.uGamma.value = gamma
-      material.uniforms.uBrightness.value = brightness
-      material.uniforms.uExposure.value = exposure
     })
 
     if (useMesh.getState().cctv?.screen?.material) {
       // @ts-ignore
-      useMesh.getState().cctv.screen.material.uniforms.uTime.value =
-        clock.getElapsedTime()
+      useMesh.getState().cctv.screen.material.uniforms.uTime.value += delta
     }
   })
 
@@ -205,16 +152,8 @@ export const Map = memo(() => {
 
     setRoutingNodes(routingNodes)
 
-    const originalNet = officeModel?.getObjectByName("SM_BasketRed")
-    const newNetMesh = basketballNetModel?.getObjectByName("SM_BasketRed-v2")
-
-    if (newNetMesh?.parent) {
-      newNetMesh.removeFromParent()
-    }
-
-    if (originalNet?.parent) {
-      originalNet.removeFromParent()
-      setNet(originalNet as Mesh)
+    if (!net && basketballNetModel?.children?.[0]) {
+      setNet(basketballNetModel.children[0] as Mesh)
     }
 
     const traverse = (
@@ -265,14 +204,24 @@ export const Map = memo(() => {
         const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
         const isClouds = meshChild.name === "cloudy_01"
         const isGlass = glassMaterials.includes(currentMaterial.name)
+        const isDaylight = meshChild.name === "DL_ScreenB"
 
-        // TODO: Implement simple side once we finish the entire scene
-        // currentMaterial.side = doubleSideElements.includes(meshChild.name)
-        //   ? THREE.DoubleSide
-        //   : THREE.FrontSide
+        currentMaterial.side = doubleSideElements.includes(meshChild.name)
+          ? THREE.DoubleSide
+          : THREE.FrontSide
 
         if (withVideo) {
-          const videoTexture = createVideoTexture(withVideo.url)
+          const videoTexture = createVideoTextureWithResume(withVideo.url)
+
+          // Clean up old video texture if it exists
+          if (currentMaterial.map && "video" in (currentMaterial.map as any)) {
+            const oldTexture = currentMaterial.map as THREE.VideoTexture
+            if (oldTexture.userData && oldTexture.userData.cleanup) {
+              oldTexture.userData.cleanup()
+            }
+            oldTexture.dispose()
+          }
+
           currentMaterial.map = videoTexture
           currentMaterial.map.flipY = false
           currentMaterial.emissiveMap = videoTexture
@@ -297,7 +246,8 @@ export const Map = memo(() => {
                   FOG: overrides?.FOG,
                   MATCAP: withMatcap !== undefined,
                   VIDEO: withVideo !== undefined,
-                  CLOUDS: isClouds
+                  CLOUDS: isClouds,
+                  DAYLIGHT: isDaylight
                 }
               )
             )
@@ -311,7 +261,8 @@ export const Map = memo(() => {
                 FOG: overrides?.FOG,
                 MATCAP: withMatcap !== undefined,
                 VIDEO: withVideo !== undefined,
-                CLOUDS: isClouds
+                CLOUDS: isClouds,
+                DAYLIGHT: isDaylight
               }
             )
 
@@ -326,16 +277,6 @@ export const Map = memo(() => {
         meshChild.material = newMaterials
 
         meshChild.userData.hasGlobalMaterial = true
-
-        // Homepage Floor
-        if (child.name === "SM_03_03" && child instanceof THREE.Mesh) {
-          child.material.side = THREE.FrontSide
-        }
-
-        // Homepage Stairs
-        if (child.name === "SM_03_01" && child instanceof THREE.Mesh) {
-          child.material.side = THREE.FrontSide
-        }
       }
     }
 
@@ -346,12 +287,11 @@ export const Map = memo(() => {
     godrayModel.traverse((child) => traverse(child, { GODRAY: true }))
 
     const godrays: Mesh[] = []
-
     godrayModel.traverse((child) => {
       if (child instanceof Mesh) godrays.push(child)
     })
-    setGodrays((prev) => [...prev, ...godrays])
 
+    setGodrays(godrays)
     setOfficeScene(officeModel)
     setOutdoorScene(outdoorModel)
     setGodrayScene(godrayModel)
@@ -386,6 +326,16 @@ export const Map = memo(() => {
       })
     }
 
+    const loboMarino = officeItemsModel.getObjectByName("SM_Lobo")
+    const rain = officeModel.getObjectByName("SM_Rain")
+
+    useMesh.setState({
+      weather: {
+        loboMarino: loboMarino as Mesh,
+        rain: rain as Mesh
+      }
+    })
+
     const inspectables = useMesh.getState().inspectableMeshes
 
     if (inspectables.length === 0) {
@@ -411,11 +361,6 @@ export const Map = memo(() => {
       })
 
       useMesh.setState({ inspectableMeshes })
-    }
-
-    const netMesh = basketballNetModel.getObjectByName("Net") as Mesh | null
-    if (netMesh) {
-      netMesh.raycast = () => null
     }
 
     const disableRaycasting = (scene: THREE.Object3D) => {
@@ -546,21 +491,36 @@ export const Map = memo(() => {
       <primitive object={officeItemsModel} />
       <primitive object={outdoorScene} />
       <primitive object={godrayScene} />
+
+      {/*Arcade */}
       <ArcadeScreen />
       <ArcadeBoard />
+
+      {/*Blog */}
       <BlogDoor />
       <LockedDoor />
-
-      <SpeakerHover />
-
-      {/* TODO: shut down physics after x seconds of not being in blog scene */}
-      {/* TODO: basketball should use the same physics world */}
       <Suspense fallback={null}>
         <PhysicsWorld gravity={[0, -24, 0]} paused={scene !== "blog"}>
+          {/* TODO: shut down physics after x seconds of not being in blog scene */}
+          {/* TODO: basketball should use the same physics world */}
           <Lamp />
         </PhysicsWorld>
       </Suspense>
+
+      {/*Services */}
+      <Weather />
       <OutdoorCars />
+
+      {/* Basketball */}
+      {useMesh.getState().hoopMeshes.hoop && (
+        <primitive object={useMesh.getState().hoopMeshes.hoop as Mesh} />
+      )}
+      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
+
+      {/*Homepage */}
+      {scene === "home" && <SpeakerHover />}
+
+      {/* Routing */}
       {Object.values(routingNodes).map((node) => {
         const matchingTab = currentScene?.tabs?.find(
           (tab) => tab.tabClickableName === node.name
@@ -581,12 +541,8 @@ export const Map = memo(() => {
           />
         )
       })}
-      {useMesh.getState().hoopMeshes.hoop && (
-        <primitive object={useMesh.getState().hoopMeshes.hoop as Mesh} />
-      )}
-      {net && net instanceof THREE.Mesh && <Net mesh={net} />}
+
       <BakesLoader />
-      <ReflexesLoader />
     </group>
   )
 })

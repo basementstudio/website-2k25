@@ -1,11 +1,19 @@
 "use server"
 
-export async function subscribe(formData: FormData) {
+type State = {
+  success: boolean
+  message: string
+}
+
+export async function subscribe(
+  _prevState: State,
+  formData: FormData
+): Promise<State> {
   try {
     const email = formData.get("email")
 
     if (!email) {
-      throw new Error("Email is required")
+      throw new Error("Email is Required")
     }
 
     const mailchimpApiKey = process.env.MAILCHIMP_API_KEY
@@ -31,11 +39,29 @@ export async function subscribe(formData: FormData) {
       })
     })
 
+    const data = await response.json()
+
     if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.detail)
+      // Check for specific Mailchimp error types
+      if (data.title === "Member Exists") {
+        return {
+          success: false,
+          message: "already registered"
+        }
+      }
+      throw new Error(data.detail || "Failed to subscribe")
+    }
+
+    return {
+      success: true,
+      message: "Successfully subscribed to the newsletter!"
     }
   } catch (error) {
     console.error("Error:", error)
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unexpected error occurred"
+    }
   }
 }

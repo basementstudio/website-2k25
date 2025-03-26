@@ -1,18 +1,97 @@
 "use client"
 
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
-import { lazy, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
+import ContactScreen from "./contact-screen"
 import { useContactStore } from "./contact-store"
-import UiOverlay from "./ui/ui-overlay"
 
-const Fallback = lazy(() => import("./fallback"))
+const debounce = (fn: Function, ms = 300) => {
+  let timeoutId: ReturnType<typeof setTimeout>
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn.apply(this, args), ms)
+  }
+}
 
-const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
+type WorkerMessageType =
+  | "outro-complete"
+  | "intro-complete"
+  | "animation-rejected"
+  | "start-outro"
+  | "run-outro-animation"
+  | "scale-animation-complete"
+  | "scale-down-animation-complete"
+  | "animation-starting"
+  | "animation-complete"
+
+const ContactCanvas = () => {
   const { contactPhone } = useAssets()
-  const [worker, setWorker] = useState<Worker>()
+  const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
+  const isContactOpen = useContactStore((state) => state.isContactOpen)
+  const isAnimating = useContactStore((state) => state.isAnimating)
+  const setIsAnimating = useContactStore((state) => state.setIsAnimating)
+  const setIntroCompleted = useContactStore((state) => state.setIntroCompleted)
+  const setClosingCompleted = useContactStore(
+    (state) => state.setClosingCompleted
+  )
+  const [shouldRender, setShouldRender] = useState(false)
+
+  useEffect(() => {
+    if (isContactOpen) {
+      setIsAnimating(true)
+      setShouldRender(true)
+      setIntroCompleted(false)
+    } else if (!isContactOpen && shouldRender) {
+      setIsAnimating(true)
+      setClosingCompleted(false)
+    }
+  }, [
+    isContactOpen,
+    shouldRender,
+    setIsAnimating,
+    setIntroCompleted,
+    setClosingCompleted
+  ])
+
+  useEffect(() => {
+    if (!worker) return
+
+    const handleWorkerMessage = (e: MessageEvent) => {
+      const { type } = e.data
+
+      const setAnimComplete = (setCompleteFunc: (val: boolean) => void) => {
+        setCompleteFunc(true)
+        setIsAnimating(false)
+      }
+
+      const passThrough = () => worker.postMessage({ type })
+
+      const messageHandlers: Partial<Record<WorkerMessageType, () => void>> = {
+        "outro-complete": () => {
+          setAnimComplete(setClosingCompleted)
+        },
+        "animation-rejected": () => setIsAnimating(false),
+        "start-outro": passThrough,
+        "run-outro-animation": passThrough,
+        "scale-animation-complete": () => setAnimComplete(setIntroCompleted),
+        "scale-down-animation-complete": () => {
+          setShouldRender(false)
+          setAnimComplete(setClosingCompleted)
+        },
+        "animation-starting": () => setIsAnimating(true),
+        "animation-complete": () => setIsAnimating(false)
+      }
+
+      const handler = messageHandlers[type as WorkerMessageType]
+      if (handler) handler()
+    }
+
+    worker.addEventListener("message", handleWorkerMessage)
+    return () => worker.removeEventListener("message", handleWorkerMessage)
+  }, [worker, setIsAnimating, setIntroCompleted, setClosingCompleted])
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -21,17 +100,48 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
         type: "module"
       }
     )
-    setWorker(newWorker)
     setStoreWorker(newWorker)
 
     if (contactPhone) {
       newWorker.postMessage({
         type: "load-model",
-        modelUrl: contactPhone
+        modelUrl: contactPhone,
+        windowDimensions: {
+          width: window.innerWidth,
+          height: window.innerHeight
+        }
       })
     }
 
+    const debouncedResizeHandler = debounce(() => {
+      if (newWorker) {
+        newWorker.postMessage({
+          type: "window-resize",
+          windowDimensions: {
+            width: window.innerWidth,
+            height: window.innerHeight
+          }
+        })
+      }
+    }, 250)
+
+    const handleResize = () => {
+      if (newWorker) {
+        newWorker.postMessage({
+          type: "window-resize",
+          windowDimensions: {
+            width: window.innerWidth,
+            height: window.innerHeight
+          }
+        })
+      }
+      debouncedResizeHandler()
+    }
+
+    window.addEventListener("resize", handleResize)
+
     return () => {
+      window.removeEventListener("resize", handleResize)
       newWorker.terminate()
       setStoreWorker(null)
     }
@@ -41,27 +151,23 @@ const ContactCanvas = ({ isContactOpen }: { isContactOpen: boolean }) => {
     if (worker) {
       worker.postMessage({
         type: "update-contact-open",
-        isContactOpen
+        isContactOpen: isContactOpen
       })
     }
   }, [worker, isContactOpen])
 
-  if (!worker) {
-    return <Fallback />
-  }
+  if (!worker) return null
 
   return (
     <>
+      <ContactScreen />
       <OffscreenCanvas
         worker={worker}
-        fallback={<Fallback />}
-        frameloop={isContactOpen ? "always" : "never"}
-        // 0.875 = z / 6 || 5.25 s6
-        camera={{ position: [0, 0.082, 5.25], fov: 25 }}
+        fallback={null}
+        frameloop={shouldRender || isAnimating ? "always" : "never"}
+        camera={{ position: [0, 0.2, 2], fov: 8.5 }}
         gl={{ antialias: false }}
       />
-
-      <UiOverlay className="fixed left-[43.6vw] top-[54.4vh] aspect-[16/10] w-[33%] -translate-x-1/2 -translate-y-1/2 opacity-100 [perspective:800px]" />
     </>
   )
 }

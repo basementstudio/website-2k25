@@ -8,6 +8,7 @@ import {
   lampFragment,
   mapFragment,
   modelsItemFragment,
+  physicsParamsFragment,
   sceneFragment,
   sfxFragment
 } from "./fragments"
@@ -26,7 +27,8 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
   scenes: sceneFragment,
   outdoorCars: carFragment,
   characters: characterFragment,
-  lamp: lampFragment
+  lamp: lampFragment,
+  physicsParams: physicsParamsFragment
 })
 
 interface Query {

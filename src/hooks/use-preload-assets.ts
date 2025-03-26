@@ -1,4 +1,4 @@
-import { preload, PreloadAs, PreloadOptions } from "react-dom"
+import { preload, PreloadOptions } from "react-dom"
 
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
@@ -19,7 +19,7 @@ const ASSET_TO_NOT_PRELOAD = [
 const ASSET_URL_SRC = [
   {
     key: "bakes",
-    urlKey: "lightmap"
+    urlKey: ["lightmap", "ambientOcclusion"]
   },
   {
     key: "characters",
@@ -127,12 +127,20 @@ const collectUrls = (
     if (urlMapping) {
       // Extract URLs from special array items
       obj.forEach((item) => {
-        if (item && typeof item === "object" && urlMapping.urlKey in item) {
-          const url = item[urlMapping.urlKey]
-          if (typeof url === "string" && url.startsWith("https://")) {
-            urlSet.add(url)
+        if (!item || typeof item !== "object") return
+
+        const urlKeys = Array.isArray(urlMapping.urlKey)
+          ? urlMapping.urlKey
+          : [urlMapping.urlKey]
+
+        urlKeys.forEach((key) => {
+          if (key in item) {
+            const url = item[key]
+            if (typeof url === "string" && url.startsWith("https://")) {
+              urlSet.add(url)
+            }
           }
-        }
+        })
       })
     } else {
       // Process array items recursively
@@ -163,17 +171,12 @@ const preloadAllAssets = (obj: any) => {
   // Preload all URLs
   urls.forEach((url) => {
     const { as, type } = getAssetFormat(url)
-    preload(url, {
-      as,
-      type
-    })
+    preload(url, { as, type })
   })
 }
 
 export const usePreloadAssets = (assets: AssetsResult) => {
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
 
-  if (offscreenCanvasReady) {
-    preloadAllAssets(assets)
-  }
+  if (offscreenCanvasReady) preloadAllAssets(assets)
 }

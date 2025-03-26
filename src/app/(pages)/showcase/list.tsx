@@ -5,20 +5,19 @@ import Link from "next/link"
 import { memo, useCallback, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Video } from "@/components/primitives/video"
 import { cn } from "@/utils/cn"
 
 import { Project } from "./basehub"
 
+interface AccordionListItemProps {
+  project: Project
+  index: number
+  disabled: boolean
+}
+
 const AccordionListItem = memo(
-  ({
-    project,
-    index,
-    disabled
-  }: {
-    project: Project
-    index: number
-    disabled: boolean
-  }) => {
+  ({ project, index, disabled }: AccordionListItemProps) => {
     const [firstItemSeen, setFirstItemSeen] = useState(false)
     return (
       <AccordionPrimitive.Item
@@ -29,7 +28,7 @@ const AccordionListItem = memo(
         <AccordionPrimitive.Trigger
           className={cn(
             "[&[data-state=open]_.diagonal-lines]:opacity-0",
-            "group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 pb-1.5 pt-1.25 transition-all duration-300",
+            "group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 py-1.5 transition-all duration-300",
             disabled && "pointer-events-none",
             true ? "cursor-n-resize" : "cursor-ns-resize"
           )}
@@ -45,7 +44,7 @@ const AccordionListItem = memo(
                 "duration-300 [&>*]:opacity-30 [&>*]:transition-opacity"
             )}
           >
-            <div className="relative col-span-4 flex items-center gap-2 text-h3 text-brand-w2 transition-opacity duration-300">
+            <div className="relative col-span-4 flex items-center gap-2 text-f-h3 text-brand-w2 transition-opacity duration-300">
               <Image
                 src={project.icon?.url ?? ""}
                 alt={project.icon?.alt ?? ""}
@@ -57,7 +56,7 @@ const AccordionListItem = memo(
               <p>{project.client?._title}</p>
             </div>
 
-            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty text-p leading-none text-brand-w2">
+            <p className="relative col-start-5 col-end-11 inline-flex flex-wrap text-pretty text-f-p leading-none text-brand-w2">
               {project.categories?.map((cat, idx) => (
                 <span key={cat._title}>
                   {cat._title}
@@ -67,12 +66,12 @@ const AccordionListItem = memo(
                 </span>
               ))}
             </p>
-            <p className="relative col-start-11 col-end-12 text-left text-p text-brand-w2">
+            <p className="relative col-start-11 col-end-12 text-left text-f-p text-brand-w2">
               {project.year}
             </p>
             <Link
               href={`/showcase/${project?._slug}`}
-              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-p text-brand-w2"
+              className="view-project relative col-start-12 col-end-13 space-x-px text-right text-f-p text-brand-w2"
             >
               <span className="actionable actionable-no-underline gap-x-1">
                 <span className="actionable actionable-inanimate">
@@ -102,7 +101,7 @@ const AccordionListItem = memo(
             >
               {project.showcase?.items.map((item, imgIndex, array) => {
                 const elementToRender = item.video ? (
-                  <video
+                  <Video
                     key={imgIndex}
                     src={item.video.url}
                     autoPlay

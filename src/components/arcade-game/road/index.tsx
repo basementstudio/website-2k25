@@ -1,6 +1,7 @@
-import { useFrame } from "@react-three/fiber"
 import { useRef } from "react"
-import { Group } from "three"
+import type { Group } from "three"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { normalizeDelta } from "../lib/math"
 import { getNewChunk } from "./get-chunk"
@@ -11,7 +12,7 @@ export const Road = () => {
   const chunks = useRoad((s) => s.chunks)
   const speedRef = useRoad((s) => s.speedRef)
 
-  useFrame((_, d) => {
+  useFrameCallback((_, d) => {
     const group = groupRef.current
     if (!group) return
     const delta = normalizeDelta(d)

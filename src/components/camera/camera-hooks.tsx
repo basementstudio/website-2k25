@@ -1,10 +1,11 @@
-import { useFrame } from "@react-three/fiber"
 import { useLenis } from "lenis/react"
 import { easing } from "maath"
 import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
-import { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import { useMedia } from "@/hooks/use-media"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { useInspectable } from "../inspectables/context"
 import { useNavigationStore } from "../navigation-handler/navigation-store"
@@ -145,6 +146,10 @@ export const useCameraMovement = (
   const previousScene = useNavigationStore.getState().previousScene
   const { selected } = useInspectable()
 
+  const lenis = useLenis()
+
+  const isDesktop = useMedia("(min-width: 1024px)")
+
   // Determine if we're transitioning from the 404 page
   const isTransitioningFrom404 = previousScene?.name === "404"
 
@@ -155,10 +160,8 @@ export const useCameraMovement = (
 
   const divisor = useResponsiveDivisor()
   const offsetMultiplier = useMemo(() => {
-    return cameraConfig?.offsetMultiplier ?? 2
+    return cameraConfig?.offsetMultiplier ?? 0
   }, [cameraConfig])
-
-  const lenis = useLenis()
 
   const panTargetDelta = useMemo(() => new THREE.Vector3(), [])
   const panLookAtDelta = useMemo(() => new THREE.Vector3(), [])
@@ -222,7 +225,7 @@ export const useCameraMovement = (
     animationDuration
   ])
 
-  useFrame(({ pointer }, dt) => {
+  useFrameCallback(({ pointer }, dt) => {
     const { boundariesRef, basePosition, np } = boundaries
     const b = boundariesRef.current
     const plane = planeRef.current
@@ -244,7 +247,7 @@ export const useCameraMovement = (
     plane.position.setX(np.x)
     plane.position.setZ(np.z)
 
-    if (!selected) {
+    if (!selected && cameraConfig?.offsetMultiplier !== 0) {
       newDelta.set(b.pos.x, 0, b.pos.z)
       newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
 
@@ -261,7 +264,7 @@ export const useCameraMovement = (
       targetFov.current = cameraConfig.fov
     }
 
-    if (!disableCameraTransition && lenis) {
+    if (!disableCameraTransition && lenis && isDesktop) {
       targetPosition.y +=
         (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
       targetLookAt.y +=

@@ -1,3 +1,4 @@
+import { MeshDiscardMaterial } from "@react-three/drei"
 import { animate } from "motion"
 import { useRef } from "react"
 
@@ -61,7 +62,7 @@ export const LockedDoor = () => {
             onClick={handleClick}
           >
             <cylinderGeometry args={[0.075, 0.075, 0.2, 32]} />
-            <meshStandardMaterial opacity={0} transparent depthWrite={false} />
+            <MeshDiscardMaterial />
           </mesh>
         </group>
       )}

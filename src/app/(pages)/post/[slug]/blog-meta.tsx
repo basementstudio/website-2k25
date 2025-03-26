@@ -56,17 +56,17 @@ export default function BlogMeta({
   categories: boolean
 }) {
   return (
-    <div className="grid-layout relative !px-0 text-p">
-      <Back />
+    <div className="grid-layout relative !px-0 text-f-p-mobile lg:text-f-p">
+      {categories && <Back />}
       <div className="col-span-full flex justify-center lg:col-span-10 lg:col-start-2">
-        <div className="flex w-full max-w-[846px] flex-col gap-3">
+        <div className="flex w-full flex-col gap-3 lg:max-w-[846px]">
           {!categories && <hr className="mt-10 border-brand-w1/20" />}
           {categories && (
             <div className="flex gap-1">
               {data.categories?.map((category) => (
                 <p
                   key={category._title}
-                  className="h-max w-max bg-brand-g2 px-1 text-mobile-p text-brand-w2 lg:text-p"
+                  className="h-max w-max bg-brand-g2 px-1 text-f-p-mobile text-brand-w2 lg:text-f-p"
                 >
                   {category._title}
                 </p>
@@ -74,7 +74,10 @@ export default function BlogMeta({
             </div>
           )}
           <div className="flex justify-between">
-            <p className="inline-flex items-center gap-x-2 text-brand-w2">
+            <p
+              className="inline-flex items-center gap-x-2 text-brand-w2"
+              suppressHydrationWarning
+            >
               {data.date ? formatDate(data.date) : null}
               <span className="inline-block size-1 bg-brand-g1" />{" "}
               {data.authors?.map((author) => author._title).join(", ") ||
@@ -87,6 +90,7 @@ export default function BlogMeta({
                   href={social.href(data._slug, data._title)}
                   className="transition-opacity hover:opacity-80"
                   aria-label={social.label}
+                  target="_blank"
                 >
                   <social.Icon className="text-brand-w1" />
                 </Link>

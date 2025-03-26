@@ -1,8 +1,10 @@
 "use client"
 
-import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
+import { useHandleContactButton } from "@/hooks/use-handle-contact"
 import { cn } from "@/utils/cn"
+
+import { useContactStore } from "../contact/contact-store"
 
 interface InternalLinksProps {
   className?: string
@@ -14,19 +16,21 @@ interface InternalLinksProps {
 }
 
 const InternalLinks = ({ className, links }: InternalLinksProps) => {
-  const { isContactOpen, setIsContactOpen } = useContactStore()
+  const handleContactButton = useHandleContactButton()
 
   return (
-    <ul className={cn("flex flex-col gap-y-1 text-p text-brand-g1", className)}>
+    <ul
+      className={cn(
+        "flex flex-col gap-y-1 text-f-p-mobile text-brand-g1 lg:text-f-p",
+        className
+      )}
+    >
       {links.map((link) => (
         <li key={link.title}>
-          <Link
-            className="flex gap-x-0.5 text-h2 text-brand-w1"
-            href={link.href}
-          >
+          <Link className="flex gap-x-0.5 text-brand-w1" href={link.href}>
             <span className="actionable">{link.title}</span>
             {link.count && (
-              <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
+              <sup className="translate-y-1.25 text-f-p-mobile !font-medium text-brand-g1 lg:text-f-p">
                 <span className="tabular-nums">({link.count})</span>
               </sup>
             )}
@@ -35,9 +39,8 @@ const InternalLinks = ({ className, links }: InternalLinksProps) => {
       ))}
       <li>
         <button
-          disabled={isContactOpen}
-          onClick={() => setIsContactOpen(!isContactOpen)}
-          className="flex gap-x-0.5 text-h2 text-brand-w1"
+          onClick={handleContactButton}
+          className="flex gap-x-0.5 text-brand-w1"
         >
           <span className="actionable">Contact Us</span>
         </button>

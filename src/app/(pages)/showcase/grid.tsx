@@ -1,8 +1,8 @@
-import Link from "next/link"
 import { memo } from "react"
 
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { InfoItem } from "@/components/primitives/info-item"
+import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
 import { useMedia } from "@/hooks/use-media"
 import { VideoFragment } from "@/lib/basehub/fragments"
@@ -24,7 +24,7 @@ const MobileInfo = memo(({ project }: { project: Project }) => {
                 <span key={cat._title}>{cat._title}</span>
               )) || []
             }
-            className="text-p"
+            className="text-f-p-mobile lg:text-f-p"
           />
         }
       />
@@ -45,7 +45,7 @@ export const Grid = memo(
     const isMobile = useMedia("(max-width: 1024px)")
 
     return (
-      <div className="grid-layout contain-layout !gap-y-8 lg:!gap-y-2">
+      <div className="grid-layout contain-layout !gap-y-8 lg:!gap-y-3">
         {projects.map((item, index) => {
           const firstItem = index === 0
 
@@ -62,7 +62,7 @@ export const Grid = memo(
             >
               <div
                 className={cn(
-                  "group relative aspect-video after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full",
+                  "group relative aspect-video max-w-[100%] after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full",
                   "will-change-[opacity,transform] hover:will-change-auto"
                 )}
               >

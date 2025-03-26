@@ -44,7 +44,9 @@ const ViewSelector = memo(
       )}
       value={mode}
       checked={viewMode === mode}
-      onCheckedChange={() => setViewMode(mode)}
+      onCheckedChange={() => {
+        setViewMode(mode)
+      }}
     >
       <span
         className={cn("!flex items-center justify-center gap-1", {
@@ -85,7 +87,7 @@ export const Filters = memo(
 
     return (
       <div className="grid-layout items-end pb-2">
-        <div className="col-span-1 hidden items-center gap-1 text-p text-brand-g1 lg:flex">
+        <div className="col-span-1 hidden items-center gap-1 text-f-p text-brand-g1 lg:flex">
           <ViewSelector
             mode="grid"
             viewMode={viewMode}
@@ -100,14 +102,16 @@ export const Filters = memo(
         </div>
 
         <div className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13">
-          <p className="text-p text-brand-g1">Categories</p>
+          <p className="text-f-p-mobile text-brand-g1 lg:text-f-h3">
+            Categories
+          </p>
 
           <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {categories.map((category) => (
               <button
                 key={category.name}
                 className={cn(
-                  "flex w-max items-center gap-x-1.25 text-left !text-mobile-h2 text-brand-g1 transition-colors duration-300 lg:!text-h2",
+                  "flex w-max items-center gap-x-1.25 text-left !text-f-h2-mobile text-brand-g1 transition-colors duration-300 lg:!text-f-h2",
                   selectedCategory === category.name && "text-brand-w1",
                   // if no categories selected, show all as active
                   selectedCategory === null && "text-brand-w1"

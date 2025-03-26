@@ -1,6 +1,5 @@
-export function emojiFlag(countryCode: string): string | undefined {
-  return FLAG_MAP[countryCode.toUpperCase() as keyof typeof FLAG_MAP]
-}
+export const getFlag = (countryCode: string): string | undefined =>
+  FLAG_MAP[countryCode.toUpperCase() as keyof typeof FLAG_MAP]
 
 const FLAG_MAP = {
   AD: "🇦🇩",

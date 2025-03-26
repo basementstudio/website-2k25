@@ -1,83 +1,149 @@
 "use client"
 
-import { Link } from "@/components/primitives/link"
-import { cn } from "@/utils/cn"
+import { motion } from "motion/react"
 
-import { useContactStore } from "../contact/contact-store"
+import { Link } from "@/components/primitives/link"
+import { useHandleContactButton } from "@/hooks/use-handle-contact"
+import { useMedia } from "@/hooks/use-media"
+import { cn } from "@/utils/cn"
 
 interface InternalLinksProps {
   className?: string
   links: { title: string; href: string; count?: number }[]
   onClick?: () => void
   onNav?: boolean
+  animated?: boolean
 }
+
+const STAGER_DELAY = 0.2
+const STAGER_DURATION = 0.3
+const STAGER_STEPS = 0.1
+
+const getDelay = (idx: number, length: number, instant?: boolean) =>
+  (instant ? 0 : STAGER_DELAY) + (idx / length) * STAGER_STEPS
 
 export const InternalLinks = ({
   className,
   links,
   onClick,
-  onNav
+  onNav,
+  animated = false
 }: InternalLinksProps) => {
-  const { isContactOpen, setIsContactOpen } = useContactStore()
+  const handleContactButton = useHandleContactButton()
+  const isDesktop = useMedia("(min-width: 1024px)")
+
+  const filteredLinks = links.filter((link) => {
+    if (isDesktop || !link.href.includes("lab")) {
+      return true
+    }
+
+    return false
+  })
+
+  const animateProps = animated
+    ? {
+        initial: { opacity: 0, y: 15 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -15 }
+      }
+    : {}
 
   return (
     <ul
       className={cn(
-        "flex flex-col gap-y-1",
-        onNav ? "!text-[3.25rem] tracking-[-0.02em]" : "!text-mobile-h2",
-        "text-brand-w1 lg:!text-h2",
+        "flex flex-col gap-y-2",
+        onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
+        "text-brand-w1 lg:!text-f-h2",
         className
       )}
     >
-      {links.map((link) => (
-        <li key={link.title}>
+      {filteredLinks.map((link, idx) => (
+        <motion.li
+          key={`${link.title}-${idx}`}
+          {...animateProps}
+          animate={{
+            ...animateProps.animate,
+            transition: {
+              duration: STAGER_DURATION,
+              delay: getDelay(idx, links.length)
+            }
+          }}
+          exit={{
+            ...animateProps.exit,
+            transition: {
+              duration: STAGER_DURATION,
+              delay: getDelay(idx, links.length, true)
+            }
+          }}
+        >
           <Link
-            className="flex w-fit gap-x-0.5 text-brand-w1"
+            className={cn("flex w-fit gap-x-0.5 text-brand-w1")}
             href={link.href}
             onClick={onClick}
           >
             <span className="actionable">{link.title}</span>
             {link.count && (
-              <sup className="translate-y-1.25 text-p !font-medium text-brand-g1">
+              <sup className="translate-y-1.25 text-f-p-mobile !font-medium text-brand-g1 lg:text-f-p">
                 <span className="tabular-nums">({link.count})</span>
               </sup>
             )}
           </Link>
-        </li>
+        </motion.li>
       ))}
-      <li>
+
+      <motion.li
+        {...animateProps}
+        animate={{
+          ...animateProps.animate,
+          transition: {
+            duration: STAGER_DURATION,
+            delay: getDelay(links.length, links.length)
+          }
+        }}
+        exit={{
+          ...animateProps.exit,
+          transition: {
+            duration: STAGER_DURATION,
+            delay: getDelay(links.length, links.length, true)
+          }
+        }}
+      >
         <button
-          disabled={isContactOpen}
-          onClick={() => setIsContactOpen(!isContactOpen)}
+          onClick={handleContactButton}
           className={cn(
             "flex w-max flex-col gap-y-1",
-            onNav ? "!text-[3.25rem] tracking-[-0.02em]" : "!text-mobile-h2",
-            "text-brand-w1 lg:!text-h2"
+            onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
+            "text-brand-w1 lg:!text-f-h2"
           )}
         >
           <span className="actionable">Contact Us</span>
         </button>
-      </li>
+      </motion.li>
     </ul>
   )
 }
 
 interface SocialLinksProps {
   className?: string
-  links: { twitter: string; instagram: string; github: string }
+  links: {
+    twitter: string
+    instagram: string
+    github: string
+    linkedIn: string
+  }
 }
 
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div
     className={cn(
-      "flex gap-x-1 !text-mobile-p text-brand-g1 lg:!text-p",
+      "flex flex-row gap-x-1 !text-f-h4-mobile text-brand-g1 lg:!text-f-p",
       className
     )}
   >
     <Link className="h-max text-brand-w1" href={links.twitter} target="_blank">
       <span className="actionable">X (Twitter)</span>
     </Link>
-    <span>,</span>
+
     <Link
       className="h-max text-brand-w1"
       href={links.instagram}
@@ -85,9 +151,13 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
     >
       <span className="actionable">Instagram</span>
     </Link>
-    <span>,</span>
+
     <Link className="h-max text-brand-w1" href={links.github} target="_blank">
       <span className="actionable">GitHub</span>
+    </Link>
+
+    <Link className="h-max text-brand-w1" href={links.linkedIn} target="_blank">
+      <span className="actionable">LinkedIn</span>
     </Link>
   </div>
 )
@@ -95,7 +165,7 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
 export const Copyright = ({ className }: { className?: string }) => (
   <p
     className={cn(
-      "text-right !text-mobile-p text-brand-g1 lg:!text-p",
+      "text-right !text-f-p-mobile text-brand-g1 lg:!text-f-p",
       className
     )}
   >
@@ -104,10 +174,10 @@ export const Copyright = ({ className }: { className?: string }) => (
 )
 
 export const SoDa = ({ className }: { className?: string }) => (
-  <div className={cn("flex w-full", className)}>
+  <div className={cn("mb-2 w-full", className)}>
     <Link
       className={cn(
-        "text-right !text-mobile-p font-semibold text-brand-w1 lg:!text-p",
+        "!block text-right !text-f-p-mobile font-semibold text-brand-w1 lg:!text-f-p",
         className
       )}
       href="https://www.sodaspeaks.com/"
@@ -128,6 +198,7 @@ const SodaLogo = ({ className }: { className?: string }) => (
     xmlns="http://www.w3.org/2000/svg"
     className={className}
   >
+    <title>SoDA</title>
     <path fill="currentColor" d="M0 0h20.727v24H0z" />
     <path
       className="fill-brand-k"

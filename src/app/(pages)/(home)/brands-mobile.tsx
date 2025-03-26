@@ -1,56 +1,19 @@
-"use client"
+import { cn } from "@/utils/cn"
 
-import { useMemo } from "react"
+import { Brand } from "./brands"
 
-import { Marquee } from "@/components/primitives/marquee"
-
-import { QueryType } from "./query"
-
-// Function to shuffle array
-const shuffleArray = <T,>(array: T[]): T[] => {
-  const newArray = [...array]
-  for (let i = newArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[newArray[i], newArray[j]] = [newArray[j], newArray[i]]
-  }
-  return newArray
-}
-
-export const BrandsMobile = ({ data }: { data: QueryType }) => {
-  const brands = useMemo(
-    () => data.company.clients?.clientList.items.filter((c) => c.logo) ?? [],
-    [data.company.clients?.clientList.items]
-  )
-
-  const rows = useMemo(() => {
-    // Shuffle the brands first
-    const shuffledBrands = shuffleArray(brands)
-
-    // Create chunks with different sizes
-    const row1Size = Math.floor(shuffledBrands.length * 0.4) // 40% of logos
-    const row2Size = Math.floor(shuffledBrands.length * 0.35) // 35% of logos
-    // remaining logos go to row 3
-
-    return [
-      shuffledBrands.slice(0, row1Size),
-      shuffledBrands.slice(row1Size, row1Size + row2Size),
-      shuffledBrands.slice(row1Size + row2Size)
-    ]
-  }, [brands])
-
+export const BrandsMobile = ({ brandsMobile }: { brandsMobile: Brand[][] }) => {
   return (
     <section className="grid-layout isolate !gap-y-0 lg:!hidden">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full mb-2 text-mobile-h3 text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-h3">
+        <h3 className="col-span-full mb-2 text-f-h3-mobile text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-f-h3">
           Trusted by Visionaries
         </h3>
-
-        <div className="col-span-full h-px w-full bg-brand-w1/30" />
       </div>
 
-      <div className="relative col-span-full flex flex-col divide-y divide-brand-w1/30 border-b border-brand-w1/30">
-        {rows.map((row, index) => (
-          <MarqueeRow key={index} brands={row} index={index} />
+      <div className="relative col-span-full flex flex-col">
+        {brandsMobile.map((row, index) => (
+          <BrandsGrid key={index} brands={row} absolute={index !== 0} />
         ))}
       </div>
     </section>
@@ -58,23 +21,49 @@ export const BrandsMobile = ({ data }: { data: QueryType }) => {
 }
 
 interface MarqueeRowProps {
-  brands: QueryType["company"]["clients"]["clientList"]["items"]
-  index: number
+  brands: {
+    _id: string
+    _title: string
+    logo: string | null
+    website: string | null
+  }[]
+  absolute: boolean
 }
 
-const MarqueeRow = ({ brands, index }: MarqueeRowProps) => (
-  <div className="relative py-2">
-    <div className="absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-brand-k to-transparent" />
-    <Marquee inverted={index % 2 === 0}>
-      <div className="flex w-full items-center gap-x-2">
-        {brands.map((brand) => (
+const getPositionDelay = (position: number, length: number) => {
+  const seed = (position * 23 + 17) % 31
+  return (seed * 1.5) % (length * 1.5)
+}
+
+const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
+  <div className={cn("relative py-2", absolute && "absolute inset-0")}>
+    <div className="grid-rows-auto group grid grid-cols-3 gap-3">
+      {brands.map((brand, idx) => {
+        const delay = getPositionDelay(idx, brands.length)
+
+        return (
           <div
             key={brand._id}
-            className="[&>svg]:h-8 [&>svg]:w-auto"
-            dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
-          />
-        ))}
-      </div>
-    </Marquee>
+            className={cn(
+              "relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
+              absolute && "animate-fade-in-out opacity-0",
+              !absolute && "animate-fade-out-in opacity-100"
+            )}
+            style={
+              {
+                "--anim-duration": "16s",
+                "--anim-delay": `${delay}s`,
+                animationTimingFunction: "cubic-bezier(0.4, 0, 0.6, 1)"
+              } as React.CSSProperties
+            }
+          >
+            <div
+              className="with-dots relative grid h-full w-full place-items-center px-2 py-4 [&>svg]:max-w-[100%]"
+              dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
+            />
+          </div>
+        )
+      })}
+    </div>
   </div>
 )

@@ -20,7 +20,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
   const website = entry.project?.projectWebsite?.replace(/\/$/, "")
 
   return (
-    <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-2 lg:row-start-auto">
+    <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-3 lg:row-start-auto xl:col-span-2">
       <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-[calc(3.25rem+1px)] lg:mb-0 lg:h-[calc(100vh-4.25rem)]">
         <div className="flex items-center justify-between">
           <Back />
@@ -33,9 +33,9 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
           <InfoItem
             label="Client"
             value={
-              <span className="flex items-center gap-0.75">
+              <span className="flex min-w-0 items-center gap-0.75">
                 {entry.project?.icon ? (
-                  <span className="relative size-3.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
+                  <span className="relative size-3.5 shrink-0 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
                     <Image
                       src={entry.project?.icon?.url}
                       fill
@@ -47,7 +47,9 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
                     />
                   </span>
                 ) : null}
-                {entry.project?.client?._title}
+                <span className="truncate">
+                  {entry.project?.client?._title}
+                </span>
               </span>
             }
           />
@@ -56,6 +58,9 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
             label="Type"
             value={
               <TextList
+                className="flex-col"
+                hasWrapper
+                showComma={false}
                 value={entry.project?.categories?.map((c) => c._title) || []}
               />
             }
@@ -64,20 +69,26 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
             <InfoItem
               label="Awards"
               value={
-                <TextList value={entry.awards?.map((a) => a.title) || []} />
+                <TextList
+                  className="flex-col"
+                  hasWrapper
+                  showComma={false}
+                  value={entry.awards?.map((a) => a.title) || []}
+                />
               }
             />
           )}
           {website && (
             <InfoItem
-              label="Website"
+              label="Link"
               value={
                 <Link
                   href={website}
                   target="_blank"
-                  className="line-clamp-1 flex items-center gap-1 text-brand-w1"
+                  className="actionable flex items-center gap-1 text-brand-w1"
                 >
-                  {website} <ExternalLinkIcon className="size-2" />
+                  {website.replace(/^https?:\/\//, "")}
+                  <ExternalLinkIcon className="size-2" />
                 </Link>
               }
             />
@@ -104,7 +115,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
         {entry.project?.caseStudy ? (
           <Link
             href={entry.project?.caseStudy || ""}
-            className="inline-flex items-center gap-1 text-p text-brand-w1"
+            className="inline-flex items-center gap-1 text-f-p-mobile text-brand-w1 lg:text-f-p"
           >
             <span className="actionable">
               View Case Study <Arrow className="size-4" />

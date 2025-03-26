@@ -55,7 +55,7 @@ export const BaseCodeBlock = ({
           <div
             className={cn(
               styles.content,
-              "border border-brand-w1/30 py-2.5 font-mono text-p"
+              "border border-brand-w1/30 py-2.5 font-mono text-f-p-mobile lg:text-f-p"
             )}
             {...rest}
           >

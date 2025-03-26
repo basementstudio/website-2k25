@@ -1,5 +1,6 @@
-import { CuboidCollider } from "@react-three/rapier"
+import { CuboidCollider, CylinderCollider } from "@react-three/rapier"
 import { RigidBody } from "@react-three/rapier"
+import { track } from "@vercel/analytics"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -32,9 +33,9 @@ export default function RigidBodies({
     setScore((prev) => prev + multipliedScore)
     incrementConsecutiveScores()
     playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
-
+    track("basketball_score")
     if (hasHitStreak) {
-      playSoundFX("BASKETBALL_STREAK", 0.6)
+      playSoundFX("BASKETBALL_STREAK", 0.06)
     }
 
     // event for net animation
@@ -84,10 +85,21 @@ export default function RigidBodies({
         ]}
         sensor
       >
-        <CuboidCollider
-          args={[0.05, 0.05, 0.05]}
+        <CylinderCollider
           onIntersectionEnter={handleScore}
+          position={[0, 0, 0]}
+          args={[0.02, 0.02]}
+          scale={[0.2, 8, 4]}
         />
+
+        <RigidBody position-y={-0.14} type="fixed" colliders="trimesh">
+          <mesh>
+            <cylinderGeometry
+              args={[0.21, 0.21, 0.6, 12, 1, true, 0, Math.PI * 2]}
+            />
+            <meshBasicMaterial visible={false} />
+          </mesh>
+        </RigidBody>
 
         {/* stairs rigid body */}
         <RigidBody position={[-5.2, -2.7, 14]} type="fixed">

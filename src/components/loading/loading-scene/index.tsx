@@ -1,23 +1,33 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
-import { useFrame, useThree } from "@react-three/fiber"
-import { memo, useEffect, useMemo, useRef } from "react"
+import { createPortal, useFrame, useThree } from "@react-three/fiber"
+import { memo, useCallback, useEffect, useMemo, useRef } from "react"
 import {
   Color,
+  Group,
+  HalfFloatType,
   LineSegments,
   Mesh,
+  NearestFilter,
+  OrthographicCamera,
   PerspectiveCamera as PerspectiveCameraType,
+  Raycaster,
   ShaderMaterial,
-  Vector3
+  Vector2,
+  Vector3,
+  WebGLRenderer
 } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import { doubleFbo } from "@/utils/double-fbo"
 import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
 
+import { getFlowMaterial } from "./materials/flow-material"
 import { getSolidRevealMaterial } from "./materials/solid-reveal-material"
+import { useLerpMouse } from "./use-lerp-mouse"
 
 interface LoadingWorkerStore {
   isAppLoaded: boolean
@@ -35,8 +45,6 @@ const initialPosition = target
   .clone()
   .add(new Vector3(1, 1, 1).multiplyScalar(70))
 
-const p = initialPosition.clone()
-
 export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
   isAppLoaded: false,
   progress: 0,
@@ -47,6 +55,16 @@ export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
   cameraTarget: target,
   cameraConfig: null
 }))
+
+const valueRemap = (
+  value: number,
+  min: number,
+  max: number,
+  newMin: number,
+  newMax: number
+) => {
+  return newMin + ((value - min) * (newMax - newMin)) / (max - min)
+}
 
 const handleMessage = ({
   data: { type, cameraConfig, isAppLoaded, progress }
@@ -69,27 +87,51 @@ self.addEventListener("message", handleMessage)
 interface GLTFNodes extends GLTF {
   nodes: {
     SM_Line: LineSegments
-    SM_Solid: Mesh
+    SM_Solid: Group
+    SM_Solid_1: Mesh
   }
 }
 
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const { cameraConfig } = useLoadingWorkerStore()
   const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
-  const camera = useThree((state) => state.camera) as PerspectiveCameraType
+
+  const solidParent = nodes.SM_Solid
 
   const solid = useMemo(() => {
-    const solid = nodes.SM_Solid
+    const solid = nodes.SM_Solid_1
 
     solid.material = getSolidRevealMaterial()
 
     return solid
   }, [nodes])
 
+  const solidMaterial = solid.material as ShaderMaterial
+
   useFrame(({ clock }) => {
+    const elapsedTime = clock.getElapsedTime()
     const material = solid.material as any
-    material.uniforms.uTime.value = clock.elapsedTime
+    material.uniforms.uTime.value = elapsedTime
   })
+
+  const flowDoubleFbo = useMemo(() => {
+    const fbo = doubleFbo(1024, 1024, {
+      magFilter: NearestFilter,
+      minFilter: NearestFilter,
+      type: HalfFloatType
+    })
+    return fbo
+  }, [])
+
+  const flowMaterial = useMemo(() => {
+    const material = getFlowMaterial()
+    material.uniforms.uFeedbackTexture = { value: flowDoubleFbo.read.texture }
+    return material
+  }, [flowDoubleFbo])
+
+  const flowScene = useMemo(() => {
+    return new Group()
+  }, [])
 
   const isAppLoaded = useLoadingWorkerStore((s) => s.isAppLoaded)
 
@@ -193,8 +235,9 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
    * */
   const updated = useRef(false)
   useFrame(({ camera: C, scene, clock }) => {
+    const elapsedTime = clock.getElapsedTime()
     renderCount.current++
-    const time = clock.elapsedTime
+    const time = elapsedTime
 
     let r = Math.min(time * 1, 1)
     r = clamp(r, 0, 1)
@@ -203,11 +246,20 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
     if (time < 0.5) {
       lines.visible = Math.sin(time * 50) > 0
-      ;(lines.material as any).uniforms.uOpacity.value = 0.3
+      ;(lines.material as any).uniforms.uOpacity.value = 0.1
     } else {
       // remove lines when app is loaded
-      lines.visible = !isAppLoaded
-      ;(lines.material as any).uniforms.uOpacity.value = 0.6
+      lines.visible = true
+      ;(lines.material as any).uniforms.uOpacity.value = 0.3
+    }
+
+    if (uScreenReveal.current > 0) {
+      ;(lines.material as any).uniforms.uOpacity.value = 0.1
+      if (uScreenReveal.current < 0.3) {
+        lines.visible = Math.sin(time * 50) > 0
+      } else {
+        lines.visible = false
+      }
     }
 
     let r2 = Math.min(time - 0.2, 1)
@@ -233,16 +285,132 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       camera.updateProjectionMatrix()
     }
     if (updated.current) {
+      // TODO re-enable this
+      solidMaterial.uniforms.uNear.value = camera.near
+      solidMaterial.uniforms.uFar.value = camera.far
+      gl.setRenderTarget(null)
       gl.render(scene, camera)
     }
     return
   }, 1)
 
+  const flowCamera = useMemo(() => {
+    const oc = new OrthographicCamera(-1, 1, 1, -1, 0.1, 100)
+    oc.position.set(0, 0, 1)
+    oc.lookAt(0, 0, 0)
+    return oc
+  }, [])
+
+  // const [handlePointerMove, lerpMouseFloor, vRefsFloor] = useLerpMouse()
+
+  const vRefsFloor = useMemo(
+    () => ({
+      uv: new Vector2(0, 0),
+      smoothPointer: new Vector2(0, 0),
+      prevSmoothPointer: new Vector2(0, 0),
+      depth: 0
+    }),
+    []
+  )
+
+  const raycaster = new Raycaster()
+  const camera = useThree((s) => s.camera)
+  const pointer = useThree((s) => s.pointer)
+
+  const renderFlow = (gl: WebGLRenderer, delta: number) => {
+    gl.setRenderTarget(null)
+
+    vRefsFloor.smoothPointer.lerp(pointer, Math.min(delta * 10, 1))
+    const distance = vRefsFloor.smoothPointer.distanceTo(
+      vRefsFloor.prevSmoothPointer
+    )
+    vRefsFloor.prevSmoothPointer.copy(vRefsFloor.smoothPointer)
+
+    // console.log(vRefsFloor.smoothPointer)
+
+    raycaster.setFromCamera(pointer, camera)
+    const intersects = raycaster.intersectObject(solid)
+
+    if (intersects.length) {
+      const sortedInt = intersects.sort((a, b) => a.distance - b.distance)
+
+      const int = sortedInt[0]
+      const distance = int.distance
+      vRefsFloor.depth = distance
+    }
+
+    vRefsFloor.uv.copy(vRefsFloor.smoothPointer)
+    // vRefsFloor.uv.subScalar(1)
+    // vRefsFloor.uv.multiplyScalar(0.5)
+
+    // console.log(vRefsFloor.uv)
+
+    // console.log(intersects)
+
+    // return
+
+    gl.setRenderTarget(flowDoubleFbo.write)
+    gl.render(flowScene, flowCamera)
+    solidMaterial.uniforms.uFlowTexture.value = flowDoubleFbo.read.texture
+    flowDoubleFbo.swap()
+    flowMaterial.uniforms.uFeedbackTexture.value = flowDoubleFbo.read.texture
+    flowMaterial.uniforms.uFrame.value = renderCount.current
+
+    flowMaterial.uniforms.uMouseDepth.value = vRefsFloor.depth
+
+    flowMaterial.uniforms.uMousePosition.value.set(
+      vRefsFloor.uv.x,
+      vRefsFloor.uv.y
+    )
+    flowMaterial.uniforms.uMouseMoving.value = distance > 0.001 ? 1.0 : 0.0
+  }
+
+  useFrame(({ gl }, delta) => {
+    const fps = 1 / delta
+
+    const shouldDoubleRender = fps < 100
+
+    const d = shouldDoubleRender ? delta / 2 : delta
+
+    renderFlow(gl, d)
+    if (shouldDoubleRender) {
+      renderFlow(gl, d)
+    }
+  }, 2)
+
+  const width = useThree((s) => s.size.width)
+  const height = useThree((s) => s.size.height)
+
+  solidMaterial.uniforms.uScreenSize.value.set(width, height)
+
   return (
     <>
       <primitive visible={false} object={lines} />
-      <primitive object={solid} />
-      <PerspectiveCamera position={initialPosition} makeDefault fov={30} />
+      <primitive object={solidParent}>
+        <group>
+          <primitive object={solid} />
+        </group>
+      </primitive>
+      {/* Flow simulation (floor) */}
+      {createPortal(
+        <>
+          <primitive object={flowCamera} />
+          <mesh>
+            {/* Has to be 2x2 to fill the screen using pos attr */}
+            <planeGeometry args={[2, 2]} />
+            <primitive object={flowMaterial} />
+          </mesh>
+        </>,
+        flowScene
+      )}
+
+      <PerspectiveCamera
+        position={initialPosition}
+        makeDefault
+        fov={30}
+        near={0.1}
+        far={40}
+      />
     </>
   )
 }

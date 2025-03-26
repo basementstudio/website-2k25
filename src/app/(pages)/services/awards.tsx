@@ -10,15 +10,15 @@ import {
   type Variants
 } from "motion/react"
 import Image from "next/image"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { Link } from "@/components/primitives/link"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useMedia } from "@/hooks/use-media"
 import useMousePosition from "@/hooks/use-mouse-pos"
 import { cn } from "@/utils/cn"
 import { formatDate } from "@/utils/format-date"
 
-import type { QueryType } from "./query"
+import { Award } from "./page"
 
 const IMAGE_HEIGHT = 307.73
 const GRID_COLS = 6
@@ -26,8 +26,8 @@ const GRID_ROWS = 8
 
 // Optimized hook for mouse position with throttling
 const useThrottledMousePosition = (delay = 16) => {
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
+  const mouseX = useMotionValue(-1)
+  const mouseY = useMotionValue(-1)
 
   const { x, y } = useMousePosition()
 
@@ -50,86 +50,46 @@ const useThrottledMousePosition = (delay = 16) => {
   return { mouseX, mouseY }
 }
 
-export const Awards = ({ data }: { data: QueryType }) => {
+export const Awards = ({ data }: { data: Award[] }) => {
   const isDesktop = useMedia("(min-width: 1024px)")
   const sectionRef = useRef<HTMLDivElement>(null)
-  const [hoveredItemId, setHoveredItemId] = useState<number | null>(null)
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null)
   const [translateY, setTranslateY] = useState(0)
-  const [currentImageId, setCurrentImageId] = useState<number | null>(null)
+  const [currentImageId, setCurrentImageId] = useState<string | null>(null)
   const [isRevealing, setIsRevealing] = useState(false)
 
-  // Use the throttled version for better performance
-  const { mouseX, mouseY } = useThrottledMousePosition()
-
-  // Transform position values directly
-  const rawCertificateX = useTransform(mouseX, (x) => x - 232 / 2)
-  const rawCertificateY = useTransform(mouseY, (y) => y - 308 / 2)
-
-  // Add spring effect for natural movement
-  const certificateX = useSpring(rawCertificateX, {
-    stiffness: 1000,
-    damping: 50,
-    mass: 0.05
-  })
-
-  const certificateY = useSpring(rawCertificateY, {
-    stiffness: 1000,
-    damping: 50,
-    mass: 0.05
-  })
-
-  const certificateDimensions = { width: 232, height: 307.73 }
-
-  const sortedAwards = useMemo(
-    () =>
-      data.company.awards.awardList.items
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .map((award, index) => ({
-          ...award,
-          numericId: index + 1
-        })),
-    [data.company.awards.awardList.items]
+  const handleMouseEnter = useCallback(
+    (id: string) => {
+      if (!isDesktop) return
+      setHoveredItemId(id)
+    },
+    [isDesktop]
   )
 
-  const gridCells = useMemo(() => {
-    const cells = []
-    for (let row = 0; row < GRID_ROWS; row++) {
-      for (let col = 0; col < GRID_COLS; col++) {
-        const index = row * GRID_COLS + col
-        const manhattanDistance = row + col
-        cells.push({ row, col, index, manhattanDistance })
-      }
-    }
-    return cells
-  }, [])
-
-  const handleMouseEnter = useCallback((id: number) => {
-    setHoveredItemId(id)
-  }, [])
-
   const handleMouseLeave = useCallback(() => {
+    if (!isDesktop) return
     setHoveredItemId(null)
-  }, [])
+  }, [isDesktop])
 
   const handleRevealEnter = useCallback(() => {
+    if (!isDesktop) return
     setIsRevealing(true)
-  }, [])
+  }, [isDesktop])
 
   const handleRevealLeave = useCallback(() => {
+    if (!isDesktop) return
     setIsRevealing(false)
     setHoveredItemId(null)
-  }, [])
+  }, [isDesktop])
 
   useEffect(() => {
-    if (hoveredItemId === null) {
+    if (hoveredItemId === null || !isDesktop) {
       return
     }
 
-    const awardsWithCertificates = sortedAwards.filter(
-      (award) => award.certificate
-    )
+    const awardsWithCertificates = data.filter((award) => award.certificate)
     const hoveredIndex = awardsWithCertificates.findIndex(
-      (award) => award.numericId === hoveredItemId
+      (award) => award._id === hoveredItemId
     )
 
     if (hoveredIndex !== -1) {
@@ -142,105 +102,188 @@ export const Awards = ({ data }: { data: QueryType }) => {
         setTranslateY(newTranslateY)
       }
     }
-  }, [hoveredItemId, sortedAwards, translateY, currentImageId])
-
-  // cell animation
-  const cellVariants: Variants = {
-    hidden: {
-      scale: 0.95,
-      opacity: 0
-    },
-    visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
-      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
-      const normalizedDistance = manhattanDistance / maxDistance
-
-      return {
-        scale: 1,
-        opacity: 1,
-        transition: {
-          duration: 0.7,
-          delay: normalizedDistance * 0.15,
-          ease: [0.16, 1, 0.3, 1],
-          type: "keyframes"
-        }
-      }
-    },
-    exit: ({ manhattanDistance }: { manhattanDistance: number }) => {
-      const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
-      const normalizedDistance = manhattanDistance / maxDistance
-
-      return {
-        scale: 0,
-        opacity: 0,
-        willChange: "transform, opacity",
-        transition: {
-          duration: 0.7,
-          delay: (1 - normalizedDistance) * 0.15,
-          ease: [0.16, 1, 0.3, 1],
-          type: "keyframes"
-        }
-      }
-    }
-  }
+  }, [hoveredItemId, data, translateY, currentImageId, isDesktop])
 
   return (
     <>
       <div className="grid-layout" ref={sectionRef}>
-        <div className="col-span-full flex gap-2 text-mobile-h2 text-brand-g1 lg:text-h2">
+        <div className="col-span-full flex gap-2 text-f-h3-mobile text-brand-g1 lg:text-f-h3">
           <h2>Awards</h2>
-          <p>x{data.company.awards.awardList.items.length}</p>
+          <p>x{data.length}</p>
         </div>
         <div className="col-span-full">
           <ul
             onMouseEnter={handleRevealEnter}
             onMouseLeave={handleRevealLeave}
-            className="text-paragraph col-span-full text-brand-w1"
+            className="col-span-full text-brand-w1"
           >
-            {sortedAwards.map((award) => (
+            {data.map((award) => (
               <li
                 key={award._id}
-                onMouseEnter={() => handleMouseEnter(award.numericId)}
+                onMouseEnter={() => handleMouseEnter(award._id)}
                 onMouseLeave={handleMouseLeave}
                 className="group relative grid grid-cols-12 gap-2 [&:first-child>.item]:after:absolute [&:first-child>.item]:after:-top-px [&:first-child>.item]:after:left-0 [&:first-child>.item]:after:w-full [&:first-child>.item]:after:border-t [&:first-child>.item]:after:border-brand-w1/20"
               >
-                <Link
-                  href={award.awardUrl ?? ""}
-                  className="item relative col-span-12 grid grid-cols-12 items-center gap-2 border-b border-brand-w1/20 pb-1 pt-0.75"
-                >
-                  <span className="col-span-6 text-mobile-p lg:col-span-3 lg:text-h4">
+                <div className="item relative col-span-12 grid grid-cols-12 items-center gap-2 border-b border-brand-w1/20 py-0 pb-1 pt-0.75 lg:py-1.5">
+                  <span className="col-span-6 line-clamp-1 text-f-p-mobile lg:col-span-4 lg:text-f-h3 2xl:col-span-3">
                     {award.title}
                   </span>
-                  <span className="col-start-7 col-end-10 text-mobile-p text-brand-w2 lg:col-span-3 lg:text-p">
-                    {award.project?._title}
+                  <span className="col-start-7 col-end-10 line-clamp-1 text-f-p-mobile text-brand-w2 lg:col-span-4 lg:text-f-h4 2xl:col-span-3">
+                    {award.project?._title ?? award.projectFallback}
                   </span>
-                  <span className="col-start-10 col-end-13 text-right text-mobile-p text-brand-w2 lg:col-span-2 lg:text-left lg:text-p">
-                    {formatDate(award.date, false, "UTC")}
+                  <span
+                    suppressHydrationWarning
+                    className="col-span-3 text-right text-f-p-mobile text-brand-w2 lg:col-span-3 lg:col-start-10 lg:text-f-h4"
+                  >
+                    {formatDate(
+                      award.date,
+                      false,
+                      "UTC",
+                      isDesktop ? false : true
+                    )}
                   </span>
-                </Link>
+                </div>
                 <div className="with-diagonal-lines pointer-events-none !absolute -top-px bottom-0 left-0 right-0 opacity-0 transition-opacity duration-0 group-hover:opacity-100" />
               </li>
             ))}
           </ul>
         </div>
       </div>
-      {isDesktop && (
-        <motion.div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            zIndex: 100,
-            display: "flex",
-            width: 232,
-            height: 308,
-            overflow: "hidden",
-            pointerEvents: "none",
-            x: certificateX,
-            y: certificateY,
-            willChange: "transform"
-          }}
-        >
-          {/* SVG Mask for grid reveal */}
+      <HoverCertificate
+        sortedAwards={data}
+        currentImageId={currentImageId ?? ""}
+        isRevealing={isRevealing}
+      />
+    </>
+  )
+}
+
+const HoverCertificate = memo(
+  ({
+    isRevealing,
+    sortedAwards,
+    currentImageId
+  }: {
+    isRevealing: boolean
+    sortedAwards: Award[]
+    currentImageId: string
+  }) => {
+    const { isSafari } = useDeviceDetect()
+    const { mouseX, mouseY } = useThrottledMousePosition()
+
+    // Use the throttled version for better performance
+    // Transform position values directly
+    const rawCertificateX = useTransform(mouseX, (x) => x - 232 / 2)
+    const rawCertificateY = useTransform(mouseY, (y) => y - 308 / 2)
+
+    // Add spring effect for natural movement
+    const certificateX = useSpring(rawCertificateX, {
+      stiffness: 1000,
+      damping: 50,
+      mass: 0.05
+    })
+
+    const certificateY = useSpring(rawCertificateY, {
+      stiffness: 1000,
+      damping: 50,
+      mass: 0.05
+    })
+
+    const certificateDimensions = { width: 232, height: 307.73 }
+
+    const gridCells = useMemo(() => {
+      const cells = []
+      for (let row = 0; row < GRID_ROWS; row++) {
+        for (let col = 0; col < GRID_COLS; col++) {
+          const index = row * GRID_COLS + col
+          const manhattanDistance = row + col
+          cells.push({ row, col, index, manhattanDistance })
+        }
+      }
+      return cells
+    }, [])
+
+    // cell animation
+    const cellVariants: Variants = useMemo(
+      () => ({
+        hidden: {
+          scale: 0.95,
+          opacity: 0
+        },
+        visible: ({ manhattanDistance }: { manhattanDistance: number }) => {
+          const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
+          const normalizedDistance = manhattanDistance / maxDistance
+
+          return {
+            scale: 1,
+            opacity: 1,
+            transition: {
+              duration: 0.7,
+              delay: normalizedDistance * 0.15,
+              ease: [0.16, 1, 0.3, 1],
+              type: "keyframes"
+            }
+          }
+        },
+        exit: ({ manhattanDistance }: { manhattanDistance: number }) => {
+          const maxDistance = GRID_ROWS - 1 + (GRID_COLS - 1)
+          const normalizedDistance = manhattanDistance / maxDistance
+
+          return {
+            scale: 0,
+            opacity: 0,
+            willChange: "transform, opacity",
+            transition: {
+              duration: 0.7,
+              delay: (1 - normalizedDistance) * 0.15,
+              ease: [0.16, 1, 0.3, 1],
+              type: "keyframes"
+            }
+          }
+        }
+      }),
+      []
+    )
+
+    const renderCurrentCertificateImage = useMemo(() => {
+      const image = sortedAwards.find((award) => award._id === currentImageId)
+      if (!image || mouseX.get() < 0 || mouseY.get() < 0) return null
+
+      return (
+        <div key={image._id} className="h-full w-full">
+          <Image
+            src={image.certificate?.url || ""}
+            alt={image.certificate?.alt ?? ""}
+            fill
+            className={cn("max-h-[307.73px] w-full object-cover", {
+              hidden: image._id !== currentImageId
+            })}
+            data-numeric-id={image._id}
+            priority={true}
+          />
+        </div>
+      )
+    }, [currentImageId, sortedAwards])
+
+    return (
+      <motion.div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          zIndex: 100,
+          display: "flex",
+          width: 232,
+          height: 308,
+          overflow: "hidden",
+          pointerEvents: "none",
+          x: certificateX,
+          y: certificateY,
+          willChange: "transform"
+        }}
+      >
+        {/* SVG Mask for grid reveal */}
+        {!isSafari && (
           <svg
             width="0"
             height="0"
@@ -298,32 +341,27 @@ export const Awards = ({ data }: { data: QueryType }) => {
               </clipPath>
             </defs>
           </svg>
+        )}
 
-          <div
-            className="h-full w-full overflow-hidden"
-            style={{
-              clipPath: "url(#grid-mask)"
-            }}
-          >
-            {sortedAwards
-              .filter((award) => award.certificate)
-              .map((award) => (
-                <div key={award._id} className="h-full w-full">
-                  <Image
-                    src={award.certificate?.url || ""}
-                    alt={award.certificate?.alt ?? ""}
-                    fill
-                    className={cn("max-h-[307.73px] w-full object-cover", {
-                      hidden: award.numericId !== currentImageId
-                    })}
-                    data-numeric-id={award.numericId}
-                    priority={true}
-                  />
-                </div>
-              ))}
-          </div>
-        </motion.div>
-      )}
-    </>
-  )
-}
+        <div
+          className={cn("h-full w-full overflow-hidden", {
+            "transition-opacity duration-300": isSafari,
+            "opacity-0": isSafari && !isRevealing,
+            "opacity-100": isSafari && isRevealing
+          })}
+          style={
+            isSafari
+              ? undefined
+              : {
+                  clipPath: "url(#grid-mask)"
+                }
+          }
+        >
+          {renderCurrentCertificateImage}
+        </div>
+      </motion.div>
+    )
+  }
+)
+
+HoverCertificate.displayName = "HoverCertificate"

@@ -8,6 +8,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        "3xl": "1920px"
+      },
       colors: {
         brand: {
           w1: "#E6E6E6",
@@ -18,6 +21,7 @@ export default {
           o: "#FF4D00",
           o2: "#FF2B00",
           r: "#E60002",
+          r2: "#FF4D4D",
           y: "#FFCD1A",
           g: "#00FF9B",
           white: "#FFFFFF"
@@ -30,111 +34,14 @@ export default {
         }
       },
       fontSize: {
-        h1: [
-          "5.3rem",
-          {
-            lineHeight: "4.2rem",
-            letterSpacing: "-0.06em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-h1": [
-          "2.25rem",
-          {
-            lineHeight: "2.25rem",
-            letterSpacing: "-0.03em",
-            fontWeight: "600"
-          }
-        ],
-        h2: [
-          "2.375rem",
-          {
-            lineHeight: "2.1rem",
-            letterSpacing: "-0.05em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-h2": [
-          "1.5rem",
-          {
-            lineHeight: "1.75rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        h3: [
-          "1.5rem",
-          {
-            lineHeight: "1.75rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-h3": [
-          "1.25rem",
-          {
-            lineHeight: "1.5rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        h4: [
-          "1.125rem",
-          {
-            lineHeight: "1.25rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-h4": [
-          "0.875rem",
-          {
-            lineHeight: "1.25rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "600"
-          }
-        ],
-        p: [
-          "0.75rem",
-          {
-            lineHeight: "1rem",
-            letterSpacing: "0.0em",
-            fontWeight: "600"
-          }
-        ],
-        "mobile-p": [
-          "0.6875rem",
-          {
-            lineHeight: "1rem",
-            letterSpacing: "0.0em",
-            fontWeight: "600"
-          }
-        ],
-        c: [
-          "0.5rem",
-          {
-            lineHeight: "0.5rem",
-            letterSpacing: "0.0em",
-            fontWeight: "600"
-          }
-        ],
         blog: [
-          "1",
+          "1rem",
           {
             lineHeight: "1.5rem",
             letterSpacing: "0.0em",
             fontWeight: "500"
           }
         ],
-        "h4-blog": [
-          "1.125rem",
-          {
-            lineHeight: "1.5rem",
-            letterSpacing: "-0.02em",
-            fontWeight: "500"
-          }
-        ],
-        // TODO: Update to use the new font
         "f-h0": [
           "6.125rem",
           {
@@ -146,7 +53,7 @@ export default {
         "f-h0-mobile": [
           "2.875rem",
           {
-            lineHeight: "2.75rem",
+            lineHeight: "2.45rem",
             letterSpacing: "-0.04em",
             fontWeight: "600"
           }
@@ -166,6 +73,70 @@ export default {
             letterSpacing: "-0.03em",
             fontWeight: "600"
           }
+        ],
+        "f-h2": [
+          "2.375rem",
+          {
+            lineHeight: "2.25rem",
+            letterSpacing: "-0.04em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h2-mobile": [
+          "1.5rem",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "-0.03em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h3": [
+          "1.5rem",
+          {
+            lineHeight: "1.5rem",
+            letterSpacing: "-0.03em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h3-mobile": [
+          "1.25rem",
+          {
+            lineHeight: "1.25rem",
+            letterSpacing: "-0.03em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h4": [
+          "1.25rem",
+          {
+            lineHeight: "1.25rem",
+            letterSpacing: "-0.02em",
+            fontWeight: "600"
+          }
+        ],
+        "f-h4-mobile": [
+          "0.9375rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "-0.02em",
+            fontWeight: "600"
+          }
+        ],
+        "f-p": [
+          "0.8125rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
+        ],
+        "f-p-mobile": [
+          "0.75rem",
+          {
+            lineHeight: "1rem",
+            letterSpacing: "0.0em",
+            fontWeight: "600"
+          }
         ]
       },
       spacing: {
@@ -183,7 +154,8 @@ export default {
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
-        mono: ["var(--font-geist-mono)"]
+        mono: ["var(--font-geist-mono)"],
+        flauta: ["var(--font-flauta)"]
       },
       maxWidth: {
         full: "120rem"
@@ -225,6 +197,22 @@ export default {
             transform: "translateY(0)",
             opacity: "1"
           }
+        },
+        "fade-in-out": {
+          "0%, 15%, 100%": {
+            opacity: "0"
+          },
+          "3%, 12%": {
+            opacity: "1"
+          }
+        },
+        "fade-out-in": {
+          "0%, 15%, 100%": {
+            opacity: "1"
+          },
+          "3%, 12%": {
+            opacity: "0"
+          }
         }
       },
       animation: {
@@ -234,7 +222,11 @@ export default {
         "fade-out": "fade-out 0.3s ease-out",
         "slide-up": "slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
         "actionable-blink":
-          "actionable-blink var(--anim-duration) var(--anim-delay) linear forwards"
+          "actionable-blink var(--anim-duration) var(--anim-delay) linear forwards",
+        "fade-in-out":
+          "fade-in-out var(--anim-duration, 3s) var(--anim-delay, 0s) ease-in-out infinite",
+        "fade-out-in":
+          "fade-out-in var(--anim-duration, 3s) var(--anim-delay, 0s) ease-in-out infinite"
       }
     }
   },

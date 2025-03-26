@@ -156,7 +156,10 @@ export const ArcadeLabsList = ({
                   ? COLORS_THEME.primary
                   : COLORS_THEME.black
               }
-              onClick={() => handleExperimentClick(data)}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleExperimentClick(data)
+              }}
               onHoverChange={(hover) => {
                 if (hover) {
                   setCursor("alias")
@@ -268,7 +271,7 @@ const ViewMore = ({
   const experiments = useArcadeStore((state) => state.labTabs)
   const setCursor = useCursor()
   const handleViewMoreClick = useCallback(() => {
-    window.open("https://basement.studio/lab", "_blank")
+    window.open("https://lab.basement.studio/", "_blank")
   }, [])
 
   const isSelected = isInLabTab && labTabIndex === experiments.length - 3

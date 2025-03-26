@@ -44,28 +44,53 @@ export const getTopScores = async () => {
 
 export const submitScore = async (playerName: string, score: number) => {
   const clientId = getClientId()
+  const timestamp = Date.now()
 
-  const response = await fetch("/api/scores", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      playerName,
-      score: Math.floor(score),
-      clientId,
-      timestamp: Date.now()
+  try {
+    const response = await fetch("/api/scores", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        playerName: playerName.toUpperCase(),
+        score: Math.floor(score),
+        clientId,
+        timestamp,
+        timeWindowHash: await generateTimeWindowHash(timestamp)
+      })
     })
-  })
 
-  if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.error || "Failed to submit score")
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || `Server error: ${response.status}`)
+    }
+
+    const result = await response.json()
+
+    notifyScoreUpdate()
+
+    return result
+  } catch (error) {
+    console.error("Error submitting score:", error)
+
+    if (error instanceof Error) {
+      throw new Error(`Failed to submit score: ${error.message}`)
+    } else {
+      throw new Error("Failed to submit score: Unknown error")
+    }
   }
+}
 
-  const result = await response.json()
+async function generateTimeWindowHash(timestamp: number): Promise<string> {
+  const TIME_WINDOW = 30000
+  const timeWindow = Math.floor(timestamp / TIME_WINDOW) * TIME_WINDOW
 
-  notifyScoreUpdate()
+  const encoder = new TextEncoder()
+  const data = encoder.encode(timeWindow.toString())
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
 
-  return result
+  return hashHex
 }

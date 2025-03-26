@@ -1,9 +1,9 @@
-import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
 import { RigidBody } from "@react-three/rapier"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 
@@ -13,7 +13,7 @@ const VELOCITY_THRESHOLD = 0.05
 
 export const PlayedBasketballs = () => {
   const { basketball } = useAssets()
-  const basketballModel = useGLTF(basketball)
+  const basketballModel = useKTX2GLTF(basketball)
   const playedBalls = useMinigameStore((state) => state.playedBalls)
   const playedBallMaterial = useMinigameStore(
     (state) => state.playedBallMaterial
@@ -53,9 +53,20 @@ export const PlayedBasketballs = () => {
     [basketballModel]
   )
 
-  const originalMaterial = basketballModel.materials[
-    "Material.001"
-  ] as MeshStandardMaterial
+  const originalMaterial = useMemo(() => {
+    let material: MeshStandardMaterial | undefined
+    basketballModel.scene.traverse((node) => {
+      if (node instanceof Mesh && node.material) {
+        if (
+          node.material.name === "Material.002" ||
+          node.material instanceof MeshStandardMaterial
+        ) {
+          material = node.material as MeshStandardMaterial
+        }
+      }
+    })
+    return material as MeshStandardMaterial
+  }, [basketballModel])
 
   const material = useMemo(() => {
     const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
@@ -85,7 +96,7 @@ export const PlayedBasketballs = () => {
     }
   }, [isGameActive])
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (isUnmounting.current) return
 
     rigidBodies.current.forEach((rigidBody, index) => {
@@ -134,7 +145,7 @@ export const PlayedBasketballs = () => {
     })
   })
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (isUnmounting.current || isGameActive) return
 
     frameCounter.current++

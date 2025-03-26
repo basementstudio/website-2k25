@@ -1,5 +1,5 @@
 import { OrthographicCamera } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef } from "react"
 import {
@@ -9,11 +9,13 @@ import {
 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
+import { revealOpacityMaterials } from "@/components/map/bakes"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMedia } from "@/hooks/use-media"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
-import { revealOpacityMaterials } from "../map/bakes"
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
 
 interface PostProcessingProps {
@@ -30,6 +32,7 @@ const Inner = ({
   const scene = useCurrentScene()
   const assets = useAssets()
   const firstRender = useRef(true)
+  const isDesktop = useMedia("(min-width: 1024px)")
 
   const material = useMemo(() => createPostProcessingMaterial(), [])
 
@@ -107,7 +110,7 @@ const Inner = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene])
 
-  useFrame(() => {
+  useFrameCallback(() => {
     if (!hasChanged.current) {
       material.uniforms.uContrast.value = targets.contrast.get()
       material.uniforms.uBrightness.value = targets.brightness.get()
@@ -131,30 +134,25 @@ const Inner = ({
     }
   })
 
+  const screenWidth = useThree((state) => state.size.width)
+  const screenHeight = useThree((state) => state.size.height)
+
   useEffect(() => {
     const controller = new AbortController()
-    const { signal } = controller
 
-    const resize = () => {
-      const width = window.innerWidth
-      const height = window.innerHeight
-      material.uniforms.resolution.value.set(width, height)
-      material.uniforms.uPixelRatio.value = window.devicePixelRatio
-    }
+    material.uniforms.resolution.value.set(screenWidth, screenHeight)
+    material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
 
-    resize()
-    window.addEventListener("resize", resize, { signal, passive: true })
+    material.uniforms.uActiveBloom.value = isDesktop ? 1 : 0
 
     material.uniforms.uMainTexture.value = mainTexture
     material.uniforms.uDepthTexture.value = depthTexture
 
-    console.log(depthTexture)
-
     return () => controller.abort()
-  }, [mainTexture, depthTexture])
+  }, [mainTexture, depthTexture, isDesktop, screenWidth, screenHeight])
 
-  useFrame(({ clock }) => {
-    material.uniforms.uTime.value = clock.elapsedTime
+  useFrameCallback((_, __, elapsedTime) => {
+    material.uniforms.uTime.value = elapsedTime
   })
 
   return (

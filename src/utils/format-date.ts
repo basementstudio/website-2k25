@@ -1,10 +1,11 @@
 export const formatDate = (
   date: string,
   includeTime = false,
-  timeZone?: string
+  timeZone?: string,
+  shortMonth?: boolean
 ) =>
   new Date(date).toLocaleDateString("en-US", {
-    month: "long",
+    month: shortMonth ? "short" : "long",
     day: "numeric",
     year: "numeric",
 
@@ -13,7 +14,6 @@ export const formatDate = (
     timeZone: timeZone
   })
 
-// need to return a string like this {hour} am/pm · {month} {day}, {year}
 export const formatTestimonialDate = (date: string) => {
   const formattedDate = new Date(date)
   const hour = formattedDate.getHours()

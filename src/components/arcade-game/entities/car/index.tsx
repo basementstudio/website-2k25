@@ -1,14 +1,18 @@
-import { useFrame } from "@react-three/fiber"
 import { useControls } from "leva"
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
-import { Color, Euler, type Group, Object3D, Quaternion, Vector3 } from "three"
+import { Euler, type Group, type Object3D, Quaternion, Vector3 } from "three"
 
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { useConnector } from "../../lib/connector"
 import { useGame } from "../../lib/use-game"
-import { OnIntersectCallback, Sensor, SensorInterface } from "../../sensors"
+import {
+  type OnIntersectCallback,
+  Sensor,
+  type SensorInterface
+} from "../../sensors"
 
 export interface CarProps {
   onIntersectionEnter?: OnIntersectCallback
@@ -32,24 +36,24 @@ export const Car = forwardRef<Group, CarProps>(
     const { outdoorCarsMeshes: cars } = useMesh()
 
     const randomCar = useMemo(() => {
-      return cars[Math.floor(Math.random() * cars.length)]!.clone()
+      return cars[Math.floor(Math.random() * cars.length)]?.clone()
     }, [cars])
 
     const wheelRefs = useRef<Object3D[]>([])
 
     useEffect(() => {
       wheelRefs.current = []
-      randomCar.traverse((child) => {
+      randomCar?.traverse((child) => {
         if (child.name.includes("WF") || child.name.includes("WB")) {
           wheelRefs.current.push(child)
         }
       })
     }, [randomCar])
 
-    useFrame((_, delta) => {
-      wheelRefs.current.forEach((wheel) => {
+    useFrameCallback((_, delta) => {
+      for (const wheel of wheelRefs.current) {
         wheel.rotation.x += delta * 10
-      })
+      }
     })
 
     const {
@@ -103,12 +107,12 @@ export const Car = forwardRef<Group, CarProps>(
       }
     }, [])
 
-    useFrame(() => {
+    useFrameCallback(() => {
       // calculate direction using vehicle position
-      randomCar.getWorldPosition(position)
-      randomCar.getWorldDirection(direction)
+      randomCar?.getWorldPosition(position)
+      randomCar?.getWorldDirection(direction)
       //update rotation
-      randomCar.getWorldQuaternion(quaterion)
+      randomCar?.getWorldQuaternion(quaterion)
       rotation.setFromQuaternion(quaterion)
 
       colliderPos.copy(position)
@@ -133,7 +137,7 @@ export const Car = forwardRef<Group, CarProps>(
         />
         <group ref={mergeRefs([ref, groupRef])} {...props}>
           <group position={[0, 0, 0]} rotation={[0, Math.PI * -0.5, 0]}>
-            <primitive object={randomCar} />
+            {randomCar && <primitive object={randomCar} />}
           </group>
         </group>
       </>

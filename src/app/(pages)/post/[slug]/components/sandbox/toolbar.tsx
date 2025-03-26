@@ -51,7 +51,7 @@ export default function SandboxToolbar({
       <div className="flex items-center gap-x-4">
         <button
           className={cn(
-            "!text-p text-brand-g1",
+            "!text-f-p-mobile text-brand-g1 lg:!text-f-p",
             activeTab === "preview" && "text-brand-w1"
           )}
           onClick={() => setActiveTab("preview")}
@@ -60,7 +60,7 @@ export default function SandboxToolbar({
         </button>
         <button
           className={cn(
-            "!text-p text-brand-g1",
+            "!text-f-p-mobile text-brand-g1 lg:!text-f-p",
             activeTab === "console" && "text-brand-w1"
           )}
           onClick={() => setActiveTab("console")}
@@ -73,7 +73,7 @@ export default function SandboxToolbar({
         <div className="flex items-center gap-x-1.5">
           <Tooltip.Root key="open-in-code-sandbox">
             <Tooltip.Trigger asChild>
-              <UnstyledOpenInCodeSandboxButton className="rounded-sm border border-brand-g2 p-1 text-p text-brand-g1 transition-colors duration-300 hover:bg-brand-g2/50">
+              <UnstyledOpenInCodeSandboxButton className="rounded-sm border border-brand-g2 p-1 text-f-p-mobile text-brand-g1 transition-colors duration-300 hover:bg-brand-g2/50 lg:text-f-p">
                 {Icons.openInCodeSandbox}
               </UnstyledOpenInCodeSandboxButton>
             </Tooltip.Trigger>
@@ -81,7 +81,7 @@ export default function SandboxToolbar({
             <Tooltip.Content
               side="top"
               sideOffset={12}
-              className="rounded-md border border-brand-g2 bg-brand-k px-2 py-1 text-p text-brand-w2"
+              className="rounded-md border border-brand-g2 bg-brand-k px-2 py-1 text-f-p-mobile text-brand-w2 lg:text-f-p"
             >
               <p>Open in CodeSandbox</p>
             </Tooltip.Content>
@@ -92,7 +92,7 @@ export default function SandboxToolbar({
               <Tooltip.Trigger asChild>
                 <button
                   key={action.id}
-                  className="rounded-sm border border-brand-g2 p-1 text-p text-brand-g1 transition-colors duration-300 hover:bg-brand-g2/50"
+                  className="rounded-sm border border-brand-g2 p-1 text-f-p-mobile text-brand-g1 transition-colors duration-300 hover:bg-brand-g2/50 lg:text-f-p"
                   onClick={action.onClick}
                 >
                   {action.icon}
@@ -102,7 +102,7 @@ export default function SandboxToolbar({
               <Tooltip.Content
                 side="top"
                 sideOffset={12}
-                className="rounded-md border border-brand-g2 bg-brand-k px-2 py-1 text-p text-brand-w2"
+                className="rounded-md border border-brand-g2 bg-brand-k px-2 py-1 text-f-p-mobile text-brand-w2 lg:text-f-p"
               >
                 <p>{action.label}</p>
               </Tooltip.Content>

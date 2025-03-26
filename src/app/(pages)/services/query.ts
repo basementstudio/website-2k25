@@ -8,10 +8,11 @@ export const query = fragmentOn("Query", {
       intro: {
         json: { content: true }
       },
-      imageSequence: {
-        items: {
-          image: IMAGE_FRAGMENT
-        }
+      heroImage: {
+        url: true,
+        width: true,
+        height: true,
+        alt: true
       },
       ventures: {
         title: true,
@@ -19,7 +20,8 @@ export const query = fragmentOn("Query", {
           json: {
             content: true
           }
-        }
+        },
+        image: IMAGE_FRAGMENT
       }
     }
   },
@@ -57,7 +59,8 @@ export const query = fragmentOn("Query", {
           project: {
             _title: true
           },
-          certificate: IMAGE_FRAGMENT
+          certificate: IMAGE_FRAGMENT,
+          projectFallback: true
         }
       }
     },

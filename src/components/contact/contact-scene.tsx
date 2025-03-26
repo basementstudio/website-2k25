@@ -1,213 +1,339 @@
-import { useGLTF } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useAnimations, useGLTF } from "@react-three/drei"
+import { useFrame, useThree } from "@react-three/fiber"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
-  AnimationMixer,
-  Box3,
+  Bone,
   Group,
+  LoopOnce,
   Mesh,
   MeshBasicMaterial,
-  SkinnedMesh,
-  Vector3,
-  WebGLRenderTarget
+  PerspectiveCamera,
+  Vector3
 } from "three"
 
-import { RenderTexture } from "@/components/arcade-screen/render-texture"
-import { createScreenMaterial } from "@/shaders/material-screen"
-import { useWorkerStore } from "@/workers/contact-worker"
+import { ANIMATION_TYPES } from "./contact.interface"
 
-import { PhoneAnimationHandler } from "./contact-anims"
-import PhoneScreenUI from "./ui/render-ui"
+const IDLE_ANIMATIONS = [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA]
 
 const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
-  const gltf = useGLTF(modelUrl)
-  const animationMixerRef = useRef<AnimationMixer | null>(null)
-  const animationHandlerRef = useRef<PhoneAnimationHandler | null>(null)
+  const { scene, animations, nodes } = useGLTF(modelUrl)
+  const { actions, mixer } = useAnimations(animations, scene)
+  const [isContactOpen, setIsContactOpen] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [animationState, setAnimationState] = useState(ANIMATION_TYPES.IDLE)
+
+  const debugMeshRef = useRef<Mesh>(null)
   const phoneGroupRef = useRef<Group>(null)
   const idleTimeRef = useRef<number>(0)
-  const lastPositionRef = useRef<Vector3 | null>(null)
+  const tmp = useMemo(() => new Vector3(), [])
+  const camera = useThree((state) => state.camera)
 
-  const updateFormData = useWorkerStore((state) => state.updateFormData)
-  const updateFocusedElement = useWorkerStore(
-    (state) => state.updateFocusedElement
-  )
-  const isContactOpen = useWorkerStore((state) => state.isContactOpen)
-  const isClosing = useWorkerStore((state) => state.isClosing)
-  const setIsContactOpen = useWorkerStore((state) => state.setIsContactOpen)
+  // animation runners
+  const runAnimation = useCallback((type: string) => {
+    setAnimationState(type)
+    setIsAnimating(true)
 
-  const [screenMesh, setScreenMesh] = useState<Mesh | null>(null)
-  const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
-
-  const glass = gltf.scene.children[0].getObjectByName("GLASS") as
-    | Mesh
-    | undefined
-
-  const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
-  const screenMaterial = useMemo(() => createScreenMaterial(), [])
-
-  const { mixer, handler } = useMemo(() => {
-    if (!gltf.scene || !gltf.animations.length)
-      return { mixer: null, handler: null }
-
-    const mixer = new AnimationMixer(gltf.scene)
-    const handler = new PhoneAnimationHandler(mixer, gltf.animations)
-
-    return { mixer, handler }
-  }, [gltf.scene, gltf.animations])
-
-  useEffect(() => {
-    animationMixerRef.current = mixer
-    animationHandlerRef.current = handler
-
-    return () => {
-      if (mixer) mixer.stopAllAction()
-      animationMixerRef.current = null
-      animationHandlerRef.current = null
+    if (type === ANIMATION_TYPES.INTRO && phoneGroupRef.current) {
+      phoneGroupRef.current.visible = true
     }
-  }, [mixer, handler])
+  }, [])
 
+  const runRandomIdleAnimation = useCallback(() => {
+    if (isAnimating) return
+    const animation =
+      IDLE_ANIMATIONS[Math.floor(Math.random() * IDLE_ANIMATIONS.length)]
+
+    // Notify the main thread that an animation is starting
+    self.postMessage({ type: "animation-starting" })
+
+    runAnimation(animation)
+  }, [isAnimating, runAnimation])
+
+  // handle animations
   useEffect(() => {
-    // Listen to form updates from the worker
+    if (!actions || !mixer || animationState === ANIMATION_TYPES.IDLE) {
+      setIsAnimating(
+        animationState === ANIMATION_TYPES.IDLE ? false : isAnimating
+      )
+
+      return
+    }
+
+    const animationMap = {
+      [ANIMATION_TYPES.INTRO]: "Intro",
+      [ANIMATION_TYPES.BUTTON]: "Button",
+      [ANIMATION_TYPES.OUTRO]: "Outro",
+      [ANIMATION_TYPES.RUEDITA]: "Ruedita",
+      [ANIMATION_TYPES.ANTENA]: "Antena"
+    }
+
+    const actionName = animationMap[animationState]
+    const action = actions[actionName]
+
+    if (!action) return
+
+    mixer.stopAllAction()
+    action.reset()
+    action.setLoop(LoopOnce, 1)
+    action.clampWhenFinished = true
+
+    if (animationState === ANIMATION_TYPES.OUTRO) {
+      action.timeScale = 1.5
+    } else if (
+      [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA].includes(animationState)
+    ) {
+      action.timeScale = 1.0
+
+      if (animationState === ANIMATION_TYPES.RUEDITA) {
+        self.postMessage({ type: "ruedita-animation-start" })
+      } else if (animationState === ANIMATION_TYPES.ANTENA) {
+        self.postMessage({ type: "antena-animation-start" })
+      }
+    } else {
+      action.timeScale = 1.2
+
+      if (animationState === ANIMATION_TYPES.BUTTON) {
+        self.postMessage({ type: "button-animation-start" })
+      }
+    }
+
+    const onAnimationFinished = (e: any) => {
+      if (e.action !== action) return
+
+      setIsAnimating(false)
+      setAnimationState(ANIMATION_TYPES.IDLE)
+
+      if (animationState === ANIMATION_TYPES.INTRO) {
+        setIsContactOpen(true)
+        self.postMessage({ type: "intro-complete" })
+
+        const screenbone = nodes.Obj as Bone
+        if (screenbone && camera) {
+          const tmp = new Vector3()
+          screenbone.getWorldPosition(tmp)
+          tmp.add(new Vector3(-0.0342, 0.043, 0))
+
+          const screenPos = tmp.clone().project(camera)
+          const normalizedScreenPos = {
+            x: (screenPos.x + 1) / 2,
+            y: (-screenPos.y + 1) / 2,
+            z: screenPos.z
+          }
+
+          self.postMessage({
+            type: "update-screen-skinned-matrix",
+            screenPos: normalizedScreenPos,
+            scale: 1
+          })
+        }
+      } else if (animationState === ANIMATION_TYPES.OUTRO) {
+        setIsContactOpen(false)
+        self.postMessage({ type: "outro-complete" })
+      } else if (animationState === ANIMATION_TYPES.RUEDITA) {
+        self.postMessage({ type: "ruedita-animation-complete" })
+        self.postMessage({ type: "animation-complete" })
+      } else if (animationState === ANIMATION_TYPES.ANTENA) {
+        self.postMessage({ type: "antena-animation-complete" })
+        self.postMessage({ type: "animation-complete" })
+      } else if (animationState === ANIMATION_TYPES.BUTTON) {
+        self.postMessage({ type: "button-animation-complete" })
+      }
+    }
+
+    mixer.addEventListener("finished", onAnimationFinished)
+    action.play()
+
+    return () => mixer.removeEventListener("finished", onAnimationFinished)
+  }, [animationState, actions, mixer, isAnimating, nodes, camera])
+
+  const calculateAndSendScreenDimensions = useCallback(() => {
+    if (!scene) return
+
+    const screenObject = scene.getObjectByName("SCREEN")
+    if (!(screenObject && screenObject instanceof Mesh)) return
+
+    screenObject.geometry.computeBoundingBox()
+    const bbox = screenObject.geometry.boundingBox
+    if (!bbox) return
+
+    const width = bbox.max.x - bbox.min.x
+    const height = bbox.max.y - bbox.min.y
+
+    const perspCamera = camera as PerspectiveCamera
+    const fov = (perspCamera.fov || 8.5) * (Math.PI / 180)
+    const distance = Math.abs(
+      camera.position.z - (screenObject.position.z || 0)
+    )
+    const workerContext = self as any
+    const windowHeight =
+      workerContext.windowDimensions?.height || window.innerHeight || 1080
+
+    let pixelsPerUnit = 0
+    try {
+      pixelsPerUnit =
+        distance > 0 && fov > 0
+          ? windowHeight / (2 * Math.tan(fov / 2) * distance)
+          : 300
+    } catch {
+      pixelsPerUnit = 300
+    }
+
+    const pixelWidth = width * pixelsPerUnit + 40
+    const pixelHeight = height * pixelsPerUnit + 20
+
+    const dimensions = {
+      width: 580,
+      height: 350
+    }
+
+    if (
+      !isNaN(pixelWidth) &&
+      !isNaN(pixelHeight) &&
+      pixelWidth > 0 &&
+      pixelHeight > 0 &&
+      pixelWidth < 2000 &&
+      pixelHeight < 2000
+    ) {
+      dimensions.width = Math.round(pixelWidth)
+      dimensions.height = Math.round(pixelHeight)
+    } else if (width > 0 && height > 0 && !isNaN(width) && !isNaN(height)) {
+      const aspectRatio = width / height
+      dimensions.height =
+        aspectRatio > 1
+          ? Math.round(dimensions.width / aspectRatio)
+          : dimensions.height
+      dimensions.width =
+        aspectRatio <= 1
+          ? Math.round(dimensions.height * aspectRatio)
+          : dimensions.width
+    }
+
+    self.postMessage({
+      type: "screen-dimensions",
+      dimensions
+    })
+  }, [scene, camera])
+
+  // message handler
+  useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
-      if (e.data.type === "update-form") {
-        updateFormData(e.data.formData)
-        idleTimeRef.current = 0
-      } else if (e.data.type === "update-focus") {
-        updateFocusedElement(e.data.focusedElement, e.data.cursorPosition)
-      } else if (e.data.type === "update-contact-open") {
-        setIsContactOpen(e.data.isContactOpen)
+      const { type, isContactOpen: newIsOpen } = e.data
+
+      if (type === "update-contact-open") {
+        if (isAnimating) {
+          self.postMessage({
+            type: "animation-rejected",
+            currentState: isContactOpen
+          })
+          return
+        }
+
+        if (newIsOpen === isContactOpen) return
+
+        if (newIsOpen && !isContactOpen) {
+          runAnimation(ANIMATION_TYPES.INTRO)
+        } else if (!newIsOpen && isContactOpen) {
+          self.postMessage({ type: "start-outro" })
+        }
+      } else if (type === "run-outro-animation") {
+        runAnimation(ANIMATION_TYPES.OUTRO)
+      } else if (type === "submit-clicked") {
+        runAnimation(ANIMATION_TYPES.BUTTON)
+      } else if (type === "window-resize") {
+        const workerContext = self as any
+        workerContext.windowDimensions = e.data.windowDimensions
+        calculateAndSendScreenDimensions()
+
+        if (isContactOpen && nodes.Obj && camera) {
+          const screenbone = nodes.Obj as Bone
+          const tmp = new Vector3()
+          screenbone.getWorldPosition(tmp)
+          tmp.add(new Vector3(-0.0342, 0.043, 0))
+
+          const screenPos = tmp.clone().project(camera)
+          const normalizedScreenPos = {
+            x: (screenPos.x + 1) / 2,
+            y: (-screenPos.y + 1) / 2,
+            z: screenPos.z
+          }
+
+          self.postMessage({
+            type: "update-screen-skinned-matrix",
+            screenPos: normalizedScreenPos,
+            scale: 1
+          })
+        }
+      } else if (
+        ["scale-animation-complete", "scale-down-animation-complete"].includes(
+          type
+        )
+      ) {
+        self.postMessage({ type })
       }
     }
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
-  }, [updateFormData, updateFocusedElement, setIsContactOpen])
+  }, [
+    isAnimating,
+    isContactOpen,
+    runAnimation,
+    calculateAndSendScreenDimensions
+  ])
 
+  // add materials
   useEffect(() => {
-    const screen = gltf.scene.children[0].getObjectByName(
-      "SCREEN"
-    ) as SkinnedMesh
+    if (!scene || !animations.length) return
+    calculateAndSendScreenDimensions()
 
-    setScreenMesh(screen)
-
-    if (glass) {
-      glass.visible = false
-    }
-
-    if (screen) {
-      const box = new Box3().setFromObject(screen)
-      const size = box.getSize(new Vector3())
-      setScreenScale(size)
-
-      screenMaterial.needsUpdate = true
-      screenMaterial.uniforms.map.value = renderTarget.texture
-      screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
-      screen.material = screenMaterial
-    }
-  }, [gltf.scene, renderTarget.texture, screenMaterial, glass])
-
-  useEffect(() => {
-    if (!gltf.scene || !gltf.animations.length) return
-
-    gltf.scene.traverse((node) => {
+    scene.traverse((node) => {
       node.frustumCulled = false
 
       if (node instanceof Mesh && node.material && node.name !== "SCREEN") {
         const oldMaterial = node.material
-        const basicMaterial = new MeshBasicMaterial()
-
-        if ("color" in oldMaterial) basicMaterial.color = oldMaterial.color
-        if ("map" in oldMaterial) basicMaterial.map = oldMaterial.map
-        if ("transparent" in oldMaterial)
-          basicMaterial.transparent = oldMaterial.transparent
-        if ("opacity" in oldMaterial)
-          basicMaterial.opacity = oldMaterial.opacity
+        const basicMaterial = new MeshBasicMaterial({
+          color: "color" in oldMaterial ? oldMaterial.color : undefined,
+          map: "map" in oldMaterial ? oldMaterial.map : undefined,
+          opacity: "opacity" in oldMaterial ? oldMaterial.opacity : undefined
+        })
         node.material = basicMaterial
       }
     })
-  }, [gltf])
+  }, [scene, animations, calculateAndSendScreenDimensions])
 
-  useEffect(() => {
-    const handler = animationHandlerRef.current
-    if (!handler) return
+  useFrame((_, delta) => {
+    if (!isContactOpen || isAnimating) return
 
-    if (phoneGroupRef.current && lastPositionRef.current) {
-      phoneGroupRef.current.position.copy(lastPositionRef.current)
+    idleTimeRef.current += delta
+    const IDLE_TIMEOUT = Math.random() * 5 + 15
+
+    const screenbone = nodes.Obj as Bone
+    if (screenbone && debugMeshRef.current) {
+      screenbone.getWorldPosition(tmp)
+      tmp.add(new Vector3(-0.0342, 0.043, 0))
+      debugMeshRef.current.position.copy(tmp)
     }
 
-    if (isClosing) {
-      handler.playAnimation("Outro-v2", {
-        type: "transition",
-        clampWhenFinished: true
-      })
-    } else if (isContactOpen) {
-      handler.playAnimation("Intro.001", {
-        type: "transition",
-        clampWhenFinished: true,
-        fadeInDuration: 0.05,
-        onComplete: () => {
-          idleTimeRef.current = 0
-        }
-      })
-    }
-  }, [isContactOpen, isClosing])
-
-  const playRandomIdleAnimation = () => {
-    const handler = animationHandlerRef.current
-    if (!handler || isClosing || !isContactOpen) return
-
-    const idleAnimations = ["antena", "antena.003", "ruedita"] as const
-    const randomAnim =
-      idleAnimations[Math.floor(Math.random() * idleAnimations.length)]
-
-    handler.playAnimation(randomAnim, {
-      type: "idle",
-      clampWhenFinished: true,
-      loop: false,
-      weight: 1,
-      fadeInDuration: 0.2,
-      fadeOutDuration: 0.2
-    })
-  }
-
-  useFrame((state, delta) => {
-    const handler = animationHandlerRef.current
-    if (!handler) return
-
-    handler.update(delta)
-
-    if (screenMaterial.uniforms.uTime) {
-      screenMaterial.uniforms.uTime.value += delta
-    }
-
-    if (isContactOpen && !isClosing) {
-      idleTimeRef.current += delta
-
-      const IDLE_TIMEOUT = Math.random() * 5 + 15
-
-      if (idleTimeRef.current > IDLE_TIMEOUT) {
-        playRandomIdleAnimation()
-        idleTimeRef.current = 0
-      }
+    if (idleTimeRef.current > IDLE_TIMEOUT) {
+      runRandomIdleAnimation()
+      idleTimeRef.current = 0
     }
   })
 
-  if (!screenMesh || !screenScale) return null
-
   return (
     <>
-      <RenderTexture
-        isPlaying={true}
-        fbo={renderTarget}
-        useGlobalPointer={false}
-        raycasterMesh={screenMesh}
+      <group
+        scale={1}
+        ref={phoneGroupRef}
+        position={[0, -0.025, 0]}
+        visible={isAnimating || isContactOpen}
       >
-        <PhoneScreenUI screenScale={screenScale} />
-      </RenderTexture>
-
-      <group scale={6} ref={phoneGroupRef}>
-        <primitive position-y={-0.05} object={gltf.scene} />
+        <primitive object={scene} />
       </group>
+      <mesh ref={debugMeshRef} renderOrder={2} visible={false}>
+        <sphereGeometry args={[0.05, 32, 32]} />
+        <meshBasicMaterial color="green" depthTest={false} transparent />
+      </mesh>
     </>
   )
 }

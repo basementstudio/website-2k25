@@ -22,13 +22,13 @@ const TestimonialAvatar = memo(
           <Image
             alt={avatar.alt || ""}
             blurDataURL={avatar.blurDataURL}
-            className="size-12 lg:size-16"
+            className="size-16 lg:size-24"
             draggable={false}
             height={avatar.height}
             width={avatar.width}
             placeholder="blur"
             quality={100}
-            sizes="(max-width: 768px) 48px, 64px"
+            sizes="(max-width: 1024px) 192px, 288px"
             src={avatar.url}
           />
         </div>
@@ -52,19 +52,29 @@ const TestimonialAuthor = memo(
     role: QueryType["company"]["testimonials"]["services"]["role"]
   }) => (
     <div className="flex flex-col justify-center gap-1">
-      <p className="inline-flex items-center gap-x-2 text-mobile-h4 text-brand-w1 lg:text-h4">
+      <p className="inline-flex items-center gap-x-2 text-f-h4-mobile text-brand-w1 lg:text-f-h4">
         {name} <span>-</span>
         <Link
           href={handleLink || ""}
-          className="text-mobile-h4 lg:text-h4"
+          className="text-f-h4-mobile lg:text-f-h4"
           target="_blank"
         >
           <span className="actionable">{handle}</span>
         </Link>
       </p>
 
-      <div className="[&_*]:text-mobile-h4 [&_*]:text-brand-g1 lg:[&_*]:text-h4">
-        <RichText>{role?.json.content}</RichText>
+      <div className="[&_*]:text-f-h4-mobile [&_*]:text-brand-g1 lg:[&_*]:text-f-h4">
+        <RichText
+          components={{
+            a: ({ children, href }) => (
+              <Link target="_blank" href={href} className="actionable">
+                {children}
+              </Link>
+            )
+          }}
+        >
+          {role?.json.content}
+        </RichText>
       </div>
     </div>
   )
@@ -80,7 +90,7 @@ const TestimonialsComponent = ({ data }: { data: QueryType }) => {
       <div className={cn("relative col-span-full", styles.root)}>
         <div
           className={cn(
-            "[&_p]:!text-f-h1-mobile lg:[&_p]:!text-f-h1 mx-auto max-w-[1440px] text-center [&_a]:no-underline [&_p]:relative [&_p]:z-10 [&_p]:text-brand-w1"
+            "mx-auto max-w-[1440px] text-center [&_a]:no-underline [&_p]:relative [&_p]:z-10 [&_p]:!text-f-h1-mobile [&_p]:text-brand-w1 lg:[&_p]:!text-f-h1"
           )}
         >
           <RichText>{testimonial.content?.json.content}</RichText>
@@ -88,7 +98,7 @@ const TestimonialsComponent = ({ data }: { data: QueryType }) => {
         <div className="pointer-events-none absolute inset-0" />
       </div>
 
-      <div className="col-span-full mx-auto flex gap-x-4 lg:col-start-5 lg:col-end-9">
+      <div className="col-span-full mx-auto flex gap-x-4 lg:col-start-3 lg:col-end-11">
         <TestimonialAvatar avatar={testimonial.avatar} />
 
         <TestimonialAuthor

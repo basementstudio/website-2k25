@@ -1,25 +1,26 @@
 "use client"
 
-import { Preload } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { createXRStore, XR } from "@react-three/xr"
 import dynamic from "next/dynamic"
-import { Suspense, useEffect, useRef } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
-import { MouseTracker } from "@/hooks/use-mouse"
+import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
+import { cn } from "@/utils/cn"
 
 import ErrorBoundary from "./basketball/error-boundary"
 import { CameraController } from "./camera/camera-controller"
 import { CharacterInstanceConfig } from "./characters/character-instancer"
 import { CharactersSpawn } from "./characters/characters-spawn"
 import { Debug } from "./debug"
+import { Pets } from "./pets"
 import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
 
@@ -46,49 +47,91 @@ const PhysicsWorld = dynamic(
 )
 
 export const Scene = () => {
-  const {
-    isCanvasTabMode,
-    setIsCanvasTabMode,
-    setCurrentTabIndex,
-    currentScene
-  } = useNavigationStore()
+  const { setIsCanvasTabMode, currentScene } = useNavigationStore()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
+
   const store = createXRStore()
 
+  const userHasLeftWindow = useRef(false)
+  const [isTouchOnly, setIsTouchOnly] = useState(false)
+  const scene = useCurrentScene()
+
+  useTabKeyHandler()
+
   useEffect(() => {
-    if (!isBasketball) clearPlayedBalls()
+    const detectTouchOnly = () => {
+      const hasTouchScreen =
+        "ontouchstart" in window || navigator.maxTouchPoints > 0
+      const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches
+      const hasFinePointer = window.matchMedia("(pointer: fine)").matches
+
+      setIsTouchOnly(hasTouchScreen && hasCoarsePointer && !hasFinePointer)
+    }
+
+    detectTouchOnly()
+
+    // Re-detect on window resize as input capabilities might change
+    window.addEventListener("resize", detectTouchOnly)
+
+    return () => window.removeEventListener("resize", detectTouchOnly)
+  }, [])
+
+  useEffect(() => {
+    if (!isBasketball) {
+      clearPlayedBalls()
+      useMinigameStore.getState().setHasPlayed(false)
+      useMinigameStore.getState().setPlayerName("")
+      useMinigameStore.getState().setReadyToPlay(true)
+    }
   }, [isBasketball, clearPlayedBalls])
 
   useEffect(() => {
-    setIsCanvasTabMode(isCanvasTabMode)
-  }, [isCanvasTabMode, setIsCanvasTabMode])
+    if (typeof window === "undefined") return
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        userHasLeftWindow.current = true
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange, {
+      passive: true
+    })
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [])
 
   const handleFocus = (e: React.FocusEvent) => {
-    setIsCanvasTabMode(true)
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    })
+    if (userHasLeftWindow.current) {
+      userHasLeftWindow.current = false
+      return
+    }
 
-    if (e.relatedTarget?.id === "nav-contact") {
-      setCurrentTabIndex(0)
-    } else {
-      setCurrentTabIndex(currentScene?.tabs?.length ?? 0)
+    setIsCanvasTabMode(true)
+
+    if (e.nativeEvent.detail === 0) {
+      const { setEnteredByKeyboard } = useNavigationStore.getState()
+      setEnteredByKeyboard(true)
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      })
     }
   }
   const handleBlur = () => setIsCanvasTabMode(false)
 
   return (
     <>
-      <button
-        onClick={() => store.enterVR()}
-        className="translate-x-[-50% bg-white] absolute left-1/2 top-14 z-50"
+      <div
+        className={cn(
+          "absolute inset-0",
+          (scene === "basketball" || scene === "lab" || scene === "404") &&
+            "inset-x-0 top-0 h-[100svh]"
+        )}
       >
-        Enter VR
-      </button>
-      <div className="absolute inset-0">
         <Debug />
 
         <Canvas
@@ -98,6 +141,14 @@ export const Scene = () => {
           tabIndex={0}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onKeyDown={(e) => {
+            if (
+              e.key === "Tab" &&
+              useNavigationStore.getState().isCanvasTabMode
+            ) {
+              e.preventDefault()
+            }
+          }}
           gl={{
             antialias: false,
             alpha: false,
@@ -105,11 +156,16 @@ export const Scene = () => {
             toneMapping: THREE.NoToneMapping
           }}
           camera={{ fov: 60 }}
-          className="pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none"
+          className={cn(
+            "pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none",
+            isTouchOnly && !isBasketball && "!pointer-events-none"
+          )}
         >
           <AnimationController>
             <XR store={store}>
-              <Inspectables />
+              <Suspense fallback={null}>
+                <Inspectables />
+              </Suspense>
               <Suspense fallback={null}>
                 <Map />
               </Suspense>
@@ -122,24 +178,24 @@ export const Scene = () => {
               <Suspense fallback={null}>
                 <Sparkles />
               </Suspense>
-              <Suspense fallback={null}>
-                {isBasketball && (
-                  <PhysicsWorld paused={!isBasketball}>
-                    <ErrorBoundary>
-                      <HoopMinigame />
-                    </ErrorBoundary>
-                  </PhysicsWorld>
-                )}
-              </Suspense>
+              {isBasketball && (
+                <PhysicsWorld paused={!isBasketball}>
+                  <ErrorBoundary>
+                    <HoopMinigame />
+                  </ErrorBoundary>
+                </PhysicsWorld>
+              )}
               <Suspense fallback={null}>
                 <CharacterInstanceConfig />
                 <CharactersSpawn />
+              </Suspense>
+              <Suspense fallback={null}>
+                <Pets />
               </Suspense>
             </XR>
           </AnimationController>
         </Canvas>
       </div>
-      <MouseTracker />
     </>
   )
 }

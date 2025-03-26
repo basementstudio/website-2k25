@@ -1,4 +1,4 @@
-import { basehub } from "basehub"
+import { client } from "@/service/basehub"
 
 import { assetsQuery } from "./query"
 
@@ -69,6 +69,8 @@ export interface AssetsResult {
     basketballThump: string
     basketballBuzzer: string
     basketballStreak: string
+    knobTurning: string
+    antenna: string
     blog: {
       lockedDoor: string[]
       door: {
@@ -100,7 +102,6 @@ export interface AssetsResult {
     contact: {
       interference: string
     }
-    officeAmbience: string
   }
   scenes: {
     name: string
@@ -138,21 +139,38 @@ export interface AssetsResult {
     textureBody: string
     textureFaces: string
     textureArms: string
+    textureComic: string
+  }
+  pets: {
+    model: string
+    pureTexture: string
+    bostonTexture: string
   }
   lamp: {
     extraLightmap: string
   }
+  // extra textures for things
+  mapTextures: {
+    rain: string
+    basketballVa: string
+  }
+  physicsParams: {
+    _title: string
+    value: number
+  }[]
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
-  const { threeDInteractions, pages } = await basehub({
-    next: { revalidate: 30 }
-  }).query(assetsQuery)
+  const { threeDInteractions, pages } = await client().query(assetsQuery)
 
   return {
     officeItems: threeDInteractions.map.officeItems.file.url,
     office: threeDInteractions.map.office.file.url,
     officeWireframe: threeDInteractions.map.wireframeModel.file.url,
+    mapTextures: {
+      rain: threeDInteractions.map.textures.rain.url,
+      basketballVa: threeDInteractions.map.textures.basketballVa.url
+    },
     outdoor: threeDInteractions.map.outdoor.file.url,
     godrays: threeDInteractions.map.godrays.file.url,
     bakes: threeDInteractions.map.bakes.items.map((item) => ({
@@ -220,6 +238,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
       basketballThump: threeDInteractions.sfx.basketballThump?.url,
       basketballBuzzer: threeDInteractions.sfx.basketballBuzzer?.url,
       basketballStreak: threeDInteractions.sfx.basketballStreak?.url,
+      knobTurning: threeDInteractions.sfx.knobTurning?.url ?? "",
+      antenna: threeDInteractions.sfx.antenna?.url ?? "",
       blog: {
         lockedDoor: threeDInteractions.sfx.blog.lockedDoor.items.map(
           (item) => item.sound?.url ?? ""
@@ -252,8 +272,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
         rain: threeDInteractions.sfx.music.rain.url,
         tiger: threeDInteractions.sfx.music.tiger.url,
         vhs: threeDInteractions.sfx.music.vhs.url
-      },
-      officeAmbience: threeDInteractions.sfx.officeAmbience.url
+      }
     },
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
       name: item._title,
@@ -295,13 +314,23 @@ export async function fetchAssets(): Promise<AssetsResult> {
       model: threeDInteractions.characters.model.file?.url ?? "",
       textureBody: threeDInteractions.characters.textureBody?.url,
       textureFaces: threeDInteractions.characters.textureFaces.url,
-      textureArms: threeDInteractions.characters.textureArms.url
+      textureArms: threeDInteractions.characters.textureArms.url,
+      textureComic: threeDInteractions.characters.textureComic.url
+    },
+    pets: {
+      model: threeDInteractions.characters.petModel.file.url,
+      pureTexture: threeDInteractions.characters.pureTexture.url,
+      bostonTexture: threeDInteractions.characters.bostonTexture.url
     },
     outdoorCars: {
       model: threeDInteractions.outdoorCars.model?.file?.url ?? ""
     },
     lamp: {
       extraLightmap: threeDInteractions.lamp.extraLightmap?.url ?? ""
-    }
+    },
+    physicsParams: threeDInteractions.physicsParams.items.map((item) => ({
+      _title: item._title,
+      value: item.value ?? 0
+    }))
   }
 }

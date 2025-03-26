@@ -1,24 +1,28 @@
 "use client"
 
-import { createContext, use, useState } from "react"
+import { createContext, use, useEffect, useState } from "react"
 
 interface ProjectContextType {
-  viewMode: "grid" | "rows"
+  viewMode: "grid" | "rows" | undefined
   setViewMode: (viewMode: "grid" | "rows") => void
 }
 
 export const ProjectContext = createContext<ProjectContextType>({
-  viewMode: "grid",
+  viewMode: undefined,
   setViewMode: () => {}
 })
 
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-  const [viewMode, setViewMode] = useState<"grid" | "rows">("grid")
+  const [viewMode, setViewModeState] = useState<"grid" | "rows">("grid")
+
+  const setViewMode = (mode: "grid" | "rows") => {
+    setViewModeState(mode)
+  }
 
   return (
-    <ProjectContext value={{ viewMode, setViewMode }}>
+    <ProjectContext.Provider value={{ viewMode, setViewMode }}>
       {children}
-    </ProjectContext>
+    </ProjectContext.Provider>
   )
 }
 

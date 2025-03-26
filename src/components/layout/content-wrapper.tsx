@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { Suspense, useEffect, useMemo } from "react"
+import { useEffect, useMemo } from "react"
 
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 
@@ -13,18 +13,18 @@ const Scene = dynamic(
     loading: () => null
   }
 )
+
 import { cn } from "@/utils/cn"
 
+import { CustomCursor } from "../custom-cursor"
 import { useAppLoadingStore } from "../loading/app-loading-handler"
-import { ScrollDown } from "../primitives/scroll-down"
 
 const BLACKLISTED_PATHS = [
   /^\/showcase\/\d+$/,
   /^\/showcase\/[^\/]+$/,
   /^\/post\/[^\/]+$/,
-  /^\/project\/[^\/]+$/
-  // temp
-  // /^\/showcase$/
+  /^\/project\/[^\/]+$/,
+  /^\/contact$/
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -35,7 +35,6 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
 
-  // once canvas is in page, never delete it, only hide it
   useEffect(() => {
     if (shouldShowCanvas) {
       useAppLoadingStore.setState({ isCanvasInPage: shouldShowCanvas })
@@ -44,15 +43,18 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
+      <div className="pointer-events-none fixed top-0 z-50 h-screen w-full">
+        <CustomCursor />
+      </div>
+
       <div
         className={cn(
-          "canvas-container sticky top-0 h-screen w-full lg:fixed",
+          "canvas-container relative top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
           !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
         )}
       >
-        <Suspense fallback={null}>{isCanvasInPage && <Scene />}</Suspense>
+        {isCanvasInPage && <Scene />}
         <InspectableViewer />
-        <ScrollDown />
       </div>
 
       <div

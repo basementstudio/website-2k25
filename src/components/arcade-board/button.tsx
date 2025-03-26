@@ -1,10 +1,10 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
 import { animate } from "motion"
-import { useCallback, useEffect, useRef } from "react"
-import type { Mesh } from "three"
+import { memo, useCallback, useEffect, useMemo, useRef } from "react"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
@@ -20,7 +20,19 @@ const SECONDARY_BUTTONS = {
   "02_BT_7": "a"
 } as const
 
-export const Button = ({ button }: { button: Mesh }) => {
+export const Button = memo(function ButtonInner({
+  buttonName
+}: {
+  buttonName: string
+}) {
+  const { arcade } = useMesh()
+  const { buttons } = arcade
+
+  const button = useMemo(
+    () => buttons?.find((b) => b.name === buttonName),
+    [buttons, buttonName]
+  )!
+
   const scene = useCurrentScene()
   const setCursor = useCursor()
 
@@ -141,4 +153,4 @@ export const Button = ({ button }: { button: Mesh }) => {
       </mesh>
     </group>
   )
-}
+})

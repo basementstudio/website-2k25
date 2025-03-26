@@ -1,9 +1,17 @@
-import { memo, useCallback, useEffect, useState } from "react"
+import { memo, useCallback, useEffect } from "react"
 import { create } from "zustand"
 
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
-import { SFX_VOLUME, THEME_SONG_VOLUME } from "@/lib/audio/constants"
+import { AMBIENT_VOLUME, SFX_VOLUME } from "@/lib/audio/constants"
+import { useArcadeStore } from "@/store/arcade-store"
+
+import { useCurrentScene } from "./use-current-scene"
+import { useIsOnTab } from "./use-is-on-tab"
+
+export enum BackgroundAudioType {
+  AMBIENCE = "ambience"
+}
 
 export type SiteAudioSFXKey =
   | "BASKETBALL_THROW"
@@ -21,25 +29,28 @@ export type SiteAudioSFXKey =
   | `BLOG_LAMP_${number}_PULL`
   | `BLOG_LAMP_${number}_RELEASE`
   | "CONTACT_INTERFERENCE"
+  | "CONTACT_KNOB_TURNING"
+  | "CONTACT_ANTENNA"
   | "OFFICE_AMBIENCE"
 
 interface SiteAudioStore {
   player: WebAudioPlayer | null
   audioSfxSources: Record<SiteAudioSFXKey, AudioSource> | null
-  themeSong: AudioSource | null
-  ostSong: AudioSource | null
-  officeAmbience: AudioSource | null
+
+  music: boolean
+  setMusic: (state: boolean) => void
+  gameThemeSong: AudioSource | null
+  activeTrackType: BackgroundAudioType
+  setActiveTrackType: (type: BackgroundAudioType) => void
+  currentAmbienceIndex: number
+  setCurrentAmbienceIndex: (index: number) => void
+  isBackgroundInitialized: boolean
+  setBackgroundInitialized: (initialized: boolean) => void
 }
 
 interface SiteAudioHook {
   player: WebAudioPlayer | null
-  togglePlayMaster: () => void
-  resumeMaster: () => void
-  pauseMaster: () => void
-  setVolumeMaster: (volume: number) => void
-  volumeMaster: number
   playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
-  getSoundFXSource: (key: SiteAudioSFXKey) => AudioSource | null
   playInspectableFX: (
     url: string,
     volume?: number,
@@ -52,27 +63,64 @@ interface SiteAudioHook {
 const useSiteAudioStore = create<SiteAudioStore>(() => ({
   player: null,
   audioSfxSources: null,
-  themeSong: null,
-  ostSong: null,
-  officeAmbience: null
+  gameThemeSong: null,
+  music: false,
+  setMusic: (state) => useSiteAudioStore.setState({ music: state }),
+  activeTrackType: "ambience" as BackgroundAudioType,
+  setActiveTrackType: (type) =>
+    useSiteAudioStore.setState({ activeTrackType: type }),
+  currentAmbienceIndex: 0,
+  setCurrentAmbienceIndex: (index) =>
+    useSiteAudioStore.setState({ currentAmbienceIndex: index }),
+  isBackgroundInitialized: false,
+  setBackgroundInitialized: (initialized) =>
+    useSiteAudioStore.setState({ isBackgroundInitialized: initialized })
 }))
 
 export { useSiteAudioStore }
 
-export function useInitializeAudioContext(element?: HTMLElement) {
+export const useInitializeAudioContext = () => {
   const player = useSiteAudioStore((s) => s.player)
+  const isIngame = useArcadeStore((s) => s.isInGame)
+
+  const music = useSiteAudioStore((s) => s.music)
+  const setMusic = useSiteAudioStore((s) => s.setMusic)
+  const scene = useCurrentScene()
+
+  const isOnTab = useIsOnTab()
+
+  const { ARCADE_AUDIO_SFX, GAME_THEME_SONGS } = useAudioUrls()
+
+  // Initialize audio system when player is available
+  useEffect(() => {
+    if (!player) return
+    player.setAmbienceVolume(music ? 1 : 0)
+  }, [player])
+
+  // Handle tab visibility changes
+  useEffect(() => {
+    if (!player) return
+
+    if (!isOnTab) {
+      player.setAmbienceVolume(0)
+    } else if (music) {
+      player.setAmbienceVolume(1)
+    }
+  }, [player, isOnTab, music])
 
   useEffect(() => {
-    const targetElement = element || document
+    const targetElement = document
     const unlock = () => {
       if (!player) {
         const newPlayer = new WebAudioPlayer()
-        const savedMusicPreference = localStorage.getItem("music-enabled")
+        const mPref = localStorage.getItem("musicEnabled")
+        const shouldEnableMusic = mPref === null ? true : mPref === "true"
 
-        newPlayer.volume = savedMusicPreference === "true" ? 1 : 0
+        setMusic(shouldEnableMusic)
+        newPlayer.initAmbience()
 
-        if (savedMusicPreference === null) {
-          window.dispatchEvent(new Event("firstInteraction"))
+        if (shouldEnableMusic) {
+          setTimeout(() => newPlayer.setAmbienceVolume(1, 4), 100)
         }
 
         useSiteAudioStore.setState({ player: newPlayer })
@@ -82,10 +130,46 @@ export function useInitializeAudioContext(element?: HTMLElement) {
     }
     targetElement.addEventListener("click", unlock, { passive: true })
 
-    return () => {
-      targetElement.removeEventListener("click", unlock)
+    return () => targetElement.removeEventListener("click", unlock)
+  }, [player])
+
+  const playGameSong = useCallback(
+    async (url: string) => {
+      if (!player) return
+
+      try {
+        const currentSong = useSiteAudioStore.getState().gameThemeSong
+        if (currentSong) currentSong.stop()
+
+        const source = await player.loadAudioFromURL(url, false, true)
+        source.loop = true
+        source.setVolume(AMBIENT_VOLUME)
+        source.play()
+
+        useSiteAudioStore.setState({ gameThemeSong: source })
+      } catch (error) {
+        console.error("Failed to load or play game song:", error)
+      }
+    },
+    [player]
+  )
+
+  useEffect(() => {
+    if (!player) return
+
+    if (isIngame && scene === "lab") {
+      player.setGameVolume(1)
+      player.setMusicVolume(0)
+      playGameSong(ARCADE_AUDIO_SFX.MIAMI_HEATWAVE)
+    } else if (scene === "basketball") {
+      player.setGameVolume(1)
+      player.setMusicVolume(0)
+      playGameSong(GAME_THEME_SONGS.BASKETBALL_SONG)
+    } else {
+      player.setGameVolume(0)
+      player.setMusicVolume(1)
     }
-  }, [element, player])
+  }, [player, scene, isIngame])
 }
 
 export const SiteAudioSFXsLoader = memo(SiteAudioSFXsLoaderInner)
@@ -96,8 +180,7 @@ function SiteAudioSFXsLoaderInner(): null {
     GAME_AUDIO_SFX,
     ARCADE_AUDIO_SFX,
     BLOG_AUDIO_SFX,
-    CONTACT_AUDIO_SFX,
-    OFFICE_AMBIENCE
+    CONTACT_AUDIO_SFX
   } = useAudioUrls()
 
   useEffect(() => {
@@ -115,7 +198,7 @@ function SiteAudioSFXsLoaderInner(): null {
             const audioKey = key as SiteAudioSFXKey
             const source = await player.loadAudioFromURL(
               GAME_AUDIO_SFX[audioKey as keyof typeof GAME_AUDIO_SFX],
-              true // Mark as SFX
+              true
             )
             source.setVolume(SFX_VOLUME)
             newSources[audioKey] = source
@@ -197,10 +280,22 @@ function SiteAudioSFXsLoaderInner(): null {
         promises.push(
           (async () => {
             const source = await player.loadAudioFromURL(
-              OFFICE_AMBIENCE.OFFICE_AMBIENCE_DEFAULT
+              CONTACT_AUDIO_SFX.KNOB_TURNING,
+              true
             )
-            source.setVolume(0.1)
-            newSources["OFFICE_AMBIENCE"] = source
+            source.setVolume(SFX_VOLUME)
+            newSources["CONTACT_KNOB_TURNING"] = source
+          })()
+        )
+
+        promises.push(
+          (async () => {
+            const source = await player.loadAudioFromURL(
+              CONTACT_AUDIO_SFX.ANTENNA,
+              true
+            )
+            source.setVolume(SFX_VOLUME)
+            newSources["CONTACT_ANTENNA"] = source
           })()
         )
 
@@ -221,142 +316,38 @@ function SiteAudioSFXsLoaderInner(): null {
   return null
 }
 
-export function useGameThemeSong() {
-  const player = useSiteAudioStore((s) => s.player)
-  const { GAME_THEME_SONGS } = useAudioUrls()
-
-  useEffect(() => {
-    if (!player) return
-
-    const loadAudioSource = async () => {
-      try {
-        const themeSong = await Promise.resolve(
-          player.loadAudioFromURL(GAME_THEME_SONGS.BASKETBALL_AMBIENT)
-        )
-
-        themeSong.loop = true
-        themeSong.setVolume(THEME_SONG_VOLUME)
-        themeSong.play()
-
-        useSiteAudioStore.setState({
-          themeSong
-        })
-      } catch (error) {
-        console.error("Error loading audio sources:", error)
-      }
-    }
-
-    loadAudioSource()
-  }, [player, GAME_THEME_SONGS])
-}
-
-export function useOfficeAmbience(desiredVolume: number = 0.1) {
-  const player = useSiteAudioStore((s) => s.player)
-  const officeAmbience = useSiteAudioStore((s) => s.officeAmbience)
-  const { OFFICE_AMBIENCE } = useAudioUrls()
-
-  useEffect(() => {
-    if (!player) return
-
-    const loadAudioSource = async () => {
-      try {
-        if (officeAmbience) return
-
-        const newOfficeAmbience = await Promise.resolve(
-          player.loadAudioFromURL(OFFICE_AMBIENCE.OFFICE_AMBIENCE_DEFAULT)
-        )
-
-        newOfficeAmbience.loop = true
-        newOfficeAmbience.setVolume(desiredVolume)
-        newOfficeAmbience.play()
-
-        useSiteAudioStore.setState({
-          officeAmbience: newOfficeAmbience
-        })
-      } catch (error) {
-        console.error("Error loading audio sources:", error)
-      }
-    }
-
-    loadAudioSource()
-  }, [player, OFFICE_AMBIENCE, officeAmbience])
-
-  useEffect(() => {
-    if (officeAmbience) {
-      officeAmbience.setVolume(desiredVolume)
-    }
-  }, [officeAmbience, desiredVolume])
-}
-
 export function useSiteAudio(): SiteAudioHook {
   const player = useSiteAudioStore((s) => s.player)
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
 
-  // Initialize state with defaults
-  const [music, setMusic] = useState(false)
-  const [volumeMaster, _setVolumeMaster] = useState(0)
-
-  // Load preferences after mount
-  useEffect(() => {
-    if (typeof window === "undefined") return
-
-    const savedMusicPreference = localStorage.getItem("music-enabled")
-    if (savedMusicPreference === "true") {
-      setMusic(true)
-      _setVolumeMaster(1)
-    }
-
-    // First interaction handler
-    if (savedMusicPreference === null) {
-      const handleFirstInteraction = () => {
-        setMusic(true)
-        _setVolumeMaster(1)
-        localStorage.setItem("music-enabled", "true")
-      }
-
-      window.addEventListener("firstInteraction", handleFirstInteraction)
-      return () =>
-        window.removeEventListener("firstInteraction", handleFirstInteraction)
-    }
-  }, [])
-
-  const togglePlayMaster = useCallback(() => {
-    if (!player) return
-    player.isPlaying ? player.pause() : player.resume()
-  }, [player])
+  const music = useSiteAudioStore((s) => s.music)
+  const setMusic = useSiteAudioStore((s) => s.setMusic)
 
   const handleMute = useCallback(() => {
     if (typeof window === "undefined") return
-    setVolumeMaster(music ? 0 : 1)
-    setMusic(!music)
-  }, [music])
 
-  const setVolumeMaster = useCallback(
-    (volume: number) => {
-      if (!player || typeof window === "undefined") return
-      const gainNode = player.musicChannel
-      const currentTime = player.audioContext.currentTime
-      const FADE_DURATION = 0.75
+    const newState = !music
+    const newVolume = newState ? 1 : 0
 
-      gainNode.gain.cancelScheduledValues(currentTime)
-      gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
-      gainNode.gain.linearRampToValueAtTime(volume, currentTime + FADE_DURATION)
+    localStorage.setItem("musicEnabled", String(newState))
 
-      player.musicVolume = volume
-      _setVolumeMaster(volume)
-      localStorage.setItem("music-enabled", volume > 0 ? "true" : "false")
-    },
-    [player]
-  )
+    setMusic(newState)
+
+    if (player) player.setAmbienceVolume(newVolume)
+  }, [music, player, setMusic])
 
   const playSoundFX = useCallback(
     (sfx: SiteAudioSFXKey, volume = SFX_VOLUME, pitch = 1) => {
       if (!audioSfxSources) return
 
-      audioSfxSources[sfx].stop()
-      audioSfxSources[sfx].setVolume(volume)
-      audioSfxSources[sfx].setPitch(pitch)
-      audioSfxSources[sfx].play()
+      const sfxSource = audioSfxSources[sfx]
+
+      if (!sfxSource) return
+
+      sfxSource.stop()
+      sfxSource.setVolume(volume)
+      sfxSource.setPitch(pitch)
+      sfxSource.play()
     },
     [audioSfxSources]
   )
@@ -381,21 +372,9 @@ export function useSiteAudio(): SiteAudioHook {
     [player]
   )
 
-  const getSoundFXSource = useCallback(
-    (key: SiteAudioSFXKey): AudioSource | null =>
-      audioSfxSources?.[key] ?? null,
-    [audioSfxSources]
-  )
-
   return {
     player,
-    togglePlayMaster,
-    resumeMaster: () => player?.resume(),
-    pauseMaster: () => player?.pause(),
-    setVolumeMaster,
-    volumeMaster,
     playSoundFX,
-    getSoundFXSource,
     playInspectableFX,
     music,
     handleMute

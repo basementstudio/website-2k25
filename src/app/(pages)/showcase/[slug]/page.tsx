@@ -2,6 +2,8 @@ import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
 
+import { client } from "@/service/basehub"
+
 import { projectFragment } from "./query"
 import { ProjectWrapper } from "./wrapper"
 
@@ -57,7 +59,6 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
           const entry = data.pages.showcase.projectList.items.at(0)
           if (!entry) return notFound()
 
-          // add awwards
           const awards = data2.company.awards.awardList.items.filter(
             (award) => award.project?._id === entry.project?._id
           )
@@ -84,7 +85,7 @@ export const generateStaticParams = async () => {
         projectList: { items }
       }
     }
-  } = await basehub({ cache: "no-store" }).query({
+  } = await client().query({
     pages: {
       showcase: {
         projectList: {

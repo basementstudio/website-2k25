@@ -1,9 +1,6 @@
-import { animate } from "motion"
-import { MeshStandardMaterial, Vector3 } from "three"
+import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
 import { Color, ShaderMaterial } from "three"
 import { create } from "zustand"
-
-import { TRANSITION_DURATION } from "@/constants/transitions"
 
 import fragmentShader from "./fragment.glsl"
 import vertexShader from "./vertex.glsl"
@@ -18,10 +15,12 @@ export const createGlobalShaderMaterial = (
     GLASS?: boolean
     GODRAY?: boolean
     LIGHT?: boolean
+    BASKETBALL?: boolean
     FOG?: boolean
     VIDEO?: boolean
     MATCAP?: boolean
     CLOUDS?: boolean
+    DAYLIGHT?: boolean
   }
 ) => {
   const {
@@ -43,6 +42,7 @@ export const createGlobalShaderMaterial = (
     uColor: { value: emissiveColor },
     uProgress: { value: 0.0 },
     map: { value: map },
+    mapMatrix: { value: new Matrix3().identity() },
     lightMap: { value: null },
     lightMapIntensity: { value: 0.0 },
     aoMap: { value: null },
@@ -55,6 +55,7 @@ export const createGlobalShaderMaterial = (
     noiseFactor: { value: 0.5 },
     uTime: { value: 0.0 },
     alphaMap: { value: alphaMap },
+    alphaMapTransform: { value: new Matrix3().identity() },
     emissive: { value: baseMaterial.emissive || new Vector3() },
     emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
     fogColor: { value: new Vector3(0.2, 0.2, 0.2) },
@@ -86,9 +87,18 @@ export const createGlobalShaderMaterial = (
     uniforms["lightDirection"] = { value: lightDirection }
   }
 
+  if (defines?.BASKETBALL) {
+    uniforms["lightDirection"] = { value: lightDirection }
+    uniforms["backLightDirection"] = { value: new Vector3(0, 0, 1) }
+  }
+
   if (defines?.MATCAP) {
     uniforms["matcap"] = { value: null }
     uniforms["glassMatcap"] = { value: false }
+  }
+
+  if (defines?.DAYLIGHT) {
+    uniforms["daylight"] = { value: true }
   }
 
   const material = new ShaderMaterial({
@@ -103,14 +113,23 @@ export const createGlobalShaderMaterial = (
       GLASS: defines?.GLASS !== undefined ? Boolean(defines?.GLASS) : false,
       GODRAY: defines?.GODRAY !== undefined ? Boolean(defines?.GODRAY) : false,
       LIGHT: defines?.LIGHT !== undefined ? Boolean(defines?.LIGHT) : false,
+      BASKETBALL:
+        defines?.BASKETBALL !== undefined
+          ? Boolean(defines?.BASKETBALL)
+          : false,
       FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
       MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
       VIDEO: defines?.VIDEO !== undefined ? Boolean(defines?.VIDEO) : false,
-      CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false
+      CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false,
+      DAYLIGHT:
+        defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false
     },
     uniforms,
     transparent:
-      baseOpacity < 1 || alphaMap !== null || baseMaterial.transparent,
+      baseOpacity < 1 ||
+      alphaMap !== null ||
+      baseMaterial.transparent ||
+      defines?.DAYLIGHT,
     vertexShader,
     fragmentShader,
     side: baseMaterial.side

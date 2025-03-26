@@ -17,16 +17,23 @@ export const CustomCamera = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null)
   const planeRef = useRef<THREE.Mesh>(null)
   const planeBoundaryRef = useRef<THREE.Mesh>(null)
-  const cameraConfig = useNavigationStore.getState().currentScene?.cameraConfig
+  const currentScene = useNavigationStore((state) => state.currentScene)
+  const cameraConfig = currentScene?.cameraConfig
   const [isInitialized, setIsInitialized] = useState(false)
   const scene = useCurrentScene()
-  const boundaries = useBoundaries(cameraConfig)
+
+  const finalCameraConfig = useMemo(() => {
+    return cameraConfig
+  }, [cameraConfig])
+
+  const boundaries = useBoundaries(finalCameraConfig)
+
   const { currentPos, currentTarget, targetPosition, targetLookAt } =
     useCameraMovement(
       cameraRef,
       planeRef,
       planeBoundaryRef,
-      cameraConfig,
+      finalCameraConfig,
       boundaries,
       isInitialized
     )
@@ -35,7 +42,7 @@ export const CustomCamera = () => {
     cameraRef,
     planeRef,
     planeBoundaryRef,
-    cameraConfig,
+    finalCameraConfig,
     isInitialized,
     setIsInitialized,
     currentPos,
@@ -58,15 +65,15 @@ export const CustomCamera = () => {
     <>
       <PerspectiveCamera makeDefault ref={cameraRef} />
       <XROrigin scale={1} position={realPosition} />
-      {cameraConfig && (
+      {finalCameraConfig && (
         <>
           <mesh
             ref={planeRef}
-            position={calculatePlanePosition(cameraConfig)}
+            position={calculatePlanePosition(finalCameraConfig)}
           />
           <mesh
             ref={planeBoundaryRef}
-            position={calculatePlanePosition(cameraConfig)}
+            position={calculatePlanePosition(finalCameraConfig)}
           />
         </>
       )}

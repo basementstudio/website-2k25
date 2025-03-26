@@ -1,15 +1,13 @@
 import "@/styles/globals.css"
 
-import { Toolbar as BasehubToolbar } from "basehub/next-toolbar"
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import localFont from "next/font/local"
 
 import { AssetsProvider } from "@/components/assets-provider"
 import { fetchAssets } from "@/components/assets-provider/fetch-assets"
-
-const Toolbar = BasehubToolbar as unknown as React.ComponentType
-
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-
 import Contact from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { ContentWrapper } from "@/components/layout/content-wrapper"
@@ -18,9 +16,8 @@ import AppLoadingHandler from "@/components/loading/app-loading-handler"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
-import { PathnameProvider } from "@/hooks/use-watch-pathname"
 import LenisScrollProvider from "@/providers/lenis-provider"
-import AppHooks from "@/utils/app-hooks-init"
+import { AppHooks } from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
 
 export const metadata: Metadata = {
@@ -29,7 +26,15 @@ export const metadata: Metadata = {
     default: "basement.studio | We make cool shit that performs."
   },
   description:
-    "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality."
+    "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality.",
+  twitter: {
+    creator: "@basementstudio",
+    site: "@basementstudio",
+    card: "summary_large_image",
+    title: "basement.studio | We make cool shit that performs.",
+    description:
+      "basement is a boutique studio that brings what brands envision to life, through branding, visual design & development of the highest quality."
+  }
 }
 
 // TODO: find a way to load font-feature-settings
@@ -43,29 +48,38 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono"
 })
 
+const flauta = localFont({
+  src: "../../public/fonts/flauta.ttf",
+  variable: "--font-flauta"
+})
+
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const assets = await fetchAssets()
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <Analytics />
+      <SpeedInsights />
       <Transitions />
-      <Toolbar />
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <body
-            className={cn(geistSans.variable, geistMono.variable, "font-sans")}
+            className={cn(
+              geistSans.variable,
+              geistMono.variable,
+              flauta.variable,
+              "font-sans"
+            )}
             suppressHydrationWarning
           >
             <AppLoadingHandler />
             <LenisScrollProvider>
               <HtmlTunnelOut />
-              <PathnameProvider>
-                <NavigationHandler />
+              <NavigationHandler />
 
-                <ContentWrapper>{children}</ContentWrapper>
-                <AppHooks assets={assets} />
-                <Contact />
-              </PathnameProvider>
+              <ContentWrapper>{children}</ContentWrapper>
+              <AppHooks assets={assets} />
+              <Contact />
             </LenisScrollProvider>
           </body>
         </InspectableProvider>

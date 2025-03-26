@@ -4,10 +4,14 @@ import dynamic from "next/dynamic"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { ImageFragment, VideoFragment } from "@/lib/basehub/fragments"
 import { cn } from "@/utils/cn"
 
-const MuxVideo = dynamic(() => import("@mux/mux-video-react"), { ssr: false })
+const Video = dynamic(
+  () => import("@/components/primitives/video").then((mod) => mod.Video),
+  { ssr: false }
+)
 
 // only load the video when the user hovers over the image, automatically play the video and set opacity to 0
 export const ImageWithVideoOverlay = ({
@@ -30,7 +34,7 @@ export const ImageWithVideoOverlay = ({
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const cleanupRef = useRef<NodeJS.Timeout | null>(null)
+  const { isMobile } = useDeviceDetect()
 
   useEffect(() => {
     return () => {
@@ -89,16 +93,13 @@ export const ImageWithVideoOverlay = ({
         priority={firstItem}
       />
 
-      {/* Only render the video element when shouldLoadVideo is true */}
-      {video && shouldLoadVideo && (
-        <MuxVideo
+      {video && shouldLoadVideo && !isMobile ? (
+        <Video
           src={video.url}
           onCanPlay={() => {
-            console.log("[Video] Can play event triggered")
             setIsVideoLoaded(true)
           }}
           onLoadedData={() => {
-            console.log("[Video] Load data event triggered")
             setIsVideoLoaded(true)
           }}
           style={{ "--controls": "none" } as React.CSSProperties}
@@ -108,15 +109,11 @@ export const ImageWithVideoOverlay = ({
               ? "visible opacity-100"
               : "invisible opacity-0"
           )}
-          muted
-          streamType="on-demand"
           autoPlay={isHovered}
-          loop
-          playsInline
+          muted={true}
           ref={videoRef}
-          preload="auto"
         />
-      )}
+      ) : null}
     </div>
   )
 }

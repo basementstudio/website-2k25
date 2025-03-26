@@ -1,8 +1,8 @@
-import { useFrame, useThree } from "@react-three/fiber"
-import { RapierRigidBody, RigidBody } from "@react-three/rapier"
+import { useThree } from "@react-three/fiber"
+import { type RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
+import type * as THREE from "three"
 import { MathUtils, Vector2, Vector3 } from "three"
-import * as THREE from "three"
 
 import {
   handlePointerDown as utilsHandlePointerDown,
@@ -12,24 +12,36 @@ import {
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { useMesh } from "@/hooks/use-mesh"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
+import { normalizeDelta } from "../arcade-game/lib/math"
+import { useAssets } from "../assets-provider"
 import { Basketball } from "./basketball"
 import RigidBodies from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
   const { playSoundFX } = useSiteAudio()
+  const { physicsParams } = useAssets()
+
+  const us = physicsParams.find(
+    (param) => param._title === "forward strength"
+  )?.value
+  const fs = physicsParams.find(
+    (param) => param._title === "upward strength"
+  )?.value
+
   const [isBasketball, setIsBasketball] = useState(false)
   const scene = useCurrentScene()
   const isOnTab = useIsOnTab()
-
   const gameDuration = useMinigameStore((s) => s.gameDuration)
   const initialPosition = useMinigameStore((s) => s.initialPosition)
   const hoopPosition = useMinigameStore((s) => s.hoopPosition)
-  const forwardStrength = useMinigameStore((s) => s.forwardStrength)
-  const upStrength = useMinigameStore((s) => s.upStrength)
+  const forwardStrength = us ?? 0.023
+  const upStrength = fs ?? 0.09
+
   const setScore = useMinigameStore((s) => s.setScore)
   const setTimeRemaining = useMinigameStore((s) => s.setTimeRemaining)
   const isGameActive = useMinigameStore((s) => s.isGameActive)
@@ -77,9 +89,7 @@ const HoopMinigameInner = () => {
   const isThrowable = useRef(true)
   const isUnmounting = useRef(false)
 
-  // Add a ref to track if the timer is ending
   const isTimerEnding = useRef(false)
-  // Add a ref to track if the timer is below 0.4 seconds
   const isTimerLow = useRef(false)
 
   const resetState = useCallback(() => {
@@ -296,7 +306,7 @@ const HoopMinigameInner = () => {
               setTimeout(() => {
                 if (isUnmounting.current) return
 
-                playSoundFX("TIMEOUT_BUZZER", 0.045)
+                playSoundFX("TIMEOUT_BUZZER", 0.06)
 
                 // if the ball is still in play, we add it to played balls
                 // only if it doesn't already exist there
@@ -396,7 +406,8 @@ const HoopMinigameInner = () => {
       startGame,
       upStrength,
       forwardStrength,
-      playSoundFX
+      playSoundFX,
+      throwVelocity: throwVelocity.current
     })
   }, [
     isGameActive,
@@ -424,14 +435,18 @@ const HoopMinigameInner = () => {
     }
   }, [isDragging, isBasketball, handlePointerUp])
 
-  useFrame(({ pointer }, delta) => {
+  useFrameCallback(({ pointer }, delta) => {
     if (!isBasketball) return
 
     if (isDragging && ballRef.current) {
       try {
         const ball = ballRef.current
-        throwVelocity.current.x = mousePos.current.x - lastMousePos.current.x
-        throwVelocity.current.y = mousePos.current.y - lastMousePos.current.y
+        const nd = normalizeDelta(delta)
+
+        throwVelocity.current.x =
+          (mousePos.current.x - lastMousePos.current.x) / nd
+        throwVelocity.current.y =
+          (mousePos.current.y - lastMousePos.current.y) / nd
         lastMousePos.current.copy(mousePos.current)
 
         const distance = 4
@@ -468,11 +483,11 @@ const HoopMinigameInner = () => {
         positionVectors.currentRot.set(rotation.x, rotation.y, rotation.z)
 
         // Interpolate towards the target position with smooth lerp
-        const lerpFactor = 0.002 // Adjust this value for smoother or more responsive movement
+        const lerpFactor = 0.2
         positionVectors.dragPos.lerpVectors(
           positionVectors.currentBallPos,
           positionVectors.targetPos,
-          Math.min(1, lerpFactor * (1 / delta)) // Scale by delta to ensure consistent speed
+          Math.min(1, lerpFactor * (1 / normalizeDelta(delta)))
         )
 
         if (
@@ -679,12 +694,6 @@ const HoopMinigameInner = () => {
             isTimerEnding={isTimerEnding.current}
             isTimerLow={isTimerLow.current}
           />
-
-          {/* <Trajectory
-            ballRef={ballRef}
-            isDragging={isDragging}
-            isResetting={isResetting}
-          /> */}
         </>
       )}
 

@@ -1,12 +1,30 @@
-import { NextResponse } from "next/server"
-import { createClient } from "@/utils/supabase/server"
 import { geolocation } from "@vercel/functions"
+import crypto from "crypto"
+import { NextResponse } from "next/server"
+
+import { createClient } from "@/utils/supabase/server"
 import { getTopScoresFromServer } from "@/utils/supabase/server"
 
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>()
-
 const RATE_LIMIT_WINDOW = 60 * 1000
 const MAX_REQUESTS = 3
+const TIME_WINDOW = 30000
+
+async function generateTimeWindowHash(timestamp: number): Promise<string> {
+  const timeWindow = Math.floor(timestamp / TIME_WINDOW) * TIME_WINDOW
+
+  const hash = crypto.createHash("sha256")
+  hash.update(timeWindow.toString())
+  return hash.digest("hex")
+}
+
+async function isValidTimeWindowHash(
+  timestamp: number,
+  providedHash: string
+): Promise<boolean> {
+  const expectedHash = await generateTimeWindowHash(timestamp)
+  return expectedHash === providedHash
+}
 
 function isRateLimited(clientId: string): boolean {
   const now = Date.now()
@@ -31,35 +49,73 @@ function isRateLimited(clientId: string): boolean {
 }
 
 export const dynamic = "force-dynamic"
+export const fetchCache = "force-no-store"
+export const revalidate = 0
 
 export async function GET() {
   try {
     const { data, error } = await getTopScoresFromServer()
 
     if (error) {
-      return NextResponse.json({ error }, { status: 500 })
+      return NextResponse.json(
+        { error },
+        {
+          status: 500,
+          headers: {
+            "Cache-Control": "no-store, max-age=0"
+          }
+        }
+      )
     }
 
-    return NextResponse.json({ data })
+    return NextResponse.json(
+      { data },
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0"
+        }
+      }
+    )
   } catch (error) {
     console.error("Error in scores API route:", error)
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store, max-age=0"
+        }
+      }
     )
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { playerName, score, clientId, timestamp } = await request.json()
+    const { playerName, score, clientId, timestamp, timeWindowHash } =
+      await request.json()
+
+    // Validate hash first
+    if (!timeWindowHash || typeof timeWindowHash !== "string") {
+      return NextResponse.json(
+        { error: "Invalid time window hash" },
+        { status: 400 }
+      )
+    }
 
     // validate timestamp
     const now = Date.now()
     const timeDiff = Math.abs(now - timestamp)
 
-    if (!timestamp || typeof timestamp !== "number" || timeDiff > 30000) {
+    if (!timestamp || typeof timestamp !== "number" || timeDiff > TIME_WINDOW) {
       return NextResponse.json({ error: "Invalid timestamp" }, { status: 400 })
+    }
+
+    if (!(await isValidTimeWindowHash(timestamp, timeWindowHash))) {
+      return NextResponse.json(
+        { error: "Invalid time window verification" },
+        { status: 400 }
+      )
     }
 
     if (
@@ -95,16 +151,32 @@ export async function POST(request: Request) {
 
     const supabase = createClient()
 
+    // check if a score exists for this player
+    const { data: existingScore } = await supabase
+      .from("scoreboard")
+      .select("id, score")
+      .eq("player_name", playerName)
+      .eq("country", details.flag)
+      .single()
+
+    // if the new score is lower than existing one, just return
+    if (existingScore && score <= existingScore.score) {
+      return NextResponse.json({ success: true })
+    }
+
+    // if no existing score or new score is higher, upsert the record
     const { error } = await supabase
       .from("scoreboard")
-      .insert([
+      .upsert(
         {
+          ...(existingScore?.id ? { id: existingScore.id } : {}),
           player_name: playerName,
           score: Math.floor(score),
           client_id: clientId,
           country: details.flag || "🏳️"
-        }
-      ])
+        },
+        { onConflict: "id" }
+      )
       .select()
 
     if (error) {

@@ -32,7 +32,7 @@ export function ProjectPeople({ entry }: { entry: QueryItemType }) {
 
   return (
     <div className="grid-layout !gap-y-0">
-      <h4 className="col-span-full text-mobile-h4 text-brand-g1 lg:hidden">
+      <h4 className="col-span-full text-f-h4-mobile text-brand-g1 lg:hidden lg:text-f-h4">
         Credits
       </h4>
       <ul className="grid-row-start-2 col-span-5 mt-1.25 flex flex-col divide-y divide-brand-w1/20">

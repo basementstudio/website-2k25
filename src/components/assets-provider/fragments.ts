@@ -16,6 +16,20 @@ export const characterFragment = fragmentOn("Characters", {
   textureFaces: urlFragment,
   textureArms: {
     url: true
+  },
+  petModel: {
+    file: {
+      url: true
+    }
+  },
+  pureTexture: {
+    url: true
+  },
+  bostonTexture: {
+    url: true
+  },
+  textureComic: {
+    url: true
   }
 })
 
@@ -65,6 +79,14 @@ export const mapFragment = fragmentOn("Map", {
   },
   doubleSideElements: {
     items: titleFragment
+  },
+  textures: {
+    rain: {
+      url: true
+    },
+    basketballVa: {
+      url: true
+    }
   }
 })
 
@@ -97,13 +119,15 @@ export const inspectableFragment = fragmentOn("Inspectables", {
 })
 
 export const sfxFragment = fragmentOn("Sfx", {
-  ambience: urlFragment,
   basketballTheme: urlFragment,
   basketballSwoosh: urlFragment,
   basketballNet: urlFragment,
   basketballThump: urlFragment,
   basketballBuzzer: urlFragment,
   basketballStreak: urlFragment,
+  knobTurning: urlFragment,
+  antenna: urlFragment,
+
   blog: {
     lockedDoor: {
       items: {
@@ -176,9 +200,6 @@ export const sfxFragment = fragmentOn("Sfx", {
     interference: {
       url: true
     }
-  },
-  officeAmbience: {
-    url: true
   }
 })
 
@@ -241,4 +262,11 @@ export const carFragment = fragmentOn("OutdoorCars", {
 
 export const lampFragment = fragmentOn("LampComponent", {
   extraLightmap: urlFragment
+})
+
+export const physicsParamsFragment = fragmentOn("PhysicsParams", {
+  items: {
+    _title: true,
+    value: true
+  }
 })

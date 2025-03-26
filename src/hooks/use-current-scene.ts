@@ -1,7 +1,18 @@
+import { useState } from "react"
+
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
-export const useCurrentScene = () => {
-  const currentScene = useNavigationStore((state) => state.currentScene)
+import { useSelectStore } from "./use-select-store"
 
-  return currentScene?.name ?? ""
+export const useCurrentScene = () => {
+  const [currentSceneName, setCurrentSceneName] = useState("")
+
+  useSelectStore(
+    useNavigationStore,
+    (state) => state.currentScene?.name || "",
+    (state, prevState) => state !== prevState,
+    (state) => setCurrentSceneName(state)
+  )
+
+  return currentSceneName
 }

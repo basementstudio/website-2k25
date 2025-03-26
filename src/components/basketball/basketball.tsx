@@ -1,8 +1,8 @@
-import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
@@ -40,7 +40,7 @@ export const Basketball = ({
   const { playSoundFX } = useSiteAudio()
   const setCursor = useCursor()
   const { basketball } = useAssets()
-  const basketballModel = useGLTF(basketball)
+  const basketballModel = useKTX2GLTF(basketball)
   const bounceCount = useRef(0)
 
   const geometry = useMemo(() => {
@@ -48,15 +48,18 @@ export const Basketball = ({
     return geo
   }, [basketballModel])
 
-  const originalMaterial = basketballModel.materials[
-    "Material.001"
-  ] as MeshStandardMaterial
+  const originalMaterial = useMemo(() => {
+    return (basketballModel.scene.children[0] as Mesh)
+      .material as MeshStandardMaterial
+  }, [basketballModel])
 
   const material = useMemo(() => {
     const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
-      LIGHT: true
+      LIGHT: true,
+      BASKETBALL: true
     })
-    mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
+    mat.uniforms.lightDirection.value = new Vector3(0, 1, -1)
+    mat.uniforms.backLightDirection.value = new Vector3(0, 0, 1)
     return mat
   }, [originalMaterial])
 
@@ -125,10 +128,10 @@ export const Basketball = ({
       angularDamping={0.5}
     >
       <mesh
-        scale={1.1}
+        scale={1.25}
         geometry={geometry}
         material={material}
-        rotation={[-Math.PI / 2.1, Math.PI / 2.1, 0]}
+        rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
         onPointerDown={isTimerLow ? undefined : handlePointerDown}
         onPointerMove={isTimerLow ? undefined : handlePointerMove}
         onPointerUp={isTimerLow ? undefined : handlePointerUp}

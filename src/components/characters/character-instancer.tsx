@@ -1,9 +1,14 @@
-import { useGLTF, useTexture } from "@react-three/drei"
+import { useTexture } from "@react-three/drei"
 import { memo, useMemo } from "react"
 import type * as THREE from "three"
 import { BufferAttribute, Color, FloatType } from "three"
 
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
+
 import { useAssets } from "../assets-provider"
+import { useFadeAnimation } from "../inspectables/use-fade-animation"
+import { FACES_GRID_COLS, SKINNED_MESH_KEYS } from "./characters-config"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
 import { getCharacterMaterial } from "./material/chartacter-material"
 
@@ -12,46 +17,6 @@ const {
   useInstancedMesh: useCharacterMesh,
   InstancedMesh: CharacterInstancedMesh
 } = createInstancedSkinnedMesh()
-
-export enum CharacterAnimationName {
-  "Chill" = "Chill",
-  "Floor" = "Floor",
-  "Floor2" = "Floor2",
-  "Iddle-01" = "Iddle-01",
-  "Iddle-02" = "Iddle-02",
-  "Sit" = "Sit",
-  "Character-RigAction" = "Character-RigAction",
-  "Talking" = "Talking",
-  "Talking2" = "Talking2",
-  "Talking3" = "Talking3",
-  "Walking" = "Walking",
-  "Working" = "Working"
-}
-
-const SKINNED_MESH_KEYS = [
-  "head",
-  "body",
-  "arms",
-  "jj-hair",
-  "jj-glass",
-  "nat-hair"
-] as const
-
-export enum CharacterMeshes {
-  head = 0,
-  body = 1,
-  arms = 2,
-  jjHair = 3,
-  jjGlass = 4,
-  natHair = 5
-}
-
-export enum CharacterTextureIds {
-  none = -1,
-  body = 0,
-  head = 1,
-  arms = 2
-}
 
 interface CharactersGLTF {
   nodes: {
@@ -62,7 +27,7 @@ interface CharactersGLTF {
 
 export { CharacterPosition, useCharacterMesh }
 
-const MAX_CHARACTERS = 10
+const MAX_CHARACTERS = 12
 
 const MAX_CHARACTERS_INSTANCES = MAX_CHARACTERS * 4
 
@@ -82,23 +47,29 @@ export const setGeometryFloatAttribute = (
 function CharacterInstanceConfigInner() {
   const { characters } = useAssets()
 
-  const { nodes, animations } = useGLTF(
+  const { nodes, animations } = useKTX2GLTF(
     characters.model
   ) as unknown as CharactersGLTF
 
   const textureBody = useTexture(characters.textureBody)
   const textureFaces = useTexture(characters.textureFaces)
   const textureArms = useTexture(characters.textureArms)
+  const textureComic = useTexture(characters.textureComic)
+
+  const { fadeFactor } = useFadeAnimation()
+
+  useFrameCallback(() => {
+    if (material) {
+      material.uniforms.fadeFactor.value = fadeFactor.current.get()
+    }
+  })
 
   if (!SKINNED_MESH_KEYS.every((key) => nodes[key as keyof typeof nodes])) {
     console.error("INVALID CHARACTERS MODEL")
-    console.log("CURRENT NODES:")
-    console.log(nodes)
 
     return null
   }
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const material = useMemo(() => {
     // const bodyMapIndices = new Uint32Array(MAX_CHARACTERS_INSTANCES).fill(0)
     // nodes.BODY.geometry.setAttribute("instanceMapIndex", new InstancedBufferAttribute(mapIndices, 1))
@@ -110,8 +81,7 @@ function CharacterInstanceConfigInner() {
     textureBody.needsUpdate = true
     const material = getCharacterMaterial()
 
-    const facesRepeat = 2
-    textureFaces.repeat.set(1 / facesRepeat, 1 / facesRepeat)
+    textureFaces.repeat.set(1 / FACES_GRID_COLS, 1 / FACES_GRID_COLS)
     textureFaces.flipY = false
     textureFaces.updateMatrix()
     textureFaces.needsUpdate = true
@@ -121,6 +91,10 @@ function CharacterInstanceConfigInner() {
     textureArms.flipY = false
     textureArms.updateMatrix()
     textureArms.needsUpdate = true
+
+    textureComic.flipY = false
+    textureComic.updateMatrix()
+    textureComic.needsUpdate = true
 
     /** Character material accepts having more than one instance
      * each one can have a different map assigned
@@ -141,10 +115,26 @@ function CharacterInstanceConfigInner() {
       map: textureArms,
       mapTransform: textureArms.matrix
     }
-    material.uniforms.mapConfigs = {
-      value: [bodyMapConfig, headMapConfig, armsMapConfig]
+    const comicMapConfig: MapConfig = {
+      map: textureComic,
+      mapTransform: textureComic.matrix
     }
-    material.defines = { USE_MULTI_MAP: "", MULTI_MAP_COUNT: 3 }
+
+    const mapConfigs = [
+      bodyMapConfig,
+      headMapConfig,
+      armsMapConfig,
+      comicMapConfig
+    ]
+
+    material.uniforms.mapConfigs = {
+      value: mapConfigs
+    }
+    material.defines = {
+      USE_MULTI_MAP: "",
+      USE_INSTANCED_LIGHT: "",
+      MULTI_MAP_COUNT: mapConfigs.length
+    }
 
     // disable morph targets
     Object.keys(nodes).forEach((nodeKey) => {
@@ -153,6 +143,7 @@ function CharacterInstanceConfigInner() {
         node.morphTargetInfluences.map((_, index) => {
           // node.morphTargetInfluences![index] = 0
           nodes[nodeKey as keyof typeof nodes].morphTargetInfluences![index] = 0
+          delete nodes[nodeKey as keyof typeof nodes].geometry.attributes.color
         })
       }
     })
@@ -160,6 +151,8 @@ function CharacterInstanceConfigInner() {
     return material
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textureBody, textureFaces, nodes])
+
+  // console.log(Object.values(nodes).filter(n => n.type === "SkinnedMesh").map(n => n.name))
 
   return (
     <>
