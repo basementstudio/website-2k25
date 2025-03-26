@@ -2,6 +2,8 @@
 // The config you add here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
+const RUN_SENTRY = process.env.RUN_SENTRY === "true"
+
 import * as Sentry from "@sentry/nextjs"
 
 Sentry.init({
@@ -22,5 +24,7 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false
+  debug: false,
+
+  enabled: RUN_SENTRY
 })
