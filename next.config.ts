@@ -99,5 +99,6 @@ export default withSentryConfig(nextConfig, {
     enabled: true
   },
 
+  telemetry: RUN_SENTRY,
   debug: RUN_SENTRY
 })
