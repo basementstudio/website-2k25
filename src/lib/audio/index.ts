@@ -139,7 +139,6 @@ export class AudioSource {
     }
   }
 }
-
 export class WebAudioPlayer {
   public audioContext: AudioContext
   public masterOutput: GainNode
@@ -227,31 +226,6 @@ export class WebAudioPlayer {
     })
   }
 
-  // Get all audio sources
-  getAllAudioSources(): AudioSource[] {
-    return Array.from(this.audioSources)
-  }
-
-  // Stop all music tracks (not SFX or game audio)
-  stopAllMusicTracks(): void {
-    this.audioSources.forEach((source) => {
-      if (!source.isSFX && !source.isGameAudio && source.isPlaying) {
-        source.clearOnEnded()
-        source?.stop()
-      }
-    })
-  }
-
-  // Stop all game audio tracks
-  stopAllGameTracks(): void {
-    this.audioSources.forEach((source) => {
-      if (source.isGameAudio && source.isPlaying) {
-        source.clearOnEnded()
-        source?.stop()
-      }
-    })
-  }
-
   setVolume(volume: number) {
     this.masterOutput.gain.value = volume
     this.volume = volume
@@ -309,9 +283,6 @@ export class WebAudioPlayer {
     this.ambienceChannel.gain.value = 0
   }
 
-  /**
-   * Playlist functionality for sequential track playback
-   */
   createPlaylist(
     tracks: Array<{ url: string; volume?: number; metadata?: any }>,
     options?: {
@@ -327,10 +298,6 @@ export class WebAudioPlayer {
     return new Playlist(this, tracks, options)
   }
 }
-
-/**
- * Playlist class for managing sequential audio playback
- */
 export class Playlist {
   private player: WebAudioPlayer
   private tracks: Array<{ url: string; volume?: number; metadata?: any }> = []
@@ -373,9 +340,6 @@ export class Playlist {
     }
   }
 
-  /**
-   * Start or resume playback
-   */
   async play(): Promise<void> {
     if (this.tracks.length === 0) return
     if (this.isLoading) {
@@ -392,33 +356,6 @@ export class Playlist {
     }
   }
 
-  /**
-   * Pause the current track
-   */
-  pause(): void {
-    if (!this.currentSource || !this.isPlaying) return
-
-    this.currentSource.pause()
-    this.isPlaying = false
-  }
-
-  /**
-   * Stop playback completely
-   */
-  stop(): void {
-    if (!this.currentSource && !this.isPlaying) return
-
-    if (this.currentSource) {
-      this.currentSource.clearOnEnded()
-      this.currentSource?.stop()
-      this.currentSource = null
-    }
-    this.isPlaying = false
-  }
-
-  /**
-   * Skip to the next track
-   */
   async next(): Promise<void> {
     if (this.tracks.length === 0 || this.isLoading) return
 
@@ -448,44 +385,17 @@ export class Playlist {
     await this.playTrackAt(nextIndex)
   }
 
-  /**
-   * Toggle playlist looping
-   */
-  toggleLoop(): boolean {
-    this.options.loop = !this.options.loop
-    return this.options.loop
+  stop(): void {
+    if (!this.currentSource && !this.isPlaying) return
+
+    if (this.currentSource) {
+      this.currentSource.clearOnEnded()
+      this.currentSource?.stop()
+      this.currentSource = null
+    }
+    this.isPlaying = false
   }
 
-  /**
-   * Get current track information
-   */
-  getCurrentTrack(): {
-    track: { url: string; volume?: number; metadata?: any }
-    index: number
-  } | null {
-    if (this.currentIndex < 0 || this.currentIndex >= this.tracks.length) {
-      return null
-    }
-
-    return {
-      track: this.tracks[this.currentIndex],
-      index: this.currentIndex
-    }
-  }
-
-  /**
-   * Get the current playback state
-   */
-  getPlaybackState(): { isPlaying: boolean; currentIndex: number } {
-    return {
-      isPlaying: this.isPlaying,
-      currentIndex: this.currentIndex
-    }
-  }
-
-  /**
-   * Jump to a specific track by index
-   */
   async jumpToTrack(index: number): Promise<void> {
     if (index < 0 || index >= this.tracks.length || this.isLoading) return
     if (index === this.currentIndex && this.isPlaying) {
@@ -495,29 +405,6 @@ export class Playlist {
     await this.playTrackAt(index)
   }
 
-  /**
-   * Set or replace the entire playlist
-   */
-  setTracks(
-    tracks: Array<{ url: string; volume?: number; metadata?: any }>,
-    startPlaying: boolean = false
-  ): void {
-    this?.stop()
-    this.tracks = [...tracks]
-    this.currentIndex = -1
-    // Clear the loaded sources cache when setting new tracks
-    this.loadedSources.clear()
-
-    if (startPlaying) {
-      try {
-        this.play()
-      } catch (error) {
-        console.error("Error playing playlist:", error)
-      }
-    }
-  }
-
-  // Private methods
   private async playTrackAt(index: number): Promise<void> {
     if (index < 0 || index >= this.tracks.length) {
       console.error(`[Playlist] Invalid track index: ${index}`)

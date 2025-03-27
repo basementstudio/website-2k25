@@ -69,7 +69,7 @@ export const PlayedBasketballs = () => {
   }, [basketballModel])
 
   const material = useMemo(() => {
-    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), {
       LIGHT: true
     })
     mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)

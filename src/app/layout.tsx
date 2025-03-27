@@ -6,6 +6,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
 
+import { AppHooks } from "@/components/app-hooks-init"
 import { AssetsProvider } from "@/components/assets-provider"
 import { fetchAssets } from "@/components/assets-provider/fetch-assets"
 import Contact from "@/components/contact/contact"
@@ -17,7 +18,6 @@ import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
 import LenisScrollProvider from "@/providers/lenis-provider"
-import { AppHooks } from "@/utils/app-hooks-init"
 import { cn } from "@/utils/cn"
 
 export const metadata: Metadata = {

@@ -3,7 +3,7 @@
 import { basehub } from "basehub"
 import { fragmentOn } from "basehub"
 
-import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
+import { IMAGE_FRAGMENT } from "@/service/basehub/fragments"
 
 const query = fragmentOn("Query", {
   pages: {

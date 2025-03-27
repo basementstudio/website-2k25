@@ -1,4 +1,5 @@
 "use client"
+
 import { type LenisRef, ReactLenis, useLenis } from "lenis/react"
 import { useAnimationFrame } from "motion/react"
 import { type FC, useRef } from "react"

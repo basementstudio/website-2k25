@@ -5,6 +5,7 @@ import { useLenis } from "lenis/react"
 import { AnimatePresence, motion } from "motion/react"
 import { usePathname } from "next/navigation"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { mergeRefs } from "react-merge-refs"
 
 import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
@@ -15,7 +16,6 @@ import { useHandleContactButton } from "@/hooks/use-handle-contact"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
-import { mergeRefs } from "@/utils/mergeRefs"
 
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
@@ -296,7 +296,7 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
     return (
       <Portal id="mobile-menu">
         <motion.div
-          ref={mergeRefs(mobileMenuRef, focusTrapRef)}
+          ref={mergeRefs([mobileMenuRef, focusTrapRef])}
           className={cn(
             "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6"
           )}

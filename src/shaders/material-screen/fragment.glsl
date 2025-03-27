@@ -1,4 +1,4 @@
-precision mediump float; // Declare medium precision by default
+precision mediump float;
 
 uniform sampler2D map;
 uniform float uTime;
@@ -38,20 +38,17 @@ vec2 curveRemapUV(vec2 uv) {
   return uv;
 }
 
-// Random function
 float random(vec2 st) {
   return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
 float peak(float x, float xpos, float scale) {
   float d = abs(x - xpos);
-  // Approximation of log(1/d) for small values
   float approxLog = d > 0.001 ? -4.605 * d + 2.0 : 6.0;
   return clamp((1.0 - x) * scale * approxLog, 0.0, 1.0);
 }
 
 void main() {
-  // Add cycle to scan line
   float scanCycleTime = mod(uTime * SCAN_SPEED, SCAN_CYCLE + 50.0);
   float scanPos;
   if (scanCycleTime < SCAN_CYCLE) {

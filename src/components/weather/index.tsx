@@ -28,18 +28,12 @@ export function Weather() {
       transparent: true
     })
     // cerate materialClose
-    const rainMaterialClose = createGlobalShaderMaterial(
-      baseMaterial as any,
-      false
-    )
+    const rainMaterialClose = createGlobalShaderMaterial(baseMaterial as any)
 
     rainMaterialClose.uniforms.mapMatrix.value = closeMatrix
 
     // create materialFar
-    const rainMaterialFar = createGlobalShaderMaterial(
-      baseMaterial as any,
-      false
-    )
+    const rainMaterialFar = createGlobalShaderMaterial(baseMaterial as any)
     farMatrix.multiplyScalar(4)
     rainMaterialFar.uniforms.mapMatrix.value = farMatrix
 

@@ -9,8 +9,6 @@ export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
-  /** TODO: remove reverse as it is not longer needed */
-  _reverse: boolean,
   defines?: {
     GLASS?: boolean
     GODRAY?: boolean
@@ -64,10 +62,6 @@ export const createGlobalShaderMaterial = (
     glassReflex: { value: null },
     emissiveMap: { value: emissiveMap },
 
-    // God Rays
-    uGodrayOpacity: { value: 0 },
-    uGodrayDensity: { value: 0.75 },
-
     // Inspectables
     inspectingEnabled: { value: false },
     inspectingFactor: { value: 0 },
@@ -77,6 +71,11 @@ export const createGlobalShaderMaterial = (
     lampLightmap: { value: null },
     lightLampEnabled: { value: false }
   } as Record<string, { value: unknown }>
+
+  if (defines?.GODRAY) {
+    uniforms["uGodrayOpacity"] = { value: 0 }
+    uniforms["uGodrayDensity"] = { value: 0.75 }
+  }
 
   if (defines?.LIGHT) {
     uniforms["lightDirection"] = { value: lightDirection }

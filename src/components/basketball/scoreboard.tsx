@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react"
 
+import { onScoreUpdate } from "@/service/supabase/client"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
-import { onScoreUpdate } from "@/utils/supabase/client"
 
 interface Score {
   player_name: string

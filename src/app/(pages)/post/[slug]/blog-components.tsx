@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Link } from "@/components/primitives/link"
 import { RichText } from "@/components/primitives/rich-text"
 import { Video } from "@/components/primitives/video"
-import { ImageFragment } from "@/lib/basehub/fragments"
+import { ImageFragment } from "@/service/basehub/fragments"
 
 import { BaseCodeBlock } from "./components/code-block"
 import { CodeGroupHeader } from "./components/code-block-header"

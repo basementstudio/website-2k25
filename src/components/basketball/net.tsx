@@ -1,10 +1,9 @@
 import { useFrame, useLoader } from "@react-three/fiber"
 import { useEffect, useRef, useState } from "react"
-import { DoubleSide, Mesh, NearestFilter, ShaderMaterial, Texture } from "three"
+import { Mesh, NearestFilter, ShaderMaterial, Texture } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
-import fragmentShader from "@/shaders/net-shader/fragment.glsl"
-import vertexShader from "@/shaders/net-shader/vertex.glsl"
+import { createNetMaterial } from "@/shaders/material-net"
 
 import { useAssets } from "../assets-provider"
 
@@ -50,20 +49,12 @@ export const Net = ({ mesh }: NetProps) => {
       texture.minFilter = NearestFilter
       texture.generateMipmaps = false
 
-      const shaderMaterial = new ShaderMaterial({
-        vertexShader,
-        fragmentShader,
-        transparent: true,
-        side: DoubleSide,
-
-        uniforms: {
-          tDisplacement: { value: offsets },
-          map: { value: texture },
-          currentFrame: { value: 0 },
-          totalFrames: { value: TOTAL_FRAMES },
-          offsetScale: { value: OFFSET_SCALE },
-          vertexCount: { value: mesh.geometry.attributes.position.count }
-        }
+      const shaderMaterial = createNetMaterial({
+        offsets,
+        texture,
+        totalFrames: TOTAL_FRAMES,
+        offsetScale: OFFSET_SCALE,
+        vertexCount: mesh.geometry.attributes.position.count
       })
 
       materialRef.current = shaderMaterial

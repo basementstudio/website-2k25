@@ -2,8 +2,8 @@ import Image from "next/image"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
-import { IMAGE_FRAGMENT } from "@/lib/basehub/fragments"
 import { client } from "@/service/basehub"
+import { IMAGE_FRAGMENT } from "@/service/basehub/fragments"
 import { cn } from "@/utils/cn"
 
 export async function RelatedProjects({

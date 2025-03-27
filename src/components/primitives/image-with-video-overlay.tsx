@@ -5,7 +5,7 @@ import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
 import { useDeviceDetect } from "@/hooks/use-device-detect"
-import { ImageFragment, VideoFragment } from "@/lib/basehub/fragments"
+import { ImageFragment, VideoFragment } from "@/service/basehub/fragments"
 import { cn } from "@/utils/cn"
 
 const Video = dynamic(

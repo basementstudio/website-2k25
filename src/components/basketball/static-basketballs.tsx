@@ -38,7 +38,7 @@ const StaticBasketballs = () => {
   }, [basketballModel])
 
   const material = useMemo(() => {
-    const mat = createGlobalShaderMaterial(originalMaterial.clone(), false, {
+    const mat = createGlobalShaderMaterial(originalMaterial.clone(), {
       LIGHT: true
     })
     mat.uniforms.lightDirection.value = new Vector3(0, 0, 1)
@@ -48,7 +48,7 @@ const StaticBasketballs = () => {
   useEffect(() => {
     if (!playedBallMaterial) {
       const clonedMaterial = originalMaterial.clone()
-      const material = createGlobalShaderMaterial(clonedMaterial, false, {
+      const material = createGlobalShaderMaterial(clonedMaterial, {
         LIGHT: true
       })
       material.uniforms.lightDirection.value = new Vector3(0, 0, 1)
