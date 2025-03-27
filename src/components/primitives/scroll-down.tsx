@@ -71,7 +71,7 @@ export const ScrollDown = () => {
           {selected === null && (
             <motion.button
               onClick={handleClick}
-              className="-mx-4 -my-2 px-4 py-2"
+              className="-mx-4 -my-2 px-4 py-2 focus-visible:!ring-offset-0"
               style={{
                 opacity,
                 visibility

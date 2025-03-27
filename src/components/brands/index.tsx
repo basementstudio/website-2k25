@@ -84,7 +84,7 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
         <div className="grid-rows-auto group grid grid-cols-6 gap-3 xl:grid-cols-8">
           {brands.map((brand) => (
             <motion.a
-              className="aspect-[202/110] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
+              className="aspect-[202/110] text-brand-w1 focus-visible:!ring-offset-0 [&>svg]:w-16 sm:[&>svg]:w-auto"
               href={brand.website ?? ""}
               key={brand._id}
               onMouseEnter={() => setHoveredBrandId(brand._id)}
