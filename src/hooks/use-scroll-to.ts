@@ -18,16 +18,11 @@ export const useScrollTo = () => {
         }
       }
 
-      window.addEventListener("scroll", onScroll, {
-        passive: true
-      })
+      window.addEventListener("scroll", onScroll, { passive: true })
 
       onScroll()
 
-      window.scrollTo({
-        top: offset,
-        behavior: behavior
-      })
+      window.scrollTo({ top: offset, behavior: behavior })
     },
     []
   )

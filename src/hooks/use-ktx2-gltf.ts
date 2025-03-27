@@ -8,12 +8,12 @@ type ExtendedGLTFLoader = {
 
 let cachedKTX2Loader: any = null
 
-export function useKTX2GLTF<T extends GLTF>(
+export const useKTX2GLTF = <T extends GLTF>(
   path: string,
   draco?: string,
   useCaching = true,
   transcoderPath = "/basis-transcoder/"
-): T {
+): T => {
   const { gl } = useThree()
 
   return useGLTF(path, draco, useCaching, (loader: ExtendedGLTFLoader) => {

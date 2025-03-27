@@ -38,11 +38,13 @@ export const useVideoResumeOnVisibilityChange = (
 
 export const createVideoTextureWithResume = (url: string) => {
   const videoElement = document.createElement("video")
+
   videoElement.src = url
   videoElement.loop = true
   videoElement.muted = true
   videoElement.playsInline = true
   videoElement.crossOrigin = "anonymous"
+
   try {
     videoElement.play().catch((err) => console.warn("Video play failed:", err))
   } catch (error) {

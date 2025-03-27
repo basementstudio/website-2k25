@@ -18,7 +18,7 @@ type DD = {
   isTouch?: boolean
 }
 
-function getDD() {
+const getDD = () => {
   const isTouchDevice =
     "ontouchstart" in window ||
     navigator.maxTouchPoints > 0 ||
@@ -53,9 +53,7 @@ export const useDeviceDetect = (): DD => {
     setIsHydrated(true)
   }, [])
 
-  if (!isHydrated) {
-    return {}
-  }
+  if (!isHydrated) return {}
 
   return getDD()
 }

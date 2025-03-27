@@ -42,7 +42,7 @@ export const useGlobalFrameLoop = () => {
  *
  * @returns An object with time and delta references
  */
-export const usePausableTime = () => {
+const usePausableTime = () => {
   const { isContactOpen } = useContactStore()
   const pausableTimeRef = useRef(0)
   const pausableDeltaRef = useRef(0)

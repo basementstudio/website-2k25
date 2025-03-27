@@ -1,4 +1,3 @@
-import { PerspectiveCamera } from "@react-three/drei"
 import {
   Container,
   DefaultProperties,
@@ -6,7 +5,6 @@ import {
   Root
 } from "@react-three/uikit"
 import { useEffect, useRef, useState } from "react"
-import { Vector3 } from "three"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
 import { useArcadeStore } from "@/store/arcade-store"

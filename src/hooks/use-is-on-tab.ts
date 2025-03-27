@@ -11,6 +11,7 @@ export const useIsOnTab = () => {
     document.addEventListener("visibilitychange", handleVisibilityChange, {
       passive: true
     })
+
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange)
     }

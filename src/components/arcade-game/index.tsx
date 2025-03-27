@@ -18,13 +18,12 @@ import { Road } from "./road"
 import { DEFAULT_SPEED, GAME_SPEED, useRoad } from "./road/use-road"
 import { Skybox } from "./skybox"
 
-export const ArcadeGame = ({
-  visible,
-  screenMaterial
-}: {
+interface arcadeGameProps {
   visible: boolean
   screenMaterial: ShaderMaterial
-}) => {
+}
+
+export const ArcadeGame = ({ visible, screenMaterial }: arcadeGameProps) => {
   const setSpeed = useRoad((s) => s.setSpeed)
   const speedRef = useRoad((s) => s.speedRef)
   const gameOver = useGame((s) => s.gameOver)

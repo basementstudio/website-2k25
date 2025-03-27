@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react"
 import { StoreApi, UseBoundStore } from "zustand"
 
-export function useSelectStore<T, K, C extends (state: K) => void>(
+export const useSelectStore = <T, K, C extends (state: K) => void>(
   store: UseBoundStore<StoreApi<T>>,
   selector: (state: T) => K,
   comparison: (state: K, prevState: K) => boolean,
   callback: C
-) {
+) => {
   const comparisonRef = useRef(comparison)
   comparisonRef.current = comparison
 
