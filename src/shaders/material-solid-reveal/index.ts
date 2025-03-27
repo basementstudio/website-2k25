@@ -1,12 +1,10 @@
 import { GLSL3, RawShaderMaterial, Vector2 } from "three"
 
-import fragmentShader from "./shaders/index.frag"
-import vertexShader from "./shaders/index.vert"
+import fragmentShader from "./fragment.glsl"
+import vertexShader from "./vertex.glsl"
 
-export function getSolidRevealMaterial() {
-  return new RawShaderMaterial({
-    vertexShader,
-    fragmentShader,
+export const createSolidRevealMaterial = () =>
+  new RawShaderMaterial({
     glslVersion: GLSL3,
     uniforms: {
       uTime: { value: 0.0 },
@@ -16,6 +14,7 @@ export function getSolidRevealMaterial() {
       uScreenSize: { value: new Vector2(1, 1) },
       uNear: { value: 0.1 },
       uFar: { value: 100 }
-    }
+    },
+    vertexShader,
+    fragmentShader
   })
-}

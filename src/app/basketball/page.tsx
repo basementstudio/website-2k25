@@ -3,7 +3,7 @@
 import { Geist_Mono } from "next/font/google"
 
 import { ArcadeNameInput } from "@/components/basketball/arcade-name-input"
-import Scoreboard from "@/components/basketball/scoreboard"
+import { Scoreboard } from "@/components/basketball/scoreboard"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
 import { useMinigameStore } from "@/store/minigame-store"

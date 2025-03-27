@@ -1,12 +1,10 @@
 import { GLSL3, RawShaderMaterial, Vector2 } from "three"
 
-import fragmentShader from "./shaders/index.frag"
-import vertexShader from "./shaders/index.vert"
+import fragmentShader from "./fragment.glsl"
+import vertexShader from "./vertex.glsl"
 
-export function getFlowMaterial() {
-  return new RawShaderMaterial({
-    vertexShader,
-    fragmentShader,
+export const createFlowMaterial = () =>
+  new RawShaderMaterial({
     glslVersion: GLSL3,
     uniforms: {
       uFrame: { value: 0 },
@@ -14,6 +12,7 @@ export function getFlowMaterial() {
       uMousePosition: { value: new Vector2(10, 10) },
       uMouseMoving: { value: 0 },
       uMouseDepth: { value: 0 }
-    }
+    },
+    vertexShader,
+    fragmentShader
   })
-}
