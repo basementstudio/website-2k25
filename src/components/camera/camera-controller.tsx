@@ -3,7 +3,8 @@ import { useControls } from "leva"
 import { useEffect, useState } from "react"
 import { PerspectiveCamera } from "three"
 
-import { useNavigationStore } from "../navigation-handler/navigation-store"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+
 import { CustomCamera } from "./camera-controls"
 import { WasdControls } from "./wasd-controls"
 
@@ -22,14 +23,10 @@ export const CameraController = () => {
   })
 
   useEffect(() => {
-    if (camera instanceof PerspectiveCamera) {
-      setMainCamera(camera)
-    }
+    if (camera instanceof PerspectiveCamera) setMainCamera(camera)
   }, [camera, setMainCamera])
 
-  if (isFlyMode) {
-    return <WasdControls />
-  }
+  if (isFlyMode) return <WasdControls />
 
   return <CustomCamera />
 }

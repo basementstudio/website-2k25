@@ -1,3 +1,1 @@
-export function FallbackLoading() {
-  return null
-}
+export const FallbackLoading = () => null

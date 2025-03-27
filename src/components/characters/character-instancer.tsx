@@ -5,12 +5,12 @@ import { BufferAttribute, Color, FloatType } from "three"
 
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { createCharacterMaterial } from "@/shaders/material-characters"
 
 import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
 import { FACES_GRID_COLS, SKINNED_MESH_KEYS } from "./characters-config"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
-import { getCharacterMaterial } from "./material/chartacter-material"
 
 const {
   InstancePosition: CharacterPosition,
@@ -79,7 +79,7 @@ function CharacterInstanceConfigInner() {
     textureBody.flipY = false
     textureBody.updateMatrix()
     textureBody.needsUpdate = true
-    const material = getCharacterMaterial()
+    const material = createCharacterMaterial()
 
     textureFaces.repeat.set(1 / FACES_GRID_COLS, 1 / FACES_GRID_COLS)
     textureFaces.flipY = false

@@ -1,7 +1,7 @@
 import { cn } from "@/utils/cn"
 
 import type { QueryType } from "./query"
-import { Copyright, InternalLinks, SocialLinks, SoDa } from "./shared-sections"
+import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
 import { StayConnected } from "./stay-connected"
 
 const Logo = ({ className }: { className?: string }) => (

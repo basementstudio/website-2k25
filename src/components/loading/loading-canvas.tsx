@@ -2,12 +2,13 @@ import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import dynamic from "next/dynamic"
 import { useEffect, useRef } from "react"
 
+import { useAssets } from "@/components/assets-provider"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 
-import { useAssets } from "../assets-provider"
-import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useAppLoadingStore } from "./app-loading-handler"
+
 // Fallback component for when the worker fails or isn't supported
 const Fallback = dynamic(
   () => import("./fallback-loading").then((mod) => mod.FallbackLoading),

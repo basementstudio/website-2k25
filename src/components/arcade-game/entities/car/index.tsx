@@ -21,15 +21,6 @@ export interface CarProps {
 
 export const Car = forwardRef<Group, CarProps>(
   ({ onIntersectionEnter, ...props }, ref) => {
-    useControls(() => ({
-      showHitboxes: {
-        value: false,
-        onChange: (value: boolean) => {
-          useGame.setState({ showHitBoxes: value })
-        }
-      }
-    }))
-
     const showHitBoxes = useGame((s) => s.showHitBoxes)
     const groupRef = useRef<Object3D | null>(null)
 

@@ -2,13 +2,12 @@ import { useTexture } from "@react-three/drei"
 import { useMemo } from "react"
 import { Color, Matrix3, MeshStandardMaterial, RepeatWrapping } from "three"
 
+import { useAssets } from "@/components/assets-provider"
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
-import { useAssets } from "../assets-provider"
-
-export function Weather() {
+export const Weather = () => {
   const {
     mapTextures: { rain: rainTexture }
   } = useAssets()
@@ -27,7 +26,8 @@ export function Weather() {
       opacity: 0.5,
       transparent: true
     })
-    // cerate materialClose
+
+    // create materialClose
     const rainMaterialClose = createGlobalShaderMaterial(baseMaterial as any)
 
     rainMaterialClose.uniforms.mapMatrix.value = closeMatrix

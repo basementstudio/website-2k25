@@ -3,8 +3,9 @@
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import { useEffect, useState } from "react"
 
-import { useAssets } from "../assets-provider"
-import ContactScreen from "./contact-screen"
+import { useAssets } from "@/components/assets-provider"
+
+import { ContactScreen } from "./contact-screen"
 import { useContactStore } from "./contact-store"
 
 const debounce = (fn: Function, ms = 300) => {
@@ -26,7 +27,7 @@ type WorkerMessageType =
   | "animation-starting"
   | "animation-complete"
 
-const ContactCanvas = () => {
+export const ContactCanvas = () => {
   const { contactPhone } = useAssets()
   const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
@@ -171,5 +172,3 @@ const ContactCanvas = () => {
     </>
   )
 }
-
-export default ContactCanvas

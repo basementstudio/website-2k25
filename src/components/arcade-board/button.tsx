@@ -20,11 +20,11 @@ const SECONDARY_BUTTONS = {
   "02_BT_7": "a"
 } as const
 
-export const Button = memo(function ButtonInner({
-  buttonName
-}: {
+interface ButtonProps {
   buttonName: string
-}) {
+}
+
+export const Button = memo(function ButtonInner({ buttonName }: ButtonProps) {
   const { arcade } = useMesh()
   const { buttons } = arcade
 

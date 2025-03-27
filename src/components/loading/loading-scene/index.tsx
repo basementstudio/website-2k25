@@ -1,6 +1,6 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { createPortal, useFrame, useThree } from "@react-three/fiber"
-import { memo, useCallback, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 import {
   Color,
   Group,
@@ -20,14 +20,12 @@ import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
 
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
+import { createFlowMaterial } from "@/shaders/material-flow"
+import { createSolidRevealMaterial } from "@/shaders/material-solid-reveal"
 import { doubleFbo } from "@/utils/double-fbo"
 import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
-
-import { getFlowMaterial } from "./materials/flow-material"
-import { getSolidRevealMaterial } from "./materials/solid-reveal-material"
-import { useLerpMouse } from "./use-lerp-mouse"
 
 interface LoadingWorkerStore {
   isAppLoaded: boolean
@@ -55,16 +53,6 @@ export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
   cameraTarget: target,
   cameraConfig: null
 }))
-
-const valueRemap = (
-  value: number,
-  min: number,
-  max: number,
-  newMin: number,
-  newMax: number
-) => {
-  return newMin + ((value - min) * (newMax - newMin)) / (max - min)
-}
 
 const handleMessage = ({
   data: { type, cameraConfig, isAppLoaded, progress }
@@ -101,7 +89,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const solid = useMemo(() => {
     const solid = nodes.SM_Solid_1
 
-    solid.material = getSolidRevealMaterial()
+    solid.material = createSolidRevealMaterial()
 
     return solid
   }, [nodes])
@@ -124,7 +112,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   }, [])
 
   const flowMaterial = useMemo(() => {
-    const material = getFlowMaterial()
+    const material = createFlowMaterial()
     material.uniforms.uFeedbackTexture = { value: flowDoubleFbo.read.texture }
     return material
   }, [flowDoubleFbo])

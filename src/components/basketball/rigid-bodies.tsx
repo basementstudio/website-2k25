@@ -5,11 +5,11 @@ import { track } from "@vercel/analytics"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 
-export default function RigidBodies({
-  hoopPosition
-}: {
+interface RigidBodiesProps {
   hoopPosition: { x: number; y: number; z: number }
-}) {
+}
+
+export const RigidBodies = ({ hoopPosition }: RigidBodiesProps) => {
   const setScore = useMinigameStore((s) => s.setScore)
   const scoreMultiplier = useMinigameStore((s) => s.scoreMultiplier)
   const incrementConsecutiveScores = useMinigameStore(

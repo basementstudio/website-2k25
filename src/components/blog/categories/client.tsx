@@ -5,11 +5,11 @@ import { usePathname, useRouter } from "next/navigation"
 
 import { cn } from "@/utils/cn"
 
-export const CategoriesClient = ({
-  categories
-}: {
+interface CategoriesClientProps {
   categories: { _title: string; _slug: string }[]
-}) => {
+}
+
+export const CategoriesClient = ({ categories }: CategoriesClientProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const activeCategory = pathname.split("/").pop()

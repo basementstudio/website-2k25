@@ -9,10 +9,10 @@ const FOCUSABLE_ELEMENTS = [
   '[tabindex]:not([tabindex="-1"])'
 ]
 
-export function useFocusTrap(
+export const useFocusTrap = (
   isActive: boolean,
   menuHandlerRef: React.RefObject<HTMLButtonElement | null>
-) {
+) => {
   const focusTrapRef = useRef<HTMLElement | null>(null)
   const firstFocusableElementRef = useRef<HTMLElement | null>(null)
   const lastFocusableElementRef = useRef<HTMLElement | null>(null)

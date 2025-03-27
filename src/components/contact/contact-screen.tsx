@@ -10,7 +10,7 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { Link } from "../primitives/link"
 import { useContactStore } from "./contact-store"
 
-const ContactScreen = () => {
+export const ContactScreen = () => {
   const contentRef = useRef(null)
   const formRef = useRef<HTMLFormElement>(null)
   const updatePositionRef = useRef<(() => void) | null>(null)
@@ -298,5 +298,3 @@ const ContactScreen = () => {
     </div>
   )
 }
-
-export default ContactScreen

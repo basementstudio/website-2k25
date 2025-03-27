@@ -7,11 +7,10 @@ import { bodyGrid, getRandomBodyId, getTextureCoord } from "./character-utils"
 import {
   CharacterAnimationName,
   CharacterMeshes,
-  CHARACTERS_MAX,
   CharacterTextureIds,
   FACES_GRID_COLS
 } from "./characters-config"
-import { characterConfigurations, FaceMorphTargets } from "./characters-config"
+import { characterConfigurations } from "./characters-config"
 import { InstanceUniform } from "./instanced-skinned-mesh"
 
 interface CharacterProps extends ElementProps<typeof Group> {

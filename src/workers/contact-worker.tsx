@@ -1,6 +1,6 @@
 import { render } from "@react-three/offscreen"
 
-import ContactScene from "@/components/contact/contact-scene"
+import { ContactScene } from "@/components/contact/contact-scene"
 
 let windowDimensions = {
   width: 1920,
