@@ -120,7 +120,7 @@ export const usePostprocessingSettings = () => {
     radius: {
       value: 1,
       min: 0,
-      max: 10,
+      max: 5,
       step: 0.01,
       onChange: (v) => {
         vignette.current.radius = v
@@ -130,7 +130,7 @@ export const usePostprocessingSettings = () => {
     spread: {
       value: 1,
       min: 0,
-      max: 10,
+      max: 5,
       step: 0.01,
       onChange: (v) => {
         vignette.current.spread = v

@@ -1,5 +1,5 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
-import { animate, easeOut } from "motion"
+import { animate } from "motion"
 import { useRef } from "react"
 import { Mesh } from "three"
 

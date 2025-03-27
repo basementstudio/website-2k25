@@ -1,6 +1,6 @@
 import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { createPortal, useFrame, useThree } from "@react-three/fiber"
-import { memo, useCallback, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 import {
   Color,
   Group,

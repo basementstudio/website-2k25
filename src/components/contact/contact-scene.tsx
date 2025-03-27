@@ -15,7 +15,7 @@ import { ANIMATION_TYPES } from "./contact.interface"
 
 const IDLE_ANIMATIONS = [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA]
 
-const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
+export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const { scene, animations, nodes } = useGLTF(modelUrl)
   const { actions, mixer } = useAnimations(animations, scene)
   const [isContactOpen, setIsContactOpen] = useState(false)
@@ -337,5 +337,3 @@ const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     </>
   )
 }
-
-export default ContactScene

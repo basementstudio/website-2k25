@@ -13,15 +13,17 @@ interface Score {
   country: string
 }
 
-export default function Scoreboard({
-  className,
-  initialScores = [],
-  isMobile
-}: {
+interface ScoreboardProps {
   className?: string
   initialScores?: Score[]
   isMobile?: boolean
-}) {
+}
+
+export const Scoreboard = ({
+  className,
+  initialScores = [],
+  isMobile
+}: ScoreboardProps) => {
   const isGameActive = useMinigameStore((s) => s.isGameActive)
   const hasPlayed = useMinigameStore((s) => s.hasPlayed)
   const [highScores, setHighScores] = useState<Score[]>(initialScores)

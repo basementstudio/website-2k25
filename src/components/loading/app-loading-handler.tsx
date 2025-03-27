@@ -26,8 +26,6 @@ interface AppLoadingState {
 }
 
 export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
-  // const loadingCanvasWorker =
-
   const store: AppLoadingState = {
     isCanvasInPage: false,
     /**
@@ -65,7 +63,7 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
   return store
 })
 
-function AppLoadingHandler() {
+export const AppLoadingHandler = () => {
   const showLoadingCanvas = useAppLoadingStore(
     (state) => state.showLoadingCanvas
   )
@@ -94,5 +92,3 @@ function AppLoadingHandler() {
 
   return <LoadingCanvas />
 }
-
-export default AppLoadingHandler

@@ -4,6 +4,8 @@ import { memo, useCallback, useEffect, useRef, useState } from "react"
 import type * as THREE from "three"
 import { MathUtils, Vector2, Vector3 } from "three"
 
+import { normalizeDelta } from "@/components/arcade-game/lib/math"
+import { useAssets } from "@/components/assets-provider"
 import {
   handlePointerDown as utilsHandlePointerDown,
   handlePointerMove as utilsHandlePointerMove,
@@ -17,10 +19,8 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
-import { normalizeDelta } from "../arcade-game/lib/math"
-import { useAssets } from "../assets-provider"
 import { Basketball } from "./basketball"
-import RigidBodies from "./rigid-bodies"
+import { RigidBodies } from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
   const { playSoundFX } = useSiteAudio()

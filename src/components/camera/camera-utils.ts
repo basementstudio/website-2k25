@@ -1,6 +1,6 @@
 import { PerspectiveCamera } from "three"
 
-import { ICameraConfig } from "../navigation-handler/navigation.interface"
+import { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
 
 export const calculatePlanePosition = (cameraConfig: ICameraConfig) => {
   const [px, py, pz] = cameraConfig.position

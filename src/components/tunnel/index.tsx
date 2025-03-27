@@ -8,13 +8,13 @@ const _WebGL = tunnel()
 
 const OriginalIn = _WebGL.In
 
-function WebGLIn({
+const WebGLIn = ({
   id,
   children,
   ...props
 }: React.ComponentProps<typeof _WebGL.In> & {
   id?: string | number
-}): JSX.Element {
+}): JSX.Element => {
   const componentId = useId()
 
   if (typeof id === "string") {
@@ -39,9 +39,9 @@ const _Html = tunnel()
 
 const OriginalHtmlIn = _Html.In
 
-function HtmlIn({
+const HtmlIn = ({
   ...props
-}: React.ComponentProps<typeof _Html.In>): JSX.Element {
+}: React.ComponentProps<typeof _Html.In>): JSX.Element => {
   const id = useId()
 
   return (

@@ -11,6 +11,7 @@ export function useAssets() {
   const assetsRef = useRef(assets)
   if (!assets)
     throw new Error("useAssets must be used within an AssetsProvider")
+
   // avoid re-renders if this changes
   return assetsRef.current!
 }

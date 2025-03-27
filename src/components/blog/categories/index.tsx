@@ -1,4 +1,5 @@
-import { fetchCategoriesNonEmpty } from "../../../app/(pages)/blog/basehub"
+import { fetchCategoriesNonEmpty } from "@/app/(pages)/blog/basehub"
+
 import { CategoriesClient } from "./client"
 
 export const Categories = async () => {

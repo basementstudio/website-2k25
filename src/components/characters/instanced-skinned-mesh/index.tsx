@@ -7,7 +7,6 @@ import {
   MeshStandardMaterial,
   Quaternion,
   type SkinnedMesh,
-  Sphere,
   Vector3
 } from "three"
 import { create } from "zustand"

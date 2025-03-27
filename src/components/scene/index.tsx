@@ -96,6 +96,7 @@ export const Scene = () => {
     document.addEventListener("visibilitychange", handleVisibilityChange, {
       passive: true
     })
+
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
@@ -119,6 +120,7 @@ export const Scene = () => {
       })
     }
   }
+
   const handleBlur = () => setIsCanvasTabMode(false)
 
   return (

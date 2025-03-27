@@ -11,7 +11,7 @@ const OnlyDebug = dynamic(
   }
 )
 
-function DebugInner() {
+const DebugInner = () => {
   const searchParams = useSearchParams()
   const [debug, setDebug] = useState(false)
 
@@ -22,7 +22,7 @@ function DebugInner() {
   }, [searchParams])
 
   return (
-    <div className="w-128 absolute bottom-8 right-64 z-50">
+    <div className="w-128 absolute bottom-4 right-4 z-50">
       <Leva collapsed fill hidden={!debug} />
       <Suspense fallback={null}>{debug && <OnlyDebug />}</Suspense>
     </div>
