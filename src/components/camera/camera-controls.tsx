@@ -1,5 +1,5 @@
 import { PerspectiveCamera } from "@react-three/drei"
-import { useRef, useState, useMemo } from "react"
+import { useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"

@@ -4,8 +4,8 @@ import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import { useEffect, useState } from "react"
 
 import { useAssets } from "../assets-provider"
-import { useContactStore } from "./contact-store"
 import ContactScreen from "./contact-screen"
+import { useContactStore } from "./contact-store"
 
 const debounce = (fn: Function, ms = 300) => {
   let timeoutId: ReturnType<typeof setTimeout>

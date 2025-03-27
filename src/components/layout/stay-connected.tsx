@@ -3,7 +3,7 @@
 import type { RichTextNode } from "basehub/api-transaction"
 import { RichText } from "basehub/react-rich-text"
 import { AnimatePresence, motion } from "motion/react"
-import { useState, useEffect, startTransition } from "react"
+import { startTransition, useEffect, useState } from "react"
 import { useActionState } from "react"
 
 import { subscribe } from "@/app/actions/subscribe"

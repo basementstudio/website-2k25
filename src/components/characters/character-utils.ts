@@ -27,4 +27,5 @@ export const getRandomBodyId = () => {
   return Math.floor(Math.random() * numBody)
 }
 
-export const generateCharacterIds = (num: number) => Array.from({ length: num }, () => getRandomCharacterIndex())
+export const generateCharacterIds = (num: number) =>
+  Array.from({ length: num }, () => getRandomCharacterIndex())

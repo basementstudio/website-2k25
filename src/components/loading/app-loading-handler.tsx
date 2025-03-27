@@ -5,8 +5,9 @@ import { useEffect } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
 
-import LoadingCanvas from "./loading-canvas"
 import { useMedia } from "@/hooks/use-media"
+
+import LoadingCanvas from "./loading-canvas"
 
 export type UpdateCameraCallback = (
   cameraPosition: Vector3,

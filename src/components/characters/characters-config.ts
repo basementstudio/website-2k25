@@ -103,7 +103,7 @@ export enum FaceMorphTargets {
 
 export enum BodyMorphTargets {
   Man = "man",
-  Woman = "woman",
+  Woman = "woman"
 }
 
 export const characterConfigurations: Character[] = [
@@ -146,7 +146,7 @@ export const characterConfigurations: Character[] = [
   {
     faceId: 6,
     faceMorph: FaceMorphTargets.Lis,
-    bodyMorph: BodyMorphTargets.Man,
+    bodyMorph: BodyMorphTargets.Man
   },
   {
     faceId: 7,
@@ -157,7 +157,7 @@ export const characterConfigurations: Character[] = [
   {
     faceId: 8,
     faceMorph: FaceMorphTargets.Nico,
-    bodyMorph: BodyMorphTargets.Man,
+    bodyMorph: BodyMorphTargets.Man
   },
   {
     faceId: 9,

@@ -2,10 +2,10 @@
 
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { Link } from "@/components/primitives/link"
+import { useMedia } from "@/hooks/use-media"
 import { useCursor } from "@/hooks/use-mouse"
 
 import { QueryType } from "./query"
-import { useMedia } from "@/hooks/use-media"
 
 interface ShowcaseImageProps {
   project: QueryType["pages"]["homepage"]["featuredProjects"]["projectList"]["items"][0]

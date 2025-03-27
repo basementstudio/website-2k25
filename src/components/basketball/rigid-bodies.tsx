@@ -1,5 +1,6 @@
 import { CuboidCollider, CylinderCollider } from "@react-three/rapier"
 import { RigidBody } from "@react-three/rapier"
+import { track } from "@vercel/analytics"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -32,7 +33,7 @@ export default function RigidBodies({
     setScore((prev) => prev + multipliedScore)
     incrementConsecutiveScores()
     playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
-
+    track("basketball_score")
     if (hasHitStreak) {
       playSoundFX("BASKETBALL_STREAK", 0.06)
     }

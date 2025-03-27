@@ -11,8 +11,10 @@ import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { Sparkles } from "@/components/sparkles"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
+import { cn } from "@/utils/cn"
 
 import ErrorBoundary from "./basketball/error-boundary"
 import { CameraController } from "./camera/camera-controller"
@@ -22,8 +24,6 @@ import { Debug } from "./debug"
 import { Pets } from "./pets"
 import { AnimationController } from "./shared/AnimationController"
 import { WebGlTunnelOut } from "./tunnel"
-import { cn } from "@/utils/cn"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 
 const HoopMinigame = dynamic(
   () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),

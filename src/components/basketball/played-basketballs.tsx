@@ -2,12 +2,12 @@ import { RigidBody } from "@react-three/rapier"
 import { useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { useAssets } from "../assets-provider"
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 
 const VELOCITY_THRESHOLD = 0.05
 

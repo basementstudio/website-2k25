@@ -4,9 +4,10 @@ import { create } from "zustand"
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { AMBIENT_VOLUME, SFX_VOLUME } from "@/lib/audio/constants"
-import { useIsOnTab } from "./use-is-on-tab"
 import { useArcadeStore } from "@/store/arcade-store"
+
 import { useCurrentScene } from "./use-current-scene"
+import { useIsOnTab } from "./use-is-on-tab"
 
 export enum BackgroundAudioType {
   AMBIENCE = "ambience"
@@ -149,7 +150,6 @@ export const useInitializeAudioContext = () => {
       } catch (error) {
         console.error("Failed to load or play game song:", error)
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [player]
   )

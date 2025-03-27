@@ -47,7 +47,10 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
               ))}
             </div>
             {post.date ? (
-              <p className="relative col-span-6 text-right text-f-p-mobile text-brand-w2 lg:col-span-2 lg:col-start-11 lg:text-left lg:text-f-p">
+              <p
+                suppressHydrationWarning
+                className="relative col-span-6 text-right text-f-p-mobile text-brand-w2 lg:col-span-2 lg:col-start-11 lg:text-left lg:text-f-p"
+              >
                 {formatDate(post.date || "")}
               </p>
             ) : null}

@@ -3,10 +3,10 @@
 import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
+import { useMedia } from "@/hooks/use-media"
 import { formatDate } from "@/utils/format-date"
 
 import { QueryType } from "./query"
-import { useMedia } from "@/hooks/use-media"
 
 export default function More({
   data,
@@ -61,7 +61,10 @@ export default function More({
                 </h3>
 
                 {post.date ? (
-                  <p className="text-mobile-p lg:text-p flex-1 text-right text-brand-g1 lg:flex-auto">
+                  <p
+                    className="text-mobile-p lg:text-p flex-1 text-right text-brand-g1 lg:flex-auto"
+                    suppressHydrationWarning
+                  >
                     {formatDate(
                       post.date ?? "",
                       false,

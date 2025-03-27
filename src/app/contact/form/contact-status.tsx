@@ -12,14 +12,14 @@ export const ContactStatus = ({
   return (
     <div className="flex items-center gap-2">
       {isSubmitting && (
-        <p className="text-f-h3-mobile xl:text-f-h4 text-brand-w1">
+        <p className="text-f-h3-mobile text-brand-w1 xl:text-f-h4">
           Submitting...
         </p>
       )}
 
       {isSubmitted && !isSubmitting && (
         <>
-          <p className="text-f-h3-mobile xl:text-f-h4 text-brand-g">
+          <p className="text-f-h3-mobile text-brand-g xl:text-f-h4">
             Form submitted
           </p>
           <svg
@@ -53,7 +53,7 @@ export const ContactStatus = ({
 
       {error && !isSubmitting && (
         <>
-          <p className="text-f-h3-mobile xl:text-f-h4 text-brand-r2">{error}</p>
+          <p className="text-f-h3-mobile text-brand-r2 xl:text-f-h4">{error}</p>
           <svg
             width="20"
             height="20"

@@ -3,15 +3,18 @@ import {
   useAnimations,
   useTexture
 } from "@react-three/drei"
+import { track } from "@vercel/analytics"
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
-import { GLTF } from "three/examples/jsm/Addons.js"
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
-import { useAssets } from "../assets-provider"
-import { useCursor } from "@/hooks/use-mouse"
-import { useFadeAnimation } from "../inspectables/use-fade-animation"
-import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { Color } from "three"
+import { GLTF } from "three/examples/jsm/Addons.js"
+
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
+import { useCursor } from "@/hooks/use-mouse"
+import { useFrameCallback } from "@/hooks/use-pausable-time"
+
+import { useAssets } from "../assets-provider"
+import { useFadeAnimation } from "../inspectables/use-fade-animation"
 
 enum PetSkinnedName {
   PURE = "Pure-v1",
@@ -174,6 +177,7 @@ function PetsInner({
     const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
     if (bostonIdleAction) {
       bostonIdleAction.timeScale = 1.0
+      track("boston_pet")
     }
   }
 

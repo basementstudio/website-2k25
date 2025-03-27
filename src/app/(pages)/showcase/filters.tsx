@@ -87,7 +87,7 @@ export const Filters = memo(
 
     return (
       <div className="grid-layout items-end pb-2">
-        <div className="text-f-p col-span-1 hidden items-center gap-1 text-brand-g1 lg:flex">
+        <div className="col-span-1 hidden items-center gap-1 text-f-p text-brand-g1 lg:flex">
           <ViewSelector
             mode="grid"
             viewMode={viewMode}
@@ -102,7 +102,7 @@ export const Filters = memo(
         </div>
 
         <div className="col-span-3 flex flex-col gap-2 lg:col-start-7 lg:col-end-13">
-          <p className="text-f-p-mobile lg:text-f-h3 text-brand-g1">
+          <p className="text-f-p-mobile text-brand-g1 lg:text-f-h3">
             Categories
           </p>
 
@@ -111,7 +111,7 @@ export const Filters = memo(
               <button
                 key={category.name}
                 className={cn(
-                  "!text-f-h2-mobile lg:!text-f-h2 flex w-max items-center gap-x-1.25 text-left text-brand-g1 transition-colors duration-300",
+                  "flex w-max items-center gap-x-1.25 text-left !text-f-h2-mobile text-brand-g1 transition-colors duration-300 lg:!text-f-h2",
                   selectedCategory === category.name && "text-brand-w1",
                   // if no categories selected, show all as active
                   selectedCategory === null && "text-brand-w1"
