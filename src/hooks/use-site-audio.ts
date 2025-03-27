@@ -1,8 +1,8 @@
 import { memo, useCallback, useEffect } from "react"
 import { create } from "zustand"
 
+import { useAudioUrls } from "@/hooks/use-audio-urls"
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
-import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { AMBIENT_VOLUME, SFX_VOLUME } from "@/lib/audio/constants"
 import { useArcadeStore } from "@/store/arcade-store"
 
@@ -172,9 +172,7 @@ export const useInitializeAudioContext = () => {
   }, [player, scene, isIngame])
 }
 
-export const SiteAudioSFXsLoader = memo(SiteAudioSFXsLoaderInner)
-
-function SiteAudioSFXsLoaderInner(): null {
+export const SiteAudioSFXsLoader = memo((): null => {
   const player = useSiteAudioStore((s) => s.player)
   const {
     GAME_AUDIO_SFX,
@@ -314,9 +312,9 @@ function SiteAudioSFXsLoaderInner(): null {
   }, [player])
 
   return null
-}
+})
 
-export function useSiteAudio(): SiteAudioHook {
+export const useSiteAudio = (): SiteAudioHook => {
   const player = useSiteAudioStore((s) => s.player)
   const audioSfxSources = useSiteAudioStore((s) => s.audioSfxSources)
 

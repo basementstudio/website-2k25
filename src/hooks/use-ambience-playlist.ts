@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 
+import { useAudioUrls } from "@/hooks/use-audio-urls"
 import { Playlist } from "@/lib/audio"
-import { useAudioUrls } from "@/lib/audio/audio-urls"
 import { AMBIENT_VOLUME } from "@/lib/audio/constants"
 
 import { BackgroundAudioType, useSiteAudioStore } from "./use-site-audio"
