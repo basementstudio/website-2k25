@@ -23,7 +23,6 @@ const BLACKLISTED_PATHS = [
   /^\/showcase\/\d+$/,
   /^\/showcase\/[^\/]+$/,
   /^\/post\/[^\/]+$/,
-  /^\/project\/[^\/]+$/,
   /^\/contact$/
 ]
 
