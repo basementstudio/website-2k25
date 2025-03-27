@@ -1,5 +1,5 @@
-import { useEffect } from "react"
 import { nanoid } from "nanoid"
+import { useEffect } from "react"
 
 export interface Subscribable<T extends Function = () => void> {
   addCallback: (callback: T, id?: string) => string
@@ -25,12 +25,11 @@ export const subscribable = <
   const removeCallback = (id: string | Function): void => {
     if (typeof id === "function") {
       const key = Object.keys(callbacks).find((k) => callbacks[k] === id)
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+
       if (key) delete callbacks[key]
       return
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete callbacks[id]
   }
 
@@ -45,13 +44,11 @@ export const subscribable = <
   }
 
   const runCallbacks = (...params: unknown[]): void => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
     let response = undefined as any
     Object.values(callbacks).forEach((callback) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       response = callback(...params)
     })
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+
     return response
   }
 

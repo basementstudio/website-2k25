@@ -12,12 +12,12 @@ import {
 import Image from "next/image"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useMedia } from "@/hooks/use-media"
 import useMousePosition from "@/hooks/use-mouse-pos"
 import { cn } from "@/utils/cn"
 import { formatDate } from "@/utils/format-date"
 
-import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { Award } from "./page"
 
 const IMAGE_HEIGHT = 307.73
@@ -131,7 +131,10 @@ export const Awards = ({ data }: { data: Award[] }) => {
                   <span className="col-start-7 col-end-10 line-clamp-1 text-f-p-mobile text-brand-w2 lg:col-span-4 lg:text-f-h4 2xl:col-span-3">
                     {award.project?._title ?? award.projectFallback}
                   </span>
-                  <span className="col-span-3 text-right text-f-p-mobile text-brand-w2 lg:col-span-3 lg:col-start-10 lg:text-f-h4">
+                  <span
+                    suppressHydrationWarning
+                    className="col-span-3 text-right text-f-p-mobile text-brand-w2 lg:col-span-3 lg:col-start-10 lg:text-f-h4"
+                  >
                     {formatDate(
                       award.date,
                       false,

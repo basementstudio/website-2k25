@@ -57,7 +57,7 @@ export class AudioSource {
   pause() {
     /* Store it before this.stop flushes the startedAt */
     const elapsed = this.audioContext.currentTime - this.startedAt
-    // eslint-disable-next-line react/no-is-mounted
+
     this?.stop()
     this.pausedAt = elapsed
   }
@@ -509,7 +509,11 @@ export class Playlist {
     this.loadedSources.clear()
 
     if (startPlaying) {
-      this.play()
+      try {
+        this.play()
+      } catch (error) {
+        console.error("Error playing playlist:", error)
+      }
     }
   }
 
@@ -582,7 +586,11 @@ export class Playlist {
         }
       })
 
-      this.currentSource.play()
+      try {
+        this.currentSource.play()
+      } catch (error) {
+        console.error("Error playing track:", error)
+      }
       this.isPlaying = true
 
       // Trigger track change callback

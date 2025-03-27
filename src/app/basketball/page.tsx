@@ -84,12 +84,12 @@ const DesktopUI = ({
       <div className="grid-layout mt-24 h-full">
         <button
           onClick={() => handleNavigation("/")}
-          className="text-f-p-mobile lg:text-f-p pointer-events-auto col-span-2 col-start-2 h-max text-brand-w1"
+          className="pointer-events-auto col-span-2 col-start-2 h-max text-f-p-mobile text-brand-w1 lg:text-f-p"
         >
           Close Game [ESC]
         </button>
         <div
-          className={`${geistMono.className} text-f-p-mobile lg:text-f-p col-span-2 col-start-6 flex h-10 select-none uppercase text-brand-w2`}
+          className={`${geistMono.className} col-span-2 col-start-6 flex h-10 select-none text-f-p-mobile uppercase text-brand-w2 lg:text-f-p`}
         >
           <div className="corner-borders relative flex w-1/2 translate-x-[0.5px] items-center justify-center">
             <p>{formatTime(timeRemaining)}</p>
@@ -102,13 +102,13 @@ const DesktopUI = ({
 
         <div className="col-span-1 col-start-8 flex h-10 items-center justify-center">
           <p
-            className={`${geistMono.className} text-f-p-mobile lg:text-f-p text-brand-w1`}
+            className={`${geistMono.className} text-f-p-mobile text-brand-w1 lg:text-f-p`}
           >
             {scoreMultiplier}x
           </p>
         </div>
 
-        <Scoreboard className="text-f-p-mobile lg:text-f-p col-span-2 col-start-10 ml-auto w-32" />
+        <Scoreboard className="col-span-2 col-start-10 ml-auto w-32 text-f-p-mobile lg:text-f-p" />
       </div>
     </div>
   )
@@ -133,12 +133,12 @@ const MobileUI = ({
     <div className="grid grid-cols-4 place-items-start gap-4">
       <button
         onClick={() => handleNavigation("/")}
-        className="text-f-p-mobile pointer-events-auto absolute left-0 pl-4 text-brand-w1"
+        className="pointer-events-auto absolute left-0 pl-4 text-f-p-mobile text-brand-w1"
       >
         [Close]
       </button>
 
-      <div className="text-f-p-mobile col-span-2 col-start-2 flex w-full items-center justify-center gap-4 font-mono text-brand-w2">
+      <div className="col-span-2 col-start-2 flex w-full items-center justify-center gap-4 font-mono text-f-p-mobile text-brand-w2">
         <div className="relative flex items-center justify-center">
           <p className="uppercase">{formatTime(timeRemaining)}</p>
         </div>

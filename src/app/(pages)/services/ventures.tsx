@@ -1,7 +1,8 @@
+import Image from "next/image"
+
 import { RichText } from "@/components/primitives/rich-text"
 
 import { QueryType } from "./query"
-import Image from "next/image"
 
 export const VenturesBanner = ({ data }: { data: QueryType }) => (
   <div className="grid-layout -mb-6">

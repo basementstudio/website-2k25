@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { useAssets } from "../assets-provider"
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 const StaticBasketballs = () => {
   const { basketball } = useAssets()
   const basketballModel = useKTX2GLTF(basketball)

@@ -1,6 +1,7 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
 import { extend, useLoader, useThree } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
+import { track } from "@vercel/analytics"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
@@ -188,6 +189,14 @@ export const Lamp = memo(function LampInner() {
       }
     }
   })
+
+  useEffect(() => {
+    if (shouldToggle) {
+      if (light) {
+        track("lamp_pulled")
+      }
+    }
+  }, [shouldToggle, light])
 
   useEffect(() => {
     playSoundFX(

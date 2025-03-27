@@ -1,10 +1,12 @@
 "use client"
 
-import { SubmitHandler, useForm } from "react-hook-form"
-import { ContactInput } from "./contact-input"
 import { useEffect, useState } from "react"
-import { ContactStatus } from "./contact-status"
+import { SubmitHandler, useForm } from "react-hook-form"
+
 import { submitContactForm } from "@/actions/contact-form"
+
+import { ContactInput } from "./contact-input"
+import { ContactStatus } from "./contact-status"
 
 export type Inputs = {
   name: string

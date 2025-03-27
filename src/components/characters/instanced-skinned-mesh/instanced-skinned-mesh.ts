@@ -1,4 +1,3 @@
-/* eslint-disable react/no-is-mounted */
 import * as THREE from "three"
 
 import { subscribable } from "@/lib/subscribable"
@@ -299,7 +298,9 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     } else if (arrayDefault.length === 3) {
       format =
         type === THREE.FloatType ? THREE.RGBFormat : THREE.RGBIntegerFormat
-      console.error("RGBFormat is not supported anymore, use RGBAFormat instead.")
+      console.error(
+        "RGBFormat is not supported anymore, use RGBAFormat instead."
+      )
     } else if (arrayDefault.length === 4) {
       format =
         type === THREE.FloatType ? THREE.RGBAFormat : THREE.RGBAIntegerFormat
@@ -481,7 +482,6 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
     this.shouldComputeMorphTargets = false
 
     this.addInstancedUniform("uActiveMorphs", -1, THREE.IntType)
-
   }
 
   private _setInstanceMorph = (
@@ -699,8 +699,8 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
       // Update time for animation
       instance.time += delta * instance.timeSpeed
       instance.time = THREE.MathUtils.clamp(
-        instance.time - // eslint-disable-next-line prettier/prettier
-        Math.floor(instance.time / clip.duration) * clip.duration,
+        instance.time -
+          Math.floor(instance.time / clip.duration) * clip.duration,
         0,
         clip.duration
       )

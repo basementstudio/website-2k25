@@ -12,12 +12,12 @@ import {
 } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { cn } from "@/utils/cn"
 
 import { QueryType } from "./query"
-import { Link } from "@/components/primitives/link"
 
 const DEBOUNCE_TIME = 10
 

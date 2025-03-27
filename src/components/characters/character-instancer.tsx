@@ -70,7 +70,6 @@ function CharacterInstanceConfigInner() {
     return null
   }
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const material = useMemo(() => {
     // const bodyMapIndices = new Uint32Array(MAX_CHARACTERS_INSTANCES).fill(0)
     // nodes.BODY.geometry.setAttribute("instanceMapIndex", new InstancedBufferAttribute(mapIndices, 1))

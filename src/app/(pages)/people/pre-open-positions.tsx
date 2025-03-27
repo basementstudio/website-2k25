@@ -1,6 +1,7 @@
-import Image from "next/image"
-import { QueryType } from "./query"
 import { RichText } from "basehub/react-rich-text"
+import Image from "next/image"
+
+import { QueryType } from "./query"
 
 export const PreOpenPositions = ({ data }: { data: QueryType }) => (
   <section className="grid-layout mb-18 lg:mb-48">

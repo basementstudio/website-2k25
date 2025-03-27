@@ -21,6 +21,7 @@ import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
 import { Weather } from "@/components/weather"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
@@ -32,7 +33,6 @@ import notFoundFrag from "@/shaders/not-found/not-found.frag"
 
 import { BakesLoader } from "./bakes"
 import { useGodrays } from "./use-godrays"
-import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 
 export type GLTFResult = GLTF & {
   nodes: {

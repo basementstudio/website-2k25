@@ -4,8 +4,8 @@ import { Color, Group } from "three"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { Character } from "."
-import { CharacterAnimationName } from "./characters-config"
 import { generateCharacterIds } from "./character-utils"
+import { CharacterAnimationName } from "./characters-config"
 
 export const CharactersSpawn = memo(CharactersSpawnInner)
 

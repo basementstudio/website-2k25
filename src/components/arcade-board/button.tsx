@@ -4,11 +4,11 @@ import { memo, useCallback, useEffect, useMemo, useRef } from "react"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { BOARD_ANGLE, BUTTON_ANIMATION } from "./constants"
-import { useMesh } from "@/hooks/use-mesh"
 
 const VALID_BUTTONS = {
   "02_BT_10": "b",

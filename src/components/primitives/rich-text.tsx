@@ -20,7 +20,7 @@ export const RichText = ({ children, components }: CustomRichTextProps) => (
         </Link>
       ),
       p: ({ children }) => (
-        <p className="text-f-p-mobile lg:text-f-p text-balance text-brand-w2">
+        <p className="text-balance text-f-p-mobile text-brand-w2 lg:text-f-p">
           {children}
         </p>
       ),

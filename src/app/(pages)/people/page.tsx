@@ -6,9 +6,9 @@ import { Contact } from "@/components/layout/contact"
 import { Crew } from "./crew"
 import { Hero } from "./hero"
 import { OpenPositions } from "./open-positions"
+import { PreOpenPositions } from "./pre-open-positions"
 import { careersQuery } from "./query"
 import { Values } from "./values"
-import { PreOpenPositions } from "./pre-open-positions"
 
 export const metadata: Metadata = {
   title: "People",

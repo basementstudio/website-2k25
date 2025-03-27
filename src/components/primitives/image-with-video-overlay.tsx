@@ -4,6 +4,7 @@ import dynamic from "next/dynamic"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { ImageFragment, VideoFragment } from "@/lib/basehub/fragments"
 import { cn } from "@/utils/cn"
 
@@ -33,6 +34,7 @@ export const ImageWithVideoOverlay = ({
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const { isMobile } = useDeviceDetect()
 
   useEffect(() => {
     return () => {
@@ -91,8 +93,7 @@ export const ImageWithVideoOverlay = ({
         priority={firstItem}
       />
 
-      {/* Only render the video element when shouldLoadVideo is true */}
-      {video && shouldLoadVideo && (
+      {video && shouldLoadVideo && !isMobile ? (
         <Video
           src={video.url}
           onCanPlay={() => {
@@ -112,7 +113,7 @@ export const ImageWithVideoOverlay = ({
           muted={true}
           ref={videoRef}
         />
-      )}
+      ) : null}
     </div>
   )
 }
