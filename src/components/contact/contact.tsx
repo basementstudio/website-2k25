@@ -1,15 +1,15 @@
 "use client"
 import { useCallback, useEffect, useRef } from "react"
 
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
+import { useMedia } from "@/hooks/use-media"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
 import ContactCanvas from "./contact-canvas"
 import { useContactStore } from "./contact-store"
-import { useMedia } from "@/hooks/use-media"
-import { useDeviceDetect } from "@/hooks/use-device-detect"
 
 const RenderContact = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
