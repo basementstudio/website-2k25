@@ -5,28 +5,30 @@ import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
+import ErrorBoundary from "@/components/basketball/error-boundary"
+import { CameraController } from "@/components/camera/camera-controller"
+import { CharacterInstanceConfig } from "@/components/characters/character-instancer"
+import { CharactersSpawn } from "@/components/characters/characters-spawn"
 import { UpdateCanvasCursor } from "@/components/custom-cursor"
+import { Debug } from "@/components/debug"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { Pets } from "@/components/pets"
 import { Renderer } from "@/components/postprocessing/renderer"
+import { AnimationController } from "@/components/shared/AnimationController"
 import { Sparkles } from "@/components/sparkles"
+import { WebGlTunnelOut } from "@/components/tunnel"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
-import ErrorBoundary from "./basketball/error-boundary"
-import { CameraController } from "./camera/camera-controller"
-import { CharacterInstanceConfig } from "./characters/character-instancer"
-import { CharactersSpawn } from "./characters/characters-spawn"
-import { Debug } from "./debug"
-import { Pets } from "./pets"
-import { AnimationController } from "./shared/AnimationController"
-import { WebGlTunnelOut } from "./tunnel"
-
 const HoopMinigame = dynamic(
-  () => import("./basketball/hoop-minigame").then((mod) => mod.HoopMinigame),
+  () =>
+    import("@/components/basketball/hoop-minigame").then(
+      (mod) => mod.HoopMinigame
+    ),
   { ssr: false }
 )
 
