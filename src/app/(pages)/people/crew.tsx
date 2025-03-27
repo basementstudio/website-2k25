@@ -40,15 +40,23 @@ export const Crew = ({ data }: { data: QueryType }) => {
       {} as Record<string, typeof data.company.people.peopleList.items>
     )
 
-    // sorting a - z
-    Object.keys(people).forEach((department) => {
-      people[department].sort((a, b) =>
-        a._title.localeCompare(b._title, undefined, { sensitivity: "base" })
-      )
+    const orderedDepartments = ["Management", "Design", "Development"]
+
+    const sortedPeople: Record<
+      string,
+      typeof data.company.people.peopleList.items
+    > = {}
+
+    orderedDepartments.forEach((dept) => {
+      if (people[dept]) {
+        sortedPeople[dept] = people[dept].sort((a, b) =>
+          a._title.localeCompare(b._title, undefined, { sensitivity: "base" })
+        )
+      }
     })
 
-    return people
-  }, [data.company.people.peopleList.items])
+    return sortedPeople
+  }, [data])
 
   const flattenedPeople = useMemo(() => {
     return Object.values(groupedPeople).flat()
