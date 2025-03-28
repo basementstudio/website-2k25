@@ -207,7 +207,7 @@ export const Inspectable = memo(function InspectableInner({
 
     handleAnimation(true)
 
-    const handleResize = () => handleAnimation(false)
+    const handleResize = () => setTimeout(() => handleAnimation(false), 0)
 
     window.addEventListener("resize", handleResize, { passive: true })
 
