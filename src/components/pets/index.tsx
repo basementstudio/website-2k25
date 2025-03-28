@@ -198,7 +198,7 @@ function PetsInner({
         rotation={[0, Math.PI * 0.5, 0]}
         onPointerOver={(e) => {
           e.stopPropagation()
-          setCursor("grab", "Pure")
+          setCursor("grab", "Puré")
         }}
         onPointerOut={(e) => {
           e.stopPropagation()
@@ -214,7 +214,7 @@ function PetsInner({
         rotation={[0, Math.PI * 0.5, 0]}
         onPointerOver={(e) => {
           e.stopPropagation()
-          setCursor("grab", "Pure")
+          setCursor("grab", "Puré")
         }}
         onPointerOut={(e) => {
           e.stopPropagation()
