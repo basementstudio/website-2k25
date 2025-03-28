@@ -5,14 +5,19 @@ import { formatDate } from "@/utils/format-date"
 const socialLinks = [
   {
     Icon: LinkedInIcon,
-    href: (slug: string) =>
-      `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(`https://basement.studio/post/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
+    href: (slug: string, title: string) => {
+      const url = `https://basement.studio/post/${slug}`
+      return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
+    },
     label: "Share on LinkedIn"
   },
   {
     Icon: XIcon,
-    href: (slug: string, title: string) =>
-      `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(`https://basement.studio/post/${slug.toLowerCase().replace(/ /g, "-")}`)}`,
+    href: (slug: string, title: string) => {
+      const url = `https://basement.studio/post/${slug.toLowerCase().replace(/ /g, "-")}`
+      const text = `Check out "${title}" from @basementstudio `
+      return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
+    },
     label: "Share on X"
   }
 ]
