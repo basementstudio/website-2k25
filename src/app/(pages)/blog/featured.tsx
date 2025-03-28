@@ -23,7 +23,7 @@ export async function Featured() {
             className="group relative col-span-full border-b border-brand-w1/20"
           >
             <Link
-              className="col-span-full grid grid-cols-12 gap-2 py-2 lg:pb-2"
+              className="col-span-full grid grid-cols-12 gap-2 py-2 focus-visible:!ring-offset-0 lg:pb-2"
               href={`/post/${post._slug}`}
             >
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

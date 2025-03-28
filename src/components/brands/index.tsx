@@ -75,9 +75,9 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
   return (
     <section className="lg:grid-layout hidden !gap-y-4">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full text-f-h3-mobile text-brand-g1 lg:col-start-2 lg:text-f-h3 2xl:col-start-3">
+        <h2 className="col-span-full text-f-h3-mobile text-brand-g1 lg:col-start-2 lg:text-f-h3 2xl:col-start-3">
           Trusted by <AnimatedTitle brandName={hoveredBrandName ?? ""} />
-        </h3>
+        </h2>
       </div>
 
       <div className="relative col-span-full">

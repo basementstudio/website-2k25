@@ -4,10 +4,10 @@ import { notFound } from "next/navigation"
 import { client } from "@/service/basehub"
 
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
-import Content from "./content"
-import More from "./more"
+import { Content } from "./content"
+import { More } from "./more"
 import { query } from "./query"
-import BlogTitle from "./title"
+import { BlogTitle } from "./title"
 
 type Params = Promise<{ slug: string }>
 

@@ -5,13 +5,12 @@ function findBlogTitle(data: QueryType, slug: string): string {
   return post?._title || "Blog"
 }
 
-export default function BlogTitle({
-  data,
-  slug
-}: {
+interface BlogTitleProps {
   data: QueryType
   slug: string
-}) {
+}
+
+export const BlogTitle = ({ data, slug }: BlogTitleProps) => {
   const title = findBlogTitle(data, slug)
 
   return (

@@ -20,13 +20,13 @@ import {
   getTemplateConfig
 } from "./templates"
 import { BASEMENT_THEME } from "./theme"
-import SandboxToolbar from "./toolbar"
+import { SandboxToolbar } from "./toolbar"
 
-interface SandboxProps {
+interface SandboxComponentProps {
   keyName: string
 }
 
-export default function Sandbox({ keyName }: SandboxProps) {
+export const Sandbox = ({ keyName }: SandboxComponentProps) => {
   const [activeTab, setActiveTab] = useState<"preview" | "console">("preview")
 
   const sandbox = getSandbox(keyName)

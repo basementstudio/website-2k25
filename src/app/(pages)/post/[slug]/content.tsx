@@ -1,9 +1,8 @@
 import { RichText } from "basehub/react-rich-text"
-import Image from "next/image"
-import { Tweet } from "react-tweet"
 
 import { cn } from "@/utils/cn"
 
+import { Back } from "./back"
 import {
   BlogImage,
   BlogLink,
@@ -21,29 +20,31 @@ import {
   SideNote,
   UnorderedList
 } from "./blog-components"
-import BlogMeta from "./blog-meta"
-import Sandbox from "./components/sandbox"
-import CustomTweet from "./components/tweet"
+import { BlogMeta } from "./blog-meta"
+import { Sandbox } from "./components/sandbox"
+import { CustomTweet } from "./components/tweet"
 import { QueryType } from "./query"
 
-export default function Content({
-  data,
-  slug
-}: {
+interface ContentProps {
   data: QueryType
   slug: string
-}) {
+}
+
+export const Content = ({ data, slug }: ContentProps) => {
   const post = data.pages.blog.posts.items.find((post) => post._slug === slug)
   const intro = post?.intro?.json.content
   const content = post?.content?.json.content
 
   return (
     <div className="grid-layout">
-      <div className="col-span-full flex flex-col items-center justify-start">
+      <div className="lg:top-13 col-span-full lg:col-span-1">
+        <Back />
+      </div>
+      <div className="col-span-full flex flex-col items-center justify-start lg:col-span-10 lg:col-start-2">
         {post && <BlogMeta categories data={post as any} />}
         <article
           className={cn(
-            "col-span-full flex w-full flex-col items-start text-brand-w2 lg:max-w-[846px]",
+            "flex w-full flex-col items-start text-brand-w2 lg:max-w-[846px]",
             // 24px between elements
             "[&>*]:mt-6",
             // 32px to headings

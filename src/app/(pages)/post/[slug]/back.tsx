@@ -1,10 +1,13 @@
 import Link from "next/link"
 
+import { Arrow } from "@/components/primitives/icons/arrow"
+
 export const Back = () => (
   <Link
     href="/blog#list"
-    className="col-span-1 col-start-1 text-f-p-mobile text-brand-w1 lg:text-f-p"
+    className="lg:top-13 actionable h-3 text-f-p-mobile text-brand-w1 lg:!sticky lg:text-f-p"
   >
-    ← <span className="underline">Blog</span>
+    <Arrow className="mr-1 size-4 rotate-180" />
+    Blog
   </Link>
 )

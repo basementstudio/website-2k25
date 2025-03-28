@@ -325,7 +325,7 @@ export const CrewFooter = ({ spanStart, spanEnd }: CrewFooterProps) => (
     <Link
       href="mailto:careers@basement.studio"
       target="_blank"
-      className="relative z-10 flex h-4 gap-1 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
+      className="relative z-10 flex h-4 items-center gap-1 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
     >
       <span className="actionable flex items-center gap-1">
         Join the Crew <Arrow className="size-4" />

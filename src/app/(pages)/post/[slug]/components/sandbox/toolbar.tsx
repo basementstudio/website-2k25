@@ -10,13 +10,15 @@ import type { Dispatch, SetStateAction } from "react"
 
 import { cn } from "@/utils/cn"
 
-export default function SandboxToolbar({
-  activeTab,
-  setActiveTab
-}: {
+interface SandboxToolbarComponentProps {
   activeTab: string
   setActiveTab: Dispatch<SetStateAction<"preview" | "console">>
-}) {
+}
+
+export const SandboxToolbar = ({
+  activeTab,
+  setActiveTab
+}: SandboxToolbarComponentProps) => {
   const { dispatch } = useSandpack()
   const { reset } = useSandpackConsole({
     resetOnPreviewRestart: false,
