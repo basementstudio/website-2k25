@@ -37,7 +37,7 @@ export const Content = ({ data, slug }: ContentProps) => {
 
   return (
     <div className="grid-layout">
-      <div className="lg:top-13 col-span-full lg:col-span-1">
+      <div className="col-span-full lg:top-13 lg:col-span-1">
         <Back />
       </div>
       <div className="col-span-full flex flex-col items-center justify-start lg:col-span-10 lg:col-start-2">
