@@ -64,7 +64,7 @@ export const Weather = () => {
   return (
     <>
       <mesh position={[3, 3, -2]} rotation-y={Math.PI} rotation-z={-0.15}>
-        <planeGeometry args={[6, 6]} />
+        <planeGeometry args={[6, 7]} />
         <primitive object={rainMaterialClose} attach="material" />
       </mesh>
       <mesh position={[0, 5, 2]} rotation-y={Math.PI} rotation-z={-0.15}>
