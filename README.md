@@ -1,6 +1,6 @@
 # Basement Studio Website 2025
 
-![Basement Studio Website 2025](https://assets.basehub.com/dd0abb74/a9e91ceaa32446785f03a8ee00a73d71/opengraph-image.gif)
+![Basement Studio Website 2025](./public/readme/hero.gif)
 
 ## A digital studio & branding powerhouse making cool shit that performs.
 
