@@ -57,7 +57,10 @@ export const LockedDoor = () => {
               lockedDoor?.position.z + 0.09
             ]}
             rotation={[Math.PI / 2, 0, 0]}
-            onPointerEnter={() => setCursor("pointer")}
+            onPointerEnter={() => {
+              if (scene !== "blog") return
+              setCursor("pointer")
+            }}
             onPointerLeave={() => setCursor("default")}
             onClick={handleClick}
           >

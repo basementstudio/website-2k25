@@ -70,6 +70,7 @@ export const BlogDoor = () => {
           ref={doorHoverRef}
           position={door.position}
           onPointerEnter={(e) => {
+            if (scene !== "blog") return
             e.stopPropagation()
             setCursor("pointer")
           }}

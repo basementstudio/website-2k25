@@ -9,6 +9,7 @@ import * as THREE from "three"
 import { Color } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -159,6 +160,7 @@ function PetsInner({
 }: PetsInnerProps) {
   const { actions } = useAnimations(animations, pureSkinned)
   const { actions: bostonActions } = useAnimations(animations, bostonSkinned)
+  const currentScene = useCurrentScene()
 
   const setCursor = useCursor()
 
@@ -173,7 +175,9 @@ function PetsInner({
   }, [actions, bostonActions])
 
   const handleBostonHoverStart = () => {
+    if (currentScene !== "blog") return
     setCursor("grab", "Boston")
+
     const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
     if (bostonIdleAction) {
       bostonIdleAction.timeScale = 1.0
@@ -183,47 +187,39 @@ function PetsInner({
 
   const handleBostonHoverEnd = () => {
     setCursor("default", null)
+
     const bostonIdleAction = bostonActions[PetAnimationName["BOSTON-Idle"]]
-    if (bostonIdleAction) {
-      bostonIdleAction.timeScale = 0.4
-    }
+    if (bostonIdleAction) bostonIdleAction.timeScale = 0.4
+  }
+
+  const handlePureHoverStart = () => {
+    if (currentScene !== "home") return
+    setCursor("grab", "Puré")
   }
 
   return (
     <group>
       <primitive object={scene} />
 
-      <mesh
-        position={[3.2, 0.15, -12]}
-        rotation={[0, Math.PI * 0.5, 0]}
+      <group
         onPointerOver={(e) => {
           e.stopPropagation()
-          setCursor("grab", "Puré")
+          handlePureHoverStart()
         }}
         onPointerOut={(e) => {
           e.stopPropagation()
           setCursor("default", null)
         }}
       >
-        <boxGeometry args={[0.5, 0.3, 0.9]} />
-        <MeshDiscardMaterial />
-      </mesh>
-
-      <mesh
-        position={[3.2, 0.4, -12.3]}
-        rotation={[0, Math.PI * 0.5, 0]}
-        onPointerOver={(e) => {
-          e.stopPropagation()
-          setCursor("grab", "Puré")
-        }}
-        onPointerOut={(e) => {
-          e.stopPropagation()
-          setCursor("default", null)
-        }}
-      >
-        <boxGeometry args={[0.5, 0.45, 0.25]} />
-        <MeshDiscardMaterial />
-      </mesh>
+        <mesh position={[3.2, 0.15, -12]} rotation={[0, Math.PI * 0.5, 0]}>
+          <boxGeometry args={[0.5, 0.3, 0.9]} />
+          <MeshDiscardMaterial />
+        </mesh>
+        <mesh position={[3.2, 0.4, -12.3]} rotation={[0, Math.PI * 0.5, 0]}>
+          <boxGeometry args={[0.5, 0.45, 0.25]} />
+          <MeshDiscardMaterial />
+        </mesh>
+      </group>
 
       <mesh
         position={[9.68, 3.84, -16.68]}
