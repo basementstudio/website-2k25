@@ -34,9 +34,8 @@ export const RigidBodies = ({ hoopPosition }: RigidBodiesProps) => {
     incrementConsecutiveScores()
     playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
     track("basketball_score")
-    if (hasHitStreak) {
-      playSoundFX("BASKETBALL_STREAK", 0.06)
-    }
+
+    if (hasHitStreak) playSoundFX("BASKETBALL_STREAK", 0.06)
 
     // event for net animation
     window.dispatchEvent(new Event("basketball-score"))

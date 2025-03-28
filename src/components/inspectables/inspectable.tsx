@@ -2,6 +2,7 @@
 
 import { MeshDiscardMaterial } from "@react-three/drei"
 import { useThree } from "@react-three/fiber"
+import { track } from "@vercel/analytics"
 import { animate, MotionValue } from "motion"
 import type { AnimationPlaybackControls } from "motion/react"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
@@ -266,7 +267,11 @@ export const Inspectable = memo(function InspectableInner({
       scrollTo({
         offset: 0,
         behavior: "smooth",
-        callback: () => setSelected(id)
+        callback: () => {
+          setSelected(id)
+          const inspectable = inspectables.find((item) => item.mesh === id)
+          track(`inspecting_${inspectable?._title.replace(/\s+/g, "_")}`)
+        }
       })
     }
   }

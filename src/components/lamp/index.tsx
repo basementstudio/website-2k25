@@ -188,14 +188,6 @@ export const Lamp = memo(function LampInner() {
   })
 
   useEffect(() => {
-    if (shouldToggle) {
-      if (light) {
-        track("lamp_pulled")
-      }
-    }
-  }, [shouldToggle, light])
-
-  useEffect(() => {
     playSoundFX(
       `BLOG_LAMP_${desiredSoundFX.current}_${shouldToggle ? "PULL" : "RELEASE"}`,
       0.1
@@ -203,6 +195,7 @@ export const Lamp = memo(function LampInner() {
 
     if (!shouldToggle) {
       setLight(!light)
+      track("lamp_pulled")
       desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
