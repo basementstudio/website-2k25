@@ -6,7 +6,11 @@ import rauchg from "./rauchg.jpg"
 
 const RAUCHG_ID = "15540222"
 
-export default async function CustomTweet({ id }: { id: string }) {
+interface CustomTweetProps {
+  id: string
+}
+
+export const CustomTweet = async ({ id }: CustomTweetProps) => {
   const tweet = await getTweet(id)
   const isRauchTweet = tweet?.user.id_str === RAUCHG_ID
 

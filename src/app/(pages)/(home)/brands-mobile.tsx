@@ -2,23 +2,21 @@ import { cn } from "@/utils/cn"
 
 import { Brand } from "./brands"
 
-export const BrandsMobile = ({ brandsMobile }: { brandsMobile: Brand[][] }) => {
-  return (
-    <section className="grid-layout isolate !gap-y-0 lg:!hidden">
-      <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full mb-2 text-f-h3-mobile text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-f-h3">
-          Trusted by Visionaries
-        </h3>
-      </div>
+export const BrandsMobile = ({ brandsMobile }: { brandsMobile: Brand[][] }) => (
+  <section className="grid-layout isolate !gap-y-0 lg:!hidden">
+    <div className="grid-layout col-span-full !px-0">
+      <h2 className="col-span-full mb-2 text-f-h3-mobile text-brand-g1 lg:col-start-3 lg:col-end-7 lg:text-f-h3">
+        Trusted by Visionaries
+      </h2>
+    </div>
 
-      <div className="relative col-span-full flex flex-col">
-        {brandsMobile.map((row, index) => (
-          <BrandsGrid key={index} brands={row} absolute={index !== 0} />
-        ))}
-      </div>
-    </section>
-  )
-}
+    <div className="relative col-span-full flex flex-col">
+      {brandsMobile.map((row, index) => (
+        <BrandsGrid key={index} brands={row} absolute={index !== 0} />
+      ))}
+    </div>
+  </section>
+)
 
 interface MarqueeRowProps {
   brands: {

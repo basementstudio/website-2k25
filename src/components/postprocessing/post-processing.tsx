@@ -12,7 +12,7 @@ import { useAssets } from "@/components/assets-provider"
 import { revealOpacityMaterials } from "@/components/map/bakes"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useMedia } from "@/hooks/use-media"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
@@ -32,7 +32,7 @@ const Inner = ({
   const scene = useCurrentScene()
   const assets = useAssets()
   const firstRender = useRef(true)
-  const isDesktop = useMedia("(min-width: 1024px)")
+  const { isMobile } = useDeviceDetect()
 
   const material = useMemo(() => createPostProcessingMaterial(), [])
 
@@ -143,13 +143,15 @@ const Inner = ({
     material.uniforms.resolution.value.set(screenWidth, screenHeight)
     material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
 
-    material.uniforms.uActiveBloom.value = isDesktop ? 1 : 0
+    material.uniforms.uActiveBloom.value = isMobile ? 0 : 1
 
     material.uniforms.uMainTexture.value = mainTexture
     material.uniforms.uDepthTexture.value = depthTexture
 
     return () => controller.abort()
-  }, [mainTexture, depthTexture, isDesktop, screenWidth, screenHeight])
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mainTexture, depthTexture, isMobile, screenWidth, screenHeight])
 
   useFrameCallback((_, __, elapsedTime) => {
     material.uniforms.uTime.value = elapsedTime

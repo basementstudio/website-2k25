@@ -75,16 +75,16 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
   return (
     <section className="lg:grid-layout hidden !gap-y-4">
       <div className="grid-layout col-span-full !px-0">
-        <h3 className="col-span-full text-f-h3-mobile text-brand-g1 lg:col-start-2 lg:text-f-h3 2xl:col-start-3">
+        <h2 className="col-span-full text-f-h3-mobile text-brand-g1 lg:col-start-2 lg:text-f-h3 2xl:col-start-3">
           Trusted by <AnimatedTitle brandName={hoveredBrandName ?? ""} />
-        </h3>
+        </h2>
       </div>
 
       <div className="relative col-span-full">
         <div className="grid-rows-auto group grid grid-cols-6 gap-3 xl:grid-cols-8">
           {brands.map((brand) => (
             <motion.a
-              className="aspect-[202/110] text-brand-w1 [&>svg]:w-16 sm:[&>svg]:w-auto"
+              className="aspect-[202/110] text-brand-w1 focus-visible:!ring-offset-0 [&>svg]:w-16 sm:[&>svg]:w-auto"
               href={brand.website ?? ""}
               key={brand._id}
               onMouseEnter={() => setHoveredBrandId(brand._id)}

@@ -5,11 +5,11 @@ import { ProjectPeople } from "./people"
 import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
 
-export const ProjectWrapper = ({
-  entry
-}: {
+interface ProjectWrapperProps {
   entry: QueryItemType & { awards: { title: string }[] }
-}) => (
+}
+
+export const ProjectWrapper = ({ entry }: ProjectWrapperProps) => (
   <ProjectProvider>
     <div className="grid-layout min-h-screen pt-[calc(2.25rem+1px)]">
       <ProjectInfo entry={entry} />

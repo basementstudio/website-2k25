@@ -25,6 +25,7 @@ export const ShowcaseImage = ({ project }: ShowcaseImageProps) => {
         if (isCursorHover) setCursor("zoom-in", "View Project")
       }}
       onMouseLeave={() => setCursor("default", null)}
+      className="block focus-visible:!ring-offset-0"
     >
       <div className="with-dots relative h-full w-full">
         <ImageWithVideoOverlay

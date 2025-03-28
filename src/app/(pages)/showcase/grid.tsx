@@ -62,14 +62,15 @@ export const Grid = memo(
             >
               <div
                 className={cn(
-                  "group relative aspect-video max-w-[100%] after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full",
-                  "will-change-[opacity,transform] hover:will-change-auto"
+                  "group relative aspect-video max-w-[100%] will-change-[opacity,transform] after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 after:transition-colors after:duration-300 hover:will-change-auto lg:h-full",
+                  isProjectDisabled(item) && "after:border-brand-g1/20"
                 )}
               >
                 <Link
+                  disabled={isProjectDisabled(item)}
                   href={`/showcase/${item?._slug}`}
                   className={cn(
-                    "with-dots block h-full w-full cursor-pointer opacity-100 transition-opacity duration-300",
+                    "with-dots block h-full w-full cursor-pointer opacity-100 transition-opacity duration-300 focus-visible:!ring-offset-0",
                     isProjectDisabled(item) &&
                       "pointer-events-none cursor-default opacity-10"
                   )}

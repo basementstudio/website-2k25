@@ -6,13 +6,15 @@ import { client } from "@/service/basehub"
 import { IMAGE_FRAGMENT } from "@/service/basehub/fragments"
 import { cn } from "@/utils/cn"
 
-export async function RelatedProjects({
-  baseSlug,
-  className
-}: {
+interface RelatedProjectsProps {
   baseSlug: string
   className?: string
-}) {
+}
+
+export const RelatedProjects = async ({
+  baseSlug,
+  className
+}: RelatedProjectsProps) => {
   const allPosts = await client().query({
     pages: {
       showcase: {
@@ -68,7 +70,7 @@ export async function RelatedProjects({
           <Link
             href={`/showcase/${item.project?._slug}`}
             key={index}
-            className="flex items-center justify-between pb-1.75 pt-1.5 !text-f-p-mobile font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1 lg:!text-f-p"
+            className="flex items-center justify-between pb-1.75 pt-1.5 !text-f-p-mobile font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1 focus-visible:!ring-offset-0 lg:!text-f-p"
           >
             <span className="flex items-center gap-1.75">
               {item.project?.icon ? (

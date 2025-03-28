@@ -16,6 +16,7 @@ interface LinkProps {
   dangerouslySetInnerHTML?: {
     __html: string
   }
+  disabled?: boolean
   onMouseEnter?: () => void
   onMouseLeave?: () => void
   onFocus?: () => void
@@ -30,6 +31,7 @@ export const Link = ({
   rel,
   onClick,
   prefetch,
+  disabled,
   ...rest
 }: LinkProps) => {
   const { handleNavigation } = useHandleNavigation()
@@ -55,6 +57,8 @@ export const Link = ({
     </NextLink>
   ) : (
     <a
+      aria-disabled={disabled}
+      tabIndex={disabled ? -1 : undefined}
       href={href}
       onClick={(e) => {
         e.preventDefault()

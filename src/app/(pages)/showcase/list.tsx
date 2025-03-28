@@ -28,11 +28,12 @@ const AccordionListItem = memo(
         <AccordionPrimitive.Trigger
           className={cn(
             "[&[data-state=open]_.diagonal-lines]:opacity-0",
-            "group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 py-1.5 transition-all duration-300",
+            "group relative col-span-12 grid grid-cols-12 grid-rows-[repeat(2,auto)] items-center gap-x-2 gap-y-0 border-t border-brand-w1/20 py-1.5 transition-all duration-300 focus-visible:!ring-offset-0",
             disabled && "pointer-events-none",
             true ? "cursor-n-resize" : "cursor-ns-resize"
           )}
           disabled={disabled}
+          tabIndex={disabled ? -1 : undefined}
         >
           {!disabled && (
             <div className="diagonal-lines group-hover:with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -72,6 +73,7 @@ const AccordionListItem = memo(
             <Link
               href={`/showcase/${project?._slug}`}
               className="view-project relative col-start-12 col-end-13 space-x-px text-right text-f-p text-brand-w2"
+              tabIndex={disabled ? -1 : undefined}
             >
               <span className="actionable actionable-no-underline gap-x-1">
                 <span className="actionable actionable-inanimate">
@@ -98,6 +100,7 @@ const AccordionListItem = memo(
                 "grid grid-cols-12 gap-2 pb-0.5 pt-4",
                 "transition-opacity duration-200 group-data-[state=closed]:opacity-0 group-data-[state=open]:opacity-100"
               )}
+              tabIndex={-1}
             >
               {project.showcase?.items.map((item, imgIndex, array) => {
                 const elementToRender = item.video ? (
@@ -167,7 +170,6 @@ export const List = memo(
     isProjectDisabled: (project: Project) => boolean
   }) => {
     const [itemOpen, setItemOpen] = useState<string>()
-    const [sectionSeen, setSectionSeen] = useState<boolean>(false)
 
     const handleValueChange = useCallback((value: string) => {
       setItemOpen(value)
