@@ -11,6 +11,8 @@ import { type Group, MathUtils } from "three"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
+const SENSITIVITY_MULTIPLIER = 1.5
+
 export type InspectableDraggerProps = {
   snap?: boolean
   global?: boolean
@@ -93,12 +95,13 @@ export const InspectableDragger = ({
       }) => {
         if (!enabled) return [y, x]
         if (cursor) setCursor(down ? "grabbing" : "grab")
+
         x = MathUtils.clamp(
-          oldX + (x / size.width) * Math.PI * speed,
+          oldX + (x / size.width) * Math.PI * speed * SENSITIVITY_MULTIPLIER,
           ...rAzimuth
         )
         y = MathUtils.clamp(
-          oldY + (y / size.height) * Math.PI * speed,
+          oldY + (y / size.height) * Math.PI * speed * SENSITIVITY_MULTIPLIER,
           ...rPolar
         )
 
