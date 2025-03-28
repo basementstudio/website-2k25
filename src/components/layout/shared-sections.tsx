@@ -143,7 +143,7 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
     <Link className="h-max text-brand-w1" href={links.twitter} target="_blank">
       <span className="actionable">X (Twitter)</span>
     </Link>
-
+    <span>,</span>
     <Link
       className="h-max text-brand-w1"
       href={links.instagram}
@@ -151,11 +151,11 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
     >
       <span className="actionable">Instagram</span>
     </Link>
-
+    <span>,</span>
     <Link className="h-max text-brand-w1" href={links.github} target="_blank">
       <span className="actionable">GitHub</span>
     </Link>
-
+    <span>,</span>
     <Link className="h-max text-brand-w1" href={links.linkedIn} target="_blank">
       <span className="actionable">LinkedIn</span>
     </Link>
