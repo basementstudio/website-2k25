@@ -16,6 +16,7 @@ import { useHandleContactButton } from "@/hooks/use-handle-contact"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
+import { isInPath } from "@/utils/is-in-path"
 
 import MusicToggle from "./music-toggle"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
@@ -236,14 +237,7 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
               href={link.href}
               className={cn(
                 "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
-                link.href === pathname && "!text-brand-o",
-                pathname.includes("/showcase/") &&
-                  link.href === "/showcase" &&
-                  "!text-brand-o",
-
-                pathname.includes("/post/") &&
-                  link.href === "/blog" &&
-                  "!text-brand-o"
+                isInPath(link.href, pathname) && "!text-brand-o"
               )}
               onClick={() => handleNavigation(link.href)}
             >

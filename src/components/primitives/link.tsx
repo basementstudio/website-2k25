@@ -21,6 +21,7 @@ interface LinkProps {
   onMouseLeave?: () => void
   onFocus?: () => void
   onBlur?: () => void
+  fromMobileNav?: boolean
 }
 
 export const Link = ({
@@ -32,6 +33,7 @@ export const Link = ({
   onClick,
   prefetch,
   disabled,
+  fromMobileNav,
   ...rest
 }: LinkProps) => {
   const { handleNavigation } = useHandleNavigation()
@@ -66,7 +68,7 @@ export const Link = ({
         if (href.includes("/post/") || href.includes("/showcase/")) {
           router.push(href)
         } else {
-          handleNavigation(href)
+          handleNavigation(href, fromMobileNav)
         }
         onClick?.()
       }}
