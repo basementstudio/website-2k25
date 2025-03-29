@@ -90,6 +90,8 @@ export const Lamp = memo(function LampInner() {
   const [shouldToggle, setShouldToggle] = useState(false)
   const [light, setLight] = useState(true)
 
+  const firstTime = useRef(true)
+
   const {
     lamp: { extraLightmap }
   } = useAssets()
@@ -188,15 +190,23 @@ export const Lamp = memo(function LampInner() {
   })
 
   useEffect(() => {
-    playSoundFX(
-      `BLOG_LAMP_${desiredSoundFX.current}_${shouldToggle ? "PULL" : "RELEASE"}`,
-      0.1
-    )
+    if (!firstTime.current) {
+      playSoundFX(
+        `BLOG_LAMP_${desiredSoundFX.current}_${shouldToggle ? "PULL" : "RELEASE"}`,
+        0.1
+      )
+    }
 
     if (!shouldToggle) {
       setLight(!light)
-      track("lamp_pulled")
-      desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
+
+      if (!firstTime.current) {
+        track("lamp_pulled")
+        console.log("pulled")
+        desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
+      } else {
+        firstTime.current = false
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldToggle])
