@@ -104,6 +104,18 @@ export const Awards = ({ data }: { data: Award[] }) => {
     }
   }, [hoveredItemId, data, translateY, currentImageId, isDesktop])
 
+  const sortedAwards = useMemo(() => {
+    return data.sort((a, b) => {
+      const dateA = new Date(a.date)
+      const dateB = new Date(b.date)
+      const dateComparison = dateB.getTime() - dateA.getTime()
+
+      if (dateComparison === 0) return a.title.localeCompare(b.title)
+
+      return dateComparison
+    })
+  }, [data])
+
   return (
     <>
       <div className="grid-layout" ref={sectionRef}>
@@ -117,7 +129,7 @@ export const Awards = ({ data }: { data: Award[] }) => {
             onMouseLeave={handleRevealLeave}
             className="col-span-full text-brand-w1"
           >
-            {data.map((award) => (
+            {sortedAwards.map((award) => (
               <li
                 key={award._id}
                 onMouseEnter={() => handleMouseEnter(award._id)}
