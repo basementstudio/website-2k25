@@ -8,15 +8,15 @@ import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
 
-const handleTransitionEffectOn = () => {
-  if (window.innerWidth >= 1024) {
+const handleTransitionEffectOn = (fromMobileNav?: boolean) => {
+  if (window.innerWidth >= 1024 && !fromMobileNav) {
     document.documentElement.dataset.disabled = "false"
     document.documentElement.dataset.flip = "true"
   }
 }
 
-const handleTransitionEffectOff = () => {
-  if (window.innerWidth >= 1024) {
+const handleTransitionEffectOff = (fromMobileNav?: boolean) => {
+  if (window.innerWidth >= 1024 && !fromMobileNav) {
     document.documentElement.dataset.flip = "false"
     setTimeout(() => {
       document.documentElement.dataset.disabled = "true"
@@ -60,7 +60,7 @@ export const useHandleNavigation = () => {
   )
 
   const handleNavigation = useCallback(
-    (route: string) => {
+    (route: string, fromMobileNav?: boolean) => {
       if (route === pathname) return
 
       const isContactOpen = useContactStore.getState().isContactOpen
@@ -85,18 +85,18 @@ export const useHandleNavigation = () => {
         return
       }
 
-      continueNavigation(route)
+      continueNavigation(route, fromMobileNav)
     },
     [pathname, setCurrentScene, scenes, setDisableCameraTransition]
   )
 
   const continueNavigation = useCallback(
-    (route: string) => {
+    (route: string, fromMobileNav?: boolean) => {
       const selectedScene = getScene(route)
 
       if (!selectedScene) return
 
-      if (window.scrollY < window.innerHeight) {
+      if (window.scrollY < window.innerHeight && !fromMobileNav) {
         setCurrentScene(selectedScene)
         lenisRef.current?.stop()
 
@@ -112,7 +112,7 @@ export const useHandleNavigation = () => {
           }
         })
       } else {
-        handleTransitionEffectOn()
+        handleTransitionEffectOn(fromMobileNav)
         lenisRef.current?.stop()
         setDisableCameraTransition(true)
         setCurrentScene(selectedScene)
@@ -123,7 +123,7 @@ export const useHandleNavigation = () => {
               offset: 0,
               behavior: "instant",
               callback: () => {
-                handleTransitionEffectOff()
+                handleTransitionEffectOff(fromMobileNav)
                 lenisRef.current?.start()
               }
             })
@@ -132,7 +132,7 @@ export const useHandleNavigation = () => {
             }
             router.push(route, { scroll: false })
           },
-          window.innerWidth >= 1024 ? TRANSITION_DURATION : 0
+          window.innerWidth >= 1024 && !fromMobileNav ? TRANSITION_DURATION : 0
         )
       }
     },

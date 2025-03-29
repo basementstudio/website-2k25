@@ -1,11 +1,13 @@
 "use client"
 
 import { motion } from "motion/react"
+import { usePathname } from "next/navigation"
 
 import { Link } from "@/components/primitives/link"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
+import { isInPath } from "@/utils/is-in-path"
 
 interface InternalLinksProps {
   className?: string
@@ -31,6 +33,7 @@ export const InternalLinks = ({
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
   const isDesktop = useMedia("(min-width: 1024px)")
+  const pathname = usePathname()
 
   const filteredLinks = links.filter((link) => {
     if (isDesktop || !link.href.includes("lab")) {
@@ -51,9 +54,8 @@ export const InternalLinks = ({
   return (
     <ul
       className={cn(
-        "flex flex-col gap-y-2",
+        "flex flex-col gap-y-2 text-brand-w1 lg:!text-f-h2",
         onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
-        "text-brand-w1 lg:!text-f-h2",
         className
       )}
     >
@@ -77,9 +79,13 @@ export const InternalLinks = ({
           }}
         >
           <Link
-            className={cn("flex w-fit gap-x-0.5 text-brand-w1")}
+            className={cn(
+              "flex w-fit gap-x-0.5 text-brand-w1",
+              onNav && isInPath(link.href, pathname) && "!text-brand-o"
+            )}
             href={link.href}
             onClick={onClick}
+            fromMobileNav={onNav}
           >
             <span className="actionable">{link.title}</span>
             {link.count && (
