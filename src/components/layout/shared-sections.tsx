@@ -115,11 +115,14 @@ export const InternalLinks = ({
         }}
       >
         <button
-          onClick={handleContactButton}
+          onClick={() => {
+            onClick?.()
+            handleContactButton()
+          }}
           className={cn(
-            "flex w-max flex-col gap-y-1",
+            "flex flex-col gap-y-2 text-brand-w1 lg:!text-f-h2",
             onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
-            "text-brand-w1 lg:!text-f-h2"
+            onNav && isInPath("/contact", pathname) && "!text-brand-o"
           )}
         >
           <span className="actionable">Contact Us</span>
