@@ -1,11 +1,14 @@
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import dynamic from "next/dynamic"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
+import { Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useAppLoadingStore } from "./app-loading-handler"
 
 // Fallback component for when the worker fails or isn't supported
@@ -18,6 +21,32 @@ function LoadingCanvas() {
   const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
 
   const { officeWireframe } = useAssets()
+
+  const currentScene = useNavigationStore((state) => state.currentScene)
+
+  const loadedRef = useRef(false)
+
+  useEffect(() => {
+    if (!currentScene || loadedRef.current || !loadingCanvasWorker) return
+
+    // Initialize the loading scene
+    loadingCanvasWorker.postMessage({
+      type: "update-camera-config",
+      actualCamera: {
+        position: new Vector3(
+          currentScene.cameraConfig.position[0],
+          currentScene.cameraConfig.position[1],
+          currentScene.cameraConfig.position[2]
+        ),
+        target: new Vector3(
+          currentScene.cameraConfig.target[0],
+          currentScene.cameraConfig.target[1],
+          currentScene.cameraConfig.target[2]
+        ),
+        fov: currentScene.cameraConfig.fov
+      }
+    })
+  }, [loadingCanvasWorker, currentScene])
 
   const scene = useCurrentScene()
 
