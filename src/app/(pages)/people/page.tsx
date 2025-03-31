@@ -11,8 +11,7 @@ import { careersQuery } from "./query"
 import { Values } from "./values"
 
 export const metadata: Metadata = {
-  title: "People",
-  description: "Our people"
+  title: "People"
 }
 
 const About = () => (

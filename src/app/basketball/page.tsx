@@ -78,41 +78,39 @@ const DesktopUI = ({
   timeRemaining,
   score,
   scoreMultiplier
-}: DesktopUIProps) => {
-  return (
-    <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in p-3.5">
-      <div className="grid-layout mt-24 h-full">
-        <button
-          onClick={() => handleNavigation("/")}
-          className="pointer-events-auto col-span-2 col-start-2 h-max text-f-p-mobile text-brand-w1 lg:text-f-p"
-        >
-          Close Game [ESC]
-        </button>
-        <div
-          className={`${geistMono.className} col-span-2 col-start-6 flex h-10 select-none text-f-p-mobile uppercase text-brand-w2 lg:text-f-p`}
-        >
-          <div className="corner-borders relative flex w-1/2 translate-x-[0.5px] items-center justify-center">
-            <p>{formatTime(timeRemaining)}</p>
-          </div>
-
-          <div className="corner-borders relative flex w-1/2 -translate-x-[0.5px] items-center justify-center">
-            <p>{Math.floor(score)} Pts.</p>
-          </div>
+}: DesktopUIProps) => (
+  <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in p-3.5">
+    <div className="grid-layout mt-24 h-full">
+      <button
+        onClick={() => handleNavigation("/")}
+        className="pointer-events-auto col-span-2 col-start-2 h-max text-f-p-mobile text-brand-w1 lg:text-f-p"
+      >
+        Close Game [ESC]
+      </button>
+      <div
+        className={`${geistMono.className} col-span-2 col-start-6 flex h-10 select-none text-f-p-mobile uppercase text-brand-w2 lg:text-f-p`}
+      >
+        <div className="corner-borders relative flex w-1/2 translate-x-[0.5px] items-center justify-center">
+          <p>{formatTime(timeRemaining)}</p>
         </div>
 
-        <div className="col-span-1 col-start-8 flex h-10 items-center justify-center">
-          <p
-            className={`${geistMono.className} text-f-p-mobile text-brand-w1 lg:text-f-p`}
-          >
-            {scoreMultiplier}x
-          </p>
+        <div className="corner-borders relative flex w-1/2 -translate-x-[0.5px] items-center justify-center">
+          <p>{Math.floor(score)} Pts.</p>
         </div>
-
-        <Scoreboard className="col-span-2 col-start-10 ml-auto w-32 text-f-p-mobile lg:text-f-p" />
       </div>
+
+      <div className="col-span-1 col-start-8 flex h-10 items-center justify-center">
+        <p
+          className={`${geistMono.className} text-f-p-mobile text-brand-w1 lg:text-f-p`}
+        >
+          {scoreMultiplier}x
+        </p>
+      </div>
+
+      <Scoreboard className="col-span-2 col-start-10 ml-auto w-32 text-f-p-mobile lg:text-f-p" />
     </div>
-  )
-}
+  </div>
+)
 
 interface MobileUIProps {
   handleNavigation: (route: string) => void

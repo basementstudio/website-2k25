@@ -3,9 +3,7 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
-  title: "Lab",
-  description:
-    "basement lab is carving out a vanguard position by combining intensive technology with formal design expertise."
+  title: "Lab"
 }
 
 const Laboratory = async () => {

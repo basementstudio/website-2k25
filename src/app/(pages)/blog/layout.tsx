@@ -6,9 +6,7 @@ import { Featured } from "./featured"
 import { Hero } from "./hero"
 
 export const metadata: Metadata = {
-  title: "Blog",
-  description:
-    "We don't settle, we are intentional about building with surgical precision and creating extraordinary experiences. We go the extra mile, and then walk a couple more, just for fun."
+  title: "Blog"
 }
 
 interface BlogLayoutProps {

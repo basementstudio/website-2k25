@@ -11,9 +11,7 @@ import { Testimonials } from "./testimonials"
 import { VenturesBanner } from "./ventures"
 
 export const metadata: Metadata = {
-  title: "Services",
-  description:
-    "We don't settle, we are intentional about building with surgical precision and creating extraordinary experiences. We go the extra mile, and then walk a couple more, just for fun."
+  title: "Services"
 }
 
 export type Award = QueryType["company"]["awards"]["awardList"]["items"][number]
