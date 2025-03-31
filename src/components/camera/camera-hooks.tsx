@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useMedia } from "@/hooks/use-media"
@@ -187,6 +188,8 @@ export const useCameraMovement = (
   const prevCameraConfig = useRef(cameraConfig)
   const firstRender = useRef(true)
 
+  const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
+
   useEffect(() => {
     if (cameraConfig && prevCameraConfig.current !== cameraConfig) {
       if (isInitialized && prevCameraConfig.current) {
@@ -310,6 +313,17 @@ export const useCameraMovement = (
       cameraRef.current.lookAt(finalLookAt)
       cameraRef.current.fov = currentFov.current
       cameraRef.current.updateProjectionMatrix()
+
+      if (loadingCanvasWorker) {
+        loadingCanvasWorker.postMessage({
+          type: "update-camera-config",
+          actualCamera: {
+            position: finalPos,
+            target: finalLookAt,
+            fov: currentFov.current
+          }
+        })
+      }
     }
   })
 

@@ -12,7 +12,6 @@ import {
   useState
 } from "react"
 
-import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
 
@@ -58,8 +57,6 @@ function AnimationControllerImpl({
 }: AnimationControllerProps) {
   const { invalidate } = useThree()
 
-  const { canRunMainApp } = useAppLoadingStore()
-
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
   const [isScrollPaused, setIsScrollPaused] = useState(false)
 
@@ -70,8 +67,7 @@ function AnimationControllerImpl({
   const isPaused =
     paused ||
     (pauseOnTabChange && !isTabVisible) ||
-    (isScrollPaused && !disableCameraTransition) ||
-    !canRunMainApp
+    (isScrollPaused && !disableCameraTransition)
 
   // Use refs for internal values that don't need to trigger re-renders
   const timeValuesRef = useRef({ time: 0, delta: 0 })

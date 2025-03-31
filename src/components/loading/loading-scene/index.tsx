@@ -35,7 +35,11 @@ interface LoadingWorkerStore {
   cameraPosition: Vector3
   cameraFov: number
   cameraTarget: Vector3
-  cameraConfig: ICameraConfig | null
+  actualCamera: {
+    position: Vector3
+    target: Vector3
+    fov: number
+  } | null
 }
 
 const target = new Vector3(5, 0, -25)
@@ -51,14 +55,14 @@ export const useLoadingWorkerStore = create<LoadingWorkerStore>((set) => ({
   cameraPosition: initialPosition,
   cameraFov: 50,
   cameraTarget: target,
-  cameraConfig: null
+  actualCamera: null
 }))
 
 const handleMessage = ({
-  data: { type, cameraConfig, isAppLoaded, progress }
+  data: { type, actualCamera, isAppLoaded, progress }
 }: LoadingWorkerMessageEvent) => {
-  if (type === "update-camera-config" && cameraConfig) {
-    useLoadingWorkerStore.setState({ cameraConfig })
+  if (type === "update-camera-config" && actualCamera) {
+    useLoadingWorkerStore.setState({ actualCamera })
   }
 
   if (type === "update-loading-status" && typeof isAppLoaded === "boolean") {
@@ -81,7 +85,7 @@ interface GLTFNodes extends GLTF {
 }
 
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
-  const { cameraConfig } = useLoadingWorkerStore()
+  const { actualCamera } = useLoadingWorkerStore()
   const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
 
   const solidParent = nodes.SM_Solid
@@ -256,20 +260,20 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     ;(solid.material as any).uniforms.uReveal.value = r2
 
     const camera = C as PerspectiveCameraType
-    if (cameraConfig && !updated.current) {
+    if (actualCamera) {
       updated.current = true
       camera.position.set(
-        cameraConfig.position[0],
-        cameraConfig.position[1],
-        cameraConfig.position[2]
+        actualCamera.position.x,
+        actualCamera.position.y,
+        actualCamera.position.z
       )
       target.set(
-        cameraConfig.target[0],
-        cameraConfig.target[1],
-        cameraConfig.target[2]
+        actualCamera.target.x,
+        actualCamera.target.y,
+        actualCamera.target.z
       )
       camera.lookAt(target)
-      camera.fov = cameraConfig.fov
+      camera.fov = actualCamera.fov
       camera.updateProjectionMatrix()
     }
     if (updated.current) {
@@ -314,8 +318,6 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     )
     vRefsFloor.prevSmoothPointer.copy(vRefsFloor.smoothPointer)
 
-    // console.log(vRefsFloor.smoothPointer)
-
     raycaster.setFromCamera(pointer, camera)
     const intersects = raycaster.intersectObject(solid)
 
@@ -328,14 +330,6 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     }
 
     vRefsFloor.uv.copy(vRefsFloor.smoothPointer)
-    // vRefsFloor.uv.subScalar(1)
-    // vRefsFloor.uv.multiplyScalar(0.5)
-
-    // console.log(vRefsFloor.uv)
-
-    // console.log(intersects)
-
-    // return
 
     gl.setRenderTarget(flowDoubleFbo.write)
     gl.render(flowScene, flowCamera)

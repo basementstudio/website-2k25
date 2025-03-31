@@ -1,5 +1,5 @@
 import { createPortal, useThree } from "@react-three/fiber"
-import { memo, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 import {
   DepthTexture,
   HalfFloatType,
@@ -15,6 +15,7 @@ import {
   WebGLRenderTarget
 } from "three"
 
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { doubleFbo } from "@/utils/double-fbo"
@@ -62,6 +63,8 @@ function RendererInner({ sceneChildren }: RendererProps) {
     return rt
   }, [])
 
+  const { canRunMainApp } = useAppLoadingStore()
+
   const mainScene = useMemo(() => new Scene(), [])
   const postProcessingScene = useMemo(() => new Scene(), [])
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
@@ -75,7 +78,8 @@ function RendererInner({ sceneChildren }: RendererProps) {
   }, [mainTarget, screenWidth, screenHeight])
 
   useFrameCallback(({ gl }) => {
-    if (!mainCamera || !postProcessingCameraRef.current) return
+    if (!mainCamera || !postProcessingCameraRef.current || !canRunMainApp)
+      return
 
     // main render
     gl.outputColorSpace = LinearSRGBColorSpace

@@ -13,7 +13,6 @@ import { Contact } from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { ContentWrapper } from "@/components/layout/content-wrapper"
 import { Navbar } from "@/components/layout/navbar"
-import { AppLoadingHandler } from "@/components/loading/app-loading-handler"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
@@ -84,7 +83,6 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             )}
             suppressHydrationWarning
           >
-            <AppLoadingHandler />
             <LenisScrollProvider>
               <HtmlTunnelOut />
               <Navbar />

@@ -1,12 +1,13 @@
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import dynamic from "next/dynamic"
 import { useEffect, useRef } from "react"
+import { Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
-import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-import { useMedia } from "@/hooks/use-media"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { cn } from "@/utils/cn"
 
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { useAppLoadingStore } from "./app-loading-handler"
 
 // Fallback component for when the worker fails or isn't supported
@@ -21,9 +22,6 @@ function LoadingCanvas() {
   const { officeWireframe } = useAssets()
 
   const currentScene = useNavigationStore((state) => state.currentScene)
-  const isBasketball = currentScene?.name === "basketball"
-
-  const isDesktop = useMedia("max-width: 1024px")
 
   const loadedRef = useRef(false)
 
@@ -33,9 +31,23 @@ function LoadingCanvas() {
     // Initialize the loading scene
     loadingCanvasWorker.postMessage({
       type: "update-camera-config",
-      cameraConfig: currentScene.cameraConfig
+      actualCamera: {
+        position: new Vector3(
+          currentScene.cameraConfig.position[0],
+          currentScene.cameraConfig.position[1],
+          currentScene.cameraConfig.position[2]
+        ),
+        target: new Vector3(
+          currentScene.cameraConfig.target[0],
+          currentScene.cameraConfig.target[1],
+          currentScene.cameraConfig.target[2]
+        ),
+        fov: currentScene.cameraConfig.fov
+      }
     })
   }, [loadingCanvasWorker, currentScene])
+
+  const scene = useCurrentScene()
 
   useEffect(() => {
     const worker = new Worker(
@@ -84,8 +96,9 @@ function LoadingCanvas() {
   return (
     <div
       className={cn(
-        "absolute left-0 top-0 z-[200] h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
-        isBasketball && !isDesktop && "inset-x-0 top-0 h-[100svh]",
+        "absolute inset-0",
+        (scene === "basketball" || scene === "lab" || scene === "404") &&
+          "inset-x-0 top-0 h-[100svh]",
         !canRunMainApp && "bg-black"
       )}
     >
