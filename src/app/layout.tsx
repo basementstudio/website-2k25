@@ -83,16 +83,14 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             )}
             suppressHydrationWarning
           >
-            <LenisScrollProvider>
-              <HtmlTunnelOut />
-              <Navbar />
+            <HtmlTunnelOut />
+            <Navbar />
 
-              <NavigationHandler />
+            <NavigationHandler />
 
-              <ContentWrapper>{children}</ContentWrapper>
-              <AppHooks assets={assets} />
-              <Contact />
-            </LenisScrollProvider>
+            <ContentWrapper>{children}</ContentWrapper>
+            <AppHooks assets={assets} />
+            <Contact />
           </body>
         </InspectableProvider>
       </AssetsProvider>

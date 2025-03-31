@@ -267,11 +267,11 @@ export const useCameraMovement = (
       targetFov.current = cameraConfig.fov
     }
 
-    if (!disableCameraTransition && lenis && isDesktop) {
+    if (!disableCameraTransition && isDesktop) {
       targetPosition.y +=
-        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
+        (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
       targetLookAt.y +=
-        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
+        (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
     }
 
     if (disableCameraTransition || firstRender.current) {
