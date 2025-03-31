@@ -16,7 +16,6 @@ import {
 } from "three"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-import { useMedia } from "@/hooks/use-media"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { doubleFbo } from "@/utils/double-fbo"
 
@@ -67,7 +66,6 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingScene = useMemo(() => new Scene(), [])
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
-  const isDesktop = useMedia("(min-width: 1024px)")
 
   const screenWidth = useThree((state) => state.size.width)
   const screenHeight = useThree((state) => state.size.height)
