@@ -234,17 +234,6 @@ export const ContactScreen = () => {
                   autoComplete="off"
                   placeholder="MESSAGE"
                   className="col-span-2 h-full flex-1 resize-none border-b border-dashed border-brand-o bg-transparent p-1 uppercase placeholder:text-brand-o"
-                  onKeyDown={(e) => {
-                    if (
-                      e.key === "Enter" &&
-                      !e.shiftKey &&
-                      isValid &&
-                      !submitting
-                    ) {
-                      e.preventDefault()
-                      formRef.current?.requestSubmit()
-                    }
-                  }}
                   {...register("message", { required: "Message is required" })}
                 />
               </div>
