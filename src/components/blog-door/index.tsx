@@ -1,4 +1,5 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
+import { track } from "@vercel/analytics"
 import { animate } from "motion"
 import { useRef } from "react"
 import { Mesh } from "three"
@@ -48,11 +49,14 @@ export const BlogDoor = () => {
     animate(doorHoverRef.current?.rotation, hoverTarget, config)
 
     if (!isOpen.current) {
+      track("blog_door_open")
       playSoundFX(`BLOG_DOOR_${desiredSoundFX.current}_OPEN`, 0.4)
     } else {
-      setTimeout(() => {
-        playSoundFX(`BLOG_DOOR_${desiredSoundFX.current}_CLOSE`, 0.25)
-      }, 250)
+      track("blog_door_close")
+      setTimeout(
+        () => playSoundFX(`BLOG_DOOR_${desiredSoundFX.current}_CLOSE`, 0.25),
+        250
+      )
     }
 
     if (isOpen.current) {

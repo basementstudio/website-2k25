@@ -1,4 +1,5 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
+import { track } from "@vercel/analytics"
 import { animate } from "motion"
 import { useRef } from "react"
 
@@ -35,6 +36,7 @@ export const LockedDoor = () => {
 
     const randomSound = Math.floor(Math.random() * availableSounds)
     playSoundFX(`BLOG_LOCKED_DOOR_${randomSound}`, 0.2)
+    track("blog_locked_door")
 
     setTimeout(() => {
       animate(lockedDoor?.rotation, r)
