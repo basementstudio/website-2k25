@@ -4,7 +4,13 @@ import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo } from "react"
 
+import { CustomCursor } from "@/components/custom-cursor"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
+import {
+  AppLoadingHandler,
+  useAppLoadingStore
+} from "@/components/loading/app-loading-handler"
+import { cn } from "@/utils/cn"
 
 const Scene = dynamic(
   () => import("@/components/scene").then((mod) => mod.Scene),
@@ -13,11 +19,6 @@ const Scene = dynamic(
     loading: () => null
   }
 )
-
-import { cn } from "@/utils/cn"
-
-import { CustomCursor } from "../custom-cursor"
-import { useAppLoadingStore } from "../loading/app-loading-handler"
 
 const BLACKLISTED_PATHS = [
   /^\/showcase\/\d+$/,
@@ -53,6 +54,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
         )}
       >
         {isCanvasInPage && <Scene />}
+        <AppLoadingHandler />
         <InspectableViewer />
       </div>
 

@@ -1,10 +1,9 @@
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import dynamic from "next/dynamic"
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 
 import { useAssets } from "@/components/assets-provider"
-import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-import { useMedia } from "@/hooks/use-media"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { cn } from "@/utils/cn"
 
 import { useAppLoadingStore } from "./app-loading-handler"
@@ -20,22 +19,7 @@ function LoadingCanvas() {
 
   const { officeWireframe } = useAssets()
 
-  const currentScene = useNavigationStore((state) => state.currentScene)
-  const isBasketball = currentScene?.name === "basketball"
-
-  const isDesktop = useMedia("max-width: 1024px")
-
-  const loadedRef = useRef(false)
-
-  useEffect(() => {
-    if (!currentScene || loadedRef.current || !loadingCanvasWorker) return
-
-    // Initialize the loading scene
-    loadingCanvasWorker.postMessage({
-      type: "update-camera-config",
-      cameraConfig: currentScene.cameraConfig
-    })
-  }, [loadingCanvasWorker, currentScene])
+  const scene = useCurrentScene()
 
   useEffect(() => {
     const worker = new Worker(
@@ -84,8 +68,9 @@ function LoadingCanvas() {
   return (
     <div
       className={cn(
-        "absolute left-0 top-0 z-[200] h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
-        isBasketball && !isDesktop && "inset-x-0 top-0 h-[100svh]",
+        "absolute inset-0",
+        (scene === "basketball" || scene === "lab" || scene === "404") &&
+          "inset-x-0 top-0 h-[100svh]",
         !canRunMainApp && "bg-black"
       )}
     >

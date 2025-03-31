@@ -1,11 +1,15 @@
 import { render } from "@react-three/offscreen"
+import { Vector3 } from "three"
 
 import LoadingScene from "@/components/loading/loading-scene"
-import { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
 
 export type LoadingWorkerMessageEvent = MessageEvent<{
   type: string
-  cameraConfig?: ICameraConfig
+  actualCamera?: {
+    position: Vector3
+    target: Vector3
+    fov: number
+  } | null
   isAppLoaded?: boolean
   progress?: number
   modelUrl?: string
