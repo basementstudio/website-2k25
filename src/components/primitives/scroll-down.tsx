@@ -8,11 +8,10 @@ import {
 } from "motion/react"
 import { useEffect, useMemo } from "react"
 
+import { ArrowDownIcon } from "@/components/icons/icons"
+import { useInspectable } from "@/components/inspectables/context"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-
-import { ArrowDownIcon } from "../icons/icons"
-import { useInspectable } from "../inspectables/context"
-import { useAppLoadingStore } from "../loading/app-loading-handler"
 
 export const ScrollDown = () => {
   const scene = useCurrentScene()

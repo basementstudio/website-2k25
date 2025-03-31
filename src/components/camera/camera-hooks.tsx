@@ -4,13 +4,13 @@ import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useMedia } from "@/hooks/use-media"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { easeInOutCubic } from "@/utils/animations"
 
-import { useAppLoadingStore } from "../loading/app-loading-handler"
 import {
   calculateMovementVectors,
   calculateNewPosition,
