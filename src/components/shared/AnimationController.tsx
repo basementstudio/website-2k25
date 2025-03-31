@@ -70,8 +70,7 @@ function AnimationControllerImpl({
   const isPaused =
     paused ||
     (pauseOnTabChange && !isTabVisible) ||
-    (isScrollPaused && !disableCameraTransition) ||
-    !canRunMainApp
+    (isScrollPaused && !disableCameraTransition)
 
   // Use refs for internal values that don't need to trigger re-renders
   const timeValuesRef = useRef({ time: 0, delta: 0 })
