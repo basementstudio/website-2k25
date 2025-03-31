@@ -5,7 +5,6 @@ import { Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
