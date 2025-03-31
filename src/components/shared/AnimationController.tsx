@@ -12,7 +12,6 @@ import {
   useState
 } from "react"
 
-import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
 
@@ -57,8 +56,6 @@ function AnimationControllerImpl({
   pauseOnTabChange = true
 }: AnimationControllerProps) {
   const { invalidate } = useThree()
-
-  const { canRunMainApp } = useAppLoadingStore()
 
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
   const [isScrollPaused, setIsScrollPaused] = useState(false)
