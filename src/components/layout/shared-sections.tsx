@@ -120,7 +120,7 @@ export const InternalLinks = ({
             handleContactButton()
           }}
           className={cn(
-            "flex flex-col gap-y-2 text-brand-w1 lg:!text-f-h2",
+            "flex flex-col gap-y-2 whitespace-nowrap text-brand-w1 lg:!text-f-h2",
             onNav ? "!text-[2.75rem] tracking-[-0.02em]" : "!text-f-h1-mobile",
             onNav && isInPath("/contact", pathname) && "!text-brand-o"
           )}
@@ -145,7 +145,7 @@ interface SocialLinksProps {
 export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   <div
     className={cn(
-      "flex flex-row gap-x-1 !text-f-h4-mobile text-brand-g1 lg:!text-f-p",
+      "flex flex-row gap-x-1 whitespace-nowrap !text-f-h4-mobile text-brand-g1 lg:!text-f-p",
       className
     )}
   >
