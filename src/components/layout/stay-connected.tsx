@@ -42,6 +42,8 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
   }
 
   useEffect(() => {
+    if (formState === "idle") return
+
     if (state.success) {
       setFormState("success")
     } else {
