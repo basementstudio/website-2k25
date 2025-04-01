@@ -82,12 +82,19 @@ function CharactersSpawnInner() {
         rotation={[0, degToRad(70), 0]}
         animationName={CharacterAnimationName["People.02.a"]}
         initialTime={0.5}
+        // debugLight
         uniforms={{
           uLightDirection: {
             value: [-1, 0, 0, 1]
           },
           uLightColor: {
             value: [...new Color("#a9abff").toArray(), 1]
+          },
+          uPointLightPosition: {
+            value: [3.8, 1.1, -16.5, 0.6]
+          },
+          uPointLightColor: {
+            value: [...new Color("#cecfff").toArray(), 5]
           }
         }}
       />
@@ -97,12 +104,19 @@ function CharactersSpawnInner() {
         position={[4.55, 0.03, -17.53]}
         rotation={[0, degToRad(-20), 0]}
         animationName={CharacterAnimationName["People.02.a"]}
+        // debugLight
         uniforms={{
           uLightDirection: {
-            value: [-1, 0, 0, 1]
+            value: [-1, 0, 0, 0]
           },
           uLightColor: {
             value: [...new Color("#a9abff").toArray(), 1]
+          },
+          uPointLightPosition: {
+            value: [4.55, 1.1, -17.1, 0.6]
+          },
+          uPointLightColor: {
+            value: [...new Color("#cecfff").toArray(), 10]
           }
         }}
       />
@@ -140,7 +154,16 @@ function CharactersSpawnInner() {
         animationName={CharacterAnimationName["Blog.01"]}
         uniforms={{
           uLightDirection: {
-            value: [0.4, -0.4, -0.3, 1]
+            value: [1, 1, 0, 1]
+          },
+          uLightColor: {
+            value: [...new Color("#fff2ce").toArray(), 0.7]
+          },
+          uPointLightPosition: {
+            value: [10.5, 4.2, -17.8, 1.8]
+          },
+          uPointLightColor: {
+            value: [...new Color("#fff2ce").toArray(), 50]
           }
         }}
       />
