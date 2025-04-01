@@ -4,8 +4,8 @@ import { motion } from "motion/react"
 import { usePathname } from "next/navigation"
 
 import { Link } from "@/components/primitives/link"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
-import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 import { isInPath } from "@/utils/is-in-path"
 
@@ -32,16 +32,12 @@ export const InternalLinks = ({
   animated = false
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
-  const isDesktop = useMedia("(min-width: 1024px)")
+  const { isMobile } = useDeviceDetect()
   const pathname = usePathname()
 
-  const filteredLinks = links.filter((link) => {
-    if (isDesktop || !link.href.includes("lab")) {
-      return true
-    }
-
-    return false
-  })
+  const filteredLinks = links.filter(
+    (link) => !(isMobile && link.href.includes("lab"))
+  )
 
   const animateProps = animated
     ? {
