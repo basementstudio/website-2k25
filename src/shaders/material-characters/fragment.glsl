@@ -4,7 +4,9 @@ varying vec2 vMapOffset;
 varying vec3 vDebug;
 varying vec4 vLightColor;
 varying vec4 vLightDirection;
-
+varying vec4 vPointLightPosition;
+varying vec4 vPointLightColor;
+varying vec3 vWorldPosition;
 uniform float fadeFactor;
 
 #ifdef USE_MULTI_MAP
@@ -31,6 +33,7 @@ float valueRemap(float value, float min, float max, float newMin, float newMax) 
 }
 
 void main() {
+  vec3 normal = normalize(vNormal);
   vec3 color = vec3(0.0);
 
   vec4 mapSample = vec4(0.0);
@@ -55,7 +58,9 @@ void main() {
 
   color = gamma(color, 2.2);
 
-  float lightIntensity = dot(vLightDirection.xyz, normalize(vNormal));
+  vec3 baseColor = color;
+
+  float lightIntensity = dot(vLightDirection.xyz, normal);
   lightIntensity = valueRemap(lightIntensity, -0.5, 1.0, 0.0, 1.0);
   lightIntensity = clamp(lightIntensity, 0.0, 1.0);
   lightIntensity *= 2.;
@@ -64,6 +69,23 @@ void main() {
 
   color *= lightIntensity;
   color *= (vLightColor.rgb * vLightColor.a);
+
+
+  float lightRadius = vPointLightPosition.w;
+  vec3 relativeLight = vPointLightPosition.xyz - vWorldPosition;
+  vec3 lightDir = normalize(relativeLight);
+  float lightDecay = 1.0 - length(relativeLight) / lightRadius;
+  lightDecay = clamp(lightDecay, 0.0, 1.0);
+  lightDecay = pow(lightDecay, 2.);
+  float lightFactor = clamp(dot(lightDir, normal), 0.0, 1.0);
+  lightFactor *= lightDecay;
+
+  vec3 pointLightColor = vPointLightColor.rgb * vPointLightColor.a;
+  pointLightColor *= lightFactor;
+  pointLightColor *= baseColor; // absorved light by base color
+
+  color += pointLightColor;
+
 
   if(alpha < 0.8) discard;
 
