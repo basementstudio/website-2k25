@@ -76,23 +76,27 @@ function CharacterInstanceConfigInner() {
 
     const bodyRepeat = 1
     textureBody.repeat.set(1 / bodyRepeat, 1 / bodyRepeat)
+    textureBody.anisotropy = 16
     textureBody.flipY = false
     textureBody.updateMatrix()
     textureBody.needsUpdate = true
     const material = createCharacterMaterial()
 
     textureFaces.repeat.set(1 / FACES_GRID_COLS, 1 / FACES_GRID_COLS)
+    textureFaces.anisotropy = 16
     textureFaces.flipY = false
     textureFaces.updateMatrix()
     textureFaces.needsUpdate = true
 
     const armsRepeat = 1
     textureArms.repeat.set(1 / armsRepeat, 1 / armsRepeat)
+    textureArms.anisotropy = 16
     textureArms.flipY = false
     textureArms.updateMatrix()
     textureArms.needsUpdate = true
 
     textureComic.flipY = false
+    textureComic.anisotropy = 16
     textureComic.updateMatrix()
     textureComic.needsUpdate = true
 
@@ -174,6 +178,16 @@ function CharacterInstanceConfigInner() {
           {
             name: "uLightColor",
             defaultValue: [...new Color("#ffeec0").toArray(), 3],
+            type: FloatType
+          },
+          {
+            name: "uPointLightPosition",
+            defaultValue: [0, 0, 0, 0],
+            type: FloatType
+          },
+          {
+            name: "uPointLightColor",
+            defaultValue: [...new Color("#ffeec0").toArray(), 1],
             type: FloatType
           }
         ]}
