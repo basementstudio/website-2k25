@@ -37,7 +37,6 @@
     "clsx": "^2.1.1",
     "glsl-noise": "^0.0.0",
     "glslify-loader": "^2.0.0",
-    "lenis": "^1.1.20",
     "leva": "^0.9.35",
     "lodash.throttle": "^4.1.1",
     "maath": "^0.10.8",

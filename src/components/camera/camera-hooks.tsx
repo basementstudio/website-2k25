@@ -1,4 +1,3 @@
-import { useLenis } from "lenis/react"
 import { easing } from "maath"
 import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
@@ -147,8 +146,6 @@ export const useCameraMovement = (
   const previousScene = useNavigationStore.getState().previousScene
   const { selected } = useInspectable()
 
-  const lenis = useLenis()
-
   const isDesktop = useMedia("(min-width: 1024px)")
 
   // Determine if we're transitioning from the 404 page
@@ -267,11 +264,11 @@ export const useCameraMovement = (
       targetFov.current = cameraConfig.fov
     }
 
-    if (!disableCameraTransition && lenis && isDesktop) {
+    if (!disableCameraTransition && isDesktop) {
       targetPosition.y +=
-        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
+        (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
       targetLookAt.y +=
-        (targetY - initialY) * Math.min(1, lenis.scroll / window.innerHeight)
+        (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
     }
 
     if (disableCameraTransition || firstRender.current) {
