@@ -131,9 +131,7 @@ export interface AssetsResult {
       bloomThreshold: number
     }
   }[]
-  outdoorCars: {
-    model: string
-  }
+  outdoorCars: string
   characters: {
     model: string
     textureBody: string
@@ -322,9 +320,7 @@ export async function fetchAssets(): Promise<AssetsResult> {
       pureTexture: threeDInteractions.characters.pureTexture.url,
       bostonTexture: threeDInteractions.characters.bostonTexture.url
     },
-    outdoorCars: {
-      model: threeDInteractions.outdoorCars.model?.file?.url ?? ""
-    },
+    outdoorCars: threeDInteractions.outdoorCars.model?.file?.url ?? "",
     lamp: {
       extraLightmap: threeDInteractions.lamp.extraLightmap?.url ?? ""
     },

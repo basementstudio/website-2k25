@@ -56,7 +56,7 @@ export const Inspectable = memo(function InspectableInner({
 
   useSelectStore(
     useMesh,
-    (state) => state.inspectableMeshes.find((m) => m.name === id),
+    (state) => state.inspectables.find((m) => m.name === id),
     (mesh, prevMesh) => mesh?.uuid === prevMesh?.uuid,
     (mesh) => {
       if (mesh) {
