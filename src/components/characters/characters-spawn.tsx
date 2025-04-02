@@ -59,7 +59,16 @@ function CharactersSpawnInner() {
         characterId={getCharacterId(0)}
         uniforms={{
           uLightDirection: {
-            value: [0, 1, 1, 1]
+            value: [0, 0, 3, 1]
+          },
+          uLightColor: {
+            value: [...new Color("#ffeec0").toArray(), 0.6]
+          },
+          uPointLightPosition: {
+            value: [2.11, 0.82, -9.4, 6]
+          },
+          uPointLightColor: {
+            value: [...new Color("#ffd258").toArray(), 3]
           }
         }}
       />
@@ -72,6 +81,12 @@ function CharactersSpawnInner() {
         uniforms={{
           uLightDirection: {
             value: [0, 0.5, 1, 1]
+          },
+          uPointLightPosition: {
+            value: [3, 0, -8, 10]
+          },
+          uPointLightColor: {
+            value: [...new Color("#ffd258").toArray(), 2]
           }
         }}
       />
@@ -163,7 +178,7 @@ function CharactersSpawnInner() {
             value: [10.5, 4.2, -17.8, 1.8]
           },
           uPointLightColor: {
-            value: [...new Color("#fff2ce").toArray(), 50]
+            value: [...new Color("#ffdb78").toArray(), 50]
           }
         }}
       />

@@ -1,6 +1,6 @@
 import { type ElementProps, useFrame } from "@react-three/fiber"
 import { useMemo, useRef } from "react"
-import { Group, Quaternion, Vector3 } from "three"
+import { DoubleSide, Group, Quaternion, Vector3 } from "three"
 
 import { CharacterPosition } from "./character-instancer"
 import { bodyGrid, getRandomBodyId, getTextureCoord } from "./character-utils"
@@ -221,7 +221,12 @@ function DebugLight({
             </mesh>
             <mesh>
               <sphereGeometry args={[lightSize, 32, 32]} />
-              <meshBasicMaterial color="blue" transparent opacity={0.2} />
+              <meshBasicMaterial
+                color="blue"
+                transparent
+                opacity={0.2}
+                side={DoubleSide}
+              />
             </mesh>
           </group>
         </group>
