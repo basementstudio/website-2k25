@@ -1,4 +1,5 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
+import { track } from "@vercel/analytics"
 import { useCallback, useEffect, useState } from "react"
 
 import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
@@ -29,7 +30,12 @@ export const SpeakerHover = () => {
   }, [setCursor])
 
   const handleClick = useCallback(() => {
-    music ? nextAmbienceTrack() : handleMute()
+    if (music) {
+      nextAmbienceTrack()
+      track("switch_ambience")
+    } else {
+      handleMute()
+    }
   }, [nextAmbienceTrack, music, handleMute])
 
   return (
