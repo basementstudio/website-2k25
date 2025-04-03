@@ -1,4 +1,3 @@
-import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
 
@@ -13,14 +12,39 @@ interface ProjectPostProps {
 
 export const dynamic = "force-static"
 
-// TODO: Make this dynamic
 export const generateMetadata = async ({ params }: ProjectPostProps) => {
-  const resolvedParams = await params
+  const { slug } = await params
+
+  const data = await client().query({
+    pages: {
+      showcase: {
+        projectList: {
+          __args: {
+            first: 1,
+            filter: {
+              project: {
+                _sys_slug: {
+                  eq: slug
+                }
+              }
+            }
+          },
+          items: {
+            _title: true
+          }
+        }
+      }
+    }
+  })
+
+  const project = data.pages.showcase.projectList.items[0]
 
   return {
-    title: "Showcase",
+    title: {
+      absolute: `${project._title} | Showcase`
+    },
     alternates: {
-      canonical: `https://basement.studio/showcase/${resolvedParams.slug}`
+      canonical: `https://basement.studio/showcase/${slug}`
     }
   }
 }

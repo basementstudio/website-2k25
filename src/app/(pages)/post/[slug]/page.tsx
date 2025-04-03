@@ -9,24 +9,50 @@ import { More } from "./more"
 import { query } from "./query"
 import { BlogTitle } from "./title"
 
-type Params = Promise<{ slug: string }>
+interface ProjectPostProps {
+  params: Promise<{ slug: string }>
+}
 
 export const dynamic = "force-static"
 
 // TODO: Make this dynamic
-export const generateMetadata = async ({ params }: { params: Params }) => {
-  const resolvedParams = await params
+export const generateMetadata = async ({ params }: ProjectPostProps) => {
+  const { slug } = await params
+
+  const data = await client().query({
+    pages: {
+      blog: {
+        posts: {
+          __args: {
+            first: 1,
+            filter: {
+              _sys_slug: {
+                eq: slug
+              }
+            }
+          },
+          items: {
+            _title: true
+          }
+        }
+      }
+    }
+  })
+
+  const post = data.pages.blog.posts.items[0]
 
   return {
-    title: "Blog",
+    title: {
+      absolute: `${post._title} | Blog`
+    },
     alternates: {
-      canonical: `https://basement.studio/post/${resolvedParams.slug}`
+      canonical: `https://basement.studio/post/${slug}`
     }
   }
 }
 
-const Blog = async (props: { params: Params }) => {
-  const resolvedParams = await props.params
+const Blog = async ({ params }: ProjectPostProps) => {
+  const { slug } = await params
 
   try {
     return (
@@ -38,9 +64,9 @@ const Blog = async (props: { params: Params }) => {
             <>
               <div className="relative bg-brand-k pt-12 lg:pb-24">
                 <div className="lg:pb-25 flex flex-col gap-24">
-                  <BlogTitle data={data} slug={resolvedParams.slug} />
-                  <Content data={data} slug={resolvedParams.slug} />
-                  <More data={data} slug={resolvedParams.slug} />
+                  <BlogTitle data={data} slug={slug} />
+                  <Content data={data} slug={slug} />
+                  <More data={data} slug={slug} />
                 </div>
               </div>
 
