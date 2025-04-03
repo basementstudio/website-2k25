@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
+import { LabClient } from "./client"
+
 export const metadata: Metadata = {
   title: "Lab"
 }
@@ -17,7 +19,7 @@ const Laboratory = async () => {
     redirect("https://lab.basement.studio/")
   }
 
-  return null
+  return <LabClient />
 }
 
 export default Laboratory

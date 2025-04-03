@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 
 import { CustomCursor } from "@/components/custom-cursor"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
@@ -29,9 +30,13 @@ const BLACKLISTED_PATHS = [
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname()
+  const canvasErrorBoundaryTriggered = useAppLoadingStore(
+    (state) => state.canvasErrorBoundaryTriggered
+  )
   const shouldShowCanvas = useMemo(() => {
+    if (canvasErrorBoundaryTriggered) return false
     return !BLACKLISTED_PATHS.some((path) => pathname.match(path))
-  }, [pathname])
+  }, [pathname, canvasErrorBoundaryTriggered])
 
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
 
@@ -39,7 +44,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
     if (shouldShowCanvas) {
       useAppLoadingStore.setState({ isCanvasInPage: shouldShowCanvas })
     }
-  }, [shouldShowCanvas])
+  }, [shouldShowCanvas, canvasErrorBoundaryTriggered])
 
   return (
     <>
@@ -47,16 +52,24 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
         <CustomCursor />
       </div>
 
-      <div
-        className={cn(
-          "canvas-container relative top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
-          !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
-        )}
+      <ErrorBoundary
+        fallback={<div className="h-[37px]" aria-hidden />}
+        onError={() => {
+          useAppLoadingStore.setState({ canvasErrorBoundaryTriggered: true })
+          useAppLoadingStore.setState({ isCanvasInPage: false })
+        }}
       >
-        {isCanvasInPage && <Scene />}
-        <AppLoadingHandler />
-        <InspectableViewer />
-      </div>
+        <div
+          className={cn(
+            "canvas-container relative top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
+            !shouldShowCanvas && "pointer-events-none invisible fixed opacity-0"
+          )}
+        >
+          {isCanvasInPage && <Scene />}
+          <AppLoadingHandler />
+          <InspectableViewer />
+        </div>
+      </ErrorBoundary>
 
       <div
         className={cn("layout-container", shouldShowCanvas && "lg:mt-[100dvh]")}
