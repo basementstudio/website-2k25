@@ -62,6 +62,11 @@ const nextConfig: NextConfig = {
         permanent: true
       },
       {
+        source: "/work",
+        destination: "/showcase",
+        permanent: true
+      },
+      {
         source: "/showcase/apollographql",
         destination: "/showcase/apollo-a-brand-built-for-liftoff",
         permanent: true
