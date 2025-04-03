@@ -142,7 +142,13 @@ export const useHandleNavigation = () => {
         )
       }
     },
-    [router, setCurrentScene, scenes, setDisableCameraTransition, getScene]
+    [
+      router,
+      setCurrentScene,
+      setDisableCameraTransition,
+      getScene,
+      canvasErrorBoundaryTriggered
+    ]
   )
 
   return { handleNavigation }
