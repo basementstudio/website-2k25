@@ -49,6 +49,18 @@ const PhysicsWorld = dynamic(
   { ssr: false }
 )
 
+import {
+  createXRStore,
+  IfInSessionMode,
+  isXRInputSourceState,
+  noEvents,
+  PointerEvents,
+  useHover,
+  useXR,
+  XR,
+  XROrigin
+} from "@react-three/xr"
+
 export const Scene = () => {
   const { setIsCanvasTabMode, currentScene } = useNavigationStore()
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -124,7 +136,7 @@ export const Scene = () => {
   }
 
   const handleBlur = () => setIsCanvasTabMode(false)
-
+  const store = createXRStore({ emulate: { syntheticEnvironment: false } })
   return (
     <>
       <div
@@ -136,70 +148,50 @@ export const Scene = () => {
       >
         <Debug />
         <Canvas
-          id="canvas"
-          frameloop="demand"
-          ref={canvasRef}
-          tabIndex={0}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onKeyDown={(e) => {
-            if (
-              e.key === "Tab" &&
-              useNavigationStore.getState().isCanvasTabMode
-            ) {
-              e.preventDefault()
-            }
-          }}
-          gl={{
-            antialias: false,
-            alpha: false,
-            outputColorSpace: THREE.SRGBColorSpace,
-            toneMapping: THREE.NoToneMapping
-          }}
-          camera={{ fov: 60 }}
+          shadows="soft"
+          camera={{ position: [-0.5, 0.5, 0.5] }}
+          events={noEvents}
+          style={{ width: "100%", flexGrow: 1 }}
           className={cn(
             "pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none",
             isTouchOnly && !isBasketball && "!pointer-events-none"
           )}
         >
-          <AnimationController>
-            <UpdateCanvasCursor />
-            <Renderer
-              sceneChildren={
-                <>
-                  <Suspense fallback={null}>
-                    <Inspectables />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Map />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <WebGlTunnelOut />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <CameraController />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Sparkles />
-                  </Suspense>
-                  {isBasketball && (
-                    <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary>
-                        <HoopMinigame />
-                      </ErrorBoundary>
-                    </PhysicsWorld>
-                  )}
-                  <Suspense fallback={null}>
-                    <CharacterInstanceConfig />
-                    <CharactersSpawn />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Pets />
-                  </Suspense>
-                </>
-              }
-            />
-          </AnimationController>
+          <XR store={store}>
+            <AnimationController>
+              <UpdateCanvasCursor />
+
+              <Suspense fallback={null}>
+                <Inspectables />
+              </Suspense>
+              <Suspense fallback={null}>
+                <Map />
+              </Suspense>
+              <Suspense fallback={null}>
+                <WebGlTunnelOut />
+              </Suspense>
+              <Suspense fallback={null}>
+                <CameraController />
+              </Suspense>
+              <Suspense fallback={null}>
+                <Sparkles />
+              </Suspense>
+              {isBasketball && (
+                <PhysicsWorld paused={!isBasketball}>
+                  <ErrorBoundary>
+                    <HoopMinigame />
+                  </ErrorBoundary>
+                </PhysicsWorld>
+              )}
+              <Suspense fallback={null}>
+                <CharacterInstanceConfig />
+                <CharactersSpawn />
+              </Suspense>
+              <Suspense fallback={null}>
+                <Pets />
+              </Suspense>
+            </AnimationController>
+          </XR>
         </Canvas>
       </div>
     </>
