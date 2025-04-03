@@ -13,6 +13,13 @@ interface ProjectPostProps {
 
 export const dynamic = "force-static"
 
+// TODO: Make this dynamic
+export const generateMetadata = () => {
+  return {
+    title: "Showcase"
+  }
+}
+
 const ProjectPost = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
 
