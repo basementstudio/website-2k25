@@ -91,7 +91,14 @@ export const useHandleNavigation = () => {
 
       continueNavigation(route, fromMobileNav)
     },
-    [pathname, setCurrentScene, scenes, setDisableCameraTransition]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      pathname,
+      setCurrentScene,
+      scenes,
+      setDisableCameraTransition,
+      canvasErrorBoundaryTriggered
+    ]
   )
 
   const continueNavigation = useCallback(
