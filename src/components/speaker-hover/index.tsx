@@ -2,11 +2,13 @@ import { MeshDiscardMaterial } from "@react-three/drei"
 import { useCallback, useEffect, useState } from "react"
 
 import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 export const SpeakerHover = () => {
   const setCursor = useCursor()
+  const scene = useCurrentScene()
   const { currentTrackName, nextAmbienceTrack } = useAmbiencePlaylist()
   const { music, handleMute } = useSiteAudio()
   const [hover, setHover] = useState(false)
@@ -34,10 +36,12 @@ export const SpeakerHover = () => {
     <>
       <mesh
         onPointerEnter={(e) => {
+          if (scene !== "home") return
           e.stopPropagation()
           setHover(true)
         }}
         onPointerLeave={(e) => {
+          if (scene !== "home") return
           e.stopPropagation()
           handlePointerLeave()
         }}

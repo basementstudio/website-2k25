@@ -13,6 +13,18 @@ interface ProjectPostProps {
 
 export const dynamic = "force-static"
 
+// TODO: Make this dynamic
+export const generateMetadata = async ({ params }: ProjectPostProps) => {
+  const resolvedParams = await params
+
+  return {
+    title: "Showcase",
+    alternates: {
+      canonical: `https://basement.studio/showcase/${resolvedParams.slug}`
+    }
+  }
+}
+
 const ProjectPost = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
 

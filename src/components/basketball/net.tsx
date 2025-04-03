@@ -3,19 +3,16 @@ import { useEffect, useRef, useState } from "react"
 import { Mesh, NearestFilter, ShaderMaterial, Texture } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
+import { useMesh } from "@/hooks/use-mesh"
 import { createNetMaterial } from "@/shaders/material-net"
 
 import { useAssets } from "../assets-provider"
-
-interface NetProps {
-  mesh: Mesh
-}
 
 const TOTAL_FRAMES = 39
 const ANIMATION_SPEED = 16
 const OFFSET_SCALE = 1.5
 
-export const Net = ({ mesh }: NetProps) => {
+export const Net = () => {
   const meshRef = useRef<Mesh | null>(null)
   const materialRef = useRef<ShaderMaterial | null>(null)
   const progressRef = useRef(0)
@@ -23,6 +20,7 @@ export const Net = ({ mesh }: NetProps) => {
   const textureRef = useRef<Texture | null>(null)
   const [isVisible, setIsVisible] = useState(false)
   const { mapTextures } = useAssets()
+  const net = useMesh((state) => state.basketball.net)
 
   const offsets = useLoader(EXRLoader, mapTextures.basketballVa)
 
@@ -37,9 +35,9 @@ export const Net = ({ mesh }: NetProps) => {
   }, [])
 
   useEffect(() => {
-    if (!mesh) return
+    if (!net) return
 
-    const originalMaterial = mesh.material as any
+    const originalMaterial = net.material as any
     if (originalMaterial && originalMaterial.map) {
       const texture = originalMaterial.map.clone()
       texture.needsUpdate = true
@@ -54,11 +52,11 @@ export const Net = ({ mesh }: NetProps) => {
         texture,
         totalFrames: TOTAL_FRAMES,
         offsetScale: OFFSET_SCALE,
-        vertexCount: mesh.geometry.attributes.position.count
+        vertexCount: net.geometry.attributes.position.count
       })
 
       materialRef.current = shaderMaterial
-      meshRef.current = mesh
+      meshRef.current = net
       meshRef.current.material = shaderMaterial
 
       shaderMaterial.needsUpdate = true
@@ -69,7 +67,7 @@ export const Net = ({ mesh }: NetProps) => {
         setIsVisible(true)
       })
     }
-  }, [mesh, offsets])
+  }, [net, offsets])
 
   useFrame((_, delta) => {
     if (materialRef.current && isAnimatingRef.current) {

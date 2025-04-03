@@ -644,37 +644,37 @@ const HoopMinigameInner = () => {
     ]
   )
 
-  const hoopMeshes = useMesh((state) => state.hoopMeshes)
+  const basketball = useMesh((state) => state.basketball)
 
   const clonedHoopRef = useRef<THREE.Mesh | null>(null)
 
   useEffect(() => {
-    if (hoopMeshes.hoop && !clonedHoopRef.current) {
-      clonedHoopRef.current = hoopMeshes.hoop.clone()
+    if (basketball.hoop && !clonedHoopRef.current) {
+      clonedHoopRef.current = basketball.hoop.clone()
 
-      hoopMeshes.hoop.visible = true
-      if (hoopMeshes.hoopGlass) {
-        hoopMeshes.hoopGlass.visible = true
+      basketball.hoop.visible = true
+      if (basketball.hoopGlass) {
+        basketball.hoopGlass.visible = true
       }
     }
 
     return () => {
-      if (hoopMeshes.hoop) {
-        hoopMeshes.hoop.visible = true
+      if (basketball.hoop) {
+        basketball.hoop.visible = true
       }
-      if (hoopMeshes.hoopGlass) {
-        hoopMeshes.hoopGlass.visible = true
+      if (basketball.hoopGlass) {
+        basketball.hoopGlass.visible = true
       }
 
       clonedHoopRef.current = null
     }
-  }, [hoopMeshes])
+  }, [basketball])
 
   if (!isBasketball) return null
 
   return (
     <>
-      {hoopMeshes.hoop && clonedHoopRef.current && (
+      {basketball.hoop && clonedHoopRef.current && (
         <RigidBody type="fixed" colliders="trimesh">
           <primitive object={clonedHoopRef.current} />
         </RigidBody>

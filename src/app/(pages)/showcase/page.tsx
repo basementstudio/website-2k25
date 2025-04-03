@@ -4,7 +4,10 @@ import { Hero } from "./hero"
 import { ShowcaseList } from "./showcase-list"
 
 export const metadata: Metadata = {
-  title: "Showcase"
+  title: "Showcase",
+  alternates: {
+    canonical: "https://basement.studio/showcase"
+  }
 }
 
 const ShowcaseIndexPage = () => (

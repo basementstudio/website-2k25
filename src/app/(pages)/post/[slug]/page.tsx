@@ -13,6 +13,18 @@ type Params = Promise<{ slug: string }>
 
 export const dynamic = "force-static"
 
+// TODO: Make this dynamic
+export const generateMetadata = async ({ params }: { params: Params }) => {
+  const resolvedParams = await params
+
+  return {
+    title: "Blog",
+    alternates: {
+      canonical: `https://basement.studio/post/${resolvedParams.slug}`
+    }
+  }
+}
+
 const Blog = async (props: { params: Params }) => {
   const resolvedParams = await props.params
 

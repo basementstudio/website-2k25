@@ -55,7 +55,50 @@ const nextConfig: NextConfig = {
         source: "/about",
         destination: "/services",
         permanent: true
+      },
+      {
+        source: "/careers",
+        destination: "/people",
+        permanent: true
+      },
+      {
+        source: "/showcase/apollographql",
+        destination: "/showcase/apollo-a-brand-built-for-liftoff",
+        permanent: true
+      },
+      {
+        source: "/showcase/daylight",
+        destination: "/showcase/daylight-simplicity-in-motion",
+        permanent: true
+      },
+      {
+        source: "/showcase/vercel",
+        destination: "/showcase/vercel-a-partnership-that-keeps-scaling",
+        permanent: true
+      },
+      {
+        source: "/showcase/next-js",
+        destination: "/showcase/nextjs-conf-raising-the-bar-again",
+        permanent: true
+      },
+      {
+        source: "/showcase/ranboo-fashion",
+        destination: "/showcase/ranboo-one-merch-drop-at-a-time",
+        permanent: true
+      },
+      {
+        source: "/showcase/mrbeast",
+        destination: "/showcase/mrbeast-built-to-handle-the-beast",
+        permanent: true
+      },
+      {
+        source: "/showcase/basement-chronicles",
+        destination:
+          "/showcase/showcase/basement-chronicles-the-internet-needs-you",
+        permanent: true
       }
+
+      // Todo: make proper redirects for blog posts
     ]
   }
 }
