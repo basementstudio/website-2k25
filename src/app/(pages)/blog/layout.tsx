@@ -6,7 +6,10 @@ import { Featured } from "./featured"
 import { Hero } from "./hero"
 
 export const metadata: Metadata = {
-  title: "Blog"
+  title: "Blog",
+  alternates: {
+    canonical: "https://basement.studio/blog"
+  }
 }
 
 interface BlogLayoutProps {

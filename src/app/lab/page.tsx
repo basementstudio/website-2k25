@@ -5,7 +5,10 @@ import { redirect } from "next/navigation"
 import { LabClient } from "./client"
 
 export const metadata: Metadata = {
-  title: "Lab"
+  title: "Lab",
+  alternates: {
+    canonical: "https://basement.studio/lab"
+  }
 }
 
 const Laboratory = async () => {

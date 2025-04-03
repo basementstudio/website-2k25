@@ -4,7 +4,10 @@ import { ContactFooter } from "./contact-footer"
 import { ContactForm } from "./form/contact-form"
 
 export const metadata: Metadata = {
-  title: "Contact Us"
+  title: "Contact Us",
+  alternates: {
+    canonical: "https://basement.studio/contact"
+  }
 }
 
 const Contact = () => (

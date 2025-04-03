@@ -11,7 +11,10 @@ import { Testimonials } from "./testimonials"
 import { VenturesBanner } from "./ventures"
 
 export const metadata: Metadata = {
-  title: "Services"
+  title: "Services",
+  alternates: {
+    canonical: "https://basement.studio/services"
+  }
 }
 
 export type Award = QueryType["company"]["awards"]["awardList"]["items"][number]

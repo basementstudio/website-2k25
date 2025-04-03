@@ -11,6 +11,9 @@ import { Intro } from "./intro"
 export const metadata: Metadata = {
   title: {
     absolute: "basement.studio | We make cool shit that performs."
+  },
+  alternates: {
+    canonical: "https://basement.studio"
   }
 }
 
