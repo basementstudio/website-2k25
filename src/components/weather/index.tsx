@@ -40,7 +40,7 @@ export const Weather = () => {
     return [rainMaterialClose, rainMaterialFar]
   }, [rainAlphaTexture, closeMatrix, farMatrix])
 
-  const { loboMarino, rain } = useMesh((s) => s.weather)
+  const { rain } = useMesh((s) => s.weather)
 
   if (rain) {
     rain.visible = false

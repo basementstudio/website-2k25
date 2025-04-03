@@ -5,7 +5,7 @@ import { formatDate } from "@/utils/format-date"
 const socialLinks = [
   {
     Icon: LinkedInIcon,
-    href: (slug: string, title: string) => {
+    href: (slug: string, _: string) => {
       const url = `https://basement.studio/post/${slug}`
       return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
     },

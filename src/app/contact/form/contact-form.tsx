@@ -44,6 +44,7 @@ export const ContactForm = () => {
 
       return () => clearTimeout(timer)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitted, submitError])
 
   const getFirstErrorMessage = () => {
@@ -76,7 +77,7 @@ export const ContactForm = () => {
         setIsSubmitted(false)
         setSubmitError(result.error || "Form submission failed")
       }
-    } catch (error) {
+    } catch (_) {
       setIsSubmitted(false)
       setSubmitError("Form submission failed")
     } finally {

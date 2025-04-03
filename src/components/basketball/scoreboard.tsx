@@ -73,7 +73,7 @@ export const Scoreboard = ({
       )}
     >
       <p className="pb-1 text-brand-w2">Leaderboard:</p>
-      {topScores.map((score, index) => (
+      {topScores.map((score) => (
         <div
           className={cn(
             "flex justify-between py-1",

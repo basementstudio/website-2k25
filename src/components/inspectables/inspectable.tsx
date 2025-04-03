@@ -212,6 +212,7 @@ export const Inspectable = memo(function InspectableInner({
     window.addEventListener("resize", handleResize, { passive: true })
 
     return () => window.removeEventListener("resize", handleResize)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, firstRender, mesh, position, id])
 
   const vRef = useMemo(() => {
@@ -289,7 +290,7 @@ export const Inspectable = memo(function InspectableInner({
         setCursor("grab")
         handleSelection()
       }}
-      onPointerEnter={(e) => {
+      onPointerEnter={() => {
         if ((selected && selected !== id) || !isActive) return
         if (!selected) setCursor("zoom-in")
         else if (selected === id) setCursor("grab")

@@ -275,6 +275,7 @@ const HoverCertificate = memo(
           />
         </div>
       )
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentImageId, sortedAwards])
 
     return (

@@ -19,7 +19,6 @@ import {
 import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
 
-import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
 import { createFlowMaterial } from "@/shaders/material-flow"
 import { createSolidRevealMaterial } from "@/shaders/material-solid-reveal"
 import { doubleFbo } from "@/utils/double-fbo"

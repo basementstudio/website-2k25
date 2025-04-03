@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { memo, Suspense, useEffect, useRef, useState } from "react"
-import { Mesh, MeshStandardMaterial, Object3D, Object3DEventMap } from "three"
+import { Mesh, MeshStandardMaterial, Object3D } from "three"
 import * as THREE from "three"
 
 import { ArcadeBoard } from "@/components/arcade-board"
@@ -52,8 +52,6 @@ const PhysicsWorld = dynamic(
     }),
   { ssr: false }
 )
-
-type SceneType = Object3D<Object3DEventMap> | null
 
 export const Map = memo(() => {
   const { inspectables, videos, matcaps, glassMaterials, doubleSideElements } =

@@ -150,6 +150,7 @@ function ControlsInner() {
         document.exitPointerLock()
       } catch (_) {}
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const [bigFov, setBigFov] = useState(false)

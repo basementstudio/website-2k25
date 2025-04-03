@@ -134,6 +134,7 @@ export const Lamp = memo(function LampInner() {
         ANIMATION_CONFIG
       )
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected])
 
   useFrameCallback((state) => {

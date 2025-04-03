@@ -274,6 +274,7 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
     self.addEventListener("message", handleMessage)
     return () => self.removeEventListener("message", handleMessage)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isAnimating,
     isContactOpen,

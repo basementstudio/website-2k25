@@ -35,7 +35,7 @@ export interface MeshStore {
   cctv: { screen: Mesh | null }
 }
 
-export const useMesh = create<MeshStore>()((set) => ({
+export const useMesh = create<MeshStore>()(() => ({
   godrays: [],
   inspectables: [],
   blog: {

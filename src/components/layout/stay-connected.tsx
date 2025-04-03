@@ -66,6 +66,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
       setEmail("")
       setErrorType("general_error")
     }, 2000)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   const getErrorMessage = () => {

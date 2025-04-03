@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, use, useEffect, useState } from "react"
+import { createContext, use, useState } from "react"
 
 interface ProjectContextType {
   viewMode: "grid" | "rows" | undefined

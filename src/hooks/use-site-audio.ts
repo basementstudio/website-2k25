@@ -95,6 +95,7 @@ export const useInitializeAudioContext = () => {
   useEffect(() => {
     if (!player) return
     player.setAmbienceVolume(music ? 1 : 0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player])
 
   // Handle tab visibility changes
@@ -131,6 +132,7 @@ export const useInitializeAudioContext = () => {
     targetElement.addEventListener("click", unlock, { passive: true })
 
     return () => targetElement.removeEventListener("click", unlock)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player])
 
   const playGameSong = useCallback(
@@ -169,6 +171,7 @@ export const useInitializeAudioContext = () => {
       player.setGameVolume(0)
       player.setMusicVolume(1)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player, scene, isIngame])
 }
 

@@ -2,74 +2,6 @@ import { fragmentOn } from "basehub"
 
 import { client } from "@/service/basehub"
 
-const ImageFragment = fragmentOn("BlockImage", {
-  url: true,
-  width: true,
-  height: true,
-  alt: true
-})
-
-const CodeBlockFragment = fragmentOn("CodeBlockComponent", {
-  __typename: true,
-  _id: true,
-  files: {
-    items: {
-      _id: true,
-      _title: true,
-      codeSnippet: {
-        code: true,
-        language: true
-      }
-    }
-  }
-})
-
-const QuoteWithAuthorFragment = fragmentOn("QuoteWithAuthorComponent", {
-  __typename: true,
-  _id: true,
-
-  quote: {
-    json: {
-      content: true
-    }
-  },
-  author: true,
-  role: true,
-  avatar: ImageFragment
-})
-
-const CodeSandboxFragment = fragmentOn("CodeSandboxComponent", {
-  __typename: true,
-  _id: true,
-  _title: true,
-  sandboxKey: true
-})
-
-const SideNoteFragment = fragmentOn("SideNoteComponent", {
-  __typename: true,
-  _id: true,
-
-  content: {
-    json: {
-      content: true
-    }
-  }
-})
-
-const TweetFragment = fragmentOn("TweetComponent", {
-  __typename: true,
-  _id: true,
-  tweetId: true
-})
-
-const components = {
-  on_CodeBlockComponent: CodeBlockFragment,
-  on_QuoteWithAuthorComponent: QuoteWithAuthorFragment,
-  on_CodeSandboxComponent: CodeSandboxFragment,
-  on_SideNoteComponent: SideNoteFragment,
-  on_TweetComponent: TweetFragment
-}
-
 const HeroFragment = fragmentOn("HeroComponent", {
   heroVideo: {
     url: true
@@ -81,12 +13,6 @@ const HeroFragment = fragmentOn("HeroComponent", {
     width: true,
     height: true
   }
-})
-
-const AuthorFragment = fragmentOn("AuthorComponent", {
-  _id: true,
-  _title: true,
-  _slug: true
 })
 
 const PostFragment = fragmentOn("PostsItem", {

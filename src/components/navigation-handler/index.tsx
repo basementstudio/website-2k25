@@ -247,6 +247,7 @@ export const NavigationHandler = () => {
 
       setCurrentTabIndex(newIndex)
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isCanvasTabMode,
       setCurrentTabIndex,
@@ -261,6 +262,7 @@ export const NavigationHandler = () => {
     if (pathname !== "/" && currentTabIndex !== -1) {
       setCurrentTabIndex(0)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCurrentTabIndex, pathname])
 
   useEffect(() => setSelected(null), [setSelected])
@@ -300,6 +302,7 @@ export const NavigationHandler = () => {
         }
         setEnteredByKeyboard(false)
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       scene,
       handleNavigation,

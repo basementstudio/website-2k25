@@ -322,6 +322,7 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
         </motion.div>
       </Portal>
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, focusTrapRef, mobileMenuRef, isDesktop, links, socialLinks])
 
   const Label = useMemo(() => {

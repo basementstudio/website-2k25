@@ -245,6 +245,7 @@ const RoutingElementComponent = ({
     })
 
     return () => animation.stop()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hover])
 
   useMotionValueEvent(visibility, "change", (v) => {

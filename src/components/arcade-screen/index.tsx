@@ -153,6 +153,7 @@ export const ArcadeScreen = () => {
         manual: true
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [arcadeScreen, screenPosition])
 
   if (!CAMERA_CONFIGS || !arcadeScreen) return null

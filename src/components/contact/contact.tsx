@@ -90,6 +90,7 @@ const RenderContact = () => {
       overlay.removeEventListener("transitionstart", handleTransitionStart)
       overlay.removeEventListener("transitionend", handleTransitionEnd)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setIsAnimating, isContactOpen])
 
   return (

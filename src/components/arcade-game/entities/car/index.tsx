@@ -1,4 +1,3 @@
-import { useControls } from "leva"
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
 import { Euler, type Group, type Object3D, Quaternion, Vector3 } from "three"
@@ -79,6 +78,7 @@ export const Car = forwardRef<Group, CarProps>(
           setStartedSensor(false)
         }
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -96,6 +96,7 @@ export const Car = forwardRef<Group, CarProps>(
           .getState()
           .subscribable.restart.removeCallback(handleRestart)
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useFrameCallback(() => {

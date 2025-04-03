@@ -26,6 +26,7 @@ export const OutdoorCars = () => {
     for (const lane of STREET_LANES) {
       generateRandomCar(lane, 0)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cars])
 
   const STREET_LANES: StreetLane[] = useMemo(
@@ -87,7 +88,6 @@ export const OutdoorCars = () => {
 
   useFrameCallback((_, delta, elapsedTime) => {
     let needsUpdate = false
-    let carsAtTarget = 0
 
     STREET_LANES.forEach((lane) => {
       if (!lane.car || !lane.speed || lane.nextStartTime === null) return
@@ -112,7 +112,6 @@ export const OutdoorCars = () => {
           (direction > 0 && lane.car.position.x >= lane.targetPosition[0]) ||
           (direction < 0 && lane.car.position.x <= lane.targetPosition[0])
         ) {
-          carsAtTarget++
           generateRandomCar(lane, elapsedTime)
           needsUpdate = true
         }

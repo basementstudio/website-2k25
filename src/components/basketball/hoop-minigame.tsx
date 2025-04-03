@@ -380,6 +380,7 @@ const HoopMinigameInner = () => {
         })
       }, 1000)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isGameActive,
     setIsGameActive,
@@ -506,7 +507,7 @@ const HoopMinigameInner = () => {
           setIsDragging(false)
           resetBallToInitialPosition()
         }
-      } catch (error) {
+      } catch (_) {
         console.warn("Failed to update ball position, physics might be paused")
         setIsDragging(false)
       }
@@ -568,7 +569,7 @@ const HoopMinigameInner = () => {
           const ball = ballRef.current
           ball.setBodyType(2, true)
         }
-      } catch (error) {
+      } catch (_) {
         console.warn("Failed to reset ball animation, physics might be paused")
         setIsResetting(false)
         resetProgress.current = 0
