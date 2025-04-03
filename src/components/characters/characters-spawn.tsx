@@ -78,15 +78,19 @@ function CharactersSpawnInner() {
         rotation={[0, degToRad(180), 0]}
         animationName={CharacterAnimationName["Services.01"]}
         characterId={getCharacterId(1)}
+        // debugLight
         uniforms={{
           uLightDirection: {
-            value: [0, 0.5, 1, 1]
+            value: [0, 0.5, 1, 0.2]
+          },
+          uLightColor: {
+            value: [...new Color("#ffeec0").toArray(), 0.2]
           },
           uPointLightPosition: {
             value: [3, 0, -8, 10]
           },
           uPointLightColor: {
-            value: [...new Color("#ffd258").toArray(), 2]
+            value: [...new Color("#ffd258").toArray(), 3]
           }
         }}
       />
