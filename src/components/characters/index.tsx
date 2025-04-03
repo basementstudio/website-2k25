@@ -1,6 +1,6 @@
-import type { ElementProps } from "@react-three/fiber"
-import { useMemo } from "react"
-import { Group } from "three"
+import { type ElementProps, useFrame } from "@react-three/fiber"
+import { useMemo, useRef } from "react"
+import { DoubleSide, Group, Quaternion, Vector3 } from "three"
 
 import { CharacterPosition } from "./character-instancer"
 import { bodyGrid, getRandomBodyId, getTextureCoord } from "./character-utils"
@@ -18,6 +18,7 @@ interface CharacterProps extends ElementProps<typeof Group> {
   uniforms?: Record<string, InstanceUniform>
   initialTime?: number
   characterId: number
+  debugLight?: boolean
 }
 
 export function Character({
@@ -25,6 +26,7 @@ export function Character({
   uniforms,
   initialTime,
   characterId,
+  debugLight,
   ...props
 }: CharacterProps) {
   const characterConfiguration = useMemo(
@@ -157,6 +159,78 @@ export function Character({
           }}
         />
       )}
+
+      {/* Debuggers */}
+      {debugLight && <DebugLight uniforms={uniforms} />}
     </group>
+  )
+}
+
+function DebugLight({
+  uniforms
+}: {
+  uniforms?: Record<string, InstanceUniform>
+}) {
+  if (!uniforms) return null
+
+  const lightPosition = uniforms?.uPointLightPosition as
+    | { value: [number, number, number, number] }
+    | undefined
+
+  if (!lightPosition) return null
+
+  const lightSize = lightPosition.value[3]
+
+  // const lightUniform = uniforms?.uPointLightPosition || { value: [0, 0, 0, 0] }
+  // const lightColorUniform = uniforms?.uPointLightColor || {
+
+  const globalGroupRef = useRef<Group>(null)
+  const globalPosRef = useRef(new Vector3())
+  const globalRotationRef = useRef(new Quaternion())
+  const lightRef = useRef<Group>(null)
+  const lightOuterRef = useRef<Group>(null)
+  useFrame(() => {
+    if (!globalGroupRef.current || !lightRef.current || !lightOuterRef.current)
+      return
+
+    // invert the rotation
+    globalGroupRef.current.getWorldQuaternion(globalRotationRef.current)
+    globalRotationRef.current.invert()
+    lightOuterRef.current.quaternion.copy(globalRotationRef.current)
+
+    // invert the position
+    globalGroupRef.current.getWorldPosition(globalPosRef.current)
+    lightRef.current.position.copy(globalPosRef.current.multiplyScalar(-1))
+  })
+
+  return (
+    <>
+      <group ref={globalGroupRef} />
+      <group ref={lightOuterRef}>
+        <group ref={lightRef}>
+          <group
+            position={[
+              lightPosition.value[0],
+              lightPosition.value[1],
+              lightPosition.value[2]
+            ]}
+          >
+            <mesh>
+              <boxGeometry args={[0.02, 0.02, 0.02]} />
+              <meshBasicMaterial color="red" />
+            </mesh>
+            <mesh>
+              <sphereGeometry args={[lightSize, 32, 32]} />
+              <meshBasicMaterial
+                color="blue"
+                transparent
+                opacity={0.2}
+                side={DoubleSide}
+              />
+            </mesh>
+          </group>
+        </group>
+      </group>
+    </>
   )
 }

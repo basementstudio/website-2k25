@@ -17,6 +17,7 @@ interface AppLoadingState {
   canRunMainApp: boolean
   offscreenCanvasReady: boolean
   worker: Worker | null
+  canvasErrorBoundaryTriggered: boolean
   setMainAppRunning: (isAppLoaded: boolean) => void
   setCanRunMainApp: (canRunMainApp: boolean) => void
 }
@@ -42,6 +43,10 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
     worker: null,
     /**
      * This function will tell the loading canvas that is ok to reveal the main app
+     */
+    canvasErrorBoundaryTriggered: false,
+    /**
+     * Used to check if canvas error boundary is triggered
      */
     setMainAppRunning: (isAppLoaded) => {
       get().worker?.postMessage({

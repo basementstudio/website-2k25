@@ -3,6 +3,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
@@ -34,6 +35,9 @@ export const useHandleNavigation = () => {
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
   const setDisableCameraTransition = useNavigationStore(
     (state) => state.setDisableCameraTransition
+  )
+  const canvasErrorBoundaryTriggered = useAppLoadingStore(
+    (state) => state.canvasErrorBoundaryTriggered
   )
   const scenes = useNavigationStore((state) => state.scenes)
 
@@ -87,7 +91,14 @@ export const useHandleNavigation = () => {
 
       continueNavigation(route, fromMobileNav)
     },
-    [pathname, setCurrentScene, scenes, setDisableCameraTransition]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      pathname,
+      setCurrentScene,
+      scenes,
+      setDisableCameraTransition,
+      canvasErrorBoundaryTriggered
+    ]
   )
 
   const continueNavigation = useCallback(
@@ -112,7 +123,7 @@ export const useHandleNavigation = () => {
           }
         })
       } else {
-        handleTransitionEffectOn(fromMobileNav)
+        handleTransitionEffectOn(fromMobileNav || canvasErrorBoundaryTriggered)
         lenisRef.current?.stop()
         setDisableCameraTransition(true)
         setCurrentScene(selectedScene)
@@ -123,7 +134,9 @@ export const useHandleNavigation = () => {
               offset: 0,
               behavior: "instant",
               callback: () => {
-                handleTransitionEffectOff(fromMobileNav)
+                handleTransitionEffectOff(
+                  fromMobileNav || canvasErrorBoundaryTriggered
+                )
                 lenisRef.current?.start()
               }
             })
@@ -136,7 +149,13 @@ export const useHandleNavigation = () => {
         )
       }
     },
-    [router, setCurrentScene, scenes, setDisableCameraTransition, getScene]
+    [
+      router,
+      setCurrentScene,
+      setDisableCameraTransition,
+      getScene,
+      canvasErrorBoundaryTriggered
+    ]
   )
 
   return { handleNavigation }
