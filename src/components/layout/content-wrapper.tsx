@@ -53,13 +53,12 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       <ErrorBoundary
-        fallback={<div className="h-[37px]" />}
+        fallback={<div className="h-[37px]" aria-hidden />}
         onError={() => {
           useAppLoadingStore.setState({ canvasErrorBoundaryTriggered: true })
           useAppLoadingStore.setState({ isCanvasInPage: false })
         }}
       >
-        <TestWithError />
         <div
           className={cn(
             "canvas-container relative top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
@@ -79,12 +78,4 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
       </div>
     </>
   )
-}
-
-const TestWithError = () => {
-  useEffect(() => {
-    throw new Error("Test error")
-  }, [])
-
-  return null
 }
