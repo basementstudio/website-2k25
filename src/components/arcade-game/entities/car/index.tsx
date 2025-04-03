@@ -24,7 +24,7 @@ export const Car = forwardRef<Group, CarProps>(
     const showHitBoxes = useGame((s) => s.showHitBoxes)
     const groupRef = useRef<Object3D | null>(null)
 
-    const { outdoorCarsMeshes: cars } = useMesh()
+    const { cars } = useMesh()
 
     const randomCar = useMemo(() => {
       return cars[Math.floor(Math.random() * cars.length)]?.clone()
