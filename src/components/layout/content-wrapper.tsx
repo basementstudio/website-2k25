@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { CustomCursor } from "@/components/custom-cursor"
@@ -29,12 +29,14 @@ const BLACKLISTED_PATHS = [
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
-  const [errorBoundaryTriggered, setErrorBoundaryTriggered] = useState(false)
   const pathname = usePathname()
+  const canvasErrorBoundaryTriggered = useAppLoadingStore(
+    (state) => state.canvasErrorBoundaryTriggered
+  )
   const shouldShowCanvas = useMemo(() => {
-    if (errorBoundaryTriggered) return false
+    if (canvasErrorBoundaryTriggered) return false
     return !BLACKLISTED_PATHS.some((path) => pathname.match(path))
-  }, [pathname, errorBoundaryTriggered])
+  }, [pathname, canvasErrorBoundaryTriggered])
 
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
 
@@ -42,7 +44,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
     if (shouldShowCanvas) {
       useAppLoadingStore.setState({ isCanvasInPage: shouldShowCanvas })
     }
-  }, [shouldShowCanvas, errorBoundaryTriggered])
+  }, [shouldShowCanvas, canvasErrorBoundaryTriggered])
 
   return (
     <>
@@ -51,11 +53,10 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       <ErrorBoundary
-        fallback={<div className="h-[38px]" />}
+        fallback={<div className="h-[37px]" />}
         onError={() => {
-          setErrorBoundaryTriggered(true)
-          useAppLoadingStore.setState({ isCanvasInPage: false })
           useAppLoadingStore.setState({ canvasErrorBoundaryTriggered: true })
+          useAppLoadingStore.setState({ isCanvasInPage: false })
         }}
       >
         <TestWithError />
