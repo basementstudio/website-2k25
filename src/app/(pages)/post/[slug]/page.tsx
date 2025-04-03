@@ -13,6 +13,13 @@ type Params = Promise<{ slug: string }>
 
 export const dynamic = "force-static"
 
+// TODO: Make this dynamic
+export const generateMetadata = () => {
+  return {
+    title: "Blog"
+  }
+}
+
 const Blog = async (props: { params: Params }) => {
   const resolvedParams = await props.params
 
