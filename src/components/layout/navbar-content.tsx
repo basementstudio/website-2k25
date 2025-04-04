@@ -231,7 +231,10 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
         {links.map((link) => (
           <div
             key={link.href}
-            className="flex items-center gap-1 text-[0.75rem] font-semibold leading-4"
+            className={cn(
+              "flex items-center gap-1 text-[0.75rem] font-semibold leading-4",
+              !isInPath(link.href, pathname) && "actionable-opacity"
+            )}
           >
             <Link
               href={link.href}
@@ -261,7 +264,7 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
             isContactOpen && "text-brand-g1"
           )}
         >
-          <span className="actionable-no-underline">Contact Us</span>
+          <span className="actionable-opacity">Contact Us</span>
         </button>
       </div>
     </>
