@@ -5,12 +5,35 @@ import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 
 // Assets that should not be preloaded
 const ASSET_TO_NOT_PRELOAD = [
-  "contactPhone",
+  // Misc
   "inspectables",
   "glassMaterials",
   "doubleSideElements",
   "scenes",
-  "sfx"
+
+  // Matcaps - due to being used only in inspectables
+  "matcaps",
+
+  // SFX
+  "sfx",
+
+  // Contact
+  "contactPhone",
+
+  // Basket Ball
+  "basketball",
+
+  // Arcade
+  "boot",
+  "chronicles",
+  "looper",
+  "placeholderLab",
+
+  // Konami Code
+  "skybox",
+  "cityscape",
+  "introScreen",
+  "palm"
 ]
 
 // Assets has different keys for the url.
@@ -148,9 +171,9 @@ const collectUrls = (
     }
   } else if (typeof obj === "object") {
     // Collect direct URL values
-    Object.values(obj).forEach((value) => {
+    Object.entries(obj).forEach(([key, value]) => {
       if (typeof value === "string" && value.startsWith("https://")) {
-        urlSet.add(value)
+        if (!ASSET_TO_NOT_PRELOAD.includes(key ?? "")) urlSet.add(value)
       }
     })
 
@@ -171,7 +194,8 @@ const preloadAllAssets = (obj: any) => {
   // Preload all URLs
   urls.forEach((url) => {
     const { as, type } = getAssetFormat(url)
-    preload(url, { as, type })
+    // Add crossorigin attribute to match credentials mode of the requests
+    preload(url, { as, type, crossOrigin: "anonymous" })
   })
 }
 
