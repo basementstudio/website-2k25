@@ -68,7 +68,7 @@ function CharactersSpawnInner() {
             value: [2.11, 0.82, -9.4, 6]
           },
           uPointLightColor: {
-            value: [...new Color("#ffd258").toArray(), 3]
+            value: [...new Color("#ffeec0").toArray(), 3]
           }
         }}
       />
@@ -90,7 +90,7 @@ function CharactersSpawnInner() {
             value: [3, 0, -8, 10]
           },
           uPointLightColor: {
-            value: [...new Color("#ffd258").toArray(), 3]
+            value: [...new Color("#ffeec0").toArray(), 3]
           }
         }}
       />
