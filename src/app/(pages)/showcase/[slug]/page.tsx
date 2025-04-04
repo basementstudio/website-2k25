@@ -37,11 +37,12 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
     }
   })
 
+  if (data.pages.showcase.projectList.items.length === 0) return null
   const project = data.pages.showcase.projectList.items[0]
 
   return {
     title: {
-      absolute: `${project._title} | Showcase`
+      absolute: `${project._title ?? "Untitled"} | Showcase`
     },
     alternates: {
       canonical: `https://basement.studio/showcase/${slug}`
