@@ -196,6 +196,7 @@ export const NavbarContent = memo(
           <button
             onClick={() => handleNavigation("/")}
             className="col-span-1 w-fit lg:col-start-1 lg:col-end-3"
+            aria-label="Go to homepage"
           >
             <Logo className="h-[0.9375rem] text-brand-w1" />
           </button>
