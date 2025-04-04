@@ -1,16 +1,21 @@
-import { useLenis } from "lenis/react"
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
+
+import { useScrollControl } from "./useScrollControl"
 
 export const useDisableScroll = (bool: boolean) => {
-  const lenisInstance = useLenis()
-  const lenisRef = useRef(lenisInstance)
+  const { disableScroll, enableScroll } = useScrollControl()
 
   useEffect(() => {
-    lenisRef.current = lenisInstance
-  }, [lenisInstance])
+    if (bool) {
+      disableScroll()
+    } else {
+      enableScroll()
+    }
 
-  useEffect(
-    () => (bool ? lenisRef.current?.stop() : lenisRef.current?.start()),
-    [bool]
-  )
+    // Cleanup function to ensure scroll is re-enabled when component unmounts
+    // or when the bool dependency changes to false.
+    return () => {
+      enableScroll()
+    }
+  }, [bool, disableScroll, enableScroll])
 }

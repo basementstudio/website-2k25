@@ -1,7 +1,6 @@
 "use client"
 
 import { RichTextNode } from "basehub/api-transaction"
-import { useLenis } from "lenis/react"
 import { AnimatePresence, motion } from "motion/react"
 import { usePathname } from "next/navigation"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -15,6 +14,7 @@ import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
+import { useScrollControl } from "@/hooks/useScrollControl"
 import { cn } from "@/utils/cn"
 import { isInPath } from "@/utils/is-in-path"
 
@@ -196,6 +196,7 @@ export const NavbarContent = memo(
           <button
             onClick={() => handleNavigation("/")}
             className="col-span-1 w-fit lg:col-start-1 lg:col-end-3"
+            aria-label="Go to homepage"
           >
             <Logo className="h-[0.9375rem] text-brand-w1" />
           </button>
@@ -272,7 +273,7 @@ DesktopContent.displayName = "DesktopContent"
 const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
   const isDesktop = useMedia("(min-width: 1024px)")
   const [isOpen, setIsOpen] = useState(false)
-  const lenis = useLenis()
+  const { enableScroll, disableScroll } = useScrollControl()
 
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const menuHandlerRef = useRef<HTMLButtonElement>(null)
@@ -281,7 +282,7 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
 
   const handleChangeLink = () => {
     setIsOpen(false)
-    lenis?.start()
+    enableScroll()
   }
 
   const memoizedMenu = useMemo(() => {
@@ -343,22 +344,24 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
     }
   }, [isOpen])
 
-  // TODO: fix this
-
   const handleMenuClick = () => {
     if (isOpen) {
       setIsOpen(false)
-      lenis?.start()
+      enableScroll()
     } else {
       setIsOpen(true)
-      lenis?.stop()
+      disableScroll()
     }
   }
   return (
     <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
       <MusicToggle />
 
-      <button onClick={handleMenuClick} className="flex items-center">
+      <button
+        onClick={handleMenuClick}
+        className="flex items-center"
+        aria-label={isOpen ? "Close menu" : "Open menu"}
+      >
         <AnimatePresence mode="popLayout" initial={false}>
           {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
         </AnimatePresence>

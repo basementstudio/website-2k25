@@ -74,6 +74,7 @@ export const Grid = memo(
                     isProjectDisabled(item) &&
                       "pointer-events-none cursor-default opacity-10"
                   )}
+                  aria-label={`View ${item._title ?? "Untitled"}`}
                 >
                   {item?.cover?.url ? (
                     <ImageWithVideoOverlay

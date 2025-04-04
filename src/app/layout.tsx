@@ -16,7 +16,6 @@ import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
-import LenisScrollProvider from "@/providers/lenis-provider"
 import { cn } from "@/utils/cn"
 
 export const metadata: Metadata = {
@@ -83,16 +82,14 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             )}
             suppressHydrationWarning
           >
-            <LenisScrollProvider>
-              <HtmlTunnelOut />
-              <Navbar />
+            <HtmlTunnelOut />
+            <Navbar />
 
-              <NavigationHandler />
+            <NavigationHandler />
 
-              <ContentWrapper>{children}</ContentWrapper>
-              <AppHooks assets={assets} />
-              <Contact />
-            </LenisScrollProvider>
+            <ContentWrapper>{children}</ContentWrapper>
+            <AppHooks assets={assets} />
+            <Contact />
           </body>
         </InspectableProvider>
       </AssetsProvider>
