@@ -239,7 +239,7 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
             <Link
               href={link.href}
               className={cn(
-                "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+                "group space-x-1 text-brand-w1 transition-colors duration-0 hover:text-brand-o",
                 isInPath(link.href, pathname) && "!text-brand-o"
               )}
               onClick={() => handleNavigation(link.href)}
@@ -260,7 +260,7 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
           id="nav-contact"
           onClick={handleContactButton}
           className={cn(
-            "text-[0.75rem] font-semibold leading-4 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+            "text-[0.75rem] font-semibold leading-4 text-brand-w1 transition-colors duration-0 hover:text-brand-o",
             isContactOpen && "text-brand-g1"
           )}
         >
