@@ -90,6 +90,7 @@ export const BlogMeta = ({ data, categories }: BlogMetaComponentProps) => (
               className="transition-opacity hover:opacity-80"
               aria-label={social.label}
               target="_blank"
+              rel="noopener noreferrer"
             >
               <social.Icon className="text-brand-w1" />
             </Link>

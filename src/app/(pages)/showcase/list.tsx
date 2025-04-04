@@ -101,6 +101,7 @@ const AccordionListItem = memo(
                 "transition-opacity duration-200 group-data-[state=closed]:opacity-0 group-data-[state=open]:opacity-100"
               )}
               tabIndex={-1}
+              aria-label={`View ${project._title ?? "Untitled"}`}
             >
               {project.showcase?.items.map((item, imgIndex, array) => {
                 const elementToRender = item.video ? (

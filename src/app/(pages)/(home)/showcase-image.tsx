@@ -26,6 +26,7 @@ export const ShowcaseImage = ({ project }: ShowcaseImageProps) => {
       }}
       onMouseLeave={() => setCursor("default", null)}
       className="block focus-visible:!ring-offset-0"
+      aria-label={`View ${project._title ?? "Untitled"}`}
     >
       <div className="with-dots relative h-full w-full">
         <ImageWithVideoOverlay
