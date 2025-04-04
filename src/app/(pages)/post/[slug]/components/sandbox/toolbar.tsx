@@ -96,6 +96,7 @@ export const SandboxToolbar = ({
                   key={action.id}
                   className="rounded-sm border border-brand-g2 p-1 text-f-p-mobile text-brand-g1 transition-colors duration-300 hover:bg-brand-g2/50 lg:text-f-p"
                   onClick={action.onClick}
+                  aria-label={action.label}
                 >
                   {action.icon}
                 </button>
