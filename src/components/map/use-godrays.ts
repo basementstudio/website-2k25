@@ -1,12 +1,14 @@
 import { animate } from "motion"
 import { useEffect } from "react"
-import { ShaderMaterial } from "three"
+import { Mesh, ShaderMaterial } from "three"
 
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { useMesh } from "@/hooks/use-mesh"
 
-export const Godrays = () => {
-  const { godrays } = useMesh()
+interface GodraysHandlerProps {
+  godrays: Mesh[]
+}
+
+export const useGodrays = ({ godrays }: GodraysHandlerProps) => {
   const scene = useCurrentScene()
 
   useEffect(() => {
@@ -36,12 +38,4 @@ export const Godrays = () => {
       )
     })
   }, [scene, godrays])
-
-  return (
-    <group>
-      {godrays.map((godray) => (
-        <primitive object={godray} key={godray.name} />
-      ))}
-    </group>
-  )
 }
