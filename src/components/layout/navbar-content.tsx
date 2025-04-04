@@ -196,6 +196,7 @@ export const NavbarContent = memo(
           <button
             onClick={() => handleNavigation("/")}
             className="col-span-1 w-fit lg:col-start-1 lg:col-end-3"
+            aria-label="Go to homepage"
           >
             <Logo className="h-[0.9375rem] text-brand-w1" />
           </button>
@@ -356,7 +357,11 @@ const MobileContent = memo(({ links, socialLinks }: NavbarContentProps) => {
     <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
       <MusicToggle />
 
-      <button onClick={handleMenuClick} className="flex items-center">
+      <button
+        onClick={handleMenuClick}
+        className="flex items-center"
+        aria-label={isOpen ? "Close menu" : "Open menu"}
+      >
         <AnimatePresence mode="popLayout" initial={false}>
           {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
         </AnimatePresence>

@@ -82,7 +82,7 @@ export const generateEmailTemplate = (formData: {
               padding: 8px 0;
             "
           >
-            <div style="color: #666666">Name</div>
+            <div style="color: #757575">Name</div>
             <div style="color: #e6e6e6">${clean(formData.name)}</div>
           </div>
 
@@ -95,7 +95,7 @@ export const generateEmailTemplate = (formData: {
               padding: 8px 0;
             "
           >
-            <div style="color: #666666">Company</div>
+            <div style="color: #757575">Company</div>
             <div style="color: #e6e6e6">${clean(formData.company)}</div>
           </div>
 
@@ -108,7 +108,7 @@ export const generateEmailTemplate = (formData: {
               padding: 8px 0;
             "
           >
-            <div style="color: #666666">Email</div>
+            <div style="color: #757575">Email</div>
             <div style="color: #e6e6e6">${clean(formData.email)}</div>
           </div>
 
@@ -121,7 +121,7 @@ export const generateEmailTemplate = (formData: {
               padding: 8px 0;
             "
           >
-            <div style="color: #666666">Budget</div>
+            <div style="color: #757575">Budget</div>
             <div style="color: #e6e6e6">${formData.budget ? clean(formData.budget) : "N/A"}</div>
           </div>
 
@@ -132,7 +132,7 @@ export const generateEmailTemplate = (formData: {
               border-top: 1px solid #2e2e2e;
             "
           >
-            <div style="color: #666666; margin-bottom: 12px">Message</div>
+            <div style="color: #757575; margin-bottom: 12px">Message</div>
             <div
               style="
                 color: #c4c4c4;

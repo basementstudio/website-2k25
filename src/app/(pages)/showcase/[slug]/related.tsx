@@ -71,6 +71,7 @@ export const RelatedProjects = async ({
             href={`/showcase/${item.project?._slug}`}
             key={index}
             className="flex items-center justify-between pb-1.75 pt-1.5 !text-f-p-mobile font-normal text-brand-w2 transition-colors duration-300 hover:text-brand-w1 focus-visible:!ring-offset-0 lg:!text-f-p"
+            aria-label={`View ${item.project?._title ?? "Untitled"}`}
           >
             <span className="flex items-center gap-1.75">
               {item.project?.icon ? (

@@ -45,6 +45,7 @@ export const More = ({ data, slug }: MoreProps) => {
               <Link
                 href={`/post/${post._slug}`}
                 className="flex gap-x-2 py-2 focus-visible:!ring-offset-0"
+                aria-label={`View ${post._title ?? "Untitled"}`}
               >
                 <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 

@@ -17,6 +17,7 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
           <Link
             className="col-span-full grid grid-cols-12 gap-2 py-2 pb-2 focus-visible:!ring-offset-0 lg:pb-2"
             href={`/post/${post._slug}`}
+            aria-label={`View ${post._title ?? "Untitled"}`}
           >
             <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="relative col-span-full my-auto aspect-[418/228] w-full overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-2 lg:aspect-auto lg:h-[124px] lg:max-w-[276px]">
