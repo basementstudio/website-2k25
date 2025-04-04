@@ -130,7 +130,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   : formState === "error"
                     ? "#ff6b6b"
                     : formState !== "idle" || !email
-                      ? "#666666"
+                      ? "#757575"
                       : "#e6e6e6"
             }}
             transition={{ duration: 0.2 }}
