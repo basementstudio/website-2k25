@@ -123,7 +123,8 @@ export const createGlobalShaderMaterial = (
       baseOpacity < 1 ||
       alphaMap !== null ||
       baseMaterial.transparent ||
-      defines?.DAYLIGHT,
+      defines?.DAYLIGHT ||
+      false,
     vertexShader,
     fragmentShader,
     side: baseMaterial.side
