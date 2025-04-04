@@ -39,11 +39,12 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
     }
   })
 
+  if (data.pages.blog.posts.items.length === 0) return null
   const post = data.pages.blog.posts.items[0]
 
   return {
     title: {
-      absolute: `${post._title} | Blog`
+      absolute: `${post._title ?? "Untitled"} | Blog`
     },
     alternates: {
       canonical: `https://basement.studio/post/${slug}`
