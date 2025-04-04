@@ -1,4 +1,3 @@
-import { useLenis } from "lenis/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 
@@ -8,6 +7,8 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { TRANSITION_DURATION } from "@/constants/transitions"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useArcadeStore } from "@/store/arcade-store"
+
+import { useScrollControl } from "./useScrollControl"
 
 const handleTransitionEffectOn = (fromMobileNav?: boolean) => {
   if (window.innerWidth >= 1024 && !fromMobileNav) {
@@ -26,8 +27,7 @@ const handleTransitionEffectOff = (fromMobileNav?: boolean) => {
 }
 
 export const useHandleNavigation = () => {
-  const lenisInstance = useLenis()
-  const lenisRef = useRef(lenisInstance)
+  const { disableScroll, enableScroll } = useScrollControl()
   const router = useRouter()
   const pathname = usePathname()
   const scrollToFn = useScrollTo()
@@ -40,10 +40,6 @@ export const useHandleNavigation = () => {
     (state) => state.canvasErrorBoundaryTriggered
   )
   const scenes = useNavigationStore((state) => state.scenes)
-
-  useEffect(() => {
-    lenisRef.current = lenisInstance
-  }, [lenisInstance])
 
   useEffect(() => {
     scrollToRef.current = scrollToFn
@@ -109,7 +105,7 @@ export const useHandleNavigation = () => {
 
       if (window.scrollY < window.innerHeight && !fromMobileNav) {
         setCurrentScene(selectedScene)
-        lenisRef.current?.stop()
+        disableScroll()
 
         scrollToRef.current({
           offset: 0,
@@ -119,12 +115,12 @@ export const useHandleNavigation = () => {
               useArcadeStore.getState().setIsInLabTab(false)
             }
             router.push(route, { scroll: false })
-            lenisRef.current?.start()
+            enableScroll()
           }
         })
       } else {
         handleTransitionEffectOn(fromMobileNav || canvasErrorBoundaryTriggered)
-        lenisRef.current?.stop()
+        disableScroll()
         setDisableCameraTransition(true)
         setCurrentScene(selectedScene)
 
@@ -137,7 +133,7 @@ export const useHandleNavigation = () => {
                 handleTransitionEffectOff(
                   fromMobileNav || canvasErrorBoundaryTriggered
                 )
-                lenisRef.current?.start()
+                enableScroll()
               }
             })
             if (route !== "/lab") {
@@ -153,6 +149,8 @@ export const useHandleNavigation = () => {
       router,
       setCurrentScene,
       setDisableCameraTransition,
+      disableScroll,
+      enableScroll,
       getScene,
       canvasErrorBoundaryTriggered
     ]
