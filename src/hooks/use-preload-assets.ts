@@ -5,23 +5,34 @@ import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 
 // Assets that should not be preloaded
 const ASSET_TO_NOT_PRELOAD = [
-  // TODO: review this assets in the future
+  // Misc
   "inspectables",
   "glassMaterials",
   "doubleSideElements",
   "scenes",
+
+  // Matcaps - due to being used only in inspectables
+  "matcaps",
+
+  // SFX
   "sfx",
+
+  // Contact
   "contactPhone",
+
+  // Basket Ball
   "basketball",
 
   // Arcade
+  "boot",
   "chronicles",
   "looper",
   "placeholderLab",
-  "sky",
+
+  // Konami Code
+  "skybox",
   "cityscape",
   "introScreen",
-  "placeholderLab",
   "palm"
 ]
 
