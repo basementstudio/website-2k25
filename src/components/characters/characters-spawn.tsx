@@ -62,13 +62,13 @@ function CharactersSpawnInner() {
             value: [0, 0, 3, 1]
           },
           uLightColor: {
-            value: [...new Color("#ffeec0").toArray(), 0.6]
+            value: [...new Color("#fff2cd").toArray(), 0.6]
           },
           uPointLightPosition: {
             value: [2.11, 0.82, -9.4, 6]
           },
           uPointLightColor: {
-            value: [...new Color("#ffeec0").toArray(), 3]
+            value: [...new Color("#ffd258").toArray(), 3]
           }
         }}
       />
@@ -81,16 +81,16 @@ function CharactersSpawnInner() {
         // debugLight
         uniforms={{
           uLightDirection: {
-            value: [0, 0.5, 1, 0.2]
+            value: [1, 1, -1, 1]
           },
           uLightColor: {
-            value: [...new Color("#ffeec0").toArray(), 0.2]
+            value: [...new Color("#ffeec0").toArray(), 0.1]
           },
           uPointLightPosition: {
             value: [3, 0, -8, 10]
           },
           uPointLightColor: {
-            value: [...new Color("#ffeec0").toArray(), 3]
+            value: [...new Color("#ffebb6").toArray(), 2]
           }
         }}
       />
@@ -147,7 +147,7 @@ function CharactersSpawnInner() {
         animationName={CharacterAnimationName["People.01.a"]}
         uniforms={{
           uLightDirection: {
-            value: [2, 2, 0, 1]
+            value: [0.5, 0.5, 0, 1]
           }
         }}
       />
@@ -173,16 +173,16 @@ function CharactersSpawnInner() {
         animationName={CharacterAnimationName["Blog.01"]}
         uniforms={{
           uLightDirection: {
-            value: [1, 1, 0, 1]
+            value: [0.4, 0.4, 0, 1]
           },
           uLightColor: {
-            value: [...new Color("#fff2ce").toArray(), 0.7]
+            value: [...new Color("#ffeec0").toArray(), 0.2]
           },
           uPointLightPosition: {
-            value: [10.5, 4.2, -17.8, 1.8]
+            value: [10.5, 4.2, -17.8, 2]
           },
           uPointLightColor: {
-            value: [...new Color("#ffdb78").toArray(), 50]
+            value: [...new Color("#ffeec0").toArray(), 20]
           }
         }}
       />
