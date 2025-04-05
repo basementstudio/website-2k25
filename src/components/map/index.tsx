@@ -128,7 +128,7 @@ export const Map = memo(() => {
         if ("isMesh" in child) {
           const meshChild = child as Mesh
 
-          if (meshChild.name == "SM_ArcadeLab_Screen") {
+          if (meshChild.name !== "SM_ArcadeLab_Screen") {
             meshChild.raycast = () => null
           }
 
