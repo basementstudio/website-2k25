@@ -45,7 +45,7 @@ export const Intro = ({ children }: HandlerProps<"p">) => (
 )
 
 export const Paragraph = ({ children }: HandlerProps<"p">) => (
-  <p className="!text-pretty text-blog text-brand-white [&_b]:font-bold [&_b]:text-brand-white">
+  <p className="!text-pretty text-blog text-brand-w1 [&_b]:font-bold [&_b]:text-brand-w1">
     {children}
   </p>
 )

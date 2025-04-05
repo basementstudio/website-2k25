@@ -23,8 +23,7 @@ export default {
           r: "#E60002",
           r2: "#FF4D4D",
           y: "#FFCD1A",
-          g: "#00FF9B",
-          white: "#FFFFFF"
+          g: "#00FF9B"
         },
         codeblock: {
           o: "#FF4D00",

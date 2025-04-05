@@ -4,7 +4,7 @@ import { Color, Vector3 } from "three"
 
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
-const [ParticlesInstnaces, ParticleInstance] = createInstances()
+const [ParticleInstances, ParticleInstance] = createInstances()
 
 interface Particle {
   color: Color
@@ -72,13 +72,13 @@ export function DeathAnimation() {
   })
 
   return (
-    <ParticlesInstnaces
+    <ParticleInstances
       limit={PARTICLE_COUNT}
       ref={instancesRef as any}
       frustumCulled={false}
     >
       <boxGeometry args={[BOX_SIZE, BOX_SIZE, BOX_SIZE]} />
-      <meshBasicMaterial color="#888" />
+      <meshBasicMaterial color="#C4C4C4" />
       {particles.map((particle, index) => (
         <ParticleInstance
           key={index}
@@ -86,6 +86,6 @@ export function DeathAnimation() {
           color={particle.color}
         />
       ))}
-    </ParticlesInstnaces>
+    </ParticleInstances>
   )
 }
