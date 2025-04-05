@@ -18,26 +18,22 @@ export const Player = () => {
   const containerRef = useRef<Group | null>(null)
   const carRef = useRef<Group | null>(null)
   const carPositionCopy = useMemo(() => new Vector3(), [])
-
-  const refs = useRef({
-    prevPosition: 0,
-
-    position: 0
-  })
+  const refs = useRef({ prevPosition: 0, position: 0 })
   const currentLine = useGame((s) => s.currentLine)
   const addLine = useGame((s) => s.addLine)
+  const gameStarted = useGame((s) => s.gameStarted)
 
   const left = useConnector((s) => s.subscribable.left)
   const right = useConnector((s) => s.subscribable.right)
 
   useSubscribe(left, () => {
-    if (!carRef.current) return
+    if (!carRef.current || !gameStarted) return
     addLine(-1)
-  })
+  }, [gameStarted])
   useSubscribe(right, () => {
-    if (!carRef.current) return
+    if (!carRef.current || !gameStarted) return
     addLine(1)
-  })
+  }, [gameStarted])
 
   useFrameCallback((_, delta) => {
     if (!carRef.current) return

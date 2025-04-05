@@ -4,12 +4,13 @@ import { FontFamilyProvider } from "@react-three/uikit"
 import { useEffect, useRef, useState } from "react"
 import type { ShaderMaterial } from "three"
 
+import { COLORS_THEME } from "@/components/arcade-screen/screen-ui"
+import { useAssets } from "@/components/assets-provider"
+import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { ffflauta } from "../../../public/fonts/ffflauta"
-import { COLORS_THEME } from "../arcade-screen/screen-ui"
-import { useAssets } from "../assets-provider"
 import { useGame } from "./lib/use-game"
 import { NPCs } from "./npc"
 import { useNpc } from "./npc/use-npc"
@@ -37,6 +38,7 @@ export const ArcadeGame = ({ visible, screenMaterial }: arcadeGameProps) => {
   const { arcade } = useAssets()
   const introScreenTexture = useTexture(arcade.introScreen)
   const clearNpcs = useNpc((s) => s.clearNpcs)
+  const scene = useCurrentScene()
 
   useFrameCallback((_, delta) => {
     if (gameStarted && !gameOver) {
@@ -76,7 +78,22 @@ export const ArcadeGame = ({ visible, screenMaterial }: arcadeGameProps) => {
   }, [gameStarted, gameOver, screenMaterial])
 
   useEffect(() => {
+    if (scene !== "lab") {
+      setGameStarted(false)
+      setSpeed(DEFAULT_SPEED)
+      setGameOver(false)
+      setIsInGame(false)
+
+      useGame.setState({ currentLine: 0 })
+
+      useArcadeStore.getState().resetArcadeScreen()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene, gameStarted])
+
+  useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
+      if (scene !== "lab") return
       if (event.code === "Escape") {
         if (gameStarted) {
           setGameStarted(false)
@@ -111,10 +128,9 @@ export const ArcadeGame = ({ visible, screenMaterial }: arcadeGameProps) => {
 
     window.addEventListener("keydown", handleKeyPress, { passive: true })
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress)
-    }
+    return () => window.removeEventListener("keydown", handleKeyPress)
   }, [
+    scene,
     setSpeed,
     speedRef,
     gameOver,
