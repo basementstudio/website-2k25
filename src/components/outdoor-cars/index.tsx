@@ -18,7 +18,7 @@ interface StreetLane {
 }
 
 export const OutdoorCars = () => {
-  const { outdoorCarsMeshes: cars } = useMesh()
+  const { cars } = useMesh()
   const [carUpdateCounter, setCarUpdateCounter] = useState(0)
 
   useEffect(() => {
