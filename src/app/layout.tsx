@@ -14,6 +14,7 @@ import { InspectableProvider } from "@/components/inspectables/context"
 import { ContentWrapper } from "@/components/layout/content-wrapper"
 import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
+import { PostHogProvider } from "@/components/posthog/posthog-provider"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
 import { cn } from "@/utils/cn"
@@ -71,28 +72,28 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <Analytics />
       <SpeedInsights />
       <Transitions />
-      <AssetsProvider assets={assets}>
-        <InspectableProvider>
-          <body
-            className={cn(
-              geistSans.variable,
-              geistMono.variable,
-              flauta.variable,
-              "font-sans"
-            )}
-            suppressHydrationWarning
-          >
-            <HtmlTunnelOut />
-            <Navbar />
-
-            <NavigationHandler />
-
-            <ContentWrapper>{children}</ContentWrapper>
-            <AppHooks assets={assets} />
-            <Contact />
-          </body>
-        </InspectableProvider>
-      </AssetsProvider>
+      <PostHogProvider>
+        <AssetsProvider assets={assets}>
+          <InspectableProvider>
+            <body
+              className={cn(
+                geistSans.variable,
+                geistMono.variable,
+                flauta.variable,
+                "font-sans"
+              )}
+              suppressHydrationWarning
+            >
+              <HtmlTunnelOut />
+              <Navbar />
+              <NavigationHandler />
+              <ContentWrapper>{children}</ContentWrapper>
+              <AppHooks assets={assets} />
+              <Contact />
+            </body>
+          </InspectableProvider>
+        </AssetsProvider>
+      </PostHogProvider>
     </html>
   )
 }
