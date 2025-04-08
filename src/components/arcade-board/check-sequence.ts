@@ -1,4 +1,5 @@
 import { track } from "@vercel/analytics"
+import posthog from "posthog-js"
 
 import { EXPECTED_SEQUENCE } from "./constants"
 
@@ -17,6 +18,7 @@ export const checkSequence = ({ sequence, setIsInGame }: checkerProps) => {
     if (sequence.every((value, index) => value === EXPECTED_SEQUENCE[index])) {
       setIsInGame(true)
       track("konami_code_unlocked")
+      posthog.capture("konami_code_unlocked")
       sequence = []
     }
   }

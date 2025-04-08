@@ -1,5 +1,6 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
 import { track } from "@vercel/analytics"
+import posthog from "posthog-js"
 import { useCallback, useEffect, useState } from "react"
 
 import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
@@ -33,6 +34,7 @@ export const SpeakerHover = () => {
     if (music) {
       nextAmbienceTrack()
       track("switch_ambience")
+      posthog.capture("switch_ambience")
     } else {
       handleMute()
     }

@@ -1,6 +1,7 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
 import { track } from "@vercel/analytics"
 import { animate } from "motion"
+import posthog from "posthog-js"
 import { useRef } from "react"
 
 import { useAssets } from "@/components/assets-provider"
@@ -37,7 +38,7 @@ export const LockedDoor = () => {
     const randomSound = Math.floor(Math.random() * availableSounds)
     playSoundFX(`BLOG_LOCKED_DOOR_${randomSound}`, 0.2)
     track("blog_locked_door")
-
+    posthog.capture("blog_locked_door")
     setTimeout(() => {
       animate(lockedDoor?.rotation, r)
 
