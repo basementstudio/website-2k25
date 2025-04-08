@@ -5,7 +5,7 @@ import posthog from "posthog-js"
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react"
 import { Suspense, useEffect } from "react"
 
-const isPostHogEnabled = process.env.ENABLE_POSTHOG === "true"
+const isPostHogEnabled = process.env.POSTHOG_ENABLED === "true"
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
