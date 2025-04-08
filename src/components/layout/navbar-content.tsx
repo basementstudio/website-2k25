@@ -232,15 +232,15 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
           <div
             key={link.href}
             className={cn(
-              "flex items-center gap-1 text-[0.75rem] font-semibold leading-4",
-              !isInPath(link.href, pathname) && "actionable-opacity"
+              "flex items-center gap-1 text-[0.75rem] font-semibold leading-4"
             )}
           >
             <Link
               href={link.href}
               className={cn(
                 "group space-x-1 text-brand-w1 transition-colors duration-0 hover:text-brand-o",
-                isInPath(link.href, pathname) && "!text-brand-o"
+                isInPath(link.href, pathname) && "!text-brand-o",
+                !isInPath(link.href, pathname) && "actionable-opacity"
               )}
               onClick={() => handleNavigation(link.href)}
             >
