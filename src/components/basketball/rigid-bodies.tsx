@@ -1,6 +1,7 @@
 import { CuboidCollider, CylinderCollider } from "@react-three/rapier"
 import { RigidBody } from "@react-three/rapier"
 import { track } from "@vercel/analytics"
+import posthog from "posthog-js"
 
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -34,6 +35,7 @@ export const RigidBodies = ({ hoopPosition }: RigidBodiesProps) => {
     incrementConsecutiveScores()
     playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
     track("basketball_score")
+    posthog.capture("basketball_score")
 
     if (hasHitStreak) playSoundFX("BASKETBALL_STREAK", 0.06)
 
