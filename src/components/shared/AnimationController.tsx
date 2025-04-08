@@ -1,4 +1,4 @@
-import { advance, useThree } from "@react-three/fiber"
+import { useThree } from "@react-three/fiber"
 import { useAnimationFrame } from "motion/react"
 import type { ReactNode } from "react"
 import {
@@ -55,7 +55,7 @@ function AnimationControllerImpl({
   frameSkip = 0,
   pauseOnTabChange = true
 }: AnimationControllerProps) {
-  const { invalidate } = useThree()
+  const advance = useThree((state) => state.advance)
 
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
   const [isScrollPaused, setIsScrollPaused] = useState(false)
@@ -134,7 +134,7 @@ function AnimationControllerImpl({
       // Here you could also run other global updates
       // that depend on animation time
     },
-    [isPaused, frameSkip]
+    [isPaused, frameSkip, advance]
   )
 
   // Use Motion's useAnimationFrame as our single RAF
