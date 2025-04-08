@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
+import posthog from "posthog-js"
 import { useEffect, useMemo } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
@@ -54,7 +55,8 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
       <ErrorBoundary
         fallback={<div className="h-[37px]" aria-hidden />}
-        onError={() => {
+        onError={(error) => {
+          posthog.captureException(error)
           useAppLoadingStore.setState({ canvasErrorBoundaryTriggered: true })
           useAppLoadingStore.setState({ isCanvasInPage: false })
         }}
