@@ -2,7 +2,6 @@
 
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
-import { Perf } from "r3f-perf"
 import { Suspense, useEffect, useRef, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import * as THREE from "three"
@@ -170,7 +169,6 @@ export const Scene = () => {
             <Renderer
               sceneChildren={
                 <>
-                  <Perf logsPerSecond={10} />
                   <Suspense fallback={null}>
                     <Inspectables />
                   </Suspense>
