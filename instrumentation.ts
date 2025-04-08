@@ -2,8 +2,11 @@ export function register() {
   // No-op for initialization
 }
 
+const isNodejs = process.env.NEXT_RUNTIME === "nodejs"
+const isPostHogEnabled = process.env.POSTHOG_ENABLED === "true"
+
 export const onRequestError = async (err: Error, request: Request) => {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
+  if (isNodejs && isPostHogEnabled) {
     const { getPostHogServer } = await import("./src/lib/posthog")
     const posthog = getPostHogServer()
 

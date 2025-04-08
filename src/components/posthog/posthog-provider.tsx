@@ -5,8 +5,11 @@ import posthog from "posthog-js"
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react"
 import { Suspense, useEffect } from "react"
 
+const isPostHogEnabled = process.env.POSTHOG_ENABLED === "true"
+
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
+    if (!isPostHogEnabled) return
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
       api_host: "/ingest",
       ui_host: "https://us.posthog.com",
