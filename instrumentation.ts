@@ -4,8 +4,8 @@ export function register() {
 
 export const onRequestError = async (err: Error, request: Request) => {
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    const { getPostHogServer } = require("./app/posthog-server")
-    const posthog = await getPostHogServer()
+    const { getPostHogServer } = await import("./src/lib/posthog")
+    const posthog = getPostHogServer()
 
     let distinctId = null
     if (request.headers.get("cookie")) {
@@ -25,6 +25,6 @@ export const onRequestError = async (err: Error, request: Request) => {
       }
     }
 
-    await posthog.captureException(err, distinctId || undefined)
+    posthog.captureException(err, distinctId || undefined)
   }
 }
