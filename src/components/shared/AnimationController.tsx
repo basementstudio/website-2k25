@@ -1,4 +1,4 @@
-import { useThree } from "@react-three/fiber"
+import { advance, useThree } from "@react-three/fiber"
 import { useAnimationFrame } from "motion/react"
 import type { ReactNode } from "react"
 import {
@@ -129,12 +129,12 @@ function AnimationControllerImpl({
       timeValuesRef.current.delta = delta
 
       // Emit a render
-      invalidate()
+      advance(time / 1000)
 
       // Here you could also run other global updates
       // that depend on animation time
     },
-    [isPaused, frameSkip, invalidate]
+    [isPaused, frameSkip]
   )
 
   // Use Motion's useAnimationFrame as our single RAF
