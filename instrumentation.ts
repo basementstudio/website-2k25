@@ -3,7 +3,7 @@ export function register() {
 }
 
 const isNodejs = process.env.NEXT_RUNTIME === "nodejs"
-const isPostHogEnabled = process.env.POSTHOG_ENABLED === "true"
+const isPostHogEnabled = process.env.NEXT_PUBLIC_POSTHOG_ENABLED === "true"
 
 export const onRequestError = async (err: Error, request: Request) => {
   if (isNodejs && isPostHogEnabled) {
