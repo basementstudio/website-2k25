@@ -232,13 +232,16 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
         {links.map((link) => (
           <div
             key={link.href}
-            className="flex items-center gap-1 text-[0.75rem] font-semibold leading-4"
+            className={cn(
+              "flex items-center gap-1 text-[0.75rem] font-semibold leading-4"
+            )}
           >
             <Link
               href={link.href}
               className={cn(
-                "group space-x-1 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
-                isInPath(link.href, pathname) && "!text-brand-o"
+                "group space-x-1 text-brand-w1 transition-colors duration-0 hover:text-brand-o",
+                isInPath(link.href, pathname) && "!text-brand-o",
+                !isInPath(link.href, pathname) && "actionable-opacity"
               )}
               onClick={() => handleNavigation(link.href)}
             >
@@ -258,11 +261,11 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
           id="nav-contact"
           onClick={handleContactButton}
           className={cn(
-            "text-[0.75rem] font-semibold leading-4 text-brand-w1 transition-colors duration-300 hover:text-brand-o",
+            "text-[0.75rem] font-semibold leading-4 text-brand-w1 transition-colors duration-0 hover:text-brand-o",
             isContactOpen && "text-brand-g1"
           )}
         >
-          <span className="actionable-no-underline">Contact Us</span>
+          <span className="actionable-opacity">Contact Us</span>
         </button>
       </div>
     </>
