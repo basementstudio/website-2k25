@@ -38,8 +38,6 @@ export const NavigationHandler = () => {
   const isInGame = useArcadeStore((state) => state.isInGame)
   const { selected } = useInspectable()
 
-  console.log("pathname", pathname)
-
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
   useEffect(() => {
@@ -75,8 +73,6 @@ export const NavigationHandler = () => {
 
     const isFromPostToBlog =
       previousPathRef.current.startsWith("/post/") && pathname === "/blog"
-
-    console.log("pathname", pathname)
 
     const expectedScene =
       pathname === "/" || pathname === "/index"
@@ -119,7 +115,6 @@ export const NavigationHandler = () => {
           : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
     if (!currentScene) {
-      console.log("notFoundScene: currentScene", currentScene)
       const notFoundScene = scenes.find((scene) => scene.name === "404")
       if (notFoundScene) {
         setCurrentScene(notFoundScene)
