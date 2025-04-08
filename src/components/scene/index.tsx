@@ -2,6 +2,7 @@
 
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
+import { Perf } from "r3f-perf"
 import { Suspense, useEffect, useRef, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import * as THREE from "three"
@@ -166,6 +167,7 @@ export const Scene = () => {
         >
           <AnimationController>
             <UpdateCanvasCursor />
+            <Perf position="bottom-right" />
             <Renderer
               sceneChildren={
                 <>
