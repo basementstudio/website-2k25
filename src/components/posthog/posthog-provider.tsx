@@ -19,6 +19,12 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       capture_pageview: false, // We capture pageviews manually
       capture_pageleave: true // Enable pageleave capture
     })
+
+    // Load the toolbar if it exists
+    const toolbarJSON = new URLSearchParams(
+      window.location.hash.substring(1)
+    ).get("__posthog")
+    if (toolbarJSON) posthog.loadToolbar(JSON.parse(toolbarJSON))
   }, [])
 
   return (
