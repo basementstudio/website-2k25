@@ -38,6 +38,8 @@ export const NavigationHandler = () => {
   const isInGame = useArcadeStore((state) => state.isInGame)
   const { selected } = useInspectable()
 
+  console.log("pathname", pathname)
+
   useEffect(() => setScenes(scenes), [scenes, setScenes])
 
   useEffect(() => {
@@ -74,8 +76,10 @@ export const NavigationHandler = () => {
     const isFromPostToBlog =
       previousPathRef.current.startsWith("/post/") && pathname === "/blog"
 
+    console.log("pathname", pathname)
+
     const expectedScene =
-      pathname === "/"
+      pathname === "/" || pathname === "/index"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
           ? scenes.find((scene) => scene.name === "blog")
@@ -108,13 +112,14 @@ export const NavigationHandler = () => {
     }
 
     const currentScene =
-      pathname === "/"
+      pathname === "/" || pathname === "/index"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
           ? scenes.find((scene) => scene.name === "blog")
           : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
     if (!currentScene) {
+      console.log("notFoundScene: currentScene", currentScene)
       const notFoundScene = scenes.find((scene) => scene.name === "404")
       if (notFoundScene) {
         setCurrentScene(notFoundScene)
@@ -278,7 +283,12 @@ export const NavigationHandler = () => {
         return
       }
 
-      if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
+      if (
+        pathname === "/" ||
+        pathname === "/index" ||
+        !scenes ||
+        window.scrollY > window.innerHeight
+      )
         return
 
       const trimmedPathname = pathname.replace("/", "")
