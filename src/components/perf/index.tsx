@@ -20,18 +20,20 @@ export const PerfMonitor = () => {
 
   useEffect(() => {
     if (instance) return
+
+    const canvasContainer = document.getElementById("canvas")
     perfRef.current = new ThreePerf({
       anchorX: "right",
-      anchorY: "bottom",
-      domElement: document.body, // or other canvas rendering wrapper
+      anchorY: "top",
+      domElement: canvasContainer || document.body, // or other canvas rendering wrapper
       renderer: gl // three js renderer instance you use for rendering
     })
+    perfRef.current.ui.wrapper.style.top = "37px"
     setPerf({ instance: perfRef.current })
   }, [gl, instance])
 
   useEffect(() => {
     if (!perfRef.current) return
-    console.log(debug)
     perfRef.current.visible = debug
   }, [debug])
 
