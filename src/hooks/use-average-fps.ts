@@ -1,50 +1,64 @@
 import { useAnimationFrame } from "motion/react"
 import { useRef, useState } from "react"
 
-const TWO_MINUTES_MS = 120 * 1000
+type UseFPSMonitorOptions = {
+  /** Smoothing factor for the fast EMA (more sensitive to changes) */
+  fastAlpha?: number
+  /** Smoothing factor for the slow EMA (more stable) */
+  slowAlpha?: number
+  /** If the difference between fast and slow exceeds this threshold, the fast average is used */
+  instabilityThreshold?: number
+}
 
-const useAverageFPS = () => {
+const useFPSMonitor = ({
+  fastAlpha = 0.2,
+  slowAlpha = 0.05,
+  instabilityThreshold = 5 // fps difference threshold
+}: UseFPSMonitorOptions = {}) => {
   const [currentFPS, setCurrentFPS] = useState<number>(0)
-  const fpsHistoryRef = useRef<Array<{ timestamp: number; fps: number }>>([])
+  const [averageFPS, setAverageFPS] = useState<number>(0)
+
+  // For high-resolution timing
   const lastFrameTimeRef = useRef<number>(performance.now())
+  // Fast and slow exponential moving averages
+  const fastEMARef = useRef<number>(0)
+  const slowEMARef = useRef<number>(0)
+  // A flag to initialize EMAs on the first frame
+  const initializedRef = useRef<boolean>(false)
 
-  const calculateFPS = () => {
+  useAnimationFrame(() => {
     const now = performance.now()
-
     const delta = now - lastFrameTimeRef.current
     lastFrameTimeRef.current = now
 
+    // Calculate instantaneous FPS
     const fps = 1000 / delta
     setCurrentFPS(Math.round(fps))
 
-    fpsHistoryRef.current.push({ timestamp: now, fps })
-
-    const cutoffTime = now - TWO_MINUTES_MS
-    while (
-      fpsHistoryRef.current.length &&
-      fpsHistoryRef.current[0].timestamp < cutoffTime
-    ) {
-      fpsHistoryRef.current.shift()
+    // Initialize the EMAs on the first frame to avoid a jump from zero
+    if (!initializedRef.current) {
+      fastEMARef.current = fps
+      slowEMARef.current = fps
+      initializedRef.current = true
+    } else {
+      // Update the EMAs
+      fastEMARef.current =
+        fastAlpha * fps + (1 - fastAlpha) * fastEMARef.current
+      slowEMARef.current =
+        slowAlpha * fps + (1 - slowAlpha) * slowEMARef.current
     }
-  }
 
-  useAnimationFrame(() => {
-    calculateFPS()
+    // Compute the difference between fast and slow averages
+    const diff = Math.abs(fastEMARef.current - slowEMARef.current)
+    // If the difference exceeds the instability threshold,
+    // use the fastEMA (more reactive) as the average.
+    // Otherwise, use the smoother slowEMA.
+    const effectiveAverage =
+      diff > instabilityThreshold ? fastEMARef.current : slowEMARef.current
+    setAverageFPS(Math.round(effectiveAverage))
   })
 
-  // Calculate the average FPS from the history
-  const averageFPS =
-    fpsHistoryRef.current.length === 0
-      ? 0
-      : Math.round(
-          fpsHistoryRef.current.reduce((sum, sample) => sum + sample.fps, 0) /
-            fpsHistoryRef.current.length
-        )
-
-  return {
-    currentFPS,
-    averageFPS
-  }
+  return { currentFPS, averageFPS }
 }
 
-export default useAverageFPS
+export default useFPSMonitor
