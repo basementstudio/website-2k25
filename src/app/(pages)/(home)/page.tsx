@@ -7,6 +7,7 @@ import { Brands } from "./brands"
 import { Capabilities } from "./capabilities"
 import { FeaturedProjects } from "./featured-projects"
 import { Intro } from "./intro"
+import Test from "./test"
 
 export const metadata: Metadata = {
   title: {
@@ -22,6 +23,7 @@ const Homepage = async () => {
 
   return (
     <div className="flex flex-col gap-18 lg:gap-32">
+      <Test />
       <Intro data={data} />
       <Brands data={data} />
       <FeaturedProjects data={data} />
