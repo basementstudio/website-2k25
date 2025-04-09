@@ -26,15 +26,28 @@ export const PerfMonitor = () => {
       anchorX: "right",
       anchorY: "top",
       domElement: canvasContainer || document.body, // or other canvas rendering wrapper
-      renderer: gl // three js renderer instance you use for rendering
+      renderer: gl, // three js renderer instance you use for rendering
+      enabled: false,
+      logsPerSecond: 1
     })
     perfRef.current.ui.wrapper.style.top = "37px"
+    perfRef.current.ui.wrapper.style.display = "none"
     setPerf({ instance: perfRef.current })
   }, [gl, instance])
 
   useEffect(() => {
     if (!perfRef.current) return
-    perfRef.current.visible = debug
+    const perfInstance = perfRef.current
+
+    if (debug) {
+      perfInstance.enabled = true
+      perfRef.current.ui.wrapper.style.display = "block"
+      perfInstance.logsPerSecond = 10
+    }
+
+    return () => {
+      perfInstance.enabled = false
+    }
   }, [debug])
 
   return null
