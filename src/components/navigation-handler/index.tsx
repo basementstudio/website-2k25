@@ -75,7 +75,7 @@ export const NavigationHandler = () => {
       previousPathRef.current.startsWith("/post/") && pathname === "/blog"
 
     const expectedScene =
-      pathname === "/"
+      pathname === "/" || pathname === "/index"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
           ? scenes.find((scene) => scene.name === "blog")
@@ -108,7 +108,7 @@ export const NavigationHandler = () => {
     }
 
     const currentScene =
-      pathname === "/"
+      pathname === "/" || pathname === "/index"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
           ? scenes.find((scene) => scene.name === "blog")
@@ -278,7 +278,12 @@ export const NavigationHandler = () => {
         return
       }
 
-      if (pathname === "/" || !scenes || window.scrollY > window.innerHeight)
+      if (
+        pathname === "/" ||
+        pathname === "/index" ||
+        !scenes ||
+        window.scrollY > window.innerHeight
+      )
         return
 
       const trimmedPathname = pathname.replace("/", "")
