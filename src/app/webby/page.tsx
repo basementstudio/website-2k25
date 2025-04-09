@@ -1,5 +1,6 @@
 "use client"
 
+import { track } from "@vercel/analytics"
 import { motion } from "motion/react"
 import Image from "next/image"
 
@@ -67,6 +68,9 @@ const WebbyPage = () => {
             className="corner-borders with-diagonal-lines group relative flex cursor-pointer flex-col overflow-hidden bg-brand-k p-6 md:p-8"
             href="https://bsmnt.link/WEBBY-1"
             target="_blank"
+            onClick={() => {
+              track("daylight_webby_vote_en")
+            }}
           >
             {/* Decorative corner */}
             <div className="absolute -left-px -top-px h-[60px] w-[60px] border-l border-t border-brand-o"></div>
@@ -105,6 +109,9 @@ const WebbyPage = () => {
             className="corner-borders with-diagonal-lines group relative flex cursor-pointer flex-col overflow-hidden bg-brand-k p-6 md:p-8"
             href="https://bsmnt.link/WEBBY-3"
             target="_blank"
+            onClick={() => {
+              track("nextjs_webby_vote_en")
+            }}
           >
             {/* Decorative corner */}
             <div className="absolute -left-px -top-px h-[60px] w-[60px] border-l border-t border-brand-o"></div>
