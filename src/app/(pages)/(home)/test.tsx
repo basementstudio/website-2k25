@@ -6,7 +6,7 @@ const Test = () => {
   const { currentFPS, averageFPS } = useFPSMonitor()
 
   return (
-    <div className="fixed bottom-0 right-0 z-50">
+    <div className="fixed bottom-0 right-0 z-[9999]">
       Test {currentFPS} {averageFPS}
     </div>
   )
