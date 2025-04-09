@@ -35,7 +35,7 @@ const getPositionDelay = (position: number, length: number) => {
 
 const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
   <div className={cn("relative py-2", absolute && "absolute inset-0")}>
-    <div className="grid-rows-auto group grid grid-cols-3 gap-3">
+    <div className="grid-rows-auto group grid auto-rows-fr grid-cols-3 gap-3">
       {brands.map((brand, idx) => {
         const delay = getPositionDelay(idx, brands.length)
 

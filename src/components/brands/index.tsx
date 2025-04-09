@@ -6,6 +6,7 @@ import { memo, useMemo, useState } from "react"
 import { Brand } from "@/app/(pages)/(home)/brands"
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import useDebounceValue from "@/hooks/use-debounce-value"
+import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 
 const DEBOUNCE_DELAY = 50
@@ -59,6 +60,8 @@ interface BrandsDesktopProps {
 
 export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
+  const isLargeDesktop = useMedia("(min-width: 1280px)")
+
   const debouncedHoveredBrandId = useDebounceValue(
     hoveredBrandId,
     DEBOUNCE_DELAY
@@ -72,6 +75,18 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
     }
   }, [brands, debouncedHoveredBrandId])
 
+  const filteredBrands = useMemo(() => {
+    if (isLargeDesktop) {
+      // Ensure we display a multiple of 8 brands
+      const count = Math.floor(brands.length / 8) * 8
+      return brands.slice(0, count)
+    } else {
+      // Ensure we display a multiple of 6 brands
+      const count = Math.floor(brands.length / 6) * 6
+      return brands.slice(0, count)
+    }
+  }, [brands, isLargeDesktop])
+
   return (
     <section className="lg:grid-layout hidden !gap-y-4">
       <div className="grid-layout col-span-full !px-0">
@@ -82,7 +97,7 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
 
       <div className="relative col-span-full">
         <div className="grid-rows-auto group grid grid-cols-6 gap-3 xl:grid-cols-8">
-          {brands.map((brand) => (
+          {filteredBrands.map((brand) => (
             <motion.a
               className="aspect-[202/110] text-brand-w1 focus-visible:!ring-offset-0 [&>svg]:w-16 sm:[&>svg]:w-auto"
               href={brand.website ?? ""}
