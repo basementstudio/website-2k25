@@ -91,7 +91,7 @@ const WebbyPage = () => {
             <div className="absolute -left-px -top-px h-[60px] w-[60px] border-l border-t border-brand-o"></div>
             <div className="absolute -bottom-px -right-px h-[60px] w-[60px] border-b border-r border-brand-o"></div>
 
-            <div className="relative mb-8 aspect-video w-full overflow-hidden">
+            <div className="relative z-10 mb-8 aspect-video w-full overflow-hidden">
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black/80 to-zinc-900 transition-transform duration-500 group-hover:scale-[1.03]">
                 <div className="relative h-full w-full opacity-90 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100">
                   <Image
@@ -102,11 +102,6 @@ const WebbyPage = () => {
                     priority
                   />
                 </div>
-              </div>
-              <div className="absolute left-4 top-4 z-10 rounded-full bg-brand-o/80 px-3 py-1 backdrop-blur-sm">
-                <span className="text-xs font-medium">
-                  Best Visual Design - Aesthetic
-                </span>
               </div>
             </div>
 
@@ -135,7 +130,7 @@ const WebbyPage = () => {
             <div className="absolute -left-px -top-px h-[60px] w-[60px] border-l border-t border-brand-o"></div>
             <div className="absolute -bottom-px -right-px h-[60px] w-[60px] border-b border-r border-brand-o"></div>
 
-            <div className="relative mb-8 aspect-video w-full overflow-hidden">
+            <div className="relative z-10 mb-8 aspect-video w-full overflow-hidden">
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black/80 to-zinc-900 transition-transform duration-500 group-hover:scale-[1.03]">
                 <div className="relative h-full w-full opacity-90 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100">
                   <Image
@@ -146,9 +141,6 @@ const WebbyPage = () => {
                     priority
                   />
                 </div>
-              </div>
-              <div className="absolute left-4 top-4 z-10 rounded-full bg-brand-o/80 px-3 py-1 backdrop-blur-sm">
-                <span className="text-xs font-medium">Events</span>
               </div>
             </div>
 
