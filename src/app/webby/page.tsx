@@ -22,7 +22,7 @@ const VoteButton = ({
 
 const WebbyPage = () => {
   return (
-    <div className="relative flex flex-col gap-18 lg:gap-24">
+    <div className="relative flex flex-col gap-18 py-6 lg:gap-24">
       {/* Background decorative element */}
       <div className="pointer-events-none absolute left-0 top-0 -z-10 h-full w-full overflow-hidden">
         <div className="absolute -right-[40%] top-0 h-[800px] w-[800px] rounded-full bg-brand-o/5 blur-[180px]"></div>
@@ -30,7 +30,7 @@ const WebbyPage = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="grid-layout pt-6 md:pt-6">
+      <section className="grid-layout">
         <div className="col-span-full flex flex-col items-start lg:col-span-11">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
