@@ -10,6 +10,7 @@ import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
+import { Clock } from "@/components/clock"
 import { Godrays } from "@/components/godrays"
 import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
@@ -266,6 +267,7 @@ export const Map = memo(() => {
       {/*Services */}
       <Weather />
       <OutdoorCars />
+      <Clock />
 
       {/* Basketball */}
       {useMesh.getState().basketball.hoop && (
