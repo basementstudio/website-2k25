@@ -22,13 +22,7 @@ const VoteButton = ({
 
 const WebbyPage = () => {
   return (
-    <div className="relative flex flex-col gap-18 pb-4 pt-[calc(36px+1rem)] lg:gap-24">
-      {/* Background decorative element */}
-      <div className="pointer-events-none absolute left-0 top-0 -z-10 h-full w-full overflow-hidden">
-        <div className="absolute -right-[40%] top-0 h-[800px] w-[800px] rounded-full bg-brand-o/5 blur-[180px]"></div>
-        <div className="absolute -left-[30%] bottom-[10%] h-[600px] w-[600px] rounded-full bg-brand-o/5 blur-[150px]"></div>
-      </div>
-
+    <div className="relative flex flex-col gap-14 pb-4 pt-[calc(36px+1rem)]">
       {/* Hero Section */}
       <section className="grid-layout">
         <div className="col-span-full flex flex-col items-start lg:col-span-11">
