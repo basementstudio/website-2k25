@@ -14,7 +14,7 @@ const VoteButton = ({
   <Link
     href={href}
     target="_blank"
-    className="flex items-center justify-center border border-brand-w1 px-6 py-2 text-brand-w1 transition-all hover:border-brand-o hover:bg-brand-o hover:text-brand-k"
+    className="relative z-10 flex items-center justify-center border border-brand-w1 px-6 py-2 text-brand-w1 transition-all hover:border-brand-o hover:bg-brand-o hover:text-brand-k"
   >
     <span>Vote Now</span>
   </Link>
