@@ -2,7 +2,6 @@
 
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
-import { Perf } from "r3f-perf"
 import { Suspense, useEffect, useRef, useState } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import * as THREE from "three"
@@ -26,6 +25,7 @@ import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
 import { BasketballErrorFallback } from "../basketball/error-boundary"
+import { PerfMonitor } from "../perf"
 
 const HoopMinigame = dynamic(
   () =>
@@ -170,7 +170,7 @@ export const Scene = () => {
             <Renderer
               sceneChildren={
                 <>
-                  <Perf logsPerSecond={10} />
+                  <PerfMonitor />
                   <Suspense fallback={null}>
                     <Inspectables />
                   </Suspense>
