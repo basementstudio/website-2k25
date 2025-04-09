@@ -1,51 +1,49 @@
 import { useAnimationFrame } from "motion/react"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 
-const FILTER_STRENGTH = 20
+const TWO_MINUTES_MS = 120 * 1000
 
 const useAverageFPS = () => {
-  const [fps, setFPS] = useState<number>(0)
-  const [fpsHistory, setFPSHistory] = useState<number[]>([])
-  const frameTimeRef = useRef<number>(0)
-  const lastLoopRef = useRef<Date>(new Date())
-  const thisLoopRef = useRef<Date>(new Date())
+  const [currentFPS, setCurrentFPS] = useState<number>(0)
+  const fpsHistoryRef = useRef<Array<{ timestamp: number; fps: number }>>([])
+  const lastFrameTimeRef = useRef<number>(performance.now())
 
-  // Calculate FPS using a low-pass filter
   const calculateFPS = () => {
-    thisLoopRef.current = new Date()
-    const thisFrameTime =
-      thisLoopRef.current.getTime() - lastLoopRef.current.getTime()
-    frameTimeRef.current +=
-      (thisFrameTime - frameTimeRef.current) / FILTER_STRENGTH
-    lastLoopRef.current = thisLoopRef.current
+    const now = performance.now()
 
-    const currentFPS = 1000 / frameTimeRef.current
-    setFPS(Math.round(currentFPS))
-    return currentFPS
+    const delta = now - lastFrameTimeRef.current
+    lastFrameTimeRef.current = now
+
+    const fps = 1000 / delta
+    setCurrentFPS(Math.round(fps))
+
+    fpsHistoryRef.current.push({ timestamp: now, fps })
+
+    const cutoffTime = now - TWO_MINUTES_MS
+    while (
+      fpsHistoryRef.current.length &&
+      fpsHistoryRef.current[0].timestamp < cutoffTime
+    ) {
+      fpsHistoryRef.current.shift()
+    }
   }
 
   useAnimationFrame(() => {
     calculateFPS()
   })
 
-  useEffect(() => {
-    // Update FPS history every second
-    const historyInterval = setInterval(() => {
-      setFPSHistory((prev) => {
-        const newHistory = [...prev, fps]
-        // Keep only last 10 readings
-        return newHistory.slice(-10)
-      })
-    }, 1000)
-
-    return () => {
-      clearInterval(historyInterval)
-    }
-  }, [fps])
+  // Calculate the average FPS from the history
+  const averageFPS =
+    fpsHistoryRef.current.length === 0
+      ? 0
+      : Math.round(
+          fpsHistoryRef.current.reduce((sum, sample) => sum + sample.fps, 0) /
+            fpsHistoryRef.current.length
+        )
 
   return {
-    currentFPS: fps,
-    fpsHistory
+    currentFPS,
+    averageFPS
   }
 }
 

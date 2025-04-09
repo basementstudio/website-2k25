@@ -3,13 +3,11 @@
 import useAverageFPS from "@/hooks/use-average-fps"
 
 const Test = () => {
-  const { fpsHistory, currentFPS } = useAverageFPS()
+  const { currentFPS, averageFPS } = useAverageFPS()
+
   return (
-    <div>
-      Test {currentFPS}
-      {fpsHistory.map((fps) => (
-        <div key={fps}>{fps}</div>
-      ))}
+    <div className="fixed bottom-0 right-0 z-50">
+      Test {currentFPS} {averageFPS}
     </div>
   )
 }

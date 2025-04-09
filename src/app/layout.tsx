@@ -19,6 +19,8 @@ import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
 import { cn } from "@/utils/cn"
 
+import Test from "./(pages)/(home)/test"
+
 export const metadata: Metadata = {
   title: {
     template: "%s | basement.studio",
@@ -87,7 +89,10 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
               <HtmlTunnelOut />
               <Navbar />
               <NavigationHandler />
-              <ContentWrapper>{children}</ContentWrapper>
+              <ContentWrapper>
+                <Test />
+                {children}
+              </ContentWrapper>
               <AppHooks assets={assets} />
               <Contact />
             </body>

@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
+import Test from "@/app/(pages)/(home)/test"
 import ErrorBoundary from "@/components/basketball/error-boundary"
 import { CameraController } from "@/components/camera/camera-controller"
 import { CharacterInstanceConfig } from "@/components/characters/character-instancer"
