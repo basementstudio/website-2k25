@@ -10,7 +10,7 @@ const VoteButton = ({ href }: { href: string }) => (
     target="_blank"
     className="relative z-10 flex items-center justify-center border border-brand-w1 px-6 py-2 text-brand-w1 transition-all hover:border-brand-o hover:bg-brand-o hover:text-brand-k"
   >
-    <span>Vote Now</span>
+    <span>Votar Ahora</span>
   </Link>
 )
 
@@ -26,8 +26,8 @@ const WebbyPage = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mb-8 text-pretty text-f-h1-mobile text-brand-w1 lg:text-[5.4375rem] lg:leading-[4.875rem]"
           >
-            Help basement Win <br />
-            <span className="text-brand-o">Two Webby Awards</span>
+            Ayuda a basement a Ganar <br />
+            <span className="text-brand-o">Dos Premios Webby</span>
           </motion.h1>
 
           <motion.div
@@ -37,9 +37,9 @@ const WebbyPage = () => {
             className="w-full lg:w-[60%]"
           >
             <p className="text-balance text-f-h4-mobile text-brand-w1 lg:text-f-h4">
-              We're thrilled to be recognized with two nominations at the
-              prestigious Webby Awards. Your vote helps us bring home the
-              People's Voice award.
+              Estamos encantados de ser reconocidos con dos nominaciones en los
+              prestigiosos Premios Webby. Tu voto nos ayuda a llevarnos el
+              premio People's Voice.
             </p>
           </motion.div>
 
@@ -50,12 +50,12 @@ const WebbyPage = () => {
             className="mt-6 w-full lg:w-[60%]"
           >
             <h3 className="mb-2 text-f-h4-mobile font-semibold lg:text-f-h4">
-              Steps to Vote:
+              Pasos para Votar:
             </h3>
             <ol className="list-decimal space-y-1 pl-6 text-blog text-brand-w1 lg:text-blog">
-              <li className="">Click on a category</li>
-              <li className="">Connect your gmail account</li>
-              <li className="">Vote for basement.studio projects</li>
+              <li className="">Haz clic en una categoría</li>
+              <li className="">Conecta tu cuenta de Gmail</li>
+              <li className="">Vota por los proyectos de basement.studio</li>
             </ol>
           </motion.div>
         </div>
