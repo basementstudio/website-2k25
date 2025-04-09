@@ -26,17 +26,6 @@ const WebbyPage = () => {
       {/* Hero Section */}
       <section className="grid-layout">
         <div className="col-span-full flex flex-col items-start lg:col-span-11">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-6 inline-block rounded-full border border-white/20 bg-white/10 px-4 py-1 backdrop-blur-sm"
-          >
-            <span className="text-sm font-medium text-white/90">
-              People's Voice Awards 2024
-            </span>
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -50,18 +39,6 @@ const WebbyPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-8 flex items-center gap-3"
-          >
-            <span className="h-2 w-2 animate-pulse rounded-full bg-brand-o"></span>
-            <p className="text-lg font-medium text-brand-o">
-              Voting is now open
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="w-full lg:w-[60%]"
           >
@@ -70,6 +47,22 @@ const WebbyPage = () => {
               prestigious Webby Awards. Your vote helps us bring home the
               People's Voice award.
             </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mt-6 w-full lg:w-[60%]"
+          >
+            <h3 className="mb-2 text-f-h4-mobile font-semibold lg:text-f-h4">
+              Steps to Vote:
+            </h3>
+            <ol className="list-decimal space-y-1 pl-6 text-blog text-brand-w1 lg:text-blog">
+              <li className="">Click on a category</li>
+              <li className="">Connect your gmail account</li>
+              <li className="">Vote for basement.studio projects</li>
+            </ol>
           </motion.div>
         </div>
       </section>
