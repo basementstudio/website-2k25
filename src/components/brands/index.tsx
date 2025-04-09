@@ -61,6 +61,7 @@ interface BrandsDesktopProps {
 export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
   const isLargeDesktop = useMedia("(min-width: 1280px)")
+  const isDesktop = useMedia("(min-width: 1024px)")
 
   const debouncedHoveredBrandId = useDebounceValue(
     hoveredBrandId,
@@ -86,6 +87,8 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
       return brands.slice(0, count)
     }
   }, [brands, isLargeDesktop])
+
+  if (isDesktop === false) return null
 
   return (
     <section className="lg:grid-layout hidden !gap-y-4">
