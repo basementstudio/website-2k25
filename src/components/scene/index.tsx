@@ -25,7 +25,7 @@ import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
-import { BasketballErrorFallback } from "../basketball/error-boundary"
+import { ErrorFallback } from "../basketball/error-boundary"
 
 const HoopMinigame = dynamic(
   () =>
@@ -188,7 +188,7 @@ export const Scene = () => {
                   </Suspense>
                   {isBasketball && (
                     <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary fallbackRender={BasketballErrorFallback}>
+                      <ErrorBoundary fallbackRender={ErrorFallback}>
                         <HoopMinigame />
                       </ErrorBoundary>
                     </PhysicsWorld>

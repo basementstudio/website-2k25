@@ -1,6 +1,14 @@
-import { useEffect } from "react"
+import React, { Component, ErrorInfo, ReactNode, useEffect } from "react"
 
-export const BasketballErrorFallback = () => {
+interface Props {
+  children: ReactNode
+}
+
+interface State {
+  hasError: boolean
+}
+
+export const ErrorFallback = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       window.location.reload()
