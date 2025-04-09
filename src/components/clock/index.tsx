@@ -102,6 +102,7 @@ export const Clock = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hovered])
 
   if (!clock) return null
@@ -116,8 +117,7 @@ export const Clock = () => {
         onPointerLeave={() => setHovered(false)}
       >
         <boxGeometry args={[1, 1, 1]} />
-        {/* <MeshDiscardMaterial /> */}
-        <meshBasicMaterial color="red" transparent opacity={0.5} />
+        <MeshDiscardMaterial />
       </mesh>
     </group>
   )
