@@ -72,7 +72,7 @@ const WebbyPage = () => {
             className="w-full lg:w-[60%]"
           >
             <p className="text-balance text-f-h4-mobile text-brand-w1 lg:text-f-h4">
-              We're thrilled to be recognized with three nominations at the
+              We're thrilled to be recognized with two nominations at the
               prestigious Webby Awards. Your vote helps us bring home the
               People's Voice award.
             </p>
