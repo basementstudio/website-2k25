@@ -2,16 +2,11 @@
 
 import { motion } from "motion/react"
 import Image from "next/image"
-import Link from "next/link"
 
-const VoteButton = ({ href }: { href: string }) => (
-  <Link
-    href={href}
-    target="_blank"
-    className="relative z-10 flex items-center justify-center border border-brand-w1 px-6 py-2 text-brand-w1 transition-all hover:border-brand-o hover:bg-brand-o hover:text-brand-k"
-  >
+const VoteButton = () => (
+  <div className="relative z-10 flex items-center justify-center border border-brand-w1 px-6 py-2 text-brand-w1 transition-all hover:border-brand-o hover:bg-brand-o hover:text-brand-k">
     <span>Vote Now</span>
-  </Link>
+  </div>
 )
 
 const WebbyPage = () => {
@@ -65,14 +60,13 @@ const WebbyPage = () => {
       <section className="grid-layout">
         <div className="col-span-full grid grid-cols-1 gap-8 md:grid-cols-2">
           {/* First Award */}
-          <motion.div
+          <motion.a
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
             className="corner-borders with-diagonal-lines group relative flex cursor-pointer flex-col overflow-hidden bg-brand-k p-6 md:p-8"
-            onClick={() => {
-              window.open("https://bsmnt.link/WEBBY-1", "_blank")
-            }}
+            href="https://bsmnt.link/WEBBY-1"
+            target="_blank"
           >
             {/* Decorative corner */}
             <div className="absolute -left-px -top-px h-[60px] w-[60px] border-l border-t border-brand-o"></div>
@@ -99,19 +93,18 @@ const WebbyPage = () => {
             </div>
 
             <div className="mt-6">
-              <VoteButton href="https://bsmnt.link/WEBBY-1" />
+              <VoteButton />
             </div>
-          </motion.div>
+          </motion.a>
 
           {/* Second Award */}
-          <motion.div
+          <motion.a
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.5 }}
             className="corner-borders with-diagonal-lines group relative flex cursor-pointer flex-col overflow-hidden bg-brand-k p-6 md:p-8"
-            onClick={() => {
-              window.open("https://bsmnt.link/WEBBY-3", "_blank")
-            }}
+            href="https://bsmnt.link/WEBBY-3"
+            target="_blank"
           >
             {/* Decorative corner */}
             <div className="absolute -left-px -top-px h-[60px] w-[60px] border-l border-t border-brand-o"></div>
@@ -138,9 +131,9 @@ const WebbyPage = () => {
             </div>
 
             <div className="mt-6">
-              <VoteButton href="https://bsmnt.link/WEBBY-3" />
+              <VoteButton />
             </div>
-          </motion.div>
+          </motion.a>
         </div>
       </section>
     </div>
