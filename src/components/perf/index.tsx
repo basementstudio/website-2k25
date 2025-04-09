@@ -38,6 +38,7 @@ export const PerfMonitor = () => {
       anchorY: "top",
       domElement: canvasContainer || document.body, // or other canvas rendering wrapper
       renderer: gl, // three js renderer instance you use for rendering
+      enabled: false,
       overClock: false,
       logsPerSecond: 5
     })
@@ -53,6 +54,8 @@ export const PerfMonitor = () => {
     if (debug) {
       perfRef.current.ui.wrapper.style.display = "block"
       perfInstance.logsPerSecond = 10
+      perfInstance.enabled = true
+      setPerf({ instance: perfInstance })
     }
 
     return () => {
@@ -63,6 +66,7 @@ export const PerfMonitor = () => {
   useFrameCallback(() => {
     if (!perfRef.current) return
     const perfInstance = perfRef.current
+    if (!perfInstance.enabled) return
 
     debouncedUpdatePerfStore(
       (state) => ({
