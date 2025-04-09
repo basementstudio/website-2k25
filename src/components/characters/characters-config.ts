@@ -102,15 +102,14 @@ export enum FaceMorphTargets {
 }
 
 export enum BodyMorphTargets {
-  Man = "man",
+  Man = "men",
   Woman = "woman"
 }
 
 export const characterConfigurations: Character[] = [
   {
     faceId: 0,
-    faceMorph: FaceMorphTargets.Jose,
-    bodyMorph: BodyMorphTargets.Man
+    faceMorph: FaceMorphTargets.Jose
   },
   {
     faceId: 1,
@@ -122,7 +121,6 @@ export const characterConfigurations: Character[] = [
   {
     faceId: 2,
     faceMorph: FaceMorphTargets.Flauta,
-    bodyMorph: BodyMorphTargets.Man,
     lensGeomtry: CharacterMeshes["flauta-glass"]
   },
   {
@@ -134,7 +132,6 @@ export const characterConfigurations: Character[] = [
   {
     faceId: 4,
     faceMorph: FaceMorphTargets.Facu,
-    bodyMorph: BodyMorphTargets.Man,
     lensGeomtry: CharacterMeshes["facu-glass"]
   },
   {
@@ -145,8 +142,7 @@ export const characterConfigurations: Character[] = [
   },
   {
     faceId: 6,
-    faceMorph: FaceMorphTargets.Lis,
-    bodyMorph: BodyMorphTargets.Man
+    faceMorph: FaceMorphTargets.Lis
   },
   {
     faceId: 7,
@@ -156,8 +152,7 @@ export const characterConfigurations: Character[] = [
   },
   {
     faceId: 8,
-    faceMorph: FaceMorphTargets.Nico,
-    bodyMorph: BodyMorphTargets.Man
+    faceMorph: FaceMorphTargets.Nico
   },
   {
     faceId: 9,
