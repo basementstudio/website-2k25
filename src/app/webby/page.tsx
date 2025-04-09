@@ -41,9 +41,9 @@ const WebbyPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-8 text-pretty text-f-h0-mobile text-brand-w1 lg:text-[5.4375rem] lg:leading-[4.875rem]"
+            className="mb-8 text-pretty text-f-h1-mobile text-brand-w1 lg:text-[5.4375rem] lg:leading-[4.875rem]"
           >
-            Help Basement Win <br className="hidden md:block" />
+            Help Basement Win <br />
             <span className="text-brand-o">Two Webby Awards</span>
           </motion.h1>
 
