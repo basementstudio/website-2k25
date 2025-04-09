@@ -22,7 +22,7 @@ const VoteButton = ({
 
 const WebbyPage = () => {
   return (
-    <div className="relative flex flex-col gap-18 py-6 lg:gap-24">
+    <div className="relative flex flex-col gap-18 pb-4 pt-[calc(36px+1rem)] lg:gap-24">
       {/* Background decorative element */}
       <div className="pointer-events-none absolute left-0 top-0 -z-10 h-full w-full overflow-hidden">
         <div className="absolute -right-[40%] top-0 h-[800px] w-[800px] rounded-full bg-brand-o/5 blur-[180px]"></div>
