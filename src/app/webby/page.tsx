@@ -4,13 +4,7 @@ import { motion } from "motion/react"
 import Image from "next/image"
 import Link from "next/link"
 
-const VoteButton = ({
-  href,
-  className
-}: {
-  href: string
-  className?: string
-}) => (
+const VoteButton = ({ href }: { href: string }) => (
   <Link
     href={href}
     target="_blank"
