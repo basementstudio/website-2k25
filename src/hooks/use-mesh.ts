@@ -24,6 +24,10 @@ interface basketball {
   net: Mesh | null
 }
 
+interface services {
+  clock: Mesh | null
+}
+
 export interface MeshStore {
   godrays: Mesh[]
   inspectables: Mesh[]
@@ -31,6 +35,7 @@ export interface MeshStore {
   arcade: arcade
   basketball: basketball
   weather: weather
+  services: services
   cars: (Mesh | null)[]
   cctv: { screen: Mesh | null }
 }
@@ -56,6 +61,9 @@ export const useMesh = create<MeshStore>()(() => ({
   weather: {
     rain: null,
     loboMarino: null
+  },
+  services: {
+    clock: null
   },
   cars: [],
   cctv: {
