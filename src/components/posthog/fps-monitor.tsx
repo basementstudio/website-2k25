@@ -11,9 +11,9 @@ const SAMPLE_DURATION = 20000
 const FPS_THRESHOLD = 40
 
 const FPSMonitor = memo(() => {
-  const [sampleTaken, setSampleTaken] = useState(false)
+  const [stopMonitoring, setStopMonitoring] = useState(false)
   const { currentFPS, averageFPS, timestamp } = useFPSMonitor({
-    enabled: !sampleTaken
+    enabled: !stopMonitoring
   })
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
   const fpsHistory = useRef<{
@@ -23,16 +23,20 @@ const FPSMonitor = memo(() => {
   const debouncedCurrentFPS = useDebounceValue(currentFPS, 30)
 
   useEffect(() => {
+    // If the user has already dropped FPS, or the app is not ready, don't sample
     if (hasDroppedFPS || !canRunMainApp) return
+
+    // If the average FPS is below the threshold, set the state to true
     if (averageFPS < FPS_THRESHOLD) {
       setHasDroppedFPS(true)
     }
   }, [averageFPS, canRunMainApp, hasDroppedFPS])
 
   useEffect(() => {
-    if (!hasDroppedFPS || sampleTaken || !canRunMainApp) return
+    if (!hasDroppedFPS || stopMonitoring || !canRunMainApp) return
 
     console.log("sampling started")
+    // If the current FPS is above 0, add the sample to the history
     if (debouncedCurrentFPS > 0) {
       fpsHistory.current[(timestamp / 1000).toFixed(2)] = {
         fps: debouncedCurrentFPS,
@@ -41,16 +45,18 @@ const FPSMonitor = memo(() => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasDroppedFPS, sampleTaken, canRunMainApp, debouncedCurrentFPS])
+  }, [hasDroppedFPS, stopMonitoring, canRunMainApp, debouncedCurrentFPS])
 
   useEffect(() => {
-    if (!hasDroppedFPS || !canRunMainApp) return
-    setTimeout(() => {
-      setSampleTaken(true)
+    if (!hasDroppedFPS || !canRunMainApp || stopMonitoring) return
+    const timeout = setTimeout(() => {
+      setStopMonitoring(true)
       posthog.capture("User FPS Drop", { sample: fpsHistory.current })
       console.log("sample sent")
     }, SAMPLE_DURATION)
-  }, [canRunMainApp, hasDroppedFPS])
+
+    return () => clearTimeout(timeout)
+  }, [canRunMainApp, hasDroppedFPS, stopMonitoring])
 
   return null
 })
