@@ -32,6 +32,7 @@ const FPSMonitor = memo(() => {
   useEffect(() => {
     if (!hasDroppedFPS || sampleTaken || !canRunMainApp) return
 
+    console.log("sampling started")
     if (debouncedCurrentFPS > 0) {
       fpsHistory.current[(timestamp / 1000).toFixed(2)] = {
         fps: debouncedCurrentFPS,
@@ -47,6 +48,7 @@ const FPSMonitor = memo(() => {
     setTimeout(() => {
       setSampleTaken(true)
       posthog.capture("user_fps", fpsHistory.current)
+      console.log("sample sent")
     }, SAMPLE_DURATION)
   }, [canRunMainApp, hasDroppedFPS])
 
