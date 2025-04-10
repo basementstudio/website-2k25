@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import posthog from "posthog-js"
 import { memo, useEffect, useRef, useState } from "react"
 
@@ -13,9 +14,11 @@ const FPS_THRESHOLD = 40
 type FPSSample = {
   fps: number
   scrollY: number
+  pathname: string
 }
 
 const FPSMonitor = memo(() => {
+  const pathname = usePathname()
   const [stopMonitoring, setStopMonitoring] = useState(false)
   const { currentFPS, averageFPS, timestamp } = useFPSMonitor({
     enabled: !stopMonitoring
@@ -45,7 +48,8 @@ const FPSMonitor = memo(() => {
     if (debouncedCurrentFPS > 0) {
       fpsHistory.current[(timestamp / 1000).toFixed(2)] = {
         fps: debouncedCurrentFPS,
-        scrollY: window.scrollY
+        scrollY: window.scrollY,
+        pathname
       }
     }
 
