@@ -10,6 +10,11 @@ import useFPSMonitor from "@/hooks/use-fps-monitor"
 const SAMPLE_DURATION = 20000
 const FPS_THRESHOLD = 40
 
+type FPSSample = {
+  fps: number
+  scrollY: number
+}
+
 const FPSMonitor = memo(() => {
   const [stopMonitoring, setStopMonitoring] = useState(false)
   const { currentFPS, averageFPS, timestamp } = useFPSMonitor({
@@ -17,7 +22,7 @@ const FPSMonitor = memo(() => {
   })
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
   const fpsHistory = useRef<{
-    [key: string]: { fps: number; scrollY: number }
+    [key: string]: FPSSample
   }>({})
   const [hasDroppedFPS, setHasDroppedFPS] = useState(false)
   const debouncedCurrentFPS = useDebounceValue(currentFPS, 30)
@@ -51,7 +56,17 @@ const FPSMonitor = memo(() => {
     if (!hasDroppedFPS || !canRunMainApp || stopMonitoring) return
     const timeout = setTimeout(() => {
       setStopMonitoring(true)
-      posthog.capture("User FPS Drop", { sample: fpsHistory.current })
+
+      // order fpsHistory by timestamp
+      const orderedFPSHistory = Object.keys(fpsHistory.current)
+        .sort()
+        .reduce((obj: Record<string, FPSSample>, key) => {
+          obj[key] = fpsHistory.current[key]
+          return obj
+        }, {})
+
+      // send the sample to posthog
+      posthog.capture("User FPS Drop", { sample: orderedFPSHistory })
       console.log("sample sent")
     }, SAMPLE_DURATION)
 
