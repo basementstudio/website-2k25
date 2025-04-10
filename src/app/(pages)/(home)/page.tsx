@@ -7,7 +7,6 @@ import { Brands } from "./brands"
 import { Capabilities } from "./capabilities"
 import { FeaturedProjects } from "./featured-projects"
 import { Intro } from "./intro"
-import Test from "./test"
 
 export const metadata: Metadata = {
   title: {

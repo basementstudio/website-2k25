@@ -5,6 +5,8 @@ import posthog from "posthog-js"
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react"
 import { Suspense, useEffect } from "react"
 
+import FPSMonitor from "./fps-monitor"
+
 const isPostHogEnabled = process.env.NEXT_PUBLIC_POSTHOG_ENABLED === "true"
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
@@ -30,6 +32,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   return (
     <PHProvider client={posthog}>
       <SuspendedPostHogPageView />
+      <FPSMonitor />
       {children}
     </PHProvider>
   )

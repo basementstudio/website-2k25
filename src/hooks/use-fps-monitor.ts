@@ -8,13 +8,22 @@ type UseFPSMonitorOptions = {
   slowAlpha?: number
   /** If the difference between fast and slow exceeds this threshold, the fast average is used */
   instabilityThreshold?: number
+  /** Whether to enable the FPS monitor */
+  enabled?: boolean
+}
+
+type FPSMonitorResult = {
+  currentFPS: number
+  averageFPS: number
+  timestamp: number
 }
 
 const useFPSMonitor = ({
   fastAlpha = 0.2,
   slowAlpha = 0.05,
-  instabilityThreshold = 5 // fps difference threshold
-}: UseFPSMonitorOptions = {}) => {
+  instabilityThreshold = 5, // fps difference threshold
+  enabled = true
+}: UseFPSMonitorOptions = {}): FPSMonitorResult => {
   const [currentFPS, setCurrentFPS] = useState<number>(0)
   const [averageFPS, setAverageFPS] = useState<number>(0)
 
@@ -27,6 +36,8 @@ const useFPSMonitor = ({
   const initializedRef = useRef<boolean>(false)
 
   useAnimationFrame(() => {
+    if (!enabled) return
+
     const now = performance.now()
     const delta = now - lastFrameTimeRef.current
     lastFrameTimeRef.current = now
@@ -58,7 +69,11 @@ const useFPSMonitor = ({
     setAverageFPS(Math.round(effectiveAverage))
   })
 
-  return { currentFPS, averageFPS }
+  return {
+    currentFPS,
+    averageFPS,
+    timestamp: lastFrameTimeRef.current
+  }
 }
 
 export default useFPSMonitor
