@@ -18,8 +18,9 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       api_host: "/ingest",
       ui_host: "https://us.posthog.com",
       person_profiles: "always",
-      capture_pageview: false, // We capture pageviews manually
-      capture_pageleave: true // Enable pageleave capture
+      capture_pageview: false, // We capture pageviews manually on posthog-provider
+      capture_pageleave: true, // Enable pageleave capture
+      autocapture: false
     })
 
     // Load the toolbar if it exists

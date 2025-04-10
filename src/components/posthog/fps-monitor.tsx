@@ -47,7 +47,7 @@ const FPSMonitor = memo(() => {
     if (!hasDroppedFPS || !canRunMainApp) return
     setTimeout(() => {
       setSampleTaken(true)
-      posthog.capture("user_fps", fpsHistory.current)
+      posthog.capture("User FPS Drop", { sample: fpsHistory.current })
       console.log("sample sent")
     }, SAMPLE_DURATION)
   }, [canRunMainApp, hasDroppedFPS])
