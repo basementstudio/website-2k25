@@ -55,7 +55,8 @@ export const Clock = () => {
 
       dateRef.current = { h: hours, m: minutes, s: seconds }
 
-      hour.rotation.y = -((hours % 12) * 30 + minutes * 0.5 * (Math.PI / 180))
+      hour.rotation.y =
+        -((hours % 12) * Math.PI * 2) / 12 - minutes * 0.5 * (Math.PI / 180)
       minute.rotation.y = -(minutes * 6 * (Math.PI / 180))
       second.rotation.y = -(seconds * 6 * (Math.PI / 180))
     }
