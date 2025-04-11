@@ -5,6 +5,8 @@ import posthog from "posthog-js"
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react"
 import { Suspense, useEffect } from "react"
 
+import FPSMonitor from "./fps-monitor"
+
 const isPostHogEnabled = process.env.NEXT_PUBLIC_POSTHOG_ENABLED === "true"
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
@@ -16,8 +18,9 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       api_host: "/ingest",
       ui_host: "https://us.posthog.com",
       person_profiles: "always",
-      capture_pageview: false, // We capture pageviews manually
-      capture_pageleave: true // Enable pageleave capture
+      capture_pageview: false, // We capture pageviews manually on posthog-provider
+      capture_pageleave: true, // Enable pageleave capture
+      autocapture: false
     })
 
     // Load the toolbar if it exists
@@ -30,6 +33,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   return (
     <PHProvider client={posthog}>
       <SuspendedPostHogPageView />
+      <FPSMonitor />
       {children}
     </PHProvider>
   )
