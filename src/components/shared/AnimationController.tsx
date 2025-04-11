@@ -14,6 +14,7 @@ import {
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useGlobalFrameLoop } from "@/hooks/use-pausable-time"
+import { getPerf } from "@/hooks/use-perf"
 
 // Context for sharing animation time
 interface AnimationContext {
@@ -56,6 +57,7 @@ function AnimationControllerImpl({
   pauseOnTabChange = true
 }: AnimationControllerProps) {
   const { invalidate } = useThree()
+  const { instance: perfMonitorInstance } = getPerf()
 
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
   const [isScrollPaused, setIsScrollPaused] = useState(false)
@@ -128,13 +130,17 @@ function AnimationControllerImpl({
       timeValuesRef.current.time = time
       timeValuesRef.current.delta = delta
 
+      perfMonitorInstance?.begin()
+
       // Emit a render
       invalidate()
+
+      perfMonitorInstance?.end()
 
       // Here you could also run other global updates
       // that depend on animation time
     },
-    [isPaused, frameSkip, invalidate]
+    [isPaused, frameSkip, perfMonitorInstance, invalidate]
   )
 
   // Use Motion's useAnimationFrame as our single RAF
