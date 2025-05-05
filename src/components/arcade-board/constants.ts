@@ -18,7 +18,7 @@ export const STICK_ANIMATION: ValueAnimationTransition = {
   restDelta: 0
 }
 
-export const EXPECTED_SEQUENCE = [3, 3, 4, 4, 2, 1, 2, 1, "B", "A"]
+export const KONAMI_CODE_SEQUENCE = [3, 3, 4, 4, 2, 1, 2, 1, "B", "A"]
 
 export const KEY_DIRECTION_MAP = {
   ArrowUp: 3,
