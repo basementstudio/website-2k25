@@ -10,22 +10,35 @@ import { ImageFragment } from "@/service/basehub/fragments"
 import { BaseCodeBlock } from "./components/code-block"
 import { CodeGroupHeader } from "./components/code-block-header"
 
-export const BlogImage = ({ src, alt, width, height }: HandlerProps<"img">) => {
+export const BlogImage = ({
+  src,
+  alt,
+  width,
+  height,
+  caption
+}: HandlerProps<"img">) => {
   if (!src) return null
 
   return (
-    <div
-      className="image relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20"
-      style={{ aspectRatio: width ? `${width}/${height}` : "16/9" }}
-    >
-      <div className="with-dots grid h-full w-full place-items-center">
-        <Image
-          src={src}
-          fill
-          className="object-cover"
-          alt={alt ?? "Blog image"}
-        />
+    <div className="flex w-full flex-col gap-y-2">
+      <div
+        className="image relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20"
+        style={{ aspectRatio: width ? `${width}/${height}` : "16/9" }}
+      >
+        <div className="with-dots grid h-full w-full place-items-center">
+          <Image
+            src={src}
+            fill
+            className="object-cover"
+            alt={alt ?? "Blog image"}
+          />
+        </div>
       </div>
+      {caption && (
+        <p className="text-f-p-mobile text-brand-w1/50 lg:text-f-p">
+          {caption}
+        </p>
+      )}
     </div>
   )
 }
