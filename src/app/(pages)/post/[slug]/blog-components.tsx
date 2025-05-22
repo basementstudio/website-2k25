@@ -43,11 +43,19 @@ export const BlogImage = ({
   )
 }
 
-export const BlogVideo = (props: HandlerProps<"video">) => (
-  <div className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
-    <div className="with-dots grid h-full w-full place-items-center">
-      <Video autoPlay loop muted {...props} className="object-cover" />
+export const BlogVideo = ({
+  caption,
+  ...props
+}: HandlerProps<"video"> & { caption?: string }) => (
+  <div className="flex w-full flex-col gap-y-2">
+    <div className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
+      <div className="with-dots grid h-full w-full place-items-center">
+        <Video autoPlay loop muted {...props} className="object-cover" />
+      </div>
     </div>
+    {caption && (
+      <p className="text-f-p-mobile text-brand-w1/50 lg:text-f-p">{caption}</p>
+    )}
   </div>
 )
 
