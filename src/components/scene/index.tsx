@@ -3,9 +3,9 @@
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import * as THREE from "three"
 
-import ErrorBoundary from "@/components/basketball/error-boundary"
 import { CameraController } from "@/components/camera/camera-controller"
 import { CharacterInstanceConfig } from "@/components/characters/character-instancer"
 import { CharactersSpawn } from "@/components/characters/characters-spawn"
@@ -23,6 +23,9 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
+
+import { BasketballErrorFallback } from "../basketball/error-boundary"
+import { PerfMonitor } from "../perf"
 
 const HoopMinigame = dynamic(
   () =>
@@ -167,6 +170,7 @@ export const Scene = () => {
             <Renderer
               sceneChildren={
                 <>
+                  <PerfMonitor />
                   <Suspense fallback={null}>
                     <Inspectables />
                   </Suspense>
@@ -184,7 +188,7 @@ export const Scene = () => {
                   </Suspense>
                   {isBasketball && (
                     <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary>
+                      <ErrorBoundary fallbackRender={BasketballErrorFallback}>
                         <HoopMinigame />
                       </ErrorBoundary>
                     </PhysicsWorld>
