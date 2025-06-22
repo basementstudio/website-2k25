@@ -65,7 +65,7 @@ const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
             }
           >
             <div
-              className="with-dots absolute inset-0 grid place-items-center px-2 py-4 [&>svg]:max-w-[100%] [&>svg]:max-h-[100%]"
+              className="with-dots absolute inset-0 grid place-items-center px-2 py-4 [&>svg]:max-h-[100%] [&>svg]:max-w-[100%]"
               dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
             />
           </div>

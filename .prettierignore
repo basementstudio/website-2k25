@@ -1,2 +1,3 @@
 **/*.frag
 **/*.vert
+public/basis-transcoder/basis_transcoder.js

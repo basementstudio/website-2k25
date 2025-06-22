@@ -19,12 +19,17 @@ float circleSdf(vec2 pos, vec2 center, float radius) {
   return length(pos - center) - radius;
 }
 
-float valueRemap(float value, float min, float max, float newMin, float newMax) {
+float valueRemap(
+  float value,
+  float min,
+  float max,
+  float newMin,
+  float newMax
+) {
   return newMin + (newMax - newMin) * (value - min) / (max - min);
 }
 
 const int gridSize = 3;
-
 
 // FLOW CHANNELS
 // r - depht of pointer
@@ -37,13 +42,29 @@ vec4 samplePrev(vec2 uv) {
   vec2 pixel = uv * resolution;
 
   vec4 samples[5];
-  
+
   // Sample center and neighboring pixels
   vec4 p00 = textureLod(uFeedbackTexture, uv, 0.0);
-  vec4 p10 = textureLod(uFeedbackTexture, uv + vec2(0.0, -1.0) / resolution, 0.0);
-  vec4 p01 = textureLod(uFeedbackTexture, uv + vec2(-1.0, 0.0) / resolution, 0.0);
-  vec4 p21 = textureLod(uFeedbackTexture, uv + vec2(1.0, 0.0) / resolution, 0.0);
-  vec4 p12 = textureLod(uFeedbackTexture, uv + vec2(0.0, 1.0) / resolution, 0.0);
+  vec4 p10 = textureLod(
+    uFeedbackTexture,
+    uv + vec2(0.0, -1.0) / resolution,
+    0.0
+  );
+  vec4 p01 = textureLod(
+    uFeedbackTexture,
+    uv + vec2(-1.0, 0.0) / resolution,
+    0.0
+  );
+  vec4 p21 = textureLod(
+    uFeedbackTexture,
+    uv + vec2(1.0, 0.0) / resolution,
+    0.0
+  );
+  vec4 p12 = textureLod(
+    uFeedbackTexture,
+    uv + vec2(0.0, 1.0) / resolution,
+    0.0
+  );
 
   samples[0] = p00;
   samples[1] = p10;
@@ -55,7 +76,7 @@ vec4 samplePrev(vec2 uv) {
   bool changed = false;
 
   for (int i = 1; i < 5; i++) {
-    if(samples[i].g < finalSample.g && samples[i].g < 1.) {
+    if (samples[i].g < finalSample.g && samples[i].g < 1.0) {
       finalSample = samples[i];
       changed = true;
     }
@@ -64,8 +85,8 @@ vec4 samplePrev(vec2 uv) {
 
   float noise = cnoise2(pixel);
 
-  if(finalSample.g > 2. + 1. * noise) {
-    finalSample.g = 1000.;
+  if (finalSample.g > 2.0 + 1.0 * noise) {
+    finalSample.g = 1000.0;
   }
 
   // Average the samples for a basic diffusion effect
@@ -74,22 +95,22 @@ vec4 samplePrev(vec2 uv) {
 
 void main() {
   if (uFrame < 3) {
-    fragColor = vec4(vec3(3., 100000., 0.), 1.0);
+    fragColor = vec4(vec3(3.0, 100000.0, 0.0), 1.0);
     return;
   }
 
   vec2 uv = vUv;
   vec2 p = vec2(0.5) - uv;
   p *= -2.0;
-  
+
   vec4 expandedSample = samplePrev(uv);
   vec3 color = expandedSample.rgb;
 
   float circle = circleSdf(p, uMousePosition, 0.01);
 
-  if(circle < 0. && uMouseMoving > 0.) {
+  if (circle < 0.0 && uMouseMoving > 0.0) {
     color.r = uMouseDepth;
-    color.g = 0.;
+    color.g = 0.0;
   }
 
   fragColor = vec4(color, 1.0);
