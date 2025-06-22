@@ -52,7 +52,7 @@ const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
           <div
             key={brand._id}
             className={cn(
-              "relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
+              "relative aspect-[202/110] min-h-[110px] after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
               absolute && "animate-fade-in-out opacity-0",
               !absolute && "animate-fade-out-in opacity-100"
             )}
@@ -65,7 +65,7 @@ const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
             }
           >
             <div
-              className="with-dots relative grid h-full w-full place-items-center px-2 py-4 [&>svg]:max-w-[100%]"
+              className="with-dots absolute inset-0 grid w-full place-items-center px-2 py-4 [&>svg]:max-w-[100%]"
               dangerouslySetInnerHTML={{ __html: brand.logo ?? "" }}
             />
           </div>
