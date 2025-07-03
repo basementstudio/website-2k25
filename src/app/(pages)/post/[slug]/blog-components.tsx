@@ -218,18 +218,10 @@ export const SideNote = ({ children }: SideNoteProps) => (
   </div>
 )
 
-interface GridGalleryProps {
-  caption?: string
-  images: {
-    items: {
-      image: ImageFragment
-    }[]
-  }
-}
-export const GridGallery = ({ caption, images }: GridGalleryProps) => (
+export const GridGallery = ({ caption, images }: any) => (
   <div className="flex w-full flex-col gap-y-2">
     <div className="grid grid-cols-2 gap-2">
-      {images.items.map((image) => (
+      {images.items.map((image: any) => (
         <div
           className="image relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20"
           style={{
