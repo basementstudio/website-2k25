@@ -217,3 +217,40 @@ export const SideNote = ({ children }: SideNoteProps) => (
     </div>
   </div>
 )
+
+interface GridGalleryProps {
+  caption?: string
+  images: {
+    items: {
+      image: ImageFragment
+    }[]
+  }
+}
+export const GridGallery = ({ caption, images }: GridGalleryProps) => (
+  <div className="flex w-full flex-col gap-y-2">
+    <div className="grid grid-cols-2 gap-2">
+      {images.items.map((image) => (
+        <div
+          className="image relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20"
+          style={{
+            aspectRatio: image.image.width
+              ? `${image.image.width}/${image.image.height}`
+              : "16/9"
+          }}
+        >
+          <div className="with-dots grid h-full w-full place-items-center">
+            <Image
+              src={image.image.url}
+              fill
+              className="object-cover"
+              alt={image.image.alt ?? "Blog image"}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+    {caption && (
+      <p className="text-f-p-mobile text-brand-w1/50 lg:text-f-p">{caption}</p>
+    )}
+  </div>
+)

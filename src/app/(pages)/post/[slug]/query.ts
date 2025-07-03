@@ -70,6 +70,18 @@ export const query = fragmentOn("Query", {
                     }
                   }
                 },
+                on_GridGalleryComponent: {
+                  __typename: true,
+                  _id: true,
+                  images: {
+                    items: {
+                      image: {
+                        on_BlockImage: IMAGE_FRAGMENT
+                      }
+                    }
+                  },
+                  caption: true
+                },
                 on_TweetComponent: {
                   __typename: true,
                   _id: true,
