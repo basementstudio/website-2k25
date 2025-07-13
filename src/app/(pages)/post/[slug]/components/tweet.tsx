@@ -11,24 +11,39 @@ interface CustomTweetProps {
 }
 
 export const CustomTweet = async ({ id }: CustomTweetProps) => {
-  const tweet = await getTweet(id)
-  const isRauchTweet = tweet?.user.id_str === RAUCHG_ID
+  const isValidTweetId = /^\d+$/.test(id)
 
-  return (
-    <div className="dark mx-auto grid w-full max-w-[500px] place-items-center">
-      <Tweet
-        id={id}
-        components={{
-          AvatarImg: (props) => (
-            <Image
-              src={isRauchTweet ? rauchg : props.src}
-              alt={props.alt}
-              width={props.width}
-              height={props.height}
-            />
-          )
-        }}
-      />
-    </div>
-  )
+  if (!isValidTweetId) return null
+
+  try {
+    const tweet = await getTweet(id)
+    const isRauchTweet = tweet?.user.id_str === RAUCHG_ID
+
+    return (
+      <div className="dark mx-auto grid w-full max-w-[500px] place-items-center">
+        <Tweet
+          id={id}
+          components={{
+            AvatarImg: (props) => (
+              <Image
+                src={isRauchTweet ? rauchg : props.src}
+                alt={props.alt}
+                width={props.width}
+                height={props.height}
+              />
+            )
+          }}
+        />
+      </div>
+    )
+  } catch (error) {
+    return (
+      <div className="dark mx-auto grid w-full max-w-[500px] place-items-center rounded-lg border border-brand-g2 bg-brand-k p-6 text-center">
+        <p className="text-brand-w2">Failed to load tweet: {id}</p>
+        <p className="mt-2 text-sm text-brand-g1">
+          The tweet may be private or no longer available
+        </p>
+      </div>
+    )
+  }
 }
