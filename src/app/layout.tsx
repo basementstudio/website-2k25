@@ -21,8 +21,8 @@ import { cn } from "@/utils/cn"
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | basement.studio",
-    default: "basement.studio | We make cool shit that performs."
+    template: "%s | XMCP",
+    default: "XMCP | We make cool shit that performs."
   },
   description:
     "A digital studio & branding powerhouse making cool shit that performs.",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     creator: "@basementstudio",
     site: "@basementstudio",
     card: "summary_large_image",
-    title: "basement.studio | We make cool shit that performs.",
+    title: "XMCP | We make cool shit that performs.",
     images: {
       url: "https://assets.basehub.com/dd0abb74/8e8a566714b78747cf8000eb4befc62e/twitter-image.png",
       width: 1200,
