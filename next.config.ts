@@ -179,6 +179,18 @@ const nextConfig: NextConfig = {
         source: "/blog/creating-daylight-the-devex",
         destination: "/post/creating-daylight-or-the-devex",
         permanent: true
+      },
+
+      // Webby
+      {
+        source: "/webby",
+        destination: "/",
+        permanent: true
+      },
+      {
+        source: "/webby/es",
+        destination: "/",
+        permanent: true
       }
     ]
   }

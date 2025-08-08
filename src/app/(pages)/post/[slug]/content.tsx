@@ -9,6 +9,7 @@ import {
   BlogVideo,
   Code,
   CodeBlock,
+  GridGallery,
   Heading2,
   Heading3,
   Intro,
@@ -112,6 +113,7 @@ export const Content = ({ data, slug }: ContentProps) => {
               SideNoteComponent: (props) => (
                 <SideNote>{props.content?.json.content}</SideNote>
               ),
+              GridGalleryComponent: (props) => <GridGallery {...props} />,
               TweetComponent: (props) => <CustomTweet id={props.tweetId} />
             }}
             blocks={post?.content?.json.blocks}

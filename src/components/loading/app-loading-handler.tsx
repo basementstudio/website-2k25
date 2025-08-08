@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
 
@@ -65,19 +66,28 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
 })
 
 export const AppLoadingHandler = () => {
+  const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
   const showLoadingCanvas = useAppLoadingStore(
     (state) => state.showLoadingCanvas
   )
+  const [removeLoadingNode, setRemoveLoadingNode] = useState(false)
 
-  const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
+  // This trick is to prevent the white flash that happens when webgl stops
+  useEffect(() => {
+    if (!showLoadingCanvas) {
+      setTimeout(() => {
+        setRemoveLoadingNode(true)
+      }, 10)
+    }
+  }, [showLoadingCanvas])
 
   if (!isCanvasInPage) {
     return null
   }
 
-  if (!showLoadingCanvas) {
+  if (removeLoadingNode) {
     return null
   }
 
-  return <LoadingCanvas />
+  return <LoadingCanvas hide={!showLoadingCanvas} />
 }

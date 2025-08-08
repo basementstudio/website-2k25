@@ -13,7 +13,7 @@ export const Contact = () => (
         Let&apos;s make an impact together.
       </p>
 
-      <div className="relative col-span-5 row-start-3 flex items-center text-f-h1-mobile text-brand-w1 lg:text-f-h1">
+      <div className="relative col-span-5 row-start-3 flex items-center text-[2rem] text-f-h1-mobile text-brand-w1 lg:text-f-h1">
         <Link href="mailto:hello@basement.studio" target="_blank">
           <span className="actionable">hello@basement.studio</span>
         </Link>

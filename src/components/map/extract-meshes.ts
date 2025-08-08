@@ -45,6 +45,8 @@ export const extractMeshes = ({
   // --- Weather --- //
 
   const loboMarino = officeItems.getObjectByName("SM_Lobo") as Mesh
+  loboMarino.visible = false
+
   const rain = office.getObjectByName("SM_Rain") as Mesh
   useMesh.setState({ weather: { loboMarino, rain } })
 

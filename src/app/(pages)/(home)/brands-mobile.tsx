@@ -52,7 +52,7 @@ const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
           <div
             key={brand._id}
             className={cn(
-              "relative h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20",
+              "relative aspect-square h-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 md:aspect-video lg:aspect-auto",
               absolute && "animate-fade-in-out opacity-0",
               !absolute && "animate-fade-out-in opacity-100"
             )}
