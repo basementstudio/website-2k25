@@ -155,7 +155,7 @@ var $ = require("jquery");
           function (a, b) { jQuery.fn[b] = function (d) { return d ? this.bind(b, d) : this.trigger(b) } })
 })();
 (function () {
-  this.Dosbox = (function () {
+  window.Dosbox = (function () {
     function Dosbox(options) {
       this.onload = options.onload;
       this.onrun = options.onrun;
@@ -259,7 +259,7 @@ var $ = require("jquery");
 }).call(this);
 
 (function () {
-  Dosbox.Module = (function () {
+  window.Dosbox.Module = (function () {
     function Module(options) {
       this.elCanvas = options.canvas;
       this.canvas = this.elCanvas[0];
