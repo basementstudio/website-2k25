@@ -299,6 +299,17 @@ void main() {
   }
   #endif
 
+  #ifdef IS_LOBO_MARINO
+  vec3 currentColor = gl_FragColor.rgb;
+  float fresnelFactor = pow(
+    1.0 - dot(normalizedViewDir, normalizedNormal),
+    1.0
+  );
+  vec3 col = mix(uColor, currentColor, 0.5);
+  col = mix(col, col * 4.0, fresnelFactor);
+  gl_FragColor.rgb = col;
+  #endif
+
   if (shouldFade) {
     gl_FragColor.rgb *= oneMinusFadeFactor;
   }

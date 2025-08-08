@@ -19,6 +19,7 @@ export const createGlobalShaderMaterial = (
     MATCAP?: boolean
     CLOUDS?: boolean
     DAYLIGHT?: boolean
+    IS_LOBO_MARINO?: boolean
   }
 ) => {
   const {
@@ -115,6 +116,10 @@ export const createGlobalShaderMaterial = (
       MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
       VIDEO: defines?.VIDEO !== undefined ? Boolean(defines?.VIDEO) : false,
       CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false,
+      IS_LOBO_MARINO:
+        defines?.IS_LOBO_MARINO !== undefined
+          ? Boolean(defines?.IS_LOBO_MARINO)
+          : false,
       DAYLIGHT:
         defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false
     },
