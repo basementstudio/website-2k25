@@ -313,6 +313,53 @@ input:-webkit-autofill:active {
     width: 100% !important;
     height: 100% !important;
   }
+
+  .st-loader {
+    /* display: none !important; */
+    transform: scale(0.5) !important;
+    color: #ff4d00 !important;
+    border-color: #ff4d00 !important;
+    & * {
+      color: #ff4d00 !important;
+      border-color: #ff4d00 !important;
+    }
+    &:before,
+    &:after {
+      color: #ff4d00 !important;
+      border-color: #ff4d00 !important;
+    }
+    &:before {
+      transform: translate(-30px, 0);
+    }
+    &:after {
+      transform: translate(30px, 0);
+    }
+  }
+
+  .dosbox-loader-message {
+    margin: 0 !important;
+    color: #ff4d00 !important;
+    @apply hidden font-mono;
+    &:before {
+      content: "[BSMNT-DOS]";
+    }
+  }
+
+  .dosbox-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:before {
+      position: relative;
+      transform: translate(0, -40px);
+      content: "Loading BSMNT-DOS";
+      color: #ff4d00 !important;
+      @apply font-mono text-2xl;
+
+      position: absolute;
+    }
+  }
 }
 
 #dosbox:after {

@@ -40,13 +40,16 @@ export const checkDoomCodeSequence = ({
 }
 
 export function DoomJs() {
-  const [gameActive, setGameActive] = useState(false)
   const sequence = useRef<string[]>([])
   const scenes: IScene[] = useAssets().scenes
 
   console.log(scenes)
 
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
+
+  const currentScene = useNavigationStore((state) => state.currentScene)
+
+  const gameActive = currentScene?.name === "doom"
 
   useEffect(() => {
     const handleButtonPress = (event: KeyboardEvent) => {
@@ -55,7 +58,6 @@ export function DoomJs() {
       checkDoomCodeSequence({
         sequence: sequence.current,
         setGameActive: () => {
-          setGameActive(true)
           setCurrentScene(scenes.find((scene) => scene.name === "doom")!)
         }
       })
@@ -66,15 +68,21 @@ export function DoomJs() {
     return () => {
       window.removeEventListener("keydown", handleButtonPress as EventListener)
     }
-  }, [setGameActive, setCurrentScene, scenes])
+  }, [setCurrentScene, scenes])
 
   return (
     <Html
       transform
       position={[8.154, 1.236, -13.9]}
       scale={[0.033, 0.033, 0.033]}
+      style={{
+        pointerEvents: "none"
+      }}
+      wrapperClass="[&_*]:!pointer-events-none"
     >
-      <div className="h-[550px] w-[710px]">{gameActive && <DoomMemo />}</div>
+      <div className="pointer-events-none h-[550px] w-[710px]">
+        {gameActive && <DoomMemo />}
+      </div>
     </Html>
   )
 }
