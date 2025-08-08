@@ -4,7 +4,7 @@ import { useMesh } from "@/hooks/use-mesh"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { Button } from "./button"
-import { checkSequence } from "./check-sequence"
+import { checkKonamiSequence } from "./check-sequence"
 import { CoffeeSteam } from "./coffee-steam"
 import { Stick } from "./stick"
 
@@ -24,7 +24,7 @@ export const ArcadeBoard = () => {
         buttonName = "B"
 
       sequence.current.push(buttonName)
-      checkSequence({ sequence: sequence.current, setIsInGame })
+      checkKonamiSequence({ sequence: sequence.current, setIsInGame })
     }
 
     window.addEventListener("buttonPressed", handleButtonPress as EventListener)

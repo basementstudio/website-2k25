@@ -11,7 +11,7 @@ import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useArcadeStore } from "@/store/arcade-store"
 
-import { checkSequence } from "./check-sequence"
+import { checkKonamiSequence } from "./check-sequence"
 import {
   BOARD_ANGLE,
   KEY_DIRECTION_MAP,
@@ -183,7 +183,7 @@ export const Stick = ({ stick, sequence }: StickProps) => {
 
       if (direction !== 0) {
         sequence.current.push(direction)
-        checkSequence({ sequence: sequence.current, setIsInGame })
+        checkKonamiSequence({ sequence: sequence.current, setIsInGame })
       }
 
       handleStickSound(direction === 0)
