@@ -1,7 +1,11 @@
 import { Html } from "@react-three/drei"
 import { track } from "@vercel/analytics"
 import posthog from "posthog-js"
-import { useEffect, useRef, useState } from "react"
+import { memo, useEffect, useRef, useState } from "react"
+
+import { useAssets } from "../assets-provider/index"
+import { IScene } from "../navigation-handler/navigation.interface"
+import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 declare global {
   interface Window {
@@ -38,12 +42,23 @@ export const checkDoomCodeSequence = ({
 export function DoomJs() {
   const [gameActive, setGameActive] = useState(false)
   const sequence = useRef<string[]>([])
+  const scenes: IScene[] = useAssets().scenes
+
+  console.log(scenes)
+
+  const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
 
   useEffect(() => {
     const handleButtonPress = (event: KeyboardEvent) => {
       const key = event.key.toUpperCase()
       sequence.current.push(key)
-      checkDoomCodeSequence({ sequence: sequence.current, setGameActive })
+      checkDoomCodeSequence({
+        sequence: sequence.current,
+        setGameActive: () => {
+          setGameActive(true)
+          setCurrentScene(scenes.find((scene) => scene.name === "doom")!)
+        }
+      })
     }
 
     window.addEventListener("keydown", handleButtonPress as EventListener)
@@ -51,7 +66,7 @@ export function DoomJs() {
     return () => {
       window.removeEventListener("keydown", handleButtonPress as EventListener)
     }
-  }, [setGameActive])
+  }, [setGameActive, setCurrentScene, scenes])
 
   return (
     <Html
@@ -59,10 +74,12 @@ export function DoomJs() {
       position={[8.154, 1.236, -13.9]}
       scale={[0.033, 0.033, 0.033]}
     >
-      <div className="h-[550px] w-[710px]">{gameActive && <DoomGame />}</div>
+      <div className="h-[550px] w-[710px]">{gameActive && <DoomMemo />}</div>
     </Html>
   )
 }
+
+const DoomMemo = memo(DoomGame)
 
 function DoomGame() {
   const dosboxRef = useRef<HTMLDivElement>(null)
