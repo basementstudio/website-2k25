@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "basehub dev & next dev",
+    "dev": "basehub dev & next dev --experimental-https",
     "build": "basehub && next build",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "prettier": "prettier --write .",
@@ -26,6 +26,7 @@
     "@react-three/rapier": "^1.5.0",
     "@react-three/uikit": "^0.8.4",
     "@react-three/uikit-default": "^0.8.4",
+    "@react-three/xr": "^6.6.22",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.0",
     "@use-gesture/react": "^10.3.1",

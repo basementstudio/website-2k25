@@ -22,6 +22,7 @@ import { WebGlTunnelOut } from "@/components/tunnel"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
+import { createXRStore, XR, XROrigin } from "@react-three/xr"
 import { cn } from "@/utils/cn"
 
 const HoopMinigame = dynamic(
@@ -48,6 +49,8 @@ const PhysicsWorld = dynamic(
     }),
   { ssr: false }
 )
+
+const store = createXRStore()
 
 export const Scene = () => {
   const { setIsCanvasTabMode, currentScene } = useNavigationStore()
@@ -162,44 +165,41 @@ export const Scene = () => {
             isTouchOnly && !isBasketball && "!pointer-events-none"
           )}
         >
-          <AnimationController>
-            <UpdateCanvasCursor />
-            <Renderer
-              sceneChildren={
-                <>
-                  <Suspense fallback={null}>
-                    <Inspectables />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Map />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <WebGlTunnelOut />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <CameraController />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Sparkles />
-                  </Suspense>
-                  {isBasketball && (
-                    <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary>
-                        <HoopMinigame />
-                      </ErrorBoundary>
-                    </PhysicsWorld>
-                  )}
-                  <Suspense fallback={null}>
-                    <CharacterInstanceConfig />
-                    <CharactersSpawn />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Pets />
-                  </Suspense>
-                </>
-              }
-            />
-          </AnimationController>
+          <XR store={store}>
+            <AnimationController>
+              <UpdateCanvasCursor />
+              <XROrigin position={currentScene?.cameraConfig.position} />
+              <Suspense fallback={null}>
+                <Inspectables />
+              </Suspense>
+              <Suspense fallback={null}>
+                <Map />
+              </Suspense>
+              <Suspense fallback={null}>
+                <WebGlTunnelOut />
+              </Suspense>
+              <Suspense fallback={null}>
+                <CameraController />
+              </Suspense>
+              <Suspense fallback={null}>
+                <Sparkles />
+              </Suspense>
+              {isBasketball && (
+                <PhysicsWorld paused={!isBasketball}>
+                  <ErrorBoundary>
+                    <HoopMinigame />
+                  </ErrorBoundary>
+                </PhysicsWorld>
+              )}
+              <Suspense fallback={null}>
+                <CharacterInstanceConfig />
+                <CharactersSpawn />
+              </Suspense>
+              <Suspense fallback={null}>
+                <Pets />
+              </Suspense>
+            </AnimationController>
+          </XR>
         </Canvas>
       </div>
     </>
