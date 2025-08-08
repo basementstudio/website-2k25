@@ -1,10 +1,10 @@
 import { Html } from "@react-three/drei"
 import { track } from "@vercel/analytics"
 import posthog from "posthog-js"
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, useEffect, useRef } from "react"
 
-import { useAssets } from "../assets-provider/index"
-import { IScene } from "../navigation-handler/navigation.interface"
+import { useHandleNavigation } from "@/hooks/use-handle-navigation"
+
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 
 declare global {
@@ -41,14 +41,13 @@ export const checkDoomCodeSequence = ({
 
 export function DoomJs() {
   const sequence = useRef<string[]>([])
-  const scenes: IScene[] = useAssets().scenes
-
-  const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
 
   const currentScene = useNavigationStore((state) => state.currentScene)
   const isCameraTransitioning = useNavigationStore(
     (state) => state.isCameraTransitioning
   )
+
+  const { handleNavigation } = useHandleNavigation()
 
   const gameActive = currentScene?.name === "doom" && !isCameraTransitioning
 
@@ -59,7 +58,7 @@ export function DoomJs() {
       checkDoomCodeSequence({
         sequence: sequence.current,
         setGameActive: () => {
-          setCurrentScene(scenes.find((scene) => scene.name === "doom")!)
+          handleNavigation("/doom")
         }
       })
     }
@@ -69,7 +68,7 @@ export function DoomJs() {
     return () => {
       window.removeEventListener("keydown", handleButtonPress as EventListener)
     }
-  }, [setCurrentScene, scenes])
+  }, [handleNavigation])
 
   return (
     <Html
