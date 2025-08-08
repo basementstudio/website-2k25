@@ -301,3 +301,16 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: #ff4d00;
   background: transparent;
 }
+
+#dosbox,
+.dosbox-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}

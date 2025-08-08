@@ -1,6 +1,5 @@
 import { Html } from "@react-three/drei"
 import { track } from "@vercel/analytics"
-import Script from "next/script"
 import posthog from "posthog-js"
 import { useEffect, useRef, useState } from "react"
 
@@ -37,7 +36,7 @@ export const checkDoomCodeSequence = ({
 }
 
 export function DoomJs() {
-  const [gameActive, setGameActive] = useState(true)
+  const [gameActive, setGameActive] = useState(false)
   const sequence = useRef<string[]>([])
 
   useEffect(() => {
@@ -60,9 +59,7 @@ export function DoomJs() {
       position={[8.154, 1.236, -13.9]}
       scale={[0.033, 0.033, 0.033]}
     >
-      <div className="h-[550px] w-[710px] bg-[red] text-white">
-        {gameActive && <DoomGame />}
-      </div>
+      <div className="h-[550px] w-[710px]">{gameActive && <DoomGame />}</div>
     </Html>
   )
 }
@@ -71,31 +68,43 @@ function DoomGame() {
   const dosboxRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Load JS-DOS API
-    const script = document.createElement("script")
-    script.src = "https://js-dos.com/cdn/js-dos-api.js"
-    script.async = true
-
-    script.onload = () => {
-      // Initialize DOSBox after the API is loaded
-      if (window.Dosbox && dosboxRef.current) {
-        const dosbox = new window.Dosbox({
-          id: "dosbox",
-          onload: function (dosbox: any) {
-            dosbox.run(
-              "https://js-dos.com/cdn/upload/DOOM-@evilution.zip",
-              "./DOOM/DOOM.EXE"
-            )
-          }
-        })
-      }
+    async function load() {
+      await import("./js-dos.js")
+      setTimeout(() => {
+        if (window.Dosbox && dosboxRef.current) {
+          new window.Dosbox({
+            id: "dosbox",
+            onload: function (dosbox: any) {
+              dosbox.run(
+                "https://js-dos.com/cdn/upload/DOOM-@evilution.zip",
+                "./DOOM/DOOM.EXE"
+              )
+            }
+          })
+        }
+      }, 300)
     }
 
-    document.body.appendChild(script)
+    load()
 
+    // Watch for the .dosbox-start button and click it automatically
+    const observer = new MutationObserver((mutations, obs) => {
+      const startButton = document.querySelector(".dosbox-start") as HTMLElement
+      if (startButton) {
+        startButton.click()
+        obs.disconnect() // Stop observing after clicking
+      }
+    })
+
+    // Start observing the document body for changes
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
+
+    // Cleanup
     return () => {
-      // Clean up
-      document.body.removeChild(script)
+      observer.disconnect()
     }
   }, [])
 
