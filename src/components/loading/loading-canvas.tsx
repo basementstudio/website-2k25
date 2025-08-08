@@ -16,7 +16,7 @@ const Fallback = dynamic(
   { ssr: false }
 )
 
-function LoadingCanvas() {
+function LoadingCanvas({ hide }: { hide: boolean }) {
   const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
 
   const { officeWireframe } = useAssets()
@@ -99,6 +99,7 @@ function LoadingCanvas() {
         "absolute inset-0",
         (scene === "basketball" || scene === "lab" || scene === "404") &&
           "inset-x-0 top-0 h-[100svh]",
+        hide && "hidden",
         !canRunMainApp && "bg-black"
       )}
     >
