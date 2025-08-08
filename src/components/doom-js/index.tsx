@@ -43,13 +43,14 @@ export function DoomJs() {
   const sequence = useRef<string[]>([])
   const scenes: IScene[] = useAssets().scenes
 
-  console.log(scenes)
-
   const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
 
   const currentScene = useNavigationStore((state) => state.currentScene)
+  const isCameraTransitioning = useNavigationStore(
+    (state) => state.isCameraTransitioning
+  )
 
-  const gameActive = currentScene?.name === "doom"
+  const gameActive = currentScene?.name === "doom" && !isCameraTransitioning
 
   useEffect(() => {
     const handleButtonPress = (event: KeyboardEvent) => {
