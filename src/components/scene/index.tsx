@@ -1,6 +1,7 @@
 "use client"
 
 import { Canvas } from "@react-three/fiber"
+import { createXRStore, XR, XROrigin } from "@react-three/xr"
 import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
@@ -22,7 +23,6 @@ import { WebGlTunnelOut } from "@/components/tunnel"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
-import { createXRStore, XR, XROrigin } from "@react-three/xr"
 import { cn } from "@/utils/cn"
 
 const HoopMinigame = dynamic(
