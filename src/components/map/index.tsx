@@ -296,8 +296,6 @@ export const Map = memo(() => {
           />
         )
       })}
-
-      <BakesLoader />
     </group>
   )
 })
