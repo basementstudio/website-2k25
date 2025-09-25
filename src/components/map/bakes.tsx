@@ -79,20 +79,20 @@ const useBakes = (): Record<string, Bake> => {
   //   withLightmap.map((bake) => bake.lightmap)
   // )
 
-  // const loadedAmbientOcclusion = useLoader(
-  //   TextureLoader,
-  //   withAmbientOcclusion.map((bake) => bake.ambientOcclusion)
-  // )
+  const loadedAmbientOcclusion = useLoader(
+    TextureLoader,
+    withAmbientOcclusion.map((bake) => bake.ambientOcclusion)
+  )
 
-  // const loadedMatcaps = useLoader(
-  //   TextureLoader,
-  //   matcaps.map((matcap) => matcap.file)
-  // )
+  const loadedMatcaps = useLoader(
+    TextureLoader,
+    matcaps.map((matcap) => matcap.file)
+  )
 
-  // const loadedReflexes = useLoader(
-  //   TextureLoader,
-  //   glassReflexes.map((reflex) => reflex.url)
-  // )
+  const loadedReflexes = useLoader(
+    TextureLoader,
+    glassReflexes.map((reflex) => reflex.url)
+  )
 
   const meshMaps = useMemo(() => {
     const maps: Record<string, Bake> = {}
@@ -113,56 +113,56 @@ const useBakes = (): Record<string, Bake> => {
     //   }
     // })
 
-    // loadedAmbientOcclusion.forEach((map, index) => {
-    //   const meshNames = withAmbientOcclusion[index].meshes
-    //   map.flipY = false
-    //   map.generateMipmaps = false
-    //   map.minFilter = NearestFilter
-    //   map.magFilter = NearestFilter
-    //   map.colorSpace = NoColorSpace
+    loadedAmbientOcclusion.forEach((map, index) => {
+      const meshNames = withAmbientOcclusion[index].meshes
+      map.flipY = false
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
+      map.magFilter = NearestFilter
+      map.colorSpace = NoColorSpace
 
-    //   for (const meshName of meshNames) {
-    //     if (!maps[meshName]) {
-    //       maps[meshName] = {}
-    //     }
-    //     maps[meshName].aomap = map
-    //   }
-    // })
+      for (const meshName of meshNames) {
+        if (!maps[meshName]) {
+          maps[meshName] = {}
+        }
+        maps[meshName].aomap = map
+      }
+    })
 
-    // loadedMatcaps.forEach((map, index) => {
-    //   map.flipY = false
-    //   map.generateMipmaps = false
-    //   map.minFilter = NearestFilter
-    //   map.magFilter = NearestFilter
-    //   map.colorSpace = NoColorSpace
-    //   if (!maps[matcaps[index].mesh]) {
-    //     maps[matcaps[index].mesh] = {}
-    //   }
-    //   maps[matcaps[index].mesh].matcap = {
-    //     texture: map,
-    //     isGlass: matcaps[index].isGlass
-    //   }
-    // })
+    loadedMatcaps.forEach((map, index) => {
+      map.flipY = false
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
+      map.magFilter = NearestFilter
+      map.colorSpace = NoColorSpace
+      if (!maps[matcaps[index].mesh]) {
+        maps[matcaps[index].mesh] = {}
+      }
+      maps[matcaps[index].mesh].matcap = {
+        texture: map,
+        isGlass: matcaps[index].isGlass
+      }
+    })
 
-    // loadedReflexes.forEach((map, index) => {
-    //   map.flipY = false
-    //   map.colorSpace = NoColorSpace
-    //   map.generateMipmaps = false
-    //   map.minFilter = NearestFilter
-    //   map.magFilter = NearestFilter
+    loadedReflexes.forEach((map, index) => {
+      map.flipY = false
+      map.colorSpace = NoColorSpace
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
+      map.magFilter = NearestFilter
 
-    //   const meshName = glassReflexes[index].mesh
-    //   if (!maps[meshName]) {
-    //     maps[meshName] = {}
-    //   }
-    //   maps[meshName].reflex = map
-    // })
+      const meshName = glassReflexes[index].mesh
+      if (!maps[meshName]) {
+        maps[meshName] = {}
+      }
+      maps[meshName].reflex = map
+    })
 
-    return
+    return maps
   }, [
-    loadedLightmaps,
+    // loadedLightmaps,
     loadedAmbientOcclusion,
-    withLightmap,
+    // withLightmap,
     withAmbientOcclusion,
     matcaps,
     loadedMatcaps,
@@ -170,7 +170,7 @@ const useBakes = (): Record<string, Bake> => {
     glassReflexes
   ])
 
-  return {}
+  return meshMaps
 }
 
 /** Attach a material to this array and it will change its uOpacity onLoad */
