@@ -97,21 +97,21 @@ const useBakes = (): Record<string, Bake> => {
   const meshMaps = useMemo(() => {
     const maps: Record<string, Bake> = {}
 
-    // loadedLightmaps.forEach((map, index) => {
-    //   const meshNames = withLightmap[index].meshes
-    //   map.flipY = true
-    //   map.generateMipmaps = false
-    //   map.minFilter = NearestFilter
-    //   map.magFilter = NearestFilter
-    //   map.colorSpace = NoColorSpace
+    loadedLightmaps.forEach((map, index) => {
+      const meshNames = withLightmap[index].meshes
+      map.flipY = true
+      map.generateMipmaps = false
+      map.minFilter = NearestFilter
+      map.magFilter = NearestFilter
+      map.colorSpace = NoColorSpace
 
-    //   for (const meshName of meshNames) {
-    //     if (!maps[meshName]) {
-    //       maps[meshName] = {}
-    //     }
-    //     maps[meshName].lightmap = map
-    //   }
-    // })
+      for (const meshName of meshNames) {
+        if (!maps[meshName]) {
+          maps[meshName] = {}
+        }
+        maps[meshName].lightmap = map
+      }
+    })
 
     loadedAmbientOcclusion.forEach((map, index) => {
       const meshNames = withAmbientOcclusion[index].meshes
@@ -160,9 +160,9 @@ const useBakes = (): Record<string, Bake> => {
 
     return maps
   }, [
-    // loadedLightmaps,
+    loadedLightmaps,
     loadedAmbientOcclusion,
-    // withLightmap,
+    withLightmap,
     withAmbientOcclusion,
     matcaps,
     loadedMatcaps,
