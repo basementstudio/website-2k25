@@ -100,16 +100,9 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
         (scene === "basketball" || scene === "lab" || scene === "404") &&
           "inset-x-0 top-0 h-[100svh]",
         hide && "hidden",
-        !canRunMainApp && "bg-black"
+        !canRunMainApp && "bg-white/25"
       )}
-    >
-      <OffscreenCanvas
-        worker={loadingCanvasWorker}
-        fallback={<Fallback />}
-        frameloop="always"
-        gl={{ antialias: true, alpha: true }}
-      />
-    </div>
+    ></div>
   )
 }
 
