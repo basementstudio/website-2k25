@@ -179,9 +179,9 @@ export const revealOpacityMaterials = new Set<
 >()
 
 const Bakes = () => {
-  const bakes = useBakes()
+  // const bakes = useBakes()
 
-  const scene = useThree((state) => state.scene)
+  // const scene = useThree((state) => state.scene)
 
   const setMainAppRunning = useAppLoadingStore(
     (state) => state.setMainAppRunning
@@ -191,44 +191,43 @@ const Bakes = () => {
 
   useEffect(() => {
     setCanRunMainApp(true)
-    const timeout = setTimeout(() => {
-      setMainAppRunning(true)
-    }, 10)
-    const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
+    setMainAppRunning(true)
 
-    return () => {
-      clearTimeout(timeout)
-      clearTimeout(timeout2)
-    }
-  }, [setMainAppRunning, setCanRunMainApp])
+    // const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
 
-  useEffect(() => {
-    const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
-      if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
-      if (maps.aomap) addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
-      if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
-      if (maps.matcap) {
-        addMatcap(
-          { mesh: mesh, texture: maps.matcap.texture },
-          maps.matcap.isGlass
-        )
-      }
-    }
-
-    Object.entries(bakes).forEach(([mesh, maps]) => {
-      const meshOrGroup = scene.getObjectByName(mesh)
-      if (!meshOrGroup) return
-
-      if (meshOrGroup instanceof Mesh) {
-        addMaps({ mesh: meshOrGroup, maps })
-      } else if (meshOrGroup instanceof Group) {
-        meshOrGroup.traverse((child) => {
-          if (child instanceof Mesh) addMaps({ mesh: child, maps })
-        })
-      }
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // return () => {
+    //   clearTimeout(timeout)
+    //   clearTimeout(timeout2)
+    // }
   }, [])
+
+  // useEffect(() => {
+  //   const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
+  //     if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
+  //     if (maps.aomap) addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
+  //     if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
+  //     if (maps.matcap) {
+  //       addMatcap(
+  //         { mesh: mesh, texture: maps.matcap.texture },
+  //         maps.matcap.isGlass
+  //       )
+  //     }
+  //   }
+
+  //   Object.entries(bakes).forEach(([mesh, maps]) => {
+  //     const meshOrGroup = scene.getObjectByName(mesh)
+  //     if (!meshOrGroup) return
+
+  //     if (meshOrGroup instanceof Mesh) {
+  //       addMaps({ mesh: meshOrGroup, maps })
+  //     } else if (meshOrGroup instanceof Group) {
+  //       meshOrGroup.traverse((child) => {
+  //         if (child instanceof Mesh) addMaps({ mesh: child, maps })
+  //       })
+  //     }
+  //   })
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
 
   return null
 }
