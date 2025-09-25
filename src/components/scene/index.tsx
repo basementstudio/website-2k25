@@ -5,11 +5,14 @@ import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { CameraController } from "@/components/camera/camera-controller"
+import { UpdateCanvasCursor } from "@/components/custom-cursor"
 import { Debug } from "@/components/debug"
+import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { AnimationController } from "@/components/shared/AnimationController"
+import { Sparkles } from "@/components/sparkles"
 import { WebGlTunnelOut } from "@/components/tunnel"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
@@ -130,9 +133,13 @@ export const Scene = () => {
           )}
         >
           <AnimationController>
+            <UpdateCanvasCursor />
             <Renderer
               sceneChildren={
                 <>
+                  <Suspense fallback={null}>
+                    <Inspectables />
+                  </Suspense>
                   <Suspense fallback={null}>
                     <Map />
                   </Suspense>
@@ -141,6 +148,9 @@ export const Scene = () => {
                   </Suspense>
                   <Suspense fallback={null}>
                     <CameraController />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <Sparkles />
                   </Suspense>
                 </>
               }
