@@ -74,25 +74,25 @@ const useBakes = (): Record<string, Bake> => {
     [bakes]
   )
 
-  const loadedLightmaps = useLoader(
-    EXRLoader,
-    withLightmap.map((bake) => bake.lightmap)
-  )
+  // const loadedLightmaps = useLoader(
+  //   EXRLoader,
+  //   withLightmap.map((bake) => bake.lightmap)
+  // )
 
-  const loadedAmbientOcclusion = useLoader(
-    TextureLoader,
-    withAmbientOcclusion.map((bake) => bake.ambientOcclusion)
-  )
+  // const loadedAmbientOcclusion = useLoader(
+  //   TextureLoader,
+  //   withAmbientOcclusion.map((bake) => bake.ambientOcclusion)
+  // )
 
-  const loadedMatcaps = useLoader(
-    TextureLoader,
-    matcaps.map((matcap) => matcap.file)
-  )
+  // const loadedMatcaps = useLoader(
+  //   TextureLoader,
+  //   matcaps.map((matcap) => matcap.file)
+  // )
 
-  const loadedReflexes = useLoader(
-    TextureLoader,
-    glassReflexes.map((reflex) => reflex.url)
-  )
+  // const loadedReflexes = useLoader(
+  //   TextureLoader,
+  //   glassReflexes.map((reflex) => reflex.url)
+  // )
 
   const meshMaps = useMemo(() => {
     const maps: Record<string, Bake> = {}
