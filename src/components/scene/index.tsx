@@ -5,7 +5,6 @@ import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
-import ErrorBoundary from "@/components/basketball/error-boundary"
 import { CameraController } from "@/components/camera/camera-controller"
 import { CharacterInstanceConfig } from "@/components/characters/character-instancer"
 import { CharactersSpawn } from "@/components/characters/characters-spawn"
@@ -23,31 +22,6 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
-
-const HoopMinigame = dynamic(
-  () =>
-    import("@/components/basketball/hoop-minigame").then(
-      (mod) => mod.HoopMinigame
-    ),
-  { ssr: false }
-)
-
-const PhysicsWorld = dynamic(
-  () =>
-    import("@react-three/rapier").then((mod) => {
-      const { Physics } = mod
-      return function PhysicsWrapper({
-        children,
-        paused
-      }: {
-        children: React.ReactNode
-        paused: boolean
-      }) {
-        return <Physics paused={paused}>{children}</Physics>
-      }
-    }),
-  { ssr: false }
-)
 
 export const Scene = () => {
   const { setIsCanvasTabMode, currentScene } = useNavigationStore()
@@ -182,13 +156,7 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Sparkles />
                   </Suspense>
-                  {isBasketball && (
-                    <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary>
-                        <HoopMinigame />
-                      </ErrorBoundary>
-                    </PhysicsWorld>
-                  )}
+
                   <Suspense fallback={null}>
                     <CharacterInstanceConfig />
                     <CharactersSpawn />
