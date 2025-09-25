@@ -97,68 +97,68 @@ const useBakes = (): Record<string, Bake> => {
   const meshMaps = useMemo(() => {
     const maps: Record<string, Bake> = {}
 
-    loadedLightmaps.forEach((map, index) => {
-      const meshNames = withLightmap[index].meshes
-      map.flipY = true
-      map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
-      map.colorSpace = NoColorSpace
+    // loadedLightmaps.forEach((map, index) => {
+    //   const meshNames = withLightmap[index].meshes
+    //   map.flipY = true
+    //   map.generateMipmaps = false
+    //   map.minFilter = NearestFilter
+    //   map.magFilter = NearestFilter
+    //   map.colorSpace = NoColorSpace
 
-      for (const meshName of meshNames) {
-        if (!maps[meshName]) {
-          maps[meshName] = {}
-        }
-        maps[meshName].lightmap = map
-      }
-    })
+    //   for (const meshName of meshNames) {
+    //     if (!maps[meshName]) {
+    //       maps[meshName] = {}
+    //     }
+    //     maps[meshName].lightmap = map
+    //   }
+    // })
 
-    loadedAmbientOcclusion.forEach((map, index) => {
-      const meshNames = withAmbientOcclusion[index].meshes
-      map.flipY = false
-      map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
-      map.colorSpace = NoColorSpace
+    // loadedAmbientOcclusion.forEach((map, index) => {
+    //   const meshNames = withAmbientOcclusion[index].meshes
+    //   map.flipY = false
+    //   map.generateMipmaps = false
+    //   map.minFilter = NearestFilter
+    //   map.magFilter = NearestFilter
+    //   map.colorSpace = NoColorSpace
 
-      for (const meshName of meshNames) {
-        if (!maps[meshName]) {
-          maps[meshName] = {}
-        }
-        maps[meshName].aomap = map
-      }
-    })
+    //   for (const meshName of meshNames) {
+    //     if (!maps[meshName]) {
+    //       maps[meshName] = {}
+    //     }
+    //     maps[meshName].aomap = map
+    //   }
+    // })
 
-    loadedMatcaps.forEach((map, index) => {
-      map.flipY = false
-      map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
-      map.colorSpace = NoColorSpace
-      if (!maps[matcaps[index].mesh]) {
-        maps[matcaps[index].mesh] = {}
-      }
-      maps[matcaps[index].mesh].matcap = {
-        texture: map,
-        isGlass: matcaps[index].isGlass
-      }
-    })
+    // loadedMatcaps.forEach((map, index) => {
+    //   map.flipY = false
+    //   map.generateMipmaps = false
+    //   map.minFilter = NearestFilter
+    //   map.magFilter = NearestFilter
+    //   map.colorSpace = NoColorSpace
+    //   if (!maps[matcaps[index].mesh]) {
+    //     maps[matcaps[index].mesh] = {}
+    //   }
+    //   maps[matcaps[index].mesh].matcap = {
+    //     texture: map,
+    //     isGlass: matcaps[index].isGlass
+    //   }
+    // })
 
-    loadedReflexes.forEach((map, index) => {
-      map.flipY = false
-      map.colorSpace = NoColorSpace
-      map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
+    // loadedReflexes.forEach((map, index) => {
+    //   map.flipY = false
+    //   map.colorSpace = NoColorSpace
+    //   map.generateMipmaps = false
+    //   map.minFilter = NearestFilter
+    //   map.magFilter = NearestFilter
 
-      const meshName = glassReflexes[index].mesh
-      if (!maps[meshName]) {
-        maps[meshName] = {}
-      }
-      maps[meshName].reflex = map
-    })
+    //   const meshName = glassReflexes[index].mesh
+    //   if (!maps[meshName]) {
+    //     maps[meshName] = {}
+    //   }
+    //   maps[meshName].reflex = map
+    // })
 
-    return maps
+    return
   }, [
     loadedLightmaps,
     loadedAmbientOcclusion,
@@ -170,7 +170,7 @@ const useBakes = (): Record<string, Bake> => {
     glassReflexes
   ])
 
-  return meshMaps
+  return {}
 }
 
 /** Attach a material to this array and it will change its uOpacity onLoad */
@@ -180,8 +180,6 @@ export const revealOpacityMaterials = new Set<
 
 const Bakes = () => {
   const bakes = useBakes()
-
-  console.log(bakes)
 
   const scene = useThree((state) => state.scene)
 
@@ -205,28 +203,31 @@ const Bakes = () => {
   }, [setMainAppRunning, setCanRunMainApp])
 
   useEffect(() => {
-    // const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
-    //   if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
-    //   if (maps.aomap) addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
-    //   if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
-    //   if (maps.matcap) {
-    //     addMatcap(
-    //       { mesh: mesh, texture: maps.matcap.texture },
-    //       maps.matcap.isGlass
-    //     )
-    //   }
-    // }
-    // Object.entries(bakes).forEach(([mesh, maps]) => {
-    //   const meshOrGroup = scene.getObjectByName(mesh)
-    //   if (!meshOrGroup) return
-    //   if (meshOrGroup instanceof Mesh) {
-    //     addMaps({ mesh: meshOrGroup, maps })
-    //   } else if (meshOrGroup instanceof Group) {
-    //     meshOrGroup.traverse((child) => {
-    //       if (child instanceof Mesh) addMaps({ mesh: child, maps })
-    //     })
-    //   }
-    // })
+    const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
+      if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
+      if (maps.aomap) addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
+      if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
+      if (maps.matcap) {
+        addMatcap(
+          { mesh: mesh, texture: maps.matcap.texture },
+          maps.matcap.isGlass
+        )
+      }
+    }
+
+    Object.entries(bakes).forEach(([mesh, maps]) => {
+      const meshOrGroup = scene.getObjectByName(mesh)
+      if (!meshOrGroup) return
+
+      if (meshOrGroup instanceof Mesh) {
+        addMaps({ mesh: meshOrGroup, maps })
+      } else if (meshOrGroup instanceof Group) {
+        meshOrGroup.traverse((child) => {
+          if (child instanceof Mesh) addMaps({ mesh: child, maps })
+        })
+      }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return null
