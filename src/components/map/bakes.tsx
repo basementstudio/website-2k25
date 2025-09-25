@@ -75,16 +75,16 @@ const useBakes = (): Record<string, Bake> => {
     [bakes]
   )
 
-  // const loadedLightmaps = useLoader(
-  //   EXRLoader,
-  //   withLightmap.map((bake) => bake.lightmap)
-  // )
-
-  const loadedLightmaps: DataTexture[] = useMemo(
-    () => [],
-
-    []
+  const loadedLightmaps = useLoader(
+    EXRLoader,
+    withLightmap.map((bake) => bake.lightmap)
   )
+
+  // const loadedLightmaps: DataTexture[] = useMemo(
+  //   () => [],
+
+  //   []
+  // )
 
   const loadedAmbientOcclusion = useLoader(
     TextureLoader,
