@@ -57,6 +57,7 @@
     "react-tweet": "^3.2.2",
     "tailwind-merge": "^2.5.4",
     "three": "^0.180.0",
+    "three-stdlib": "^2.36.0",
     "tunnel-rat": "^0.1.2",
     "typescript-eslint": "^8.27.0",
     "xss": "^1.0.15",
