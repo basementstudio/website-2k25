@@ -191,15 +191,16 @@ const Bakes = () => {
 
   useEffect(() => {
     setCanRunMainApp(true)
-    setMainAppRunning(true)
+    const timeout = setTimeout(() => {
+      setMainAppRunning(true)
+    }, 10)
+    const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
 
-    // const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
-
-    // return () => {
-    //   clearTimeout(timeout)
-    //   clearTimeout(timeout2)
-    // }
-  }, [])
+    return () => {
+      clearTimeout(timeout)
+      clearTimeout(timeout2)
+    }
+  }, [setMainAppRunning, setCanRunMainApp])
 
   // useEffect(() => {
   //   const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
