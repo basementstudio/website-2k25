@@ -1,19 +1,15 @@
 "use client"
 
 import { Canvas } from "@react-three/fiber"
-import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { CameraController } from "@/components/camera/camera-controller"
-import { CharacterInstanceConfig } from "@/components/characters/character-instancer"
-import { CharactersSpawn } from "@/components/characters/characters-spawn"
 import { UpdateCanvasCursor } from "@/components/custom-cursor"
 import { Debug } from "@/components/debug"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-import { Pets } from "@/components/pets"
 import { Renderer } from "@/components/postprocessing/renderer"
 import { AnimationController } from "@/components/shared/AnimationController"
 import { Sparkles } from "@/components/sparkles"
@@ -155,14 +151,6 @@ export const Scene = () => {
                   </Suspense>
                   <Suspense fallback={null}>
                     <Sparkles />
-                  </Suspense>
-
-                  <Suspense fallback={null}>
-                    <CharacterInstanceConfig />
-                    <CharactersSpawn />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Pets />
                   </Suspense>
                 </>
               }
