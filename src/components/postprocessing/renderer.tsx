@@ -78,7 +78,8 @@ function RendererInner({ sceneChildren }: RendererProps) {
   }, [mainTarget, screenWidth, screenHeight])
 
   useFrameCallback(({ gl }) => {
-    if (!mainCamera || !postProcessingCameraRef.current) return
+    if (!mainCamera || !postProcessingCameraRef.current || !canRunMainApp)
+      return
 
     // main render
     gl.outputColorSpace = LinearSRGBColorSpace
