@@ -6,6 +6,7 @@ import { memo, useEffect, useRef } from "react"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
+import { DosFn, DosProps } from "./js-dos.js"
 
 declare global {
   interface Window {
@@ -93,13 +94,20 @@ function DoomGame() {
   const dosboxRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    let dosInstance: DosProps | null = null
+    const controller = new AbortController()
+    const signal = controller.signal
+
     async function load() {
       await import("./js-dos.js")
       setTimeout(() => {
+        if (signal.aborted) return
         if (window.Dosbox && dosboxRef.current) {
-          new window.Dosbox({
+          window.dosInstance = new window.Dosbox({
             id: "dosbox",
             onload: function (dosbox: any) {
+              window.dosLoaded = dosbox
+              if (signal.aborted) return
               dosbox.run(
                 "https://js-dos.com/cdn/upload/DOOM-@evilution.zip",
                 "./DOOM/DOOM.EXE"
@@ -129,6 +137,9 @@ function DoomGame() {
 
     // Cleanup
     return () => {
+      controller.abort()
+      dosInstance?.stop()
+      dosInstance = null
       observer.disconnect()
     }
   }, [])
