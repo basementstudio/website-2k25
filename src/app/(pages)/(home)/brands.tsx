@@ -13,7 +13,7 @@ export type Brand = {
 
 export const Brands = ({ data }: { data: QueryType }) => {
   const brands =
-    data.company.clients?.clientList.items.filter((c) => c.logo) ?? []
+    data.company.clients?.clientList.items.filter((c: any) => c.logo) ?? []
 
   // Ensure we have a number of brands that's a multiple of 3 for the mobile grid
   const mobileBrands = [...brands]

@@ -78,12 +78,14 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
 
   const filteredBrands = useMemo(() => {
     if (isLargeDesktop) {
-      // Ensure we display a multiple of 8 brands
-      const count = Math.floor(brands.length / 8) * 8
+      const max = 32
+      const available = Math.min(brands.length, max)
+      const count = Math.floor(available / 8) * 8
       return brands.slice(0, count)
     } else {
-      // Ensure we display a multiple of 6 brands
-      const count = Math.floor(brands.length / 6) * 6
+      const max = 30
+      const available = Math.min(brands.length, max)
+      const count = Math.floor(available / 6) * 6
       return brands.slice(0, count)
     }
   }, [brands, isLargeDesktop])
