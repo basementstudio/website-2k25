@@ -110,11 +110,7 @@ function DoomGame() {
     if (ci) return
 
     import("emulators").then(async () => {
-      console.log("ready")
-
-      console.log((window.emulators.pathPrefix = "/emulators/"))
-
-      console.log(window.emulators)
+      window.emulators.pathPrefix = "/emulators/"
 
       // const bundle = await fetch("https://v8.js-dos.com/bundles/digger.jsdos");
       const bundle = await fetch("/dos-programs/doom.jsdos")
@@ -152,7 +148,6 @@ function DoomGame() {
     if (!ci) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log(e.keyCode, true)
       // Intercept space key (32) for left click
       // Remap into left click (fire)
       if (e.keyCode === 32) {
@@ -169,7 +164,6 @@ function DoomGame() {
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      console.log(e.keyCode, false)
       // Intercept space key (32) for left click release
       if (e.keyCode === 32) {
         e.preventDefault() // Prevent page scroll

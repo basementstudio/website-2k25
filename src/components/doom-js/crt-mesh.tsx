@@ -110,8 +110,14 @@ const fragmentShader = /*glsl*/ `
     
     // Clamp values
     color = clamp(color, 0.0, 1.0);
+
+    color = vec3(
+      pow(color.x, 1.5),
+      pow(color.y, 1.5),
+      pow(color.z, 1.5)
+    );
     
-    gl_FragColor = vec4(color * 2., 1.0);
+    gl_FragColor = vec4(color * 4., 1.0);
   }
 `
 
@@ -129,7 +135,7 @@ export function CRTMesh({ texture }: CRTMeshProps) {
       uTexture: { value: texture },
       uTime: { value: 0 },
       uResolution: { value: new Vector2(320, 200) },
-      uCurvature: { value: 0.2 },
+      uCurvature: { value: 0.3 },
       uScanlineIntensity: { value: 0.75 },
       uScanlineCount: { value: 200 },
       uVignette: { value: 0.3 },
