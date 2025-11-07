@@ -1,12 +1,14 @@
-import { Html } from "@react-three/drei"
 import { track } from "@vercel/analytics"
+import { CommandInterface, Emulators } from "emulators"
 import posthog from "posthog-js"
-import { memo, useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { CanvasTexture } from "three"
 
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
-import { DosFn, DosProps } from "./js-dos.js"
+import { CRTMesh } from "./crt-mesh"
+import { domToKeyCode } from "./key-maps"
 
 declare global {
   interface Window {
@@ -71,82 +73,125 @@ export function DoomJs() {
     }
   }, [handleNavigation])
 
-  return (
-    <Html
-      transform
-      position={[8.154, 1.236, -13.9]}
-      scale={[0.033, 0.033, 0.033]}
-      style={{
-        pointerEvents: "none"
-      }}
-      wrapperClass="[&_*]:!pointer-events-none"
-    >
-      <div className="pointer-events-none h-[550px] w-[710px]">
-        {gameActive && <DoomMemo />}
-      </div>
-    </Html>
-  )
+  return <group>{gameActive && <DoomGame />}</group>
 }
 
-const DoomMemo = memo(DoomGame)
+declare global {
+  interface Window {
+    emulators: Emulators
+  }
+}
 
 function DoomGame() {
-  const dosboxRef = useRef<HTMLDivElement>(null)
+  const virtualScreen = useMemo(() => {
+    const rgba = new Uint8ClampedArray(320 * 200 * 4)
 
-  useEffect(() => {
-    let dosInstance: DosProps | null = null
-    const controller = new AbortController()
-    const signal = controller.signal
+    const img = document.createElement("canvas")
+    img.width = 320
+    img.height = 200
 
-    async function load() {
-      await import("./js-dos.js")
-      setTimeout(() => {
-        if (signal.aborted) return
-        if (window.Dosbox && dosboxRef.current) {
-          window.dosInstance = new window.Dosbox({
-            id: "dosbox",
-            onload: function (dosbox: any) {
-              window.dosLoaded = dosbox
-              if (signal.aborted) return
-              dosbox.run(
-                "https://js-dos.com/cdn/upload/DOOM-@evilution.zip",
-                "./DOOM/DOOM.EXE"
-              )
-            }
-          })
-        }
-      }, 300)
-    }
+    const imageData = new ImageData(rgba, 320, 200)
 
-    load()
+    const ctx = img.getContext("2d")
+    const texture = new CanvasTexture(img)
 
-    // Watch for the .dosbox-start button and click it automatically
-    const observer = new MutationObserver((mutations, obs) => {
-      const startButton = document.querySelector(".dosbox-start") as HTMLElement
-      if (startButton) {
-        startButton.click()
-        obs.disconnect() // Stop observing after clicking
-      }
-    })
-
-    // Start observing the document body for changes
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    })
-
-    // Cleanup
-    return () => {
-      controller.abort()
-      dosInstance?.stop()
-      dosInstance = null
-      observer.disconnect()
+    return {
+      img,
+      ctx,
+      texture,
+      imageData,
+      rgba
     }
   }, [])
 
-  return (
-    <div className="absolute inset-0 left-0 top-0 h-full w-full">
-      <div id="dosbox" ref={dosboxRef}></div>
-    </div>
-  )
+  const [ci, setCi] = useState<CommandInterface | null>(null)
+
+  useEffect(() => {
+    if (ci) return
+
+    import("emulators").then(async () => {
+      console.log("ready")
+
+      console.log((window.emulators.pathPrefix = "/emulators/"))
+
+      console.log(window.emulators)
+
+      // const bundle = await fetch("https://v8.js-dos.com/bundles/digger.jsdos");
+      const bundle = await fetch("/dos-programs/doom.jsdos")
+
+      const ci = await window.emulators.dosboxWorker(
+        new Uint8Array(await bundle.arrayBuffer())
+      )
+
+      setCi(ci)
+    })
+  }, [ci])
+
+  useEffect(() => {
+    if (!ci) return
+
+    ci.events().onFrame((rgb) => {
+      if (!rgb) return
+      for (let next = 0; next < 320 * 200; ++next) {
+        virtualScreen.rgba[next * 4 + 0] = rgb[next * 3 + 0]
+        virtualScreen.rgba[next * 4 + 1] = rgb[next * 3 + 1]
+        virtualScreen.rgba[next * 4 + 2] = rgb[next * 3 + 2]
+        virtualScreen.rgba[next * 4 + 3] = 255
+      }
+
+      virtualScreen.imageData.data.set(virtualScreen.rgba)
+      virtualScreen.ctx?.putImageData(virtualScreen.imageData, 0, 0)
+
+      virtualScreen.texture.needsUpdate = true
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ci])
+
+  // Keyboard input handling
+  useEffect(() => {
+    if (!ci) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      console.log(e.keyCode, true)
+      // Intercept space key (32) for left click
+      // Remap into left click (fire)
+      if (e.keyCode === 32) {
+        e.preventDefault() // Prevent page scroll
+        ci.sendMouseButton(0, true) // 0 = left mouse button, true = pressed
+      } else if (e.keyCode === 69) {
+        // E key (69) for right click
+        // Remap into space key (special trigger)
+        e.preventDefault()
+        ci.sendKeyEvent(domToKeyCode(32, e.location), true)
+      } else {
+        ci.sendKeyEvent(domToKeyCode(e.keyCode, e.location), true)
+      }
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      console.log(e.keyCode, false)
+      // Intercept space key (32) for left click release
+      if (e.keyCode === 32) {
+        e.preventDefault() // Prevent page scroll
+        ci.sendMouseButton(0, false) // 0 = left mouse button, false = released
+      } else if (e.keyCode === 69) {
+        // E key (69) for right click release
+        // Remap into space key (special trigger)
+        e.preventDefault()
+        ci.sendKeyEvent(domToKeyCode(32, e.location), false)
+      } else {
+        ci.sendKeyEvent(domToKeyCode(e.keyCode, e.location), false)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keyup", handleKeyUp)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      window.removeEventListener("keyup", handleKeyUp)
+    }
+  }, [ci])
+
+  return <CRTMesh texture={virtualScreen.texture} />
 }
