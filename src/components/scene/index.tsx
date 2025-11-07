@@ -24,6 +24,8 @@ import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
+import { DoomJs } from "../doom-js"
+
 const HoopMinigame = dynamic(
   () =>
     import("@/components/basketball/hoop-minigame").then(
@@ -167,6 +169,7 @@ export const Scene = () => {
             <Renderer
               sceneChildren={
                 <>
+                  <DoomJs />
                   <Suspense fallback={null}>
                     <Inspectables />
                   </Suspense>
