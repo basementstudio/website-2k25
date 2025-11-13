@@ -15,6 +15,7 @@ import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
 import { Placeholder } from "@/components/primitives/placeholder"
 import useDebounceValue from "@/hooks/use-debounce-value"
+import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 
 import { QueryType } from "./query"
@@ -184,21 +185,26 @@ export const Crew = ({ data }: { data: QueryType }) => {
   )
 }
 
+interface DesktopFacesProps {
+  data: QueryType["company"]["people"]["peopleList"]["items"]
+  setHoveredPerson: (person: string | null) => void
+  hoveredPerson: string | null
+  heightRef: { list: number; faces: number }
+}
+
 export const DesktopFaces = ({
   data,
   setHoveredPerson,
   hoveredPerson,
   heightRef
-}: {
-  data: QueryType["company"]["people"]["peopleList"]["items"]
-  setHoveredPerson: (person: string | null) => void
-  hoveredPerson: string | null
-  heightRef: { list: number; faces: number }
-}) => {
+}: DesktopFacesProps) => {
+  const isXl = useMedia("(min-width: 1536px)")
+  const gridCols = isXl ? 8 : 6
+
   return (
     <div
       className={cn(
-        "crew-faces col-span-full hidden h-fit grid-cols-8 gap-2 pt-6 lg:col-start-5 lg:col-end-13 lg:grid",
+        "crew-faces col-span-full hidden h-fit grid-cols-6 gap-2 pt-6 lg:col-start-5 lg:col-end-13 lg:grid 2xl:grid-cols-8",
         { "sticky top-8": heightRef.list > heightRef.faces }
       )}
     >
@@ -211,18 +217,18 @@ export const DesktopFaces = ({
         />
       ))}
       <CrewFooter
-        spanStart={8 - (data.length % 8)}
-        spanEnd={8 - (data.length % 8)}
+        spanStart={gridCols - (data.length % gridCols)}
+        spanEnd={gridCols - (data.length % gridCols)}
       />
     </div>
   )
 }
 
-export const MobileFaces = ({
-  data
-}: {
+interface MobileFacesProps {
   data: Record<string, QueryType["company"]["people"]["peopleList"]["items"]>
-}) => (
+}
+
+export const MobileFaces = ({ data }: MobileFacesProps) => (
   <div className="col-span-full flex flex-col gap-4 py-6 lg:hidden">
     {Object.entries(data).map(([department, people]) => (
       <article key={department} className="flex flex-col gap-2">
@@ -246,7 +252,6 @@ export const MobileFaces = ({
             </div>
           ))}
 
-          {/* placeholder for empty columns */}
           <div
             className={cn(
               "relative h-full w-full border border-brand-w1/20 text-brand-w1/20",
