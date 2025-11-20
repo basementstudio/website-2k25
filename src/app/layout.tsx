@@ -48,7 +48,6 @@ export const metadata: Metadata = {
   }
 }
 
-// TODO: find a way to load font-feature-settings
 const geistSans = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans"
