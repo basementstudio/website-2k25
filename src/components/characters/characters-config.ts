@@ -36,7 +36,10 @@ export const SKINNED_MESH_KEYS = [
   "nat-hair",
   "Phone",
   "val-glass",
-  "val-hair"
+  "val-hair",
+  "stef-hair",
+  "mago-hair",
+  "maca-hair"
 ] as const
 
 export enum CharacterMeshes {
@@ -54,7 +57,10 @@ export enum CharacterMeshes {
   "nat-hair" = 11,
   "Phone" = 12,
   "val-glass" = 13,
-  "val-hair" = 14
+  "val-hair" = 14,
+  "stef-hair" = 15,
+  "mago-hair" = 16,
+  "maca-hair" = 17
 }
 
 export enum CharacterTextureIds {
@@ -69,7 +75,7 @@ export enum FaceMorphTargets {
   Jose = "Jose-v2",
   Facu = "Facu-v2",
   Nacho = "Nacho",
-  Mago = "Mago",
+  Mago = "Mago-v3",
   Alan = "Alan",
   Delfina = "Delfina-v2",
   Naza = "Naza",
@@ -84,20 +90,20 @@ export enum FaceMorphTargets {
   Cesar = "Cesar",
   Fede = "Fede",
   Franc = "Franc",
-  Franco = "Franco",
+  Franco = "Franco-v3",
   Kalu = "Kalu-v3",
   YoungNico = "YoungNico",
-  Stef = "Stef",
+  Stef = "Stef-v3",
   Val = "Val-v2",
   Kalil = "Kalil",
   Nico = "Nico-v3",
-  Vitto = "Vitto",
+  Vitto = "Vitto-v3",
   Lis = "Lis-v2",
-  MatiG = "MatiG",
+  MatiG = "MatiG-v3",
   Flauta = "Flauta-v2",
   JJ = "JJ-v2",
   Ani = "Ani",
-  Maca = "Maca",
+  Maca = "Maca-v3",
   Blink = "000Blink"
 }
 
@@ -159,6 +165,35 @@ export const characterConfigurations: Character[] = [
     faceMorph: FaceMorphTargets.Val,
     bodyMorph: BodyMorphTargets.Woman,
     hairGeometry: CharacterMeshes["val-hair"]
+  },
+  {
+    faceId: 10,
+    faceMorph: FaceMorphTargets.Franco
+  },
+  {
+    faceId: 11,
+    faceMorph: FaceMorphTargets.MatiG
+  },
+  {
+    faceId: 12,
+    faceMorph: FaceMorphTargets.Vitto
+  },
+  {
+    faceId: 13,
+    faceMorph: FaceMorphTargets.Stef,
+    bodyMorph: BodyMorphTargets.Woman,
+    hairGeometry: CharacterMeshes["stef-hair"]
+  },
+  {
+    faceId: 14,
+    faceMorph: FaceMorphTargets.Mago,
+    hairGeometry: CharacterMeshes["mago-hair"]
+  },
+  {
+    faceId: 15,
+    faceMorph: FaceMorphTargets.Maca,
+    bodyMorph: BodyMorphTargets.Woman,
+    hairGeometry: CharacterMeshes["maca-hair"]
   }
 ]
 
