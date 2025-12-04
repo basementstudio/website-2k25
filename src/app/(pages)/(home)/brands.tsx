@@ -1,6 +1,6 @@
 import { BrandsDesktop } from "@/components/brands"
 
-import { Scalars } from "../../../../.basehub/schema"
+import { Scalars } from "../../../../basehub-types"
 import { BrandsMobile } from "./brands-mobile"
 import type { QueryType } from "./query"
 
