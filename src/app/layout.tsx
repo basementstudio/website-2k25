@@ -65,7 +65,7 @@ const flauta = localFont({
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* <Analytics />
+      <Analytics />
       <SpeedInsights />
       <Transitions />
       <PostHogProvider>
@@ -88,7 +88,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
             </body>
           </InspectableProvider>
         </AssetsProviderServer>
-      </PostHogProvider> */}
+      </PostHogProvider>
     </html>
   )
 }
