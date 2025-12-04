@@ -9,8 +9,6 @@ interface ProjectPostProps {
   params: Promise<{ slug: string }>
 }
 
-export const dynamic = "force-static"
-
 export const generateMetadata = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
 
@@ -59,6 +57,7 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
           {
             pages: {
               showcase: {
+                // @ts-expect-error - TODO: fix this
                 projectList: {
                   __args: {
                     first: 1,
@@ -121,7 +120,7 @@ export const generateStaticParams = async () => {
         projectList: { items }
       }
     }
-  } = await client().query({
+  } = await basehub().query({
     pages: {
       showcase: {
         projectList: {

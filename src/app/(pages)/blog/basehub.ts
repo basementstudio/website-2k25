@@ -66,7 +66,7 @@ export const fetchPosts = async (category?: string) => {
 }
 
 export const fetchFeaturedPost = async () => {
-  const posts = await client().query({
+  const posts = await basehub().query({
     pages: {
       blog: {
         posts: {
@@ -84,7 +84,7 @@ export const fetchFeaturedPost = async () => {
 }
 
 export const fetchCategories = async () => {
-  const categories = await client().query({
+  const categories = await basehub().query({
     pages: {
       blog: {
         categories: {
@@ -101,7 +101,7 @@ export const fetchCategories = async () => {
 }
 
 export const fetchCategoriesNonEmpty = async () => {
-  const res = await client().query({
+  const res = await basehub().query({
     pages: {
       blog: {
         posts: {

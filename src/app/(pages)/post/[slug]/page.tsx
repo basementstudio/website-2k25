@@ -12,8 +12,6 @@ interface ProjectPostProps {
   params: Promise<{ slug: string }>
 }
 
-export const dynamic = "force-static"
-
 // TODO: Make this dynamic
 export const generateMetadata = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
@@ -83,7 +81,7 @@ const Blog = async ({ params }: ProjectPostProps) => {
 }
 
 export async function generateStaticParams() {
-  const data = await client().query({
+  const data = await basehub().query({
     pages: {
       blog: {
         posts: {

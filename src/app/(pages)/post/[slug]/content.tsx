@@ -73,6 +73,7 @@ export const Content = ({ data, slug }: ContentProps) => {
               ),
               a: (props) => (
                 <BlogLink
+                  internal={undefined}
                   href={props.href}
                   target={props.target}
                   rel={props.rel}
@@ -81,13 +82,15 @@ export const Content = ({ data, slug }: ContentProps) => {
                 </BlogLink>
               ),
               ul: (props) => (
-                <UnorderedList isTasksList={false}>
+                <UnorderedList data-is-task-list={false}>
                   {props.children}
                 </UnorderedList>
               ),
-              ol: (props) => <OrderedList>{props.children}</OrderedList>,
+              ol: (props) => (
+                <OrderedList start={1}>{props.children}</OrderedList>
+              ),
               li: (props) => (
-                <ListItem isTaskListItem={false}>{props.children}</ListItem>
+                <ListItem data-is-task-list={false}>{props.children}</ListItem>
               ),
               code: (props) => <Code>{props.children}</Code>,
               pre: (props) => (

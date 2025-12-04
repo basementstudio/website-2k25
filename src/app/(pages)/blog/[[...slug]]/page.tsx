@@ -4,8 +4,6 @@ import { fetchCategoriesNonEmpty } from "../basehub"
 
 type Params = Promise<{ slug: string[] }>
 
-export const experimental_ppr = true
-
 const BlogIndexPage = async (props: { params: Params }) => {
   const params = await props.params
 
@@ -22,7 +20,7 @@ export const generateStaticParams = async () => {
   })
 
   return categories.map((category) => ({
-    slug: [category._slug]
+    slug: [(category as { _slug: string })._slug ?? ""]
   }))
 }
 

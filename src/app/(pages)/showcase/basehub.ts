@@ -68,7 +68,7 @@ export const fetchProjects = async () => {
 }
 
 export const fetchCategories = async () => {
-  const categories = await client().query({
+  const categories = await basehub().query({
     company: {
       projects: {
         projectCategories: {
