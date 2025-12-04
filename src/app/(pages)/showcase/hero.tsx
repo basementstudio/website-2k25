@@ -1,7 +1,7 @@
-import { client } from "@/service/basehub"
+import { basehub } from "basehub"
 
 const fetchProjectsLength = async () => {
-  const res = await client().query({
+  const res = await basehub().query({
     pages: {
       showcase: {
         projectList: { _meta: { totalCount: true } }

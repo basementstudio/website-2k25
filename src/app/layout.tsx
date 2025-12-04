@@ -6,9 +6,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
 
-import { AppHooks } from "@/components/app-hooks-init"
-import { AssetsProvider } from "@/components/assets-provider"
-import { fetchAssets } from "@/components/assets-provider/fetch-assets"
+import { AssetsProviderServer } from "@/components/assets-provider/server"
 import { Contact } from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { ContentWrapper } from "@/components/layout/content-wrapper"
@@ -65,15 +63,13 @@ const flauta = localFont({
 })
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
-  const assets = await fetchAssets()
-
   return (
     <html lang="en" suppressHydrationWarning>
       <Analytics />
       <SpeedInsights />
       <Transitions />
       <PostHogProvider>
-        <AssetsProvider assets={assets}>
+        <AssetsProviderServer>
           <InspectableProvider>
             <body
               className={cn(
@@ -88,11 +84,10 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
               <Navbar />
               <NavigationHandler />
               <ContentWrapper>{children}</ContentWrapper>
-              <AppHooks assets={assets} />
               <Contact />
             </body>
           </InspectableProvider>
-        </AssetsProvider>
+        </AssetsProviderServer>
       </PostHogProvider>
     </html>
   )

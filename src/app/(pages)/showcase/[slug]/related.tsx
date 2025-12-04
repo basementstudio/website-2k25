@@ -1,8 +1,8 @@
+import { basehub } from "basehub"
 import Image from "next/image"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
-import { client } from "@/service/basehub"
 import { IMAGE_FRAGMENT } from "@/service/basehub/fragments"
 import { cn } from "@/utils/cn"
 
@@ -15,7 +15,7 @@ export const RelatedProjects = async ({
   baseSlug,
   className
 }: RelatedProjectsProps) => {
-  const allPosts = await client().query({
+  const allPosts = await basehub().query({
     pages: {
       showcase: {
         projectList: {
@@ -27,7 +27,7 @@ export const RelatedProjects = async ({
     }
   })
 
-  const entry = await client().query({
+  const entry = await basehub().query({
     pages: {
       showcase: {
         projectList: {

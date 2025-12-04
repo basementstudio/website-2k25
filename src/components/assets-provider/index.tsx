@@ -21,6 +21,9 @@ interface AssetsProviderProps {
   assets: AssetsResult
 }
 
-export const AssetsProvider = ({ children, assets }: AssetsProviderProps) => (
+export const AssetsProviderClient = ({
+  children,
+  assets
+}: AssetsProviderProps) => (
   <AssetContext.Provider value={assets}>{children}</AssetContext.Provider>
 )

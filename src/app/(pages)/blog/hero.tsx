@@ -1,7 +1,7 @@
-import { client } from "@/service/basehub"
+import { basehub } from "basehub"
 
 const fetchPostsLength = async () => {
-  const res = await client().query({
+  const res = await basehub().query({
     pages: {
       blog: {
         posts: { _meta: { totalCount: true } }

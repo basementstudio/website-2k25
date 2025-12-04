@@ -1,7 +1,6 @@
+import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
-
-import { client } from "@/service/basehub"
 
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import { Content } from "./content"
@@ -19,7 +18,7 @@ export const dynamic = "force-static"
 export const generateMetadata = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
 
-  const data = await client().query({
+  const data = await basehub().query({
     pages: {
       blog: {
         posts: {

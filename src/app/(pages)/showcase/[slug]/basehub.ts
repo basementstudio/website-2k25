@@ -1,6 +1,4 @@
-import { fragmentOn } from "basehub"
-
-import { client } from "@/service/basehub"
+import { basehub, fragmentOn } from "basehub"
 
 const ImageFragment = fragmentOn("BlockImage", {
   url: true,
@@ -43,7 +41,7 @@ const ProjectFragment = fragmentOn("ProjectComponent", {
 export type Project = fragmentOn.infer<typeof ProjectFragment>
 
 export const fetchProject = async (slug: string) => {
-  const project = await client().query({
+  const project = await basehub().query({
     company: {
       projects: {
         projectList: {

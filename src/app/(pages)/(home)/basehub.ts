@@ -1,8 +1,9 @@
-import { client } from "@/service/basehub"
+import { basehub } from "basehub"
+
 import { IMAGE_FRAGMENT, VIDEO_FRAGMENT } from "@/service/basehub/fragments"
 
 export const fetchHomepage = async () => {
-  const homepage = await client().query({
+  const homepage = await basehub().query({
     pages: {
       homepage: {
         intro: {

@@ -1,7 +1,6 @@
+import { basehub } from "basehub"
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
-
-import { client } from "@/service/basehub"
 
 import { projectFragment } from "./query"
 import { ProjectWrapper } from "./wrapper"
@@ -15,7 +14,7 @@ export const dynamic = "force-static"
 export const generateMetadata = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
 
-  const data = await client().query({
+  const data = await basehub().query({
     pages: {
       showcase: {
         projectList: {

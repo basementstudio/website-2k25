@@ -1,6 +1,4 @@
-import { fragmentOn } from "basehub"
-
-import { client } from "@/service/basehub"
+import { basehub, fragmentOn } from "basehub"
 
 const HeroFragment = fragmentOn("HeroComponent", {
   heroVideo: {
@@ -35,7 +33,7 @@ const PostFragment = fragmentOn("PostsItem", {
 export type Post = fragmentOn.infer<typeof PostFragment>
 
 export const fetchPosts = async (category?: string) => {
-  const posts = await client().query({
+  const posts = await basehub().query({
     pages: {
       blog: {
         posts: {

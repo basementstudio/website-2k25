@@ -3,18 +3,15 @@ import type { NextConfig } from "next"
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   productionBrowserSourceMaps: true,
-  experimental: {
-    turbo: {
-      rules: {
-        "*.{glsl,vert,frag,vs,fs}": {
-          loaders: ["raw-loader", "glslify-loader"],
-          as: "*.js"
-        }
+  cacheComponents: true,
+  turbopack: {
+    rules: {
+      "*.{glsl,vert,frag,vs,fs}": {
+        loaders: ["raw-loader", "glslify-loader"],
+        as: "*.js"
       }
-    },
-    ppr: "incremental"
+    }
   },
-
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
