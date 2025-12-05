@@ -739,7 +739,7 @@ export interface Content_1 {
 }
 
 export interface Content_1RichText {
-    blocks: UnionCodeSandboxComponentCodeBlockComponentGridGalleryComponentSideNoteComponentTweetComponentQuoteWithAuthorComponent[]
+    blocks: UnionCodeSandboxComponentCodeBlockComponentSideNoteComponentTweetComponentQuoteWithAuthorComponentGridGalleryComponent[]
     content: Scalars['BSHBRichTextContentSchema']
     toc: Scalars['BSHBRichTextTOCSchema']
     __typename: 'Content_1RichText'
@@ -2927,7 +2927,7 @@ export interface TweetComponent {
 
 export type TweetComponentOrderByEnum = '_sys_createdAt__ASC' | '_sys_createdAt__DESC' | '_sys_hash__ASC' | '_sys_hash__DESC' | '_sys_id__ASC' | '_sys_id__DESC' | '_sys_lastModifiedAt__ASC' | '_sys_lastModifiedAt__DESC' | '_sys_slug__ASC' | '_sys_slug__DESC' | '_sys_title__ASC' | '_sys_title__DESC' | 'tweetId__ASC' | 'tweetId__DESC' | 'untitled__ASC' | 'untitled__DESC'
 
-export type UnionCodeSandboxComponentCodeBlockComponentGridGalleryComponentSideNoteComponentTweetComponentQuoteWithAuthorComponent = (CodeBlockComponent | CodeSandboxComponent | GridGalleryComponent | QuoteWithAuthorComponent | SideNoteComponent | TweetComponent) & { __isUnion?: true }
+export type UnionCodeSandboxComponentCodeBlockComponentSideNoteComponentTweetComponentQuoteWithAuthorComponentGridGalleryComponent = (CodeBlockComponent | CodeSandboxComponent | GridGalleryComponent | QuoteWithAuthorComponent | SideNoteComponent | TweetComponent) & { __isUnion?: true }
 
 export interface ValuesList {
     _analyticsKey: Scalars['String']
@@ -5697,7 +5697,7 @@ export interface Content_1GenqlSelection{
 }
 
 export interface Content_1RichTextGenqlSelection{
-    blocks?: UnionCodeSandboxComponentCodeBlockComponentGridGalleryComponentSideNoteComponentTweetComponentQuoteWithAuthorComponentGenqlSelection
+    blocks?: UnionCodeSandboxComponentCodeBlockComponentSideNoteComponentTweetComponentQuoteWithAuthorComponentGridGalleryComponentGenqlSelection
     content?: boolean | number
     toc?: boolean | number
     __typename?: boolean | number
@@ -9394,7 +9394,7 @@ by?: (Scalars['String'][] | null),
 /** Search query */
 q?: (Scalars['String'] | null)}
 
-export interface UnionCodeSandboxComponentCodeBlockComponentGridGalleryComponentSideNoteComponentTweetComponentQuoteWithAuthorComponentGenqlSelection{
+export interface UnionCodeSandboxComponentCodeBlockComponentSideNoteComponentTweetComponentQuoteWithAuthorComponentGridGalleryComponentGenqlSelection{
     on_CodeBlockComponent?:CodeBlockComponentGenqlSelection,
     on_CodeSandboxComponent?:CodeSandboxComponentGenqlSelection,
     on_GridGalleryComponent?:GridGalleryComponentGenqlSelection,
@@ -9403,7 +9403,7 @@ export interface UnionCodeSandboxComponentCodeBlockComponentGridGalleryComponent
     on_TweetComponent?:TweetComponentGenqlSelection,
     on_BlockDocument?: BlockDocumentGenqlSelection,
     __typename?: boolean | number,
-    __fragmentOn?: "UnionCodeSandboxComponentCodeBlockComponentGridGalleryComponentSideNoteComponentTweetComponentQuoteWithAuthorComponent"
+    __fragmentOn?: "UnionCodeSandboxComponentCodeBlockComponentSideNoteComponentTweetComponentQuoteWithAuthorComponentGridGalleryComponent"
 }
 
 export interface ValuesListGenqlSelection{

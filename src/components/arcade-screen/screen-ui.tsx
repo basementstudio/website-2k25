@@ -118,7 +118,6 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
       <Container
         width={590}
         height={390}
-        transformScaleX={-1}
         backgroundColor={COLORS_THEME.black}
         positionType="relative"
         display="flex"
@@ -142,6 +141,7 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
           borderColor={COLORS_THEME.primary}
           borderRadius={10}
           paddingY={10}
+          paddingX={1.5}
           flexDirection="column"
         >
           <ArcadeWrapperTags />

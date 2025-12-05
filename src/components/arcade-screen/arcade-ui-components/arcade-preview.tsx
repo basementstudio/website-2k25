@@ -19,6 +19,7 @@ export const ArcadePreview = ({ selectedExperiment }: ArcadePreviewProps) => {
         borderWidth={1.5}
         borderColor={COLORS_THEME.primary}
         positionType="relative"
+        padding={1.5}
       >
         <Image
           positionType="absolute"

@@ -59,6 +59,7 @@ export const ArcadeFeatured = () => {
         borderWidth={1}
         borderColor={COLORS_THEME.primary}
         flexDirection="row"
+        padding={1}
       >
         <Container
           width={"50%"}
