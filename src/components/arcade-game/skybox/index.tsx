@@ -2,7 +2,7 @@ import { useTexture } from "@react-three/drei"
 import { useRef } from "react"
 import type { Mesh } from "three"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { normalizeDelta } from "../lib/math"
@@ -11,9 +11,9 @@ import { CHUNK_SIZE, TOTAL_CHUNKS } from "../road/use-road"
 export const Skybox = () => {
   const skyPanelLeft = useRef<Mesh>(null)
   const skyPanelRight = useRef<Mesh>(null)
-  const { arcade } = useAssets()
-  const skyboxTexture = useTexture(arcade.skybox)
-  const cityscapeTexture = useTexture(arcade.cityscape)
+  const assets = useAssets()
+  const skyboxTexture = useTexture(assets?.arcade?.skybox ?? "")
+  const cityscapeTexture = useTexture(assets?.arcade?.cityscape ?? "")
 
   const SKY_PANEL_WIDTH = 220
 

@@ -89,7 +89,7 @@ export const useInitializeAudioContext = () => {
 
   const isOnTab = useIsOnTab()
 
-  const { ARCADE_AUDIO_SFX, GAME_THEME_SONGS } = useAudioUrls()
+  const AUDIO_URLS = useAudioUrls()
 
   // Initialize audio system when player is available
   useEffect(() => {
@@ -157,35 +157,30 @@ export const useInitializeAudioContext = () => {
   )
 
   useEffect(() => {
-    if (!player) return
+    if (!player || !AUDIO_URLS) return
 
     if (isIngame && scene === "lab") {
       player.setGameVolume(1)
       player.setMusicVolume(0)
-      playGameSong(ARCADE_AUDIO_SFX.MIAMI_HEATWAVE)
+      playGameSong(AUDIO_URLS.ARCADE_AUDIO_SFX.MIAMI_HEATWAVE)
     } else if (scene === "basketball") {
       player.setGameVolume(1)
       player.setMusicVolume(0)
-      playGameSong(GAME_THEME_SONGS.BASKETBALL_SONG)
+      playGameSong(AUDIO_URLS.GAME_THEME_SONGS.BASKETBALL_SONG)
     } else {
       player.setGameVolume(0)
       player.setMusicVolume(1)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [player, scene, isIngame])
+  }, [player, scene, isIngame, AUDIO_URLS])
 }
 
 export const SiteAudioSFXsLoader = memo((): null => {
   const player = useSiteAudioStore((s) => s.player)
-  const {
-    GAME_AUDIO_SFX,
-    ARCADE_AUDIO_SFX,
-    BLOG_AUDIO_SFX,
-    CONTACT_AUDIO_SFX
-  } = useAudioUrls()
+  const AUDIO_URLS = useAudioUrls()
 
   useEffect(() => {
-    if (!player) return
+    if (!player || !AUDIO_URLS) return
 
     // TODO: dont load audio sources if the user is not in the scene where the audio will be played!
     const loadAudioSources = async () => {
@@ -195,10 +190,12 @@ export const SiteAudioSFXsLoader = memo((): null => {
         const promises = []
 
         promises.push(
-          Object.keys(GAME_AUDIO_SFX).map(async (key) => {
+          Object.keys(AUDIO_URLS.GAME_AUDIO_SFX).map(async (key) => {
             const audioKey = key as SiteAudioSFXKey
             const source = await player.loadAudioFromURL(
-              GAME_AUDIO_SFX[audioKey as keyof typeof GAME_AUDIO_SFX],
+              AUDIO_URLS.GAME_AUDIO_SFX[
+                audioKey as keyof typeof AUDIO_URLS.GAME_AUDIO_SFX
+              ],
               true
             )
             source.setVolume(SFX_VOLUME)
@@ -207,7 +204,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
+          AUDIO_URLS.ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
             const source = await player.loadAudioFromURL(button.PRESS, true)
             source.setVolume(SFX_VOLUME)
             newSources[`ARCADE_BUTTON_${index}_PRESS`] = source
@@ -221,7 +218,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
+          AUDIO_URLS.ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
             const source = await player.loadAudioFromURL(stick.PRESS, true)
             source.setVolume(SFX_VOLUME)
             newSources[`ARCADE_STICK_${index}_PRESS`] = source
@@ -235,15 +232,17 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          BLOG_AUDIO_SFX.LOCKED_DOOR.map(async (lockedDoor, index) => {
-            const source = await player.loadAudioFromURL(lockedDoor, true)
-            source.setVolume(SFX_VOLUME)
-            newSources[`BLOG_LOCKED_DOOR_${index}`] = source
-          })
+          AUDIO_URLS.BLOG_AUDIO_SFX.LOCKED_DOOR.map(
+            async (lockedDoor, index) => {
+              const source = await player.loadAudioFromURL(lockedDoor, true)
+              source.setVolume(SFX_VOLUME)
+              newSources[`BLOG_LOCKED_DOOR_${index}`] = source
+            }
+          )
         )
 
         promises.push(
-          BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
+          AUDIO_URLS.BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
             const source = await player.loadAudioFromURL(door.OPEN, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_DOOR_${index}_OPEN`] = source
@@ -254,7 +253,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
+          AUDIO_URLS.BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
             const source = await player.loadAudioFromURL(lamp.PULL, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_LAMP_${index}_PULL`] = source
@@ -270,7 +269,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         promises.push(
           (async () => {
             const source = await player.loadAudioFromURL(
-              CONTACT_AUDIO_SFX.INTERFERENCE,
+              AUDIO_URLS.CONTACT_AUDIO_SFX.INTERFERENCE,
               true
             )
             source.setVolume(SFX_VOLUME)
@@ -281,7 +280,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         promises.push(
           (async () => {
             const source = await player.loadAudioFromURL(
-              CONTACT_AUDIO_SFX.KNOB_TURNING,
+              AUDIO_URLS.CONTACT_AUDIO_SFX.KNOB_TURNING,
               true
             )
             source.setVolume(SFX_VOLUME)
@@ -292,7 +291,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         promises.push(
           (async () => {
             const source = await player.loadAudioFromURL(
-              CONTACT_AUDIO_SFX.ANTENNA,
+              AUDIO_URLS.CONTACT_AUDIO_SFX.ANTENNA,
               true
             )
             source.setVolume(SFX_VOLUME)
@@ -311,8 +310,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
     }
 
     loadAudioSources()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [player])
+  }, [player, AUDIO_URLS])
 
   return null
 })

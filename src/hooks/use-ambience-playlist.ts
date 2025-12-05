@@ -18,7 +18,7 @@ const globalPlaylistRef: {
 
 export function useAmbiencePlaylist() {
   const player = useSiteAudioStore((s) => s.player)
-  const { AMBIENCE } = useAudioUrls()
+  const AUDIO_URLS = useAudioUrls()
 
   const activeTrackType = useSiteAudioStore((s) => s.activeTrackType)
   const isBackgroundInitialized = useSiteAudioStore(
@@ -40,26 +40,26 @@ export function useAmbiencePlaylist() {
     () => [
       {
         name: "Cassette Kong - Basement Jukebox 03:35",
-        url: AMBIENCE.AMBIENCE_VHS,
+        url: AUDIO_URLS?.AMBIENCE.AMBIENCE_VHS ?? "",
         volume: AMBIENT_VOLUME
       },
       {
         name: "Perfect Waves - Basement Jukebox 00:59",
-        url: AMBIENCE.AMBIENCE_AQUA,
+        url: AUDIO_URLS?.AMBIENCE.AMBIENCE_AQUA ?? "",
         volume: AMBIENT_VOLUME
       },
       {
         name: "Chrome Tiger - Basement Jukebox 02:40",
-        url: AMBIENCE.AMBIENCE_TIGER,
+        url: AUDIO_URLS?.AMBIENCE.AMBIENCE_TIGER ?? "",
         volume: AMBIENT_VOLUME
       },
       {
         name: "Tears In The Rain - Basement Jukebox 01:55",
-        url: AMBIENCE.AMBIENCE_RAIN,
+        url: AUDIO_URLS?.AMBIENCE.AMBIENCE_RAIN ?? "",
         volume: AMBIENT_VOLUME
       }
     ],
-    [AMBIENCE]
+    [AUDIO_URLS]
   )
 
   useEffect(() => {

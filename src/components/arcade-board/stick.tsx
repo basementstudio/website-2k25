@@ -5,7 +5,7 @@ import type { RefObject } from "react"
 import { useCallback, useEffect, useRef } from "react"
 import type { Mesh } from "three"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
@@ -27,11 +27,11 @@ interface StickProps {
 export const Stick = ({ stick, sequence }: StickProps) => {
   const scene = useCurrentScene()
   const { playSoundFX } = useSiteAudio()
-  const { sfx } = useAssets()
+  const assets = useAssets()
   const isInGame = useArcadeStore((state) => state.isInGame)
   const setIsInGame = useArcadeStore((state) => state.setIsInGame)
 
-  const availableSounds = sfx.arcade.sticks.length
+  const availableSounds = assets?.sfx.arcade.sticks.length ?? 0
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
   const state = useRef(0)
 

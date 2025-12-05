@@ -10,12 +10,12 @@ import * as THREE from "three"
 import { Color } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
-import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
 
 enum PetSkinnedName {
@@ -66,18 +66,12 @@ const petConfigs: Record<string, PetConfig> = {
 } as const
 
 export function Pets() {
-  const {
-    pets: {
-      model,
-      pureTexture: pureTextureUrl,
-      bostonTexture: bostonTextureUrl
-    }
-  } = useAssets()
+  const assets = useAssets()
 
-  const pureTexture = useTexture(pureTextureUrl)
-  const bostonTexture = useTexture(bostonTextureUrl)
+  const pureTexture = useTexture(assets?.pets?.pureTexture ?? "")
+  const bostonTexture = useTexture(assets?.pets?.bostonTexture ?? "")
 
-  const petsGltf = useKTX2GLTF(model) as unknown as PetsGLTF
+  const petsGltf = useKTX2GLTF(assets?.pets?.model ?? "") as unknown as PetsGLTF
 
   const { scene, nodes, animations } = petsGltf
 

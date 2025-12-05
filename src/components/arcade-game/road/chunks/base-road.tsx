@@ -1,7 +1,7 @@
 import { useTexture } from "@react-three/drei"
 import { memo, useMemo } from "react"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 
 import { CHUNK_SIZE, LINES, lineWidth } from "../use-road"
 
@@ -15,8 +15,8 @@ const BaseRoadInner = () => {
     return side
   }, [])
 
-  const { arcade } = useAssets()
-  const palmTexture = useTexture(arcade.palm)
+  const assets = useAssets()
+  const palmTexture = useTexture(assets?.arcade?.palm ?? "")
 
   return (
     <group position={[0, 0, 0]}>

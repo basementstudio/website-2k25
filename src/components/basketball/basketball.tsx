@@ -2,12 +2,11 @@ import { RigidBody } from "@react-three/rapier"
 import { RefObject, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Vector3 } from "three"
 
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
-
-import { useAssets } from "../assets-provider"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -39,8 +38,8 @@ export const Basketball = ({
 }: BasketballProps) => {
   const { playSoundFX } = useSiteAudio()
   const setCursor = useCursor()
-  const { basketball } = useAssets()
-  const basketballModel = useKTX2GLTF(basketball)
+  const assets = useAssets()
+  const basketballModel = useKTX2GLTF(assets?.basketball ?? "")
   const bounceCount = useRef(0)
 
   const geometry = useMemo(() => {

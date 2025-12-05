@@ -5,7 +5,7 @@ import posthog from "posthog-js"
 import { useRef } from "react"
 import { Mesh } from "three"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
@@ -20,9 +20,9 @@ export const BlogDoor = () => {
   const scene = useCurrentScene()
   const setCursor = useCursor()
   const { playSoundFX } = useSiteAudio()
-  const { sfx } = useAssets()
+  const assets = useAssets()
 
-  const availableSounds = sfx.blog.door.length
+  const availableSounds = assets?.sfx.blog.door.length ?? 0
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
 
   const isOpen = useRef(false)

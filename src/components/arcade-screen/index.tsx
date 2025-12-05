@@ -12,7 +12,7 @@ import { type Mesh, Vector3, WebGLRenderTarget } from "three"
 import { Box3 } from "three"
 import { degToRad } from "three/src/math/MathUtils.js"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useVideoTextureResume } from "@/hooks/use-video-resume"
@@ -54,12 +54,14 @@ export const ArcadeScreen = () => {
   const [screenScale, setScreenScale] = useState<Vector3 | null>(null)
   const [hasVisitedArcade, setHasVisitedArcade] = useState(false)
 
-  const { arcade } = useAssets()
+  const assets = useAssets()
 
-  const bootTexture = useTexture(arcade.boot, (texture) => {
+  const bootTexture = useTexture(assets?.arcade?.boot ?? "", (texture) => {
     texture.flipY = false
   })
-  const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
+  const videoTexture = useVideoTexture(assets?.arcade?.idleScreen ?? "", {
+    loop: true
+  })
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 

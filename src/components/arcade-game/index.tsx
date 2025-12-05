@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import type { ShaderMaterial } from "three"
 
 import { COLORS_THEME } from "@/components/arcade-screen/screen-ui"
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useArcadeStore } from "@/store/arcade-store"
@@ -35,8 +35,8 @@ export const ArcadeGame = ({ visible, screenMaterial }: arcadeGameProps) => {
   const [scoreDisplay, setScoreDisplay] = useState(0)
   const lastUpdateTimeRef = useRef(0)
   const setIsInGame = useArcadeStore((state) => state.setIsInGame)
-  const { arcade } = useAssets()
-  const introScreenTexture = useTexture(arcade.introScreen)
+  const assets = useAssets()
+  const introScreenTexture = useTexture(assets?.arcade?.introScreen ?? "")
   const clearNpcs = useNpc((s) => s.clearNpcs)
   const scene = useCurrentScene()
 

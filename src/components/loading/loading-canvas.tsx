@@ -3,7 +3,7 @@ import dynamic from "next/dynamic"
 import { useEffect, useRef } from "react"
 import { Vector3 } from "three"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { cn } from "@/utils/cn"
 
@@ -19,7 +19,7 @@ const Fallback = dynamic(
 function LoadingCanvas({ hide }: { hide: boolean }) {
   const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
 
-  const { officeWireframe } = useAssets()
+  const assets = useAssets()
 
   const currentScene = useNavigationStore((state) => state.currentScene)
 
@@ -62,7 +62,7 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
     // start the loading scene
     worker.postMessage({
       type: "initialize",
-      modelUrl: officeWireframe
+      modelUrl: assets?.officeWireframe ?? ""
     })
 
     worker.addEventListener("message", (e: MessageEvent<{ type: string }>) => {

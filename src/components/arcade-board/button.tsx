@@ -2,7 +2,7 @@ import { MeshDiscardMaterial } from "@react-three/drei"
 import { animate } from "motion"
 import { memo, useCallback, useEffect, useMemo, useRef } from "react"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
@@ -37,8 +37,8 @@ export const Button = memo(function ButtonInner({ buttonName }: ButtonProps) {
   const setCursor = useCursor()
 
   const { playSoundFX } = useSiteAudio()
-  const { sfx } = useAssets()
-  const availableSounds = sfx.arcade.buttons.length
+  const assets = useAssets()
+  const availableSounds = assets?.sfx.arcade.buttons.length ?? 0
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
   const isPressed = useRef(false)
 

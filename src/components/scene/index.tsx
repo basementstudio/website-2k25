@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
+import { useAssets } from "@/components/assets-provider/use-assets"
 import ErrorBoundary from "@/components/basketball/error-boundary"
 import { CameraController } from "@/components/camera/camera-controller"
 import { CharacterInstanceConfig } from "@/components/characters/character-instancer"
@@ -52,6 +53,7 @@ const PhysicsWorld = dynamic(
 )
 
 export const Scene = () => {
+  const assets = useAssets()
   const { setIsCanvasTabMode, currentScene } = useNavigationStore()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isBasketball = currentScene?.name === "basketball"
@@ -126,6 +128,8 @@ export const Scene = () => {
   }
 
   const handleBlur = () => setIsCanvasTabMode(false)
+
+  if (!assets) return null
 
   return (
     <>

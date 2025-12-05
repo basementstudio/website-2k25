@@ -1,53 +1,55 @@
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 
 export const useAudioUrls = () => {
-  const { sfx } = useAssets()
+  const assets = useAssets()
+
+  if (!assets) return null
 
   return {
     AMBIENCE: {
-      AMBIENCE_DEFAULT: sfx.music.tiger,
-      AMBIENCE_RAIN: sfx.music.rain,
-      AMBIENCE_AQUA: sfx.music.aqua,
-      AMBIENCE_TIGER: sfx.music.tiger,
-      AMBIENCE_VHS: sfx.music.vhs
+      AMBIENCE_DEFAULT: assets?.sfx.music.tiger ?? "",
+      AMBIENCE_RAIN: assets?.sfx.music.rain ?? "",
+      AMBIENCE_AQUA: assets?.sfx.music.aqua ?? "",
+      AMBIENCE_TIGER: assets?.sfx.music.tiger ?? "",
+      AMBIENCE_VHS: assets?.sfx.music.vhs ?? ""
     },
 
     GAME_THEME_SONGS: {
-      BASKETBALL_SONG: sfx.basketballTheme
+      BASKETBALL_SONG: assets?.sfx.basketballTheme ?? ""
     },
     GAME_AUDIO_SFX: {
-      BASKETBALL_THROW: sfx.basketballSwoosh,
-      BASKETBALL_NET: sfx.basketballNet,
-      BASKETBALL_THUMP: sfx.basketballThump,
-      TIMEOUT_BUZZER: sfx.basketballBuzzer,
-      BASKETBALL_STREAK: sfx.basketballStreak
+      BASKETBALL_THROW: assets?.sfx.basketballSwoosh ?? "",
+      BASKETBALL_NET: assets?.sfx.basketballNet ?? "",
+      BASKETBALL_THUMP: assets?.sfx.basketballThump ?? "",
+      TIMEOUT_BUZZER: assets?.sfx.basketballBuzzer ?? "",
+      BASKETBALL_STREAK: assets?.sfx.basketballStreak ?? ""
     },
     BLOG_AUDIO_SFX: {
-      LOCKED_DOOR: sfx.blog.lockedDoor,
-      DOOR: sfx.blog.door.map((item) => ({
+      LOCKED_DOOR: assets?.sfx.blog.lockedDoor ?? "",
+      DOOR: assets?.sfx.blog.door.map((item) => ({
         OPEN: item.open,
         CLOSE: item.close
       })),
-      LAMP: sfx.blog.lamp.map((item) => ({
+      LAMP: assets?.sfx.blog.lamp.map((item) => ({
         PULL: item.pull,
         RELEASE: item.release
       }))
     },
     ARCADE_AUDIO_SFX: {
-      BUTTONS: sfx.arcade.buttons.map((item) => ({
+      BUTTONS: assets?.sfx.arcade.buttons.map((item) => ({
         PRESS: item.press,
         RELEASE: item.release
       })),
-      STICKS: sfx.arcade.sticks.map((item) => ({
+      STICKS: assets?.sfx.arcade.sticks.map((item) => ({
         PRESS: item.press,
         RELEASE: item.release
       })),
-      MIAMI_HEATWAVE: sfx.arcade.miamiHeatwave
+      MIAMI_HEATWAVE: assets?.sfx.arcade.miamiHeatwave ?? ""
     },
     CONTACT_AUDIO_SFX: {
-      INTERFERENCE: sfx.contact.interference,
-      KNOB_TURNING: sfx.knobTurning,
-      ANTENNA: sfx.antenna
+      INTERFERENCE: assets?.sfx.contact.interference ?? "",
+      KNOB_TURNING: assets?.sfx.knobTurning ?? "",
+      ANTENNA: assets?.sfx.antenna ?? ""
     }
   } as const
 }

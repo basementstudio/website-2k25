@@ -3,11 +3,11 @@ import { memo, useMemo } from "react"
 import type * as THREE from "three"
 import { BufferAttribute, Color, FloatType } from "three"
 
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createCharacterMaterial } from "@/shaders/material-characters"
 
-import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
 import { FACES_GRID_COLS, SKINNED_MESH_KEYS } from "./characters-config"
 import { createInstancedSkinnedMesh } from "./instanced-skinned-mesh"
@@ -45,16 +45,16 @@ export const setGeometryFloatAttribute = (
 }
 
 function CharacterInstanceConfigInner() {
-  const { characters } = useAssets()
+  const assets = useAssets()
 
   const { nodes, animations } = useKTX2GLTF(
-    characters.model
+    assets?.characters?.model ?? ""
   ) as unknown as CharactersGLTF
 
-  const textureBody = useTexture(characters.textureBody)
-  const textureFaces = useTexture(characters.textureFaces)
-  const textureArms = useTexture(characters.textureArms)
-  const textureComic = useTexture(characters.textureComic)
+  const textureBody = useTexture(assets?.characters?.textureBody ?? "")
+  const textureFaces = useTexture(assets?.characters?.textureFaces ?? "")
+  const textureArms = useTexture(assets?.characters?.textureArms ?? "")
+  const textureComic = useTexture(assets?.characters?.textureComic ?? "")
 
   const { fadeFactor } = useFadeAnimation()
 

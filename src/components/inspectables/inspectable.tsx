@@ -17,6 +17,7 @@ import {
   Vector3
 } from "three"
 
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
 import { useMesh } from "@/hooks/use-mesh"
@@ -25,7 +26,6 @@ import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useSelectStore } from "@/hooks/use-select-store"
 
-import { useAssets } from "../assets-provider"
 import type { ICameraConfig } from "../navigation-handler/navigation.interface"
 import { useInspectable } from "./context"
 import { InspectableDragger } from "./inspectable-dragger"
@@ -47,11 +47,11 @@ export const Inspectable = memo(function InspectableInner({
   const mesh = meshData?.mesh
   const position = meshData?.position
 
-  const { inspectables } = useAssets()
+  const assets = useAssets()
 
   const { xOffset, yOffset, xRotationOffset, sizeTarget, scenes } =
     useMemo(() => {
-      return inspectables.find((i) => i.mesh === id)!
+      return assets?.inspectables.find((i) => i.mesh === id)!
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id])
 
@@ -271,7 +271,9 @@ export const Inspectable = memo(function InspectableInner({
         behavior: "smooth",
         callback: () => {
           setSelected(id)
-          const inspectable = inspectables.find((item) => item.mesh === id)
+          const inspectable = assets?.inspectables.find(
+            (item) => item.mesh === id
+          )
           track(`inspecting_${inspectable?._title.replace(/\s+/g, "_")}`)
           posthog.capture(
             `inspecting_${inspectable?._title.replace(/\s+/g, "_")}`

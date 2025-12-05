@@ -1,21 +1,9 @@
-"use client"
+import { fetchAssets } from "@/components/assets-provider/fetch-assets"
 
-import { AssetsResult } from "@/components/assets-provider/fetch-assets"
-import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
-import { useConsoleLogo } from "@/hooks/use-console-logo"
-import { usePreloadAssets } from "@/hooks/use-preload-assets"
-import {
-  SiteAudioSFXsLoader,
-  useInitializeAudioContext
-} from "@/hooks/use-site-audio"
+import { AppHooksClient } from "./app-hooks-init.client"
 
-export const AppHooks = ({ assets }: { assets: AssetsResult }) => {
-  useConsoleLogo()
+export const AppHooks = async () => {
+  const assets = await fetchAssets()
 
-  usePreloadAssets(assets)
-
-  useInitializeAudioContext()
-  useAmbiencePlaylist()
-
-  return <SiteAudioSFXsLoader />
+  return <AppHooksClient assets={assets} />
 }

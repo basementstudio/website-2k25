@@ -4,7 +4,7 @@ import { animate } from "motion"
 import posthog from "posthog-js"
 import { useRef } from "react"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
@@ -17,9 +17,9 @@ export const LockedDoor = () => {
   const scene = useCurrentScene()
   const setCursor = useCursor()
   const { playSoundFX } = useSiteAudio()
-  const { sfx } = useAssets()
+  const assets = useAssets()
 
-  const availableSounds = sfx.blog.lockedDoor.length
+  const availableSounds = assets?.sfx.blog.lockedDoor.length ?? 0
 
   const isLockedDoorOpen = useRef(false)
 

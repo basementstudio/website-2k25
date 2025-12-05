@@ -3,10 +3,9 @@ import { useEffect, useRef, useState } from "react"
 import { Mesh, NearestFilter, ShaderMaterial, Texture } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useMesh } from "@/hooks/use-mesh"
 import { createNetMaterial } from "@/shaders/material-net"
-
-import { useAssets } from "../assets-provider"
 
 const TOTAL_FRAMES = 39
 const ANIMATION_SPEED = 16
@@ -19,10 +18,10 @@ export const Net = () => {
   const isAnimatingRef = useRef(false)
   const textureRef = useRef<Texture | null>(null)
   const [isVisible, setIsVisible] = useState(false)
-  const { mapTextures } = useAssets()
+  const assets = useAssets()
   const net = useMesh((state) => state.basketball.net)
 
-  const offsets = useLoader(EXRLoader, mapTextures.basketballVa)
+  const offsets = useLoader(EXRLoader, assets?.mapTextures?.basketballVa ?? "")
 
   useEffect(() => {
     const handleScore = () => {

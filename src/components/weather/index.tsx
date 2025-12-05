@@ -12,7 +12,7 @@ import {
 } from "three"
 import { create } from "zustand"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -25,9 +25,8 @@ export const useWeather = create<{
 }))
 
 export const Weather = () => {
-  const {
-    mapTextures: { rain: rainTexture }
-  } = useAssets()
+  const assets = useAssets()
+  const rainTexture = assets?.mapTextures?.rain ?? ""
 
   const rainAlphaTexture = useTexture(rainTexture)
 

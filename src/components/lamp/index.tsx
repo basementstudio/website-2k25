@@ -9,7 +9,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useInspectable } from "@/components/inspectables/context"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useMesh } from "@/hooks/use-mesh"
@@ -54,9 +54,9 @@ export const Lamp = memo(function LampInner() {
   const vec = useMemo(() => new THREE.Vector3(), [])
   const dir = useMemo(() => new THREE.Vector3(), [])
 
-  const { sfx } = useAssets()
+  const assets = useAssets()
   const { playSoundFX } = useSiteAudio()
-  const availableSounds = sfx.blog.lamp.length
+  const availableSounds = assets?.sfx.blog.lamp.length ?? 0
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
 
   const { blog } = useMesh()
@@ -93,11 +93,7 @@ export const Lamp = memo(function LampInner() {
 
   const firstTime = useRef(true)
 
-  const {
-    lamp: { extraLightmap }
-  } = useAssets()
-
-  const lightmap = useLoader(EXRLoader, extraLightmap)
+  const lightmap = useLoader(EXRLoader, assets?.lamp?.extraLightmap ?? "")
 
   useEffect(() => {
     lightmap.flipY = true

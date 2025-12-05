@@ -2,7 +2,7 @@
 
 import { memo, useEffect } from "react"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
@@ -11,7 +11,7 @@ import { Inspectable } from "./inspectable"
 
 export const Inspectables = memo(function InspectablesInner() {
   const { selected, setSelected } = useInspectable()
-  const { inspectables } = useAssets()
+  const assets = useAssets()
   const scene = useCurrentScene()
   const { playInspectableFX } = useSiteAudio()
 
@@ -27,19 +27,21 @@ export const Inspectables = memo(function InspectablesInner() {
 
   useEffect(() => {
     if (selected) {
-      const inspectableFx = inspectables.find((i) => i.mesh === selected)?.fx
+      const inspectableFx = assets?.inspectables.find(
+        (i) => i.mesh === selected
+      )?.fx
 
       if (inspectableFx) {
         playInspectableFX(inspectableFx, 0.65)
       }
     }
-  }, [selected, inspectables, playInspectableFX])
+  }, [selected, assets?.inspectables, playInspectableFX])
 
   useEffect(() => setSelected(null), [scene, setSelected])
 
   return (
     <>
-      {inspectables.map((inspectableConfig) => (
+      {assets?.inspectables.map((inspectableConfig) => (
         <Inspectable key={inspectableConfig.mesh} id={inspectableConfig.mesh} />
       ))}
     </>

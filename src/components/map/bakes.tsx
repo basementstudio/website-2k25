@@ -14,7 +14,7 @@ import {
 } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 
@@ -62,43 +62,43 @@ const addReflex = (update: TextureUpdate) => {
 }
 
 const useBakes = (): Record<string, Bake> => {
-  const { bakes, matcaps, glassReflexes } = useAssets()
+  const assets = useAssets()
 
   const withLightmap = useMemo(
-    () => bakes.filter((bake) => bake.lightmap),
-    [bakes]
+    () => assets?.bakes.filter((bake) => bake.lightmap),
+    [assets?.bakes]
   )
 
   const withAmbientOcclusion = useMemo(
-    () => bakes.filter((bake) => bake.ambientOcclusion),
-    [bakes]
+    () => assets?.bakes.filter((bake) => bake.ambientOcclusion),
+    [assets?.bakes]
   )
 
   const loadedLightmaps = useLoader(
     EXRLoader,
-    withLightmap.map((bake) => bake.lightmap)
+    withLightmap?.map((bake) => bake.lightmap) ?? []
   )
 
   const loadedAmbientOcclusion = useLoader(
     TextureLoader,
-    withAmbientOcclusion.map((bake) => bake.ambientOcclusion)
+    withAmbientOcclusion?.map((bake) => bake.ambientOcclusion) ?? []
   )
 
   const loadedMatcaps = useLoader(
     TextureLoader,
-    matcaps.map((matcap) => matcap.file)
+    assets?.matcaps.map((matcap) => matcap.file) ?? []
   )
 
   const loadedReflexes = useLoader(
     TextureLoader,
-    glassReflexes.map((reflex) => reflex.url)
+    assets?.glassReflexes.map((reflex) => reflex.url) ?? []
   )
 
   const meshMaps = useMemo(() => {
     const maps: Record<string, Bake> = {}
 
     loadedLightmaps.forEach((map, index) => {
-      const meshNames = withLightmap[index].meshes
+      const meshNames = withLightmap?.[index]?.meshes ?? []
       map.flipY = true
       map.generateMipmaps = false
       map.minFilter = NearestFilter
@@ -114,7 +114,7 @@ const useBakes = (): Record<string, Bake> => {
     })
 
     loadedAmbientOcclusion.forEach((map, index) => {
-      const meshNames = withAmbientOcclusion[index].meshes
+      const meshNames = withAmbientOcclusion?.[index]?.meshes ?? []
       map.flipY = false
       map.generateMipmaps = false
       map.minFilter = NearestFilter
@@ -135,12 +135,12 @@ const useBakes = (): Record<string, Bake> => {
       map.minFilter = NearestFilter
       map.magFilter = NearestFilter
       map.colorSpace = NoColorSpace
-      if (!maps[matcaps[index].mesh]) {
-        maps[matcaps[index].mesh] = {}
+      if (!maps[assets?.matcaps?.[index]?.mesh ?? ""]) {
+        maps[assets?.matcaps?.[index]?.mesh ?? ""] = {}
       }
-      maps[matcaps[index].mesh].matcap = {
+      maps[assets?.matcaps?.[index]?.mesh ?? ""].matcap = {
         texture: map,
-        isGlass: matcaps[index].isGlass
+        isGlass: assets?.matcaps?.[index]?.isGlass ?? false
       }
     })
 
@@ -151,7 +151,7 @@ const useBakes = (): Record<string, Bake> => {
       map.minFilter = NearestFilter
       map.magFilter = NearestFilter
 
-      const meshName = glassReflexes[index].mesh
+      const meshName = assets?.glassReflexes?.[index]?.mesh ?? ""
       if (!maps[meshName]) {
         maps[meshName] = {}
       }
@@ -164,10 +164,10 @@ const useBakes = (): Record<string, Bake> => {
     loadedAmbientOcclusion,
     withLightmap,
     withAmbientOcclusion,
-    matcaps,
+    assets?.matcaps,
     loadedMatcaps,
     loadedReflexes,
-    glassReflexes
+    assets?.glassReflexes
   ])
 
   return meshMaps

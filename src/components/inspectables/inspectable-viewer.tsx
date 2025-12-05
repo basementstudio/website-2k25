@@ -3,8 +3,8 @@
 import { RichText as BaseRichText } from "basehub/react-rich-text"
 import { Fragment, useEffect, useState } from "react"
 
-import { useAssets } from "@/components/assets-provider"
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useInspectable } from "@/components/inspectables/context"
 import { cn } from "@/utils/cn"
 
@@ -53,7 +53,7 @@ const Content = ({ data }: { data: InspectableData }) => (
 )
 
 export const InspectableViewer = () => {
-  const { inspectables } = useAssets()
+  const assets = useAssets()
   const { selected, setSelected } = useInspectable()
   const [data, setData] = useState<InspectableData | null>(null)
 
@@ -63,7 +63,7 @@ export const InspectableViewer = () => {
     if (!selected) return
 
     const fetchData = async () => {
-      const inspectableData = inspectables.find(
+      const inspectableData = assets?.inspectables.find(
         (inspectable) => inspectable.mesh === selected
       )
 
@@ -71,7 +71,7 @@ export const InspectableViewer = () => {
     }
 
     fetchData()
-  }, [selected, inspectables])
+  }, [selected, assets?.inspectables])
 
   return (
     <div

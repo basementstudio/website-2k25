@@ -8,7 +8,7 @@ import {
   Texture
 } from "three"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { revealOpacityMaterials } from "@/components/map/bakes"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -71,7 +71,7 @@ const Inner = ({
   useEffect(() => {
     const config = !firstRender.current ? ANIMATION_CONFIG : { duration: 0 }
 
-    const p = assets.scenes.find((s) => s.name === scene)?.postprocessing
+    const p = assets?.scenes.find((s) => s.name === scene)?.postprocessing
 
     if (p) {
       animate(targets.contrast, p.contrast, config)

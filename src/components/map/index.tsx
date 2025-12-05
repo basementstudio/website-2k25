@@ -7,7 +7,7 @@ import * as THREE from "three"
 
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { Clock } from "@/components/clock"
@@ -55,8 +55,7 @@ const PhysicsWorld = dynamic(
 )
 
 export const Map = memo(() => {
-  const { inspectables, videos, matcaps, glassMaterials, doubleSideElements } =
-    useAssets()
+  const assets = useAssets()
 
   const {
     office,
@@ -138,15 +137,19 @@ export const Map = memo(() => {
 
           const currentMaterial = meshChild.material as MeshStandardMaterial
 
-          const withVideo = videos.find(
+          const withVideo = assets?.videos.find(
             (video) => video.mesh === meshChild.name
           )
-          const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
+          const withMatcap = assets?.matcaps?.find(
+            (m) => m.mesh === meshChild.name
+          )
           const isClouds = meshChild.name === "cloudy_01"
-          const isGlass = glassMaterials.includes(currentMaterial.name)
+          const isGlass = assets?.glassMaterials.includes(currentMaterial.name)
           const isDaylight = meshChild.name === "DL_ScreenB"
 
-          currentMaterial.side = doubleSideElements.includes(meshChild.name)
+          currentMaterial.side = assets?.doubleSideElements.includes(
+            meshChild.name
+          )
             ? THREE.DoubleSide
             : THREE.FrontSide
 
@@ -221,7 +224,7 @@ export const Map = memo(() => {
         godrays,
         outdoorCars,
         basketballNet,
-        inspectables
+        inspectables: assets?.inspectables ?? []
       })
 
       alreadyTraversed.current = true

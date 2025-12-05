@@ -3,7 +3,7 @@
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
 import { useEffect, useState } from "react"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 
 import { ContactScreen } from "./contact-screen"
 import { useContactStore } from "./contact-store"
@@ -28,7 +28,7 @@ type WorkerMessageType =
   | "animation-complete"
 
 export const ContactCanvas = () => {
-  const { contactPhone } = useAssets()
+  const assets = useAssets()
   const worker = useContactStore((state) => state.worker)
   const setStoreWorker = useContactStore((state) => state.setWorker)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
@@ -103,10 +103,10 @@ export const ContactCanvas = () => {
     )
     setStoreWorker(newWorker)
 
-    if (contactPhone) {
+    if (assets?.contactPhone) {
       newWorker.postMessage({
         type: "load-model",
-        modelUrl: contactPhone,
+        modelUrl: assets?.contactPhone ?? "",
         windowDimensions: {
           width: window.innerWidth,
           height: window.innerHeight
@@ -146,7 +146,7 @@ export const ContactCanvas = () => {
       newWorker.terminate()
       setStoreWorker(null)
     }
-  }, [contactPhone, setStoreWorker])
+  }, [assets?.contactPhone, setStoreWorker])
 
   useEffect(() => {
     if (worker) {

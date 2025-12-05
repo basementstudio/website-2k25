@@ -1,7 +1,7 @@
 import { Container, Image, Text } from "@react-three/uikit"
 import React from "react"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 
 import { COLORS_THEME } from "../screen-ui"
 
@@ -10,7 +10,7 @@ interface ArcadePreviewProps {
 }
 
 export const ArcadePreview = ({ selectedExperiment }: ArcadePreviewProps) => {
-  const { arcade } = useAssets()
+  const assets = useAssets()
   return (
     <Container width={"40%"} height={"100%"} gap={10} flexDirection={"column"}>
       <Container
@@ -22,7 +22,11 @@ export const ArcadePreview = ({ selectedExperiment }: ArcadePreviewProps) => {
       >
         <Image
           positionType="absolute"
-          src={selectedExperiment?.cover?.url ?? arcade.placeholderLab}
+          src={
+            selectedExperiment?.cover?.url ??
+            assets?.arcade?.placeholderLab ??
+            ""
+          }
           width={"100%"}
           height={"100%"}
           objectFit="cover"

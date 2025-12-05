@@ -1,3 +1,5 @@
+"use server"
+
 import { basehub } from "basehub"
 
 import { assetsQuery } from "./query"

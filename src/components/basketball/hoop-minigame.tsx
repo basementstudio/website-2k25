@@ -5,7 +5,7 @@ import type * as THREE from "three"
 import { MathUtils, Vector2, Vector3 } from "three"
 
 import { normalizeDelta } from "@/components/arcade-game/lib/math"
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import {
   handlePointerDown as utilsHandlePointerDown,
   handlePointerMove as utilsHandlePointerMove,
@@ -24,12 +24,12 @@ import { RigidBodies } from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
   const { playSoundFX } = useSiteAudio()
-  const { physicsParams } = useAssets()
+  const assets = useAssets()
 
-  const us = physicsParams.find(
+  const us = assets?.physicsParams.find(
     (param) => param._title === "forward strength"
   )?.value
-  const fs = physicsParams.find(
+  const fs = assets?.physicsParams.find(
     (param) => param._title === "upward strength"
   )?.value
 

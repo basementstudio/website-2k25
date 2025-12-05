@@ -1,9 +1,9 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useContactStore } from "@/components/contact/contact-store"
 import { useInspectable } from "@/components/inspectables/context"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -28,7 +28,8 @@ export const NavigationHandler = () => {
     currentTabIndex,
     setEnteredByKeyboard
   } = useNavigationStore()
-  const scenes: IScene[] = useAssets().scenes
+  const assets = useAssets()
+  const scenes: IScene[] = useMemo(() => assets?.scenes ?? [], [assets])
   const { handleNavigation } = useHandleNavigation()
   const scene = useCurrentScene()
   const setLabTabIndex = useArcadeStore((state) => state.setLabTabIndex)

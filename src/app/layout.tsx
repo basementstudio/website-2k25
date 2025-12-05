@@ -5,8 +5,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
+import { Suspense } from "react"
 
-import { AssetsProviderServer } from "@/components/assets-provider/server"
+import { AppHooks } from "@/components/app-hooks-init"
 import { Contact } from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { ContentWrapper } from "@/components/layout/content-wrapper"
@@ -69,25 +70,24 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <SpeedInsights />
       <Transitions />
       <PostHogProvider>
-        <AssetsProviderServer>
-          <InspectableProvider>
-            <body
-              className={cn(
-                geistSans.variable,
-                geistMono.variable,
-                flauta.variable,
-                "font-sans"
-              )}
-              suppressHydrationWarning
-            >
-              <HtmlTunnelOut />
-              <Navbar />
-              <NavigationHandler />
-              <ContentWrapper>{children}</ContentWrapper>
-              <Contact />
-            </body>
-          </InspectableProvider>
-        </AssetsProviderServer>
+        <AppHooks />
+        <InspectableProvider>
+          <body
+            className={cn(
+              geistSans.variable,
+              geistMono.variable,
+              flauta.variable,
+              "font-sans"
+            )}
+            suppressHydrationWarning
+          >
+            <HtmlTunnelOut />
+            <Navbar />
+            <NavigationHandler />
+            <ContentWrapper>{children}</ContentWrapper>
+            <Contact />
+          </body>
+        </InspectableProvider>
       </PostHogProvider>
     </html>
   )

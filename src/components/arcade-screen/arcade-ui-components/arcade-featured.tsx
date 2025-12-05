@@ -2,7 +2,7 @@ import { Container, Image, Text } from "@react-three/uikit"
 import { Separator } from "@react-three/uikit-default"
 import React, { useCallback, useState } from "react"
 
-import { useAssets } from "@/components/assets-provider"
+import { useAssets } from "@/components/assets-provider/use-assets"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { useCursor } from "@/hooks/use-mouse"
 import { useArcadeStore } from "@/store/arcade-store"
@@ -10,7 +10,7 @@ import { useArcadeStore } from "@/store/arcade-store"
 import { COLORS_THEME } from "../screen-ui"
 
 export const ArcadeFeatured = () => {
-  const { arcade } = useAssets()
+  const assets = useAssets()
 
   const [hoveredSection, setHoveredSection] = useState({
     chronicles: false,
@@ -108,7 +108,7 @@ export const ArcadeFeatured = () => {
             </Text>
           </Container>
           <Image
-            src={arcade.chronicles}
+            src={assets?.arcade?.chronicles ?? ""}
             width={"100%"}
             height={"100%"}
             objectFit="cover"
@@ -164,7 +164,7 @@ export const ArcadeFeatured = () => {
             </Text>
           </Container>
           <Image
-            src={arcade.looper}
+            src={assets?.arcade?.looper ?? ""}
             width={"100%"}
             height={"100%"}
             objectFit="cover"
