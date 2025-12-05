@@ -114,7 +114,7 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
   }, [visible])
 
   return (
-    <group visible={visible}>
+    <group visible={visible} scale={[-1, 1, 1]}>
       <Container
         width={590}
         height={390}
