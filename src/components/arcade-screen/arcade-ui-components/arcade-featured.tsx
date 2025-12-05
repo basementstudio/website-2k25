@@ -91,7 +91,7 @@ export const ArcadeFeatured = () => {
             }
             positionType="absolute"
             width={"auto"}
-            zIndexOffset={10}
+            {...({ zIndex: 10 } as any)}
             height={16}
             alignItems="center"
             justifyContent="center"
@@ -147,7 +147,7 @@ export const ArcadeFeatured = () => {
             }
             positionType="absolute"
             width={"auto"}
-            zIndexOffset={10}
+            {...({ zIndex: 10 } as any)}
             height={16}
             alignItems="center"
             justifyContent="center"
