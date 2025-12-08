@@ -4,14 +4,14 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   productionBrowserSourceMaps: true,
   experimental: {
-    turbo: {
-      rules: {
-        "*.{glsl,vert,frag,vs,fs}": {
-          loaders: ["raw-loader", "glslify-loader"],
-          as: "*.js"
-        }
-      }
-    },
+    // turbo: {
+    //   rules: {
+    //     "*.{glsl,vert,frag,vs,fs}": {
+    //       loaders: ["raw-loader", "glslify-loader"],
+    //       as: "*.js"
+    //     }
+    //   }
+    // },
     ppr: "incremental"
   },
 
