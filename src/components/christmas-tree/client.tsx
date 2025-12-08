@@ -37,7 +37,6 @@ export const ClientChristmasTree = () => {
   const isChristmasSeason = useSiteAudioStore((s) => s.isChristmasSeason)
   const setCursor = useCursor()
   const { scene } = useKTX2GLTF<GLTF>(specialEvents.christmas.tree)
-  const ballMatcap = useTexture(specialEvents.christmas.ballMatcap)
 
   const { services } = useMesh()
   const ballMeshRefs = useRef<Record<string, Mesh[]>>({
@@ -67,11 +66,6 @@ export const ClientChristmasTree = () => {
         child.material.side = 2
 
         child.material.uniforms.lightDirection.value = new Vector3(1, 0, -1)
-
-        if (materialName === "RedMetallic" || materialName === "BlueMetallic") {
-          child.material.uniforms.matcap.value = ballMatcap
-          child.material.uniforms.inspectingFactor.value = 1.0
-        }
 
         child.userData.hasGlobalMaterial = true
 
@@ -119,7 +113,7 @@ export const ClientChristmasTree = () => {
         }
       }
     })
-  }, [scene, ballMatcap])
+  }, [scene])
 
   useFrame((state) => {
     const time = state.clock.elapsedTime

@@ -14,7 +14,6 @@ export interface AssetsResult {
   specialEvents: {
     christmas: {
       tree: string
-      ballMatcap: string
       song: string
     }
   }
@@ -239,8 +238,6 @@ export async function fetchAssets(): Promise<AssetsResult> {
     specialEvents: {
       christmas: {
         tree: threeDInteractions.specialEvents.christmas.tree?.file?.url ?? "",
-        ballMatcap:
-          threeDInteractions.specialEvents.christmas.ballMatcap?.url ?? "",
         song: threeDInteractions.specialEvents.christmas.song?.url ?? ""
       }
     },

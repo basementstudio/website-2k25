@@ -37,7 +37,7 @@ const ASSET_TO_NOT_PRELOAD = [
   "palm",
 
   // Special Events - Preload only if the season is active
-  ...(!IsChristmasSeason() ? ["tree", "ballMatcap"] : [])
+  ...(!IsChristmasSeason() ? ["tree"] : [])
 ]
 
 // Assets has different keys for the url.
