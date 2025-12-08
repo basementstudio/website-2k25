@@ -8,7 +8,7 @@ import { useAssets } from "@/components/assets-provider"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
-import { useSiteAudioStore } from "@/hooks/use-site-audio"
+import { useSiteAudio, useSiteAudioStore } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 const CYCLE_TIME = 1.5
@@ -32,6 +32,7 @@ const INTENSITIES = {
 
 export const ClientChristmasTree = () => {
   const { specialEvents } = useAssets()
+  const { handleMute, music } = useSiteAudio()
   const setIsChristmasSeason = useSiteAudioStore((s) => s.setIsChristmasSeason)
   const isChristmasSeason = useSiteAudioStore((s) => s.isChristmasSeason)
   const setCursor = useCursor()
@@ -236,9 +237,12 @@ export const ClientChristmasTree = () => {
       setCursor("pointer", "Play Christmas Song")
     } else {
       setIsChristmasSeason(true)
+      if (!music) {
+        handleMute()
+      }
       setCursor("pointer", "Stop Christmas Song")
     }
-  }, [isChristmasSeason, setIsChristmasSeason, setCursor])
+  }, [isChristmasSeason, setIsChristmasSeason, setCursor, handleMute, music])
 
   return (
     <group>
