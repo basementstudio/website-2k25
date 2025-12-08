@@ -30,11 +30,10 @@ const INTENSITIES = {
 
 export const ClientChristmasTree = () => {
   const { specialEvents } = useAssets()
-  const { services } = useMesh()
-
   const { scene } = useKTX2GLTF<GLTF>(specialEvents.christmas.tree)
   const ballMatcap = useTexture(specialEvents.christmas.ballMatcap)
 
+  const { services } = useMesh()
   const ballMeshRefs = useRef<Record<string, Mesh[]>>({
     blue: [],
     green: [],
@@ -124,13 +123,13 @@ export const ClientChristmasTree = () => {
 
     const getTransition = (targetPhase: number) => {
       let localPhase = cyclePhase
-      while (localPhase < 0) localPhase += CYCLE_TIME
-      while (localPhase >= CYCLE_TIME) localPhase -= CYCLE_TIME
+      while (localPhase < 0) localPhase += 4
+      while (localPhase >= 4) localPhase -= 4
 
       let phaseDiff = localPhase - targetPhase
 
-      if (phaseDiff > 2) phaseDiff -= CYCLE_TIME
-      if (phaseDiff <= -2) phaseDiff += CYCLE_TIME
+      if (phaseDiff > 2) phaseDiff -= 4
+      if (phaseDiff <= -2) phaseDiff += 4
 
       const fadeInStart = -TRANSITION_OVERLAP
       const fadeInEnd = 0.0
