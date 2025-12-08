@@ -10,6 +10,7 @@ import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
+import { ChristmasTree } from "@/components/christmas-tree"
 import { Clock } from "@/components/clock"
 import { Godrays } from "@/components/godrays"
 import { Lamp } from "@/components/lamp"
@@ -267,6 +268,7 @@ export const Map = memo(() => {
       {/*Services */}
       <Weather />
       <OutdoorCars />
+      <ChristmasTree />
       <Clock />
 
       {/* Basketball */}

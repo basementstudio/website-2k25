@@ -217,6 +217,13 @@ export const arcadeFragment = fragmentOn("Arcade", {
   }
 })
 
+export const specialEventsFragment = fragmentOn("SpecialEvents", {
+  christmas: {
+    tree: modelsItemFragment,
+    ballMatcap: urlFragment
+  }
+})
+
 export const sceneFragment = fragmentOn("Scenes", {
   scenes: {
     items: {
