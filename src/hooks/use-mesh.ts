@@ -26,6 +26,7 @@ interface basketball {
 
 interface services {
   clock: Mesh | null
+  pot: Mesh | null
 }
 
 export interface MeshStore {
@@ -63,7 +64,8 @@ export const useMesh = create<MeshStore>()(() => ({
     loboMarino: null
   },
   services: {
-    clock: null
+    clock: null,
+    pot: null
   },
   cars: [],
   cctv: {

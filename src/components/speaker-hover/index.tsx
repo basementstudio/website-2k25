@@ -6,24 +6,28 @@ import { useCallback, useEffect, useState } from "react"
 import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useCursor } from "@/hooks/use-mouse"
-import { useSiteAudio } from "@/hooks/use-site-audio"
+import { useSiteAudio, useSiteAudioStore } from "@/hooks/use-site-audio"
 
 export const SpeakerHover = () => {
   const setCursor = useCursor()
   const scene = useCurrentScene()
   const { currentTrackName, nextAmbienceTrack } = useAmbiencePlaylist()
+  const isChristmasSeason = useSiteAudioStore((s) => s.isChristmasSeason)
+  const setIsChristmasSeason = useSiteAudioStore((s) => s.setIsChristmasSeason)
   const { music, handleMute } = useSiteAudio()
   const [hover, setHover] = useState(false)
 
   useEffect(() => {
     music && hover && currentTrackName
-      ? setCursor(
-          "pointer",
-          `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
-          true
-        )
+      ? isChristmasSeason
+        ? setCursor("pointer", "Switch to Jukebox")
+        : setCursor(
+            "pointer",
+            `${currentTrackName || "Unknown Track - Unknown Artist ??:??"}`,
+            true
+          )
       : hover && setCursor("pointer", "Turn on Music")
-  }, [currentTrackName, music, hover, setCursor])
+  }, [currentTrackName, music, hover, setCursor, isChristmasSeason])
 
   const handlePointerLeave = useCallback(() => {
     setHover(false)
@@ -31,14 +35,22 @@ export const SpeakerHover = () => {
   }, [setCursor])
 
   const handleClick = useCallback(() => {
-    if (music) {
+    if (isChristmasSeason) {
+      setIsChristmasSeason(false)
+    } else if (music) {
       nextAmbienceTrack()
       track("switch_ambience")
       posthog.capture("switch_ambience")
     } else {
       handleMute()
     }
-  }, [nextAmbienceTrack, music, handleMute])
+  }, [
+    nextAmbienceTrack,
+    music,
+    handleMute,
+    isChristmasSeason,
+    setIsChristmasSeason
+  ])
 
   return (
     <>

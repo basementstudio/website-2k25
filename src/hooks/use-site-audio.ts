@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from "react"
+import { memo, useCallback, useEffect, useRef } from "react"
 import { create } from "zustand"
 
 import { useAudioUrls } from "@/hooks/use-audio-urls"
@@ -40,12 +40,15 @@ interface SiteAudioStore {
   music: boolean
   setMusic: (state: boolean) => void
   gameThemeSong: AudioSource | null
+  overrideSong: AudioSource | null
   activeTrackType: BackgroundAudioType
   setActiveTrackType: (type: BackgroundAudioType) => void
   currentAmbienceIndex: number
   setCurrentAmbienceIndex: (index: number) => void
   isBackgroundInitialized: boolean
   setBackgroundInitialized: (initialized: boolean) => void
+  isChristmasSeason: boolean
+  setIsChristmasSeason: (state: boolean) => void
 }
 
 interface SiteAudioHook {
@@ -64,6 +67,7 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
   player: null,
   audioSfxSources: null,
   gameThemeSong: null,
+  overrideSong: null,
   music: false,
   setMusic: (state) => useSiteAudioStore.setState({ music: state }),
   activeTrackType: "ambience" as BackgroundAudioType,
@@ -74,7 +78,10 @@ const useSiteAudioStore = create<SiteAudioStore>(() => ({
     useSiteAudioStore.setState({ currentAmbienceIndex: index }),
   isBackgroundInitialized: false,
   setBackgroundInitialized: (initialized) =>
-    useSiteAudioStore.setState({ isBackgroundInitialized: initialized })
+    useSiteAudioStore.setState({ isBackgroundInitialized: initialized }),
+  isChristmasSeason: false,
+  setIsChristmasSeason: (state) =>
+    useSiteAudioStore.setState({ isChristmasSeason: state })
 }))
 
 export { useSiteAudioStore }
@@ -86,10 +93,12 @@ export const useInitializeAudioContext = () => {
   const music = useSiteAudioStore((s) => s.music)
   const setMusic = useSiteAudioStore((s) => s.setMusic)
   const scene = useCurrentScene()
+  const isChristmasSeason = useSiteAudioStore((s) => s.isChristmasSeason)
 
   const isOnTab = useIsOnTab()
 
-  const { ARCADE_AUDIO_SFX, GAME_THEME_SONGS } = useAudioUrls()
+  const { ARCADE_AUDIO_SFX, GAME_THEME_SONGS, SPECIAL_EVENTS_AUDIO_SFX } =
+    useAudioUrls()
 
   // Initialize audio system when player is available
   useEffect(() => {
@@ -143,7 +152,7 @@ export const useInitializeAudioContext = () => {
         const currentSong = useSiteAudioStore.getState().gameThemeSong
         if (currentSong) currentSong.stop()
 
-        const source = await player.loadAudioFromURL(url, false, true)
+        const source = await player.loadAudioFromURL(url, false, true, false)
         source.loop = true
         source.setVolume(AMBIENT_VOLUME)
         source.play()
@@ -156,23 +165,58 @@ export const useInitializeAudioContext = () => {
     [player]
   )
 
+  const playChristmasSong = useCallback(
+    async (url: string) => {
+      if (!player) return
+
+      try {
+        const currentSong = useSiteAudioStore.getState().overrideSong
+        if (currentSong) currentSong.stop()
+
+        const source = await player.loadAudioFromURL(url, false, false, true)
+        source.loop = true
+        source.setVolume(AMBIENT_VOLUME)
+        source.play()
+
+        useSiteAudioStore.setState({ overrideSong: source })
+      } catch (error) {
+        console.error("Failed to load or play game song:", error)
+      }
+    },
+    [player]
+  )
+
+  const overrideSong = useRef<boolean>(false)
+
   useEffect(() => {
     if (!player) return
 
     if (isIngame && scene === "lab") {
       player.setGameVolume(1)
+      player.setOverrideSongVolume(0)
       player.setMusicVolume(0)
       playGameSong(ARCADE_AUDIO_SFX.MIAMI_HEATWAVE)
     } else if (scene === "basketball") {
       player.setGameVolume(1)
+      player.setOverrideSongVolume(0)
       player.setMusicVolume(0)
       playGameSong(GAME_THEME_SONGS.BASKETBALL_SONG)
+    } else if (isChristmasSeason) {
+      player.setGameVolume(0)
+      player.setOverrideSongVolume(1)
+      player.setMusicVolume(0)
+      if (!overrideSong.current) {
+        playChristmasSong(SPECIAL_EVENTS_AUDIO_SFX.CHRISTMAS)
+        overrideSong.current = true
+      }
     } else {
       player.setGameVolume(0)
+      player.setOverrideSongVolume(0)
       player.setMusicVolume(1)
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [player, scene, isIngame])
+  }, [player, scene, isIngame, isChristmasSeason])
 }
 
 export const SiteAudioSFXsLoader = memo((): null => {

@@ -102,7 +102,8 @@ export const extractMeshes = ({
   // --- Services --- //
 
   const clock = office.getObjectByName("SM_KitCat") as Mesh
-  useMesh.setState({ services: { clock } })
+  const pot = office.getObjectByName("SM_00a_01") as Mesh
+  useMesh.setState({ services: { clock, pot } })
 
   // --- Basketball --- //
 
