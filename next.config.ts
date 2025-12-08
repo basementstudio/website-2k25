@@ -12,14 +12,6 @@ const nextConfig: NextConfig = {
     }
   },
   experimental: {
-    // turbo: {
-    //   rules: {
-    //     "*.{glsl,vert,frag,vs,fs}": {
-    //       loaders: ["raw-loader", "glslify-loader"],
-    //       as: "*.js"
-    //     }
-    //   }
-    // },
     ppr: "incremental"
   },
 
