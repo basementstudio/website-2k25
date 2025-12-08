@@ -3,6 +3,14 @@ import type { NextConfig } from "next"
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   productionBrowserSourceMaps: true,
+  turbopack: {
+    rules: {
+      "*.{glsl,vert,frag,vs,fs}": {
+        loaders: ["raw-loader", "glslify-loader"],
+        as: "*.js"
+      }
+    }
+  },
   experimental: {
     // turbo: {
     //   rules: {
