@@ -1,12 +1,14 @@
-import { useTexture } from "@react-three/drei"
+import { MeshDiscardMaterial, useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { Color, Mesh, ShaderMaterial, Vector3 } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useMesh } from "@/hooks/use-mesh"
+import { useCursor } from "@/hooks/use-mouse"
+import { useSiteAudioStore } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 const CYCLE_TIME = 1.5
@@ -30,6 +32,9 @@ const INTENSITIES = {
 
 export const ClientChristmasTree = () => {
   const { specialEvents } = useAssets()
+  const setIsChristmasSeason = useSiteAudioStore((s) => s.setIsChristmasSeason)
+  const isChristmasSeason = useSiteAudioStore((s) => s.isChristmasSeason)
+  const setCursor = useCursor()
   const { scene } = useKTX2GLTF<GLTF>(specialEvents.christmas.tree)
   const ballMatcap = useTexture(specialEvents.christmas.ballMatcap)
 
@@ -212,5 +217,41 @@ export const ClientChristmasTree = () => {
     if (services.pot) services.pot.visible = false
   }, [services.pot])
 
-  return <primitive object={scene} />
+  const handlePointerEnter = useCallback(
+    (e?: React.PointerEvent<Mesh>) => {
+      e?.stopPropagation()
+      setTimeout(() => {
+        setCursor(
+          "pointer",
+          isChristmasSeason ? "Stop Christmas Song" : "Play Christmas Song"
+        )
+      }, 1)
+    },
+    [isChristmasSeason, setCursor]
+  )
+
+  const handleClick = useCallback(() => {
+    if (isChristmasSeason) {
+      setIsChristmasSeason(false)
+      setCursor("pointer", "Play Christmas Song")
+    } else {
+      setIsChristmasSeason(true)
+      setCursor("pointer", "Stop Christmas Song")
+    }
+  }, [isChristmasSeason, setIsChristmasSeason, setCursor])
+
+  return (
+    <group>
+      <primitive object={scene} />
+      <mesh
+        position={[2.65, 1.65, -6.55]}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={() => setCursor("default", null)}
+        onPointerDown={handleClick}
+      >
+        <cylinderGeometry args={[0.1, 0.85, 1.9, 6]} />
+        <MeshDiscardMaterial />
+      </mesh>
+    </group>
+  )
 }

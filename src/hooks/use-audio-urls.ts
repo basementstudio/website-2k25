@@ -1,7 +1,7 @@
 import { useAssets } from "@/components/assets-provider"
 
 export const useAudioUrls = () => {
-  const { sfx } = useAssets()
+  const { sfx, specialEvents } = useAssets()
 
   return {
     AMBIENCE: {
@@ -11,7 +11,6 @@ export const useAudioUrls = () => {
       AMBIENCE_TIGER: sfx.music.tiger,
       AMBIENCE_VHS: sfx.music.vhs
     },
-
     GAME_THEME_SONGS: {
       BASKETBALL_SONG: sfx.basketballTheme
     },
@@ -43,6 +42,9 @@ export const useAudioUrls = () => {
         RELEASE: item.release
       })),
       MIAMI_HEATWAVE: sfx.arcade.miamiHeatwave
+    },
+    SPECIAL_EVENTS_AUDIO_SFX: {
+      CHRISTMAS: specialEvents.christmas.song
     },
     CONTACT_AUDIO_SFX: {
       INTERFERENCE: sfx.contact.interference,

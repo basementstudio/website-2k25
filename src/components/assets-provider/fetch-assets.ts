@@ -15,6 +15,7 @@ export interface AssetsResult {
     christmas: {
       tree: string
       ballMatcap: string
+      song: string
     }
   }
   routingElements: string
@@ -239,7 +240,8 @@ export async function fetchAssets(): Promise<AssetsResult> {
       christmas: {
         tree: threeDInteractions.specialEvents.christmas.tree?.file?.url ?? "",
         ballMatcap:
-          threeDInteractions.specialEvents.christmas.ballMatcap?.url ?? ""
+          threeDInteractions.specialEvents.christmas.ballMatcap?.url ?? "",
+        song: threeDInteractions.specialEvents.christmas.song?.url ?? ""
       }
     },
     sfx: {
@@ -283,6 +285,9 @@ export async function fetchAssets(): Promise<AssetsResult> {
         rain: threeDInteractions.sfx.music.rain.url,
         tiger: threeDInteractions.sfx.music.tiger.url,
         vhs: threeDInteractions.sfx.music.vhs.url
+      },
+      specialEvents: {
+        christmas: threeDInteractions.specialEvents.christmas.song.url
       }
     },
     scenes: threeDInteractions.scenes.scenes.items.map((item) => ({
