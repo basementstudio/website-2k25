@@ -27,7 +27,7 @@ export const ArcadeTitleTagsHeader = () => {
         positionType="absolute"
         zIndexOffset={10}
         positionTop={2}
-        paddingTop={8}
+        paddingTop={4}
         positionLeft={12}
         paddingX={4}
       >
@@ -41,7 +41,7 @@ export const ArcadeTitleTagsHeader = () => {
         positionType="absolute"
         zIndexOffset={10}
         positionTop={2}
-        paddingTop={8}
+        paddingTop={4}
         positionLeft={"60%"}
         paddingX={4}
       >

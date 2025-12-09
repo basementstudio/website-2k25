@@ -141,7 +141,6 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
           borderColor={COLORS_THEME.primary}
           borderRadius={10}
           paddingY={10}
-          paddingX={1.5}
           flexDirection="column"
         >
           <ArcadeWrapperTags />
