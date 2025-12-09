@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
 import { useArcadeStore } from "@/store/arcade-store"
 
-import { ffflauta } from "../../../public/fonts/ffflauta"
 import { ArcadeFeatured } from "./arcade-ui-components/arcade-featured"
 import { ArcadeLabsList } from "./arcade-ui-components/arcade-labs-list"
 import { ArcadePreview } from "./arcade-ui-components/arcade-preview"

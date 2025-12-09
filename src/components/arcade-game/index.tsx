@@ -9,7 +9,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useArcadeStore } from "@/store/arcade-store"
 
-import { ffflauta } from "../../../public/fonts/ffflauta"
+import ffflauta from "../../../public/fonts/ffflauta.json"
 import { useGame } from "./lib/use-game"
 
 // Convert font object to JSON data URL for react-three/uikit
