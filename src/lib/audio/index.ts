@@ -13,6 +13,7 @@ export class AudioSource {
   private onEndedCallback: (() => void) | null = null
   public isSFX: boolean = false
   public isGameAudio: boolean = false
+  public isOverrideSong: boolean = false
   public originalVolume?: number
 
   constructor(
@@ -146,10 +147,12 @@ export class WebAudioPlayer {
   public musicChannel: GainNode
   public sfxChannel: GainNode
   public gameChannel: GainNode
+  public overrideSongChannel: GainNode
   public isPlaying: boolean
   public volume: number
   public musicVolume: number
   public gameVolume: number
+  public overrideSongVolume: number
   public ambienceVolume: number
   private audioSources: Set<AudioSource> = new Set()
 
@@ -171,6 +174,11 @@ export class WebAudioPlayer {
     this.gameChannel.gain.value = 1
     this.gameChannel.connect(this.ambienceChannel)
 
+    // override song channel
+    this.overrideSongChannel = this.audioContext.createGain()
+    this.overrideSongChannel.gain.value = 1
+    this.overrideSongChannel.connect(this.ambienceChannel)
+
     // music channel
     this.musicChannel = this.audioContext.createGain()
     this.musicChannel.gain.value = 1
@@ -185,13 +193,15 @@ export class WebAudioPlayer {
     this.volume = 1
     this.musicVolume = 1
     this.gameVolume = 1
+    this.overrideSongVolume = 1
     this.ambienceVolume = 1
   }
 
   loadAudioFromURL(
     url: string,
     isSFX: boolean = false,
-    isGameAudio: boolean = false
+    isGameAudio: boolean = false,
+    isOverrideSong: boolean = false
   ): Promise<AudioSource> {
     return new Promise((resolve, reject) => {
       fetch(url)
@@ -206,6 +216,9 @@ export class WebAudioPlayer {
               if (isGameAudio) {
                 source.outputNode.connect(this.gameChannel)
                 source.isGameAudio = true
+              } else if (isOverrideSong) {
+                source.outputNode.connect(this.overrideSongChannel)
+                source.isOverrideSong = true
               } else if (isSFX) {
                 source.outputNode.connect(this.sfxChannel)
               } else {
@@ -261,6 +274,22 @@ export class WebAudioPlayer {
     )
 
     this.gameVolume = volume
+  }
+
+  setOverrideSongVolume(volume: number, fadeTime: number = FADE_DURATION) {
+    const currentTime = this.audioContext.currentTime
+
+    this.overrideSongChannel.gain.cancelScheduledValues(currentTime)
+    this.overrideSongChannel.gain.setValueAtTime(
+      this.overrideSongChannel.gain.value,
+      currentTime
+    )
+    this.overrideSongChannel.gain.linearRampToValueAtTime(
+      volume,
+      currentTime + fadeTime
+    )
+
+    this.overrideSongVolume = volume
   }
 
   setAmbienceVolume(volume: number, fadeTime: number = FADE_DURATION) {

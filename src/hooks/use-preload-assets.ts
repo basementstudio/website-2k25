@@ -2,6 +2,7 @@ import { preload, PreloadOptions } from "react-dom"
 
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
+import { IsChristmasSeason } from "@/utils/special-events"
 
 // Assets that should not be preloaded
 const ASSET_TO_NOT_PRELOAD = [
@@ -33,7 +34,10 @@ const ASSET_TO_NOT_PRELOAD = [
   "skybox",
   "cityscape",
   "introScreen",
-  "palm"
+  "palm",
+
+  // Special Events - Preload only if the season is active
+  ...(!IsChristmasSeason() ? ["tree"] : [])
 ]
 
 // Assets has different keys for the url.

@@ -10,7 +10,8 @@ import {
   modelsItemFragment,
   physicsParamsFragment,
   sceneFragment,
-  sfxFragment
+  sfxFragment,
+  specialEventsFragment
 } from "./fragments"
 
 const pagesFragment = fragmentOn("Pages", {
@@ -24,6 +25,7 @@ const assetsFragment = fragmentOn("ThreeDInteractions", {
   basketballNet: modelsItemFragment,
   contactPhone: modelsItemFragment,
   arcade: arcadeFragment,
+  specialEvents: specialEventsFragment,
   scenes: sceneFragment,
   outdoorCars: carFragment,
   characters: characterFragment,

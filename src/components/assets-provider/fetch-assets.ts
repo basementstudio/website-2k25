@@ -11,6 +11,12 @@ export interface AssetsResult {
   basketball: string
   basketballNet: string
   contactPhone: string
+  specialEvents: {
+    christmas: {
+      tree: string
+      song: string
+    }
+  }
   routingElements: string
   bakes: {
     title: string
@@ -229,6 +235,12 @@ export async function fetchAssets(): Promise<AssetsResult> {
     basketball: threeDInteractions.basketball.file?.url ?? "",
     basketballNet: threeDInteractions.basketballNet.file?.url ?? "",
     contactPhone: threeDInteractions.contactPhone?.file?.url ?? "",
+    specialEvents: {
+      christmas: {
+        tree: threeDInteractions.specialEvents.christmas.tree?.file?.url ?? "",
+        song: threeDInteractions.specialEvents.christmas.song?.url ?? ""
+      }
+    },
     sfx: {
       basketballTheme: threeDInteractions.sfx.basketballTheme?.url,
       basketballSwoosh: threeDInteractions.sfx.basketballSwoosh?.url,
