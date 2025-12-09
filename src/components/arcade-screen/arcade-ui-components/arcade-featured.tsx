@@ -67,7 +67,6 @@ export const ArcadeFeatured = () => {
           alignItems="center"
           justifyContent="center"
           onClick={(e) => {
-            e.stopPropagation()
             handleChroniclesClick()
           }}
           onHoverChange={(hover) => {
@@ -88,7 +87,7 @@ export const ArcadeFeatured = () => {
             }
             positionType="absolute"
             width={"auto"}
-            zIndexOffset={10}
+            {...({ zIndex: 10 } as any)}
             height={16}
             alignItems="center"
             justifyContent="center"
@@ -144,7 +143,7 @@ export const ArcadeFeatured = () => {
             }
             positionType="absolute"
             width={"auto"}
-            zIndexOffset={10}
+            {...({ zIndex: 10 } as any)}
             height={16}
             alignItems="center"
             justifyContent="center"
