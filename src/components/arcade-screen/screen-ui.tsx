@@ -1,10 +1,5 @@
-import {
-  Container,
-  DefaultProperties,
-  FontFamilyProvider,
-  Root
-} from "@react-three/uikit"
-import { useEffect, useRef, useState } from "react"
+import { Container } from "@react-three/uikit"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 import { fetchLaboratory } from "@/actions/laboratory-fetch"
 import { useArcadeStore } from "@/store/arcade-store"
@@ -90,6 +85,16 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
   const [experiments, setExperiments] = useState<any[]>([])
   const [selectedExperiment, setSelectedExperiment] = useState<any>(null)
 
+  // Font URL for react-three/uikit
+  const fontFamilies = useMemo(
+    () => ({
+      ffflauta: {
+        normal: "/fonts/ffflauta.json"
+      }
+    }),
+    []
+  )
+
   useEffect(() => {
     if (visible) {
       fetchLaboratory().then((data) => {
@@ -110,60 +115,56 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
   }, [visible])
 
   return (
-    <group visible={visible}>
-      <Root
+    <group visible={visible} scale={[-1, 1, 1]}>
+      <Container
         width={590}
         height={390}
-        transformScaleX={-1}
         backgroundColor={COLORS_THEME.black}
         positionType="relative"
         display="flex"
         flexDirection="column"
         paddingY={24}
         paddingX={18}
+        {...({
+          fontFamilies,
+          "*": {
+            fontFamily: "ffflauta",
+            fontSize: 13,
+            fontWeight: "normal",
+            color: COLORS_THEME.primary
+          }
+        } as any)}
       >
-        <FontFamilyProvider
-          ffflauta={{
-            normal: ffflauta
-          }}
+        <Container
+          width={"100%"}
+          height={"100%"}
+          borderWidth={1.5}
+          borderColor={COLORS_THEME.primary}
+          borderRadius={10}
+          paddingY={10}
+          paddingX={1.5}
+          flexDirection="column"
         >
-          <DefaultProperties
-            fontFamily={"ffflauta"}
-            fontSize={13}
-            fontWeight={"normal"}
-            color={COLORS_THEME.primary}
+          <ArcadeWrapperTags />
+          <ArcadeTitleTagsHeader />
+          <Container
+            width={"100%"}
+            flexGrow={1}
+            zIndexOffset={16}
+            padding={10}
+            flexDirection="row"
+            gap={10}
           >
-            <Container
-              width={"100%"}
-              height={"100%"}
-              borderWidth={1.5}
-              borderColor={COLORS_THEME.primary}
-              borderRadius={10}
-              paddingY={10}
-              flexDirection="column"
-            >
-              <ArcadeWrapperTags />
-              <ArcadeTitleTagsHeader />
-              <Container
-                width={"100%"}
-                flexGrow={1}
-                zIndexOffset={16}
-                padding={10}
-                flexDirection="row"
-                gap={10}
-              >
-                <ArcadeLabsList
-                  experiments={experiments}
-                  selectedExperiment={selectedExperiment}
-                  setSelectedExperiment={setSelectedExperiment}
-                />
-                <ArcadePreview selectedExperiment={selectedExperiment} />
-              </Container>
-              <ArcadeFeatured />
-            </Container>
-          </DefaultProperties>
-        </FontFamilyProvider>
-      </Root>
+            <ArcadeLabsList
+              experiments={experiments}
+              selectedExperiment={selectedExperiment}
+              setSelectedExperiment={setSelectedExperiment}
+            />
+            <ArcadePreview selectedExperiment={selectedExperiment} />
+          </Container>
+          <ArcadeFeatured />
+        </Container>
+      </Container>
     </group>
   )
 }
