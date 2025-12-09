@@ -157,7 +157,6 @@ export const ArcadeLabsList = ({
                   : COLORS_THEME.black
               }
               onClick={(e) => {
-                // e.stopPropagation()
                 handleExperimentClick(data)
               }}
               onHoverChange={(hover) => {
@@ -195,7 +194,6 @@ export const ArcadeLabsList = ({
                 paddingX={8}
                 positionType="relative"
                 onClick={(e) => {
-                  // e.stopPropagation()
                   window.open(
                     `https://github.com/basementstudio/basement-laboratory/tree/main/src/experiments/${data.url}`,
                     "_blank"

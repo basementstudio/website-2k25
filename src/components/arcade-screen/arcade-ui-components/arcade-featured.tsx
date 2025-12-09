@@ -67,7 +67,6 @@ export const ArcadeFeatured = () => {
           alignItems="center"
           justifyContent="center"
           onClick={(e) => {
-            // e.stopPropagation()
             handleChroniclesClick()
           }}
           onHoverChange={(hover) => {
