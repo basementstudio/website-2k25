@@ -64,13 +64,13 @@ importers:
         version: 10.3.1(react@19.0.1)
       '@vercel/analytics':
         specifier: ^1.5.0
-        version: 1.5.0(next@15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1)
+        version: 1.5.0(next@15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1)
       '@vercel/functions':
         specifier: ^2.0.0
         version: 2.0.0
       '@vercel/speed-insights':
         specifier: ^1.2.0
-        version: 1.2.0(next@15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1)
+        version: 1.2.0(next@15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1)
       basehub:
         specifier: 8.0.0-canary.27
         version: 8.0.0-canary.27(@babel/runtime@7.26.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(typescript@5.8.2)
@@ -111,11 +111,11 @@ importers:
         specifier: ^5.1.2
         version: 5.1.2
       next:
-        specifier: 15.6.0-canary.58
-        version: 15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
+        specifier: 15.6.0-canary.60
+        version: 15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
       next-sitemap:
         specifier: ^4.2.3
-        version: 4.2.3(next@15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))
+        version: 4.2.3(next@15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))
       posthog-js:
         specifier: ^1.234.10
         version: 1.234.10
@@ -1132,8 +1132,8 @@ packages:
   '@next/env@13.5.7':
     resolution: {integrity: sha512-uVuRqoj28Ys/AI/5gVEgRAISd0KWI0HRjOO1CTpNgmX3ZsHb5mdn14Y59yk0IxizXdo7ZjsI2S7qbWnO+GNBcA==}
 
-  '@next/env@15.6.0-canary.58':
-    resolution: {integrity: sha512-JyYhiCaCYgLfs3a195cncgUfyATTvtIpK2L9wpka4JdJ/Cn58LxO2WRQysmWYXWjuCTgE9n4vjWDAJcWmRisiw==}
+  '@next/env@15.6.0-canary.60':
+    resolution: {integrity: sha512-VVoy8NpkI2ngEr3RsD8jzum8SbXisObkvcCMBJeiWRSMOtACIm6kbnTYjgLWeGEwHHKsVBdeJpnf558rF6ktbw==}
 
   '@next/eslint-plugin-next@15.2.3':
     resolution: {integrity: sha512-eNSOIMJtjs+dp4Ms1tB1PPPJUQHP3uZK+OQ7iFY9qXpGO6ojT6imCL+KcUOqE/GXGidWbBZJzYdgAdPHqeCEPA==}
@@ -3453,6 +3453,7 @@ packages:
 
   intersection-observer@0.10.0:
     resolution: {integrity: sha512-fn4bQ0Xq8FTej09YC/jqKZwtijpvARlRp6wxL5WTA6yPe2YWSJ5RJh7Nm79rK2qB0wr6iDQzH60XGq5V/7u8YQ==}
+    deprecated: The Intersection Observer polyfill is no longer needed and can safely be removed. Intersection Observer has been Baseline since 2019.
 
   is-alphabetical@2.0.1:
     resolution: {integrity: sha512-FWyyY60MeTNyeSRpkM2Iry0G9hpr7/9kD40mD/cGQEuilcZYS4okz8SN2Q6rLCJ8gbCt6fN+rC+6tMGS99LaxQ==}
@@ -4059,8 +4060,8 @@ packages:
   next-tick@1.1.0:
     resolution: {integrity: sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==}
 
-  next@15.6.0-canary.58:
-    resolution: {integrity: sha512-crPQo+AxBCmmBFMpDLbFg1uH+ArvrPNkvsviM60wrlzmhNuQyIOQ0tHL7Y10BVlxqtM7esMDQnepKT1XJBqYBQ==}
+  next@15.6.0-canary.60:
+    resolution: {integrity: sha512-E5gKHda+vdACO+/Bv53V3qcMrhmhH8UuctFSbNeCvnIfPoWPEUMHCB+hok7qxRlKwclXoQ5SUgUdgi6Ayzu5uA==}
     engines: {node: '>=20.9.0'}
     hasBin: true
     peerDependencies:
@@ -4154,6 +4155,7 @@ packages:
 
   oniguruma-to-js@0.4.3:
     resolution: {integrity: sha512-X0jWUcAlxORhOqqBREgPMgnshB7ZGYszBNspP+tS9hPD3l13CdaXcHbgImoHUHlrvGx/7AvFEkTRhAGYh+jzjQ==}
+    deprecated: use oniguruma-to-es instead
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -4991,7 +4993,7 @@ packages:
   superagent@3.8.1:
     resolution: {integrity: sha512-VMBFLYgFuRdfeNQSMLbxGSLfmXL/xc+OO+BZp41Za/NRDBet/BNbkRJrYzCUu0u4GU0i/ml2dtT8b9qgkw9z6Q==}
     engines: {node: '>= 4.0'}
-    deprecated: Please upgrade to v9.0.0+ as we have fixed a public vulnerability with formidable dependency. Note that v9.0.0+ requires Node.js v14.18.0+. See https://github.com/ladjs/superagent/pull/1800 for insight. This project is supported and maintained by the team at Forward Email @ https://forwardemail.net
+    deprecated: Please upgrade to superagent v10.2.2+, see release notes at https://github.com/forwardemail/superagent/releases/tag/v10.2.2 - maintenance is supported by Forward Email @ https://forwardemail.net
 
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
@@ -6412,7 +6414,7 @@ snapshots:
 
   '@next/env@13.5.7': {}
 
-  '@next/env@15.6.0-canary.58': {}
+  '@next/env@15.6.0-canary.60': {}
 
   '@next/eslint-plugin-next@15.2.3':
     dependencies:
@@ -7391,16 +7393,16 @@ snapshots:
     optionalDependencies:
       react: 19.0.1
 
-  '@vercel/analytics@1.5.0(next@15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1)':
+  '@vercel/analytics@1.5.0(next@15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1)':
     optionalDependencies:
-      next: 15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
+      next: 15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
       react: 19.0.1
 
   '@vercel/functions@2.0.0': {}
 
-  '@vercel/speed-insights@1.2.0(next@15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1)':
+  '@vercel/speed-insights@1.2.0(next@15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1))(react@19.0.1)':
     optionalDependencies:
-      next: 15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
+      next: 15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
       react: 19.0.1
 
   '@webassemblyjs/ast@1.14.1':
@@ -9676,19 +9678,19 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-sitemap@4.2.3(next@15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)):
+  next-sitemap@4.2.3(next@15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)):
     dependencies:
       '@corex/deepmerge': 4.0.43
       '@next/env': 13.5.7
       fast-glob: 3.3.2
       minimist: 1.2.8
-      next: 15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
+      next: 15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
 
   next-tick@1.1.0: {}
 
-  next@15.6.0-canary.58(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1):
+  next@15.6.0-canary.60(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1):
     dependencies:
-      '@next/env': 15.6.0-canary.58
+      '@next/env': 15.6.0-canary.60
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001707
       postcss: 8.4.31
