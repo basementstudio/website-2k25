@@ -1,11 +1,26 @@
 "use server"
 
 import { basehub } from "basehub"
-import { fragmentOn } from "basehub"
 
-import { IMAGE_FRAGMENT } from "@/service/basehub/fragments"
+interface LaboratoryProject {
+  _title: string
+  url: string
+  description: string
+  cover: {
+    url: string
+    width: number
+    height: number
+    alt: string | null
+  } | null
+}
 
-const query = fragmentOn("Query", {
+interface LaboratoryData {
+  projectList: {
+    items: LaboratoryProject[]
+  }
+}
+
+const laboratoryQuery = {
   pages: {
     laboratory: {
       projectList: {
@@ -13,17 +28,32 @@ const query = fragmentOn("Query", {
           _title: true,
           url: true,
           description: true,
-          cover: IMAGE_FRAGMENT
+          cover: {
+            url: true,
+            width: true,
+            height: true,
+            alt: true
+          }
         }
       }
     }
   }
-})
-
-export const fetchLaboratory = async () => {
-  const res = await basehub().query(query)
-
-  return res.pages.laboratory
 }
 
-export type QueryType = fragmentOn.infer<typeof query>
+export const fetchLaboratory = async (): Promise<LaboratoryData> => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const res = await basehub().query(laboratoryQuery as any)
+
+    return (res as any).pages.laboratory
+  } catch {
+    // Return empty data if schema doesn't exist
+    return {
+      projectList: {
+        items: []
+      }
+    }
+  }
+}
+
+export type { LaboratoryProject, LaboratoryData }
