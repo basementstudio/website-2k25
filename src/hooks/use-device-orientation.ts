@@ -118,14 +118,14 @@ export const useDeviceOrientation = () => {
         if (e.gamma !== null) {
           setPermission("granted")
           setIsEnabled(true)
-          window.removeEventListener("deviceorientation", testHandler)
+          window.removeEventListener("deviceorientation", testHandler, true)
         }
       }
 
       window.addEventListener("deviceorientation", testHandler, true)
 
       setTimeout(() => {
-        window.removeEventListener("deviceorientation", testHandler)
+        window.removeEventListener("deviceorientation", testHandler, true)
       }, 500)
     }
   }, [setPermission, setIsEnabled])
