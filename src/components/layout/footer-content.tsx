@@ -1,5 +1,6 @@
 import { cn } from "@/utils/cn"
 
+import { GyroscopeToggle } from "./gyroscope-toggle"
 import type { QueryType } from "./query"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
 import { StayConnected } from "./stay-connected"
@@ -80,13 +81,16 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
         />
 
         <div className="col-span-full row-start-3 flex flex-col justify-end gap-y-2 lg:hidden">
-          <SocialLinks
-            className="col-start-1 col-end-5 row-start-2 lg:hidden"
-            links={{
-              ...data.company.social,
-              linkedIn: data.company.social.linkedIn || ""
-            }}
-          />
+          <div className="flex items-center justify-between">
+            <SocialLinks
+              className="col-start-1 col-end-5 row-start-2 lg:hidden"
+              links={{
+                ...data.company.social,
+                linkedIn: data.company.social.linkedIn || ""
+              }}
+            />
+            <GyroscopeToggle />
+          </div>
           <Copyright className="text-left" />
         </div>
 
