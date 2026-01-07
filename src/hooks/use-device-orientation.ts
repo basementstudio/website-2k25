@@ -111,7 +111,24 @@ export const useDeviceOrientation = () => {
     if (!requiresPermission) {
       setPermission("granted")
       if (wasEnabled) {
-        setIsEnabled(true)
+        // Test if actual gyroscope hardware exists by listening for events
+        // Desktop browsers have DeviceOrientationEvent but no hardware, so no events fire
+        const testHandler = (e: DeviceOrientationEvent) => {
+          if (e.gamma !== null) {
+            setIsEnabled(true)
+            window.removeEventListener("deviceorientation", testHandler, true)
+          }
+        }
+
+        window.addEventListener("deviceorientation", testHandler, true)
+
+        // If no events fire within 500ms, hardware likely doesn't exist - clean up localStorage
+        setTimeout(() => {
+          window.removeEventListener("deviceorientation", testHandler, true)
+          if (!useGyroscopeStore.getState().isEnabled) {
+            localStorage.removeItem(STORAGE_KEY)
+          }
+        }, 500)
       }
     } else if (wasEnabled) {
       const testHandler = (e: DeviceOrientationEvent) => {
@@ -147,8 +164,11 @@ export const useDeviceOrientation = () => {
 
     return () => {
       window.removeEventListener("deviceorientation", handleOrientation, true)
+      initialBetaRef.current = null
+      smoothedRef.current = { x: 0, y: 0 }
+      setOrientation(0, 0)
     }
-  }, [isEnabled, permission, handleOrientation])
+  }, [isEnabled, permission, handleOrientation, setOrientation])
 
   return {
     permission,
