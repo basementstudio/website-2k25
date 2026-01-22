@@ -132,14 +132,11 @@
   }
 }
 
-* {
-  overscroll-behavior: none;
-}
-
 html {
   @apply scroll-smooth;
   font-feature-settings: "ss01";
   color-scheme: dark;
+  overscroll-behavior: none;
 }
 
 body {
