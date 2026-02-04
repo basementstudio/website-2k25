@@ -4,6 +4,7 @@ import { useLoader, useThree } from "@react-three/fiber"
 import { memo, Suspense, useEffect, useMemo } from "react"
 import {
   Group,
+  Material,
   Mesh,
   NearestFilter,
   NoColorSpace,
@@ -175,7 +176,7 @@ const useBakes = (): Record<string, Bake> => {
 
 /** Attach a material to this array and it will change its uOpacity onLoad */
 export const revealOpacityMaterials = new Set<
-  ShaderMaterial | RawShaderMaterial
+  ShaderMaterial | RawShaderMaterial | Material
 >()
 
 const Bakes = () => {
