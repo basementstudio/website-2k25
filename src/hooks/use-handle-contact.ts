@@ -3,7 +3,7 @@ import { useCallback, useRef } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
-import { useWebgl } from "@/hooks/use-webgl"
+import { useGpu } from "@/hooks/use-gpu"
 
 export const useHandleContactButton = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
@@ -11,7 +11,7 @@ export const useHandleContactButton = () => {
   const isAnimating = useContactStore((state) => state.isAnimating)
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
   const router = useRouter()
-  const webglEnabled = useWebgl()
+  const webglEnabled = useGpu()
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleClick = useCallback(() => {
