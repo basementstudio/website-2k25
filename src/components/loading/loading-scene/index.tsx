@@ -13,9 +13,10 @@ import {
   Raycaster,
   ShaderMaterial,
   Vector2,
-  Vector3,
-  WebGLRenderer
+  Vector3
 } from "three"
+import { NodeMaterial } from "three/webgpu"
+import { float, uniform, vec3 } from "three/tsl"
 import { GLTF } from "three/examples/jsm/Addons.js"
 import { create } from "zustand"
 
@@ -157,59 +158,18 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
     l.renderOrder = 2
 
-    l.material = new ShaderMaterial({
-      // depthTest: false,
-      transparent: true,
-      // depthWrite: false,
-      uniforms: {
-        uReveal: { value: 0 },
-        uColor: { value: new Color("#FF4D00") },
-        uOpacity: { value: 0 }
-      },
-      vertexShader: /*glsl*/ `
-        varying vec3 vWorldPosition;
-        void main() {
-          vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-          
-          // Transform to view space
-          vec4 viewPos = viewMatrix * vec4(vWorldPosition, 1.0);
-          
-          // Move slightly toward the camera in view space
-          // The negative Z direction is toward the camera in view space
-          // viewPos.z -= 0.01; // Small offset to prevent z-fighting
-          
-          // Complete the projection
-          gl_Position = projectionMatrix * viewPos;
-        }
-      `,
-      fragmentShader: /*glsl*/ `
-        uniform float uReveal;
-        uniform vec3 uColor;
-        uniform float uOpacity;
-        varying vec3 vWorldPosition;
+    const uReveal = uniform(0)
+    const uColor = uniform(new Color("#FF4D00"))
+    const uOpacity = uniform(0)
 
+    const lineMaterial = new NodeMaterial()
+    lineMaterial.transparent = true
+    lineMaterial.colorNode = vec3(uOpacity, uOpacity, uOpacity)
+    lineMaterial.opacityNode = float(1.0)
 
-        float minPosition = -4.0;
-        float maxPosition = -30.0;
+    ;(lineMaterial as any).uniforms = { uReveal, uColor, uOpacity }
 
-        float valueRemap(float value, float min, float max, float newMin, float newMax) {
-          return newMin + (value - min) * (newMax - newMin) / (max - min);
-        }
-
-        float valueRemapClamp(float value, float min, float max, float newMin, float newMax) {
-          return clamp(valueRemap(value, min, max, newMin, newMax), newMin, newMax);
-        }
-
-        void main() {
-
-          float edgePos = valueRemap(uReveal, 0.0, 1.0, minPosition, maxPosition);
-
-          float reveal = vWorldPosition.z < edgePos ? 0.0 : 1.0;
-
-          gl_FragColor = vec4(vec3(uOpacity), 1.0);
-        }
-      `
-    })
+    l.material = lineMaterial
 
     return l
   }, [nodes])
@@ -308,7 +268,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const camera = useThree((s) => s.camera)
   const pointer = useThree((s) => s.pointer)
 
-  const renderFlow = (gl: WebGLRenderer, delta: number) => {
+  const renderFlow = (gl: any, delta: number) => {
     gl.setRenderTarget(null)
 
     vRefsFloor.smoothPointer.lerp(pointer, Math.min(delta * 10, 1))
