@@ -15,9 +15,9 @@ export const useFrameLoop = () => {
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
 
-    if (useMesh.getState().cctv?.screen?.material) {
-      // @ts-ignore
-      useMesh.getState().cctv.screen.material.uniforms.uTime.value += delta
+    const cctvUTime = useMesh.getState().cctv?.uTime
+    if (cctvUTime) {
+      cctvUTime.value += delta
     }
   })
 }
