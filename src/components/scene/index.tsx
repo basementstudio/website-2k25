@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
+import { WebGPURenderer } from "three/webgpu"
 
 import ErrorBoundary from "@/components/basketball/error-boundary"
 import { CameraController } from "@/components/camera/camera-controller"
@@ -152,11 +153,16 @@ export const Scene = () => {
               e.preventDefault()
             }
           }}
-          gl={{
-            antialias: false,
-            alpha: false,
-            outputColorSpace: THREE.SRGBColorSpace,
-            toneMapping: THREE.NoToneMapping
+          gl={async (defaultProps) => {
+            const renderer = new WebGPURenderer({
+              canvas: defaultProps.canvas as HTMLCanvasElement,
+              antialias: false,
+              alpha: false
+            })
+            await renderer.init()
+            renderer.outputColorSpace = THREE.SRGBColorSpace
+            renderer.toneMapping = THREE.NoToneMapping
+            return renderer
           }}
           camera={{ fov: 60 }}
           className={cn(
