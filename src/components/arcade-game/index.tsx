@@ -1,8 +1,6 @@
 import { useTexture } from "@react-three/drei"
 import { Container, DefaultProperties, Text } from "@react-three/uikit"
 import { useEffect, useRef, useState } from "react"
-import type { ShaderMaterial } from "three"
-
 import { COLORS_THEME } from "@/components/arcade-screen/screen-ui"
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -23,10 +21,10 @@ import { Skybox } from "./skybox"
 
 interface arcadeGameProps {
   visible: boolean
-  screenMaterial: ShaderMaterial
+  screenUniforms: { uIsGameRunning: { value: number } }
 }
 
-export const ArcadeGame = ({ visible, screenMaterial }: arcadeGameProps) => {
+export const ArcadeGame = ({ visible, screenUniforms }: arcadeGameProps) => {
   const setSpeed = useRoad((s) => s.setSpeed)
   const speedRef = useRoad((s) => s.speedRef)
   const gameOver = useGame((s) => s.gameOver)
@@ -52,32 +50,28 @@ export const ArcadeGame = ({ visible, screenMaterial }: arcadeGameProps) => {
       }
 
       // Set game running value without conditional check to prevent flickering
-      screenMaterial.uniforms.uIsGameRunning.value = 1.0
-      screenMaterial.needsUpdate = true
+      screenUniforms.uIsGameRunning.value = 1.0
     } else {
       // Set game not running value without conditional check
-      screenMaterial.uniforms.uIsGameRunning.value = 0.0
-      screenMaterial.needsUpdate = true
+      screenUniforms.uIsGameRunning.value = 0.0
     }
   })
 
   useEffect(() => {
     if (gameStarted && !gameOver) {
-      screenMaterial.uniforms.uIsGameRunning.value = 1.0
-      screenMaterial.needsUpdate = true
+      screenUniforms.uIsGameRunning.value = 1.0
       scoreRef.current = 0
       setScoreDisplay(0)
       lastUpdateTimeRef.current = 0
     } else {
-      screenMaterial.uniforms.uIsGameRunning.value = 0.0
-      screenMaterial.needsUpdate = true
+      screenUniforms.uIsGameRunning.value = 0.0
     }
 
     const event = new CustomEvent("gameStateChange", {
       detail: { gameStarted, gameOver }
     })
     window.dispatchEvent(event)
-  }, [gameStarted, gameOver, screenMaterial])
+  }, [gameStarted, gameOver, screenUniforms])
 
   useEffect(() => {
     if (scene !== "lab") {

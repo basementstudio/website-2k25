@@ -60,7 +60,10 @@ export const ArcadeScreen = () => {
     texture.flipY = false
   })
   const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
-  const screenMaterial = useMemo(() => createScreenMaterial(), [])
+  const { material: screenMaterial, uniforms: screenUniforms } = useMemo(
+    () => createScreenMaterial(),
+    []
+  )
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
   // Use our custom hook to ensure video playback resumes when tab becomes visible
@@ -86,35 +89,31 @@ export const ArcadeScreen = () => {
 
     if (!hasVisitedArcade) {
       if (isLabRoute) {
-        screenMaterial.uniforms.map.value = bootTexture
-        screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
+        screenUniforms.map.value = bootTexture
+        screenUniforms.uRevealProgress.value = 0.0
 
         animate(0, 1, {
           duration: 2,
           ease: [0.43, 0.13, 0.23, 0.96],
           onUpdate: (progress) => {
-            screenMaterial.uniforms.uRevealProgress.value = progress
+            screenUniforms.uRevealProgress.value = progress
           },
           onComplete: () => {
-            if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
-              screenMaterial.uniforms.map.value = renderTarget.texture
+            if (screenUniforms.uRevealProgress.value >= 0.99) {
+              screenUniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
-              if (isInGame) {
-                screenMaterial.uniforms.uFlip = { value: 1 }
-              } else {
-                screenMaterial.uniforms.uFlip = { value: 0 }
-              }
+              screenUniforms.uFlip.value = isInGame ? 1 : 0
             }
           }
         })
       } else {
-        screenMaterial.uniforms.map.value = videoTexture
-        screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
-        screenMaterial.uniforms.uFlip = { value: 0 }
+        screenUniforms.map.value = videoTexture
+        screenUniforms.uRevealProgress.value = 1.0
+        screenUniforms.uFlip.value = 0
       }
     } else {
-      screenMaterial.uniforms.map.value = renderTarget.texture
-      screenMaterial.uniforms.uFlip = { value: isInGame ? 1 : 0 }
+      screenUniforms.map.value = renderTarget.texture
+      screenUniforms.uFlip.value = isInGame ? 1 : 0
     }
 
     arcadeScreen.material = screenMaterial
@@ -126,13 +125,12 @@ export const ArcadeScreen = () => {
     isLabRoute,
     bootTexture,
     screenMaterial,
+    screenUniforms,
     isInGame
   ])
 
   useFrameCallback((_, delta) => {
-    if (screenMaterial.uniforms.uTime) {
-      screenMaterial.uniforms.uTime.value += delta
-    }
+    screenUniforms.uTime.value += delta
   })
 
   const CAMERA_CONFIGS = useMemo(() => {
@@ -177,7 +175,7 @@ export const ArcadeScreen = () => {
       <Suspense fallback={null}>
         <ArcadeGame
           visible={(hasVisitedArcade || isLabRoute) && isInGame}
-          screenMaterial={screenMaterial}
+          screenUniforms={screenUniforms}
         />
       </Suspense>
     </RenderTexture>
