@@ -2,147 +2,6 @@ import * as THREE from "three"
 
 import { subscribable } from "@/lib/subscribable"
 
-THREE.ShaderChunk.skinning_pars_vertex =
-  THREE.ShaderChunk.skinning_pars_vertex +
-  /* glsl */ `
-      ivec2 calcCoord(int size, int id) {
-        int j = int(id);
-        int x = j % size;
-        int y = j / size;
-        return ivec2(x, y);
-      }
-      
-      ivec2 getSampleCoord(const sampler2D mapSampler, const float batchId) {
-        int size = textureSize(mapSampler, 0).x;
-        return calcCoord(size, int(batchId));
-      }
-      
-      ivec2 getUSampleCoord(const usampler2D mapSampler, const float batchId) {
-        int size = textureSize(mapSampler, 0).x;
-        return calcCoord(size, int(batchId));
-      }
-
-      ivec2 getISampleCoord(const isampler2D mapSampler, const float batchId) {
-        int size = textureSize(mapSampler, 0).x;
-        return calcCoord(size, int(batchId));
-      }
-
-      #ifdef USE_BATCHED_SKINNING
-
-          attribute vec4 skinIndex;
-          attribute vec4 skinWeight;
-
-          uniform highp usampler2D batchingKeyframeTexture;
-          uniform highp sampler2D boneTexture;
-
-          float getBatchedKeyframe( const in float batchId ) {
-
-              int size = textureSize( batchingKeyframeTexture, 0 ).x;
-              int j = int ( batchId );
-              int x = j % size;
-              int y = j / size;
-              return float( texelFetch( batchingKeyframeTexture, ivec2( x, y ), 0 ).r );
-
-          }
-
-          mat4 getBatchedBoneMatrix( const in float i ) {
-
-              float batchId = getIndirectIndex( gl_DrawID );
-              float batchKeyframe = getBatchedKeyframe( batchId );
-
-              int size = textureSize( boneTexture, 0 ).x;
-              int j = int( batchKeyframe + i ) * 4;
-              int x = j % size;
-              int y = j / size;
-              vec4 v1 = texelFetch( boneTexture, ivec2( x, y ), 0 );
-              vec4 v2 = texelFetch( boneTexture, ivec2( x + 1, y ), 0 );
-              vec4 v3 = texelFetch( boneTexture, ivec2( x + 2, y ), 0 );
-              vec4 v4 = texelFetch( boneTexture, ivec2( x + 3, y ), 0 );
-
-              return mat4( v1, v2, v3, v4 );
-
-          }
-
-      #endif
-
-      #ifdef USE_BATCHED_MORPHS
-
-      uniform highp sampler2D morphDataTexture;
-      uniform highp isampler2D uActiveMorphs;
-
-      attribute int vertexIndex;
-
-      int getActiveMorphOffset() {
-        float batchId = getIndirectIndex(gl_DrawID);
-        ivec2 mapIndexCoord = getISampleCoord(uActiveMorphs, batchId);
-        return int(texelFetch(uActiveMorphs, mapIndexCoord, 0).x);
-      }
-
-      vec4 getMorphTransform() {
-        int activeMorphOffset = getActiveMorphOffset();
-        if(activeMorphOffset == -1) {
-          return vec4(0.0);
-        }
-
-        ivec2 morphDataCoord = getSampleCoord(morphDataTexture, float(activeMorphOffset + vertexIndex));
-        return texelFetch(morphDataTexture, morphDataCoord, 0);
-      }
-
-      #endif
-  `
-
-THREE.ShaderChunk.skinning_vertex =
-  THREE.ShaderChunk.skinning_vertex +
-  /* glsl */ `
-      #ifdef USE_BATCHED_MORPHS
-
-      transformed += getMorphTransform().xyz;
-
-      #endif
-
-      #ifdef USE_BATCHED_SKINNING
-
-          vec4 skinVertex = vec4( transformed, 1.0 );
-
-          mat4 boneSkinMatrix = mat4( 0.0 );
-          mat4 boneMatX = getBatchedBoneMatrix( skinIndex.x );
-          mat4 boneMatY = getBatchedBoneMatrix( skinIndex.y );
-          mat4 boneMatZ = getBatchedBoneMatrix( skinIndex.z );
-          mat4 boneMatW = getBatchedBoneMatrix( skinIndex.w );
-
-          mat4 weightedBoneMatX = skinWeight.x * boneMatX;
-          mat4 weightedBoneMatY = skinWeight.y * boneMatY;
-          mat4 weightedBoneMatZ = skinWeight.z * boneMatZ;
-          mat4 weightedBoneMatW = skinWeight.w * boneMatW;
-
-          boneSkinMatrix += weightedBoneMatX;
-          boneSkinMatrix += weightedBoneMatY;
-          boneSkinMatrix += weightedBoneMatZ;
-          boneSkinMatrix += weightedBoneMatW;
-
-          vec3 objectNormal = normal;
-
-          // apply the skeleton animation to the normal
-          vNormal = vec4(boneSkinMatrix * vec4(objectNormal, 0.0)).xyz;
-
-          // get the mat transformation of the current instance
-          mat3 bm = mat3( batchingMatrix );
-
-          // apply the mat transformation to the normal
-          vNormal /= vec3( dot( bm[ 0 ], bm[ 0 ] ), dot( bm[ 1 ], bm[ 1 ] ), dot( bm[ 2 ], bm[ 2 ] ) );
-          vNormal = normalize(bm * vNormal);
-
-          vec4 skinned = vec4( 0.0 );
-          skinned += weightedBoneMatX * skinVertex;
-          skinned += weightedBoneMatY * skinVertex;
-          skinned += weightedBoneMatZ * skinVertex;
-          skinned += weightedBoneMatW * skinVertex;
-
-          transformed = skinned.xyz;
-
-      #endif
-  `
-
 const _offsetMatrix = new THREE.Matrix4()
 
 interface InstanceParams {
@@ -230,40 +89,34 @@ export class InstancedBatchedSkinnedMesh extends THREE.BatchedMesh {
         this.addInstancedUniform(name, defaultValue, type)
       })
     }
+  }
 
-    this.material.onBeforeCompile = (shader) => {
-      if (this.boneTexture === null && this.useAnimations)
-        this.computeBoneTexture()
-
-      if (this.shouldComputeMorphTargets) this.computeMorphTexture()
-
-      shader.defines ??= {}
-      if (this.useAnimations) {
-        shader.defines.USE_BATCHED_SKINNING = ""
-        shader.uniforms.batchingKeyframeTexture = {
-          value: this.batchingKeyframeTexture
-        }
-        shader.uniforms.boneTexture = { value: this.boneTexture }
-      }
-
-      if (this.useMorphs) {
-        shader.defines.USE_BATCHED_MORPHS = ""
-        shader.uniforms.morphDataTexture = {
-          value: this.morphTexture
-        }
-      }
-
-      this.dataTextures.forEach((texture, name) => {
-        if (!shader.uniforms[name]) {
-          shader.uniforms[name] = { value: texture }
-        } else {
-          shader.uniforms[name].value = texture
-        }
-      })
-
-      this.programCompiled = true
-      this.programCompiledSubscribable.runCallbacks()
+  /** Set up the TSL material with all mesh texture references */
+  public setupMaterial(): void {
+    if (this.boneTexture === null && this.useAnimations) {
+      this.computeBoneTexture()
     }
+    if (this.shouldComputeMorphTargets) {
+      this.computeMorphTexture()
+    }
+
+    const setupSkinning = (this.material as any)._setupSkinning
+    if (typeof setupSkinning === "function") {
+      setupSkinning({
+        boneTexture: this.boneTexture,
+        keyframeTexture: this.batchingKeyframeTexture,
+        indirectTexture: (this as any)._indirectTexture,
+        matricesTexture: (this as any)._matricesTexture,
+        morphTexture: this.morphTexture,
+        activeMorphsTexture: this.dataTextures.get("uActiveMorphs") ?? null,
+        dataTextures: this.dataTextures,
+        useAnimations: this.useAnimations,
+        useMorphs: this.useMorphs
+      })
+    }
+
+    this.programCompiled = true
+    this.programCompiledSubscribable.runCallbacks()
   }
 
   private programCompiled = false

@@ -135,9 +135,6 @@ function LoboMarino({ loboMarino }: { loboMarino: Mesh }) {
     const mat = loboMarino?.material as ShaderMaterial
     mat.uniforms.uColor.value = currentLoboColor
 
-    mat.defines.IS_LOBO_MARINO = true
-    mat.needsUpdate = true
-
     return mat
   }, [loboMarino, currentLoboColor])
 

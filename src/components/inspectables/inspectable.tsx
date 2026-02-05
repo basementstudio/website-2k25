@@ -1,6 +1,6 @@
 "use client"
 
-import { MeshDiscardMaterial } from "@react-three/drei"
+import { MeshDiscardMaterial } from "@/components/mesh-discard-material"
 import { useThree } from "@react-three/fiber"
 import { track } from "@vercel/analytics"
 import { animate, MotionValue } from "motion"

@@ -32,17 +32,17 @@ export const createFlowMaterial = () => {
   const samplePrevFn = /* @__PURE__ */ Fn(([uvCoord]: [any]) => {
     const pixel = uvCoord.mul(FLOW_RESOLUTION)
 
-    const p00 = uFeedbackTexture.uv(uvCoord)
-    const p10 = uFeedbackTexture.uv(
+    const p00 = uFeedbackTexture.sample(uvCoord)
+    const p10 = uFeedbackTexture.sample(
       uvCoord.add(vec2(0.0, -1.0).mul(invRes))
     )
-    const p01 = uFeedbackTexture.uv(
+    const p01 = uFeedbackTexture.sample(
       uvCoord.add(vec2(-1.0, 0.0).mul(invRes))
     )
-    const p21 = uFeedbackTexture.uv(
+    const p21 = uFeedbackTexture.sample(
       uvCoord.add(vec2(1.0, 0.0).mul(invRes))
     )
-    const p12 = uFeedbackTexture.uv(
+    const p12 = uFeedbackTexture.sample(
       uvCoord.add(vec2(0.0, 1.0).mul(invRes))
     )
 
@@ -51,23 +51,23 @@ export const createFlowMaterial = () => {
     // For each neighbor: replace if neighbor.g < finalSample.g AND neighbor.g < 1.0
     // step(ng, fg - eps) = 1 when fg - eps >= ng (i.e. ng < fg approximately)
     // 1 - step(1.0, ng) = 1 when ng < 1.0
-    const r1 = step(p10.g, finalSample.g.sub(0.0001)).mul(
-      float(1.0).sub(step(float(1.0), p10.g))
+    const r1 = float(step(p10.g, finalSample.g.sub(0.0001))).mul(
+      float(1.0).sub(float(step(float(1.0), p10.g)))
     )
     finalSample.assign(mix(finalSample, p10, r1))
 
-    const r2 = step(p01.g, finalSample.g.sub(0.0001)).mul(
-      float(1.0).sub(step(float(1.0), p01.g))
+    const r2 = float(step(p01.g, finalSample.g.sub(0.0001))).mul(
+      float(1.0).sub(float(step(float(1.0), p01.g)))
     )
     finalSample.assign(mix(finalSample, p01, r2))
 
-    const r3 = step(p21.g, finalSample.g.sub(0.0001)).mul(
-      float(1.0).sub(step(float(1.0), p21.g))
+    const r3 = float(step(p21.g, finalSample.g.sub(0.0001))).mul(
+      float(1.0).sub(float(step(float(1.0), p21.g)))
     )
     finalSample.assign(mix(finalSample, p21, r3))
 
-    const r4 = step(p12.g, finalSample.g.sub(0.0001)).mul(
-      float(1.0).sub(step(float(1.0), p12.g))
+    const r4 = float(step(p12.g, finalSample.g.sub(0.0001))).mul(
+      float(1.0).sub(float(step(float(1.0), p12.g)))
     )
     finalSample.assign(mix(finalSample, p12, r4))
 
@@ -101,7 +101,7 @@ export const createFlowMaterial = () => {
     // Mouse circle interaction (branchless)
     const circle = length(p.sub(uMousePosition)).sub(0.01)
     const circleNeg = float(1.0).sub(step(float(0.0), circle))
-    const mouseIsMoving = step(float(0.001), uMouseMoving)
+    const mouseIsMoving = float(step(float(0.001), uMouseMoving))
     const mouseActive = circleNeg.mul(mouseIsMoving)
 
     color.r.assign(mix(color.r, uMouseDepth, mouseActive))

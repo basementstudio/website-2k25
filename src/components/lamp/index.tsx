@@ -1,13 +1,15 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
-import { extend, useLoader, useThree } from "@react-three/fiber"
+import { MeshDiscardMaterial } from "@/components/mesh-discard-material"
+import { useLoader } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { track } from "@vercel/analytics"
-import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
 import posthog from "posthog-js"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
+import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
+import { Line2 } from "three/examples/jsm/lines/webgpu/Line2.js"
+import { Line2NodeMaterial } from "three/webgpu"
 
 import { useAssets } from "@/components/assets-provider"
 import { useInspectable } from "@/components/inspectables/context"
@@ -17,8 +19,6 @@ import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
-
-extend({ MeshLineGeometry, MeshLineMaterial })
 
 const colorWhenOn = new THREE.Color("#f2f2f2")
 const colorWhenOff = new THREE.Color("#595959")
@@ -75,7 +75,16 @@ export const Lamp = memo(function LampInner() {
     return material
   }, [])
 
-  const { width, height } = useThree((state) => state.size)
+  const { bandLine, bandGeometry } = useMemo(() => {
+    const geo = new LineGeometry()
+    const mat = new Line2NodeMaterial()
+    mat.color.copy(colorWhenOn)
+    ;(mat as any).lineWidth = 0.005
+    ;(mat as any).worldUnits = true
+    const line = new Line2(geo, mat)
+    return { bandLine: line, bandGeometry: geo }
+  }, [])
+
   const curve = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
@@ -169,7 +178,12 @@ export const Lamp = memo(function LampInner() {
       curve.points[1].copy(j2Pos)
       curve.points[2].copy(j1Pos)
       curve.points[3].copy(j0Pos)
-      band.current.geometry.setPoints(curve.getPoints(8))
+      const points = curve.getPoints(8)
+      const positions: number[] = []
+      for (const p of points) {
+        positions.push(p.x, p.y, p.z)
+      }
+      bandGeometry.setPositions(positions)
 
       const tension_j0_j1 = tension(j0Pos, j1Pos)
       const tension_j1_j2 = tension(j1Pos, j2Pos)
@@ -232,8 +246,7 @@ export const Lamp = memo(function LampInner() {
       for (const target of lampTargets) {
         if (target instanceof THREE.Mesh) {
           // @ts-ignore
-          target.material.uniforms.lightLampEnabled.value = light
-          // @ts-ignore
+          target.material.uniforms.lightLampEnabled.value = light ? 1 : 0
         }
       }
     }
@@ -332,18 +345,8 @@ export const Lamp = memo(function LampInner() {
 
       {lamp && <primitive object={lamp} />}
 
-      <mesh ref={band}>
-        {/* @ts-ignore */}
-        <meshLineGeometry />
-        {/* @ts-ignore */}
-        <meshLineMaterial
-          color={colorWhenOn}
-          resolution={[width, height]}
-          lineWidth={0.005}
-        />
-
-        {lamp && <primitive object={lamp} />}
-      </mesh>
+      <primitive object={bandLine} ref={band} />
+      {lamp && <primitive object={lamp} />}
     </>
   )
 })

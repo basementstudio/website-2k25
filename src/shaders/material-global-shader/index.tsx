@@ -167,8 +167,8 @@ export const createGlobalShaderMaterial = (
     const normalizedNormal = normalView
     const viewDir = normalize(positionView.negate())
     const oneMinusFadeFactor = float(1.0).sub(uFadeFactor)
-    const isInspectionMode = step(float(0.001), uInspectingFactor)
-    const shouldFadeF = uInspectingEnabled.mul(
+    const isInspectionMode = float(step(float(0.001), uInspectingFactor))
+    const shouldFadeF = float(uInspectingEnabled).mul(
       float(1.0).sub(isInspectionMode)
     )
 
@@ -178,13 +178,13 @@ export const createGlobalShaderMaterial = (
     if (useMap) {
       const uvH = vec3(vUv1.x, vUv1.y, float(1.0))
       const mapUv = uMapMatrix.mul(uvH).xy.mul(uMapRepeat)
-      mapSample = uMap.uv(mapUv)
+      mapSample = uMap.sample(mapUv)
     } else {
       mapSample = vec4(1.0, 1.0, 1.0, 1.0)
     }
 
     if (isClouds) {
-      mapSample = uMap.uv(vec2(vUv1.x.sub(uTime.mul(0.004)), vUv1.y))
+      mapSample = uMap.sample(vec2(vUv1.x.sub(uTime.mul(0.004)), vUv1.y))
     }
 
     // --- Base color ---
@@ -194,8 +194,8 @@ export const createGlobalShaderMaterial = (
     // --- Lightmap sampling (select between lamp lightmap and regular) ---
 
     const lightMapSample = mix(
-      uLightMap.uv(vUv2).rgb,
-      uLampLightmap.uv(vUv2).rgb,
+      uLightMap.sample(vUv2).rgb,
+      uLampLightmap.sample(vUv2).rgb,
       uLightLampEnabled
     )
 
@@ -213,7 +213,7 @@ export const createGlobalShaderMaterial = (
       }
 
       if (useEmissiveMap) {
-        irradiance.mulAssign(uEmissiveMap.uv(vUv1).rgb.mul(ei))
+        irradiance.mulAssign(uEmissiveMap.sample(vUv1).rgb.mul(ei))
       }
     }
 
@@ -242,7 +242,7 @@ export const createGlobalShaderMaterial = (
       )
         .mul(0.495)
         .add(0.5)
-      lf.mulAssign(uMatcapTex!.uv(matcapUv).rgb)
+      lf.mulAssign(uMatcapTex!.sample(matcapUv).rgb)
     }
 
     // --- Lightmap application (skip for VIDEO) ---
@@ -258,7 +258,7 @@ export const createGlobalShaderMaterial = (
 
     // --- AO map ---
 
-    const ao = uAoMap.uv(vUv2).r.sub(1.0).mul(uAoMapIntensity).add(1.0)
+    const ao = uAoMap.sample(vUv2).r.sub(1.0).mul(uAoMapIntensity).add(1.0)
     irradiance.mulAssign(
       mix(float(1.0), ao, step(float(0.001), uAoMapIntensity))
     )
@@ -281,7 +281,7 @@ export const createGlobalShaderMaterial = (
       const alphaUv = uAlphaMapTransform
         .mul(vec3(vUv1.x, vUv1.y, float(1.0)))
         .xy
-      opacityResult.mulAssign(uAlphaMap.uv(alphaUv).r)
+      opacityResult.mulAssign(uAlphaMap.sample(alphaUv).r)
     }
 
     // Discard fully transparent
@@ -327,7 +327,7 @@ export const createGlobalShaderMaterial = (
         .mul(vec2(0.75, 0.75))
         .add(viewDir.xy.mul(vec2(-0.25, 0.25)))
         .add(vec2(0.125, 0.125))
-      const reflexSample = uGlassReflex.uv(glassUv)
+      const reflexSample = uGlassReflex.sample(glassUv)
       const reflexActive = step(float(0.001), reflexSample.a)
       const mixF = float(0.075)
       const reflexBlend = irradiance

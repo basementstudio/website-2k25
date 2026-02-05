@@ -83,13 +83,13 @@ export const createSolidRevealMaterial = () => {
     colorBump.assign(pow(colorBump, float(2.0)))
     // Branchless reveal condition
     colorBump.mulAssign(
-      step(pow(noiseSmall.mul(0.5).add(0.5), float(2.0)), uReveal)
+      float(step(pow(noiseSmall.mul(0.5).add(0.5), float(2.0)), uReveal))
     )
     colorBump.mulAssign(0.4)
 
     // Project voxel center to screen UV for flow texture sampling
     const screenUv = worldToUvFn(voxelCenter)
-    const flowColor = uFlowTexture.uv(screenUv)
+    const flowColor = uFlowTexture.sample(screenUv)
 
     // Flow SDF computation
     const distToCamera = distance(cameraPosition, voxelCenter)

@@ -30,7 +30,7 @@ const shakeOffset = /* @__PURE__ */ Fn(
     const shakeX = random(vec2(t03, t03)).mul(2.0).sub(1.0)
     const shakeY = random(vec2(t02, t02)).mul(2.0).sub(1.0)
     const t05 = floor(t.mul(0.5))
-    const shakeBurst = step(0.58, random(vec2(t05, t05)))
+    const shakeBurst = float(step(0.58, random(vec2(t05, t05))))
     return vec2(shakeX, shakeY).mul(i).mul(shakeBurst)
   }
 )
@@ -56,9 +56,9 @@ export const createNotFoundMaterial = () => {
     const shiftedUv = uv2.mul(-1.0).add(0.5)
 
     // Texture sampling with color bleeding
-    const baseColor = tDiffuse.uv(shiftedUv)
-    const colorBleedUp = tDiffuse.uv(shiftedUv.add(vec2(0.0, 0.001)))
-    const colorBleedDown = tDiffuse.uv(shiftedUv.sub(vec2(0.0, 0.001)))
+    const baseColor = tDiffuse.sample(shiftedUv)
+    const colorBleedUp = tDiffuse.sample(shiftedUv.add(vec2(0.0, 0.001)))
+    const colorBleedDown = tDiffuse.sample(shiftedUv.sub(vec2(0.0, 0.001)))
     const colorWithBleed = baseColor.add(
       colorBleedUp.add(colorBleedDown).mul(0.5)
     )

@@ -53,7 +53,7 @@ const addMatcap = (update: TextureUpdate, isGlass: boolean) => {
   if (!update.mesh.userData.hasGlobalMaterial) return
   const material = update.mesh.material as ShaderMaterial
   material.uniforms.matcap.value = update.texture
-  material.uniforms.glassMatcap.value = isGlass
+  material.uniforms.glassMatcap.value = isGlass ? 1 : 0
 }
 
 const addReflex = (update: TextureUpdate) => {

@@ -1,66 +1,74 @@
-import { memo, useMemo } from "react"
-import { BufferGeometry, Float32BufferAttribute } from "three"
+import { useThree } from "@react-three/fiber"
+import { memo, useMemo, useRef } from "react"
+import {
+  BufferGeometry,
+  InstancedMesh as InstancedMeshType,
+  Object3D,
+  PlaneGeometry
+} from "three"
+import { NodeMaterial } from "three/webgpu"
+import { Discard, Fn, float, uv, vec4 } from "three/tsl"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
+
+const POINT_SIZE = 0.04
+const dummy = new Object3D()
 
 const RoutingPlusInner = ({ geometry }: { geometry: BufferGeometry }) => {
-  const pointsGeometry = useMemo(() => {
+  const meshRef = useRef<InstancedMeshType>(null)
+  const camera = useThree((state) => state.camera)
+
+  const { planeGeo, material, count, positionsArray } = useMemo(() => {
     if (!geometry.attributes.position || !geometry.attributes.normal)
-      return null
+      return { planeGeo: null, material: null, count: 0, positionsArray: null }
 
-    const pointsGeo = new BufferGeometry()
+    const count = geometry.attributes.position.count
+    const positionsArray = geometry.attributes.position.array as Float32Array
 
-    const positions = []
-    const colors = []
-    const whiteColor = [1, 1, 1]
+    const planeGeo = new PlaneGeometry(POINT_SIZE, POINT_SIZE)
 
-    for (let i = 0; i < geometry.attributes.position.count; i++) {
-      const x = geometry.attributes.position.array[i * 3]
-      const y = geometry.attributes.position.array[i * 3 + 1]
-      const z = geometry.attributes.position.array[i * 3 + 2]
+    const mat = new NodeMaterial()
+    mat.depthTest = false
+    mat.depthWrite = false
+    mat.transparent = true
 
-      positions.push(x, y, z)
-      colors.push(...whiteColor)
-    }
+    // Cross/plus pattern using UVs (replaces gl_PointCoord)
+    const coord = uv().mul(2.0).sub(1.0)
+    const thickness = float(0.25)
+    const isCross = coord.x
+      .abs()
+      .lessThan(thickness)
+      .or(coord.y.abs().lessThan(thickness))
 
-    pointsGeo.setAttribute("position", new Float32BufferAttribute(positions, 3))
-    pointsGeo.setAttribute("color", new Float32BufferAttribute(colors, 3))
+    mat.colorNode = Fn(() => {
+      Discard(isCross.not())
+      return vec4(1.0, 1.0, 1.0, 1.0)
+    })()
 
-    return pointsGeo
+    return { planeGeo, material: mat, count, positionsArray }
   }, [geometry])
 
-  // Shader code
-  const vertexShader = `
-    void main() {
-      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-      gl_PointSize = 8.0;
-      gl_Position = projectionMatrix * mvPosition;
+  // Billboard each instance to face the camera (points are always screen-facing)
+  useFrameCallback(() => {
+    if (!meshRef.current || !positionsArray) return
+
+    for (let i = 0; i < count; i++) {
+      dummy.position.set(
+        positionsArray[i * 3],
+        positionsArray[i * 3 + 1],
+        positionsArray[i * 3 + 2]
+      )
+      dummy.quaternion.copy(camera.quaternion)
+      dummy.updateMatrix()
+      meshRef.current.setMatrixAt(i, dummy.matrix)
     }
-  `
 
-  const fragmentShader = `
-    void main() {
-      vec2 coord = gl_PointCoord * 2.0 - 1.0;
-      float thickness = 0.25;
+    meshRef.current.instanceMatrix.needsUpdate = true
+  })
 
-      if (abs(coord.x) < thickness || abs(coord.y) < thickness) {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-      } else {
-        discard; 
-      }
-    }
-  `
+  if (!planeGeo || !material || count === 0) return null
 
-  return pointsGeometry ? (
-    <points>
-      <primitive object={pointsGeometry} attach="geometry" />
-      <shaderMaterial
-        attach="material"
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        depthTest={false}
-        depthWrite={false}
-      />
-    </points>
-  ) : null
+  return <instancedMesh ref={meshRef} args={[planeGeo, material, count]} />
 }
 
 export const RoutingPlus = memo(RoutingPlusInner)

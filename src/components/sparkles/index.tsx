@@ -82,7 +82,7 @@ export const Sparkle = (props: SparklesProps) => {
       const cycle = mod(uTime.mul(aSpeed).add(seed.mul(10.0)), 10.0)
       const fadeIn = smoothstep(0.0, 0.3, cycle)
       const fadeOut = smoothstep(1.0, 0.7, cycle)
-      const pulse = step(cycle, 1.0).mul(fadeIn).mul(fadeOut)
+      const pulse = float(step(cycle, 1.0)).mul(fadeIn).mul(fadeOut)
       return clamp(aOpacity.mul(pulse), 0.0, 1.0)
         .mul(0.5)
         .mul(float(1.0).sub(uFadeFactor))

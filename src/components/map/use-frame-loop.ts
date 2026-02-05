@@ -11,7 +11,7 @@ export const useFrameLoop = () => {
     Object.values(shaderMaterial).forEach((material) => {
       material.uniforms.uTime.value += delta
 
-      material.uniforms.inspectingEnabled.value = inspectingEnabled.current
+      material.uniforms.inspectingEnabled.value = inspectingEnabled.current ? 1 : 0
       material.uniforms.fadeFactor.value = fadeFactor.current.get()
     })
 

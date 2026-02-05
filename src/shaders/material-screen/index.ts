@@ -119,17 +119,17 @@ export const createScreenMaterial = () => {
 
     const relSquare = abs(centeredUv.sub(vec2(-0.01, -0.4)))
     const inSquare = float(1.0)
-      .sub(step(0.25, relSquare.x))
-      .mul(float(1.0).sub(step(0.05, relSquare.y)))
+      .sub(float(step(0.25, relSquare.x)))
+      .mul(float(1.0).sub(float(step(0.05, relSquare.y))))
 
     const relCenter = abs(centeredUv.sub(vec2(-0.35, 0.5)))
     const inCenterSquare = float(1.0)
-      .sub(step(0.2, relCenter.x))
-      .mul(float(1.0).sub(step(0.2, relCenter.y)))
+      .sub(float(step(0.2, relCenter.x)))
+      .mul(float(1.0).sub(float(step(0.2, relCenter.y))))
 
     const notInCenter = float(1.0).sub(inCenterSquare)
     const notInSquare = float(1.0).sub(inSquare)
-    const gameRunning = step(0.5, uIsGameRunning)
+    const gameRunning = float(step(0.5, uIsGameRunning))
 
     // shouldPixelate = uFlip AND !center AND (gameRunning OR !square)
     const shouldPixelate = uFlip
@@ -149,15 +149,15 @@ export const createScreenMaterial = () => {
     remappedUv.x.addAssign(expApprox.mul(SCAN_DISTORTION))
 
     // Texture sampling with boundary check
-    const validX = step(0.0, remappedUv.x).mul(
-      step(0.0, float(1.0).sub(remappedUv.x))
+    const validX = float(step(0.0, remappedUv.x)).mul(
+      float(step(0.0, float(1.0).sub(remappedUv.x)))
     )
-    const validY = step(0.0, remappedUv.y).mul(
-      step(0.0, float(1.0).sub(remappedUv.y))
+    const validY = float(step(0.0, remappedUv.y)).mul(
+      float(step(0.0, float(1.0).sub(remappedUv.y)))
     )
     const validUV = validX.mul(validY)
 
-    const textureColor = mapTex.uv(remappedUv).rgb.mul(validUV).toVar()
+    const textureColor = mapTex.sample(remappedUv).rgb.mul(validUV).toVar()
 
     // Color grading: luma, tint, brightness
     const luma = dot(textureColor, vec3(0.8, 0.1, 0.1))
@@ -167,7 +167,7 @@ export const createScreenMaterial = () => {
     // Line reveal
     const currentLine = floor(vUv.y.div(LINE_HEIGHT))
     const revealLine = floor(uRevealProgress.div(LINE_HEIGHT))
-    const textureVisibility = step(currentLine, revealLine).mul(0.8)
+    const textureVisibility = float(step(currentLine, revealLine)).mul(0.8)
 
     const color = textureColor.mul(textureVisibility).toVar()
 
@@ -190,7 +190,7 @@ export const createScreenMaterial = () => {
     color.assign(mix(color.add(orangeTint.mul(0.1)), color, isNotBlack))
 
     // Scanlines
-    const scanline = step(0.5, fract(vPos.y.mul(SCANLINE_COUNT)))
+    const scanline = float(step(0.5, fract(vPos.y.mul(SCANLINE_COUNT))))
     const scanlineFactor = mix(
       float(1.0),
       float(0.7),

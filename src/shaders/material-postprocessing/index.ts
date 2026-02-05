@@ -7,7 +7,7 @@ import {
   vec3,
   vec4,
   uniform,
-  uv,
+  screenUV,
   texture,
   screenCoordinate,
   sin,
@@ -34,7 +34,9 @@ const GOLDEN_ANGLE = 2.399963229728653
 const PI_2 = 6.28318530718
 
 export const createPostProcessingMaterial = () => {
-  const uMainTexture = texture(new Texture())
+  const mainTexPlaceholder = new Texture()
+  mainTexPlaceholder.isRenderTargetTexture = true
+  const uMainTexture = texture(mainTexPlaceholder)
   const uDepthTexture = texture(new Texture())
   const uResolution = uniform(new Vector2(1, 1))
   const uPixelRatio = uniform(1)
@@ -130,7 +132,7 @@ export const createPostProcessingMaterial = () => {
   const LUMINANCE_FACTORS = vec3(0.2126, 0.7152, 0.0722)
 
   const postProcessResult = Fn(() => {
-    const vUv = uv()
+    const vUv = screenUV
 
     // Checker pattern using screen coordinates
     const checkerSize = float(2.0).mul(uPixelRatio)
@@ -147,25 +149,25 @@ export const createPostProcessingMaterial = () => {
     const pixelatedUvEighth = floor(vUv.mul(eighthResolution)).mul(8.0).div(uResolution)
 
     // Main texture sample + tonemap
-    const baseColorSample = uMainTexture.uv(vUv)
+    const baseColorSample = uMainTexture.sample(vUv)
     const color = tonemapFn(baseColorSample.rgb).toVar()
 
     // Alpha / reveal logic (branchless)
-    const opacityOk = step(float(0.001), uOpacity) // 1 when opacity >= 0.001
+    const opacityOk = float(step(float(0.001), uOpacity)) // 1 when opacity >= 0.001
     const reveal = clamp(float(1.0).sub(uOpacity), 0.0, 1.0)
     const revealPow = reveal.mul(reveal).mul(reveal).mul(reveal)
-    const basePixelatedSample = uMainTexture.uv(pixelatedUvEighth)
+    const basePixelatedSample = uMainTexture.sample(pixelatedUvEighth)
     const baseBrightness = dot(tonemapFn(basePixelatedSample.rgb), LUMINANCE_FACTORS)
     // revealHides = 1 when reveal is active AND brightness < reveal threshold
-    const revealHides = step(float(0.001), revealPow).mul(
-      float(1.0).sub(step(revealPow, baseBrightness))
+    const revealHides = float(step(float(0.001), revealPow)).mul(
+      float(1.0).sub(float(step(revealPow, baseBrightness)))
     )
     const alpha = opacityOk.mul(float(1.0).sub(revealHides))
 
     // Bloom (Vogel disk sampling)
-    const bloomActive = step(float(0.001), uBloomStrength)
-      .mul(step(float(0.5), checkerPattern))
-      .mul(step(float(0.5), uActiveBloom))
+    const bloomActive = float(step(float(0.001), uBloomStrength))
+      .mul(float(step(float(0.5), checkerPattern)))
+      .mul(float(step(float(0.5), uActiveBloom)))
 
     const bloom = vec3(0.0, 0.0, 0.0).toVar()
     const totalWeight = float(0.0).toVar()
@@ -188,10 +190,10 @@ export const createPostProcessingMaterial = () => {
       )
 
       const sampleColor = uMainTexture
-        .uv(pixelatedUv.add(sampleOffset).add(invResolution))
+        .sample(pixelatedUv.add(sampleOffset).add(invResolution))
         .rgb
       const brightness = dot(sampleColor, LUMINANCE_FACTORS)
-      const shouldAdd = step(uBloomThreshold, brightness)
+      const shouldAdd = float(step(uBloomThreshold, brightness))
 
       totalWeight.addAssign(weight)
       bloom.addAssign(sampleColor.mul(weight).mul(shouldAdd))

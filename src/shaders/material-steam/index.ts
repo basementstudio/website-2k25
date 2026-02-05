@@ -34,7 +34,7 @@ export const createSteamMaterial = () => {
 
     // Noise-based offset
     const noiseUv1 = vec2(float(0.25), uTime.mul(0.005))
-    const noiseVal = uNoiseTex.uv(noiseUv1).r
+    const noiseVal = uNoiseTex.sample(noiseUv1).r
     const offsetAmount = noiseVal.mul(pow(vUv.y, float(1.2))).mul(0.035)
 
     pos.x.addAssign(offsetAmount)
@@ -42,7 +42,7 @@ export const createSteamMaterial = () => {
 
     // Noise-based twist
     const noiseUv2 = vec2(float(0.5), vUv.y.mul(0.2).sub(uTime.mul(0.005)))
-    const twist = uNoiseTex.uv(noiseUv2).r
+    const twist = uNoiseTex.sample(noiseUv2).r
     const angle = twist.mul(8.0)
     const s = sin(angle)
     const c = cos(angle)
@@ -64,7 +64,7 @@ export const createSteamMaterial = () => {
 
     // Steam from noise
     const steamUv = vec2(vUv.x.mul(0.5), vUv.y.mul(0.3).sub(uTime.mul(0.015)))
-    const steam = smoothstep(float(0.45), float(1.0), uNoiseTex.uv(steamUv).r)
+    const steam = smoothstep(float(0.45), float(1.0), uNoiseTex.sample(steamUv).r)
 
     // Edge fades
     const edgeFadeX = smoothstep(float(0.0), float(0.15), vUv.x)

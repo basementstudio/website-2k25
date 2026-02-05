@@ -1,4 +1,6 @@
-import { MeshDiscardMaterial, useTexture } from "@react-three/drei"
+import { useTexture } from "@react-three/drei"
+
+import { MeshDiscardMaterial } from "@/components/mesh-discard-material"
 import { useFrame } from "@react-three/fiber"
 import { useCallback, useEffect, useRef } from "react"
 import { Color, Mesh, ShaderMaterial, Vector3 } from "three"

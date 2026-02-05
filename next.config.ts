@@ -3,19 +3,12 @@ import type { NextConfig } from "next"
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   productionBrowserSourceMaps: true,
-  turbopack: {
-    rules: {
-      "*.{glsl,vert,frag,vs,fs}": {
-        loaders: ["raw-loader", "glslify-loader"],
-        as: "*.js"
-      }
-    }
-  },
   experimental: {
     ppr: "incremental"
   },
 
   images: {
+    qualities: [75, 100],
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
@@ -36,15 +29,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "pbs.twimg.com", pathname: "**" },
       { protocol: "https", hostname: "abs.twimg.com", pathname: "**" }
     ]
-  },
-
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(glsl|vs|fs|vert|frag)$/,
-      use: ["raw-loader", "glslify-loader"]
-    })
-
-    return config
   },
 
   async rewrites() {

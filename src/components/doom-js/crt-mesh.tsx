@@ -80,21 +80,21 @@ const createCRTMaterial = () => {
     const distortedUv = barrelDistortionFn(vUv, uCurvature)
 
     // Branchless bounds check: 1 when inside [0,1], 0 when outside
-    const inBounds = step(float(0.0), distortedUv.x)
-      .mul(step(distortedUv.x, float(1.0)))
-      .mul(step(float(0.0), distortedUv.y))
-      .mul(step(distortedUv.y, float(1.0)))
+    const inBounds = float(step(float(0.0), distortedUv.x))
+      .mul(float(step(distortedUv.x, float(1.0))))
+      .mul(float(step(float(0.0), distortedUv.y)))
+      .mul(float(step(distortedUv.y, float(1.0))))
 
     // Chromatic aberration
     const aberrationAmount = float(0.01)
     const distFromCenter = vUv.sub(0.5)
 
     const r = uTexture
-      .uv(distortedUv.sub(distFromCenter.mul(aberrationAmount)))
+      .sample(distortedUv.sub(distFromCenter.mul(aberrationAmount)))
       .r
-    const g = uTexture.uv(distortedUv).g
+    const g = uTexture.sample(distortedUv).g
     const b = uTexture
-      .uv(distortedUv.add(distFromCenter.mul(aberrationAmount)))
+      .sample(distortedUv.add(distFromCenter.mul(aberrationAmount)))
       .b
 
     const color = vec3(r, g, b).toVar()

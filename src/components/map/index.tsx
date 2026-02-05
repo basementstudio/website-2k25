@@ -190,7 +190,8 @@ export const Map = memo(() => {
             MATCAP: withMatcap !== undefined,
             VIDEO: withVideo !== undefined,
             CLOUDS: isClouds,
-            DAYLIGHT: isDaylight
+            DAYLIGHT: isDaylight,
+            IS_LOBO_MARINO: meshChild.name === "SM_Lobo"
           }
 
           const newMaterials = Array.isArray(currentMaterial)

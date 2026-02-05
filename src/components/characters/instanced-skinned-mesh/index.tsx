@@ -130,6 +130,8 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
         })
       }
 
+      instancer.setupMaterial()
+
       useInstancedMesh.setState({
         instancedMesh: instancer
       })

@@ -29,14 +29,14 @@ export const createNetMaterial = () => {
       aUv1.x,
       float(1.0).sub(uCurrentFrame.div(uTotalFrames))
     )
-    const offset = tDisplacement.uv(dispUv).xzy
+    const offset = tDisplacement.sample(dispUv).xzy
     const pos = positionLocal.toVar()
     pos.addAssign(offset.mul(uOffsetScale))
     return pos
   })()
 
   // Fragment: sample diffuse texture
-  const texSample = tMap.uv(uv())
+  const texSample = tMap.sample(uv())
   material.colorNode = texSample.rgb
   material.opacityNode = texSample.a
 
