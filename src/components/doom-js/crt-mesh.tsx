@@ -18,14 +18,13 @@ import {
   clamp,
   pow,
   mix,
-  step
+  step,
+  timerLocal
 } from "three/tsl"
-
-import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 const createCRTMaterial = () => {
   const uTexture = tslTexture(new Texture())
-  const uTime = uniform(0)
+  const uTime = timerLocal()
   const uCurvature = uniform(0.3)
   const uScanlineIntensity = uniform(0.75)
   const uScanlineCount = uniform(200)
@@ -166,10 +165,6 @@ export function CRTMesh({ texture }: CRTMeshProps) {
   useEffect(() => {
     uniforms.uTexture.value = texture
   }, [texture, uniforms])
-
-  useFrameCallback((state) => {
-    uniforms.uTime.value = state.clock.getElapsedTime()
-  })
 
   return (
     <mesh position={[8.151, 1.232, -13.9]} ref={meshRef}>

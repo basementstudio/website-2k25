@@ -40,7 +40,6 @@ export const createPostProcessingMaterial = () => {
   const uDepthTexture = texture(new Texture())
   const uResolution = uniform(new Vector2(1, 1))
   const uPixelRatio = uniform(1)
-  const uTime = uniform(0)
   const uOpacity = uniform(1)
   const uActiveBloom = uniform(1)
   const uContrast = uniform(1)
@@ -220,7 +219,6 @@ export const createPostProcessingMaterial = () => {
       uDepthTexture,
       resolution: uResolution,
       uPixelRatio,
-      uTime,
       uOpacity,
       uActiveBloom,
       uContrast,

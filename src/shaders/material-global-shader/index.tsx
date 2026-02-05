@@ -31,7 +31,11 @@ import {
   max,
   floor,
   mod,
-  select
+  select,
+  timerGlobal,
+  smoothstep,
+  sin,
+  abs
 } from "three/tsl"
 import { basicLight } from "@/shaders/utils/basic-light"
 
@@ -68,6 +72,8 @@ export const createGlobalShaderMaterial = (
     CLOUDS?: boolean
     DAYLIGHT?: boolean
     IS_LOBO_MARINO?: boolean
+    ORNAMENT?: boolean
+    ORNAMENT_STAR?: boolean
   }
 ) => {
   const {
@@ -99,6 +105,8 @@ export const createGlobalShaderMaterial = (
   const isClouds = Boolean(defines?.CLOUDS)
   const isDaylight = Boolean(defines?.DAYLIGHT)
   const isLoboMarino = Boolean(defines?.IS_LOBO_MARINO)
+  const isOrnament = Boolean(defines?.ORNAMENT)
+  const isOrnamentStar = Boolean(defines?.ORNAMENT_STAR)
 
   // --- TSL Uniform Nodes ---
 
@@ -118,6 +126,8 @@ export const createGlobalShaderMaterial = (
   const uNoiseFactor = sharedNoiseFactor
   const uAlphaMap = texture(alphaMap || BLANK_TEXTURE)
   const uAlphaMapTransform = uniform(new Matrix3().identity())
+  const uAlphaMapScrollSpeed = uniform(0)
+  const uAlphaMapRepeat = uniform(1)
   const uEmissive = uniform(baseMaterial.emissive || new Vector3())
   const uEmissiveIntensity = uniform(baseMaterial.emissiveIntensity || 0)
   const uEmissiveMap = texture(emissiveMap || BLANK_TEXTURE)
@@ -160,6 +170,18 @@ export const createGlobalShaderMaterial = (
 
   if (isDaylight) {
     uDaylight = uniform(1)
+  }
+
+  let uOrnamentPhase: ReturnType<typeof uniform> | undefined
+  let uOrnamentBaseIntensity: ReturnType<typeof uniform> | undefined
+
+  if (isOrnament) {
+    uOrnamentPhase = uniform(0)
+    uOrnamentBaseIntensity = uniform(0)
+  }
+
+  if (isOrnamentStar) {
+    uOrnamentBaseIntensity = uOrnamentBaseIntensity || uniform(0)
   }
 
   // --- Material ---
@@ -222,6 +244,23 @@ export const createGlobalShaderMaterial = (
       const ei = uEmissiveIntensity
         .mul(mix(float(1.0), oneMinusFadeFactor, shouldFadeF))
         .toVar()
+
+      // Ornament cycling: 4-phase sine transition computed on GPU
+      if (isOrnament) {
+        const t = timerGlobal()
+        const cyclePhase = t.mod(1.5).div(0.375) // [0, 4)
+        const pd = cyclePhase.sub(uOrnamentPhase!).add(2.0).mod(4.0).sub(2.0)
+        const transUp = smoothstep(float(-0.75), float(0.0), pd)
+        const transDown = float(1.0).sub(smoothstep(float(0.25), float(1.0), pd))
+        ei.assign(uOrnamentBaseIntensity!.mul(transUp.mul(transDown)))
+      }
+
+      // Star ornament: intensity oscillation computed on GPU
+      if (isOrnamentStar) {
+        const t = timerGlobal()
+        const starOsc = abs(sin(t.mul(2.5)))
+        ei.assign(uOrnamentBaseIntensity!.mul(float(1.0).add(starOsc)))
+      }
 
       if (useEmissive) {
         irradiance.addAssign(uEmissive.mul(ei))
@@ -293,9 +332,14 @@ export const createGlobalShaderMaterial = (
     }
 
     if (useAlphaMap) {
-      const alphaUv = uAlphaMapTransform
+      const matrixUv = uAlphaMapTransform
         .mul(vec3(vUv1.x, vUv1.y, float(1.0)))
         .xy
+      const scrollUv = vUv1.mul(uAlphaMapRepeat).add(
+        vec2(float(0.0), uTime.mul(uAlphaMapScrollSpeed))
+      )
+      const scrollActive = step(float(0.001), uAlphaMapScrollSpeed)
+      const alphaUv = mix(matrixUv, scrollUv, scrollActive)
       opacityResult.mulAssign(uAlphaMap.sample(alphaUv).r)
     }
 
@@ -430,6 +474,8 @@ export const createGlobalShaderMaterial = (
     uTime,
     alphaMap: uAlphaMap,
     alphaMapTransform: uAlphaMapTransform,
+    alphaMapScrollSpeed: uAlphaMapScrollSpeed,
+    alphaMapRepeat: uAlphaMapRepeat,
     emissive: uEmissive,
     emissiveIntensity: uEmissiveIntensity,
     fogColor: uFogColor,
@@ -464,6 +510,15 @@ export const createGlobalShaderMaterial = (
 
   if (isDaylight) {
     uniformsCompat.daylight = uDaylight!
+  }
+
+  if (isOrnament) {
+    uniformsCompat.ornamentPhase = uOrnamentPhase!
+    uniformsCompat.ornamentBaseIntensity = uOrnamentBaseIntensity!
+  }
+
+  if (isOrnamentStar) {
+    uniformsCompat.ornamentBaseIntensity = uOrnamentBaseIntensity!
   }
 
   ;(material as any).uniforms = uniformsCompat

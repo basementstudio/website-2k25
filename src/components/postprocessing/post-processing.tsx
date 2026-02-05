@@ -147,9 +147,7 @@ const Inner = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mainTexture, depthTexture, isMobile])
 
-  useFrameCallback(({ size }, __, elapsedTime) => {
-    uniforms.uTime.value = elapsedTime
-
+  useFrameCallback(({ size }) => {
     // Update resolution without React re-renders
     if (size.width !== lastScreenSize.current.w || size.height !== lastScreenSize.current.h) {
       lastScreenSize.current.w = size.width
