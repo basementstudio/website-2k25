@@ -32,6 +32,10 @@ const INTENSITIES = {
   star: 16
 }
 
+// Pre-allocated for per-frame star color animation (avoids new Color() each frame)
+const _animatedColor = new Color()
+const _hsl = { h: 0, s: 0, l: 0 }
+
 export const ClientChristmasTree = () => {
   const { specialEvents } = useAssets()
   const { handleMute, music } = useSiteAudio()
@@ -192,19 +196,16 @@ export const ClientChristmasTree = () => {
       }
     })
 
-    const baseColor = COLORS.star
-    const hsl = { h: 0, s: 0, l: 0 }
-    baseColor.getHSL(hsl)
-    const animatedHue = (hsl.h + 0.1 * Math.sin(time * 1.2)) % 1
-    const animatedColor = new Color()
-    animatedColor.setHSL(animatedHue, hsl.s, hsl.l)
+    COLORS.star.getHSL(_hsl)
+    const animatedHue = (_hsl.h + 0.1 * Math.sin(time * 1.2)) % 1
+    _animatedColor.setHSL(animatedHue, _hsl.s, _hsl.l)
     const starOscillation = Math.abs(Math.sin(time * 2.5))
     const animatedStarIntensity =
       INTENSITIES.star + INTENSITIES.star * starOscillation
     ballMeshRefs.current.star.forEach((mesh, i) => {
       if (mesh.material && "uniforms" in mesh.material) {
         const material = mesh.material as ShaderMaterial
-        material.uniforms.emissive.value = animatedColor
+        material.uniforms.emissive.value = _animatedColor
         material.uniforms.emissiveIntensity.value = animatedStarIntensity
       }
     })

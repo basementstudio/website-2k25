@@ -220,28 +220,27 @@ export const Inspectable = memo(function InspectableInner({
     return {
       targetQuaternion: new Quaternion(),
       lookAtMatrix: new Matrix4(),
-      upVector: new Vector3(0, 1, 0)
+      upVector: new Vector3(0, 1, 0),
+      cameraPosition: new Vector3(),
+      tempQuaternion: new Quaternion(),
+      direction: new Vector3()
     }
   }, [])
 
   useFrameCallback(() => {
     const camConfig = camConfigRef.current
     if (!ref.current || !camConfig) return
-    const { targetQuaternion, lookAtMatrix, upVector } = vRef
+    const { targetQuaternion, lookAtMatrix, upVector, cameraPosition, tempQuaternion } = vRef
 
     if (selected === id) {
-      const cameraPosition = new Vector3(...camConfig.position)
+      cameraPosition.set(camConfig.position[0], camConfig.position[1], camConfig.position[2])
       cameraPosition.add(perpendicularMoved.current)
       cameraPosition.y += yOffset
       lookAtMatrix.lookAt(cameraPosition, ref.current.position, upVector)
 
       targetQuaternion.setFromRotationMatrix(lookAtMatrix)
-      const q = new Quaternion()
-      q.setFromAxisAngle(vRef.upVector, -Math.PI / 2 + xRotationOffset)
-      targetQuaternion.multiply(q)
-
-      const direction = new Vector3()
-      direction.setFromMatrixColumn(lookAtMatrix, 2).negate()
+      tempQuaternion.setFromAxisAngle(upVector, -Math.PI / 2 + xRotationOffset)
+      targetQuaternion.multiply(tempQuaternion)
     } else {
       targetQuaternion.identity()
     }

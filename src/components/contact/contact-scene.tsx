@@ -14,6 +14,7 @@ import {
 import { ANIMATION_TYPES } from "./contact.interface"
 
 const IDLE_ANIMATIONS = [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA]
+const SCREEN_OFFSET = new Vector3(-0.0342, 0.043, 0)
 
 export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const { scene, animations, nodes } = useGLTF(modelUrl)
@@ -311,7 +312,7 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const screenbone = nodes.Obj as Bone
     if (screenbone && debugMeshRef.current) {
       screenbone.getWorldPosition(tmp)
-      tmp.add(new Vector3(-0.0342, 0.043, 0))
+      tmp.add(SCREEN_OFFSET)
       debugMeshRef.current.position.copy(tmp)
     }
 

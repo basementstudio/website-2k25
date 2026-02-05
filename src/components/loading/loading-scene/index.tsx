@@ -27,6 +27,8 @@ import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
 
+const BLACK = new Color(0, 0, 0)
+
 interface LoadingWorkerStore {
   isAppLoaded: boolean
   progress: number
@@ -85,7 +87,6 @@ interface GLTFNodes extends GLTF {
 }
 
 function LoadingScene({ modelUrl }: { modelUrl: string }) {
-  const { actualCamera } = useLoadingWorkerStore()
   const { nodes } = useGLTF(modelUrl!) as any as GLTFNodes
 
   const solidParent = nodes.SM_Solid
@@ -100,14 +101,8 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
   const solidMaterial = solid.material as ShaderMaterial
 
-  useFrame(({ clock }) => {
-    const elapsedTime = clock.getElapsedTime()
-    const material = solid.material as any
-    material.uniforms.uTime.value = elapsedTime
-  })
-
   const flowDoubleFbo = useMemo(() => {
-    const fbo = doubleFbo(1024, 1024, {
+    const fbo = doubleFbo(512, 512, {
       magFilter: NearestFilter,
       minFilter: NearestFilter,
       type: HalfFloatType
@@ -125,29 +120,8 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     return new Group()
   }, [])
 
-  const isAppLoaded = useLoadingWorkerStore((s) => s.isAppLoaded)
-
   const uScreenReveal = useRef(0)
-
   const sentMessage = useRef(false)
-
-  // Fade out canvas
-  useFrame((_, delta) => {
-    if (!isAppLoaded) return
-
-    if (uScreenReveal.current < 1) {
-      uScreenReveal.current += delta
-      ;(solid.material as any).uniforms.uScreenReveal.value =
-        uScreenReveal.current
-    } else {
-      // remove canvas
-      // send message to stop
-      if (!sentMessage.current) {
-        self.postMessage({ type: "loading-transition-complete" })
-        sentMessage.current = true
-      }
-    }
-  })
 
   useEffect(() => {
     self.postMessage({ type: "offscreen-canvas-loaded" })
@@ -176,21 +150,41 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
   const gl = useThree((state) => state.gl)
 
-  gl.setClearAlpha(0)
-  gl.setClearColor(new Color(0, 0, 0), 0)
+  useEffect(() => {
+    gl.setClearAlpha(0)
+    gl.setClearColor(BLACK, 0)
+  }, [gl])
 
   const renderCount = useRef(0)
 
-  /**
-   * Another approach, camera just appears there
-   * */
   const updated = useRef(false)
-  useFrame(({ camera: C, scene, clock }) => {
+  const prevFov = useRef(0)
+  const prevNear = useRef(0)
+  const prevFar = useRef(0)
+
+  useFrame(({ camera: C, scene, clock }, delta) => {
     const elapsedTime = clock.getElapsedTime()
     renderCount.current++
     const time = elapsedTime
 
-    let r = Math.min(time * 1, 1)
+    // Update uTime (previously a separate useFrame)
+    ;(solid.material as any).uniforms.uTime.value = elapsedTime
+
+    // Screen reveal fade (previously a separate useFrame)
+    const appLoaded = useLoadingWorkerStore.getState().isAppLoaded
+    if (appLoaded) {
+      if (uScreenReveal.current < 1) {
+        uScreenReveal.current += delta
+        ;(solid.material as any).uniforms.uScreenReveal.value =
+          uScreenReveal.current
+      } else if (!sentMessage.current) {
+        self.postMessage({ type: "loading-transition-complete" })
+        sentMessage.current = true
+      }
+    }
+
+    // Line reveal animation
+    let r = Math.min(time, 1)
     r = clamp(r, 0, 1)
     r = easeInOutCirc(0, 1, r)
     ;(lines.material as any).uniforms.uReveal.value = r
@@ -199,7 +193,6 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       lines.visible = Math.sin(time * 50) > 0
       ;(lines.material as any).uniforms.uOpacity.value = 0.1
     } else {
-      // remove lines when app is loaded
       lines.visible = true
       ;(lines.material as any).uniforms.uOpacity.value = 0.3
     }
@@ -218,6 +211,8 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     r2 = easeInOutCirc(0, 1, r2)
     ;(solid.material as any).uniforms.uReveal.value = r2
 
+    // Camera sync — read imperatively to avoid React re-renders
+    const actualCamera = useLoadingWorkerStore.getState().actualCamera
     const camera = C as PerspectiveCameraType
     if (actualCamera) {
       updated.current = true
@@ -232,17 +227,25 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
         actualCamera.target.z
       )
       camera.lookAt(target)
-      camera.fov = actualCamera.fov
-      camera.updateProjectionMatrix()
+
+      // Only update projection matrix when FOV changes
+      if (actualCamera.fov !== prevFov.current) {
+        camera.fov = actualCamera.fov
+        camera.updateProjectionMatrix()
+        prevFov.current = actualCamera.fov
+      }
     }
     if (updated.current) {
-      // TODO re-enable this
-      solidMaterial.uniforms.uNear.value = camera.near
-      solidMaterial.uniforms.uFar.value = camera.far
+      // Only update near/far when changed
+      if (camera.near !== prevNear.current || camera.far !== prevFar.current) {
+        solidMaterial.uniforms.uNear.value = camera.near
+        solidMaterial.uniforms.uFar.value = camera.far
+        prevNear.current = camera.near
+        prevFar.current = camera.far
+      }
       gl.setRenderTarget(null)
       gl.render(scene, camera)
     }
-    return
   }, 1)
 
   const flowCamera = useMemo(() => {
@@ -251,8 +254,6 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     oc.lookAt(0, 0, 0)
     return oc
   }, [])
-
-  // const [handlePointerMove, lerpMouseFloor, vRefsFloor] = useLerpMouse()
 
   const vRefsFloor = useMemo(
     () => ({
@@ -264,28 +265,35 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     []
   )
 
-  const raycaster = new Raycaster()
-  const camera = useThree((s) => s.camera)
-  const pointer = useThree((s) => s.pointer)
+  const raycaster = useMemo(() => new Raycaster(), [])
 
-  const renderFlow = (gl: any, delta: number) => {
+  const lastScreenSize = useRef({ w: 0, h: 0 })
+  const raycastFrame = useRef(0)
+
+  useFrame(({ gl, camera, pointer, size }, delta) => {
+    // Update screen size uniform only when changed
+    if (size.width !== lastScreenSize.current.w || size.height !== lastScreenSize.current.h) {
+      lastScreenSize.current.w = size.width
+      lastScreenSize.current.h = size.height
+      solidMaterial.uniforms.uScreenSize.value.set(size.width, size.height)
+    }
+
     gl.setRenderTarget(null)
 
     vRefsFloor.smoothPointer.lerp(pointer, Math.min(delta * 10, 1))
-    const distance = vRefsFloor.smoothPointer.distanceTo(
+    const dist = vRefsFloor.smoothPointer.distanceTo(
       vRefsFloor.prevSmoothPointer
     )
     vRefsFloor.prevSmoothPointer.copy(vRefsFloor.smoothPointer)
 
-    raycaster.setFromCamera(pointer, camera)
-    const intersects = raycaster.intersectObject(solid)
-
-    if (intersects.length) {
-      const sortedInt = intersects.sort((a, b) => a.distance - b.distance)
-
-      const int = sortedInt[0]
-      const distance = int.distance
-      vRefsFloor.depth = distance
+    // Throttle raycaster to every 4th frame — depth changes slowly
+    raycastFrame.current++
+    if (raycastFrame.current % 4 === 0) {
+      raycaster.setFromCamera(pointer, camera)
+      const intersects = raycaster.intersectObject(solid)
+      if (intersects.length) {
+        vRefsFloor.depth = intersects[0].distance
+      }
     }
 
     vRefsFloor.uv.copy(vRefsFloor.smoothPointer)
@@ -303,26 +311,8 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       vRefsFloor.uv.x,
       vRefsFloor.uv.y
     )
-    flowMaterial.uniforms.uMouseMoving.value = distance > 0.001 ? 1.0 : 0.0
-  }
-
-  useFrame(({ gl }, delta) => {
-    const fps = 1 / delta
-
-    const shouldDoubleRender = fps < 100
-
-    const d = shouldDoubleRender ? delta / 2 : delta
-
-    renderFlow(gl, d)
-    if (shouldDoubleRender) {
-      renderFlow(gl, d)
-    }
+    flowMaterial.uniforms.uMouseMoving.value = dist > 0.001 ? 1.0 : 0.0
   }, 2)
-
-  const width = useThree((s) => s.size.width)
-  const height = useThree((s) => s.size.height)
-
-  solidMaterial.uniforms.uScreenSize.value.set(width, height)
 
   return (
     <>

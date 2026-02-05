@@ -2,7 +2,6 @@ import {
   Color,
   Matrix3,
   MeshStandardMaterial,
-  ShaderMaterial,
   Texture,
   Vector2,
   Vector3
@@ -34,11 +33,27 @@ import {
   mod,
   select
 } from "three/tsl"
-import { create } from "zustand"
-
 import { basicLight } from "@/shaders/utils/basic-light"
 
 export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
+
+// --- Shared blank texture (reused as placeholder for all texture slots) ---
+const BLANK_TEXTURE = new Texture()
+
+// --- Shared global uniforms (same value across all materials) ---
+const sharedUTime = uniform(0)
+const sharedInspectingEnabled = uniform(0)
+const sharedFadeFactor = uniform(0)
+const sharedFogColor = uniform(new Vector3(0.2, 0.2, 0.2))
+const sharedFogDensity = uniform(0.05)
+const sharedFogDepth = uniform(9.0)
+const sharedNoiseFactor = uniform(0.5)
+
+export const globalUniforms = {
+  uTime: sharedUTime,
+  inspectingEnabled: sharedInspectingEnabled,
+  fadeFactor: sharedFadeFactor
+} as const
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
@@ -89,31 +104,31 @@ export const createGlobalShaderMaterial = (
 
   const uColor = uniform(emissiveColor)
   const uBaseColor = uniform(baseColorVal)
-  const uMap = texture(map || new Texture())
+  const uMap = texture(map || BLANK_TEXTURE)
   const uMapMatrix = uniform(new Matrix3().identity())
   const uMapRepeat = uniform(
     map ? new Vector2(map.repeat.x, map.repeat.y) : new Vector2(1, 1)
   )
-  const uLightMap = texture(new Texture())
+  const uLightMap = texture(BLANK_TEXTURE)
   const uLightMapIntensity = uniform(0)
-  const uAoMap = texture(new Texture())
+  const uAoMap = texture(BLANK_TEXTURE)
   const uAoMapIntensity = uniform(0)
   const uOpacity = uniform(baseOpacity)
-  const uTime = uniform(0)
-  const uNoiseFactor = uniform(0.5)
-  const uAlphaMap = texture(alphaMap || new Texture())
+  const uTime = sharedUTime
+  const uNoiseFactor = sharedNoiseFactor
+  const uAlphaMap = texture(alphaMap || BLANK_TEXTURE)
   const uAlphaMapTransform = uniform(new Matrix3().identity())
   const uEmissive = uniform(baseMaterial.emissive || new Vector3())
   const uEmissiveIntensity = uniform(baseMaterial.emissiveIntensity || 0)
-  const uEmissiveMap = texture(emissiveMap || new Texture())
-  const uFogColor = uniform(new Vector3(0.2, 0.2, 0.2))
-  const uFogDensity = uniform(0.05)
-  const uFogDepth = uniform(9.0)
-  const uGlassReflex = texture(new Texture())
-  const uInspectingEnabled = uniform(0)
+  const uEmissiveMap = texture(emissiveMap || BLANK_TEXTURE)
+  const uFogColor = sharedFogColor
+  const uFogDensity = sharedFogDensity
+  const uFogDepth = sharedFogDepth
+  const uGlassReflex = texture(BLANK_TEXTURE)
+  const uInspectingEnabled = sharedInspectingEnabled
   const uInspectingFactor = uniform(0)
-  const uFadeFactor = uniform(0)
-  const uLampLightmap = texture(new Texture())
+  const uFadeFactor = sharedFadeFactor
+  const uLampLightmap = texture(BLANK_TEXTURE)
   const uLightLampEnabled = uniform(0)
 
   // Conditional uniforms (only created when the feature is active)
@@ -139,7 +154,7 @@ export const createGlobalShaderMaterial = (
   }
 
   if (isMatcap) {
-    uMatcapTex = texture(new Texture())
+    uMatcapTex = texture(BLANK_TEXTURE)
     uGlassMatcap = uniform(0)
   }
 
@@ -455,31 +470,7 @@ export const createGlobalShaderMaterial = (
 
   material.needsUpdate = true
 
-  useCustomShaderMaterial
-    .getState()
-    .addMaterial(material as unknown as ShaderMaterial)
-
   baseMaterial.dispose()
 
-  return material as unknown as ShaderMaterial
+  return material as any
 }
-
-interface CustomShaderMaterialStore {
-  materialsRef: Record<string, ShaderMaterial>
-  addMaterial: (material: ShaderMaterial) => void
-  removeMaterial: (id: number) => void
-}
-
-export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
-  (_set, get) => ({
-    materialsRef: {},
-    addMaterial: (material) => {
-      const materials = get().materialsRef
-      materials[material.id] = material
-    },
-    removeMaterial: (id) => {
-      const materials = get().materialsRef
-      delete materials[id]
-    }
-  })
-)

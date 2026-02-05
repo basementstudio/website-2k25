@@ -1,10 +1,9 @@
-import { useThree } from "@react-three/fiber"
 import { useMotionValue, useMotionValueEvent } from "motion/react"
 import { animate } from "motion/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { memo } from "react"
-import { Mesh, Vector2 } from "three"
+import { Mesh } from "three"
 import { NodeMaterial } from "three/webgpu"
 import {
   Fn,
@@ -21,7 +20,8 @@ import {
   smoothstep,
   fract,
   mix,
-  screenUV
+  screenUV,
+  viewportSize
 } from "three/tsl"
 
 import { useInspectable } from "@/components/inspectables/context"
@@ -46,7 +46,6 @@ const RoutingElementComponent = ({
   groupName
 }: RoutingElementProps) => {
   const { routingMaterial, routingUniforms } = useMemo(() => {
-    const uResolution = uniform(new Vector2())
     const uOpacity = uniform(0)
     const uBorderPadding = uniform(0)
 
@@ -89,7 +88,7 @@ const RoutingElementComponent = ({
 
       // Diagonal line pattern using screen coordinates
       const vCoords = screenUV.toVar()
-      const aspectRatio = uResolution.x.div(uResolution.y)
+      const aspectRatio = viewportSize.x.div(viewportSize.y)
       vCoords.x.mulAssign(aspectRatio)
 
       const lineSpacing = 0.006
@@ -117,17 +116,11 @@ const RoutingElementComponent = ({
     return {
       routingMaterial: material,
       routingUniforms: {
-        resolution: uResolution,
         opacity: uOpacity,
         borderPadding: uBorderPadding
       }
     }
   }, [])
-
-  const screenWidth = useThree((state) => state.size.width)
-  const screenHeight = useThree((state) => state.size.height)
-
-  routingUniforms.resolution.value.set(screenWidth, screenHeight)
 
   const router = useRouter()
   const pathname = usePathname()

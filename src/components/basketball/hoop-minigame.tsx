@@ -76,10 +76,12 @@ const HoopMinigameInner = () => {
     dragStartPos: new Vector3(),
     currentBallPos: new Vector3(),
     targetPos: new Vector3(),
-    currentRot: new Vector3()
+    currentRot: new Vector3(),
+    resetTarget: new Vector3(),
+    resetLerp: new Vector3()
   }).current
 
-  const { camera } = useThree()
+  const camera = useThree((state) => state.camera)
   const bounceCount = useRef(0)
   const resetProgress = useRef(0)
   const startResetPos = useRef(new Vector3())
@@ -520,16 +522,15 @@ const HoopMinigameInner = () => {
         const progress = MathUtils.clamp(resetProgress.current, 0, 1)
         const easedProgress = easeInOutCubic(progress)
 
-        // Create a completely new Vector3 for the new position
-        const targetPosition = new Vector3(
+        positionVectors.resetTarget.set(
           initialPosition.x,
           initialPosition.y,
           initialPosition.z
         )
 
-        const newPosition = new Vector3().lerpVectors(
+        const newPosition = positionVectors.resetLerp.lerpVectors(
           startResetPos.current,
-          targetPosition,
+          positionVectors.resetTarget,
           easedProgress
         )
 

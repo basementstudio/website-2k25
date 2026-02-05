@@ -15,7 +15,7 @@ import {
   mx_noise_float
 } from "three/tsl"
 
-const FLOW_RESOLUTION = 1024
+const FLOW_RESOLUTION = 512
 
 export const createFlowMaterial = () => {
   const uFrame = uniform(0)

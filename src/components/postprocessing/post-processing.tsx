@@ -1,5 +1,4 @@
 import { OrthographicCamera } from "@react-three/drei"
-import { useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef } from "react"
 import {
@@ -137,27 +136,26 @@ const Inner = ({
     }
   })
 
-  const screenWidth = useThree((state) => state.size.width)
-  const screenHeight = useThree((state) => state.size.height)
+  const lastScreenSize = useRef({ w: 0, h: 0 })
 
   useEffect(() => {
-    const controller = new AbortController()
-
-    uniforms.resolution.value.set(screenWidth, screenHeight)
     uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
-
     uniforms.uActiveBloom.value = isMobile ? 0 : 1
-
     uniforms.uMainTexture.value = mainTexture
     uniforms.uDepthTexture.value = depthTexture
 
-    return () => controller.abort()
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mainTexture, depthTexture, isMobile, screenWidth, screenHeight])
+  }, [mainTexture, depthTexture, isMobile])
 
-  useFrameCallback((_, __, elapsedTime) => {
+  useFrameCallback(({ size }, __, elapsedTime) => {
     uniforms.uTime.value = elapsedTime
+
+    // Update resolution without React re-renders
+    if (size.width !== lastScreenSize.current.w || size.height !== lastScreenSize.current.h) {
+      lastScreenSize.current.w = size.width
+      lastScreenSize.current.h = size.height
+      uniforms.resolution.value.set(size.width, size.height)
+    }
   })
 
   return (

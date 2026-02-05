@@ -44,7 +44,7 @@ const ScreenUI = dynamic(
 )
 
 export const ArcadeScreen = () => {
-  const { scene } = useThree()
+  const scene = useThree((state) => state.scene)
   const pathname = usePathname()
   const currentScene = useCurrentScene()
   const isLabRoute = pathname === "/lab"

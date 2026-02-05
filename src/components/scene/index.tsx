@@ -2,6 +2,7 @@
 
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
+import { useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 import { WebGPURenderer } from "three/webgpu"
@@ -26,6 +27,7 @@ import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
 import { DoomJs } from "../doom-js"
+import { StatsMonitor } from "./stats-monitor"
 
 const HoopMinigame = dynamic(
   () =>
@@ -60,6 +62,8 @@ export const Scene = () => {
   const userHasLeftWindow = useRef(false)
   const [isTouchOnly, setIsTouchOnly] = useState(false)
   const scene = useCurrentScene()
+  const searchParams = useSearchParams()
+  const showPerf = searchParams.has("debug")
 
   useTabKeyHandler()
 
@@ -171,6 +175,7 @@ export const Scene = () => {
           )}
         >
           <AnimationController>
+            {showPerf && <StatsMonitor />}
             <UpdateCanvasCursor />
             <Renderer
               sceneChildren={

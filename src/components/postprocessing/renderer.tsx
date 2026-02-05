@@ -1,5 +1,5 @@
-import { createPortal, useThree } from "@react-three/fiber"
-import { memo, useEffect, useMemo, useRef } from "react"
+import { createPortal } from "@react-three/fiber"
+import { memo, useMemo, useRef } from "react"
 import {
   DepthTexture,
   HalfFloatType,
@@ -70,14 +70,16 @@ function RendererInner({ sceneChildren }: RendererProps) {
   const postProcessingCameraRef = useRef<OrthographicCamera>(null)
   const mainCamera = useNavigationStore((state) => state.mainCamera)
 
-  const screenWidth = useThree((state) => state.size.width)
-  const screenHeight = useThree((state) => state.size.height)
+  const lastSize = useRef({ w: 0, h: 0 })
 
-  useEffect(() => {
-    mainTarget.setSize(screenWidth, screenHeight)
-  }, [mainTarget, screenWidth, screenHeight])
+  useFrameCallback(({ gl, size }) => {
+    // Resize render target when viewport changes (avoids useThree re-renders)
+    if (size.width !== lastSize.current.w || size.height !== lastSize.current.h) {
+      lastSize.current.w = size.width
+      lastSize.current.h = size.height
+      mainTarget.setSize(size.width, size.height)
+    }
 
-  useFrameCallback(({ gl }) => {
     if (!mainCamera || !postProcessingCameraRef.current || !canRunMainApp)
       return
 

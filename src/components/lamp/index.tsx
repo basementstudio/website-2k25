@@ -125,8 +125,10 @@ export const Lamp = memo(function LampInner() {
     }
   }, [lightmap, lampTargets])
 
+  const dragDelta = useMemo(() => new THREE.Vector3(), [])
+  const tensionVec = useMemo(() => new THREE.Vector3(), [])
   const tension = (point1: THREE.Vector3, point2: THREE.Vector3) =>
-    new THREE.Vector3().copy(point1).sub(point2).length()
+    tensionVec.copy(point1).sub(point2).length()
 
   useEffect(() => {
     if (selected) {
@@ -153,8 +155,8 @@ export const Lamp = memo(function LampInner() {
       dir.copy(vec).sub(state.camera.position).normalize()
       vec.add(dir.multiplyScalar(state.camera.position.length() * 0.079))
 
-      const delta = new THREE.Vector3().copy(vec).sub(j3.current.translation())
-      if (delta.length() > 0.1) {
+      dragDelta.copy(vec).sub(j3.current.translation())
+      if (dragDelta.length() > 0.1) {
         drag(false)
         return
       }

@@ -71,7 +71,7 @@ export const Grid = ({
   divisions,
   caps = false
 }: GridProps) => {
-  const { camera } = useThree()
+  const camera = useThree((state) => state.camera)
   const lineRef = useRef<LineSegments | null>(null)
 
   const [divisionsX, divisionsY] = useMemo(() => {

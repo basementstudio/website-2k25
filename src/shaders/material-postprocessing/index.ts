@@ -29,7 +29,7 @@ import {
   int
 } from "three/tsl"
 
-const SAMPLE_COUNT = 24
+const SAMPLE_COUNT = 16
 const GOLDEN_ANGLE = 2.399963229728653
 const PI_2 = 6.28318530718
 

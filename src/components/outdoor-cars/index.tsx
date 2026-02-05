@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react"
-import type { Mesh } from "three"
+import { useEffect, useMemo, useRef } from "react"
+import { Group, type Mesh } from "three"
 
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -19,7 +19,7 @@ interface StreetLane {
 
 export const OutdoorCars = () => {
   const { cars } = useMesh()
-  const [carUpdateCounter, setCarUpdateCounter] = useState(0)
+  const groupRef = useRef<Group>(null)
 
   useEffect(() => {
     if (!cars?.length) return
@@ -87,10 +87,16 @@ export const OutdoorCars = () => {
   }
 
   useFrameCallback((_, delta, elapsedTime) => {
-    let needsUpdate = false
+    const group = groupRef.current
+    if (!group) return
 
     STREET_LANES.forEach((lane) => {
       if (!lane.car || !lane.speed || lane.nextStartTime === null) return
+
+      // Add car to scene when it first appears
+      if (lane.car.parent !== group) {
+        group.add(lane.car)
+      }
 
       if (!lane.isMoving && elapsedTime >= lane.nextStartTime) {
         lane.isMoving = true
@@ -112,20 +118,15 @@ export const OutdoorCars = () => {
           (direction > 0 && lane.car.position.x >= lane.targetPosition[0]) ||
           (direction < 0 && lane.car.position.x <= lane.targetPosition[0])
         ) {
+          const oldCar = lane.car
           generateRandomCar(lane, elapsedTime)
-          needsUpdate = true
+          // Swap cars imperatively — no React re-render needed
+          group.remove(oldCar)
+          if (lane.car) group.add(lane.car)
         }
       }
     })
-
-    if (needsUpdate) {
-      setCarUpdateCounter((prev) => prev + 1)
-    }
   })
 
-  return STREET_LANES.map((lane, index) => {
-    if (!lane.car) return null
-
-    return <primitive key={`${index}-${carUpdateCounter}`} object={lane.car} />
-  })
+  return <group ref={groupRef} />
 }
