@@ -3,6 +3,7 @@ import "@/styles/globals.css"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata } from "next"
+import { unstable_cache } from "next/cache"
 import { Geist, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
 
@@ -18,6 +19,12 @@ import { PostHogProvider } from "@/components/posthog/posthog-provider"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
 import { cn } from "@/utils/cn"
+
+const getCachedAssets = unstable_cache(
+  async () => fetchAssets(),
+  ["fetch-assets"],
+  { revalidate: false }
+)
 
 export const metadata: Metadata = {
   title: {
@@ -65,7 +72,7 @@ const flauta = localFont({
 })
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
-  const assets = await fetchAssets()
+  const assets = await getCachedAssets()
 
   return (
     <html lang="en" suppressHydrationWarning>
