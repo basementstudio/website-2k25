@@ -102,7 +102,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
   const solidMaterial = solid.material as ShaderMaterial
 
   const flowDoubleFbo = useMemo(() => {
-    const fbo = doubleFbo(512, 512, {
+    const fbo = doubleFbo(256, 256, {
       magFilter: NearestFilter,
       minFilter: NearestFilter,
       type: HalfFloatType
@@ -167,8 +167,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     renderCount.current++
     const time = elapsedTime
 
-    // Update uTime (previously a separate useFrame)
-    ;(solid.material as any).uniforms.uTime.value = elapsedTime
+    // uTime uses TSL `time` singleton — auto-updates per render, no CPU pumping needed
 
     // Screen reveal fade (previously a separate useFrame)
     const appLoaded = useLoadingWorkerStore.getState().isAppLoaded
@@ -277,6 +276,9 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       lastScreenSize.current.h = size.height
       solidMaterial.uniforms.uScreenSize.value.set(size.width, size.height)
     }
+
+    // Skip flow simulation during screen reveal — flow fades out anyway
+    if (uScreenReveal.current > 0) return
 
     gl.setRenderTarget(null)
 

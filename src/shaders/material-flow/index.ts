@@ -12,10 +12,11 @@ import {
   step,
   mix,
   length,
-  mx_noise_float
+  fract,
+  dot
 } from "three/tsl"
 
-const FLOW_RESOLUTION = 512
+const FLOW_RESOLUTION = 256
 
 export const createFlowMaterial = () => {
   const uFrame = uniform(0)
@@ -25,6 +26,13 @@ export const createFlowMaterial = () => {
   const uMouseDepth = uniform(0)
 
   const material = new NodeMaterial()
+
+  // Fast hash-based 3D noise (replaces expensive mx_noise_float)
+  const hashNoise3d = /* @__PURE__ */ Fn(([p]: [any]) => {
+    const p3 = fract(p.mul(vec3(0.1031, 0.1030, 0.0973))).toVar()
+    p3.addAssign(dot(p3, vec3(p3.y, p3.z, p3.x).add(33.33)))
+    return fract(p3.x.add(p3.y).mul(p3.z)).mul(2.0).sub(1.0)
+  })
 
   const invRes = vec2(1.0 / FLOW_RESOLUTION, 1.0 / FLOW_RESOLUTION)
 
@@ -74,8 +82,8 @@ export const createFlowMaterial = () => {
     // Increment growth
     finalSample.g.addAssign(0.02)
 
-    // 2D noise (use 3D noise with z=0 as cnoise2 approximation)
-    const noise = mx_noise_float(vec3(pixel.x, pixel.y, float(0.0)))
+    // 2D hash noise (cheap replacement for mx_noise_float)
+    const noise = hashNoise3d(vec3(pixel.x, pixel.y, float(0.0)))
 
     // Kill wave if growth exceeds threshold: g > 2.0 + noise → set g = 1000
     const killThreshold = float(2.0).add(noise)

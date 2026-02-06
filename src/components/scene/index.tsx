@@ -158,11 +158,20 @@ export const Scene = () => {
             }
           }}
           gl={async (defaultProps) => {
+            // Enable HDR extended tone mapping on the canvas
+            const srgbConfig = (THREE.ColorManagement as any).spaces[
+              THREE.SRGBColorSpace
+            ]
+            if (srgbConfig?.outputColorSpaceConfig) {
+              srgbConfig.outputColorSpaceConfig.toneMappingMode = "extended"
+            }
+
             const renderer = new WebGPURenderer({
               canvas: defaultProps.canvas as HTMLCanvasElement,
               antialias: false,
-              alpha: false
-            })
+              alpha: false,
+              outputType: THREE.HalfFloatType
+            } as ConstructorParameters<typeof WebGPURenderer>[0])
             await renderer.init()
             renderer.outputColorSpace = THREE.SRGBColorSpace
             renderer.toneMapping = THREE.NoToneMapping

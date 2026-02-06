@@ -24,7 +24,12 @@ export const createNetMaterial = () => {
 
   // Vertex: displace position using DataTexture lookup via uv1 attribute
   material.positionNode = Fn(() => {
-    const aUv1 = attribute("uv1", "vec2")
+    const aUv1 = (Fn as any)((builder: any) => {
+      if (builder.geometry.hasAttribute("uv1")) {
+        return attribute("uv1", "vec2")
+      }
+      return vec2(0.0)
+    }, "vec2").once()()
     const dispUv = vec2(
       aUv1.x,
       float(1.0).sub(uCurrentFrame.div(uTotalFrames))

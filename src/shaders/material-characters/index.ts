@@ -51,8 +51,10 @@ export const createCharacterMaterial = (mapConfigs?: MapConfig[]) => {
   const uFadeFactor = uniform(0)
 
   // Map texture uniforms (set at creation time)
+  // Pass uv() as uvNode so the TextureNode constructor sets updateMatrix=false,
+  // preventing the automatic matrix transform (we apply it manually in the shader)
   const mapCount = mapConfigs?.length ?? 0
-  const uMapTextures = mapConfigs?.map((c) => tslTexture(c.map)) ?? []
+  const uMapTextures = mapConfigs?.map((c) => tslTexture(c.map, uv())) ?? []
   const uMapTransforms =
     mapConfigs?.map((c) => uniform(c.mapTransform)) ?? []
 

@@ -1,17 +1,18 @@
 import { useTexture } from "@react-three/drei"
-import { Container, DefaultProperties, Text } from "@react-three/uikit"
 import { useEffect, useRef, useState } from "react"
-import { COLORS_THEME } from "@/components/arcade-screen/screen-ui"
+
+import {
+  type FontData,
+  loadMsdfFont,
+  MsdfFontContext
+} from "@/components/arcade-screen/arcade-ui/msdf-font"
+import { UIText } from "@/components/arcade-screen/arcade-ui/ui-text"
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useArcadeStore } from "@/store/arcade-store"
 
-import ffflauta from "../../../public/fonts/ffflauta.json"
 import { useGame } from "./lib/use-game"
-
-// Convert font object to JSON data URL for react-three/uikit
-const ffflautaUrl = `data:application/json;base64,${btoa(JSON.stringify(ffflauta))}`
 import { NPCs } from "./npc"
 import { useNpc } from "./npc/use-npc"
 import { Player } from "./player"
@@ -23,6 +24,10 @@ interface arcadeGameProps {
   visible: boolean
   screenUniforms: { uIsGameRunning: { value: number } }
 }
+
+// Scale factor to convert MSDF virtual units to game world units
+// Approximates uikit's default pixel size for the game overlay
+const GAME_TEXT_SCALE = 0.005
 
 export const ArcadeGame = ({ visible, screenUniforms }: arcadeGameProps) => {
   const setSpeed = useRoad((s) => s.setSpeed)
@@ -39,6 +44,11 @@ export const ArcadeGame = ({ visible, screenUniforms }: arcadeGameProps) => {
   const introScreenTexture = useTexture(arcade.introScreen)
   const clearNpcs = useNpc((s) => s.clearNpcs)
   const scene = useCurrentScene()
+  const [gameFont, setGameFont] = useState<FontData | null>(null)
+
+  useEffect(() => {
+    loadMsdfFont("/fonts/ffflauta.json").then(setGameFont)
+  }, [])
 
   useFrameCallback((_, delta) => {
     if (gameStarted && !gameOver) {
@@ -145,72 +155,46 @@ export const ArcadeGame = ({ visible, screenUniforms }: arcadeGameProps) => {
         <meshBasicMaterial map={introScreenTexture} />
       </mesh>
 
-      <group position={[0, 5.3, 8]}>
-        <Container
-          width={1000}
-          height={690}
-          positionType="relative"
-          display="flex"
-          flexDirection="column"
-          paddingY={24}
-          paddingX={18}
-          justifyContent={"flex-end"}
-          {...({
-            fontFamilies: {
-              ffflauta: {
-                normal: ffflautaUrl
-              }
-            },
-            "*": {
-              fontFamily: "ffflauta",
-              fontSize: 18,
-              fontWeight: "normal",
-              color: COLORS_THEME.primary,
-              textAlign: "center"
-            }
-          } as any)}
-        >
+      {gameFont && (
+        <MsdfFontContext.Provider value={gameFont}>
+          {/* Score display — positioned near top of game view */}
           {(gameStarted || gameOver) && (
-            <Text color={COLORS_THEME.black} positionTop={-200}>
-              SCORE: {`${scoreDisplay}`}
-            </Text>
+            <group position={[0, 4.3, 8]}>
+              <group scale={[GAME_TEXT_SCALE, -GAME_TEXT_SCALE, GAME_TEXT_SCALE]}>
+                <UIText
+                  text={`SCORE: ${scoreDisplay}`}
+                  fontSize={18}
+                  color="#000000"
+                  anchorX="center"
+                />
+              </group>
+            </group>
           )}
-          <Container
-            width={600}
-            height={100}
-            paddingTop={24}
-            positionType="absolute"
-            positionLeft={"20%"}
-            flexDirection="column"
-            alignItems="center"
-            positionBottom={-64}
-            visibility={gameStarted ? "hidden" : "visible"}
-          >
-            {gameStarted && gameOver && (
-              <Container paddingTop={10}>
-                <Text
-                  textAlign="center"
+
+          {/* Game over instructions — hidden when gameStarted (matches original behavior) */}
+          <group position={[0, 2.2, 8]} visible={!gameStarted}>
+            <group scale={[GAME_TEXT_SCALE, -GAME_TEXT_SCALE, GAME_TEXT_SCALE]}>
+              {gameStarted && gameOver && (
+                <UIText
+                  text="PRESS [SPACE] TO RESTART"
                   fontSize={16}
-                  color={COLORS_THEME.black}
-                >
-                  PRESS [SPACE] TO RESTART
-                </Text>
-              </Container>
-            )}
-            {gameStarted && gameOver && (
-              <Container>
-                <Text
-                  textAlign="center"
+                  color="#000000"
+                  anchorX="center"
+                />
+              )}
+              {gameStarted && gameOver && (
+                <UIText
+                  text="PRESS [ESC] TO EXIT"
                   fontSize={16}
-                  color={COLORS_THEME.black}
-                >
-                  PRESS [ESC] TO EXIT
-                </Text>
-              </Container>
-            )}
-          </Container>
-        </Container>
-      </group>
+                  color="#000000"
+                  anchorX="center"
+                  position={[0, -25, 0]}
+                />
+              )}
+            </group>
+          </group>
+        </MsdfFontContext.Provider>
+      )}
 
       <Player />
       <Road />

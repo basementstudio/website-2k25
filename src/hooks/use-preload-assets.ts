@@ -82,14 +82,14 @@ const assetUrlCache = new Map<
 
 const getAssetFormat = (
   url: string
-): { as: PreloadOptions["as"]; type: PreloadOptions["type"] } => {
+): { as: PreloadOptions["as"]; type: PreloadOptions["type"] } | null => {
   // Return from cache if already computed
   if (assetUrlCache.has(url)) {
     return assetUrlCache.get(url)!
   }
 
   const extension = url.split(".").pop()?.toLowerCase() || ""
-  let result: { as: PreloadOptions["as"]; type: PreloadOptions["type"] }
+  let result: { as: PreloadOptions["as"]; type: PreloadOptions["type"] } | null
 
   switch (extension) {
     case "png":
@@ -116,21 +116,14 @@ const getAssetFormat = (
     case "mp4":
       result = { as: "video", type: "video/mp4" }
       break
-    case "exr":
-      result = { as: "fetch", type: "image/x-exr" }
-      break
-    case "glb":
-      result = { as: "fetch", type: "model/gltf-binary" }
-      break
-    case "gltf":
-      result = { as: "fetch", type: "model/gltf+json" }
-      break
     default:
-      result = { as: "fetch", type: undefined }
+      // Skip preloading for formats without browser-supported `as` values
+      // (e.g. .exr, .glb, .gltf) — browsers warn on `as="fetch"` preload links
+      result = null
   }
 
   // Cache the result
-  assetUrlCache.set(url, result)
+  if (result) assetUrlCache.set(url, result)
   return result
 }
 
@@ -197,9 +190,10 @@ const preloadAllAssets = (obj: any) => {
 
   // Preload all URLs
   urls.forEach((url) => {
-    const { as, type } = getAssetFormat(url)
+    const format = getAssetFormat(url)
+    if (!format) return
     // Add crossorigin attribute to match credentials mode of the requests
-    preload(url, { as, type, crossOrigin: "anonymous" })
+    preload(url, { as: format.as, type: format.type, crossOrigin: "anonymous" })
   })
 }
 

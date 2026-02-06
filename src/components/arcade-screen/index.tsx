@@ -32,10 +32,10 @@ const ArcadeGame = dynamic(
   }
 )
 
-const ScreenUI = dynamic(
+const ArcadeUI = dynamic(
   () =>
-    import("./screen-ui").then((mod) => ({
-      default: mod.ScreenUI
+    import("./arcade-ui").then((mod) => ({
+      default: mod.ArcadeUI
     })),
   {
     loading: () => null,
@@ -86,6 +86,7 @@ export const ArcadeScreen = () => {
     if (!arcadeScreen) return
 
     videoTexture.flipY = false
+    videoTexture.colorSpace = "srgb"
 
     if (!hasVisitedArcade) {
       if (isLabRoute) {
@@ -169,7 +170,7 @@ export const ArcadeScreen = () => {
       />
 
       <Suspense fallback={null}>
-        <ScreenUI visible={(hasVisitedArcade || isLabRoute) && !isInGame} />
+        <ArcadeUI visible={(hasVisitedArcade || isLabRoute) && !isInGame} />
       </Suspense>
 
       <Suspense fallback={null}>

@@ -114,6 +114,7 @@ export const Lamp = memo(function LampInner() {
     lightmap.minFilter = THREE.NearestFilter
     lightmap.magFilter = THREE.NearestFilter
     lightmap.colorSpace = THREE.NoColorSpace
+    lightmap.needsUpdate = true
   }, [lightmap])
 
   useEffect(() => {
@@ -230,8 +231,16 @@ export const Lamp = memo(function LampInner() {
   }, [shouldToggle])
 
   useEffect(() => {
-    // @ts-ignore
-    if (lamp) lamp.material.uniforms.opacity.value = light ? 0 : 1
+    if (lamp) {
+      // Ensure the lamp glow mesh uses additive blending so it brightens the scene
+      // instead of rendering as a solid opaque disc
+      const mat = lamp.material as THREE.Material
+      mat.blending = THREE.AdditiveBlending
+      mat.transparent = true
+      mat.depthWrite = false
+      // @ts-ignore
+      mat.uniforms.opacity.value = light ? 0 : 1
+    }
     if (lampHandle) {
       // @ts-ignore
       lampHandle.current.material.uniforms.baseColor.value = light
@@ -344,8 +353,6 @@ export const Lamp = memo(function LampInner() {
           onEnter={() => drag(false)}
         />
       </group>
-
-      {lamp && <primitive object={lamp} />}
 
       <primitive object={bandLine} ref={band} />
       {lamp && <primitive object={lamp} />}

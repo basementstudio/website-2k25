@@ -18,11 +18,13 @@ import {
   fract,
   pow,
   step,
-  distance
+  distance,
+  dot,
+  time
 } from "three/tsl"
 
 export const createSolidRevealMaterial = () => {
-  const uTime = uniform(0)
+  const uTime = time
   const uReveal = uniform(0)
   const uScreenReveal = uniform(0)
   const uFlowTexture = texture(new Texture())
@@ -31,6 +33,14 @@ export const createSolidRevealMaterial = () => {
   const uFar = uniform(100)
 
   const material = new NodeMaterial()
+
+  // Fast hash noise for voxel-snapped positions (replaces one mx_noise_float)
+  // Perlin smoothness is wasted on quantized grid positions — hash is equivalent
+  const hashNoise3d = /* @__PURE__ */ Fn(([p]: [any]) => {
+    const p3 = fract(p.mul(vec3(0.1031, 0.1030, 0.0973))).toVar()
+    p3.addAssign(dot(p3, vec3(p3.y, p3.z, p3.x).add(33.33)))
+    return fract(p3.x.add(p3.y).mul(p3.z)).mul(2.0).sub(1.0)
+  })
 
   // worldToUv: project world position to screen UV via camera matrices
   const worldToUvFn = /* @__PURE__ */ Fn(([p]: [any]) => {
@@ -61,10 +71,10 @@ export const createSolidRevealMaterial = () => {
     const voxelSize = float(15.0)
     const voxelCenter = round(p.mul(voxelSize)).div(voxelSize)
 
-    // 3D noise (equivalent to cnoise3)
-    const noiseSmall = mx_noise_float(voxelCenter.mul(20.0))
+    // High-freq hash noise for voxel grid (reveal threshold, flow SDF modulation)
+    const noiseSmall = hashNoise3d(voxelCenter.mul(20.0))
 
-    // Approximate 4D noise via time-shifted 3D noise (equivalent to cnoise4)
+    // Low-freq animated Perlin noise (creates visible sweeping wave pattern)
     const noiseBig = mx_noise_float(
       voxelCenter.mul(0.2).add(vec3(0, 0, uTime.mul(0.05)))
     )
@@ -110,8 +120,8 @@ export const createSolidRevealMaterial = () => {
   material.opacityNode = float(1.0)
 
   // Compatibility layer: consumer accesses material.uniforms.X.value
+  // uTime uses TSL `time` singleton — auto-updates per render, no CPU pumping needed
   ;(material as any).uniforms = {
-    uTime,
     uReveal,
     uScreenReveal,
     uFlowTexture,

@@ -19,12 +19,12 @@ import {
   pow,
   mix,
   step,
-  timerLocal
+  time
 } from "three/tsl"
 
 const createCRTMaterial = () => {
   const uTexture = tslTexture(new Texture())
-  const uTime = timerLocal()
+  const uTime = time
   const uCurvature = uniform(0.3)
   const uScanlineIntensity = uniform(0.75)
   const uScanlineCount = uniform(200)

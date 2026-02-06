@@ -1,8 +1,10 @@
 import {
   Color,
+  DataTexture,
   Matrix3,
   MeshStandardMaterial,
-  Texture,
+  RGBAFormat,
+  UnsignedByteType,
   Vector2,
   Vector3
 } from "three"
@@ -32,7 +34,7 @@ import {
   floor,
   mod,
   select,
-  timerGlobal,
+  time,
   smoothstep,
   sin,
   abs
@@ -41,8 +43,13 @@ import { basicLight } from "@/shaders/utils/basic-light"
 
 export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
-// --- Shared blank texture (reused as placeholder for all texture slots) ---
-const BLANK_TEXTURE = new Texture()
+// --- Shared blank texture (1×1 white pixel — valid GPU format for WebGPU pipeline compilation) ---
+const BLANK_TEXTURE = (() => {
+  const data = new Uint8Array([255, 255, 255, 255])
+  const tex = new DataTexture(data, 1, 1, RGBAFormat, UnsignedByteType)
+  tex.needsUpdate = true
+  return tex
+})()
 
 // --- Shared global uniforms (same value across all materials) ---
 const sharedUTime = uniform(0)
@@ -191,11 +198,18 @@ export const createGlobalShaderMaterial = (
   material.transparent =
     baseOpacity < 1 || isTransparent || isDaylight
   material.side = baseMaterial.side
+  material.depthWrite = baseMaterial.depthWrite
+  material.blending = baseMaterial.blending
 
   // --- Shared vertex/fragment nodes ---
 
   const vUv1 = uv()
-  const aUv1 = attribute("uv1", "vec2")
+  const aUv1 = (Fn as any)((builder: any) => {
+    if (builder.geometry.hasAttribute("uv1")) {
+      return attribute("uv1", "vec2")
+    }
+    return vec2(0.0)
+  }, "vec2").once()()
   const vUv2 = select(aUv1.x.greaterThan(0.0), aUv1, vUv1)
 
   // --- Main shader computation ---
@@ -247,7 +261,7 @@ export const createGlobalShaderMaterial = (
 
       // Ornament cycling: 4-phase sine transition computed on GPU
       if (isOrnament) {
-        const t = timerGlobal()
+        const t = time
         const cyclePhase = t.mod(1.5).div(0.375) // [0, 4)
         const pd = cyclePhase.sub(uOrnamentPhase!).add(2.0).mod(4.0).sub(2.0)
         const transUp = smoothstep(float(-0.75), float(0.0), pd)
@@ -257,7 +271,7 @@ export const createGlobalShaderMaterial = (
 
       // Star ornament: intensity oscillation computed on GPU
       if (isOrnamentStar) {
-        const t = timerGlobal()
+        const t = time
         const starOsc = abs(sin(t.mul(2.5)))
         ei.assign(uOrnamentBaseIntensity!.mul(float(1.0).add(starOsc)))
       }

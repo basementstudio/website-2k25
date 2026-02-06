@@ -109,9 +109,9 @@ export const createScreenMaterial = () => {
     // CRT curve remap
     const remappedUv = curveRemapUV(interferenceUv).toVar()
 
-    // Flip y when uFlip is 1
+    // Flip y: default flips for WebGPU convention, uFlip=1 un-flips for game mode
     remappedUv.y.assign(
-      mix(remappedUv.y, float(1.0).sub(remappedUv.y), uFlip)
+      mix(float(1.0).sub(remappedUv.y), remappedUv.y, uFlip)
     )
 
     // Pixelation with exclusion zones (only when flipped)

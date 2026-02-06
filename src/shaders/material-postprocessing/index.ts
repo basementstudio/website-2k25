@@ -200,7 +200,7 @@ export const createPostProcessingMaterial = () => {
 
     const safeWeight = max(totalWeight, float(0.0001))
     color.addAssign(bloom.div(safeWeight).mul(uBloomStrength).mul(bloomActive))
-    color.assign(clamp(color, 0.0, 1.0))
+    color.assign(max(color, vec3(0.0, 0.0, 0.0)))
 
     // Vignette
     const vignetteFactor = getVignetteFactorFn(vUv)
