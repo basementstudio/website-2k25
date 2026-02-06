@@ -91,6 +91,7 @@ export const ArcadeScreen = () => {
     if (!hasVisitedArcade) {
       if (isLabRoute) {
         screenUniforms.map.value = bootTexture
+        screenUniforms.uFlipY.value = 0
         screenUniforms.uRevealProgress.value = 0.0
 
         animate(0, 1, {
@@ -102,6 +103,7 @@ export const ArcadeScreen = () => {
           onComplete: () => {
             if (screenUniforms.uRevealProgress.value >= 0.99) {
               screenUniforms.map.value = renderTarget.texture
+              screenUniforms.uFlipY.value = 1
               setHasVisitedArcade(true)
               screenUniforms.uFlip.value = isInGame ? 1 : 0
             }
@@ -109,11 +111,13 @@ export const ArcadeScreen = () => {
         })
       } else {
         screenUniforms.map.value = videoTexture
+        screenUniforms.uFlipY.value = 0
         screenUniforms.uRevealProgress.value = 1.0
         screenUniforms.uFlip.value = 0
       }
     } else {
       screenUniforms.map.value = renderTarget.texture
+      screenUniforms.uFlipY.value = 1
       screenUniforms.uFlip.value = isInGame ? 1 : 0
     }
 

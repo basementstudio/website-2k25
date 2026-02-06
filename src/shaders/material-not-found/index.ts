@@ -52,8 +52,8 @@ export const createNotFoundMaterial = () => {
     uv2.x.assign(float(1.0).sub(uv2.x))
     uv2.subAssign(0.5)
 
-    // 180° rotation (cosR=-1, sinR=0) + re-center
-    const shiftedUv = uv2.mul(-1.0).add(0.5)
+    // Mirror X only (WebGPU render targets have Y=0 at top, so no Y negate needed)
+    const shiftedUv = vec2(uv2.x.negate(), uv2.y).add(0.5)
 
     // Texture sampling with color bleeding
     const baseColor = tDiffuse.sample(shiftedUv)

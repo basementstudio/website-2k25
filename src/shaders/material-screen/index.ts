@@ -74,6 +74,7 @@ export const createScreenMaterial = () => {
   const uTime = uniform(0)
   const uRevealProgress = uniform(1.0)
   const uFlip = uniform(0)
+  const uFlipY = uniform(0.0)
   const uIsGameRunning = uniform(0.0)
 
   const material = new NodeMaterial()
@@ -109,9 +110,13 @@ export const createScreenMaterial = () => {
     // CRT curve remap
     const remappedUv = curveRemapUV(interferenceUv).toVar()
 
-    // Flip y: default flips for WebGPU convention, uFlip=1 un-flips for game mode
+    // Flip Y for render target textures (WebGPU RT has Y=0 at top vs WebGL Y=0 at bottom)
     remappedUv.y.assign(
-      mix(float(1.0).sub(remappedUv.y), remappedUv.y, uFlip)
+      mix(remappedUv.y, float(1.0).sub(remappedUv.y), uFlipY)
+    )
+    // Game mode flip (DOOM orientation correction — cancels RT flip when both active)
+    remappedUv.y.assign(
+      mix(remappedUv.y, float(1.0).sub(remappedUv.y), uFlip)
     )
 
     // Pixelation with exclusion zones (only when flipped)
@@ -211,6 +216,6 @@ export const createScreenMaterial = () => {
 
   return {
     material,
-    uniforms: { map: mapTex, uTime, uRevealProgress, uFlip, uIsGameRunning }
+    uniforms: { map: mapTex, uTime, uRevealProgress, uFlip, uFlipY, uIsGameRunning }
   }
 }
