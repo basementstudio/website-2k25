@@ -18,7 +18,7 @@ export const JobMeta = ({ type, employmentType, location }: JobMetaProps) => (
         </p>
       </div>
     ) : null}
-    <div className="flex justify-between">
+    <div className="flex items-center justify-between">
       <p className="inline-flex items-center gap-x-2 text-brand-w2">
         {location ? (
           <>
