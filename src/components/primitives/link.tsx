@@ -65,7 +65,11 @@ export const Link = ({
       onClick={(e) => {
         e.preventDefault()
         // if href is /post/*, router.push instead of handleNavigation
-        if (href.includes("/post/") || href.includes("/showcase/")) {
+        if (
+          href.includes("/post/") ||
+          href.includes("/showcase/") ||
+          href.includes("/careers/")
+        ) {
           router.push(href)
         } else {
           handleNavigation(href, fromMobileNav)
