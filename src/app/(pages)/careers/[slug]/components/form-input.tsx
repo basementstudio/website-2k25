@@ -38,10 +38,8 @@ export const FormInput = ({
           type={type}
           placeholder={placeholder}
           className={[
-            "w-full bg-brand-g2 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1",
-            error
-              ? "bg-[image:linear-gradient(rgba(243,45,45,0.2),rgba(243,45,45,0.2)),linear-gradient(var(--color-brand-g2),var(--color-brand-g2))]"
-              : ""
+            "w-full border-0 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1",
+            error ? "bg-brand-g2 shadow-[inset_0_0_0_9999px_#F32D2D33]" : "bg-brand-g2"
           ].join(" ")}
           {...registration}
         />

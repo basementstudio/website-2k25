@@ -30,7 +30,7 @@ export const FormRadioGroup = ({
               className="sr-only"
               {...registration}
             />
-            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-g2">
+            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-g2 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k">
               <span className="size-2 rounded-full bg-brand-w1 opacity-0 transition-opacity group-has-[:checked]:opacity-100" />
             </span>
             <span className="text-[1rem] font-medium leading-6 text-brand-w1">

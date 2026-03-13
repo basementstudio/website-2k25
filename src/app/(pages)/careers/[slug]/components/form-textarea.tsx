@@ -31,10 +31,10 @@ export const FormTextarea = ({
           rows={rows}
           placeholder={placeholder}
           className={[
-            "w-full resize-none bg-brand-g2 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1",
+            "w-full resize-none border-0 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1",
             error
-              ? "bg-[image:linear-gradient(rgba(243,45,45,0.2),rgba(243,45,45,0.2)),linear-gradient(var(--color-brand-g2),var(--color-brand-g2))]"
-              : ""
+              ? "bg-brand-g2 shadow-[inset_0_0_0_9999px_#F32D2D33]"
+              : "bg-brand-g2"
           ].join(" ")}
           {...registration}
         />

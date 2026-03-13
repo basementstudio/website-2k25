@@ -230,6 +230,7 @@ export const ApplicationForm = ({
             registration={register("motivation", {
               required: "This field is required"
             })}
+            rows={1}
           />
         ) : null}
 
@@ -319,7 +320,7 @@ export const ApplicationForm = ({
         ) : null}
 
         {/* Submit */}
-        <div className="flex flex-col items-start justify-between gap-4 border-t border-brand-g2 pt-3 lg:flex-row lg:pt-6">
+        <div className="flex flex-col items-start justify-between gap-4 pb-20 pt-3 lg:flex-row lg:pb-0 lg:pt-10">
           <CtaButton disabled={submitting} />
           <ContactStatus
             isSubmitted={isSubmitted}
