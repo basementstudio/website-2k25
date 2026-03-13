@@ -5,7 +5,10 @@ import { cn } from "@/utils/cn"
 import { QueryType } from "./query"
 
 export const OpenPositions = ({ data }: { data: QueryType }) => (
-  <section className="grid-layout !gap-y-4 pb-24 lg:!gap-y-2">
+  <section
+    className="grid-layout !gap-y-4 pb-24 lg:!gap-y-2"
+    id="open-positions"
+  >
     <h2 className="relative z-20 col-span-full text-f-h1-mobile text-brand-w2 lg:col-start-1 lg:col-end-5 lg:row-start-1 lg:text-f-h1">
       Open <br className="hidden lg:block" />
       Positions
@@ -26,11 +29,10 @@ export const OpenPositions = ({ data }: { data: QueryType }) => (
         </div>
       </li>
       {data.company.openPositions.openPositionsList.items.map(
-        ({ _title, type, location, isOpen, applyUrl }, idx) => (
+        ({ _title, _slug, type, location, isOpen }, idx) => (
           <li key={idx} className="h- group relative grid grid-cols-12 gap-2">
             <Link
-              href={applyUrl ?? ""}
-              target="_blank"
+              href={isOpen ? `/careers/${_slug}` : "#"}
               className={cn(
                 "relative col-span-full grid grid-cols-8 items-start gap-2 py-4 transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:w-full after:border-b after:border-brand-w2/20 hover:text-brand-w1 focus-visible:!ring-offset-0 lg:col-start-5 lg:col-end-13 lg:items-center lg:py-2",
                 { "pointer-events-none text-brand-w2/30": !isOpen }

@@ -79,7 +79,9 @@ export const NavigationHandler = () => {
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
           ? scenes.find((scene) => scene.name === "blog")
-          : scenes.find((scene) => scene.name === pathname.split("/")[1])
+          : pathname.startsWith("/careers/")
+            ? scenes.find((scene) => scene.name === "people")
+            : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
     if (
       expectedScene &&
@@ -112,7 +114,9 @@ export const NavigationHandler = () => {
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
           ? scenes.find((scene) => scene.name === "blog")
-          : scenes.find((scene) => scene.name === pathname.split("/")[1])
+          : pathname.startsWith("/careers/")
+            ? scenes.find((scene) => scene.name === "people")
+            : scenes.find((scene) => scene.name === pathname.split("/")[1])
 
     if (!currentScene) {
       const notFoundScene = scenes.find((scene) => scene.name === "404")

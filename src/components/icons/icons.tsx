@@ -65,3 +65,18 @@ export const ArrowDownIcon = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 )
+
+export const ErrorAlert = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    fill="none"
+    {...props}
+  >
+    <path
+      fill="currentColor"
+      d="M16 4.687v6.626L11.313 16H4.687L0 11.313V4.687L4.687 0h6.626zM8 10a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-.8-1.2h1.6V3.7H7.2z"
+    />
+  </svg>
+)

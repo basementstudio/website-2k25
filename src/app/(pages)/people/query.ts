@@ -32,6 +32,7 @@ export const careersQuery = fragmentOn("Query", {
       openPositionsList: {
         items: {
           _title: true,
+          _slug: true,
           type: true,
           location: true,
           isOpen: true,

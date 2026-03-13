@@ -28,7 +28,8 @@ const BLACKLISTED_PATHS = [
   /^\/post\/[^\/]+$/,
   /^\/contact$/,
   /^\/webby$/,
-  /^\/webby\/es$/
+  /^\/webby\/es$/,
+  /^\/careers\/[^\/]+$/
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
