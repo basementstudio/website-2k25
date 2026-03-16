@@ -24,17 +24,13 @@ export const careerPostQuery = fragmentOn("Query", {
             }
           },
           applyFormSetup: {
-            firstAndLastName: true,
-            email: true,
-            location: true,
-            whyDoYouWantToJoin: true,
-            applyingToPosition: true,
-            designSkills: true,
-            yearsOfExperience: true,
-            portfolio: true,
-            availability: true,
-            linkedin: true,
-            salaryExpectation: true
+            formFields: true,
+            skills: {
+              items: {
+                _title: true,
+                _slug: true
+              }
+            }
           }
         }
       }

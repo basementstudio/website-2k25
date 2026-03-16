@@ -13,17 +13,8 @@ import { FormRadioGroup } from "./components/form-radio-group"
 import { FormTextarea } from "./components/form-textarea"
 
 export interface FormConfig {
-  firstAndLastName: boolean
-  email: boolean
-  location: boolean
-  whyDoYouWantToJoin: boolean
-  applyingToPosition: boolean
-  designSkills: boolean
-  yearsOfExperience: boolean
-  portfolio: boolean
-  availability: boolean
-  linkedin: boolean
-  salaryExpectation: boolean
+  formFields: string[]
+  skills: { _title: string; _slug: string }[]
 }
 
 type ApplicationInputs = {
@@ -41,17 +32,6 @@ type ApplicationInputs = {
   salaryExpectations: string
 }
 
-const DESIGN_SKILLS = [
-  { label: "UI Design", value: "ui-design" },
-  { label: "UX Research", value: "ux-research" },
-  { label: "Motion Design", value: "motion-design" },
-  { label: "3D / WebGL", value: "3d-webgl" },
-  { label: "Illustration", value: "illustration" },
-  { label: "Brand Identity", value: "brand-identity" },
-  { label: "Prototyping", value: "prototyping" },
-  { label: "Design Systems", value: "design-systems" }
-]
-
 const YEARS_OPTIONS = ["0-1", "1-3", "3-5", "5-10", "10+"]
 
 const AVAILABILITY_OPTIONS = ["Immediately", "In 2 weeks", "In a month"]
@@ -67,6 +47,7 @@ export const ApplicationForm = ({
   formConfig: FormConfig
   openPositions: { label: string; value: string }[]
 }) => {
+  const hasField = (name: string) => formConfig.formFields.includes(name)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState("")
@@ -164,7 +145,7 @@ export const ApplicationForm = ({
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* First name + Last name */}
-        {formConfig.firstAndLastName ? (
+        {hasField("First and last name") ? (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
             <FormInput
               label="First name"
@@ -188,9 +169,9 @@ export const ApplicationForm = ({
         ) : null}
 
         {/* Email + Location */}
-        {formConfig.email || formConfig.location ? (
+        {hasField("Email") || hasField("Location") ? (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
-            {formConfig.email ? (
+            {hasField("Email") ? (
               <FormInput
                 label="Email"
                 required
@@ -206,7 +187,7 @@ export const ApplicationForm = ({
                 })}
               />
             ) : null}
-            {formConfig.location ? (
+            {hasField("Location") ? (
               <FormInput
                 label="Where are you based?"
                 required
@@ -221,7 +202,7 @@ export const ApplicationForm = ({
         ) : null}
 
         {/* Motivation */}
-        {formConfig.whyDoYouWantToJoin ? (
+        {hasField("Why do you want to jon") ? (
           <FormTextarea
             label="Why do you want to join Basement?"
             required
@@ -234,31 +215,22 @@ export const ApplicationForm = ({
           />
         ) : null}
 
-        {/* Position */}
-        {formConfig.applyingToPosition ? (
+        {/* Skills */}
+        {hasField("Skills") && formConfig.skills.length > 0 ? (
           <FormCheckboxGroup
-            label="Which position are you applying for?"
-            required
-            description="Choose positions"
-            options={openPositions}
-            defaultValues={[positionSlug]}
-            registration={register("position")}
-          />
-        ) : null}
-
-        {/* Design Skills */}
-        {formConfig.designSkills ? (
-          <FormCheckboxGroup
-            label="Design skills"
+            label="Skills"
             required
             description="Choose your skills"
-            options={DESIGN_SKILLS}
+            options={formConfig.skills.map((skill) => ({
+              label: skill._title,
+              value: skill._slug
+            }))}
             registration={register("designSkills")}
           />
         ) : null}
 
         {/* Years of experience */}
-        {formConfig.yearsOfExperience ? (
+        {hasField("Years of experience") ? (
           <FormRadioGroup
             label="Years of experience"
             required
@@ -268,7 +240,7 @@ export const ApplicationForm = ({
         ) : null}
 
         {/* Portfolio */}
-        {formConfig.portfolio ? (
+        {hasField("Portfolio") ? (
           <FormInput
             label="Portfolio"
             required
@@ -283,7 +255,7 @@ export const ApplicationForm = ({
         ) : null}
 
         {/* Availability */}
-        {formConfig.availability ? (
+        {hasField("Availability") ? (
           <FormRadioGroup
             label="Availability to start"
             required
@@ -293,7 +265,7 @@ export const ApplicationForm = ({
         ) : null}
 
         {/* LinkedIn */}
-        {formConfig.linkedin ? (
+        {hasField("Linkedin") ? (
           <FormInput
             label="LinkedIn"
             required
@@ -307,7 +279,7 @@ export const ApplicationForm = ({
         ) : null}
 
         {/* Salary expectations */}
-        {formConfig.salaryExpectation ? (
+        {hasField("Salary Expectation") ? (
           <FormInput
             label="Salary expectations"
             required

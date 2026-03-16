@@ -54,6 +54,10 @@ export const useHandleNavigation = () => {
       const routeWithoutParams = route.split("?")[0].split("#")[0]
       const finalRoute = routeWithoutParams.split("/").filter(Boolean)[0]
 
+      if (finalRoute === "careers") {
+        return scenes?.find((scene) => scene.name === "people")
+      }
+
       return scenes?.find((scene) => scene.name === finalRoute)
     },
     [scenes]

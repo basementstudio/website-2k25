@@ -144,6 +144,10 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+[id] {
+  scroll-margin-top: 40px;
+}
+
 *::selection {
   @apply bg-brand-o text-brand-k;
 }
