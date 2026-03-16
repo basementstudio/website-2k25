@@ -202,7 +202,7 @@ export const ApplicationForm = ({
         ) : null}
 
         {/* Motivation */}
-        {hasField("Why do you want to jon") ? (
+        {hasField("Why do you want to join") ? (
           <FormTextarea
             label="Why do you want to join Basement?"
             required
