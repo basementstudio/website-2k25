@@ -50,7 +50,12 @@ export const FormCheckboxGroup = ({
               aria-invalid={error ? "true" : "false"}
               {...registration}
             />
-            <span className="flex size-6 shrink-0 items-center justify-center bg-brand-g2 text-brand-w1 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k">
+            <span
+              className={[
+                "flex size-6 shrink-0 items-center justify-center bg-brand-g2 text-brand-w1 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k",
+                error ? "shadow-[inset_0_0_0_9999px_#F32D2D33]" : ""
+              ].join(" ")}
+            >
               <svg
                 className="size-4 opacity-0 transition-opacity group-has-[:checked]:opacity-100"
                 viewBox="0 0 24 24"

@@ -40,7 +40,12 @@ export const FormRadioGroup = ({
               aria-invalid={error ? "true" : "false"}
               {...registration}
             />
-            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-g2 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k">
+            <span
+              className={[
+                "flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-g2 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k",
+                error ? "shadow-[inset_0_0_0_9999px_#F32D2D33]" : ""
+              ].join(" ")}
+            >
               <span className="size-2 rounded-full bg-brand-w1 opacity-0 transition-opacity group-has-[:checked]:opacity-100" />
             </span>
             <span className="text-[1rem] font-medium leading-6 text-brand-w1">
