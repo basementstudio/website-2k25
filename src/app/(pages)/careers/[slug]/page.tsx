@@ -104,6 +104,7 @@ const CareerPost = async ({ params }: CareerPostProps) => {
                     <ApplicationForm
                       positionTitle={position._title}
                       positionSlug={position._slug}
+                      positionType={position.type ?? ""}
                       formConfig={{
                         formFields: position.applyFormSetup.formFields,
                         skills: position.applyFormSetup.skills.items
