@@ -30,7 +30,7 @@ type ApplicationInputs = {
   availability: string
   github: string
   linkedin: string
-  salaryExpectations: string
+  salaryExpectations: number
 }
 
 const YEARS_OPTIONS = ["0-1", "1-3", "3-5", "5-10", "10+"]
@@ -98,7 +98,7 @@ export const ApplicationForm = ({
         motivation: data.motivation,
         tags: positionType,
         position: Array.isArray(data.position)
-          ? data.position.join(", ")
+          ? (data.position[0] ?? positionTitle)
           : data.position || positionTitle,
         skills: data.skills || [],
         yearsOfExperience: data.yearsOfExperience || "",
@@ -106,7 +106,7 @@ export const ApplicationForm = ({
         availability: data.availability || "",
         github: data.github || "",
         linkedin: data.linkedin || "",
-        salaryExpectations: data.salaryExpectations || ""
+        salaryExpectations: data.salaryExpectations || 0
       })
 
       if (result.success) {
@@ -147,6 +147,7 @@ export const ApplicationForm = ({
       <form
         className="flex w-full flex-col gap-8 pt-12 lg:gap-10 lg:pt-20"
         aria-label={`Application form for ${positionTitle}`}
+        method="post"
         onSubmit={handleSubmit(onSubmit)}
       >
         {/* First name + Last name */}
@@ -309,10 +310,11 @@ export const ApplicationForm = ({
           <FormInput
             label="Salary expectations"
             required
-            placeholder="Your answer"
+            type="number"
             error={errors.salaryExpectations?.message}
             registration={register("salaryExpectations", {
-              required: "Salary expectations is required"
+              required: "Salary expectations is required",
+              valueAsNumber: true
             })}
           />
         ) : null}

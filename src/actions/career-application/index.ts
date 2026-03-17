@@ -2,6 +2,9 @@
 
 import { type CareerApplication, submitApplication } from "@/lib/notion"
 
+const GENERIC_SUBMISSION_ERROR =
+  "There was a problem submitting your application. Please try again in a moment or contact us."
+
 interface CareerFormData {
   firstName: string
   lastName: string
@@ -16,7 +19,7 @@ interface CareerFormData {
   availability: string
   github: string
   linkedin: string
-  salaryExpectations: string
+  salaryExpectations: number
 }
 
 export async function submitCareerApplication(formData: CareerFormData) {
@@ -35,7 +38,7 @@ export async function submitCareerApplication(formData: CareerFormData) {
       availability: formData.availability,
       github: formData.github || "",
       linkedin: formData.linkedin || "",
-      salaryExpectations: formData.salaryExpectations || ""
+      salaryExpectations: formData.salaryExpectations || 0
     }
 
     const result = await submitApplication(applicationData)
@@ -44,9 +47,14 @@ export async function submitCareerApplication(formData: CareerFormData) {
       return { success: true }
     }
 
-    return { success: false, error: "Failed to submit application" }
+    console.error("Career application submission failed:", result.error)
+
+    return {
+      success: false,
+      error: GENERIC_SUBMISSION_ERROR
+    }
   } catch (error) {
     console.error("Error submitting career application:", error)
-    return { success: false, error: "Failed to submit application" }
+    return { success: false, error: GENERIC_SUBMISSION_ERROR }
   }
 }
