@@ -31,7 +31,7 @@ export const FormTextarea = ({
           rows={rows}
           placeholder={placeholder}
           className={[
-            "w-full resize-none border-0 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1",
+            "h-[52px] w-full resize-none border-0 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1 lg:h-auto",
             error
               ? "bg-brand-g2 shadow-[inset_0_0_0_9999px_#F32D2D33]"
               : "bg-brand-g2"

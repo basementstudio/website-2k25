@@ -8,11 +8,13 @@ interface CareerFormData {
   email: string
   location: string
   motivation: string
+  tags: string
   position: string
   skills: string[]
   yearsOfExperience: string
   portfolio: string
   availability: string
+  github: string
   linkedin: string
   salaryExpectations: string
 }
@@ -25,11 +27,13 @@ export async function submitCareerApplication(formData: CareerFormData) {
       email: formData.email,
       location: formData.location,
       motivation: formData.motivation,
+      tags: formData.tags,
       position: formData.position,
       skills: formData.skills || [],
       yearsOfExperience: formData.yearsOfExperience,
       portfolio: formData.portfolio || "",
       availability: formData.availability,
+      github: formData.github || "",
       linkedin: formData.linkedin || "",
       salaryExpectations: formData.salaryExpectations || ""
     }

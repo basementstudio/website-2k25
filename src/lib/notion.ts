@@ -9,11 +9,13 @@ export interface CareerApplication {
   email: string
   location: string
   motivation: string
+  tags: string
   position: string
   skills: string[]
   yearsOfExperience: string
   portfolio: string
   availability: string
+  github: string
   linkedin: string
   salaryExpectations: string
 }
@@ -29,15 +31,17 @@ export async function submitApplication(data: CareerApplication) {
   await notion.pages.create({
     parent: { database_id: process.env.NOTION_CAREERS_DB_ID! },
     properties: {
-      "Name": { title: [{ text: { content: `${data.firstName} ${data.lastName}` } }] },
+      "Full Name": { title: [{ text: { content: `${data.firstName} ${data.lastName}` } }] },
       "Email": { email: data.email },
+      "Tags": { select: { name: data.tags } },
       "Position": { select: { name: data.position } },
       "Location": { rich_text: [{ text: { content: data.location } }] },
       "Motivation": { rich_text: [{ text: { content: data.motivation } }] },
-      "Design Skills": { multi_select: data.skills.map(s => ({ name: s })) },
+      "Skills": { multi_select: data.skills.map(s => ({ name: s })) },
       "Years of Experience": { select: { name: data.yearsOfExperience } },
       "Portfolio": { url: data.portfolio || null },
       "Availability": { select: { name: data.availability } },
+      "GitHub": { url: data.github || null },
       "LinkedIn": { url: data.linkedin || null },
       "Salary Expectations": { rich_text: [{ text: { content: data.salaryExpectations } }] },
     }

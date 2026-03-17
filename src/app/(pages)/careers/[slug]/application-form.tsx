@@ -28,6 +28,7 @@ type ApplicationInputs = {
   yearsOfExperience: string
   portfolio: string
   availability: string
+  github: string
   linkedin: string
   salaryExpectations: string
 }
@@ -39,11 +40,13 @@ const AVAILABILITY_OPTIONS = ["Immediately", "In 2 weeks", "In a month"]
 export const ApplicationForm = ({
   positionTitle,
   positionSlug,
+  positionType,
   formConfig,
   openPositions
 }: {
   positionTitle: string
   positionSlug: string
+  positionType: string
   formConfig: FormConfig
   openPositions: { label: string; value: string }[]
 }) => {
@@ -93,6 +96,7 @@ export const ApplicationForm = ({
         email: data.email,
         location: data.location || "",
         motivation: data.motivation,
+        tags: positionType,
         position: Array.isArray(data.position)
           ? data.position.join(", ")
           : data.position || positionTitle,
@@ -100,6 +104,7 @@ export const ApplicationForm = ({
         yearsOfExperience: data.yearsOfExperience || "",
         portfolio: data.portfolio || "",
         availability: data.availability || "",
+        github: data.github || "",
         linkedin: data.linkedin || "",
         salaryExpectations: data.salaryExpectations || ""
       })
@@ -250,14 +255,11 @@ export const ApplicationForm = ({
         {hasField("Portfolio") ? (
           <FormInput
             label="Portfolio"
-            required
             description="Share works you are proud of. Link us to your portfolio."
             type="url"
             placeholder="https://kickasswork.com/"
             error={errors.portfolio?.message}
-            registration={register("portfolio", {
-              required: "Portfolio is required"
-            })}
+            registration={register("portfolio")}
           />
         ) : null}
 
@@ -270,6 +272,20 @@ export const ApplicationForm = ({
             error={errors.availability?.message}
             registration={register("availability", {
               required: "Availability is required"
+            })}
+          />
+        ) : null}
+
+        {/* GitHub */}
+        {hasField("Github") ? (
+          <FormInput
+            label="GitHub"
+            required
+            type="url"
+            placeholder="https://github.com/janedoe"
+            error={errors.github?.message}
+            registration={register("github", {
+              required: "GitHub is required"
             })}
           />
         ) : null}
