@@ -1,8 +1,4 @@
-import {
-  APIErrorCode,
-  Client,
-  isNotionClientError
-} from "@notionhq/client"
+import { APIErrorCode, Client, isNotionClientError } from "@notionhq/client"
 
 export interface CareerApplication {
   firstName: string
@@ -49,8 +45,6 @@ function getNotionErrorMessage(error: unknown) {
 }
 
 export async function submitApplication(data: CareerApplication) {
-  console.log("[Notion Mock] Career application:", data)
-
   const notion = new Client({ auth: getRequiredEnv("NOTION_API_KEY") })
 
   try {
