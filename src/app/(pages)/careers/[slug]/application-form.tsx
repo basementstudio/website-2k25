@@ -24,7 +24,7 @@ type ApplicationInputs = {
   location: string
   motivation: string
   position: string[]
-  designSkills: string[]
+  skills: string[]
   yearsOfExperience: string
   portfolio: string
   availability: string
@@ -96,7 +96,7 @@ export const ApplicationForm = ({
         position: Array.isArray(data.position)
           ? data.position.join(", ")
           : data.position || positionTitle,
-        designSkills: data.designSkills || [],
+        skills: data.skills || [],
         yearsOfExperience: data.yearsOfExperience || "",
         portfolio: data.portfolio || "",
         availability: data.availability || "",
@@ -225,7 +225,11 @@ export const ApplicationForm = ({
               label: skill._title,
               value: skill._slug
             }))}
-            registration={register("designSkills")}
+            error={errors.skills?.message}
+            registration={register("skills", {
+              validate: (value) =>
+                value?.length > 0 || "Choose at least one skill"
+            })}
           />
         ) : null}
 
@@ -235,7 +239,10 @@ export const ApplicationForm = ({
             label="Years of experience"
             required
             options={YEARS_OPTIONS}
-            registration={register("yearsOfExperience")}
+            error={errors.yearsOfExperience?.message}
+            registration={register("yearsOfExperience", {
+              required: "Years of experience is required"
+            })}
           />
         ) : null}
 
@@ -260,7 +267,10 @@ export const ApplicationForm = ({
             label="Availability to start"
             required
             options={AVAILABILITY_OPTIONS}
-            registration={register("availability")}
+            error={errors.availability?.message}
+            registration={register("availability", {
+              required: "Availability is required"
+            })}
           />
         ) : null}
 

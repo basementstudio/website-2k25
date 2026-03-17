@@ -1,5 +1,7 @@
+import { useId } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
+import { FormError } from "./form-error"
 import { FormLabel } from "./form-label"
 
 interface FormCheckboxGroupProps {
@@ -9,6 +11,7 @@ interface FormCheckboxGroupProps {
   options: { label: string; value: string }[]
   defaultValues?: string[]
   registration: UseFormRegisterReturn
+  error?: string
 }
 
 export const FormCheckboxGroup = ({
@@ -17,10 +20,16 @@ export const FormCheckboxGroup = ({
   description,
   options,
   defaultValues,
-  registration
+  registration,
+  error
 }: FormCheckboxGroupProps) => {
+  const errorId = useId()
+
   return (
-    <fieldset className="flex flex-col gap-3 lg:gap-4">
+    <fieldset
+      className="flex flex-col gap-3 lg:gap-4"
+      aria-describedby={error ? errorId : undefined}
+    >
       <FormLabel
         label={label}
         required={required}
@@ -38,6 +47,7 @@ export const FormCheckboxGroup = ({
               value={option.value}
               defaultChecked={defaultValues?.includes(option.value)}
               className="sr-only"
+              aria-invalid={error ? "true" : "false"}
               {...registration}
             />
             <span className="flex size-6 shrink-0 items-center justify-center bg-brand-g2 text-brand-w1 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k">
@@ -59,6 +69,7 @@ export const FormCheckboxGroup = ({
           </label>
         ))}
       </div>
+      {error ? <FormError id={errorId} message={error} /> : null}
     </fieldset>
   )
 }

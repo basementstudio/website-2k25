@@ -10,7 +10,7 @@ export interface CareerApplication {
   location: string
   motivation: string
   position: string
-  designSkills: string[]
+  skills: string[]
   yearsOfExperience: string
   portfolio: string
   availability: string
@@ -34,7 +34,7 @@ export async function submitApplication(data: CareerApplication) {
       "Position": { select: { name: data.position } },
       "Location": { rich_text: [{ text: { content: data.location } }] },
       "Motivation": { rich_text: [{ text: { content: data.motivation } }] },
-      "Design Skills": { multi_select: data.designSkills.map(s => ({ name: s })) },
+      "Design Skills": { multi_select: data.skills.map(s => ({ name: s })) },
       "Years of Experience": { select: { name: data.yearsOfExperience } },
       "Portfolio": { url: data.portfolio || null },
       "Availability": { select: { name: data.availability } },

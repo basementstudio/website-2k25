@@ -1,5 +1,7 @@
+import { useId } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
+import { FormError } from "./form-error"
 import { FormLabel } from "./form-label"
 
 interface FormRadioGroupProps {
@@ -7,16 +9,23 @@ interface FormRadioGroupProps {
   required?: boolean
   options: string[]
   registration: UseFormRegisterReturn
+  error?: string
 }
 
 export const FormRadioGroup = ({
   label,
   required,
   options,
-  registration
+  registration,
+  error
 }: FormRadioGroupProps) => {
+  const errorId = useId()
+
   return (
-    <fieldset className="flex flex-col gap-3 lg:gap-4">
+    <fieldset
+      className="flex flex-col gap-3 lg:gap-4"
+      aria-describedby={error ? errorId : undefined}
+    >
       <FormLabel label={label} required={required} as="legend" />
       <div className="flex flex-col gap-2">
         {options.map((option) => (
@@ -28,6 +37,7 @@ export const FormRadioGroup = ({
               type="radio"
               value={option}
               className="sr-only"
+              aria-invalid={error ? "true" : "false"}
               {...registration}
             />
             <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-g2 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k">
@@ -39,6 +49,7 @@ export const FormRadioGroup = ({
           </label>
         ))}
       </div>
+      {error ? <FormError id={errorId} message={error} /> : null}
     </fieldset>
   )
 }

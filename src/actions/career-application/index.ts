@@ -9,7 +9,7 @@ interface CareerFormData {
   location: string
   motivation: string
   position: string
-  designSkills: string[]
+  skills: string[]
   yearsOfExperience: string
   portfolio: string
   availability: string
@@ -26,7 +26,7 @@ export async function submitCareerApplication(formData: CareerFormData) {
       location: formData.location,
       motivation: formData.motivation,
       position: formData.position,
-      designSkills: formData.designSkills || [],
+      skills: formData.skills || [],
       yearsOfExperience: formData.yearsOfExperience,
       portfolio: formData.portfolio || "",
       availability: formData.availability,
