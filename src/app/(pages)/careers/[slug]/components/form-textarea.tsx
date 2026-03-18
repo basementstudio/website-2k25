@@ -10,6 +10,7 @@ interface FormTextareaProps {
   placeholder?: string
   registration: UseFormRegisterReturn
   rows?: number
+  maxLength?: number
 }
 
 export const FormTextarea = ({
@@ -18,7 +19,8 @@ export const FormTextarea = ({
   error,
   placeholder,
   registration,
-  rows = 3
+  rows = 3,
+  maxLength
 }: FormTextareaProps) => {
   const inputId = registration.name
 
@@ -30,8 +32,9 @@ export const FormTextarea = ({
           id={inputId}
           rows={rows}
           placeholder={placeholder}
+          maxLength={maxLength}
           className={[
-            "h-[52px] w-full resize-none border-0 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1 lg:h-auto",
+            "h-[52px] w-full resize-none border-0 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1 [&:-webkit-autofill]:shadow-[inset_0_0_0_9999px_#23232395] [&:-webkit-autofill:focus]:shadow-[inset_0_0_0_9999px_#23232395] [&:-webkit-autofill:hover]:shadow-[inset_0_0_0_9999px_#23232395] lg:h-auto",
             error
               ? "bg-brand-g2 shadow-[inset_0_0_0_9999px_#F32D2D33]"
               : "bg-brand-g2"

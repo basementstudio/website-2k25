@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
 import { submitCareerApplication } from "@/actions/career-application"
@@ -30,12 +30,34 @@ type ApplicationInputs = {
   availability: string
   github: string
   linkedin: string
-  salaryExpectations: number
+  salaryExpectations: string
+  companyWebsite: string
+  formStartedAt: number
 }
 
 const YEARS_OPTIONS = ["0-1", "1-3", "3-5", "5-10", "10+"]
 
 const AVAILABILITY_OPTIONS = ["Immediately", "In 2 weeks", "In a month"]
+
+function getDefaultFormValues(positionSlug: string): ApplicationInputs {
+  return {
+    firstName: "",
+    lastName: "",
+    email: "",
+    location: "",
+    motivation: "",
+    position: [positionSlug],
+    skills: [],
+    yearsOfExperience: "",
+    portfolio: "",
+    availability: "",
+    github: "",
+    linkedin: "",
+    salaryExpectations: "",
+    companyWebsite: "",
+    formStartedAt: Date.now()
+  }
+}
 
 export const ApplicationForm = ({
   positionTitle,
@@ -52,19 +74,23 @@ export const ApplicationForm = ({
 }) => {
   const hasField = (name: string) => formConfig.formFields.includes(name)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [submitDisabled, setSubmitDisabled] = useState(false)
   const [submitError, setSubmitError] = useState("")
+  const apiInFlightRef = useRef(false)
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset
   } = useForm<ApplicationInputs>({
-    defaultValues: {
-      position: [positionSlug]
-    }
+    defaultValues: getDefaultFormValues(positionSlug)
   })
+
+  useEffect(() => {
+    setValue("formStartedAt", Date.now())
+  }, [setValue])
 
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
@@ -72,57 +98,79 @@ export const ApplicationForm = ({
     }
   }, [errors])
 
+  // Independent 4s auto-dismiss for success state
   useEffect(() => {
-    if (isSubmitted || submitError) {
+    if (isSubmitted) {
       const timer = setTimeout(() => {
         setIsSubmitted(false)
-        setSubmitError("")
-        reset()
       }, 4000)
-
       return () => clearTimeout(timer)
     }
-  }, [isSubmitted, submitError, reset])
+  }, [isSubmitted])
 
-  const onSubmit: SubmitHandler<ApplicationInputs> = async (data) => {
-    setSubmitting(true)
-    setIsSubmitted(false)
-    setSubmitError("")
-
-    try {
-      const result = await submitCareerApplication({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        location: data.location || "",
-        motivation: data.motivation,
-        tags: positionType,
-        position: Array.isArray(data.position)
-          ? (data.position[0] ?? positionTitle)
-          : data.position || positionTitle,
-        skills: data.skills || [],
-        yearsOfExperience: data.yearsOfExperience || "",
-        portfolio: data.portfolio || "",
-        availability: data.availability || "",
-        github: data.github || "",
-        linkedin: data.linkedin || "",
-        salaryExpectations: data.salaryExpectations || 0
-      })
-
-      if (result.success) {
-        setIsSubmitted(true)
+  // Independent 4s auto-dismiss for error state
+  useEffect(() => {
+    if (submitError) {
+      const timer = setTimeout(() => {
         setSubmitError("")
-        reset()
-      } else {
-        setIsSubmitted(false)
-        setSubmitError(result.error || "Failed to submit application")
-      }
-    } catch {
-      setIsSubmitted(false)
-      setSubmitError("Failed to submit application")
-    } finally {
-      setSubmitting(false)
+      }, 4000)
+      return () => clearTimeout(timer)
     }
+  }, [submitError])
+
+  const onSubmit: SubmitHandler<ApplicationInputs> = (data) => {
+    // Guard: prevent double-submission
+    if (apiInFlightRef.current) return
+
+    const submissionData = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      location: data.location || "",
+      motivation: data.motivation,
+      tags: positionType,
+      position: positionTitle,
+      skills: data.skills || [],
+      yearsOfExperience: data.yearsOfExperience || "",
+      portfolio: data.portfolio || "",
+      availability: data.availability || "",
+      github: data.github || "",
+      linkedin: data.linkedin || "",
+      salaryExpectations:
+        data.salaryExpectations.trim() === ""
+          ? undefined
+          : Number(data.salaryExpectations),
+      companyWebsite: data.companyWebsite || "",
+      formStartedAt: data.formStartedAt || 0
+    }
+
+    // OPTIMISTIC: show success and clear form immediately
+    setIsSubmitted(true)
+    setSubmitError("")
+    reset(getDefaultFormValues(positionSlug))
+
+    // BACKGROUND: fire-and-forget server action
+    apiInFlightRef.current = true
+    setSubmitDisabled(true)
+
+    submitCareerApplication(submissionData)
+      .then((result) => {
+        if (!result.success) {
+          setIsSubmitted(false)
+          setSubmitError(
+            result.error || "Submission failed \u2014 please try again"
+          )
+        }
+        // If success: no state change needed — already showing success
+      })
+      .catch(() => {
+        setIsSubmitted(false)
+        setSubmitError("Submission failed \u2014 please try again")
+      })
+      .finally(() => {
+        apiInFlightRef.current = false
+        setSubmitDisabled(false)
+      })
   }
 
   return (
@@ -148,8 +196,24 @@ export const ApplicationForm = ({
         className="flex w-full flex-col gap-8 pt-12 lg:gap-10 lg:pt-20"
         aria-label={`Application form for ${positionTitle}`}
         method="post"
+        noValidate
         onSubmit={handleSubmit(onSubmit)}
       >
+        <div className="hidden" aria-hidden="true">
+          <label htmlFor="companyWebsite">Company website</label>
+          <input
+            id="companyWebsite"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            {...register("companyWebsite")}
+          />
+        </div>
+        <input
+          type="hidden"
+          {...register("formStartedAt", { valueAsNumber: true })}
+        />
+
         {/* First name + Last name */}
         {hasField("First and last name") ? (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
@@ -218,6 +282,7 @@ export const ApplicationForm = ({
               required: "This field is required"
             })}
             rows={1}
+            maxLength={1500}
           />
         ) : null}
 
@@ -229,7 +294,7 @@ export const ApplicationForm = ({
             description="Choose your skills"
             options={formConfig.skills.map((skill) => ({
               label: skill._title,
-              value: skill._slug
+              value: skill._title
             }))}
             error={errors.skills?.message}
             registration={register("skills", {
@@ -314,19 +379,18 @@ export const ApplicationForm = ({
             error={errors.salaryExpectations?.message}
             registration={register("salaryExpectations", {
               required: "Salary expectations is required",
-              valueAsNumber: true
+              validate: (value) =>
+                value.trim() !== "" && Number.isFinite(Number(value))
+                  ? true
+                  : "Salary expectations is required"
             })}
           />
         ) : null}
 
         {/* Submit */}
         <div className="flex flex-col items-start justify-between gap-4 pb-20 pt-3 lg:flex-row lg:pb-0 lg:pt-10">
-          <CtaButton disabled={submitting} />
-          <ContactStatus
-            isSubmitted={isSubmitted}
-            error={submitError}
-            isSubmitting={submitting}
-          />
+          <CtaButton disabled={submitDisabled} />
+          <ContactStatus isSubmitted={isSubmitted} error={submitError} />
         </div>
       </form>
     </section>
