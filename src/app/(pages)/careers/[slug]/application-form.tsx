@@ -22,7 +22,7 @@ type ApplicationInputs = {
   lastName: string
   email: string
   location: string
-  motivation: string
+  whyDoYouWantToJoin: string
   position: string[]
   skills: string[]
   yearsOfExperience: string
@@ -49,7 +49,7 @@ function getDefaultFormValues(positionSlug: string): ApplicationInputs {
     lastName: "",
     email: "",
     location: "",
-    motivation: "",
+    whyDoYouWantToJoin: "",
     position: [positionSlug],
     skills: [],
     yearsOfExperience: "",
@@ -129,7 +129,7 @@ export const ApplicationForm = ({
       lastName: data.lastName,
       email: data.email,
       location: data.location || "",
-      motivation: data.motivation,
+      whyDoYouWantToJoin: data.whyDoYouWantToJoin,
       tags: positionType,
       position: positionTitle,
       skills: data.skills || [],
@@ -271,11 +271,11 @@ export const ApplicationForm = ({
         {/* Motivation */}
         {hasField("Why do you want to join") ? (
           <FormTextarea
-            label="Why do you want to join Basement?"
+            label="Why do you want to join"
             required
             placeholder="Because I want to create jaw-dropping websites"
-            error={errors.motivation?.message}
-            registration={register("motivation", {
+            error={errors.whyDoYouWantToJoin?.message}
+            registration={register("whyDoYouWantToJoin", {
               required: "This field is required"
             })}
             rows={1}

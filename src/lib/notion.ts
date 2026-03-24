@@ -9,7 +9,7 @@ export interface CareerApplication {
   lastName: string
   email: string
   location: string
-  motivation: string
+  whyDoYouWantToJoin: string
   tags: string
   position: string
   skills: string[]
@@ -27,7 +27,7 @@ export interface CareerFormData {
   lastName: string
   email: string
   location: string
-  motivation: string
+  whyDoYouWantToJoin: string
   tags: string
   position: string
   skills: string[]
@@ -82,7 +82,7 @@ export function buildApplicationData(
     lastName: formData.lastName.trim(),
     email: formData.email.trim(),
     location: formData.location.trim(),
-    motivation: formData.motivation.trim().slice(0, 2000),
+    whyDoYouWantToJoin: formData.whyDoYouWantToJoin.trim().slice(0, 2000),
     tags: formData.tags.trim(),
     position: formData.position.trim(),
     skills: formData.skills.map((skill) => skill.trim()).filter(Boolean),
@@ -155,9 +155,9 @@ export async function submitApplication(data: CareerApplication) {
       }
     }
 
-    if (data.motivation.trim()) {
-      properties.Motivation = {
-        rich_text: [{ text: { content: data.motivation.trim() } }]
+    if (data.whyDoYouWantToJoin.trim()) {
+      properties["Why do you want to join"] = {
+        rich_text: [{ text: { content: data.whyDoYouWantToJoin.trim() } }]
       }
     }
 
