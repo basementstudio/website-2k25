@@ -15,8 +15,9 @@ export interface CareerApplication {
   skills: string[]
   yearsOfExperience: string
   portfolio: string
-  availability: string
   github: string
+  availabilityToStart: string
+  availabilityToWork: string
   linkedin: string
   salaryExpectations?: number
 }
@@ -32,8 +33,9 @@ export interface CareerFormData {
   skills: string[]
   yearsOfExperience: string
   portfolio: string
-  availability: string
   github: string
+  availabilityToStart: string
+  availabilityToWork: string
   linkedin: string
   salaryExpectations?: number
   companyWebsite: string
@@ -86,8 +88,9 @@ export function buildApplicationData(
     skills: formData.skills.map((skill) => skill.trim()).filter(Boolean),
     yearsOfExperience: formData.yearsOfExperience.trim(),
     portfolio: formData.portfolio.trim(),
-    availability: formData.availability.trim(),
     github: formData.github.trim(),
+    availabilityToStart: formData.availabilityToStart.trim(),
+    availabilityToWork: formData.availabilityToWork.trim(),
     linkedin: formData.linkedin.trim(),
     salaryExpectations: formData.salaryExpectations || undefined
   }
@@ -134,12 +137,12 @@ export async function submitApplication(data: CareerApplication) {
       getRequiredEnv("NOTION_CAREERS_DB_ID")
     )
     const properties: NotionPageProperties = {
-      Date: { date: { start: new Date().toISOString() } },
+      "Fecha de creación": { date: { start: new Date().toISOString() } },
       "Full Name": {
         title: [{ text: { content: getApplicationTitle(data) } }]
       },
       Position: { select: { name: data.position } },
-      Status: { status: { name: "Sin empezar" } }
+      Estado: { status: { name: "Pending" } }
     }
 
     if (data.email.trim()) {
@@ -147,7 +150,7 @@ export async function submitApplication(data: CareerApplication) {
     }
 
     if (data.location.trim()) {
-      properties.Location = {
+      properties["Country/City"] = {
         rich_text: [{ text: { content: data.location.trim() } }]
       }
     }
@@ -174,14 +177,20 @@ export async function submitApplication(data: CareerApplication) {
       properties.Portfolio = { url: data.portfolio.trim() }
     }
 
-    if (data.availability.trim()) {
+    if (data.github.trim()) {
+      properties.Github = { url: data.github.trim() }
+    }
+
+    if (data.availabilityToStart.trim()) {
       properties["Availability to start"] = {
-        select: { name: data.availability.trim() }
+        select: { name: data.availabilityToStart.trim() }
       }
     }
 
-    if (data.github.trim()) {
-      properties.Github = { url: data.github.trim() }
+    if (data.availabilityToWork.trim()) {
+      properties["Availability to work"] = {
+        select: { name: data.availabilityToWork.trim() }
+      }
     }
 
     if (data.linkedin.trim()) {

@@ -8,7 +8,7 @@ interface FormInputProps {
   required?: boolean
   description?: string
   error?: string
-  type?: string
+  type?: "text" | "email" | "url" | "number" | "tel"
   placeholder?: string
   registration: UseFormRegisterReturn
 }
@@ -37,13 +37,15 @@ export const FormInput = ({
           id={inputId}
           type={type}
           placeholder={placeholder}
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={error ? `${inputId}-error` : undefined}
           className={[
-            "w-full border-0 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1",
+            "w-full border-0 px-1 py-0.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none placeholder:text-brand-g1 [&:-webkit-autofill]:shadow-[inset_0_0_0_9999px_#23232395] [&:-webkit-autofill:focus]:shadow-[inset_0_0_0_9999px_#23232395] [&:-webkit-autofill:hover]:shadow-[inset_0_0_0_9999px_#23232395]",
             error ? "bg-brand-g2 shadow-[inset_0_0_0_9999px_#F32D2D33]" : "bg-brand-g2"
           ].join(" ")}
           {...registration}
         />
-        {error ? <FormError message={error} /> : null}
+        {error ? <FormError message={error} id={`${inputId}-error`} /> : null}
       </div>
     </div>
   )

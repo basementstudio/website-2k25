@@ -68,7 +68,8 @@ export const Link = ({
         if (
           href.includes("/post/") ||
           href.includes("/showcase/") ||
-          href.includes("/careers/")
+          href.includes("/careers/") ||
+          href === "#open-positions"
         ) {
           router.push(href)
         } else {

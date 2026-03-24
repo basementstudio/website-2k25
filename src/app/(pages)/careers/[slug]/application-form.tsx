@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { submitCareerApplication } from "@/actions/career-application"
+import {
+  EMAIL_REGEX,
+  submitCareerApplication
+} from "@/actions/career-application"
 import { ContactStatus } from "@/app/contact/form/contact-status"
 
 import { CtaButton } from "./components/cta-button"
@@ -27,8 +30,9 @@ type ApplicationInputs = {
   skills: string[]
   yearsOfExperience: string
   portfolio: string
-  availability: string
   github: string
+  availabilityToStart: string
+  availabilityToWork: string
   linkedin: string
   salaryExpectations: string
   companyWebsite: string
@@ -38,6 +42,8 @@ type ApplicationInputs = {
 const YEARS_OPTIONS = ["0-1", "1-3", "3-5", "5-10", "10+"]
 
 const AVAILABILITY_OPTIONS = ["Immediately", "In 2 weeks", "In a month"]
+
+const AVAILABILITY_TO_WORK_OPTIONS = ["Fulltime", "Freelance"]
 
 function getDefaultFormValues(positionSlug: string): ApplicationInputs {
   return {
@@ -50,12 +56,13 @@ function getDefaultFormValues(positionSlug: string): ApplicationInputs {
     skills: [],
     yearsOfExperience: "",
     portfolio: "",
-    availability: "",
     github: "",
+    availabilityToStart: "",
+    availabilityToWork: "",
     linkedin: "",
     salaryExpectations: "",
     companyWebsite: "",
-    formStartedAt: Date.now()
+    formStartedAt: 0
   }
 }
 
@@ -63,21 +70,18 @@ export const ApplicationForm = ({
   positionTitle,
   positionSlug,
   positionType,
-  formConfig,
-  openPositions
+  formConfig
 }: {
   positionTitle: string
   positionSlug: string
   positionType: string
   formConfig: FormConfig
-  openPositions: { label: string; value: string }[]
 }) => {
   const hasField = (name: string) => formConfig.formFields.includes(name)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [submitError, setSubmitError] = useState("")
   const apiInFlightRef = useRef(false)
-
   const {
     register,
     handleSubmit,
@@ -118,7 +122,7 @@ export const ApplicationForm = ({
     }
   }, [submitError])
 
-  const onSubmit: SubmitHandler<ApplicationInputs> = (data) => {
+  const onSubmit: SubmitHandler<ApplicationInputs> = async (data) => {
     // Guard: prevent double-submission
     if (apiInFlightRef.current) return
 
@@ -133,8 +137,9 @@ export const ApplicationForm = ({
       skills: data.skills || [],
       yearsOfExperience: data.yearsOfExperience || "",
       portfolio: data.portfolio || "",
-      availability: data.availability || "",
       github: data.github || "",
+      availabilityToStart: data.availabilityToStart || "",
+      availabilityToWork: data.availabilityToWork || "",
       linkedin: data.linkedin || "",
       salaryExpectations:
         data.salaryExpectations.trim() === ""
@@ -144,33 +149,27 @@ export const ApplicationForm = ({
       formStartedAt: data.formStartedAt || 0
     }
 
-    // OPTIMISTIC: show success and clear form immediately
-    setIsSubmitted(true)
-    setSubmitError("")
-    reset(getDefaultFormValues(positionSlug))
-
-    // BACKGROUND: fire-and-forget server action
     apiInFlightRef.current = true
     setSubmitDisabled(true)
+    setSubmitError("")
 
-    submitCareerApplication(submissionData)
-      .then((result) => {
-        if (!result.success) {
-          setIsSubmitted(false)
-          setSubmitError(
-            result.error || "Submission failed \u2014 please try again"
-          )
-        }
-        // If success: no state change needed — already showing success
-      })
-      .catch(() => {
-        setIsSubmitted(false)
-        setSubmitError("Submission failed \u2014 please try again")
-      })
-      .finally(() => {
-        apiInFlightRef.current = false
-        setSubmitDisabled(false)
-      })
+    try {
+      const result = await submitCareerApplication(submissionData)
+
+      if (result.success) {
+        setIsSubmitted(true)
+        reset(getDefaultFormValues(positionSlug))
+      } else {
+        setSubmitError(
+          result.error || "Submission failed \u2014 please try again"
+        )
+      }
+    } catch {
+      setSubmitError("Submission failed \u2014 please try again")
+    } finally {
+      apiInFlightRef.current = false
+      setSubmitDisabled(false)
+    }
   }
 
   return (
@@ -239,7 +238,7 @@ export const ApplicationForm = ({
         ) : null}
 
         {/* Email + Location */}
-        {hasField("Email") || hasField("Location") ? (
+        {hasField("Email") || hasField("Where are you based") ? (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
             {hasField("Email") ? (
               <FormInput
@@ -251,13 +250,13 @@ export const ApplicationForm = ({
                 registration={register("email", {
                   required: "Email is required",
                   pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    value: EMAIL_REGEX,
                     message: "Invalid email format"
                   }
                 })}
               />
             ) : null}
-            {hasField("Location") ? (
+            {hasField("Where are you based") ? (
               <FormInput
                 label="Where are you based?"
                 required
@@ -281,7 +280,7 @@ export const ApplicationForm = ({
             registration={register("motivation", {
               required: "This field is required"
             })}
-            rows={1}
+            rows={4}
             maxLength={1500}
           />
         ) : null}
@@ -329,29 +328,39 @@ export const ApplicationForm = ({
           />
         ) : null}
 
-        {/* Availability */}
-        {hasField("Availability") ? (
-          <FormRadioGroup
-            label="Availability to start"
-            required
-            options={AVAILABILITY_OPTIONS}
-            error={errors.availability?.message}
-            registration={register("availability", {
-              required: "Availability is required"
-            })}
-          />
-        ) : null}
-
         {/* GitHub */}
         {hasField("Github") ? (
           <FormInput
             label="GitHub"
-            required
             type="url"
             placeholder="https://github.com/janedoe"
             error={errors.github?.message}
-            registration={register("github", {
-              required: "GitHub is required"
+            registration={register("github")}
+          />
+        ) : null}
+
+        {/* Availability to start */}
+        {hasField("Availability to start") ? (
+          <FormRadioGroup
+            label="Availability to start"
+            required
+            options={AVAILABILITY_OPTIONS}
+            error={errors.availabilityToStart?.message}
+            registration={register("availabilityToStart", {
+              required: "Availability to start is required"
+            })}
+          />
+        ) : null}
+
+        {/* Availability to work */}
+        {hasField("Availability to work") ? (
+          <FormRadioGroup
+            label="Availability to work"
+            required
+            options={AVAILABILITY_TO_WORK_OPTIONS}
+            error={errors.availabilityToWork?.message}
+            registration={register("availabilityToWork", {
+              required: "Availability to work is required"
             })}
           />
         ) : null}

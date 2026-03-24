@@ -76,14 +76,6 @@ const CareerPost = async ({ params }: CareerPostProps) => {
           const jobDescriptionContent =
             position.jobDescription?.json?.content ?? null
 
-          const openPositions =
-            data.company.openPositions.openPositionsList.items
-              .filter((item) => item.isOpen)
-              .map((item) => ({
-                label: item._title,
-                value: item._slug
-              }))
-
           return (
             <div className="relative bg-brand-k pt-12 lg:pb-24">
               <div className="lg:pb-25 flex flex-col gap-24">
@@ -109,7 +101,6 @@ const CareerPost = async ({ params }: CareerPostProps) => {
                         formFields: position.applyFormSetup.formFields,
                         skills: position.applyFormSetup.skills.items
                       }}
-                      openPositions={openPositions}
                     />
                   </div>
                 </div>
@@ -129,15 +120,17 @@ export async function generateStaticParams() {
     company: {
       openPositions: {
         openPositionsList: {
-          items: { _slug: true }
+          items: { _slug: true, isOpen: true }
         }
       }
     }
   })
 
-  return data.company.openPositions.openPositionsList.items.map((item) => ({
-    slug: item._slug
-  }))
+  return data.company.openPositions.openPositionsList.items
+    .filter((item) => item.isOpen)
+    .map((item) => ({
+      slug: item._slug
+    }))
 }
 
 export default CareerPost

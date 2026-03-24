@@ -17,8 +17,10 @@ const MAX_SUBMISSIONS_PER_WINDOW = 5
 
 const submissionAttempts = new Map<string, number[]>()
 
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  return EMAIL_REGEX.test(value)
 }
 
 function isValidUrl(value: string) {
