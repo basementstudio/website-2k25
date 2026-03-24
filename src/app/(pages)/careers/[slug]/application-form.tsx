@@ -278,7 +278,7 @@ export const ApplicationForm = ({
             registration={register("motivation", {
               required: "This field is required"
             })}
-            rows={4}
+            rows={1}
             maxLength={1500}
           />
         ) : null}
