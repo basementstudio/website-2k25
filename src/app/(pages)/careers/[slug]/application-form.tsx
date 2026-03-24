@@ -3,10 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import {
-  EMAIL_REGEX,
-  submitCareerApplication
-} from "@/actions/career-application"
+import { submitCareerApplication } from "@/actions/career-application"
 import { ContactStatus } from "@/app/contact/form/contact-status"
 
 import { CtaButton } from "./components/cta-button"
@@ -44,6 +41,7 @@ const YEARS_OPTIONS = ["0-1", "1-3", "3-5", "5-10", "10+"]
 const AVAILABILITY_OPTIONS = ["Immediately", "In 2 weeks", "In a month"]
 
 const AVAILABILITY_TO_WORK_OPTIONS = ["Fulltime", "Freelance"]
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function getDefaultFormValues(positionSlug: string): ApplicationInputs {
   return {
