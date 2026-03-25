@@ -13,6 +13,7 @@ export const careerPostQuery = fragmentOn("Query", {
           _title: true,
           _slug: true,
           _id: true,
+          _sys: { createdAt: true },
           type: true,
           employmentType: true,
           location: true,

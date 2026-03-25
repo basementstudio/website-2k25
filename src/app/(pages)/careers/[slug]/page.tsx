@@ -1,6 +1,8 @@
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
 
+import { JsonLd } from "@/lib/structured-data/json-ld"
+import { generateJobPostingSchema } from "@/lib/structured-data/schemas/job-posting"
 import { client } from "@/service/basehub"
 
 import { ApplicationForm } from "./application-form"
@@ -77,35 +79,38 @@ const CareerPost = async ({ params }: CareerPostProps) => {
             position.jobDescription?.json?.content ?? null
 
           return (
-            <div className="relative bg-brand-k pt-12 lg:pb-24">
-              <div className="lg:pb-25 flex flex-col gap-24">
-                <Hero title={heroTitle} />
-                <div className="grid-layout">
-                  <div className="col-span-full lg:col-span-1">
-                    <Back />
-                  </div>
-                  <div className="col-span-full flex flex-col items-center justify-start lg:col-span-10 lg:col-start-2">
-                    <JobMeta
-                      type={position.type ?? ""}
-                      employmentType={position.employmentType ?? ""}
-                      location={position.location ?? ""}
-                    />
-                    {jobDescriptionContent ? (
-                      <JobContent content={jobDescriptionContent} />
-                    ) : null}
-                    <ApplicationForm
-                      positionTitle={position._title}
-                      positionSlug={position._slug}
-                      positionType={position.type ?? ""}
-                      formConfig={{
-                        formFields: position.applyFormSetup.formFields,
-                        skills: position.applyFormSetup.skills.items
-                      }}
-                    />
+            <>
+              <JsonLd data={generateJobPostingSchema(position)} />
+              <div className="relative bg-brand-k pt-12 lg:pb-24">
+                <div className="lg:pb-25 flex flex-col gap-24">
+                  <Hero title={heroTitle} />
+                  <div className="grid-layout">
+                    <div className="col-span-full lg:col-span-1">
+                      <Back />
+                    </div>
+                    <div className="col-span-full flex flex-col items-center justify-start lg:col-span-10 lg:col-start-2">
+                      <JobMeta
+                        type={position.type ?? ""}
+                        employmentType={position.employmentType ?? ""}
+                        location={position.location ?? ""}
+                      />
+                      {jobDescriptionContent ? (
+                        <JobContent content={jobDescriptionContent} />
+                      ) : null}
+                      <ApplicationForm
+                        positionTitle={position._title}
+                        positionSlug={position._slug}
+                        positionType={position.type ?? ""}
+                        formConfig={{
+                          formFields: position.applyFormSetup.formFields,
+                          skills: position.applyFormSetup.skills.items
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </>
           )
         }}
       </Pump>

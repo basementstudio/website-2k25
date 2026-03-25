@@ -75,3 +75,56 @@ export const fetchHomepage = async () => {
 
   return homepage
 }
+
+export const fetchOrganizationData = async () => {
+  const data = await client().query({
+    company: {
+      structuredData: {
+        description: true,
+        foundingDate: true,
+        email: true,
+        addressCity: true,
+        addressRegion: true,
+        addressCountry: true,
+        logo: { url: true },
+        founders: {
+          items: {
+            name: true,
+            url: true
+          }
+        }
+      },
+      social: {
+        github: true,
+        instagram: true,
+        twitter: true,
+        linkedIn: true
+      }
+    }
+  })
+
+  const structuredData = data.company.structuredData
+  const social = data.company.social
+
+  return {
+    description: structuredData.description,
+    foundingDate: structuredData.foundingDate,
+    email: structuredData.email,
+    addressCity: structuredData.addressCity,
+    addressRegion: structuredData.addressRegion,
+    addressCountry: structuredData.addressCountry,
+    logo: structuredData.logo,
+    founders: structuredData.founders.items.map(
+      (f: { name: string; url: string | null }) => ({
+        name: f.name,
+        url: f.url
+      })
+    ),
+    social: {
+      github: social.github,
+      instagram: social.instagram,
+      twitter: social.twitter,
+      linkedIn: social.linkedIn
+    }
+  }
+}
