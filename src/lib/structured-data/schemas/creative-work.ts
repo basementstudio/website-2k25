@@ -7,10 +7,10 @@ interface ProjectData {
   _title: string
   project?: {
     _slug?: string | null
-    year?: string | null
-    categories?: { _title: string } | null
-    client?: { _title: string; website?: string | null } | null
-    cover?: { url: string; width: number; height: number } | null
+    year?: string | number | null
+    categories?: { _title: string | null }[] | null
+    client?: { _title: string | null; website?: string | null } | null
+    cover?: { url: string; width: number | null; height: number | null } | null
     content?: { json: { content: unknown } } | null
     projectWebsite?: string | null
   } | null
@@ -29,18 +29,25 @@ export const generateCreativeWorkSchema = (entry: ProjectData) => {
     "@type": "CreativeWork",
     name: entry._title,
     url: `${SITE_URL}/showcase/${project._slug}`,
-    ...(project.year ? { dateCreated: project.year } : {}),
+    ...(project.year ? { dateCreated: String(project.year) } : {}),
     ...(description ? { description } : {}),
-    ...(project.categories?._title
-      ? { genre: project.categories._title }
+    ...(project.categories && project.categories.length > 0
+      ? {
+          genre: project.categories
+            .map((c) => c._title)
+            .filter(Boolean)
+            .join(", ")
+        }
       : {}),
     ...(project.cover?.url
       ? {
           image: {
             "@type": "ImageObject",
             url: project.cover.url,
-            width: project.cover.width,
-            height: project.cover.height
+            ...(project.cover.width ? { width: project.cover.width } : {}),
+            ...(project.cover.height
+              ? { height: project.cover.height }
+              : {})
           }
         }
       : {}),

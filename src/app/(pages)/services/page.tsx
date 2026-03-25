@@ -5,7 +5,7 @@ import { Contact } from "@/components/layout/contact"
 import { JsonLd } from "@/lib/structured-data/json-ld"
 import {
   generateProfessionalServiceSchema,
-  generateReviewSchemas
+  generateReviewSchema
 } from "@/lib/structured-data/schemas/professional-service"
 
 import { Awards } from "./awards"
@@ -41,16 +41,14 @@ const ServicesPage = () => (
       const serviceSchema = generateProfessionalServiceSchema(
         data.company.services.serviceCategories.items
       )
-      const reviewSchemas = generateReviewSchemas(
+      const reviewSchema = generateReviewSchema(
         data.company.testimonials.services
       )
 
       return (
         <>
           <JsonLd data={serviceSchema} />
-          {reviewSchemas.map((review, i) =>
-            review ? <JsonLd key={i} data={review} /> : null
-          )}
+          {reviewSchema ? <JsonLd data={reviewSchema} /> : null}
           <div className="flex flex-col gap-18 lg:gap-44">
             <Hero data={data} className="lg:-mb-11" />
             <Services data={data} />

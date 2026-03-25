@@ -6,14 +6,18 @@ const SITE_NAME = "basement.studio"
 interface BlogPostData {
   _title: string
   _slug: string
-  date: string
+  date: string | null
   _sys: { createdAt: string }
   intro?: { json: { content: unknown } } | null
   hero?: {
-    heroImage?: { url: string; width: number; height: number } | null
+    heroImage?: {
+      url: string
+      width: number | null
+      height: number | null
+    } | null
   } | null
-  authors?: { _title: string } | null
-  categories?: { _title: string } | null
+  authors?: { _title: string }[] | null
+  categories?: { _title: string }[] | null
 }
 
 export const generateBlogPostingSchema = (post: BlogPostData) => {
@@ -26,7 +30,7 @@ export const generateBlogPostingSchema = (post: BlogPostData) => {
     "@type": "BlogPosting",
     headline: post._title,
     url: `${SITE_URL}/post/${post._slug}`,
-    datePublished: post.date,
+    ...(post.date ? { datePublished: post.date } : {}),
     dateModified: post._sys.createdAt,
     ...(description ? { description } : {}),
     ...(post.hero?.heroImage?.url
@@ -34,21 +38,28 @@ export const generateBlogPostingSchema = (post: BlogPostData) => {
           image: {
             "@type": "ImageObject",
             url: post.hero.heroImage.url,
-            width: post.hero.heroImage.width,
-            height: post.hero.heroImage.height
+            ...(post.hero.heroImage.width
+              ? { width: post.hero.heroImage.width }
+              : {}),
+            ...(post.hero.heroImage.height
+              ? { height: post.hero.heroImage.height }
+              : {})
           }
         }
       : {}),
-    ...(post.authors?._title
+    ...(post.authors && post.authors.length > 0
       ? {
-          author: {
-            "@type": "Person",
-            name: post.authors._title
-          }
+          author:
+            post.authors.length === 1
+              ? { "@type": "Person", name: post.authors[0]._title }
+              : post.authors.map((a) => ({
+                  "@type": "Person",
+                  name: a._title
+                }))
         }
       : {}),
-    ...(post.categories?._title
-      ? { articleSection: post.categories._title }
+    ...(post.categories && post.categories.length > 0
+      ? { articleSection: post.categories.map((c) => c._title).join(", ") }
       : {}),
     publisher: {
       "@type": "Organization",
