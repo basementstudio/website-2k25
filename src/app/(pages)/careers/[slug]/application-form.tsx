@@ -97,10 +97,11 @@ export const ApplicationForm = ({
     options?: Parameters<typeof register>[1]
   ) => {
     const registration = register(name, options)
+    const originalOnBlur = registration.onBlur
     return {
       ...registration,
-      onBlur: async (e: React.FocusEvent) => {
-        await registration.onBlur(e)
+      onBlur: async (e: { target: unknown; type?: string }) => {
+        await originalOnBlur(e)
         if (e.target instanceof HTMLInputElement && e.target.value) {
           trigger(name)
         }
@@ -366,7 +367,7 @@ export const ApplicationForm = ({
                 error={errors.github?.message}
                 registration={registerWithBlurValidation("github", {
                   validate: (value) =>
-                    !value || URL_REGEX.test(value) || "Please enter a valid URL (e.g. https://...)"
+                    !value || (typeof value === "string" && URL_REGEX.test(value)) || "Please enter a valid URL (e.g. https://...)"
                 })}
               />
             ) : null}
