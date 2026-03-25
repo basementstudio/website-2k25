@@ -7,19 +7,19 @@ interface Founder {
 }
 
 interface OrganizationData {
-  description: string
-  foundingDate: string
-  email: string
-  addressCity: string
-  addressRegion: string
-  addressCountry: string
+  description: string | null
+  foundingDate: string | number | null
+  email: string | null
+  addressCity: string | null
+  addressRegion: string | null
+  addressCountry: string | null
   logo?: { url: string } | null
   founders: Founder[]
   social: {
-    github: string
-    instagram: string
-    twitter: string
-    linkedIn: string
+    github: string | null
+    instagram: string | null
+    twitter: string | null
+    linkedIn: string | null
   }
 }
 
@@ -29,7 +29,10 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     data.social.instagram,
     data.social.twitter,
     data.social.linkedIn
-  ].filter(Boolean)
+  ].filter((v): v is string => Boolean(v))
+
+  const hasAddress =
+    data.addressCity || data.addressRegion || data.addressCountry
 
   return {
     "@context": "https://schema.org",
@@ -37,15 +40,27 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     name: SITE_NAME,
     url: SITE_URL,
     ...(data.logo?.url ? { logo: data.logo.url } : {}),
-    description: data.description,
-    foundingDate: data.foundingDate,
-    email: data.email,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: data.addressCity,
-      addressRegion: data.addressRegion,
-      addressCountry: data.addressCountry
-    },
+    ...(data.description ? { description: data.description } : {}),
+    ...(data.foundingDate
+      ? { foundingDate: String(data.foundingDate) }
+      : {}),
+    ...(data.email ? { email: data.email } : {}),
+    ...(hasAddress
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            ...(data.addressCity
+              ? { addressLocality: data.addressCity }
+              : {}),
+            ...(data.addressRegion
+              ? { addressRegion: data.addressRegion }
+              : {}),
+            ...(data.addressCountry
+              ? { addressCountry: data.addressCountry }
+              : {})
+          }
+        }
+      : {}),
     ...(sameAs.length > 0 ? { sameAs } : {}),
     ...(data.founders.length > 0
       ? {

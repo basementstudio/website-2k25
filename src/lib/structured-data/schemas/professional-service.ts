@@ -9,7 +9,7 @@ interface ServiceCategory {
 }
 
 interface Testimonial {
-  name: string
+  name: string | null
   content?: { json: { content: unknown } } | null
   role?: { json: { content: unknown } } | null
   date?: string | null
@@ -48,34 +48,31 @@ export const generateProfessionalServiceSchema = (
   }
 })
 
-export const generateReviewSchemas = (testimonials: Testimonial[]) =>
-  testimonials
-    .map((t) => {
-      const reviewBody = t.content?.json?.content
-        ? extractPlainText(t.content.json.content)
-        : null
+export const generateReviewSchema = (t: Testimonial) => {
+  const reviewBody = t.content?.json?.content
+    ? extractPlainText(t.content.json.content)
+    : null
 
-      if (!reviewBody) return null
+  if (!reviewBody || !t.name) return null
 
-      const jobTitle = t.role?.json?.content
-        ? extractPlainText(t.role.json.content)
-        : undefined
+  const jobTitle = t.role?.json?.content
+    ? extractPlainText(t.role.json.content)
+    : undefined
 
-      return {
-        "@context": "https://schema.org",
-        "@type": "Review",
-        author: {
-          "@type": "Person",
-          name: t.name,
-          ...(jobTitle ? { jobTitle } : {})
-        },
-        reviewBody,
-        ...(t.date ? { datePublished: t.date } : {}),
-        itemReviewed: {
-          "@type": "Organization",
-          name: SITE_NAME,
-          url: SITE_URL
-        }
-      }
-    })
-    .filter(Boolean)
+  return {
+    "@context": "https://schema.org",
+    "@type": "Review",
+    author: {
+      "@type": "Person",
+      name: t.name,
+      ...(jobTitle ? { jobTitle } : {})
+    },
+    reviewBody,
+    ...(t.date ? { datePublished: t.date } : {}),
+    itemReviewed: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL
+    }
+  }
+}
