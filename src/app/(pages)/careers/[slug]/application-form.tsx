@@ -296,6 +296,7 @@ export const ApplicationForm = ({
                     label="Years of experience"
                     required
                     options={YEARS_OPTIONS}
+                    placeholder="5-10"
                     value={field.value}
                     onChange={field.onChange}
                     error={errors.yearsOfExperience?.message}
