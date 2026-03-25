@@ -85,11 +85,28 @@ export const ApplicationForm = ({
     handleSubmit,
     setValue,
     control,
+    trigger,
     formState: { errors },
     reset
   } = useForm<ApplicationInputs>({
     defaultValues: getDefaultFormValues(positionSlug)
   })
+
+  const registerWithBlurValidation = (
+    name: keyof ApplicationInputs,
+    options?: Parameters<typeof register>[1]
+  ) => {
+    const registration = register(name, options)
+    return {
+      ...registration,
+      onBlur: async (e: React.FocusEvent) => {
+        await registration.onBlur(e)
+        if (e.target instanceof HTMLInputElement && e.target.value) {
+          trigger(name)
+        }
+      }
+    }
+  }
 
   useEffect(() => {
     setValue("formStartedAt", Date.now())
@@ -330,7 +347,7 @@ export const ApplicationForm = ({
                 type="url"
                 placeholder="https://kickasswork.com/"
                 error={errors.portfolio?.message}
-                registration={register("portfolio", {
+                registration={registerWithBlurValidation("portfolio", {
                   required: "Portfolio is required",
                   pattern: {
                     value: URL_REGEX,
@@ -347,7 +364,10 @@ export const ApplicationForm = ({
                 type="url"
                 placeholder="https://github.com/janedoe"
                 error={errors.github?.message}
-                registration={register("github")}
+                registration={registerWithBlurValidation("github", {
+                  validate: (value) =>
+                    !value || URL_REGEX.test(value) || "Please enter a valid URL (e.g. https://...)"
+                })}
               />
             ) : null}
 
@@ -372,7 +392,7 @@ export const ApplicationForm = ({
                 type="url"
                 placeholder="https://www.linkedin.com/in/joandoe"
                 error={errors.linkedin?.message}
-                registration={register("linkedin", {
+                registration={registerWithBlurValidation("linkedin", {
                   required: "LinkedIn is required",
                   pattern: {
                     value: URL_REGEX,
