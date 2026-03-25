@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { type SubmitHandler, useForm } from "react-hook-form"
+import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 
 import { submitCareerApplication } from "@/actions/career-application"
 import { ContactStatus } from "@/app/contact/form/contact-status"
@@ -10,6 +10,7 @@ import { CtaButton } from "./components/cta-button"
 import { FormCheckboxGroup } from "./components/form-checkbox-group"
 import { FormInput } from "./components/form-input"
 import { FormRadioGroup } from "./components/form-radio-group"
+import { FormSelect } from "./components/form-select"
 import { FormTextarea } from "./components/form-textarea"
 
 export interface FormConfig {
@@ -29,7 +30,6 @@ type ApplicationInputs = {
   portfolio: string
   github: string
   availabilityToStart: string
-  availabilityToWork: string
   linkedin: string
   salaryExpectations: string
   companyWebsite: string
@@ -40,8 +40,8 @@ const YEARS_OPTIONS = ["0-1", "1-3", "3-5", "5-10", "10+"]
 
 const AVAILABILITY_OPTIONS = ["Immediately", "In 2 weeks", "In a month"]
 
-const AVAILABILITY_TO_WORK_OPTIONS = ["Fulltime", "Freelance"]
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const URL_REGEX = /^https?:\/\/.+/
 
 function getDefaultFormValues(positionSlug: string): ApplicationInputs {
   return {
@@ -56,7 +56,6 @@ function getDefaultFormValues(positionSlug: string): ApplicationInputs {
     portfolio: "",
     github: "",
     availabilityToStart: "",
-    availabilityToWork: "",
     linkedin: "",
     salaryExpectations: "",
     companyWebsite: "",
@@ -80,10 +79,12 @@ export const ApplicationForm = ({
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [submitError, setSubmitError] = useState("")
   const apiInFlightRef = useRef(false)
+  const sectionRef = useRef<HTMLElement>(null)
   const {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors },
     reset
   } = useForm<ApplicationInputs>({
@@ -94,31 +95,16 @@ export const ApplicationForm = ({
     setValue("formStartedAt", Date.now())
   }, [setValue])
 
-  useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      setIsSubmitted(false)
-    }
-  }, [errors])
 
-  // Independent 4s auto-dismiss for success state
-  useEffect(() => {
-    if (isSubmitted) {
-      const timer = setTimeout(() => {
-        setIsSubmitted(false)
-      }, 4000)
-      return () => clearTimeout(timer)
-    }
-  }, [isSubmitted])
 
-  // Independent 4s auto-dismiss for error state
-  useEffect(() => {
-    if (submitError) {
-      const timer = setTimeout(() => {
-        setSubmitError("")
-      }, 4000)
-      return () => clearTimeout(timer)
-    }
-  }, [submitError])
+  const onError = () => {
+    const firstErrorKey = Object.keys(errors)[0]
+    if (!firstErrorKey) return
+    const el = document.querySelector<HTMLElement>(`[name="${firstErrorKey}"]`)
+    if (!el) return
+    const scrollTarget = el.closest("fieldset") ?? el.parentElement
+    scrollTarget?.scrollIntoView({ behavior: "smooth", block: "center" })
+  }
 
   const onSubmit: SubmitHandler<ApplicationInputs> = async (data) => {
     // Guard: prevent double-submission
@@ -137,7 +123,7 @@ export const ApplicationForm = ({
       portfolio: data.portfolio || "",
       github: data.github || "",
       availabilityToStart: data.availabilityToStart || "",
-      availabilityToWork: data.availabilityToWork || "",
+      availabilityToWork: "",
       linkedin: data.linkedin || "",
       salaryExpectations:
         data.salaryExpectations.trim() === ""
@@ -157,6 +143,12 @@ export const ApplicationForm = ({
       if (result.success) {
         setIsSubmitted(true)
         reset(getDefaultFormValues(positionSlug))
+        requestAnimationFrame(() => {
+          sectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          })
+        })
       } else {
         setSubmitError(
           result.error || "Submission failed \u2014 please try again"
@@ -172,234 +164,250 @@ export const ApplicationForm = ({
 
   return (
     <section
+      ref={sectionRef}
       id="apply"
       className="mt-20 flex w-full flex-col items-start lg:mt-24 lg:max-w-[846px]"
     >
       {/* Divider */}
       <div className="h-px w-full bg-brand-g2" />
 
-      {/* Form title */}
-      <div className="flex w-full flex-col gap-4 pt-12 lg:gap-6 lg:pt-20">
-        <h2 className="text-f-h2-mobile font-semibold text-brand-w2 lg:text-f-h2">
-          Apply now
-        </h2>
-        <p className="text-[1rem] font-medium leading-6 text-brand-w2">
-          Tell us why you&apos;d be a good fit for the {positionTitle} role.
-        </p>
-      </div>
-
-      {/* Form */}
-      <form
-        className="flex w-full flex-col gap-8 pt-12 lg:gap-10 lg:pt-20"
-        aria-label={`Application form for ${positionTitle}`}
-        method="post"
-        noValidate
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <div className="hidden" aria-hidden="true">
-          <label htmlFor="companyWebsite">Company website</label>
-          <input
-            id="companyWebsite"
-            type="text"
-            tabIndex={-1}
-            autoComplete="off"
-            {...register("companyWebsite")}
-          />
+      {isSubmitted ? (
+        <div className="flex flex-col gap-6 pt-12 lg:pt-20">
+          <h2 className="text-f-h2-mobile font-semibold text-brand-w2 lg:text-f-h2">
+            Thanks for reaching out
+          </h2>
+          <p className="text-[1rem] font-medium leading-6 text-brand-w2">
+            We&apos;re excited to see what you&apos;re all about.
+            <br />
+            We&apos;ll review your application and be in touch if it&apos;s a
+            match.
+          </p>
         </div>
-        <input
-          type="hidden"
-          {...register("formStartedAt", { valueAsNumber: true })}
-        />
-
-        {/* First name + Last name */}
-        {hasField("First and last name") ? (
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
-            <FormInput
-              label="First name"
-              required
-              placeholder="Jane"
-              error={errors.firstName?.message}
-              registration={register("firstName", {
-                required: "First name is required"
-              })}
-            />
-            <FormInput
-              label="Last name"
-              required
-              placeholder="Doe"
-              error={errors.lastName?.message}
-              registration={register("lastName", {
-                required: "Last name is required"
-              })}
-            />
+      ) : (
+        <>
+          {/* Form title */}
+          <div className="pt-12 lg:pt-20">
+            <h2 className="text-f-h2-mobile font-semibold text-brand-w2 lg:text-f-h2">
+              Apply now
+            </h2>
           </div>
-        ) : null}
 
-        {/* Email + Location */}
-        {hasField("Email") || hasField("Where are you based") ? (
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
-            {hasField("Email") ? (
-              <FormInput
-                label="Email"
+          {/* Form */}
+          <form
+            className="flex w-full flex-col gap-8 pt-8 lg:gap-10 lg:pt-12"
+            aria-label={`Application form for ${positionTitle}`}
+            method="post"
+            noValidate
+            onSubmit={handleSubmit(onSubmit, onError)}
+          >
+            <div className="hidden" aria-hidden="true">
+              <label htmlFor="companyWebsite">Company website</label>
+              <input
+                id="companyWebsite"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                {...register("companyWebsite")}
+              />
+            </div>
+            <input
+              type="hidden"
+              {...register("formStartedAt", { valueAsNumber: true })}
+            />
+
+            {/* First name + Last name */}
+            {hasField("First and last name") ? (
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
+                <FormInput
+                  label="First name"
+                  required
+                  placeholder="Jane"
+                  error={errors.firstName?.message}
+                  registration={register("firstName", {
+                    required: "First name is required"
+                  })}
+                />
+                <FormInput
+                  label="Last name"
+                  required
+                  placeholder="Doe"
+                  error={errors.lastName?.message}
+                  registration={register("lastName", {
+                    required: "Last name is required"
+                  })}
+                />
+              </div>
+            ) : null}
+
+            {/* Email + Location */}
+            {hasField("Email") || hasField("Where are you based") ? (
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
+                {hasField("Email") ? (
+                  <FormInput
+                    label="Email"
+                    required
+                    type="email"
+                    placeholder="janedoe@email.com"
+                    error={errors.email?.message}
+                    registration={register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: EMAIL_REGEX,
+                        message: "Invalid email format"
+                      }
+                    })}
+                  />
+                ) : null}
+                {hasField("Where are you based") ? (
+                  <FormInput
+                    label="Where are you based?"
+                    required
+                    placeholder="Argentina"
+                    error={errors.location?.message}
+                    registration={register("location", {
+                      required: "Location is required"
+                    })}
+                  />
+                ) : null}
+              </div>
+            ) : null}
+
+            {/* Motivation */}
+            {hasField("Why do you want to join") ? (
+              <FormTextarea
+                label="Why do you want to join"
                 required
-                type="email"
-                placeholder="janedoe@email.com"
-                error={errors.email?.message}
-                registration={register("email", {
-                  required: "Email is required",
+                placeholder="Because I want to create jaw-dropping websites"
+                error={errors.whyDoYouWantToJoin?.message}
+                registration={register("whyDoYouWantToJoin", {
+                  required: "This field is required"
+                })}
+                rows={1}
+                maxLength={1500}
+              />
+            ) : null}
+
+            {/* Years of experience */}
+            {hasField("Years of experience") ? (
+              <Controller
+                name="yearsOfExperience"
+                control={control}
+                rules={{ required: "Years of experience is required" }}
+                render={({ field }) => (
+                  <FormSelect
+                    label="Years of experience"
+                    required
+                    options={YEARS_OPTIONS}
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={errors.yearsOfExperience?.message}
+                  />
+                )}
+              />
+            ) : null}
+
+            {/* Skills */}
+            {hasField("Skills") && formConfig.skills.length > 0 ? (
+              <FormCheckboxGroup
+                label="Skills"
+                required
+                options={formConfig.skills.map((skill) => ({
+                  label: skill._title,
+                  value: skill._title
+                }))}
+                error={errors.skills?.message}
+                registration={register("skills", {
+                  validate: (value) =>
+                    value?.length > 0 || "Choose at least one skill"
+                })}
+              />
+            ) : null}
+
+            {/* Portfolio */}
+            {hasField("Portfolio") ? (
+              <FormInput
+                label="Portfolio"
+                required
+                type="url"
+                placeholder="https://kickasswork.com/"
+                error={errors.portfolio?.message}
+                registration={register("portfolio", {
+                  required: "Portfolio is required",
                   pattern: {
-                    value: EMAIL_REGEX,
-                    message: "Invalid email format"
+                    value: URL_REGEX,
+                    message: "Please enter a valid URL (e.g. https://...)"
                   }
                 })}
               />
             ) : null}
-            {hasField("Where are you based") ? (
+
+            {/* GitHub */}
+            {hasField("Github") ? (
               <FormInput
-                label="Where are you based?"
+                label="GitHub"
+                type="url"
+                placeholder="https://github.com/janedoe"
+                error={errors.github?.message}
+                registration={register("github")}
+              />
+            ) : null}
+
+            {/* Availability to start */}
+            {hasField("Availability to start") ? (
+              <FormRadioGroup
+                label="Availability to start"
                 required
-                placeholder="Argentina"
-                error={errors.location?.message}
-                registration={register("location", {
-                  required: "Location is required"
+                options={AVAILABILITY_OPTIONS}
+                error={errors.availabilityToStart?.message}
+                registration={register("availabilityToStart", {
+                  required: "Availability to start is required"
                 })}
               />
             ) : null}
-          </div>
-        ) : null}
 
-        {/* Motivation */}
-        {hasField("Why do you want to join") ? (
-          <FormTextarea
-            label="Why do you want to join"
-            required
-            placeholder="Because I want to create jaw-dropping websites"
-            error={errors.whyDoYouWantToJoin?.message}
-            registration={register("whyDoYouWantToJoin", {
-              required: "This field is required"
-            })}
-            rows={1}
-            maxLength={1500}
-          />
-        ) : null}
+            {/* LinkedIn */}
+            {hasField("Linkedin") ? (
+              <FormInput
+                label="LinkedIn"
+                required
+                type="url"
+                placeholder="https://www.linkedin.com/in/joandoe"
+                error={errors.linkedin?.message}
+                registration={register("linkedin", {
+                  required: "LinkedIn is required",
+                  pattern: {
+                    value: URL_REGEX,
+                    message: "Please enter a valid URL (e.g. https://...)"
+                  }
+                })}
+              />
+            ) : null}
 
-        {/* Skills */}
-        {hasField("Skills") && formConfig.skills.length > 0 ? (
-          <FormCheckboxGroup
-            label="Skills"
-            required
-            description="Choose your skills"
-            options={formConfig.skills.map((skill) => ({
-              label: skill._title,
-              value: skill._title
-            }))}
-            error={errors.skills?.message}
-            registration={register("skills", {
-              validate: (value) =>
-                value?.length > 0 || "Choose at least one skill"
-            })}
-          />
-        ) : null}
+            {/* Salary expectations */}
+            {hasField("Salary Expectation") ? (
+              <FormInput
+                label="Salary expectations (USD)"
+                required
+                type="number"
+                error={errors.salaryExpectations?.message}
+                registration={register("salaryExpectations", {
+                  required: "Salary expectations is required",
+                  validate: (value) =>
+                    value.trim() !== "" && Number.isFinite(Number(value))
+                      ? true
+                      : "Salary expectations is required"
+                })}
+              />
+            ) : null}
 
-        {/* Years of experience */}
-        {hasField("Years of experience") ? (
-          <FormRadioGroup
-            label="Years of experience"
-            required
-            options={YEARS_OPTIONS}
-            error={errors.yearsOfExperience?.message}
-            registration={register("yearsOfExperience", {
-              required: "Years of experience is required"
-            })}
-          />
-        ) : null}
-
-        {/* Portfolio */}
-        {hasField("Portfolio") ? (
-          <FormInput
-            label="Portfolio"
-            description="Share works you are proud of. Link us to your portfolio."
-            type="url"
-            placeholder="https://kickasswork.com/"
-            error={errors.portfolio?.message}
-            registration={register("portfolio")}
-          />
-        ) : null}
-
-        {/* GitHub */}
-        {hasField("Github") ? (
-          <FormInput
-            label="GitHub"
-            type="url"
-            placeholder="https://github.com/janedoe"
-            error={errors.github?.message}
-            registration={register("github")}
-          />
-        ) : null}
-
-        {/* Availability to start */}
-        {hasField("Availability to start") ? (
-          <FormRadioGroup
-            label="Availability to start"
-            required
-            options={AVAILABILITY_OPTIONS}
-            error={errors.availabilityToStart?.message}
-            registration={register("availabilityToStart", {
-              required: "Availability to start is required"
-            })}
-          />
-        ) : null}
-
-        {/* Availability to work */}
-        {hasField("Availability to work") ? (
-          <FormRadioGroup
-            label="Availability to work"
-            required
-            options={AVAILABILITY_TO_WORK_OPTIONS}
-            error={errors.availabilityToWork?.message}
-            registration={register("availabilityToWork", {
-              required: "Availability to work is required"
-            })}
-          />
-        ) : null}
-
-        {/* LinkedIn */}
-        {hasField("Linkedin") ? (
-          <FormInput
-            label="LinkedIn"
-            required
-            type="url"
-            placeholder="https://www.linkedin.com/in/joandoe"
-            error={errors.linkedin?.message}
-            registration={register("linkedin", {
-              required: "LinkedIn is required"
-            })}
-          />
-        ) : null}
-
-        {/* Salary expectations */}
-        {hasField("Salary Expectation") ? (
-          <FormInput
-            label="Salary expectations"
-            required
-            type="number"
-            error={errors.salaryExpectations?.message}
-            registration={register("salaryExpectations", {
-              required: "Salary expectations is required",
-              validate: (value) =>
-                value.trim() !== "" && Number.isFinite(Number(value))
-                  ? true
-                  : "Salary expectations is required"
-            })}
-          />
-        ) : null}
-
-        {/* Submit */}
-        <div className="flex flex-col items-start justify-between gap-4 pb-20 pt-3 lg:flex-row lg:pb-0 lg:pt-10">
-          <CtaButton disabled={submitDisabled} />
-          <ContactStatus isSubmitted={isSubmitted} error={submitError} />
-        </div>
-      </form>
+            {/* Submit */}
+            <div className="flex flex-col items-start justify-between gap-4 pb-20 pt-3 lg:flex-row lg:pb-0 lg:pt-10">
+              <CtaButton disabled={submitDisabled} />
+              <ContactStatus error={submitError} />
+            </div>
+          </form>
+        </>
+      )}
     </section>
   )
 }
