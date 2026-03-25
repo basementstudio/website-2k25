@@ -114,12 +114,12 @@ export const fetchOrganizationData = async () => {
     addressRegion: structuredData.addressRegion,
     addressCountry: structuredData.addressCountry,
     logo: structuredData.logo,
-    founders: structuredData.founders.items.map(
-      (f: { name: string; url: string | null }) => ({
-        name: f.name,
+    founders: structuredData.founders.items
+      .filter((f) => f.name !== null)
+      .map((f) => ({
+        name: f.name!,
         url: f.url
-      })
-    ),
+      })),
     social: {
       github: social.github,
       instagram: social.instagram,
