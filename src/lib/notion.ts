@@ -17,7 +17,6 @@ export interface CareerApplication {
   portfolio: string
   github: string
   availabilityToStart: string
-  availabilityToWork: string
   linkedin: string
   salaryExpectations?: number
 }
@@ -35,7 +34,6 @@ export interface CareerFormData {
   portfolio: string
   github: string
   availabilityToStart: string
-  availabilityToWork: string
   linkedin: string
   salaryExpectations?: number
   companyWebsite: string
@@ -90,7 +88,6 @@ export function buildApplicationData(
     portfolio: formData.portfolio.trim(),
     github: formData.github.trim(),
     availabilityToStart: formData.availabilityToStart.trim(),
-    availabilityToWork: formData.availabilityToWork.trim(),
     linkedin: formData.linkedin.trim(),
     salaryExpectations: formData.salaryExpectations || undefined
   }
@@ -184,12 +181,6 @@ export async function submitApplication(data: CareerApplication) {
     if (data.availabilityToStart.trim()) {
       properties["Availability to start"] = {
         select: { name: data.availabilityToStart.trim() }
-      }
-    }
-
-    if (data.availabilityToWork.trim()) {
-      properties["Availability to work"] = {
-        select: { name: data.availabilityToWork.trim() }
       }
     }
 

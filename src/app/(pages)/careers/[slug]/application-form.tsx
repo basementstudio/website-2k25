@@ -95,8 +95,6 @@ export const ApplicationForm = ({
     setValue("formStartedAt", Date.now())
   }, [setValue])
 
-
-
   const onError = () => {
     const firstErrorKey = Object.keys(errors)[0]
     if (!firstErrorKey) return
@@ -123,7 +121,7 @@ export const ApplicationForm = ({
       portfolio: data.portfolio || "",
       github: data.github || "",
       availabilityToStart: data.availabilityToStart || "",
-      availabilityToWork: "",
+
       linkedin: data.linkedin || "",
       salaryExpectations:
         data.salaryExpectations.trim() === ""
