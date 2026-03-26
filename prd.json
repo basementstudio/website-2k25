@@ -279,7 +279,7 @@
         "Typecheck passes"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": "First migration script to run — no dependencies on other migrated content."
     },
     {

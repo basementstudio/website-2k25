@@ -227,3 +227,16 @@
   - GridGallery images need individual `_key` values when stored in Sanity arrays
   - QuoteWithAuthor avatar uses the same `downloadAndUploadImage` util as other images — deduplication cache applies
 ---
+
+## 2026-03-26 - US-017
+- Created `scripts/migration/migrate-company.ts` with `migrateDepartments()` and `migrateClients()` functions
+- Departments extracted from people's `department._title` field (deduplicated via Set), saved with deterministic IDs `department-{slug}`
+- Clients fetched from `company.clients.clientList`, logos downloaded and uploaded to Sanity
+- Both use `createOrReplace` for idempotency
+- Files changed: scripts/migration/migrate-company.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub departments don't have their own list — they're embedded in people as `department._title` references
+  - Sanity `createOrReplace` expects `_id` and `_type` as literal string properties (not via `Record<string, unknown>`) — use object spread instead
+  - Client `logo` in BaseHub is an object with `{ url, alt }` — need to query with nested field selection
+  - BaseHub slugs are available via `_slug` field on most items
+---
