@@ -17,20 +17,19 @@ import 'dotenv/config'
 
 interface MigrationStep {
   name: string
-  run: () => Promise<void>
+  run: () => Promise<unknown>
 }
 
 const steps: MigrationStep[] = [
-  // Steps will be added as migration scripts are implemented
-  // { name: 'Company (departments, clients)', run: () => import('./migrate-company').then(m => m.default()) },
-  // { name: 'People', run: () => import('./migrate-people').then(m => m.default()) },
-  // { name: 'Projects + categories', run: () => import('./migrate-projects').then(m => m.default()) },
-  // { name: 'Blog posts + categories', run: () => import('./migrate-posts').then(m => m.default()) },
-  // { name: 'Careers', run: () => import('./migrate-careers').then(m => m.default()) },
-  // { name: 'Awards, testimonials, values', run: () => import('./migrate-services').then(m => m.default()) },
-  // { name: 'Lab projects', run: () => import('./migrate-lab').then(m => m.default()) },
-  // { name: 'Singleton pages', run: () => import('./migrate-singletons').then(m => m.default()) },
-  // { name: '3D assets', run: () => import('./migrate-3d-assets').then(m => m.default()) },
+  { name: 'Company (departments, clients)', run: () => import('./migrate-company').then(m => m.default()) },
+  { name: 'People', run: () => import('./migrate-people').then(m => m.default()) },
+  { name: 'Projects + categories', run: () => import('./migrate-projects').then(m => m.default()) },
+  { name: 'Blog posts + categories', run: () => import('./migrate-posts').then(m => m.default()) },
+  { name: 'Careers', run: () => import('./migrate-careers').then(m => m.default()) },
+  { name: 'Awards, testimonials, values', run: () => import('./migrate-services').then(m => m.default()) },
+  { name: 'Lab projects', run: () => import('./migrate-lab').then(m => m.default()) },
+  { name: 'Singleton pages', run: () => import('./migrate-singletons').then(m => m.default()) },
+  { name: '3D assets', run: () => import('./migrate-3d-assets').then(m => m.default()) },
 ]
 
 async function runAll(failFast = false) {
@@ -67,9 +66,6 @@ async function runAll(failFast = false) {
     console.log(`⚠ ${failed} step(s) failed. Re-run to retry (scripts are idempotent).`)
   }
 
-  if (steps.length === 0) {
-    console.log('No migration steps configured yet. Add scripts as they are implemented.')
-  }
 }
 
 const failFast = process.argv.includes('--fail-fast')
