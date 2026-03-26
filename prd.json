@@ -371,7 +371,7 @@
         "Typecheck passes"
       ],
       "priority": 22,
-      "passes": false,
+      "passes": true,
       "notes": "Awards reference project type (must run after US-019)."
     },
     {

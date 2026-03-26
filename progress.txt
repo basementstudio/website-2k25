@@ -293,3 +293,18 @@
   - `isOpen` defaults to `true` if null/undefined (matching Sanity schema's initialValue)
   - `applyFormSetup.skills` items need both `title` and `slug` fields plus `_key` for Sanity arrays
 ---
+
+## 2026-03-26 - US-022
+- Created `scripts/migration/migrate-services.ts` with `migrateAwards()`, `migrateTestimonials()`, and `migrateValues()`
+- Awards fetched from `company.awards.awardList`, with project references via `project._slug` → `project-{slug}` deterministic ID, and certificate images uploaded
+- Testimonials fetched from `company.testimonials`, with avatar images uploaded, `_title` mapped to `name` field
+- Values fetched from `company.ourValues.valuesList`, with description rich text converted via `convertRichText()` and images uploaded
+- All three types use `createOrReplace` with deterministic IDs for idempotency
+- Files changed: scripts/migration/migrate-services.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub testimonials are at `company.testimonials.items` (not nested in a sub-list like other types)
+  - Testimonial `_title` maps to Sanity `name` field (not `title`) — different field naming from other document types
+  - BaseHub award `project` reference uses `_slug` to build the deterministic project ID — same pattern as other cross-type references
+  - Value `description` is rich text (PT) stored in `description.json.content` — uses `convertRichText()` for conversion
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
