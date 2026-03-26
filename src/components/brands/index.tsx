@@ -1,9 +1,10 @@
 "use client"
 
 import { AnimatePresence, motion } from "motion/react"
+import Image from "next/image"
 import { memo, useMemo, useState } from "react"
 
-import { Brand } from "@/app/(pages)/(home)/brands"
+import { Brand } from "@/app/(site)/(pages)/(home)/brands"
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
@@ -11,19 +12,22 @@ import { cn } from "@/utils/cn"
 
 const DEBOUNCE_DELAY = 50
 
-const SVGLogo = memo(({ svg }: { svg: string | null }) => {
-  if (!svg) return null
+const BrandLogo = memo(({ logo }: { logo: Brand["logo"] }) => {
+  if (!logo) return null
   return (
-    <div
-      className="with-dots relative grid h-full w-full place-items-center px-2 [&>svg]:max-w-[100%]"
-      ref={(node) => {
-        if (node) node.innerHTML = svg
-      }}
-    />
+    <div className="with-dots relative grid h-full w-full place-items-center px-2">
+      <Image
+        src={logo.src}
+        alt={logo.alt}
+        width={160}
+        height={88}
+        className="max-w-full object-contain"
+      />
+    </div>
   )
 })
 
-SVGLogo.displayName = "SVGLogo"
+BrandLogo.displayName = "BrandLogo"
 
 export const AnimatedTitle = memo(({ brandName }: { brandName: string }) => (
   <AnimatePresence mode="wait">
@@ -104,7 +108,7 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
         <div className="grid-rows-auto group grid grid-cols-6 gap-3 xl:grid-cols-8">
           {filteredBrands.map((brand) => (
             <motion.a
-              className="aspect-[202/110] text-brand-w1 focus-visible:!ring-offset-0 [&>svg]:w-16 sm:[&>svg]:w-auto"
+              className="aspect-[202/110] text-brand-w1 focus-visible:!ring-offset-0"
               href={brand.website ?? ""}
               key={brand._id}
               onMouseEnter={() => setHoveredBrandId(brand._id)}
@@ -128,7 +132,7 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
                     hoveredBrandId === brand._id && "opacity-100"
                   )}
                 />
-                <SVGLogo svg={brand.logo} />
+                <BrandLogo logo={brand.logo} />
               </div>
             </motion.a>
           ))}

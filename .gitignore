@@ -45,8 +45,6 @@ next-env.d.ts
 .env*.local
 
 
-# BaseHub
-.basehub
 
 # million lint
 .million
@@ -55,3 +53,4 @@ next-env.d.ts
 .env.sentry-build-plugin
 
 .env.local
+

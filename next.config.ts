@@ -20,21 +20,12 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "assets.basehub.com",
-        pathname: "**"
-      },
-      {
-        protocol: "https",
-        hostname: "basehub.earth",
-        pathname: "**"
-      },
-      {
-        protocol: "https",
         hostname: "basement.studio",
         pathname: "**"
       },
       { protocol: "https", hostname: "pbs.twimg.com", pathname: "**" },
-      { protocol: "https", hostname: "abs.twimg.com", pathname: "**" }
+      { protocol: "https", hostname: "abs.twimg.com", pathname: "**" },
+      { protocol: "https", hostname: "cdn.sanity.io", pathname: "**" }
     ]
   },
 

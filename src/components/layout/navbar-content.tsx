@@ -1,6 +1,6 @@
 "use client"
 
-import { RichTextNode } from "basehub/api-transaction"
+import type { PortableTextBlock } from "@/service/sanity/types"
 import { AnimatePresence, motion } from "motion/react"
 import { usePathname } from "next/navigation"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -174,7 +174,7 @@ interface NavbarContentProps {
     linkedIn: string
   }
 
-  newsletter: RichTextNode[]
+  newsletter: PortableTextBlock[]
 }
 
 export const NavbarContent = memo(

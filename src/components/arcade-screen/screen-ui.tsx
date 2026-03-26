@@ -96,9 +96,9 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
 
   useEffect(() => {
     if (visible) {
-      fetchLaboratory().then((data) => {
-        const experiments = data.projectList.items.map((item: any) => ({
-          _title: item._title,
+      fetchLaboratory().then((items) => {
+        const experiments = items.map((item: any) => ({
+          _title: item.title,
           url: item.url,
           cover: item.cover,
           description: item.description as string | null
