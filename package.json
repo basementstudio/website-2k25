@@ -32,6 +32,7 @@
     "@react-three/uikit-default": "1.0.60",
     "@sanity/client": "^7.20.0",
     "@sanity/image-url": "^2.0.3",
+    "@sanity/vision": "^5.18.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.0",
     "@use-gesture/react": "^10.3.1",
