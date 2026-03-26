@@ -157,3 +157,16 @@
   - `sanity.cli.ts` uses hardcoded projectId/dataset (not env vars) since CLI runs outside Next.js and may not have env loaded
   - 124 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
+
+## 2026-03-26 - US-013
+- Deployed all 27 schema types to Sanity cloud using `pnpm exec sanity schema deploy`
+- Verified deployment via `sanity schema list` (workspace: website-2k25, dataset: production)
+- Confirmed all types visible via Sanity MCP get_schema: 13 document types, 6 singleton types, 8 object types
+- No file changes — this was a deploy-only story
+- **Learnings for future iterations:**
+  - `pnpm exec sanity schema deploy` works out of the box when `sanity.cli.ts` is properly configured with projectId/dataset
+  - Schema deploy reads from local `sanity.config.ts` and the schema files — no separate build step needed
+  - The MCP `deploy_schema` tool should NOT be used when a local Studio exists — use the CLI instead
+  - Deployed schema ID follows pattern `_.schemas.<workspaceName>` (e.g., `_.schemas.website-2k25`)
+  - Schema deploy does not require explicit authentication if the user is already logged in via `sanity login`
+---

@@ -203,7 +203,7 @@
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "Requires all schemas from US-005 through US-012 to be complete. Needs sanity.cli.ts from US-012."
     },
     {
