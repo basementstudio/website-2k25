@@ -210,3 +210,20 @@
   - Mark definitions (markDefs) are per-block, not per-document — each block carries its own array of mark definitions
   - `nanoid` v5 works fine with tsx/ESM — no need for nanoid v3 CJS compatibility workaround
 ---
+
+## 2026-03-26 - US-016
+- Extended `scripts/migration/utils/rich-text.ts` with async custom block and image conversion
+- `convertRichText` is now async — uses two-pass approach: synchronous node conversion, then async placeholder resolution
+- Custom block types handled: CodeBlockComponent→codeBlock, QuoteWithAuthorComponent→quoteWithAuthor, CodeSandboxComponent→codeSandbox, SideNoteComponent→sideNote, GridGalleryComponent→gridGallery, TweetComponent→tweetEmbed
+- Inline images resolved via `downloadAndUploadImage()` from utils/images.ts
+- QuoteWithAuthor and SideNote recursively call `convertRichText` for nested rich text content
+- Custom blocks matched from json.blocks array by `_id` → built into a Map for O(1) lookup
+- Added `BaseHubBlock` type and all 6 component-specific interfaces
+- Files changed: scripts/migration/utils/rich-text.ts (modified)
+- **Learnings for future iterations:**
+  - `convertRichText` is now async due to image upload operations — all callers must await it
+  - BaseHub `json.blocks` uses `__typename` for type discrimination and `_id` for matching to `basehub-block` nodes in content
+  - Placeholder pattern (sync first pass → async second pass) keeps the converter logic clean while handling async operations
+  - GridGallery images need individual `_key` values when stored in Sanity arrays
+  - QuoteWithAuthor avatar uses the same `downloadAndUploadImage` util as other images — deduplication cache applies
+---

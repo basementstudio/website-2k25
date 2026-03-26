@@ -260,7 +260,7 @@
         "Typecheck passes"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-015 (standard blocks) and US-014 (image upload utils). The json.blocks array uses __typename discrimination and _id for matching positions in content."
     },
     {
