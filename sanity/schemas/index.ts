@@ -1,6 +1,8 @@
 import { award } from './documents/award'
 import { client } from './documents/client'
 import { department } from './documents/department'
+import { labProject } from './documents/labProject'
+import { openPosition } from './documents/openPosition'
 import { person } from './documents/person'
 import { post } from './documents/post'
 import { postCategory } from './documents/postCategory'
@@ -23,6 +25,8 @@ export const schemaTypes = [
   award,
   client,
   department,
+  labProject,
+  openPosition,
   person,
   post,
   postCategory,
