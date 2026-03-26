@@ -108,3 +108,16 @@
   - Nested object fields within a parent object field (applyFormSetup.skills) use inline object definitions with `defineField` inside the `fields` array
   - 124 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
+
+## 2026-03-26 - US-010
+- Created 5 singleton schemas in `sanity/schemas/singletons/`: homepage, servicesPage, peoplePage, careersPostPage, companyInfo
+- Updated `sanity/schemas/index.ts` to import and export all 5 singleton schemas
+- Files changed: sanity/schemas/singletons/homepage.ts (new), sanity/schemas/singletons/servicesPage.ts (new), sanity/schemas/singletons/peoplePage.ts (new), sanity/schemas/singletons/careersPostPage.ts (new), sanity/schemas/singletons/companyInfo.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - Singleton schemas are still `type: 'document'` — the singleton behavior (single editable item, not a list) is enforced via the Studio desk structure (US-012), not in the schema definition itself
+  - `sanity/schemas/singletons/` directory is the convention for singleton schemas — separate from documents and objects
+  - Homepage capabilities field is an array of objects with title (string) and description (PT) — maps from BaseHub's `pages.homepage.capabilities`
+  - Services page serviceCategories maps from BaseHub's `company.services.serviceCategories.items[]` — each with title and description (PT)
+  - People page preOpenPositions data comes from BaseHub's `pages.people.preOpenPositions` with sideA/sideB images and text
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---

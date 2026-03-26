@@ -157,7 +157,7 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "homepage references project type. servicesPage references service categories from BaseHub company.services structure."
     },
     {
