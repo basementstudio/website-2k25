@@ -1,5 +1,8 @@
 import { post } from './documents/post'
 import { postCategory } from './documents/postCategory'
+import { project } from './documents/project'
+import { projectCategory } from './documents/projectCategory'
+import { showcaseEntry } from './documents/showcaseEntry'
 import { codeBlock } from './objects/codeBlock'
 import { codeSandbox } from './objects/codeSandbox'
 import { gridGallery } from './objects/gridGallery'
@@ -13,6 +16,9 @@ export const schemaTypes = [
   // Document types
   post,
   postCategory,
+  project,
+  projectCategory,
+  showcaseEntry,
 
   // Object types
   codeBlock,
