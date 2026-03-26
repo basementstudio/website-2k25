@@ -366,3 +366,22 @@
   - This is the simplest migration script despite the large schema — just copying URL strings, no image downloads
   - 124 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
+
+## 2026-03-26 - US-026
+- Wired up `scripts/migration/run-all.ts` — uncommented all 9 migration steps in dependency order: company → people → projects → posts → careers → services → lab → singletons → 3D assets
+- Changed `MigrationStep.run` return type from `Promise<void>` to `Promise<unknown>` since some scripts return numbers
+- Removed empty-steps fallback message (no longer needed)
+- Completed `scripts/migration/verify.ts` with 4 verification checks:
+  1. Document counts per type compared against BaseHub expected totals (fetched live)
+  2. Missing required fields check (title for non-singletons, slug for slug-bearing types)
+  3. Image asset resolution check (HEAD requests to sample of 10 Sanity CDN URLs)
+  4. Formatted summary table with match/diff/empty status per type
+- BaseHub counts extracted using same query patterns as migration scripts (departments deduplicated from people)
+- Singleton types always expected as 1
+- Files changed: scripts/migration/run-all.ts (modified), scripts/migration/verify.ts (modified)
+- **Learnings for future iterations:**
+  - Some migration scripts return `number` (count), others return `void` — use `Promise<unknown>` for the orchestrator step interface
+  - Sanity image assets have `_type: 'sanity.imageAsset'` and include a `url` field — query with `*[_type == "sanity.imageAsset"]{ _id, url }`
+  - BaseHub department count requires deduplication from people (no standalone department list)
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---

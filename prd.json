@@ -441,7 +441,7 @@
         "Typecheck passes"
       ],
       "priority": 26,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on all migration scripts (US-017 through US-025) being complete."
     }
   ]
