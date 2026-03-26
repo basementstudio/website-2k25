@@ -121,3 +121,18 @@
   - People page preOpenPositions data comes from BaseHub's `pages.people.preOpenPositions` with sideA/sideB images and text
   - 124 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
+
+## 2026-03-26 - US-011
+- Created `sanity/schemas/singletons/threeDAssets.ts` mirroring the full `AssetsResult` interface from `src/components/assets-provider/fetch-assets.ts`
+- All 3D model, texture, and audio/SFX fields use `url` type (not `file` type) — stores CDN URL strings
+- Structure covers: maps (office, outdoor, godrays, routingElements, bakes, matcaps, glassReflexes), arcade, characters, pets, sfx (with nested blog/arcade/music/contact), scenes (with cameraConfig, tabs, postprocessing), inspectables, videos, physicsParams, specialEvents, lamp, mapTextures
+- Updated `sanity/schemas/index.ts` to import and export threeDAssets singleton
+- Files changed: sanity/schemas/singletons/threeDAssets.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - The `AssetsResult` interface has deeply nested structures (sfx.blog.door[], sfx.arcade.buttons[], scenes[].cameraConfig, scenes[].tabs[], scenes[].postprocessing) — Sanity handles nested objects well with inline `type: 'object'` definitions
+  - Camera position/target are stored as separate posX/posY/posZ and tarX/tarY/tarZ number fields (not tuples) — matches how BaseHub stores them and simplifies Sanity editing
+  - `inspectables[].description` is `any` type in the interface — mapped to Portable Text (`array` of `block`) in Sanity for rich text support
+  - Sanity `url` type works well for CDN URL strings — no validation issues with empty/undefined values (just leave field unset)
+  - Named `inspectableId` and `specId` instead of `id` and `_id` to avoid Sanity reserved field name conflicts
+  - 126 total TS output lines (pre-existing) — zero new errors from threeDAssets schema
+---

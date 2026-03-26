@@ -174,7 +174,7 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "Read `src/components/assets-provider/fetch-assets.ts` to understand the full AssetsResult interface structure. This is a large schema with many nested URL fields."
     },
     {
