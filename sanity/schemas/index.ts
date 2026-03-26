@@ -24,6 +24,7 @@ import { companyInfo } from './singletons/companyInfo'
 import { homepage } from './singletons/homepage'
 import { peoplePage } from './singletons/peoplePage'
 import { servicesPage } from './singletons/servicesPage'
+import { threeDAssets } from './singletons/threeDAssets'
 
 export const schemaTypes = [
   // Document types
@@ -47,6 +48,7 @@ export const schemaTypes = [
   homepage,
   peoplePage,
   servicesPage,
+  threeDAssets,
 
   // Object types
   codeBlock,

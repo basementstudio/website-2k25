@@ -1,0 +1,842 @@
+import { defineType, defineField } from 'sanity'
+
+export const threeDAssets = defineType({
+  name: 'threeDAssets',
+  title: '3D Assets',
+  type: 'document',
+  fields: [
+    // --- Map models ---
+    defineField({
+      name: 'officeItems',
+      title: 'Office Items',
+      type: 'url',
+    }),
+    defineField({
+      name: 'office',
+      title: 'Office',
+      type: 'url',
+    }),
+    defineField({
+      name: 'officeWireframe',
+      title: 'Office Wireframe',
+      type: 'url',
+    }),
+    defineField({
+      name: 'outdoor',
+      title: 'Outdoor',
+      type: 'url',
+    }),
+    defineField({
+      name: 'godrays',
+      title: 'Godrays',
+      type: 'url',
+    }),
+    defineField({
+      name: 'basketball',
+      title: 'Basketball',
+      type: 'url',
+    }),
+    defineField({
+      name: 'basketballNet',
+      title: 'Basketball Net',
+      type: 'url',
+    }),
+    defineField({
+      name: 'contactPhone',
+      title: 'Contact Phone',
+      type: 'url',
+    }),
+    defineField({
+      name: 'routingElements',
+      title: 'Routing Elements',
+      type: 'url',
+    }),
+    defineField({
+      name: 'outdoorCars',
+      title: 'Outdoor Cars',
+      type: 'url',
+    }),
+
+    // --- Special Events ---
+    defineField({
+      name: 'specialEvents',
+      title: 'Special Events',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'christmas',
+          title: 'Christmas',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'tree',
+              title: 'Tree',
+              type: 'url',
+            }),
+            defineField({
+              name: 'song',
+              title: 'Song',
+              type: 'url',
+            }),
+          ],
+        }),
+      ],
+    }),
+
+    // --- Bakes ---
+    defineField({
+      name: 'bakes',
+      title: 'Bakes',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Title',
+              type: 'string',
+            }),
+            defineField({
+              name: 'lightmap',
+              title: 'Lightmap',
+              type: 'url',
+            }),
+            defineField({
+              name: 'ambientOcclusion',
+              title: 'Ambient Occlusion',
+              type: 'url',
+            }),
+            defineField({
+              name: 'meshes',
+              title: 'Meshes',
+              type: 'array',
+              of: [{ type: 'string' }],
+            }),
+          ],
+        },
+      ],
+    }),
+
+    // --- Matcaps ---
+    defineField({
+      name: 'matcaps',
+      title: 'Matcaps',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'mesh',
+              title: 'Mesh',
+              type: 'string',
+            }),
+            defineField({
+              name: 'file',
+              title: 'File',
+              type: 'url',
+            }),
+            defineField({
+              name: 'isGlass',
+              title: 'Is Glass',
+              type: 'boolean',
+            }),
+          ],
+        },
+      ],
+    }),
+
+    // --- Glass Materials (string names) ---
+    defineField({
+      name: 'glassMaterials',
+      title: 'Glass Materials',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
+
+    // --- Double Side Elements (string names) ---
+    defineField({
+      name: 'doubleSideElements',
+      title: 'Double Side Elements',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
+
+    // --- Glass Reflexes ---
+    defineField({
+      name: 'glassReflexes',
+      title: 'Glass Reflexes',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'mesh',
+              title: 'Mesh',
+              type: 'string',
+            }),
+            defineField({
+              name: 'url',
+              title: 'URL',
+              type: 'url',
+            }),
+          ],
+        },
+      ],
+    }),
+
+    // --- Arcade ---
+    defineField({
+      name: 'arcade',
+      title: 'Arcade',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'idleScreen',
+          title: 'Idle Screen',
+          type: 'url',
+        }),
+        defineField({
+          name: 'placeholderLab',
+          title: 'Placeholder Lab',
+          type: 'url',
+        }),
+        defineField({
+          name: 'boot',
+          title: 'Boot',
+          type: 'url',
+        }),
+        defineField({
+          name: 'chronicles',
+          title: 'Chronicles',
+          type: 'url',
+        }),
+        defineField({
+          name: 'looper',
+          title: 'Looper',
+          type: 'url',
+        }),
+        defineField({
+          name: 'palm',
+          title: 'Palm',
+          type: 'url',
+        }),
+        defineField({
+          name: 'skybox',
+          title: 'Skybox',
+          type: 'url',
+        }),
+        defineField({
+          name: 'cityscape',
+          title: 'Cityscape',
+          type: 'url',
+        }),
+        defineField({
+          name: 'introScreen',
+          title: 'Intro Screen',
+          type: 'url',
+        }),
+      ],
+    }),
+
+    // --- Videos ---
+    defineField({
+      name: 'videos',
+      title: 'Videos',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'mesh',
+              title: 'Mesh',
+              type: 'string',
+            }),
+            defineField({
+              name: 'url',
+              title: 'URL',
+              type: 'url',
+            }),
+            defineField({
+              name: 'intensity',
+              title: 'Intensity',
+              type: 'number',
+            }),
+          ],
+        },
+      ],
+    }),
+
+    // --- Inspectables ---
+    defineField({
+      name: 'inspectables',
+      title: 'Inspectables',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'inspectableId',
+              title: 'ID',
+              type: 'string',
+            }),
+            defineField({
+              name: 'title',
+              title: 'Title',
+              type: 'string',
+            }),
+            defineField({
+              name: 'specs',
+              title: 'Specs',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({
+                      name: 'specId',
+                      title: 'ID',
+                      type: 'string',
+                    }),
+                    defineField({
+                      name: 'title',
+                      title: 'Title',
+                      type: 'string',
+                    }),
+                    defineField({
+                      name: 'value',
+                      title: 'Value',
+                      type: 'string',
+                    }),
+                  ],
+                },
+              ],
+            }),
+            defineField({
+              name: 'description',
+              title: 'Description',
+              type: 'array',
+              of: [{ type: 'block' }],
+            }),
+            defineField({
+              name: 'mesh',
+              title: 'Mesh',
+              type: 'string',
+            }),
+            defineField({
+              name: 'xOffset',
+              title: 'X Offset',
+              type: 'number',
+            }),
+            defineField({
+              name: 'yOffset',
+              title: 'Y Offset',
+              type: 'number',
+            }),
+            defineField({
+              name: 'xRotationOffset',
+              title: 'X Rotation Offset',
+              type: 'number',
+            }),
+            defineField({
+              name: 'sizeTarget',
+              title: 'Size Target',
+              type: 'number',
+            }),
+            defineField({
+              name: 'scenes',
+              title: 'Scenes',
+              type: 'array',
+              of: [{ type: 'string' }],
+            }),
+            defineField({
+              name: 'fx',
+              title: 'FX',
+              type: 'url',
+            }),
+          ],
+        },
+      ],
+    }),
+
+    // --- SFX ---
+    defineField({
+      name: 'sfx',
+      title: 'SFX',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'basketballTheme',
+          title: 'Basketball Theme',
+          type: 'url',
+        }),
+        defineField({
+          name: 'basketballSwoosh',
+          title: 'Basketball Swoosh',
+          type: 'url',
+        }),
+        defineField({
+          name: 'basketballNet',
+          title: 'Basketball Net',
+          type: 'url',
+        }),
+        defineField({
+          name: 'basketballThump',
+          title: 'Basketball Thump',
+          type: 'url',
+        }),
+        defineField({
+          name: 'basketballBuzzer',
+          title: 'Basketball Buzzer',
+          type: 'url',
+        }),
+        defineField({
+          name: 'basketballStreak',
+          title: 'Basketball Streak',
+          type: 'url',
+        }),
+        defineField({
+          name: 'knobTurning',
+          title: 'Knob Turning',
+          type: 'url',
+        }),
+        defineField({
+          name: 'antenna',
+          title: 'Antenna',
+          type: 'url',
+        }),
+        defineField({
+          name: 'blog',
+          title: 'Blog',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'lockedDoor',
+              title: 'Locked Door',
+              type: 'array',
+              of: [{ type: 'url' }],
+            }),
+            defineField({
+              name: 'door',
+              title: 'Door',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({
+                      name: 'open',
+                      title: 'Open',
+                      type: 'url',
+                    }),
+                    defineField({
+                      name: 'close',
+                      title: 'Close',
+                      type: 'url',
+                    }),
+                  ],
+                },
+              ],
+            }),
+            defineField({
+              name: 'lamp',
+              title: 'Lamp',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({
+                      name: 'pull',
+                      title: 'Pull',
+                      type: 'url',
+                    }),
+                    defineField({
+                      name: 'release',
+                      title: 'Release',
+                      type: 'url',
+                    }),
+                  ],
+                },
+              ],
+            }),
+          ],
+        }),
+        defineField({
+          name: 'arcade',
+          title: 'Arcade',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'buttons',
+              title: 'Buttons',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({
+                      name: 'press',
+                      title: 'Press',
+                      type: 'url',
+                    }),
+                    defineField({
+                      name: 'release',
+                      title: 'Release',
+                      type: 'url',
+                    }),
+                  ],
+                },
+              ],
+            }),
+            defineField({
+              name: 'sticks',
+              title: 'Sticks',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({
+                      name: 'press',
+                      title: 'Press',
+                      type: 'url',
+                    }),
+                    defineField({
+                      name: 'release',
+                      title: 'Release',
+                      type: 'url',
+                    }),
+                  ],
+                },
+              ],
+            }),
+            defineField({
+              name: 'miamiHeatwave',
+              title: 'Miami Heatwave',
+              type: 'url',
+            }),
+          ],
+        }),
+        defineField({
+          name: 'music',
+          title: 'Music',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'aqua',
+              title: 'Aqua',
+              type: 'url',
+            }),
+            defineField({
+              name: 'rain',
+              title: 'Rain',
+              type: 'url',
+            }),
+            defineField({
+              name: 'tiger',
+              title: 'Tiger',
+              type: 'url',
+            }),
+            defineField({
+              name: 'vhs',
+              title: 'VHS',
+              type: 'url',
+            }),
+          ],
+        }),
+        defineField({
+          name: 'contact',
+          title: 'Contact',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'interference',
+              title: 'Interference',
+              type: 'url',
+            }),
+          ],
+        }),
+      ],
+    }),
+
+    // --- Scenes ---
+    defineField({
+      name: 'scenes',
+      title: 'Scenes',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'name',
+              title: 'Name',
+              type: 'string',
+            }),
+            defineField({
+              name: 'cameraConfig',
+              title: 'Camera Config',
+              type: 'object',
+              fields: [
+                defineField({
+                  name: 'posX',
+                  title: 'Position X',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'posY',
+                  title: 'Position Y',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'posZ',
+                  title: 'Position Z',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'tarX',
+                  title: 'Target X',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'tarY',
+                  title: 'Target Y',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'tarZ',
+                  title: 'Target Z',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'fov',
+                  title: 'FOV',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'targetScrollY',
+                  title: 'Target Scroll Y',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'offsetMultiplier',
+                  title: 'Offset Multiplier',
+                  type: 'number',
+                }),
+              ],
+            }),
+            defineField({
+              name: 'tabs',
+              title: 'Tabs',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({
+                      name: 'tabName',
+                      title: 'Tab Name',
+                      type: 'string',
+                    }),
+                    defineField({
+                      name: 'tabRoute',
+                      title: 'Tab Route',
+                      type: 'string',
+                    }),
+                    defineField({
+                      name: 'tabHoverName',
+                      title: 'Tab Hover Name',
+                      type: 'string',
+                    }),
+                    defineField({
+                      name: 'tabClickableName',
+                      title: 'Tab Clickable Name',
+                      type: 'string',
+                    }),
+                    defineField({
+                      name: 'plusShapeScale',
+                      title: 'Plus Shape Scale',
+                      type: 'number',
+                    }),
+                  ],
+                },
+              ],
+            }),
+            defineField({
+              name: 'postprocessing',
+              title: 'Postprocessing',
+              type: 'object',
+              fields: [
+                defineField({
+                  name: 'contrast',
+                  title: 'Contrast',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'brightness',
+                  title: 'Brightness',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'exposure',
+                  title: 'Exposure',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'gamma',
+                  title: 'Gamma',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'vignetteRadius',
+                  title: 'Vignette Radius',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'vignetteSpread',
+                  title: 'Vignette Spread',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'bloomStrength',
+                  title: 'Bloom Strength',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'bloomRadius',
+                  title: 'Bloom Radius',
+                  type: 'number',
+                }),
+                defineField({
+                  name: 'bloomThreshold',
+                  title: 'Bloom Threshold',
+                  type: 'number',
+                }),
+              ],
+            }),
+          ],
+        },
+      ],
+    }),
+
+    // --- Characters ---
+    defineField({
+      name: 'characters',
+      title: 'Characters',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'model',
+          title: 'Model',
+          type: 'url',
+        }),
+        defineField({
+          name: 'textureBody',
+          title: 'Texture Body',
+          type: 'url',
+        }),
+        defineField({
+          name: 'textureFaces',
+          title: 'Texture Faces',
+          type: 'url',
+        }),
+        defineField({
+          name: 'textureArms',
+          title: 'Texture Arms',
+          type: 'url',
+        }),
+        defineField({
+          name: 'textureComic',
+          title: 'Texture Comic',
+          type: 'url',
+        }),
+      ],
+    }),
+
+    // --- Pets ---
+    defineField({
+      name: 'pets',
+      title: 'Pets',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'model',
+          title: 'Model',
+          type: 'url',
+        }),
+        defineField({
+          name: 'pureTexture',
+          title: 'Pure Texture',
+          type: 'url',
+        }),
+        defineField({
+          name: 'bostonTexture',
+          title: 'Boston Texture',
+          type: 'url',
+        }),
+      ],
+    }),
+
+    // --- Lamp ---
+    defineField({
+      name: 'lamp',
+      title: 'Lamp',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'extraLightmap',
+          title: 'Extra Lightmap',
+          type: 'url',
+        }),
+      ],
+    }),
+
+    // --- Map Textures ---
+    defineField({
+      name: 'mapTextures',
+      title: 'Map Textures',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'rain',
+          title: 'Rain',
+          type: 'url',
+        }),
+        defineField({
+          name: 'basketballVa',
+          title: 'Basketball VA',
+          type: 'url',
+        }),
+      ],
+    }),
+
+    // --- Physics Params ---
+    defineField({
+      name: 'physicsParams',
+      title: 'Physics Params',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Title',
+              type: 'string',
+            }),
+            defineField({
+              name: 'value',
+              title: 'Value',
+              type: 'number',
+            }),
+          ],
+        },
+      ],
+    }),
+  ],
+})
