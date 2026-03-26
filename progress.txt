@@ -344,3 +344,25 @@
   - For `convertRichText`, always pass `.json.content` (the TipTap node array), not `.json` (the doc wrapper)
   - 124 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
+
+## 2026-03-26 - US-025
+- Created `scripts/migration/migrate-3d-assets.ts` — fetches all 3D asset data from BaseHub `threeDInteractions` and `pages.inspectables`, writes to Sanity `threeDAssets` singleton
+- No file downloads — all values are URL strings copied as-is
+- 10 simple URL fields mapped (office, officeItems, officeWireframe, outdoor, godrays, basketball, basketballNet, contactPhone, routingElements, outdoorCars)
+- 6 nested objects mapped (specialEvents, arcade, characters, pets, lamp, mapTextures)
+- 8 array fields with `_key` on object items (bakes, matcaps, glassReflexes, videos, physicsParams, scenes, inspectables, specs)
+- 2 string arrays without `_key` (glassMaterials, doubleSideElements)
+- Deeply nested SFX object with sub-arrays (blog door/lamp, arcade buttons/sticks)
+- Inspectable descriptions converted via `convertRichText()` (only async operation in the script)
+- Scenes include full camera config (posX/posY/posZ/tarX/tarY/tarZ), tabs, and postprocessing params
+- Uses `_id: 'threeDAssets'` and `createOrReplace` for idempotency
+- Files changed: scripts/migration/migrate-3d-assets.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub `sky` field maps to Sanity `skybox` field in arcade — name mismatch requires explicit mapping
+  - BaseHub `wireframeModel` maps to Sanity `officeWireframe` — another name mismatch
+  - Pets data (petModel, pureTexture, bostonTexture) lives under `threeDInteractions.characters` in BaseHub but is a separate `pets` object in Sanity
+  - SFX `lockedDoor` items are URL strings (no `_key` needed) while `door` and `lamp` items are objects (need `_key`)
+  - Sanity `url` type fields accept `undefined` gracefully — no need to filter or conditionally include them
+  - This is the simplest migration script despite the large schema — just copying URL strings, no image downloads
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---

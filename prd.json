@@ -423,7 +423,7 @@
         "Typecheck passes"
       ],
       "priority": 25,
-      "passes": false,
+      "passes": true,
       "notes": "No file downloads needed — just copies URL strings. Read src/components/assets-provider/fetch-assets.ts for the full data structure."
     },
     {
