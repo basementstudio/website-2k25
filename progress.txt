@@ -192,3 +192,21 @@
   - Migration scripts use `@sanity/client` directly (not `next-sanity`) since they don't need Next.js-specific features
   - Image cache is in-memory per script run — restarting the script re-uploads images (createOrReplace on Sanity side handles dedup for documents)
 ---
+
+## 2026-03-26 - US-015
+- Created `scripts/migration/utils/rich-text.ts` with full TipTap/ProseMirror → Sanity Portable Text converter
+- Handles: paragraph, heading (h1-h6), bulletList, orderedList (with nested level support), blockquote, codeBlock, hardBreak, horizontalRule
+- Mark conversion: bold→strong, italic→em, code→code, underline→underline, strike→strike-through, kbd→code
+- Link marks → markDefs with `{ _type: 'link', href }` and corresponding mark key in spans
+- Generates unique _key values for all blocks, spans, and markDefs using `nanoid(12)`
+- Includes `validatePortableText()` that checks for missing _key/_type on blocks and children
+- Placeholder handling for `basehub-block` and `image` nodes (to be completed in US-016)
+- Exports types: `TipTapNode`, `TipTapMark`, `PTBlock`, `PTSpan`, `PTMarkDef`, `PortableTextBlock`
+- Files changed: scripts/migration/utils/rich-text.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub uses `basehub-block` node type (with `attrs.id`) to reference custom blocks from `json.blocks` array — blocks are matched by `_id`
+  - TipTap lists are nested: `bulletList > listItem > paragraph` — Sanity PT flattens these into sequential blocks with `listItem` and `level` properties
+  - Sanity PT requires every block to have `children` array (even empty blocks need `[{ _type: 'span', text: '' }]`)
+  - Mark definitions (markDefs) are per-block, not per-document — each block carries its own array of mark definitions
+  - `nanoid` v5 works fine with tsx/ESM — no need for nanoid v3 CJS compatibility workaround
+---

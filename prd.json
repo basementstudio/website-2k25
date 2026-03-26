@@ -241,7 +241,7 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "CRITICAL PATH — this is the most complex utility. Fetch 2-3 blog posts from BaseHub first to log and inspect the raw json.content structure before building. BaseHub uses TipTap/ProseMirror JSON format."
     },
     {
