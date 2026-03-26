@@ -240,3 +240,15 @@
   - Client `logo` in BaseHub is an object with `{ url, alt }` — need to query with nested field selection
   - BaseHub slugs are available via `_slug` field on most items
 ---
+
+## 2026-03-26 - US-018
+- Created `scripts/migration/migrate-people.ts` — fetches all people from `company.people.peopleList`
+- Person images downloaded and uploaded to Sanity, department references linked via deterministic ID pattern `department-{slug}`
+- Social networks mapped: BaseHub `link` field → Sanity `url` field, each with `_key` and `_type: 'socialNetwork'`
+- Uses `createOrReplace` with deterministic ID `person-{slug}` for idempotency
+- Files changed: scripts/migration/migrate-people.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub social networks use `link` field name — Sanity schema expects `url` — field name mapping needed
+  - Social network items need `_key` for Sanity arrays — use BaseHub `_id` or slugified platform name
+  - Department reference uses the same slugify + deterministic ID pattern from US-017
+---

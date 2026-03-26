@@ -297,7 +297,7 @@
         "Typecheck passes"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-017 (departments must exist first for references)."
     },
     {
