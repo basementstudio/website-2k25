@@ -220,7 +220,7 @@
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "Requires SANITY_API_TOKEN write token in .env.local (user must create manually in Sanity dashboard). BaseHub client uses same pattern as existing src/service/basehub/index.ts."
     },
     {

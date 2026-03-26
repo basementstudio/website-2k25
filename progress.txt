@@ -15,6 +15,11 @@
 - `@sanity/vision` must be installed separately for the GROQ vision tool in Sanity Studio
 - `sanity.config.ts` needs `'use client'` directive since it's imported by the Studio client component
 - Singleton behavior enforced via: custom desk structure (fixed documentId), template filtering, and action filtering
+- Migration scripts live at `scripts/migration/` — use `pnpm exec tsx scripts/migration/<script>.ts` to run
+- Migration scripts use `dotenv/config` to load `.env.local` — import it at the top of each entry point
+- Use `@ts-expect-error` for basehub imports in migration scripts (same known canary SDK type issue)
+- `@sanity/client` (not `next-sanity`) for write operations in migration scripts — migration scripts don't need Next.js-specific features
+- Image deduplication cache in `utils/images.ts` maps URL → SanityAssetRef to avoid re-uploading same image
 
 ---
 
@@ -169,4 +174,21 @@
   - The MCP `deploy_schema` tool should NOT be used when a local Studio exists — use the CLI instead
   - Deployed schema ID follows pattern `_.schemas.<workspaceName>` (e.g., `_.schemas.website-2k25`)
   - Schema deploy does not require explicit authentication if the user is already logged in via `sanity login`
+---
+
+## 2026-03-26 - US-014
+- Created migration script infrastructure in `scripts/migration/`
+- `basehub-client.ts` — initializes BaseHub client with `@ts-expect-error` for known type issue, exports `queryBaseHub` helper and `basehubClient`
+- `sanity-client.ts` — initializes Sanity write client using `@sanity/client` with SANITY_API_TOKEN, validates all env vars on startup
+- `utils/images.ts` — exports `downloadImage`, `uploadImageToSanity`, and `downloadAndUploadImage` (with URL→asset deduplication cache)
+- `run-all.ts` — orchestrator stub with dependency-ordered step execution, timing, error handling, and `--fail-fast` flag
+- `verify.ts` — verification stub that checks document counts per type and missing required fields
+- Installed `tsx` and `dotenv` as dev dependencies
+- Files changed: scripts/migration/*.ts (5 new), scripts/migration/utils/images.ts (new), package.json, pnpm-lock.yaml
+- **Learnings for future iterations:**
+  - `tsx` runs TypeScript files directly without compilation — use `pnpm exec tsx <file>` for migration scripts
+  - `dotenv/config` side-effect import loads `.env.local` automatically — must be first import in entry point files
+  - BaseHub canary SDK types don't resolve properly — use `@ts-expect-error` to suppress in migration scripts (same known issue)
+  - Migration scripts use `@sanity/client` directly (not `next-sanity`) since they don't need Next.js-specific features
+  - Image cache is in-memory per script run — restarting the script re-uploads images (createOrReplace on Sanity side handles dedup for documents)
 ---
