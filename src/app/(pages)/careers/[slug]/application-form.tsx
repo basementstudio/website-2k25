@@ -9,7 +9,6 @@ import { ContactStatus } from "@/app/contact/form/contact-status"
 import { CtaButton } from "./components/cta-button"
 import { FormCheckboxGroup } from "./components/form-checkbox-group"
 import { FormInput } from "./components/form-input"
-import { FormRadioGroup } from "./components/form-radio-group"
 import { FormSelect } from "./components/form-select"
 import { FormTextarea } from "./components/form-textarea"
 
@@ -37,8 +36,6 @@ type ApplicationInputs = {
 }
 
 const YEARS_OPTIONS = ["0-1", "1-3", "3-5", "5-10", "10+"]
-
-const AVAILABILITY_OPTIONS = ["Immediately", "In 2 weeks", "In a month"]
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const URL_REGEX = /^https?:\/\/.+/
@@ -255,37 +252,35 @@ export const ApplicationForm = ({
               </div>
             ) : null}
 
-            {/* Email + Location */}
-            {hasField("Email") || hasField("Where are you based") ? (
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
-                {hasField("Email") ? (
-                  <FormInput
-                    label="Email"
-                    required
-                    type="email"
-                    placeholder="janedoe@email.com"
-                    error={errors.email?.message}
-                    registration={register("email", {
-                      required: "Email is required",
-                      pattern: {
-                        value: EMAIL_REGEX,
-                        message: "Invalid email format"
-                      }
-                    })}
-                  />
-                ) : null}
-                {hasField("Where are you based") ? (
-                  <FormInput
-                    label="Where are you based?"
-                    required
-                    placeholder="Argentina"
-                    error={errors.location?.message}
-                    registration={register("location", {
-                      required: "Location is required"
-                    })}
-                  />
-                ) : null}
-              </div>
+            {/* Email */}
+            {hasField("Email") ? (
+              <FormInput
+                label="Email"
+                required
+                type="email"
+                placeholder="janedoe@email.com"
+                error={errors.email?.message}
+                registration={register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: EMAIL_REGEX,
+                    message: "Invalid email format"
+                  }
+                })}
+              />
+            ) : null}
+
+            {/* Where are you based? */}
+            {hasField("Where are you based") ? (
+              <FormInput
+                label="Where are you based?"
+                required
+                placeholder="Argentina"
+                error={errors.location?.message}
+                registration={register("location", {
+                  required: "Location is required"
+                })}
+              />
             ) : null}
 
             {/* Motivation */}
@@ -323,11 +318,29 @@ export const ApplicationForm = ({
               />
             ) : null}
 
+            {/* Salary expectations */}
+            {hasField("Salary Expectation") ? (
+              <FormInput
+                label="Salary expectations (USD)"
+                required
+                type="number"
+                error={errors.salaryExpectations?.message}
+                registration={register("salaryExpectations", {
+                  required: "Salary expectations is required",
+                  validate: (value) =>
+                    value.trim() !== "" && Number.isFinite(Number(value))
+                      ? true
+                      : "Salary expectations is required"
+                })}
+              />
+            ) : null}
+
             {/* Skills */}
             {hasField("Skills") && formConfig.skills.length > 0 ? (
               <FormCheckboxGroup
                 label="Skills"
                 required
+                columns={2}
                 options={formConfig.skills.map((skill) => ({
                   label: skill._title,
                   value: skill._title
@@ -372,19 +385,6 @@ export const ApplicationForm = ({
               />
             ) : null}
 
-            {/* Availability to start */}
-            {hasField("Availability to start") ? (
-              <FormRadioGroup
-                label="Availability to start"
-                required
-                options={AVAILABILITY_OPTIONS}
-                error={errors.availabilityToStart?.message}
-                registration={register("availabilityToStart", {
-                  required: "Availability to start is required"
-                })}
-              />
-            ) : null}
-
             {/* LinkedIn */}
             {hasField("Linkedin") ? (
               <FormInput
@@ -399,23 +399,6 @@ export const ApplicationForm = ({
                     value: URL_REGEX,
                     message: "Please enter a valid URL (e.g. https://...)"
                   }
-                })}
-              />
-            ) : null}
-
-            {/* Salary expectations */}
-            {hasField("Salary Expectation") ? (
-              <FormInput
-                label="Salary expectations (USD)"
-                required
-                type="number"
-                error={errors.salaryExpectations?.message}
-                registration={register("salaryExpectations", {
-                  required: "Salary expectations is required",
-                  validate: (value) =>
-                    value.trim() !== "" && Number.isFinite(Number(value))
-                      ? true
-                      : "Salary expectations is required"
                 })}
               />
             ) : null}

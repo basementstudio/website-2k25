@@ -12,6 +12,7 @@ interface FormCheckboxGroupProps {
   defaultValues?: string[]
   registration: UseFormRegisterReturn
   error?: string
+  columns?: 1 | 2
 }
 
 export const FormCheckboxGroup = ({
@@ -21,9 +22,64 @@ export const FormCheckboxGroup = ({
   options,
   defaultValues,
   registration,
-  error
+  error,
+  columns = 1
 }: FormCheckboxGroupProps) => {
   const errorId = useId()
+
+  const renderOption = (option: { label: string; value: string }) => (
+    <label
+      key={option.value}
+      className="group flex cursor-pointer items-center gap-2"
+    >
+      <input
+        type="checkbox"
+        value={option.value}
+        defaultChecked={defaultValues?.includes(option.value)}
+        className="sr-only"
+        aria-invalid={error ? "true" : "false"}
+        {...registration}
+      />
+      <span
+        className={[
+          "flex size-6 shrink-0 items-center justify-center bg-brand-g2 text-brand-w1 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k",
+          error ? "shadow-[inset_0_0_0_9999px_#F32D2D33]" : ""
+        ].join(" ")}
+      >
+        <svg
+          className="size-4 opacity-0 transition-opacity group-has-[:checked]:opacity-100"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </span>
+      <span className="text-[1rem] font-medium leading-6 text-brand-w1">
+        {option.label}
+      </span>
+    </label>
+  )
+
+  const renderColumns = () => {
+    if (columns !== 2) {
+      return <div className="flex flex-col gap-2">{options.map(renderOption)}</div>
+    }
+
+    const midpoint = Math.ceil(options.length / 2)
+    const firstCol = options.slice(0, midpoint)
+    const secondCol = options.slice(midpoint)
+
+    return (
+      <div className="flex flex-col gap-2 md:gap-x-4 lg:flex-row lg:gap-x-6">
+        <div className="flex flex-col gap-2">{firstCol.map(renderOption)}</div>
+        <div className="flex flex-col gap-2">{secondCol.map(renderOption)}</div>
+      </div>
+    )
+  }
 
   return (
     <fieldset
@@ -36,44 +92,7 @@ export const FormCheckboxGroup = ({
         description={description}
         as="legend"
       />
-      <div className="flex flex-col gap-2">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className="group flex cursor-pointer items-center gap-2"
-          >
-            <input
-              type="checkbox"
-              value={option.value}
-              defaultChecked={defaultValues?.includes(option.value)}
-              className="sr-only"
-              aria-invalid={error ? "true" : "false"}
-              {...registration}
-            />
-            <span
-              className={[
-                "flex size-6 shrink-0 items-center justify-center bg-brand-g2 text-brand-w1 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k",
-                error ? "shadow-[inset_0_0_0_9999px_#F32D2D33]" : ""
-              ].join(" ")}
-            >
-              <svg
-                className="size-4 opacity-0 transition-opacity group-has-[:checked]:opacity-100"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </span>
-            <span className="text-[1rem] font-medium leading-6 text-brand-w1">
-              {option.label}
-            </span>
-          </label>
-        ))}
-      </div>
+      {renderColumns()}
       {error ? <FormError id={errorId} message={error} /> : null}
     </fieldset>
   )
