@@ -19,6 +19,11 @@ import { showcaseItem } from './objects/showcaseItem'
 import { sideNote } from './objects/sideNote'
 import { socialNetwork } from './objects/socialNetwork'
 import { tweetEmbed } from './objects/tweetEmbed'
+import { careersPostPage } from './singletons/careersPostPage'
+import { companyInfo } from './singletons/companyInfo'
+import { homepage } from './singletons/homepage'
+import { peoplePage } from './singletons/peoplePage'
+import { servicesPage } from './singletons/servicesPage'
 
 export const schemaTypes = [
   // Document types
@@ -35,6 +40,13 @@ export const schemaTypes = [
   showcaseEntry,
   testimonial,
   value,
+
+  // Singleton types
+  careersPostPage,
+  companyInfo,
+  homepage,
+  peoplePage,
+  servicesPage,
 
   // Object types
   codeBlock,
