@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid'
+import { downloadAndUploadImage, type SanityAssetRef } from './images'
 
 // --- TipTap/ProseMirror types (BaseHub rich text JSON) ---
 
@@ -42,6 +43,59 @@ interface PTBlock {
 }
 
 type PortableTextBlock = PTBlock | Record<string, unknown>
+
+// --- BaseHub custom block types (from json.blocks) ---
+
+interface BaseHubBlock {
+  __typename: string
+  _id: string
+  [key: string]: unknown
+}
+
+interface CodeBlockComponentBlock extends BaseHubBlock {
+  __typename: 'CodeBlockComponent'
+  files: {
+    items: Array<{
+      _id: string
+      _title: string
+      codeSnippet: { code: string; language: string }
+    }>
+  }
+}
+
+interface QuoteWithAuthorComponentBlock extends BaseHubBlock {
+  __typename: 'QuoteWithAuthorComponent'
+  quote: { json: { content: TipTapNode[] } }
+  author: string
+  role: string
+  avatar?: { url: string; alt?: string; width?: number; height?: number }
+}
+
+interface CodeSandboxComponentBlock extends BaseHubBlock {
+  __typename: 'CodeSandboxComponent'
+  _title: string
+  sandboxKey: string
+}
+
+interface SideNoteComponentBlock extends BaseHubBlock {
+  __typename: 'SideNoteComponent'
+  content: { json: { content: TipTapNode[] } }
+}
+
+interface GridGalleryComponentBlock extends BaseHubBlock {
+  __typename: 'GridGalleryComponent'
+  images: {
+    items: Array<{
+      image: { url: string; alt?: string; width?: number; height?: number }
+    }>
+  }
+  caption?: string
+}
+
+interface TweetComponentBlock extends BaseHubBlock {
+  __typename: 'TweetComponent'
+  tweetId: string
+}
 
 // --- Mark conversion ---
 
@@ -256,12 +310,11 @@ function convertNode(node: TipTapNode): PortableTextBlock[] {
     }
 
     case 'image': {
-      // Inline image — placeholder, full implementation in US-016
+      // Image node — will be resolved async in convertRichText
       return [
         {
-          _type: 'image',
+          _type: '__image_placeholder',
           _key: generateKey(),
-          _sanity_placeholder: true,
           src: (node.attrs?.src as string) || '',
         },
       ]
@@ -269,7 +322,7 @@ function convertNode(node: TipTapNode): PortableTextBlock[] {
 
     case 'basehub-block':
     case 'basehub-inline-block':
-      // Custom blocks — handled in US-016
+      // Custom block reference — will be resolved async in convertRichText
       return [
         {
           _type: '__basehub_block_placeholder',
@@ -292,22 +345,154 @@ function convertNode(node: TipTapNode): PortableTextBlock[] {
 }
 
 /**
+ * Convert a BaseHub custom block (from json.blocks) to a Sanity PT object.
+ */
+async function convertCustomBlock(
+  block: BaseHubBlock
+): Promise<PortableTextBlock | null> {
+  switch (block.__typename) {
+    case 'CodeBlockComponent': {
+      const b = block as CodeBlockComponentBlock
+      return {
+        _type: 'codeBlock',
+        _key: generateKey(),
+        files: (b.files?.items || []).map((file) => ({
+          _key: generateKey(),
+          title: file._title || 'code',
+          code: file.codeSnippet?.code || '',
+          language: file.codeSnippet?.language || 'text',
+        })),
+      }
+    }
+
+    case 'QuoteWithAuthorComponent': {
+      const b = block as QuoteWithAuthorComponentBlock
+      const quoteContent = b.quote?.json?.content
+      const quotePT = await convertRichText(quoteContent)
+      let avatar: SanityAssetRef | null = null
+      if (b.avatar?.url) {
+        avatar = await downloadAndUploadImage(b.avatar.url, 'avatar')
+      }
+      return {
+        _type: 'quoteWithAuthor',
+        _key: generateKey(),
+        quote: quotePT,
+        author: b.author || '',
+        role: b.role || '',
+        ...(avatar ? { avatar } : {}),
+      }
+    }
+
+    case 'CodeSandboxComponent': {
+      const b = block as CodeSandboxComponentBlock
+      return {
+        _type: 'codeSandbox',
+        _key: generateKey(),
+        title: b._title || '',
+        sandboxKey: b.sandboxKey || '',
+      }
+    }
+
+    case 'SideNoteComponent': {
+      const b = block as SideNoteComponentBlock
+      const contentPT = await convertRichText(b.content?.json?.content)
+      return {
+        _type: 'sideNote',
+        _key: generateKey(),
+        content: contentPT,
+      }
+    }
+
+    case 'GridGalleryComponent': {
+      const b = block as GridGalleryComponentBlock
+      const images: SanityAssetRef[] = []
+      for (const item of b.images?.items || []) {
+        if (item.image?.url) {
+          const ref = await downloadAndUploadImage(
+            item.image.url,
+            item.image.alt || 'gallery-image'
+          )
+          if (ref) images.push(ref)
+        }
+      }
+      return {
+        _type: 'gridGallery',
+        _key: generateKey(),
+        images: images.map((img) => ({ ...img, _key: generateKey() })),
+        caption: b.caption || '',
+      }
+    }
+
+    case 'TweetComponent': {
+      const b = block as TweetComponentBlock
+      return {
+        _type: 'tweetEmbed',
+        _key: generateKey(),
+        tweetId: b.tweetId || '',
+      }
+    }
+
+    default:
+      console.warn(`Unknown custom block type: ${block.__typename}`)
+      return null
+  }
+}
+
+/**
  * Convert BaseHub TipTap/ProseMirror JSON content to Sanity Portable Text.
  *
  * @param basehubJson - The raw json.content array from BaseHub
- * @param _blocks - Reserved for US-016: custom block data from json.blocks
+ * @param blocks - Custom block data from json.blocks (matched by _id)
  * @returns Array of Portable Text blocks
  */
-export function convertRichText(
+export async function convertRichText(
   basehubJson: TipTapNode[] | undefined | null,
-  _blocks?: unknown[]
-): PortableTextBlock[] {
+  blocks?: BaseHubBlock[]
+): Promise<PortableTextBlock[]> {
   if (!basehubJson || basehubJson.length === 0) return []
 
+  // Build a map of block ID → block data for quick lookup
+  const blockMap = new Map<string, BaseHubBlock>()
+  if (blocks) {
+    for (const block of blocks) {
+      if (block._id) {
+        blockMap.set(block._id, block)
+      }
+    }
+  }
+
+  // First pass: synchronous conversion (produces placeholders for async ops)
+  const rawResult: PortableTextBlock[] = []
+  for (const node of basehubJson) {
+    rawResult.push(...convertNode(node))
+  }
+
+  // Second pass: resolve placeholders (async operations)
   const result: PortableTextBlock[] = []
 
-  for (const node of basehubJson) {
-    result.push(...convertNode(node))
+  for (const block of rawResult) {
+    if (block._type === '__basehub_block_placeholder') {
+      const id = (block as Record<string, unknown>).id as string
+      const blockData = blockMap.get(id)
+      if (blockData) {
+        const converted = await convertCustomBlock(blockData)
+        if (converted) result.push(converted)
+      }
+    } else if (block._type === '__image_placeholder') {
+      const src = (block as Record<string, unknown>).src as string
+      if (src) {
+        const imageRef = await downloadAndUploadImage(src)
+        if (imageRef) {
+          result.push({
+            _type: 'image',
+            _key: generateKey(),
+            asset: imageRef.asset,
+          })
+        }
+      }
+    } else {
+      result.push(block)
+    }
   }
 
   return result
@@ -373,4 +558,5 @@ export type {
   PTSpan,
   PTMarkDef,
   PortableTextBlock,
+  BaseHubBlock,
 }
