@@ -268,3 +268,18 @@
   - Sanity array items need `_key` — use BaseHub `_id` where available, or generate from slug/index
   - Sanity slug fields stored as `{ _type: 'slug', current: 'the-slug' }` (not plain strings)
 ---
+
+## 2026-03-26 - US-020
+- Created `scripts/migration/migrate-posts.ts` with `migratePostCategories()` and `migratePosts()`
+- Post categories fetched from `pages.blog.categories` with deterministic IDs `postCategory-{slug}`
+- Full blog post query includes all 6 custom block types in `content.json.blocks` with their complete data structures
+- Content converted using async `convertRichText()` with normalized blocks passed as second argument
+- `normalizeBlocks()` extracts BaseHub's discriminated union blocks into flat `BaseHubBlock[]` array
+- Hero image downloaded+uploaded, heroVideo stored as URL string, authors mapped to person references
+- Files changed: scripts/migration/migrate-posts.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub blocks array uses discriminated union with `__typename` — SDK resolves to flat objects with `_id` on each
+  - GridGalleryComponent images use `on_BlockImage` union discriminator — need nested `{ image: { on_BlockImage: IMAGE_FRAGMENT } }` in query
+  - Post `date` field may be null — fall back to `_sys.createdAt` for the creation timestamp
+  - Post authors reference person documents (not a separate author type) — use same `person-{slug}` ID pattern
+---

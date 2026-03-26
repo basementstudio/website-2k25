@@ -337,7 +337,7 @@
         "Typecheck passes"
       ],
       "priority": 20,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-018 (people for author refs), US-015/US-016 (rich text converter). Most complex migration — exercises full pipeline."
     },
     {
