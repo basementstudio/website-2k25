@@ -354,7 +354,7 @@
         "Typecheck passes"
       ],
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-015 (rich text converter for job descriptions)."
     },
     {

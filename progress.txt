@@ -283,3 +283,13 @@
   - Post `date` field may be null — fall back to `_sys.createdAt` for the creation timestamp
   - Post authors reference person documents (not a separate author type) — use same `person-{slug}` ID pattern
 ---
+
+## 2026-03-26 - US-021
+- Created `scripts/migration/migrate-careers.ts` — fetches open positions from `company.openPositions.openPositionsList`
+- Job descriptions converted via `convertRichText()`, applyFormSetup with formFields and skills array preserved
+- Uses deterministic IDs `openPosition-{slug}` and `createOrReplace` for idempotency
+- Files changed: scripts/migration/migrate-careers.ts (new)
+- **Learnings for future iterations:**
+  - `isOpen` defaults to `true` if null/undefined (matching Sanity schema's initialValue)
+  - `applyFormSetup.skills` items need both `title` and `slug` fields plus `_key` for Sanity arrays
+---
