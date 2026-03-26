@@ -308,3 +308,16 @@
   - Value `description` is rich text (PT) stored in `description.json.content` — uses `convertRichText()` for conversion
   - 124 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
+
+## 2026-03-26 - US-023
+- Created `scripts/migration/migrate-lab.ts` — fetches lab projects from `pages.laboratory.projectList`
+- Cover images downloaded and uploaded to Sanity via `downloadAndUploadImage()`
+- Creates labProject documents with: title, url, description, cover (Sanity image ref)
+- Uses deterministic IDs `labProject-{slug}` and `createOrReplace` for idempotency
+- Files changed: scripts/migration/migrate-lab.ts (new)
+- **Learnings for future iterations:**
+  - Lab projects are at `pages.laboratory.projectList.items` — similar query pattern to blog posts
+  - labProject is the simplest migration script — no rich text, no references, just flat fields + one image
+  - BaseHub lab project `cover` uses same `{ url, alt }` structure as other image fields
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
