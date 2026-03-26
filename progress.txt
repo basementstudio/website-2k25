@@ -3,6 +3,15 @@
 - Pre-existing typecheck errors exist related to `basehub` module exports (fragmentOn, basehub, Client, Pump) — these are NOT caused by Sanity migration work
 - Project uses React 19.0.1 (canary) and Next.js 15.6.0-canary.60 — peer dependency warnings from Sanity packages expecting React 19.2+ are expected and non-blocking
 - Existing service pattern: `src/service/<provider>/index.ts` for client setup (see `src/service/basehub/index.ts`)
+- Sanity env config lives at `sanity/env.ts` — import projectId/dataset from there (not directly from process.env)
+- tsconfig path aliases: only `@/*` → `./src/*` exists — use relative imports for root-level `sanity/` directory
+- Prefer importing `createClient` from `next-sanity` (not `@sanity/client`) for Next.js-specific features
+- Import `SanityImageSource` type directly from `@sanity/image-url` (not deep path `lib/types/types`)
+- Sanity schemas live at `sanity/schemas/` — objects in `objects/`, documents in `documents/`, singletons in `singletons/`
+- All Sanity schemas use `defineType` and `defineField` from `sanity` — follow this pattern consistently
+- `sanity/schemas/index.ts` exports `schemaTypes` array — add new schemas to this array
+- No project-level `typecheck` script — use `pnpm exec tsc --noEmit` directly
+- ~124 pre-existing TS errors (basehub module + page-level type issues) — new schemas must introduce zero additional errors
 
 ---
 
@@ -13,4 +22,89 @@
   - Peer dependency warnings for React version mismatch are pre-existing across many packages (react-redux, r3f-perf, etc.) — not introduced by Sanity
   - 792 new packages added to node_modules via Sanity dependency tree
   - No Sanity-related typecheck errors introduced
+---
+
+## 2026-03-26 - US-002
+- Created `sanity/env.ts` exporting `projectId` and `dataset` from env vars with runtime validation
+- Files changed: sanity/env.ts
+- **Learnings for future iterations:**
+  - `.env.local` already has `NEXT_PUBLIC_SANITY_PROJECT_ID=9syto90m` and `NEXT_PUBLIC_SANITY_DATASET=production`
+  - The `sanity/` directory at root level is the standard location for Sanity config and schemas
+  - Used `assertValue` helper pattern for env var validation — reusable for future env configs
+---
+
+## 2026-03-26 - US-003
+- Created `src/service/sanity/index.ts` with `createClient` from `next-sanity`, configured with projectId, dataset, apiVersion 2024-01-01, useCdn: true
+- Exported `client` instance and `sanityFetch` generic helper for server components (supports query params and Next.js cache tags)
+- Files changed: src/service/sanity/index.ts (new)
+- **Learnings for future iterations:**
+  - tsconfig only has `@/*` → `./src/*` path alias — no alias for root-level `sanity/` directory, so use relative imports (`../../../sanity/env`) when importing from `sanity/env.ts` in `src/` files
+  - `next-sanity` re-exports `createClient` from `@sanity/client` with Next.js-specific enhancements — prefer importing from `next-sanity` over `@sanity/client` directly
+  - The `sanityFetch` helper uses `client.fetch` with `next: { tags }` option for ISR/revalidation support
+---
+
+## 2026-03-26 - US-004
+- Created `src/service/sanity/image.ts` with `urlFor(source)` function using `@sanity/image-url`
+- Builder configured with projectId and dataset from `sanity/env.ts`
+- Supports chaining: `urlFor(image).width(800).height(600).url()`
+- Files changed: src/service/sanity/image.ts (new)
+- **Learnings for future iterations:**
+  - `SanityImageSource` type is exported directly from `@sanity/image-url` — do NOT use deep import path `@sanity/image-url/lib/types/types` (doesn't resolve in v2.0.3)
+  - `imageUrlBuilder` accepts `{ projectId, dataset }` directly — no need to pass the full client instance
+---
+
+## 2026-03-26 - US-005
+- Created 8 custom block object schemas in `sanity/schemas/objects/`: codeBlock, quoteWithAuthor, codeSandbox, sideNote, gridGallery, tweetEmbed, showcaseItem, socialNetwork
+- Created `sanity/schemas/index.ts` exporting all object schemas in `schemaTypes` array
+- Files changed: sanity/schemas/objects/*.ts (8 new), sanity/schemas/index.ts (new)
+- **Learnings for future iterations:**
+  - Sanity `defineField` with `type: 'image'` supports `options: { hotspot: true }` directly — no separate hotspot field needed
+  - For nested objects within arrays (e.g., codeBlock files), use inline `{ type: 'object', fields: [...] }` — no need to create separate named types
+  - Sanity validation uses `validation: (rule) => rule.required()` pattern — builder style
+  - The `schemaTypes` array in index.ts will be extended by document and singleton schemas in subsequent stories
+---
+
+## 2026-03-26 - US-006
+- Created `sanity/schemas/documents/post.ts` with all fields: title, slug, date, categories (ref postCategory), authors (ref person), heroImage, heroVideo, intro (PT), content (PT + image + 6 custom block types)
+- Created `sanity/schemas/documents/postCategory.ts` with title and slug fields
+- Updated `sanity/schemas/index.ts` to export both new document schemas
+- Files changed: sanity/schemas/documents/post.ts (new), sanity/schemas/documents/postCategory.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - Document schemas go in `sanity/schemas/documents/` — separate from object schemas in `objects/`
+  - Reference fields use `{ type: 'reference', to: [{ type: 'typeName' }] }` — the `typeName` is just the schema name string, the actual schema doesn't need to exist yet
+  - Content arrays that mix blocks with custom types list all allowed types in the `of` array: `[{ type: 'block' }, { type: 'image' }, { type: 'codeBlock' }, ...]`
+  - Slug fields with `options: { source: 'title' }` auto-generate from the title field in the Studio
+---
+
+## 2026-03-26 - US-007
+- Created `sanity/schemas/documents/project.ts` with all fields: title, slug, client (ref), year, categories (ref projectCategory), cover, coverVideo (object), icon, showcase (array of showcaseItem), projectWebsite, content (PT), caseStudy, people (ref person)
+- Created `sanity/schemas/documents/projectCategory.ts` with fields: title, description, subcategories (array of objects with title)
+- Created `sanity/schemas/documents/showcaseEntry.ts` with fields: project (ref, required), orderRank (string)
+- Updated `sanity/schemas/index.ts` to export all three new document schemas
+- Files changed: sanity/schemas/documents/project.ts (new), sanity/schemas/documents/projectCategory.ts (new), sanity/schemas/documents/showcaseEntry.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - The coverVideo object pattern (url, width, height, aspectRatio, mimeType) is reused from showcaseItem — keep consistent field structure
+  - Sanity references to types not yet defined (client, person) are fine — the schema name is just a string identifier
+  - showcaseEntry uses a simple orderRank string field for drag-and-drop ordering (common Sanity pattern)
+---
+
+## 2026-03-26 - US-008
+- Created 6 company document schemas in `sanity/schemas/documents/`: client, award, testimonial, value, person, department
+- Updated `sanity/schemas/index.ts` to import and export all 6 new schemas
+- Files changed: sanity/schemas/documents/client.ts (new), sanity/schemas/documents/award.ts (new), sanity/schemas/documents/testimonial.ts (new), sanity/schemas/documents/value.ts (new), sanity/schemas/documents/person.ts (new), sanity/schemas/documents/department.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - socialNetwork object type from US-005 is referenced directly by name `{ type: 'socialNetwork' }` in person's socialNetworks array field
+  - All company document schemas follow the same pattern — straightforward defineType/defineField usage
+  - person.department uses `{ type: 'reference', to: [{ type: 'department' }] }` — department schema doesn't need to exist at import time
+---
+
+## 2026-03-26 - US-009
+- Created `sanity/schemas/documents/openPosition.ts` with all fields: title, slug, type, employmentType, location, isOpen (default true), applyUrl, jobDescription (PT), applyFormSetup (object with formFields string and skills array of objects with title/slug)
+- Created `sanity/schemas/documents/labProject.ts` with fields: title, url, description (text), cover (image with hotspot)
+- Updated `sanity/schemas/index.ts` to import and export both new schemas
+- Files changed: sanity/schemas/documents/openPosition.ts (new), sanity/schemas/documents/labProject.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - Sanity `initialValue` property sets default values for fields in the Studio — used `initialValue: true` for isOpen boolean
+  - Nested object fields within a parent object field (applyFormSetup.skills) use inline object definitions with `defineField` inside the `fields` array
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
