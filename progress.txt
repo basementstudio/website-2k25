@@ -12,6 +12,9 @@
 - `sanity/schemas/index.ts` exports `schemaTypes` array — add new schemas to this array
 - No project-level `typecheck` script — use `pnpm exec tsc --noEmit` directly
 - ~124 pre-existing TS errors (basehub module + page-level type issues) — new schemas must introduce zero additional errors
+- `@sanity/vision` must be installed separately for the GROQ vision tool in Sanity Studio
+- `sanity.config.ts` needs `'use client'` directive since it's imported by the Studio client component
+- Singleton behavior enforced via: custom desk structure (fixed documentId), template filtering, and action filtering
 
 ---
 
@@ -135,4 +138,22 @@
   - Sanity `url` type works well for CDN URL strings — no validation issues with empty/undefined values (just leave field unset)
   - Named `inspectableId` and `specId` instead of `id` and `_id` to avoid Sanity reserved field name conflicts
   - 126 total TS output lines (pre-existing) — zero new errors from threeDAssets schema
+---
+
+## 2026-03-26 - US-012
+- Created `sanity.config.ts` at project root with projectId, dataset, plugins (structureTool with custom desk structure, visionTool), schema import from sanity/schemas/index.ts
+- Created `sanity.cli.ts` at project root for CLI commands (schema deploy, dataset export/import)
+- Created `src/app/studio/[[...tool]]/page.tsx` using `NextStudio` from `next-sanity` with 'use client' directive
+- Installed `@sanity/vision` package (was missing from initial dependencies)
+- Custom desk structure: singletons (homepage, servicesPage, peoplePage, careersPostPage, companyInfo, threeDAssets) appear as single editable items under "Pages" group
+- Document types grouped: Content (posts, projects, showcase, lab), Company (clients, people, departments, awards, testimonials, values), Careers (open positions)
+- Singleton template filtering and action restrictions (only publish, discardChanges, restore) prevent creating duplicate singletons
+- Files changed: sanity.config.ts (new), sanity.cli.ts (new), src/app/studio/[[...tool]]/page.tsx (new), package.json (modified), pnpm-lock.yaml (modified)
+- **Learnings for future iterations:**
+  - `@sanity/vision` is NOT included in the base `sanity` package — must be installed separately for the GROQ vision tool plugin
+  - `sanity.config.ts` needs `'use client'` at the top since it's imported by the Studio page component which is a client component
+  - Singleton behavior is enforced via 3 mechanisms: (1) custom desk structure with fixed documentId, (2) template filtering to prevent "create new" for singletons, (3) action filtering to limit available document actions
+  - `structureTool` is imported from `sanity/structure` (not a separate package) — it's the v3+ replacement for `@sanity/desk-tool`
+  - `sanity.cli.ts` uses hardcoded projectId/dataset (not env vars) since CLI runs outside Next.js and may not have env loaded
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
 ---

@@ -190,7 +190,7 @@
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on all schemas being defined (US-005 through US-011). Studio route should use 'use client' directive."
     },
     {
