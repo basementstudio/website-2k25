@@ -20,6 +20,8 @@
 - Use `@ts-expect-error` for basehub imports in migration scripts (same known canary SDK type issue)
 - `@sanity/client` (not `next-sanity`) for write operations in migration scripts — migration scripts don't need Next.js-specific features
 - Image deduplication cache in `utils/images.ts` maps URL → SanityAssetRef to avoid re-uploading same image
+- Sanity slug fields must be `{ _type: 'slug', current: 'the-slug' }` — not plain strings
+- Deterministic ID pattern for migration: `{type}-{slug}` (e.g., `project-my-project`, `person-john-doe`)
 
 ---
 
@@ -251,4 +253,18 @@
   - BaseHub social networks use `link` field name — Sanity schema expects `url` — field name mapping needed
   - Social network items need `_key` for Sanity arrays — use BaseHub `_id` or slugified platform name
   - Department reference uses the same slugify + deterministic ID pattern from US-017
+---
+
+## 2026-03-26 - US-019
+- Created `scripts/migration/migrate-projects.ts` with `migrateProjectCategories()`, `migrateProjects()`, and `migrateShowcaseEntries()`
+- Project categories include subcategories as array of objects with title
+- Projects migrated with all fields: title, slug, client ref, year, category refs, cover image, coverVideo (object), icon, showcase items (images + videos), projectWebsite, content (rich text via convertRichText), caseStudy, people refs
+- Showcase entries maintain display order via `orderRank` (zero-padded index)
+- Files changed: scripts/migration/migrate-projects.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub `caseStudy` field can be boolean or string URL — normalize to boolean for Sanity
+  - `coverVideo` is stored as a plain object (not a file) with url, width, height, aspectRatio, mimeType
+  - Showcase entries are in `pages.showcase.projectList` (not `company.projects`) — separate from project data
+  - Sanity array items need `_key` — use BaseHub `_id` where available, or generate from slug/index
+  - Sanity slug fields stored as `{ _type: 'slug', current: 'the-slug' }` (not plain strings)
 ---

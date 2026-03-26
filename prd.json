@@ -316,7 +316,7 @@
         "Typecheck passes"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-017 (clients), US-018 (people), US-015/US-016 (rich text converter for project content)."
     },
     {
