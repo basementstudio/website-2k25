@@ -1,0 +1,16 @@
+## Codebase Patterns
+- Package manager is `pnpm` (v9.15.6), configured via `packageManager` field in package.json
+- Pre-existing typecheck errors exist related to `basehub` module exports (fragmentOn, basehub, Client, Pump) — these are NOT caused by Sanity migration work
+- Project uses React 19.0.1 (canary) and Next.js 15.6.0-canary.60 — peer dependency warnings from Sanity packages expecting React 19.2+ are expected and non-blocking
+- Existing service pattern: `src/service/<provider>/index.ts` for client setup (see `src/service/basehub/index.ts`)
+
+---
+
+## 2026-03-26 - US-001
+- Installed Sanity dependencies: sanity@5.18.0, next-sanity@12.1.6, @sanity/client@7.20.0, @sanity/image-url@2.0.3, @portabletext/react@6.0.3, @portabletext/types@4.0.2
+- Files changed: package.json, pnpm-lock.yaml
+- **Learnings for future iterations:**
+  - Peer dependency warnings for React version mismatch are pre-existing across many packages (react-redux, r3f-perf, etc.) — not introduced by Sanity
+  - 792 new packages added to node_modules via Sanity dependency tree
+  - No Sanity-related typecheck errors introduced
+---

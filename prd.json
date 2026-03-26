@@ -1,0 +1,448 @@
+{
+  "project": "website-2k25",
+  "branchName": "ralph/basehub-to-sanity-migration",
+  "description": "BaseHub to Sanity CMS Migration (Phases 1-2) — Set up Sanity foundation (schemas, studio, client) and build content migration scripts to move all content from BaseHub into Sanity",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Install Sanity dependencies",
+      "description": "As an AI agent, I need to install the required Sanity packages so the project has the libraries needed for all subsequent work.",
+      "acceptanceCriteria": [
+        "Run `pnpm add sanity next-sanity @sanity/client @sanity/image-url @portabletext/react @portabletext/types`",
+        "`pnpm install` completes without errors",
+        "No version conflicts with existing dependencies (Next.js 15 canary, React 19)",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create Sanity environment config",
+      "description": "As an AI agent, I need to create the environment configuration so the Sanity client and Studio can read project credentials.",
+      "acceptanceCriteria": [
+        "Create `sanity/env.ts` that exports `projectId` and `dataset` from `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET`",
+        "Throw descriptive error if env vars are missing",
+        "Existing `.env.local` already has these values (9syto90m, production) — no env changes needed",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create Sanity client service",
+      "description": "As an AI agent, I need to create the Sanity client singleton so all data fetching goes through a single configured client.",
+      "acceptanceCriteria": [
+        "Create `src/service/sanity/index.ts` with `createClient` from `next-sanity`",
+        "Client configured with: projectId, dataset, apiVersion (use 2024-01-01), useCdn: true",
+        "Export a `client` instance and a `sanityFetch` helper function for server components",
+        "Imports env values from `sanity/env.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create image URL builder",
+      "description": "As an AI agent, I need to create a Sanity image URL builder so frontend components can generate optimized image URLs with transforms.",
+      "acceptanceCriteria": [
+        "Create `src/service/sanity/image.ts`",
+        "Export `urlFor(source)` function using `@sanity/image-url` configured with projectId and dataset",
+        "Supports chaining: `urlFor(image).width(800).height(600).url()`",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Define custom block object schemas (6 types)",
+      "description": "As an AI agent, I need to define the 6 custom block types used in blog post rich text content so they can be embedded in Portable Text arrays.",
+      "acceptanceCriteria": [
+        "Create `sanity/schemas/objects/codeBlock.ts` — fields: files (array of objects with title string, code text, language string)",
+        "Create `sanity/schemas/objects/quoteWithAuthor.ts` — fields: quote (array of block — PT), author (string), role (string), avatar (image with hotspot)",
+        "Create `sanity/schemas/objects/codeSandbox.ts` — fields: title (string), sandboxKey (string, required)",
+        "Create `sanity/schemas/objects/sideNote.ts` — fields: content (array of block — PT)",
+        "Create `sanity/schemas/objects/gridGallery.ts` — fields: images (array of image with hotspot), caption (string)",
+        "Create `sanity/schemas/objects/tweetEmbed.ts` — fields: tweetId (string, required)",
+        "Create `sanity/schemas/objects/showcaseItem.ts` — fields: image (image with hotspot), video (object: url, width, height, aspectRatio, mimeType)",
+        "Create `sanity/schemas/objects/socialNetwork.ts` — fields: platform (string, required), url (url, required)",
+        "All schemas use `defineType` and `defineField` from `sanity`",
+        "Create `sanity/schemas/index.ts` that exports all object schemas in an array",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Object schemas must be defined before document schemas that reference them. The index.ts will be extended by subsequent stories."
+    },
+    {
+      "id": "US-006",
+      "title": "Define blog document schemas (post, postCategory)",
+      "description": "As an AI agent, I need to define the blog-related Sanity schemas so blog posts and categories can be managed in the Studio and queried via GROQ.",
+      "acceptanceCriteria": [
+        "Create `sanity/schemas/documents/post.ts` with fields: title (string, required), slug (slug from title, required), date (datetime, required), categories (array of references to postCategory), authors (array of references to person), heroImage (image with hotspot), heroVideo (url), intro (array of block — portable text), content (array of block + image + codeBlock + quoteWithAuthor + codeSandbox + sideNote + gridGallery + tweetEmbed)",
+        "Create `sanity/schemas/documents/postCategory.ts` with fields: title (string, required), slug (slug from title, required)",
+        "Both schemas use `defineType` and `defineField` from `sanity`",
+        "Schemas added to the exports in `sanity/schemas/index.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "post.ts content field references object types from US-005 (codeBlock, quoteWithAuthor, etc.). Authors reference person type from US-008."
+    },
+    {
+      "id": "US-007",
+      "title": "Define project document schemas (project, projectCategory, showcaseEntry)",
+      "description": "As an AI agent, I need to define the project/showcase-related schemas so portfolio work can be managed in Sanity.",
+      "acceptanceCriteria": [
+        "Create `sanity/schemas/documents/project.ts` — fields: title (string, required), slug (slug, required), client (reference to client), year (number), categories (array of references to projectCategory), cover (image with hotspot), coverVideo (object: url, width number, height number, aspectRatio string, mimeType string), icon (image), showcase (array of showcaseItem objects), projectWebsite (url), content (array of block — PT), caseStudy (boolean), people (array of references to person)",
+        "Create `sanity/schemas/documents/projectCategory.ts` — fields: title (string, required), description (string), subcategories (array of objects with title string)",
+        "Create `sanity/schemas/documents/showcaseEntry.ts` — fields: project (reference to project, required), orderRank (string for drag-and-drop ordering)",
+        "All added to `sanity/schemas/index.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "project.ts references client and person types defined in US-008. showcaseItem object type from US-005."
+    },
+    {
+      "id": "US-008",
+      "title": "Define company document schemas (client, award, testimonial, value, person, department)",
+      "description": "As an AI agent, I need to define the company-wide data schemas so team members, clients, awards, testimonials, and values can be managed.",
+      "acceptanceCriteria": [
+        "Create `sanity/schemas/documents/client.ts` — fields: title (string, required), logo (image), website (url)",
+        "Create `sanity/schemas/documents/award.ts` — fields: title (string, required), date (datetime), awardUrl (url), project (reference to project), certificate (image)",
+        "Create `sanity/schemas/documents/testimonial.ts` — fields: name (string, required), handle (string), content (text), avatar (image with hotspot), date (datetime), role (string)",
+        "Create `sanity/schemas/documents/value.ts` — fields: title (string, required), description (array of block — PT), image (image with hotspot)",
+        "Create `sanity/schemas/documents/person.ts` — fields: title (string, required), department (reference to department), role (string), image (image with hotspot), socialNetworks (array of socialNetwork objects)",
+        "Create `sanity/schemas/documents/department.ts` — fields: title (string, required)",
+        "All added to `sanity/schemas/index.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "socialNetwork object type from US-005. person references department."
+    },
+    {
+      "id": "US-009",
+      "title": "Define career and lab document schemas (openPosition, labProject)",
+      "description": "As an AI agent, I need to define the career and lab project schemas.",
+      "acceptanceCriteria": [
+        "Create `sanity/schemas/documents/openPosition.ts` — fields: title (string, required), slug (slug, required), type (string), employmentType (string), location (string), isOpen (boolean, default true), applyUrl (url), jobDescription (array of block — PT), applyFormSetup (object with formFields string field and skills array of objects with title string and slug)",
+        "Create `sanity/schemas/documents/labProject.ts` — fields: title (string, required), url (url), description (text), cover (image with hotspot)",
+        "All added to `sanity/schemas/index.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Define singleton schemas (homepage, servicesPage, peoplePage, careersPostPage, companyInfo)",
+      "description": "As an AI agent, I need to define the singleton document schemas for page-level content that has only one instance.",
+      "acceptanceCriteria": [
+        "Create `sanity/schemas/singletons/homepage.ts` — fields: introTitle (array of block — PT), introSubtitle (array of block — PT), capabilities (array of objects with title string and description PT), featuredProjects (array of references to project)",
+        "Create `sanity/schemas/singletons/servicesPage.ts` — fields: intro (array of block — PT), heroImage (image with hotspot), ventures (array of objects with title string, content PT, image with hotspot), serviceCategories (array matching BaseHub service structure)",
+        "Create `sanity/schemas/singletons/peoplePage.ts` — fields: title (string), subheading1 (array of block — PT), subheading2 (array of block — PT), preOpenPositionsSideImages (array of image), preOpenPositionsText (array of block — PT)",
+        "Create `sanity/schemas/singletons/careersPostPage.ts` — fields: heroTitle (string)",
+        "Create `sanity/schemas/singletons/companyInfo.ts` — fields: github (url), instagram (url), twitter (url), linkedIn (url), newsletter (array of block — PT)",
+        "All added to `sanity/schemas/index.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "homepage references project type. servicesPage references service categories from BaseHub company.services structure."
+    },
+    {
+      "id": "US-011",
+      "title": "Define 3D assets singleton schema",
+      "description": "As an AI agent, I need to define the 3D assets singleton that stores all URLs to 3D models, textures, and audio files as URL strings (not Sanity file assets).",
+      "acceptanceCriteria": [
+        "Create `sanity/schemas/singletons/threeDAssets.ts` mirroring the `AssetsResult` interface from `src/components/assets-provider/fetch-assets.ts`",
+        "All 3D model fields are `url` type (not `file` type) — stores CDN URL strings",
+        "All texture fields are `url` type",
+        "All audio/SFX fields are `url` type",
+        "Structure matches: maps (office, outdoor, godrays, routingElements, bakes, matcaps, glassReflexes), arcade, characters, sfx, scenes, inspectables, physics params",
+        "Added to `sanity/schemas/index.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Read `src/components/assets-provider/fetch-assets.ts` to understand the full AssetsResult interface structure. This is a large schema with many nested URL fields."
+    },
+    {
+      "id": "US-012",
+      "title": "Set up embedded Sanity Studio with custom structure",
+      "description": "As an AI agent, I need to set up Sanity Studio as an embedded route in the Next.js app with a custom desk structure for singletons and organized document types.",
+      "acceptanceCriteria": [
+        "Create `sanity.config.ts` at project root with projectId, dataset, plugins (structureTool with custom structure, visionTool), and schema import from sanity/schemas/index.ts",
+        "Create `sanity.cli.ts` at project root for CLI commands (schema deploy, dataset export/import)",
+        "Create `src/app/studio/[[...tool]]/page.tsx` using `NextStudio` from `next-sanity`",
+        "Custom structure: singletons (homepage, servicesPage, peoplePage, careersPostPage, companyInfo, threeDAssets) appear as single editable items, not lists",
+        "Document types grouped: Content (posts, projects, lab), Company (clients, people, departments, awards, testimonials, values), Careers (open positions), Pages (singletons)",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Depends on all schemas being defined (US-005 through US-011). Studio route should use 'use client' directive."
+    },
+    {
+      "id": "US-013",
+      "title": "Deploy schema to Sanity cloud",
+      "description": "As an AI agent, I need to deploy all schemas to Sanity's cloud so the API accepts documents matching our types.",
+      "acceptanceCriteria": [
+        "Run `npx sanity@latest schema deploy` successfully",
+        "Schema is visible in Sanity management dashboard",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "Requires all schemas from US-005 through US-012 to be complete. Needs sanity.cli.ts from US-012."
+    },
+    {
+      "id": "US-014",
+      "title": "Create migration script infrastructure",
+      "description": "As an AI agent, I need to set up the migration script directory structure, BaseHub client, Sanity write client, and image utilities so individual migration scripts can fetch and import content.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/basehub-client.ts` — initializes BaseHub client using existing BASEHUB_TOKEN, exports a function to query BaseHub",
+        "Create `scripts/migration/sanity-client.ts` — initializes Sanity client with write token (SANITY_API_TOKEN env var), exports sanityWriteClient with createOrReplace and assets.upload methods",
+        "Create `scripts/migration/utils/images.ts` — exports `downloadImage(url): Promise<Buffer>` and `uploadImageToSanity(buffer, filename): Promise<SanityAssetRef>` functions with deduplication (caches URL→assetRef to avoid re-uploading same image)",
+        "Create `scripts/migration/run-all.ts` — orchestrator stub that will call migration scripts in order",
+        "Create `scripts/migration/verify.ts` — stub that queries Sanity for document counts per type",
+        "Scripts are runnable via `pnpm exec tsx scripts/migration/run-all.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "Requires SANITY_API_TOKEN write token in .env.local (user must create manually in Sanity dashboard). BaseHub client uses same pattern as existing src/service/basehub/index.ts."
+    },
+    {
+      "id": "US-015",
+      "title": "Build rich text converter — standard blocks",
+      "description": "As an AI agent, I need to build the core of the rich text converter that transforms BaseHub's TipTap/ProseMirror JSON into Sanity Portable Text for standard block types (paragraphs, headings, lists, marks).",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/utils/rich-text.ts`",
+        "Handles paragraph nodes → { _type: 'block', style: 'normal', children: [...] }",
+        "Handles heading nodes (level 1-6) → { _type: 'block', style: 'h1'...'h6', children: [...] }",
+        "Handles bulletList/orderedList → blocks with listItem: 'bullet' / 'number' and correct level nesting",
+        "Handles text marks: bold → 'strong', italic → 'em', code → 'code'",
+        "Handles link marks → markDefs with { _type: 'link', href: '...' }",
+        "Handles hardBreak nodes",
+        "Generates valid _key values (nanoid or similar) for all blocks and spans",
+        "Exports `convertRichText(basehubJson, blocks?): PortableTextBlock[]`",
+        "Includes `validatePortableText(blocks)` function that checks for missing _key values",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "CRITICAL PATH — this is the most complex utility. Fetch 2-3 blog posts from BaseHub first to log and inspect the raw json.content structure before building. BaseHub uses TipTap/ProseMirror JSON format."
+    },
+    {
+      "id": "US-016",
+      "title": "Build rich text converter — custom blocks and images",
+      "description": "As an AI agent, I need to extend the rich text converter to handle custom block types from BaseHub's json.blocks array and inline images.",
+      "acceptanceCriteria": [
+        "Extend `scripts/migration/utils/rich-text.ts` to handle inline images → { _type: 'image', asset: { _ref: '...' } } (downloads and uploads image via utils/images.ts)",
+        "Custom blocks from json.blocks array are converted and interleaved at correct positions in the PT output",
+        "Converts CodeBlockComponent → { _type: 'codeBlock', files: [{ title, code, language }] }",
+        "Converts QuoteWithAuthorComponent → { _type: 'quoteWithAuthor', quote: [converted PT], author, role, avatar: [uploaded image ref] }",
+        "Converts CodeSandboxComponent → { _type: 'codeSandbox', title, sandboxKey }",
+        "Converts SideNoteComponent → { _type: 'sideNote', content: [converted PT] }",
+        "Converts GridGalleryComponent → { _type: 'gridGallery', images: [uploaded image refs], caption }",
+        "Converts TweetComponent → { _type: 'tweetEmbed', tweetId }",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": "Depends on US-015 (standard blocks) and US-014 (image upload utils). The json.blocks array uses __typename discrimination and _id for matching positions in content."
+    },
+    {
+      "id": "US-017",
+      "title": "Migrate company data (departments, clients)",
+      "description": "As an AI agent, I need to create a script that migrates departments and clients from BaseHub to Sanity. These have no dependencies and run first.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-company.ts`",
+        "Fetches all departments from BaseHub (extracted from people's department field)",
+        "Creates department documents in Sanity with deterministic _id values (e.g., department-{slug})",
+        "Fetches all clients from company.clients.clientList",
+        "Downloads client logos from BaseHub CDN and uploads to Sanity asset pipeline",
+        "Creates client documents in Sanity with: title, logo (Sanity image ref), website",
+        "Uses createOrReplace so script is idempotent (safe to re-run)",
+        "Logs count of departments and clients created",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "First migration script to run — no dependencies on other migrated content."
+    },
+    {
+      "id": "US-018",
+      "title": "Migrate people",
+      "description": "As an AI agent, I need to create a script that migrates team members from BaseHub to Sanity. Depends on departments being migrated first.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-people.ts`",
+        "Fetches all people from company.people.peopleList",
+        "Downloads person images and uploads to Sanity",
+        "Creates person documents with: title, department (reference using deterministic ID), role, image (Sanity ref), socialNetworks (array of { platform, url })",
+        "Uses deterministic _id values (e.g., person-{slug})",
+        "Uses createOrReplace for idempotency",
+        "Logs count of people created",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "Depends on US-017 (departments must exist first for references)."
+    },
+    {
+      "id": "US-019",
+      "title": "Migrate projects and project categories",
+      "description": "As an AI agent, I need to create a script that migrates project categories and projects from BaseHub to Sanity. Depends on clients and people.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-projects.ts`",
+        "Fetches project categories from company.projects.projectCategories and creates in Sanity with subcategories",
+        "Fetches all projects from company.projects.projectList",
+        "Downloads cover images, icons, and showcase item images → uploads to Sanity",
+        "Creates project documents with all fields: title, slug, client ref, year, category refs, cover, coverVideo (as object), icon, showcase items, projectWebsite, content (converted via rich text converter), caseStudy, people refs",
+        "Also creates showcaseEntry documents that reference projects (preserving display order)",
+        "Uses deterministic _id values and createOrReplace for idempotency",
+        "Logs counts of categories, projects, and showcase entries created",
+        "Typecheck passes"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": "Depends on US-017 (clients), US-018 (people), US-015/US-016 (rich text converter for project content)."
+    },
+    {
+      "id": "US-020",
+      "title": "Migrate blog posts and categories",
+      "description": "As an AI agent, I need to create a script that migrates blog post categories and posts from BaseHub to Sanity. Most complex migration due to rich text with custom blocks.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-posts.ts`",
+        "Fetches post categories from pages.blog.categories and creates in Sanity",
+        "Fetches all posts from pages.blog.posts",
+        "For each post: converts intro rich text via convertRichText()",
+        "For each post: converts content rich text via convertRichText() including all 6 custom block types from json.blocks",
+        "Downloads hero images and uploads to Sanity",
+        "Downloads images inside custom blocks (QuoteWithAuthor avatars, GridGallery images) and uploads to Sanity",
+        "Creates post documents with: title, slug, date, category refs, author refs, heroImage, heroVideo, intro (PT), content (PT with custom blocks)",
+        "Uses deterministic _id values and createOrReplace for idempotency",
+        "Logs count of categories and posts created",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "Depends on US-018 (people for author refs), US-015/US-016 (rich text converter). Most complex migration — exercises full pipeline."
+    },
+    {
+      "id": "US-021",
+      "title": "Migrate careers (open positions)",
+      "description": "As an AI agent, I need to create a script that migrates open positions from BaseHub to Sanity.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-careers.ts`",
+        "Fetches all open positions from company.openPositions.openPositionsList",
+        "Converts jobDescription rich text via convertRichText()",
+        "Creates openPosition documents with all fields: title, slug, type, employmentType, location, isOpen, applyUrl, jobDescription (PT), applyFormSetup",
+        "Uses deterministic _id values and createOrReplace",
+        "Logs count created",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "Depends on US-015 (rich text converter for job descriptions)."
+    },
+    {
+      "id": "US-022",
+      "title": "Migrate awards, testimonials, and values",
+      "description": "As an AI agent, I need to create a script that migrates awards, testimonials, and company values from BaseHub to Sanity.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-services.ts`",
+        "Fetches awards from company.awards.awardList, creates with: title, date, awardUrl, project ref, certificate image (uploaded)",
+        "Fetches testimonials from company.testimonials, creates with: name, handle, content, avatar (uploaded), date, role",
+        "Fetches values from company.ourValues.valuesList, creates with: title, description (converted PT), image (uploaded)",
+        "Uses deterministic _id values and createOrReplace",
+        "Logs counts created per type",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "Awards reference project type (must run after US-019)."
+    },
+    {
+      "id": "US-023",
+      "title": "Migrate lab projects",
+      "description": "As an AI agent, I need to create a script that migrates lab/laboratory projects from BaseHub to Sanity.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-lab.ts`",
+        "Fetches lab projects from pages.laboratory.projectList",
+        "Downloads cover images and uploads to Sanity",
+        "Creates labProject documents with: title, url, description, cover (Sanity image ref)",
+        "Uses deterministic _id values and createOrReplace",
+        "Logs count created",
+        "Typecheck passes"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-024",
+      "title": "Migrate singleton pages",
+      "description": "As an AI agent, I need to create a script that migrates the singleton page documents (homepage, services, people, careers post, company info) from BaseHub to Sanity.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-singletons.ts`",
+        "Migrates homepage: introTitle (PT), introSubtitle (PT), capabilities (array with title + description PT), featuredProjects (project refs)",
+        "Migrates servicesPage: intro (PT), heroImage (uploaded), ventures (array with title, content PT, image uploaded), service categories",
+        "Migrates peoplePage: title, subheading1 (PT), subheading2 (PT), preOpenPositions images (uploaded) and text (PT)",
+        "Migrates careersPostPage: heroTitle",
+        "Migrates companyInfo: social links (github, instagram, twitter, linkedIn URLs), newsletter (PT)",
+        "Each singleton uses a fixed _id (e.g., homepage, servicesPage)",
+        "Uses createOrReplace for idempotency",
+        "Typecheck passes"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "Depends on US-019 (projects for homepage featured refs) and US-015 (rich text converter)."
+    },
+    {
+      "id": "US-025",
+      "title": "Migrate 3D assets singleton (URL strings)",
+      "description": "As an AI agent, I need to create a script that migrates the 3D assets configuration from BaseHub to Sanity. All values are URL strings pointing to existing CDN-hosted files.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-3d-assets.ts`",
+        "Fetches the full threeDInteractions data from BaseHub",
+        "Creates a threeDAssets singleton document in Sanity with all URL strings preserved as-is",
+        "Structure matches the AssetsResult interface: maps (models, bakes, matcaps, glassReflexes, textures), arcade, characters, sfx, scenes, inspectables, physics",
+        "Uses fixed _id: 'threeDAssets' and createOrReplace",
+        "Typecheck passes"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": "No file downloads needed — just copies URL strings. Read src/components/assets-provider/fetch-assets.ts for the full data structure."
+    },
+    {
+      "id": "US-026",
+      "title": "Wire up migration orchestrator and verification",
+      "description": "As an AI agent, I need to wire up the orchestrator that runs all migration scripts in dependency order, and complete the verification script.",
+      "acceptanceCriteria": [
+        "scripts/migration/run-all.ts runs scripts in order: company → people → projects → posts → careers → services → lab → singletons → 3D assets",
+        "Each step logs start/end with timing",
+        "Errors in one step are logged but don't block subsequent steps (with a flag to optionally fail-fast)",
+        "scripts/migration/verify.ts queries Sanity for document counts per type and prints a summary table",
+        "Verify script compares counts against expected totals (fetched from BaseHub in the same run)",
+        "Verify script checks for documents with missing required fields (title, slug)",
+        "Verify script checks that all image assets resolve (HEAD request to a sample of Sanity CDN URLs)",
+        "Typecheck passes"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": "Depends on all migration scripts (US-017 through US-025) being complete."
+    }
+  ]
+}
