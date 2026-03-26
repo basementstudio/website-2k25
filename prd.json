@@ -407,7 +407,7 @@
         "Typecheck passes"
       ],
       "priority": 24,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-019 (projects for homepage featured refs) and US-015 (rich text converter)."
     },
     {

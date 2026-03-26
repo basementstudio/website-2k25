@@ -22,6 +22,9 @@
 - Image deduplication cache in `utils/images.ts` maps URL → SanityAssetRef to avoid re-uploading same image
 - Sanity slug fields must be `{ _type: 'slug', current: 'the-slug' }` — not plain strings
 - Deterministic ID pattern for migration: `{type}-{slug}` (e.g., `project-my-project`, `person-john-doe`)
+- Singleton migration IDs use the schema name directly (e.g., `homepage`, `servicesPage`) — no slug suffix
+- BaseHub component fields (like `capabilities`, `ventures`) are single objects, not arrays — query without `.items`
+- When BaseHub stores plain strings but Sanity expects PT, use `plainTextToPortableText()` helper to wrap in blocks
 
 ---
 
@@ -319,5 +322,25 @@
   - Lab projects are at `pages.laboratory.projectList.items` — similar query pattern to blog posts
   - labProject is the simplest migration script — no rich text, no references, just flat fields + one image
   - BaseHub lab project `cover` uses same `{ url, alt }` structure as other image fields
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-26 - US-024
+- Created `scripts/migration/migrate-singletons.ts` with 5 migration functions: migrateHomepage, migrateServicesPage, migratePeoplePage, migrateCareersPostPage, migrateCompanyInfo
+- Homepage: introTitle/introSubtitle from `pages.homepage.intro.title/subtitle`, capabilities populated from project categories (with plain text → PT conversion), featuredProjects as project references
+- Services page: intro (PT), heroImage (uploaded), ventures (single section stored as array item), serviceCategories from `company.services.serviceCategories`
+- People page: title, subheading1/subheading2 (PT), preOpenPositions side images (sideA/sideB uploaded) and text (PT)
+- Careers post page: heroTitle string from `pages.careersPost`
+- Company info: github/instagram/twitter/linkedIn URLs + newsletter (PT) from `company.social`
+- Each singleton uses a fixed _id matching the schema name (e.g., `homepage`, `servicesPage`)
+- Files changed: scripts/migration/migrate-singletons.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub `capabilities` and `ventures` are single component objects (not arrays) — queried without `.items`, accessed as `data.pages.homepage.capabilities._title` (not `.items[0]._title`)
+  - Homepage capability LIST items come from `company.projects.projectCategories`, NOT from `pages.homepage.capabilities` (which is just a section heading + intro)
+  - Services page `ventures` is also a single component — the Sanity schema stores it as an array, so wrap in single-item array
+  - BaseHub project category `description` is a plain string — needs `plainTextToPortableText()` helper to wrap in PT block for Sanity
+  - Company social links are at `company.social.*` (not `company.companyInfo.*`)
+  - Careers post data is at `pages.careersPost.heroTitle` — simple string field
+  - For `convertRichText`, always pass `.json.content` (the TipTap node array), not `.json` (the doc wrapper)
   - 124 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
