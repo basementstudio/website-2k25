@@ -52,7 +52,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Root cause was logo field type mismatch. The fix script should be robust — try multiple query shapes if the first fails. Log the raw BaseHub response for the first client to verify field structure."
     },
     {

@@ -28,6 +28,7 @@
 - Sanity dataset export creates a tar.gz with a timestamped subdirectory (e.g., `production-export-2026-03-27t21-24-47-937z/data.ndjson`) — don't assume `data.ndjson` is at root
 - Pre-existing TS errors reduced from ~124 to 8 (basehub canary types may have updated) — all in other migration scripts, not new code
 - Audit results from export: 176 docs total. Gaps: 0 showcaseEntry (expected 25), 3/27 posts, 12/30 awards, 0 testimonials, 0 values, 0 homepage. 16 docs missing required fields. 0 broken refs. 12 empty PT fields.
+- BaseHub client `logo` is an inline SVG string (not a URL) — use `uploadImageToSanity(Buffer.from(svg, 'utf-8'), filename)` to upload directly instead of `downloadAndUploadImage`
 
 ---
 
@@ -419,5 +420,22 @@
 - **Learnings for future iterations:**
   - Sanity `hidden: true` + `initialValue: 'X'` pattern creates a non-editable title field for singletons — value is set on document creation
   - Sanity `preview.select` supports dot notation through references (e.g., `project.title` resolves the referenced project's title)
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-27 - US-003
+- Created `scripts/migration/fix-clients.ts` — standalone script that fetches all 41 clients from BaseHub and creates them in Sanity
+- BaseHub `logo` field returns inline SVG strings (not URLs) — script detects `<svg` prefix and uploads directly as buffer via `uploadImageToSanity`
+- For URL-based logos, falls back to `downloadAndUploadImage` with deduplication cache
+- Normalizes logo field from unknown BaseHub type (string, object with url, or null)
+- Uses `createOrReplace` with deterministic IDs `client-{slug}` for idempotency
+- Result: 41/41 clients created, 39 logos uploaded (2 clients had no logo data: MrBeast, Basement Chronicles)
+- Files changed: scripts/migration/fix-clients.ts (new), prd.json (US-003 passes: true), progress.txt (appended)
+- **Learnings for future iterations:**
+  - BaseHub client logos are inline SVG strings, NOT image URLs — `downloadAndUploadImage` fails because it tries to `fetch()` the SVG string as a URL
+  - To upload inline SVG to Sanity: `uploadImageToSanity(Buffer.from(svgString, 'utf-8'), 'filename.svg')`
+  - Sanity `assets.upload('image', buffer)` accepts SVG buffers natively — no conversion needed
+  - BaseHub `logo` field typed as scalar in SDK (query with `logo: true`, not `logo: { url: true }`)
+  - Prior progress note about logo being `{ url, alt }` object was incorrect — it's a plain string field containing SVG markup
   - 8 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
