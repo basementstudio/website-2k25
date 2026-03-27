@@ -4,6 +4,7 @@ export const postCategory = defineType({
   name: 'postCategory',
   title: 'Post Category',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
     defineField({
       name: 'title',

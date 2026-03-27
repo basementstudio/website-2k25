@@ -4,7 +4,15 @@ export const companyInfo = defineType({
   name: 'companyInfo',
   title: 'Company Info',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
+    defineField({
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      hidden: true,
+      initialValue: 'Company Info',
+    }),
     defineField({
       name: 'github',
       title: 'GitHub',

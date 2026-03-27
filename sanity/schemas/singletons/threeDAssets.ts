@@ -4,7 +4,15 @@ export const threeDAssets = defineType({
   name: 'threeDAssets',
   title: '3D Assets',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
+    defineField({
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      hidden: true,
+      initialValue: '3D Assets',
+    }),
     // --- Map models ---
     defineField({
       name: 'officeItems',

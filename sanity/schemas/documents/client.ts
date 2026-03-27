@@ -4,6 +4,7 @@ export const client = defineType({
   name: 'client',
   title: 'Client',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
     defineField({
       name: 'title',

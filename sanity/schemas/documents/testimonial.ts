@@ -4,6 +4,7 @@ export const testimonial = defineType({
   name: 'testimonial',
   title: 'Testimonial',
   type: 'document',
+  preview: { select: { title: 'name' } },
   fields: [
     defineField({
       name: 'name',

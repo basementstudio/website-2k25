@@ -4,6 +4,7 @@ export const openPosition = defineType({
   name: 'openPosition',
   title: 'Open Position',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
     defineField({
       name: 'title',

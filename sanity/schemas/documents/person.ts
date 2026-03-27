@@ -4,6 +4,7 @@ export const person = defineType({
   name: 'person',
   title: 'Person',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
     defineField({
       name: 'title',

@@ -4,6 +4,7 @@ export const showcaseEntry = defineType({
   name: 'showcaseEntry',
   title: 'Showcase Entry',
   type: 'document',
+  preview: { select: { title: 'project.title' } },
   fields: [
     defineField({
       name: 'project',

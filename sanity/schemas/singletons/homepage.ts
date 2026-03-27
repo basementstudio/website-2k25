@@ -4,7 +4,15 @@ export const homepage = defineType({
   name: 'homepage',
   title: 'Homepage',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
+    defineField({
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      hidden: true,
+      initialValue: 'Homepage',
+    }),
     defineField({
       name: 'introTitle',
       title: 'Intro Title',

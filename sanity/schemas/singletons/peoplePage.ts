@@ -4,6 +4,7 @@ export const peoplePage = defineType({
   name: 'peoplePage',
   title: 'People Page',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
     defineField({
       name: 'title',

@@ -4,6 +4,7 @@ export const award = defineType({
   name: 'award',
   title: 'Award',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
     defineField({
       name: 'title',

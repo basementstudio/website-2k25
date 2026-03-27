@@ -4,6 +4,7 @@ export const value = defineType({
   name: 'value',
   title: 'Value',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
     defineField({
       name: 'title',

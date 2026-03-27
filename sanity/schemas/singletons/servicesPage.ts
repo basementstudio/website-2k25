@@ -4,7 +4,15 @@ export const servicesPage = defineType({
   name: 'servicesPage',
   title: 'Services Page',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
+    defineField({
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      hidden: true,
+      initialValue: 'Services',
+    }),
     defineField({
       name: 'intro',
       title: 'Intro',

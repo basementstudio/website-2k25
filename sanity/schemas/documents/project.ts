@@ -4,6 +4,7 @@ export const project = defineType({
   name: 'project',
   title: 'Project',
   type: 'document',
+  preview: { select: { title: 'title' } },
   fields: [
     defineField({
       name: 'title',
