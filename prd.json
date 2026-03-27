@@ -70,7 +70,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Don't hardcode the list — query BaseHub to discover all authors and diff against Sanity. Some former team members may have images in BaseHub that should be uploaded."
     },
     {

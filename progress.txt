@@ -29,6 +29,7 @@
 - Pre-existing TS errors reduced from ~124 to 8 (basehub canary types may have updated) — all in other migration scripts, not new code
 - Audit results from export: 176 docs total. Gaps: 0 showcaseEntry (expected 25), 3/27 posts, 12/30 awards, 0 testimonials, 0 values, 0 homepage. 16 docs missing required fields. 0 broken refs. 12 empty PT fields.
 - BaseHub client `logo` is an inline SVG string (not a URL) — use `uploadImageToSanity(Buffer.from(svg, 'utf-8'), filename)` to upload directly instead of `downloadAndUploadImage`
+- For fix scripts that need to find "missing" documents, prefer dynamic discovery (query source → diff against Sanity) over hardcoded lists — catches unexpected gaps
 
 ---
 
@@ -437,5 +438,21 @@
   - Sanity `assets.upload('image', buffer)` accepts SVG buffers natively — no conversion needed
   - BaseHub `logo` field typed as scalar in SDK (query with `logo: true`, not `logo: { url: true }`)
   - Prior progress note about logo being `{ url, alt }` object was incorrect — it's a plain string field containing SVG markup
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-27 - US-004
+- Rewrote `scripts/migration/fix-missing-persons.ts` to dynamically discover missing persons instead of using a hardcoded list
+- Script queries BaseHub for ALL post authors across 27 blog posts, finds 13 unique authors
+- Compares against existing Sanity person documents (45 at start) to find missing ones
+- Created 2 newly discovered missing persons: person-matias-gonzalez ("Matías Gonzalez"), person-rocio-elbaum ("Rocío Elbaum")
+- The 6 previously-known missing persons (basement-team, natalia-martinez-lopez, matias-perez, joaquin-montes, agustin-segui, julian-benegas) already existed from prior run
+- Script is idempotent — second run finds 0 missing persons
+- All 13 post authors now exist in Sanity (47 total person documents)
+- Files changed: scripts/migration/fix-missing-persons.ts (rewritten), prd.json (US-004 passes: true), progress.txt (appended)
+- **Learnings for future iterations:**
+  - BaseHub post author references only expose `_title` and `_slug` — `image` field is not reliably available on the author union type in blog post context
+  - Dynamic discovery found 2 additional missing persons (Matías Gonzalez, Rocío Elbaum) that weren't in the hardcoded list — always prefer dynamic queries over static lists
+  - Sanity GROQ query `*[_type == "person"]{ _id }` is efficient for existence checks — returns only IDs
   - 8 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
