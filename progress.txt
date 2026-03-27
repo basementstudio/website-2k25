@@ -30,6 +30,7 @@
 - Audit results from export: 176 docs total. Gaps: 0 showcaseEntry (expected 25), 3/27 posts, 12/30 awards, 0 testimonials, 0 values, 0 homepage. 16 docs missing required fields. 0 broken refs. 12 empty PT fields.
 - BaseHub client `logo` is an inline SVG string (not a URL) — use `uploadImageToSanity(Buffer.from(svg, 'utf-8'), filename)` to upload directly instead of `downloadAndUploadImage`
 - For fix scripts that need to find "missing" documents, prefer dynamic discovery (query source → diff against Sanity) over hardcoded lists — catches unexpected gaps
+- Use `fetchExistingIds(type)` pattern (`*[_type == "X"]{ _id }` → Set) to pre-validate references before creating documents — avoids Sanity reference validation errors
 
 ---
 
@@ -454,5 +455,23 @@
   - BaseHub post author references only expose `_title` and `_slug` — `image` field is not reliably available on the author union type in blog post context
   - Dynamic discovery found 2 additional missing persons (Matías Gonzalez, Rocío Elbaum) that weren't in the hardcoded list — always prefer dynamic queries over static lists
   - Sanity GROQ query `*[_type == "person"]{ _id }` is efficient for existence checks — returns only IDs
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-27 - US-005
+- Created `scripts/migration/fix-projects.ts` — standalone script that re-migrates all projects, project categories, and showcase entries with validated references
+- Pre-fetches existing client IDs (41) and person IDs (47) from Sanity before creating projects to validate all references
+- Project categories re-created with slug field set (fixes audit gap of 4 categories missing slugs)
+- All 31 projects created with cover images, icons, showcase item images downloaded and uploaded
+- All client and people references validated before inclusion — 0 references skipped (all existed)
+- All 25 showcase entries created with validated project references — 0 skipped
+- Uses `createOrReplace` for full idempotency
+- Summary: 4 categories, 31 projects, 25 showcase entries, 0 references skipped, 0 errors
+- Files changed: scripts/migration/fix-projects.ts (new), prd.json (US-005 passes: true), progress.txt (appended)
+- **Learnings for future iterations:**
+  - Image downloads during project migration are slow (~20-30s per project with showcase items) — total runtime ~15 minutes for 31 projects
+  - `fetchExistingIds(type)` helper pattern (GROQ `*[_type == "X"]{ _id }` → Set) is reusable for reference validation across all fix scripts
+  - Project categories were missing slug fields from initial migration — fix script adds `slug: { _type: 'slug', current: slug }` to each category
+  - All 41 clients and 47 persons existed, so zero references needed to be skipped — US-003 and US-004 prerequisites fully satisfied
   - 8 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
