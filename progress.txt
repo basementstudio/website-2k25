@@ -407,3 +407,17 @@
   - 8 open positions have empty `jobDescription` PT fields — may need investigation in fix scripts
   - Pre-existing TS errors now at 8 (down from ~124) — all in basehub/migration scripts, zero from audit-dataset.ts
 ---
+
+## 2026-03-27 - US-002
+- Added hidden `title` field with `initialValue` to 5 singletons: homepage ('Homepage'), servicesPage ('Services'), companyInfo ('Company Info'), threeDAssets ('3D Assets'), careersPostPage ('Careers')
+- peoplePage already had a visible title field — left as-is, added preview config only
+- Added `preview: { select: { title: 'title' } }` to all 6 singleton schemas and 13 document schemas
+- testimonial uses `preview: { select: { title: 'name' } }` (special case — display field is `name`, not `title`)
+- showcaseEntry uses `preview: { select: { title: 'project.title' } }` (dot notation resolves through reference to project's title)
+- Deployed updated schemas to Sanity cloud via `pnpm exec sanity schema deploy`
+- Files changed: 6 singleton schemas (modified), 13 document schemas (modified)
+- **Learnings for future iterations:**
+  - Sanity `hidden: true` + `initialValue: 'X'` pattern creates a non-editable title field for singletons — value is set on document creation
+  - Sanity `preview.select` supports dot notation through references (e.g., `project.title` resolves the referenced project's title)
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---

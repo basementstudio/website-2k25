@@ -36,7 +36,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "BaseHub gives every document a _title by default. Sanity doesn't — schemas need explicit title fields or preview config. Hidden title fields on singletons ensure Studio sidebar shows names."
     },
     {
