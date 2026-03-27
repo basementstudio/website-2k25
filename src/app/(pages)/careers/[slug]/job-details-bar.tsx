@@ -1,6 +1,10 @@
 "use client"
 
-import { ArrowDownIcon } from "@/components/icons/icons"
+import {
+  ArrowDownIcon,
+  CalendarScheduleIcon,
+  EarthIcon
+} from "@/components/icons/icons"
 
 interface JobMetaProps {
   type: string
@@ -28,25 +32,33 @@ export const JobMeta = ({ type, employmentType, location }: JobMetaProps) => {
           </p>
         </div>
       ) : null}
-      <div className="flex items-center justify-between">
-        <p className="inline-flex items-center gap-x-2 text-brand-w2">
+      <div className="flex flex-col items-start gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <CalendarScheduleIcon className="size-4 text-brand-w2 lg:size-5" />
+            <p className="text-sm font-semibold leading-5 tracking-[-0.02em] text-brand-w2 lg:text-[1.125rem]">
+              {employmentType || "Full-time"}
+            </p>
+          </div>
           {location ? (
             <>
-              {location}
               <span className="inline-block size-1 bg-brand-g1" />
+              <div className="flex items-center gap-1">
+                <EarthIcon className="size-4 text-brand-w2 lg:size-5" />
+                <p className="text-sm font-semibold leading-5 tracking-[-0.02em] text-brand-w2 lg:text-[1.125rem]">
+                  {location}
+                </p>
+              </div>
             </>
           ) : null}
-          {employmentType || "Full-time"}
-        </p>
+        </div>
         <button
           type="button"
           onClick={scrollToApply}
-          className="actionable actionable-no-underline group flex items-center gap-2 rounded-sm text-f-p-mobile text-brand-w1 lg:text-f-p"
+          className="group actionable-opacity [--anim-duration:250ms] flex items-center gap-2 rounded-sm bg-brand-w1 px-3 py-1.5 text-sm font-semibold leading-5 tracking-[-0.02em] text-brand-k lg:text-[1.125rem]"
         >
-          <span className="group-hover:actionable group-hover:actionable-inanimate">
-            Apply now
-          </span>
-          <ArrowDownIcon className="size-3 animate-bounce" />
+          <span className="group-hover:underline">Apply now</span>
+          <ArrowDownIcon className="size-3" />
         </button>
       </div>
       <hr className="border-brand-w1/20" />

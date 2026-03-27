@@ -26,7 +26,7 @@ export const FormSelect = ({
     <div className="flex flex-col gap-3 lg:gap-4">
       <FormLabel label={label} required={required} />
       <div className="flex flex-col gap-3">
-        <Select.Root value={value || undefined} onValueChange={onChange}>
+        <Select.Root value={value} onValueChange={onChange}>
           <Select.Trigger
             aria-invalid={error ? "true" : undefined}
             aria-describedby={error ? "yearsOfExperience-error" : undefined}

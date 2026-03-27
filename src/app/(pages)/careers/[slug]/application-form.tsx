@@ -156,12 +156,6 @@ export const ApplicationForm = ({
       if (result.success) {
         setIsSubmitted(true)
         reset(getDefaultFormValues(positionSlug))
-        requestAnimationFrame(() => {
-          sectionRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          })
-        })
       } else {
         setSubmitError(
           result.error || "Submission failed \u2014 please try again"
@@ -184,35 +178,27 @@ export const ApplicationForm = ({
       {/* Divider */}
       <div className="h-px w-full bg-brand-g2" />
 
-      {isSubmitted ? (
-        <div className="flex flex-col gap-6 pt-12 lg:pt-20">
-          <h2 className="text-f-h2-mobile font-semibold text-brand-w2 lg:text-f-h2">
-            Thanks for reaching out
-          </h2>
-          <p className="text-[1rem] font-medium leading-6 text-brand-w2">
-            We&apos;re excited to see what you&apos;re all about.
-            <br />
-            We&apos;ll review your application and be in touch if it&apos;s a
-            match.
-          </p>
-        </div>
-      ) : (
-        <>
-          {/* Form title */}
-          <div className="pt-12 lg:pt-20">
-            <h2 className="text-f-h2-mobile font-semibold text-brand-w2 lg:text-f-h2">
-              Apply now
-            </h2>
-          </div>
+      {/* Form title */}
+      <div className="pt-12 lg:pt-20">
+        <h2 className="text-f-h2-mobile font-semibold text-brand-w2 lg:text-f-h2">
+          Apply now
+        </h2>
+      </div>
 
-          {/* Form */}
-          <form
-            className="flex w-full flex-col gap-8 pt-8 lg:gap-10 lg:pt-12"
-            aria-label={`Application form for ${positionTitle}`}
-            method="post"
-            noValidate
-            onSubmit={handleSubmit(onSubmit, onError)}
-          >
+      {/* Form - fields fade to 50% on submit, click anywhere to restore */}
+      <form
+        className="flex w-full flex-col pt-8"
+        aria-label={`Application form for ${positionTitle}`}
+        method="post"
+        noValidate
+        onSubmit={handleSubmit(onSubmit, onError)}
+        onClick={() => {
+          if (isSubmitted) setIsSubmitted(false)
+        }}
+      >
+        <div
+          className={`flex w-full flex-col gap-8 transition-opacity lg:gap-10 ${isSubmitted ? "cursor-pointer opacity-50 duration-500" : "opacity-100 duration-1000"}`}
+        >
             <div className="hidden" aria-hidden="true">
               <label htmlFor="companyWebsite">Company website</label>
               <input
@@ -403,14 +389,34 @@ export const ApplicationForm = ({
               />
             ) : null}
 
-            {/* Submit */}
-            <div className="flex flex-col items-start justify-between gap-4 pb-20 pt-3 lg:flex-row lg:pb-0 lg:pt-10">
+        </div>
+
+        {/* Submit area — not faded, always at full opacity */}
+        <div className="flex flex-col items-start justify-between gap-4 pb-20 pt-16 lg:flex-row lg:pb-0 lg:pt-20">
+          {/* Cross-fade between submit button and thank you message */}
+          <div className="grid">
+            <div
+              className={`col-start-1 row-start-1 transition-opacity duration-500 ${isSubmitted ? "pointer-events-none select-none opacity-0" : "opacity-100"}`}
+            >
               <CtaButton disabled={submitDisabled} />
-              <ContactStatus error={submitError} />
             </div>
-          </form>
-        </>
-      )}
+            <div
+              className={`col-start-1 row-start-1 flex flex-col gap-6 transition-opacity duration-500 ${isSubmitted ? "opacity-100" : "pointer-events-none select-none opacity-0"}`}
+            >
+              <h2 className="text-f-h2-mobile font-semibold text-brand-w2 lg:text-f-h2">
+                Thanks for reaching out
+              </h2>
+              <p className="text-[1rem] font-medium leading-6 text-brand-w2">
+                We&apos;re excited to see what you&apos;re all about.
+                <br />
+                We&apos;ll review your application and be in touch if it&apos;s
+                a match.
+              </p>
+            </div>
+          </div>
+          <ContactStatus error={submitError} />
+        </div>
+      </form>
     </section>
   )
 }
