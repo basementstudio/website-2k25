@@ -25,6 +25,9 @@
 - Singleton migration IDs use the schema name directly (e.g., `homepage`, `servicesPage`) — no slug suffix
 - BaseHub component fields (like `capabilities`, `ventures`) are single objects, not arrays — query without `.items`
 - When BaseHub stores plain strings but Sanity expects PT, use `plainTextToPortableText()` helper to wrap in blocks
+- Sanity dataset export creates a tar.gz with a timestamped subdirectory (e.g., `production-export-2026-03-27t21-24-47-937z/data.ndjson`) — don't assume `data.ndjson` is at root
+- Pre-existing TS errors reduced from ~124 to 8 (basehub canary types may have updated) — all in other migration scripts, not new code
+- Audit results from export: 176 docs total. Gaps: 0 showcaseEntry (expected 25), 3/27 posts, 12/30 awards, 0 testimonials, 0 values, 0 homepage. 16 docs missing required fields. 0 broken refs. 12 empty PT fields.
 
 ---
 
@@ -384,4 +387,23 @@
   - Sanity image assets have `_type: 'sanity.imageAsset'` and include a `url` field — query with `*[_type == "sanity.imageAsset"]{ _id, url }`
   - BaseHub department count requires deduplication from people (no standalone department list)
   - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-27 - US-001
+- Exported Sanity production dataset (176 documents, 517 image assets) to `scripts/migration/data/production-export.tar.gz`
+- Created `scripts/migration/audit-dataset.ts` that extracts the tar.gz, parses NDJSON, and runs 4 audit checks:
+  1. Document count per _type vs BaseHub expected counts (summary table)
+  2. Missing required fields (title, slug, name, _type)
+  3. Broken references (walks all _ref values and checks existence)
+  4. Empty portable text fields that should have content
+- Added `scripts/migration/data/` to `.gitignore`
+- Files changed: scripts/migration/audit-dataset.ts (new), .gitignore (modified)
+- **Learnings for future iterations:**
+  - Sanity `dataset export` wraps everything in a timestamped subdirectory inside the tar.gz — `data.ndjson` is NOT at the root of the archive
+  - Export includes system documents (sanity.imageAsset, etc.) — filter by DOCUMENT_TYPES for migration-relevant audit
+  - Current dataset gaps: 0/25 showcaseEntries, 3/27 posts, 12/30 awards, 0 testimonials, 0 values, 0/1 homepage — these match the known migration failures from Phase 1
+  - 12 awards have non-deterministic _ids (basehub raw IDs) and missing `title` field — the fix-awards script (US-010) must handle re-keying
+  - 4 projectCategories missing `slug` field — fix-projects (US-005) needs to ensure slugs are set
+  - 8 open positions have empty `jobDescription` PT fields — may need investigation in fix scripts
+  - Pre-existing TS errors now at 8 (down from ~124) — all in basehub/migration scripts, zero from audit-dataset.ts
 ---
