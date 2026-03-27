@@ -551,6 +551,171 @@ export function validatePortableText(
   return errors
 }
 
+// Allowed block _type values for the post content field
+const CONTENT_BLOCK_TYPES = new Set([
+  'block',
+  'image',
+  'codeBlock',
+  'quoteWithAuthor',
+  'codeSandbox',
+  'sideNote',
+  'gridGallery',
+  'tweetEmbed',
+])
+
+/**
+ * Deep-sanitize a portable text array to ensure every block and nested array
+ * item has _key, _type, and valid structure. Strips invalid blocks rather
+ * than failing the whole document.
+ */
+export function sanitizePortableText(
+  blocks: PortableTextBlock[],
+  allowedTypes?: Set<string>
+): PortableTextBlock[] {
+  const allowed = allowedTypes || CONTENT_BLOCK_TYPES
+  const result: PortableTextBlock[] = []
+
+  for (const block of blocks) {
+    if (block == null || typeof block !== 'object') continue
+
+    const b = block as Record<string, unknown>
+
+    // Ensure _key
+    if (!b._key) b._key = generateKey()
+
+    // Skip blocks with no _type
+    if (!b._type) continue
+
+    // Strip blocks whose _type isn't in the allowed set
+    if (!allowed.has(b._type as string)) {
+      console.warn(
+        `  [sanitize] Stripped block with unsupported _type: ${b._type}`
+      )
+      continue
+    }
+
+    // Sanitize standard 'block' type
+    if (b._type === 'block') {
+      if (
+        !Array.isArray(b.children) ||
+        b.children.length === 0
+      ) {
+        b.children = [
+          { _type: 'span', _key: generateKey(), text: '', marks: [] },
+        ]
+      } else {
+        b.children = (b.children as Array<Record<string, unknown>>).map(
+          (child) => ({
+            ...child,
+            _key: child._key || generateKey(),
+            _type: child._type || 'span',
+            text: child.text ?? '',
+            marks: Array.isArray(child.marks) ? child.marks : [],
+          })
+        )
+      }
+
+      if (!Array.isArray(b.markDefs)) {
+        b.markDefs = []
+      } else {
+        b.markDefs = (b.markDefs as Array<Record<string, unknown>>).map(
+          (def) => ({ ...def, _key: def._key || generateKey() })
+        )
+      }
+
+      if (!b.style) b.style = 'normal'
+    }
+
+    // Sanitize codeBlock: ensure files array items have _key
+    if (b._type === 'codeBlock' && Array.isArray(b.files)) {
+      b.files = (b.files as Array<Record<string, unknown>>).map((file) => ({
+        ...file,
+        _key: file._key || generateKey(),
+      }))
+    }
+
+    // Sanitize gridGallery: ensure images array items have _key
+    if (b._type === 'gridGallery' && Array.isArray(b.images)) {
+      b.images = (b.images as Array<Record<string, unknown>>).map((img) => ({
+        ...img,
+        _key: img._key || generateKey(),
+      }))
+    }
+
+    // Sanitize quoteWithAuthor: recurse into nested PT
+    if (b._type === 'quoteWithAuthor' && Array.isArray(b.quote)) {
+      b.quote = sanitizePortableText(
+        b.quote as PortableTextBlock[],
+        new Set(['block'])
+      )
+    }
+
+    // Sanitize sideNote: recurse into nested PT
+    if (b._type === 'sideNote' && Array.isArray(b.content)) {
+      b.content = sanitizePortableText(
+        b.content as PortableTextBlock[],
+        new Set(['block'])
+      )
+    }
+
+    result.push(b as PortableTextBlock)
+  }
+
+  return result
+}
+
+/**
+ * Filter portable text blocks to only include basic block types.
+ * Used for intro fields that only allow standard text blocks.
+ */
+export function filterIntroBlocks(
+  blocks: PortableTextBlock[]
+): PortableTextBlock[] {
+  return sanitizePortableText(blocks, new Set(['block']))
+}
+
+/**
+ * Sanitize a full post document before sending to Sanity.
+ * Validates and fixes PT fields, logs and strips any invalid blocks.
+ * Returns the sanitized document.
+ */
+export function sanitizeDocument(
+  doc: Record<string, unknown>
+): { doc: Record<string, unknown>; warnings: string[] } {
+  const warnings: string[] = []
+  const sanitized = { ...doc }
+
+  // Sanitize intro: only basic block types allowed
+  if (Array.isArray(sanitized.intro)) {
+    const before = sanitized.intro.length
+    sanitized.intro = filterIntroBlocks(
+      sanitized.intro as PortableTextBlock[]
+    )
+    const after = (sanitized.intro as PortableTextBlock[]).length
+    if (before !== after) {
+      warnings.push(
+        `intro: stripped ${before - after} non-block items (${before} → ${after})`
+      )
+    }
+  }
+
+  // Sanitize content: all content block types allowed
+  if (Array.isArray(sanitized.content)) {
+    const before = sanitized.content.length
+    sanitized.content = sanitizePortableText(
+      sanitized.content as PortableTextBlock[]
+    )
+    const after = (sanitized.content as PortableTextBlock[]).length
+    if (before !== after) {
+      warnings.push(
+        `content: stripped ${before - after} invalid blocks (${before} → ${after})`
+      )
+    }
+  }
+
+  return { doc: sanitized, warnings }
+}
+
 export type {
   TipTapNode,
   TipTapMark,

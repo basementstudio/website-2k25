@@ -475,3 +475,20 @@
   - All 41 clients and 47 persons existed, so zero references needed to be skipped — US-003 and US-004 prerequisites fully satisfied
   - 8 pre-existing TS errors remain unchanged — zero new errors introduced
 ---
+
+## 2026-03-27 - US-006
+- Enhanced `scripts/migration/utils/rich-text.ts` with three new exported functions:
+  - `sanitizePortableText(blocks, allowedTypes?)` — deep-sanitizes PT arrays: ensures _key/_type on all blocks, children/markDefs on text blocks, _key on nested array items (codeBlock.files, gridGallery.images), recursively sanitizes nested PT in quoteWithAuthor.quote and sideNote.content, strips blocks with unsupported _type values
+  - `filterIntroBlocks(blocks)` — filters PT to only basic 'block' type items (for intro fields that don't allow custom blocks or images)
+  - `sanitizeDocument(doc)` — validates full post document, sanitizes both intro (basic blocks only) and content (all allowed types), returns sanitized doc + warnings array for logging
+- Verified all 6 custom block _type values match Sanity schema field names exactly: codeBlock, quoteWithAuthor, codeSandbox, sideNote, gridGallery, tweetEmbed
+- CONTENT_BLOCK_TYPES set defines the 8 allowed content types (block, image, codeBlock, quoteWithAuthor, codeSandbox, sideNote, gridGallery, tweetEmbed)
+- Existing sanitizePortableText in migrate-posts.ts is now superseded by the richer version in rich-text.ts
+- Files changed: scripts/migration/utils/rich-text.ts (modified), prd.json (US-006 passes: true), progress.txt (appended)
+- **Learnings for future iterations:**
+  - Post intro field only accepts `{ type: 'block' }` — any custom blocks, images, or other types in intro will cause Sanity validation failure
+  - Nested PT fields (quoteWithAuthor.quote, sideNote.content) must also be sanitized — they only allow basic 'block' type
+  - The sanitize function strips invalid blocks with a warning log rather than throwing — this prevents a single bad block from failing the entire post
+  - All custom block _type values produced by the converter already match the schema exactly — no renaming needed
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---

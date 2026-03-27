@@ -108,7 +108,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Compare the _type values in converted PT against the `of` array in the post content schema. Any _type not listed in the schema will cause validation failure. Also check for empty children arrays or missing text properties."
     },
     {
