@@ -371,7 +371,11 @@ async function convertCustomBlock(
       const quotePT = await convertRichText(quoteContent)
       let avatar: SanityAssetRef | null = null
       if (b.avatar?.url) {
-        avatar = await downloadAndUploadImage(b.avatar.url, 'avatar')
+        try {
+          avatar = await downloadAndUploadImage(b.avatar.url, 'avatar')
+        } catch {
+          console.warn('  [rich-text] Failed to upload quote avatar, skipping')
+        }
       }
       return {
         _type: 'quoteWithAuthor',
@@ -408,11 +412,15 @@ async function convertCustomBlock(
       const images: SanityAssetRef[] = []
       for (const item of b.images?.items || []) {
         if (item.image?.url) {
-          const ref = await downloadAndUploadImage(
-            item.image.url,
-            item.image.alt || 'gallery-image'
-          )
-          if (ref) images.push(ref)
+          try {
+            const ref = await downloadAndUploadImage(
+              item.image.url,
+              item.image.alt || 'gallery-image'
+            )
+            if (ref) images.push(ref)
+          } catch {
+            console.warn(`  [rich-text] Failed to upload gallery image, skipping`)
+          }
         }
       }
       return {
@@ -475,19 +483,28 @@ export async function convertRichText(
       const id = (block as Record<string, unknown>).id as string
       const blockData = blockMap.get(id)
       if (blockData) {
-        const converted = await convertCustomBlock(blockData)
-        if (converted) result.push(converted)
+        try {
+          const converted = await convertCustomBlock(blockData)
+          if (converted) result.push(converted)
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err)
+          console.warn(`  [rich-text] Failed to convert custom block ${blockData.__typename}: ${msg}`)
+        }
       }
     } else if (block._type === '__image_placeholder') {
       const src = (block as Record<string, unknown>).src as string
       if (src) {
-        const imageRef = await downloadAndUploadImage(src)
-        if (imageRef) {
-          result.push({
-            _type: 'image',
-            _key: generateKey(),
-            asset: imageRef.asset,
-          })
+        try {
+          const imageRef = await downloadAndUploadImage(src)
+          if (imageRef) {
+            result.push({
+              _type: 'image',
+              _key: generateKey(),
+              asset: imageRef.asset,
+            })
+          }
+        } catch {
+          console.warn(`  [rich-text] Failed to upload inline image, skipping`)
         }
       }
     } else {
