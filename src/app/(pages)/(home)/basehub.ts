@@ -133,8 +133,6 @@ export const fetchOrganizationData = async () => {
       twitter: social.twitter,
       linkedIn: social.linkedIn
     },
-    awards: data.company.awards.awardList.items
-      .map((a) => a.title)
-      .filter((t): t is string => Boolean(t))
+    awards: data.company.awards.awardList.items.map((a) => a.title)
   }
 }
