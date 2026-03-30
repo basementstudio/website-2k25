@@ -99,6 +99,13 @@ export const fetchOrganizationData = async () => {
         instagram: true,
         twitter: true,
         linkedIn: true
+      },
+      awards: {
+        awardList: {
+          items: {
+            title: true
+          }
+        }
       }
     }
   })
@@ -125,6 +132,9 @@ export const fetchOrganizationData = async () => {
       instagram: social.instagram,
       twitter: social.twitter,
       linkedIn: social.linkedIn
-    }
+    },
+    awards: data.company.awards.awardList.items
+      .map((a) => a.title)
+      .filter((t): t is string => Boolean(t))
   }
 }

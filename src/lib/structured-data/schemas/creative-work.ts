@@ -14,6 +14,7 @@ interface ProjectData {
     content?: { json: { content: unknown } } | null
     projectWebsite?: string | null
   } | null
+  awards?: { title: string }[]
 }
 
 export const generateCreativeWorkSchema = (entry: ProjectData) => {
@@ -67,6 +68,9 @@ export const generateCreativeWorkSchema = (entry: ProjectData) => {
               : {})
           }
         }
+      : {}),
+    ...(entry.awards && entry.awards.length > 0
+      ? { award: entry.awards.map((a) => a.title) }
       : {})
   }
 }

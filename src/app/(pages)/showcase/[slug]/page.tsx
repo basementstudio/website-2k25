@@ -107,7 +107,10 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
             awards
           }
 
-          const schema = generateCreativeWorkSchema(entry)
+          const schema = generateCreativeWorkSchema({
+            ...entry,
+            awards: awards.map((a) => ({ title: a.title }))
+          })
 
           return (
             <>

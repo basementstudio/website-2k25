@@ -21,6 +21,7 @@ interface OrganizationData {
     twitter: string | null
     linkedIn: string | null
   }
+  awards: string[]
 }
 
 export const generateOrganizationSchema = (data: OrganizationData) => {
@@ -70,7 +71,8 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
             ...(f.url ? { url: f.url } : {})
           }))
         }
-      : {})
+      : {}),
+    ...(data.awards.length > 0 ? { award: data.awards } : {})
   }
 }
 
