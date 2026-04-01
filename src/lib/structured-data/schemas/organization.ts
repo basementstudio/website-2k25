@@ -8,7 +8,7 @@ interface Founder {
 }
 
 interface Award {
-  title: string
+  title?: string | null
   date?: string | number | null
   projectName?: string | null
 }
@@ -33,12 +33,16 @@ interface OrganizationData {
 
 const ORGANIZATION_ID = `${SITE_URL}/#organization`
 const formatAward = (award: Award) => {
+  const title =
+    typeof award.title === "string" ? award.title.trim() : ""
+
+  if (!title) return null
+
   const year =
     award.date !== null && award.date !== undefined
       ? new Date(award.date).getUTCFullYear()
       : null
 
-  const title = award.title.trim()
   const projectName = award.projectName?.trim()
   const projectAlreadyIncludesYear =
     projectName && year ? projectName.endsWith(String(year)) : false
@@ -60,7 +64,13 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     data.social.twitter,
     data.social.linkedIn
   ].filter((v): v is string => Boolean(v))
-  const award = [...new Set((data.awards ?? []).map(formatAward).filter(Boolean))]
+  const award = [
+    ...new Set(
+      (data.awards ?? [])
+        .map(formatAward)
+        .filter((value): value is string => Boolean(value))
+    )
+  ]
   const hasAddress =
     data.addressCity || data.addressRegion || data.addressCountry
 

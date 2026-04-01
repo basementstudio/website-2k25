@@ -17,7 +17,12 @@ interface ProjectData {
     year?: string | number | null
     categories?: { _title: string | null }[] | null
     client?: { _title: string | null; website?: string | null } | null
-    cover?: { url: string; width: number | null; height: number | null } | null
+    cover?: {
+      url: string
+      schemaUrl?: string | null
+      width: number | null
+      height: number | null
+    } | null
     content?: { json: { content: unknown } } | null
     projectWebsite?: string | null
     awards?: Award[] | null

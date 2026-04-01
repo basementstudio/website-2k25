@@ -20,6 +20,7 @@ interface BlogPostData {
   hero?: {
     heroImage?: {
       url: string
+      schemaUrl?: string | null
       width: number | null
       height: number | null
     } | null
