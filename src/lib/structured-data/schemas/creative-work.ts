@@ -1,7 +1,14 @@
 import { extractPlainText } from "../extract-text"
+import { createImageObject } from "../image-object"
 
 const SITE_URL = "https://basement.studio"
 const SITE_NAME = "basement.studio"
+
+interface Award {
+  title: string
+  date?: string | number | null
+  projectName?: string | null
+}
 
 interface ProjectData {
   _title: string
@@ -13,64 +20,62 @@ interface ProjectData {
     cover?: { url: string; width: number | null; height: number | null } | null
     content?: { json: { content: unknown } } | null
     projectWebsite?: string | null
+    awards?: Award[] | null
   } | null
-  awards?: { title: string }[]
+}
+
+const formatAward = (award: Award) => {
+  const year =
+    award.date !== null && award.date !== undefined
+      ? new Date(award.date).getUTCFullYear()
+      : null
+
+  const title = award.title.trim()
+  const projectName = award.projectName?.trim()
+  const projectAlreadyIncludesYear =
+    projectName && year ? projectName.endsWith(String(year)) : false
+
+  if (projectName && year && projectAlreadyIncludesYear) {
+    return `${title} - ${projectName}`
+  }
+  if (projectName && year) return `${title} - ${projectName} ${year}`
+  if (projectName) return `${title} - ${projectName}`
+  if (year) return `${title} ${year}`
+
+  return title
 }
 
 export const generateCreativeWorkSchema = (entry: ProjectData) => {
   const project = entry.project
-  if (!project) return null
+  if (!project || !project._slug) return null
 
   const description = project.content?.json?.content
-    ? extractPlainText(project.content.json.content, 200)
+    ? extractPlainText(project.content.json.content)
     : undefined
+  const image = createImageObject(project.cover)
+  const keywords = project.categories
+    ?.map((c) => c._title)
+    .filter((value): value is string => Boolean(value))
+  const award = [...new Set((project.awards ?? []).map(formatAward).filter(Boolean))]
+  const url = `${SITE_URL}/showcase/${project._slug}`
 
   return {
     "@context": "https://schema.org",
     "@type": "CreativeWork",
+    "@id": `${url}#work`,
     name: entry._title,
-    url: `${SITE_URL}/showcase/${project._slug}`,
+    url,
     ...(project.year ? { dateCreated: String(project.year) } : {}),
     ...(description ? { description } : {}),
-    ...(project.categories && project.categories.length > 0
-      ? {
-          genre: project.categories
-            .map((c) => c._title)
-            .filter(Boolean)
-            .join(", ")
-        }
-      : {}),
-    ...(project.cover?.url
-      ? {
-          image: {
-            "@type": "ImageObject",
-            url: project.cover.url,
-            ...(project.cover.width ? { width: project.cover.width } : {}),
-            ...(project.cover.height
-              ? { height: project.cover.height }
-              : {})
-          }
-        }
-      : {}),
+    ...(keywords?.length ? { keywords } : {}),
+    ...(image ? { image } : {}),
+    ...(award.length > 0 ? { award } : {}),
     ...(project.projectWebsite ? { sameAs: project.projectWebsite } : {}),
     creator: {
       "@type": "Organization",
       name: SITE_NAME,
       url: SITE_URL
     },
-    ...(project.client?._title
-      ? {
-          accountablePerson: {
-            "@type": "Organization",
-            name: project.client._title,
-            ...(project.client.website
-              ? { url: project.client.website }
-              : {})
-          }
-        }
-      : {}),
-    ...(entry.awards && entry.awards.length > 0
-      ? { award: entry.awards.map((a) => a.title) }
-      : {})
+    inLanguage: "en"
   }
 }

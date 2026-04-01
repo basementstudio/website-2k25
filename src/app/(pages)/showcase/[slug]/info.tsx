@@ -13,7 +13,7 @@ import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
 
 interface ProjectInfoProps {
-  entry: QueryItemType & { awards: { title: string }[] }
+  entry: QueryItemType & { awards?: { title: string }[] }
 }
 
 export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
@@ -65,7 +65,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
               />
             }
           />
-          {entry.awards.length > 0 && (
+          {entry.awards?.length ? (
             <InfoItem
               label="Awards"
               value={
@@ -77,7 +77,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
                 />
               }
             />
-          )}
+          ) : null}
           {website && (
             <InfoItem
               label="Link"

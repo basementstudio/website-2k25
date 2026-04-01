@@ -4,6 +4,13 @@ const SITE_NAME = "basement.studio"
 interface Founder {
   name: string
   url?: string | null
+  jobTitle?: string | null
+}
+
+interface Award {
+  title: string
+  date?: string | number | null
+  projectName?: string | null
 }
 
 interface OrganizationData {
@@ -15,13 +22,35 @@ interface OrganizationData {
   addressCountry: string | null
   logo?: { url: string } | null
   founders: Founder[]
+  awards?: Award[]
   social: {
     github: string | null
     instagram: string | null
     twitter: string | null
     linkedIn: string | null
   }
-  awards: string[]
+}
+
+const ORGANIZATION_ID = `${SITE_URL}/#organization`
+const formatAward = (award: Award) => {
+  const year =
+    award.date !== null && award.date !== undefined
+      ? new Date(award.date).getUTCFullYear()
+      : null
+
+  const title = award.title.trim()
+  const projectName = award.projectName?.trim()
+  const projectAlreadyIncludesYear =
+    projectName && year ? projectName.endsWith(String(year)) : false
+
+  if (projectName && year && projectAlreadyIncludesYear) {
+    return `${title} - ${projectName}`
+  }
+  if (projectName && year) return `${title} - ${projectName} ${year}`
+  if (projectName) return `${title} - ${projectName}`
+  if (year) return `${title} ${year}`
+
+  return title
 }
 
 export const generateOrganizationSchema = (data: OrganizationData) => {
@@ -31,13 +60,14 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     data.social.twitter,
     data.social.linkedIn
   ].filter((v): v is string => Boolean(v))
-
+  const award = [...new Set((data.awards ?? []).map(formatAward).filter(Boolean))]
   const hasAddress =
     data.addressCity || data.addressRegion || data.addressCountry
 
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": ORGANIZATION_ID,
     name: SITE_NAME,
     url: SITE_URL,
     ...(data.logo?.url ? { logo: data.logo.url } : {}),
@@ -63,16 +93,17 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
         }
       : {}),
     ...(sameAs.length > 0 ? { sameAs } : {}),
+    ...(award.length > 0 ? { award } : {}),
     ...(data.founders.length > 0
       ? {
           founder: data.founders.map((f) => ({
             "@type": "Person",
             name: f.name,
-            ...(f.url ? { url: f.url } : {})
+            ...(f.url ? { url: f.url } : {}),
+            ...(f.jobTitle ? { jobTitle: f.jobTitle } : {})
           }))
         }
-      : {}),
-    ...(data.awards.length > 0 ? { award: data.awards } : {})
+      : {})
   }
 }
 

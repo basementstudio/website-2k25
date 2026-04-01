@@ -90,7 +90,20 @@ export const fetchOrganizationData = async () => {
         founders: {
           items: {
             name: true,
-            url: true
+            url: true,
+            jobTitle: true
+          }
+        }
+      },
+      awards: {
+        awardList: {
+          items: {
+            title: true,
+            date: true,
+            project: {
+              _title: true
+            },
+            projectFallback: true
           }
         }
       },
@@ -111,6 +124,7 @@ export const fetchOrganizationData = async () => {
   })
 
   const structuredData = data.company.structuredData
+  const awards = data.company.awards.awardList.items
   const social = data.company.social
 
   return {
@@ -125,7 +139,15 @@ export const fetchOrganizationData = async () => {
       .filter((f) => f.name !== null)
       .map((f) => ({
         name: f.name!,
-        url: f.url
+        url: f.url,
+        jobTitle: f.jobTitle
+      })),
+    awards: awards
+      .filter((award) => award.title !== null)
+      .map((award) => ({
+        title: award.title!,
+        date: award.date,
+        projectName: award.project?._title ?? award.projectFallback
       })),
     social: {
       github: social.github,

@@ -84,6 +84,7 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
                 awardList: {
                   items: {
                     title: true,
+                    date: true,
                     project: { _id: true }
                   }
                 }
@@ -104,13 +105,20 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
 
           const entryWithAwards = {
             ...entry,
-            awards
+            awards,
+            project: entry.project
+              ? {
+                  ...entry.project,
+                  awards: awards.map((award) => ({
+                    title: award.title,
+                    date: award.date,
+                    projectName: entry._title
+                  }))
+                }
+              : entry.project
           }
 
-          const schema = generateCreativeWorkSchema({
-            ...entry,
-            awards: awards.map((a) => ({ title: a.title }))
-          })
+          const schema = generateCreativeWorkSchema(entryWithAwards)
 
           return (
             <>
