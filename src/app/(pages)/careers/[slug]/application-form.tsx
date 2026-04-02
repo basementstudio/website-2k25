@@ -5,6 +5,7 @@ import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 
 import { submitCareerApplication } from "@/actions/career-application"
 import { ContactStatus } from "@/app/contact/form/contact-status"
+import { cn } from "@/utils/cn"
 
 import { CtaButton } from "./components/cta-button"
 import { FormCheckboxGroup } from "./components/form-checkbox-group"
@@ -50,6 +51,14 @@ const preventInvalidNumberInput: KeyboardEventHandler<HTMLInputElement> = (
   }
 }
 
+const getRequiredUrlRules = (label: string) => ({
+  required: `${label} is required`,
+  pattern: {
+    value: URL_REGEX,
+    message: "Please enter a valid URL (e.g. https://...)"
+  }
+})
+
 function getDefaultFormValues(positionSlug: string): ApplicationInputs {
   return {
     firstName: "",
@@ -86,7 +95,6 @@ export const ApplicationForm = ({
   const [submitDisabled, setSubmitDisabled] = useState(false)
   const [submitError, setSubmitError] = useState("")
   const apiInFlightRef = useRef(false)
-  const sectionRef = useRef<HTMLElement>(null)
   const showEmailField = hasField("Email")
   const showLocationField = hasField("Where are you based")
   const showYearsOfExperienceField = hasField("Years of experience")
@@ -172,7 +180,6 @@ export const ApplicationForm = ({
 
   return (
     <section
-      ref={sectionRef}
       id="apply"
       className="mt-20 flex w-full flex-col items-start lg:mt-24 lg:max-w-[846px]"
     >
@@ -201,7 +208,12 @@ export const ApplicationForm = ({
           * All fields are required unless stated otherwise
         </p>
         <div
-          className={`flex w-full flex-col gap-8 transition-opacity lg:gap-10 ${isSubmitted ? "cursor-pointer opacity-50 duration-500" : "opacity-100 duration-1000"}`}
+          className={cn(
+            "flex w-full flex-col gap-8 transition-opacity lg:gap-10",
+            isSubmitted
+              ? "cursor-pointer opacity-50 duration-500"
+              : "opacity-100 duration-1000"
+          )}
         >
           <div className="hidden" aria-hidden="true">
             <label htmlFor="companyWebsite">Company website</label>
@@ -245,7 +257,10 @@ export const ApplicationForm = ({
           {/* Email + Location */}
           {showEmailField || showLocationField ? (
             <div
-              className={`grid grid-cols-1 gap-8 lg:gap-5 ${showEmailField && showLocationField ? "lg:grid-cols-2" : ""}`}
+              className={cn(
+                "grid grid-cols-1 gap-8 lg:gap-5",
+                showEmailField && showLocationField && "lg:grid-cols-2"
+              )}
             >
               {showEmailField ? (
                 <FormInput
@@ -295,7 +310,12 @@ export const ApplicationForm = ({
           {/* Years of experience + Salary expectations */}
           {showYearsOfExperienceField || showSalaryExpectationsField ? (
             <div
-              className={`grid grid-cols-1 gap-8 lg:gap-5 ${showYearsOfExperienceField && showSalaryExpectationsField ? "lg:grid-cols-2" : ""}`}
+              className={cn(
+                "grid grid-cols-1 gap-8 lg:gap-5",
+                showYearsOfExperienceField &&
+                  showSalaryExpectationsField &&
+                  "lg:grid-cols-2"
+              )}
             >
               {showYearsOfExperienceField ? (
                 <Controller
@@ -372,44 +392,37 @@ export const ApplicationForm = ({
           {/* Portfolio, GitHub and LinkedIn */}
           {showGithubField ? (
             <>
-              {showPortfolioField || showGithubField ? (
-                <div
-                  className={`grid grid-cols-1 gap-8 lg:gap-5 ${showPortfolioField && showGithubField ? "lg:grid-cols-2" : ""}`}
-                >
-                  {showPortfolioField ? (
-                    <FormInput
-                      label="Portfolio"
-                      required
-                      type="url"
-                      placeholder="https://kickasswork.com/"
-                      error={errors.portfolio?.message}
-                      registration={register("portfolio", {
-                        required: "Portfolio is required",
-                        pattern: {
-                          value: URL_REGEX,
-                          message: "Please enter a valid URL (e.g. https://...)"
-                        }
-                      })}
-                    />
-                  ) : null}
-                  {showGithubField ? (
-                    <FormInput
-                      label="GitHub"
-                      required
-                      type="url"
-                      placeholder="https://github.com/janedoe"
-                      error={errors.github?.message}
-                      registration={register("github", {
-                        required: "GitHub is required",
-                        pattern: {
-                          value: URL_REGEX,
-                          message: "Please enter a valid URL (e.g. https://...)"
-                        }
-                      })}
-                    />
-                  ) : null}
-                </div>
-              ) : null}
+              <div
+                className={cn(
+                  "grid grid-cols-1 gap-8 lg:gap-5",
+                  showPortfolioField && "lg:grid-cols-2"
+                )}
+              >
+                {showPortfolioField ? (
+                  <FormInput
+                    label="Portfolio"
+                    required
+                    type="url"
+                    placeholder="https://kickasswork.com/"
+                    error={errors.portfolio?.message}
+                    registration={register(
+                      "portfolio",
+                      getRequiredUrlRules("Portfolio")
+                    )}
+                  />
+                ) : null}
+                <FormInput
+                  label="GitHub"
+                  required
+                  type="url"
+                  placeholder="https://github.com/janedoe"
+                  error={errors.github?.message}
+                  registration={register(
+                    "github",
+                    getRequiredUrlRules("GitHub")
+                  )}
+                />
+              </div>
               {showLinkedinField ? (
                 <FormInput
                   label="LinkedIn"
@@ -417,19 +430,19 @@ export const ApplicationForm = ({
                   type="url"
                   placeholder="https://www.linkedin.com/in/joandoe"
                   error={errors.linkedin?.message}
-                  registration={register("linkedin", {
-                    required: "LinkedIn is required",
-                    pattern: {
-                      value: URL_REGEX,
-                      message: "Please enter a valid URL (e.g. https://...)"
-                    }
-                  })}
+                  registration={register(
+                    "linkedin",
+                    getRequiredUrlRules("LinkedIn")
+                  )}
                 />
               ) : null}
             </>
           ) : showPortfolioField || showLinkedinField ? (
             <div
-              className={`grid grid-cols-1 gap-8 lg:gap-5 ${showPortfolioField && showLinkedinField ? "lg:grid-cols-2" : ""}`}
+              className={cn(
+                "grid grid-cols-1 gap-8 lg:gap-5",
+                showPortfolioField && showLinkedinField && "lg:grid-cols-2"
+              )}
             >
               {showPortfolioField ? (
                 <FormInput
@@ -438,13 +451,10 @@ export const ApplicationForm = ({
                   type="url"
                   placeholder="https://kickasswork.com/"
                   error={errors.portfolio?.message}
-                  registration={register("portfolio", {
-                    required: "Portfolio is required",
-                    pattern: {
-                      value: URL_REGEX,
-                      message: "Please enter a valid URL (e.g. https://...)"
-                    }
-                  })}
+                  registration={register(
+                    "portfolio",
+                    getRequiredUrlRules("Portfolio")
+                  )}
                 />
               ) : null}
               {showLinkedinField ? (
@@ -454,13 +464,10 @@ export const ApplicationForm = ({
                   type="url"
                   placeholder="https://www.linkedin.com/in/joandoe"
                   error={errors.linkedin?.message}
-                  registration={register("linkedin", {
-                    required: "LinkedIn is required",
-                    pattern: {
-                      value: URL_REGEX,
-                      message: "Please enter a valid URL (e.g. https://...)"
-                    }
-                  })}
+                  registration={register(
+                    "linkedin",
+                    getRequiredUrlRules("LinkedIn")
+                  )}
                 />
               ) : null}
             </div>
@@ -472,12 +479,22 @@ export const ApplicationForm = ({
           {/* Cross-fade between submit button and thank you message */}
           <div className="grid">
             <div
-              className={`col-start-1 row-start-1 transition-opacity duration-500 ${isSubmitted ? "pointer-events-none select-none opacity-0" : "opacity-100"}`}
+              className={cn(
+                "col-start-1 row-start-1 transition-opacity duration-500",
+                isSubmitted
+                  ? "pointer-events-none select-none opacity-0"
+                  : "opacity-100"
+              )}
             >
               <CtaButton disabled={submitDisabled || !isValid} />
             </div>
             <div
-              className={`col-start-1 row-start-1 flex flex-col gap-6 transition-opacity duration-500 ${isSubmitted ? "opacity-100" : "pointer-events-none select-none opacity-0"}`}
+              className={cn(
+                "col-start-1 row-start-1 flex flex-col gap-6 transition-opacity duration-500",
+                isSubmitted
+                  ? "opacity-100"
+                  : "pointer-events-none select-none opacity-0"
+              )}
             >
               <h2 className="text-f-h2-mobile font-semibold text-brand-w2 lg:text-f-h2">
                 Thanks for reaching out

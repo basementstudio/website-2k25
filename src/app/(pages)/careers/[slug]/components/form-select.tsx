@@ -1,5 +1,7 @@
 import * as Select from "@radix-ui/react-select"
 
+import { cn } from "@/utils/cn"
+
 import { FormError } from "./form-error"
 import { FormLabel } from "./form-label"
 
@@ -36,10 +38,10 @@ export const FormSelect = ({
             onBlur={onBlur}
             aria-invalid={error ? "true" : undefined}
             aria-describedby={error ? "yearsOfExperience-error" : undefined}
-            className={[
+            className={cn(
               "flex h-7 w-full items-center justify-between border-0 bg-brand-g2 px-1 text-[1rem] font-medium leading-6 text-brand-w2 outline-none data-[placeholder]:text-brand-g1",
-              error ? "shadow-[inset_0_0_0_9999px_#F32D2D33]" : ""
-            ].join(" ")}
+              error && "shadow-[inset_0_0_0_9999px_#F32D2D33]"
+            )}
           >
             <Select.Value placeholder={placeholder} />
             <Select.Icon>

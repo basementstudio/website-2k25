@@ -8,6 +8,7 @@ import { Back } from "./back"
 import { Hero } from "./hero"
 import { JobContent } from "./job-content"
 import { JobMeta } from "./job-details-bar"
+import { getCareerMetadataQuery } from "./metadata-query"
 import { careerPostQuery } from "./query"
 
 interface CareerPostProps {
@@ -19,25 +20,7 @@ export const dynamic = "force-static"
 export const generateMetadata = async ({ params }: CareerPostProps) => {
   const { slug } = await params
 
-  const data = await client().query({
-    company: {
-      openPositions: {
-        openPositionsList: {
-          __args: {
-            first: 1,
-            filter: {
-              _sys_slug: {
-                eq: slug
-              }
-            }
-          },
-          items: {
-            _title: true
-          }
-        }
-      }
-    }
-  })
+  const data = await client().query(getCareerMetadataQuery(slug))
 
   if (data.company.openPositions.openPositionsList.items.length === 0)
     return null

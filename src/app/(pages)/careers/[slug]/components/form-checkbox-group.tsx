@@ -1,6 +1,8 @@
 import { useId } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
+import { cn } from "@/utils/cn"
+
 import { FormError } from "./form-error"
 import { FormLabel } from "./form-label"
 
@@ -41,10 +43,10 @@ export const FormCheckboxGroup = ({
         {...registration}
       />
       <span
-        className={[
+        className={cn(
           "flex size-6 shrink-0 items-center justify-center bg-brand-g2 text-brand-w1 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k",
-          error ? "shadow-[inset_0_0_0_9999px_#F32D2D33]" : ""
-        ].join(" ")}
+          error && "shadow-[inset_0_0_0_9999px_#F32D2D33]"
+        )}
       >
         <svg
           className="size-4 opacity-0 transition-opacity group-has-[:checked]:opacity-100"
@@ -66,7 +68,9 @@ export const FormCheckboxGroup = ({
 
   const renderColumns = () => {
     if (columns !== 2) {
-      return <div className="flex flex-col gap-2">{options.map(renderOption)}</div>
+      return (
+        <div className="flex flex-col gap-2">{options.map(renderOption)}</div>
+      )
     }
 
     const midpoint = Math.ceil(options.length / 2)
