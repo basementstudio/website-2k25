@@ -58,6 +58,10 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
       href: "/people"
     },
     {
+      title: "Careers",
+      href: "/people#open-positions"
+    },
+    {
       title: "Blog",
       href: "/blog",
       count: posts
