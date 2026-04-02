@@ -8,8 +8,10 @@ interface FormSelectProps {
   required?: boolean
   options: string[]
   placeholder?: string
+  name?: string
   value: string
   onChange: (value: string) => void
+  onBlur?: () => void
   error?: string
 }
 
@@ -18,8 +20,10 @@ export const FormSelect = ({
   required,
   options,
   placeholder,
+  name,
   value,
   onChange,
+  onBlur,
   error
 }: FormSelectProps) => {
   return (
@@ -28,6 +32,8 @@ export const FormSelect = ({
       <div className="flex flex-col gap-3">
         <Select.Root value={value} onValueChange={onChange}>
           <Select.Trigger
+            name={name}
+            onBlur={onBlur}
             aria-invalid={error ? "true" : undefined}
             aria-describedby={error ? "yearsOfExperience-error" : undefined}
             className={[
@@ -52,7 +58,7 @@ export const FormSelect = ({
                   <Select.Item
                     key={option}
                     value={option}
-                    className="cursor-pointer px-2 py-1.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none select-none data-[highlighted]:bg-brand-w1/10"
+                    className="cursor-pointer select-none px-2 py-1.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none data-[highlighted]:bg-brand-w1/10"
                   >
                     <Select.ItemText>{option}</Select.ItemText>
                   </Select.Item>

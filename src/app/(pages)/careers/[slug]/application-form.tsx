@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { type KeyboardEventHandler, useEffect, useRef, useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 
 import { submitCareerApplication } from "@/actions/career-application"
@@ -39,6 +39,16 @@ const YEARS_OPTIONS = ["0-1", "1-3", "3-5", "5-10", "10+"]
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const URL_REGEX = /^https?:\/\/.+/
+const DIGITS_ONLY_REGEX = /^\d+$/
+const BLOCKED_NUMBER_KEYS = new Set(["e", "E", "+", "-", ".", ","])
+
+const preventInvalidNumberInput: KeyboardEventHandler<HTMLInputElement> = (
+  event
+) => {
+  if (BLOCKED_NUMBER_KEYS.has(event.key)) {
+    event.preventDefault()
+  }
+}
 
 function getDefaultFormValues(positionSlug: string): ApplicationInputs {
   return {
@@ -77,34 +87,25 @@ export const ApplicationForm = ({
   const [submitError, setSubmitError] = useState("")
   const apiInFlightRef = useRef(false)
   const sectionRef = useRef<HTMLElement>(null)
+  const showEmailField = hasField("Email")
+  const showLocationField = hasField("Where are you based")
+  const showYearsOfExperienceField = hasField("Years of experience")
+  const showSalaryExpectationsField = hasField("Salary Expectation")
+  const showPortfolioField = hasField("Portfolio")
+  const showGithubField = hasField("Github")
+  const showLinkedinField = hasField("Linkedin")
   const {
     register,
     handleSubmit,
     setValue,
     control,
-    trigger,
-    formState: { errors },
+    formState: { errors, isValid },
     reset
   } = useForm<ApplicationInputs>({
-    defaultValues: getDefaultFormValues(positionSlug)
+    defaultValues: getDefaultFormValues(positionSlug),
+    mode: "onBlur",
+    reValidateMode: "onBlur"
   })
-
-  const registerWithBlurValidation = (
-    name: keyof ApplicationInputs,
-    options?: Parameters<typeof register>[1]
-  ) => {
-    const registration = register(name, options)
-    const originalOnBlur = registration.onBlur
-    return {
-      ...registration,
-      onBlur: async (e: { target: unknown; type?: string }) => {
-        await originalOnBlur(e)
-        if (e.target instanceof HTMLInputElement && e.target.value) {
-          trigger(name)
-        }
-      }
-    }
-  }
 
   useEffect(() => {
     setValue("formStartedAt", Date.now())
@@ -196,199 +197,274 @@ export const ApplicationForm = ({
           if (isSubmitted) setIsSubmitted(false)
         }}
       >
+        <p className="pb-8 text-sm leading-6 text-brand-o">
+          * All fields are required unless stated otherwise
+        </p>
         <div
           className={`flex w-full flex-col gap-8 transition-opacity lg:gap-10 ${isSubmitted ? "cursor-pointer opacity-50 duration-500" : "opacity-100 duration-1000"}`}
         >
-            <div className="hidden" aria-hidden="true">
-              <label htmlFor="companyWebsite">Company website</label>
-              <input
-                id="companyWebsite"
-                type="text"
-                tabIndex={-1}
-                autoComplete="off"
-                {...register("companyWebsite")}
+          <div className="hidden" aria-hidden="true">
+            <label htmlFor="companyWebsite">Company website</label>
+            <input
+              id="companyWebsite"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              {...register("companyWebsite")}
+            />
+          </div>
+          <input
+            type="hidden"
+            {...register("formStartedAt", { valueAsNumber: true })}
+          />
+
+          {/* First name + Last name */}
+          {hasField("First and last name") ? (
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
+              <FormInput
+                label="First name"
+                required
+                placeholder="Jane"
+                error={errors.firstName?.message}
+                registration={register("firstName", {
+                  required: "First name is required"
+                })}
+              />
+              <FormInput
+                label="Last name"
+                required
+                placeholder="Doe"
+                error={errors.lastName?.message}
+                registration={register("lastName", {
+                  required: "Last name is required"
+                })}
               />
             </div>
-            <input
-              type="hidden"
-              {...register("formStartedAt", { valueAsNumber: true })}
+          ) : null}
+
+          {/* Email + Location */}
+          {showEmailField || showLocationField ? (
+            <div
+              className={`grid grid-cols-1 gap-8 lg:gap-5 ${showEmailField && showLocationField ? "lg:grid-cols-2" : ""}`}
+            >
+              {showEmailField ? (
+                <FormInput
+                  label="Email"
+                  required
+                  type="email"
+                  placeholder="janedoe@email.com"
+                  error={errors.email?.message}
+                  registration={register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: EMAIL_REGEX,
+                      message: "Invalid email format"
+                    }
+                  })}
+                />
+              ) : null}
+              {showLocationField ? (
+                <FormInput
+                  label="Where are you based?"
+                  required
+                  placeholder="Argentina"
+                  error={errors.location?.message}
+                  registration={register("location", {
+                    required: "Location is required"
+                  })}
+                />
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* Motivation */}
+          {hasField("Why do you want to join") ? (
+            <FormTextarea
+              label="Why do you want to join"
+              required
+              placeholder="Because I want to create jaw-dropping websites"
+              error={errors.whyDoYouWantToJoin?.message}
+              registration={register("whyDoYouWantToJoin", {
+                required: "This field is required"
+              })}
+              rows={1}
+              maxLength={1500}
             />
+          ) : null}
 
-            {/* First name + Last name */}
-            {hasField("First and last name") ? (
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-5">
+          {/* Years of experience + Salary expectations */}
+          {showYearsOfExperienceField || showSalaryExpectationsField ? (
+            <div
+              className={`grid grid-cols-1 gap-8 lg:gap-5 ${showYearsOfExperienceField && showSalaryExpectationsField ? "lg:grid-cols-2" : ""}`}
+            >
+              {showYearsOfExperienceField ? (
+                <Controller
+                  name="yearsOfExperience"
+                  control={control}
+                  rules={{ required: "Years of experience is required" }}
+                  render={({ field }) => (
+                    <FormSelect
+                      label="Years of experience"
+                      required
+                      options={YEARS_OPTIONS}
+                      placeholder="5-10"
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      error={errors.yearsOfExperience?.message}
+                    />
+                  )}
+                />
+              ) : null}
+              {showSalaryExpectationsField ? (
                 <FormInput
-                  label="First name"
+                  label="Salary expectations (USD)"
                   required
-                  placeholder="Jane"
-                  error={errors.firstName?.message}
-                  registration={register("firstName", {
-                    required: "First name is required"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  onKeyDown={preventInvalidNumberInput}
+                  error={errors.salaryExpectations?.message}
+                  registration={register("salaryExpectations", {
+                    required: "Salary expectations is required",
+                    validate: (value) => {
+                      const trimmedValue = value.trim()
+
+                      if (trimmedValue === "") {
+                        return "Salary expectations is required"
+                      }
+
+                      if (trimmedValue.startsWith("-")) {
+                        return "Salary expectations can't be negative"
+                      }
+
+                      if (!DIGITS_ONLY_REGEX.test(trimmedValue)) {
+                        return "Use numbers only"
+                      }
+
+                      return true
+                    }
                   })}
                 />
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* Skills */}
+          {hasField("Skills") && formConfig.skills.length > 0 ? (
+            <FormCheckboxGroup
+              label="Skills"
+              required
+              columns={2}
+              options={formConfig.skills.map((skill) => ({
+                label: skill._title,
+                value: skill._title
+              }))}
+              error={errors.skills?.message}
+              registration={register("skills", {
+                validate: (value) =>
+                  value?.length > 0 || "Choose at least one skill"
+              })}
+            />
+          ) : null}
+
+          {/* Portfolio, GitHub and LinkedIn */}
+          {showGithubField ? (
+            <>
+              {showPortfolioField || showGithubField ? (
+                <div
+                  className={`grid grid-cols-1 gap-8 lg:gap-5 ${showPortfolioField && showGithubField ? "lg:grid-cols-2" : ""}`}
+                >
+                  {showPortfolioField ? (
+                    <FormInput
+                      label="Portfolio"
+                      required
+                      type="url"
+                      placeholder="https://kickasswork.com/"
+                      error={errors.portfolio?.message}
+                      registration={register("portfolio", {
+                        required: "Portfolio is required",
+                        pattern: {
+                          value: URL_REGEX,
+                          message: "Please enter a valid URL (e.g. https://...)"
+                        }
+                      })}
+                    />
+                  ) : null}
+                  {showGithubField ? (
+                    <FormInput
+                      label="GitHub"
+                      required
+                      type="url"
+                      placeholder="https://github.com/janedoe"
+                      error={errors.github?.message}
+                      registration={register("github", {
+                        required: "GitHub is required",
+                        pattern: {
+                          value: URL_REGEX,
+                          message: "Please enter a valid URL (e.g. https://...)"
+                        }
+                      })}
+                    />
+                  ) : null}
+                </div>
+              ) : null}
+              {showLinkedinField ? (
                 <FormInput
-                  label="Last name"
+                  label="LinkedIn"
                   required
-                  placeholder="Doe"
-                  error={errors.lastName?.message}
-                  registration={register("lastName", {
-                    required: "Last name is required"
+                  type="url"
+                  placeholder="https://www.linkedin.com/in/joandoe"
+                  error={errors.linkedin?.message}
+                  registration={register("linkedin", {
+                    required: "LinkedIn is required",
+                    pattern: {
+                      value: URL_REGEX,
+                      message: "Please enter a valid URL (e.g. https://...)"
+                    }
                   })}
                 />
-              </div>
-            ) : null}
-
-            {/* Email */}
-            {hasField("Email") ? (
-              <FormInput
-                label="Email"
-                required
-                type="email"
-                placeholder="janedoe@email.com"
-                error={errors.email?.message}
-                registration={register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: EMAIL_REGEX,
-                    message: "Invalid email format"
-                  }
-                })}
-              />
-            ) : null}
-
-            {/* Where are you based? */}
-            {hasField("Where are you based") ? (
-              <FormInput
-                label="Where are you based?"
-                required
-                placeholder="Argentina"
-                error={errors.location?.message}
-                registration={register("location", {
-                  required: "Location is required"
-                })}
-              />
-            ) : null}
-
-            {/* Motivation */}
-            {hasField("Why do you want to join") ? (
-              <FormTextarea
-                label="Why do you want to join"
-                required
-                placeholder="Because I want to create jaw-dropping websites"
-                error={errors.whyDoYouWantToJoin?.message}
-                registration={register("whyDoYouWantToJoin", {
-                  required: "This field is required"
-                })}
-                rows={1}
-                maxLength={1500}
-              />
-            ) : null}
-
-            {/* Years of experience */}
-            {hasField("Years of experience") ? (
-              <Controller
-                name="yearsOfExperience"
-                control={control}
-                rules={{ required: "Years of experience is required" }}
-                render={({ field }) => (
-                  <FormSelect
-                    label="Years of experience"
-                    required
-                    options={YEARS_OPTIONS}
-                    placeholder="5-10"
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={errors.yearsOfExperience?.message}
-                  />
-                )}
-              />
-            ) : null}
-
-            {/* Salary expectations */}
-            {hasField("Salary Expectation") ? (
-              <FormInput
-                label="Salary expectations (USD)"
-                required
-                type="number"
-                error={errors.salaryExpectations?.message}
-                registration={register("salaryExpectations", {
-                  required: "Salary expectations is required",
-                  validate: (value) =>
-                    value.trim() !== "" && Number.isFinite(Number(value))
-                      ? true
-                      : "Salary expectations is required"
-                })}
-              />
-            ) : null}
-
-            {/* Skills */}
-            {hasField("Skills") && formConfig.skills.length > 0 ? (
-              <FormCheckboxGroup
-                label="Skills"
-                required
-                columns={2}
-                options={formConfig.skills.map((skill) => ({
-                  label: skill._title,
-                  value: skill._title
-                }))}
-                error={errors.skills?.message}
-                registration={register("skills", {
-                  validate: (value) =>
-                    value?.length > 0 || "Choose at least one skill"
-                })}
-              />
-            ) : null}
-
-            {/* Portfolio */}
-            {hasField("Portfolio") ? (
-              <FormInput
-                label="Portfolio"
-                required
-                type="url"
-                placeholder="https://kickasswork.com/"
-                error={errors.portfolio?.message}
-                registration={registerWithBlurValidation("portfolio", {
-                  required: "Portfolio is required",
-                  pattern: {
-                    value: URL_REGEX,
-                    message: "Please enter a valid URL (e.g. https://...)"
-                  }
-                })}
-              />
-            ) : null}
-
-            {/* GitHub */}
-            {hasField("Github") ? (
-              <FormInput
-                label="GitHub"
-                type="url"
-                placeholder="https://github.com/janedoe"
-                error={errors.github?.message}
-                registration={registerWithBlurValidation("github", {
-                  validate: (value) =>
-                    !value || (typeof value === "string" && URL_REGEX.test(value)) || "Please enter a valid URL (e.g. https://...)"
-                })}
-              />
-            ) : null}
-
-            {/* LinkedIn */}
-            {hasField("Linkedin") ? (
-              <FormInput
-                label="LinkedIn"
-                required
-                type="url"
-                placeholder="https://www.linkedin.com/in/joandoe"
-                error={errors.linkedin?.message}
-                registration={registerWithBlurValidation("linkedin", {
-                  required: "LinkedIn is required",
-                  pattern: {
-                    value: URL_REGEX,
-                    message: "Please enter a valid URL (e.g. https://...)"
-                  }
-                })}
-              />
-            ) : null}
-
+              ) : null}
+            </>
+          ) : showPortfolioField || showLinkedinField ? (
+            <div
+              className={`grid grid-cols-1 gap-8 lg:gap-5 ${showPortfolioField && showLinkedinField ? "lg:grid-cols-2" : ""}`}
+            >
+              {showPortfolioField ? (
+                <FormInput
+                  label="Portfolio"
+                  required
+                  type="url"
+                  placeholder="https://kickasswork.com/"
+                  error={errors.portfolio?.message}
+                  registration={register("portfolio", {
+                    required: "Portfolio is required",
+                    pattern: {
+                      value: URL_REGEX,
+                      message: "Please enter a valid URL (e.g. https://...)"
+                    }
+                  })}
+                />
+              ) : null}
+              {showLinkedinField ? (
+                <FormInput
+                  label="LinkedIn"
+                  required
+                  type="url"
+                  placeholder="https://www.linkedin.com/in/joandoe"
+                  error={errors.linkedin?.message}
+                  registration={register("linkedin", {
+                    required: "LinkedIn is required",
+                    pattern: {
+                      value: URL_REGEX,
+                      message: "Please enter a valid URL (e.g. https://...)"
+                    }
+                  })}
+                />
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         {/* Submit area — not faded, always at full opacity */}
@@ -398,7 +474,7 @@ export const ApplicationForm = ({
             <div
               className={`col-start-1 row-start-1 transition-opacity duration-500 ${isSubmitted ? "pointer-events-none select-none opacity-0" : "opacity-100"}`}
             >
-              <CtaButton disabled={submitDisabled} />
+              <CtaButton disabled={submitDisabled || !isValid} />
             </div>
             <div
               className={`col-start-1 row-start-1 flex flex-col gap-6 transition-opacity duration-500 ${isSubmitted ? "opacity-100" : "pointer-events-none select-none opacity-0"}`}

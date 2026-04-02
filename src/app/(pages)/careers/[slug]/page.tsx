@@ -70,16 +70,13 @@ const CareerPost = async ({ params }: CareerPostProps) => {
 
           if (!position || !position.isOpen) return notFound()
 
-          const heroTitle =
-            data.pages?.careersPost?.heroTitle || "Join our Creative Team!"
-
           const jobDescriptionContent =
             position.jobDescription?.json?.content ?? null
 
           return (
             <div className="relative bg-brand-k pt-12 lg:pb-24">
               <div className="lg:pb-25 flex flex-col gap-24">
-                <Hero title={heroTitle} position={position._title} />
+                <Hero position={position._title} />
                 <div className="grid-layout">
                   <div className="col-span-full lg:col-span-1">
                     <Back />

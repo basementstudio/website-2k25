@@ -8,7 +8,6 @@ interface FormLabelProps {
 
 export const FormLabel = ({
   label,
-  required,
   description,
   as: Tag = "label",
   htmlFor
@@ -20,7 +19,6 @@ export const FormLabel = ({
         className="flex gap-1 text-f-h4-mobile font-semibold lg:text-f-h3"
       >
         <span className="text-brand-w1">{label}</span>
-        {required ? <span className="text-brand-o">*</span> : null}
       </Tag>
       {description ? (
         <p className="text-f-p-mobile text-brand-w2">{description}</p>
