@@ -8,7 +8,7 @@ import { post } from './documents/post'
 import { postCategory } from './documents/postCategory'
 import { project } from './documents/project'
 import { projectCategory } from './documents/projectCategory'
-import { showcaseEntry } from './documents/showcaseEntry'
+import { showcasePage } from './singletons/showcasePage'
 import { testimonial } from './documents/testimonial'
 import { value } from './documents/value'
 import { codeBlock } from './objects/codeBlock'
@@ -38,7 +38,6 @@ export const schemaTypes = [
   postCategory,
   project,
   projectCategory,
-  showcaseEntry,
   testimonial,
   value,
 
@@ -48,6 +47,7 @@ export const schemaTypes = [
   homepage,
   peoplePage,
   servicesPage,
+  showcasePage,
   threeDAssets,
 
   // Object types

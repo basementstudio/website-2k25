@@ -15,6 +15,7 @@ const singletonTypes = new Set([
   'careersPostPage',
   'companyInfo',
   'threeDAssets',
+  'showcasePage',
 ])
 
 const singletonActions = new Set(['publish', 'discardChanges', 'restore'])
@@ -76,6 +77,14 @@ function structure(S: StructureBuilder) {
                     .schemaType('threeDAssets')
                     .documentId('threeDAssets')
                 ),
+              S.listItem()
+                .title('Showcase Page')
+                .id('showcasePage')
+                .child(
+                  S.document()
+                    .schemaType('showcasePage')
+                    .documentId('showcasePage')
+                ),
             ])
         ),
 
@@ -94,7 +103,6 @@ function structure(S: StructureBuilder) {
               S.documentTypeListItem('projectCategory').title(
                 'Project Categories'
               ),
-              S.documentTypeListItem('showcaseEntry').title('Showcase'),
               S.documentTypeListItem('labProject').title('Lab Projects'),
             ])
         ),
