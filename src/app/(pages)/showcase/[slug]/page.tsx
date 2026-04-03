@@ -1,6 +1,8 @@
 import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
 
+import { JsonLd } from "@/lib/structured-data/json-ld"
+import { generateCreativeWorkSchema } from "@/lib/structured-data/schemas/creative-work"
 import { client } from "@/service/basehub"
 
 import { projectFragment } from "./query"
@@ -82,6 +84,7 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
                 awardList: {
                   items: {
                     title: true,
+                    date: true,
                     project: { _id: true }
                   }
                 }
@@ -102,10 +105,27 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
 
           const entryWithAwards = {
             ...entry,
-            awards
+            awards,
+            project: entry.project
+              ? {
+                  ...entry.project,
+                  awards: awards.map((award) => ({
+                    title: award.title,
+                    date: award.date,
+                    projectName: entry._title
+                  }))
+                }
+              : entry.project
           }
 
-          return <ProjectWrapper entry={entryWithAwards} />
+          const schema = generateCreativeWorkSchema(entryWithAwards)
+
+          return (
+            <>
+              {schema ? <JsonLd data={schema} /> : null}
+              <ProjectWrapper entry={entryWithAwards} />
+            </>
+          )
         }}
       </Pump>
     )
