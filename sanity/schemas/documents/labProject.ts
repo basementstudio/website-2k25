@@ -4,7 +4,7 @@ export const labProject = defineType({
   name: 'labProject',
   title: 'Lab Project',
   type: 'document',
-  preview: { select: { title: 'title' } },
+  preview: { select: { title: 'title', media: 'cover' } },
   fields: [
     defineField({
       name: 'title',
@@ -15,7 +15,7 @@ export const labProject = defineType({
     defineField({
       name: 'url',
       title: 'URL',
-      type: 'url',
+      type: 'string',
     }),
     defineField({
       name: 'description',
