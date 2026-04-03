@@ -6,7 +6,7 @@ import { QueryItemType } from "./query"
 import { RelatedProjects } from "./related"
 
 interface ProjectWrapperProps {
-  entry: QueryItemType & { awards: { title: string }[] }
+  entry: QueryItemType & { awards?: { title: string }[] }
 }
 
 export const ProjectWrapper = ({ entry }: ProjectWrapperProps) => (

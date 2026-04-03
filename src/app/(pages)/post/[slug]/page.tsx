@@ -2,6 +2,8 @@ import { Pump } from "basehub/react-pump"
 import { notFound } from "next/navigation"
 
 import { client } from "@/service/basehub"
+import { JsonLd } from "@/lib/structured-data/json-ld"
+import { generateBlogPostingSchema } from "@/lib/structured-data/schemas/blog-posting"
 
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import { Content } from "./content"
@@ -61,8 +63,13 @@ const Blog = async ({ params }: ProjectPostProps) => {
         {async ([data]) => {
           "use server"
 
+          const post = data.pages.blog.posts.items.find(
+            (p) => p._slug === slug
+          )
+
           return (
             <>
+              {post ? <JsonLd data={generateBlogPostingSchema(post)} /> : null}
               <div className="relative bg-brand-k pt-12 lg:pb-24">
                 <div className="lg:pb-25 flex flex-col gap-24">
                   <BlogTitle data={data} slug={slug} />
