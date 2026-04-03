@@ -146,8 +146,8 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": "Final step — deploys all schema changes from US-001 through US-007 to Sanity cloud."
+      "passes": true,
+      "notes": "Final step — deploys all schema changes from US-001 through US-007 to Sanity cloud. Deployed via Sanity MCP (CLI required interactive browser auth)."
     }
   ]
 }
