@@ -1,217 +1,153 @@
 {
   "project": "website-2k25",
-  "branchName": "ralph/basehub-to-sanity-migration",
-  "description": "Migration Fix-Up: Export Sanity dataset, audit gaps vs BaseHub, fix schemas (add title fields for Studio display), and create new standalone fix scripts to fill all missing/broken content",
+  "branchName": "ralph/studio-ux-schema-polish",
+  "description": "Studio UX & Schema Polish (Phase 3): Fix 7 Studio issues — add image previews to list views, fix schema warnings, convert showcase to singleton, and isolate Studio layout from site",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Export Sanity dataset and create audit script",
-      "description": "As an AI agent, I need to export the current Sanity dataset and build an audit script that parses the NDJSON locally to report exactly what's missing, broken, or incomplete — without hitting the Sanity API.",
+      "title": "Add hero image preview to blog posts",
+      "description": "As a content editor, I want to see the hero image thumbnail in the blog post list view so I can quickly identify posts.",
       "acceptanceCriteria": [
-        "Run `npx sanity@latest dataset export production scripts/migration/data/production-export.tar.gz` to download the dataset",
-        "Create `scripts/migration/audit-dataset.ts` that extracts and parses the NDJSON from the export",
-        "Audit script counts documents per _type and compares against expected BaseHub counts",
-        "Audit script lists documents with missing required fields (title, slug, _type)",
-        "Audit script lists all broken references (documents referencing _ids that don't exist in the dataset)",
-        "Audit script lists documents with empty portable text fields (intro, content, description) that should have content",
-        "Audit script outputs a summary table: type | expected | actual | missing | broken_refs",
-        "Add `scripts/migration/data/` to .gitignore",
+        "Update `sanity/schemas/documents/post.ts` preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', media: 'heroImage' } }`",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "The export tarball contains NDJSON. Parse it with ndjson or line-by-line JSON.parse. This gives us ground truth without API calls. Expected counts come from BaseHub queries run in the same script."
+      "notes": "Simple one-line change to the preview object."
     },
     {
       "id": "US-002",
-      "title": "Add title fields to singleton schemas for Studio display",
-      "description": "As an AI agent, I need to add a title field to singleton schemas that are missing one, and configure all document schemas to use the correct field as the Studio display title, so Sanity Studio shows readable names instead of IDs.",
+      "title": "Add cover image and client preview to projects",
+      "description": "As a content editor, I want to see the cover image and client name in the project list view so I can quickly identify projects.",
       "acceptanceCriteria": [
-        "Add hidden `title` field with a default value to singletons that lack one: homepage (default 'Homepage'), servicesPage (default 'Services'), companyInfo (default 'Company Info'), threeDAssets (default '3D Assets')",
-        "peoplePage already has a title field — keep it as-is",
-        "careersPostPage already has heroTitle — add a hidden `title` field with default 'Careers'",
-        "Add `preview: { select: { title: 'title' } }` to all document schemas that don't already have it",
-        "For document types where the display field is not 'title' (e.g. testimonial uses 'name'), set preview.select.title to the correct field",
-        "Run `npx sanity@latest schema deploy` to push updated schemas",
+        "Update `sanity/schemas/documents/project.ts` preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', subtitle: 'client.title', media: 'cover' } }`",
         "Typecheck passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "BaseHub gives every document a _title by default. Sanity doesn't — schemas need explicit title fields or preview config. Hidden title fields on singletons ensure Studio sidebar shows names."
+      "notes": "Sanity auto-resolves 'client.title' through the reference."
     },
     {
       "id": "US-003",
-      "title": "Audit and fix BaseHub query for clients",
-      "description": "As an AI agent, I need to fix the client migration so all 41 clients are created in Sanity. The previous migration created 0 clients because the BaseHub query treated logo as an image object instead of a string URL.",
+      "title": "Fix showcase item preview in projects",
+      "description": "As a content editor, I want showcase items within a project to display their image preview and filename instead of 'image: {asset: {empty}}'.",
       "acceptanceCriteria": [
-        "Read `scripts/migration/migrate-company.ts` and verify the BaseHub query for clients fetches logo correctly (logo is a string URL, not an object with url/alt)",
-        "Create `scripts/migration/fix-clients.ts` as a standalone script that: fetches all clients from BaseHub, creates client documents in Sanity with deterministic _id (client-{slug}), downloads and uploads logo images, uses createOrReplace",
-        "Script handles cases where logo is null/undefined (creates client without logo)",
-        "Script logs each client created with success/failure",
-        "Running `pnpm exec tsx scripts/migration/fix-clients.ts` creates all 41 clients",
+        "Update `sanity/schemas/objects/showcaseItem.ts` with a preview config using a `prepare` function",
+        "Preview select must include: imageFilename from 'image.asset.originalFilename', image from 'image', videoUrl from 'video.url'",
+        "prepare function returns: title as imageFilename or 'Video' (if videoUrl exists) or 'Untitled', media as image",
         "Typecheck passes"
       ],
       "priority": 3,
       "passes": true,
-      "notes": "Root cause was logo field type mismatch. The fix script should be robust — try multiple query shapes if the first fails. Log the raw BaseHub response for the first client to verify field structure."
+      "notes": "The prepare function handles both image and video-only showcase items."
     },
     {
       "id": "US-004",
-      "title": "Create missing person documents for former team members",
-      "description": "As an AI agent, I need to create person documents for former team members who appear as blog post authors but are not in the current people directory.",
+      "title": "Add slug field to project categories",
+      "description": "As a developer, I need to add a slug field to the projectCategory schema so Studio stops showing 'Unknown field found' warnings for the slug data that already exists from migration.",
       "acceptanceCriteria": [
-        "Create `scripts/migration/fix-missing-persons.ts` that queries BaseHub for ALL post authors across all blog posts",
-        "Script compares BaseHub author slugs against existing Sanity person documents",
-        "Script creates person documents for any authors not found in Sanity, using: _id: person-{slug}, _type: person, title: {author name from BaseHub}",
-        "Known missing persons include: person-basement-team, person-natalia-martinez-lopez, person-matias-perez, person-joaquin-montes, person-agustin-segui, person-julian-benegas",
-        "Script discovers any additional missing persons dynamically (not hardcoded list only)",
-        "Uses createOrReplace for idempotency",
-        "Running `pnpm exec tsx scripts/migration/fix-missing-persons.ts` creates all missing persons",
+        "Add a `slug` field (type: 'slug', options: { source: 'title' }) to `sanity/schemas/documents/projectCategory.ts` after the title field",
+        "Use defineField from sanity, same pattern as post.ts and project.ts slug fields",
+        "No data migration needed — slug values already exist in migrated documents",
         "Typecheck passes"
       ],
       "priority": 4,
       "passes": true,
-      "notes": "Don't hardcode the list — query BaseHub to discover all authors and diff against Sanity. Some former team members may have images in BaseHub that should be uploaded."
+      "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Fix and re-migrate all projects with client references",
-      "description": "As an AI agent, I need to re-run the project migration now that clients exist, ensuring all 31 projects and 25 showcase entries are created with valid client references.",
+      "title": "Fix lab project URL field and add cover preview",
+      "description": "As a content editor, I want the lab project URL field to accept any text and see the cover image in the list view.",
       "acceptanceCriteria": [
-        "Create `scripts/migration/fix-projects.ts` as a standalone script",
-        "Script fetches all projects from BaseHub and creates/replaces them in Sanity",
-        "Every project document has valid client reference (client must exist — verify before setting ref, skip ref if client missing)",
-        "Every project has valid people references (verify each person exists)",
-        "Downloads and uploads cover images, icons, and showcase item images",
-        "Creates showcaseEntry documents for all showcase entries with valid project references",
-        "Uses createOrReplace for idempotency",
-        "Logs summary: X projects created, Y showcase entries created, Z references skipped",
+        "Change `url` field type from 'url' to 'string' in `sanity/schemas/documents/labProject.ts`",
+        "Update preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', media: 'cover' } }`",
         "Typecheck passes"
       ],
       "priority": 5,
       "passes": true,
-      "notes": "Depends on US-003 (clients exist) and US-004 (all persons exist). Must verify references exist before including them to avoid Sanity reference validation errors."
+      "notes": "Changing from url to string is non-destructive — existing URL values are valid strings."
     },
     {
       "id": "US-006",
-      "title": "Fix rich text converter for post validation errors",
-      "description": "As an AI agent, I need to fix the portable text conversion so all blog posts pass Sanity validation. 12 posts failed with 'Bad Request - Validation failed' which means the PT structure doesn't match the schema.",
+      "title": "Create showcase page singleton schema",
+      "description": "As a content editor, I want the showcase to be a single page where I can drag-and-drop project references to set display order, instead of managing separate showcase entry documents.",
       "acceptanceCriteria": [
-        "Read `scripts/migration/utils/rich-text.ts` and the post schema at `sanity/schemas/documents/post.ts`",
-        "Read the content field definition to understand exactly which block types are allowed in content vs intro",
-        "Ensure every PT block has: _type, _key (unique string), children array (for text blocks), markDefs array (for text blocks)",
-        "Ensure every span in children has: _type: 'span', _key, text (string), marks (array of strings)",
-        "Ensure markDefs entries have: _type, _key, and match mark references in spans",
-        "Ensure custom block types (_type: codeBlock, quoteWithAuthor, etc.) match their Sanity schema field names exactly",
-        "Add a sanitizeDocument function that validates the full post document before sending to Sanity — log and strip any invalid blocks rather than failing the whole post",
-        "Intro field must only contain basic block types (no custom blocks, no images)",
+        "Create `sanity/schemas/singletons/showcasePage.ts` with: name 'showcasePage', type 'document', hidden title field (initialValue 'Showcase'), and a `projects` field (type: 'array', of: [{ type: 'reference', to: [{ type: 'project' }] }])",
+        "Update `sanity/schemas/index.ts`: remove showcaseEntry import/export, add showcasePage import/export",
+        "Update `sanity.config.ts`: add 'showcasePage' to the singletonTypes Set, add showcasePage to the Pages section in structure (same pattern as homepage singleton), remove `S.documentTypeListItem('showcaseEntry').title('Showcase')` from the Content section",
         "Typecheck passes"
       ],
       "priority": 6,
       "passes": true,
-      "notes": "Compare the _type values in converted PT against the `of` array in the post content schema. Any _type not listed in the schema will cause validation failure. Also check for empty children arrays or missing text properties."
+      "notes": "Follow the exact same patterns used by the homepage singleton in sanity.config.ts structure builder. The showcaseEntry schema file is NOT deleted yet — that happens after data migration in US-007."
     },
     {
       "id": "US-007",
-      "title": "Re-migrate all blog posts",
-      "description": "As an AI agent, I need to re-run the post migration with the fixed rich text converter and missing persons, ensuring all 27 posts are created.",
+      "title": "Migrate showcase data to singleton and cleanup",
+      "description": "As a developer, I need to migrate the existing showcaseEntry documents into the new showcasePage singleton and delete the old documents.",
       "acceptanceCriteria": [
-        "Create `scripts/migration/fix-posts.ts` as a standalone script",
-        "Script fetches all 27 posts from BaseHub",
-        "Converts intro and content rich text using the fixed converter",
-        "Validates all author references exist before including them",
-        "Downloads and uploads hero images",
-        "Creates post documents with createOrReplace",
-        "Every post document passes Sanity validation (no 'Bad Request' errors)",
-        "Logs per-post success/failure with detailed error info for any failures",
-        "All 27 posts created successfully",
+        "Create `scripts/migration/migrate-showcase-to-singleton.ts`",
+        "Script imports dotenv/config and loads .env.local (use dotenv.config({ path: '.env.local' }))",
+        "Script queries all existing showcaseEntry documents from Sanity, sorted by orderRank ascending",
+        "Script creates a showcasePage singleton document (_id: 'showcasePage', _type: 'showcasePage') with title: 'Showcase' and projects array containing references to the same projects in orderRank order",
+        "Script deletes all old showcaseEntry documents after creating the singleton",
+        "Script is runnable via: pnpm exec tsx scripts/migration/migrate-showcase-to-singleton.ts",
+        "After running the script, delete `sanity/schemas/documents/showcaseEntry.ts`",
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": "Depends on US-004 (missing persons) and US-006 (fixed rich text). If a post still fails, log the exact error and the problematic field content, then skip it rather than crashing."
+      "passes": true,
+      "notes": "Depends on US-006 (showcasePage schema must exist). Use the same sanity-client.ts from scripts/migration/ for the write client. The showcaseEntry.ts file deletion happens AFTER the script runs successfully."
     },
     {
       "id": "US-008",
-      "title": "Fix testimonials BaseHub query and migrate",
-      "description": "As an AI agent, I need to fix the testimonials migration that crashed with 'type Testimonials does not have a field items' and migrate all testimonials.",
+      "title": "Slim down root layout and create site group layout",
+      "description": "As a developer, I need to split the root layout so Studio doesn't inherit site-specific components (navbar, footer, 3D scene, analytics).",
       "acceptanceCriteria": [
-        "Read BaseHub schema types to discover the correct field name for testimonials (not 'items')",
-        "Create `scripts/migration/fix-testimonials.ts` that fetches testimonials from the correct BaseHub path",
-        "Creates testimonial documents in Sanity with: name, handle, content, avatar (uploaded), date, role",
-        "Uses createOrReplace for idempotency",
-        "Logs count of testimonials created",
+        "Read `src/app/layout.tsx` to understand all current providers and components",
+        "Refactor `src/app/layout.tsx` to keep ONLY: html tag, body tag with font class names, metadata export, and {children} — remove ALL site-specific components",
+        "Create `src/app/(site)/layout.tsx` that contains everything removed from root layout: Analytics, SpeedInsights, Transitions, PostHogProvider, AssetsProvider (with fetchAssets call), InspectableProvider, HtmlTunnelOut, Navbar, NavigationHandler, ContentWrapper, AppHooks, Contact, and any other site-specific providers",
+        "The (site) layout must wrap {children} in the same component nesting order as the original root layout",
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": "The BaseHub type is 'Testimonials' but the field is NOT 'items'. Check .basehub/ generated types or query explorer to find the correct field. Could be 'testimonialList' or similar."
+      "passes": true,
+      "notes": "This story creates the layouts only. The actual route directory moves happen in US-009. The (site) route group does NOT affect URL paths."
     },
     {
       "id": "US-009",
-      "title": "Fix values migration and migrate",
-      "description": "As an AI agent, I need to ensure company values are migrated. The values step was in migrate-services.ts which crashed during testimonials, so values were never reached.",
+      "title": "Move site routes into (site) group and add Studio layout",
+      "description": "As a developer, I need to move all non-studio routes into the (site) route group and create a minimal Studio layout so Studio is fully isolated.",
       "acceptanceCriteria": [
-        "Create `scripts/migration/fix-values.ts` that fetches values from company.ourValues.valuesList in BaseHub",
-        "Creates value documents in Sanity with: title, description (converted PT), image (uploaded)",
-        "Uses createOrReplace for idempotency",
-        "Logs count of values created",
+        "Move `src/app/(pages)/` to `src/app/(site)/(pages)/`",
+        "Move `src/app/contact/` to `src/app/(site)/contact/`",
+        "Move `src/app/basketball/` to `src/app/(site)/basketball/`",
+        "Move `src/app/doom/` to `src/app/(site)/doom/`",
+        "Move `src/app/lab/` to `src/app/(site)/lab/`",
+        "Move `src/app/actions/` to `src/app/(site)/actions/`",
+        "Move `src/app/api/` to `src/app/(site)/api/`",
+        "Move `src/app/not-found.tsx` to `src/app/(site)/not-found.tsx`",
+        "Create a minimal `src/app/not-found.tsx` at root level that returns a simple 'Not Found' page without depending on any site providers",
+        "Create `src/app/studio/layout.tsx` that exports a function returning just {children}",
+        "Verify that all moved directories exist in their new locations",
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": "Values migration code may already exist in migrate-services.ts but never executed due to crash. Can reuse that logic in standalone script."
+      "passes": true,
+      "notes": "Depends on US-008 (layouts must exist before moving routes). Route group (site) does NOT change URL paths — /blog stays /blog. Use `mv` commands to move directories. All imports use @/ aliases so paths should not break."
     },
     {
       "id": "US-010",
-      "title": "Re-migrate awards with valid project references",
-      "description": "As an AI agent, I need to re-run awards migration now that all projects exist, so awards can reference their projects.",
+      "title": "Deploy schemas and verify",
+      "description": "As a developer, I need to deploy the updated schemas to Sanity cloud and verify all changes work.",
       "acceptanceCriteria": [
-        "Create `scripts/migration/fix-awards.ts` that fetches all 30 awards from BaseHub",
-        "Verifies project references exist before including them (skip ref if project missing, don't crash)",
-        "Downloads and uploads certificate images",
-        "Creates award documents with createOrReplace",
-        "All 30 awards created (12 existed + 18 that previously failed)",
-        "Logs summary with success/failure count",
+        "Run `npx sanity@latest schema deploy` successfully",
         "Typecheck passes"
       ],
       "priority": 10,
       "passes": false,
-      "notes": "Depends on US-005 (all projects exist). 18 awards failed because they referenced missing projects."
-    },
-    {
-      "id": "US-011",
-      "title": "Re-migrate homepage singleton with valid project references",
-      "description": "As an AI agent, I need to re-create the homepage singleton now that projects exist, so featuredProjects references are valid.",
-      "acceptanceCriteria": [
-        "Create `scripts/migration/fix-homepage.ts` that fetches homepage data from BaseHub",
-        "Converts introTitle, introSubtitle, capabilities via rich text converter",
-        "Sets featuredProjects as references to existing project documents (verify each exists)",
-        "Creates homepage document with _id: 'homepage' and createOrReplace",
-        "Sets title field to 'Homepage' (hidden, for Studio display)",
-        "Homepage document created successfully with all fields",
-        "Typecheck passes"
-      ],
-      "priority": 11,
-      "passes": false,
-      "notes": "Depends on US-005 (projects exist). Only 1 singleton failed — the others (servicesPage, peoplePage, careersPostPage, companyInfo) already migrated."
-    },
-    {
-      "id": "US-012",
-      "title": "Create fix-all orchestrator and run full verification",
-      "description": "As an AI agent, I need to create an orchestrator that runs all fix scripts in dependency order, then runs a full verification comparing Sanity against BaseHub.",
-      "acceptanceCriteria": [
-        "Create `scripts/migration/fix-all.ts` that runs fix scripts in order: fix-clients → fix-missing-persons → fix-projects → fix-posts → fix-testimonials → fix-values → fix-awards → fix-homepage",
-        "Each step logs start/end with timing",
-        "Errors in one step don't block subsequent steps",
-        "After all fixes, runs the audit-dataset logic (or verify.ts) to produce a final report",
-        "Final report shows: all document types have expected counts, zero broken references, zero missing required fields",
-        "Script is runnable via `pnpm exec tsx scripts/migration/fix-all.ts`",
-        "Typecheck passes"
-      ],
-      "priority": 12,
-      "passes": false,
-      "notes": "This is the single command to run everything. After this completes with a clean report, migration Phase 2 is done."
+      "notes": "Final step — deploys all schema changes from US-001 through US-007 to Sanity cloud."
     }
   ]
 }

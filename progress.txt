@@ -31,6 +31,8 @@
 - BaseHub client `logo` is an inline SVG string (not a URL) — use `uploadImageToSanity(Buffer.from(svg, 'utf-8'), filename)` to upload directly instead of `downloadAndUploadImage`
 - For fix scripts that need to find "missing" documents, prefer dynamic discovery (query source → diff against Sanity) over hardcoded lists — catches unexpected gaps
 - Use `fetchExistingIds(type)` pattern (`*[_type == "X"]{ _id }` → Set) to pre-validate references before creating documents — avoids Sanity reference validation errors
+- Site routes now live under `src/app/(site)/` — imports must use `@/app/(site)/(pages)/` not `@/app/(pages)/`
+- Studio route at `src/app/studio/` has its own minimal layout, isolated from site providers
 
 ---
 
@@ -491,4 +493,120 @@
   - The sanitize function strips invalid blocks with a warning log rather than throwing — this prevents a single bad block from failing the entire post
   - All custom block _type values produced by the converter already match the schema exactly — no renaming needed
   - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-04-03 - US-001 (Studio UX Phase)
+- Updated `sanity/schemas/documents/post.ts` preview config to include `media: 'heroImage'`
+- Blog posts now show hero image thumbnails in Sanity Studio list view
+- Files changed: sanity/schemas/documents/post.ts
+- **Learnings for future iterations:**
+  - Branch `ralph/studio-ux-schema-polish` was occupied by another worktree, created `ralph/studio-ux-schema-polish-2` instead
+  - Pre-existing 8 TS errors (basehub migration scripts) remain unchanged — new schema changes introduce zero additional errors
+  - Sanity `preview.select.media` accepts a field path to an image field — Sanity auto-resolves it as a thumbnail
+---
+
+## 2026-04-03 - US-002
+- Updated `sanity/schemas/documents/project.ts` preview config to include cover image and client name
+- Changed preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', subtitle: 'client.title', media: 'cover' } }`
+- Files changed: sanity/schemas/documents/project.ts (modified)
+- **Learnings for future iterations:**
+  - Sanity auto-resolves reference paths in preview select — `client.title` traverses the client reference to get the title field
+  - Preview `media` field accepts image field names directly — Sanity renders the thumbnail automatically
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-04-03 - US-003
+- Added preview config with `prepare` function to `sanity/schemas/objects/showcaseItem.ts`
+- Preview select uses `image.asset.originalFilename`, `image`, and `video.url` to show meaningful titles and thumbnails
+- prepare function returns filename for image items, 'Video' for video-only items, 'Untitled' as fallback
+- Files changed: sanity/schemas/objects/showcaseItem.ts (modified)
+- **Learnings for future iterations:**
+  - Sanity object type schemas support `preview` config with `prepare` just like document types
+  - `image.asset.originalFilename` is the path to get the uploaded filename through Sanity's asset pipeline
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-04-03 - US-004
+- Added slug field to `sanity/schemas/documents/projectCategory.ts` after the title field
+- Used same pattern as post.ts and project.ts: `type: 'slug'`, `options: { source: 'title' }`, required validation
+- No data migration needed — slug values already exist in migrated documents
+- Files changed: sanity/schemas/documents/projectCategory.ts (modified)
+- **Learnings for future iterations:**
+  - Slug field pattern is consistent across all document schemas — always use `defineField` with `type: 'slug'`, `options: { source: 'title' }`, and required validation
+  - Pre-existing 8 TS errors are all in migration scripts (basehub types) — unchanged from previous iterations
+---
+
+## 2026-04-03 - US-005
+- Changed `url` field type from 'url' to 'string' in `sanity/schemas/documents/labProject.ts`
+- Updated preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', media: 'cover' } }`
+- Files changed: sanity/schemas/documents/labProject.ts
+- **Learnings for future iterations:**
+  - Changing Sanity field type from 'url' to 'string' is non-destructive — existing URL values are valid strings
+  - 8 pre-existing TS errors remain (all in basehub/migration scripts) — unchanged from previous iteration
+---
+
+## 2026-04-03 - US-006
+- Created `sanity/schemas/singletons/showcasePage.ts` with hidden title field (initialValue 'Showcase') and projects array of references to project type
+- Updated `sanity/schemas/index.ts`: removed showcaseEntry import/export, added showcasePage import/export to Singleton types section
+- Updated `sanity.config.ts`: added 'showcasePage' to singletonTypes Set, added showcasePage to Pages section in desk structure, removed showcaseEntry from Content section
+- Files changed: sanity/schemas/singletons/showcasePage.ts (new), sanity/schemas/index.ts, sanity.config.ts
+- **Learnings for future iterations:**
+  - Singleton pattern requires 3 coordinated changes: schema file, schema index, and sanity.config.ts (singletonTypes Set + desk structure + template/action filtering)
+  - showcaseEntry.ts file is NOT deleted yet — kept for US-007 data migration, deletion happens after migration runs
+---
+
+## 2026-04-03 - US-007
+- Created `scripts/migration/migrate-showcase-to-singleton.ts`
+- Script queried 25 showcaseEntry documents sorted by orderRank ascending
+- Created showcasePage singleton with 25 project references in order
+- Deleted all 25 old showcaseEntry documents via transaction
+- Deleted `sanity/schemas/documents/showcaseEntry.ts` after successful migration
+- Files changed: scripts/migration/migrate-showcase-to-singleton.ts (new), sanity/schemas/documents/showcaseEntry.ts (deleted)
+- **Learnings for future iterations:**
+  - Use `sanityWriteClient.createOrReplace` for singletons to make migration idempotent
+  - Use transaction for batch deletes to ensure atomicity
+  - dotenv/config auto-loads .env file; sanity-client.ts also loads .env.local separately, so both get loaded
+---
+
+## 2026-04-03 - US-008
+- Refactored `src/app/layout.tsx` to keep only: html tag, body tag with font class names, metadata export, and {children}
+- Created `src/app/(site)/layout.tsx` containing all removed site-specific components: Analytics, SpeedInsights, Transitions, PostHogProvider, AssetsProvider (with fetchAssets), InspectableProvider, HtmlTunnelOut, Navbar, NavigationHandler, ContentWrapper, AppHooks, Contact
+- Root layout is no longer async (no fetchAssets call)
+- Site layout wraps children in Fragment (<>) since body is in root layout
+- Files changed: src/app/layout.tsx, src/app/(site)/layout.tsx (new)
+- **Learnings for future iterations:**
+  - Route group layouts wrap {children} in a Fragment, not in body/html — the root layout owns those tags
+  - Font definitions stay in root layout since they apply CSS variables to the body tag
+  - The (site) layout maintains the exact same component nesting order as the original root layout
+---
+
+## 2026-04-03 - US-009
+- Moved `src/app/(pages)/` to `src/app/(site)/(pages)/`
+- Moved `src/app/contact/`, `basketball/`, `doom/`, `lab/`, `actions/`, `api/` to `src/app/(site)/`
+- Moved `src/app/not-found.tsx` to `src/app/(site)/not-found.tsx`
+- Created minimal `src/app/not-found.tsx` at root level (no site provider dependencies)
+- Created `src/app/studio/layout.tsx` that returns just {children}
+- Fixed 9 broken imports caused by route moves:
+  - 6 files with `@/app/(pages)/` → `@/app/(site)/(pages)/`
+  - 2 files with `@/app/contact/` → `@/app/(site)/contact/`
+  - 1 file with `@/app/actions/` → `@/app/(site)/actions/`
+  - 1 relative import `../../../../.basehub/schema` → `../../../../../.basehub/schema`
+- Cleaned stale `.next/dev/types` to clear false-positive TS errors from old generated types
+- Files changed: 110 files (mostly renames), 5 import fixes, 3 new files
+- **Learnings for future iterations:**
+  - Moving routes into a route group DOES break `@/` aliased imports that reference `@/app/<dir>/` paths — they need `@/app/(site)/<dir>/`
+  - Relative imports within the same moved subtree are fine — they move together
+  - Relative imports that go UP past the new nesting level break (e.g., `../../../../.basehub/schema` needs an extra `../`)
+  - `.next/dev/types` contains generated types from old paths — delete them to avoid stale TS errors
+  - Components in `src/components/` that import from `@/app/` paths also need updating
+---
+
+## 2026-04-03 - US-010 (BLOCKED)
+- Attempted `npx sanity@latest schema deploy` — failed with "You must login first - run sanity login"
+- Typecheck passes (8 pre-existing errors only)
+- **MANUAL ACTION REQUIRED:** Run `sanity login` to authenticate, then `npx sanity@latest schema deploy`
+- All schema changes from US-001 through US-007 are ready for deployment
+- **Learnings for future iterations:**
+  - Sanity CLI requires an active auth session for schema deploy — not just an API token
+  - Must run `sanity login` interactively before `sanity schema deploy`
 ---
