@@ -4,7 +4,7 @@ export const post = defineType({
   name: 'post',
   title: 'Post',
   type: 'document',
-  preview: { select: { title: 'title' } },
+  preview: { select: { title: 'title', media: 'heroImage' } },
   fields: [
     defineField({
       name: 'title',
