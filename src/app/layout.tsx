@@ -1,22 +1,9 @@
 import "@/styles/globals.css"
 
-import { Analytics } from "@vercel/analytics/react"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
 
-import { AppHooks } from "@/components/app-hooks-init"
-import { AssetsProvider } from "@/components/assets-provider"
-import { fetchAssets } from "@/components/assets-provider/fetch-assets"
-import { Contact } from "@/components/contact/contact"
-import { InspectableProvider } from "@/components/inspectables/context"
-import { ContentWrapper } from "@/components/layout/content-wrapper"
-import { Navbar } from "@/components/layout/navbar"
-import { NavigationHandler } from "@/components/navigation-handler"
-import { PostHogProvider } from "@/components/posthog/posthog-provider"
-import { Transitions } from "@/components/transitions"
-import { HtmlTunnelOut } from "@/components/tunnel"
 import { cn } from "@/utils/cn"
 
 export const metadata: Metadata = {
@@ -64,36 +51,20 @@ const flauta = localFont({
   variable: "--font-flauta"
 })
 
-const RootLayout = async ({ children }: { children: React.ReactNode }) => {
-  const assets = await fetchAssets()
-
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" suppressHydrationWarning>
-      <Analytics />
-      <SpeedInsights />
-      <Transitions />
-      <PostHogProvider>
-        <AssetsProvider assets={assets}>
-          <InspectableProvider>
-            <body
-              className={cn(
-                geistSans.variable,
-                geistMono.variable,
-                flauta.variable,
-                "font-sans"
-              )}
-              suppressHydrationWarning
-            >
-              <HtmlTunnelOut />
-              <Navbar />
-              <NavigationHandler />
-              <ContentWrapper>{children}</ContentWrapper>
-              <AppHooks assets={assets} />
-              <Contact />
-            </body>
-          </InspectableProvider>
-        </AssetsProvider>
-      </PostHogProvider>
+      <body
+        className={cn(
+          geistSans.variable,
+          geistMono.variable,
+          flauta.variable,
+          "font-sans"
+        )}
+        suppressHydrationWarning
+      >
+        {children}
+      </body>
     </html>
   )
 }
