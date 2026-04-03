@@ -3,10 +3,7 @@ import type { Metadata } from "next"
 
 import { Contact } from "@/components/layout/contact"
 import { JsonLd } from "@/lib/structured-data/json-ld"
-import {
-  generateProfessionalServiceSchema,
-  generateReviewSchema
-} from "@/lib/structured-data/schemas/professional-service"
+import { generateServicesWebPageSchema } from "@/lib/structured-data/schemas/professional-service"
 
 import { Awards } from "./awards"
 import { Hero } from "./hero"
@@ -38,17 +35,13 @@ const ServicesPage = () => (
     {async ([data]) => {
       "use server"
 
-      const serviceSchema = generateProfessionalServiceSchema(
+      const serviceSchema = generateServicesWebPageSchema(
         data.company.services.serviceCategories.items
-      )
-      const reviewSchema = generateReviewSchema(
-        data.company.testimonials.services
       )
 
       return (
         <>
           <JsonLd data={serviceSchema} />
-          {reviewSchema ? <JsonLd data={reviewSchema} /> : null}
           <div className="flex flex-col gap-18 lg:gap-44">
             <Hero data={data} className="lg:-mb-11" />
             <Services data={data} />

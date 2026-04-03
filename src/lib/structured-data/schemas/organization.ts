@@ -31,7 +31,7 @@ interface OrganizationData {
   }
 }
 
-const ORGANIZATION_ID = `${SITE_URL}/#organization`
+export const ORGANIZATION_ID = `${SITE_URL}/#organization`
 const formatAward = (award: Award) => {
   const title =
     typeof award.title === "string" ? award.title.trim() : ""

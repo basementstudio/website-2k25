@@ -1,78 +1,56 @@
 import { extractPlainText } from "../extract-text"
+import { ORGANIZATION_ID } from "./organization"
 
 const SITE_URL = "https://basement.studio"
-const SITE_NAME = "basement.studio"
 
 interface ServiceCategory {
   _title: string
   description?: { json: { content: unknown } } | null
 }
 
-interface Testimonial {
-  name: string | null
-  content?: { json: { content: unknown } } | null
-  role?: { json: { content: unknown } } | null
-  date?: string | null
-}
+const slugifyServiceName = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
 
-export const generateProfessionalServiceSchema = (
+export const generateServicesWebPageSchema = (
   services: ServiceCategory[]
 ) => ({
   "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: SITE_NAME,
+  "@type": "WebPage",
+  "@id": `${SITE_URL}/services#webpage`,
+  name: "Services",
   url: `${SITE_URL}/services`,
-  provider: {
-    "@type": "Organization",
-    name: SITE_NAME,
-    url: SITE_URL
-  },
-  hasOfferCatalog: {
+  mainEntity: {
     "@type": "OfferCatalog",
+    "@id": `${SITE_URL}/services#catalog`,
     name: "Services",
-    itemListElement: services.map((service) => ({
-      "@type": "Offer",
-      itemOffered: {
-        "@type": "Service",
-        name: service._title,
-        ...(service.description?.json?.content
-          ? {
-              description: extractPlainText(
-                service.description.json.content,
-                200
-              )
-            }
-          : {})
+    itemListElement: services.map((service) => {
+      const serviceSlug = slugifyServiceName(service._title)
+
+      return {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          "@id": `${SITE_URL}/services#${serviceSlug}`,
+          name: service._title,
+          serviceType: service._title,
+          areaServed: "Worldwide",
+          provider: {
+            "@id": ORGANIZATION_ID
+          },
+          ...(service.description?.json?.content
+            ? {
+                description: extractPlainText(
+                  service.description.json.content,
+                  200
+                )
+              }
+            : {})
+        }
       }
-    }))
+    })
   }
 })
-
-export const generateReviewSchema = (t: Testimonial) => {
-  const reviewBody = t.content?.json?.content
-    ? extractPlainText(t.content.json.content)
-    : null
-
-  if (!reviewBody || !t.name) return null
-
-  const jobTitle = t.role?.json?.content
-    ? extractPlainText(t.role.json.content)
-    : undefined
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "Review",
-    author: {
-      "@type": "Person",
-      name: t.name,
-      ...(jobTitle ? { jobTitle } : {})
-    },
-    reviewBody,
-    ...(t.date ? { datePublished: t.date } : {}),
-    itemReviewed: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      url: SITE_URL
-    }
-  }
-}
