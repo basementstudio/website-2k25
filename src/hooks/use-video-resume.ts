@@ -68,6 +68,7 @@ export const createVideoTextureWithResume = (url: string) => {
   })
 
   const texture = new THREE.VideoTexture(videoElement)
+  texture.colorSpace = THREE.SRGBColorSpace
 
   texture.userData = {
     ...texture.userData,

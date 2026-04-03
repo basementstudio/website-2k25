@@ -1,13 +1,15 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
-import { extend, useLoader, useThree } from "@react-three/fiber"
+import { MeshDiscardMaterial } from "@/components/mesh-discard-material"
+import { useLoader } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { track } from "@vercel/analytics"
-import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
 import posthog from "posthog-js"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
+import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
+import { Line2 } from "three/examples/jsm/lines/webgpu/Line2.js"
+import { Line2NodeMaterial } from "three/webgpu"
 
 import { useAssets } from "@/components/assets-provider"
 import { useInspectable } from "@/components/inspectables/context"
@@ -17,8 +19,6 @@ import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
-
-extend({ MeshLineGeometry, MeshLineMaterial })
 
 const colorWhenOn = new THREE.Color("#f2f2f2")
 const colorWhenOff = new THREE.Color("#595959")
@@ -75,7 +75,16 @@ export const Lamp = memo(function LampInner() {
     return material
   }, [])
 
-  const { width, height } = useThree((state) => state.size)
+  const { bandLine, bandGeometry } = useMemo(() => {
+    const geo = new LineGeometry()
+    const mat = new Line2NodeMaterial()
+    mat.color.copy(colorWhenOn)
+    ;(mat as any).lineWidth = 0.005
+    ;(mat as any).worldUnits = true
+    const line = new Line2(geo, mat)
+    return { bandLine: line, bandGeometry: geo }
+  }, [])
+
   const curve = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
@@ -105,6 +114,7 @@ export const Lamp = memo(function LampInner() {
     lightmap.minFilter = THREE.NearestFilter
     lightmap.magFilter = THREE.NearestFilter
     lightmap.colorSpace = THREE.NoColorSpace
+    lightmap.needsUpdate = true
   }, [lightmap])
 
   useEffect(() => {
@@ -116,8 +126,10 @@ export const Lamp = memo(function LampInner() {
     }
   }, [lightmap, lampTargets])
 
+  const dragDelta = useMemo(() => new THREE.Vector3(), [])
+  const tensionVec = useMemo(() => new THREE.Vector3(), [])
   const tension = (point1: THREE.Vector3, point2: THREE.Vector3) =>
-    new THREE.Vector3().copy(point1).sub(point2).length()
+    tensionVec.copy(point1).sub(point2).length()
 
   useEffect(() => {
     if (selected) {
@@ -144,8 +156,8 @@ export const Lamp = memo(function LampInner() {
       dir.copy(vec).sub(state.camera.position).normalize()
       vec.add(dir.multiplyScalar(state.camera.position.length() * 0.079))
 
-      const delta = new THREE.Vector3().copy(vec).sub(j3.current.translation())
-      if (delta.length() > 0.1) {
+      dragDelta.copy(vec).sub(j3.current.translation())
+      if (dragDelta.length() > 0.1) {
         drag(false)
         return
       }
@@ -169,7 +181,12 @@ export const Lamp = memo(function LampInner() {
       curve.points[1].copy(j2Pos)
       curve.points[2].copy(j1Pos)
       curve.points[3].copy(j0Pos)
-      band.current.geometry.setPoints(curve.getPoints(8))
+      const points = curve.getPoints(8)
+      const positions: number[] = []
+      for (const p of points) {
+        positions.push(p.x, p.y, p.z)
+      }
+      bandGeometry.setPositions(positions)
 
       const tension_j0_j1 = tension(j0Pos, j1Pos)
       const tension_j1_j2 = tension(j1Pos, j2Pos)
@@ -214,8 +231,16 @@ export const Lamp = memo(function LampInner() {
   }, [shouldToggle])
 
   useEffect(() => {
-    // @ts-ignore
-    if (lamp) lamp.material.uniforms.opacity.value = light ? 0 : 1
+    if (lamp) {
+      // Ensure the lamp glow mesh uses additive blending so it brightens the scene
+      // instead of rendering as a solid opaque disc
+      const mat = lamp.material as THREE.Material
+      mat.blending = THREE.AdditiveBlending
+      mat.transparent = true
+      mat.depthWrite = false
+      // @ts-ignore
+      mat.uniforms.opacity.value = light ? 0 : 1
+    }
     if (lampHandle) {
       // @ts-ignore
       lampHandle.current.material.uniforms.baseColor.value = light
@@ -232,8 +257,7 @@ export const Lamp = memo(function LampInner() {
       for (const target of lampTargets) {
         if (target instanceof THREE.Mesh) {
           // @ts-ignore
-          target.material.uniforms.lightLampEnabled.value = light
-          // @ts-ignore
+          target.material.uniforms.lightLampEnabled.value = light ? 1 : 0
         }
       }
     }
@@ -330,20 +354,8 @@ export const Lamp = memo(function LampInner() {
         />
       </group>
 
+      <primitive object={bandLine} ref={band} />
       {lamp && <primitive object={lamp} />}
-
-      <mesh ref={band}>
-        {/* @ts-ignore */}
-        <meshLineGeometry />
-        {/* @ts-ignore */}
-        <meshLineMaterial
-          color={colorWhenOn}
-          resolution={[width, height]}
-          lineWidth={0.005}
-        />
-
-        {lamp && <primitive object={lamp} />}
-      </mesh>
     </>
   )
 })

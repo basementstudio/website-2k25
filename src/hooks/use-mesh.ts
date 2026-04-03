@@ -38,7 +38,7 @@ export interface MeshStore {
   weather: weather
   services: services
   cars: (Mesh | null)[]
-  cctv: { screen: Mesh | null }
+  cctv: { screen: Mesh | null; uTime: { value: number } | null }
 }
 
 export const useMesh = create<MeshStore>()(() => ({
@@ -69,6 +69,7 @@ export const useMesh = create<MeshStore>()(() => ({
   },
   cars: [],
   cctv: {
-    screen: null
+    screen: null,
+    uTime: null
   }
 }))

@@ -3,7 +3,6 @@ import { animate, useMotionValue } from "motion/react"
 import { useEffect, useMemo } from "react"
 import {
   Color,
-  Matrix3,
   Mesh,
   MeshStandardMaterial,
   RepeatWrapping,
@@ -31,9 +30,6 @@ export const Weather = () => {
 
   const rainAlphaTexture = useTexture(rainTexture)
 
-  const closeMatrix = useMemo(() => new Matrix3().identity(), [])
-  const farMatrix = useMemo(() => new Matrix3().identity(), [])
-
   const loboMarino = useMesh((s) => s.weather.loboMarino)
 
   const [rainMaterialClose, rainMaterialFar] = useMemo(() => {
@@ -46,18 +42,18 @@ export const Weather = () => {
       transparent: true
     })
 
-    // create materialClose
+    // create materialClose — UV scroll computed in TSL via shared uTime
     const rainMaterialClose = createGlobalShaderMaterial(baseMaterial as any)
-
-    rainMaterialClose.uniforms.mapMatrix.value = closeMatrix
+    rainMaterialClose.uniforms.alphaMapScrollSpeed.value = 1.5
+    rainMaterialClose.uniforms.alphaMapRepeat.value = 2
 
     // create materialFar
     const rainMaterialFar = createGlobalShaderMaterial(baseMaterial as any)
-    farMatrix.multiplyScalar(4)
-    rainMaterialFar.uniforms.mapMatrix.value = farMatrix
+    rainMaterialFar.uniforms.alphaMapScrollSpeed.value = 3
+    rainMaterialFar.uniforms.alphaMapRepeat.value = 4
 
     return [rainMaterialClose, rainMaterialFar]
-  }, [rainAlphaTexture, closeMatrix, farMatrix])
+  }, [rainAlphaTexture])
 
   const { rain } = useMesh((s) => s.weather)
 
@@ -81,20 +77,6 @@ export const Weather = () => {
     return () => animation.stop()
   }, [isRaining, rainMaterialClose, rainMaterialFar, rainAlpha])
 
-  useFrameCallback((_, delta, elapsedTime) => {
-    const matClose = rainMaterialClose.uniforms.alphaMapTransform
-      .value as Matrix3
-
-    const closeRepeat = 2
-    const closeOffsetY = elapsedTime * 1.5
-    matClose.setUvTransform(0, closeOffsetY, closeRepeat, closeRepeat, 0, 0, 0)
-
-    const matFar = rainMaterialFar.uniforms.alphaMapTransform.value as Matrix3
-
-    const farRepeat = 4
-    const farOffsetY = elapsedTime * 3
-    matFar.setUvTransform(0, farOffsetY, farRepeat, farRepeat, 0, 0, 0)
-  })
 
   return (
     <>
@@ -134,9 +116,6 @@ function LoboMarino({ loboMarino }: { loboMarino: Mesh }) {
   const loboMaterial = useMemo(() => {
     const mat = loboMarino?.material as ShaderMaterial
     mat.uniforms.uColor.value = currentLoboColor
-
-    mat.defines.IS_LOBO_MARINO = true
-    mat.needsUpdate = true
 
     return mat
   }, [loboMarino, currentLoboColor])

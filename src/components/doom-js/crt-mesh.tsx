@@ -1,125 +1,157 @@
 "use client"
 
-import { useMemo, useRef } from "react"
-import { CanvasTexture, ShaderMaterial, Vector2 } from "three"
+import { useEffect, useMemo, useRef } from "react"
+import { CanvasTexture, Texture } from "three"
 import * as THREE from "three"
+import { NodeMaterial } from "three/webgpu"
+import {
+  Fn,
+  float,
+  vec2,
+  vec3,
+  uniform,
+  uv,
+  texture as tslTexture,
+  sin,
+  dot,
+  fract,
+  clamp,
+  pow,
+  mix,
+  step,
+  time
+} from "three/tsl"
 
-import { useFrameCallback } from "@/hooks/use-pausable-time"
+const createCRTMaterial = () => {
+  const uTexture = tslTexture(new Texture())
+  const uTime = time
+  const uCurvature = uniform(0.3)
+  const uScanlineIntensity = uniform(0.75)
+  const uScanlineCount = uniform(200)
+  const uVignetteIntensity = uniform(0.3)
+  const uBrightness = uniform(0.05)
+  const uContrast = uniform(1.2)
 
-// CRT Shader
-const vertexShader = /*glsl*/ `
-  varying vec2 vUv;
-  
-  void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`
+  const material = new NodeMaterial()
 
-const fragmentShader = /*glsl*/ `
-  uniform sampler2D uTexture;
-  uniform float uTime;
-  uniform vec2 uResolution;
-  uniform float uCurvature;
-  uniform float uScanlineIntensity;
-  uniform float uScanlineCount;
-  uniform float uVignette;
-  uniform float uBrightness;
-  uniform float uContrast;
-  
-  varying vec2 vUv;
-  
-  // CRT barrel distortion
-  vec2 barrelDistortion(vec2 coord, float amt) {
-    vec2 cc = coord - 0.5;
-    float dist = dot(cc, cc);
-    return coord + cc * dist * amt;
-  }
-  
-  // Chromatic aberration
-  vec3 chromaticAberration(sampler2D tex, vec2 uv, float amount) {
-    float aberrationAmount = amount * 0.01;
-    vec2 distFromCenter = uv - 0.5;
-    
-    vec2 aberratedUv = barrelDistortion(uv, uCurvature);
-    
-    float r = texture2D(tex, aberratedUv - distFromCenter * aberrationAmount).r;
-    float g = texture2D(tex, aberratedUv).g;
-    float b = texture2D(tex, aberratedUv + distFromCenter * aberrationAmount).b;
-    
-    return vec3(r, g, b);
-  }
-  
-  // Scanlines
-  float scanline(float uv, float resolution, float opacity) {
-    float intensity = sin(uv * resolution * 3.14159265359 * 2.0);
-    intensity = ((0.5 * intensity) + 0.5) * 0.9 + 0.1;
-    return clamp(intensity, 0.0, 1.0) * opacity + (1.0 - opacity);
-  }
-  
-  // Vignette
-  float vignette(vec2 uv, float intensity) {
-    vec2 vignetteUv = uv * (1.0 - uv.yx);
-    float vig = vignetteUv.x * vignetteUv.y * 15.0;
-    return pow(vig, intensity);
-  }
-  
-  // Noise
-  float random(vec2 co) {
-    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
-  }
-  
-  void main() {
-    vec2 uv = vUv;
-    
-    // Apply barrel distortion
-    vec2 distortedUv = barrelDistortion(uv, uCurvature);
-    
-    // Check if we're outside the screen bounds after distortion
-    if (distortedUv.x < 0.0 || distortedUv.x > 1.0 || distortedUv.y < 0.0 || distortedUv.y > 1.0) {
-      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-      return;
+  // Barrel distortion: warp UV based on distance from center
+  const barrelDistortionFn = /* @__PURE__ */ Fn(([coord, amt]: [any, any]) => {
+    const cc = coord.sub(0.5)
+    const dist = dot(cc, cc)
+    return coord.add(cc.mul(dist).mul(amt))
+  })
+
+  // Scanline: sin-based scanline pattern
+  const scanlineFn = /* @__PURE__ */ Fn(
+    ([uvY, resolution, opacity]: [any, any, any]) => {
+      const intensity = sin(uvY.mul(resolution).mul(Math.PI * 2.0))
+        .mul(0.5)
+        .add(0.5)
+        .mul(0.9)
+        .add(0.1)
+      return clamp(intensity, 0.0, 1.0)
+        .mul(opacity)
+        .add(float(1.0).sub(opacity))
     }
-    
-    // Get color with chromatic aberration
-    vec3 color = chromaticAberration(uTexture, uv, 1.0);
-    
-    // Apply scanlines
-    float scanlineValue = scanline(distortedUv.y, uScanlineCount, uScanlineIntensity);
-    color *= scanlineValue;
-    
-    // Add some flicker
-    float flicker = 1.0 + sin(uTime * 6.0) * 0.01;
-    color *= flicker;
-    
-    // Apply brightness and contrast
-    color = (color - 0.5) * uContrast + 0.5 + uBrightness;
-    
-    // Apply vignette
-    float vignetteValue = vignette(distortedUv, uVignette);
-    color *= vignetteValue;
-    
-    // Add subtle noise
-    float noise = random(distortedUv + uTime) * 0.03;
-    color += noise;
-    
-    // Add phosphor glow effect
-    vec3 phosphor = color * 1.05;
-    phosphor.g *= 1.1; // Green phosphor was common in old CRTs
-    color = mix(color, phosphor, 0.3);
-    
-    // Clamp values
-    color = clamp(color, 0.0, 1.0);
+  )
 
-    color = vec3(
-      pow(color.x, 1.5),
-      pow(color.y, 1.5),
-      pow(color.z, 1.5)
-    );
-    
-    gl_FragColor = vec4(color * 4., 1.0);
+  // Vignette: darken edges
+  const vignetteFn = /* @__PURE__ */ Fn(
+    ([uvCoord, vigIntensity]: [any, any]) => {
+      const vigUv = vec2(
+        uvCoord.x.mul(float(1.0).sub(uvCoord.y)),
+        uvCoord.y.mul(float(1.0).sub(uvCoord.x))
+      )
+      const vig = vigUv.x.mul(vigUv.y).mul(15.0)
+      return pow(vig, vigIntensity)
+    }
+  )
+
+  // Hash-based noise
+  const randomFn = /* @__PURE__ */ Fn(([co]: [any]) => {
+    return fract(sin(dot(co, vec2(12.9898, 78.233))).mul(43758.5453))
+  })
+
+  material.colorNode = Fn(() => {
+    const vUv = uv()
+
+    // Apply barrel distortion
+    const distortedUv = barrelDistortionFn(vUv, uCurvature)
+
+    // Branchless bounds check: 1 when inside [0,1], 0 when outside
+    const inBounds = float(step(float(0.0), distortedUv.x))
+      .mul(float(step(distortedUv.x, float(1.0))))
+      .mul(float(step(float(0.0), distortedUv.y)))
+      .mul(float(step(distortedUv.y, float(1.0))))
+
+    // Chromatic aberration
+    const aberrationAmount = float(0.01)
+    const distFromCenter = vUv.sub(0.5)
+
+    const r = uTexture
+      .sample(distortedUv.sub(distFromCenter.mul(aberrationAmount)))
+      .r
+    const g = uTexture.sample(distortedUv).g
+    const b = uTexture
+      .sample(distortedUv.add(distFromCenter.mul(aberrationAmount)))
+      .b
+
+    const color = vec3(r, g, b).toVar()
+
+    // Scanlines
+    color.mulAssign(
+      scanlineFn(distortedUv.y, uScanlineCount, uScanlineIntensity)
+    )
+
+    // Flicker
+    color.mulAssign(float(1.0).add(sin(uTime.mul(6.0)).mul(0.01)))
+
+    // Brightness and contrast
+    color.assign(color.sub(0.5).mul(uContrast).add(0.5).add(uBrightness))
+
+    // Vignette
+    color.mulAssign(vignetteFn(distortedUv, uVignetteIntensity))
+
+    // Subtle noise
+    color.addAssign(randomFn(distortedUv.add(uTime)).mul(0.03))
+
+    // Phosphor glow (green phosphor boost: g *= 1.05 * 1.1)
+    const phosphor = vec3(
+      color.x.mul(1.05),
+      color.y.mul(1.155),
+      color.z.mul(1.05)
+    )
+    color.assign(mix(color, phosphor, 0.3))
+
+    // Clamp
+    color.assign(clamp(color, 0.0, 1.0))
+
+    // Gamma correction
+    color.assign(pow(color, vec3(1.5, 1.5, 1.5)))
+
+    // Final: multiply by 4 and mask out-of-bounds regions
+    color.mulAssign(4.0)
+    color.mulAssign(inBounds)
+
+    return color
+  })()
+
+  material.opacityNode = float(1.0)
+
+  return {
+    material,
+    uniforms: {
+      uTexture,
+      uTime,
+      uCurvature,
+      uScanlineIntensity,
+      uScanlineCount,
+      uVignette: uVignetteIntensity,
+      uBrightness,
+      uContrast
+    }
   }
-`
+}
 
 interface CRTMeshProps {
   texture: CanvasTexture
@@ -127,41 +159,17 @@ interface CRTMeshProps {
 
 export function CRTMesh({ texture }: CRTMeshProps) {
   const meshRef = useRef<THREE.Mesh>(null)
-  const materialRef = useRef<ShaderMaterial>(null)
 
-  // Create shader material with uniforms
-  const uniforms = useMemo(
-    () => ({
-      uTexture: { value: texture },
-      uTime: { value: 0 },
-      uResolution: { value: new Vector2(320, 200) },
-      uCurvature: { value: 0.3 },
-      uScanlineIntensity: { value: 0.75 },
-      uScanlineCount: { value: 200 },
-      uVignette: { value: 0.3 },
-      uBrightness: { value: 0.05 },
-      uContrast: { value: 1.2 }
-    }),
-    [texture]
-  )
+  const { material, uniforms } = useMemo(() => createCRTMaterial(), [])
 
-  // Update time uniform for animated effects
-  useFrameCallback((state) => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = state.clock.getElapsedTime()
-    }
-  })
+  useEffect(() => {
+    uniforms.uTexture.value = texture
+  }, [texture, uniforms])
 
   return (
     <mesh position={[8.151, 1.232, -13.9]} ref={meshRef}>
       <planeGeometry args={[0.6, 0.47]} />
-      <shaderMaterial
-        ref={materialRef}
-        uniforms={uniforms}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        transparent={false}
-      />
+      <primitive object={material} attach="material" />
     </mesh>
   )
 }

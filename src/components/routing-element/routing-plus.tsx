@@ -1,66 +1,102 @@
-import { memo, useMemo } from "react"
-import { BufferGeometry, Float32BufferAttribute } from "three"
+import { useThree } from "@react-three/fiber"
+import { memo, useEffect, useMemo, useRef } from "react"
+import {
+  BufferGeometry,
+  InstancedMesh as InstancedMeshType,
+  Object3D,
+  PlaneGeometry,
+  Vector4
+} from "three"
+import { NodeMaterial } from "three/webgpu"
+import {
+  cross,
+  Discard,
+  Fn,
+  float,
+  positionLocal,
+  uniform,
+  uv,
+  vec3,
+  vec4
+} from "three/tsl"
+
+import { useFrameCallback } from "@/hooks/use-pausable-time"
+
+const POINT_SIZE = 0.04
 
 const RoutingPlusInner = ({ geometry }: { geometry: BufferGeometry }) => {
-  const pointsGeometry = useMemo(() => {
+  const meshRef = useRef<InstancedMeshType>(null)
+  const camera = useThree((state) => state.camera)
+
+  const { planeGeo, material, count, positionsArray, uCamQ } = useMemo(() => {
     if (!geometry.attributes.position || !geometry.attributes.normal)
-      return null
+      return { planeGeo: null, material: null, count: 0, positionsArray: null, uCamQ: null }
 
-    const pointsGeo = new BufferGeometry()
+    const count = geometry.attributes.position.count
+    const positionsArray = geometry.attributes.position.array as Float32Array
 
-    const positions = []
-    const colors = []
-    const whiteColor = [1, 1, 1]
+    const planeGeo = new PlaneGeometry(POINT_SIZE, POINT_SIZE)
 
-    for (let i = 0; i < geometry.attributes.position.count; i++) {
-      const x = geometry.attributes.position.array[i * 3]
-      const y = geometry.attributes.position.array[i * 3 + 1]
-      const z = geometry.attributes.position.array[i * 3 + 2]
+    const uCamQ = uniform(new Vector4(0, 0, 0, 1))
 
-      positions.push(x, y, z)
-      colors.push(...whiteColor)
-    }
+    const mat = new NodeMaterial()
+    mat.depthTest = false
+    mat.depthWrite = false
+    mat.transparent = true
 
-    pointsGeo.setAttribute("position", new Float32BufferAttribute(positions, 3))
-    pointsGeo.setAttribute("color", new Float32BufferAttribute(colors, 3))
+    // GPU billboard: rotate local vertex by camera quaternion
+    // Quaternion rotation: v' = v + 2w(q × v) + 2(q × (q × v))
+    const qVec = vec3(uCamQ.x, uCamQ.y, uCamQ.z)
+    const c1 = cross(qVec, positionLocal)
+    const c2 = cross(qVec, c1)
+    mat.positionNode = positionLocal
+      .add(c1.mul(uCamQ.w).mul(2.0))
+      .add(c2.mul(2.0))
 
-    return pointsGeo
+    // Cross/plus pattern using UVs (replaces gl_PointCoord)
+    const coord = uv().mul(2.0).sub(1.0)
+    const thickness = float(0.25)
+    const isCross = coord.x
+      .abs()
+      .lessThan(thickness)
+      .or(coord.y.abs().lessThan(thickness))
+
+    mat.colorNode = Fn(() => {
+      Discard(isCross.not())
+      return vec4(1.0, 1.0, 1.0, 1.0)
+    })()
+
+    return { planeGeo, material: mat, count, positionsArray, uCamQ }
   }, [geometry])
 
-  // Shader code
-  const vertexShader = `
-    void main() {
-      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-      gl_PointSize = 8.0;
-      gl_Position = projectionMatrix * mvPosition;
+  // Set instance positions once (billboard rotation handled by GPU)
+  useEffect(() => {
+    if (!meshRef.current || !positionsArray) return
+
+    const dummy = new Object3D()
+    for (let i = 0; i < count; i++) {
+      dummy.position.set(
+        positionsArray[i * 3],
+        positionsArray[i * 3 + 1],
+        positionsArray[i * 3 + 2]
+      )
+      dummy.updateMatrix()
+      meshRef.current.setMatrixAt(i, dummy.matrix)
     }
-  `
 
-  const fragmentShader = `
-    void main() {
-      vec2 coord = gl_PointCoord * 2.0 - 1.0;
-      float thickness = 0.25;
+    meshRef.current.instanceMatrix.needsUpdate = true
+  }, [count, positionsArray])
 
-      if (abs(coord.x) < thickness || abs(coord.y) < thickness) {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-      } else {
-        discard; 
-      }
-    }
-  `
+  // Single uniform update per frame — O(1) instead of O(n) matrix loop
+  useFrameCallback(() => {
+    if (!uCamQ) return
+    const q = camera.quaternion
+    uCamQ.value.set(q.x, q.y, q.z, q.w)
+  })
 
-  return pointsGeometry ? (
-    <points>
-      <primitive object={pointsGeometry} attach="geometry" />
-      <shaderMaterial
-        attach="material"
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        depthTest={false}
-        depthWrite={false}
-      />
-    </points>
-  ) : null
+  if (!planeGeo || !material || count === 0) return null
+
+  return <instancedMesh ref={meshRef} args={[planeGeo, material, count]} />
 }
 
 export const RoutingPlus = memo(RoutingPlusInner)

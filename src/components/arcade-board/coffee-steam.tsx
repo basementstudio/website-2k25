@@ -11,14 +11,14 @@ export const CoffeeSteam = () => {
   noise.wrapT = RepeatWrapping
   noise.wrapS = RepeatWrapping
 
-  const material = useMemo(() => createSteamMaterial(), [])
+  const { material, uniforms } = useMemo(() => createSteamMaterial(), [])
 
   useEffect(() => {
-    material.uniforms.uNoise.value = noise
-  }, [noise, material])
+    uniforms.uNoise.value = noise
+  }, [noise, uniforms])
 
   useFrameCallback((_, __, elapsedTime) => {
-    material.uniforms.uTime.value = elapsedTime
+    uniforms.uTime.value = elapsedTime
   })
 
   return (

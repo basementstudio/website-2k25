@@ -179,11 +179,14 @@ export const useCameraMovement = (
 
   const newDelta = useMemo(() => new THREE.Vector3(), [])
   const newLookAtDelta = useMemo(() => new THREE.Vector3(), [])
+  const finalPos = useMemo(() => new THREE.Vector3(), [])
+  const finalLookAt = useMemo(() => new THREE.Vector3(), [])
 
   const progress = useRef(1)
   const isTransitioning = useRef(false)
   const prevCameraConfig = useRef(cameraConfig)
   const firstRender = useRef(true)
+  const prevFov = useRef(cameraConfig?.fov ?? 75)
 
   const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
 
@@ -265,10 +268,10 @@ export const useCameraMovement = (
     }
 
     if (!disableCameraTransition && isDesktop) {
-      targetPosition.y +=
+      const scrollFactor =
         (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
-      targetLookAt.y +=
-        (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
+      targetPosition.y += scrollFactor
+      targetLookAt.y += scrollFactor
     }
 
     if (disableCameraTransition || firstRender.current) {
@@ -276,8 +279,10 @@ export const useCameraMovement = (
       currentPos.copy(targetPosition)
       currentTarget.copy(targetLookAt)
       currentFov.current = targetFov.current
-      isTransitioning.current = false
-      setIsCameraTransitioning(false)
+      if (isTransitioning.current) {
+        isTransitioning.current = false
+        setIsCameraTransitioning(false)
+      }
 
       if (firstRender.current) {
         firstRender.current = false
@@ -303,13 +308,17 @@ export const useCameraMovement = (
     }
 
     if (cameraRef.current) {
-      const finalPos = currentPos.clone().add(panTargetDelta)
-      const finalLookAt = currentTarget.clone().add(panLookAtDelta)
+      finalPos.copy(currentPos).add(panTargetDelta)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
 
       cameraRef.current.position.copy(finalPos)
       cameraRef.current.lookAt(finalLookAt)
-      cameraRef.current.fov = currentFov.current
-      cameraRef.current.updateProjectionMatrix()
+
+      if (currentFov.current !== prevFov.current) {
+        cameraRef.current.fov = currentFov.current
+        cameraRef.current.updateProjectionMatrix()
+        prevFov.current = currentFov.current
+      }
 
       if (loadingCanvasWorker) {
         loadingCanvasWorker.postMessage({

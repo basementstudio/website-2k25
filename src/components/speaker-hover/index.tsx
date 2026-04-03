@@ -1,4 +1,4 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
+import { MeshDiscardMaterial } from "@/components/mesh-discard-material"
 import { track } from "@vercel/analytics"
 import posthog from "posthog-js"
 import { useCallback, useEffect, useState } from "react"

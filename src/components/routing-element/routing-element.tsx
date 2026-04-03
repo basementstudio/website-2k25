@@ -1,10 +1,28 @@
-import { useThree } from "@react-three/fiber"
 import { useMotionValue, useMotionValueEvent } from "motion/react"
 import { animate } from "motion/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { memo } from "react"
-import { Mesh, ShaderMaterial } from "three"
+import { Mesh } from "three"
+import { NodeMaterial } from "three/webgpu"
+import {
+  Fn,
+  float,
+  vec3,
+  uniform,
+  uv,
+  dFdx,
+  dFdy,
+  sqrt,
+  min,
+  max,
+  step,
+  smoothstep,
+  fract,
+  mix,
+  screenUV,
+  viewportSize
+} from "three/tsl"
 
 import { useInspectable } from "@/components/inspectables/context"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
@@ -12,9 +30,7 @@ import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useCursor } from "@/hooks/use-mouse"
 
 import { valueRemap } from "../arcade-game/lib/math"
-import fragmentShader from "./frag.glsl"
 import { RoutingPlus } from "./routing-plus"
-import vertexShader from "./vert.glsl"
 
 interface RoutingElementProps {
   node: Mesh
@@ -29,33 +45,82 @@ const RoutingElementComponent = ({
   hoverName,
   groupName
 }: RoutingElementProps) => {
-  const { routingMaterial, updateMaterialResolution } = useMemo(() => {
-    const routingMaterial = new ShaderMaterial({
-      depthWrite: false,
-      depthTest: false,
-      transparent: true,
-      fragmentShader: fragmentShader,
-      vertexShader: vertexShader,
-      uniforms: {
-        resolution: { value: [] },
-        opacity: { value: 0 },
-        borderPadding: { value: 0 }
+  const { routingMaterial, routingUniforms } = useMemo(() => {
+    const uOpacity = uniform(0)
+    const uBorderPadding = uniform(0)
+
+    const material = new NodeMaterial()
+    material.depthWrite = false
+    material.depthTest = false
+    material.transparent = true
+
+    material.colorNode = vec3(1.0, 1.0, 1.0)
+
+    material.opacityNode = Fn(() => {
+      const vUv = uv()
+
+      // Border detection using UV derivatives
+      const dwdx = dFdx(vUv)
+      const dwdy = dFdy(vUv)
+      const pixelWidth = sqrt(dwdx.x.mul(dwdx.x).add(dwdy.x.mul(dwdy.x)))
+      const pixelHeight = sqrt(dwdx.y.mul(dwdx.y).add(dwdy.y.mul(dwdy.y)))
+
+      const borderThickness = float(1.3).add(uBorderPadding)
+      const uvBorderSizeX = borderThickness.mul(pixelWidth)
+      const uvBorderSizeY = borderThickness.mul(pixelHeight)
+      const uvBorderPaddingX = uBorderPadding.mul(pixelWidth)
+      const uvBorderPaddingY = uBorderPadding.mul(pixelHeight)
+
+      const distFromEdgeX = min(vUv.x, float(1.0).sub(vUv.x))
+      const distFromEdgeY = min(vUv.y, float(1.0).sub(vUv.y))
+
+      // isPadding: near-edge within padding distance (0/1)
+      const isPadding = max(
+        float(1.0).sub(step(uvBorderPaddingX, distFromEdgeX)),
+        float(1.0).sub(step(uvBorderPaddingY, distFromEdgeY))
+      )
+
+      // isBorder: within border region (0/1)
+      const isBorder = max(
+        float(1.0).sub(step(uvBorderSizeX, distFromEdgeX)),
+        float(1.0).sub(step(uvBorderSizeY, distFromEdgeY))
+      )
+
+      // Diagonal line pattern using screen coordinates
+      const vCoords = screenUV.toVar()
+      const aspectRatio = viewportSize.x.div(viewportSize.y)
+      vCoords.x.mulAssign(aspectRatio)
+
+      const lineSpacing = 0.006
+      const lineThickness = 0.2
+      const lineOpacity = 0.15
+
+      const diagonal = vCoords.x
+        .sub(vCoords.y)
+        .div(float(lineSpacing).mul(sqrt(float(2.0))))
+      const halfWidth = float(lineThickness).mul(0.5)
+      const fractDiag = fract(diagonal)
+      const pattern = smoothstep(float(0.5).sub(halfWidth), float(0.5), fractDiag)
+        .sub(smoothstep(float(0.5), float(0.5).add(halfWidth), fractDiag))
+
+      // Discard padding area
+      isPadding.greaterThan(0.5).discard()
+
+      // Border: 0.2 * opacity, Interior: pattern * lineOpacity * opacity
+      const borderAlpha = float(0.2).mul(uOpacity)
+      const interiorAlpha = pattern.mul(lineOpacity).mul(uOpacity)
+
+      return mix(interiorAlpha, borderAlpha, isBorder)
+    })()
+
+    return {
+      routingMaterial: material,
+      routingUniforms: {
+        opacity: uOpacity,
+        borderPadding: uBorderPadding
       }
-    })
-
-    // routingMaterial.customProgramCacheKey = () => "routing-element-material"
-
-    const updateMaterialResolution = (width: number, height: number) => {
-      routingMaterial.uniforms.resolution.value = [width, height]
     }
-
-    return { routingMaterial, updateMaterialResolution }
   }, [])
-
-  const screenWidth = useThree((state) => state.size.width)
-  const screenHeight = useThree((state) => state.size.height)
-
-  updateMaterialResolution(screenWidth, screenHeight)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -254,8 +319,8 @@ const RoutingElementComponent = ({
     if (!outlines || !cross) return
 
     const s = valueRemap(v, 0, 1, 10, 0)
-    routingMaterial.uniforms.borderPadding.value = s
-    routingMaterial.uniforms.opacity.value = v
+    routingUniforms.borderPadding.value = s
+    routingUniforms.opacity.value = v
   })
 
   return (

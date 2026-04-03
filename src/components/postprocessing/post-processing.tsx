@@ -1,5 +1,4 @@
 import { OrthographicCamera } from "@react-three/drei"
-import { useThree } from "@react-three/fiber"
 import { animate, MotionValue } from "motion"
 import { memo, useEffect, useMemo, useRef } from "react"
 import {
@@ -34,7 +33,10 @@ const Inner = ({
   const firstRender = useRef(true)
   const { isMobile } = useDeviceDetect()
 
-  const material = useMemo(() => createPostProcessingMaterial(), [])
+  const { material, uniforms } = useMemo(
+    () => createPostProcessingMaterial(),
+    []
+  )
 
   useEffect(() => {
     revealOpacityMaterials.add(material)
@@ -112,49 +114,46 @@ const Inner = ({
 
   useFrameCallback(() => {
     if (!hasChanged.current) {
-      material.uniforms.uContrast.value = targets.contrast.get()
-      material.uniforms.uBrightness.value = targets.brightness.get()
-      material.uniforms.uExposure.value = targets.exposure.get()
-      material.uniforms.uGamma.value = targets.gamma.get()
-      material.uniforms.uVignetteRadius.value = targets.vignetteRadius.get()
-      material.uniforms.uVignetteSpread.value = targets.vignetteSpread.get()
-      material.uniforms.uBloomStrength.value = targets.bloomStrength.get()
-      material.uniforms.uBloomRadius.value = targets.bloomRadius.get()
-      material.uniforms.uBloomThreshold.value = targets.bloomThreshold.get()
+      uniforms.uContrast.value = targets.contrast.get()
+      uniforms.uBrightness.value = targets.brightness.get()
+      uniforms.uExposure.value = targets.exposure.get()
+      uniforms.uGamma.value = targets.gamma.get()
+      uniforms.uVignetteRadius.value = targets.vignetteRadius.get()
+      uniforms.uVignetteSpread.value = targets.vignetteSpread.get()
+      uniforms.uBloomStrength.value = targets.bloomStrength.get()
+      uniforms.uBloomRadius.value = targets.bloomRadius.get()
+      uniforms.uBloomThreshold.value = targets.bloomThreshold.get()
     } else {
-      material.uniforms.uContrast.value = basics.contrast
-      material.uniforms.uBrightness.value = basics.brightness
-      material.uniforms.uExposure.value = basics.exposure
-      material.uniforms.uGamma.value = basics.gamma
-      material.uniforms.uVignetteRadius.value = vignette.radius
-      material.uniforms.uVignetteSpread.value = vignette.spread
-      material.uniforms.uBloomStrength.value = bloom.strength
-      material.uniforms.uBloomRadius.value = bloom.radius
-      material.uniforms.uBloomThreshold.value = bloom.threshold
+      uniforms.uContrast.value = basics.contrast
+      uniforms.uBrightness.value = basics.brightness
+      uniforms.uExposure.value = basics.exposure
+      uniforms.uGamma.value = basics.gamma
+      uniforms.uVignetteRadius.value = vignette.radius
+      uniforms.uVignetteSpread.value = vignette.spread
+      uniforms.uBloomStrength.value = bloom.strength
+      uniforms.uBloomRadius.value = bloom.radius
+      uniforms.uBloomThreshold.value = bloom.threshold
     }
   })
 
-  const screenWidth = useThree((state) => state.size.width)
-  const screenHeight = useThree((state) => state.size.height)
+  const lastScreenSize = useRef({ w: 0, h: 0 })
 
   useEffect(() => {
-    const controller = new AbortController()
-
-    material.uniforms.resolution.value.set(screenWidth, screenHeight)
-    material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
-
-    material.uniforms.uActiveBloom.value = isMobile ? 0 : 1
-
-    material.uniforms.uMainTexture.value = mainTexture
-    material.uniforms.uDepthTexture.value = depthTexture
-
-    return () => controller.abort()
+    uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
+    uniforms.uActiveBloom.value = isMobile ? 0 : 1
+    uniforms.uMainTexture.value = mainTexture
+    uniforms.uDepthTexture.value = depthTexture
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mainTexture, depthTexture, isMobile, screenWidth, screenHeight])
+  }, [mainTexture, depthTexture, isMobile])
 
-  useFrameCallback((_, __, elapsedTime) => {
-    material.uniforms.uTime.value = elapsedTime
+  useFrameCallback(({ size }) => {
+    // Update resolution without React re-renders
+    if (size.width !== lastScreenSize.current.w || size.height !== lastScreenSize.current.h) {
+      lastScreenSize.current.w = size.width
+      lastScreenSize.current.h = size.height
+      uniforms.resolution.value.set(size.width, size.height)
+    }
   })
 
   return (

@@ -1,4 +1,4 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
+import { MeshDiscardMaterial } from "@/components/mesh-discard-material"
 import { animate } from "motion"
 import { memo, useCallback, useEffect, useMemo, useRef } from "react"
 

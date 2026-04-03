@@ -59,8 +59,8 @@ function CharacterInstanceConfigInner() {
   const { fadeFactor } = useFadeAnimation()
 
   useFrameCallback(() => {
-    if (material) {
-      material.uniforms.fadeFactor.value = fadeFactor.current.get()
+    if (uniforms) {
+      uniforms.fadeFactor.value = fadeFactor.current.get()
     }
   })
 
@@ -70,17 +70,13 @@ function CharacterInstanceConfigInner() {
     return null
   }
 
-  const material = useMemo(() => {
-    // const bodyMapIndices = new Uint32Array(MAX_CHARACTERS_INSTANCES).fill(0)
-    // nodes.BODY.geometry.setAttribute("instanceMapIndex", new InstancedBufferAttribute(mapIndices, 1))
-
+  const { material, uniforms } = useMemo(() => {
     const bodyRepeat = 1
     textureBody.repeat.set(1 / bodyRepeat, 1 / bodyRepeat)
     textureBody.anisotropy = 16
     textureBody.flipY = false
     textureBody.updateMatrix()
     textureBody.needsUpdate = true
-    const material = createCharacterMaterial()
 
     textureFaces.repeat.set(1 / FACES_GRID_COLS, 1 / FACES_GRID_COLS)
     textureFaces.anisotropy = 16
@@ -100,45 +96,14 @@ function CharacterInstanceConfigInner() {
     textureComic.updateMatrix()
     textureComic.needsUpdate = true
 
-    /** Character material accepts having more than one instance
-     * each one can have a different map assigned
-     */
-    interface MapConfig {
-      map: THREE.Texture
-      mapTransform: THREE.Matrix3
-    }
-    const bodyMapConfig: MapConfig = {
-      map: textureBody,
-      mapTransform: textureBody.matrix
-    }
-    const headMapConfig: MapConfig = {
-      map: textureFaces,
-      mapTransform: textureFaces.matrix
-    }
-    const armsMapConfig: MapConfig = {
-      map: textureArms,
-      mapTransform: textureArms.matrix
-    }
-    const comicMapConfig: MapConfig = {
-      map: textureComic,
-      mapTransform: textureComic.matrix
-    }
-
     const mapConfigs = [
-      bodyMapConfig,
-      headMapConfig,
-      armsMapConfig,
-      comicMapConfig
+      { map: textureBody, mapTransform: textureBody.matrix },
+      { map: textureFaces, mapTransform: textureFaces.matrix },
+      { map: textureArms, mapTransform: textureArms.matrix },
+      { map: textureComic, mapTransform: textureComic.matrix }
     ]
 
-    material.uniforms.mapConfigs = {
-      value: mapConfigs
-    }
-    material.defines = {
-      USE_MULTI_MAP: "",
-      USE_INSTANCED_LIGHT: "",
-      MULTI_MAP_COUNT: mapConfigs.length
-    }
+    const result = createCharacterMaterial(mapConfigs)
 
     // disable morph targets
     Object.keys(nodes).forEach((nodeKey) => {
@@ -152,7 +117,7 @@ function CharacterInstanceConfigInner() {
       }
     })
 
-    return material
+    return result
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textureBody, textureFaces, nodes])
 

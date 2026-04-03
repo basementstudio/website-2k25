@@ -1,4 +1,4 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
+import { MeshDiscardMaterial } from "@/components/mesh-discard-material"
 import type { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
 import type { RefObject } from "react"

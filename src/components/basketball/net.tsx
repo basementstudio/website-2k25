@@ -1,6 +1,6 @@
 import { useFrame, useLoader } from "@react-three/fiber"
 import { useEffect, useRef, useState } from "react"
-import { Mesh, NearestFilter, ShaderMaterial, Texture } from "three"
+import { Mesh, NearestFilter, Texture } from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useMesh } from "@/hooks/use-mesh"
@@ -14,7 +14,9 @@ const OFFSET_SCALE = 1.5
 
 export const Net = () => {
   const meshRef = useRef<Mesh | null>(null)
-  const materialRef = useRef<ShaderMaterial | null>(null)
+  const uniformsRef = useRef<ReturnType<
+    typeof createNetMaterial
+  >["uniforms"] | null>(null)
   const progressRef = useRef(0)
   const isAnimatingRef = useRef(false)
   const textureRef = useRef<Texture | null>(null)
@@ -47,19 +49,16 @@ export const Net = () => {
       texture.minFilter = NearestFilter
       texture.generateMipmaps = false
 
-      const shaderMaterial = createNetMaterial({
-        offsets,
-        texture,
-        totalFrames: TOTAL_FRAMES,
-        offsetScale: OFFSET_SCALE,
-        vertexCount: net.geometry.attributes.position.count
-      })
+      const { material: netMat, uniforms } = createNetMaterial()
+      uniforms.tDisplacement.value = offsets
+      uniforms.map.value = texture
+      uniforms.totalFrames.value = TOTAL_FRAMES
+      uniforms.offsetScale.value = OFFSET_SCALE
 
-      materialRef.current = shaderMaterial
+      uniformsRef.current = uniforms
       meshRef.current = net
-      meshRef.current.material = shaderMaterial
+      meshRef.current.material = netMat
 
-      shaderMaterial.needsUpdate = true
       texture.needsUpdate = true
       offsets.needsUpdate = true
 
@@ -70,11 +69,11 @@ export const Net = () => {
   }, [net, offsets])
 
   useFrame((_, delta) => {
-    if (materialRef.current && isAnimatingRef.current) {
+    if (uniformsRef.current && isAnimatingRef.current) {
       progressRef.current += delta
       const currentFrame =
         (progressRef.current * ANIMATION_SPEED) % TOTAL_FRAMES
-      materialRef.current.uniforms.currentFrame.value = currentFrame
+      uniformsRef.current.currentFrame.value = currentFrame
 
       if (currentFrame >= TOTAL_FRAMES - 1) {
         isAnimatingRef.current = false

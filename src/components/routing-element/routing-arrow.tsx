@@ -1,6 +1,19 @@
 import { useThree } from "@react-three/fiber"
-import { useRef } from "react"
-import type { Mesh } from "three"
+import { useMemo, useRef } from "react"
+import { DoubleSide, type Mesh } from "three"
+import { NodeMaterial } from "three/webgpu"
+import {
+  Discard,
+  Fn,
+  float,
+  floor,
+  mod,
+  screenCoordinate,
+  step,
+  uv,
+  vec2,
+  vec4
+} from "three/tsl"
 
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
@@ -30,6 +43,36 @@ export const RoutingArrow = ({
     }
   })
 
+  const material = useMemo(() => {
+    const mat = new NodeMaterial()
+    mat.transparent = true
+    mat.side = DoubleSide
+    mat.depthWrite = false
+    mat.depthTest = false
+
+    const pixelDensity = float(12.0)
+    const gridSize = vec2(pixelDensity, pixelDensity.mul(1.5))
+    const grid = floor(uv().mul(gridSize))
+    const gridUv = grid.div(gridSize)
+
+    const p = gridUv.mul(2.0).sub(1.0)
+    const triangle = float(step(p.x.abs().mul(2.0).sub(0.9), p.y)).mul(
+      float(step(p.y, float(0.9)))
+    )
+
+    const checkerPos = floor(screenCoordinate.xy.mul(0.5))
+    const checker = mod(checkerPos.x.add(checkerPos.y), float(2.0))
+
+    const shouldDiscard = checker.lessThan(0.5).or(triangle.equal(0.0))
+
+    mat.colorNode = Fn(() => {
+      Discard(shouldDiscard)
+      return vec4(1.0, 1.0, 1.0, 1.0)
+    })()
+
+    return mat
+  }, [])
+
   return (
     <mesh
       ref={meshRef}
@@ -39,42 +82,7 @@ export const RoutingArrow = ({
       renderOrder={1}
     >
       <planeGeometry args={[0.16, 0.24]} />
-      <shaderMaterial
-        transparent
-        side={2}
-        depthWrite={false}
-        depthTest={false}
-        uniforms={{
-          pixelDensity: { value: 12.0 }
-        }}
-        vertexShader={`
-            varying vec2 vUv;
-            void main() {
-              vUv = uv;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-          `}
-        fragmentShader={`
-            uniform float pixelDensity;
-            varying vec2 vUv;
-            void main() {
-              vec2 grid = floor(vUv * vec2(pixelDensity, pixelDensity * 1.5)); 
-              vec2 gridUv = grid / vec2(pixelDensity, pixelDensity * 1.5);
-              
-              vec2 p = gridUv * 2.0 - 1.0;
-              float triangle = step(2.0 * abs(p.x) - 0.9, p.y) * step(p.y, 0.9);
-              
-              vec2 checkerPos = floor(gl_FragCoord.xy * 0.5);
-              float checker = mod(checkerPos.x + checkerPos.y, 2.0);
-              
-              if (checker < 0.5 || triangle == 0.0) {
-                discard;
-              }
-              
-              gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-            }
-          `}
-      />
+      <primitive object={material} attach="material" />
     </mesh>
   )
 }

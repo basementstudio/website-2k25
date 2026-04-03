@@ -4,6 +4,7 @@ import { useLoader, useThree } from "@react-three/fiber"
 import { memo, Suspense, useEffect, useMemo } from "react"
 import {
   Group,
+  Material,
   Mesh,
   NearestFilter,
   NoColorSpace,
@@ -52,7 +53,7 @@ const addMatcap = (update: TextureUpdate, isGlass: boolean) => {
   if (!update.mesh.userData.hasGlobalMaterial) return
   const material = update.mesh.material as ShaderMaterial
   material.uniforms.matcap.value = update.texture
-  material.uniforms.glassMatcap.value = isGlass
+  material.uniforms.glassMatcap.value = isGlass ? 1 : 0
 }
 
 const addReflex = (update: TextureUpdate) => {
@@ -104,6 +105,7 @@ const useBakes = (): Record<string, Bake> => {
       map.minFilter = NearestFilter
       map.magFilter = NearestFilter
       map.colorSpace = NoColorSpace
+      map.needsUpdate = true
 
       for (const meshName of meshNames) {
         if (!maps[meshName]) {
@@ -120,6 +122,7 @@ const useBakes = (): Record<string, Bake> => {
       map.minFilter = NearestFilter
       map.magFilter = NearestFilter
       map.colorSpace = NoColorSpace
+      map.needsUpdate = true
 
       for (const meshName of meshNames) {
         if (!maps[meshName]) {
@@ -135,6 +138,7 @@ const useBakes = (): Record<string, Bake> => {
       map.minFilter = NearestFilter
       map.magFilter = NearestFilter
       map.colorSpace = NoColorSpace
+      map.needsUpdate = true
       if (!maps[matcaps[index].mesh]) {
         maps[matcaps[index].mesh] = {}
       }
@@ -150,6 +154,7 @@ const useBakes = (): Record<string, Bake> => {
       map.generateMipmaps = false
       map.minFilter = NearestFilter
       map.magFilter = NearestFilter
+      map.needsUpdate = true
 
       const meshName = glassReflexes[index].mesh
       if (!maps[meshName]) {
@@ -175,7 +180,7 @@ const useBakes = (): Record<string, Bake> => {
 
 /** Attach a material to this array and it will change its uOpacity onLoad */
 export const revealOpacityMaterials = new Set<
-  ShaderMaterial | RawShaderMaterial
+  ShaderMaterial | RawShaderMaterial | Material
 >()
 
 const Bakes = () => {
@@ -183,24 +188,14 @@ const Bakes = () => {
 
   const scene = useThree((state) => state.scene)
 
-  const setMainAppRunning = useAppLoadingStore(
-    (state) => state.setMainAppRunning
-  )
-
   const setCanRunMainApp = useAppLoadingStore((state) => state.setCanRunMainApp)
 
   useEffect(() => {
     setCanRunMainApp(true)
-    const timeout = setTimeout(() => {
-      setMainAppRunning(true)
-    }, 10)
-    const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
-
-    return () => {
-      clearTimeout(timeout)
-      clearTimeout(timeout2)
-    }
-  }, [setMainAppRunning, setCanRunMainApp])
+    // Reveal is now triggered by renderer.tsx after compileAsync completes
+    const timeout = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
+    return () => clearTimeout(timeout)
+  }, [setCanRunMainApp])
 
   useEffect(() => {
     const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {

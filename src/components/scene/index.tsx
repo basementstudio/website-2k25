@@ -2,8 +2,10 @@
 
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
+import { useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
+import { WebGPURenderer } from "three/webgpu"
 
 import ErrorBoundary from "@/components/basketball/error-boundary"
 import { CameraController } from "@/components/camera/camera-controller"
@@ -25,6 +27,7 @@ import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
 import { DoomJs } from "../doom-js"
+import { StatsMonitor } from "./stats-monitor"
 
 const HoopMinigame = dynamic(
   () =>
@@ -59,6 +62,8 @@ export const Scene = () => {
   const userHasLeftWindow = useRef(false)
   const [isTouchOnly, setIsTouchOnly] = useState(false)
   const scene = useCurrentScene()
+  const searchParams = useSearchParams()
+  const showPerf = searchParams.has("debug")
 
   useTabKeyHandler()
 
@@ -152,11 +157,25 @@ export const Scene = () => {
               e.preventDefault()
             }
           }}
-          gl={{
-            antialias: false,
-            alpha: false,
-            outputColorSpace: THREE.SRGBColorSpace,
-            toneMapping: THREE.NoToneMapping
+          gl={async (defaultProps) => {
+            // Enable HDR extended tone mapping on the canvas
+            const srgbConfig = (THREE.ColorManagement as any).spaces[
+              THREE.SRGBColorSpace
+            ]
+            if (srgbConfig?.outputColorSpaceConfig) {
+              srgbConfig.outputColorSpaceConfig.toneMappingMode = "extended"
+            }
+
+            const renderer = new WebGPURenderer({
+              canvas: defaultProps.canvas as HTMLCanvasElement,
+              antialias: false,
+              alpha: false,
+              outputType: THREE.HalfFloatType
+            } as ConstructorParameters<typeof WebGPURenderer>[0])
+            await renderer.init()
+            renderer.outputColorSpace = THREE.SRGBColorSpace
+            renderer.toneMapping = THREE.NoToneMapping
+            return renderer
           }}
           camera={{ fov: 60 }}
           className={cn(
@@ -165,6 +184,7 @@ export const Scene = () => {
           )}
         >
           <AnimationController>
+            {showPerf && <StatsMonitor />}
             <UpdateCanvasCursor />
             <Renderer
               sceneChildren={

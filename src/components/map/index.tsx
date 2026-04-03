@@ -113,16 +113,20 @@ export const Map = memo(() => {
       ) => {
         if (child.name === "SM_TvScreen_4" && "isMesh" in child) {
           const meshChild = child as Mesh
-          useMesh.setState({ cctv: { screen: meshChild } })
-          const texture = cctvConfig.renderTarget.read.texture
-
-          const diffuseUniform = { value: texture }
+          const { material: notFoundMat, uniforms: notFoundUniforms } =
+            createNotFoundMaterial()
+          notFoundUniforms.tDiffuse.value =
+            cctvConfig.renderTarget.read.texture
 
           cctvConfig.renderTarget.onSwap(() => {
-            diffuseUniform.value = cctvConfig.renderTarget.read.texture
+            notFoundUniforms.tDiffuse.value =
+              cctvConfig.renderTarget.read.texture
           })
 
-          meshChild.material = createNotFoundMaterial(diffuseUniform)
+          meshChild.material = notFoundMat
+          useMesh.setState({
+            cctv: { screen: meshChild, uTime: notFoundUniforms.uTime }
+          })
 
           return
         }
@@ -186,7 +190,8 @@ export const Map = memo(() => {
             MATCAP: withMatcap !== undefined,
             VIDEO: withVideo !== undefined,
             CLOUDS: isClouds,
-            DAYLIGHT: isDaylight
+            DAYLIGHT: isDaylight,
+            IS_LOBO_MARINO: meshChild.name === "SM_Lobo"
           }
 
           const newMaterials = Array.isArray(currentMaterial)

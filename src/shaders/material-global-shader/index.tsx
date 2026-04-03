@@ -1,11 +1,70 @@
-import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
-import { Color, ShaderMaterial } from "three"
-import { create } from "zustand"
-
-import fragmentShader from "./fragment.glsl"
-import vertexShader from "./vertex.glsl"
+import {
+  Color,
+  DataTexture,
+  Matrix3,
+  MeshStandardMaterial,
+  RGBAFormat,
+  UnsignedByteType,
+  Vector2,
+  Vector3
+} from "three"
+import { NodeMaterial } from "three/webgpu"
+import {
+  Fn,
+  float,
+  vec2,
+  vec3,
+  vec4,
+  uniform,
+  uv,
+  texture,
+  attribute,
+  positionView,
+  normalView,
+  screenCoordinate,
+  normalize,
+  cross,
+  dot,
+  exp,
+  mix,
+  step,
+  clamp,
+  min,
+  max,
+  floor,
+  mod,
+  select,
+  time,
+  smoothstep,
+  sin,
+  abs
+} from "three/tsl"
+import { basicLight } from "@/shaders/utils/basic-light"
 
 export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
+
+// --- Shared blank texture (1×1 white pixel — valid GPU format for WebGPU pipeline compilation) ---
+const BLANK_TEXTURE = (() => {
+  const data = new Uint8Array([255, 255, 255, 255])
+  const tex = new DataTexture(data, 1, 1, RGBAFormat, UnsignedByteType)
+  tex.needsUpdate = true
+  return tex
+})()
+
+// --- Shared global uniforms (same value across all materials) ---
+const sharedUTime = uniform(0)
+const sharedInspectingEnabled = uniform(0)
+const sharedFadeFactor = uniform(0)
+const sharedFogColor = uniform(new Vector3(0.2, 0.2, 0.2))
+const sharedFogDensity = uniform(0.05)
+const sharedFogDepth = uniform(9.0)
+const sharedNoiseFactor = uniform(0.5)
+
+export const globalUniforms = {
+  uTime: sharedUTime,
+  inspectingEnabled: sharedInspectingEnabled,
+  fadeFactor: sharedFadeFactor
+} as const
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
@@ -20,150 +79,467 @@ export const createGlobalShaderMaterial = (
     CLOUDS?: boolean
     DAYLIGHT?: boolean
     IS_LOBO_MARINO?: boolean
+    ORNAMENT?: boolean
+    ORNAMENT_STAR?: boolean
   }
 ) => {
   const {
-    color: baseColor = new Color(1, 1, 1),
+    color: baseColorVal = new Color(1, 1, 1),
     map = null,
     opacity: baseOpacity = 1.0,
-    metalness,
-    roughness,
     alphaMap,
     emissiveMap,
     userData = {}
   } = baseMaterial
 
-  const { lightDirection = null } = userData
+  const { lightDirection: lightDir = null } = userData
 
   const emissiveColor = new Color("#FF4D00").multiplyScalar(9)
 
-  const uniforms = {
-    uColor: { value: emissiveColor },
-    uProgress: { value: 0.0 },
-    map: { value: map },
-    mapMatrix: { value: new Matrix3().identity() },
-    lightMap: { value: null },
-    lightMapIntensity: { value: 0.0 },
-    aoMap: { value: null },
-    aoMapIntensity: { value: 0.0 },
-    metalness: { value: metalness },
-    roughness: { value: roughness },
-    mapRepeat: { value: map ? map.repeat : { x: 1, y: 1 } },
-    baseColor: { value: baseColor },
-    opacity: { value: baseOpacity },
-    noiseFactor: { value: 0.5 },
-    uTime: { value: 0.0 },
-    alphaMap: { value: alphaMap },
-    alphaMapTransform: { value: new Matrix3().identity() },
-    emissive: { value: baseMaterial.emissive || new Vector3() },
-    emissiveIntensity: { value: baseMaterial.emissiveIntensity || 0 },
-    fogColor: { value: new Vector3(0.2, 0.2, 0.2) },
-    fogDensity: { value: 0.05 },
-    fogDepth: { value: 9.0 },
-    glassReflex: { value: null },
-    emissiveMap: { value: emissiveMap },
+  // Compile-time feature flags (equivalent to GLSL #ifdef)
+  const useMap = map !== null
+  const isTransparent = alphaMap !== null || baseMaterial.transparent
+  const useAlphaMap = alphaMap !== null
+  const useEmissive =
+    baseMaterial.emissiveIntensity !== 0 && emissiveMap === null
+  const useEmissiveMap = emissiveMap !== null
+  const isGlass = Boolean(defines?.GLASS)
+  const isGodray = Boolean(defines?.GODRAY)
+  const isLight = Boolean(defines?.LIGHT)
+  const isBasketball = Boolean(defines?.BASKETBALL)
+  const isFog = defines?.FOG !== undefined ? Boolean(defines.FOG) : true
+  const isMatcap = Boolean(defines?.MATCAP)
+  const isClouds = Boolean(defines?.CLOUDS)
+  const isDaylight = Boolean(defines?.DAYLIGHT)
+  const isLoboMarino = Boolean(defines?.IS_LOBO_MARINO)
+  const isOrnament = Boolean(defines?.ORNAMENT)
+  const isOrnamentStar = Boolean(defines?.ORNAMENT_STAR)
 
-    // Inspectables
-    inspectingEnabled: { value: false },
-    inspectingFactor: { value: 0 },
-    fadeFactor: { value: 0 },
+  // --- TSL Uniform Nodes ---
 
-    // Lamp
-    lampLightmap: { value: null },
-    lightLampEnabled: { value: false }
-  } as Record<string, { value: unknown }>
+  const uColor = uniform(emissiveColor)
+  const uBaseColor = uniform(baseColorVal)
+  const uMap = texture(map || BLANK_TEXTURE)
+  const uMapMatrix = uniform(new Matrix3().identity())
+  const uMapRepeat = uniform(
+    map ? new Vector2(map.repeat.x, map.repeat.y) : new Vector2(1, 1)
+  )
+  const uLightMap = texture(BLANK_TEXTURE)
+  const uLightMapIntensity = uniform(0)
+  const uAoMap = texture(BLANK_TEXTURE)
+  const uAoMapIntensity = uniform(0)
+  const uOpacity = uniform(baseOpacity)
+  const uTime = sharedUTime
+  const uNoiseFactor = sharedNoiseFactor
+  const uAlphaMap = texture(alphaMap || BLANK_TEXTURE)
+  const uAlphaMapTransform = uniform(new Matrix3().identity())
+  const uAlphaMapScrollSpeed = uniform(0)
+  const uAlphaMapRepeat = uniform(1)
+  const uEmissive = uniform(baseMaterial.emissive || new Vector3())
+  const uEmissiveIntensity = uniform(baseMaterial.emissiveIntensity || 0)
+  const uEmissiveMap = texture(emissiveMap || BLANK_TEXTURE)
+  const uFogColor = sharedFogColor
+  const uFogDensity = sharedFogDensity
+  const uFogDepth = sharedFogDepth
+  const uGlassReflex = texture(BLANK_TEXTURE)
+  const uInspectingEnabled = sharedInspectingEnabled
+  const uInspectingFactor = uniform(0)
+  const uFadeFactor = sharedFadeFactor
+  const uLampLightmap = texture(BLANK_TEXTURE)
+  const uLightLampEnabled = uniform(0)
 
-  if (defines?.GODRAY) {
-    uniforms["uGodrayOpacity"] = { value: 0 }
-    uniforms["uGodrayDensity"] = { value: 0.75 }
+  // Conditional uniforms (only created when the feature is active)
+  let uGodrayOpacity: ReturnType<typeof uniform> | undefined
+  let uGodrayDensity: ReturnType<typeof uniform> | undefined
+  let uLightDirection: ReturnType<typeof uniform> | undefined
+  let uBackLightDirection: ReturnType<typeof uniform> | undefined
+  let uMatcapTex: ReturnType<typeof texture> | undefined
+  let uGlassMatcap: ReturnType<typeof uniform> | undefined
+  let uDaylight: ReturnType<typeof uniform> | undefined
+
+  if (isGodray) {
+    uGodrayOpacity = uniform(0)
+    uGodrayDensity = uniform(0.75)
   }
 
-  if (defines?.LIGHT) {
-    uniforms["lightDirection"] = { value: lightDirection }
+  if (isLight || isBasketball) {
+    uLightDirection = uniform(lightDir || new Vector3(0, 1, 0))
   }
 
-  if (defines?.BASKETBALL) {
-    uniforms["lightDirection"] = { value: lightDirection }
-    uniforms["backLightDirection"] = { value: new Vector3(0, 0, 1) }
+  if (isBasketball) {
+    uBackLightDirection = uniform(new Vector3(0, 0, 1))
   }
 
-  if (defines?.MATCAP) {
-    uniforms["matcap"] = { value: null }
-    uniforms["glassMatcap"] = { value: false }
+  if (isMatcap) {
+    uMatcapTex = texture(BLANK_TEXTURE)
+    uGlassMatcap = uniform(0)
   }
 
-  if (defines?.DAYLIGHT) {
-    uniforms["daylight"] = { value: true }
+  if (isDaylight) {
+    uDaylight = uniform(1)
   }
 
-  const material = new ShaderMaterial({
-    name: GLOBAL_SHADER_MATERIAL_NAME,
-    defines: {
-      USE_MAP: map !== null,
-      IS_TRANSPARENT: alphaMap !== null || baseMaterial.transparent,
-      USE_ALPHA_MAP: alphaMap !== null,
-      USE_EMISSIVE:
-        baseMaterial.emissiveIntensity !== 0 && emissiveMap === null,
-      USE_EMISSIVEMAP: emissiveMap !== null,
-      GLASS: defines?.GLASS !== undefined ? Boolean(defines?.GLASS) : false,
-      GODRAY: defines?.GODRAY !== undefined ? Boolean(defines?.GODRAY) : false,
-      LIGHT: defines?.LIGHT !== undefined ? Boolean(defines?.LIGHT) : false,
-      BASKETBALL:
-        defines?.BASKETBALL !== undefined
-          ? Boolean(defines?.BASKETBALL)
-          : false,
-      FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
-      MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
-      VIDEO: defines?.VIDEO !== undefined ? Boolean(defines?.VIDEO) : false,
-      CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false,
-      IS_LOBO_MARINO:
-        defines?.IS_LOBO_MARINO !== undefined
-          ? Boolean(defines?.IS_LOBO_MARINO)
-          : false,
-      DAYLIGHT:
-        defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false
-    },
-    uniforms,
-    transparent:
-      baseOpacity < 1 ||
-      alphaMap !== null ||
-      baseMaterial.transparent ||
-      defines?.DAYLIGHT ||
-      false,
-    vertexShader,
-    fragmentShader,
-    side: baseMaterial.side
-  })
+  let uOrnamentPhase: ReturnType<typeof uniform> | undefined
+  let uOrnamentBaseIntensity: ReturnType<typeof uniform> | undefined
+
+  if (isOrnament) {
+    uOrnamentPhase = uniform(0)
+    uOrnamentBaseIntensity = uniform(0)
+  }
+
+  if (isOrnamentStar) {
+    uOrnamentBaseIntensity = uOrnamentBaseIntensity || uniform(0)
+  }
+
+  // --- Material ---
+
+  const material = new NodeMaterial()
+  material.name = GLOBAL_SHADER_MATERIAL_NAME
+  material.transparent =
+    baseOpacity < 1 || isTransparent || isDaylight
+  material.side = baseMaterial.side
+  material.depthWrite = baseMaterial.depthWrite
+  material.blending = baseMaterial.blending
+
+  // --- Shared vertex/fragment nodes ---
+
+  const vUv1 = uv()
+  const aUv1 = (Fn as any)((builder: any) => {
+    if (builder.geometry.hasAttribute("uv1")) {
+      return attribute("uv1", "vec2")
+    }
+    return vec2(0.0)
+  }, "vec2").once()()
+  const vUv2 = select(aUv1.x.greaterThan(0.0), aUv1, vUv1)
+
+  // --- Main shader computation ---
+
+  const result = Fn(() => {
+    const normalizedNormal = normalView
+    const viewDir = normalize(positionView.negate())
+    const oneMinusFadeFactor = float(1.0).sub(uFadeFactor)
+    const isInspectionMode = float(step(float(0.001), uInspectingFactor))
+    const shouldFadeF = float(uInspectingEnabled).mul(
+      float(1.0).sub(isInspectionMode)
+    )
+
+    // --- Map sampling ---
+
+    let mapSample: any
+    if (useMap) {
+      const uvH = vec3(vUv1.x, vUv1.y, float(1.0))
+      const mapUv = uMapMatrix.mul(uvH).xy.mul(uMapRepeat)
+      mapSample = uMap.sample(mapUv)
+    } else {
+      mapSample = vec4(1.0, 1.0, 1.0, 1.0)
+    }
+
+    if (isClouds) {
+      mapSample = uMap.sample(vec2(vUv1.x.sub(uTime.mul(0.004)), vUv1.y))
+    }
+
+    // --- Base color ---
+
+    const color = uBaseColor.mul(mapSample.rgb)
+
+    // --- Lightmap sampling (select between lamp lightmap and regular) ---
+
+    const lightMapSample = mix(
+      uLightMap.sample(vUv2).rgb,
+      uLampLightmap.sample(vUv2).rgb,
+      uLightLampEnabled
+    )
+
+    const irradiance = color.toVar()
+
+    // --- Emissive ---
+
+    if (useEmissive || useEmissiveMap) {
+      const ei = uEmissiveIntensity
+        .mul(mix(float(1.0), oneMinusFadeFactor, shouldFadeF))
+        .toVar()
+
+      // Ornament cycling: 4-phase sine transition computed on GPU
+      if (isOrnament) {
+        const t = time
+        const cyclePhase = t.mod(1.5).div(0.375) // [0, 4)
+        const pd = cyclePhase.sub(uOrnamentPhase!).add(2.0).mod(4.0).sub(2.0)
+        const transUp = smoothstep(float(-0.75), float(0.0), pd)
+        const transDown = float(1.0).sub(smoothstep(float(0.25), float(1.0), pd))
+        ei.assign(uOrnamentBaseIntensity!.mul(transUp.mul(transDown)))
+      }
+
+      // Star ornament: intensity oscillation computed on GPU
+      if (isOrnamentStar) {
+        const t = time
+        const starOsc = abs(sin(t.mul(2.5)))
+        ei.assign(uOrnamentBaseIntensity!.mul(float(1.0).add(starOsc)))
+      }
+
+      if (useEmissive) {
+        irradiance.addAssign(uEmissive.mul(ei))
+      }
+
+      if (useEmissiveMap) {
+        irradiance.mulAssign(uEmissiveMap.sample(vUv1).rgb.mul(ei))
+      }
+    }
+
+    // --- Inspection mode lighting ---
+    // Always computed; mixed into irradiance based on inspectingFactor
+
+    const lf = irradiance.toVar()
+
+    lf.mulAssign(basicLight(normalizedNormal, viewDir, float(4.0)))
+
+    const fillLightDir = normalize(cross(viewDir, vec3(0.0, 1.0, 0.0)))
+    lf.mulAssign(basicLight(normalizedNormal, fillLightDir, float(2.0)))
+
+    const rimLightDir = normalize(
+      viewDir.negate().add(vec3(0.0, 0.5, 0.0))
+    )
+    lf.mulAssign(basicLight(normalizedNormal, rimLightDir, float(3.0)))
+
+    if (isMatcap) {
+      const nvz = vec3(viewDir.z.negate(), float(0.0), viewDir.x)
+      const xAxis = normalize(nvz)
+      const yAxis = cross(viewDir, xAxis)
+      const matcapUv = vec2(
+        dot(xAxis, normalizedNormal),
+        dot(yAxis, normalizedNormal)
+      )
+        .mul(0.495)
+        .add(0.5)
+      lf.mulAssign(uMatcapTex!.sample(matcapUv).rgb)
+    }
+
+    // --- Lightmap application (skip for VIDEO) ---
+
+    if (!defines?.VIDEO) {
+      const lmFactor = mix(
+        vec3(1.0, 1.0, 1.0),
+        lightMapSample.mul(uLightMapIntensity),
+        step(float(0.001), uLightMapIntensity)
+      )
+      irradiance.mulAssign(lmFactor)
+    }
+
+    // --- AO map ---
+
+    const ao = uAoMap.sample(vUv2).r.sub(1.0).mul(uAoMapIntensity).add(1.0)
+    irradiance.mulAssign(
+      mix(float(1.0), ao, step(float(0.001), uAoMapIntensity))
+    )
+
+    // --- Blend inspection lighting ---
+
+    irradiance.assign(
+      mix(irradiance, lf, clamp(uInspectingFactor, 0.0, 1.0))
+    )
+
+    // --- Opacity ---
+
+    const opacityResult = uOpacity.toVar()
+
+    if (isTransparent) {
+      opacityResult.mulAssign(mapSample.a)
+    }
+
+    if (useAlphaMap) {
+      const matrixUv = uAlphaMapTransform
+        .mul(vec3(vUv1.x, vUv1.y, float(1.0)))
+        .xy
+      const scrollUv = vUv1.mul(uAlphaMapRepeat).add(
+        vec2(float(0.0), uTime.mul(uAlphaMapScrollSpeed))
+      )
+      const scrollActive = step(float(0.001), uAlphaMapScrollSpeed)
+      const alphaUv = mix(matrixUv, scrollUv, scrollActive)
+      opacityResult.mulAssign(uAlphaMap.sample(alphaUv).r)
+    }
+
+    // Discard fully transparent
+    opacityResult.lessThan(float(0.001)).discard()
+
+    // --- Directional lighting ---
+
+    if (isLight) {
+      const dotNL = dot(uLightDirection!, normalizedNormal)
+      const lightFactor = dotNL.sub(0.2).mul(1.125).add(0.1).toVar()
+      lightFactor.assign(clamp(lightFactor, 0.0, 1.0))
+      lightFactor.assign(lightFactor.mul(lightFactor))
+
+      if (isBasketball) {
+        const dotBackNL = dot(uBackLightDirection!, normalizedNormal)
+        const backLF = dotBackNL.sub(0.05).mul(0.947368).add(0.1).toVar()
+        backLF.assign(clamp(backLF, 0.0, 1.0))
+        backLF.assign(backLF.mul(backLF))
+        lightFactor.mulAssign(8.0)
+        backLF.mulAssign(4.0)
+        lightFactor.assign(max(lightFactor, backLF.mul(1.5)))
+      } else {
+        lightFactor.mulAssign(3.0)
+      }
+
+      lightFactor.addAssign(1.0)
+      irradiance.mulAssign(lightFactor)
+    }
+
+    // --- Checker pattern (GLASS / GODRAY / MATCAP) ---
+
+    let pattern: any
+    if (isGlass || isGodray || isMatcap) {
+      const shiftedCoord = screenCoordinate.xy.add(vec2(2.0, 2.0))
+      const checkerPos = floor(shiftedCoord.mul(0.5))
+      pattern = mod(checkerPos.x.add(checkerPos.y), 2.0)
+    }
+
+    // --- Glass reflex ---
+
+    if (isGlass) {
+      const glassUv = vUv1
+        .mul(vec2(0.75, 0.75))
+        .add(viewDir.xy.mul(vec2(-0.25, 0.25)))
+        .add(vec2(0.125, 0.125))
+      const reflexSample = uGlassReflex.sample(glassUv)
+      const reflexActive = step(float(0.001), reflexSample.a)
+      const mixF = float(0.075)
+      const reflexBlend = irradiance
+        .mul(float(1.0).sub(mixF))
+        .add(reflexSample.rgb.mul(mixF))
+      irradiance.assign(mix(irradiance, reflexBlend, reflexActive))
+      opacityResult.mulAssign(pattern!)
+    }
+
+    // --- Godray ---
+
+    if (isGodray) {
+      opacityResult.mulAssign(
+        pattern!.mul(uGodrayOpacity!).mul(uGodrayDensity!)
+      )
+    }
+
+    // --- Fog ---
+
+    if (isFog) {
+      const fogDepthVal = min(positionView.z.add(uFogDepth), float(0.0))
+      const fogDensSq = uFogDensity.mul(uFogDensity)
+      const fogDepthSq = fogDepthVal.mul(fogDepthVal)
+      const fogFactor = clamp(
+        float(1.0).sub(exp(fogDensSq.mul(fogDepthSq).negate())),
+        0.0,
+        1.0
+      )
+      irradiance.assign(mix(irradiance, uFogColor, fogFactor))
+    }
+
+    // --- Lobo Marino fresnel ---
+
+    if (isLoboMarino) {
+      const fresnelFactor = float(1.0).sub(dot(viewDir, normalizedNormal))
+      const col = mix(uColor, irradiance, 0.5).toVar()
+      col.assign(mix(col, col.mul(4.0), fresnelFactor))
+      irradiance.assign(col)
+    }
+
+    // --- Fade ---
+
+    irradiance.mulAssign(mix(float(1.0), oneMinusFadeFactor, shouldFadeF))
+
+    // --- MATCAP glassMatcap alpha ---
+
+    if (isMatcap) {
+      opacityResult.mulAssign(
+        mix(float(1.0), pattern!.mul(uInspectingFactor), uGlassMatcap!)
+      )
+    }
+
+    // --- DAYLIGHT alpha ---
+
+    if (isDaylight) {
+      opacityResult.assign(
+        mix(opacityResult, uInspectingFactor, uDaylight!)
+      )
+    }
+
+    return vec4(irradiance, opacityResult)
+  })()
+
+  material.colorNode = result.rgb
+  material.opacityNode = result.a
+
+  // --- Uniforms compatibility layer ---
+  // Consumers access material.uniforms.X.value; TSL nodes have .value natively
+
+  const uniformsCompat: Record<string, any> = {
+    uColor,
+    uProgress: uniform(0),
+    map: uMap,
+    mapMatrix: uMapMatrix,
+    lightMap: uLightMap,
+    lightMapIntensity: uLightMapIntensity,
+    aoMap: uAoMap,
+    aoMapIntensity: uAoMapIntensity,
+    metalness: uniform(baseMaterial.metalness),
+    roughness: uniform(baseMaterial.roughness),
+    mapRepeat: uMapRepeat,
+    baseColor: uBaseColor,
+    opacity: uOpacity,
+    noiseFactor: uNoiseFactor,
+    uTime,
+    alphaMap: uAlphaMap,
+    alphaMapTransform: uAlphaMapTransform,
+    alphaMapScrollSpeed: uAlphaMapScrollSpeed,
+    alphaMapRepeat: uAlphaMapRepeat,
+    emissive: uEmissive,
+    emissiveIntensity: uEmissiveIntensity,
+    fogColor: uFogColor,
+    fogDensity: uFogDensity,
+    fogDepth: uFogDepth,
+    glassReflex: uGlassReflex,
+    emissiveMap: uEmissiveMap,
+    inspectingEnabled: uInspectingEnabled,
+    inspectingFactor: uInspectingFactor,
+    fadeFactor: uFadeFactor,
+    lampLightmap: uLampLightmap,
+    lightLampEnabled: uLightLampEnabled
+  }
+
+  if (isGodray) {
+    uniformsCompat.uGodrayOpacity = uGodrayOpacity!
+    uniformsCompat.uGodrayDensity = uGodrayDensity!
+  }
+
+  if (isLight || isBasketball) {
+    uniformsCompat.lightDirection = uLightDirection!
+  }
+
+  if (isBasketball) {
+    uniformsCompat.backLightDirection = uBackLightDirection!
+  }
+
+  if (isMatcap) {
+    uniformsCompat.matcap = uMatcapTex!
+    uniformsCompat.glassMatcap = uGlassMatcap!
+  }
+
+  if (isDaylight) {
+    uniformsCompat.daylight = uDaylight!
+  }
+
+  if (isOrnament) {
+    uniformsCompat.ornamentPhase = uOrnamentPhase!
+    uniformsCompat.ornamentBaseIntensity = uOrnamentBaseIntensity!
+  }
+
+  if (isOrnamentStar) {
+    uniformsCompat.ornamentBaseIntensity = uOrnamentBaseIntensity!
+  }
+
+  ;(material as any).uniforms = uniformsCompat
 
   material.needsUpdate = true
-  material.customProgramCacheKey = () => GLOBAL_SHADER_MATERIAL_NAME
-
-  useCustomShaderMaterial.getState().addMaterial(material)
 
   baseMaterial.dispose()
 
-  return material
+  return material as any
 }
-
-interface CustomShaderMaterialStore {
-  /**
-   * Will not cause re-renders to use this object
-   */
-  materialsRef: Record<string, ShaderMaterial>
-  addMaterial: (material: ShaderMaterial) => void
-  removeMaterial: (id: number) => void
-}
-
-export const useCustomShaderMaterial = create<CustomShaderMaterialStore>(
-  (_set, get) => ({
-    materialsRef: {},
-    addMaterial: (material) => {
-      const materials = get().materialsRef
-      materials[material.id] = material
-    },
-    removeMaterial: (id) => {
-      const materials = get().materialsRef
-      delete materials[id]
-    }
-  })
-)

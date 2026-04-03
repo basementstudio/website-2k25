@@ -50,7 +50,7 @@ export const InspectableDragger = ({
 
   const ref = React.useRef<Group>(null)
 
-  const { size } = useThree()
+  const size = useThree((state) => state.size)
 
   const rPolar = React.useMemo(
     () => [rotation[0] + polar[0], rotation[0] + polar[1]],

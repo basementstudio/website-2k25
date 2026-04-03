@@ -1,13 +1,10 @@
-import {
-  MeshDiscardMaterial,
-  useAnimations,
-  useTexture
-} from "@react-three/drei"
+import { useAnimations, useTexture } from "@react-three/drei"
+
+import { MeshDiscardMaterial } from "@/components/mesh-discard-material"
 import { track } from "@vercel/analytics"
 import posthog from "posthog-js"
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
-import { Color } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -122,12 +119,12 @@ export function Pets() {
     const f = 1 - fadeFactor.current.get()
     if (bostonSkinned && bostonSkinned.material) {
       const m = bostonSkinned.material as THREE.MeshBasicMaterial
-      m.color.set(new Color(f, f, f))
+      m.color.setScalar(f)
     }
 
     if (pureSkinned && pureSkinned.material) {
       const m = pureSkinned.material as THREE.MeshBasicMaterial
-      m.color.set(new Color(f, f, f))
+      m.color.setScalar(f)
     }
   })
 
