@@ -13,6 +13,13 @@ export const projectCategory = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: { source: 'title' },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'description',
       title: 'Description',
       type: 'string',
