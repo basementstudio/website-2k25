@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-import { fetchPosts } from "@/app/(pages)/blog/basehub"
+import { fetchPosts } from "@/app/(site)/(pages)/blog/basehub"
 import { formatDate } from "@/utils/format-date"
 
 export const BlogList = async ({ params }: { params: { slug: string[] } }) => {

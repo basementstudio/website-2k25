@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 
 import { submitCareerApplication } from "@/actions/career-application"
-import { ContactStatus } from "@/app/contact/form/contact-status"
+import { ContactStatus } from "@/app/(site)/contact/form/contact-status"
 
 import { CtaButton } from "./components/cta-button"
 import { FormCheckboxGroup } from "./components/form-checkbox-group"

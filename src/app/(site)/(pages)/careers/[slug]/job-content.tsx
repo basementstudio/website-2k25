@@ -18,10 +18,10 @@ import {
   QuoteWithAuthor,
   SideNote,
   UnorderedList
-} from "@/app/(pages)/post/[slug]/blog-components"
-import { Sandbox } from "@/app/(pages)/post/[slug]/components/sandbox"
-import { CustomTweet } from "@/app/(pages)/post/[slug]/components/tweet"
-import { QueryType } from "@/app/(pages)/post/[slug]/query"
+} from "@/app/(site)/(pages)/post/[slug]/blog-components"
+import { Sandbox } from "@/app/(site)/(pages)/post/[slug]/components/sandbox"
+import { CustomTweet } from "@/app/(site)/(pages)/post/[slug]/components/tweet"
+import { QueryType } from "@/app/(site)/(pages)/post/[slug]/query"
 import { cn } from "@/utils/cn"
 
 interface JobContentProps {

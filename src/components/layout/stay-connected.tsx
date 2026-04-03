@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react"
 import { startTransition, useEffect, useState } from "react"
 import { useActionState } from "react"
 
-import { subscribe } from "@/app/actions/subscribe"
+import { subscribe } from "@/app/(site)/actions/subscribe"
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Input } from "@/components/primitives/input"
 import { cn } from "@/utils/cn"

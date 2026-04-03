@@ -3,10 +3,10 @@
 import { useSearchParams } from "next/navigation"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
-import { Project } from "@/app/(pages)/showcase/basehub"
-import { Filters } from "@/app/(pages)/showcase/filters"
-import { Grid } from "@/app/(pages)/showcase/grid"
-import { List } from "@/app/(pages)/showcase/list"
+import { Project } from "@/app/(site)/(pages)/showcase/basehub"
+import { Filters } from "@/app/(site)/(pages)/showcase/filters"
+import { Grid } from "@/app/(site)/(pages)/showcase/grid"
+import { List } from "@/app/(site)/(pages)/showcase/list"
 import { useMedia } from "@/hooks/use-media"
 
 export type CategoryItem = {
