@@ -44,4 +44,17 @@ export const showcaseItem = defineType({
       ],
     }),
   ],
+  preview: {
+    select: {
+      imageFilename: 'image.asset.originalFilename',
+      image: 'image',
+      videoUrl: 'video.url',
+    },
+    prepare({ imageFilename, image, videoUrl }) {
+      return {
+        title: imageFilename || (videoUrl ? 'Video' : 'Untitled'),
+        media: image,
+      }
+    },
+  },
 })
