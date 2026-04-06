@@ -45,7 +45,7 @@ export const FormInput = ({
         description={description}
         htmlFor={inputId}
       />
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col">
         <input
           id={inputId}
           type={type}
@@ -63,7 +63,9 @@ export const FormInput = ({
           )}
           {...registration}
         />
-        {error ? <FormError message={error} id={`${inputId}-error`} /> : null}
+        <div className="mt-2 min-h-5">
+          {error ? <FormError message={error} id={`${inputId}-error`} /> : null}
+        </div>
       </div>
     </div>
   )

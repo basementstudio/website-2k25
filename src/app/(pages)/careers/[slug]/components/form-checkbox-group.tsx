@@ -97,7 +97,9 @@ export const FormCheckboxGroup = ({
         as="legend"
       />
       {renderColumns()}
-      {error ? <FormError id={errorId} message={error} /> : null}
+      <div className="min-h-5">
+        {error ? <FormError id={errorId} message={error} /> : null}
+      </div>
     </fieldset>
   )
 }

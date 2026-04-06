@@ -31,7 +31,7 @@ export const FormSelect = ({
   return (
     <div className="flex flex-col gap-3 lg:gap-4">
       <FormLabel label={label} required={required} />
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col">
         <Select.Root value={value} onValueChange={onChange}>
           <Select.Trigger
             name={name}
@@ -69,9 +69,11 @@ export const FormSelect = ({
             </Select.Content>
           </Select.Portal>
         </Select.Root>
-        {error ? (
-          <FormError message={error} id="yearsOfExperience-error" />
-        ) : null}
+        <div className="mt-1.5 min-h-5">
+          {error ? (
+            <FormError message={error} id="yearsOfExperience-error" />
+          ) : null}
+        </div>
       </div>
     </div>
   )
