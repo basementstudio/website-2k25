@@ -320,21 +320,30 @@ interface CrewFooterProps {
   spanEnd: number
 }
 
-export const CrewFooter = ({ spanStart, spanEnd }: CrewFooterProps) => (
-  <div
-    className="with-diagonal-lines relative col-span-full flex min-h-32 items-center justify-center bg-brand-k"
-    style={{
-      gridColumn: `span ${spanStart} / span ${spanEnd}`
-    }}
-  >
-    <Link
-      href="mailto:careers@basement.studio"
-      target="_blank"
-      className="relative z-10 flex h-4 items-center gap-1 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
+export const CrewFooter = ({ spanStart, spanEnd }: CrewFooterProps) => {
+  const scrollToOpenPositions = useCallback(() => {
+    document.getElementById("open-positions")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    })
+  }, [])
+
+  return (
+    <div
+      className="with-diagonal-lines relative col-span-full flex min-h-32 items-center justify-center bg-brand-k"
+      style={{
+        gridColumn: `span ${spanStart} / span ${spanEnd}`
+      }}
     >
-      <span className="actionable flex items-center gap-1">
-        Join the Crew <Arrow className="size-4" />
-      </span>
-    </Link>
-  </div>
-)
+      <button
+        type="button"
+        onClick={scrollToOpenPositions}
+        className="relative z-10 flex h-4 items-center gap-1 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
+      >
+        <span className="actionable flex items-center gap-1">
+          Join the Crew <Arrow className="size-4" />
+        </span>
+      </button>
+    </div>
+  )
+}

@@ -106,7 +106,7 @@ export const OrderedList = ({ children }: HandlerProps<"ol">) => (
 )
 
 export const UnorderedList = ({ children }: HandlerProps<"ul">) => (
-  <ul className="blog-list list-none pl-5 text-brand-w2 marker:text-brand-o [&_ul]:marker:!text-brand-g1">
+  <ul className="blog-list list-none space-y-2 pl-5 text-brand-w2 marker:text-brand-o [&_ul]:marker:!text-brand-g1">
     {children}
   </ul>
 )

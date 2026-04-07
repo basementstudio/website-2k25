@@ -33,8 +33,7 @@ interface OrganizationData {
 
 export const ORGANIZATION_ID = `${SITE_URL}/#organization`
 const formatAward = (award: Award) => {
-  const title =
-    typeof award.title === "string" ? award.title.trim() : ""
+  const title = typeof award.title === "string" ? award.title.trim() : ""
 
   if (!title) return null
 
@@ -79,20 +78,17 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     "@type": "Organization",
     "@id": ORGANIZATION_ID,
     name: SITE_NAME,
+    alternateName: ["basement studio", "basement", "bsmnt"],
     url: SITE_URL,
     ...(data.logo?.url ? { logo: data.logo.url } : {}),
     ...(data.description ? { description: data.description } : {}),
-    ...(data.foundingDate
-      ? { foundingDate: String(data.foundingDate) }
-      : {}),
+    ...(data.foundingDate ? { foundingDate: String(data.foundingDate) } : {}),
     ...(data.email ? { email: data.email } : {}),
     ...(hasAddress
       ? {
           address: {
             "@type": "PostalAddress",
-            ...(data.addressCity
-              ? { addressLocality: data.addressCity }
-              : {}),
+            ...(data.addressCity ? { addressLocality: data.addressCity } : {}),
             ...(data.addressRegion
               ? { addressRegion: data.addressRegion }
               : {}),
