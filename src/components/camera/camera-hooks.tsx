@@ -8,6 +8,7 @@ import type { ICameraConfig } from "@/components/navigation-handler/navigation.i
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useMedia } from "@/hooks/use-media"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { useGyroscopeStore } from "@/store/gyroscope-store"
 import { easeInOutCubic } from "@/utils/animations"
 
 import {
@@ -19,6 +20,10 @@ import {
 
 const ANIMATION_DURATION = 1
 const ANIMATION_DURATION_FROM_404 = 4
+
+const GYRO_PAN_HORIZONTAL = 5
+const GYRO_PAN_VERTICAL = 4
+const GYRO_SMOOTHING = 0.8
 
 export type CameraRef = React.RefObject<THREE.PerspectiveCamera | null>
 export type MeshRef = React.RefObject<THREE.Mesh | null>
@@ -233,12 +238,26 @@ export const useCameraMovement = (
 
     if (!plane || !boundary || !basePosition || !np || !cameraConfig) return
 
+    // Get gyroscope state for mobile camera control
+    const gyroState = useGyroscopeStore.getState()
+    const useGyroscope =
+      gyroState.isEnabled && gyroState.permission === "granted"
+
+    // Use gyroscope orientation on mobile, pointer on desktop
+    const inputX = useGyroscope
+      ? -gyroState.orientationX * GYRO_PAN_HORIZONTAL
+      : pointer.x
+    const inputY = useGyroscope ? gyroState.orientationY * GYRO_PAN_VERTICAL : 0
+
     b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
     b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
-    b.offset = pointer.x * b.maxOffset * offsetMultiplier
+    b.offset = inputX * b.maxOffset * offsetMultiplier
 
     b.pos.x = b.rightVector.x * b.offset
     b.pos.z = b.rightVector.z * b.offset
+
+    // Vertical offset from gyroscope (Y axis movement)
+    const verticalOffset = inputY * b.maxOffset * offsetMultiplier
     b.targetPosition.x = basePosition[0] + b.pos.x
     b.targetPosition.z = basePosition[2] + b.pos.z
     b.planePosition.x = plane.position.x
@@ -248,14 +267,23 @@ export const useCameraMovement = (
     plane.position.setZ(np.z)
 
     if (!selected && cameraConfig?.offsetMultiplier !== 0) {
-      newDelta.set(b.pos.x, 0, b.pos.z)
-      newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
+      newDelta.set(b.pos.x, verticalOffset, b.pos.z)
+      newLookAtDelta.set(b.pos.x / divisor, verticalOffset / divisor, b.pos.z)
 
-      easing.damp3(panTargetDelta, newDelta, 0.5, dt)
-      easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
+      // Use gyroscope smoothing when active, otherwise default smoothing
+      const posSmoothing = useGyroscope ? GYRO_SMOOTHING : 0.5
+      const lookAtSmoothing = useGyroscope ? GYRO_SMOOTHING * 0.5 : 0.25
+
+      easing.damp3(panTargetDelta, newDelta, posSmoothing, dt)
+      easing.damp3(panLookAtDelta, newLookAtDelta, lookAtSmoothing, dt)
     } else {
-      easing.damp3(panTargetDelta, 0, 0.5, dt)
-      easing.damp3(panLookAtDelta, 0, 0.25, dt)
+      easing.damp3(panTargetDelta, 0, useGyroscope ? GYRO_SMOOTHING : 0.5, dt)
+      easing.damp3(
+        panLookAtDelta,
+        0,
+        useGyroscope ? GYRO_SMOOTHING * 0.5 : 0.25,
+        dt
+      )
     }
 
     if (cameraConfig) {
