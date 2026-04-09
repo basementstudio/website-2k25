@@ -79,12 +79,12 @@ export const threeDAssets = defineType({
             defineField({
               name: 'tree',
               title: 'Tree',
-              type: 'url',
+              type: 'file',
             }),
             defineField({
               name: 'song',
               title: 'Song',
-              type: 'url',
+              type: 'file',
             }),
           ],
         }),
@@ -108,12 +108,12 @@ export const threeDAssets = defineType({
             defineField({
               name: 'lightmap',
               title: 'Lightmap',
-              type: 'url',
+              type: 'file',
             }),
             defineField({
               name: 'ambientOcclusion',
               title: 'Ambient Occlusion',
-              type: 'url',
+              type: 'file',
             }),
             defineField({
               name: 'meshes',
@@ -143,7 +143,7 @@ export const threeDAssets = defineType({
             defineField({
               name: 'file',
               title: 'File',
-              type: 'url',
+              type: 'file',
             }),
             defineField({
               name: 'isGlass',
@@ -188,7 +188,7 @@ export const threeDAssets = defineType({
             defineField({
               name: 'url',
               title: 'URL',
-              type: 'url',
+              type: 'file',
             }),
           ],
         },
@@ -204,47 +204,47 @@ export const threeDAssets = defineType({
         defineField({
           name: 'idleScreen',
           title: 'Idle Screen',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'placeholderLab',
           title: 'Placeholder Lab',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'boot',
           title: 'Boot',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'chronicles',
           title: 'Chronicles',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'looper',
           title: 'Looper',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'palm',
           title: 'Palm',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'skybox',
           title: 'Skybox',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'cityscape',
           title: 'Cityscape',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'introScreen',
           title: 'Intro Screen',
-          type: 'url',
+          type: 'file',
         }),
       ],
     }),
@@ -266,7 +266,7 @@ export const threeDAssets = defineType({
             defineField({
               name: 'url',
               title: 'URL',
-              type: 'url',
+              type: 'file',
             }),
             defineField({
               name: 'intensity',
@@ -741,27 +741,27 @@ export const threeDAssets = defineType({
         defineField({
           name: 'model',
           title: 'Model',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'textureBody',
           title: 'Texture Body',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'textureFaces',
           title: 'Texture Faces',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'textureArms',
           title: 'Texture Arms',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'textureComic',
           title: 'Texture Comic',
-          type: 'url',
+          type: 'file',
         }),
       ],
     }),
@@ -775,17 +775,17 @@ export const threeDAssets = defineType({
         defineField({
           name: 'model',
           title: 'Model',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'pureTexture',
           title: 'Pure Texture',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'bostonTexture',
           title: 'Boston Texture',
-          type: 'url',
+          type: 'file',
         }),
       ],
     }),
@@ -799,7 +799,7 @@ export const threeDAssets = defineType({
         defineField({
           name: 'extraLightmap',
           title: 'Extra Lightmap',
-          type: 'url',
+          type: 'file',
         }),
       ],
     }),
@@ -813,12 +813,12 @@ export const threeDAssets = defineType({
         defineField({
           name: 'rain',
           title: 'Rain',
-          type: 'url',
+          type: 'file',
         }),
         defineField({
           name: 'basketballVa',
           title: 'Basketball VA',
-          type: 'url',
+          type: 'file',
         }),
       ],
     }),
