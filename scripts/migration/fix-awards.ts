@@ -43,6 +43,7 @@ export default async function fixAwards() {
           items: {
             _id: true,
             _title: true,
+            title: true,
             _slug: true,
             date: true,
             awardUrl: true,
@@ -103,7 +104,7 @@ export default async function fixAwards() {
       await sanityWriteClient.createOrReplace({
         _id: docId,
         _type: 'award',
-        title: award._title,
+        title: award.title || award._title,
         date: award.date || undefined,
         awardUrl: award.awardUrl || undefined,
         ...(projectRef ? { project: projectRef } : {}),
