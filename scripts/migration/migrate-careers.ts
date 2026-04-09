@@ -69,7 +69,11 @@ export default async function migrateCareers() {
       )
 
       applyFormSetup = {
-        formFields: pos.applyFormSetup.formFields || undefined,
+        formFields: Array.isArray(pos.applyFormSetup.formFields)
+          ? pos.applyFormSetup.formFields
+          : pos.applyFormSetup.formFields
+            ? [pos.applyFormSetup.formFields]
+            : undefined,
         ...(skills.length > 0 ? { skills } : {}),
       }
     }

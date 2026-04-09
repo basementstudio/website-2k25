@@ -1,153 +1,248 @@
 {
   "project": "website-2k25",
-  "branchName": "ralph/studio-ux-schema-polish",
-  "description": "Studio UX & Schema Polish (Phase 3): Fix 7 Studio issues — add image previews to list views, fix schema warnings, convert showcase to singleton, and isolate Studio layout from site",
+  "branchName": "ralph/studio-ux-schema-polish-2-v1",
+  "description": "Sanity Migration Phase 2: Fix award titles and formFields schema, add presentation tool with visual editing, upload 3D/media assets to Sanity CDN, add missing schemas for scenes/inspectables/physicsParams",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Add hero image preview to blog posts",
-      "description": "As a content editor, I want to see the hero image thumbnail in the blog post list view so I can quickly identify posts.",
+      "title": "Fix award titles in migration script",
+      "description": "As a content editor, I want award titles in Sanity to show the actual award name (e.g. 'Awwwards Site of the Day') so that when we switch the frontend to Sanity, awards display correctly.",
       "acceptanceCriteria": [
-        "Update `sanity/schemas/documents/post.ts` preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', media: 'heroImage' } }`",
+        "In `scripts/migration/fix-awards.ts`, add `title: true` to the BaseHub query (alongside `_title: true`)",
+        "Change line 106 from `title: award._title` to `title: award.title || award._title`",
+        "Re-run the migration: `pnpm exec tsx scripts/migration/fix-awards.ts`",
+        "GROQ query `*[_type == \"award\"]{title}` returns names like 'Awwwards Site of the Day', 'FWA Site of the Day', 'Webby Award' -- not internal slugs",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Simple one-line change to the preview object."
+      "notes": "Root cause: fix-awards.ts:106 uses award._title (BaseHub internal name) instead of award.title (the SELECT field with actual award names). The BaseHub query never fetches `title: true`."
     },
     {
       "id": "US-002",
-      "title": "Add cover image and client preview to projects",
-      "description": "As a content editor, I want to see the cover image and client name in the project list view so I can quickly identify projects.",
+      "title": "Fix open position formFields schema",
+      "description": "As a content editor, I want the form fields configuration for open positions to be a multi-select list in Sanity Studio so I can pick which fields appear on each job application form.",
       "acceptanceCriteria": [
-        "Update `sanity/schemas/documents/project.ts` preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', subtitle: 'client.title', media: 'cover' } }`",
+        "In `sanity/schemas/documents/openPosition.ts`, change `formFields` from `type: 'string'` to `type: 'array'` of strings with `options.list` containing all 12 predefined values",
+        "Predefined options: 'First and last name', 'Email', 'Where are you based', 'Why do you want to join', 'Years of experience', 'Skills', 'Portfolio', 'Github', 'Availability to start', 'Availability to work', 'Linkedin', 'Salary Expectation'",
+        "Re-run careers migration: `pnpm exec tsx scripts/migration/migrate-careers.ts`",
+        "GROQ query `*[_type == \"openPosition\"]{title, \"fields\": applyFormSetup.formFields}` returns `fields` as an array of strings, not a single string",
         "Typecheck passes"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "Sanity auto-resolves 'client.title' through the reference."
+      "notes": "BaseHub stores formFields as BSHBSelect_944951315[] (array of select values). Sanity schema has it as plain string. Frontend expects string[] and calls .includes() on it."
     },
     {
       "id": "US-003",
-      "title": "Fix showcase item preview in projects",
-      "description": "As a content editor, I want showcase items within a project to display their image preview and filename instead of 'image: {asset: {empty}}'.",
+      "title": "Add presentation tool to Sanity Studio",
+      "description": "As a content editor, I want a Presentation tab in Sanity Studio that shows a live preview of the website so I can see content changes in context.",
       "acceptanceCriteria": [
-        "Update `sanity/schemas/objects/showcaseItem.ts` with a preview config using a `prepare` function",
-        "Preview select must include: imageFilename from 'image.asset.originalFilename', image from 'image', videoUrl from 'video.url'",
-        "prepare function returns: title as imageFilename or 'Video' (if videoUrl exists) or 'Untitled', media as image",
+        "Import `presentationTool` from `sanity/presentation` in `sanity.config.ts`",
+        "Add `presentationTool({ previewUrl: { previewMode: { enable: '/api/draft-mode/enable' } } })` to the plugins array",
+        "'Presentation' tab appears in Sanity Studio alongside 'Structure' and 'Vision'",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "The prepare function handles both image and video-only showcase items."
+      "passes": false,
+      "notes": "sanity v5.18+ exports presentationTool from sanity/presentation -- no separate package install needed."
     },
     {
       "id": "US-004",
-      "title": "Add slug field to project categories",
-      "description": "As a developer, I need to add a slug field to the projectCategory schema so Studio stops showing 'Unknown field found' warnings for the slug data that already exists from migration.",
+      "title": "Set up draft mode API routes",
+      "description": "As a developer, I need draft mode enable/disable API routes so the presentation tool can toggle Next.js draft mode for live previews.",
       "acceptanceCriteria": [
-        "Add a `slug` field (type: 'slug', options: { source: 'title' }) to `sanity/schemas/documents/projectCategory.ts` after the title field",
-        "Use defineField from sanity, same pattern as post.ts and project.ts slug fields",
-        "No data migration needed — slug values already exist in migrated documents",
+        "Create `src/app/api/draft-mode/enable/route.ts`: GET handler that enables draft mode via `(await draftMode()).enable()` and redirects to `searchParams.get('redirect') || '/'`",
+        "Create `src/app/api/draft-mode/disable/route.ts`: GET handler that disables draft mode and returns JSON response",
+        "Draft mode enable endpoint validates a shared secret token from query params or env var to prevent unauthorized access",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": ""
+      "passes": false,
+      "notes": "Next.js 16+ requires awaiting draftMode(): `(await draftMode()).enable()`. Use SANITY_VIEWER_TOKEN or similar env var for secret validation."
     },
     {
       "id": "US-005",
-      "title": "Fix lab project URL field and add cover preview",
-      "description": "As a content editor, I want the lab project URL field to accept any text and see the cover image in the list view.",
+      "title": "Update sanityFetch to support draft perspective",
+      "description": "As a developer, I need sanityFetch to switch between published and draft perspectives so visual editing can show unpublished changes.",
       "acceptanceCriteria": [
-        "Change `url` field type from 'url' to 'string' in `sanity/schemas/documents/labProject.ts`",
-        "Update preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', media: 'cover' } }`",
+        "In `src/service/sanity/index.ts`, update `sanityFetch` to check draft mode status via `(await draftMode()).isEnabled`",
+        "When draft mode is on: use `perspective: 'previewDrafts'`, disable CDN (`useCdn: false`), use a Sanity API token from env",
+        "When draft mode is off: keep current behavior (`useCdn: true`, no token, published perspective)",
+        "Add a `SANITY_API_READ_TOKEN` env var for authenticated draft queries (document this in .env.example or similar)",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Changing from url to string is non-destructive — existing URL values are valid strings."
+      "passes": false,
+      "notes": "Current sanityFetch at src/service/sanity/index.ts uses useCdn: true and has no draft support. The token is needed because draft content requires authenticated requests."
     },
     {
       "id": "US-006",
-      "title": "Create showcase page singleton schema",
-      "description": "As a content editor, I want the showcase to be a single page where I can drag-and-drop project references to set display order, instead of managing separate showcase entry documents.",
+      "title": "Add VisualEditing component for live overlays",
+      "description": "As a content editor, I want clickable overlays on page elements in the presentation preview so I can click content and jump to editing it in Studio.",
       "acceptanceCriteria": [
-        "Create `sanity/schemas/singletons/showcasePage.ts` with: name 'showcasePage', type 'document', hidden title field (initialValue 'Showcase'), and a `projects` field (type: 'array', of: [{ type: 'reference', to: [{ type: 'project' }] }])",
-        "Update `sanity/schemas/index.ts`: remove showcaseEntry import/export, add showcasePage import/export",
-        "Update `sanity.config.ts`: add 'showcasePage' to the singletonTypes Set, add showcasePage to the Pages section in structure (same pattern as homepage singleton), remove `S.documentTypeListItem('showcaseEntry').title('Showcase')` from the Content section",
+        "`VisualEditing` component from `next-sanity` added to the `(site)` group layout, conditionally rendered only when `(await draftMode()).isEnabled` is true",
+        "`SanityLive` or `defineLive` from `next-sanity` configured for real-time content updates in preview mode",
+        "When in presentation mode, hovering over Sanity-sourced content shows edit overlays",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Follow the exact same patterns used by the homepage singleton in sanity.config.ts structure builder. The showcaseEntry schema file is NOT deleted yet — that happens after data migration in US-007."
+      "passes": false,
+      "notes": "next-sanity v12.1+ exports VisualEditing and defineLive. Only add to (site) group layout, not root layout (root also contains /studio)."
     },
     {
       "id": "US-007",
-      "title": "Migrate showcase data to singleton and cleanup",
-      "description": "As a developer, I need to migrate the existing showcaseEntry documents into the new showcasePage singleton and delete the old documents.",
+      "title": "Create file upload migration utility",
+      "description": "As a developer, I need a reusable utility function that downloads a file from a URL and uploads it to Sanity's asset storage.",
       "acceptanceCriteria": [
-        "Create `scripts/migration/migrate-showcase-to-singleton.ts`",
-        "Script imports dotenv/config and loads .env.local (use dotenv.config({ path: '.env.local' }))",
-        "Script queries all existing showcaseEntry documents from Sanity, sorted by orderRank ascending",
-        "Script creates a showcasePage singleton document (_id: 'showcasePage', _type: 'showcasePage') with title: 'Showcase' and projects array containing references to the same projects in orderRank order",
-        "Script deletes all old showcaseEntry documents after creating the singleton",
-        "Script is runnable via: pnpm exec tsx scripts/migration/migrate-showcase-to-singleton.ts",
-        "After running the script, delete `sanity/schemas/documents/showcaseEntry.ts`",
+        "Create `scripts/migration/utils/files.ts` with `downloadAndUploadFile(url: string | undefined | null, filename?: string)` function",
+        "Downloads file from external URL into a buffer using fetch",
+        "Uploads buffer to Sanity via `sanityWriteClient.assets.upload('file', buffer, { filename })`",
+        "Returns `{ _type: 'file', asset: { _type: 'reference', _ref: assetId } }` on success",
+        "Returns `null` for empty/undefined/null URLs without throwing",
+        "Logs progress and errors per file",
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "Depends on US-006 (showcasePage schema must exist). Use the same sanity-client.ts from scripts/migration/ for the write client. The showcaseEntry.ts file deletion happens AFTER the script runs successfully."
+      "passes": false,
+      "notes": "Follow the pattern from existing `scripts/migration/utils/images.ts` (downloadAndUploadImage). Import sanityWriteClient from `scripts/migration/sanity-client.ts`."
     },
     {
       "id": "US-008",
-      "title": "Slim down root layout and create site group layout",
-      "description": "As a developer, I need to split the root layout so Studio doesn't inherit site-specific components (navbar, footer, 3D scene, analytics).",
+      "title": "Update threeDAssets schema: top-level model fields to file type",
+      "description": "As a developer, I need the top-level 3D model fields in threeDAssets to use native file type instead of url type.",
       "acceptanceCriteria": [
-        "Read `src/app/layout.tsx` to understand all current providers and components",
-        "Refactor `src/app/layout.tsx` to keep ONLY: html tag, body tag with font class names, metadata export, and {children} — remove ALL site-specific components",
-        "Create `src/app/(site)/layout.tsx` that contains everything removed from root layout: Analytics, SpeedInsights, Transitions, PostHogProvider, AssetsProvider (with fetchAssets call), InspectableProvider, HtmlTunnelOut, Navbar, NavigationHandler, ContentWrapper, AppHooks, Contact, and any other site-specific providers",
-        "The (site) layout must wrap {children} in the same component nesting order as the original root layout",
+        "In `sanity/schemas/singletons/threeDAssets.ts`, change these top-level fields from `type: 'url'` to `type: 'file'`: officeItems, office, officeWireframe, outdoor, godrays, basketball, basketballNet, contactPhone, routingElements, outdoorCars",
+        "Schema deploys without errors (Sanity Studio loads cleanly)",
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "This story creates the layouts only. The actual route directory moves happen in US-009. The (site) route group does NOT affect URL paths."
+      "passes": false,
+      "notes": "Start with top-level model fields only. Nested objects (sfx, arcade, etc.) are handled in subsequent stories."
     },
     {
       "id": "US-009",
-      "title": "Move site routes into (site) group and add Studio layout",
-      "description": "As a developer, I need to move all non-studio routes into the (site) route group and create a minimal Studio layout so Studio is fully isolated.",
+      "title": "Update threeDAssets schema: nested objects to file type",
+      "description": "As a developer, I need all nested asset fields in threeDAssets (specialEvents, bakes, matcaps, glassReflexes, arcade, characters, pets, lamp, mapTextures, videos) converted to file type.",
       "acceptanceCriteria": [
-        "Move `src/app/(pages)/` to `src/app/(site)/(pages)/`",
-        "Move `src/app/contact/` to `src/app/(site)/contact/`",
-        "Move `src/app/basketball/` to `src/app/(site)/basketball/`",
-        "Move `src/app/doom/` to `src/app/(site)/doom/`",
-        "Move `src/app/lab/` to `src/app/(site)/lab/`",
-        "Move `src/app/actions/` to `src/app/(site)/actions/`",
-        "Move `src/app/api/` to `src/app/(site)/api/`",
-        "Move `src/app/not-found.tsx` to `src/app/(site)/not-found.tsx`",
-        "Create a minimal `src/app/not-found.tsx` at root level that returns a simple 'Not Found' page without depending on any site providers",
-        "Create `src/app/studio/layout.tsx` that exports a function returning just {children}",
-        "Verify that all moved directories exist in their new locations",
+        "Change all `type: 'url'` fields inside nested objects to `type: 'file'`: specialEvents.christmas.tree, specialEvents.christmas.song, bakes[].lightmap, bakes[].ambientOcclusion, matcaps[].file, glassReflexes[].url, arcade.* (all url fields), characters.* (model + textures), pets.* (model + textures), lamp.extraLightmap, mapTextures.rain, mapTextures.basketballVa, videos[].url",
+        "Schema deploys without errors",
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": true,
-      "notes": "Depends on US-008 (layouts must exist before moving routes). Route group (site) does NOT change URL paths — /blog stays /blog. Use `mv` commands to move directories. All imports use @/ aliases so paths should not break."
+      "passes": false,
+      "notes": "This covers all nested URL fields except sfx (handled in US-010)."
     },
     {
       "id": "US-010",
-      "title": "Deploy schemas and verify",
-      "description": "As a developer, I need to deploy the updated schemas to Sanity cloud and verify all changes work.",
+      "title": "Update threeDAssets schema: sfx fields to file type",
+      "description": "As a developer, I need all SFX audio fields in threeDAssets converted to file type.",
       "acceptanceCriteria": [
-        "Run `npx sanity@latest schema deploy` successfully",
+        "Change all `type: 'url'` fields inside `sfx` object to `type: 'file'`: basketballTheme, basketballSwoosh, basketballNet, basketballThump, basketballBuzzer, basketballStreak, knobTurning, antenna, blog.lockedDoor items, blog.door[].open/close, blog.lamp[].pull/release, arcade.buttons[].press/release, arcade.sticks[].press/release, arcade.miamiHeatwave, music.aqua/rain/tiger/vhs, contact.interference",
+        "Schema deploys without errors",
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": true,
-      "notes": "Final step — deploys all schema changes from US-001 through US-007 to Sanity cloud. Deployed via Sanity MCP (CLI required interactive browser auth)."
+      "passes": false,
+      "notes": "sfx is deeply nested with many url fields -- separated into its own story for manageable scope."
+    },
+    {
+      "id": "US-011",
+      "title": "Migrate top-level and nested 3D assets to Sanity file storage",
+      "description": "As a developer, I need a migration script that downloads all 3D model, texture, video, and image URLs from threeDAssets and re-uploads them as native Sanity file assets.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-3d-assets-to-files.ts`",
+        "Fetches current `threeDAssets` document from Sanity to get all existing URL values",
+        "Downloads and uploads each file using `downloadAndUploadFile` from US-007",
+        "Processes all sections: top-level models, specialEvents, bakes, matcaps, glassReflexes, arcade, characters, pets, lamp, mapTextures, videos",
+        "Builds replacement document with file references and uses `createOrReplace`",
+        "Includes rate limiting (100ms delay between uploads or max 3 concurrent)",
+        "Continues on individual failures, logs which fields failed",
+        "Prints summary: total attempted, succeeded, failed",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Does NOT include sfx fields -- those are in US-012. Approximately 40-50 files to upload in this batch."
+    },
+    {
+      "id": "US-012",
+      "title": "Migrate SFX audio assets to Sanity file storage",
+      "description": "As a developer, I need the SFX audio files migrated to Sanity file storage separately from the main 3D assets.",
+      "acceptanceCriteria": [
+        "Extend or create migration script to process all sfx fields from threeDAssets",
+        "Downloads and uploads all sfx audio URLs: basketball sounds, blog sounds (lockedDoor, door, lamp), arcade sounds (buttons, sticks, miamiHeatwave), music tracks (aqua, rain, tiger, vhs), contact.interference, knobTurning, antenna",
+        "Updates the threeDAssets document sfx section with file references",
+        "Continues on individual failures with logging",
+        "GROQ query resolves sfx file references to valid CDN URLs",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Separated from US-011 because sfx has deeply nested arrays and many fields. Approximately 20-30 audio files."
+    },
+    {
+      "id": "US-013",
+      "title": "Add scenes schema and migration",
+      "description": "As a developer, I need scenes data (camera configs, tabs, postprocessing) stored in Sanity so it can eventually replace the BaseHub source.",
+      "acceptanceCriteria": [
+        "Add `scenes` field to `threeDAssets` schema as an array of objects",
+        "Each scene object has: `name` (string), `cameraConfig` (object: posX/posY/posZ/tarX/tarY/tarZ/fov/targetScrollY/offsetMultiplier as numbers), `tabs` (array: tabName/tabRoute/tabHoverName/tabClickableName strings + plusShapeScale number), `postprocessing` (object: contrast/brightness/exposure/gamma/vignetteRadius/vignetteSpread/bloomStrength/bloomRadius/bloomThreshold as numbers)",
+        "Create migration script that fetches scenes from BaseHub (`threeDInteractions.scenes.scenes.items`) and writes to Sanity",
+        "GROQ query returns scenes data matching the `AssetsResult['scenes']` shape from `src/components/assets-provider/fetch-assets.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "Scenes come from BaseHub `threeDInteractions.scenes.scenes.items`. No file uploads needed -- just structured data (numbers, strings)."
+    },
+    {
+      "id": "US-014",
+      "title": "Add inspectables schema and migration",
+      "description": "As a developer, I need inspectable objects data stored in Sanity so it can eventually replace the BaseHub source.",
+      "acceptanceCriteria": [
+        "Add `inspectables` field to `threeDAssets` schema as an array of objects",
+        "Each inspectable has: title (string), specs (array of {title: string, value: string}), description (array of blocks -- portable text), mesh (string), xOffset/yOffset/xRotationOffset/sizeTarget (numbers), scenes (array of strings), fx (file)",
+        "Create migration script that fetches inspectables from BaseHub (`pages.inspectables.inspectableList.items`) and writes to Sanity",
+        "fx fields uploaded as Sanity file assets using downloadAndUploadFile utility",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "Inspectables come from BaseHub `pages.inspectables`. Description is rich text in BaseHub -- use convertRichText utility from scripts/migration/utils/rich-text.ts."
+    },
+    {
+      "id": "US-015",
+      "title": "Add physicsParams, glassMaterials, and doubleSideElements",
+      "description": "As a developer, I need physicsParams, glassMaterials, and doubleSideElements data in Sanity.",
+      "acceptanceCriteria": [
+        "Add `physicsParams` field to `threeDAssets` schema as array of objects with `title` (string) and `value` (number)",
+        "Add `glassMaterials` field as array of strings",
+        "Add `doubleSideElements` field as array of strings",
+        "Create migration script that fetches these from BaseHub and stores in Sanity",
+        "GROQ queries return data matching the shapes in `AssetsResult`",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "These are simple data fields with no file uploads. physicsParams from threeDInteractions.physicsParams, glassMaterials from threeDInteractions.map.glassMaterials, doubleSideElements from threeDInteractions.map.doubleSideElements."
+    },
+    {
+      "id": "US-016",
+      "title": "Verify all migrations and deploy schemas",
+      "description": "As a developer, I need to verify that all migrated data is correct and schemas deploy cleanly.",
+      "acceptanceCriteria": [
+        "GROQ query `*[_type == \"award\"]{title}` returns proper award names for all documents",
+        "GROQ query `*[_type == \"openPosition\"]{title, \"fields\": applyFormSetup.formFields}` returns fields as arrays",
+        "GROQ query `*[_type == \"threeDAssets\"][0]{\"officeUrl\": office.asset->url}` resolves to a valid CDN URL",
+        "GROQ query `*[_type == \"threeDAssets\"][0]{\"sceneCount\": count(scenes)}` returns the expected number of scenes",
+        "Sanity Studio loads without schema errors",
+        "Presentation tab shows website in iframe",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": "Final verification story. Run all GROQ queries via Sanity Vision tool or sanity CLI."
     }
   ]
 }

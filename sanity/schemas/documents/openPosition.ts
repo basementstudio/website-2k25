@@ -59,7 +59,24 @@ export const openPosition = defineType({
         defineField({
           name: 'formFields',
           title: 'Form Fields',
-          type: 'string',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: {
+            list: [
+              'First and last name',
+              'Email',
+              'Where are you based',
+              'Why do you want to join',
+              'Years of experience',
+              'Skills',
+              'Portfolio',
+              'Github',
+              'Availability to start',
+              'Availability to work',
+              'Linkedin',
+              'Salary Expectation',
+            ],
+          },
         }),
         defineField({
           name: 'skills',
