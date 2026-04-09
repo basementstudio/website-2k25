@@ -44,7 +44,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "sanity v5.18+ exports presentationTool from sanity/presentation -- no separate package install needed."
     },
     {
@@ -58,7 +58,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Next.js 16+ requires awaiting draftMode(): `(await draftMode()).enable()`. Use SANITY_VIEWER_TOKEN or similar env var for secret validation."
     },
     {
@@ -73,7 +73,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Current sanityFetch at src/service/sanity/index.ts uses useCdn: true and has no draft support. The token is needed because draft content requires authenticated requests."
     },
     {
@@ -87,7 +87,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "next-sanity v12.1+ exports VisualEditing and defineLive. Only add to (site) group layout, not root layout (root also contains /studio)."
     },
     {
@@ -104,7 +104,7 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Follow the pattern from existing `scripts/migration/utils/images.ts` (downloadAndUploadImage). Import sanityWriteClient from `scripts/migration/sanity-client.ts`."
     },
     {
@@ -117,7 +117,7 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Start with top-level model fields only. Nested objects (sfx, arcade, etc.) are handled in subsequent stories."
     },
     {
@@ -130,7 +130,7 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "This covers all nested URL fields except sfx (handled in US-010)."
     },
     {
@@ -143,7 +143,7 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "sfx is deeply nested with many url fields -- separated into its own story for manageable scope."
     },
     {
@@ -162,7 +162,7 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "Does NOT include sfx fields -- those are in US-012. Approximately 40-50 files to upload in this batch."
     },
     {
@@ -178,7 +178,7 @@
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Separated from US-011 because sfx has deeply nested arrays and many fields. Approximately 20-30 audio files."
     },
     {

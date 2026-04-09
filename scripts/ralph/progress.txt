@@ -10,6 +10,9 @@
 - BaseHub list types (BlockList) use `.items` accessor; single documents (BlockDocument) are accessed directly — check GraphQL schema to distinguish
 - BaseHub rich text fields (like `content: Content_4`, `role: Role`) support `.plainText`, `.html`, `.json.content` accessors — use `.plainText` when Sanity schema expects plain text
 - Sanity schema deployment requires user session auth (`sanity login`); the SANITY_API_TOKEN doesn't work — use MCP `deploy_schema` as fallback, converting defineType/defineField to plain object literals
+- tsconfig path alias is `@/*` → `./src/*` — use `@/service/sanity` not `~/service/sanity`
+- `next-sanity` v12+ provides `defineEnableDraftMode` from `next-sanity/draft-mode` for secure draft mode enable routes — handles Sanity Studio validation internally
+- `next-sanity` v11+ subpath exports: `VisualEditing` from `next-sanity/visual-editing`, `defineLive` from `next-sanity/live` — NOT from root `next-sanity`
 
 # Ralph Progress Log
 Started: Thu 26 Mar 2026 14:56:47 -03
@@ -89,4 +92,119 @@ Started: Thu 26 Mar 2026 14:56:47 -03
   - The Sanity MCP `deploy_schema` tool is a viable alternative when CLI auth is unavailable — it can iteratively add/overwrite schema types using declarative object syntax
   - Preview config changes (US-001, US-002, US-003, US-005) are Studio-side only and don't need cloud deployment — they're runtime configuration
   - MCP deploy_schema adds types incrementally (total went from 27 to 28) rather than replacing the entire schema — stale types like `showcaseEntry` remain in the cloud schema
+---
+
+## 2026-04-09 - US-003
+- What was implemented: Added `presentationTool` from `sanity/presentation` to `sanity.config.ts` plugins array with preview URL pointing to `/api/draft-mode/enable`
+- Files changed:
+  - `sanity.config.ts` (modified) — added import for `presentationTool` and configured it in plugins array between structureTool and visionTool
+- **Learnings for future iterations:**
+  - `sanity@^5.18.0` exports `presentationTool` from `sanity/presentation` — no separate package install needed
+  - The presentation tool requires a draft-mode API route to function (US-004 creates this)
+  - All pre-existing typecheck errors (8 total) are in `scripts/migration/` files and are safe to ignore — they don't affect the main app or Sanity Studio
+---
+
+## 2026-04-09 - US-004
+- What was implemented: Created draft mode enable/disable API routes for Next.js + Sanity presentation tool integration
+- Files changed:
+  - `src/app/api/draft-mode/enable/route.ts` (new) — uses `defineEnableDraftMode` from `next-sanity/draft-mode` with client + SANITY_API_READ_TOKEN for secure validation
+  - `src/app/api/draft-mode/disable/route.ts` (new) — simple GET handler that disables draft mode and returns JSON
+- **Learnings for future iterations:**
+  - `next-sanity` v12+ exports `defineEnableDraftMode` from `next-sanity/draft-mode` — handles secret validation internally using the Sanity client token, no manual secret param needed
+  - The tsconfig path alias is `@/*` → `./src/*` (not `~/`)
+  - Draft mode routes must be at top-level `src/app/api/` (not inside `(site)` group) so the URL matches `/api/draft-mode/enable`
+  - `SANITY_API_READ_TOKEN` env var must be set for draft mode to work — generate a read-only token from the Sanity project dashboard
+---
+
+## 2026-04-09 - US-005
+- What was implemented: Updated `sanityFetch` in `src/service/sanity/index.ts` to check `draftMode().isEnabled` and switch between published and draft perspectives
+- Files changed:
+  - `src/service/sanity/index.ts` (modified) — added `draftMode` import from `next/headers`, draft mode check, and conditional client config with `perspective: 'previewDrafts'`, `useCdn: false`, and token from `SANITY_API_READ_TOKEN`
+- **Learnings for future iterations:**
+  - `client.withConfig()` creates a new client instance with merged config — safe to call in hot paths without mutating the shared client
+  - Draft mode fetch uses `next: { revalidate: 0 }` instead of `next: { tags }` to ensure fresh data on every request during preview
+  - The `SANITY_API_READ_TOKEN` env var is already referenced by the draft-mode enable route (US-004) — no new env vars introduced, just reused in sanityFetch
+  - No `.env.example` file exists in this project — env var documentation is done via code references and progress notes
+---
+
+## 2026-04-09 - US-006
+- What was implemented: Added `VisualEditing` component from `next-sanity/visual-editing` and `SanityLive` from `defineLive` to the `(site)` group layout for live preview overlays and real-time content updates
+- Files changed:
+  - `src/service/sanity/live.ts` (new) — configures `defineLive` from `next-sanity/live` with existing client and `SANITY_API_READ_TOKEN`, exports `SanityLive` component
+  - `src/app/(site)/layout.tsx` (modified) — added `VisualEditing` (conditional on draft mode) and `SanityLive` components after the main content tree
+- **Learnings for future iterations:**
+  - `next-sanity` v11+ moved `VisualEditing` to `next-sanity/visual-editing` and `defineLive` to `next-sanity/live` (not root exports) — this is required for `output: 'static'` compatibility
+  - `SanityLive` can be rendered unconditionally (it handles draft mode internally), while `VisualEditing` should only render when `draftMode().isEnabled` is true
+  - `defineLive` accepts `serverToken` and `browserToken` — both can use the same `SANITY_API_READ_TOKEN` for simplicity
+  - The `(site)` layout is the correct place for these components — root layout also serves `/studio` which would conflict
+---
+
+## 2026-04-09 - US-007
+- What was implemented: Created `scripts/migration/utils/files.ts` with `downloadAndUploadFile` utility function for uploading files to Sanity CDN
+- Files changed:
+  - `scripts/migration/utils/files.ts` (new) — mirrors `images.ts` pattern but uses `'file'` asset type instead of `'image'`, includes URL dedup cache, progress logging, and null-safe handling
+- **Learnings for future iterations:**
+  - Sanity `assets.upload` accepts `'file'` as first arg (vs `'image'` for images) — the returned asset object has the same `_id` structure
+  - File references use `_type: 'file'` with nested `asset: { _type: 'reference', _ref }` — same structure as image refs but different `_type`
+  - The `downloadAndUploadFile` function includes console logging for progress tracking since file uploads (especially 3D models) can be slow
+  - All 8 pre-existing typecheck errors are in `scripts/migration/` files (BaseHub type mismatches) and are safe to ignore
+---
+
+## 2026-04-09 - US-008
+- What was implemented: Changed 10 top-level 3D model fields in `sanity/schemas/singletons/threeDAssets.ts` from `type: 'url'` to `type: 'file'` (officeItems, office, officeWireframe, outdoor, godrays, basketball, basketballNet, contactPhone, routingElements, outdoorCars)
+- Files changed:
+  - `sanity/schemas/singletons/threeDAssets.ts` (modified) — 10 field type changes from 'url' to 'file'
+- **Learnings for future iterations:**
+  - Sanity `file` type is a drop-in replacement for `url` in schema definitions — no additional field configuration needed (accepts/stores are handled by Sanity internally)
+  - The threeDAssets schema has ~100+ url fields across top-level, nested objects, and sfx sections — split across US-008, US-009, US-010 for manageable scope
+  - Schema changes are local until deployed via `sanity schema deploy` or MCP `deploy_schema` — the Sanity Studio will reflect changes in dev mode immediately
+---
+
+## 2026-04-09 - US-009
+- What was implemented: Changed all `type: 'url'` fields inside nested objects (except sfx) in `sanity/schemas/singletons/threeDAssets.ts` to `type: 'file'`
+- Fields changed (27 total): specialEvents.christmas.tree/song, bakes[].lightmap/ambientOcclusion, matcaps[].file, glassReflexes[].url, arcade.* (9 fields), videos[].url, characters.* (5 fields), pets.* (3 fields), lamp.extraLightmap, mapTextures.rain/basketballVa
+- Files changed:
+  - `sanity/schemas/singletons/threeDAssets.ts` (modified) — 27 field type changes from 'url' to 'file'
+- **Learnings for future iterations:**
+  - After US-008 and US-009, only sfx fields and inspectables[].fx remain as `type: 'url'` in threeDAssets
+  - The sfx section has 24 remaining url fields (US-010), including deeply nested arrays like blog.lockedDoor (array of urls), blog.door/lamp (arrays of objects with url fields), arcade.buttons/sticks (arrays of objects with url fields)
+  - inspectables[].fx is NOT covered by US-009 — it will be addressed in US-014
+---
+
+## 2026-04-09 - US-010
+- What was implemented: Changed all 23 `type: 'url'` fields inside the `sfx` object in `sanity/schemas/singletons/threeDAssets.ts` to `type: 'file'`
+- Fields changed: basketballTheme, basketballSwoosh, basketballNet, basketballThump, basketballBuzzer, basketballStreak, knobTurning, antenna, blog.lockedDoor (array of), blog.door[].open/close, blog.lamp[].pull/release, arcade.buttons[].press/release, arcade.sticks[].press/release, arcade.miamiHeatwave, music.aqua/rain/tiger/vhs, contact.interference
+- Files changed:
+  - `sanity/schemas/singletons/threeDAssets.ts` (modified) — 23 field type changes from 'url' to 'file' (including blog.lockedDoor array items)
+- **Learnings for future iterations:**
+  - After US-010, the only remaining `type: 'url'` field in threeDAssets is `inspectables[].fx` (line 367) — handled by US-014
+  - `blog.lockedDoor` was `type: 'array', of: [{ type: 'url' }]` — changed to `of: [{ type: 'file' }]` for consistency with the file storage migration
+  - All 8 pre-existing typecheck errors remain in `scripts/migration/` files only — no new errors introduced
+---
+
+## 2026-04-09 - US-011
+- What was implemented: Created `scripts/migration/migrate-3d-assets-to-files.ts` that fetches the current threeDAssets doc from Sanity, downloads each URL, uploads to Sanity CDN via `downloadAndUploadFile`, and replaces string URLs with file references using `createOrReplace`
+- Sections covered: top-level models (10 fields), specialEvents (2), bakes[] (lightmap + AO), matcaps[] (file), glassReflexes[] (url), arcade (9 fields), videos[] (url), characters (5 fields), pets (3 fields), lamp (1 field), mapTextures (2 fields)
+- sfx fields explicitly excluded — preserved as-is for US-012
+- Files changed:
+  - `scripts/migration/migrate-3d-assets-to-files.ts` (new) — migration script with rate limiting (100ms between uploads), per-field error handling, dedup via `downloadAndUploadFile` cache, and summary stats
+- **Learnings for future iterations:**
+  - The threeDAssets doc in Sanity currently stores file URLs as plain strings (from the initial BaseHub migration) — the `migrateField` helper checks if the value is a string URL before attempting download
+  - `fileOrKeep` pattern: if migration returns null (failed or no URL), keep the existing value — this makes the migration idempotent and safe to re-run
+  - The script fetches the full doc from Sanity first, then spreads existing data when building the update — this preserves any fields not being migrated (sfx, scenes, physicsParams, etc.)
+  - Array fields need special handling: iterate items and migrate specific URL sub-fields, preserving `_key` and other properties via spread
+  - Run with: `pnpm exec tsx scripts/migration/migrate-3d-assets-to-files.ts`
+---
+
+## 2026-04-09 - US-012
+- What was implemented: Created `scripts/migration/migrate-sfx-to-files.ts` that downloads all SFX audio URLs from the threeDAssets document and uploads them to Sanity CDN as file assets
+- Sections covered: basketball sounds (6 fields), misc sounds (knobTurning, antenna), blog sounds (lockedDoor array, door open/close, lamp pull/release), arcade sounds (buttons press/release, sticks press/release, miamiHeatwave), music tracks (aqua, rain, tiger, vhs), contact (interference)
+- Uses `patch().set({ sfx: updatedSfx }).commit()` instead of `createOrReplace` — safer since it only touches the sfx field without overwriting the rest of the document
+- Files changed:
+  - `scripts/migration/migrate-sfx-to-files.ts` (new) — standalone sfx migration script with rate limiting, per-field error handling, and summary stats
+- **Learnings for future iterations:**
+  - `sfx.blog.lockedDoor` is an array of bare URL strings (not objects with URL sub-fields) — requires special handling: check `typeof item === 'string'` instead of `item[fieldName]`
+  - Using `patch().set()` is safer than `createOrReplace` for targeted updates — doesn't risk overwriting fields changed by other concurrent operations
+  - The sfx section has ~23 file fields total across 8 simple fields + 6 nested simple fields + 5 arrays with variable items
+  - Run with: `pnpm exec tsx scripts/migration/migrate-sfx-to-files.ts`
 ---
