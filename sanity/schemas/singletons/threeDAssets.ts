@@ -17,52 +17,52 @@ export const threeDAssets = defineType({
     defineField({
       name: 'officeItems',
       title: 'Office Items',
-      type: 'url',
+      type: 'file',
     }),
     defineField({
       name: 'office',
       title: 'Office',
-      type: 'url',
+      type: 'file',
     }),
     defineField({
       name: 'officeWireframe',
       title: 'Office Wireframe',
-      type: 'url',
+      type: 'file',
     }),
     defineField({
       name: 'outdoor',
       title: 'Outdoor',
-      type: 'url',
+      type: 'file',
     }),
     defineField({
       name: 'godrays',
       title: 'Godrays',
-      type: 'url',
+      type: 'file',
     }),
     defineField({
       name: 'basketball',
       title: 'Basketball',
-      type: 'url',
+      type: 'file',
     }),
     defineField({
       name: 'basketballNet',
       title: 'Basketball Net',
-      type: 'url',
+      type: 'file',
     }),
     defineField({
       name: 'contactPhone',
       title: 'Contact Phone',
-      type: 'url',
+      type: 'file',
     }),
     defineField({
       name: 'routingElements',
       title: 'Routing Elements',
-      type: 'url',
+      type: 'file',
     }),
     defineField({
       name: 'outdoorCars',
       title: 'Outdoor Cars',
-      type: 'url',
+      type: 'file',
     }),
 
     // --- Special Events ---
