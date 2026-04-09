@@ -364,7 +364,7 @@ export const threeDAssets = defineType({
             defineField({
               name: 'fx',
               title: 'FX',
-              type: 'url',
+              type: 'file',
             }),
           ],
         },

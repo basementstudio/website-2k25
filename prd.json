@@ -193,7 +193,7 @@
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "Scenes come from BaseHub `threeDInteractions.scenes.scenes.items`. No file uploads needed -- just structured data (numbers, strings)."
     },
     {
@@ -208,7 +208,7 @@
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "Inspectables come from BaseHub `pages.inspectables`. Description is rich text in BaseHub -- use convertRichText utility from scripts/migration/utils/rich-text.ts."
     },
     {

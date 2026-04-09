@@ -13,6 +13,7 @@
 - tsconfig path alias is `@/*` → `./src/*` — use `@/service/sanity` not `~/service/sanity`
 - `next-sanity` v12+ provides `defineEnableDraftMode` from `next-sanity/draft-mode` for secure draft mode enable routes — handles Sanity Studio validation internally
 - `next-sanity` v11+ subpath exports: `VisualEditing` from `next-sanity/visual-editing`, `defineLive` from `next-sanity/live` — NOT from root `next-sanity`
+- BaseHub inspectables live under `pages.inspectables` (NOT `threeDInteractions`) — always check the correct BaseHub path in the frontend fragments
 
 # Ralph Progress Log
 Started: Thu 26 Mar 2026 14:56:47 -03
@@ -207,4 +208,33 @@ Started: Thu 26 Mar 2026 14:56:47 -03
   - Using `patch().set()` is safer than `createOrReplace` for targeted updates — doesn't risk overwriting fields changed by other concurrent operations
   - The sfx section has ~23 file fields total across 8 simple fields + 6 nested simple fields + 5 arrays with variable items
   - Run with: `pnpm exec tsx scripts/migration/migrate-sfx-to-files.ts`
+---
+
+## 2026-04-09 - US-013
+- What was implemented: Created `scripts/migration/migrate-scenes.ts` migration script that fetches scenes from BaseHub (`threeDInteractions.scenes.scenes.items`) and writes to the Sanity `threeDAssets` document's `scenes` array field using `patch().set()`
+- Schema was already defined in `sanity/schemas/singletons/threeDAssets.ts` (lines 575-733) from a prior iteration — no schema changes needed
+- 9 scenes already populated in Sanity (home, lab, services, people, basketball, blog, showcase, 404, doom) with full cameraConfig, tabs, and postprocessing data
+- Files changed:
+  - `scripts/migration/migrate-scenes.ts` (new) — standalone scenes migration script with BaseHub fetch, transform to Sanity schema shape, and patch update
+- **Learnings for future iterations:**
+  - Scenes are purely structured data (strings + numbers) — no file uploads needed, making them the simplest migration type
+  - The scenes schema was already added to threeDAssets in a prior iteration — always check if schema fields already exist before creating them
+  - BaseHub scenes path is `threeDInteractions.scenes.scenes.items` (double `.scenes` — first is the Scenes type on ThreeDInteractions, second is the list field within)
+  - Tab `_title` maps to `tabName`, scene `_title` maps to `name` — BaseHub uses `_title` as a generic title field on all block types
+  - `BASEHUB_TOKEN` and `SANITY_API_TOKEN` must be in `.env.local` to run migration scripts; `dotenv/config` may not load `.env.local` by default — use `DOTENV_CONFIG_PATH=.env.local` prefix
+---
+
+## 2026-04-09 - US-014
+- What was implemented: Changed `inspectables[].fx` from `type: 'url'` to `type: 'file'` in threeDAssets schema, and created `scripts/migration/migrate-inspectables.ts` migration script that fetches inspectables from BaseHub (`pages.inspectables.inspectableList.items`) and writes to Sanity
+- Files changed:
+  - `sanity/schemas/singletons/threeDAssets.ts` (modified) — changed fx field from url to file type (line 367)
+  - `scripts/migration/migrate-inspectables.ts` (new) — migration script with BaseHub fetch, rich text conversion via `convertRichText`, fx file upload via `downloadAndUploadFile`, rate limiting, and error handling
+  - `prd.json` (modified) — set US-014 passes to true
+- **Learnings for future iterations:**
+  - The inspectables schema was already defined in threeDAssets.ts (lines 281-372) from a prior iteration — only the fx field type needed changing from url to file
+  - BaseHub inspectables path is `pages.inspectables.inspectableList.items` (under pages, NOT under threeDInteractions like scenes)
+  - Inspectable specs come from `item.specs.items` (BaseHub BlockList pattern with `.items` accessor)
+  - Inspectable scenes come as array of objects with `_title` — need to map to array of strings via `s._title`
+  - After US-014, there are zero remaining `type: 'url'` fields in the threeDAssets schema — all have been converted to `type: 'file'`
+  - Run with: `pnpm exec tsx scripts/migration/migrate-inspectables.ts`
 ---
