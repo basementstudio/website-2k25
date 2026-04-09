@@ -4,10 +4,71 @@
 - Project uses React 19.0.1 (canary) and Next.js 15.6.0-canary.60 — peer dependency warnings from Sanity packages expecting React 19.2+ are expected and non-blocking
 - Existing service pattern: `src/service/<provider>/index.ts` for client setup (see `src/service/basehub/index.ts`)
 - BaseHub `_title` is the internal name; `title` is the human-readable field — always prefer `title` with `_title` as fallback in migration scripts
-- Migration scripts require `BASEHUB_TOKEN` env var in `.env.local` — cannot re-run without it
+- Migration scripts require `BASEHUB_TOKEN` AND `SANITY_API_TOKEN` env vars — cannot re-run without both
+- `dotenv/config` loads `.env` by default — use `DOTENV_CONFIG_PATH=.env.local` when running migration scripts from `.env.local`
 - BaseHub select fields return typed arrays — always use `Array.isArray()` check in migration scripts when writing to Sanity array fields
+- Sanity MCP workspace name is `website-2k25` (not `default`) — must pass `workspaceName: 'website-2k25'` for patch/write operations
+- Sanity MCP can patch/publish documents but CANNOT upload binary file assets — file uploads require SANITY_API_TOKEN and the migration scripts
+- `sanity schema deploy` requires `sanity login` (interactive browser auth) — schema must be deployed via CLI after authenticating
 
 ## Progress
+
+## 2026-04-09 - US-016 (Verification - Iteration 2)
+- Fixed all 30 award titles via Sanity MCP: fetched actual names from BaseHub, patched each document, published all drafts
+- Award titles now correctly show: "Awwwards Site of the Day", "Awwwards Developer Award", "FWA Site of the Day", "Webby Award"
+- No code changes — all fixes were data patches in Sanity production dataset
+- **Verification results:**
+  - ✅ Award titles: 30/30 correct (was empty strings, now proper names)
+  - ✅ openPosition formFields: all 11 positions return arrays
+  - ✅ scenes count: 9
+  - ✅ physicsParams: 2, glassMaterials: 3, doubleSideElements: 13
+  - ✅ inspectables: 20
+  - ✅ Typecheck: passes (only pre-existing basehub errors)
+  - ✅ presentationTool configured, draft mode routes exist
+  - ❌ office.asset->url: null — 3D asset file migration not executed (needs SANITY_API_TOKEN)
+  - ⚠️ Studio loads / Presentation tab: needs manual browser verification
+- **BLOCKER:** SANITY_API_TOKEN missing from .env.local. Must create write token at manage.sanity.io → project 9syto90m → API → Tokens. Then run: `DOTENV_CONFIG_PATH=.env.local pnpm exec tsx scripts/migration/migrate-3d-assets-to-files.ts` and `DOTENV_CONFIG_PATH=.env.local pnpm exec tsx scripts/migration/migrate-sfx-to-files.ts`
+- **Learnings for future iterations:**
+  - Sanity MCP `patch_document_from_json` requires correct `workspaceName` — use `website-2k25` not `default`
+  - MCP tools can patch/publish text data but cannot upload binary files — file uploads must go through `sanityWriteClient.assets.upload()`
+  - `sanity login` is interactive (opens browser) — can't be automated in headless agent context
+  - When SANITY_API_TOKEN is added, run all pending migration scripts (fix-awards.ts, migrate-3d-assets-to-files.ts, migrate-sfx-to-files.ts) to complete data population
+---
+
+## 2026-04-09 - US-015
+- Created `scripts/migration/migrate-physics-glass-doubleside.ts` to migrate physicsParams, glassMaterials, and doubleSideElements from BaseHub to Sanity
+- Schema fields already existed in `sanity/schemas/singletons/threeDAssets.ts` (added in prior stories)
+- Migration script follows the `migrate-scenes.ts` pattern: fetch from BaseHub, transform to Sanity shape, patch existing threeDAssets document
+- Files changed: `scripts/migration/migrate-physics-glass-doubleside.ts` (new)
+- **Learnings for future iterations:**
+  - `glassMaterials` and `doubleSideElements` are under `threeDInteractions.map` in BaseHub, not top-level
+  - physicsParams uses `_title` in BaseHub/frontend but `title` in the Sanity schema field name
+  - For simple data migrations (no file uploads), the `migrate-scenes.ts` pattern (queryBaseHub → transform → patch) is the cleanest template
+---
+
+## 2026-04-09 - US-016 (Partial Verification)
+- Ran GROQ verification queries against Sanity production dataset (project: 9syto90m)
+- **PASSING:**
+  - ✅ openPosition formFields return as arrays of strings (all 11 positions verified)
+  - ✅ scenes count = 9
+  - ✅ physicsParams = 2 items (forward strength: 0.035, upward strength: 0.085) with correct shape
+  - ✅ glassMaterials = 3, doubleSideElements = 13
+  - ✅ inspectables = 20 items
+  - ✅ presentationTool configured in sanity.config.ts
+  - ✅ Draft mode API routes exist (enable + disable)
+  - ✅ Typecheck passes (only pre-existing basehub errors)
+- **FAILING (migration not executed):**
+  - ❌ Award titles are empty strings — fix-awards.ts needs re-run with BASEHUB_TOKEN + SANITY_API_TOKEN
+  - ❌ office.asset->url returns null — office field still stores plain URL string, not file reference. migrate-3d-assets-to-files.ts needs to be run
+- **CANNOT VERIFY (requires browser/Studio):**
+  - ⚠️ Sanity Studio loads without schema errors
+  - ⚠️ Presentation tab shows website in iframe
+- **Blockers:** Migration scripts require both BASEHUB_TOKEN and SANITY_API_TOKEN in .env.local. SANITY_API_TOKEN is missing — create a write token in the Sanity dashboard.
+- **Learnings for future iterations:**
+  - `dotenv/config` loads `.env` by default, not `.env.local` — use `DOTENV_CONFIG_PATH=.env.local` when running migration scripts
+  - Migration scripts need both BASEHUB_TOKEN (to read source data) and SANITY_API_TOKEN (to write to Sanity)
+  - US-016 cannot fully pass until all prior migrations are actually executed against the Sanity dataset
+---
 
 ## 2026-04-09 - US-002
 - Changed `formFields` in `sanity/schemas/documents/openPosition.ts` from `type: 'string'` to `type: 'array'` of strings with `options.list` containing all 12 predefined form field values
