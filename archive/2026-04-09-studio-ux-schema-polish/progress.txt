@@ -1,0 +1,612 @@
+## Codebase Patterns
+- Package manager is `pnpm` (v9.15.6), configured via `packageManager` field in package.json
+- Pre-existing typecheck errors exist related to `basehub` module exports (fragmentOn, basehub, Client, Pump) — these are NOT caused by Sanity migration work
+- Project uses React 19.0.1 (canary) and Next.js 15.6.0-canary.60 — peer dependency warnings from Sanity packages expecting React 19.2+ are expected and non-blocking
+- Existing service pattern: `src/service/<provider>/index.ts` for client setup (see `src/service/basehub/index.ts`)
+- Sanity env config lives at `sanity/env.ts` — import projectId/dataset from there (not directly from process.env)
+- tsconfig path aliases: only `@/*` → `./src/*` exists — use relative imports for root-level `sanity/` directory
+- Prefer importing `createClient` from `next-sanity` (not `@sanity/client`) for Next.js-specific features
+- Import `SanityImageSource` type directly from `@sanity/image-url` (not deep path `lib/types/types`)
+- Sanity schemas live at `sanity/schemas/` — objects in `objects/`, documents in `documents/`, singletons in `singletons/`
+- All Sanity schemas use `defineType` and `defineField` from `sanity` — follow this pattern consistently
+- `sanity/schemas/index.ts` exports `schemaTypes` array — add new schemas to this array
+- No project-level `typecheck` script — use `pnpm exec tsc --noEmit` directly
+- ~124 pre-existing TS errors (basehub module + page-level type issues) — new schemas must introduce zero additional errors
+- `@sanity/vision` must be installed separately for the GROQ vision tool in Sanity Studio
+- `sanity.config.ts` needs `'use client'` directive since it's imported by the Studio client component
+- Singleton behavior enforced via: custom desk structure (fixed documentId), template filtering, and action filtering
+- Migration scripts live at `scripts/migration/` — use `pnpm exec tsx scripts/migration/<script>.ts` to run
+- Migration scripts use `dotenv/config` to load `.env.local` — import it at the top of each entry point
+- Use `@ts-expect-error` for basehub imports in migration scripts (same known canary SDK type issue)
+- `@sanity/client` (not `next-sanity`) for write operations in migration scripts — migration scripts don't need Next.js-specific features
+- Image deduplication cache in `utils/images.ts` maps URL → SanityAssetRef to avoid re-uploading same image
+- Sanity slug fields must be `{ _type: 'slug', current: 'the-slug' }` — not plain strings
+- Deterministic ID pattern for migration: `{type}-{slug}` (e.g., `project-my-project`, `person-john-doe`)
+- Singleton migration IDs use the schema name directly (e.g., `homepage`, `servicesPage`) — no slug suffix
+- BaseHub component fields (like `capabilities`, `ventures`) are single objects, not arrays — query without `.items`
+- When BaseHub stores plain strings but Sanity expects PT, use `plainTextToPortableText()` helper to wrap in blocks
+- Sanity dataset export creates a tar.gz with a timestamped subdirectory (e.g., `production-export-2026-03-27t21-24-47-937z/data.ndjson`) — don't assume `data.ndjson` is at root
+- Pre-existing TS errors reduced from ~124 to 8 (basehub canary types may have updated) — all in other migration scripts, not new code
+- Audit results from export: 176 docs total. Gaps: 0 showcaseEntry (expected 25), 3/27 posts, 12/30 awards, 0 testimonials, 0 values, 0 homepage. 16 docs missing required fields. 0 broken refs. 12 empty PT fields.
+- BaseHub client `logo` is an inline SVG string (not a URL) — use `uploadImageToSanity(Buffer.from(svg, 'utf-8'), filename)` to upload directly instead of `downloadAndUploadImage`
+- For fix scripts that need to find "missing" documents, prefer dynamic discovery (query source → diff against Sanity) over hardcoded lists — catches unexpected gaps
+- Use `fetchExistingIds(type)` pattern (`*[_type == "X"]{ _id }` → Set) to pre-validate references before creating documents — avoids Sanity reference validation errors
+- Site routes now live under `src/app/(site)/` — imports must use `@/app/(site)/(pages)/` not `@/app/(pages)/`
+- Studio route at `src/app/studio/` has its own minimal layout, isolated from site providers
+
+---
+
+## 2026-03-26 - US-001
+- Installed Sanity dependencies: sanity@5.18.0, next-sanity@12.1.6, @sanity/client@7.20.0, @sanity/image-url@2.0.3, @portabletext/react@6.0.3, @portabletext/types@4.0.2
+- Files changed: package.json, pnpm-lock.yaml
+- **Learnings for future iterations:**
+  - Peer dependency warnings for React version mismatch are pre-existing across many packages (react-redux, r3f-perf, etc.) — not introduced by Sanity
+  - 792 new packages added to node_modules via Sanity dependency tree
+  - No Sanity-related typecheck errors introduced
+---
+
+## 2026-03-26 - US-002
+- Created `sanity/env.ts` exporting `projectId` and `dataset` from env vars with runtime validation
+- Files changed: sanity/env.ts
+- **Learnings for future iterations:**
+  - `.env.local` already has `NEXT_PUBLIC_SANITY_PROJECT_ID=9syto90m` and `NEXT_PUBLIC_SANITY_DATASET=production`
+  - The `sanity/` directory at root level is the standard location for Sanity config and schemas
+  - Used `assertValue` helper pattern for env var validation — reusable for future env configs
+---
+
+## 2026-03-26 - US-003
+- Created `src/service/sanity/index.ts` with `createClient` from `next-sanity`, configured with projectId, dataset, apiVersion 2024-01-01, useCdn: true
+- Exported `client` instance and `sanityFetch` generic helper for server components (supports query params and Next.js cache tags)
+- Files changed: src/service/sanity/index.ts (new)
+- **Learnings for future iterations:**
+  - tsconfig only has `@/*` → `./src/*` path alias — no alias for root-level `sanity/` directory, so use relative imports (`../../../sanity/env`) when importing from `sanity/env.ts` in `src/` files
+  - `next-sanity` re-exports `createClient` from `@sanity/client` with Next.js-specific enhancements — prefer importing from `next-sanity` over `@sanity/client` directly
+  - The `sanityFetch` helper uses `client.fetch` with `next: { tags }` option for ISR/revalidation support
+---
+
+## 2026-03-26 - US-004
+- Created `src/service/sanity/image.ts` with `urlFor(source)` function using `@sanity/image-url`
+- Builder configured with projectId and dataset from `sanity/env.ts`
+- Supports chaining: `urlFor(image).width(800).height(600).url()`
+- Files changed: src/service/sanity/image.ts (new)
+- **Learnings for future iterations:**
+  - `SanityImageSource` type is exported directly from `@sanity/image-url` — do NOT use deep import path `@sanity/image-url/lib/types/types` (doesn't resolve in v2.0.3)
+  - `imageUrlBuilder` accepts `{ projectId, dataset }` directly — no need to pass the full client instance
+---
+
+## 2026-03-26 - US-005
+- Created 8 custom block object schemas in `sanity/schemas/objects/`: codeBlock, quoteWithAuthor, codeSandbox, sideNote, gridGallery, tweetEmbed, showcaseItem, socialNetwork
+- Created `sanity/schemas/index.ts` exporting all object schemas in `schemaTypes` array
+- Files changed: sanity/schemas/objects/*.ts (8 new), sanity/schemas/index.ts (new)
+- **Learnings for future iterations:**
+  - Sanity `defineField` with `type: 'image'` supports `options: { hotspot: true }` directly — no separate hotspot field needed
+  - For nested objects within arrays (e.g., codeBlock files), use inline `{ type: 'object', fields: [...] }` — no need to create separate named types
+  - Sanity validation uses `validation: (rule) => rule.required()` pattern — builder style
+  - The `schemaTypes` array in index.ts will be extended by document and singleton schemas in subsequent stories
+---
+
+## 2026-03-26 - US-006
+- Created `sanity/schemas/documents/post.ts` with all fields: title, slug, date, categories (ref postCategory), authors (ref person), heroImage, heroVideo, intro (PT), content (PT + image + 6 custom block types)
+- Created `sanity/schemas/documents/postCategory.ts` with title and slug fields
+- Updated `sanity/schemas/index.ts` to export both new document schemas
+- Files changed: sanity/schemas/documents/post.ts (new), sanity/schemas/documents/postCategory.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - Document schemas go in `sanity/schemas/documents/` — separate from object schemas in `objects/`
+  - Reference fields use `{ type: 'reference', to: [{ type: 'typeName' }] }` — the `typeName` is just the schema name string, the actual schema doesn't need to exist yet
+  - Content arrays that mix blocks with custom types list all allowed types in the `of` array: `[{ type: 'block' }, { type: 'image' }, { type: 'codeBlock' }, ...]`
+  - Slug fields with `options: { source: 'title' }` auto-generate from the title field in the Studio
+---
+
+## 2026-03-26 - US-007
+- Created `sanity/schemas/documents/project.ts` with all fields: title, slug, client (ref), year, categories (ref projectCategory), cover, coverVideo (object), icon, showcase (array of showcaseItem), projectWebsite, content (PT), caseStudy, people (ref person)
+- Created `sanity/schemas/documents/projectCategory.ts` with fields: title, description, subcategories (array of objects with title)
+- Created `sanity/schemas/documents/showcaseEntry.ts` with fields: project (ref, required), orderRank (string)
+- Updated `sanity/schemas/index.ts` to export all three new document schemas
+- Files changed: sanity/schemas/documents/project.ts (new), sanity/schemas/documents/projectCategory.ts (new), sanity/schemas/documents/showcaseEntry.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - The coverVideo object pattern (url, width, height, aspectRatio, mimeType) is reused from showcaseItem — keep consistent field structure
+  - Sanity references to types not yet defined (client, person) are fine — the schema name is just a string identifier
+  - showcaseEntry uses a simple orderRank string field for drag-and-drop ordering (common Sanity pattern)
+---
+
+## 2026-03-26 - US-008
+- Created 6 company document schemas in `sanity/schemas/documents/`: client, award, testimonial, value, person, department
+- Updated `sanity/schemas/index.ts` to import and export all 6 new schemas
+- Files changed: sanity/schemas/documents/client.ts (new), sanity/schemas/documents/award.ts (new), sanity/schemas/documents/testimonial.ts (new), sanity/schemas/documents/value.ts (new), sanity/schemas/documents/person.ts (new), sanity/schemas/documents/department.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - socialNetwork object type from US-005 is referenced directly by name `{ type: 'socialNetwork' }` in person's socialNetworks array field
+  - All company document schemas follow the same pattern — straightforward defineType/defineField usage
+  - person.department uses `{ type: 'reference', to: [{ type: 'department' }] }` — department schema doesn't need to exist at import time
+---
+
+## 2026-03-26 - US-009
+- Created `sanity/schemas/documents/openPosition.ts` with all fields: title, slug, type, employmentType, location, isOpen (default true), applyUrl, jobDescription (PT), applyFormSetup (object with formFields string and skills array of objects with title/slug)
+- Created `sanity/schemas/documents/labProject.ts` with fields: title, url, description (text), cover (image with hotspot)
+- Updated `sanity/schemas/index.ts` to import and export both new schemas
+- Files changed: sanity/schemas/documents/openPosition.ts (new), sanity/schemas/documents/labProject.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - Sanity `initialValue` property sets default values for fields in the Studio — used `initialValue: true` for isOpen boolean
+  - Nested object fields within a parent object field (applyFormSetup.skills) use inline object definitions with `defineField` inside the `fields` array
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-26 - US-010
+- Created 5 singleton schemas in `sanity/schemas/singletons/`: homepage, servicesPage, peoplePage, careersPostPage, companyInfo
+- Updated `sanity/schemas/index.ts` to import and export all 5 singleton schemas
+- Files changed: sanity/schemas/singletons/homepage.ts (new), sanity/schemas/singletons/servicesPage.ts (new), sanity/schemas/singletons/peoplePage.ts (new), sanity/schemas/singletons/careersPostPage.ts (new), sanity/schemas/singletons/companyInfo.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - Singleton schemas are still `type: 'document'` — the singleton behavior (single editable item, not a list) is enforced via the Studio desk structure (US-012), not in the schema definition itself
+  - `sanity/schemas/singletons/` directory is the convention for singleton schemas — separate from documents and objects
+  - Homepage capabilities field is an array of objects with title (string) and description (PT) — maps from BaseHub's `pages.homepage.capabilities`
+  - Services page serviceCategories maps from BaseHub's `company.services.serviceCategories.items[]` — each with title and description (PT)
+  - People page preOpenPositions data comes from BaseHub's `pages.people.preOpenPositions` with sideA/sideB images and text
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-26 - US-011
+- Created `sanity/schemas/singletons/threeDAssets.ts` mirroring the full `AssetsResult` interface from `src/components/assets-provider/fetch-assets.ts`
+- All 3D model, texture, and audio/SFX fields use `url` type (not `file` type) — stores CDN URL strings
+- Structure covers: maps (office, outdoor, godrays, routingElements, bakes, matcaps, glassReflexes), arcade, characters, pets, sfx (with nested blog/arcade/music/contact), scenes (with cameraConfig, tabs, postprocessing), inspectables, videos, physicsParams, specialEvents, lamp, mapTextures
+- Updated `sanity/schemas/index.ts` to import and export threeDAssets singleton
+- Files changed: sanity/schemas/singletons/threeDAssets.ts (new), sanity/schemas/index.ts (modified)
+- **Learnings for future iterations:**
+  - The `AssetsResult` interface has deeply nested structures (sfx.blog.door[], sfx.arcade.buttons[], scenes[].cameraConfig, scenes[].tabs[], scenes[].postprocessing) — Sanity handles nested objects well with inline `type: 'object'` definitions
+  - Camera position/target are stored as separate posX/posY/posZ and tarX/tarY/tarZ number fields (not tuples) — matches how BaseHub stores them and simplifies Sanity editing
+  - `inspectables[].description` is `any` type in the interface — mapped to Portable Text (`array` of `block`) in Sanity for rich text support
+  - Sanity `url` type works well for CDN URL strings — no validation issues with empty/undefined values (just leave field unset)
+  - Named `inspectableId` and `specId` instead of `id` and `_id` to avoid Sanity reserved field name conflicts
+  - 126 total TS output lines (pre-existing) — zero new errors from threeDAssets schema
+---
+
+## 2026-03-26 - US-012
+- Created `sanity.config.ts` at project root with projectId, dataset, plugins (structureTool with custom desk structure, visionTool), schema import from sanity/schemas/index.ts
+- Created `sanity.cli.ts` at project root for CLI commands (schema deploy, dataset export/import)
+- Created `src/app/studio/[[...tool]]/page.tsx` using `NextStudio` from `next-sanity` with 'use client' directive
+- Installed `@sanity/vision` package (was missing from initial dependencies)
+- Custom desk structure: singletons (homepage, servicesPage, peoplePage, careersPostPage, companyInfo, threeDAssets) appear as single editable items under "Pages" group
+- Document types grouped: Content (posts, projects, showcase, lab), Company (clients, people, departments, awards, testimonials, values), Careers (open positions)
+- Singleton template filtering and action restrictions (only publish, discardChanges, restore) prevent creating duplicate singletons
+- Files changed: sanity.config.ts (new), sanity.cli.ts (new), src/app/studio/[[...tool]]/page.tsx (new), package.json (modified), pnpm-lock.yaml (modified)
+- **Learnings for future iterations:**
+  - `@sanity/vision` is NOT included in the base `sanity` package — must be installed separately for the GROQ vision tool plugin
+  - `sanity.config.ts` needs `'use client'` at the top since it's imported by the Studio page component which is a client component
+  - Singleton behavior is enforced via 3 mechanisms: (1) custom desk structure with fixed documentId, (2) template filtering to prevent "create new" for singletons, (3) action filtering to limit available document actions
+  - `structureTool` is imported from `sanity/structure` (not a separate package) — it's the v3+ replacement for `@sanity/desk-tool`
+  - `sanity.cli.ts` uses hardcoded projectId/dataset (not env vars) since CLI runs outside Next.js and may not have env loaded
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-26 - US-013
+- Deployed all 27 schema types to Sanity cloud using `pnpm exec sanity schema deploy`
+- Verified deployment via `sanity schema list` (workspace: website-2k25, dataset: production)
+- Confirmed all types visible via Sanity MCP get_schema: 13 document types, 6 singleton types, 8 object types
+- No file changes — this was a deploy-only story
+- **Learnings for future iterations:**
+  - `pnpm exec sanity schema deploy` works out of the box when `sanity.cli.ts` is properly configured with projectId/dataset
+  - Schema deploy reads from local `sanity.config.ts` and the schema files — no separate build step needed
+  - The MCP `deploy_schema` tool should NOT be used when a local Studio exists — use the CLI instead
+  - Deployed schema ID follows pattern `_.schemas.<workspaceName>` (e.g., `_.schemas.website-2k25`)
+  - Schema deploy does not require explicit authentication if the user is already logged in via `sanity login`
+---
+
+## 2026-03-26 - US-014
+- Created migration script infrastructure in `scripts/migration/`
+- `basehub-client.ts` — initializes BaseHub client with `@ts-expect-error` for known type issue, exports `queryBaseHub` helper and `basehubClient`
+- `sanity-client.ts` — initializes Sanity write client using `@sanity/client` with SANITY_API_TOKEN, validates all env vars on startup
+- `utils/images.ts` — exports `downloadImage`, `uploadImageToSanity`, and `downloadAndUploadImage` (with URL→asset deduplication cache)
+- `run-all.ts` — orchestrator stub with dependency-ordered step execution, timing, error handling, and `--fail-fast` flag
+- `verify.ts` — verification stub that checks document counts per type and missing required fields
+- Installed `tsx` and `dotenv` as dev dependencies
+- Files changed: scripts/migration/*.ts (5 new), scripts/migration/utils/images.ts (new), package.json, pnpm-lock.yaml
+- **Learnings for future iterations:**
+  - `tsx` runs TypeScript files directly without compilation — use `pnpm exec tsx <file>` for migration scripts
+  - `dotenv/config` side-effect import loads `.env.local` automatically — must be first import in entry point files
+  - BaseHub canary SDK types don't resolve properly — use `@ts-expect-error` to suppress in migration scripts (same known issue)
+  - Migration scripts use `@sanity/client` directly (not `next-sanity`) since they don't need Next.js-specific features
+  - Image cache is in-memory per script run — restarting the script re-uploads images (createOrReplace on Sanity side handles dedup for documents)
+---
+
+## 2026-03-26 - US-015
+- Created `scripts/migration/utils/rich-text.ts` with full TipTap/ProseMirror → Sanity Portable Text converter
+- Handles: paragraph, heading (h1-h6), bulletList, orderedList (with nested level support), blockquote, codeBlock, hardBreak, horizontalRule
+- Mark conversion: bold→strong, italic→em, code→code, underline→underline, strike→strike-through, kbd→code
+- Link marks → markDefs with `{ _type: 'link', href }` and corresponding mark key in spans
+- Generates unique _key values for all blocks, spans, and markDefs using `nanoid(12)`
+- Includes `validatePortableText()` that checks for missing _key/_type on blocks and children
+- Placeholder handling for `basehub-block` and `image` nodes (to be completed in US-016)
+- Exports types: `TipTapNode`, `TipTapMark`, `PTBlock`, `PTSpan`, `PTMarkDef`, `PortableTextBlock`
+- Files changed: scripts/migration/utils/rich-text.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub uses `basehub-block` node type (with `attrs.id`) to reference custom blocks from `json.blocks` array — blocks are matched by `_id`
+  - TipTap lists are nested: `bulletList > listItem > paragraph` — Sanity PT flattens these into sequential blocks with `listItem` and `level` properties
+  - Sanity PT requires every block to have `children` array (even empty blocks need `[{ _type: 'span', text: '' }]`)
+  - Mark definitions (markDefs) are per-block, not per-document — each block carries its own array of mark definitions
+  - `nanoid` v5 works fine with tsx/ESM — no need for nanoid v3 CJS compatibility workaround
+---
+
+## 2026-03-26 - US-016
+- Extended `scripts/migration/utils/rich-text.ts` with async custom block and image conversion
+- `convertRichText` is now async — uses two-pass approach: synchronous node conversion, then async placeholder resolution
+- Custom block types handled: CodeBlockComponent→codeBlock, QuoteWithAuthorComponent→quoteWithAuthor, CodeSandboxComponent→codeSandbox, SideNoteComponent→sideNote, GridGalleryComponent→gridGallery, TweetComponent→tweetEmbed
+- Inline images resolved via `downloadAndUploadImage()` from utils/images.ts
+- QuoteWithAuthor and SideNote recursively call `convertRichText` for nested rich text content
+- Custom blocks matched from json.blocks array by `_id` → built into a Map for O(1) lookup
+- Added `BaseHubBlock` type and all 6 component-specific interfaces
+- Files changed: scripts/migration/utils/rich-text.ts (modified)
+- **Learnings for future iterations:**
+  - `convertRichText` is now async due to image upload operations — all callers must await it
+  - BaseHub `json.blocks` uses `__typename` for type discrimination and `_id` for matching to `basehub-block` nodes in content
+  - Placeholder pattern (sync first pass → async second pass) keeps the converter logic clean while handling async operations
+  - GridGallery images need individual `_key` values when stored in Sanity arrays
+  - QuoteWithAuthor avatar uses the same `downloadAndUploadImage` util as other images — deduplication cache applies
+---
+
+## 2026-03-26 - US-017
+- Created `scripts/migration/migrate-company.ts` with `migrateDepartments()` and `migrateClients()` functions
+- Departments extracted from people's `department._title` field (deduplicated via Set), saved with deterministic IDs `department-{slug}`
+- Clients fetched from `company.clients.clientList`, logos downloaded and uploaded to Sanity
+- Both use `createOrReplace` for idempotency
+- Files changed: scripts/migration/migrate-company.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub departments don't have their own list — they're embedded in people as `department._title` references
+  - Sanity `createOrReplace` expects `_id` and `_type` as literal string properties (not via `Record<string, unknown>`) — use object spread instead
+  - Client `logo` in BaseHub is an object with `{ url, alt }` — need to query with nested field selection
+  - BaseHub slugs are available via `_slug` field on most items
+---
+
+## 2026-03-26 - US-018
+- Created `scripts/migration/migrate-people.ts` — fetches all people from `company.people.peopleList`
+- Person images downloaded and uploaded to Sanity, department references linked via deterministic ID pattern `department-{slug}`
+- Social networks mapped: BaseHub `link` field → Sanity `url` field, each with `_key` and `_type: 'socialNetwork'`
+- Uses `createOrReplace` with deterministic ID `person-{slug}` for idempotency
+- Files changed: scripts/migration/migrate-people.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub social networks use `link` field name — Sanity schema expects `url` — field name mapping needed
+  - Social network items need `_key` for Sanity arrays — use BaseHub `_id` or slugified platform name
+  - Department reference uses the same slugify + deterministic ID pattern from US-017
+---
+
+## 2026-03-26 - US-019
+- Created `scripts/migration/migrate-projects.ts` with `migrateProjectCategories()`, `migrateProjects()`, and `migrateShowcaseEntries()`
+- Project categories include subcategories as array of objects with title
+- Projects migrated with all fields: title, slug, client ref, year, category refs, cover image, coverVideo (object), icon, showcase items (images + videos), projectWebsite, content (rich text via convertRichText), caseStudy, people refs
+- Showcase entries maintain display order via `orderRank` (zero-padded index)
+- Files changed: scripts/migration/migrate-projects.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub `caseStudy` field can be boolean or string URL — normalize to boolean for Sanity
+  - `coverVideo` is stored as a plain object (not a file) with url, width, height, aspectRatio, mimeType
+  - Showcase entries are in `pages.showcase.projectList` (not `company.projects`) — separate from project data
+  - Sanity array items need `_key` — use BaseHub `_id` where available, or generate from slug/index
+  - Sanity slug fields stored as `{ _type: 'slug', current: 'the-slug' }` (not plain strings)
+---
+
+## 2026-03-26 - US-020
+- Created `scripts/migration/migrate-posts.ts` with `migratePostCategories()` and `migratePosts()`
+- Post categories fetched from `pages.blog.categories` with deterministic IDs `postCategory-{slug}`
+- Full blog post query includes all 6 custom block types in `content.json.blocks` with their complete data structures
+- Content converted using async `convertRichText()` with normalized blocks passed as second argument
+- `normalizeBlocks()` extracts BaseHub's discriminated union blocks into flat `BaseHubBlock[]` array
+- Hero image downloaded+uploaded, heroVideo stored as URL string, authors mapped to person references
+- Files changed: scripts/migration/migrate-posts.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub blocks array uses discriminated union with `__typename` — SDK resolves to flat objects with `_id` on each
+  - GridGalleryComponent images use `on_BlockImage` union discriminator — need nested `{ image: { on_BlockImage: IMAGE_FRAGMENT } }` in query
+  - Post `date` field may be null — fall back to `_sys.createdAt` for the creation timestamp
+  - Post authors reference person documents (not a separate author type) — use same `person-{slug}` ID pattern
+---
+
+## 2026-03-26 - US-021
+- Created `scripts/migration/migrate-careers.ts` — fetches open positions from `company.openPositions.openPositionsList`
+- Job descriptions converted via `convertRichText()`, applyFormSetup with formFields and skills array preserved
+- Uses deterministic IDs `openPosition-{slug}` and `createOrReplace` for idempotency
+- Files changed: scripts/migration/migrate-careers.ts (new)
+- **Learnings for future iterations:**
+  - `isOpen` defaults to `true` if null/undefined (matching Sanity schema's initialValue)
+  - `applyFormSetup.skills` items need both `title` and `slug` fields plus `_key` for Sanity arrays
+---
+
+## 2026-03-26 - US-022
+- Created `scripts/migration/migrate-services.ts` with `migrateAwards()`, `migrateTestimonials()`, and `migrateValues()`
+- Awards fetched from `company.awards.awardList`, with project references via `project._slug` → `project-{slug}` deterministic ID, and certificate images uploaded
+- Testimonials fetched from `company.testimonials`, with avatar images uploaded, `_title` mapped to `name` field
+- Values fetched from `company.ourValues.valuesList`, with description rich text converted via `convertRichText()` and images uploaded
+- All three types use `createOrReplace` with deterministic IDs for idempotency
+- Files changed: scripts/migration/migrate-services.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub testimonials are at `company.testimonials.items` (not nested in a sub-list like other types)
+  - Testimonial `_title` maps to Sanity `name` field (not `title`) — different field naming from other document types
+  - BaseHub award `project` reference uses `_slug` to build the deterministic project ID — same pattern as other cross-type references
+  - Value `description` is rich text (PT) stored in `description.json.content` — uses `convertRichText()` for conversion
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-26 - US-023
+- Created `scripts/migration/migrate-lab.ts` — fetches lab projects from `pages.laboratory.projectList`
+- Cover images downloaded and uploaded to Sanity via `downloadAndUploadImage()`
+- Creates labProject documents with: title, url, description, cover (Sanity image ref)
+- Uses deterministic IDs `labProject-{slug}` and `createOrReplace` for idempotency
+- Files changed: scripts/migration/migrate-lab.ts (new)
+- **Learnings for future iterations:**
+  - Lab projects are at `pages.laboratory.projectList.items` — similar query pattern to blog posts
+  - labProject is the simplest migration script — no rich text, no references, just flat fields + one image
+  - BaseHub lab project `cover` uses same `{ url, alt }` structure as other image fields
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-26 - US-024
+- Created `scripts/migration/migrate-singletons.ts` with 5 migration functions: migrateHomepage, migrateServicesPage, migratePeoplePage, migrateCareersPostPage, migrateCompanyInfo
+- Homepage: introTitle/introSubtitle from `pages.homepage.intro.title/subtitle`, capabilities populated from project categories (with plain text → PT conversion), featuredProjects as project references
+- Services page: intro (PT), heroImage (uploaded), ventures (single section stored as array item), serviceCategories from `company.services.serviceCategories`
+- People page: title, subheading1/subheading2 (PT), preOpenPositions side images (sideA/sideB uploaded) and text (PT)
+- Careers post page: heroTitle string from `pages.careersPost`
+- Company info: github/instagram/twitter/linkedIn URLs + newsletter (PT) from `company.social`
+- Each singleton uses a fixed _id matching the schema name (e.g., `homepage`, `servicesPage`)
+- Files changed: scripts/migration/migrate-singletons.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub `capabilities` and `ventures` are single component objects (not arrays) — queried without `.items`, accessed as `data.pages.homepage.capabilities._title` (not `.items[0]._title`)
+  - Homepage capability LIST items come from `company.projects.projectCategories`, NOT from `pages.homepage.capabilities` (which is just a section heading + intro)
+  - Services page `ventures` is also a single component — the Sanity schema stores it as an array, so wrap in single-item array
+  - BaseHub project category `description` is a plain string — needs `plainTextToPortableText()` helper to wrap in PT block for Sanity
+  - Company social links are at `company.social.*` (not `company.companyInfo.*`)
+  - Careers post data is at `pages.careersPost.heroTitle` — simple string field
+  - For `convertRichText`, always pass `.json.content` (the TipTap node array), not `.json` (the doc wrapper)
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-26 - US-025
+- Created `scripts/migration/migrate-3d-assets.ts` — fetches all 3D asset data from BaseHub `threeDInteractions` and `pages.inspectables`, writes to Sanity `threeDAssets` singleton
+- No file downloads — all values are URL strings copied as-is
+- 10 simple URL fields mapped (office, officeItems, officeWireframe, outdoor, godrays, basketball, basketballNet, contactPhone, routingElements, outdoorCars)
+- 6 nested objects mapped (specialEvents, arcade, characters, pets, lamp, mapTextures)
+- 8 array fields with `_key` on object items (bakes, matcaps, glassReflexes, videos, physicsParams, scenes, inspectables, specs)
+- 2 string arrays without `_key` (glassMaterials, doubleSideElements)
+- Deeply nested SFX object with sub-arrays (blog door/lamp, arcade buttons/sticks)
+- Inspectable descriptions converted via `convertRichText()` (only async operation in the script)
+- Scenes include full camera config (posX/posY/posZ/tarX/tarY/tarZ), tabs, and postprocessing params
+- Uses `_id: 'threeDAssets'` and `createOrReplace` for idempotency
+- Files changed: scripts/migration/migrate-3d-assets.ts (new)
+- **Learnings for future iterations:**
+  - BaseHub `sky` field maps to Sanity `skybox` field in arcade — name mismatch requires explicit mapping
+  - BaseHub `wireframeModel` maps to Sanity `officeWireframe` — another name mismatch
+  - Pets data (petModel, pureTexture, bostonTexture) lives under `threeDInteractions.characters` in BaseHub but is a separate `pets` object in Sanity
+  - SFX `lockedDoor` items are URL strings (no `_key` needed) while `door` and `lamp` items are objects (need `_key`)
+  - Sanity `url` type fields accept `undefined` gracefully — no need to filter or conditionally include them
+  - This is the simplest migration script despite the large schema — just copying URL strings, no image downloads
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-26 - US-026
+- Wired up `scripts/migration/run-all.ts` — uncommented all 9 migration steps in dependency order: company → people → projects → posts → careers → services → lab → singletons → 3D assets
+- Changed `MigrationStep.run` return type from `Promise<void>` to `Promise<unknown>` since some scripts return numbers
+- Removed empty-steps fallback message (no longer needed)
+- Completed `scripts/migration/verify.ts` with 4 verification checks:
+  1. Document counts per type compared against BaseHub expected totals (fetched live)
+  2. Missing required fields check (title for non-singletons, slug for slug-bearing types)
+  3. Image asset resolution check (HEAD requests to sample of 10 Sanity CDN URLs)
+  4. Formatted summary table with match/diff/empty status per type
+- BaseHub counts extracted using same query patterns as migration scripts (departments deduplicated from people)
+- Singleton types always expected as 1
+- Files changed: scripts/migration/run-all.ts (modified), scripts/migration/verify.ts (modified)
+- **Learnings for future iterations:**
+  - Some migration scripts return `number` (count), others return `void` — use `Promise<unknown>` for the orchestrator step interface
+  - Sanity image assets have `_type: 'sanity.imageAsset'` and include a `url` field — query with `*[_type == "sanity.imageAsset"]{ _id, url }`
+  - BaseHub department count requires deduplication from people (no standalone department list)
+  - 124 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-27 - US-001
+- Exported Sanity production dataset (176 documents, 517 image assets) to `scripts/migration/data/production-export.tar.gz`
+- Created `scripts/migration/audit-dataset.ts` that extracts the tar.gz, parses NDJSON, and runs 4 audit checks:
+  1. Document count per _type vs BaseHub expected counts (summary table)
+  2. Missing required fields (title, slug, name, _type)
+  3. Broken references (walks all _ref values and checks existence)
+  4. Empty portable text fields that should have content
+- Added `scripts/migration/data/` to `.gitignore`
+- Files changed: scripts/migration/audit-dataset.ts (new), .gitignore (modified)
+- **Learnings for future iterations:**
+  - Sanity `dataset export` wraps everything in a timestamped subdirectory inside the tar.gz — `data.ndjson` is NOT at the root of the archive
+  - Export includes system documents (sanity.imageAsset, etc.) — filter by DOCUMENT_TYPES for migration-relevant audit
+  - Current dataset gaps: 0/25 showcaseEntries, 3/27 posts, 12/30 awards, 0 testimonials, 0 values, 0/1 homepage — these match the known migration failures from Phase 1
+  - 12 awards have non-deterministic _ids (basehub raw IDs) and missing `title` field — the fix-awards script (US-010) must handle re-keying
+  - 4 projectCategories missing `slug` field — fix-projects (US-005) needs to ensure slugs are set
+  - 8 open positions have empty `jobDescription` PT fields — may need investigation in fix scripts
+  - Pre-existing TS errors now at 8 (down from ~124) — all in basehub/migration scripts, zero from audit-dataset.ts
+---
+
+## 2026-03-27 - US-002
+- Added hidden `title` field with `initialValue` to 5 singletons: homepage ('Homepage'), servicesPage ('Services'), companyInfo ('Company Info'), threeDAssets ('3D Assets'), careersPostPage ('Careers')
+- peoplePage already had a visible title field — left as-is, added preview config only
+- Added `preview: { select: { title: 'title' } }` to all 6 singleton schemas and 13 document schemas
+- testimonial uses `preview: { select: { title: 'name' } }` (special case — display field is `name`, not `title`)
+- showcaseEntry uses `preview: { select: { title: 'project.title' } }` (dot notation resolves through reference to project's title)
+- Deployed updated schemas to Sanity cloud via `pnpm exec sanity schema deploy`
+- Files changed: 6 singleton schemas (modified), 13 document schemas (modified)
+- **Learnings for future iterations:**
+  - Sanity `hidden: true` + `initialValue: 'X'` pattern creates a non-editable title field for singletons — value is set on document creation
+  - Sanity `preview.select` supports dot notation through references (e.g., `project.title` resolves the referenced project's title)
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-27 - US-003
+- Created `scripts/migration/fix-clients.ts` — standalone script that fetches all 41 clients from BaseHub and creates them in Sanity
+- BaseHub `logo` field returns inline SVG strings (not URLs) — script detects `<svg` prefix and uploads directly as buffer via `uploadImageToSanity`
+- For URL-based logos, falls back to `downloadAndUploadImage` with deduplication cache
+- Normalizes logo field from unknown BaseHub type (string, object with url, or null)
+- Uses `createOrReplace` with deterministic IDs `client-{slug}` for idempotency
+- Result: 41/41 clients created, 39 logos uploaded (2 clients had no logo data: MrBeast, Basement Chronicles)
+- Files changed: scripts/migration/fix-clients.ts (new), prd.json (US-003 passes: true), progress.txt (appended)
+- **Learnings for future iterations:**
+  - BaseHub client logos are inline SVG strings, NOT image URLs — `downloadAndUploadImage` fails because it tries to `fetch()` the SVG string as a URL
+  - To upload inline SVG to Sanity: `uploadImageToSanity(Buffer.from(svgString, 'utf-8'), 'filename.svg')`
+  - Sanity `assets.upload('image', buffer)` accepts SVG buffers natively — no conversion needed
+  - BaseHub `logo` field typed as scalar in SDK (query with `logo: true`, not `logo: { url: true }`)
+  - Prior progress note about logo being `{ url, alt }` object was incorrect — it's a plain string field containing SVG markup
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-27 - US-004
+- Rewrote `scripts/migration/fix-missing-persons.ts` to dynamically discover missing persons instead of using a hardcoded list
+- Script queries BaseHub for ALL post authors across 27 blog posts, finds 13 unique authors
+- Compares against existing Sanity person documents (45 at start) to find missing ones
+- Created 2 newly discovered missing persons: person-matias-gonzalez ("Matías Gonzalez"), person-rocio-elbaum ("Rocío Elbaum")
+- The 6 previously-known missing persons (basement-team, natalia-martinez-lopez, matias-perez, joaquin-montes, agustin-segui, julian-benegas) already existed from prior run
+- Script is idempotent — second run finds 0 missing persons
+- All 13 post authors now exist in Sanity (47 total person documents)
+- Files changed: scripts/migration/fix-missing-persons.ts (rewritten), prd.json (US-004 passes: true), progress.txt (appended)
+- **Learnings for future iterations:**
+  - BaseHub post author references only expose `_title` and `_slug` — `image` field is not reliably available on the author union type in blog post context
+  - Dynamic discovery found 2 additional missing persons (Matías Gonzalez, Rocío Elbaum) that weren't in the hardcoded list — always prefer dynamic queries over static lists
+  - Sanity GROQ query `*[_type == "person"]{ _id }` is efficient for existence checks — returns only IDs
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-27 - US-005
+- Created `scripts/migration/fix-projects.ts` — standalone script that re-migrates all projects, project categories, and showcase entries with validated references
+- Pre-fetches existing client IDs (41) and person IDs (47) from Sanity before creating projects to validate all references
+- Project categories re-created with slug field set (fixes audit gap of 4 categories missing slugs)
+- All 31 projects created with cover images, icons, showcase item images downloaded and uploaded
+- All client and people references validated before inclusion — 0 references skipped (all existed)
+- All 25 showcase entries created with validated project references — 0 skipped
+- Uses `createOrReplace` for full idempotency
+- Summary: 4 categories, 31 projects, 25 showcase entries, 0 references skipped, 0 errors
+- Files changed: scripts/migration/fix-projects.ts (new), prd.json (US-005 passes: true), progress.txt (appended)
+- **Learnings for future iterations:**
+  - Image downloads during project migration are slow (~20-30s per project with showcase items) — total runtime ~15 minutes for 31 projects
+  - `fetchExistingIds(type)` helper pattern (GROQ `*[_type == "X"]{ _id }` → Set) is reusable for reference validation across all fix scripts
+  - Project categories were missing slug fields from initial migration — fix script adds `slug: { _type: 'slug', current: slug }` to each category
+  - All 41 clients and 47 persons existed, so zero references needed to be skipped — US-003 and US-004 prerequisites fully satisfied
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-03-27 - US-006
+- Enhanced `scripts/migration/utils/rich-text.ts` with three new exported functions:
+  - `sanitizePortableText(blocks, allowedTypes?)` — deep-sanitizes PT arrays: ensures _key/_type on all blocks, children/markDefs on text blocks, _key on nested array items (codeBlock.files, gridGallery.images), recursively sanitizes nested PT in quoteWithAuthor.quote and sideNote.content, strips blocks with unsupported _type values
+  - `filterIntroBlocks(blocks)` — filters PT to only basic 'block' type items (for intro fields that don't allow custom blocks or images)
+  - `sanitizeDocument(doc)` — validates full post document, sanitizes both intro (basic blocks only) and content (all allowed types), returns sanitized doc + warnings array for logging
+- Verified all 6 custom block _type values match Sanity schema field names exactly: codeBlock, quoteWithAuthor, codeSandbox, sideNote, gridGallery, tweetEmbed
+- CONTENT_BLOCK_TYPES set defines the 8 allowed content types (block, image, codeBlock, quoteWithAuthor, codeSandbox, sideNote, gridGallery, tweetEmbed)
+- Existing sanitizePortableText in migrate-posts.ts is now superseded by the richer version in rich-text.ts
+- Files changed: scripts/migration/utils/rich-text.ts (modified), prd.json (US-006 passes: true), progress.txt (appended)
+- **Learnings for future iterations:**
+  - Post intro field only accepts `{ type: 'block' }` — any custom blocks, images, or other types in intro will cause Sanity validation failure
+  - Nested PT fields (quoteWithAuthor.quote, sideNote.content) must also be sanitized — they only allow basic 'block' type
+  - The sanitize function strips invalid blocks with a warning log rather than throwing — this prevents a single bad block from failing the entire post
+  - All custom block _type values produced by the converter already match the schema exactly — no renaming needed
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-04-03 - US-001 (Studio UX Phase)
+- Updated `sanity/schemas/documents/post.ts` preview config to include `media: 'heroImage'`
+- Blog posts now show hero image thumbnails in Sanity Studio list view
+- Files changed: sanity/schemas/documents/post.ts
+- **Learnings for future iterations:**
+  - Branch `ralph/studio-ux-schema-polish` was occupied by another worktree, created `ralph/studio-ux-schema-polish-2` instead
+  - Pre-existing 8 TS errors (basehub migration scripts) remain unchanged — new schema changes introduce zero additional errors
+  - Sanity `preview.select.media` accepts a field path to an image field — Sanity auto-resolves it as a thumbnail
+---
+
+## 2026-04-03 - US-002
+- Updated `sanity/schemas/documents/project.ts` preview config to include cover image and client name
+- Changed preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', subtitle: 'client.title', media: 'cover' } }`
+- Files changed: sanity/schemas/documents/project.ts (modified)
+- **Learnings for future iterations:**
+  - Sanity auto-resolves reference paths in preview select — `client.title` traverses the client reference to get the title field
+  - Preview `media` field accepts image field names directly — Sanity renders the thumbnail automatically
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-04-03 - US-003
+- Added preview config with `prepare` function to `sanity/schemas/objects/showcaseItem.ts`
+- Preview select uses `image.asset.originalFilename`, `image`, and `video.url` to show meaningful titles and thumbnails
+- prepare function returns filename for image items, 'Video' for video-only items, 'Untitled' as fallback
+- Files changed: sanity/schemas/objects/showcaseItem.ts (modified)
+- **Learnings for future iterations:**
+  - Sanity object type schemas support `preview` config with `prepare` just like document types
+  - `image.asset.originalFilename` is the path to get the uploaded filename through Sanity's asset pipeline
+  - 8 pre-existing TS errors remain unchanged — zero new errors introduced
+---
+
+## 2026-04-03 - US-004
+- Added slug field to `sanity/schemas/documents/projectCategory.ts` after the title field
+- Used same pattern as post.ts and project.ts: `type: 'slug'`, `options: { source: 'title' }`, required validation
+- No data migration needed — slug values already exist in migrated documents
+- Files changed: sanity/schemas/documents/projectCategory.ts (modified)
+- **Learnings for future iterations:**
+  - Slug field pattern is consistent across all document schemas — always use `defineField` with `type: 'slug'`, `options: { source: 'title' }`, and required validation
+  - Pre-existing 8 TS errors are all in migration scripts (basehub types) — unchanged from previous iterations
+---
+
+## 2026-04-03 - US-005
+- Changed `url` field type from 'url' to 'string' in `sanity/schemas/documents/labProject.ts`
+- Updated preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', media: 'cover' } }`
+- Files changed: sanity/schemas/documents/labProject.ts
+- **Learnings for future iterations:**
+  - Changing Sanity field type from 'url' to 'string' is non-destructive — existing URL values are valid strings
+  - 8 pre-existing TS errors remain (all in basehub/migration scripts) — unchanged from previous iteration
+---
+
+## 2026-04-03 - US-006
+- Created `sanity/schemas/singletons/showcasePage.ts` with hidden title field (initialValue 'Showcase') and projects array of references to project type
+- Updated `sanity/schemas/index.ts`: removed showcaseEntry import/export, added showcasePage import/export to Singleton types section
+- Updated `sanity.config.ts`: added 'showcasePage' to singletonTypes Set, added showcasePage to Pages section in desk structure, removed showcaseEntry from Content section
+- Files changed: sanity/schemas/singletons/showcasePage.ts (new), sanity/schemas/index.ts, sanity.config.ts
+- **Learnings for future iterations:**
+  - Singleton pattern requires 3 coordinated changes: schema file, schema index, and sanity.config.ts (singletonTypes Set + desk structure + template/action filtering)
+  - showcaseEntry.ts file is NOT deleted yet — kept for US-007 data migration, deletion happens after migration runs
+---
+
+## 2026-04-03 - US-007
+- Created `scripts/migration/migrate-showcase-to-singleton.ts`
+- Script queried 25 showcaseEntry documents sorted by orderRank ascending
+- Created showcasePage singleton with 25 project references in order
+- Deleted all 25 old showcaseEntry documents via transaction
+- Deleted `sanity/schemas/documents/showcaseEntry.ts` after successful migration
+- Files changed: scripts/migration/migrate-showcase-to-singleton.ts (new), sanity/schemas/documents/showcaseEntry.ts (deleted)
+- **Learnings for future iterations:**
+  - Use `sanityWriteClient.createOrReplace` for singletons to make migration idempotent
+  - Use transaction for batch deletes to ensure atomicity
+  - dotenv/config auto-loads .env file; sanity-client.ts also loads .env.local separately, so both get loaded
+---
+
+## 2026-04-03 - US-008
+- Refactored `src/app/layout.tsx` to keep only: html tag, body tag with font class names, metadata export, and {children}
+- Created `src/app/(site)/layout.tsx` containing all removed site-specific components: Analytics, SpeedInsights, Transitions, PostHogProvider, AssetsProvider (with fetchAssets), InspectableProvider, HtmlTunnelOut, Navbar, NavigationHandler, ContentWrapper, AppHooks, Contact
+- Root layout is no longer async (no fetchAssets call)
+- Site layout wraps children in Fragment (<>) since body is in root layout
+- Files changed: src/app/layout.tsx, src/app/(site)/layout.tsx (new)
+- **Learnings for future iterations:**
+  - Route group layouts wrap {children} in a Fragment, not in body/html — the root layout owns those tags
+  - Font definitions stay in root layout since they apply CSS variables to the body tag
+  - The (site) layout maintains the exact same component nesting order as the original root layout
+---
+
+## 2026-04-03 - US-009
+- Moved `src/app/(pages)/` to `src/app/(site)/(pages)/`
+- Moved `src/app/contact/`, `basketball/`, `doom/`, `lab/`, `actions/`, `api/` to `src/app/(site)/`
+- Moved `src/app/not-found.tsx` to `src/app/(site)/not-found.tsx`
+- Created minimal `src/app/not-found.tsx` at root level (no site provider dependencies)
+- Created `src/app/studio/layout.tsx` that returns just {children}
+- Fixed 9 broken imports caused by route moves:
+  - 6 files with `@/app/(pages)/` → `@/app/(site)/(pages)/`
+  - 2 files with `@/app/contact/` → `@/app/(site)/contact/`
+  - 1 file with `@/app/actions/` → `@/app/(site)/actions/`
+  - 1 relative import `../../../../.basehub/schema` → `../../../../../.basehub/schema`
+- Cleaned stale `.next/dev/types` to clear false-positive TS errors from old generated types
+- Files changed: 110 files (mostly renames), 5 import fixes, 3 new files
+- **Learnings for future iterations:**
+  - Moving routes into a route group DOES break `@/` aliased imports that reference `@/app/<dir>/` paths — they need `@/app/(site)/<dir>/`
+  - Relative imports within the same moved subtree are fine — they move together
+  - Relative imports that go UP past the new nesting level break (e.g., `../../../../.basehub/schema` needs an extra `../`)
+  - `.next/dev/types` contains generated types from old paths — delete them to avoid stale TS errors
+  - Components in `src/components/` that import from `@/app/` paths also need updating
+---
+
+## 2026-04-03 - US-010 (BLOCKED)
+- Attempted `npx sanity@latest schema deploy` — failed with "You must login first - run sanity login"
+- Typecheck passes (8 pre-existing errors only)
+- **MANUAL ACTION REQUIRED:** Run `sanity login` to authenticate, then `npx sanity@latest schema deploy`
+- All schema changes from US-001 through US-007 are ready for deployment
+- **Learnings for future iterations:**
+  - Sanity CLI requires an active auth session for schema deploy — not just an API token
+  - Must run `sanity login` interactively before `sanity schema deploy`
+---

@@ -142,9 +142,12 @@ export default defineConfig({
   title: 'Website 2K25',
   projectId,
   dataset,
+  basePath: '/studio',
   plugins: [
     structureTool({ structure }),
     presentationTool({
+      name: 'preview',
+      title: 'Preview',
       previewUrl: {
         previewMode: {
           enable: '/api/draft-mode/enable',

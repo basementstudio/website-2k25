@@ -1,0 +1,153 @@
+{
+  "project": "website-2k25",
+  "branchName": "ralph/studio-ux-schema-polish",
+  "description": "Studio UX & Schema Polish (Phase 3): Fix 7 Studio issues — add image previews to list views, fix schema warnings, convert showcase to singleton, and isolate Studio layout from site",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add hero image preview to blog posts",
+      "description": "As a content editor, I want to see the hero image thumbnail in the blog post list view so I can quickly identify posts.",
+      "acceptanceCriteria": [
+        "Update `sanity/schemas/documents/post.ts` preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', media: 'heroImage' } }`",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Simple one-line change to the preview object."
+    },
+    {
+      "id": "US-002",
+      "title": "Add cover image and client preview to projects",
+      "description": "As a content editor, I want to see the cover image and client name in the project list view so I can quickly identify projects.",
+      "acceptanceCriteria": [
+        "Update `sanity/schemas/documents/project.ts` preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', subtitle: 'client.title', media: 'cover' } }`",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Sanity auto-resolves 'client.title' through the reference."
+    },
+    {
+      "id": "US-003",
+      "title": "Fix showcase item preview in projects",
+      "description": "As a content editor, I want showcase items within a project to display their image preview and filename instead of 'image: {asset: {empty}}'.",
+      "acceptanceCriteria": [
+        "Update `sanity/schemas/objects/showcaseItem.ts` with a preview config using a `prepare` function",
+        "Preview select must include: imageFilename from 'image.asset.originalFilename', image from 'image', videoUrl from 'video.url'",
+        "prepare function returns: title as imageFilename or 'Video' (if videoUrl exists) or 'Untitled', media as image",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "The prepare function handles both image and video-only showcase items."
+    },
+    {
+      "id": "US-004",
+      "title": "Add slug field to project categories",
+      "description": "As a developer, I need to add a slug field to the projectCategory schema so Studio stops showing 'Unknown field found' warnings for the slug data that already exists from migration.",
+      "acceptanceCriteria": [
+        "Add a `slug` field (type: 'slug', options: { source: 'title' }) to `sanity/schemas/documents/projectCategory.ts` after the title field",
+        "Use defineField from sanity, same pattern as post.ts and project.ts slug fields",
+        "No data migration needed — slug values already exist in migrated documents",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Fix lab project URL field and add cover preview",
+      "description": "As a content editor, I want the lab project URL field to accept any text and see the cover image in the list view.",
+      "acceptanceCriteria": [
+        "Change `url` field type from 'url' to 'string' in `sanity/schemas/documents/labProject.ts`",
+        "Update preview from `{ select: { title: 'title' } }` to `{ select: { title: 'title', media: 'cover' } }`",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Changing from url to string is non-destructive — existing URL values are valid strings."
+    },
+    {
+      "id": "US-006",
+      "title": "Create showcase page singleton schema",
+      "description": "As a content editor, I want the showcase to be a single page where I can drag-and-drop project references to set display order, instead of managing separate showcase entry documents.",
+      "acceptanceCriteria": [
+        "Create `sanity/schemas/singletons/showcasePage.ts` with: name 'showcasePage', type 'document', hidden title field (initialValue 'Showcase'), and a `projects` field (type: 'array', of: [{ type: 'reference', to: [{ type: 'project' }] }])",
+        "Update `sanity/schemas/index.ts`: remove showcaseEntry import/export, add showcasePage import/export",
+        "Update `sanity.config.ts`: add 'showcasePage' to the singletonTypes Set, add showcasePage to the Pages section in structure (same pattern as homepage singleton), remove `S.documentTypeListItem('showcaseEntry').title('Showcase')` from the Content section",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Follow the exact same patterns used by the homepage singleton in sanity.config.ts structure builder. The showcaseEntry schema file is NOT deleted yet — that happens after data migration in US-007."
+    },
+    {
+      "id": "US-007",
+      "title": "Migrate showcase data to singleton and cleanup",
+      "description": "As a developer, I need to migrate the existing showcaseEntry documents into the new showcasePage singleton and delete the old documents.",
+      "acceptanceCriteria": [
+        "Create `scripts/migration/migrate-showcase-to-singleton.ts`",
+        "Script imports dotenv/config and loads .env.local (use dotenv.config({ path: '.env.local' }))",
+        "Script queries all existing showcaseEntry documents from Sanity, sorted by orderRank ascending",
+        "Script creates a showcasePage singleton document (_id: 'showcasePage', _type: 'showcasePage') with title: 'Showcase' and projects array containing references to the same projects in orderRank order",
+        "Script deletes all old showcaseEntry documents after creating the singleton",
+        "Script is runnable via: pnpm exec tsx scripts/migration/migrate-showcase-to-singleton.ts",
+        "After running the script, delete `sanity/schemas/documents/showcaseEntry.ts`",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Depends on US-006 (showcasePage schema must exist). Use the same sanity-client.ts from scripts/migration/ for the write client. The showcaseEntry.ts file deletion happens AFTER the script runs successfully."
+    },
+    {
+      "id": "US-008",
+      "title": "Slim down root layout and create site group layout",
+      "description": "As a developer, I need to split the root layout so Studio doesn't inherit site-specific components (navbar, footer, 3D scene, analytics).",
+      "acceptanceCriteria": [
+        "Read `src/app/layout.tsx` to understand all current providers and components",
+        "Refactor `src/app/layout.tsx` to keep ONLY: html tag, body tag with font class names, metadata export, and {children} — remove ALL site-specific components",
+        "Create `src/app/(site)/layout.tsx` that contains everything removed from root layout: Analytics, SpeedInsights, Transitions, PostHogProvider, AssetsProvider (with fetchAssets call), InspectableProvider, HtmlTunnelOut, Navbar, NavigationHandler, ContentWrapper, AppHooks, Contact, and any other site-specific providers",
+        "The (site) layout must wrap {children} in the same component nesting order as the original root layout",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "This story creates the layouts only. The actual route directory moves happen in US-009. The (site) route group does NOT affect URL paths."
+    },
+    {
+      "id": "US-009",
+      "title": "Move site routes into (site) group and add Studio layout",
+      "description": "As a developer, I need to move all non-studio routes into the (site) route group and create a minimal Studio layout so Studio is fully isolated.",
+      "acceptanceCriteria": [
+        "Move `src/app/(pages)/` to `src/app/(site)/(pages)/`",
+        "Move `src/app/contact/` to `src/app/(site)/contact/`",
+        "Move `src/app/basketball/` to `src/app/(site)/basketball/`",
+        "Move `src/app/doom/` to `src/app/(site)/doom/`",
+        "Move `src/app/lab/` to `src/app/(site)/lab/`",
+        "Move `src/app/actions/` to `src/app/(site)/actions/`",
+        "Move `src/app/api/` to `src/app/(site)/api/`",
+        "Move `src/app/not-found.tsx` to `src/app/(site)/not-found.tsx`",
+        "Create a minimal `src/app/not-found.tsx` at root level that returns a simple 'Not Found' page without depending on any site providers",
+        "Create `src/app/studio/layout.tsx` that exports a function returning just {children}",
+        "Verify that all moved directories exist in their new locations",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "Depends on US-008 (layouts must exist before moving routes). Route group (site) does NOT change URL paths — /blog stays /blog. Use `mv` commands to move directories. All imports use @/ aliases so paths should not break."
+    },
+    {
+      "id": "US-010",
+      "title": "Deploy schemas and verify",
+      "description": "As a developer, I need to deploy the updated schemas to Sanity cloud and verify all changes work.",
+      "acceptanceCriteria": [
+        "Run `npx sanity@latest schema deploy` successfully",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "Final step — deploys all schema changes from US-001 through US-007 to Sanity cloud. Deployed via Sanity MCP (CLI required interactive browser auth)."
+    }
+  ]
+}

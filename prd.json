@@ -224,7 +224,7 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "These are simple data fields with no file uploads. physicsParams from threeDInteractions.physicsParams, glassMaterials from threeDInteractions.map.glassMaterials, doubleSideElements from threeDInteractions.map.doubleSideElements."
     },
     {

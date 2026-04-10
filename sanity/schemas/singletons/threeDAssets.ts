@@ -435,6 +435,11 @@ export const threeDAssets = defineType({
               of: [
                 {
                   type: 'object',
+                  preview: {
+                    select: {
+                      title: 'open.asset->originalFilename',
+                    },
+                  },
                   fields: [
                     defineField({
                       name: 'open',
@@ -457,6 +462,11 @@ export const threeDAssets = defineType({
               of: [
                 {
                   type: 'object',
+                  preview: {
+                    select: {
+                      title: 'pull.asset->originalFilename',
+                    },
+                  },
                   fields: [
                     defineField({
                       name: 'pull',
@@ -486,6 +496,11 @@ export const threeDAssets = defineType({
               of: [
                 {
                   type: 'object',
+                  preview: {
+                    select: {
+                      title: 'press.asset->originalFilename',
+                    },
+                  },
                   fields: [
                     defineField({
                       name: 'press',
@@ -508,6 +523,11 @@ export const threeDAssets = defineType({
               of: [
                 {
                   type: 'object',
+                  preview: {
+                    select: {
+                      title: 'press.asset->originalFilename',
+                    },
+                  },
                   fields: [
                     defineField({
                       name: 'press',
