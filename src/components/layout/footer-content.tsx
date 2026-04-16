@@ -51,7 +51,7 @@ export const FooterContent = ({
   projectsCount,
   postsCount,
   socialLinks,
-  newsletter,
+  newsletter
 }: FooterContentProps) => {
   const LINKS = [
     {

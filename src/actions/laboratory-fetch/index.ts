@@ -11,8 +11,6 @@ export const fetchLaboratory = async () => {
     title: project.title,
     url: project.url,
     description: project.description,
-    cover: project.cover?.asset
-      ? { url: project.cover.asset.url }
-      : null,
+    cover: project.cover?.asset ? { url: project.cover.asset.url } : null
   }))
 }

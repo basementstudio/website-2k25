@@ -17,10 +17,7 @@ export const ProjectWrapper = ({ entry }: ProjectWrapperProps) => (
     </div>
     {entry.slug && (
       <div className="my-6 flex flex-col gap-y-12">
-        <RelatedProjects
-          baseSlug={entry.slug}
-          className="px-4 lg:hidden"
-        />
+        <RelatedProjects baseSlug={entry.slug} className="px-4 lg:hidden" />
         <ProjectPeople entry={entry} />
       </div>
     )}

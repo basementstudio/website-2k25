@@ -79,9 +79,9 @@ export const ContactStatus = ({
               </clipPath>
             </defs>
           </svg>
-       
+
           <p className="text-f-h3-mobile text-brand-r2 xl:text-f-h4">{error}</p>
-           </>
+        </>
       )}
     </div>
   )

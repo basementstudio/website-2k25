@@ -28,7 +28,9 @@ export const extractPlainText = (
       const children = (block as { children?: PortableTextChild[] }).children
       if (!Array.isArray(children)) return []
       return children
-        .filter((child) => child?._type === "span" && typeof child.text === "string")
+        .filter(
+          (child) => child?._type === "span" && typeof child.text === "string"
+        )
         .map((child) => child.text ?? "")
     })
     .join(" ")

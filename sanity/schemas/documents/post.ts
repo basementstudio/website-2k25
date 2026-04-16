@@ -1,84 +1,84 @@
-import { defineType, defineField } from 'sanity'
+import { defineField, defineType } from "sanity"
 
 export const post = defineType({
-  name: 'post',
-  title: 'Post',
-  type: 'document',
-  preview: { select: { title: 'title', media: 'heroImage' } },
+  name: "post",
+  title: "Post",
+  type: "document",
+  preview: { select: { title: "title", media: "heroImage" } },
   fields: [
     defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
-      validation: (rule) => rule.required(),
+      name: "title",
+      title: "Title",
+      type: "string",
+      validation: (rule) => rule.required()
     }),
     defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: { source: 'title' },
-      validation: (rule) => rule.required(),
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: { source: "title" },
+      validation: (rule) => rule.required()
     }),
     defineField({
-      name: 'date',
-      title: 'Date',
-      type: 'datetime',
-      validation: (rule) => rule.required(),
+      name: "date",
+      title: "Date",
+      type: "datetime",
+      validation: (rule) => rule.required()
     }),
     defineField({
-      name: 'categories',
-      title: 'Categories',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'postCategory' }] }],
+      name: "categories",
+      title: "Categories",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "postCategory" }] }]
     }),
     defineField({
-      name: 'authors',
-      title: 'Authors',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'person' }] }],
+      name: "authors",
+      title: "Authors",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "person" }] }]
     }),
     defineField({
-      name: 'heroImage',
-      title: 'Hero Image',
-      type: 'image',
-      options: { hotspot: true },
+      name: "heroImage",
+      title: "Hero Image",
+      type: "image",
+      options: { hotspot: true }
     }),
     defineField({
-      name: 'heroVideo',
-      title: 'Hero Video',
-      type: 'url',
+      name: "heroVideo",
+      title: "Hero Video",
+      type: "url"
     }),
     defineField({
-      name: 'intro',
-      title: 'Intro',
-      type: 'array',
-      of: [{ type: 'block' }],
+      name: "intro",
+      title: "Intro",
+      type: "array",
+      of: [{ type: "block" }]
     }),
     defineField({
-      name: 'content',
-      title: 'Content',
-      type: 'array',
+      name: "content",
+      title: "Content",
+      type: "array",
       of: [
-        { type: 'block' },
+        { type: "block" },
         {
-          type: 'image',
+          type: "image",
           options: { hotspot: true },
           fields: [
             defineField({
-              name: 'caption',
-              title: 'Caption',
-              type: 'string',
-            }),
-          ],
+              name: "caption",
+              title: "Caption",
+              type: "string"
+            })
+          ]
         },
-        { type: 'codeBlock' },
-        { type: 'quoteWithAuthor' },
-        { type: 'codeSandbox' },
-        { type: 'sideNote' },
-        { type: 'gridGallery' },
-        { type: 'tweetEmbed' },
-        { type: 'videoEmbed' },
-      ],
-    }),
-  ],
+        { type: "codeBlock" },
+        { type: "quoteWithAuthor" },
+        { type: "codeSandbox" },
+        { type: "sideNote" },
+        { type: "gridGallery" },
+        { type: "tweetEmbed" },
+        { type: "videoEmbed" }
+      ]
+    })
+  ]
 })

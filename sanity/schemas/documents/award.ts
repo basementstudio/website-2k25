@@ -1,37 +1,37 @@
-import { defineType, defineField } from 'sanity'
+import { defineField, defineType } from "sanity"
 
 export const award = defineType({
-  name: 'award',
-  title: 'Award',
-  type: 'document',
-  preview: { select: { title: 'title' } },
+  name: "award",
+  title: "Award",
+  type: "document",
+  preview: { select: { title: "title" } },
   fields: [
     defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
-      validation: (rule) => rule.required(),
+      name: "title",
+      title: "Title",
+      type: "string",
+      validation: (rule) => rule.required()
     }),
     defineField({
-      name: 'date',
-      title: 'Date',
-      type: 'datetime',
+      name: "date",
+      title: "Date",
+      type: "datetime"
     }),
     defineField({
-      name: 'awardUrl',
-      title: 'Award URL',
-      type: 'url',
+      name: "awardUrl",
+      title: "Award URL",
+      type: "url"
     }),
     defineField({
-      name: 'project',
-      title: 'Project',
-      type: 'reference',
-      to: [{ type: 'project' }],
+      name: "project",
+      title: "Project",
+      type: "reference",
+      to: [{ type: "project" }]
     }),
     defineField({
-      name: 'certificate',
-      title: 'Certificate',
-      type: 'image',
-    }),
-  ],
+      name: "certificate",
+      title: "Certificate",
+      type: "image"
+    })
+  ]
 })

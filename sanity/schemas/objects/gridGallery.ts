@@ -1,20 +1,20 @@
-import { defineType, defineField } from 'sanity'
+import { defineField, defineType } from "sanity"
 
 export const gridGallery = defineType({
-  name: 'gridGallery',
-  title: 'Grid Gallery',
-  type: 'object',
+  name: "gridGallery",
+  title: "Grid Gallery",
+  type: "object",
   fields: [
     defineField({
-      name: 'images',
-      title: 'Images',
-      type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      name: "images",
+      title: "Images",
+      type: "array",
+      of: [{ type: "image", options: { hotspot: true } }]
     }),
     defineField({
-      name: 'caption',
-      title: 'Caption',
-      type: 'string',
-    }),
-  ],
+      name: "caption",
+      title: "Caption",
+      type: "string"
+    })
+  ]
 })

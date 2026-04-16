@@ -6,7 +6,7 @@ import { generateCreativeWorkSchema } from "@/lib/structured-data/schemas/creati
 import {
   fetchAllProjectSlugs,
   fetchProjectBySlug,
-  fetchProjectMeta,
+  fetchProjectMeta
 } from "./sanity"
 import { ProjectWrapper } from "./wrapper"
 
@@ -24,11 +24,11 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
 
   return {
     title: {
-      absolute: `${meta.title ?? "Untitled"} | Showcase`,
+      absolute: `${meta.title ?? "Untitled"} | Showcase`
     },
     alternates: {
-      canonical: `https://basement.studio/showcase/${slug}`,
-    },
+      canonical: `https://basement.studio/showcase/${slug}`
+    }
   }
 }
 
@@ -47,7 +47,8 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
     cover: project.cover,
     content: project.content,
     projectWebsite: project.projectWebsite,
-    awards: project.awards?.map((a) => ({ title: a.title, date: a.date })) ?? null
+    awards:
+      project.awards?.map((a) => ({ title: a.title, date: a.date })) ?? null
   })
 
   return (

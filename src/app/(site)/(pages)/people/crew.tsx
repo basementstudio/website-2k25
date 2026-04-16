@@ -146,24 +146,22 @@ export const Crew = ({ data }: { data: PersonDisplay[] }) => {
                   <div className="col-span-3 flex justify-between gap-1">
                     <span className="line-clamp-1">{person.role}</span>
                     <div className="flex gap-1 text-right">
-                      {person.socialNetworks.map(
-                        (socialNetwork, index) => (
-                          <Fragment key={index}>
-                            <Link
-                              href={socialNetwork.url}
-                              target="_blank"
-                              className="bg-brand-0"
-                            >
-                              <span className="actionable">
-                                {socialNetwork.platform}
-                              </span>
-                            </Link>
-                            {index < person.socialNetworks.length - 1 && (
-                              <span className="text-brand-g1">,</span>
-                            )}
-                          </Fragment>
-                        )
-                      )}
+                      {person.socialNetworks.map((socialNetwork, index) => (
+                        <Fragment key={index}>
+                          <Link
+                            href={socialNetwork.url}
+                            target="_blank"
+                            className="bg-brand-0"
+                          >
+                            <span className="actionable">
+                              {socialNetwork.platform}
+                            </span>
+                          </Link>
+                          {index < person.socialNetworks.length - 1 && (
+                            <span className="text-brand-g1">,</span>
+                          )}
+                        </Fragment>
+                      ))}
                     </div>
                   </div>
                 </li>

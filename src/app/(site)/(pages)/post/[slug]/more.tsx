@@ -3,8 +3,8 @@
 import Image from "next/image"
 
 import { Link } from "@/components/primitives/link"
-import { getImageUrl } from "@/service/sanity/helpers"
 import { useMedia } from "@/hooks/use-media"
+import { getImageUrl } from "@/service/sanity/helpers"
 import { formatDate } from "@/utils/format-date"
 
 import type { RelatedPost } from "./sanity"
@@ -26,9 +26,7 @@ export const More = ({ posts }: MoreProps) => {
         <div className="flex flex-col divide-y divide-brand-g1/30">
           <div />
           {posts.map((post) => {
-            const heroImg = post.heroImage
-              ? getImageUrl(post.heroImage)
-              : null
+            const heroImg = post.heroImage ? getImageUrl(post.heroImage) : null
 
             return (
               <div key={post._id} className="group relative">

@@ -55,7 +55,7 @@ export const JobMeta = ({ type, employmentType, location }: JobMetaProps) => {
         <button
           type="button"
           onClick={scrollToApply}
-          className="group actionable-opacity [--anim-duration:250ms] flex items-center gap-2 rounded-sm bg-brand-w1 px-3 py-1.5 text-sm font-semibold leading-5 tracking-[-0.02em] text-brand-k lg:text-[1.125rem]"
+          className="actionable-opacity group flex items-center gap-2 rounded-sm bg-brand-w1 px-3 py-1.5 text-sm font-semibold leading-5 tracking-[-0.02em] text-brand-k [--anim-duration:250ms] lg:text-[1.125rem]"
         >
           <span className="group-hover:underline">Apply now</span>
           <ArrowDownIcon className="size-3" />

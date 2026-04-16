@@ -21,6 +21,6 @@ export function getImageUrl(image: SanityImage | null | undefined): {
     width: asset.metadata.dimensions.width,
     height: asset.metadata.dimensions.height,
     blurDataURL: asset.metadata.lqip,
-    alt: alt ?? "",
+    alt: alt ?? ""
   }
 }

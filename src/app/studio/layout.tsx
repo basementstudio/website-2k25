@@ -1,5 +1,5 @@
 export default function StudioLayout({
-  children,
+  children
 }: {
   children: React.ReactNode
 }) {

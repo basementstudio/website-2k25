@@ -1,14 +1,14 @@
 import { memo } from "react"
 
+import type {
+  ImageFragment,
+  VideoFragment
+} from "@/components/primitives/image-with-video-overlay"
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { InfoItem } from "@/components/primitives/info-item"
 import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
 import { useMedia } from "@/hooks/use-media"
-import type {
-  ImageFragment,
-  VideoFragment
-} from "@/components/primitives/image-with-video-overlay"
 import type { SanityImage, SanityVideo } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
 

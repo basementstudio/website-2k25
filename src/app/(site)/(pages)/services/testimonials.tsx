@@ -69,11 +69,7 @@ const TestimonialAuthor = memo(
 
 TestimonialAuthor.displayName = "TestimonialAuthor"
 
-const TestimonialsComponent = ({
-  data
-}: {
-  data: ServiceTestimonial
-}) => {
+const TestimonialsComponent = ({ data }: { data: ServiceTestimonial }) => {
   return (
     <div className="grid-layout !gap-y-8">
       <div className={cn("relative col-span-full", styles.root)}>

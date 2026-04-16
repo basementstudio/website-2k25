@@ -3,7 +3,7 @@ import { imageFragment, videoFragment } from "@/service/sanity/queries"
 import type {
   PortableTextBlock,
   SanityImage,
-  SanityVideo,
+  SanityVideo
 } from "@/service/sanity/types"
 
 // ---------------------------------------------------------------------------
@@ -98,16 +98,23 @@ export async function fetchProjectBySlug(
   return sanityFetch<ShowcaseProjectDetail | null>({
     query: projectBySlugQuery,
     params: { slug },
-    tags: ["project", "award", "client", "projectCategory", "person", "department"],
+    tags: [
+      "project",
+      "award",
+      "client",
+      "projectCategory",
+      "person",
+      "department"
+    ]
   })
 }
 
-export async function fetchAllProjectSlugs(): Promise<
-  Array<{ slug: string }> | null
-> {
+export async function fetchAllProjectSlugs(): Promise<Array<{
+  slug: string
+}> | null> {
   return sanityFetch<Array<{ slug: string }> | null>({
     query: allProjectSlugsQuery,
-    tags: ["showcasePage", "project"],
+    tags: ["showcasePage", "project"]
   })
 }
 
@@ -117,7 +124,7 @@ export async function fetchProjectMeta(
   return sanityFetch<{ title: string } | null>({
     query: projectMetaQuery,
     params: { slug },
-    tags: ["project"],
+    tags: ["project"]
   })
 }
 
@@ -126,7 +133,7 @@ export async function fetchRelatedProjects(
 ): Promise<RelatedProject[]> {
   const all = await sanityFetch<RelatedProject[] | null>({
     query: relatedProjectsQuery,
-    tags: ["showcasePage", "project"],
+    tags: ["showcasePage", "project"]
   })
   if (!all) return []
 

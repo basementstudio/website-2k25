@@ -24,6 +24,6 @@ export async function fetchLabProjects(): Promise<LabProject[]> {
       description,
       cover ${imageFragment}
     }`,
-    tags: ["labProject"],
+    tags: ["labProject"]
   })
 }

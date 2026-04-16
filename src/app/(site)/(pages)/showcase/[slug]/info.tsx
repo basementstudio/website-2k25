@@ -42,17 +42,11 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
                     <Image
                       src={iconImg.src}
                       fill
-                      alt={
-                        iconImg.alt ||
-                        entry.client?.title ||
-                        "Client logo"
-                      }
+                      alt={iconImg.alt || entry.client?.title || "Client logo"}
                     />
                   </span>
                 ) : null}
-                <span className="truncate">
-                  {entry.client?.title}
-                </span>
+                <span className="truncate">{entry.client?.title}</span>
               </span>
             }
           />

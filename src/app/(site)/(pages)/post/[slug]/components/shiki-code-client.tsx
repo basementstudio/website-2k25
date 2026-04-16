@@ -5,9 +5,8 @@ import { useCallback, useState } from "react"
 
 import { cn } from "@/utils/cn"
 
-import type { HighlightedSnippet } from "./shiki-code-block"
-
 import styles from "./code-block.module.css"
+import type { HighlightedSnippet } from "./shiki-code-block"
 
 export const ShikiCodeClient = ({
   snippets

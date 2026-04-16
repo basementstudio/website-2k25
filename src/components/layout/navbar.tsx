@@ -11,7 +11,7 @@ export const Navbar = async () => {
   const [projectsCount, postsCount, companyInfo] = await Promise.all([
     fetchProjectsCount(),
     fetchPostsCount(),
-    fetchCompanyInfo(),
+    fetchCompanyInfo()
   ])
 
   const LINKS: NavbarLink[] = [
@@ -51,7 +51,7 @@ export const Navbar = async () => {
         twitter: companyInfo.twitter || "",
         instagram: companyInfo.instagram || "",
         github: companyInfo.github || "",
-        linkedIn: companyInfo.linkedIn || "",
+        linkedIn: companyInfo.linkedIn || ""
       }}
       newsletter={companyInfo.newsletter || []}
     />

@@ -7,11 +7,7 @@ import { TextList } from "@/components/primitives/text-list"
 
 import type { ShowcaseProjectDetail } from "./sanity"
 
-export function ProjectPeople({
-  entry,
-}: {
-  entry: ShowcaseProjectDetail
-}) {
+export function ProjectPeople({ entry }: { entry: ShowcaseProjectDetail }) {
   const peopleByDepartment = useMemo(() => {
     const departments = new Map<string, string[]>()
 

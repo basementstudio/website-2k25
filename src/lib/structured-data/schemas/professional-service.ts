@@ -17,9 +17,7 @@ const slugifyServiceName = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
 
-export const generateServicesWebPageSchema = (
-  services: ServiceCategory[]
-) => ({
+export const generateServicesWebPageSchema = (services: ServiceCategory[]) => ({
   "@context": "https://schema.org",
   "@type": "WebPage",
   "@id": `${SITE_URL}/services#webpage`,

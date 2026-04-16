@@ -34,15 +34,15 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
     // --- Map textures ---
     mapTextures: {
       rain: fileUrl(data.mapTextures?.rain),
-      basketballVa: fileUrl(data.mapTextures?.basketballVa),
+      basketballVa: fileUrl(data.mapTextures?.basketballVa)
     },
 
     // --- Special events ---
     specialEvents: {
       christmas: {
         tree: fileUrl(data.specialEvents?.christmas?.tree),
-        song: fileUrl(data.specialEvents?.christmas?.song),
-      },
+        song: fileUrl(data.specialEvents?.christmas?.song)
+      }
     },
 
     // --- Bakes ---
@@ -50,14 +50,14 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
       title: bake.title ?? "",
       lightmap: fileUrl(bake.lightmap),
       ambientOcclusion: fileUrl(bake.ambientOcclusion),
-      meshes: bake.meshes ?? [],
+      meshes: bake.meshes ?? []
     })),
 
     // --- Matcaps ---
     matcaps: (data.matcaps ?? []).map((matcap) => ({
       mesh: matcap.mesh ?? "",
       file: fileUrl(matcap.file),
-      isGlass: matcap.isGlass ?? false,
+      isGlass: matcap.isGlass ?? false
     })),
 
     // --- String arrays ---
@@ -67,7 +67,7 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
     // --- Glass reflexes ---
     glassReflexes: (data.glassReflexes ?? []).map((item) => ({
       mesh: item.mesh ?? "",
-      url: fileUrl(item.url),
+      url: fileUrl(item.url)
     })),
 
     // --- Arcade ---
@@ -80,14 +80,14 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
       palm: fileUrl(data.arcade?.palm),
       skybox: fileUrl(data.arcade?.skybox),
       cityscape: fileUrl(data.arcade?.cityscape),
-      introScreen: fileUrl(data.arcade?.introScreen),
+      introScreen: fileUrl(data.arcade?.introScreen)
     },
 
     // --- Videos ---
     videos: (data.videos ?? []).map((video) => ({
       mesh: video.mesh ?? "",
       url: fileUrl(video.url),
-      intensity: video.intensity ?? 1,
+      intensity: video.intensity ?? 1
     })),
 
     // --- Inspectables ---
@@ -97,7 +97,7 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
       specs: (item.specs ?? []).map((spec) => ({
         _id: spec.specId ?? "",
         _title: spec.title ?? "",
-        value: spec.value ?? "",
+        value: spec.value ?? ""
       })),
       description: item.description,
       mesh: item.mesh ?? "",
@@ -106,7 +106,7 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
       xRotationOffset: item.xRotationOffset ?? 0,
       sizeTarget: item.sizeTarget ?? 0,
       scenes: item.scenes ?? [],
-      fx: fileUrl(item.fx),
+      fx: fileUrl(item.fx)
     })),
 
     // --- SFX ---
@@ -125,33 +125,33 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
         ),
         door: (data.sfx?.blog?.door ?? []).map((item) => ({
           open: fileUrl(item.open),
-          close: fileUrl(item.close),
+          close: fileUrl(item.close)
         })),
         lamp: (data.sfx?.blog?.lamp ?? []).map((item) => ({
           pull: fileUrl(item.pull),
-          release: fileUrl(item.release),
-        })),
+          release: fileUrl(item.release)
+        }))
       },
       arcade: {
         buttons: (data.sfx?.arcade?.buttons ?? []).map((item) => ({
           press: fileUrl(item.press),
-          release: fileUrl(item.release),
+          release: fileUrl(item.release)
         })),
         sticks: (data.sfx?.arcade?.sticks ?? []).map((item) => ({
           press: fileUrl(item.press),
-          release: fileUrl(item.release),
+          release: fileUrl(item.release)
         })),
-        miamiHeatwave: fileUrl(data.sfx?.arcade?.miamiHeatwave),
+        miamiHeatwave: fileUrl(data.sfx?.arcade?.miamiHeatwave)
       },
       music: {
         aqua: fileUrl(data.sfx?.music?.aqua),
         rain: fileUrl(data.sfx?.music?.rain),
         tiger: fileUrl(data.sfx?.music?.tiger),
-        vhs: fileUrl(data.sfx?.music?.vhs),
+        vhs: fileUrl(data.sfx?.music?.vhs)
       },
       contact: {
-        interference: fileUrl(data.sfx?.contact?.interference),
-      },
+        interference: fileUrl(data.sfx?.contact?.interference)
+      }
     },
 
     // --- Scenes ---
@@ -161,23 +161,23 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
         position: [
           scene.cameraConfig?.posX ?? 0,
           scene.cameraConfig?.posY ?? 0,
-          scene.cameraConfig?.posZ ?? 0,
+          scene.cameraConfig?.posZ ?? 0
         ],
         target: [
           scene.cameraConfig?.tarX ?? 0,
           scene.cameraConfig?.tarY ?? 0,
-          scene.cameraConfig?.tarZ ?? 0,
+          scene.cameraConfig?.tarZ ?? 0
         ],
         fov: scene.cameraConfig?.fov ?? 60,
         targetScrollY: scene.cameraConfig?.targetScrollY ?? -1.5,
-        offsetMultiplier: scene.cameraConfig?.offsetMultiplier ?? 1,
+        offsetMultiplier: scene.cameraConfig?.offsetMultiplier ?? 1
       },
       tabs: (scene.tabs ?? []).map((tab) => ({
         tabName: tab.tabName ?? "",
         tabRoute: tab.tabRoute ?? "",
         tabHoverName: tab.tabHoverName ?? "",
         tabClickableName: tab.tabClickableName ?? "",
-        plusShapeScale: tab.plusShapeScale ?? 1,
+        plusShapeScale: tab.plusShapeScale ?? 1
       })),
       postprocessing: {
         contrast: scene.postprocessing?.contrast ?? 1,
@@ -188,8 +188,8 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
         vignetteSpread: scene.postprocessing?.vignetteSpread ?? 1,
         bloomStrength: scene.postprocessing?.bloomStrength ?? 1,
         bloomRadius: scene.postprocessing?.bloomRadius ?? 1,
-        bloomThreshold: scene.postprocessing?.bloomThreshold ?? 1,
-      },
+        bloomThreshold: scene.postprocessing?.bloomThreshold ?? 1
+      }
     })),
 
     // --- Characters ---
@@ -198,25 +198,25 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
       textureBody: fileUrl(data.characters?.textureBody),
       textureFaces: fileUrl(data.characters?.textureFaces),
       textureArms: fileUrl(data.characters?.textureArms),
-      textureComic: fileUrl(data.characters?.textureComic),
+      textureComic: fileUrl(data.characters?.textureComic)
     },
 
     // --- Pets ---
     pets: {
       model: fileUrl(data.pets?.model),
       pureTexture: fileUrl(data.pets?.pureTexture),
-      bostonTexture: fileUrl(data.pets?.bostonTexture),
+      bostonTexture: fileUrl(data.pets?.bostonTexture)
     },
 
     // --- Lamp ---
     lamp: {
-      extraLightmap: fileUrl(data.lamp?.extraLightmap),
+      extraLightmap: fileUrl(data.lamp?.extraLightmap)
     },
 
     // --- Physics params ---
     physicsParams: (data.physicsParams ?? []).map((item) => ({
       _title: item.title ?? "",
-      value: item.value ?? 0,
-    })),
+      value: item.value ?? 0
+    }))
   }
 }

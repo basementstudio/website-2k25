@@ -5,7 +5,7 @@ export const Footer = async () => {
   const [projectsCount, postsCount, companyInfo] = await Promise.all([
     fetchProjectsCount(),
     fetchPostsCount(),
-    fetchCompanyInfo(),
+    fetchCompanyInfo()
   ])
 
   return (
@@ -16,7 +16,7 @@ export const Footer = async () => {
         twitter: companyInfo.twitter || "",
         instagram: companyInfo.instagram || "",
         github: companyInfo.github || "",
-        linkedIn: companyInfo.linkedIn || "",
+        linkedIn: companyInfo.linkedIn || ""
       }}
       newsletter={companyInfo.newsletter || []}
     />

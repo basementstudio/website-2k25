@@ -14,7 +14,7 @@ interface RelatedProjectsProps {
 
 export const RelatedProjects = async ({
   baseSlug,
-  className,
+  className
 }: RelatedProjectsProps) => {
   const projects = await fetchRelatedProjects(baseSlug)
 
@@ -47,10 +47,7 @@ export const RelatedProjects = async ({
                     />
                   </span>
                 ) : null}
-                <span
-                  className="line-clamp-1 flex-1"
-                  title={item.title}
-                >
+                <span className="line-clamp-1 flex-1" title={item.title}>
                   {item.title}
                 </span>
               </span>

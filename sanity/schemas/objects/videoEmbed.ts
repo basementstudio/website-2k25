@@ -1,26 +1,26 @@
-import { defineType, defineField } from 'sanity'
+import { defineField, defineType } from "sanity"
 
 export const videoEmbed = defineType({
-  name: 'videoEmbed',
-  title: 'Video',
-  type: 'object',
+  name: "videoEmbed",
+  title: "Video",
+  type: "object",
   fields: [
     defineField({
-      name: 'file',
-      title: 'Video File',
-      type: 'file',
-      options: { accept: 'video/mp4,video/webm' },
+      name: "file",
+      title: "Video File",
+      type: "file",
+      options: { accept: "video/mp4,video/webm" }
     }),
     defineField({
-      name: 'caption',
-      title: 'Caption',
-      type: 'string',
-    }),
+      name: "caption",
+      title: "Caption",
+      type: "string"
+    })
   ],
   preview: {
-    select: { caption: 'caption' },
+    select: { caption: "caption" },
     prepare({ caption }) {
-      return { title: caption || 'Video' }
-    },
-  },
+      return { title: caption || "Video" }
+    }
+  }
 })

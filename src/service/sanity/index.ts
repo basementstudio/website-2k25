@@ -1,5 +1,5 @@
-import { createClient, type QueryParams } from "next-sanity"
 import { draftMode } from "next/headers"
+import { createClient, type QueryParams } from "next-sanity"
 
 import { dataset, projectId } from "../../../sanity/env"
 
@@ -9,13 +9,13 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true,
+  useCdn: true
 })
 
 export async function sanityFetch<T>({
   query,
   params = {},
-  tags = [],
+  tags = []
 }: {
   query: string
   params?: QueryParams
@@ -29,15 +29,15 @@ export async function sanityFetch<T>({
   }
 
   if (isDraftMode) {
-    const token = process.env.SANITY_API_READ_TOKEN
+    const token = process.env.SANITY_READ_TOKEN
     return client
       .withConfig({ useCdn: false, token, perspective: "previewDrafts" })
       .fetch<T>(query, params, {
-        next: { revalidate: 0 },
+        next: { revalidate: 0 }
       })
   }
 
   return client.fetch<T>(query, params, {
-    next: { tags },
+    next: { tags }
   })
 }

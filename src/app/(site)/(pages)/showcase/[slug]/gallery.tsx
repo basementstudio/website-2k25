@@ -9,11 +9,7 @@ import { cn } from "@/utils/cn"
 import { useProjectContext } from "./context"
 import type { ShowcaseProjectDetail } from "./sanity"
 
-export function ProjectGallery({
-  entry,
-}: {
-  entry: ShowcaseProjectDetail
-}) {
+export function ProjectGallery({ entry }: { entry: ShowcaseProjectDetail }) {
   const { viewMode } = useProjectContext()
 
   const showcase = entry.showcase?.filter((item) => Boolean(item))

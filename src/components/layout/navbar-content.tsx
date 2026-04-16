@@ -1,6 +1,5 @@
 "use client"
 
-import type { PortableTextBlock } from "@/service/sanity/types"
 import { AnimatePresence, motion } from "motion/react"
 import { usePathname } from "next/navigation"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -15,6 +14,7 @@ import { useHandleContactButton } from "@/hooks/use-handle-contact"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
 import { useScrollControl } from "@/hooks/useScrollControl"
+import type { PortableTextBlock } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
 import { isInPath } from "@/utils/is-in-path"
 

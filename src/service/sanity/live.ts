@@ -2,10 +2,10 @@ import { defineLive } from "next-sanity/live"
 
 import { client } from "."
 
-const token = process.env.SANITY_API_READ_TOKEN
+const token = process.env.SANITY_READ_TOKEN
 
 export const { SanityLive } = defineLive({
   client,
   serverToken: token,
-  browserToken: token,
+  browserToken: token
 })

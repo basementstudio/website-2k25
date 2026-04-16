@@ -42,12 +42,7 @@ export const VenturesBanner = ({ data }: { data: ServicesPageData }) => {
       {img && (
         <div className="with-dots col-span-full mt-8 lg:col-start-1 lg:col-end-12 lg:mt-18">
           <div className="relative after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
-            <Image
-              width={img.width}
-              height={img.height}
-              src={img.src}
-              alt=""
-            />
+            <Image width={img.width} height={img.height} src={img.src} alt="" />
           </div>
         </div>
       )}
