@@ -7,6 +7,7 @@ import type { StructureBuilder } from "sanity/structure"
 import { structureTool } from "sanity/structure"
 
 import { dataset, projectId } from "./sanity/env"
+import { resolve } from "./sanity/presentation/resolve"
 import { schemaTypes } from "./sanity/schemas"
 
 const singletonTypes = new Set([
@@ -146,9 +147,11 @@ export default defineConfig({
     presentationTool({
       name: "preview",
       title: "Preview",
+      resolve,
       previewUrl: {
         previewMode: {
-          enable: "/api/draft-mode/enable"
+          enable: "/api/draft-mode/enable",
+          disable: "/api/draft-mode/disable"
         }
       }
     }),

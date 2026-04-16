@@ -98,8 +98,7 @@ const homepageQuery = /* groq */ `{
 
 export async function fetchHomepage(): Promise<HomepageData> {
   return sanityFetch<HomepageData>({
-    query: homepageQuery,
-    tags: ["homepage", "client", "projectCategory", "project"]
+    query: homepageQuery
   })
 }
 
@@ -161,8 +160,7 @@ export async function fetchOrganizationData(): Promise<OrganizationStructuredDat
       projectName: string | null
     }> | null
   }>({
-    query: organizationQuery,
-    tags: ["companyInfo", "award", "project"]
+    query: organizationQuery
   })
 
   return {

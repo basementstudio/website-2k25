@@ -90,22 +90,19 @@ const testimonialQuery = /* groq */ `
 
 export async function fetchServicesPage(): Promise<ServicesPageData | null> {
   return sanityFetch<ServicesPageData | null>({
-    query: servicesPageQuery,
-    tags: ["servicesPage"]
+    query: servicesPageQuery
   })
 }
 
 export async function fetchAwards(): Promise<ServiceAward[]> {
   const result = await sanityFetch<ServiceAward[] | null>({
-    query: awardsQuery,
-    tags: ["award", "project"]
+    query: awardsQuery
   })
   return result ?? []
 }
 
 export async function fetchTestimonial(): Promise<ServiceTestimonial | null> {
   return sanityFetch<ServiceTestimonial | null>({
-    query: testimonialQuery,
-    tags: ["testimonial"]
+    query: testimonialQuery
   })
 }

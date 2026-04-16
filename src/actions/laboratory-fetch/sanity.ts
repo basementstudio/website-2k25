@@ -23,7 +23,6 @@ export async function fetchLabProjects(): Promise<LabProject[]> {
       url,
       description,
       cover ${imageFragment}
-    }`,
-    tags: ["labProject"]
+    }`
   })
 }

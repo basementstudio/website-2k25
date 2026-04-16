@@ -1,43 +1,20 @@
-import { draftMode } from "next/headers"
-import { createClient, type QueryParams } from "next-sanity"
+import type { QueryParams } from "next-sanity"
 
-import { dataset, projectId } from "../../../sanity/env"
+import { client } from "./client"
+import { liveSanityFetch } from "./live"
 
-const apiVersion = "2024-01-01"
-
-export const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true
-})
+export { client }
 
 export async function sanityFetch<T>({
   query,
   params = {},
-  tags = []
+  stega
 }: {
   query: string
   params?: QueryParams
-  tags?: string[]
+  /** Set to false to disable stega encoding (e.g. for asset URLs/IDs that must stay pristine). */
+  stega?: boolean
 }): Promise<T> {
-  let isDraftMode = false
-  try {
-    isDraftMode = (await draftMode()).isEnabled
-  } catch {
-    // Outside request scope (e.g. generateStaticParams at build time)
-  }
-
-  if (isDraftMode) {
-    const token = process.env.SANITY_READ_TOKEN
-    return client
-      .withConfig({ useCdn: false, token, perspective: "previewDrafts" })
-      .fetch<T>(query, params, {
-        next: { revalidate: 0 }
-      })
-  }
-
-  return client.fetch<T>(query, params, {
-    next: { tags }
-  })
+  const { data } = await liveSanityFetch({ query, params, stega })
+  return data as T
 }

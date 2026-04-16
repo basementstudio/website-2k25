@@ -11,15 +11,13 @@ export interface CompanyInfo {
 
 export async function fetchProjectsCount(): Promise<number> {
   return sanityFetch<number>({
-    query: /* groq */ `count(*[_type == "showcasePage"][0].projects)`,
-    tags: ["showcasePage"]
+    query: /* groq */ `count(*[_type == "showcasePage"][0].projects)`
   })
 }
 
 export async function fetchPostsCount(): Promise<number> {
   return sanityFetch<number>({
-    query: /* groq */ `count(*[_type == "post"])`,
-    tags: ["post"]
+    query: /* groq */ `count(*[_type == "post"])`
   })
 }
 
@@ -31,7 +29,6 @@ export async function fetchCompanyInfo(): Promise<CompanyInfo> {
       twitter,
       linkedIn,
       newsletter
-    }`,
-    tags: ["companyInfo"]
+    }`
   })
 }

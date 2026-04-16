@@ -72,22 +72,19 @@ const categoriesQuery = /* groq */ `
 
 export async function fetchProjects(): Promise<ShowcaseProject[]> {
   const projects = await sanityFetch<ShowcaseProject[] | null>({
-    query: showcaseProjectsQuery,
-    tags: ["showcasePage", "project", "client", "projectCategory"]
+    query: showcaseProjectsQuery
   })
   return projects ?? []
 }
 
 export async function fetchProjectsCount(): Promise<number> {
   return sanityFetch<number>({
-    query: showcaseCountQuery,
-    tags: ["showcasePage", "project"]
+    query: showcaseCountQuery
   })
 }
 
 export async function fetchCategories(): Promise<ShowcaseCategory[]> {
   return sanityFetch<ShowcaseCategory[]>({
-    query: categoriesQuery,
-    tags: ["projectCategory"]
+    query: categoriesQuery
   })
 }

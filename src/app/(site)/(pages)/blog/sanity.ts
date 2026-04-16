@@ -51,8 +51,7 @@ export async function fetchPosts(
     }`
     return sanityFetch<{ posts: BlogPost[]; total: number }>({
       query,
-      params: { category },
-      tags: ["post", "postCategory"]
+      params: { category }
     })
   }
 
@@ -61,16 +60,14 @@ export async function fetchPosts(
     "total": count(*[_type == "post"])
   }`
   return sanityFetch<{ posts: BlogPost[]; total: number }>({
-    query,
-    tags: ["post"]
+    query
   })
 }
 
 export async function fetchFeaturedPost(): Promise<BlogPost | null> {
   const query = /* groq */ `*[_type == "post"] | order(date desc)[0] ${postFields}`
   return sanityFetch<BlogPost | null>({
-    query,
-    tags: ["post"]
+    query
   })
 }
 
@@ -80,8 +77,7 @@ export async function fetchCategories(): Promise<BlogCategory[]> {
     "slug": slug.current
   }`
   return sanityFetch<BlogCategory[]>({
-    query,
-    tags: ["postCategory"]
+    query
   })
 }
 
@@ -91,15 +87,13 @@ export async function fetchCategoriesNonEmpty(): Promise<BlogCategory[]> {
     "slug": slug.current
   }`
   return sanityFetch<BlogCategory[]>({
-    query,
-    tags: ["postCategory", "post"]
+    query
   })
 }
 
 export async function fetchPostCount(): Promise<number> {
   const query = /* groq */ `count(*[_type == "post"])`
   return sanityFetch<number>({
-    query,
-    tags: ["post"]
+    query
   })
 }

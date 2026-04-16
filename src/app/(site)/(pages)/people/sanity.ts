@@ -108,31 +108,27 @@ const openPositionsQuery = /* groq */ `
 
 export async function fetchPeoplePage(): Promise<PeoplePageData | null> {
   return sanityFetch<PeoplePageData | null>({
-    query: peoplePageQuery,
-    tags: ["peoplePage"]
+    query: peoplePageQuery
   })
 }
 
 export async function fetchPeople(): Promise<PersonItem[]> {
   const result = await sanityFetch<PersonItem[] | null>({
-    query: peopleQuery,
-    tags: ["person", "department"]
+    query: peopleQuery
   })
   return result ?? []
 }
 
 export async function fetchValues(): Promise<ValueItem[]> {
   const result = await sanityFetch<ValueItem[] | null>({
-    query: valuesQuery,
-    tags: ["value"]
+    query: valuesQuery
   })
   return result ?? []
 }
 
 export async function fetchOpenPositions(): Promise<OpenPositionItem[]> {
   const result = await sanityFetch<OpenPositionItem[] | null>({
-    query: openPositionsQuery,
-    tags: ["openPosition"]
+    query: openPositionsQuery
   })
   return result ?? []
 }

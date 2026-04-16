@@ -1,9 +1,13 @@
 import "@/styles/globals.css"
 
 import type { Metadata } from "next"
+import { draftMode } from "next/headers"
 import { Geist, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
+import { VisualEditing } from "next-sanity/visual-editing"
 
+import { DisableDraftMode } from "@/components/sanity/disable-draft-mode"
+import { SanityLive } from "@/service/sanity/live"
 import { cn } from "@/utils/cn"
 
 export const metadata: Metadata = {
@@ -51,7 +55,9 @@ const flauta = localFont({
   variable: "--font-flauta"
 })
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => {
+const RootLayout = async ({ children }: { children: React.ReactNode }) => {
+  const isDraftMode = (await draftMode()).isEnabled
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -64,6 +70,13 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         suppressHydrationWarning
       >
         {children}
+        <SanityLive />
+        {isDraftMode && (
+          <>
+            <VisualEditing />
+            <DisableDraftMode />
+          </>
+        )}
       </body>
     </html>
   )

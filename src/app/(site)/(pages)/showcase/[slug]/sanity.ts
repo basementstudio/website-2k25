@@ -97,15 +97,7 @@ export async function fetchProjectBySlug(
 ): Promise<ShowcaseProjectDetail | null> {
   return sanityFetch<ShowcaseProjectDetail | null>({
     query: projectBySlugQuery,
-    params: { slug },
-    tags: [
-      "project",
-      "award",
-      "client",
-      "projectCategory",
-      "person",
-      "department"
-    ]
+    params: { slug }
   })
 }
 
@@ -114,7 +106,7 @@ export async function fetchAllProjectSlugs(): Promise<Array<{
 }> | null> {
   return sanityFetch<Array<{ slug: string }> | null>({
     query: allProjectSlugsQuery,
-    tags: ["showcasePage", "project"]
+    stega: false
   })
 }
 
@@ -124,7 +116,7 @@ export async function fetchProjectMeta(
   return sanityFetch<{ title: string } | null>({
     query: projectMetaQuery,
     params: { slug },
-    tags: ["project"]
+    stega: false
   })
 }
 
@@ -132,8 +124,7 @@ export async function fetchRelatedProjects(
   excludeSlug: string
 ): Promise<RelatedProject[]> {
   const all = await sanityFetch<RelatedProject[] | null>({
-    query: relatedProjectsQuery,
-    tags: ["showcasePage", "project"]
+    query: relatedProjectsQuery
   })
   if (!all) return []
 

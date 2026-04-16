@@ -75,8 +75,7 @@ export async function fetchPostBySlug(
   }`
   return sanityFetch<PostDetail | null>({
     query,
-    params: { slug },
-    tags: ["post"]
+    params: { slug }
   })
 }
 
@@ -93,8 +92,7 @@ export async function fetchRelatedPosts(
   }`
   return sanityFetch<RelatedPost[]>({
     query,
-    params: { currentPostId },
-    tags: ["post"]
+    params: { currentPostId }
   })
 }
 
@@ -102,7 +100,7 @@ export async function fetchAllPostSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "post"]{ "slug": slug.current }.slug`
   return sanityFetch<string[]>({
     query,
-    tags: ["post"]
+    stega: false
   })
 }
 
@@ -113,6 +111,6 @@ export async function fetchPostMeta(
   return sanityFetch<{ title: string } | null>({
     query,
     params: { slug },
-    tags: ["post"]
+    stega: false
   })
 }

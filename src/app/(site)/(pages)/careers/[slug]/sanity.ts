@@ -28,8 +28,7 @@ export interface CareerPosition {
 export async function fetchCareersHeroTitle(): Promise<string> {
   const query = /* groq */ `*[_type == "careersPostPage"][0].heroTitle`
   const result = await sanityFetch<string | null>({
-    query,
-    tags: ["careersPostPage"]
+    query
   })
   return result ?? "Join our Creative Team!"
 }
@@ -54,8 +53,7 @@ export async function fetchCareerPosition(
   }`
   return sanityFetch<CareerPosition | null>({
     query,
-    params: { slug },
-    tags: ["openPosition"]
+    params: { slug }
   })
 }
 
@@ -63,7 +61,7 @@ export async function fetchAllOpenPositionSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "openPosition" && isOpen == true]{ "slug": slug.current }.slug`
   return sanityFetch<string[]>({
     query,
-    tags: ["openPosition"]
+    stega: false
   })
 }
 
@@ -74,6 +72,6 @@ export async function fetchCareerPositionMeta(
   return sanityFetch<{ title: string } | null>({
     query,
     params: { slug },
-    tags: ["openPosition"]
+    stega: false
   })
 }
