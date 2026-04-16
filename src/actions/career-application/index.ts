@@ -23,8 +23,9 @@ function isValidEmail(value: string) {
 }
 
 function isValidUrl(value: string) {
+  const normalized = /^https?:\/\//i.test(value) ? value : `https://${value}`
   try {
-    new URL(value)
+    new URL(normalized)
     return true
   } catch {
     return false

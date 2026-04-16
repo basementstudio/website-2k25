@@ -68,7 +68,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
               />
             }
           />
-          {(entry.awards?.length ?? 0) > 0 && (
+          {entry.awards?.length ? (
             <InfoItem
               label="Awards"
               value={
@@ -80,7 +80,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
                 />
               }
             />
-          )}
+          ) : null}
           {website && (
             <InfoItem
               label="Link"

@@ -32,7 +32,7 @@ export interface ShowcaseProjectDetail {
     image: SanityImage | null
     video: SanityVideo | null
   }> | null
-  awards: Array<{ title: string }> | null
+  awards: Array<{ title: string; date: string | null }> | null
 }
 
 export interface RelatedProject {
@@ -65,7 +65,7 @@ const projectBySlugQuery = /* groq */ `
       image ${imageFragment},
       video ${videoFragment}
     },
-    "awards": *[_type == "award" && project._ref == ^._id]{ title }
+    "awards": *[_type == "award" && project._ref == ^._id]{ title, date }
   }
 `
 

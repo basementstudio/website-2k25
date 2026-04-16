@@ -11,6 +11,7 @@ import {
   fetchCareerPositionMeta,
   fetchCareersHeroTitle
 } from "./sanity"
+import { ScrollToTop } from "./scroll-to-top"
 
 interface CareerPostProps {
   params: Promise<{ slug: string }>
@@ -46,6 +47,7 @@ const CareerPost = async ({ params }: CareerPostProps) => {
 
   return (
     <div className="relative bg-brand-k pt-12 lg:pb-24">
+      <ScrollToTop />
       <div className="lg:pb-25 flex flex-col gap-24">
         <Hero title={heroTitle} />
         <div className="grid-layout">

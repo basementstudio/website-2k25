@@ -8,6 +8,7 @@ import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
 export interface PostDetail {
   _id: string
+  _createdAt: string
   title: string
   slug: string
   date: string | null
@@ -37,6 +38,7 @@ export async function fetchPostBySlug(
 ): Promise<PostDetail | null> {
   const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{
     _id,
+    _createdAt,
     title,
     "slug": slug.current,
     date,

@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 
 import { Contact } from "@/components/layout/contact"
+import { JsonLd } from "@/lib/structured-data/json-ld"
+import { generateServicesWebPageSchema } from "@/lib/structured-data/schemas/professional-service"
 import { getImageUrl } from "@/service/sanity/helpers"
 
 import { Awards } from "./awards"
@@ -49,8 +51,11 @@ const ServicesPage = async () => {
     }
   })
 
+  const servicesSchema = generateServicesWebPageSchema(data.serviceCategories)
+
   return (
     <div className="flex flex-col gap-18 lg:gap-44">
+      <JsonLd data={servicesSchema} />
       <Hero data={data} className="lg:-mb-11" />
       <Services data={data} />
       {testimonial && <Testimonials data={testimonial} />}

@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation"
 
+import { JsonLd } from "@/lib/structured-data/json-ld"
+import { generateBlogPostingSchema } from "@/lib/structured-data/schemas/blog-posting"
+
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import { Content } from "./content"
 import { More } from "./more"
@@ -41,8 +44,20 @@ const Blog = async ({ params }: ProjectPostProps) => {
 
   const relatedPosts = await fetchRelatedPosts(post._id)
 
+  const blogPostingSchema = generateBlogPostingSchema({
+    title: post.title,
+    slug: post.slug,
+    date: post.date,
+    createdAt: post._createdAt,
+    intro: post.intro,
+    heroImage: post.heroImage,
+    authors: post.authors,
+    categories: post.categories
+  })
+
   return (
     <>
+      <JsonLd data={blogPostingSchema} />
       <div className="relative bg-brand-k pt-12 lg:pb-24">
         <div className="lg:pb-25 flex flex-col gap-24">
           <BlogTitle title={post.title} />

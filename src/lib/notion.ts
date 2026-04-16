@@ -72,6 +72,12 @@ export function normalizeNotionUuid(value: string) {
   )
 }
 
+function normalizeUrl(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed) return trimmed
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+}
+
 export function buildApplicationData(
   formData: CareerFormData
 ): CareerApplication {
@@ -85,10 +91,10 @@ export function buildApplicationData(
     position: formData.position.trim(),
     skills: formData.skills.map((skill) => skill.trim()).filter(Boolean),
     yearsOfExperience: formData.yearsOfExperience.trim(),
-    portfolio: formData.portfolio.trim(),
-    github: formData.github.trim(),
+    portfolio: normalizeUrl(formData.portfolio),
+    github: normalizeUrl(formData.github),
     availabilityToStart: formData.availabilityToStart.trim(),
-    linkedin: formData.linkedin.trim(),
+    linkedin: normalizeUrl(formData.linkedin),
     salaryExpectations: formData.salaryExpectations || undefined
   }
 }

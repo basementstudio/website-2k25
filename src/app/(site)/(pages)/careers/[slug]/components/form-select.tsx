@@ -1,5 +1,7 @@
 import * as Select from "@radix-ui/react-select"
 
+import { cn } from "@/utils/cn"
+
 import { FormError } from "./form-error"
 import { FormLabel } from "./form-label"
 
@@ -8,8 +10,10 @@ interface FormSelectProps {
   required?: boolean
   options: string[]
   placeholder?: string
+  name?: string
   value: string
   onChange: (value: string) => void
+  onBlur?: () => void
   error?: string
 }
 
@@ -18,22 +22,26 @@ export const FormSelect = ({
   required,
   options,
   placeholder,
+  name,
   value,
   onChange,
+  onBlur,
   error
 }: FormSelectProps) => {
   return (
     <div className="flex flex-col gap-3 lg:gap-4">
       <FormLabel label={label} required={required} />
-      <div className="flex flex-col gap-3">
-        <Select.Root value={value || undefined} onValueChange={onChange}>
+      <div className="flex flex-col">
+        <Select.Root value={value} onValueChange={onChange}>
           <Select.Trigger
+            name={name}
+            onBlur={onBlur}
             aria-invalid={error ? "true" : undefined}
             aria-describedby={error ? "yearsOfExperience-error" : undefined}
-            className={[
+            className={cn(
               "flex h-7 w-full items-center justify-between border-0 bg-brand-g2 px-1 text-[1rem] font-medium leading-6 text-brand-w2 outline-none data-[placeholder]:text-brand-g1",
-              error ? "shadow-[inset_0_0_0_9999px_#F32D2D33]" : ""
-            ].join(" ")}
+              error && "shadow-[inset_0_0_0_9999px_#F32D2D33]"
+            )}
           >
             <Select.Value placeholder={placeholder} />
             <Select.Icon>
@@ -52,7 +60,7 @@ export const FormSelect = ({
                   <Select.Item
                     key={option}
                     value={option}
-                    className="cursor-pointer px-2 py-1.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none select-none data-[highlighted]:bg-brand-w1/10"
+                    className="cursor-pointer select-none px-2 py-1.5 text-[1rem] font-medium leading-6 text-brand-w2 outline-none data-[highlighted]:bg-brand-w1/10"
                   >
                     <Select.ItemText>{option}</Select.ItemText>
                   </Select.Item>
@@ -61,9 +69,11 @@ export const FormSelect = ({
             </Select.Content>
           </Select.Portal>
         </Select.Root>
-        {error ? (
-          <FormError message={error} id="yearsOfExperience-error" />
-        ) : null}
+        <div className="mt-1.5 min-h-5">
+          {error ? (
+            <FormError message={error} id="yearsOfExperience-error" />
+          ) : null}
+        </div>
       </div>
     </div>
   )

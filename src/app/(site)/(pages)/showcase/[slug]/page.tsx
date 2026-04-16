@@ -1,11 +1,14 @@
 import { notFound } from "next/navigation"
 
-import { ProjectWrapper } from "./wrapper"
+import { JsonLd } from "@/lib/structured-data/json-ld"
+import { generateCreativeWorkSchema } from "@/lib/structured-data/schemas/creative-work"
+
 import {
   fetchAllProjectSlugs,
   fetchProjectBySlug,
   fetchProjectMeta,
 } from "./sanity"
+import { ProjectWrapper } from "./wrapper"
 
 interface ProjectPostProps {
   params: Promise<{ slug: string }>
@@ -35,7 +38,24 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
 
   if (!project) return notFound()
 
-  return <ProjectWrapper entry={project} />
+  const creativeWorkSchema = generateCreativeWorkSchema({
+    title: project.title,
+    slug: project.slug,
+    year: project.year,
+    categories: project.categories,
+    client: project.client,
+    cover: project.cover,
+    content: project.content,
+    projectWebsite: project.projectWebsite,
+    awards: project.awards?.map((a) => ({ title: a.title, date: a.date })) ?? null
+  })
+
+  return (
+    <>
+      {creativeWorkSchema ? <JsonLd data={creativeWorkSchema} /> : null}
+      <ProjectWrapper entry={project} />
+    </>
+  )
 }
 
 // generate static pages for all projects

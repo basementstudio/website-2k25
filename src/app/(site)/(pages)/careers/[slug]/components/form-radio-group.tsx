@@ -1,6 +1,8 @@
 import { useId } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
+import { cn } from "@/utils/cn"
+
 import { FormError } from "./form-error"
 import { FormLabel } from "./form-label"
 
@@ -41,10 +43,10 @@ export const FormRadioGroup = ({
               {...registration}
             />
             <span
-              className={[
+              className={cn(
                 "flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-g2 group-has-[:focus-visible]:ring-1 group-has-[:focus-visible]:ring-brand-o group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-offset-brand-k",
-                error ? "shadow-[inset_0_0_0_9999px_#F32D2D33]" : ""
-              ].join(" ")}
+                error && "shadow-[inset_0_0_0_9999px_#F32D2D33]"
+              )}
             >
               <span className="size-2 rounded-full bg-brand-w1 opacity-0 transition-opacity group-has-[:checked]:opacity-100" />
             </span>
