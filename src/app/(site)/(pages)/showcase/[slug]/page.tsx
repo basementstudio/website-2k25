@@ -48,7 +48,11 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
     content: project.content,
     projectWebsite: project.projectWebsite,
     awards:
-      project.awards?.map((a) => ({ title: a.title, date: a.date })) ?? null
+      project.awards?.map((a) => ({
+        title: a.title,
+        date: a.date,
+        projectName: project.title
+      })) ?? null
   })
 
   return (

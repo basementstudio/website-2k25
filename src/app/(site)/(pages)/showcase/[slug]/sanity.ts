@@ -19,7 +19,7 @@ export interface ShowcaseProjectDetail {
   categories: Array<{ title: string }> | null
   projectWebsite: string | null
   content: PortableTextBlock[] | null
-  caseStudy: boolean | null
+  caseStudy: string | null
   people: Array<{
     _id: string
     title: string

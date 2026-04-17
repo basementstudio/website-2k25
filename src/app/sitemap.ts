@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 
-import { client } from "@/service/sanity/client"
+import { sanityFetch } from "@/service/sanity"
 
 const SITE_URL = "https://basement.studio"
 
@@ -49,7 +49,11 @@ const staticRoutes: Array<{ href: string; priority: number }> = [
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
-    const data = await client.fetch<SitemapData>(SITEMAP_QUERY)
+    const data = await sanityFetch<SitemapData>({
+      query: SITEMAP_QUERY,
+      perspective: "published",
+      stega: false
+    })
 
     const now = new Date()
 

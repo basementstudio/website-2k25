@@ -1,9 +1,9 @@
 import "@/styles/globals.css"
 
 import type { Metadata } from "next"
-import { draftMode } from "next/headers"
 import { Geist, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
+import { draftMode } from "next/headers"
 import { VisualEditing } from "next-sanity/visual-editing"
 
 import { DisableDraftMode } from "@/components/sanity/disable-draft-mode"

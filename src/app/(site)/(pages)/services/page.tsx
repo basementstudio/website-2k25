@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 import { Contact } from "@/components/layout/contact"
 import { JsonLd } from "@/lib/structured-data/json-ld"
@@ -36,7 +37,7 @@ const ServicesPage = async () => {
     fetchTestimonial()
   ])
 
-  if (!data) return null
+  if (!data) notFound()
 
   const displayAwards: AwardDisplay[] = awards.map((award, index) => {
     const cert = getImageUrl(award.certificate)

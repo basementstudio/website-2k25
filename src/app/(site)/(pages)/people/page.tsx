@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 import { Contact } from "@/components/layout/contact"
 import { getImageUrl } from "@/service/sanity/helpers"
@@ -31,7 +32,7 @@ const About = async () => {
     fetchOpenPositions()
   ])
 
-  if (!pageData) return null
+  if (!pageData) notFound()
 
   const peopleDisplay: PersonDisplay[] = people.map((p) => {
     const img = p.image ? getImageUrl(p.image) : null

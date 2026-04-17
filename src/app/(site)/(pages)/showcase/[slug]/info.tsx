@@ -19,6 +19,10 @@ interface ProjectInfoProps {
 
 export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
   const website = entry.projectWebsite?.replace(/\/$/, "")
+  const caseStudy =
+    typeof entry.caseStudy === "string"
+      ? entry.caseStudy.replace(/\/$/, "")
+      : null
   const coverImg = getImageUrl(entry.cover)
   const iconImg = getImageUrl(entry.icon)
 
@@ -111,9 +115,10 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
           </div>
         ) : null}
 
-        {entry.caseStudy ? (
+        {caseStudy ? (
           <Link
-            href="#"
+            href={caseStudy}
+            target="_blank"
             className="inline-flex items-center gap-1 text-f-p-mobile text-brand-w1 lg:text-f-p"
           >
             <span className="actionable">

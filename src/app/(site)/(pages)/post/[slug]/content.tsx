@@ -17,6 +17,33 @@ interface ContentProps {
   post: PostDetail
 }
 
+const SITE_ORIGIN = "https://basement.studio"
+
+const getLinkProps = (value?: {
+  href?: string
+  target?: string
+  rel?: string
+}) => {
+  if (!value?.href) return {}
+
+  try {
+    const url = new URL(value.href, SITE_ORIGIN)
+    const isExternal = url.origin !== SITE_ORIGIN
+
+    return {
+      href: value.href,
+      target: value.target ?? (isExternal ? "_blank" : undefined),
+      rel: value.rel ?? (isExternal ? "noopener noreferrer" : undefined)
+    }
+  } catch {
+    return {
+      href: value.href,
+      target: value.target,
+      rel: value.rel
+    }
+  }
+}
+
 export const Content = ({ post }: ContentProps) => {
   return (
     <div className="grid-layout">
@@ -71,9 +98,7 @@ export const Content = ({ post }: ContentProps) => {
                 marks: {
                   link: ({ children, value }) => (
                     <a
-                      href={value?.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      {...getLinkProps(value)}
                       className="font-semibold text-brand-w1 underline"
                     >
                       {children}
@@ -289,6 +314,7 @@ export const Content = ({ post }: ContentProps) => {
                         <div className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
                           <div className="with-dots grid h-full w-full place-items-center">
                             <Video
+                              src={value.videoUrl}
                               autoPlay
                               loop
                               muted

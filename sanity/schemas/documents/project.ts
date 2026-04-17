@@ -75,7 +75,7 @@ export const project = defineType({
     defineField({
       name: "caseStudy",
       title: "Case Study",
-      type: "boolean"
+      type: "url"
     }),
     defineField({
       name: "people",
