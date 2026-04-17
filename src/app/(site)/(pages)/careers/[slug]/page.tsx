@@ -8,8 +8,7 @@ import { JobMeta } from "./job-details-bar"
 import {
   fetchAllOpenPositionSlugs,
   fetchCareerPosition,
-  fetchCareerPositionMeta,
-  fetchCareersHeroTitle
+  fetchCareerPositionMeta
 } from "./sanity"
 import { ScrollToTop } from "./scroll-to-top"
 
@@ -38,10 +37,7 @@ export const generateMetadata = async ({ params }: CareerPostProps) => {
 const CareerPost = async ({ params }: CareerPostProps) => {
   const { slug } = await params
 
-  const [heroTitle, position] = await Promise.all([
-    fetchCareersHeroTitle(),
-    fetchCareerPosition(slug)
-  ])
+  const position = await Promise.resolve(fetchCareerPosition(slug))
 
   if (!position || !position.isOpen) return notFound()
 
@@ -49,7 +45,7 @@ const CareerPost = async ({ params }: CareerPostProps) => {
     <div className="relative bg-brand-k pt-12 lg:pb-24">
       <ScrollToTop />
       <div className="lg:pb-25 flex flex-col gap-24">
-        <Hero title={heroTitle} />
+        <Hero title={position.title} />
         <div className="grid-layout">
           <div className="col-span-full lg:col-span-1">
             <Back />
