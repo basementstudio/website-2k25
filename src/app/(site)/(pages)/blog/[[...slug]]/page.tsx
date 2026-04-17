@@ -14,7 +14,7 @@ const BlogIndexPage = async (props: { params: Params }) => {
 
 // pre build all the categories
 export const generateStaticParams = async () => {
-  const categories = await fetchCategoriesNonEmpty()
+  const categories = await fetchCategoriesNonEmpty({ forStaticParams: true })
 
   categories.unshift({
     title: "Home",

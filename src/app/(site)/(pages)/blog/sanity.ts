@@ -81,13 +81,18 @@ export async function fetchCategories(): Promise<BlogCategory[]> {
   })
 }
 
-export async function fetchCategoriesNonEmpty(): Promise<BlogCategory[]> {
+export async function fetchCategoriesNonEmpty(
+  opts: { forStaticParams?: boolean } = {}
+): Promise<BlogCategory[]> {
   const query = /* groq */ `*[_type == "postCategory" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc){
     title,
     "slug": slug.current
   }`
   return sanityFetch<BlogCategory[]>({
-    query
+    query,
+    ...(opts.forStaticParams
+      ? { stega: false, perspective: "published" as const }
+      : {})
   })
 }
 

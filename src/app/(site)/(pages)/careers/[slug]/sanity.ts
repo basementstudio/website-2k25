@@ -61,7 +61,8 @@ export async function fetchAllOpenPositionSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "openPosition" && isOpen == true]{ "slug": slug.current }.slug`
   return sanityFetch<string[]>({
     query,
-    stega: false
+    stega: false,
+    perspective: "published"
   })
 }
 
@@ -72,6 +73,7 @@ export async function fetchCareerPositionMeta(
   return sanityFetch<{ title: string } | null>({
     query,
     params: { slug },
-    stega: false
+    stega: false,
+    perspective: "published"
   })
 }

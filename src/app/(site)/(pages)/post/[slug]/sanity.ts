@@ -100,7 +100,8 @@ export async function fetchAllPostSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "post"]{ "slug": slug.current }.slug`
   return sanityFetch<string[]>({
     query,
-    stega: false
+    stega: false,
+    perspective: "published"
   })
 }
 
@@ -111,6 +112,7 @@ export async function fetchPostMeta(
   return sanityFetch<{ title: string } | null>({
     query,
     params: { slug },
-    stega: false
+    stega: false,
+    perspective: "published"
   })
 }

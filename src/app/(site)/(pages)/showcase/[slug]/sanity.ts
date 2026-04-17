@@ -106,7 +106,8 @@ export async function fetchAllProjectSlugs(): Promise<Array<{
 }> | null> {
   return sanityFetch<Array<{ slug: string }> | null>({
     query: allProjectSlugsQuery,
-    stega: false
+    stega: false,
+    perspective: "published"
   })
 }
 
@@ -116,7 +117,8 @@ export async function fetchProjectMeta(
   return sanityFetch<{ title: string } | null>({
     query: projectMetaQuery,
     params: { slug },
-    stega: false
+    stega: false,
+    perspective: "published"
   })
 }
 
