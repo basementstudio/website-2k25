@@ -19,9 +19,6 @@ export const resolve: PresentationPluginOptions["resolve"] = {
     showcasePage: defineLocations({
       locations: [{ title: "Showcase", href: "/showcase" }]
     }),
-    careersPostPage: defineLocations({
-      locations: [{ title: "Careers", href: "/careers" }]
-    }),
     companyInfo: defineLocations({
       locations: [
         { title: "Home", href: "/" },
@@ -62,7 +59,6 @@ export const resolve: PresentationPluginOptions["resolve"] = {
     { route: "/services", filter: `_type == "servicesPage"` },
     { route: "/people", filter: `_type == "peoplePage"` },
     { route: "/showcase", filter: `_type == "showcasePage"` },
-    { route: "/careers", filter: `_type == "careersPostPage"` },
     {
       route: "/post/:slug",
       filter: `_type == "post" && slug.current == $slug`

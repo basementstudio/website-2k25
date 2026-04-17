@@ -14,7 +14,6 @@ const singletonTypes = new Set([
   "homepage",
   "servicesPage",
   "peoplePage",
-  "careersPostPage",
   "companyInfo",
   "threeDAssets",
   "showcasePage"
@@ -52,14 +51,6 @@ function structure(S: StructureBuilder) {
                 .id("peoplePage")
                 .child(
                   S.document().schemaType("peoplePage").documentId("peoplePage")
-                ),
-              S.listItem()
-                .title("Careers Post Page")
-                .id("careersPostPage")
-                .child(
-                  S.document()
-                    .schemaType("careersPostPage")
-                    .documentId("careersPostPage")
                 ),
               S.listItem()
                 .title("Company Info")

@@ -25,14 +25,6 @@ export interface CareerPosition {
 // Fetchers
 // ---------------------------------------------------------------------------
 
-export async function fetchCareersHeroTitle(): Promise<string> {
-  const query = /* groq */ `*[_type == "careersPostPage"][0].heroTitle`
-  const result = await sanityFetch<string | null>({
-    query
-  })
-  return result ?? "Join our Creative Team!"
-}
-
 export async function fetchCareerPosition(
   slug: string
 ): Promise<CareerPosition | null> {

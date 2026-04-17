@@ -19,7 +19,6 @@ import { sideNote } from "./objects/sideNote"
 import { socialNetwork } from "./objects/socialNetwork"
 import { tweetEmbed } from "./objects/tweetEmbed"
 import { videoEmbed } from "./objects/videoEmbed"
-import { careersPostPage } from "./singletons/careersPostPage"
 import { companyInfo } from "./singletons/companyInfo"
 import { homepage } from "./singletons/homepage"
 import { peoplePage } from "./singletons/peoplePage"
@@ -43,7 +42,6 @@ export const schemaTypes = [
   value,
 
   // Singleton types
-  careersPostPage,
   companyInfo,
   homepage,
   peoplePage,
