@@ -85,7 +85,7 @@ export const Crew = ({ data }: { data: PersonDisplay[] }) => {
           The Crew
         </h2>
         <p className="text-f-h1-mobile text-brand-g1 lg:text-f-h1">
-          {data.length}
+          {flattenedPeople.length}
         </p>
       </div>
       <div
