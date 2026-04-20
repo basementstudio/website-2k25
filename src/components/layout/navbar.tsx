@@ -1,7 +1,5 @@
-import { Pump } from "basehub/react-pump"
-
 import { NavbarContent } from "./navbar-content"
-import { query } from "./query"
+import { fetchCompanyInfo, fetchPostsCount, fetchProjectsCount } from "./sanity"
 
 interface NavbarLink {
   title: string
@@ -9,55 +7,53 @@ interface NavbarLink {
   count?: number
 }
 
-export const Navbar = () => (
-  <Pump queries={[query]}>
-    {async ([data]) => {
-      "use server"
+export const Navbar = async () => {
+  const [projectsCount, postsCount, companyInfo] = await Promise.all([
+    fetchProjectsCount(),
+    fetchPostsCount(),
+    fetchCompanyInfo()
+  ])
 
-      const projects = data.pages.showcase.projectList.items.length
-      const posts = data.pages.blog.posts.items.length
-      const newsletter = data.company.social.newsletter.json.content
+  const LINKS: NavbarLink[] = [
+    {
+      title: "Home",
+      href: "/"
+    },
+    {
+      title: "Services",
+      href: "/services"
+    },
+    {
+      title: "Showcase",
+      href: "/showcase",
+      count: projectsCount
+    },
+    {
+      title: "People",
+      href: "/people"
+    },
+    {
+      title: "Blog",
+      href: "/blog",
+      count: postsCount
+    },
+    {
+      title: "Lab",
+      href: "/lab"
+    }
+  ]
 
-      const LINKS: NavbarLink[] = [
-        {
-          title: "Home",
-          href: "/"
-        },
-        {
-          title: "Services",
-          href: "/services"
-        },
-        {
-          title: "Showcase",
-          href: "/showcase",
-          count: projects
-        },
-        {
-          title: "People",
-          href: "/people"
-        },
-        {
-          title: "Blog",
-          href: "/blog",
-          count: posts
-        },
-        {
-          title: "Lab",
-          href: "/lab"
-        }
-      ]
-
-      return (
-        <NavbarContent
-          key="navbar-content"
-          links={LINKS}
-          socialLinks={{
-            ...data.company.social,
-            linkedIn: data.company.social.linkedIn || ""
-          }}
-          newsletter={newsletter}
-        />
-      )
-    }}
-  </Pump>
-)
+  return (
+    <NavbarContent
+      key="navbar-content"
+      links={LINKS}
+      socialLinks={{
+        twitter: companyInfo.twitter || "",
+        instagram: companyInfo.instagram || "",
+        github: companyInfo.github || "",
+        linkedIn: companyInfo.linkedIn || ""
+      }}
+      newsletter={companyInfo.newsletter || []}
+    />
+  )
+}

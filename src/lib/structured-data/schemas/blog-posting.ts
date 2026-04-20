@@ -1,3 +1,5 @@
+import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
+
 import { extractPlainText } from "../extract-text"
 import { createImageObject } from "../image-object"
 
@@ -12,43 +14,34 @@ const PUBLISHER_LOGO = {
 }
 
 interface BlogPostData {
-  _title: string
-  _slug: string
+  title: string
+  slug: string
   date: string | null
-  _sys: { createdAt: string }
-  intro?: { json: { content: unknown } } | null
-  hero?: {
-    heroImage?: {
-      url: string
-      schemaUrl?: string | null
-      width: number | null
-      height: number | null
-    } | null
-  } | null
-  authors?: { _title: string; url?: string | null }[] | null
-  categories?: { _title: string }[] | null
+  createdAt?: string | null
+  intro?: PortableTextBlock[] | null
+  heroImage?: SanityImage | null
+  authors?: { title: string; url?: string | null }[] | null
+  categories?: { title: string }[] | null
 }
 
 export const generateBlogPostingSchema = (post: BlogPostData) => {
-  const description = post.intro?.json?.content
-    ? extractPlainText(post.intro.json.content)
-    : undefined
-  const image = createImageObject(post.hero?.heroImage)
-  const url = `${SITE_URL}/post/${post._slug}`
+  const description = post.intro ? extractPlainText(post.intro) : undefined
+  const image = createImageObject(post.heroImage)
+  const url = `${SITE_URL}/post/${post.slug}`
   const articleSection = post.categories
-    ?.map((category) => category._title)
+    ?.map((category) => category.title)
     .filter((value): value is string => Boolean(value))
 
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "@id": `${url}#article`,
-    headline: post._title,
+    headline: post.title,
     url,
     mainEntityOfPage: url,
     inLanguage: "en",
     ...(post.date ? { datePublished: post.date } : {}),
-    dateModified: post._sys.createdAt,
+    ...(post.createdAt ? { dateModified: post.createdAt } : {}),
     ...(description ? { description } : {}),
     ...(image ? { image } : {}),
     ...(post.authors && post.authors.length > 0
@@ -57,12 +50,12 @@ export const generateBlogPostingSchema = (post: BlogPostData) => {
             post.authors.length === 1
               ? {
                   "@type": "Person",
-                  name: post.authors[0]._title,
+                  name: post.authors[0].title,
                   ...(post.authors[0].url ? { url: post.authors[0].url } : {})
                 }
               : post.authors.map((a) => ({
                   "@type": "Person",
-                  name: a._title,
+                  name: a.title,
                   ...(a.url ? { url: a.url } : {})
                 }))
         }

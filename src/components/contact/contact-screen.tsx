@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 
 import { submitContactForm } from "@/actions/contact-form"
-import { Inputs } from "@/app/contact/form/contact-form"
+import { Inputs } from "@/app/(site)/contact/form/contact-form"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 

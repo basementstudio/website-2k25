@@ -20,7 +20,7 @@ interface OrganizationData {
   addressCity: string | null
   addressRegion: string | null
   addressCountry: string | null
-  logo?: { url: string } | null
+  logoUrl?: string | null
   founders: Founder[]
   awards?: Award[]
   social: {
@@ -80,7 +80,7 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     name: SITE_NAME,
     alternateName: ["basement studio", "basement", "bsmnt"],
     url: SITE_URL,
-    ...(data.logo?.url ? { logo: data.logo.url } : {}),
+    ...(data.logoUrl ? { logo: data.logoUrl } : {}),
     ...(data.description ? { description: data.description } : {}),
     ...(data.foundingDate ? { foundingDate: String(data.foundingDate) } : {}),
     ...(data.email ? { email: data.email } : {}),

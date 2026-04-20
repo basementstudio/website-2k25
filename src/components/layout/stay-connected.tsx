@@ -1,18 +1,18 @@
 "use client"
 
-import type { RichTextNode } from "basehub/api-transaction"
-import { RichText } from "basehub/react-rich-text"
+import { PortableText } from "@portabletext/react"
 import { AnimatePresence, motion } from "motion/react"
 import { startTransition, useEffect, useState } from "react"
 import { useActionState } from "react"
 
-import { subscribe } from "@/app/actions/subscribe"
+import { subscribe } from "@/app/(site)/actions/subscribe"
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Input } from "@/components/primitives/input"
+import type { PortableTextBlock } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
 
 interface StayConnectedProps {
-  content: RichTextNode[]
+  content: PortableTextBlock[]
   className?: string
 }
 
@@ -85,19 +85,21 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
   return (
     <div className={cn("flex-col gap-6 lg:flex", className)}>
       <div className="flex max-w-[26.25rem] flex-col gap-4">
-        <RichText
-          content={content}
+        <PortableText
+          value={content}
           components={{
-            h3: ({ children }) => (
-              <p className="!text-pretty text-f-p-mobile text-brand-w2 lg:text-f-h4">
-                {children}
-              </p>
-            ),
-            p: ({ children }) => (
-              <p className="!text-pretty text-f-p-mobile text-brand-w2 lg:text-f-h4">
-                {children}
-              </p>
-            )
+            block: {
+              h3: ({ children }) => (
+                <p className="!text-pretty text-f-p-mobile text-brand-w2 lg:text-f-h4">
+                  {children}
+                </p>
+              ),
+              normal: ({ children }) => (
+                <p className="!text-pretty text-f-p-mobile text-brand-w2 lg:text-f-h4">
+                  {children}
+                </p>
+              )
+            }
           }}
         />
       </div>

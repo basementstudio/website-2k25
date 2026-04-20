@@ -3,9 +3,9 @@
 import { headers } from "next/headers"
 
 import {
+  buildApplicationData,
   type CareerApplication,
   type CareerFormData,
-  buildApplicationData,
   submitApplication
 } from "@/lib/notion"
 

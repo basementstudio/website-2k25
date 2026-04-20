@@ -5,8 +5,20 @@ import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
 import { useDeviceDetect } from "@/hooks/use-device-detect"
-import { ImageFragment, VideoFragment } from "@/service/basehub/fragments"
 import { cn } from "@/utils/cn"
+
+export interface ImageFragment {
+  url: string
+  alt: string
+  width: number
+  height: number
+  blurDataURL: string
+}
+
+export interface VideoFragment {
+  url: string
+  mimeType?: string | null
+}
 
 const Video = dynamic(
   () => import("@/components/primitives/video").then((mod) => mod.Video),

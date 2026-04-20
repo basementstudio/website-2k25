@@ -1,12 +1,7 @@
-interface SchemaImage {
-  url: string
-  schemaUrl?: string | null
-  width: number | null
-  height: number | null
-}
+import type { SanityImage } from "@/service/sanity/types"
 
 const SCHEMA_IMAGE_TARGET_WIDTH = 1200
-const BASEHUB_IMAGE_HOSTS = new Set(["assets.basehub.com", "basehub.earth"])
+const SANITY_CDN_HOST = "cdn.sanity.io"
 
 const normalizeImageUrl = (url: string) => {
   try {
@@ -17,44 +12,44 @@ const normalizeImageUrl = (url: string) => {
   }
 }
 
-const getSchemaImageDimensions = (image: SchemaImage) => {
-  if (!image.width) return {}
-
-  const width =
-    image.width < SCHEMA_IMAGE_TARGET_WIDTH
-      ? image.width
-      : SCHEMA_IMAGE_TARGET_WIDTH
-
-  if (!image.height) return { width }
+const getSchemaImageDimensions = (width: number, height: number) => {
+  const targetWidth =
+    width < SCHEMA_IMAGE_TARGET_WIDTH ? width : SCHEMA_IMAGE_TARGET_WIDTH
 
   return {
-    width,
-    height: Math.round((image.height * width) / image.width)
+    width: targetWidth,
+    height: Math.round((height * targetWidth) / width)
   }
 }
 
-export const createImageObject = (image?: SchemaImage | null) => {
-  if (!image?.url) return null
+/**
+ * Converts a Sanity image reference into a schema.org `ImageObject`. Uses the
+ * Sanity CDN's `w=` query parameter to ensure a reasonable image size for
+ * indexing without blowing out responses.
+ */
+export const createImageObject = (image?: SanityImage | null) => {
+  if (!image?.asset?.url) return null
 
-  const shouldUseSchemaUrl = Boolean(
-    image.schemaUrl &&
-      (image.width === null || image.width >= SCHEMA_IMAGE_TARGET_WIDTH)
-  )
-  const url = normalizeImageUrl(
-    shouldUseSchemaUrl ? image.schemaUrl! : image.url
-  )
+  const url = normalizeImageUrl(image.asset.url)
   if (!url) return null
 
-  const dimensions = getSchemaImageDimensions(image)
+  const { width, height } = image.asset.metadata?.dimensions ?? {
+    width: 0,
+    height: 0
+  }
 
-  if (!shouldUseSchemaUrl && BASEHUB_IMAGE_HOSTS.has(url.hostname) && dimensions.width) {
-    url.searchParams.set("width", String(dimensions.width))
+  const dimensions =
+    width && height ? getSchemaImageDimensions(width, height) : null
+
+  if (dimensions && url.hostname === SANITY_CDN_HOST) {
+    url.searchParams.set("w", String(dimensions.width))
+    url.searchParams.set("auto", "format")
   }
 
   return {
     "@type": "ImageObject" as const,
     url: url.toString(),
     contentUrl: url.toString(),
-    ...dimensions
+    ...(dimensions ?? {})
   }
 }

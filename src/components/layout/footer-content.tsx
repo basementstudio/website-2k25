@@ -1,6 +1,6 @@
+import type { PortableTextBlock } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
 
-import type { QueryType } from "./query"
 import { Copyright, InternalLinks, SocialLinks } from "./shared-sections"
 import { StayConnected } from "./stay-connected"
 
@@ -35,10 +35,24 @@ const Logo = ({ className }: { className?: string }) => (
   </>
 )
 
-export const FooterContent = ({ data }: { data: QueryType }) => {
-  const projects = data.pages.showcase.projectList.items.length
-  const posts = data.pages.blog.posts.items.length
+interface FooterContentProps {
+  projectsCount: number
+  postsCount: number
+  socialLinks: {
+    twitter: string
+    instagram: string
+    github: string
+    linkedIn: string
+  }
+  newsletter: PortableTextBlock[]
+}
 
+export const FooterContent = ({
+  projectsCount,
+  postsCount,
+  socialLinks,
+  newsletter
+}: FooterContentProps) => {
   const LINKS = [
     {
       title: "Home",
@@ -51,7 +65,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
     {
       title: "Showcase",
       href: "/showcase",
-      count: projects
+      count: projectsCount
     },
     {
       title: "People",
@@ -60,7 +74,7 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
     {
       title: "Blog",
       href: "/blog",
-      count: posts
+      count: postsCount
     },
     {
       title: "Lab",
@@ -83,27 +97,19 @@ export const FooterContent = ({ data }: { data: QueryType }) => {
 
         <StayConnected
           className="col-start-1 col-end-5 row-start-2 hidden lg:row-auto"
-          content={data.company.social.newsletter.json.content}
+          content={newsletter}
         />
 
         <div className="col-span-full row-start-3 flex flex-col justify-end gap-y-2 lg:hidden">
           <SocialLinks
             className="col-start-1 col-end-5 row-start-2 lg:hidden"
-            links={{
-              ...data.company.social,
-              linkedIn: data.company.social.linkedIn || ""
-            }}
+            links={socialLinks}
           />
           <Copyright className="text-left" />
         </div>
 
         <div className="col-start-10 col-end-13 hidden translate-y-[3px] flex-col items-end gap-y-2 lg:flex">
-          <SocialLinks
-            links={{
-              ...data.company.social,
-              linkedIn: data.company.social.linkedIn || ""
-            }}
-          />
+          <SocialLinks links={socialLinks} />
           <Copyright />
         </div>
       </div>

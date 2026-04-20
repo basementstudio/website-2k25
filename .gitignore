@@ -39,14 +39,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# public files
-/public/robots.txt
-/public/sitemap.xml
 .env*.local
 
 
-# BaseHub
-.basehub
 
 # million lint
 .million
@@ -55,3 +50,4 @@ next-env.d.ts
 .env.sentry-build-plugin
 
 .env.local
+

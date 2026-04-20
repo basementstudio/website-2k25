@@ -1,11 +1,13 @@
+import type { PortableTextBlock } from "@/service/sanity/types"
+
 import { extractPlainText } from "../extract-text"
 import { ORGANIZATION_ID } from "./organization"
 
 const SITE_URL = "https://basement.studio"
 
 interface ServiceCategory {
-  _title: string
-  description?: { json: { content: unknown } } | null
+  title: string
+  description?: PortableTextBlock[] | null
 }
 
 const slugifyServiceName = (value: string) =>
@@ -15,9 +17,7 @@ const slugifyServiceName = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
 
-export const generateServicesWebPageSchema = (
-  services: ServiceCategory[]
-) => ({
+export const generateServicesWebPageSchema = (services: ServiceCategory[]) => ({
   "@context": "https://schema.org",
   "@type": "WebPage",
   "@id": `${SITE_URL}/services#webpage`,
@@ -28,27 +28,23 @@ export const generateServicesWebPageSchema = (
     "@id": `${SITE_URL}/services#catalog`,
     name: "Services",
     itemListElement: services.map((service) => {
-      const serviceSlug = slugifyServiceName(service._title)
+      const serviceSlug = slugifyServiceName(service.title)
+      const description = service.description
+        ? extractPlainText(service.description, 200)
+        : ""
 
       return {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
           "@id": `${SITE_URL}/services#${serviceSlug}`,
-          name: service._title,
-          serviceType: service._title,
+          name: service.title,
+          serviceType: service.title,
           areaServed: "Worldwide",
           provider: {
             "@id": ORGANIZATION_ID
           },
-          ...(service.description?.json?.content
-            ? {
-                description: extractPlainText(
-                  service.description.json.content,
-                  200
-                )
-              }
-            : {})
+          ...(description ? { description } : {})
         }
       }
     })

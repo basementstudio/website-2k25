@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/utils/cn"
 
 interface CategoriesClientProps {
-  categories: { _title: string; _slug: string }[]
+  categories: { title: string; slug: string }[]
 }
 
 export const CategoriesClient = ({ categories }: CategoriesClientProps) => {
@@ -21,27 +21,27 @@ export const CategoriesClient = ({ categories }: CategoriesClientProps) => {
       <ul className="flex flex-col gap-y-1 lg:flex-row lg:flex-wrap lg:gap-x-4">
         {categories.map((category) => {
           const href =
-            activeCategory === category?._slug
+            activeCategory === category?.slug
               ? "/blog"
-              : `/blog/${category?._slug}`
+              : `/blog/${category?.slug}`
 
           return (
             <Link
               href={href}
               onClick={() => router.push(href, { scroll: false })}
               prefetch
-              key={category?._title}
+              key={category?.title}
               className={cn(
                 "flex w-max gap-x-1.25 text-left !text-f-h2-mobile transition-colors duration-300 lg:!text-f-h2",
-                activeCategory === category._slug ||
-                  (pathname === "/blog" && category._slug === "blog") ||
+                activeCategory === category.slug ||
+                  (pathname === "/blog" && category.slug === "blog") ||
                   !activeCategory ||
                   activeCategory === "blog"
                   ? "text-brand-w1"
                   : "text-brand-g1"
               )}
             >
-              <span className="actionable">{category?._title}</span>
+              <span className="actionable">{category?.title}</span>
             </Link>
           )
         })}
