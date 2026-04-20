@@ -2,6 +2,8 @@ import { sanityFetch } from "@/service/sanity"
 import { imageFragment } from "@/service/sanity/queries"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
+import { selectRelatedPosts } from "./related-posts.logic"
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -26,7 +28,7 @@ export interface RelatedPost {
   slug: string
   date: string | null
   heroImage: SanityImage | null
-  categories: Array<{ title: string }> | null
+  categories: Array<{ title: string; slug: string }> | null
 }
 
 // ---------------------------------------------------------------------------
@@ -80,19 +82,25 @@ export async function fetchPostBySlug(
 }
 
 export async function fetchRelatedPosts(
-  currentPostId: string
+  currentSlug: string,
+  currentCategoryTitles: string[]
 ): Promise<RelatedPost[]> {
-  const query = /* groq */ `*[_type == "post" && _id != $currentPostId] | order(date desc)[0...3]{
+  const query = /* groq */ `*[_type == "post"] | order(date desc){
     _id,
     title,
     "slug": slug.current,
     date,
     heroImage ${imageFragment},
-    categories[]->{ title }
+    categories[]->{ title, "slug": slug.current }
   }`
-  return sanityFetch<RelatedPost[]>({
-    query,
-    params: { currentPostId }
+  const posts = await sanityFetch<RelatedPost[]>({
+    query
+  })
+
+  return selectRelatedPosts({
+    posts,
+    currentSlug,
+    currentCategoryTitles
   })
 }
 

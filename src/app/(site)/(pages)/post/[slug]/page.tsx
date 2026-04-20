@@ -42,7 +42,10 @@ const Blog = async ({ params }: ProjectPostProps) => {
 
   if (!post) return notFound()
 
-  const relatedPosts = await fetchRelatedPosts(post._id)
+  const relatedPosts = await fetchRelatedPosts(
+    post.slug,
+    post.categories?.map((category) => category.title) ?? []
+  )
 
   const blogPostingSchema = generateBlogPostingSchema({
     title: post.title,

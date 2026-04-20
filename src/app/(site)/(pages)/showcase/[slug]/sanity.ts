@@ -6,6 +6,8 @@ import type {
   SanityVideo
 } from "@/service/sanity/types"
 
+import { selectRelatedProjects } from "./related-projects.logic"
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -130,9 +132,8 @@ export async function fetchRelatedProjects(
   })
   if (!all) return []
 
-  const filtered = all.filter((p) => p.slug !== excludeSlug)
-
-  // Pick 2 random projects
-  const shuffled = filtered.sort(() => Math.random() - 0.5)
-  return shuffled.slice(0, 2)
+  return selectRelatedProjects({
+    projects: all,
+    excludeSlug
+  })
 }
