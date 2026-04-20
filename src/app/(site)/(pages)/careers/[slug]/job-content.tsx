@@ -71,12 +71,12 @@ export const JobContent = ({ content }: JobContentProps) => (
         },
         listItem: {
           bullet: ({ children }) => (
-            <li className="blog-list-item !text-pretty pl-2 text-blog text-brand-w1 marker:text-f-p-mobile [&_b]:font-bold [&_b]:text-brand-w1">
+            <li className="blog-list-item !text-pretty pl-2 text-brand-w1 marker:text-f-p-mobile [&_b]:font-bold [&_b]:text-brand-w1">
               {children}
             </li>
           ),
           number: ({ children }) => (
-            <li className="blog-list-item !text-pretty pl-2 text-blog text-brand-w1 marker:text-f-p-mobile [&_b]:font-bold [&_b]:text-brand-w1">
+            <li className="blog-list-item !text-pretty pl-2 text-brand-w1 marker:text-f-p-mobile [&_b]:font-bold [&_b]:text-brand-w1">
               {children}
             </li>
           )
