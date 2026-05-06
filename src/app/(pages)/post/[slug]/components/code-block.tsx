@@ -68,9 +68,21 @@ export const BaseCodeBlock = ({
           </pre>
         )
       }}
-      lineNumbers={{
-        className: styles.line_indicator
-      }}
+      extraTransformers={[
+        {
+          name: "bsmnt:line-numbers",
+          line(node) {
+            const existing =
+              typeof node.properties?.class === "string"
+                ? node.properties.class
+                : ""
+            node.properties = {
+              ...node.properties,
+              class: cn(existing, styles.line)
+            }
+          }
+        }
+      ]}
     />
   )
 }
