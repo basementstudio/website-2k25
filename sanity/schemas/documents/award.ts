@@ -29,6 +29,13 @@ export const award = defineType({
       to: [{ type: "project" }]
     }),
     defineField({
+      name: "projectFallback",
+      title: "Project (fallback)",
+      description:
+        "Plain-text project name shown when no Project reference is set (e.g. external/legacy work).",
+      type: "string"
+    }),
+    defineField({
       name: "certificate",
       title: "Certificate",
       type: "image"

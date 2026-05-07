@@ -5,12 +5,12 @@ import { useKeyPress } from "@/hooks/use-key-press"
 import { useCursor } from "@/hooks/use-mouse"
 import { useArcadeStore } from "@/store/arcade-store"
 
-import { COLORS_THEME } from "../screen-ui"
+import { COLORS_THEME, type Experiment } from "../screen-ui"
 
 interface ArcadeLabsListProps {
-  experiments: any[]
-  selectedExperiment: any
-  setSelectedExperiment: (experiment: any) => void
+  experiments: Experiment[]
+  selectedExperiment: Experiment | null
+  setSelectedExperiment: (experiment: Experiment | null) => void
 }
 
 export const ArcadeLabsList = ({
@@ -26,14 +26,14 @@ export const ArcadeLabsList = ({
   )
   const setCursor = useCursor()
   const [mouseHoveredExperiment, setMouseHoveredExperiment] =
-    useState<any>(null)
+    useState<Experiment | null>(null)
   const [hasMouseInteracted, setHasMouseInteracted] = useState(false)
   const isSourceButtonSelected = useArcadeStore(
     (state) => state.isSourceButtonSelected
   )
   const isInGame = useArcadeStore((state) => state.isInGame)
 
-  const handleExperimentClick = useCallback((data: any) => {
+  const handleExperimentClick = useCallback((data: Experiment) => {
     window.open(`https://lab.basement.studio/experiments/${data.url}`, "_blank")
   }, [])
 
@@ -261,7 +261,7 @@ const ViewMore = ({
   setSelectedExperiment
 }: {
   isLoaded: boolean
-  setSelectedExperiment: (experiment: any) => void
+  setSelectedExperiment: (experiment: Experiment | null) => void
 }) => {
   const [isViewMoreHovered, setIsViewMoreHovered] = useState(false)
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)

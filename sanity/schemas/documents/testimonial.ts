@@ -36,7 +36,45 @@ export const testimonial = defineType({
     defineField({
       name: "role",
       title: "Role",
-      type: "string"
+      type: "array",
+      of: [
+        {
+          type: "block",
+          styles: [{ title: "Normal", value: "normal" }],
+          lists: [],
+          marks: {
+            decorators: [],
+            annotations: [
+              {
+                name: "link",
+                type: "object",
+                title: "Link",
+                fields: [
+                  {
+                    name: "href",
+                    type: "url",
+                    title: "URL",
+                    validation: (rule) =>
+                      rule
+                        .uri({
+                          scheme: ["http", "https", "mailto", "tel"],
+                          allowRelative: true
+                        })
+                        .required()
+                  },
+                  {
+                    name: "blank",
+                    type: "boolean",
+                    title: "Open in new tab",
+                    initialValue: true
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      validation: (rule) => rule.max(1)
     })
   ]
 })

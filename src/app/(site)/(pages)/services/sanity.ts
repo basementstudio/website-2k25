@@ -33,7 +33,7 @@ export interface ServiceTestimonial {
   content: string | null
   avatar: SanityImage | null
   date: string
-  role: string | null
+  role: PortableTextBlock[] | string | null
 }
 
 export interface ServicesPageData {
@@ -69,7 +69,7 @@ const awardsQuery = /* groq */ `
     title,
     date,
     awardUrl,
-    "projectName": project->title,
+    "projectName": coalesce(project->title, projectFallback),
     certificate ${imageFragment}
   }
 `

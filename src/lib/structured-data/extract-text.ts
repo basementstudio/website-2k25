@@ -1,9 +1,6 @@
-import type { PortableTextBlock } from "@/service/sanity/types"
+import type { PortableTextSpan } from "@portabletext/types"
 
-interface PortableTextChild {
-  _type?: string
-  text?: string
-}
+import type { PortableTextBlock } from "@/service/sanity/types"
 
 /**
  * Extracts plain text from an array of Portable Text blocks. Only text spans
@@ -18,20 +15,10 @@ export const extractPlainText = (
 
   const text = content
     .flatMap((block) => {
-      if (
-        !block ||
-        typeof block !== "object" ||
-        (block as { _type?: string })._type !== "block"
-      ) {
-        return []
-      }
-      const children = (block as { children?: PortableTextChild[] }).children
-      if (!Array.isArray(children)) return []
-      return children
-        .filter(
-          (child) => child?._type === "span" && typeof child.text === "string"
-        )
-        .map((child) => child.text ?? "")
+      if (block._type !== "block" || !Array.isArray(block.children)) return []
+      return block.children
+        .filter((child): child is PortableTextSpan => child._type === "span")
+        .map((child) => child.text)
     })
     .join(" ")
     .replace(/\s+/g, " ")

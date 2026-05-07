@@ -6,7 +6,7 @@ export function DisableDraftMode() {
   const isPresentationTool = useIsPresentationTool()
 
   // Only show the disable draft mode button when outside of Presentation Tool
-  if (isPresentationTool === null && isPresentationTool === true) {
+  if (isPresentationTool === null || isPresentationTool === true) {
     return null
   }
 

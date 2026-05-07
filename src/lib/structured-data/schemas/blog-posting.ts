@@ -7,9 +7,9 @@ const SITE_URL = "https://basement.studio"
 const SITE_NAME = "basement.studio"
 const PUBLISHER_LOGO = {
   "@type": "ImageObject" as const,
-  url: "https://assets.basehub.com/dd0abb74/a8d4b8ac866cf524bba8c668e1c0316f/basementlogo.svg",
-  width: 112,
-  height: 112,
+  url: `${SITE_URL}/images/logobasement.png`,
+  width: 208,
+  height: 208,
   caption: "basement.studio logo"
 }
 

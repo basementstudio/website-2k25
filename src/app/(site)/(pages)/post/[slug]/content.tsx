@@ -1,7 +1,6 @@
 import { PortableText } from "@portabletext/react"
 import Image from "next/image"
 
-import { Video } from "@/components/primitives/video"
 import { getImageUrl } from "@/service/sanity/helpers"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
@@ -18,6 +17,17 @@ interface ContentProps {
 }
 
 const SITE_ORIGIN = "https://basement.studio"
+
+const getVideoMimeType = (url: string): string | undefined => {
+  const path = url.split("?")[0]?.toLowerCase() ?? ""
+  if (path.endsWith(".webm")) return "video/webm"
+  // .mov is QuickTime container, but most blog videos are H.264 inside —
+  // declaring video/mp4 lets browsers play them rather than rejecting on the
+  // unrecognized media type.
+  if (path.endsWith(".mov") || path.endsWith(".mp4") || path.endsWith(".m4v"))
+    return "video/mp4"
+  return undefined
+}
 
 const getLinkProps = (value?: {
   href?: string
@@ -251,6 +261,23 @@ export const Content = ({ post }: ContentProps) => {
                                 normal: ({ children }) => (
                                   <p className="text-blog">{children}</p>
                                 )
+                              },
+                              marks: {
+                                link: ({ children, value }) => (
+                                  <a
+                                    {...getLinkProps(value)}
+                                    className="text-brand-w1"
+                                  >
+                                    <span className="actionable">
+                                      {children}
+                                    </span>
+                                  </a>
+                                ),
+                                code: ({ children }) => (
+                                  <code className="md:tracking-2 rounded-md border border-brand-g2 bg-codeblock-k2 px-1 font-mono text-f-p-mobile font-semibold lg:text-f-p">
+                                    {children}
+                                  </code>
+                                )
                               }
                             }}
                           />
@@ -309,17 +336,21 @@ export const Content = ({ post }: ContentProps) => {
                     value: { videoUrl?: string; caption?: string }
                   }) => {
                     if (!value.videoUrl) return null
+                    const mime = getVideoMimeType(value.videoUrl)
                     return (
                       <div className="flex w-full flex-col gap-y-2">
                         <div className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
                           <div className="with-dots grid h-full w-full place-items-center">
-                            <Video
-                              src={value.videoUrl}
+                            <video
                               autoPlay
                               loop
                               muted
-                              className="object-cover"
-                            />
+                              playsInline
+                              preload="auto"
+                              className="h-full w-full object-cover"
+                            >
+                              <source src={value.videoUrl} type={mime} />
+                            </video>
                           </div>
                         </div>
                         {value.caption && (

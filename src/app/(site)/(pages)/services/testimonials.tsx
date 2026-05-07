@@ -1,3 +1,7 @@
+import {
+  PortableText,
+  type PortableTextComponents
+} from "@portabletext/react"
 import Image from "next/image"
 import { memo } from "react"
 
@@ -7,6 +11,30 @@ import { cn } from "@/utils/cn"
 
 import type { ServiceTestimonial } from "./sanity"
 import styles from "./testimonials.module.css"
+
+const roleComponents: PortableTextComponents = {
+  block: {
+    normal: ({ children }) => <>{children}</>
+  },
+  marks: {
+    link: ({ children, value }) => (
+      <Link
+        href={value?.href ?? "#"}
+        target={value?.blank === false ? undefined : "_blank"}
+        className="text-brand-g1"
+      >
+        <span className="actionable">{children}</span>
+      </Link>
+    )
+  }
+}
+
+const RoleContent = ({ role }: { role: ServiceTestimonial["role"] }) => {
+  if (!role) return null
+  if (typeof role === "string") return <>{role}</>
+  if (Array.isArray(role) && role.length === 0) return null
+  return <PortableText value={role} components={roleComponents} />
+}
 
 const TestimonialAvatar = memo(
   ({ avatar }: { avatar: ServiceTestimonial["avatar"] }) => {
@@ -44,27 +72,34 @@ const TestimonialAuthor = memo(
   }: {
     name: string | null
     handle: string | null
-    role: string | null
-  }) => (
-    <div className="flex flex-col justify-center gap-1">
-      <p className="inline-flex items-center gap-x-2 text-f-h4-mobile text-brand-w1 lg:text-f-h4">
-        {name} <span>-</span>
-        {handle && (
-          <Link
-            href={`https://x.com/${handle.replace("@", "")}`}
-            className="text-f-h4-mobile lg:text-f-h4"
-            target="_blank"
-          >
-            <span className="actionable">{handle}</span>
-          </Link>
-        )}
-      </p>
+    role: ServiceTestimonial["role"]
+  }) => {
+    const hasRole =
+      typeof role === "string" ? role.length > 0 : Array.isArray(role) && role.length > 0
 
-      {role && (
-        <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">{role}</p>
-      )}
-    </div>
-  )
+    return (
+      <div className="flex flex-col justify-center gap-1">
+        <p className="inline-flex items-center gap-x-2 text-f-h4-mobile text-brand-w1 lg:text-f-h4">
+          {name} <span>-</span>
+          {handle && (
+            <Link
+              href={`https://x.com/${handle.replace("@", "")}`}
+              className="text-f-h4-mobile lg:text-f-h4"
+              target="_blank"
+            >
+              <span className="actionable">{handle}</span>
+            </Link>
+          )}
+        </p>
+
+        {hasRole && (
+          <p className="text-f-h4-mobile text-brand-g1 lg:text-f-h4">
+            <RoleContent role={role} />
+          </p>
+        )}
+      </div>
+    )
+  }
 )
 
 TestimonialAuthor.displayName = "TestimonialAuthor"

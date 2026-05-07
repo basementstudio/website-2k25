@@ -3,10 +3,10 @@ import React from "react"
 
 import { useAssets } from "@/components/assets-provider"
 
-import { COLORS_THEME } from "../screen-ui"
+import { COLORS_THEME, type Experiment } from "../screen-ui"
 
 interface ArcadePreviewProps {
-  selectedExperiment: any
+  selectedExperiment: Experiment | null
 }
 
 export const ArcadePreview = ({ selectedExperiment }: ArcadePreviewProps) => {
@@ -30,7 +30,7 @@ export const ArcadePreview = ({ selectedExperiment }: ArcadePreviewProps) => {
       </Container>
       <Text fontSize={10} color={COLORS_THEME.primary}>
         {(selectedExperiment?.description?.toUpperCase() || "").slice(0, 100) +
-          (selectedExperiment?.description?.length > 100 ? "..." : "")}
+          ((selectedExperiment?.description?.length ?? 0) > 100 ? "..." : "")}
       </Text>
     </Container>
   )

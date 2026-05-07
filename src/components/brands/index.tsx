@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react"
 import Image from "next/image"
-import { memo, useMemo, useState } from "react"
+import { useState } from "react"
 
 import { Brand } from "@/app/(site)/(pages)/(home)/brands"
 import { ExternalLinkIcon } from "@/components/icons/icons"
@@ -12,7 +12,7 @@ import { cn } from "@/utils/cn"
 
 const DEBOUNCE_DELAY = 50
 
-const BrandLogo = memo(({ logo }: { logo: Brand["logo"] }) => {
+const BrandLogo = ({ logo }: { logo: Brand["logo"] }) => {
   if (!logo) return null
   return (
     <div className="with-dots relative grid h-full w-full place-items-center px-2">
@@ -25,11 +25,9 @@ const BrandLogo = memo(({ logo }: { logo: Brand["logo"] }) => {
       />
     </div>
   )
-})
+}
 
-BrandLogo.displayName = "BrandLogo"
-
-export const AnimatedTitle = memo(({ brandName }: { brandName: string }) => (
+export const AnimatedTitle = ({ brandName }: { brandName: string }) => (
   <AnimatePresence mode="wait">
     {brandName ? (
       <motion.span
@@ -54,15 +52,13 @@ export const AnimatedTitle = memo(({ brandName }: { brandName: string }) => (
       </motion.span>
     )}
   </AnimatePresence>
-))
-
-AnimatedTitle.displayName = "AnimatedTitle"
+)
 
 interface BrandsDesktopProps {
   brands: Brand[]
 }
 
-export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
+export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
   const isLargeDesktop = useMedia("(min-width: 1280px)")
   const isDesktop = useMedia("(min-width: 1024px)")
@@ -72,27 +68,15 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
     DEBOUNCE_DELAY
   )
 
-  const hoveredBrandName: string | undefined = useMemo(() => {
-    if (debouncedHoveredBrandId) {
-      return brands.find((row) => row._id === debouncedHoveredBrandId)?._title
-    } else {
-      return undefined
-    }
-  }, [brands, debouncedHoveredBrandId])
+  const hoveredBrandName = debouncedHoveredBrandId
+    ? brands.find((row) => row._id === debouncedHoveredBrandId)?._title
+    : undefined
 
-  const filteredBrands = useMemo(() => {
-    if (isLargeDesktop) {
-      const max = 32
-      const available = Math.min(brands.length, max)
-      const count = Math.floor(available / 8) * 8
-      return brands.slice(0, count)
-    } else {
-      const max = 30
-      const available = Math.min(brands.length, max)
-      const count = Math.floor(available / 6) * 6
-      return brands.slice(0, count)
-    }
-  }, [brands, isLargeDesktop])
+  const max = isLargeDesktop ? 32 : 30
+  const groupSize = isLargeDesktop ? 8 : 6
+  const available = Math.min(brands.length, max)
+  const count = Math.floor(available / groupSize) * groupSize
+  const filteredBrands = brands.slice(0, count)
 
   if (isDesktop === false) return null
 
@@ -140,4 +124,4 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
       </div>
     </section>
   )
-})
+}
