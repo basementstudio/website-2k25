@@ -56,7 +56,9 @@ export const BlogMeta = ({ data, categories }: BlogMetaComponentProps) => (
           className="inline-flex items-center gap-x-2 text-brand-w2"
           suppressHydrationWarning
         >
-          {typeof data.date === "string" ? formatDate(data.date) : null}
+          {typeof data.date === "string"
+            ? formatDate(data.date, false, "UTC")
+            : null}
           <span className="inline-block size-1 bg-brand-g1" />{" "}
           {data.authors?.map((author) => author.title).join(", ") ||
             "basement.studio"}

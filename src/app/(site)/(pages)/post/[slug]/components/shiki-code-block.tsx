@@ -1,8 +1,5 @@
 import { codeToHtml, createCssVariablesTheme } from "shiki"
 
-import { cn } from "@/utils/cn"
-
-import styles from "./code-block.module.css"
 import { ShikiCodeClient } from "./shiki-code-client"
 
 const theme = createCssVariablesTheme({
@@ -48,14 +45,5 @@ export async function ShikiCodeBlock({ files }: ShikiCodeBlockProps) {
     })
   )
 
-  return (
-    <div
-      className={cn(
-        styles.content,
-        "border border-brand-w1/30 py-2.5 font-mono text-f-p-mobile lg:text-f-p"
-      )}
-    >
-      <ShikiCodeClient snippets={highlighted} />
-    </div>
-  )
+  return <ShikiCodeClient snippets={highlighted} />
 }

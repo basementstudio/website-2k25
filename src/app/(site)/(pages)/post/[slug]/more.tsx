@@ -68,7 +68,7 @@ export const More = ({ posts }: MoreProps) => {
                         {formatDate(
                           post.date ?? "",
                           false,
-                          undefined,
+                          "UTC",
                           isDesktop ? false : true
                         )}
                       </p>

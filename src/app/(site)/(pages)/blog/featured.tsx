@@ -80,7 +80,7 @@ export async function Featured() {
                   suppressHydrationWarning
                   className="relative col-span-2 col-start-3 text-right text-f-p-mobile text-brand-w2 lg:text-left lg:text-f-p"
                 >
-                  {formatDate(post.date || "")}
+                  {formatDate(post.date || "", false, "UTC")}
                 </p>
               </div>
             </Link>

@@ -49,7 +49,7 @@ export const ShikiCodeClient = ({
           <CopyButton code={activeSnippet.code} />
         </header>
       ) : (
-        <header className="relative px-4">
+        <header className="relative">
           <span className="flex items-center gap-x-2 text-brand-g1">
             {activeSnippet.label || "Untitled"}
           </span>
@@ -58,9 +58,16 @@ export const ShikiCodeClient = ({
       )}
 
       <div
-        className={styles.pre}
-        dangerouslySetInnerHTML={{ __html: activeSnippet.html }}
-      />
+        className={cn(
+          styles.content,
+          "border border-brand-w1/30 py-2.5 font-mono text-f-p-mobile lg:text-f-p"
+        )}
+      >
+        <div
+          className={styles.pre}
+          dangerouslySetInnerHTML={{ __html: activeSnippet.html }}
+        />
+      </div>
     </>
   )
 }
