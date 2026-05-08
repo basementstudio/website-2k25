@@ -60,7 +60,7 @@ export const ShikiCodeClient = ({
       <div
         className={cn(
           styles.content,
-          "border border-brand-w1/30 py-2.5 font-mono text-f-p-mobile lg:text-f-p"
+          "border border-brand-w1/30 font-mono text-f-p-mobile lg:text-f-p"
         )}
       >
         <div
