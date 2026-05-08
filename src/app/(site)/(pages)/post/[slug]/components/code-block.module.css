@@ -1,7 +1,6 @@
 .code-block {
   display: flex;
   flex-direction: column;
-  background-color: theme("colors.brand.k");
   margin: 40px 0px 0px 0px;
   width: 100%;
   overflow: hidden;
@@ -31,8 +30,6 @@
 
 .pre {
   margin: 0 !important;
-  padding: 1.5rem 1.5rem 1.5rem 0 !important;
-  background-color: theme("colors.brand.k") !important;
   color: theme("colors.brand.w2");
   counter-reset: line;
 }
@@ -43,7 +40,6 @@
   padding: 0 !important;
   background: transparent !important;
 }
-
 .pre :global(code) {
   counter-reset: line;
   display: block;
@@ -61,15 +57,12 @@
   pointer-events: none;
   position: sticky;
   left: 0;
-  background-color: theme("colors.brand.k");
   color: theme("colors.brand.g2");
   user-select: none;
   width: 44px;
   text-align: end;
   padding-right: 16px;
-  margin-right: 16px;
 }
-
 
 .line {
   counter-increment: line;

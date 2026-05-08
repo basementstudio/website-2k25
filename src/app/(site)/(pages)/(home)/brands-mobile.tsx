@@ -68,7 +68,6 @@ const BrandsGrid = ({ brands, absolute }: MarqueeRowProps) => (
                   alt={brand.logo.alt}
                   width={120}
                   height={66}
-                  className="max-w-full object-contain"
                 />
               ) : null}
             </div>
