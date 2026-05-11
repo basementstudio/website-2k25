@@ -362,7 +362,7 @@ export const ApplicationForm = ({
               {/* Motivation */}
               {hasField("Why do you want to join") ? (
                 <FormTextarea
-                  label="Why do you want to join"
+                  label="Why do you want to join?"
                   required
                   placeholder="Because I want to create jaw-dropping websites"
                   error={errors.whyDoYouWantToJoin?.message}
