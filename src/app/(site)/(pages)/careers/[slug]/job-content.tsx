@@ -25,17 +25,17 @@ export const JobContent = ({ content }: JobContentProps) => (
       components={{
         block: {
           normal: ({ children }) => (
-            <p className="!text-pretty text-blog text-brand-w1 [&_b]:font-bold [&_b]:text-brand-w1">
+            <p className="!text-pretty text-blog text-brand-w1 [&_b]:font-bold [&_b]:text-brand-w1 [&_strong]:font-bold [&_strong]:text-brand-w1">
               {children}
             </p>
           ),
           h2: ({ children }) => (
-            <h2 className="text-balance text-f-h2-mobile text-brand-w1 lg:text-f-h2 [&_b]:font-semibold">
+            <h2 className="text-balance text-f-h2-mobile text-brand-w1 lg:text-f-h2 [&_b]:font-semibold [&_strong]:font-semibold">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-balance text-f-h3-mobile text-brand-w1 lg:text-f-h3 [&_b]:font-semibold">
+            <h3 className="text-balance text-f-h3-mobile text-brand-w1 lg:text-f-h3 [&_b]:font-semibold [&_strong]:font-semibold">
               {children}
             </h3>
           )
@@ -71,12 +71,12 @@ export const JobContent = ({ content }: JobContentProps) => (
         },
         listItem: {
           bullet: ({ children }) => (
-            <li className="blog-list-item !text-pretty pl-2 text-brand-w1 marker:text-f-p-mobile [&_b]:font-bold [&_b]:text-brand-w1">
+            <li className="blog-list-item !text-pretty pl-2 text-brand-w1 marker:text-f-p-mobile [&_b]:font-bold [&_b]:text-brand-w1 [&_strong]:font-bold [&_strong]:text-brand-w1">
               {children}
             </li>
           ),
           number: ({ children }) => (
-            <li className="blog-list-item !text-pretty pl-2 text-brand-w1 marker:text-f-p-mobile [&_b]:font-bold [&_b]:text-brand-w1">
+            <li className="blog-list-item !text-pretty pl-2 text-brand-w1 marker:text-f-p-mobile [&_b]:font-bold [&_b]:text-brand-w1 [&_strong]:font-bold [&_strong]:text-brand-w1">
               {children}
             </li>
           )
