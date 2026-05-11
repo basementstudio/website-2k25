@@ -41,7 +41,7 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
               <p className="lg:col-span-[auto] relative col-span-full text-f-h3-mobile text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-f-h3">
                 {post.title}
               </p>
-              <div className="relative col-span-6 flex flex-wrap gap-1 lg:col-span-2 lg:col-start-9 lg:col-end-10">
+              <div className="relative col-span-6 flex flex-wrap gap-1 self-start lg:col-span-2 lg:col-start-9 lg:col-end-10">
                 {post.categories?.map((category) => (
                   <p
                     key={category.title}

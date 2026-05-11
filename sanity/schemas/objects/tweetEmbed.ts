@@ -11,5 +11,11 @@ export const tweetEmbed = defineType({
       type: "string",
       validation: (rule) => rule.required()
     })
-  ]
+  ],
+  preview: {
+    select: { tweetId: "tweetId" },
+    prepare({ tweetId }) {
+      return { title: `Tweet embed - ${tweetId || "(no ID)"}` }
+    }
+  }
 })
