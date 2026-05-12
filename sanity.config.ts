@@ -6,7 +6,6 @@ import { presentationTool } from "sanity/presentation"
 import type { StructureBuilder } from "sanity/structure"
 import { structureTool } from "sanity/structure"
 
-import { createValidatePostMp4Action } from "./sanity/actions/validatePostMp4"
 import { dataset, projectId } from "./sanity/env"
 import { resolve } from "./sanity/presentation/resolve"
 import { schemaTypes } from "./sanity/schemas"
@@ -155,18 +154,9 @@ export default defineConfig({
       templates.filter(({ schemaType }) => !singletonTypes.has(schemaType))
   },
   document: {
-    actions: (input, context) => {
-      const actions = singletonTypes.has(context.schemaType)
+    actions: (input, context) =>
+      singletonTypes.has(context.schemaType)
         ? input.filter(({ action }) => action && singletonActions.has(action))
         : input
-
-      if (context.schemaType !== "post") return actions
-
-      return actions.map((action) =>
-        action.action === "publish"
-          ? createValidatePostMp4Action(action)
-          : action
-      )
-    }
   }
 })
