@@ -1,16 +1,29 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useState } from "react"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { cn } from "@/utils/cn"
 
+// useLayoutEffect runs in the commit phase before any useEffect, so the
+// not-found flag is set before NavigationHandler's effects read it. This
+// avoids an intermediate setCurrentScene(blog) call on /post/[slug] 404s
+// that would otherwise suppress the 404 scene's intro animation.
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect
+
 export default function NotFound() {
   const { handleNavigation } = useHandleNavigation()
   const currentScene = useNavigationStore((state) => state.currentScene)
+  const setIsNotFound = useNavigationStore((state) => state.setIsNotFound)
   const [formattedTime, setFormattedTime] = useState("00:00:00:00")
   const [fadeOutHtml, setFadeOutHtml] = useState(false)
+
+  useIsomorphicLayoutEffect(() => {
+    setIsNotFound(true)
+    return () => setIsNotFound(false)
+  }, [setIsNotFound])
 
   useEffect(() => {
     const updateTime = () => {

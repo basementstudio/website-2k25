@@ -32,6 +32,9 @@ export const useNavigationStore = create<{
 
   previousScene: IScene | null
   setPreviousScene: (scene: IScene | null) => void
+
+  isNotFound: boolean
+  setIsNotFound: (value: boolean) => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
@@ -65,5 +68,9 @@ export const useNavigationStore = create<{
   resetTabIndex: () => set({ currentTabIndex: 0 }),
 
   previousScene: null,
-  setPreviousScene: (scene) => set({ previousScene: scene })
+  setPreviousScene: (scene) => set({ previousScene: scene }),
+
+  isNotFound: false,
+  setIsNotFound: (value) =>
+    set((state) => (state.isNotFound === value ? state : { isNotFound: value }))
 }))

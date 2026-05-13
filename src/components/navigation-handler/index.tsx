@@ -20,6 +20,7 @@ export const NavigationHandler = () => {
   const previousPathRef = useRef(pathname)
 
   const setScenes = useNavigationStore((state) => state.setScenes)
+  const isNotFound = useNavigationStore((state) => state.isNotFound)
   const {
     isCanvasTabMode,
     setIsCanvasTabMode,
@@ -66,7 +67,11 @@ export const NavigationHandler = () => {
   )
 
   useEffect(() => {
-    if (!scenes.length || !pathname || previousPathRef.current === pathname) {
+    if (!scenes.length || !pathname) return
+
+    // notFound() from a server component doesn't change pathname, so re-run
+    // when the not-found flag flips even if the path is unchanged.
+    if (previousPathRef.current === pathname && !isNotFound) {
       previousPathRef.current = pathname
       return
     }
@@ -74,8 +79,9 @@ export const NavigationHandler = () => {
     const isFromPostToBlog =
       previousPathRef.current.startsWith("/post/") && pathname === "/blog"
 
-    const expectedScene =
-      pathname === "/" || pathname === "/index"
+    const expectedScene = isNotFound
+      ? scenes.find((scene) => scene.name === "404")
+      : pathname === "/" || pathname === "/index"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
           ? scenes.find((scene) => scene.name === "blog")
@@ -92,12 +98,18 @@ export const NavigationHandler = () => {
     }
 
     previousPathRef.current = pathname
-  }, [pathname, scenes, currentScene, setCurrentScene])
+  }, [pathname, scenes, currentScene, setCurrentScene, isNotFound])
 
   useEffect(() => {
     if (!scenes.length) return
 
     setSelected(null)
+
+    if (isNotFound) {
+      const notFoundScene = scenes.find((scene) => scene.name === "404")
+      if (notFoundScene) setCurrentScene(notFoundScene)
+      return
+    }
 
     if (pathname === "/contact") {
       const expectedScene = scenes.find(

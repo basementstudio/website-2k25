@@ -12,6 +12,7 @@ import {
   AppLoadingHandler,
   useAppLoadingStore
 } from "@/components/loading/app-loading-handler"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { cn } from "@/utils/cn"
 
 const Scene = dynamic(
@@ -37,10 +38,14 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
   const canvasErrorBoundaryTriggered = useAppLoadingStore(
     (state) => state.canvasErrorBoundaryTriggered
   )
+  const isNotFound = useNavigationStore((state) => state.isNotFound)
   const shouldShowCanvas = useMemo(() => {
     if (canvasErrorBoundaryTriggered) return false
+    // 404 overrides the blacklist — a not-found rendered under /post/<slug>
+    // still needs the canvas to show the 404 scene.
+    if (isNotFound) return true
     return !BLACKLISTED_PATHS.some((path) => pathname.match(path))
-  }, [pathname, canvasErrorBoundaryTriggered])
+  }, [pathname, canvasErrorBoundaryTriggered, isNotFound])
 
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
 
