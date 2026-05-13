@@ -69,8 +69,7 @@ export const NavigationHandler = () => {
   useEffect(() => {
     if (!scenes.length || !pathname) return
 
-    // notFound() from a server component doesn't change pathname, so re-run
-    // when the not-found flag flips even if the path is unchanged.
+    // notFound() doesn't change pathname — also re-run when the flag flips.
     if (previousPathRef.current === pathname && !isNotFound) {
       previousPathRef.current = pathname
       return

@@ -41,9 +41,7 @@ export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
   const isNotFound = useNavigationStore((state) => state.isNotFound)
   const shouldShowCanvas = useMemo(() => {
     if (canvasErrorBoundaryTriggered) return false
-    // 404 overrides the blacklist — a not-found rendered under /post/<slug>
-    // still needs the canvas to show the 404 scene.
-    if (isNotFound) return true
+    if (isNotFound) return true // 404 scene needs the canvas even on blacklisted paths
     return !BLACKLISTED_PATHS.some((path) => pathname.match(path))
   }, [pathname, canvasErrorBoundaryTriggered, isNotFound])
 

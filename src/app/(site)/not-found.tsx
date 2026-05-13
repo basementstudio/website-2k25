@@ -6,10 +6,7 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { cn } from "@/utils/cn"
 
-// useLayoutEffect runs in the commit phase before any useEffect, so the
-// not-found flag is set before NavigationHandler's effects read it. This
-// avoids an intermediate setCurrentScene(blog) call on /post/[slug] 404s
-// that would otherwise suppress the 404 scene's intro animation.
+// Flag must land before NavigationHandler's useEffect runs.
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect
 
