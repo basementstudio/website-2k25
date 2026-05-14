@@ -1,8 +1,13 @@
 import { sanityFetch } from "@/service/sanity"
-import { imageFragment, videoFragment } from "@/service/sanity/queries"
+import {
+  imageFragment,
+  muxVideoFragment,
+  videoFragment
+} from "@/service/sanity/queries"
 import type {
   PortableTextBlock,
   SanityImage,
+  SanityMuxVideo,
   SanitySlug,
   SanityVideo
 } from "@/service/sanity/types"
@@ -34,6 +39,7 @@ export interface FeaturedProjectItem {
   } | null
   cover: SanityImage | null
   coverVideo: SanityVideo | null
+  muxCoverVideo: SanityMuxVideo | null
 }
 
 export interface SanityClient {
@@ -74,7 +80,8 @@ const homepageQuery = /* groq */ `{
         }
       },
       cover ${imageFragment},
-      coverVideo ${videoFragment}
+      coverVideo ${videoFragment},
+      muxCoverVideo ${muxVideoFragment}
     },
     "capabilities": capabilities[]->{
       _id,

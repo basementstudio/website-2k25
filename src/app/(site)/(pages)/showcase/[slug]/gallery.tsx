@@ -3,6 +3,7 @@
 import Image from "next/image"
 
 import { Video } from "@/components/primitives/video"
+import { resolveVideoSource } from "@/lib/video/resolve-source"
 import { getImageUrl } from "@/service/sanity/helpers"
 import { cn } from "@/utils/cn"
 
@@ -21,11 +22,21 @@ export function ProjectGallery({ entry }: { entry: ShowcaseProjectDetail }) {
         viewMode === "grid" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
       )}
     >
-      {showcase?.map(({ image, video }, idx) => {
+      {showcase?.map(({ image, video, muxVideo }, idx) => {
         const img = getImageUrl(image)
+        const videoSource = resolveVideoSource({
+          mux: muxVideo,
+          legacy: video
+        })
         return (
           <div
-            key={image?.asset?.url || video?.url || idx}
+            key={
+              image?.asset?.url ||
+              (videoSource?.type === "mux"
+                ? videoSource.playbackId
+                : videoSource?.url) ||
+              idx
+            }
             className={cn(
               "relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20",
               // each 3 images put one full width
@@ -38,15 +49,26 @@ export function ProjectGallery({ entry }: { entry: ShowcaseProjectDetail }) {
             )}
           >
             {/* if video, show video, image otherwise */}
-            {video ? (
+            {videoSource ? (
               <div className="with-dots h-full w-full after:absolute after:inset-0">
-                <Video
-                  src={video.url}
-                  autoPlay
-                  muted
-                  loop
-                  className="h-full w-full object-cover"
-                />
+                {videoSource.type === "mux" ? (
+                  <Video
+                    playbackId={videoSource.playbackId}
+                    autoPlay
+                    muted
+                    loop
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <Video
+                    src={videoSource.url}
+                    mimeType={videoSource.mimeType}
+                    autoPlay
+                    muted
+                    loop
+                    className="h-full w-full object-cover"
+                  />
+                )}
               </div>
             ) : img ? (
               <div className="with-dots h-full w-full after:absolute after:inset-0">

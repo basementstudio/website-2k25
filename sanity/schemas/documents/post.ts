@@ -45,8 +45,17 @@ export const post = defineType({
     }),
     defineField({
       name: "heroVideo",
-      title: "Hero Video",
-      type: "url"
+      title: "Hero Video URL (legacy)",
+      type: "url",
+      deprecated: {
+        reason:
+          'Migrating to Mux. Use the "muxHeroVideo" field below for new uploads.'
+      }
+    }),
+    defineField({
+      name: "muxHeroVideo",
+      title: "Hero Video (Mux)",
+      type: "mux.video"
     }),
     defineField({
       name: "intro",

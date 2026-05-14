@@ -1,8 +1,13 @@
 import { PortableText } from "@portabletext/react"
 import Image from "next/image"
 
+import { Video } from "@/components/primitives/video"
 import { getImageUrl } from "@/service/sanity/helpers"
-import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
+import type {
+  PortableTextBlock,
+  SanityImage,
+  SanityMuxVideo
+} from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
 
 import { Back } from "./back"
@@ -333,24 +338,42 @@ export const Content = ({ post }: ContentProps) => {
                   videoEmbed: ({
                     value
                   }: {
-                    value: { videoUrl?: string; caption?: string }
+                    value: {
+                      videoUrl?: string
+                      muxVideo?: SanityMuxVideo | null
+                      caption?: string
+                    }
                   }) => {
-                    if (!value.videoUrl) return null
-                    const mime = getVideoMimeType(value.videoUrl)
+                    const muxPlaybackId = value.muxVideo?.playbackId ?? null
+                    if (!muxPlaybackId && !value.videoUrl) return null
                     return (
                       <div className="flex w-full flex-col gap-y-2">
                         <div className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
                           <div className="with-dots grid h-full w-full place-items-center">
-                            <video
-                              autoPlay
-                              loop
-                              muted
-                              playsInline
-                              preload="auto"
-                              className="h-full w-full object-cover"
-                            >
-                              <source src={value.videoUrl} type={mime} />
-                            </video>
+                            {muxPlaybackId ? (
+                              <Video
+                                playbackId={muxPlaybackId}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <video
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                preload="auto"
+                                className="h-full w-full object-cover"
+                              >
+                                <source
+                                  src={value.videoUrl}
+                                  type={getVideoMimeType(value.videoUrl ?? "")}
+                                />
+                              </video>
+                            )}
                           </div>
                         </div>
                         {value.caption && (

@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
 import { useDeviceDetect } from "@/hooks/use-device-detect"
+import type { ResolvedVideoSource } from "@/lib/video/resolve-source"
 import { cn } from "@/utils/cn"
 
 export interface ImageFragment {
@@ -15,10 +16,7 @@ export interface ImageFragment {
   blurDataURL: string
 }
 
-export interface VideoFragment {
-  url: string
-  mimeType?: string | null
-}
+export type VideoFragment = NonNullable<ResolvedVideoSource>
 
 const Video = dynamic(
   () => import("@/components/primitives/video").then((mod) => mod.Video),
@@ -77,6 +75,11 @@ export const ImageWithVideoOverlay = ({
     }
   }
 
+  const overlayClassName = cn(
+    "absolute inset-0 h-full w-full object-cover transition-all duration-300",
+    isHovered && isVideoLoaded ? "visible opacity-100" : "invisible opacity-0"
+  )
+
   return (
     <div
       className={cn(
@@ -102,25 +105,30 @@ export const ImageWithVideoOverlay = ({
       />
 
       {video && shouldLoadVideo && !isMobile ? (
-        <Video
-          src={video.url}
-          onCanPlay={() => {
-            setIsVideoLoaded(true)
-          }}
-          onLoadedData={() => {
-            setIsVideoLoaded(true)
-          }}
-          style={{ "--controls": "none" } as React.CSSProperties}
-          className={cn(
-            "absolute inset-0 h-full w-full object-cover transition-all duration-300",
-            isHovered && isVideoLoaded
-              ? "visible opacity-100"
-              : "invisible opacity-0"
-          )}
-          autoPlay={isHovered}
-          muted={true}
-          ref={videoRef}
-        />
+        video.type === "mux" ? (
+          <Video
+            playbackId={video.playbackId}
+            onCanPlay={() => setIsVideoLoaded(true)}
+            onLoadedData={() => setIsVideoLoaded(true)}
+            style={{ "--controls": "none" } as React.CSSProperties}
+            className={overlayClassName}
+            autoPlay={isHovered}
+            muted
+            ref={videoRef}
+          />
+        ) : (
+          <Video
+            src={video.url}
+            mimeType={video.mimeType}
+            onCanPlay={() => setIsVideoLoaded(true)}
+            onLoadedData={() => setIsVideoLoaded(true)}
+            style={{ "--controls": "none" } as React.CSSProperties}
+            className={overlayClassName}
+            autoPlay={isHovered}
+            muted
+            ref={videoRef}
+          />
+        )
       ) : null}
     </div>
   )

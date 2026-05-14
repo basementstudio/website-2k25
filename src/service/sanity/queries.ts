@@ -20,3 +20,14 @@ export const videoFragment = /* groq */ `{
   "url": asset->url,
   "mimeType": asset->mimeType
 }`
+
+/**
+ * Projects a Sanity `mux.video` field (which references a `mux.videoAsset`
+ * document) into a flat shape consumable by Mux player components.
+ */
+export const muxVideoFragment = /* groq */ `{
+  "playbackId": asset->playbackId,
+  "assetId": asset->assetId,
+  "aspectRatio": asset->data.aspect_ratio,
+  "duration": asset->data.duration
+}`

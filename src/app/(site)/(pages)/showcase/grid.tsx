@@ -1,15 +1,13 @@
 import { memo } from "react"
 
-import type {
-  ImageFragment,
-  VideoFragment
-} from "@/components/primitives/image-with-video-overlay"
+import type { ImageFragment } from "@/components/primitives/image-with-video-overlay"
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { InfoItem } from "@/components/primitives/info-item"
 import { Link } from "@/components/primitives/link"
 import { TextList } from "@/components/primitives/text-list"
 import { useMedia } from "@/hooks/use-media"
-import type { SanityImage, SanityVideo } from "@/service/sanity/types"
+import { resolveVideoSource } from "@/lib/video/resolve-source"
+import type { SanityImage } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
 
 import type { ShowcaseProject } from "./sanity"
@@ -24,14 +22,6 @@ function toImageFragment(img: SanityImage | null): ImageFragment | null {
     height: img.asset.metadata.dimensions.height,
     blurDataURL: img.asset.metadata.lqip
   }
-}
-
-/** Convert a SanityVideo to the VideoFragment shape used by ImageWithVideoOverlay. */
-function toVideoFragment(
-  video: SanityVideo | null | undefined
-): VideoFragment | null {
-  if (!video?.url) return null
-  return { url: video.url, mimeType: video.mimeType }
 }
 
 const MobileInfo = memo(({ project }: { project: ShowcaseProject }) => {
@@ -95,7 +85,10 @@ export const Grid = memo(({ projects, isProjectDisabled }: GridProps) => {
                 {image ? (
                   <ImageWithVideoOverlay
                     image={image}
-                    video={toVideoFragment(item.coverVideo)}
+                    video={resolveVideoSource({
+                      mux: item.muxCoverVideo,
+                      legacy: item.coverVideo
+                    })}
                     variant="showcase"
                   />
                 ) : null}

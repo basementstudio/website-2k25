@@ -1,6 +1,14 @@
 import { sanityFetch } from "@/service/sanity"
-import { imageFragment, videoFragment } from "@/service/sanity/queries"
-import type { SanityImage, SanityVideo } from "@/service/sanity/types"
+import {
+  imageFragment,
+  muxVideoFragment,
+  videoFragment
+} from "@/service/sanity/queries"
+import type {
+  SanityImage,
+  SanityMuxVideo,
+  SanityVideo
+} from "@/service/sanity/types"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -15,11 +23,13 @@ export interface ShowcaseProject {
   categories: Array<{ _id: string; title: string }> | null
   cover: SanityImage | null
   coverVideo: SanityVideo | null
+  muxCoverVideo: SanityMuxVideo | null
   icon: SanityImage | null
   showcase: Array<{
     _key: string
     image: SanityImage | null
     video: SanityVideo | null
+    muxVideo: SanityMuxVideo | null
   }> | null
 }
 
@@ -44,11 +54,13 @@ const showcaseProjectsQuery = /* groq */ `
       categories[]->{ _id, title },
       cover ${imageFragment},
       coverVideo ${videoFragment},
+      muxCoverVideo ${muxVideoFragment},
       icon ${imageFragment},
       showcase[0...6]{
         _key,
         image ${imageFragment},
-        video ${videoFragment}
+        video ${videoFragment},
+        muxVideo ${muxVideoFragment}
       }
     }
   }.projects

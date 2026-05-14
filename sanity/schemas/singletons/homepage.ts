@@ -64,9 +64,18 @@ export const homepage = defineType({
             }),
             defineField({
               name: "coverVideo",
-              title: "Cover Video",
+              title: "Cover Video (legacy — Sanity)",
               type: "file",
-              options: { accept: "video/mp4,video/webm" }
+              options: { accept: "video/mp4,video/webm" },
+              deprecated: {
+                reason:
+                  'Migrating to Mux. Use the "muxCoverVideo" field below for new uploads.'
+              }
+            }),
+            defineField({
+              name: "muxCoverVideo",
+              title: "Cover Video (Mux)",
+              type: "mux.video"
             })
           ],
           preview: {

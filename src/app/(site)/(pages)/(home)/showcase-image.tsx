@@ -1,14 +1,12 @@
 "use client"
 
-import type {
-  ImageFragment,
-  VideoFragment
-} from "@/components/primitives/image-with-video-overlay"
+import type { ImageFragment } from "@/components/primitives/image-with-video-overlay"
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
 import { Link } from "@/components/primitives/link"
 import { useMedia } from "@/hooks/use-media"
 import { useCursor } from "@/hooks/use-mouse"
-import type { SanityImage, SanityVideo } from "@/service/sanity/types"
+import { resolveVideoSource } from "@/lib/video/resolve-source"
+import type { SanityImage } from "@/service/sanity/types"
 
 import type { FeaturedProjectItem } from "./sanity"
 
@@ -22,14 +20,6 @@ function toImageFragment(img: SanityImage | null): ImageFragment | null {
     height: img.asset.metadata.dimensions.height,
     blurDataURL: img.asset.metadata.lqip
   }
-}
-
-/** Convert a SanityVideo to the VideoFragment shape used by ImageWithVideoOverlay. */
-function toVideoFragment(
-  video: SanityVideo | null | undefined
-): VideoFragment | null {
-  if (!video?.url) return null
-  return { url: video.url, mimeType: video.mimeType }
 }
 
 interface ShowcaseImageProps {
@@ -51,7 +41,10 @@ export const ShowcaseImage = ({ item }: ShowcaseImageProps) => {
       <div className="with-dots relative h-full w-full">
         <ImageWithVideoOverlay
           image={image}
-          video={toVideoFragment(item.coverVideo)}
+          video={resolveVideoSource({
+            mux: item.muxCoverVideo,
+            legacy: item.coverVideo
+          })}
           className="aspect-video"
         />
       </div>
@@ -71,7 +64,10 @@ export const ShowcaseImage = ({ item }: ShowcaseImageProps) => {
       <div className="with-dots relative h-full w-full">
         <ImageWithVideoOverlay
           image={image}
-          video={toVideoFragment(item.coverVideo)}
+          video={resolveVideoSource({
+            mux: item.muxCoverVideo,
+            legacy: item.coverVideo
+          })}
           className="aspect-video"
         />
       </div>

@@ -64,6 +64,7 @@
     "react-merge-refs": "^2.1.1",
     "react-tweet": "^3.2.2",
     "sanity": "^5.18.0",
+    "sanity-plugin-mux-input": "^2.19.0",
     "shiki": "^4.0.2",
     "tailwind-merge": "^2.5.4",
     "three": "^0.180.0",
