@@ -36,7 +36,6 @@ export const ImageWithVideoOverlay = ({
   className?: string
   variant?: "home" | "showcase"
 }) => {
-  const [isHovered, setIsHovered] = useState(false)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -50,7 +49,6 @@ export const ImageWithVideoOverlay = ({
 
   const handleMouseEnter = () => {
     setShouldLoadVideo(true)
-    setIsHovered(true)
     timeoutRef.current = setTimeout(() => {
       videoRef.current?.play().catch(() => {})
     }, 50)
@@ -61,14 +59,13 @@ export const ImageWithVideoOverlay = ({
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
     }
-    setIsHovered(false)
     videoRef.current?.pause()
   }
 
   return (
     <div
       className={cn(
-        "relative h-full w-full transition-opacity duration-300",
+        "group relative h-full w-full transition-opacity duration-300",
         className,
         { "pointer-events-none opacity-0": disabled }
       )}
@@ -85,18 +82,12 @@ export const ImageWithVideoOverlay = ({
           variant === "home" ? "(max-width: 1024px) 50vw, 90vw" : undefined
         }
         blurDataURL={image?.blurDataURL ?? ""}
-        className={cn(
-          "h-full w-full object-cover",
-          isHovered && "animate-subtle-pulse"
-        )}
+        className="h-full w-full object-cover group-hover:animate-subtle-pulse"
         priority={false}
       />
       {video && shouldLoadVideo && !isMobile ? (
         <div
-          className={cn(
-            "absolute inset-0 h-full w-full transition-opacity duration-200",
-            isHovered ? "opacity-100" : "pointer-events-none opacity-0"
-          )}
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"
         >
           {video.type === "mux" ? (
             <Video
