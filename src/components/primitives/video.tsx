@@ -1,6 +1,7 @@
 "use client"
 
 import MuxVideo, { Props as MuxVideoProps } from "@mux/mux-video-react"
+import { useInView } from "motion/react"
 import type { CSSProperties, Ref, VideoHTMLAttributes } from "react"
 import { useEffect, useRef } from "react"
 import { mergeRefs } from "react-merge-refs"
@@ -39,51 +40,31 @@ const MuxVideoEl = ({
   ...props
 }: MuxProps) => {
   const internalRef = useRef<HTMLVideoElement | null>(null)
+  const isInView = useInView(internalRef, { margin: "200px" })
 
   useEffect(() => {
     if (!pauseOffscreen) return
     const el = internalRef.current
     if (!el) return
 
-    let pausedByUs = false
-
-    const pauseIfPlaying = () => {
-      if (!el.paused) {
-        el.pause()
-        pausedByUs = true
-      }
+    if (isInView) {
+      el.play().catch(() => {})
+    } else {
+      el.pause()
     }
-    const resumeIfNeeded = () => {
-      if (pausedByUs) {
-        el.play().catch(() => {})
-        pausedByUs = false
-      }
-    }
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        if (!entry) return
-        if (entry.isIntersecting) resumeIfNeeded()
-        else pauseIfPlaying()
-      },
-      { threshold: 0, rootMargin: "200px" }
-    )
-    io.observe(el)
 
     const onVisibility = () => {
-      if (document.visibilityState === "hidden") pauseIfPlaying()
-      else resumeIfNeeded()
+      if (document.visibilityState === "hidden") {
+        el.pause()
+      } else if (isInView) {
+        el.play().catch(() => {})
+      }
     }
     document.addEventListener("visibilitychange", onVisibility, {
       passive: true
     })
-
-    return () => {
-      io.disconnect()
-      document.removeEventListener("visibilitychange", onVisibility)
-    }
-  }, [pauseOffscreen])
+    return () => document.removeEventListener("visibilitychange", onVisibility)
+  }, [isInView, pauseOffscreen])
 
   const { style, poster, thumbnailTime, ...rest } = props
   const resolvedPoster =
@@ -104,7 +85,7 @@ const MuxVideoEl = ({
       controls={false}
       streamType="on-demand"
       playsInline
-      autoPlay
+      autoPlay={!pauseOffscreen}
       preload="auto"
       preferPlayback="mse"
       disableTracking

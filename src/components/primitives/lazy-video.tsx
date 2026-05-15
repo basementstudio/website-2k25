@@ -1,59 +1,31 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useInView } from "motion/react"
+import { useRef } from "react"
 
 import { type MuxProps, Video } from "@/components/primitives/video"
 import { buildMuxPosterUrl } from "@/utils/mux"
 
-type LazyVideoProps = MuxProps & {
-  rootMargin?: string
-  posterAlt?: string
-}
+export const LazyVideo = ({ className, ...muxProps }: MuxProps) => {
+  const placeholderRef = useRef<HTMLImageElement | null>(null)
+  const isInView = useInView(placeholderRef, {
+    margin: "400px",
+    once: true
+  })
 
-export const LazyVideo = ({
-  rootMargin = "400px",
-  posterAlt = "",
-  className,
-  ...muxProps
-}: LazyVideoProps) => {
-  const [shouldMount, setShouldMount] = useState(false)
-  const cleanupRef = useRef<(() => void) | null>(null)
-
-  const attachObserver = useCallback(
-    (el: HTMLElement | null) => {
-      cleanupRef.current?.()
-      cleanupRef.current = null
-      if (!el || shouldMount) return
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (entries[0]?.isIntersecting) {
-            setShouldMount(true)
-            io.disconnect()
-          }
-        },
-        { rootMargin }
-      )
-      io.observe(el)
-      cleanupRef.current = () => io.disconnect()
-    },
-    [rootMargin, shouldMount]
-  )
-
-  useEffect(() => () => cleanupRef.current?.(), [])
-
-  if (shouldMount) {
+  if (isInView) {
     return <Video {...muxProps} className={className} />
   }
 
   return (
     <img
-      ref={attachObserver}
+      ref={placeholderRef}
       src={buildMuxPosterUrl(muxProps.playbackId, muxProps.thumbnailTime)}
-      alt={posterAlt}
+      alt=""
       className={className}
       loading="lazy"
       decoding="async"
-      aria-hidden={!posterAlt || undefined}
+      aria-hidden
     />
   )
 }

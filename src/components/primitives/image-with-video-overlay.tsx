@@ -37,7 +37,6 @@ export const ImageWithVideoOverlay = ({
   variant?: "home" | "showcase"
 }) => {
   const [isHovered, setIsHovered] = useState(false)
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -49,38 +48,9 @@ export const ImageWithVideoOverlay = ({
     }
   }, [])
 
-  useEffect(() => {
-    if (isMobile) return
-    const prefetch = () => {
-      void import("@/components/primitives/video")
-    }
-    const ric = (
-      window as Window & {
-        requestIdleCallback?: (cb: () => void) => number
-        cancelIdleCallback?: (id: number) => void
-      }
-    ).requestIdleCallback
-    if (ric) {
-      const id = ric(prefetch)
-      return () => {
-        const cic = (
-          window as Window & { cancelIdleCallback?: (id: number) => void }
-        ).cancelIdleCallback
-        cic?.(id)
-      }
-    }
-    const id = window.setTimeout(prefetch, 1500)
-    return () => window.clearTimeout(id)
-  }, [isMobile])
-
-  const handleVideoLoaded = () => {
-    setIsVideoLoaded(true)
-  }
-
   const handleMouseEnter = () => {
     setShouldLoadVideo(true)
     setIsHovered(true)
-
     timeoutRef.current = setTimeout(() => {
       videoRef.current?.play().catch(() => {})
     }, 50)
@@ -91,19 +61,9 @@ export const ImageWithVideoOverlay = ({
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
     }
-
     setIsHovered(false)
-    if (videoRef.current) {
-      videoRef.current.pause()
-    }
+    videoRef.current?.pause()
   }
-
-  const showLoadingPulse = isHovered && shouldLoadVideo && !isVideoLoaded
-
-  const overlayClassName = cn(
-    "absolute inset-0 h-full w-full object-cover transition-all duration-300",
-    isHovered && isVideoLoaded ? "visible opacity-100" : "invisible opacity-0"
-  )
 
   return (
     <div
@@ -125,48 +85,44 @@ export const ImageWithVideoOverlay = ({
           variant === "home" ? "(max-width: 1024px) 50vw, 90vw" : undefined
         }
         blurDataURL={image?.blurDataURL ?? ""}
-        className="h-full w-full object-cover"
+        className={cn(
+          "h-full w-full object-cover",
+          isHovered && "animate-subtle-pulse"
+        )}
         priority={false}
       />
-
       {video && shouldLoadVideo && !isMobile ? (
-        video.type === "mux" ? (
-          <Video
-            playbackId={video.playbackId}
-            onCanPlay={handleVideoLoaded}
-            onLoadedData={handleVideoLoaded}
-            className={overlayClassName}
-            autoPlay={isHovered}
-            muted
-            ref={videoRef}
-            poster=""
-            pauseOffscreen={false}
-            {...(variant === "home"
-              ? {
-                  renditionOrder: "desc" as const,
-                  maxResolution: "1080p" as const
-                }
-              : { maxResolution: "720p" as const })}
-          />
-        ) : (
-          <Video
-            src={video.url}
-            mimeType={video.mimeType}
-            onCanPlay={handleVideoLoaded}
-            onLoadedData={handleVideoLoaded}
-            className={overlayClassName}
-            autoPlay={isHovered}
-            muted
-            ref={videoRef}
-          />
-        )
-      ) : null}
-
-      {showLoadingPulse ? (
         <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 animate-pulse border border-brand-w1/40"
-        />
+          className={cn(
+            "absolute inset-0 h-full w-full transition-opacity duration-200",
+            isHovered ? "opacity-100" : "pointer-events-none opacity-0"
+          )}
+        >
+          {video.type === "mux" ? (
+            <Video
+              playbackId={video.playbackId}
+              className="h-full w-full object-cover"
+              muted
+              ref={videoRef}
+              poster=""
+              pauseOffscreen={false}
+              {...(variant === "home"
+                ? {
+                    renditionOrder: "desc" as const,
+                    maxResolution: "1080p" as const
+                  }
+                : { maxResolution: "720p" as const })}
+            />
+          ) : (
+            <Video
+              src={video.url}
+              mimeType={video.mimeType}
+              className="h-full w-full object-cover"
+              muted
+              ref={videoRef}
+            />
+          )}
+        </div>
       ) : null}
     </div>
   )
