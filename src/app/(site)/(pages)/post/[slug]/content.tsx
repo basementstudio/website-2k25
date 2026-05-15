@@ -1,7 +1,7 @@
 import { PortableText } from "@portabletext/react"
 import Image from "next/image"
 
-import { LazyVideo } from "@/components/primitives/lazy-video"
+import { Video } from "@/components/primitives/video"
 import { getImageUrl } from "@/service/sanity/helpers"
 import type {
   PortableTextBlock,
@@ -351,7 +351,7 @@ export const Content = ({ post }: ContentProps) => {
                         <div className="video relative w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20">
                           <div className="with-dots grid h-full w-full place-items-center">
                             {muxPlaybackId ? (
-                              <LazyVideo
+                              <Video
                                 playbackId={muxPlaybackId}
                                 autoPlay
                                 loop

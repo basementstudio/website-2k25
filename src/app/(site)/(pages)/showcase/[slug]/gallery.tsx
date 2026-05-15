@@ -2,7 +2,6 @@
 
 import Image from "next/image"
 
-import { LazyVideo } from "@/components/primitives/lazy-video"
 import { Video } from "@/components/primitives/video"
 import { resolveVideoSource } from "@/lib/video/resolve-source"
 import { getImageUrl } from "@/service/sanity/helpers"
@@ -53,7 +52,7 @@ export function ProjectGallery({ entry }: { entry: ShowcaseProjectDetail }) {
             {videoSource ? (
               <div className="with-dots h-full w-full after:absolute after:inset-0">
                 {videoSource.type === "mux" ? (
-                  <LazyVideo
+                  <Video
                     playbackId={videoSource.playbackId}
                     autoPlay
                     muted
