@@ -1,16 +1,14 @@
-import Image from "next/image"
 import Link from "next/link"
 
 import { PortableText } from "@/components/primitives/portable-text"
-import { getImageUrl } from "@/service/sanity/helpers"
+import { SanityImage } from "@/components/sanity-image"
 import { formatDate } from "@/utils/format-date"
 
 import { fetchFeaturedPost } from "./sanity"
 
 export async function Featured() {
   const post = await fetchFeaturedPost()
-
-  const heroImg = post ? getImageUrl(post.heroImage) : null
+  const heroImage = post?.heroImage
 
   return (
     <section className="grid-layout">
@@ -34,15 +32,11 @@ export async function Featured() {
 
               <div className="relative col-span-full my-auto aspect-[418/228] overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-3">
                 <div className="with-dots h-full w-full">
-                  {heroImg && (
-                    <Image
-                      src={heroImg.src}
-                      alt={heroImg.alt}
-                      width={heroImg.width || 418}
-                      height={heroImg.height || 228}
-                      className="h-full w-full object-cover"
-                    />
-                  )}
+                  <SanityImage
+                    image={heroImage}
+                    sourceWidth={640}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
               </div>
               <h2 className="relative col-span-full py-1 text-f-h2-mobile text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-f-h2">

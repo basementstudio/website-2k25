@@ -1,12 +1,10 @@
-import Image from "next/image"
-
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { InfoItem } from "@/components/primitives/info-item"
 import { Link } from "@/components/primitives/link"
 import { PortableText } from "@/components/primitives/portable-text"
 import { TextList } from "@/components/primitives/text-list"
-import { getImageUrl } from "@/service/sanity/helpers"
+import { SanityImage } from "@/components/sanity-image"
 
 import { Back } from "./back"
 import { Filters } from "./gallery-filter"
@@ -23,8 +21,6 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
     typeof entry.caseStudy === "string"
       ? entry.caseStudy.replace(/\/$/, "")
       : null
-  const coverImg = getImageUrl(entry.cover)
-  const iconImg = getImageUrl(entry.icon)
 
   return (
     <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-3 lg:row-start-auto xl:col-span-2">
@@ -41,12 +37,13 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
             label="Client"
             value={
               <span className="flex min-w-0 items-center gap-0.75">
-                {iconImg ? (
+                {entry.icon?.asset ? (
                   <span className="relative size-3.5 shrink-0 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
-                    <Image
-                      src={iconImg.src}
+                    <SanityImage
+                      image={entry.icon}
                       fill
-                      alt={iconImg.alt || entry.client?.title || "Client logo"}
+                      sourceWidth={64}
+                      alt={entry.client?.title || "Client logo"}
                     />
                   </span>
                 ) : null}
@@ -99,11 +96,11 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
         </ul>
 
         <div className="relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:hidden">
-          {coverImg ? (
-            <Image
-              src={coverImg.src}
-              alt={coverImg.alt || ""}
+          {entry.cover?.asset ? (
+            <SanityImage
+              image={entry.cover}
               fill
+              sourceWidth={1200}
               className="with-dots relative object-cover"
             />
           ) : null}

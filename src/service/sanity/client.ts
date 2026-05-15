@@ -7,5 +7,6 @@ export const client = createClient({
   dataset,
   apiVersion,
   useCdn: true,
-  stega: { studioUrl: "/studio" }
+  stega:
+    process.env.NODE_ENV === "development" ? { studioUrl: "/studio" } : false
 })

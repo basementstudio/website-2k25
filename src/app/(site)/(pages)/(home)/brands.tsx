@@ -13,7 +13,7 @@ export type Brand = {
 
 /** Convert Sanity client data to the Brand shape used by brand components. */
 function toBrand(client: SanityClient): Brand {
-  const img = getImageUrl(client.logo)
+  const img = getImageUrl(client.logo, { width: 320 })
   return {
     _id: client._id,
     _title: client.title,

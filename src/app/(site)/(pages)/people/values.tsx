@@ -1,7 +1,6 @@
 import { PortableText } from "@portabletext/react"
-import Image from "next/image"
 
-import { getImageUrl } from "@/service/sanity/helpers"
+import { SanityImage } from "@/components/sanity-image"
 import { cn } from "@/utils/cn"
 
 import type { ValueItem } from "./sanity"
@@ -10,8 +9,6 @@ export const Values = ({ data }: { data: ValueItem[] }) => (
   <section className="mb-18 lg:mb-48">
     <div className="grid-layout !gap-y-0">
       {data.map(({ _key, title, image, description }, idx) => {
-        const img = getImageUrl(image)
-
         return (
           <div
             key={_key ?? title}
@@ -49,14 +46,12 @@ export const Values = ({ data }: { data: ValueItem[] }) => (
                   {title}
                 </p>
                 <div className="col-span-full sm:col-span-2 lg:col-start-5 lg:col-end-9">
-                  {img && (
+                  {image?.asset && (
                     <div className="relative aspect-[6/6] w-full after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 sm:col-span-1 md:col-span-2">
                       <div className="with-dots h-full w-full">
-                        <Image
-                          src={img.src}
-                          alt={img.alt ?? ""}
-                          width={img.width}
-                          height={img.height}
+                        <SanityImage
+                          image={image}
+                          sourceWidth={1000}
                           className="h-full w-full object-cover"
                         />
                       </div>

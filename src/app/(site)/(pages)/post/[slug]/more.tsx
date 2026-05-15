@@ -1,10 +1,8 @@
 "use client"
 
-import Image from "next/image"
-
+import { SanityImage } from "@/components/sanity-image"
 import { Link } from "@/components/primitives/link"
 import { useMedia } from "@/hooks/use-media"
-import { getImageUrl } from "@/service/sanity/helpers"
 import { formatDate } from "@/utils/format-date"
 
 import type { RelatedPost } from "./sanity"
@@ -26,8 +24,6 @@ export const More = ({ posts }: MoreProps) => {
         <div className="flex flex-col divide-y divide-brand-g1/30">
           <div />
           {posts.map((post) => {
-            const heroImg = post.heroImage ? getImageUrl(post.heroImage) : null
-
             return (
               <div key={post._id} className="group relative">
                 <Link
@@ -38,21 +34,13 @@ export const More = ({ posts }: MoreProps) => {
                   <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                   <div className="relative h-[60px] w-[136px] overflow-clip after:absolute after:inset-0 after:border after:border-brand-w1/20">
-                    {heroImg && (
-                      <Image
-                        src={heroImg.src}
-                        alt={post.title}
-                        width={272}
-                        height={120}
-                        className="h-full w-full object-cover"
-                        {...(heroImg.blurDataURL
-                          ? {
-                              placeholder: "blur",
-                              blurDataURL: heroImg.blurDataURL
-                            }
-                          : {})}
-                      />
-                    )}
+                    <SanityImage
+                      image={post.heroImage}
+                      alt={post.title}
+                      width={272}
+                      height={120}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
 
                   <div className="relative flex w-full justify-between gap-y-2">

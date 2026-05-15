@@ -35,7 +35,7 @@ const About = async () => {
   if (!pageData) notFound()
 
   const peopleDisplay: PersonDisplay[] = people.map((p) => {
-    const img = p.image ? getImageUrl(p.image) : null
+    const img = p.image ? getImageUrl(p.image, { width: 600 }) : null
     return {
       title: p.title,
       department: p.department?.title ?? null,

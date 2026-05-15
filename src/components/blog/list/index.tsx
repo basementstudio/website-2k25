@@ -1,8 +1,7 @@
-import Image from "next/image"
 import Link from "next/link"
 
 import { fetchPosts } from "@/app/(site)/(pages)/blog/sanity"
-import { getImageUrl } from "@/service/sanity/helpers"
+import { SanityImage } from "@/components/sanity-image"
 import { formatDate } from "@/utils/format-date"
 
 export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
@@ -11,8 +10,6 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
   return (
     <div className="col-span-full flex flex-col gap-12 lg:gap-3">
       {posts.map((post) => {
-        const heroImg = getImageUrl(post.heroImage)
-
         return (
           <div
             key={post.slug}
@@ -26,16 +23,14 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
               <div className="with-diagonal-lines pointer-events-none !absolute -bottom-px -top-px left-0 right-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative col-span-full my-auto aspect-[418/228] w-full overflow-clip bg-brand-g2/20 after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:col-span-2 lg:aspect-auto lg:h-[124px] lg:max-w-[276px]">
                 <div className="with-dots h-full w-full">
-                  {heroImg && (
-                    <Image
-                      src={heroImg.src}
-                      alt={heroImg.alt}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 276px"
-                      className="h-full w-full object-cover"
-                      quality={100}
-                    />
-                  )}
+                  <SanityImage
+                    image={post.heroImage}
+                    fill
+                    sourceWidth={552}
+                    sizes="(max-width: 1024px) 100vw, 276px"
+                    className="h-full w-full object-cover"
+                    quality={100}
+                  />
                 </div>
               </div>
               <p className="lg:col-span-[auto] relative col-span-full text-f-h3-mobile text-brand-w2 lg:col-start-5 lg:col-end-8 lg:text-f-h3">

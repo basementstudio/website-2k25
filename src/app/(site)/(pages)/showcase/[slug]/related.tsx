@@ -1,8 +1,6 @@
-import Image from "next/image"
-
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Link } from "@/components/primitives/link"
-import { getImageUrl } from "@/service/sanity/helpers"
+import { SanityImage } from "@/components/sanity-image"
 import { cn } from "@/utils/cn"
 
 import { fetchRelatedProjects } from "./sanity"
@@ -27,7 +25,6 @@ export const RelatedProjects = async ({
       <ul className="flex flex-col divide-y divide-brand-w1/20">
         <div />
         {projects.map((item) => {
-          const iconImg = getImageUrl(item.icon)
           return (
             <Link
               href={`/showcase/${item.slug}`}
@@ -36,14 +33,15 @@ export const RelatedProjects = async ({
               aria-label={`View ${item.title ?? "Untitled"}`}
             >
               <span className="flex items-center gap-1.75">
-                {iconImg ? (
+                {item.icon?.asset ? (
                   <span className="relative size-4.5 overflow-hidden rounded-full border border-brand-w1/20 bg-brand-g2">
-                    <Image
-                      src={iconImg.src}
+                    <SanityImage
+                      image={item.icon}
                       width={16}
                       height={16}
+                      sourceWidth={64}
                       className="object-cover"
-                      alt={iconImg.alt || "Client logo"}
+                      alt="Client logo"
                     />
                   </span>
                 ) : null}

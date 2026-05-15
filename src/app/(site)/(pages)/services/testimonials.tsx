@@ -2,11 +2,10 @@ import {
   PortableText,
   type PortableTextComponents
 } from "@portabletext/react"
-import Image from "next/image"
 import { memo } from "react"
 
 import { Link } from "@/components/primitives/link"
-import { getImageUrl } from "@/service/sanity/helpers"
+import { SanityImage } from "@/components/sanity-image"
 import { cn } from "@/utils/cn"
 
 import type { ServiceTestimonial } from "./sanity"
@@ -38,23 +37,19 @@ const RoleContent = ({ role }: { role: ServiceTestimonial["role"] }) => {
 
 const TestimonialAvatar = memo(
   ({ avatar }: { avatar: ServiceTestimonial["avatar"] }) => {
-    const img = getImageUrl(avatar)
-    if (!img) return null
+    if (!avatar?.asset) return null
 
     return (
       <div className="with-dots">
         <div className="after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
-          <Image
-            alt={img.alt || ""}
-            blurDataURL={img.blurDataURL}
+          <SanityImage
+            image={avatar}
+            sourceWidth={192}
+            alt=""
             className="size-16 lg:size-24"
             draggable={false}
-            height={img.height}
-            width={img.width}
-            placeholder="blur"
             quality={100}
             sizes="(max-width: 1024px) 192px, 288px"
-            src={img.src}
           />
         </div>
       </div>

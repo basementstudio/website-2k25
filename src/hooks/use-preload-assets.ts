@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { preload, PreloadOptions } from "react-dom"
 
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
@@ -205,6 +206,9 @@ const preloadAllAssets = (obj: any) => {
 
 export const usePreloadAssets = (assets: AssetsResult) => {
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
+  const isCanvasInPage = useAppLoadingStore((s) => s.isCanvasInPage)
 
-  if (offscreenCanvasReady) preloadAllAssets(assets)
+  useEffect(() => {
+    if (offscreenCanvasReady && isCanvasInPage) preloadAllAssets(assets)
+  }, [assets, offscreenCanvasReady, isCanvasInPage])
 }

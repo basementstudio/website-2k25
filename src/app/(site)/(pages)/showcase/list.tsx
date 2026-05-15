@@ -1,12 +1,11 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { motion } from "motion/react"
-import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { Video } from "@/components/primitives/video"
-import { getImageUrl } from "@/service/sanity/helpers"
+import { SanityImage } from "@/components/sanity-image"
 import { cn } from "@/utils/cn"
 
 import type { ShowcaseProject } from "./sanity"
@@ -20,7 +19,6 @@ interface AccordionListItemProps {
 const AccordionListItem = memo(
   ({ project, index, disabled }: AccordionListItemProps) => {
     const [firstItemSeen, setFirstItemSeen] = useState(false)
-    const icon = getImageUrl(project.icon)
     return (
       <AccordionPrimitive.Item
         key={index}
@@ -48,12 +46,10 @@ const AccordionListItem = memo(
             )}
           >
             <div className="relative col-span-4 flex items-center gap-2 text-f-h3 text-brand-w2 transition-opacity duration-300">
-              {icon?.src ? (
-                <Image
-                  src={icon.src}
-                  alt={icon.alt ?? ""}
-                  width={icon.width}
-                  height={icon.height}
+              {project.icon?.asset ? (
+                <SanityImage
+                  image={project.icon}
+                  sourceWidth={64}
                   className="mb-px size-4.5 rounded-full border border-brand-w1/10"
                   priority
                 />
@@ -108,7 +104,6 @@ const AccordionListItem = memo(
               aria-label={`View ${project.title ?? "Untitled"}`}
             >
               {project.showcase?.map((item, imgIndex, array) => {
-                const img = getImageUrl(item.image)
                 const elementToRender = item.video ? (
                   <Video
                     key={imgIndex}
@@ -119,11 +114,11 @@ const AccordionListItem = memo(
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <Image
+                  <SanityImage
                     key={imgIndex}
-                    src={img?.src ?? ""}
-                    alt={img?.alt ?? ""}
+                    image={item.image}
                     fill
+                    sourceWidth={1200}
                     sizes="(max-width: 1024px) 90vw, 15vw"
                     priority
                   />

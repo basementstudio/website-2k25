@@ -40,7 +40,7 @@ const ServicesPage = async () => {
   if (!data) notFound()
 
   const displayAwards: AwardDisplay[] = awards.map((award, index) => {
-    const cert = getImageUrl(award.certificate)
+    const cert = getImageUrl(award.certificate, { width: 400 })
     return {
       _id: award._id,
       title: award.title,

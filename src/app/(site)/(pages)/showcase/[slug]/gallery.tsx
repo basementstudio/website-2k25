@@ -1,9 +1,7 @@
 "use client"
 
-import Image from "next/image"
-
+import { SanityImage } from "@/components/sanity-image"
 import { Video } from "@/components/primitives/video"
-import { getImageUrl } from "@/service/sanity/helpers"
 import { cn } from "@/utils/cn"
 
 import { useProjectContext } from "./context"
@@ -22,7 +20,6 @@ export function ProjectGallery({ entry }: { entry: ShowcaseProjectDetail }) {
       )}
     >
       {showcase?.map(({ image, video }, idx) => {
-        const img = getImageUrl(image)
         return (
           <div
             key={image?.asset?.url || video?.url || idx}
@@ -48,15 +45,11 @@ export function ProjectGallery({ entry }: { entry: ShowcaseProjectDetail }) {
                   className="h-full w-full object-cover"
                 />
               </div>
-            ) : img ? (
+            ) : image?.asset ? (
               <div className="with-dots h-full w-full after:absolute after:inset-0">
-                <Image
-                  src={img.src}
-                  width={img.width}
-                  height={img.height}
-                  alt={img.alt || ""}
-                  blurDataURL={img.blurDataURL}
-                  placeholder="blur"
+                <SanityImage
+                  image={image}
+                  sourceWidth={1600}
                   className="object-cover"
                   priority={idx <= 3}
                 />

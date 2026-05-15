@@ -1,7 +1,5 @@
-import Image from "next/image"
-
 import { PortableText } from "@/components/primitives/portable-text"
-import { getImageUrl } from "@/service/sanity/helpers"
+import { SanityImage } from "@/components/sanity-image"
 
 import type { ServicesPageData } from "./sanity"
 
@@ -9,7 +7,7 @@ export const VenturesBanner = ({ data }: { data: ServicesPageData }) => {
   const venture = data.ventures[0]
   if (!venture) return null
 
-  const img = getImageUrl(venture.image)
+  const image = venture.image
 
   return (
     <div className="grid-layout -mb-6">
@@ -39,10 +37,10 @@ export const VenturesBanner = ({ data }: { data: ServicesPageData }) => {
         )}
       </div>
 
-      {img && (
+      {image?.asset && (
         <div className="with-dots col-span-full mt-8 lg:col-start-1 lg:col-end-12 lg:mt-18">
           <div className="relative after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
-            <Image width={img.width} height={img.height} src={img.src} alt="" />
+            <SanityImage image={image} sourceWidth={1600} alt="" />
           </div>
         </div>
       )}

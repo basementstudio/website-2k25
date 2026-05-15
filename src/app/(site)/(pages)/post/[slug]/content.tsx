@@ -1,8 +1,7 @@
 import { PortableText } from "@portabletext/react"
-import Image from "next/image"
 
-import { getImageUrl } from "@/service/sanity/helpers"
-import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
+import { SanityImage } from "@/components/sanity-image"
+import type { PortableTextBlock, SanityImage as SanityImageData } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
 
 import { Back } from "./back"
@@ -163,26 +162,25 @@ export const Content = ({ post }: ContentProps) => {
                   image: ({
                     value
                   }: {
-                    value: SanityImage & { caption?: string }
+                    value: SanityImageData & { caption?: string }
                   }) => {
-                    const img = getImageUrl(value)
-                    if (!img) return null
+                    if (!value?.asset) return null
+                    const { width, height } = value.asset.metadata.dimensions
                     return (
                       <div className="flex w-full flex-col gap-y-2">
                         <div
                           className="image relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20"
                           style={{
-                            aspectRatio: img.width
-                              ? `${img.width}/${img.height}`
-                              : "16/9"
+                            aspectRatio: width ? `${width}/${height}` : "16/9"
                           }}
                         >
                           <div className="with-dots grid h-full w-full place-items-center">
-                            <Image
-                              src={img.src}
+                            <SanityImage
+                              image={value}
                               fill
+                              sourceWidth={1200}
                               className="object-cover"
-                              alt={img.alt ?? "Blog image"}
+                              alt="Blog image"
                             />
                           </div>
                         </div>
@@ -201,10 +199,9 @@ export const Content = ({ post }: ContentProps) => {
                       quote?: PortableTextBlock[]
                       author?: string
                       role?: string
-                      avatar?: SanityImage
+                      avatar?: SanityImageData
                     }
                   }) => {
-                    const avatarImg = getImageUrl(value.avatar)
                     return (
                       <div className="custom-block relative mb-4 flex gap-x-4">
                         <div className="flex w-full flex-col gap-y-2.5">
@@ -214,17 +211,14 @@ export const Content = ({ post }: ContentProps) => {
                             </div>
                           )}
                           <div className="flex flex-wrap items-center gap-x-2">
-                            {avatarImg ? (
-                              <Image
-                                src={avatarImg.src}
-                                alt={
-                                  avatarImg.alt || `Avatar for ${value.author}`
-                                }
-                                width={32}
-                                height={32}
-                                className="size-8 rounded-full object-cover"
-                              />
-                            ) : null}
+                            <SanityImage
+                              image={value.avatar}
+                              width={32}
+                              height={32}
+                              alt={`Avatar for ${value.author ?? ""}`}
+                              className="size-8 rounded-full object-cover"
+                            />
+
                             {value.author ? (
                               <p className="text-f-p-mobile text-brand-w2 lg:text-f-p">
                                 {value.author}
@@ -289,31 +283,33 @@ export const Content = ({ post }: ContentProps) => {
                     value
                   }: {
                     value: {
-                      images?: SanityImage[]
+                      images?: SanityImageData[]
                       caption?: string
                     }
                   }) => (
                     <div className="flex w-full flex-col gap-y-2">
                       <div className="grid grid-cols-2 gap-2">
                         {value.images?.map((image, index) => {
-                          const img = getImageUrl(image)
-                          if (!img) return null
+                          if (!image?.asset) return null
+                          const { width, height } =
+                            image.asset.metadata.dimensions
                           return (
                             <div
                               key={index}
                               className="image relative aspect-video w-full overflow-hidden after:absolute after:inset-0 after:border after:border-brand-w1/20"
                               style={{
-                                aspectRatio: img.width
-                                  ? `${img.width}/${img.height}`
+                                aspectRatio: width
+                                  ? `${width}/${height}`
                                   : "16/9"
                               }}
                             >
                               <div className="with-dots grid h-full w-full place-items-center">
-                                <Image
-                                  src={img.src}
+                                <SanityImage
+                                  image={image}
                                   fill
+                                  sourceWidth={800}
                                   className="object-cover"
-                                  alt={img.alt || "Blog image"}
+                                  alt="Blog image"
                                 />
                               </div>
                             </div>
