@@ -3,19 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { type MuxProps, Video } from "@/components/primitives/video"
+import { buildMuxPosterUrl } from "@/utils/mux"
 
 type LazyVideoProps = MuxProps & {
   rootMargin?: string
   posterAlt?: string
-}
-
-const MUX_THUMBNAIL_BASE = "https://image.mux.com"
-
-const buildPosterUrl = (playbackId: string, thumbnailTime?: number) => {
-  if (thumbnailTime == null) {
-    return `${MUX_THUMBNAIL_BASE}/${playbackId}/thumbnail.webp`
-  }
-  return `${MUX_THUMBNAIL_BASE}/${playbackId}/thumbnail.webp?time=${thumbnailTime}`
 }
 
 export const LazyVideo = ({
@@ -56,12 +48,12 @@ export const LazyVideo = ({
   return (
     <img
       ref={attachObserver}
-      src={buildPosterUrl(muxProps.playbackId, muxProps.thumbnailTime)}
+      src={buildMuxPosterUrl(muxProps.playbackId, muxProps.thumbnailTime)}
       alt={posterAlt}
       className={className}
       loading="lazy"
       decoding="async"
-      aria-hidden={posterAlt === "" ? true : undefined}
+      aria-hidden={!posterAlt || undefined}
     />
   )
 }

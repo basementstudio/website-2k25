@@ -53,8 +53,6 @@ export const ImageWithVideoOverlay = ({
     }
   }, [])
 
-  // Idle-prefetch the Video chunk so the first hover doesn't pay the
-  // dynamic-import download cost.
   useEffect(() => {
     if (isMobile) return
     const prefetch = () => {
@@ -100,13 +98,9 @@ export const ImageWithVideoOverlay = ({
       setShowLoadingPulse(true)
     }, 250)
 
-    setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.play().catch((err) => {
-          console.log("[MouseEnter] Video play failed:", err)
-        })
-      }
-    }, 50) //check video is in DOC ready to play
+    timeoutRef.current = setTimeout(() => {
+      videoRef.current?.play().catch(() => {})
+    }, 50)
   }
 
   const handleMouseLeave = () => {
@@ -157,7 +151,6 @@ export const ImageWithVideoOverlay = ({
             playbackId={video.playbackId}
             onCanPlay={handleVideoLoaded}
             onLoadedData={handleVideoLoaded}
-            style={{ "--controls": "none" } as React.CSSProperties}
             className={overlayClassName}
             autoPlay={isHovered}
             muted
@@ -176,7 +169,6 @@ export const ImageWithVideoOverlay = ({
             mimeType={video.mimeType}
             onCanPlay={handleVideoLoaded}
             onLoadedData={handleVideoLoaded}
-            style={{ "--controls": "none" } as React.CSSProperties}
             className={overlayClassName}
             autoPlay={isHovered}
             muted

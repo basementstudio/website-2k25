@@ -1,13 +1,11 @@
 "use client"
 
 import MuxVideo, { Props as MuxVideoProps } from "@mux/mux-video-react"
-import type {
-  CSSProperties,
-  MutableRefObject,
-  Ref,
-  VideoHTMLAttributes
-} from "react"
-import { useCallback, useEffect, useRef } from "react"
+import type { CSSProperties, Ref, VideoHTMLAttributes } from "react"
+import { useEffect, useRef } from "react"
+import { mergeRefs } from "react-merge-refs"
+
+import { buildMuxPosterUrl } from "@/utils/mux"
 
 type SharedProps = {
   className?: string
@@ -35,39 +33,12 @@ export type VideoProps = MuxProps | LegacyProps
 
 const hiddenControlsStyle = { "--controls": "none" } as CSSProperties
 
-const MUX_THUMBNAIL_BASE = "https://image.mux.com"
-
-const buildMuxPoster = (playbackId: string, thumbnailTime?: number) => {
-  if (thumbnailTime == null) {
-    return `${MUX_THUMBNAIL_BASE}/${playbackId}/thumbnail.webp`
-  }
-  return `${MUX_THUMBNAIL_BASE}/${playbackId}/thumbnail.webp?time=${thumbnailTime}`
-}
-
 const MuxVideoEl = ({
   ref: callerRef,
   pauseOffscreen = true,
   ...props
 }: MuxProps) => {
   const internalRef = useRef<HTMLVideoElement | null>(null)
-
-  const setRefs = useCallback(
-    (el: HTMLVideoElement | undefined | null) => {
-      const value = el ?? null
-      internalRef.current = value
-      if (typeof callerRef === "function") {
-        callerRef(value as HTMLVideoElement)
-      } else if (
-        callerRef &&
-        typeof callerRef === "object" &&
-        "current" in callerRef
-      ) {
-        ;(callerRef as MutableRefObject<HTMLVideoElement | null>).current =
-          value
-      }
-    },
-    [callerRef]
-  )
 
   useEffect(() => {
     if (!pauseOffscreen) return
@@ -117,13 +88,17 @@ const MuxVideoEl = ({
   const { style, poster, thumbnailTime, ...rest } = props
   const resolvedPoster =
     poster === undefined
-      ? buildMuxPoster(props.playbackId, thumbnailTime)
+      ? buildMuxPosterUrl(props.playbackId, thumbnailTime)
       : poster
 
   return (
     <MuxVideo
       {...rest}
-      ref={setRefs}
+      ref={
+        mergeRefs([internalRef, ...(callerRef ? [callerRef] : [])]) as Ref<
+          HTMLVideoElement | undefined
+        >
+      }
       poster={resolvedPoster}
       style={{ ...hiddenControlsStyle, ...style }}
       controls={false}
@@ -139,7 +114,7 @@ const MuxVideoEl = ({
 
 export const Video = (props: VideoProps) => {
   if ("playbackId" in props && props.playbackId) {
-    return <MuxVideoEl {...(props as MuxProps)} />
+    return <MuxVideoEl {...props} />
   }
 
   const { src, mimeType, style, autoPlay, preload, playsInline, ...rest } =
