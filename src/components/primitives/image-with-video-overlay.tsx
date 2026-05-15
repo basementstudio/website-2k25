@@ -115,6 +115,14 @@ export const ImageWithVideoOverlay = ({
             autoPlay={isHovered}
             muted
             ref={videoRef}
+            poster=""
+            {...(variant === "home"
+              ? {
+                  renditionOrder: "desc" as const,
+                  maxResolution: "1080p" as const,
+                  minResolution: "720p" as const
+                }
+              : { maxResolution: "720p" as const })}
           />
         ) : (
           <Video

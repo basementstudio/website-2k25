@@ -5,6 +5,7 @@ import Link from "next/link"
 import { memo, useCallback, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { LazyVideo } from "@/components/primitives/lazy-video"
 import { Video } from "@/components/primitives/video"
 import { resolveVideoSource } from "@/lib/video/resolve-source"
 import { getImageUrl } from "@/service/sanity/helpers"
@@ -116,12 +117,13 @@ const AccordionListItem = memo(
                 })
                 const elementToRender = videoSource ? (
                   videoSource.type === "mux" ? (
-                    <Video
+                    <LazyVideo
                       key={imgIndex}
                       playbackId={videoSource.playbackId}
                       autoPlay
                       playsInline
                       muted
+                      maxResolution="720p"
                       className="h-full w-full object-cover"
                     />
                   ) : (
