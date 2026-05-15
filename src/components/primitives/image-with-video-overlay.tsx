@@ -23,7 +23,6 @@ const Video = dynamic(
   { ssr: false }
 )
 
-// only load the video when the user hovers over the image, automatically play the video and set opacity to 0
 export const ImageWithVideoOverlay = ({
   image,
   video,
@@ -40,16 +39,13 @@ export const ImageWithVideoOverlay = ({
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
-  const [showLoadingPulse, setShowLoadingPulse] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const pulseTimerRef = useRef<NodeJS.Timeout | null>(null)
   const { isMobile } = useDeviceDetect()
 
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
-      if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current)
     }
   }, [])
 
@@ -77,26 +73,13 @@ export const ImageWithVideoOverlay = ({
     return () => window.clearTimeout(id)
   }, [isMobile])
 
-  const cancelPulse = () => {
-    if (pulseTimerRef.current) {
-      clearTimeout(pulseTimerRef.current)
-      pulseTimerRef.current = null
-    }
-    setShowLoadingPulse(false)
-  }
-
   const handleVideoLoaded = () => {
     setIsVideoLoaded(true)
-    cancelPulse()
   }
 
   const handleMouseEnter = () => {
     setShouldLoadVideo(true)
     setIsHovered(true)
-
-    pulseTimerRef.current = setTimeout(() => {
-      setShowLoadingPulse(true)
-    }, 250)
 
     timeoutRef.current = setTimeout(() => {
       videoRef.current?.play().catch(() => {})
@@ -109,12 +92,13 @@ export const ImageWithVideoOverlay = ({
       timeoutRef.current = null
     }
 
-    cancelPulse()
     setIsHovered(false)
     if (videoRef.current) {
       videoRef.current.pause()
     }
   }
+
+  const showLoadingPulse = isHovered && shouldLoadVideo && !isVideoLoaded
 
   const overlayClassName = cn(
     "absolute inset-0 h-full w-full object-cover transition-all duration-300",
@@ -156,6 +140,7 @@ export const ImageWithVideoOverlay = ({
             muted
             ref={videoRef}
             poster=""
+            pauseOffscreen={false}
             {...(variant === "home"
               ? {
                   renditionOrder: "desc" as const,
@@ -177,10 +162,10 @@ export const ImageWithVideoOverlay = ({
         )
       ) : null}
 
-      {showLoadingPulse && !isVideoLoaded ? (
+      {showLoadingPulse ? (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 animate-pulse border border-brand-w1/30"
+          className="pointer-events-none absolute inset-0 animate-pulse border border-brand-w1/40"
         />
       ) : null}
     </div>

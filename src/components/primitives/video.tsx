@@ -54,7 +54,7 @@ const MuxVideoEl = ({
       }
     }
     const resumeIfNeeded = () => {
-      if (pausedByUs && el.autoplay) {
+      if (pausedByUs) {
         el.play().catch(() => {})
         pausedByUs = false
       }
