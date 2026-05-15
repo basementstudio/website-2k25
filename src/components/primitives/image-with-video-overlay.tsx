@@ -40,19 +40,65 @@ export const ImageWithVideoOverlay = ({
   const [isHovered, setIsHovered] = useState(false)
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
+  const [showLoadingPulse, setShowLoadingPulse] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const pulseTimerRef = useRef<NodeJS.Timeout | null>(null)
   const { isMobile } = useDeviceDetect()
 
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current)
     }
   }, [])
+
+  // Idle-prefetch the Video chunk so the first hover doesn't pay the
+  // dynamic-import download cost.
+  useEffect(() => {
+    if (isMobile) return
+    const prefetch = () => {
+      void import("@/components/primitives/video")
+    }
+    const ric = (
+      window as Window & {
+        requestIdleCallback?: (cb: () => void) => number
+        cancelIdleCallback?: (id: number) => void
+      }
+    ).requestIdleCallback
+    if (ric) {
+      const id = ric(prefetch)
+      return () => {
+        const cic = (
+          window as Window & { cancelIdleCallback?: (id: number) => void }
+        ).cancelIdleCallback
+        cic?.(id)
+      }
+    }
+    const id = window.setTimeout(prefetch, 1500)
+    return () => window.clearTimeout(id)
+  }, [isMobile])
+
+  const cancelPulse = () => {
+    if (pulseTimerRef.current) {
+      clearTimeout(pulseTimerRef.current)
+      pulseTimerRef.current = null
+    }
+    setShowLoadingPulse(false)
+  }
+
+  const handleVideoLoaded = () => {
+    setIsVideoLoaded(true)
+    cancelPulse()
+  }
 
   const handleMouseEnter = () => {
     setShouldLoadVideo(true)
     setIsHovered(true)
+
+    pulseTimerRef.current = setTimeout(() => {
+      setShowLoadingPulse(true)
+    }, 250)
 
     setTimeout(() => {
       if (videoRef.current) {
@@ -69,6 +115,7 @@ export const ImageWithVideoOverlay = ({
       timeoutRef.current = null
     }
 
+    cancelPulse()
     setIsHovered(false)
     if (videoRef.current) {
       videoRef.current.pause()
@@ -108,8 +155,8 @@ export const ImageWithVideoOverlay = ({
         video.type === "mux" ? (
           <Video
             playbackId={video.playbackId}
-            onCanPlay={() => setIsVideoLoaded(true)}
-            onLoadedData={() => setIsVideoLoaded(true)}
+            onCanPlay={handleVideoLoaded}
+            onLoadedData={handleVideoLoaded}
             style={{ "--controls": "none" } as React.CSSProperties}
             className={overlayClassName}
             autoPlay={isHovered}
@@ -119,8 +166,7 @@ export const ImageWithVideoOverlay = ({
             {...(variant === "home"
               ? {
                   renditionOrder: "desc" as const,
-                  maxResolution: "1080p" as const,
-                  minResolution: "720p" as const
+                  maxResolution: "1080p" as const
                 }
               : { maxResolution: "720p" as const })}
           />
@@ -128,8 +174,8 @@ export const ImageWithVideoOverlay = ({
           <Video
             src={video.url}
             mimeType={video.mimeType}
-            onCanPlay={() => setIsVideoLoaded(true)}
-            onLoadedData={() => setIsVideoLoaded(true)}
+            onCanPlay={handleVideoLoaded}
+            onLoadedData={handleVideoLoaded}
             style={{ "--controls": "none" } as React.CSSProperties}
             className={overlayClassName}
             autoPlay={isHovered}
@@ -137,6 +183,13 @@ export const ImageWithVideoOverlay = ({
             ref={videoRef}
           />
         )
+      ) : null}
+
+      {showLoadingPulse && !isVideoLoaded ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 animate-pulse border border-brand-w1/30"
+        />
       ) : null}
     </div>
   )
