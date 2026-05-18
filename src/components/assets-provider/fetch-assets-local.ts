@@ -9,14 +9,18 @@ import { fetchThreeDConfig } from "./fetch-3d-config-sanity"
 const warnedMissingInspectables = new Set<string>()
 
 /**
- * Composes the runtime `AssetsResult` from two sources:
- *  - Repo: file URLs + mesh/offset/fx data (`ASSETS_BASE`, `INSPECTABLES_META`).
- *  - Sanity: editable copy + visual tuning (inspectable text, scene cameras /
- *    postprocessing / tabs, physics params) via `fetchThreeDConfig()`.
+ * Builds the `AssetsResult` object the 3D canvas reads on every request, by
+ * stitching together two halves:
  *
- * Missing Sanity content does not throw — fields default to empty / sensible
- * fallbacks so a deploy never breaks the 3D experience because a CMS doc
- * was unpublished.
+ *   1. The repo half — asset URLs and per-inspectable mesh data, imported
+ *      from `src/lib/3d-config/`.
+ *   2. The Sanity half — editor-facing copy and visual tuning (inspectable
+ *      titles/specs/descriptions, scene cameras/postprocessing/tabs, physics
+ *      params), fetched in one GROQ round-trip.
+ *
+ * The two halves are joined by inspectable `id`. If a Sanity doc is missing
+ * (e.g. unpublished mid-edit), the inspectable still renders with empty copy
+ * rather than crashing the page.
  */
 export async function fetchAssetsLocal(): Promise<AssetsResult> {
   const config = await fetchThreeDConfig()

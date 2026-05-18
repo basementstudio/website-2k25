@@ -44,8 +44,6 @@ Same as above, plus a new entry in `asset-manifest.ts` under the right section. 
 
 Sanity Studio → **3D Config** → **Inspectables** → pick the document → edit → publish.
 
-The PortableText description supports rich formatting; that's the main reason this lives in Sanity.
-
 ### Tuning a scene's camera, postprocessing, or tab labels
 
 Sanity Studio → **3D Config** → **Scenes** → pick the scene by name → edit → publish.
@@ -81,10 +79,3 @@ Just edit the strings — `glassMaterials`, `doubleSideElements`, `bakes[].meshe
 `/3d/*` assets are served with `Cache-Control: public, max-age=31536000, immutable` (see [`next.config.ts`](../../../next.config.ts)). This is safe because filenames are content-hashed — changing a file changes the URL, so stale CDN cache is impossible.
 
 **Always content-hash before committing**, even for tiny edits. A file at a stable URL with new content will be served stale for up to a year.
-
-## Why the split between Sanity and TS?
-
-- **Asset URLs and mesh names** are tied to the 3D model exports. A typo here breaks rendering. They live in TS so they're versioned with the model changes and caught at build time.
-- **Editor-facing copy and tuning values** benefit from Sanity Studio's authoring UX (PortableText editor, side-by-side preview, draft/publish workflow) and shouldn't require a PR for marketing/copy changes.
-
-The Sanity fetch for the editable half is ~10–15 KB JSON per page render and doesn't add meaningful runtime cost.

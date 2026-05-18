@@ -129,9 +129,7 @@ function structure(S: StructureBuilder) {
       S.divider(),
 
       // --- 3D Config ---
-      // Editable metadata that backs the 3D canvas. Binary files (models,
-      // textures, audio) live in public/3d/ in the repo — only the content
-      // that benefits from editorial workflow lives here.
+      // Binary files live in public/3d/; only editable content is here.
       S.listItem()
         .title("3D Config")
         .child(

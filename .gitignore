@@ -51,6 +51,3 @@ next-env.d.ts
 
 .env.local
 
-# 3D asset migration staging (downloaded from Sanity, not committed)
-/assets-source
-

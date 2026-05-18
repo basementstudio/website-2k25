@@ -169,8 +169,6 @@ export interface AssetsResult {
   }[]
 }
 
-// React.cache gives per-request deduplication — multiple Server Component
-// callers within the same render share a single Sanity round-trip.
 export const fetchAssets = cache(async (): Promise<AssetsResult> => {
   if (process.env.ASSETS_SOURCE === ASSETS_SOURCE_SANITY) {
     return fetchAssetsSanity()
