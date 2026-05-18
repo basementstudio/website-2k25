@@ -4,6 +4,9 @@
 //
 // See ./README.md for how to add or edit inspectables.
 
+// Scenes that can host an inspectable. Extend when a new scene gets one.
+export type SceneName = "showcase" | "services" | "blog" | "people"
+
 export interface InspectableMeta {
   id: string
   mesh: string
@@ -11,13 +14,13 @@ export interface InspectableMeta {
   yOffset: number
   xRotationOffset: number
   sizeTarget: number
-  scenes: string[]
+  scenes: SceneName[]
   fx: string
 }
 
 export const INSPECTABLES_META: InspectableMeta[] = [
   {
-    "id": "tH0vuwpFm76CA7YIWjIcz",
+    "id": "mr-beast",
     "mesh": "SM_MrBeast",
     "xOffset": -0.088,
     "yOffset": 0,
@@ -29,7 +32,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "scYVhruaQ3SsNxFzJyjoH",
+    "id": "swaggersouls",
     "mesh": "SM_Swaggersouls",
     "xOffset": -0.086,
     "yOffset": 0.02,
@@ -41,7 +44,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "NXspTP94KjQh1rlidUDPY",
+    "id": "geist",
     "mesh": "SM_Geist",
     "xOffset": -0.083,
     "yOffset": 0,
@@ -53,7 +56,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "JZ854uh5MqhJqY0pKTeiN",
+    "id": "kiss-bag",
     "mesh": "SM_KissBag",
     "xOffset": -0.089,
     "yOffset": -0.04,
@@ -65,7 +68,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "dYsnLwbvAoE209wooWk8T",
+    "id": "webby-kidsuper",
     "mesh": "SM_WebbyKidSuper",
     "xOffset": -0.167,
     "yOffset": 0,
@@ -77,7 +80,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "0kSqAFdHtWohWIy3Q4NN1",
+    "id": "sotd-01",
     "mesh": "SM_SOTD_01",
     "xOffset": -0.167,
     "yOffset": 0,
@@ -89,7 +92,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "sSDgDYA5LsZZ8cAZ43Wip",
+    "id": "pink-floyd",
     "mesh": "SM_PinkFloyd",
     "xOffset": -0.163,
     "yOffset": 0,
@@ -101,7 +104,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "IFQyFPQ5qobl9v5SLFio8",
+    "id": "dl-frame",
     "mesh": "DL_Frame",
     "xOffset": -0.085,
     "yOffset": 0,
@@ -113,7 +116,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "k1S5Qs4ly2LYFoT2WQE1b",
+    "id": "webby-mrbeast",
     "mesh": "SM_WebbyMrBeast",
     "xOffset": -0.167,
     "yOffset": 0,
@@ -125,7 +128,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "kOxJNnElEt5BaqE16LXeH",
+    "id": "patas",
     "mesh": "SM_Patas",
     "xOffset": -0.175,
     "yOffset": 0,
@@ -137,7 +140,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "S16Q7c7hsUk5wkZ4xjoJm",
+    "id": "sm-07-02",
     "mesh": "SM_07_02",
     "xOffset": -0.115,
     "yOffset": 0,
@@ -149,7 +152,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "aXR41L625xAuBjBzoN0uM",
+    "id": "coffee",
     "mesh": "Coffee",
     "xOffset": -0.135,
     "yOffset": -0.055,
@@ -161,7 +164,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "PwAtsWnz9EUUkCPFh0OFU",
+    "id": "sm-06-06",
     "mesh": "SM_06_06",
     "xOffset": -0.125,
     "yOffset": 0,
@@ -173,7 +176,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "wdP9k4bS0wleG29nnULIz",
+    "id": "vercel-ship-2324",
     "mesh": "SM_VercelShip2324",
     "xOffset": -0.083,
     "yOffset": 0,
@@ -185,7 +188,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "lFBwB2ocWiE7ZyueU3r6q",
+    "id": "edglrd",
     "mesh": "SM_EDGLRD",
     "xOffset": -0.083,
     "yOffset": 0,
@@ -197,7 +200,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "1GaM4pVdFwPXoXnFzkrjU",
+    "id": "vc-ship",
     "mesh": "SM_VCShip",
     "xOffset": -0.083,
     "yOffset": 0,
@@ -209,7 +212,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "j1nWSK1FENmTbdqGFCNAJ",
+    "id": "sotd-02",
     "mesh": "SM_SOTD_02",
     "xOffset": -0.167,
     "yOffset": 0,
@@ -221,7 +224,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "UQyTb5DoHzOoDwgYcSDnh",
+    "id": "mate",
     "mesh": "SM_Mate",
     "xOffset": -0.185,
     "yOffset": -0.1,
@@ -233,7 +236,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "QYZUT0mYc7TtDL67BPF7z",
+    "id": "termo",
     "mesh": "SM_Termo",
     "xOffset": -0.177,
     "yOffset": 0,
@@ -245,7 +248,7 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     "fx": ""
   },
   {
-    "id": "gOHRIi7YaIBbxhus2Rixh",
+    "id": "nextjs",
     "mesh": "SM_Nextjs",
     "xOffset": -0.089,
     "yOffset": 0.03,

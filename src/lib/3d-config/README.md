@@ -78,4 +78,4 @@ Just edit the strings — `glassMaterials`, `doubleSideElements`, `bakes[].meshe
 
 `/3d/*` assets are served with `Cache-Control: public, max-age=31536000, immutable` (see [`next.config.ts`](../../../next.config.ts)). This is safe because filenames are content-hashed — changing a file changes the URL, so stale CDN cache is impossible.
 
-**Always content-hash before committing**, even for tiny edits. A file at a stable URL with new content will be served stale for up to a year.
+**Always content-hash before committing**, even for tiny edits. A file at a stable URL with new content will be served stale for up to a year. `pnpm assets:verify` enforces this — it fails on any file under `public/3d/` without an `-<8 hex chars>` suffix.

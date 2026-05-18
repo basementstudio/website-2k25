@@ -6,7 +6,7 @@ export const threeDAssets = defineType({
   type: "document",
   deprecated: {
     reason:
-      "3D assets and metadata moved to the repo under public/3d/ and src/lib/3d-config/. This document is no longer read by the app and will be deleted soon. Do not edit."
+      "3D assets and metadata moved to the repo under public/3d/ and src/lib/3d-config/ (PR #405). Editable content moved to inspectablesConfig / scenesConfig / physicsConfig. This document is no longer read by the app and is scheduled for deletion on 2026-09-01. Do not edit."
   },
   readOnly: true,
   preview: { select: { title: "title" } },

@@ -32,7 +32,9 @@ export async function fetchAssetsLocal(): Promise<AssetsResult> {
         _title: s.title ?? "",
         value: s.value ?? ""
       })),
-      description: content?.description as PortableTextBlock[] | undefined,
+      description: Array.isArray(content?.description)
+        ? (content.description as PortableTextBlock[])
+        : undefined,
       mesh: meta.mesh,
       xOffset: meta.xOffset,
       yOffset: meta.yOffset,

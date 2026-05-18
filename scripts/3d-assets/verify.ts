@@ -5,7 +5,8 @@
  * Run with: pnpm tsx scripts/3d-assets/verify.ts
  */
 
-import { statSync } from "node:fs"
+import { readdirSync, statSync } from "node:fs"
+import { join } from "node:path"
 
 import {
   ASSETS_BASE,
@@ -53,3 +54,38 @@ if (missing.length > 0) {
 }
 
 console.log("\n✓ All manifest references resolve to files on disk.")
+
+// Reverse check: every file under public/3d/ must (a) be referenced by the
+// manifest and (b) have a content-hash suffix. (b) is the contract that makes
+// the year-long immutable Cache-Control header at /3d/:path* safe.
+
+function walkDisk(dir: string, out: string[]): void {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) walkDisk(full, out)
+    else out.push(full)
+  }
+}
+
+const HASH_SUFFIX = /-[a-f0-9]{8}\.[a-z0-9]+$/i
+const onDisk: string[] = []
+walkDisk("public/3d", onDisk)
+const referenced = new Set(urls.map((u) => `public${u}`))
+
+const orphans = onDisk.filter((f) => !referenced.has(f))
+if (orphans.length > 0) {
+  console.warn(`\n⚠ ${orphans.length} orphan files (on disk, not in manifest):`)
+  for (const f of orphans) console.warn(`  - ${f}`)
+}
+
+const unhashed = onDisk.filter((f) => !HASH_SUFFIX.test(f))
+if (unhashed.length > 0) {
+  console.error(
+    `\n✗ ${unhashed.length} files under public/3d/ are not content-hashed:`
+  )
+  for (const f of unhashed) console.error(`  - ${f}`)
+  console.error(
+    "Run `pnpm assets:hash <path>` on each, then update the manifest."
+  )
+  process.exit(1)
+}

@@ -101,7 +101,9 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
         _title: spec.title ?? "",
         value: spec.value ?? ""
       })),
-      description: item.description as PortableTextBlock[] | undefined,
+      description: Array.isArray(item.description)
+        ? (item.description as PortableTextBlock[])
+        : undefined,
       mesh: item.mesh ?? "",
       xOffset: item.xOffset ?? 0,
       yOffset: item.yOffset ?? 0,
