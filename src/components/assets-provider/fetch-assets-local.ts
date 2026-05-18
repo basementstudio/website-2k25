@@ -8,25 +8,12 @@ import { fetchThreeDConfig } from "./fetch-3d-config-sanity"
 // would fire on every request × every missing inspectable, flooding log drains.
 const warnedMissingInspectables = new Set<string>()
 
-/**
- * Builds the `AssetsResult` object the 3D canvas reads on every request, by
- * stitching together two halves:
- *
- *   1. The repo half — asset URLs and per-inspectable mesh data, imported
- *      from `src/lib/3d-config/`.
- *   2. The Sanity half — editor-facing copy and visual tuning (inspectable
- *      titles/specs/descriptions, scene cameras/postprocessing/tabs, physics
- *      params), fetched in one GROQ round-trip.
- *
- * The two halves are joined by inspectable `id`. If a Sanity doc is missing
- * (e.g. unpublished mid-edit), the inspectable still renders with empty copy
- * rather than crashing the page.
- */
+/** Joins the repo manifest with Sanity content into one `AssetsResult`. */
 export async function fetchAssetsLocal(): Promise<AssetsResult> {
   const config = await fetchThreeDConfig()
 
   const inspectableContentById = new Map(
-    config.inspectables.map((c) => [c.inspectableId ?? "", c])
+    (config.inspectables ?? []).map((c) => [c.inspectableId ?? "", c])
   )
 
   const inspectables = INSPECTABLES_META.map((meta) => {
@@ -56,7 +43,7 @@ export async function fetchAssetsLocal(): Promise<AssetsResult> {
     }
   })
 
-  const scenes = config.scenes.map((s) => ({
+  const scenes = (config.scenes ?? []).map((s) => ({
     name: s.sceneName ?? "",
     cameraConfig: {
       position: [

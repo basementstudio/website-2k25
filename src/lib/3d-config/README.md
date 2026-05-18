@@ -13,7 +13,7 @@ Source of truth for everything the 3D canvas needs at runtime: asset URLs, mesh 
 | Scene camera / postprocessing / tab labels | Sanity Studio → 3D Config → Scenes | Editors in Studio |
 | Physics tuning values | Sanity Studio → 3D Config → Physics | Editors in Studio |
 
-The runtime composer [`fetch-assets-local.ts`](../../components/assets-provider/fetch-assets-local.ts) merges these two halves into the `AssetsResult` interface that 25 downstream `useAssets()` consumers read.
+On every request, [`fetch-assets-local.ts`](../../components/assets-provider/fetch-assets-local.ts) reads this directory and fetches the Sanity half, then joins them by inspectable `id` to produce the `AssetsResult` object that 25 downstream `useAssets()` consumers read. If a Sanity doc is missing, the affected inspectable renders with empty copy and logs a one-time warning.
 
 ## Updating
 
@@ -42,11 +42,11 @@ Same as above, plus a new entry in `asset-manifest.ts` under the right section. 
 
 ### Editing inspectable copy (title, specs, description)
 
-Sanity Studio → **3D Config** → **Inspectables** → pick the document → edit → publish.
+Sanity Studio → **3D Config** → **Inspectables** → expand the entry in the array → edit → publish.
 
 ### Tuning a scene's camera, postprocessing, or tab labels
 
-Sanity Studio → **3D Config** → **Scenes** → pick the scene by name → edit → publish.
+Sanity Studio → **3D Config** → **Scenes** → expand the scene in the array → edit → publish.
 
 ### Adjusting physics
 
@@ -60,7 +60,7 @@ Sanity Studio → **3D Config** → **Physics** → edit the array → publish.
    - `xOffset`, `yOffset`, `xRotationOffset`, `sizeTarget`
    - `scenes` (array of scene names where it appears)
    - `fx` (URL of the FX `.glb`, via `pnpm assets:hash`)
-2. In Sanity Studio → **3D Config** → **Inspectables** → create a new document with the **same `inspectableId`**. Add title, specs, description.
+2. In Sanity Studio → **3D Config** → **Inspectables** → add a new entry to the array with the **same `inspectableId`**. Fill in title, specs, description. Publish.
 3. The ID join happens at runtime. If a TS entry has no matching Sanity doc, the runtime renders with empty copy and logs a one-time warning per process.
 
 ### Changing mesh names (when the 3D model exports change)

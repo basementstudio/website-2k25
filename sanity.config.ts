@@ -17,6 +17,8 @@ const singletonTypes = new Set([
   "companyInfo",
   "threeDAssets",
   "showcasePage",
+  "inspectablesConfig",
+  "scenesConfig",
   "physicsConfig"
 ])
 
@@ -136,9 +138,22 @@ function structure(S: StructureBuilder) {
           S.list()
             .title("3D Config")
             .items([
-              S.documentTypeListItem("inspectableContent").title("Inspectables"),
-              S.documentTypeListItem("sceneConfig").title("Scenes"),
-              S.divider(),
+              S.listItem()
+                .title("Inspectables")
+                .id("inspectablesConfig")
+                .child(
+                  S.document()
+                    .schemaType("inspectablesConfig")
+                    .documentId("inspectablesConfig")
+                ),
+              S.listItem()
+                .title("Scenes")
+                .id("scenesConfig")
+                .child(
+                  S.document()
+                    .schemaType("scenesConfig")
+                    .documentId("scenesConfig")
+                ),
               S.listItem()
                 .title("Physics")
                 .id("physicsConfig")

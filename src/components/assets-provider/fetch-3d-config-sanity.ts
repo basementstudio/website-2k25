@@ -1,5 +1,4 @@
-import { client } from "@/service/sanity"
-import { token } from "@/service/sanity/token"
+import { sanityFetch } from "@/service/sanity"
 
 // ---------------------------------------------------------------------------
 // Raw Sanity types returned by GROQ
@@ -67,8 +66,9 @@ interface SanityPhysicsConfig {
 }
 
 export interface SanityThreeDConfigResult {
-  inspectables: SanityInspectableContent[]
-  scenes: SanitySceneConfig[]
+  // Sub-queries return null when the singleton doesn't exist; consumers must coalesce.
+  inspectables: SanityInspectableContent[] | null
+  scenes: SanitySceneConfig[] | null
   physics: SanityPhysicsConfig | null
 }
 
@@ -77,7 +77,7 @@ export interface SanityThreeDConfigResult {
 // ---------------------------------------------------------------------------
 
 const threeDConfigQuery = /* groq */ `{
-  "inspectables": *[_type == "inspectableContent"] {
+  "inspectables": *[_type == "inspectablesConfig"][0].inspectables[] {
     inspectableId,
     title,
     specs[] {
@@ -87,7 +87,7 @@ const threeDConfigQuery = /* groq */ `{
     },
     description
   },
-  "scenes": *[_type == "sceneConfig"] {
+  "scenes": *[_type == "scenesConfig"][0].scenes[] {
     sceneName,
     cameraConfig {
       posX, posY, posZ,
@@ -123,12 +123,10 @@ const threeDConfigQuery = /* groq */ `{
   }
 }`
 
-// The base client is unauthenticated; the dataset is private, so we configure
-// once at module scope rather than per-request.
-const configClient = client.withConfig({ token, useCdn: true })
-
 export async function fetchThreeDConfig(): Promise<SanityThreeDConfigResult> {
-  return configClient.fetch<SanityThreeDConfigResult>(threeDConfigQuery, {}, {
+  return sanityFetch<SanityThreeDConfigResult>({
+    query: threeDConfigQuery,
+    stega: false,
     perspective: "published"
   })
 }

@@ -1,7 +1,6 @@
 import { award } from "./documents/award"
 import { client } from "./documents/client"
 import { department } from "./documents/department"
-import { inspectableContent } from "./documents/inspectableContent"
 import { labProject } from "./documents/labProject"
 import { openPosition } from "./documents/openPosition"
 import { person } from "./documents/person"
@@ -9,7 +8,6 @@ import { post } from "./documents/post"
 import { postCategory } from "./documents/postCategory"
 import { project } from "./documents/project"
 import { projectCategory } from "./documents/projectCategory"
-import { sceneConfig } from "./documents/sceneConfig"
 import { testimonial } from "./documents/testimonial"
 import { value } from "./documents/value"
 import { codeBlock } from "./objects/codeBlock"
@@ -23,8 +21,10 @@ import { tweetEmbed } from "./objects/tweetEmbed"
 import { videoEmbed } from "./objects/videoEmbed"
 import { companyInfo } from "./singletons/companyInfo"
 import { homepage } from "./singletons/homepage"
+import { inspectablesConfig } from "./singletons/inspectablesConfig"
 import { peoplePage } from "./singletons/peoplePage"
 import { physicsConfig } from "./singletons/physicsConfig"
+import { scenesConfig } from "./singletons/scenesConfig"
 import { servicesPage } from "./singletons/servicesPage"
 import { showcasePage } from "./singletons/showcasePage"
 import { threeDAssets } from "./singletons/threeDAssets"
@@ -34,7 +34,6 @@ export const schemaTypes = [
   award,
   client,
   department,
-  inspectableContent,
   labProject,
   openPosition,
   person,
@@ -42,15 +41,16 @@ export const schemaTypes = [
   postCategory,
   project,
   projectCategory,
-  sceneConfig,
   testimonial,
   value,
 
   // Singleton types
   companyInfo,
   homepage,
+  inspectablesConfig,
   peoplePage,
   physicsConfig,
+  scenesConfig,
   servicesPage,
   showcasePage,
   threeDAssets,
