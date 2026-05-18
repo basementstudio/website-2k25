@@ -5,6 +5,8 @@ import { defineConfig } from "sanity"
 import { presentationTool } from "sanity/presentation"
 import type { StructureBuilder } from "sanity/structure"
 import { structureTool } from "sanity/structure"
+import { media } from "sanity-plugin-media"
+import { muxInput } from "sanity-plugin-mux-input"
 
 import { dataset, projectId } from "./sanity/env"
 import { resolve } from "./sanity/presentation/resolve"
@@ -186,6 +188,8 @@ export default defineConfig({
         }
       }
     }),
+    muxInput(),
+    media(),
     visionTool()
   ],
   schema: {

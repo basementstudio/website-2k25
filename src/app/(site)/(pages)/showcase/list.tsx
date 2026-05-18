@@ -5,7 +5,9 @@ import Link from "next/link"
 import { memo, useCallback, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
+import { LazyVideo } from "@/components/primitives/lazy-video"
 import { Video } from "@/components/primitives/video"
+import { resolveVideoSource } from "@/lib/video/resolve-source"
 import { getImageUrl } from "@/service/sanity/helpers"
 import { cn } from "@/utils/cn"
 
@@ -109,15 +111,32 @@ const AccordionListItem = memo(
             >
               {project.showcase?.map((item, imgIndex, array) => {
                 const img = getImageUrl(item.image)
-                const elementToRender = item.video ? (
-                  <Video
-                    key={imgIndex}
-                    src={item.video.url}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="h-full w-full object-cover"
-                  />
+                const videoSource = resolveVideoSource({
+                  mux: item.muxVideo,
+                  legacy: item.video
+                })
+                const elementToRender = videoSource ? (
+                  videoSource.type === "mux" ? (
+                    <LazyVideo
+                      key={imgIndex}
+                      playbackId={videoSource.playbackId}
+                      autoPlay
+                      playsInline
+                      muted
+                      maxResolution="720p"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Video
+                      key={imgIndex}
+                      src={videoSource.url}
+                      mimeType={videoSource.mimeType}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="h-full w-full object-cover"
+                    />
+                  )
                 ) : (
                   <Image
                     key={imgIndex}

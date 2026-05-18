@@ -7,20 +7,20 @@ export const videoEmbed = defineType({
   fields: [
     defineField({
       name: "file",
-      title: "Video File",
+      title: "Video File (legacy — Sanity)",
       description:
         "MP4 only (H.264 + AAC). Other formats — including .mov, .webm, and HEVC-encoded .mp4 — fail to decode on iOS Safari.",
       type: "file",
       options: { accept: "video/mp4,.mp4" },
-      validation: (rule) =>
-        rule.custom((value: { asset?: { _ref?: string } } | undefined) => {
-          if (!value?.asset?._ref) return "Video file is required"
-          const ref = value.asset._ref
-          if (!ref.endsWith("-mp4")) {
-            return "Only .mp4 files are allowed (H.264 + AAC). Re-encode and re-upload."
-          }
-          return true
-        })
+      deprecated: {
+        reason:
+          'Migrating to Mux. Use the "muxVideo" field below for new uploads.'
+      }
+    }),
+    defineField({
+      name: "muxVideo",
+      title: "Video (Mux)",
+      type: "mux.video"
     }),
     defineField({
       name: "caption",

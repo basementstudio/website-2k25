@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
 import { useDeviceDetect } from "@/hooks/use-device-detect"
+import type { ResolvedVideoSource } from "@/lib/video/resolve-source"
 import { cn } from "@/utils/cn"
 
 export interface ImageFragment {
@@ -15,17 +16,13 @@ export interface ImageFragment {
   blurDataURL: string
 }
 
-export interface VideoFragment {
-  url: string
-  mimeType?: string | null
-}
+export type VideoFragment = NonNullable<ResolvedVideoSource>
 
 const Video = dynamic(
   () => import("@/components/primitives/video").then((mod) => mod.Video),
   { ssr: false }
 )
 
-// only load the video when the user hovers over the image, automatically play the video and set opacity to 0
 export const ImageWithVideoOverlay = ({
   image,
   video,
@@ -39,8 +36,6 @@ export const ImageWithVideoOverlay = ({
   className?: string
   variant?: "home" | "showcase"
 }) => {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -54,15 +49,9 @@ export const ImageWithVideoOverlay = ({
 
   const handleMouseEnter = () => {
     setShouldLoadVideo(true)
-    setIsHovered(true)
-
-    setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.play().catch((err) => {
-          console.log("[MouseEnter] Video play failed:", err)
-        })
-      }
-    }, 50) //check video is in DOC ready to play
+    timeoutRef.current = setTimeout(() => {
+      videoRef.current?.play().catch(() => {})
+    }, 50)
   }
 
   const handleMouseLeave = () => {
@@ -70,17 +59,13 @@ export const ImageWithVideoOverlay = ({
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
     }
-
-    setIsHovered(false)
-    if (videoRef.current) {
-      videoRef.current.pause()
-    }
+    videoRef.current?.pause()
   }
 
   return (
     <div
       className={cn(
-        "relative h-full w-full transition-opacity duration-300",
+        "group relative h-full w-full transition-opacity duration-300",
         className,
         { "pointer-events-none opacity-0": disabled }
       )}
@@ -97,30 +82,38 @@ export const ImageWithVideoOverlay = ({
           variant === "home" ? "(max-width: 1024px) 50vw, 90vw" : undefined
         }
         blurDataURL={image?.blurDataURL ?? ""}
-        className="h-full w-full object-cover"
+        className="h-full w-full object-cover group-hover:animate-subtle-pulse"
         priority={false}
       />
-
       {video && shouldLoadVideo && !isMobile ? (
-        <Video
-          src={video.url}
-          onCanPlay={() => {
-            setIsVideoLoaded(true)
-          }}
-          onLoadedData={() => {
-            setIsVideoLoaded(true)
-          }}
-          style={{ "--controls": "none" } as React.CSSProperties}
-          className={cn(
-            "absolute inset-0 h-full w-full object-cover transition-all duration-300",
-            isHovered && isVideoLoaded
-              ? "visible opacity-100"
-              : "invisible opacity-0"
+        <div
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+        >
+          {video.type === "mux" ? (
+            <Video
+              playbackId={video.playbackId}
+              className="h-full w-full object-cover"
+              muted
+              ref={videoRef}
+              poster=""
+              pauseOffscreen={false}
+              {...(variant === "home"
+                ? {
+                    renditionOrder: "desc" as const,
+                    maxResolution: "1080p" as const
+                  }
+                : { maxResolution: "720p" as const })}
+            />
+          ) : (
+            <Video
+              src={video.url}
+              mimeType={video.mimeType}
+              className="h-full w-full object-cover"
+              muted
+              ref={videoRef}
+            />
           )}
-          autoPlay={isHovered}
-          muted={true}
-          ref={videoRef}
-        />
+        </div>
       ) : null}
     </div>
   )

@@ -1,5 +1,5 @@
 import { sanityFetch } from "@/service/sanity"
-import { imageFragment } from "@/service/sanity/queries"
+import { imageFragment, muxVideoFragment } from "@/service/sanity/queries"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
 import { selectRelatedPosts } from "./related-posts.logic"
@@ -67,7 +67,8 @@ export async function fetchPostBySlug(
       },
       _type == "videoEmbed" => {
         ...,
-        "videoUrl": file.asset->url
+        "videoUrl": file.asset->url,
+        muxVideo ${muxVideoFragment}
       }
     },
     categories[]->{ title, "slug": slug.current },
