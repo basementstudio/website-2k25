@@ -2,8 +2,13 @@ import { defineField, defineType } from "sanity"
 
 export const threeDAssets = defineType({
   name: "threeDAssets",
-  title: "3D Assets",
+  title: "3D Assets (DEPRECATED)",
   type: "document",
+  deprecated: {
+    reason:
+      "3D assets and metadata moved to the repo under public/3d/ and src/lib/3d-config/. This document is no longer read by the app and will be deleted soon. Do not edit."
+  },
+  readOnly: true,
   preview: { select: { title: "title" } },
   fields: [
     defineField({

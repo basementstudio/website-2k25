@@ -7,7 +7,9 @@
     "build": "next build --webpack",
     "prettier": "prettier --write .",
     "start": "next start",
-    "lint": "eslint src sanity next.config.ts sanity.config.ts sanity.cli.ts --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint src sanity next.config.ts sanity.config.ts sanity.cli.ts --ext .js,.jsx,.ts,.tsx",
+    "assets:hash": "tsx scripts/3d-assets/hash.ts",
+    "assets:verify": "tsx scripts/3d-assets/verify.ts"
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.19.11",

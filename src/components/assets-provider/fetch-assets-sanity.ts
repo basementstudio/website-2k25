@@ -1,3 +1,5 @@
+import type { PortableTextBlock } from "@/service/sanity/types"
+
 import type { AssetsResult } from "./fetch-assets"
 import { fetchThreeDAssets } from "./sanity"
 
@@ -99,7 +101,7 @@ export async function fetchAssetsSanity(): Promise<AssetsResult> {
         _title: spec.title ?? "",
         value: spec.value ?? ""
       })),
-      description: item.description,
+      description: item.description as PortableTextBlock[] | undefined,
       mesh: item.mesh ?? "",
       xOffset: item.xOffset ?? 0,
       yOffset: item.yOffset ?? 0,

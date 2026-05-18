@@ -1,0 +1,90 @@
+# 3D Config
+
+Source of truth for everything the 3D canvas needs at runtime: asset URLs, mesh names, scene configs, inspectables.
+
+## Where things live
+
+| Data | Location | Edited by |
+|---|---|---|
+| Binary files (GLB, EXR, JPG, WebP, PNG, MP3, MP4) | `public/3d/<category>/<name>-<hash>.<ext>` | Hand-edited |
+| Asset URLs + mesh name lists | [`asset-manifest.ts`](./asset-manifest.ts) | Hand-edited |
+| Per-inspectable mesh / offsets / fx URL | [`inspectables-meta.ts`](./inspectables-meta.ts) | Hand-edited |
+| Inspectable title / specs / description (PortableText) | Sanity Studio → 3D Config → Inspectables | Editors in Studio |
+| Scene camera / postprocessing / tab labels | Sanity Studio → 3D Config → Scenes | Editors in Studio |
+| Physics tuning values | Sanity Studio → 3D Config → Physics | Editors in Studio |
+
+The runtime composer [`fetch-assets-local.ts`](../../components/assets-provider/fetch-assets-local.ts) merges these two halves into the `AssetsResult` interface that 25 downstream `useAssets()` consumers read.
+
+## Updating
+
+### Replacing a binary file (e.g. swapping a GLB)
+
+1. Drop the new file into the right subfolder under `public/3d/`:
+   - `models/` for `.glb` / `.gltf`
+   - `textures/` for `.jpg` / `.png` / `.webp` / `.exr`
+   - `audio/` for `.mp3`
+   - `video/` for `.mp4`
+2. Content-hash and rename it in place:
+   ```bash
+   pnpm assets:hash public/3d/models/office.glb
+   # → renames to office-<sha8>.glb and prints the URL
+   ```
+3. Edit the matching URL in [`asset-manifest.ts`](./asset-manifest.ts). Section comments (`// --- Bakes ---`, `// --- SFX ---`, etc.) match the field groupings in `AssetsResult`.
+4. Delete the old file.
+5. Confirm:
+   ```bash
+   pnpm assets:verify
+   ```
+
+### Adding a brand-new asset
+
+Same as above, plus a new entry in `asset-manifest.ts` under the right section. If it doesn't fit an existing `AssetsResult` field, you'll need to extend the [interface](../../components/assets-provider/fetch-assets.ts) too — TypeScript will tell you every consumer that needs to handle it.
+
+### Editing inspectable copy (title, specs, description)
+
+Sanity Studio → **3D Config** → **Inspectables** → pick the document → edit → publish.
+
+The PortableText description supports rich formatting; that's the main reason this lives in Sanity.
+
+### Tuning a scene's camera, postprocessing, or tab labels
+
+Sanity Studio → **3D Config** → **Scenes** → pick the scene by name → edit → publish.
+
+### Adjusting physics
+
+Sanity Studio → **3D Config** → **Physics** → edit the array → publish.
+
+### Adding a new inspectable
+
+1. Append an entry to `INSPECTABLES_META` in [`inspectables-meta.ts`](./inspectables-meta.ts) with the mesh-tied data:
+   - `id` (unique, lowercase, alphanumeric — this is the contract with Sanity)
+   - `mesh` (the 3D mesh name in the GLB)
+   - `xOffset`, `yOffset`, `xRotationOffset`, `sizeTarget`
+   - `scenes` (array of scene names where it appears)
+   - `fx` (URL of the FX `.glb`, via `pnpm assets:hash`)
+2. In Sanity Studio → **3D Config** → **Inspectables** → create a new document with the **same `inspectableId`**. Add title, specs, description.
+3. The ID join happens at runtime. If a TS entry has no matching Sanity doc, the runtime renders with empty copy and logs a one-time warning per process.
+
+### Changing mesh names (when the 3D model exports change)
+
+Just edit the strings — `glassMaterials`, `doubleSideElements`, `bakes[].meshes`, `matcaps[].mesh`, `inspectables_meta[].mesh`, etc. These are literal mesh names from the GLB. Always update both the model and the manifest together.
+
+## Scripts
+
+| Command | Purpose |
+|---|---|
+| `pnpm assets:hash <path>` | Content-hash a file and rename it in place. Idempotent. |
+| `pnpm assets:verify` | Walk the manifest, confirm every `/3d/...` URL resolves to a file on disk. Fails loudly if any are missing. |
+
+## Cache headers
+
+`/3d/*` assets are served with `Cache-Control: public, max-age=31536000, immutable` (see [`next.config.ts`](../../../next.config.ts)). This is safe because filenames are content-hashed — changing a file changes the URL, so stale CDN cache is impossible.
+
+**Always content-hash before committing**, even for tiny edits. A file at a stable URL with new content will be served stale for up to a year.
+
+## Why the split between Sanity and TS?
+
+- **Asset URLs and mesh names** are tied to the 3D model exports. A typo here breaks rendering. They live in TS so they're versioned with the model changes and caught at build time.
+- **Editor-facing copy and tuning values** benefit from Sanity Studio's authoring UX (PortableText editor, side-by-side preview, draft/publish workflow) and shouldn't require a PR for marketing/copy changes.
+
+The Sanity fetch for the editable half is ~10–15 KB JSON per page render and doesn't add meaningful runtime cost.

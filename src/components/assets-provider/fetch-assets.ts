@@ -1,4 +1,11 @@
+import { cache } from "react"
+
+import type { PortableTextBlock } from "@/service/sanity/types"
+
+import { fetchAssetsLocal } from "./fetch-assets-local"
 import { fetchAssetsSanity } from "./fetch-assets-sanity"
+
+const ASSETS_SOURCE_SANITY = "sanity"
 
 export interface AssetsResult {
   officeItems: string
@@ -52,7 +59,7 @@ export interface AssetsResult {
       _title: string
       value: string
     }[]
-    description: any
+    description: PortableTextBlock[] | undefined
     mesh: string
     xOffset: number
     yOffset: number
@@ -162,6 +169,11 @@ export interface AssetsResult {
   }[]
 }
 
-export async function fetchAssets(): Promise<AssetsResult> {
-  return fetchAssetsSanity()
-}
+// React.cache gives per-request deduplication — multiple Server Component
+// callers within the same render share a single Sanity round-trip.
+export const fetchAssets = cache(async (): Promise<AssetsResult> => {
+  if (process.env.ASSETS_SOURCE === ASSETS_SOURCE_SANITY) {
+    return fetchAssetsSanity()
+  }
+  return fetchAssetsLocal()
+})

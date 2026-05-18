@@ -38,6 +38,24 @@ const nextConfig: NextConfig = {
     return config
   },
 
+  async headers() {
+    return [
+      {
+        // 3D assets under /public/3d are content-hashed (e.g. office-077b4007.glb)
+        // so they're safe to cache forever. Without this, Next.js defaults
+        // /public to `public, max-age=0, must-revalidate` and revalidates on
+        // every page view.
+        source: "/3d/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable"
+          }
+        ]
+      }
+    ]
+  },
+
   async rewrites() {
     return [
       {

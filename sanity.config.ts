@@ -16,7 +16,8 @@ const singletonTypes = new Set([
   "peoplePage",
   "companyInfo",
   "threeDAssets",
-  "showcasePage"
+  "showcasePage",
+  "physicsConfig"
 ])
 
 const singletonActions = new Set(["publish", "discardChanges", "restore"])
@@ -61,7 +62,7 @@ function structure(S: StructureBuilder) {
                     .documentId("companyInfo")
                 ),
               S.listItem()
-                .title("3D Assets")
+                .title("3D Assets (DEPRECATED)")
                 .id("threeDAssets")
                 .child(
                   S.document()
@@ -122,6 +123,32 @@ function structure(S: StructureBuilder) {
             .title("Careers")
             .items([
               S.documentTypeListItem("openPosition").title("Open Positions")
+            ])
+        ),
+
+      S.divider(),
+
+      // --- 3D Config ---
+      // Editable metadata that backs the 3D canvas. Binary files (models,
+      // textures, audio) live in public/3d/ in the repo — only the content
+      // that benefits from editorial workflow lives here.
+      S.listItem()
+        .title("3D Config")
+        .child(
+          S.list()
+            .title("3D Config")
+            .items([
+              S.documentTypeListItem("inspectableContent").title("Inspectables"),
+              S.documentTypeListItem("sceneConfig").title("Scenes"),
+              S.divider(),
+              S.listItem()
+                .title("Physics")
+                .id("physicsConfig")
+                .child(
+                  S.document()
+                    .schemaType("physicsConfig")
+                    .documentId("physicsConfig")
+                )
             ])
         )
     ])
