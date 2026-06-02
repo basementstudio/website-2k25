@@ -10,7 +10,9 @@ interface CustomTweetProps {
   id: string
 }
 
-const sanitizeTweet = (tweet: Tweet): Tweet => ({
+const sanitizeEntities = <T extends { entities?: Tweet["entities"] }>(
+  tweet: T
+): T => ({
   ...tweet,
   entities: {
     ...tweet.entities,
@@ -20,6 +22,13 @@ const sanitizeTweet = (tweet: Tweet): Tweet => ({
     symbols: tweet.entities?.symbols ?? []
   }
 })
+
+const sanitizeTweet = (tweet: Tweet): Tweet => {
+  const sanitized = sanitizeEntities(tweet)
+  return sanitized.quoted_tweet
+    ? { ...sanitized, quoted_tweet: sanitizeEntities(sanitized.quoted_tweet) }
+    : sanitized
+}
 
 export const CustomTweet = async ({ id }: CustomTweetProps) => {
   const isValidTweetId = /^\d+$/.test(id)
