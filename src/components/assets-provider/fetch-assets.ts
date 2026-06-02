@@ -3,9 +3,6 @@ import { cache } from "react"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
 import { fetchAssetsLocal } from "./fetch-assets-local"
-import { fetchAssetsSanity } from "./fetch-assets-sanity"
-
-const ASSETS_SOURCE_SANITY = "sanity"
 
 export interface AssetsResult {
   officeItems: string
@@ -40,6 +37,7 @@ export interface AssetsResult {
     idleScreen: string
     placeholderLab: string
     boot: string
+    shaderLab: string
     chronicles: string
     looper: string
     palm: string
@@ -169,9 +167,6 @@ export interface AssetsResult {
   }[]
 }
 
-export const fetchAssets = cache(async (): Promise<AssetsResult> => {
-  if (process.env.ASSETS_SOURCE === ASSETS_SOURCE_SANITY) {
-    return fetchAssetsSanity()
-  }
-  return fetchAssetsLocal()
-})
+export const fetchAssets = cache(
+  async (): Promise<AssetsResult> => fetchAssetsLocal()
+)

@@ -1,8 +1,8 @@
 import { ASSETS_BASE, INSPECTABLES_META } from "@/lib/3d-config/asset-manifest"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
-import type { AssetsResult } from "./fetch-assets"
 import { fetchThreeDConfig } from "./fetch-3d-config-sanity"
+import type { AssetsResult } from "./fetch-assets"
 
 // One log per missing inspectable per process — without dedup the warn loop
 // would fire on every request × every missing inspectable, flooding log drains.
