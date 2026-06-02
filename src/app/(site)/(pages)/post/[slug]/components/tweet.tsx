@@ -1,6 +1,6 @@
 import Image from "next/image"
-import { Tweet } from "react-tweet"
-import { getTweet } from "react-tweet/api"
+import { EmbeddedTweet } from "react-tweet"
+import { getTweet, type Tweet } from "react-tweet/api"
 
 import rauchg from "./rauchg.jpg"
 
@@ -10,6 +10,17 @@ interface CustomTweetProps {
   id: string
 }
 
+const sanitizeTweet = (tweet: Tweet): Tweet => ({
+  ...tweet,
+  entities: {
+    ...tweet.entities,
+    hashtags: tweet.entities?.hashtags ?? [],
+    user_mentions: tweet.entities?.user_mentions ?? [],
+    urls: tweet.entities?.urls ?? [],
+    symbols: tweet.entities?.symbols ?? []
+  }
+})
+
 export const CustomTweet = async ({ id }: CustomTweetProps) => {
   const isValidTweetId = /^\d+$/.test(id)
 
@@ -17,12 +28,15 @@ export const CustomTweet = async ({ id }: CustomTweetProps) => {
 
   try {
     const tweet = await getTweet(id)
-    const isRauchTweet = tweet?.user.id_str === RAUCHG_ID
+
+    if (!tweet) return null
+
+    const isRauchTweet = tweet.user.id_str === RAUCHG_ID
 
     return (
       <div className="dark mx-auto grid w-full max-w-[500px] place-items-center">
-        <Tweet
-          id={id}
+        <EmbeddedTweet
+          tweet={sanitizeTweet(tweet)}
           components={{
             AvatarImg: (props) => (
               <Image
