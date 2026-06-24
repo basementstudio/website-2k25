@@ -17,7 +17,7 @@ interface BlogPostData {
   title: string
   slug: string
   date: string | null
-  createdAt?: string | null
+  modifiedAt?: string | null
   intro?: PortableTextBlock[] | null
   heroImage?: SanityImage | null
   authors?: { title: string; url?: string | null }[] | null
@@ -41,7 +41,7 @@ export const generateBlogPostingSchema = (post: BlogPostData) => {
     mainEntityOfPage: url,
     inLanguage: "en",
     ...(post.date ? { datePublished: post.date } : {}),
-    ...(post.createdAt ? { dateModified: post.createdAt } : {}),
+    ...(post.modifiedAt ? { dateModified: post.modifiedAt } : {}),
     ...(description ? { description } : {}),
     ...(image ? { image } : {}),
     ...(post.authors && post.authors.length > 0

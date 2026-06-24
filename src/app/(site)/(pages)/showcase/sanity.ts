@@ -95,6 +95,27 @@ export async function fetchProjectsCount(): Promise<number> {
   })
 }
 
+const projectListForSchemaQuery = /* groq */ `
+  *[_type == "showcasePage"][0].projects[]->{
+    title,
+    "slug": slug.current
+  }
+`
+
+/** Lightweight title + slug list of showcase projects, for the CollectionPage schema. */
+export async function fetchProjectListForSchema(): Promise<
+  Array<{ title: string; slug: string }>
+> {
+  const projects = await sanityFetch<Array<{
+    title: string
+    slug: string
+  }> | null>({
+    query: projectListForSchemaQuery,
+    stega: false
+  })
+  return projects ?? []
+}
+
 export async function fetchCategories(): Promise<ShowcaseCategory[]> {
   return sanityFetch<ShowcaseCategory[]>({
     query: categoriesQuery

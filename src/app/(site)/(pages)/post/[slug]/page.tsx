@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation"
 
+import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { JsonLd } from "@/lib/structured-data/json-ld"
 import { generateBlogPostingSchema } from "@/lib/structured-data/schemas/blog-posting"
 import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
+import { truncateDescription } from "@/utils/seo"
 
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import { Content } from "./content"
@@ -27,10 +29,16 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
 
   if (!post) return null
 
+  const title = post.title ?? "Untitled"
+  const description =
+    truncateDescription(extractPlainText(post.intro)) ||
+    `Read ${title} on the basement.studio blog — insights on design, engineering, and building cool shit that performs.`
+
   return {
     title: {
-      absolute: `${post.title ?? "Untitled"} | Blog`
+      absolute: `${title} | Blog`
     },
+    description,
     alternates: {
       canonical: `https://basement.studio/post/${slug}`
     }
@@ -52,7 +60,7 @@ const Blog = async ({ params }: ProjectPostProps) => {
     title: post.title,
     slug: post.slug,
     date: post.date,
-    createdAt: post._createdAt,
+    modifiedAt: post._updatedAt,
     intro: post.intro,
     heroImage: post.heroImage,
     authors: post.authors,
