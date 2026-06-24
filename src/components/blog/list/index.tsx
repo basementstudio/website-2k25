@@ -33,7 +33,7 @@ export const BlogList = async ({ params }: { params: { slug: string[] } }) => {
                       fill
                       sizes="(max-width: 1024px) 100vw, 276px"
                       className="h-full w-full object-cover"
-                      quality={100}
+                      quality={90}
                     />
                   )}
                 </div>

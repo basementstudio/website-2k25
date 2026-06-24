@@ -104,6 +104,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
               src={coverImg.src}
               alt={coverImg.alt || ""}
               fill
+              sizes="100vw"
               className="with-dots relative object-cover"
             />
           ) : null}
