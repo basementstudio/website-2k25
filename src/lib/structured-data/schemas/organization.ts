@@ -13,10 +13,16 @@ interface Award {
   projectName?: string | null
 }
 
+interface ContactPoint {
+  email: string
+  contactType: string
+}
+
 interface OrganizationData {
   description: string | null
   foundingDate: string | number | null
   email: string | null
+  contactPoints?: ContactPoint[]
   addressCity: string | null
   addressRegion: string | null
   addressCountry: string | null
@@ -73,6 +79,14 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
   const hasAddress =
     data.addressCity || data.addressRegion || data.addressCountry
 
+  const contactPoint = (data.contactPoints ?? [])
+    .filter((cp) => Boolean(cp.email))
+    .map((cp) => ({
+      "@type": "ContactPoint",
+      contactType: cp.contactType,
+      email: cp.email
+    }))
+
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -84,6 +98,10 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     ...(data.description ? { description: data.description } : {}),
     ...(data.foundingDate ? { foundingDate: String(data.foundingDate) } : {}),
     ...(data.email ? { email: data.email } : {}),
+    ...(contactPoint.length > 0 ? { contactPoint } : {}),
+    // TODO: add a public postal address. basement.studio does not currently
+    // publish a street address anywhere in the codebase, so `address` is only
+    // emitted when address fields are provided (none are wired up yet).
     ...(hasAddress
       ? {
           address: {

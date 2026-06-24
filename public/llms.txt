@@ -1,0 +1,26 @@
+# basement.studio
+
+> basement.studio is a digital studio and branding powerhouse that designs and builds brands, websites, and digital products — "we make cool shit that performs." The team pairs strong design and branding with engineering (web, 3D/WebGL, and interactive experiences) to ship work for startups and established companies worldwide.
+
+## Key pages
+
+- [Home](https://basement.studio/): Overview of the studio, featured work, capabilities, and clients.
+- [Services](https://basement.studio/services): The capabilities basement.studio offers — branding, design, and engineering.
+- [Showcase](https://basement.studio/showcase): Portfolio of selected projects and case studies.
+- [Blog](https://basement.studio/blog): Articles and writing from the studio.
+- [People](https://basement.studio/people): The team behind basement.studio and open positions.
+- [Contact](https://basement.studio/contact): Get in touch to start a project.
+
+## Lab & experiments
+
+- [Lab](https://basement.studio/lab): Experiments and interactive demos built by the studio.
+- [Basketball](https://basement.studio/basketball): An interactive basketball mini-game.
+- [Doom](https://basement.studio/doom): A playable in-browser Doom experiment.
+
+## Contact
+
+- General & project inquiries: hello@basement.studio
+- New business / sales: sales@basement.studio
+- X (Twitter): https://x.com/basementstudio
+- Instagram: https://www.instagram.com/basementdotstudio
+- GitHub: https://github.com/basementstudio
