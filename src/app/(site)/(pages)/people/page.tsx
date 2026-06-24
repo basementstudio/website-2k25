@@ -19,6 +19,8 @@ import { Values } from "./values"
 
 export const metadata: Metadata = {
   title: "People",
+  description:
+    "Meet the basement.studio crew — the designers, engineers, and creative minds behind the brands, websites, and 3D experiences we build. We're hiring.",
   alternates: {
     canonical: "https://basement.studio/people"
   }

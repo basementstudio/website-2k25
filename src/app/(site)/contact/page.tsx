@@ -5,6 +5,8 @@ import { ContactForm } from "./form/contact-form"
 
 export const metadata: Metadata = {
   title: "Contact Us",
+  description:
+    "Get in touch with basement.studio. Tell us about your project — brands, websites, 3D experiences, or products — and let's make cool shit that performs.",
   alternates: {
     canonical: "https://basement.studio/contact"
   }
