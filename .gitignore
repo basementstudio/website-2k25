@@ -46,6 +46,10 @@ next-env.d.ts
 # million lint
 .million
 
+# tldr
+.tldrignore
+.tldr/
+
 # Sentry Config File
 .env.sentry-build-plugin
 
