@@ -79,6 +79,10 @@ export const FooterContent = ({
     {
       title: "Lab",
       href: "/lab"
+    },
+    {
+      title: "Privacy",
+      href: "/privacy"
     }
   ]
 
