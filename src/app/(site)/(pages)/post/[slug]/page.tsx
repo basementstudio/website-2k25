@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 
 import { JsonLd } from "@/lib/structured-data/json-ld"
 import { generateBlogPostingSchema } from "@/lib/structured-data/schemas/blog-posting"
+import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
 
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import { Content } from "./content"
@@ -58,9 +59,16 @@ const Blog = async ({ params }: ProjectPostProps) => {
     categories: post.categories
   })
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Blog", path: "/blog" },
+    { name: post.title ?? "Untitled", path: `/post/${post.slug}` }
+  ])
+
   return (
     <>
       <JsonLd data={blogPostingSchema} />
+      <JsonLd data={breadcrumbSchema} />
       <div className="relative bg-brand-k pt-12 lg:pb-24">
         <div className="lg:pb-25 flex flex-col gap-24">
           <BlogTitle title={post.title} />
