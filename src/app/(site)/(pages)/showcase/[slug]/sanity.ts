@@ -83,7 +83,7 @@ const allProjectSlugsQuery = /* groq */ `
 `
 
 const projectMetaQuery = /* groq */ `
-  *[_type == "project" && slug.current == $slug][0]{ title }
+  *[_type == "project" && slug.current == $slug][0]{ title, content }
 `
 
 const relatedProjectsQuery = /* groq */ `
@@ -122,8 +122,11 @@ export async function fetchAllProjectSlugs(): Promise<Array<{
 
 export async function fetchProjectMeta(
   slug: string
-): Promise<{ title: string } | null> {
-  return sanityFetch<{ title: string } | null>({
+): Promise<{ title: string; content: PortableTextBlock[] | null } | null> {
+  return sanityFetch<{
+    title: string
+    content: PortableTextBlock[] | null
+  } | null>({
     query: projectMetaQuery,
     params: { slug },
     stega: false,

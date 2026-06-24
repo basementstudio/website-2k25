@@ -7,6 +7,7 @@ import type { PortableTextBlock } from "@/service/sanity/types"
 
 export interface CareerPosition {
   _id: string
+  _createdAt: string
   title: string
   slug: string
   type: string | null
@@ -30,6 +31,7 @@ export async function fetchCareerPosition(
 ): Promise<CareerPosition | null> {
   const query = /* groq */ `*[_type == "openPosition" && slug.current == $slug][0]{
     _id,
+    _createdAt,
     title,
     "slug": slug.current,
     type,

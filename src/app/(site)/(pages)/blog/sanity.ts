@@ -102,3 +102,24 @@ export async function fetchPostCount(): Promise<number> {
     query
   })
 }
+
+const postListForSchemaQuery = /* groq */ `
+  *[_type == "post" && defined(slug.current)] | order(date desc){
+    title,
+    "slug": slug.current
+  }
+`
+
+/** Lightweight title + slug list of all posts, for the CollectionPage schema. */
+export async function fetchPostListForSchema(): Promise<
+  Array<{ title: string; slug: string }>
+> {
+  const posts = await sanityFetch<Array<{
+    title: string
+    slug: string
+  }> | null>({
+    query: postListForSchemaQuery,
+    stega: false
+  })
+  return posts ?? []
+}
