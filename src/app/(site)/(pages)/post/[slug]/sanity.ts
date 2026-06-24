@@ -36,7 +36,9 @@ export interface RelatedPost {
 // ---------------------------------------------------------------------------
 
 export async function fetchPostBySlug(
-  slug: string
+  slug: string,
+  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  options?: { published?: boolean }
 ): Promise<PostDetail | null> {
   const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{
     _id,
@@ -78,7 +80,27 @@ export async function fetchPostBySlug(
   }`
   return sanityFetch<PostDetail | null>({
     query,
-    params: { slug }
+    params: { slug },
+    ...(options?.published ? { stega: false, perspective: "published" } : {})
+  })
+}
+
+export interface PostIndexEntry {
+  title: string
+  slug: string
+  date: string | null
+}
+
+export async function fetchAllPostsForIndex(): Promise<PostIndexEntry[]> {
+  const query = /* groq */ `*[_type == "post" && defined(slug.current)] | order(date desc){
+    title,
+    "slug": slug.current,
+    date
+  }`
+  return sanityFetch<PostIndexEntry[]>({
+    query,
+    stega: false,
+    perspective: "published"
   })
 }
 
