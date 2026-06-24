@@ -186,6 +186,7 @@ export const Content = ({ post }: ContentProps) => {
                             <Image
                               src={img.src}
                               fill
+                              sizes="(max-width: 768px) 100vw, 720px"
                               className="object-cover"
                               alt={img.alt ?? "Blog image"}
                             />
@@ -317,6 +318,7 @@ export const Content = ({ post }: ContentProps) => {
                                 <Image
                                   src={img.src}
                                   fill
+                                  sizes="(max-width: 768px) 100vw, 720px"
                                   className="object-cover"
                                   alt={img.alt || "Blog image"}
                                 />

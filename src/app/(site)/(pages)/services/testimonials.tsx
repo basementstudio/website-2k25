@@ -1,7 +1,4 @@
-import {
-  PortableText,
-  type PortableTextComponents
-} from "@portabletext/react"
+import { PortableText, type PortableTextComponents } from "@portabletext/react"
 import Image from "next/image"
 import { memo } from "react"
 
@@ -52,7 +49,7 @@ const TestimonialAvatar = memo(
             height={img.height}
             width={img.width}
             placeholder="blur"
-            quality={100}
+            quality={90}
             sizes="(max-width: 1024px) 192px, 288px"
             src={img.src}
           />
@@ -75,7 +72,9 @@ const TestimonialAuthor = memo(
     role: ServiceTestimonial["role"]
   }) => {
     const hasRole =
-      typeof role === "string" ? role.length > 0 : Array.isArray(role) && role.length > 0
+      typeof role === "string"
+        ? role.length > 0
+        : Array.isArray(role) && role.length > 0
 
     return (
       <div className="flex flex-col justify-center gap-1">
