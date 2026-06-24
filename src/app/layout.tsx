@@ -31,6 +31,7 @@ export const metadata: Metadata = {
       "A digital studio & branding powerhouse making cool shit that performs."
   },
   openGraph: {
+    type: "website",
     images: {
       url: "/images/opengraph-image.gif",
       width: 1200,
