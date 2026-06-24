@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     default: "basement.studio | We make cool shit that performs."
   },
   description:
-    "A digital studio & branding powerhouse making cool shit that performs.",
+    "basement.studio is a digital studio crafting brands, websites, 3D experiences, and products. We design and engineer cool shit that actually performs.",
   twitter: {
     creator: "@basementstudio",
     site: "@basementstudio",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
       height: 642
     },
     description:
-      "A digital studio & branding powerhouse making cool shit that performs."
+      "basement.studio is a digital studio crafting brands, websites, 3D experiences, and products. We design and engineer cool shit that actually performs."
   },
   openGraph: {
     images: {

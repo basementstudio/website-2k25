@@ -5,6 +5,8 @@ import { ShowcaseList } from "./showcase-list"
 
 export const metadata: Metadata = {
   title: "Showcase",
+  description:
+    "Explore basement.studio's showcase — a selection of brands, websites, 3D experiences, and products we've designed and engineered for clients worldwide.",
   alternates: {
     canonical: "https://basement.studio/showcase"
   }

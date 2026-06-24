@@ -52,7 +52,7 @@ const TestimonialAvatar = memo(
             height={img.height}
             width={img.width}
             placeholder="blur"
-            quality={100}
+            quality={90}
             sizes="(max-width: 1024px) 192px, 288px"
             src={img.src}
           />

@@ -116,9 +116,12 @@ export async function fetchAllPostSlugs(): Promise<string[]> {
 
 export async function fetchPostMeta(
   slug: string
-): Promise<{ title: string } | null> {
-  const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{ title }`
-  return sanityFetch<{ title: string } | null>({
+): Promise<{ title: string; intro: PortableTextBlock[] | null } | null> {
+  const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{ title, intro }`
+  return sanityFetch<{
+    title: string
+    intro: PortableTextBlock[] | null
+  } | null>({
     query,
     params: { slug },
     stega: false,

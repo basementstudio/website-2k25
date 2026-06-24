@@ -6,6 +6,8 @@ import { LabClient } from "./client"
 
 export const metadata: Metadata = {
   title: "Lab",
+  description:
+    "Step into the basement.studio lab — an experimental playground where we prototype interactive WebGL, 3D, and creative engineering ideas just for the fun of it.",
   alternates: {
     canonical: "https://basement.studio/lab"
   }

@@ -1,3 +1,5 @@
+import type { Metadata } from "next"
+
 import { BlogList } from "@/components/blog/list"
 
 import { fetchCategoriesNonEmpty } from "../sanity"
@@ -5,6 +7,35 @@ import { fetchCategoriesNonEmpty } from "../sanity"
 type Params = Promise<{ slug: string[] }>
 
 export const experimental_ppr = true
+
+const titleCase = (slug: string): string =>
+  slug
+    .split("-")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+
+export const generateMetadata = async (props: {
+  params: Params
+}): Promise<Metadata> => {
+  const { slug } = await props.params
+  const categorySlug = slug?.[0]
+
+  if (!categorySlug) {
+    return {
+      description:
+        "Read the basement.studio blog — articles, deep dives, and behind-the-scenes notes on design, branding, web engineering, 3D, and cool shit that performs."
+    }
+  }
+
+  const categories = await fetchCategoriesNonEmpty()
+  const category = categories.find((c) => c.slug === categorySlug)
+  const label = category?.title ?? titleCase(categorySlug)
+
+  return {
+    description: `Explore basement.studio's ${label} articles — deep dives, tutorials, and behind-the-scenes notes from our design and engineering team.`
+  }
+}
 
 const BlogIndexPage = async (props: { params: Params }) => {
   const params = await props.params
