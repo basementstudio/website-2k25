@@ -1,20 +1,12 @@
 import type { SanityImage } from "./types"
 
-/**
- * Largest source dimension we ever ask Sanity for. The CDN stores originals up
- * to 5760px, and next/image would otherwise fetch (and re-encode) the full file
- * even when it renders a fraction of that. Capping the source at 2400px keeps
- * images retina-sharp while cutting the bytes Next pulls upstream.
- */
+// Originals run up to 5760px; cap the source so next/image doesn't fetch and
+// re-encode the full file for media rendered far smaller.
 const MAX_SOURCE_DIMENSION = 2400
 
 /**
  * Converts a SanityImage (projected via `imageFragment`) into the flat shape
  * expected by Next.js `<Image>` and the codebase's existing image components.
- *
- * The source URL is capped at {@link MAX_SOURCE_DIMENSION} and asked to
- * auto-negotiate a modern format, and the reported dimensions are scaled to
- * match so next/image never believes the asset is larger than what it serves.
  *
  * Returns `null` when the image asset is missing (e.g. unpublished reference).
  */
@@ -43,16 +35,10 @@ export function getImageUrl(image: SanityImage | null | undefined): {
   }
 }
 
-/**
- * Appends Sanity CDN transform params to cap the served source. Only touches
- * cdn.sanity.io URLs and only downscales (never upscales). Other hosts (e.g.
- * Twitter avatars) are returned untouched.
- */
 function capSanitySource(url: string, scale: number): string {
   if (scale >= 1 || !url.includes("cdn.sanity.io")) return url
 
-  // fit=max bounds the image within the w×h box (no crop, no upscale), so the
-  // longest side — width or height — is capped at MAX_SOURCE_DIMENSION.
+  // fit=max bounds the longest side to the box without cropping or upscaling.
   const separator = url.includes("?") ? "&" : "?"
   return `${url}${separator}w=${MAX_SOURCE_DIMENSION}&h=${MAX_SOURCE_DIMENSION}&fit=max&auto=format`
 }
