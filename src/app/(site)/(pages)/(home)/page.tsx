@@ -6,6 +6,7 @@ import {
   generateOrganizationSchema,
   generateWebSiteSchema
 } from "@/lib/structured-data/schemas/organization"
+import { generateProfessionalServiceSchema } from "@/lib/structured-data/schemas/professional-service-entity"
 
 import { Brands } from "./brands"
 import { Capabilities } from "./capabilities"
@@ -28,10 +29,20 @@ const Homepage = async () => {
     fetchOrganizationData()
   ])
 
+  const serviceTitles = (data.homepage?.capabilities ?? [])
+    .map((c) => c.title)
+    .filter((title): title is string => Boolean(title))
+
   return (
     <div className="flex flex-col gap-18 lg:gap-32">
       <JsonLd data={generateOrganizationSchema(orgData)} />
       <JsonLd data={generateWebSiteSchema()} />
+      <JsonLd
+        data={generateProfessionalServiceSchema({
+          services: serviceTitles,
+          email: orgData.email
+        })}
+      />
       <Intro data={data} />
       <Brands data={data} />
       <FeaturedProjects data={data} />
