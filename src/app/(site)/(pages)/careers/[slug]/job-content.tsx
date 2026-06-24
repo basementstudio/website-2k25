@@ -114,6 +114,7 @@ export const JobContent = ({ content }: JobContentProps) => (
                     <Image
                       src={img.src}
                       fill
+                      sizes="(max-width: 768px) 100vw, 720px"
                       className="object-cover"
                       alt={img.alt || "Job description image"}
                     />
@@ -219,6 +220,7 @@ export const JobContent = ({ content }: JobContentProps) => (
                         <Image
                           src={img.src}
                           fill
+                          sizes="(max-width: 768px) 50vw, 360px"
                           className="object-cover"
                           alt={img.alt || "Gallery image"}
                         />
