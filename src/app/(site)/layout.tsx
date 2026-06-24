@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import Script from "next/script"
 
 import { AppHooks } from "@/components/app-hooks-init"
 import { AssetsProvider } from "@/components/assets-provider"
@@ -20,6 +21,11 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
     <>
       <Analytics />
       <SpeedInsights />
+      <Script
+        src="https://analytics.ahrefs.com/analytics.js"
+        data-key="ulc2H83B54VgW4DK1z3uiw"
+        strategy="afterInteractive"
+      />
       <Transitions />
       <PostHogProvider>
         <AssetsProvider assets={assets}>
