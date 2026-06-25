@@ -26,6 +26,9 @@ importers:
       '@notionhq/client':
         specifier: ^5.13.0
         version: 5.13.0
+      '@phosphor-icons/react':
+        specifier: ^2.1.10
+        version: 2.1.10(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
       '@portabletext/react':
         specifier: ^6.0.3
         version: 6.0.3(react@19.0.1)
@@ -109,7 +112,7 @@ importers:
         version: 3.7.1
       js-dos:
         specifier: ^8.3.20
-        version: 8.3.20(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@4.2.1)
+        version: 8.3.20(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@5.0.1)
       leva:
         specifier: ^0.9.35
         version: 0.9.35(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)
@@ -2461,6 +2464,13 @@ packages:
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
     engines: {node: '>=8.0.0'}
+
+  '@phosphor-icons/react@2.1.10':
+    resolution: {integrity: sha512-vt8Tvq8GLjheAZZYa+YG/pW7HDbov8El/MANW8pOAz4eGxrwhnbfrQZq0Cp4q8zBEu8NIhHdnr+r8thnfRSNYA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>= 16.8'
+      react-dom: '>= 16.8'
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -9633,8 +9643,8 @@ snapshots:
 
   '@babel/generator@7.26.10':
     dependencies:
-      '@babel/parser': 7.27.0
-      '@babel/types': 7.27.0
+      '@babel/parser': 7.29.2
+      '@babel/types': 7.29.0
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 3.1.0
@@ -9793,7 +9803,7 @@ snapshots:
   '@babel/helpers@7.26.10':
     dependencies:
       '@babel/template': 7.26.9
-      '@babel/types': 7.27.0
+      '@babel/types': 7.29.0
 
   '@babel/helpers@7.29.2':
     dependencies:
@@ -9802,7 +9812,7 @@ snapshots:
 
   '@babel/parser@7.27.0':
     dependencies:
-      '@babel/types': 7.27.0
+      '@babel/types': 7.29.0
 
   '@babel/parser@7.29.2':
     dependencies:
@@ -10380,8 +10390,8 @@ snapshots:
   '@babel/template@7.26.9':
     dependencies:
       '@babel/code-frame': 7.26.2
-      '@babel/parser': 7.27.0
-      '@babel/types': 7.27.0
+      '@babel/parser': 7.29.2
+      '@babel/types': 7.29.0
 
   '@babel/template@7.28.6':
     dependencies:
@@ -10393,9 +10403,9 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/generator': 7.26.10
-      '@babel/parser': 7.27.0
+      '@babel/parser': 7.29.2
       '@babel/template': 7.26.9
-      '@babel/types': 7.27.0
+      '@babel/types': 7.29.0
       debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:
@@ -11835,6 +11845,11 @@ snapshots:
   '@opentelemetry/api@1.9.0':
     optional: true
 
+  '@phosphor-icons/react@2.1.10(react-dom@19.0.1(react@19.0.1))(react@19.0.1)':
+    dependencies:
+      react: 19.0.1
+      react-dom: 19.0.1(react@19.0.1)
+
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
@@ -12729,7 +12744,7 @@ snapshots:
       - three
       - use-sync-external-store
 
-  '@reduxjs/toolkit@1.9.7(react-redux@8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@4.2.1))(react@19.0.1)':
+  '@reduxjs/toolkit@1.9.7(react-redux@8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@5.0.1))(react@19.0.1)':
     dependencies:
       immer: 9.0.21
       redux: 4.2.1
@@ -12737,7 +12752,7 @@ snapshots:
       reselect: 4.1.8
     optionalDependencies:
       react: 19.0.1
-      react-redux: 8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@4.2.1)
+      react-redux: 8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@5.0.1)
 
   '@reduxjs/toolkit@2.11.2(react-redux@9.2.0(@types/react@19.0.0)(react@19.0.1)(redux@5.0.1))(react@19.0.1)':
     dependencies:
@@ -16451,13 +16466,13 @@ snapshots:
 
   jquery@3.7.1: {}
 
-  js-dos@8.3.20(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@4.2.1):
+  js-dos@8.3.20(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@5.0.1):
     dependencies:
-      '@reduxjs/toolkit': 1.9.7(react-redux@8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@4.2.1))(react@19.0.1)
+      '@reduxjs/toolkit': 1.9.7(react-redux@8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@5.0.1))(react@19.0.1)
       nipplejs: 0.10.2
       preact: 10.26.5
       react-checkbox-tree: 1.8.0(react@19.0.1)
-      react-redux: 8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@4.2.1)
+      react-redux: 8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@5.0.1)
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
@@ -17695,7 +17710,7 @@ snapshots:
       react: 19.0.1
       scheduler: 0.25.0
 
-  react-redux@8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@4.2.1):
+  react-redux@8.1.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.1(react@19.0.1))(react@19.0.1)(redux@5.0.1):
     dependencies:
       '@babel/runtime': 7.26.0
       '@types/hoist-non-react-statics': 3.3.7(@types/react@19.0.0)
@@ -17708,7 +17723,7 @@ snapshots:
       '@types/react': 19.0.0
       '@types/react-dom': 19.0.0
       react-dom: 19.0.1(react@19.0.1)
-      redux: 4.2.1
+      redux: 5.0.1
 
   react-redux@9.2.0(@types/react@19.0.0)(react@19.0.1)(redux@5.0.1):
     dependencies:

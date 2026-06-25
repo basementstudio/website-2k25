@@ -18,6 +18,7 @@
     "@million/lint": "^1.0.14",
     "@mux/mux-video-react": "^0.24.3",
     "@notionhq/client": "^5.13.0",
+    "@phosphor-icons/react": "^2.1.10",
     "@portabletext/react": "^6.0.3",
     "@portabletext/types": "^4.0.2",
     "@radix-ui/react-accordion": "^1.2.2",
