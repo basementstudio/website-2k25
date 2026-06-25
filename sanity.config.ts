@@ -19,6 +19,7 @@ import {
   UsersIcon
 } from "@phosphor-icons/react/dist/ssr"
 import { visionTool } from "@sanity/vision"
+import type { ComponentType } from "react"
 import { defineConfig } from "sanity"
 import { presentationTool } from "sanity/presentation"
 import type { StructureBuilder } from "sanity/structure"
@@ -29,6 +30,7 @@ import { muxInput } from "sanity-plugin-mux-input"
 import { dataset, projectId } from "./sanity/env"
 import { resolve } from "./sanity/presentation/resolve"
 import { schemaTypes } from "./sanity/schemas"
+import { CollectionPane } from "./sanity/studio/collection-pane"
 import { createConfirmPublishAction } from "./sanity/studio/confirm-publish-action"
 
 const isProd = process.env.NODE_ENV === "production"
@@ -46,6 +48,43 @@ const singletonTypes = new Set([
 ])
 
 const singletonActions = new Set(["publish", "discardChanges", "restore"])
+
+// A searchable, live, draft-badged list pane for a multi-document collection.
+// Replaces S.documentTypeListItem with the custom CollectionPane while keeping
+// "Create new" and normal document editing intents working.
+function collectionPane(
+  S: StructureBuilder,
+  schemaType: string,
+  title: string,
+  icon: ComponentType
+) {
+  return S.listItem()
+    .title(title)
+    .icon(icon)
+    .child(
+      S.component()
+        .id(`collection-${schemaType}`)
+        .title(title)
+        .component(CollectionPane)
+        .options({ schemaType })
+        .canHandleIntent(
+          (intentName, params) =>
+            (intentName === "edit" || intentName === "create") &&
+            params.type === schemaType
+        )
+        .menuItems([
+          S.menuItem()
+            .title("Create new")
+            .icon(icon)
+            .intent({ type: "create", params: { type: schemaType } })
+        ])
+        .child((childId: string) =>
+          S.document()
+            .schemaType(schemaType)
+            .documentId(childId.replace(/^drafts\./, ""))
+        )
+    )
+}
 
 function structure(S: StructureBuilder) {
   return S.list()
@@ -122,21 +161,16 @@ function structure(S: StructureBuilder) {
           S.list()
             .title("Content")
             .items([
-              S.documentTypeListItem("post")
-                .title("Blog Posts")
-                .icon(FileTextIcon),
-              S.documentTypeListItem("postCategory")
-                .title("Post Categories")
-                .icon(TagIcon),
-              S.documentTypeListItem("project")
-                .title("Projects")
-                .icon(StackIcon),
-              S.documentTypeListItem("projectCategory")
-                .title("Project Categories")
-                .icon(TagIcon),
-              S.documentTypeListItem("labProject")
-                .title("Lab Projects")
-                .icon(LightningIcon)
+              collectionPane(S, "post", "Blog Posts", FileTextIcon),
+              collectionPane(S, "postCategory", "Post Categories", TagIcon),
+              collectionPane(S, "project", "Projects", StackIcon),
+              collectionPane(
+                S,
+                "projectCategory",
+                "Project Categories",
+                TagIcon
+              ),
+              collectionPane(S, "labProject", "Lab Projects", LightningIcon)
             ])
         ),
 
@@ -148,18 +182,12 @@ function structure(S: StructureBuilder) {
           S.list()
             .title("Company")
             .items([
-              S.documentTypeListItem("client")
-                .title("Clients")
-                .icon(BriefcaseIcon),
-              S.documentTypeListItem("person").title("People").icon(UserIcon),
-              S.documentTypeListItem("department")
-                .title("Departments")
-                .icon(SquaresFourIcon),
-              S.documentTypeListItem("award").title("Awards").icon(StarIcon),
-              S.documentTypeListItem("testimonial")
-                .title("Testimonials")
-                .icon(HeartIcon),
-              S.documentTypeListItem("value").title("Values").icon(TagIcon)
+              collectionPane(S, "client", "Clients", BriefcaseIcon),
+              collectionPane(S, "person", "People", UserIcon),
+              collectionPane(S, "department", "Departments", SquaresFourIcon),
+              collectionPane(S, "award", "Awards", StarIcon),
+              collectionPane(S, "testimonial", "Testimonials", HeartIcon),
+              collectionPane(S, "value", "Values", TagIcon)
             ])
         ),
 
@@ -171,9 +199,7 @@ function structure(S: StructureBuilder) {
           S.list()
             .title("Careers")
             .items([
-              S.documentTypeListItem("openPosition")
-                .title("Open Positions")
-                .icon(BriefcaseIcon)
+              collectionPane(S, "openPosition", "Open Positions", BriefcaseIcon)
             ])
         ),
 
