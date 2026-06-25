@@ -1,9 +1,18 @@
 export interface MarkdownRoute {
-  /** Matches the public `.md` URL, capturing the slug (group 1). */
+  /**
+   * Matches the public `.md` URL. Slug-based types capture the slug in group 1;
+   * singletons match with no capture group.
+   */
   mdRegex: RegExp
-  /** Matches the public HTML URL (no extension), capturing the slug (group 1). */
+  /**
+   * Matches the public HTML URL (no extension). Slug-based types capture the
+   * slug in group 1; singletons match with no capture group.
+   */
   htmlRegex: RegExp
-  /** Internal API route template; `[slug]` is replaced with the captured slug. */
+  /**
+   * Internal API route template. For slug-based types `[slug]` is replaced with
+   * the captured slug; for singletons it's used verbatim.
+   */
   apiPath: string
   /** Public `.md` URL template, used for the `Link` alternate header. */
   publicMdPath: string
@@ -33,5 +42,30 @@ export const markdownRoutes: MarkdownRoute[] = [
     htmlRegex: /^\/careers\/([^/.]+)$/,
     apiPath: "/api/careers/[slug].md",
     publicMdPath: "/careers/[slug].md"
+  },
+  // Singletons — no slug. The homepage HTML form is the site root (`/`).
+  {
+    mdRegex: /^\/index\.md$/,
+    htmlRegex: /^\/$/,
+    apiPath: "/api/index.md",
+    publicMdPath: "/index.md"
+  },
+  {
+    mdRegex: /^\/services\.md$/,
+    htmlRegex: /^\/services$/,
+    apiPath: "/api/services.md",
+    publicMdPath: "/services.md"
+  },
+  {
+    mdRegex: /^\/people\.md$/,
+    htmlRegex: /^\/people$/,
+    apiPath: "/api/people.md",
+    publicMdPath: "/people.md"
+  },
+  {
+    mdRegex: /^\/showcase\.md$/,
+    htmlRegex: /^\/showcase$/,
+    apiPath: "/api/showcase.md",
+    publicMdPath: "/showcase.md"
   }
 ]

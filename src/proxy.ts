@@ -16,26 +16,31 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const accept = request.headers.get("accept") ?? ""
 
+  // Slug-based routes capture the slug in group 1; singletons match with no
+  // group. `match[1]` is therefore the slug or `undefined` for singletons.
+
   // 1. `.md` suffix → markdown API route.
   for (const route of markdownRoutes) {
-    const slug = route.mdRegex.exec(pathname)?.[1]
-    if (slug) return rewriteToApi(request, route.apiPath, slug)
+    const match = route.mdRegex.exec(pathname)
+    if (match) return rewriteToApi(request, route.apiPath, match[1])
   }
 
   // 2. HTML path + Accept: text/markdown → same markdown API route.
   if (accept.includes("text/markdown")) {
     for (const route of markdownRoutes) {
-      const slug = route.htmlRegex.exec(pathname)?.[1]
-      if (slug) return rewriteToApi(request, route.apiPath, slug)
+      const match = route.htmlRegex.exec(pathname)
+      if (match) return rewriteToApi(request, route.apiPath, match[1])
     }
   }
 
   // 3. HTML page request → advertise the markdown alternate so agents can find it.
   for (const route of markdownRoutes) {
-    const slug = route.htmlRegex.exec(pathname)?.[1]
-    if (!slug) continue
+    const match = route.htmlRegex.exec(pathname)
+    if (!match) continue
     const response = NextResponse.next()
-    const mdUrl = route.publicMdPath.replace("[slug]", slug)
+    const mdUrl = match[1]
+      ? route.publicMdPath.replace("[slug]", match[1])
+      : route.publicMdPath
     response.headers.set(
       "Link",
       `<${mdUrl}>; rel="alternate"; type="text/markdown"`
@@ -47,14 +52,30 @@ export function proxy(request: NextRequest) {
   return NextResponse.next()
 }
 
-function rewriteToApi(request: NextRequest, apiPath: string, slug: string) {
+function rewriteToApi(
+  request: NextRequest,
+  apiPath: string,
+  slug: string | undefined
+) {
   const url = request.nextUrl.clone()
-  url.pathname = apiPath.replace("[slug]", slug)
+  url.pathname = slug ? apiPath.replace("[slug]", slug) : apiPath
   return NextResponse.rewrite(url)
 }
 
 export const config = {
   // Static literal — Next can't analyze a matcher built from markdownRoutes.
   // Add a line here when registering a new content type in markdown-proxy.config.ts.
-  matcher: ["/post/:path*", "/showcase/:path*", "/careers/:path*"]
+  matcher: [
+    "/post/:path*",
+    "/showcase/:path*",
+    "/careers/:path*",
+    // Singleton pages (no slug): both the HTML path and its `.md` form.
+    "/",
+    "/index.md",
+    "/services",
+    "/services.md",
+    "/people",
+    "/people.md",
+    "/showcase.md"
+  ]
 }

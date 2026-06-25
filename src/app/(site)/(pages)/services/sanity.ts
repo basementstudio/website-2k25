@@ -88,9 +88,13 @@ const testimonialQuery = /* groq */ `
 
 // Fetchers
 
-export async function fetchServicesPage(): Promise<ServicesPageData | null> {
+export async function fetchServicesPage(
+  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  options?: { published?: boolean }
+): Promise<ServicesPageData | null> {
   return sanityFetch<ServicesPageData | null>({
-    query: servicesPageQuery
+    query: servicesPageQuery,
+    ...(options?.published ? { stega: false, perspective: "published" } : {})
   })
 }
 

@@ -121,3 +121,31 @@ export async function fetchCategories(): Promise<ShowcaseCategory[]> {
     query: categoriesQuery
   })
 }
+
+export interface ShowcaseListEntry {
+  title: string
+  slug: string
+  client: string | null
+  year: number | null
+}
+
+const showcaseListForMarkdownQuery = /* groq */ `
+  *[_type == "showcasePage"][0].projects[]->{
+    title,
+    "slug": slug.current,
+    "client": client->title,
+    year
+  }
+`
+
+/** Curated showcase project list (title, slug, client, year) for the `/showcase.md` markdown page. */
+export async function fetchShowcaseListForMarkdown(): Promise<
+  ShowcaseListEntry[]
+> {
+  const projects = await sanityFetch<ShowcaseListEntry[] | null>({
+    query: showcaseListForMarkdownQuery,
+    stega: false,
+    perspective: "published"
+  })
+  return projects ?? []
+}

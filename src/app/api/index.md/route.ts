@@ -1,0 +1,97 @@
+import { NextResponse } from "next/server"
+
+import { fetchHomepage } from "@/app/(site)/(pages)/(home)/sanity"
+import { SITE_URL } from "@/lib/constants"
+import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
+
+const MD_HEADERS = {
+  "Content-Type": "text/markdown; charset=utf-8",
+  Vary: "Accept",
+  "X-Content-Type-Options": "nosniff"
+} as const
+
+export async function GET() {
+  try {
+    const { homepage } = await fetchHomepage({ published: true })
+    if (!homepage) {
+      return new NextResponse("# 404 Not Found\n", {
+        status: 404,
+        headers: MD_HEADERS
+      })
+    }
+
+    const featuredWork = homepage.featuredProjects?.length
+      ? homepage.featuredProjects
+          .map((item) => {
+            const label = item.title || item.project?.title || "Untitled"
+            const slug = item.project?.slug?.current
+            const link = slug
+              ? `[${label}](${SITE_URL}/showcase/${slug}.md)`
+              : label
+            return item.excerpt ? `- ${link} — ${item.excerpt}` : `- ${link}`
+          })
+          .join("\n")
+      : null
+
+    const capabilities = homepage.capabilities?.length
+      ? homepage.capabilities
+          .map((cap) => {
+            const lines = [`### ${cap.title}`]
+            if (cap.description) lines.push("", cap.description)
+            if (cap.subcategories?.length) {
+              lines.push("", ...cap.subcategories.map((s) => `- ${s.title}`))
+            }
+            return lines.join("\n")
+          })
+          .join("\n\n")
+      : null
+
+    const clients = homepage.clients?.length
+      ? homepage.clients
+          .map((c) => (c.website ? `[${c.title}](${c.website})` : c.title))
+          .join(", ")
+      : null
+
+    const parts: Array<string | null> = [
+      "# basement.studio",
+      "",
+      portableTextToMarkdown(homepage.introTitle, { baseUrl: SITE_URL }) ||
+        null,
+      "",
+      portableTextToMarkdown(homepage.introSubtitle, { baseUrl: SITE_URL }) ||
+        null,
+      "",
+      "---",
+      "",
+      featuredWork ? "## Selected Work" : null,
+      featuredWork ? "" : null,
+      featuredWork,
+      featuredWork ? "" : null,
+      "## What We Do",
+      "",
+      portableTextToMarkdown(homepage.capabilitiesIntro, {
+        baseUrl: SITE_URL
+      }) || null,
+      capabilities ? "" : null,
+      capabilities,
+      capabilities ? "" : null,
+      clients ? "## Clients" : null,
+      clients ? "" : null,
+      clients,
+      "",
+      "---",
+      "",
+      `[View all content](${SITE_URL}/sitemap.md)`
+    ]
+
+    const markdown = parts.filter((part) => part !== null).join("\n")
+
+    return new NextResponse(markdown, { headers: MD_HEADERS })
+  } catch (error) {
+    console.error("Error building homepage markdown:", error)
+    return new NextResponse("# 500 Error\n\nFailed to build markdown.", {
+      status: 500,
+      headers: MD_HEADERS
+    })
+  }
+}
