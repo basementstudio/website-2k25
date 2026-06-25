@@ -18,6 +18,7 @@ export const NavigationHandler = () => {
   const pathname = usePathname()
   const { setSelected } = useInspectable()
   const previousPathRef = useRef(pathname)
+  const previousIsNotFoundRef = useRef(false)
 
   const setScenes = useNavigationStore((state) => state.setScenes)
   const isNotFound = useNavigationStore((state) => state.isNotFound)
@@ -69,8 +70,17 @@ export const NavigationHandler = () => {
   useEffect(() => {
     if (!scenes.length || !pathname) return
 
-    // notFound() doesn't change pathname — also re-run when the flag flips.
-    if (previousPathRef.current === pathname && !isNotFound) {
+    // notFound() doesn't change pathname, so also re-run when the flag flips —
+    // including 404 -> page, where pathname may update a render before the flag
+    // clears, leaving the scene stuck on 404 if we early-return on the next run.
+    const isNotFoundChanged = previousIsNotFoundRef.current !== isNotFound
+    previousIsNotFoundRef.current = isNotFound
+
+    if (
+      previousPathRef.current === pathname &&
+      !isNotFound &&
+      !isNotFoundChanged
+    ) {
       previousPathRef.current = pathname
       return
     }
