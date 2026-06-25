@@ -6,10 +6,9 @@ import { Featured } from "./featured"
 import { Hero } from "./hero"
 
 export const metadata: Metadata = {
-  title: "Blog",
-  alternates: {
-    canonical: "https://basement.studio/blog"
-  }
+  title: "Blog"
+  // Canonical is set per-route in blog/[[...slug]]/page.tsx so each category
+  // page self-references instead of all pointing at /blog.
 }
 
 interface BlogLayoutProps {

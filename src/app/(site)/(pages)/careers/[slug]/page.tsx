@@ -1,5 +1,10 @@
 import { notFound } from "next/navigation"
 
+import { extractPlainText } from "@/lib/structured-data/extract-text"
+import { JsonLd } from "@/lib/structured-data/json-ld"
+import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
+import { generateJobPostingSchema } from "@/lib/structured-data/schemas/job-posting"
+
 import { ApplicationForm } from "./application-form"
 import { Back } from "./back"
 import { Hero } from "./hero"
@@ -41,8 +46,27 @@ const CareerPost = async ({ params }: CareerPostProps) => {
 
   if (!position || !position.isOpen) return notFound()
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "People", path: "/people" },
+    { name: position.title ?? "Untitled", path: `/careers/${position.slug}` }
+  ])
+
+  const jobPostingSchema = generateJobPostingSchema({
+    title: position.title,
+    slug: position.slug,
+    description: position.jobDescription
+      ? extractPlainText(position.jobDescription)
+      : null,
+    datePosted: position._createdAt,
+    location: position.location,
+    employmentType: position.employmentType
+  })
+
   return (
     <div className="relative bg-brand-k pt-12 lg:pb-24">
+      <JsonLd data={breadcrumbSchema} />
+      <JsonLd data={jobPostingSchema} />
       <ScrollToTop />
       <div className="lg:pb-25 flex flex-col gap-24">
         <Hero title={position.title} />

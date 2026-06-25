@@ -15,6 +15,8 @@ import { VenturesBanner } from "./ventures"
 
 export const metadata: Metadata = {
   title: "Services",
+  description:
+    "basement.studio's services — branding, web design, 3D experiences, and product engineering. Award-winning work, built to perform for clients worldwide.",
   alternates: {
     canonical: "https://basement.studio/services"
   }

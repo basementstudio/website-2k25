@@ -1,4 +1,8 @@
-import { fetchAssetsSanity } from "./fetch-assets-sanity"
+import { cache } from "react"
+
+import type { PortableTextBlock } from "@/service/sanity/types"
+
+import { fetchAssetsLocal } from "./fetch-assets-local"
 
 export interface AssetsResult {
   officeItems: string
@@ -33,6 +37,7 @@ export interface AssetsResult {
     idleScreen: string
     placeholderLab: string
     boot: string
+    shaderLab: string
     chronicles: string
     looper: string
     palm: string
@@ -52,7 +57,7 @@ export interface AssetsResult {
       _title: string
       value: string
     }[]
-    description: any
+    description: PortableTextBlock[] | undefined
     mesh: string
     xOffset: number
     yOffset: number
@@ -162,6 +167,6 @@ export interface AssetsResult {
   }[]
 }
 
-export async function fetchAssets(): Promise<AssetsResult> {
-  return fetchAssetsSanity()
-}
+export const fetchAssets = cache(
+  async (): Promise<AssetsResult> => fetchAssetsLocal()
+)

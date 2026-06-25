@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation"
 
+import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { JsonLd } from "@/lib/structured-data/json-ld"
+import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
 import { generateCreativeWorkSchema } from "@/lib/structured-data/schemas/creative-work"
+import { truncateDescription } from "@/utils/seo"
 
 import {
   fetchAllProjectSlugs,
@@ -22,10 +25,16 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
 
   if (!meta) return null
 
+  const title = meta.title ?? "Untitled"
+  const description =
+    truncateDescription(extractPlainText(meta.content)) ||
+    `Discover ${title}, a project by basement.studio — see how we designed and engineered it.`
+
   return {
     title: {
-      absolute: `${meta.title ?? "Untitled"} | Showcase`
+      absolute: `${title} | Showcase`
     },
+    description,
     alternates: {
       canonical: `https://basement.studio/showcase/${slug}`
     }
@@ -55,9 +64,16 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
       })) ?? null
   })
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Showcase", path: "/showcase" },
+    { name: project.title ?? "Untitled", path: `/showcase/${project.slug}` }
+  ])
+
   return (
     <>
       {creativeWorkSchema ? <JsonLd data={creativeWorkSchema} /> : null}
+      <JsonLd data={breadcrumbSchema} />
       <ProjectWrapper entry={project} />
     </>
   )

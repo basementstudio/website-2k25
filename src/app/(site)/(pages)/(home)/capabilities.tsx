@@ -9,9 +9,9 @@ export const Capabilities = ({ data }: { data: HomepageData }) => {
 
   return (
     <div className="grid-layout">
-      <h3 className="col-span-full mb-2 text-f-h3-mobile text-brand-g1 lg:col-start-2 lg:text-f-h3 2xl:col-start-3">
+      <h2 className="col-span-full mb-2 text-f-h3-mobile text-brand-g1 lg:col-start-2 lg:text-f-h3 2xl:col-start-3">
         Capabilities
-      </h3>
+      </h2>
 
       {intro ? (
         <div className="col-span-full text-brand-w2 [&_p]:text-f-h1-mobile lg:[&_p]:text-f-h1">
@@ -26,13 +26,13 @@ export const Capabilities = ({ data }: { data: HomepageData }) => {
               key={c._id}
               className="col-span-1 mt-1.25 flex flex-col gap-y-6 text-brand-w1 lg:col-span-2"
             >
-              <h4 className="text-f-h4-mobile lg:text-f-h4">
+              <h3 className="text-f-h4-mobile lg:text-f-h4">
                 <Link
                   href={`/showcase?category=${encodeURIComponent(c.title)}`}
                 >
                   <span className="actionable">{c.title}</span>
                 </Link>
-              </h4>
+              </h3>
 
               <p className="-mt-1 text-f-h4-mobile text-brand-w2 lg:text-f-h4">
                 {c.description}

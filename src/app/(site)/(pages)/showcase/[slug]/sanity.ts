@@ -1,8 +1,13 @@
 import { sanityFetch } from "@/service/sanity"
-import { imageFragment, videoFragment } from "@/service/sanity/queries"
+import {
+  imageFragment,
+  muxVideoFragment,
+  videoFragment
+} from "@/service/sanity/queries"
 import type {
   PortableTextBlock,
   SanityImage,
+  SanityMuxVideo,
   SanityVideo
 } from "@/service/sanity/types"
 
@@ -33,6 +38,7 @@ export interface ShowcaseProjectDetail {
     _key: string
     image: SanityImage | null
     video: SanityVideo | null
+    muxVideo: SanityMuxVideo | null
   }> | null
   awards: Array<{ title: string; date: string | null }> | null
 }
@@ -65,7 +71,8 @@ const projectBySlugQuery = /* groq */ `
     showcase[]{
       _key,
       image ${imageFragment},
-      video ${videoFragment}
+      video ${videoFragment},
+      muxVideo ${muxVideoFragment}
     },
     "awards": *[_type == "award" && project._ref == ^._id]{ title, date }
   }
@@ -76,7 +83,7 @@ const allProjectSlugsQuery = /* groq */ `
 `
 
 const projectMetaQuery = /* groq */ `
-  *[_type == "project" && slug.current == $slug][0]{ title }
+  *[_type == "project" && slug.current == $slug][0]{ title, content }
 `
 
 const relatedProjectsQuery = /* groq */ `
@@ -115,8 +122,11 @@ export async function fetchAllProjectSlugs(): Promise<Array<{
 
 export async function fetchProjectMeta(
   slug: string
-): Promise<{ title: string } | null> {
-  return sanityFetch<{ title: string } | null>({
+): Promise<{ title: string; content: PortableTextBlock[] | null } | null> {
+  return sanityFetch<{
+    title: string
+    content: PortableTextBlock[] | null
+  } | null>({
     query: projectMetaQuery,
     params: { slug },
     stega: false,

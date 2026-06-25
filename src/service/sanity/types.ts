@@ -14,8 +14,16 @@ export interface SanityImage {
 
 /** Sanity video projected via `videoFragment` (file asset). */
 export interface SanityVideo {
-  url: string
+  url: string | null
   mimeType: string | null
+}
+
+/** Sanity Mux video projected via `muxVideoFragment` (mux.video field). */
+export interface SanityMuxVideo {
+  playbackId: string | null
+  assetId: string | null
+  aspectRatio: string | null
+  duration: number | null
 }
 
 /** Sanity slug object. */

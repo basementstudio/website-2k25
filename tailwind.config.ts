@@ -172,6 +172,9 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" }
         },
+        "subtle-pulse": {
+          "50%": { opacity: "0.75" }
+        },
         "fade-in": {
           from: { opacity: "0" },
           to: { opacity: "1" }
@@ -216,6 +219,7 @@ export default {
         }
       },
       animation: {
+        "subtle-pulse": "subtle-pulse 1s ease-in-out infinite",
         "accordion-down": "accordion-down 0.2s ease-out forwards",
         "accordion-up": "accordion-up 0.2s ease-out forwards",
         "fade-in": "fade-in 0.3s ease-out",

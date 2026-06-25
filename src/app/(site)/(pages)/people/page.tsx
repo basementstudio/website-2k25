@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { Contact } from "@/components/layout/contact"
+import { JsonLd } from "@/lib/structured-data/json-ld"
+import { generatePeopleSchema } from "@/lib/structured-data/schemas/person"
 import { getImageUrl } from "@/service/sanity/helpers"
 
 import { Crew } from "./crew"
@@ -19,6 +21,8 @@ import { Values } from "./values"
 
 export const metadata: Metadata = {
   title: "People",
+  description:
+    "Meet the basement.studio crew — the designers, engineers, and creative minds behind the brands, websites, and 3D experiences we build. We're hiring.",
   alternates: {
     canonical: "https://basement.studio/people"
   }
@@ -53,8 +57,20 @@ const About = async () => {
     }
   })
 
+  const peopleSchema = generatePeopleSchema(
+    peopleDisplay.map((p) => ({
+      name: p.title,
+      jobTitle: p.role,
+      image: p.image
+        ? { url: p.image.url, width: p.image.width, height: p.image.height }
+        : null,
+      socialNetworks: p.socialNetworks
+    }))
+  )
+
   return (
     <>
+      <JsonLd data={peopleSchema} />
       <Hero data={pageData} />
       <Values data={values} />
       <Crew data={peopleDisplay} />

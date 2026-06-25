@@ -26,6 +26,7 @@ const ASSET_TO_NOT_PRELOAD = [
 
   // Arcade
   "boot",
+  "shaderLab",
   "chronicles",
   "looper",
   "placeholderLab",

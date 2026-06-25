@@ -1,5 +1,5 @@
 import { sanityFetch } from "@/service/sanity"
-import { imageFragment } from "@/service/sanity/queries"
+import { imageFragment, muxVideoFragment } from "@/service/sanity/queries"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
 import { selectRelatedPosts } from "./related-posts.logic"
@@ -11,6 +11,7 @@ import { selectRelatedPosts } from "./related-posts.logic"
 export interface PostDetail {
   _id: string
   _createdAt: string
+  _updatedAt: string
   title: string
   slug: string
   date: string | null
@@ -36,11 +37,14 @@ export interface RelatedPost {
 // ---------------------------------------------------------------------------
 
 export async function fetchPostBySlug(
-  slug: string
+  slug: string,
+  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  options?: { published?: boolean }
 ): Promise<PostDetail | null> {
   const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{
     _id,
     _createdAt,
+    _updatedAt,
     title,
     "slug": slug.current,
     date,
@@ -67,7 +71,8 @@ export async function fetchPostBySlug(
       },
       _type == "videoEmbed" => {
         ...,
-        "videoUrl": file.asset->url
+        "videoUrl": file.asset->url,
+        muxVideo ${muxVideoFragment}
       }
     },
     categories[]->{ title, "slug": slug.current },
@@ -77,7 +82,27 @@ export async function fetchPostBySlug(
   }`
   return sanityFetch<PostDetail | null>({
     query,
-    params: { slug }
+    params: { slug },
+    ...(options?.published ? { stega: false, perspective: "published" } : {})
+  })
+}
+
+export interface PostIndexEntry {
+  title: string
+  slug: string
+  date: string | null
+}
+
+export async function fetchAllPostsForIndex(): Promise<PostIndexEntry[]> {
+  const query = /* groq */ `*[_type == "post" && defined(slug.current)] | order(date desc){
+    title,
+    "slug": slug.current,
+    date
+  }`
+  return sanityFetch<PostIndexEntry[]>({
+    query,
+    stega: false,
+    perspective: "published"
   })
 }
 
@@ -115,9 +140,12 @@ export async function fetchAllPostSlugs(): Promise<string[]> {
 
 export async function fetchPostMeta(
   slug: string
-): Promise<{ title: string } | null> {
-  const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{ title }`
-  return sanityFetch<{ title: string } | null>({
+): Promise<{ title: string; intro: PortableTextBlock[] | null } | null> {
+  const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{ title, intro }`
+  return sanityFetch<{
+    title: string
+    intro: PortableTextBlock[] | null
+  } | null>({
     query,
     params: { slug },
     stega: false,

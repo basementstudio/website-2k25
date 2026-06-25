@@ -21,7 +21,10 @@ import { tweetEmbed } from "./objects/tweetEmbed"
 import { videoEmbed } from "./objects/videoEmbed"
 import { companyInfo } from "./singletons/companyInfo"
 import { homepage } from "./singletons/homepage"
+import { inspectablesConfig } from "./singletons/inspectablesConfig"
 import { peoplePage } from "./singletons/peoplePage"
+import { physicsConfig } from "./singletons/physicsConfig"
+import { scenesConfig } from "./singletons/scenesConfig"
 import { servicesPage } from "./singletons/servicesPage"
 import { showcasePage } from "./singletons/showcasePage"
 import { threeDAssets } from "./singletons/threeDAssets"
@@ -44,7 +47,10 @@ export const schemaTypes = [
   // Singleton types
   companyInfo,
   homepage,
+  inspectablesConfig,
   peoplePage,
+  physicsConfig,
+  scenesConfig,
   servicesPage,
   showcasePage,
   threeDAssets,

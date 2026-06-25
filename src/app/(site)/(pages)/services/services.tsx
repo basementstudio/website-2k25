@@ -15,9 +15,9 @@ export const Services = ({ data }: { data: ServicesPageData }) => (
             index % 2 !== 0
         })}
       >
-        <h3 className="col-span-7 text-f-h3-mobile text-brand-g1 lg:text-f-h3">
+        <h2 className="col-span-7 text-f-h3-mobile text-brand-g1 lg:text-f-h3">
           {category.title}
-        </h3>
+        </h2>
         <hr className="col-span-7 -mt-px border-brand-w1/30 lg:-mt-px" />
         <div className="col-span-5 text-f-h2-mobile text-brand-w2 lg:pr-4 lg:text-f-h2">
           {category.description && (

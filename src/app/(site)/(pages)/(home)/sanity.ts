@@ -1,8 +1,13 @@
 import { sanityFetch } from "@/service/sanity"
-import { imageFragment, videoFragment } from "@/service/sanity/queries"
+import {
+  imageFragment,
+  muxVideoFragment,
+  videoFragment
+} from "@/service/sanity/queries"
 import type {
   PortableTextBlock,
   SanityImage,
+  SanityMuxVideo,
   SanitySlug,
   SanityVideo
 } from "@/service/sanity/types"
@@ -34,6 +39,7 @@ export interface FeaturedProjectItem {
   } | null
   cover: SanityImage | null
   coverVideo: SanityVideo | null
+  muxCoverVideo: SanityMuxVideo | null
 }
 
 export interface SanityClient {
@@ -74,7 +80,8 @@ const homepageQuery = /* groq */ `{
         }
       },
       cover ${imageFragment},
-      coverVideo ${videoFragment}
+      coverVideo ${videoFragment},
+      muxCoverVideo ${muxVideoFragment}
     },
     "capabilities": capabilities[]->{
       _id,
@@ -110,6 +117,7 @@ export interface OrganizationStructuredData {
   description: string | null
   foundingDate: string | number | null
   email: string | null
+  contactPoints: Array<{ email: string; contactType: string }>
   addressCity: string | null
   addressRegion: string | null
   addressCountry: string | null
@@ -166,7 +174,14 @@ export async function fetchOrganizationData(): Promise<OrganizationStructuredDat
   return {
     description: null,
     foundingDate: null,
-    email: null,
+    // Contact emails published across the site (footer, contact page, contact
+    // form). `email` is the primary general inbox; `contactPoints` exposes the
+    // same plus the sales inbox as schema.org ContactPoints.
+    email: "hello@basement.studio",
+    contactPoints: [
+      { email: "hello@basement.studio", contactType: "customer support" },
+      { email: "sales@basement.studio", contactType: "sales" }
+    ],
     addressCity: null,
     addressRegion: null,
     addressCountry: null,
