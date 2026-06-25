@@ -18,8 +18,10 @@ export const NavigationHandler = () => {
   const pathname = usePathname()
   const { setSelected } = useInspectable()
   const previousPathRef = useRef(pathname)
+  const previousIsNotFoundRef = useRef(false)
 
   const setScenes = useNavigationStore((state) => state.setScenes)
+  const isNotFound = useNavigationStore((state) => state.isNotFound)
   const {
     isCanvasTabMode,
     setIsCanvasTabMode,
@@ -66,7 +68,19 @@ export const NavigationHandler = () => {
   )
 
   useEffect(() => {
-    if (!scenes.length || !pathname || previousPathRef.current === pathname) {
+    if (!scenes.length || !pathname) return
+
+    // notFound() doesn't change pathname, so also re-run when the flag flips —
+    // including 404 -> page, where pathname may update a render before the flag
+    // clears, leaving the scene stuck on 404 if we early-return on the next run.
+    const isNotFoundChanged = previousIsNotFoundRef.current !== isNotFound
+    previousIsNotFoundRef.current = isNotFound
+
+    if (
+      previousPathRef.current === pathname &&
+      !isNotFound &&
+      !isNotFoundChanged
+    ) {
       previousPathRef.current = pathname
       return
     }
@@ -74,8 +88,9 @@ export const NavigationHandler = () => {
     const isFromPostToBlog =
       previousPathRef.current.startsWith("/post/") && pathname === "/blog"
 
-    const expectedScene =
-      pathname === "/" || pathname === "/index"
+    const expectedScene = isNotFound
+      ? scenes.find((scene) => scene.name === "404")
+      : pathname === "/" || pathname === "/index"
         ? scenes.find((scene) => scene.name.toLowerCase() === "home")
         : pathname.startsWith("/post/")
           ? scenes.find((scene) => scene.name === "blog")
@@ -92,12 +107,18 @@ export const NavigationHandler = () => {
     }
 
     previousPathRef.current = pathname
-  }, [pathname, scenes, currentScene, setCurrentScene])
+  }, [pathname, scenes, currentScene, setCurrentScene, isNotFound])
 
   useEffect(() => {
     if (!scenes.length) return
 
     setSelected(null)
+
+    if (isNotFound) {
+      const notFoundScene = scenes.find((scene) => scene.name === "404")
+      if (notFoundScene) setCurrentScene(notFoundScene)
+      return
+    }
 
     if (pathname === "/contact") {
       const expectedScene = scenes.find(

@@ -1,16 +1,26 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useState } from "react"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { cn } from "@/utils/cn"
 
+// Flag must land before NavigationHandler's useEffect runs.
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect
+
 export default function NotFound() {
   const { handleNavigation } = useHandleNavigation()
   const currentScene = useNavigationStore((state) => state.currentScene)
+  const setIsNotFound = useNavigationStore((state) => state.setIsNotFound)
   const [formattedTime, setFormattedTime] = useState("00:00:00:00")
   const [fadeOutHtml, setFadeOutHtml] = useState(false)
+
+  useIsomorphicLayoutEffect(() => {
+    setIsNotFound(true)
+    return () => setIsNotFound(false)
+  }, [setIsNotFound])
 
   useEffect(() => {
     const updateTime = () => {
