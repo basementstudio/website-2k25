@@ -15,6 +15,16 @@ export async function GET() {
 
     const parts: string[] = ["# basement.studio — Content Index", ""]
 
+    parts.push(
+      "## Pages",
+      "",
+      `- [Home](${SITE_URL}/index.md)`,
+      `- [Services](${SITE_URL}/services.md)`,
+      `- [People](${SITE_URL}/people.md)`,
+      `- [Showcase](${SITE_URL}/showcase.md)`,
+      ""
+    )
+
     if (posts.length > 0) {
       parts.push("## Blog Posts", "")
       for (const post of posts) {

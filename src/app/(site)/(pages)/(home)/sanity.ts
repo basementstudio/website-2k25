@@ -103,9 +103,13 @@ const homepageQuery = /* groq */ `{
 // Fetch
 // ---------------------------------------------------------------------------
 
-export async function fetchHomepage(): Promise<HomepageData> {
+export async function fetchHomepage(
+  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  options?: { published?: boolean }
+): Promise<HomepageData> {
   return sanityFetch<HomepageData>({
-    query: homepageQuery
+    query: homepageQuery,
+    ...(options?.published ? { stega: false, perspective: "published" } : {})
   })
 }
 
