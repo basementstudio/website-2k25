@@ -21,5 +21,17 @@ export const markdownRoutes: MarkdownRoute[] = [
     htmlRegex: /^\/post\/([^/.]+)$/,
     apiPath: "/api/post/[slug].md",
     publicMdPath: "/post/[slug].md"
+  },
+  {
+    mdRegex: /^\/showcase\/([^/]+)\.md$/,
+    htmlRegex: /^\/showcase\/([^/.]+)$/,
+    apiPath: "/api/showcase/[slug].md",
+    publicMdPath: "/showcase/[slug].md"
+  },
+  {
+    mdRegex: /^\/careers\/([^/]+)\.md$/,
+    htmlRegex: /^\/careers\/([^/.]+)$/,
+    apiPath: "/api/careers/[slug].md",
+    publicMdPath: "/careers/[slug].md"
   }
 ]

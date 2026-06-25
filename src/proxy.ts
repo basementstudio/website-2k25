@@ -56,5 +56,5 @@ function rewriteToApi(request: NextRequest, apiPath: string, slug: string) {
 export const config = {
   // Static literal — Next can't analyze a matcher built from markdownRoutes.
   // Add a line here when registering a new content type in markdown-proxy.config.ts.
-  matcher: ["/post/:path*"]
+  matcher: ["/post/:path*", "/showcase/:path*", "/careers/:path*"]
 }

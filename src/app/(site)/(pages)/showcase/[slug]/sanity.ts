@@ -102,11 +102,33 @@ const relatedProjectsQuery = /* groq */ `
 // ---------------------------------------------------------------------------
 
 export async function fetchProjectBySlug(
-  slug: string
+  slug: string,
+  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  options?: { published?: boolean }
 ): Promise<ShowcaseProjectDetail | null> {
   return sanityFetch<ShowcaseProjectDetail | null>({
     query: projectBySlugQuery,
-    params: { slug }
+    params: { slug },
+    ...(options?.published ? { stega: false, perspective: "published" } : {})
+  })
+}
+
+export interface ProjectIndexEntry {
+  title: string
+  slug: string
+  year: number | null
+}
+
+export async function fetchAllProjectsForIndex(): Promise<ProjectIndexEntry[]> {
+  const query = /* groq */ `*[_type == "project" && defined(slug.current)] | order(year desc, title asc){
+    title,
+    "slug": slug.current,
+    year
+  }`
+  return sanityFetch<ProjectIndexEntry[]>({
+    query,
+    stega: false,
+    perspective: "published"
   })
 }
 

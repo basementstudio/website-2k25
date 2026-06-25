@@ -27,7 +27,9 @@ export interface CareerPosition {
 // ---------------------------------------------------------------------------
 
 export async function fetchCareerPosition(
-  slug: string
+  slug: string,
+  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  options?: { published?: boolean }
 ): Promise<CareerPosition | null> {
   const query = /* groq */ `*[_type == "openPosition" && slug.current == $slug][0]{
     _id,
@@ -47,7 +49,27 @@ export async function fetchCareerPosition(
   }`
   return sanityFetch<CareerPosition | null>({
     query,
-    params: { slug }
+    params: { slug },
+    ...(options?.published ? { stega: false, perspective: "published" } : {})
+  })
+}
+
+export interface OpenPositionIndexEntry {
+  title: string
+  slug: string
+}
+
+export async function fetchAllOpenPositionsForIndex(): Promise<
+  OpenPositionIndexEntry[]
+> {
+  const query = /* groq */ `*[_type == "openPosition" && isOpen == true && defined(slug.current)] | order(title asc){
+    title,
+    "slug": slug.current
+  }`
+  return sanityFetch<OpenPositionIndexEntry[]>({
+    query,
+    stega: false,
+    perspective: "published"
   })
 }
 

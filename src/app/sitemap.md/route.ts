@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server"
 
+import { fetchAllOpenPositionsForIndex } from "@/app/(site)/(pages)/careers/[slug]/sanity"
 import { fetchAllPostsForIndex } from "@/app/(site)/(pages)/post/[slug]/sanity"
+import { fetchAllProjectsForIndex } from "@/app/(site)/(pages)/showcase/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 
 export async function GET() {
   try {
-    const posts = await fetchAllPostsForIndex()
+    const [posts, projects, positions] = await Promise.all([
+      fetchAllPostsForIndex(),
+      fetchAllProjectsForIndex(),
+      fetchAllOpenPositionsForIndex()
+    ])
 
     const parts: string[] = ["# basement.studio — Content Index", ""]
 
@@ -13,6 +19,26 @@ export async function GET() {
       parts.push("## Blog Posts", "")
       for (const post of posts) {
         parts.push(`- [${post.title}](${SITE_URL}/post/${post.slug}.md)`)
+      }
+      parts.push("")
+    }
+
+    if (projects.length > 0) {
+      parts.push("## Projects", "")
+      for (const project of projects) {
+        parts.push(
+          `- [${project.title}](${SITE_URL}/showcase/${project.slug}.md)`
+        )
+      }
+      parts.push("")
+    }
+
+    if (positions.length > 0) {
+      parts.push("## Open Positions", "")
+      for (const position of positions) {
+        parts.push(
+          `- [${position.title}](${SITE_URL}/careers/${position.slug}.md)`
+        )
       }
       parts.push("")
     }
