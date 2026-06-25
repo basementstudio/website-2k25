@@ -227,6 +227,7 @@ export default defineConfig({
   dataset,
   basePath: "/studio",
   releases: { enabled: false },
+  scheduledDrafts: { enabled: false },
   plugins: [
     structureTool({ structure }),
     presentationTool({
