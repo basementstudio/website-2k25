@@ -14,6 +14,7 @@ export type UpdateCameraCallback = (
 
 interface AppLoadingState {
   isCanvasInPage: boolean
+  canvasVisible: boolean
   showLoadingCanvas: boolean
   canRunMainApp: boolean
   offscreenCanvasReady: boolean
@@ -25,7 +26,11 @@ interface AppLoadingState {
 
 export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
   const store: AppLoadingState = {
+    // Sticky: once true the <Scene/> stays mounted so the WebGL context
+    // persists across navigations.
     isCanvasInPage: false,
+    // Current route's canvas visibility (toggled per route by <SetCanvasMode>).
+    canvasVisible: false,
     /**
      * Used to check if the offscreen canvas is ready
      */

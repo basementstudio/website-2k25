@@ -9,7 +9,13 @@ import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 // the `usePathname` + blacklist check that forced a <Suspense> boundary.
 export const SetCanvasMode = ({ enabled }: { enabled: boolean }) => {
   useEffect(() => {
-    useAppLoadingStore.setState({ isCanvasInPage: enabled })
+    if (enabled) {
+      // Sticky mount + visible. isCanvasInPage is never set back to false so the
+      // Scene stays mounted (WebGL context persists) across navigations.
+      useAppLoadingStore.setState({ isCanvasInPage: true, canvasVisible: true })
+    } else {
+      useAppLoadingStore.setState({ canvasVisible: false })
+    }
   }, [enabled])
 
   return null

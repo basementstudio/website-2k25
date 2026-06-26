@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { fetchCareerPosition } from "@/app/(site)/(pages)/careers/[slug]/sanity"
+import { fetchCareerPosition } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 

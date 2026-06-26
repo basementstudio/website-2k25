@@ -21,11 +21,14 @@ const Scene = dynamic(
 // client navigations. Whether it's visible is driven by `isCanvasInPage`, which
 // route-group layouts set (via <SetCanvasMode>) — no `usePathname` needed.
 export const CanvasLayer = () => {
+  // `isCanvasInPage` (sticky) keeps the Scene mounted across navigations;
+  // `canvasVisible` toggles whether it's shown for the current route.
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
+  const canvasVisible = useAppLoadingStore((state) => state.canvasVisible)
   const canvasErrorBoundaryTriggered = useAppLoadingStore(
     (state) => state.canvasErrorBoundaryTriggered
   )
-  const show = isCanvasInPage && !canvasErrorBoundaryTriggered
+  const show = canvasVisible && !canvasErrorBoundaryTriggered
 
   return (
     <>
@@ -49,7 +52,7 @@ export const CanvasLayer = () => {
             !show && "pointer-events-none invisible fixed opacity-0"
           )}
         >
-          {show && <Scene />}
+          {isCanvasInPage && <Scene />}
           <AppLoadingHandler />
           <InspectableViewer />
         </div>

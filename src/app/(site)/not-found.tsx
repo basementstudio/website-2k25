@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useState } from "react"
 
+import { SetCanvasMode } from "@/components/layout/set-canvas-mode"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { cn } from "@/utils/cn"
@@ -54,6 +55,7 @@ export default function NotFound() {
 
   return (
     <>
+      <SetCanvasMode enabled />
       <div
         className={cn(
           "fixed inset-0 z-30 mx-auto grid h-full w-full max-w-full place-items-center p-6 lg:p-18",

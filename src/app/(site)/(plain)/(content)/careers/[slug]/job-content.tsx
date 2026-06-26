@@ -1,9 +1,9 @@
 import { PortableText } from "@portabletext/react"
 import Image from "next/image"
 
-import { Sandbox } from "@/app/(site)/(pages)/post/[slug]/components/sandbox"
-import { ShikiCodeBlock } from "@/app/(site)/(pages)/post/[slug]/components/shiki-code-block"
-import { CustomTweet } from "@/app/(site)/(pages)/post/[slug]/components/tweet"
+import { Sandbox } from "@/app/(site)/(plain)/(content)/post/[slug]/components/sandbox"
+import { ShikiCodeBlock } from "@/app/(site)/(plain)/(content)/post/[slug]/components/shiki-code-block"
+import { CustomTweet } from "@/app/(site)/(plain)/(content)/post/[slug]/components/tweet"
 import { getImageUrl } from "@/service/sanity/helpers"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
