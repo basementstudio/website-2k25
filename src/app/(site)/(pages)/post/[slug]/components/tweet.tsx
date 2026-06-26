@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache"
 import Image from "next/image"
 import { EmbeddedTweet } from "react-tweet"
 import { getTweet, type Tweet } from "react-tweet/api"
@@ -5,6 +6,14 @@ import { getTweet, type Tweet } from "react-tweet/api"
 import rauchg from "./rauchg.jpg"
 
 const RAUCHG_ID = "15540222"
+
+// Tweets are immutable, so cache the syndication fetch — lets the post prerender
+// instead of hitting the API at request time.
+const getCachedTweet = async (id: string) => {
+  "use cache"
+  cacheLife("max")
+  return getTweet(id)
+}
 
 interface CustomTweetProps {
   id: string
@@ -36,7 +45,7 @@ export const CustomTweet = async ({ id }: CustomTweetProps) => {
   if (!isValidTweetId) return null
 
   try {
-    const tweet = await getTweet(id)
+    const tweet = await getCachedTweet(id)
 
     if (!tweet) return null
 

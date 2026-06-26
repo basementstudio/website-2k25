@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation"
-import { Suspense } from "react"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { JsonLd } from "@/lib/structured-data/json-ld"
@@ -58,7 +57,7 @@ async function getPostData(slug: string) {
   return { post, relatedPosts }
 }
 
-const Blog = async ({ params }: ProjectPostProps) => {
+export default async function Blog({ params }: ProjectPostProps) {
   const { slug } = await params
   const data = await getPostData(slug)
 
@@ -104,14 +103,4 @@ const Blog = async ({ params }: ProjectPostProps) => {
 export async function generateStaticParams() {
   const slugs = await fetchAllPostSlugs()
   return slugs.map((slug) => ({ slug }))
-}
-
-// Streams the post body so the tweet embed's request-time data doesn't block
-// the route from prerendering.
-export default function Page({ params }: ProjectPostProps) {
-  return (
-    <Suspense fallback={null}>
-      <Blog params={params} />
-    </Suspense>
-  )
 }
