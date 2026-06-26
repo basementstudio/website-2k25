@@ -1,11 +1,15 @@
 "use client"
 
-import MuxVideo, { Props as MuxVideoProps } from "@mux/mux-video-react"
-import { useInView } from "motion/react"
-import type { CSSProperties, Ref, VideoHTMLAttributes } from "react"
-import { useEffect, useRef } from "react"
-import { mergeRefs } from "react-merge-refs"
+import type { Props as MuxVideoProps } from "@mux/mux-video-react"
+import dynamic from "next/dynamic"
+import {
+  type CSSProperties,
+  type Ref,
+  Suspense,
+  type VideoHTMLAttributes
+} from "react"
 
+import { cn } from "@/utils/cn"
 import { buildMuxPosterUrl } from "@/utils/mux"
 
 type SharedProps = {
@@ -32,70 +36,57 @@ type LegacyProps = SharedProps &
 
 export type VideoProps = MuxProps | LegacyProps
 
-const hiddenControlsStyle = { "--controls": "none" } as CSSProperties
+// Client-only: the Mux player reads `Date.now()` at render, which can't run
+// during prerender under Cache Components.
+const MuxVideoEl = dynamic(() => import("./video-mux"), { ssr: false })
 
-const MuxVideoEl = ({
-  ref: callerRef,
-  pauseOffscreen = true,
-  ...props
-}: MuxProps) => {
-  const internalRef = useRef<HTMLVideoElement | null>(null)
-  const isInView = useInView(internalRef, { margin: "200px" })
-
-  useEffect(() => {
-    if (!pauseOffscreen) return
-    const el = internalRef.current
-    if (!el) return
-
-    if (isInView) {
-      el.play().catch(() => {})
-    } else {
-      el.pause()
-    }
-
-    const onVisibility = () => {
-      if (document.visibilityState === "hidden") {
-        el.pause()
-      } else if (isInView) {
-        el.play().catch(() => {})
-      }
-    }
-    document.addEventListener("visibilitychange", onVisibility, {
-      passive: true
-    })
-    return () => document.removeEventListener("visibilitychange", onVisibility)
-  }, [isInView, pauseOffscreen])
-
-  const { style, poster, thumbnailTime, ...rest } = props
-  const resolvedPoster =
-    poster === undefined
-      ? buildMuxPosterUrl(props.playbackId, thumbnailTime)
-      : poster
-
-  return (
-    <MuxVideo
-      {...rest}
-      ref={
-        mergeRefs([internalRef, ...(callerRef ? [callerRef] : [])]) as Ref<
-          HTMLVideoElement | undefined
-        >
-      }
-      poster={resolvedPoster}
-      style={{ ...hiddenControlsStyle, ...style }}
-      controls={false}
-      streamType="on-demand"
-      playsInline
-      autoPlay={!pauseOffscreen}
-      preload="auto"
-      preferPlayback="mse"
-      disableTracking
+// Shown while the player loads — the Mux poster is the video's first frame, so
+// it doubles as a no-shift skeleton.
+const VideoSkeleton = ({
+  playbackId,
+  thumbnailTime,
+  className,
+  style
+}: {
+  playbackId: string
+  thumbnailTime?: number
+  className?: string
+  style?: CSSProperties
+}) => {
+  const poster = buildMuxPosterUrl(playbackId, thumbnailTime)
+  return poster ? (
+    <img
+      src={poster}
+      alt=""
+      aria-hidden
+      className={cn("h-full w-full object-cover", className)}
+      style={style}
+    />
+  ) : (
+    <div
+      aria-hidden
+      className={cn("h-full w-full animate-pulse bg-brand-g2/20", className)}
+      style={style}
     />
   )
 }
 
 export const Video = (props: VideoProps) => {
   if ("playbackId" in props && props.playbackId) {
-    return <MuxVideoEl {...props} />
+    return (
+      <Suspense
+        fallback={
+          <VideoSkeleton
+            playbackId={props.playbackId}
+            thumbnailTime={props.thumbnailTime}
+            className={props.className}
+            style={props.style}
+          />
+        }
+      >
+        <MuxVideoEl {...props} />
+      </Suspense>
+    )
   }
 
   const { src, mimeType, style, autoPlay, preload, playsInline, ...rest } =

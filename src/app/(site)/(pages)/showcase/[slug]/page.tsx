@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation"
-import { Suspense } from "react"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { JsonLd } from "@/lib/structured-data/json-ld"
@@ -45,7 +44,7 @@ async function getProject(slug: string) {
   return fetchProjectBySlug(slug)
 }
 
-const ProjectPost = async ({ params }: ProjectPostProps) => {
+export default async function ProjectPost({ params }: ProjectPostProps) {
   const { slug } = await params
   const project = await getProject(slug)
 
@@ -87,14 +86,4 @@ const ProjectPost = async ({ params }: ProjectPostProps) => {
 export const generateStaticParams = async () => {
   const slugs = await fetchAllProjectSlugs()
   return (slugs ?? []).map((p) => ({ slug: p.slug }))
-}
-
-// Streams the project gallery so its client `Date.now()` read doesn't block
-// the route from prerendering.
-export default function Page({ params }: ProjectPostProps) {
-  return (
-    <Suspense fallback={null}>
-      <ProjectPost params={params} />
-    </Suspense>
-  )
 }
