@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { Suspense } from "react"
 
 import { BlogList } from "@/components/blog/list"
 import { JsonLd } from "@/lib/structured-data/json-ld"
@@ -44,7 +43,7 @@ export const generateMetadata = async (props: {
   }
 }
 
-const BlogIndexPage = async (props: { params: Params }) => {
+export default async function BlogIndexPage(props: { params: Params }) {
   const params = await props.params
   const isBlogHome = !params.slug?.[0]
 
@@ -81,12 +80,4 @@ export const generateStaticParams = async () => {
   return categories.map((category) => ({
     slug: [category.slug]
   }))
-}
-
-export default function Page(props: { params: Params }) {
-  return (
-    <Suspense fallback={null}>
-      <BlogIndexPage params={props.params} />
-    </Suspense>
-  )
 }
