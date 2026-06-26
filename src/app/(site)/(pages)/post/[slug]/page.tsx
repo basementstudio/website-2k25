@@ -106,6 +106,8 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }))
 }
 
+// Streams the post body so client embeds (video/tweet) that read unstable
+// values (Date.now, runtime data) don't block the route from prerendering.
 export default function Page({ params }: ProjectPostProps) {
   return (
     <Suspense fallback={null}>

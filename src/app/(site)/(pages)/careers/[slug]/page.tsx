@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation"
-import { Suspense } from "react"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { JsonLd } from "@/lib/structured-data/json-ld"
@@ -43,7 +42,7 @@ async function getPosition(slug: string) {
   return fetchCareerPosition(slug)
 }
 
-const CareerPost = async ({ params }: CareerPostProps) => {
+export default async function CareerPost({ params }: CareerPostProps) {
   const { slug } = await params
 
   const position = await getPosition(slug)
@@ -106,12 +105,4 @@ const CareerPost = async ({ params }: CareerPostProps) => {
 export async function generateStaticParams() {
   const slugs = await fetchAllOpenPositionSlugs()
   return slugs.map((slug) => ({ slug }))
-}
-
-export default function Page({ params }: CareerPostProps) {
-  return (
-    <Suspense fallback={null}>
-      <CareerPost params={params} />
-    </Suspense>
-  )
 }

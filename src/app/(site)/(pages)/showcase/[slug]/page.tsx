@@ -89,6 +89,8 @@ export const generateStaticParams = async () => {
   return (slugs ?? []).map((p) => ({ slug: p.slug }))
 }
 
+// Streams the project gallery so its client `Date.now()` read doesn't block
+// the route from prerendering.
 export default function Page({ params }: ProjectPostProps) {
   return (
     <Suspense fallback={null}>
