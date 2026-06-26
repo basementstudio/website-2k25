@@ -5,8 +5,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   productionBrowserSourceMaps: true,
   cacheComponents: true,
-  // Sanity Live handles on-demand revalidation, so cached Sanity data uses a
-  // long-lived profile instead of the 15-minute default.
+  // Sanity Live handles on-demand revalidation, so override the 15-min default.
   cacheLife: {
     default: sanity
   },

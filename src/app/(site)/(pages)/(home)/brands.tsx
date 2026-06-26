@@ -31,8 +31,7 @@ export const Brands = ({ data }: { data: HomepageData }) => {
       (c): c is Brand & { logo: NonNullable<Brand["logo"]> } => c.logo !== null
     )
 
-  // Trim to a multiple of 3 for the mobile grid. Deterministic (drop from the
-  // end) so the homepage prerenders — a random drop reads as unstable IO.
+  // Trim to a multiple of 3 for the mobile grid — deterministic so it prerenders.
   const mobileBrands = brands.slice(0, brands.length - (brands.length % 3))
 
   return (

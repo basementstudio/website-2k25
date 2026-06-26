@@ -34,10 +34,8 @@ const BLACKLISTED_PATHS = [
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
-  // `usePathname()` suspends while prerendering dynamic-param routes (whose
-  // pathname isn't known at build). Those routes are all canvas-blacklisted, so
-  // the fallback — page content in the plain layout container, no canvas — is
-  // their correct static shell.
+  // usePathname() suspends on dynamic-param routes; they're all canvas-blacklisted,
+  // so the fallback (plain container, no canvas) is their correct static shell.
   return (
     <Suspense fallback={<div className="layout-container">{children}</div>}>
       <ContentWrapperInner>{children}</ContentWrapperInner>

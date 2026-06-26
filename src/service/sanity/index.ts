@@ -30,11 +30,9 @@ export async function sanityFetch<T>({
 }
 
 /**
- * Cached published read for prerenderable routes. Wraps the Live `sanityFetch`
- * in a `"use cache"` boundary so the route prerenders, while Sanity Live's
- * `cacheTag`s still drive on-demand revalidation when content changes. Use for
- * published page content; use plain `sanityFetch` only where draft/preview must
- * stay live, and `sanityFetchStatic` for build-time/`.md` contexts.
+ * Cached published read: Live `sanityFetch` inside `"use cache"` so the route
+ * prerenders while Sanity Live's `cacheTag`s still drive revalidation. Use for
+ * published page content (plain `sanityFetch` is for live draft/preview).
  */
 export async function sanityFetchCached<T>(opts: {
   query: string
@@ -46,11 +44,9 @@ export async function sanityFetchCached<T>(opts: {
 }
 
 /**
- * Non-Live Sanity fetch for contexts that run outside a `"use cache"` scope and
- * don't need live updates: `generateStaticParams`, `generateMetadata`, `.md`
- * endpoints, `sitemap`. The Live `sanityFetch` calls `cacheTag()` internally
- * (Cache Components), which is only valid inside `"use cache"`; this path skips
- * Live entirely and always reads published, stega-free data.
+ * Non-Live fetch for contexts outside a `"use cache"` scope (`generateStaticParams`,
+ * `generateMetadata`): the Live `sanityFetch`'s `cacheTag()` is illegal there.
+ * Always reads published, stega-free data.
  */
 export async function sanityFetchStatic<T>({
   query,

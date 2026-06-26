@@ -13,9 +13,8 @@ export const metadata: Metadata = {
   }
 }
 
-// instant = false: kept on purpose — this route reads request headers
-// (user-agent) to redirect mobile visitors before render, which is inherently
-// per-request work and can't be prerendered.
+// Deliberate Block: reads request headers (user-agent) to redirect mobile
+// visitors before render — inherently per-request, can't be prerendered.
 export const instant = false
 
 const Laboratory = async () => {

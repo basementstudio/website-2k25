@@ -92,8 +92,7 @@ const categoriesNonEmptyQuery = /* groq */ `*[_type == "postCategory" && count(*
 export async function fetchCategoriesNonEmpty(
   opts: { forStaticParams?: boolean } = {}
 ): Promise<BlogCategory[]> {
-  // `generateStaticParams` runs outside the render/cache context, so it can't
-  // call a Live fetch (which registers `cacheTag`). Use the non-Live client.
+  // generateStaticParams can't call the Live fetch (cacheTag needs "use cache").
   if (opts.forStaticParams) {
     return sanityFetchStatic<BlogCategory[]>({
       query: categoriesNonEmptyQuery,

@@ -3,13 +3,11 @@ import type { RelatedProject } from "./sanity"
 interface SelectRelatedProjectsArgs {
   projects: RelatedProject[]
   excludeSlug: string
-  /** Defaults to a value derived from `excludeSlug` so the result is stable per
-   * page (prerenderable). Pass an explicit value to override. */
+  /** Defaults to a value derived from `excludeSlug` (stable per page). */
   randomValue?: number
 }
 
-/** Deterministic [0, 1) derived from a string, so related-project selection is
- * stable per slug instead of recomputed on every prerender/visit. */
+/** Deterministic [0, 1) from a string, so selection is stable per slug. */
 function slugToFraction(slug: string): number {
   let hash = 0
   for (let i = 0; i < slug.length; i++) {

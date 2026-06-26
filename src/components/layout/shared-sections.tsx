@@ -169,8 +169,7 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
 )
 
 export const Copyright = ({ className }: { className?: string }) => {
-  // Resolved on the client so the static shell stays prerenderable (reading the
-  // current year during render is unstable IO under Cache Components).
+  // Client-resolved: reading the current year at render is unstable IO.
   const [year, setYear] = useState<number | null>(null)
   useEffect(() => setYear(new Date().getFullYear()), [])
 
