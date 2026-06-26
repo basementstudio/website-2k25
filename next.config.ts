@@ -11,10 +11,6 @@ const nextConfig: NextConfig = {
       }
     }
   },
-  experimental: {
-    ppr: "incremental"
-  },
-
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 90],
@@ -28,15 +24,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "abs.twimg.com", pathname: "**" },
       { protocol: "https", hostname: "cdn.sanity.io", pathname: "**" }
     ]
-  },
-
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(glsl|vs|fs|vert|frag)$/,
-      use: ["raw-loader", "glslify-loader"]
-    })
-
-    return config
   },
 
   async headers() {

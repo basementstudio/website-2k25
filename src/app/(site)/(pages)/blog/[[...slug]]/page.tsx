@@ -8,8 +8,6 @@ import { fetchCategoriesNonEmpty, fetchPostListForSchema } from "../sanity"
 
 type Params = Promise<{ slug: string[] }>
 
-export const experimental_ppr = true
-
 const titleCase = (slug: string): string =>
   slug
     .split("-")
