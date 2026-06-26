@@ -1,5 +1,3 @@
-import { Suspense } from "react"
-
 import { NavbarContent } from "./navbar-content"
 import { fetchCompanyInfo, fetchPostsCount, fetchProjectsCount } from "./sanity"
 
@@ -46,18 +44,16 @@ export const Navbar = async () => {
   ]
 
   return (
-    <Suspense fallback={null}>
-      <NavbarContent
-        key="navbar-content"
-        links={LINKS}
-        socialLinks={{
-          twitter: companyInfo.twitter || "",
-          instagram: companyInfo.instagram || "",
-          github: companyInfo.github || "",
-          linkedIn: companyInfo.linkedIn || ""
-        }}
-        newsletter={companyInfo.newsletter || []}
-      />
-    </Suspense>
+    <NavbarContent
+      key="navbar-content"
+      links={LINKS}
+      socialLinks={{
+        twitter: companyInfo.twitter || "",
+        instagram: companyInfo.instagram || "",
+        github: companyInfo.github || "",
+        linkedIn: companyInfo.linkedIn || ""
+      }}
+      newsletter={companyInfo.newsletter || []}
+    />
   )
 }

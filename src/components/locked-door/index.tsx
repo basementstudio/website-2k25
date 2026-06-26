@@ -26,21 +26,22 @@ export const LockedDoor = () => {
   const handleClick = () => {
     if (scene !== "blog") return
     if (isLockedDoorOpen.current) return
+    if (!lockedDoor) return
 
-    const r = lockedDoor?.userData.originalRotation
+    const r = lockedDoor.userData.originalRotation
 
     isLockedDoorOpen.current = true
 
     let target = { x: r.x + 0.1, y: r.y, z: r.z }
 
-    animate(lockedDoor?.rotation, target)
+    animate(lockedDoor.rotation, target)
 
     const randomSound = Math.floor(Math.random() * availableSounds)
     playSoundFX(`BLOG_LOCKED_DOOR_${randomSound}`, 0.2)
     track("blog_locked_door")
     posthog.capture("blog_locked_door")
     setTimeout(() => {
-      animate(lockedDoor?.rotation, r)
+      animate(lockedDoor.rotation, r)
 
       setTimeout(() => {
         isLockedDoorOpen.current = false

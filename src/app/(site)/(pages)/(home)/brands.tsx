@@ -1,5 +1,3 @@
-import { Suspense } from "react"
-
 import { BrandsDesktop } from "@/components/brands"
 import { getImageUrl } from "@/service/sanity/helpers"
 
@@ -38,7 +36,7 @@ export const Brands = ({ data }: { data: HomepageData }) => {
   const mobileBrands = brands.slice(0, brands.length - (brands.length % 3))
 
   return (
-    <Suspense fallback={null}>
+    <>
       <BrandsDesktop brands={brands} />
       <BrandsMobile
         brandsMobile={[
@@ -46,6 +44,6 @@ export const Brands = ({ data }: { data: HomepageData }) => {
           mobileBrands.slice(mobileBrands.length / 2)
         ]}
       />
-    </Suspense>
+    </>
   )
 }

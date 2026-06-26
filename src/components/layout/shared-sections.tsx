@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react"
 import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 
 import { Link } from "@/components/primitives/link"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
@@ -167,16 +168,23 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   </div>
 )
 
-export const Copyright = ({ className }: { className?: string }) => (
-  <p
-    className={cn(
-      "text-right !text-f-p-mobile text-brand-g1 lg:!text-f-p",
-      className
-    )}
-  >
-    © basement.studio LLC {new Date().getFullYear()} all rights reserved
-  </p>
-)
+export const Copyright = ({ className }: { className?: string }) => {
+  // Resolved on the client so the static shell stays prerenderable (reading the
+  // current year during render is unstable IO under Cache Components).
+  const [year, setYear] = useState<number | null>(null)
+  useEffect(() => setYear(new Date().getFullYear()), [])
+
+  return (
+    <p
+      className={cn(
+        "text-right !text-f-p-mobile text-brand-g1 lg:!text-f-p",
+        className
+      )}
+    >
+      © basement.studio LLC {year} all rights reserved
+    </p>
+  )
+}
 
 export const SoDa = ({ className }: { className?: string }) => (
   <div className={cn("mb-2 w-full", className)}>

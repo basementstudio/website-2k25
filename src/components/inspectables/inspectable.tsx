@@ -95,13 +95,13 @@ export const Inspectable = memo(function InspectableInner({
   const ref = useRef<Group>(null)
 
   const targetPosition = useRef({
-    x: new MotionValue(),
-    y: new MotionValue(),
-    z: new MotionValue()
+    x: new MotionValue(0),
+    y: new MotionValue(0),
+    z: new MotionValue(0)
   })
-  const targetScale = useRef(new MotionValue())
+  const targetScale = useRef(new MotionValue(0))
 
-  const inspectingFactor = useRef(new MotionValue())
+  const inspectingFactor = useRef(new MotionValue(0))
   const inspectingFactorTL = useRef<AnimationPlaybackControls | null>(null)
 
   const [firstRender, setFirstRender] = useState(true)
