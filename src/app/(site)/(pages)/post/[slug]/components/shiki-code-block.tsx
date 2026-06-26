@@ -22,27 +22,22 @@ interface ShikiCodeBlockProps {
   }>
 }
 
+async function highlight(code: string, language: string): Promise<string> {
+  "use cache"
+  try {
+    return await codeToHtml(code, { lang: language || "text", theme })
+  } catch {
+    return await codeToHtml(code, { lang: "text", theme })
+  }
+}
+
 export async function ShikiCodeBlock({ files }: ShikiCodeBlockProps) {
   const highlighted: HighlightedSnippet[] = await Promise.all(
-    files.map(async (file) => {
-      let html: string
-      try {
-        html = await codeToHtml(file.code, {
-          lang: file.language || "text",
-          theme
-        })
-      } catch {
-        html = await codeToHtml(file.code, {
-          lang: "text",
-          theme
-        })
-      }
-      return {
-        label: file.title,
-        code: file.code,
-        html
-      }
-    })
+    files.map(async (file) => ({
+      label: file.title,
+      code: file.code,
+      html: await highlight(file.code, file.language)
+    }))
   )
 
   return <ShikiCodeClient snippets={highlighted} />

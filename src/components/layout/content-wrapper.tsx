@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import posthog from "posthog-js"
-import { useEffect, useMemo } from "react"
+import { Suspense, useEffect, useMemo } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { CustomCursor } from "@/components/custom-cursor"
@@ -34,6 +34,18 @@ const BLACKLISTED_PATHS = [
 ]
 
 export const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
+  // `usePathname()` suspends while prerendering dynamic-param routes (whose
+  // pathname isn't known at build). Those routes are all canvas-blacklisted, so
+  // the fallback — page content in the plain layout container, no canvas — is
+  // their correct static shell.
+  return (
+    <Suspense fallback={<div className="layout-container">{children}</div>}>
+      <ContentWrapperInner>{children}</ContentWrapperInner>
+    </Suspense>
+  )
+}
+
+const ContentWrapperInner = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname()
   const canvasErrorBoundaryTriggered = useAppLoadingStore(
     (state) => state.canvasErrorBoundaryTriggered

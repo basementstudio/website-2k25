@@ -1,4 +1,8 @@
-import { sanityFetch } from "@/service/sanity"
+import {
+  sanityFetch,
+  sanityFetchCached,
+  sanityFetchStatic
+} from "@/service/sanity"
 import { imageFragment, muxVideoFragment } from "@/service/sanity/queries"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
@@ -80,10 +84,15 @@ export async function fetchPostBySlug(
     heroImage ${imageFragment},
     heroVideo
   }`
+  if (options?.published) {
+    return sanityFetchStatic<PostDetail | null>({
+      query,
+      params: { slug }
+    })
+  }
   return sanityFetch<PostDetail | null>({
     query,
-    params: { slug },
-    ...(options?.published ? { stega: false, perspective: "published" } : {})
+    params: { slug }
   })
 }
 
@@ -99,9 +108,8 @@ export async function fetchAllPostsForIndex(): Promise<PostIndexEntry[]> {
     "slug": slug.current,
     date
   }`
-  return sanityFetch<PostIndexEntry[]>({
+  return sanityFetchCached<PostIndexEntry[]>({
     query,
-    stega: false,
     perspective: "published"
   })
 }
@@ -131,9 +139,8 @@ export async function fetchRelatedPosts(
 
 export async function fetchAllPostSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "post"]{ "slug": slug.current }.slug`
-  return sanityFetch<string[]>({
+  return sanityFetchStatic<string[]>({
     query,
-    stega: false,
     perspective: "published"
   })
 }
@@ -142,13 +149,12 @@ export async function fetchPostMeta(
   slug: string
 ): Promise<{ title: string; intro: PortableTextBlock[] | null } | null> {
   const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{ title, intro }`
-  return sanityFetch<{
+  return sanityFetchCached<{
     title: string
     intro: PortableTextBlock[] | null
   } | null>({
     query,
     params: { slug },
-    stega: false,
     perspective: "published"
   })
 }

@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/service/sanity"
+import { sanityFetch, sanityFetchCached } from "@/service/sanity"
 import {
   imageFragment,
   muxVideoFragment,
@@ -83,6 +83,7 @@ const categoriesQuery = /* groq */ `
 // ---------------------------------------------------------------------------
 
 export async function fetchProjects(): Promise<ShowcaseProject[]> {
+  "use cache"
   const projects = await sanityFetch<ShowcaseProject[] | null>({
     query: showcaseProjectsQuery
   })
@@ -90,6 +91,7 @@ export async function fetchProjects(): Promise<ShowcaseProject[]> {
 }
 
 export async function fetchProjectsCount(): Promise<number> {
+  "use cache"
   return sanityFetch<number>({
     query: showcaseCountQuery
   })
@@ -106,17 +108,18 @@ const projectListForSchemaQuery = /* groq */ `
 export async function fetchProjectListForSchema(): Promise<
   Array<{ title: string; slug: string }>
 > {
+  "use cache"
   const projects = await sanityFetch<Array<{
     title: string
     slug: string
   }> | null>({
-    query: projectListForSchemaQuery,
-    stega: false
+    query: projectListForSchemaQuery
   })
   return projects ?? []
 }
 
 export async function fetchCategories(): Promise<ShowcaseCategory[]> {
+  "use cache"
   return sanityFetch<ShowcaseCategory[]>({
     query: categoriesQuery
   })
@@ -142,9 +145,8 @@ const showcaseListForMarkdownQuery = /* groq */ `
 export async function fetchShowcaseListForMarkdown(): Promise<
   ShowcaseListEntry[]
 > {
-  const projects = await sanityFetch<ShowcaseListEntry[] | null>({
+  const projects = await sanityFetchCached<ShowcaseListEntry[] | null>({
     query: showcaseListForMarkdownQuery,
-    stega: false,
     perspective: "published"
   })
   return projects ?? []

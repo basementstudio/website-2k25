@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { JsonLd } from "@/lib/structured-data/json-ld"
@@ -21,8 +22,6 @@ interface CareerPostProps {
   params: Promise<{ slug: string }>
 }
 
-export const dynamic = "force-static"
-
 export const generateMetadata = async ({ params }: CareerPostProps) => {
   const { slug } = await params
   const meta = await fetchCareerPositionMeta(slug)
@@ -39,10 +38,15 @@ export const generateMetadata = async ({ params }: CareerPostProps) => {
   }
 }
 
+async function getPosition(slug: string) {
+  "use cache"
+  return fetchCareerPosition(slug)
+}
+
 const CareerPost = async ({ params }: CareerPostProps) => {
   const { slug } = await params
 
-  const position = await Promise.resolve(fetchCareerPosition(slug))
+  const position = await getPosition(slug)
 
   if (!position || !position.isOpen) return notFound()
 
@@ -104,4 +108,10 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }))
 }
 
-export default CareerPost
+export default function Page({ params }: CareerPostProps) {
+  return (
+    <Suspense fallback={null}>
+      <CareerPost params={params} />
+    </Suspense>
+  )
+}

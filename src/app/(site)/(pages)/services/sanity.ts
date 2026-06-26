@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/service/sanity"
+import { sanityFetchCached } from "@/service/sanity"
 import { imageFragment } from "@/service/sanity/queries"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
@@ -92,21 +92,26 @@ export async function fetchServicesPage(
   /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
   options?: { published?: boolean }
 ): Promise<ServicesPageData | null> {
-  return sanityFetch<ServicesPageData | null>({
-    query: servicesPageQuery,
-    ...(options?.published ? { stega: false, perspective: "published" } : {})
+  if (options?.published) {
+    return sanityFetchCached<ServicesPageData | null>({
+      query: servicesPageQuery,
+      perspective: "published"
+    })
+  }
+  return sanityFetchCached<ServicesPageData | null>({
+    query: servicesPageQuery
   })
 }
 
 export async function fetchAwards(): Promise<ServiceAward[]> {
-  const result = await sanityFetch<ServiceAward[] | null>({
+  const result = await sanityFetchCached<ServiceAward[] | null>({
     query: awardsQuery
   })
   return result ?? []
 }
 
 export async function fetchTestimonial(): Promise<ServiceTestimonial | null> {
-  return sanityFetch<ServiceTestimonial | null>({
+  return sanityFetchCached<ServiceTestimonial | null>({
     query: testimonialQuery
   })
 }

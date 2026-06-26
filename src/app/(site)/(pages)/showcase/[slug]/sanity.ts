@@ -1,4 +1,8 @@
-import { sanityFetch } from "@/service/sanity"
+import {
+  sanityFetch,
+  sanityFetchCached,
+  sanityFetchStatic
+} from "@/service/sanity"
 import {
   imageFragment,
   muxVideoFragment,
@@ -106,10 +110,15 @@ export async function fetchProjectBySlug(
   /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
   options?: { published?: boolean }
 ): Promise<ShowcaseProjectDetail | null> {
+  if (options?.published) {
+    return sanityFetchStatic<ShowcaseProjectDetail | null>({
+      query: projectBySlugQuery,
+      params: { slug }
+    })
+  }
   return sanityFetch<ShowcaseProjectDetail | null>({
     query: projectBySlugQuery,
-    params: { slug },
-    ...(options?.published ? { stega: false, perspective: "published" } : {})
+    params: { slug }
   })
 }
 
@@ -125,9 +134,8 @@ export async function fetchAllProjectsForIndex(): Promise<ProjectIndexEntry[]> {
     "slug": slug.current,
     year
   }`
-  return sanityFetch<ProjectIndexEntry[]>({
+  return sanityFetchCached<ProjectIndexEntry[]>({
     query,
-    stega: false,
     perspective: "published"
   })
 }
@@ -135,9 +143,8 @@ export async function fetchAllProjectsForIndex(): Promise<ProjectIndexEntry[]> {
 export async function fetchAllProjectSlugs(): Promise<Array<{
   slug: string
 }> | null> {
-  return sanityFetch<Array<{ slug: string }> | null>({
+  return sanityFetchStatic<Array<{ slug: string }> | null>({
     query: allProjectSlugsQuery,
-    stega: false,
     perspective: "published"
   })
 }
@@ -145,13 +152,12 @@ export async function fetchAllProjectSlugs(): Promise<Array<{
 export async function fetchProjectMeta(
   slug: string
 ): Promise<{ title: string; content: PortableTextBlock[] | null } | null> {
-  return sanityFetch<{
+  return sanityFetchCached<{
     title: string
     content: PortableTextBlock[] | null
   } | null>({
     query: projectMetaQuery,
     params: { slug },
-    stega: false,
     perspective: "published"
   })
 }
@@ -159,7 +165,7 @@ export async function fetchProjectMeta(
 export async function fetchRelatedProjects(
   excludeSlug: string
 ): Promise<RelatedProject[]> {
-  const all = await sanityFetch<RelatedProject[] | null>({
+  const all = await sanityFetchCached<RelatedProject[] | null>({
     query: relatedProjectsQuery
   })
   if (!all) return []

@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/service/sanity"
+import { sanityFetchCached } from "@/service/sanity"
 import { imageFragment } from "@/service/sanity/queries"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
@@ -110,24 +110,24 @@ export async function fetchPeoplePage(
   /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
   options?: { published?: boolean }
 ): Promise<PeoplePageData | null> {
-  return sanityFetch<PeoplePageData | null>({
+  return sanityFetchCached<PeoplePageData | null>({
     query: peoplePageQuery,
-    ...(options?.published ? { stega: false, perspective: "published" } : {})
+    ...(options?.published ? { perspective: "published" } : {})
   })
 }
 
 export async function fetchPeople(options?: {
   published?: boolean
 }): Promise<PersonItem[]> {
-  const result = await sanityFetch<PersonItem[] | null>({
+  const result = await sanityFetchCached<PersonItem[] | null>({
     query: peopleQuery,
-    ...(options?.published ? { stega: false, perspective: "published" } : {})
+    ...(options?.published ? { perspective: "published" } : {})
   })
   return result ?? []
 }
 
 export async function fetchValues(): Promise<ValueItem[]> {
-  const result = await sanityFetch<ValueItem[] | null>({
+  const result = await sanityFetchCached<ValueItem[] | null>({
     query: valuesQuery
   })
   return result ?? []
@@ -136,9 +136,9 @@ export async function fetchValues(): Promise<ValueItem[]> {
 export async function fetchOpenPositions(options?: {
   published?: boolean
 }): Promise<OpenPositionItem[]> {
-  const result = await sanityFetch<OpenPositionItem[] | null>({
+  const result = await sanityFetchCached<OpenPositionItem[] | null>({
     query: openPositionsQuery,
-    ...(options?.published ? { stega: false, perspective: "published" } : {})
+    ...(options?.published ? { perspective: "published" } : {})
   })
   return result ?? []
 }

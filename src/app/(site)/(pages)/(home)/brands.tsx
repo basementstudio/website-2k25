@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { BrandsDesktop } from "@/components/brands"
 import { getImageUrl } from "@/service/sanity/helpers"
 
@@ -31,15 +33,12 @@ export const Brands = ({ data }: { data: HomepageData }) => {
       (c): c is Brand & { logo: NonNullable<Brand["logo"]> } => c.logo !== null
     )
 
-  // Ensure we have a number of brands that's a multiple of 3 for the mobile grid
-  const mobileBrands = [...brands]
-  while (mobileBrands.length % 3 !== 0) {
-    const randomIndex = Math.floor(Math.random() * mobileBrands.length)
-    mobileBrands.splice(randomIndex, 1)
-  }
+  // Trim to a multiple of 3 for the mobile grid. Deterministic (drop from the
+  // end) so the homepage prerenders — a random drop reads as unstable IO.
+  const mobileBrands = brands.slice(0, brands.length - (brands.length % 3))
 
   return (
-    <>
+    <Suspense fallback={null}>
       <BrandsDesktop brands={brands} />
       <BrandsMobile
         brandsMobile={[
@@ -47,6 +46,6 @@ export const Brands = ({ data }: { data: HomepageData }) => {
           mobileBrands.slice(mobileBrands.length / 2)
         ]}
       />
-    </>
+    </Suspense>
   )
 }

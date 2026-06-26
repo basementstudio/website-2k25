@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
 import { BlogList } from "@/components/blog/list"
 import { JsonLd } from "@/lib/structured-data/json-ld"
@@ -82,4 +83,10 @@ export const generateStaticParams = async () => {
   }))
 }
 
-export default BlogIndexPage
+export default function Page(props: { params: Params }) {
+  return (
+    <Suspense fallback={null}>
+      <BlogIndexPage params={props.params} />
+    </Suspense>
+  )
+}

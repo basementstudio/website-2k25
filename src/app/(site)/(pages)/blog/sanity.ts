@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/service/sanity"
+import { sanityFetch, sanityFetchStatic } from "@/service/sanity"
 import { imageFragment } from "@/service/sanity/queries"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
@@ -44,6 +44,7 @@ const postFields = /* groq */ `{
 export async function fetchPosts(
   category?: string
 ): Promise<{ posts: BlogPost[]; total: number }> {
+  "use cache"
   if (category) {
     const query = /* groq */ `{
       "posts": *[_type == "post" && $category in categories[]->slug.current] | order(date desc) ${postFields},
@@ -65,6 +66,7 @@ export async function fetchPosts(
 }
 
 export async function fetchFeaturedPost(): Promise<BlogPost | null> {
+  "use cache"
   const query = /* groq */ `*[_type == "post"] | order(date desc)[0] ${postFields}`
   return sanityFetch<BlogPost | null>({
     query
@@ -72,6 +74,7 @@ export async function fetchFeaturedPost(): Promise<BlogPost | null> {
 }
 
 export async function fetchCategories(): Promise<BlogCategory[]> {
+  "use cache"
   const query = /* groq */ `*[_type == "postCategory"] | order(title asc){
     title,
     "slug": slug.current
@@ -81,22 +84,34 @@ export async function fetchCategories(): Promise<BlogCategory[]> {
   })
 }
 
-export async function fetchCategoriesNonEmpty(
-  opts: { forStaticParams?: boolean } = {}
-): Promise<BlogCategory[]> {
-  const query = /* groq */ `*[_type == "postCategory" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc){
+const categoriesNonEmptyQuery = /* groq */ `*[_type == "postCategory" && count(*[_type == "post" && references(^._id)]) > 0] | order(title asc){
     title,
     "slug": slug.current
   }`
+
+export async function fetchCategoriesNonEmpty(
+  opts: { forStaticParams?: boolean } = {}
+): Promise<BlogCategory[]> {
+  // `generateStaticParams` runs outside the render/cache context, so it can't
+  // call a Live fetch (which registers `cacheTag`). Use the non-Live client.
+  if (opts.forStaticParams) {
+    return sanityFetchStatic<BlogCategory[]>({
+      query: categoriesNonEmptyQuery,
+      perspective: "published"
+    })
+  }
+  return fetchCategoriesNonEmptyCached()
+}
+
+async function fetchCategoriesNonEmptyCached(): Promise<BlogCategory[]> {
+  "use cache"
   return sanityFetch<BlogCategory[]>({
-    query,
-    ...(opts.forStaticParams
-      ? { stega: false, perspective: "published" as const }
-      : {})
+    query: categoriesNonEmptyQuery
   })
 }
 
 export async function fetchPostCount(): Promise<number> {
+  "use cache"
   const query = /* groq */ `count(*[_type == "post"])`
   return sanityFetch<number>({
     query
@@ -114,12 +129,12 @@ const postListForSchemaQuery = /* groq */ `
 export async function fetchPostListForSchema(): Promise<
   Array<{ title: string; slug: string }>
 > {
+  "use cache"
   const posts = await sanityFetch<Array<{
     title: string
     slug: string
   }> | null>({
-    query: postListForSchemaQuery,
-    stega: false
+    query: postListForSchemaQuery
   })
   return posts ?? []
 }

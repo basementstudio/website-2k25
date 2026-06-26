@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { JsonLd } from "@/lib/structured-data/json-ld"
@@ -20,8 +21,6 @@ import { BlogTitle } from "./title"
 interface ProjectPostProps {
   params: Promise<{ slug: string }>
 }
-
-export const dynamic = "force-static"
 
 export const generateMetadata = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
@@ -45,16 +44,27 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
   }
 }
 
-const Blog = async ({ params }: ProjectPostProps) => {
-  const { slug } = await params
+async function getPostData(slug: string) {
+  "use cache"
   const post = await fetchPostBySlug(slug)
 
-  if (!post) return notFound()
+  if (!post) return null
 
   const relatedPosts = await fetchRelatedPosts(
     post.slug,
     post.categories?.map((category) => category.title) ?? []
   )
+
+  return { post, relatedPosts }
+}
+
+const Blog = async ({ params }: ProjectPostProps) => {
+  const { slug } = await params
+  const data = await getPostData(slug)
+
+  if (!data) return notFound()
+
+  const { post, relatedPosts } = data
 
   const blogPostingSchema = generateBlogPostingSchema({
     title: post.title,
@@ -96,4 +106,10 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }))
 }
 
-export default Blog
+export default function Page({ params }: ProjectPostProps) {
+  return (
+    <Suspense fallback={null}>
+      <Blog params={params} />
+    </Suspense>
+  )
+}

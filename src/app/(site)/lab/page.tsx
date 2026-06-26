@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   }
 }
 
+// instant = false: kept on purpose — this route reads request headers
+// (user-agent) to redirect mobile visitors before render, which is inherently
+// per-request work and can't be prerendered.
+export const instant = false
+
 const Laboratory = async () => {
   const headersList = await headers()
   const userAgent = headersList.get("user-agent") || ""

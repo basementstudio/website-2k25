@@ -1,8 +1,15 @@
 import type { NextConfig } from "next"
+import { sanity } from "next-sanity/live/cache-life"
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   productionBrowserSourceMaps: true,
+  cacheComponents: true,
+  // Sanity Live handles on-demand revalidation, so cached Sanity data uses a
+  // long-lived profile instead of the 15-minute default.
+  cacheLife: {
+    default: sanity
+  },
   turbopack: {
     rules: {
       "*.{glsl,vert,frag,vs,fs}": {

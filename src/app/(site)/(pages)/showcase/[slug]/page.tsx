@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { JsonLd } from "@/lib/structured-data/json-ld"
@@ -16,8 +17,6 @@ import { ProjectWrapper } from "./wrapper"
 interface ProjectPostProps {
   params: Promise<{ slug: string }>
 }
-
-export const dynamic = "force-static"
 
 export const generateMetadata = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
@@ -41,9 +40,14 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
   }
 }
 
+async function getProject(slug: string) {
+  "use cache"
+  return fetchProjectBySlug(slug)
+}
+
 const ProjectPost = async ({ params }: ProjectPostProps) => {
   const { slug } = await params
-  const project = await fetchProjectBySlug(slug)
+  const project = await getProject(slug)
 
   if (!project) return notFound()
 
@@ -85,4 +89,10 @@ export const generateStaticParams = async () => {
   return (slugs ?? []).map((p) => ({ slug: p.slug }))
 }
 
-export default ProjectPost
+export default function Page({ params }: ProjectPostProps) {
+  return (
+    <Suspense fallback={null}>
+      <ProjectPost params={params} />
+    </Suspense>
+  )
+}
