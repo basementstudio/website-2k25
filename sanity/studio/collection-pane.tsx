@@ -9,7 +9,7 @@ import {
   Text,
   TextInput
 } from "@sanity/ui"
-import { useEffect, useRef, useState } from "react"
+import { type ComponentType, useEffect, useRef, useState } from "react"
 import { type SanityClient, useClient } from "sanity"
 import { usePaneRouter } from "sanity/structure"
 
@@ -19,7 +19,9 @@ interface CollectionItem {
   _id: string
   _originalId?: string
   title?: string | null
+  slug?: string | null
   subtitle?: string | null
+  imageUrl?: string | null
 }
 
 // `_originalId` is prefixed `drafts.` when an unpublished edit exists, so it's
@@ -29,11 +31,27 @@ const isDraftItem = (item: CollectionItem) =>
 
 const normalizeId = (id: string) => id.replace(/^drafts\./, "")
 
+// Slug shown as a path; everything else (role, client) is a plain subtitle.
+const getSubtitle = (item: CollectionItem) =>
+  item.slug ? `/${item.slug}` : (item.subtitle ?? null)
+
+const THUMB_SIZE = 35
+
+// `imageUrl` coalesces the common thumbnail fields across our document types
+// (heroImage for posts, cover for projects, image/logo/avatar elsewhere).
 const PROJECTION = `{
   _id,
   _originalId,
   "title": coalesce(title, name, "Untitled"),
-  "subtitle": coalesce(slug.current, role, client->title)
+  "slug": slug.current,
+  "subtitle": coalesce(role, client->title),
+  "imageUrl": coalesce(
+    heroImage.asset->url,
+    cover.asset->url,
+    image.asset->url,
+    logo.asset->url,
+    avatar.asset->url
+  )
 }`
 
 const sortByTitle = (items: CollectionItem[]) =>
@@ -48,6 +66,7 @@ interface CollectionPaneProps {
 // structure via S.component() — see sanity.config.ts.
 export function CollectionPane({ options }: CollectionPaneProps) {
   const schemaType = options?.schemaType as string
+  const FallbackIcon = options?.icon as ComponentType<{ size?: number }>
 
   const [items, setItems] = useState<CollectionItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -113,6 +132,7 @@ export function CollectionPane({ options }: CollectionPaneProps) {
     ? sorted.filter(
         (item) =>
           item.title?.toLowerCase().includes(term) ||
+          item.slug?.toLowerCase().includes(term) ||
           item.subtitle?.toLowerCase().includes(term)
       )
     : sorted
@@ -151,6 +171,7 @@ export function CollectionPane({ options }: CollectionPaneProps) {
                 item={item}
                 ChildLink={ChildLink}
                 isActive={normalizeId(item._id) === activeChildId}
+                FallbackIcon={FallbackIcon}
               />
             ))}
           </Stack>
@@ -160,46 +181,89 @@ export function CollectionPane({ options }: CollectionPaneProps) {
   )
 }
 
+interface ThumbnailProps {
+  imageUrl?: string | null
+  FallbackIcon?: ComponentType<{ size?: number }>
+}
+
+const Thumbnail = ({ imageUrl, FallbackIcon }: ThumbnailProps) => (
+  <Box
+    style={{
+      width: THUMB_SIZE,
+      height: THUMB_SIZE,
+      flexShrink: 0,
+      borderRadius: 3,
+      overflow: "hidden",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "var(--card-muted-bg-color)",
+      color: "var(--card-muted-fg-color)"
+    }}
+  >
+    {imageUrl ? (
+      // Sanity CDN URL with crop params — plain img is correct inside Studio
+      // (not a Next.js render context).
+      <img
+        src={`${imageUrl}?w=${THUMB_SIZE * 2}&h=${THUMB_SIZE * 2}&fit=crop&auto=format`}
+        alt=""
+        width={THUMB_SIZE}
+        height={THUMB_SIZE}
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    ) : FallbackIcon ? (
+      <FallbackIcon size={18} />
+    ) : null}
+  </Box>
+)
+
 interface ItemRowProps {
   item: CollectionItem
   ChildLink: ReturnType<typeof usePaneRouter>["ChildLink"]
   isActive: boolean
+  FallbackIcon?: ComponentType<{ size?: number }>
 }
 
-const ItemRow = ({ item, ChildLink, isActive }: ItemRowProps) => (
-  <ChildLink childId={normalizeId(item._id)}>
-    <Card
-      as="div"
-      padding={3}
-      radius={0}
-      pressed={isActive}
-      tone={isActive ? "primary" : "default"}
-      style={{
-        cursor: "pointer",
-        display: "block",
-        ...(isActive && {
-          backgroundColor: "var(--card-badge-primary-bg-color)",
-          color: "var(--card-badge-primary-fg-color)"
-        })
-      }}
-    >
-      <Stack space={2}>
-        <Flex align="center" gap={2}>
-          <Text size={1} weight="medium">
-            {item.title ?? "Untitled"}
-          </Text>
-          {isDraftItem(item) && (
-            <Badge fontSize={0} mode="outline" tone="caution">
-              Draft
-            </Badge>
-          )}
+const ItemRow = ({ item, ChildLink, isActive, FallbackIcon }: ItemRowProps) => {
+  const subtitle = getSubtitle(item)
+  return (
+    <ChildLink childId={normalizeId(item._id)}>
+      <Card
+        as="div"
+        padding={3}
+        radius={0}
+        pressed={isActive}
+        tone={isActive ? "primary" : "default"}
+        style={{
+          cursor: "pointer",
+          display: "block",
+          ...(isActive && {
+            backgroundColor: "var(--card-badge-primary-bg-color)",
+            color: "var(--card-badge-primary-fg-color)"
+          })
+        }}
+      >
+        <Flex align="center" gap={3}>
+          <Thumbnail imageUrl={item.imageUrl} FallbackIcon={FallbackIcon} />
+          <Stack space={2} flex={1}>
+            <Flex align="center" gap={2}>
+              <Text size={1} weight="medium">
+                {item.title ?? "Untitled"}
+              </Text>
+              {isDraftItem(item) && (
+                <Badge fontSize={0} mode="outline" tone="caution">
+                  Draft
+                </Badge>
+              )}
+            </Flex>
+            {subtitle && (
+              <Text size={0} muted>
+                {subtitle}
+              </Text>
+            )}
+          </Stack>
         </Flex>
-        {item.subtitle && (
-          <Text size={0} muted>
-            {item.subtitle}
-          </Text>
-        )}
-      </Stack>
-    </Card>
-  </ChildLink>
-)
+      </Card>
+    </ChildLink>
+  )
+}

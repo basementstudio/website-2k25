@@ -66,7 +66,7 @@ function collectionPane(
         .id(`collection-${schemaType}`)
         .title(title)
         .component(CollectionPane)
-        .options({ schemaType })
+        .options({ schemaType, icon })
         .canHandleIntent(
           (intentName, params) =>
             (intentName === "edit" || intentName === "create") &&
