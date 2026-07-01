@@ -7,7 +7,7 @@ import { AssetsProvider } from "@/components/assets-provider"
 import { fetchAssets } from "@/components/assets-provider/fetch-assets"
 import { Contact } from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
-import { ContentWrapper } from "@/components/layout/content-wrapper"
+import { CanvasLayer } from "@/components/layout/canvas-layer"
 import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { PostHogProvider } from "@/components/posthog/posthog-provider"
@@ -33,7 +33,8 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
             <HtmlTunnelOut />
             <Navbar />
             <NavigationHandler />
-            <ContentWrapper>{children}</ContentWrapper>
+            <CanvasLayer />
+            {children}
             <AppHooks assets={assets} />
             <Contact />
           </InspectableProvider>

@@ -4,7 +4,7 @@ import { type KeyboardEventHandler, useEffect, useRef, useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 
 import { submitCareerApplication } from "@/actions/career-application"
-import { ContactStatus } from "@/app/(site)/contact/form/contact-status"
+import { ContactStatus } from "@/app/(site)/(plain)/contact/form/contact-status"
 import { cn } from "@/utils/cn"
 
 import { CtaButton } from "./components/cta-button"

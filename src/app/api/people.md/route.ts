@@ -4,7 +4,7 @@ import {
   fetchOpenPositions,
   fetchPeople,
   fetchPeoplePage
-} from "@/app/(site)/(pages)/people/sanity"
+} from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 

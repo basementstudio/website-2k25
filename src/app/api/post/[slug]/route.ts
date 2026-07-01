@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { fetchPostBySlug } from "@/app/(site)/(pages)/post/[slug]/sanity"
+import { fetchPostBySlug } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 

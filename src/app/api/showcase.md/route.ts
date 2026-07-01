@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { fetchShowcaseListForMarkdown } from "@/app/(site)/(pages)/showcase/sanity"
+import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
 import { SITE_URL } from "@/lib/constants"
 
 const MD_HEADERS = {

@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 
-import { fetchProjects } from "@/app/(site)/(pages)/showcase/sanity"
+import { fetchProjects } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
 
 import { ShowcaseListClient } from "./client"
 
