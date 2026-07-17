@@ -1,6 +1,4 @@
 import type { Metadata } from "next"
-import { headers } from "next/headers"
-import { redirect } from "next/navigation"
 
 import { LabClient } from "./client"
 
@@ -13,21 +11,9 @@ export const metadata: Metadata = {
   }
 }
 
-// Deliberate Block: reads request headers (user-agent) to redirect mobile
-// visitors before render — inherently per-request, can't be prerendered.
-export const instant = false
-
-const Laboratory = async () => {
-  const headersList = await headers()
-  const userAgent = headersList.get("user-agent") || ""
-
-  const isMobile =
-    /iPhone|iPad|iPod|Android|webOS|BlackBerry|Windows Phone/i.test(userAgent)
-
-  if (isMobile) {
-    redirect("https://lab.basement.studio/")
-  }
-
+// The mobile user-agent redirect lives in proxy.ts so this page stays
+// prerenderable (reading headers() here would force it dynamic).
+const Laboratory = () => {
   return <LabClient />
 }
 

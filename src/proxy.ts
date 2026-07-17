@@ -16,6 +16,18 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const accept = request.headers.get("accept") ?? ""
 
+  // Mobile visitors to /lab go to the lightweight external lab (the WebGL
+  // arcade is desktop-only). Done here so the /lab page stays prerenderable.
+  if (pathname === "/lab") {
+    const userAgent = request.headers.get("user-agent") ?? ""
+    const isMobile =
+      /iPhone|iPad|iPod|Android|webOS|BlackBerry|Windows Phone/i.test(userAgent)
+    if (isMobile) {
+      return NextResponse.redirect("https://lab.basement.studio/")
+    }
+    return NextResponse.next()
+  }
+
   // Slug-based routes capture the slug in group 1; singletons match with no
   // group. `match[1]` is therefore the slug or `undefined` for singletons.
 
@@ -76,6 +88,8 @@ export const config = {
     "/services.md",
     "/people",
     "/people.md",
-    "/showcase.md"
+    "/showcase.md",
+    // Mobile user-agent redirect (see top of proxy()).
+    "/lab"
   ]
 }
