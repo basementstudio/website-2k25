@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 
-import { sanityFetchStatic } from "@/service/sanity"
+import { sanityFetchCached } from "@/service/sanity"
 
 const SITE_URL = "https://basement.studio"
 
@@ -48,8 +48,7 @@ const staticRoutes: Array<{ href: string; priority: number }> = [
 ]
 
 async function getSitemapData(): Promise<SitemapData> {
-  "use cache"
-  return sanityFetchStatic<SitemapData>({
+  return sanityFetchCached<SitemapData>({
     query: SITEMAP_QUERY,
     perspective: "published"
   })
