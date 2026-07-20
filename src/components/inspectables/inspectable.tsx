@@ -99,16 +99,11 @@ export const Inspectable = memo(function InspectableInner({
     y: new MotionValue(0),
     z: new MotionValue(0)
   })
-  // Resting scale is 1. Under motion, `animate()` tweens from the MotionValue's
-  // current value, so a 0 here makes the frame grow in from a point on first
-  // placement (mispositioned until the tween lands). Init to the resting value.
   const targetScale = useRef(new MotionValue(1))
 
   const inspectingFactor = useRef(new MotionValue(0))
   const inspectingFactorTL = useRef<AnimationPlaybackControls | null>(null)
 
-  // First placement snaps to the resting transform (like a static object);
-  // only real selections animate. Prevents the fly-in-from-origin on load.
   const hasPlaced = useRef(false)
 
   const [firstRender, setFirstRender] = useState(true)
@@ -128,8 +123,6 @@ export const Inspectable = memo(function InspectableInner({
     const camConfig = camConfigRef.current
     if (!camConfig || !position) return
 
-    // Mark placed only once we actually place it, so a skipped early call
-    // (camConfig/position not ready) still snaps on the next attempt.
     hasPlaced.current = true
 
     // Get Camera Direction
