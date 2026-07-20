@@ -1,7 +1,5 @@
 # Project specifics
 
-_Note: `next dev` regenerates a `nextjs-agent-rules` block above this section on dev runs; this guidance is kept separate so it survives that._
-
 - **Next.js 16.2.10 (stable), webpack, Cache Components on.** `cacheComponents: true` + `cacheLife: { default: sanity }` in `next.config.ts`. Do not switch to Turbopack — it doesn't run this project's Tailwind v3 PostCSS pipeline or the GLSL shader loaders. `dev`/`build` use `--webpack`.
 - **Sanity data has three fetch modes (`src/service/sanity/index.ts`) — pick by context:**
   - `sanityFetch` — Live; only valid **inside a `"use cache"` scope** (its `cacheTag()` throws otherwise). For draft/preview render.
