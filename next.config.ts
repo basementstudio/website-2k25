@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     rules: {
       "*.{glsl,vert,frag,vs,fs}": {
-        loaders: ["raw-loader", "glslify-loader"],
+        loaders: ["raw-loader"],
         as: "*.js"
       }
     }
@@ -30,15 +30,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "abs.twimg.com", pathname: "**" },
       { protocol: "https", hostname: "cdn.sanity.io", pathname: "**" }
     ]
-  },
-
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(glsl|vs|fs|vert|frag)$/,
-      use: ["raw-loader", "glslify-loader"]
-    })
-
-    return config
   },
 
   async headers() {
