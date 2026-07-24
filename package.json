@@ -2,6 +2,9 @@
   "name": "website-2k25",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -79,7 +82,7 @@
   },
   "devDependencies": {
     "@types/lodash.throttle": "^4.1.9",
-    "@types/node": "^20",
+    "@types/node": "^24.13.2",
     "@types/react": "^19.2",
     "@types/react-dom": "^19.2",
     "@types/three": "^0.170.0",

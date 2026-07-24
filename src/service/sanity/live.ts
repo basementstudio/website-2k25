@@ -7,8 +7,7 @@ export const { sanityFetch: liveSanityFetch, SanityLive } = defineLive({
   client,
   serverToken: token,
   browserToken,
-  // Every fetch goes through the `sanityFetch` wrapper (resolves perspective +
-  // boolean stega) and the sole `<SanityLive>` passes `includeDrafts`, so strict
-  // validation catches any future fetch that silently relies on defaults.
+  // Wrapper always supplies perspective + stega and <SanityLive> supplies
+  // includeDrafts, so strict catches any fetch that relies on defaults.
   strict: true
 })
