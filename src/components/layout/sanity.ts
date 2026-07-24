@@ -9,6 +9,17 @@ export interface CompanyInfo {
   newsletter: PortableTextBlock[] | null
 }
 
+// Server-provided so the footer copyright year is in prerendered HTML (no
+// hydration text shift). `new Date()` is fine inside "use cache". No explicit
+// `cacheLife` — it inherits the project default (`sanity`, ~1y) so it doesn't
+// drag every page that renders the footer/navbar down to a short lifetime. The
+// year refreshes on the next deploy or Sanity-publish revalidation, which is
+// plenty for a copyright year.
+export async function fetchCurrentYear(): Promise<number> {
+  "use cache"
+  return new Date().getFullYear()
+}
+
 export async function fetchProjectsCount(): Promise<number> {
   "use cache"
   return sanityFetch<number>({

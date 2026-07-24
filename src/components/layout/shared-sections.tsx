@@ -2,7 +2,6 @@
 
 import { motion } from "motion/react"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
 
 import { Link } from "@/components/primitives/link"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
@@ -168,11 +167,13 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   </div>
 )
 
-export const Copyright = ({ className }: { className?: string }) => {
-  // Client-resolved: reading the current year at render is unstable IO.
-  const [year, setYear] = useState<number | null>(null)
-  useEffect(() => setYear(new Date().getFullYear()), [])
-
+export const Copyright = ({
+  year,
+  className
+}: {
+  year: number
+  className?: string
+}) => {
   return (
     <p
       className={cn(

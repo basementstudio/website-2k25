@@ -57,14 +57,21 @@ const flauta = localFont({
   variable: "--font-flauta"
 })
 
+// The single `draftMode()` read stays isolated inside <Suspense> so the rest of
+// the route still prerenders. `<SanityLive>` needs `includeDrafts` to subscribe
+// to draft live events (and receive the browser token) during preview.
 async function DraftModeTools() {
   const isDraftMode = (await draftMode()).isEnabled
-  if (!isDraftMode) return null
 
   return (
     <>
-      <VisualEditing />
-      <DisableDraftMode />
+      <SanityLive includeDrafts={isDraftMode} />
+      {isDraftMode ? (
+        <>
+          <VisualEditing />
+          <DisableDraftMode />
+        </>
+      ) : null}
     </>
   )
 }
@@ -83,7 +90,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       >
         {children}
         <Suspense fallback={null}>
-          <SanityLive />
           <DraftModeTools />
         </Suspense>
       </body>
