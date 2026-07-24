@@ -1,4 +1,4 @@
-import { fetchCategoriesNonEmpty } from "@/app/(site)/(pages)/blog/sanity"
+import { fetchCategoriesNonEmpty } from "@/app/(site)/(canvas)/(content)/blog/sanity"
 
 import { CategoriesClient } from "./client"
 

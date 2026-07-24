@@ -1,4 +1,4 @@
-import { sanityFetch } from "@/service/sanity"
+import { sanityFetchStatic } from "@/service/sanity"
 import { imageFragment } from "@/service/sanity/queries"
 
 export interface LabProject {
@@ -17,12 +17,15 @@ export interface LabProject {
 }
 
 export async function fetchLabProjects(): Promise<LabProject[]> {
-  return sanityFetch<LabProject[]>({
+  // Called from a server action (not a `"use cache"` scope), so use the non-Live
+  // fetch — the Live `sanityFetch`'s `cacheTag()` throws outside `use cache`.
+  return sanityFetchStatic<LabProject[]>({
     query: /* groq */ `*[_type == "labProject"] {
       title,
       url,
       description,
       cover ${imageFragment}
-    }`
+    }`,
+    perspective: "published"
   })
 }

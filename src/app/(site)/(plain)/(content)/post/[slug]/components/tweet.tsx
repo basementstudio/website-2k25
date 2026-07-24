@@ -1,0 +1,81 @@
+import { cacheLife } from "next/cache"
+import Image from "next/image"
+import { EmbeddedTweet } from "react-tweet"
+import { getTweet, type Tweet } from "react-tweet/api"
+
+import rauchg from "./rauchg.jpg"
+
+const RAUCHG_ID = "15540222"
+
+// Tweets are immutable, so cache the syndication fetch — lets the post prerender
+// instead of hitting the API at request time.
+const getCachedTweet = async (id: string) => {
+  "use cache"
+  cacheLife("max")
+  return getTweet(id)
+}
+
+interface CustomTweetProps {
+  id: string
+}
+
+const sanitizeEntities = <T extends { entities?: Tweet["entities"] }>(
+  tweet: T
+): T => ({
+  ...tweet,
+  entities: {
+    ...tweet.entities,
+    hashtags: tweet.entities?.hashtags ?? [],
+    user_mentions: tweet.entities?.user_mentions ?? [],
+    urls: tweet.entities?.urls ?? [],
+    symbols: tweet.entities?.symbols ?? []
+  }
+})
+
+const sanitizeTweet = (tweet: Tweet): Tweet => {
+  const sanitized = sanitizeEntities(tweet)
+  return sanitized.quoted_tweet
+    ? { ...sanitized, quoted_tweet: sanitizeEntities(sanitized.quoted_tweet) }
+    : sanitized
+}
+
+export const CustomTweet = async ({ id }: CustomTweetProps) => {
+  const isValidTweetId = /^\d+$/.test(id)
+
+  if (!isValidTweetId) return null
+
+  try {
+    const tweet = await getCachedTweet(id)
+
+    if (!tweet) return null
+
+    const isRauchTweet = tweet.user.id_str === RAUCHG_ID
+
+    return (
+      <div className="dark mx-auto grid w-full max-w-[500px] place-items-center">
+        <EmbeddedTweet
+          tweet={sanitizeTweet(tweet)}
+          components={{
+            AvatarImg: (props) => (
+              <Image
+                src={isRauchTweet ? rauchg : props.src}
+                alt={props.alt}
+                width={props.width}
+                height={props.height}
+              />
+            )
+          }}
+        />
+      </div>
+    )
+  } catch (error) {
+    return (
+      <div className="dark mx-auto grid w-full max-w-[500px] place-items-center rounded-lg border border-brand-g2 bg-brand-k p-6 text-center">
+        <p className="text-brand-w2">Failed to load tweet: {id}</p>
+        <p className="mt-2 text-sm text-brand-g1">
+          The tweet may be private or no longer available
+        </p>
+      </div>
+    )
+  }
+}

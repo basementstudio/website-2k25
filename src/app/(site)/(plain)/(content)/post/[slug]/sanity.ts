@@ -1,0 +1,160 @@
+import {
+  sanityFetch,
+  sanityFetchCached,
+  sanityFetchStatic
+} from "@/service/sanity"
+import { imageFragment, muxVideoFragment } from "@/service/sanity/queries"
+import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
+
+import { selectRelatedPosts } from "./related-posts.logic"
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface PostDetail {
+  _id: string
+  _createdAt: string
+  _updatedAt: string
+  title: string
+  slug: string
+  date: string | null
+  intro: PortableTextBlock[] | null
+  content: PortableTextBlock[] | null
+  categories: Array<{ title: string; slug: string }> | null
+  authors: Array<{ title: string }> | null
+  heroImage: SanityImage | null
+  heroVideo: string | null
+}
+
+export interface RelatedPost {
+  _id: string
+  title: string
+  slug: string
+  date: string | null
+  heroImage: SanityImage | null
+  categories: Array<{ title: string; slug: string }> | null
+}
+
+// ---------------------------------------------------------------------------
+// Fetchers
+// ---------------------------------------------------------------------------
+
+export async function fetchPostBySlug(
+  slug: string,
+  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  options?: { published?: boolean }
+): Promise<PostDetail | null> {
+  const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{
+    _id,
+    _createdAt,
+    _updatedAt,
+    title,
+    "slug": slug.current,
+    date,
+    intro,
+    content[]{
+      ...,
+      _type == "image" => {
+        ...,
+        asset->{url, metadata{dimensions{width, height}, lqip}}
+      },
+      _type == "quoteWithAuthor" => {
+        ...,
+        avatar{
+          asset->{url, metadata{dimensions{width, height}, lqip}},
+          alt
+        }
+      },
+      _type == "gridGallery" => {
+        ...,
+        images[]{
+          asset->{url, metadata{dimensions{width, height}, lqip}},
+          alt
+        }
+      },
+      _type == "videoEmbed" => {
+        ...,
+        "videoUrl": file.asset->url,
+        muxVideo ${muxVideoFragment}
+      }
+    },
+    categories[]->{ title, "slug": slug.current },
+    authors[]->{ title },
+    heroImage ${imageFragment},
+    heroVideo
+  }`
+  if (options?.published) {
+    return sanityFetchStatic<PostDetail | null>({
+      query,
+      params: { slug }
+    })
+  }
+  return sanityFetch<PostDetail | null>({
+    query,
+    params: { slug }
+  })
+}
+
+export interface PostIndexEntry {
+  title: string
+  slug: string
+  date: string | null
+}
+
+export async function fetchAllPostsForIndex(): Promise<PostIndexEntry[]> {
+  const query = /* groq */ `*[_type == "post" && defined(slug.current)] | order(date desc){
+    title,
+    "slug": slug.current,
+    date
+  }`
+  return sanityFetchCached<PostIndexEntry[]>({
+    query,
+    perspective: "published"
+  })
+}
+
+export async function fetchRelatedPosts(
+  currentSlug: string,
+  currentCategoryTitles: string[]
+): Promise<RelatedPost[]> {
+  const query = /* groq */ `*[_type == "post"] | order(date desc){
+    _id,
+    title,
+    "slug": slug.current,
+    date,
+    heroImage ${imageFragment},
+    categories[]->{ title, "slug": slug.current }
+  }`
+  const posts = await sanityFetch<RelatedPost[]>({
+    query
+  })
+
+  return selectRelatedPosts({
+    posts,
+    currentSlug,
+    currentCategoryTitles
+  })
+}
+
+export async function fetchAllPostSlugs(): Promise<string[]> {
+  const query = /* groq */ `*[_type == "post"]{ "slug": slug.current }.slug`
+  return sanityFetchStatic<string[]>({
+    query,
+    perspective: "published"
+  })
+}
+
+export async function fetchPostMeta(
+  slug: string
+): Promise<{ title: string; intro: PortableTextBlock[] | null } | null> {
+  const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{ title, intro }`
+  return sanityFetchCached<{
+    title: string
+    intro: PortableTextBlock[] | null
+  } | null>({
+    query,
+    params: { slug },
+    perspective: "published"
+  })
+}

@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
 import { draftMode } from "next/headers"
 import { VisualEditing } from "next-sanity/visual-editing"
+import { Suspense } from "react"
 
 import { DisableDraftMode } from "@/components/sanity/disable-draft-mode"
 import { SanityLive } from "@/service/sanity/live"
@@ -56,9 +57,23 @@ const flauta = localFont({
   variable: "--font-flauta"
 })
 
-const RootLayout = async ({ children }: { children: React.ReactNode }) => {
+async function DraftModeTools() {
   const isDraftMode = (await draftMode()).isEnabled
 
+  return (
+    <>
+      <SanityLive includeDrafts={isDraftMode} />
+      {isDraftMode ? (
+        <>
+          <VisualEditing />
+          <DisableDraftMode />
+        </>
+      ) : null}
+    </>
+  )
+}
+
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -71,13 +86,9 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
         suppressHydrationWarning
       >
         {children}
-        <SanityLive />
-        {isDraftMode && (
-          <>
-            <VisualEditing />
-            <DisableDraftMode />
-          </>
-        )}
+        <Suspense fallback={null}>
+          <DraftModeTools />
+        </Suspense>
       </body>
     </html>
   )

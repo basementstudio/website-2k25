@@ -1,5 +1,10 @@
 import { NavbarContent } from "./navbar-content"
-import { fetchCompanyInfo, fetchPostsCount, fetchProjectsCount } from "./sanity"
+import {
+  fetchCompanyInfo,
+  fetchCurrentYear,
+  fetchPostsCount,
+  fetchProjectsCount
+} from "./sanity"
 
 interface NavbarLink {
   title: string
@@ -8,10 +13,11 @@ interface NavbarLink {
 }
 
 export const Navbar = async () => {
-  const [projectsCount, postsCount, companyInfo] = await Promise.all([
+  const [projectsCount, postsCount, companyInfo, year] = await Promise.all([
     fetchProjectsCount(),
     fetchPostsCount(),
-    fetchCompanyInfo()
+    fetchCompanyInfo(),
+    fetchCurrentYear()
   ])
 
   const LINKS: NavbarLink[] = [
@@ -46,6 +52,7 @@ export const Navbar = async () => {
   return (
     <NavbarContent
       key="navbar-content"
+      year={year}
       links={LINKS}
       socialLinks={{
         twitter: companyInfo.twitter || "",

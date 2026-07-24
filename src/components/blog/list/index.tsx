@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-import { fetchPosts } from "@/app/(site)/(pages)/blog/sanity"
+import { fetchPosts } from "@/app/(site)/(canvas)/(content)/blog/sanity"
 import { getImageUrl } from "@/service/sanity/helpers"
 import { formatDate } from "@/utils/format-date"
 

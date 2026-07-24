@@ -1,5 +1,3 @@
-import { cache } from "react"
-
 import type { PortableTextBlock } from "@/service/sanity/types"
 
 import { fetchAssetsLocal } from "./fetch-assets-local"
@@ -167,6 +165,7 @@ export interface AssetsResult {
   }[]
 }
 
-export const fetchAssets = cache(
-  async (): Promise<AssetsResult> => fetchAssetsLocal()
-)
+export async function fetchAssets(): Promise<AssetsResult> {
+  "use cache"
+  return fetchAssetsLocal()
+}

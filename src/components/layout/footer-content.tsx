@@ -36,6 +36,7 @@ const Logo = ({ className }: { className?: string }) => (
 )
 
 interface FooterContentProps {
+  year: number
   projectsCount: number
   postsCount: number
   socialLinks: {
@@ -48,6 +49,7 @@ interface FooterContentProps {
 }
 
 export const FooterContent = ({
+  year,
   projectsCount,
   postsCount,
   socialLinks,
@@ -105,12 +107,12 @@ export const FooterContent = ({
             className="col-start-1 col-end-5 row-start-2 lg:hidden"
             links={socialLinks}
           />
-          <Copyright className="text-left" />
+          <Copyright year={year} className="text-left" />
         </div>
 
         <div className="col-start-10 col-end-13 hidden translate-y-[3px] flex-col items-end gap-y-2 lg:flex">
           <SocialLinks links={socialLinks} />
-          <Copyright />
+          <Copyright year={year} />
         </div>
       </div>
     </footer>

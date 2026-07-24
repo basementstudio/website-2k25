@@ -1,20 +1,22 @@
 import type { NextConfig } from "next"
+import { sanity } from "next-sanity/live/cache-life"
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   productionBrowserSourceMaps: true,
+  cacheComponents: true,
+  // Sanity Live handles on-demand revalidation, so override the 15-min default.
+  cacheLife: {
+    default: sanity
+  },
   turbopack: {
     rules: {
       "*.{glsl,vert,frag,vs,fs}": {
-        loaders: ["raw-loader", "glslify-loader"],
+        loaders: ["raw-loader"],
         as: "*.js"
       }
     }
   },
-  experimental: {
-    ppr: "incremental"
-  },
-
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 90],
@@ -28,15 +30,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "abs.twimg.com", pathname: "**" },
       { protocol: "https", hostname: "cdn.sanity.io", pathname: "**" }
     ]
-  },
-
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(glsl|vs|fs|vert|frag)$/,
-      use: ["raw-loader", "glslify-loader"]
-    })
-
-    return config
   },
 
   async headers() {
