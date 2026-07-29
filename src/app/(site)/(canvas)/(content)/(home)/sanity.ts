@@ -1,4 +1,4 @@
-import { sanityFetch, sanityFetchCached } from "@/service/sanity"
+import { sanityFetchCached } from "@/service/sanity"
 import {
   imageFragment,
   muxVideoFragment,
@@ -118,91 +118,5 @@ export async function fetchHomepage(
   })
 }
 
-// ---------------------------------------------------------------------------
-// Organization data (schema.org)
-// ---------------------------------------------------------------------------
-
-export interface OrganizationStructuredData {
-  description: string | null
-  foundingDate: string | number | null
-  email: string | null
-  contactPoints: Array<{ email: string; contactType: string }>
-  addressCity: string | null
-  addressRegion: string | null
-  addressCountry: string | null
-  logoUrl: string | null
-  founders: Array<{
-    name: string
-    url: string | null
-    jobTitle: string | null
-  }>
-  awards: Array<{
-    title: string
-    date: string | number | null
-    projectName: string | null
-  }>
-  social: {
-    github: string | null
-    instagram: string | null
-    twitter: string | null
-    linkedIn: string | null
-  }
-}
-
-const organizationQuery = /* groq */ `{
-  "companyInfo": *[_type == "companyInfo"][0]{
-    github,
-    instagram,
-    twitter,
-    linkedIn
-  },
-  "awards": *[_type == "award" && defined(title)] | order(date desc){
-    title,
-    date,
-    "projectName": project->title
-  }
-}`
-
-export async function fetchOrganizationData(): Promise<OrganizationStructuredData> {
-  "use cache"
-  const data = await sanityFetch<{
-    companyInfo: {
-      github: string | null
-      instagram: string | null
-      twitter: string | null
-      linkedIn: string | null
-    } | null
-    awards: Array<{
-      title: string
-      date: string | null
-      projectName: string | null
-    }> | null
-  }>({
-    query: organizationQuery
-  })
-
-  return {
-    description: null,
-    foundingDate: null,
-    // Contact emails published across the site (footer, contact page, contact
-    // form). `email` is the primary general inbox; `contactPoints` exposes the
-    // same plus the sales inbox as schema.org ContactPoints.
-    email: "hello@basement.studio",
-    contactPoints: [
-      { email: "hello@basement.studio", contactType: "customer support" },
-      { email: "sales@basement.studio", contactType: "sales" }
-    ],
-    addressCity: null,
-    addressRegion: null,
-    addressCountry: null,
-    logoUrl: null,
-    founders: [],
-    awards: data.awards ?? [],
-    social: {
-      github: data.companyInfo?.github ?? null,
-      instagram: data.companyInfo?.instagram ?? null,
-      twitter: data.companyInfo?.twitter ?? null,
-      linkedIn: data.companyInfo?.linkedIn ?? null
-    }
-  }
-}
+// Organization data (schema.org) lives in `@/service/sanity/organization` —
+// it feeds the Organization JSON-LD rendered on every page via the site layout.

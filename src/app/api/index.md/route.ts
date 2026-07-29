@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { fetchHomepage } from "@/app/(site)/(canvas)/(content)/(home)/sanity"
+import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
@@ -78,6 +79,19 @@ export async function GET() {
       clients ? "## Clients" : null,
       clients ? "" : null,
       clients,
+      "",
+      // Entity block mirroring the homepage's crawlable about section.
+      "## About basement.studio",
+      "",
+      COMPANY_FACTS.description,
+      "",
+      `Founded in ${COMPANY_FACTS.foundingDate} and based in ${COMPANY_FACTS.locationName}, the studio works primarily with technology companies in the San Francisco Bay Area and has partnered with startups and enterprise brands including ${formatFactList(COMPANY_FACTS.notableClients)}.`,
+      "",
+      `Services: ${formatFactList(COMPANY_FACTS.services)}.`,
+      "",
+      COMPANY_FACTS.awardsSummary,
+      "",
+      COMPANY_FACTS.geistAttribution,
       "",
       "---",
       "",

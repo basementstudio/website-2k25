@@ -1,3 +1,5 @@
+import { COMPANY_FACTS } from "@/lib/company-facts"
+
 const SITE_URL = "https://basement.studio"
 const SITE_NAME = "basement.studio"
 
@@ -92,16 +94,16 @@ export const generateOrganizationSchema = (data: OrganizationData) => {
     "@type": "Organization",
     "@id": ORGANIZATION_ID,
     name: SITE_NAME,
-    alternateName: ["basement studio", "basement", "bsmnt"],
+    alternateName: [...COMPANY_FACTS.alternateNames],
     url: SITE_URL,
+    areaServed: COMPANY_FACTS.areaServed,
+    knowsAbout: [...COMPANY_FACTS.knowsAbout],
     ...(data.logoUrl ? { logo: data.logoUrl } : {}),
     ...(data.description ? { description: data.description } : {}),
     ...(data.foundingDate ? { foundingDate: String(data.foundingDate) } : {}),
     ...(data.email ? { email: data.email } : {}),
     ...(contactPoint.length > 0 ? { contactPoint } : {}),
-    // TODO: add a public postal address. basement.studio does not currently
-    // publish a street address anywhere in the codebase, so `address` is only
-    // emitted when address fields are provided (none are wired up yet).
+    // City/country come from COMPANY_FACTS; no street address is published.
     ...(hasAddress
       ? {
           address: {

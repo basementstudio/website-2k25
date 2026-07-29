@@ -12,6 +12,7 @@ import { SanityLive } from "@/service/sanity/live"
 import { cn } from "@/utils/cn"
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://basement.studio"),
   title: {
     template: "%s | basement.studio",
     default: "basement.studio | We make cool shit that performs."
