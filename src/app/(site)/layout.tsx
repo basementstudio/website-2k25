@@ -8,6 +8,7 @@ import { fetchAssets } from "@/components/assets-provider/fetch-assets"
 import { Contact } from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { CanvasLayer } from "@/components/layout/canvas-layer"
+import { ModeToggle } from "@/components/layout/mode-toggle"
 import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { PostHogProvider } from "@/components/posthog/posthog-provider"
@@ -48,6 +49,7 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
           </InspectableProvider>
         </AssetsProvider>
       </PostHogProvider>
+      <ModeToggle mode="human" />
     </>
   )
 }

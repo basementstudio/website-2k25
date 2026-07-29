@@ -42,6 +42,7 @@ const staticRoutes: Array<{ href: string; priority: number }> = [
   { href: "/blog", priority: 0.8 },
   { href: "/people", priority: 0.7 },
   { href: "/contact", priority: 0.7 },
+  { href: "/ai", priority: 0.5 },
   { href: "/lab", priority: 0.5 },
   { href: "/basketball", priority: 0.3 },
   { href: "/doom", priority: 0.3 }
