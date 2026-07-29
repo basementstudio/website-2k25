@@ -47,6 +47,7 @@
     "@vercel/speed-insights": "^1.2.0",
     "clsx": "^2.1.1",
     "emulators": "^8.3.9",
+    "isbot": "^5.2.1",
     "jquery": "^3.7.1",
     "js-dos": "^8.3.20",
     "leva": "^0.9.35",

@@ -1,3 +1,5 @@
+import { normalizeHref } from "@/utils/seo"
+
 import { getImageUrl } from "./helpers"
 import type { PortableTextBlock, SanityImage, SanityMuxVideo } from "./types"
 
@@ -258,7 +260,8 @@ function blockquote(text: string): string {
 }
 
 function absolutize(href: string, baseUrl: string | undefined): string {
-  if (!baseUrl) return href
-  if (href.startsWith("/")) return `${baseUrl}${href}`
-  return href
+  const normalized = normalizeHref(href)
+  if (!baseUrl) return normalized
+  if (normalized.startsWith("/")) return `${baseUrl}${normalized}`
+  return normalized
 }

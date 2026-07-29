@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 90],
+    // Cap the largest generated variant at 2560px (default tops out at 3840):
+    // full-bleed art on 4K/high-DPR screens was producing multi-MB candidates
+    // that site audits flag, with no visible gain over 2560.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 2560],
     remotePatterns: [
       {
         protocol: "https",

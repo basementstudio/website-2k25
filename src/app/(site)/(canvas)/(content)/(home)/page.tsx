@@ -2,17 +2,16 @@ import type { Metadata } from "next"
 
 import { Contact } from "@/components/layout/contact"
 import { JsonLd } from "@/lib/structured-data/json-ld"
-import {
-  generateOrganizationSchema,
-  generateWebSiteSchema
-} from "@/lib/structured-data/schemas/organization"
+import { generateWebSiteSchema } from "@/lib/structured-data/schemas/organization"
 import { generateProfessionalServiceSchema } from "@/lib/structured-data/schemas/professional-service-entity"
+import { fetchOrganizationData } from "@/service/sanity/organization"
 
+import { AboutEntity } from "./about-entity"
 import { Brands } from "./brands"
 import { Capabilities } from "./capabilities"
 import { FeaturedProjects } from "./featured-projects"
 import { Intro } from "./intro"
-import { fetchHomepage, fetchOrganizationData } from "./sanity"
+import { fetchHomepage } from "./sanity"
 
 export const metadata: Metadata = {
   title: {
@@ -35,7 +34,6 @@ const Homepage = async () => {
 
   return (
     <div className="flex flex-col gap-18 lg:gap-32">
-      <JsonLd data={generateOrganizationSchema(orgData)} />
       <JsonLd data={generateWebSiteSchema()} />
       <JsonLd
         data={generateProfessionalServiceSchema({
@@ -47,6 +45,7 @@ const Homepage = async () => {
       <Brands data={data} />
       <FeaturedProjects data={data} />
       <Capabilities data={data} />
+      <AboutEntity />
       <Contact />
     </div>
   )

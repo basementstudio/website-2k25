@@ -18,3 +18,14 @@ export const truncateDescription = (
 
   return cut.replace(/[\s.,;:!?-]+$/, "") + "…"
 }
+
+/**
+ * Upgrades insecure links to basement.studio (any subdomain) to HTTPS. CMS
+ * content occasionally contains `http://` links, which audits flag as
+ * HTTPS-page-links-to-HTTP; every basement.studio property forces HTTPS.
+ */
+export const normalizeHref = (href: string): string =>
+  href.replace(
+    /^http:\/\/((?:[\w-]+\.)*basement\.studio)(?=[/?#]|$)/i,
+    "https://$1"
+  )

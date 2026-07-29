@@ -1,4 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { isbot } from "isbot"
+import { type NextRequest, NextResponse, userAgent } from "next/server"
 
 import { markdownRoutes } from "@/service/sanity/markdown-proxy.config"
 
@@ -18,11 +19,13 @@ export function proxy(request: NextRequest) {
 
   // Mobile visitors to /lab go to the lightweight external lab (the WebGL
   // arcade is desktop-only). Done here so the /lab page stays prerenderable.
+  // Crawlers are exempt even with mobile UAs (Googlebot Smartphone, site
+  // auditors): redirecting them turns the sitemap's /lab entry into a 3XX.
   if (pathname === "/lab") {
-    const userAgent = request.headers.get("user-agent") ?? ""
-    const isMobile =
-      /iPhone|iPad|iPod|Android|webOS|BlackBerry|Windows Phone/i.test(userAgent)
-    if (isMobile) {
+    const userAgentString = request.headers.get("user-agent") ?? ""
+    const { device } = userAgent(request)
+    const isMobile = device.type === "mobile" || device.type === "tablet"
+    if (isMobile && !isbot(userAgentString)) {
       return NextResponse.redirect("https://lab.basement.studio/")
     }
     return NextResponse.next()

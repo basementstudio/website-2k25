@@ -9,6 +9,7 @@ import type {
   SanityMuxVideo
 } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
+import { normalizeHref } from "@/utils/seo"
 
 import { Back } from "./back"
 import { BlogMeta } from "./blog-meta"
@@ -41,18 +42,20 @@ const getLinkProps = (value?: {
 }) => {
   if (!value?.href) return {}
 
+  const href = normalizeHref(value.href)
+
   try {
-    const url = new URL(value.href, SITE_ORIGIN)
+    const url = new URL(href, SITE_ORIGIN)
     const isExternal = url.origin !== SITE_ORIGIN
 
     return {
-      href: value.href,
+      href,
       target: value.target ?? (isExternal ? "_blank" : undefined),
       rel: value.rel ?? (isExternal ? "noopener noreferrer" : undefined)
     }
   } catch {
     return {
-      href: value.href,
+      href,
       target: value.target,
       rel: value.rel
     }
