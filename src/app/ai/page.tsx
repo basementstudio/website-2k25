@@ -6,10 +6,7 @@ import {
   fetchFeaturedPost,
   fetchPosts
 } from "@/app/(site)/(canvas)/(content)/blog/sanity"
-import {
-  fetchOpenPositions,
-  fetchPeople
-} from "@/app/(site)/(canvas)/(content)/people/sanity"
+import { fetchOpenPositions } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
@@ -67,7 +64,6 @@ const AiPage = async () => {
   const [
     { homepage },
     servicesPage,
-    people,
     positions,
     showcaseList,
     featuredPost,
@@ -78,7 +74,6 @@ const AiPage = async () => {
   ] = await Promise.all([
     fetchHomepage({ published: true }),
     fetchServicesPage({ published: true }),
-    fetchPeople({ published: true }),
     fetchOpenPositions({ published: true }),
     fetchShowcaseListForMarkdown(),
     fetchFeaturedPost(),
@@ -254,24 +249,6 @@ const AiPage = async () => {
                 </a>
               </li>
             ))}
-          </ul>
-        </Section>
-      ) : null}
-
-      {people.length ? (
-        <Section title="Team">
-          <ul className="flex flex-col gap-2">
-            {people.map((person) => {
-              const detail = [person.role, person.department?.title]
-                .filter(Boolean)
-                .join(", ")
-              return (
-                <li key={person.title}>
-                  <span className="text-brand-w1">{person.title}</span>
-                  {detail ? ` — ${detail}` : null}
-                </li>
-              )
-            })}
           </ul>
         </Section>
       ) : null}
