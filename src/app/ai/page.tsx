@@ -9,6 +9,7 @@ import {
 import { fetchOpenPositions } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
+import { AsciiLogo } from "@/app/ai/ascii-logo"
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
 import { COMPANY_FACTS } from "@/lib/company-facts"
 import { fetchOrganizationData } from "@/service/sanity/organization"
@@ -128,12 +129,10 @@ const AiPage = async () => {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile text-brand-w2 lg:text-f-p">
       <header className="flex flex-col gap-4">
-        <pre
-          aria-hidden="true"
+        <AsciiLogo
+          text={ASCII_LOGO}
           className="overflow-x-auto text-[7px] leading-tight text-brand-w1 sm:text-[10px]"
-        >
-          {ASCII_LOGO}
-        </pre>
+        />
         <h1 className="text-brand-w1">
           basement.studio :: machine-readable index
         </h1>
