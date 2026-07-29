@@ -1,5 +1,7 @@
 import { defineField, defineType } from "sanity"
 
+import { isSlugUniqueForType } from "../utils/unique-slug"
+
 export const openPosition = defineType({
   name: "openPosition",
   title: "Open Position",
@@ -16,7 +18,7 @@ export const openPosition = defineType({
       name: "slug",
       title: "Slug",
       type: "slug",
-      options: { source: "title" },
+      options: { source: "title", isUnique: isSlugUniqueForType },
       validation: (rule) => rule.required()
     }),
     defineField({

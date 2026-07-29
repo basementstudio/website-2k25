@@ -1,6 +1,25 @@
 "use client"
 
+import {
+  BriefcaseIcon,
+  BrowsersIcon,
+  CubeIcon,
+  FadersIcon,
+  FilesIcon,
+  FileTextIcon,
+  HeartIcon,
+  HouseIcon,
+  LightningIcon,
+  RocketIcon,
+  SquaresFourIcon,
+  StackIcon,
+  StarIcon,
+  TagIcon,
+  UserIcon,
+  UsersIcon
+} from "@phosphor-icons/react/dist/ssr"
 import { visionTool } from "@sanity/vision"
+import type { ComponentType } from "react"
 import { defineConfig } from "sanity"
 import { presentationTool } from "sanity/presentation"
 import type { StructureBuilder } from "sanity/structure"
@@ -11,6 +30,10 @@ import { muxInput } from "sanity-plugin-mux-input"
 import { dataset, projectId } from "./sanity/env"
 import { resolve } from "./sanity/presentation/resolve"
 import { schemaTypes } from "./sanity/schemas"
+import { CollectionPane } from "./sanity/studio/collection-pane"
+import { createConfirmPublishAction } from "./sanity/studio/confirm-publish-action"
+
+const isProd = process.env.NODE_ENV === "production"
 
 const singletonTypes = new Set([
   "homepage",
@@ -26,6 +49,43 @@ const singletonTypes = new Set([
 
 const singletonActions = new Set(["publish", "discardChanges", "restore"])
 
+// A searchable, live, draft-badged list pane for a multi-document collection.
+// Replaces S.documentTypeListItem with the custom CollectionPane while keeping
+// "Create new" and normal document editing intents working.
+function collectionPane(
+  S: StructureBuilder,
+  schemaType: string,
+  title: string,
+  icon: ComponentType
+) {
+  return S.listItem()
+    .title(title)
+    .icon(icon)
+    .child(
+      S.component()
+        .id(`collection-${schemaType}`)
+        .title(title)
+        .component(CollectionPane)
+        .options({ schemaType, icon })
+        .canHandleIntent(
+          (intentName, params) =>
+            (intentName === "edit" || intentName === "create") &&
+            params.type === schemaType
+        )
+        .menuItems([
+          S.menuItem()
+            .title("Create new")
+            .icon(icon)
+            .intent({ type: "create", params: { type: schemaType } })
+        ])
+        .child((childId: string) =>
+          S.document()
+            .schemaType(schemaType)
+            .documentId(childId.replace(/^drafts\./, ""))
+        )
+    )
+}
+
 function structure(S: StructureBuilder) {
   return S.list()
     .title("Content")
@@ -33,6 +93,7 @@ function structure(S: StructureBuilder) {
       // --- Singletons (Pages) ---
       S.listItem()
         .title("Pages")
+        .icon(BrowsersIcon)
         .child(
           S.list()
             .title("Pages")
@@ -40,12 +101,14 @@ function structure(S: StructureBuilder) {
               S.listItem()
                 .title("Homepage")
                 .id("homepage")
+                .icon(HouseIcon)
                 .child(
                   S.document().schemaType("homepage").documentId("homepage")
                 ),
               S.listItem()
                 .title("Services Page")
                 .id("servicesPage")
+                .icon(RocketIcon)
                 .child(
                   S.document()
                     .schemaType("servicesPage")
@@ -54,12 +117,14 @@ function structure(S: StructureBuilder) {
               S.listItem()
                 .title("People Page")
                 .id("peoplePage")
+                .icon(UsersIcon)
                 .child(
                   S.document().schemaType("peoplePage").documentId("peoplePage")
                 ),
               S.listItem()
                 .title("Company Info")
                 .id("companyInfo")
+                .icon(BriefcaseIcon)
                 .child(
                   S.document()
                     .schemaType("companyInfo")
@@ -68,6 +133,7 @@ function structure(S: StructureBuilder) {
               S.listItem()
                 .title("3D Assets (DEPRECATED)")
                 .id("threeDAssets")
+                .icon(CubeIcon)
                 .child(
                   S.document()
                     .schemaType("threeDAssets")
@@ -76,6 +142,7 @@ function structure(S: StructureBuilder) {
               S.listItem()
                 .title("Showcase Page")
                 .id("showcasePage")
+                .icon(StackIcon)
                 .child(
                   S.document()
                     .schemaType("showcasePage")
@@ -89,44 +156,50 @@ function structure(S: StructureBuilder) {
       // --- Content ---
       S.listItem()
         .title("Content")
+        .icon(FilesIcon)
         .child(
           S.list()
             .title("Content")
             .items([
-              S.documentTypeListItem("post").title("Blog Posts"),
-              S.documentTypeListItem("postCategory").title("Post Categories"),
-              S.documentTypeListItem("project").title("Projects"),
-              S.documentTypeListItem("projectCategory").title(
-                "Project Categories"
+              collectionPane(S, "post", "Blog Posts", FileTextIcon),
+              collectionPane(S, "postCategory", "Post Categories", TagIcon),
+              collectionPane(S, "project", "Projects", StackIcon),
+              collectionPane(
+                S,
+                "projectCategory",
+                "Project Categories",
+                TagIcon
               ),
-              S.documentTypeListItem("labProject").title("Lab Projects")
+              collectionPane(S, "labProject", "Lab Projects", LightningIcon)
             ])
         ),
 
       // --- Company ---
       S.listItem()
         .title("Company")
+        .icon(UsersIcon)
         .child(
           S.list()
             .title("Company")
             .items([
-              S.documentTypeListItem("client").title("Clients"),
-              S.documentTypeListItem("person").title("People"),
-              S.documentTypeListItem("department").title("Departments"),
-              S.documentTypeListItem("award").title("Awards"),
-              S.documentTypeListItem("testimonial").title("Testimonials"),
-              S.documentTypeListItem("value").title("Values")
+              collectionPane(S, "client", "Clients", BriefcaseIcon),
+              collectionPane(S, "person", "People", UserIcon),
+              collectionPane(S, "department", "Departments", SquaresFourIcon),
+              collectionPane(S, "award", "Awards", StarIcon),
+              collectionPane(S, "testimonial", "Testimonials", HeartIcon),
+              collectionPane(S, "value", "Values", TagIcon)
             ])
         ),
 
       // --- Careers ---
       S.listItem()
         .title("Careers")
+        .icon(RocketIcon)
         .child(
           S.list()
             .title("Careers")
             .items([
-              S.documentTypeListItem("openPosition").title("Open Positions")
+              collectionPane(S, "openPosition", "Open Positions", BriefcaseIcon)
             ])
         ),
 
@@ -136,6 +209,7 @@ function structure(S: StructureBuilder) {
       // Binary files live in public/3d/; only editable content is here.
       S.listItem()
         .title("3D Config")
+        .icon(CubeIcon)
         .child(
           S.list()
             .title("3D Config")
@@ -143,6 +217,7 @@ function structure(S: StructureBuilder) {
               S.listItem()
                 .title("Inspectables")
                 .id("inspectablesConfig")
+                .icon(FadersIcon)
                 .child(
                   S.document()
                     .schemaType("inspectablesConfig")
@@ -151,6 +226,7 @@ function structure(S: StructureBuilder) {
               S.listItem()
                 .title("Scenes")
                 .id("scenesConfig")
+                .icon(CubeIcon)
                 .child(
                   S.document()
                     .schemaType("scenesConfig")
@@ -159,6 +235,7 @@ function structure(S: StructureBuilder) {
               S.listItem()
                 .title("Physics")
                 .id("physicsConfig")
+                .icon(LightningIcon)
                 .child(
                   S.document()
                     .schemaType("physicsConfig")
@@ -175,6 +252,8 @@ export default defineConfig({
   projectId,
   dataset,
   basePath: "/studio",
+  releases: { enabled: false },
+  scheduledDrafts: { enabled: false },
   plugins: [
     structureTool({ structure }),
     presentationTool({
@@ -198,9 +277,20 @@ export default defineConfig({
       templates.filter(({ schemaType }) => !singletonTypes.has(schemaType))
   },
   document: {
-    actions: (input, context) =>
-      singletonTypes.has(context.schemaType)
+    actions: (input, context) => {
+      const filtered = singletonTypes.has(context.schemaType)
         ? input.filter(({ action }) => action && singletonActions.has(action))
         : input
+
+      // Production only: gate publishing behind a confirm dialog so changes
+      // can't go live by accident. Dev/preview publish stays frictionless.
+      if (!isProd) return filtered
+
+      return filtered.map((action) =>
+        action.action === "publish"
+          ? createConfirmPublishAction(action)
+          : action
+      )
+    }
   }
 })
