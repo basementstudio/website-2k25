@@ -37,7 +37,7 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
       aria-label="Site mode"
       className="pointer-events-none fixed bottom-0 left-0 right-0 z-navbar flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))]"
     >
-      <div className="pointer-events-auto flex animate-slide-up items-center rounded-full border border-brand-g2 bg-brand-k font-mono text-f-p-mobile text-brand-w1 lg:text-f-p">
+      <div className="pointer-events-auto flex items-center rounded-full border border-brand-g2 bg-brand-k font-mono text-f-p-mobile text-brand-w1 lg:text-f-p">
         {mode === "human" ? (
           <span aria-current="page" className={segmentClass}>
             Human

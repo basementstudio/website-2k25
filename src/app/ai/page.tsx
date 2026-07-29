@@ -10,25 +10,34 @@ import { fetchOpenPositions } from "@/app/(site)/(canvas)/(content)/people/sanit
 import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
-import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
+import { COMPANY_FACTS } from "@/lib/company-facts"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
 export const metadata: Metadata = {
   title: "Machine view",
   description:
-    "Plain-text index of basement.studio for AI agents and crawlers: who the studio is, services, clients, projects, writing, team, and contact.",
+    "Plain-text index of basement.studio for AI agents and crawlers: who the studio is, services, clients, projects, writing, and contact.",
   alternates: { canonical: "/ai" }
 }
 
+// "BSMNT" — ANSI-shadow block letters. Decorative only; entity data below is
+// what crawlers read.
+const ASCII_LOGO = `██████╗ ███████╗███╗   ███╗███╗   ██╗████████╗
+██╔══██╗██╔════╝████╗ ████║████╗  ██║╚══██╔══╝
+██████╔╝███████╗██╔████╔██║██╔██╗ ██║   ██║
+██╔══██╗╚════██║██║╚██╔╝██║██║╚██╗██║   ██║
+██████╔╝███████║██║ ╚═╝ ██║██║ ╚████║   ██║
+╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═══╝   ╚═╝`
+
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
-  { href: "/showcase", label: "Showcase" },
-  { href: "/people", label: "People" },
-  { href: "/blog", label: "Blog" },
-  { href: "/lab", label: "Lab" },
-  { href: "/contact", label: "Contact" }
+  { href: "/", label: "home" },
+  { href: "/services", label: "services" },
+  { href: "/showcase", label: "showcase" },
+  { href: "/people", label: "people" },
+  { href: "/blog", label: "blog" },
+  { href: "/lab", label: "lab" },
+  { href: "/contact", label: "contact" }
 ]
 
 const AGENT_RESOURCES = [
@@ -51,10 +60,28 @@ const Section = ({
   title: string
   children: React.ReactNode
 }) => (
-  <section className="flex w-full flex-col items-center gap-4">
-    <h2 className="uppercase tracking-widest text-brand-g1">{title}</h2>
+  <section className="flex w-full flex-col gap-3">
+    <h2 className="w-full overflow-hidden whitespace-nowrap text-brand-g1">
+      {`── ${title.toUpperCase()} ${"─".repeat(80)}`}
+    </h2>
     {children}
   </section>
+)
+
+/** `label ....... value` key-value row; mono font keeps the dots aligned. */
+const Field = ({
+  label,
+  children
+}: {
+  label: string
+  children: React.ReactNode
+}) => (
+  <div className="flex">
+    <dt className="shrink-0 whitespace-pre text-brand-g1">
+      {`${label} `.padEnd(15, ".")}{" "}
+    </dt>
+    <dd>{children}</dd>
+  </div>
 )
 
 const plainText = (blocks: PortableTextBlock[] | null) =>
@@ -83,12 +110,6 @@ const AiPage = async () => {
     fetchCurrentYear()
   ])
 
-  let introParagraphs = [
-    plainText(homepage?.introTitle),
-    plainText(homepage?.introSubtitle)
-  ].filter(Boolean)
-  if (!introParagraphs.length) introParagraphs = [COMPANY_FACTS.description]
-
   // The no-category posts query intentionally skips the newest post (the blog
   // renders it separately as featured) — merge it back in here.
   const latestPosts = [featuredPost, ...posts]
@@ -98,84 +119,94 @@ const AiPage = async () => {
   const openPositions = positions.filter((p) => p.isOpen)
 
   const socialLinks = [
-    { label: "X (Twitter)", url: companyInfo.twitter },
-    { label: "Instagram", url: companyInfo.instagram },
-    { label: "GitHub", url: companyInfo.github },
-    { label: "LinkedIn", url: companyInfo.linkedIn }
+    { label: "x-twitter", url: companyInfo.twitter },
+    { label: "instagram", url: companyInfo.instagram },
+    { label: "github", url: companyInfo.github },
+    { label: "linkedin", url: companyInfo.linkedIn }
   ].filter((s): s is { label: string; url: string } => Boolean(s.url))
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col items-center gap-10 px-4 pb-24 pt-16 text-center text-f-p-mobile text-brand-w2 lg:text-f-p">
-      <header className="flex flex-col items-center gap-4">
-        <h1 className="text-f-h3-mobile text-brand-w1 lg:text-f-h3">
-          basement.studio
+    <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile text-brand-w2 lg:text-f-p">
+      <header className="flex flex-col gap-4">
+        <pre
+          aria-hidden="true"
+          className="overflow-x-auto text-[7px] leading-tight text-brand-w1 sm:text-[10px]"
+        >
+          {ASCII_LOGO}
+        </pre>
+        <h1 className="text-brand-w1">
+          basement.studio :: machine-readable index
         </h1>
-        <p>We make cool shit that performs.</p>
-        <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+        <p className="text-brand-g1">
+          # plain-text mirror of basement.studio for AI agents, crawlers, and
+          humans who prefer it raw.
+        </p>
+        <nav aria-label="Site index" className="flex flex-wrap gap-x-4 gap-y-1">
           {NAV_LINKS.map((link) => (
-            <li key={link.href}>
-              <a href={link.href} className={linkClass}>
-                {link.label}
-              </a>
-            </li>
+            <a key={link.href} href={link.href} className={linkClass}>
+              /{link.label === "home" ? "" : link.label}
+            </a>
           ))}
-        </ul>
+        </nav>
       </header>
 
-      <div className="flex flex-col gap-4">
-        {introParagraphs.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </div>
-
-      <Section title="About basement.studio">
+      <Section title="about">
+        <dl className="flex flex-col gap-1">
+          <Field label="name">{COMPANY_FACTS.name}</Field>
+          <Field label="aka">{COMPANY_FACTS.alternateNames.join(", ")}</Field>
+          <Field label="founded">{COMPANY_FACTS.foundingDate}</Field>
+          <Field label="location">
+            {COMPANY_FACTS.locationName} ({COMPANY_FACTS.addressCountry})
+          </Field>
+          <Field label="area_served">{COMPANY_FACTS.areaServed}</Field>
+          <Field label="services">{COMPANY_FACTS.services.join(", ")}</Field>
+          <Field label="clients">
+            {COMPANY_FACTS.notableClients.join(", ")}
+          </Field>
+          <Field label="knows_about">
+            {COMPANY_FACTS.knowsAbout.join(", ")}
+          </Field>
+        </dl>
         <p>{COMPANY_FACTS.description}</p>
-        <p>
-          Founded in {COMPANY_FACTS.foundingDate} and based in{" "}
-          {COMPANY_FACTS.locationName}, the studio works primarily with
-          technology companies in the San Francisco Bay Area and has partnered
-          with startups and enterprise brands including{" "}
-          {formatFactList(COMPANY_FACTS.notableClients)}.
-        </p>
-        <p>Services: {formatFactList(COMPANY_FACTS.services)}.</p>
         <p>{COMPANY_FACTS.awardsSummary}</p>
         <p>{COMPANY_FACTS.geistAttribution}</p>
       </Section>
 
       {homepage?.capabilities?.length ? (
-        <Section title="What we do">
-          {homepage.capabilities.map((cap) => (
-            <div key={cap._id} className="flex flex-col items-center gap-1">
-              <h3 className="text-brand-w1">{cap.title}</h3>
-              {cap.description ? <p>{cap.description}</p> : null}
-              {cap.subcategories?.length ? (
-                <p className="text-brand-g1">
-                  {cap.subcategories.map((s) => s.title).join(" · ")}
-                </p>
-              ) : null}
-            </div>
-          ))}
+        <Section title="capabilities">
+          <ul className="flex flex-col gap-3">
+            {homepage.capabilities.map((cap) => (
+              <li key={cap._id} className="flex flex-col gap-1">
+                <h3 className="text-brand-w1">* {cap.title}</h3>
+                {cap.description ? <p>{cap.description}</p> : null}
+                {cap.subcategories?.length ? (
+                  <p className="text-brand-g1">
+                    {cap.subcategories.map((s) => `[${s.title}]`).join(" ")}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
         </Section>
       ) : null}
 
       {servicesPage?.ventures?.length ? (
-        <Section title="Ventures">
-          {servicesPage.ventures.map((venture) => (
-            <div
-              key={venture._key}
-              className="flex flex-col items-center gap-1"
-            >
-              <h3 className="text-brand-w1">{venture.title}</h3>
-              {plainText(venture.content) ? (
-                <p>{plainText(venture.content)}</p>
-              ) : null}
-            </div>
-          ))}
+        <Section title="ventures">
+          <ul className="flex flex-col gap-3">
+            {servicesPage.ventures.map((venture) => (
+              <li key={venture._key} className="flex flex-col gap-1">
+                <h3 className="text-brand-w1">* {venture.title}</h3>
+                {plainText(venture.content) ? (
+                  <p>{plainText(venture.content)}</p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
         </Section>
       ) : null}
 
       {homepage?.clients?.length ? (
-        <Section title="Clients">
+        <Section title="clients">
           <p>
             {homepage.clients.map((client, i) => (
               <span key={client._id}>
@@ -194,13 +225,14 @@ const AiPage = async () => {
       ) : null}
 
       {homepage?.featuredProjects?.length ? (
-        <Section title="Selected work">
-          <ul className="flex flex-col gap-2">
+        <Section title="selected_work">
+          <ul className="flex flex-col gap-1">
             {homepage.featuredProjects.map((item) => {
               const label = item.title || item.project?.title || "Untitled"
               const slug = item.project?.slug?.current
               return (
                 <li key={item._key}>
+                  {"- "}
                   {slug ? (
                     <a href={`/showcase/${slug}`} className={linkClass}>
                       {label}
@@ -217,18 +249,19 @@ const AiPage = async () => {
       ) : null}
 
       {showcaseList.length ? (
-        <Section title="Showcase">
-          <ul className="flex flex-col gap-2">
+        <Section title="showcase">
+          <ul className="flex flex-col gap-1">
             {showcaseList.map((project) => {
               const detail = [project.client, project.year]
                 .filter(Boolean)
                 .join(", ")
               return (
                 <li key={project.slug}>
+                  {"- "}
                   <a href={`/showcase/${project.slug}`} className={linkClass}>
                     {project.title}
                   </a>
-                  {detail ? ` — ${detail}` : null}
+                  {detail ? ` (${detail})` : null}
                 </li>
               )
             })}
@@ -237,12 +270,13 @@ const AiPage = async () => {
       ) : null}
 
       {latestPosts.length ? (
-        <Section title="Latest writing">
-          <ul className="flex flex-col gap-2">
+        <Section title="latest_writing">
+          <ul className="flex flex-col gap-1">
             {latestPosts.map((post) => (
               <li key={post._id}>
+                {"- "}
                 {post.date ? (
-                  <span className="text-brand-g1">{post.date} — </span>
+                  <span className="text-brand-g1">{post.date} </span>
                 ) : null}
                 <a href={`/post/${post.slug}`} className={linkClass}>
                   {post.title}
@@ -253,83 +287,77 @@ const AiPage = async () => {
         </Section>
       ) : null}
 
-      <Section title="Open positions">
+      <Section title="open_positions">
         {openPositions.length ? (
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-1">
             {openPositions.map((position) => {
               const detail = [position.type, position.location]
                 .filter(Boolean)
                 .join(", ")
               return (
                 <li key={position.slug}>
+                  {"- "}
                   <a href={`/careers/${position.slug}`} className={linkClass}>
                     {position.title}
                   </a>
-                  {detail ? ` — ${detail}` : null}
+                  {detail ? ` (${detail})` : null}
                 </li>
               )
             })}
           </ul>
         ) : (
-          <p>No open positions right now.</p>
+          <p>none currently open</p>
         )}
       </Section>
 
-      <Section title="Contact">
-        <ul className="flex flex-col gap-2">
+      <Section title="contact">
+        <dl className="flex flex-col gap-1">
           {orgData.contactPoints.map((contact) => (
-            <li key={contact.email}>
-              <span className="text-brand-g1">{contact.contactType}: </span>
+            <Field key={contact.email} label={contact.contactType}>
               <a href={`mailto:${contact.email}`} className={linkClass}>
                 {contact.email}
               </a>
-            </li>
+            </Field>
           ))}
-          <li>
+          <Field label="form">
             <a href="/contact" className={linkClass}>
-              Start a project →
+              /contact
             </a>
-          </li>
-        </ul>
-      </Section>
-
-      {socialLinks.length ? (
-        <Section title="Social">
-          <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2">
-            {socialLinks.map((social) => (
-              <li key={social.label}>
-                <a href={social.url} rel="noopener" className={linkClass}>
-                  {social.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
-
-      <Section title="For agents">
-        <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2">
-          {AGENT_RESOURCES.map((resource) => (
-            <li key={resource.href}>
-              <a href={resource.href} className={linkClass}>
-                {resource.label}
+          </Field>
+          {socialLinks.map((social) => (
+            <Field key={social.label} label={social.label}>
+              <a href={social.url} rel="noopener" className={linkClass}>
+                {social.url}
               </a>
-            </li>
+            </Field>
           ))}
-        </ul>
-        <p>
-          Every page also serves markdown: append <code>.md</code> to a URL or
-          request it with <code>Accept: text/markdown</code>.
+        </dl>
+      </Section>
+
+      <Section title="for_agents">
+        <dl className="flex flex-col gap-1">
+          {AGENT_RESOURCES.map((resource) => (
+            <Field key={resource.href} label={resource.label}>
+              <a href={resource.href} className={linkClass}>
+                {resource.href}
+              </a>
+            </Field>
+          ))}
+        </dl>
+        <p className="text-brand-g1">
+          # every page also serves markdown: append .md to a URL, or request it
+          with Accept: text/markdown
         </p>
       </Section>
 
-      <footer className="flex flex-col items-center gap-2 text-brand-g1">
+      <footer className="flex flex-col gap-1 text-brand-g1">
         <p>
-          © {year} {COMPANY_FACTS.name}
+          © {year} {COMPANY_FACTS.name} —{" "}
+          <a href="/" className={linkClass}>
+            back to human site
+          </a>
         </p>
-        <a href="/" className={linkClass}>
-          Back to human site →
-        </a>
+        <p>/* EOF */</p>
       </footer>
     </main>
   )
