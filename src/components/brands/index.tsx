@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "motion/react"
 import Image from "next/image"
 import { useState } from "react"
 
-import { Brand } from "@/app/(site)/(pages)/(home)/brands"
+import { Brand } from "@/app/(site)/(canvas)/(content)/(home)/brands"
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 
-import { fetchAllOpenPositionsForIndex } from "@/app/(site)/(pages)/careers/[slug]/sanity"
-import { fetchAllPostsForIndex } from "@/app/(site)/(pages)/post/[slug]/sanity"
-import { fetchAllProjectsForIndex } from "@/app/(site)/(pages)/showcase/[slug]/sanity"
+import { fetchAllOpenPositionsForIndex } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
+import { fetchAllPostsForIndex } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
+import { fetchAllProjectsForIndex } from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 
 export async function GET() {

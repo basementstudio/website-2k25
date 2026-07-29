@@ -95,14 +95,16 @@ export const Inspectable = memo(function InspectableInner({
   const ref = useRef<Group>(null)
 
   const targetPosition = useRef({
-    x: new MotionValue(),
-    y: new MotionValue(),
-    z: new MotionValue()
+    x: new MotionValue(0),
+    y: new MotionValue(0),
+    z: new MotionValue(0)
   })
-  const targetScale = useRef(new MotionValue())
+  const targetScale = useRef(new MotionValue(1))
 
-  const inspectingFactor = useRef(new MotionValue())
+  const inspectingFactor = useRef(new MotionValue(0))
   const inspectingFactorTL = useRef<AnimationPlaybackControls | null>(null)
+
+  const hasPlaced = useRef(false)
 
   const [firstRender, setFirstRender] = useState(true)
 
@@ -120,6 +122,8 @@ export const Inspectable = memo(function InspectableInner({
   const handleAnimation = (withAnimation: boolean) => {
     const camConfig = camConfigRef.current
     if (!camConfig || !position) return
+
+    hasPlaced.current = true
 
     // Get Camera Direction
     const { target: t, position: p } = camConfig
@@ -206,7 +210,7 @@ export const Inspectable = memo(function InspectableInner({
       }
     }
 
-    handleAnimation(true)
+    handleAnimation(hasPlaced.current)
 
     const handleResize = () => setTimeout(() => handleAnimation(false), 0)
 

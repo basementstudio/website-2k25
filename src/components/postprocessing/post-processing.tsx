@@ -55,15 +55,15 @@ const Inner = ({
 
   const targets = useMemo(
     () => ({
-      contrast: new MotionValue(),
-      brightness: new MotionValue(),
-      exposure: new MotionValue(),
-      gamma: new MotionValue(),
-      vignetteRadius: new MotionValue(),
-      vignetteSpread: new MotionValue(),
-      bloomStrength: new MotionValue(),
-      bloomRadius: new MotionValue(),
-      bloomThreshold: new MotionValue()
+      contrast: new MotionValue(0),
+      brightness: new MotionValue(0),
+      exposure: new MotionValue(0),
+      gamma: new MotionValue(0),
+      vignetteRadius: new MotionValue(0),
+      vignetteSpread: new MotionValue(0),
+      bloomStrength: new MotionValue(0),
+      bloomRadius: new MotionValue(0),
+      bloomThreshold: new MotionValue(0)
     }),
     []
   )

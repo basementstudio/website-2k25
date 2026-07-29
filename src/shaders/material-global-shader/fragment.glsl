@@ -1,4 +1,5 @@
 precision highp float;
+#define GLSLIFY 1
 
 varying vec2 vUv;
 varying vec2 vUv2;
@@ -91,8 +92,45 @@ uniform float fadeFactor;
 uniform sampler2D lampLightmap;
 uniform bool lightLampEnabled;
 
-#pragma glslify: valueRemap = require('../utils/value-remap.glsl')
-#pragma glslify: basicLight = require('../utils/basic-light.glsl')
+float valueRemap(float value, float min, float max) {
+  return (value - min) / (max - min);
+}
+
+float valueRemap(
+  float value,
+  float min,
+  float max,
+  float newMin,
+  float newMax
+) {
+  return (value - min) / (max - min) * (newMax - newMin) + newMin;
+}
+
+vec2 valueRemap(vec2 value, vec2 min, vec2 max, vec2 newMin, vec2 newMax) {
+  return vec2(
+    valueRemap(value.x, min.x, max.x, newMin.x, newMax.x),
+    valueRemap(value.y, min.y, max.y, newMin.y, newMax.y)
+  );
+}
+
+vec3 valueRemap(vec3 value, vec3 min, vec3 max, vec3 newMin, vec3 newMax) {
+  return vec3(
+    valueRemap(value.x, min.x, max.x, newMin.x, newMax.x),
+    valueRemap(value.y, min.y, max.y, newMin.y, newMax.y),
+    valueRemap(value.z, min.z, max.z, newMin.z, newMax.z)
+  );
+}
+
+float basicLight(vec3 normal, vec3 lightDir, float intensity) {
+  float lightFactor = dot(lightDir, normalize(normal));
+  lightFactor = valueRemap(lightFactor, 0.2, 1.0, 0.1, 1.0);
+  lightFactor = clamp(lightFactor, 0.0, 1.0);
+  lightFactor = pow(lightFactor, 2.0);
+  lightFactor *= intensity;
+  lightFactor += 1.0;
+
+  return lightFactor;
+}
 
 void main() {
   vec3 normalizedNormal = normalize(vNormal);

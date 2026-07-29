@@ -167,16 +167,24 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   </div>
 )
 
-export const Copyright = ({ className }: { className?: string }) => (
-  <p
-    className={cn(
-      "text-right !text-f-p-mobile text-brand-g1 lg:!text-f-p",
-      className
-    )}
-  >
-    © basement.studio LLC {new Date().getFullYear()} all rights reserved
-  </p>
-)
+export const Copyright = ({
+  year,
+  className
+}: {
+  year: number
+  className?: string
+}) => {
+  return (
+    <p
+      className={cn(
+        "text-right !text-f-p-mobile text-brand-g1 lg:!text-f-p",
+        className
+      )}
+    >
+      © basement.studio LLC {year} all rights reserved
+    </p>
+  )
+}
 
 export const SoDa = ({ className }: { className?: string }) => (
   <div className={cn("mb-2 w-full", className)}>
