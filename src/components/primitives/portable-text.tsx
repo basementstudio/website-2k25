@@ -5,6 +5,7 @@ import {
 } from "@portabletext/react"
 
 import { Link } from "@/components/primitives/link"
+import { normalizeHref } from "@/utils/seo"
 
 interface CustomPortableTextProps {
   /** Portable Text block array (the `value` passed to @portabletext/react). */
@@ -16,7 +17,7 @@ interface CustomPortableTextProps {
 const defaultComponents: PortableTextComponents = {
   marks: {
     link: ({ children, value }) => (
-      <Link href={value?.href ?? "#"} className="text-brand-w1">
+      <Link href={normalizeHref(value?.href ?? "#")} className="text-brand-w1">
         <span className="actionable">{children}</span>
       </Link>
     ),

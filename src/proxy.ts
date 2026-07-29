@@ -18,11 +18,17 @@ export function proxy(request: NextRequest) {
 
   // Mobile visitors to /lab go to the lightweight external lab (the WebGL
   // arcade is desktop-only). Done here so the /lab page stays prerenderable.
+  // Crawlers are exempt even with mobile UAs (Googlebot Smartphone, site
+  // auditors): redirecting them turns the sitemap's /lab entry into a 3XX.
   if (pathname === "/lab") {
     const userAgent = request.headers.get("user-agent") ?? ""
+    const isBot =
+      /bot|crawl|spider|slurp|bingpreview|lighthouse|ahrefs|semrush|screaming frog/i.test(
+        userAgent
+      )
     const isMobile =
       /iPhone|iPad|iPod|Android|webOS|BlackBerry|Windows Phone/i.test(userAgent)
-    if (isMobile) {
+    if (isMobile && !isBot) {
       return NextResponse.redirect("https://lab.basement.studio/")
     }
     return NextResponse.next()
