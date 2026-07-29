@@ -6,7 +6,6 @@ import { generateWebSiteSchema } from "@/lib/structured-data/schemas/organizatio
 import { generateProfessionalServiceSchema } from "@/lib/structured-data/schemas/professional-service-entity"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 
-import { AboutEntity } from "./about-entity"
 import { Brands } from "./brands"
 import { Capabilities } from "./capabilities"
 import { FeaturedProjects } from "./featured-projects"
@@ -45,7 +44,6 @@ const Homepage = async () => {
       <Brands data={data} />
       <FeaturedProjects data={data} />
       <Capabilities data={data} />
-      <AboutEntity />
       <Contact />
     </div>
   )

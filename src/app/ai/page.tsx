@@ -10,7 +10,7 @@ import { fetchOpenPositions } from "@/app/(site)/(canvas)/(content)/people/sanit
 import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
-import { COMPANY_FACTS } from "@/lib/company-facts"
+import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
@@ -168,6 +168,13 @@ const AiPage = async () => {
           </Field>
         </dl>
         <p>{COMPANY_FACTS.description}</p>
+        <p>
+          Founded in {COMPANY_FACTS.foundingDate} and based in{" "}
+          {COMPANY_FACTS.locationName}, the studio works primarily with
+          technology companies in the San Francisco Bay Area and has partnered
+          with startups and enterprise brands including{" "}
+          {formatFactList(COMPANY_FACTS.notableClients)}.
+        </p>
         <p>{COMPANY_FACTS.awardsSummary}</p>
         <p>{COMPANY_FACTS.geistAttribution}</p>
       </Section>
