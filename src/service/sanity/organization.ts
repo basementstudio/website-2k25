@@ -48,47 +48,67 @@ const organizationQuery = /* groq */ `{
   }
 }`
 
+const getOrganizationFallback = (): OrganizationStructuredData => ({
+  description: COMPANY_FACTS.description,
+  foundingDate: COMPANY_FACTS.foundingDate,
+  // Contact emails published across the site (footer, contact page, contact
+  // form). `email` is the primary general inbox; `contactPoints` exposes the
+  // same plus the sales inbox as schema.org ContactPoints.
+  email: "hello@basement.studio",
+  contactPoints: [
+    { email: "hello@basement.studio", contactType: "customer support" },
+    { email: "sales@basement.studio", contactType: "sales" }
+  ],
+  // Country only — the published location is "Argentina", not a city.
+  addressCity: null,
+  addressRegion: null,
+  addressCountry: COMPANY_FACTS.addressCountry,
+  logoUrl: COMPANY_FACTS.logoUrl,
+  founders: [],
+  awards: [],
+  social: {
+    github: null,
+    instagram: null,
+    twitter: null,
+    linkedIn: null
+  }
+})
+
 export async function fetchOrganizationData(): Promise<OrganizationStructuredData> {
   "use cache"
-  const data = await sanityFetch<{
-    companyInfo: {
-      github: string | null
-      instagram: string | null
-      twitter: string | null
-      linkedIn: string | null
-    } | null
-    awards: Array<{
-      title: string
-      date: string | null
-      projectName: string | null
-    }> | null
-  }>({
-    query: organizationQuery
-  })
 
-  return {
-    description: COMPANY_FACTS.description,
-    foundingDate: COMPANY_FACTS.foundingDate,
-    // Contact emails published across the site (footer, contact page, contact
-    // form). `email` is the primary general inbox; `contactPoints` exposes the
-    // same plus the sales inbox as schema.org ContactPoints.
-    email: "hello@basement.studio",
-    contactPoints: [
-      { email: "hello@basement.studio", contactType: "customer support" },
-      { email: "sales@basement.studio", contactType: "sales" }
-    ],
-    // Country only — the published location is "Argentina", not a city.
-    addressCity: null,
-    addressRegion: null,
-    addressCountry: COMPANY_FACTS.addressCountry,
-    logoUrl: COMPANY_FACTS.logoUrl,
-    founders: [],
-    awards: data.awards ?? [],
-    social: {
-      github: data.companyInfo?.github ?? null,
-      instagram: data.companyInfo?.instagram ?? null,
-      twitter: data.companyInfo?.twitter ?? null,
-      linkedIn: data.companyInfo?.linkedIn ?? null
+  try {
+    const data = await sanityFetch<{
+      companyInfo: {
+        github: string | null
+        instagram: string | null
+        twitter: string | null
+        linkedIn: string | null
+      } | null
+      awards: Array<{
+        title: string
+        date: string | null
+        projectName: string | null
+      }> | null
+    }>({
+      query: organizationQuery
+    })
+
+    return {
+      ...getOrganizationFallback(),
+      awards: data.awards ?? [],
+      social: {
+        github: data.companyInfo?.github ?? null,
+        instagram: data.companyInfo?.instagram ?? null,
+        twitter: data.companyInfo?.twitter ?? null,
+        linkedIn: data.companyInfo?.linkedIn ?? null
+      }
     }
+  } catch (error) {
+    console.error(
+      "Failed to fetch optional organization data; using stable fallback",
+      error
+    )
+    return getOrganizationFallback()
   }
 }

@@ -18,9 +18,9 @@ export const AboutEntity = () => (
       <p>{COMPANY_FACTS.description}</p>
       <p>
         Founded in {COMPANY_FACTS.foundingDate} and based in{" "}
-        {COMPANY_FACTS.locationName}, the studio works primarily with
-        technology companies in the San Francisco Bay Area and has partnered
-        with startups and enterprise brands including{" "}
+        {COMPANY_FACTS.locationName}, the studio works primarily with technology
+        companies in the San Francisco Bay Area and has partnered with startups
+        and enterprise brands including{" "}
         {formatFactList(COMPANY_FACTS.notableClients)}.
       </p>
       <p>Services: {formatFactList(COMPANY_FACTS.services)}.</p>
