@@ -15,6 +15,10 @@ const AiLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <JsonLd data={generateOrganizationSchema(orgData)} />
+      <div
+        aria-hidden="true"
+        className="machine-reveal pointer-events-none fixed inset-0 z-[1100] bg-brand-k"
+      />
       <div className="min-h-svh font-mono text-brand-w1">{children}</div>
       <ModeToggle mode="machine" />
     </>

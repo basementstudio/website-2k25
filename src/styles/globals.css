@@ -245,6 +245,28 @@ p {
     }
   }
 }
+/* Machine view (/ai) boot: a black shutter wipes down in chunky steps so the
+   plain text paints line-by-line like an old terminal. Pure CSS — runs before
+   hydration and finishes off-screen even without JS. */
+@keyframes machine-reveal {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.machine-reveal {
+  animation: machine-reveal 1.4s steps(32, end) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .machine-reveal {
+    display: none;
+  }
+}
+
 @keyframes marquee-translate {
   0% {
     transform: translateX(2%);
