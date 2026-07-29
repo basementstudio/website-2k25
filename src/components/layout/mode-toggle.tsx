@@ -1,8 +1,5 @@
 "use client"
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-
 import { cn } from "@/utils/cn"
 
 const segmentClass =
@@ -15,23 +12,24 @@ const inactiveClass = "text-brand-g1 transition-colors hover:text-brand-o"
  * `(site)` tree renders the human mode, `/ai` renders the machine mode — so
  * the active state is server-driven and needs no pathname reads or store.
  *
- * Plain `next/link` on purpose: the primitives Link routes through the canvas
- * scene-transition system, which doesn't exist in the `/ai` tree.
+ * Both directions are plain anchors — full document navigations, never SPA.
+ * The WebGL canvas tree can't survive being unmounted and remounted by a
+ * client-side route change across the `(site)` boundary (it comes back as a
+ * black screen); a real navigation restores the human page from bfcache with
+ * the canvas alive, or boots it fresh.
  */
 export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
-  const router = useRouter()
-
   const handleBackToHuman = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
     const referrer = document.referrer
     if (
       referrer.startsWith(window.location.origin) &&
       new URL(referrer).pathname !== "/ai"
     ) {
-      router.back()
-    } else {
-      router.push("/")
+      // Cross-document back: returns to the human page the visitor came from.
+      e.preventDefault()
+      window.history.back()
     }
+    // Otherwise fall through to the anchor's full navigation to "/".
   }
 
   return (
@@ -45,8 +43,6 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
             Human
           </span>
         ) : (
-          // Real anchor so it works (and is crawlable) without JS; JS upgrades
-          // it to "return to the human page you came from".
           <a
             href="/"
             onClick={handleBackToHuman}
@@ -60,9 +56,9 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
             Machine
           </span>
         ) : (
-          <Link href="/ai" className={cn(segmentClass, inactiveClass)}>
+          <a href="/ai" className={cn(segmentClass, inactiveClass)}>
             Machine
-          </Link>
+          </a>
         )}
       </div>
     </nav>
