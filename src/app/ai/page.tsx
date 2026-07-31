@@ -128,11 +128,11 @@ const AiPage = async () => {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
       <header className="flex flex-col gap-4">
-        {/* Font size scales with the viewport so the 46-char-wide logo always
-            spans the full content column, capped to the column's max width. */}
+        {/* Font size scales with the viewport (46-char-wide art), capped so
+            the logo sits at roughly 3/4 of the content column. */}
         <pre
           aria-hidden="true"
-          className="w-full text-[min(22px,calc((100vw-2rem)/28.5))] leading-tight text-machine-base"
+          className="w-full text-[min(16px,calc((100vw-2rem)/38))] leading-tight text-machine-base"
         >
           {ASCII_LOGO}
         </pre>
