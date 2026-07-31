@@ -25,12 +25,13 @@ export default {
           y: "#FFCD1A",
           g: "#00FF9B"
         },
-        // Amber phosphor palette for the /ai machine view (P3-phosphor CRT).
+        // Orange phosphor palette for the /ai machine view (CRT look, built
+        // on the brand orange #FF4D00).
         machine: {
-          bg: "#0D0600",
-          bright: "#FFD280",
-          base: "#FFB000",
-          dim: "#9C6A00"
+          bg: "#0D0300",
+          bright: "#FF9C71",
+          base: "#FF4D00",
+          dim: "#993000"
         },
         codeblock: {
           o: "#FF4D00",

@@ -245,14 +245,14 @@ p {
     }
   }
 }
-/* Machine view (/ai) — amber phosphor monitor look. */
+/* Machine view (/ai) — orange phosphor monitor look. */
 .machine-screen {
-  text-shadow: 0 0 6px rgba(255, 176, 0, 0.35);
+  text-shadow: 0 0 6px rgba(255, 77, 0, 0.35);
 }
 
 .machine-screen ::selection {
-  background: #ffb000;
-  color: #0d0600;
+  background: #ff4d00;
+  color: #0d0300;
 }
 
 .machine-scanlines {
