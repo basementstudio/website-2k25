@@ -27,7 +27,11 @@ const BOTTOM_THRESHOLD = 120
 export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
   const [atBottom, setAtBottom] = useState(false)
 
+  // The machine view keeps the pill always visible — no bottom fade.
+  const fadeEnabled = mode === "human"
+
   useEffect(() => {
+    if (!fadeEnabled) return
     const update = () => {
       const scrollable =
         document.documentElement.scrollHeight >
@@ -45,7 +49,7 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
       window.removeEventListener("scroll", update)
       window.removeEventListener("resize", update)
     }
-  }, [])
+  }, [fadeEnabled])
 
   const handleBackToHuman = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const referrer = document.referrer

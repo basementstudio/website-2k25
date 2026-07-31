@@ -15,9 +15,11 @@ const AiLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <JsonLd data={generateOrganizationSchema(orgData)} />
+      {/* z-50 keeps the boot shutter under the mode toggle (z-navbar), so the
+          pill stays visible while the page text paints in. */}
       <div
         aria-hidden="true"
-        className="machine-reveal pointer-events-none fixed inset-0 z-[1100] bg-brand-k"
+        className="machine-reveal pointer-events-none fixed inset-0 z-50 bg-brand-k"
       />
       <div className="min-h-svh font-mono text-brand-w1">{children}</div>
       <ModeToggle mode="machine" />
