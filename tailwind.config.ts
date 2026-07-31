@@ -28,7 +28,7 @@ export default {
         // Orange phosphor palette for the /ai machine view (CRT look, built
         // on the brand orange #FF4D00).
         machine: {
-          bg: "#0D0300",
+          bg: "#000000",
           bright: "#FF9C71",
           base: "#FF4D00",
           dim: "#993000"

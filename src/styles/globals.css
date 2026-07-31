@@ -252,7 +252,7 @@ p {
 
 .machine-screen ::selection {
   background: #ff4d00;
-  color: #0d0300;
+  color: #000000;
 }
 
 .machine-scanlines {
