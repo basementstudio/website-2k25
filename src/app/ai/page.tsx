@@ -126,11 +126,13 @@ const AiPage = async () => {
   ].filter((s): s is { label: string; url: string } => Boolean(s.url))
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile text-machine-base lg:text-f-p">
+    <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
       <header className="flex flex-col gap-4">
+        {/* Font size scales with the viewport so the 46-char-wide logo always
+            spans the full content column, capped to the column's max width. */}
         <pre
           aria-hidden="true"
-          className="overflow-x-auto text-[7px] leading-tight text-machine-bright sm:text-[10px]"
+          className="w-full text-[min(22px,calc((100vw-2rem)/28.5))] leading-tight text-machine-base"
         >
           {ASCII_LOGO}
         </pre>
