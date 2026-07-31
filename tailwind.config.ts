@@ -25,6 +25,13 @@ export default {
           y: "#FFCD1A",
           g: "#00FF9B"
         },
+        // Amber phosphor palette for the /ai machine view (P3-phosphor CRT).
+        machine: {
+          bg: "#0D0600",
+          bright: "#FFD280",
+          base: "#FFB000",
+          dim: "#9C6A00"
+        },
         codeblock: {
           o: "#FF4D00",
           lo: "#FF9C71",

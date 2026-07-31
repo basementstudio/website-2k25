@@ -6,7 +6,6 @@ import { cn } from "@/utils/cn"
 
 const segmentClass =
   "px-3 py-1.5 uppercase focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-o rounded-full"
-const inactiveClass = "text-brand-g1 transition-colors hover:text-brand-o"
 
 // Fade the pill out when the viewport is within this distance of the page
 // bottom, so it doesn't sit on top of the footer.
@@ -26,6 +25,16 @@ const BOTTOM_THRESHOLD = 120
  */
 export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
   const [atBottom, setAtBottom] = useState(false)
+
+  // Machine mode matches the /ai amber-phosphor screen; human mode stays
+  // grayscale over the WebGL canvas.
+  const isMachine = mode === "machine"
+  const pillClass = isMachine
+    ? "border-machine-base/40 bg-machine-bg text-machine-bright"
+    : "border-brand-g2 bg-brand-k text-brand-w1"
+  const inactiveClass = isMachine
+    ? "text-machine-dim transition-colors hover:text-machine-bright"
+    : "text-brand-g1 transition-colors hover:text-brand-o"
 
   // The machine view keeps the pill always visible — no bottom fade.
   const fadeEnabled = mode === "human"
@@ -74,7 +83,8 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
     >
       <div
         className={cn(
-          "pointer-events-auto flex items-center rounded-full border border-brand-g2 bg-brand-k font-mono text-f-p-mobile text-brand-w1 lg:text-f-p",
+          "pointer-events-auto flex items-center rounded-full border font-mono text-f-p-mobile lg:text-f-p",
+          pillClass,
           atBottom && "pointer-events-none"
         )}
       >

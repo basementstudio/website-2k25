@@ -51,7 +51,7 @@ const AGENT_RESOURCES = [
 ]
 
 const linkClass =
-  "underline underline-offset-4 transition-colors hover:text-brand-o"
+  "underline underline-offset-4 transition-colors hover:text-machine-bright"
 
 const Section = ({
   title,
@@ -61,7 +61,7 @@ const Section = ({
   children: React.ReactNode
 }) => (
   <section className="flex w-full flex-col gap-3">
-    <h2 className="w-full overflow-hidden whitespace-nowrap text-brand-g1">
+    <h2 className="w-full overflow-hidden whitespace-nowrap text-machine-dim">
       {`── ${title.toUpperCase()} ${"─".repeat(80)}`}
     </h2>
     {children}
@@ -77,7 +77,7 @@ const Field = ({
   children: React.ReactNode
 }) => (
   <div className="flex">
-    <dt className="shrink-0 whitespace-pre text-brand-g1">
+    <dt className="shrink-0 whitespace-pre text-machine-dim">
       {`${label} `.padEnd(15, ".")}{" "}
     </dt>
     <dd>{children}</dd>
@@ -126,18 +126,18 @@ const AiPage = async () => {
   ].filter((s): s is { label: string; url: string } => Boolean(s.url))
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile text-brand-w2 lg:text-f-p">
+    <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile text-machine-base lg:text-f-p">
       <header className="flex flex-col gap-4">
         <pre
           aria-hidden="true"
-          className="overflow-x-auto text-[7px] leading-tight text-brand-w1 sm:text-[10px]"
+          className="overflow-x-auto text-[7px] leading-tight text-machine-bright sm:text-[10px]"
         >
           {ASCII_LOGO}
         </pre>
-        <h1 className="text-brand-w1">
+        <h1 className="text-machine-bright">
           basement.studio :: machine-readable index
         </h1>
-        <p className="text-brand-g1">
+        <p className="text-machine-dim">
           # plain-text mirror of basement.studio for AI agents, crawlers, and
           humans who prefer it raw.
         </p>
@@ -184,10 +184,10 @@ const AiPage = async () => {
           <ul className="flex flex-col gap-3">
             {homepage.capabilities.map((cap) => (
               <li key={cap._id} className="flex flex-col gap-1">
-                <h3 className="text-brand-w1">* {cap.title}</h3>
+                <h3 className="text-machine-bright">* {cap.title}</h3>
                 {cap.description ? <p>{cap.description}</p> : null}
                 {cap.subcategories?.length ? (
-                  <p className="text-brand-g1">
+                  <p className="text-machine-dim">
                     {cap.subcategories.map((s) => `[${s.title}]`).join(" ")}
                   </p>
                 ) : null}
@@ -202,7 +202,7 @@ const AiPage = async () => {
           <ul className="flex flex-col gap-3">
             {servicesPage.ventures.map((venture) => (
               <li key={venture._key} className="flex flex-col gap-1">
-                <h3 className="text-brand-w1">* {venture.title}</h3>
+                <h3 className="text-machine-bright">* {venture.title}</h3>
                 {plainText(venture.content) ? (
                   <p>{plainText(venture.content)}</p>
                 ) : null}
@@ -283,7 +283,7 @@ const AiPage = async () => {
               <li key={post._id}>
                 {"- "}
                 {post.date ? (
-                  <span className="text-brand-g1">
+                  <span className="text-machine-dim">
                     {post.date.split("T")[0]}{" "}
                   </span>
                 ) : null}
@@ -353,13 +353,13 @@ const AiPage = async () => {
             </Field>
           ))}
         </dl>
-        <p className="text-brand-g1">
+        <p className="text-machine-dim">
           # every page also serves markdown: append .md to a URL, or request it
           with Accept: text/markdown
         </p>
       </Section>
 
-      <footer className="flex flex-col gap-1 text-brand-g1">
+      <footer className="flex flex-col gap-1 text-machine-dim">
         <p>
           © {year} {COMPANY_FACTS.name} —{" "}
           <a href="/" className={linkClass}>

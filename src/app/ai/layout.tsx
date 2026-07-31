@@ -19,10 +19,17 @@ const AiLayout = async ({ children }: { children: React.ReactNode }) => {
           pill stays visible while the page text paints in. */}
       <div
         aria-hidden="true"
-        className="machine-reveal pointer-events-none fixed inset-0 z-50 bg-brand-k"
+        className="machine-reveal pointer-events-none fixed inset-0 z-50 bg-machine-bg"
       />
-      <div className="min-h-svh font-mono text-brand-w1">{children}</div>
-      <ModeToggle mode="machine" />
+      {/* CRT scanlines over everything, including the pill and boot shutter. */}
+      <div
+        aria-hidden="true"
+        className="machine-scanlines pointer-events-none fixed inset-0 z-[1200]"
+      />
+      <div className="machine-screen min-h-svh bg-machine-bg font-mono text-machine-base">
+        {children}
+        <ModeToggle mode="machine" />
+      </div>
     </>
   )
 }
