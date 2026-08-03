@@ -14,6 +14,9 @@ const MD_HEADERS = {
   "X-Content-Type-Options": "nosniff"
 } as const
 
+// Same department whitelist the HTML crew page renders (see crew.tsx)
+const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
+
 export async function GET() {
   try {
     const [page, people, positions] = await Promise.all([
@@ -29,8 +32,14 @@ export async function GET() {
       })
     }
 
-    const team = people.length
-      ? people
+    const crew = people.filter(
+      (person) =>
+        person.department?.title &&
+        CREW_DEPARTMENTS.includes(person.department.title)
+    )
+
+    const team = crew.length
+      ? crew
           .map((person) => {
             const detail = [person.role, person.department?.title]
               .filter(Boolean)
