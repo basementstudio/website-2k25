@@ -80,7 +80,9 @@ const Field = ({
     <dt className="shrink-0 whitespace-pre text-machine-dim">
       {`${label} `.padEnd(15, ".")}{" "}
     </dt>
-    <dd>{children}</dd>
+    {/* min-w-0 + anywhere wrapping: unbroken values (URLs) must not push the
+        page wider than the viewport on small screens. */}
+    <dd className="min-w-0 [overflow-wrap:anywhere]">{children}</dd>
   </div>
 )
 

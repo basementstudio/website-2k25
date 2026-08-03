@@ -11,6 +11,12 @@ const segmentClass =
 // bottom, so it doesn't sit on top of the footer.
 const BOTTOM_THRESHOLD = 120
 
+// sessionStorage key marking that the current tab entered /ai via the toggle,
+// so "Human" can history.back() to the exact page the visitor left.
+// `document.referrer` alone is not enough: it goes stale across client-side
+// navigations within the human site (it keeps the original external referrer).
+const MACHINE_ENTRY_KEY = "bsmt-machine-entry"
+
 /**
  * Sitewide "Human / Machine" switch fixed to the bottom of the viewport
  * (parallel.ai-style). `mode` is decided by the layout that mounts it — the
@@ -60,12 +66,31 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
     }
   }, [fadeEnabled])
 
+  const rememberMachineEntry = () => {
+    try {
+      sessionStorage.setItem(MACHINE_ENTRY_KEY, window.location.pathname)
+    } catch {
+      // Storage unavailable — "Human" will fall back to the referrer check.
+    }
+  }
+
   const handleBackToHuman = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    let cameFromToggle = false
+    try {
+      cameFromToggle = sessionStorage.getItem(MACHINE_ENTRY_KEY) !== null
+      // One-shot: a later direct visit to /ai in this tab must not back() out
+      // of the site.
+      sessionStorage.removeItem(MACHINE_ENTRY_KEY)
+    } catch {
+      // Storage unavailable — rely on the referrer fallback below.
+    }
+
     const referrer = document.referrer
-    if (
+    const sameOriginReferrer =
       referrer.startsWith(window.location.origin) &&
       new URL(referrer).pathname !== "/ai"
-    ) {
+
+    if (cameFromToggle || sameOriginReferrer) {
       // Cross-document back: returns to the human page the visitor came from.
       e.preventDefault()
       window.history.back()
@@ -106,7 +131,11 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
             Machine
           </span>
         ) : (
-          <a href="/ai" className={cn(segmentClass, inactiveClass)}>
+          <a
+            href="/ai"
+            onClick={rememberMachineEntry}
+            className={cn(segmentClass, inactiveClass)}
+          >
             Machine
           </a>
         )}

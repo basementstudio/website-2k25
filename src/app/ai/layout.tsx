@@ -26,7 +26,7 @@ const AiLayout = async ({ children }: { children: React.ReactNode }) => {
         aria-hidden="true"
         className="machine-scanlines pointer-events-none fixed inset-0 z-[1200]"
       />
-      <div className="machine-screen min-h-svh bg-machine-bg font-mono text-machine-base">
+      <div className="machine-screen min-h-svh overflow-x-clip bg-machine-bg font-mono text-machine-base">
         {children}
         <ModeToggle mode="machine" />
       </div>
