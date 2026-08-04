@@ -245,6 +245,48 @@ p {
     }
   }
 }
+/* Machine view (/ai) — orange phosphor monitor look. */
+.machine-screen {
+  text-shadow: 0 0 6px rgba(255, 77, 0, 0.35);
+}
+
+.machine-screen ::selection {
+  background: #ff4d00;
+  color: #000000;
+}
+
+.machine-scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.25) 0,
+    rgba(0, 0, 0, 0.25) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Machine view (/ai) boot: a black shutter wipes down in chunky steps so the
+   plain text paints line-by-line like an old terminal. Pure CSS — runs before
+   hydration and finishes off-screen even without JS. */
+@keyframes machine-reveal {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.machine-reveal {
+  animation: machine-reveal 1.4s steps(32, end) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .machine-reveal {
+    display: none;
+  }
+}
+
 @keyframes marquee-translate {
   0% {
     transform: translateX(2%);

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "check-pr": {
+      "source": "greptileai/skills",
+      "sourceType": "github",
+      "skillPath": "check-pr/SKILL.md",
+      "computedHash": "c25ca1259f825b202949a643aa8aa931bb6bb02ac02ccb4b969a4508c2e146dd"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
+    }
+  }
+}

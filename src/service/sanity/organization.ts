@@ -59,8 +59,7 @@ const getOrganizationFallback = (): OrganizationStructuredData => ({
     { email: "hello@basement.studio", contactType: "customer support" },
     { email: "sales@basement.studio", contactType: "sales" }
   ],
-  // Country only — the published location is "Argentina", not a city.
-  addressCity: null,
+  addressCity: COMPANY_FACTS.addressCity,
   addressRegion: null,
   addressCountry: COMPANY_FACTS.addressCountry,
   logoUrl: COMPANY_FACTS.logoUrl,

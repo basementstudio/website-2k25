@@ -22,11 +22,12 @@ export const COMPANY_FACTS = {
     "basementstudio"
   ],
   foundingDate: "2020",
-  locationName: "Argentina",
+  locationName: "Mar del Plata, Argentina",
+  addressCity: "Mar del Plata",
   addressCountry: "AR",
   areaServed: "Worldwide",
   description:
-    "basement.studio is an Argentina-based digital design and engineering studio specializing in high-performance websites, visual branding, 3D interactive experiences, and marketing execution for technology companies, primarily in the San Francisco Bay Area.",
+    "basement.studio is an Argentina-based digital design and engineering studio specializing in high-performance websites, branding, 3D interactive experiences, and marketing execution for technology companies, primarily in the San Francisco Bay Area.",
   services: [
     "Website design and development",
     "Visual brand identity",
