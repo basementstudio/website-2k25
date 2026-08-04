@@ -14,6 +14,8 @@ import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
+import { Field, linkClass, Section } from "./components"
+
 export const metadata: Metadata = {
   title: "Machine view",
   description:
@@ -35,7 +37,8 @@ const NAV_LINKS = [
   { href: "/services", label: "services" },
   { href: "/showcase", label: "showcase" },
   { href: "/people", label: "people" },
-  { href: "/blog", label: "blog" },
+  // The blog stays in the machine format — it has its own machine index.
+  { href: "/ai/blog", label: "blog" },
   { href: "/lab", label: "lab" },
   { href: "/contact", label: "contact" }
 ]
@@ -49,42 +52,6 @@ const AGENT_RESOURCES = [
   { href: "/people.md", label: "people.md" },
   { href: "/showcase.md", label: "showcase.md" }
 ]
-
-const linkClass =
-  "underline underline-offset-4 transition-colors hover:text-machine-bright"
-
-const Section = ({
-  title,
-  children
-}: {
-  title: string
-  children: React.ReactNode
-}) => (
-  <section className="flex w-full flex-col gap-3">
-    <h2 className="w-full overflow-hidden whitespace-nowrap text-machine-dim">
-      {`── ${title.toUpperCase()} ${"─".repeat(80)}`}
-    </h2>
-    {children}
-  </section>
-)
-
-/** `label ....... value` key-value row; mono font keeps the dots aligned. */
-const Field = ({
-  label,
-  children
-}: {
-  label: string
-  children: React.ReactNode
-}) => (
-  <div className="flex">
-    <dt className="shrink-0 whitespace-pre text-machine-dim">
-      {`${label} `.padEnd(15, ".")}{" "}
-    </dt>
-    {/* min-w-0 + anywhere wrapping: unbroken values (URLs) must not push the
-        page wider than the viewport on small screens. */}
-    <dd className="min-w-0 [overflow-wrap:anywhere]">{children}</dd>
-  </div>
-)
 
 const plainText = (blocks: PortableTextBlock[] | null) =>
   blocks?.length ? toPlainText(blocks) : ""
@@ -148,7 +115,7 @@ const AiPage = async () => {
         <nav aria-label="Site index" className="flex flex-wrap gap-x-4 gap-y-1">
           {NAV_LINKS.map((link) => (
             <a key={link.href} href={link.href} className={linkClass}>
-              /{link.label === "home" ? "" : link.label}
+              {link.href}
             </a>
           ))}
         </nav>
@@ -294,12 +261,18 @@ const AiPage = async () => {
                     {post.date.split("T")[0]}{" "}
                   </span>
                 ) : null}
-                <a href={`/post/${post.slug}.md`} className={linkClass}>
+                <a href={`/ai/post/${post.slug}`} className={linkClass}>
                   {post.title}
                 </a>
               </li>
             ))}
           </ul>
+          <p className="text-machine-dim">
+            #{" "}
+            <a href="/ai/blog" className={linkClass}>
+              full archive: /ai/blog
+            </a>
+          </p>
         </Section>
       ) : null}
 

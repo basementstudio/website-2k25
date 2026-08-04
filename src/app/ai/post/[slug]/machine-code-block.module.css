@@ -1,0 +1,50 @@
+/* Phosphor syntax theme: no hues, just a brightness ramp on the machine
+   palette — bright for keywords/functions, pale for literals, dim for
+   comments/punctuation. Variables consumed by the shiki css-variables theme
+   in machine-code-block.tsx. */
+.content {
+  overflow-x: auto;
+  overflow-y: auto;
+  /* Show 40 lines (plus the pre's 16px vertical padding), scroll the rest.
+     The em value approximates 40 line-boxes for browsers without `lh`. */
+  max-height: 61em;
+  max-height: calc(40 * 1lh + 16px);
+  scrollbar-width: thin;
+  scrollbar-color: theme("colors.machine.dim") transparent;
+  color: theme("colors.machine.base");
+  --machine-color-text: theme("colors.machine.base");
+  --machine-foreground: theme("colors.machine.base");
+  --machine-background: transparent;
+  --machine-token-keyword: theme("colors.machine.bright");
+  --machine-token-function: theme("colors.machine.bright");
+  --machine-token-constant: theme("colors.machine.bright");
+  --machine-token-tag: theme("colors.machine.bright");
+  --machine-token-link: theme("colors.machine.bright");
+  --machine-token-string: theme("colors.codeblock.do");
+  --machine-token-string-expression: theme("colors.codeblock.do");
+  --machine-token-parameter: theme("colors.machine.base");
+  --machine-token-comment: theme("colors.machine.dim");
+  --machine-token-punctuation: theme("colors.machine.dim");
+}
+
+.content :global(pre) {
+  margin: 0;
+  padding: 8px 0;
+  background: transparent !important;
+}
+
+.content :global(code) {
+  display: block;
+  counter-reset: line;
+}
+
+.content :global(.line)::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 3ch;
+  margin-right: 2ch;
+  text-align: right;
+  color: theme("colors.machine.dim");
+  user-select: none;
+}
