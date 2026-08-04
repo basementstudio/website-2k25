@@ -75,6 +75,9 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
   }
 
   const handleBackToHuman = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Modified clicks open "/" in a new tab/window — never hijack those.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+
     let cameFromToggle = false
     try {
       cameFromToggle = sessionStorage.getItem(MACHINE_ENTRY_KEY) !== null
@@ -90,7 +93,15 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
       referrer.startsWith(window.location.origin) &&
       new URL(referrer).pathname !== "/ai"
 
-    if (cameFromToggle || sameOriginReferrer) {
+    // A tab opened directly onto /ai (new tab via modified click, window.open)
+    // can inherit the storage marker and referrer but has no session-history
+    // entry to go back to — history.back() would be a silent no-op. Only
+    // hijack the anchor when a previous entry actually exists.
+    const nav = (window as Window & { navigation?: { canGoBack?: boolean } })
+      .navigation
+    const canGoBack = nav?.canGoBack ?? window.history.length > 1
+
+    if ((cameFromToggle || sameOriginReferrer) && canGoBack) {
       // Cross-document back: returns to the human page the visitor came from.
       e.preventDefault()
       window.history.back()

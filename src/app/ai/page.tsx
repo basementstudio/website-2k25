@@ -245,7 +245,7 @@ const AiPage = async () => {
                 <li key={item._key}>
                   {"- "}
                   {slug ? (
-                    <a href={`/showcase/${slug}`} className={linkClass}>
+                    <a href={`/showcase/${slug}.md`} className={linkClass}>
                       {label}
                     </a>
                   ) : (
@@ -269,7 +269,10 @@ const AiPage = async () => {
               return (
                 <li key={project.slug}>
                   {"- "}
-                  <a href={`/showcase/${project.slug}`} className={linkClass}>
+                  <a
+                    href={`/showcase/${project.slug}.md`}
+                    className={linkClass}
+                  >
                     {project.title}
                   </a>
                   {detail ? ` (${detail})` : null}
@@ -291,7 +294,7 @@ const AiPage = async () => {
                     {post.date.split("T")[0]}{" "}
                   </span>
                 ) : null}
-                <a href={`/post/${post.slug}`} className={linkClass}>
+                <a href={`/post/${post.slug}.md`} className={linkClass}>
                   {post.title}
                 </a>
               </li>
@@ -310,7 +313,10 @@ const AiPage = async () => {
               return (
                 <li key={position.slug}>
                   {"- "}
-                  <a href={`/careers/${position.slug}`} className={linkClass}>
+                  <a
+                    href={`/careers/${position.slug}.md`}
+                    className={linkClass}
+                  >
                     {position.title}
                   </a>
                   {detail ? ` (${detail})` : null}
