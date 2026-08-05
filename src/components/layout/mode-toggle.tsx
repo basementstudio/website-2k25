@@ -48,15 +48,15 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
     ? pathname.slice("/ai".length)
     : "/"
 
-  // Machine mode matches the /ai amber-phosphor screen; human mode stays
-  // grayscale over the WebGL canvas.
+  // Machine mode keeps the /ai amber-phosphor border; segment colors follow
+  // the navbar convention in both modes — orange marks the active mode,
+  // white marks the clickable one.
   const isMachine = mode === "machine"
   const pillClass = isMachine
-    ? "border-machine-base/40 bg-machine-bg text-machine-bright"
-    : "border-brand-g2 bg-brand-k text-brand-w1"
-  const inactiveClass = isMachine
-    ? "text-machine-dim transition-colors hover:text-machine-bright"
-    : "text-brand-g1 transition-colors hover:text-brand-o"
+    ? "border-machine-base/40 bg-machine-bg"
+    : "border-brand-g2 bg-brand-k"
+  const activeClass = "text-brand-o"
+  const inactiveClass = "text-brand-w1 transition-colors hover:text-brand-o"
 
   // The machine view keeps the pill always visible — no bottom fade.
   const fadeEnabled = mode === "human"
@@ -145,7 +145,7 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
         )}
       >
         {mode === "human" ? (
-          <span aria-current="page" className={segmentClass}>
+          <span aria-current="page" className={cn(segmentClass, activeClass)}>
             Human
           </span>
         ) : (
@@ -158,7 +158,7 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
           </a>
         )}
         {mode === "machine" ? (
-          <span aria-current="page" className={segmentClass}>
+          <span aria-current="page" className={cn(segmentClass, activeClass)}>
             Machine
           </span>
         ) : (
