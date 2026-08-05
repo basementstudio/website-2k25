@@ -124,7 +124,14 @@ const AiPage = async () => {
       <Section title="about">
         <dl className="flex flex-col gap-1">
           <Field label="name">{COMPANY_FACTS.name}</Field>
-          <Field label="aka">{COMPANY_FACTS.alternateNames.join(", ")}</Field>
+          <Field label="aka">
+            {/* The page's CSS uppercasing collapses the "Basement Studio" /
+                "basement studio" JSON-LD variants into visible duplicates —
+                keep them out of the display (they stay in alternateName). */}
+            {COMPANY_FACTS.alternateNames
+              .filter((name) => name.toLowerCase() !== "basement studio")
+              .join(", ")}
+          </Field>
           <Field label="founded">{COMPANY_FACTS.foundingDate}</Field>
           <Field label="location">
             {COMPANY_FACTS.locationName} ({COMPANY_FACTS.addressCountry})
