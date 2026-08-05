@@ -83,9 +83,10 @@ export const MachinePortableText = ({
 }) => {
   if (!blocks?.length) return null
 
-  // Group consecutive list items of the same kind into a single list.
+  // Group consecutive list items (any kind or level — nesting can mix them)
+  // into a single run; List rebuilds the level tree from it.
   const groups: Array<
-    | { kind: "list"; listItem: "bullet" | "number"; items: TextBlock[] }
+    | { kind: "list"; items: TextBlock[] }
     | { kind: "single"; block: PortableTextBlock }
   > = []
   for (const block of blocks) {
@@ -93,14 +94,10 @@ export const MachinePortableText = ({
       block._type === "block" ? (block as unknown as TextBlock).listItem : null
     const prev = groups[groups.length - 1]
     if (listItem) {
-      if (prev?.kind === "list" && prev.listItem === listItem) {
+      if (prev?.kind === "list") {
         prev.items.push(block as unknown as TextBlock)
       } else {
-        groups.push({
-          kind: "list",
-          listItem,
-          items: [block as unknown as TextBlock]
-        })
+        groups.push({ kind: "list", items: [block as unknown as TextBlock] })
       }
     } else {
       groups.push({ kind: "single", block })
@@ -111,7 +108,7 @@ export const MachinePortableText = ({
     <>
       {groups.map((group, i) =>
         group.kind === "list" ? (
-          <List key={i} listItem={group.listItem} items={group.items} />
+          <List key={i} items={group.items} />
         ) : (
           <Block key={i} block={group.block} />
         )
@@ -214,24 +211,76 @@ const Text = ({ block }: { block: TextBlock }) => {
   }
 }
 
-const List = ({
-  listItem,
-  items
-}: {
-  listItem: "bullet" | "number"
-  items: TextBlock[]
-}) => {
-  const Tag = listItem === "number" ? "ol" : "ul"
+interface ListNode {
+  block: TextBlock
+  children: ListNode[]
+}
+
+/**
+ * Rebuilds the nesting tree Portable Text flattens into `level`: deeper items
+ * become children of the previous shallower item, so sublists render as real
+ * nested `<ul>/<ol>` and ordered sublists restart their numbering.
+ */
+const buildListTree = (items: TextBlock[]): ListNode[] => {
+  const roots: ListNode[] = []
+  const stack: Array<{ level: number; nodes: ListNode[] }> = [
+    { level: 1, nodes: roots }
+  ]
+  for (const item of items) {
+    const level = Math.max(1, item.level ?? 1)
+    while (stack.length > 1 && level < stack[stack.length - 1].level) {
+      stack.pop()
+    }
+    const top = stack[stack.length - 1]
+    const parent = top.nodes[top.nodes.length - 1]
+    if (level > top.level && parent) {
+      stack.push({ level, nodes: parent.children })
+      parent.children.push({ block: item, children: [] })
+    } else {
+      top.nodes.push({ block: item, children: [] })
+    }
+  }
+  return roots
+}
+
+const List = ({ items }: { items: TextBlock[] }) => (
+  <ListLevel nodes={buildListTree(items)} depth={0} />
+)
+
+const ListLevel = ({ nodes, depth }: { nodes: ListNode[]; depth: number }) => {
+  // Consecutive same-kind siblings share a list; a kind switch starts a new
+  // one (so a numbered run after bullets numbers from 1).
+  const groups: Array<{ listItem: "bullet" | "number"; nodes: ListNode[] }> = []
+  for (const node of nodes) {
+    const listItem = node.block.listItem ?? "bullet"
+    const prev = groups[groups.length - 1]
+    if (prev?.listItem === listItem) {
+      prev.nodes.push(node)
+    } else {
+      groups.push({ listItem, nodes: [node] })
+    }
+  }
+
   return (
-    <Tag className="flex flex-col gap-1">
-      {items.map((item, i) => (
-        <li key={item._key ?? i} className="whitespace-pre-wrap">
-          {"  ".repeat(Math.max(0, (item.level ?? 1) - 1))}
-          {listItem === "number" ? `${i + 1}. ` : "- "}
-          <Spans block={item} />
-        </li>
-      ))}
-    </Tag>
+    <>
+      {groups.map((group, gi) => {
+        const Tag = group.listItem === "number" ? "ol" : "ul"
+        return (
+          <Tag key={gi} className="flex flex-col gap-1">
+            {group.nodes.map((node, i) => (
+              <li key={node.block._key ?? i} className="whitespace-pre-wrap">
+                {"  ".repeat(depth)}
+                {group.listItem === "number" ? `${i + 1}. ` : "- "}
+                <Spans block={node.block} />
+                {node.children.length ? (
+                  <ListLevel nodes={node.children} depth={depth + 1} />
+                ) : null}
+              </li>
+            ))}
+          </Tag>
+        )
+      })}
+    </>
   )
 }
 
