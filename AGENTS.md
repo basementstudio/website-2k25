@@ -1,6 +1,6 @@
 # Project specifics
 
-- **Next.js 16.2.10 (stable), Turbopack, Cache Components on.** `cacheComponents: true` + `cacheLife: { default: sanity }` in `next.config.ts`. `dev`/`build` run on Turbopack (the Next 16 default — no `--webpack` flag). GLSL shaders load through `raw-loader` only, declared in `turbopack.rules` in `next.config.ts`; shaders must be plain GLSL with **no `glslify` `#pragma`** (the glslify requires were flattened into the `.glsl` files so `raw-loader` suffices). Tailwind v3 + the `postcss.config.mjs` chain (`postcss-import` → `tailwindcss/nesting` → `tailwindcss`) is verified working under Turbopack — `postcss-import` is now an explicit dep.
+- **Next.js 16.3.0 (stable), Turbopack, Cache Components on.** `cacheComponents: true` + `cacheLife: { default: sanity }` in `next.config.ts`. `dev`/`build` run on Turbopack (the Next 16 default — no `--webpack` flag). GLSL shaders load through `raw-loader` only, declared in `turbopack.rules` in `next.config.ts`; shaders must be plain GLSL with **no `glslify` `#pragma`** (the glslify requires were flattened into the `.glsl` files so `raw-loader` suffices). Tailwind v3 + the `postcss.config.mjs` chain (`postcss-import` → `tailwindcss/nesting` → `tailwindcss`) is verified working under Turbopack — `postcss-import` is now an explicit dep.
 - **Sanity data has three fetch modes (`src/service/sanity/index.ts`) — pick by context:**
   - `sanityFetch` — Live; only valid **inside a `"use cache"` scope** (its `cacheTag()` throws otherwise). For draft/preview render.
   - `sanityFetchCached` — Live wrapped in `"use cache"`; the default for published page/route content. Revalidates via Sanity Live tags.
@@ -8,3 +8,13 @@
   - Gotcha: calling the Live `sanityFetch` outside a `"use cache"` scope 500s with `` `cacheTag()` can only be called inside a "use cache" function ``. When in doubt outside a page render, use `sanityFetchStatic`.
 - **Request-time logic goes in `src/proxy.ts`, not in pages.** Reading `headers()`/`cookies()` at the top of a page forces it dynamic under Cache Components. Keep pages prerenderable; do per-request work (UA redirects, content negotiation) in the matcher-scoped proxy. Example: `/lab`'s mobile redirect lives in the proxy so the page stays static.
 - **Revalidation is tag-based, not time-based.** `<SanityLive />` (root layout) invalidates cached content on publish; the 1-year `cacheLife` is only a backstop. Any new cached fetcher must route through the Sanity helpers above so its tags register.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
