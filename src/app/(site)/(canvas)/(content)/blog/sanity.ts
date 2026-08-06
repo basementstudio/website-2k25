@@ -117,6 +117,29 @@ export async function fetchPostCount(): Promise<number> {
   })
 }
 
+export interface PostArchiveEntry {
+  _id: string
+  title: string
+  slug: string
+  date: string | null
+  categories: Array<{ title: string }> | null
+}
+
+// Light sibling of fetchPosts() — skips intro/heroImage/heroVideo.
+export async function fetchPostsForArchive(): Promise<PostArchiveEntry[]> {
+  "use cache"
+  const query = /* groq */ `*[_type == "post"] | order(date desc)[1..-1]{
+    _id,
+    title,
+    "slug": slug.current,
+    date,
+    categories[]->{ title }
+  }`
+  return sanityFetch<PostArchiveEntry[]>({
+    query
+  })
+}
+
 const postListForSchemaQuery = /* groq */ `
   *[_type == "post" && defined(slug.current)] | order(date desc){
     title,

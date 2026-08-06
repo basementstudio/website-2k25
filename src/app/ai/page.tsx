@@ -2,13 +2,10 @@ import type { Metadata } from "next"
 import { toPlainText } from "next-sanity"
 
 import { fetchHomepage } from "@/app/(site)/(canvas)/(content)/(home)/sanity"
-import {
-  fetchFeaturedPost,
-  fetchPosts
-} from "@/app/(site)/(canvas)/(content)/blog/sanity"
 import { fetchOpenPositions } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
+import { fetchAllPostsForIndex } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
 import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
 import { fetchOrganizationData } from "@/service/sanity/organization"
@@ -62,8 +59,7 @@ const AiPage = async () => {
     servicesPage,
     positions,
     showcaseList,
-    featuredPost,
-    { posts },
+    posts,
     companyInfo,
     orgData,
     year
@@ -72,20 +68,18 @@ const AiPage = async () => {
     fetchServicesPage({ published: true }),
     fetchOpenPositions({ published: true }),
     fetchShowcaseListForMarkdown(),
-    fetchFeaturedPost(),
-    fetchPosts(),
+    fetchAllPostsForIndex(),
     fetchCompanyInfo(),
     fetchOrganizationData(),
     fetchCurrentYear()
   ])
 
-  // The no-category posts query intentionally skips the newest post (the blog
-  // renders it separately as featured) — merge it back in here.
-  const latestPosts = [featuredPost, ...posts]
-    .filter((post): post is NonNullable<typeof post> => post !== null)
-    .slice(0, 10)
+  const latestPosts = posts.slice(0, 10)
 
   const openPositions = positions.filter((p) => p.isOpen)
+
+  // HTML (ventures.tsx) only shows the first venture — match that.
+  const venture = servicesPage?.ventures?.[0] ?? null
 
   const socialLinks = [
     { label: "x-twitter", url: companyInfo.twitter },
@@ -162,7 +156,15 @@ const AiPage = async () => {
           <ul className="flex flex-col gap-3">
             {homepage.capabilities.map((cap) => (
               <li key={cap._id} className="flex flex-col gap-1">
-                <h3 className="text-machine-bright">* {cap.title}</h3>
+                <h3 className="text-machine-bright">
+                  {"* "}
+                  <a
+                    href={`/showcase?category=${encodeURIComponent(cap.title)}`}
+                    className={linkClass}
+                  >
+                    {cap.title}
+                  </a>
+                </h3>
                 {cap.description ? <p>{cap.description}</p> : null}
                 {cap.subcategories?.length ? (
                   <p className="text-machine-dim">
@@ -175,17 +177,15 @@ const AiPage = async () => {
         </Section>
       ) : null}
 
-      {servicesPage?.ventures?.length ? (
+      {venture ? (
         <Section title="ventures">
           <ul className="flex flex-col gap-3">
-            {servicesPage.ventures.map((venture) => (
-              <li key={venture._key} className="flex flex-col gap-1">
-                <h3 className="text-machine-bright">* {venture.title}</h3>
-                {plainText(venture.content) ? (
-                  <p>{plainText(venture.content)}</p>
-                ) : null}
-              </li>
-            ))}
+            <li key={venture._key} className="flex flex-col gap-1">
+              <h3 className="text-machine-bright">* {venture.title}</h3>
+              {plainText(venture.content) ? (
+                <p>{plainText(venture.content)}</p>
+              ) : null}
+            </li>
           </ul>
         </Section>
       ) : null}
@@ -261,7 +261,7 @@ const AiPage = async () => {
         <Section title="latest_writing">
           <ul className="flex flex-col gap-1">
             {latestPosts.map((post) => (
-              <li key={post._id}>
+              <li key={post.slug}>
                 {"- "}
                 {post.date ? (
                   <span className="text-machine-dim">

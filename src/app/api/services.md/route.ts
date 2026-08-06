@@ -34,18 +34,16 @@ export async function GET() {
           .join("\n\n")
       : null
 
-    const ventures = services.ventures?.length
-      ? services.ventures
-          .map((venture) =>
-            [
-              `### ${venture.title}`,
-              "",
-              portableTextToMarkdown(venture.content, { baseUrl: SITE_URL })
-            ]
-              .filter(Boolean)
-              .join("\n")
-          )
-          .join("\n\n")
+    // HTML (ventures.tsx) only shows the first venture — match that.
+    const venture = services.ventures?.[0]
+    const ventures = venture
+      ? [
+          `### ${venture.title}`,
+          "",
+          portableTextToMarkdown(venture.content, { baseUrl: SITE_URL })
+        ]
+          .filter(Boolean)
+          .join("\n")
       : null
 
     const parts: Array<string | null> = [
@@ -70,7 +68,12 @@ export async function GET() {
 
     const markdown = parts.filter((part) => part !== null).join("\n")
 
-    return new NextResponse(markdown, { headers: MD_HEADERS })
+    return new NextResponse(markdown, {
+      headers: {
+        ...MD_HEADERS,
+        Link: `<${SITE_URL}/services>; rel="canonical"`
+      }
+    })
   } catch (error) {
     console.error("Error building services markdown:", error)
     return new NextResponse("# 500 Error\n\nFailed to build markdown.", {
