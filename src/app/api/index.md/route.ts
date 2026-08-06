@@ -37,7 +37,10 @@ export async function GET() {
     const capabilities = homepage.capabilities?.length
       ? homepage.capabilities
           .map((cap) => {
-            const lines = [`### ${cap.title}`]
+            // Match HTML's title-based filter param (slug isn't used for filtering).
+            const lines = [
+              `### [${cap.title}](${SITE_URL}/showcase?category=${encodeURIComponent(cap.title)})`
+            ]
             if (cap.description) lines.push("", cap.description)
             if (cap.subcategories?.length) {
               lines.push("", ...cap.subcategories.map((s) => `- ${s.title}`))
@@ -53,6 +56,13 @@ export async function GET() {
           .join(", ")
       : null
 
+    const whatWeDoIntro =
+      portableTextToMarkdown(homepage.capabilitiesIntro, {
+        baseUrl: SITE_URL
+      }) || null
+    const hasWhatWeDo = Boolean(whatWeDoIntro || capabilities)
+    const hasBody = Boolean(featuredWork || hasWhatWeDo || clients)
+
     const parts: Array<string | null> = [
       "# basement.studio",
       "",
@@ -62,17 +72,15 @@ export async function GET() {
       portableTextToMarkdown(homepage.introSubtitle, { baseUrl: SITE_URL }) ||
         null,
       "",
-      "---",
-      "",
+      hasBody ? "---" : null,
+      hasBody ? "" : null,
       featuredWork ? "## Selected Work" : null,
       featuredWork ? "" : null,
       featuredWork,
       featuredWork ? "" : null,
-      "## What We Do",
-      "",
-      portableTextToMarkdown(homepage.capabilitiesIntro, {
-        baseUrl: SITE_URL
-      }) || null,
+      hasWhatWeDo ? "## What We Do" : null,
+      hasWhatWeDo ? "" : null,
+      whatWeDoIntro,
       capabilities ? "" : null,
       capabilities,
       capabilities ? "" : null,
@@ -100,7 +108,9 @@ export async function GET() {
 
     const markdown = parts.filter((part) => part !== null).join("\n")
 
-    return new NextResponse(markdown, { headers: MD_HEADERS })
+    return new NextResponse(markdown, {
+      headers: { ...MD_HEADERS, Link: `<${SITE_URL}>; rel="canonical"` }
+    })
   } catch (error) {
     console.error("Error building homepage markdown:", error)
     return new NextResponse("# 500 Error\n\nFailed to build markdown.", {

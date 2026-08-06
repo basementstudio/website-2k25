@@ -5,6 +5,12 @@ import { fetchAllPostsForIndex } from "@/app/(site)/(plain)/(content)/post/[slug
 import { fetchAllProjectsForIndex } from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 
+const MD_HEADERS = {
+  "Content-Type": "text/markdown; charset=utf-8",
+  Vary: "Accept",
+  "X-Content-Type-Options": "nosniff"
+} as const
+
 export async function GET() {
   try {
     const [posts, projects, positions] = await Promise.all([
@@ -54,17 +60,13 @@ export async function GET() {
     }
 
     return new NextResponse(parts.join("\n"), {
-      headers: {
-        "Content-Type": "text/markdown; charset=utf-8",
-        Vary: "Accept",
-        "X-Content-Type-Options": "nosniff"
-      }
+      headers: MD_HEADERS
     })
   } catch (error) {
     console.error("Error building markdown sitemap:", error)
     return new NextResponse("# 500 Error\n\nFailed to build content index.", {
       status: 500,
-      headers: { "Content-Type": "text/markdown; charset=utf-8" }
+      headers: MD_HEADERS
     })
   }
 }
