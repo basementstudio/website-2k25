@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
 import { cn } from "@/utils/cn"
@@ -11,8 +12,10 @@ const segmentClass =
 // bottom, so it doesn't sit on top of the footer.
 const BOTTOM_THRESHOLD = 120
 
-// sessionStorage key marking that the current tab entered /ai via the toggle,
-// so "Human" can history.back() to the exact page the visitor left.
+// sessionStorage key holding the machine path the current tab entered via the
+// toggle, so "Human" can history.back() to the exact page the visitor left —
+// but only while still on that entry page (navigating within the machine view
+// pushes machine pages onto the history stack, so back() would stay machine).
 // `document.referrer` alone is not enough: it goes stale across client-side
 // navigations within the human site (it keeps the original external referrer).
 const MACHINE_ENTRY_KEY = "bsmt-machine-entry"
@@ -31,16 +34,29 @@ const MACHINE_ENTRY_KEY = "bsmt-machine-entry"
  */
 export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
   const [atBottom, setAtBottom] = useState(false)
+  const pathname = usePathname() ?? ""
 
-  // Machine mode matches the /ai amber-phosphor screen; human mode stays
-  // grayscale over the WebGL canvas.
+  // Blog posts have a per-page machine mirror (/post/<slug> ↔ /ai/post/<slug>)
+  // and the blog index (including category views) mirrors to /ai/blog;
+  // everything else toggles against the /ai index.
+  const machineHref = pathname.startsWith("/post/")
+    ? `/ai${pathname}`
+    : pathname === "/blog" || pathname.startsWith("/blog/")
+      ? "/ai/blog"
+      : "/ai"
+  const humanHref = pathname.startsWith("/ai/")
+    ? pathname.slice("/ai".length)
+    : "/"
+
+  // Machine mode keeps the /ai amber-phosphor border; segment colors follow
+  // the navbar convention in both modes — orange marks the active mode,
+  // white marks the clickable one.
   const isMachine = mode === "machine"
   const pillClass = isMachine
-    ? "border-machine-base/40 bg-machine-bg text-machine-bright"
-    : "border-brand-g2 bg-brand-k text-brand-w1"
-  const inactiveClass = isMachine
-    ? "text-machine-dim transition-colors hover:text-machine-bright"
-    : "text-brand-g1 transition-colors hover:text-brand-o"
+    ? "border-machine-base/40 bg-machine-bg"
+    : "border-brand-g2 bg-brand-k"
+  const activeClass = "text-brand-o"
+  const inactiveClass = "text-brand-w1 transition-colors hover:text-brand-o"
 
   // The machine view keeps the pill always visible — no bottom fade.
   const fadeEnabled = mode === "human"
@@ -68,7 +84,7 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
 
   const rememberMachineEntry = () => {
     try {
-      sessionStorage.setItem(MACHINE_ENTRY_KEY, window.location.pathname)
+      sessionStorage.setItem(MACHINE_ENTRY_KEY, machineHref)
     } catch {
       // Storage unavailable — "Human" will fall back to the referrer check.
     }
@@ -80,7 +96,10 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
 
     let cameFromToggle = false
     try {
-      cameFromToggle = sessionStorage.getItem(MACHINE_ENTRY_KEY) !== null
+      // Only back() while still on the machine page the toggle entered on —
+      // after navigating within the machine view, back() would stay machine.
+      cameFromToggle =
+        sessionStorage.getItem(MACHINE_ENTRY_KEY) === window.location.pathname
       // One-shot: a later direct visit to /ai in this tab must not back() out
       // of the site.
       sessionStorage.removeItem(MACHINE_ENTRY_KEY)
@@ -91,7 +110,7 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
     const referrer = document.referrer
     const sameOriginReferrer =
       referrer.startsWith(window.location.origin) &&
-      new URL(referrer).pathname !== "/ai"
+      !new URL(referrer).pathname.startsWith("/ai")
 
     // A tab opened directly onto /ai (new tab via modified click, window.open)
     // can inherit the storage marker and referrer but has no session-history
@@ -106,7 +125,8 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
       e.preventDefault()
       window.history.back()
     }
-    // Otherwise fall through to the anchor's full navigation to "/".
+    // Otherwise fall through to the anchor's full navigation to the human
+    // counterpart of this page.
   }
 
   return (
@@ -125,12 +145,12 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
         )}
       >
         {mode === "human" ? (
-          <span aria-current="page" className={segmentClass}>
+          <span aria-current="page" className={cn(segmentClass, activeClass)}>
             Human
           </span>
         ) : (
           <a
-            href="/"
+            href={humanHref}
             onClick={handleBackToHuman}
             className={cn(segmentClass, inactiveClass)}
           >
@@ -138,12 +158,12 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
           </a>
         )}
         {mode === "machine" ? (
-          <span aria-current="page" className={segmentClass}>
+          <span aria-current="page" className={cn(segmentClass, activeClass)}>
             Machine
           </span>
         ) : (
           <a
-            href="/ai"
+            href={machineHref}
             onClick={rememberMachineEntry}
             className={cn(segmentClass, inactiveClass)}
           >
