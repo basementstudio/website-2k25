@@ -19,9 +19,9 @@ interface ProjectInfoProps {
 
 export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
   const narrative = [
-    { label: "Challenge", text: entry.challenge },
-    { label: "Approach", text: entry.approach },
-    { label: "Outcome", text: entry.outcome }
+    { label: "Challenge", text: entry.challenge?.trim() },
+    { label: "Approach", text: entry.approach?.trim() },
+    { label: "Outcome", text: entry.outcome?.trim() }
   ].filter((section): section is { label: string; text: string } =>
     Boolean(section.text)
   )
@@ -35,7 +35,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
 
   return (
     <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-3 lg:row-start-auto xl:col-span-2">
-      <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-[calc(3.25rem+1px)] lg:mb-0 lg:h-[calc(100vh-4.25rem)]">
+      <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-[calc(3.25rem+1px)] lg:mb-0 lg:h-[calc(100vh-4.25rem)] lg:overflow-y-auto">
         <div className="flex items-center justify-between">
           <Back />
 

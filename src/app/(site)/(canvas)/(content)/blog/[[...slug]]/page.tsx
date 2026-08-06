@@ -51,24 +51,25 @@ export default async function BlogIndexPage(props: { params: Params }) {
   const params = await props.params
   const categorySlug = params.slug?.[0]
 
-  let collectionSchema
+  let collectionSchema = null
   if (categorySlug) {
     const [categories, posts] = await Promise.all([
       fetchCategoriesNonEmpty(),
       fetchPostListForSchemaByCategory(categorySlug)
     ])
-    const label =
-      categories.find((c) => c.slug === categorySlug)?.title ??
-      titleCase(categorySlug)
-    collectionSchema = generateCollectionPageSchema({
-      path: `/blog/${categorySlug}`,
-      name: `Blog — ${label}`,
-      description: `${label} articles from the basement.studio team.`,
-      items: posts.map((post) => ({
-        name: post.title,
-        path: `/post/${post.slug}`
-      }))
-    })
+    // Unknown slugs must not advertise a collection the page doesn't render.
+    const category = categories.find((c) => c.slug === categorySlug)
+    collectionSchema = category
+      ? generateCollectionPageSchema({
+          path: `/blog/${categorySlug}`,
+          name: `Blog — ${category.title}`,
+          description: `${category.title} articles from the basement.studio team.`,
+          items: posts.map((post) => ({
+            name: post.title,
+            path: `/post/${post.slug}`
+          }))
+        })
+      : null
   } else {
     collectionSchema = generateCollectionPageSchema({
       path: "/blog",

@@ -26,8 +26,10 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
   const title = meta.title ?? "Untitled"
   const description =
     truncateDescription(
-      [meta.challenge, meta.outcome].filter(Boolean).join(" ") ||
-        extractPlainText(meta.content)
+      [meta.challenge, meta.outcome]
+        .map((value) => value?.trim())
+        .filter(Boolean)
+        .join(" ") || extractPlainText(meta.content)
     ) ||
     `Discover ${title}, a project by basement.studio — see how we designed and engineered it.`
 

@@ -54,6 +54,7 @@ export const generateCreativeWorkSchema = (project: ProjectData) => {
   // Prefer the structured challenge → approach → outcome narrative: it carries
   // the extractable claims answer engines quote, unlike the free-form content.
   const narrative = [project.challenge, project.approach, project.outcome]
+    .map((value) => value?.trim())
     .filter(Boolean)
     .join(" ")
   const description =
