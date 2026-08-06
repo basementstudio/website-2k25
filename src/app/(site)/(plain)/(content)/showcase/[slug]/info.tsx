@@ -18,6 +18,13 @@ interface ProjectInfoProps {
 }
 
 export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
+  const narrative = [
+    { label: "Challenge", text: entry.challenge },
+    { label: "Approach", text: entry.approach },
+    { label: "Outcome", text: entry.outcome }
+  ].filter((section): section is { label: string; text: string } =>
+    Boolean(section.text)
+  )
   const website = entry.projectWebsite?.replace(/\/$/, "")
   const caseStudy =
     typeof entry.caseStudy === "string"
@@ -113,6 +120,21 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
         {entry.content ? (
           <div className="flex flex-col gap-2">
             <PortableText value={entry.content} />
+          </div>
+        ) : null}
+
+        {narrative.length ? (
+          <div className="flex flex-col gap-3">
+            {narrative.map((section) => (
+              <div key={section.label} className="flex flex-col gap-1">
+                <h2 className="text-f-p-mobile text-brand-g1 lg:text-f-p">
+                  {section.label}
+                </h2>
+                <p className="text-f-p-mobile text-brand-w2 lg:text-f-p">
+                  {section.text}
+                </p>
+              </div>
+            ))}
           </div>
         ) : null}
 

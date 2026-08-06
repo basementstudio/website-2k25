@@ -6,6 +6,7 @@ import { JsonLd } from "@/lib/structured-data/json-ld"
 import { generateServicesWebPageSchema } from "@/lib/structured-data/schemas/professional-service"
 import { getImageUrl } from "@/service/sanity/helpers"
 
+import { AboutStudio } from "./about"
 import { Awards } from "./awards"
 import { Hero } from "./hero"
 import { fetchAwards, fetchServicesPage, fetchTestimonial } from "./sanity"
@@ -64,6 +65,7 @@ const ServicesPage = async () => {
       {testimonial && <Testimonials data={testimonial} />}
       <Awards data={displayAwards} />
       <VenturesBanner data={data} />
+      <AboutStudio />
       <Contact />
     </div>
   )

@@ -7,6 +7,7 @@ import { generatePeopleSchema } from "@/lib/structured-data/schemas/person"
 import { getImageUrl } from "@/service/sanity/helpers"
 
 import { Crew } from "./crew"
+import { CREW_DEPARTMENTS } from "./crew-departments"
 import { Hero } from "./hero"
 import { OpenPositions } from "./open-positions"
 import { PreOpenPositions } from "./pre-open-positions"
@@ -58,14 +59,16 @@ const About = async () => {
   })
 
   const peopleSchema = generatePeopleSchema(
-    peopleDisplay.map((p) => ({
-      name: p.title,
-      jobTitle: p.role,
-      image: p.image
-        ? { url: p.image.url, width: p.image.width, height: p.image.height }
-        : null,
-      socialNetworks: p.socialNetworks
-    }))
+    peopleDisplay
+      .filter((p) => p.department && CREW_DEPARTMENTS.includes(p.department))
+      .map((p) => ({
+        name: p.title,
+        jobTitle: p.role,
+        image: p.image
+          ? { url: p.image.url, width: p.image.width, height: p.image.height }
+          : null,
+        socialNetworks: p.socialNetworks
+      }))
   )
 
   return (

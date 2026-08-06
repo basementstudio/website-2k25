@@ -34,6 +34,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
+    siteName: "basement.studio",
+    locale: "en_US",
     images: {
       url: "/images/opengraph-image.gif",
       width: 1200,

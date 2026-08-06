@@ -18,6 +18,7 @@ import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 
+import { CREW_DEPARTMENTS } from "./crew-departments"
 import type { PersonDisplay } from "./sanity"
 
 const DEBOUNCE_TIME = 10
@@ -42,7 +43,7 @@ export const Crew = ({ data }: { data: PersonDisplay[] }) => {
       {} as Record<string, PersonDisplay[]>
     )
 
-    const orderedDepartments = ["Management", "Design", "Development"]
+    const orderedDepartments = CREW_DEPARTMENTS
 
     const sortedPeople: Record<string, PersonDisplay[]> = {}
 

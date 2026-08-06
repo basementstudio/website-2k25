@@ -25,7 +25,10 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
 
   const title = meta.title ?? "Untitled"
   const description =
-    truncateDescription(extractPlainText(meta.content)) ||
+    truncateDescription(
+      [meta.challenge, meta.outcome].filter(Boolean).join(" ") ||
+        extractPlainText(meta.content)
+    ) ||
     `Discover ${title}, a project by basement.studio — see how we designed and engineered it.`
 
   return {
@@ -58,6 +61,9 @@ export default async function ProjectPost({ params }: ProjectPostProps) {
     client: project.client,
     cover: project.cover,
     content: project.content,
+    challenge: project.challenge,
+    approach: project.approach,
+    outcome: project.outcome,
     projectWebsite: project.projectWebsite,
     awards:
       project.awards?.map((a) => ({

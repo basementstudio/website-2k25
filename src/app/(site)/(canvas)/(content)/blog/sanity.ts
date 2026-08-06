@@ -137,3 +137,25 @@ export async function fetchPostListForSchema(): Promise<
   })
   return posts ?? []
 }
+
+const postListByCategoryForSchemaQuery = /* groq */ `
+  *[_type == "post" && defined(slug.current) && $categorySlug in categories[]->slug.current] | order(date desc){
+    title,
+    "slug": slug.current
+  }
+`
+
+/** Same list scoped to one category, for category-page CollectionPage schema. */
+export async function fetchPostListForSchemaByCategory(
+  categorySlug: string
+): Promise<Array<{ title: string; slug: string }>> {
+  "use cache"
+  const posts = await sanityFetch<Array<{
+    title: string
+    slug: string
+  }> | null>({
+    query: postListByCategoryForSchemaQuery,
+    params: { categorySlug }
+  })
+  return posts ?? []
+}

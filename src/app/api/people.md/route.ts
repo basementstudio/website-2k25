@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { CREW_DEPARTMENTS } from "@/app/(site)/(canvas)/(content)/people/crew-departments"
 import {
   fetchOpenPositions,
   fetchPeople,
@@ -13,9 +14,6 @@ const MD_HEADERS = {
   Vary: "Accept",
   "X-Content-Type-Options": "nosniff"
 } as const
-
-// Same department whitelist the HTML crew page renders (see crew.tsx)
-const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
 
 export async function GET() {
   try {
