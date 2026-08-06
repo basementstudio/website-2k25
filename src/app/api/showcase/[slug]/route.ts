@@ -29,6 +29,10 @@ export async function GET(
       })
     }
 
+    const challenge = project.challenge?.trim()
+    const approach = project.approach?.trim()
+    const outcome = project.outcome?.trim()
+
     const clientLine = project.client
       ? project.client.website
         ? `**Client:** [${project.client.title}](${project.client.website})`
@@ -59,6 +63,9 @@ export async function GET(
       "---",
       "",
       portableTextToMarkdown(project.content, { baseUrl: SITE_URL }),
+      challenge ? `\n## Challenge\n\n${challenge}` : null,
+      approach ? `\n## Approach\n\n${approach}` : null,
+      outcome ? `\n## Outcome\n\n${outcome}` : null,
       "",
       "---",
       "",

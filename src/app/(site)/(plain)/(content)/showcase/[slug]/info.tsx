@@ -18,6 +18,13 @@ interface ProjectInfoProps {
 }
 
 export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
+  const narrative = [
+    { label: "Challenge", text: entry.challenge?.trim() },
+    { label: "Approach", text: entry.approach?.trim() },
+    { label: "Outcome", text: entry.outcome?.trim() }
+  ].filter((section): section is { label: string; text: string } =>
+    Boolean(section.text)
+  )
   const website = entry.projectWebsite?.replace(/\/$/, "")
   const caseStudy =
     typeof entry.caseStudy === "string"
@@ -28,7 +35,7 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
 
   return (
     <div className="col-span-full row-start-1 flex h-full flex-col gap-4 lg:col-span-3 lg:row-start-auto xl:col-span-2">
-      <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-[calc(3.25rem+1px)] lg:mb-0 lg:h-[calc(100vh-4.25rem)]">
+      <div className="mb-20 flex flex-col gap-4 lg:sticky lg:top-[calc(3.25rem+1px)] lg:mb-0 lg:h-[calc(100vh-4.25rem)] lg:overflow-y-auto">
         <div className="flex items-center justify-between">
           <Back />
 
@@ -113,6 +120,21 @@ export const ProjectInfo = ({ entry }: ProjectInfoProps) => {
         {entry.content ? (
           <div className="flex flex-col gap-2">
             <PortableText value={entry.content} />
+          </div>
+        ) : null}
+
+        {narrative.length ? (
+          <div className="flex flex-col gap-3">
+            {narrative.map((section) => (
+              <div key={section.label} className="flex flex-col gap-1">
+                <h2 className="text-f-p-mobile text-brand-g1 lg:text-f-p">
+                  {section.label}
+                </h2>
+                <p className="text-f-p-mobile text-brand-w2 lg:text-f-p">
+                  {section.text}
+                </p>
+              </div>
+            ))}
           </div>
         ) : null}
 

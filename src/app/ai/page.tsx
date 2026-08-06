@@ -11,6 +11,7 @@ import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sani
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
 import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
+import { FAQ_ENTRIES } from "@/lib/faq"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
@@ -50,7 +51,8 @@ const AGENT_RESOURCES = [
   { href: "/index.md", label: "index.md" },
   { href: "/services.md", label: "services.md" },
   { href: "/people.md", label: "people.md" },
-  { href: "/showcase.md", label: "showcase.md" }
+  { href: "/showcase.md", label: "showcase.md" },
+  { href: "/faq.md", label: "faq.md" }
 ]
 
 const plainText = (blocks: PortableTextBlock[] | null) =>
@@ -307,6 +309,17 @@ const AiPage = async () => {
         ) : (
           <p>none currently open</p>
         )}
+      </Section>
+
+      <Section title="faq">
+        <ul className="flex flex-col gap-3">
+          {FAQ_ENTRIES.map((faq) => (
+            <li key={faq.question} className="flex flex-col gap-1">
+              <h3 className="text-machine-bright">* {faq.question}</h3>
+              <p>{faq.answer}</p>
+            </li>
+          ))}
+        </ul>
       </Section>
 
       <Section title="contact">

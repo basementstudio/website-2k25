@@ -4,6 +4,7 @@ import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { JsonLd } from "@/lib/structured-data/json-ld"
 import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
 import { generateJobPostingSchema } from "@/lib/structured-data/schemas/job-posting"
+import { truncateDescription } from "@/utils/seo"
 
 import { ApplicationForm } from "./application-form"
 import { Back } from "./back"
@@ -27,10 +28,16 @@ export const generateMetadata = async ({ params }: CareerPostProps) => {
 
   if (!meta) return null
 
+  const title = meta.title ?? "Untitled"
+  const description =
+    truncateDescription(extractPlainText(meta.jobDescription)) ||
+    `${title} at basement.studio — join the crew behind award-winning brands, websites, and 3D experiences. See the role and apply.`
+
   return {
     title: {
-      absolute: `${meta.title ?? "Untitled"} | Careers`
+      absolute: `${title} | Careers`
     },
+    description,
     alternates: {
       canonical: `https://basement.studio/careers/${slug}`
     }

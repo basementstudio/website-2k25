@@ -67,5 +67,11 @@ export const markdownRoutes: MarkdownRoute[] = [
     htmlRegex: /^\/showcase$/,
     apiPath: "/api/showcase.md",
     publicMdPath: "/showcase.md"
+  },
+  {
+    mdRegex: /^\/faq\.md$/,
+    htmlRegex: /^\/faq$/,
+    apiPath: "/api/faq.md",
+    publicMdPath: "/faq.md"
   }
 ]

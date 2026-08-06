@@ -4,7 +4,11 @@ import { BlogList } from "@/components/blog/list"
 import { JsonLd } from "@/lib/structured-data/json-ld"
 import { generateCollectionPageSchema } from "@/lib/structured-data/schemas/collection"
 
-import { fetchCategoriesNonEmpty, fetchPostListForSchema } from "../sanity"
+import {
+  fetchCategoriesNonEmpty,
+  fetchPostListForSchema,
+  fetchPostListForSchemaByCategory
+} from "../sanity"
 
 type Params = Promise<{ slug: string[] }>
 
@@ -45,20 +49,39 @@ export const generateMetadata = async (props: {
 
 export default async function BlogIndexPage(props: { params: Params }) {
   const params = await props.params
-  const isBlogHome = !params.slug?.[0]
+  const categorySlug = params.slug?.[0]
 
-  const collectionSchema = isBlogHome
-    ? generateCollectionPageSchema({
-        path: "/blog",
-        name: "Blog",
-        description:
-          "Articles, deep dives, and behind-the-scenes notes from the basement.studio team.",
-        items: (await fetchPostListForSchema()).map((post) => ({
-          name: post.title,
-          path: `/post/${post.slug}`
-        }))
-      })
-    : null
+  let collectionSchema = null
+  if (categorySlug) {
+    const [categories, posts] = await Promise.all([
+      fetchCategoriesNonEmpty(),
+      fetchPostListForSchemaByCategory(categorySlug)
+    ])
+    // Unknown slugs must not advertise a collection the page doesn't render.
+    const category = categories.find((c) => c.slug === categorySlug)
+    collectionSchema = category
+      ? generateCollectionPageSchema({
+          path: `/blog/${categorySlug}`,
+          name: `Blog — ${category.title}`,
+          description: `${category.title} articles from the basement.studio team.`,
+          items: posts.map((post) => ({
+            name: post.title,
+            path: `/post/${post.slug}`
+          }))
+        })
+      : null
+  } else {
+    collectionSchema = generateCollectionPageSchema({
+      path: "/blog",
+      name: "Blog",
+      description:
+        "Articles, deep dives, and behind-the-scenes notes from the basement.studio team.",
+      items: (await fetchPostListForSchema()).map((post) => ({
+        name: post.title,
+        path: `/post/${post.slug}`
+      }))
+    })
+  }
 
   return (
     <>

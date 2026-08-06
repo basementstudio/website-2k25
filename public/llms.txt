@@ -10,6 +10,7 @@
 - [Showcase](https://basement.studio/showcase): Portfolio of selected projects and case studies.
 - [Blog](https://basement.studio/blog): Articles and writing from the studio.
 - [People](https://basement.studio/people): The team behind basement.studio and open positions.
+- [FAQ](https://basement.studio/faq): Answers to common questions — services, WebGL/3D interactive experiences, clients, technologies, and how to start a project.
 - [Contact](https://basement.studio/contact): Get in touch to start a project.
 
 ## Lab & experiments

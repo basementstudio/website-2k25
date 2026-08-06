@@ -20,6 +20,9 @@ interface ProjectData {
   client?: { title: string | null; website?: string | null } | null
   cover?: SanityImage | null
   content?: PortableTextBlock[] | null
+  challenge?: string | null
+  approach?: string | null
+  outcome?: string | null
   projectWebsite?: string | null
   awards?: Award[] | null
 }
@@ -48,9 +51,15 @@ const formatAward = (award: Award) => {
 export const generateCreativeWorkSchema = (project: ProjectData) => {
   if (!project.slug) return null
 
-  const description = project.content
-    ? extractPlainText(project.content)
-    : undefined
+  // Prefer the structured challenge → approach → outcome narrative: it carries
+  // the extractable claims answer engines quote, unlike the free-form content.
+  const narrative = [project.challenge, project.approach, project.outcome]
+    .map((value) => value?.trim())
+    .filter(Boolean)
+    .join(" ")
+  const description =
+    narrative ||
+    (project.content ? extractPlainText(project.content) : undefined)
   const image = createImageObject(project.cover)
   const keywords = project.categories
     ?.map((c) => c.title)

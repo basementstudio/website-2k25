@@ -84,6 +84,30 @@ export const project = defineType({
       of: [{ type: "block" }]
     }),
     defineField({
+      name: "challenge",
+      title: "Challenge",
+      description:
+        "What problem the client brought — one short plain-text paragraph. Together with Approach and Outcome it forms the case-study narrative AI models and search engines can quote.",
+      type: "text",
+      rows: 3
+    }),
+    defineField({
+      name: "approach",
+      title: "Approach",
+      description:
+        "How the studio tackled it — design and engineering decisions, one short plain-text paragraph.",
+      type: "text",
+      rows: 3
+    }),
+    defineField({
+      name: "outcome",
+      title: "Outcome",
+      description:
+        "What shipped and what it achieved — launch, performance, awards, metrics. One short plain-text paragraph.",
+      type: "text",
+      rows: 3
+    }),
+    defineField({
       name: "caseStudy",
       title: "Case Study",
       type: "url"

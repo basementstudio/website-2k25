@@ -22,6 +22,7 @@ export async function GET() {
       `- [Services](${SITE_URL}/services.md)`,
       `- [People](${SITE_URL}/people.md)`,
       `- [Showcase](${SITE_URL}/showcase.md)`,
+      `- [FAQ](${SITE_URL}/faq.md)`,
       ""
     )
 

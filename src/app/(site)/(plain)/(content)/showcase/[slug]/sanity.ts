@@ -30,6 +30,9 @@ export interface ShowcaseProjectDetail {
   categories: Array<{ title: string }> | null
   projectWebsite: string | null
   content: PortableTextBlock[] | null
+  challenge: string | null
+  approach: string | null
+  outcome: string | null
   caseStudy: string | null
   people: Array<{
     _id: string
@@ -68,6 +71,9 @@ const projectBySlugQuery = /* groq */ `
     categories[]->{ title },
     projectWebsite,
     content,
+    challenge,
+    approach,
+    outcome,
     caseStudy,
     people[]->{ _id, title, department->{ title } },
     cover ${imageFragment},
@@ -87,7 +93,7 @@ const allProjectSlugsQuery = /* groq */ `
 `
 
 const projectMetaQuery = /* groq */ `
-  *[_type == "project" && slug.current == $slug][0]{ title, content }
+  *[_type == "project" && slug.current == $slug][0]{ title, content, challenge, outcome }
 `
 
 const relatedProjectsQuery = /* groq */ `
@@ -149,12 +155,17 @@ export async function fetchAllProjectSlugs(): Promise<Array<{
   })
 }
 
-export async function fetchProjectMeta(
-  slug: string
-): Promise<{ title: string; content: PortableTextBlock[] | null } | null> {
+export async function fetchProjectMeta(slug: string): Promise<{
+  title: string
+  content: PortableTextBlock[] | null
+  challenge: string | null
+  outcome: string | null
+} | null> {
   return sanityFetchCached<{
     title: string
     content: PortableTextBlock[] | null
+    challenge: string | null
+    outcome: string | null
   } | null>({
     query: projectMetaQuery,
     params: { slug },
