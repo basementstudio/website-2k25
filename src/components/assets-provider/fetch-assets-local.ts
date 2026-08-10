@@ -136,18 +136,50 @@ export async function fetchAssetsLocal({
 
   const map = config.mapAssets
 
-  // Drop anything half-written rather than letting a null coalesce to 0 — a
-  // zeroed axis would drag the object to its parent's origin on the live site,
-  // which is far more visible than the override simply not applying.
   const meshOverrides = (map?.meshOverrides ?? []).flatMap((o) => {
-    const { mesh, x, y, z } = o
-    if (!mesh || ![x, y, z].every((n) => typeof n === "number")) {
+    const { mesh, x, y, z, hidden, replacement } = o
+    if (!mesh) {
       console.warn(
-        `[3d-config] skipping incomplete mesh override ${JSON.stringify(o)}`
+        `[3d-config] skipping mesh override with no mesh name ${JSON.stringify(o)}`
       )
       return []
     }
-    return [{ mesh, position: [x, y, z] as [number, number, number] }]
+
+    const hasPosition = [x, y, z].every((n) => typeof n === "number")
+    if (!hasPosition && [x, y, z].some((n) => typeof n === "number")) {
+      console.warn(
+        `[3d-config] mesh override "${mesh}" has a partial position; ignoring the move.`
+      )
+    }
+
+    const r = replacement
+    const hasReplacement =
+      !!r?.assetId &&
+      !!r?.url &&
+      [r.x, r.y, r.z].every((n) => typeof n === "number")
+    if (r && !hasReplacement) {
+      console.warn(
+        `[3d-config] mesh override "${mesh}" has an incomplete replacement; ignoring it.`
+      )
+    }
+
+    const entry = {
+      mesh,
+      position: hasPosition
+        ? ([x, y, z] as [number, number, number])
+        : (null as [number, number, number] | null),
+      hidden: hidden === true,
+      replacement: hasReplacement
+        ? {
+            assetId: r.assetId as string,
+            url: r.url as string,
+            position: [r.x, r.y, r.z] as [number, number, number]
+          }
+        : null
+    }
+
+    if (!entry.position && !entry.hidden && !entry.replacement) return []
+    return [entry]
   })
 
   return {

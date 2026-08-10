@@ -67,11 +67,21 @@ interface SanityPhysicsConfig {
   physicsParams?: SanityPhysicsParam[]
 }
 
+interface SanityMeshReplacement {
+  assetId?: string | null
+  url?: string | null
+  x?: number | null
+  y?: number | null
+  z?: number | null
+}
+
 interface SanityMeshOverride {
   mesh?: string | null
   x?: number | null
   y?: number | null
   z?: number | null
+  hidden?: boolean | null
+  replacement?: SanityMeshReplacement | null
 }
 
 export interface SanityMapAssetsConfig {
@@ -168,7 +178,15 @@ const threeDConfigQuery = /* groq */ `{
       mesh,
       x,
       y,
-      z
+      z,
+      hidden,
+      replacement {
+        "assetId": file.asset._ref,
+        "url": file.asset->url,
+        x,
+        y,
+        z
+      }
     }
   }
 }`

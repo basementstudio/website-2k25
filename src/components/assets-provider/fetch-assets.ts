@@ -163,14 +163,16 @@ export interface AssetsResult {
     _title: string
     value: number
   }[]
-  /**
-   * Per-mesh world-space position overrides authored in the Studio's Editor
-   * tool, applied by name to the loaded GLBs.
-   * See components/map/apply-mesh-overrides.ts.
-   */
+
   meshOverrides: {
     mesh: string
-    position: [number, number, number]
+    position: [number, number, number] | null
+    hidden: boolean
+    replacement: {
+      assetId: string
+      url: string
+      position: [number, number, number]
+    } | null
   }[]
 }
 

@@ -19,7 +19,8 @@ import {
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
 import { isTypingTarget } from "./editor-keys"
-import { useEditorStore } from "./editor-store"
+import { replacementTargetOf, useEditorStore } from "./editor-store"
+import { selectionCenter } from "./selection-center"
 
 // brand-o
 const OUTLINE_COLOR = "#FF4D00"
@@ -52,22 +53,6 @@ const Gizmo = TransformControls as unknown as FC<{
   onMouseUp?: () => void
   onObjectChange?: () => void
 }>
-
-/**
- * World-space centre of a selection's visible geometry.
- *
- * The gizmo can't just attach to the picked object: these GLBs are exported with
- * transforms applied, so nearly every mesh has `position` at its parent's origin
- * and the geometry carries the real placement. Attaching there piles every
- * object's gizmo up in the same spot. Box3.setFromObject walks the subtree in
- * world space (and refreshes matrices itself), which puts the handle on the thing
- * you actually clicked.
- */
-const selectionCenter = (object: Object3D, box: Box3, target: Vector3) => {
-  box.setFromObject(object)
-  if (box.isEmpty()) return object.getWorldPosition(target)
-  return box.getCenter(target)
-}
 
 /** An ancestor with visible=false hides the whole subtree, so walk up rather
  *  than trusting the hit object's own flag. */
@@ -131,6 +116,10 @@ const isPickable = (object: Object3D): object is Mesh => {
  * the same reason. Both files are only one level deep, so this is exact for them.
  */
 const resolveSelection = (hit: Object3D): Object3D => {
+  for (let node: Object3D | null = hit; node; node = node.parent) {
+    if (replacementTargetOf(node)) return node
+  }
+
   let node = hit
   while (node.parent instanceof Mesh) node = node.parent
   return node
@@ -242,6 +231,9 @@ export const EditorPicker = () => {
     isDragging.current = false
     syncProxy()
   }, [syncProxy])
+
+  const edits = useEditorStore((state) => state.edits)
+  useEffect(() => invalidate(), [edits, invalidate])
 
   useEffect(() => {
     if (!active || !camera) return

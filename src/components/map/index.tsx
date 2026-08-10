@@ -30,6 +30,7 @@ import { createNotFoundMaterial } from "@/shaders/material-not-found"
 import { applyMeshOverrides } from "./apply-mesh-overrides"
 import { BakesLoader } from "./bakes"
 import { extractMeshes } from "./extract-meshes"
+import { MeshReplacements, useMeshReplacements } from "./mesh-replacement"
 import { useFrameLoop } from "./use-frame-loop"
 import { useLoader } from "./use-loader"
 
@@ -77,6 +78,8 @@ export const Map = memo(() => {
   } = useLoader()
 
   useFrameLoop()
+
+  const meshReplacements = useMeshReplacements(meshOverrides)
 
   const scene = useCurrentScene()
   const currentScene = useNavigationStore((state) => state.currentScene)
@@ -265,6 +268,8 @@ export const Map = memo(() => {
       <primitive object={office} />
       <primitive object={officeItems} />
       <primitive object={outdoor} />
+
+      <MeshReplacements placements={meshReplacements} />
 
       {/*Godrays */}
       <Godrays />

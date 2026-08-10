@@ -112,17 +112,16 @@ export const mapAssetsConfig = defineType({
       ]
     }),
 
-    // --- Mesh position overrides ---
     defineField({
       name: "meshOverrides",
-      title: "Mesh Position Overrides",
+      title: "Mesh Overrides",
       type: "array",
       description:
-        "Written by the Editor tool: move an object with the gizmo, hit Save, and it lands here. " +
-        "The site applies each entry to every object with that name after the GLBs load, so an " +
-        "override survives a model re-upload as long as the mesh keeps its name. " +
+        "Written by the Editor tool: move, delete or replace an object in the scene, hit Save, and " +
+        "it lands here. The site applies each entry to every object with that name after the GLBs " +
+        "load, so an override survives a model re-upload as long as the mesh keeps its name. " +
         "Coordinates are world-space, in the GLB's units. " +
-        "Delete an entry to put that object back where the model exports it.",
+        "Delete an entry to put that object back exactly as the model exports it.",
       of: [
         defineArrayMember({
           name: "meshOverride",
@@ -133,34 +132,83 @@ export const mapAssetsConfig = defineType({
               name: "mesh",
               title: "Mesh name",
               type: "string",
+              description:
+                'The object\'s name in the GLB. Entries starting with "added-" are models the Editor put in the scene on their own — their name matches nothing in any model and is just an identifier.',
               validation: (r) => r.required()
             }),
             defineField({
               name: "x",
               type: "number",
-              validation: (r) => r.required()
+              description:
+                "World X. Leave the three empty to keep the exported position."
+            }),
+            defineField({ name: "y", type: "number" }),
+            defineField({ name: "z", type: "number" }),
+            defineField({
+              name: "hidden",
+              title: "Hidden",
+              type: "boolean",
+              description:
+                "Removed from the scene — the object still loads but is never drawn. Set by the Editor's Delete.",
+              initialValue: false
             }),
             defineField({
-              name: "y",
-              type: "number",
-              validation: (r) => r.required()
-            }),
-            defineField({
-              name: "z",
-              type: "number",
-              validation: (r) => r.required()
+              name: "replacement",
+              title: "Replacement model",
+              type: "object",
+              description:
+                "A model drawn in this object's place. The original is hidden automatically whenever this is set — no need to also tick Hidden.",
+              options: { collapsible: true, collapsed: true },
+              fields: [
+                defineField({
+                  name: "file",
+                  title: "Model",
+                  type: "file",
+                  description: `GLB dropped in by the Editor's Replace. ${KTX2_NOTE}`,
+                  options: { accept: ".glb,.gltf" },
+                  validation: (r) => r.required()
+                }),
+                defineField({
+                  name: "x",
+                  type: "number",
+                  validation: (r) => r.required()
+                }),
+                defineField({
+                  name: "y",
+                  type: "number",
+                  validation: (r) => r.required()
+                }),
+                defineField({
+                  name: "z",
+                  type: "number",
+                  validation: (r) => r.required()
+                })
+              ]
             })
           ],
           preview: {
-            select: { mesh: "mesh", x: "x", y: "y", z: "z" },
-            prepare: ({ mesh, x, y, z }) => ({
-              title: mesh || "(unnamed mesh)",
-              subtitle: [x, y, z]
-                .map((n: number | undefined) =>
-                  typeof n === "number" ? n.toFixed(3) : "?"
-                )
-                .join(", ")
-            })
+            select: {
+              mesh: "mesh",
+              x: "x",
+              y: "y",
+              z: "z",
+              hidden: "hidden",
+              replacement: "replacement.file.asset"
+            },
+            prepare: ({ mesh, x, y, z, hidden, replacement }) => {
+              const moved = [x, y, z].every((n) => typeof n === "number")
+              const parts = [
+                replacement ? "replaced" : null,
+                hidden && !replacement ? "deleted" : null,
+                moved
+                  ? [x, y, z].map((n: number) => n.toFixed(3)).join(", ")
+                  : null
+              ].filter(Boolean)
+              return {
+                title: mesh || "(unnamed mesh)",
+                subtitle: parts.length > 0 ? parts.join(" · ") : "no change"
+              }
+            }
           }
         })
       ]

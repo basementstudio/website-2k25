@@ -28,10 +28,16 @@ export const SCENE_EDITOR_RESULT = "scene-editor:result"
  * - `status` — no mutation; just asks whether a draft is currently pending, so
  *   the Publish button can enable itself on load.
  */
-export type SceneEditorAction = "save" | "publish" | "status"
+export type SceneEditorAction = "save" | "publish" | "status" | "upload"
+
+export interface MeshReplacement {
+  assetId: string
+  x: number
+  y: number
+  z: number
+}
 
 /**
- * One moved object, flat rather than nested so the array reads in the Studio
  * form and projects in GROQ without an extra object hop.
  *
  * `mesh` is the object's name in the GLB; the position is **world-space**, not
@@ -43,9 +49,11 @@ export type SceneEditorAction = "save" | "publish" | "status"
  */
 export interface MeshOverride {
   mesh: string
-  x: number
-  y: number
-  z: number
+  x?: number
+  y?: number
+  z?: number
+  hidden?: boolean
+  replacement?: MeshReplacement
 }
 
 export interface SceneEditorRequestMessage {
@@ -54,11 +62,19 @@ export interface SceneEditorRequestMessage {
   action: SceneEditorAction
   /** `save` only: the complete override list, not a delta — it's `set` wholesale. */
   overrides?: MeshOverride[]
+  file?: File
 }
+
+export const MAX_UPLOAD_BYTES = 64 * 1024 * 1024
 
 /** Whether the document has draft edits waiting to go live. */
 export interface SceneEditorStatus {
   hasUnpublishedChanges: boolean
+}
+
+export interface UploadedAsset {
+  assetId: string
+  url: string
 }
 
 export interface SceneEditorResultMessage {
@@ -69,6 +85,8 @@ export interface SceneEditorResultMessage {
   error?: string
   /** Sent with every successful result, so the HUD never goes stale. */
   status?: SceneEditorStatus
+  /** `upload` only. */
+  asset?: UploadedAsset
 }
 
 export const isRequestMessage = (
@@ -81,7 +99,8 @@ export const isRequestMessage = (
     typeof message.requestId === "string" &&
     (message.action === "save" ||
       message.action === "publish" ||
-      message.action === "status")
+      message.action === "status" ||
+      message.action === "upload")
   )
 }
 
@@ -102,9 +121,37 @@ export const isResultMessage = (
  * from a degenerate drag would serialize as `null` and come back as a position
  * of 0, teleporting the object to the origin.
  */
-export const isValidOverride = (override: MeshOverride) =>
-  typeof override?.mesh === "string" &&
-  override.mesh.length > 0 &&
-  Number.isFinite(override.x) &&
-  Number.isFinite(override.y) &&
-  Number.isFinite(override.z)
+export const isValidOverride = (override: MeshOverride) => {
+  if (typeof override?.mesh !== "string" || override.mesh.length === 0)
+    return false
+
+  const axes = [override.x, override.y, override.z]
+  const given = axes.filter((n) => n !== undefined)
+  if (given.length !== 0 && given.length !== 3) return false
+  if (!given.every((n) => Number.isFinite(n))) return false
+
+  if (override.hidden !== undefined && typeof override.hidden !== "boolean")
+    return false
+
+  const replacement = override.replacement
+  if (replacement !== undefined) {
+    if (
+      typeof replacement?.assetId !== "string" ||
+      replacement.assetId.length === 0
+    )
+      return false
+    if (
+      ![replacement.x, replacement.y, replacement.z].every((n) =>
+        Number.isFinite(n)
+      )
+    )
+      return false
+  }
+
+  return true
+}
+
+export const isMeaningfulOverride = (override: MeshOverride) =>
+  override.x !== undefined ||
+  override.hidden === true ||
+  override.replacement !== undefined

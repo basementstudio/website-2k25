@@ -8,10 +8,12 @@ import {
   isRequestMessage,
   isValidOverride,
   MAP_ASSETS_DOC_ID,
+  MAX_UPLOAD_BYTES,
   type MeshOverride,
   SCENE_EDITOR_RESULT,
   type SceneEditorResultMessage,
-  type SceneEditorStatus
+  type SceneEditorStatus,
+  type UploadedAsset
 } from "@/lib/scene-editor-bridge"
 
 import { apiVersion } from "../env"
@@ -37,11 +39,29 @@ const stripSystemFields = <T extends Record<string, unknown>>(doc: T) => {
  * mesh name is a natural key: the payload is built from a Map keyed by it, so
  * it's unique by construction, and reusing it keeps an object's entry stable
  * across saves instead of churning a random key each time.
+ *
+ * Fields the payload leaves out are left out here too rather than written as
+ * null: the array is `set` wholesale, so an absent field is how "this object is
+ * no longer hidden / no longer replaced" is expressed.
  */
-const toArrayMember = (override: MeshOverride) => ({
+const toArrayMember = ({ replacement, ...override }: MeshOverride) => ({
   ...override,
   _type: "meshOverride",
-  _key: override.mesh.replace(/[^a-zA-Z0-9_-]/g, "_")
+  _key: override.mesh.replace(/[^a-zA-Z0-9_-]/g, "_"),
+  ...(replacement
+    ? {
+        replacement: {
+          _type: "meshReplacement",
+          file: {
+            _type: "file",
+            asset: { _type: "reference", _ref: replacement.assetId }
+          },
+          x: replacement.x,
+          y: replacement.y,
+          z: replacement.z
+        }
+      }
+    : {})
 })
 
 /**
@@ -121,6 +141,23 @@ export const SceneEditorTool = () => {
     [client]
   )
 
+  const uploadModel = useCallback(
+    async (file: File): Promise<UploadedAsset> => {
+      if (file.size > MAX_UPLOAD_BYTES) {
+        throw new Error(
+          `${file.name} is ${(file.size / 1024 / 1024).toFixed(0)}MB — too heavy to drop into the scene. Compress it (KTX2/Draco) first.`
+        )
+      }
+
+      const asset = await client.assets.upload("file", file, {
+        filename: file.name
+      })
+
+      return { assetId: asset._id, url: asset.url }
+    },
+    [client]
+  )
+
   /**
    * Promote the draft to published — exactly what the Studio's own Publish
    * action does, including the part worth knowing: it publishes *everything* in
@@ -163,7 +200,7 @@ export const SceneEditorTool = () => {
 
       // Destructured up front: the `isRequestMessage` narrowing doesn't survive
       // into the async closure below.
-      const { requestId, action, overrides = [] } = event.data
+      const { requestId, action, overrides = [], file } = event.data
       const source = event.source
 
       const fail = (error: string) =>
@@ -174,15 +211,24 @@ export const SceneEditorTool = () => {
           error
         })
 
-      const succeed = (status: SceneEditorStatus) =>
+      const succeed = ({
+        status,
+        asset
+      }: {
+        status: SceneEditorStatus
+        asset?: UploadedAsset
+      }) =>
         reply(source, {
           type: SCENE_EDITOR_RESULT,
           requestId,
           ok: true,
-          status
+          status,
+          asset
         })
 
       const run = async () => {
+        let asset: UploadedAsset | undefined
+
         if (action === "save") {
           const invalid = overrides.filter((o) => !isValidOverride(o))
           if (invalid.length > 0) {
@@ -193,7 +239,7 @@ export const SceneEditorTool = () => {
           await saveOverrides(overrides)
           toast.push({
             status: "success",
-            title: `Saved ${overrides.length} mesh position${overrides.length === 1 ? "" : "s"}`,
+            title: `Saved ${overrides.length} mesh override${overrides.length === 1 ? "" : "s"}`,
             description: "Draft only — hit Publish to put it on the live site."
           })
         } else if (action === "publish") {
@@ -201,10 +247,16 @@ export const SceneEditorTool = () => {
           toast.push({
             status: "success",
             title: "Published Map Assets Config",
-            description: "The mesh positions are live."
+            description: "The mesh overrides are live."
           })
+        } else if (action === "upload") {
+          if (!(file instanceof File)) {
+            throw new Error("No file came through — try picking it again.")
+          }
+          asset = await uploadModel(file)
         }
-        return readStatus()
+
+        return { status: await readStatus(), asset }
       }
 
       run().then(succeed, (error: unknown) => {
@@ -215,7 +267,12 @@ export const SceneEditorTool = () => {
         if (action !== "status") {
           toast.push({
             status: "error",
-            title: action === "save" ? "Couldn't save" : "Couldn't publish",
+            title:
+              action === "save"
+                ? "Couldn't save"
+                : action === "publish"
+                  ? "Couldn't publish"
+                  : "Couldn't upload the model",
             description
           })
         }
@@ -224,7 +281,7 @@ export const SceneEditorTool = () => {
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [publishDraft, readStatus, saveOverrides, toast])
+  }, [publishDraft, readStatus, saveOverrides, toast, uploadModel])
 
   return (
     <div
