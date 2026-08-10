@@ -22,6 +22,7 @@ import { videoEmbed } from "./objects/videoEmbed"
 import { companyInfo } from "./singletons/companyInfo"
 import { homepage } from "./singletons/homepage"
 import { inspectablesConfig } from "./singletons/inspectablesConfig"
+import { mapAssetsConfig } from "./singletons/mapAssetsConfig"
 import { peoplePage } from "./singletons/peoplePage"
 import { physicsConfig } from "./singletons/physicsConfig"
 import { scenesConfig } from "./singletons/scenesConfig"
@@ -48,6 +49,7 @@ export const schemaTypes = [
   companyInfo,
   homepage,
   inspectablesConfig,
+  mapAssetsConfig,
   peoplePage,
   physicsConfig,
   scenesConfig,

@@ -44,7 +44,8 @@ const singletonTypes = new Set([
   "showcasePage",
   "inspectablesConfig",
   "scenesConfig",
-  "physicsConfig"
+  "physicsConfig",
+  "mapAssetsConfig"
 ])
 
 const singletonActions = new Set(["publish", "discardChanges", "restore"])
@@ -206,7 +207,6 @@ function structure(S: StructureBuilder) {
       S.divider(),
 
       // --- 3D Config ---
-      // Binary files live in public/3d/; only editable content is here.
       S.listItem()
         .title("3D Config")
         .icon(CubeIcon)
@@ -214,6 +214,15 @@ function structure(S: StructureBuilder) {
           S.list()
             .title("3D Config")
             .items([
+              S.listItem()
+                .title("Map Assets")
+                .id("mapAssetsConfig")
+                .icon(CubeIcon)
+                .child(
+                  S.document()
+                    .schemaType("mapAssetsConfig")
+                    .documentId("mapAssetsConfig")
+                ),
               S.listItem()
                 .title("Inspectables")
                 .id("inspectablesConfig")

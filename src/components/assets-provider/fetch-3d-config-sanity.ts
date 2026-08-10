@@ -65,11 +65,29 @@ interface SanityPhysicsConfig {
   physicsParams?: SanityPhysicsParam[]
 }
 
+export interface SanityMapAssetsConfig {
+  office?: string | null
+  officeItems?: string | null
+  officeWireframe?: string | null
+  outdoor?: string | null
+  outdoorCars?: string | null
+  godrays?: string | null
+  routingElements?: string | null
+  basketball?: string | null
+  basketballNet?: string | null
+  contactPhone?: string | null
+  mapTextures?: {
+    rain?: string | null
+    basketballVa?: string | null
+  } | null
+}
+
 export interface SanityThreeDConfigResult {
   // Sub-queries return null when the singleton doesn't exist; consumers must coalesce.
   inspectables: SanityInspectableContent[] | null
   scenes: SanitySceneConfig[] | null
   physics: SanityPhysicsConfig | null
+  mapAssets: SanityMapAssetsConfig | null
 }
 
 // ---------------------------------------------------------------------------
@@ -119,6 +137,22 @@ const threeDConfigQuery = /* groq */ `{
     physicsParams[] {
       title,
       value
+    }
+  },
+  "mapAssets": *[_type == "mapAssetsConfig"][0] {
+    "office": office.asset->url,
+    "officeItems": officeItems.asset->url,
+    "officeWireframe": officeWireframe.asset->url,
+    "outdoor": outdoor.asset->url,
+    "outdoorCars": outdoorCars.asset->url,
+    "godrays": godrays.asset->url,
+    "routingElements": routingElements.asset->url,
+    "basketball": basketball.asset->url,
+    "basketballNet": basketballNet.asset->url,
+    "contactPhone": contactPhone.asset->url,
+    "mapTextures": {
+      "rain": mapTextures.rain.asset->url,
+      "basketballVa": mapTextures.basketballVa.asset->url
     }
   }
 }`

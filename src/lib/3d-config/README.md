@@ -9,11 +9,43 @@ Source of truth for everything the 3D canvas needs at runtime: asset URLs, mesh 
 | Binary files (GLB, EXR, JPG, WebP, PNG, MP3, MP4) | `public/3d/<category>/<name>-<hash>.<ext>` | Hand-edited |
 | Asset URLs + mesh name lists | [`asset-manifest.ts`](./asset-manifest.ts) | Hand-edited |
 | Per-inspectable mesh / offsets / fx URL | [`inspectables-meta.ts`](./inspectables-meta.ts) | Hand-edited |
+| **The 10 map models (no local copy)** | Sanity Studio → 3D Config → Map Assets | Editors in Studio |
+| Map texture overrides | Sanity Studio → 3D Config → Map Assets | Editors in Studio |
 | Inspectable title / specs / description (PortableText) | Sanity Studio → 3D Config → Inspectables | Editors in Studio |
 | Scene camera / postprocessing / tab labels | Sanity Studio → 3D Config → Scenes | Editors in Studio |
 | Physics tuning values | Sanity Studio → 3D Config → Physics | Editors in Studio |
 
 On every request, [`fetch-assets-local.ts`](../../components/assets-provider/fetch-assets-local.ts) reads this directory and fetches the Sanity half, then joins them by inspectable `id` to produce the `AssetsResult` object that 25 downstream `useAssets()` consumers read. If a Sanity doc is missing, the affected inspectable renders with empty copy and logs a one-time warning.
+
+## Map models live in Sanity only
+
+The ten map models — `office`, `officeItems`, `officeWireframe`, `outdoor`,
+`outdoorCars`, `godrays`, `routingElements`, `basketball`, `basketballNet`,
+`contactPhone` — were removed from `public/3d/models/` and now come exclusively from
+`mapAssetsConfig` (Studio → **3D Config** → **Map Assets**). Swap one by uploading a
+`.glb` and publishing; no deploy needed.
+
+**There is no fallback.** All ten fields are `required()` in the schema, so the Studio
+blocks publishing with one cleared. If one is empty at runtime anyway — the document
+gets unpublished, or an asset is deleted out from under a reference —
+`resolveMapModels` in [`fetch-assets-local.ts`](../../components/assets-provider/fetch-assets-local.ts)
+throws by field name. That throw happens inside `fetchAssets`' `"use cache"` scope,
+which `(site)/layout.tsx` awaits, so **every route under `(site)` fails, not just the
+canvas.** Recovery is re-uploading the model and publishing.
+
+To restore a local copy, the GLBs are in git history — `git log --diff-filter=D --
+public/3d/models/` finds the deleting commit.
+
+**Mesh names are the contract.** Lightmap bakes, matcaps, inspectables and the
+clickable navigation tabs all reference meshes inside these GLBs *by name*
+(`SM_00_000`, `SM_MrBeast`, …). An upload whose export renamed or restructured meshes
+will load fine and then render wrong — untextured meshes, dead tabs, missing
+inspectables. Nothing validates this; `required()` only checks that a file is present.
+Uploads are also loaded as-is, so a raw export skips KTX2 texture compression and will
+be heavier than the build it replaces.
+
+Map textures (`rain`, `basketballVa`) are still **overrides**: empty means the
+committed file in `public/3d/textures/` is used.
 
 ## Updating
 

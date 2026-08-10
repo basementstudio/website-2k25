@@ -1,12 +1,46 @@
-import { ASSETS_BASE, INSPECTABLES_META } from "@/lib/3d-config/asset-manifest"
+import {
+  ASSETS_BASE,
+  INSPECTABLES_META,
+  MAP_MODEL_KEYS,
+  type MapModelKey
+} from "@/lib/3d-config/asset-manifest"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
+import type { SanityMapAssetsConfig } from "./fetch-3d-config-sanity"
 import { fetchThreeDConfig } from "./fetch-3d-config-sanity"
 import type { AssetsResult } from "./fetch-assets"
 
 // One log per missing inspectable per process — without dedup the warn loop
 // would fire on every request × every missing inspectable, flooding log drains.
 const warnedMissingInspectables = new Set<string>()
+
+const pickUrl = (override: string | null | undefined, fallback: string) =>
+  typeof override === "string" && override.length > 0 ? override : fallback
+
+function resolveMapModels(
+  map: SanityMapAssetsConfig | null
+): Record<MapModelKey, string> {
+  const resolved = {} as Record<MapModelKey, string>
+  const missing: MapModelKey[] = []
+
+  for (const key of MAP_MODEL_KEYS) {
+    const url = map?.[key]
+    if (typeof url === "string" && url.length > 0) resolved[key] = url
+    else missing.push(key)
+  }
+
+  if (missing.length > 0) {
+    throw new Error(
+      `[3d-config] mapAssetsConfig is missing ${missing.length} required map model(s): ${missing.join(", ")}. ` +
+        `These have no local fallback. Fix in Sanity Studio → 3D Config → Map Assets: upload a .glb for each, then publish. ` +
+        (map === null
+          ? "The mapAssetsConfig document is not published at all."
+          : "The document is published but those fields are empty.")
+    )
+  }
+
+  return resolved
+}
 
 /** Joins the repo manifest with Sanity content into one `AssetsResult`. */
 export async function fetchAssetsLocal(): Promise<AssetsResult> {
@@ -87,8 +121,19 @@ export async function fetchAssetsLocal(): Promise<AssetsResult> {
     value: p.value ?? 0
   }))
 
+  const map = config.mapAssets
+
   return {
     ...ASSETS_BASE,
+    ...resolveMapModels(map),
+    mapTextures: {
+      rain: pickUrl(map?.mapTextures?.rain, ASSETS_BASE.mapTextures.rain),
+      basketballVa: pickUrl(
+        map?.mapTextures?.basketballVa,
+        ASSETS_BASE.mapTextures.basketballVa
+      )
+    },
+
     inspectables,
     scenes,
     physicsParams

@@ -7,24 +7,27 @@
 
 import type { AssetsResult } from "@/components/assets-provider/fetch-assets"
 
+export const MAP_MODEL_KEYS = [
+  "office",
+  "officeItems",
+  "officeWireframe",
+  "outdoor",
+  "outdoorCars",
+  "godrays",
+  "routingElements",
+  "basketball",
+  "basketballNet",
+  "contactPhone"
+] as const
+
+export type MapModelKey = (typeof MAP_MODEL_KEYS)[number]
+
 export type AssetsBase = Omit<
   AssetsResult,
-  "inspectables" | "scenes" | "physicsParams"
+  "inspectables" | "scenes" | "physicsParams" | MapModelKey
 >
 
 export const ASSETS_BASE: AssetsBase = {
-  // --- Map models ---
-  officeItems: "/3d/models/officeItems-9a8576ca.glb",
-  office: "/3d/models/office-077b4007.glb",
-  officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
-  outdoor: "/3d/models/outdoor-6ead65cf.glb",
-  godrays: "/3d/models/godrays-f4cbda2b.glb",
-  basketball: "/3d/models/basketball-4a3976f2.glb",
-  basketballNet: "/3d/models/basketballNet-528bd868.glb",
-  contactPhone: "/3d/models/contactPhone-4c98003c.glb",
-  routingElements: "/3d/models/routingElements-dbc4fd71.glb",
-  outdoorCars: "/3d/models/outdoorCars-d9030620.glb",
-
   // --- Map textures ---
   mapTextures: {
     rain: "/3d/textures/mapTextures-rain-d1b1ba0b.jpg",
