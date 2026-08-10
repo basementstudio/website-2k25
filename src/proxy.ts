@@ -19,8 +19,12 @@ export function proxy(request: NextRequest) {
 
   // `skipTrailingSlashRedirect` (next.config.ts) keeps PostHog's trailing-slash
   // requests alive, but it also suppresses Next's own 308 everywhere else —
-  // restore it here. `/ingest/*` isn't in `config.matcher`, so PostHog is unaffected.
-  if (pathname !== "/" && pathname.endsWith("/")) {
+  // restore it here for everything except the PostHog proxy paths.
+  if (
+    pathname !== "/" &&
+    pathname.endsWith("/") &&
+    !pathname.startsWith("/ingest/")
+  ) {
     // Plain URL — `NextURL.clone()` re-adds the trailing slash on `.toString()`.
     const target = new URL(
       pathname.slice(0, -1) + request.nextUrl.search,
@@ -100,13 +104,19 @@ export const config = {
     "/",
     "/index.md",
     "/services",
-    "/services/",
     "/services.md",
     "/people",
-    "/people/",
     "/people.md",
     "/showcase.md",
     // Mobile user-agent redirect (see top of proxy()).
-    "/lab"
+    "/lab",
+    // Remaining page routes, listed only so the trailing-slash 308 above covers
+    // them. Enumerated rather than a catch-all: a catch-all would bill a
+    // middleware invocation on every /3d and /emulators asset request.
+    "/contact",
+    "/basketball",
+    "/doom",
+    "/ai/:path*",
+    "/blog/:path*"
   ]
 }
