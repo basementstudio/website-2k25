@@ -27,6 +27,7 @@ import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { createNotFoundMaterial } from "@/shaders/material-not-found"
 
+import { applyMeshOverrides } from "./apply-mesh-overrides"
 import { BakesLoader } from "./bakes"
 import { extractMeshes } from "./extract-meshes"
 import { useFrameLoop } from "./use-frame-loop"
@@ -56,8 +57,14 @@ const PhysicsWorld = dynamic(
 )
 
 export const Map = memo(() => {
-  const { inspectables, videos, matcaps, glassMaterials, doubleSideElements } =
-    useAssets()
+  const {
+    inspectables,
+    videos,
+    matcaps,
+    glassMaterials,
+    doubleSideElements,
+    meshOverrides
+  } = useAssets()
 
   const {
     office,
@@ -215,6 +222,21 @@ export const Map = memo(() => {
       outdoor.traverse((child) => traverse(child, { FOG: false }))
       outdoorCars.traverse((child) => traverse(child, { FOG: false }))
       godrays.traverse((child) => traverse(child, { GODRAY: true }))
+
+      // Before extractMeshes — it snapshots resting positions into userData,
+      // and those have to come from the overridden transform.
+      applyMeshOverrides(
+        [
+          office,
+          officeItems,
+          outdoor,
+          outdoorCars,
+          godrays,
+          basketballNet,
+          routingElements
+        ],
+        meshOverrides
+      )
 
       extractMeshes({
         office,

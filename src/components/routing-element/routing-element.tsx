@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { memo } from "react"
 import { Mesh, ShaderMaterial } from "three"
 
+import { useInteractionsEnabled } from "@/components/editor/editor-store"
 import { useInspectable } from "@/components/inspectables/context"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
@@ -71,6 +72,7 @@ const RoutingElementComponent = ({
   } = useNavigationStore()
   const { handleNavigation } = useHandleNavigation()
   const { selected } = useInspectable()
+  const interactionsEnabled = useInteractionsEnabled()
 
   const [hover, setHover] = useState(false)
   const meshRef = useRef<Mesh | null>(null)
@@ -257,6 +259,11 @@ const RoutingElementComponent = ({
     routingMaterial.uniforms.borderPadding.value = s
     routingMaterial.uniforms.opacity.value = v
   })
+
+  // Editor "edit" mode: drop the hover outline, the "[go to people]" cursor
+  // label and the click target entirely. Placed after every hook so flipping
+  // the switch can't change hook order.
+  if (!interactionsEnabled) return null
 
   return (
     <>

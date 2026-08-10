@@ -32,6 +32,7 @@ import { resolve } from "./sanity/presentation/resolve"
 import { schemaTypes } from "./sanity/schemas"
 import { CollectionPane } from "./sanity/studio/collection-pane"
 import { createConfirmPublishAction } from "./sanity/studio/confirm-publish-action"
+import { SceneEditorTool } from "./sanity/studio/scene-editor-tool"
 
 const isProd = process.env.NODE_ENV === "production"
 
@@ -279,6 +280,18 @@ export default defineConfig({
     muxInput(),
     media(),
     visionTool()
+  ],
+  // Composable form (not a bare array) so the tools contributed by the plugins
+  // above — Structure, Preview, Media, Vision — are preserved rather than
+  // replaced.
+  tools: (prev) => [
+    ...prev,
+    {
+      name: "editor",
+      title: "Editor",
+      icon: CubeIcon,
+      component: SceneEditorTool
+    }
   ],
   schema: {
     types: schemaTypes,

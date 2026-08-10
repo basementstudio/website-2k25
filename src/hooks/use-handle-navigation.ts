@@ -2,6 +2,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
+import { useEditorStore } from "@/components/editor/editor-store"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { TRANSITION_DURATION } from "@/constants/transitions"
@@ -67,6 +68,18 @@ export const useHandleNavigation = () => {
     (route: string, fromMobileNav?: boolean) => {
       if (route === pathname) return
 
+      // In the Studio's Editor tool the canvas lives on its own route
+      // (/studio-scene), outside the (site) group. A real router.push() from
+      // there unmounts the WebGL tree, which does not survive a remount — it
+      // comes back black (same constraint that makes ModeToggle use plain
+      // anchors). So swap the scene in place and never navigate. This covers
+      // every caller: routing elements, keyboard tabs, the contact form.
+      if (useEditorStore.getState().isEditor) {
+        const editorScene = getScene(route)
+        if (editorScene) setCurrentScene(editorScene)
+        return
+      }
+
       const isContactOpen = useContactStore.getState().isContactOpen
       const isContactAnimating = useContactStore.getState().isAnimating
       const isContactClosingCompleted =
@@ -97,7 +110,8 @@ export const useHandleNavigation = () => {
       setCurrentScene,
       scenes,
       setDisableCameraTransition,
-      canvasErrorBoundaryTriggered
+      canvasErrorBoundaryTriggered,
+      getScene
     ]
   )
 

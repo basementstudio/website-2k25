@@ -2,7 +2,9 @@ import type { MetadataRoute } from "next"
 
 const SITE_URL = "https://basement.studio"
 
-const DISALLOW = ["/api/", "/studio", "/studio/"]
+// /studio-scene is the bare canvas host embedded by the Studio's Editor tool —
+// a real public route, but not a page anyone should land on from search.
+const DISALLOW = ["/api/", "/studio", "/studio/", "/studio-scene"]
 
 /**
  * AI crawlers and assistants are explicitly allowed — LLM answer engines are a

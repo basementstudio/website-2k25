@@ -24,7 +24,7 @@ export type MapModelKey = (typeof MAP_MODEL_KEYS)[number]
 
 export type AssetsBase = Omit<
   AssetsResult,
-  "inspectables" | "scenes" | "physicsParams" | MapModelKey
+  "inspectables" | "scenes" | "physicsParams" | "meshOverrides" | MapModelKey
 >
 
 export const ASSETS_BASE: AssetsBase = {

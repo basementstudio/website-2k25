@@ -11,6 +11,7 @@ import { CharacterInstanceConfig } from "@/components/characters/character-insta
 import { CharactersSpawn } from "@/components/characters/characters-spawn"
 import { UpdateCanvasCursor } from "@/components/custom-cursor"
 import { Debug } from "@/components/debug"
+import { EditorPicker } from "@/components/editor/editor-picker"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
@@ -170,6 +171,9 @@ export const Scene = () => {
               sceneChildren={
                 <>
                   <DoomJs />
+                  {/* Inside the Renderer portal on purpose — see EditorPicker.
+                      Self-disables outside the editor's edit mode. */}
+                  <EditorPicker />
                   <Suspense fallback={null}>
                     <Inspectables />
                   </Suspense>

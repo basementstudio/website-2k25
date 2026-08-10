@@ -163,9 +163,30 @@ export interface AssetsResult {
     _title: string
     value: number
   }[]
+  /**
+   * Per-mesh world-space position overrides authored in the Studio's Editor
+   * tool, applied by name to the loaded GLBs.
+   * See components/map/apply-mesh-overrides.ts.
+   */
+  meshOverrides: {
+    mesh: string
+    position: [number, number, number]
+  }[]
 }
 
 export async function fetchAssets(): Promise<AssetsResult> {
   "use cache"
   return fetchAssetsLocal()
+}
+
+/**
+ * Draft-perspective, uncached read for the Studio's Editor tool (/studio-scene).
+ *
+ * Deliberately outside `"use cache"`: the editor is a preview of work that
+ * hasn't been published, so a stale hit would show the wrong scene, and the
+ * draft read can't register Live cache tags anyway. Its only caller is an
+ * unindexed, editor-only route, so the extra request per load is free.
+ */
+export async function fetchAssetsPreview(): Promise<AssetsResult> {
+  return fetchAssetsLocal({ perspective: "drafts" })
 }

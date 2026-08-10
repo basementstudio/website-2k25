@@ -7,7 +7,10 @@ import {
 import type { PortableTextBlock } from "@/service/sanity/types"
 
 import type { SanityMapAssetsConfig } from "./fetch-3d-config-sanity"
-import { fetchThreeDConfig } from "./fetch-3d-config-sanity"
+import {
+  fetchThreeDConfig,
+  fetchThreeDConfigDrafts
+} from "./fetch-3d-config-sanity"
 import type { AssetsResult } from "./fetch-assets"
 
 // One log per missing inspectable per process — without dedup the warn loop
@@ -42,9 +45,19 @@ function resolveMapModels(
   return resolved
 }
 
-/** Joins the repo manifest with Sanity content into one `AssetsResult`. */
-export async function fetchAssetsLocal(): Promise<AssetsResult> {
-  const config = await fetchThreeDConfig()
+/**
+ * Joins the repo manifest with Sanity content into one `AssetsResult`.
+ *
+ * `drafts` is for the Studio's Editor tool only — it saves to the draft, so it
+ * has to preview the draft. Everything else reads published.
+ */
+export async function fetchAssetsLocal({
+  perspective = "published"
+}: { perspective?: "published" | "drafts" } = {}): Promise<AssetsResult> {
+  const config =
+    perspective === "drafts"
+      ? await fetchThreeDConfigDrafts()
+      : await fetchThreeDConfig()
 
   const inspectableContentById = new Map(
     (config.inspectables ?? []).map((c) => [c.inspectableId ?? "", c])
@@ -123,6 +136,20 @@ export async function fetchAssetsLocal(): Promise<AssetsResult> {
 
   const map = config.mapAssets
 
+  // Drop anything half-written rather than letting a null coalesce to 0 — a
+  // zeroed axis would drag the object to its parent's origin on the live site,
+  // which is far more visible than the override simply not applying.
+  const meshOverrides = (map?.meshOverrides ?? []).flatMap((o) => {
+    const { mesh, x, y, z } = o
+    if (!mesh || ![x, y, z].every((n) => typeof n === "number")) {
+      console.warn(
+        `[3d-config] skipping incomplete mesh override ${JSON.stringify(o)}`
+      )
+      return []
+    }
+    return [{ mesh, position: [x, y, z] as [number, number, number] }]
+  })
+
   return {
     ...ASSETS_BASE,
     ...resolveMapModels(map),
@@ -136,6 +163,7 @@ export async function fetchAssetsLocal(): Promise<AssetsResult> {
 
     inspectables,
     scenes,
-    physicsParams
+    physicsParams,
+    meshOverrides
   }
 }

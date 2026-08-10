@@ -17,6 +17,7 @@ import {
   Vector3
 } from "three"
 
+import { useInteractionsEnabled } from "@/components/editor/editor-store"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
 import { useMesh } from "@/hooks/use-mesh"
@@ -38,6 +39,7 @@ export const Inspectable = memo(function InspectableInner({
   id
 }: InspectableProps) {
   const setCursor = useCursor()
+  const interactionsEnabled = useInteractionsEnabled()
 
   const [meshData, setMeshData] = useState<{
     mesh: Mesh
@@ -290,23 +292,38 @@ export const Inspectable = memo(function InspectableInner({
   return (
     <group
       ref={ref}
-      onClick={(e) => {
-        if ((selected && selected !== id) || !isActive) {
-          e.stopPropagation()
-          return
-        }
-        setCursor("grab")
-        handleSelection()
-      }}
-      onPointerEnter={() => {
-        if ((selected && selected !== id) || !isActive) return
-        if (!selected) setCursor("zoom-in")
-        else if (selected === id) setCursor("grab")
-      }}
-      onPointerLeave={() => {
-        if ((selected && selected !== id) || !isActive) return
-        if (!selected) setCursor("default")
-      }}
+      // Editor "edit" mode: the object still renders, it just isn't pickable —
+      // no handlers, and the invisible hit box below is omitted so a raycast
+      // finds nothing here at all.
+      onClick={
+        interactionsEnabled
+          ? (e) => {
+              if ((selected && selected !== id) || !isActive) {
+                e.stopPropagation()
+                return
+              }
+              setCursor("grab")
+              handleSelection()
+            }
+          : undefined
+      }
+      onPointerEnter={
+        interactionsEnabled
+          ? () => {
+              if ((selected && selected !== id) || !isActive) return
+              if (!selected) setCursor("zoom-in")
+              else if (selected === id) setCursor("grab")
+            }
+          : undefined
+      }
+      onPointerLeave={
+        interactionsEnabled
+          ? () => {
+              if ((selected && selected !== id) || !isActive) return
+              if (!selected) setCursor("default")
+            }
+          : undefined
+      }
     >
       <InspectableDragger
         key={id}
@@ -318,15 +335,17 @@ export const Inspectable = memo(function InspectableInner({
         domElement={document.querySelector("#canvas canvas") as HTMLElement}
       >
         <primitive object={mesh} raycast={() => null} />
-        <mesh
-          position={[...offsetedBoundingBox]}
-          rotation={[mesh.rotation.x, mesh.rotation.y, mesh.rotation.z]}
-        >
-          <boxGeometry
-            args={[size.current.x, size.current.y, size.current.z]}
-          />
-          <MeshDiscardMaterial />
-        </mesh>
+        {interactionsEnabled && (
+          <mesh
+            position={[...offsetedBoundingBox]}
+            rotation={[mesh.rotation.x, mesh.rotation.y, mesh.rotation.z]}
+          >
+            <boxGeometry
+              args={[size.current.x, size.current.y, size.current.z]}
+            />
+            <MeshDiscardMaterial />
+          </mesh>
+        )}
       </InspectableDragger>
     </group>
   )

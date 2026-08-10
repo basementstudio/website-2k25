@@ -1,4 +1,4 @@
-import { defineField, defineType } from "sanity"
+import { defineArrayMember, defineField, defineType } from "sanity"
 
 // The model fields here are the ONLY source for the map geometry — the local
 // GLBs were removed from public/3d/, so there is no fallback. Every model field
@@ -108,6 +108,60 @@ export const mapAssetsConfig = defineType({
           type: "file",
           description: "Basketball vertex-animation texture (EXR).",
           options: { accept: ".exr" }
+        })
+      ]
+    }),
+
+    // --- Mesh position overrides ---
+    defineField({
+      name: "meshOverrides",
+      title: "Mesh Position Overrides",
+      type: "array",
+      description:
+        "Written by the Editor tool: move an object with the gizmo, hit Save, and it lands here. " +
+        "The site applies each entry to every object with that name after the GLBs load, so an " +
+        "override survives a model re-upload as long as the mesh keeps its name. " +
+        "Coordinates are world-space, in the GLB's units. " +
+        "Delete an entry to put that object back where the model exports it.",
+      of: [
+        defineArrayMember({
+          name: "meshOverride",
+          title: "Mesh Override",
+          type: "object",
+          fields: [
+            defineField({
+              name: "mesh",
+              title: "Mesh name",
+              type: "string",
+              validation: (r) => r.required()
+            }),
+            defineField({
+              name: "x",
+              type: "number",
+              validation: (r) => r.required()
+            }),
+            defineField({
+              name: "y",
+              type: "number",
+              validation: (r) => r.required()
+            }),
+            defineField({
+              name: "z",
+              type: "number",
+              validation: (r) => r.required()
+            })
+          ],
+          preview: {
+            select: { mesh: "mesh", x: "x", y: "y", z: "z" },
+            prepare: ({ mesh, x, y, z }) => ({
+              title: mesh || "(unnamed mesh)",
+              subtitle: [x, y, z]
+                .map((n: number | undefined) =>
+                  typeof n === "number" ? n.toFixed(3) : "?"
+                )
+                .join(", ")
+            })
+          }
         })
       ]
     })
