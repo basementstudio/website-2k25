@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import {
   fetchOpenPositions,
-  fetchPeople,
+  fetchPeopleForMarkdown,
   fetchPeoplePage
 } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { SITE_URL } from "@/lib/constants"
@@ -14,14 +14,24 @@ const MD_HEADERS = {
   "X-Content-Type-Options": "nosniff"
 } as const
 
-// Same department whitelist the HTML crew page renders (see crew.tsx)
+// Same department whitelist and order the HTML crew page renders (see crew.tsx)
 const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
+
+// CMS strings land inside `[label](url)` syntax — escape the delimiters so a
+// bracketed label or a parenthesized URL can't break the link.
+const escapeLinkLabel = (text: string) => text.replace(/[\\[\]]/g, "\\$&")
+const escapeLinkUrl = (url: string) =>
+  url.replace(/\(/g, "%28").replace(/\)/g, "%29")
+
+// The CMS platform field still says "Twitter"; the site brands it 𝕏.
+const displayPlatform = (platform: string) =>
+  /twitter|^x$/i.test(platform) ? "𝕏" : platform
 
 export async function GET() {
   try {
     const [page, people, positions] = await Promise.all([
       fetchPeoplePage({ published: true }),
-      fetchPeople({ published: true }),
+      fetchPeopleForMarkdown({ published: true }),
       fetchOpenPositions({ published: true })
     ])
 
@@ -38,29 +48,47 @@ export async function GET() {
         CREW_DEPARTMENTS.includes(person.department.title)
     )
 
-    const team = crew.length
-      ? crew
-          .map((person) => {
-            const detail = [person.role, person.department?.title]
-              .filter(Boolean)
-              .join(", ")
-            return detail
-              ? `- **${person.title}** — ${detail}`
-              : `- **${person.title}**`
-          })
-          .join("\n")
-      : null
+    // Grouped under department sub-headings to mirror crew.tsx.
+    const teamSections = CREW_DEPARTMENTS.map((dept) => {
+      const deptPeople = crew.filter(
+        (person) => person.department?.title === dept
+      )
+      if (!deptPeople.length) return null
 
+      const lines = deptPeople
+        .map((person) => {
+          const socials = person.socialNetworks?.length
+            ? person.socialNetworks
+                .map(
+                  (s) =>
+                    ` — [${escapeLinkLabel(displayPlatform(s.platform))}](${escapeLinkUrl(s.url)})`
+                )
+                .join("")
+            : ""
+          const base = person.role
+            ? `- **${person.title}** — ${person.role}`
+            : `- **${person.title}**`
+          return `${base}${socials}`
+        })
+        .join("\n")
+
+      return [`### ${dept}`, "", lines].join("\n")
+    }).filter((section): section is string => section !== null)
+
+    const team = teamSections.length ? teamSections.join("\n\n") : null
+
+    // Closed roles are dropped — /careers/[slug].md 404s on them, so
+    // linking one would be a dead link.
     const openPositions = positions.filter((p) => p.isOpen)
     const openPositionsList = openPositions.length
       ? openPositions
           .map((p) => {
             const detail = [p.type, p.location].filter(Boolean).join(", ")
-            const link = `[${p.title}](${SITE_URL}/careers/${p.slug}.md)`
+            const link = `[${escapeLinkLabel(p.title)}](${SITE_URL}/careers/${p.slug}.md)`
             return detail ? `- ${link} — ${detail}` : `- ${link}`
           })
           .join("\n")
-      : null
+      : "none currently open"
 
     const parts: Array<string | null> = [
       `# ${page.title || "People"}`,
@@ -78,9 +106,9 @@ export async function GET() {
       portableTextToMarkdown(page.preOpenPositionsText, {
         baseUrl: SITE_URL
       }) || null,
-      openPositionsList ? "" : null,
-      openPositionsList ? "## Open Positions" : null,
-      openPositionsList ? "" : null,
+      "",
+      "## Open Positions",
+      "",
       openPositionsList,
       "",
       "---",
@@ -90,7 +118,12 @@ export async function GET() {
 
     const markdown = parts.filter((part) => part !== null).join("\n")
 
-    return new NextResponse(markdown, { headers: MD_HEADERS })
+    return new NextResponse(markdown, {
+      headers: {
+        ...MD_HEADERS,
+        Link: `<${SITE_URL}/people>; rel="canonical"`
+      }
+    })
   } catch (error) {
     console.error("Error building people markdown:", error)
     return new NextResponse("# 500 Error\n\nFailed to build markdown.", {

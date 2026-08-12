@@ -4,7 +4,9 @@ import { toPlainText } from "next-sanity"
 import {
   fetchCategoriesNonEmpty,
   fetchFeaturedPost,
-  fetchPosts
+  fetchPostCount,
+  fetchPostsForArchive,
+  type PostArchiveEntry
 } from "@/app/(site)/(canvas)/(content)/blog/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
 import { truncateDescription } from "@/utils/seo"
@@ -18,17 +20,27 @@ export const metadata: Metadata = {
 }
 
 const MachineBlogPage = async () => {
-  const [featuredPost, { posts, total }, categories] = await Promise.all([
+  const [featuredPost, posts, total, categories] = await Promise.all([
     fetchFeaturedPost(),
-    fetchPosts(),
+    fetchPostsForArchive(),
+    fetchPostCount(),
     fetchCategoriesNonEmpty()
   ])
 
-  // The no-category posts query intentionally skips the newest post (the blog
-  // renders it separately as featured) — merge it back in here.
-  const allPosts = [featuredPost, ...posts].filter(
-    (post): post is NonNullable<typeof post> => post !== null
-  )
+  // fetchPostsForArchive skips the newest post (rendered separately as
+  // featured) — merge it back in here.
+  const allPosts: PostArchiveEntry[] = [
+    featuredPost
+      ? {
+          _id: featuredPost._id,
+          title: featuredPost.title,
+          slug: featuredPost.slug,
+          date: featuredPost.date,
+          categories: featuredPost.categories
+        }
+      : null,
+    ...posts
+  ].filter((post): post is PostArchiveEntry => post !== null)
 
   const excerpt = featuredPost?.intro?.length
     ? truncateDescription(toPlainText(featuredPost.intro))
