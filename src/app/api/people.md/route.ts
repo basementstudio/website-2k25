@@ -17,6 +17,16 @@ const MD_HEADERS = {
 // Same department whitelist and order the HTML crew page renders (see crew.tsx)
 const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
 
+// CMS strings land inside `[label](url)` syntax — escape the delimiters so a
+// bracketed label or a parenthesized URL can't break the link.
+const escapeLinkLabel = (text: string) => text.replace(/[\\[\]]/g, "\\$&")
+const escapeLinkUrl = (url: string) =>
+  url.replace(/\(/g, "%28").replace(/\)/g, "%29")
+
+// The CMS platform field still says "Twitter"; the site brands it 𝕏.
+const displayPlatform = (platform: string) =>
+  /twitter|^x$/i.test(platform) ? "𝕏" : platform
+
 export async function GET() {
   try {
     const [page, people, positions] = await Promise.all([
@@ -49,7 +59,10 @@ export async function GET() {
         .map((person) => {
           const socials = person.socialNetworks?.length
             ? person.socialNetworks
-                .map((s) => ` — [${s.platform}](${s.url})`)
+                .map(
+                  (s) =>
+                    ` — [${escapeLinkLabel(displayPlatform(s.platform))}](${escapeLinkUrl(s.url)})`
+                )
                 .join("")
             : ""
           const base = person.role
@@ -71,7 +84,7 @@ export async function GET() {
       ? openPositions
           .map((p) => {
             const detail = [p.type, p.location].filter(Boolean).join(", ")
-            const link = `[${p.title}](${SITE_URL}/careers/${p.slug}.md)`
+            const link = `[${escapeLinkLabel(p.title)}](${SITE_URL}/careers/${p.slug}.md)`
             return detail ? `- ${link} — ${detail}` : `- ${link}`
           })
           .join("\n")
