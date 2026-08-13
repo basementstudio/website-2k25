@@ -180,16 +180,29 @@ const nextConfig: NextConfig = {
   }
 }
 
+// Publish only from Vercel builds that have the credential. A stray token in
+// .env.sentry-build-plugin can't flip this on — Next never loads that file.
+const canPublishSentryArtifacts =
+  process.env.VERCEL === "1" && Boolean(process.env.SENTRY_AUTH_TOKEN)
+
+// Disabling sourcemaps also silences the plugin's own missing-token warning,
+// so say it here — otherwise an unprovisioned deploy looks identical to a good one.
+if (process.env.VERCEL === "1" && !canPublishSentryArtifacts) {
+  console.warn(
+    "[sentry] SENTRY_AUTH_TOKEN is not set — skipping sourcemap upload and release creation. Production stack traces will be minified."
+  )
+}
+
 export default withSentryConfig(nextConfig, {
   org: "basementstudio-be",
   project: "website-2k25",
-  silent: !process.env.CI,
+  // Quiet locally, but never on Vercel: a missing token has to stay visible.
+  silent: !process.env.VERCEL,
   widenClientFileUpload: true,
-  // CI-gated: the plugin auto-loads SENTRY_AUTH_TOKEN from .env files. Leaving
-  // `productionBrowserSourceMaps` unset lets the SDK turn maps on and delete
-  // them after upload, so they never ship.
-  sourcemaps: { disable: !process.env.CI },
-  release: { create: Boolean(process.env.CI) },
+  // Leaving `productionBrowserSourceMaps` unset lets the SDK turn maps on and
+  // delete them after upload, so they never ship.
+  sourcemaps: { disable: !canPublishSentryArtifacts },
+  release: { create: canPublishSentryArtifacts },
   // Both only feed tracing, which is off.
   routeManifestInjection: false,
   suppressOnRouterTransitionStartWarning: true
