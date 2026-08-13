@@ -14,6 +14,10 @@ export function register() {
     enabled: process.env.NODE_ENV === "production",
     tracesSampleRate:
       environment === "production" ? 0.05 : environment === "preview" ? 1 : 0,
+    // Console breadcrumbs carry raw console arguments, and the actions log
+    // applicant email and salary there. Vercel's logs already have them.
+    integrations: (defaults) =>
+      defaults.filter(({ name }) => name !== "Console"),
     beforeSend(event) {
       if (event.message) event.message = event.message.replace(EMAIL, "[email]")
       for (const exception of event.exception?.values ?? []) {
