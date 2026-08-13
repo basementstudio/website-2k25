@@ -84,10 +84,7 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
   }, [fadeEnabled])
 
   const rememberMachineEntry = () => {
-    // Only fires from the human tree, where <Analytics /> is mounted — the
-    // machine view deliberately loads no analytics, so the reverse direction
-    // and machine pageviews stay invisible. The beacon uses `keepalive`, so it
-    // survives the full-document navigation this anchor triggers.
+    // Human tree only — the machine view mounts no analytics.
     track("machine_mode_entered", { from: pathname || "/" })
 
     try {

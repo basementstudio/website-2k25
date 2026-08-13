@@ -181,16 +181,13 @@ const nextConfig: NextConfig = {
   }
 }
 
-// Sourcemap upload runs inside `next build` — a post-build step can't work,
-// since Vercel's build adapter moves the output out of .next (see vercel.sh).
 export default withSentryConfig(nextConfig, {
   org: "basementstudio-be",
   project: "website-2k25",
   silent: !process.env.CI,
-  // Symbolicate frames from three.js and Next internals too, not just our code.
   widenClientFileUpload: true,
-  // CI-only (Vercel sets CI=1). The plugin auto-loads SENTRY_AUTH_TOKEN from
-  // .env files, so without this a dev machine would push releases and maps.
+  // CI-gated: the plugin auto-loads SENTRY_AUTH_TOKEN from .env files, so a
+  // dev machine would otherwise push releases and maps.
   sourcemaps: { disable: !process.env.CI },
   release: { create: Boolean(process.env.CI) }
 })
