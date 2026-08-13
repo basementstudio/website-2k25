@@ -1,5 +1,7 @@
 import * as Sentry from "@sentry/nextjs"
 
+import { resolveTracesSampleRate } from "@/lib/sentry-sampling"
+
 const environment = process.env.VERCEL_ENV ?? "development"
 
 // Upstream services echo submitted addresses back in their error text — e.g.
@@ -12,8 +14,10 @@ export function register() {
     dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
     environment,
     enabled: process.env.NODE_ENV === "production",
-    tracesSampleRate:
-      environment === "production" ? 0.05 : environment === "preview" ? 1 : 0,
+    tracesSampleRate: resolveTracesSampleRate(
+      environment,
+      process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE
+    ),
     // Console breadcrumbs carry raw console arguments, and the actions log
     // applicant email and salary there. Vercel's logs already have them.
     integrations: (defaults) =>
