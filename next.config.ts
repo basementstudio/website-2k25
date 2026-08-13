@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs"
 import type { NextConfig } from "next"
 import { sanity } from "next-sanity/live/cache-life"
 
@@ -50,26 +51,6 @@ const nextConfig: NextConfig = {
       }
     ]
   },
-
-  async rewrites() {
-    return [
-      {
-        source: "/ingest/static/:path*",
-        destination: "https://us-assets.i.posthog.com/static/:path*"
-      },
-      {
-        source: "/ingest/:path*",
-        destination: "https://us.i.posthog.com/:path*"
-      },
-      {
-        source: "/ingest/decide",
-        destination: "https://us.i.posthog.com/decide"
-      }
-    ]
-  },
-
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
 
   async redirects() {
     return [
@@ -200,4 +181,13 @@ const nextConfig: NextConfig = {
   }
 }
 
-export default nextConfig
+// Sourcemap upload runs inside `next build` — a post-build step can't work,
+// since Vercel's build adapter moves the output out of .next (see vercel.sh).
+// It only runs when SENTRY_AUTH_TOKEN is set, so local builds are unaffected.
+export default withSentryConfig(nextConfig, {
+  org: "basementstudio-be",
+  project: "website-2k25",
+  silent: !process.env.CI,
+  // Symbolicate frames from three.js and Next internals too, not just our code.
+  widenClientFileUpload: true
+})

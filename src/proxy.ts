@@ -17,22 +17,6 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const accept = request.headers.get("accept") ?? ""
 
-  // `skipTrailingSlashRedirect` (next.config.ts) keeps PostHog's trailing-slash
-  // requests alive, but it also suppresses Next's own 308 everywhere else —
-  // restore it here for everything except the PostHog proxy paths.
-  if (
-    pathname !== "/" &&
-    pathname.endsWith("/") &&
-    !pathname.startsWith("/ingest/")
-  ) {
-    // Plain URL — `NextURL.clone()` re-adds the trailing slash on `.toString()`.
-    const target = new URL(
-      pathname.slice(0, -1) + request.nextUrl.search,
-      request.url
-    )
-    return NextResponse.redirect(target, 308)
-  }
-
   // Mobile visitors to /lab go to the lightweight external lab (the WebGL
   // arcade is desktop-only). Done here so the /lab page stays prerenderable.
   // Crawlers are exempt even with mobile UAs (Googlebot Smartphone, site
