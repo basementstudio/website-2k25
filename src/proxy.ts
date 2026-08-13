@@ -93,14 +93,6 @@ export const config = {
     "/people.md",
     "/showcase.md",
     // Mobile user-agent redirect (see top of proxy()).
-    "/lab",
-    // Remaining page routes, listed only so the trailing-slash 308 above covers
-    // them. Enumerated rather than a catch-all: a catch-all would bill a
-    // middleware invocation on every /3d and /emulators asset request.
-    "/contact",
-    "/basketball",
-    "/doom",
-    "/ai/:path*",
-    "/blog/:path*"
+    "/lab"
   ]
 }
