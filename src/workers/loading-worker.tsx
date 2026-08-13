@@ -2,6 +2,7 @@ import { render } from "@react-three/offscreen"
 import { Vector3 } from "three"
 
 import LoadingScene from "@/components/loading/loading-scene"
+import { postWorkerError } from "@/lib/worker-error"
 
 export type LoadingWorkerMessageEvent = MessageEvent<{
   type: string
@@ -29,4 +30,5 @@ self.addEventListener("error", (error) => {
 
 self.addEventListener("messageerror", (error) => {
   console.error("[LoadingWorker] Message error:", error)
+  postWorkerError(new Error("[LoadingWorker] Could not deserialize message"))
 })
