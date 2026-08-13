@@ -1,9 +1,9 @@
+import { withSentryConfig } from "@sentry/nextjs"
 import type { NextConfig } from "next"
 import { sanity } from "next-sanity/live/cache-life"
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  productionBrowserSourceMaps: true,
   cacheComponents: true,
   // Sanity Live handles on-demand revalidation, so override the 15-min default.
   cacheLife: {
@@ -50,26 +50,6 @@ const nextConfig: NextConfig = {
       }
     ]
   },
-
-  async rewrites() {
-    return [
-      {
-        source: "/ingest/static/:path*",
-        destination: "https://us-assets.i.posthog.com/static/:path*"
-      },
-      {
-        source: "/ingest/:path*",
-        destination: "https://us.i.posthog.com/:path*"
-      },
-      {
-        source: "/ingest/decide",
-        destination: "https://us.i.posthog.com/decide"
-      }
-    ]
-  },
-
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
 
   async redirects() {
     return [
@@ -200,4 +180,25 @@ const nextConfig: NextConfig = {
   }
 }
 
-export default nextConfig
+// Not the token alone: a dev machine can have one in .env.sentry-build-plugin.
+const canPublishSentryArtifacts =
+  process.env.VERCEL === "1" && Boolean(process.env.SENTRY_AUTH_TOKEN)
+
+// Disabling sourcemaps also silences the plugin's own missing-token warning.
+// Production only: preview is expected to run without the token.
+if (process.env.VERCEL_ENV === "production" && !canPublishSentryArtifacts) {
+  console.warn(
+    "[sentry] SENTRY_AUTH_TOKEN is not set — skipping sourcemap upload and release creation. Production stack traces will be minified."
+  )
+}
+
+export default withSentryConfig(nextConfig, {
+  org: "basementstudio-be",
+  project: "website-2k25",
+  silent: !process.env.VERCEL,
+  widenClientFileUpload: true,
+  // `productionBrowserSourceMaps` stays unset so the SDK enables maps and
+  // deletes them after upload.
+  sourcemaps: { disable: !canPublishSentryArtifacts },
+  release: { create: canPublishSentryArtifacts }
+})

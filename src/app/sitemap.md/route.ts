@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
 import { fetchAllOpenPositionsForIndex } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
@@ -64,6 +65,7 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Error building markdown sitemap:", error)
+    Sentry.captureException(error)
     return new NextResponse("# 500 Error\n\nFailed to build content index.", {
       status: 500,
       headers: MD_HEADERS
