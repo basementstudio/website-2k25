@@ -1,5 +1,6 @@
 "use client"
 
+import { track } from "@vercel/analytics"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -83,6 +84,12 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
   }, [fadeEnabled])
 
   const rememberMachineEntry = () => {
+    // Only fires from the human tree, where <Analytics /> is mounted — the
+    // machine view deliberately loads no analytics, so the reverse direction
+    // and machine pageviews stay invisible. The beacon uses `keepalive`, so it
+    // survives the full-document navigation this anchor triggers.
+    track("machine_mode_entered", { from: pathname || "/" })
+
     try {
       sessionStorage.setItem(MACHINE_ENTRY_KEY, machineHref)
     } catch {
