@@ -185,7 +185,8 @@ const canPublishSentryArtifacts =
   process.env.VERCEL === "1" && Boolean(process.env.SENTRY_AUTH_TOKEN)
 
 // Disabling sourcemaps also silences the plugin's own missing-token warning.
-if (process.env.VERCEL === "1" && !canPublishSentryArtifacts) {
+// Production only: preview is expected to run without the token.
+if (process.env.VERCEL_ENV === "production" && !canPublishSentryArtifacts) {
   console.warn(
     "[sentry] SENTRY_AUTH_TOKEN is not set — skipping sourcemap upload and release creation. Production stack traces will be minified."
   )
