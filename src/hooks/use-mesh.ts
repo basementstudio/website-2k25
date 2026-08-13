@@ -39,6 +39,7 @@ export interface MeshStore {
   services: services
   cars: (Mesh | null)[]
   cctv: { screen: Mesh | null }
+  mapMaterialsReady: boolean
 }
 
 export const useMesh = create<MeshStore>()(() => ({
@@ -70,5 +71,6 @@ export const useMesh = create<MeshStore>()(() => ({
   cars: [],
   cctv: {
     screen: null
-  }
+  },
+  mapMaterialsReady: false
 }))

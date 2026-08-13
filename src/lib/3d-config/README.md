@@ -9,7 +9,7 @@ Source of truth for everything the 3D canvas needs at runtime: asset URLs, mesh 
 | Binary files (GLB, EXR, JPG, WebP, PNG, MP3, MP4) | `public/3d/<category>/<name>-<hash>.<ext>` | Hand-edited |
 | Asset URLs + mesh name lists | [`asset-manifest.ts`](./asset-manifest.ts) | Hand-edited |
 | Per-inspectable mesh / offsets / fx URL | [`inspectables-meta.ts`](./inspectables-meta.ts) | Hand-edited |
-| **The 10 map models (no local copy)** | Sanity Studio → 3D Config → Map Assets | Editors in Studio |
+| The 10 map models | `public/3d/models/<name>-<hash>.glb` | Hand-edited |
 | Map texture overrides | Sanity Studio → 3D Config → Map Assets | Editors in Studio |
 | Inspectable title / specs / description (PortableText) | Sanity Studio → 3D Config → Inspectables | Editors in Studio |
 | Scene camera / postprocessing / tab labels | Sanity Studio → 3D Config → Scenes | Editors in Studio |
@@ -17,32 +17,80 @@ Source of truth for everything the 3D canvas needs at runtime: asset URLs, mesh 
 
 On every request, [`fetch-assets-local.ts`](../../components/assets-provider/fetch-assets-local.ts) reads this directory and fetches the Sanity half, then joins them by inspectable `id` to produce the `AssetsResult` object that 25 downstream `useAssets()` consumers read. If a Sanity doc is missing, the affected inspectable renders with empty copy and logs a one-time warning.
 
-## Map models live in Sanity only
+## Map models are local
 
 The ten map models — `office`, `officeItems`, `officeWireframe`, `outdoor`,
 `outdoorCars`, `godrays`, `routingElements`, `basketball`, `basketballNet`,
-`contactPhone` — were removed from `public/3d/models/` and now come exclusively from
-`mapAssetsConfig` (Studio → **3D Config** → **Map Assets**). Swap one by uploading a
-`.glb` and publishing; no deploy needed.
+`contactPhone` — live in `public/3d/models/` and are declared in
+[`asset-manifest.ts`](./asset-manifest.ts).
 
-**There is no fallback.** All ten fields are `required()` in the schema, so the Studio
-blocks publishing with one cleared. If one is empty at runtime anyway — the document
-gets unpublished, or an asset is deleted out from under a reference —
-`resolveMapModels` in [`fetch-assets-local.ts`](../../components/assets-provider/fetch-assets-local.ts)
-throws by field name. That throw happens inside `fetchAssets`' `"use cache"` scope,
-which `(site)/layout.tsx` awaits, so **every route under `(site)` fails, not just the
-canvas.** Recovery is re-uploading the model and publishing.
+`mapAssetsConfig` in Sanity still *has* fields for them, but
+[`fetch-assets-local.ts`](../../components/assets-provider/fetch-assets-local.ts)
+**deliberately does not read them.** The local copies are texture-optimised in a
+way the Studio uploads are not (see below), and publishing them would mean
+replacing production CMS assets. Everything else in `mapAssetsConfig` —
+`mapTextures`, `meshOverrides` — is still honoured.
 
-To restore a local copy, the GLBs are in git history — `git log --diff-filter=D --
-public/3d/models/` finds the deleting commit.
+To hand model swaps back to Studio editors, read those fields again in
+`fetchAssetsLocal` and prefer them over `ASSETS_BASE`. Be aware that a raw
+Studio upload skips the optimisation below and will cost far more GPU memory.
 
 **Mesh names are the contract.** Lightmap bakes, matcaps, inspectables and the
 clickable navigation tabs all reference meshes inside these GLBs *by name*
-(`SM_00_000`, `SM_MrBeast`, …). An upload whose export renamed or restructured meshes
+(`SM_00_000`, `SM_MrBeast`, …). A re-export that renamed or restructured meshes
 will load fine and then render wrong — untextured meshes, dead tabs, missing
-inspectables. Nothing validates this; `required()` only checks that a file is present.
-Uploads are also loaded as-is, so a raw export skips KTX2 texture compression and will
-be heavier than the build it replaces.
+inspectables. Nothing validates this.
+
+### Optimising a map model
+
+Raw exports carry PNG/JPEG/WebP textures, which must be fully decompressed in
+GPU memory — a 1024² baseColor map costs 5.59 MB of VRAM (4 MB plus mips). KTX2
+is ~8x cheaper. Before this pass, `officeItems` alone cost 78.6 MB of GPU memory
+while `office`, which was already KTX2, cost 11.6 MB with *more* textures.
+
+Three stages, in order:
+
+```bash
+# 1. gltf-transform cannot decode WebP, and silently skips those textures.
+pnpm tsx scripts/3d-assets/glb-recode-webp.ts in.glb /tmp/s1.glb
+
+# 2. ETC1S. Quality 255 is the max; measured visual impact on this scene was
+#    a mean 0.3-2.0/255 pixel difference, i.e. within animation noise.
+npx @gltf-transform/cli etc1s /tmp/s1.glb /tmp/s2.glb --quality 255 --compression 5
+
+# 3. gltf-transform DECOMPRESSES Draco geometry and does not put it back, so the
+#    file gets bigger unless this runs. High quantisation avoids adding error on
+#    top of the export's own.
+npx @gltf-transform/cli draco /tmp/s2.glb out.glb \
+  --quantize-position 16 --quantize-normal 12 --quantize-texcoord 14
+
+# 4. Hash, then update asset-manifest.ts
+pnpm assets:hash public/3d/models/out.glb
+```
+
+Skipping stage 1 leaves most of the GPU cost in place (13.1 of `outdoor`'s
+14.6 MB was in WebP textures). Skipping stage 3 makes the file *larger* on the
+wire despite the texture savings.
+
+Results of this pass:
+
+| model | wire | VRAM |
+|---|---|---|
+| `officeItems` | 3407 → 2599 KB | 78.6 → 11.1 MB |
+| `outdoor` | 338 → 560 KB | 14.6 → 2.4 MB |
+| `contactPhone` | 506 → 478 KB | 11.3 → 1.5 MB |
+
+`outdoor` grows on the wire because its sky gradients compress extremely well as
+WebP and ETC1S is fixed-rate; the 12 MB of VRAM is worth 220 KB. First draw was
+unaffected (~1.40 s either way — the transcoder runs on a worker).
+
+`office` is already KTX2 and left alone. `outdoorCars` is already KTX2, is 170 KB
+and 0.43 MB of VRAM, and only ever has 2 of its 36 car meshes in the render list,
+so there is nothing to win by splitting it.
+
+Anything loading a KTX2-textured model must use `useKTX2GLTF`, not drei's
+`useGLTF`, or GLTFLoader throws `setKTX2Loader must be called before loading KTX2
+textures`. That is why `contact-scene.tsx` uses it.
 
 Map textures (`rain`, `basketballVa`) are still **overrides**: empty means the
 committed file in `public/3d/textures/` is used.
@@ -104,6 +152,8 @@ Just edit the strings — `glassMaterials`, `doubleSideElements`, `bakes[].meshe
 | Command | Purpose |
 |---|---|
 | `pnpm assets:hash <path>` | Content-hash a file and rename it in place. Idempotent. |
+| `pnpm assets:exr-to-ktx2 <path>\|--all` | Convert HDR lightmap `.exr` to UASTC HDR `.ktx2`. Needs `basisu` (`brew install basis-universal`). |
+| `pnpm tsx scripts/3d-assets/glb-recode-webp.ts <in> <out>` | Recode a GLB's WebP textures as PNG so gltf-transform's KTX pipeline can see them. |
 | `pnpm assets:verify` | Walk the manifest, confirm every `/3d/...` URL resolves to a file on disk. Fails loudly if any are missing. |
 
 ## Cache headers

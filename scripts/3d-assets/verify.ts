@@ -45,7 +45,9 @@ for (const url of urls) {
 }
 
 console.log(`Manifest references: ${urls.length} (${seen.size} unique)`)
-console.log(`Resolved: ${seen.size - missing.length} files, ${(totalBytes / 1024 / 1024).toFixed(2)} MB`)
+console.log(
+  `Resolved: ${seen.size - missing.length} files, ${(totalBytes / 1024 / 1024).toFixed(2)} MB`
+)
 
 if (missing.length > 0) {
   console.error(`\n✗ ${missing.length} missing files:`)
@@ -74,7 +76,9 @@ const referenced = new Set(urls.map((u) => `public${u}`))
 
 const orphans = onDisk.filter((f) => !referenced.has(f))
 if (orphans.length > 0) {
-  console.warn(`\n⚠ ${orphans.length} orphan files (on disk, not in manifest):`)
+  console.warn(
+    `\n⚠ ${orphans.length} orphan files (on disk, not in manifest):`
+  )
   for (const f of orphans) console.warn(`  - ${f}`)
 }
 

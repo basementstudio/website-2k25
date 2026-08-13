@@ -251,6 +251,8 @@ export const Map = memo(() => {
       })
 
       alreadyTraversed.current = true
+
+      useMesh.setState({ mapMaterialsReady: true })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

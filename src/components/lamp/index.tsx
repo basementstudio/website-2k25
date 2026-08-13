@@ -1,5 +1,5 @@
 import { MeshDiscardMaterial } from "@react-three/drei"
-import { extend, useLoader, useThree } from "@react-three/fiber"
+import { extend, useThree } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { track } from "@vercel/analytics"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
@@ -7,11 +7,11 @@ import { animate } from "motion"
 import posthog from "posthog-js"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
-import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useInspectable } from "@/components/inspectables/context"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
+import { useKTX2Textures } from "@/hooks/use-ktx2-loader"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -97,10 +97,11 @@ export const Lamp = memo(function LampInner() {
     lamp: { extraLightmap }
   } = useAssets()
 
-  const lightmap = useLoader(EXRLoader, extraLightmap)
+  const [lightmap] = useKTX2Textures(
+    useMemo(() => [extraLightmap], [extraLightmap])
+  )
 
   useEffect(() => {
-    lightmap.flipY = true
     lightmap.generateMipmaps = false
     lightmap.minFilter = THREE.NearestFilter
     lightmap.magFilter = THREE.NearestFilter
