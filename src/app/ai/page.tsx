@@ -82,7 +82,7 @@ const AiPage = async () => {
   const venture = servicesPage?.ventures?.[0] ?? null
 
   const socialLinks = [
-    { label: "x-twitter", url: companyInfo.twitter },
+    { label: "𝕏", url: companyInfo.twitter },
     { label: "instagram", url: companyInfo.instagram },
     { label: "github", url: companyInfo.github },
     { label: "linkedin", url: companyInfo.linkedIn }

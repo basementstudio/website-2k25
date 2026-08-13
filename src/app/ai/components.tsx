@@ -19,6 +19,14 @@ export const Section = ({
   </section>
 )
 
+const FIELD_WIDTH = 15
+
+// padEnd() counts UTF-16 units, so an astral glyph (𝕏 is U+1D54F, a surrogate
+// pair) would eat two columns' worth of dots while occupying one — count code
+// points instead so the leaders stay aligned.
+const dotLeader = (label: string) =>
+  `${label} ` + ".".repeat(Math.max(0, FIELD_WIDTH - [...label].length - 1))
+
 /** `label ....... value` key-value row; mono font keeps the dots aligned. */
 export const Field = ({
   label,
@@ -29,7 +37,7 @@ export const Field = ({
 }) => (
   <div className="flex">
     <dt className="shrink-0 whitespace-pre text-machine-dim">
-      {`${label} `.padEnd(15, ".")}{" "}
+      {dotLeader(label)}{" "}
     </dt>
     {/* min-w-0 + anywhere wrapping: unbroken values (URLs) must not push the
         page wider than the viewport on small screens. */}
