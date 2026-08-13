@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
 import {
@@ -126,6 +127,7 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Error building people markdown:", error)
+    Sentry.captureException(error)
     return new NextResponse("# 500 Error\n\nFailed to build markdown.", {
       status: 500,
       headers: MD_HEADERS

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
 import { fetchProjectBySlug } from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
@@ -76,6 +77,7 @@ export async function GET(
     })
   } catch (error) {
     console.error("Error building project markdown:", error)
+    Sentry.captureException(error)
     return new NextResponse("# 500 Error\n\nFailed to build markdown.", {
       status: 500,
       headers: MD_HEADERS

@@ -1,5 +1,6 @@
 "use server"
 
+import * as Sentry from "@sentry/nextjs"
 import { headers } from "next/headers"
 
 import {
@@ -139,6 +140,7 @@ export async function submitCareerApplication(formData: CareerFormData) {
     }
   } catch (error) {
     console.error("Error submitting career application:", error)
+    Sentry.captureException(error)
     return { success: false, error: GENERIC_SUBMISSION_ERROR }
   }
 }

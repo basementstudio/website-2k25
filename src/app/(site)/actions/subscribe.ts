@@ -1,5 +1,7 @@
 "use server"
 
+import * as Sentry from "@sentry/nextjs"
+
 type State = {
   success: boolean
   message: string
@@ -58,6 +60,7 @@ export async function subscribe(
     }
   } catch (error) {
     console.error("Error:", error)
+    Sentry.captureException(error)
     return {
       success: false,
       message:
