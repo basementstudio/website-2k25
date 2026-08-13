@@ -39,7 +39,6 @@ export const CanvasLayer = () => {
       <ErrorBoundary
         fallback={<div className="h-[37px]" aria-hidden />}
         onError={(error, info) => {
-          // Keeps the R3F component stack, which plain captureException drops.
           Sentry.captureReactException(error, info)
           useAppLoadingStore.setState({
             canvasErrorBoundaryTriggered: true,
