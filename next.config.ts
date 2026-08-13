@@ -188,6 +188,11 @@ export default withSentryConfig(nextConfig, {
   widenClientFileUpload: true,
   // CI-gated: the plugin auto-loads SENTRY_AUTH_TOKEN from .env files, so a
   // dev machine would otherwise push releases and maps.
-  sourcemaps: { disable: !process.env.CI },
+  sourcemaps: {
+    disable: !process.env.CI,
+    // Not the default here: the SDK only auto-deletes when it turned
+    // `productionBrowserSourceMaps` on itself, and we set it explicitly.
+    deleteSourcemapsAfterUpload: true
+  },
   release: { create: Boolean(process.env.CI) }
 })
