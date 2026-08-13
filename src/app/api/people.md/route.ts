@@ -7,6 +7,7 @@ import {
 } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
+import { displayPlatform } from "@/utils/social-platform"
 
 const MD_HEADERS = {
   "Content-Type": "text/markdown; charset=utf-8",
@@ -22,10 +23,6 @@ const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
 const escapeLinkLabel = (text: string) => text.replace(/[\\[\]]/g, "\\$&")
 const escapeLinkUrl = (url: string) =>
   url.replace(/\(/g, "%28").replace(/\)/g, "%29")
-
-// The CMS platform field still says "Twitter"; the site brands it 𝕏.
-const displayPlatform = (platform: string) =>
-  /twitter|^x$/i.test(platform) ? "𝕏" : platform
 
 export async function GET() {
   try {

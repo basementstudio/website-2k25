@@ -22,6 +22,8 @@ interface LinkProps {
   onFocus?: () => void
   onBlur?: () => void
   fromMobileNav?: boolean
+  /** For links whose visible text is a glyph a screen reader can't announce. */
+  "aria-label"?: string
 }
 
 export const Link = ({
