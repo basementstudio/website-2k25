@@ -199,8 +199,5 @@ export default withSentryConfig(nextConfig, {
   // `productionBrowserSourceMaps` stays unset so the SDK enables maps and
   // deletes them after upload.
   sourcemaps: { disable: !canPublishSentryArtifacts },
-  release: { create: canPublishSentryArtifacts },
-  // Both only feed tracing, which is off.
-  routeManifestInjection: false,
-  suppressOnRouterTransitionStartWarning: true
+  release: { create: canPublishSentryArtifacts }
 })
