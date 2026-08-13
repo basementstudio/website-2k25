@@ -4,7 +4,6 @@ import { sanity } from "next-sanity/live/cache-life"
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  productionBrowserSourceMaps: true,
   cacheComponents: true,
   // Sanity Live handles on-demand revalidation, so override the 15-min default.
   cacheLife: {
@@ -186,12 +185,12 @@ export default withSentryConfig(nextConfig, {
   project: "website-2k25",
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  // CI-gated: the plugin auto-loads SENTRY_AUTH_TOKEN from .env files.
-  sourcemaps: {
-    disable: !process.env.CI,
-    // Not implicit here — the SDK only auto-deletes when it enabled
-    // `productionBrowserSourceMaps` itself.
-    deleteSourcemapsAfterUpload: true
-  },
-  release: { create: Boolean(process.env.CI) }
+  // CI-gated: the plugin auto-loads SENTRY_AUTH_TOKEN from .env files. Leaving
+  // `productionBrowserSourceMaps` unset lets the SDK turn maps on and delete
+  // them after upload, so they never ship.
+  sourcemaps: { disable: !process.env.CI },
+  release: { create: Boolean(process.env.CI) },
+  // Both only feed tracing, which is off.
+  routeManifestInjection: false,
+  suppressOnRouterTransitionStartWarning: true
 })

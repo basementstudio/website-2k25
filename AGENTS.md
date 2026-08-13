@@ -1,6 +1,7 @@
 # Project specifics
 
 - **Next.js 16.3.0 (stable), Turbopack, Cache Components on.** `cacheComponents: true` + `cacheLife: { default: sanity }` in `next.config.ts`. `dev`/`build` run on Turbopack (the Next 16 default — no `--webpack` flag). GLSL shaders load through `raw-loader` only, declared in `turbopack.rules` in `next.config.ts`; shaders must be plain GLSL with **no `glslify` `#pragma`** (the glslify requires were flattened into the `.glsl` files so `raw-loader` suffices). Tailwind v3 + the `postcss.config.mjs` chain (`postcss-import` → `tailwindcss/nesting` → `tailwindcss`) is verified working under Turbopack — `postcss-import` is now an explicit dep.
+- **A Turbopack rule that attaches a loader over `*.{ts,tsx,js,...}` fails the build.** It hits the virtual module Turbopack generates for `new Worker(new URL(...))` in `src/workers/loading-worker.tsx`: `Resource path "worker/browser/createWorker.ts" needs to be on project filesystem ""`. Rules out Sentry's `applicationKey` (and so `thirdPartyErrorFilterIntegration`), `webpack.treeshake.*`, and `_experimental.turbopackReactComponentAnnotation`.
 - **Sanity data has three fetch modes (`src/service/sanity/index.ts`) — pick by context:**
   - `sanityFetch` — Live; only valid **inside a `"use cache"` scope** (its `cacheTag()` throws otherwise). For draft/preview render.
   - `sanityFetchCached` — Live wrapped in `"use cache"`; the default for published page/route content. Revalidates via Sanity Live tags.
