@@ -81,8 +81,7 @@ export const ContactForm = () => {
         setSubmitError(result.error || "Form submission failed")
       }
     } catch (error) {
-      // Only transport failures land here — the action reports its own errors
-      // server-side and never rejects.
+      // Only transport failures reach here — the action never rejects.
       Sentry.captureException(error)
       setIsSubmitted(false)
       setSubmitError("Form submission failed")

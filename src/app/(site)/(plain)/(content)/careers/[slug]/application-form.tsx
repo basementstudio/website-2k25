@@ -182,8 +182,7 @@ export const ApplicationForm = ({
     // Guard: prevent double-submission
     if (apiInFlightRef.current) return
 
-    // The action discards suspicious submissions silently; skipping the event
-    // keeps the count to submissions a human actually made.
+    // The action discards these silently, so counting them would inflate the funnel.
     if (!isSuspiciousSubmission(data, Date.now())) {
       track("career_application_submit")
     }

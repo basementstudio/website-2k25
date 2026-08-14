@@ -6,9 +6,8 @@ interface BotSignals {
   formStartedAt: number
 }
 
-// Shared with the career form itself, which needs the same verdict to keep bot
-// submissions out of the analytics count. Kept out of the `"use server"` file
-// because those may only export async functions.
+// Not in the action: `"use server"` files may only export async functions, and
+// the form needs this verdict client-side too.
 export function isSuspiciousSubmission(signals: BotSignals, now: number) {
   if (signals.companyWebsite.trim()) {
     return true
