@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
 import { generateJobPostingSchema } from "@/lib/structured-data/schemas/job-posting"
 
@@ -68,8 +68,7 @@ export default async function CareerPost({ params }: CareerPostProps) {
 
   return (
     <div className="relative bg-brand-k pt-12 lg:pb-24">
-      <JsonLd data={breadcrumbSchema} />
-      <JsonLd data={jobPostingSchema} />
+      <PageJsonLd nodes={[breadcrumbSchema, jobPostingSchema]} />
       <ScrollToTop />
       <div className="lg:pb-25 flex flex-col gap-24">
         <Hero title={position.title} />

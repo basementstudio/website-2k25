@@ -13,20 +13,12 @@ import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
-import { JsonLd } from "@/lib/structured-data/json-ld"
-import { generateOrganizationSchema } from "@/lib/structured-data/schemas/organization"
-import { fetchOrganizationData } from "@/service/sanity/organization"
 
 const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
-  const [assets, orgData] = await Promise.all([
-    fetchAssets(),
-    fetchOrganizationData()
-  ])
+  const assets = await fetchAssets()
 
   return (
     <>
-      {/* Entity identity for search + answer engines on every page. */}
-      <JsonLd data={generateOrganizationSchema(orgData)} />
       <Analytics />
       <SpeedInsights />
       <Script

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateBlogPostingSchema } from "@/lib/structured-data/schemas/blog-posting"
 import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
 import { truncateDescription } from "@/utils/seo"
@@ -84,8 +84,7 @@ export default async function Blog({ params }: ProjectPostProps) {
 
   return (
     <>
-      <JsonLd data={blogPostingSchema} />
-      <JsonLd data={breadcrumbSchema} />
+      <PageJsonLd nodes={[blogPostingSchema, breadcrumbSchema]} />
       <div className="relative bg-brand-k pt-12 lg:pb-24">
         <div className="lg:pb-25 flex flex-col gap-24">
           <BlogTitle title={post.title} />

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 
-const SITE_URL = "https://basement.studio"
+import { SITE_URL } from "@/lib/constants"
 
 const DISALLOW = ["/api/", "/studio", "/studio/"]
 
