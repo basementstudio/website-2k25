@@ -6,7 +6,7 @@ import { Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { workerErrorFromMessage, workerEventError } from "@/lib/worker-error"
+import { workerErrorFromMessage, workerErrorReport } from "@/lib/worker-error"
 import { cn } from "@/utils/cn"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
@@ -87,9 +87,18 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
 
     const handleError = (event: Event) => {
       console.error("[LoadingCanvas] Worker error:", event)
-      Sentry.captureException(workerEventError(event, "loading"), {
-        tags: { worker: "loading" }
+      // Uncanceled, it reaches window.onerror and Sentry files a second copy.
+      event.preventDefault()
+
+      const { error, detail } = workerErrorReport(event, "loading")
+      Sentry.captureException(error, {
+        tags: { worker: "loading" },
+        ...(detail ? { extra: { detail } } : {})
       })
+
+      // `loading-transition-complete` can no longer arrive, so the black
+      // overlay would sit there until the boot timeout.
+      useAppLoadingStore.setState({ showLoadingCanvas: false })
     }
 
     worker.addEventListener("error", handleError)

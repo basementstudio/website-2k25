@@ -5,7 +5,7 @@ import * as Sentry from "@sentry/nextjs"
 import { useEffect, useState } from "react"
 
 import { useAssets } from "@/components/assets-provider"
-import { workerErrorFromMessage, workerEventError } from "@/lib/worker-error"
+import { workerErrorFromMessage, workerErrorReport } from "@/lib/worker-error"
 
 import { ContactScreen } from "./contact-screen"
 import { useContactStore } from "./contact-store"
@@ -149,8 +149,13 @@ export const ContactCanvas = () => {
 
     const handleError = (event: Event) => {
       console.error("[ContactCanvas] Worker error:", event)
-      Sentry.captureException(workerEventError(event, "contact"), {
-        tags: { worker: "contact" }
+      // Uncanceled, it reaches window.onerror and Sentry files a second copy.
+      event.preventDefault()
+
+      const { error, detail } = workerErrorReport(event, "contact")
+      Sentry.captureException(error, {
+        tags: { worker: "contact" },
+        ...(detail ? { extra: { detail } } : {})
       })
     }
 
