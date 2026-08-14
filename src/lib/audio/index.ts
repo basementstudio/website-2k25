@@ -205,7 +205,14 @@ export class WebAudioPlayer {
   ): Promise<AudioSource> {
     return new Promise((resolve, reject) => {
       fetch(url)
-        .then((response) => response.arrayBuffer())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(
+              `Failed to fetch audio (${response.status}): ${url}`
+            )
+          }
+          return response.arrayBuffer()
+        })
         .then((arrayBuffer) => {
           return this.audioContext.decodeAudioData(
             arrayBuffer,
@@ -236,6 +243,8 @@ export class WebAudioPlayer {
             }
           )
         })
+        // a network failure must reject, or awaiters hang forever
+        .catch(reject)
     })
   }
 
