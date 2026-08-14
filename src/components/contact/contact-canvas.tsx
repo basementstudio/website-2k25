@@ -5,7 +5,7 @@ import * as Sentry from "@sentry/nextjs"
 import { useEffect, useState } from "react"
 
 import { useAssets } from "@/components/assets-provider"
-import { workerErrorFromMessage } from "@/lib/worker-error"
+import { workerErrorFromMessage, workerEventError } from "@/lib/worker-error"
 
 import { ContactScreen } from "./contact-screen"
 import { useContactStore } from "./contact-store"
@@ -147,10 +147,9 @@ export const ContactCanvas = () => {
       debouncedResizeHandler()
     }
 
-    // `error` is null when the worker script itself fails to load.
-    const handleError = (event: ErrorEvent) => {
+    const handleError = (event: Event) => {
       console.error("[ContactCanvas] Worker error:", event)
-      Sentry.captureException(event.error ?? new Error(event.message), {
+      Sentry.captureException(workerEventError(event, "contact"), {
         tags: { worker: "contact" }
       })
     }
