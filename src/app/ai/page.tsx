@@ -323,16 +323,18 @@ const AiPage = async () => {
           )}
         </Section>
 
-        <Section title="faq">
-          <ul className="flex flex-col gap-3">
-            {faq.entries.map((entry) => (
-              <li key={entry.question} className="flex flex-col gap-1">
-                <h3 className="text-machine-bright">* {entry.question}</h3>
-                <p>{entry.answer}</p>
-              </li>
-            ))}
-          </ul>
-        </Section>
+        {faq?.entries.length ? (
+          <Section title="faq">
+            <ul className="flex flex-col gap-3">
+              {faq.entries.map((entry) => (
+                <li key={entry.question} className="flex flex-col gap-1">
+                  <h3 className="text-machine-bright">* {entry.question}</h3>
+                  <p>{entry.answer}</p>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        ) : null}
 
         <Section title="contact">
           <dl className="flex flex-col gap-1">

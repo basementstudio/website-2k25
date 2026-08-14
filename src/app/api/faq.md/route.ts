@@ -10,27 +10,36 @@ const MD_HEADERS = {
 } as const
 
 export async function GET() {
-  const { intro, entries } = await fetchFaqPage({ published: true })
+  const faq = await fetchFaqPage({ published: true })
 
-  const body = entries.flatMap((faq) => [
-    `## ${faq.question}`,
+  if (!faq?.entries.length) {
+    return new NextResponse("# 404 Not Found\n", {
+      status: 404,
+      headers: MD_HEADERS
+    })
+  }
+
+  const body = faq.entries.flatMap((entry) => [
+    `## ${entry.question}`,
     "",
-    faq.answer,
+    entry.answer,
     ""
   ])
 
-  const markdown = [
+  const parts = [
     "# FAQ",
     "",
-    intro,
-    "",
+    faq.intro,
+    faq.intro ? "" : null,
     "---",
     "",
     ...body,
     "---",
     "",
     `[View all content](${SITE_URL}/sitemap.md)`
-  ].join("\n")
+  ]
+
+  const markdown = parts.filter((part) => part !== null).join("\n")
 
   return new NextResponse(markdown, {
     headers: {
