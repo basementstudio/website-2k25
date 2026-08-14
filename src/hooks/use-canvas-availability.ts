@@ -1,8 +1,7 @@
 import { useEffect } from "react"
 
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
-
-import { useWebgl } from "./use-webgl"
+import { isWebGL2Available } from "@/lib/webgl"
 
 const WEBGL_CONTEXT_FAILURE = /webgl context/i
 
@@ -10,21 +9,21 @@ const WEBGL_CONTEXT_FAILURE = /webgl context/i
 // a floating promise instead of throwing into React — the <ErrorBoundary> around
 // the canvas never sees it. Sentry WEBSITE-2K25-39.
 export const useCanvasAvailability = () => {
-  const webglEnabled = useWebgl()
   const canvasUnavailable = useAppLoadingStore(
     (state) => state.canvasUnavailable
   )
 
   useEffect(() => {
-    if (webglEnabled) return
+    if (isWebGL2Available()) return
 
     useAppLoadingStore.getState().reportCanvasUnavailable()
-  }, [webglEnabled])
+  }, [])
 
   // Lets CSS drop the viewport of space the (canvas) group reserves.
   useEffect(() => {
-    document.documentElement.dataset.canvasUnavailable =
-      String(canvasUnavailable)
+    if (!canvasUnavailable) return
+
+    document.documentElement.dataset.canvasUnavailable = "true"
   }, [canvasUnavailable])
 
   useEffect(() => {

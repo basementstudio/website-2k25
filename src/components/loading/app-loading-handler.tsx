@@ -1,7 +1,7 @@
 "use client"
 
 import * as Sentry from "@sentry/nextjs"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
 
@@ -75,19 +75,15 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      * This function will tell the loading canvas that the main app can run
      */
     setCanRunMainApp: (canRunMainApp) => {
-      set({ canRunMainApp })
+      set({ canRunMainApp, canvasBootTimedOut: false })
     },
     /**
-     * Unmounts the Scene and drops the overlay so the page stays reachable
+     * Vetoes the canvas; <CanvasLayer/> unmounts the whole subtree from here
      */
     reportCanvasUnavailable: () => {
       if (get().canvasUnavailable) return
 
-      set({
-        canvasUnavailable: true,
-        isCanvasInPage: false,
-        showLoadingCanvas: false
-      })
+      set({ canvasUnavailable: true })
     }
   }
   return store
@@ -103,7 +99,6 @@ export const AppLoadingHandler = () => {
     (state) => state.canvasUnavailable
   )
   const [removeLoadingNode, setRemoveLoadingNode] = useState(false)
-  const reportedBootTimeout = useRef(false)
 
   // This trick is to prevent the white flash that happens when webgl stops
   useEffect(() => {
@@ -126,8 +121,6 @@ export const AppLoadingHandler = () => {
         canvasBootTimedOut: true
       })
 
-      if (reportedBootTimeout.current) return
-      reportedBootTimeout.current = true
       Sentry.captureMessage("Canvas boot timed out", "warning")
     }, CANVAS_BOOT_TIMEOUT_MS)
 

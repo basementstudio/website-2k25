@@ -10,7 +10,9 @@ export default function CanvasGroupLayout({
   return (
     <>
       <SetCanvasMode enabled />
-      <div className="layout-container mt-[80svh] lg:mt-[100dvh]">{children}</div>
+      <div className="layout-container mt-[var(--canvas-offset)]">
+        {children}
+      </div>
     </>
   )
 }

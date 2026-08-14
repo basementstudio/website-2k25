@@ -35,10 +35,18 @@
   }
 }
 
-/* Canvas-route heroes have no top spacing of their own, so leave enough to clear
-   the fixed navbar. */
-[data-canvas-unavailable="true"] {
-  .layout-container {
-    margin-top: 2.25rem;
+/* How much room the canvas takes, and so how much the content below reserves. */
+html {
+  --canvas-offset: 80svh;
+}
+
+@media (min-width: 1024px) {
+  html {
+    --canvas-offset: 100svh;
   }
+}
+
+/* Nothing to reserve for — leave only enough to clear the fixed navbar. */
+[data-canvas-unavailable="true"] {
+  --canvas-offset: 2.25rem;
 }
