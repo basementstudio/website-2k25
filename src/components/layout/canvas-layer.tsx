@@ -31,7 +31,6 @@ export const CanvasLayer = () => {
   const canvasUnavailable = useAppLoadingStore(
     (state) => state.canvasUnavailable
   )
-  const show = canvasVisible && !canvasUnavailable
 
   return (
     <>
@@ -39,26 +38,28 @@ export const CanvasLayer = () => {
         <CustomCursor />
       </div>
 
-      <ErrorBoundary
-        fallback={<div className="h-[37px]" aria-hidden />}
-        onError={(error, info) => {
-          Sentry.captureReactException(error, info)
-          useAppLoadingStore.getState().reportCanvasUnavailable()
-        }}
-      >
-        <div
-          className={cn(
-            "canvas-container relative top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
-            !show && "pointer-events-none invisible fixed opacity-0"
-          )}
+      {/* Without a renderer this whole subtree is dead weight: an invisible
+          fixed overlay plus a viewer that only drives 3D items. */}
+      {!canvasUnavailable && (
+        <ErrorBoundary
+          fallback={<div className="h-[37px]" aria-hidden />}
+          onError={(error, info) => {
+            Sentry.captureReactException(error, info)
+            useAppLoadingStore.getState().reportCanvasUnavailable()
+          }}
         >
-          {/* <SetCanvasMode> re-arms isCanvasInPage per route, so gate the
-              mount too. */}
-          {isCanvasInPage && !canvasUnavailable && <Scene />}
-          <AppLoadingHandler />
-          <InspectableViewer />
-        </div>
-      </ErrorBoundary>
+          <div
+            className={cn(
+              "canvas-container relative top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
+              !canvasVisible && "pointer-events-none invisible fixed opacity-0"
+            )}
+          >
+            {isCanvasInPage && <Scene />}
+            <AppLoadingHandler />
+            <InspectableViewer />
+          </div>
+        </ErrorBoundary>
+      )}
     </>
   )
 }

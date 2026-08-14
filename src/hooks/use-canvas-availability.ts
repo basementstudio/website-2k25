@@ -11,12 +11,22 @@ const WEBGL_CONTEXT_FAILURE = /webgl context/i
 // the canvas never sees it. Sentry WEBSITE-2K25-39.
 export const useCanvasAvailability = () => {
   const webglEnabled = useWebgl()
+  const canvasUnavailable = useAppLoadingStore(
+    (state) => state.canvasUnavailable
+  )
 
   useEffect(() => {
     if (webglEnabled) return
 
     useAppLoadingStore.getState().reportCanvasUnavailable()
   }, [webglEnabled])
+
+  // The (canvas) group reserves a viewport of space for the fixed canvas; CSS
+  // needs to know when there is no canvas to reserve it for.
+  useEffect(() => {
+    document.documentElement.dataset.canvasUnavailable =
+      String(canvasUnavailable)
+  }, [canvasUnavailable])
 
   useEffect(() => {
     const handleRejection = (event: PromiseRejectionEvent) => {
