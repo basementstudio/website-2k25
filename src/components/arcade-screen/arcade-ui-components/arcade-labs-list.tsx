@@ -5,12 +5,12 @@ import { useKeyPress } from "@/hooks/use-key-press"
 import { useCursor } from "@/hooks/use-mouse"
 import { useArcadeStore } from "@/store/arcade-store"
 
-import { COLORS_THEME } from "../screen-ui"
+import { COLORS_THEME, type Experiment } from "../screen-ui"
 
 interface ArcadeLabsListProps {
-  experiments: any[]
-  selectedExperiment: any
-  setSelectedExperiment: (experiment: any) => void
+  experiments: Experiment[]
+  selectedExperiment: Experiment | null
+  setSelectedExperiment: (experiment: Experiment | null) => void
 }
 
 export const ArcadeLabsList = ({
@@ -26,14 +26,14 @@ export const ArcadeLabsList = ({
   )
   const setCursor = useCursor()
   const [mouseHoveredExperiment, setMouseHoveredExperiment] =
-    useState<any>(null)
+    useState<Experiment | null>(null)
   const [hasMouseInteracted, setHasMouseInteracted] = useState(false)
   const isSourceButtonSelected = useArcadeStore(
     (state) => state.isSourceButtonSelected
   )
   const isInGame = useArcadeStore((state) => state.isInGame)
 
-  const handleExperimentClick = useCallback((data: any) => {
+  const handleExperimentClick = useCallback((data: Experiment) => {
     window.open(`https://lab.basement.studio/experiments/${data.url}`, "_blank")
   }, [])
 
@@ -68,35 +68,37 @@ export const ArcadeLabsList = ({
 
   useEffect(() => {
     if (scrollContainerRef.current) {
-      // reset scroll
-      if (labTabIndex <= 6) {
+      const setScroll = (y: number) => {
         if (scrollContainerRef.current.scrollPosition.value) {
-          scrollContainerRef.current.scrollPosition.value = [0, 0]
+          scrollContainerRef.current.scrollPosition.value = [0, y]
         } else {
-          scrollContainerRef.current.scrollPosition.v = [0, 0]
+          scrollContainerRef.current.scrollPosition.v = [0, y]
         }
         scrollContainerRef.current.forceUpdate?.()
+      }
+
+      const scrollStep = 24
+      const maxScroll = 277
+
+      if (labTabIndex > experiments.length + 1) {
         return
       }
 
-      if (labTabIndex >= 7) {
-        const scrollStep = 24
-        const maxScroll = 277
-        const scrollOffset = (labTabIndex - 7) * scrollStep
-
-        const newScroll =
-          scrollOffset <= 0 ? 0 : Math.min(scrollOffset, maxScroll)
-
-        if (scrollContainerRef.current.scrollPosition.value) {
-          scrollContainerRef.current.scrollPosition.value = [0, newScroll]
-        } else {
-          scrollContainerRef.current.scrollPosition.v = [0, newScroll]
-        }
-
-        scrollContainerRef.current.forceUpdate?.()
+      // View More: snap the list to the bottom once.
+      if (labTabIndex === experiments.length + 1) {
+        setScroll(maxScroll)
+        return
       }
+
+      if (labTabIndex <= 6) {
+        setScroll(0)
+        return
+      }
+
+      const scrollOffset = (labTabIndex - 7) * scrollStep
+      setScroll(scrollOffset <= 0 ? 0 : Math.min(scrollOffset, maxScroll))
     }
-  }, [labTabIndex])
+  }, [labTabIndex, experiments.length])
 
   return (
     <Container
@@ -261,7 +263,7 @@ const ViewMore = ({
   setSelectedExperiment
 }: {
   isLoaded: boolean
-  setSelectedExperiment: (experiment: any) => void
+  setSelectedExperiment: (experiment: Experiment | null) => void
 }) => {
   const [isViewMoreHovered, setIsViewMoreHovered] = useState(false)
   const labTabIndex = useArcadeStore((state) => state.labTabIndex)
@@ -272,7 +274,7 @@ const ViewMore = ({
     window.open("https://lab.basement.studio/", "_blank")
   }, [])
 
-  const isSelected = isInLabTab && labTabIndex === experiments.length - 3
+  const isSelected = isInLabTab && labTabIndex === experiments.length - 4
 
   useKeyPress(
     "Enter",

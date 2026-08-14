@@ -145,8 +145,16 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
       className
     )}
   >
-    <Link className="h-max text-brand-w1" href={links.twitter} target="_blank">
-      <span className="actionable">X (Twitter)</span>
+    <Link
+      className="h-max text-brand-w1"
+      href={links.twitter}
+      target="_blank"
+      aria-label="X (Twitter)"
+    >
+      {/* U+1D54F — screen readers skip it, hence the aria-label above. */}
+      <span className="actionable" aria-hidden>
+        𝕏
+      </span>
     </Link>
     <span aria-hidden>,</span>
     <Link
@@ -167,16 +175,24 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
   </div>
 )
 
-export const Copyright = ({ className }: { className?: string }) => (
-  <p
-    className={cn(
-      "text-right !text-f-p-mobile text-brand-g1 lg:!text-f-p",
-      className
-    )}
-  >
-    © basement.studio LLC {new Date().getFullYear()} all rights reserved
-  </p>
-)
+export const Copyright = ({
+  year,
+  className
+}: {
+  year: number
+  className?: string
+}) => {
+  return (
+    <p
+      className={cn(
+        "text-right !text-f-p-mobile text-brand-g1 lg:!text-f-p",
+        className
+      )}
+    >
+      © basement.studio LLC {year} all rights reserved
+    </p>
+  )
+}
 
 export const SoDa = ({ className }: { className?: string }) => (
   <div className={cn("mb-2 w-full", className)}>

@@ -32,6 +32,9 @@ export const useNavigationStore = create<{
 
   previousScene: IScene | null
   setPreviousScene: (scene: IScene | null) => void
+
+  isNotFound: boolean
+  setIsNotFound: (value: boolean) => void
 }>((set) => ({
   scenes: null,
   setScenes: (scenes) => set({ scenes }),
@@ -56,8 +59,14 @@ export const useNavigationStore = create<{
     set({ disableCameraTransition: disable }),
 
   isCameraTransitioning: false,
+  // called every frame from the camera useFrame loop, so bail when unchanged —
+  // an unconditional set() notifies every subscriber and floods React with updates
   setIsCameraTransitioning: (isTransitioning) =>
-    set({ isCameraTransitioning: isTransitioning }),
+    set((state) =>
+      state.isCameraTransitioning === isTransitioning
+        ? state
+        : { isCameraTransitioning: isTransitioning }
+    ),
 
   enteredByKeyboard: false,
   setEnteredByKeyboard: (value) => set({ enteredByKeyboard: value }),
@@ -65,5 +74,9 @@ export const useNavigationStore = create<{
   resetTabIndex: () => set({ currentTabIndex: 0 }),
 
   previousScene: null,
-  setPreviousScene: (scene) => set({ previousScene: scene })
+  setPreviousScene: (scene) => set({ previousScene: scene }),
+
+  isNotFound: false,
+  setIsNotFound: (value) =>
+    set((state) => (state.isNotFound === value ? state : { isNotFound: value }))
 }))

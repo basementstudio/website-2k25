@@ -22,6 +22,8 @@ interface LinkProps {
   onFocus?: () => void
   onBlur?: () => void
   fromMobileNav?: boolean
+  /** For links whose visible text is a glyph a screen reader can't announce. */
+  "aria-label"?: string
 }
 
 export const Link = ({
@@ -65,7 +67,12 @@ export const Link = ({
       onClick={(e) => {
         e.preventDefault()
         // if href is /post/*, router.push instead of handleNavigation
-        if (href.includes("/post/") || href.includes("/showcase/")) {
+        if (
+          href.includes("/post/") ||
+          href.includes("/showcase/") ||
+          href.includes("/careers/") ||
+          href === "#open-positions"
+        ) {
           router.push(href)
         } else {
           handleNavigation(href, fromMobileNav)

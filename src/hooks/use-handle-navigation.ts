@@ -36,8 +36,8 @@ export const useHandleNavigation = () => {
   const setDisableCameraTransition = useNavigationStore(
     (state) => state.setDisableCameraTransition
   )
-  const canvasErrorBoundaryTriggered = useAppLoadingStore(
-    (state) => state.canvasErrorBoundaryTriggered
+  const canvasUnavailable = useAppLoadingStore(
+    (state) => state.canvasUnavailable
   )
   const scenes = useNavigationStore((state) => state.scenes)
 
@@ -53,6 +53,10 @@ export const useHandleNavigation = () => {
 
       const routeWithoutParams = route.split("?")[0].split("#")[0]
       const finalRoute = routeWithoutParams.split("/").filter(Boolean)[0]
+
+      if (finalRoute === "careers") {
+        return scenes?.find((scene) => scene.name === "people")
+      }
 
       return scenes?.find((scene) => scene.name === finalRoute)
     },
@@ -93,7 +97,7 @@ export const useHandleNavigation = () => {
       setCurrentScene,
       scenes,
       setDisableCameraTransition,
-      canvasErrorBoundaryTriggered
+      canvasUnavailable
     ]
   )
 
@@ -119,7 +123,7 @@ export const useHandleNavigation = () => {
           }
         })
       } else {
-        handleTransitionEffectOn(fromMobileNav || canvasErrorBoundaryTriggered)
+        handleTransitionEffectOn(fromMobileNav || canvasUnavailable)
         disableScroll()
         setDisableCameraTransition(true)
         setCurrentScene(selectedScene)
@@ -130,9 +134,7 @@ export const useHandleNavigation = () => {
               offset: 0,
               behavior: "instant",
               callback: () => {
-                handleTransitionEffectOff(
-                  fromMobileNav || canvasErrorBoundaryTriggered
-                )
+                handleTransitionEffectOff(fromMobileNav || canvasUnavailable)
                 enableScroll()
               }
             })
@@ -152,7 +154,7 @@ export const useHandleNavigation = () => {
       disableScroll,
       enableScroll,
       getScene,
-      canvasErrorBoundaryTriggered
+      canvasUnavailable
     ]
   )
 

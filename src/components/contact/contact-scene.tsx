@@ -1,4 +1,4 @@
-import { useAnimations, useGLTF } from "@react-three/drei"
+import { useAnimations } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
@@ -11,12 +11,18 @@ import {
   Vector3
 } from "three"
 
+import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
+
 import { ANIMATION_TYPES } from "./contact.interface"
 
 const IDLE_ANIMATIONS = [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA]
 
 export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
-  const { scene, animations, nodes } = useGLTF(modelUrl)
+  const { scene, animations, nodes } = useKTX2GLTF(modelUrl) as unknown as {
+    scene: Group
+    animations: Parameters<typeof useAnimations>[0]
+    nodes: Record<string, Bone | Mesh>
+  }
   const { actions, mixer } = useAnimations(animations, scene)
   const [isContactOpen, setIsContactOpen] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)

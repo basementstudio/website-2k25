@@ -5,7 +5,6 @@ import { useThree } from "@react-three/fiber"
 import { track } from "@vercel/analytics"
 import { animate, MotionValue } from "motion"
 import type { AnimationPlaybackControls } from "motion/react"
-import posthog from "posthog-js"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Box3,
@@ -95,14 +94,16 @@ export const Inspectable = memo(function InspectableInner({
   const ref = useRef<Group>(null)
 
   const targetPosition = useRef({
-    x: new MotionValue(),
-    y: new MotionValue(),
-    z: new MotionValue()
+    x: new MotionValue(0),
+    y: new MotionValue(0),
+    z: new MotionValue(0)
   })
-  const targetScale = useRef(new MotionValue())
+  const targetScale = useRef(new MotionValue(1))
 
-  const inspectingFactor = useRef(new MotionValue())
+  const inspectingFactor = useRef(new MotionValue(0))
   const inspectingFactorTL = useRef<AnimationPlaybackControls | null>(null)
+
+  const hasPlaced = useRef(false)
 
   const [firstRender, setFirstRender] = useState(true)
 
@@ -120,6 +121,8 @@ export const Inspectable = memo(function InspectableInner({
   const handleAnimation = (withAnimation: boolean) => {
     const camConfig = camConfigRef.current
     if (!camConfig || !position) return
+
+    hasPlaced.current = true
 
     // Get Camera Direction
     const { target: t, position: p } = camConfig
@@ -206,7 +209,7 @@ export const Inspectable = memo(function InspectableInner({
       }
     }
 
-    handleAnimation(true)
+    handleAnimation(hasPlaced.current)
 
     const handleResize = () => setTimeout(() => handleAnimation(false), 0)
 
@@ -273,9 +276,6 @@ export const Inspectable = memo(function InspectableInner({
           setSelected(id)
           const inspectable = inspectables.find((item) => item.mesh === id)
           track(`inspecting_${inspectable?._title.replace(/\s+/g, "_")}`)
-          posthog.capture(
-            `inspecting_${inspectable?._title.replace(/\s+/g, "_")}`
-          )
         }
       })
     }

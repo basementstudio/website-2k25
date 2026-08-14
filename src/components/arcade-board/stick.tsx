@@ -89,9 +89,7 @@ export const Stick = ({ stick, sequence }: StickProps) => {
           if (currentLabTabIndex === 0) {
             setLabTabIndex(1)
             setIsSourceButtonSelected(false)
-          } else if (
-            currentLabTabs[currentLabTabIndex]?.title !== "CHRONICLES"
-          ) {
+          } else if (currentLabTabs[currentLabTabIndex]?.type !== "featured") {
             const nextIndex = currentLabTabIndex + 1
             if (nextIndex < currentLabTabs.length) {
               setLabTabIndex(nextIndex)
@@ -105,10 +103,11 @@ export const Stick = ({ stick, sequence }: StickProps) => {
             setIsSourceButtonSelected(false)
             setLabTabIndex(currentLabTabIndex - 1)
           } else if (currentLabTabIndex > 1) {
-            if (
-              currentLabTabs[currentLabTabIndex]?.title !==
-              "LOOPER (COMING SOON)"
-            ) {
+            const prevTab = currentLabTabs[currentLabTabIndex - 1]
+            const currentTab = currentLabTabs[currentLabTabIndex]
+            const blockedUp =
+              currentTab?.type === "featured" && prevTab?.type === "featured"
+            if (!blockedUp) {
               setLabTabIndex(currentLabTabIndex - 1)
               setIsSourceButtonSelected(false)
             }
@@ -126,7 +125,10 @@ export const Stick = ({ stick, sequence }: StickProps) => {
             !currentIsSourceButtonSelected
           ) {
             setIsSourceButtonSelected(true)
-          } else if (currentTab?.title === "CHRONICLES") {
+          } else if (
+            currentTab?.type === "featured" &&
+            currentLabTabs[currentLabTabIndex + 1]?.type === "featured"
+          ) {
             const nextIndex = currentLabTabIndex + 1
             if (nextIndex < currentLabTabs.length) {
               setLabTabIndex(nextIndex)
@@ -140,7 +142,8 @@ export const Stick = ({ stick, sequence }: StickProps) => {
           if (currentIsSourceButtonSelected) {
             setIsSourceButtonSelected(false)
           } else if (
-            currentLabTabs[currentLabTabIndex]?.title === "LOOPER (COMING SOON)"
+            currentLabTabs[currentLabTabIndex]?.type === "featured" &&
+            currentLabTabs[currentLabTabIndex - 1]?.type === "featured"
           ) {
             setLabTabIndex(currentLabTabIndex - 1)
             setIsSourceButtonSelected(false)

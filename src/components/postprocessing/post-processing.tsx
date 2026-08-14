@@ -5,7 +5,9 @@ import { memo, useEffect, useMemo, useRef } from "react"
 import {
   DepthTexture,
   OrthographicCamera as ThreeOrthographicCamera,
-  Texture
+  ShaderMaterial,
+  Texture,
+  Vector2
 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -14,27 +16,30 @@ import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
-import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
 
 interface PostProcessingProps {
+  material: ShaderMaterial
   mainTexture: Texture
   depthTexture: DepthTexture
+  bloomTexture: Texture
+  bloomResolution: Vector2
   cameraRef: React.RefObject<ThreeOrthographicCamera | null>
 }
 
 const Inner = ({
+  material,
   mainTexture,
   depthTexture,
+  bloomTexture,
+  bloomResolution,
   cameraRef
 }: PostProcessingProps) => {
   const scene = useCurrentScene()
   const assets = useAssets()
   const firstRender = useRef(true)
   const { isMobile } = useDeviceDetect()
-
-  const material = useMemo(() => createPostProcessingMaterial(), [])
 
   useEffect(() => {
     revealOpacityMaterials.add(material)
@@ -55,15 +60,15 @@ const Inner = ({
 
   const targets = useMemo(
     () => ({
-      contrast: new MotionValue(),
-      brightness: new MotionValue(),
-      exposure: new MotionValue(),
-      gamma: new MotionValue(),
-      vignetteRadius: new MotionValue(),
-      vignetteSpread: new MotionValue(),
-      bloomStrength: new MotionValue(),
-      bloomRadius: new MotionValue(),
-      bloomThreshold: new MotionValue()
+      contrast: new MotionValue(0),
+      brightness: new MotionValue(0),
+      exposure: new MotionValue(0),
+      gamma: new MotionValue(0),
+      vignetteRadius: new MotionValue(0),
+      vignetteSpread: new MotionValue(0),
+      bloomStrength: new MotionValue(0),
+      bloomRadius: new MotionValue(0),
+      bloomThreshold: new MotionValue(0)
     }),
     []
   )
@@ -141,17 +146,26 @@ const Inner = ({
     const controller = new AbortController()
 
     material.uniforms.resolution.value.set(screenWidth, screenHeight)
-    material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2)
 
     material.uniforms.uActiveBloom.value = isMobile ? 0 : 1
 
     material.uniforms.uMainTexture.value = mainTexture
     material.uniforms.uDepthTexture.value = depthTexture
+    material.uniforms.uBloomTexture.value = bloomTexture
+    material.uniforms.uBloomResolution.value.copy(bloomResolution)
 
     return () => controller.abort()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mainTexture, depthTexture, isMobile, screenWidth, screenHeight])
+  }, [
+    mainTexture,
+    depthTexture,
+    bloomTexture,
+    bloomResolution,
+    isMobile,
+    screenWidth,
+    screenHeight
+  ])
 
   useFrameCallback((_, __, elapsedTime) => {
     material.uniforms.uTime.value = elapsedTime

@@ -1,9 +1,10 @@
 "use client"
 
 import { AnimatePresence, motion } from "motion/react"
-import { memo, useMemo, useState } from "react"
+import Image from "next/image"
+import { useState } from "react"
 
-import { Brand } from "@/app/(pages)/(home)/brands"
+import { Brand } from "@/app/(site)/(canvas)/(content)/(home)/brands"
 import { ExternalLinkIcon } from "@/components/icons/icons"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
@@ -11,21 +12,22 @@ import { cn } from "@/utils/cn"
 
 const DEBOUNCE_DELAY = 50
 
-const SVGLogo = memo(({ svg }: { svg: string | null }) => {
-  if (!svg) return null
+const BrandLogo = ({ logo }: { logo: Brand["logo"] }) => {
+  if (!logo) return null
   return (
-    <div
-      className="with-dots relative grid h-full w-full place-items-center px-2 [&>svg]:max-w-[100%]"
-      ref={(node) => {
-        if (node) node.innerHTML = svg
-      }}
-    />
+    <div className="with-dots relative grid h-full w-full place-items-center px-2">
+      <Image
+        src={logo.src}
+        alt={logo.alt}
+        width={160}
+        height={88}
+        className="object-contain"
+      />
+    </div>
   )
-})
+}
 
-SVGLogo.displayName = "SVGLogo"
-
-export const AnimatedTitle = memo(({ brandName }: { brandName: string }) => (
+export const AnimatedTitle = ({ brandName }: { brandName: string }) => (
   <AnimatePresence mode="wait">
     {brandName ? (
       <motion.span
@@ -50,15 +52,13 @@ export const AnimatedTitle = memo(({ brandName }: { brandName: string }) => (
       </motion.span>
     )}
   </AnimatePresence>
-))
-
-AnimatedTitle.displayName = "AnimatedTitle"
+)
 
 interface BrandsDesktopProps {
   brands: Brand[]
 }
 
-export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
+export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
   const isLargeDesktop = useMedia("(min-width: 1280px)")
   const isDesktop = useMedia("(min-width: 1024px)")
@@ -68,27 +68,17 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
     DEBOUNCE_DELAY
   )
 
-  const hoveredBrandName: string | undefined = useMemo(() => {
-    if (debouncedHoveredBrandId) {
-      return brands.find((row) => row._id === debouncedHoveredBrandId)?._title
-    } else {
-      return undefined
-    }
-  }, [brands, debouncedHoveredBrandId])
+  const hoveredBrandName = debouncedHoveredBrandId
+    ? brands.find((row) => row._id === debouncedHoveredBrandId)?._title
+    : undefined
 
-  const filteredBrands = useMemo(() => {
-    if (isLargeDesktop) {
-      const max = 32
-      const available = Math.min(brands.length, max)
-      const count = Math.floor(available / 8) * 8
-      return brands.slice(0, count)
-    } else {
-      const max = 30
-      const available = Math.min(brands.length, max)
-      const count = Math.floor(available / 6) * 6
-      return brands.slice(0, count)
-    }
-  }, [brands, isLargeDesktop])
+  // Cap is visual only (logo grid needs full rows) — /index.md lists every
+  // client on purpose, don't "fix" that to match this number.
+  const max = isLargeDesktop ? 32 : 30
+  const groupSize = isLargeDesktop ? 8 : 6
+  const available = Math.min(brands.length, max)
+  const count = Math.floor(available / groupSize) * groupSize
+  const filteredBrands = brands.slice(0, count)
 
   if (isDesktop === false) return null
 
@@ -104,7 +94,7 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
         <div className="grid-rows-auto group grid grid-cols-6 gap-3 xl:grid-cols-8">
           {filteredBrands.map((brand) => (
             <motion.a
-              className="aspect-[202/110] text-brand-w1 focus-visible:!ring-offset-0 [&>svg]:w-16 sm:[&>svg]:w-auto"
+              className="aspect-[202/110] text-brand-w1 focus-visible:!ring-offset-0"
               href={brand.website ?? ""}
               key={brand._id}
               onMouseEnter={() => setHoveredBrandId(brand._id)}
@@ -128,7 +118,7 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
                     hoveredBrandId === brand._id && "opacity-100"
                   )}
                 />
-                <SVGLogo svg={brand.logo} />
+                <BrandLogo logo={brand.logo} />
               </div>
             </motion.a>
           ))}
@@ -136,4 +126,4 @@ export const BrandsDesktop = memo(({ brands }: BrandsDesktopProps) => {
       </div>
     </section>
   )
-})
+}

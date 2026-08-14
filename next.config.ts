@@ -1,71 +1,55 @@
+import { withSentryConfig } from "@sentry/nextjs"
 import type { NextConfig } from "next"
+import { sanity } from "next-sanity/live/cache-life"
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  productionBrowserSourceMaps: true,
+  cacheComponents: true,
+  // Sanity Live handles on-demand revalidation, so override the 15-min default.
+  cacheLife: {
+    default: sanity
+  },
   turbopack: {
     rules: {
       "*.{glsl,vert,frag,vs,fs}": {
-        loaders: ["raw-loader", "glslify-loader"],
+        loaders: ["raw-loader"],
         as: "*.js"
       }
     }
   },
-  experimental: {
-    ppr: "incremental"
-  },
-
   images: {
     formats: ["image/avif", "image/webp"],
+    qualities: [75, 90],
+    // Cap the largest generated variant at 2560px (default tops out at 3840):
+    // full-bleed art on 4K/high-DPR screens was producing multi-MB candidates
+    // that site audits flag, with no visible gain over 2560.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 2560],
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "assets.basehub.com",
-        pathname: "**"
-      },
-      {
-        protocol: "https",
-        hostname: "basehub.earth",
-        pathname: "**"
-      },
       {
         protocol: "https",
         hostname: "basement.studio",
         pathname: "**"
       },
       { protocol: "https", hostname: "pbs.twimg.com", pathname: "**" },
-      { protocol: "https", hostname: "abs.twimg.com", pathname: "**" }
+      { protocol: "https", hostname: "abs.twimg.com", pathname: "**" },
+      { protocol: "https", hostname: "cdn.sanity.io", pathname: "**" }
     ]
   },
 
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(glsl|vs|fs|vert|frag)$/,
-      use: ["raw-loader", "glslify-loader"]
-    })
-
-    return config
-  },
-
-  async rewrites() {
+  async headers() {
     return [
       {
-        source: "/ingest/static/:path*",
-        destination: "https://us-assets.i.posthog.com/static/:path*"
-      },
-      {
-        source: "/ingest/:path*",
-        destination: "https://us.i.posthog.com/:path*"
-      },
-      {
-        source: "/ingest/decide",
-        destination: "https://us.i.posthog.com/decide"
+        // Filenames under /public/3d are content-hashed, so URLs are immutable.
+        source: "/3d/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable"
+          }
+        ]
       }
     ]
   },
-
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
 
   async redirects() {
     return [
@@ -196,4 +180,25 @@ const nextConfig: NextConfig = {
   }
 }
 
-export default nextConfig
+// Not the token alone: a dev machine can have one in .env.sentry-build-plugin.
+const canPublishSentryArtifacts =
+  process.env.VERCEL === "1" && Boolean(process.env.SENTRY_AUTH_TOKEN)
+
+// Disabling sourcemaps also silences the plugin's own missing-token warning.
+// Production only: preview is expected to run without the token.
+if (process.env.VERCEL_ENV === "production" && !canPublishSentryArtifacts) {
+  console.warn(
+    "[sentry] SENTRY_AUTH_TOKEN is not set — skipping sourcemap upload and release creation. Production stack traces will be minified."
+  )
+}
+
+export default withSentryConfig(nextConfig, {
+  org: "basementstudio-be",
+  project: "website-2k25",
+  silent: !process.env.VERCEL,
+  widenClientFileUpload: true,
+  // `productionBrowserSourceMaps` stays unset so the SDK enables maps and
+  // deletes them after upload.
+  sourcemaps: { disable: !canPublishSentryArtifacts },
+  release: { create: canPublishSentryArtifacts }
+})

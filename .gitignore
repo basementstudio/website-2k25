@@ -39,19 +39,19 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# public files
-/public/robots.txt
-/public/sitemap.xml
 .env*.local
 
 
-# BaseHub
-.basehub
 
 # million lint
 .million
+
+# tldr
+.tldrignore
+.tldr/
 
 # Sentry Config File
 .env.sentry-build-plugin
 
 .env.local
+

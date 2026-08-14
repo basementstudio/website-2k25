@@ -12,11 +12,12 @@ import {
   Texture,
   TextureLoader
 } from "three"
-import { EXRLoader } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { cctvConfig } from "@/components/postprocessing/renderer"
+import { useKTX2Textures } from "@/hooks/use-ktx2-loader"
+import { useMesh } from "@/hooks/use-mesh"
 
 interface Bake {
   lightmap?: Texture
@@ -74,8 +75,7 @@ const useBakes = (): Record<string, Bake> => {
     [bakes]
   )
 
-  const loadedLightmaps = useLoader(
-    EXRLoader,
+  const loadedLightmaps = useKTX2Textures(
     withLightmap.map((bake) => bake.lightmap)
   )
 
@@ -99,7 +99,6 @@ const useBakes = (): Record<string, Bake> => {
 
     loadedLightmaps.forEach((map, index) => {
       const meshNames = withLightmap[index].meshes
-      map.flipY = true
       map.generateMipmaps = false
       map.minFilter = NearestFilter
       map.magFilter = NearestFilter
@@ -202,8 +201,18 @@ const Bakes = () => {
     }
   }, [setMainAppRunning, setCanRunMainApp])
 
+  const mapMaterialsReady = useMesh((state) => state.mapMaterialsReady)
+
   useEffect(() => {
+    if (!mapMaterialsReady) return
+
+    let skipped = 0
+
     const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
+      if (!mesh.userData.hasGlobalMaterial) {
+        skipped++
+        return
+      }
       if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
       if (maps.aomap) addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
       if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
@@ -227,8 +236,14 @@ const Bakes = () => {
         })
       }
     })
+
+    if (skipped > 0) {
+      console.warn(
+        `[bakes] ${skipped} mesh(es) had no global shader material; their bakes were dropped.`
+      )
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [mapMaterialsReady, bakes])
 
   return null
 }

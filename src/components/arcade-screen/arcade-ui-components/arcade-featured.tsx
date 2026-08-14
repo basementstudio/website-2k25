@@ -14,7 +14,8 @@ export const ArcadeFeatured = () => {
 
   const [hoveredSection, setHoveredSection] = useState({
     chronicles: false,
-    looper: false
+    looper: false,
+    shaderLab: false
   })
 
   const isInLabTab = useArcadeStore((state) => state.isInLabTab)
@@ -22,11 +23,21 @@ export const ArcadeFeatured = () => {
   const experiments = useArcadeStore((state) => state.labTabs)
   const setCursor = useCursor()
   const isChroniclesSelected =
-    isInLabTab && labTabIndex === experiments.length - 2
-  const isLooperSelected = isInLabTab && labTabIndex === experiments.length - 1
+    isInLabTab && labTabIndex === experiments.length - 3
+  const isLooperSelected = isInLabTab && labTabIndex === experiments.length - 2
+  const isShaderLabSelected =
+    isInLabTab && labTabIndex === experiments.length - 1
 
   const handleChroniclesClick = useCallback(() => {
     window.open("https://chronicles.basement.studio", "_blank")
+  }, [])
+
+  const handleLooperClick = useCallback(() => {
+    window.open("https://looper.basement.studio/", "_blank")
+  }, [])
+
+  const handleShaderLabClick = useCallback(() => {
+    window.open("https://eng.basement.studio/tools/shader-lab", "_blank")
   }, [])
 
   useKeyPress(
@@ -34,21 +45,19 @@ export const ArcadeFeatured = () => {
     useCallback(() => {
       if (isChroniclesSelected) {
         handleChroniclesClick()
-      }
-    }, [isChroniclesSelected, handleChroniclesClick])
-  )
-
-  const handleLooperClick = useCallback(() => {
-    //TODO: ADD LOOPER
-  }, [])
-
-  useKeyPress(
-    "Enter",
-    useCallback(() => {
-      if (isLooperSelected) {
+      } else if (isLooperSelected) {
         handleLooperClick()
+      } else if (isShaderLabSelected) {
+        handleShaderLabClick()
       }
-    }, [isLooperSelected, handleLooperClick])
+    }, [
+      isChroniclesSelected,
+      isLooperSelected,
+      isShaderLabSelected,
+      handleChroniclesClick,
+      handleLooperClick,
+      handleShaderLabClick
+    ])
   )
 
   return (
@@ -61,12 +70,13 @@ export const ArcadeFeatured = () => {
         flexDirection="row"
       >
         <Container
-          width={"50%"}
+          flexGrow={1}
+          flexBasis={0}
           height={"100%"}
           positionType="relative"
           alignItems="center"
           justifyContent="center"
-          onClick={(e) => {
+          onClick={() => {
             handleChroniclesClick()
           }}
           onHoverChange={(hover) => {
@@ -120,14 +130,18 @@ export const ArcadeFeatured = () => {
           orientation="vertical"
         />
         <Container
-          width={"50%"}
+          flexGrow={1}
+          flexBasis={0}
           height={"100%"}
           positionType="relative"
           alignItems="center"
           justifyContent="center"
+          onClick={() => {
+            handleLooperClick()
+          }}
           onHoverChange={(hover) => {
             if (hover || isLooperSelected) {
-              setCursor("not-allowed")
+              setCursor("alias")
               setHoveredSection((prev) => ({ ...prev, looper: true }))
             } else {
               setCursor("default")
@@ -159,11 +173,71 @@ export const ArcadeFeatured = () => {
               zIndexOffset={10}
               positionTop={4}
             >
-              LOOPER (COOMING SOON)
+              PLAY LOOPER
             </Text>
           </Container>
           <Image
             src={arcade.looper}
+            width={"100%"}
+            height={"100%"}
+            objectFit="cover"
+            positionType="absolute"
+          />
+        </Container>
+        <Separator
+          width={1}
+          backgroundColor={COLORS_THEME.primary}
+          orientation="vertical"
+        />
+        <Container
+          flexGrow={1}
+          flexBasis={0}
+          height={"100%"}
+          positionType="relative"
+          alignItems="center"
+          justifyContent="center"
+          onClick={() => {
+            handleShaderLabClick()
+          }}
+          onHoverChange={(hover) => {
+            if (hover || isShaderLabSelected) {
+              setCursor("alias")
+              setHoveredSection((prev) => ({ ...prev, shaderLab: true }))
+            } else {
+              setCursor("default")
+              setHoveredSection((prev) => ({ ...prev, shaderLab: false }))
+            }
+          }}
+        >
+          <Container
+            backgroundColor={
+              hoveredSection.shaderLab || isShaderLabSelected
+                ? COLORS_THEME.primary
+                : COLORS_THEME.black
+            }
+            positionType="absolute"
+            width={"auto"}
+            {...({ zIndex: 10 } as any)}
+            height={16}
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Text
+              fontSize={8}
+              paddingX={4}
+              color={
+                hoveredSection.shaderLab || isShaderLabSelected
+                  ? COLORS_THEME.black
+                  : COLORS_THEME.primary
+              }
+              zIndexOffset={10}
+              positionTop={4}
+            >
+              SHADER LAB
+            </Text>
+          </Container>
+          <Image
+            src={arcade.shaderLab}
             width={"100%"}
             height={"100%"}
             objectFit="cover"

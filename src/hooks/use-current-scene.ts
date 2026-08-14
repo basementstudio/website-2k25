@@ -10,7 +10,7 @@ export const useCurrentScene = () => {
   useSelectStore(
     useNavigationStore,
     (state) => state.currentScene?.name || "",
-    (state, prevState) => state !== prevState,
+    (state, prevState) => state === prevState,
     (state) => setCurrentSceneName(state)
   )
 

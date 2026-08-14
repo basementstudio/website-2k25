@@ -1,29 +1,16 @@
 "use server"
 
-import { basehub } from "basehub"
-import { fragmentOn } from "basehub"
+import { fetchLabProjects } from "./sanity"
 
-import { IMAGE_FRAGMENT } from "@/service/basehub/fragments"
-
-const query = fragmentOn("Query", {
-  pages: {
-    laboratory: {
-      projectList: {
-        items: {
-          _title: true,
-          url: true,
-          description: true,
-          cover: IMAGE_FRAGMENT
-        }
-      }
-    }
-  }
-})
+export type { LabProject } from "./sanity"
 
 export const fetchLaboratory = async () => {
-  const res = await basehub().query(query)
+  const projects = await fetchLabProjects()
 
-  return res.pages.laboratory
+  return projects.map((project) => ({
+    title: project.title,
+    url: project.url,
+    description: project.description,
+    cover: project.cover?.asset ? { url: project.cover.asset.url } : null
+  }))
 }
-
-export type QueryType = fragmentOn.infer<typeof query>

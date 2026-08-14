@@ -25,6 +25,14 @@ export default {
           y: "#FFCD1A",
           g: "#00FF9B"
         },
+        // Orange phosphor palette for the /ai machine view (CRT look, built
+        // on the brand orange #FF4D00).
+        machine: {
+          bg: "#000000",
+          bright: "#FF9C71",
+          base: "#FF4D00",
+          dim: "#993000"
+        },
         codeblock: {
           o: "#FF4D00",
           lo: "#FF9C71",
@@ -172,6 +180,9 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" }
         },
+        "subtle-pulse": {
+          "50%": { opacity: "0.75" }
+        },
         "fade-in": {
           from: { opacity: "0" },
           to: { opacity: "1" }
@@ -216,6 +227,7 @@ export default {
         }
       },
       animation: {
+        "subtle-pulse": "subtle-pulse 1s ease-in-out infinite",
         "accordion-down": "accordion-down 0.2s ease-out forwards",
         "accordion-up": "accordion-up 0.2s ease-out forwards",
         "fade-in": "fade-in 0.3s ease-out",

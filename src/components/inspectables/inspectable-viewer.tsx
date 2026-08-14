@@ -1,6 +1,6 @@
 "use client"
 
-import { RichText as BaseRichText } from "basehub/react-rich-text"
+import { PortableText } from "@portabletext/react"
 import { Fragment, useEffect, useState } from "react"
 
 import { useAssets } from "@/components/assets-provider"
@@ -45,8 +45,8 @@ const Content = ({ data }: { data: InspectableData }) => (
       </div>
     )}
     <div className="text-f-p-mobile text-brand-w1 lg:text-f-p [&>p]:!text-pretty">
-      {data?.description?.json?.content && (
-        <BaseRichText content={data.description.json.content as any} />
+      {Array.isArray(data?.description) && (
+        <PortableText value={data.description} />
       )}
     </div>
   </>

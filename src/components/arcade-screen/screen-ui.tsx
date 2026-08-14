@@ -28,7 +28,14 @@ export interface LabTab {
   isClickable: boolean
 }
 
-export const createLabTabs = (experiments: any[]): LabTab[] => {
+export interface Experiment {
+  _title: string
+  url: string
+  cover: { url: string } | null
+  description: string | null
+}
+
+export const createLabTabs = (experiments: Experiment[]): LabTab[] => {
   const tabs: LabTab[] = [
     // Close button
     {
@@ -69,8 +76,18 @@ export const createLabTabs = (experiments: any[]): LabTab[] => {
     {
       id: "looper",
       type: "featured",
-      title: "LOOPER (COMING SOON)",
-      isClickable: false
+      title: "LOOPER",
+      url: "https://looper.basement.studio/",
+      isClickable: true
+    },
+
+    // Shader Lab
+    {
+      id: "shaderlab",
+      type: "featured",
+      title: "SHADER LAB",
+      url: "https://eng.basement.studio/tools/shader-lab",
+      isClickable: true
     }
   ]
 
@@ -81,8 +98,9 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
   const onLoadRef = useRef(onLoad)
   onLoadRef.current = onLoad
 
-  const [experiments, setExperiments] = useState<any[]>([])
-  const [selectedExperiment, setSelectedExperiment] = useState<any>(null)
+  const [experiments, setExperiments] = useState<Experiment[]>([])
+  const [selectedExperiment, setSelectedExperiment] =
+    useState<Experiment | null>(null)
 
   // Font URL for react-three/uikit
   const fontFamilies = useMemo(
@@ -96,12 +114,12 @@ export const ScreenUI = ({ onLoad, visible }: ScreenUIProps) => {
 
   useEffect(() => {
     if (visible) {
-      fetchLaboratory().then((data) => {
-        const experiments = data.projectList.items.map((item: any) => ({
-          _title: item._title,
+      fetchLaboratory().then((items) => {
+        const experiments: Experiment[] = items.map((item) => ({
+          _title: item.title,
           url: item.url,
           cover: item.cover,
-          description: item.description as string | null
+          description: item.description
         }))
         setExperiments(experiments)
 
