@@ -5,6 +5,7 @@ import { fetchHomepage } from "@/app/(site)/(canvas)/(content)/(home)/sanity"
 import { fetchOpenPositions } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
+import { fetchFaqPage } from "@/app/(site)/(plain)/(content)/faq/sanity"
 import { fetchAllPostsForIndex } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
 import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
@@ -48,7 +49,8 @@ const AGENT_RESOURCES = [
   { href: "/index.md", label: "index.md" },
   { href: "/services.md", label: "services.md" },
   { href: "/people.md", label: "people.md" },
-  { href: "/showcase.md", label: "showcase.md" }
+  { href: "/showcase.md", label: "showcase.md" },
+  { href: "/faq.md", label: "faq.md" }
 ]
 
 const plainText = (blocks: PortableTextBlock[] | null) =>
@@ -63,7 +65,8 @@ const AiPage = async () => {
     posts,
     companyInfo,
     orgData,
-    year
+    year,
+    faq
   ] = await Promise.all([
     fetchHomepage({ published: true }),
     fetchServicesPage({ published: true }),
@@ -72,7 +75,8 @@ const AiPage = async () => {
     fetchAllPostsForIndex(),
     fetchCompanyInfo(),
     fetchOrganizationData(),
-    fetchCurrentYear()
+    fetchCurrentYear(),
+    fetchFaqPage({ published: true })
   ])
 
   const latestPosts = posts.slice(0, 10)
@@ -318,6 +322,19 @@ const AiPage = async () => {
             <p>none currently open</p>
           )}
         </Section>
+
+        {faq?.entries.length ? (
+          <Section title="faq">
+            <ul className="flex flex-col gap-3">
+              {faq.entries.map((entry) => (
+                <li key={entry.question} className="flex flex-col gap-1">
+                  <h3 className="text-machine-bright">* {entry.question}</h3>
+                  <p>{entry.answer}</p>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        ) : null}
 
         <Section title="contact">
           <dl className="flex flex-col gap-1">
