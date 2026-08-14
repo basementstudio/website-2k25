@@ -33,4 +33,5 @@ The studio works with both startups and established companies, worldwide.
 
 - A curated link map is available at https://basement.studio/llms.txt
 - Machine view: https://basement.studio/ai — single-page plain-HTML index of the entire site.
+- FAQ: https://basement.studio/faq (markdown: https://basement.studio/faq.md)
 - Sitemap: https://basement.studio/sitemap.xml
