@@ -9,10 +9,10 @@ import {
   type CareerFormData,
   submitApplication
 } from "@/lib/notion"
+import { isSuspiciousSubmission } from "@/lib/suspicious-submission"
 
 const GENERIC_SUBMISSION_ERROR =
   "There was a problem submitting your application. Please try again in a moment or contact us."
-const MIN_SUBMISSION_TIME_MS = 3_000
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1_000
 const MAX_SUBMISSIONS_PER_WINDOW = 5
 
@@ -55,18 +55,6 @@ function isRateLimited(key: string, now: number) {
   submissionAttempts.set(key, recentAttempts)
 
   return false
-}
-
-function isSuspiciousSubmission(formData: CareerFormData, now: number) {
-  if (formData.companyWebsite.trim()) {
-    return true
-  }
-
-  if (!Number.isFinite(formData.formStartedAt)) {
-    return true
-  }
-
-  return now - formData.formStartedAt < MIN_SUBMISSION_TIME_MS
 }
 
 function validateCareerFormData(formData: CareerFormData) {

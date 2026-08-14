@@ -6,6 +6,7 @@ import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 
 import { submitCareerApplication } from "@/actions/career-application"
 import { ContactStatus } from "@/app/(site)/(plain)/contact/form/contact-status"
+import { isSuspiciousSubmission } from "@/lib/suspicious-submission"
 import { cn } from "@/utils/cn"
 
 import { CtaButton } from "./components/cta-button"
@@ -181,7 +182,11 @@ export const ApplicationForm = ({
     // Guard: prevent double-submission
     if (apiInFlightRef.current) return
 
-    track("career_application_submit")
+    // The action discards suspicious submissions silently; skipping the event
+    // keeps the count to submissions a human actually made.
+    if (!isSuspiciousSubmission(data, Date.now())) {
+      track("career_application_submit")
+    }
 
     const submissionData = {
       firstName: data.firstName,
