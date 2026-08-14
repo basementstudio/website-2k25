@@ -87,6 +87,12 @@ function validateCareerFormData(formData: CareerFormData) {
 }
 
 export async function submitCareerApplication(formData: CareerFormData) {
+  return Sentry.withServerActionInstrumentation("submitCareerApplication", () =>
+    runCareerApplication(formData)
+  )
+}
+
+async function runCareerApplication(formData: CareerFormData) {
   try {
     const now = Date.now()
 

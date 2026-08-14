@@ -1,5 +1,7 @@
 "use client"
 
+import * as Sentry from "@sentry/nextjs"
+import { track } from "@vercel/analytics"
 import { useEffect, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 
@@ -54,6 +56,7 @@ export const ContactForm = () => {
   }
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    track("contact_form_submit")
     setSubmitting(true)
     setIsSubmitted(false)
     setSubmitError("")
@@ -77,7 +80,10 @@ export const ContactForm = () => {
         setIsSubmitted(false)
         setSubmitError(result.error || "Form submission failed")
       }
-    } catch (_) {
+    } catch (error) {
+      // Only transport failures land here — the action reports its own errors
+      // server-side and never rejects.
+      Sentry.captureException(error)
       setIsSubmitted(false)
       setSubmitError("Form submission failed")
     } finally {

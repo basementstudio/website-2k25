@@ -1,5 +1,6 @@
 "use client"
 
+import { track } from "@vercel/analytics"
 import { type KeyboardEventHandler, useEffect, useRef, useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 
@@ -179,6 +180,8 @@ export const ApplicationForm = ({
   const onSubmit: SubmitHandler<ApplicationInputs> = async (data) => {
     // Guard: prevent double-submission
     if (apiInFlightRef.current) return
+
+    track("career_application_submit")
 
     const submissionData = {
       firstName: data.firstName,
