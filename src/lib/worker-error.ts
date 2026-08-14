@@ -14,14 +14,27 @@ export function postWorkerError(error: unknown) {
   self.postMessage({ type: WORKER_ERROR, name, message, stack })
 }
 
-/** A failed script fetch fires a plain `Event` — no `error`, no `message`. */
-export function workerEventError(event: Event, name: string): Error {
-  if (event instanceof ErrorEvent) {
-    if (event.error instanceof Error) return event.error
-    if (event.message) return new Error(event.message)
+export interface WorkerErrorReport {
+  error: Error
+  detail?: string
+}
+
+/**
+ * A failed script fetch reports the chunk hash, which turns over on every
+ * deploy — keeping it out of the title keeps it in one Sentry issue.
+ */
+export function workerErrorReport(
+  event: Event,
+  name: string
+): WorkerErrorReport {
+  if (event instanceof ErrorEvent && event.error instanceof Error) {
+    return { error: event.error }
   }
 
-  return new Error(`${name} worker failed to load`)
+  return {
+    error: new Error(`${name} worker failed to load`),
+    detail: event instanceof ErrorEvent ? event.message : undefined
+  }
 }
 
 /** Rebuilds the worker's error on the main thread, keeping its stack. */
