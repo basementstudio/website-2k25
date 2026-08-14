@@ -25,6 +25,7 @@ interface AppLoadingState {
   offscreenCanvasReady: boolean
   worker: Worker | null
   canvasUnavailable: boolean
+  canvasBootTimedOut: boolean
   setMainAppRunning: (isAppLoaded: boolean) => void
   setCanRunMainApp: (canRunMainApp: boolean) => void
   reportCanvasUnavailable: () => void
@@ -57,6 +58,10 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      * Set by the error boundary, the WebGL2 probe, or a failed context creation
      */
     canvasUnavailable: false,
+    /**
+     * The scene never reported readiness, so 3D interactions will never work
+     */
+    canvasBootTimedOut: false,
     /**
      * This function will tell the loading canvas that is ok to reveal the main app
      */
@@ -116,7 +121,10 @@ export const AppLoadingHandler = () => {
 
     const timeout = setTimeout(() => {
       // A slow scene may still arrive, so don't mark the canvas unavailable.
-      useAppLoadingStore.setState({ showLoadingCanvas: false })
+      useAppLoadingStore.setState({
+        showLoadingCanvas: false,
+        canvasBootTimedOut: true
+      })
 
       if (reportedBootTimeout.current) return
       reportedBootTimeout.current = true

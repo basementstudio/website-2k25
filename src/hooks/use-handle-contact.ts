@@ -10,6 +10,9 @@ export const useHandleContactButton = () => {
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
+  const canvasBootTimedOut = useAppLoadingStore(
+    (state) => state.canvasBootTimedOut
+  )
   const router = useRouter()
   const webglEnabled = useWebgl()
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -17,9 +20,10 @@ export const useHandleContactButton = () => {
   const handleClick = useCallback(() => {
     if (clickTimeoutRef.current || isAnimating) return
     const isMobile = window.innerWidth < 1024
+    const canUsePhone = webglEnabled && !isMobile && !canvasBootTimedOut
 
-    if (webglEnabled && !isMobile) {
-      // Only the 3D phone needs the scene; /contact must stay reachable without it.
+    if (canUsePhone) {
+      // Still booting: wait for the scene rather than routing away from it.
       if (!canRunMainApp) return
 
       setIsContactOpen(!isContactOpen)
@@ -36,7 +40,8 @@ export const useHandleContactButton = () => {
     setIsContactOpen,
     router,
     isAnimating,
-    canRunMainApp
+    canRunMainApp,
+    canvasBootTimedOut
   ])
 
   return handleClick
