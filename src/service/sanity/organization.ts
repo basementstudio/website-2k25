@@ -3,7 +3,7 @@ import { sanityFetch } from "@/service/sanity"
 
 /**
  * Data feeding the schema.org Organization node rendered on every page (see
- * `src/app/(site)/layout.tsx`). Stable identity facts come from
+ * `src/lib/structured-data/page-json-ld.tsx`). Stable identity facts come from
  * `COMPANY_FACTS`; awards and social links come from Sanity so they stay in
  * sync with what the site publishes.
  */

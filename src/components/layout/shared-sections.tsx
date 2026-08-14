@@ -145,8 +145,16 @@ export const SocialLinks = ({ className, links }: SocialLinksProps) => (
       className
     )}
   >
-    <Link className="h-max text-brand-w1" href={links.twitter} target="_blank">
-      <span className="actionable">X (Twitter)</span>
+    <Link
+      className="h-max text-brand-w1"
+      href={links.twitter}
+      target="_blank"
+      aria-label="X (Twitter)"
+    >
+      {/* U+1D54F — screen readers skip it, hence the aria-label above. */}
+      <span className="actionable" aria-hidden>
+        𝕏
+      </span>
     </Link>
     <span aria-hidden>,</span>
     <Link

@@ -27,19 +27,21 @@ export interface MarkdownRoute {
 export const markdownRoutes: MarkdownRoute[] = [
   {
     mdRegex: /^\/post\/([^/]+)\.md$/,
-    htmlRegex: /^\/post\/([^/.]+)$/,
+    // Same char class as mdRegex — dotted slugs (e.g. "next.js-thing") were
+    // silently skipped otherwise.
+    htmlRegex: /^\/post\/([^/]+)$/,
     apiPath: "/api/post/[slug].md",
     publicMdPath: "/post/[slug].md"
   },
   {
     mdRegex: /^\/showcase\/([^/]+)\.md$/,
-    htmlRegex: /^\/showcase\/([^/.]+)$/,
+    htmlRegex: /^\/showcase\/([^/]+)$/,
     apiPath: "/api/showcase/[slug].md",
     publicMdPath: "/showcase/[slug].md"
   },
   {
     mdRegex: /^\/careers\/([^/]+)\.md$/,
-    htmlRegex: /^\/careers\/([^/.]+)$/,
+    htmlRegex: /^\/careers\/([^/]+)$/,
     apiPath: "/api/careers/[slug].md",
     publicMdPath: "/careers/[slug].md"
   },

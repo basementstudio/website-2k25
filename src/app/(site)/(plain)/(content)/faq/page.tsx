@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { FAQ_ENTRIES, FAQ_INTRO } from "@/lib/faq"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateBreadcrumbSchema } from "@/lib/structured-data/schemas/breadcrumb"
 import { generateFaqPageSchema } from "@/lib/structured-data/schemas/faq"
 
@@ -21,8 +21,9 @@ const breadcrumbSchema = generateBreadcrumbSchema([
 
 const FaqPage = () => (
   <div className="relative bg-brand-k pt-12">
-    <JsonLd data={generateFaqPageSchema(FAQ_ENTRIES)} />
-    <JsonLd data={breadcrumbSchema} />
+    <PageJsonLd
+      nodes={[generateFaqPageSchema(FAQ_ENTRIES), breadcrumbSchema]}
+    />
     <div className="grid-layout !gap-y-10">
       <header className="col-span-full flex flex-col gap-4 lg:col-start-1 lg:col-end-5">
         <h1 className="text-f-h1-mobile text-brand-w2 lg:text-f-h1">

@@ -30,5 +30,10 @@ export function GET() {
     `[View all content](${SITE_URL}/sitemap.md)`
   ].join("\n")
 
-  return new NextResponse(markdown, { headers: MD_HEADERS })
+  return new NextResponse(markdown, {
+    headers: {
+      ...MD_HEADERS,
+      Link: `<${SITE_URL}/faq>; rel="canonical"`
+    }
+  })
 }

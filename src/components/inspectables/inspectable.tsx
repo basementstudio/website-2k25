@@ -5,7 +5,6 @@ import { useThree } from "@react-three/fiber"
 import { track } from "@vercel/analytics"
 import { animate, MotionValue } from "motion"
 import type { AnimationPlaybackControls } from "motion/react"
-import posthog from "posthog-js"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Box3,
@@ -277,9 +276,6 @@ export const Inspectable = memo(function InspectableInner({
           setSelected(id)
           const inspectable = inspectables.find((item) => item.mesh === id)
           track(`inspecting_${inspectable?._title.replace(/\s+/g, "_")}`)
-          posthog.capture(
-            `inspecting_${inspectable?._title.replace(/\s+/g, "_")}`
-          )
         }
       })
     }

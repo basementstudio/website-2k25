@@ -118,7 +118,14 @@ export async function fetchRelatedPosts(
   currentSlug: string,
   currentCategoryTitles: string[]
 ): Promise<RelatedPost[]> {
-  const query = /* groq */ `*[_type == "post"] | order(date desc){
+  if (currentCategoryTitles.length === 0) return []
+
+  // Filter + range pushed into GROQ instead of fetching all posts to keep 3.
+  const query = /* groq */ `*[
+    _type == "post" &&
+    slug.current != $slug &&
+    count(categories[@->title in $titles]) > 0
+  ] | order(date desc)[0...3]{
     _id,
     title,
     "slug": slug.current,
@@ -127,7 +134,8 @@ export async function fetchRelatedPosts(
     categories[]->{ title, "slug": slug.current }
   }`
   const posts = await sanityFetch<RelatedPost[]>({
-    query
+    query,
+    params: { slug: currentSlug, titles: currentCategoryTitles }
   })
 
   return selectRelatedPosts({

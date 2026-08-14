@@ -1,9 +1,16 @@
+import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
 import { fetchAllOpenPositionsForIndex } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
 import { fetchAllPostsForIndex } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { fetchAllProjectsForIndex } from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
+
+const MD_HEADERS = {
+  "Content-Type": "text/markdown; charset=utf-8",
+  Vary: "Accept",
+  "X-Content-Type-Options": "nosniff"
+} as const
 
 export async function GET() {
   try {
@@ -55,17 +62,14 @@ export async function GET() {
     }
 
     return new NextResponse(parts.join("\n"), {
-      headers: {
-        "Content-Type": "text/markdown; charset=utf-8",
-        Vary: "Accept",
-        "X-Content-Type-Options": "nosniff"
-      }
+      headers: MD_HEADERS
     })
   } catch (error) {
     console.error("Error building markdown sitemap:", error)
+    Sentry.captureException(error)
     return new NextResponse("# 500 Error\n\nFailed to build content index.", {
       status: 500,
-      headers: { "Content-Type": "text/markdown; charset=utf-8" }
+      headers: MD_HEADERS
     })
   }
 }

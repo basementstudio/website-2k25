@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { BlogList } from "@/components/blog/list"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateCollectionPageSchema } from "@/lib/structured-data/schemas/collection"
 
 import {
@@ -11,13 +11,6 @@ import {
 } from "../sanity"
 
 type Params = Promise<{ slug: string[] }>
-
-const titleCase = (slug: string): string =>
-  slug
-    .split("-")
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ")
 
 export const generateMetadata = async (props: {
   params: Params
@@ -37,10 +30,22 @@ export const generateMetadata = async (props: {
 
   const categories = await fetchCategoriesNonEmpty()
   const category = categories.find((c) => c.slug === categorySlug)
-  const label = category?.title ?? titleCase(categorySlug)
+
+  // Unknown category or extra segments still render (HTML is frozen) — stop
+  // them from self-canonicalizing as distinct, indexable URLs.
+  if (!category || slug.length > 1) {
+    return {
+      description:
+        "Read the basement.studio blog — articles, deep dives, and behind-the-scenes notes on design, branding, web engineering, 3D, and cool shit that performs.",
+      alternates: {
+        canonical: "https://basement.studio/blog"
+      },
+      robots: { index: false }
+    }
+  }
 
   return {
-    description: `Explore basement.studio's ${label} articles — deep dives, tutorials, and behind-the-scenes notes from our design and engineering team.`,
+    description: `Explore basement.studio's ${category.title} articles — deep dives, tutorials, and behind-the-scenes notes from our design and engineering team.`,
     alternates: {
       canonical: `https://basement.studio/blog/${categorySlug}`
     }
@@ -85,7 +90,7 @@ export default async function BlogIndexPage(props: { params: Params }) {
 
   return (
     <>
-      {collectionSchema ? <JsonLd data={collectionSchema} /> : null}
+      <PageJsonLd nodes={[collectionSchema]} />
       <BlogList params={params} />
     </>
   )
@@ -95,12 +100,8 @@ export default async function BlogIndexPage(props: { params: Params }) {
 export const generateStaticParams = async () => {
   const categories = await fetchCategoriesNonEmpty({ forStaticParams: true })
 
-  categories.unshift({
-    title: "Home",
-    slug: ""
-  })
-
-  return categories.map((category) => ({
-    slug: [category.slug]
-  }))
+  return [
+    { slug: [] },
+    ...categories.map((category) => ({ slug: [category.slug] }))
+  ]
 }

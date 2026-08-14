@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
 import { fetchCareerPosition } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
@@ -17,7 +18,8 @@ export async function GET(
   const { slug: rawSlug } = await params
 
   // Only the `.md` form is served here; the proxy rewrites to this route.
-  if (!rawSlug.endsWith(".md")) return new NextResponse(null, { status: 404 })
+  if (!rawSlug.endsWith(".md"))
+    return new NextResponse(null, { status: 404, headers: MD_HEADERS })
   const slug = rawSlug.slice(0, -3)
 
   try {
@@ -56,9 +58,15 @@ export async function GET(
 
     const markdown = parts.filter((part) => part !== null).join("\n")
 
-    return new NextResponse(markdown, { headers: MD_HEADERS })
+    return new NextResponse(markdown, {
+      headers: {
+        ...MD_HEADERS,
+        Link: `<${SITE_URL}/careers/${slug}>; rel="canonical"`
+      }
+    })
   } catch (error) {
     console.error("Error building career position markdown:", error)
+    Sentry.captureException(error)
     return new NextResponse("# 500 Error\n\nFailed to build markdown.", {
       status: 500,
       headers: MD_HEADERS

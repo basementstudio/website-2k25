@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
+
 export const metadata: Metadata = {
   title: "Doom",
   description:
@@ -9,8 +11,6 @@ export const metadata: Metadata = {
   }
 }
 
-const Doom = async () => {
-  return null
-}
+const Doom = () => <PageJsonLd />
 
 export default Doom

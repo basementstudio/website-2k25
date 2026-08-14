@@ -1,6 +1,6 @@
-import { ORGANIZATION_ID } from "./organization"
+import { SITE_URL } from "@/lib/constants"
 
-const SITE_URL = "https://basement.studio"
+import { ORGANIZATION_ID } from "./organization"
 
 interface FaqItem {
   question: string
@@ -8,7 +8,6 @@ interface FaqItem {
 }
 
 export const generateFaqPageSchema = (faqs: FaqItem[]) => ({
-  "@context": "https://schema.org",
   "@type": "FAQPage",
   "@id": `${SITE_URL}/faq#faqpage`,
   name: "Frequently Asked Questions",

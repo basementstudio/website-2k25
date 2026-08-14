@@ -1,10 +1,12 @@
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
+import * as Sentry from "@sentry/nextjs"
 import dynamic from "next/dynamic"
 import { useEffect, useRef } from "react"
 import { Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { workerErrorFromMessage } from "@/lib/worker-error"
 import { cn } from "@/utils/cn"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
@@ -68,6 +70,12 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
     worker.addEventListener("message", (e: MessageEvent<{ type: string }>) => {
       const { type } = e.data
 
+      const forwarded = workerErrorFromMessage(e.data)
+      if (forwarded) {
+        Sentry.captureException(forwarded, { tags: { worker: "loading" } })
+        return
+      }
+
       if (type === "loading-transition-complete") {
         useAppLoadingStore.setState({ showLoadingCanvas: false })
       }
@@ -77,8 +85,12 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
       }
     })
 
-    const handleError = (error: ErrorEvent) => {
-      console.error("[LoadingCanvas] Worker error:", error)
+    const handleError = (event: ErrorEvent) => {
+      console.error("[LoadingCanvas] Worker error:", event)
+      // `error` is null when the worker script itself fails to load.
+      Sentry.captureException(event.error ?? new Error(event.message), {
+        tags: { worker: "loading" }
+      })
     }
 
     worker.addEventListener("error", handleError)

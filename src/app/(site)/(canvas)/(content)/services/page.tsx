@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { Contact } from "@/components/layout/contact"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateServicesWebPageSchema } from "@/lib/structured-data/schemas/professional-service"
 import { getImageUrl } from "@/service/sanity/helpers"
 
@@ -59,7 +59,7 @@ const ServicesPage = async () => {
 
   return (
     <div className="flex flex-col gap-18 lg:gap-44">
-      <JsonLd data={servicesSchema} />
+      <PageJsonLd nodes={[servicesSchema]} />
       <Hero data={data} className="lg:-mb-11" />
       <Services data={data} />
       {testimonial && <Testimonials data={testimonial} />}
