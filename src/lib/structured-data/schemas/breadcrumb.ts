@@ -1,4 +1,4 @@
-const SITE_URL = "https://basement.studio"
+import { SITE_URL } from "@/lib/constants"
 
 export interface BreadcrumbItem {
   /** Human-readable label, e.g. "Showcase" or the page title. */
@@ -13,7 +13,6 @@ export interface BreadcrumbItem {
  * URL, consistent with the other schema builders.
  */
 export const generateBreadcrumbSchema = (items: BreadcrumbItem[]) => ({
-  "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: items.map((item, index) => ({
     "@type": "ListItem",

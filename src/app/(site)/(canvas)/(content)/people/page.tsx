@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { Contact } from "@/components/layout/contact"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generatePeopleSchema } from "@/lib/structured-data/schemas/person"
 import { getImageUrl } from "@/service/sanity/helpers"
 
@@ -70,7 +70,7 @@ const About = async () => {
 
   return (
     <>
-      <JsonLd data={peopleSchema} />
+      <PageJsonLd nodes={[peopleSchema]} />
       <Hero data={pageData} />
       <Values data={values} />
       <Crew data={peopleDisplay} />

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { BlogList } from "@/components/blog/list"
-import { JsonLd } from "@/lib/structured-data/json-ld"
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { generateCollectionPageSchema } from "@/lib/structured-data/schemas/collection"
 
 import { fetchCategoriesNonEmpty, fetchPostListForSchema } from "../sanity"
@@ -67,7 +67,7 @@ export default async function BlogIndexPage(props: { params: Params }) {
 
   return (
     <>
-      {collectionSchema ? <JsonLd data={collectionSchema} /> : null}
+      <PageJsonLd nodes={[collectionSchema]} />
       <BlogList params={params} />
     </>
   )

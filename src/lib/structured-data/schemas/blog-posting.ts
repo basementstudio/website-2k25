@@ -1,17 +1,9 @@
+import { SITE_URL } from "@/lib/constants"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
 import { extractPlainText } from "../extract-text"
 import { createImageObject } from "../image-object"
-
-const SITE_URL = "https://basement.studio"
-const SITE_NAME = "basement.studio"
-const PUBLISHER_LOGO = {
-  "@type": "ImageObject" as const,
-  url: `${SITE_URL}/images/logobasement.png`,
-  width: 208,
-  height: 208,
-  caption: "basement.studio logo"
-}
+import { ORGANIZATION_ID } from "./organization"
 
 interface BlogPostData {
   title: string
@@ -33,7 +25,6 @@ export const generateBlogPostingSchema = (post: BlogPostData) => {
     .filter((value): value is string => Boolean(value))
 
   return {
-    "@context": "https://schema.org",
     "@type": "BlogPosting",
     "@id": `${url}#article`,
     headline: post.title,
@@ -61,11 +52,6 @@ export const generateBlogPostingSchema = (post: BlogPostData) => {
         }
       : {}),
     ...(articleSection?.length ? { articleSection } : {}),
-    publisher: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      url: SITE_URL,
-      logo: PUBLISHER_LOGO
-    }
+    publisher: { "@id": ORGANIZATION_ID }
   }
 }
