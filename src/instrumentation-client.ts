@@ -4,6 +4,8 @@ import { resolveTracesSampleRate } from "@/lib/sentry-sampling"
 
 const environment = process.env.NEXT_PUBLIC_VERCEL_ENV ?? "development"
 
+const ANONYMOUS_ID_KEY = "sentry-anonymous-id"
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   environment,
@@ -25,5 +27,17 @@ Sentry.init({
     })
   ]
 })
+
+// Without an id every issue reports "0 users impacted". Pseudonymous so
+// sendDefaultPii can stay off.
+try {
+  const stored = sessionStorage.getItem(ANONYMOUS_ID_KEY)
+  const id = stored ?? crypto.randomUUID()
+
+  if (!stored) sessionStorage.setItem(ANONYMOUS_ID_KEY, id)
+  Sentry.setUser({ id })
+} catch {
+  // Storage throws in some embedded and hardened-privacy contexts.
+}
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart

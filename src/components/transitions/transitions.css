@@ -34,3 +34,19 @@
     transition: mask-position 0s;
   }
 }
+
+/* How much room the canvas takes, and so how much the content below reserves. */
+html {
+  --canvas-offset: 80svh;
+}
+
+@media (min-width: 1024px) {
+  html {
+    --canvas-offset: 100svh;
+  }
+}
+
+/* Nothing to reserve for — leave only enough to clear the fixed navbar. */
+[data-canvas-unavailable="true"] {
+  --canvas-offset: 2.25rem;
+}

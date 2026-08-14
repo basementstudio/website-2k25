@@ -7,15 +7,15 @@ import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 
 export const LabClient = () => {
   const router = useRouter()
-  const canvasErrorBoundaryTriggered = useAppLoadingStore(
-    (state) => state.canvasErrorBoundaryTriggered
+  const canvasUnavailable = useAppLoadingStore(
+    (state) => state.canvasUnavailable
   )
 
   useEffect(() => {
-    if (canvasErrorBoundaryTriggered) {
+    if (canvasUnavailable) {
       router.push("https://lab.basement.studio/")
     }
-  }, [canvasErrorBoundaryTriggered, router])
+  }, [canvasUnavailable, router])
 
   return null
 }
