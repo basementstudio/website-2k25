@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
+
 import { LabClient } from "./client"
 
 export const metadata: Metadata = {
@@ -14,7 +16,12 @@ export const metadata: Metadata = {
 // The mobile user-agent redirect lives in proxy.ts so this page stays
 // prerenderable (reading headers() here would force it dynamic).
 const Laboratory = () => {
-  return <LabClient />
+  return (
+    <>
+      <PageJsonLd />
+      <LabClient />
+    </>
+  )
 }
 
 export default Laboratory

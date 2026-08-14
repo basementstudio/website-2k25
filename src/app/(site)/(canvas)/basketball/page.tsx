@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 
+import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
+
 import Basketball from "./client"
 
 export const metadata: Metadata = {
@@ -12,5 +14,10 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <Basketball />
+  return (
+    <>
+      <PageJsonLd />
+      <Basketball />
+    </>
+  )
 }

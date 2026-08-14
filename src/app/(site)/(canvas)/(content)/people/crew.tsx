@@ -17,6 +17,7 @@ import { Placeholder } from "@/components/primitives/placeholder"
 import useDebounceValue from "@/hooks/use-debounce-value"
 import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
+import { displayPlatform, platformAriaLabel } from "@/utils/social-platform"
 
 import type { PersonDisplay } from "./sanity"
 
@@ -152,9 +153,12 @@ export const Crew = ({ data }: { data: PersonDisplay[] }) => {
                             href={socialNetwork.url}
                             target="_blank"
                             className="bg-brand-0"
+                            aria-label={platformAriaLabel(
+                              socialNetwork.platform
+                            )}
                           >
-                            <span className="actionable">
-                              {socialNetwork.platform}
+                            <span className="actionable" aria-hidden>
+                              {displayPlatform(socialNetwork.platform)}
                             </span>
                           </Link>
                           {index < person.socialNetworks.length - 1 && (

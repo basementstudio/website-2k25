@@ -1,9 +1,11 @@
 "use client"
 
 import { Canvas as OffscreenCanvas } from "@react-three/offscreen"
+import * as Sentry from "@sentry/nextjs"
 import { useEffect, useState } from "react"
 
 import { useAssets } from "@/components/assets-provider"
+import { workerErrorFromMessage } from "@/lib/worker-error"
 
 import { ContactScreen } from "./contact-screen"
 import { useContactStore } from "./contact-store"
@@ -62,6 +64,12 @@ export const ContactCanvas = () => {
 
     const handleWorkerMessage = (e: MessageEvent) => {
       const { type } = e.data
+
+      const forwarded = workerErrorFromMessage(e.data)
+      if (forwarded) {
+        Sentry.captureException(forwarded, { tags: { worker: "contact" } })
+        return
+      }
 
       const setAnimComplete = (setCompleteFunc: (val: boolean) => void) => {
         setCompleteFunc(true)
@@ -139,10 +147,20 @@ export const ContactCanvas = () => {
       debouncedResizeHandler()
     }
 
+    // `error` is null when the worker script itself fails to load.
+    const handleError = (event: ErrorEvent) => {
+      console.error("[ContactCanvas] Worker error:", event)
+      Sentry.captureException(event.error ?? new Error(event.message), {
+        tags: { worker: "contact" }
+      })
+    }
+
+    newWorker.addEventListener("error", handleError)
     window.addEventListener("resize", handleResize)
 
     return () => {
       window.removeEventListener("resize", handleResize)
+      newWorker.removeEventListener("error", handleError)
       newWorker.terminate()
       setStoreWorker(null)
     }

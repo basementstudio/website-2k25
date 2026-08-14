@@ -90,15 +90,22 @@ const projectMetaQuery = /* groq */ `
   *[_type == "project" && slug.current == $slug][0]{ title, content }
 `
 
-const relatedProjectsQuery = /* groq */ `
+// Slugs only — icon+lqip is fetched separately for just the 2 selected.
+const relatedProjectsSlugsQuery = /* groq */ `
   *[_type == "showcasePage"][0]{
     "projects": projects[]->{
       _id,
       title,
-      "slug": slug.current,
-      icon ${imageFragment}
+      "slug": slug.current
     }
   }.projects
+`
+
+const relatedProjectsIconsQuery = /* groq */ `
+  *[_type == "project" && slug.current in $slugs]{
+    "slug": slug.current,
+    icon ${imageFragment}
+  }
 `
 
 // ---------------------------------------------------------------------------
@@ -165,13 +172,29 @@ export async function fetchProjectMeta(
 export async function fetchRelatedProjects(
   excludeSlug: string
 ): Promise<RelatedProject[]> {
-  const all = await sanityFetchCached<RelatedProject[] | null>({
-    query: relatedProjectsQuery
+  const all = await sanityFetchCached<
+    Array<{ _id: string; title: string; slug: string }> | null
+  >({
+    query: relatedProjectsSlugsQuery
   })
   if (!all) return []
 
-  return selectRelatedProjects({
-    projects: all,
+  const selected = selectRelatedProjects({
+    projects: all.map((project) => ({ ...project, icon: null })),
     excludeSlug
   })
+  if (!selected.length) return []
+
+  const icons = await sanityFetchCached<
+    Array<{ slug: string; icon: SanityImage | null }>
+  >({
+    query: relatedProjectsIconsQuery,
+    params: { slugs: selected.map((project) => project.slug) }
+  })
+  const iconBySlug = new Map(icons.map((i) => [i.slug, i.icon]))
+
+  return selected.map((project) => ({
+    ...project,
+    icon: iconBySlug.get(project.slug) ?? null
+  }))
 }

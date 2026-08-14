@@ -4,7 +4,7 @@ import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
 // Types
 
-interface SocialNetwork {
+export interface SocialNetwork {
   platform: string
   url: string
 }
@@ -76,6 +76,23 @@ const peopleQuery = /* groq */ `
   }
 `
 
+export interface PersonMarkdownItem {
+  title: string
+  department: { title: string } | null
+  role: string | null
+  socialNetworks: SocialNetwork[]
+}
+
+// Same as peopleQuery, minus `image` — the `.md` route never renders it.
+const peopleForMarkdownQuery = /* groq */ `
+  *[_type == "person"] | order(title asc) {
+    title,
+    department->{ title },
+    role,
+    socialNetworks[]{ platform, url }
+  }
+`
+
 const valuesQuery = /* groq */ `
   *[_type == "value"] | order(_createdAt asc) {
     _key,
@@ -121,6 +138,16 @@ export async function fetchPeople(options?: {
 }): Promise<PersonItem[]> {
   const result = await sanityFetchCached<PersonItem[] | null>({
     query: peopleQuery,
+    ...(options?.published ? { perspective: "published" } : {})
+  })
+  return result ?? []
+}
+
+export async function fetchPeopleForMarkdown(options?: {
+  published?: boolean
+}): Promise<PersonMarkdownItem[]> {
+  const result = await sanityFetchCached<PersonMarkdownItem[] | null>({
+    query: peopleForMarkdownQuery,
     ...(options?.published ? { perspective: "published" } : {})
   })
   return result ?? []
