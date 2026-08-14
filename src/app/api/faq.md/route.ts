@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
+import { fetchFaqPage } from "@/app/(site)/(plain)/(content)/faq/sanity"
 import { SITE_URL } from "@/lib/constants"
-import { FAQ_ENTRIES, FAQ_INTRO } from "@/lib/faq"
 
 const MD_HEADERS = {
   "Content-Type": "text/markdown; charset=utf-8",
@@ -9,26 +9,37 @@ const MD_HEADERS = {
   "X-Content-Type-Options": "nosniff"
 } as const
 
-export function GET() {
-  const entries = FAQ_ENTRIES.flatMap((faq) => [
-    `## ${faq.question}`,
+export async function GET() {
+  const faq = await fetchFaqPage({ published: true })
+
+  if (!faq?.entries.length) {
+    return new NextResponse("# 404 Not Found\n", {
+      status: 404,
+      headers: MD_HEADERS
+    })
+  }
+
+  const body = faq.entries.flatMap((entry) => [
+    `## ${entry.question}`,
     "",
-    faq.answer,
+    entry.answer,
     ""
   ])
 
-  const markdown = [
+  const parts = [
     "# FAQ",
     "",
-    FAQ_INTRO,
-    "",
+    faq.intro,
+    faq.intro ? "" : null,
     "---",
     "",
-    ...entries,
+    ...body,
     "---",
     "",
     `[View all content](${SITE_URL}/sitemap.md)`
-  ].join("\n")
+  ]
+
+  const markdown = parts.filter((part) => part !== null).join("\n")
 
   return new NextResponse(markdown, {
     headers: {
