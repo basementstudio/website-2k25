@@ -5,6 +5,7 @@ import { useAudioUrls } from "@/hooks/use-audio-urls"
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { AMBIENT_VOLUME, SFX_VOLUME } from "@/lib/audio/constants"
 import { useArcadeStore } from "@/store/arcade-store"
+import { onIdle } from "@/utils/idle"
 
 import { useCurrentScene } from "./use-current-scene"
 import { useIsOnTab } from "./use-is-on-tab"
@@ -120,9 +121,26 @@ export const useInitializeAudioContext = () => {
 
   useEffect(() => {
     const targetElement = document
+    let unlocked = false
+
     const unlock = () => {
-      if (!player) {
-        const newPlayer = new WebAudioPlayer()
+      if (player) {
+        targetElement.removeEventListener("click", unlock)
+        return
+      }
+      if (unlocked) return
+      unlocked = true
+
+      // The gesture itself only needs to create/resume the AudioContext
+      // (autoplay policy). The graph build, localStorage read and the store
+      // update (which fans out re-renders) run after the next paint so the
+      // user's first tap — the interaction INP measures — isn't billed for
+      // the audio bootstrap.
+      const audioContext = new AudioContext()
+      audioContext.resume()
+
+      setTimeout(() => {
+        const newPlayer = new WebAudioPlayer(audioContext)
         const mPref = localStorage.getItem("musicEnabled")
         const shouldEnableMusic = mPref === null ? true : mPref === "true"
 
@@ -134,9 +152,7 @@ export const useInitializeAudioContext = () => {
         }
 
         useSiteAudioStore.setState({ player: newPlayer })
-      } else {
-        targetElement.removeEventListener("click", unlock)
-      }
+      }, 0)
     }
     targetElement.addEventListener("click", unlock, { passive: true })
 
@@ -236,10 +252,10 @@ export const SiteAudioSFXsLoader = memo((): null => {
       const newSources = {} as Record<SiteAudioSFXKey, AudioSource>
 
       try {
-        const promises: Promise<void>[] = []
+        const promises: Array<() => Promise<void>> = []
 
         promises.push(
-          ...Object.keys(GAME_AUDIO_SFX).map(async (key) => {
+          ...Object.keys(GAME_AUDIO_SFX).map((key) => async () => {
             const audioKey = key as SiteAudioSFXKey
             const source = await player.loadAudioFromURL(
               GAME_AUDIO_SFX[audioKey as keyof typeof GAME_AUDIO_SFX],
@@ -251,7 +267,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          ...ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
+          ...ARCADE_AUDIO_SFX.BUTTONS.map((button, index) => async () => {
             const source = await player.loadAudioFromURL(button.PRESS, true)
             source.setVolume(SFX_VOLUME)
             newSources[`ARCADE_BUTTON_${index}_PRESS`] = source
@@ -265,7 +281,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          ...ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
+          ...ARCADE_AUDIO_SFX.STICKS.map((stick, index) => async () => {
             const source = await player.loadAudioFromURL(stick.PRESS, true)
             source.setVolume(SFX_VOLUME)
             newSources[`ARCADE_STICK_${index}_PRESS`] = source
@@ -279,7 +295,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          ...BLOG_AUDIO_SFX.LOCKED_DOOR.map(async (lockedDoor, index) => {
+          ...BLOG_AUDIO_SFX.LOCKED_DOOR.map((lockedDoor, index) => async () => {
             const source = await player.loadAudioFromURL(lockedDoor, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_LOCKED_DOOR_${index}`] = source
@@ -287,7 +303,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          ...BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
+          ...BLOG_AUDIO_SFX.DOOR.map((door, index) => async () => {
             const source = await player.loadAudioFromURL(door.OPEN, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_DOOR_${index}_OPEN`] = source
@@ -298,7 +314,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          ...BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
+          ...BLOG_AUDIO_SFX.LAMP.map((lamp, index) => async () => {
             const source = await player.loadAudioFromURL(lamp.PULL, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_LAMP_${index}_PULL`] = source
@@ -311,41 +327,48 @@ export const SiteAudioSFXsLoader = memo((): null => {
           })
         )
 
-        promises.push(
-          (async () => {
-            const source = await player.loadAudioFromURL(
-              CONTACT_AUDIO_SFX.INTERFERENCE,
-              true
-            )
-            source.setVolume(SFX_VOLUME)
-            newSources["CONTACT_INTERFERENCE"] = source
-          })()
-        )
+        promises.push(async () => {
+          const source = await player.loadAudioFromURL(
+            CONTACT_AUDIO_SFX.INTERFERENCE,
+            true
+          )
+          source.setVolume(SFX_VOLUME)
+          newSources["CONTACT_INTERFERENCE"] = source
+        })
 
-        promises.push(
-          (async () => {
-            const source = await player.loadAudioFromURL(
-              CONTACT_AUDIO_SFX.KNOB_TURNING,
-              true
-            )
-            source.setVolume(SFX_VOLUME)
-            newSources["CONTACT_KNOB_TURNING"] = source
-          })()
-        )
+        promises.push(async () => {
+          const source = await player.loadAudioFromURL(
+            CONTACT_AUDIO_SFX.KNOB_TURNING,
+            true
+          )
+          source.setVolume(SFX_VOLUME)
+          newSources["CONTACT_KNOB_TURNING"] = source
+        })
 
-        promises.push(
-          (async () => {
-            const source = await player.loadAudioFromURL(
-              CONTACT_AUDIO_SFX.ANTENNA,
-              true
-            )
-            source.setVolume(SFX_VOLUME)
-            newSources["CONTACT_ANTENNA"] = source
-          })()
-        )
+        promises.push(async () => {
+          const source = await player.loadAudioFromURL(
+            CONTACT_AUDIO_SFX.ANTENNA,
+            true
+          )
+          source.setVolume(SFX_VOLUME)
+          newSources["CONTACT_ANTENNA"] = source
+        })
 
+        // Batched instead of one ~40-request burst: the burst competed with
+        // the GLB/KTX2 fetches on mobile connections and its decode callbacks
+        // landed as a long-task pileup right after the unlocking tap.
         // one flaky fetch shouldn't discard every SFX that loaded
-        const results = await Promise.allSettled(promises)
+        const results: PromiseSettledResult<void>[] = []
+        const BATCH_SIZE = 5
+        for (let i = 0; i < promises.length; i += BATCH_SIZE) {
+          results.push(
+            ...(await Promise.allSettled(
+              promises.slice(i, i + BATCH_SIZE).map((load) => load())
+            ))
+          )
+          // yield to the main thread between batches
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        }
 
         const failed = results.filter((r) => r.status === "rejected")
         if (failed.length) {
@@ -363,7 +386,9 @@ export const SiteAudioSFXsLoader = memo((): null => {
       }
     }
 
-    loadAudioSources()
+    // The player appears right after the first tap — wait for idle so the SFX
+    // warmup never shares the frame with that interaction.
+    onIdle(loadAudioSources)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player])
 

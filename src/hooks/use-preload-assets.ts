@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react"
 import { preload, PreloadOptions } from "react-dom"
 
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
@@ -214,6 +215,15 @@ const preloadAllAssets = (obj: any) => {
 
 export const usePreloadAssets = (assets: AssetsResult) => {
   const offscreenCanvasReady = useAppLoadingStore((s) => s.offscreenCanvasReady)
+  const hasPreloaded = useRef(false)
 
-  if (offscreenCanvasReady) preloadAllAssets(assets)
+  // In an effect with a once-guard: calling this in the render body re-walked
+  // the whole asset manifest and re-issued every preload() each time AppHooks
+  // re-rendered (player/music/scene changes do that constantly).
+  useEffect(() => {
+    if (!offscreenCanvasReady || hasPreloaded.current) return
+
+    hasPreloaded.current = true
+    preloadAllAssets(assets)
+  }, [offscreenCanvasReady, assets])
 }

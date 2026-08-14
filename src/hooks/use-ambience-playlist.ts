@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useAudioUrls } from "@/hooks/use-audio-urls"
 import { Playlist } from "@/lib/audio"
 import { AMBIENT_VOLUME } from "@/lib/audio/constants"
+import { onIdle } from "@/utils/idle"
 
 import { BackgroundAudioType, useSiteAudioStore } from "./use-site-audio"
 
@@ -95,8 +96,10 @@ export function useAmbiencePlaylist() {
     if (!ambiencePlaylist) return
 
     if (!globalPlaylistRef.isPlaying) {
-      ambiencePlaylist.play()
       globalPlaylistRef.isPlaying = true
+      // play() fetches + decodes the first MP3; the playlist appears right
+      // after the unlocking tap, so keep that work off the interaction frame.
+      onIdle(() => ambiencePlaylist.play(), 1000)
     }
 
     if (!isBackgroundInitialized) setBackgroundInitialized(true)
