@@ -1,7 +1,6 @@
 import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
-import { CREW_DEPARTMENTS } from "@/app/(site)/(canvas)/(content)/people/crew-departments"
 import {
   fetchOpenPositions,
   fetchPeopleForMarkdown,
@@ -16,6 +15,9 @@ const MD_HEADERS = {
   Vary: "Accept",
   "X-Content-Type-Options": "nosniff"
 } as const
+
+// Same department whitelist and order the HTML crew page renders (see crew.tsx)
+const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
 
 // CMS strings land inside `[label](url)` syntax — escape the delimiters so a
 // bracketed label or a parenthesized URL can't break the link.

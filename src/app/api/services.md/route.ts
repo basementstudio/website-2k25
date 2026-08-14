@@ -2,7 +2,6 @@ import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
 import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sanity"
-import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
@@ -62,12 +61,6 @@ export async function GET() {
       ventures ? "## Ventures" : null,
       ventures ? "" : null,
       ventures,
-      ventures ? "" : null,
-      `## About ${COMPANY_FACTS.name}`,
-      "",
-      COMPANY_FACTS.description,
-      "",
-      `Founded in ${COMPANY_FACTS.foundingDate} in ${COMPANY_FACTS.locationName}, the studio has partnered with startups and enterprise brands including ${formatFactList(COMPANY_FACTS.notableClients)}. ${COMPANY_FACTS.awardsSummary} ${COMPANY_FACTS.geistAttribution}`,
       "",
       "---",
       "",

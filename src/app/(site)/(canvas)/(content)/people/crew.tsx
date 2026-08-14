@@ -19,7 +19,6 @@ import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 import { displayPlatform, platformAriaLabel } from "@/utils/social-platform"
 
-import { CREW_DEPARTMENTS } from "./crew-departments"
 import type { PersonDisplay } from "./sanity"
 
 const DEBOUNCE_TIME = 10
@@ -44,7 +43,7 @@ export const Crew = ({ data }: { data: PersonDisplay[] }) => {
       {} as Record<string, PersonDisplay[]>
     )
 
-    const orderedDepartments = CREW_DEPARTMENTS
+    const orderedDepartments = ["Management", "Design", "Development"]
 
     const sortedPeople: Record<string, PersonDisplay[]> = {}
 

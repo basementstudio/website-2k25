@@ -89,15 +89,11 @@ export async function fetchAllOpenPositionSlugs(): Promise<string[]> {
   })
 }
 
-export async function fetchCareerPositionMeta(slug: string): Promise<{
-  title: string
-  jobDescription: PortableTextBlock[] | null
-} | null> {
-  const query = /* groq */ `*[_type == "openPosition" && slug.current == $slug][0]{ title, jobDescription }`
-  return sanityFetchCached<{
-    title: string
-    jobDescription: PortableTextBlock[] | null
-  } | null>({
+export async function fetchCareerPositionMeta(
+  slug: string
+): Promise<{ title: string } | null> {
+  const query = /* groq */ `*[_type == "openPosition" && slug.current == $slug][0]{ title }`
+  return sanityFetchCached<{ title: string } | null>({
     query,
     params: { slug },
     perspective: "published"
