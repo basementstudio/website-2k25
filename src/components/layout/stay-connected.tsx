@@ -1,6 +1,7 @@
 "use client"
 
 import { PortableText } from "@portabletext/react"
+import { track } from "@vercel/analytics"
 import { AnimatePresence, motion } from "motion/react"
 import { startTransition, useEffect, useState } from "react"
 import { useActionState } from "react"
@@ -32,6 +33,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
     e.preventDefault()
     if (formState !== "idle") return
 
+    track("newsletter_subscribe")
     setFormState("loading")
     const formData = new FormData()
     formData.append("email", email)

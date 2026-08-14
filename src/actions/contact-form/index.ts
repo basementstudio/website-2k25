@@ -13,6 +13,12 @@ interface ContactFormData {
 }
 
 export async function submitContactForm(formData: ContactFormData) {
+  return Sentry.withServerActionInstrumentation("submitContactForm", () =>
+    runContactForm(formData)
+  )
+}
+
+async function runContactForm(formData: ContactFormData) {
   try {
     const html = generateEmailTemplate(formData)
 

@@ -14,6 +14,12 @@ export async function subscribe(
   _prevState: State,
   formData: FormData
 ): Promise<State> {
+  return Sentry.withServerActionInstrumentation("subscribe", () =>
+    runSubscribe(formData)
+  )
+}
+
+async function runSubscribe(formData: FormData): Promise<State> {
   try {
     const email = formData.get("email")
 

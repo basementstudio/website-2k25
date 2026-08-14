@@ -1,10 +1,12 @@
 "use client"
 
+import { track } from "@vercel/analytics"
 import { type KeyboardEventHandler, useEffect, useRef, useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 
 import { submitCareerApplication } from "@/actions/career-application"
 import { ContactStatus } from "@/app/(site)/(plain)/contact/form/contact-status"
+import { isSuspiciousSubmission } from "@/lib/suspicious-submission"
 import { cn } from "@/utils/cn"
 
 import { CtaButton } from "./components/cta-button"
@@ -179,6 +181,11 @@ export const ApplicationForm = ({
   const onSubmit: SubmitHandler<ApplicationInputs> = async (data) => {
     // Guard: prevent double-submission
     if (apiInFlightRef.current) return
+
+    // The action discards these silently, so counting them would inflate the funnel.
+    if (!isSuspiciousSubmission(data, Date.now())) {
+      track("career_application_submit")
+    }
 
     const submissionData = {
       firstName: data.firstName,

@@ -1,3 +1,4 @@
+import { track } from "@vercel/analytics"
 import { motion, useAnimation } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
@@ -99,6 +100,7 @@ export const ContactScreen = () => {
   const isValid = !!email && !!message
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    track("contact_form_submit")
     setSubmitting(true)
     setShowSubmittedMessage(false)
 
