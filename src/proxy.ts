@@ -92,6 +92,8 @@ export const config = {
     "/people",
     "/people.md",
     "/showcase.md",
+    "/faq",
+    "/faq.md",
     // Mobile user-agent redirect (see top of proxy()).
     "/lab"
   ]
