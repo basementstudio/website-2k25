@@ -8,7 +8,7 @@ import { generateFaqPageSchema } from "@/lib/structured-data/schemas/faq"
 import { fetchFaqPage } from "./sanity"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const faq = await fetchFaqPage({ published: true })
+  const faq = await fetchFaqPage()
 
   return {
     title: faq?.metaTitle ?? "FAQ",

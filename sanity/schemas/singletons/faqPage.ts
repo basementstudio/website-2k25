@@ -27,7 +27,8 @@ export const faqPage = defineType({
     defineField({
       name: "heading",
       title: "Heading",
-      type: "string"
+      type: "string",
+      validation: (rule) => rule.required()
     }),
     defineField({
       name: "intro",
