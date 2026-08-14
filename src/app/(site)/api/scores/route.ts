@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs"
 import { geolocation } from "@vercel/functions"
 import crypto from "crypto"
 import { NextResponse } from "next/server"
@@ -74,6 +75,7 @@ export async function GET() {
     )
   } catch (error) {
     console.error("Error in scores API route:", error)
+    Sentry.captureException(error)
     return NextResponse.json(
       { error: "Internal server error" },
       {
@@ -183,6 +185,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error submitting score:", error)
+    Sentry.captureException(error)
     return NextResponse.json(
       { error: "Failed to submit score" },
       { status: 500 }

@@ -4,7 +4,6 @@ import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { track } from "@vercel/analytics"
 import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
-import posthog from "posthog-js"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 import { EXRLoader } from "three/examples/jsm/Addons.js"
@@ -204,7 +203,6 @@ export const Lamp = memo(function LampInner() {
 
       if (!firstTime.current) {
         track("lamp_pulled")
-        posthog.capture("lamp_pulled")
         desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
       } else {
         firstTime.current = false

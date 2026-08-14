@@ -1,7 +1,7 @@
 "use client"
 
+import * as Sentry from "@sentry/nextjs"
 import dynamic from "next/dynamic"
-import posthog from "posthog-js"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { CustomCursor } from "@/components/custom-cursor"
@@ -38,8 +38,8 @@ export const CanvasLayer = () => {
 
       <ErrorBoundary
         fallback={<div className="h-[37px]" aria-hidden />}
-        onError={(error) => {
-          posthog.captureException(error)
+        onError={(error, info) => {
+          Sentry.captureReactException(error, info)
           useAppLoadingStore.setState({
             canvasErrorBoundaryTriggered: true,
             isCanvasInPage: false

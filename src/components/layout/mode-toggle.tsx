@@ -1,5 +1,6 @@
 "use client"
 
+import { track } from "@vercel/analytics"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -82,7 +83,10 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
     }
   }, [fadeEnabled])
 
-  const rememberMachineEntry = () => {
+  const handleEnterMachine = () => {
+    // Human tree only — the machine view mounts no analytics.
+    track("machine_mode_entered", { from: pathname })
+
     try {
       sessionStorage.setItem(MACHINE_ENTRY_KEY, machineHref)
     } catch {
@@ -164,7 +168,7 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
         ) : (
           <a
             href={machineHref}
-            onClick={rememberMachineEntry}
+            onClick={handleEnterMachine}
             className={cn(segmentClass, inactiveClass)}
           >
             Machine
