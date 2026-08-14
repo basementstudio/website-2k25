@@ -46,9 +46,10 @@ export const CanvasLayer = () => {
           })
         }}
       >
+        <div className="h-[80svh] w-full lg:hidden" />
         <div
           className={cn(
-            "canvas-container relative top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
+            "canvas-container absolute top-0 h-[80svh] w-full lg:fixed lg:aspect-auto lg:h-[100svh]",
             !show && "pointer-events-none invisible fixed opacity-0"
           )}
         >
