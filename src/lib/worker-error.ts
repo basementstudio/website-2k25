@@ -14,6 +14,16 @@ export function postWorkerError(error: unknown) {
   self.postMessage({ type: WORKER_ERROR, name, message, stack })
 }
 
+/** A failed script fetch fires a plain `Event` — no `error`, no `message`. */
+export function workerEventError(event: Event, name: string): Error {
+  if (event instanceof ErrorEvent) {
+    if (event.error instanceof Error) return event.error
+    if (event.message) return new Error(event.message)
+  }
+
+  return new Error(`${name} worker failed to load`)
+}
+
 /** Rebuilds the worker's error on the main thread, keeping its stack. */
 export function workerErrorFromMessage(data: unknown): Error | null {
   if (typeof data !== "object" || data === null) return null
