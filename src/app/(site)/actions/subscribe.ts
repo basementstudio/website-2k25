@@ -2,6 +2,9 @@
 
 import * as Sentry from "@sentry/nextjs"
 
+// The "General" audience segment in the Resend dashboard.
+const NEWSLETTER_SEGMENT_ID = "67cdd754-44a1-492e-8ed3-47dbdac70398"
+
 type State = {
   success: boolean
   message: string
@@ -24,8 +27,6 @@ export async function subscribe(
       throw new Error("Missing Resend environment variables")
     }
 
-    const segmentId = process.env.RESEND_NEWSLETTER_SEGMENT_ID
-
     const response = await fetch("https://api.resend.com/contacts", {
       method: "POST",
       headers: {
@@ -35,7 +36,7 @@ export async function subscribe(
       body: JSON.stringify({
         email,
         unsubscribed: false,
-        ...(segmentId ? { segments: [segmentId] } : {})
+        segments: [{ id: NEWSLETTER_SEGMENT_ID }]
       })
     })
 
