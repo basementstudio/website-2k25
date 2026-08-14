@@ -1,13 +1,18 @@
 "use client"
 
 import { useDeviceOrientation } from "@/hooks/use-device-orientation"
+import { useMedia } from "@/hooks/use-media"
 import { cn } from "@/utils/cn"
 
 export const GyroscopeToggle = () => {
   const { permission, isEnabled, requestPermission, setIsEnabled } =
     useDeviceOrientation()
 
-  if (permission === "unsupported") return null
+  // Desktop browsers expose DeviceOrientationEvent without gyroscope
+  // hardware — only offer the toggle on touch-first devices
+  const isCoarsePointer = useMedia("(pointer: coarse)")
+
+  if (!isCoarsePointer || permission === "unsupported") return null
 
   const handleClick = async () => {
     if (permission === "granted") {
@@ -36,15 +41,8 @@ export const GyroscopeToggle = () => {
       }
     >
       <GyroscopeIcon className="h-4 w-4" />
-      <span className="xs:inline hidden">
-        {isDenied
-          ? "Gyroscope Denied"
-          : isActive
-            ? "Gyroscope On"
-            : "Enable Gyroscope"}
-      </span>
-      <span className="xs:hidden">
-        {isDenied ? "Denied" : isActive ? "On" : "Gyro"}
+      <span>
+        {isDenied ? "Gyro denied" : isActive ? "Gyro on" : "Gyro off"}
       </span>
     </button>
   )

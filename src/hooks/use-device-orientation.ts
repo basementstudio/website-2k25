@@ -2,14 +2,9 @@ import { useCallback, useEffect, useRef } from "react"
 
 import { useGyroscopeStore } from "@/store/gyroscope-store"
 
-interface DeviceOrientationEventWithPermission extends DeviceOrientationEvent {
+// iOS Safari exposes requestPermission as a static on the constructor
+type DeviceOrientationEventCtor = typeof DeviceOrientationEvent & {
   requestPermission?: () => Promise<"granted" | "denied" | "default">
-}
-
-declare global {
-  interface DeviceOrientationEvent {
-    requestPermission?: () => Promise<"granted" | "denied" | "default">
-  }
 }
 
 const SMOOTHING = 0.1
@@ -50,9 +45,7 @@ export const useDeviceOrientation = () => {
 
   const requestPermission = useCallback(async () => {
     const DeviceOrientationEventTyped =
-      DeviceOrientationEvent as unknown as DeviceOrientationEventWithPermission & {
-        requestPermission?: () => Promise<"granted" | "denied" | "default">
-      }
+      DeviceOrientationEvent as DeviceOrientationEventCtor
 
     if (typeof DeviceOrientationEventTyped.requestPermission === "function") {
       try {
@@ -63,7 +56,9 @@ export const useDeviceOrientation = () => {
           localStorage.setItem(STORAGE_KEY, "true")
           return true
         } else {
-          setPermission("denied")
+          // "default" means the user dismissed the dialog without choosing —
+          // keep "prompt" so tapping the toggle can re-request
+          setPermission(result === "denied" ? "denied" : "prompt")
           localStorage.removeItem(STORAGE_KEY)
           return false
         }
@@ -101,9 +96,7 @@ export const useDeviceOrientation = () => {
     const wasEnabled = localStorage.getItem(STORAGE_KEY) === "true"
 
     const DeviceOrientationEventTyped =
-      DeviceOrientationEvent as unknown as DeviceOrientationEventWithPermission & {
-        requestPermission?: () => Promise<"granted" | "denied" | "default">
-      }
+      DeviceOrientationEvent as DeviceOrientationEventCtor
 
     const requiresPermission =
       typeof DeviceOrientationEventTyped.requestPermission === "function"
