@@ -5,7 +5,7 @@ import { resolveTracesSampleRate } from "@/lib/sentry-sampling"
 const environment = process.env.VERCEL_ENV ?? "development"
 
 // Upstream services echo submitted addresses back in their error text — e.g.
-// Mailchimp's `detail` becomes the thrown Error's message.
+// Resend's error `message` becomes the thrown Error's message.
 const EMAIL = /[^\s@]+@[^\s@]+\.[^\s@.]+/g
 
 // One init for node and edge; neither needs runtime-specific options.
