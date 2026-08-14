@@ -7,6 +7,21 @@
 
 import type { AssetsResult } from "@/components/assets-provider/fetch-assets"
 
+export const MAP_MODEL_KEYS = [
+  "office",
+  "officeItems",
+  "officeWireframe",
+  "outdoor",
+  "outdoorCars",
+  "godrays",
+  "routingElements",
+  "basketball",
+  "basketballNet",
+  "contactPhone"
+] as const
+
+export type MapModelKey = (typeof MAP_MODEL_KEYS)[number]
+
 export type AssetsBase = Omit<
   AssetsResult,
   "inspectables" | "scenes" | "physicsParams"
@@ -14,16 +29,16 @@ export type AssetsBase = Omit<
 
 export const ASSETS_BASE: AssetsBase = {
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-9a8576ca.glb",
   office: "/3d/models/office-077b4007.glb",
+  officeItems: "/3d/models/officeItems-2d71b3ee.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
-  outdoor: "/3d/models/outdoor-6ead65cf.glb",
+  outdoor: "/3d/models/outdoor-7e5bd72e.glb",
+  outdoorCars: "/3d/models/outdoorCars-d9030620.glb",
   godrays: "/3d/models/godrays-f4cbda2b.glb",
+  routingElements: "/3d/models/routingElements-dbc4fd71.glb",
   basketball: "/3d/models/basketball-4a3976f2.glb",
   basketballNet: "/3d/models/basketballNet-528bd868.glb",
-  contactPhone: "/3d/models/contactPhone-4c98003c.glb",
-  routingElements: "/3d/models/routingElements-dbc4fd71.glb",
-  outdoorCars: "/3d/models/outdoorCars-d9030620.glb",
+  contactPhone: "/3d/models/contactPhone-bee96b6d.glb",
 
   // --- Map textures ---
   mapTextures: {
@@ -43,7 +58,7 @@ export const ASSETS_BASE: AssetsBase = {
   bakes: [
     {
       title: "00",
-      lightmap: "/3d/textures/bake-00-lightmap-d25dcd28.exr",
+      lightmap: "/3d/textures/bake-00-lightmap-5f8d79f7.ktx2",
       ambientOcclusion: "/3d/textures/bake-00-ao-8c56cc34.jpg",
       meshes: [
         "SM_00_000",
@@ -63,7 +78,7 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       title: "00a",
-      lightmap: "/3d/textures/bake-00a-lightmap-54a80c69.exr",
+      lightmap: "/3d/textures/bake-00a-lightmap-1d893b04.ktx2",
       ambientOcclusion: "",
       meshes: [
         "SM_00a_00",
@@ -77,13 +92,13 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       title: "01",
-      lightmap: "/3d/textures/bake-01-lightmap-0c3d5e5b.exr",
+      lightmap: "/3d/textures/bake-01-lightmap-69b52dd9.ktx2",
       ambientOcclusion: "/3d/textures/bake-01-ao-e448b3e7.jpg",
       meshes: ["SM_01_1", "SM_01_2", "SM_01_3", "SM_01_4"]
     },
     {
       title: "02",
-      lightmap: "/3d/textures/bake-02-lightmap-5229a667.exr",
+      lightmap: "/3d/textures/bake-02-lightmap-420bb0f8.ktx2",
       ambientOcclusion: "/3d/textures/bake-02-ao-f8901563.jpg",
       meshes: [
         "02_BT_1",
@@ -108,13 +123,13 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       title: "2A",
-      lightmap: "/3d/textures/bake-2A-lightmap-ab95e2e7.exr",
+      lightmap: "/3d/textures/bake-2A-lightmap-b661a365.ktx2",
       ambientOcclusion: "/3d/textures/bake-2A-ao-b3d5aa21.jpg",
       meshes: ["02_Arcade_A"]
     },
     {
       title: "03",
-      lightmap: "/3d/textures/bake-03-lightmap-39b70852.exr",
+      lightmap: "/3d/textures/bake-03-lightmap-0131918c.ktx2",
       ambientOcclusion: "/3d/textures/bake-03-ao-65209297.jpg",
       meshes: [
         "SM_03_00",
@@ -129,7 +144,7 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       title: "04",
-      lightmap: "/3d/textures/bake-04-lightmap-bf25f6d3.exr",
+      lightmap: "/3d/textures/bake-04-lightmap-cf0d9e21.ktx2",
       ambientOcclusion: "/3d/textures/bake-04-ao-4af56635.jpg",
       meshes: [
         "SM_04_1",
@@ -145,13 +160,13 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       title: "05",
-      lightmap: "/3d/textures/bake-05-lightmap-4b8caf70.exr",
+      lightmap: "/3d/textures/bake-05-lightmap-d95f2f92.ktx2",
       ambientOcclusion: "",
       meshes: ["SM_05_00", "SM_05_01"]
     },
     {
       title: "06",
-      lightmap: "/3d/textures/bake-06-lightmap-4138fa1d.exr",
+      lightmap: "/3d/textures/bake-06-lightmap-c9547c40.ktx2",
       ambientOcclusion: "/3d/textures/bake-06-ao-cb146198.jpg",
       meshes: [
         "SM_06_01",
@@ -165,37 +180,37 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       title: "07",
-      lightmap: "/3d/textures/bake-07-lightmap-d1e16b0e.exr",
+      lightmap: "/3d/textures/bake-07-lightmap-cf08d1cc.ktx2",
       ambientOcclusion: "/3d/textures/bake-07-ao-28c990e3.jpg",
       meshes: ["SM_07_01", "SM_07_02"]
     },
     {
       title: "SM_library_Wood",
-      lightmap: "/3d/textures/bake-SM_library_Wood-lightmap-cc9a19f1.exr",
+      lightmap: "/3d/textures/bake-SM_library_Wood-lightmap-7b2a6253.ktx2",
       ambientOcclusion: "/3d/textures/bake-SM_library_Wood-ao-fd6bcdee.jpg",
       meshes: ["SM_library_Wood"]
     },
     {
       title: "SM_LibraryWall_01",
-      lightmap: "/3d/textures/bake-SM_LibraryWall_01-lightmap-4ad5fb0a.exr",
+      lightmap: "/3d/textures/bake-SM_LibraryWall_01-lightmap-0eaa42a6.ktx2",
       ambientOcclusion: "/3d/textures/bake-SM_LibraryWall_01-ao-04a99bf7.jpg",
       meshes: ["SM_LibraryWall_01"]
     },
     {
       title: "SM_Roof",
-      lightmap: "/3d/textures/bake-SM_Roof-lightmap-c3612eab.exr",
+      lightmap: "/3d/textures/bake-SM_Roof-lightmap-3b7e575f.ktx2",
       ambientOcclusion: "",
       meshes: ["SM_Roof"]
     },
     {
       title: "SM_RoofMetallic",
-      lightmap: "/3d/textures/bake-SM_RoofMetallic-lightmap-a66cad57.exr",
+      lightmap: "/3d/textures/bake-SM_RoofMetallic-lightmap-818ff320.ktx2",
       ambientOcclusion: "",
       meshes: ["SM_RoofMetallic"]
     },
     {
       title: "ServicesModels",
-      lightmap: "/3d/textures/bake-ServicesModels-lightmap-2d6c7f1f.exr",
+      lightmap: "/3d/textures/bake-ServicesModels-lightmap-b5e56e81.ktx2",
       ambientOcclusion: "",
       meshes: [
         "SM_PinkFloyd",
@@ -207,7 +222,7 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       title: "Showcase Models",
-      lightmap: "/3d/textures/bake-Showcase_Models-lightmap-5c55c3ff.exr",
+      lightmap: "/3d/textures/bake-Showcase_Models-lightmap-bdcaf84d.ktx2",
       ambientOcclusion: "",
       meshes: [
         "DL_Frame",
@@ -221,13 +236,13 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       title: "People_Tables",
-      lightmap: "/3d/textures/bake-People_Tables-lightmap-40bb462b.exr",
+      lightmap: "/3d/textures/bake-People_Tables-lightmap-eaf260f7.ktx2",
       ambientOcclusion: "/3d/textures/bake-People_Tables-ao-964c430b.jpg",
       meshes: ["SM_05_02"]
     },
     {
       title: "Chairs",
-      lightmap: "/3d/textures/bake-Chairs-lightmap-96e878de.exr",
+      lightmap: "/3d/textures/bake-Chairs-lightmap-52722e14.ktx2",
       ambientOcclusion: "",
       meshes: ["SM_05_03"]
     }
@@ -496,7 +511,7 @@ export const ASSETS_BASE: AssetsBase = {
 
   // --- Lamp ---
   lamp: {
-    extraLightmap: "/3d/textures/lamp-extraLightmap-70f32016.exr"
+    extraLightmap: "/3d/textures/lamp-extraLightmap-94076bfb.ktx2"
   }
 }
 

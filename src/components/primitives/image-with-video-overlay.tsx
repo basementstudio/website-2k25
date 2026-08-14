@@ -86,9 +86,7 @@ export const ImageWithVideoOverlay = ({
         priority={false}
       />
       {video && shouldLoadVideo && !isMobile ? (
-        <div
-          className="pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-        >
+        <div className="pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           {video.type === "mux" ? (
             <Video
               playbackId={video.playbackId}

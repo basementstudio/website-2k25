@@ -21,7 +21,7 @@ const BrandLogo = ({ logo }: { logo: Brand["logo"] }) => {
         alt={logo.alt}
         width={160}
         height={88}
-        className="max-w-full object-contain"
+        className="object-contain"
       />
     </div>
   )
