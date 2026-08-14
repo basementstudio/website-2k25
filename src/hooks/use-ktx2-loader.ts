@@ -2,6 +2,16 @@ import { useThree } from "@react-three/fiber"
 import type { Texture, WebGLRenderer } from "three"
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js"
 
+// Served from public/, so it is fetched by URL and never resolved through
+// node_modules — nothing makes it track the installed `three`. Keep the two in
+// step with `pnpm basis:sync` (wired into `pnpm build`); `pnpm basis:check`
+// asserts without writing.
+//
+// A mismatch here is invisible on a Mac: Apple GPUs expose the ASTC `hdr`
+// profile, so KTX2Loader decodes the UASTC HDR lightmaps directly and never
+// loads this transcoder. Windows has no ASTC and must transcode to BC6H, so a
+// transcoder older than basis_universal 1.60 (no UASTC HDR) fails there and
+// only there, as `THREE.KTX2Loader: .transcodeImage failed.`
 const TRANSCODER_PATH = "/basis-transcoder/"
 
 let loader: KTX2Loader | null = null
