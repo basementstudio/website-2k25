@@ -1,4 +1,5 @@
 import { withSentryConfig } from "@sentry/nextjs"
+import { withBotId } from "botid/next/config"
 import type { NextConfig } from "next"
 import { sanity } from "next-sanity/live/cache-life"
 
@@ -192,7 +193,7 @@ if (process.env.VERCEL_ENV === "production" && !canPublishSentryArtifacts) {
   )
 }
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withBotId(nextConfig), {
   org: "basementstudio-be",
   project: "website-2k25",
   silent: !process.env.VERCEL,
