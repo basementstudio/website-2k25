@@ -38,8 +38,7 @@ export const CanvasLayer = () => {
         <CustomCursor />
       </div>
 
-      {/* Without a renderer this whole subtree is dead weight: an invisible
-          fixed overlay plus a viewer that only drives 3D items. */}
+      {/* Dead weight without a renderer: an invisible overlay and a 3D-only viewer. */}
       {!canvasUnavailable && (
         <ErrorBoundary
           fallback={<div className="h-[37px]" aria-hidden />}

@@ -21,8 +21,7 @@ export const useCanvasAvailability = () => {
     useAppLoadingStore.getState().reportCanvasUnavailable()
   }, [webglEnabled])
 
-  // The (canvas) group reserves a viewport of space for the fixed canvas; CSS
-  // needs to know when there is no canvas to reserve it for.
+  // Lets CSS drop the viewport of space the (canvas) group reserves.
   useEffect(() => {
     document.documentElement.dataset.canvasUnavailable =
       String(canvasUnavailable)

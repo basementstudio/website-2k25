@@ -19,8 +19,7 @@ export const useHandleContactButton = () => {
     const isMobile = window.innerWidth < 1024
 
     if (webglEnabled && !isMobile) {
-      // Only the 3D phone needs the scene running; routing to /contact must stay
-      // available while it boots, or when it never will.
+      // Only the 3D phone needs the scene; /contact must stay reachable without it.
       if (!canRunMainApp) return
 
       setIsContactOpen(!isContactOpen)

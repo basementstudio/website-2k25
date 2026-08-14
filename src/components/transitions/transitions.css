@@ -35,8 +35,8 @@
   }
 }
 
-/* No canvas to reserve a viewport for. The canvas-route hero has no top spacing
-   of its own, so keep just enough to clear the fixed navbar. */
+/* Canvas-route heroes have no top spacing of their own, so leave enough to clear
+   the fixed navbar. */
 [data-canvas-unavailable="true"] {
   .layout-container {
     margin-top: 2.25rem;
