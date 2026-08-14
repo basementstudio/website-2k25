@@ -10,6 +10,7 @@ import {
   AppLoadingHandler,
   useAppLoadingStore
 } from "@/components/loading/app-loading-handler"
+import { useCanvasAvailability } from "@/hooks/use-canvas-availability"
 import { cn } from "@/utils/cn"
 
 const Scene = dynamic(
@@ -21,14 +22,16 @@ const Scene = dynamic(
 // client navigations. Whether it's visible is driven by `isCanvasInPage`, which
 // route-group layouts set (via <SetCanvasMode>) — no `usePathname` needed.
 export const CanvasLayer = () => {
+  useCanvasAvailability()
+
   // `isCanvasInPage` (sticky) keeps the Scene mounted across navigations;
   // `canvasVisible` toggles whether it's shown for the current route.
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
   const canvasVisible = useAppLoadingStore((state) => state.canvasVisible)
-  const canvasErrorBoundaryTriggered = useAppLoadingStore(
-    (state) => state.canvasErrorBoundaryTriggered
+  const canvasUnavailable = useAppLoadingStore(
+    (state) => state.canvasUnavailable
   )
-  const show = canvasVisible && !canvasErrorBoundaryTriggered
+  const show = canvasVisible && !canvasUnavailable
 
   return (
     <>
@@ -40,10 +43,7 @@ export const CanvasLayer = () => {
         fallback={<div className="h-[37px]" aria-hidden />}
         onError={(error, info) => {
           Sentry.captureReactException(error, info)
-          useAppLoadingStore.setState({
-            canvasErrorBoundaryTriggered: true,
-            isCanvasInPage: false
-          })
+          useAppLoadingStore.getState().reportCanvasUnavailable()
         }}
       >
         <div
@@ -52,7 +52,9 @@ export const CanvasLayer = () => {
             !show && "pointer-events-none invisible fixed opacity-0"
           )}
         >
-          {isCanvasInPage && <Scene />}
+          {/* <SetCanvasMode> re-arms isCanvasInPage per route, so gate the
+              mount too. */}
+          {isCanvasInPage && !canvasUnavailable && <Scene />}
           <AppLoadingHandler />
           <InspectableViewer />
         </div>

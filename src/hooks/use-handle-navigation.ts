@@ -36,8 +36,8 @@ export const useHandleNavigation = () => {
   const setDisableCameraTransition = useNavigationStore(
     (state) => state.setDisableCameraTransition
   )
-  const canvasErrorBoundaryTriggered = useAppLoadingStore(
-    (state) => state.canvasErrorBoundaryTriggered
+  const canvasUnavailable = useAppLoadingStore(
+    (state) => state.canvasUnavailable
   )
   const scenes = useNavigationStore((state) => state.scenes)
 
@@ -97,7 +97,7 @@ export const useHandleNavigation = () => {
       setCurrentScene,
       scenes,
       setDisableCameraTransition,
-      canvasErrorBoundaryTriggered
+      canvasUnavailable
     ]
   )
 
@@ -123,7 +123,7 @@ export const useHandleNavigation = () => {
           }
         })
       } else {
-        handleTransitionEffectOn(fromMobileNav || canvasErrorBoundaryTriggered)
+        handleTransitionEffectOn(fromMobileNav || canvasUnavailable)
         disableScroll()
         setDisableCameraTransition(true)
         setCurrentScene(selectedScene)
@@ -134,9 +134,7 @@ export const useHandleNavigation = () => {
               offset: 0,
               behavior: "instant",
               callback: () => {
-                handleTransitionEffectOff(
-                  fromMobileNav || canvasErrorBoundaryTriggered
-                )
+                handleTransitionEffectOff(fromMobileNav || canvasUnavailable)
                 enableScroll()
               }
             })
@@ -156,7 +154,7 @@ export const useHandleNavigation = () => {
       disableScroll,
       enableScroll,
       getScene,
-      canvasErrorBoundaryTriggered
+      canvasUnavailable
     ]
   )
 
