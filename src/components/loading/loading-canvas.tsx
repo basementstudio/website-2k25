@@ -6,7 +6,7 @@ import { Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
-import { workerErrorFromMessage } from "@/lib/worker-error"
+import { workerErrorFromMessage, workerEventError } from "@/lib/worker-error"
 import { cn } from "@/utils/cn"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
@@ -85,10 +85,9 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
       }
     })
 
-    const handleError = (event: ErrorEvent) => {
+    const handleError = (event: Event) => {
       console.error("[LoadingCanvas] Worker error:", event)
-      // `error` is null when the worker script itself fails to load.
-      Sentry.captureException(event.error ?? new Error(event.message), {
+      Sentry.captureException(workerEventError(event, "loading"), {
         tags: { worker: "loading" }
       })
     }
