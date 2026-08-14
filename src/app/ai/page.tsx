@@ -5,10 +5,10 @@ import { fetchHomepage } from "@/app/(site)/(canvas)/(content)/(home)/sanity"
 import { fetchOpenPositions } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
+import { fetchFaqPage } from "@/app/(site)/(plain)/(content)/faq/sanity"
 import { fetchAllPostsForIndex } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
 import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
-import { FAQ_ENTRIES } from "@/lib/faq"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
@@ -65,7 +65,8 @@ const AiPage = async () => {
     posts,
     companyInfo,
     orgData,
-    year
+    year,
+    faq
   ] = await Promise.all([
     fetchHomepage({ published: true }),
     fetchServicesPage({ published: true }),
@@ -74,7 +75,8 @@ const AiPage = async () => {
     fetchAllPostsForIndex(),
     fetchCompanyInfo(),
     fetchOrganizationData(),
-    fetchCurrentYear()
+    fetchCurrentYear(),
+    fetchFaqPage({ published: true })
   ])
 
   const latestPosts = posts.slice(0, 10)
@@ -323,10 +325,10 @@ const AiPage = async () => {
 
         <Section title="faq">
           <ul className="flex flex-col gap-3">
-            {FAQ_ENTRIES.map((faq) => (
-              <li key={faq.question} className="flex flex-col gap-1">
-                <h3 className="text-machine-bright">* {faq.question}</h3>
-                <p>{faq.answer}</p>
+            {faq.entries.map((entry) => (
+              <li key={entry.question} className="flex flex-col gap-1">
+                <h3 className="text-machine-bright">* {entry.question}</h3>
+                <p>{entry.answer}</p>
               </li>
             ))}
           </ul>
