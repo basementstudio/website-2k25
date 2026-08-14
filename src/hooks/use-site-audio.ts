@@ -236,10 +236,10 @@ export const SiteAudioSFXsLoader = memo((): null => {
       const newSources = {} as Record<SiteAudioSFXKey, AudioSource>
 
       try {
-        const promises = []
+        const promises: Promise<void>[] = []
 
         promises.push(
-          Object.keys(GAME_AUDIO_SFX).map(async (key) => {
+          ...Object.keys(GAME_AUDIO_SFX).map(async (key) => {
             const audioKey = key as SiteAudioSFXKey
             const source = await player.loadAudioFromURL(
               GAME_AUDIO_SFX[audioKey as keyof typeof GAME_AUDIO_SFX],
@@ -251,7 +251,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
+          ...ARCADE_AUDIO_SFX.BUTTONS.map(async (button, index) => {
             const source = await player.loadAudioFromURL(button.PRESS, true)
             source.setVolume(SFX_VOLUME)
             newSources[`ARCADE_BUTTON_${index}_PRESS`] = source
@@ -265,7 +265,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
+          ...ARCADE_AUDIO_SFX.STICKS.map(async (stick, index) => {
             const source = await player.loadAudioFromURL(stick.PRESS, true)
             source.setVolume(SFX_VOLUME)
             newSources[`ARCADE_STICK_${index}_PRESS`] = source
@@ -279,7 +279,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          BLOG_AUDIO_SFX.LOCKED_DOOR.map(async (lockedDoor, index) => {
+          ...BLOG_AUDIO_SFX.LOCKED_DOOR.map(async (lockedDoor, index) => {
             const source = await player.loadAudioFromURL(lockedDoor, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_LOCKED_DOOR_${index}`] = source
@@ -287,7 +287,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
+          ...BLOG_AUDIO_SFX.DOOR.map(async (door, index) => {
             const source = await player.loadAudioFromURL(door.OPEN, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_DOOR_${index}_OPEN`] = source
@@ -298,7 +298,7 @@ export const SiteAudioSFXsLoader = memo((): null => {
         )
 
         promises.push(
-          BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
+          ...BLOG_AUDIO_SFX.LAMP.map(async (lamp, index) => {
             const source = await player.loadAudioFromURL(lamp.PULL, true)
             source.setVolume(SFX_VOLUME)
             newSources[`BLOG_LAMP_${index}_PULL`] = source
@@ -344,7 +344,16 @@ export const SiteAudioSFXsLoader = memo((): null => {
           })()
         )
 
-        await Promise.all(promises)
+        // one flaky fetch shouldn't discard every SFX that loaded
+        const results = await Promise.allSettled(promises)
+
+        const failed = results.filter((r) => r.status === "rejected")
+        if (failed.length) {
+          console.error(
+            `Failed to load ${failed.length}/${results.length} audio sources`,
+            failed.map((r) => r.reason)
+          )
+        }
 
         useSiteAudioStore.setState({
           audioSfxSources: newSources
