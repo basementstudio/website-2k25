@@ -235,8 +235,7 @@ const Bakes = () => {
       )
     }
 
-    // Both branches gate the reveal: bakes and map models now load in parallel,
-    // so either one can be the laggard.
+    // Not on mount: bakes can resolve before the models exist.
     setCanRunMainApp(true)
     const timeout = setTimeout(() => setMainAppRunning(true), 10)
     const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)

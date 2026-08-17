@@ -12,9 +12,7 @@ export function useKTX2GLTF<T extends GLTF>(
   draco?: string,
   useCaching?: boolean
 ): T
-// An array batches every url into one `Promise.all`, so they download
-// concurrently. Separate calls suspend one at a time: each url only starts once
-// the previous one resolved, which is a request waterfall.
+// An array is one `Promise.all`; separate calls suspend serially.
 export function useKTX2GLTF<T extends GLTF>(
   paths: string[],
   draco?: string,

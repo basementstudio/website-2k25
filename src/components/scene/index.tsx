@@ -177,9 +177,7 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Map />
                   </Suspense>
-                  {/* Sibling of <Map/>, not a child: nested, the bake textures
-                      only started downloading once every map model had already
-                      resolved. */}
+                  {/* Sibling, not a child: nested, bakes wait for every model. */}
                   <BakesLoader />
                   <Suspense fallback={null}>
                     <WebGlTunnelOut />

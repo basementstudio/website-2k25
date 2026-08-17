@@ -19,8 +19,6 @@ export const useLoader = () => {
     outdoorCars: outdoorCarsUrl
   } = useAssets()
 
-  // Single array call: one suspension for all seven, so they download in
-  // parallel. Ordered to match the destructuring below.
   const [
     office,
     officeItems,
