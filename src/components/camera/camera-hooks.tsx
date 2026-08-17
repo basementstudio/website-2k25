@@ -10,6 +10,7 @@ import { useMedia } from "@/hooks/use-media"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { easeInOutCubic } from "@/utils/animations"
 
+import { buildTransitionCurve, getTransitionWaypoints } from "./camera-paths"
 import {
   calculateMovementVectors,
   calculateNewPosition,
@@ -19,6 +20,10 @@ import {
 
 const ANIMATION_DURATION = 1
 const ANIMATION_DURATION_FROM_404 = 4
+// Curved flights cover much longer distances than straight hops; scale their
+// duration to the curve length (≈ flight speed in m/s) within sane bounds.
+const CURVE_FLIGHT_SPEED = 12
+const CURVE_MAX_DURATION = 2.5
 
 export type CameraRef = React.RefObject<THREE.PerspectiveCamera | null>
 export type MeshRef = React.RefObject<THREE.Mesh | null>
@@ -185,6 +190,15 @@ export const useCameraMovement = (
   const prevCameraConfig = useRef(cameraConfig)
   const firstRender = useRef(true)
 
+  const transitionCurve = useRef<THREE.CatmullRomCurve3 | null>(null)
+  const curveEnd = useMemo(() => new THREE.Vector3(), [])
+  const curveDelta = useMemo(() => new THREE.Vector3(), [])
+  // Where the camera is flying from. Tracked here because the store's
+  // previousScene is unreliable at effect time: NavigationHandler re-issues
+  // setCurrentScene for the same navigation before this effect runs, which
+  // overwrites previousScene with the destination scene.
+  const fromSceneRef = useRef<string | null>(null)
+
   const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
 
   const scrollRatio = useRef(0)
@@ -202,43 +216,73 @@ export const useCameraMovement = (
   }, [])
 
   useEffect(() => {
-    if (cameraConfig && prevCameraConfig.current !== cameraConfig) {
-      if (isInitialized && prevCameraConfig.current) {
-        const { disableCameraTransition, previousScene } =
-          useNavigationStore.getState()
+    if (!cameraConfig) return
 
-        animationDuration.current =
-          previousScene?.name === "404"
-            ? ANIMATION_DURATION_FROM_404
-            : ANIMATION_DURATION
+    if (prevCameraConfig.current === cameraConfig) {
+      // Mounted with a scene already active (no navigation yet).
+      if (fromSceneRef.current === null) {
+        fromSceneRef.current =
+          useNavigationStore.getState().currentScene?.name ?? null
+      }
+      return
+    }
 
-        initialCurrentPos.copy(currentPos)
-        initialCurrentTarget.copy(currentTarget)
-        initialFov.current = currentFov.current
-        targetFov.current = cameraConfig.fov
+    const toScene = useNavigationStore.getState().currentScene?.name ?? null
+    const fromScene = fromSceneRef.current
 
-        if (!disableCameraTransition) {
-          progress.current = 0
-          isTransitioning.current = true
-          setIsCameraTransitioning(true)
-        } else {
-          progress.current = 1
-          isTransitioning.current = false
-          setIsCameraTransitioning(false)
+    if (isInitialized && prevCameraConfig.current) {
+      const { disableCameraTransition } = useNavigationStore.getState()
 
-          setTimeout(
-            () => setDisableCameraTransition(false),
-            animationDuration.current * 1000
+      animationDuration.current =
+        fromScene === "404" ? ANIMATION_DURATION_FROM_404 : ANIMATION_DURATION
+
+      initialCurrentPos.copy(currentPos)
+      initialCurrentTarget.copy(currentTarget)
+      initialFov.current = currentFov.current
+      targetFov.current = cameraConfig.fov
+
+      if (!disableCameraTransition) {
+        curveEnd.set(...(cameraConfig.position as [number, number, number]))
+        const waypoints =
+          fromScene && toScene
+            ? getTransitionWaypoints(fromScene, toScene)
+            : null
+        transitionCurve.current = waypoints
+          ? buildTransitionCurve(initialCurrentPos, curveEnd, waypoints)
+          : null
+        if (transitionCurve.current && fromScene !== "404") {
+          animationDuration.current = Math.min(
+            CURVE_MAX_DURATION,
+            Math.max(
+              ANIMATION_DURATION,
+              transitionCurve.current.getLength() / CURVE_FLIGHT_SPEED
+            )
           )
         }
+
+        progress.current = 0
+        isTransitioning.current = true
+        setIsCameraTransitioning(true)
+      } else {
+        transitionCurve.current = null
+        progress.current = 1
+        isTransitioning.current = false
+        setIsCameraTransitioning(false)
+
+        setTimeout(
+          () => setDisableCameraTransition(false),
+          animationDuration.current * 1000
+        )
       }
-      prevCameraConfig.current = cameraConfig
     }
+    fromSceneRef.current = toScene
+    prevCameraConfig.current = cameraConfig
   }, [
     cameraConfig,
     isInitialized,
     currentPos,
     currentTarget,
+    curveEnd,
     initialCurrentPos,
     initialCurrentTarget,
     setDisableCameraTransition,
@@ -296,6 +340,7 @@ export const useCameraMovement = (
 
     if (disableCameraTransition || firstRender.current) {
       progress.current = 1
+      transitionCurve.current = null
       currentPos.copy(targetPosition)
       currentTarget.copy(targetLookAt)
       currentFov.current = targetFov.current
@@ -315,7 +360,17 @@ export const useCameraMovement = (
       )
       const easeValue = easeInOutCubic(progress.current)
 
-      currentPos.lerpVectors(initialCurrentPos, targetPosition, easeValue)
+      if (transitionCurve.current) {
+        // Fly the authored curve (arc-length parameterized so the eased
+        // speed is uniform along it), then blend in whatever the live
+        // target has drifted from the snapshot the curve was built with
+        // (scroll offset) so the flight still lands exactly on it.
+        transitionCurve.current.getPointAt(easeValue, currentPos)
+        curveDelta.subVectors(targetPosition, curveEnd)
+        currentPos.addScaledVector(curveDelta, easeValue)
+      } else {
+        currentPos.lerpVectors(initialCurrentPos, targetPosition, easeValue)
+      }
       currentTarget.lerpVectors(initialCurrentTarget, targetLookAt, easeValue)
       currentFov.current =
         initialFov.current +
@@ -323,6 +378,7 @@ export const useCameraMovement = (
 
       if (progress.current === 1) {
         isTransitioning.current = false
+        transitionCurve.current = null
         setIsCameraTransitioning(false)
       }
     } else {
