@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/nextjs"
 import { useEffect, useState } from "react"
 
 import { useAssets } from "@/components/assets-provider"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { workerErrorFromMessage, workerErrorReport } from "@/lib/worker-error"
 
 import { ContactScreen } from "./contact-screen"
@@ -28,6 +29,7 @@ type WorkerMessageType =
   | "scale-down-animation-complete"
   | "animation-starting"
   | "animation-complete"
+  | "screen-dimensions"
 
 export const ContactCanvas = () => {
   const { contactPhone } = useAssets()
@@ -41,6 +43,15 @@ export const ContactCanvas = () => {
     (state) => state.setClosingCompleted
   )
   const [shouldRender, setShouldRender] = useState(false)
+  const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
+  const loadingContextReleased = useAppLoadingStore(
+    (state) => state.loadingContextReleased
+  )
+  // Safari evicts the oldest of three live contexts — the main one. canRunMainApp
+  // alone fires ~1s before the loading canvas actually lets go. Both inputs are
+  // one-way, which is what transferControlToOffscreen needs.
+  const canMountCanvas = canRunMainApp && loadingContextReleased
+  const [sceneReady, setSceneReady] = useState(false)
 
   useEffect(() => {
     if (isContactOpen) {
@@ -91,7 +102,9 @@ export const ContactCanvas = () => {
           setAnimComplete(setClosingCompleted)
         },
         "animation-starting": () => setIsAnimating(true),
-        "animation-complete": () => setIsAnimating(false)
+        "animation-complete": () => setIsAnimating(false),
+        // Only sent once the model is in and ContactScene is listening.
+        "screen-dimensions": () => setSceneReady(true)
       }
 
       const handler = messageHandlers[type as WorkerMessageType]
@@ -167,30 +180,37 @@ export const ContactCanvas = () => {
       newWorker.removeEventListener("error", handleError)
       newWorker.terminate()
       setStoreWorker(null)
+      setSceneReady(false)
     }
   }, [contactPhone, setStoreWorker])
 
+  // @react-three/offscreen's render() replaces the worker's own onmessage, so
+  // ContactScene's listener is the only thing handling this — posting before it
+  // exists silently drops the message and strands isAnimating. Waiting on
+  // sceneReady also replays the current state once the scene comes up.
   useEffect(() => {
-    if (worker) {
-      worker.postMessage({
-        type: "update-contact-open",
-        isContactOpen: isContactOpen
-      })
-    }
-  }, [worker, isContactOpen])
+    if (!worker || !sceneReady) return
+
+    worker.postMessage({
+      type: "update-contact-open",
+      isContactOpen: isContactOpen
+    })
+  }, [worker, sceneReady, isContactOpen])
 
   if (!worker) return null
 
   return (
     <>
       <ContactScreen />
-      <OffscreenCanvas
-        worker={worker}
-        fallback={null}
-        frameloop={shouldRender || isAnimating ? "always" : "never"}
-        camera={{ position: [0, 0.2, 2], fov: 8.5 }}
-        gl={{ antialias: false }}
-      />
+      {canMountCanvas && (
+        <OffscreenCanvas
+          worker={worker}
+          fallback={null}
+          frameloop={shouldRender || isAnimating ? "always" : "never"}
+          camera={{ position: [0, 0.2, 2], fov: 8.5 }}
+          gl={{ antialias: false }}
+        />
+      )}
     </>
   )
 }

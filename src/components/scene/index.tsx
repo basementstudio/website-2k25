@@ -25,6 +25,7 @@ import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
 import { DoomJs } from "../doom-js"
+import { WebGLContextGuard } from "./webgl-context-guard"
 
 const HoopMinigame = dynamic(
   () =>
@@ -165,6 +166,7 @@ export const Scene = () => {
           )}
         >
           <AnimationController>
+            <WebGLContextGuard />
             <UpdateCanvasCursor />
             <Renderer
               sceneChildren={

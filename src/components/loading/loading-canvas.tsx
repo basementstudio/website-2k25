@@ -105,6 +105,11 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
 
     return () => {
       worker.terminate()
+      // Nulled so nothing posts to a terminated worker.
+      useAppLoadingStore.setState({
+        worker: null,
+        loadingContextReleased: true
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

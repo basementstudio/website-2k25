@@ -19,6 +19,7 @@ import {
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { reportIfContextLost } from "@/lib/webgl-context-guard"
 import { createBloomMaterial } from "@/shaders/material-bloom"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
 import { doubleFbo } from "@/utils/double-fbo"
@@ -120,6 +121,10 @@ function RendererInner({ sceneChildren }: RendererProps) {
   }, [bloomTarget, bloomResolution])
 
   useFrameCallback(({ gl }) => {
+    // R3F invalidates on its own outside AnimationController, so the sites that
+    // actually touch the GPU still guard themselves.
+    if (reportIfContextLost(gl)) return
+
     if (
       !mainCamera ||
       !postProcessingCameraRef.current ||

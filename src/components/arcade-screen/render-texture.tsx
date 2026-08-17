@@ -17,6 +17,8 @@ import {
 } from "react"
 import * as THREE from "three"
 
+import { reportIfContextLost } from "@/lib/webgl-context-guard"
+
 interface R3FObject {
   __r3f: {
     parent: R3FObject | THREE.Object3D
@@ -242,6 +244,10 @@ const SceneContainer = ({
   children
 }: PropsWithChildren<SceneContainerProps>) => {
   useTextureFrame(({ state }) => {
+    // R3F invalidates on its own outside AnimationController, so the sites that
+    // actually touch the GPU still guard themselves.
+    if (reportIfContextLost(state.gl)) return
+
     state.gl.setRenderTarget(fbo)
     state.gl.render(state.scene, state.camera)
     state.gl.setRenderTarget(null)

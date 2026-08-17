@@ -24,6 +24,7 @@ interface AppLoadingState {
   canRunMainApp: boolean
   offscreenCanvasReady: boolean
   worker: Worker | null
+  loadingContextReleased: boolean
   canvasUnavailable: boolean
   canvasBootTimedOut: boolean
   setMainAppRunning: (isAppLoaded: boolean) => void
@@ -54,6 +55,11 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      * Worker canvas for loading screen
      */
     worker: null,
+    /**
+     * The loading canvas has given its WebGL context back. Safari caps how many
+     * are live at once, so the contact canvas waits on this before allocating.
+     */
+    loadingContextReleased: false,
     /**
      * Set by the error boundary, the WebGL2 probe, or a failed context creation
      */
