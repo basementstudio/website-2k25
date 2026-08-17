@@ -7,14 +7,27 @@ import { getKTX2Loader } from "./use-ktx2-loader"
 
 type KTX2Capable = { setKTX2Loader: (loader: KTX2Loader) => unknown }
 
-export const useKTX2GLTF = <T extends GLTF>(
+export function useKTX2GLTF<T extends GLTF>(
   path: string,
   draco?: string,
+  useCaching?: boolean
+): T
+// An array batches every url into one `Promise.all`, so they download
+// concurrently. Separate calls suspend one at a time: each url only starts once
+// the previous one resolved, which is a request waterfall.
+export function useKTX2GLTF<T extends GLTF>(
+  paths: string[],
+  draco?: string,
+  useCaching?: boolean
+): T[]
+export function useKTX2GLTF<T extends GLTF>(
+  path: string | string[],
+  draco?: string,
   useCaching = true
-): T => {
+): T | T[] {
   const { gl } = useThree()
 
   return useGLTF(path, draco, useCaching, (loader) => {
     ;(loader as unknown as KTX2Capable).setKTX2Loader(getKTX2Loader(gl))
-  }) as unknown as T
+  }) as unknown as T | T[]
 }

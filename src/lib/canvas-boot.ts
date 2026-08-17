@@ -4,10 +4,13 @@ import { DefaultLoadingManager } from "three"
 // Assumes one boot per page load, which holds because `isCanvasInPage` is
 // sticky and `canRunMainApp` only ever goes false -> true. A retry-boot feature
 // would need this module's one-shot guards (`marks`, `deadlineFired`) revisited.
+// `map-ready` and `bakes-resolved` are concurrent branches, not a sequence —
+// the reveal waits on whichever lands last.
 export type BootStage =
   | "worker-spawned"
   | "scene-chunk"
   | "offscreen-ready"
+  | "map-ready"
   | "bakes-resolved"
 
 const BOOT_ASSET_PATH = "/3d/"
@@ -240,14 +243,15 @@ const assetSnapshot = () => {
   // number of parallel connections.
   const windowMs = lastResponseEnd - firstStart
 
+  // Flattened to strings because Sentry's normalizeDepth (3) renders anything
+  // nested this deep as "[Object]" — contexts > canvas_boot_assets > slowest.
   const slowest = entries
     .sort((a, b) => b.duration - a.duration)
     .slice(0, 5)
-    .map((entry) => ({
-      url: entry.name.slice(entry.name.indexOf(BOOT_ASSET_PATH)),
-      ms: Math.round(entry.duration),
-      kb: Math.round(entry.transferSize / 1024)
-    }))
+    .map(
+      (entry) =>
+        `${Math.round(entry.duration)}ms ${Math.round(entry.transferSize / 1024)}kb ${entry.name.slice(entry.name.indexOf(BOOT_ASSET_PATH))}`
+    )
 
   return {
     ...base,
