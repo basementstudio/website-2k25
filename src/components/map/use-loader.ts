@@ -19,15 +19,7 @@ export const useLoader = () => {
     outdoorCars: outdoorCarsUrl
   } = useAssets()
 
-  const { scene: office } = useKTX2GLTF<GLTFResult>(officeUrl)
-  const { scene: officeItems } = useKTX2GLTF<GLTFResult>(officeItemsUrl)
-  const { scene: outdoor } = useKTX2GLTF<GLTFResult>(outdoorUrl)
-  const { scene: godrays } = useKTX2GLTF<GLTFResult>(godraysUrl)
-  const { scene: outdoorCars } = useKTX2GLTF<GLTFResult>(outdoorCarsUrl)
-  const { scene: basketballNet } = useKTX2GLTF<GLTFResult>(basketballNetUrl)
-  const { scene: routingElements } = useKTX2GLTF<GLTFResult>(routingElementsUrl)
-
-  return {
+  const [
     office,
     officeItems,
     outdoor,
@@ -35,5 +27,23 @@ export const useLoader = () => {
     outdoorCars,
     basketballNet,
     routingElements
+  ] = useKTX2GLTF<GLTFResult>([
+    officeUrl,
+    officeItemsUrl,
+    outdoorUrl,
+    godraysUrl,
+    outdoorCarsUrl,
+    basketballNetUrl,
+    routingElementsUrl
+  ])
+
+  return {
+    office: office.scene,
+    officeItems: officeItems.scene,
+    outdoor: outdoor.scene,
+    godrays: godrays.scene,
+    outdoorCars: outdoorCars.scene,
+    basketballNet: basketballNet.scene,
+    routingElements: routingElements.scene
   }
 }
