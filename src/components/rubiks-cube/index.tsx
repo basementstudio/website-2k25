@@ -30,7 +30,7 @@ import {
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCursor } from "@/hooks/use-mouse"
 
-import { useRubiksStore } from "./cube-store"
+import { RUBIKS_BEST_TIME_KEY, useRubiksStore } from "./cube-store"
 import { splitCubeGeometry } from "./split-cube-geometry"
 
 const QUARTER = Math.PI / 2
@@ -178,8 +178,34 @@ export const PlayableRubiksCube = memo(function PlayableRubiksCubeInner({
           Math.abs(mesh.position.z - cell[2] * cellSize.z) < 1e-3
         )
       })
-      if (solved && !wasSolvedRef.current) track("rubiks_cube_solved")
+
+      const wasSolved = wasSolvedRef.current
       wasSolvedRef.current = solved
+
+      if (wasSolved && !solved) {
+        // First turn away from solved starts the clock
+        if (useRubiksStore.getState().startedAt === null) {
+          useRubiksStore.setState({ startedAt: Date.now(), solveTime: null })
+        }
+      } else if (!wasSolved && solved) {
+        const { startedAt, bestTime } = useRubiksStore.getState()
+        if (startedAt !== null) {
+          const solveTime = Date.now() - startedAt
+          const best =
+            bestTime === null ? solveTime : Math.min(bestTime, solveTime)
+          useRubiksStore.setState({
+            startedAt: null,
+            solveTime,
+            bestTime: best
+          })
+          try {
+            localStorage.setItem(RUBIKS_BEST_TIME_KEY, String(best))
+          } catch {}
+          track("rubiks_cube_solved", {
+            seconds: Math.round(solveTime / 100) / 10
+          })
+        }
+      }
 
       useRubiksStore.setState({ isTurning: false, solved })
       invalidate()
