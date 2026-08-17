@@ -1,7 +1,6 @@
 import { useEffect } from "react"
 
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
-import { isWebGL2Available } from "@/lib/webgl"
 
 const WEBGL_CONTEXT_FAILURE = /webgl context/i
 
@@ -9,22 +8,17 @@ const WEBGL_CONTEXT_FAILURE = /webgl context/i
 // a floating promise instead of throwing into React — the <ErrorBoundary> around
 // the canvas never sees it. Sentry WEBSITE-2K25-39.
 export const useCanvasAvailability = () => {
-  const canvasUnavailable = useAppLoadingStore(
-    (state) => state.canvasUnavailable
-  )
-
+  // The WebGL2 probe runs in an inline pre-paint script (src/app/layout.tsx) so
+  // CSS can drop the (canvas) reserve before first paint — collapsing it from a
+  // useEffect scored ~0.8 CLS on mobile. Here we only sync the store with that
+  // decision. Late failures (error boundary, rejection below) still prune the
+  // scene subtree but must never touch the dataset: shifting the page post-paint
+  // is worse than keeping an empty reserve.
   useEffect(() => {
-    if (isWebGL2Available()) return
+    if (document.documentElement.dataset.canvasUnavailable !== "true") return
 
     useAppLoadingStore.getState().reportCanvasUnavailable()
   }, [])
-
-  // Lets CSS drop the viewport of space the (canvas) group reserves.
-  useEffect(() => {
-    if (!canvasUnavailable) return
-
-    document.documentElement.dataset.canvasUnavailable = "true"
-  }, [canvasUnavailable])
 
   useEffect(() => {
     const handleRejection = (event: PromiseRejectionEvent) => {

@@ -2,14 +2,12 @@ import { memo } from "react"
 
 import type { ImageFragment } from "@/components/primitives/image-with-video-overlay"
 import { ImageWithVideoOverlay } from "@/components/primitives/image-with-video-overlay"
-import { InfoItem } from "@/components/primitives/info-item"
 import { Link } from "@/components/primitives/link"
-import { TextList } from "@/components/primitives/text-list"
-import { useMedia } from "@/hooks/use-media"
 import { resolveVideoSource } from "@/lib/video/resolve-source"
 import type { SanityImage } from "@/service/sanity/types"
 import { cn } from "@/utils/cn"
 
+import { MobileInfo } from "./mobile-info"
 import type { ShowcaseProject } from "./sanity"
 
 /** Convert a SanityImage to the ImageFragment shape used by ImageWithVideoOverlay. */
@@ -24,37 +22,12 @@ function toImageFragment(img: SanityImage | null): ImageFragment | null {
   }
 }
 
-const MobileInfo = memo(({ project }: { project: ShowcaseProject }) => {
-  return (
-    <div className="col-span-full flex flex-col divide-y divide-brand-w1/20 lg:hidden">
-      <InfoItem label="Client" value={project.client?.title} />
-      <InfoItem
-        label="Type"
-        value={
-          <TextList
-            value={
-              project.categories?.map((cat) => (
-                <span key={cat.title}>{cat.title}</span>
-              )) || []
-            }
-            className="text-f-p-mobile lg:text-f-p"
-          />
-        }
-      />
-      <div />
-    </div>
-  )
-})
-MobileInfo.displayName = "MobileInfo"
-
 interface GridProps {
   projects: ShowcaseProject[]
   isProjectDisabled: (project: ShowcaseProject) => boolean
 }
 
 export const Grid = memo(({ projects, isProjectDisabled }: GridProps) => {
-  const isMobile = useMedia("(max-width: 1024px)")
-
   return (
     <div className="grid-layout contain-layout !gap-y-8 lg:!gap-y-3">
       {projects.map((item, index) => {
@@ -95,7 +68,7 @@ export const Grid = memo(({ projects, isProjectDisabled }: GridProps) => {
               </Link>
             </div>
 
-            {isMobile && <MobileInfo project={item} />}
+            <MobileInfo project={item} />
           </article>
         )
       })}

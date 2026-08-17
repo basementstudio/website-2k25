@@ -161,9 +161,9 @@ export default {
         "61": "15.25rem"
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)"],
-        mono: ["var(--font-geist-mono)"],
-        flauta: ["var(--font-flauta)"]
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        flauta: ["var(--font-flauta)", "serif"]
       },
       maxWidth: {
         full: "120rem"
