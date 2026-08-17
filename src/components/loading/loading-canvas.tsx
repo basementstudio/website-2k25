@@ -108,6 +108,11 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
 
     return () => {
       worker.terminate()
+      // Drop the store reference so per-frame camera sync stops posting to a
+      // dead worker. Identity check keeps StrictMode's double-mount safe.
+      if (useAppLoadingStore.getState().worker === worker) {
+        useAppLoadingStore.setState({ worker: null })
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

@@ -1,5 +1,5 @@
 import { easing } from "maath"
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
@@ -30,15 +30,24 @@ export const useCameraTransitionState = () => {
   return isCameraTransitioning
 }
 
+const getResponsiveDivisor = () => {
+  const width = window.innerWidth
+  if (width <= 1100) return 0.32
+  if (width <= 1200) return 0.36
+  if (width <= 1500) return 0.4
+  return 0.8
+}
+
 export const useResponsiveDivisor = () => {
-  return useMemo(() => {
-    const width = window.innerWidth
-    if (width <= 1100) return 0.32
-    if (width <= 1200) return 0.36
-    if (width <= 1500) return 0.4
-    if (width <= 1600) return 0.8
-    return 0.8
+  const [divisor, setDivisor] = useState(getResponsiveDivisor)
+
+  useEffect(() => {
+    const onResize = () => setDivisor(getResponsiveDivisor())
+    window.addEventListener("resize", onResize, { passive: true })
+    return () => window.removeEventListener("resize", onResize)
   }, [])
+
+  return divisor
 }
 
 export const useCameraSetup = (
@@ -137,24 +146,15 @@ export const useCameraMovement = (
   boundaries: ReturnType<typeof useBoundaries>,
   isInitialized: boolean
 ) => {
-  const disableCameraTransition =
-    useNavigationStore.getState().disableCameraTransition
   const setDisableCameraTransition =
     useNavigationStore.getState().setDisableCameraTransition
   const setIsCameraTransitioning =
     useNavigationStore.getState().setIsCameraTransitioning
-  const previousScene = useNavigationStore.getState().previousScene
   const { selected } = useInspectable()
 
   const isDesktop = useMedia("(min-width: 1024px)")
 
-  // Determine if we're transitioning from the 404 page
-  const isTransitioningFrom404 = previousScene?.name === "404"
-
-  // Use the appropriate animation duration
-  const animationDuration = isTransitioningFrom404
-    ? ANIMATION_DURATION_FROM_404
-    : ANIMATION_DURATION
+  const animationDuration = useRef(ANIMATION_DURATION)
 
   const divisor = useResponsiveDivisor()
   const offsetMultiplier = useMemo(() => {
@@ -187,9 +187,31 @@ export const useCameraMovement = (
 
   const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
 
+  const scrollRatio = useRef(0)
+  useEffect(() => {
+    const updateScrollRatio = () => {
+      scrollRatio.current = Math.min(1, window.scrollY / window.innerHeight)
+    }
+    updateScrollRatio()
+    window.addEventListener("scroll", updateScrollRatio, { passive: true })
+    window.addEventListener("resize", updateScrollRatio, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", updateScrollRatio)
+      window.removeEventListener("resize", updateScrollRatio)
+    }
+  }, [])
+
   useEffect(() => {
     if (cameraConfig && prevCameraConfig.current !== cameraConfig) {
       if (isInitialized && prevCameraConfig.current) {
+        const { disableCameraTransition, previousScene } =
+          useNavigationStore.getState()
+
+        animationDuration.current =
+          previousScene?.name === "404"
+            ? ANIMATION_DURATION_FROM_404
+            : ANIMATION_DURATION
+
         initialCurrentPos.copy(currentPos)
         initialCurrentTarget.copy(currentTarget)
         initialFov.current = currentFov.current
@@ -206,7 +228,7 @@ export const useCameraMovement = (
 
           setTimeout(
             () => setDisableCameraTransition(false),
-            animationDuration * 1000
+            animationDuration.current * 1000
           )
         }
       }
@@ -219,13 +241,15 @@ export const useCameraMovement = (
     currentTarget,
     initialCurrentPos,
     initialCurrentTarget,
-    disableCameraTransition,
     setDisableCameraTransition,
-    setIsCameraTransitioning,
-    animationDuration
+    setIsCameraTransitioning
   ])
 
+  const finalPos = useMemo(() => new THREE.Vector3(), [])
+  const finalLookAt = useMemo(() => new THREE.Vector3(), [])
+
   useFrameCallback(({ pointer }, dt) => {
+    const { disableCameraTransition } = useNavigationStore.getState()
     const { boundariesRef, basePosition, np } = boundaries
     const b = boundariesRef.current
     const plane = planeRef.current
@@ -265,10 +289,9 @@ export const useCameraMovement = (
     }
 
     if (!disableCameraTransition && isDesktop) {
-      targetPosition.y +=
-        (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
-      targetLookAt.y +=
-        (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
+      const scrollOffset = (targetY - initialY) * scrollRatio.current
+      targetPosition.y += scrollOffset
+      targetLookAt.y += scrollOffset
     }
 
     if (disableCameraTransition || firstRender.current) {
@@ -276,14 +299,20 @@ export const useCameraMovement = (
       currentPos.copy(targetPosition)
       currentTarget.copy(targetLookAt)
       currentFov.current = targetFov.current
-      isTransitioning.current = false
-      setIsCameraTransitioning(false)
+
+      if (isTransitioning.current) {
+        isTransitioning.current = false
+        setIsCameraTransitioning(false)
+      }
 
       if (firstRender.current) {
         firstRender.current = false
       }
     } else if (isTransitioning.current && progress.current < 1) {
-      progress.current = Math.min(progress.current + dt / animationDuration, 1)
+      progress.current = Math.min(
+        progress.current + dt / animationDuration.current,
+        1
+      )
       const easeValue = easeInOutCubic(progress.current)
 
       currentPos.lerpVectors(initialCurrentPos, targetPosition, easeValue)
@@ -303,13 +332,15 @@ export const useCameraMovement = (
     }
 
     if (cameraRef.current) {
-      const finalPos = currentPos.clone().add(panTargetDelta)
-      const finalLookAt = currentTarget.clone().add(panLookAtDelta)
+      finalPos.copy(currentPos).add(panTargetDelta)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
 
       cameraRef.current.position.copy(finalPos)
       cameraRef.current.lookAt(finalLookAt)
-      cameraRef.current.fov = currentFov.current
-      cameraRef.current.updateProjectionMatrix()
+      if (cameraRef.current.fov !== currentFov.current) {
+        cameraRef.current.fov = currentFov.current
+        cameraRef.current.updateProjectionMatrix()
+      }
 
       if (loadingCanvasWorker) {
         loadingCanvasWorker.postMessage({

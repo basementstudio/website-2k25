@@ -9,7 +9,7 @@ import { CustomCamera } from "./camera-controls"
 import { WasdControls } from "./wasd-controls"
 
 export const CameraController = () => {
-  const [isFlyMode, setIsFlyMode] = useState(true)
+  const [isFlyMode, setIsFlyMode] = useState(false)
   const { camera } = useThree()
   const setMainCamera = useNavigationStore((state) => state.setMainCamera)
 
