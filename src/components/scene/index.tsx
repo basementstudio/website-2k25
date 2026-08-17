@@ -177,7 +177,6 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Map />
                   </Suspense>
-                  {/* Sibling, not a child: nested, bakes wait for every model. */}
                   <BakesLoader />
                   <Suspense fallback={null}>
                     <WebGlTunnelOut />
