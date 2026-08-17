@@ -6,6 +6,7 @@ import { Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import { markCanvasBootStage } from "@/lib/canvas-boot"
 import { workerErrorFromMessage, workerErrorReport } from "@/lib/worker-error"
 import { cn } from "@/utils/cn"
 
@@ -59,6 +60,7 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
       }
     )
 
+    markCanvasBootStage("worker-spawned")
     useAppLoadingStore.setState({ worker })
 
     // start the loading scene
@@ -81,6 +83,7 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
       }
 
       if (type === "offscreen-canvas-loaded") {
+        markCanvasBootStage("offscreen-ready")
         useAppLoadingStore.setState({ offscreenCanvasReady: true })
       }
     })

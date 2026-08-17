@@ -18,6 +18,7 @@ import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { useKTX2Textures } from "@/hooks/use-ktx2-loader"
 import { useMesh } from "@/hooks/use-mesh"
+import { markCanvasBootStage } from "@/lib/canvas-boot"
 
 interface Bake {
   lightmap?: Texture
@@ -189,6 +190,7 @@ const Bakes = () => {
   const setCanRunMainApp = useAppLoadingStore((state) => state.setCanRunMainApp)
 
   useEffect(() => {
+    markCanvasBootStage("bakes-resolved")
     setCanRunMainApp(true)
     const timeout = setTimeout(() => {
       setMainAppRunning(true)
