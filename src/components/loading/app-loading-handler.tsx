@@ -1,9 +1,16 @@
 "use client"
 
-import * as Sentry from "@sentry/nextjs"
 import { useEffect, useState } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
+
+import {
+  armCanvasBootDeadline,
+  captureCanvasBootRecovery,
+  captureCanvasBootTimeout,
+  startCanvasBootTrace,
+  stopCanvasBootTrace
+} from "@/lib/canvas-boot"
 
 import LoadingCanvas from "./loading-canvas"
 
@@ -75,6 +82,8 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      * This function will tell the loading canvas that the main app can run
      */
     setCanRunMainApp: (canRunMainApp) => {
+      if (canRunMainApp && get().canvasBootTimedOut) captureCanvasBootRecovery()
+
       set({ canRunMainApp, canvasBootTimedOut: false })
     },
     /**
@@ -114,17 +123,23 @@ export const AppLoadingHandler = () => {
     // is already known dead.
     if (!isCanvasInPage || canRunMainApp || canvasUnavailable) return
 
-    const timeout = setTimeout(() => {
+    // Starts the clock on the same tick the budget is armed, so both are
+    // measured against the same t0.
+    startCanvasBootTrace()
+
+    // Counts down only while the tab is visible, so a backgrounded tab is never
+    // charged for a boot it was never given the frames to finish.
+    armCanvasBootDeadline(CANVAS_BOOT_TIMEOUT_MS, () => {
       // A slow scene may still arrive, so don't mark the canvas unavailable.
       useAppLoadingStore.setState({
         showLoadingCanvas: false,
         canvasBootTimedOut: true
       })
 
-      Sentry.captureMessage("Canvas boot timed out", "warning")
-    }, CANVAS_BOOT_TIMEOUT_MS)
+      captureCanvasBootTimeout(CANVAS_BOOT_TIMEOUT_MS)
+    })
 
-    return () => clearTimeout(timeout)
+    return () => stopCanvasBootTrace()
   }, [isCanvasInPage, canRunMainApp, canvasUnavailable])
 
   if (!isCanvasInPage) {

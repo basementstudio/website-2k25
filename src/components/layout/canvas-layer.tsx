@@ -11,10 +11,15 @@ import {
   useAppLoadingStore
 } from "@/components/loading/app-loading-handler"
 import { useCanvasAvailability } from "@/hooks/use-canvas-availability"
+import { markCanvasBootStage } from "@/lib/canvas-boot"
 import { cn } from "@/utils/cn"
 
 const Scene = dynamic(
-  () => import("@/components/scene").then((mod) => mod.Scene),
+  () =>
+    import("@/components/scene").then((mod) => {
+      markCanvasBootStage("scene-chunk")
+      return mod.Scene
+    }),
   { ssr: false, loading: () => null }
 )
 
