@@ -387,8 +387,10 @@ export const SiteAudioSFXsLoader = memo((): null => {
     }
 
     // The player appears right after the first tap — wait for idle so the SFX
-    // warmup never shares the frame with that interaction.
-    onIdle(loadAudioSources)
+    // warmup never shares the frame with that interaction. Cancelled on
+    // cleanup so a Strict Mode replay doesn't schedule the ~40 fetch+decodes
+    // twice.
+    return onIdle(loadAudioSources)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player])
 

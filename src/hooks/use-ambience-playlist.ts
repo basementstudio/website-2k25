@@ -95,14 +95,27 @@ export function useAmbiencePlaylist() {
   useEffect(() => {
     if (!ambiencePlaylist) return
 
-    if (!globalPlaylistRef.isPlaying) {
-      globalPlaylistRef.isPlaying = true
-      // play() fetches + decodes the first MP3; the playlist appears right
-      // after the unlocking tap, so keep that work off the interaction frame.
-      onIdle(() => ambiencePlaylist.play(), 1000)
-    }
-
     if (!isBackgroundInitialized) setBackgroundInitialized(true)
+
+    if (globalPlaylistRef.isPlaying) return
+
+    globalPlaylistRef.isPlaying = true
+    // play() fetches + decodes the first MP3; the playlist appears right
+    // after the unlocking tap, so keep that work off the interaction frame.
+    let pending = true
+    const cancel = onIdle(() => {
+      pending = false
+      ambiencePlaylist.play()
+    }, 1000)
+
+    return () => {
+      // If we unmount (or re-run) before the idle callback fires, drop it and
+      // release the flag so the next mount reschedules — otherwise ambience
+      // would start playing after the user has left the layout.
+      if (!pending) return
+      cancel()
+      globalPlaylistRef.isPlaying = false
+    }
   }, [
     activeTrackType,
     ambiencePlaylist,
