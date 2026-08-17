@@ -7,7 +7,7 @@ export const useKeyPress = (
   callback: (event: KeyboardEvent) => void,
   event: "keydown" | "keyup" = "keydown"
 ) => {
-  const { isCanvasTabMode } = useNavigationStore()
+  const isCanvasTabMode = useNavigationStore((state) => state.isCanvasTabMode)
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -28,8 +28,11 @@ export const useKeyPress = (
 }
 
 export const useTabKeyHandler = () => {
-  const { setCurrentTabIndex, isCanvasTabMode, currentScene } =
-    useNavigationStore()
+  const setCurrentTabIndex = useNavigationStore(
+    (state) => state.setCurrentTabIndex
+  )
+  const isCanvasTabMode = useNavigationStore((state) => state.isCanvasTabMode)
+  const currentScene = useNavigationStore((state) => state.currentScene)
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {

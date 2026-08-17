@@ -61,14 +61,16 @@ const RoutingElementComponent = ({
   const pathname = usePathname()
   const setCursor = useCursor("default")
 
-  const {
-    currentTabIndex,
-    isCanvasTabMode,
-    currentScene,
-    scenes,
-    setCurrentTabIndex,
-    setEnteredByKeyboard
-  } = useNavigationStore()
+  const currentTabIndex = useNavigationStore((state) => state.currentTabIndex)
+  const isCanvasTabMode = useNavigationStore((state) => state.isCanvasTabMode)
+  const currentScene = useNavigationStore((state) => state.currentScene)
+  const scenes = useNavigationStore((state) => state.scenes)
+  const setCurrentTabIndex = useNavigationStore(
+    (state) => state.setCurrentTabIndex
+  )
+  const setEnteredByKeyboard = useNavigationStore(
+    (state) => state.setEnteredByKeyboard
+  )
   const { handleNavigation } = useHandleNavigation()
   const { selected } = useInspectable()
 

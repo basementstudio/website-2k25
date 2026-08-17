@@ -53,9 +53,13 @@ const PhysicsWorld = dynamic(
 )
 
 export const Scene = () => {
-  const { setIsCanvasTabMode, currentScene } = useNavigationStore()
+  const setIsCanvasTabMode = useNavigationStore(
+    (state) => state.setIsCanvasTabMode
+  )
+  const isBasketball = useNavigationStore(
+    (state) => state.currentScene?.name === "basketball"
+  )
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
   const userHasLeftWindow = useRef(false)
   const [isTouchOnly, setIsTouchOnly] = useState(false)
