@@ -1,39 +1,66 @@
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
 
+// WebKit blocks autoplay even for muted inline video, so catching alone leaves
+// the video dead. Sentry WEBSITE-2K25-3F.
+const playWithGestureRetry = (video: HTMLVideoElement) => {
+  const controller = new AbortController()
+  const options = { capture: true, signal: controller.signal } as const
+
+  // Stays armed until play() resolves; one failed attempt must not strand it.
+  const retry = () => {
+    video.play().then(
+      () => controller.abort(),
+      () => {}
+    )
+  }
+
+  video.play().catch((err) => {
+    console.warn("Video play failed:", err)
+
+    // The rejection can land after teardown, which would arm a hidden video.
+    if (controller.signal.aborted) return
+
+    // click, not pointerdown/up: only it grants activation for every input type.
+    window.addEventListener("click", retry, options)
+    window.addEventListener("keydown", retry, options)
+  })
+
+  return () => controller.abort()
+}
+
+/** Plays now, retries on tab-return, and stops the decoder when torn down. */
+const resumeOnVisible = (video: HTMLVideoElement) => {
+  let disarm = playWithGestureRetry(video)
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState !== "visible") return
+
+    disarm()
+    disarm = playWithGestureRetry(video)
+  }
+
+  document.addEventListener("visibilitychange", handleVisibilityChange, {
+    passive: true
+  })
+
+  return () => {
+    document.removeEventListener("visibilitychange", handleVisibilityChange)
+    disarm()
+    // Nothing samples the texture once it's gone, so the element would decode
+    // for the rest of the session. Not src="" — drei caches it by URL.
+    video.pause()
+  }
+}
+
 export const useVideoResumeOnVisibilityChange = (
   videoElement: HTMLVideoElement | null
 ) => {
   useEffect(() => {
     if (!videoElement) return
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && videoElement) {
-        videoElement
-          .play()
-          .catch((err) => console.warn("Video play failed:", err))
-      }
-    }
-
-    document.addEventListener("visibilitychange", handleVisibilityChange, {
-      passive: true
-    })
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-    }
+    return resumeOnVisible(videoElement)
   }, [videoElement])
-
-  const play = () => {
-    if (videoElement) {
-      return videoElement
-        .play()
-        .catch((err) => console.warn("Video play failed:", err))
-    }
-    return Promise.reject(new Error("No video element available"))
-  }
-
-  return { play }
 }
 
 export const createVideoTextureWithResume = (url: string) => {
@@ -45,35 +72,11 @@ export const createVideoTextureWithResume = (url: string) => {
   videoElement.playsInline = true
   videoElement.crossOrigin = "anonymous"
 
-  try {
-    videoElement.play().catch((err) => console.warn("Video play failed:", err))
-  } catch (error) {
-    console.error("Error playing video:", error)
-  }
-
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === "visible") {
-      try {
-        videoElement
-          .play()
-          .catch((err) => console.warn("Video play failed:", err))
-      } catch (error) {
-        console.error("Error playing video:", error)
-      }
-    }
-  }
-
-  document.addEventListener("visibilitychange", handleVisibilityChange, {
-    passive: true
-  })
-
   const texture = new THREE.VideoTexture(videoElement)
 
   texture.userData = {
     ...texture.userData,
-    cleanup: () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-    },
+    cleanup: resumeOnVisible(videoElement),
     videoElement
   }
 
@@ -88,23 +91,5 @@ export const useVideoTextureResume = (
     return videoTexture.image as HTMLVideoElement
   }, [videoTexture])
 
-  useEffect(() => {
-    if (videoTexture) {
-      const originalDispose = videoTexture.dispose.bind(videoTexture)
-      videoTexture.dispose = () => {
-        if (videoElement) {
-          videoElement.pause()
-          videoElement.src = ""
-          videoElement.load()
-        }
-        originalDispose()
-      }
-
-      return () => {
-        videoTexture.dispose = originalDispose
-      }
-    }
-  }, [videoTexture, videoElement])
-
-  return useVideoResumeOnVisibilityChange(videoElement)
+  useVideoResumeOnVisibilityChange(videoElement)
 }

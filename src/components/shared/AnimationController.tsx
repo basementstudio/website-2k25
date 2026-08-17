@@ -13,6 +13,7 @@ import {
 } from "react"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { reportIfContextLost } from "@/lib/webgl-context-guard"
 
 // Context for sharing animation time
 interface AnimationContext {
@@ -55,6 +56,7 @@ function AnimationControllerImpl({
   pauseOnTabChange = true
 }: AnimationControllerProps) {
   const { invalidate } = useThree()
+  const gl = useThree((state) => state.gl)
 
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
   const [isScrollPaused, setIsScrollPaused] = useState(false)
@@ -117,6 +119,10 @@ function AnimationControllerImpl({
     (time: number, delta: number) => {
       if (isPaused) return
 
+      // The only invalidate() under frameloop="demand", so bailing here stops
+      // every frame callback at once rather than each one guarding itself.
+      if (reportIfContextLost(gl)) return
+
       // Skip frames if needed for performance
       if (frameSkip > 0) {
         frameCountRef.current = (frameCountRef.current + 1) % (frameSkip + 1)
@@ -133,7 +139,7 @@ function AnimationControllerImpl({
       // Here you could also run other global updates
       // that depend on animation time
     },
-    [isPaused, frameSkip, invalidate]
+    [isPaused, frameSkip, invalidate, gl]
   )
 
   // Use Motion's useAnimationFrame as our single RAF

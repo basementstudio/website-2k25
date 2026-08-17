@@ -59,11 +59,14 @@ export const ArcadeScreen = () => {
   const bootTexture = useTexture(arcade.boot, (texture) => {
     texture.flipY = false
   })
-  const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
+  // start: false — drei's own play() is uncaught. useVideoTextureResume starts it.
+  const videoTexture = useVideoTexture(arcade.idleScreen, {
+    loop: true,
+    start: false
+  })
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
   const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
 
-  // Use our custom hook to ensure video playback resumes when tab becomes visible
   useVideoTextureResume(videoTexture)
 
   useEffect(() => {
