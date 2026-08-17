@@ -20,7 +20,7 @@ const PATHS: Record<string, [number, number, number][]> = {
   "home->showcase": [[6.9, 3.3, -11.4]],
   "home->people": [
     [6.4, 2.2, -10.6],
-    [5.9, 4.7, -13.8],
+    [5.9, 5.0, -14.0],
     [4.2, 5.1, -16.5],
     [3.15, 5.55, -20.0],
     [3.15, 5.55, -25.0]
@@ -70,10 +70,14 @@ export const buildTransitionCurve = (
   const usable = waypoints.filter((w) => w.distanceTo(end) < startToEnd)
   if (usable.length === 0) return null
 
+  // Low tension keeps the curve hugging the waypoint polyline with softly
+  // rounded corners — centripetal/default tangents overshoot on direction
+  // changes and the flight reads as looping instead of curving.
   const curve = new THREE.CatmullRomCurve3(
     [start.clone(), ...usable, end.clone()],
     false,
-    "centripetal"
+    "catmullrom",
+    0.25
   )
   // Precompute the arc-length table now so getPointAt() is cheap per frame.
   curve.getLength()
