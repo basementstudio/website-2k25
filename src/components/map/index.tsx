@@ -24,10 +24,10 @@ import { Weather } from "@/components/weather"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
+import { markCanvasBootStage } from "@/lib/canvas-boot"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 import { createNotFoundMaterial } from "@/shaders/material-not-found"
 
-import { BakesLoader } from "./bakes"
 import { extractMeshes } from "./extract-meshes"
 import { useFrameLoop } from "./use-frame-loop"
 import { useLoader } from "./use-loader"
@@ -232,6 +232,7 @@ export const Map = memo(() => {
             inspectables
           })
 
+          markCanvasBootStage("map-ready")
           useMesh.setState({ mapMaterialsReady: true })
         }
       ]
@@ -316,8 +317,6 @@ export const Map = memo(() => {
           />
         )
       })}
-
-      <BakesLoader />
     </group>
   )
 })

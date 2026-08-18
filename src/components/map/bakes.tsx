@@ -191,17 +191,7 @@ const Bakes = () => {
 
   useEffect(() => {
     markCanvasBootStage("bakes-resolved")
-    setCanRunMainApp(true)
-    const timeout = setTimeout(() => {
-      setMainAppRunning(true)
-    }, 10)
-    const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
-
-    return () => {
-      clearTimeout(timeout)
-      clearTimeout(timeout2)
-    }
-  }, [setMainAppRunning, setCanRunMainApp])
+  }, [])
 
   const mapMaterialsReady = useMesh((state) => state.mapMaterialsReady)
 
@@ -243,6 +233,16 @@ const Bakes = () => {
       console.warn(
         `[bakes] ${skipped} mesh(es) had no global shader material; their bakes were dropped.`
       )
+    }
+
+    // Not on mount: bakes can resolve before the models exist.
+    setCanRunMainApp(true)
+    const timeout = setTimeout(() => setMainAppRunning(true), 10)
+    const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
+
+    return () => {
+      clearTimeout(timeout)
+      clearTimeout(timeout2)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapMaterialsReady, bakes])

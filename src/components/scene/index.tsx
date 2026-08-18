@@ -13,6 +13,7 @@ import { UpdateCanvasCursor } from "@/components/custom-cursor"
 import { Debug } from "@/components/debug"
 import { Inspectables } from "@/components/inspectables/inspectables"
 import { Map } from "@/components/map"
+import { BakesLoader } from "@/components/map/bakes"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { Pets } from "@/components/pets"
 import { Renderer } from "@/components/postprocessing/renderer"
@@ -189,6 +190,7 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Map />
                   </Suspense>
+                  <BakesLoader />
                   <Suspense fallback={null}>
                     <WebGlTunnelOut />
                   </Suspense>

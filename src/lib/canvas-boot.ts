@@ -4,10 +4,12 @@ import { DefaultLoadingManager } from "three"
 // Assumes one boot per page load, which holds because `isCanvasInPage` is
 // sticky and `canRunMainApp` only ever goes false -> true. A retry-boot feature
 // would need this module's one-shot guards (`marks`, `deadlineFired`) revisited.
+// map-ready and bakes-resolved are concurrent; the reveal waits for both.
 export type BootStage =
   | "worker-spawned"
   | "scene-chunk"
   | "offscreen-ready"
+  | "map-ready"
   | "bakes-resolved"
 
 const BOOT_ASSET_PATH = "/3d/"
@@ -63,6 +65,8 @@ const visibleElapsed = () =>
     visibleAccum +
       (visibleSince === null ? 0 : performance.now() - visibleSince)
   )
+
+const toSeconds = (ms: number) => Number((ms / 1000).toFixed(2))
 
 const armDeadline = () => {
   if (deadlineFired || deadlineExpire === null) return
@@ -140,12 +144,12 @@ export const markCanvasBootStage = (stage: BootStage) => {
   if (marks[stage] !== undefined) return
   if (startedAt === 0) startCanvasBootTrace()
 
-  marks[stage] = Math.round(performance.now() - startedAt)
+  marks[stage] = toSeconds(performance.now() - startedAt)
   Sentry.addBreadcrumb({
     category: "canvas.boot",
     message: stage,
     level: "info",
-    data: { atMs: marks[stage] }
+    data: { atSec: marks[stage] }
   })
 }
 
@@ -221,7 +225,7 @@ const assetSnapshot = () => {
     )
   }
 
-  if (entries.length === 0) return { ...base, sinceLastAssetMs: undefined }
+  if (entries.length === 0) return { ...base, sinceLastAssetSec: undefined }
 
   let bytes = 0
   let cached = 0
@@ -240,27 +244,27 @@ const assetSnapshot = () => {
   // number of parallel connections.
   const windowMs = lastResponseEnd - firstStart
 
+  // Strings, not objects: Sentry's normalizeDepth (3) renders those "[Object]".
   const slowest = entries
     .sort((a, b) => b.duration - a.duration)
     .slice(0, 5)
-    .map((entry) => ({
-      url: entry.name.slice(entry.name.indexOf(BOOT_ASSET_PATH)),
-      ms: Math.round(entry.duration),
-      kb: Math.round(entry.transferSize / 1024)
-    }))
+    .map(
+      (entry) =>
+        `${toSeconds(entry.duration)}s ${Math.round(entry.transferSize / 1024)}kb ${entry.name.slice(entry.name.indexOf(BOOT_ASSET_PATH))}`
+    )
 
   return {
     ...base,
     cached,
     totalKb: Math.round(bytes / 1024),
-    windowMs: Math.round(windowMs),
+    windowSec: toSeconds(windowMs),
     // Undefined rather than 0 on a warm cache, where transferSize is 0 for
     // every entry and the number would read as "no bandwidth".
     aggregateMbps:
       bytes > 0 && windowMs > 0
         ? Number(((bytes * 8) / (windowMs * 1000)).toFixed(2))
         : undefined,
-    sinceLastAssetMs: Math.round(performance.now() - lastResponseEnd),
+    sinceLastAssetSec: toSeconds(performance.now() - lastResponseEnd),
     slowest
   }
 }
@@ -269,7 +273,7 @@ const assetSnapshot = () => {
 const stallKind = (assets: ReturnType<typeof assetSnapshot>) => {
   if (assets.outstanding > 0) return "downloading"
   if (assets.completed === 0) return "no-assets"
-  if (assets.sinceLastAssetMs !== undefined && assets.sinceLastAssetMs > 5000) {
+  if (assets.sinceLastAssetSec !== undefined && assets.sinceLastAssetSec > 5) {
     return "post-download"
   }
   return "settling"
@@ -298,7 +302,7 @@ const commonFields = () => {
 export const captureCanvasBootTimeout = (budgetMs: number) => {
   if (startedAt === 0) return
 
-  const elapsedMs = Math.round(performance.now() - startedAt)
+  const elapsedSec = toSeconds(performance.now() - startedAt)
   const { assets, tags, contexts } = commonFields()
 
   Sentry.captureMessage("Canvas boot timed out", {
@@ -314,9 +318,9 @@ export const captureCanvasBootTimeout = (budgetMs: number) => {
       // timeout would otherwise appear to have beaten it.
       canvas_boot: {
         marks: { ...marks },
-        elapsedMs,
-        visibleMs: visibleElapsed(),
-        budgetMs
+        elapsedSec,
+        visibleSec: toSeconds(visibleElapsed()),
+        budgetSec: toSeconds(budgetMs)
       },
       ...contexts
     }
@@ -336,8 +340,8 @@ export const captureCanvasBootRecovery = () => {
     contexts: {
       canvas_boot: {
         marks: { ...marks },
-        elapsedMs: Math.round(performance.now() - startedAt),
-        visibleMs: visibleElapsed()
+        elapsedSec: toSeconds(performance.now() - startedAt),
+        visibleSec: toSeconds(visibleElapsed())
       },
       ...contexts
     }
