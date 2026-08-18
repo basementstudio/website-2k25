@@ -4,7 +4,8 @@ import { NextResponse } from "next/server"
 import {
   fetchOpenPositions,
   fetchPeopleForMarkdown,
-  fetchPeoplePage
+  fetchPeoplePage,
+  fetchValuesForMarkdown
 } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
@@ -27,10 +28,11 @@ const escapeLinkUrl = (url: string) =>
 
 export async function GET() {
   try {
-    const [page, people, positions] = await Promise.all([
+    const [page, people, positions, values] = await Promise.all([
       fetchPeoplePage({ published: true }),
       fetchPeopleForMarkdown({ published: true }),
-      fetchOpenPositions({ published: true })
+      fetchOpenPositions({ published: true }),
+      fetchValuesForMarkdown({ published: true })
     ])
 
     if (!page) {
@@ -75,6 +77,21 @@ export async function GET() {
 
     const team = teamSections.length ? teamSections.join("\n\n") : null
 
+    // Mirrors the HTML order: crew → values → open positions (see page.tsx).
+    const valuesList = values.length
+      ? values
+          .map((value) =>
+            [
+              `### ${value.title}`,
+              "",
+              portableTextToMarkdown(value.description, { baseUrl: SITE_URL })
+            ]
+              .filter(Boolean)
+              .join("\n")
+          )
+          .join("\n\n")
+      : null
+
     // Closed roles are dropped — /careers/[slug].md 404s on them, so
     // linking one would be a dead link.
     const openPositions = positions.filter((p) => p.isOpen)
@@ -101,6 +118,10 @@ export async function GET() {
       team ? "" : null,
       team,
       team ? "" : null,
+      valuesList ? "## Values" : null,
+      valuesList ? "" : null,
+      valuesList,
+      valuesList ? "" : null,
       portableTextToMarkdown(page.preOpenPositionsText, {
         baseUrl: SITE_URL
       }) || null,

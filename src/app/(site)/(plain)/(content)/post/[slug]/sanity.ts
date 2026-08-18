@@ -145,6 +145,50 @@ export async function fetchRelatedPosts(
   })
 }
 
+export interface RelatedPostMarkdown {
+  title: string
+  slug: string
+  date: string | null
+}
+
+/**
+ * Same selection as fetchRelatedPosts, minus heroImage, via the non-Live
+ * published client — the `.md` route isn't a `"use cache"` scope, so the Live
+ * fetch would throw, and published perspective keeps stega out.
+ */
+export async function fetchRelatedPostsForMarkdown(
+  currentSlug: string,
+  currentCategoryTitles: string[]
+): Promise<RelatedPostMarkdown[]> {
+  if (currentCategoryTitles.length === 0) return []
+
+  const query = /* groq */ `*[
+    _type == "post" &&
+    slug.current != $slug &&
+    count(categories[@->title in $titles]) > 0
+  ] | order(date desc)[0...3]{
+    _id,
+    title,
+    "slug": slug.current,
+    date,
+    categories[]->{ title, "slug": slug.current }
+  }`
+  const posts = await sanityFetchStatic<Array<
+    Omit<RelatedPost, "heroImage">
+  > | null>({
+    query,
+    params: { slug: currentSlug, titles: currentCategoryTitles },
+    perspective: "published"
+  })
+  if (!posts) return []
+
+  return selectRelatedPosts({
+    posts: posts.map((post) => ({ ...post, heroImage: null })),
+    currentSlug,
+    currentCategoryTitles
+  }).map(({ title, slug, date }) => ({ title, slug, date }))
+}
+
 export async function fetchAllPostSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "post"]{ "slug": slug.current }.slug`
   return sanityFetchStatic<string[]>({

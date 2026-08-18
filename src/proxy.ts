@@ -21,6 +21,8 @@ export function proxy(request: NextRequest) {
   // arcade is desktop-only). Done here so the /lab page stays prerenderable.
   // Crawlers are exempt even with mobile UAs (Googlebot Smartphone, site
   // auditors): redirecting them turns the sitemap's /lab entry into a 3XX.
+  // Non-redirected requests fall through to the markdown handling below so
+  // /lab still advertises and negotiates its `.md` mirror.
   if (pathname === "/lab") {
     const userAgentString = request.headers.get("user-agent") ?? ""
     const { device } = userAgent(request)
@@ -28,7 +30,6 @@ export function proxy(request: NextRequest) {
     if (isMobile && !isbot(userAgentString)) {
       return NextResponse.redirect("https://lab.basement.studio/")
     }
-    return NextResponse.next()
   }
 
   // Slug-based routes capture the slug in group 1; singletons match with no
@@ -94,7 +95,12 @@ export const config = {
     "/showcase.md",
     "/faq",
     "/faq.md",
-    // Mobile user-agent redirect (see top of proxy()).
-    "/lab"
+    "/blog",
+    "/blog.md",
+    "/contact",
+    "/contact.md",
+    // /lab also runs the mobile user-agent redirect (see top of proxy()).
+    "/lab",
+    "/lab.md"
   ]
 }

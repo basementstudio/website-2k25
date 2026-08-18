@@ -1,7 +1,11 @@
 import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
-import { fetchServicesPage } from "@/app/(site)/(canvas)/(content)/services/sanity"
+import {
+  fetchAwardsForMarkdown,
+  fetchServicesPage,
+  fetchTestimonial
+} from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
@@ -11,9 +15,17 @@ const MD_HEADERS = {
   "X-Content-Type-Options": "nosniff"
 } as const
 
+// CMS strings land inside `[label](url)` syntax — escape the delimiters so a
+// bracketed label can't break the link.
+const escapeLinkLabel = (text: string) => text.replace(/[\\[\]]/g, "\\$&")
+
 export async function GET() {
   try {
-    const services = await fetchServicesPage({ published: true })
+    const [services, awards, testimonial] = await Promise.all([
+      fetchServicesPage({ published: true }),
+      fetchAwardsForMarkdown(),
+      fetchTestimonial({ published: true })
+    ])
     if (!services) {
       return new NextResponse("# 404 Not Found\n", {
         status: 404,
@@ -47,6 +59,44 @@ export async function GET() {
           .join("\n")
       : null
 
+    const awardsList = awards.length
+      ? awards
+          .map((award) => {
+            const label = award.awardUrl
+              ? `[${escapeLinkLabel(award.title)}](${award.awardUrl})`
+              : award.title
+            const year = award.date ? new Date(award.date).getFullYear() : null
+            const detail = [award.projectName, year].filter(Boolean).join(", ")
+            return detail ? `- ${label} — ${detail}` : `- ${label}`
+          })
+          .join("\n")
+      : null
+
+    // `role` is Portable Text or a plain string depending on document age.
+    const testimonialRole = testimonial
+      ? (Array.isArray(testimonial.role)
+          ? portableTextToMarkdown(testimonial.role, { baseUrl: SITE_URL })
+          : (testimonial.role ?? "")
+        )
+          .replace(/\s+/g, " ")
+          .trim()
+      : ""
+    const testimonialBlock = testimonial?.content
+      ? [
+          `> ${testimonial.content.replace(/\n/g, "\n> ")}`,
+          ">",
+          `> — ${[
+            testimonial.name,
+            testimonial.handle
+              ? `(${testimonial.handle.startsWith("@") ? testimonial.handle : `@${testimonial.handle}`})`
+              : null,
+            testimonialRole ? `— ${testimonialRole}` : null
+          ]
+            .filter(Boolean)
+            .join(" ")}`
+        ].join("\n")
+      : null
+
     const parts: Array<string | null> = [
       "# Services",
       "",
@@ -61,6 +111,14 @@ export async function GET() {
       ventures ? "## Ventures" : null,
       ventures ? "" : null,
       ventures,
+      ventures ? "" : null,
+      awardsList ? "## Awards" : null,
+      awardsList ? "" : null,
+      awardsList,
+      awardsList ? "" : null,
+      testimonialBlock ? "## Testimonial" : null,
+      testimonialBlock ? "" : null,
+      testimonialBlock,
       "",
       "---",
       "",

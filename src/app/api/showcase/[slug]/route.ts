@@ -1,7 +1,10 @@
 import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
-import { fetchProjectBySlug } from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
+import {
+  fetchProjectBySlug,
+  fetchRelatedProjectsForMarkdown
+} from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
@@ -23,7 +26,10 @@ export async function GET(
   const slug = rawSlug.slice(0, -3)
 
   try {
-    const project = await fetchProjectBySlug(slug, { published: true })
+    const [project, relatedProjects] = await Promise.all([
+      fetchProjectBySlug(slug, { published: true }),
+      fetchRelatedProjectsForMarkdown(slug)
+    ])
     if (!project) {
       return new NextResponse("# 404 Not Found\n", {
         status: 404,
@@ -62,6 +68,17 @@ export async function GET(
       "",
       portableTextToMarkdown(project.content, { baseUrl: SITE_URL }),
       "",
+      relatedProjects.length ? "## Related Projects" : null,
+      relatedProjects.length ? "" : null,
+      relatedProjects.length
+        ? relatedProjects
+            .map(
+              (related) =>
+                `- [${related.title}](${SITE_URL}/showcase/${related.slug}.md)`
+            )
+            .join("\n")
+        : null,
+      relatedProjects.length ? "" : null,
       "---",
       "",
       `[View all content](${SITE_URL}/sitemap.md)`

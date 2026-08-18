@@ -1,7 +1,10 @@
 import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
-import { fetchPostBySlug } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
+import {
+  fetchPostBySlug,
+  fetchRelatedPostsForMarkdown
+} from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
@@ -31,6 +34,11 @@ export async function GET(
       })
     }
 
+    const relatedPosts = await fetchRelatedPostsForMarkdown(
+      slug,
+      post.categories?.map((c) => c.title) ?? []
+    )
+
     const parts: Array<string | null> = [
       `# ${post.title}`,
       "",
@@ -50,6 +58,18 @@ export async function GET(
       "",
       portableTextToMarkdown(post.content, { baseUrl: SITE_URL }),
       "",
+      relatedPosts.length ? "## Related Posts" : null,
+      relatedPosts.length ? "" : null,
+      relatedPosts.length
+        ? relatedPosts
+            .map((related) => {
+              const link = `[${related.title}](${SITE_URL}/post/${related.slug}.md)`
+              const date = related.date ? related.date.split("T")[0] : null
+              return date ? `- ${link} — ${date}` : `- ${link}`
+            })
+            .join("\n")
+        : null,
+      relatedPosts.length ? "" : null,
       "---",
       "",
       `[View all content](${SITE_URL}/sitemap.md)`

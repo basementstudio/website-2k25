@@ -50,7 +50,10 @@ const AGENT_RESOURCES = [
   { href: "/services.md", label: "services.md" },
   { href: "/people.md", label: "people.md" },
   { href: "/showcase.md", label: "showcase.md" },
-  { href: "/faq.md", label: "faq.md" }
+  { href: "/blog.md", label: "blog.md" },
+  { href: "/lab.md", label: "lab.md" },
+  { href: "/faq.md", label: "faq.md" },
+  { href: "/contact.md", label: "contact.md" }
 ]
 
 const plainText = (blocks: PortableTextBlock[] | null) =>
