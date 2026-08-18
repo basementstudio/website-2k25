@@ -142,7 +142,7 @@ export const PlayableRubiksCube = memo(function PlayableRubiksCubeInner({
   const wasSolvedRef = useRef(true)
 
   const bake = useCallback(
-    (quarterTurns: number) => {
+    (quarterTurns: number, isUserMove = true) => {
       const turn = turnRef.current
       const gridRoot = gridRootRef.current
       const layerGroup = layerGroupRef.current
@@ -182,27 +182,37 @@ export const PlayableRubiksCube = memo(function PlayableRubiksCubeInner({
       const wasSolved = wasSolvedRef.current
       wasSolvedRef.current = solved
 
-      if (wasSolved && !solved) {
-        // First turn away from solved starts the clock
-        if (useRubiksStore.getState().startedAt === null) {
-          useRubiksStore.setState({ startedAt: Date.now(), solveTime: null })
-        }
-      } else if (!wasSolved && solved) {
-        const { startedAt, bestTime } = useRubiksStore.getState()
-        if (startedAt !== null) {
-          const solveTime = Date.now() - startedAt
+      if (isUserMove && quarterTurns !== 0) {
+        const state = useRubiksStore.getState()
+        if (!solved) {
+          if (state.startedAt === null) {
+            // First turn of an attempt starts the clock
+            useRubiksStore.setState({
+              startedAt: Date.now(),
+              solveTime: null,
+              moves: 1
+            })
+          } else {
+            useRubiksStore.setState({ moves: state.moves + 1 })
+          }
+        } else if (!wasSolved && state.startedAt !== null) {
+          const solveTime = Date.now() - state.startedAt
           const best =
-            bestTime === null ? solveTime : Math.min(bestTime, solveTime)
+            state.bestTime === null
+              ? solveTime
+              : Math.min(state.bestTime, solveTime)
           useRubiksStore.setState({
             startedAt: null,
             solveTime,
-            bestTime: best
+            bestTime: best,
+            moves: state.moves + 1
           })
           try {
             localStorage.setItem(RUBIKS_BEST_TIME_KEY, String(best))
           } catch {}
           track("rubiks_cube_solved", {
-            seconds: Math.round(solveTime / 100) / 10
+            seconds: Math.round(solveTime / 100) / 10,
+            moves: state.moves + 1
           })
         }
       }
@@ -217,6 +227,7 @@ export const PlayableRubiksCube = memo(function PlayableRubiksCubeInner({
     const gridRoot = gridRootRef.current
     if (!cube || !active || !gridRoot) return
     if (dragRef.current || turnRef.current) return
+    if (useRubiksStore.getState().isScrambling) return
     if (!e.face) return
 
     e.stopPropagation()
@@ -377,19 +388,113 @@ export const PlayableRubiksCube = memo(function PlayableRubiksCubeInner({
     })
   }
 
+  const scrambleCancelRef = useRef(false)
+  const scramblePending = useRubiksStore((state) => state.scramblePending)
+
+  useEffect(() => {
+    if (!scramblePending) return
+    if (!cube || !active || dragRef.current || turnRef.current) {
+      useRubiksStore.setState({ scramblePending: false })
+      return
+    }
+
+    const performTurn = (axis: Vector3, layer: number, direction: number) =>
+      new Promise<void>((resolve) => {
+        const gridRoot = gridRootRef.current
+        const layerGroup = layerGroupRef.current
+        if (!gridRoot || !layerGroup) return resolve()
+
+        const cellAlong = componentAlong(cube.cellSize, axis)
+        for (const mesh of getCubeletMeshes()) {
+          if (
+            Math.round(componentAlong(mesh.position, axis) / cellAlong) ===
+            layer
+          ) {
+            layerGroup.attach(mesh)
+          }
+        }
+        turnRef.current = { axis, angle: 0 }
+        animRef.current = animate(0, direction * QUARTER, {
+          duration: 0.14,
+          ease: "easeInOut",
+          onUpdate: (value) => {
+            if (turnRef.current) turnRef.current.angle = value
+            layerGroup.quaternion.setFromAxisAngle(axis, value)
+            invalidate()
+          },
+          onComplete: () => {
+            animRef.current = null
+            bake(direction, false)
+            resolve()
+          }
+        })
+      })
+
+    const run = async () => {
+      scrambleCancelRef.current = false
+      useRubiksStore.setState({
+        scramblePending: false,
+        isScrambling: true,
+        startedAt: null,
+        solveTime: null,
+        moves: 0
+      })
+      track("rubiks_cube_scrambled")
+
+      const axes = [
+        new Vector3(1, 0, 0),
+        new Vector3(0, 1, 0),
+        new Vector3(0, 0, 1)
+      ]
+      let prev: { axis: number; layer: number; direction: number } | null = null
+      for (let i = 0; i < 14; i++) {
+        if (scrambleCancelRef.current) break
+        let axis = 0
+        let layer = 0
+        let direction = 1
+        do {
+          axis = Math.floor(Math.random() * 3)
+          layer = Math.floor(Math.random() * 3) - 1
+          direction = Math.random() < 0.5 ? -1 : 1
+        } while (
+          // Don't immediately undo the previous turn
+          prev !== null &&
+          prev.axis === axis &&
+          prev.layer === layer &&
+          prev.direction !== direction
+        )
+        prev = { axis, layer, direction }
+        await performTurn(axes[axis], layer, direction)
+      }
+      useRubiksStore.setState({ isScrambling: false })
+    }
+
+    run()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scramblePending])
+
   // If the inspectable closes mid-turn, settle the layer instantly so the
   // cube on the shelf is never left between two states.
   useEffect(() => {
     if (active || !cube) return
 
+    scrambleCancelRef.current = true
     dragRef.current = null
     animRef.current?.stop()
     animRef.current = null
 
     if (turnRef.current) {
-      bake(Math.round(turnRef.current.angle / QUARTER))
+      bake(
+        Math.round(turnRef.current.angle / QUARTER),
+        !useRubiksStore.getState().isScrambling
+      )
     }
-    useRubiksStore.setState({ isCubeDragging: false, isTurning: false })
+    useRubiksStore.setState({
+      isCubeDragging: false,
+      isTurning: false,
+      isScrambling: false,
+      scramblePending: false
+    })
   }, [active, cube, bake])
 
   if (!cube) return null

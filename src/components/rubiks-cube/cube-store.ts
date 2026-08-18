@@ -8,12 +8,18 @@ export interface RubiksStore {
   /** A layer is spring-snapping to its resting angle. */
   isTurning: boolean
   solved: boolean
-  /** Wall-clock ms when the cube left the solved state; null while solved. */
+  /** Wall-clock ms of the first move of the current attempt; null when idle. */
   startedAt: number | null
   /** Duration of the last completed solve, in ms. */
   solveTime: number | null
   /** Fastest solve in this browser, in ms. */
   bestTime: number | null
+  /** User turns in the current attempt. */
+  moves: number
+  /** The scramble button was pressed; the cube component picks this up. */
+  scramblePending: boolean
+  /** A scramble sequence is animating — user input is ignored. */
+  isScrambling: boolean
 }
 
 export const useRubiksStore = create<RubiksStore>()(() => ({
@@ -22,5 +28,8 @@ export const useRubiksStore = create<RubiksStore>()(() => ({
   solved: true,
   startedAt: null,
   solveTime: null,
-  bestTime: null
+  bestTime: null,
+  moves: 0,
+  scramblePending: false,
+  isScrambling: false
 }))

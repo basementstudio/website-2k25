@@ -28,6 +28,8 @@ export const RubiksTimer = () => {
   const startedAt = useRubiksStore((state) => state.startedAt)
   const solveTime = useRubiksStore((state) => state.solveTime)
   const bestTime = useRubiksStore((state) => state.bestTime)
+  const moves = useRubiksStore((state) => state.moves)
+  const isScrambling = useRubiksStore((state) => state.isScrambling)
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
@@ -51,22 +53,37 @@ export const RubiksTimer = () => {
     return () => clearInterval(id)
   }, [startedAt])
 
-  if (startedAt === null && solveTime === null && bestTime === null) {
-    return null
-  }
+  const hasRows = startedAt !== null || solveTime !== null || bestTime !== null
 
   return (
-    <div className="flex flex-col border-t border-brand-w1/20">
-      {startedAt !== null ? (
-        <Row
-          label="Your Time"
-          value={formatTime(Math.max(0, now - startedAt))}
-        />
-      ) : solveTime !== null ? (
-        <Row label="Solved In" value={formatTime(solveTime)} />
-      ) : null}
-      {bestTime !== null && (
-        <Row label="Your Best" value={formatTime(bestTime)} />
+    <div className="flex flex-col gap-4">
+      <button
+        className="w-max text-f-p-mobile text-brand-w1 hover:underline disabled:text-brand-g1 disabled:no-underline lg:text-f-p"
+        disabled={isScrambling}
+        onClick={() => useRubiksStore.setState({ scramblePending: true })}
+      >
+        {isScrambling ? "Scrambling..." : "Scramble"}
+      </button>
+      {hasRows && (
+        <div className="flex flex-col border-t border-brand-w1/20">
+          {startedAt !== null ? (
+            <>
+              <Row
+                label="Your Time"
+                value={formatTime(Math.max(0, now - startedAt))}
+              />
+              <Row label="Moves" value={String(moves)} />
+            </>
+          ) : solveTime !== null ? (
+            <>
+              <Row label="Solved In" value={formatTime(solveTime)} />
+              <Row label="Moves" value={String(moves)} />
+            </>
+          ) : null}
+          {bestTime !== null && (
+            <Row label="Your Best" value={formatTime(bestTime)} />
+          )}
+        </div>
       )}
     </div>
   )
