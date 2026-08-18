@@ -1,6 +1,9 @@
 "use server"
 
 import * as Sentry from "@sentry/nextjs"
+import { checkBotId } from "botid/server"
+
+import { reportBotDetection } from "@/lib/botid"
 
 import { generateEmailTemplate } from "./template"
 
@@ -20,7 +23,16 @@ export async function submitContactForm(formData: ContactFormData) {
 
 async function runContactForm(formData: ContactFormData) {
   try {
+    const { isBot } = await checkBotId()
+
+    if (isBot) {
+      await reportBotDetection("contact")
+    }
+
     const html = generateEmailTemplate(formData)
+
+    // Flagged, not dropped: enforcement comes later.
+    const subject = `${isBot ? "[SUSPECTED BOT] " : ""}${formData.name} - ${formData.company} | Contact Us <basement.studio>`
 
     const resendRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -31,7 +43,7 @@ async function runContactForm(formData: ContactFormData) {
       body: JSON.stringify({
         from: "hello@basement.studio",
         to: ["sales@basement.studio"],
-        subject: `${formData.name} - ${formData.company} | Contact Us <basement.studio>`,
+        subject,
         html
       })
     })

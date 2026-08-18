@@ -1,6 +1,27 @@
 import * as Sentry from "@sentry/nextjs"
+import { initBotId } from "botid/client/core"
 
 import { resolveTracesSampleRate } from "@/lib/sentry-sampling"
+
+// Every `(site)` route: the contact overlay is in its layout and actions POST to the
+// invoking page. Unlisted paths fail closed; a catch-all would break /studio/* POSTs.
+initBotId({
+  protect: [
+    { path: "/", method: "POST" },
+    { path: "/blog", method: "POST" },
+    { path: "/blog/*", method: "POST" },
+    { path: "/people", method: "POST" },
+    { path: "/services", method: "POST" },
+    { path: "/showcase", method: "POST" },
+    { path: "/showcase/*", method: "POST" },
+    { path: "/post/*", method: "POST" },
+    { path: "/careers/*", method: "POST" },
+    { path: "/contact", method: "POST" },
+    { path: "/basketball", method: "POST" },
+    { path: "/doom", method: "POST" },
+    { path: "/lab", method: "POST" }
+  ]
+})
 
 const environment = process.env.NEXT_PUBLIC_VERCEL_ENV ?? "development"
 

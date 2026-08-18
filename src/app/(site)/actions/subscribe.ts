@@ -1,6 +1,9 @@
 "use server"
 
 import * as Sentry from "@sentry/nextjs"
+import { checkBotId } from "botid/server"
+
+import { reportBotDetection } from "@/lib/botid"
 
 // The "General" audience segment in the Resend dashboard.
 const NEWSLETTER_SEGMENT_ID = "67cdd754-44a1-492e-8ed3-47dbdac70398"
@@ -25,6 +28,12 @@ async function runSubscribe(formData: FormData): Promise<State> {
 
     if (!email) {
       throw new Error("Email is Required")
+    }
+
+    const { isBot } = await checkBotId()
+
+    if (isBot) {
+      await reportBotDetection("newsletter")
     }
 
     const resendApiKey = process.env.RESEND_API_KEY

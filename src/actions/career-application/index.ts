@@ -1,8 +1,10 @@
 "use server"
 
 import * as Sentry from "@sentry/nextjs"
+import { checkBotId } from "botid/server"
 import { headers } from "next/headers"
 
+import { reportBotDetection } from "@/lib/botid"
 import {
   buildApplicationData,
   type CareerApplication,
@@ -112,6 +114,12 @@ async function runCareerApplication(formData: CareerFormData) {
     if (isRateLimited(clientIdentifier, now)) {
       console.error("Career application rate limited:", clientIdentifier)
       return { success: false, error: GENERIC_SUBMISSION_ERROR }
+    }
+
+    const { isBot } = await checkBotId()
+
+    if (isBot) {
+      await reportBotDetection("careers")
     }
 
     const applicationData = buildApplicationData(formData)
