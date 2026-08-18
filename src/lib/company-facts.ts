@@ -26,6 +26,9 @@ export const COMPANY_FACTS = {
   addressCity: "Mar del Plata",
   addressCountry: "AR",
   areaServed: "Worldwide",
+  // Published across the site (footer, contact page, JSON-LD ContactPoints).
+  contactEmail: "hello@basement.studio",
+  salesEmail: "sales@basement.studio",
   description:
     "basement.studio is an Argentina-based digital design and engineering studio specializing in high-performance websites, branding, 3D interactive experiences, and marketing execution for technology companies, primarily in the San Francisco Bay Area.",
   services: [

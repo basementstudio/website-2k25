@@ -36,6 +36,8 @@ export interface ServiceTestimonial {
   role: PortableTextBlock[] | string | null
 }
 
+export type ServiceAwardMarkdown = Omit<ServiceAward, "certificate">
+
 export interface ServicesPageData {
   intro: PortableTextBlock[] | null
   heroImage: SanityImage | null
@@ -71,6 +73,17 @@ const awardsQuery = /* groq */ `
     awardUrl,
     "projectName": coalesce(project->title, projectFallback),
     certificate ${imageFragment}
+  }
+`
+
+// Same as awardsQuery, minus `certificate` — the `.md` route never renders it.
+const awardsForMarkdownQuery = /* groq */ `
+  *[_type == "award"] | order(date desc) {
+    _id,
+    title,
+    date,
+    awardUrl,
+    "projectName": coalesce(project->title, projectFallback)
   }
 `
 
@@ -110,8 +123,22 @@ export async function fetchAwards(): Promise<ServiceAward[]> {
   return result ?? []
 }
 
-export async function fetchTestimonial(): Promise<ServiceTestimonial | null> {
+export async function fetchAwardsForMarkdown(): Promise<
+  ServiceAwardMarkdown[]
+> {
+  const result = await sanityFetchCached<ServiceAwardMarkdown[] | null>({
+    query: awardsForMarkdownQuery,
+    perspective: "published"
+  })
+  return result ?? []
+}
+
+export async function fetchTestimonial(
+  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  options?: { published?: boolean }
+): Promise<ServiceTestimonial | null> {
   return sanityFetchCached<ServiceTestimonial | null>({
-    query: testimonialQuery
+    query: testimonialQuery,
+    ...(options?.published ? { perspective: "published" } : {})
   })
 }

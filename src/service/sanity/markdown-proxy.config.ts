@@ -75,5 +75,24 @@ export const markdownRoutes: MarkdownRoute[] = [
     htmlRegex: /^\/faq$/,
     apiPath: "/api/faq.md",
     publicMdPath: "/faq.md"
+  },
+  {
+    // Exact match — `/blog/<category>` pages get no mirror (filtered lists).
+    mdRegex: /^\/blog\.md$/,
+    htmlRegex: /^\/blog$/,
+    apiPath: "/api/blog.md",
+    publicMdPath: "/blog.md"
+  },
+  {
+    mdRegex: /^\/contact\.md$/,
+    htmlRegex: /^\/contact$/,
+    apiPath: "/api/contact.md",
+    publicMdPath: "/contact.md"
+  },
+  {
+    mdRegex: /^\/lab\.md$/,
+    htmlRegex: /^\/lab$/,
+    apiPath: "/api/lab.md",
+    publicMdPath: "/lab.md"
   }
 ]

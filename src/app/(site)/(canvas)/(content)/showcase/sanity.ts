@@ -130,6 +130,8 @@ export interface ShowcaseListEntry {
   slug: string
   client: string | null
   year: number | null
+  categories: string[] | null
+  description: string | null
 }
 
 const showcaseListForMarkdownQuery = /* groq */ `
@@ -137,11 +139,13 @@ const showcaseListForMarkdownQuery = /* groq */ `
     title,
     "slug": slug.current,
     "client": client->title,
-    year
+    year,
+    "categories": categories[]->title,
+    "description": pt::text(content[0])
   }
 `
 
-/** Curated showcase project list (title, slug, client, year) for the `/showcase.md` markdown page. */
+/** Curated showcase project list (title, slug, client, year, categories, first-paragraph description) for the `/showcase.md` markdown page. */
 export async function fetchShowcaseListForMarkdown(): Promise<
   ShowcaseListEntry[]
 > {
