@@ -209,26 +209,42 @@ export const Map = memo(() => {
         }
       }
 
-      office.traverse((child) => traverse(child))
-      officeItems.traverse((child) => traverse(child))
-      routingElements.traverse((child) => traverse(child, { FOG: false }))
-      outdoor.traverse((child) => traverse(child, { FOG: false }))
-      outdoorCars.traverse((child) => traverse(child, { FOG: false }))
-      godrays.traverse((child) => traverse(child, { GODRAY: true }))
-
-      extractMeshes({
-        office,
-        officeItems,
-        godrays,
-        outdoorCars,
-        basketballNet,
-        inspectables
-      })
-
       alreadyTraversed.current = true
 
-      markCanvasBootStage("map-ready")
-      useMesh.setState({ mapMaterialsReady: true })
+      // One material swap per mesh across seven scene graphs — run per-graph
+      // with a yield in between so it lands as several short tasks instead of
+      // one uninterruptible long task right after the GLTFs decode.
+      const steps = [
+        () => office.traverse((child) => traverse(child)),
+        () => officeItems.traverse((child) => traverse(child)),
+        () =>
+          routingElements.traverse((child) => traverse(child, { FOG: false })),
+        () => outdoor.traverse((child) => traverse(child, { FOG: false })),
+        () => outdoorCars.traverse((child) => traverse(child, { FOG: false })),
+        () => godrays.traverse((child) => traverse(child, { GODRAY: true })),
+        () => {
+          extractMeshes({
+            office,
+            officeItems,
+            godrays,
+            outdoorCars,
+            basketballNet,
+            inspectables
+          })
+
+          markCanvasBootStage("map-ready")
+          useMesh.setState({ mapMaterialsReady: true })
+        }
+      ]
+
+      const runSteps = async () => {
+        for (const step of steps) {
+          step()
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        }
+      }
+
+      runSteps()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

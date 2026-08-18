@@ -85,7 +85,7 @@ function RendererInner({ sceneChildren }: RendererProps) {
     })
   }, [])
 
-  const { canRunMainApp } = useAppLoadingStore()
+  const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
 
   const mainScene = useMemo(() => new Scene(), [])
   const bloomScene = useMemo(() => new Scene(), [])
@@ -142,9 +142,12 @@ function RendererInner({ sceneChildren }: RendererProps) {
       cctvConfig.shouldBakeCCTV = false
     }
 
-    // bloom
-    gl.setRenderTarget(bloomTarget)
-    gl.render(bloomScene, bloomCameraRef.current)
+    // bloom — skipped where the post shader won't read it (uActiveBloom is 0
+    // on mobile), which drops one of the three per-frame passes
+    if (postProcessingMaterial.uniforms.uActiveBloom.value > 0) {
+      gl.setRenderTarget(bloomTarget)
+      gl.render(bloomScene, bloomCameraRef.current)
+    }
 
     // post processing
     gl.outputColorSpace = SRGBColorSpace

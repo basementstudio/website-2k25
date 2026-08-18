@@ -12,6 +12,7 @@ import {
   useState
 } from "react"
 
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
 // Context for sharing animation time
@@ -54,7 +55,8 @@ function AnimationControllerImpl({
   frameSkip = 0,
   pauseOnTabChange = true
 }: AnimationControllerProps) {
-  const { invalidate } = useThree()
+  const invalidate = useThree((state) => state.invalidate)
+  const gl = useThree((state) => state.gl)
 
   const [isTabVisible, setIsTabVisible] = useState(!document.hidden)
   const [isScrollPaused, setIsScrollPaused] = useState(false)
@@ -62,9 +64,14 @@ function AnimationControllerImpl({
   const disableCameraTransition = useNavigationStore(
     (state) => state.disableCameraTransition
   )
+  // Until the app is ready to reveal, every invalidate() runs ~20 frame
+  // subscribers (uTime writes over all materials, skinning, …) for frames
+  // nobody sees — the loading animation lives on the worker canvas, not here.
+  const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
 
   const isPaused =
     paused ||
+    !canRunMainApp ||
     (pauseOnTabChange && !isTabVisible) ||
     (isScrollPaused && !disableCameraTransition)
 
@@ -85,16 +92,18 @@ function AnimationControllerImpl({
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY
-      const viewportHeight = window.innerHeight
-      setIsScrollPaused(scrollPosition > viewportHeight)
+      // The canvas is 80svh on mobile (100svh on desktop), so compare against
+      // its real height — an innerHeight threshold kept rendering a fully
+      // off-screen scene for the last 20% of the first mobile viewport.
+      const canvasHeight = gl.domElement.clientHeight || window.innerHeight
+      setIsScrollPaused(window.scrollY > canvasHeight)
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
     handleScroll()
 
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  }, [gl])
 
   // Current time values exposed through context (memoized)
   const timeValues = useMemo(
