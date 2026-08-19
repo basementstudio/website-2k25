@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache"
 import { draftMode } from "next/headers"
 import type { QueryParams } from "next-sanity"
 
@@ -49,9 +50,12 @@ export async function sanityFetchCached<T>(opts: {
   query: string
   params?: QueryParams
   perspective?: Perspective
+  boundEmptyResult?: boolean
 }): Promise<T> {
   "use cache"
-  return sanityFetch<T>(opts)
+  const data = await sanityFetch<T>(opts)
+  if (opts.boundEmptyResult && data == null) cacheLife("hours")
+  return data
 }
 
 /**

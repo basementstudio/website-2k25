@@ -207,6 +207,7 @@ export async function fetchPostMeta(
   } | null>({
     query,
     params: { slug },
-    perspective: "published"
+    perspective: "published",
+    boundEmptyResult: true
   })
 }

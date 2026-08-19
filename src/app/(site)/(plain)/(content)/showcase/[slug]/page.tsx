@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache"
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
@@ -41,7 +42,9 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
 
 async function getProject(slug: string) {
   "use cache"
-  return fetchProjectBySlug(slug)
+  const project = await fetchProjectBySlug(slug)
+  if (!project) cacheLife("hours")
+  return project
 }
 
 export default async function ProjectPost({ params }: ProjectPostProps) {

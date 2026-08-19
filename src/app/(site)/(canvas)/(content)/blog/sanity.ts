@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache"
+
 import {
   sanityFetch,
   sanityFetchCached,
@@ -54,10 +56,12 @@ export async function fetchPosts(
       "posts": *[_type == "post" && $category in categories[]->slug.current] | order(date desc) ${postFields},
       "total": count(*[_type == "post" && $category in categories[]->slug.current])
     }`
-    return sanityFetch<{ posts: BlogPost[]; total: number }>({
+    const result = await sanityFetch<{ posts: BlogPost[]; total: number }>({
       query,
       params: { category }
     })
+    if (!result.total) cacheLife("hours")
+    return result
   }
 
   const query = /* groq */ `{
