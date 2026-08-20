@@ -47,58 +47,76 @@ const MobileInfo = memo(({ project }: { project: ShowcaseProject }) => {
 })
 MobileInfo.displayName = "MobileInfo"
 
+const GridCard = memo(
+  ({
+    project,
+    disabled,
+    isMobile
+  }: {
+    project: ShowcaseProject
+    disabled: boolean
+    isMobile: boolean | undefined
+  }) => {
+    const image = toImageFragment(project.cover)
+    return (
+      <article
+        className={cn(
+          "contain-paint relative col-span-full flex flex-col gap-y-2 lg:col-span-3 lg:gap-y-0"
+        )}
+      >
+        <div
+          className={cn(
+            "group relative aspect-video max-w-[100%] will-change-[opacity,transform] after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 after:transition-colors after:duration-300 hover:will-change-auto lg:h-full",
+            disabled && "after:border-brand-g1/20"
+          )}
+        >
+          <Link
+            disabled={disabled}
+            href={`/showcase/${project.slug}`}
+            className={cn(
+              "with-dots block h-full w-full cursor-pointer opacity-100 transition-opacity duration-300 focus-visible:!ring-offset-0",
+              disabled && "pointer-events-none cursor-default opacity-10"
+            )}
+            aria-label={`View ${project.title ?? "Untitled"}`}
+          >
+            {image ? (
+              <ImageWithVideoOverlay
+                image={image}
+                video={resolveVideoSource({
+                  mux: project.muxCoverVideo,
+                  legacy: project.coverVideo
+                })}
+                variant="showcase"
+              />
+            ) : null}
+          </Link>
+        </div>
+
+        {isMobile && <MobileInfo project={project} />}
+      </article>
+    )
+  }
+)
+GridCard.displayName = "GridCard"
+
 interface GridProps {
   projects: ShowcaseProject[]
-  isProjectDisabled: (project: ShowcaseProject) => boolean
+  disabledSlugs: Set<string> | null
 }
 
-export const Grid = memo(({ projects, isProjectDisabled }: GridProps) => {
+export const Grid = memo(({ projects, disabledSlugs }: GridProps) => {
   const isMobile = useMedia("(max-width: 1024px)")
 
   return (
     <div className="grid-layout contain-layout !gap-y-8 lg:!gap-y-3">
-      {projects.map((item, index) => {
-        const image = toImageFragment(item.cover)
-        return (
-          <article
-            key={item.title + index}
-            className={cn(
-              "contain-paint relative col-span-full flex flex-col gap-y-2 lg:col-span-3 lg:gap-y-0"
-            )}
-          >
-            <div
-              className={cn(
-                "group relative aspect-video max-w-[100%] will-change-[opacity,transform] after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 after:transition-colors after:duration-300 hover:will-change-auto lg:h-full",
-                isProjectDisabled(item) && "after:border-brand-g1/20"
-              )}
-            >
-              <Link
-                disabled={isProjectDisabled(item)}
-                href={`/showcase/${item.slug}`}
-                className={cn(
-                  "with-dots block h-full w-full cursor-pointer opacity-100 transition-opacity duration-300 focus-visible:!ring-offset-0",
-                  isProjectDisabled(item) &&
-                    "pointer-events-none cursor-default opacity-10"
-                )}
-                aria-label={`View ${item.title ?? "Untitled"}`}
-              >
-                {image ? (
-                  <ImageWithVideoOverlay
-                    image={image}
-                    video={resolveVideoSource({
-                      mux: item.muxCoverVideo,
-                      legacy: item.coverVideo
-                    })}
-                    variant="showcase"
-                  />
-                ) : null}
-              </Link>
-            </div>
-
-            {isMobile && <MobileInfo project={item} />}
-          </article>
-        )
-      })}
+      {projects.map((item, index) => (
+        <GridCard
+          key={item.title + index}
+          project={item}
+          disabled={disabledSlugs?.has(item.slug) ?? false}
+          isMobile={isMobile}
+        />
+      ))}
     </div>
   )
 })

@@ -193,7 +193,7 @@ if (process.env.VERCEL_ENV === "production" && !canPublishSentryArtifacts) {
 }
 
 export default withSentryConfig(nextConfig, {
-  org: "basementstudio-be",
+  org: "basement-studio",
   project: "website-2k25",
   silent: !process.env.VERCEL,
   widenClientFileUpload: true,

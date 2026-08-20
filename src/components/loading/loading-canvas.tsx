@@ -108,6 +108,7 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
 
     return () => {
       worker.terminate()
+      useAppLoadingStore.setState({ worker: null })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

@@ -18,16 +18,16 @@ const ViewModeSelector = memo(
   ({
     viewMode,
     projects,
-    isProjectDisabled
+    disabledSlugs
   }: {
     viewMode: "grid" | "rows"
     projects: ShowcaseProject[]
-    isProjectDisabled: (project: ShowcaseProject) => boolean
+    disabledSlugs: Set<string> | null
   }) => {
     return viewMode === "grid" ? (
-      <Grid projects={projects} isProjectDisabled={isProjectDisabled} />
+      <Grid projects={projects} disabledSlugs={disabledSlugs} />
     ) : (
-      <List projects={projects} isProjectDisabled={isProjectDisabled} />
+      <List projects={projects} disabledSlugs={disabledSlugs} />
     )
   }
 )
@@ -65,15 +65,19 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
       searchParams.get("category") || null
     )
 
-    const isProjectDisabled = useCallback(
-      (project: ShowcaseProject) => {
-        if (selectedCategory === null) return false
-        return !project?.categories?.some(
-          (category) => selectedCategory === category.title
-        )
-      },
-      [selectedCategory]
-    )
+    const disabledSlugs = useMemo(() => {
+      if (selectedCategory === null) return null
+      return new Set(
+        projects
+          .filter(
+            (project) =>
+              !project?.categories?.some(
+                (category) => selectedCategory === category.title
+              )
+          )
+          .map((project) => project.slug)
+      )
+    }, [projects, selectedCategory])
 
     const categories = useMemo(() => {
       const categoryMap = new Map<string, number>()
@@ -98,17 +102,6 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
         )
         .sort((a, b) => b.count - a.count)
     }, [projects])
-
-    const filteredProjects = useMemo(() => {
-      return selectedCategory === null
-        ? projects
-        : projects.map((project) => ({
-            ...project,
-            disabled: !project?.categories?.some(
-              (category) => selectedCategory === category.title
-            )
-          }))
-    }, [projects, selectedCategory])
 
     const handleSetSelectedCategory = useCallback((category: string | null) => {
       setSelectedCategory(category)
@@ -136,8 +129,8 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
 
         <ViewModeSelector
           viewMode={viewMode}
-          projects={filteredProjects}
-          isProjectDisabled={isProjectDisabled}
+          projects={projects}
+          disabledSlugs={disabledSlugs}
         />
       </section>
     )
