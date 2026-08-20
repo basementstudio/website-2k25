@@ -20,7 +20,6 @@ import { Renderer } from "@/components/postprocessing/renderer"
 import { AnimationController } from "@/components/shared/AnimationController"
 import { Sparkles } from "@/components/sparkles"
 import { WebGlTunnelOut } from "@/components/tunnel"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
@@ -58,9 +57,14 @@ export const Scene = () => {
   const setIsCanvasTabMode = useNavigationStore(
     (state) => state.setIsCanvasTabMode
   )
-  const currentScene = useNavigationStore((state) => state.currentScene)
+  const isBasketball = useNavigationStore(
+    (state) => state.currentScene?.name === "basketball"
+  )
+  const isFullHeightScene = useNavigationStore((state) => {
+    const name = state.currentScene?.name
+    return name === "basketball" || name === "lab" || name === "404"
+  })
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
   const userHasLeftWindow = useRef(false)
   const [isTouchOnly, setIsTouchOnly] = useState(false)
@@ -70,8 +74,6 @@ export const Scene = () => {
   const [dpr, setDpr] = useState<number | [number, number]>(() =>
     typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : [1, 2]
   )
-  const scene = useCurrentScene()
-
   useTabKeyHandler()
 
   useEffect(() => {
@@ -145,8 +147,7 @@ export const Scene = () => {
       <div
         className={cn(
           "absolute inset-0",
-          (scene === "basketball" || scene === "lab" || scene === "404") &&
-            "inset-x-0 top-0 h-[100svh]"
+          isFullHeightScene && "inset-x-0 top-0 h-[100svh]"
         )}
       >
         <Debug />

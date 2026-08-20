@@ -32,35 +32,79 @@ export const useHandleNavigation = () => {
   const pathname = usePathname()
   const scrollToFn = useScrollTo()
   const scrollToRef = useRef(scrollToFn)
-  const setCurrentScene = useNavigationStore((state) => state.setCurrentScene)
-  const setDisableCameraTransition = useNavigationStore(
-    (state) => state.setDisableCameraTransition
-  )
-  const canvasUnavailable = useAppLoadingStore(
-    (state) => state.canvasUnavailable
-  )
-  const scenes = useNavigationStore((state) => state.scenes)
 
   useEffect(() => {
     scrollToRef.current = scrollToFn
   }, [scrollToFn])
 
-  const getScene = useCallback(
-    (route: string) => {
-      if (route === "/") {
-        return scenes?.find((scene) => scene.name.toLowerCase() === "home")
+  const getScene = useCallback((route: string) => {
+    const { scenes } = useNavigationStore.getState()
+
+    if (route === "/") {
+      return scenes?.find((scene) => scene.name.toLowerCase() === "home")
+    }
+
+    const routeWithoutParams = route.split("?")[0].split("#")[0]
+    const finalRoute = routeWithoutParams.split("/").filter(Boolean)[0]
+
+    if (finalRoute === "careers") {
+      return scenes?.find((scene) => scene.name === "people")
+    }
+
+    return scenes?.find((scene) => scene.name === finalRoute)
+  }, [])
+
+  const continueNavigation = useCallback(
+    (route: string, fromMobileNav?: boolean) => {
+      const selectedScene = getScene(route)
+
+      if (!selectedScene) return
+
+      const { setCurrentScene, setDisableCameraTransition } =
+        useNavigationStore.getState()
+      const canvasUnavailable = useAppLoadingStore.getState().canvasUnavailable
+
+      if (window.scrollY < window.innerHeight && !fromMobileNav) {
+        setCurrentScene(selectedScene)
+        disableScroll()
+
+        if (route !== "/lab") {
+          useArcadeStore.getState().setIsInLabTab(false)
+        }
+        router.push(route, { scroll: false })
+
+        scrollToRef.current({
+          offset: 0,
+          behavior: "smooth",
+          callback: () => enableScroll()
+        })
+      } else {
+        handleTransitionEffectOn(fromMobileNav || canvasUnavailable)
+        disableScroll()
+        setDisableCameraTransition(true)
+        setCurrentScene(selectedScene)
+
+        setTimeout(
+          () => {
+            if (route !== "/lab") {
+              useArcadeStore.getState().setIsInLabTab(false)
+            }
+            router.push(route, { scroll: false })
+
+            scrollToRef.current({
+              offset: 0,
+              behavior: "instant",
+              callback: () => {
+                handleTransitionEffectOff(fromMobileNav || canvasUnavailable)
+                enableScroll()
+              }
+            })
+          },
+          window.innerWidth >= 1024 && !fromMobileNav ? TRANSITION_DURATION : 0
+        )
       }
-
-      const routeWithoutParams = route.split("?")[0].split("#")[0]
-      const finalRoute = routeWithoutParams.split("/").filter(Boolean)[0]
-
-      if (finalRoute === "careers") {
-        return scenes?.find((scene) => scene.name === "people")
-      }
-
-      return scenes?.find((scene) => scene.name === finalRoute)
     },
-    [scenes]
+    [router, disableScroll, enableScroll, getScene]
   )
 
   const handleNavigation = useCallback(
@@ -91,71 +135,7 @@ export const useHandleNavigation = () => {
 
       continueNavigation(route, fromMobileNav)
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      pathname,
-      setCurrentScene,
-      scenes,
-      setDisableCameraTransition,
-      canvasUnavailable
-    ]
-  )
-
-  const continueNavigation = useCallback(
-    (route: string, fromMobileNav?: boolean) => {
-      const selectedScene = getScene(route)
-
-      if (!selectedScene) return
-
-      if (window.scrollY < window.innerHeight && !fromMobileNav) {
-        setCurrentScene(selectedScene)
-        disableScroll()
-
-        scrollToRef.current({
-          offset: 0,
-          behavior: "smooth",
-          callback: () => {
-            if (route !== "/lab") {
-              useArcadeStore.getState().setIsInLabTab(false)
-            }
-            router.push(route, { scroll: false })
-            enableScroll()
-          }
-        })
-      } else {
-        handleTransitionEffectOn(fromMobileNav || canvasUnavailable)
-        disableScroll()
-        setDisableCameraTransition(true)
-        setCurrentScene(selectedScene)
-
-        setTimeout(
-          () => {
-            scrollToRef.current({
-              offset: 0,
-              behavior: "instant",
-              callback: () => {
-                handleTransitionEffectOff(fromMobileNav || canvasUnavailable)
-                enableScroll()
-              }
-            })
-            if (route !== "/lab") {
-              useArcadeStore.getState().setIsInLabTab(false)
-            }
-            router.push(route, { scroll: false })
-          },
-          window.innerWidth >= 1024 && !fromMobileNav ? TRANSITION_DURATION : 0
-        )
-      }
-    },
-    [
-      router,
-      setCurrentScene,
-      setDisableCameraTransition,
-      disableScroll,
-      enableScroll,
-      getScene,
-      canvasUnavailable
-    ]
+    [pathname, continueNavigation]
   )
 
   return { handleNavigation }

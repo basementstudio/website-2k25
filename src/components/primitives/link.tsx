@@ -79,7 +79,9 @@ export const Link = ({
         }
         onClick?.()
       }}
-      onMouseEnter={handleMouseEnter}
+      onPointerEnter={(e) => {
+        if (e.pointerType === "mouse") handleMouseEnter()
+      }}
       className={className}
       {...rest}
     >

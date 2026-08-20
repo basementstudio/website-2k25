@@ -4,7 +4,6 @@ import dynamic from "next/dynamic"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
-import { useDeviceDetect } from "@/hooks/use-device-detect"
 import type { ResolvedVideoSource } from "@/lib/video/resolve-source"
 import { cn } from "@/utils/cn"
 
@@ -39,7 +38,6 @@ export const ImageWithVideoOverlay = ({
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const { isMobile } = useDeviceDetect()
 
   useEffect(() => {
     return () => {
@@ -48,6 +46,8 @@ export const ImageWithVideoOverlay = ({
   }, [])
 
   const handleMouseEnter = () => {
+    if (window.matchMedia("(hover: none)").matches) return
+
     setShouldLoadVideo(true)
     timeoutRef.current = setTimeout(() => {
       videoRef.current?.play().catch(() => {})
@@ -85,7 +85,7 @@ export const ImageWithVideoOverlay = ({
         className="h-full w-full object-cover group-hover:animate-subtle-pulse"
         priority={false}
       />
-      {video && shouldLoadVideo && !isMobile ? (
+      {video && shouldLoadVideo ? (
         <div className="pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           {video.type === "mux" ? (
             <Video
