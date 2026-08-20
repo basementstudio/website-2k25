@@ -51,6 +51,24 @@ const nextConfig: NextConfig = {
     ]
   },
 
+  async rewrites() {
+    return {
+      // Vercel maps the literal /404 URL to the framework's prerendered 404
+      // document (root not-found.tsx) before app routes are considered, so it
+      // never reaches the [...notFound] catch-all that renders the security-cam
+      // 404. beforeFiles runs ahead of that mapping: send /404 through the
+      // catch-all so it matches every other unknown path.
+      beforeFiles: [
+        {
+          source: "/404",
+          destination: "/404/not-found"
+        }
+      ],
+      afterFiles: [],
+      fallback: []
+    }
+  },
+
   async redirects() {
     return [
       // Old pages
