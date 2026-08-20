@@ -4,10 +4,8 @@
  *
  * Run with: pnpm tsx scripts/3d-assets/verify.ts [--refs-only]
  *
- * `--refs-only` stops after the missing-reference check. That's the half the
- * build gates on: a manifest entry with no file behind it 404s in production
- * for as long as the page stays cached (see WEBSITE-2K25-3J, where a deleted
- * contactPhone.glb kept 404ing days after the manifest was corrected).
+ * `--refs-only` stops after the missing-reference check — the half the build
+ * gates on, since a reference with no file behind it 404s in production.
  */
 
 import { readdirSync, statSync } from "node:fs"

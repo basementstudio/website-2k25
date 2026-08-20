@@ -101,8 +101,7 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
 
       // `loading-transition-complete` can no longer arrive, so the black
       // overlay would sit there until the boot timeout. `offscreenCanvasReady`
-      // gates usePreloadAssets, so leaving it false means a dead worker also
-      // costs the scene every one of its preload hints.
+      // gates usePreloadAssets, which would otherwise never fire.
       useAppLoadingStore.setState({
         showLoadingCanvas: false,
         offscreenCanvasReady: true
