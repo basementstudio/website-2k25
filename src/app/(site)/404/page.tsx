@@ -11,5 +11,12 @@ export const metadata: Metadata = {
 // before middleware or rewrites run, so only a real route at this path can
 // serve the not-found experience the [...notFound] catch-all renders.
 export default function Page() {
-  return <NotFound />
+  return (
+    <>
+      {/* NavbarContent only unmounts after hydration flips the scene to 404;
+          this marker hides it from the static first paint (see globals.css). */}
+      <div data-page-404 hidden />
+      <NotFound />
+    </>
+  )
 }

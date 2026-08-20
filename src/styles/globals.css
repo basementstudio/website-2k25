@@ -132,6 +132,12 @@
   }
 }
 
+/* The /404 page ships the navbar in its static HTML, but the not-found scene
+   only unmounts it after hydration — suppress it from first paint. */
+body:has([data-page-404]) nav[data-navbar] {
+  display: none;
+}
+
 html {
   @apply scroll-smooth;
   font-feature-settings: "ss01";
