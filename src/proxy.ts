@@ -17,6 +17,17 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const accept = request.headers.get("accept") ?? ""
 
+  // The literal /404 URL: Vercel maps it to the framework's prerendered 404
+  // document (root not-found.tsx), and that output file also shadows any
+  // next.config beforeFiles rewrite for the path. Only a rewrite here — ahead
+  // of all routing — sends /404 through the [...notFound] catch-all so it
+  // renders like every other unknown path.
+  if (pathname === "/404") {
+    const url = request.nextUrl.clone()
+    url.pathname = "/404/not-found"
+    return NextResponse.rewrite(url)
+  }
+
   // Mobile visitors to /lab go to the lightweight external lab (the WebGL
   // arcade is desktop-only). Done here so the /lab page stays prerenderable.
   // Crawlers are exempt even with mobile UAs (Googlebot Smartphone, site
@@ -101,6 +112,8 @@ export const config = {
     "/contact.md",
     // /lab also runs the mobile user-agent redirect (see top of proxy()).
     "/lab",
-    "/lab.md"
+    "/lab.md",
+    // Rewritten into the [...notFound] catch-all (see top of proxy()).
+    "/404"
   ]
 }
