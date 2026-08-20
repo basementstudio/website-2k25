@@ -17,6 +17,11 @@ Sentry.init({
   // thirdPartyErrorFilterIntegration is better, but its applicationKey loader
   // breaks Turbopack worker modules.
   denyUrls: [/^(?:chrome|moz|ms-browser|safari(?:-web)?)-extension:\/\//],
+  // Chrome reports a worker's failed importScripts to window.onerror even
+  // after the Worker's error event is canceled, so the preventDefault() in
+  // loading-canvas/contact-canvas can't dedupe it. Those handlers already
+  // file the failure under a stable title.
+  ignoreErrors: [/Failed to execute 'importScripts' on 'WorkerGlobalScope'/],
   // BrowserApiErrors wraps requestAnimationFrame by default — a per-frame cost
   // on the R3F loop.
   integrations: (defaults) => [
