@@ -179,6 +179,9 @@ export const useCameraMovement = (
 
   const newDelta = useMemo(() => new THREE.Vector3(), [])
   const newLookAtDelta = useMemo(() => new THREE.Vector3(), [])
+  const finalPos = useMemo(() => new THREE.Vector3(), [])
+  const finalLookAt = useMemo(() => new THREE.Vector3(), [])
+  const lastAppliedFov = useRef<number | null>(null)
 
   const progress = useRef(1)
   const isTransitioning = useRef(false)
@@ -303,13 +306,19 @@ export const useCameraMovement = (
     }
 
     if (cameraRef.current) {
-      const finalPos = currentPos.clone().add(panTargetDelta)
-      const finalLookAt = currentTarget.clone().add(panLookAtDelta)
+      finalPos.copy(currentPos).add(panTargetDelta)
+      finalLookAt.copy(currentTarget).add(panLookAtDelta)
 
       cameraRef.current.position.copy(finalPos)
       cameraRef.current.lookAt(finalLookAt)
       cameraRef.current.fov = currentFov.current
-      cameraRef.current.updateProjectionMatrix()
+      // lookAt only writes the world matrix; the projection matrix depends on
+      // fov alone here (R3F handles aspect on resize), so skip the rebuild
+      // unless fov moved.
+      if (lastAppliedFov.current !== currentFov.current) {
+        cameraRef.current.updateProjectionMatrix()
+        lastAppliedFov.current = currentFov.current
+      }
 
       if (loadingCanvasWorker) {
         loadingCanvasWorker.postMessage({

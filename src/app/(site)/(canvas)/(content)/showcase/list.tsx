@@ -189,10 +189,10 @@ AccordionListItem.displayName = "AccordionListItem"
 export const List = memo(
   ({
     projects,
-    isProjectDisabled
+    disabledSlugs
   }: {
     projects: ShowcaseProject[]
-    isProjectDisabled: (project: ShowcaseProject) => boolean
+    disabledSlugs: Set<string> | null
   }) => {
     const [itemOpen, setItemOpen] = useState<string>()
 
@@ -214,7 +214,7 @@ export const List = memo(
             key={item.title + index}
             project={item}
             index={index}
-            disabled={isProjectDisabled(item)}
+            disabled={disabledSlugs?.has(item.slug) ?? false}
           />
         ))}
       </AccordionPrimitive.Root>

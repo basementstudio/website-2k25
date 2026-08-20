@@ -108,6 +108,9 @@ function LoadingCanvas({ hide }: { hide: boolean }) {
 
     return () => {
       worker.terminate()
+      // Drop the handle so per-frame senders (useCameraMovement) stop
+      // structured-cloning camera updates to a dead worker.
+      useAppLoadingStore.setState({ worker: null })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
