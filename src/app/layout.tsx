@@ -1,6 +1,6 @@
 import "@/styles/globals.css"
 
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
 import { draftMode } from "next/headers"
@@ -10,6 +10,10 @@ import { Suspense } from "react"
 import { DisableDraftMode } from "@/components/sanity/disable-draft-mode"
 import { SanityLive } from "@/service/sanity/live"
 import { cn } from "@/utils/cn"
+
+export const viewport: Viewport = {
+  colorScheme: "dark"
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://basement.studio"),
