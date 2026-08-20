@@ -2,10 +2,7 @@
  * Walks the generated manifest, checks every `/3d/...` URL resolves to a
  * file on disk under `public/`, and reports total size + any missing refs.
  *
- * Run with: pnpm tsx scripts/3d-assets/verify.ts [--refs-only]
- *
- * `--refs-only` stops after the missing-reference check — the half the build
- * gates on, since a reference with no file behind it 404s in production.
+ * Run with: pnpm tsx scripts/3d-assets/verify.ts
  */
 
 import { readdirSync, statSync } from "node:fs"
@@ -56,8 +53,6 @@ if (missing.length > 0) {
 }
 
 console.log("\n✓ All manifest references resolve to files on disk.")
-
-if (process.argv.includes("--refs-only")) process.exit(0)
 
 // Reverse check: every file under public/3d/ must (a) be referenced by the
 // manifest and (b) have a content-hash suffix. (b) is the contract that makes
