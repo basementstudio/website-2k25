@@ -20,7 +20,6 @@ import { Renderer } from "@/components/postprocessing/renderer"
 import { AnimationController } from "@/components/shared/AnimationController"
 import { Sparkles } from "@/components/sparkles"
 import { WebGlTunnelOut } from "@/components/tunnel"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
@@ -53,14 +52,28 @@ const PhysicsWorld = dynamic(
 )
 
 export const Scene = () => {
-  const { setIsCanvasTabMode, currentScene } = useNavigationStore()
+  // Per-field selectors: destructuring the whole store re-rendered the entire
+  // <Canvas> subtree on every unrelated navigation-store write.
+  const setIsCanvasTabMode = useNavigationStore(
+    (state) => state.setIsCanvasTabMode
+  )
+  const isBasketball = useNavigationStore(
+    (state) => state.currentScene?.name === "basketball"
+  )
+  const isFullHeightScene = useNavigationStore((state) => {
+    const name = state.currentScene?.name
+    return name === "basketball" || name === "lab" || name === "404"
+  })
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const isBasketball = currentScene?.name === "basketball"
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
   const userHasLeftWindow = useRef(false)
   const [isTouchOnly, setIsTouchOnly] = useState(false)
-  const scene = useCurrentScene()
-
+  // DPR is capped at 1 below the desktop breakpoint: rendering the 80svh
+  // mobile canvas at retina resolution roughly quadruples the per-frame GPU
+  // and post-processing cost on the phones already struggling with INP.
+  const [dpr, setDpr] = useState<number | [number, number]>(() =>
+    typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : [1, 2]
+  )
   useTabKeyHandler()
 
   useEffect(() => {
@@ -71,6 +84,7 @@ export const Scene = () => {
       const hasFinePointer = window.matchMedia("(pointer: fine)").matches
 
       setIsTouchOnly(hasTouchScreen && hasCoarsePointer && !hasFinePointer)
+      setDpr(window.innerWidth < 1024 ? 1 : [1, 2])
     }
 
     detectTouchOnly()
@@ -133,14 +147,14 @@ export const Scene = () => {
       <div
         className={cn(
           "absolute inset-0",
-          (scene === "basketball" || scene === "lab" || scene === "404") &&
-            "inset-x-0 top-0 h-[100svh]"
+          isFullHeightScene && "inset-x-0 top-0 h-[100svh]"
         )}
       >
         <Debug />
         <Canvas
           id="canvas"
           frameloop="demand"
+          dpr={dpr}
           ref={canvasRef}
           tabIndex={0}
           onFocus={handleFocus}

@@ -19,6 +19,20 @@
 - [Basketball](https://basement.studio/basketball): An interactive basketball mini-game.
 - [Doom](https://basement.studio/doom): A playable in-browser Doom experiment.
 
+## Markdown mirrors
+
+Every content page has a markdown twin — append `.md` to the URL (also served
+via `Accept: text/markdown`). Full index: https://basement.studio/sitemap.md
+
+- https://basement.studio/index.md
+- https://basement.studio/services.md
+- https://basement.studio/showcase.md
+- https://basement.studio/blog.md
+- https://basement.studio/people.md
+- https://basement.studio/lab.md
+- https://basement.studio/faq.md
+- https://basement.studio/contact.md
+
 ## Contact
 
 - General & project inquiries: hello@basement.studio

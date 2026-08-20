@@ -9,7 +9,6 @@ import { Contact } from "@/components/contact/contact"
 import { InspectableProvider } from "@/components/inspectables/context"
 import { CanvasLayer } from "@/components/layout/canvas-layer"
 import { ModeToggle } from "@/components/layout/mode-toggle"
-import { Navbar } from "@/components/layout/navbar"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
@@ -30,7 +29,6 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
       <AssetsProvider assets={assets}>
         <InspectableProvider>
           <HtmlTunnelOut />
-          <Navbar />
           <NavigationHandler />
           <CanvasLayer />
           {children}

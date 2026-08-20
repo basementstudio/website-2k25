@@ -102,6 +102,17 @@ const valuesQuery = /* groq */ `
   }
 `
 
+export type ValueMarkdownItem = Omit<ValueItem, "image">
+
+// Same as valuesQuery, minus `image` — the `.md` route never renders it.
+const valuesForMarkdownQuery = /* groq */ `
+  *[_type == "value"] | order(_createdAt asc) {
+    _key,
+    title,
+    description
+  }
+`
+
 const openPositionsQuery = /* groq */ `
   *[_type == "openPosition"] | order(
     select(
@@ -156,6 +167,16 @@ export async function fetchPeopleForMarkdown(options?: {
 export async function fetchValues(): Promise<ValueItem[]> {
   const result = await sanityFetchCached<ValueItem[] | null>({
     query: valuesQuery
+  })
+  return result ?? []
+}
+
+export async function fetchValuesForMarkdown(options?: {
+  published?: boolean
+}): Promise<ValueMarkdownItem[]> {
+  const result = await sanityFetchCached<ValueMarkdownItem[] | null>({
+    query: valuesForMarkdownQuery,
+    ...(options?.published ? { perspective: "published" } : {})
   })
   return result ?? []
 }

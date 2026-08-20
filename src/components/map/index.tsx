@@ -1,7 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { memo, Suspense, useEffect, useRef, useState } from "react"
+import { memo, Suspense, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Object3D } from "three"
 import * as THREE from "three"
 
@@ -72,26 +72,17 @@ export const Map = memo(() => {
   useFrameLoop()
 
   const scene = useCurrentScene()
-  const currentScene = useNavigationStore((state) => state.currentScene)
+  const tabs = useNavigationStore((state) => state.currentScene?.tabs)
 
-  const [routingNodes, setRoutingNodes] = useState<Record<string, Mesh>>({})
-
-  useEffect(() => {
-    const routingNodes: Record<string, Mesh> = {}
+  const routingMeshes = useMemo(() => {
+    const meshes: Record<string, Mesh> = {}
     routingElements?.traverse((child) => {
       if (child instanceof Mesh) {
-        const matchingTab = currentScene?.tabs?.find(
-          (tab) => child.name === tab.tabClickableName
-        )
-
-        if (matchingTab) {
-          routingNodes[matchingTab.tabClickableName] = child
-        }
+        meshes[child.name] = child
       }
     })
-
-    setRoutingNodes(routingNodes)
-  }, [currentScene, routingElements])
+    return meshes
+  }, [routingElements])
 
   const alreadyTraversed = useRef(false)
 
@@ -209,26 +200,42 @@ export const Map = memo(() => {
         }
       }
 
-      office.traverse((child) => traverse(child))
-      officeItems.traverse((child) => traverse(child))
-      routingElements.traverse((child) => traverse(child, { FOG: false }))
-      outdoor.traverse((child) => traverse(child, { FOG: false }))
-      outdoorCars.traverse((child) => traverse(child, { FOG: false }))
-      godrays.traverse((child) => traverse(child, { GODRAY: true }))
-
-      extractMeshes({
-        office,
-        officeItems,
-        godrays,
-        outdoorCars,
-        basketballNet,
-        inspectables
-      })
-
       alreadyTraversed.current = true
 
-      markCanvasBootStage("map-ready")
-      useMesh.setState({ mapMaterialsReady: true })
+      // One material swap per mesh across seven scene graphs — run per-graph
+      // with a yield in between so it lands as several short tasks instead of
+      // one uninterruptible long task right after the GLTFs decode.
+      const steps = [
+        () => office.traverse((child) => traverse(child)),
+        () => officeItems.traverse((child) => traverse(child)),
+        () =>
+          routingElements.traverse((child) => traverse(child, { FOG: false })),
+        () => outdoor.traverse((child) => traverse(child, { FOG: false })),
+        () => outdoorCars.traverse((child) => traverse(child, { FOG: false })),
+        () => godrays.traverse((child) => traverse(child, { GODRAY: true })),
+        () => {
+          extractMeshes({
+            office,
+            officeItems,
+            godrays,
+            outdoorCars,
+            basketballNet,
+            inspectables
+          })
+
+          markCanvasBootStage("map-ready")
+          useMesh.setState({ mapMaterialsReady: true })
+        }
+      ]
+
+      const runSteps = async () => {
+        for (const step of steps) {
+          step()
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        }
+      }
+
+      runSteps()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -281,10 +288,9 @@ export const Map = memo(() => {
       <Net />
 
       {/* Routing */}
-      {Object.values(routingNodes).map((node) => {
-        const matchingTab = currentScene?.tabs?.find(
-          (tab) => tab.tabClickableName === node.name
-        )
+      {tabs?.map((tab) => {
+        const node = routingMeshes[tab.tabClickableName]
+        if (!node) return null
 
         const isLabGroup =
           node.name === "LaboratoryHome_HoverA" ||
@@ -295,8 +301,8 @@ export const Map = memo(() => {
           <RoutingElement
             key={node.name}
             node={node}
-            route={matchingTab?.tabRoute ?? ""}
-            hoverName={matchingTab?.tabHoverName ?? node.name}
+            route={tab.tabRoute ?? ""}
+            hoverName={tab.tabHoverName ?? node.name}
             groupName={groupName}
           />
         )

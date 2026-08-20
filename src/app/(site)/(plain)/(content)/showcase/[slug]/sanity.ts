@@ -169,12 +169,42 @@ export async function fetchProjectMeta(
   })
 }
 
+export interface RelatedProjectMarkdown {
+  title: string
+  slug: string
+}
+
+/**
+ * Same deterministic selection as fetchRelatedProjects, minus the icons fetch —
+ * the `.md` route never renders them. Published perspective keeps stega out.
+ */
+export async function fetchRelatedProjectsForMarkdown(
+  excludeSlug: string
+): Promise<RelatedProjectMarkdown[]> {
+  const all = await sanityFetchCached<Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null>({
+    query: relatedProjectsSlugsQuery,
+    perspective: "published"
+  })
+  if (!all) return []
+
+  return selectRelatedProjects({
+    projects: all.map((project) => ({ ...project, icon: null })),
+    excludeSlug
+  }).map(({ title, slug }) => ({ title, slug }))
+}
+
 export async function fetchRelatedProjects(
   excludeSlug: string
 ): Promise<RelatedProject[]> {
-  const all = await sanityFetchCached<
-    Array<{ _id: string; title: string; slug: string }> | null
-  >({
+  const all = await sanityFetchCached<Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null>({
     query: relatedProjectsSlugsQuery
   })
   if (!all) return []

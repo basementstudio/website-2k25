@@ -51,13 +51,12 @@ const organizationQuery = /* groq */ `{
 const getOrganizationFallback = (): OrganizationStructuredData => ({
   description: COMPANY_FACTS.description,
   foundingDate: COMPANY_FACTS.foundingDate,
-  // Contact emails published across the site (footer, contact page, contact
-  // form). `email` is the primary general inbox; `contactPoints` exposes the
-  // same plus the sales inbox as schema.org ContactPoints.
-  email: "hello@basement.studio",
+  // `email` is the primary general inbox; `contactPoints` exposes the same
+  // plus the sales inbox as schema.org ContactPoints.
+  email: COMPANY_FACTS.contactEmail,
   contactPoints: [
-    { email: "hello@basement.studio", contactType: "customer support" },
-    { email: "sales@basement.studio", contactType: "sales" }
+    { email: COMPANY_FACTS.contactEmail, contactType: "customer support" },
+    { email: COMPANY_FACTS.salesEmail, contactType: "sales" }
   ],
   addressCity: COMPANY_FACTS.addressCity,
   addressRegion: null,

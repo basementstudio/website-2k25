@@ -77,15 +77,15 @@ export const ShowcaseListFallback = ({
   <section className="flex flex-col gap-2" id="list">
     <FiltersFallback projects={projects} />
 
-    <div className="grid-layout !gap-y-8 lg:!gap-y-3">
+    <div className="grid-layout contain-layout !gap-y-8 lg:!gap-y-3">
       {projects.map((item) => {
         const asset = item.cover?.asset
         return (
           <article
             key={item._id}
-            className="relative col-span-full flex flex-col gap-y-2 lg:col-span-3 lg:gap-y-0"
+            className="contain-paint relative col-span-full flex flex-col gap-y-2 lg:col-span-3 lg:gap-y-0"
           >
-            <div className="relative aspect-video max-w-[100%] after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20">
+            <div className="relative aspect-video max-w-[100%] after:pointer-events-none after:absolute after:inset-0 after:border after:border-brand-w1/20 lg:h-full">
               <a
                 href={`/showcase/${item.slug}`}
                 className="block h-full w-full"

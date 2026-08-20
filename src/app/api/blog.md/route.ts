@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
-import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
+import { fetchBlogIndexForMarkdown } from "@/app/(site)/(canvas)/(content)/blog/sanity"
 import { SITE_URL } from "@/lib/constants"
 import { truncateDescription } from "@/utils/seo"
 
@@ -17,32 +17,41 @@ const escapeLinkLabel = (text: string) => text.replace(/[\\[\]]/g, "\\$&")
 
 export async function GET() {
   try {
-    const projects = await fetchShowcaseListForMarkdown()
+    const { posts, categories } = await fetchBlogIndexForMarkdown()
 
-    const list = projects
-      .map((project) => {
-        const clientYear = [project.client, project.year]
-          .filter(Boolean)
-          .join(", ")
-        const categories = project.categories?.length
-          ? `(${project.categories.join(", ")})`
+    // Category pages have no `.md` mirror (filtered lists, no unique content)
+    // — link the HTML pages.
+    const categoriesLine = categories.length
+      ? `**Categories:** ${categories
+          .map(
+            (c) => `[${escapeLinkLabel(c.title)}](${SITE_URL}/blog/${c.slug})`
+          )
+          .join(", ")}`
+      : null
+
+    const list = posts
+      .map((post) => {
+        const link = `[${escapeLinkLabel(post.title)}](${SITE_URL}/post/${post.slug}.md)`
+        const date = post.date ? post.date.split("T")[0] : null
+        const postCategories = post.categories?.length
+          ? `(${post.categories.map((c) => c.title).join(", ")})`
           : null
-        const meta = [clientYear || null, categories].filter(Boolean).join(" ")
-        const detail = [
-          meta || null,
-          truncateDescription(project.description) || null
-        ]
+        const meta = [date, postCategories].filter(Boolean).join(" ")
+        const detail = [meta || null, truncateDescription(post.excerpt) || null]
           .filter(Boolean)
           .join(" — ")
-        const link = `[${escapeLinkLabel(project.title)}](${SITE_URL}/showcase/${project.slug}.md)`
         return detail ? `- ${link} — ${detail}` : `- ${link}`
       })
       .join("\n")
 
     const parts: Array<string | null> = [
-      "# Showcase",
+      "# Blog",
       "",
-      "Selected projects by basement.studio.",
+      "Articles and writing from basement.studio.",
+      "",
+      categoriesLine,
+      categoriesLine ? "" : null,
+      list ? "## All Posts" : null,
       list ? "" : null,
       list || null,
       "",
@@ -56,11 +65,11 @@ export async function GET() {
     return new NextResponse(markdown, {
       headers: {
         ...MD_HEADERS,
-        Link: `<${SITE_URL}/showcase>; rel="canonical"`
+        Link: `<${SITE_URL}/blog>; rel="canonical"`
       }
     })
   } catch (error) {
-    console.error("Error building showcase markdown:", error)
+    console.error("Error building blog markdown:", error)
     Sentry.captureException(error)
     return new NextResponse("# 500 Error\n\nFailed to build markdown.", {
       status: 500,

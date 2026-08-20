@@ -1,4 +1,8 @@
-import { sanityFetch, sanityFetchStatic } from "@/service/sanity"
+import {
+  sanityFetch,
+  sanityFetchCached,
+  sanityFetchStatic
+} from "@/service/sanity"
 import { imageFragment } from "@/service/sanity/queries"
 import type { PortableTextBlock, SanityImage } from "@/service/sanity/types"
 
@@ -138,6 +142,41 @@ export async function fetchPostsForArchive(): Promise<PostArchiveEntry[]> {
   return sanityFetch<PostArchiveEntry[]>({
     query
   })
+}
+
+export interface BlogPostMarkdownEntry {
+  title: string
+  slug: string
+  date: string | null
+  categories: Array<{ title: string; slug: string }> | null
+  excerpt: string | null
+}
+
+export interface BlogIndexForMarkdown {
+  posts: BlogPostMarkdownEntry[]
+  categories: BlogCategory[]
+}
+
+// All posts (no featured split, unlike fetchPosts) plus non-empty categories,
+// in one round-trip. No images — the `.md` route never renders them.
+const blogIndexForMarkdownQuery = /* groq */ `{
+  "posts": *[_type == "post" && defined(slug.current)] | order(date desc){
+    title,
+    "slug": slug.current,
+    date,
+    categories[]->{ title, "slug": slug.current },
+    "excerpt": pt::text(intro)
+  },
+  "categories": ${categoriesNonEmptyQuery}
+}`
+
+/** Full post index (title, date, categories, excerpt) for the `/blog.md` markdown page. */
+export async function fetchBlogIndexForMarkdown(): Promise<BlogIndexForMarkdown> {
+  const result = await sanityFetchCached<BlogIndexForMarkdown | null>({
+    query: blogIndexForMarkdownQuery,
+    perspective: "published"
+  })
+  return result ?? { posts: [], categories: [] }
 }
 
 const postListForSchemaQuery = /* groq */ `
