@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache"
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
@@ -47,7 +48,10 @@ async function getPostData(slug: string) {
   "use cache"
   const post = await fetchPostBySlug(slug)
 
-  if (!post) return null
+  if (!post) {
+    cacheLife("hours")
+    return null
+  }
 
   const relatedPosts = await fetchRelatedPosts(
     post.slug,
