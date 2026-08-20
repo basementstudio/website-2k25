@@ -65,9 +65,6 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
       searchParams.get("category") || null
     )
 
-    // A slug set instead of a predicate + cloned project list: stable project
-    // identities let the memoized cards skip re-rendering on filter taps
-    // unless their own disabled state flips.
     const disabledSlugs = useMemo(() => {
       if (selectedCategory === null) return null
       return new Set(

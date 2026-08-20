@@ -46,9 +46,6 @@ export const ImageWithVideoOverlay = ({
   }, [])
 
   const handleMouseEnter = () => {
-    // Touch devices get the synthetic mouseenter on tap; checked here instead
-    // of useDeviceDetect in the render path, whose post-hydration state flip
-    // re-rendered every card on the page.
     if (window.matchMedia("(hover: none)").matches) return
 
     setShouldLoadVideo(true)

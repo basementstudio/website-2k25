@@ -80,8 +80,6 @@ export const Link = ({
         onClick?.()
       }}
       onPointerEnter={(e) => {
-        // Mobile taps fire a synthetic mouseenter inside the measured
-        // interaction, so hover prefetch is limited to actual mice.
         if (e.pointerType === "mouse") handleMouseEnter()
       }}
       className={className}

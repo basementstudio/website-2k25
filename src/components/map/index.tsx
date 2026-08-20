@@ -72,9 +72,6 @@ export const Map = memo(() => {
   useFrameLoop()
 
   const scene = useCurrentScene()
-  // Tabs identity is stable per scene object, so Map re-renders only when the
-  // scene actually changes — the previous effect re-traversed the whole
-  // routing graph and double-committed (setState) on every navigation.
   const tabs = useNavigationStore((state) => state.currentScene?.tabs)
 
   const routingMeshes = useMemo(() => {

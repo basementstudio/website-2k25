@@ -68,14 +68,8 @@ function AnimationControllerImpl({
   // subscribers (uTime writes over all materials, skinning, …) for frames
   // nobody sees — the loading animation lives on the worker canvas, not here.
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
-  // Plain-group routes (/post/*, /careers/*, /showcase/*) hide the canvas
-  // container with CSS but keep the Scene mounted for the WebGL context —
-  // without this term the full office kept rendering at 60fps under the page.
   const canvasVisible = useAppLoadingStore((state) => state.canvasVisible)
 
-  // Both hidden-canvas and scrolled-away pauses share the transition carve-out:
-  // during a navigation the camera must snap to the new scene while still
-  // hidden, or the reveal shows one stale frame of the previous scene.
   const isPaused =
     paused ||
     !canRunMainApp ||

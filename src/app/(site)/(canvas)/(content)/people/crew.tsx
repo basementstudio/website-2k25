@@ -282,9 +282,6 @@ export const Face = ({
   setHoveredPerson,
   hoveredPerson
 }: FaceProps) => (
-  // A CSS opacity transition instead of motion.div: ~40 of these mount inside
-  // the tap-driven route commit, and each motion instance constructs
-  // MotionValues + an animation even when the container is display:none.
   <div
     key={person.title}
     className="with-dots group relative aspect-[83/96] bg-brand-k text-brand-w1/20 transition-opacity duration-200 ease-in-out lg:aspect-[136/156]"

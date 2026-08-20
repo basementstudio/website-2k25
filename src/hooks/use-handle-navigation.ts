@@ -26,9 +26,6 @@ const handleTransitionEffectOff = (fromMobileNav?: boolean) => {
   }
 }
 
-// Store values are read via getState() at call time instead of subscriptions:
-// this hook is instantiated by every <Link> (~80 on /people), so each
-// subscription here multiplies across the whole page.
 export const useHandleNavigation = () => {
   const { disableScroll, enableScroll } = useScrollControl()
   const router = useRouter()
@@ -74,9 +71,6 @@ export const useHandleNavigation = () => {
         if (route !== "/lab") {
           useArcadeStore.getState().setIsInLabTab(false)
         }
-        // Push before the cosmetic scroll: the route render is a React
-        // transition, and serializing it behind the smooth-scroll animation
-        // delayed the new page by the whole scroll duration.
         router.push(route, { scroll: false })
 
         scrollToRef.current({

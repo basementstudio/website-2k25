@@ -57,9 +57,6 @@ export const Scene = () => {
   const setIsCanvasTabMode = useNavigationStore(
     (state) => state.setIsCanvasTabMode
   )
-  // Derived booleans instead of the currentScene object: setCurrentScene runs
-  // synchronously inside the navigation tap, and an object-identity
-  // subscription here reconciled the whole Canvas subtree in that interaction.
   const isBasketball = useNavigationStore(
     (state) => state.currentScene?.name === "basketball"
   )
