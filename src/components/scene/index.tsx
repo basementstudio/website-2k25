@@ -205,11 +205,8 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Sparkles />
                   </Suspense>
-                  {/* One world for the whole scene. It is never unmounted:
-                      tearing a world down in the same commit that removes its
-                      bodies throws "recursive use of an object detected" out of
-                      rapier's wasm, and two worlds sharing one wasm module made
-                      that reachable on every blog/basketball transition. */}
+                  {/* Never unmount: tearing a world down while its bodies are
+                      being removed throws out of rapier's wasm. */}
                   <Suspense fallback={null}>
                     <PhysicsWorld paused={!isBasketball && !isBlog}>
                       <Lamp />

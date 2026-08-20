@@ -240,7 +240,6 @@ export const Map = memo(() => {
       {/*Blog */}
       <BlogDoor />
       <LockedDoor />
-      {/* <Lamp /> lives in the shared physics world in <Scene /> */}
 
       {/*Services */}
       <Weather />
