@@ -96,6 +96,7 @@ export async function fetchCareerPositionMeta(
   return sanityFetchCached<{ title: string } | null>({
     query,
     params: { slug },
-    perspective: "published"
+    perspective: "published",
+    boundEmptyResult: true
   })
 }

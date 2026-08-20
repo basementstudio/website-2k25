@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache"
+
 import { sanityFetch, sanityFetchCached } from "@/service/sanity"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
@@ -11,6 +13,7 @@ export interface CompanyInfo {
 
 export async function fetchCurrentYear(): Promise<number> {
   "use cache"
+  cacheLife("days")
   return new Date().getFullYear()
 }
 

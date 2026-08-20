@@ -165,7 +165,8 @@ export async function fetchProjectMeta(
   } | null>({
     query: projectMetaQuery,
     params: { slug },
-    perspective: "published"
+    perspective: "published",
+    boundEmptyResult: true
   })
 }
 

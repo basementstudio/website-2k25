@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache"
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
@@ -39,7 +40,9 @@ export const generateMetadata = async ({ params }: CareerPostProps) => {
 
 async function getPosition(slug: string) {
   "use cache"
-  return fetchCareerPosition(slug)
+  const position = await fetchCareerPosition(slug)
+  if (!position) cacheLife("hours")
+  return position
 }
 
 export default async function CareerPost({ params }: CareerPostProps) {
