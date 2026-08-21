@@ -210,9 +210,11 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <PhysicsWorld paused={!isBasketball && !isBlog}>
                       <Lamp />
-                      <ErrorBoundary>
-                        <HoopMinigame />
-                      </ErrorBoundary>
+                      {isBasketball && (
+                        <ErrorBoundary>
+                          <HoopMinigame />
+                        </ErrorBoundary>
+                      )}
                     </PhysicsWorld>
                   </Suspense>
                   <Suspense fallback={null}>
