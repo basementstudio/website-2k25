@@ -19,6 +19,9 @@ import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
+// The rope was tuned at gravity -24; the shared world runs at rapier's default.
+const LAMP_GRAVITY_SCALE = 24 / 9.81
+
 const colorWhenOn = new THREE.Color("#f2f2f2")
 const colorWhenOff = new THREE.Color("#595959")
 const colorWhenInspecting = new THREE.Color("#000000")
@@ -253,6 +256,7 @@ export const Lamp = memo(function LampInner() {
           position={[0, -0.02, 0]}
           angularDamping={100}
           linearDamping={2}
+          gravityScale={LAMP_GRAVITY_SCALE}
         >
           <BallCollider args={[0.01]} />
         </RigidBody>
@@ -262,6 +266,7 @@ export const Lamp = memo(function LampInner() {
           position={[0, -0.04, 0]}
           angularDamping={100}
           linearDamping={2}
+          gravityScale={LAMP_GRAVITY_SCALE}
         >
           <BallCollider args={[0.01]} />
         </RigidBody>
@@ -271,6 +276,7 @@ export const Lamp = memo(function LampInner() {
           position={[0, -0.06, 0]}
           angularDamping={100}
           linearDamping={2}
+          gravityScale={LAMP_GRAVITY_SCALE}
           type={dragged ? "kinematicPosition" : "dynamic"}
         >
           <BallCollider args={[0.01]} />

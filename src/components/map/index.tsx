@@ -1,7 +1,6 @@
 "use client"
 
-import dynamic from "next/dynamic"
-import { memo, Suspense, useEffect, useMemo, useRef } from "react"
+import { memo, useEffect, useMemo, useRef } from "react"
 import { Mesh, MeshStandardMaterial, Object3D } from "three"
 import * as THREE from "three"
 
@@ -13,7 +12,6 @@ import { BlogDoor } from "@/components/blog-door"
 import { ChristmasTree } from "@/components/christmas-tree"
 import { Clock } from "@/components/clock"
 import { Godrays } from "@/components/godrays"
-import { Lamp } from "@/components/lamp"
 import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { OutdoorCars } from "@/components/outdoor-cars"
@@ -21,7 +19,6 @@ import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
 import { SpeakerHover } from "@/components/speaker-hover"
 import { Weather } from "@/components/weather"
-import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
@@ -31,29 +28,6 @@ import { createNotFoundMaterial } from "@/shaders/material-not-found"
 import { extractMeshes } from "./extract-meshes"
 import { useFrameLoop } from "./use-frame-loop"
 import { useLoader } from "./use-loader"
-
-const PhysicsWorld = dynamic(
-  () =>
-    import("@react-three/rapier").then((mod) => {
-      const { Physics } = mod
-      return function PhysicsWrapper({
-        children,
-        paused,
-        gravity
-      }: {
-        children: React.ReactNode
-        paused: boolean
-        gravity: [number, number, number]
-      }) {
-        return (
-          <Physics paused={paused} gravity={gravity}>
-            {children}
-          </Physics>
-        )
-      }
-    }),
-  { ssr: false }
-)
 
 export const Map = memo(() => {
   const { inspectables, videos, matcaps, glassMaterials, doubleSideElements } =
@@ -71,7 +45,6 @@ export const Map = memo(() => {
 
   useFrameLoop()
 
-  const scene = useCurrentScene()
   const tabs = useNavigationStore((state) => state.currentScene?.tabs)
 
   const routingMeshes = useMemo(() => {
@@ -267,13 +240,6 @@ export const Map = memo(() => {
       {/*Blog */}
       <BlogDoor />
       <LockedDoor />
-      <Suspense fallback={null}>
-        <PhysicsWorld gravity={[0, -24, 0]} paused={scene !== "blog"}>
-          {/* TODO: shut down physics after x seconds of not being in blog scene */}
-          {/* TODO: basketball should use the same physics world */}
-          <Lamp />
-        </PhysicsWorld>
-      </Suspense>
 
       {/*Services */}
       <Weather />

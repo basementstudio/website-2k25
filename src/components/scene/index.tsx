@@ -12,6 +12,7 @@ import { CharactersSpawn } from "@/components/characters/characters-spawn"
 import { UpdateCanvasCursor } from "@/components/custom-cursor"
 import { Debug } from "@/components/debug"
 import { Inspectables } from "@/components/inspectables/inspectables"
+import { Lamp } from "@/components/lamp"
 import { Map } from "@/components/map"
 import { BakesLoader } from "@/components/map/bakes"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
@@ -59,6 +60,9 @@ export const Scene = () => {
   )
   const isBasketball = useNavigationStore(
     (state) => state.currentScene?.name === "basketball"
+  )
+  const isBlog = useNavigationStore(
+    (state) => state.currentScene?.name === "blog"
   )
   const isFullHeightScene = useNavigationStore((state) => {
     const name = state.currentScene?.name
@@ -201,13 +205,18 @@ export const Scene = () => {
                   <Suspense fallback={null}>
                     <Sparkles />
                   </Suspense>
-                  {isBasketball && (
-                    <PhysicsWorld paused={!isBasketball}>
-                      <ErrorBoundary>
-                        <HoopMinigame />
-                      </ErrorBoundary>
+                  {/* Never unmount: tearing a world down while its bodies are
+                      being removed throws out of rapier's wasm. */}
+                  <Suspense fallback={null}>
+                    <PhysicsWorld paused={!isBasketball && !isBlog}>
+                      <Lamp />
+                      {isBasketball && (
+                        <ErrorBoundary>
+                          <HoopMinigame />
+                        </ErrorBoundary>
+                      )}
                     </PhysicsWorld>
-                  )}
+                  </Suspense>
                   <Suspense fallback={null}>
                     <CharacterInstanceConfig />
                     <CharactersSpawn />
