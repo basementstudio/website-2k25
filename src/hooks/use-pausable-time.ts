@@ -24,6 +24,8 @@ export const useFrameCallback = (
   const lastTime = useRef(0)
 
   useFrame((state, rawDelta) => {
+    if (state.gl.getContext().isContextLost()) return
+
     const elapsed = state.clock.getElapsedTime()
     const { isContactOpen } = useContactStore.getState()
 
