@@ -8,6 +8,7 @@ import { useMotionValue, useSpring } from "motion/react"
 import * as React from "react"
 import { type Group, MathUtils } from "three"
 
+import { useRubiksStore } from "@/components/rubiks-cube/cube-store"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
@@ -93,6 +94,9 @@ export const InspectableDragger = ({
         delta: [x, y],
         memo: [oldY, oldX] = [rotationY.get(), rotationX.get()]
       }) => {
+        // A drag that started on a Rubik's cubelet turns a layer instead of
+        // orbiting the inspectable.
+        if (useRubiksStore.getState().isCubeDragging) return [oldY, oldX]
         if (!enabled) return [y, x]
         if (cursor) setCursor(down ? "grabbing" : "grab")
 
