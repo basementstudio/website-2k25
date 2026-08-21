@@ -37,3 +37,9 @@ The studio works with both startups and established companies, worldwide.
   posts, showcase projects, and open positions) or request it with
   `Accept: text/markdown`. Content index: https://basement.studio/sitemap.md
 - Sitemap: https://basement.studio/sitemap.xml
+- OpenAPI spec: https://basement.studio/openapi.json — machine-readable
+  description of the public API (content mirrors + scores API).
+- MCP server: https://basement.studio/.well-known/mcp — live Model Context
+  Protocol server (Streamable HTTP, no auth) with tools to list, search, and
+  read site content. Discovery card: https://basement.studio/.well-known/mcp.json.
+  Alias: https://basement.studio/mcp.

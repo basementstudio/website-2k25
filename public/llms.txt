@@ -33,6 +33,11 @@ via `Accept: text/markdown`). Full index: https://basement.studio/sitemap.md
 - https://basement.studio/faq.md
 - https://basement.studio/contact.md
 
+## Developer & agent resources
+
+- [OpenAPI description](https://basement.studio/openapi.json): Machine-readable spec of the public API (content mirrors + scores API).
+- [MCP server](https://basement.studio/.well-known/mcp): Live Model Context Protocol server (Streamable HTTP, no auth) exposing site content as tools; discovery card at https://basement.studio/.well-known/mcp.json, alias at https://basement.studio/mcp.
+
 ## Contact
 
 - General & project inquiries: hello@basement.studio

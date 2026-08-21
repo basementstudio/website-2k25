@@ -1,6 +1,7 @@
 import { isbot } from "isbot"
 import { type NextRequest, NextResponse, userAgent } from "next/server"
 
+import { SITE_URL } from "@/lib/constants"
 import { markdownRoutes } from "@/service/sanity/markdown-proxy.config"
 
 /**
@@ -9,9 +10,15 @@ import { markdownRoutes } from "@/service/sanity/markdown-proxy.config"
  *   1. `/post/<slug>.md`                      → rewrite to the markdown route
  *   2. `/post/<slug>` + `Accept: text/markdown` → rewrite (content negotiation)
  *   3. `/post/<slug>` (HTML)                  → advertise the `.md` alternate
+ *   4. Unknown path + non-HTML client        → markdown 404 with recovery links
  *
  * Routes are declared in `markdown-proxy.config.ts`. The matcher below must be
  * kept in sync with that registry (Next requires a static matcher literal).
+ *
+ * Step 4 exists because the prerendered `[...notFound]` artifact is an empty
+ * client shell (a request-time `notFound()` would lock the status at 200), so
+ * the recovery body for agents has to come from here — the only place that
+ * runs before the response streams.
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -65,7 +72,82 @@ export function proxy(request: NextRequest) {
     return response
   }
 
-  return NextResponse.next()
+  return handleUnknownPath(request, accept)
+}
+
+/**
+ * Real routes that live outside the markdown registry. A path reaching
+ * `handleUnknownPath` that isn't listed here (and has no file extension) is
+ * genuinely unknown. Add a line when adding a top-level route.
+ */
+const PASS_PREFIXES = [
+  "/ai",
+  "/studio",
+  "/mcp",
+  "/.well-known",
+  "/api",
+  "/blog",
+  "/basketball",
+  "/doom",
+  "/404",
+  "/_next",
+  "/_vercel"
+]
+
+const PASS_EXACT = new Set([
+  "/sitemap.md",
+  "/agents.md",
+  "/llms.txt",
+  "/openapi.json"
+])
+
+const NOT_FOUND_BODY = [
+  "# 404 — Page not found",
+  "",
+  `Nothing exists at this path on basement.studio. Useful entry points:`,
+  "",
+  `- Content index of every page, post, and project: ${SITE_URL}/sitemap.md`,
+  `- Curated link map: ${SITE_URL}/llms.txt`,
+  `- Homepage (markdown): ${SITE_URL}/index.md`,
+  `- Machine view (plain HTML): ${SITE_URL}/ai`,
+  `- API description: ${SITE_URL}/openapi.json`,
+  ""
+].join("\n")
+
+function handleUnknownPath(request: NextRequest, accept: string) {
+  const { pathname } = request.nextUrl
+
+  if (PASS_EXACT.has(pathname)) return NextResponse.next()
+  if (
+    PASS_PREFIXES.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    )
+  ) {
+    return NextResponse.next()
+  }
+
+  // Static/public files (any non-.md extension) are not ours to 404.
+  if (/\.[a-z0-9]+$/i.test(pathname) && !pathname.endsWith(".md")) {
+    return NextResponse.next()
+  }
+
+  // Browsers and the client-side router keep the app's own 404 (the
+  // prerendered shell already carries the real 404 status).
+  const isRouterFetch =
+    request.headers.get("rsc") === "1" || accept.includes("text/x-component")
+  if (accept.includes("text/html") || isRouterFetch) {
+    return NextResponse.next()
+  }
+
+  return new NextResponse(NOT_FOUND_BODY, {
+    status: 404,
+    headers: {
+      "Content-Type": "text/markdown; charset=utf-8",
+      Vary: "Accept",
+      "X-Content-Type-Options": "nosniff",
+      "Cache-Control": "no-store"
+    }
+  })
 }
 
 function rewriteToApi(
@@ -101,6 +183,9 @@ export const config = {
     "/contact.md",
     // /lab also runs the mobile user-agent redirect (see top of proxy()).
     "/lab",
-    "/lab.md"
+    "/lab.md",
+    // Everything else, so unknown paths get the markdown 404 (step 4). The
+    // exclusions are cost-only — handleUnknownPath re-checks real routes.
+    "/((?!_next/|_vercel/|api/|studio/|images/|fonts/|3d/|emulators/|dos-programs/|basis-transcoder/|readme/|favicon\\.ico).*)"
   ]
 }

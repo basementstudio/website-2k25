@@ -71,6 +71,8 @@ export async function GET() {
       `- [llms.txt](${SITE_URL}/llms.txt) — curated link map for LLMs`,
       `- [agents.md](${SITE_URL}/agents.md) — notes for AI agents and crawlers`,
       `- [XML sitemap](${SITE_URL}/sitemap.xml)`,
+      `- [OpenAPI spec](${SITE_URL}/openapi.json) — machine-readable description of the public API`,
+      `- [MCP server](${SITE_URL}/.well-known/mcp) — live MCP server (Streamable HTTP) exposing site content as tools`,
       `- [Basketball](${SITE_URL}/basketball) — interactive experience, HTML only`,
       `- [Doom](${SITE_URL}/doom) — interactive experience, HTML only`,
       ""
