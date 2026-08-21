@@ -78,9 +78,21 @@ async function DraftModeTools() {
   )
 }
 
+// Parser-blocking on purpose (a next/script beforeInteractive lands after the
+// streamed HTML starts): the (canvas) group reserves --canvas-offset of viewport,
+// so the WebGL2 decision must exist before first paint or dropping the reserve
+// registers as ~0.8 CLS on mobile. Mirrors src/lib/webgl.ts, which can't be
+// imported into an inline script.
+const canvasAvailabilityScript = `(function(){try{var gl=document.createElement("canvas").getContext("webgl2");if(!gl){document.documentElement.dataset.canvasUnavailable="true";return}var e=gl.getExtension("WEBGL_lose_context");e&&e.loseContext()}catch(_){document.documentElement.dataset.canvasUnavailable="true"}})()`
+
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: canvasAvailabilityScript }}
+        />
+      </head>
       <body
         className={cn(
           geistSans.variable,
