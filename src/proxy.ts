@@ -14,11 +14,6 @@ import { markdownRoutes } from "@/service/sanity/markdown-proxy.config"
  *
  * Routes are declared in `markdown-proxy.config.ts`. The matcher below must be
  * kept in sync with that registry (Next requires a static matcher literal).
- *
- * Step 4 exists because the prerendered `[...notFound]` artifact is an empty
- * client shell (a request-time `notFound()` would lock the status at 200), so
- * the recovery body for agents has to come from here — the only place that
- * runs before the response streams.
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -75,11 +70,8 @@ export function proxy(request: NextRequest) {
   return handleUnknownPath(request, accept)
 }
 
-/**
- * Real routes that live outside the markdown registry. A path reaching
- * `handleUnknownPath` that isn't listed here (and has no file extension) is
- * genuinely unknown. Add a line when adding a top-level route.
- */
+// Real routes outside the markdown registry — add a line when adding a
+// top-level route, or its non-HTML traffic gets the 404 below.
 const PASS_PREFIXES = [
   "/ai",
   "/studio",
@@ -126,13 +118,10 @@ function handleUnknownPath(request: NextRequest, accept: string) {
     return NextResponse.next()
   }
 
-  // Static/public files (any non-.md extension) are not ours to 404.
   if (/\.[a-z0-9]+$/i.test(pathname) && !pathname.endsWith(".md")) {
     return NextResponse.next()
   }
 
-  // Browsers and the client-side router keep the app's own 404 (the
-  // prerendered shell already carries the real 404 status).
   const isRouterFetch =
     request.headers.get("rsc") === "1" || accept.includes("text/x-component")
   if (accept.includes("text/html") || isRouterFetch) {
@@ -184,8 +173,8 @@ export const config = {
     // /lab also runs the mobile user-agent redirect (see top of proxy()).
     "/lab",
     "/lab.md",
-    // Everything else, so unknown paths get the markdown 404 (step 4). The
-    // exclusions are cost-only — handleUnknownPath re-checks real routes.
+    // Everything else (step 4). The exclusions are cost-only —
+    // handleUnknownPath re-checks real routes.
     "/((?!_next/|_vercel/|api/|studio/|images/|fonts/|3d/|emulators/|dos-programs/|basis-transcoder/|readme/|favicon\\.ico).*)"
   ]
 }

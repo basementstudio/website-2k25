@@ -1,8 +1,7 @@
 import { SITE_URL } from "@/lib/constants"
 
-// Note: intentionally untyped — openapi-types' V3_1 definitions reject valid
-// 3.1 documents (V3/V3_1 intersection bug). Validity is asserted with a
-// runtime validator instead (see the verification steps in the PR).
+// Untyped on purpose: openapi-types' V3_1 definitions reject valid 3.1
+// documents (V3/V3_1 intersection bug).
 const MARKDOWN_RESPONSE = {
   description: "Markdown document",
   content: {
@@ -32,12 +31,8 @@ const slugParameter = (kind: string) => ({
   schema: { type: "string" }
 })
 
-/**
- * Machine-readable description of every public endpoint basement.studio
- * serves. Only real surface belongs here — the content mirrors registered in
- * `src/service/sanity/markdown-proxy.config.ts` plus the basketball scores
- * API. Served at /openapi.json by `src/app/openapi.json/route.ts`.
- */
+// Only real surface belongs here: the content mirrors registered in
+// markdown-proxy.config.ts plus the basketball scores API.
 export const openApiDocument = {
   openapi: "3.1.0",
   info: {

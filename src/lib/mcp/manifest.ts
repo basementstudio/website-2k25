@@ -26,12 +26,8 @@ export const MCP_TOOL_SUMMARIES = [
   }
 ] as const
 
-/**
- * Discovery "server card" served at /.well-known/mcp (GET) and
- * /.well-known/mcp.json. MCP discovery is still a draft (SEP-1649/SEP-1960),
- * so the card carries the fields both proposals agree on: identity, endpoint,
- * transport, auth, and the tool list.
- */
+// MCP discovery is still a draft (SEP-1649/SEP-1960); the card carries the
+// fields both proposals agree on.
 export const mcpServerCard = {
   name: MCP_SERVER_NAME,
   version: MCP_SERVER_VERSION,

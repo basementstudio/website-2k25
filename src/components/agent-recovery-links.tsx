@@ -1,10 +1,5 @@
 import { SITE_URL } from "@/lib/constants"
 
-/**
- * Recovery links for the 404 responses. Rendered server-side so agents and
- * crawlers (which never hydrate the WebGL 404 scene) get a usable body with
- * pointers to the machine-readable surfaces instead of an empty shell.
- */
 export function AgentRecoveryLinks({ className }: { className?: string }) {
   return (
     <section className={className}>

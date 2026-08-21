@@ -2,12 +2,6 @@ import { NextResponse } from "next/server"
 
 import { SITE_URL } from "@/lib/constants"
 
-/**
- * Structured JSON 404 for unmatched /api/* paths — agents get parseable
- * structure instead of the HTML app shell. Literal and dynamic routes (the
- * .md mirrors, /api/scores, /api/draft-mode/*) always win over this optional
- * catch-all, including ones added later.
- */
 const notFound = () =>
   NextResponse.json(
     {

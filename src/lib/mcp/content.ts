@@ -6,7 +6,6 @@ import { SITE_URL } from "@/lib/constants"
 export interface ContentIndexEntry {
   title: string
   type: "page" | "post" | "project" | "position"
-  /** Markdown mirror path, e.g. `/post/<slug>.md` — valid input for `get_page`. */
   mdPath: string
   url: string
 }
@@ -23,7 +22,6 @@ const STATIC_PAGES: Array<{ title: string; mdPath: string }> = [
   { title: "Contact", mdPath: "/contact.md" }
 ]
 
-/** Same data the /sitemap.md route serves, as structured entries. */
 export async function fetchContentIndex(): Promise<ContentIndexEntry[]> {
   const [posts, projects, positions] = await Promise.all([
     fetchAllPostsForIndex(),
