@@ -17,6 +17,13 @@ Sentry.init({
   // thirdPartyErrorFilterIntegration is better, but its applicationKey loader
   // breaks Turbopack worker modules.
   denyUrls: [/^(?:chrome|moz|ms-browser|safari(?:-web)?)-extension:\/\//],
+  // Chrome reports a worker's failed importScripts to window.onerror even when
+  // the Worker error event is canceled, so preventDefault() can't dedupe it.
+  // Pinned to Turbopack chunks: the canvas workers refile these under a stable
+  // title, the js-dos emulator worker has no such replacement.
+  ignoreErrors: [
+    /Failed to execute 'importScripts' on 'WorkerGlobalScope'.*\/_next\/static\//
+  ],
   // BrowserApiErrors wraps requestAnimationFrame by default — a per-frame cost
   // on the R3F loop.
   integrations: (defaults) => [

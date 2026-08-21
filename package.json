@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm basis:sync && next build",
+    "build": "pnpm assets:verify && pnpm basis:sync && next build",
     "prettier": "prettier --write .",
     "start": "next start",
     "lint": "eslint src sanity next.config.ts sanity.config.ts sanity.cli.ts --ext .js,.jsx,.ts,.tsx",
