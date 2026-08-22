@@ -1,6 +1,6 @@
 "use client"
 
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, domMax, LazyMotion, m } from "motion/react"
 import { usePathname } from "next/navigation"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { mergeRefs } from "react-merge-refs"
@@ -42,7 +42,7 @@ const ContextMenu = memo(({ x, y, onClose, onCopy }: ContextMenuProps) => {
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
@@ -55,7 +55,7 @@ const ContextMenu = memo(({ x, y, onClose, onCopy }: ContextMenuProps) => {
       >
         <AnimatePresence mode="wait">
           {copied ? (
-            <motion.span
+            <m.span
               key="copied"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -64,9 +64,9 @@ const ContextMenu = memo(({ x, y, onClose, onCopy }: ContextMenuProps) => {
               className="text-brand-w1"
             >
               Copied!
-            </motion.span>
+            </m.span>
           ) : (
-            <motion.span
+            <m.span
               key="copy"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -75,11 +75,11 @@ const ContextMenu = memo(({ x, y, onClose, onCopy }: ContextMenuProps) => {
               className="group-hover:text-brand-o"
             >
               Copy logo as SVG
-            </motion.span>
+            </m.span>
           )}
         </AnimatePresence>
       </button>
-    </motion.div>
+    </m.div>
   )
 })
 ContextMenu.displayName = "ContextMenu"
@@ -297,7 +297,7 @@ const MobileContent = memo(
 
       return (
         <Portal id="mobile-menu">
-          <motion.div
+          <m.div
             ref={mergeRefs([mobileMenuRef, focusTrapRef])}
             className={cn(
               "grid-layout fixed left-0 top-[35px] z-navbar h-[calc(100dvh-35px)] w-full origin-top grid-rows-2 bg-brand-k py-6"
@@ -315,7 +315,7 @@ const MobileContent = memo(
               animated={true}
             />
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { delay: 0.4 } }}
               exit={{ opacity: 0 }}
@@ -326,8 +326,8 @@ const MobileContent = memo(
                 <SocialLinks links={socialLinks} />
                 <Copyright year={year} />
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         </Portal>
       )
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -344,7 +344,7 @@ const MobileContent = memo(
     const Label = useMemo(() => {
       return function Label({ children }: { children: React.ReactNode }) {
         return (
-          <motion.p
+          <m.p
             id="menu-button"
             key={isOpen ? "close" : "menu"}
             className="w-[2.4rem] origin-bottom text-center text-f-p-mobile text-brand-w1"
@@ -354,7 +354,7 @@ const MobileContent = memo(
             transition={{ duration: 0.9, type: "spring", bounce: 0 }}
           >
             {children}
-          </motion.p>
+          </m.p>
         )
       }
     }, [isOpen])
@@ -369,40 +369,42 @@ const MobileContent = memo(
       }
     }
     return (
-      <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
-        <MusicToggle />
+      <LazyMotion features={domMax}>
+        <div className="col-start-3 col-end-5 flex items-center justify-end gap-5 lg:hidden">
+          <MusicToggle />
 
-        <button
-          onClick={handleMenuClick}
-          className="flex items-center"
-          aria-label={isOpen ? "Close menu" : "Open menu"}
-        >
-          <AnimatePresence mode="popLayout" initial={false}>
-            {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
-          </AnimatePresence>
-
-          <span
-            className="relative flex w-5 flex-col items-center justify-center gap-1 overflow-visible pl-1"
-            ref={menuHandlerRef}
-            aria-labelledby="menu-button"
+          <button
+            onClick={handleMenuClick}
+            className="flex items-center"
+            aria-label={isOpen ? "Close menu" : "Open menu"}
           >
-            <span
-              className={cn(
-                "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
-                { "w-10/12 translate-y-[3px] rotate-[45deg]": isOpen }
-              )}
-            />
-            <span
-              className={cn(
-                "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
-                { "w-10/12 -translate-y-[2.5px] -rotate-[45deg]": isOpen }
-              )}
-            />
-          </span>
-        </button>
+            <AnimatePresence mode="popLayout" initial={false}>
+              {isOpen ? <Label>Close</Label> : <Label>Menu</Label>}
+            </AnimatePresence>
 
-        <AnimatePresence>{memoizedMenu}</AnimatePresence>
-      </div>
+            <span
+              className="relative flex w-5 flex-col items-center justify-center gap-1 overflow-visible pl-1"
+              ref={menuHandlerRef}
+              aria-labelledby="menu-button"
+            >
+              <span
+                className={cn(
+                  "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
+                  { "w-10/12 translate-y-[3px] rotate-[45deg]": isOpen }
+                )}
+              />
+              <span
+                className={cn(
+                  "h-[1.5px] w-full origin-center transform bg-brand-w1 transition-[transform,width] duration-300 ease-in-out",
+                  { "w-10/12 -translate-y-[2.5px] -rotate-[45deg]": isOpen }
+                )}
+              />
+            </span>
+          </button>
+
+          <AnimatePresence>{memoizedMenu}</AnimatePresence>
+        </div>
+      </LazyMotion>
     )
   }
 )

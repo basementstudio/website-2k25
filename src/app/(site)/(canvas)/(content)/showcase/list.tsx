@@ -1,5 +1,5 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useState } from "react"
@@ -149,7 +149,7 @@ const AccordionListItem = memo(
                 )
 
                 return (
-                  <motion.div
+                  <m.div
                     key={imgIndex}
                     initial={{ opacity: 0 }}
                     whileInView={{
@@ -174,7 +174,7 @@ const AccordionListItem = memo(
                     className="relative col-span-2 aspect-video"
                   >
                     {elementToRender}
-                  </motion.div>
+                  </m.div>
                 )
               })}
             </Link>

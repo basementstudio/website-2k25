@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "motion/react"
+import { m } from "motion/react"
 import { usePathname } from "next/navigation"
 
 import { Link } from "@/components/primitives/link"
@@ -56,7 +56,7 @@ export const InternalLinks = ({
       )}
     >
       {filteredLinks.map((link, idx) => (
-        <motion.li
+        <m.li
           key={`${link.title}-${idx}`}
           {...animateProps}
           animate={{
@@ -90,10 +90,10 @@ export const InternalLinks = ({
               </sup>
             )}
           </Link>
-        </motion.li>
+        </m.li>
       ))}
 
-      <motion.li
+      <m.li
         {...animateProps}
         animate={{
           ...animateProps.animate,
@@ -123,7 +123,7 @@ export const InternalLinks = ({
         >
           <span className="actionable">Contact Us</span>
         </button>
-      </motion.li>
+      </m.li>
     </ul>
   )
 }
