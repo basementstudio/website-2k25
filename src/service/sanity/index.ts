@@ -60,8 +60,9 @@ export async function sanityFetchCached<T>(opts: {
 
 /**
  * Non-Live fetch for contexts outside a `"use cache"` scope (`generateStaticParams`,
- * `generateMetadata`): the Live `sanityFetch`'s `cacheTag()` is illegal there.
- * Always reads published, stega-free data.
+ * server actions). The bare Live `sanityFetch` needs an enclosing `"use cache"` scope
+ * for its `cacheTag()`; `sanityFetchCached` opens its own and is legal from route
+ * handlers and `generateMetadata`. Always reads published, stega-free data.
  */
 export async function sanityFetchStatic<T>({
   query,

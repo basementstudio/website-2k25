@@ -1,12 +1,9 @@
 import * as Sentry from "@sentry/nextjs"
 import { NextResponse } from "next/server"
 
-import {
-  fetchPostBySlug,
-  fetchRelatedPostsForMarkdown
-} from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
-import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
+
+import { buildPostMarkdown } from "./markdown"
 
 const MD_HEADERS = {
   "Content-Type": "text/markdown; charset=utf-8",
@@ -26,58 +23,9 @@ export async function GET(
   const slug = rawSlug.slice(0, -3)
 
   try {
-    const post = await fetchPostBySlug(slug, { published: true })
-    if (!post) {
-      return new NextResponse("# 404 Not Found\n", {
-        status: 404,
-        headers: MD_HEADERS
-      })
-    }
-
-    const relatedPosts = await fetchRelatedPostsForMarkdown(
-      slug,
-      post.categories?.map((c) => c.title) ?? []
-    )
-
-    const parts: Array<string | null> = [
-      `# ${post.title}`,
-      "",
-      post.authors?.length
-        ? `**Author:** ${post.authors.map((a) => a.title).join(", ")}`
-        : null,
-      post.date
-        ? `**Published:** ${new Date(post.date).toLocaleDateString()}`
-        : null,
-      post.categories?.length
-        ? `**Categories:** ${post.categories.map((c) => c.title).join(", ")}`
-        : null,
-      "",
-      "---",
-      "",
-      portableTextToMarkdown(post.intro, { baseUrl: SITE_URL }),
-      "",
-      portableTextToMarkdown(post.content, { baseUrl: SITE_URL }),
-      "",
-      relatedPosts.length ? "## Related Posts" : null,
-      relatedPosts.length ? "" : null,
-      relatedPosts.length
-        ? relatedPosts
-            .map((related) => {
-              const link = `[${related.title}](${SITE_URL}/post/${related.slug}.md)`
-              const date = related.date ? related.date.split("T")[0] : null
-              return date ? `- ${link} — ${date}` : `- ${link}`
-            })
-            .join("\n")
-        : null,
-      relatedPosts.length ? "" : null,
-      "---",
-      "",
-      `[View all content](${SITE_URL}/sitemap.md)`
-    ]
-
-    const markdown = parts.filter((part) => part !== null).join("\n")
-
+    const { markdown, status } = await buildPostMarkdown(slug)
     return new NextResponse(markdown, {
+      status,
       headers: {
         ...MD_HEADERS,
         Link: `<${SITE_URL}/post/${slug}>; rel="canonical"`

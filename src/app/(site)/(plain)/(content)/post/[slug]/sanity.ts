@@ -42,7 +42,7 @@ export interface RelatedPost {
 
 export async function fetchPostBySlug(
   slug: string,
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  /** Pass `published: true` inside a `"use cache"` scope (e.g. the `.md` build) — pins published perspective so stega stays off and no dynamic APIs are touched. */
   options?: { published?: boolean }
 ): Promise<PostDetail | null> {
   const query = /* groq */ `*[_type == "post" && slug.current == $slug][0]{
@@ -85,9 +85,10 @@ export async function fetchPostBySlug(
     heroVideo
   }`
   if (options?.published) {
-    return sanityFetchStatic<PostDetail | null>({
+    return sanityFetch<PostDetail | null>({
       query,
-      params: { slug }
+      params: { slug },
+      perspective: "published"
     })
   }
   return sanityFetch<PostDetail | null>({
@@ -152,9 +153,8 @@ export interface RelatedPostMarkdown {
 }
 
 /**
- * Same selection as fetchRelatedPosts, minus heroImage, via the non-Live
- * published client — the `.md` route isn't a `"use cache"` scope, so the Live
- * fetch would throw, and published perspective keeps stega out.
+ * Same selection as fetchRelatedPosts, minus heroImage. Published perspective
+ * keeps stega out. Call from a `"use cache"` scope (e.g. the `.md` build).
  */
 export async function fetchRelatedPostsForMarkdown(
   currentSlug: string,
@@ -173,9 +173,7 @@ export async function fetchRelatedPostsForMarkdown(
     date,
     categories[]->{ title, "slug": slug.current }
   }`
-  const posts = await sanityFetchStatic<Array<
-    Omit<RelatedPost, "heroImage">
-  > | null>({
+  const posts = await sanityFetch<Array<Omit<RelatedPost, "heroImage">>>({
     query,
     params: { slug: currentSlug, titles: currentCategoryTitles },
     perspective: "published"
