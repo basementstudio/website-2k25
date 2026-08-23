@@ -6,16 +6,14 @@ import {
   fetchTestimonial
 } from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { SITE_URL } from "@/lib/constants"
+import {
+  escapeLinkLabel,
+  type MarkdownResult,
+  NOT_FOUND_MARKDOWN
+} from "@/service/markdown/document"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
-// CMS strings land inside `[label](url)` syntax — escape the delimiters so a
-// bracketed label can't break the link.
-const escapeLinkLabel = (text: string) => text.replace(/[\\[\]]/g, "\\$&")
-
-export async function buildServicesMarkdown(): Promise<{
-  markdown: string
-  status: 200 | 404
-}> {
+export async function buildServicesMarkdown(): Promise<MarkdownResult> {
   "use cache"
   const [services, awards, testimonial] = await Promise.all([
     fetchServicesPage({ published: true }),
@@ -24,7 +22,7 @@ export async function buildServicesMarkdown(): Promise<{
   ])
   if (!services) {
     cacheLife("hours")
-    return { markdown: "# 404 Not Found\n", status: 404 }
+    return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
 
   const serviceCategories = services.serviceCategories?.length

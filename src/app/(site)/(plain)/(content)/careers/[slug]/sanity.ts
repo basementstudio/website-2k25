@@ -51,16 +51,10 @@ export async function fetchCareerPosition(
       skills[] { title, slug }
     }
   }`
-  if (options?.published) {
-    return sanityFetch<CareerPosition | null>({
-      query,
-      params: { slug },
-      perspective: "published"
-    })
-  }
   return sanityFetch<CareerPosition | null>({
     query,
-    params: { slug }
+    params: { slug },
+    ...(options?.published ? { perspective: "published" as const } : {})
   })
 }
 

@@ -3,17 +3,18 @@ import { cacheLife } from "next/cache"
 import { fetchHomepage } from "@/app/(site)/(canvas)/(content)/(home)/sanity"
 import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
 import { SITE_URL } from "@/lib/constants"
+import {
+  type MarkdownResult,
+  NOT_FOUND_MARKDOWN
+} from "@/service/markdown/document"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
-export async function buildIndexMarkdown(): Promise<{
-  markdown: string
-  status: 200 | 404
-}> {
+export async function buildIndexMarkdown(): Promise<MarkdownResult> {
   "use cache"
   const { homepage } = await fetchHomepage({ published: true })
   if (!homepage) {
     cacheLife("hours")
-    return { markdown: "# 404 Not Found\n", status: 404 }
+    return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
 
   const featuredWork = homepage.featuredProjects?.length

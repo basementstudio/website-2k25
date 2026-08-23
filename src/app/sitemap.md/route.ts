@@ -1,26 +1,15 @@
-import * as Sentry from "@sentry/nextjs"
-import { NextResponse } from "next/server"
+import {
+  markdownErrorResponse,
+  markdownResponse
+} from "@/service/markdown/response"
 
 import { buildSitemapMarkdown } from "./markdown"
 
-const MD_HEADERS = {
-  "Content-Type": "text/markdown; charset=utf-8",
-  Vary: "Accept",
-  "X-Content-Type-Options": "nosniff"
-} as const
-
 export async function GET() {
   try {
-    const { markdown } = await buildSitemapMarkdown()
-    return new NextResponse(markdown, {
-      headers: MD_HEADERS
-    })
+    // No canonical `Link` — the content index has no HTML twin.
+    return markdownResponse(await buildSitemapMarkdown())
   } catch (error) {
-    console.error("Error building markdown sitemap:", error)
-    Sentry.captureException(error)
-    return new NextResponse("# 500 Error\n\nFailed to build content index.", {
-      status: 500,
-      headers: MD_HEADERS
-    })
+    return markdownErrorResponse("sitemap", error)
   }
 }

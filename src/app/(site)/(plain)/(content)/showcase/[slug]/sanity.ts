@@ -117,16 +117,10 @@ export async function fetchProjectBySlug(
   /** Pass `published: true` inside a `"use cache"` scope (e.g. the `.md` build) — pins published perspective so stega stays off and no dynamic APIs are touched. */
   options?: { published?: boolean }
 ): Promise<ShowcaseProjectDetail | null> {
-  if (options?.published) {
-    return sanityFetch<ShowcaseProjectDetail | null>({
-      query: projectBySlugQuery,
-      params: { slug },
-      perspective: "published"
-    })
-  }
   return sanityFetch<ShowcaseProjectDetail | null>({
     query: projectBySlugQuery,
-    params: { slug }
+    params: { slug },
+    ...(options?.published ? { perspective: "published" as const } : {})
   })
 }
 

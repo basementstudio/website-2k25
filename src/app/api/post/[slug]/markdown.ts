@@ -5,16 +5,18 @@ import {
   fetchRelatedPostsForMarkdown
 } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
+import {
+  type MarkdownResult,
+  NOT_FOUND_MARKDOWN
+} from "@/service/markdown/document"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
-export async function buildPostMarkdown(
-  slug: string
-): Promise<{ markdown: string; status: 200 | 404 }> {
+export async function buildPostMarkdown(slug: string): Promise<MarkdownResult> {
   "use cache"
   const post = await fetchPostBySlug(slug, { published: true })
   if (!post) {
     cacheLife("hours")
-    return { markdown: "# 404 Not Found\n", status: 404 }
+    return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
 
   // Sequential, not Promise.all: related posts need `post.categories`.

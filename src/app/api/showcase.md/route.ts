@@ -1,31 +1,14 @@
-import * as Sentry from "@sentry/nextjs"
-import { NextResponse } from "next/server"
-
-import { SITE_URL } from "@/lib/constants"
+import {
+  markdownErrorResponse,
+  markdownResponse
+} from "@/service/markdown/response"
 
 import { buildShowcaseListMarkdown } from "./markdown"
 
-const MD_HEADERS = {
-  "Content-Type": "text/markdown; charset=utf-8",
-  Vary: "Accept",
-  "X-Content-Type-Options": "nosniff"
-} as const
-
 export async function GET() {
   try {
-    const { markdown } = await buildShowcaseListMarkdown()
-    return new NextResponse(markdown, {
-      headers: {
-        ...MD_HEADERS,
-        Link: `<${SITE_URL}/showcase>; rel="canonical"`
-      }
-    })
+    return markdownResponse(await buildShowcaseListMarkdown(), "/showcase")
   } catch (error) {
-    console.error("Error building showcase markdown:", error)
-    Sentry.captureException(error)
-    return new NextResponse("# 500 Error\n\nFailed to build markdown.", {
-      status: 500,
-      headers: MD_HEADERS
-    })
+    return markdownErrorResponse("showcase", error)
   }
 }

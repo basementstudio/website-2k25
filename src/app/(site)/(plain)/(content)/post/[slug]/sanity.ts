@@ -84,16 +84,10 @@ export async function fetchPostBySlug(
     heroImage ${imageFragment},
     heroVideo
   }`
-  if (options?.published) {
-    return sanityFetch<PostDetail | null>({
-      query,
-      params: { slug },
-      perspective: "published"
-    })
-  }
   return sanityFetch<PostDetail | null>({
     query,
-    params: { slug }
+    params: { slug },
+    ...(options?.published ? { perspective: "published" as const } : {})
   })
 }
 
@@ -173,11 +167,13 @@ export async function fetchRelatedPostsForMarkdown(
     date,
     categories[]->{ title, "slug": slug.current }
   }`
-  const posts = await sanityFetch<Array<Omit<RelatedPost, "heroImage">>>({
-    query,
-    params: { slug: currentSlug, titles: currentCategoryTitles },
-    perspective: "published"
-  })
+  const posts = await sanityFetch<Array<Omit<RelatedPost, "heroImage">> | null>(
+    {
+      query,
+      params: { slug: currentSlug, titles: currentCategoryTitles },
+      perspective: "published"
+    }
+  )
   if (!posts) return []
 
   return selectRelatedPosts({

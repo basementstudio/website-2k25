@@ -2,11 +2,9 @@ import { fetchAllOpenPositionsForIndex } from "@/app/(site)/(plain)/(content)/ca
 import { fetchAllPostsForIndex } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { fetchAllProjectsForIndex } from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
+import type { MarkdownResult } from "@/service/markdown/document"
 
-export async function buildSitemapMarkdown(): Promise<{
-  markdown: string
-  status: 200
-}> {
+export async function buildSitemapMarkdown(): Promise<MarkdownResult<200>> {
   "use cache"
   const [posts, projects, positions] = await Promise.all([
     fetchAllPostsForIndex(),

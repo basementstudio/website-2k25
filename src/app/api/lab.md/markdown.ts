@@ -1,18 +1,14 @@
-import { fetchLabProjectsPublished } from "@/actions/laboratory-fetch/sanity"
+import { fetchLabProjects } from "@/actions/laboratory-fetch/sanity"
 import { SITE_URL } from "@/lib/constants"
+import {
+  escapeLinkLabel,
+  escapeLinkUrl,
+  type MarkdownResult
+} from "@/service/markdown/document"
 
-// CMS strings land inside `[label](url)` syntax — escape the delimiters so a
-// bracketed label or a parenthesized URL can't break the link.
-const escapeLinkLabel = (text: string) => text.replace(/[\\[\]]/g, "\\$&")
-const escapeLinkUrl = (url: string) =>
-  url.replace(/\(/g, "%28").replace(/\)/g, "%29")
-
-export async function buildLabMarkdown(): Promise<{
-  markdown: string
-  status: 200
-}> {
+export async function buildLabMarkdown(): Promise<MarkdownResult<200>> {
   "use cache"
-  const projects = await fetchLabProjectsPublished()
+  const projects = await fetchLabProjects({ published: true })
 
   // `url` is the experiment's source path (e.g. "30.wireframe-reveal.js");
   // the live demo lives under lab.basement.studio (see arcade-labs-list.tsx).

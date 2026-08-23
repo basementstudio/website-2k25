@@ -2,20 +2,22 @@ import { cacheLife } from "next/cache"
 
 import { fetchCareerPosition } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
+import {
+  type MarkdownResult,
+  NOT_FOUND_MARKDOWN
+} from "@/service/markdown/document"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
 export async function buildCareerMarkdown(
   slug: string
-): Promise<{ markdown: string; status: 200 | 404 }> {
+): Promise<MarkdownResult> {
   "use cache"
   const position = await fetchCareerPosition(slug, { published: true })
-  // Closed positions 404 here too, mirroring the HTML page's `notFound()`.
-  if (!position) {
-    cacheLife("hours")
-    return { markdown: "# 404 Not Found\n", status: 404 }
-  }
-  if (!position.isOpen) {
-    return { markdown: "# 404 Not Found\n", status: 404 }
+  // A missing doc has no Sanity tag to invalidate its 404, so cap it; a closed
+  // one does. Both 404, mirroring the HTML page's `notFound()`.
+  if (!position) cacheLife("hours")
+  if (!position?.isOpen) {
+    return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
 
   const skills = position.applyFormSetup?.skills

@@ -5,11 +5,15 @@ import {
   fetchRelatedProjectsForMarkdown
 } from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
+import {
+  type MarkdownResult,
+  NOT_FOUND_MARKDOWN
+} from "@/service/markdown/document"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 
 export async function buildShowcaseMarkdown(
   slug: string
-): Promise<{ markdown: string; status: 200 | 404 }> {
+): Promise<MarkdownResult> {
   "use cache"
   const [project, relatedProjects] = await Promise.all([
     fetchProjectBySlug(slug, { published: true }),
@@ -17,7 +21,7 @@ export async function buildShowcaseMarkdown(
   ])
   if (!project) {
     cacheLife("hours")
-    return { markdown: "# 404 Not Found\n", status: 404 }
+    return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
 
   const clientLine = project.client

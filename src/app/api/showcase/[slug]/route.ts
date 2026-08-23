@@ -1,42 +1,26 @@
-import * as Sentry from "@sentry/nextjs"
-import { NextResponse } from "next/server"
-
-import { SITE_URL } from "@/lib/constants"
+import {
+  markdownErrorResponse,
+  markdownNotFoundResponse,
+  markdownResponse,
+  markdownSlug
+} from "@/service/markdown/response"
 
 import { buildShowcaseMarkdown } from "./markdown"
-
-const MD_HEADERS = {
-  "Content-Type": "text/markdown; charset=utf-8",
-  Vary: "Accept",
-  "X-Content-Type-Options": "nosniff"
-} as const
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug: rawSlug } = await params
-
-  // Only the `.md` form is served here; the proxy rewrites to this route.
-  if (!rawSlug.endsWith(".md"))
-    return new NextResponse(null, { status: 404, headers: MD_HEADERS })
-  const slug = rawSlug.slice(0, -3)
+  const slug = markdownSlug(rawSlug)
+  if (slug === null) return markdownNotFoundResponse()
 
   try {
-    const { markdown, status } = await buildShowcaseMarkdown(slug)
-    return new NextResponse(markdown, {
-      status,
-      headers: {
-        ...MD_HEADERS,
-        Link: `<${SITE_URL}/showcase/${slug}>; rel="canonical"`
-      }
-    })
+    return markdownResponse(
+      await buildShowcaseMarkdown(slug),
+      `/showcase/${slug}`
+    )
   } catch (error) {
-    console.error("Error building project markdown:", error)
-    Sentry.captureException(error)
-    return new NextResponse("# 500 Error\n\nFailed to build markdown.", {
-      status: 500,
-      headers: MD_HEADERS
-    })
+    return markdownErrorResponse("project", error)
   }
 }

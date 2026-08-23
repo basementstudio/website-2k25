@@ -23,18 +23,12 @@ const labProjectsQuery = /* groq */ `*[_type == "labProject"] {
   cover ${imageFragment}
 }`
 
-export async function fetchLabProjects(): Promise<LabProject[]> {
-  // Called from a server action (not a `"use cache"` scope), so use the non-Live
-  // fetch — the Live `sanityFetch`'s `cacheTag()` throws outside `use cache`.
-  return sanityFetchStatic<LabProject[]>({
-    query: labProjectsQuery,
-    perspective: "published"
-  })
-}
-
-/** For `/api/lab.md` — caller provides a `"use cache"` scope. */
-export async function fetchLabProjectsPublished(): Promise<LabProject[]> {
-  return sanityFetch<LabProject[]>({
+export async function fetchLabProjects(
+  /** Pass `published: true` inside a `"use cache"` scope (e.g. the `.md` build) — outside one the Live fetch's `cacheTag()` throws, so the default is the non-Live client the server action needs. */
+  options?: { published?: boolean }
+): Promise<LabProject[]> {
+  const fetch = options?.published ? sanityFetch : sanityFetchStatic
+  return fetch<LabProject[]>({
     query: labProjectsQuery,
     perspective: "published"
   })

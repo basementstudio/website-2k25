@@ -1,15 +1,14 @@
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
 import { SITE_URL } from "@/lib/constants"
+import {
+  escapeLinkLabel,
+  type MarkdownResult
+} from "@/service/markdown/document"
 import { truncateDescription } from "@/utils/seo"
 
-// CMS strings land inside `[label](url)` syntax — escape the delimiters so a
-// bracketed label can't break the link.
-const escapeLinkLabel = (text: string) => text.replace(/[\\[\]]/g, "\\$&")
-
-export async function buildShowcaseListMarkdown(): Promise<{
-  markdown: string
-  status: 200
-}> {
+export async function buildShowcaseListMarkdown(): Promise<
+  MarkdownResult<200>
+> {
   "use cache"
   const projects = await fetchShowcaseListForMarkdown()
 

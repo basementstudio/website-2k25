@@ -7,22 +7,19 @@ import {
   fetchValuesForMarkdown
 } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { SITE_URL } from "@/lib/constants"
+import {
+  escapeLinkLabel,
+  escapeLinkUrl,
+  type MarkdownResult,
+  NOT_FOUND_MARKDOWN
+} from "@/service/markdown/document"
 import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdown"
 import { displayPlatform } from "@/utils/social-platform"
 
 // Same department whitelist and order the HTML crew page renders (see crew.tsx)
 const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
 
-// CMS strings land inside `[label](url)` syntax — escape the delimiters so a
-// bracketed label or a parenthesized URL can't break the link.
-const escapeLinkLabel = (text: string) => text.replace(/[\\[\]]/g, "\\$&")
-const escapeLinkUrl = (url: string) =>
-  url.replace(/\(/g, "%28").replace(/\)/g, "%29")
-
-export async function buildPeopleMarkdown(): Promise<{
-  markdown: string
-  status: 200 | 404
-}> {
+export async function buildPeopleMarkdown(): Promise<MarkdownResult> {
   "use cache"
   const [page, people, positions, values] = await Promise.all([
     fetchPeoplePage({ published: true }),
@@ -33,7 +30,7 @@ export async function buildPeopleMarkdown(): Promise<{
 
   if (!page) {
     cacheLife("hours")
-    return { markdown: "# 404 Not Found\n", status: 404 }
+    return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
 
   const crew = people.filter(
