@@ -2,10 +2,10 @@ import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 
 import { useMedia } from "./use-media"
 
-// Single source of truth for whether the phone overlay can be used.
-// Both the contact button handler and the Contact mount gate must read
-// this same value so the viewport/health gates cannot drift apart.
-export const useCanUseContactPhone = () => {
+// The mount gate and the button handler both read this, so the viewport and
+// canvas-health gates cannot drift apart. They only differ in how they treat
+// boot: the handler waits it out, the mount gate stays closed until it lands.
+export const useContactPhoneAvailability = () => {
   const isDesktopWidth = useMedia("(min-width: 1024px)")
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
   const canvasUnavailable = useAppLoadingStore(
@@ -15,10 +15,8 @@ export const useCanUseContactPhone = () => {
     (state) => state.canvasBootTimedOut
   )
 
-  return (
-    !!isDesktopWidth &&
-    canRunMainApp &&
-    !canvasUnavailable &&
-    !canvasBootTimedOut
-  )
+  const isSupported =
+    !!isDesktopWidth && !canvasUnavailable && !canvasBootTimedOut
+
+  return { isSupported, canOpen: isSupported && canRunMainApp }
 }

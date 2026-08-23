@@ -113,7 +113,9 @@ export const InternalLinks = ({
         }}
       >
         <button
-          onPointerEnter={primeContact}
+          onPointerEnter={(e) => {
+            if (e.pointerType === "mouse") primeContact()
+          }}
           onFocus={primeContact}
           onClick={() => {
             onClick?.()

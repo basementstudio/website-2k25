@@ -2,47 +2,41 @@ import { create } from "zustand"
 
 import { ContactStore } from "./contact.interface"
 
-// If the worker never acknowledges an open (chunk 404, GL context refused,
-// offline), the button and Escape would otherwise latch: isAnimating stays
-// true forever, or a failed open leaves isContactOpen true with
-// introCompleted false so every close path early-returns behind a full-screen
-// overlay. Generous: a normal intro completes well within this.
-const WEDGE_GUARD_TIMEOUT = 10_000
+// If the scene never acknowledges an open (chunk 404, GL context refused,
+// offline), the button and Escape latch: isAnimating stays true forever, or a
+// failed open leaves isContactOpen true with introCompleted false so every
+// close path early-returns behind a full-screen overlay. Wall-clock rather
+// than lib/canvas-boot's visible-time budget, which is one-shot per page load
+// and so cannot be re-armed per open.
+const CONTACT_OPEN_TIMEOUT_MS = 10_000
 
-let wedgeGuardTimeoutId: ReturnType<typeof setTimeout> | null = null
+let openTimeoutId: ReturnType<typeof setTimeout> | null = null
 
-type SetState = (
-  partial:
-    | Partial<ContactStore>
-    | ((state: ContactStore) => Partial<ContactStore>)
-) => void
-
-const armWedgeGuard = (set: SetState) => {
-  if (wedgeGuardTimeoutId) clearTimeout(wedgeGuardTimeoutId)
-  wedgeGuardTimeoutId = setTimeout(() => {
-    wedgeGuardTimeoutId = null
-    set((state) => {
-      // The worker never became ready, so this open can never complete:
-      // roll it back entirely instead of just clearing isAnimating.
-      if (!state.workerReady && state.isContactOpen) {
-        return {
-          isAnimating: false,
-          isContactOpen: false,
-          introCompleted: false,
-          closingCompleted: true
-        }
-      }
-
-      return { isAnimating: false }
-    })
-  }, WEDGE_GUARD_TIMEOUT)
+const disarmOpenTimeout = () => {
+  if (!openTimeoutId) return
+  clearTimeout(openTimeoutId)
+  openTimeoutId = null
 }
 
-export const useContactStore = create<ContactStore>((set) => ({
+const armOpenTimeout = () => {
+  disarmOpenTimeout()
+  openTimeoutId = setTimeout(() => {
+    openTimeoutId = null
+    useContactStore.setState((state) => ({
+      isAnimating: false,
+      // Without a scene there is nothing to animate or close, so roll the open
+      // back rather than only releasing isAnimating. introCompleted is already
+      // false and closingCompleted already true on that path.
+      isContactOpen: state.sceneReady && state.isContactOpen
+    }))
+  }, CONTACT_OPEN_TIMEOUT_MS)
+}
+
+export const useContactStore = create<ContactStore>((set, get) => ({
   isContactOpen: false,
   isAnimating: false,
   worker: null,
-  workerReady: false,
+  sceneReady: false,
   primed: false,
 
   introCompleted: false,
@@ -50,15 +44,20 @@ export const useContactStore = create<ContactStore>((set) => ({
   hasBeenOpenedBefore: false,
 
   setWorker: (worker: Worker | null) => set({ worker }),
-  setIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
-  setWorkerReady: (workerReady: boolean) => set({ workerReady }),
-  prime: () => set({ primed: true }),
+  setIsAnimating: (isAnimating: boolean) => {
+    if (!isAnimating) disarmOpenTimeout()
+    set({ isAnimating })
+  },
+  setSceneReady: (sceneReady: boolean) => set({ sceneReady }),
+  // Latches, and fires on every hover: without the guard each pointer enter
+  // notifies every subscriber for a value that never changes again.
+  prime: () => {
+    if (!get().primed) set({ primed: true })
+  },
   setIntroCompleted: (isComplete: boolean) =>
     set({ introCompleted: isComplete }),
   setClosingCompleted: (isComplete: boolean) =>
     set({ closingCompleted: isComplete }),
-  setHasBeenOpenedBefore: (hasBeenOpenedBefore: boolean) =>
-    set({ hasBeenOpenedBefore }),
 
   setIsContactOpen: (isContactOpen: boolean) => {
     set((state: ContactStore) => {
@@ -73,7 +72,7 @@ export const useContactStore = create<ContactStore>((set) => ({
           return state
         }
 
-        armWedgeGuard(set)
+        armOpenTimeout()
 
         set({ isAnimating: true })
 
@@ -98,6 +97,8 @@ export const useContactStore = create<ContactStore>((set) => ({
             })
           }
 
+          disarmOpenTimeout()
+
           set({
             isContactOpen: false,
             closingCompleted: true,
@@ -116,7 +117,7 @@ export const useContactStore = create<ContactStore>((set) => ({
           return state
         }
 
-        armWedgeGuard(set)
+        armOpenTimeout()
 
         set({ isAnimating: true })
 
@@ -131,6 +132,9 @@ export const useContactStore = create<ContactStore>((set) => ({
         return {
           ...state,
           isContactOpen: true,
+          // Opening without a prior hover (keyboard, deep link) still has to
+          // mount the canvas, and primed is the single gate that does it.
+          primed: true,
           introCompleted: false,
           closingCompleted: true,
           hasBeenOpenedBefore: true,

@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef } from "react"
 
-import { useCanUseContactPhone } from "@/hooks/use-can-use-contact-phone"
+import { useContactPhoneAvailability } from "@/hooks/use-contact-phone-availability"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
 import { useSiteAudio } from "@/hooks/use-site-audio"
@@ -23,9 +23,6 @@ const RenderContact = () => {
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
   const worker = useContactStore((state) => state.worker)
   const primed = useContactStore((state) => state.primed)
-  const hasBeenOpenedBefore = useContactStore(
-    (state) => state.hasBeenOpenedBefore
-  )
 
   const { playSoundFX } = useSiteAudio()
 
@@ -109,9 +106,7 @@ const RenderContact = () => {
           isContactOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
       >
-        {primed || isContactOpen || hasBeenOpenedBefore ? (
-          <ContactCanvas />
-        ) : null}
+        {primed ? <ContactCanvas /> : null}
       </div>
       <div
         ref={overlayRef}
@@ -125,7 +120,7 @@ const RenderContact = () => {
 }
 
 export const Contact = () => {
-  const canUseContactPhone = useCanUseContactPhone()
+  const { canOpen } = useContactPhoneAvailability()
 
-  return canUseContactPhone ? <RenderContact /> : null
+  return canOpen ? <RenderContact /> : null
 }
