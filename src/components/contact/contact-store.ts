@@ -2,10 +2,48 @@ import { create } from "zustand"
 
 import { ContactStore } from "./contact.interface"
 
+// If the worker never acknowledges an open (chunk 404, GL context refused,
+// offline), the button and Escape would otherwise latch: isAnimating stays
+// true forever, or a failed open leaves isContactOpen true with
+// introCompleted false so every close path early-returns behind a full-screen
+// overlay. Generous: a normal intro completes well within this.
+const WEDGE_GUARD_TIMEOUT = 10_000
+
+let wedgeGuardTimeoutId: ReturnType<typeof setTimeout> | null = null
+
+type SetState = (
+  partial:
+    | Partial<ContactStore>
+    | ((state: ContactStore) => Partial<ContactStore>)
+) => void
+
+const armWedgeGuard = (set: SetState) => {
+  if (wedgeGuardTimeoutId) clearTimeout(wedgeGuardTimeoutId)
+  wedgeGuardTimeoutId = setTimeout(() => {
+    wedgeGuardTimeoutId = null
+    set((state) => {
+      // The worker never became ready, so this open can never complete:
+      // roll it back entirely instead of just clearing isAnimating.
+      if (!state.workerReady && state.isContactOpen) {
+        return {
+          isAnimating: false,
+          isContactOpen: false,
+          introCompleted: false,
+          closingCompleted: true
+        }
+      }
+
+      return { isAnimating: false }
+    })
+  }, WEDGE_GUARD_TIMEOUT)
+}
+
 export const useContactStore = create<ContactStore>((set) => ({
   isContactOpen: false,
   isAnimating: false,
   worker: null,
+  workerReady: false,
+  primed: false,
 
   introCompleted: false,
   closingCompleted: true,
@@ -13,6 +51,8 @@ export const useContactStore = create<ContactStore>((set) => ({
 
   setWorker: (worker: Worker | null) => set({ worker }),
   setIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
+  setWorkerReady: (workerReady: boolean) => set({ workerReady }),
+  prime: () => set({ primed: true }),
   setIntroCompleted: (isComplete: boolean) =>
     set({ introCompleted: isComplete }),
   setClosingCompleted: (isComplete: boolean) =>
@@ -32,6 +72,8 @@ export const useContactStore = create<ContactStore>((set) => ({
         if (!state.isContactOpen) {
           return state
         }
+
+        armWedgeGuard(set)
 
         set({ isAnimating: true })
 
@@ -73,6 +115,8 @@ export const useContactStore = create<ContactStore>((set) => ({
         ) {
           return state
         }
+
+        armWedgeGuard(set)
 
         set({ isAnimating: true })
 

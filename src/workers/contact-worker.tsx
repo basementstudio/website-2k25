@@ -47,6 +47,7 @@ self.onmessage = ({ data }) => {
       "scale-animation-complete",
       "scale-down-animation-complete",
       "screen-dimensions",
+      "scene-ready",
       "submit-clicked",
       "animation-starting",
       "animation-complete"

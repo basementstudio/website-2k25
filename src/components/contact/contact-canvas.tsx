@@ -28,6 +28,7 @@ type WorkerMessageType =
   | "scale-down-animation-complete"
   | "animation-starting"
   | "animation-complete"
+  | "scene-ready"
 
 export const ContactCanvas = () => {
   const { contactPhone } = useAssets()
@@ -36,6 +37,8 @@ export const ContactCanvas = () => {
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
+  const setWorkerReady = useContactStore((state) => state.setWorkerReady)
+  const workerReady = useContactStore((state) => state.workerReady)
   const setIntroCompleted = useContactStore((state) => state.setIntroCompleted)
   const setClosingCompleted = useContactStore(
     (state) => state.setClosingCompleted
@@ -79,6 +82,7 @@ export const ContactCanvas = () => {
       const passThrough = () => worker.postMessage({ type })
 
       const messageHandlers: Partial<Record<WorkerMessageType, () => void>> = {
+        "scene-ready": () => setWorkerReady(true),
         "outro-complete": () => {
           setAnimComplete(setClosingCompleted)
         },
@@ -100,7 +104,13 @@ export const ContactCanvas = () => {
 
     worker.addEventListener("message", handleWorkerMessage)
     return () => worker.removeEventListener("message", handleWorkerMessage)
-  }, [worker, setIsAnimating, setIntroCompleted, setClosingCompleted])
+  }, [
+    worker,
+    setIsAnimating,
+    setWorkerReady,
+    setIntroCompleted,
+    setClosingCompleted
+  ])
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -109,6 +119,7 @@ export const ContactCanvas = () => {
         type: "module"
       }
     )
+    setWorkerReady(false)
     setStoreWorker(newWorker)
 
     if (contactPhone) {
@@ -167,17 +178,22 @@ export const ContactCanvas = () => {
       newWorker.removeEventListener("error", handleError)
       newWorker.terminate()
       setStoreWorker(null)
+      setWorkerReady(false)
     }
-  }, [contactPhone, setStoreWorker])
+  }, [contactPhone, setStoreWorker, setWorkerReady])
 
+  // Replay an open issued before the scene existed (cold open), and keep
+  // the worker's open state in sync otherwise.
   useEffect(() => {
-    if (worker) {
-      worker.postMessage({
-        type: "update-contact-open",
-        isContactOpen: isContactOpen
-      })
-    }
-  }, [worker, isContactOpen])
+    if (!worker || !workerReady) return
+    if (!isContactOpen) return
+
+    worker.postMessage({
+      type: "update-contact-open",
+      isContactOpen: true,
+      isClosing: false
+    })
+  }, [worker, workerReady, isContactOpen])
 
   if (!worker) return null
 
