@@ -22,13 +22,22 @@ const armOpenTimeout = () => {
   disarmOpenTimeout()
   openTimeoutId = setTimeout(() => {
     openTimeoutId = null
-    useContactStore.setState((state) => ({
+
+    const { sceneReady, isContactOpen } = useContactStore.getState()
+    // Without a scene there is nothing to animate or close, so roll the open
+    // back rather than only releasing isAnimating. introCompleted is already
+    // false and closingCompleted already true on that path.
+    const rollBack = !sceneReady && isContactOpen
+
+    useContactStore.setState({
       isAnimating: false,
-      // Without a scene there is nothing to animate or close, so roll the open
-      // back rather than only releasing isAnimating. introCompleted is already
-      // false and closingCompleted already true on that path.
-      isContactOpen: state.sceneReady && state.isContactOpen
-    }))
+      ...(rollBack && { isContactOpen: false })
+    })
+
+    // use-handle-navigation parks a route on this event while contact is open.
+    // A nav click during a failed open finds setIsContactOpen(false) blocked by
+    // the isAnimating guard, so without this the route never resumes.
+    if (rollBack) document.dispatchEvent(new CustomEvent("contactClosed"))
   }, CONTACT_OPEN_TIMEOUT_MS)
 }
 
