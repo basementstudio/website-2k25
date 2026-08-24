@@ -1,60 +1,14 @@
-import * as Sentry from "@sentry/nextjs"
-import { NextResponse } from "next/server"
+import {
+  markdownErrorResponse,
+  markdownResponse
+} from "@/service/markdown/response"
 
-import { fetchFaqPage } from "@/app/(site)/(plain)/(content)/faq/sanity"
-import { SITE_URL } from "@/lib/constants"
-
-const MD_HEADERS = {
-  "Content-Type": "text/markdown; charset=utf-8",
-  Vary: "Accept",
-  "X-Content-Type-Options": "nosniff"
-} as const
+import { buildFaqMarkdown } from "./markdown"
 
 export async function GET() {
   try {
-    const faq = await fetchFaqPage({ published: true })
-
-    if (!faq?.entries.length) {
-      return new NextResponse("# 404 Not Found\n", {
-        status: 404,
-        headers: MD_HEADERS
-      })
-    }
-
-    const body = faq.entries.flatMap((entry) => [
-      `## ${entry.question}`,
-      "",
-      entry.answer,
-      ""
-    ])
-
-    const parts = [
-      `# ${faq.heading || "FAQ"}`,
-      "",
-      faq.intro,
-      faq.intro ? "" : null,
-      "---",
-      "",
-      ...body,
-      "---",
-      "",
-      `[View all content](${SITE_URL}/sitemap.md)`
-    ]
-
-    const markdown = parts.filter((part) => part !== null).join("\n")
-
-    return new NextResponse(markdown, {
-      headers: {
-        ...MD_HEADERS,
-        Link: `<${SITE_URL}/faq>; rel="canonical"`
-      }
-    })
+    return markdownResponse(await buildFaqMarkdown(), "/faq")
   } catch (error) {
-    console.error("Error building FAQ markdown:", error)
-    Sentry.captureException(error)
-    return new NextResponse("# 500 Error\n\nFailed to build markdown.", {
-      status: 500,
-      headers: MD_HEADERS
-    })
+    return markdownErrorResponse("FAQ", error)
   }
 }

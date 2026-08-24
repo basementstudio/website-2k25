@@ -114,18 +114,13 @@ const relatedProjectsIconsQuery = /* groq */ `
 
 export async function fetchProjectBySlug(
   slug: string,
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  /** Pass `published: true` inside a `"use cache"` scope (e.g. the `.md` build) — pins published perspective so stega stays off and no dynamic APIs are touched. */
   options?: { published?: boolean }
 ): Promise<ShowcaseProjectDetail | null> {
-  if (options?.published) {
-    return sanityFetchStatic<ShowcaseProjectDetail | null>({
-      query: projectBySlugQuery,
-      params: { slug }
-    })
-  }
   return sanityFetch<ShowcaseProjectDetail | null>({
     query: projectBySlugQuery,
-    params: { slug }
+    params: { slug },
+    ...(options?.published ? { perspective: "published" as const } : {})
   })
 }
 

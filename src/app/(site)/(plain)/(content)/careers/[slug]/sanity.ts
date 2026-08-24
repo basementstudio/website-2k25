@@ -32,7 +32,7 @@ export interface CareerPosition {
 
 export async function fetchCareerPosition(
   slug: string,
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
+  /** Pass `published: true` inside a `"use cache"` scope (e.g. the `.md` build) — pins published perspective so stega stays off and no dynamic APIs are touched. */
   options?: { published?: boolean }
 ): Promise<CareerPosition | null> {
   const query = /* groq */ `*[_type == "openPosition" && slug.current == $slug][0]{
@@ -51,15 +51,10 @@ export async function fetchCareerPosition(
       skills[] { title, slug }
     }
   }`
-  if (options?.published) {
-    return sanityFetchStatic<CareerPosition | null>({
-      query,
-      params: { slug }
-    })
-  }
   return sanityFetch<CareerPosition | null>({
     query,
-    params: { slug }
+    params: { slug },
+    ...(options?.published ? { perspective: "published" as const } : {})
   })
 }
 
