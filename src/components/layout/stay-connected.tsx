@@ -2,7 +2,7 @@
 
 import { PortableText } from "@portabletext/react"
 import { track } from "@vercel/analytics"
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, m } from "motion/react"
 import { startTransition, useEffect, useState } from "react"
 import { useActionState } from "react"
 
@@ -126,7 +126,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           disabled={formState !== "idle" || !email}
           className="ml-1 flex w-fit translate-y-1 items-center gap-1 overflow-hidden text-f-h4-mobile lg:text-f-h4"
         >
-          <motion.div
+          <m.div
             animate={{
               color:
                 formState === "success"
@@ -141,7 +141,7 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
           >
             <AnimatePresence mode="wait">
               {formState === "success" ? (
-                <motion.span
+                <m.span
                   key="success"
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -150,16 +150,16 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   className="flex items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
                 >
                   Subscribed Successfully
-                  <motion.span
+                  <m.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
                   >
                     <Checkmark className="scale-75 text-brand-g" state={true} />
-                  </motion.span>
-                </motion.span>
+                  </m.span>
+                </m.span>
               ) : formState === "error" ? (
-                <motion.span
+                <m.span
                   key="error"
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -168,9 +168,9 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   className="flex items-center gap-x-1 text-f-h4-mobile lg:text-f-h4"
                 >
                   {getErrorMessage()}
-                </motion.span>
+                </m.span>
               ) : (
-                <motion.span
+                <m.span
                   key="default"
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -183,10 +183,10 @@ export const StayConnected = ({ content, className }: StayConnectedProps) => {
                   )}
                 >
                   Roll Me In <Arrow className="size-5" />
-                </motion.span>
+                </m.span>
               )}
             </AnimatePresence>
-          </motion.div>
+          </m.div>
         </button>
       </form>
     </div>
