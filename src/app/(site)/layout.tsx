@@ -10,6 +10,7 @@ import { InspectableProvider } from "@/components/inspectables/context"
 import { CanvasLayer } from "@/components/layout/canvas-layer"
 import { ModeToggle } from "@/components/layout/mode-toggle"
 import { NavigationHandler } from "@/components/navigation-handler"
+import { MotionProvider } from "@/components/primitives/motion-provider"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
 
@@ -28,12 +29,14 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
       <Transitions />
       <AssetsProvider assets={assets}>
         <InspectableProvider>
-          <HtmlTunnelOut />
-          <NavigationHandler />
-          <CanvasLayer />
-          {children}
-          <AppHooks assets={assets} />
-          <Contact />
+          <MotionProvider>
+            <HtmlTunnelOut />
+            <NavigationHandler />
+            <CanvasLayer />
+            {children}
+            <AppHooks assets={assets} />
+            <Contact />
+          </MotionProvider>
         </InspectableProvider>
       </AssetsProvider>
       <ModeToggle mode="human" />
