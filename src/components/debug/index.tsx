@@ -1,7 +1,6 @@
-import { Leva } from "leva"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
-import { memo, Suspense, useEffect, useState } from "react"
+import { memo, Suspense } from "react"
 
 const OnlyDebug = dynamic(
   () => import("./only-debug").then((mod) => mod.OnlyDebug),
@@ -13,18 +12,15 @@ const OnlyDebug = dynamic(
 
 const DebugInner = () => {
   const searchParams = useSearchParams()
-  const [debug, setDebug] = useState(false)
+  const debug = searchParams.has("debug")
 
-  useEffect(() => {
-    const hasDebg = searchParams.has("debug")
-    if (!hasDebg) return
-    setDebug(hasDebg)
-  }, [searchParams])
+  if (!debug) return null
 
   return (
     <div className="w-128 absolute bottom-4 right-4 z-50">
-      <Leva collapsed fill hidden={!debug} />
-      <Suspense fallback={null}>{debug && <OnlyDebug />}</Suspense>
+      <Suspense fallback={null}>
+        <OnlyDebug />
+      </Suspense>
     </div>
   )
 }
