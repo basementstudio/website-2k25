@@ -3,16 +3,12 @@
 import { useSearchParams } from "next/navigation"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
+import { deriveCategories } from "@/app/(site)/(canvas)/(content)/showcase/derive-categories"
 import { Filters } from "@/app/(site)/(canvas)/(content)/showcase/filters"
 import { Grid } from "@/app/(site)/(canvas)/(content)/showcase/grid"
 import { List } from "@/app/(site)/(canvas)/(content)/showcase/list"
 import type { ShowcaseProject } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
 import { useMedia } from "@/hooks/use-media"
-
-export type CategoryItem = {
-  name: string
-  count: number
-}
 
 const ViewModeSelector = memo(
   ({
@@ -79,29 +75,7 @@ export const ShowcaseListClient = memo<ShowcaseListClientProps>(
       )
     }, [projects, selectedCategory])
 
-    const categories = useMemo(() => {
-      const categoryMap = new Map<string, number>()
-
-      projects.forEach((project) => {
-        project?.categories?.forEach((category) => {
-          if (category?.title) {
-            categoryMap.set(
-              category.title,
-              (categoryMap.get(category.title) || 0) + 1
-            )
-          }
-        })
-      })
-
-      return Array.from(categoryMap.entries())
-        .map(
-          ([name, count]): CategoryItem => ({
-            name,
-            count
-          })
-        )
-        .sort((a, b) => b.count - a.count)
-    }, [projects])
+    const categories = useMemo(() => deriveCategories(projects), [projects])
 
     const handleSetSelectedCategory = useCallback((category: string | null) => {
       setSelectedCategory(category)

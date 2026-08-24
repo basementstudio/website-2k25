@@ -4,7 +4,6 @@ import { motion } from "motion/react"
 import { usePathname } from "next/navigation"
 
 import { Link } from "@/components/primitives/link"
-import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
 import { cn } from "@/utils/cn"
 import { isInPath } from "@/utils/is-in-path"
@@ -32,12 +31,7 @@ export const InternalLinks = ({
   animated = false
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
-  const { isMobile } = useDeviceDetect()
   const pathname = usePathname()
-
-  const filteredLinks = links.filter(
-    (link) => !(isMobile && link.href.includes("lab"))
-  )
 
   const animateProps = animated
     ? {
@@ -55,9 +49,13 @@ export const InternalLinks = ({
         className
       )}
     >
-      {filteredLinks.map((link, idx) => (
+      {links.map((link, idx) => (
         <motion.li
           key={`${link.title}-${idx}`}
+          // Hidden with CSS rather than filtered out: useDeviceDetect resolves
+          // after hydration, and removing a full-height row then shifts the
+          // page. The proxy still redirects mobile /lab navigations.
+          className={cn(link.href.includes("lab") && "max-lg:hidden")}
           {...animateProps}
           animate={{
             ...animateProps.animate,

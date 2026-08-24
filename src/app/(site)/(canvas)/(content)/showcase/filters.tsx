@@ -3,7 +3,7 @@ import { memo, useCallback } from "react"
 
 import { cn } from "@/utils/cn"
 
-import { CategoryItem } from "./showcase-list/client"
+import type { CategoryItem } from "./derive-categories"
 
 const GridIcon = () => (
   <svg
@@ -62,6 +62,9 @@ const ViewSelector = memo(
 )
 ViewSelector.displayName = "ViewSelector"
 
+// A static copy of this markup lives in ./showcase-list/fallback.tsx (the
+// prerendered HTML under cacheComponents). If you change layout-affecting
+// classes here, mirror them there or hydration shifts the page.
 interface FiltersProps {
   categories: CategoryItem[]
   selectedCategory: string | null
