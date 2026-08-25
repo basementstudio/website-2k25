@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache"
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
@@ -10,12 +9,7 @@ import { truncateDescription } from "@/utils/seo"
 import { SandPackCSS } from "./components/sandbox/sandpack-styles"
 import { Content } from "./content"
 import { More } from "./more"
-import {
-  fetchAllPostSlugs,
-  fetchPostBySlug,
-  fetchPostMeta,
-  fetchRelatedPosts
-} from "./sanity"
+import { fetchAllPostSlugs, fetchPostMeta, getPostData } from "./sanity"
 import { BlogTitle } from "./title"
 
 interface ProjectPostProps {
@@ -42,23 +36,6 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
       canonical: `https://basement.studio/post/${slug}`
     }
   }
-}
-
-async function getPostData(slug: string) {
-  "use cache"
-  const post = await fetchPostBySlug(slug)
-
-  if (!post) {
-    cacheLife("hours")
-    return null
-  }
-
-  const relatedPosts = await fetchRelatedPosts(
-    post.slug,
-    post.categories?.map((category) => category.title) ?? []
-  )
-
-  return { post, relatedPosts }
 }
 
 export default async function Blog({ params }: ProjectPostProps) {

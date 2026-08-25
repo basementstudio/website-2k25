@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache"
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
@@ -9,8 +8,8 @@ import { truncateDescription } from "@/utils/seo"
 
 import {
   fetchAllProjectSlugs,
-  fetchProjectBySlug,
-  fetchProjectMeta
+  fetchProjectMeta,
+  getProjectData
 } from "./sanity"
 import { ProjectWrapper } from "./wrapper"
 
@@ -40,16 +39,9 @@ export const generateMetadata = async ({ params }: ProjectPostProps) => {
   }
 }
 
-async function getProject(slug: string) {
-  "use cache"
-  const project = await fetchProjectBySlug(slug)
-  if (!project) cacheLife("hours")
-  return project
-}
-
 export default async function ProjectPost({ params }: ProjectPostProps) {
   const { slug } = await params
-  const project = await getProject(slug)
+  const project = await getProjectData(slug)
 
   if (!project) return notFound()
 
