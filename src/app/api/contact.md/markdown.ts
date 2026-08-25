@@ -1,11 +1,11 @@
-import { fetchCompanyInfoForMarkdown } from "@/components/layout/sanity"
+import { fetchCompanyInfo } from "@/components/layout/sanity"
 import { COMPANY_FACTS } from "@/lib/company-facts"
 import { SITE_URL } from "@/lib/constants"
 import type { MarkdownResult } from "@/service/markdown/document"
 
 export async function buildContactMarkdown(): Promise<MarkdownResult<200>> {
   "use cache"
-  const companyInfo = await fetchCompanyInfoForMarkdown()
+  const companyInfo = await fetchCompanyInfo()
 
   const socials = [
     { label: "X (Twitter)", url: companyInfo?.twitter },

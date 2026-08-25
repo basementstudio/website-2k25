@@ -1,6 +1,6 @@
 import { cacheLife } from "next/cache"
 
-import { sanityFetch, sanityFetchCached } from "@/service/sanity"
+import { fetchLayoutData } from "@/service/sanity/layout"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
 export interface CompanyInfo {
@@ -18,42 +18,16 @@ export async function fetchCurrentYear(): Promise<number> {
 }
 
 export async function fetchProjectsCount(): Promise<number> {
-  "use cache"
-  return sanityFetch<number>({
-    query: /* groq */ `count(*[_type == "showcasePage"][0].projects)`,
-    tag: "layout.projects-count"
-  })
+  const { projectsCount } = await fetchLayoutData()
+  return projectsCount
 }
 
 export async function fetchPostsCount(): Promise<number> {
-  "use cache"
-  return sanityFetch<number>({
-    query: /* groq */ `count(*[_type == "post"])`,
-    tag: "layout.posts-count"
-  })
+  const { postsCount } = await fetchLayoutData()
+  return postsCount
 }
-
-const companyInfoQuery = /* groq */ `*[_type == "companyInfo"][0] {
-  github,
-  instagram,
-  twitter,
-  linkedIn,
-  newsletter
-}`
 
 export async function fetchCompanyInfo(): Promise<CompanyInfo> {
-  "use cache"
-  return sanityFetch<CompanyInfo>({
-    query: companyInfoQuery,
-    tag: "layout.company-info"
-  })
-}
-
-/** Published-perspective variant for the `.md` endpoints — keeps stega out of the markdown. */
-export async function fetchCompanyInfoForMarkdown(): Promise<CompanyInfo | null> {
-  return sanityFetchCached<CompanyInfo | null>({
-    query: companyInfoQuery,
-    perspective: "published",
-    tag: "layout.company-info.markdown"
-  })
+  const { companyInfo } = await fetchLayoutData()
+  return companyInfo
 }
