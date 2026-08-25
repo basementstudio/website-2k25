@@ -165,6 +165,13 @@ const nextConfig: NextConfig = {
         permanent: true
       },
 
+      // Renamed blog posts
+      {
+        source: "/post/from-experiment-to-framework-the-road-to-xmcp-08",
+        destination: "/post/from-experiment-to-framework-the-road-to-xmcp-v1",
+        permanent: true
+      },
+
       // Webby
       {
         source: "/webby",
