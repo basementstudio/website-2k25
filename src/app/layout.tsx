@@ -65,15 +65,17 @@ const flauta = localFont({
 async function DraftModeTools() {
   const isDraftMode = (await draftMode()).isEnabled
 
+  // Draft mode only: <SanityLive> opens a browser connection to the uncached
+  // api.sanity.io per page view, which put the API quota on a per-visitor
+  // curve. Published content revalidates via the webhook in
+  // `api/sanity/revalidate` instead.
+  if (!isDraftMode) return null
+
   return (
     <>
-      <SanityLive includeDrafts={isDraftMode} />
-      {isDraftMode ? (
-        <>
-          <VisualEditing />
-          <DisableDraftMode />
-        </>
-      ) : null}
+      <SanityLive includeDrafts />
+      <VisualEditing />
+      <DisableDraftMode />
     </>
   )
 }

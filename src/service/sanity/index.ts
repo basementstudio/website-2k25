@@ -1,9 +1,10 @@
-import { cacheLife } from "next/cache"
+import { cacheLife, cacheTag } from "next/cache"
 import { draftMode } from "next/headers"
 import type { QueryParams } from "next-sanity"
 
 import { client } from "./client"
 import { liveSanityFetch } from "./live"
+import { SANITY_CONTENT_TAG } from "./tags"
 
 export { client }
 
@@ -31,6 +32,10 @@ export async function sanityFetch<T>({
   perspective?: Perspective
   tag: SanityRequestTag
 }): Promise<T> {
+  // Lets the publish webhook purge every cached read; `defineLive`'s own
+  // `sanity:*` sync tags only reach clients with a live connection.
+  cacheTag(SANITY_CONTENT_TAG)
+
   // strict `defineLive` needs an explicit perspective + boolean stega.
   let resolvedPerspective: Perspective = perspective ?? "published"
   let resolvedStega = stega ?? false
