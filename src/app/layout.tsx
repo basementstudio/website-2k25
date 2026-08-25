@@ -62,10 +62,10 @@ const flauta = localFont({
   variable: "--font-flauta"
 })
 
-// Preview keeps the listener: the webhook only points at production, so nothing
-// else invalidates a preview build's cache. Positive check so unset fails closed.
-const isNonProductionDeployment =
-  process.env.VERCEL_ENV === "preview" || process.env.NODE_ENV === "development"
+// Set only where Sanity actually posts the publish webhook. Deliberately not
+// SANITY_REVALIDATE_SECRET: preview needs that to verify the endpoint without
+// claiming to receive hooks. Read at build time — the layout is prerendered.
+const hasPublishWebhook = Boolean(process.env.SANITY_REVALIDATE_HOOK)
 
 async function DraftModeTools() {
   const isDraftMode = (await draftMode()).isEnabled
@@ -80,9 +80,9 @@ async function DraftModeTools() {
     )
   }
 
-  // Never for production visitors: one api.sanity.io connection per page view.
-  // `includeDrafts` is explicit because `strict: true` rejects the default.
-  return isNonProductionDeployment ? <SanityLive includeDrafts={false} /> : null
+  // Costs one api.sanity.io connection per page view, so only where nothing
+  // else revalidates. `strict: true` rejects a defaulted `includeDrafts`.
+  return hasPublishWebhook ? null : <SanityLive includeDrafts={false} />
 }
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
