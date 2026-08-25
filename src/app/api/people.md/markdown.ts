@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache"
+import { stegaClean } from "next-sanity"
 
 import {
   fetchOpenPositions,
@@ -21,12 +22,16 @@ const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
 
 export async function buildPeopleMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  const [page, people, positions, values] = await Promise.all([
-    fetchPeoplePage({ published: true }),
-    fetchPeopleForMarkdown({ published: true }),
-    fetchOpenPositions({ published: true }),
-    fetchValuesForMarkdown({ published: true })
-  ])
+  // fetchPeoplePage/fetchOpenPositions are draft-aware (no published pin) — clean
+  // any stega chars a draft-mode editor's cookie would inject into this output.
+  const [page, people, positions, values] = stegaClean(
+    await Promise.all([
+      fetchPeoplePage(),
+      fetchPeopleForMarkdown({ published: true }),
+      fetchOpenPositions(),
+      fetchValuesForMarkdown({ published: true })
+    ])
+  )
 
   if (!page) {
     cacheLife("hours")

@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache"
+import { stegaClean } from "next-sanity"
 
 import {
   fetchAwardsForMarkdown,
@@ -15,11 +16,15 @@ import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdo
 
 export async function buildServicesMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  const [services, awards, testimonial] = await Promise.all([
-    fetchServicesPage({ published: true }),
-    fetchAwardsForMarkdown(),
-    fetchTestimonial({ published: true })
-  ])
+  // fetchServicesPage/fetchTestimonial are draft-aware (no published pin) — clean
+  // any stega chars a draft-mode editor's cookie would inject into this output.
+  const [services, awards, testimonial] = stegaClean(
+    await Promise.all([
+      fetchServicesPage(),
+      fetchAwardsForMarkdown(),
+      fetchTestimonial()
+    ])
+  )
   if (!services) {
     cacheLife("hours")
     return { markdown: NOT_FOUND_MARKDOWN, status: 404 }

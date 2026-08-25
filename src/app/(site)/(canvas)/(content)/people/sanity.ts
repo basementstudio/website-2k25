@@ -134,14 +134,10 @@ const openPositionsQuery = /* groq */ `
 
 // Fetchers
 
-export async function fetchPeoplePage(
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
-): Promise<PeoplePageData | null> {
+export async function fetchPeoplePage(): Promise<PeoplePageData | null> {
   return sanityFetchCached<PeoplePageData | null>({
     query: peoplePageQuery,
-    tag: options?.published ? "people.page.markdown" : "people.page",
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "people.page"
   })
 }
 
@@ -186,15 +182,10 @@ export async function fetchValuesForMarkdown(options?: {
   return result ?? []
 }
 
-export async function fetchOpenPositions(options?: {
-  published?: boolean
-}): Promise<OpenPositionItem[]> {
+export async function fetchOpenPositions(): Promise<OpenPositionItem[]> {
   const result = await sanityFetchCached<OpenPositionItem[] | null>({
     query: openPositionsQuery,
-    tag: options?.published
-      ? "people.open-positions.markdown"
-      : "people.open-positions",
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "people.open-positions"
   })
   return result ?? []
 }

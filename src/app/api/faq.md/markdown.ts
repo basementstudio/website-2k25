@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache"
+import { stegaClean } from "next-sanity"
 
 import { fetchFaqPage } from "@/app/(site)/(plain)/(content)/faq/sanity"
 import { SITE_URL } from "@/lib/constants"
@@ -9,7 +10,9 @@ import {
 
 export async function buildFaqMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  const faq = await fetchFaqPage({ published: true })
+  // fetchFaqPage is draft-aware (no published pin) — clean any stega chars a
+  // draft-mode editor's cookie would inject into this crawler-facing output.
+  const faq = stegaClean(await fetchFaqPage())
 
   if (!faq?.entries.length) {
     cacheLife("hours")
