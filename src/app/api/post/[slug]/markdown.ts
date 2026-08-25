@@ -16,8 +16,7 @@ export async function buildPostMarkdown(slug: string): Promise<MarkdownResult> {
     cacheLife("hours")
     return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
-  // getPostData is draft-aware (no published pin) — clean any stega chars a
-  // draft-mode editor's cookie would inject into this crawler-facing output.
+  // Draft mode leaves stega on — strip it from crawler-facing output.
   const { post, relatedPosts } = stegaClean(data)
 
   const parts: Array<string | null> = [

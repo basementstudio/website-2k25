@@ -22,8 +22,7 @@ const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
 
 export async function buildPeopleMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  // fetchPeoplePage/fetchOpenPositions are draft-aware (no published pin) — clean
-  // any stega chars a draft-mode editor's cookie would inject into this output.
+  // Draft mode leaves stega on — strip it from crawler-facing output.
   const [page, people, positions, values] = stegaClean(
     await Promise.all([
       fetchPeoplePage(),

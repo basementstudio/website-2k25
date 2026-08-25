@@ -41,13 +41,9 @@ const layoutDataQuery = /* groq */ `{
 }`
 
 /**
- * Single Live query backing the navbar, footer, showcase hero count, and the
- * Organization JSON-LD — collapses what used to be 5 separate cache entries
- * hit on every route into 1.
- *
- * `stega: false` regardless of draft mode: this data is JSON.stringify'd into
- * JSON-LD (see `page-json-ld.tsx`), which stega chars would corrupt. Cost:
- * the footer newsletter loses click-to-edit overlays in draft mode.
+ * Backs the navbar, footer, showcase hero count and Organization JSON-LD.
+ * `stega: false` even in draft mode: this feeds JSON-LD, which stega chars
+ * corrupt — at the cost of click-to-edit on the footer newsletter.
  */
 export async function fetchLayoutData(): Promise<LayoutData> {
   "use cache"

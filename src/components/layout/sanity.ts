@@ -27,8 +27,7 @@ export async function fetchPostsCount(): Promise<number> {
   return postsCount
 }
 
-// Navbar/Footer read these fields unguarded, so absorb a missing `companyInfo`
-// singleton here rather than letting it throw through the whole layout.
+// Navbar/Footer read these unguarded — absorb a missing singleton here.
 const EMPTY_COMPANY_INFO: CompanyInfo = {
   github: null,
   instagram: null,

@@ -12,8 +12,7 @@ import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdo
 
 export async function buildIndexMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  // Draft-aware now that the published pin is gone — clean any stega chars a
-  // draft-mode editor's cookie would otherwise inject into this crawler-facing output.
+  // Draft mode leaves stega on — strip it from crawler-facing output.
   const { homepage } = stegaClean(await fetchHomepage())
   if (!homepage) {
     cacheLife("hours")

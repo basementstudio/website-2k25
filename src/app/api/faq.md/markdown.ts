@@ -10,8 +10,7 @@ import {
 
 export async function buildFaqMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  // fetchFaqPage is draft-aware (no published pin) — clean any stega chars a
-  // draft-mode editor's cookie would inject into this crawler-facing output.
+  // Draft mode leaves stega on — strip it from crawler-facing output.
   const faq = stegaClean(await fetchFaqPage())
 
   if (!faq?.entries.length) {

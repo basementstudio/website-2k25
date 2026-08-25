@@ -16,8 +16,7 @@ import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdo
 
 export async function buildServicesMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  // fetchServicesPage/fetchTestimonial are draft-aware (no published pin) — clean
-  // any stega chars a draft-mode editor's cookie would inject into this output.
+  // Draft mode leaves stega on — strip it from crawler-facing output.
   const [services, awards, testimonial] = stegaClean(
     await Promise.all([
       fetchServicesPage(),

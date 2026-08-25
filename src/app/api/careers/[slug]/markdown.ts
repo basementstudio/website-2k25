@@ -20,8 +20,7 @@ export async function buildCareerMarkdown(
   if (!positionData?.isOpen) {
     return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
-  // getPositionData is draft-aware (no published pin) — clean any stega chars a
-  // draft-mode editor's cookie would inject into this crawler-facing output.
+  // Draft mode leaves stega on — strip it from crawler-facing output.
   const position = stegaClean(positionData)
 
   const skills = position.applyFormSetup?.skills
