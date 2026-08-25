@@ -101,17 +101,7 @@ const testimonialQuery = /* groq */ `
 
 // Fetchers
 
-export async function fetchServicesPage(
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
-): Promise<ServicesPageData | null> {
-  if (options?.published) {
-    return sanityFetchCached<ServicesPageData | null>({
-      query: servicesPageQuery,
-      perspective: "published",
-      tag: "services.page.markdown"
-    })
-  }
+export async function fetchServicesPage(): Promise<ServicesPageData | null> {
   return sanityFetchCached<ServicesPageData | null>({
     query: servicesPageQuery,
     tag: "services.page"
@@ -137,15 +127,9 @@ export async function fetchAwardsForMarkdown(): Promise<
   return result ?? []
 }
 
-export async function fetchTestimonial(
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
-): Promise<ServiceTestimonial | null> {
+export async function fetchTestimonial(): Promise<ServiceTestimonial | null> {
   return sanityFetchCached<ServiceTestimonial | null>({
     query: testimonialQuery,
-    tag: options?.published
-      ? "services.testimonial.markdown"
-      : "services.testimonial",
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "services.testimonial"
   })
 }

@@ -1,12 +1,10 @@
 import type { Metadata } from "next"
-import { cacheLife } from "next/cache"
 import { notFound } from "next/navigation"
 
 import {
   fetchAllPostSlugs,
-  fetchPostBySlug,
   fetchPostMeta,
-  fetchRelatedPosts
+  getPostData
 } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
 import { extractPlainText } from "@/lib/structured-data/extract-text"
@@ -35,23 +33,6 @@ export const generateMetadata = async ({
     // The human post is the canonical document; this page is a styled mirror.
     alternates: { canonical: `https://basement.studio/post/${slug}` }
   }
-}
-
-async function getPostData(slug: string) {
-  "use cache"
-  const post = await fetchPostBySlug(slug)
-
-  if (!post) {
-    cacheLife("hours")
-    return null
-  }
-
-  const relatedPosts = await fetchRelatedPosts(
-    post.slug,
-    post.categories?.map((category) => category.title) ?? []
-  )
-
-  return { post, relatedPosts }
 }
 
 const MachinePostPage = async ({ params }: MachinePostProps) => {

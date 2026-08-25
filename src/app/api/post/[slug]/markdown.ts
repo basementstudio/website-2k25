@@ -1,9 +1,7 @@
 import { cacheLife } from "next/cache"
+import { stegaClean } from "next-sanity"
 
-import {
-  fetchPostBySlug,
-  fetchRelatedPostsForMarkdown
-} from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
+import { getPostData } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 import {
   type MarkdownResult,
@@ -13,17 +11,13 @@ import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdo
 
 export async function buildPostMarkdown(slug: string): Promise<MarkdownResult> {
   "use cache"
-  const post = await fetchPostBySlug(slug, { published: true })
-  if (!post) {
+  const data = await getPostData(slug)
+  if (!data) {
     cacheLife("hours")
     return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
-
-  // Sequential, not Promise.all: related posts need `post.categories`.
-  const relatedPosts = await fetchRelatedPostsForMarkdown(
-    slug,
-    post.categories?.map((c) => c.title) ?? []
-  )
+  // Draft mode leaves stega on — strip it from crawler-facing output.
+  const { post, relatedPosts } = stegaClean(data)
 
   const parts: Array<string | null> = [
     `# ${post.title}`,

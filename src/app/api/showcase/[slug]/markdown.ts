@@ -1,8 +1,9 @@
 import { cacheLife } from "next/cache"
+import { stegaClean } from "next-sanity"
 
 import {
-  fetchProjectBySlug,
-  fetchRelatedProjectsForMarkdown
+  fetchRelatedProjectSlugs,
+  getProjectData
 } from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 import {
@@ -15,14 +16,14 @@ export async function buildShowcaseMarkdown(
   slug: string
 ): Promise<MarkdownResult> {
   "use cache"
-  const [project, relatedProjects] = await Promise.all([
-    fetchProjectBySlug(slug, { published: true }),
-    fetchRelatedProjectsForMarkdown(slug)
-  ])
-  if (!project) {
+  const projectData = await getProjectData(slug)
+  if (!projectData) {
     cacheLife("hours")
     return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
+  // Draft mode leaves stega on — strip it from crawler-facing output.
+  const project = stegaClean(projectData)
+  const relatedProjects = stegaClean(await fetchRelatedProjectSlugs(slug))
 
   const clientLine = project.client
     ? project.client.website

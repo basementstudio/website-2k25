@@ -1,5 +1,5 @@
 import { COMPANY_FACTS } from "@/lib/company-facts"
-import { sanityFetch } from "@/service/sanity"
+import { fetchLayoutData } from "@/service/sanity/layout"
 
 /**
  * Data feeding the schema.org Organization node rendered on every page (see
@@ -34,20 +34,6 @@ export interface OrganizationStructuredData {
   }
 }
 
-const organizationQuery = /* groq */ `{
-  "companyInfo": *[_type == "companyInfo"][0]{
-    github,
-    instagram,
-    twitter,
-    linkedIn
-  },
-  "awards": *[_type == "award" && defined(title)] | order(date desc){
-    title,
-    date,
-    "projectName": project->title
-  }
-}`
-
 const getOrganizationFallback = (): OrganizationStructuredData => ({
   description: COMPANY_FACTS.description,
   foundingDate: COMPANY_FACTS.foundingDate,
@@ -73,34 +59,17 @@ const getOrganizationFallback = (): OrganizationStructuredData => ({
 })
 
 export async function fetchOrganizationData(): Promise<OrganizationStructuredData> {
-  "use cache"
-
   try {
-    const data = await sanityFetch<{
-      companyInfo: {
-        github: string | null
-        instagram: string | null
-        twitter: string | null
-        linkedIn: string | null
-      } | null
-      awards: Array<{
-        title: string
-        date: string | null
-        projectName: string | null
-      }> | null
-    }>({
-      query: organizationQuery,
-      tag: "layout.organization-schema"
-    })
+    const { companyInfo, awards } = await fetchLayoutData()
 
     return {
       ...getOrganizationFallback(),
-      awards: data.awards ?? [],
+      awards: awards ?? [],
       social: {
-        github: data.companyInfo?.github ?? null,
-        instagram: data.companyInfo?.instagram ?? null,
-        twitter: data.companyInfo?.twitter ?? null,
-        linkedIn: data.companyInfo?.linkedIn ?? null
+        github: companyInfo?.github ?? null,
+        instagram: companyInfo?.instagram ?? null,
+        twitter: companyInfo?.twitter ?? null,
+        linkedIn: companyInfo?.linkedIn ?? null
       }
     }
   } catch (error) {

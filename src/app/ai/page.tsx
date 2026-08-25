@@ -71,15 +71,15 @@ const AiPage = async () => {
     year,
     faq
   ] = await Promise.all([
-    fetchHomepage({ published: true }),
-    fetchServicesPage({ published: true }),
-    fetchOpenPositions({ published: true }),
+    fetchHomepage(),
+    fetchServicesPage(),
+    fetchOpenPositions(),
     fetchShowcaseListForMarkdown(),
     fetchAllPostsForIndex(),
     fetchCompanyInfo(),
     fetchOrganizationData(),
     fetchCurrentYear(),
-    fetchFaqPage({ published: true })
+    fetchFaqPage()
   ])
 
   const latestPosts = posts.slice(0, 10)

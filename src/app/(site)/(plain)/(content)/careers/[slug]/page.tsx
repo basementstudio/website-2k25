@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache"
 import { notFound } from "next/navigation"
 
 import { extractPlainText } from "@/lib/structured-data/extract-text"
@@ -13,8 +12,8 @@ import { JobContent } from "./job-content"
 import { JobMeta } from "./job-details-bar"
 import {
   fetchAllOpenPositionSlugs,
-  fetchCareerPosition,
-  fetchCareerPositionMeta
+  fetchCareerPositionMeta,
+  getPositionData
 } from "./sanity"
 import { ScrollToTop } from "./scroll-to-top"
 
@@ -38,17 +37,10 @@ export const generateMetadata = async ({ params }: CareerPostProps) => {
   }
 }
 
-async function getPosition(slug: string) {
-  "use cache"
-  const position = await fetchCareerPosition(slug)
-  if (!position) cacheLife("hours")
-  return position
-}
-
 export default async function CareerPost({ params }: CareerPostProps) {
   const { slug } = await params
 
-  const position = await getPosition(slug)
+  const position = await getPositionData(slug)
 
   if (!position || !position.isOpen) return notFound()
 

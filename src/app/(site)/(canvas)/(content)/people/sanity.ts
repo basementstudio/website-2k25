@@ -134,35 +134,26 @@ const openPositionsQuery = /* groq */ `
 
 // Fetchers
 
-export async function fetchPeoplePage(
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
-): Promise<PeoplePageData | null> {
+export async function fetchPeoplePage(): Promise<PeoplePageData | null> {
   return sanityFetchCached<PeoplePageData | null>({
     query: peoplePageQuery,
-    tag: options?.published ? "people.page.markdown" : "people.page",
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "people.page"
   })
 }
 
-export async function fetchPeople(options?: {
-  published?: boolean
-}): Promise<PersonItem[]> {
+export async function fetchPeople(): Promise<PersonItem[]> {
   const result = await sanityFetchCached<PersonItem[] | null>({
     query: peopleQuery,
-    tag: "people.roster",
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "people.roster"
   })
   return result ?? []
 }
 
-export async function fetchPeopleForMarkdown(options?: {
-  published?: boolean
-}): Promise<PersonMarkdownItem[]> {
+export async function fetchPeopleForMarkdown(): Promise<PersonMarkdownItem[]> {
   const result = await sanityFetchCached<PersonMarkdownItem[] | null>({
     query: peopleForMarkdownQuery,
-    tag: "people.roster.markdown",
-    ...(options?.published ? { perspective: "published" } : {})
+    perspective: "published",
+    tag: "people.roster.markdown"
   })
   return result ?? []
 }
@@ -175,26 +166,19 @@ export async function fetchValues(): Promise<ValueItem[]> {
   return result ?? []
 }
 
-export async function fetchValuesForMarkdown(options?: {
-  published?: boolean
-}): Promise<ValueMarkdownItem[]> {
+export async function fetchValuesForMarkdown(): Promise<ValueMarkdownItem[]> {
   const result = await sanityFetchCached<ValueMarkdownItem[] | null>({
     query: valuesForMarkdownQuery,
-    tag: "people.values.markdown",
-    ...(options?.published ? { perspective: "published" } : {})
+    perspective: "published",
+    tag: "people.values.markdown"
   })
   return result ?? []
 }
 
-export async function fetchOpenPositions(options?: {
-  published?: boolean
-}): Promise<OpenPositionItem[]> {
+export async function fetchOpenPositions(): Promise<OpenPositionItem[]> {
   const result = await sanityFetchCached<OpenPositionItem[] | null>({
     query: openPositionsQuery,
-    tag: options?.published
-      ? "people.open-positions.markdown"
-      : "people.open-positions",
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "people.open-positions"
   })
   return result ?? []
 }

@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache"
+
 import {
   sanityFetch,
   sanityFetchCached,
@@ -31,9 +33,7 @@ export interface CareerPosition {
 // ---------------------------------------------------------------------------
 
 export async function fetchCareerPosition(
-  slug: string,
-  /** Pass `published: true` inside a `"use cache"` scope (e.g. the `.md` build) — pins published perspective so stega stays off and no dynamic APIs are touched. */
-  options?: { published?: boolean }
+  slug: string
 ): Promise<CareerPosition | null> {
   const query = /* groq */ `*[_type == "openPosition" && slug.current == $slug][0]{
     _id,
@@ -54,11 +54,18 @@ export async function fetchCareerPosition(
   return sanityFetch<CareerPosition | null>({
     query,
     params: { slug },
-    tag: options?.published
-      ? "careers.position-by-slug.markdown"
-      : "careers.position-by-slug",
-    ...(options?.published ? { perspective: "published" as const } : {})
+    tag: "careers.position-by-slug"
   })
+}
+
+/** Shared per-slug cache entry for the human position page and the `.md` builder. */
+export async function getPositionData(
+  slug: string
+): Promise<CareerPosition | null> {
+  "use cache"
+  const position = await fetchCareerPosition(slug)
+  if (!position) cacheLife("hours")
+  return position
 }
 
 export interface OpenPositionIndexEntry {

@@ -74,6 +74,7 @@ export function portableTextToMarkdown(
 ): string {
   if (!blocks?.length) return ""
 
+  // Callers stegaClean their payload; recursing here would re-clone per level.
   const pieces: Array<{ isListItem: boolean; md: string }> = []
   for (const block of blocks) {
     const md = renderBlock(block, opts?.baseUrl)

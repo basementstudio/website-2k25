@@ -1,4 +1,4 @@
-import { fetchProjectsCount } from "./sanity"
+import { fetchProjectsCount } from "@/components/layout/sanity"
 
 export async function Hero() {
   const length = await fetchProjectsCount()

@@ -66,10 +66,6 @@ const showcaseProjectsQuery = /* groq */ `
   }.projects
 `
 
-const showcaseCountQuery = /* groq */ `
-  count(*[_type == "showcasePage"][0].projects)
-`
-
 const categoriesQuery = /* groq */ `
   *[_type == "projectCategory"] | order(title asc){
     _id,
@@ -89,14 +85,6 @@ export async function fetchProjects(): Promise<ShowcaseProject[]> {
     tag: "showcase.projects"
   })
   return projects ?? []
-}
-
-export async function fetchProjectsCount(): Promise<number> {
-  "use cache"
-  return sanityFetch<number>({
-    query: showcaseCountQuery,
-    tag: "showcase.projects-count"
-  })
 }
 
 const projectListForSchemaQuery = /* groq */ `

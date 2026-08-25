@@ -1,3 +1,5 @@
+import { cacheLife } from "next/cache"
+
 import {
   sanityFetch,
   sanityFetchCached,
@@ -113,18 +115,23 @@ const relatedProjectsIconsQuery = /* groq */ `
 // ---------------------------------------------------------------------------
 
 export async function fetchProjectBySlug(
-  slug: string,
-  /** Pass `published: true` inside a `"use cache"` scope (e.g. the `.md` build) — pins published perspective so stega stays off and no dynamic APIs are touched. */
-  options?: { published?: boolean }
+  slug: string
 ): Promise<ShowcaseProjectDetail | null> {
   return sanityFetch<ShowcaseProjectDetail | null>({
     query: projectBySlugQuery,
     params: { slug },
-    tag: options?.published
-      ? "showcase.project-by-slug.markdown"
-      : "showcase.project-by-slug",
-    ...(options?.published ? { perspective: "published" as const } : {})
+    tag: "showcase.project-by-slug"
   })
+}
+
+/** Shared per-slug cache entry for the human project page and the `.md` builder. */
+export async function getProjectData(
+  slug: string
+): Promise<ShowcaseProjectDetail | null> {
+  "use cache"
+  const project = await fetchProjectBySlug(slug)
+  if (!project) cacheLife("hours")
+  return project
 }
 
 export interface ProjectIndexEntry {
@@ -171,36 +178,8 @@ export async function fetchProjectMeta(
   })
 }
 
-export interface RelatedProjectMarkdown {
-  title: string
-  slug: string
-}
-
-/**
- * Same deterministic selection as fetchRelatedProjects, minus the icons fetch —
- * the `.md` route never renders them. Published perspective keeps stega out.
- */
-export async function fetchRelatedProjectsForMarkdown(
-  excludeSlug: string
-): Promise<RelatedProjectMarkdown[]> {
-  const all = await sanityFetchCached<Array<{
-    _id: string
-    title: string
-    slug: string
-  }> | null>({
-    query: relatedProjectsSlugsQuery,
-    perspective: "published",
-    tag: "showcase.related-projects.markdown"
-  })
-  if (!all) return []
-
-  return selectRelatedProjects({
-    projects: all.map((project) => ({ ...project, icon: null })),
-    excludeSlug
-  }).map(({ title, slug }) => ({ title, slug }))
-}
-
-export async function fetchRelatedProjects(
+/** Selection without the icons fetch — all the `.md` builder needs. */
+export async function fetchRelatedProjectSlugs(
   excludeSlug: string
 ): Promise<RelatedProject[]> {
   const all = await sanityFetchCached<Array<{
@@ -213,10 +192,16 @@ export async function fetchRelatedProjects(
   })
   if (!all) return []
 
-  const selected = selectRelatedProjects({
+  return selectRelatedProjects({
     projects: all.map((project) => ({ ...project, icon: null })),
     excludeSlug
   })
+}
+
+export async function fetchRelatedProjects(
+  excludeSlug: string
+): Promise<RelatedProject[]> {
+  const selected = await fetchRelatedProjectSlugs(excludeSlug)
   if (!selected.length) return []
 
   const icons = await sanityFetchCached<

@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache"
+import { stegaClean } from "next-sanity"
 
 import { fetchHomepage } from "@/app/(site)/(canvas)/(content)/(home)/sanity"
 import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
@@ -11,7 +12,8 @@ import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdo
 
 export async function buildIndexMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  const { homepage } = await fetchHomepage({ published: true })
+  // Draft mode leaves stega on — strip it from crawler-facing output.
+  const { homepage } = stegaClean(await fetchHomepage())
   if (!homepage) {
     cacheLife("hours")
     return { markdown: NOT_FOUND_MARKDOWN, status: 404 }

@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache"
+import { stegaClean } from "next-sanity"
 
 import {
   fetchAwardsForMarkdown,
@@ -15,11 +16,14 @@ import { portableTextToMarkdown } from "@/service/sanity/portable-text-to-markdo
 
 export async function buildServicesMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  const [services, awards, testimonial] = await Promise.all([
-    fetchServicesPage({ published: true }),
-    fetchAwardsForMarkdown(),
-    fetchTestimonial({ published: true })
-  ])
+  // Draft mode leaves stega on — strip it from crawler-facing output.
+  const [services, awards, testimonial] = stegaClean(
+    await Promise.all([
+      fetchServicesPage(),
+      fetchAwardsForMarkdown(),
+      fetchTestimonial()
+    ])
+  )
   if (!services) {
     cacheLife("hours")
     return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
