@@ -21,10 +21,8 @@ const hasValidBearer = (request: NextRequest): boolean => {
 }
 
 /**
- * Sanity publish webhook — one request per publish, replacing the
- * `<SanityLive>` connection that every visitor used to open against the
- * uncached API. Accepts either of Sanity's auth mechanisms: the built-in
- * "Secret" field (signature) or an `Authorization: Bearer` custom header.
+ * Sanity publish webhook. Accepts either auth mechanism Sanity offers: the
+ * built-in "Secret" field (signature) or an `Authorization: Bearer` header.
  */
 export async function POST(request: NextRequest) {
   if (!secret) {
@@ -32,10 +30,8 @@ export async function POST(request: NextRequest) {
     return Response.json({ revalidated: false }, { status: 500 })
   }
 
-  // Bearer first: it reads headers only, leaving the body for `parseBody`,
-  // which needs the raw text to check the signature. Its default 3s wait for
-  // Content Lake consistency is load-bearing — entries live for a year, so
-  // repopulating one with pre-publish data would strand it there.
+  // Bearer first — headers only, leaving the body for `parseBody`, whose 3s
+  // wait for Content Lake consistency keeps a refetch off pre-publish data.
   const authorized =
     hasValidBearer(request) ||
     (await parseBody(request, secret)).isValidSignature === true
@@ -46,8 +42,8 @@ export async function POST(request: NextRequest) {
     return Response.json({ revalidated: false }, { status: 401 })
   }
 
-  // "max" marks the tag stale rather than expiring it, so the next visitor is
-  // served the cached copy while the refetch happens behind them.
+  // "max" marks stale rather than expiring: next visitor gets the cached copy
+  // while the refetch happens behind them.
   revalidateTag(SANITY_CONTENT_TAG, "max")
 
   return Response.json({ revalidated: true })

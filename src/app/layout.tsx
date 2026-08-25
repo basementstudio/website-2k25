@@ -62,22 +62,27 @@ const flauta = localFont({
   variable: "--font-flauta"
 })
 
+// Preview keeps the listener: the webhook only points at production, so nothing
+// else invalidates a preview build's cache. Positive check so unset fails closed.
+const isNonProductionDeployment =
+  process.env.VERCEL_ENV === "preview" || process.env.NODE_ENV === "development"
+
 async function DraftModeTools() {
   const isDraftMode = (await draftMode()).isEnabled
 
-  // Draft mode only: <SanityLive> opens a browser connection to the uncached
-  // api.sanity.io per page view, which put the API quota on a per-visitor
-  // curve. Published content revalidates via the webhook in
-  // `api/sanity/revalidate` instead.
-  if (!isDraftMode) return null
+  if (isDraftMode) {
+    return (
+      <>
+        <SanityLive includeDrafts />
+        <VisualEditing />
+        <DisableDraftMode />
+      </>
+    )
+  }
 
-  return (
-    <>
-      <SanityLive includeDrafts />
-      <VisualEditing />
-      <DisableDraftMode />
-    </>
-  )
+  // Never for production visitors: one api.sanity.io connection per page view.
+  // `includeDrafts` is explicit because `strict: true` rejects the default.
+  return isNonProductionDeployment ? <SanityLive includeDrafts={false} /> : null
 }
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
