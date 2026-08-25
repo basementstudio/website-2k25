@@ -20,14 +20,16 @@ export async function fetchCurrentYear(): Promise<number> {
 export async function fetchProjectsCount(): Promise<number> {
   "use cache"
   return sanityFetch<number>({
-    query: /* groq */ `count(*[_type == "showcasePage"][0].projects)`
+    query: /* groq */ `count(*[_type == "showcasePage"][0].projects)`,
+    tag: "layout.projects-count"
   })
 }
 
 export async function fetchPostsCount(): Promise<number> {
   "use cache"
   return sanityFetch<number>({
-    query: /* groq */ `count(*[_type == "post"])`
+    query: /* groq */ `count(*[_type == "post"])`,
+    tag: "layout.posts-count"
   })
 }
 
@@ -42,7 +44,8 @@ const companyInfoQuery = /* groq */ `*[_type == "companyInfo"][0] {
 export async function fetchCompanyInfo(): Promise<CompanyInfo> {
   "use cache"
   return sanityFetch<CompanyInfo>({
-    query: companyInfoQuery
+    query: companyInfoQuery,
+    tag: "layout.company-info"
   })
 }
 
@@ -50,6 +53,7 @@ export async function fetchCompanyInfo(): Promise<CompanyInfo> {
 export async function fetchCompanyInfoForMarkdown(): Promise<CompanyInfo | null> {
   return sanityFetchCached<CompanyInfo | null>({
     query: companyInfoQuery,
-    perspective: "published"
+    perspective: "published",
+    tag: "layout.company-info.markdown"
   })
 }

@@ -46,6 +46,7 @@ export async function fetchFaqPage(
 ): Promise<FaqPageContent | null> {
   const doc = await sanityFetchCached<FaqPageDocument | null>({
     query: faqPageQuery,
+    tag: options?.published ? "faq.page.markdown" : "faq.page",
     ...(options?.published ? { perspective: "published" as const } : {})
   })
 

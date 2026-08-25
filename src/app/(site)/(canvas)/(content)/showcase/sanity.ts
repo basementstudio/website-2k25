@@ -85,7 +85,8 @@ const categoriesQuery = /* groq */ `
 export async function fetchProjects(): Promise<ShowcaseProject[]> {
   "use cache"
   const projects = await sanityFetch<ShowcaseProject[] | null>({
-    query: showcaseProjectsQuery
+    query: showcaseProjectsQuery,
+    tag: "showcase.projects"
   })
   return projects ?? []
 }
@@ -93,7 +94,8 @@ export async function fetchProjects(): Promise<ShowcaseProject[]> {
 export async function fetchProjectsCount(): Promise<number> {
   "use cache"
   return sanityFetch<number>({
-    query: showcaseCountQuery
+    query: showcaseCountQuery,
+    tag: "showcase.projects-count"
   })
 }
 
@@ -113,7 +115,8 @@ export async function fetchProjectListForSchema(): Promise<
     title: string
     slug: string
   }> | null>({
-    query: projectListForSchemaQuery
+    query: projectListForSchemaQuery,
+    tag: "showcase.project-list-schema"
   })
   return projects ?? []
 }
@@ -121,7 +124,8 @@ export async function fetchProjectListForSchema(): Promise<
 export async function fetchCategories(): Promise<ShowcaseCategory[]> {
   "use cache"
   return sanityFetch<ShowcaseCategory[]>({
-    query: categoriesQuery
+    query: categoriesQuery,
+    tag: "showcase.categories"
   })
 }
 
@@ -151,7 +155,8 @@ export async function fetchShowcaseListForMarkdown(): Promise<
 > {
   const projects = await sanityFetchCached<ShowcaseListEntry[] | null>({
     query: showcaseListForMarkdownQuery,
-    perspective: "published"
+    perspective: "published",
+    tag: "showcase.list.markdown"
   })
   return projects ?? []
 }

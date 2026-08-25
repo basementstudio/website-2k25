@@ -108,17 +108,20 @@ export async function fetchServicesPage(
   if (options?.published) {
     return sanityFetchCached<ServicesPageData | null>({
       query: servicesPageQuery,
-      perspective: "published"
+      perspective: "published",
+      tag: "services.page.markdown"
     })
   }
   return sanityFetchCached<ServicesPageData | null>({
-    query: servicesPageQuery
+    query: servicesPageQuery,
+    tag: "services.page"
   })
 }
 
 export async function fetchAwards(): Promise<ServiceAward[]> {
   const result = await sanityFetchCached<ServiceAward[] | null>({
-    query: awardsQuery
+    query: awardsQuery,
+    tag: "services.awards"
   })
   return result ?? []
 }
@@ -128,7 +131,8 @@ export async function fetchAwardsForMarkdown(): Promise<
 > {
   const result = await sanityFetchCached<ServiceAwardMarkdown[] | null>({
     query: awardsForMarkdownQuery,
-    perspective: "published"
+    perspective: "published",
+    tag: "services.awards.markdown"
   })
   return result ?? []
 }
@@ -139,6 +143,9 @@ export async function fetchTestimonial(
 ): Promise<ServiceTestimonial | null> {
   return sanityFetchCached<ServiceTestimonial | null>({
     query: testimonialQuery,
+    tag: options?.published
+      ? "services.testimonial.markdown"
+      : "services.testimonial",
     ...(options?.published ? { perspective: "published" } : {})
   })
 }

@@ -54,6 +54,9 @@ export async function fetchCareerPosition(
   return sanityFetch<CareerPosition | null>({
     query,
     params: { slug },
+    tag: options?.published
+      ? "careers.position-by-slug.markdown"
+      : "careers.position-by-slug",
     ...(options?.published ? { perspective: "published" as const } : {})
   })
 }
@@ -72,7 +75,8 @@ export async function fetchAllOpenPositionsForIndex(): Promise<
   }`
   return sanityFetchCached<OpenPositionIndexEntry[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "careers.positions-index"
   })
 }
 
@@ -80,7 +84,8 @@ export async function fetchAllOpenPositionSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "openPosition" && isOpen == true]{ "slug": slug.current }.slug`
   return sanityFetchStatic<string[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "careers.position-slugs.static-params"
   })
 }
 
@@ -92,6 +97,7 @@ export async function fetchCareerPositionMeta(
     query,
     params: { slug },
     perspective: "published",
-    boundEmptyResult: true
+    boundEmptyResult: true,
+    tag: "careers.position-meta"
   })
 }

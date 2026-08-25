@@ -9,11 +9,19 @@ export { client }
 
 type Perspective = "published" | "drafts"
 
+/** Call-site id logged to the Sanity request log, so usage can be attributed per route. Required so no fetch goes untagged. */
+export type SanityRequestTag = string
+
+const TAG_PREFIX = "web"
+
+const requestTag = (tag: SanityRequestTag) => `${TAG_PREFIX}.${tag}`
+
 export async function sanityFetch<T>({
   query,
   params = {},
   stega,
-  perspective
+  perspective,
+  tag
 }: {
   query: string
   params?: QueryParams
@@ -21,6 +29,7 @@ export async function sanityFetch<T>({
   stega?: boolean
   /** Override the perspective. Pass "published" in generateStaticParams / generateMetadata. */
   perspective?: Perspective
+  tag: SanityRequestTag
 }): Promise<T> {
   // strict `defineLive` needs an explicit perspective + boolean stega.
   let resolvedPerspective: Perspective = perspective ?? "published"
@@ -37,7 +46,8 @@ export async function sanityFetch<T>({
     query,
     params,
     stega: resolvedStega,
-    perspective: resolvedPerspective
+    perspective: resolvedPerspective,
+    requestTag: requestTag(tag)
   })
   return data as T
 }
@@ -51,6 +61,7 @@ export async function sanityFetchCached<T>(opts: {
   params?: QueryParams
   perspective?: Perspective
   boundEmptyResult?: boolean
+  tag: SanityRequestTag
 }): Promise<T> {
   "use cache"
   const data = await sanityFetch<T>(opts)
@@ -67,11 +78,17 @@ export async function sanityFetchCached<T>(opts: {
 export async function sanityFetchStatic<T>({
   query,
   params = {},
-  perspective = "published"
+  perspective = "published",
+  tag
 }: {
   query: string
   params?: QueryParams
   perspective?: Perspective
+  tag: SanityRequestTag
 }): Promise<T> {
-  return client.fetch<T>(query, params, { perspective, stega: false })
+  return client.fetch<T>(query, params, {
+    perspective,
+    stega: false,
+    tag: requestTag(tag)
+  })
 }

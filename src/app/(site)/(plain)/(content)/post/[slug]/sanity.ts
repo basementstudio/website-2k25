@@ -87,6 +87,7 @@ export async function fetchPostBySlug(
   return sanityFetch<PostDetail | null>({
     query,
     params: { slug },
+    tag: options?.published ? "post.by-slug.markdown" : "post.by-slug",
     ...(options?.published ? { perspective: "published" as const } : {})
   })
 }
@@ -105,7 +106,8 @@ export async function fetchAllPostsForIndex(): Promise<PostIndexEntry[]> {
   }`
   return sanityFetchCached<PostIndexEntry[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "post.index"
   })
 }
 
@@ -130,7 +132,8 @@ export async function fetchRelatedPosts(
   }`
   const posts = await sanityFetch<RelatedPost[]>({
     query,
-    params: { slug: currentSlug, titles: currentCategoryTitles }
+    params: { slug: currentSlug, titles: currentCategoryTitles },
+    tag: "post.related"
   })
 
   return selectRelatedPosts({
@@ -171,7 +174,8 @@ export async function fetchRelatedPostsForMarkdown(
     {
       query,
       params: { slug: currentSlug, titles: currentCategoryTitles },
-      perspective: "published"
+      perspective: "published",
+      tag: "post.related.markdown"
     }
   )
   if (!posts) return []
@@ -187,7 +191,8 @@ export async function fetchAllPostSlugs(): Promise<string[]> {
   const query = /* groq */ `*[_type == "post"]{ "slug": slug.current }.slug`
   return sanityFetchStatic<string[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "post.slugs.static-params"
   })
 }
 
@@ -202,6 +207,7 @@ export async function fetchPostMeta(
     query,
     params: { slug },
     perspective: "published",
-    boundEmptyResult: true
+    boundEmptyResult: true,
+    tag: "post.meta"
   })
 }

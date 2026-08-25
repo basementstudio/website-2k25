@@ -140,6 +140,7 @@ export async function fetchPeoplePage(
 ): Promise<PeoplePageData | null> {
   return sanityFetchCached<PeoplePageData | null>({
     query: peoplePageQuery,
+    tag: options?.published ? "people.page.markdown" : "people.page",
     ...(options?.published ? { perspective: "published" } : {})
   })
 }
@@ -149,6 +150,7 @@ export async function fetchPeople(options?: {
 }): Promise<PersonItem[]> {
   const result = await sanityFetchCached<PersonItem[] | null>({
     query: peopleQuery,
+    tag: "people.roster",
     ...(options?.published ? { perspective: "published" } : {})
   })
   return result ?? []
@@ -159,6 +161,7 @@ export async function fetchPeopleForMarkdown(options?: {
 }): Promise<PersonMarkdownItem[]> {
   const result = await sanityFetchCached<PersonMarkdownItem[] | null>({
     query: peopleForMarkdownQuery,
+    tag: "people.roster.markdown",
     ...(options?.published ? { perspective: "published" } : {})
   })
   return result ?? []
@@ -166,7 +169,8 @@ export async function fetchPeopleForMarkdown(options?: {
 
 export async function fetchValues(): Promise<ValueItem[]> {
   const result = await sanityFetchCached<ValueItem[] | null>({
-    query: valuesQuery
+    query: valuesQuery,
+    tag: "people.values"
   })
   return result ?? []
 }
@@ -176,6 +180,7 @@ export async function fetchValuesForMarkdown(options?: {
 }): Promise<ValueMarkdownItem[]> {
   const result = await sanityFetchCached<ValueMarkdownItem[] | null>({
     query: valuesForMarkdownQuery,
+    tag: "people.values.markdown",
     ...(options?.published ? { perspective: "published" } : {})
   })
   return result ?? []
@@ -186,6 +191,9 @@ export async function fetchOpenPositions(options?: {
 }): Promise<OpenPositionItem[]> {
   const result = await sanityFetchCached<OpenPositionItem[] | null>({
     query: openPositionsQuery,
+    tag: options?.published
+      ? "people.open-positions.markdown"
+      : "people.open-positions",
     ...(options?.published ? { perspective: "published" } : {})
   })
   return result ?? []

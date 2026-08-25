@@ -110,11 +110,13 @@ export async function fetchHomepage(
   if (options?.published) {
     return sanityFetchCached<HomepageData>({
       query: homepageQuery,
-      perspective: "published"
+      perspective: "published",
+      tag: "home.page"
     })
   }
   return sanityFetchCached<HomepageData>({
-    query: homepageQuery
+    query: homepageQuery,
+    tag: "home.page"
   })
 }
 

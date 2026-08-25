@@ -436,7 +436,8 @@ const threeDAssetsQuery = /* groq */ `
 export async function fetchThreeDAssets(): Promise<SanityThreeDAssetsResult> {
   const result = await sanityFetch<SanityThreeDAssetsResult>({
     query: threeDAssetsQuery,
-    stega: false
+    stega: false,
+    tag: "assets.3d-assets"
   })
   return result
 }

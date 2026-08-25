@@ -89,7 +89,8 @@ export async function fetchOrganizationData(): Promise<OrganizationStructuredDat
         projectName: string | null
       }> | null
     }>({
-      query: organizationQuery
+      query: organizationQuery,
+      tag: "layout.organization-schema"
     })
 
     return {

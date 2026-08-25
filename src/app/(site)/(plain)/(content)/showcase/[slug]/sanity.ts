@@ -120,6 +120,9 @@ export async function fetchProjectBySlug(
   return sanityFetch<ShowcaseProjectDetail | null>({
     query: projectBySlugQuery,
     params: { slug },
+    tag: options?.published
+      ? "showcase.project-by-slug.markdown"
+      : "showcase.project-by-slug",
     ...(options?.published ? { perspective: "published" as const } : {})
   })
 }
@@ -138,7 +141,8 @@ export async function fetchAllProjectsForIndex(): Promise<ProjectIndexEntry[]> {
   }`
   return sanityFetchCached<ProjectIndexEntry[]>({
     query,
-    perspective: "published"
+    perspective: "published",
+    tag: "showcase.projects-index"
   })
 }
 
@@ -147,7 +151,8 @@ export async function fetchAllProjectSlugs(): Promise<Array<{
 }> | null> {
   return sanityFetchStatic<Array<{ slug: string }> | null>({
     query: allProjectSlugsQuery,
-    perspective: "published"
+    perspective: "published",
+    tag: "showcase.project-slugs.static-params"
   })
 }
 
@@ -161,7 +166,8 @@ export async function fetchProjectMeta(
     query: projectMetaQuery,
     params: { slug },
     perspective: "published",
-    boundEmptyResult: true
+    boundEmptyResult: true,
+    tag: "showcase.project-meta"
   })
 }
 
@@ -183,7 +189,8 @@ export async function fetchRelatedProjectsForMarkdown(
     slug: string
   }> | null>({
     query: relatedProjectsSlugsQuery,
-    perspective: "published"
+    perspective: "published",
+    tag: "showcase.related-projects.markdown"
   })
   if (!all) return []
 
@@ -201,7 +208,8 @@ export async function fetchRelatedProjects(
     title: string
     slug: string
   }> | null>({
-    query: relatedProjectsSlugsQuery
+    query: relatedProjectsSlugsQuery,
+    tag: "showcase.related-projects"
   })
   if (!all) return []
 
@@ -215,7 +223,8 @@ export async function fetchRelatedProjects(
     Array<{ slug: string; icon: SanityImage | null }>
   >({
     query: relatedProjectsIconsQuery,
-    params: { slugs: selected.map((project) => project.slug) }
+    params: { slugs: selected.map((project) => project.slug) },
+    tag: "showcase.related-project-icons"
   })
   const iconBySlug = new Map(icons.map((i) => [i.slug, i.icon]))
 
