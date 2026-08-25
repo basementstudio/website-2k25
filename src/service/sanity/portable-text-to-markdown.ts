@@ -1,5 +1,3 @@
-import { stegaClean } from "next-sanity"
-
 import { normalizeHref } from "@/utils/seo"
 
 import { getImageUrl } from "./helpers"
@@ -76,12 +74,10 @@ export function portableTextToMarkdown(
 ): string {
   if (!blocks?.length) return ""
 
-  // Draft-mode callers no longer pin `perspective: "published"`, so guard
-  // against stega chars leaking into this crawler-facing markdown output.
-  const cleanBlocks = stegaClean(blocks)
-
+  // Callers `stegaClean` their whole payload before getting here — see the `.md`
+  // builders. Cleaning again would re-clone nested blocks once per recursion.
   const pieces: Array<{ isListItem: boolean; md: string }> = []
-  for (const block of cleanBlocks) {
+  for (const block of blocks) {
     const md = renderBlock(block, opts?.baseUrl)
     if (md == null) continue
     const isListItem =

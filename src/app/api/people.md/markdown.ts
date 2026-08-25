@@ -27,9 +27,9 @@ export async function buildPeopleMarkdown(): Promise<MarkdownResult> {
   const [page, people, positions, values] = stegaClean(
     await Promise.all([
       fetchPeoplePage(),
-      fetchPeopleForMarkdown({ published: true }),
+      fetchPeopleForMarkdown(),
       fetchOpenPositions(),
-      fetchValuesForMarkdown({ published: true })
+      fetchValuesForMarkdown()
     ])
   )
 

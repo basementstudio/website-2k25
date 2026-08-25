@@ -66,10 +66,10 @@ export async function fetchOrganizationData(): Promise<OrganizationStructuredDat
       ...getOrganizationFallback(),
       awards: awards ?? [],
       social: {
-        github: companyInfo.github,
-        instagram: companyInfo.instagram,
-        twitter: companyInfo.twitter,
-        linkedIn: companyInfo.linkedIn
+        github: companyInfo?.github ?? null,
+        instagram: companyInfo?.instagram ?? null,
+        twitter: companyInfo?.twitter ?? null,
+        linkedIn: companyInfo?.linkedIn ?? null
       }
     }
   } catch (error) {

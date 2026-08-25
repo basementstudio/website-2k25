@@ -141,24 +141,19 @@ export async function fetchPeoplePage(): Promise<PeoplePageData | null> {
   })
 }
 
-export async function fetchPeople(options?: {
-  published?: boolean
-}): Promise<PersonItem[]> {
+export async function fetchPeople(): Promise<PersonItem[]> {
   const result = await sanityFetchCached<PersonItem[] | null>({
     query: peopleQuery,
-    tag: "people.roster",
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "people.roster"
   })
   return result ?? []
 }
 
-export async function fetchPeopleForMarkdown(options?: {
-  published?: boolean
-}): Promise<PersonMarkdownItem[]> {
+export async function fetchPeopleForMarkdown(): Promise<PersonMarkdownItem[]> {
   const result = await sanityFetchCached<PersonMarkdownItem[] | null>({
     query: peopleForMarkdownQuery,
-    tag: "people.roster.markdown",
-    ...(options?.published ? { perspective: "published" } : {})
+    perspective: "published",
+    tag: "people.roster.markdown"
   })
   return result ?? []
 }
@@ -171,13 +166,11 @@ export async function fetchValues(): Promise<ValueItem[]> {
   return result ?? []
 }
 
-export async function fetchValuesForMarkdown(options?: {
-  published?: boolean
-}): Promise<ValueMarkdownItem[]> {
+export async function fetchValuesForMarkdown(): Promise<ValueMarkdownItem[]> {
   const result = await sanityFetchCached<ValueMarkdownItem[] | null>({
     query: valuesForMarkdownQuery,
-    tag: "people.values.markdown",
-    ...(options?.published ? { perspective: "published" } : {})
+    perspective: "published",
+    tag: "people.values.markdown"
   })
   return result ?? []
 }

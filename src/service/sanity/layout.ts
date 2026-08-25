@@ -16,7 +16,8 @@ export interface LayoutAward {
 }
 
 export interface LayoutData {
-  companyInfo: LayoutCompanyInfo
+  /** `null` when the `companyInfo` singleton is missing or unpublished. */
+  companyInfo: LayoutCompanyInfo | null
   projectsCount: number
   postsCount: number
   awards: LayoutAward[] | null
