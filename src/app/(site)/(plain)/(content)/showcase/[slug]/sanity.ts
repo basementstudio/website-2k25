@@ -178,7 +178,8 @@ export async function fetchProjectMeta(
   })
 }
 
-export async function fetchRelatedProjects(
+/** Selection without the icons fetch — all the `.md` builder needs. */
+export async function fetchRelatedProjectSlugs(
   excludeSlug: string
 ): Promise<RelatedProject[]> {
   const all = await sanityFetchCached<Array<{
@@ -191,10 +192,16 @@ export async function fetchRelatedProjects(
   })
   if (!all) return []
 
-  const selected = selectRelatedProjects({
+  return selectRelatedProjects({
     projects: all.map((project) => ({ ...project, icon: null })),
     excludeSlug
   })
+}
+
+export async function fetchRelatedProjects(
+  excludeSlug: string
+): Promise<RelatedProject[]> {
+  const selected = await fetchRelatedProjectSlugs(excludeSlug)
   if (!selected.length) return []
 
   const icons = await sanityFetchCached<

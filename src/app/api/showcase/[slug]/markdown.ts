@@ -2,7 +2,7 @@ import { cacheLife } from "next/cache"
 import { stegaClean } from "next-sanity"
 
 import {
-  fetchRelatedProjects,
+  fetchRelatedProjectSlugs,
   getProjectData
 } from "@/app/(site)/(plain)/(content)/showcase/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
@@ -23,7 +23,7 @@ export async function buildShowcaseMarkdown(
   }
   // Draft mode leaves stega on — strip it from crawler-facing output.
   const project = stegaClean(projectData)
-  const relatedProjects = stegaClean(await fetchRelatedProjects(slug))
+  const relatedProjects = stegaClean(await fetchRelatedProjectSlugs(slug))
 
   const clientLine = project.client
     ? project.client.website
