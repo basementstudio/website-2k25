@@ -14,6 +14,7 @@ import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
 import { Field, linkClass, Section } from "./components"
+import { MachineHeader } from "./machine-header"
 
 export const metadata: Metadata = {
   title: "Machine view",
@@ -21,27 +22,6 @@ export const metadata: Metadata = {
     "Plain-text index of basement.studio for AI agents and crawlers: who the studio is, services, clients, projects, writing, and contact.",
   alternates: { canonical: "/ai" }
 }
-
-// "BSMNT" — ANSI-shadow block letters. Decorative only; entity data below is
-// what crawlers read.
-const ASCII_LOGO = `██████╗ ███████╗███╗   ███╗███╗   ██╗████████╗
-██╔══██╗██╔════╝████╗ ████║████╗  ██║╚══██╔══╝
-██████╔╝███████╗██╔████╔██║██╔██╗ ██║   ██║
-██╔══██╗╚════██║██║╚██╔╝██║██║╚██╗██║   ██║
-██████╔╝███████║██║ ╚═╝ ██║██║ ╚████║   ██║
-╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═══╝   ╚═╝`
-
-const NAV_LINKS = [
-  // The human home is the escape hatch; every other section has a machine twin.
-  { href: "/", label: "home" },
-  { href: "/ai/services", label: "services" },
-  { href: "/ai/showcase", label: "showcase" },
-  { href: "/ai/people", label: "people" },
-  { href: "/ai/blog", label: "blog" },
-  { href: "/ai/lab", label: "lab" },
-  { href: "/ai/faq", label: "faq" },
-  { href: "/ai/contact", label: "contact" }
-]
 
 const AGENT_RESOURCES = [
   { href: "/llms.txt", label: "llms.txt" },
@@ -102,14 +82,7 @@ const AiPage = async () => {
       <PageJsonLd />
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
         <header className="flex flex-col gap-4">
-          {/* Font size scales with the viewport (46-char-wide art), capped so
-            the logo sits at roughly 3/4 of the content column. */}
-          <pre
-            aria-hidden="true"
-            className="w-full text-[min(16px,calc((100vw-2rem)/38))] leading-tight text-machine-base"
-          >
-            {ASCII_LOGO}
-          </pre>
+          <MachineHeader />
           <h1 className="text-machine-bright">
             basement.studio :: machine-readable index
           </h1>
@@ -117,16 +90,6 @@ const AiPage = async () => {
             # plain-text mirror of basement.studio for AI agents, crawlers, and
             humans who prefer it raw.
           </p>
-          <nav
-            aria-label="Site index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className={linkClass}>
-                {link.href}
-              </a>
-            ))}
-          </nav>
         </header>
 
         <Section title="about">

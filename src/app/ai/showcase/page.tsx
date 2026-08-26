@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
+import { MachineHeader } from "@/app/ai/machine-header"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { truncateDescription } from "@/utils/seo"
 
@@ -21,16 +22,7 @@ const MachineShowcasePage = async () => {
       <PageJsonLd />
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
         <header className="flex flex-col gap-4">
-          <nav
-            aria-label="Machine index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            <a href="/ai" className={linkClass}>
-              /ai
-            </a>
-            <span className="text-machine-dim">::</span>
-            <span className="text-machine-dim">showcase</span>
-          </nav>
+          <MachineHeader current="/ai/showcase" />
           <h1 className="text-machine-bright">
             basement.studio :: showcase index
           </h1>

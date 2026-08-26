@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 
 import { fetchLabProjects } from "@/actions/laboratory-fetch/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
+import { MachineHeader } from "@/app/ai/machine-header"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 
 export const metadata: Metadata = {
@@ -27,16 +28,7 @@ const MachineLabPage = async () => {
       <PageJsonLd />
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
         <header className="flex flex-col gap-4">
-          <nav
-            aria-label="Machine index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            <a href="/ai" className={linkClass}>
-              /ai
-            </a>
-            <span className="text-machine-dim">::</span>
-            <span className="text-machine-dim">lab</span>
-          </nav>
+          <MachineHeader current="/ai/lab" />
           <h1 className="text-machine-bright">basement.studio :: lab</h1>
           <p className="text-machine-dim">
             # experiments and interactive demos built by basement.studio. the

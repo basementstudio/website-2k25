@@ -8,6 +8,7 @@ import {
   fetchTestimonial
 } from "@/app/(site)/(canvas)/(content)/services/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
+import { MachineHeader } from "@/app/ai/machine-header"
 import { MachinePortableText } from "@/app/ai/machine-portable-text"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 
@@ -48,16 +49,7 @@ const MachineServicesPage = async () => {
         {/* Header/meta stay uppercase like the /ai index; Portable Text bodies
           keep their authored casing for readability. */}
         <header className="flex flex-col gap-4 uppercase">
-          <nav
-            aria-label="Machine index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            <a href="/ai" className={linkClass}>
-              /ai
-            </a>
-            <span className="text-machine-dim">::</span>
-            <span className="text-machine-dim">services</span>
-          </nav>
+          <MachineHeader current="/ai/services" />
           <h1 className="text-machine-bright">basement.studio :: services</h1>
           <p className="text-machine-dim">
             # what the studio does, machine-readable.

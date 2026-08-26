@@ -7,6 +7,7 @@ import {
   getPostData
 } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
+import { MachineHeader } from "@/app/ai/machine-header"
 import { MachinePortableText } from "@/app/ai/machine-portable-text"
 import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
@@ -49,20 +50,7 @@ const MachinePostPage = async ({ params }: MachinePostProps) => {
         {/* Header/meta stay uppercase like the /ai index; the article body keeps
           its authored casing for readability. */}
         <header className="flex flex-col gap-4 uppercase">
-          <nav
-            aria-label="Machine index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            <a href="/ai" className={linkClass}>
-              /ai
-            </a>
-            <span className="text-machine-dim">::</span>
-            <a href="/ai/blog" className={linkClass}>
-              blog
-            </a>
-            <span className="text-machine-dim">::</span>
-            <span className="text-machine-dim">post/{post.slug}</span>
-          </nav>
+          <MachineHeader current="/ai/blog" />
           <h1 className="text-machine-bright">{post.title}</h1>
           <dl className="flex flex-col gap-1">
             {post.date ? (

@@ -8,6 +8,7 @@ import {
   fetchValuesForMarkdown
 } from "@/app/(site)/(canvas)/(content)/people/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
+import { MachineHeader } from "@/app/ai/machine-header"
 import { MachinePortableText } from "@/app/ai/machine-portable-text"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { displayPlatform, platformAriaLabel } from "@/utils/social-platform"
@@ -50,16 +51,7 @@ const MachinePeoplePage = async () => {
         {/* Header/meta stay uppercase like the /ai index; Portable Text bodies
           keep their authored casing for readability. */}
         <header className="flex flex-col gap-4 uppercase">
-          <nav
-            aria-label="Machine index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            <a href="/ai" className={linkClass}>
-              /ai
-            </a>
-            <span className="text-machine-dim">::</span>
-            <span className="text-machine-dim">people</span>
-          </nav>
+          <MachineHeader current="/ai/people" />
           <h1 className="text-machine-bright">basement.studio :: people</h1>
           <p className="text-machine-dim">
             # the crew behind basement.studio, machine-readable.

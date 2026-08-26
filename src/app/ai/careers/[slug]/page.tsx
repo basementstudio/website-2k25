@@ -7,6 +7,7 @@ import {
   getPositionData
 } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
+import { MachineHeader } from "@/app/ai/machine-header"
 import { MachinePortableText } from "@/app/ai/machine-portable-text"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 
@@ -48,20 +49,7 @@ const MachineCareerPage = async ({ params }: MachineCareerProps) => {
         {/* Header/meta stay uppercase like the /ai index; the job description
           keeps its authored casing for readability. */}
         <header className="flex flex-col gap-4 uppercase">
-          <nav
-            aria-label="Machine index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            <a href="/ai" className={linkClass}>
-              /ai
-            </a>
-            <span className="text-machine-dim">::</span>
-            <a href="/ai/people" className={linkClass}>
-              people
-            </a>
-            <span className="text-machine-dim">::</span>
-            <span className="text-machine-dim">careers/{position.slug}</span>
-          </nav>
+          <MachineHeader current="/ai/people" />
           <h1 className="text-machine-bright">{position.title}</h1>
           <dl className="flex flex-col gap-1">
             {position.type ? <Field label="type">{position.type}</Field> : null}

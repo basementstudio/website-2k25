@@ -10,6 +10,7 @@ import {
   type PostArchiveEntry
 } from "@/app/(site)/(canvas)/(content)/blog/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
+import { MachineHeader } from "@/app/ai/machine-header"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { truncateDescription } from "@/utils/seo"
 
@@ -67,20 +68,7 @@ const MachineBlogCategoryPage = async ({
       <PageJsonLd />
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
         <header className="flex flex-col gap-4">
-          <nav
-            aria-label="Machine index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            <a href="/ai" className={linkClass}>
-              /ai
-            </a>
-            <span className="text-machine-dim">::</span>
-            <a href="/ai/blog" className={linkClass}>
-              blog
-            </a>
-            <span className="text-machine-dim">::</span>
-            <span className="text-machine-dim">{categorySlug}</span>
-          </nav>
+          <MachineHeader current="/ai/blog" />
           <h1 className="text-machine-bright">
             basement.studio :: blog :: {title}
           </h1>
@@ -178,16 +166,7 @@ const MachineBlogIndexPage = async () => {
       <PageJsonLd />
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
         <header className="flex flex-col gap-4">
-          <nav
-            aria-label="Machine index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            <a href="/ai" className={linkClass}>
-              /ai
-            </a>
-            <span className="text-machine-dim">::</span>
-            <span className="text-machine-dim">blog</span>
-          </nav>
+          <MachineHeader current="/ai/blog" />
           <h1 className="text-machine-bright">basement.studio :: blog index</h1>
           <p className="text-machine-dim">
             # every post from the basement blog, machine-readable. append .md to

@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { Field, linkClass, Section } from "@/app/ai/components"
+import { MachineHeader } from "@/app/ai/machine-header"
 import { fetchCompanyInfo } from "@/components/layout/sanity"
 import { COMPANY_FACTS } from "@/lib/company-facts"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
@@ -34,16 +35,7 @@ const MachineContactPage = async () => {
       <PageJsonLd />
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
         <header className="flex flex-col gap-4">
-          <nav
-            aria-label="Machine index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            <a href="/ai" className={linkClass}>
-              /ai
-            </a>
-            <span className="text-machine-dim">::</span>
-            <span className="text-machine-dim">contact</span>
-          </nav>
+          <MachineHeader current="/ai/contact" />
           <h1 className="text-machine-bright">basement.studio :: contact</h1>
           <p className="text-machine-dim">
             # tell us about your project — brands, websites, 3D experiences, or
