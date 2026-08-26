@@ -40,13 +40,10 @@ const isCompleteEntry = (entry: {
   answer: string | null
 }): entry is FaqEntry => Boolean(entry.question && entry.answer)
 
-export async function fetchFaqPage(
-  /** Pass `published: true` for non-draft contexts (`generateMetadata`, the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
-): Promise<FaqPageContent | null> {
+export async function fetchFaqPage(): Promise<FaqPageContent | null> {
   const doc = await sanityFetchCached<FaqPageDocument | null>({
     query: faqPageQuery,
-    ...(options?.published ? { perspective: "published" as const } : {})
+    tag: "faq.page"
   })
 
   if (!doc) return null

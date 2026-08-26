@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache"
+import { stegaClean } from "next-sanity"
 
-import { fetchCareerPosition } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
+import { getPositionData } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
 import { SITE_URL } from "@/lib/constants"
 import {
   type MarkdownResult,
@@ -12,13 +13,15 @@ export async function buildCareerMarkdown(
   slug: string
 ): Promise<MarkdownResult> {
   "use cache"
-  const position = await fetchCareerPosition(slug, { published: true })
+  const positionData = await getPositionData(slug)
   // A missing doc has no Sanity tag to invalidate its 404, so cap it; a closed
   // one does. Both 404, mirroring the HTML page's `notFound()`.
-  if (!position) cacheLife("hours")
-  if (!position?.isOpen) {
+  if (!positionData) cacheLife("hours")
+  if (!positionData?.isOpen) {
     return { markdown: NOT_FOUND_MARKDOWN, status: 404 }
   }
+  // Draft mode leaves stega on — strip it from crawler-facing output.
+  const position = stegaClean(positionData)
 
   const skills = position.applyFormSetup?.skills
     ?.map((s) => s.title)

@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache"
+import { stegaClean } from "next-sanity"
 
 import {
   fetchOpenPositions,
@@ -21,12 +22,15 @@ const CREW_DEPARTMENTS = ["Management", "Design", "Development"]
 
 export async function buildPeopleMarkdown(): Promise<MarkdownResult> {
   "use cache"
-  const [page, people, positions, values] = await Promise.all([
-    fetchPeoplePage({ published: true }),
-    fetchPeopleForMarkdown({ published: true }),
-    fetchOpenPositions({ published: true }),
-    fetchValuesForMarkdown({ published: true })
-  ])
+  // Draft mode leaves stega on — strip it from crawler-facing output.
+  const [page, people, positions, values] = stegaClean(
+    await Promise.all([
+      fetchPeoplePage(),
+      fetchPeopleForMarkdown(),
+      fetchOpenPositions(),
+      fetchValuesForMarkdown()
+    ])
+  )
 
   if (!page) {
     cacheLife("hours")

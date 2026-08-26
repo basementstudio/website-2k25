@@ -62,20 +62,27 @@ const flauta = localFont({
   variable: "--font-flauta"
 })
 
+// Set only where Sanity actually posts the publish webhook. Deliberately not
+// SANITY_REVALIDATE_SECRET: preview needs that to verify the endpoint without
+// claiming to receive hooks. Read at build time — the layout is prerendered.
+const hasPublishWebhook = Boolean(process.env.SANITY_REVALIDATE_HOOK)
+
 async function DraftModeTools() {
   const isDraftMode = (await draftMode()).isEnabled
 
-  return (
-    <>
-      <SanityLive includeDrafts={isDraftMode} />
-      {isDraftMode ? (
-        <>
-          <VisualEditing />
-          <DisableDraftMode />
-        </>
-      ) : null}
-    </>
-  )
+  if (isDraftMode) {
+    return (
+      <>
+        <SanityLive includeDrafts />
+        <VisualEditing />
+        <DisableDraftMode />
+      </>
+    )
+  }
+
+  // Costs one api.sanity.io connection per page view, so only where nothing
+  // else revalidates. `strict: true` rejects a defaulted `includeDrafts`.
+  return hasPublishWebhook ? null : <SanityLive includeDrafts={false} />
 }
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {

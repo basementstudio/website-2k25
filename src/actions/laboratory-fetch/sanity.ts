@@ -30,6 +30,7 @@ export async function fetchLabProjects(
   const fetch = options?.published ? sanityFetch : sanityFetchStatic
   return fetch<LabProject[]>({
     query: labProjectsQuery,
-    perspective: "published"
+    perspective: "published",
+    tag: "lab.projects"
   })
 }

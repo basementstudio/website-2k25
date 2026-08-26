@@ -101,24 +101,17 @@ const testimonialQuery = /* groq */ `
 
 // Fetchers
 
-export async function fetchServicesPage(
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
-): Promise<ServicesPageData | null> {
-  if (options?.published) {
-    return sanityFetchCached<ServicesPageData | null>({
-      query: servicesPageQuery,
-      perspective: "published"
-    })
-  }
+export async function fetchServicesPage(): Promise<ServicesPageData | null> {
   return sanityFetchCached<ServicesPageData | null>({
-    query: servicesPageQuery
+    query: servicesPageQuery,
+    tag: "services.page"
   })
 }
 
 export async function fetchAwards(): Promise<ServiceAward[]> {
   const result = await sanityFetchCached<ServiceAward[] | null>({
-    query: awardsQuery
+    query: awardsQuery,
+    tag: "services.awards"
   })
   return result ?? []
 }
@@ -128,17 +121,15 @@ export async function fetchAwardsForMarkdown(): Promise<
 > {
   const result = await sanityFetchCached<ServiceAwardMarkdown[] | null>({
     query: awardsForMarkdownQuery,
-    perspective: "published"
+    perspective: "published",
+    tag: "services.awards.markdown"
   })
   return result ?? []
 }
 
-export async function fetchTestimonial(
-  /** Pass `published: true` for non-draft contexts (e.g. the `.md` endpoint) — disables stega so output isn't polluted with invisible chars. */
-  options?: { published?: boolean }
-): Promise<ServiceTestimonial | null> {
+export async function fetchTestimonial(): Promise<ServiceTestimonial | null> {
   return sanityFetchCached<ServiceTestimonial | null>({
     query: testimonialQuery,
-    ...(options?.published ? { perspective: "published" } : {})
+    tag: "services.testimonial"
   })
 }

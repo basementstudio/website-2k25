@@ -51,7 +51,8 @@ const staticRoutes: Array<{ href: string; priority: number }> = [
 async function getSitemapData(): Promise<SitemapData> {
   return sanityFetchCached<SitemapData>({
     query: SITEMAP_QUERY,
-    perspective: "published"
+    perspective: "published",
+    tag: "sitemap.entries"
   })
 }
 

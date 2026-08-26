@@ -127,6 +127,7 @@ export async function fetchThreeDConfig(): Promise<SanityThreeDConfigResult> {
   return sanityFetch<SanityThreeDConfigResult>({
     query: threeDConfigQuery,
     stega: false,
-    perspective: "published"
+    perspective: "published",
+    tag: "assets.3d-config"
   })
 }
