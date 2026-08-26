@@ -45,10 +45,11 @@ export const MachineHeader = ({ current }: { current?: string }) => (
     <nav aria-label="Site index" className="flex flex-wrap gap-x-4 gap-y-1">
       {NAV_LINKS.map((link) =>
         link.href === current ? (
+          // Inverted terminal-selection block marks the page you're on.
           <span
             key={link.href}
             aria-current="page"
-            className="text-machine-dim"
+            className="bg-machine-base px-1 text-machine-bg"
           >
             {link.href}
           </span>
