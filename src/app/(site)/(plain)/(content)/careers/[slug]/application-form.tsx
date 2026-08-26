@@ -1,5 +1,6 @@
 "use client"
 
+import * as Sentry from "@sentry/nextjs"
 import { track } from "@vercel/analytics"
 import { type KeyboardEventHandler, useEffect, useRef, useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
@@ -216,21 +217,38 @@ export const ApplicationForm = ({
     // Brief spinner, then optimistic success
     await new Promise((r) => setTimeout(r, 250))
     setFormState("submitted")
-    reset(getDefaultFormValues(positionSlug))
 
     // Fire API in background — revert on failure
     submitCareerApplication(submissionData)
       .then((result) => {
-        if (!result.success) {
+        if (result.success) {
+          // Only on success, so a failed retry keeps the typed data.
+          reset(getDefaultFormValues(positionSlug))
+        } else {
           setFormState("idle")
           setSubmitError(
             result.error || "Submission failed \u2014 please try again"
           )
+          // The one failure the action doesn't report itself.
+          if (result.reason === "validation") {
+            Sentry.captureMessage(
+              "Career application rejected by server validation",
+              {
+                level: "error",
+                tags: { form: "career-application", position: positionSlug }
+              }
+            )
+          }
         }
       })
-      .catch(() => {
+      .catch((error) => {
         setFormState("idle")
         setSubmitError("Submission failed \u2014 please try again")
+        // Own fingerprint, else this merges into Next's "Failed to fetch" pile.
+        Sentry.captureException(error, {
+          tags: { form: "career-application", position: positionSlug },
+          fingerprint: ["career-application-dropped"]
+        })
       })
       .finally(() => {
         apiInFlightRef.current = false
