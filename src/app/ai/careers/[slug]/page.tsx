@@ -66,6 +66,7 @@ const MachineCareerPage = async ({ params }: MachineCareerProps) => {
               <Field label="apply">
                 <a
                   href={position.applyUrl}
+                  target="_blank"
                   rel="noopener"
                   className={linkClass}
                 >

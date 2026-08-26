@@ -40,6 +40,7 @@ const MachineLabPage = async () => {
             <Field label="mirror">
               <a
                 href="https://lab.basement.studio/"
+                target="_blank"
                 rel="noopener"
                 className={linkClass}
               >
@@ -70,6 +71,7 @@ const MachineLabPage = async () => {
                   {"- "}
                   <a
                     href={`https://lab.basement.studio/experiments/${project.url}`}
+                    target="_blank"
                     rel="noopener"
                     className={linkClass}
                   >

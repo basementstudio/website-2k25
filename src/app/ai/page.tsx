@@ -173,6 +173,7 @@ const AiPage = async () => {
                   {client.website ? (
                     <a
                       href={client.website}
+                      target="_blank"
                       rel="noopener"
                       className={linkClass}
                     >
@@ -316,7 +317,12 @@ const AiPage = async () => {
             </Field>
             {socialLinks.map((social) => (
               <Field key={social.label} label={social.label}>
-                <a href={social.url} rel="noopener" className={linkClass}>
+                <a
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener"
+                  className={linkClass}
+                >
                   {social.url}
                 </a>
               </Field>

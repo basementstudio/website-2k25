@@ -105,6 +105,7 @@ const MachinePeoplePage = async () => {
                               {" "}
                               <a
                                 href={social.url}
+                                target="_blank"
                                 rel="noopener"
                                 aria-label={platformAriaLabel(social.platform)}
                                 className={linkClass}

@@ -59,6 +59,7 @@ const MachineProjectPage = async ({ params }: MachineProjectProps) => {
                 {project.client.website ? (
                   <a
                     href={project.client.website}
+                    target="_blank"
                     rel="noopener"
                     className={linkClass}
                   >
@@ -81,6 +82,7 @@ const MachineProjectPage = async ({ params }: MachineProjectProps) => {
               <Field label="website">
                 <a
                   href={project.projectWebsite}
+                  target="_blank"
                   rel="noopener"
                   className={linkClass}
                 >
@@ -92,6 +94,7 @@ const MachineProjectPage = async ({ params }: MachineProjectProps) => {
               <Field label="case_study">
                 <a
                   href={project.caseStudy}
+                  target="_blank"
                   rel="noopener"
                   className={linkClass}
                 >

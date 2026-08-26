@@ -74,7 +74,12 @@ const MachineContactPage = async () => {
             <dl className="flex flex-col gap-1">
               {socialLinks.map((social) => (
                 <Field key={social.label} label={social.label}>
-                  <a href={social.url} rel="noopener" className={linkClass}>
+                  <a
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener"
+                    className={linkClass}
+                  >
                     {social.url}
                   </a>
                 </Field>

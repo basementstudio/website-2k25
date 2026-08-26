@@ -116,6 +116,7 @@ const MachineServicesPage = async () => {
                     {award.awardUrl ? (
                       <a
                         href={award.awardUrl}
+                        target="_blank"
                         rel="noopener"
                         className={linkClass}
                       >
