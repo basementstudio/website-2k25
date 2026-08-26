@@ -21,6 +21,21 @@ const BOTTOM_THRESHOLD = 120
 // navigations within the human site (it keeps the original external referrer).
 const MACHINE_ENTRY_KEY = "bsmt-machine-entry"
 
+// Every human content page has a 1:1 machine twin under /ai; interactive-only
+// pages (/basketball, /doom), the home page, and unknown paths fall back to
+// the machine index.
+const MIRRORED_PREFIXES = [
+  "/services",
+  "/showcase",
+  "/people",
+  "/careers",
+  "/faq",
+  "/contact",
+  "/lab",
+  "/blog",
+  "/post"
+]
+
 /**
  * Sitewide "Human / Machine" switch fixed to the bottom of the viewport
  * (parallel.ai-style). `mode` is decided by the layout that mounts it — the
@@ -37,14 +52,11 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
   const [atBottom, setAtBottom] = useState(false)
   const pathname = usePathname() ?? ""
 
-  // Blog posts have a per-page machine mirror (/post/<slug> ↔ /ai/post/<slug>)
-  // and the blog index (including category views) mirrors to /ai/blog;
-  // everything else toggles against the /ai index.
-  const machineHref = pathname.startsWith("/post/")
+  const machineHref = MIRRORED_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  )
     ? `/ai${pathname}`
-    : pathname === "/blog" || pathname.startsWith("/blog/")
-      ? "/ai/blog"
-      : "/ai"
+    : "/ai"
   const humanHref = pathname.startsWith("/ai/")
     ? pathname.slice("/ai".length)
     : "/"

@@ -7,11 +7,10 @@ import {
   getPostData
 } from "@/app/(site)/(plain)/(content)/post/[slug]/sanity"
 import { Field, linkClass, Section } from "@/app/ai/components"
+import { MachinePortableText } from "@/app/ai/machine-portable-text"
 import { extractPlainText } from "@/lib/structured-data/extract-text"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { truncateDescription } from "@/utils/seo"
-
-import { MachinePortableText } from "./machine-portable-text"
 
 interface MachinePostProps {
   params: Promise<{ slug: string }>

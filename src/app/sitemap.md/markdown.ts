@@ -59,7 +59,7 @@ export async function buildSitemapMarkdown(): Promise<MarkdownResult<200>> {
   parts.push(
     "## Other Resources",
     "",
-    `- [Machine view](${SITE_URL}/ai) — single-page plain-HTML index of the entire site`,
+    `- [Machine view](${SITE_URL}/ai) — plain-HTML mirror of the site; every content page has a twin at /ai/<path>`,
     `- [llms.txt](${SITE_URL}/llms.txt) — curated link map for LLMs`,
     `- [agents.md](${SITE_URL}/agents.md) — notes for AI agents and crawlers`,
     `- [XML sitemap](${SITE_URL}/sitemap.xml)`,

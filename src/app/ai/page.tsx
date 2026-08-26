@@ -32,14 +32,15 @@ const ASCII_LOGO = `██████╗ ███████╗███╗  
 ╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═══╝   ╚═╝`
 
 const NAV_LINKS = [
+  // The human home is the escape hatch; every other section has a machine twin.
   { href: "/", label: "home" },
-  { href: "/services", label: "services" },
-  { href: "/showcase", label: "showcase" },
-  { href: "/people", label: "people" },
-  // The blog stays in the machine format — it has its own machine index.
+  { href: "/ai/services", label: "services" },
+  { href: "/ai/showcase", label: "showcase" },
+  { href: "/ai/people", label: "people" },
   { href: "/ai/blog", label: "blog" },
-  { href: "/lab", label: "lab" },
-  { href: "/contact", label: "contact" }
+  { href: "/ai/lab", label: "lab" },
+  { href: "/ai/faq", label: "faq" },
+  { href: "/ai/contact", label: "contact" }
 ]
 
 const AGENT_RESOURCES = [
@@ -171,10 +172,7 @@ const AiPage = async () => {
                 <li key={cap._id} className="flex flex-col gap-1">
                   <h3 className="text-machine-bright">
                     {"* "}
-                    <a
-                      href={`/showcase?category=${encodeURIComponent(cap.title)}`}
-                      className={linkClass}
-                    >
+                    <a href="/ai/showcase" className={linkClass}>
                       {cap.title}
                     </a>
                   </h3>
@@ -236,7 +234,7 @@ const AiPage = async () => {
                   <li key={item._key}>
                     {"- "}
                     {slug ? (
-                      <a href={`/showcase/${slug}.md`} className={linkClass}>
+                      <a href={`/ai/showcase/${slug}`} className={linkClass}>
                         {label}
                       </a>
                     ) : (
@@ -261,7 +259,7 @@ const AiPage = async () => {
                   <li key={project.slug}>
                     {"- "}
                     <a
-                      href={`/showcase/${project.slug}.md`}
+                      href={`/ai/showcase/${project.slug}`}
                       className={linkClass}
                     >
                       {project.title}
@@ -311,7 +309,7 @@ const AiPage = async () => {
                   <li key={position.slug}>
                     {"- "}
                     <a
-                      href={`/careers/${position.slug}.md`}
+                      href={`/ai/careers/${position.slug}`}
                       className={linkClass}
                     >
                       {position.title}
@@ -349,8 +347,8 @@ const AiPage = async () => {
               </Field>
             ))}
             <Field label="form">
-              <a href="/contact" className={linkClass}>
-                /contact
+              <a href="/ai/contact" className={linkClass}>
+                /ai/contact
               </a>
             </Field>
             {socialLinks.map((social) => (
