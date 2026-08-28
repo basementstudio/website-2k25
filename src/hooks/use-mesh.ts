@@ -13,9 +13,28 @@ interface weather {
   loboMarino: Mesh | null
 }
 
+/** A single arcade button, driven by one morph target on the merged mesh. */
+export interface ArcadeButton {
+  name: string
+  /** index into controls.morphTargetInfluences (0 = rest, 1 = pressed -0.0075) */
+  morphIndex: number
+  /** world-space centroid, used to place the invisible interaction proxy */
+  center: [number, number, number]
+}
+
+/** A joystick, driven by two morph targets (RotX / RotY, -1..1 = -15..15deg). */
+export interface ArcadeStick {
+  name: string
+  morphX: number
+  morphY: number
+  center: [number, number, number]
+}
+
 interface arcade {
-  buttons: Mesh[] | null
-  sticks: Mesh[] | null
+  /** the single merged mesh (SM_Controls) that holds all morph targets */
+  controls: Mesh | null
+  buttons: ArcadeButton[] | null
+  sticks: ArcadeStick[] | null
 }
 
 interface basketball {
@@ -51,6 +70,7 @@ export const useMesh = create<MeshStore>()(() => ({
     lampTargets: null
   },
   arcade: {
+    controls: null,
     buttons: null,
     sticks: null
   },

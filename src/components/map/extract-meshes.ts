@@ -1,5 +1,6 @@
-import { Mesh, Object3D } from "three"
+import { Mesh, Object3D, Vector3 } from "three"
 
+import type { ArcadeButton, ArcadeStick } from "@/hooks/use-mesh"
 import { useMesh } from "@/hooks/use-mesh"
 
 interface ExtractMeshesProps {
@@ -51,23 +52,69 @@ export const extractMeshes = ({
   useMesh.setState({ weather: { loboMarino, rain } })
 
   // --- Arcade --- //
+  // The 14 buttons + 2 joysticks are now a single merged mesh (SM_Controls)
+  // driven by morph targets. We derive each part's morph index (from the morph
+  // dictionary) and world-space centroid (from the morph deltas) so the board
+  // can place invisible interaction proxies and animate the right influence.
 
-  let arcadeButtons: Mesh[] = []
-  for (let i = 1; i <= 14; i++) {
-    const b = office?.getObjectByName(`02_BT_${i}`) as Mesh
-    const buttonPos = { x: b.position.x, y: b.position.y, z: b.position.z }
-    b.userData.originalPosition = buttonPos
-    if (b) arcadeButtons.push(b)
-  }
-  useMesh.setState({
-    arcade: {
-      buttons: arcadeButtons,
-      sticks: [
-        office?.getObjectByName("02_JYTK_L") as Mesh,
-        office?.getObjectByName("02_JYTK_R") as Mesh
-      ]
+  const controls = office?.getObjectByName("SM_Controls") as Mesh | undefined
+  const morphs = controls?.geometry?.morphAttributes?.position
+  const dict = controls?.morphTargetDictionary
+
+  if (controls && morphs && dict) {
+    controls.updateWorldMatrix(true, false)
+    const basePos = controls.geometry.attributes.position
+    const EPS = 1e-6
+    const tmp = new Vector3()
+
+    // world-space centroid of the vertices moved by a given morph target
+    const centroidForMorph = (morphIndex: number): [number, number, number] => {
+      const delta = morphs[morphIndex]
+      const c = new Vector3()
+      let n = 0
+      for (let v = 0; v < delta.count; v++) {
+        if (
+          Math.abs(delta.getX(v)) > EPS ||
+          Math.abs(delta.getY(v)) > EPS ||
+          Math.abs(delta.getZ(v)) > EPS
+        ) {
+          c.add(tmp.set(basePos.getX(v), basePos.getY(v), basePos.getZ(v)))
+          n++
+        }
+      }
+      if (n > 0) c.multiplyScalar(1 / n)
+      c.applyMatrix4(controls.matrixWorld)
+      return [c.x, c.y, c.z]
     }
-  })
+
+    const buttons: ArcadeButton[] = []
+    for (let i = 1; i <= 14; i++) {
+      const name = `02_BT_${i}`
+      const morphIndex = dict[name]
+      if (morphIndex === undefined) continue
+      buttons.push({ name, morphIndex, center: centroidForMorph(morphIndex) })
+    }
+
+    const sticks: ArcadeStick[] = []
+    for (const name of ["02_JYTK_L", "02_JYTK_R"]) {
+      const morphX = dict[`${name}_RotX`]
+      const morphY = dict[`${name}_RotY`]
+      if (morphX === undefined || morphY === undefined) continue
+      // RotX moves the whole stick -> its centroid works for both axes
+      sticks.push({ name, morphX, morphY, center: centroidForMorph(morphX) })
+    }
+
+    // start at rest
+    controls.morphTargetInfluences?.fill(0)
+
+    useMesh.setState({ arcade: { controls, buttons, sticks } })
+  } else {
+    // Old glb (loose buttons) or a controls mesh without morphs -> no interactions.
+    console.warn(
+      "[arcade] SM_Controls with morph targets not found — arcade board disabled"
+    )
+    useMesh.setState({ arcade: { controls: null, buttons: null, sticks: null } })
+  }
 
   // --- Blog --- //
 

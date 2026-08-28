@@ -3,26 +3,46 @@ import type { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
 import type { RefObject } from "react"
 import { useCallback, useEffect, useRef } from "react"
-import type { Mesh } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
+import type { ArcadeStick } from "@/hooks/use-mesh"
+import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { checkKonamiSequence } from "./check-sequence"
 import {
-  BOARD_ANGLE,
   KEY_DIRECTION_MAP,
-  MAX_TILT,
-  STICK_ANIMATION
+  STICK_ANIMATION,
+  STICK_MORPH_MAX
 } from "./constants"
 
 interface StickProps {
-  stick: Mesh
+  stick: ArcadeStick
   sequence: RefObject<(number | string)[]>
 }
+
+/**
+ * Map a direction (see KEY_DIRECTION_MAP) to the joystick's two morph influences.
+ * morphX <- old rotation.x axis (Up = -, Down = +)
+ * morphY <- old rotation.z axis (Right = -, Left = +)
+ */
+const directionToMorph = (direction: number) => ({
+  x:
+    direction === 3
+      ? -STICK_MORPH_MAX
+      : direction === 4
+        ? STICK_MORPH_MAX
+        : 0,
+  y:
+    direction === 1
+      ? -STICK_MORPH_MAX
+      : direction === 2
+        ? STICK_MORPH_MAX
+        : 0
+})
 
 export const Stick = ({ stick, sequence }: StickProps) => {
   const scene = useCurrentScene()
@@ -34,6 +54,8 @@ export const Stick = ({ stick, sequence }: StickProps) => {
   const availableSounds = sfx.arcade.sticks.length
   const desiredSoundFX = useRef(Math.floor(Math.random() * availableSounds))
   const state = useRef(0)
+  // motion mutates this in place; onUpdate copies it into the two morphs
+  const tilt = useRef({ x: 0, y: 0 })
 
   const navigationTimer = useRef<NodeJS.Timeout | null>(null)
   const setCursor = useCursor()
@@ -175,14 +197,22 @@ export const Stick = ({ stick, sequence }: StickProps) => {
   )
 
   const updateStickPosition = useCallback(
-    (
-      direction: number,
-      targetRotation: { x: number; y: number; z: number },
-      isKeyboardInput: boolean = false
-    ) => {
+    (direction: number, isKeyboardInput: boolean = false) => {
       if (direction !== 0 && state.current === direction) return
 
-      animate(stick.rotation, targetRotation, STICK_ANIMATION)
+      // drive the two morph influences (spring, same feel as before)
+      const controls = useMesh.getState().arcade.controls
+      const influences = controls?.morphTargetInfluences
+      if (influences) {
+        const target = directionToMorph(direction)
+        animate(tilt.current, target, {
+          ...STICK_ANIMATION,
+          onUpdate: () => {
+            influences[stick.morphX] = tilt.current.x
+            influences[stick.morphY] = tilt.current.y
+          }
+        })
+      }
 
       if (direction !== 0) {
         sequence.current.push(direction)
@@ -202,7 +232,8 @@ export const Stick = ({ stick, sequence }: StickProps) => {
       }
     },
     [
-      stick.rotation,
+      stick.morphX,
+      stick.morphY,
       handleStickSound,
       dispatchStickMoveEvent,
       isInGame,
@@ -214,20 +245,14 @@ export const Stick = ({ stick, sequence }: StickProps) => {
 
   const handleKeyboardInput = useCallback(
     (direction: number) => {
-      const targetRotation = {
-        x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
-        y: 0,
-        z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
-      }
-
-      updateStickPosition(direction, targetRotation, true)
+      updateStickPosition(direction, true)
     },
     [updateStickPosition]
   )
 
   const resetStick = useCallback(() => {
     state.current = 0
-    updateStickPosition(0, { x: 0, y: 0, z: 0 })
+    updateStickPosition(0)
   }, [updateStickPosition])
 
   const handlePointerDown = useCallback(
@@ -259,7 +284,7 @@ export const Stick = ({ stick, sequence }: StickProps) => {
 
       if (Math.abs(deltaX) <= threshold && Math.abs(deltaY) <= threshold) {
         if (state.current !== 0) {
-          updateStickPosition(0, { x: 0, y: 0, z: 0 })
+          updateStickPosition(0)
         }
         return
       }
@@ -279,13 +304,7 @@ export const Stick = ({ stick, sequence }: StickProps) => {
       }
 
       if (direction !== 0) {
-        const targetRotation = {
-          x: direction === 3 ? -MAX_TILT : direction === 4 ? MAX_TILT : 0,
-          y: 0,
-          z: direction === 1 ? -MAX_TILT : direction === 2 ? MAX_TILT : 0
-        }
-
-        updateStickPosition(direction, targetRotation)
+        updateStickPosition(direction)
       }
     },
     [updateStickPosition]
@@ -358,28 +377,21 @@ export const Stick = ({ stick, sequence }: StickProps) => {
   }, [])
 
   return (
-    <group key={stick.name}>
-      <primitive object={stick} />
-      <group
-        onPointerEnter={() => setCursor("grab")}
-        onPointerLeave={() => !isDragging.current && setCursor("default")}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
+    <group
+      onPointerEnter={() => setCursor("grab")}
+      onPointerLeave={() => !isDragging.current && setCursor("default")}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
+      <mesh
+        position={stick.center}
+        rotation={[(16 * Math.PI) / 180, 0, 0]}
       >
-        <mesh
-          position={[
-            stick.position.x,
-            stick.position.y + 0.05 * Math.sin((BOARD_ANGLE * Math.PI) / 180),
-            stick.position.z + 0.05 * Math.cos((BOARD_ANGLE * Math.PI) / 180)
-          ]}
-          rotation={[(16 * Math.PI) / 180, 0, 0]}
-        >
-          <cylinderGeometry args={[0.03, 0.03, 0.12, 12]} />
-          <MeshDiscardMaterial />
-        </mesh>
-      </group>
+        <cylinderGeometry args={[0.03, 0.03, 0.12, 12]} />
+        <MeshDiscardMaterial />
+      </mesh>
     </group>
   )
 }

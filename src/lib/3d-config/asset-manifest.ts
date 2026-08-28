@@ -15,7 +15,7 @@ export type AssetsBase = Omit<
 export const ASSETS_BASE: AssetsBase = {
   // --- Map models ---
   officeItems: "/3d/models/officeItems-9a8576ca.glb",
-  office: "/3d/models/office-077b4007.glb",
+  office: "/3d/models/office-3a4d25f8.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-6ead65cf.glb",
   godrays: "/3d/models/godrays-f4cbda2b.glb",
@@ -86,22 +86,8 @@ export const ASSETS_BASE: AssetsBase = {
       lightmap: "/3d/textures/bake-02-lightmap-5229a667.exr",
       ambientOcclusion: "/3d/textures/bake-02-ao-f8901563.jpg",
       meshes: [
-        "02_BT_1",
-        "02_BT_2",
-        "02_BT_3",
-        "02_BT_4",
-        "02_BT_5",
-        "02_BT_6",
-        "02_BT_7",
-        "02_BT_8",
-        "02_BT_9",
-        "02_BT_10",
-        "02_BT_11",
-        "02_BT_12",
-        "02_BT_13",
-        "02_BT_14",
-        "02_JYTK_L",
-        "02_JYTK_R",
+        // 14 buttons + 2 joysticks are now a single merged mesh with morph targets
+        "SM_Controls",
         "02_Map",
         "02_Arcade_B"
       ]
