@@ -14,8 +14,7 @@ const ASCII_LOGO = `██████╗ ███████╗███╗  
 ╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═══╝   ╚═╝`
 
 const NAV_LINKS = [
-  // The human home is the escape hatch; every other section has a machine twin.
-  { href: "/", label: "home" },
+  { href: "/ai/home", label: "home" },
   { href: "/ai/services", label: "services" },
   { href: "/ai/showcase", label: "showcase" },
   { href: "/ai/people", label: "people" },
@@ -27,12 +26,12 @@ const NAV_LINKS = [
 
 /**
  * `current` is the nav href of the section this page belongs to (detail pages
- * pass their parent section, e.g. `/ai/blog` on a post) — it renders dim and
- * unlinked. Omit it on the /ai index, where every entry stays a link.
+ * pass their parent section, e.g. `/ai/blog` on a post) — it renders as an
+ * inverted, unlinked block.
  */
 export const MachineHeader = ({ current }: { current?: string }) => (
   <>
-    <a href="/ai" aria-label="Machine index">
+    <a href="/ai/home" aria-label="Machine index">
       {/* Font size scales with the viewport (46-char-wide art), capped so
         the logo sits at roughly 3/4 of the content column. */}
       <pre

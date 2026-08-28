@@ -56,10 +56,12 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   )
     ? `/ai${pathname}`
-    : "/ai"
-  const humanHref = pathname.startsWith("/ai/")
-    ? pathname.slice("/ai".length)
-    : "/"
+    : "/ai/home"
+  // /ai/home mirrors the human homepage, not a /home route.
+  const humanHref =
+    pathname !== "/ai/home" && pathname.startsWith("/ai/")
+      ? pathname.slice("/ai".length)
+      : "/"
 
   // Machine mode keeps the /ai amber-phosphor border; segment colors follow
   // the navbar convention in both modes — orange marks the active mode,

@@ -13,14 +13,14 @@ import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
-import { Field, linkClass, Section } from "./components"
-import { MachineHeader } from "./machine-header"
+import { Field, linkClass, Section } from "../components"
+import { MachineHeader } from "../machine-header"
 
 export const metadata: Metadata = {
   title: "Machine view",
   description:
     "Plain-text index of basement.studio for AI agents and crawlers: who the studio is, services, clients, projects, writing, and contact.",
-  alternates: { canonical: "/ai" }
+  alternates: { canonical: "/ai/home" }
 }
 
 const AGENT_RESOURCES = [
@@ -82,7 +82,7 @@ const AiPage = async () => {
       <PageJsonLd />
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
         <header className="flex flex-col gap-4">
-          <MachineHeader />
+          <MachineHeader current="/ai/home" />
           <h1 className="text-machine-bright">
             basement.studio :: machine-readable index
           </h1>

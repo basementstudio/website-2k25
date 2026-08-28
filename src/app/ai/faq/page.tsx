@@ -57,7 +57,7 @@ const MachineFaqPage = async () => {
 
         <footer className="flex flex-col gap-1 text-machine-dim">
           <p>
-            <a href="/ai" className={linkClass}>
+            <a href="/ai/home" className={linkClass}>
               back to machine index
             </a>{" "}
             ·{" "}

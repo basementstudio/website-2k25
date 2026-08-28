@@ -5,7 +5,7 @@
 ## Key pages
 
 - [Home](https://basement.studio/): Overview of the studio, featured work, capabilities, and clients.
-- [Machine view](https://basement.studio/ai): Plain-HTML mirror of the site for agents; every content page has a twin at /ai/<path>.
+- [Machine view](https://basement.studio/ai/home): Plain-HTML mirror of the site for agents; every content page has a twin at /ai/<path>.
 - [Services](https://basement.studio/services): The capabilities basement.studio offers — branding, design, and engineering.
 - [Showcase](https://basement.studio/showcase): Portfolio of selected projects and case studies.
 - [Blog](https://basement.studio/blog): Articles and writing from the studio.
