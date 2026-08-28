@@ -38,9 +38,9 @@ const directionToMorph = (direction: number) => ({
         : 0,
   y:
     direction === 1
-      ? -STICK_MORPH_MAX
+      ? STICK_MORPH_MAX
       : direction === 2
-        ? STICK_MORPH_MAX
+        ? -STICK_MORPH_MAX
         : 0
 })
 
