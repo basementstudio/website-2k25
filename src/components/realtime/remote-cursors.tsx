@@ -70,10 +70,12 @@ const RemoteCursorItem = ({
           strokeWidth="1"
         />
       </svg>
-      <div className="absolute left-4 top-4">
+      {/* fixed width: the abs-positioned parent is only as wide as the arrow,
+          so a w-fit child would collapse to min-content when text wraps */}
+      <div className="absolute left-4 top-4 w-72">
         {(cursor.country || cursor.name) && (
           <span
-            className="text-caption block w-fit whitespace-nowrap px-1 text-brand-k"
+            className="text-caption block w-fit whitespace-nowrap rounded-full px-1.5 text-brand-k"
             style={{ backgroundColor: color }}
           >
             {cursor.country ? flagEmoji(cursor.country) : ""}
@@ -82,8 +84,8 @@ const RemoteCursorItem = ({
         )}
         {cursor.msg && (
           <span
-            className="text-caption mt-1 block w-fit max-w-64 break-words border bg-brand-k px-2 py-1 text-brand-w1"
-            style={{ borderColor: color }}
+            className="mt-1 block w-fit max-w-full break-words rounded-2xl rounded-tl px-3 py-1.5 text-[0.75rem] leading-4 text-brand-k"
+            style={{ backgroundColor: color }}
           >
             {cursor.msg}
           </span>

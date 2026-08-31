@@ -3,6 +3,8 @@
 import { m, useMotionValue } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 
+import { cn } from "@/utils/cn"
+
 import {
   colorForId,
   flagEmoji,
@@ -24,6 +26,7 @@ export const CursorChat = () => {
   const y = useMotionValue(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const expireTimerRef = useRef<number | null>(null)
+  const chatMessage = useRealtimeStore((state) => state.chatMessage)
   const setChatMessage = useRealtimeStore((state) => state.setChatMessage)
   const setDisplayName = useRealtimeStore((state) => state.setDisplayName)
   const displayName = useRealtimeStore((state) => state.displayName)
@@ -61,7 +64,9 @@ export const CursorChat = () => {
     if (open) inputRef.current?.focus()
   }, [open])
 
-  if (!REALTIME_ENABLED || !open) return null
+  // The pill shows the input while typing, then swaps to the sent message
+  // (still riding the cursor) until it expires
+  if (!REALTIME_ENABLED || (!open && !chatMessage)) return null
 
   const color = colorForId(getClientId())
   const flag = country ? flagEmoji(country) : ""
@@ -72,43 +77,53 @@ export const CursorChat = () => {
       style={{ x, y }}
     >
       <div
-        className="flex w-64 items-center gap-1.5 border bg-black/85 px-2.5 py-1.5 shadow-lg backdrop-blur-sm"
-        style={{ borderColor: color }}
+        className={cn(
+          "flex items-start gap-1.5 rounded-2xl rounded-tl px-3 py-1.5 shadow-lg",
+          open ? "w-64" : "w-fit max-w-72"
+        )}
+        style={{ backgroundColor: color }}
       >
         {(flag || displayName) && (
-          <span className="text-caption shrink-0 whitespace-nowrap text-brand-w1">
+          <span className="text-caption shrink-0 whitespace-nowrap leading-4 text-brand-k">
             {flag}
             {displayName ? ` ${displayName}` : ""}
           </span>
         )}
-        <input
-          ref={inputRef}
-          onBlur={() => setOpen(false)}
-          onKeyDown={(e) => {
-            e.stopPropagation()
-            if (e.key === "Escape") setOpen(false)
-            if (e.key === "Enter") {
-              const value = e.currentTarget.value.trim()
-              const nameMatch = value.match(/^@(.+)/)
-              if (nameMatch) {
-                setDisplayName(nameMatch[1])
-              } else if (value) {
-                setChatMessage(value)
-                if (expireTimerRef.current) {
-                  window.clearTimeout(expireTimerRef.current)
+        {open ? (
+          <input
+            ref={inputRef}
+            onBlur={() => setOpen(false)}
+            onKeyDown={(e) => {
+              e.stopPropagation()
+              if (e.key === "Escape") setOpen(false)
+              if (e.key === "Enter") {
+                const value = e.currentTarget.value.trim()
+                const nameMatch = value.match(/^@(.+)/)
+                if (nameMatch) {
+                  setDisplayName(nameMatch[1])
+                } else if (value) {
+                  setChatMessage(value)
+                  if (expireTimerRef.current) {
+                    window.clearTimeout(expireTimerRef.current)
+                  }
+                  expireTimerRef.current = window.setTimeout(() => {
+                    setChatMessage("")
+                  }, MESSAGE_TTL_MS)
+                  setOpen(false)
                 }
-                expireTimerRef.current = window.setTimeout(() => {
-                  setChatMessage("")
-                }, MESSAGE_TTL_MS)
+                e.currentTarget.value = ""
               }
-              e.currentTarget.value = ""
-            }
-          }}
-          placeholder="Say something…"
-          maxLength={120}
-          spellCheck={false}
-          className="no-focus-styles w-0 min-w-0 flex-1 bg-transparent text-[0.75rem] leading-4 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
-        />
+            }}
+            placeholder="Say something…"
+            maxLength={120}
+            spellCheck={false}
+            className="no-focus-styles w-0 min-w-0 flex-1 bg-transparent text-[0.75rem] leading-4 text-brand-k placeholder:text-brand-k/50 focus:outline-none focus-visible:ring-0"
+          />
+        ) : (
+          <span className="break-words text-[0.75rem] leading-4 text-brand-k">
+            {chatMessage}
+          </span>
+        )}
       </div>
     </m.div>
   )
