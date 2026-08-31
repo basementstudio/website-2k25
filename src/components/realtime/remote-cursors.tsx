@@ -82,7 +82,7 @@ const RemoteCursorItem = ({
         )}
         {cursor.msg && (
           <span
-            className="text-caption mt-1 block w-fit max-w-64 border bg-brand-k px-2 py-1 text-brand-w1"
+            className="text-caption mt-1 block w-fit max-w-64 break-words border bg-brand-k px-2 py-1 text-brand-w1"
             style={{ borderColor: color }}
           >
             {cursor.msg}

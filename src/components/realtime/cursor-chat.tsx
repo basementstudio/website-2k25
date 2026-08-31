@@ -12,15 +12,18 @@ import {
   useRealtimeStore
 } from "./realtime-store"
 
-// Figma-style cursor chat: press "/" anywhere to type a message that rides
-// along with your cursor on other visitors' screens. "@name" + Enter sets a
-// display name next to your flag instead of sending a message. Enter clears
-// the line, Escape or blur closes it (and clears the bubble for everyone).
+const MESSAGE_TTL_MS = 6000
+
+// Figma-style cursor chat: press "/" anywhere and type; Enter sends the
+// message, which rides along with your cursor on other visitors' screens
+// until it expires. "@name" + Enter sets a display name next to your flag
+// instead of sending a message. Escape or blur closes the input.
 export const CursorChat = () => {
   const [open, setOpen] = useState(false)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const inputRef = useRef<HTMLInputElement>(null)
+  const expireTimerRef = useRef<number | null>(null)
   const setChatMessage = useRealtimeStore((state) => state.setChatMessage)
   const setDisplayName = useRealtimeStore((state) => state.setDisplayName)
   const displayName = useRealtimeStore((state) => state.displayName)
@@ -56,8 +59,7 @@ export const CursorChat = () => {
 
   useEffect(() => {
     if (open) inputRef.current?.focus()
-    else setChatMessage("")
-  }, [open, setChatMessage])
+  }, [open])
 
   if (!REALTIME_ENABLED || !open) return null
 
@@ -70,44 +72,43 @@ export const CursorChat = () => {
       style={{ x, y }}
     >
       <div
-        className="min-w-64 border bg-black/85 shadow-lg backdrop-blur-sm"
+        className="flex w-64 items-center gap-1.5 border bg-black/85 px-2.5 py-1.5 shadow-lg backdrop-blur-sm"
         style={{ borderColor: color }}
       >
-        <div className="flex items-center gap-1.5 px-2.5 pb-1 pt-1.5">
-          {(flag || displayName) && (
-            <span className="text-caption shrink-0 whitespace-nowrap text-brand-w1">
-              {flag}
-              {displayName ? ` ${displayName}` : ""}
-            </span>
-          )}
-          <input
-            ref={inputRef}
-            onChange={(e) =>
-              // "@name" drafts a name command, not a message — keep it private
-              setChatMessage(
-                e.target.value.startsWith("@") ? "" : e.target.value
-              )
-            }
-            onBlur={() => setOpen(false)}
-            onKeyDown={(e) => {
-              e.stopPropagation()
-              if (e.key === "Escape") setOpen(false)
-              if (e.key === "Enter") {
-                const nameMatch = e.currentTarget.value.trim().match(/^@(.+)/)
-                if (nameMatch) setDisplayName(nameMatch[1])
-                e.currentTarget.value = ""
-                setChatMessage("")
+        {(flag || displayName) && (
+          <span className="text-caption shrink-0 whitespace-nowrap text-brand-w1">
+            {flag}
+            {displayName ? ` ${displayName}` : ""}
+          </span>
+        )}
+        <input
+          ref={inputRef}
+          onBlur={() => setOpen(false)}
+          onKeyDown={(e) => {
+            e.stopPropagation()
+            if (e.key === "Escape") setOpen(false)
+            if (e.key === "Enter") {
+              const value = e.currentTarget.value.trim()
+              const nameMatch = value.match(/^@(.+)/)
+              if (nameMatch) {
+                setDisplayName(nameMatch[1])
+              } else if (value) {
+                setChatMessage(value)
+                if (expireTimerRef.current) {
+                  window.clearTimeout(expireTimerRef.current)
+                }
+                expireTimerRef.current = window.setTimeout(() => {
+                  setChatMessage("")
+                }, MESSAGE_TTL_MS)
               }
-            }}
-            placeholder="Say something…"
-            maxLength={120}
-            spellCheck={false}
-            className="no-focus-styles w-full min-w-40 bg-transparent text-[0.75rem] leading-4 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
-          />
-        </div>
-        <p className="text-caption px-2.5 pb-1.5 text-brand-g1">
-          @name sets your name · esc closes
-        </p>
+              e.currentTarget.value = ""
+            }
+          }}
+          placeholder="Say something…"
+          maxLength={120}
+          spellCheck={false}
+          className="no-focus-styles w-0 min-w-0 flex-1 bg-transparent text-[0.75rem] leading-4 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
+        />
       </div>
     </m.div>
   )

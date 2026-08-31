@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef } from "react"
 import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { createClient } from "@/service/supabase/client"
 
+import { censor } from "./censor"
 import { getClientId, useRealtimeStore } from "./realtime-store"
 
 const CURSOR_BROADCAST_MS = 80
@@ -87,7 +88,12 @@ export const RealtimeImpl = () => {
     channel
       .on("broadcast", { event: "cursor" }, ({ payload }) => {
         // Stamp receipt time locally: sender clocks can't be trusted for GC
-        store.upsertCursor({ ...payload, ts: Date.now() })
+        store.upsertCursor({
+          ...payload,
+          msg: payload.msg ? censor(payload.msg) : payload.msg,
+          name: payload.name ? censor(payload.name) : payload.name,
+          ts: Date.now()
+        })
       })
       .on("presence", { event: "leave" }, ({ key }) => {
         store.removeCursor(key)
@@ -111,8 +117,8 @@ export const RealtimeImpl = () => {
           xn,
           yd,
           country: useRealtimeStore.getState().country,
-          msg: useRealtimeStore.getState().chatMessage,
-          name: useRealtimeStore.getState().displayName
+          msg: censor(useRealtimeStore.getState().chatMessage),
+          name: censor(useRealtimeStore.getState().displayName)
         }
       })
     }, CURSOR_BROADCAST_MS)
