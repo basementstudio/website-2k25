@@ -1,17 +1,11 @@
 "use client"
 
-import { AnimatePresence, m, useMotionValue } from "motion/react"
+import { AnimatePresence, m, useMotionValue, useSpring } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 
 import { cn } from "@/utils/cn"
 
-import {
-  colorForId,
-  flagEmoji,
-  getClientId,
-  REALTIME_ENABLED,
-  useRealtimeStore
-} from "./realtime-store"
+import { flagEmoji, REALTIME_ENABLED, useRealtimeStore } from "./realtime-store"
 
 const MESSAGE_TTL_MS = 6000
 const PLACEHOLDER = "Press enter to send message."
@@ -25,6 +19,9 @@ export const CursorChat = () => {
   const [draft, setDraft] = useState("")
   const x = useMotionValue(0)
   const y = useMotionValue(0)
+  // Same spring the inspectable hover cursor uses (custom-cursor/index.tsx)
+  const springX = useSpring(x, { damping: 50, stiffness: 500 })
+  const springY = useSpring(y, { damping: 50, stiffness: 500 })
   const inputRef = useRef<HTMLInputElement>(null)
   const expireTimerRef = useRef<number | null>(null)
   const chatMessage = useRealtimeStore((state) => state.chatMessage)
@@ -69,7 +66,6 @@ export const CursorChat = () => {
   // stays mounted so AnimatePresence can run the exit ease.
   if (!REALTIME_ENABLED) return null
 
-  const color = colorForId(getClientId())
   const flag = country ? flagEmoji(country) : ""
 
   const close = () => {
@@ -80,19 +76,19 @@ export const CursorChat = () => {
   return (
     <m.div
       className={cn(
-        "absolute left-0 top-0 pl-4 pt-5 font-mono text-[0.75rem] leading-4",
+        "absolute left-0 top-0 pl-4 pt-5 text-f-p-mobile lg:text-f-p",
         open && "pointer-events-auto"
       )}
-      style={{ x, y }}
+      style={{ x: springX, y: springY }}
     >
       <AnimatePresence mode="wait" initial={false}>
         {open ? (
           <m.input
             key="input"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{ duration: 0.2 }}
             ref={inputRef}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -121,26 +117,26 @@ export const CursorChat = () => {
             placeholder={PLACEHOLDER}
             maxLength={120}
             spellCheck={false}
-            // ch-based width: mono glyphs are 1ch, so the box hugs the text
-            // the way the design's typing state does
+            // ch-based width so the box hugs the text like the design's
+            // typing state; approximate under the proportional body font,
+            // hence the buffer
             style={{
-              width: `${(draft ? draft.length : PLACEHOLDER.length) + 2}ch`
+              width: `${(draft ? draft.length : PLACEHOLDER.length) + 3}ch`
             }}
             className="no-focus-styles border border-brand-g2 bg-brand-k px-2 py-1 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
           />
         ) : chatMessage ? (
-          <m.span
+          <m.p
             key="sent"
-            initial={{ opacity: 0, scale: 0.95, y: 4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="block w-fit max-w-72 origin-top-left break-words bg-brand-k px-2 py-1"
-            style={{ color }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{ duration: 0.2 }}
+            className="w-fit max-w-72 break-words bg-brand-k text-brand-w1"
           >
             {flag ? `[${flag}] ` : ""}
             {chatMessage}
-          </m.span>
+          </m.p>
         ) : null}
       </AnimatePresence>
     </m.div>

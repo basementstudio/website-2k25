@@ -26,8 +26,9 @@ const RemoteCursorItem = ({
   cursor: RemoteCursor
   syncTick: number
 }) => {
-  const x = useSpring(0, { damping: 40, stiffness: 400 })
-  const y = useSpring(0, { damping: 40, stiffness: 400 })
+  // Same spring the inspectable hover cursor uses (custom-cursor/index.tsx)
+  const x = useSpring(0, { damping: 50, stiffness: 500 })
+  const y = useSpring(0, { damping: 50, stiffness: 500 })
   const hasPositioned = useRef(false)
 
   // Network updates spring toward the new position
@@ -76,24 +77,23 @@ const RemoteCursorItem = ({
           strokeWidth="1.5"
         />
       </svg>
-      {/* fixed width: the abs-positioned parent is only as wide as the arrow,
-          so a w-fit child would collapse to min-content when text wraps */}
+      {/* Same UI and enter/exit as the inspectable hover label, plus the
+          chat message. Fixed width: the abs-positioned parent is only as wide
+          as the arrow, so a w-fit child would collapse when text wraps. */}
       <div className="absolute left-4 top-4 w-72">
-        {/* keyed by message state so send/expire cross-fade with the house ease */}
         <AnimatePresence mode="wait" initial={false}>
           {(bracket || cursor.msg) && (
-            <m.span
+            <m.p
               key={cursor.msg ? `msg:${cursor.msg}` : "label"}
-              initial={{ opacity: 0, scale: 0.95, y: 4 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="block w-fit max-w-full origin-top-left break-words bg-brand-k px-2 py-1 font-mono text-[0.75rem] leading-4"
-              style={{ color }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-fit max-w-full break-words bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
             >
               {bracket ? `[${bracket}]` : ""}
               {cursor.msg ? ` ${cursor.msg}` : ""}
-            </m.span>
+            </m.p>
           )}
         </AnimatePresence>
       </div>
