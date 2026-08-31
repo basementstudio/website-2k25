@@ -10,6 +10,7 @@ import {
   AppLoadingHandler,
   useAppLoadingStore
 } from "@/components/loading/app-loading-handler"
+import { RemoteCursors } from "@/components/realtime/remote-cursors"
 import { useCanvasAvailability } from "@/hooks/use-canvas-availability"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
 import { cn } from "@/utils/cn"
@@ -41,6 +42,7 @@ export const CanvasLayer = () => {
     <>
       <div className="pointer-events-none fixed top-0 z-50 h-screen w-full">
         <CustomCursor />
+        <RemoteCursors />
       </div>
 
       {/* Dead weight without a renderer: an invisible overlay and a 3D-only viewer. */}

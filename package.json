@@ -44,7 +44,7 @@
     "@sanity/vision": "^5.29.0",
     "@sentry/nextjs": "^10.70.0",
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.48.0",
+    "@supabase/supabase-js": "^2.112.4",
     "@use-gesture/react": "^10.3.1",
     "@vercel/analytics": "^1.5.0",
     "@vercel/functions": "^2.0.0",
