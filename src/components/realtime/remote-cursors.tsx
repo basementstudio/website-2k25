@@ -53,6 +53,12 @@ const RemoteCursorItem = ({
   }, [syncTick])
 
   const color = colorForId(cursor.id)
+  const bracket = [
+    cursor.country ? flagEmoji(cursor.country) : "",
+    cursor.name ? cursor.name.slice(0, NAME_MAX_LENGTH).toUpperCase() : ""
+  ]
+    .filter(Boolean)
+    .join(" ")
 
   return (
     <m.div className="absolute left-0 top-0 opacity-80" style={{ x, y }}>
@@ -65,26 +71,21 @@ const RemoteCursorItem = ({
       >
         <path
           d="M1 1L6.5 14.5L8.5 8.5L14.5 6.5L1 1Z"
-          fill={color}
-          stroke="#000000"
-          strokeWidth="1"
+          fill="#000000"
+          stroke={color}
+          strokeWidth="1.5"
         />
       </svg>
       {/* fixed width: the abs-positioned parent is only as wide as the arrow,
           so a w-fit child would collapse to min-content when text wraps */}
       <div className="absolute left-4 top-4 w-72">
-        {(cursor.country || cursor.name) && (
+        {(bracket || cursor.msg) && (
           <span
-            className="text-caption block w-fit whitespace-nowrap rounded-full px-2 py-0.5 font-mono uppercase text-brand-k"
-            style={{ backgroundColor: color }}
+            className="block w-fit max-w-full break-words bg-brand-k px-2 py-1 font-mono text-[0.75rem] leading-4"
+            style={{ color }}
           >
-            {cursor.country ? flagEmoji(cursor.country) : ""}
-            {cursor.name ? ` ${cursor.name.slice(0, NAME_MAX_LENGTH)}` : ""}
-          </span>
-        )}
-        {cursor.msg && (
-          <span className="mt-1 block w-fit max-w-full break-words rounded-full border border-brand-g2 bg-brand-k px-3 py-1.5 font-mono text-[0.75rem] leading-4 text-brand-w1">
-            {cursor.msg}
+            {bracket ? `[${bracket}]` : ""}
+            {cursor.msg ? ` ${cursor.msg}` : ""}
           </span>
         )}
       </div>

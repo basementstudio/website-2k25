@@ -9,12 +9,12 @@ import {
   colorForId,
   flagEmoji,
   getClientId,
-  NAME_MAX_LENGTH,
   REALTIME_ENABLED,
   useRealtimeStore
 } from "./realtime-store"
 
 const MESSAGE_TTL_MS = 6000
+const PLACEHOLDER = "Press enter to send message."
 
 // Figma-style cursor chat: press "/" anywhere and type; Enter sends the
 // message, which rides along with your cursor on other visitors' screens
@@ -22,6 +22,7 @@ const MESSAGE_TTL_MS = 6000
 // instead of sending a message. Escape or blur closes the input.
 export const CursorChat = () => {
   const [open, setOpen] = useState(false)
+  const [draft, setDraft] = useState("")
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -29,7 +30,6 @@ export const CursorChat = () => {
   const chatMessage = useRealtimeStore((state) => state.chatMessage)
   const setChatMessage = useRealtimeStore((state) => state.setChatMessage)
   const setDisplayName = useRealtimeStore((state) => state.setDisplayName)
-  const displayName = useRealtimeStore((state) => state.displayName)
   const country = useRealtimeStore((state) => state.country)
 
   useEffect(() => {
@@ -64,70 +64,72 @@ export const CursorChat = () => {
     if (open) inputRef.current?.focus()
   }, [open])
 
-  // The pill shows the input while typing, then swaps to the sent message
-  // (still riding the cursor) until it expires
+  // While open: a plain bordered input that fits its content. After Enter:
+  // just "[flag] message" riding the cursor until it expires.
   if (!REALTIME_ENABLED || (!open && !chatMessage)) return null
 
   const color = colorForId(getClientId())
   const flag = country ? flagEmoji(country) : ""
 
+  const close = () => {
+    setOpen(false)
+    setDraft("")
+  }
+
   return (
     <m.div
-      className="pointer-events-auto absolute left-0 top-0 pl-4 pt-5"
+      className={cn(
+        "absolute left-0 top-0 pl-4 pt-5 font-mono text-[0.75rem] leading-4",
+        open && "pointer-events-auto"
+      )}
       style={{ x, y }}
     >
-      <div
-        className={cn(
-          "flex items-start gap-1.5 rounded-full border border-brand-g2 bg-brand-k px-3 py-1.5 font-mono shadow-lg",
-          open ? "w-64" : "w-fit max-w-72"
-        )}
-      >
-        {open && (flag || displayName) && (
-          <span
-            className="text-caption shrink-0 whitespace-nowrap rounded-full px-1.5 font-mono uppercase leading-4 text-brand-k"
-            style={{ backgroundColor: color }}
-          >
-            {flag}
-            {displayName ? ` ${displayName}` : ""}
-          </span>
-        )}
-        {open ? (
-          <input
-            ref={inputRef}
-            onBlur={() => setOpen(false)}
-            onKeyDown={(e) => {
-              e.stopPropagation()
-              if (e.key === "Escape") setOpen(false)
-              if (e.key === "Enter") {
-                const value = e.currentTarget.value.trim()
-                const nameMatch = value.match(/^@(.+)/)
-                if (nameMatch) {
-                  setDisplayName(nameMatch[1])
-                } else if (value) {
-                  setChatMessage(value)
-                  if (expireTimerRef.current) {
-                    window.clearTimeout(expireTimerRef.current)
-                  }
-                  expireTimerRef.current = window.setTimeout(() => {
-                    setChatMessage("")
-                  }, MESSAGE_TTL_MS)
-                  setOpen(false)
+      {open ? (
+        <input
+          ref={inputRef}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={close}
+          onKeyDown={(e) => {
+            e.stopPropagation()
+            if (e.key === "Escape") close()
+            if (e.key === "Enter") {
+              const value = draft.trim()
+              const nameMatch = value.match(/^@(.+)/)
+              if (nameMatch) {
+                setDisplayName(nameMatch[1])
+                setDraft("")
+              } else if (value) {
+                setChatMessage(value)
+                if (expireTimerRef.current) {
+                  window.clearTimeout(expireTimerRef.current)
                 }
-                e.currentTarget.value = ""
+                expireTimerRef.current = window.setTimeout(() => {
+                  setChatMessage("")
+                }, MESSAGE_TTL_MS)
+                close()
               }
-            }}
-            placeholder="Say something…"
-            maxLength={120}
-            spellCheck={false}
-            className="no-focus-styles w-0 min-w-0 flex-1 bg-transparent text-[0.75rem] leading-4 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
-          />
-        ) : (
-          <span className="break-words text-[0.75rem] leading-4 text-brand-w1">
-            {flag ? `${flag} ` : ""}
-            {chatMessage}
-          </span>
-        )}
-      </div>
+            }
+          }}
+          placeholder={PLACEHOLDER}
+          maxLength={120}
+          spellCheck={false}
+          // ch-based width: mono glyphs are 1ch, so the box hugs the text the
+          // way the design's typing state does
+          style={{
+            width: `${(draft ? draft.length : PLACEHOLDER.length) + 2}ch`
+          }}
+          className="no-focus-styles border border-brand-g2 bg-brand-k px-2 py-1 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
+        />
+      ) : (
+        <span
+          className="block w-fit max-w-72 break-words bg-brand-k px-2 py-1"
+          style={{ color }}
+        >
+          {flag ? `[${flag}] ` : ""}
+          {chatMessage}
+        </span>
+      )}
     </m.div>
   )
 }
