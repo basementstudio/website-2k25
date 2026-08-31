@@ -11,14 +11,14 @@ export const getClientId = () => {
   return clientId
 }
 
-// brand.o, brand.y, brand.g, brand.r2, brand.o2, brand.w1
+// Shades of the brand orange (#FF4D00), deep to pale
 const CURSOR_PALETTE = [
-  "#FF4D00",
-  "#FFCD1A",
-  "#00FF9B",
-  "#FF4D4D",
+  "#D93F00",
   "#FF2B00",
-  "#E6E6E6"
+  "#FF4D00",
+  "#FF6F2E",
+  "#FF9C71",
+  "#FFB48C"
 ]
 
 export const colorForId = (id: string) => {
@@ -46,23 +46,37 @@ export interface RemoteCursor {
   country?: string | null
   /** live cursor-chat message, empty when the sender's chat is closed */
   msg?: string
+  /** self-chosen display name, set via "@name" in cursor chat */
+  name?: string
 }
+
+export const NAME_MAX_LENGTH = 24
+const NAME_STORAGE_KEY = "rt-cursor-name"
 
 interface RealtimeStore {
   onlineCount: number
   cursors: Record<string, RemoteCursor>
   chatMessage: string
+  country: string | null
+  displayName: string
   setOnlineCount: (count: number) => void
   upsertCursor: (cursor: RemoteCursor) => void
   removeCursor: (id: string) => void
   clearCursors: () => void
   setChatMessage: (msg: string) => void
+  setCountry: (country: string | null) => void
+  setDisplayName: (name: string) => void
 }
 
 export const useRealtimeStore = create<RealtimeStore>((set) => ({
   onlineCount: 0,
   cursors: {},
   chatMessage: "",
+  country: null,
+  displayName:
+    typeof window === "undefined"
+      ? ""
+      : (localStorage.getItem(NAME_STORAGE_KEY) ?? ""),
   setOnlineCount: (count) => set({ onlineCount: count }),
   upsertCursor: (cursor) =>
     set((state) => ({ cursors: { ...state.cursors, [cursor.id]: cursor } })),
@@ -73,5 +87,11 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
       return { cursors }
     }),
   clearCursors: () => set({ cursors: {} }),
-  setChatMessage: (msg) => set({ chatMessage: msg })
+  setChatMessage: (msg) => set({ chatMessage: msg }),
+  setCountry: (country) => set({ country }),
+  setDisplayName: (name) => {
+    const trimmed = name.trim().slice(0, NAME_MAX_LENGTH)
+    localStorage.setItem(NAME_STORAGE_KEY, trimmed)
+    set({ displayName: trimmed })
+  }
 }))

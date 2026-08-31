@@ -24,7 +24,6 @@ export const RealtimeImpl = () => {
   const cursorSubscribedRef = useRef(false)
   const isOnTabRef = useRef(true)
   isOnTabRef.current = isOnTab
-  const countryRef = useRef<string | null>(null)
   const lastPosRef = useRef<{ xn: number; yd: number } | null>(null)
   const sendCursorRef = useRef<((xn: number, yd: number) => void) | null>(null)
 
@@ -41,10 +40,10 @@ export const RealtimeImpl = () => {
     fetch("/api/geo")
       .then((res) => res.json())
       .then((data) => {
-        countryRef.current = data.country ?? localeRegion()
+        useRealtimeStore.getState().setCountry(data.country ?? localeRegion())
       })
       .catch(() => {
-        countryRef.current = localeRegion()
+        useRealtimeStore.getState().setCountry(localeRegion())
       })
   }, [])
 
@@ -111,8 +110,9 @@ export const RealtimeImpl = () => {
           id: getClientId(),
           xn,
           yd,
-          country: countryRef.current,
-          msg: useRealtimeStore.getState().chatMessage
+          country: useRealtimeStore.getState().country,
+          msg: useRealtimeStore.getState().chatMessage,
+          name: useRealtimeStore.getState().displayName
         }
       })
     }, CURSOR_BROADCAST_MS)
@@ -148,11 +148,15 @@ export const RealtimeImpl = () => {
     }
   }, [supabase, pathname])
 
-  // Chat edits broadcast immediately from the last known position, so typing
-  // shows live for others even while the mouse is still
+  // Chat and name edits broadcast immediately from the last known position,
+  // so typing shows live for others even while the mouse is still
   useEffect(() => {
     return useRealtimeStore.subscribe((state, prev) => {
-      if (state.chatMessage === prev.chatMessage) return
+      if (
+        state.chatMessage === prev.chatMessage &&
+        state.displayName === prev.displayName
+      )
+        return
       const pos = lastPosRef.current ?? {
         xn: 0.5,
         yd: window.scrollY + window.innerHeight / 2
