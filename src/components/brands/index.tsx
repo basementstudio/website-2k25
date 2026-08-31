@@ -74,7 +74,7 @@ export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
 
   // Cap is visual only (logo grid needs full rows) — /index.md lists every
   // client on purpose, don't "fix" that to match this number.
-  const max = isLargeDesktop ? 32 : 30
+  const max = isLargeDesktop ? 40 : 36
   const groupSize = isLargeDesktop ? 8 : 6
   const available = Math.min(brands.length, max)
   const count = Math.floor(available / groupSize) * groupSize
