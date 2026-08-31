@@ -1,14 +1,11 @@
 import { useThree } from "@react-three/fiber"
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useSpring
-} from "motion/react"
+import { AnimatePresence, useMotionValue, useSpring } from "motion/react"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useMouseStore } from "@/hooks/use-mouse"
 import { debounce } from "@/utils/debounce"
+
+import { CURSOR_SPRING, CursorLabel } from "./cursor-label"
 
 const OFFSET = 16
 const DEBOUNCE_WAIT = 5
@@ -62,9 +59,8 @@ export const CustomCursor = memo(() => {
   const x = useMotionValue(0)
   const y = useMotionValue(0)
 
-  const springConfig = useMemo(() => ({ damping: 50, stiffness: 500 }), [])
-  const springX = useSpring(x, springConfig)
-  const springY = useSpring(y, springConfig)
+  const springX = useSpring(x, CURSOR_SPRING)
+  const springY = useSpring(y, CURSOR_SPRING)
 
   const hoverText = useMouseStore((state) => state.hoverText)
   const marquee = useMouseStore((state) => state.marquee)
@@ -137,24 +133,13 @@ export const CustomCursor = memo(() => {
       window.removeEventListener("mousemove", debouncedUpdateMousePosition)
   }, [debouncedUpdateMousePosition])
 
-  const animationProps = useMemo(
-    () => ({
-      initial: { opacity: 0, scale: 0 },
-      animate: { opacity: 1, scale: 1 },
-      exit: { opacity: 0, scale: 0 },
-      transition: { duration: 0.2 }
-    }),
-    []
-  )
-
   return (
     <AnimatePresence>
       {hoverText && (
-        <motion.p
+        <CursorLabel
           ref={mouseElementRef}
-          className="pointer-events-none fixed z-50 bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
+          className="pointer-events-none fixed z-50"
           style={{ x: springX, y: springY }}
-          {...animationProps}
         >
           {!marquee ? (
             `[${hoverText}]`
@@ -164,7 +149,7 @@ export const CustomCursor = memo(() => {
               <Marquee text={hoverText ?? ""} />
             </span>
           )}
-        </motion.p>
+        </CursorLabel>
       )}
     </AnimatePresence>
   )

@@ -4,6 +4,11 @@ import { AnimatePresence, m, useSpring } from "motion/react"
 import { useEffect, useReducer, useRef } from "react"
 
 import {
+  CURSOR_SPRING,
+  CursorLabel
+} from "@/components/custom-cursor/cursor-label"
+
+import {
   colorForId,
   flagEmoji,
   NAME_MAX_LENGTH,
@@ -26,9 +31,8 @@ const RemoteCursorItem = ({
   cursor: RemoteCursor
   syncTick: number
 }) => {
-  // Same spring the inspectable hover cursor uses (custom-cursor/index.tsx)
-  const x = useSpring(0, { damping: 50, stiffness: 500 })
-  const y = useSpring(0, { damping: 50, stiffness: 500 })
+  const x = useSpring(0, CURSOR_SPRING)
+  const y = useSpring(0, CURSOR_SPRING)
   const hasPositioned = useRef(false)
 
   // Network updates spring toward the new position
@@ -77,23 +81,18 @@ const RemoteCursorItem = ({
           strokeWidth="1.5"
         />
       </svg>
-      {/* Same UI and enter/exit as the inspectable hover label, plus the
-          chat message. Fixed width: the abs-positioned parent is only as wide
-          as the arrow, so a w-fit child would collapse when text wraps. */}
+      {/* Fixed width: the abs-positioned parent is only as wide as the
+          arrow, so a w-fit child would collapse when text wraps. */}
       <div className="absolute left-4 top-4 w-72">
         <AnimatePresence mode="wait" initial={false}>
           {(bracket || cursor.msg) && (
-            <m.p
+            <CursorLabel
               key={cursor.msg ? `msg:${cursor.msg}` : "label"}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
-              transition={{ duration: 0.2 }}
-              className="w-fit max-w-full break-words bg-brand-k text-f-p-mobile text-brand-w1 lg:text-f-p"
+              className="w-fit max-w-full break-words"
             >
               {bracket ? `[${bracket}]` : ""}
               {cursor.msg ? ` ${cursor.msg}` : ""}
-            </m.p>
+            </CursorLabel>
           )}
         </AnimatePresence>
       </div>

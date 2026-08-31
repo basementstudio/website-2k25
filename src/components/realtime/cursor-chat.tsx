@@ -3,6 +3,11 @@
 import { AnimatePresence, m, useMotionValue, useSpring } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 
+import {
+  CURSOR_SPRING,
+  CursorLabel,
+  cursorLabelAnimation
+} from "@/components/custom-cursor/cursor-label"
 import { cn } from "@/utils/cn"
 
 import { flagEmoji, REALTIME_ENABLED, useRealtimeStore } from "./realtime-store"
@@ -19,9 +24,8 @@ export const CursorChat = () => {
   const [draft, setDraft] = useState("")
   const x = useMotionValue(0)
   const y = useMotionValue(0)
-  // Same spring the inspectable hover cursor uses (custom-cursor/index.tsx)
-  const springX = useSpring(x, { damping: 50, stiffness: 500 })
-  const springY = useSpring(y, { damping: 50, stiffness: 500 })
+  const springX = useSpring(x, CURSOR_SPRING)
+  const springY = useSpring(y, CURSOR_SPRING)
   const inputRef = useRef<HTMLInputElement>(null)
   const expireTimerRef = useRef<number | null>(null)
   const chatMessage = useRealtimeStore((state) => state.chatMessage)
@@ -85,10 +89,7 @@ export const CursorChat = () => {
         {open ? (
           <m.input
             key="input"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ duration: 0.2 }}
+            {...cursorLabelAnimation}
             ref={inputRef}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -126,17 +127,10 @@ export const CursorChat = () => {
             className="no-focus-styles border border-brand-g2 bg-brand-k px-2 py-1 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
           />
         ) : chatMessage ? (
-          <m.p
-            key="sent"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ duration: 0.2 }}
-            className="w-fit max-w-72 break-words bg-brand-k text-brand-w1"
-          >
+          <CursorLabel key="sent" className="w-fit max-w-72 break-words">
             {flag ? `[${flag}] ` : ""}
             {chatMessage}
-          </m.p>
+          </CursorLabel>
         ) : null}
       </AnimatePresence>
     </m.div>
