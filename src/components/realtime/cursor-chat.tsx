@@ -82,10 +82,10 @@ export const CursorChat = () => {
           open ? "w-64" : "w-fit max-w-72"
         )}
       >
-        {(flag || displayName) && (
+        {open && (flag || displayName) && (
           <span
-            className="text-caption shrink-0 whitespace-nowrap uppercase leading-4"
-            style={{ color }}
+            className="text-caption shrink-0 whitespace-nowrap rounded-full px-1.5 font-mono uppercase leading-4 text-brand-k"
+            style={{ backgroundColor: color }}
           >
             {flag}
             {displayName ? ` ${displayName}` : ""}
@@ -123,6 +123,7 @@ export const CursorChat = () => {
           />
         ) : (
           <span className="break-words text-[0.75rem] leading-4 text-brand-w1">
+            {flag ? `${flag} ` : ""}
             {chatMessage}
           </span>
         )}

@@ -75,8 +75,8 @@ const RemoteCursorItem = ({
       <div className="absolute left-4 top-4 w-72">
         {(cursor.country || cursor.name) && (
           <span
-            className="text-caption block w-fit whitespace-nowrap rounded-full border border-brand-g2 bg-brand-k px-2 py-0.5 font-mono uppercase"
-            style={{ color }}
+            className="text-caption block w-fit whitespace-nowrap rounded-full px-2 py-0.5 font-mono uppercase text-brand-k"
+            style={{ backgroundColor: color }}
           >
             {cursor.country ? flagEmoji(cursor.country) : ""}
             {cursor.name ? ` ${cursor.name.slice(0, NAME_MAX_LENGTH)}` : ""}
