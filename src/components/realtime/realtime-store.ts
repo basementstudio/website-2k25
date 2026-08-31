@@ -41,7 +41,6 @@ export interface RemoteCursor {
   xn: number
   /** y in document-space px (clientY + scrollY on the sender) */
   yd: number
-  ts: number
   /** ISO 3166-1 alpha-2 country code */
   country?: string | null
   /** live cursor-chat message, empty when the sender's chat is closed */

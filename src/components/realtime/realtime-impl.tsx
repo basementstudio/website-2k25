@@ -5,26 +5,21 @@ import throttle from "lodash.throttle"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useRef } from "react"
 
-import { useIsOnTab } from "@/hooks/use-is-on-tab"
 import { createClient } from "@/service/supabase/client"
 
 import { censor } from "./censor"
 import { getClientId, useRealtimeStore } from "./realtime-store"
 
 const CURSOR_BROADCAST_MS = 80
-const CURSOR_STALE_MS = 6000
 
 // Public (non-private) Broadcast/Presence channels: anon key only, no tables
 // or RLS involved. Hardening to private channels + RLS on realtime.messages
 // is the production path, out of scope for this POC.
 export const RealtimeImpl = () => {
   const pathname = usePathname()
-  const isOnTab = useIsOnTab()
   const supabase = useMemo(() => createClient(), [])
   const cursorChannelRef = useRef<RealtimeChannel | null>(null)
   const cursorSubscribedRef = useRef(false)
-  const isOnTabRef = useRef(true)
-  isOnTabRef.current = isOnTab
   const lastPosRef = useRef<{ xn: number; yd: number } | null>(null)
   const sendCursorRef = useRef<((xn: number, yd: number) => void) | null>(null)
 
@@ -87,12 +82,10 @@ export const RealtimeImpl = () => {
 
     channel
       .on("broadcast", { event: "cursor" }, ({ payload }) => {
-        // Stamp receipt time locally: sender clocks can't be trusted for GC
         store.upsertCursor({
           ...payload,
           msg: payload.msg ? censor(payload.msg) : payload.msg,
-          name: payload.name ? censor(payload.name) : payload.name,
-          ts: Date.now()
+          name: payload.name ? censor(payload.name) : payload.name
         })
       })
       .on("presence", { event: "leave" }, ({ key }) => {
@@ -101,14 +94,12 @@ export const RealtimeImpl = () => {
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
           cursorSubscribedRef.current = true
-          if (isOnTabRef.current) {
-            await channel.track({ id: getClientId(), joinedAt: Date.now() })
-          }
+          await channel.track({ id: getClientId(), joinedAt: Date.now() })
         }
       })
 
     const broadcast = throttle((xn: number, yd: number) => {
-      if (!cursorSubscribedRef.current || !isOnTabRef.current) return
+      if (!cursorSubscribedRef.current) return
       channel.send({
         type: "broadcast",
         event: "cursor",
@@ -134,17 +125,8 @@ export const RealtimeImpl = () => {
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true })
 
-    const gcInterval = window.setInterval(() => {
-      const { cursors, removeCursor } = useRealtimeStore.getState()
-      const now = Date.now()
-      for (const cursor of Object.values(cursors)) {
-        if (now - cursor.ts > CURSOR_STALE_MS) removeCursor(cursor.id)
-      }
-    }, CURSOR_STALE_MS / 2)
-
     return () => {
       window.removeEventListener("pointermove", handlePointerMove)
-      window.clearInterval(gcInterval)
       broadcast.cancel()
       sendCursorRef.current = null
       cursorChannelRef.current = null
@@ -170,18 +152,6 @@ export const RealtimeImpl = () => {
       sendCursorRef.current?.(pos.xn, pos.yd)
     })
   }, [])
-
-  // Hidden tab: still counted as online, but our frozen cursor leaves the room
-  useEffect(() => {
-    const channel = cursorChannelRef.current
-    if (!channel || !cursorSubscribedRef.current) return
-
-    if (isOnTab) {
-      channel.track({ id: getClientId(), joinedAt: Date.now() })
-    } else {
-      channel.untrack()
-    }
-  }, [isOnTab])
 
   return null
 }
