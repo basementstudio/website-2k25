@@ -1,6 +1,6 @@
 "use client"
 
-import { m, useSpring } from "motion/react"
+import { AnimatePresence, m, useSpring } from "motion/react"
 import { useEffect, useReducer, useRef } from "react"
 
 import {
@@ -79,15 +79,23 @@ const RemoteCursorItem = ({
       {/* fixed width: the abs-positioned parent is only as wide as the arrow,
           so a w-fit child would collapse to min-content when text wraps */}
       <div className="absolute left-4 top-4 w-72">
-        {(bracket || cursor.msg) && (
-          <span
-            className="block w-fit max-w-full break-words bg-brand-k px-2 py-1 font-mono text-[0.75rem] leading-4"
-            style={{ color }}
-          >
-            {bracket ? `[${bracket}]` : ""}
-            {cursor.msg ? ` ${cursor.msg}` : ""}
-          </span>
-        )}
+        {/* keyed by message state so send/expire cross-fade with the house ease */}
+        <AnimatePresence mode="wait" initial={false}>
+          {(bracket || cursor.msg) && (
+            <m.span
+              key={cursor.msg ? `msg:${cursor.msg}` : "label"}
+              initial={{ opacity: 0, scale: 0.95, y: 4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="block w-fit max-w-full origin-top-left break-words bg-brand-k px-2 py-1 font-mono text-[0.75rem] leading-4"
+              style={{ color }}
+            >
+              {bracket ? `[${bracket}]` : ""}
+              {cursor.msg ? ` ${cursor.msg}` : ""}
+            </m.span>
+          )}
+        </AnimatePresence>
       </div>
     </m.div>
   )

@@ -1,6 +1,6 @@
 "use client"
 
-import { m, useMotionValue } from "motion/react"
+import { AnimatePresence, m, useMotionValue } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 
 import { cn } from "@/utils/cn"
@@ -65,8 +65,9 @@ export const CursorChat = () => {
   }, [open])
 
   // While open: a plain bordered input that fits its content. After Enter:
-  // just "[flag] message" riding the cursor until it expires.
-  if (!REALTIME_ENABLED || (!open && !chatMessage)) return null
+  // just "[flag] message" riding the cursor until it expires. The wrapper
+  // stays mounted so AnimatePresence can run the exit ease.
+  if (!REALTIME_ENABLED) return null
 
   const color = colorForId(getClientId())
   const flag = country ? flagEmoji(country) : ""
@@ -84,52 +85,64 @@ export const CursorChat = () => {
       )}
       style={{ x, y }}
     >
-      {open ? (
-        <input
-          ref={inputRef}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={close}
-          onKeyDown={(e) => {
-            e.stopPropagation()
-            if (e.key === "Escape") close()
-            if (e.key === "Enter") {
-              const value = draft.trim()
-              const nameMatch = value.match(/^@(.+)/)
-              if (nameMatch) {
-                setDisplayName(nameMatch[1])
-                setDraft("")
-              } else if (value) {
-                setChatMessage(value)
-                if (expireTimerRef.current) {
-                  window.clearTimeout(expireTimerRef.current)
+      <AnimatePresence mode="wait" initial={false}>
+        {open ? (
+          <m.input
+            key="input"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            ref={inputRef}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={close}
+            onKeyDown={(e) => {
+              e.stopPropagation()
+              if (e.key === "Escape") close()
+              if (e.key === "Enter") {
+                const value = draft.trim()
+                const nameMatch = value.match(/^@(.+)/)
+                if (nameMatch) {
+                  setDisplayName(nameMatch[1])
+                  setDraft("")
+                } else if (value) {
+                  setChatMessage(value)
+                  if (expireTimerRef.current) {
+                    window.clearTimeout(expireTimerRef.current)
+                  }
+                  expireTimerRef.current = window.setTimeout(() => {
+                    setChatMessage("")
+                  }, MESSAGE_TTL_MS)
+                  close()
                 }
-                expireTimerRef.current = window.setTimeout(() => {
-                  setChatMessage("")
-                }, MESSAGE_TTL_MS)
-                close()
               }
-            }
-          }}
-          placeholder={PLACEHOLDER}
-          maxLength={120}
-          spellCheck={false}
-          // ch-based width: mono glyphs are 1ch, so the box hugs the text the
-          // way the design's typing state does
-          style={{
-            width: `${(draft ? draft.length : PLACEHOLDER.length) + 2}ch`
-          }}
-          className="no-focus-styles border border-brand-g2 bg-brand-k px-2 py-1 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
-        />
-      ) : (
-        <span
-          className="block w-fit max-w-72 break-words bg-brand-k px-2 py-1"
-          style={{ color }}
-        >
-          {flag ? `[${flag}] ` : ""}
-          {chatMessage}
-        </span>
-      )}
+            }}
+            placeholder={PLACEHOLDER}
+            maxLength={120}
+            spellCheck={false}
+            // ch-based width: mono glyphs are 1ch, so the box hugs the text
+            // the way the design's typing state does
+            style={{
+              width: `${(draft ? draft.length : PLACEHOLDER.length) + 2}ch`
+            }}
+            className="no-focus-styles border border-brand-g2 bg-brand-k px-2 py-1 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
+          />
+        ) : chatMessage ? (
+          <m.span
+            key="sent"
+            initial={{ opacity: 0, scale: 0.95, y: 4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="block w-fit max-w-72 origin-top-left break-words bg-brand-k px-2 py-1"
+            style={{ color }}
+          >
+            {flag ? `[${flag}] ` : ""}
+            {chatMessage}
+          </m.span>
+        ) : null}
+      </AnimatePresence>
     </m.div>
   )
 }
