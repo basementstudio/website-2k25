@@ -78,13 +78,15 @@ export const CursorChat = () => {
     >
       <div
         className={cn(
-          "flex items-start gap-1.5 rounded-2xl rounded-tl px-3 py-1.5 shadow-lg",
+          "flex items-start gap-1.5 rounded-full border border-brand-g2 bg-brand-k px-3 py-1.5 font-mono shadow-lg",
           open ? "w-64" : "w-fit max-w-72"
         )}
-        style={{ backgroundColor: color }}
       >
         {(flag || displayName) && (
-          <span className="text-caption shrink-0 whitespace-nowrap leading-4 text-brand-k">
+          <span
+            className="text-caption shrink-0 whitespace-nowrap uppercase leading-4"
+            style={{ color }}
+          >
             {flag}
             {displayName ? ` ${displayName}` : ""}
           </span>
@@ -117,10 +119,10 @@ export const CursorChat = () => {
             placeholder="Say something…"
             maxLength={120}
             spellCheck={false}
-            className="no-focus-styles w-0 min-w-0 flex-1 bg-transparent text-[0.75rem] leading-4 text-brand-k placeholder:text-brand-k/50 focus:outline-none focus-visible:ring-0"
+            className="no-focus-styles w-0 min-w-0 flex-1 bg-transparent text-[0.75rem] leading-4 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
           />
         ) : (
-          <span className="break-words text-[0.75rem] leading-4 text-brand-k">
+          <span className="break-words text-[0.75rem] leading-4 text-brand-w1">
             {chatMessage}
           </span>
         )}
