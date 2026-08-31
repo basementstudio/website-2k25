@@ -24,6 +24,29 @@ export const RealtimeImpl = () => {
   const cursorSubscribedRef = useRef(false)
   const isOnTabRef = useRef(true)
   isOnTabRef.current = isOnTab
+  const countryRef = useRef<string | null>(null)
+  const lastPosRef = useRef<{ xn: number; yd: number } | null>(null)
+  const sendCursorRef = useRef<((xn: number, yd: number) => void) | null>(null)
+
+  // Country for the cursor flag: Vercel geo header via /api/geo, falling back
+  // to the browser locale's region (dev has no geo header)
+  useEffect(() => {
+    const localeRegion = () => {
+      try {
+        return new Intl.Locale(navigator.language).region ?? null
+      } catch {
+        return null
+      }
+    }
+    fetch("/api/geo")
+      .then((res) => res.json())
+      .then((data) => {
+        countryRef.current = data.country ?? localeRegion()
+      })
+      .catch(() => {
+        countryRef.current = localeRegion()
+      })
+  }, [])
 
   // Site-wide online count, one presence channel for every route
   useEffect(() => {
@@ -84,13 +107,23 @@ export const RealtimeImpl = () => {
       channel.send({
         type: "broadcast",
         event: "cursor",
-        payload: { id: getClientId(), xn, yd }
+        payload: {
+          id: getClientId(),
+          xn,
+          yd,
+          country: countryRef.current,
+          msg: useRealtimeStore.getState().chatMessage
+        }
       })
     }, CURSOR_BROADCAST_MS)
+    sendCursorRef.current = broadcast
 
     const handlePointerMove = (e: PointerEvent) => {
       if (e.pointerType !== "mouse") return
-      broadcast(e.clientX / window.innerWidth, e.clientY + window.scrollY)
+      const xn = e.clientX / window.innerWidth
+      const yd = e.clientY + window.scrollY
+      lastPosRef.current = { xn, yd }
+      broadcast(xn, yd)
     }
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true })
@@ -107,12 +140,26 @@ export const RealtimeImpl = () => {
       window.removeEventListener("pointermove", handlePointerMove)
       window.clearInterval(gcInterval)
       broadcast.cancel()
+      sendCursorRef.current = null
       cursorChannelRef.current = null
       cursorSubscribedRef.current = false
       store.clearCursors()
       supabase.removeChannel(channel)
     }
   }, [supabase, pathname])
+
+  // Chat edits broadcast immediately from the last known position, so typing
+  // shows live for others even while the mouse is still
+  useEffect(() => {
+    return useRealtimeStore.subscribe((state, prev) => {
+      if (state.chatMessage === prev.chatMessage) return
+      const pos = lastPosRef.current ?? {
+        xn: 0.5,
+        yd: window.scrollY + window.innerHeight / 2
+      }
+      sendCursorRef.current?.(pos.xn, pos.yd)
+    })
+  }, [])
 
   // Hidden tab: still counted as online, but our frozen cursor leaves the room
   useEffect(() => {

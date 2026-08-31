@@ -5,6 +5,7 @@ import { useEffect, useReducer, useRef } from "react"
 
 import {
   colorForId,
+  flagEmoji,
   type RemoteCursor,
   useRealtimeStore
 } from "./realtime-store"
@@ -68,12 +69,23 @@ const RemoteCursorItem = ({
           strokeWidth="1"
         />
       </svg>
-      <span
-        className="text-caption absolute left-4 top-4 whitespace-nowrap px-1 text-brand-k"
-        style={{ backgroundColor: color }}
-      >
-        guest-{cursor.id.slice(0, 4)}
-      </span>
+      <div className="absolute left-4 top-4">
+        <span
+          className="text-caption block w-fit whitespace-nowrap px-1 text-brand-k"
+          style={{ backgroundColor: color }}
+        >
+          {cursor.country ? `${flagEmoji(cursor.country)} ` : ""}
+          guest-{cursor.id.slice(0, 4)}
+        </span>
+        {cursor.msg && (
+          <span
+            className="text-caption mt-1 block w-fit max-w-64 border bg-brand-k px-2 py-1 text-brand-w1"
+            style={{ borderColor: color }}
+          >
+            {cursor.msg}
+          </span>
+        )}
+      </div>
     </m.div>
   )
 }
