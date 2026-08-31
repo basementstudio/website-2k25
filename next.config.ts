@@ -53,6 +53,13 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // The machine view's landing page moved from /ai to /ai/home.
+      {
+        source: "/ai",
+        destination: "/ai/home",
+        permanent: true
+      },
+
       // Old pages
       {
         source: "/about",

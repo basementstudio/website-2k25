@@ -32,7 +32,7 @@ The studio works with both startups and established companies, worldwide.
 ## Notes for crawlers
 
 - A curated link map is available at https://basement.studio/llms.txt
-- Machine view: https://basement.studio/ai — single-page plain-HTML index of the entire site.
+- Machine view: https://basement.studio/ai/home — plain-HTML mirror of the site; every content page has a twin at /ai/{path}.
 - Markdown mirrors: append `.md` to any content URL (top-level pages, blog
   posts, showcase projects, and open positions) or request it with
   `Accept: text/markdown`. Content index: https://basement.studio/sitemap.md
