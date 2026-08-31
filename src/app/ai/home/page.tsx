@@ -10,6 +10,7 @@ import { fetchAllPostsForIndex } from "@/app/(site)/(plain)/(content)/post/[slug
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
 import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
+import { getImageUrl } from "@/service/sanity/helpers"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
@@ -69,6 +70,12 @@ const AiPage = async () => {
 
   // HTML (ventures.tsx) only shows the first venture — match that.
   const venture = servicesPage?.ventures?.[0] ?? null
+
+  // Match the homepage logo grid: only clients with a resolvable logo, in the
+  // grid's curated order (brands.tsx applies the same filter).
+  const logoClients = (homepage?.clients ?? []).filter(
+    (client) => getImageUrl(client.logo) !== null
+  )
 
   const socialLinks = [
     { label: "𝕏", url: companyInfo.twitter },
@@ -164,10 +171,10 @@ const AiPage = async () => {
           </Section>
         ) : null}
 
-        {homepage?.clients?.length ? (
+        {logoClients.length ? (
           <Section title="clients">
             <p>
-              {homepage.clients.map((client, i) => (
+              {logoClients.map((client, i) => (
                 <span key={client._id}>
                   {i > 0 ? ", " : null}
                   {client.website ? (
