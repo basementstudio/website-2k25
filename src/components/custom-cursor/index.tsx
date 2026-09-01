@@ -5,7 +5,6 @@ import {
   AnimatePresence,
   type HTMLMotionProps,
   m,
-  type MotionValue,
   useMotionValue,
   useSpring
 } from "motion/react"
@@ -105,122 +104,6 @@ const Marquee = ({ text }: { text: string }) => {
         <span>{text}&nbsp;</span>
       </span>
     </span>
-  )
-}
-
-// Figma-style cursor chat: press "/" anywhere and type; Enter sends the
-// message, which rides along with your cursor on other visitors' screens
-// until it expires. "@name" + Enter sets a display name next to your flag
-// instead of sending a message. Escape or blur closes the input.
-const CursorChat = ({
-  x,
-  y
-}: {
-  x: MotionValue<number>
-  y: MotionValue<number>
-}) => {
-  const [open, setOpen] = useState(false)
-  const [draft, setDraft] = useState("")
-  const inputRef = useRef<HTMLInputElement>(null)
-  const expireTimerRef = useRef<number | null>(null)
-  const chatMessage = useRealtimeStore((state) => state.chatMessage)
-  const setChatMessage = useRealtimeStore((state) => state.setChatMessage)
-  const setDisplayName = useRealtimeStore((state) => state.setDisplayName)
-  const country = useRealtimeStore((state) => state.country)
-
-  useEffect(() => {
-    if (!REALTIME_ENABLED) return
-
-    const handleKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null
-      const isTyping =
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable)
-      if (e.key === "/" && !e.metaKey && !e.ctrlKey && !isTyping) {
-        e.preventDefault()
-        setOpen(true)
-      }
-    }
-
-    window.addEventListener("keydown", handleKey)
-    return () => window.removeEventListener("keydown", handleKey)
-  }, [])
-
-  useEffect(() => {
-    if (open) inputRef.current?.focus()
-  }, [open])
-
-  // While open: a plain bordered input that fits its content. After Enter:
-  // just "[flag] message" riding the cursor until it expires. The wrapper
-  // stays mounted so AnimatePresence can run the exit ease.
-  if (!REALTIME_ENABLED) return null
-
-  const flag = country ? flagEmoji(country) : ""
-
-  const close = () => {
-    setOpen(false)
-    setDraft("")
-  }
-
-  return (
-    <m.div
-      className={cn(
-        "absolute left-0 top-0 pl-4 pt-5 text-f-p-mobile lg:text-f-p",
-        open && "pointer-events-auto"
-      )}
-      style={{ x, y }}
-    >
-      <AnimatePresence mode="wait" initial={false}>
-        {open ? (
-          <m.input
-            key="input"
-            {...cursorLabelAnimation}
-            ref={inputRef}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onBlur={close}
-            onKeyDown={(e) => {
-              e.stopPropagation()
-              if (e.key === "Escape") close()
-              if (e.key === "Enter") {
-                const value = draft.trim()
-                const nameMatch = value.match(/^@(.+)/)
-                if (nameMatch) {
-                  setDisplayName(nameMatch[1])
-                  setDraft("")
-                } else if (value) {
-                  setChatMessage(value)
-                  if (expireTimerRef.current) {
-                    window.clearTimeout(expireTimerRef.current)
-                  }
-                  expireTimerRef.current = window.setTimeout(() => {
-                    setChatMessage("")
-                  }, MESSAGE_TTL_MS)
-                  close()
-                }
-              }
-            }}
-            placeholder={PLACEHOLDER}
-            maxLength={120}
-            spellCheck={false}
-            // ch-based width so the box hugs the text like the design's
-            // typing state; approximate under the proportional body font,
-            // hence the buffer
-            style={{
-              width: `${(draft ? draft.length : PLACEHOLDER.length) + 3}ch`
-            }}
-            className="no-focus-styles border border-brand-g2 bg-brand-k px-2 py-1 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
-          />
-        ) : chatMessage ? (
-          <CursorLabel key="sent" className="w-fit max-w-72 break-words">
-            {flag ? `[${flag}] ` : ""}
-            {chatMessage}
-          </CursorLabel>
-        ) : null}
-      </AnimatePresence>
-    </m.div>
   )
 }
 
@@ -344,55 +227,50 @@ const RemoteCursors = () => {
   )
 }
 
-// The whole cursor system in one component: the local hover label (fed by
-// useMouseStore), the cursor chat, and other visitors' cursors — all sharing
-// one pointer listener and the same label treatment.
+// The whole cursor system in one component, with ONE label slot trailing the
+// pointer. Slot priority: open chat input > inspectable hover text > your own
+// sent message (which returns after the hover ends, until it expires). Plus
+// other visitors' cursors.
 export const CustomCursor = memo(() => {
-  // Raw pointer position drives the chat; the hover label gets an
-  // edge-flipped position so it never overflows the viewport.
-  const rawX = useMotionValue(0)
-  const rawY = useMotionValue(0)
-  const labelX = useMotionValue(0)
-  const labelY = useMotionValue(0)
-
-  const springRawX = useSpring(rawX, CURSOR_SPRING)
-  const springRawY = useSpring(rawY, CURSOR_SPRING)
-  const springLabelX = useSpring(labelX, CURSOR_SPRING)
-  const springLabelY = useSpring(labelY, CURSOR_SPRING)
+  const [open, setOpen] = useState(false)
+  const [draft, setDraft] = useState("")
+  const expireTimerRef = useRef<number | null>(null)
 
   const hoverText = useMouseStore((state) => state.hoverText)
   const marquee = useMouseStore((state) => state.marquee)
-  const mouseElementRef = useRef<HTMLDivElement>(null)
+  const chatMessage = useRealtimeStore((state) => state.chatMessage)
+  const setChatMessage = useRealtimeStore((state) => state.setChatMessage)
+  const setDisplayName = useRealtimeStore((state) => state.setDisplayName)
+  const country = useRealtimeStore((state) => state.country)
 
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const springX = useSpring(x, CURSOR_SPRING)
+  const springY = useSpring(y, CURSOR_SPRING)
+
+  const slotRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
+  // Measure whatever the slot currently shows so the edge-flip logic keeps
+  // the label/input inside the viewport
   useEffect(() => {
-    if (!mouseElementRef.current || !hoverText) return
+    if (!slotRef.current) return
 
     const observer = new ResizeObserver(() => {
-      if (mouseElementRef.current) {
+      if (slotRef.current) {
         setDimensions({
-          width: mouseElementRef.current.offsetWidth,
-          height: mouseElementRef.current.offsetHeight
+          width: slotRef.current.offsetWidth,
+          height: slotRef.current.offsetHeight
         })
       }
     })
 
-    observer.observe(mouseElementRef.current)
-
-    setDimensions({
-      width: mouseElementRef.current.offsetWidth,
-      height: mouseElementRef.current.offsetHeight
-    })
-
+    observer.observe(slotRef.current)
     return () => observer.disconnect()
-  }, [hoverText])
+  }, [])
 
   const updateMousePosition = useCallback(
     (e: MouseEvent) => {
-      rawX.set(e.clientX)
-      rawY.set(e.clientY)
-
       const { width, height } = dimensions
 
       const desiredX = e.clientX + OFFSET
@@ -415,10 +293,10 @@ export const CustomCursor = memo(() => {
             defaultY
           : desiredY
 
-      labelX.set(xPos)
-      labelY.set(yPos)
+      x.set(xPos)
+      y.set(yPos)
     },
-    [dimensions, rawX, rawY, labelX, labelY]
+    [dimensions, x, y]
   )
 
   const debouncedUpdateMousePosition = useMemo(
@@ -434,27 +312,109 @@ export const CustomCursor = memo(() => {
       window.removeEventListener("mousemove", debouncedUpdateMousePosition)
   }, [debouncedUpdateMousePosition])
 
+  useEffect(() => {
+    if (!REALTIME_ENABLED) return
+
+    const handleKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      const isTyping =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      if (e.key === "/" && !e.metaKey && !e.ctrlKey && !isTyping) {
+        e.preventDefault()
+        setOpen(true)
+      }
+    }
+
+    window.addEventListener("keydown", handleKey)
+    return () => window.removeEventListener("keydown", handleKey)
+  }, [])
+
+  const flag = country ? flagEmoji(country) : ""
+
+  const close = () => {
+    setOpen(false)
+    setDraft("")
+  }
+
   return (
     <>
-      <AnimatePresence>
-        {hoverText && (
-          <CursorLabel
-            ref={mouseElementRef}
-            className="pointer-events-none fixed z-50"
-            style={{ x: springLabelX, y: springLabelY }}
-          >
-            {!marquee ? (
-              `[${hoverText}]`
-            ) : (
-              <span className="flex gap-0.5">
-                <span>[Now Playing]</span>
-                <Marquee text={hoverText ?? ""} />
-              </span>
-            )}
-          </CursorLabel>
+      <m.div
+        ref={slotRef}
+        className={cn(
+          "absolute left-0 top-0 z-50 text-f-p-mobile lg:text-f-p",
+          open ? "pointer-events-auto" : "pointer-events-none"
         )}
-      </AnimatePresence>
-      <CursorChat x={springRawX} y={springRawY} />
+        style={{ x: springX, y: springY }}
+      >
+        {/* popLayout: the entering element mounts immediately (so the input
+            can take keystrokes right after "/") while the exiting one pops
+            out of layout and eases away on top */}
+        <AnimatePresence mode="popLayout" initial={false}>
+          {open ? (
+            <m.input
+              key="input"
+              {...cursorLabelAnimation}
+              // focus via ref callback: the input mounts after "/" while
+              // other slot content exits, so an on-open effect could fire
+              // before it exists
+              ref={(el) => el?.focus()}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onBlur={close}
+              onKeyDown={(e) => {
+                e.stopPropagation()
+                if (e.key === "Escape") close()
+                if (e.key === "Enter") {
+                  const value = draft.trim()
+                  const nameMatch = value.match(/^@(.+)/)
+                  if (nameMatch) {
+                    setDisplayName(nameMatch[1])
+                    setDraft("")
+                  } else if (value) {
+                    setChatMessage(value)
+                    if (expireTimerRef.current) {
+                      window.clearTimeout(expireTimerRef.current)
+                    }
+                    expireTimerRef.current = window.setTimeout(() => {
+                      setChatMessage("")
+                    }, MESSAGE_TTL_MS)
+                    close()
+                  }
+                }
+              }}
+              placeholder={PLACEHOLDER}
+              maxLength={120}
+              spellCheck={false}
+              // ch-based width so the box hugs the text like the design's
+              // typing state; approximate under the proportional body font,
+              // hence the buffer
+              style={{
+                width: `${(draft ? draft.length : PLACEHOLDER.length) + 3}ch`
+              }}
+              className="no-focus-styles border border-brand-g2 bg-brand-k px-2 py-1 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
+            />
+          ) : hoverText ? (
+            <CursorLabel key={`hover:${hoverText}`}>
+              {!marquee ? (
+                `[${hoverText}]`
+              ) : (
+                <span className="flex gap-0.5">
+                  <span>[Now Playing]</span>
+                  <Marquee text={hoverText ?? ""} />
+                </span>
+              )}
+            </CursorLabel>
+          ) : chatMessage ? (
+            <CursorLabel key="sent" className="w-fit max-w-72 break-words">
+              {flag ? `[${flag}] ` : ""}
+              {chatMessage}
+            </CursorLabel>
+          ) : null}
+        </AnimatePresence>
+      </m.div>
       <RemoteCursors />
     </>
   )
