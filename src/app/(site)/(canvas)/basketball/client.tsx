@@ -1,6 +1,7 @@
 "use client"
 
 import { ArcadeNameInput } from "@/components/basketball/arcade-name-input"
+import { LedLeaderboard } from "@/components/basketball/led-leaderboard"
 import { Scoreboard } from "@/components/basketball/scoreboard"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
@@ -38,7 +39,7 @@ export default Basketball
 const DesktopUI = () => (
   <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in p-3.5">
     <div className="grid-layout mt-24 h-full">
-      <Scoreboard className="col-span-2 col-start-10 ml-auto w-32 text-f-p-mobile lg:text-f-p" />
+      <LedLeaderboard className="col-span-2 col-start-10 ml-auto" />
     </div>
   </div>
 )
