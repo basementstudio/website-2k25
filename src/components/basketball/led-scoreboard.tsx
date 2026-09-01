@@ -11,6 +11,7 @@ import {
   drawGhostGrid,
   drawGlyphRow,
   drawPanel,
+  LED_GLOW,
   MatrixSpec,
   SCORE_COLOR,
   SCORE_GHOST,
@@ -100,7 +101,7 @@ export const LedScoreboard = () => {
   return (
     <mesh position={BOARD_POSITION}>
       <planeGeometry args={FACE_SIZE} />
-      <meshBasicMaterial map={texture} transparent />
+      <meshBasicMaterial map={texture} transparent color={LED_GLOW} />
     </mesh>
   )
 }

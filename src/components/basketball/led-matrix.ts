@@ -1,5 +1,12 @@
 // Shared 5x7 dot-matrix drawing helpers for the LED scoreboard and
 // leaderboard panels.
+import { Color } from "three"
+
+// Over-bright material multiplier: pushes lit dots and the bezel past the
+// postprocessing bloom luminance threshold so panels glow like the neon
+// basement sign, whose GLB material is white emissive with
+// KHR_materials_emissive_strength 10
+export const LED_GLOW = new Color(10, 10, 10)
 
 // prettier-ignore
 export const GLYPHS: Record<string, string[]> = {
@@ -14,6 +21,7 @@ export const GLYPHS: Record<string, string[]> = {
   "8": ["01110", "10001", "10001", "01110", "10001", "10001", "01110"],
   "9": ["01110", "10001", "10001", "01111", "00001", "00010", "01100"],
   ":": ["000", "010", "000", "000", "000", "010", "000"],
+  "-": ["000", "000", "000", "111", "000", "000", "000"],
   " ": ["00", "00", "00", "00", "00", "00", "00"],
   A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
   B: ["11110", "10001", "10001", "11110", "10001", "10001", "11110"],
@@ -119,7 +127,8 @@ export const drawPanel = (
   width: number,
   height: number,
   bezel: number,
-  cornerRadius: number
+  cornerRadius: number,
+  background: string = PANEL_BACKGROUND
 ) => {
   const innerRect = [
     bezel,
@@ -141,7 +150,7 @@ export const drawPanel = (
   ctx.fill()
   ctx.globalCompositeOperation = "source-over"
 
-  ctx.fillStyle = PANEL_BACKGROUND
+  ctx.fillStyle = background
   ctx.beginPath()
   ctx.roundRect(...innerRect, innerRadius)
   ctx.fill()

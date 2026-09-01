@@ -10,6 +10,8 @@ import {
   drawGhostGrid,
   drawGlyphRow,
   drawPanel,
+  GLYPHS,
+  LED_GLOW,
   MatrixSpec,
   SCORE_COLOR,
   SCORE_GHOST,
@@ -22,12 +24,12 @@ const MAX_ENTRIES = 12
 // Wide three-column board on the wall band above the neon basement sign
 // (SM_LogoBasement sits at [8.44, 2.6, -14.6]; the panel floats just proud
 // of that wall)
-const PANEL_POSITION: [number, number, number] = [8.3, 3.45, -14.35]
-const PANEL_WIDTH = 2.2
+const PANEL_POSITION: [number, number, number] = [8.3, 3.69, -14.35]
+const PANEL_WIDTH = 1.9
 
 const CELL = 16
 const BEZEL = 12
-const MARGIN = 44
+const MARGIN = 80
 const CORNER_RADIUS = 24
 const PAD = BEZEL + MARGIN
 
@@ -41,9 +43,9 @@ const COLUMN_GAP = 6
 const COLUMNS = 3
 const ROWS_PER_COLUMN = 4
 const GRID_COLS = COLUMN_COLS * COLUMNS + COLUMN_GAP * (COLUMNS - 1)
-const ROW_STRIDE = 9
-const HEADER_ROWS = 9
-const GRID_ROWS = HEADER_ROWS + ROWS_PER_COLUMN * ROW_STRIDE - 2
+const ROW_STRIDE = 11
+const HEADER_ROWS = 13
+const GRID_ROWS = HEADER_ROWS + ROWS_PER_COLUMN * ROW_STRIDE - 4
 
 const CANVAS_WIDTH = GRID_COLS * CELL + PAD * 2
 const CANVAS_HEIGHT = GRID_ROWS * CELL + PAD * 2
@@ -51,7 +53,7 @@ const PANEL_HEIGHT = PANEL_WIDTH * (CANVAS_HEIGHT / CANVAS_WIDTH)
 
 const SPEC: MatrixSpec = { cell: CELL, pad: PAD }
 
-const HEADER = "HIGH SCORES"
+const HEADER = "HIGH-SCORES"
 
 export const LedLeaderboard = () => {
   const isBasketball = useNavigationStore(
@@ -73,7 +75,16 @@ export const LedLeaderboard = () => {
   useEffect(() => {
     if (!ctx) return
 
-    drawPanel(ctx, CANVAS_WIDTH, CANVAS_HEIGHT, BEZEL, CORNER_RADIUS)
+    // Near-opaque face: the animated white lamp doodle sits right behind
+    // this wall band and would glow through the default translucent panel
+    drawPanel(
+      ctx,
+      CANVAS_WIDTH,
+      CANVAS_HEIGHT,
+      BEZEL,
+      CORNER_RADIUS,
+      "rgba(10, 10, 12, 1)"
+    )
     drawGhostGrid(ctx, SPEC, GRID_COLS, GRID_ROWS, (row, col) => {
       if (row < HEADER_ROWS - 2) return AMBER_GHOST
       const colInColumn = col % (COLUMN_COLS + COLUMN_GAP)
@@ -89,7 +100,15 @@ export const LedLeaderboard = () => {
       Math.floor((GRID_COLS - textCols(HEADER)) / 2)
     )
 
-    highScores.slice(0, MAX_ENTRIES).forEach((entry, i) => {
+    // Skip entries whose name has no renderable glyphs (legacy symbol-only
+    // names would show as a blank slot); the next score takes their place
+    const renderable = highScores.filter((entry) =>
+      [...entry.player_name.toUpperCase()].some(
+        (char) => char !== " " && GLYPHS[char]
+      )
+    )
+
+    renderable.slice(0, MAX_ENTRIES).forEach((entry, i) => {
       const column = Math.floor(i / ROWS_PER_COLUMN)
       const columnStart = column * (COLUMN_COLS + COLUMN_GAP)
       const row = HEADER_ROWS + (i % ROWS_PER_COLUMN) * ROW_STRIDE
@@ -117,7 +136,10 @@ export const LedLeaderboard = () => {
   return (
     <mesh position={PANEL_POSITION}>
       <planeGeometry args={[PANEL_WIDTH, PANEL_HEIGHT]} />
-      <meshBasicMaterial map={texture} transparent />
+      {/* Over-bright multiplier pushes lit dots and the bezel past the
+          bloom luminance threshold so they glow like the neon sign; the
+          near-black face stays below it */}
+      <meshBasicMaterial map={texture} transparent color={LED_GLOW} />
     </mesh>
   )
 }
