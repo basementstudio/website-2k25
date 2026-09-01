@@ -17,21 +17,21 @@ import {
 } from "./led-matrix"
 import { useLeaderboardScores } from "./scoreboard"
 
-const MAX_ENTRIES = 10
+const MAX_ENTRIES = 12
 
 // Wide three-column board on the wall band above the neon basement sign
 // (SM_LogoBasement sits at [8.44, 2.6, -14.6]; the panel floats just proud
 // of that wall)
-const PANEL_POSITION: [number, number, number] = [8.3, 3.33, -14.35]
+const PANEL_POSITION: [number, number, number] = [8.3, 3.45, -14.35]
 const PANEL_WIDTH = 2.2
 
 const CELL = 16
 const BEZEL = 12
-const MARGIN = 24
+const MARGIN = 44
 const CORNER_RADIUS = 24
 const PAD = BEZEL + MARGIN
 
-// Three columns of four entry slots (10 filled); each column is a 3-letter
+// Three columns of four entry slots; each column is a 3-letter
 // name block (17 cols), 2-col gap, right-aligned 3-digit score block
 const NAME_COLS = 17
 const GAP_COLS = 2
@@ -51,7 +51,7 @@ const PANEL_HEIGHT = PANEL_WIDTH * (CANVAS_HEIGHT / CANVAS_WIDTH)
 
 const SPEC: MatrixSpec = { cell: CELL, pad: PAD }
 
-const HEADER = "TOP 10"
+const HEADER = "HIGH SCORES"
 
 export const LedLeaderboard = () => {
   const isBasketball = useNavigationStore(
