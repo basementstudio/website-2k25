@@ -26,7 +26,7 @@ const MAX_GHOSTS = 5
 const STALE_MS = 2500
 const EVICT_MS = 10000
 const IDLE_DIST = 0.05
-const GHOST_OPACITY = 0.35
+const GHOST_OPACITY = 0.5
 const GHOST_DAMPING = 12
 
 // Loose bounding box around the court; packets outside it are dropped (the
