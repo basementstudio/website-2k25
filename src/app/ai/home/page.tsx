@@ -10,37 +10,19 @@ import { fetchAllPostsForIndex } from "@/app/(site)/(plain)/(content)/post/[slug
 import { fetchCompanyInfo, fetchCurrentYear } from "@/components/layout/sanity"
 import { COMPANY_FACTS, formatFactList } from "@/lib/company-facts"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
+import { getImageUrl } from "@/service/sanity/helpers"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
-import { Field, linkClass, Section } from "./components"
+import { Field, linkClass, Section } from "../components"
+import { MachineHeader } from "../machine-header"
 
 export const metadata: Metadata = {
   title: "Machine view",
   description:
     "Plain-text index of basement.studio for AI agents and crawlers: who the studio is, services, clients, projects, writing, and contact.",
-  alternates: { canonical: "/ai" }
+  alternates: { canonical: "/ai/home" }
 }
-
-// "BSMNT" — ANSI-shadow block letters. Decorative only; entity data below is
-// what crawlers read.
-const ASCII_LOGO = `██████╗ ███████╗███╗   ███╗███╗   ██╗████████╗
-██╔══██╗██╔════╝████╗ ████║████╗  ██║╚══██╔══╝
-██████╔╝███████╗██╔████╔██║██╔██╗ ██║   ██║
-██╔══██╗╚════██║██║╚██╔╝██║██║╚██╗██║   ██║
-██████╔╝███████║██║ ╚═╝ ██║██║ ╚████║   ██║
-╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═══╝   ╚═╝`
-
-const NAV_LINKS = [
-  { href: "/", label: "home" },
-  { href: "/services", label: "services" },
-  { href: "/showcase", label: "showcase" },
-  { href: "/people", label: "people" },
-  // The blog stays in the machine format — it has its own machine index.
-  { href: "/ai/blog", label: "blog" },
-  { href: "/lab", label: "lab" },
-  { href: "/contact", label: "contact" }
-]
 
 const AGENT_RESOURCES = [
   { href: "/llms.txt", label: "llms.txt" },
@@ -89,6 +71,12 @@ const AiPage = async () => {
   // HTML (ventures.tsx) only shows the first venture — match that.
   const venture = servicesPage?.ventures?.[0] ?? null
 
+  // Match the homepage logo grid: only clients with a resolvable logo, in the
+  // grid's curated order (brands.tsx applies the same filter).
+  const logoClients = (homepage?.clients ?? []).filter(
+    (client) => getImageUrl(client.logo) !== null
+  )
+
   const socialLinks = [
     { label: "𝕏", url: companyInfo.twitter },
     { label: "instagram", url: companyInfo.instagram },
@@ -101,14 +89,7 @@ const AiPage = async () => {
       <PageJsonLd />
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
         <header className="flex flex-col gap-4">
-          {/* Font size scales with the viewport (46-char-wide art), capped so
-            the logo sits at roughly 3/4 of the content column. */}
-          <pre
-            aria-hidden="true"
-            className="w-full text-[min(16px,calc((100vw-2rem)/38))] leading-tight text-machine-base"
-          >
-            {ASCII_LOGO}
-          </pre>
+          <MachineHeader current="/ai/home" />
           <h1 className="text-machine-bright">
             basement.studio :: machine-readable index
           </h1>
@@ -116,16 +97,6 @@ const AiPage = async () => {
             # plain-text mirror of basement.studio for AI agents, crawlers, and
             humans who prefer it raw.
           </p>
-          <nav
-            aria-label="Site index"
-            className="flex flex-wrap gap-x-4 gap-y-1"
-          >
-            {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className={linkClass}>
-                {link.href}
-              </a>
-            ))}
-          </nav>
         </header>
 
         <Section title="about">
@@ -171,10 +142,7 @@ const AiPage = async () => {
                 <li key={cap._id} className="flex flex-col gap-1">
                   <h3 className="text-machine-bright">
                     {"* "}
-                    <a
-                      href={`/showcase?category=${encodeURIComponent(cap.title)}`}
-                      className={linkClass}
-                    >
+                    <a href="/ai/showcase" className={linkClass}>
                       {cap.title}
                     </a>
                   </h3>
@@ -203,15 +171,16 @@ const AiPage = async () => {
           </Section>
         ) : null}
 
-        {homepage?.clients?.length ? (
+        {logoClients.length ? (
           <Section title="clients">
             <p>
-              {homepage.clients.map((client, i) => (
+              {logoClients.map((client, i) => (
                 <span key={client._id}>
                   {i > 0 ? ", " : null}
                   {client.website ? (
                     <a
                       href={client.website}
+                      target="_blank"
                       rel="noopener"
                       className={linkClass}
                     >
@@ -236,7 +205,7 @@ const AiPage = async () => {
                   <li key={item._key}>
                     {"- "}
                     {slug ? (
-                      <a href={`/showcase/${slug}.md`} className={linkClass}>
+                      <a href={`/ai/showcase/${slug}`} className={linkClass}>
                         {label}
                       </a>
                     ) : (
@@ -261,7 +230,7 @@ const AiPage = async () => {
                   <li key={project.slug}>
                     {"- "}
                     <a
-                      href={`/showcase/${project.slug}.md`}
+                      href={`/ai/showcase/${project.slug}`}
                       className={linkClass}
                     >
                       {project.title}
@@ -311,7 +280,7 @@ const AiPage = async () => {
                   <li key={position.slug}>
                     {"- "}
                     <a
-                      href={`/careers/${position.slug}.md`}
+                      href={`/ai/careers/${position.slug}`}
                       className={linkClass}
                     >
                       {position.title}
@@ -349,13 +318,18 @@ const AiPage = async () => {
               </Field>
             ))}
             <Field label="form">
-              <a href="/contact" className={linkClass}>
-                /contact
+              <a href="/ai/contact" className={linkClass}>
+                /ai/contact
               </a>
             </Field>
             {socialLinks.map((social) => (
               <Field key={social.label} label={social.label}>
-                <a href={social.url} rel="noopener" className={linkClass}>
+                <a
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener"
+                  className={linkClass}
+                >
                   {social.url}
                 </a>
               </Field>

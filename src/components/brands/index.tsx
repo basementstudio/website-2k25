@@ -60,7 +60,7 @@ interface BrandsDesktopProps {
 
 export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null)
-  const isLargeDesktop = useMedia("(min-width: 1280px)")
+  const isLargeDesktop = useMedia("(min-width: 1536px)")
   const isDesktop = useMedia("(min-width: 1024px)")
 
   const debouncedHoveredBrandId = useDebounceValue(
@@ -74,7 +74,7 @@ export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
 
   // Cap is visual only (logo grid needs full rows) — /index.md lists every
   // client on purpose, don't "fix" that to match this number.
-  const max = isLargeDesktop ? 32 : 30
+  const max = isLargeDesktop ? 40 : 36
   const groupSize = isLargeDesktop ? 8 : 6
   const available = Math.min(brands.length, max)
   const count = Math.floor(available / groupSize) * groupSize
@@ -91,7 +91,7 @@ export const BrandsDesktop = ({ brands }: BrandsDesktopProps) => {
       </div>
 
       <div className="relative col-span-full">
-        <div className="grid-rows-auto group grid grid-cols-6 gap-3 xl:grid-cols-8">
+        <div className="grid-rows-auto group grid grid-cols-6 gap-3 2xl:grid-cols-8">
           {filteredBrands.map((brand) => (
             <m.a
               className="aspect-[202/110] text-brand-w1 focus-visible:!ring-offset-0"

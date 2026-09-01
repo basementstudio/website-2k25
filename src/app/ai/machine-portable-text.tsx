@@ -9,6 +9,13 @@ import type {
 } from "@/service/sanity/types"
 import { normalizeHref } from "@/utils/seo"
 
+// CMS links can be internal (root-relative or basement.studio) or external —
+// only external ones open in a new tab. Subdomains (lab.basement.studio) are
+// separate properties and count as external.
+const isExternalHref = (href: string) =>
+  /^https?:\/\//i.test(href) &&
+  !/^https?:\/\/(?:www\.)?basement\.studio(?=[/?#]|$)/i.test(href)
+
 import { MachineCodeBlock } from "./machine-code-block"
 
 interface MarkDef {
@@ -174,9 +181,11 @@ const Spans = ({ block }: { block: TextBlock }) => {
         if (linkKey) {
           const def = markDefs.find((d) => d._key === linkKey)
           if (def?.href) {
+            const href = normalizeHref(def.href)
             node = (
               <a
-                href={normalizeHref(def.href)}
+                href={href}
+                target={isExternalHref(href) ? "_blank" : undefined}
                 rel="noopener"
                 className={linkClass}
               >
@@ -297,7 +306,7 @@ const ImagePlaceholder = ({
   if (!img) return null
   return (
     <p className="text-machine-dim">
-      <a href={img.src} rel="noopener" className={linkClass}>
+      <a href={img.src} target="_blank" rel="noopener" className={linkClass}>
         [image: {img.alt || image.caption || "untitled"}]
       </a>
       <Caption caption={image.caption} />
@@ -313,7 +322,13 @@ const Gallery = ({ value }: { value: GalleryValue }) => {
   return (
     <p className="flex flex-col gap-1 text-machine-dim">
       {images.map((img, i) => (
-        <a key={i} href={img.src} rel="noopener" className={linkClass}>
+        <a
+          key={i}
+          href={img.src}
+          target="_blank"
+          rel="noopener"
+          className={linkClass}
+        >
           [image {i + 1}/{images.length}: {img.alt || "untitled"}]
         </a>
       ))}
@@ -351,7 +366,7 @@ const VideoPlaceholder = ({ value }: { value: VideoValue }) => {
   if (!url) return null
   return (
     <p className="text-machine-dim">
-      <a href={url} rel="noopener" className={linkClass}>
+      <a href={url} target="_blank" rel="noopener" className={linkClass}>
         [video: {value.caption || "stream"}]
       </a>
     </p>
@@ -364,6 +379,7 @@ const TweetPlaceholder = ({ value }: { value: { tweetId?: string } }) => {
     <p className="text-machine-dim">
       <a
         href={`https://twitter.com/i/web/status/${value.tweetId}`}
+        target="_blank"
         rel="noopener"
         className={linkClass}
       >
