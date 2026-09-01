@@ -34,7 +34,11 @@ import { debounce } from "@/utils/debounce"
 const OFFSET = 16
 const DEBOUNCE_WAIT = 5
 const MESSAGE_TTL_MS = 6000
-const PLACEHOLDER = "Press enter to send message."
+// Progressive onboarding: hint on the first two opens, then a bare input
+const OPEN_PLACEHOLDERS = [
+  "Press enter to send message.",
+  "Type @name to change your name"
+]
 
 // The cursor-attached label treatment shared by every cursor in the system:
 // black block, body type, 0.2s pop, and the spring they all trail with.
@@ -235,6 +239,7 @@ export const CustomCursor = memo(() => {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState("")
   const expireTimerRef = useRef<number | null>(null)
+  const openCountRef = useRef(0)
 
   const hoverText = useMouseStore((state) => state.hoverText)
   const marquee = useMouseStore((state) => state.marquee)
@@ -325,6 +330,7 @@ export const CustomCursor = memo(() => {
           target.isContentEditable)
       if (e.key === "/" && !e.metaKey && !e.ctrlKey && !isTyping) {
         e.preventDefault()
+        openCountRef.current += 1
         setOpen(true)
       }
     }
@@ -346,6 +352,8 @@ export const CustomCursor = memo(() => {
     setDraft("")
   }
 
+  const placeholder = OPEN_PLACEHOLDERS[openCountRef.current - 1] ?? ""
+
   return (
     <>
       <m.div
@@ -364,7 +372,10 @@ export const CustomCursor = memo(() => {
             <m.div
               key="input"
               {...cursorLabelAnimation}
-              className="grid border border-brand-g2 bg-brand-k px-2 py-1"
+              className={cn(
+                "grid border border-brand-g2 bg-brand-k px-2 py-1",
+                !draft && !placeholder && "min-w-24"
+              )}
             >
               {/* invisible mirror sizes the grid cell to the exact text
                   width, so the trailing gap matches the leading padding */}
@@ -372,7 +383,7 @@ export const CustomCursor = memo(() => {
                 aria-hidden
                 className="invisible col-start-1 row-start-1 whitespace-pre pr-px"
               >
-                {draft || PLACEHOLDER}
+                {draft || placeholder}
               </span>
               <input
                 // focus via ref callback: the input mounts after "/" while
@@ -403,7 +414,7 @@ export const CustomCursor = memo(() => {
                     }
                   }
                 }}
-                placeholder={PLACEHOLDER}
+                placeholder={placeholder}
                 maxLength={120}
                 spellCheck={false}
                 className="no-focus-styles col-start-1 row-start-1 w-full min-w-0 bg-transparent text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
