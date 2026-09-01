@@ -222,9 +222,16 @@ const GhostBallsImpl = ({ ballRef }: GhostBallsProps) => {
 
   useFrameCallback((_, delta) => {
     // Send: sample the local rapier ball, but only when someone is listening
-    // and the ball is actually in play (quota stays at zero for solo visitors)
+    // and the ball is actually in play (quota stays at zero for solo visitors).
+    // isValid() guards against a stale handle around the ball's unmount at
+    // game end — reading a freed body panics the rapier WASM.
     const ball = ballRef.current
-    if (subscribedRef.current && ball && peerCountRef.current > 1) {
+    if (
+      subscribedRef.current &&
+      ball &&
+      ball.isValid() &&
+      peerCountRef.current > 1
+    ) {
       const t = ball.translation()
       if (
         Number.isFinite(t.x) &&
