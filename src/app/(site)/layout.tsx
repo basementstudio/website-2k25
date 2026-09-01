@@ -11,6 +11,7 @@ import { CanvasLayer } from "@/components/layout/canvas-layer"
 import { ModeToggle } from "@/components/layout/mode-toggle"
 import { NavigationHandler } from "@/components/navigation-handler"
 import { MotionProvider } from "@/components/primitives/motion-provider"
+import { RealtimeRoot } from "@/components/realtime/realtime-root"
 import { Transitions } from "@/components/transitions"
 import { HtmlTunnelOut } from "@/components/tunnel"
 
@@ -33,6 +34,7 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
             <HtmlTunnelOut />
             <NavigationHandler />
             <CanvasLayer />
+            <RealtimeRoot />
             {children}
             <AppHooks assets={assets} />
             <Contact />

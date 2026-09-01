@@ -8,6 +8,7 @@ import { mergeRefs } from "react-merge-refs"
 import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
 import { Portal } from "@/components/primitives/portal"
+import { OnlineCount } from "@/components/realtime/online-count"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
@@ -258,6 +259,8 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
       </div>
 
       <div className="col-start-11 col-end-13 ml-auto hidden items-center gap-5 lg:flex">
+        <OnlineCount />
+
         <MusicToggle />
 
         <button
