@@ -241,6 +241,7 @@ export const CustomCursor = memo(() => {
   const chatMessage = useRealtimeStore((state) => state.chatMessage)
   const setChatMessage = useRealtimeStore((state) => state.setChatMessage)
   const setDisplayName = useRealtimeStore((state) => state.setDisplayName)
+  const displayName = useRealtimeStore((state) => state.displayName)
   const country = useRealtimeStore((state) => state.country)
 
   const x = useMotionValue(0)
@@ -332,7 +333,13 @@ export const CustomCursor = memo(() => {
     return () => window.removeEventListener("keydown", handleKey)
   }, [])
 
-  const flag = country ? flagEmoji(country) : ""
+  // Same bracket other visitors see on your cursor: flag + name
+  const bracket = [
+    country ? flagEmoji(country) : "",
+    displayName ? displayName.slice(0, NAME_MAX_LENGTH).toUpperCase() : ""
+  ]
+    .filter(Boolean)
+    .join(" ")
 
   const close = () => {
     setOpen(false)
@@ -415,7 +422,7 @@ export const CustomCursor = memo(() => {
             </CursorLabel>
           ) : chatMessage ? (
             <CursorLabel key="sent" className="w-fit max-w-72 break-words">
-              {flag ? `[${flag}] ` : ""}
+              {bracket ? `[${bracket}] ` : ""}
               {chatMessage}
             </CursorLabel>
           ) : null}
