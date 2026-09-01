@@ -168,6 +168,9 @@ const GhostBallsImpl = ({ ballRef }: GhostBallsProps) => {
         .on("broadcast", { event: "ball" }, ({ payload }) => {
           if (!payload || typeof payload.id !== "string") return
           if (payload.id === getClientId()) return
+          // Only ghost ids that are tracked presence members, so a sender
+          // can't exhaust the pool with arbitrary ids
+          if (!(payload.id in channel.presenceState())) return
           if (!isFiniteVec(payload.p, 3) || !isFiniteVec(payload.q, 4)) return
           if (!inCourtBounds(payload.p)) return
           upsertTarget(payload as BallPayload)
