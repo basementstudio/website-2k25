@@ -4,10 +4,24 @@ import { create } from "zustand"
 export const REALTIME_ENABLED = process.env.NEXT_PUBLIC_FEATURE_REALTIME === "1"
 
 // Per-tab identity: two tabs count as two visitors, which is acceptable here.
+// Kept in sessionStorage so full-document navigations (e.g. the machine-view
+// toggle roundtrip) come back with the same key and color instead of
+// spawning a second cursor while the old presence expires.
+const CLIENT_ID_STORAGE_KEY = "rt-cursor-id"
 let clientId: string | null = null
 export const getClientId = () => {
   if (typeof window === "undefined") return ""
-  if (!clientId) clientId = nanoid(8)
+  if (!clientId) {
+    try {
+      clientId = sessionStorage.getItem(CLIENT_ID_STORAGE_KEY)
+      if (!clientId) {
+        clientId = nanoid(8)
+        sessionStorage.setItem(CLIENT_ID_STORAGE_KEY, clientId)
+      }
+    } catch {
+      clientId = nanoid(8)
+    }
+  }
   return clientId
 }
 
