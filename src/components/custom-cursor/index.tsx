@@ -238,6 +238,7 @@ const RemoteCursors = () => {
 export const CustomCursor = memo(() => {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState("")
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const expireTimerRef = useRef<number | null>(null)
   const openCountRef = useRef(0)
 
@@ -339,6 +340,23 @@ export const CustomCursor = memo(() => {
     return () => window.removeEventListener("keydown", handleKey)
   }, [])
 
+  // Reopening while the previous input is still easing out reuses the same
+  // element, so the mount ref callback never refires — retry until focused
+  useEffect(() => {
+    if (!open) return
+    let raf = 0
+    const tryFocus = () => {
+      const el = inputRef.current
+      if (el) {
+        if (document.activeElement !== el) el.focus()
+      } else {
+        raf = requestAnimationFrame(tryFocus)
+      }
+    }
+    tryFocus()
+    return () => cancelAnimationFrame(raf)
+  }, [open])
+
   // Same bracket other visitors see on your cursor: flag + name
   const bracket = [
     country ? flagEmoji(country) : "",
@@ -348,6 +366,9 @@ export const CustomCursor = memo(() => {
     .join(" ")
 
   const close = () => {
+    // Release focus NOW: the element lingers through its exit animation,
+    // and a focused ghost input swallows the next "/"
+    inputRef.current?.blur()
     setOpen(false)
     setDraft("")
   }
@@ -386,10 +407,11 @@ export const CustomCursor = memo(() => {
                 {draft || placeholder}
               </span>
               <input
-                // focus via ref callback: the input mounts after "/" while
-                // other slot content exits, so an on-open effect could fire
-                // before it exists
-                ref={(el) => el?.focus()}
+                // focus on mount; the on-open effect covers reuse cases
+                ref={(el) => {
+                  inputRef.current = el
+                  el?.focus()
+                }}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onBlur={close}
