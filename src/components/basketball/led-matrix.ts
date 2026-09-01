@@ -157,21 +157,37 @@ export const drawPanel = (
 }
 
 /**
- * Unlit-dot grid; color decided per cell so regions can differ. `extend`
- * continues the lattice that many cells beyond the content grid (clip the
- * canvas to the panel face first so dots stop at the bezel).
+ * Unlit-dot field covering the whole panel face: the lattice extends past
+ * the content grid through the padding right up to the bezel (clipped to
+ * the rounded face), so there is no dead band between screen and frame.
+ * Color decided per cell so regions can differ.
  */
-export const drawGhostGrid = (
+export const drawScreenDotField = (
   ctx: CanvasRenderingContext2D,
   spec: MatrixSpec,
+  width: number,
+  height: number,
+  bezel: number,
+  cornerRadius: number,
   cols: number,
   rows: number,
-  colorFor: (row: number, col: number) => string,
-  extend = 0
+  colorFor: (row: number, col: number) => string
 ) => {
+  const extend = Math.ceil(spec.pad / spec.cell)
+  ctx.save()
+  ctx.beginPath()
+  ctx.roundRect(
+    bezel,
+    bezel,
+    width - bezel * 2,
+    height - bezel * 2,
+    cornerRadius - bezel
+  )
+  ctx.clip()
   for (let row = -extend; row < rows + extend; row++) {
     for (let col = -extend; col < cols + extend; col++) {
       drawDot(ctx, spec, col, row, spec.cell * 0.32, colorFor(row, col))
     }
   }
+  ctx.restore()
 }

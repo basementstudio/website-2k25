@@ -7,9 +7,9 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import {
   AMBER,
   AMBER_GHOST,
-  drawGhostGrid,
   drawGlyphRow,
   drawPanel,
+  drawScreenDotField,
   GLYPHS,
   LED_GLOW,
   MatrixSpec,
@@ -75,8 +75,7 @@ export const LedLeaderboard = () => {
   useEffect(() => {
     if (!ctx) return
 
-    // Opaque near-black face (darker than the shared default to offset the
-    // LED_GLOW multiplier): the animated white lamp doodle sits right behind
+    // Opaque black face: the animated white lamp doodle sits right behind
     // this wall band and would glow through a translucent panel
     drawPanel(
       ctx,
@@ -84,23 +83,15 @@ export const LedLeaderboard = () => {
       CANVAS_HEIGHT,
       BEZEL,
       CORNER_RADIUS,
-      "rgba(1, 1, 2, 1)"
+      "rgba(0, 0, 0, 1)"
     )
-    // Continue the dot lattice through the margin so the screen reaches the
-    // bezel with no dead black band; clip keeps dots inside the rounded face
-    ctx.save()
-    ctx.beginPath()
-    ctx.roundRect(
-      BEZEL,
-      BEZEL,
-      CANVAS_WIDTH - BEZEL * 2,
-      CANVAS_HEIGHT - BEZEL * 2,
-      CORNER_RADIUS - BEZEL
-    )
-    ctx.clip()
-    drawGhostGrid(
+    drawScreenDotField(
       ctx,
       SPEC,
+      CANVAS_WIDTH,
+      CANVAS_HEIGHT,
+      BEZEL,
+      CORNER_RADIUS,
       GRID_COLS,
       GRID_ROWS,
       (row, col) => {
@@ -108,10 +99,8 @@ export const LedLeaderboard = () => {
         if (col < 0 || col >= GRID_COLS) return AMBER_GHOST
         const colInColumn = col % (COLUMN_COLS + COLUMN_GAP)
         return colInColumn >= NAME_COLS + GAP_COLS ? SCORE_GHOST : AMBER_GHOST
-      },
-      MARGIN / CELL
+      }
     )
-    ctx.restore()
 
     drawGlyphRow(
       ctx,

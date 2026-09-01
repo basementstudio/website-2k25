@@ -8,9 +8,9 @@ import { useMinigameStore } from "@/store/minigame-store"
 import {
   AMBER,
   AMBER_GHOST,
-  drawGhostGrid,
   drawGlyphRow,
   drawPanel,
+  drawScreenDotField,
   LED_GLOW,
   MatrixSpec,
   SCORE_COLOR,
@@ -45,10 +45,27 @@ const drawBoard = (
   clockText: string,
   scoreText: string
 ) => {
-  drawPanel(ctx, CANVAS_WIDTH, CANVAS_HEIGHT, BEZEL, CORNER_RADIUS)
+  // Near-black face, mostly opaque so the timer stays legible against the
+  // bright hallway behind it (the LED_GLOW multiplier lifts whatever shows)
+  drawPanel(
+    ctx,
+    CANVAS_WIDTH,
+    CANVAS_HEIGHT,
+    BEZEL,
+    CORNER_RADIUS,
+    "rgba(2, 2, 3, 0.85)"
+  )
 
-  drawGhostGrid(ctx, SPEC, GRID_COLS, GRID_ROWS, (row) =>
-    row < SCORE_ROW - 1 ? AMBER_GHOST : SCORE_GHOST
+  drawScreenDotField(
+    ctx,
+    SPEC,
+    CANVAS_WIDTH,
+    CANVAS_HEIGHT,
+    BEZEL,
+    CORNER_RADIUS,
+    GRID_COLS,
+    GRID_ROWS,
+    (row) => (row < SCORE_ROW - 1 ? AMBER_GHOST : SCORE_GHOST)
   )
 
   const clockStart = Math.floor((GRID_COLS - textCols(clockText)) / 2)
