@@ -12,6 +12,11 @@ import { getClientId, useRealtimeStore } from "./realtime-store"
 
 const CURSOR_BROADCAST_MS = 80
 
+// Scope channel topics by environment so local dev and preview sessions don't
+// mingle with real production visitors in the same rooms. Vercel system env;
+// unset locally.
+const REALTIME_ENV = process.env.NEXT_PUBLIC_VERCEL_ENV ?? "dev"
+
 // Public (non-private) Broadcast/Presence channels: anon key only, no tables
 // or RLS involved. Hardening to private channels + RLS on realtime.messages
 // is the production path, out of scope for this POC.
@@ -45,7 +50,7 @@ export const RealtimeImpl = () => {
 
   // Site-wide online count, one presence channel for every route
   useEffect(() => {
-    const channel = supabase.channel("presence:global", {
+    const channel = supabase.channel(`${REALTIME_ENV}:presence:global`, {
       config: { presence: { key: getClientId() } }
     })
 
@@ -70,7 +75,7 @@ export const RealtimeImpl = () => {
   // Per-route cursor room: broadcast for positions, presence for leave cleanup
   useEffect(() => {
     const store = useRealtimeStore.getState()
-    const topic = `cursors:${pathname.replace(/[^a-zA-Z0-9/_-]/g, "")}`
+    const topic = `${REALTIME_ENV}:cursors:${pathname.replace(/[^a-zA-Z0-9/_-]/g, "")}`
     const channel = supabase.channel(topic, {
       config: {
         presence: { key: getClientId() },
