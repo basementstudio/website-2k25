@@ -354,48 +354,54 @@ export const CustomCursor = memo(() => {
             out of layout and eases away on top */}
         <AnimatePresence mode="popLayout" initial={false}>
           {open ? (
-            <m.input
+            <m.div
               key="input"
               {...cursorLabelAnimation}
-              // focus via ref callback: the input mounts after "/" while
-              // other slot content exits, so an on-open effect could fire
-              // before it exists
-              ref={(el) => el?.focus()}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onBlur={close}
-              onKeyDown={(e) => {
-                e.stopPropagation()
-                if (e.key === "Escape") close()
-                if (e.key === "Enter") {
-                  const value = draft.trim()
-                  const nameMatch = value.match(/^@(.+)/)
-                  if (nameMatch) {
-                    setDisplayName(nameMatch[1])
-                    setDraft("")
-                  } else if (value) {
-                    setChatMessage(value)
-                    if (expireTimerRef.current) {
-                      window.clearTimeout(expireTimerRef.current)
+              className="grid border border-brand-g2 bg-brand-k px-2 py-1"
+            >
+              {/* invisible mirror sizes the grid cell to the exact text
+                  width, so the trailing gap matches the leading padding */}
+              <span
+                aria-hidden
+                className="invisible col-start-1 row-start-1 whitespace-pre pr-px"
+              >
+                {draft || PLACEHOLDER}
+              </span>
+              <input
+                // focus via ref callback: the input mounts after "/" while
+                // other slot content exits, so an on-open effect could fire
+                // before it exists
+                ref={(el) => el?.focus()}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onBlur={close}
+                onKeyDown={(e) => {
+                  e.stopPropagation()
+                  if (e.key === "Escape") close()
+                  if (e.key === "Enter") {
+                    const value = draft.trim()
+                    const nameMatch = value.match(/^@(.+)/)
+                    if (nameMatch) {
+                      setDisplayName(nameMatch[1])
+                      setDraft("")
+                    } else if (value) {
+                      setChatMessage(value)
+                      if (expireTimerRef.current) {
+                        window.clearTimeout(expireTimerRef.current)
+                      }
+                      expireTimerRef.current = window.setTimeout(() => {
+                        setChatMessage("")
+                      }, MESSAGE_TTL_MS)
+                      close()
                     }
-                    expireTimerRef.current = window.setTimeout(() => {
-                      setChatMessage("")
-                    }, MESSAGE_TTL_MS)
-                    close()
                   }
-                }
-              }}
-              placeholder={PLACEHOLDER}
-              maxLength={120}
-              spellCheck={false}
-              // ch-based width so the box hugs the text like the design's
-              // typing state; approximate under the proportional body font,
-              // hence the buffer
-              style={{
-                width: `${(draft ? draft.length : PLACEHOLDER.length) + 3}ch`
-              }}
-              className="no-focus-styles border border-brand-g2 bg-brand-k px-2 py-1 text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
-            />
+                }}
+                placeholder={PLACEHOLDER}
+                maxLength={120}
+                spellCheck={false}
+                className="no-focus-styles col-start-1 row-start-1 w-full min-w-0 bg-transparent text-brand-w1 placeholder:text-brand-g1 focus:outline-none focus-visible:ring-0"
+              />
+            </m.div>
           ) : hoverText ? (
             <CursorLabel key={`hover:${hoverText}`}>
               {!marquee ? (
