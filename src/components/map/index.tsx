@@ -7,6 +7,7 @@ import * as THREE from "three"
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
+import { LedLeaderboard } from "@/components/basketball/led-leaderboard"
 import { LedScoreboard } from "@/components/basketball/led-scoreboard"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
@@ -254,6 +255,7 @@ export const Map = memo(() => {
       )}
       <Net />
       <LedScoreboard />
+      <LedLeaderboard />
 
       {/* Routing */}
       {tabs?.map((tab) => {

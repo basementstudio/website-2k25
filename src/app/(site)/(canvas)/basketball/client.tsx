@@ -1,7 +1,6 @@
 "use client"
 
 import { ArcadeNameInput } from "@/components/basketball/arcade-name-input"
-import { LedLeaderboard } from "@/components/basketball/led-leaderboard"
 import { Scoreboard } from "@/components/basketball/scoreboard"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useMedia } from "@/hooks/use-media"
@@ -15,12 +14,8 @@ const Basketball = () => {
 
   return (
     <>
-      {!hasPlayed ? (
-        isMobile ? (
-          <MobileUI handleNavigation={handleNavigation} />
-        ) : (
-          <DesktopUI />
-        )
+      {!hasPlayed && isMobile ? (
+        <MobileUI handleNavigation={handleNavigation} />
       ) : null}
 
       {(hasPlayed && !playerName) || (hasPlayed && !isGameActive) ? (
@@ -35,14 +30,6 @@ const Basketball = () => {
 }
 
 export default Basketball
-
-const DesktopUI = () => (
-  <div className="pointer-events-none fixed left-0 top-0 h-screen w-full animate-fade-in p-3.5">
-    <div className="grid-layout mt-24 h-full">
-      <LedLeaderboard className="col-span-2 col-start-10 ml-auto" />
-    </div>
-  </div>
-)
 
 interface MobileUIProps {
   handleNavigation: (route: string) => void

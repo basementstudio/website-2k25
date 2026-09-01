@@ -1,8 +1,8 @@
-"use client"
+import { useThree } from "@react-three/fiber"
+import { useEffect, useMemo } from "react"
+import { CanvasTexture, SRGBColorSpace } from "three"
 
-import { useEffect, useRef } from "react"
-
-import { cn } from "@/utils/cn"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
 import {
   AMBER,
@@ -19,10 +19,17 @@ import { useLeaderboardScores } from "./scoreboard"
 
 const MAX_ENTRIES = 10
 
-const CELL = 8
-const BEZEL = 6
-const MARGIN = 12
-const CORNER_RADIUS = 12
+// Hangs from the mezzanine railing to the right of the hoop
+const PANEL_POSITION: [number, number, number] = [7.05, 3.52, -14.412]
+const PANEL_HEIGHT = 1.45
+const ROD_HEIGHT = 0.22
+const ROD_RADIUS = 0.008
+const ROD_INSET = 0.09
+
+const CELL = 16
+const BEZEL = 12
+const MARGIN = 24
+const CORNER_RADIUS = 24
 const PAD = BEZEL + MARGIN
 
 // 3-letter name block (17 cols), 2-col gap, right-aligned 3-digit score block
@@ -36,21 +43,30 @@ const GRID_ROWS = HEADER_ROWS + MAX_ENTRIES * ROW_STRIDE - 2
 
 const CANVAS_WIDTH = GRID_COLS * CELL + PAD * 2
 const CANVAS_HEIGHT = GRID_ROWS * CELL + PAD * 2
+const PANEL_WIDTH = PANEL_HEIGHT * (CANVAS_WIDTH / CANVAS_HEIGHT)
 
 const SPEC: MatrixSpec = { cell: CELL, pad: PAD }
 
 const HEADER = "TOP 10"
 
-interface LedLeaderboardProps {
-  className?: string
-}
-
-export const LedLeaderboard = ({ className }: LedLeaderboardProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+export const LedLeaderboard = () => {
+  const isBasketball = useNavigationStore(
+    (state) => state.currentScene?.name === "basketball"
+  )
+  const invalidate = useThree((state) => state.invalidate)
   const highScores = useLeaderboardScores()
 
+  const { ctx, texture } = useMemo(() => {
+    const canvas = document.createElement("canvas")
+    canvas.width = CANVAS_WIDTH
+    canvas.height = CANVAS_HEIGHT
+    const texture = new CanvasTexture(canvas)
+    texture.colorSpace = SRGBColorSpace
+    texture.anisotropy = 16
+    return { ctx: canvas.getContext("2d"), texture }
+  }, [])
+
   useEffect(() => {
-    const ctx = canvasRef.current?.getContext("2d")
     if (!ctx) return
 
     drawPanel(ctx, CANVAS_WIDTH, CANVAS_HEIGHT, BEZEL, CORNER_RADIUS)
@@ -83,15 +99,34 @@ export const LedLeaderboard = ({ className }: LedLeaderboardProps) => {
         GRID_COLS - textCols(score)
       )
     })
-  }, [highScores])
+
+    texture.needsUpdate = true
+    invalidate()
+  }, [ctx, texture, highScores, invalidate])
+
+  useEffect(() => () => texture.dispose(), [texture])
+
+  if (!isBasketball) return null
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={CANVAS_WIDTH}
-      height={CANVAS_HEIGHT}
-      className={cn("h-auto select-none", className)}
-      style={{ width: CANVAS_WIDTH / 2 }}
-    />
+    <group position={PANEL_POSITION}>
+      <mesh>
+        <planeGeometry args={[PANEL_WIDTH, PANEL_HEIGHT]} />
+        <meshBasicMaterial map={texture} transparent />
+      </mesh>
+      {[-1, 1].map((side) => (
+        <mesh
+          key={side}
+          position={[
+            side * (PANEL_WIDTH / 2 - ROD_INSET),
+            PANEL_HEIGHT / 2 + ROD_HEIGHT / 2,
+            0
+          ]}
+        >
+          <cylinderGeometry args={[ROD_RADIUS, ROD_RADIUS, ROD_HEIGHT, 6]} />
+          <meshBasicMaterial color="#ffffff" />
+        </mesh>
+      ))}
+    </group>
   )
 }
