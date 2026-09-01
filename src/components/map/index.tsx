@@ -7,6 +7,7 @@ import * as THREE from "three"
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
 import { useAssets } from "@/components/assets-provider"
+import { LedScoreboard } from "@/components/basketball/led-scoreboard"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { ChristmasTree } from "@/components/christmas-tree"
@@ -252,6 +253,7 @@ export const Map = memo(() => {
         <primitive object={useMesh.getState().basketball.hoop as Mesh} />
       )}
       <Net />
+      <LedScoreboard />
 
       {/* Routing */}
       {tabs?.map((tab) => {
