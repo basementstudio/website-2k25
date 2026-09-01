@@ -156,16 +156,21 @@ export const drawPanel = (
   ctx.fill()
 }
 
-/** Unlit-dot grid; color decided per cell so regions can differ. */
+/**
+ * Unlit-dot grid; color decided per cell so regions can differ. `extend`
+ * continues the lattice that many cells beyond the content grid (clip the
+ * canvas to the panel face first so dots stop at the bezel).
+ */
 export const drawGhostGrid = (
   ctx: CanvasRenderingContext2D,
   spec: MatrixSpec,
   cols: number,
   rows: number,
-  colorFor: (row: number, col: number) => string
+  colorFor: (row: number, col: number) => string,
+  extend = 0
 ) => {
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
+  for (let row = -extend; row < rows + extend; row++) {
+    for (let col = -extend; col < cols + extend; col++) {
       drawDot(ctx, spec, col, row, spec.cell * 0.32, colorFor(row, col))
     }
   }

@@ -75,21 +75,43 @@ export const LedLeaderboard = () => {
   useEffect(() => {
     if (!ctx) return
 
-    // Near-opaque face: the animated white lamp doodle sits right behind
-    // this wall band and would glow through the default translucent panel
+    // Opaque near-black face (darker than the shared default to offset the
+    // LED_GLOW multiplier): the animated white lamp doodle sits right behind
+    // this wall band and would glow through a translucent panel
     drawPanel(
       ctx,
       CANVAS_WIDTH,
       CANVAS_HEIGHT,
       BEZEL,
       CORNER_RADIUS,
-      "rgba(10, 10, 12, 1)"
+      "rgba(3, 3, 4, 1)"
     )
-    drawGhostGrid(ctx, SPEC, GRID_COLS, GRID_ROWS, (row, col) => {
-      if (row < HEADER_ROWS - 2) return AMBER_GHOST
-      const colInColumn = col % (COLUMN_COLS + COLUMN_GAP)
-      return colInColumn >= NAME_COLS + GAP_COLS ? SCORE_GHOST : AMBER_GHOST
-    })
+    // Continue the dot lattice through the margin so the screen reaches the
+    // bezel with no dead black band; clip keeps dots inside the rounded face
+    ctx.save()
+    ctx.beginPath()
+    ctx.roundRect(
+      BEZEL,
+      BEZEL,
+      CANVAS_WIDTH - BEZEL * 2,
+      CANVAS_HEIGHT - BEZEL * 2,
+      CORNER_RADIUS - BEZEL
+    )
+    ctx.clip()
+    drawGhostGrid(
+      ctx,
+      SPEC,
+      GRID_COLS,
+      GRID_ROWS,
+      (row, col) => {
+        if (row < HEADER_ROWS - 2) return AMBER_GHOST
+        if (col < 0 || col >= GRID_COLS) return AMBER_GHOST
+        const colInColumn = col % (COLUMN_COLS + COLUMN_GAP)
+        return colInColumn >= NAME_COLS + GAP_COLS ? SCORE_GHOST : AMBER_GHOST
+      },
+      MARGIN / CELL
+    )
+    ctx.restore()
 
     drawGlyphRow(
       ctx,
