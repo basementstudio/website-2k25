@@ -49,8 +49,17 @@ export interface RemoteCursor {
   name?: string
 }
 
-export const NAME_MAX_LENGTH = 24
+export const NAME_MAX_LENGTH = 20
+const NAME_HARD_CAP = 64
 const NAME_STORAGE_KEY = "rt-cursor-name"
+
+/** Display form of a cursor name: capped at NAME_MAX_LENGTH with an ellipsis. */
+export const formatName = (name: string) => {
+  const trimmed = name.trim()
+  return trimmed.length > NAME_MAX_LENGTH
+    ? `${trimmed.slice(0, NAME_MAX_LENGTH)}…`
+    : trimmed
+}
 
 interface RealtimeStore {
   onlineCount: number
@@ -89,7 +98,7 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
   setChatMessage: (msg) => set({ chatMessage: msg }),
   setCountry: (country) => set({ country }),
   setDisplayName: (name) => {
-    const trimmed = name.trim().slice(0, NAME_MAX_LENGTH)
+    const trimmed = name.trim().slice(0, NAME_HARD_CAP)
     localStorage.setItem(NAME_STORAGE_KEY, trimmed)
     set({ displayName: trimmed })
   }

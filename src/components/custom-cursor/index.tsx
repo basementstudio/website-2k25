@@ -22,7 +22,7 @@ import {
 import {
   colorForId,
   flagEmoji,
-  NAME_MAX_LENGTH,
+  formatName,
   REALTIME_ENABLED,
   type RemoteCursor,
   useRealtimeStore
@@ -155,7 +155,7 @@ const RemoteCursorItem = ({
   const color = colorForId(cursor.id)
   const bracket = [
     cursor.country ? flagEmoji(cursor.country) : "",
-    cursor.name ? cursor.name.slice(0, NAME_MAX_LENGTH).toUpperCase() : ""
+    cursor.name ? formatName(cursor.name).toUpperCase() : ""
   ]
     .filter(Boolean)
     .join(" ")
@@ -345,6 +345,8 @@ export const CustomCursor = memo(() => {
   // element, so the mount ref callback never refires — retry until focused
   useEffect(() => {
     if (!open) return
+    // Warm the censor chunk so the first Enter has it in hand
+    import("@/components/realtime/censor")
     let raf = 0
     const tryFocus = () => {
       const el = inputRef.current
@@ -361,7 +363,7 @@ export const CustomCursor = memo(() => {
   // Same bracket other visitors see on your cursor: flag + name
   const bracket = [
     country ? flagEmoji(country) : "",
-    displayName ? displayName.slice(0, NAME_MAX_LENGTH).toUpperCase() : ""
+    displayName ? formatName(displayName).toUpperCase() : ""
   ]
     .filter(Boolean)
     .join(" ")
@@ -436,22 +438,29 @@ export const CustomCursor = memo(() => {
                     const value = draft.trim()
                     const nameMatch = value.match(/^@(.+)/)
                     if (nameMatch) {
-                      setDisplayName(nameMatch[1])
-                      setDraft("")
-                      setSuccessHint(
-                        `Name set to ${nameMatch[1]
-                          .trim()
-                          .slice(0, NAME_MAX_LENGTH)
-                          .toUpperCase()}`
+                      // Lazy censor: obscenity stays in the realtime chunk
+                      import("@/components/realtime/censor").then(
+                        ({ censor }) => {
+                          const clean = censor(nameMatch[1])
+                          setDisplayName(clean)
+                          setSuccessHint(
+                            `Name set to ${formatName(clean).toUpperCase()}`
+                          )
+                        }
                       )
+                      setDraft("")
                     } else if (value) {
-                      setChatMessage(value)
-                      if (expireTimerRef.current) {
-                        window.clearTimeout(expireTimerRef.current)
-                      }
-                      expireTimerRef.current = window.setTimeout(() => {
-                        setChatMessage("")
-                      }, MESSAGE_TTL_MS)
+                      import("@/components/realtime/censor").then(
+                        ({ censor }) => {
+                          setChatMessage(censor(value))
+                          if (expireTimerRef.current) {
+                            window.clearTimeout(expireTimerRef.current)
+                          }
+                          expireTimerRef.current = window.setTimeout(() => {
+                            setChatMessage("")
+                          }, MESSAGE_TTL_MS)
+                        }
+                      )
                       close()
                     }
                   }
