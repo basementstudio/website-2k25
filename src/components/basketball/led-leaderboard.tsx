@@ -84,7 +84,7 @@ export const LedLeaderboard = () => {
       CANVAS_HEIGHT,
       BEZEL,
       CORNER_RADIUS,
-      "rgba(3, 3, 4, 1)"
+      "rgba(1, 1, 2, 1)"
     )
     // Continue the dot lattice through the margin so the screen reaches the
     // bezel with no dead black band; clip keeps dots inside the rounded face
