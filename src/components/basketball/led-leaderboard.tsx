@@ -14,7 +14,6 @@ import {
   LED_GLOW,
   MatrixSpec,
   SCORE_COLOR,
-  SCORE_GHOST,
   textCols
 } from "./led-matrix"
 import { useLeaderboardScores } from "./scoreboard"
@@ -94,12 +93,7 @@ export const LedLeaderboard = () => {
       CORNER_RADIUS,
       GRID_COLS,
       GRID_ROWS,
-      (row, col) => {
-        if (row < HEADER_ROWS - 2) return AMBER_GHOST
-        if (col < 0 || col >= GRID_COLS) return AMBER_GHOST
-        const colInColumn = col % (COLUMN_COLS + COLUMN_GAP)
-        return colInColumn >= NAME_COLS + GAP_COLS ? SCORE_GHOST : AMBER_GHOST
-      }
+      () => AMBER_GHOST
     )
 
     drawGlyphRow(

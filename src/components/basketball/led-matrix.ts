@@ -57,7 +57,6 @@ export const GLYPH_ROWS = 7
 export const AMBER = "#ffb020"
 export const AMBER_GHOST = "#241804"
 export const SCORE_COLOR = "#ff4d00"
-export const SCORE_GHOST = "#261000"
 export const PANEL_BACKGROUND = "rgba(10, 10, 12, 0.6)"
 export const BEZEL_COLOR = "#ffffff"
 
