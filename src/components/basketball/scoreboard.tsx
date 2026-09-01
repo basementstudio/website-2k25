@@ -6,24 +6,15 @@ import { onScoreUpdate } from "@/service/supabase/client"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
-interface Score {
+export interface Score {
   player_name: string
   score: number
   created_at: string
   country: string
 }
 
-interface ScoreboardProps {
-  className?: string
-  initialScores?: Score[]
-  isMobile?: boolean
-}
-
-export const Scoreboard = ({
-  className,
-  initialScores = [],
-  isMobile
-}: ScoreboardProps) => {
+/** Leaderboard entries, refetched on score submissions and game end. */
+export const useLeaderboardScores = (initialScores: Score[] = []) => {
   const isGameActive = useMinigameStore((s) => s.isGameActive)
   const hasPlayed = useMinigameStore((s) => s.hasPlayed)
   const [highScores, setHighScores] = useState<Score[]>(initialScores)
@@ -61,6 +52,22 @@ export const Scoreboard = ({
       fetchScores()
     }
   }, [isGameActive, hasPlayed, fetchScores])
+
+  return highScores
+}
+
+interface ScoreboardProps {
+  className?: string
+  initialScores?: Score[]
+  isMobile?: boolean
+}
+
+export const Scoreboard = ({
+  className,
+  initialScores = [],
+  isMobile
+}: ScoreboardProps) => {
+  const highScores = useLeaderboardScores(initialScores)
 
   const mobileScores = highScores.slice(0, 6)
   const topScores = isMobile ? mobileScores : highScores

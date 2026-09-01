@@ -128,12 +128,7 @@ export async function POST(request: Request) {
       )
     }
 
-    if (
-      typeof score !== "number" ||
-      score < 0 ||
-      score >= 400 ||
-      !Number.isInteger(score)
-    ) {
+    if (typeof score !== "number" || score < 0 || !Number.isInteger(score)) {
       return NextResponse.json({ error: "Invalid score" }, { status: 400 })
     }
 

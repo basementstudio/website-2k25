@@ -20,6 +20,7 @@ import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
 import { Basketball } from "./basketball"
+import { GhostBalls } from "./ghost-balls"
 import { RigidBodies } from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
@@ -697,6 +698,8 @@ const HoopMinigameInner = () => {
           />
         </>
       )}
+
+      <GhostBalls ballRef={ballRef} />
 
       <RigidBodies hoopPosition={hoopPosition} />
     </>
