@@ -14,7 +14,6 @@ import {
   LED_GLOW,
   MatrixSpec,
   SCORE_COLOR,
-  SCORE_GHOST,
   textCols
 } from "./led-matrix"
 
@@ -65,7 +64,7 @@ const drawBoard = (
     CORNER_RADIUS,
     GRID_COLS,
     GRID_ROWS,
-    (row) => (row < SCORE_ROW - 1 ? AMBER_GHOST : SCORE_GHOST)
+    () => AMBER_GHOST
   )
 
   const clockStart = Math.floor((GRID_COLS - textCols(clockText)) / 2)
