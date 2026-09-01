@@ -238,6 +238,7 @@ const RemoteCursors = () => {
 export const CustomCursor = memo(() => {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState("")
+  const [successHint, setSuccessHint] = useState("")
   const inputRef = useRef<HTMLInputElement | null>(null)
   const expireTimerRef = useRef<number | null>(null)
   const openCountRef = useRef(0)
@@ -371,9 +372,19 @@ export const CustomCursor = memo(() => {
     inputRef.current?.blur()
     setOpen(false)
     setDraft("")
+    setSuccessHint("")
   }
 
-  const placeholder = OPEN_PLACEHOLDERS[openCountRef.current - 1] ?? ""
+  // Onboarding hints: send hint on the first open, the @name hint on the
+  // second — but never once a name is set. A just-set name shows its
+  // confirmation instead.
+  const hint =
+    openCountRef.current === 1
+      ? OPEN_PLACEHOLDERS[0]
+      : openCountRef.current === 2 && !displayName
+        ? OPEN_PLACEHOLDERS[1]
+        : ""
+  const placeholder = successHint || hint
 
   return (
     <>
@@ -413,7 +424,10 @@ export const CustomCursor = memo(() => {
                   el?.focus()
                 }}
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
+                onChange={(e) => {
+                  setDraft(e.target.value)
+                  setSuccessHint("")
+                }}
                 onBlur={close}
                 onKeyDown={(e) => {
                   e.stopPropagation()
@@ -424,6 +438,12 @@ export const CustomCursor = memo(() => {
                     if (nameMatch) {
                       setDisplayName(nameMatch[1])
                       setDraft("")
+                      setSuccessHint(
+                        `Name set to ${nameMatch[1]
+                          .trim()
+                          .slice(0, NAME_MAX_LENGTH)
+                          .toUpperCase()}`
+                      )
                     } else if (value) {
                       setChatMessage(value)
                       if (expireTimerRef.current) {
