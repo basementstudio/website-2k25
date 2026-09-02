@@ -123,14 +123,6 @@ export async function POST(request: Request) {
       )
     }
 
-    pruneNonces(now)
-    if (usedNonces.has(session.nonce)) {
-      return NextResponse.json(
-        { error: "Game session already used" },
-        { status: 400 }
-      )
-    }
-
     if (
       !playerName ||
       typeof playerName !== "string" ||
@@ -163,48 +155,62 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 })
     }
 
-    const details = geolocation(request)
-
-    const supabase = createClient()
-
-    // check if a score exists for this player
-    const { data: existingScore } = await supabase
-      .from("scoreboard")
-      .select("id, score")
-      .eq("player_name", playerName)
-      .eq("country", details.flag)
-      .single()
-
-    // if the new score is lower than existing one, just return
-    if (existingScore && score <= existingScore.score) {
-      usedNonces.set(session.nonce, now)
-      return NextResponse.json({ success: true })
-    }
-
-    // if no existing score or new score is higher, upsert the record
-    const { error } = await supabase
-      .from("scoreboard")
-      .upsert(
-        {
-          ...(existingScore?.id ? { id: existingScore.id } : {}),
-          player_name: playerName,
-          score: Math.floor(score),
-          client_id: clientId,
-          country: details.flag || "🏳️"
-        },
-        { onConflict: "id" }
+    // Reserve the nonce synchronously — check and set with no await in
+    // between, so overlapping requests with the same session can't both
+    // pass. Released below if the write fails, so retries stay possible.
+    pruneNonces(now)
+    if (usedNonces.has(session.nonce)) {
+      return NextResponse.json(
+        { error: "Game session already used" },
+        { status: 400 }
       )
-      .select()
-
-    if (error) {
-      console.error("Supabase error:", error)
-      throw error
     }
-
-    // consume the session only on success so a transient failure can retry
     usedNonces.set(session.nonce, now)
 
-    return NextResponse.json({ success: true })
+    try {
+      const details = geolocation(request)
+
+      const supabase = createClient()
+
+      // check if a score exists for this player
+      const { data: existingScore } = await supabase
+        .from("scoreboard")
+        .select("id, score")
+        .eq("player_name", playerName)
+        .eq("country", details.flag)
+        .single()
+
+      // if the new score is lower than existing one, just return
+      if (existingScore && score <= existingScore.score) {
+        return NextResponse.json({ success: true })
+      }
+
+      // if no existing score or new score is higher, upsert the record
+      const { error } = await supabase
+        .from("scoreboard")
+        .upsert(
+          {
+            ...(existingScore?.id ? { id: existingScore.id } : {}),
+            player_name: playerName,
+            score: Math.floor(score),
+            client_id: clientId,
+            country: details.flag || "🏳️"
+          },
+          { onConflict: "id" }
+        )
+        .select()
+
+      if (error) {
+        console.error("Supabase error:", error)
+        throw error
+      }
+
+      return NextResponse.json({ success: true })
+    } catch (error) {
+      // release the reservation so a transient failure can retry
+      usedNonces.delete(session.nonce)
+      throw error
+    }
   } catch (error) {
     console.error("Error submitting score:", error)
     Sentry.captureException(error)
