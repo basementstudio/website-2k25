@@ -4,6 +4,7 @@ import { useLoader, useThree } from "@react-three/fiber"
 import { memo, Suspense, useEffect, useMemo } from "react"
 import {
   Group,
+  LinearFilter,
   Mesh,
   NearestFilter,
   NoColorSpace,
@@ -101,8 +102,10 @@ const useBakes = (): Record<string, Bake> => {
     loadedLightmaps.forEach((map, index) => {
       const meshNames = withLightmap[index].meshes
       map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
+      // linear so baked lighting reads as smooth gradients instead of
+      // texel stair-steps
+      map.minFilter = LinearFilter
+      map.magFilter = LinearFilter
       map.colorSpace = NoColorSpace
 
       for (const meshName of meshNames) {
