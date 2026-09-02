@@ -242,6 +242,7 @@ export const handlePointerMove = ({
   }
 }
 
+// returns true only when the release actually launched a throw
 export const handlePointerUp = ({
   ballRef,
   dragStartPos,
@@ -255,7 +256,8 @@ export const handlePointerUp = ({
   forwardStrength,
   playSoundFX,
   throwVelocity
-}: HandlePointerUpParams) => {
+}: HandlePointerUpParams): boolean => {
+  let threw = false
   if (ballRef.current && isThrowable.current) {
     if (!isGameActive) {
       startGame()
@@ -305,10 +307,12 @@ export const handlePointerUp = ({
       )
       ball.applyImpulse(assistedVelocity, true)
       ball.applyTorqueImpulse({ x: 0.005, y: 0, z: 0 }, true)
+      threw = true
     } else {
       ball.setBodyType(0, true)
     }
 
     setIsDragging(false)
   }
+  return threw
 }

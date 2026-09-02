@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react"
-import { DoubleSide, MeshBasicMaterial, NearestFilter } from "three"
+import {
+  DoubleSide,
+  LinearFilter,
+  LinearMipmapLinearFilter,
+  MeshBasicMaterial
+} from "three"
 
 import { useMesh } from "@/hooks/use-mesh"
 
@@ -17,8 +22,15 @@ export const Net = () => {
     if (!originalMaterial || !originalMaterial.map) return
 
     const texture = originalMaterial.map.clone()
-    texture.magFilter = NearestFilter
-    texture.minFilter = NearestFilter
+    // Linear filtering + anisotropy keeps the strands from shimmering while
+    // the physics net swings (mipmaps only if the source texture ships them —
+    // KTX2 compressed textures can't generate their own)
+    texture.magFilter = LinearFilter
+    texture.minFilter =
+      texture.mipmaps && texture.mipmaps.length > 1
+        ? LinearMipmapLinearFilter
+        : LinearFilter
+    texture.anisotropy = 8
     texture.generateMipmaps = false
     texture.needsUpdate = true
 

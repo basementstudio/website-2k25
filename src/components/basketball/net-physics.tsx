@@ -7,7 +7,7 @@ import {
   useSpringJoint
 } from "@react-three/rapier"
 import { createRef, RefObject, useEffect, useMemo, useRef } from "react"
-import { Matrix4, Mesh, Vector3 } from "three"
+import { BufferAttribute, Matrix4, Mesh, Vector3 } from "three"
 
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -24,6 +24,10 @@ export const ballThroughRim = { current: false }
 // rapier sensor enter/exit events race the ballThroughRim flag under
 // clamped deltas and can swallow legitimate goals.
 export const netGoalHandler = { current: null as (() => void) | null }
+
+// Fired the moment the ball crosses the rim plane into the net — the swish
+// sound belongs here, at first net contact, not at the later score confirm.
+export const netTouchHandler = { current: null as (() => void) | null }
 
 // Lattice resolution: COLS columns around the rim, RINGS height rings.
 // Ring 0 is welded to the rim (part of the fixed anchor); rings 1..RINGS-1
@@ -60,19 +64,81 @@ interface NetBinding {
   restLocal: Float32Array
   nodeIndices: Uint16Array
   nodeWeights: Float32Array
-  residuals: Float32Array
+}
+
+// The authored net is only ~170 vertices, so skinned deformation bends in
+// long straight segments. Midpoint-subdividing the indexed geometry is
+// invisible at rest (linear midpoints) but each new vertex gets its own
+// skinning weights, so motion curves smoothly.
+const SUBDIVISIONS = 2
+
+const subdivideNetGeometry = (net: Mesh) => {
+  const geometry = net.geometry
+  if (net.userData.netSubdivided || !geometry.index) return
+  net.userData.netSubdivided = true
+
+  for (let pass = 0; pass < SUBDIVISIONS; pass++) {
+    const index = geometry.index!.array
+    const attrs = Object.entries(geometry.attributes)
+    const oldCount = geometry.attributes.position.count
+    const arrays = attrs.map(([, attr]) => ({
+      itemSize: attr.itemSize,
+      data: Array.from(attr.array as ArrayLike<number>)
+    }))
+
+    const edgeMidpoints = new Map<string, number>()
+    let nextIndex = oldCount
+    const midpoint = (a: number, b: number) => {
+      const key = a < b ? `${a}_${b}` : `${b}_${a}`
+      const existing = edgeMidpoints.get(key)
+      if (existing !== undefined) return existing
+      for (const { itemSize, data } of arrays) {
+        for (let k = 0; k < itemSize; k++) {
+          data.push((data[a * itemSize + k] + data[b * itemSize + k]) / 2)
+        }
+      }
+      edgeMidpoints.set(key, nextIndex)
+      return nextIndex++
+    }
+
+    const newIndex: number[] = []
+    for (let t = 0; t < index.length; t += 3) {
+      const a = index[t]
+      const b = index[t + 1]
+      const c = index[t + 2]
+      const ab = midpoint(a, b)
+      const bc = midpoint(b, c)
+      const ca = midpoint(c, a)
+      newIndex.push(a, ab, ca, ab, b, bc, ca, bc, c, ab, bc, ca)
+    }
+
+    attrs.forEach(([name], i) => {
+      geometry.setAttribute(
+        name,
+        new BufferAttribute(
+          Float32Array.from(arrays[i].data),
+          arrays[i].itemSize
+        )
+      )
+    })
+    geometry.setIndex(newIndex)
+  }
 }
 
 // Derive the lattice rest pose and per-vertex bilinear skinning weights from
 // the render geometry itself, so the physics net matches the authored mesh
 // exactly at rest.
 const buildNetBinding = (net: Mesh): NetBinding => {
+  subdivideNetGeometry(net)
   net.updateWorldMatrix(true, false)
   const matrixWorld = net.matrixWorld.clone()
   const inverseMatrixWorld = matrixWorld.clone().invert()
 
   const positionAttr = net.geometry.attributes.position
-  if (!net.userData.originalPositions) {
+  if (
+    !net.userData.originalPositions ||
+    net.userData.originalPositions.length !== positionAttr.array.length
+  ) {
     net.userData.originalPositions = Float32Array.from(
       positionAttr.array as Float32Array
     )
@@ -119,11 +185,11 @@ const buildNetBinding = (net: Mesh): NetBinding => {
     }
   }
 
-  // Bilinear bind of every vertex to its 4 surrounding lattice nodes, plus a
-  // residual offset that preserves the diamond-pattern detail inside a cell.
+  // Bilinear bind of every vertex to its 4 surrounding lattice nodes. The
+  // mesh is skinned by node OFFSETS from the settled pose, so the authored
+  // diamond detail is carried by the original positions themselves.
   const nodeIndices = new Uint16Array(vertexCount * 4)
   const nodeWeights = new Float32Array(vertexCount * 4)
-  const residuals = new Float32Array(vertexCount * 3)
   for (let i = 0; i < vertexCount; i++) {
     const x = original[i * 3]
     const y = original[i * 3 + 1]
@@ -133,11 +199,17 @@ const buildNetBinding = (net: Mesh): NetBinding => {
     if (colF < 0) colF += NET_COLS
     const c0 = Math.floor(colF) % NET_COLS
     const c1 = (c0 + 1) % NET_COLS
-    const fc = colF - Math.floor(colF)
+    const rawFc = colF - Math.floor(colF)
 
     const rowF = Math.min(Math.max((yTop - y) / spacing, 0), NET_RINGS - 1)
     const r0 = Math.min(Math.floor(rowF), NET_RINGS - 2)
-    const fr = rowF - r0
+    const rawFr = rowF - r0
+
+    // smoothstep the cell fractions so deformation eases across lattice
+    // cells instead of creasing at cell borders (offset skinning keeps the
+    // authored pose exact regardless of the weighting)
+    const fc = rawFc * rawFc * (3 - 2 * rawFc)
+    const fr = rawFr * rawFr * (3 - 2 * rawFr)
 
     const indices = [
       r0 * NET_COLS + c0,
@@ -147,20 +219,10 @@ const buildNetBinding = (net: Mesh): NetBinding => {
     ]
     const weights = [(1 - fr) * (1 - fc), (1 - fr) * fc, fr * (1 - fc), fr * fc]
 
-    let bx = 0
-    let by = 0
-    let bz = 0
     for (let k = 0; k < 4; k++) {
       nodeIndices[i * 4 + k] = indices[k]
       nodeWeights[i * 4 + k] = weights[k]
-      const j = indices[k] * 3
-      bx += weights[k] * restLocal[j]
-      by += weights[k] * restLocal[j + 1]
-      bz += weights[k] * restLocal[j + 2]
     }
-    residuals[i * 3] = x - bx
-    residuals[i * 3 + 1] = y - by
-    residuals[i * 3 + 2] = z - bz
   }
 
   return {
@@ -171,8 +233,7 @@ const buildNetBinding = (net: Mesh): NetBinding => {
     yTop,
     restLocal,
     nodeIndices,
-    nodeWeights,
-    residuals
+    nodeWeights
   }
 }
 
@@ -223,6 +284,8 @@ const STUCK_PUSH = 8
 const SWISH_EXIT_SPEED = 2.5
 // the shared <Physics> world steps at rapier's fixed default
 const STEP_DT = 1 / 60
+// worst-case wait for the initial lattice settle before baselining anyway
+const SETTLE_TIMEOUT = 3
 
 const NetPhysicsInner = ({ net, ballRef }: NetPhysicsProps & { net: Mesh }) => {
   const binding = useMemo(() => buildNetBinding(net), [net])
@@ -331,6 +394,8 @@ const NetPhysicsInner = ({ net, ballRef }: NetPhysicsProps & { net: Mesh }) => {
   )
   const tmp = useMemo(() => new Vector3(), [])
   const stuckTime = useRef(0)
+  const settled = useRef<Float32Array | null>(null)
+  const settleTime = useRef(0)
 
   useEffect(() => {
     const geometry = net.geometry
@@ -376,6 +441,7 @@ const NetPhysicsInner = ({ net, ballRef }: NetPhysicsProps & { net: Mesh }) => {
           v.y < 0
         ) {
           ballThroughRim.current = true
+          netTouchHandler.current?.()
         }
       } else if (p.y < rimY - 0.65) {
         ballThroughRim.current = false
@@ -422,7 +488,7 @@ const NetPhysicsInner = ({ net, ballRef }: NetPhysicsProps & { net: Mesh }) => {
     }
   })
 
-  useFrameCallback(() => {
+  useFrameCallback((_, delta) => {
     let allAsleep = true
     for (let d = 0; d < nodeRefs.length; d++) {
       const body = nodeRefs[d].current
@@ -431,8 +497,6 @@ const NetPhysicsInner = ({ net, ballRef }: NetPhysicsProps & { net: Mesh }) => {
       if (!body || !body.isValid()) return
       if (!body.isSleeping()) allAsleep = false
     }
-    // Geometry already matches the settled lattice — skip the writes.
-    if (allAsleep) return
 
     for (let d = 0; d < nodeRefs.length; d++) {
       const t = nodeRefs[d].current!.translation()
@@ -443,19 +507,35 @@ const NetPhysicsInner = ({ net, ballRef }: NetPhysicsProps & { net: Mesh }) => {
       nodeCurrent[j + 2] = tmp.z
     }
 
+    // The joints have slack, so the lattice sags a touch below the analytic
+    // rest pose right after spawning. Hold the authored mesh until that
+    // first settle finishes, then skin the mesh by the nodes' offset FROM
+    // the settled pose — settled lattice therefore displays the authored
+    // net exactly, and entering/leaving the scene never pops.
+    if (!settled.current) {
+      settleTime.current += delta
+      if (allAsleep || settleTime.current > SETTLE_TIMEOUT) {
+        settled.current = Float32Array.from(nodeCurrent)
+      }
+      return
+    }
+    // Geometry already matches the settled lattice — skip the writes.
+    if (allAsleep) return
+
     const positionAttr = net.geometry.attributes.position
     const array = positionAttr.array as Float32Array
-    const { nodeIndices, nodeWeights, residuals, vertexCount } = binding
+    const baseline = settled.current
+    const { nodeIndices, nodeWeights, originalPositions, vertexCount } = binding
     for (let i = 0; i < vertexCount; i++) {
-      let x = residuals[i * 3]
-      let y = residuals[i * 3 + 1]
-      let z = residuals[i * 3 + 2]
+      let x = originalPositions[i * 3]
+      let y = originalPositions[i * 3 + 1]
+      let z = originalPositions[i * 3 + 2]
       for (let k = 0; k < 4; k++) {
         const w = nodeWeights[i * 4 + k]
         const j = nodeIndices[i * 4 + k] * 3
-        x += w * nodeCurrent[j]
-        y += w * nodeCurrent[j + 1]
-        z += w * nodeCurrent[j + 2]
+        x += w * (nodeCurrent[j] - baseline[j])
+        y += w * (nodeCurrent[j + 1] - baseline[j + 1])
+        z += w * (nodeCurrent[j + 2] - baseline[j + 2])
       }
       array[i * 3] = x
       array[i * 3 + 1] = y
