@@ -21,13 +21,13 @@ import { easeInOutCubic } from "@/utils/animations"
 
 import { Basketball } from "./basketball"
 import { STATIC_GROUP } from "./collision"
-import { GhostBalls } from "./ghost-balls"
 import {
   armCurveball,
   CurveballForce,
   resetSpinTracking,
   trackSpin
 } from "./curveball"
+import { GhostBalls } from "./ghost-balls"
 import { NetPhysics } from "./net-physics"
 import { RigidBodies } from "./rigid-bodies"
 
@@ -405,8 +405,7 @@ const HoopMinigameInner = () => {
   ])
 
   const handlePointerUp = useCallback(() => {
-    armCurveball()
-    utilsHandlePointerUp({
+    const threw = utilsHandlePointerUp({
       ballRef,
       dragStartPos: positionVectors.dragStartPos,
       hasMovedSignificantly,
@@ -420,6 +419,14 @@ const HoopMinigameInner = () => {
       playSoundFX,
       throwVelocity: throwVelocity.current
     })
+
+    // only a release that actually launched a throw may charge the
+    // curveball — a dropped ball must not receive spin/curve forces
+    if (threw) {
+      armCurveball()
+    } else {
+      resetSpinTracking()
+    }
   }, [
     isGameActive,
     hoopPosition,
