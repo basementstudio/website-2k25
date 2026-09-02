@@ -105,15 +105,21 @@ function RendererInner({ sceneChildren }: RendererProps) {
 
   const screenWidth = useThree((state) => state.size.width)
   const screenHeight = useThree((state) => state.size.height)
+  const dpr = useThree((state) => state.viewport.dpr)
 
   const bloomResolution = useMemo(
     () => bloomSize(screenWidth, screenHeight),
     [screenWidth, screenHeight]
   )
 
+  // Match the canvas's drawing-buffer density (dpr is already capped by the
+  // Canvas: 1 on mobile, ≤2 on desktop). Sizing the target in CSS pixels
+  // rendered the whole scene at 1x on retina displays and nearest-upscaled
+  // it. The `resolution` uniform stays CSS-sized on purpose — the composite
+  // shader's pixelation/dither block sizes are part of the art direction.
   useEffect(() => {
-    mainTarget.setSize(screenWidth, screenHeight)
-  }, [mainTarget, screenWidth, screenHeight])
+    mainTarget.setSize(screenWidth * dpr, screenHeight * dpr)
+  }, [mainTarget, screenWidth, screenHeight, dpr])
 
   useEffect(() => {
     bloomTarget.setSize(bloomResolution.x, bloomResolution.y)
