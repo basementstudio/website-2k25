@@ -20,7 +20,9 @@ import { useMinigameStore } from "@/store/minigame-store"
 import { easeInOutCubic } from "@/utils/animations"
 
 import { Basketball } from "./basketball"
+import { STATIC_GROUP } from "./collision"
 import { GhostBalls } from "./ghost-balls"
+import { NetPhysics } from "./net-physics"
 import { RigidBodies } from "./rigid-bodies"
 
 const HoopMinigameInner = () => {
@@ -677,10 +679,16 @@ const HoopMinigameInner = () => {
   return (
     <>
       {basketball.hoop && clonedHoopRef.current && (
-        <RigidBody type="fixed" colliders="trimesh">
+        <RigidBody
+          type="fixed"
+          colliders="trimesh"
+          collisionGroups={STATIC_GROUP}
+        >
           <primitive object={clonedHoopRef.current} />
         </RigidBody>
       )}
+
+      <NetPhysics ballRef={ballRef} />
 
       {readyToPlay && (
         <>

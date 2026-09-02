@@ -8,6 +8,7 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { useAssets } from "../assets-provider"
+import { BALL_GROUP } from "./collision"
 
 interface BasketballProps {
   ballRef: RefObject<any>
@@ -126,6 +127,10 @@ export const Basketball = ({
       friction={0.8}
       linearDamping={0.5}
       angularDamping={0.5}
+      // Without CCD a fast shot crosses a 6cm net node in a single step at
+      // the clamped 1/15s delta and tunnels straight through the lattice.
+      ccd
+      collisionGroups={BALL_GROUP}
     >
       <mesh
         scale={1.25}
