@@ -107,6 +107,7 @@ const useBakes = (): Record<string, Bake> => {
       map.minFilter = LinearFilter
       map.magFilter = LinearFilter
       map.colorSpace = NoColorSpace
+      map.needsUpdate = true
 
       for (const meshName of meshNames) {
         if (!maps[meshName]) {
@@ -120,9 +121,12 @@ const useBakes = (): Record<string, Bake> => {
       const meshNames = withAmbientOcclusion[index].meshes
       map.flipY = false
       map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
+      // linear like the lightmaps — AO is part of the baked shading and
+      // shows the same texel stair-steps at Nearest
+      map.minFilter = LinearFilter
+      map.magFilter = LinearFilter
       map.colorSpace = NoColorSpace
+      map.needsUpdate = true
 
       for (const meshName of meshNames) {
         if (!maps[meshName]) {
