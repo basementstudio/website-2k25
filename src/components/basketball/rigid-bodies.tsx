@@ -7,7 +7,7 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 import { useMinigameStore } from "@/store/minigame-store"
 
 import { STATIC_GROUP } from "./collision"
-import { netGoalHandler } from "./net-physics"
+import { netGoalHandler, netTouchHandler } from "./net-physics"
 
 interface RigidBodiesProps {
   hoopPosition: { x: number; y: number; z: number }
@@ -31,15 +31,19 @@ export const RigidBodies = ({ hoopPosition }: RigidBodiesProps) => {
 
   const randomPitch = 0.95 + Math.random() * 0.1
 
-  // Called by NetPhysics' frame loop when a full through-the-rim pass is
-  // confirmed (see netGoalHandler) — that tracking replaced the old sensor
-  // collider, whose enter/exit events raced the through-rim flag.
+  // Swish audio plays at first net contact (rim-plane crossing), while the
+  // score waits for the confirmed pass below the net (see netGoalHandler /
+  // netTouchHandler) — that tracking replaced the old sensor collider,
+  // whose enter/exit events raced the through-rim flag.
+  const handleNetTouch = () => {
+    playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
+  }
+
   const handleScore = () => {
     const baseScore = 10
     const multipliedScore = Math.floor(baseScore * scoreMultiplier)
     setScore((prev) => prev + multipliedScore)
     incrementConsecutiveScores()
-    playSoundFX("BASKETBALL_NET", 0.6, randomPitch)
     track("basketball_score")
 
     if (hasHitStreak) playSoundFX("BASKETBALL_STREAK", 0.06)
@@ -47,8 +51,10 @@ export const RigidBodies = ({ hoopPosition }: RigidBodiesProps) => {
 
   useEffect(() => {
     netGoalHandler.current = handleScore
+    netTouchHandler.current = handleNetTouch
     return () => {
       netGoalHandler.current = null
+      netTouchHandler.current = null
     }
   })
 

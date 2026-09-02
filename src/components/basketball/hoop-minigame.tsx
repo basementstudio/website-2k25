@@ -22,6 +22,12 @@ import { easeInOutCubic } from "@/utils/animations"
 import { Basketball } from "./basketball"
 import { STATIC_GROUP } from "./collision"
 import { GhostBalls } from "./ghost-balls"
+import {
+  armCurveball,
+  CurveballForce,
+  resetSpinTracking,
+  trackSpin
+} from "./curveball"
 import { NetPhysics } from "./net-physics"
 import { RigidBodies } from "./rigid-bodies"
 
@@ -399,6 +405,7 @@ const HoopMinigameInner = () => {
   ])
 
   const handlePointerUp = useCallback(() => {
+    armCurveball()
     utilsHandlePointerUp({
       ballRef,
       dragStartPos: positionVectors.dragStartPos,
@@ -604,6 +611,7 @@ const HoopMinigameInner = () => {
       // Don't allow grabbing the ball when timer is low
       if (isTimerLow.current) return
 
+      resetSpinTracking()
       utilsHandlePointerDown({
         event,
         ballRef,
@@ -625,6 +633,7 @@ const HoopMinigameInner = () => {
     (event: any) => {
       if (!isDragging) return
 
+      trackSpin(event.clientX, event.clientY)
       utilsHandlePointerMove({
         event,
         ballRef,
@@ -689,6 +698,8 @@ const HoopMinigameInner = () => {
       )}
 
       <NetPhysics ballRef={ballRef} />
+
+      <CurveballForce ballRef={ballRef} />
 
       {readyToPlay && (
         <>
