@@ -8,10 +8,11 @@ export const REALTIME_ENABLED = process.env.NEXT_PUBLIC_FEATURE_REALTIME === "1"
 // unset locally.
 export const REALTIME_ENV = process.env.NEXT_PUBLIC_VERCEL_ENV ?? "dev"
 
-// Per-tab identity: two tabs count as two visitors, which is acceptable here.
-// Kept in sessionStorage so full-document navigations (e.g. the machine-view
-// toggle roundtrip) come back with the same key and color instead of
-// spawning a second cursor while the old presence expires.
+// Per-tab cursor identity: each tab is its own cursor, so this must stay
+// unique per tab. Kept in sessionStorage so full-document navigations (e.g.
+// the machine-view toggle roundtrip) come back with the same key and color
+// instead of spawning a second cursor while the old presence expires.
+// The online count uses the per-browser getBrowserId instead.
 const CLIENT_ID_STORAGE_KEY = "rt-cursor-id"
 let clientId: string | null = null
 export const getClientId = () => {
@@ -28,6 +29,43 @@ export const getClientId = () => {
     }
   }
   return clientId
+}
+
+// Per-browser visitor identity for the online count: tabs share a presence
+// key, so Presence merges them into one entry and a visitor with several
+// tabs counts once. Rotated daily because presence keys are visible to every
+// subscriber of the public channel — a non-expiring id would be a permanent
+// cross-visit identifier. When storage is blocked tabs can't share a key, so
+// this degrades to the per-tab id (pre-dedupe behavior).
+const BROWSER_ID_STORAGE_KEY = "rt-visitor-id"
+const BROWSER_ID_TTL_MS = 24 * 60 * 60 * 1000
+let browserId: string | null = null
+export const getBrowserId = () => {
+  if (typeof window === "undefined") return ""
+  if (!browserId) {
+    try {
+      let stored: { id?: string; ts?: number } | null = null
+      try {
+        stored = JSON.parse(localStorage.getItem(BROWSER_ID_STORAGE_KEY) ?? "")
+      } catch {}
+      if (
+        stored?.id &&
+        stored.ts &&
+        Date.now() - stored.ts < BROWSER_ID_TTL_MS
+      ) {
+        browserId = stored.id
+      } else {
+        browserId = nanoid(8)
+        localStorage.setItem(
+          BROWSER_ID_STORAGE_KEY,
+          JSON.stringify({ id: browserId, ts: Date.now() })
+        )
+      }
+    } catch {
+      browserId = getClientId() || nanoid(8)
+    }
+  }
+  return browserId
 }
 
 // Shades of the brand orange (#FF4D00), deep to pale
