@@ -13,7 +13,10 @@ export const OnlineCount = () => {
     <span className="group relative flex items-center gap-1 text-[0.75rem] font-semibold leading-4 text-brand-w2">
       <span className="size-1.5 animate-pulse rounded-full bg-brand-o" />
       Online{" "}
-      <sup className="text-caption text-brand-g1">
+      {/* The navbar group is right-packed, so any width change here shifts
+          "Online" leftward: tabular-nums keeps every digit equal-width and
+          min-w reserves two digits so the badge only grows past 99 */}
+      <sup className="text-caption inline-block min-w-[3ch] tabular-nums text-brand-g1">
         (<NumberFlow value={count} />)
       </sup>
       <span
