@@ -4,6 +4,7 @@ import { useLoader, useThree } from "@react-three/fiber"
 import { memo, Suspense, useEffect, useMemo } from "react"
 import {
   Group,
+  LinearFilter,
   Mesh,
   NearestFilter,
   NoColorSpace,
@@ -101,9 +102,12 @@ const useBakes = (): Record<string, Bake> => {
     loadedLightmaps.forEach((map, index) => {
       const meshNames = withLightmap[index].meshes
       map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
+      // linear so baked lighting reads as smooth gradients instead of
+      // texel stair-steps
+      map.minFilter = LinearFilter
+      map.magFilter = LinearFilter
       map.colorSpace = NoColorSpace
+      map.needsUpdate = true
 
       for (const meshName of meshNames) {
         if (!maps[meshName]) {
@@ -117,9 +121,12 @@ const useBakes = (): Record<string, Bake> => {
       const meshNames = withAmbientOcclusion[index].meshes
       map.flipY = false
       map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
+      // linear like the lightmaps — AO is part of the baked shading and
+      // shows the same texel stair-steps at Nearest
+      map.minFilter = LinearFilter
+      map.magFilter = LinearFilter
       map.colorSpace = NoColorSpace
+      map.needsUpdate = true
 
       for (const meshName of meshNames) {
         if (!maps[meshName]) {

@@ -8,18 +8,18 @@ import { useEffect, useMemo, useRef } from "react"
 import { createClient } from "@/service/supabase/client"
 
 import { censor } from "./censor"
-import { getBrowserId, getClientId, useRealtimeStore } from "./realtime-store"
+import {
+  getBrowserId,
+  getClientId,
+  REALTIME_ENV,
+  useRealtimeStore
+} from "./realtime-store"
 
 const CURSOR_BROADCAST_MS = 80
 
 // A reload leaves and rejoins presence, so drops in the online count are held
 // back briefly and cancelled if the count recovers; rises apply immediately.
 const ONLINE_DROP_DEBOUNCE_MS = 3000
-
-// Scope channel topics by environment so local dev and preview sessions don't
-// mingle with real production visitors in the same rooms. Vercel system env;
-// unset locally.
-const REALTIME_ENV = process.env.NEXT_PUBLIC_VERCEL_ENV ?? "dev"
 
 // Public (non-private) Broadcast/Presence channels: anon key only, no tables
 // or RLS involved. Hardening to private channels + RLS on realtime.messages

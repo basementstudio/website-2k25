@@ -1,6 +1,6 @@
 import { RapierRigidBody } from "@react-three/rapier"
 import { RefObject } from "react"
-import { Mesh, Vector2, Vector3 } from "three"
+import { Vector2, Vector3 } from "three"
 
 import { SiteAudioSFXKey } from "@/hooks/use-site-audio"
 
@@ -48,54 +48,6 @@ interface HandlePointerUpParams {
   forwardStrength: number
   playSoundFX: (sfx: SiteAudioSFXKey, volume?: number, pitch?: number) => void
   throwVelocity: Vector2
-}
-
-interface MorphTargetMesh extends Mesh {
-  morphTargetInfluences?: number[]
-}
-
-export const NET_ANIMATION_SPEED = 0.008
-
-const createMorphKeyframes = () => {
-  const numKeyframes = 19
-  const duration = 1.0
-  const keyframes = []
-
-  for (let i = 0; i < numKeyframes; i++) {
-    keyframes.push({
-      time: (duration / numKeyframes) * i,
-      value: 1
-    })
-  }
-
-  return keyframes
-}
-
-const morphKeyframes = createMorphKeyframes()
-
-export const animateNet = (
-  mesh: MorphTargetMesh,
-  progress: number
-): boolean => {
-  if (!mesh.morphTargetInfluences) return false
-  if (progress >= 1.0) return false
-
-  mesh.morphTargetInfluences.fill(0)
-
-  const waveWidth = 0.15
-  const numKeyframes = morphKeyframes.length
-
-  for (let i = 0; i < numKeyframes; i++) {
-    const keyframeTime = morphKeyframes[i].time
-    const distance = Math.abs(progress - keyframeTime)
-
-    if (distance < waveWidth) {
-      const influence = Math.cos((distance / waveWidth) * Math.PI * 0.5)
-      mesh.morphTargetInfluences[i] = Math.max(0, influence)
-    }
-  }
-
-  return true
 }
 
 export const calculateShotMetrics = (
@@ -290,6 +242,7 @@ export const handlePointerMove = ({
   }
 }
 
+// returns true only when the release actually launched a throw
 export const handlePointerUp = ({
   ballRef,
   dragStartPos,
@@ -303,7 +256,8 @@ export const handlePointerUp = ({
   forwardStrength,
   playSoundFX,
   throwVelocity
-}: HandlePointerUpParams) => {
+}: HandlePointerUpParams): boolean => {
+  let threw = false
   if (ballRef.current && isThrowable.current) {
     if (!isGameActive) {
       startGame()
@@ -353,10 +307,12 @@ export const handlePointerUp = ({
       )
       ball.applyImpulse(assistedVelocity, true)
       ball.applyTorqueImpulse({ x: 0.005, y: 0, z: 0 }, true)
+      threw = true
     } else {
       ball.setBodyType(0, true)
     }
 
     setIsDragging(false)
   }
+  return threw
 }

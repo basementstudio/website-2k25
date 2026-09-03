@@ -105,8 +105,9 @@ export const Lamp = memo(function LampInner() {
 
   useEffect(() => {
     lightmap.generateMipmaps = false
-    lightmap.minFilter = THREE.NearestFilter
-    lightmap.magFilter = THREE.NearestFilter
+    // linear like the map bakes, so the lamp lighting grades smoothly
+    lightmap.minFilter = THREE.LinearFilter
+    lightmap.magFilter = THREE.LinearFilter
     lightmap.colorSpace = THREE.NoColorSpace
   }, [lightmap])
 

@@ -3,6 +3,11 @@ import { create } from "zustand"
 
 export const REALTIME_ENABLED = process.env.NEXT_PUBLIC_FEATURE_REALTIME === "1"
 
+// Scope channel topics by environment so local dev and preview sessions don't
+// mingle with real production visitors in the same rooms. Vercel system env;
+// unset locally.
+export const REALTIME_ENV = process.env.NEXT_PUBLIC_VERCEL_ENV ?? "dev"
+
 // Per-tab cursor identity: each tab is its own cursor, so this must stay
 // unique per tab. Kept in sessionStorage so full-document navigations (e.g.
 // the machine-view toggle roundtrip) come back with the same key and color
