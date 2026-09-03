@@ -82,7 +82,9 @@ export const RealtimeImpl = () => {
       })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await channel.track({ id: getBrowserId(), joinedAt: Date.now() })
+          // No id in the payload: the presence key already identifies the
+          // entry, and the payload is broadcast to every subscriber
+          await channel.track({ joinedAt: Date.now() })
         }
       })
 

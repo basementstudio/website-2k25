@@ -28,20 +28,36 @@ export const getClientId = () => {
 
 // Per-browser visitor identity for the online count: tabs share a presence
 // key, so Presence merges them into one entry and a visitor with several
-// tabs counts once.
+// tabs counts once. Rotated daily because presence keys are visible to every
+// subscriber of the public channel — a non-expiring id would be a permanent
+// cross-visit identifier. When storage is blocked tabs can't share a key, so
+// this degrades to the per-tab id (pre-dedupe behavior).
 const BROWSER_ID_STORAGE_KEY = "rt-visitor-id"
+const BROWSER_ID_TTL_MS = 24 * 60 * 60 * 1000
 let browserId: string | null = null
 export const getBrowserId = () => {
   if (typeof window === "undefined") return ""
   if (!browserId) {
     try {
-      browserId = localStorage.getItem(BROWSER_ID_STORAGE_KEY)
-      if (!browserId) {
+      let stored: { id?: string; ts?: number } | null = null
+      try {
+        stored = JSON.parse(localStorage.getItem(BROWSER_ID_STORAGE_KEY) ?? "")
+      } catch {}
+      if (
+        stored?.id &&
+        stored.ts &&
+        Date.now() - stored.ts < BROWSER_ID_TTL_MS
+      ) {
+        browserId = stored.id
+      } else {
         browserId = nanoid(8)
-        localStorage.setItem(BROWSER_ID_STORAGE_KEY, browserId)
+        localStorage.setItem(
+          BROWSER_ID_STORAGE_KEY,
+          JSON.stringify({ id: browserId, ts: Date.now() })
+        )
       }
     } catch {
-      browserId = nanoid(8)
+      browserId = getClientId() || nanoid(8)
     }
   }
   return browserId
