@@ -3,10 +3,11 @@ import { create } from "zustand"
 
 export const REALTIME_ENABLED = process.env.NEXT_PUBLIC_FEATURE_REALTIME === "1"
 
-// Per-tab identity: two tabs count as two visitors, which is acceptable here.
-// Kept in sessionStorage so full-document navigations (e.g. the machine-view
-// toggle roundtrip) come back with the same key and color instead of
-// spawning a second cursor while the old presence expires.
+// Per-tab cursor identity: each tab is its own cursor, so this must stay
+// unique per tab. Kept in sessionStorage so full-document navigations (e.g.
+// the machine-view toggle roundtrip) come back with the same key and color
+// instead of spawning a second cursor while the old presence expires.
+// The online count uses the per-browser getBrowserId instead.
 const CLIENT_ID_STORAGE_KEY = "rt-cursor-id"
 let clientId: string | null = null
 export const getClientId = () => {
@@ -23,6 +24,27 @@ export const getClientId = () => {
     }
   }
   return clientId
+}
+
+// Per-browser visitor identity for the online count: tabs share a presence
+// key, so Presence merges them into one entry and a visitor with several
+// tabs counts once.
+const BROWSER_ID_STORAGE_KEY = "rt-visitor-id"
+let browserId: string | null = null
+export const getBrowserId = () => {
+  if (typeof window === "undefined") return ""
+  if (!browserId) {
+    try {
+      browserId = localStorage.getItem(BROWSER_ID_STORAGE_KEY)
+      if (!browserId) {
+        browserId = nanoid(8)
+        localStorage.setItem(BROWSER_ID_STORAGE_KEY, browserId)
+      }
+    } catch {
+      browserId = nanoid(8)
+    }
+  }
+  return browserId
 }
 
 // Shades of the brand orange (#FF4D00), deep to pale
