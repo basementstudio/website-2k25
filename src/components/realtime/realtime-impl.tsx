@@ -1,10 +1,10 @@
 "use client"
 
 import type { RealtimeChannel } from "@supabase/supabase-js"
-import throttle from "lodash.throttle"
 import { usePathname } from "next/navigation"
 import { useEffect, useMemo, useRef } from "react"
 
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { createClient } from "@/service/supabase/client"
 
 import { censor } from "./censor"
@@ -15,7 +15,10 @@ import {
   useRealtimeStore
 } from "./realtime-store"
 
-const CURSOR_BROADCAST_MS = 80
+const CURSOR_BROADCAST_MS = 250
+const BUSY_ROOM_PEERS = 6
+const CURSOR_BROADCAST_BUSY_MS = 500
+const MIN_SEND_DIST_PX = 2
 
 // A reload leaves and rejoins presence, so drops in the online count are held
 // back briefly and cancelled if the count recovers; rises apply immediately.
@@ -26,6 +29,7 @@ const ONLINE_DROP_DEBOUNCE_MS = 3000
 // is the production path, out of scope for this POC.
 export const RealtimeImpl = () => {
   const pathname = usePathname()
+  const { isMobile } = useDeviceDetect()
   const supabase = useMemo(() => createClient(), [])
   const cursorChannelRef = useRef<RealtimeChannel | null>(null)
   const cursorSubscribedRef = useRef(false)
@@ -97,6 +101,7 @@ export const RealtimeImpl = () => {
 
   // Per-route cursor room: broadcast for positions, presence for leave cleanup
   useEffect(() => {
+    if (isMobile !== false) return
     const store = useRealtimeStore.getState()
     const topic = `${REALTIME_ENV}:cursors:${pathname.replace(/[^a-zA-Z0-9/_-]/g, "")}`
     const channel = supabase.channel(topic, {
@@ -107,6 +112,84 @@ export const RealtimeImpl = () => {
     })
     cursorChannelRef.current = channel
     cursorSubscribedRef.current = false
+    lastPosRef.current = null
+
+    let peerCount = 1
+    let lastSent: {
+      xn: number
+      yd: number
+      country: string | null
+      msg: string
+      name: string
+    } | null = null
+
+    const memoCensor = () => {
+      let raw: string | null = null
+      let out = ""
+      return (text: string) => {
+        if (text !== raw) {
+          raw = text
+          out = censor(text)
+        }
+        return out
+      }
+    }
+    const censorMsg = memoCensor()
+    const censorName = memoCensor()
+
+    let queued: { xn: number; yd: number } | null = null
+    let trailing: ReturnType<typeof setTimeout> | null = null
+    let lastSentAt = -Infinity
+
+    const sendInterval = () =>
+      peerCount > BUSY_ROOM_PEERS
+        ? CURSOR_BROADCAST_BUSY_MS
+        : CURSOR_BROADCAST_MS
+
+    const flush = () => {
+      trailing = null
+      if (!queued) return
+      const { xn, yd } = queued
+      queued = null
+      if (!cursorSubscribedRef.current) return
+      if (peerCount <= 1) return
+      const state = useRealtimeStore.getState()
+      const country = state.country
+      const msg = censorMsg(state.chatMessage)
+      const name = censorName(state.displayName)
+      const metaChanged =
+        lastSent !== null &&
+        (lastSent.msg !== msg ||
+          lastSent.name !== name ||
+          lastSent.country !== country)
+      if (document.hidden && !metaChanged) return
+      if (
+        lastSent &&
+        lastSent.country === country &&
+        lastSent.msg === msg &&
+        lastSent.name === name
+      ) {
+        const dx = (xn - lastSent.xn) * window.innerWidth
+        const dy = yd - lastSent.yd
+        if (dx * dx + dy * dy < MIN_SEND_DIST_PX * MIN_SEND_DIST_PX) return
+      }
+      channel.send({
+        type: "broadcast",
+        event: "cursor",
+        payload: { id: getClientId(), xn, yd, country, msg, name }
+      })
+      lastSent = { xn, yd, country, msg, name }
+      lastSentAt = performance.now()
+    }
+
+    const broadcast = (xn: number, yd: number) => {
+      queued = { xn, yd }
+      if (trailing) return
+      const wait = lastSentAt + sendInterval() - performance.now()
+      if (wait <= 0) flush()
+      else trailing = setTimeout(flush, wait)
+    }
+    sendCursorRef.current = broadcast
 
     channel
       .on("broadcast", { event: "cursor" }, ({ payload }) => {
@@ -115,6 +198,19 @@ export const RealtimeImpl = () => {
           msg: payload.msg ? censor(payload.msg) : payload.msg,
           name: payload.name ? censor(payload.name) : payload.name
         })
+      })
+      .on("presence", { event: "sync" }, () => {
+        const prev = peerCount
+        peerCount = Object.keys(channel.presenceState()).length
+        if (prev <= 1 && peerCount > 1) {
+          const state = useRealtimeStore.getState()
+          const pos =
+            lastPosRef.current ??
+            (state.chatMessage || state.displayName
+              ? { xn: 0.5, yd: window.scrollY + window.innerHeight / 2 }
+              : null)
+          if (pos) broadcast(pos.xn, pos.yd)
+        }
       })
       .on("presence", { event: "leave" }, ({ key }) => {
         store.removeCursor(key)
@@ -125,23 +221,6 @@ export const RealtimeImpl = () => {
           await channel.track({ id: getClientId(), joinedAt: Date.now() })
         }
       })
-
-    const broadcast = throttle((xn: number, yd: number) => {
-      if (!cursorSubscribedRef.current) return
-      channel.send({
-        type: "broadcast",
-        event: "cursor",
-        payload: {
-          id: getClientId(),
-          xn,
-          yd,
-          country: useRealtimeStore.getState().country,
-          msg: censor(useRealtimeStore.getState().chatMessage),
-          name: censor(useRealtimeStore.getState().displayName)
-        }
-      })
-    }, CURSOR_BROADCAST_MS)
-    sendCursorRef.current = broadcast
 
     const handlePointerMove = (e: PointerEvent) => {
       if (e.pointerType !== "mouse") return
@@ -155,14 +234,15 @@ export const RealtimeImpl = () => {
 
     return () => {
       window.removeEventListener("pointermove", handlePointerMove)
-      broadcast.cancel()
+      if (trailing) clearTimeout(trailing)
+      queued = null
       sendCursorRef.current = null
       cursorChannelRef.current = null
       cursorSubscribedRef.current = false
       store.clearCursors()
       supabase.removeChannel(channel)
     }
-  }, [supabase, pathname])
+  }, [supabase, pathname, isMobile])
 
   // Chat and name edits broadcast immediately from the last known position,
   // so typing shows live for others even while the mouse is still
