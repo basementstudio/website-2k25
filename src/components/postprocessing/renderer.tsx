@@ -21,6 +21,7 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createBloomMaterial } from "@/shaders/material-bloom"
 import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
+import { usePerfStats } from "@/hooks/use-perf-stats"
 import { doubleFbo } from "@/utils/double-fbo"
 
 import { BloomPass } from "./bloom-pass"
@@ -125,6 +126,8 @@ function RendererInner({ sceneChildren }: RendererProps) {
     bloomTarget.setSize(bloomResolution.x, bloomResolution.y)
   }, [bloomTarget, bloomResolution])
 
+  const statsFrame = useRef(0)
+
   useFrameCallback(({ gl }) => {
     if (
       !mainCamera ||
@@ -139,6 +142,21 @@ function RendererInner({ sceneChildren }: RendererProps) {
     gl.toneMapping = NoToneMapping
     gl.setRenderTarget(mainTarget)
     gl.render(mainScene, mainCamera)
+
+    // Read draw-call/memory stats right here, before the CCTV and
+    // postprocessing render() calls below reset gl.info.render.* again —
+    // this is the count for the actual office/map scene, which is what the
+    // debug panel (src/components/debug/perf-stats-panel.tsx) is measuring.
+    statsFrame.current++
+    if (statsFrame.current % 15 === 0) {
+      const info = gl.info
+      usePerfStats.setState({
+        calls: info.render.calls,
+        triangles: info.render.triangles,
+        geometries: info.memory.geometries,
+        textures: info.memory.textures
+      })
+    }
 
     // 404 scene on tv
     if (cctvConfig.shouldBakeCCTV) {

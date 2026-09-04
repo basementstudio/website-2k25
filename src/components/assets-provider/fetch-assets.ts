@@ -18,6 +18,10 @@ export interface AssetsResult {
     }
   }
   routingElements: string
+  /** Shared lightmap atlas most merged office.glb meshes point to via userData.Lightmap === "Map00". */
+  lightmapAtlas: string
+  /** Same atlas, KTX2 (Basis UASTC HDR) — see USE_KTX2_LIGHTMAPS in bakes.tsx. */
+  lightmapAtlasKtx2: string
   bakes: {
     title: string
     lightmap: string
@@ -153,6 +157,9 @@ export interface AssetsResult {
   }
   lamp: {
     extraLightmap: string
+    extraLightmapOff: string
+    extraLightmapKtx2: string
+    extraLightmapOffKtx2: string
   }
   // extra textures for things
   mapTextures: {

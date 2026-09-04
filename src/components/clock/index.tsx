@@ -25,8 +25,6 @@ import {
 } from "./overlay-position"
 
 interface ClockElements {
-  tail: Mesh
-  eyes: Mesh[]
   hour: Mesh
   minute: Mesh
   second: Mesh
@@ -49,6 +47,8 @@ export const Clock = () => {
     isDesktop &&
     !contactOpen &&
     !transitioning
+  const clockBody = useMesh((s) => s.services.clockBody)
+  const clockMorphIndex = useMesh((s) => s.services.clockMorphIndex)
   const [hovered, setHovered] = useState(false)
   const elements = useRef<ClockElements | null>(null)
   const trigger = useRef<HTMLButtonElement>(null)
@@ -91,15 +91,16 @@ export const Clock = () => {
 
   useEffect(() => {
     if (!clock) return
-    elements.current = {
-      tail: clock.getObjectByName("SM_CatTail") as Mesh,
-      eyes: [
-        clock.getObjectByName("SM_EyeR") as Mesh,
-        clock.getObjectByName("SM_EyeL") as Mesh
-      ],
-      hour: clock.getObjectByName("SM_HourHand") as Mesh,
-      minute: clock.getObjectByName("SM_MinuterHand") as Mesh,
-      second: clock.getObjectByName("SM_Second") as Mesh
+
+    const hour = clock.getObjectByName("SM_HourHand") as Mesh | null
+    const minute = clock.getObjectByName("SM_MinuterHand") as Mesh | null
+    const second = clock.getObjectByName("SM_Second") as Mesh | null
+
+    if (hour && minute && second) {
+      elements.current = { hour, minute, second }
+    } else {
+      // Old glb, or a clock without the hand children -> hands disabled.
+      console.warn("[clock] hand meshes not found — clock hands disabled")
     }
     return () => {
       elements.current = null
@@ -144,11 +145,9 @@ export const Clock = () => {
   }, [hovered, controlsVisible, timePreset, setCursor])
 
   useFrameCallback(({ camera }, _, elapsedTime) => {
-    if (elements.current) {
-      const { tail, eyes } = elements.current
-      const progress = elapsedTime * Math.PI
-      tail.rotation.y = Math.sin(progress) * 0.18
-      eyes.forEach((eye) => (eye.rotation.y = Math.sin(progress) * 0.32))
+    const influences = clockBody?.morphTargetInfluences
+    if (influences && clockMorphIndex !== null) {
+      influences[clockMorphIndex] = Math.sin(elapsedTime * Math.PI)
     }
 
     const button = trigger.current

@@ -45,8 +45,8 @@ export const extractMeshes = ({
 
   // --- Weather --- //
 
-  const loboMarino = officeItems.getObjectByName("SM_Lobo") as Mesh
-  loboMarino.visible = false
+  const loboMarino = officeItems.getObjectByName("SM_Lobo") as Mesh | null
+  if (loboMarino) loboMarino.visible = false
 
   const rain = office.getObjectByName("SM_Rain") as Mesh
   useMesh.setState({ weather: { loboMarino, rain } })
@@ -113,20 +113,32 @@ export const extractMeshes = ({
     console.warn(
       "[arcade] SM_Controls with morph targets not found — arcade board disabled"
     )
-    useMesh.setState({ arcade: { controls: null, buttons: null, sticks: null } })
+    useMesh.setState({
+      arcade: { controls: null, buttons: null, sticks: null }
+    })
   }
 
   // --- Blog --- //
+  // Door + picaporte (lock handle) used to be two separate rotating meshes
+  // (SM_00_010 / SM_00_012). They're now two shape keys on one merged mesh
+  // (SM_00_010) — same mechanic as SM_Controls: drive morphTargetInfluences
+  // by index instead of rotating two separate objects.
 
-  // Locked door
-  const ld = office?.getObjectByName("SM_00_012") as Mesh
-  const ldRotation = { x: ld.rotation.x, y: ld.rotation.y, z: ld.rotation.z }
-  ld.userData.originalRotation = ldRotation
+  const door = office?.getObjectByName("SM_00_010") as Mesh | undefined
+  const doorDict = door?.morphTargetDictionary
+  const doorMorphIndex = doorDict?.["SM_00_010"]
+  const lockedDoorMorphIndex = doorDict?.["SM_00_012"]
+  const doorMorphsFound =
+    !!door && doorMorphIndex !== undefined && lockedDoorMorphIndex !== undefined
 
-  // Door
-  const d = office?.getObjectByName("SM_00_010") as Mesh
-  const dRotation = { x: d.rotation.x, y: d.rotation.y, z: d.rotation.z }
-  d.userData.originalRotation = dRotation
+  if (doorMorphsFound) {
+    door.morphTargetInfluences?.fill(0)
+  } else {
+    // Old glb (rotating door) or a door mesh without shape keys -> door disabled.
+    console.warn(
+      "[blog] SM_00_010 door/picaporte shape keys not found — door disabled"
+    )
+  }
 
   // Lamp
   const lamp = office?.getObjectByName("SM_LightMeshBlog") as Mesh
@@ -136,7 +148,17 @@ export const extractMeshes = ({
     if (target) lampTargets.push(target)
   }
 
-  useMesh.setState({ blog: { lockedDoor: ld, door: d, lamp, lampTargets } })
+  useMesh.setState({
+    blog: {
+      door: doorMorphsFound ? (door as Mesh) : null,
+      doorMorphIndex: doorMorphsFound ? (doorMorphIndex as number) : null,
+      lockedDoorMorphIndex: doorMorphsFound
+        ? (lockedDoorMorphIndex as number)
+        : null,
+      lamp,
+      lampTargets
+    }
+  })
 
   // --- Cars --- //
 
@@ -147,30 +169,55 @@ export const extractMeshes = ({
   useMesh.setState({ cars })
 
   // --- Services --- //
+  // The clock's eyes + tail used to be 3 separate rotating meshes. They're
+  // now one shape key ("Time") on a nested child mesh ("Kit-Cat", one level
+  // under the SM_KitCat placement node) — same mechanic as the arcade
+  // controls and the blog door.
 
-  const clock = office.getObjectByName("SM_KitCat") as Mesh
+  const clock = office.getObjectByName("SM_KitCat") as Mesh | undefined
+  const clockBody = clock?.getObjectByName("Kit-Cat") as Mesh | undefined
+  const clockMorphIndex = clockBody?.morphTargetDictionary?.["Time"]
+  const clockMorphFound = !!clockBody && clockMorphIndex !== undefined
+
+  if (clockMorphFound) {
+    clockBody!.morphTargetInfluences?.fill(0)
+  } else {
+    // Old glb (separate hand/eye/tail children) or a clock body without the
+    // "Time" shape key -> eyes/tail animation disabled, clock still renders.
+    console.warn(
+      '[services] Kit-Cat "Time" shape key not found — clock eyes/tail animation disabled'
+    )
+  }
+
   const pot = office.getObjectByName("SM_00a_01") as Mesh
-  useMesh.setState({ services: { clock, pot } })
+  useMesh.setState({
+    services: {
+      clock: clock ?? null,
+      clockBody: clockMorphFound ? (clockBody as Mesh) : null,
+      clockMorphIndex: clockMorphFound ? (clockMorphIndex as number) : null,
+      pot
+    }
+  })
 
   // --- Basketball --- //
 
-  const hoop = office.getObjectByName("SM_BasketballHoop") as Mesh
-  const hoopGlass = office.getObjectByName("SM_BasketballGlass") as Mesh
+  const hoop = office.getObjectByName("SM_BasketballHoop") as Mesh | null
+  const hoopGlass = office.getObjectByName("SM_BasketballGlass") as Mesh | null
+  const net = (basketballNet.children[0] as Mesh | undefined) ?? null
 
-  hoop.visible = true
-  hoop.userData.originalMaterial = hoop.material
-  hoopGlass.visible = true
-  hoopGlass.userData.originalMaterial = hoopGlass.material
+  if (hoop && hoopGlass && net) {
+    hoop.visible = true
+    hoop.userData.originalMaterial = hoop.material
+    hoopGlass.visible = true
+    hoopGlass.userData.originalMaterial = hoopGlass.material
+    net.visible = true
+    net.userData.originalMaterial = net.material
+  } else {
+    // Old/incomplete glb missing the basketball meshes -> feature disabled.
+    console.warn(
+      "[basketball] SM_BasketballHoop/SM_BasketballGlass/net not found — basketball disabled"
+    )
+  }
 
-  const net = basketballNet.children[0] as Mesh
-  net.visible = true
-  net.userData.originalMaterial = net.material
-
-  useMesh.setState({
-    basketball: {
-      hoop: hoop as Mesh,
-      hoopGlass: hoopGlass as Mesh,
-      net: net as Mesh
-    }
-  })
+  useMesh.setState({ basketball: { hoop, hoopGlass, net } })
 }
