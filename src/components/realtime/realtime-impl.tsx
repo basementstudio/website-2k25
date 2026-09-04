@@ -16,13 +16,8 @@ import {
 } from "./realtime-store"
 
 const CURSOR_BROADCAST_MS = 250
-
-// A room delivers every packet to every peer, so cost grows with the square
-// of the room size; above this many peers the send interval stretches
 const BUSY_ROOM_PEERS = 6
 const CURSOR_BROADCAST_BUSY_MS = 500
-
-// Skip re-sends when the pointer moved less than this since the last packet
 const MIN_SEND_DIST_PX = 2
 
 // A reload leaves and rejoins presence, so drops in the online count are held
@@ -104,10 +99,7 @@ export const RealtimeImpl = () => {
     }
   }, [supabase])
 
-  // Per-route cursor room: broadcast for positions, presence for leave
-  // cleanup. Mobile devices never join: they can't send (mouse-only) and
-  // every desktop packet delivered to them still bills a message.
-  // isMobile is undefined until hydration, so desktop joins one render late.
+  // Per-route cursor room: broadcast for positions, presence for leave cleanup
   useEffect(() => {
     if (isMobile !== false) return
     const store = useRealtimeStore.getState()
@@ -120,11 +112,8 @@ export const RealtimeImpl = () => {
     })
     cursorChannelRef.current = channel
     cursorSubscribedRef.current = false
-    // Positions are document-space, so a value from the previous route must
-    // not leak into this room's first packet
     lastPosRef.current = null
 
-    // Room-scoped send state, reset with the channel on route change
     let peerCount = 1
     let lastSent: {
       xn: number
@@ -148,13 +137,6 @@ export const RealtimeImpl = () => {
     const censorMsg = memoCensor()
     const censorName = memoCensor()
 
-    // Hand-rolled leading+trailing throttle: lodash can't change its interval
-    // mid-flight, and ours stretches when the room gets busy. Every gate lives
-    // at fire time so trailing sends re-check them: peers may have left, the
-    // tab may have been hidden, and an unchanged payload (sub-2px jitter, same
-    // chat/name) isn't worth a packet. The solo gate keeps quota at zero for
-    // lone visitors; the dedupe compares the full payload so chat/name edits
-    // still send from a resting mouse.
     let queued: { xn: number; yd: number } | null = null
     let trailing: ReturnType<typeof setTimeout> | null = null
     let lastSentAt = -Infinity
@@ -215,11 +197,6 @@ export const RealtimeImpl = () => {
       .on("presence", { event: "sync" }, () => {
         const prev = peerCount
         peerCount = Object.keys(channel.presenceState()).length
-        // Solo -> multi: announce our cursor (and chat bubble) once so a
-        // joiner sees us without waiting for our next move. Keyboard-only
-        // chat can exist before any pointer position — it borrows the
-        // viewport-center fallback the chat-edit path uses. With no position
-        // and no message there is nothing to show, so stay silent.
         if (prev <= 1 && peerCount > 1) {
           const pos =
             lastPosRef.current ??
