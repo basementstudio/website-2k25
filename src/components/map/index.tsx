@@ -95,6 +95,8 @@ export const Map = memo(() => {
 
   const alreadyTraversed = useRef(false)
 
+  const [materialsReady, setMaterialsReady] = useState(false)
+
   useEffect(() => {
     if (alreadyTraversed.current) return
 
@@ -239,6 +241,7 @@ export const Map = memo(() => {
       })
 
       alreadyTraversed.current = true
+      setMaterialsReady(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -312,7 +315,7 @@ export const Map = memo(() => {
         )
       })}
 
-      <BakesLoader />
+      <BakesLoader materialsReady={materialsReady} />
     </group>
   )
 })

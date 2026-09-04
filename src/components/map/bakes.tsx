@@ -272,7 +272,11 @@ export const revealOpacityMaterials = new Set<
   ShaderMaterial | RawShaderMaterial
 >()
 
-const Bakes = () => {
+interface BakesProps {
+  materialsReady: boolean
+}
+
+const Bakes = ({ materialsReady }: BakesProps) => {
   const bakes = useBakes()
   const atlas = useLightmapAtlas()
 
@@ -298,6 +302,8 @@ const Bakes = () => {
   }, [setMainAppRunning, setCanRunMainApp])
 
   useEffect(() => {
+    if (!materialsReady) return
+
     const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
       if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
       if (AO_ENABLED && maps.aomap) {
@@ -328,20 +334,33 @@ const Bakes = () => {
     // Merge-by-material pipeline: any mesh self-tagged with the shared atlas
     // via its "Lightmap" custom property, found by traversal instead of a
     // hand-maintained name list.
+    let __applied = 0
+    let __skipped = 0
     scene.traverse((child) => {
       if (!(child instanceof Mesh)) return
       if (child.userData.Lightmap !== ATLAS_LIGHTMAP_VALUE) return
+      if (!child.userData.hasGlobalMaterial) {
+        __skipped++
+        return
+      }
       addLightmap({ mesh: child, texture: atlas })
+      __applied++
     })
+    // eslint-disable-next-line no-console
+    console.log(
+      "[bakes-probe] t=" + Math.round(performance.now()) +
+        " applied=" + __applied +
+        " skippedNoGlobalMaterial=" + __skipped
+    )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [atlas])
+  }, [atlas, bakes, materialsReady])
 
   return null
 }
 
-const BakesLoaderInner = () => (
+const BakesLoaderInner = ({ materialsReady }: BakesProps) => (
   <Suspense>
-    <Bakes />
+    <Bakes materialsReady={materialsReady} />
   </Suspense>
 )
 
