@@ -216,9 +216,17 @@ export const RealtimeImpl = () => {
         const prev = peerCount
         peerCount = Object.keys(channel.presenceState()).length
         // Solo -> multi: announce our cursor (and chat bubble) once so a
-        // joiner sees us without waiting for our next move
-        if (prev <= 1 && peerCount > 1 && lastPosRef.current) {
-          broadcast(lastPosRef.current.xn, lastPosRef.current.yd)
+        // joiner sees us without waiting for our next move. Keyboard-only
+        // chat can exist before any pointer position — it borrows the
+        // viewport-center fallback the chat-edit path uses. With no position
+        // and no message there is nothing to show, so stay silent.
+        if (prev <= 1 && peerCount > 1) {
+          const pos =
+            lastPosRef.current ??
+            (useRealtimeStore.getState().chatMessage
+              ? { xn: 0.5, yd: window.scrollY + window.innerHeight / 2 }
+              : null)
+          if (pos) broadcast(pos.xn, pos.yd)
         }
       })
       .on("presence", { event: "leave" }, ({ key }) => {
