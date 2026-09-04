@@ -14,7 +14,7 @@ export type AssetsBase = Omit<
 
 export const ASSETS_BASE: AssetsBase = {
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-9a8576ca.glb",
+  officeItems: "/3d/models/officeItems-aef75712.glb",
   office: "/3d/models/office-b55484c8.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-6ead65cf.glb",
@@ -56,185 +56,19 @@ export const ASSETS_BASE: AssetsBase = {
   lightmapAtlas: "/3d/textures/lightmap-atlas-52dbdb4b.exr",
   lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-c58eb9fa.ktx2",
 
-  // --- Bakes (lightmaps + AO) ---
-  bakes: [
-    {
-      title: "00",
-      lightmap: "/3d/textures/bake-00-lightmap-d25dcd28.exr",
-      ambientOcclusion: "/3d/textures/bake-00-ao-8c56cc34.jpg",
-      meshes: [
-        "SM_00_000",
-        "SM_00_001",
-        "SM_00_002",
-        "SM_00_003",
-        "SM_00_004",
-        "SM_00_005",
-        "SM_00_006",
-        "SM_00_007",
-        "SM_00_008",
-        "SM_00_009",
-        "SM_00_010",
-        "SM_00_011",
-        "SM_00_012"
-      ]
-    },
-    {
-      title: "00a",
-      lightmap: "/3d/textures/bake-00a-lightmap-54a80c69.exr",
-      ambientOcclusion: "",
-      meshes: [
-        "SM_00a_00",
-        "SM_00a_01",
-        "SM_00a_02",
-        "SM_00a_03",
-        "SM_CatTail",
-        "SM_KitCat_1",
-        "SM_KitCat_2"
-      ]
-    },
-    {
-      title: "01",
-      lightmap: "/3d/textures/bake-01-lightmap-0c3d5e5b.exr",
-      ambientOcclusion: "/3d/textures/bake-01-ao-e448b3e7.jpg",
-      meshes: ["SM_01_1", "SM_01_2", "SM_01_3", "SM_01_4"]
-    },
-    {
-      title: "02",
-      lightmap: "/3d/textures/bake-02-lightmap-5229a667.exr",
-      ambientOcclusion: "/3d/textures/bake-02-ao-f8901563.jpg",
-      meshes: [
-        // 14 buttons + 2 joysticks are now a single merged mesh with morph targets
-        "SM_Controls",
-        "02_Map",
-        "02_Arcade_B"
-      ]
-    },
-    {
-      title: "2A",
-      lightmap: "/3d/textures/bake-2A-lightmap-ab95e2e7.exr",
-      ambientOcclusion: "/3d/textures/bake-2A-ao-b3d5aa21.jpg",
-      meshes: ["02_Arcade_A"]
-    },
-    {
-      title: "03",
-      lightmap: "/3d/textures/bake-03-lightmap-39b70852.exr",
-      ambientOcclusion: "/3d/textures/bake-03-ao-65209297.jpg",
-      meshes: [
-        "SM_03_00",
-        "SM_03_01",
-        "SM_03_02",
-        "SM_03_03",
-        "SM_03_04",
-        "SM_03_05",
-        "SM_03_06",
-        "SM_03_07"
-      ]
-    },
-    {
-      title: "04",
-      lightmap: "/3d/textures/bake-04-lightmap-bf25f6d3.exr",
-      ambientOcclusion: "/3d/textures/bake-04-ao-4af56635.jpg",
-      meshes: [
-        "SM_04_1",
-        "SM_04_2",
-        "SM_04_3",
-        "SM_04_4",
-        "SM_04_5",
-        "SM_04_6",
-        "SM_04_7",
-        "SM_04_8",
-        "SM_04_9"
-      ]
-    },
-    {
-      title: "05",
-      lightmap: "/3d/textures/bake-05-lightmap-4b8caf70.exr",
-      ambientOcclusion: "",
-      meshes: ["SM_05_00", "SM_05_01"]
-    },
-    {
-      title: "06",
-      lightmap: "/3d/textures/bake-06-lightmap-4138fa1d.exr",
-      ambientOcclusion: "/3d/textures/bake-06-ao-cb146198.jpg",
-      meshes: [
-        "SM_06_01",
-        "SM_06_02",
-        "SM_06_03",
-        "SM_06_04",
-        "SM_06_05",
-        "SM_06_06",
-        "SM_06_07"
-      ]
-    },
-    {
-      title: "07",
-      lightmap: "/3d/textures/bake-07-lightmap-d1e16b0e.exr",
-      ambientOcclusion: "/3d/textures/bake-07-ao-28c990e3.jpg",
-      meshes: ["SM_07_01", "SM_07_02"]
-    },
-    {
-      title: "SM_library_Wood",
-      lightmap: "/3d/textures/bake-SM_library_Wood-lightmap-cc9a19f1.exr",
-      ambientOcclusion: "/3d/textures/bake-SM_library_Wood-ao-fd6bcdee.jpg",
-      meshes: ["SM_library_Wood"]
-    },
-    {
-      title: "SM_LibraryWall_01",
-      lightmap: "/3d/textures/bake-SM_LibraryWall_01-lightmap-4ad5fb0a.exr",
-      ambientOcclusion: "/3d/textures/bake-SM_LibraryWall_01-ao-04a99bf7.jpg",
-      meshes: ["SM_LibraryWall_01"]
-    },
-    {
-      title: "SM_Roof",
-      lightmap: "/3d/textures/bake-SM_Roof-lightmap-c3612eab.exr",
-      ambientOcclusion: "",
-      meshes: ["SM_Roof"]
-    },
-    {
-      title: "SM_RoofMetallic",
-      lightmap: "/3d/textures/bake-SM_RoofMetallic-lightmap-a66cad57.exr",
-      ambientOcclusion: "",
-      meshes: ["SM_RoofMetallic"]
-    },
-    {
-      title: "ServicesModels",
-      lightmap: "/3d/textures/bake-ServicesModels-lightmap-2d6c7f1f.exr",
-      ambientOcclusion: "",
-      meshes: [
-        "SM_PinkFloyd",
-        "SM_SOTD_01",
-        "SM_Patas",
-        "SM_WebbyKidSuper",
-        "SM_WebbyMrBeast"
-      ]
-    },
-    {
-      title: "Showcase Models",
-      lightmap: "/3d/textures/bake-Showcase_Models-lightmap-5c55c3ff.exr",
-      ambientOcclusion: "",
-      meshes: [
-        "DL_Frame",
-        "SM_EDGLRD",
-        "SM_Geist",
-        "SM_KissBag",
-        "SM_Swaggersouls",
-        "SM_VercelShip2324",
-        "SM_MrBeast"
-      ]
-    },
-    {
-      title: "People_Tables",
-      lightmap: "/3d/textures/bake-People_Tables-lightmap-40bb462b.exr",
-      ambientOcclusion: "/3d/textures/bake-People_Tables-ao-964c430b.jpg",
-      meshes: ["SM_05_02"]
-    },
-    {
-      title: "Chairs",
-      lightmap: "/3d/textures/bake-Chairs-lightmap-96e878de.exr",
-      ambientOcclusion: "",
-      meshes: ["SM_05_03"]
-    }
-  ],
+  // --- Bakes (lightmaps + AO) — legacy per-zone system, now fully retired ---
+  // Every mesh every one of these 18 groups used to target has since been
+  // merged into a Map00-tagged batch mesh (bakes.tsx's atlas traversal picks
+  // those up directly via userData.Lightmap) or, for the one exception
+  // (SM_06_01, tagged "blog"), is handled exclusively by lamp/index.tsx.
+  // Verified via scripts/3d-assets — every mesh name in the old groups now
+  // either doesn't exist anywhere, or exists only as the merged batch that
+  // already carries Lightmap:"Map00", meaning the atlas write already wins
+  // (bakes.tsx runs the atlas traversal after this array, last-write-wins) —
+  // these EXR/AO fetches were pure dead weight, never visibly applied.
+  // Keep this array's shape (still Bake[]) for whichever future glb needs a
+  // real per-zone bake again — just don't leave dead entries in it.
+  bakes: [],
 
   // --- Matcaps ---
   matcaps: [
@@ -509,7 +343,7 @@ export const ASSETS_BASE: AssetsBase = {
     extraLightmapOff: "/3d/textures/lamp-extraLightmap-blog-off-b828b18e.exr",
     extraLightmapKtx2: "/3d/textures/lamp-extraLightmap-blog-on-1c6f69e3.ktx2",
     extraLightmapOffKtx2:
-      "/3d/textures/lamp-extraLightmap-blog-off-fefeeb3c.ktx2"
+      "/3d/textures/lamp-extraLightmap-blog-off-aa00bcce.ktx2"
   }
 }
 
