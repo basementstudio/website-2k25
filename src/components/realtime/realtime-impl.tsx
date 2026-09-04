@@ -203,9 +203,10 @@ export const RealtimeImpl = () => {
         const prev = peerCount
         peerCount = Object.keys(channel.presenceState()).length
         if (prev <= 1 && peerCount > 1) {
+          const state = useRealtimeStore.getState()
           const pos =
             lastPosRef.current ??
-            (useRealtimeStore.getState().chatMessage
+            (state.chatMessage || state.displayName
               ? { xn: 0.5, yd: window.scrollY + window.innerHeight / 2 }
               : null)
           if (pos) broadcast(pos.xn, pos.yd)
