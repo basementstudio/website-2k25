@@ -78,6 +78,13 @@ uniform float uGodrayOpacity;
 uniform float uGodrayDensity;
 #endif
 
+// Outdoor day/night tint + street-light gate, shared across all outdoor
+// materials
+#ifdef OUTDOOR
+uniform vec3 uOutdoorTint;
+uniform float uOutdoorEmissive;
+#endif
+
 // Daylight
 #ifdef DAYLIGHT
 uniform bool daylight;
@@ -154,11 +161,13 @@ void main() {
   mapSample = texture2D(map, mapUv);
   #endif
 
-  #ifdef CLOUDS
-  mapSample = texture2D(map, vec2(vUv.x - uTime * 0.004, vUv.y));
-  #endif
-
   vec3 color = baseColor * mapSample.rgb;
+
+  // Tint albedo only — emissives (street lamps, lit signs) add afterwards
+  // and keep glowing at night.
+  #ifdef OUTDOOR
+  color *= uOutdoorTint;
+  #endif
 
   vec3 lightMapSample = vec3(0.0);
 
@@ -175,6 +184,11 @@ void main() {
   if (shouldFade) {
     ei *= oneMinusFadeFactor;
   }
+  #endif
+
+  // Street lights switch off in daylight.
+  #if defined(OUTDOOR_LIGHT) && defined(USE_EMISSIVE)
+  ei *= uOutdoorEmissive;
   #endif
 
   #ifdef USE_EMISSIVE
@@ -245,6 +259,11 @@ void main() {
   #ifdef USE_ALPHA_MAP
   float alpha = texture2D(alphaMap, alphaMapUv).r;
   opacityResult *= alpha;
+  #endif
+
+  // The lamps' translucent light cones fade out with the light itself.
+  #if defined(OUTDOOR_LIGHT) && defined(IS_TRANSPARENT)
+  opacityResult *= uOutdoorEmissive;
   #endif
 
   if (opacityResult <= 0.0) {

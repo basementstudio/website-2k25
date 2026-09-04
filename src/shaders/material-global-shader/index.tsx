@@ -7,6 +7,18 @@ import vertexShader from "./vertex.glsl"
 
 export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
+/**
+ * Shared by every OUTDOOR material — the Sky component mutates this one
+ * Vector3 (day/night tint) and all outdoor meshes pick it up.
+ */
+export const outdoorTintUniform = { value: new Vector3(1, 1, 1) }
+
+/**
+ * 0..1 gate on outdoor emissives (street lamps + their light cones): 1 at
+ * night, 0 in daylight. Shared instance, written by the Sky component.
+ */
+export const outdoorEmissiveUniform = { value: 1 }
+
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
   defines?: {
@@ -17,7 +29,7 @@ export const createGlobalShaderMaterial = (
     FOG?: boolean
     VIDEO?: boolean
     MATCAP?: boolean
-    CLOUDS?: boolean
+    OUTDOOR?: boolean
     DAYLIGHT?: boolean
     IS_LOBO_MARINO?: boolean
   }
@@ -92,6 +104,25 @@ export const createGlobalShaderMaterial = (
     uniforms["glassMatcap"] = { value: false }
   }
 
+  if (defines?.OUTDOOR) {
+    uniforms["uOutdoorTint"] = outdoorTintUniform
+    uniforms["uOutdoorEmissive"] = outdoorEmissiveUniform
+  }
+
+  // Street lights only: a genuinely emitting outdoor material. Checking the
+  // emissive color matters — three defaults emissiveIntensity to 1 with a
+  // black emissive, so USE_EMISSIVE alone would catch the city billboard too.
+  const emissiveSum = baseMaterial.emissive
+    ? baseMaterial.emissive.r +
+      baseMaterial.emissive.g +
+      baseMaterial.emissive.b
+    : 0
+  const isOutdoorLight =
+    Boolean(defines?.OUTDOOR) &&
+    emissiveMap === null &&
+    baseMaterial.emissiveIntensity !== 0 &&
+    emissiveSum > 0
+
   if (defines?.DAYLIGHT) {
     uniforms["daylight"] = { value: true }
   }
@@ -115,7 +146,9 @@ export const createGlobalShaderMaterial = (
       FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
       MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
       VIDEO: defines?.VIDEO !== undefined ? Boolean(defines?.VIDEO) : false,
-      CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false,
+      OUTDOOR:
+        defines?.OUTDOOR !== undefined ? Boolean(defines?.OUTDOOR) : false,
+      OUTDOOR_LIGHT: isOutdoorLight,
       IS_LOBO_MARINO:
         defines?.IS_LOBO_MARINO !== undefined
           ? Boolean(defines?.IS_LOBO_MARINO)

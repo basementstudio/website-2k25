@@ -1,6 +1,7 @@
 "use client"
 
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
+import { useLiveWeather } from "@/components/weather/use-live-weather"
 import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
 import { useConsoleLogo } from "@/hooks/use-console-logo"
 import { usePreloadAssets } from "@/hooks/use-preload-assets"
@@ -16,6 +17,7 @@ export const AppHooks = ({ assets }: { assets: AssetsResult }) => {
 
   useInitializeAudioContext()
   useAmbiencePlaylist()
+  useLiveWeather()
 
   return <SiteAudioSFXsLoader />
 }

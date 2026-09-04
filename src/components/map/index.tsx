@@ -19,6 +19,7 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { OutdoorCars } from "@/components/outdoor-cars"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
+import { Sky } from "@/components/sky"
 import { SpeakerHover } from "@/components/speaker-hover"
 import { Weather } from "@/components/weather"
 import { useMesh } from "@/hooks/use-mesh"
@@ -30,6 +31,11 @@ import { createNotFoundMaterial } from "@/shaders/material-not-found"
 import { extractMeshes } from "./extract-meshes"
 import { useFrameLoop } from "./use-frame-loop"
 import { useLoader } from "./use-loader"
+
+// The baked sky/cloud billboards inside the outdoor GLB — superseded by the
+// procedural <Sky />; hidden at runtime instead of re-authoring the asset.
+// GLTFLoader strips dots from node names, so "TX_Sky.001" loads as "TX_Sky001".
+const legacySkyNodes = ["TX_Sky001", "TX_Sky002", "cloudy_01", "cloudy_02"]
 
 export const Map = memo(() => {
   const { inspectables, videos, matcaps, glassMaterials, doubleSideElements } =
@@ -75,8 +81,13 @@ export const Map = memo(() => {
     ) {
       const traverse = (
         child: Object3D,
-        overrides?: { FOG?: boolean; GODRAY?: boolean }
+        overrides?: { FOG?: boolean; GODRAY?: boolean; OUTDOOR?: boolean }
       ) => {
+        if (legacySkyNodes.includes(child.name)) {
+          child.visible = false
+          return
+        }
+
         if (child.name === "SM_TvScreen_4" && "isMesh" in child) {
           const meshChild = child as Mesh
           useMesh.setState({ cctv: { screen: meshChild } })
@@ -109,7 +120,6 @@ export const Map = memo(() => {
             (video) => video.mesh === meshChild.name
           )
           const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
-          const isClouds = meshChild.name === "cloudy_01"
           const isGlass = glassMaterials.includes(currentMaterial.name)
           const isDaylight = meshChild.name === "DL_ScreenB"
 
@@ -151,7 +161,7 @@ export const Map = memo(() => {
             FOG: overrides?.FOG,
             MATCAP: withMatcap !== undefined,
             VIDEO: withVideo !== undefined,
-            CLOUDS: isClouds,
+            OUTDOOR: overrides?.OUTDOOR,
             DAYLIGHT: isDaylight
           }
 
@@ -185,8 +195,14 @@ export const Map = memo(() => {
         () => officeItems.traverse((child) => traverse(child)),
         () =>
           routingElements.traverse((child) => traverse(child, { FOG: false })),
-        () => outdoor.traverse((child) => traverse(child, { FOG: false })),
-        () => outdoorCars.traverse((child) => traverse(child, { FOG: false })),
+        () =>
+          outdoor.traverse((child) =>
+            traverse(child, { FOG: false, OUTDOOR: true })
+          ),
+        () =>
+          outdoorCars.traverse((child) =>
+            traverse(child, { FOG: false, OUTDOOR: true })
+          ),
         () => godrays.traverse((child) => traverse(child, { GODRAY: true })),
         () => {
           extractMeshes({
@@ -244,6 +260,7 @@ export const Map = memo(() => {
       <LockedDoor />
 
       {/*Services */}
+      <Sky />
       <Weather />
       <OutdoorCars />
       <ChristmasTree />
