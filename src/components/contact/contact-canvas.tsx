@@ -28,6 +28,7 @@ type WorkerMessageType =
   | "scale-down-animation-complete"
   | "animation-starting"
   | "animation-complete"
+  | "scene-ready"
 
 export const ContactCanvas = () => {
   const { contactPhone } = useAssets()
@@ -36,6 +37,7 @@ export const ContactCanvas = () => {
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
+  const setSceneReady = useContactStore((state) => state.setSceneReady)
   const setIntroCompleted = useContactStore((state) => state.setIntroCompleted)
   const setClosingCompleted = useContactStore(
     (state) => state.setClosingCompleted
@@ -62,45 +64,62 @@ export const ContactCanvas = () => {
   useEffect(() => {
     if (!worker) return
 
-    const handleWorkerMessage = (e: MessageEvent) => {
-      const { type } = e.data
+    const setAnimComplete = (setCompleteFunc: (val: boolean) => void) => {
+      setCompleteFunc(true)
+      setIsAnimating(false)
+    }
 
+    const passThrough = (type: WorkerMessageType) => () =>
+      worker.postMessage({ type })
+
+    // Built once: the worker also posts per-frame messages that miss this table.
+    const messageHandlers: Partial<Record<WorkerMessageType, () => void>> = {
+      // The store skips its own postMessage while the canvas is unmounted, so
+      // an open issued before the scene existed has to be replayed here.
+      "scene-ready": () => {
+        setSceneReady(true)
+        if (!useContactStore.getState().isContactOpen) return
+
+        worker.postMessage({
+          type: "update-contact-open",
+          isContactOpen: true,
+          isClosing: false
+        })
+      },
+      "outro-complete": () => {
+        setAnimComplete(setClosingCompleted)
+      },
+      "animation-rejected": () => setIsAnimating(false),
+      "start-outro": passThrough("start-outro"),
+      "run-outro-animation": passThrough("run-outro-animation"),
+      "scale-animation-complete": () => setAnimComplete(setIntroCompleted),
+      "scale-down-animation-complete": () => {
+        setShouldRender(false)
+        setAnimComplete(setClosingCompleted)
+      },
+      "animation-starting": () => setIsAnimating(true),
+      "animation-complete": () => setIsAnimating(false)
+    }
+
+    const handleWorkerMessage = (e: MessageEvent) => {
       const forwarded = workerErrorFromMessage(e.data)
       if (forwarded) {
         Sentry.captureException(forwarded, { tags: { worker: "contact" } })
         return
       }
 
-      const setAnimComplete = (setCompleteFunc: (val: boolean) => void) => {
-        setCompleteFunc(true)
-        setIsAnimating(false)
-      }
-
-      const passThrough = () => worker.postMessage({ type })
-
-      const messageHandlers: Partial<Record<WorkerMessageType, () => void>> = {
-        "outro-complete": () => {
-          setAnimComplete(setClosingCompleted)
-        },
-        "animation-rejected": () => setIsAnimating(false),
-        "start-outro": passThrough,
-        "run-outro-animation": passThrough,
-        "scale-animation-complete": () => setAnimComplete(setIntroCompleted),
-        "scale-down-animation-complete": () => {
-          setShouldRender(false)
-          setAnimComplete(setClosingCompleted)
-        },
-        "animation-starting": () => setIsAnimating(true),
-        "animation-complete": () => setIsAnimating(false)
-      }
-
-      const handler = messageHandlers[type as WorkerMessageType]
-      if (handler) handler()
+      messageHandlers[e.data.type as WorkerMessageType]?.()
     }
 
     worker.addEventListener("message", handleWorkerMessage)
     return () => worker.removeEventListener("message", handleWorkerMessage)
-  }, [worker, setIsAnimating, setIntroCompleted, setClosingCompleted])
+  }, [
+    worker,
+    setIsAnimating,
+    setSceneReady,
+    setIntroCompleted,
+    setClosingCompleted
+  ])
 
   useEffect(() => {
     const newWorker = new Worker(
@@ -167,17 +186,9 @@ export const ContactCanvas = () => {
       newWorker.removeEventListener("error", handleError)
       newWorker.terminate()
       setStoreWorker(null)
+      setSceneReady(false)
     }
-  }, [contactPhone, setStoreWorker])
-
-  useEffect(() => {
-    if (worker) {
-      worker.postMessage({
-        type: "update-contact-open",
-        isContactOpen: isContactOpen
-      })
-    }
-  }, [worker, isContactOpen])
+  }, [contactPhone, setStoreWorker, setSceneReady])
 
   if (!worker) return null
 

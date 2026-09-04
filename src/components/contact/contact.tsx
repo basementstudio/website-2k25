@@ -1,16 +1,20 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef } from "react"
 
-import { useDeviceDetect } from "@/hooks/use-device-detect"
+import { useContactPhoneAvailability } from "@/hooks/use-contact-phone-availability"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
 import { useKeyPress } from "@/hooks/use-key-press"
-import { useMedia } from "@/hooks/use-media"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
-import { ContactCanvas } from "./contact-canvas"
 import { useContactStore } from "./contact-store"
+
+const ContactCanvas = dynamic(
+  () => import("./contact-canvas").then((m) => ({ default: m.ContactCanvas })),
+  { ssr: false, loading: () => null }
+)
 
 const RenderContact = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
@@ -18,6 +22,7 @@ const RenderContact = () => {
   const isAnimating = useContactStore((state) => state.isAnimating)
   const setIsAnimating = useContactStore((state) => state.setIsAnimating)
   const worker = useContactStore((state) => state.worker)
+  const primed = useContactStore((state) => state.primed)
 
   const { playSoundFX } = useSiteAudio()
 
@@ -101,7 +106,7 @@ const RenderContact = () => {
           isContactOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
       >
-        <ContactCanvas />
+        {primed ? <ContactCanvas /> : null}
       </div>
       <div
         ref={overlayRef}
@@ -115,8 +120,7 @@ const RenderContact = () => {
 }
 
 export const Contact = () => {
-  const { isMobile } = useDeviceDetect()
-  const isMobileWidth = useMedia("(max-width: 400px)")
+  const { canOpen } = useContactPhoneAvailability()
 
-  return isMobile || isMobileWidth ? null : <RenderContact />
+  return canOpen ? <RenderContact /> : null
 }
