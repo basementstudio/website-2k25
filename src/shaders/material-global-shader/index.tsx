@@ -20,6 +20,13 @@ export const createGlobalShaderMaterial = (
     CLOUDS?: boolean
     DAYLIGHT?: boolean
     IS_LOBO_MARINO?: boolean
+    /**
+     * True when the mesh's geometry carries a 3rd UV set (TEXCOORD_2) — the
+     * merge-by-material pipeline's shared lightmap atlas placement. False
+     * (default) samples the lightmap off the 2nd UV set (TEXCOORD_1), same
+     * as the old per-zone bakes and the lamp's dedicated on/off sheets.
+     */
+    LIGHTMAP_ATLAS?: boolean
   }
 ) => {
   const {
@@ -121,7 +128,8 @@ export const createGlobalShaderMaterial = (
           ? Boolean(defines?.IS_LOBO_MARINO)
           : false,
       DAYLIGHT:
-        defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false
+        defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false,
+      LIGHTMAP_ATLAS: Boolean(defines?.LIGHTMAP_ATLAS)
     },
     uniforms,
     transparent:

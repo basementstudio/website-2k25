@@ -2,8 +2,17 @@ import { Mesh } from "three"
 import { create } from "zustand"
 
 interface blog {
-  lockedDoor: Mesh | null
+  /**
+   * The door and the picaporte (lock handle, formerly the separate
+   * SM_00_012 mesh) used to be two rotating objects. They're now two shape
+   * keys on this one merged mesh (SM_00_010) — same mechanic as
+   * SM_Controls: drive morphTargetInfluences by index instead of rotation.
+   */
   door: Mesh | null
+  /** index into door.morphTargetInfluences for the door-swing shape key ("SM_00_010") */
+  doorMorphIndex: number | null
+  /** index into door.morphTargetInfluences for the picaporte shape key ("SM_00_012") */
+  lockedDoorMorphIndex: number | null
   lamp: Mesh | null
   lampTargets: Mesh[] | null
 }
@@ -44,7 +53,16 @@ interface basketball {
 }
 
 interface services {
+  /** SM_KitCat — the outer node, used for placement (<primitive object={clock}/>). */
   clock: Mesh | null
+  /**
+   * "Kit-Cat" — the nested child mesh that actually holds the "Time" shape
+   * key driving the eyes+tail swing together. Separate from `clock` because
+   * the hand/eye/tail geometry lives one level deeper in the hierarchy.
+   */
+  clockBody: Mesh | null
+  /** index into clockBody.morphTargetInfluences for the "Time" shape key */
+  clockMorphIndex: number | null
   pot: Mesh | null
 }
 
@@ -64,8 +82,9 @@ export const useMesh = create<MeshStore>()(() => ({
   godrays: [],
   inspectables: [],
   blog: {
-    lockedDoor: null,
     door: null,
+    doorMorphIndex: null,
+    lockedDoorMorphIndex: null,
     lamp: null,
     lampTargets: null
   },
@@ -85,6 +104,8 @@ export const useMesh = create<MeshStore>()(() => ({
   },
   services: {
     clock: null,
+    clockBody: null,
+    clockMorphIndex: null,
     pot: null
   },
   cars: [],

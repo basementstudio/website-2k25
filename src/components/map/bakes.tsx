@@ -4,6 +4,7 @@ import { useLoader, useThree } from "@react-three/fiber"
 import { memo, Suspense, useEffect, useMemo } from "react"
 import {
   Group,
+  LinearFilter,
   Mesh,
   NearestFilter,
   NoColorSpace,
@@ -17,6 +18,7 @@ import { EXRLoader } from "three/examples/jsm/Addons.js"
 import { useAssets } from "@/components/assets-provider"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { cctvConfig } from "@/components/postprocessing/renderer"
+import { useKTX2Texture } from "@/hooks/use-ktx2-texture"
 
 interface Bake {
   lightmap?: Texture
@@ -34,31 +36,122 @@ interface TextureUpdate {
   intensity?: number
 }
 
+// Some materials only get a given uniform when a matching #define was set
+// at creation (e.g. "matcap" only exists if MATCAP was true) — and a mesh
+// could in theory carry hasGlobalMaterial without the uniform we expect (a
+// stale/array material, a special-case material like the CCTV one, etc).
+// Warn with the mesh name instead of crashing so a mismatch is diagnosable.
+const getShaderMaterialWithUniform = (
+  mesh: Mesh,
+  uniformKey: string
+): ShaderMaterial | null => {
+  if (!mesh.userData.hasGlobalMaterial) return null
+  const material = mesh.material
+  if (
+    Array.isArray(material) ||
+    !(material as ShaderMaterial)?.uniforms?.[uniformKey]
+  ) {
+    console.warn(
+      `[bakes] "${mesh.name}" has hasGlobalMaterial but no "${uniformKey}" uniform — skipping`
+    )
+    return null
+  }
+  return material as ShaderMaterial
+}
+
 const addLightmap = (update: TextureUpdate) => {
-  if (!update.mesh.userData.hasGlobalMaterial) return
-  const material = update.mesh.material as ShaderMaterial
+  const material = getShaderMaterialWithUniform(update.mesh, "lightMap")
+  if (!material) return
   material.uniforms.lightMap.value = update.texture
   material.uniforms.lightMapIntensity.value = 1
 }
 
 const addAmbientOcclusion = (update: TextureUpdate) => {
-  if (!update.mesh.userData.hasGlobalMaterial) return
-  const material = update.mesh.material as ShaderMaterial
+  const material = getShaderMaterialWithUniform(update.mesh, "aoMap")
+  if (!material) return
   material.uniforms.aoMap.value = update.texture
   material.uniforms.aoMapIntensity.value = 1
 }
 
 const addMatcap = (update: TextureUpdate, isGlass: boolean) => {
-  if (!update.mesh.userData.hasGlobalMaterial) return
-  const material = update.mesh.material as ShaderMaterial
+  const material = getShaderMaterialWithUniform(update.mesh, "matcap")
+  if (!material) return
   material.uniforms.matcap.value = update.texture
   material.uniforms.glassMatcap.value = isGlass
 }
 
 const addReflex = (update: TextureUpdate) => {
-  if (!update.mesh.userData.hasGlobalMaterial) return
-  const material = update.mesh.material as ShaderMaterial
+  const material = getShaderMaterialWithUniform(update.mesh, "glassReflex")
+  if (!material) return
   material.uniforms.glassReflex.value = update.texture
+}
+
+// Merge-by-material meshes carry a "Lightmap" custom property (exported from
+// Blender, read at runtime as mesh.userData.Lightmap) instead of being
+// listed by name in a bakes[] group below. Right now the only value that
+// resolves here is "Map00", the shared atlas — "Map01" (the blog lamp) is
+// handled separately in lamp/index.tsx since those meshes don't carry the
+// atlas UV set (TEXCOORD_2) at all, only their own dedicated on/off sheets.
+const ATLAS_LIGHTMAP_VALUE = "Map00"
+
+// Ambient occlusion has no equivalent in the new merge-by-material pipeline
+// yet (no AO pass for the shared atlas). Toggled off here so the old
+// per-zone AO jpgs don't render inconsistently next to it — flip back to
+// true once there's a real AO story for the atlas.
+const AO_ENABLED = false
+
+// Trial: KTX2 (Basis UASTC HDR) atlas instead of EXR. Re-enabled — root
+// cause of the earlier "THREE.KTX2Loader: .transcodeImage failed." found:
+// public/basis-transcoder/ was self-hosting a STALE transcoder build
+// (hash-verified different from the one actually bundled in our own
+// node_modules/three), too old to transcode UASTC HDR. Fixed by copying the
+// transcoder straight from node_modules/three/examples/jsm/libs/basis/ —
+// confirmed byte-identical to the transcoder a separate working ASTC-HDR
+// prototype (C:\Users\Tres\Documents\GitHub\basement\Lightmap) uses. Needs
+// a fresh visual retest. Both URLs stay wired in the manifest either way.
+export const USE_KTX2_LIGHTMAPS = true
+
+const useLightmapAtlas = (): Texture => {
+  const { lightmapAtlas, lightmapAtlasKtx2 } = useAssets()
+
+  if (USE_KTX2_LIGHTMAPS) {
+    return useKtx2LightmapAtlas(lightmapAtlasKtx2)
+  }
+
+  return useExrLightmapAtlas(lightmapAtlas)
+}
+
+const useKtx2LightmapAtlas = (url: string): Texture => {
+  const atlas = useKTX2Texture(url)
+
+  useEffect(() => {
+    // NOTE: CompressedTexture.flipY is read-only (always false) — three.js
+    // can't flip pre-compressed block data on upload the way it can a plain
+    // DataTexture. If this atlas renders vertically flipped vs. the EXR
+    // version, the fix has to happen at export time (bake/orientation), not
+    // here — worth a specific visual check on first test.
+    atlas.colorSpace = NoColorSpace
+    atlas.minFilter = LinearFilter
+    atlas.magFilter = LinearFilter
+    atlas.needsUpdate = true
+  }, [atlas])
+
+  return atlas
+}
+
+const useExrLightmapAtlas = (url: string): Texture => {
+  const atlas = useLoader(EXRLoader, url)
+
+  useEffect(() => {
+    atlas.flipY = true
+    atlas.generateMipmaps = false
+    atlas.minFilter = LinearFilter
+    atlas.magFilter = LinearFilter
+    atlas.colorSpace = NoColorSpace
+    atlas.needsUpdate = true
+  }, [atlas])
+
+  return atlas
 }
 
 const useBakes = (): Record<string, Bake> => {
@@ -101,9 +194,10 @@ const useBakes = (): Record<string, Bake> => {
       const meshNames = withLightmap[index].meshes
       map.flipY = true
       map.generateMipmaps = false
-      map.minFilter = NearestFilter
-      map.magFilter = NearestFilter
+      map.minFilter = LinearFilter
+      map.magFilter = LinearFilter
       map.colorSpace = NoColorSpace
+      map.needsUpdate = true
 
       for (const meshName of meshNames) {
         if (!maps[meshName]) {
@@ -180,6 +274,7 @@ export const revealOpacityMaterials = new Set<
 
 const Bakes = () => {
   const bakes = useBakes()
+  const atlas = useLightmapAtlas()
 
   const scene = useThree((state) => state.scene)
 
@@ -205,7 +300,9 @@ const Bakes = () => {
   useEffect(() => {
     const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
       if (maps.lightmap) addLightmap({ mesh: mesh, texture: maps.lightmap })
-      if (maps.aomap) addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
+      if (AO_ENABLED && maps.aomap) {
+        addAmbientOcclusion({ mesh: mesh, texture: maps.aomap })
+      }
       if (maps.reflex) addReflex({ mesh: mesh, texture: maps.reflex })
       if (maps.matcap) {
         addMatcap(
@@ -227,8 +324,17 @@ const Bakes = () => {
         })
       }
     })
+
+    // Merge-by-material pipeline: any mesh self-tagged with the shared atlas
+    // via its "Lightmap" custom property, found by traversal instead of a
+    // hand-maintained name list.
+    scene.traverse((child) => {
+      if (!(child instanceof Mesh)) return
+      if (child.userData.Lightmap !== ATLAS_LIGHTMAP_VALUE) return
+      addLightmap({ mesh: child, texture: atlas })
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [atlas])
 
   return null
 }

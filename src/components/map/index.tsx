@@ -178,6 +178,16 @@ export const Map = memo(() => {
             currentMaterial.map.minFilter = THREE.NearestFilter
           }
 
+          // Video already aliases emissiveMap to the same texture as map
+          // (handled above). Anything else with an emissiveMap is a baked,
+          // hard-edged swatch atlas (e.g. MTL_Atlas_Emissive) — mipmaps/
+          // linear filtering bleed the color blocks into gray at a distance.
+          if (currentMaterial.emissiveMap && !withVideo) {
+            currentMaterial.emissiveMap.generateMipmaps = false
+            currentMaterial.emissiveMap.magFilter = THREE.NearestFilter
+            currentMaterial.emissiveMap.minFilter = THREE.NearestFilter
+          }
+
           const CONFIG = {
             GLASS: isGlass,
             LIGHT: false,
@@ -186,7 +196,10 @@ export const Map = memo(() => {
             MATCAP: withMatcap !== undefined,
             VIDEO: withVideo !== undefined,
             CLOUDS: isClouds,
-            DAYLIGHT: isDaylight
+            DAYLIGHT: isDaylight,
+            // Merge-by-material meshes carry a 3rd UV set (TEXCOORD_2) with
+            // their placement in the shared lightmap atlas — see bakes.tsx.
+            LIGHTMAP_ATLAS: "uv2" in meshChild.geometry.attributes
           }
 
           const newMaterials = Array.isArray(currentMaterial)

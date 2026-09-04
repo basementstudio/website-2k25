@@ -3,6 +3,9 @@ import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { memo, Suspense, useEffect, useState } from "react"
 
+import { LightmapFormatPanel } from "./lightmap-format-panel"
+import { PerfStatsPanel } from "./perf-stats-panel"
+
 const OnlyDebug = dynamic(
   () => import("./only-debug").then((mod) => mod.OnlyDebug),
   {
@@ -22,10 +25,14 @@ const DebugInner = () => {
   }, [searchParams])
 
   return (
-    <div className="w-128 absolute bottom-4 right-4 z-50">
-      <Leva collapsed fill hidden={!debug} />
-      <Suspense fallback={null}>{debug && <OnlyDebug />}</Suspense>
-    </div>
+    <>
+      <div className="w-128 absolute bottom-4 right-4 z-50">
+        <Leva collapsed fill hidden={!debug} />
+        <Suspense fallback={null}>{debug && <OnlyDebug />}</Suspense>
+      </div>
+      <PerfStatsPanel />
+      <LightmapFormatPanel />
+    </>
   )
 }
 

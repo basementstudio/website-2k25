@@ -2,6 +2,12 @@
 #include <morphtarget_pars_vertex>
 
 attribute vec2 uv1;
+#ifdef LIGHTMAP_ATLAS
+// 3rd UV set (TEXCOORD_2) — this mesh's placement in the shared lightmap
+// atlas. Meshes still on their own dedicated sheet (e.g. the blog lamp)
+// don't have this attribute and keep sampling uv1 below.
+attribute vec2 uv2;
+#endif
 
 varying vec2 vUv;
 varying vec3 vWorldPosition;
@@ -12,7 +18,11 @@ varying vec2 vUv2;
 
 void main() {
   vUv = uv;
+  #ifdef LIGHTMAP_ATLAS
+  vUv2 = uv2;
+  #else
   vUv2 = uv1.x > 0.0 ? uv1 : uv;
+  #endif
 
   // Normal (morph-aware). No normal morph targets are exported, so the chunk is a
   // no-op for morphed meshes, but it keeps the standard three.js chunk flow.

@@ -15,7 +15,7 @@ export type AssetsBase = Omit<
 export const ASSETS_BASE: AssetsBase = {
   // --- Map models ---
   officeItems: "/3d/models/officeItems-9a8576ca.glb",
-  office: "/3d/models/office-3a4d25f8.glb",
+  office: "/3d/models/office-b55484c8.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-6ead65cf.glb",
   godrays: "/3d/models/godrays-f4cbda2b.glb",
@@ -38,6 +38,23 @@ export const ASSETS_BASE: AssetsBase = {
       song: "/3d/audio/christmas-song-9ecee706.mp3"
     }
   },
+
+  // --- Lightmap atlas (merge-by-material pipeline) ---
+  // The new office.glb export tags almost every mesh with a "Lightmap"
+  // custom property (read at runtime as mesh.userData.Lightmap) instead of
+  // the hand-maintained name lists below. "Map00" is this shared atlas —
+  // see bakes.tsx. The old bakes[] array stays for files not migrated yet
+  // (e.g. officeItems.glb) and doesn't need to list Map00 meshes anymore.
+  //
+  // KTX2 (Basis UASTC HDR) is being trialed as a replacement for the EXR —
+  // much smaller, and three.js's KTX2Loader already transcodes to BC6H /
+  // uncompressed half-float on devices without native ASTC-HDR, so no
+  // custom fallback needed. bakes.tsx currently loads the .ktx2 field; the
+  // .exr field is kept wired here (not orphaned) as a one-line revert if the
+  // KTX2 path looks wrong — flip USE_KTX2_LIGHTMAPS in bakes.tsx back to
+  // false, don't need to touch this file.
+  lightmapAtlas: "/3d/textures/lightmap-atlas-52dbdb4b.exr",
+  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-c58eb9fa.ktx2",
 
   // --- Bakes (lightmaps + AO) ---
   bakes: [
@@ -481,8 +498,18 @@ export const ASSETS_BASE: AssetsBase = {
   },
 
   // --- Lamp ---
+  // Two dedicated bakes for the lamp's on/off state (Map01 / Map01-off in
+  // Blender) — replaces the old single extraLightmap + shared-atlas-fallback
+  // scheme, since the lamp-affected meshes (Lightmap: "Map01") don't carry
+  // the atlas UV set at all. lamp/index.tsx assigns extraLightmap to
+  // lampLightmap and extraLightmapOff to lightMap; lightLampEnabled (already
+  // wired) toggles between the two.
   lamp: {
-    extraLightmap: "/3d/textures/lamp-extraLightmap-70f32016.exr"
+    extraLightmap: "/3d/textures/lamp-extraLightmap-blog-on-f351ce6b.exr",
+    extraLightmapOff: "/3d/textures/lamp-extraLightmap-blog-off-b828b18e.exr",
+    extraLightmapKtx2: "/3d/textures/lamp-extraLightmap-blog-on-1c6f69e3.ktx2",
+    extraLightmapOffKtx2:
+      "/3d/textures/lamp-extraLightmap-blog-off-fefeeb3c.ktx2"
   }
 }
 

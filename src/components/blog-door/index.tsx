@@ -15,7 +15,7 @@ import { DOOR_ANIMATION_CLOSE, DOOR_ANIMATION_OPEN } from "./constants"
 
 export const BlogDoor = () => {
   const { blog } = useMesh()
-  const { door } = blog
+  const { door, doorMorphIndex } = blog
 
   const scene = useCurrentScene()
   const setCursor = useCursor()
@@ -27,27 +27,26 @@ export const BlogDoor = () => {
 
   const isOpen = useRef(false)
   const doorHoverRef = useRef<Mesh>(null)
+  // motion mutates this object in place; onUpdate copies it into the morph
+  const swing = useRef({ v: 0 })
 
   const handleClick = () => {
     if (scene !== "blog") return
-
-    const target = {
-      x: door?.userData.originalRotation.x,
-      y: door?.userData.originalRotation.y,
-      z:
-        door?.userData.originalRotation.z + (!isOpen.current ? -Math.PI / 2 : 0)
-    }
-
-    const hoverTarget = {
-      x: 0,
-      y: !isOpen.current ? Math.PI / 2 : 0,
-      z: 0
-    }
+    const influences = door?.morphTargetInfluences
+    if (!influences || doorMorphIndex === null) return
 
     const config = !isOpen.current ? DOOR_ANIMATION_OPEN : DOOR_ANIMATION_CLOSE
 
-    animate(door?.rotation, target, config)
-    animate(doorHoverRef.current?.rotation, hoverTarget, config)
+    animate(
+      swing.current,
+      { v: !isOpen.current ? 1 : 0 },
+      {
+        ...config,
+        onUpdate: () => {
+          influences[doorMorphIndex] = swing.current.v
+        }
+      }
+    )
 
     if (!isOpen.current) {
       track("blog_door_open")

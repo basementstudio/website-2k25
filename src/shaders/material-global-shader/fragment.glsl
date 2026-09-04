@@ -44,14 +44,13 @@ uniform sampler2D alphaMap;
 uniform mat3 alphaMapTransform;
 
 // Emissive
-#ifdef USE_EMISSIVE
+#if defined(USE_EMISSIVE) || defined(USE_EMISSIVEMAP)
 uniform vec3 emissive;
 uniform float emissiveIntensity;
 #endif
 
 #ifdef USE_EMISSIVEMAP
 uniform sampler2D emissiveMap;
-uniform float emissiveIntensity;
 #endif
 
 // Fog
@@ -183,7 +182,19 @@ void main() {
 
   #ifdef USE_EMISSIVEMAP
   vec4 emissiveColor = texture2D(emissiveMap, vUv);
+  #ifdef VIDEO
+  // Video screens reuse the same texture for map + emissiveMap and rely on
+  // this self-multiply to punch up brightness/contrast — keep as-is.
   irradiance *= emissiveColor.rgb * ei;
+  #else
+  // Pure-emissive surfaces (baked light atlases, neon, etc.) are authored
+  // with baseColorFactor near black — multiplying would zero them out, so
+  // add the emissive contribution instead, same as the non-mapped path above.
+  // Also tint by the material's emissiveFactor (the "emissive" uniform),
+  // same as three.js's standard material — lets a warm/colored tint be set
+  // in Blender on top of a neutral mask texture without touching the shader.
+  irradiance += emissiveColor.rgb * emissive * ei;
+  #endif
   #endif
 
   vec3 lf = irradiance.rgb;

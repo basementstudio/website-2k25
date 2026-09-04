@@ -12,11 +12,67 @@ import { EXRLoader } from "three/examples/jsm/Addons.js"
 import { useAssets } from "@/components/assets-provider"
 import { useInspectable } from "@/components/inspectables/context"
 import { ANIMATION_CONFIG } from "@/constants/inspectables"
+import { useKTX2Texture } from "@/hooks/use-ktx2-texture"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
+
+// Same KTX2 trial as bakes.tsx's lightmap atlas (USE_KTX2_LIGHTMAPS there)
+// — re-enabled after fixing the stale self-hosted transcoder. Both URL sets
+// stay wired in the manifest either way.
+export const USE_KTX2_LIGHTMAPS_LAMP = true
+
+/** Loads the lamp's on/off bakes as KTX2 or EXR depending on USE_KTX2_LIGHTMAPS_LAMP. */
+const useLampLightmaps = (
+  onUrl: string,
+  offUrl: string,
+  ktx2OnUrl: string,
+  ktx2OffUrl: string
+) => {
+  if (USE_KTX2_LIGHTMAPS_LAMP) {
+    return useKtx2LampLightmaps(ktx2OnUrl, ktx2OffUrl)
+  }
+
+  return useExrLampLightmaps(onUrl, offUrl)
+}
+
+const useKtx2LampLightmaps = (onUrl: string, offUrl: string) => {
+  const on = useKTX2Texture(onUrl)
+  const off = useKTX2Texture(offUrl)
+
+  useEffect(() => {
+    // See bakes.tsx's useKtx2LightmapAtlas — CompressedTexture.flipY is
+    // read-only, can't be corrected here if the bake comes out flipped.
+    for (const map of [on, off]) {
+      map.colorSpace = THREE.NoColorSpace
+      map.minFilter = THREE.LinearFilter
+      map.magFilter = THREE.LinearFilter
+      map.needsUpdate = true
+    }
+  }, [on, off])
+
+  return { on, off }
+}
+
+const useExrLampLightmaps = (onUrl: string, offUrl: string) => {
+  const on = useLoader(EXRLoader, onUrl)
+  const off = useLoader(EXRLoader, offUrl)
+
+  useEffect(() => {
+    for (const map of [on, off]) {
+      map.flipY = true
+      map.generateMipmaps = false
+      map.minFilter = THREE.LinearFilter
+      map.magFilter = THREE.LinearFilter
+      map.colorSpace = THREE.NoColorSpace
+      map.needsUpdate = true
+    }
+  }, [on, off])
+
+  return { on, off }
+}
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
@@ -94,27 +150,37 @@ export const Lamp = memo(function LampInner() {
   const firstTime = useRef(true)
 
   const {
-    lamp: { extraLightmap }
+    lamp: {
+      extraLightmap,
+      extraLightmapOff,
+      extraLightmapKtx2,
+      extraLightmapOffKtx2
+    }
   } = useAssets()
 
-  const lightmap = useLoader(EXRLoader, extraLightmap)
-
-  useEffect(() => {
-    lightmap.flipY = true
-    lightmap.generateMipmaps = false
-    lightmap.minFilter = THREE.NearestFilter
-    lightmap.magFilter = THREE.NearestFilter
-    lightmap.colorSpace = THREE.NoColorSpace
-  }, [lightmap])
+  // Dedicated on/off bakes for the lamp-affected meshes — these carry their
+  // own sheet (Lightmap: "Map01"/"blog" in Blender), not the shared atlas,
+  // so they need real textures here instead of falling back to bakes.tsx's
+  // atlas.
+  const { on: lightmap, off: lightmapOff } = useLampLightmaps(
+    extraLightmap,
+    extraLightmapOff,
+    extraLightmapKtx2,
+    extraLightmapOffKtx2
+  )
 
   useEffect(() => {
     if (lampTargets) {
       for (const target of lampTargets) {
         // @ts-ignore
         target.material.uniforms.lampLightmap.value = lightmap
+        // @ts-ignore
+        target.material.uniforms.lightMap.value = lightmapOff
+        // @ts-ignore
+        target.material.uniforms.lightMapIntensity.value = 1
       }
     }
-  }, [lightmap, lampTargets])
+  }, [lightmap, lightmapOff, lampTargets])
 
   const tension = (point1: THREE.Vector3, point2: THREE.Vector3) =>
     new THREE.Vector3().copy(point1).sub(point2).length()
@@ -131,7 +197,7 @@ export const Lamp = memo(function LampInner() {
       // @ts-ignore
       animate(
         band.current.material.color,
-        light ? colorWhenOff : colorWhenOn,
+        light ? colorWhenOn : colorWhenOff,
         ANIMATION_CONFIG
       )
     }
@@ -192,41 +258,43 @@ export const Lamp = memo(function LampInner() {
   })
 
   useEffect(() => {
-    if (!firstTime.current) {
-      playSoundFX(
-        `BLOG_LAMP_${desiredSoundFX.current}_${shouldToggle ? "PULL" : "RELEASE"}`,
-        0.1
-      )
+    // Skip entirely on mount — this used to still run setLight(!light) here
+    // (only the sound/analytics calls were gated by firstTime), silently
+    // flipping the lamp from its useState(true) default to "off" before the
+    // first paint. Default must stay "on".
+    if (firstTime.current) {
+      firstTime.current = false
+      return
     }
+
+    playSoundFX(
+      `BLOG_LAMP_${desiredSoundFX.current}_${shouldToggle ? "PULL" : "RELEASE"}`,
+      0.1
+    )
 
     if (!shouldToggle) {
       setLight(!light)
-
-      if (!firstTime.current) {
-        track("lamp_pulled")
-        posthog.capture("lamp_pulled")
-        desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
-      } else {
-        firstTime.current = false
-      }
+      track("lamp_pulled")
+      posthog.capture("lamp_pulled")
+      desiredSoundFX.current = Math.floor(Math.random() * availableSounds)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldToggle])
 
   useEffect(() => {
     // @ts-ignore
-    if (lamp) lamp.material.uniforms.opacity.value = light ? 0 : 1
+    if (lamp) lamp.material.uniforms.opacity.value = light ? 1 : 0
     if (lampHandle) {
       // @ts-ignore
       lampHandle.current.material.uniforms.baseColor.value = light
-        ? colorWhenOff
-        : colorWhenOn
+        ? colorWhenOn
+        : colorWhenOff
     }
     if (band) {
       // @ts-ignore
       band.current.material.color = light
-        ? colorWhenOff.clone()
-        : colorWhenOn.clone()
+        ? colorWhenOn.clone()
+        : colorWhenOff.clone()
     }
     if (lampTargets) {
       for (const target of lampTargets) {

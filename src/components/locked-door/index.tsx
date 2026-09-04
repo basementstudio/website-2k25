@@ -10,9 +10,13 @@ import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
+// The picaporte (lock handle) used to be its own rotating mesh (SM_00_012).
+// It's now a shape key on the merged door mesh (SM_00_010) — see BlogDoor,
+// which owns the <primitive> for that mesh. This component only adds the
+// invisible hitbox and drives the picaporte's morph influence.
 export const LockedDoor = () => {
   const { blog } = useMesh()
-  const { lockedDoor } = blog
+  const { door, lockedDoorMorphIndex } = blog
 
   const scene = useCurrentScene()
   const setCursor = useCursor()
@@ -22,26 +26,35 @@ export const LockedDoor = () => {
   const availableSounds = sfx.blog.lockedDoor.length
 
   const isLockedDoorOpen = useRef(false)
+  // motion mutates this object in place; onUpdate copies it into the morph
+  const rattle = useRef({ v: 0 })
 
   const handleClick = () => {
     if (scene !== "blog") return
     if (isLockedDoorOpen.current) return
-    if (!lockedDoor) return
-
-    const r = lockedDoor.userData.originalRotation
+    const influences = door?.morphTargetInfluences
+    if (!influences || lockedDoorMorphIndex === null) return
 
     isLockedDoorOpen.current = true
 
-    let target = { x: r.x + 0.1, y: r.y, z: r.z }
-
-    animate(lockedDoor.rotation, target)
+    animate(
+      rattle.current,
+      { v: 1 },
+      { onUpdate: () => (influences[lockedDoorMorphIndex] = rattle.current.v) }
+    )
 
     const randomSound = Math.floor(Math.random() * availableSounds)
     playSoundFX(`BLOG_LOCKED_DOOR_${randomSound}`, 0.2)
     track("blog_locked_door")
     posthog.capture("blog_locked_door")
     setTimeout(() => {
-      animate(lockedDoor.rotation, r)
+      animate(
+        rattle.current,
+        { v: 0 },
+        {
+          onUpdate: () => (influences[lockedDoorMorphIndex] = rattle.current.v)
+        }
+      )
 
       setTimeout(() => {
         isLockedDoorOpen.current = false
@@ -51,27 +64,24 @@ export const LockedDoor = () => {
 
   return (
     <>
-      {lockedDoor && (
-        <group>
-          <primitive object={lockedDoor} />
-          <mesh
-            position={[
-              lockedDoor?.position.x + 0.025,
-              lockedDoor?.position.y,
-              lockedDoor?.position.z + 0.09
-            ]}
-            rotation={[Math.PI / 2, 0, 0]}
-            onPointerEnter={() => {
-              if (scene !== "blog") return
-              setCursor("pointer")
-            }}
-            onPointerLeave={() => setCursor("default")}
-            onClick={handleClick}
-          >
-            <cylinderGeometry args={[0.075, 0.075, 0.2, 32]} />
-            <MeshDiscardMaterial />
-          </mesh>
-        </group>
+      {door && (
+        <mesh
+          position={[
+            door.position.x + 0.025,
+            door.position.y,
+            door.position.z + 0.09
+          ]}
+          rotation={[Math.PI / 2, 0, 0]}
+          onPointerEnter={() => {
+            if (scene !== "blog") return
+            setCursor("pointer")
+          }}
+          onPointerLeave={() => setCursor("default")}
+          onClick={handleClick}
+        >
+          <cylinderGeometry args={[0.075, 0.075, 0.2, 32]} />
+          <MeshDiscardMaterial />
+        </mesh>
       )}
     </>
   )

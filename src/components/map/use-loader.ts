@@ -8,6 +8,15 @@ type GLTFResult = GLTF & {
   nodes: { [key: string]: Mesh }
 }
 
+// office/officeItems/outdoor/outdoorCars/routingElements are Draco-compressed
+// (godrays/basketballNet aren't, but passing this is harmless for them — the
+// decoder is only invoked if a mesh actually carries the extension). Without
+// an explicit path, drei's useGLTF still enables Draco by default, but
+// fetches the decoder from Google's CDN (gstatic.com) — self-hosting it here
+// matches the existing self-hosted basis-transcoder (KTX2) pattern below and
+// drops an unnecessary third-party runtime dependency.
+const DRACO_DECODER_PATH = "/draco/"
+
 export const useLoader = () => {
   const {
     officeItems: officeItemsUrl,
@@ -19,13 +28,34 @@ export const useLoader = () => {
     outdoorCars: outdoorCarsUrl
   } = useAssets()
 
-  const { scene: office } = useKTX2GLTF<GLTFResult>(officeUrl)
-  const { scene: officeItems } = useKTX2GLTF<GLTFResult>(officeItemsUrl)
-  const { scene: outdoor } = useKTX2GLTF<GLTFResult>(outdoorUrl)
-  const { scene: godrays } = useKTX2GLTF<GLTFResult>(godraysUrl)
-  const { scene: outdoorCars } = useKTX2GLTF<GLTFResult>(outdoorCarsUrl)
-  const { scene: basketballNet } = useKTX2GLTF<GLTFResult>(basketballNetUrl)
-  const { scene: routingElements } = useKTX2GLTF<GLTFResult>(routingElementsUrl)
+  const { scene: office } = useKTX2GLTF<GLTFResult>(
+    officeUrl,
+    DRACO_DECODER_PATH
+  )
+  const { scene: officeItems } = useKTX2GLTF<GLTFResult>(
+    officeItemsUrl,
+    DRACO_DECODER_PATH
+  )
+  const { scene: outdoor } = useKTX2GLTF<GLTFResult>(
+    outdoorUrl,
+    DRACO_DECODER_PATH
+  )
+  const { scene: godrays } = useKTX2GLTF<GLTFResult>(
+    godraysUrl,
+    DRACO_DECODER_PATH
+  )
+  const { scene: outdoorCars } = useKTX2GLTF<GLTFResult>(
+    outdoorCarsUrl,
+    DRACO_DECODER_PATH
+  )
+  const { scene: basketballNet } = useKTX2GLTF<GLTFResult>(
+    basketballNetUrl,
+    DRACO_DECODER_PATH
+  )
+  const { scene: routingElements } = useKTX2GLTF<GLTFResult>(
+    routingElementsUrl,
+    DRACO_DECODER_PATH
+  )
 
   return {
     office,

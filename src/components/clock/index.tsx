@@ -8,8 +8,6 @@ import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { ArgentinaTime } from "@/utils/argentina-time"
 
 interface ClockElements {
-  tail: Mesh
-  eyes: Mesh[]
   hour: Mesh
   minute: Mesh
   second: Mesh
@@ -23,7 +21,7 @@ interface DateRef {
 
 export const Clock = () => {
   const {
-    services: { clock }
+    services: { clock, clockBody, clockMorphIndex }
   } = useMesh()
 
   const [hovered, setHovered] = useState(false)
@@ -33,14 +31,16 @@ export const Clock = () => {
   useEffect(() => {
     if (!clock) return
 
-    const tail = clock.getObjectByName("SM_CatTail") as Mesh
-    const eyeRight = clock.getObjectByName("SM_EyeR") as Mesh
-    const eyeLeft = clock.getObjectByName("SM_EyeL") as Mesh
-    const hour = clock.getObjectByName("SM_HourHand") as Mesh
-    const minute = clock.getObjectByName("SM_MinuterHand") as Mesh
-    const second = clock.getObjectByName("SM_Second") as Mesh
+    const hour = clock.getObjectByName("SM_HourHand") as Mesh | null
+    const minute = clock.getObjectByName("SM_MinuterHand") as Mesh | null
+    const second = clock.getObjectByName("SM_Second") as Mesh | null
 
-    elements.current = { tail, eyes: [eyeRight, eyeLeft], hour, minute, second }
+    if (hour && minute && second) {
+      elements.current = { hour, minute, second }
+    } else {
+      // Old glb, or a clock without the hand children -> hands disabled.
+      console.warn("[clock] hand meshes not found — clock hands disabled")
+    }
   }, [clock])
 
   const dateRef = useRef<DateRef>({ h: 0, m: 0, s: 0 })
@@ -69,17 +69,15 @@ export const Clock = () => {
   }, [])
 
   useFrameCallback((_, __, elapsedTime) => {
-    if (!elements.current) return
+    const influences = clockBody?.morphTargetInfluences
+    if (!influences || clockMorphIndex === null) return
 
-    const { tail, eyes } = elements.current
-
+    // Eyes + tail swing together via one shape key ("Time") now, instead of
+    // rotating 3 separate meshes. Same phase as before; -1..1 assumes the
+    // shape key was sculpted as a symmetric swing around rest (influence 0).
+    // If it only swings one way in-engine, remap: (Math.sin(progress) + 1) / 2
     const progress = elapsedTime * Math.PI
-
-    const tailSwing = Math.sin(progress) * 0.18
-    tail.rotation.y = tailSwing
-
-    const eyeSwing = Math.sin(progress) * 0.32
-    eyes.forEach((eye) => (eye.rotation.y = eyeSwing))
+    influences[clockMorphIndex] = Math.sin(progress)
   })
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
