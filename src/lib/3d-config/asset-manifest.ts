@@ -29,7 +29,7 @@ export type AssetsBase = Omit<
 
 export const ASSETS_BASE: AssetsBase = {
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-aef75712.glb",
+  officeItems: "/3d/models/officeItems-ab9e615d.glb",
   office: "/3d/models/office-b55484c8.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-7e5bd72e.glb",
