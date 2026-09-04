@@ -153,11 +153,16 @@ export const RealtimeImpl = () => {
       queued = null
       if (!cursorSubscribedRef.current) return
       if (peerCount <= 1) return
-      if (document.hidden) return
       const state = useRealtimeStore.getState()
       const country = state.country
       const msg = censorMsg(state.chatMessage)
       const name = censorName(state.displayName)
+      const metaChanged =
+        lastSent !== null &&
+        (lastSent.msg !== msg ||
+          lastSent.name !== name ||
+          lastSent.country !== country)
+      if (document.hidden && !metaChanged) return
       if (
         lastSent &&
         lastSent.country === country &&
