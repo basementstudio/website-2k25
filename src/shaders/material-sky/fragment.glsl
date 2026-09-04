@@ -91,14 +91,14 @@ void main() {
   vec3 col = lut.rgb;
 
   float cloudA = 0.0;
-  if (rd.y > 0.02 && uCloudCover > 0.005) {
+  if (rd.y > 0.02) {
     vec2 cuv = rd.xz / (rd.y + 0.15) * 0.6 + uCloudOffset;
-    float f = fbm4(cuv);
-    float coverage = smoothstep(
-      1.0 - uCloudCover * 0.9,
-      1.05 - uCloudCover * 0.6,
-      f
-    );
+    // fbm4 amplitudes sum to 0.9375 — normalize so the threshold curve
+    // actually spans the noise range (only peaks emerge at low coverage,
+    // which is what makes sparse clouds read as small wisps).
+    float f = fbm4(cuv) * 1.0667;
+    float th = mix(0.78, 0.25, uCloudCover);
+    float coverage = smoothstep(th, th + 0.18, f);
     cloudA = coverage * smoothstep(0.02, 0.12, rd.y);
     vec3 cloudCol = mix(
       uCloudColorHorizon,

@@ -18,6 +18,16 @@ export const SKY_YAW_OFFSET_DEG = 0
 /** Weather lerp horizon in seconds (store holds raw targets). */
 export const WEATHER_SMOOTH_SECONDS = 3
 
+/**
+ * Even the clearest sky keeps a few small wisps. Display-layer floor only —
+ * the LUT still uses real coverage, so the sky tone stays blue.
+ */
+export const MIN_CLOUD_COVER = 0.12
+
+/** Cloud drift in cloud-UV units per second per km/h of wind, per axis. */
+export const CLOUD_DRIFT_X = 0.0012
+export const CLOUD_DRIFT_Y = 0.0004
+
 /** Re-bake the LUT once the sun has moved this far (~35s of real time). */
 export const BAKE_SUN_ANGLE_COS = Math.cos((0.15 * Math.PI) / 180)
 export const BAKE_CLOUD_DELTA = 0.01

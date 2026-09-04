@@ -29,6 +29,9 @@ import {
   BAKE_MIN_INTERVAL_S,
   BAKE_RAIN_DELTA,
   BAKE_SUN_ANGLE_COS,
+  CLOUD_DRIFT_X,
+  CLOUD_DRIFT_Y,
+  MIN_CLOUD_COVER,
   outdoorTintForElevation,
   SKY_LUT_HEIGHT,
   SKY_LUT_WIDTH,
@@ -238,11 +241,11 @@ export const Sky = () => {
     ;(u.uSunDir.value as Vector3).copy(sunDir)
     ;(u.uSunColor.value as Vector3).copy(sunColorScratch)
     u.uSunDiscIntensity.value = debug.sunDiscIntensity
-    u.uCloudCover.value = cloud
+    u.uCloudCover.value = Math.max(cloud, MIN_CLOUD_COVER)
     u.uNightFactor.value = nightFactor
     const drift = delta * windSpeed
-    ;(u.uCloudOffset.value as Vector2).x += drift * 0.0003
-    ;(u.uCloudOffset.value as Vector2).y += drift * 0.0001
+    ;(u.uCloudOffset.value as Vector2).x += drift * CLOUD_DRIFT_X
+    ;(u.uCloudOffset.value as Vector2).y += drift * CLOUD_DRIFT_Y
     ;(u.uCloudColorZenith.value as Vector3)
       .copy(tintScratch)
       .multiplyScalar(0.7)
