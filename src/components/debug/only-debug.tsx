@@ -45,7 +45,7 @@ const CameraDebugControls = () => {
 
 // The tuned skyline transform (see CitySkyline) — slider defaults until the
 // mesh loads and the real values take over.
-const CITY_DEFAULTS = { x: -56, y: 1.38, z: 72, scaleX: 7.43, scaleY: 23.7 }
+const CITY_DEFAULTS = { x: -56, y: 1.38, z: 72, scaleX: 11.15, scaleY: 35.55 }
 
 const cityMesh = () => useMesh.getState().city.mesh
 
