@@ -20,9 +20,10 @@ const BUSY_ROOM_PEERS = 6
 const CURSOR_BROADCAST_BUSY_MS = 500
 const MIN_SEND_DIST_PX = 2
 
-// A reload leaves and rejoins presence, so drops in the online count are held
-// back briefly and cancelled if the count recovers; rises apply immediately.
-const ONLINE_DROP_DEBOUNCE_MS = 3000
+// Grace period before a hidden tab leaves presence: every leave/join is
+// broadcast to all subscribers, so quick tab switches shouldn't churn the
+// channel. Becoming visible again re-tracks immediately.
+const HIDDEN_UNTRACK_MS = 10_000
 
 // Public (non-private) Broadcast/Presence channels: anon key only, no tables
 // or RLS involved. Hardening to private channels + RLS on realtime.messages
@@ -62,38 +63,56 @@ export const RealtimeImpl = () => {
       config: { presence: { key: getBrowserId() } }
     })
 
-    let dropTimeout: ReturnType<typeof setTimeout> | null = null
+    let hiddenTimeout: ReturnType<typeof setTimeout> | null = null
+
+    // Tracks whether this tab currently holds a presence entry: hiding can
+    // race the initial subscription, so "a timer is pending" doesn't imply
+    // "we are tracked" and the visible branch needs its own signal
+    let tracked = false
+
+    // No id in the payload: the presence key already identifies the entry,
+    // and the payload is broadcast to every subscriber
+    const track = () => {
+      tracked = true
+      return channel.track({ joinedAt: Date.now() })
+    }
 
     channel
       .on("presence", { event: "sync" }, () => {
-        const next = Object.keys(channel.presenceState()).length
-        const store = useRealtimeStore.getState()
-        if (next >= store.onlineCount) {
-          if (dropTimeout) {
-            clearTimeout(dropTimeout)
-            dropTimeout = null
-          }
-          store.setOnlineCount(next)
-          return
-        }
-        if (dropTimeout) clearTimeout(dropTimeout)
-        dropTimeout = setTimeout(() => {
-          dropTimeout = null
-          useRealtimeStore
-            .getState()
-            .setOnlineCount(Object.keys(channel.presenceState()).length)
-        }, ONLINE_DROP_DEBOUNCE_MS)
+        useRealtimeStore
+          .getState()
+          .setOnlineCount(Object.keys(channel.presenceState()).length)
       })
       .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          // No id in the payload: the presence key already identifies the
-          // entry, and the payload is broadcast to every subscriber
-          await channel.track({ joinedAt: Date.now() })
+        if (status === "SUBSCRIBED" && !document.hidden) {
+          await track()
         }
       })
 
+    // Only active viewers count: a tab that stays hidden leaves presence
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        if (hiddenTimeout) clearTimeout(hiddenTimeout)
+        hiddenTimeout = setTimeout(() => {
+          hiddenTimeout = null
+          tracked = false
+          channel.untrack()
+        }, HIDDEN_UNTRACK_MS)
+        return
+      }
+      if (hiddenTimeout) {
+        clearTimeout(hiddenTimeout)
+        hiddenTimeout = null
+      }
+      if (!tracked && channel.state === "joined") {
+        track()
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibilityChange)
+
     return () => {
-      if (dropTimeout) clearTimeout(dropTimeout)
+      document.removeEventListener("visibilitychange", onVisibilityChange)
+      if (hiddenTimeout) clearTimeout(hiddenTimeout)
       useRealtimeStore.getState().setOnlineCount(0)
       supabase.removeChannel(channel)
     }
