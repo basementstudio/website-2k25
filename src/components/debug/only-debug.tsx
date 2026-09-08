@@ -43,9 +43,9 @@ const CameraDebugControls = () => {
   return null
 }
 
-// Authored transform of TX_Building in the outdoor GLB — slider defaults
-// until the mesh loads and the real values take over.
-const CITY_DEFAULTS = { x: -63.41, y: 3.88, z: 104.56, scale: 8.28 }
+// The tuned skyline transform (see CitySkyline) — slider defaults until the
+// mesh loads and the real values take over.
+const CITY_DEFAULTS = { x: -56, y: 1.38, z: 72, scaleX: 7.43, scaleY: 23.7 }
 
 const cityMesh = () => useMesh.getState().city.mesh
 
@@ -83,7 +83,7 @@ const CityDebugControls = () => {
         }
       },
       scaleX: {
-        value: cityMesh()?.scale.x ?? CITY_DEFAULTS.scale,
+        value: cityMesh()?.scale.x ?? CITY_DEFAULTS.scaleX,
         min: 0.5,
         max: 80,
         step: 0.05,
@@ -92,7 +92,7 @@ const CityDebugControls = () => {
         }
       },
       scaleY: {
-        value: cityMesh()?.scale.y ?? CITY_DEFAULTS.scale,
+        value: cityMesh()?.scale.y ?? CITY_DEFAULTS.scaleY,
         min: 0.5,
         max: 80,
         step: 0.05,

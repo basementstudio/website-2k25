@@ -5,10 +5,16 @@ import { ClampToEdgeWrapping, NearestFilter, SRGBColorSpace } from "three"
 import { useAssets } from "@/components/assets-provider"
 import { useMesh } from "@/hooks/use-mesh"
 
+// Tuned against the skyline photographs via the ?debug "city skyline"
+// sliders — overrides the transform authored for the old baked texture.
+const CITY_POSITION = [-56, 1.38, 72] as const
+const CITY_SCALE = { x: 7.43, y: 23.7 }
+
 /**
  * Swaps the TX_Building billboard's baked texture for the day/night skyline
- * pair. The crossfade itself lives in the global shader (CITY define) and is
- * driven by the Sky component via cityNightUniform.
+ * pair and repositions it for the new art. The crossfade itself lives in the
+ * global shader (CITY define) and is driven by the Sky component via
+ * cityNightUniform.
  */
 export const CitySkyline = () => {
   const {
@@ -17,6 +23,14 @@ export const CitySkyline = () => {
 
   const [dayTexture, nightTexture] = useTexture([cityDay, cityNight])
   const material = useMesh((s) => s.city.material)
+  const mesh = useMesh((s) => s.city.mesh)
+
+  useEffect(() => {
+    if (!mesh) return
+    mesh.position.set(...CITY_POSITION)
+    mesh.scale.setX(CITY_SCALE.x)
+    mesh.scale.setY(CITY_SCALE.y)
+  }, [mesh])
 
   useEffect(() => {
     if (!material) return
