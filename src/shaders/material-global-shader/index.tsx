@@ -19,6 +19,12 @@ export const outdoorTintUniform = { value: new Vector3(1, 1, 1) }
  */
 export const outdoorEmissiveUniform = { value: 1 }
 
+/**
+ * 0..1 crossfade for the city-skyline billboard: 0 = day façade, 1 = lit
+ * windows at night. Shared instance, written by the Sky component.
+ */
+export const cityNightUniform = { value: 0 }
+
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
   defines?: {
@@ -30,6 +36,7 @@ export const createGlobalShaderMaterial = (
     VIDEO?: boolean
     MATCAP?: boolean
     OUTDOOR?: boolean
+    CITY?: boolean
     DAYLIGHT?: boolean
     IS_LOBO_MARINO?: boolean
   }
@@ -109,6 +116,11 @@ export const createGlobalShaderMaterial = (
     uniforms["uOutdoorEmissive"] = outdoorEmissiveUniform
   }
 
+  if (defines?.CITY) {
+    uniforms["nightMap"] = { value: null }
+    uniforms["uCityNight"] = cityNightUniform
+  }
+
   // Street lights only: a genuinely emitting outdoor material. Checking the
   // emissive color matters — three defaults emissiveIntensity to 1 with a
   // black emissive, so USE_EMISSIVE alone would catch the city billboard too.
@@ -149,6 +161,7 @@ export const createGlobalShaderMaterial = (
       OUTDOOR:
         defines?.OUTDOOR !== undefined ? Boolean(defines?.OUTDOOR) : false,
       OUTDOOR_LIGHT: isOutdoorLight,
+      CITY: defines?.CITY !== undefined ? Boolean(defines?.CITY) : false,
       IS_LOBO_MARINO:
         defines?.IS_LOBO_MARINO !== undefined
           ? Boolean(defines?.IS_LOBO_MARINO)

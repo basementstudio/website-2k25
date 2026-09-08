@@ -1,4 +1,4 @@
-import { Mesh } from "three"
+import { Mesh, ShaderMaterial } from "three"
 import { create } from "zustand"
 
 interface blog {
@@ -39,6 +39,7 @@ export interface MeshStore {
   services: services
   cars: (Mesh | null)[]
   cctv: { screen: Mesh | null }
+  city: { material: ShaderMaterial | null }
   mapMaterialsReady: boolean
 }
 
@@ -71,6 +72,9 @@ export const useMesh = create<MeshStore>()(() => ({
   cars: [],
   cctv: {
     screen: null
+  },
+  city: {
+    material: null
   },
   mapMaterialsReady: false
 }))

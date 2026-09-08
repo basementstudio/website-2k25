@@ -85,6 +85,13 @@ uniform vec3 uOutdoorTint;
 uniform float uOutdoorEmissive;
 #endif
 
+// City skyline billboard: separate day/night photographs crossfaded by the
+// sun
+#ifdef CITY
+uniform sampler2D nightMap;
+uniform float uCityNight;
+#endif
+
 // Daylight
 #ifdef DAYLIGHT
 uniform bool daylight;
@@ -167,6 +174,14 @@ void main() {
   // and keep glowing at night.
   #ifdef OUTDOOR
   color *= uOutdoorTint;
+  #endif
+
+  // The day façade takes the sun tint above; the night texture is self-lit
+  // windows and ignores it.
+  #if defined(CITY) && defined(USE_MAP)
+  vec4 nightSample = texture2D(nightMap, mapUv);
+  color = mix(color, nightSample.rgb, uCityNight);
+  mapSample.a = mix(mapSample.a, nightSample.a, uCityNight);
   #endif
 
   vec3 lightMapSample = vec3(0.0);

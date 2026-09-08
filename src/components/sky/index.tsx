@@ -17,6 +17,7 @@ import {
 import { useWeather } from "@/components/weather/weather-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
+  cityNightUniform,
   outdoorEmissiveUniform,
   outdoorTintUniform
 } from "@/shaders/material-global-shader"
@@ -233,6 +234,8 @@ export const Sky = () => {
 
     // Street lights ramp on through civil twilight (-1° → -6°), off by day.
     outdoorEmissiveUniform.value = 1 - smoothstep(-6, -1, elevationDeg)
+    // City windows light up across the same dusk window, slightly wider.
+    cityNightUniform.value = 1 - smoothstep(-7, -1, elevationDeg)
 
     computeSunColor(elevationDeg, sunColorScratch)
 

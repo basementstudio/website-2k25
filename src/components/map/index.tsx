@@ -12,6 +12,7 @@ import { LedScoreboard } from "@/components/basketball/led-scoreboard"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { ChristmasTree } from "@/components/christmas-tree"
+import { CitySkyline } from "@/components/city-skyline"
 import { Clock } from "@/components/clock"
 import { Godrays } from "@/components/godrays"
 import { LockedDoor } from "@/components/locked-door"
@@ -121,6 +122,7 @@ export const Map = memo(() => {
           )
           const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
           const isGlass = glassMaterials.includes(currentMaterial.name)
+          const isCity = meshChild.name === "TX_Building"
           const isDaylight = meshChild.name === "DL_ScreenB"
 
           currentMaterial.side = doubleSideElements.includes(meshChild.name)
@@ -162,6 +164,7 @@ export const Map = memo(() => {
             MATCAP: withMatcap !== undefined,
             VIDEO: withVideo !== undefined,
             OUTDOOR: overrides?.OUTDOOR,
+            CITY: isCity,
             DAYLIGHT: isDaylight
           }
 
@@ -180,6 +183,10 @@ export const Map = memo(() => {
           }
 
           meshChild.material = newMaterials
+
+          if (isCity && !Array.isArray(newMaterials)) {
+            useMesh.setState({ city: { material: newMaterials } })
+          }
 
           meshChild.userData.hasGlobalMaterial = true
         }
@@ -261,6 +268,7 @@ export const Map = memo(() => {
 
       {/*Services */}
       <Sky />
+      <CitySkyline />
       <Weather />
       <OutdoorCars />
       <ChristmasTree />
