@@ -1,6 +1,6 @@
 "use client"
 
-import { Leva, useControls } from "leva"
+import { button, Leva, useControls } from "leva"
 import { useEffect, useRef } from "react"
 
 import {
@@ -99,7 +99,14 @@ const CityDebugControls = () => {
         onChange: (value: number) => {
           cityMesh()?.scale.setY(value)
         }
-      }
+      },
+      copyTransform: button(() => {
+        const m = cityMesh()
+        if (!m) return
+        const exact = `position (${m.position.x}, ${m.position.y}, ${m.position.z}) scale (${m.scale.x}, ${m.scale.y})`
+        console.info("[city skyline]", exact)
+        navigator.clipboard?.writeText(exact).catch(() => {})
+      })
     }),
     // Re-seed the sliders with the real transform once the mesh arrives.
     [mesh]

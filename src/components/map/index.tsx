@@ -12,7 +12,11 @@ import { LedScoreboard } from "@/components/basketball/led-scoreboard"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { ChristmasTree } from "@/components/christmas-tree"
-import { CitySkyline } from "@/components/city-skyline"
+import {
+  CITY_POSITION,
+  CITY_SCALE,
+  CitySkyline
+} from "@/components/city-skyline"
 import { Clock } from "@/components/clock"
 import { Godrays } from "@/components/godrays"
 import { LockedDoor } from "@/components/locked-door"
@@ -185,6 +189,9 @@ export const Map = memo(() => {
           meshChild.material = newMaterials
 
           if (isCity && !Array.isArray(newMaterials)) {
+            meshChild.position.set(...CITY_POSITION)
+            meshChild.scale.setX(CITY_SCALE.x)
+            meshChild.scale.setY(CITY_SCALE.y)
             useMesh.setState({
               city: { material: newMaterials, mesh: meshChild }
             })
