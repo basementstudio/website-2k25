@@ -65,9 +65,17 @@ export const RealtimeImpl = () => {
 
     let hiddenTimeout: ReturnType<typeof setTimeout> | null = null
 
+    // Tracks whether this tab currently holds a presence entry: hiding can
+    // race the initial subscription, so "a timer is pending" doesn't imply
+    // "we are tracked" and the visible branch needs its own signal
+    let tracked = false
+
     // No id in the payload: the presence key already identifies the entry,
     // and the payload is broadcast to every subscriber
-    const track = () => channel.track({ joinedAt: Date.now() })
+    const track = () => {
+      tracked = true
+      return channel.track({ joinedAt: Date.now() })
+    }
 
     channel
       .on("presence", { event: "sync" }, () => {
@@ -87,6 +95,7 @@ export const RealtimeImpl = () => {
         if (hiddenTimeout) clearTimeout(hiddenTimeout)
         hiddenTimeout = setTimeout(() => {
           hiddenTimeout = null
+          tracked = false
           channel.untrack()
         }, HIDDEN_UNTRACK_MS)
         return
@@ -94,7 +103,8 @@ export const RealtimeImpl = () => {
       if (hiddenTimeout) {
         clearTimeout(hiddenTimeout)
         hiddenTimeout = null
-      } else if (channel.state === "joined") {
+      }
+      if (!tracked && channel.state === "joined") {
         track()
       }
     }
