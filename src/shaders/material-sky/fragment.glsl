@@ -117,7 +117,7 @@ void main() {
   // for bloom on mobile. uSunColor already carries sunset transmittance and
   // goes to zero once the sun is under the horizon.
   float cosSun = dot(rd, uSunDir);
-  float disc = smoothstep(cos(0.010), cos(0.008), cosSun);
+  float disc = smoothstep(cos(0.01), cos(0.008), cosSun);
   float glow = pow(max(cosSun, 0.0), 350.0);
   float sunOcclusion = (1.0 - cloudA) * (1.0 - uCloudCover * 0.85);
   col +=
