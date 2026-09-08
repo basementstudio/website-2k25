@@ -7,6 +7,13 @@ uniform sampler2D uDepthTexture;
 uniform vec2 resolution;
 uniform float uTolerance;
 
+// Depth of field (far blur)
+uniform float uDofStart;
+uniform float uDofEnd;
+uniform float uDofRadius;
+uniform float uCameraNear;
+uniform float uCameraFar;
+
 uniform float uOpacity;
 
 // Basics
@@ -192,6 +199,38 @@ void main() {
   // Optimized texture reading
   vec4 baseColorSample = texture2D(uMainTexture, vUv);
   vec3 color = baseColorSample.rgb;
+
+  // Far depth-of-field: the world outside the window defocuses so it reads
+  // distant. Sky and the transparent skyline never write depth, so they sit
+  // at the far plane and always take the full blur.
+  float dofDepth = texture2D(uDepthTexture, vUv).x;
+  float viewDist =
+    uCameraNear *
+    uCameraFar /
+    (uCameraFar - dofDepth * (uCameraFar - uCameraNear));
+  float dofAmount = smoothstep(uDofStart, uDofEnd, viewDist);
+
+  if (dofAmount > 0.001 && uDofRadius > 0.01) {
+    vec2 texel = 1.0 / resolution;
+    float radius = uDofRadius * dofAmount;
+    vec3 dofSum = color;
+    float dofWeight = 1.0;
+    for (int i = 0; i < 8; i++) {
+      float angle = float(i) * 0.7853982;
+      vec2 tapUv = vUv + vec2(cos(angle), sin(angle)) * texel * radius;
+      // Weight taps by their own farness so the sharp interior never
+      // bleeds into the blur across the window edge.
+      float tapDepth = texture2D(uDepthTexture, tapUv).x;
+      float tapDist =
+        uCameraNear *
+        uCameraFar /
+        (uCameraFar - tapDepth * (uCameraFar - uCameraNear));
+      float tapWeight = smoothstep(uDofStart, uDofEnd, tapDist);
+      dofSum += texture2D(uMainTexture, tapUv).rgb * tapWeight;
+      dofWeight += tapWeight;
+    }
+    color = mix(color, dofSum / dofWeight, dofAmount);
+  }
 
   // Apply tonemap only once for the main color
   color = tonemap(color);

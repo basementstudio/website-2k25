@@ -20,7 +20,10 @@ import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { createBloomMaterial } from "@/shaders/material-bloom"
-import { createPostProcessingMaterial } from "@/shaders/material-postprocessing"
+import {
+  createPostProcessingMaterial,
+  dofConfig
+} from "@/shaders/material-postprocessing"
 import { doubleFbo } from "@/utils/double-fbo"
 
 import { BloomPass } from "./bloom-pass"
@@ -133,6 +136,13 @@ function RendererInner({ sceneChildren }: RendererProps) {
       !canRunMainApp
     )
       return
+
+    const pp = postProcessingMaterial.uniforms
+    pp.uCameraNear.value = mainCamera.near
+    pp.uCameraFar.value = mainCamera.far
+    pp.uDofStart.value = dofConfig.start
+    pp.uDofEnd.value = dofConfig.end
+    pp.uDofRadius.value = dofConfig.radius
 
     // main render
     gl.outputColorSpace = LinearSRGBColorSpace
