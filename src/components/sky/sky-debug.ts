@@ -111,6 +111,7 @@ export function applyWeatherPreset(preset: SkyWeatherPreset) {
   const d = skyDebug.current
   if (preset === "live") {
     d.overrideWeather = false
+    useWeather.setState({ debugLock: false })
     const live = useWeather.getState().live
     if (live) applyLiveWeather(live)
     else
@@ -132,7 +133,8 @@ export function applyWeatherPreset(preset: SkyWeatherPreset) {
     isThunderstorm: p.isThunderstorm,
     rainIntensity: p.isRaining ? p.rainIntensity : s.rainIntensity,
     rainOverride: null,
-    source: "override"
+    source: "override",
+    debugLock: true
   }))
 }
 

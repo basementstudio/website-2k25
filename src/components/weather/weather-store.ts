@@ -15,6 +15,7 @@ interface WeatherState {
   rainOverride: boolean | null
   source: WeatherSource
   fetchedAt: number | null
+  debugLock: boolean
 }
 
 export const useWeather = create<WeatherState>(() => ({
@@ -26,11 +27,14 @@ export const useWeather = create<WeatherState>(() => ({
   live: null,
   rainOverride: null,
   source: "fallback",
-  fetchedAt: null
+  fetchedAt: null,
+  debugLock: false
 }))
 
 export function applyLiveWeather(data: WeatherApiData) {
   useWeather.setState((s) => {
+    if (s.debugLock) return { live: data, fetchedAt: data.fetchedAt }
+
     const rainOverride =
       s.rainOverride === data.isRaining ? null : s.rainOverride
     const isRaining = rainOverride ?? data.isRaining

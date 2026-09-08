@@ -74,13 +74,15 @@ float stars(vec3 rd, float time) {
   vec2 starPos = hash22(cell) * 0.6 + 0.2;
   float d = length(fract(grid) - starPos);
   float twinkle = 0.7 + 0.3 * sin(time * (1.0 + h * 40.0) + h * 100.0);
-  return smoothstep(0.12, 0.0, d) * twinkle * smoothstep(0.06, 0.0, h);
+  return (1.0 - smoothstep(0.0, 0.12, d)) *
+  twinkle *
+  (1.0 - smoothstep(0.0, 0.06, h));
 }
 
 void main() {
   vec3 rd = normalize(vWorldPosition - cameraPosition);
 
-  float below = smoothstep(0.0, -0.1, rd.y);
+  float below = 1.0 - smoothstep(-0.1, 0.0, rd.y);
   vec3 rdSky = rd.y < 0.015 ? normalize(vec3(rd.x, 0.015, rd.z)) : rd;
 
   vec4 lut = texture2D(uSkyLut, dirToLutUv(rdSky));
