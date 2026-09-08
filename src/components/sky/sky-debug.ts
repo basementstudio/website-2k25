@@ -5,14 +5,11 @@ import {
 
 import { SKY_YAW_OFFSET_DEG } from "./config"
 
-// Mutable .current object read by the Sky frame callback, written by the
-// leva controls behind ?debug (postprocessingDebug pattern).
 export const skyDebug = {
   current: {
     overrideSun: false,
     elevation: 45,
     azimuth: 0,
-    /** 1 = real time; crank up to time-lapse the whole day for QA. */
     timeScale: 1,
     yawOffset: SKY_YAW_OFFSET_DEG,
     overrideWeather: false,
@@ -24,9 +21,6 @@ export const skyDebug = {
   }
 }
 
-// Compass azimuths are MDQ-plausible with yawOffset 0: the sun rises at the
-// window's right (E≈80°), passes north (0° — straight out the window) and
-// sets at its left (W≈280°).
 export const SKY_TIME_PRESETS = {
   sunrise: { elevation: 0.5, azimuth: 80 },
   morning: { elevation: 25, azimuth: 45 },
@@ -40,7 +34,6 @@ export const SKY_TIME_PRESETS = {
 
 export type SkyTimePreset = keyof typeof SKY_TIME_PRESETS | "live"
 
-// rainIntensity grades the curtains + sky darkening: drizzle ≪ storm.
 export const SKY_WEATHER_PRESETS = {
   clear: {
     cloudCover: 0.05,
@@ -134,7 +127,6 @@ export function applyWeatherPreset(preset: SkyWeatherPreset) {
   d.cloudCover = p.cloudCover
   d.rainFactor = p.rainIntensity
   d.windSpeed = p.windSpeed
-  // Drive the real rain curtains + lobo tint too, not just the sky.
   useWeather.setState((s) => ({
     isRaining: p.isRaining,
     isThunderstorm: p.isThunderstorm,

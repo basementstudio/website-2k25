@@ -7,22 +7,8 @@ import vertexShader from "./vertex.glsl"
 
 export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
-/**
- * Shared by every OUTDOOR material — the Sky component mutates this one
- * Vector3 (day/night tint) and all outdoor meshes pick it up.
- */
 export const outdoorTintUniform = { value: new Vector3(1, 1, 1) }
-
-/**
- * 0..1 gate on outdoor emissives (street lamps + their light cones): 1 at
- * night, 0 in daylight. Shared instance, written by the Sky component.
- */
 export const outdoorEmissiveUniform = { value: 1 }
-
-/**
- * 0..1 crossfade for the city-skyline billboard: 0 = day façade, 1 = lit
- * windows at night. Shared instance, written by the Sky component.
- */
 export const cityNightUniform = { value: 0 }
 
 export const createGlobalShaderMaterial = (
@@ -121,9 +107,6 @@ export const createGlobalShaderMaterial = (
     uniforms["uCityNight"] = cityNightUniform
   }
 
-  // Street lights only: a genuinely emitting outdoor material. Checking the
-  // emissive color matters — three defaults emissiveIntensity to 1 with a
-  // black emissive, so USE_EMISSIVE alone would catch the city billboard too.
   const emissiveSum = baseMaterial.emissive
     ? baseMaterial.emissive.r +
       baseMaterial.emissive.g +

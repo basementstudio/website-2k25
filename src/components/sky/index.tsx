@@ -46,11 +46,6 @@ import { skyState } from "./sky-state"
 
 const RAD = Math.PI / 180
 
-/**
- * Sun transmittance from the observer toward the sun — the disc color. The
- * LUT's scalar alpha can dim the disc but can't redden it at sunset; this
- * 8-step march can, and it costs microseconds of JS per LUT bake.
- */
 const computeSunColor = (elevationDeg: number, out: Vector3) => {
   const { RG, RT, HR, HM, BETA_R, BETA_M_EXT, BETA_O } = ATMOSPHERE
   const el = elevationDeg * RAD
@@ -85,7 +80,6 @@ const computeSunColor = (elevationDeg: number, out: Vector3) => {
     Math.exp(-(BETA_R[1] * odR + BETA_M_EXT * odM + BETA_O[1] * odO)),
     Math.exp(-(BETA_R[2] * odR + BETA_M_EXT * odM + BETA_O[2] * odO))
   )
-  // Ease out just above the hard planet-shadow cutoff (~-0.45°).
   return out.multiplyScalar(smoothstep(-0.6, 0, elevationDeg))
 }
 
@@ -100,7 +94,6 @@ export const Sky = () => {
         type: HalfFloatType,
         format: RGBAFormat,
         colorSpace: LinearSRGBColorSpace,
-        // Linear on purpose (house default is Nearest) — a Nearest LUT bands.
         minFilter: LinearFilter,
         magFilter: LinearFilter,
         depthBuffer: false
@@ -227,8 +220,6 @@ export const Sky = () => {
     const daylightFactor =
       smoothstep(2, 10, elevationDeg) * (1 - cloud) * (1 - rain)
 
-    // Lightning: during thunderstorms, strikes of 1-3 fast-decaying pulses
-    // every few seconds (the classic multi-flicker of a real bolt).
     const bolt = lightning.current
     let flash = 0
     if (weather.isThunderstorm) {
@@ -263,12 +254,9 @@ export const Sky = () => {
     const weatherDim = 1 - 0.4 * Math.min(1, cloud * 0.5 + rain * 0.3)
     ;(outdoorTintUniform.value as Vector3)
       .copy(tintScratch)
-      // The whole street flashes with the bolt.
       .multiplyScalar(weatherDim * (1 + flash * 1.2))
 
-    // Street lights ramp on through civil twilight (-1° → -6°), off by day.
     outdoorEmissiveUniform.value = 1 - smoothstep(-6, -1, elevationDeg)
-    // City windows light up across the same dusk window, slightly wider.
     cityNightUniform.value = 1 - smoothstep(-7, -1, elevationDeg)
 
     computeSunColor(elevationDeg, sunColorScratch)
@@ -326,9 +314,6 @@ export const Sky = () => {
   }, 0)
 
   return (
-    // renderOrder 1: after the renderOrder-0 opaques so early-z (far-plane
-    // depth in the vertex shader) rejects occluded sky fragments, still
-    // before the transparent pass (glass, godrays) that blends over it.
     <mesh position={SKY_SPHERE_CENTER} renderOrder={1} frustumCulled={false}>
       <sphereGeometry args={[SKY_SPHERE_RADIUS, 32, 16]} />
       <primitive object={skyMaterial} attach="material" />

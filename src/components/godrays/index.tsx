@@ -25,8 +25,6 @@ export const Godrays = () => {
       if (material.userData.opacityAnimation)
         material.userData.opacityAnimation.stop()
 
-      // The per-scene fade lands in userData; the frame callback below folds
-      // in the sun/weather factor before it reaches the uniform.
       material.userData.opacityAnimation = animate(
         material.userData.sceneOpacity ?? 0,
         shouldShow ? 1 : 0,

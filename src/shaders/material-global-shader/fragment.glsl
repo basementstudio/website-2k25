@@ -78,15 +78,11 @@ uniform float uGodrayOpacity;
 uniform float uGodrayDensity;
 #endif
 
-// Outdoor day/night tint + street-light gate, shared across all outdoor
-// materials
 #ifdef OUTDOOR
 uniform vec3 uOutdoorTint;
 uniform float uOutdoorEmissive;
 #endif
 
-// City skyline billboard: separate day/night photographs crossfaded by the
-// sun
 #ifdef CITY
 uniform sampler2D nightMap;
 uniform float uCityNight;
@@ -170,14 +166,10 @@ void main() {
 
   vec3 color = baseColor * mapSample.rgb;
 
-  // Tint albedo only — emissives (street lamps, lit signs) add afterwards
-  // and keep glowing at night.
   #ifdef OUTDOOR
   color *= uOutdoorTint;
   #endif
 
-  // The day façade takes the sun tint above; the night texture is self-lit
-  // windows and ignores it.
   #if defined(CITY) && defined(USE_MAP)
   vec4 nightSample = texture2D(nightMap, mapUv);
   color = mix(color, nightSample.rgb, uCityNight);
@@ -201,7 +193,6 @@ void main() {
   }
   #endif
 
-  // Street lights switch off in daylight.
   #if defined(OUTDOOR_LIGHT) && defined(USE_EMISSIVE)
   ei *= uOutdoorEmissive;
   #endif
@@ -276,7 +267,6 @@ void main() {
   opacityResult *= alpha;
   #endif
 
-  // The lamps' translucent light cones fade out with the light itself.
   #if defined(OUTDOOR_LIGHT) && defined(IS_TRANSPARENT)
   opacityResult *= uOutdoorEmissive;
   #endif
@@ -353,8 +343,6 @@ void main() {
   gl_FragColor.a *= pattern * uGodrayOpacity * uGodrayDensity;
   #endif
 
-  // The street lamps' night flare gets the house checkerboard, like the
-  // godrays.
   #if defined(OUTDOOR_LIGHT) && defined(IS_TRANSPARENT)
   vec2 lampCheckerPos = floor((gl_FragCoord.xy + vec2(2.0)) * 0.5);
   gl_FragColor.a *= mod(lampCheckerPos.x + lampCheckerPos.y, 2.0);

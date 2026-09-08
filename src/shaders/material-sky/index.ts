@@ -5,10 +5,6 @@ import lutFragmentShader from "./lut-fragment.glsl"
 import lutVertexShader from "./lut-vertex.glsl"
 import displayVertexShader from "./vertex.glsl"
 
-// Standalone materials on purpose: the global uber-material pins a single
-// customProgramCacheKey and its frame-loop sweep writes uniforms these
-// shaders don't have. The Sky component drives all uniforms itself.
-
 export const createSkyLutMaterial = () =>
   new ShaderMaterial({
     depthWrite: false,
@@ -27,9 +23,6 @@ export const createSkyLutMaterial = () =>
 
 export const createSkyMaterial = (lut: Texture) =>
   new ShaderMaterial({
-    // Viewed from inside the sphere. Depth-tested at the far plane (vertex
-    // shader pins z = w) and drawn after the other opaques, so occluded sky
-    // fragments are rejected by early-z instead of shaded and overdrawn.
     side: BackSide,
     depthWrite: false,
     depthTest: true,

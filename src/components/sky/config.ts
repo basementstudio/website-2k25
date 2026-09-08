@@ -3,39 +3,23 @@ import { Vector3 } from "three"
 export const SKY_LUT_WIDTH = 256
 export const SKY_LUT_HEIGHT = 128
 
-// Big backdrop sphere drawn first and overdrawn by everything; comfortably
-// behind the outdoor set (buildings billboard at z≈105, old sky at z≈82-87).
 export const SKY_SPHERE_RADIUS = 300
 export const SKY_SPHERE_CENTER: [number, number, number] = [0, 5, 0]
 
-/**
- * Maps real compass azimuth into scene space: 0 puts north at scene +z — the
- * office window view. The southern-hemisphere sun arcs east→north→west, so
- * with north out the window the whole real arc stays visible.
- */
 export const SKY_YAW_OFFSET_DEG = 0
 
-/** Weather lerp horizon in seconds (store holds raw targets). */
 export const WEATHER_SMOOTH_SECONDS = 3
 
-/**
- * Even the clearest sky keeps a few small wisps. Display-layer floor only —
- * the LUT still uses real coverage, so the sky tone stays blue.
- */
 export const MIN_CLOUD_COVER = 0.12
 
-/** Cloud drift in cloud-UV units per second per km/h of wind, per axis. */
 export const CLOUD_DRIFT_X = 0.0012
 export const CLOUD_DRIFT_Y = 0.0004
 
-/** Re-bake the LUT once the sun has moved this far (~35s of real time). */
 export const BAKE_SUN_ANGLE_COS = Math.cos((0.15 * Math.PI) / 180)
 export const BAKE_CLOUD_DELTA = 0.01
 export const BAKE_RAIN_DELTA = 0.02
 export const BAKE_MIN_INTERVAL_S = 0.1
 
-// CPU-side copies of the atmosphere constants in lut-fragment.glsl — used to
-// march sun transmittance for the disc color without any GPU readback.
 export const ATMOSPHERE = {
   RG: 6371,
   RT: 6471,
@@ -53,7 +37,6 @@ const TINT_STOPS: { el: number; color: [number, number, number] }[] = [
   { el: 15, color: [1, 1, 1] }
 ]
 
-/** Sun-elevation ramp for the outdoor set: night blue → twilight → golden → day. */
 export const outdoorTintForElevation = (elevationDeg: number, out: Vector3) => {
   const stops = TINT_STOPS
   if (elevationDeg <= stops[0].el) return out.fromArray(stops[0].color)

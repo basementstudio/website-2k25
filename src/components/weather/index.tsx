@@ -80,8 +80,6 @@ export const Weather = () => {
         rainMaterialFar.uniforms.opacity.value = v
       },
       onComplete: () => {
-        // Fully faded curtains would still rasterize three large transparent
-        // quads every frame — drop them from the draw list instead.
         if (target === 0 && rainGroupRef.current)
           rainGroupRef.current.visible = false
       }

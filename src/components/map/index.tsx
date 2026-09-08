@@ -37,9 +37,6 @@ import { extractMeshes } from "./extract-meshes"
 import { useFrameLoop } from "./use-frame-loop"
 import { useLoader } from "./use-loader"
 
-// The baked sky/cloud billboards inside the outdoor GLB — superseded by the
-// procedural <Sky />; hidden at runtime instead of re-authoring the asset.
-// GLTFLoader strips dots from node names, so "TX_Sky.001" loads as "TX_Sky001".
 const legacySkyNodes = ["TX_Sky001", "TX_Sky002", "cloudy_01", "cloudy_02"]
 
 export const Map = memo(() => {
@@ -188,7 +185,6 @@ export const Map = memo(() => {
 
           meshChild.material = newMaterials
 
-          // Half-strength grime so the outside reads clearer.
           if (
             meshChild.name === "SM_Glass_Dust" &&
             !Array.isArray(newMaterials)

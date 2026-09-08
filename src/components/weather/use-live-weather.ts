@@ -8,10 +8,6 @@ import { applyLiveWeather } from "./weather-store"
 
 const POLL_MS = 10 * 60 * 1000
 
-/**
- * Polls /api/weather while the tab is visible. Failures keep the previous
- * conditions — the server reports its own upstream errors to Sentry.
- */
 export function useLiveWeather() {
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | undefined

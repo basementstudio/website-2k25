@@ -43,8 +43,6 @@ const CameraDebugControls = () => {
   return null
 }
 
-// The tuned skyline transform (see CitySkyline) — slider defaults until the
-// mesh loads and the real values take over.
 const CITY_DEFAULTS = { x: -56, y: 1.38, z: 72, scaleX: 7.43, scaleY: 23.7 }
 
 const cityMesh = () => useMesh.getState().city.mesh
@@ -108,7 +106,6 @@ const CityDebugControls = () => {
         navigator.clipboard?.writeText(exact).catch(() => {})
       })
     }),
-    // Re-seed the sliders with the real transform once the mesh arrives.
     [mesh]
   )
 
@@ -116,8 +113,6 @@ const CityDebugControls = () => {
 }
 
 const SkyDebugControls = () => {
-  // Presets write skyDebug directly; this pushes the new values back into the
-  // sliders so the panel doesn't display stale numbers.
   const setSkyRef = useRef<((values: Record<string, unknown>) => void) | null>(
     null
   )

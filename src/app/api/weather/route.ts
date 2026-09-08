@@ -10,17 +10,12 @@ export async function GET() {
       { ok: true, ...data },
       {
         headers: {
-          // CDN absorbs the polling herd; browsers always revalidate.
           "Cache-Control":
             "public, max-age=0, s-maxage=300, stale-while-revalidate=600"
         }
       }
     )
   } catch (error) {
-    // Route handlers are auto-instrumented only for errors that propagate — a
-    // caught one still needs the explicit capture (markdownErrorResponse
-    // precedent). Reached only on cold cache + upstream down; the client keeps
-    // its previous conditions on {ok:false}.
     console.error("Weather fetch failed:", error)
     Sentry.captureException(error)
     return NextResponse.json<WeatherApiResponse>(

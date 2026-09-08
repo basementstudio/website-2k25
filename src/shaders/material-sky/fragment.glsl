@@ -1,9 +1,5 @@
 precision highp float;
 
-// Sky display pass: runs every frame but only does cheap work — one LUT
-// fetch plus sun disc, FBM clouds, stars and dither. The scattering integral
-// lives in lut-fragment.glsl.
-
 varying vec3 vWorldPosition;
 
 uniform sampler2D uSkyLut;
@@ -55,14 +51,11 @@ float fbm4(vec2 p) {
   return v;
 }
 
-// Interleaved gradient noise — kills banding in the dark night gradients.
 float ign(vec2 p) {
   return fract(52.9829189 * fract(dot(p, vec2(0.06711056, 0.00583715))));
 }
 
 vec2 dirToLutUv(vec3 rd) {
-  // u wraps via RepeatWrapping (negative values are fine); v matches the
-  // horizon-dense sqrt mapping baked into the LUT.
   float az = atan(rd.x, rd.z);
   float el = asin(clamp(rd.y, -1.0, 1.0));
   float t = sign(el) * sqrt(abs(el) / (PI * 0.5));
@@ -87,9 +80,6 @@ float stars(vec3 rd, float time) {
 void main() {
   vec3 rd = normalize(vWorldPosition - cameraPosition);
 
-  // Below the horizon nothing covers the sphere for a while — clamp the LUT
-  // lookup to just above the horizon so the band under the skyline reads as
-  // hazy sea extending the sky, not a drop to black.
   float below = smoothstep(0.0, -0.1, rd.y);
   vec3 rdSky = rd.y < 0.015 ? normalize(vec3(rd.x, 0.015, rd.z)) : rd;
 
@@ -99,9 +89,6 @@ void main() {
   float cloudA = 0.0;
   if (rd.y > 0.02) {
     vec2 cuv = rd.xz / (rd.y + 0.15) * 0.6 + uCloudOffset;
-    // fbm4 amplitudes sum to 0.9375 — normalize so the threshold curve
-    // actually spans the noise range (only peaks emerge at low coverage,
-    // which is what makes sparse clouds read as small wisps).
     float f = fbm4(cuv) * 1.0667;
     float th = mix(0.78, 0.25, uCloudCover);
     float coverage = smoothstep(th, th + 0.18, f);
@@ -114,14 +101,10 @@ void main() {
     col = mix(col, cloudCol, cloudA * 0.85);
   }
 
-  // Lightning: storm flashes light the cloud deck far more than open sky.
   if (uLightning > 0.001) {
     col += vec3(0.85, 0.9, 1.1) * uLightning * (0.35 + cloudA * 1.4);
   }
 
-  // HDR disc feeds the bloom pass on desktop; the analytic glow stands in
-  // for bloom on mobile. uSunColor already carries sunset transmittance and
-  // goes to zero once the sun is under the horizon.
   float cosSun = dot(rd, uSunDir);
   float disc = smoothstep(cos(0.01), cos(0.008), cosSun);
   float glow = pow(max(cosSun, 0.0), 350.0);
@@ -131,8 +114,6 @@ void main() {
     (disc * uSunDiscIntensity + glow * uSunGlowIntensity) *
     sunOcclusion;
 
-  // lut.a (view transmittance) fades stars near the thick horizon; none on
-  // the sea band.
   if (uNightFactor > 0.001 && rd.y > 0.0) {
     col +=
       vec3(stars(rd, uTime)) *
@@ -143,7 +124,6 @@ void main() {
       1.5;
   }
 
-  // The sea sits a touch darker than the sky it mirrors.
   col *= 1.0 - 0.45 * below;
 
   col += vec3((ign(gl_FragCoord.xy) - 0.5) * (1.0 / 128.0));
