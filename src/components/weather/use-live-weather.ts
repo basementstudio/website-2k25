@@ -39,7 +39,7 @@ export function useLiveWeather() {
     const onVisibility = () =>
       document.visibilityState === "visible" ? start() : stop()
 
-    start()
+    onVisibility()
     document.addEventListener("visibilitychange", onVisibility, {
       passive: true
     })
