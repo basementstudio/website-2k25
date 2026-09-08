@@ -12,6 +12,11 @@ import { LedScoreboard } from "@/components/basketball/led-scoreboard"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { ChristmasTree } from "@/components/christmas-tree"
+import {
+  CITY_POSITION,
+  CITY_SCALE,
+  CitySkyline
+} from "@/components/city-skyline"
 import { Clock } from "@/components/clock"
 import { Godrays } from "@/components/godrays"
 import { LockedDoor } from "@/components/locked-door"
@@ -19,6 +24,7 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { OutdoorCars } from "@/components/outdoor-cars"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
+import { Sky } from "@/components/sky"
 import { SpeakerHover } from "@/components/speaker-hover"
 import { Weather } from "@/components/weather"
 import { useMesh } from "@/hooks/use-mesh"
@@ -30,6 +36,8 @@ import { createNotFoundMaterial } from "@/shaders/material-not-found"
 import { extractMeshes } from "./extract-meshes"
 import { useFrameLoop } from "./use-frame-loop"
 import { useLoader } from "./use-loader"
+
+const legacySkyNodes = ["TX_Sky001", "TX_Sky002", "cloudy_01", "cloudy_02"]
 
 export const Map = memo(() => {
   const { inspectables, videos, matcaps, glassMaterials, doubleSideElements } =
@@ -75,8 +83,13 @@ export const Map = memo(() => {
     ) {
       const traverse = (
         child: Object3D,
-        overrides?: { FOG?: boolean; GODRAY?: boolean }
+        overrides?: { FOG?: boolean; GODRAY?: boolean; OUTDOOR?: boolean }
       ) => {
+        if (legacySkyNodes.includes(child.name)) {
+          child.visible = false
+          return
+        }
+
         if (child.name === "SM_TvScreen_4" && "isMesh" in child) {
           const meshChild = child as Mesh
           useMesh.setState({ cctv: { screen: meshChild } })
@@ -109,8 +122,8 @@ export const Map = memo(() => {
             (video) => video.mesh === meshChild.name
           )
           const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
-          const isClouds = meshChild.name === "cloudy_01"
           const isGlass = glassMaterials.includes(currentMaterial.name)
+          const isCity = meshChild.name === "TX_Building"
           const isDaylight = meshChild.name === "DL_ScreenB"
 
           currentMaterial.side = doubleSideElements.includes(meshChild.name)
@@ -151,7 +164,8 @@ export const Map = memo(() => {
             FOG: overrides?.FOG,
             MATCAP: withMatcap !== undefined,
             VIDEO: withVideo !== undefined,
-            CLOUDS: isClouds,
+            OUTDOOR: overrides?.OUTDOOR,
+            CITY: isCity,
             DAYLIGHT: isDaylight
           }
 
@@ -171,6 +185,23 @@ export const Map = memo(() => {
 
           meshChild.material = newMaterials
 
+          if (
+            meshChild.name === "SM_Glass_Dust" &&
+            !Array.isArray(newMaterials)
+          ) {
+            newMaterials.uniforms.opacity.value =
+              (newMaterials.uniforms.opacity.value as number) * 0.5
+          }
+
+          if (isCity && !Array.isArray(newMaterials)) {
+            meshChild.position.set(...CITY_POSITION)
+            meshChild.scale.setX(CITY_SCALE.x)
+            meshChild.scale.setY(CITY_SCALE.y)
+            useMesh.setState({
+              city: { material: newMaterials, mesh: meshChild }
+            })
+          }
+
           meshChild.userData.hasGlobalMaterial = true
         }
       }
@@ -185,8 +216,14 @@ export const Map = memo(() => {
         () => officeItems.traverse((child) => traverse(child)),
         () =>
           routingElements.traverse((child) => traverse(child, { FOG: false })),
-        () => outdoor.traverse((child) => traverse(child, { FOG: false })),
-        () => outdoorCars.traverse((child) => traverse(child, { FOG: false })),
+        () =>
+          outdoor.traverse((child) =>
+            traverse(child, { FOG: false, OUTDOOR: true })
+          ),
+        () =>
+          outdoorCars.traverse((child) =>
+            traverse(child, { FOG: false, OUTDOOR: true })
+          ),
         () => godrays.traverse((child) => traverse(child, { GODRAY: true })),
         () => {
           extractMeshes({
@@ -244,6 +281,8 @@ export const Map = memo(() => {
       <LockedDoor />
 
       {/*Services */}
+      <Sky />
+      <CitySkyline />
       <Weather />
       <OutdoorCars />
       <ChristmasTree />

@@ -1,5 +1,5 @@
 precision highp float;
-#define GLSLIFY 1
+#define GLSLIFY (1)
 
 varying vec2 vUv;
 varying vec2 vUv2;
@@ -78,6 +78,16 @@ uniform float uGodrayOpacity;
 uniform float uGodrayDensity;
 #endif
 
+#ifdef OUTDOOR
+uniform vec3 uOutdoorTint;
+uniform float uOutdoorEmissive;
+#endif
+
+#ifdef CITY
+uniform sampler2D nightMap;
+uniform float uCityNight;
+#endif
+
 // Daylight
 #ifdef DAYLIGHT
 uniform bool daylight;
@@ -154,11 +164,17 @@ void main() {
   mapSample = texture2D(map, mapUv);
   #endif
 
-  #ifdef CLOUDS
-  mapSample = texture2D(map, vec2(vUv.x - uTime * 0.004, vUv.y));
+  vec3 color = baseColor * mapSample.rgb;
+
+  #ifdef OUTDOOR
+  color *= uOutdoorTint;
   #endif
 
-  vec3 color = baseColor * mapSample.rgb;
+  #if defined(CITY) && defined(USE_MAP)
+  vec4 nightSample = texture2D(nightMap, mapUv);
+  color = mix(color, nightSample.rgb, uCityNight);
+  mapSample.a = mix(mapSample.a, nightSample.a, uCityNight);
+  #endif
 
   vec3 lightMapSample = vec3(0.0);
 
@@ -175,6 +191,10 @@ void main() {
   if (shouldFade) {
     ei *= oneMinusFadeFactor;
   }
+  #endif
+
+  #if defined(OUTDOOR_LIGHT) && defined(USE_EMISSIVE)
+  ei *= uOutdoorEmissive;
   #endif
 
   #ifdef USE_EMISSIVE
@@ -247,6 +267,10 @@ void main() {
   opacityResult *= alpha;
   #endif
 
+  #if defined(OUTDOOR_LIGHT) && defined(IS_TRANSPARENT)
+  opacityResult *= uOutdoorEmissive;
+  #endif
+
   if (opacityResult <= 0.0) {
     discard;
   }
@@ -317,6 +341,11 @@ void main() {
 
   #ifdef GODRAY
   gl_FragColor.a *= pattern * uGodrayOpacity * uGodrayDensity;
+  #endif
+
+  #if defined(OUTDOOR_LIGHT) && defined(IS_TRANSPARENT)
+  vec2 lampCheckerPos = floor((gl_FragCoord.xy + vec2(2.0)) * 0.5);
+  gl_FragColor.a *= mod(lampCheckerPos.x + lampCheckerPos.y, 2.0);
   #endif
 
   #ifdef FOG

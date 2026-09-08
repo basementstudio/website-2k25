@@ -7,6 +7,10 @@ import vertexShader from "./vertex.glsl"
 
 export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
+export const outdoorTintUniform = { value: new Vector3(1, 1, 1) }
+export const outdoorEmissiveUniform = { value: 1 }
+export const cityNightUniform = { value: 0 }
+
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
   defines?: {
@@ -17,7 +21,8 @@ export const createGlobalShaderMaterial = (
     FOG?: boolean
     VIDEO?: boolean
     MATCAP?: boolean
-    CLOUDS?: boolean
+    OUTDOOR?: boolean
+    CITY?: boolean
     DAYLIGHT?: boolean
     IS_LOBO_MARINO?: boolean
   }
@@ -92,6 +97,27 @@ export const createGlobalShaderMaterial = (
     uniforms["glassMatcap"] = { value: false }
   }
 
+  if (defines?.OUTDOOR) {
+    uniforms["uOutdoorTint"] = outdoorTintUniform
+    uniforms["uOutdoorEmissive"] = outdoorEmissiveUniform
+  }
+
+  if (defines?.CITY) {
+    uniforms["nightMap"] = { value: null }
+    uniforms["uCityNight"] = cityNightUniform
+  }
+
+  const emissiveSum = baseMaterial.emissive
+    ? baseMaterial.emissive.r +
+      baseMaterial.emissive.g +
+      baseMaterial.emissive.b
+    : 0
+  const isOutdoorLight =
+    Boolean(defines?.OUTDOOR) &&
+    emissiveMap === null &&
+    baseMaterial.emissiveIntensity !== 0 &&
+    emissiveSum > 0
+
   if (defines?.DAYLIGHT) {
     uniforms["daylight"] = { value: true }
   }
@@ -115,7 +141,10 @@ export const createGlobalShaderMaterial = (
       FOG: defines?.FOG !== undefined ? Boolean(defines?.FOG) : true,
       MATCAP: defines?.MATCAP !== undefined ? Boolean(defines?.MATCAP) : false,
       VIDEO: defines?.VIDEO !== undefined ? Boolean(defines?.VIDEO) : false,
-      CLOUDS: defines?.CLOUDS !== undefined ? Boolean(defines?.CLOUDS) : false,
+      OUTDOOR:
+        defines?.OUTDOOR !== undefined ? Boolean(defines?.OUTDOOR) : false,
+      OUTDOOR_LIGHT: isOutdoorLight,
+      CITY: defines?.CITY !== undefined ? Boolean(defines?.CITY) : false,
       IS_LOBO_MARINO:
         defines?.IS_LOBO_MARINO !== undefined
           ? Boolean(defines?.IS_LOBO_MARINO)
