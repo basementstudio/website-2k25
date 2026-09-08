@@ -17,6 +17,7 @@ uniform vec2 uCloudOffset;
 uniform vec3 uCloudColorZenith;
 uniform vec3 uCloudColorHorizon;
 uniform float uNightFactor;
+uniform float uLightning;
 
 const float PI = 3.141592653589793;
 
@@ -111,6 +112,11 @@ void main() {
       clamp(rd.y * 1.5, 0.0, 1.0)
     );
     col = mix(col, cloudCol, cloudA * 0.85);
+  }
+
+  // Lightning: storm flashes light the cloud deck far more than open sky.
+  if (uLightning > 0.001) {
+    col += vec3(0.85, 0.9, 1.1) * uLightning * (0.35 + cloudA * 1.4);
   }
 
   // HDR disc feeds the bloom pass on desktop; the analytic glow stands in

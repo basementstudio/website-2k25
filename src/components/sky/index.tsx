@@ -157,6 +157,11 @@ export const Sky = () => {
     time: -Infinity
   })
   const virtualMs = useRef<number | null>(null)
+  const lightning = useRef({
+    nextAt: 0,
+    strikeStart: -Infinity,
+    pulses: [] as { delay: number; amp: number }[]
+  })
 
   useFrameCallback((state, delta, elapsedTime) => {
     const { gl } = state
@@ -222,6 +227,34 @@ export const Sky = () => {
     const daylightFactor =
       smoothstep(2, 10, elevationDeg) * (1 - cloud) * (1 - rain)
 
+    // Lightning: during thunderstorms, strikes of 1-3 fast-decaying pulses
+    // every few seconds (the classic multi-flicker of a real bolt).
+    const bolt = lightning.current
+    let flash = 0
+    if (weather.isThunderstorm) {
+      if (elapsedTime >= bolt.nextAt) {
+        bolt.strikeStart = elapsedTime
+        bolt.pulses = [{ delay: 0, amp: 0.7 + Math.random() * 0.3 }]
+        if (Math.random() < 0.7)
+          bolt.pulses.push({
+            delay: 0.08 + Math.random() * 0.15,
+            amp: 0.4 + Math.random() * 0.5
+          })
+        if (Math.random() < 0.35)
+          bolt.pulses.push({
+            delay: 0.25 + Math.random() * 0.2,
+            amp: 0.3 + Math.random() * 0.4
+          })
+        bolt.nextAt = elapsedTime + 3 + Math.random() * 9
+      }
+      for (const pulse of bolt.pulses) {
+        const t = elapsedTime - bolt.strikeStart - pulse.delay
+        if (t >= 0) flash = Math.max(flash, pulse.amp * Math.exp(-t * 12))
+      }
+    } else {
+      bolt.nextAt = elapsedTime + 1 + Math.random() * 4
+    }
+
     skyState.sunElevationDeg = elevationDeg
     skyState.sunAzimuthDeg = azimuthDeg
     skyState.daylightFactor = daylightFactor
@@ -230,7 +263,8 @@ export const Sky = () => {
     const weatherDim = 1 - 0.4 * Math.min(1, cloud * 0.5 + rain * 0.3)
     ;(outdoorTintUniform.value as Vector3)
       .copy(tintScratch)
-      .multiplyScalar(weatherDim)
+      // The whole street flashes with the bolt.
+      .multiplyScalar(weatherDim * (1 + flash * 1.2))
 
     // Street lights ramp on through civil twilight (-1° → -6°), off by day.
     outdoorEmissiveUniform.value = 1 - smoothstep(-6, -1, elevationDeg)
@@ -246,6 +280,7 @@ export const Sky = () => {
     u.uSunDiscIntensity.value = debug.sunDiscIntensity
     u.uCloudCover.value = Math.max(cloud, MIN_CLOUD_COVER)
     u.uNightFactor.value = nightFactor
+    u.uLightning.value = flash
     const drift = delta * windSpeed
     ;(u.uCloudOffset.value as Vector2).x += drift * CLOUD_DRIFT_X
     ;(u.uCloudOffset.value as Vector2).y += drift * CLOUD_DRIFT_Y

@@ -1,5 +1,5 @@
 precision highp float;
-#define GLSLIFY 1
+#define GLSLIFY (1)
 
 varying vec2 vUv;
 varying vec2 vUv2;
@@ -351,6 +351,13 @@ void main() {
 
   #ifdef GODRAY
   gl_FragColor.a *= pattern * uGodrayOpacity * uGodrayDensity;
+  #endif
+
+  // The street lamps' night flare gets the house checkerboard, like the
+  // godrays.
+  #if defined(OUTDOOR_LIGHT) && defined(IS_TRANSPARENT)
+  vec2 lampCheckerPos = floor((gl_FragCoord.xy + vec2(2.0)) * 0.5);
+  gl_FragColor.a *= mod(lampCheckerPos.x + lampCheckerPos.y, 2.0);
   #endif
 
   #ifdef FOG

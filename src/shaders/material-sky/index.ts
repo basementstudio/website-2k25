@@ -44,7 +44,8 @@ export const createSkyMaterial = (lut: Texture) =>
       uCloudOffset: { value: new Vector2(0, 0) },
       uCloudColorZenith: { value: new Vector3(1, 1, 1) },
       uCloudColorHorizon: { value: new Vector3(1, 1, 1) },
-      uNightFactor: { value: 0 }
+      uNightFactor: { value: 0 },
+      uLightning: { value: 0 }
     },
     vertexShader: displayVertexShader,
     fragmentShader: displayFragmentShader
