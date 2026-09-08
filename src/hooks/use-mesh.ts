@@ -39,7 +39,7 @@ export interface MeshStore {
   services: services
   cars: (Mesh | null)[]
   cctv: { screen: Mesh | null }
-  city: { material: ShaderMaterial | null }
+  city: { material: ShaderMaterial | null; mesh: Mesh | null }
   mapMaterialsReady: boolean
 }
 
@@ -74,7 +74,12 @@ export const useMesh = create<MeshStore>()(() => ({
     screen: null
   },
   city: {
-    material: null
+    material: null,
+    mesh: null
   },
   mapMaterialsReady: false
 }))
+
+if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
+  ;(window as unknown as Record<string, unknown>).__mesh = useMesh
+}

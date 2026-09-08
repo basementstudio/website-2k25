@@ -12,6 +12,7 @@ import {
   type SkyTimePreset,
   type SkyWeatherPreset
 } from "@/components/sky/sky-debug"
+import { useMesh } from "@/hooks/use-mesh"
 
 import {
   postprocessingDebug,
@@ -38,6 +39,71 @@ const CameraDebugControls = () => {
   })
 
   useEffect(() => () => setFlyMode(false), [setFlyMode])
+
+  return null
+}
+
+// Authored transform of TX_Building in the outdoor GLB — slider defaults
+// until the mesh loads and the real values take over.
+const CITY_DEFAULTS = { x: -63.41, y: 3.88, z: 104.56, scale: 8.28 }
+
+const cityMesh = () => useMesh.getState().city.mesh
+
+const CityDebugControls = () => {
+  const mesh = useMesh((s) => s.city.mesh)
+
+  useControls(
+    "city skyline",
+    () => ({
+      posX: {
+        value: cityMesh()?.position.x ?? CITY_DEFAULTS.x,
+        min: -200,
+        max: 100,
+        step: 0.1,
+        onChange: (value: number) => {
+          cityMesh()?.position.setX(value)
+        }
+      },
+      posY: {
+        value: cityMesh()?.position.y ?? CITY_DEFAULTS.y,
+        min: -30,
+        max: 60,
+        step: 0.05,
+        onChange: (value: number) => {
+          cityMesh()?.position.setY(value)
+        }
+      },
+      posZ: {
+        value: cityMesh()?.position.z ?? CITY_DEFAULTS.z,
+        min: 60,
+        max: 250,
+        step: 0.1,
+        onChange: (value: number) => {
+          cityMesh()?.position.setZ(value)
+        }
+      },
+      scaleX: {
+        value: cityMesh()?.scale.x ?? CITY_DEFAULTS.scale,
+        min: 0.5,
+        max: 80,
+        step: 0.05,
+        onChange: (value: number) => {
+          cityMesh()?.scale.setX(value)
+        }
+      },
+      scaleY: {
+        value: cityMesh()?.scale.y ?? CITY_DEFAULTS.scale,
+        min: 0.5,
+        max: 80,
+        step: 0.05,
+        onChange: (value: number) => {
+          cityMesh()?.scale.setY(value)
+        }
+      }
+    }),
+    // Re-seed the sliders with the real transform once the mesh arrives.
+    [mesh]
+  )
 
   return null
 }
@@ -299,6 +365,7 @@ export const OnlyDebug = () => (
     <Leva collapsed fill />
     <CameraDebugControls />
     <SkyDebugControls />
+    <CityDebugControls />
     <PostprocessingDebugControls />
     <ReactScan />
   </>

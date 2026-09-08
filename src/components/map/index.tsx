@@ -185,7 +185,9 @@ export const Map = memo(() => {
           meshChild.material = newMaterials
 
           if (isCity && !Array.isArray(newMaterials)) {
-            useMesh.setState({ city: { material: newMaterials } })
+            useMesh.setState({
+              city: { material: newMaterials, mesh: meshChild }
+            })
           }
 
           meshChild.userData.hasGlobalMaterial = true
