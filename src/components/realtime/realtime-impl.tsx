@@ -28,6 +28,8 @@ const HIDDEN_UNTRACK_MS = 10_000
 // Supabase closes the channel past five Presence calls per client per 30s
 const PRESENCE_WINDOW_MS = 30_000
 const PRESENCE_MAX_CALLS = 5
+// The server window opens when the first call lands, not when we sent it
+const PRESENCE_WINDOW_SLACK_MS = 2_000
 
 // Public (non-private) Broadcast/Presence channels: anon key only, no tables
 // or RLS involved. Hardening to private channels + RLS on realtime.messages
@@ -88,7 +90,7 @@ export const RealtimeImpl = () => {
       if (sentAt.length >= PRESENCE_MAX_CALLS) {
         budgetTimeout = setTimeout(
           syncPresence,
-          PRESENCE_WINDOW_MS - (now - sentAt[0])
+          PRESENCE_WINDOW_MS - (now - sentAt[0]) + PRESENCE_WINDOW_SLACK_MS
         )
         return
       }
@@ -108,7 +110,12 @@ export const RealtimeImpl = () => {
           .setOnlineCount(Object.keys(channel.presenceState()).length)
       })
       .subscribe((status) => {
-        if (status === "SUBSCRIBED") syncPresence()
+        // A rejoin starts with an empty server-side presence entry, and
+        // SUBSCRIBED fires again on every one of them
+        if (status === "SUBSCRIBED") {
+          tracked = false
+          syncPresence()
+        }
       })
 
     // Only active viewers count: a tab that stays hidden leaves presence
