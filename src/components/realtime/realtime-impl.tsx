@@ -25,6 +25,12 @@ const MIN_SEND_DIST_PX = 2
 // channel. Becoming visible again re-tracks immediately.
 const HIDDEN_UNTRACK_MS = 10_000
 
+// Supabase closes the channel past five Presence calls per client per 30s, so
+// hide/show churn goes through a budget that defers the latest state instead
+// of sending every transition.
+const PRESENCE_WINDOW_MS = 30_000
+const PRESENCE_MAX_CALLS = 5
+
 // Public (non-private) Broadcast/Presence channels: anon key only, no tables
 // or RLS involved. Hardening to private channels + RLS on realtime.messages
 // is the production path, out of scope for this POC.
@@ -64,17 +70,42 @@ export const RealtimeImpl = () => {
     })
 
     let hiddenTimeout: ReturnType<typeof setTimeout> | null = null
+    let budgetTimeout: ReturnType<typeof setTimeout> | null = null
+    const sentAt: number[] = []
 
-    // Tracks whether this tab currently holds a presence entry: hiding can
-    // race the initial subscription, so "a timer is pending" doesn't imply
-    // "we are tracked" and the visible branch needs its own signal
+    // Visibility and the subscription settle in either order, so nothing here
+    // sends directly: handlers record the presence this tab *should* hold and
+    // syncPresence reconciles it whenever either side moves.
+    let wantsTracked = !document.hidden
     let tracked = false
 
-    // No id in the payload: the presence key already identifies the entry,
-    // and the payload is broadcast to every subscriber
-    const track = () => {
-      tracked = true
-      return channel.track({ joinedAt: Date.now() })
+    const syncPresence = () => {
+      if (budgetTimeout) {
+        clearTimeout(budgetTimeout)
+        budgetTimeout = null
+      }
+      if (channel.state !== "joined" || wantsTracked === tracked) return
+
+      const now = Date.now()
+      while (sentAt.length > 0 && now - sentAt[0] >= PRESENCE_WINDOW_MS) {
+        sentAt.shift()
+      }
+      // Out of budget: retry when the oldest call ages out, by which point
+      // wantsTracked may have flipped back and cost nothing
+      if (sentAt.length >= PRESENCE_MAX_CALLS) {
+        budgetTimeout = setTimeout(
+          syncPresence,
+          PRESENCE_WINDOW_MS - (now - sentAt[0])
+        )
+        return
+      }
+
+      sentAt.push(now)
+      tracked = wantsTracked
+      // No id in the payload: the presence key already identifies the entry,
+      // and the payload is broadcast to every subscriber
+      if (tracked) channel.track({ joinedAt: now })
+      else channel.untrack()
     }
 
     channel
@@ -83,20 +114,18 @@ export const RealtimeImpl = () => {
           .getState()
           .setOnlineCount(Object.keys(channel.presenceState()).length)
       })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED" && !document.hidden) {
-          await track()
-        }
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") syncPresence()
       })
 
     // Only active viewers count: a tab that stays hidden leaves presence
     const onVisibilityChange = () => {
       if (document.hidden) {
-        if (hiddenTimeout) clearTimeout(hiddenTimeout)
+        if (hiddenTimeout) return
         hiddenTimeout = setTimeout(() => {
           hiddenTimeout = null
-          tracked = false
-          channel.untrack()
+          wantsTracked = false
+          syncPresence()
         }, HIDDEN_UNTRACK_MS)
         return
       }
@@ -104,15 +133,15 @@ export const RealtimeImpl = () => {
         clearTimeout(hiddenTimeout)
         hiddenTimeout = null
       }
-      if (!tracked && channel.state === "joined") {
-        track()
-      }
+      wantsTracked = true
+      syncPresence()
     }
     document.addEventListener("visibilitychange", onVisibilityChange)
 
     return () => {
       document.removeEventListener("visibilitychange", onVisibilityChange)
       if (hiddenTimeout) clearTimeout(hiddenTimeout)
+      if (budgetTimeout) clearTimeout(budgetTimeout)
       useRealtimeStore.getState().setOnlineCount(0)
       supabase.removeChannel(channel)
     }
