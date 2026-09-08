@@ -17,7 +17,6 @@ uniform vec2 uCloudOffset;
 uniform vec3 uCloudColorZenith;
 uniform vec3 uCloudColorHorizon;
 uniform float uNightFactor;
-uniform vec3 uGroundColor;
 
 const float PI = 3.141592653589793;
 
@@ -87,7 +86,13 @@ float stars(vec3 rd, float time) {
 void main() {
   vec3 rd = normalize(vWorldPosition - cameraPosition);
 
-  vec4 lut = texture2D(uSkyLut, dirToLutUv(rd));
+  // Below the horizon nothing covers the sphere for a while — clamp the LUT
+  // lookup to just above the horizon so the band under the skyline reads as
+  // hazy sea extending the sky, not a drop to black.
+  float below = smoothstep(0.0, -0.1, rd.y);
+  vec3 rdSky = rd.y < 0.015 ? normalize(vec3(rd.x, 0.015, rd.z)) : rd;
+
+  vec4 lut = texture2D(uSkyLut, dirToLutUv(rdSky));
   vec3 col = lut.rgb;
 
   float cloudA = 0.0;
@@ -120,15 +125,20 @@ void main() {
     (disc * uSunDiscIntensity + glow * uSunGlowIntensity) *
     sunOcclusion;
 
-  // lut.a (view transmittance) fades stars near the thick horizon.
-  if (uNightFactor > 0.001) {
+  // lut.a (view transmittance) fades stars near the thick horizon; none on
+  // the sea band.
+  if (uNightFactor > 0.001 && rd.y > 0.0) {
     col +=
-      vec3(stars(rd, uTime)) * uNightFactor * lut.a * (1.0 - cloudA) * 1.5;
+      vec3(stars(rd, uTime)) *
+      uNightFactor *
+      lut.a *
+      (1.0 - cloudA) *
+      smoothstep(0.0, 0.03, rd.y) *
+      1.5;
   }
 
-  // Below the horizon the street/buildings cover nearly everything; fade to
-  // a ground tone rather than showing the integral's dark band.
-  col = mix(uGroundColor, col, smoothstep(-0.06, 0.0, rd.y));
+  // The sea sits a touch darker than the sky it mirrors.
+  col *= 1.0 - 0.45 * below;
 
   col += vec3((ign(gl_FragCoord.xy) - 0.5) * (1.0 / 128.0));
 
