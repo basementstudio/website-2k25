@@ -25,9 +25,7 @@ const MIN_SEND_DIST_PX = 2
 // channel. Becoming visible again re-tracks immediately.
 const HIDDEN_UNTRACK_MS = 10_000
 
-// Supabase closes the channel past five Presence calls per client per 30s, so
-// hide/show churn goes through a budget that defers the latest state instead
-// of sending every transition.
+// Supabase closes the channel past five Presence calls per client per 30s
 const PRESENCE_WINDOW_MS = 30_000
 const PRESENCE_MAX_CALLS = 5
 
@@ -73,9 +71,6 @@ export const RealtimeImpl = () => {
     let budgetTimeout: ReturnType<typeof setTimeout> | null = null
     const sentAt: number[] = []
 
-    // Visibility and the subscription settle in either order, so nothing here
-    // sends directly: handlers record the presence this tab *should* hold and
-    // syncPresence reconciles it whenever either side moves.
     let wantsTracked = !document.hidden
     let tracked = false
 
@@ -90,8 +85,6 @@ export const RealtimeImpl = () => {
       while (sentAt.length > 0 && now - sentAt[0] >= PRESENCE_WINDOW_MS) {
         sentAt.shift()
       }
-      // Out of budget: retry when the oldest call ages out, by which point
-      // wantsTracked may have flipped back and cost nothing
       if (sentAt.length >= PRESENCE_MAX_CALLS) {
         budgetTimeout = setTimeout(
           syncPresence,
