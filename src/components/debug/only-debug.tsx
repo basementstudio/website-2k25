@@ -13,7 +13,6 @@ import {
   type SkyWeatherPreset
 } from "@/components/sky/sky-debug"
 import { useMesh } from "@/hooks/use-mesh"
-import { dofConfig } from "@/shaders/material-postprocessing"
 
 import {
   postprocessingDebug,
@@ -265,40 +264,6 @@ const SkyDebugControls = () => {
   return null
 }
 
-const DofDebugControls = () => {
-  useControls("depth of field", {
-    start: {
-      value: dofConfig.start,
-      min: 1,
-      max: 150,
-      step: 1,
-      onChange: (value: number) => {
-        dofConfig.start = value
-      }
-    },
-    end: {
-      value: dofConfig.end,
-      min: 5,
-      max: 300,
-      step: 1,
-      onChange: (value: number) => {
-        dofConfig.end = value
-      }
-    },
-    radius: {
-      value: dofConfig.radius,
-      min: 0,
-      max: 8,
-      step: 0.1,
-      onChange: (value: number) => {
-        dofConfig.radius = value
-      }
-    }
-  })
-
-  return null
-}
-
 const PostprocessingDebugControls = () => {
   const [, setBasics] = useControls("Basics", () => ({
     contrast: {
@@ -408,7 +373,6 @@ export const OnlyDebug = () => (
     <CameraDebugControls />
     <SkyDebugControls />
     <CityDebugControls />
-    <DofDebugControls />
     <PostprocessingDebugControls />
     <ReactScan />
   </>
