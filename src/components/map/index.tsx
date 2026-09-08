@@ -188,6 +188,15 @@ export const Map = memo(() => {
 
           meshChild.material = newMaterials
 
+          // Half-strength grime so the outside reads clearer.
+          if (
+            meshChild.name === "SM_Glass_Dust" &&
+            !Array.isArray(newMaterials)
+          ) {
+            newMaterials.uniforms.opacity.value =
+              (newMaterials.uniforms.opacity.value as number) * 0.5
+          }
+
           if (isCity && !Array.isArray(newMaterials)) {
             meshChild.position.set(...CITY_POSITION)
             meshChild.scale.setX(CITY_SCALE.x)

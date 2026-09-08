@@ -10,7 +10,7 @@ import { useMesh } from "@/hooks/use-mesh"
 // Applied synchronously in the Map traverse so the debug sliders never see
 // the pre-bake values.
 export const CITY_POSITION = [-56, 1.38, 72] as const
-export const CITY_SCALE = { x: 11.15, y: 35.55 }
+export const CITY_SCALE = { x: 7.43, y: 23.7 }
 
 /**
  * Swaps the TX_Building billboard's baked texture for the day/night skyline
