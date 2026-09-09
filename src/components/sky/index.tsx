@@ -17,6 +17,7 @@ import {
 import { useWeather } from "@/components/weather/weather-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
+  cityActivityUniform,
   cityNightUniform,
   outdoorEmissiveUniform,
   outdoorTintUniform
@@ -88,6 +89,10 @@ const tintScratch = new Vector3()
 const sunColorScratch = new Vector3()
 const twilightHorizon = new Vector3()
 const twilightZenith = new Vector3()
+const moonDir = new Vector3()
+const moonTangent = new Vector3()
+const moonBitangent = new Vector3()
+const UP = new Vector3(0, 1, 0)
 
 const MORNING_HORIZON = new Vector3(1.2, 0.66, 0.52)
 const MORNING_ZENITH = new Vector3(0.85, 0.75, 1.15)
@@ -173,6 +178,7 @@ export const Sky = () => {
         handle.frames++
         handle.gl = gl
         handle.scene = state.scene
+        handle.camera = state.camera
       }
     }
 
@@ -224,8 +230,26 @@ export const Sky = () => {
     const rain = smooth.current.rain
 
     const nightFactor = 1 - smoothstep(-10, -2, elevationDeg)
+    const nightDepth = 1 - smoothstep(-40, -15, elevationDeg)
     const daylightFactor =
       smoothstep(2, 10, elevationDeg) * (1 - cloud) * (1 - rain)
+
+    moonDir.copy(sunDir).multiplyScalar(-1)
+    const moonElRaw = Math.asin(Math.max(-1, Math.min(1, moonDir.y)))
+    if (moonElRaw > 0) {
+      const moonEl = Math.min(Math.max(moonElRaw, 0.12), 0.2)
+      const moonAz = Math.min(
+        Math.max(Math.atan2(moonDir.x, moonDir.z), -0.5),
+        -0.3
+      )
+      moonDir.set(
+        Math.cos(moonEl) * Math.sin(moonAz),
+        Math.sin(moonEl),
+        Math.cos(moonEl) * Math.cos(moonAz)
+      )
+    }
+    moonTangent.copy(UP).cross(moonDir).normalize()
+    moonBitangent.copy(moonDir).cross(moonTangent).normalize()
 
     const twilight =
       (1 - smoothstep(2, 12, elevationDeg)) *
@@ -270,6 +294,7 @@ export const Sky = () => {
     ;(outdoorTintUniform.value as Vector3)
       .copy(tintScratch)
       .multiplyScalar(weatherDim * (1 + flash * 1.2))
+    cityActivityUniform.value = 1 - nightDepth * 0.45
 
     outdoorEmissiveUniform.value = 1 - smoothstep(-6, -1, elevationDeg)
     cityNightUniform.value = 1 - smoothstep(-7, -1, elevationDeg)
@@ -283,6 +308,11 @@ export const Sky = () => {
     u.uSunDiscIntensity.value = debug.sunDiscIntensity
     u.uCloudCover.value = Math.max(cloud, MIN_CLOUD_COVER)
     u.uNightFactor.value = nightFactor
+    u.uStarBoost.value = nightDepth * 0.8
+    ;(u.uMoonDir.value as Vector3).copy(moonDir)
+    ;(u.uMoonTangent.value as Vector3).copy(moonTangent)
+    ;(u.uMoonBitangent.value as Vector3).copy(moonBitangent)
+    u.uMoonLight.value = nightFactor
     u.uLightning.value = flash
     const drift = delta * windSpeed
     ;(u.uCloudOffset.value as Vector2).x += drift * CLOUD_DRIFT_X
@@ -311,6 +341,9 @@ export const Sky = () => {
       lu.uCloudCover.value = cloud
       lu.uRainFactor.value = rain
       lu.uNightFactor.value = nightFactor
+      ;(lu.uNightAmbient.value as Vector3)
+        .set(0.004, 0.006, 0.012)
+        .multiplyScalar(1 - nightDepth * 0.65)
       lu.uTwilight.value = twilight
       ;(lu.uTwilightHorizon.value as Vector3).copy(twilightHorizon)
       ;(lu.uTwilightZenith.value as Vector3).copy(twilightZenith)

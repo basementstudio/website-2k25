@@ -10,6 +10,7 @@ export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 export const outdoorTintUniform = { value: new Vector3(1, 1, 1) }
 export const outdoorEmissiveUniform = { value: 1 }
 export const cityNightUniform = { value: 0 }
+export const cityActivityUniform = { value: 1 }
 
 export const createGlobalShaderMaterial = (
   baseMaterial: MeshStandardMaterial,
@@ -105,6 +106,7 @@ export const createGlobalShaderMaterial = (
   if (defines?.CITY) {
     uniforms["nightMap"] = { value: null }
     uniforms["uCityNight"] = cityNightUniform
+    uniforms["uCityActivity"] = cityActivityUniform
   }
 
   const emissiveSum = baseMaterial.emissive

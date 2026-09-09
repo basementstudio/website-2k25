@@ -31,6 +31,7 @@ export const ATMOSPHERE = {
 }
 
 const TINT_STOPS: { el: number; color: [number, number, number] }[] = [
+  { el: -40, color: [0.07, 0.08, 0.16] },
   { el: -12, color: [0.13, 0.15, 0.25] },
   { el: -6, color: [0.45, 0.42, 0.55] },
   { el: 0, color: [1.05, 0.85, 0.65] },

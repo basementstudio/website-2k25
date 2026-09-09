@@ -86,6 +86,7 @@ uniform float uOutdoorEmissive;
 #ifdef CITY
 uniform sampler2D nightMap;
 uniform float uCityNight;
+uniform float uCityActivity;
 #endif
 
 // Daylight
@@ -172,7 +173,7 @@ void main() {
 
   #if defined(CITY) && defined(USE_MAP)
   vec4 nightSample = texture2D(nightMap, mapUv);
-  color = mix(color, nightSample.rgb, uCityNight);
+  color = mix(color, nightSample.rgb * uCityActivity, uCityNight);
   mapSample.a = mix(mapSample.a, nightSample.a, uCityNight);
   #endif
 
