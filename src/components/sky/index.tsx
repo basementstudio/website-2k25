@@ -255,7 +255,7 @@ export const Sky = () => {
     if (moonElRaw > 0) {
       const nightT = smoothstep(0.1, 1, moonElRaw)
       const moonEl = 0.15 + 0.11 * nightT
-      const moonAz = -0.26 - 0.14 * nightT
+      const moonAz = -0.2 - 0.2 * nightT
       moonDir.set(
         Math.cos(moonEl) * Math.sin(moonAz),
         Math.sin(moonEl),
