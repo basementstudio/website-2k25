@@ -6,7 +6,10 @@ import { Fragment, useEffect, useState } from "react"
 import { useAssets } from "@/components/assets-provider"
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useInspectable } from "@/components/inspectables/context"
+import { RubiksTimer } from "@/components/rubiks-cube/timer"
 import { cn } from "@/utils/cn"
+
+const RUBIKS_MESH_ID = "SM_06_06"
 
 type InspectableData = AssetsResult["inspectables"][number]
 
@@ -90,6 +93,7 @@ export const InspectableViewer = () => {
           </div>
           <div className="row-span-1 flex flex-col justify-center gap-4">
             {data && <Content data={data} />}
+            {selected === RUBIKS_MESH_ID && <RubiksTimer />}
           </div>
         </div>
       </div>
