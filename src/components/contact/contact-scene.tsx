@@ -292,6 +292,7 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   useEffect(() => {
     if (!scene || !animations.length) return
     calculateAndSendScreenDimensions()
+    self.postMessage({ type: "scene-ready" })
 
     scene.traverse((node) => {
       node.frustumCulled = false
