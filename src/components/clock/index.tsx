@@ -82,7 +82,7 @@ export const Clock = () => {
     eyes.forEach((eye) => (eye.rotation.y = eyeSwing))
   })
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (hovered) {
@@ -95,13 +95,17 @@ export const Clock = () => {
         setCursor("pointer", message)
       }
 
-      handleTime()
-
-      intervalRef.current = setInterval(handleTime, 1000)
+      // Phase-lock every tick to the wall-clock second so rollovers show on
+      // time, even if a timer fires late (e.g. throttled background tab)
+      const tick = () => {
+        handleTime()
+        timeoutRef.current = setTimeout(tick, 1000 - (Date.now() % 1000))
+      }
+      tick()
     } else setCursor("default", null)
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hovered])
