@@ -1,5 +1,7 @@
+import { useTexture } from "@react-three/drei"
 import { useEffect, useMemo, useRef } from "react"
 import {
+  ClampToEdgeWrapping,
   HalfFloatType,
   LinearFilter,
   LinearSRGBColorSpace,
@@ -9,14 +11,17 @@ import {
   RepeatWrapping,
   RGBAFormat,
   Scene,
+  SRGBColorSpace,
   Vector2,
   Vector3,
   WebGLRenderTarget
 } from "three"
 
+import { useAssets } from "@/components/assets-provider"
 import { useWeather } from "@/components/weather/weather-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
+  cityActivityUniform,
   cityNightUniform,
   outdoorEmissiveUniform,
   outdoorTintUniform
@@ -86,6 +91,17 @@ const computeSunColor = (elevationDeg: number, out: Vector3) => {
 const sunDir = new Vector3()
 const tintScratch = new Vector3()
 const sunColorScratch = new Vector3()
+const twilightHorizon = new Vector3()
+const twilightZenith = new Vector3()
+const moonDir = new Vector3()
+const moonTangent = new Vector3()
+const moonBitangent = new Vector3()
+const UP = new Vector3(0, 1, 0)
+
+const MORNING_HORIZON = new Vector3(1.2, 0.66, 0.52)
+const MORNING_ZENITH = new Vector3(0.85, 0.75, 1.15)
+const EVENING_HORIZON = new Vector3(1.25, 0.55, 0.28)
+const EVENING_ZENITH = new Vector3(0.75, 0.65, 1.1)
 
 export const Sky = () => {
   const { lutTarget, lutScene, lutCamera, lutMaterial, skyMaterial } =
@@ -135,6 +151,18 @@ export const Sky = () => {
     [lutTarget, lutMaterial, skyMaterial]
   )
 
+  const {
+    mapTextures: { moon }
+  } = useAssets()
+  const moonTexture = useTexture(moon)
+
+  useEffect(() => {
+    moonTexture.colorSpace = SRGBColorSpace
+    moonTexture.wrapS = moonTexture.wrapT = ClampToEdgeWrapping
+    moonTexture.needsUpdate = true
+    skyMaterial.uniforms.uMoonMap.value = moonTexture
+  }, [moonTexture, skyMaterial])
+
   const smooth = useRef({
     cloud: useWeather.getState().cloudCover,
     rain: useWeather.getState().isRaining
@@ -166,6 +194,7 @@ export const Sky = () => {
         handle.frames++
         handle.gl = gl
         handle.scene = state.scene
+        handle.camera = state.camera
       }
     }
 
@@ -217,8 +246,32 @@ export const Sky = () => {
     const rain = smooth.current.rain
 
     const nightFactor = 1 - smoothstep(-10, -2, elevationDeg)
+    const nightDepth = 1 - smoothstep(-40, -15, elevationDeg)
     const daylightFactor =
       smoothstep(2, 10, elevationDeg) * (1 - cloud) * (1 - rain)
+
+    moonDir.copy(sunDir).multiplyScalar(-1)
+    const moonElRaw = Math.asin(Math.max(-1, Math.min(1, moonDir.y)))
+    if (moonElRaw > 0) {
+      const nightT = smoothstep(0.1, 1, moonElRaw)
+      const moonEl = 0.15 + 0.11 * nightT
+      const moonAz = -0.2 - 0.2 * nightT
+      moonDir.set(
+        Math.cos(moonEl) * Math.sin(moonAz),
+        Math.sin(moonEl),
+        Math.cos(moonEl) * Math.cos(moonAz)
+      )
+    }
+    moonTangent.copy(UP).cross(moonDir).normalize()
+    moonBitangent.copy(moonDir).cross(moonTangent).normalize()
+
+    const twilight =
+      (1 - smoothstep(2, 12, elevationDeg)) *
+      smoothstep(-9, -3, elevationDeg) *
+      (1 - rain * 0.6)
+    const isMorning = azimuthDeg < 180
+    twilightHorizon.copy(isMorning ? MORNING_HORIZON : EVENING_HORIZON)
+    twilightZenith.copy(isMorning ? MORNING_ZENITH : EVENING_ZENITH)
 
     const bolt = lightning.current
     let flash = 0
@@ -255,6 +308,7 @@ export const Sky = () => {
     ;(outdoorTintUniform.value as Vector3)
       .copy(tintScratch)
       .multiplyScalar(weatherDim * (1 + flash * 1.2))
+    cityActivityUniform.value = 1 - nightDepth * 0.45
 
     outdoorEmissiveUniform.value = 1 - smoothstep(-6, -1, elevationDeg)
     cityNightUniform.value = 1 - smoothstep(-7, -1, elevationDeg)
@@ -268,6 +322,11 @@ export const Sky = () => {
     u.uSunDiscIntensity.value = debug.sunDiscIntensity
     u.uCloudCover.value = Math.max(cloud, MIN_CLOUD_COVER)
     u.uNightFactor.value = nightFactor
+    u.uStarBoost.value = nightDepth * 0.8
+    ;(u.uMoonDir.value as Vector3).copy(moonDir)
+    ;(u.uMoonTangent.value as Vector3).copy(moonTangent)
+    ;(u.uMoonBitangent.value as Vector3).copy(moonBitangent)
+    u.uMoonLight.value = 1 - smoothstep(-10, -6, elevationDeg)
     u.uLightning.value = flash
     const drift = delta * windSpeed
     ;(u.uCloudOffset.value as Vector2).x += drift * CLOUD_DRIFT_X
@@ -275,9 +334,11 @@ export const Sky = () => {
     ;(u.uCloudColorZenith.value as Vector3)
       .copy(tintScratch)
       .multiplyScalar(0.7)
+      .lerp(twilightZenith, twilight * 0.6)
     ;(u.uCloudColorHorizon.value as Vector3)
       .copy(tintScratch)
       .multiplyScalar(0.85)
+      .lerp(twilightHorizon, twilight * 0.7)
 
     const last = lastBake.current
     const dirty =
@@ -294,6 +355,12 @@ export const Sky = () => {
       lu.uCloudCover.value = cloud
       lu.uRainFactor.value = rain
       lu.uNightFactor.value = nightFactor
+      ;(lu.uNightAmbient.value as Vector3)
+        .set(0.004, 0.006, 0.012)
+        .multiplyScalar(1 - nightDepth * 0.65)
+      lu.uTwilight.value = twilight
+      ;(lu.uTwilightHorizon.value as Vector3).copy(twilightHorizon)
+      ;(lu.uTwilightZenith.value as Vector3).copy(twilightZenith)
 
       gl.setRenderTarget(lutTarget)
       gl.render(lutScene, lutCamera)

@@ -159,6 +159,7 @@ export interface AssetsResult {
     rain: string
     cityDay: string
     cityNight: string
+    moon: string
   }
   physicsParams: {
     _title: string

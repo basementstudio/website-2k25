@@ -13,6 +13,12 @@ uniform vec2 uCloudOffset;
 uniform vec3 uCloudColorZenith;
 uniform vec3 uCloudColorHorizon;
 uniform float uNightFactor;
+uniform float uStarBoost;
+uniform vec3 uMoonDir;
+uniform vec3 uMoonTangent;
+uniform vec3 uMoonBitangent;
+uniform float uMoonLight;
+uniform sampler2D uMoonMap;
 uniform float uLightning;
 
 const float PI = 3.141592653589793;
@@ -74,7 +80,7 @@ float stars(vec3 rd, float time) {
   vec2 starPos = hash22(cell) * 0.6 + 0.2;
   float d = length(fract(grid) - starPos);
   float twinkle = 0.7 + 0.3 * sin(time * (1.0 + h * 40.0) + h * 100.0);
-  return (1.0 - smoothstep(0.0, 0.12, d)) *
+  return (1.0 - smoothstep(0.0, 0.075, d)) *
   twinkle *
   (1.0 - smoothstep(0.0, 0.06, h));
 }
@@ -116,10 +122,26 @@ void main() {
     (disc * uSunDiscIntensity + glow * uSunGlowIntensity) *
     sunOcclusion;
 
+  float cosMoon = dot(rd, uMoonDir);
+  if (uMoonLight > 0.001 && cosMoon > 0.995) {
+    vec2 muv = vec2(dot(rd, uMoonTangent), dot(rd, uMoonBitangent));
+    float moonR = 0.013;
+    vec2 moonUv = clamp(muv / (2.0 * moonR) + 0.5, 0.0, 1.0);
+    vec4 moonTex = texture2D(uMoonMap, moonUv);
+    float inDisc = 1.0 - smoothstep(0.9, 1.0, length(muv) / moonR);
+    float moonGlow = pow(clamp(cosMoon, 0.0, 1.0), 3200.0);
+    col +=
+      (moonTex.rgb * moonTex.a * inDisc * 1.7 +
+        vec3(0.45, 0.5, 0.62) * moonGlow * 0.18) *
+      uMoonLight *
+      sunOcclusion;
+  }
+
   if (uNightFactor > 0.001 && rd.y > 0.0) {
     col +=
       vec3(stars(rd, uTime)) *
       uNightFactor *
+      (1.0 + uStarBoost) *
       lut.a *
       (1.0 - cloudA) *
       smoothstep(0.0, 0.03, rd.y) *
