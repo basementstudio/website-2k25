@@ -472,7 +472,7 @@ export const CustomCursor = memo(() => {
               />
             </m.div>
           ) : hoverText ? (
-            <CursorLabel key={`hover:${hoverText}`}>
+            <CursorLabel key="hover">
               {!marquee ? (
                 `[${hoverText}]`
               ) : (
