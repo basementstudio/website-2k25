@@ -173,7 +173,13 @@ void main() {
 
   #if defined(CITY) && defined(USE_MAP)
   vec4 nightSample = texture2D(nightMap, mapUv);
-  color = mix(color, nightSample.rgb * uCityActivity, uCityNight);
+  float windowGlow = smoothstep(
+    0.18,
+    0.5,
+    dot(nightSample.rgb, vec3(0.2126, 0.7152, 0.0722))
+  );
+  vec3 nightCity = nightSample.rgb * mix(1.0, uCityActivity, windowGlow);
+  color = mix(color, nightCity, uCityNight);
   mapSample.a = mix(mapSample.a, nightSample.a, uCityNight);
   #endif
 
