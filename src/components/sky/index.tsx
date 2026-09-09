@@ -1,5 +1,7 @@
+import { useTexture } from "@react-three/drei"
 import { useEffect, useMemo, useRef } from "react"
 import {
+  ClampToEdgeWrapping,
   HalfFloatType,
   LinearFilter,
   LinearSRGBColorSpace,
@@ -9,11 +11,13 @@ import {
   RepeatWrapping,
   RGBAFormat,
   Scene,
+  SRGBColorSpace,
   Vector2,
   Vector3,
   WebGLRenderTarget
 } from "three"
 
+import { useAssets } from "@/components/assets-provider"
 import { useWeather } from "@/components/weather/weather-store"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import {
@@ -147,6 +151,18 @@ export const Sky = () => {
     [lutTarget, lutMaterial, skyMaterial]
   )
 
+  const {
+    mapTextures: { moon }
+  } = useAssets()
+  const moonTexture = useTexture(moon)
+
+  useEffect(() => {
+    moonTexture.colorSpace = SRGBColorSpace
+    moonTexture.wrapS = moonTexture.wrapT = ClampToEdgeWrapping
+    moonTexture.needsUpdate = true
+    skyMaterial.uniforms.uMoonMap.value = moonTexture
+  }, [moonTexture, skyMaterial])
+
   const smooth = useRef({
     cloud: useWeather.getState().cloudCover,
     rain: useWeather.getState().isRaining
@@ -237,11 +253,9 @@ export const Sky = () => {
     moonDir.copy(sunDir).multiplyScalar(-1)
     const moonElRaw = Math.asin(Math.max(-1, Math.min(1, moonDir.y)))
     if (moonElRaw > 0) {
-      const moonEl = Math.min(Math.max(moonElRaw, 0.12), 0.2)
-      const moonAz = Math.min(
-        Math.max(Math.atan2(moonDir.x, moonDir.z), -0.5),
-        -0.3
-      )
+      const nightT = smoothstep(0.1, 1, moonElRaw)
+      const moonEl = 0.15 + 0.11 * nightT
+      const moonAz = -0.26 - 0.14 * nightT
       moonDir.set(
         Math.cos(moonEl) * Math.sin(moonAz),
         Math.sin(moonEl),
@@ -312,7 +326,7 @@ export const Sky = () => {
     ;(u.uMoonDir.value as Vector3).copy(moonDir)
     ;(u.uMoonTangent.value as Vector3).copy(moonTangent)
     ;(u.uMoonBitangent.value as Vector3).copy(moonBitangent)
-    u.uMoonLight.value = nightFactor
+    u.uMoonLight.value = 1 - smoothstep(-10, -6, elevationDeg)
     u.uLightning.value = flash
     const drift = delta * windSpeed
     ;(u.uCloudOffset.value as Vector2).x += drift * CLOUD_DRIFT_X

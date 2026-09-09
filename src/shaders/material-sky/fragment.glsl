@@ -18,6 +18,7 @@ uniform vec3 uMoonDir;
 uniform vec3 uMoonTangent;
 uniform vec3 uMoonBitangent;
 uniform float uMoonLight;
+uniform sampler2D uMoonMap;
 uniform float uLightning;
 
 const float PI = 3.141592653589793;
@@ -123,12 +124,14 @@ void main() {
 
   float cosMoon = dot(rd, uMoonDir);
   if (uMoonLight > 0.001 && cosMoon > 0.995) {
-    vec2 muv = vec2(dot(rd, uMoonTangent), dot(rd, uMoonBitangent)) * 110.0;
-    float moonDisc = smoothstep(cos(0.0095), cos(0.008), cosMoon);
-    float surface = 0.78 + 0.3 * fbm4(muv + 7.3);
+    vec2 muv = vec2(dot(rd, uMoonTangent), dot(rd, uMoonBitangent));
+    float moonR = 0.013;
+    vec2 moonUv = clamp(muv / (2.0 * moonR) + 0.5, 0.0, 1.0);
+    vec4 moonTex = texture2D(uMoonMap, moonUv);
+    float inDisc = 1.0 - smoothstep(0.9, 1.0, length(muv) / moonR);
     float moonGlow = pow(clamp(cosMoon, 0.0, 1.0), 3200.0);
     col +=
-      (vec3(0.93, 0.92, 0.9) * moonDisc * surface * 0.9 +
+      (moonTex.rgb * moonTex.a * inDisc * 1.7 +
         vec3(0.45, 0.5, 0.62) * moonGlow * 0.18) *
       uMoonLight *
       sunOcclusion;

@@ -44,7 +44,8 @@ export const ASSETS_BASE: AssetsBase = {
   mapTextures: {
     rain: "/3d/textures/mapTextures-rain-d1b1ba0b.jpg",
     cityDay: "/3d/textures/mapTextures-cityDay-e9e54551.png",
-    cityNight: "/3d/textures/mapTextures-cityNight-c8f18e8b.png"
+    cityNight: "/3d/textures/mapTextures-cityNight-c8f18e8b.png",
+    moon: "/3d/textures/mapTextures-moon-3a6c4169.png"
   },
 
   // --- Special events ---
