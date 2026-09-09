@@ -15,7 +15,10 @@ export const createSkyLutMaterial = () =>
       uCloudCover: { value: 0.2 },
       uRainFactor: { value: 0 },
       uNightFactor: { value: 0 },
-      uNightAmbient: { value: new Vector3(0.004, 0.006, 0.012) }
+      uNightAmbient: { value: new Vector3(0.004, 0.006, 0.012) },
+      uTwilight: { value: 0 },
+      uTwilightHorizon: { value: new Vector3(1, 0.3, 0.12) },
+      uTwilightZenith: { value: new Vector3(0.62, 0.45, 0.95) }
     },
     vertexShader: lutVertexShader,
     fragmentShader: lutFragmentShader

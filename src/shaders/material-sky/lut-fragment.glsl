@@ -8,6 +8,9 @@ uniform float uCloudCover;
 uniform float uRainFactor;
 uniform float uNightFactor;
 uniform vec3 uNightAmbient;
+uniform float uTwilight;
+uniform vec3 uTwilightHorizon;
+uniform vec3 uTwilightZenith;
 
 const float PI = 3.141592653589793;
 
@@ -104,6 +107,18 @@ void main() {
     ((2.0 + g2) * pow(1.0 + g2 - 2.0 * MIE_G * mu, 1.5));
 
   vec3 col = uSunIntensity * (sumR * BETA_R * pR + sumM * vec3(BETA_M) * pM);
+
+  if (uTwilight > 0.001) {
+    float sunness = pow(clamp(mu * 0.5 + 0.5, 0.0, 1.0), 1.5);
+    float horiz = 1.0 - clamp(abs(rd.y) * 1.6, 0.0, 1.0);
+    vec3 grade = mix(
+      uTwilightZenith,
+      uTwilightHorizon,
+      horiz * (0.35 + 0.65 * sunness)
+    );
+    col *= mix(vec3(1.0), grade, uTwilight * 0.6);
+    col += uTwilightHorizon * uTwilight * horiz * (0.12 + 0.5 * sunness);
+  }
 
   col += uNightAmbient * uNightFactor * (0.6 + 0.4 * max(rd.y, 0.0));
 

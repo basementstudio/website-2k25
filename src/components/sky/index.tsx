@@ -86,6 +86,13 @@ const computeSunColor = (elevationDeg: number, out: Vector3) => {
 const sunDir = new Vector3()
 const tintScratch = new Vector3()
 const sunColorScratch = new Vector3()
+const twilightHorizon = new Vector3()
+const twilightZenith = new Vector3()
+
+const MORNING_HORIZON = new Vector3(1.15, 0.62, 0.58)
+const MORNING_ZENITH = new Vector3(0.88, 0.7, 1.2)
+const EVENING_HORIZON = new Vector3(1.15, 0.42, 0.2)
+const EVENING_ZENITH = new Vector3(0.8, 0.62, 1.15)
 
 export const Sky = () => {
   const { lutTarget, lutScene, lutCamera, lutMaterial, skyMaterial } =
@@ -220,6 +227,14 @@ export const Sky = () => {
     const daylightFactor =
       smoothstep(2, 10, elevationDeg) * (1 - cloud) * (1 - rain)
 
+    const twilight =
+      (1 - smoothstep(2, 12, elevationDeg)) *
+      smoothstep(-9, -3, elevationDeg) *
+      (1 - rain * 0.6)
+    const isMorning = azimuthDeg < 180
+    twilightHorizon.copy(isMorning ? MORNING_HORIZON : EVENING_HORIZON)
+    twilightZenith.copy(isMorning ? MORNING_ZENITH : EVENING_ZENITH)
+
     const bolt = lightning.current
     let flash = 0
     if (weather.isThunderstorm) {
@@ -275,9 +290,11 @@ export const Sky = () => {
     ;(u.uCloudColorZenith.value as Vector3)
       .copy(tintScratch)
       .multiplyScalar(0.7)
+      .lerp(twilightZenith, twilight * 0.6)
     ;(u.uCloudColorHorizon.value as Vector3)
       .copy(tintScratch)
       .multiplyScalar(0.85)
+      .lerp(twilightHorizon, twilight * 0.7)
 
     const last = lastBake.current
     const dirty =
@@ -294,6 +311,9 @@ export const Sky = () => {
       lu.uCloudCover.value = cloud
       lu.uRainFactor.value = rain
       lu.uNightFactor.value = nightFactor
+      lu.uTwilight.value = twilight
+      ;(lu.uTwilightHorizon.value as Vector3).copy(twilightHorizon)
+      ;(lu.uTwilightZenith.value as Vector3).copy(twilightZenith)
 
       gl.setRenderTarget(lutTarget)
       gl.render(lutScene, lutCamera)
