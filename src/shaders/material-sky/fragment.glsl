@@ -123,13 +123,13 @@ void main() {
 
   float cosMoon = dot(rd, uMoonDir);
   if (uMoonLight > 0.001 && cosMoon > 0.995) {
-    vec2 muv = vec2(dot(rd, uMoonTangent), dot(rd, uMoonBitangent)) * 34.0;
-    float moonDisc = smoothstep(cos(0.024), cos(0.02), cosMoon);
-    float surface = 0.72 + 0.4 * fbm4(muv + 7.3);
-    float moonGlow = pow(clamp(cosMoon, 0.0, 1.0), 1400.0);
+    vec2 muv = vec2(dot(rd, uMoonTangent), dot(rd, uMoonBitangent)) * 110.0;
+    float moonDisc = smoothstep(cos(0.0095), cos(0.008), cosMoon);
+    float surface = 0.78 + 0.3 * fbm4(muv + 7.3);
+    float moonGlow = pow(clamp(cosMoon, 0.0, 1.0), 3200.0);
     col +=
-      (vec3(0.92, 0.94, 1.0) * moonDisc * surface * 0.95 +
-        vec3(0.5, 0.55, 0.7) * moonGlow * 0.25) *
+      (vec3(0.93, 0.92, 0.9) * moonDisc * surface * 0.9 +
+        vec3(0.45, 0.5, 0.62) * moonGlow * 0.18) *
       uMoonLight *
       sunOcclusion;
   }
