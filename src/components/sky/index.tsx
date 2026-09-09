@@ -89,10 +89,10 @@ const sunColorScratch = new Vector3()
 const twilightHorizon = new Vector3()
 const twilightZenith = new Vector3()
 
-const MORNING_HORIZON = new Vector3(1.15, 0.62, 0.58)
-const MORNING_ZENITH = new Vector3(0.88, 0.7, 1.2)
-const EVENING_HORIZON = new Vector3(1.15, 0.42, 0.2)
-const EVENING_ZENITH = new Vector3(0.8, 0.62, 1.15)
+const MORNING_HORIZON = new Vector3(1.2, 0.66, 0.52)
+const MORNING_ZENITH = new Vector3(0.85, 0.75, 1.15)
+const EVENING_HORIZON = new Vector3(1.25, 0.55, 0.28)
+const EVENING_ZENITH = new Vector3(0.75, 0.65, 1.1)
 
 export const Sky = () => {
   const { lutTarget, lutScene, lutCamera, lutMaterial, skyMaterial } =
