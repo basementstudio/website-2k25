@@ -9,9 +9,9 @@ interface blog {
    * SM_Controls: drive morphTargetInfluences by index instead of rotation.
    */
   door: Mesh | null
-  /** index into door.morphTargetInfluences for the door-swing shape key ("SM_00_010") */
+  /** index into door.morphTargetInfluences for the door-swing shape key ("Puerta") */
   doorMorphIndex: number | null
-  /** index into door.morphTargetInfluences for the picaporte shape key ("SM_00_012") */
+  /** index into door.morphTargetInfluences for the picaporte shape key ("Picaporte") */
   lockedDoorMorphIndex: number | null
   lamp: Mesh | null
   lampTargets: Mesh[] | null

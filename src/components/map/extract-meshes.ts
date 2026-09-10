@@ -141,13 +141,14 @@ export const extractMeshes = ({
   // --- Blog --- //
   // Door + picaporte (lock handle) used to be two separate rotating meshes
   // (SM_00_010 / SM_00_012). They're now two shape keys on one merged mesh
-  // (SM_00_010) — same mechanic as SM_Controls: drive morphTargetInfluences
-  // by index instead of rotating two separate objects.
+  // (SM_00_010, Blender-named "Puerta" for the door swing and "Picaporte"
+  // for the handle) — same mechanic as SM_Controls: drive
+  // morphTargetInfluences by index instead of rotating two separate objects.
 
   const door = office?.getObjectByName("SM_00_010") as Mesh | undefined
   const doorDict = door?.morphTargetDictionary
-  const doorMorphIndex = doorDict?.["SM_00_010"]
-  const lockedDoorMorphIndex = doorDict?.["SM_00_012"]
+  const doorMorphIndex = doorDict?.["Puerta"]
+  const lockedDoorMorphIndex = doorDict?.["Picaporte"]
   const doorMorphsFound =
     !!door && doorMorphIndex !== undefined && lockedDoorMorphIndex !== undefined
 
