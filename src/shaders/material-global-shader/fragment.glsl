@@ -96,6 +96,12 @@ uniform bool daylight;
 uniform bool inspectingEnabled;
 uniform float inspectingFactor;
 uniform float fadeFactor;
+// Idle hint — subtle breathing rim-light pulse nudging the user toward
+// inspectable items after a few seconds of no pointer movement (see
+// Inspectable's useFrameCallback + use-frame-loop.ts). 0 on every
+// non-inspectable mesh, so this is unconditional rather than behind a
+// #define — always available, only ever driven nonzero where it matters.
+uniform float hintFactor;
 
 // Lamp
 uniform sampler2D lampLightmap;
@@ -277,6 +283,16 @@ void main() {
     } else {
       irradiance = lf;
     }
+  }
+
+  if (hintFactor > 0.0) {
+    float hintFresnel = pow(
+      1.0 - max(dot(normalizedNormal, normalizedViewDir), 0.0),
+      2.5
+    );
+    float hintPulse = 0.5 + 0.5 * sin(uTime * 2.0);
+    irradiance +=
+      vec3(1.0, 0.92, 0.8) * hintFresnel * hintFactor * hintPulse * 0.35;
   }
 
   float opacityResult = 1.0;

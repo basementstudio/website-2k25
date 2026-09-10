@@ -30,6 +30,7 @@ import {
   FUJIFILM_PHOTO_ROWS,
   useFujifilmPhotos
 } from "@/hooks/use-fujifilm-photos"
+import { useIdleHint } from "@/hooks/use-idle-hint"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -451,6 +452,12 @@ export const Inspectable = memo(function InspectableInner({
     ref.current?.quaternion.slerp(targetQuaternion, SMOOTH_FACTOR)
 
     const inspectingFactorValue = inspectingFactor.current.get()
+    // Subtle idle-hint pulse (see use-frame-loop.ts) — only on this item's
+    // own meshes, only while it's sitting unselected in the active scene.
+    // Not a subscription: this changes every frame, so it's read straight
+    // off the store instead of triggering a re-render per Inspectable.
+    const hintFactorValue =
+      isActive && selected !== id ? useIdleHint.getState().factor : 0
 
     mesh?.traverse((child) => {
       if (child instanceof Mesh) {
@@ -465,6 +472,9 @@ export const Inspectable = memo(function InspectableInner({
           return
         }
         child.material.uniforms.inspectingFactor.value = inspectingFactorValue
+        if (child.material.uniforms.hintFactor) {
+          child.material.uniforms.hintFactor.value = hintFactorValue
+        }
       }
     })
   })

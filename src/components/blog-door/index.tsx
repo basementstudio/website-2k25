@@ -13,6 +13,16 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { DOOR_ANIMATION_CLOSE, DOOR_ANIMATION_OPEN } from "./constants"
 
+// The click/hover hitbox is a static box, not the real (morph-driven) door
+// mesh — so instead of parking it at the closed position (blocking whatever
+// swings into view behind it: Coffee, the people-scene hover target) or
+// toggling it on/off (which made the door unclickable once open, since
+// nothing was left to click to close it), it's rotated around the door's
+// own hinge in lockstep with the swing value. Guess at the hinge axis
+// (Y, vertical) and swing angle — Nico: flip the sign or tune the angle if
+// it doesn't track the visual door.
+const DOOR_HITBOX_SWING_ANGLE = Math.PI / 2
+
 export const BlogDoor = () => {
   const { blog } = useMesh()
   const { door, doorMorphIndex } = blog
@@ -44,6 +54,10 @@ export const BlogDoor = () => {
         ...config,
         onUpdate: () => {
           influences[doorMorphIndex] = swing.current.v
+          if (doorHoverRef.current) {
+            doorHoverRef.current.rotation.y =
+              swing.current.v * DOOR_HITBOX_SWING_ANGLE
+          }
         }
       }
     )
@@ -92,6 +106,13 @@ export const BlogDoor = () => {
             }
           }}
         >
+          {/* Reverted to the original hand-placed numbers — Nico confirmed
+          this door worked fine before. The "PartID" blue verts measured
+          from SM_00_010 turned out to belong to a DIFFERENT, non-enterable
+          door merged into the same atlas mesh, not this one — using that
+          bbox here made this hitbox big enough to swallow the picaporte's
+          real position too, so clicking the handle opened this door
+          instead of rattling its own (separate) locked door. */}
           <mesh position={[0, 0, 0.345]}>
             <boxGeometry args={[0.02, 1.1, 0.65, 32]} />
             <MeshDiscardMaterial />

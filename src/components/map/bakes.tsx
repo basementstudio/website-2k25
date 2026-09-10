@@ -98,10 +98,10 @@ const ATLAS_LIGHTMAP_VALUE = "Map00"
 // the same UV layout as the lightmap. Applied only to Map00-tagged meshes,
 // same traversal as the lightmap itself (see the atlas AO load below).
 const AO_ENABLED = true
-// Nico: "al AO lo podemos bajar al 15%" — the atlas AO reads strong at full
-// intensity, unlike the pre-existing per-mesh aoMap bakes below which stay
-// at their normal 1.0.
-const ATLAS_AO_INTENSITY = 0.15
+// Nico: "al AO lo podemos bajar al 15%" -> later settled on 10% — the atlas
+// AO reads strong at full intensity, unlike the pre-existing per-mesh aoMap
+// bakes below which stay at their normal 1.0.
+const ATLAS_AO_INTENSITY = 0.1
 
 // Trial: KTX2 (Basis UASTC HDR) atlas instead of EXR. Re-enabled — root
 // cause of the earlier "THREE.KTX2Loader: .transcodeImage failed." found:
@@ -112,10 +112,9 @@ const ATLAS_AO_INTENSITY = 0.15
 // confirmed byte-identical to the transcoder a separate working ASTC-HDR
 // prototype (C:\Users\Tres\Documents\GitHub\basement\Lightmap) uses. Needs
 // a fresh visual retest. Both URLs stay wired in the manifest either way.
-// Flipped false (Sep 10): the AO trial's fresh EXR re-bake doesn't have a
-// matching KTX2 yet (lightmapAtlasKtx2 is stale relative to it) — flip back
-// once a new KTX2 export lands.
-export const USE_KTX2_LIGHTMAPS = false
+// Was flipped false (Sep 10) while the AO trial's fresh EXR re-bake had no
+// matching KTX2 — re-enabled now that a fresh Map00.ktx2 landed for it.
+export const USE_KTX2_LIGHTMAPS = true
 
 const useLightmapAtlas = (): Texture => {
   const { lightmapAtlas, lightmapAtlasKtx2 } = useAssets()

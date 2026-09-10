@@ -14,8 +14,8 @@ export type AssetsBase = Omit<
 
 export const ASSETS_BASE: AssetsBase = {
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-4d68d447.glb",
-  office: "/3d/models/office-5211eb4a.glb",
+  officeItems: "/3d/models/officeItems-934efc75.glb",
+  office: "/3d/models/office-41d7adbe.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-6ead65cf.glb",
   godrays: "/3d/models/godrays-f4cbda2b.glb",
@@ -54,11 +54,10 @@ export const ASSETS_BASE: AssetsBase = {
   // KTX2 path looks wrong — flip USE_KTX2_LIGHTMAPS in bakes.tsx back to
   // false, don't need to touch this file.
   lightmapAtlas: "/3d/textures/lightmap-atlas-d331cacb.exr",
-  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-c58eb9fa.ktx2",
+  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-a69f004e.ktx2",
   // AO trial (Sep 10) — jpg, shares the lightmap's UV atlas layout. Not in
   // KTX2 yet (uncompressed for now, per Nico — KTX2 pass comes later once
-  // the AO look itself is confirmed). See USE_KTX2_LIGHTMAPS in bakes.tsx —
-  // flipped false while lightmapAtlasKtx2 is stale relative to this drop.
+  // the AO look itself is confirmed).
   lightmapAtlasAo: "/3d/textures/lightmap-atlas-ao-2a8edf7e.jpg",
 
   // --- Bakes (lightmaps + AO) — legacy per-zone system, now fully retired ---

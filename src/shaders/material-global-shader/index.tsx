@@ -82,6 +82,7 @@ export const createGlobalShaderMaterial = (
     inspectingEnabled: { value: false },
     inspectingFactor: { value: 0 },
     fadeFactor: { value: 0 },
+    hintFactor: { value: 0 },
 
     // Lamp
     lampLightmap: { value: null },
