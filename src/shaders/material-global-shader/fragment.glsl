@@ -35,6 +35,16 @@ uniform vec3 backLightDirection;
 uniform sampler2D aoMap;
 uniform float aoMapIntensity;
 
+// Metal/roughness — cheap specular highlight, only visible in inspection
+// mode (see isInspectionMode below), using the same view-derived light
+// directions as the 3-point rig rather than a real environment map.
+uniform float metalness;
+uniform float roughness;
+#ifdef METAL
+// glTF packs roughness in G and metalness in B of one combined texture.
+uniform sampler2D metalRoughnessMap;
+#endif
+
 uniform float noiseFactor;
 uniform bool uReverse;
 
@@ -210,6 +220,30 @@ void main() {
     // Rim light
     vec3 rimLightDir = normalize(-normalizedViewDir + vec3(0.0, 0.5, 0.0));
     lf *= basicLight(normalizedNormal, rimLightDir, 3.0);
+
+    // Metal specular highlight — cheap, no real environment map: reuses the
+    // same view-derived directions as the light rig above instead of a
+    // reflection probe. roughness narrows/widens the highlight, metalness
+    // scales its strength; both come from the baked metallicRoughnessTexture
+    // (glTF convention: G = roughness, B = metalness). Gated on an actual
+    // texture (METAL define), not just the metalness/roughness scalars —
+    // several materials leave those at the glTF default (1.0) without
+    // meaning to look metallic, so a flat-uniform fallback would light them
+    // up too.
+    #ifdef METAL
+    vec4 metalRoughnessSample = texture2D(metalRoughnessMap, vUv);
+    float roughnessValue = clamp(metalRoughnessSample.g * roughness, 0.04, 1.0);
+    float metalnessValue = clamp(metalRoughnessSample.b * metalness, 0.0, 1.0);
+
+    if (metalnessValue > 0.0) {
+      float shininess = mix(96.0, 8.0, roughnessValue);
+      float keySpec =
+        pow(max(dot(normalizedNormal, normalizedViewDir), 0.0), shininess);
+      float rimSpec =
+        pow(max(dot(normalizedNormal, rimLightDir), 0.0), shininess * 0.5);
+      lf += vec3(keySpec * 1.5 + rimSpec * 2.0) * metalnessValue;
+    }
+    #endif
 
     #ifdef MATCAP
     vec3 nvz = vec3(-normalizedViewDir.z, 0.0, normalizedViewDir.x);

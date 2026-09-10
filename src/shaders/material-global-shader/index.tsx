@@ -27,6 +27,12 @@ export const createGlobalShaderMaterial = (
      * as the old per-zone bakes and the lamp's dedicated on/off sheets.
      */
     LIGHTMAP_ATLAS?: boolean
+    /**
+     * True when the mesh has a baked metallicRoughnessTexture — gives it a
+     * cheap specular highlight while being inspected (see fragment.glsl's
+     * isInspectionMode block). No effect at rest (lightmap-lit, no specular).
+     */
+    METAL?: boolean
   }
 ) => {
   const {
@@ -35,6 +41,8 @@ export const createGlobalShaderMaterial = (
     opacity: baseOpacity = 1.0,
     metalness,
     roughness,
+    metalnessMap,
+    roughnessMap,
     alphaMap,
     emissiveMap,
     userData = {}
@@ -99,6 +107,10 @@ export const createGlobalShaderMaterial = (
     uniforms["glassMatcap"] = { value: false }
   }
 
+  if (defines?.METAL) {
+    uniforms["metalRoughnessMap"] = { value: metalnessMap ?? roughnessMap }
+  }
+
   if (defines?.DAYLIGHT) {
     uniforms["daylight"] = { value: true }
   }
@@ -129,7 +141,8 @@ export const createGlobalShaderMaterial = (
           : false,
       DAYLIGHT:
         defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false,
-      LIGHTMAP_ATLAS: Boolean(defines?.LIGHTMAP_ATLAS)
+      LIGHTMAP_ATLAS: Boolean(defines?.LIGHTMAP_ATLAS),
+      METAL: Boolean(defines?.METAL)
     },
     uniforms,
     transparent:

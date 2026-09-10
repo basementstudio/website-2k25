@@ -80,6 +80,7 @@
     "three-stdlib": "^2.36.0",
     "tunnel-rat": "^0.1.2",
     "typescript-eslint": "^8.27.0",
+    "wiggle": "^0.0.17",
     "xss": "^1.0.15",
     "zustand": "^5.0.1"
   },

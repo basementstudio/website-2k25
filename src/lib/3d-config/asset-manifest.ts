@@ -14,8 +14,8 @@ export type AssetsBase = Omit<
 
 export const ASSETS_BASE: AssetsBase = {
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-ab9e615d.glb",
-  office: "/3d/models/office-b55484c8.glb",
+  officeItems: "/3d/models/officeItems-4d68d447.glb",
+  office: "/3d/models/office-5211eb4a.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-6ead65cf.glb",
   godrays: "/3d/models/godrays-f4cbda2b.glb",
@@ -53,8 +53,13 @@ export const ASSETS_BASE: AssetsBase = {
   // .exr field is kept wired here (not orphaned) as a one-line revert if the
   // KTX2 path looks wrong — flip USE_KTX2_LIGHTMAPS in bakes.tsx back to
   // false, don't need to touch this file.
-  lightmapAtlas: "/3d/textures/lightmap-atlas-52dbdb4b.exr",
+  lightmapAtlas: "/3d/textures/lightmap-atlas-d331cacb.exr",
   lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-c58eb9fa.ktx2",
+  // AO trial (Sep 10) — jpg, shares the lightmap's UV atlas layout. Not in
+  // KTX2 yet (uncompressed for now, per Nico — KTX2 pass comes later once
+  // the AO look itself is confirmed). See USE_KTX2_LIGHTMAPS in bakes.tsx —
+  // flipped false while lightmapAtlasKtx2 is stale relative to this drop.
+  lightmapAtlasAo: "/3d/textures/lightmap-atlas-ao-2a8edf7e.jpg",
 
   // --- Bakes (lightmaps + AO) — legacy per-zone system, now fully retired ---
   // Every mesh every one of these 18 groups used to target has since been
@@ -80,6 +85,14 @@ export const ASSETS_BASE: AssetsBase = {
     {
       mesh: "SM_SOTD_Glass_02",
       file: "/3d/textures/matcap-SM_SOTD_Glass_02-dffa5eb9.webp",
+      isGlass: true
+    },
+    {
+      // Same glass look as the other SOTD award frames, reused for the new
+      // USAvionix one — no new texture, just another mesh name pointing at
+      // the existing file.
+      mesh: "SM_SOTD_Glass_01",
+      file: "/3d/textures/matcap-SM_SOTD_Glass-dffa5eb9.webp",
       isGlass: true
     },
     {

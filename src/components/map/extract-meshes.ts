@@ -1,4 +1,4 @@
-import { Mesh, Object3D, Vector3 } from "three"
+import { Box3, Mesh, Object3D, SkinnedMesh, Vector3 } from "three"
 
 import type { ArcadeButton, ArcadeStick } from "@/hooks/use-mesh"
 import { useMesh } from "@/hooks/use-mesh"
@@ -26,6 +26,26 @@ export const extractMeshes = ({
   inspectables.forEach(({ mesh: meshName }) => {
     const mesh = officeItems.getObjectByName(meshName) as Mesh | null
     if (mesh) {
+      // Blender exports a skinned mesh's vertices in armature-relative
+      // space, not centered on the mesh node's own local origin like a
+      // regular mesh's usually are — its raw geometry can sit far from
+      // (0,0,0) (confirmed on SM_Octocat: its POSITION accessor bounds sit
+      // near [2, 2.7, -7.2], nowhere near local origin). Inspectable treats
+      // the mesh's own origin as its rotation/scale pivot when animating the
+      // wrapping <group> for inspect — an off-center geometry visibly swings
+      // around that distant pivot instead of turning in place. No skinning
+      // is applied by the map's shader (material-global-shader's
+      // vertex.glsl has no skinning chunks), so this is purely a
+      // geometry/pivot fix — recenter the geometry once, and carry the
+      // removed offset via the mesh's own position instead, same as how a
+      // regular mesh's object origin already sits at its center.
+      if (mesh instanceof SkinnedMesh) {
+        const center = new Vector3()
+        new Box3().setFromObject(mesh, true).getCenter(center)
+        mesh.geometry.translate(-center.x, -center.y, -center.z)
+        mesh.position.add(center)
+      }
+
       const pos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z }
       mesh.userData.position = pos
       const rot = { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }

@@ -201,7 +201,12 @@ export const Map = memo(() => {
             DAYLIGHT: isDaylight,
             // Merge-by-material meshes carry a 3rd UV set (TEXCOORD_2) with
             // their placement in the shared lightmap atlas — see bakes.tsx.
-            LIGHTMAP_ATLAS: "uv2" in meshChild.geometry.attributes
+            LIGHTMAP_ATLAS: "uv2" in meshChild.geometry.attributes,
+            // Baked metallicRoughnessTexture → cheap specular highlight
+            // while inspecting (see material-global-shader/fragment.glsl).
+            METAL: Boolean(
+              currentMaterial.metalnessMap || currentMaterial.roughnessMap
+            )
           }
 
           const newMaterials = Array.isArray(currentMaterial)

@@ -66,11 +66,11 @@ const addLightmap = (update: TextureUpdate) => {
   material.uniforms.lightMapIntensity.value = 1
 }
 
-const addAmbientOcclusion = (update: TextureUpdate) => {
+const addAmbientOcclusion = (update: TextureUpdate, intensity = 1) => {
   const material = getShaderMaterialWithUniform(update.mesh, "aoMap")
   if (!material) return
   material.uniforms.aoMap.value = update.texture
-  material.uniforms.aoMapIntensity.value = 1
+  material.uniforms.aoMapIntensity.value = intensity
 }
 
 const addMatcap = (update: TextureUpdate, isGlass: boolean) => {
@@ -94,11 +94,14 @@ const addReflex = (update: TextureUpdate) => {
 // atlas UV set (TEXCOORD_2) at all, only their own dedicated on/off sheets.
 const ATLAS_LIGHTMAP_VALUE = "Map00"
 
-// Ambient occlusion has no equivalent in the new merge-by-material pipeline
-// yet (no AO pass for the shared atlas). Toggled off here so the old
-// per-zone AO jpgs don't render inconsistently next to it — flip back to
-// true once there's a real AO story for the atlas.
-const AO_ENABLED = false
+// Ambient occlusion trial for the shared atlas (Sep 10) — a jpg baked on
+// the same UV layout as the lightmap. Applied only to Map00-tagged meshes,
+// same traversal as the lightmap itself (see the atlas AO load below).
+const AO_ENABLED = true
+// Nico: "al AO lo podemos bajar al 15%" — the atlas AO reads strong at full
+// intensity, unlike the pre-existing per-mesh aoMap bakes below which stay
+// at their normal 1.0.
+const ATLAS_AO_INTENSITY = 0.15
 
 // Trial: KTX2 (Basis UASTC HDR) atlas instead of EXR. Re-enabled — root
 // cause of the earlier "THREE.KTX2Loader: .transcodeImage failed." found:
@@ -109,7 +112,10 @@ const AO_ENABLED = false
 // confirmed byte-identical to the transcoder a separate working ASTC-HDR
 // prototype (C:\Users\Tres\Documents\GitHub\basement\Lightmap) uses. Needs
 // a fresh visual retest. Both URLs stay wired in the manifest either way.
-export const USE_KTX2_LIGHTMAPS = true
+// Flipped false (Sep 10): the AO trial's fresh EXR re-bake doesn't have a
+// matching KTX2 yet (lightmapAtlasKtx2 is stale relative to it) — flip back
+// once a new KTX2 export lands.
+export const USE_KTX2_LIGHTMAPS = false
 
 const useLightmapAtlas = (): Texture => {
   const { lightmapAtlas, lightmapAtlasKtx2 } = useAssets()
@@ -152,6 +158,26 @@ const useExrLightmapAtlas = (url: string): Texture => {
   }, [atlas])
 
   return atlas
+}
+
+const useAtlasAmbientOcclusion = (): Texture => {
+  const { lightmapAtlasAo } = useAssets()
+  const ao = useLoader(TextureLoader, lightmapAtlasAo)
+
+  useEffect(() => {
+    // TextureLoader's Texture already defaults flipY=true (unlike EXRLoader's
+    // DataTexture, which defaults false and needs the explicit override in
+    // useExrLightmapAtlas above) — so this bake needed the opposite of that
+    // default to line up with the lightmap it shares a UV layout with.
+    ao.flipY = false
+    ao.generateMipmaps = false
+    ao.minFilter = LinearFilter
+    ao.magFilter = LinearFilter
+    ao.colorSpace = NoColorSpace
+    ao.needsUpdate = true
+  }, [ao])
+
+  return ao
 }
 
 const useBakes = (): Record<string, Bake> => {
@@ -279,6 +305,7 @@ interface BakesProps {
 const Bakes = ({ materialsReady }: BakesProps) => {
   const bakes = useBakes()
   const atlas = useLightmapAtlas()
+  const atlasAo = useAtlasAmbientOcclusion()
 
   const scene = useThree((state) => state.scene)
 
@@ -344,16 +371,25 @@ const Bakes = ({ materialsReady }: BakesProps) => {
         return
       }
       addLightmap({ mesh: child, texture: atlas })
+      if (AO_ENABLED) {
+        addAmbientOcclusion(
+          { mesh: child, texture: atlasAo },
+          ATLAS_AO_INTENSITY
+        )
+      }
       __applied++
     })
-    // eslint-disable-next-line no-console
+
     console.log(
-      "[bakes-probe] t=" + Math.round(performance.now()) +
-        " applied=" + __applied +
-        " skippedNoGlobalMaterial=" + __skipped
+      "[bakes-probe] t=" +
+        Math.round(performance.now()) +
+        " applied=" +
+        __applied +
+        " skippedNoGlobalMaterial=" +
+        __skipped
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [atlas, bakes, materialsReady])
+  }, [atlas, atlasAo, bakes, materialsReady])
 
   return null
 }
