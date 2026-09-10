@@ -22,6 +22,8 @@ export interface AssetsResult {
   lightmapAtlas: string
   /** Same atlas, KTX2 (Basis UASTC HDR) — see USE_KTX2_LIGHTMAPS in bakes.tsx. */
   lightmapAtlasKtx2: string
+  /** Ambient occlusion for the shared atlas — same UV layout as lightmapAtlas. */
+  lightmapAtlasAo: string
   bakes: {
     title: string
     lightmap: string

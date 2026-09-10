@@ -203,6 +203,9 @@ importers:
       typescript-eslint:
         specifier: ^8.27.0
         version: 8.27.0(eslint@9.23.0(jiti@2.7.0))(typescript@5.8.2)
+      wiggle:
+        specifier: ^0.0.17
+        version: 0.0.17(three@0.180.0)
       xss:
         specifier: ^1.0.15
         version: 1.0.15
@@ -9934,6 +9937,11 @@ packages:
   widest-line@5.0.0:
     resolution: {integrity: sha512-c9bZp7b5YtRj2wOe6dlj32MK+Bx/M/d+9VB2SHM1OtsUHR0aV0tdP6DWh/iMt0kWi1t5g1Iudu6hQRNd1A4PVA==}
     engines: {node: '>=18'}
+
+  wiggle@0.0.17:
+    resolution: {integrity: sha512-vF4Kx9a+lHVWia3ZLhZcMnam9VhFGND0+9WYnHq0rcnYDLlbL4iFzYUXJk2cx5reDolwt+EN5mhUP3uHGhWtRQ==}
+    peerDependencies:
+      three: '>= 0.152.0'
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -20886,6 +20894,10 @@ snapshots:
   widest-line@5.0.0:
     dependencies:
       string-width: 7.2.0
+
+  wiggle@0.0.17(three@0.180.0):
+    dependencies:
+      three: 0.180.0
 
   word-wrap@1.2.5: {}
 

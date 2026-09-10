@@ -6,7 +6,14 @@ import { Fragment, useEffect, useState } from "react"
 import { useAssets } from "@/components/assets-provider"
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useInspectable } from "@/components/inspectables/context"
+import { useFujifilmPhotos } from "@/hooks/use-fujifilm-photos"
 import { cn } from "@/utils/cn"
+
+// Bespoke to this one inspectable's photo-grid screen — the prev/next
+// arrows themselves are rendered in inspectable.tsx, anchored to
+// SM_FujifilmScreen's actual edges via drei's <Html>. This file only owns
+// resetting the shared photo-index store when the selection changes away.
+const FUJIFILM_MESH_NAME = "SM_Fujifilm"
 
 type InspectableData = AssetsResult["inspectables"][number]
 
@@ -56,6 +63,7 @@ export const InspectableViewer = () => {
   const { inspectables } = useAssets()
   const { selected, setSelected } = useInspectable()
   const [data, setData] = useState<InspectableData | null>(null)
+  const resetFujifilmPhotos = useFujifilmPhotos((state) => state.reset)
 
   useEffect(() => {
     setData(null)
@@ -72,6 +80,12 @@ export const InspectableViewer = () => {
 
     fetchData()
   }, [selected, inspectables])
+
+  // Always start back at photo 0 next time Fujifilm is opened, whether this
+  // run closed it or moved on to a different inspectable.
+  useEffect(() => {
+    if (selected !== FUJIFILM_MESH_NAME) resetFujifilmPhotos()
+  }, [selected, resetFujifilmPhotos])
 
   return (
     <div

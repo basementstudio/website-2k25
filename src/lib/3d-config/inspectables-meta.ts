@@ -218,5 +218,55 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     sizeTarget: 0.35,
     scenes: ["showcase"],
     fx: ""
+  },
+  {
+    id: "starship",
+    mesh: "SM_Starship",
+    xOffset: -0.089,
+    yOffset: 0,
+    xRotationOffset: 0,
+    sizeTarget: 0.35,
+    scenes: ["showcase"],
+    fx: ""
+  },
+  {
+    id: "octocat",
+    mesh: "SM_Octocat",
+    xOffset: -0.17,
+    yOffset: 0,
+    xRotationOffset: 0,
+    sizeTarget: 0.4,
+    scenes: ["services"],
+    fx: ""
+  },
+  {
+    id: "usavionix",
+    mesh: "SM_USAVIONIX",
+    xOffset: -0.089,
+    yOffset: 0,
+    xRotationOffset: 0,
+    sizeTarget: 0.35,
+    scenes: ["showcase"],
+    fx: ""
+  },
+  {
+    id: "usavionix-sot",
+    mesh: "SM_UsavionixSOT",
+    xOffset: -0.167,
+    yOffset: 0,
+    xRotationOffset: 0,
+    sizeTarget: 0.67,
+    scenes: ["services"],
+    fx: ""
+  },
+  {
+    id: "fujifilm",
+    mesh: "SM_Fujifilm",
+    xOffset: -0.18,
+    yOffset: -0.1,
+    xRotationOffset: 0.23,
+    sizeTarget: 0.6,
+    scenes: ["people"],
+    fx: ""
   }
 ]
