@@ -2,7 +2,8 @@ import { MeshDiscardMaterial } from "@react-three/drei"
 import { track } from "@vercel/analytics"
 import { animate } from "motion"
 import posthog from "posthog-js"
-import { useRef } from "react"
+import { useMemo, useRef } from "react"
+import { Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -19,9 +20,32 @@ import { useSiteAudio } from "@/hooks/use-site-audio"
 // for export purposes — its hitbox position isn't spatially related to
 // BlogDoor's at all. This component only adds the invisible hitbox and
 // drives the picaporte's morph influence (a rattle, not an open).
+// Hand-measured fallback (a tight vertex cluster found by decoding the
+// Draco-compressed mesh once by hand) — used only if picaporteHitboxBounds
+// isn't available (older glb, or the paint's missing/mismatched).
+const DEFAULT_HITBOX_OFFSET: [number, number, number] = [0.019, 0.082, 1.34]
+const DEFAULT_HITBOX_SIZE: [number, number, number] = [0.1, 0.28, 0.28]
+
 export const LockedDoor = () => {
   const { blog } = useMesh()
-  const { door, lockedDoorMorphIndex } = blog
+  const { door, lockedDoorMorphIndex, picaporteHitboxBounds } = blog
+
+  const [hitboxOffset, hitboxSize] = useMemo((): [
+    [number, number, number],
+    [number, number, number]
+  ] => {
+    if (!picaporteHitboxBounds) {
+      return [DEFAULT_HITBOX_OFFSET, DEFAULT_HITBOX_SIZE]
+    }
+    const center = new Vector3()
+    const size = new Vector3()
+    picaporteHitboxBounds.getCenter(center)
+    picaporteHitboxBounds.getSize(size)
+    // A little padding — the raw painted region is tiny (a doorknob-sized
+    // area) and would otherwise be an uncomfortably precise click target.
+    size.multiplyScalar(1.4)
+    return [center.toArray(), size.toArray()]
+  }, [picaporteHitboxBounds])
 
   const scene = useCurrentScene()
   const setCursor = useCursor()
@@ -70,18 +94,15 @@ export const LockedDoor = () => {
   return (
     <>
       {door && (
-        // Position/size measured directly off the "PartID" vertex-color
-        // paint on SM_00_010 (Nico's magenta-painted picaporte verts,
-        // decoded straight from the Draco-compressed mesh): a tight cluster
-        // at local (0.019, y -0.445..0.609, 1.340) — a ~1-unit-tall vertical
-        // feature, hence no rotation (cylinderGeometry's default axis is
-        // already Y). The old (0.025, 0, 0.09) guess was over a meter off
-        // in Z, which is why clicking the visible handle never landed here.
+        // Position/size come from picaporteHitboxBounds (the
+        // "Picaporte"-colored PartID verts on SM_00_010) when available —
+        // see extract-meshes.ts — falling back to the hand-measured
+        // default above otherwise.
         <mesh
           position={[
-            door.position.x + 0.019,
-            door.position.y + 0.082,
-            door.position.z + 1.34
+            door.position.x + hitboxOffset[0],
+            door.position.y + hitboxOffset[1],
+            door.position.z + hitboxOffset[2]
           ]}
           onPointerEnter={() => {
             if (scene !== "blog") return
@@ -90,7 +111,7 @@ export const LockedDoor = () => {
           onPointerLeave={() => setCursor("default")}
           onClick={handleClick}
         >
-          <cylinderGeometry args={[0.12, 0.12, 1.1, 32]} />
+          <boxGeometry args={hitboxSize} />
           <MeshDiscardMaterial />
         </mesh>
       )}

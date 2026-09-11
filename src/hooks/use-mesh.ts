@@ -1,4 +1,4 @@
-import { Mesh } from "three"
+import { Box3, Mesh } from "three"
 import { create } from "zustand"
 
 interface blog {
@@ -13,6 +13,15 @@ interface blog {
   doorMorphIndex: number | null
   /** index into door.morphTargetInfluences for the picaporte shape key ("Picaporte") */
   lockedDoorMorphIndex: number | null
+  /**
+   * Local-space bounds of the door-panel's "Puerta"-colored PartID verts
+   * (see findVertexColorRegionBounds) — BlogDoor sizes/positions its click
+   * hitbox from this when present, falling back to a hand-placed default
+   * otherwise. Null if the mesh has no matching vertex-color data yet.
+   */
+  doorHitboxBounds: Box3 | null
+  /** Same, for the "Picaporte"-colored verts — LockedDoor's hitbox. */
+  picaporteHitboxBounds: Box3 | null
   lamp: Mesh | null
   lampTargets: Mesh[] | null
 }
@@ -85,6 +94,8 @@ export const useMesh = create<MeshStore>()(() => ({
     door: null,
     doorMorphIndex: null,
     lockedDoorMorphIndex: null,
+    doorHitboxBounds: null,
+    picaporteHitboxBounds: null,
     lamp: null,
     lampTargets: null
   },

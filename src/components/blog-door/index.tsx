@@ -2,8 +2,8 @@ import { MeshDiscardMaterial } from "@react-three/drei"
 import { track } from "@vercel/analytics"
 import { animate } from "motion"
 import posthog from "posthog-js"
-import { useRef } from "react"
-import { Mesh } from "three"
+import { useMemo, useRef } from "react"
+import { Mesh, Vector3 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
@@ -23,9 +23,29 @@ import { DOOR_ANIMATION_CLOSE, DOOR_ANIMATION_OPEN } from "./constants"
 // it doesn't track the visual door.
 const DOOR_HITBOX_SWING_ANGLE = Math.PI / 2
 
+// Hand-placed fallback, confirmed working before the "PartID" vertex-color
+// bounds existed — used only if doorHitboxBounds isn't available (older
+// glb, or the paint's missing/mismatched).
+const DEFAULT_HITBOX_POSITION: [number, number, number] = [0, 0, 0.345]
+const DEFAULT_HITBOX_SIZE: [number, number, number] = [0.02, 1.1, 0.65]
+
 export const BlogDoor = () => {
   const { blog } = useMesh()
-  const { door, doorMorphIndex } = blog
+  const { door, doorMorphIndex, doorHitboxBounds } = blog
+
+  const [hitboxPosition, hitboxSize] = useMemo((): [
+    [number, number, number],
+    [number, number, number]
+  ] => {
+    if (!doorHitboxBounds) {
+      return [DEFAULT_HITBOX_POSITION, DEFAULT_HITBOX_SIZE]
+    }
+    const center = new Vector3()
+    const size = new Vector3()
+    doorHitboxBounds.getCenter(center)
+    doorHitboxBounds.getSize(size)
+    return [center.toArray(), size.toArray()]
+  }, [doorHitboxBounds])
 
   const scene = useCurrentScene()
   const setCursor = useCursor()
@@ -106,15 +126,11 @@ export const BlogDoor = () => {
             }
           }}
         >
-          {/* Reverted to the original hand-placed numbers — Nico confirmed
-          this door worked fine before. The "PartID" blue verts measured
-          from SM_00_010 turned out to belong to a DIFFERENT, non-enterable
-          door merged into the same atlas mesh, not this one — using that
-          bbox here made this hitbox big enough to swallow the picaporte's
-          real position too, so clicking the handle opened this door
-          instead of rattling its own (separate) locked door. */}
-          <mesh position={[0, 0, 0.345]}>
-            <boxGeometry args={[0.02, 1.1, 0.65, 32]} />
+          {/* Position/size come from doorHitboxBounds (the "Puerta"-colored
+          PartID verts on SM_00_010) when available — see extract-meshes.ts
+          — falling back to the hand-placed defaults above otherwise. */}
+          <mesh position={hitboxPosition}>
+            <boxGeometry args={hitboxSize} />
             <MeshDiscardMaterial />
           </mesh>
         </group>

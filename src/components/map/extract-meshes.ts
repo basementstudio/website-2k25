@@ -2,6 +2,7 @@ import { Box3, Mesh, Object3D, SkinnedMesh, Vector3 } from "three"
 
 import type { ArcadeButton, ArcadeStick } from "@/hooks/use-mesh"
 import { useMesh } from "@/hooks/use-mesh"
+import { findVertexColorRegionBounds } from "@/utils/vertex-color-region"
 
 interface ExtractMeshesProps {
   office: Object3D
@@ -161,6 +162,33 @@ export const extractMeshes = ({
     )
   }
 
+  // "PartID" vertex-color paint (Nico, via a custom Blender tool) — the
+  // node carries the paint color for each named part as a plain [r,g,b]
+  // custom property (extras -> userData), and the actual paint lives in the
+  // COLOR_1 vertex attribute (glTF's COLOR_1 loads as "color_1" — COLOR_0
+  // is a separate, unrelated SimpleBake channel and is always blank here).
+  // BlogDoor/LockedDoor use these bounds to size/position their hitboxes
+  // precisely instead of a hand-guessed offset, without needing to
+  // raycast SM_00_010 directly — it's a merge-by-material mesh spanning
+  // dozens of units, well beyond just this door, so raycasting it live
+  // would risk occluding whatever else it happens to overlap.
+  const doorHitboxBounds =
+    door && Array.isArray(door.userData.Puerta)
+      ? findVertexColorRegionBounds(
+          door,
+          "color_1",
+          door.userData.Puerta as [number, number, number]
+        )
+      : null
+  const picaporteHitboxBounds =
+    door && Array.isArray(door.userData.Picaporte)
+      ? findVertexColorRegionBounds(
+          door,
+          "color_1",
+          door.userData.Picaporte as [number, number, number]
+        )
+      : null
+
   // Lamp
   const lamp = office?.getObjectByName("SM_LightMeshBlog") as Mesh
   const lampTargets: Mesh[] = []
@@ -176,6 +204,8 @@ export const extractMeshes = ({
       lockedDoorMorphIndex: doorMorphsFound
         ? (lockedDoorMorphIndex as number)
         : null,
+      doorHitboxBounds,
+      picaporteHitboxBounds,
       lamp,
       lampTargets
     }
