@@ -1,9 +1,15 @@
 import { ModeToggle } from "@/components/layout/mode-toggle"
 
+import { MachineHeader } from "./machine-header"
+
 /**
  * Machine-view tree. Mounted outside `(site)` on purpose: the machine view
  * must not load the navbar, WebGL canvas, or analytics providers — only the
  * root fonts/styles.
+ *
+ * The page shell and `MachineHeader` live here (not in the pages) so they
+ * persist across intra-machine navigations: only the content below the nav
+ * re-renders, and the boot shutter plays once per document load.
  */
 const AiLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -20,7 +26,15 @@ const AiLayout = ({ children }: { children: React.ReactNode }) => {
         className="machine-scanlines pointer-events-none fixed inset-0 z-[1200]"
       />
       <div className="machine-screen min-h-svh overflow-x-clip bg-machine-bg font-mono text-machine-base">
-        {children}
+        {/* leading-normal overrides the tight 1rem line-height baked into the
+            f-p tokens — the wall-of-text mirrors need the extra air. It must
+            repeat at lg:, where lg:text-f-p would otherwise win the cascade. */}
+        <main className="mx-auto flex w-full max-w-2xl flex-col px-4 pb-24 pt-12 text-f-p-mobile leading-normal text-machine-base lg:text-f-p lg:leading-normal">
+          <header className="mb-4 flex flex-col gap-4 uppercase">
+            <MachineHeader />
+          </header>
+          {children}
+        </main>
         <ModeToggle mode="machine" />
       </div>
     </>

@@ -14,8 +14,7 @@ import { getImageUrl } from "@/service/sanity/helpers"
 import { fetchOrganizationData } from "@/service/sanity/organization"
 import type { PortableTextBlock } from "@/service/sanity/types"
 
-import { Field, linkClass, Section } from "../components"
-import { MachineHeader } from "../machine-header"
+import { Field, linkClass, MachineLink, Section } from "../components"
 
 export const metadata: Metadata = {
   title: "Machine view",
@@ -87,9 +86,10 @@ const AiPage = async () => {
   return (
     <>
       <PageJsonLd />
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
+      {/* display:contents keeps the sections in the template's flex gap while
+        cascading the index's uppercase styling. */}
+      <div className="contents uppercase">
         <header className="flex flex-col gap-4">
-          <MachineHeader current="/ai/home" />
           <h1 className="text-machine-bright">
             basement.studio :: machine-readable index
           </h1>
@@ -142,9 +142,7 @@ const AiPage = async () => {
                 <li key={cap._id} className="flex flex-col gap-1">
                   <h3 className="text-machine-bright">
                     {"* "}
-                    <a href="/ai/showcase" className={linkClass}>
-                      {cap.title}
-                    </a>
+                    <MachineLink href="/ai/showcase">{cap.title}</MachineLink>
                   </h3>
                   {cap.description ? <p>{cap.description}</p> : null}
                   {cap.subcategories?.length ? (
@@ -205,9 +203,9 @@ const AiPage = async () => {
                   <li key={item._key}>
                     {"- "}
                     {slug ? (
-                      <a href={`/ai/showcase/${slug}`} className={linkClass}>
+                      <MachineLink href={`/ai/showcase/${slug}`}>
                         {label}
-                      </a>
+                      </MachineLink>
                     ) : (
                       label
                     )}
@@ -229,12 +227,9 @@ const AiPage = async () => {
                 return (
                   <li key={project.slug}>
                     {"- "}
-                    <a
-                      href={`/ai/showcase/${project.slug}`}
-                      className={linkClass}
-                    >
+                    <MachineLink href={`/ai/showcase/${project.slug}`}>
                       {project.title}
-                    </a>
+                    </MachineLink>
                     {detail ? ` (${detail})` : null}
                   </li>
                 )
@@ -254,17 +249,15 @@ const AiPage = async () => {
                       {post.date.split("T")[0]}{" "}
                     </span>
                   ) : null}
-                  <a href={`/ai/post/${post.slug}`} className={linkClass}>
+                  <MachineLink href={`/ai/post/${post.slug}`}>
                     {post.title}
-                  </a>
+                  </MachineLink>
                 </li>
               ))}
             </ul>
             <p className="text-machine-dim">
               #{" "}
-              <a href="/ai/blog" className={linkClass}>
-                full archive: /ai/blog
-              </a>
+              <MachineLink href="/ai/blog">full archive: /ai/blog</MachineLink>
             </p>
           </Section>
         ) : null}
@@ -279,12 +272,9 @@ const AiPage = async () => {
                 return (
                   <li key={position.slug}>
                     {"- "}
-                    <a
-                      href={`/ai/careers/${position.slug}`}
-                      className={linkClass}
-                    >
+                    <MachineLink href={`/ai/careers/${position.slug}`}>
                       {position.title}
-                    </a>
+                    </MachineLink>
                     {detail ? ` (${detail})` : null}
                   </li>
                 )
@@ -318,9 +308,7 @@ const AiPage = async () => {
               </Field>
             ))}
             <Field label="form">
-              <a href="/ai/contact" className={linkClass}>
-                /ai/contact
-              </a>
+              <MachineLink href="/ai/contact">/ai/contact</MachineLink>
             </Field>
             {socialLinks.map((social) => (
               <Field key={social.label} label={social.label}>
@@ -362,7 +350,7 @@ const AiPage = async () => {
           </p>
           <p>/* EOF */</p>
         </footer>
-      </main>
+      </div>
     </>
   )
 }

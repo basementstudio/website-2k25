@@ -6,8 +6,7 @@ import {
   fetchCareerPositionMeta,
   getPositionData
 } from "@/app/(site)/(plain)/(content)/careers/[slug]/sanity"
-import { Field, linkClass, Section } from "@/app/ai/components"
-import { MachineHeader } from "@/app/ai/machine-header"
+import { Field, linkClass, MachineLink, Section } from "@/app/ai/components"
 import { MachinePortableText } from "@/app/ai/machine-portable-text"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 
@@ -45,80 +44,71 @@ const MachineCareerPage = async ({ params }: MachineCareerProps) => {
   return (
     <>
       <PageJsonLd />
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile text-machine-base lg:text-f-p">
-        {/* Header/meta stay uppercase like the /ai index; the job description
-          keeps its authored casing for readability. */}
-        <header className="flex flex-col gap-4 uppercase">
-          <MachineHeader current="/ai/people" />
-          <h1 className="text-machine-bright">{position.title}</h1>
-          <dl className="flex flex-col gap-1">
-            {position.type ? <Field label="type">{position.type}</Field> : null}
-            {position.employmentType ? (
-              <Field label="employment">{position.employmentType}</Field>
-            ) : null}
-            {position.location ? (
-              <Field label="location">{position.location}</Field>
-            ) : null}
-            {skills?.length ? (
-              <Field label="skills">{skills.join(", ")}</Field>
-            ) : null}
-            {position.applyUrl ? (
-              <Field label="apply">
-                <a
-                  href={position.applyUrl}
-                  target="_blank"
-                  rel="noopener"
-                  className={linkClass}
-                >
-                  {position.applyUrl}
-                </a>
-              </Field>
-            ) : null}
-            <Field label="markdown">
-              <a href={`/careers/${position.slug}.md`} className={linkClass}>
-                /careers/{position.slug}.md
+      {/* Header/meta stay uppercase like the /ai index; the job description
+        keeps its authored casing for readability. */}
+      <header className="flex flex-col gap-4 uppercase">
+        <h1 className="text-machine-bright">{position.title}</h1>
+        <dl className="flex flex-col gap-1">
+          {position.type ? <Field label="type">{position.type}</Field> : null}
+          {position.employmentType ? (
+            <Field label="employment">{position.employmentType}</Field>
+          ) : null}
+          {position.location ? (
+            <Field label="location">{position.location}</Field>
+          ) : null}
+          {skills?.length ? (
+            <Field label="skills">{skills.join(", ")}</Field>
+          ) : null}
+          {position.applyUrl ? (
+            <Field label="apply">
+              <a
+                href={position.applyUrl}
+                target="_blank"
+                rel="noopener"
+                className={linkClass}
+              >
+                {position.applyUrl}
               </a>
             </Field>
-            <Field label="human">
-              <a href={`/careers/${position.slug}`} className={linkClass}>
-                /careers/{position.slug}
-              </a>
-            </Field>
-          </dl>
-        </header>
-
-        <Section title="job_description">
-          <article className="flex flex-col gap-4">
-            <MachinePortableText blocks={position.jobDescription} />
-          </article>
-        </Section>
-
-        <Section title="how_to_apply">
-          <p className="uppercase text-machine-dim">
-            # the application form lives on the human page —{" "}
+          ) : null}
+          <Field label="markdown">
+            <a href={`/careers/${position.slug}.md`} className={linkClass}>
+              /careers/{position.slug}.md
+            </a>
+          </Field>
+          <Field label="human">
             <a href={`/careers/${position.slug}`} className={linkClass}>
               /careers/{position.slug}
             </a>
-          </p>
-        </Section>
+          </Field>
+        </dl>
+      </header>
 
-        <footer className="flex flex-col gap-1 uppercase text-machine-dim">
-          <p>
-            <a href="/ai/home" className={linkClass}>
-              back to machine index
-            </a>{" "}
-            ·{" "}
-            <a href="/ai/people" className={linkClass}>
-              all positions
-            </a>{" "}
-            ·{" "}
-            <a href={`/careers/${position.slug}`} className={linkClass}>
-              read as human
-            </a>
-          </p>
-          <p>/* EOF */</p>
-        </footer>
-      </main>
+      <Section title="job_description">
+        <article className="flex flex-col gap-4">
+          <MachinePortableText blocks={position.jobDescription} />
+        </article>
+      </Section>
+
+      <Section title="how_to_apply">
+        <p className="uppercase text-machine-dim">
+          # the application form lives on the human page —{" "}
+          <a href={`/careers/${position.slug}`} className={linkClass}>
+            /careers/{position.slug}
+          </a>
+        </p>
+      </Section>
+
+      <footer className="flex flex-col gap-1 uppercase text-machine-dim">
+        <p>
+          <MachineLink href="/ai/home">back to machine index</MachineLink> ·{" "}
+          <MachineLink href="/ai/people">all positions</MachineLink> ·{" "}
+          <a href={`/careers/${position.slug}`} className={linkClass}>
+            read as human
+          </a>
+        </p>
+        <p>/* EOF */</p>
+      </footer>
     </>
   )
 }

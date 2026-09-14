@@ -287,6 +287,31 @@ p {
   }
 }
 
+/* Machine view (/ai) navigation: the content area (remounted per route by
+   template.tsx) flickers in like a phosphor refresh while the header above
+   stays put. On first document load it plays hidden under the boot shutter. */
+@keyframes machine-flicker {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.machine-flicker {
+  animation: machine-flicker 180ms steps(3, end);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .machine-flicker {
+    animation: none;
+  }
+}
+
 @keyframes marquee-translate {
   0% {
     transform: translateX(2%);
