@@ -32,8 +32,8 @@ const NAV_LINKS = [
   { href: "/ai/contact", label: "contact" }
 ]
 
-// Detail pages highlight their parent section, matching the `current` values
-// the pages used to pass explicitly: /ai/post/x → blog, /ai/careers/x → people.
+// Detail pages highlight their parent section: /ai/post/x → blog,
+// /ai/careers/x → people.
 const SECTION_ALIASES: Record<string, string> = {
   post: "blog",
   careers: "people"
