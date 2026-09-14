@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useThree } from "@react-three/fiber"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Mesh, Vector3 } from "three"
 
 import { useContactStore } from "@/components/contact/contact-store"
@@ -10,12 +11,18 @@ import {
   useSceneTime
 } from "@/components/sky/time-store"
 import { HtmlTunnelIn } from "@/components/tunnel"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
+import { useMedia } from "@/hooks/use-media"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import { ClockControls } from "./clock-controls"
-import { positionClockPanel } from "./overlay-position"
+import {
+  getOverlayViewport,
+  observeOverlayViewport,
+  type OverlayBounds
+} from "./overlay-position"
 
 interface ClockElements {
   tail: Mesh
@@ -34,15 +41,44 @@ export const Clock = () => {
   const contactOpen = useContactStore((s) => s.isContactOpen)
   const transitioning = useNavigationStore((s) => s.isCameraTransitioning)
   const sceneName = useNavigationStore((s) => s.currentScene?.name)
-  const controlsVisible = canvasVisible && !contactOpen && !transitioning
+  const isDesktopWidth = useMedia("(min-width: 1024px)", false)
+  const { isDesktop } = useDeviceDetect()
+  const controlsVisible =
+    canvasVisible &&
+    isDesktopWidth &&
+    isDesktop &&
+    !contactOpen &&
+    !transitioning
   const [hovered, setHovered] = useState(false)
   const elements = useRef<ClockElements | null>(null)
   const trigger = useRef<HTMLButtonElement>(null)
   const panel = useRef<HTMLDivElement>(null)
+  const anchor = useRef<OverlayBounds | null>(null)
+  const positionPanel = useRef<(() => void) | null>(null)
+  const canvasBounds = useRef<OverlayBounds | null>(null)
+  const viewportBounds = useRef<OverlayBounds | null>(null)
+  const canvasElement = useThree((s) => s.gl.domElement)
   const setCursor = useCursor()
 
-  // Project the original cat-clock hit box into an HTML button. This also works
-  // on touch devices, where the scene's canvas has pointer events disabled.
+  useLayoutEffect(() => {
+    if (!controlsVisible) return
+    const measure = () => {
+      canvasBounds.current = canvasElement.getBoundingClientRect()
+      viewportBounds.current = getOverlayViewport()
+    }
+    const observer = new ResizeObserver(measure)
+    observer.observe(canvasElement)
+    const stopViewport = observeOverlayViewport(measure)
+    return () => {
+      observer.disconnect()
+      stopViewport()
+      canvasBounds.current = null
+      viewportBounds.current = null
+      anchor.current = null
+    }
+  }, [canvasElement, controlsVisible])
+
+  // Project the original cat-clock hit box into an accessible HTML button.
   const corners = useMemo(() => {
     const points: Vector3[] = []
     for (const x of [-0.125, 0.125])
@@ -107,7 +143,7 @@ export const Clock = () => {
     }
   }, [hovered, controlsVisible, timePreset, setCursor])
 
-  useFrameCallback(({ camera, gl }, _, elapsedTime) => {
+  useFrameCallback(({ camera }, _, elapsedTime) => {
     if (elements.current) {
       const { tail, eyes } = elements.current
       const progress = elapsedTime * Math.PI
@@ -116,8 +152,9 @@ export const Clock = () => {
     }
 
     const button = trigger.current
-    if (!button || !controlsVisible) return
-    const canvas = gl.domElement.getBoundingClientRect()
+    const canvas = canvasBounds.current
+    const viewport = viewportBounds.current
+    if (!button || !controlsVisible || !canvas || !viewport) return
     let minX = Infinity,
       minY = Infinity,
       maxX = -Infinity,
@@ -135,10 +172,10 @@ export const Clock = () => {
     }
     const visible =
       inFront &&
-      maxX > 0 &&
-      minX < window.innerWidth &&
-      maxY > 0 &&
-      minY < window.innerHeight
+      maxX > viewport.left &&
+      minX < viewport.left + viewport.width &&
+      maxY > viewport.top &&
+      minY < viewport.top + viewport.height
     button.style.visibility = visible ? "visible" : "hidden"
     if (!visible) {
       if (panel.current) panel.current.style.visibility = "hidden"
@@ -146,11 +183,11 @@ export const Clock = () => {
     }
     const width = Math.max(44, maxX - minX)
     const height = Math.max(44, maxY - minY)
-    button.style.left = `${(minX + maxX - width) / 2}px`
-    button.style.top = `${(minY + maxY - height) / 2}px`
-    button.style.width = `${width}px`
-    button.style.height = `${height}px`
-    if (panel.current) positionClockPanel(button, panel.current)
+    const left = (minX + maxX - width) / 2
+    const top = (minY + maxY - height) / 2
+    anchor.current = { left, top, width, height }
+    button.style.transform = `translate3d(${left}px, ${top}px, 0) scale(${width / 44}, ${height / 44})`
+    positionPanel.current?.()
   })
 
   if (!clock) return null
@@ -164,6 +201,8 @@ export const Clock = () => {
             key={sceneName}
             trigger={trigger}
             panel={panel}
+            anchor={anchor}
+            positionPanel={positionPanel}
             onHover={setHovered}
           />
         )}

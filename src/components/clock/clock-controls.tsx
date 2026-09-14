@@ -27,11 +27,13 @@ import {
   useWeather
 } from "@/components/weather/weather-store"
 
-import { positionClockPanel } from "./overlay-position"
+import { observeClockPanel, type OverlayBounds } from "./overlay-position"
 
 export interface ClockOverlayRefs {
   trigger: RefObject<HTMLButtonElement | null>
   panel: RefObject<HTMLDivElement | null>
+  anchor: RefObject<OverlayBounds | null>
+  positionPanel: RefObject<(() => void) | null>
 }
 
 const controlClass =
@@ -40,6 +42,8 @@ const controlClass =
 export function ClockControls({
   trigger,
   panel,
+  anchor,
+  positionPanel,
   onHover
 }: ClockOverlayRefs & { onHover: (hovered: boolean) => void }) {
   const [open, setOpen] = useState(false)
@@ -60,10 +64,14 @@ export function ClockControls({
   }, [trigger])
 
   useLayoutEffect(() => {
-    if (open && trigger.current && panel.current) {
-      positionClockPanel(trigger.current, panel.current)
+    if (!open || !panel.current) return
+    const observer = observeClockPanel(anchor, panel.current)
+    positionPanel.current = observer.position
+    return () => {
+      positionPanel.current = null
+      observer.dispose()
     }
-  }, [open, trigger, panel])
+  }, [open, anchor, panel, positionPanel])
 
   useEffect(() => {
     if (!open) return
@@ -127,7 +135,7 @@ export function ClockControls({
         aria-expanded={open}
         aria-controls={open ? id : undefined}
         aria-haspopup="dialog"
-        className="pointer-events-auto fixed z-20 min-h-11 min-w-11 cursor-pointer rounded bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black data-[restored-focus=true]:![box-shadow:none]"
+        className="pointer-events-auto fixed left-0 top-0 z-20 h-[44px] w-[44px] origin-top-left cursor-pointer rounded bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black data-[restored-focus=true]:![box-shadow:none]"
         style={{ visibility: "hidden" }}
         onPointerEnter={() => !open && onHover(true)}
         onPointerLeave={() => onHover(false)}
@@ -150,7 +158,7 @@ export function ClockControls({
             id={id}
             role="dialog"
             aria-labelledby={`${id}-title`}
-            className="pointer-events-auto fixed z-30 w-56 max-w-[calc(100vw-24px)] overflow-y-auto rounded-md border border-white/15 bg-black/55 p-3 font-mono text-[11px] uppercase leading-4 text-white/85 shadow-lg backdrop-blur-lg"
+            className="pointer-events-auto fixed left-0 top-0 z-30 w-56 max-w-[calc(100vw-24px)] overflow-y-auto rounded-md border border-white/15 bg-black/55 p-3 font-mono text-[11px] uppercase leading-4 text-white/85 shadow-lg backdrop-blur-lg"
             style={{ visibility: "hidden", maxHeight: "calc(100dvh - 24px)" }}
             onBlur={(event) => {
               const next = event.relatedTarget as Node | null
