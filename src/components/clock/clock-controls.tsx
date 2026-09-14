@@ -204,12 +204,20 @@ export function ClockControls({
                       </option>
                     ))}
                   </select>
-                  <span
+                  <svg
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-white/55 peer-focus:text-white"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-white/55 peer-focus:text-white"
                   >
-                    ⌄
-                  </span>
+                    <path
+                      d="m3 4.5 3 3 3-3"
+                      stroke="currentColor"
+                      strokeWidth="1.25"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </div>
               </div>
               <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-2">
@@ -237,12 +245,20 @@ export function ClockControls({
                       )
                     )}
                   </select>
-                  <span
+                  <svg
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-white/55 peer-focus:text-white"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-white/55 peer-focus:text-white"
                   >
-                    ⌄
-                  </span>
+                    <path
+                      d="m3 4.5 3 3 3-3"
+                      stroke="currentColor"
+                      strokeWidth="1.25"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </div>
               </div>
             </div>
