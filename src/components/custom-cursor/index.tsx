@@ -31,6 +31,8 @@ import { useMouseStore } from "@/hooks/use-mouse"
 import { cn } from "@/utils/cn"
 import { debounce } from "@/utils/debounce"
 
+import { cursorLabelAnimation } from "./label-animation"
+
 const OFFSET = 16
 const DEBOUNCE_WAIT = 5
 const MESSAGE_TTL_MS = 6000
@@ -43,13 +45,6 @@ const OPEN_PLACEHOLDERS = [
 // The cursor-attached label treatment shared by every cursor in the system:
 // black block, body type, 0.2s pop, and the spring they all trail with.
 const CURSOR_SPRING = { damping: 50, stiffness: 500 }
-
-const cursorLabelAnimation = {
-  initial: { opacity: 0, scale: 0 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0 },
-  transition: { duration: 0.2 }
-} as const
 
 const CursorLabel = forwardRef<HTMLParagraphElement, HTMLMotionProps<"p">>(
   ({ className, ...props }, ref) => (

@@ -12,6 +12,11 @@ import {
   type SkyTimePreset,
   type SkyWeatherPreset
 } from "@/components/sky/sky-debug"
+import { useSceneTime } from "@/components/sky/time-store"
+import {
+  applyCustomWeather,
+  useWeather
+} from "@/components/weather/weather-store"
 import { useMesh } from "@/hooks/use-mesh"
 
 import {
@@ -117,15 +122,36 @@ const SkyDebugControls = () => {
     null
   )
 
+  const syncing = useRef(false)
   const syncSlidersFromDebug = () => {
     const d = skyDebug.current
+    const timePreset = useSceneTime.getState().preset
+    const weather = useWeather.getState()
+    const sun =
+      d.overrideSun || timePreset === "live" ? d : SKY_TIME_PRESETS[timePreset]
+    syncing.current = true
     setSkyRef.current?.({
+      timePreset,
+      weatherPreset: weather.preset,
+      timeScale: d.timeScale,
       overrideSun: d.overrideSun,
-      elevation: d.elevation,
-      azimuth: d.azimuth,
+      elevation: sun.elevation,
+      azimuth: sun.azimuth,
       overrideWeather: d.overrideWeather,
+      cloudCover: weather.cloudCover,
+      rainFactor: weather.isRaining ? weather.rainIntensity : 0,
+      windSpeed: weather.windSpeed
+    })
+    syncing.current = false
+  }
+
+  const updateDebugWeather = () => {
+    const d = skyDebug.current
+    if (!d.overrideWeather) return
+    applyCustomWeather({
       cloudCover: d.cloudCover,
-      rainFactor: d.rainFactor,
+      isRaining: d.rainFactor > 0,
+      rainIntensity: d.rainFactor,
       windSpeed: d.windSpeed
     })
   }
@@ -139,28 +165,32 @@ const SkyDebugControls = () => {
         _path: string,
         context: { initial: boolean }
       ) => {
-        if (context.initial) return
+        if (context.initial || syncing.current) return
         applyTimePreset(value as SkyTimePreset)
-        syncSlidersFromDebug()
       }
     },
     weatherPreset: {
       value: "live" as string,
-      options: ["live", ...Object.keys(SKY_WEATHER_PRESETS)],
+      options: ["live", "custom", ...Object.keys(SKY_WEATHER_PRESETS)],
       onChange: (
         value: string,
         _path: string,
         context: { initial: boolean }
       ) => {
-        if (context.initial) return
+        if (context.initial || syncing.current || value === "custom") return
         applyWeatherPreset(value as SkyWeatherPreset)
-        syncSlidersFromDebug()
       }
     },
     overrideSun: {
       value: skyDebug.current.overrideSun,
       onChange: (value: boolean) => {
+        if (syncing.current) return
         skyDebug.current.overrideSun = value
+        const preset = useSceneTime.getState().preset
+        if (value && preset !== "live") {
+          skyDebug.current.elevation = SKY_TIME_PRESETS[preset].elevation
+          skyDebug.current.azimuth = SKY_TIME_PRESETS[preset].azimuth
+        }
       }
     },
     elevation: {
@@ -169,6 +199,7 @@ const SkyDebugControls = () => {
       max: 90,
       step: 0.5,
       onChange: (value: number) => {
+        if (syncing.current) return
         skyDebug.current.elevation = value
       }
     },
@@ -178,6 +209,7 @@ const SkyDebugControls = () => {
       max: 360,
       step: 1,
       onChange: (value: number) => {
+        if (syncing.current) return
         skyDebug.current.azimuth = value
       }
     },
@@ -187,6 +219,7 @@ const SkyDebugControls = () => {
       max: 5000,
       step: 1,
       onChange: (value: number) => {
+        if (syncing.current) return
         skyDebug.current.timeScale = value
       }
     },
@@ -201,8 +234,22 @@ const SkyDebugControls = () => {
     },
     overrideWeather: {
       value: skyDebug.current.overrideWeather,
-      onChange: (value: boolean) => {
+      onChange: (
+        value: boolean,
+        _path: string,
+        context: { initial: boolean }
+      ) => {
+        if (context.initial || syncing.current) return
         skyDebug.current.overrideWeather = value
+        if (value) {
+          const weather = useWeather.getState()
+          skyDebug.current.cloudCover = weather.cloudCover
+          skyDebug.current.rainFactor = weather.isRaining
+            ? weather.rainIntensity
+            : 0
+          skyDebug.current.windSpeed = weather.windSpeed
+          updateDebugWeather()
+        } else applyWeatherPreset("live")
       }
     },
     cloudCover: {
@@ -211,7 +258,9 @@ const SkyDebugControls = () => {
       max: 1,
       step: 0.01,
       onChange: (value: number) => {
+        if (syncing.current) return
         skyDebug.current.cloudCover = value
+        updateDebugWeather()
       }
     },
     rainFactor: {
@@ -220,7 +269,9 @@ const SkyDebugControls = () => {
       max: 1,
       step: 0.01,
       onChange: (value: number) => {
+        if (syncing.current) return
         skyDebug.current.rainFactor = value
+        updateDebugWeather()
       }
     },
     windSpeed: {
@@ -229,7 +280,9 @@ const SkyDebugControls = () => {
       max: 120,
       step: 1,
       onChange: (value: number) => {
+        if (syncing.current) return
         skyDebug.current.windSpeed = value
+        updateDebugWeather()
       }
     },
     sunIntensity: {
@@ -254,6 +307,15 @@ const SkyDebugControls = () => {
 
   useEffect(() => {
     setSkyRef.current = setSky
+    syncSlidersFromDebug()
+    const stopTime = useSceneTime.subscribe(syncSlidersFromDebug)
+    const stopWeather = useWeather.subscribe(syncSlidersFromDebug)
+    return () => {
+      stopTime()
+      stopWeather()
+      setSkyRef.current = null
+    }
+    // The subscriptions read current store values and write through setSkyRef.
   }, [setSky])
 
   return null
