@@ -3,6 +3,7 @@
 import { m } from "motion/react"
 import { usePathname } from "next/navigation"
 
+import { useContactStore } from "@/components/contact/contact-store"
 import { Link } from "@/components/primitives/link"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useHandleContactButton } from "@/hooks/use-handle-contact"
@@ -32,6 +33,7 @@ export const InternalLinks = ({
   animated = false
 }: InternalLinksProps) => {
   const handleContactButton = useHandleContactButton()
+  const primeContact = useContactStore((state) => state.prime)
   const { isMobile } = useDeviceDetect()
   const pathname = usePathname()
 
@@ -111,6 +113,10 @@ export const InternalLinks = ({
         }}
       >
         <button
+          onPointerEnter={(e) => {
+            if (e.pointerType === "mouse") primeContact()
+          }}
+          onFocus={primeContact}
           onClick={() => {
             onClick?.()
             handleContactButton()

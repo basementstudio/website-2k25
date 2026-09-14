@@ -2,6 +2,8 @@ export interface ContactStore {
   isContactOpen: boolean
   isAnimating: boolean
   worker: Worker | null
+  sceneReady: boolean
+  primed: boolean
 
   introCompleted: boolean
   closingCompleted: boolean
@@ -9,9 +11,10 @@ export interface ContactStore {
 
   setWorker: (worker: Worker | null) => void
   setIsAnimating: (isAnimating: boolean) => void
+  setSceneReady: (sceneReady: boolean) => void
+  prime: () => void
   setIntroCompleted: (isComplete: boolean) => void
   setClosingCompleted: (isComplete: boolean) => void
-  setHasBeenOpenedBefore: (hasBeenOpenedBefore: boolean) => void
   setIsContactOpen: (isContactOpen: boolean) => void
 }
 
