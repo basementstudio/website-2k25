@@ -35,10 +35,13 @@ import {
   BAKE_MIN_INTERVAL_S,
   BAKE_RAIN_DELTA,
   BAKE_SUN_ANGLE_COS,
+  BAKE_TRANSITION_INTERVAL_S,
   CLOUD_DRIFT_X,
   CLOUD_DRIFT_Y,
+  DAYTIME_SMOOTH_SECONDS,
   MIN_CLOUD_COVER,
   outdoorTintForElevation,
+  shortestAngleDelta,
   SKY_LUT_HEIGHT,
   SKY_LUT_WIDTH,
   SKY_SPHERE_CENTER,
@@ -46,8 +49,10 @@ import {
   smoothstep,
   WEATHER_SMOOTH_SECONDS
 } from "./config"
-import { skyDebug } from "./sky-debug"
+import { SKY_TIME_PRESETS } from "./presets"
+import { skyDebug } from "./sky-settings"
 import { skyState } from "./sky-state"
+import { useSceneTime } from "./time-store"
 
 const RAD = Math.PI / 180
 
@@ -167,8 +172,15 @@ export const Sky = () => {
     cloud: useWeather.getState().cloudCover,
     rain: useWeather.getState().isRaining
       ? useWeather.getState().rainIntensity
-      : 0
+      : 0,
+    wind: useWeather.getState().windSpeed,
+    storm: useWeather.getState().isThunderstorm ? 1 : 0
   })
+  const smoothSun = useRef<{
+    elevation: number
+    azimuth: number
+    morning: number
+  } | null>(null)
   const lastBake = useRef({
     baked: false,
     sunDir: new Vector3(),
@@ -210,14 +222,38 @@ export const Sky = () => {
 
     let elevationDeg: number
     let azimuthDeg: number
+    const timePreset = useSceneTime.getState().preset
     if (debug.overrideSun) {
       elevationDeg = debug.elevation
       azimuthDeg = debug.azimuth
+    } else if (timePreset !== "live") {
+      elevationDeg = SKY_TIME_PRESETS[timePreset].elevation
+      azimuthDeg = SKY_TIME_PRESETS[timePreset].azimuth
     } else {
       const sun = getMdqSunPosition(now)
       elevationDeg = sun.elevationDeg
       azimuthDeg = sun.azimuthDeg
     }
+
+    // Start at the correct sky on mount, then approach new targets from the
+    // currently displayed position, including when a transition is interrupted.
+    const morningTarget = azimuthDeg < 180 ? 1 : 0
+    const sun = (smoothSun.current ??= {
+      elevation: elevationDeg,
+      azimuth: azimuthDeg,
+      morning: morningTarget
+    })
+    const sunDamp = 1 - Math.exp(-delta / DAYTIME_SMOOTH_SECONDS)
+    const elevationDelta = elevationDeg - sun.elevation
+    const azimuthDelta = shortestAngleDelta(sun.azimuth, azimuthDeg)
+    const sunMoving =
+      Math.abs(elevationDelta) > 0.05 || Math.abs(azimuthDelta) > 0.05
+    sun.elevation += elevationDelta * sunDamp
+    sun.azimuth += azimuthDelta * sunDamp
+    sun.morning += (morningTarget - sun.morning) * sunDamp
+    elevationDeg = sun.elevation
+    azimuthDeg = ((sun.azimuth % 360) + 360) % 360
+
     const sceneAz = (azimuthDeg - debug.yawOffset) * RAD
     const el = elevationDeg * RAD
     sunDir.set(
@@ -227,23 +263,18 @@ export const Sky = () => {
     )
 
     const weather = useWeather.getState()
-    const cloudTarget = debug.overrideWeather
-      ? debug.cloudCover
-      : weather.cloudCover
-    const rainTarget = debug.overrideWeather
-      ? debug.rainFactor
-      : weather.isRaining
-        ? weather.rainIntensity
-        : 0
-    const windSpeed = debug.overrideWeather
-      ? debug.windSpeed
-      : weather.windSpeed
+    const cloudTarget = weather.cloudCover
+    const rainTarget = weather.isRaining ? weather.rainIntensity : 0
 
     const damp = 1 - Math.exp(-delta / WEATHER_SMOOTH_SECONDS)
     smooth.current.cloud += (cloudTarget - smooth.current.cloud) * damp
     smooth.current.rain += (rainTarget - smooth.current.rain) * damp
+    smooth.current.wind += (weather.windSpeed - smooth.current.wind) * damp
+    smooth.current.storm +=
+      ((weather.isThunderstorm ? 1 : 0) - smooth.current.storm) * damp
     const cloud = smooth.current.cloud
     const rain = smooth.current.rain
+    const windSpeed = smooth.current.wind
 
     const nightFactor = 1 - smoothstep(-10, -2, elevationDeg)
     const nightDepth = 1 - smoothstep(-40, -15, elevationDeg)
@@ -269,13 +300,12 @@ export const Sky = () => {
       (1 - smoothstep(2, 12, elevationDeg)) *
       smoothstep(-9, -3, elevationDeg) *
       (1 - rain * 0.6)
-    const isMorning = azimuthDeg < 180
-    twilightHorizon.copy(isMorning ? MORNING_HORIZON : EVENING_HORIZON)
-    twilightZenith.copy(isMorning ? MORNING_ZENITH : EVENING_ZENITH)
+    twilightHorizon.copy(EVENING_HORIZON).lerp(MORNING_HORIZON, sun.morning)
+    twilightZenith.copy(EVENING_ZENITH).lerp(MORNING_ZENITH, sun.morning)
 
     const bolt = lightning.current
     let flash = 0
-    if (weather.isThunderstorm) {
+    if (weather.isThunderstorm && smooth.current.storm > 0.3) {
       if (elapsedTime >= bolt.nextAt) {
         bolt.strikeStart = elapsedTime
         bolt.pulses = [{ delay: 0, amp: 0.7 + Math.random() * 0.3 }]
@@ -291,13 +321,15 @@ export const Sky = () => {
           })
         bolt.nextAt = elapsedTime + 3 + Math.random() * 9
       }
-      for (const pulse of bolt.pulses) {
-        const t = elapsedTime - bolt.strikeStart - pulse.delay
-        if (t >= 0) flash = Math.max(flash, pulse.amp * Math.exp(-t * 12))
-      }
     } else {
       bolt.nextAt = elapsedTime + 1 + Math.random() * 4
     }
+    // Let an existing strike decay when leaving a storm; only new strikes stop.
+    for (const pulse of bolt.pulses) {
+      const t = elapsedTime - bolt.strikeStart - pulse.delay
+      if (t >= 0) flash = Math.max(flash, pulse.amp * Math.exp(-t * 12))
+    }
+    flash *= smooth.current.storm
 
     skyState.sunElevationDeg = elevationDeg
     skyState.sunAzimuthDeg = azimuthDeg
@@ -348,7 +380,12 @@ export const Sky = () => {
       Math.abs(rain - last.rain) > BAKE_RAIN_DELTA ||
       last.intensity !== debug.sunIntensity
 
-    if (dirty && elapsedTime - last.time > BAKE_MIN_INTERVAL_S) {
+    // Refresh the atmospheric lookup more often while the sun is moving so the
+    // sky gradient keeps up with the smoothly updated lighting and sun disc.
+    const bakeInterval = sunMoving
+      ? BAKE_TRANSITION_INTERVAL_S
+      : BAKE_MIN_INTERVAL_S
+    if (dirty && elapsedTime - last.time > bakeInterval) {
       const lu = lutMaterial.uniforms
       ;(lu.uSunDir.value as Vector3).copy(sunDir)
       lu.uSunIntensity.value = debug.sunIntensity

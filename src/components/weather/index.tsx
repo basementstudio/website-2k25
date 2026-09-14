@@ -13,6 +13,10 @@ import {
 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
+import {
+  RAIN_FADE_SECONDS,
+  WEATHER_SMOOTH_SECONDS
+} from "@/components/sky/config"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
@@ -66,6 +70,7 @@ export const Weather = () => {
   const rainGroupRef = useRef<Group>(null)
   const isRaining = useWeather((s) => s.isRaining)
   const rainIntensity = useWeather((s) => s.rainIntensity)
+  const initiallyRaining = useRef(isRaining)
   const rainAlpha = useMotionValue(isRaining ? rainIntensity : 0)
 
   useEffect(() => {
@@ -73,7 +78,7 @@ export const Weather = () => {
     if (target > 0 && rainGroupRef.current) rainGroupRef.current.visible = true
 
     const animation = animate(rainAlpha, target, {
-      duration: 1,
+      duration: RAIN_FADE_SECONDS,
       ease: "easeInOut",
       onUpdate: (v) => {
         rainMaterialClose.uniforms.opacity.value = v
@@ -107,7 +112,9 @@ export const Weather = () => {
 
   return (
     <>
-      <group ref={rainGroupRef} visible={isRaining}>
+      {/* Visibility is switched off by the fade's completion, not by React
+          as soon as the selected weather stops raining. */}
+      <group ref={rainGroupRef} visible={initiallyRaining.current}>
         <mesh position={[3, 3, -2]} rotation-y={Math.PI} rotation-z={-0.15}>
           <planeGeometry args={[6, 7]} />
           <primitive object={rainMaterialClose} attach="material" />
@@ -139,7 +146,10 @@ function LoboMarino({ loboMarino }: { loboMarino: Mesh }) {
   )
 
   useFrameCallback((_, delta) => {
-    currentLoboColor.lerp(isRaining ? rainLoboColor : dayLoboColor, delta)
+    currentLoboColor.lerp(
+      isRaining ? rainLoboColor : dayLoboColor,
+      1 - Math.exp(-delta / WEATHER_SMOOTH_SECONDS)
+    )
   })
 
   const loboMaterial = useMemo(() => {

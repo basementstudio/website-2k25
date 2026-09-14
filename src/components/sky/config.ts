@@ -9,6 +9,9 @@ export const SKY_SPHERE_CENTER: [number, number, number] = [0, 5, 0]
 export const SKY_YAW_OFFSET_DEG = 0
 
 export const WEATHER_SMOOTH_SECONDS = 3
+// Exponential time constant: daylight changes settle over roughly 4–6 seconds.
+export const DAYTIME_SMOOTH_SECONDS = 1.4
+export const RAIN_FADE_SECONDS = 3
 
 export const MIN_CLOUD_COVER = 0.12
 
@@ -19,6 +22,10 @@ export const BAKE_SUN_ANGLE_COS = Math.cos((0.15 * Math.PI) / 180)
 export const BAKE_CLOUD_DELTA = 0.01
 export const BAKE_RAIN_DELTA = 0.02
 export const BAKE_MIN_INTERVAL_S = 0.1
+export const BAKE_TRANSITION_INTERVAL_S = 1 / 30
+
+export const shortestAngleDelta = (from: number, to: number) =>
+  ((((to - from + 180) % 360) + 360) % 360) - 180
 
 export const ATMOSPHERE = {
   RG: 6371,

@@ -4,7 +4,7 @@ import { useEffect } from "react"
 
 import type { WeatherApiResponse } from "@/app/api/weather/weather-data"
 
-import { applyLiveWeather } from "./weather-store"
+import { applyLiveWeather, useWeather } from "./weather-store"
 
 const POLL_MS = 10 * 60 * 1000
 
@@ -19,11 +19,16 @@ export function useLiveWeather() {
       try {
         const res = await fetch("/api/weather", { signal: controller.signal })
         const data: WeatherApiResponse = await res.json()
-        if (data.ok) applyLiveWeather(data)
-        else console.warn("Weather API degraded; keeping previous conditions")
+        if (res.ok && data.ok) applyLiveWeather(data)
+        else {
+          useWeather.setState({ liveStatus: "error" })
+          console.warn("Weather API degraded; keeping previous conditions")
+        }
       } catch (error) {
-        if (!controller.signal.aborted)
+        if (!controller.signal.aborted) {
+          useWeather.setState({ liveStatus: "error" })
           console.warn("Weather fetch failed:", error)
+        }
       }
     }
 
