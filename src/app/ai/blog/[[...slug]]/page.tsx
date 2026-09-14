@@ -9,8 +9,7 @@ import {
   fetchPostsForArchive,
   type PostArchiveEntry
 } from "@/app/(site)/(canvas)/(content)/blog/sanity"
-import { Field, linkClass, Section } from "@/app/ai/components"
-import { MachineHeader } from "@/app/ai/machine-header"
+import { Field, linkClass, MachineLink, Section } from "@/app/ai/components"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { truncateDescription } from "@/utils/seo"
 
@@ -66,9 +65,10 @@ const MachineBlogCategoryPage = async ({
   return (
     <>
       <PageJsonLd />
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
+      {/* display:contents keeps the sections in the template's flex gap while
+        cascading the index's uppercase styling. */}
+      <div className="contents uppercase">
         <header className="flex flex-col gap-4">
-          <MachineHeader current="/ai/blog" />
           <h1 className="text-machine-bright">
             basement.studio :: blog :: {title}
           </h1>
@@ -79,9 +79,7 @@ const MachineBlogCategoryPage = async ({
           <dl className="flex flex-col gap-1">
             <Field label="posts">{total}</Field>
             <Field label="all_posts">
-              <a href="/ai/blog" className={linkClass}>
-                /ai/blog
-              </a>
+              <MachineLink href="/ai/blog">/ai/blog</MachineLink>
             </Field>
             <Field label="human">
               <a href={`/blog/${categorySlug}`} className={linkClass}>
@@ -102,9 +100,9 @@ const MachineBlogCategoryPage = async ({
                       {post.date.split("T")[0]}{" "}
                     </span>
                   ) : null}
-                  <a href={`/ai/post/${post.slug}`} className={linkClass}>
+                  <MachineLink href={`/ai/post/${post.slug}`}>
                     {post.title}
-                  </a>
+                  </MachineLink>
                 </li>
               ))}
             </ul>
@@ -115,21 +113,15 @@ const MachineBlogCategoryPage = async ({
 
         <footer className="flex flex-col gap-1 text-machine-dim">
           <p>
-            <a href="/ai/home" className={linkClass}>
-              back to machine index
-            </a>{" "}
-            ·{" "}
-            <a href="/ai/blog" className={linkClass}>
-              all writing
-            </a>{" "}
-            ·{" "}
+            <MachineLink href="/ai/home">back to machine index</MachineLink> ·{" "}
+            <MachineLink href="/ai/blog">all writing</MachineLink> ·{" "}
             <a href={`/blog/${categorySlug}`} className={linkClass}>
               read as human
             </a>
           </p>
           <p>/* EOF */</p>
         </footer>
-      </main>
+      </div>
     </>
   )
 }
@@ -164,9 +156,10 @@ const MachineBlogIndexPage = async () => {
   return (
     <>
       <PageJsonLd />
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
+      {/* display:contents keeps the sections in the template's flex gap while
+        cascading the index's uppercase styling. */}
+      <div className="contents uppercase">
         <header className="flex flex-col gap-4">
-          <MachineHeader current="/ai/blog" />
           <h1 className="text-machine-bright">basement.studio :: blog index</h1>
           <p className="text-machine-dim">
             # every post from the basement blog, machine-readable. append .md to
@@ -179,9 +172,9 @@ const MachineBlogIndexPage = async () => {
                 {categories.map((category, i) => (
                   <span key={category.slug}>
                     {i > 0 ? " " : null}
-                    <a href={`/ai/blog/${category.slug}`} className={linkClass}>
+                    <MachineLink href={`/ai/blog/${category.slug}`}>
                       [{category.title}]
-                    </a>
+                    </MachineLink>
                   </span>
                 ))}
               </Field>
@@ -202,9 +195,9 @@ const MachineBlogIndexPage = async () => {
                   {featuredPost.date.split("T")[0]}{" "}
                 </span>
               ) : null}
-              <a href={`/ai/post/${featuredPost.slug}`} className={linkClass}>
+              <MachineLink href={`/ai/post/${featuredPost.slug}`}>
                 {featuredPost.title}
-              </a>
+              </MachineLink>
             </p>
             {excerpt ? <p>{excerpt}</p> : null}
           </Section>
@@ -220,9 +213,9 @@ const MachineBlogIndexPage = async () => {
                     {post.date.split("T")[0]}{" "}
                   </span>
                 ) : null}
-                <a href={`/ai/post/${post.slug}`} className={linkClass}>
+                <MachineLink href={`/ai/post/${post.slug}`}>
                   {post.title}
-                </a>
+                </MachineLink>
                 {post.categories?.length ? (
                   <span className="text-machine-dim">
                     {" "}
@@ -238,17 +231,14 @@ const MachineBlogIndexPage = async () => {
 
         <footer className="flex flex-col gap-1 text-machine-dim">
           <p>
-            <a href="/ai/home" className={linkClass}>
-              back to machine index
-            </a>{" "}
-            ·{" "}
+            <MachineLink href="/ai/home">back to machine index</MachineLink> ·{" "}
             <a href="/blog" className={linkClass}>
               read as human
             </a>
           </p>
           <p>/* EOF */</p>
         </footer>
-      </main>
+      </div>
     </>
   )
 }

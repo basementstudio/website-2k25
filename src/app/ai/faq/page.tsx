@@ -2,8 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { fetchFaqPage } from "@/app/(site)/(plain)/(content)/faq/sanity"
-import { Field, linkClass, Section } from "@/app/ai/components"
-import { MachineHeader } from "@/app/ai/machine-header"
+import { Field, linkClass, MachineLink, Section } from "@/app/ai/components"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 
 export const metadata: Metadata = {
@@ -22,9 +21,10 @@ const MachineFaqPage = async () => {
   return (
     <>
       <PageJsonLd />
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
+      {/* display:contents keeps the sections in the template's flex gap while
+        cascading the index's uppercase styling. */}
+      <div className="contents uppercase">
         <header className="flex flex-col gap-4">
-          <MachineHeader current="/ai/faq" />
           <h1 className="text-machine-bright">
             basement.studio :: {faq.heading || "faq"}
           </h1>
@@ -57,17 +57,14 @@ const MachineFaqPage = async () => {
 
         <footer className="flex flex-col gap-1 text-machine-dim">
           <p>
-            <a href="/ai/home" className={linkClass}>
-              back to machine index
-            </a>{" "}
-            ·{" "}
+            <MachineLink href="/ai/home">back to machine index</MachineLink> ·{" "}
             <a href="/faq" className={linkClass}>
               read as human
             </a>
           </p>
           <p>/* EOF */</p>
         </footer>
-      </main>
+      </div>
     </>
   )
 }

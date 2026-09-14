@@ -2,7 +2,7 @@
 
 import { track } from "@vercel/analytics"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { cn } from "@/utils/cn"
 
@@ -51,6 +51,17 @@ const MIRRORED_PREFIXES = [
 export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
   const [atBottom, setAtBottom] = useState(false)
   const pathname = usePathname() ?? ""
+
+  // Machine-view navigation is client-side, so this component stays mounted
+  // across hops and `document.referrer` stays frozen at the page the document
+  // loaded from — a human page, even after moving deep into /ai. Track whether
+  // any client-side navigation happened so "Human" only history.back()s from
+  // the page the visitor actually entered on.
+  const entryPathname = useRef(pathname)
+  const navigatedSinceEntry = useRef(false)
+  useEffect(() => {
+    if (pathname !== entryPathname.current) navigatedSinceEntry.current = true
+  }, [pathname])
 
   const machineHref = MIRRORED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
@@ -138,7 +149,11 @@ export const ModeToggle = ({ mode }: { mode: "human" | "machine" }) => {
       .navigation
     const canGoBack = nav?.canGoBack ?? window.history.length > 1
 
-    if ((cameFromToggle || sameOriginReferrer) && canGoBack) {
+    if (
+      !navigatedSinceEntry.current &&
+      (cameFromToggle || sameOriginReferrer) &&
+      canGoBack
+    ) {
       // Cross-document back: returns to the human page the visitor came from.
       e.preventDefault()
       window.history.back()

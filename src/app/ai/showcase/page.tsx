@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 
 import { fetchShowcaseListForMarkdown } from "@/app/(site)/(canvas)/(content)/showcase/sanity"
-import { Field, linkClass, Section } from "@/app/ai/components"
-import { MachineHeader } from "@/app/ai/machine-header"
+import { Field, linkClass, MachineLink, Section } from "@/app/ai/components"
 import { PageJsonLd } from "@/lib/structured-data/page-json-ld"
 import { truncateDescription } from "@/utils/seo"
 
@@ -20,9 +19,10 @@ const MachineShowcasePage = async () => {
   return (
     <>
       <PageJsonLd />
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 pb-24 pt-12 text-f-p-mobile uppercase text-machine-base lg:text-f-p">
+      {/* display:contents keeps the sections in the template's flex gap while
+        cascading the index's uppercase styling. */}
+      <div className="contents uppercase">
         <header className="flex flex-col gap-4">
-          <MachineHeader current="/ai/showcase" />
           <h1 className="text-machine-bright">
             basement.studio :: showcase index
           </h1>
@@ -47,7 +47,7 @@ const MachineShowcasePage = async () => {
 
         <Section title="projects">
           {projects.length ? (
-            <ul className="flex flex-col gap-1">
+            <ul className="flex flex-col gap-3">
               {projects.map((project) => {
                 const clientYear = [project.client, project.year]
                   .filter(Boolean)
@@ -56,12 +56,9 @@ const MachineShowcasePage = async () => {
                 return (
                   <li key={project.slug}>
                     {"- "}
-                    <a
-                      href={`/ai/showcase/${project.slug}`}
-                      className={linkClass}
-                    >
+                    <MachineLink href={`/ai/showcase/${project.slug}`}>
                       {project.title}
-                    </a>
+                    </MachineLink>
                     {clientYear ? ` (${clientYear})` : null}
                     {project.categories?.length ? (
                       <span className="text-machine-dim">
@@ -83,17 +80,14 @@ const MachineShowcasePage = async () => {
 
         <footer className="flex flex-col gap-1 text-machine-dim">
           <p>
-            <a href="/ai/home" className={linkClass}>
-              back to machine index
-            </a>{" "}
-            ·{" "}
+            <MachineLink href="/ai/home">back to machine index</MachineLink> ·{" "}
             <a href="/showcase" className={linkClass}>
               read as human
             </a>
           </p>
           <p>/* EOF */</p>
         </footer>
-      </main>
+      </div>
     </>
   )
 }

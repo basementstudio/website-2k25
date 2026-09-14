@@ -1,8 +1,38 @@
 // Shared building blocks for the machine-view pages (/ai and its sub-pages):
 // terminal-styled section rules, key-value rows, and the common link style.
 
+import Link from "next/link"
+
 export const linkClass =
   "underline underline-offset-4 transition-colors hover:text-machine-bright"
+
+const isMachineHref = (href: string) =>
+  href === "/ai" || href.startsWith("/ai/")
+
+/**
+ * Client-side `<Link>` for intra-machine hrefs so the layout (header, boot
+ * shutter) survives the navigation; everything else — human pages (the WebGL
+ * canvas needs a real document load), `.md` mirrors, external, mailto — stays
+ * a plain full-navigation anchor.
+ */
+export const MachineLink = ({
+  href,
+  className = linkClass,
+  children
+}: {
+  href: string
+  className?: string
+  children: React.ReactNode
+}) =>
+  isMachineHref(href) ? (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  ) : (
+    <a href={href} className={className}>
+      {children}
+    </a>
+  )
 
 export const Section = ({
   title,
