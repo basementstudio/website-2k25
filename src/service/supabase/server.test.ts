@@ -122,6 +122,32 @@ test("stops fetching once 25 distinct places are found", async (t) => {
   assert.deepEqual(offsets, [0])
 })
 
+test("caps reads at ten batches even when more duplicate rows remain", async (t) => {
+  const rows = Array.from({ length: 1100 }, (_, i) => row(i, "same"))
+  const offsets = mockScores(t, rows)
+
+  assert.deepEqual(await getTopScoresFromServer(), {
+    data: [rows[0]],
+    error: null
+  })
+  assert.deepEqual(
+    offsets,
+    Array.from({ length: 10 }, (_, i) => i * 100)
+  )
+})
+
+test("includes distinct entries in the final allowed batch", async (t) => {
+  const duplicates = Array.from({ length: 995 }, (_, i) => row(i, "same"))
+  const others = Array.from({ length: 30 }, (_, i) => row(995 + i))
+  const offsets = mockScores(t, [...duplicates, ...others])
+
+  assert.deepEqual(await getTopScoresFromServer(), {
+    data: [duplicates[0], ...others.slice(0, 5)],
+    error: null
+  })
+  assert.equal(offsets.length, 10)
+})
+
 test("handles an empty table", async (t) => {
   const offsets = mockScores(t, [])
   assert.deepEqual(await getTopScoresFromServer(), { data: [], error: null })

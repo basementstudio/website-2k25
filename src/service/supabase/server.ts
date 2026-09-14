@@ -5,6 +5,7 @@ import {
 
 const LEADERBOARD_LIMIT = 25
 const SCORE_BATCH_SIZE = 100
+const MAX_SCORE_BATCHES = 10
 
 export const createClient = () =>
   createSupabaseClient(
@@ -25,7 +26,10 @@ export const getTopScoresFromServer = async () => {
   const scores: QueryData<ReturnType<typeof rankedScores>> = []
   const seenPlayers = new Set<string>()
 
-  for (let offset = 0; ; offset += SCORE_BATCH_SIZE) {
+  // Bound database work even when a few browsers fill the entire table.
+  // Return the distinct entries found within the first 1,000 ranked rows.
+  for (let batch = 0; batch < MAX_SCORE_BATCHES; batch++) {
+    const offset = batch * SCORE_BATCH_SIZE
     const { data, error } = await rankedScores().range(
       offset,
       offset + SCORE_BATCH_SIZE - 1
