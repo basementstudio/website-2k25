@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useRef } from "react"
+import dynamic from "next/dynamic"
+import { useCallback, useEffect } from "react"
 
 import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useDisableScroll } from "@/hooks/use-disable-scroll"
@@ -9,19 +10,21 @@ import { useMedia } from "@/hooks/use-media"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 import { cn } from "@/utils/cn"
 
-import { ContactCanvas } from "./contact-canvas"
+import type { ContactEvent } from "./contact-controller"
 import { useContactStore } from "./contact-store"
+const ContactCanvas = dynamic(
+  () => import("./contact-canvas").then((m) => m.ContactCanvas),
+  { ssr: false }
+)
 
 const RenderContact = () => {
   const setIsContactOpen = useContactStore((state) => state.setIsContactOpen)
+  const hasBeenOpened = useContactStore((s) => s.hasBeenOpenedBefore)
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const isAnimating = useContactStore((state) => state.isAnimating)
-  const setIsAnimating = useContactStore((state) => state.setIsAnimating)
-  const worker = useContactStore((state) => state.worker)
+  const controller = useContactStore((state) => state.controller)
 
   const { playSoundFX } = useSiteAudio()
-
-  const overlayRef = useRef<HTMLDivElement>(null)
 
   const handleClose = useCallback(() => {
     if (!isAnimating) {
@@ -39,10 +42,10 @@ const RenderContact = () => {
   useDisableScroll(isContactOpen)
 
   useEffect(() => {
-    if (!worker) return
+    if (!controller) return
 
-    const handleWorkerMessage = (e: MessageEvent) => {
-      const { type } = e.data
+    const handleWorkerMessage = (e: ContactEvent) => {
+      const { type } = e
 
       if (type === "ruedita-animation-start") {
         setTimeout(() => {
@@ -63,35 +66,8 @@ const RenderContact = () => {
       }
     }
 
-    worker.addEventListener("message", handleWorkerMessage)
-    return () => {
-      worker.removeEventListener("message", handleWorkerMessage)
-    }
-  }, [worker, playSoundFX])
-
-  useEffect(() => {
-    const overlay = overlayRef.current
-    if (!overlay) return
-
-    const handleTransitionStart = () => {
-      setIsAnimating(true)
-    }
-
-    const handleTransitionEnd = () => {
-      if (!isAnimating) {
-        setIsAnimating(false)
-      }
-    }
-
-    overlay.addEventListener("transitionstart", handleTransitionStart)
-    overlay.addEventListener("transitionend", handleTransitionEnd)
-
-    return () => {
-      overlay.removeEventListener("transitionstart", handleTransitionStart)
-      overlay.removeEventListener("transitionend", handleTransitionEnd)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setIsAnimating, isContactOpen])
+    return controller.events.subscribe(handleWorkerMessage)
+  }, [controller, playSoundFX])
 
   return (
     <>
@@ -101,10 +77,9 @@ const RenderContact = () => {
           isContactOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
       >
-        <ContactCanvas />
+        {hasBeenOpened && <ContactCanvas />}
       </div>
       <div
-        ref={overlayRef}
         className={cn(
           "pointer-events-none fixed inset-0 z-40 bg-black/90 transition-all duration-300 ease-in-out",
           !isContactOpen ? "opacity-0" : "opacity-100"

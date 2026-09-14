@@ -1,16 +1,8 @@
 import * as Sentry from "@sentry/nextjs"
 import { DefaultLoadingManager } from "three"
 
-// Assumes one boot per page load, which holds because `isCanvasInPage` is
-// sticky and `canRunMainApp` only ever goes false -> true. A retry-boot feature
-// would need this module's one-shot guards (`marks`, `deadlineFired`) revisited.
-// map-ready and bakes-resolved are concurrent; the reveal waits for both.
-export type BootStage =
-  | "worker-spawned"
-  | "scene-chunk"
-  | "offscreen-ready"
-  | "map-ready"
-  | "bakes-resolved"
+// Recovery starts a fresh trace after releasing the old renderer.
+export type BootStage = "scene-chunk" | "map-ready" | "bakes-resolved"
 
 const BOOT_ASSET_PATH = "/3d/"
 const TRANSCODER_PATH = "/basis-transcoder/"
@@ -346,4 +338,16 @@ export const captureCanvasBootRecovery = () => {
       ...contexts
     }
   })
+}
+
+export function resetCanvasBootTrace() {
+  stopCanvasBootTrace()
+  startedAt = 0
+  visibleSince = null
+  visibleAccum = 0
+  deadlineFired = false
+  recoveryReported = false
+  wasHidden = false
+  inFlight.clear()
+  for (const stage of Object.keys(marks) as BootStage[]) delete marks[stage]
 }

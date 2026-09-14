@@ -1,0 +1,150 @@
+{
+  "backend": "webgpu",
+  "rows": [
+    {
+      "route": "/",
+      "cache": "cold",
+      "before": {
+        "loadingMs": 12192.100000023842,
+        "preparedAtMs": 12183.700000017881,
+        "fadeMs": 7.9000000059604645,
+        "frameP95Ms": 9.699999988079071,
+        "baseLightingStartMs": 7036,
+        "matcapDownloads": 7
+      },
+      "after": {
+        "loadingMs": 12154.300000011921,
+        "preparedAtMs": 12145.59999999404,
+        "fadeMs": 8.699999988079071,
+        "frameP95Ms": 9.400000005960464,
+        "baseLightingStartMs": 3528.2999999821186,
+        "matcapDownloads": 3
+      },
+      "loadingChange": -0.003100368272229259,
+      "frameChange": -0.030927833246112924,
+      "loadingPass": true,
+      "framePass": true
+    },
+    {
+      "route": "/",
+      "cache": "warm",
+      "before": {
+        "loadingMs": 2217.7000000178814,
+        "preparedAtMs": 2209.800000011921,
+        "fadeMs": 8.299999982118607,
+        "frameP95Ms": 9.699999988079071,
+        "baseLightingStartMs": 1000.9000000059605,
+        "matcapDownloads": 0
+      },
+      "after": {
+        "loadingMs": 2169.300000011921,
+        "preparedAtMs": 2160.199999988079,
+        "fadeMs": 9.100000023841858,
+        "frameP95Ms": 9.699999988079071,
+        "baseLightingStartMs": 1003.7000000178814,
+        "matcapDownloads": 0
+      },
+      "loadingChange": -0.021824412682315053,
+      "frameChange": 0,
+      "loadingPass": true,
+      "framePass": true
+    },
+    {
+      "route": "/services",
+      "cache": "cold",
+      "before": {
+        "loadingMs": 11876.299999982119,
+        "preparedAtMs": 11866.5,
+        "fadeMs": 9.799999982118607,
+        "frameP95Ms": 9.700000017881393,
+        "baseLightingStartMs": 6910.299999982119,
+        "matcapDownloads": 5
+      },
+      "after": {
+        "loadingMs": 12025.800000011921,
+        "preparedAtMs": 12014.90000000596,
+        "fadeMs": 11.200000017881393,
+        "frameP95Ms": 9.799999982118607,
+        "baseLightingStartMs": 3466.300000011921,
+        "matcapDownloads": 2
+      },
+      "loadingChange": 0.01258809562153429,
+      "frameChange": 0.01030927464462561,
+      "loadingPass": true,
+      "framePass": true
+    },
+    {
+      "route": "/services",
+      "cache": "warm",
+      "before": {
+        "loadingMs": 1989.5999999940395,
+        "preparedAtMs": 1977.7999999821186,
+        "fadeMs": 11.200000017881393,
+        "frameP95Ms": 9.800000011920929,
+        "baseLightingStartMs": 1004,
+        "matcapDownloads": 0
+      },
+      "after": {
+        "loadingMs": 1973.699999988079,
+        "preparedAtMs": 1961.5,
+        "fadeMs": 12.199999988079071,
+        "frameP95Ms": 9.699999988079071,
+        "baseLightingStartMs": 1005.5999999940395,
+        "matcapDownloads": 0
+      },
+      "loadingChange": -0.007991556094696484,
+      "frameChange": -0.010204084053083262,
+      "loadingPass": true,
+      "framePass": true
+    },
+    {
+      "route": "/people",
+      "cache": "cold",
+      "before": {
+        "loadingMs": 11506.29999999702,
+        "preparedAtMs": 11497.75,
+        "fadeMs": 8.75,
+        "frameP95Ms": 10,
+        "baseLightingStartMs": 6411.300000011921,
+        "matcapDownloads": 2
+      },
+      "after": {
+        "loadingMs": 11569.799999982119,
+        "preparedAtMs": 11560.749999985099,
+        "fadeMs": 9.299999982118607,
+        "frameP95Ms": 9.5,
+        "baseLightingStartMs": 3486.3500000089407,
+        "matcapDownloads": 1
+      },
+      "loadingChange": 0.0055187158326408525,
+      "frameChange": -0.050000000000000044,
+      "loadingPass": true,
+      "framePass": true
+    },
+    {
+      "route": "/people",
+      "cache": "warm",
+      "before": {
+        "loadingMs": 2166.7999999970198,
+        "preparedAtMs": 2156.75,
+        "fadeMs": 9.399999991059303,
+        "frameP95Ms": 9.650000005960464,
+        "baseLightingStartMs": 999.5,
+        "matcapDownloads": 0
+      },
+      "after": {
+        "loadingMs": 2128.6500000059605,
+        "preparedAtMs": 2118.5499999821186,
+        "fadeMs": 10.5,
+        "frameP95Ms": 9.349999994039536,
+        "baseLightingStartMs": 1003.2999999970198,
+        "matcapDownloads": 0
+      },
+      "loadingChange": -0.017606608819970337,
+      "frameChange": -0.031088084117681825,
+      "loadingPass": true,
+      "framePass": true
+    }
+  ],
+  "passed": true
+}

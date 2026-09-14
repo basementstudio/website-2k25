@@ -1,0 +1,12 @@
+[
+  {
+    "mode": "idle",
+    "passed": true,
+    "contexts": 1
+  },
+  {
+    "mode": "early-click",
+    "passed": true,
+    "contexts": 1
+  }
+]

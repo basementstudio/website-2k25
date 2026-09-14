@@ -1,11 +1,11 @@
 "use client"
 
 import MuxVideo from "@mux/mux-video-react"
-import { useInView } from "motion/react"
 import type { CSSProperties, Ref } from "react"
-import { useEffect, useRef } from "react"
+import { useMemo } from "react"
 import { mergeRefs } from "react-merge-refs"
 
+import { useVideoPlayback } from "@/hooks/use-video-playback"
 import { buildMuxPosterUrl } from "@/utils/mux"
 
 import type { MuxProps } from "./video"
@@ -18,34 +18,18 @@ const hiddenControlsStyle = { "--controls": "none" } as CSSProperties
 const MuxVideoEl = ({
   ref: callerRef,
   pauseOffscreen = true,
+  active,
+  autoPlay,
   ...props
 }: MuxProps) => {
-  const internalRef = useRef<HTMLVideoElement | null>(null)
-  const isInView = useInView(internalRef, { margin: "200px" })
-
-  useEffect(() => {
-    if (!pauseOffscreen) return
-    const el = internalRef.current
-    if (!el) return
-
-    if (isInView) {
-      el.play().catch(() => {})
-    } else {
-      el.pause()
-    }
-
-    const onVisibility = () => {
-      if (document.visibilityState === "hidden") {
-        el.pause()
-      } else if (isInView) {
-        el.play().catch(() => {})
-      }
-    }
-    document.addEventListener("visibilitychange", onVisibility, {
-      passive: true
-    })
-    return () => document.removeEventListener("visibilitychange", onVisibility)
-  }, [isInView, pauseOffscreen])
+  const internalRef = useVideoPlayback(
+    active ?? autoPlay !== false,
+    pauseOffscreen
+  )
+  const ref = useMemo(
+    () => mergeRefs([internalRef, callerRef]),
+    [internalRef, callerRef]
+  )
 
   const { style, poster, thumbnailTime, ...rest } = props
   const resolvedPoster =
@@ -56,17 +40,13 @@ const MuxVideoEl = ({
   return (
     <MuxVideo
       {...rest}
-      ref={
-        mergeRefs([internalRef, ...(callerRef ? [callerRef] : [])]) as Ref<
-          HTMLVideoElement | undefined
-        >
-      }
+      ref={ref as Ref<HTMLVideoElement | undefined>}
       poster={resolvedPoster}
       style={{ ...hiddenControlsStyle, ...style }}
       controls={false}
       streamType="on-demand"
       playsInline
-      autoPlay={!pauseOffscreen}
+      autoPlay={false}
       preload="auto"
       preferPlayback="mse"
       disableTracking

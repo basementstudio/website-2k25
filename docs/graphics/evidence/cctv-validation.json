@@ -1,0 +1,16 @@
+[
+  {
+    "backend": "webgpu",
+    "homeFeed": true,
+    "offscreenPaused": true,
+    "direct404": true,
+    "errors": []
+  },
+  {
+    "backend": "webgl2",
+    "homeFeed": true,
+    "offscreenPaused": true,
+    "direct404": true,
+    "errors": []
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "buildId": "y7dbOUrVUORoVAh1z7on1",
+  "appSourceSha256": "28cf9d16318ffb22f5797f1b56771735c65ffe481190697e2d285fa614d2f309",
+  "hashMethod": "SHA-256 of concatenated sorted relative path + NUL + file bytes + NUL for all src files, package.json, pnpm-lock.yaml and next.config.ts.",
+  "productionBuild": "passed; 176 pages generated",
+  "typescript": "passed",
+  "changedCodeLint": "passed",
+  "graphicsTests": {
+    "passed": 7,
+    "failed": 0
+  },
+  "assetVerification": "passed; 135 unique references; no startup posters",
+  "handoff": "handoff.json",
+  "webgpuRoutesAndRecovery": "handoff-routes-webgpu.json",
+  "webgl2RoutesAndRecovery": "handoff-routes-webgl2.json",
+  "faults": "handoff-faults.json",
+  "scope": "Functional checks for complete entry-scene preparation and loader crossfade. This does not re-certify the earlier loading performance comparison."
+}

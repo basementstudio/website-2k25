@@ -1,0 +1,10 @@
+{
+  "webgl2": {
+    "trials": 30,
+    "duplicateStaticDownloads": []
+  },
+  "webgpu": {
+    "trials": 40,
+    "duplicateStaticDownloads": []
+  }
+}

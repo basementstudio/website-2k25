@@ -1,13 +1,14 @@
+import { ContactController } from "./contact-controller"
 export interface ContactStore {
   isContactOpen: boolean
   isAnimating: boolean
-  worker: Worker | null
+  controller: ContactController | null
 
   introCompleted: boolean
   closingCompleted: boolean
   hasBeenOpenedBefore: boolean
 
-  setWorker: (worker: Worker | null) => void
+  setController: (controller: ContactController | null) => void
   setIsAnimating: (isAnimating: boolean) => void
   setIntroCompleted: (isComplete: boolean) => void
   setClosingCompleted: (isComplete: boolean) => void

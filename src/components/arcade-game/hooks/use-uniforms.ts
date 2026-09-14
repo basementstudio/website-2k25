@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef } from "react"
-import { ShaderMaterial } from "three"
+
+import { SiteMaterial } from "@/lib/graphics/material"
 
 import { useStateToRef } from "./use-state-to-ref"
 
@@ -13,7 +14,7 @@ export type Uniforms<T = Record<string, unknown>> = {
 
 interface UseUnifomsOptions<Uniforms> {
   onUpdate?: (updatedUniforms: Partial<Uniforms>) => void
-  syncShader?: ShaderMaterial
+  syncShader?: SiteMaterial
 }
 
 export const useUniforms = <T extends Record<string, unknown>>(

@@ -1,12 +1,11 @@
 import { OrthographicCamera } from "@react-three/drei"
 import { memo } from "react"
-import {
-  OrthographicCamera as ThreeOrthographicCamera,
-  ShaderMaterial
-} from "three"
+import { OrthographicCamera as ThreeOrthographicCamera } from "three"
+
+import { SiteMaterial } from "@/lib/graphics/material"
 
 interface BloomPassProps {
-  material: ShaderMaterial
+  material: SiteMaterial
   cameraRef: React.RefObject<ThreeOrthographicCamera | null>
 }
 

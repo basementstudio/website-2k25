@@ -1,10 +1,10 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
 import { useEffect, useRef, useState } from "react"
 import { Mesh } from "three"
 
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { MeshDiscardMaterial } from "@/lib/graphics/discard-material"
 import { ArgentinaTime } from "@/utils/argentina-time"
 
 interface ClockElements {

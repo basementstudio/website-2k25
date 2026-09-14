@@ -1,3 +1,4 @@
+import sceneAssets from "../../src/lib/3d-config/scene-assets.json"
 /**
  * Walks the generated manifest, checks every `/3d/...` URL resolves to a
  * file on disk under `public/`, and reports total size + any missing refs.
@@ -28,6 +29,7 @@ function collectUrls(node: unknown, out: string[]): void {
 
 const urls: string[] = []
 collectUrls(ASSETS_BASE, urls)
+collectUrls(sceneAssets, urls)
 collectUrls(INSPECTABLES_META, urls)
 
 const seen = new Set<string>()

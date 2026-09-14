@@ -1,6 +1,5 @@
 "use client"
 
-import { MeshDiscardMaterial } from "@react-three/drei"
 import { useThree } from "@react-three/fiber"
 import { track } from "@vercel/analytics"
 import { animate, MotionValue } from "motion"
@@ -23,6 +22,7 @@ import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useScrollTo } from "@/hooks/use-scroll-to"
 import { useSelectStore } from "@/hooks/use-select-store"
+import { MeshDiscardMaterial } from "@/lib/graphics/discard-material"
 
 import { useAssets } from "../assets-provider"
 import type { ICameraConfig } from "../navigation-handler/navigation.interface"

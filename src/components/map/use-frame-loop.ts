@@ -8,12 +8,15 @@ export const useFrameLoop = () => {
   const { fadeFactor, inspectingEnabled } = useFadeAnimation()
 
   useFrameCallback((_, delta) => {
-    Object.values(shaderMaterial).forEach((material) => {
+    const fade = fadeFactor.current.get()
+    const inspecting = inspectingEnabled.current
+    for (const id in shaderMaterial) {
+      const material = shaderMaterial[id]
       material.uniforms.uTime.value += delta
 
-      material.uniforms.inspectingEnabled.value = inspectingEnabled.current
-      material.uniforms.fadeFactor.value = fadeFactor.current.get()
-    })
+      material.uniforms.inspectingEnabled.value = inspecting
+      material.uniforms.fadeFactor.value = fade
+    }
 
     if (useMesh.getState().cctv?.screen?.material) {
       // @ts-ignore

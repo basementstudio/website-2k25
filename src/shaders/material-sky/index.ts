@@ -1,12 +1,12 @@
-import { BackSide, ShaderMaterial, Texture, Vector2, Vector3 } from "three"
+import { BackSide, Texture, Vector2, Vector3 } from "three"
+import { Fn, modelViewProjection, uv, vec4 } from "three/tsl"
 
-import displayFragmentShader from "./fragment.glsl"
-import lutFragmentShader from "./lut-fragment.glsl"
-import lutVertexShader from "./lut-vertex.glsl"
-import displayVertexShader from "./vertex.glsl"
+import { createNodeMaterial } from "@/lib/graphics/material"
+import { createShader as displayFragmentShader } from "@/shaders/generated/sky"
+import { createShader as lutFragmentShader } from "@/shaders/generated/sky-lut"
 
 export const createSkyLutMaterial = () =>
-  new ShaderMaterial({
+  createNodeMaterial({
     depthWrite: false,
     depthTest: false,
     uniforms: {
@@ -20,15 +20,20 @@ export const createSkyLutMaterial = () =>
       uTwilightHorizon: { value: new Vector3(1, 0.3, 0.12) },
       uTwilightZenith: { value: new Vector3(0.62, 0.45, 0.95) }
     },
-    vertexShader: lutVertexShader,
-    fragmentShader: lutFragmentShader
+    // Node render targets use a top-left origin on both backends.
+    fragmentNodeFactory: (uniforms) =>
+      lutFragmentShader(uniforms, { vUv: uv().flipY() })
   })
 
 export const createSkyMaterial = (lut: Texture) =>
-  new ShaderMaterial({
+  createNodeMaterial({
     side: BackSide,
     depthWrite: false,
     depthTest: true,
+    vertexNode: Fn(() => {
+      const clip = (modelViewProjection as any).toVar()
+      return vec4(clip.xy, clip.w, clip.w)
+    })(),
     uniforms: {
       uSkyLut: { value: lut },
       uTime: { value: 0 },
@@ -49,6 +54,5 @@ export const createSkyMaterial = (lut: Texture) =>
       uMoonMap: { value: null },
       uLightning: { value: 0 }
     },
-    vertexShader: displayVertexShader,
-    fragmentShader: displayFragmentShader
+    fragmentNodeFactory: displayFragmentShader
   })

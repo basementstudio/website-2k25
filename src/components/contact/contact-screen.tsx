@@ -9,14 +9,15 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useSiteAudio } from "@/hooks/use-site-audio"
 
 import { Link } from "../primitives/link"
+import type { ContactEvent } from "./contact-controller"
 import { useContactStore } from "./contact-store"
 
-export const ContactScreen = () => {
+export const ContactScreen = ({ fallback = false }: { fallback?: boolean }) => {
+  const open = useContactStore((state) => state.isContactOpen)
   const contentRef = useRef(null)
   const formRef = useRef<HTMLFormElement>(null)
-  const updatePositionRef = useRef<(() => void) | null>(null)
   const animation = useAnimation()
-  const worker = useContactStore((state) => state.worker)
+  const controller = useContactStore((state) => state.controller)
   const closeContact = useContactStore.getState().setIsContactOpen
   const { playSoundFX } = useSiteAudio()
   const scene = useCurrentScene()
@@ -32,10 +33,10 @@ export const ContactScreen = () => {
   })
 
   useEffect(() => {
-    if (!worker) return
+    if (!controller || fallback) return
 
-    const handleMessage = (e: MessageEvent) => {
-      const { type, screenPos, dimensions } = e.data
+    const handleMessage = (e: ContactEvent) => {
+      const { type, screenPos, dimensions } = e
 
       if (type === "update-screen-skinned-matrix") {
         if (contentRef.current) {
@@ -57,7 +58,7 @@ export const ContactScreen = () => {
           .then(() => {
             useContactStore.getState().setIntroCompleted(true)
             useContactStore.getState().setIsAnimating(false)
-            worker.postMessage({ type: "scale-animation-complete" })
+            controller.commands.emit({ type: "scale-animation-complete" })
           })
       } else if (type === "start-outro") {
         animation
@@ -71,26 +72,22 @@ export const ContactScreen = () => {
             }
           })
           .then(() => {
-            worker.postMessage({ type: "run-outro-animation" })
+            controller.commands.emit({ type: "run-outro-animation" })
           })
-      } else if (type === "outro-complete") {
-        setTimeout(() => {
-          useContactStore.getState().setIsAnimating(false)
-          worker.postMessage({ type: "scale-down-animation-complete" })
-        }, 500)
       } else if (type === "screen-dimensions") {
         setScreenDimensions(dimensions)
       }
     }
 
-    worker.addEventListener("message", handleMessage)
+    const unsubscribe = controller.events.subscribe(handleMessage)
     return () => {
-      worker.removeEventListener("message", handleMessage)
-      if (updatePositionRef.current) {
-        window.removeEventListener("resize", updatePositionRef.current)
-      }
+      unsubscribe()
     }
-  }, [worker, animation])
+  }, [controller, animation, fallback])
+
+  useEffect(() => {
+    if (fallback) animation.set({ scaleX: 1, scaleY: 1 })
+  }, [animation, fallback])
 
   const { register, handleSubmit, reset, watch } = useForm<Inputs>()
 
@@ -109,8 +106,8 @@ export const ContactScreen = () => {
       playSoundFX("CONTACT_INTERFERENCE", desiredVolume)
     }
 
-    if (worker) {
-      worker.postMessage({ type: "submit-clicked" })
+    if (controller) {
+      controller.commands.emit({ type: "submit-clicked" })
     }
 
     try {
@@ -130,9 +127,7 @@ export const ContactScreen = () => {
         setTimeout(() => {
           setShowSubmittedMessage(false)
 
-          if (worker) {
-            worker.postMessage({ type: "start-outro" })
-
+          if (controller) {
             closeContact(false)
           }
         }, 2000)
@@ -154,6 +149,8 @@ export const ContactScreen = () => {
   return (
     <div
       ref={contentRef}
+      hidden={!open}
+      style={fallback ? { left: "50%", top: "50%" } : undefined}
       className="contact-screen absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
     >
       <div
@@ -161,7 +158,9 @@ export const ContactScreen = () => {
         style={{
           width: "580px",
           height: "350px",
-          transform: `perspective(400px) rotateY(0.5deg) scale(${screenDimensions.width / 580}, ${screenDimensions.height / 350})`,
+          transform: fallback
+            ? "none"
+            : `perspective(400px) rotateY(0.5deg) scale(${screenDimensions.width / 580}, ${screenDimensions.height / 350})`,
           transformOrigin: "center center"
         }}
       >
@@ -187,7 +186,13 @@ export const ContactScreen = () => {
                     className="hover:/90 bg-black px-1 uppercase transition-all duration-300"
                     onClick={() => {
                       const state = useContactStore.getState()
-                      if (!state.isAnimating) {
+                      if (fallback) {
+                        useContactStore.setState({
+                          isContactOpen: false,
+                          isAnimating: false,
+                          closingCompleted: true
+                        })
+                      } else if (!state.isAnimating) {
                         closeContact(false)
                       }
                     }}

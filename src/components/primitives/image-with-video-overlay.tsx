@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import Image from "next/image"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 
 import type { ResolvedVideoSource } from "@/lib/video/resolve-source"
 import { cn } from "@/utils/cn"
@@ -36,30 +36,17 @@ export const ImageWithVideoOverlay = ({
   variant?: "home" | "showcase"
 }) => {
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    }
-  }, [])
+  const [hovered, setHovered] = useState(false)
 
   const handleMouseEnter = () => {
-    if (window.matchMedia("(hover: none)").matches) return
+    if (disabled || window.matchMedia("(hover: none)").matches) return
 
     setShouldLoadVideo(true)
-    timeoutRef.current = setTimeout(() => {
-      videoRef.current?.play().catch(() => {})
-    }, 50)
+    setHovered(true)
   }
 
   const handleMouseLeave = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
-    }
-    videoRef.current?.pause()
+    setHovered(false)
   }
 
   return (
@@ -92,9 +79,8 @@ export const ImageWithVideoOverlay = ({
               playbackId={video.playbackId}
               className="h-full w-full object-cover"
               muted
-              ref={videoRef}
+              active={hovered && !disabled}
               poster=""
-              pauseOffscreen={false}
               {...(variant === "home"
                 ? {
                     renditionOrder: "desc" as const,
@@ -108,7 +94,7 @@ export const ImageWithVideoOverlay = ({
               mimeType={video.mimeType}
               className="h-full w-full object-cover"
               muted
-              ref={videoRef}
+              active={hovered && !disabled}
             />
           )}
         </div>

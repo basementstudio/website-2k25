@@ -1,0 +1,30 @@
+[
+  {
+    "name": "desktop",
+    "visibleWithoutJavaScript": true,
+    "opacity": "1",
+    "paths": 17906,
+    "animation": "loading-canvas-module__xhj5gq__trace"
+  },
+  {
+    "name": "mobile",
+    "visibleWithoutJavaScript": true,
+    "opacity": "1",
+    "paths": 17906,
+    "animation": "none"
+  },
+  {
+    "name": "404",
+    "visibleWithoutJavaScript": true,
+    "opacity": "1",
+    "paths": 17906,
+    "animation": "loading-canvas-module__xhj5gq__trace"
+  },
+  {
+    "name": "delayed-gpu",
+    "loader": 1756.800000011921,
+    "scene": 4391.699999988079,
+    "firstModel": 1757.800000011921,
+    "errors": []
+  }
+]

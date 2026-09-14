@@ -1,4 +1,3 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
 import { track } from "@vercel/analytics"
 import { animate } from "motion"
 import { useRef } from "react"
@@ -9,6 +8,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { MeshDiscardMaterial } from "@/lib/graphics/discard-material"
 
 import { DOOR_ANIMATION_CLOSE, DOOR_ANIMATION_OPEN } from "./constants"
 

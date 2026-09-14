@@ -56,6 +56,12 @@ export const useHandleNavigation = () => {
 
   const continueNavigation = useCallback(
     (route: string, fromMobileNav?: boolean) => {
+      // Navigation may hydrate before the scene configuration's Suspense
+      // boundary. Keep HTML links usable while graphics are still booting.
+      if (!useNavigationStore.getState().scenes) {
+        router.push(route, { scroll: false })
+        return
+      }
       const selectedScene = getScene(route)
 
       if (!selectedScene) return
@@ -122,7 +128,7 @@ export const useHandleNavigation = () => {
         contactStore.setIsContactOpen(false)
 
         const handleContactClosed = () => {
-          if (contactStore.closingCompleted) {
+          if (useContactStore.getState().closingCompleted) {
             sessionStorage.removeItem("pendingNavigation")
             continueNavigation(route)
             document.removeEventListener("contactClosed", handleContactClosed)

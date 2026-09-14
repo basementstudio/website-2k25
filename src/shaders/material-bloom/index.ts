@@ -1,12 +1,12 @@
-import { ShaderMaterial } from "three"
+import { screenCoordinate, vec4 } from "three/tsl"
 
-import vertexShader from "../material-postprocessing/vertex.glsl"
-import fragmentShader from "./fragment.glsl"
+import { createNodeMaterial } from "@/lib/graphics/material"
+import { createShader as fragmentNodeFactory } from "@/shaders/generated/bloom"
 
 export const createBloomMaterial = (
   sharedUniforms: Record<string, { value: unknown }>
 ) =>
-  new ShaderMaterial({
+  createNodeMaterial({
     uniforms: {
       uMainTexture: sharedUniforms.uMainTexture,
       resolution: sharedUniforms.resolution,
@@ -15,8 +15,10 @@ export const createBloomMaterial = (
       uBloomRadius: sharedUniforms.uBloomRadius,
       uBloomThreshold: sharedUniforms.uBloomThreshold
     },
-    vertexShader,
-    fragmentShader,
+    fragmentNodeFactory: (uniforms) =>
+      fragmentNodeFactory(uniforms, {
+        gl_FragCoord: vec4(screenCoordinate, 0, 1)
+      }),
     depthTest: false,
     depthWrite: false
   })

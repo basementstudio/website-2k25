@@ -1,0 +1,58 @@
+{
+  "shared": {
+    "url": "/3d/models/items-shared-970f6d35.glb",
+    "meshes": ["Empty", "SM_Lobo"]
+  },
+  "showcase": {
+    "url": "/3d/models/items-showcase-c32b381c.glb",
+    "meshes": [
+      "SM_Nextjs",
+      "SM_NextjsBelt",
+      "SM_NextjsMetallic",
+      "SM_NextJSText",
+      "SM_MrBeast",
+      "SM_VercelShip2324",
+      "SM_VercelShipGlass",
+      "TX_Evil",
+      "SM_Swaggersouls",
+      "SM_KissBag",
+      "SM_KissBag_METAL",
+      "SM_Geist",
+      "SM_VercelGeistGlass",
+      "DL_Frame",
+      "DL_ScreenA",
+      "DL_ScreenB",
+      "SM_EDGLRD",
+      "SM_EDGLRD.001"
+    ]
+  },
+  "people": {
+    "url": "/3d/models/items-people-61f7d899.glb",
+    "meshes": [
+      "SM_Termo",
+      "SM_TermoMetallic",
+      "SM_TermoStikers",
+      "SM_Mate",
+      "SM_MateMetallic"
+    ]
+  },
+  "services": {
+    "url": "/3d/models/items-services-de976f22.glb",
+    "meshes": [
+      "SM_PinkFloyd",
+      "SM_WebbyMrBeast",
+      "SM_WebbyKidSuper",
+      "SM_Patas",
+      "SM_ScreenPatas",
+      "SM_ScreenPatas_Glass",
+      "SM_SOTD_01",
+      "SM_SOTD_Glass",
+      "SM_SOTD_02",
+      "SM_SOTD_Glass_02"
+    ]
+  },
+  "blog": {
+    "url": "/3d/models/items-blog-9f3bbfb2.glb",
+    "meshes": ["Coffee", "SM_07_02", "SM_06_06"]
+  }
+}

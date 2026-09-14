@@ -1,11 +1,11 @@
 import { animate } from "motion"
 import { useEffect } from "react"
-import { ShaderMaterial } from "three"
 
 import { skyState } from "@/components/sky/sky-state"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { SiteMaterial } from "@/lib/graphics/material"
 
 export const Godrays = () => {
   const { godrays } = useMesh()
@@ -13,7 +13,7 @@ export const Godrays = () => {
 
   useEffect(() => {
     godrays.forEach((mesh) => {
-      const material = mesh.material as ShaderMaterial
+      const material = mesh.material as SiteMaterial
       material.depthWrite = false
       material.depthTest = true
       mesh.renderOrder = 2
@@ -41,7 +41,7 @@ export const Godrays = () => {
   useFrameCallback(() => {
     const { daylightFactor } = skyState
     godrays.forEach((mesh) => {
-      const material = mesh.material as ShaderMaterial
+      const material = mesh.material as SiteMaterial
       material.uniforms.uGodrayOpacity.value =
         (material.userData.sceneOpacity ?? 0) * daylightFactor
     })

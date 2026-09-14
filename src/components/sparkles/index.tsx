@@ -1,69 +1,87 @@
-import { shaderMaterial, Sparkles as SparklesImpl } from "@react-three/drei"
-import { extend } from "@react-three/fiber"
-import { useRef } from "react"
-import * as THREE from "three"
+import { useEffect, useMemo } from "react"
+import {
+  cos,
+  dot,
+  float,
+  fract,
+  mod,
+  sin,
+  smoothstep,
+  step,
+  uniform,
+  vec3,
+  vec4
+} from "three/tsl"
 
 import { BASE_CONFIG, SPAWN_POINTS } from "@/constants/sparkles"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { createBillboards } from "@/lib/graphics/billboards"
+import { useGraphicsQuality } from "@/lib/graphics/quality"
 
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
-import frag from "./frag.glsl"
-import vert from "./vert.glsl"
 
-const SparklesMaterial = shaderMaterial(
-  { time: 0, pixelRatio: 2, fadeFactor: 0 },
-  vert,
-  frag
-)
-
-extend({ SparklesMaterial })
-
-interface SparklesProps {
-  count?: number
-  speed?: number | Float32Array
-  opacity?: number | Float32Array
-  color?: THREE.ColorRepresentation | Float32Array
-  size?: number | Float32Array
-  scale?: number | [number, number, number] | THREE.Vector3
-  noise?: number | [number, number, number] | THREE.Vector3 | Float32Array
-}
-
-export const Sparkle = (props: SparklesProps) => {
-  const ref = useRef<typeof SparklesImpl>(null)
+function Sparkle({
+  count,
+  scale
+}: {
+  count: number
+  scale: [number, number, number]
+}) {
+  const time = useMemo(() => uniform(0), [])
+  const fade = useMemo(() => uniform(0), [])
   const { fadeFactor } = useFadeAnimation()
-
-  useFrameCallback(() => {
-    if (ref.current) {
-      // @ts-ignore
-      ref.current.uniforms.fadeFactor.value = fadeFactor.current.get()
-    }
+  const { mesh, material } = useMemo(() => {
+    const positions = new Float32Array(count * 3)
+    for (let i = 0; i < positions.length; i++)
+      positions[i] = (Math.random() - 0.5) * scale[i % 3]
+    const result = createBillboards(positions, BASE_CONFIG.size * 2)
+    const p = result.centers
+    const phase = time.mul(BASE_CONFIG.speed)
+    result.material.positionNode = p.add(
+      vec3(
+        sin(phase.add(p.x.mul(100))),
+        cos(phase.add(p.y.mul(100))),
+        cos(phase.add(p.z.mul(100)))
+      ).mul(0.2)
+    )
+    const seed = fract(
+      sin(dot(p, vec3(12.9898, 78.233, 45.164))).mul(43758.5453)
+    ).mul(100)
+    const cycle = mod(phase.add(seed), 10)
+    const pulse = step(cycle, 1)
+      .mul(smoothstep(0, 0.3, cycle))
+      .mul(smoothstep(1, 0.7, cycle))
+      .mul(0.5)
+    result.material.fragmentNode = vec4(
+      vec3(0.5),
+      pulse.mul(float(1).sub(fade))
+    )
+    return result
+  }, [count, scale, time, fade])
+  useFrameCallback((_, __, elapsed) => {
+    time.value = elapsed
+    fade.value = fadeFactor.current.get()
   })
-
-  return (
-    <SparklesImpl {...props}>
-      {/* @ts-ignore */}
-      <sparklesMaterial
-        transparent
-        pixelRatio={2}
-        depthWrite={false}
-        ref={ref}
-      />
-    </SparklesImpl>
+  useEffect(
+    () => () => {
+      mesh.geometry.dispose()
+      material.dispose()
+    },
+    [mesh, material]
   )
+  return <primitive object={mesh} />
 }
-
-export const Sparkles = () => {
+export function Sparkles() {
   const { isMobile } = useDeviceDetect()
-
-  if (isMobile) return null
-
+  const effects = useGraphicsQuality((s) => s.effects)
+  if (isMobile || !effects) return null
   return (
     <>
-      {SPAWN_POINTS.map((point, index) => (
-        <mesh key={index} position={point.position} raycast={() => null}>
-          <Sparkle {...BASE_CONFIG} count={point.count} scale={point.scale} />
-        </mesh>
+      {SPAWN_POINTS.map((point, i) => (
+        <group key={i} position={point.position}>
+          <Sparkle count={point.count} scale={point.scale} />
+        </group>
       ))}
     </>
   )

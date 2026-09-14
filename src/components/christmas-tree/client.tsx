@@ -1,7 +1,6 @@
-import { MeshDiscardMaterial, useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { useCallback, useEffect, useRef } from "react"
-import { Color, Mesh, ShaderMaterial, Vector3 } from "three"
+import { Color, Mesh, Vector3 } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
@@ -9,6 +8,8 @@ import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio, useSiteAudioStore } from "@/hooks/use-site-audio"
+import { MeshDiscardMaterial } from "@/lib/graphics/discard-material"
+import { SiteMaterial } from "@/lib/graphics/material"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 const CYCLE_TIME = 1.5
@@ -160,7 +161,7 @@ export const ClientChristmasTree = () => {
 
     ballMeshRefs.current.green.forEach((mesh) => {
       if (mesh.material && "uniforms" in mesh.material) {
-        const material = mesh.material as ShaderMaterial
+        const material = mesh.material as SiteMaterial
         const intensity = INTENSITIES.green * greenIntensityMultiplier
         material.uniforms.emissiveIntensity.value = intensity
       }
@@ -168,7 +169,7 @@ export const ClientChristmasTree = () => {
 
     ballMeshRefs.current.yellow.forEach((mesh) => {
       if (mesh.material && "uniforms" in mesh.material) {
-        const material = mesh.material as ShaderMaterial
+        const material = mesh.material as SiteMaterial
         const intensity = INTENSITIES.yellow * yellowIntensityMultiplier
         material.uniforms.emissiveIntensity.value = intensity
       }
@@ -176,7 +177,7 @@ export const ClientChristmasTree = () => {
 
     ballMeshRefs.current.red.forEach((mesh) => {
       if (mesh.material && "uniforms" in mesh.material) {
-        const material = mesh.material as ShaderMaterial
+        const material = mesh.material as SiteMaterial
         const intensity = INTENSITIES.red * redIntensityMultiplier
         material.uniforms.emissiveIntensity.value = intensity
       }
@@ -184,7 +185,7 @@ export const ClientChristmasTree = () => {
 
     ballMeshRefs.current.blue.forEach((mesh) => {
       if (mesh.material && "uniforms" in mesh.material) {
-        const material = mesh.material as ShaderMaterial
+        const material = mesh.material as SiteMaterial
         const intensity = INTENSITIES.blue * blueIntensityMultiplier
         material.uniforms.emissiveIntensity.value = intensity
       }
@@ -201,7 +202,7 @@ export const ClientChristmasTree = () => {
       INTENSITIES.star + INTENSITIES.star * starOscillation
     ballMeshRefs.current.star.forEach((mesh, i) => {
       if (mesh.material && "uniforms" in mesh.material) {
-        const material = mesh.material as ShaderMaterial
+        const material = mesh.material as SiteMaterial
         material.uniforms.emissive.value = animatedColor
         material.uniforms.emissiveIntensity.value = animatedStarIntensity
       }

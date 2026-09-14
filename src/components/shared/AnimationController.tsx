@@ -12,6 +12,7 @@ import {
   useState
 } from "react"
 
+import { useContactStore } from "@/components/contact/contact-store"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 
@@ -66,11 +67,13 @@ function AnimationControllerImpl({
   )
   // Until the app is ready to reveal, every invalidate() runs ~20 frame
   // subscribers (uTime writes over all materials, skinning, …) for frames
-  // nobody sees — the loading animation lives on the worker canvas, not here.
+  // nobody sees while the wireframe loader is visible.
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
   const canvasVisible = useAppLoadingStore((state) => state.canvasVisible)
 
+  const contactOpen = useContactStore((s) => s.isContactOpen)
   const isPaused =
+    contactOpen ||
     paused ||
     !canRunMainApp ||
     (pauseOnTabChange && !isTabVisible) ||

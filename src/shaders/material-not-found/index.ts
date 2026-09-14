@@ -1,17 +1,17 @@
-import { ShaderMaterial, Texture } from "three"
-import { FrontSide, Vector2 } from "three"
+import { FrontSide, Texture, Vector2 } from "three"
+import { uv } from "three/tsl"
 
-import fragmentShader from "./fragment.glsl"
-import vertexShader from "./vertex.glsl"
+import { createNodeMaterial } from "@/lib/graphics/material"
+import { createShader as fragmentNodeFactory } from "@/shaders/generated/not-found"
 
 export const createNotFoundMaterial = (tDiffuse: { value: Texture }) =>
-  new ShaderMaterial({
+  createNodeMaterial({
     side: FrontSide,
     uniforms: {
       tDiffuse: tDiffuse,
       uTime: { value: 0 },
       resolution: { value: new Vector2(1024, 1024) }
     },
-    vertexShader,
-    fragmentShader
+    fragmentNodeFactory: (uniforms) =>
+      fragmentNodeFactory(uniforms, { vUv: uv().flipY() })
   })

@@ -14,10 +14,20 @@ import {
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 
 import { ANIMATION_TYPES } from "./contact.interface"
+import type { ContactCommand } from "./contact-controller"
+import { ContactController } from "./contact-controller"
 
 const IDLE_ANIMATIONS = [ANIMATION_TYPES.RUEDITA, ANIMATION_TYPES.ANTENA]
 
-export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
+export const ContactScene = ({
+  modelUrl,
+  controller,
+  open
+}: {
+  modelUrl: string
+  controller: ContactController
+  open: boolean
+}) => {
   const { scene, animations, nodes } = useKTX2GLTF(modelUrl) as unknown as {
     scene: Group
     animations: Parameters<typeof useAnimations>[0]
@@ -32,6 +42,7 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   const phoneGroupRef = useRef<Group>(null)
   const idleTimeRef = useRef<number>(0)
   const tmp = useMemo(() => new Vector3(), [])
+  const lastScreenPosition = useRef({ x: -1, y: -1 })
   const camera = useThree((state) => state.camera)
 
   // animation runners
@@ -50,10 +61,10 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       IDLE_ANIMATIONS[Math.floor(Math.random() * IDLE_ANIMATIONS.length)]
 
     // Notify the main thread that an animation is starting
-    self.postMessage({ type: "animation-starting" })
+    controller.events.emit({ type: "animation-starting" })
 
     runAnimation(animation)
-  }, [isAnimating, runAnimation])
+  }, [isAnimating, runAnimation, controller.events])
 
   // handle animations
   useEffect(() => {
@@ -91,15 +102,15 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
       action.timeScale = 1.0
 
       if (animationState === ANIMATION_TYPES.RUEDITA) {
-        self.postMessage({ type: "ruedita-animation-start" })
+        controller.events.emit({ type: "ruedita-animation-start" })
       } else if (animationState === ANIMATION_TYPES.ANTENA) {
-        self.postMessage({ type: "antena-animation-start" })
+        controller.events.emit({ type: "antena-animation-start" })
       }
     } else {
       action.timeScale = 1.2
 
       if (animationState === ANIMATION_TYPES.BUTTON) {
-        self.postMessage({ type: "button-animation-start" })
+        controller.events.emit({ type: "button-animation-start" })
       }
     }
 
@@ -111,7 +122,7 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
 
       if (animationState === ANIMATION_TYPES.INTRO) {
         setIsContactOpen(true)
-        self.postMessage({ type: "intro-complete" })
+        controller.events.emit({ type: "intro-complete" })
 
         const screenbone = nodes.Obj as Bone
         if (screenbone && camera) {
@@ -126,7 +137,7 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
             z: screenPos.z
           }
 
-          self.postMessage({
+          controller.events.emit({
             type: "update-screen-skinned-matrix",
             screenPos: normalizedScreenPos,
             scale: 1
@@ -134,15 +145,15 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         }
       } else if (animationState === ANIMATION_TYPES.OUTRO) {
         setIsContactOpen(false)
-        self.postMessage({ type: "outro-complete" })
+        controller.events.emit({ type: "outro-complete" })
       } else if (animationState === ANIMATION_TYPES.RUEDITA) {
-        self.postMessage({ type: "ruedita-animation-complete" })
-        self.postMessage({ type: "animation-complete" })
+        controller.events.emit({ type: "ruedita-animation-complete" })
+        controller.events.emit({ type: "animation-complete" })
       } else if (animationState === ANIMATION_TYPES.ANTENA) {
-        self.postMessage({ type: "antena-animation-complete" })
-        self.postMessage({ type: "animation-complete" })
+        controller.events.emit({ type: "antena-animation-complete" })
+        controller.events.emit({ type: "animation-complete" })
       } else if (animationState === ANIMATION_TYPES.BUTTON) {
-        self.postMessage({ type: "button-animation-complete" })
+        controller.events.emit({ type: "button-animation-complete" })
       }
     }
 
@@ -150,7 +161,15 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     action.play()
 
     return () => mixer.removeEventListener("finished", onAnimationFinished)
-  }, [animationState, actions, mixer, isAnimating, nodes, camera])
+  }, [
+    animationState,
+    actions,
+    mixer,
+    isAnimating,
+    nodes,
+    camera,
+    controller.events
+  ])
 
   const calculateAndSendScreenDimensions = useCallback(() => {
     if (!scene) return
@@ -170,9 +189,7 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     const distance = Math.abs(
       camera.position.z - (screenObject.position.z || 0)
     )
-    const workerContext = self as any
-    const windowHeight =
-      workerContext.windowDimensions?.height || window.innerHeight || 1080
+    const windowHeight = window.innerHeight || 1080
 
     let pixelsPerUnit = 0
     try {
@@ -214,20 +231,20 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
           : dimensions.width
     }
 
-    self.postMessage({
+    controller.events.emit({
       type: "screen-dimensions",
       dimensions
     })
-  }, [scene, camera])
+  }, [scene, camera, controller.events])
 
   // message handler
   useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      const { type, isContactOpen: newIsOpen } = e.data
+    const handleMessage = (e: ContactCommand) => {
+      const { type, isContactOpen: newIsOpen } = e
 
       if (type === "update-contact-open") {
         if (isAnimating) {
-          self.postMessage({
+          controller.events.emit({
             type: "animation-rejected",
             currentState: isContactOpen
           })
@@ -239,15 +256,13 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
         if (newIsOpen && !isContactOpen) {
           runAnimation(ANIMATION_TYPES.INTRO)
         } else if (!newIsOpen && isContactOpen) {
-          self.postMessage({ type: "start-outro" })
+          controller.events.emit({ type: "start-outro" })
         }
       } else if (type === "run-outro-animation") {
         runAnimation(ANIMATION_TYPES.OUTRO)
       } else if (type === "submit-clicked") {
         runAnimation(ANIMATION_TYPES.BUTTON)
       } else if (type === "window-resize") {
-        const workerContext = self as any
-        workerContext.windowDimensions = e.data.windowDimensions
         calculateAndSendScreenDimensions()
 
         if (isContactOpen && nodes.Obj && camera) {
@@ -263,7 +278,7 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
             z: screenPos.z
           }
 
-          self.postMessage({
+          controller.events.emit({
             type: "update-screen-skinned-matrix",
             screenPos: normalizedScreenPos,
             scale: 1
@@ -274,12 +289,15 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
           type
         )
       ) {
-        self.postMessage({ type })
+        controller.events.emit({
+          type: type as
+            | "scale-animation-complete"
+            | "scale-down-animation-complete"
+        })
       }
     }
 
-    self.addEventListener("message", handleMessage)
-    return () => self.removeEventListener("message", handleMessage)
+    return controller.commands.subscribe(handleMessage)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isAnimating,
@@ -287,6 +305,11 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
     runAnimation,
     calculateAndSendScreenDimensions
   ])
+
+  useEffect(() => {
+    if (open && !isContactOpen && !isAnimating)
+      runAnimation(ANIMATION_TYPES.INTRO)
+  }, [open, isContactOpen, isAnimating, runAnimation])
 
   // add materials
   useEffect(() => {
@@ -309,6 +332,25 @@ export const ContactScene = ({ modelUrl }: { modelUrl: string }) => {
   }, [scene, animations, calculateAndSendScreenDimensions])
 
   useFrame((_, delta) => {
+    // AnimationMixer's finished event fires before the final bone transforms
+    // are applied. Project after its frame update, including on resize/idle.
+    if (isContactOpen && nodes.Obj) {
+      nodes.Obj.getWorldPosition(tmp)
+      tmp.add(new Vector3(-0.0342, 0.043, 0)).project(camera)
+      const screenPos = { x: (tmp.x + 1) / 2, y: (1 - tmp.y) / 2, z: tmp.z }
+      const last = lastScreenPosition.current
+      if (
+        Math.abs(last.x - screenPos.x) + Math.abs(last.y - screenPos.y) >
+        0.00001
+      ) {
+        lastScreenPosition.current = screenPos
+        controller.events.emit({
+          type: "update-screen-skinned-matrix",
+          screenPos,
+          scale: 1
+        })
+      }
+    }
     if (!isContactOpen || isAnimating) return
 
     idleTimeRef.current += delta

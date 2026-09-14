@@ -32,7 +32,7 @@ export const extractMeshes = ({
       i.push(mesh)
     }
   })
-  useMesh.setState({ inspectables: i })
+  if (i.length) useMesh.setState({ inspectables: i })
 
   // --- Godrays --- //
 
@@ -45,10 +45,14 @@ export const extractMeshes = ({
   // --- Weather --- //
 
   const loboMarino = officeItems.getObjectByName("SM_Lobo") as Mesh
-  loboMarino.visible = false
+  if (loboMarino) loboMarino.visible = false
 
   const rain = office.getObjectByName("SM_Rain") as Mesh
-  useMesh.setState({ weather: { loboMarino, rain } })
+  // Route props may finish before the shared office. Keep their weather mesh
+  // when this base group registers the rain geometry.
+  useMesh.setState((state) => ({
+    weather: { loboMarino: loboMarino ?? state.weather.loboMarino, rain }
+  }))
 
   // --- Arcade --- //
 

@@ -5,7 +5,6 @@ import { memo, useEffect, useMemo, useRef } from "react"
 import {
   DepthTexture,
   OrthographicCamera as ThreeOrthographicCamera,
-  ShaderMaterial,
   Texture,
   Vector2
 } from "three"
@@ -16,11 +15,13 @@ import { ANIMATION_CONFIG } from "@/constants/inspectables"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { SiteMaterial } from "@/lib/graphics/material"
+import { useGraphicsQuality } from "@/lib/graphics/quality"
 
 import { usePostprocessingSettings } from "./use-postprocessing-settings"
 
 interface PostProcessingProps {
-  material: ShaderMaterial
+  material: SiteMaterial
   mainTexture: Texture
   depthTexture: DepthTexture
   bloomTexture: Texture
@@ -40,6 +41,7 @@ const Inner = ({
   const assets = useAssets()
   const firstRender = useRef(true)
   const { isMobile } = useDeviceDetect()
+  const effects = useGraphicsQuality((s) => s.effects)
 
   useEffect(() => {
     revealOpacityMaterials.add(material)
@@ -147,7 +149,7 @@ const Inner = ({
 
     material.uniforms.resolution.value.set(screenWidth, screenHeight)
 
-    material.uniforms.uActiveBloom.value = isMobile ? 0 : 1
+    material.uniforms.uActiveBloom.value = isMobile || !effects ? 0 : 1
 
     material.uniforms.uMainTexture.value = mainTexture
     material.uniforms.uDepthTexture.value = depthTexture
@@ -163,6 +165,7 @@ const Inner = ({
     bloomTexture,
     bloomResolution,
     isMobile,
+    effects,
     screenWidth,
     screenHeight
   ])

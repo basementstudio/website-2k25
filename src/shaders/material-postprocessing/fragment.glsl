@@ -23,6 +23,7 @@ uniform float uVignetteSoftness;
 
 // Bloom
 uniform sampler2D uBloomTexture;
+uniform float uActiveBloom;
 uniform vec2 uBloomResolution;
 
 // Color mask (basketball)
@@ -229,7 +230,7 @@ void main() {
   ).rgb;
 
   // Add bloom to result with strength control
-  color += bloomColor;
+  color += bloomColor * uActiveBloom;
   color = clamp(color, 0.0, 1.0);
 
   // The vignette application remains exactly the same

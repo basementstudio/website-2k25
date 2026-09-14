@@ -1,0 +1,21 @@
+{
+  "source": "Filtered local pmset -g log; only timestamps and event kinds retained",
+  "events": [
+    {
+      "localTime": "2026-09-10 02:24:36 -0300",
+      "utc": "2026-09-10T05:24:36Z",
+      "event": "Sleep"
+    },
+    {
+      "localTime": "2026-09-10 02:24:37 -0300",
+      "utc": "2026-09-10T05:24:37Z",
+      "event": "Wake"
+    },
+    {
+      "localTime": "2026-09-10 02:40:07 -0300",
+      "utc": "2026-09-10T05:40:07Z",
+      "event": "DarkWake"
+    }
+  ],
+  "interpretation": "The affected People run coincided with a host sleep/wake interval. This is consistent with environmental interruption; the retry passed. The rejected cold/warm pair remains retained."
+}

@@ -1,0 +1,64 @@
+[
+  {
+    "check": "WebGL2 fixed-condition Home, direct cold entry",
+    "before": "paired-webgl2/home-0-before/home.png",
+    "after": "paired-webgl2/home-0-after/home.png",
+    "result": "Layout, camera framing, lighting, material detail, resolution and bloom visually preserved. Character appearance and video/sparkle frame differ with asynchronous animation/random ordering."
+  },
+  {
+    "candidate": "submission-candidate",
+    "check": "WebGL2 fixed-condition services, direct cold entry",
+    "before": "submission-paired-webgl2/services-0-before/services.png",
+    "after": "submission-paired-webgl2/services-0-after/services.png",
+    "result": "Camera framing, layout, lighting, material detail, sharpness and bloom visually preserved. Dynamic character/video/traffic frames are not pixel-identical."
+  },
+  {
+    "candidate": "submission-candidate",
+    "check": "WebGL2 fixed-condition home, direct cold entry",
+    "before": "submission-paired-webgl2/home-0-before/home.png",
+    "after": "submission-paired-webgl2/home-0-after/home.png",
+    "result": "Camera framing, layout, lighting, material detail, sharpness and bloom visually preserved. Dynamic character/video/traffic frames are not pixel-identical."
+  },
+  {
+    "candidate": "submission-candidate",
+    "check": "WebGL2 fixed-condition People, direct cold entry",
+    "before": "submission-paired-webgl2/people-0-before/people.png",
+    "after": "submission-paired-webgl2/people-0-after/people.png",
+    "result": "Camera framing, layout, lighting, material detail, sharpness and bloom visually preserved. Dynamic character and screen-video frames differ."
+  },
+  {
+    "candidate": "submission-candidate",
+    "check": "Both backends, Services/People/Home travel captures",
+    "before": "travel-final-before-{backend}/travel.webm",
+    "after": "travel-final-after-{backend}/travel.webm",
+    "reviewedFrames": "Services at 12 and 14.5 seconds; People WebGPU at 17 seconds; return Home WebGL2 at 21 seconds",
+    "result": "Framing, lighting, materials, bloom and interface preserved in inspected frames. Motion/video encoding and randomized character frames vary. All 20 paired navigation endpoints match exactly; elapsed-time video frames are not guaranteed identical camera timestamps."
+  },
+  {
+    "candidate": "submission-candidate",
+    "check": "Inspectable, weather and arcade visual coverage",
+    "artifacts": [
+      "features-scheduled-webgpu/inspectable.png",
+      "features-scheduled-webgpu/rain.png",
+      "features-scheduled-webgl2/gameplay.png"
+    ],
+    "result": "Inspected award geometry, material detail, weather scene, arcade rendering and HUD. No missing textures or layout/quality degradation observed; both backend interaction assertions pass."
+  },
+  {
+    "candidate": "submission-candidate",
+    "check": "Loader reveal and CCTV",
+    "artifacts": [
+      "handoff-final/webgpu-no-preference-loading.png",
+      "handoff-final/webgpu-no-preference-fading.png",
+      "handoff-final/webgpu-no-preference-ready.png",
+      "../cctv-check/home-webgl2.png"
+    ],
+    "result": "Inspected wireframe, intermediate fade and completed scene; scene finishes with complete lighting and video displays. Both backend delayed-resource handoff and CCTV checks pass."
+  },
+  {
+    "candidate": "submission-candidate",
+    "check": "Contact and renderer recovery, both backends",
+    "artifacts": "contact-visual-final/{before,after}-{webgpu,webgl2}-{contact,recovered,contact-recovered}.png",
+    "result": "Compared contact before and after recovery on both backend paths. Radio geometry, hands, textures, form layout and colors are preserved. Recovered Home retains its lighting, materials, bloom and framing; animated characters and screen videos differ. Four build/backend captures complete without JavaScript errors; no form submission."
+  }
+]

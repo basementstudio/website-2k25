@@ -1,9 +1,9 @@
-import { Matrix3, MeshStandardMaterial, Vector3 } from "three"
-import { Color, ShaderMaterial } from "three"
+import { Color, Matrix3, MeshStandardMaterial, Vector3 } from "three"
 import { create } from "zustand"
 
-import fragmentShader from "./fragment.glsl"
-import vertexShader from "./vertex.glsl"
+import { SiteMaterial } from "@/lib/graphics/material"
+
+import { globalFragment } from "./nodes"
 
 export const GLOBAL_SHADER_MATERIAL_NAME = "global-shader-material"
 
@@ -124,7 +124,7 @@ export const createGlobalShaderMaterial = (
     uniforms["daylight"] = { value: true }
   }
 
-  const material = new ShaderMaterial({
+  const material = new SiteMaterial(uniforms, {
     name: GLOBAL_SHADER_MATERIAL_NAME,
     defines: {
       USE_MAP: map !== null,
@@ -154,23 +154,23 @@ export const createGlobalShaderMaterial = (
       DAYLIGHT:
         defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false
     },
-    uniforms,
     transparent:
       baseOpacity < 1 ||
       alphaMap !== null ||
       baseMaterial.transparent ||
       defines?.DAYLIGHT ||
       false,
-    vertexShader,
-    fragmentShader,
     side: baseMaterial.side
   })
 
+  material.fragmentNode = globalFragment(uniforms, material.defines ?? {})
   material.needsUpdate = true
-  material.customProgramCacheKey = () => GLOBAL_SHADER_MATERIAL_NAME
 
   useCustomShaderMaterial.getState().addMaterial(material)
 
+  material.addEventListener("dispose", () =>
+    useCustomShaderMaterial.getState().removeMaterial(material.id)
+  )
   baseMaterial.dispose()
 
   return material
@@ -180,8 +180,8 @@ interface CustomShaderMaterialStore {
   /**
    * Will not cause re-renders to use this object
    */
-  materialsRef: Record<string, ShaderMaterial>
-  addMaterial: (material: ShaderMaterial) => void
+  materialsRef: Record<string, SiteMaterial>
+  addMaterial: (material: SiteMaterial) => void
   removeMaterial: (id: number) => void
 }
 

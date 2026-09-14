@@ -2,6 +2,7 @@ import { type RootState, useFrame } from "@react-three/fiber"
 import { useRef } from "react"
 
 import { useContactStore } from "@/components/contact/contact-store"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 
 /**
  * Maximum delta time to prevent physics issues on frame drops
@@ -17,19 +18,18 @@ const MAX_DELTA = 1 / 15
  */
 export const useFrameCallback = (
   callback: (state: RootState, delta: number, elapsedTime: number) => void,
-  priority?: number
+  priority?: number,
+  maxDelta = MAX_DELTA
 ) => {
   const time = useRef(0)
   const delta = useRef(0)
   const lastTime = useRef(0)
 
   useFrame((state, rawDelta) => {
-    if (state.gl.getContext().isContextLost()) return
-
-    const elapsed = state.clock.getElapsedTime()
+    const elapsed = state.clock.elapsedTime
     const { isContactOpen } = useContactStore.getState()
 
-    if (isContactOpen) {
+    if (isContactOpen || !useAppLoadingStore.getState().canRunMainApp) {
       delta.current = 0
       lastTime.current = elapsed
       return
@@ -37,7 +37,7 @@ export const useFrameCallback = (
 
     time.current += elapsed - lastTime.current
     lastTime.current = elapsed
-    delta.current = Math.min(rawDelta, MAX_DELTA)
+    delta.current = Math.min(rawDelta, maxDelta)
 
     callback(state, delta.current, time.current)
   }, priority)

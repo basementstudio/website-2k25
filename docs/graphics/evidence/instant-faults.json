@@ -1,0 +1,22 @@
+[
+  {
+    "mode": "initializing-navigation",
+    "passed": true
+  },
+  {
+    "mode": "adapter-rejection",
+    "passed": true
+  },
+  {
+    "mode": "both-backends-fail",
+    "passed": true
+  },
+  {
+    "mode": "recovery-during-assets",
+    "passed": true
+  },
+  {
+    "mode": "asset-failure",
+    "passed": true
+  }
+]

@@ -1,5 +1,7 @@
-import { Mesh, ShaderMaterial } from "three"
+import { Mesh } from "three"
 import { create } from "zustand"
+
+import { SiteMaterial } from "@/lib/graphics/material"
 
 interface blog {
   lockedDoor: Mesh | null
@@ -39,7 +41,7 @@ export interface MeshStore {
   services: services
   cars: (Mesh | null)[]
   cctv: { screen: Mesh | null }
-  city: { material: ShaderMaterial | null; mesh: Mesh | null }
+  city: { material: SiteMaterial | null; mesh: Mesh | null }
   mapMaterialsReady: boolean
 }
 

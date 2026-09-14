@@ -224,7 +224,6 @@ export const NavbarContent = memo(
 NavbarContent.displayName = "NavbarContent"
 
 const DesktopContent = memo(({ links }: NavbarContentProps) => {
-  const { handleNavigation } = useHandleNavigation()
   const isContactOpen = useContactStore((state) => state.isContactOpen)
   const handleContactButton = useHandleContactButton()
 
@@ -247,7 +246,6 @@ const DesktopContent = memo(({ links }: NavbarContentProps) => {
                 isInPath(link.href, pathname) && "!text-brand-o",
                 !isInPath(link.href, pathname) && "actionable-opacity"
               )}
-              onClick={() => handleNavigation(link.href)}
             >
               {link.title}
             </Link>

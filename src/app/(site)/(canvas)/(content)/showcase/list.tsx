@@ -6,7 +6,6 @@ import { memo, useCallback, useState } from "react"
 
 import { Arrow } from "@/components/primitives/icons/arrow"
 import { LazyVideo } from "@/components/primitives/lazy-video"
-import { Video } from "@/components/primitives/video"
 import { resolveVideoSource } from "@/lib/video/resolve-source"
 import { getImageUrl } from "@/service/sanity/helpers"
 import { cn } from "@/utils/cn"
@@ -127,10 +126,11 @@ const AccordionListItem = memo(
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <Video
+                    <LazyVideo
                       key={imgIndex}
                       src={videoSource.url}
                       mimeType={videoSource.mimeType}
+                      poster={img?.src}
                       autoPlay
                       playsInline
                       muted

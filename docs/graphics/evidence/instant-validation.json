@@ -1,0 +1,28 @@
+{
+  "recordedAt": "2026-09-10T01:38:43.413803+00:00",
+  "buildId": "HsbQTHE6LIBy4rVqwPG_C",
+  "appSourceSha256": "c53af9fbedf2477c6511bfd4a01f2c4d2481b6e7e7ac2c793132d0b7a0aba448",
+  "hashMethod": "SHA-256 of concatenated sorted relative path + NUL + file bytes + NUL for all src files, package.json, pnpm-lock.yaml and next.config.ts.",
+  "isolatedBuild": ".context/instant-site (separate source snapshot and build output)",
+  "fullSuiteBuildId": "0WcdJaOf83K3pmfTlKKr4",
+  "finalChange": "Allow HTML routing before the scene configuration hydrates. First-paint and all fault checks were rerun on the final build; unchanged renderer, route, handoff, contact, 404-return and recovery paths passed on fullSuiteBuildId.",
+  "concurrentWorkspaceChange": "A later diagnostic-only effect updating __graphics.scene in renderer.tsx is outside this tested snapshot; it does not change normal production rendering.",
+  "productionBuild": "passed; 175 pages generated",
+  "typescript": "passed in production build",
+  "changedCodeLint": "passed",
+  "graphicsTests": {
+    "passed": 15,
+    "failed": 0
+  },
+  "assetVerification": "passed; 135 references, 124 unique",
+  "basisConsistency": "passed",
+  "loaderGeometryRegeneration": "deterministic; same SHA-256 on offline regeneration",
+  "firstPaint": "instant-loader.json",
+  "notFoundReturn": "instant-not-found.json",
+  "handoff": "instant-handoff.json",
+  "gpuLoader": "instant-gpu-loader.json",
+  "webgpuRoutesAndRecovery": "instant-routes-webgpu.json",
+  "webgl2RoutesAndRecovery": "instant-routes-webgl2.json",
+  "faults": "instant-faults.json",
+  "scope": "Functional verification on Apple M5 Max / Chromium with real WebGPU and WebGL2. Deliberately delayed, unthrottled timings do not re-certify earlier comparative performance benchmarks."
+}

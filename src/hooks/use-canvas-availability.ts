@@ -1,47 +1,15 @@
 import { useEffect } from "react"
 
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
-import { isWebGL2Available } from "@/lib/webgl"
+import { useGraphicsLifecycle } from "@/lib/graphics/lifecycle"
 
-const WEBGL_CONTEXT_FAILURE = /webgl context/i
-
-// R3F 9 awaits configure() in a layout effect, so a failed WebGL context rejects
-// a floating promise instead of throwing into React — the <ErrorBoundary> around
-// the canvas never sees it. Sentry WEBSITE-2K25-39.
 export const useCanvasAvailability = () => {
-  const canvasUnavailable = useAppLoadingStore(
-    (state) => state.canvasUnavailable
-  )
-
+  const failed = useGraphicsLifecycle((s) => s.failed)
+  const unavailable = useAppLoadingStore((s) => s.canvasUnavailable)
   useEffect(() => {
-    if (isWebGL2Available()) return
-
-    useAppLoadingStore.getState().reportCanvasUnavailable()
-  }, [])
-
-  // Lets CSS drop the viewport of space the (canvas) group reserves.
+    if (failed) useAppLoadingStore.getState().reportCanvasUnavailable()
+  }, [failed])
   useEffect(() => {
-    if (!canvasUnavailable) return
-
-    document.documentElement.dataset.canvasUnavailable = "true"
-  }, [canvasUnavailable])
-
-  useEffect(() => {
-    const handleRejection = (event: PromiseRejectionEvent) => {
-      const message =
-        event.reason instanceof Error
-          ? event.reason.message
-          : String(event.reason ?? "")
-
-      if (!WEBGL_CONTEXT_FAILURE.test(message)) return
-
-      useAppLoadingStore.getState().reportCanvasUnavailable()
-    }
-
-    window.addEventListener("unhandledrejection", handleRejection)
-
-    return () => {
-      window.removeEventListener("unhandledrejection", handleRejection)
-    }
-  }, [])
+    if (unavailable) document.documentElement.dataset.canvasUnavailable = "true"
+  }, [unavailable])
 }

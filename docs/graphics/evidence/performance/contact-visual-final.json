@@ -1,0 +1,26 @@
+[
+  {
+    "build": "before",
+    "backend": "webgpu",
+    "errors": [],
+    "screenshots": ["contact", "recovered", "contact-recovered"]
+  },
+  {
+    "build": "after",
+    "backend": "webgpu",
+    "errors": [],
+    "screenshots": ["contact", "recovered", "contact-recovered"]
+  },
+  {
+    "build": "before",
+    "backend": "webgl2",
+    "errors": [],
+    "screenshots": ["contact", "recovered", "contact-recovered"]
+  },
+  {
+    "build": "after",
+    "backend": "webgl2",
+    "errors": [],
+    "screenshots": ["contact", "recovered", "contact-recovered"]
+  }
+]

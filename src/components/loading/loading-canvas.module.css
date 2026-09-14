@@ -1,0 +1,57 @@
+.root {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: var(--canvas-offset, 80svh);
+  overflow: hidden;
+  pointer-events: none;
+}
+.visual {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  color: #959595;
+  opacity: 1;
+}
+/* Fade only after the GPU has drawn. Recovery restores the lines immediately. */
+.visual[data-live-loader="true"] {
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}
+.wireframe {
+  position: absolute;
+  left: 50%;
+  display: block;
+  width: auto;
+  height: 100%;
+  transform: translateX(-50%);
+}
+.trace {
+  stroke: #d0d0d0;
+  opacity: 0.4;
+  animation: trace 4s linear infinite;
+}
+.visual[data-live-loader="true"] .trace {
+  animation: none;
+}
+@keyframes trace {
+  to {
+    stroke-dashoffset: -420;
+  }
+}
+@media (min-width: 1024px) {
+  .root {
+    position: fixed;
+    height: var(--canvas-offset, 100svh);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trace {
+    animation: none;
+  }
+  .visual[data-live-loader="true"] {
+    transition: none;
+  }
+}

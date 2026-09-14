@@ -11,7 +11,11 @@ import { cn } from "@/utils/cn"
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect
 
-export default function NotFound() {
+export default function NotFound({
+  documentNavigation = false
+}: {
+  documentNavigation?: boolean
+}) {
   const { handleNavigation } = useHandleNavigation()
   const currentScene = useNavigationStore((state) => state.currentScene)
   const setIsNotFound = useNavigationStore((state) => state.setIsNotFound)
@@ -47,11 +51,14 @@ export default function NotFound() {
     setFadeOutHtml(true)
 
     setTimeout(() => {
-      handleNavigation("/")
+      // The router's root error tree owns a separate site layout. Leave it with
+      // a document navigation so Next's cached error tree cannot retain a canvas.
+      if (documentNavigation) window.location.assign("/")
+      else handleNavigation("/")
     }, 500)
   }
 
-  if (currentScene?.name !== "404") return null
+  if (currentScene?.name !== "404") return <SetCanvasMode enabled />
 
   return (
     <>

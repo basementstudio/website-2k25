@@ -7,15 +7,14 @@ import {
   Matrix3,
   Mesh,
   MeshStandardMaterial,
-  RepeatWrapping,
-  ShaderMaterial,
-  Vector3
+  RepeatWrapping
 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
 import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { SiteMaterial } from "@/lib/graphics/material"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
 
 import { toggleRainOverride, useWeather } from "./weather-store"
@@ -56,6 +55,13 @@ export const Weather = () => {
 
     return [rainMaterialClose, rainMaterialFar]
   }, [rainAlphaTexture, closeMatrix, farMatrix])
+  useEffect(
+    () => () => {
+      rainMaterialClose.dispose()
+      rainMaterialFar.dispose()
+    },
+    [rainMaterialClose, rainMaterialFar]
+  )
 
   const { rain } = useMesh((s) => s.weather)
 
@@ -126,8 +132,8 @@ export const Weather = () => {
   )
 }
 
-const rainLoboColor = new Vector3().fromArray(new Color("#853ea1").toArray())
-const dayLoboColor = new Vector3().fromArray(new Color("#4b5091").toArray())
+const rainLoboColor = new Color("#853ea1")
+const dayLoboColor = new Color("#4b5091")
 
 function LoboMarino({ loboMarino }: { loboMarino: Mesh }) {
   const isRaining = useWeather((s) => s.isRaining)
@@ -143,11 +149,8 @@ function LoboMarino({ loboMarino }: { loboMarino: Mesh }) {
   })
 
   const loboMaterial = useMemo(() => {
-    const mat = loboMarino?.material as ShaderMaterial
+    const mat = loboMarino?.material as SiteMaterial
     mat.uniforms.uColor.value = currentLoboColor
-
-    mat.defines.IS_LOBO_MARINO = true
-    mat.needsUpdate = true
 
     return mat
   }, [loboMarino, currentLoboColor])

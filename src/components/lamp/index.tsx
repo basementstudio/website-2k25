@@ -1,8 +1,6 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
-import { extend, useThree } from "@react-three/fiber"
+import { useThree } from "@react-three/fiber"
 import { BallCollider, RigidBody, useRopeJoint } from "@react-three/rapier"
 import { track } from "@vercel/analytics"
-import { MeshLineGeometry, MeshLineMaterial } from "meshline"
 import { animate } from "motion"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import * as THREE from "three"
@@ -15,9 +13,9 @@ import { useMesh } from "@/hooks/use-mesh"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { MeshDiscardMaterial } from "@/lib/graphics/discard-material"
+import { RibbonGeometry } from "@/lib/graphics/ribbon"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
-
-extend({ MeshLineGeometry, MeshLineMaterial })
 
 // The rope was tuned at gravity -24; the shared world runs at rapier's default.
 const LAMP_GRAVITY_SCALE = 24 / 9.81
@@ -77,7 +75,10 @@ export const Lamp = memo(function LampInner() {
     return material
   }, [])
 
-  const { width, height } = useThree((state) => state.size)
+  const camera = useThree((state) => state.camera)
+  useEffect(() => () => material.dispose(), [material])
+  const ribbonGeometry = useMemo(() => new RibbonGeometry(), [])
+  useEffect(() => () => ribbonGeometry.dispose(), [ribbonGeometry])
   const curve = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
@@ -124,6 +125,7 @@ export const Lamp = memo(function LampInner() {
     new THREE.Vector3().copy(point1).sub(point2).length()
 
   useEffect(() => {
+    if (!band.current) return
     if (selected) {
       // @ts-ignore
       animate(
@@ -173,7 +175,7 @@ export const Lamp = memo(function LampInner() {
       curve.points[1].copy(j2Pos)
       curve.points[2].copy(j1Pos)
       curve.points[3].copy(j0Pos)
-      band.current.geometry.setPoints(curve.getPoints(8))
+      band.current.geometry.setPoints(curve.getPoints(8), camera.position)
 
       const tension_j0_j1 = tension(j0Pos, j1Pos)
       const tension_j1_j2 = tension(j1Pos, j2Pos)
@@ -219,13 +221,13 @@ export const Lamp = memo(function LampInner() {
   useEffect(() => {
     // @ts-ignore
     if (lamp) lamp.material.uniforms.opacity.value = light ? 0 : 1
-    if (lampHandle) {
+    if (lampHandle.current) {
       // @ts-ignore
       lampHandle.current.material.uniforms.baseColor.value = light
         ? colorWhenOff
         : colorWhenOn
     }
-    if (band) {
+    if (band.current) {
       // @ts-ignore
       band.current.material.color = light
         ? colorWhenOff.clone()
@@ -339,16 +341,8 @@ export const Lamp = memo(function LampInner() {
       {lamp && <primitive object={lamp} />}
 
       <mesh ref={band}>
-        {/* @ts-ignore */}
-        <meshLineGeometry />
-        {/* @ts-ignore */}
-        <meshLineMaterial
-          color={colorWhenOn}
-          resolution={[width, height]}
-          lineWidth={0.005}
-        />
-
-        {lamp && <primitive object={lamp} />}
+        <primitive object={ribbonGeometry} attach="geometry" />
+        <meshBasicMaterial color={colorWhenOn} side={2} />
       </mesh>
     </>
   )

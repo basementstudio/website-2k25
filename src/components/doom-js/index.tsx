@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { CanvasTexture } from "three"
 
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
+import { useSceneAssets } from "@/lib/graphics/scene-assets"
 
 import { useNavigationStore } from "../navigation-handler/navigation-store"
 import { CRTMesh } from "./crt-mesh"
@@ -105,21 +106,34 @@ function DoomGame() {
   const [ci, setCi] = useState<CommandInterface | null>(null)
 
   useEffect(() => {
-    if (ci) return
+    let canceled = false
+    let active: CommandInterface | null = null
+    import("emulators")
+      .then(async () => {
+        if (canceled) return
+        window.emulators.pathPrefix = "/emulators/"
 
-    import("emulators").then(async () => {
-      window.emulators.pathPrefix = "/emulators/"
+        // const bundle = await fetch("https://v8.js-dos.com/bundles/digger.jsdos");
+        const bundle = await fetch("/dos-programs/doom.jsdos")
+        const bytes = new Uint8Array(await bundle.arrayBuffer())
+        if (canceled) return
 
-      // const bundle = await fetch("https://v8.js-dos.com/bundles/digger.jsdos");
-      const bundle = await fetch("/dos-programs/doom.jsdos")
-
-      const ci = await window.emulators.dosboxWorker(
-        new Uint8Array(await bundle.arrayBuffer())
-      )
-
-      setCi(ci)
-    })
-  }, [ci])
+        active = await window.emulators.dosboxWorker(bytes)
+        if (canceled) {
+          void active.exit()
+          return
+        }
+        setCi(active)
+      })
+      .catch((error) => {
+        if (!canceled) console.error("Doom initialization failed", error)
+      })
+    return () => {
+      canceled = true
+      void active?.exit()
+    }
+  }, [])
+  useEffect(() => () => virtualScreen.texture.dispose(), [virtualScreen])
 
   useEffect(() => {
     if (!ci) return
@@ -137,6 +151,7 @@ function DoomGame() {
       virtualScreen.ctx?.putImageData(virtualScreen.imageData, 0, 0)
 
       virtualScreen.texture.needsUpdate = true
+      useSceneAssets.getState().markReady("doom")
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ci])

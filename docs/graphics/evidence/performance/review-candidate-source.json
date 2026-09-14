@@ -1,0 +1,12 @@
+{
+  "sha256": "94235e00c6dee86d325bdbfd1db58474e394d54c4e04b8a2d5cfe771d4c367d4",
+  "buildId": "3JBAK7-csFkN6U4R2XJxT",
+  "node": "24.20.0",
+  "backend": "auto",
+  "benchmark": true,
+  "hashMethod": "SHA-256 of sorted JSON path-to-SHA256 mapping in review-candidate-files.json",
+  "additionalBuildConfigs": {
+    "sanity.config.ts": "0e3e15d5dd2791c206f2db89021d4122bb7c4adcd1818fc4aeae72a4feedd502",
+    "sanity.cli.ts": "8ecf30f719f4524004279382ad687aa8564edb63ac51db92373afefbd62e517b"
+  }
+}

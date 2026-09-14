@@ -1,58 +1,27 @@
 "use client"
 
 import { Canvas } from "@react-three/fiber"
-import dynamic from "next/dynamic"
-import { Suspense, useEffect, useRef, useState } from "react"
-import * as THREE from "three"
+import { lazy, Suspense, useEffect, useRef, useState } from "react"
+import { PCFShadowMap } from "three"
 
-import ErrorBoundary from "@/components/basketball/error-boundary"
-import { CameraController } from "@/components/camera/camera-controller"
-import { CharacterInstanceConfig } from "@/components/characters/character-instancer"
-import { CharactersSpawn } from "@/components/characters/characters-spawn"
-import { UpdateCanvasCursor } from "@/components/custom-cursor"
 import { Debug } from "@/components/debug"
-import { Inspectables } from "@/components/inspectables/inspectables"
-import { Lamp } from "@/components/lamp"
-import { Map } from "@/components/map"
-import { BakesLoader } from "@/components/map/bakes"
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
-import { Pets } from "@/components/pets"
-import { Renderer } from "@/components/postprocessing/renderer"
-import { AnimationController } from "@/components/shared/AnimationController"
-import { Sparkles } from "@/components/sparkles"
-import { WebGlTunnelOut } from "@/components/tunnel"
 import { useTabKeyHandler } from "@/hooks/use-key-press"
+import { createSiteEvents } from "@/lib/graphics/events"
+import { useGraphicsLifecycle } from "@/lib/graphics/lifecycle"
+import { createSiteRenderer } from "@/lib/graphics/renderer"
+import { RendererLifetime } from "@/lib/graphics/renderer-lifetime"
 import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
-import { DoomJs } from "../doom-js"
-
-const HoopMinigame = dynamic(
-  () =>
-    import("@/components/basketball/hoop-minigame").then(
-      (mod) => mod.HoopMinigame
-    ),
-  { ssr: false }
-)
-
-const PhysicsWorld = dynamic(
-  () =>
-    import("@react-three/rapier").then((mod) => {
-      const { Physics } = mod
-      return function PhysicsWrapper({
-        children,
-        paused
-      }: {
-        children: React.ReactNode
-        paused: boolean
-      }) {
-        return <Physics paused={paused}>{children}</Physics>
-      }
-    }),
-  { ssr: false }
-)
+const SceneContent = lazy(() => import("./scene-content"))
 
 export const Scene = () => {
+  const loaderFrame = useAppLoadingStore((s) => s.hasLoaderFrame)
+  const loaderFailed = useAppLoadingStore((s) => s.loaderFailed)
+  const generation = useGraphicsLifecycle((s) => s.generation)
+  const forceWebGL = useGraphicsLifecycle((s) => s.forceWebGL)
   // Per-field selectors: destructuring the whole store re-rendered the entire
   // <Canvas> subtree on every unrelated navigation-store write.
   const setIsCanvasTabMode = useNavigationStore(
@@ -60,9 +29,6 @@ export const Scene = () => {
   )
   const isBasketball = useNavigationStore(
     (state) => state.currentScene?.name === "basketball"
-  )
-  const isBlog = useNavigationStore(
-    (state) => state.currentScene?.name === "blog"
   )
   const isFullHeightScene = useNavigationStore((state) => {
     const name = state.currentScene?.name
@@ -76,7 +42,7 @@ export const Scene = () => {
   // mobile canvas at retina resolution roughly quadruples the per-frame GPU
   // and post-processing cost on the phones already struggling with INP.
   const [dpr, setDpr] = useState<number | [number, number]>(() =>
-    typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : [1, 2]
+    typeof window !== "undefined" && window.innerWidth < 1024 ? 1 : [1, 1.5]
   )
   useTabKeyHandler()
 
@@ -88,7 +54,7 @@ export const Scene = () => {
       const hasFinePointer = window.matchMedia("(pointer: fine)").matches
 
       setIsTouchOnly(hasTouchScreen && hasCoarsePointer && !hasFinePointer)
-      setDpr(window.innerWidth < 1024 ? 1 : [1, 2])
+      setDpr(window.innerWidth < 1024 ? 1 : [1, 1.5])
     }
 
     detectTouchOnly()
@@ -157,6 +123,8 @@ export const Scene = () => {
         <Debug />
         <Canvas
           id="canvas"
+          events={createSiteEvents}
+          shadows={{ enabled: false, type: PCFShadowMap }}
           frameloop="demand"
           dpr={dpr}
           ref={canvasRef}
@@ -171,63 +139,26 @@ export const Scene = () => {
               e.preventDefault()
             }
           }}
-          gl={{
-            antialias: false,
-            alpha: false,
-            outputColorSpace: THREE.SRGBColorSpace,
-            toneMapping: THREE.NoToneMapping
-          }}
+          key={generation}
+          gl={async (options) =>
+            createSiteRenderer(
+              { canvas: options.canvas as HTMLCanvasElement },
+              () => useGraphicsLifecycle.getState().recover(generation),
+              forceWebGL
+            )
+          }
           camera={{ fov: 60 }}
           className={cn(
             "pointer-events-auto cursor-auto outline-none focus-visible:outline-none [&_canvas]:touch-none",
             isTouchOnly && !isBasketball && "!pointer-events-none"
           )}
         >
-          <AnimationController>
-            <UpdateCanvasCursor />
-            <Renderer
-              sceneChildren={
-                <>
-                  <DoomJs />
-                  <Suspense fallback={null}>
-                    <Inspectables />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Map />
-                  </Suspense>
-                  <BakesLoader />
-                  <Suspense fallback={null}>
-                    <WebGlTunnelOut />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <CameraController />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Sparkles />
-                  </Suspense>
-                  {/* Never unmount: tearing a world down while its bodies are
-                      being removed throws out of rapier's wasm. */}
-                  <Suspense fallback={null}>
-                    <PhysicsWorld paused={!isBasketball && !isBlog}>
-                      <Lamp />
-                      {isBasketball && (
-                        <ErrorBoundary>
-                          <HoopMinigame />
-                        </ErrorBoundary>
-                      )}
-                    </PhysicsWorld>
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <CharacterInstanceConfig />
-                    <CharactersSpawn />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <Pets />
-                  </Suspense>
-                </>
-              }
-            />
-          </AnimationController>
+          <RendererLifetime />
+          {(loaderFrame || loaderFailed) && (
+            <Suspense fallback={null}>
+              <SceneContent />
+            </Suspense>
+          )}
         </Canvas>
       </div>
     </>

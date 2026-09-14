@@ -1,6 +1,7 @@
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import Script from "next/script"
+import { Suspense } from "react"
 
 import { AppHooks } from "@/components/app-hooks-init"
 import { AssetsProvider } from "@/components/assets-provider"
@@ -20,8 +21,13 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <Analytics />
-      <SpeedInsights />
+      {/* These script endpoints are supplied by Vercel, not by next start. */}
+      {process.env.VERCEL === "1" && (
+        <>
+          <Analytics />
+          <SpeedInsights />
+        </>
+      )}
       <Script
         src="https://analytics.ahrefs.com/analytics.js"
         data-key="ulc2H83B54VgW4DK1z3uiw"
@@ -32,7 +38,9 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
         <InspectableProvider>
           <MotionProvider>
             <HtmlTunnelOut />
-            <NavigationHandler />
+            <Suspense fallback={null}>
+              <NavigationHandler />
+            </Suspense>
             <CanvasLayer />
             <RealtimeRoot />
             {children}
@@ -41,7 +49,9 @@ const SiteLayout = async ({ children }: { children: React.ReactNode }) => {
           </MotionProvider>
         </InspectableProvider>
       </AssetsProvider>
-      <ModeToggle mode="human" />
+      <Suspense fallback={null}>
+        <ModeToggle mode="human" />
+      </Suspense>
     </>
   )
 }

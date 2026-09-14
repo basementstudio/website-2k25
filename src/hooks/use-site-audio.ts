@@ -1,6 +1,8 @@
 import { memo, useCallback, useEffect, useRef } from "react"
 import { create } from "zustand"
 
+import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useAudioUrls } from "@/hooks/use-audio-urls"
 import { AudioSource, WebAudioPlayer } from "@/lib/audio"
 import { AMBIENT_VOLUME, SFX_VOLUME } from "@/lib/audio/constants"
@@ -89,6 +91,9 @@ export { useSiteAudioStore }
 
 export const useInitializeAudioContext = () => {
   const player = useSiteAudioStore((s) => s.player)
+  const preparedContext = useRef<AudioContext | null>(null)
+  const presented = useAppLoadingStore((s) => s.hasPresentedFrame)
+  const transitioning = useNavigationStore((s) => s.isCameraTransitioning)
   const isIngame = useArcadeStore((s) => s.isInGame)
 
   const music = useSiteAudioStore((s) => s.music)
@@ -97,6 +102,46 @@ export const useInitializeAudioContext = () => {
   const isChristmasSeason = useSiteAudioStore((s) => s.isChristmasSeason)
 
   const isOnTab = useIsOnTab()
+
+  useEffect(() => {
+    if (player || !presented || !isOnTab || transitioning) return
+    let cancelIdle: (() => void) | undefined
+    const timer = setTimeout(() => {
+      cancelIdle = onIdle(() => {
+        if (
+          preparedContext.current ||
+          useSiteAudioStore.getState().player ||
+          document.hidden ||
+          useNavigationStore.getState().isCameraTransitioning
+        )
+          return
+        try {
+          // Opening the audio device can block the main thread for ~100 ms.
+          // Prepare an unused, suspended context after the scene is visible;
+          // the click still resumes it synchronously to satisfy autoplay rules.
+          const context = new AudioContext()
+          preparedContext.current = context
+          if (context.state === "running")
+            void context.suspend().catch(() => {})
+        } catch {
+          // A gesture can retry if this browser rejects idle initialization.
+        }
+      })
+    }, 2000)
+    return () => {
+      clearTimeout(timer)
+      cancelIdle?.()
+    }
+  }, [player, presented, isOnTab, transitioning])
+
+  useEffect(
+    () => () => {
+      const unused = preparedContext.current
+      preparedContext.current = null
+      if (unused) void unused.close().catch(() => {})
+    },
+    []
+  )
 
   const { ARCADE_AUDIO_SFX, GAME_THEME_SONGS, SPECIAL_EVENTS_AUDIO_SFX } =
     useAudioUrls()
@@ -131,13 +176,11 @@ export const useInitializeAudioContext = () => {
       if (unlocked) return
       unlocked = true
 
-      // The gesture itself only needs to create/resume the AudioContext
-      // (autoplay policy). The graph build, localStorage read and the store
-      // update (which fans out re-renders) run after the next paint so the
-      // user's first tap — the interaction INP measures — isn't billed for
-      // the audio bootstrap.
-      const audioContext = new AudioContext()
-      audioContext.resume()
+      // Reuse the idle context when available. Early interactions retain the
+      // immediate gesture path; graph construction remains a separate task.
+      const audioContext = preparedContext.current ?? new AudioContext()
+      preparedContext.current = null
+      void audioContext.resume().catch(() => {})
 
       setTimeout(() => {
         const newPlayer = new WebAudioPlayer(audioContext)

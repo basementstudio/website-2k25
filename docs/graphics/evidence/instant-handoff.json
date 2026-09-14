@@ -1,0 +1,4851 @@
+[
+  {
+    "backend": "webgpu",
+    "reducedMotion": "no-preference",
+    "assetHeldBeforeReveal": true,
+    "posters": [],
+    "errors": [],
+    "entry": {
+      "scene": "home",
+      "ready": [
+        "base",
+        "showcase",
+        "details",
+        "pets",
+        "characters",
+        "videos:home"
+      ],
+      "compiled": true,
+      "reveal": {
+        "value": 1
+      }
+    },
+    "frames": [
+      {
+        "time": 2497.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2504.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2515.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2554.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2556,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2563.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2572.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2580.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2589.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2597.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2603.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2613.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2622.600000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2630.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2638.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2646.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2654.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2664.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2670.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2680.600000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2688.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2697.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2705.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2713.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2722.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2728.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2737,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2745.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2754.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2763.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2772.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2779.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2789.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2796.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2805.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2814.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2822.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2830,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2837.600000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2847.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2855.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2863.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2872,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2880,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2889,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2897.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2904.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2914,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2922.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2930.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2938.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2947.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2955.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2963.600000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2972.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2980.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2989,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2995.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3005.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3012,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3022.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3030.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3037.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3047.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3055.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3063.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3070.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3083.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3088,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3097.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3105.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3115.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3123.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3129.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3139.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3147.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3155.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3164.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3172.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3181.600000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3189.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3197.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3205.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3213.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3221.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3229,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3238.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3246.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3255.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3264.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3276.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3281.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3291,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3297.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3312.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3321.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3325.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3336.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3337.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3349.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3353.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3363,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3373.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3380.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3389.600000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3396.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3405.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3415.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3420.600000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3431,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3438.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3446.600000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3458.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3464.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3471.600000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3481.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3490.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3499.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3507.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3515,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3523.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3530.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3539,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3554.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3557.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3563.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3575.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3583.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3588,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3597.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3609.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3615.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3624.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3631.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3640,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3647.7000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3656,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3663.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3672.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3685,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3690.2000000178814,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3697.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3705.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3714.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3723.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3742.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3746.100000023842,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3749.7000000178814,
+        "progress": 0.005285714311259134,
+        "done": false
+      },
+      {
+        "time": 3758.100000023842,
+        "progress": 0.017285714319774083,
+        "done": false
+      },
+      {
+        "time": 3766.100000023842,
+        "progress": 0.029285714285714286,
+        "done": false
+      },
+      {
+        "time": 3774.100000023842,
+        "progress": 0.041142857159887046,
+        "done": false
+      },
+      {
+        "time": 3782.7000000178814,
+        "progress": 0.0530000000340598,
+        "done": false
+      },
+      {
+        "time": 3790.9000000059605,
+        "progress": 0.06485714286565782,
+        "done": false
+      },
+      {
+        "time": 3798.2000000178814,
+        "progress": 0.07514285717691695,
+        "done": false
+      },
+      {
+        "time": 3807.800000011921,
+        "progress": 0.0891428571513721,
+        "done": false
+      },
+      {
+        "time": 3815.7000000178814,
+        "progress": 0.10042857144560134,
+        "done": false
+      },
+      {
+        "time": 3824,
+        "progress": 0.11257142858845849,
+        "done": false
+      },
+      {
+        "time": 3831.9000000059605,
+        "progress": 0.12328571430274421,
+        "done": false
+      },
+      {
+        "time": 3841.2000000178814,
+        "progress": 0.13671428573983058,
+        "done": false
+      },
+      {
+        "time": 3848.100000023842,
+        "progress": 0.14685714287417279,
+        "done": false
+      },
+      {
+        "time": 3857.800000011921,
+        "progress": 0.16042857144560135,
+        "done": false
+      },
+      {
+        "time": 3866.100000023842,
+        "progress": 0.17214285714285718,
+        "done": false
+      },
+      {
+        "time": 3873.9000000059605,
+        "progress": 0.18371428574834556,
+        "done": false
+      },
+      {
+        "time": 3882.2000000178814,
+        "progress": 0.1958571428912027,
+        "done": false
+      },
+      {
+        "time": 3890.7000000178814,
+        "progress": 0.2077142857228007,
+        "done": false
+      },
+      {
+        "time": 3899.100000023842,
+        "progress": 0.21971428573131566,
+        "done": false
+      },
+      {
+        "time": 3907.600000023842,
+        "progress": 0.2315714286054884,
+        "done": false
+      },
+      {
+        "time": 3914.800000011921,
+        "progress": 0.2422857143197741,
+        "done": false
+      },
+      {
+        "time": 3923.9000000059605,
+        "progress": 0.2552857143112592,
+        "done": false
+      },
+      {
+        "time": 3932.4000000059605,
+        "progress": 0.2672857143197741,
+        "done": false
+      },
+      {
+        "time": 3940.5,
+        "progress": 0.2791428571513721,
+        "done": false
+      },
+      {
+        "time": 3949.2000000178814,
+        "progress": 0.2910000000255449,
+        "done": false
+      },
+      {
+        "time": 3957.4000000059605,
+        "progress": 0.3030000000340598,
+        "done": false
+      },
+      {
+        "time": 3965.7000000178814,
+        "progress": 0.3147142857313156,
+        "done": false
+      },
+      {
+        "time": 3974,
+        "progress": 0.3268571428741727,
+        "done": false
+      },
+      {
+        "time": 3982.300000011921,
+        "progress": 0.3384285714370863,
+        "done": false
+      },
+      {
+        "time": 3990.2000000178814,
+        "progress": 0.3499999999999999,
+        "done": false
+      },
+      {
+        "time": 3999.2000000178814,
+        "progress": 0.36257142858845837,
+        "done": false
+      },
+      {
+        "time": 4007.2000000178814,
+        "progress": 0.3737142857483454,
+        "done": false
+      },
+      {
+        "time": 4016,
+        "progress": 0.38628571429422914,
+        "done": false
+      },
+      {
+        "time": 4022.2000000178814,
+        "progress": 0.39585714289120255,
+        "done": false
+      },
+      {
+        "time": 4032.600000023842,
+        "progress": 0.41057142857994344,
+        "done": false
+      },
+      {
+        "time": 4038.9000000059605,
+        "progress": 0.41971428573131553,
+        "done": false
+      },
+      {
+        "time": 4049.300000011921,
+        "progress": 0.43442857146263114,
+        "done": false
+      },
+      {
+        "time": 4057.2000000178814,
+        "progress": 0.4457142857142856,
+        "done": false
+      },
+      {
+        "time": 4065.800000011921,
+        "progress": 0.4577142857228006,
+        "done": false
+      },
+      {
+        "time": 4072.2000000178814,
+        "progress": 0.467285714319774,
+        "done": false
+      },
+      {
+        "time": 4082.300000011921,
+        "progress": 0.4814285714285714,
+        "done": false
+      },
+      {
+        "time": 4090.5,
+        "progress": 0.4935714285714285,
+        "done": false
+      },
+      {
+        "time": 4099.4000000059605,
+        "progress": 0.5054285714456013,
+        "done": false
+      },
+      {
+        "time": 4107.4000000059605,
+        "progress": 0.517285714319774,
+        "done": false
+      },
+      {
+        "time": 4115.9000000059605,
+        "progress": 0.5292857142857142,
+        "done": false
+      },
+      {
+        "time": 4123.200000017881,
+        "progress": 0.5398571428656578,
+        "done": false
+      },
+      {
+        "time": 4132.200000017881,
+        "progress": 0.5530000000340598,
+        "done": false
+      },
+      {
+        "time": 4139.4000000059605,
+        "progress": 0.5634285714370864,
+        "done": false
+      },
+      {
+        "time": 4149.100000023842,
+        "progress": 0.5768571428741728,
+        "done": false
+      },
+      {
+        "time": 4157.300000011921,
+        "progress": 0.5887142857483455,
+        "done": false
+      },
+      {
+        "time": 4165.700000017881,
+        "progress": 0.6005714285799435,
+        "done": false
+      },
+      {
+        "time": 4173.800000011921,
+        "progress": 0.6124285714541162,
+        "done": false
+      },
+      {
+        "time": 4182.200000017881,
+        "progress": 0.6244285714626312,
+        "done": false
+      },
+      {
+        "time": 4190.5,
+        "progress": 0.636142857159887,
+        "done": false
+      },
+      {
+        "time": 4199,
+        "progress": 0.6482857143027442,
+        "done": false
+      },
+      {
+        "time": 4207.300000011921,
+        "progress": 0.6601428571769169,
+        "done": false
+      },
+      {
+        "time": 4216,
+        "progress": 0.6720000000085149,
+        "done": false
+      },
+      {
+        "time": 4223.4000000059605,
+        "progress": 0.6832857143027441,
+        "done": false
+      },
+      {
+        "time": 4232.4000000059605,
+        "progress": 0.6960000000255447,
+        "done": false
+      },
+      {
+        "time": 4240.5,
+        "progress": 0.7077142857228006,
+        "done": false
+      },
+      {
+        "time": 4248.600000023842,
+        "progress": 0.7185714285714285,
+        "done": false
+      },
+      {
+        "time": 4256.4000000059605,
+        "progress": 0.7301428571769168,
+        "done": false
+      },
+      {
+        "time": 4266.100000023842,
+        "progress": 0.7438571428826876,
+        "done": false
+      },
+      {
+        "time": 4273.9000000059605,
+        "progress": 0.755285714311259,
+        "done": false
+      },
+      {
+        "time": 4280.9000000059605,
+        "progress": 0.7648571428656576,
+        "done": false
+      },
+      {
+        "time": 4291.100000023842,
+        "progress": 0.7795714285969733,
+        "done": false
+      },
+      {
+        "time": 4298.4000000059605,
+        "progress": 0.7897142857313154,
+        "done": false
+      },
+      {
+        "time": 4306.100000023842,
+        "progress": 0.801285714294229,
+        "done": false
+      },
+      {
+        "time": 4315.700000017881,
+        "progress": 0.8149999999999997,
+        "done": false
+      },
+      {
+        "time": 4323.800000011921,
+        "progress": 0.826571428605488,
+        "done": false
+      },
+      {
+        "time": 4332.5,
+        "progress": 0.8387142857483452,
+        "done": false
+      },
+      {
+        "time": 4340.4000000059605,
+        "progress": 0.8505714285799432,
+        "done": false
+      },
+      {
+        "time": 4349,
+        "progress": 0.8624285714541159,
+        "done": false
+      },
+      {
+        "time": 4356.200000017881,
+        "progress": 0.8728571428571424,
+        "done": false
+      },
+      {
+        "time": 4366,
+        "progress": 0.8867142857398301,
+        "done": false
+      },
+      {
+        "time": 4373.9000000059605,
+        "progress": 0.8980000000340593,
+        "done": false
+      },
+      {
+        "time": 4381.200000017881,
+        "progress": 0.9084285714370859,
+        "done": false
+      },
+      {
+        "time": 4390.9000000059605,
+        "progress": 0.9224285714541158,
+        "done": false
+      },
+      {
+        "time": 4399.100000023842,
+        "progress": 0.9338571428826873,
+        "done": false
+      },
+      {
+        "time": 4406.100000023842,
+        "progress": 0.9442857142857138,
+        "done": false
+      },
+      {
+        "time": 4415.5,
+        "progress": 0.9577142857228003,
+        "done": false
+      },
+      {
+        "time": 4423.9000000059605,
+        "progress": 0.969571428596973,
+        "done": false
+      },
+      {
+        "time": 4432.600000023842,
+        "progress": 0.981571428605488,
+        "done": false
+      },
+      {
+        "time": 4440.5,
+        "progress": 0.9935714285714282,
+        "done": false
+      },
+      {
+        "time": 4450.9000000059605,
+        "progress": 1,
+        "done": true
+      }
+    ],
+    "prepared": 3741.5,
+    "presented": 4449.200000017881
+  },
+  {
+    "backend": "webgpu",
+    "reducedMotion": "reduce",
+    "assetHeldBeforeReveal": true,
+    "posters": [],
+    "errors": [],
+    "entry": {
+      "scene": "home",
+      "ready": [
+        "base",
+        "showcase",
+        "details",
+        "pets",
+        "characters",
+        "videos:home"
+      ],
+      "compiled": true,
+      "reveal": {
+        "value": 1
+      }
+    },
+    "frames": [
+      {
+        "time": 2470.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2478.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2487.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2525.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2526.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2529.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2538.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2546.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2553.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2563.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2571.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2579.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2588.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2596.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2604.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2613.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2621.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2628.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2638.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2646.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2655.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2663.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2670.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2680,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2686.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2696.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2704.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2713.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2721.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2730.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2736.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2746.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2754.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2763.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2771.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2780,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2788.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2796.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2805,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2811.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2820.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2829.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2838.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2846.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2854.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2863.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2871.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2879.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2887.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2896.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2905.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2913.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2921.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2928.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2938.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2946.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2955,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2963.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2971.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2979.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2987,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2996.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3005,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3013.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3021.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3029.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3038.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3046.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3055.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3065.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3071.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3082.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3091.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3098.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3105.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3116.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3121.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3130,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3138.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3146.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3155.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3163.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3176.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3185.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3188.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3200.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3209.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3217.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3222.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3231,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3237.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3246.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3253.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3265.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3276.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3283.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3290.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3297.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3305.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3315,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3321.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3330,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3339.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3347.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3355,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3364.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3371.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3380.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3389.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3397.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3405.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3413.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3422.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3430.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3438.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3448.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3455.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3465.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3472.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3480.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3488.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3500.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3508,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3518.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3520.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3530.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3539.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3548.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3558.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3565.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3575.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3583.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3588.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3597.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3605.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3613.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3623.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3630.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3638.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3647.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3655.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3662.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3671.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3680.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3702.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3707.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3712.9000000059605,
+        "progress": 1,
+        "done": true
+      }
+    ],
+    "prepared": 3702,
+    "presented": 3711.199999988079
+  },
+  {
+    "backend": "webgl2",
+    "reducedMotion": "no-preference",
+    "assetHeldBeforeReveal": true,
+    "posters": [],
+    "errors": [],
+    "entry": {
+      "scene": "home",
+      "ready": [
+        "base",
+        "showcase",
+        "details",
+        "pets",
+        "characters",
+        "videos:home"
+      ],
+      "compiled": true,
+      "reveal": {
+        "value": 1
+      }
+    },
+    "frames": [
+      {
+        "time": 2513.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2521.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2530.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2575.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2576.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2580,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2588.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2595.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2604,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2613.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2620.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2628.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2638,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2646.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2655.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2662.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2671.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2680,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2688.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2696,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2705.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2713.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2721.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2730,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2738.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2746.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2754.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2761.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2771.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2779.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2788.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2796.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2805,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2813.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2821.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2829.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2838.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2846.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2855.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2863.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2871.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2879.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2887.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2897.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2903.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2913.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2921.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2929.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2938.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2945.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2955,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2963.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2971.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2980.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2988.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2995.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3005.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3013.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3021.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3029.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3038.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3046.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3055.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3063.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3070.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3079.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3086.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3097.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3106.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3113.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3121.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3130.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3138.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3146.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3153.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3163.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3171.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3180.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3187.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3196.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3205,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3212.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3220.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3230.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3238.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3246.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3255.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3264.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3271.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3278.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3288.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3296.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3305,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3313.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3321.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3330.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3338.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3345.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3358.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3363.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3372,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3379.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3388.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3402,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3406.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3413.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3421.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3430,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3437.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3446.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3455.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3463.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3472,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3480,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3488.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3496.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3504.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3513.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3522.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3530.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3540.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3546.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3556.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3562.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3571.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3581.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3588.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3597,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3612.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3621.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3630,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3638.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3646.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3655.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3664.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3671.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3679.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3687.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3696.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3705.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3713.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3721.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3730.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3738.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3746.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3754.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3763.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3771.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3780.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3788.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3795.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3805.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3813.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3822.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3830.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3839.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3847.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3860.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3868.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3876.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3883.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3891.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3899,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3906.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3917.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3924.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3932.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3940,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3947.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3954.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3969.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3977,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3980,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3988.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4002.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4009.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4016.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4028.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4029.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4038.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4047.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4054.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4063.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4071.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4079.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4088.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4095.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4105.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4113.300000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4121.800000011921,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4130.4000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4138.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4199,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4203.9000000059605,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4208.0999999940395,
+        "progress": 0.006857142831598009,
+        "done": false
+      },
+      {
+        "time": 4215.800000011921,
+        "progress": 0.01828571426016944,
+        "done": false
+      },
+      {
+        "time": 4223.300000011921,
+        "progress": 0.02928571428571429,
+        "done": false
+      },
+      {
+        "time": 4232.199999988079,
+        "progress": 0.04257142854588373,
+        "done": false
+      },
+      {
+        "time": 4239.800000011921,
+        "progress": 0.05299999999148505,
+        "done": false
+      },
+      {
+        "time": 4249.300000011921,
+        "progress": 0.06671428569725582,
+        "done": false
+      },
+      {
+        "time": 4257.800000011921,
+        "progress": 0.07828571426016945,
+        "done": false
+      },
+      {
+        "time": 4265.699999988079,
+        "progress": 0.0902857142686844,
+        "done": false
+      },
+      {
+        "time": 4273.9000000059605,
+        "progress": 0.10214285714285716,
+        "done": false
+      },
+      {
+        "time": 4282.5,
+        "progress": 0.11399999997445517,
+        "done": false
+      },
+      {
+        "time": 4290.699999988079,
+        "progress": 0.12585714284862792,
+        "done": false
+      },
+      {
+        "time": 4298.5999999940395,
+        "progress": 0.13657142856291363,
+        "done": false
+      },
+      {
+        "time": 4307.4000000059605,
+        "progress": 0.14899999997445515,
+        "done": false
+      },
+      {
+        "time": 4315.4000000059605,
+        "progress": 0.16157142856291362,
+        "done": false
+      },
+      {
+        "time": 4322.800000011921,
+        "progress": 0.1719999999659402,
+        "done": false
+      },
+      {
+        "time": 4331.800000011921,
+        "progress": 0.18542857140302657,
+        "done": false
+      },
+      {
+        "time": 4340.9000000059605,
+        "progress": 0.19728571427719932,
+        "done": false
+      },
+      {
+        "time": 4349.0999999940395,
+        "progress": 0.20914285710879732,
+        "done": false
+      },
+      {
+        "time": 4357.300000011921,
+        "progress": 0.22114285711731227,
+        "done": false
+      },
+      {
+        "time": 4365.199999988079,
+        "progress": 0.23299999999148502,
+        "done": false
+      },
+      {
+        "time": 4374.0999999940395,
+        "progress": 0.24499999999999997,
+        "done": false
+      },
+      {
+        "time": 4382.5999999940395,
+        "progress": 0.2569999999659402,
+        "done": false
+      },
+      {
+        "time": 4390.5,
+        "progress": 0.26799999999148505,
+        "done": false
+      },
+      {
+        "time": 4398.5999999940395,
+        "progress": 0.2807142857142857,
+        "done": false
+      },
+      {
+        "time": 4407,
+        "progress": 0.2925714285458837,
+        "done": false
+      },
+      {
+        "time": 4415.199999988079,
+        "progress": 0.30442857142005647,
+        "done": false
+      },
+      {
+        "time": 4424.0999999940395,
+        "progress": 0.3164285714285714,
+        "done": false
+      },
+      {
+        "time": 4432.5999999940395,
+        "progress": 0.3282857142601694,
+        "done": false
+      },
+      {
+        "time": 4440.199999988079,
+        "progress": 0.339857142823083,
+        "done": false
+      },
+      {
+        "time": 4448.5999999940395,
+        "progress": 0.3521428571428571,
+        "done": false
+      },
+      {
+        "time": 4457.0999999940395,
+        "progress": 0.3639999999744551,
+        "done": false
+      },
+      {
+        "time": 4465.800000011921,
+        "progress": 0.37585714284862787,
+        "done": false
+      },
+      {
+        "time": 4474.0999999940395,
+        "progress": 0.3878571428571428,
+        "done": false
+      },
+      {
+        "time": 4481.9000000059605,
+        "progress": 0.3997142856887408,
+        "done": false
+      },
+      {
+        "time": 4490.5999999940395,
+        "progress": 0.41157142856291357,
+        "done": false
+      },
+      {
+        "time": 4498.4000000059605,
+        "progress": 0.42342857139451157,
+        "done": false
+      },
+      {
+        "time": 4507.199999988079,
+        "progress": 0.4354285714030265,
+        "done": false
+      },
+      {
+        "time": 4515.5999999940395,
+        "progress": 0.44728571427719926,
+        "done": false
+      },
+      {
+        "time": 4523.5999999940395,
+        "progress": 0.4592857142857142,
+        "done": false
+      },
+      {
+        "time": 4531,
+        "progress": 0.46971428568874074,
+        "done": false
+      },
+      {
+        "time": 4540.4000000059605,
+        "progress": 0.4834285713945115,
+        "done": false
+      },
+      {
+        "time": 4547.699999988079,
+        "progress": 0.4934285713945115,
+        "done": false
+      },
+      {
+        "time": 4557.5999999940395,
+        "progress": 0.507142857142857,
+        "done": false
+      },
+      {
+        "time": 4565.300000011921,
+        "progress": 0.5185714285714285,
+        "done": false
+      },
+      {
+        "time": 4572.800000011921,
+        "progress": 0.5288571428401129,
+        "done": false
+      },
+      {
+        "time": 4582.4000000059605,
+        "progress": 0.5428571428571428,
+        "done": false
+      },
+      {
+        "time": 4590.800000011921,
+        "progress": 0.5544285714200564,
+        "done": false
+      },
+      {
+        "time": 4598.699999988079,
+        "progress": 0.5662857142516544,
+        "done": false
+      },
+      {
+        "time": 4607.300000011921,
+        "progress": 0.5781428571258271,
+        "done": false
+      },
+      {
+        "time": 4615.0999999940395,
+        "progress": 0.5901428571343421,
+        "done": false
+      },
+      {
+        "time": 4622.300000011921,
+        "progress": 0.5999999999999999,
+        "done": false
+      },
+      {
+        "time": 4631.4000000059605,
+        "progress": 0.6127142856802258,
+        "done": false
+      },
+      {
+        "time": 4640.800000011921,
+        "progress": 0.6262857142516544,
+        "done": false
+      },
+      {
+        "time": 4648.699999988079,
+        "progress": 0.6377142856802258,
+        "done": false
+      },
+      {
+        "time": 4657.199999988079,
+        "progress": 0.6498571428230829,
+        "done": false
+      },
+      {
+        "time": 4665.300000011921,
+        "progress": 0.6615714285629135,
+        "done": false
+      },
+      {
+        "time": 4673,
+        "progress": 0.6722857142771992,
+        "done": false
+      },
+      {
+        "time": 4682.0999999940395,
+        "progress": 0.6854285714030264,
+        "done": false
+      },
+      {
+        "time": 4690.9000000059605,
+        "progress": 0.6972857142771991,
+        "done": false
+      },
+      {
+        "time": 4697.0999999940395,
+        "progress": 0.70699999996594,
+        "done": false
+      },
+      {
+        "time": 4707.0999999940395,
+        "progress": 0.7212857142516542,
+        "done": false
+      },
+      {
+        "time": 4715.0999999940395,
+        "progress": 0.7329999999914848,
+        "done": false
+      },
+      {
+        "time": 4723.9000000059605,
+        "progress": 0.7448571428230828,
+        "done": false
+      },
+      {
+        "time": 4732.0999999940395,
+        "progress": 0.7568571428315978,
+        "done": false
+      },
+      {
+        "time": 4740.4000000059605,
+        "progress": 0.7687142857057705,
+        "done": false
+      },
+      {
+        "time": 4748.699999988079,
+        "progress": 0.7805714285373685,
+        "done": false
+      },
+      {
+        "time": 4757.300000011921,
+        "progress": 0.7927142856802256,
+        "done": false
+      },
+      {
+        "time": 4764.4000000059605,
+        "progress": 0.8029999999914847,
+        "done": false
+      },
+      {
+        "time": 4772.5999999940395,
+        "progress": 0.8147142856887406,
+        "done": false
+      },
+      {
+        "time": 4782.0999999940395,
+        "progress": 0.8285714285714283,
+        "done": false
+      },
+      {
+        "time": 4790.699999988079,
+        "progress": 0.8399999999999997,
+        "done": false
+      },
+      {
+        "time": 4797.9000000059605,
+        "progress": 0.8508571428486277,
+        "done": false
+      },
+      {
+        "time": 4807.4000000059605,
+        "progress": 0.8639999999744549,
+        "done": false
+      },
+      {
+        "time": 4815.199999988079,
+        "progress": 0.8758571428486276,
+        "done": false
+      },
+      {
+        "time": 4823.5999999940395,
+        "progress": 0.8877142856802256,
+        "done": false
+      },
+      {
+        "time": 4831.9000000059605,
+        "progress": 0.8995714285543983,
+        "done": false
+      },
+      {
+        "time": 4840.800000011921,
+        "progress": 0.9117142856972554,
+        "done": false
+      },
+      {
+        "time": 4849.199999988079,
+        "progress": 0.9235714285714282,
+        "done": false
+      },
+      {
+        "time": 4856.699999988079,
+        "progress": 0.9347142856887405,
+        "done": false
+      },
+      {
+        "time": 4865.5999999940395,
+        "progress": 0.9474285714115411,
+        "done": false
+      },
+      {
+        "time": 4873.800000011921,
+        "progress": 0.959142857108797,
+        "done": false
+      },
+      {
+        "time": 4882.199999988079,
+        "progress": 0.971142857117312,
+        "done": false
+      },
+      {
+        "time": 4890.5,
+        "progress": 0.9829999999914847,
+        "done": false
+      },
+      {
+        "time": 4899.199999988079,
+        "progress": 0.9952857142686841,
+        "done": false
+      },
+      {
+        "time": 4909,
+        "progress": 1,
+        "done": true
+      }
+    ],
+    "prepared": 4198.199999988079,
+    "presented": 4907.300000011921
+  },
+  {
+    "backend": "webgl2",
+    "reducedMotion": "reduce",
+    "assetHeldBeforeReveal": true,
+    "posters": [],
+    "errors": [],
+    "entry": {
+      "scene": "home",
+      "ready": [
+        "base",
+        "showcase",
+        "details",
+        "pets",
+        "characters",
+        "videos:home"
+      ],
+      "compiled": true,
+      "reveal": {
+        "value": 1
+      }
+    },
+    "frames": [
+      {
+        "time": 2503.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2512.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2520.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2564.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2565.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2571.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2577.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2587.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2593.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2602.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2611,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2619.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2629.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2635.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2645.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2653.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2662.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2670.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2677.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2687.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2695.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2703.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2712.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2720.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2728.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2736.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2745.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2753.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2762.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2770.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2778.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2786.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2795.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2803.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2812.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2819.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2829.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2835.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2844.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2853.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2861.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2870.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2878.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2887.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2895.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2902.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2912.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2920.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2928.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2937.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2944.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2952.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2961.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2970.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2978.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2986,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 2993.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3002.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3011,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3020.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3027.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3037,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3044.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3053,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3061.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3069.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3079.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3087.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3095.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3103.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3112.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3120.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3128.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3137.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3144.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3154,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3161.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3170.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3178.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3187.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3195.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3203.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3211.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3220.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3229.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3237,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3245.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3253.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3262.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3270.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3278,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3287.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3295.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3303.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3316.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3324.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3327.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3337.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3346.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3353.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3362.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3379.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3380,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3387.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3394.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3404,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3412.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3420.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3428.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3437.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3445.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3454,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3462.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3470.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3478.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3485.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3495,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3502.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3512.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3520.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3528.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3537.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3545.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3553.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3562.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3570.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3578.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3587.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3595.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3604,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3612.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3620.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3628.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3637.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3645.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3653.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3662.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3670.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3678.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3687.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3695.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3703.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3712.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3720,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3728.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3737.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3745.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3753.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3762.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3770.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3779.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3787.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3795.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3803.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3812.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3820.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3829.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3837.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3845.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3853.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3860.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3870.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3879,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3886.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3895.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3903.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3912.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3920,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3929,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3937,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3945.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3953.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3960.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3970.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3978,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3987.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 3995.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4004.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4012.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4020.7999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4028.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4037.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4045,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4053.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4062.2999999821186,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4070.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4079.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4086.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4095.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4102.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4112.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4119.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4128,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4137.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4144.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4153.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4162.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4170.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4178.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4187.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4195.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4203.799999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4212.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4220.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4227.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4236.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4245.799999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4255.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4262.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4270,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4279,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4286.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4294.799999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4303.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4318.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4325.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4327.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4337.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4347.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4354,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4361.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4370.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4378.799999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4387.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4395.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4403.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4411,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4419.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4427.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4437.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4445.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4452.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4461.799999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4470.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4479.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4487.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4494.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4504.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4512.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4520.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4528.799999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4536.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4545,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4554,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4562.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4570.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4578.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4587.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4595.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4604,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4612.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4620.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4629.799999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4637.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4651.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4660,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4667.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4675.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4682.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4689.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4696.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4704.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4712.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4726.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4733.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4740.699999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4748.0999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4755.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4762.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4770.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4779,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4793,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4800.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4807.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4814.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4820.399999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4829,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4835.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4845.5999999940395,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4853.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4860.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4869.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4879.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4886.5,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4894.899999976158,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4904.199999988079,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4912.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4955.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4960.299999982119,
+        "progress": 0,
+        "done": false
+      },
+      {
+        "time": 4968.5999999940395,
+        "progress": 1,
+        "done": true
+      }
+    ],
+    "prepared": 4954.399999976158,
+    "presented": 4966.699999988079
+  }
+]

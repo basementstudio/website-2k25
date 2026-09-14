@@ -1,3 +1,4 @@
+import { useThree } from "@react-three/fiber"
 import { forwardRef, useEffect, useMemo, useRef } from "react"
 import {
   type AnimationClip,
@@ -5,9 +6,7 @@ import {
   type Material,
   Matrix4,
   MeshStandardMaterial,
-  Quaternion,
-  type SkinnedMesh,
-  Vector3
+  type SkinnedMesh
 } from "three"
 import { create } from "zustand"
 
@@ -26,10 +25,11 @@ interface InstancesProviderProps {
   count: number
   animations?: AnimationClip[]
   instancedUniforms?: InstancedUniformParams[]
+  onReady?: () => void
 }
 
 interface InstancedMeshStore {
-  instancedMesh: InstancedBatchedSkinnedMesh | null
+  instances: ReadonlyMap<object, InstancedBatchedSkinnedMesh>
 }
 
 export interface InstanceUniform {
@@ -50,8 +50,7 @@ export interface InstancePositionProps<T extends string> {
 export const createInstancedSkinnedMesh = <T extends string>() => {
   /** Create a store to connect instances with positioning */
   const useInstancedMesh = create<InstancedMeshStore>(() => ({
-    instancedMesh: null,
-    geometryId: null
+    instances: new Map()
   }))
 
   /** Create the instanced mesh that will be rendered */
@@ -60,8 +59,10 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
     count,
     animations,
     material: propMaterial,
-    instancedUniforms
+    instancedUniforms,
+    onReady
   }: InstancesProviderProps) {
+    const renderer = useThree((state) => state.gl)
     // prevent re-render
     const refs = useRef({ mesh, animations })
 
@@ -130,22 +131,38 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
         })
       }
 
-      useInstancedMesh.setState({
-        instancedMesh: instancer
-      })
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [refs, count, propMaterial])
+      instancer.prepareMaterial()
 
-    const instancedMesh = useInstancedMesh((state) => state.instancedMesh)
+      useInstancedMesh.setState((state) => ({
+        instances: new Map(state.instances).set(renderer, instancer)
+      }))
+      return () => {
+        useInstancedMesh.setState((state) => {
+          const instances = new Map(state.instances)
+          if (instances.get(renderer) === instancer) instances.delete(renderer)
+          return { instances }
+        })
+        instancer.dispose()
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [refs, count, propMaterial, renderer])
+
+    const instancedMesh = useInstancedMesh(
+      (state) => state.instances.get(renderer) ?? null
+    )
+
+    useEffect(() => {
+      if (instancedMesh && !instancedMesh.isDisposed) onReady?.()
+    }, [instancedMesh, onReady])
 
     useFrameCallback((_, delta) => {
-      if (!instancedMesh) return
+      if (!instancedMesh || instancedMesh.isDisposed) return
 
       // play animations
       instancedMesh.update(delta)
     })
 
-    if (!instancedMesh) return null
+    if (!instancedMesh || instancedMesh.isDisposed) return null
 
     return <primitive object={instancedMesh} />
   }
@@ -168,25 +185,22 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
     },
     ref
   ) {
-    const instancedMesh = useInstancedMesh((state) => state.instancedMesh)
+    const renderer = useThree((state) => state.gl)
+    const instancedMesh = useInstancedMesh(
+      (state) => state.instances.get(renderer) ?? null
+    )
 
     const instanceId = useRef<number | null>(null)
 
-    const { group, groupPosition, groupRotation, positionMatrix, groupScale } =
-      useMemo(
-        () => ({
-          group: new Group(),
-          groupPosition: new Vector3(),
-          groupRotation: new Quaternion(),
-          groupScale: new Vector3(),
-          positionMatrix: new Matrix4()
-        }),
-        []
-      )
+    const { group, positionMatrix } = useMemo(
+      () => ({ group: new Group(), positionMatrix: new Matrix4() }),
+      []
+    )
+    const matrixInitialized = useRef(false)
 
     // attach instance to the mesh
     useEffect(() => {
-      if (!instancedMesh) return
+      if (!instancedMesh || instancedMesh.isDisposed) return
 
       const resolvedGeometryId =
         typeof geometryId === "number"
@@ -203,6 +217,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
         )
       }
 
+      matrixInitialized.current = false
       // Add instance to the instanced mesh
       instanceId.current = instancedMesh.createInstance(resolvedGeometryId, {
         timeSpeed: timeSpeed ?? 1, // forward
@@ -212,7 +227,8 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
 
       return () => {
         if (instanceId.current === null) return
-        instancedMesh.deleteInstance(instanceId.current)
+        if (!instancedMesh.isDisposed)
+          instancedMesh.deleteInstance(instanceId.current)
         instanceId.current = null
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -220,7 +236,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
 
     // react to animation change
     useEffect(() => {
-      if (!instancedMesh) return
+      if (!instancedMesh || instancedMesh.isDisposed) return
       if (instanceId.current === null) return
 
       let selectedAnimationId = 0
@@ -242,7 +258,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
 
     // react to time speed change
     useEffect(() => {
-      if (!instancedMesh) return
+      if (!instancedMesh || instancedMesh.isDisposed) return
       if (instanceId.current === null) return
 
       instancedMesh.setInstanceData(instanceId.current, {
@@ -251,7 +267,7 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
     }, [instancedMesh, timeSpeed])
 
     useEffect(() => {
-      if (!instancedMesh) return
+      if (!instancedMesh || instancedMesh.isDisposed) return
       const id = instanceId.current
       if (id === null) return
 
@@ -265,26 +281,22 @@ export const createInstancedSkinnedMesh = <T extends string>() => {
     useFrameCallback(() => {
       // update instance position
       if (instanceId.current === null) return
-      if (!instancedMesh) return
-      // apply mesh scale
-      group.getWorldScale(groupScale)
-      // apply mesh rotation
-      group.getWorldQuaternion(groupRotation)
-      positionMatrix.makeRotationFromQuaternion(groupRotation)
-      // apply mesh position
-      group.getWorldPosition(groupPosition)
-      positionMatrix.setPosition(
-        groupPosition.x,
-        groupPosition.y,
-        groupPosition.z
-      )
-      positionMatrix.scale(groupScale)
-      // apply positionMatrix to the instance
-      instancedMesh.setMatrixAt(instanceId.current, positionMatrix)
+      if (!instancedMesh || instancedMesh.isDisposed) return
+      group.updateWorldMatrix(true, false)
+      // Most placements are static. Reuse their world matrix without three
+      // decompositions and a full batching-texture upload every frame.
+      if (
+        !matrixInitialized.current ||
+        !positionMatrix.equals(group.matrixWorld)
+      ) {
+        positionMatrix.copy(group.matrixWorld)
+        instancedMesh.setMatrixAt(instanceId.current, positionMatrix)
+        matrixInitialized.current = true
+      }
     })
 
     useEffect(() => {
-      if (!instancedMesh) return
+      if (!instancedMesh || instancedMesh.isDisposed) return
       if (instanceId.current === null) return
       if (activeMorphName === undefined) return
 

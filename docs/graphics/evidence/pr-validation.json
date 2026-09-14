@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-14",
+  "buildId": "TtMSwidoDF2TOYr-XbpDN",
+  "appSourceSha256": "a51b8397d051ffe6daefb75ced66f5764abad512f60a21da7ec02c44eff2e228",
+  "hashMethod": "SHA-256 of sorted relative path + NUL + file bytes + NUL for src, package.json, pnpm-lock.yaml and next.config.ts.",
+  "productionBuild": "passed",
+  "generatedPages": 175,
+  "typescript": "passed during production build",
+  "graphicsTests": {
+    "passed": 17,
+    "failed": 0
+  },
+  "assetVerification": "passed",
+  "basisConsistency": "passed",
+  "lint": {
+    "errors": 21,
+    "warnings": 4,
+    "errorFile": "sanity/schemas/singletons/scenesConfig.ts",
+    "preExisting": true
+  },
+  "currentLoader": "Original WebGL/offscreen worker; earlier SVG/shared-canvas loader evidence is historical.",
+  "scope": "PR preparation checks. Current-worker first paint, reduced motion, hardware release matrix and comparative performance remain open.",
+  "postBuildEdits": [
+    "Removed trailing whitespace from the Doom shader source; no shader math changed."
+  ]
+}

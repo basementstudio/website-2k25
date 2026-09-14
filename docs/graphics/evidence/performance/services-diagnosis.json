@@ -1,0 +1,33 @@
+{
+  "note": "Single-run diagnostic profiles, not final performance acceptance. Flush and flush-frame injected command submission into the phased candidate to test the cause of async waits. Final build scopes submission to renderer queue activity.",
+  "profiles": {
+    "before": {
+      "baseURL": "http://localhost:3201",
+      "preparedAtMs": 12204.800000011921,
+      "compileCalls": 182,
+      "asyncApiElapsedMs": 614.9000000953674,
+      "errors": []
+    },
+    "after": {
+      "baseURL": "http://localhost:3204",
+      "preparedAtMs": 12989.699999988079,
+      "compileCalls": 182,
+      "asyncApiElapsedMs": 1153.6999998092651,
+      "errors": []
+    },
+    "flush": {
+      "baseURL": "http://localhost:3204",
+      "preparedAtMs": 12256.59999999404,
+      "compileCalls": 182,
+      "asyncApiElapsedMs": 629.9000000059605,
+      "errors": []
+    },
+    "flush-frame": {
+      "baseURL": "http://localhost:3204",
+      "preparedAtMs": 12357.200000017881,
+      "compileCalls": 182,
+      "asyncApiElapsedMs": 631.7999999821186,
+      "errors": []
+    }
+  }
+}

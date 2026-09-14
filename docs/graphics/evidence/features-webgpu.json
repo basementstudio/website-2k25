@@ -1,0 +1,12 @@
+{
+  "backend": "webgpu",
+  "checks": [
+    "Services weather statue and rain toggle",
+    "Inspectable reveal, dragging and close",
+    "Arcade texture UV close button",
+    "Arcade keyboard unlock, game start, steering and HUD",
+    "Basketball pointer drag and physics release",
+    "Hidden scene pause and resume"
+  ],
+  "errors": []
+}

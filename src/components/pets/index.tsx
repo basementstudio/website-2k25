@@ -1,18 +1,14 @@
-import {
-  MeshDiscardMaterial,
-  useAnimations,
-  useTexture
-} from "@react-three/drei"
+import { useAnimations, useTexture } from "@react-three/drei"
 import { track } from "@vercel/analytics"
 import { useEffect, useMemo } from "react"
 import * as THREE from "three"
-import { Color } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useCursor } from "@/hooks/use-mouse"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { MeshDiscardMaterial } from "@/lib/graphics/discard-material"
 
 import { useAssets } from "../assets-provider"
 import { useFadeAnimation } from "../inspectables/use-fade-animation"
@@ -121,12 +117,12 @@ export function Pets() {
     const f = 1 - fadeFactor.current.get()
     if (bostonSkinned && bostonSkinned.material) {
       const m = bostonSkinned.material as THREE.MeshBasicMaterial
-      m.color.set(new Color(f, f, f))
+      m.color.setRGB(f, f, f)
     }
 
     if (pureSkinned && pureSkinned.material) {
       const m = pureSkinned.material as THREE.MeshBasicMaterial
-      m.color.set(new Color(f, f, f))
+      m.color.setRGB(f, f, f)
     }
   })
 

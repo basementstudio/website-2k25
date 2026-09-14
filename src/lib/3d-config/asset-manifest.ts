@@ -259,37 +259,37 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       mesh: "SM_SOTD_Glass_02",
-      file: "/3d/textures/matcap-SM_SOTD_Glass_02-dffa5eb9.webp",
+      file: "/3d/textures/matcap-SM_SOTD_Glass-dffa5eb9.webp",
       isGlass: true
     },
     {
       mesh: "SM_ScreenPatas_Glass",
-      file: "/3d/textures/matcap-SM_ScreenPatas_Glass-dffa5eb9.webp",
+      file: "/3d/textures/matcap-SM_SOTD_Glass-dffa5eb9.webp",
       isGlass: true
     },
     {
       mesh: "SM_WebbyMrBeast",
-      file: "/3d/textures/matcap-SM_WebbyMrBeast-4e664cc8.webp",
+      file: "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
       isGlass: false
     },
     {
       mesh: "SM_WebbyKidSuper",
-      file: "/3d/textures/matcap-SM_WebbyKidSuper-4e664cc8.webp",
+      file: "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
       isGlass: false
     },
     {
       mesh: "SM_07_02",
-      file: "/3d/textures/matcap-SM_07_02-4e664cc8.webp",
+      file: "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
       isGlass: false
     },
     {
       mesh: "SM_MateMetallic",
-      file: "/3d/textures/matcap-SM_MateMetallic-4e664cc8.webp",
+      file: "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
       isGlass: false
     },
     {
       mesh: "SM_TermoMetallic",
-      file: "/3d/textures/matcap-SM_TermoMetallic-4e664cc8.webp",
+      file: "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
       isGlass: false
     },
     {
@@ -299,7 +299,7 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       mesh: "SM_VercelGeistGlass",
-      file: "/3d/textures/matcap-SM_VercelGeistGlass-e33b0ff5.webp",
+      file: "/3d/textures/matcap-SM_VercelShipGlass-e33b0ff5.webp",
       isGlass: true
     },
     {
@@ -309,12 +309,12 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       mesh: "SM_KissBag_METAL",
-      file: "/3d/textures/matcap-SM_KissBag_METAL-4e664cc8.webp",
+      file: "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
       isGlass: false
     },
     {
       mesh: "SM_MrBeast",
-      file: "/3d/textures/matcap-SM_MrBeast-4e664cc8.webp",
+      file: "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
       isGlass: false
     },
     {
@@ -324,7 +324,7 @@ export const ASSETS_BASE: AssetsBase = {
     },
     {
       mesh: "SM_NextjsMetallic",
-      file: "/3d/textures/matcap-SM_NextjsMetallic-4e664cc8.webp",
+      file: "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
       isGlass: false
     }
   ],

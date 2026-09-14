@@ -1,0 +1,12 @@
+[
+  {
+    "backend": "webgpu",
+    "loaderAndSceneShareCanvas": true,
+    "errors": []
+  },
+  {
+    "backend": "webgl2",
+    "loaderAndSceneShareCanvas": true,
+    "errors": []
+  }
+]

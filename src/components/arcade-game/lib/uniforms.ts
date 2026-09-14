@@ -1,7 +1,9 @@
-import { Material, ShaderMaterial } from "three"
+import { Material } from "three"
+
+import { SiteMaterial } from "@/lib/graphics/material"
 
 export const setMaterialUniforms = (
-  material: Material | ShaderMaterial,
+  material: Material | SiteMaterial,
   uniforms: Record<string, unknown>
 ) => {
   if (
@@ -10,7 +12,7 @@ export const setMaterialUniforms = (
   ) {
     Object.entries(uniforms).forEach(([key, value]) => {
       if ((material as any).uniforms[key] === undefined) {
-        console.warn(`Uniform ${key} does not exist in material`, material.id)
+        console.warn(`Uniform ${key} does not exist in material`, material.uuid)
         return
       } else {
         ;(material as any).uniforms[key].value = value

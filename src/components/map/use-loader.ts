@@ -1,4 +1,5 @@
-import { Mesh } from "three"
+import { useMemo } from "react"
+import { Group, Mesh } from "three"
 import { GLTF } from "three/examples/jsm/Addons.js"
 
 import { useAssets } from "@/components/assets-provider"
@@ -10,7 +11,6 @@ type GLTFResult = GLTF & {
 
 export const useLoader = () => {
   const {
-    officeItems: officeItemsUrl,
     office: officeUrl,
     outdoor: outdoorUrl,
     godrays: godraysUrl,
@@ -21,7 +21,6 @@ export const useLoader = () => {
 
   const [
     office,
-    officeItems,
     outdoor,
     godrays,
     outdoorCars,
@@ -29,7 +28,6 @@ export const useLoader = () => {
     routingElements
   ] = useKTX2GLTF<GLTFResult>([
     officeUrl,
-    officeItemsUrl,
     outdoorUrl,
     godraysUrl,
     outdoorCarsUrl,
@@ -37,9 +35,11 @@ export const useLoader = () => {
     routingElementsUrl
   ])
 
+  const officeItems = useMemo(() => new Group(), [])
+
   return {
     office: office.scene,
-    officeItems: officeItems.scene,
+    officeItems,
     outdoor: outdoor.scene,
     godrays: godrays.scene,
     outdoorCars: outdoorCars.scene,

@@ -1,0 +1,9 @@
+{
+  "buildId": "wRVoRdNg1S05YlmiAeMZW",
+  "appSourceSha256": "d6c649d1150ef70b9b044d7351c0ce2ab50ac1d029a8b34fa514c6939a439b7d",
+  "harnessSha256": "ae150f49ba3755c0d5274eec91177b57da78b049f57374a5af3c0c8b6fcc2de9",
+  "baselineCommit": "9db5c2ed799f3ff4bd1952456a492c2fdedfbd2b",
+  "measuredHarnessSha256": "91d2c467ac43e60e7588f1fafa4379bd059a5bd7716673e50591dcac9824c2fb",
+  "hashMethod": "SHA-256 of sorted relative file path + NUL + file bytes + NUL, concatenated. App: all src files, package.json, pnpm-lock.yaml, next.config.ts. Harness: all scripts/graphics files.",
+  "harnessNote": "The current harness includes final navigation event diagnostics and formatting applied after measurement; the measured app source hash remains unchanged."
+}

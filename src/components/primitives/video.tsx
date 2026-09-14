@@ -6,9 +6,12 @@ import {
   type CSSProperties,
   type Ref,
   Suspense,
+  useMemo,
   type VideoHTMLAttributes
 } from "react"
+import { mergeRefs } from "react-merge-refs"
 
+import { useVideoPlayback } from "@/hooks/use-video-playback"
 import { cn } from "@/utils/cn"
 import { buildMuxPosterUrl } from "@/utils/mux"
 
@@ -16,18 +19,19 @@ type SharedProps = {
   className?: string
   style?: CSSProperties
   ref?: Ref<HTMLVideoElement>
+  active?: boolean
+  pauseOffscreen?: boolean
 }
 
 export type MuxProps = SharedProps &
   Omit<Partial<MuxVideoProps>, "playbackId" | "src" | "ref"> & {
     playbackId: string
     thumbnailTime?: number
-    pauseOffscreen?: boolean
     src?: never
     mimeType?: never
   }
 
-type LegacyProps = SharedProps &
+export type LegacyProps = SharedProps &
   Omit<VideoHTMLAttributes<HTMLVideoElement>, "src"> & {
     src: string
     mimeType?: string | null
@@ -89,15 +93,37 @@ export const Video = (props: VideoProps) => {
     )
   }
 
-  const { src, mimeType, style, autoPlay, preload, playsInline, ...rest } =
-    props as LegacyProps
+  return <NativeVideo {...(props as LegacyProps)} />
+}
+
+const NativeVideo = ({
+  src,
+  mimeType,
+  style,
+  autoPlay,
+  preload,
+  playsInline,
+  active,
+  pauseOffscreen = true,
+  ref: callerRef,
+  ...rest
+}: LegacyProps) => {
+  const internalRef = useVideoPlayback(
+    active ?? autoPlay ?? true,
+    pauseOffscreen
+  )
+  const ref = useMemo(
+    () => mergeRefs([internalRef, callerRef]),
+    [internalRef, callerRef]
+  )
   return (
     <video
       {...rest}
+      ref={ref}
       style={style}
       controls={false}
       playsInline={playsInline ?? true}
-      autoPlay={autoPlay ?? true}
+      autoPlay={false}
       preload={preload ?? "auto"}
     >
       <source src={src} type={mimeType ?? undefined} />

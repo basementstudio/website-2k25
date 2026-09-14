@@ -1,4 +1,3 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
 import type { ThreeEvent } from "@react-three/fiber"
 import { animate } from "motion"
 import type { RefObject } from "react"
@@ -9,6 +8,7 @@ import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio } from "@/hooks/use-site-audio"
+import { MeshDiscardMaterial } from "@/lib/graphics/discard-material"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { checkKonamiSequence } from "./check-sequence"

@@ -10,8 +10,10 @@ import {
   AppLoadingHandler,
   useAppLoadingStore
 } from "@/components/loading/app-loading-handler"
+import LoadingCanvas from "@/components/loading/loading-canvas"
 import { useCanvasAvailability } from "@/hooks/use-canvas-availability"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
+import { useGraphicsLifecycle } from "@/lib/graphics/lifecycle"
 import { cn } from "@/utils/cn"
 
 const Scene = dynamic(
@@ -28,6 +30,7 @@ const Scene = dynamic(
 // route-group layouts set (via <SetCanvasMode>) — no `usePathname` needed.
 export const CanvasLayer = () => {
   useCanvasAvailability()
+  const generation = useGraphicsLifecycle((state) => state.generation)
 
   // `isCanvasInPage` (sticky) keeps the Scene mounted across navigations;
   // `canvasVisible` toggles whether it's shown for the current route.
@@ -46,10 +49,11 @@ export const CanvasLayer = () => {
       {/* Dead weight without a renderer: an invisible overlay and a 3D-only viewer. */}
       {!canvasUnavailable && (
         <ErrorBoundary
+          resetKeys={[generation]}
           fallback={null}
           onError={(error, info) => {
             Sentry.captureReactException(error, info)
-            useAppLoadingStore.getState().reportCanvasUnavailable()
+            useGraphicsLifecycle.getState().recover(generation)
           }}
         >
           <div
@@ -58,7 +62,12 @@ export const CanvasLayer = () => {
               !canvasVisible && "pointer-events-none invisible fixed opacity-0"
             )}
           >
-            {isCanvasInPage && <Scene />}
+            {isCanvasInPage && (
+              <>
+                <Scene />
+                <LoadingCanvas key={generation} />
+              </>
+            )}
             <AppLoadingHandler />
             <InspectableViewer />
           </div>

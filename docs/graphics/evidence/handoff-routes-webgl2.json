@@ -1,0 +1,51 @@
+[
+  {
+    "route": "/",
+    "backend": "webgl2",
+    "errors": []
+  },
+  {
+    "route": "/services",
+    "backend": "webgl2",
+    "errors": []
+  },
+  {
+    "route": "/people",
+    "backend": "webgl2",
+    "errors": []
+  },
+  {
+    "route": "/blog",
+    "backend": "webgl2",
+    "errors": []
+  },
+  {
+    "route": "/lab",
+    "backend": "webgl2",
+    "errors": []
+  },
+  {
+    "route": "/showcase",
+    "backend": "webgl2",
+    "errors": []
+  },
+  {
+    "route": "/basketball",
+    "backend": "webgl2",
+    "errors": []
+  },
+  {
+    "route": "/doom",
+    "backend": "webgl2",
+    "errors": []
+  },
+  {
+    "route": "/missing-webgpu-reference",
+    "backend": "webgl2",
+    "errors": []
+  },
+  {
+    "interactionTrace": "navigation/contact/resize/recovery",
+    "errors": []
+  }
+]

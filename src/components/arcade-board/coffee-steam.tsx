@@ -12,6 +12,7 @@ export const CoffeeSteam = () => {
   noise.wrapS = RepeatWrapping
 
   const material = useMemo(() => createSteamMaterial(), [])
+  useEffect(() => () => material.dispose(), [material])
 
   useEffect(() => {
     material.uniforms.uNoise.value = noise

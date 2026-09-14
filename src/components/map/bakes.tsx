@@ -8,18 +8,27 @@ import {
   Mesh,
   NearestFilter,
   NoColorSpace,
-  RawShaderMaterial,
-  ShaderMaterial,
+  Object3D,
+  PerspectiveCamera,
   Texture,
   TextureLoader
 } from "three"
+import type { WebGPURenderer } from "three/webgpu"
 
 import { useAssets } from "@/components/assets-provider"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
+import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { cctvConfig } from "@/components/postprocessing/renderer"
 import { useKTX2Textures } from "@/hooks/use-ktx2-loader"
 import { useMesh } from "@/hooks/use-mesh"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
+import { useGraphicsLifecycle } from "@/lib/graphics/lifecycle"
+import { SiteMaterial } from "@/lib/graphics/material"
+import {
+  prepareSceneIncrementally,
+  registeredScene
+} from "@/lib/graphics/preparation"
+import { requiredItemGroups, useSceneAssets } from "@/lib/graphics/scene-assets"
 
 interface Bake {
   lightmap?: Texture
@@ -39,33 +48,45 @@ interface TextureUpdate {
 
 const addLightmap = (update: TextureUpdate) => {
   if (!update.mesh.userData.hasGlobalMaterial) return
-  const material = update.mesh.material as ShaderMaterial
+  const material = update.mesh.material as SiteMaterial
   material.uniforms.lightMap.value = update.texture
   material.uniforms.lightMapIntensity.value = 1
 }
 
 const addAmbientOcclusion = (update: TextureUpdate) => {
   if (!update.mesh.userData.hasGlobalMaterial) return
-  const material = update.mesh.material as ShaderMaterial
+  const material = update.mesh.material as SiteMaterial
   material.uniforms.aoMap.value = update.texture
   material.uniforms.aoMapIntensity.value = 1
 }
 
 const addMatcap = (update: TextureUpdate, isGlass: boolean) => {
   if (!update.mesh.userData.hasGlobalMaterial) return
-  const material = update.mesh.material as ShaderMaterial
+  const material = update.mesh.material as SiteMaterial
   material.uniforms.matcap.value = update.texture
   material.uniforms.glassMatcap.value = isGlass
 }
 
 const addReflex = (update: TextureUpdate) => {
   if (!update.mesh.userData.hasGlobalMaterial) return
-  const material = update.mesh.material as ShaderMaterial
+  const material = update.mesh.material as SiteMaterial
   material.uniforms.glassReflex.value = update.texture
 }
 
-const useBakes = (): Record<string, Bake> => {
-  const { bakes, matcaps, glassReflexes } = useAssets()
+const useBakes = (names: Set<string>): Record<string, Bake> => {
+  const assets = useAssets()
+  const bakes = useMemo(
+    () => assets.bakes.filter((b) => b.meshes.some((name) => names.has(name))),
+    [assets, names]
+  )
+  const matcaps = useMemo(
+    () => assets.matcaps.filter((b) => names.has(b.mesh)),
+    [assets, names]
+  )
+  const glassReflexes = useMemo(
+    () => assets.glassReflexes.filter((b) => names.has(b.mesh)),
+    [assets, names]
+  )
 
   const withLightmap = useMemo(
     () => bakes.filter((bake) => bake.lightmap),
@@ -75,6 +96,21 @@ const useBakes = (): Record<string, Bake> => {
   const withAmbientOcclusion = useMemo(
     () => bakes.filter((bake) => bake.ambientOcclusion),
     [bakes]
+  )
+
+  // Start independent downloads together before any Suspense reader yields.
+  // The renderer-specific HDR decoder and ordinary image decoders can work concurrently.
+  useLoader.preload(
+    TextureLoader,
+    withAmbientOcclusion.map((bake) => bake.ambientOcclusion)
+  )
+  useLoader.preload(
+    TextureLoader,
+    matcaps.map((matcap) => matcap.file)
+  )
+  useLoader.preload(
+    TextureLoader,
+    glassReflexes.map((reflex) => reflex.url)
   )
 
   const loadedLightmaps = useKTX2Textures(
@@ -181,30 +217,27 @@ const useBakes = (): Record<string, Bake> => {
 }
 
 /** Attach a material to this array and it will change its uOpacity onLoad */
-export const revealOpacityMaterials = new Set<
-  ShaderMaterial | RawShaderMaterial
->()
+export const revealOpacityMaterials = new Set<SiteMaterial>()
 
-const Bakes = () => {
-  const bakes = useBakes()
-
-  const scene = useThree((state) => state.scene)
-
-  const setMainAppRunning = useAppLoadingStore(
-    (state) => state.setMainAppRunning
-  )
-
-  const setCanRunMainApp = useAppLoadingStore((state) => state.setCanRunMainApp)
-
+export const SceneBakes = ({
+  root: scene,
+  readinessKey,
+  objects
+}: {
+  root: Object3D
+  readinessKey: string
+  objects?: ReadonlyMap<string, Object3D>
+}) => {
+  const gl = useThree((state) => state.gl) as unknown as WebGPURenderer
+  const assets = useAssets()
+  const names = useMemo(() => {
+    const names = new Set<string>()
+    if (objects) objects.forEach((_, name) => names.add(name))
+    else scene.traverse((object) => names.add(object.name))
+    return names
+  }, [scene, objects])
+  const bakes = useBakes(names)
   useEffect(() => {
-    markCanvasBootStage("bakes-resolved")
-  }, [])
-
-  const mapMaterialsReady = useMesh((state) => state.mapMaterialsReady)
-
-  useEffect(() => {
-    if (!mapMaterialsReady) return
-
     let skipped = 0
 
     const addMaps = ({ mesh, maps }: { mesh: Mesh; maps: Bake }) => {
@@ -224,7 +257,7 @@ const Bakes = () => {
     }
 
     Object.entries(bakes).forEach(([mesh, maps]) => {
-      const meshOrGroup = scene.getObjectByName(mesh)
+      const meshOrGroup = objects?.get(mesh) ?? scene.getObjectByName(mesh)
       if (!meshOrGroup) return
 
       if (meshOrGroup instanceof Mesh) {
@@ -242,25 +275,72 @@ const Bakes = () => {
       )
     }
 
+    // Reattached bakes can change bindings even after this group was marked ready.
+    if (useSceneAssets.getState().ready.has(readinessKey))
+      useSceneAssets.getState().markResourcesChanged()
+
     // Not on mount: bakes can resolve before the models exist.
-    setCanRunMainApp(true)
-    const timeout = setTimeout(() => setMainAppRunning(true), 10)
+    let canceled = false
+    const generation = useGraphicsLifecycle.getState().generation
+    const ready = () => {
+      if (!canceled) useSceneAssets.getState().markReady(readinessKey)
+    }
+    if (
+      useAppLoadingStore.getState().canRunMainApp &&
+      readinessKey !== "base"
+    ) {
+      const name = readinessKey === "shared" ? "services" : readinessKey
+      const config = assets.scenes.find(
+        (scene) => scene.name === name
+      )?.cameraConfig
+      const camera = new PerspectiveCamera(
+        config?.fov ?? 60,
+        innerWidth / innerHeight,
+        0.1,
+        1000
+      )
+      if (config) {
+        camera.position.set(...config.position)
+        camera.lookAt(...config.target)
+      }
+      prepareSceneIncrementally(
+        gl,
+        registeredScene(gl) ?? scene,
+        camera,
+        () => canceled,
+        undefined,
+        () =>
+          requiredItemGroups(
+            useNavigationStore.getState().currentScene?.name ?? "home"
+          ).some((group) => group === readinessKey)
+            ? 2
+            : 0
+      )
+        .then(ready)
+        .catch((error) => {
+          console.error("Scene preparation failed", error)
+          if (!canceled) useGraphicsLifecycle.getState().recover(generation)
+        })
+    } else ready()
+    markCanvasBootStage("bakes-resolved")
+
     const timeout2 = setTimeout(() => (cctvConfig.shouldBakeCCTV = true), 10)
 
     return () => {
-      clearTimeout(timeout)
+      canceled = true
       clearTimeout(timeout2)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapMaterialsReady, bakes])
+  }, [scene, readinessKey, bakes, gl, assets, objects])
 
   return null
 }
 
-const BakesLoaderInner = () => (
-  <Suspense>
-    <Bakes />
-  </Suspense>
-)
-
-export const BakesLoader = memo(BakesLoaderInner)
+export const BakesLoader = memo(function BakesLoader() {
+  const scene = useThree((state) => state.scene)
+  const ready = useMesh((state) => state.mapMaterialsReady)
+  return ready ? (
+    <Suspense fallback={null}>
+      <SceneBakes root={scene} readinessKey="base" />
+    </Suspense>
+  ) : null
+})

@@ -1,20 +1,19 @@
 import { useThree } from "@react-three/fiber"
-import { useMotionValue, useMotionValueEvent } from "motion/react"
-import { animate } from "motion/react"
+import { animate, useMotionValue, useMotionValueEvent } from "motion/react"
 import { usePathname, useRouter } from "next/navigation"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { memo } from "react"
-import { Mesh, ShaderMaterial } from "three"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { Mesh } from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
 import { useCursor } from "@/hooks/use-mouse"
+import { createNodeMaterial } from "@/lib/graphics/material"
+import { requestSceneAssets } from "@/lib/graphics/scene-assets"
+import { createShader as fragmentNodeFactory } from "@/shaders/generated/routing"
 
 import { valueRemap } from "../arcade-game/lib/math"
-import fragmentShader from "./frag.glsl"
 import { RoutingPlus } from "./routing-plus"
-import vertexShader from "./vert.glsl"
 
 interface RoutingElementProps {
   node: Mesh
@@ -30,12 +29,11 @@ const RoutingElementComponent = ({
   groupName
 }: RoutingElementProps) => {
   const { routingMaterial, updateMaterialResolution } = useMemo(() => {
-    const routingMaterial = new ShaderMaterial({
+    const routingMaterial = createNodeMaterial({
       depthWrite: false,
       depthTest: false,
       transparent: true,
-      fragmentShader: fragmentShader,
-      vertexShader: vertexShader,
+      fragmentNodeFactory,
       uniforms: {
         resolution: { value: [] },
         opacity: { value: 0 },
@@ -51,6 +49,7 @@ const RoutingElementComponent = ({
 
     return { routingMaterial, updateMaterialResolution }
   }, [])
+  useEffect(() => () => routingMaterial.dispose(), [routingMaterial])
 
   const screenWidth = useThree((state) => state.size.width)
   const screenHeight = useThree((state) => state.size.height)
@@ -110,6 +109,7 @@ const RoutingElementComponent = ({
         if (e.detail.groupName === groupName && e.detail.hover !== hover) {
           setHover(e.detail.hover)
           if (e.detail.hover) {
+            requestSceneAssets(route)
             router.prefetch(route)
             setCursor("pointer", hoverName)
           } else {
@@ -148,6 +148,7 @@ const RoutingElementComponent = ({
 
       setHover(true)
       setCursor("pointer", hoverName)
+      requestSceneAssets(route)
       router.prefetch(route)
 
       groupHoverHandlers?.dispatchGroupHover(true)
@@ -194,6 +195,7 @@ const RoutingElementComponent = ({
     }
 
     setHover(true)
+    requestSceneAssets(route)
     router.prefetch(route)
     setCursor("pointer", hoverName)
 

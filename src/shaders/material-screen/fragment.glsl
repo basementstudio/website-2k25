@@ -5,6 +5,7 @@ uniform float uTime;
 uniform float uRevealProgress;
 uniform float uFlip;
 uniform float uIsGameRunning;
+uniform float uGameMode;
 varying vec2 vUv;
 varying vec3 vPosition;
 
@@ -74,7 +75,9 @@ void main() {
 
   if (uFlip == 1.0) {
     remappedUv.y = 1.0 - remappedUv.y;
+  }
 
+  if (uGameMode > 0.5) {
     // Add pixelation that excludes a center square
     float pixelSize = 300.0;
     vec2 centeredUv = remappedUv - 0.5;
@@ -83,7 +86,7 @@ void main() {
     float squareWidth = 0.25;
     float squareHeight = 0.05;
     float squareX = -0.01;
-    float squareY = -0.4;
+    float squareY = 0.4;
 
     vec2 squareCenter = vec2(squareX, squareY);
     vec2 relativeToSquare = centeredUv - squareCenter;
@@ -95,7 +98,7 @@ void main() {
     float centerSquareWidth = 0.2;
     float centerSquareHeight = 0.2;
     float centerSquareX = -0.35;
-    float centerSquareY = 0.5;
+    float centerSquareY = -0.5;
 
     vec2 centerSquareCenter = vec2(centerSquareX, centerSquareY);
     vec2 relativeToCenterSquare = centeredUv - centerSquareCenter;

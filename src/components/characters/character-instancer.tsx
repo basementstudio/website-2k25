@@ -5,6 +5,7 @@ import { BufferAttribute, Color, FloatType } from "three"
 
 import { useKTX2GLTF } from "@/hooks/use-ktx2-gltf"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { useSceneAssets } from "@/lib/graphics/scene-assets"
 import { createCharacterMaterial } from "@/shaders/material-characters"
 
 import { useAssets } from "../assets-provider"
@@ -26,6 +27,8 @@ interface CharactersGLTF {
 }
 
 export { CharacterPosition, useCharacterMesh }
+
+const charactersReady = () => useSceneAssets.getState().markReady("characters")
 
 const MAX_CHARACTERS = 12
 
@@ -131,9 +134,7 @@ function CharacterInstanceConfigInner() {
       comicMapConfig
     ]
 
-    material.uniforms.mapConfigs = {
-      value: mapConfigs
-    }
+    material.uniforms.mapConfigs = { value: mapConfigs }
     material.defines = {
       USE_MULTI_MAP: "",
       USE_INSTANCED_LIGHT: "",
@@ -161,6 +162,7 @@ function CharacterInstanceConfigInner() {
   return (
     <>
       <CharacterInstancedMesh
+        onReady={charactersReady}
         material={material}
         mesh={SKINNED_MESH_KEYS.map((key) => nodes[key as keyof typeof nodes])}
         animations={animations}

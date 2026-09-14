@@ -1,0 +1,304 @@
+{
+  "candidate": {
+    "sha256": "9a156fbeab77d1570fd5b8d9b085b705c2cbcdba0f1734656059e90012e8623b",
+    "buildId": "wVG1-ly4AoLWHwzIcdptj",
+    "node": "24.20.0",
+    "backend": "auto",
+    "benchmark": true,
+    "hashMethod": "SHA-256 of sorted JSON path-to-SHA256 mapping in submission-candidate-files.json",
+    "additionalBuildConfigs": {
+      "sanity.config.ts": "0e3e15d5dd2791c206f2db89021d4122bb7c4adcd1818fc4aeae72a4feedd502",
+      "sanity.cli.ts": "8ecf30f719f4524004279382ad687aa8564edb63ac51db92373afefbd62e517b"
+    }
+  },
+  "node": "24.20.0",
+  "graphicsTests": {
+    "passed": 17,
+    "failed": 0
+  },
+  "typecheck": "pass",
+  "targetedLint": "pass",
+  "assetsVerify": "pass; 11 unreferenced compatibility aliases intentionally retained",
+  "basisCheck": "pass",
+  "productionBuild": "pass",
+  "fullLint": "21 existing formatting errors in sanity/schemas/singletons/scenesConfig.ts; four existing cleanup warnings",
+  "performancePassed": true,
+  "validTimingTrials": 140,
+  "smoke-webgpu": [
+    {
+      "route": "/",
+      "backend": "webgpu",
+      "errors": []
+    },
+    {
+      "route": "/services",
+      "backend": "webgpu",
+      "errors": []
+    },
+    {
+      "route": "/people",
+      "backend": "webgpu",
+      "errors": []
+    },
+    {
+      "route": "/blog",
+      "backend": "webgpu",
+      "errors": []
+    },
+    {
+      "route": "/lab",
+      "backend": "webgpu",
+      "errors": []
+    },
+    {
+      "route": "/showcase",
+      "backend": "webgpu",
+      "errors": []
+    },
+    {
+      "route": "/basketball",
+      "backend": "webgpu",
+      "errors": []
+    },
+    {
+      "route": "/doom",
+      "backend": "webgpu",
+      "errors": []
+    },
+    {
+      "route": "/missing-webgpu-reference",
+      "backend": "webgpu",
+      "errors": []
+    },
+    {
+      "interactionTrace": "navigation/contact/resize/recovery",
+      "errors": []
+    }
+  ],
+  "features-webgpu": {
+    "backend": "webgpu",
+    "checks": [
+      "Services weather statue and rain toggle",
+      "Inspectable reveal, dragging and close",
+      "Arcade texture UV close button",
+      "Arcade keyboard unlock, game start, steering and HUD",
+      "Basketball pointer drag and physics release",
+      "Hidden scene pause and resume"
+    ],
+    "errors": []
+  },
+  "smoke-webgl2": [
+    {
+      "route": "/",
+      "backend": "webgl2",
+      "errors": []
+    },
+    {
+      "route": "/services",
+      "backend": "webgl2",
+      "errors": []
+    },
+    {
+      "route": "/people",
+      "backend": "webgl2",
+      "errors": []
+    },
+    {
+      "route": "/blog",
+      "backend": "webgl2",
+      "errors": []
+    },
+    {
+      "route": "/lab",
+      "backend": "webgl2",
+      "errors": []
+    },
+    {
+      "route": "/showcase",
+      "backend": "webgl2",
+      "errors": []
+    },
+    {
+      "route": "/basketball",
+      "backend": "webgl2",
+      "errors": []
+    },
+    {
+      "route": "/doom",
+      "backend": "webgl2",
+      "errors": []
+    },
+    {
+      "route": "/missing-webgpu-reference",
+      "backend": "webgl2",
+      "errors": []
+    },
+    {
+      "interactionTrace": "navigation/contact/resize/recovery",
+      "errors": []
+    }
+  ],
+  "features-webgl2": {
+    "backend": "webgl2",
+    "checks": [
+      "Services weather statue and rain toggle",
+      "Inspectable reveal, dragging and close",
+      "Arcade texture UV close button",
+      "Arcade keyboard unlock, game start, steering and HUD",
+      "Basketball pointer drag and physics release",
+      "Hidden scene pause and resume"
+    ],
+    "errors": []
+  },
+  "media": {
+    "checks": [
+      "leave before media readiness stays paused",
+      "disabling active preview pauses it",
+      "hidden-tab pause and visible-tab reconciliation",
+      "native gallery defers loading and pauses offscreen",
+      "Mux preview respects current hover after dynamic mount",
+      "production gallery switches between rows and grid"
+    ],
+    "errors": []
+  },
+  "handoff": [
+    {
+      "backend": "webgpu",
+      "reducedMotion": "no-preference",
+      "assetHeldBeforeReveal": true,
+      "posters": [],
+      "errors": [],
+      "entry": {
+        "scene": "home",
+        "ready": [
+          "base",
+          "showcase",
+          "details",
+          "pets",
+          "characters",
+          "videos:home"
+        ],
+        "compiled": true,
+        "reveal": {
+          "value": 1
+        }
+      },
+      "prepared": 3332.100000023842,
+      "presented": 4040.600000023842
+    },
+    {
+      "backend": "webgpu",
+      "reducedMotion": "reduce",
+      "assetHeldBeforeReveal": true,
+      "posters": [],
+      "errors": [],
+      "entry": {
+        "scene": "home",
+        "ready": [
+          "base",
+          "showcase",
+          "details",
+          "pets",
+          "characters",
+          "videos:home"
+        ],
+        "compiled": true,
+        "reveal": {
+          "value": 1
+        }
+      },
+      "prepared": 3322.7999999821186,
+      "presented": 3332.2999999821186
+    },
+    {
+      "backend": "webgl2",
+      "reducedMotion": "no-preference",
+      "assetHeldBeforeReveal": true,
+      "posters": [],
+      "errors": [],
+      "entry": {
+        "scene": "home",
+        "ready": [
+          "base",
+          "showcase",
+          "details",
+          "pets",
+          "characters",
+          "videos:home"
+        ],
+        "compiled": true,
+        "reveal": {
+          "value": 1
+        }
+      },
+      "prepared": 3833.100000023842,
+      "presented": 4542.4000000059605
+    },
+    {
+      "backend": "webgl2",
+      "reducedMotion": "reduce",
+      "assetHeldBeforeReveal": true,
+      "posters": [],
+      "errors": [],
+      "entry": {
+        "scene": "home",
+        "ready": [
+          "base",
+          "showcase",
+          "details",
+          "pets",
+          "characters",
+          "videos:home"
+        ],
+        "compiled": true,
+        "reveal": {
+          "value": 1
+        }
+      },
+      "prepared": 3752.300000011921,
+      "presented": 3760.9000000059605
+    }
+  ],
+  "cctv": [
+    {
+      "backend": "webgpu",
+      "homeFeed": true,
+      "offscreenPaused": true,
+      "direct404": true,
+      "errors": []
+    },
+    {
+      "backend": "webgl2",
+      "homeFeed": true,
+      "offscreenPaused": true,
+      "direct404": true,
+      "errors": []
+    }
+  ],
+  "contactVisual": [
+    {
+      "build": "before",
+      "backend": "webgpu",
+      "errors": [],
+      "screenshots": ["contact", "recovered", "contact-recovered"]
+    },
+    {
+      "build": "after",
+      "backend": "webgpu",
+      "errors": [],
+      "screenshots": ["contact", "recovered", "contact-recovered"]
+    },
+    {
+      "build": "before",
+      "backend": "webgl2",
+      "errors": [],
+      "screenshots": ["contact", "recovered", "contact-recovered"]
+    },
+    {
+      "build": "after",
+      "backend": "webgl2",
+      "errors": [],
+      "screenshots": ["contact", "recovered", "contact-recovered"]
+    }
+  ]
+}

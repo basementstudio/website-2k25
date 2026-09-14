@@ -37,46 +37,45 @@ export const useVideoResumeOnVisibilityChange = (
 }
 
 export const createVideoTextureWithResume = (url: string) => {
-  const videoElement = document.createElement("video")
-
-  videoElement.src = url
-  videoElement.loop = true
-  videoElement.muted = true
-  videoElement.playsInline = true
-  videoElement.crossOrigin = "anonymous"
-
-  try {
-    videoElement.play().catch((err) => console.warn("Video play failed:", err))
-  } catch (error) {
-    console.error("Error playing video:", error)
-  }
-
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === "visible") {
-      try {
-        videoElement
-          .play()
-          .catch((err) => console.warn("Video play failed:", err))
-      } catch (error) {
-        console.error("Error playing video:", error)
+  const video = document.createElement("video")
+  video.loop = true
+  video.muted = true
+  video.playsInline = true
+  video.crossOrigin = "anonymous"
+  video.preload = "none"
+  const texture = new THREE.VideoTexture(video)
+  texture.colorSpace = THREE.SRGBColorSpace
+  let active = false
+  const setActive = (next: boolean) => {
+    if (active === next) return
+    active = next
+    if (!next) video.pause()
+    else {
+      if (!video.getAttribute("src")) {
+        video.preload = "auto"
+        video.src = url
+        video.load()
       }
+      void video.play().catch(() => {
+        active = false
+      })
     }
   }
-
-  document.addEventListener("visibilitychange", handleVisibilityChange, {
-    passive: true
-  })
-
-  const texture = new THREE.VideoTexture(videoElement)
-
-  texture.userData = {
-    ...texture.userData,
-    cleanup: () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-    },
-    videoElement
+  const visibility = () => {
+    if (document.hidden) setActive(false)
   }
-
+  document.addEventListener("visibilitychange", visibility)
+  texture.userData = {
+    videoElement: video,
+    setActive,
+    cleanup: () => {
+      setActive(false)
+      document.removeEventListener("visibilitychange", visibility)
+      video.removeAttribute("src")
+      video.load()
+    }
+  }
+  texture.addEventListener("dispose", texture.userData.cleanup)
   return texture
 }
 

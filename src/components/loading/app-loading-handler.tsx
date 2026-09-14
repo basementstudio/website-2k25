@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { Vector3 } from "three"
 import { create } from "zustand"
 
@@ -11,8 +11,6 @@ import {
   startCanvasBootTrace,
   stopCanvasBootTrace
 } from "@/lib/canvas-boot"
-
-import LoadingCanvas from "./loading-canvas"
 
 export type UpdateCameraCallback = (
   cameraPosition: Vector3,
@@ -28,9 +26,13 @@ interface AppLoadingState {
   isCanvasInPage: boolean
   canvasVisible: boolean
   showLoadingCanvas: boolean
+  hasPresentedFrame: boolean
+  hasLoaderFrame: boolean
+  loaderFailed: boolean
+  loaderTransitionComplete: boolean
+  isSceneRevealing: boolean
+  revealProgress: { value: number }
   canRunMainApp: boolean
-  offscreenCanvasReady: boolean
-  worker: Worker | null
   canvasUnavailable: boolean
   canvasBootTimedOut: boolean
   setMainAppRunning: (isAppLoaded: boolean) => void
@@ -40,29 +42,28 @@ interface AppLoadingState {
 
 export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
   const store: AppLoadingState = {
-    // Sticky: once true the <Scene/> stays mounted so the WebGL context
+    // Sticky: once true the <Scene/> stays mounted so the renderer
     // persists across navigations.
     isCanvasInPage: false,
     // Current route's canvas visibility (toggled per route by <SetCanvasMode>).
     canvasVisible: false,
     /**
-     * Used to check if the offscreen canvas is ready
-     */
-    offscreenCanvasReady: false,
-    /**
      * Used to show/hide loading canvas
      */
     showLoadingCanvas: true,
+    hasPresentedFrame: false,
+    hasLoaderFrame: false,
+    loaderFailed: false,
+    loaderTransitionComplete: false,
+    isSceneRevealing: false,
+    // Mutable per-frame value: fading must not re-render the React scene tree.
+    revealProgress: { value: 0 },
     /**
      * Used to check if the main app is running
      */
     canRunMainApp: false,
     /**
-     * Worker canvas for loading screen
-     */
-    worker: null,
-    /**
-     * Set by the error boundary, the WebGL2 probe, or a failed context creation
+     * Set after renderer initialization/recovery cannot provide interactive 3D.
      */
     canvasUnavailable: false,
     /**
@@ -73,9 +74,10 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
      * This function will tell the loading canvas that is ok to reveal the main app
      */
     setMainAppRunning: (isAppLoaded) => {
-      get().worker?.postMessage({
-        type: "update-loading-status",
-        isAppLoaded
+      set({
+        showLoadingCanvas: !isAppLoaded,
+        hasPresentedFrame: isAppLoaded,
+        isSceneRevealing: false
       })
     },
     /**
@@ -100,23 +102,10 @@ export const useAppLoadingStore = create<AppLoadingState>((set, get) => {
 
 export const AppLoadingHandler = () => {
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
-  const showLoadingCanvas = useAppLoadingStore(
-    (state) => state.showLoadingCanvas
-  )
   const canRunMainApp = useAppLoadingStore((state) => state.canRunMainApp)
   const canvasUnavailable = useAppLoadingStore(
     (state) => state.canvasUnavailable
   )
-  const [removeLoadingNode, setRemoveLoadingNode] = useState(false)
-
-  // This trick is to prevent the white flash that happens when webgl stops
-  useEffect(() => {
-    if (!showLoadingCanvas) {
-      setTimeout(() => {
-        setRemoveLoadingNode(true)
-      }, 10)
-    }
-  }, [showLoadingCanvas])
 
   useEffect(() => {
     // <SetCanvasMode> re-arms isCanvasInPage on navigation, so skip when WebGL
@@ -131,10 +120,7 @@ export const AppLoadingHandler = () => {
     // charged for a boot it was never given the frames to finish.
     armCanvasBootDeadline(CANVAS_BOOT_TIMEOUT_MS, () => {
       // A slow scene may still arrive, so don't mark the canvas unavailable.
-      useAppLoadingStore.setState({
-        showLoadingCanvas: false,
-        canvasBootTimedOut: true
-      })
+      useAppLoadingStore.setState({ canvasBootTimedOut: true })
 
       captureCanvasBootTimeout(CANVAS_BOOT_TIMEOUT_MS)
     })
@@ -142,13 +128,5 @@ export const AppLoadingHandler = () => {
     return () => stopCanvasBootTrace()
   }, [isCanvasInPage, canRunMainApp, canvasUnavailable])
 
-  if (!isCanvasInPage) {
-    return null
-  }
-
-  if (removeLoadingNode) {
-    return null
-  }
-
-  return <LoadingCanvas hide={!showLoadingCanvas} />
+  return null
 }

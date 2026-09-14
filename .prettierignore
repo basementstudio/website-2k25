@@ -2,3 +2,7 @@
 **/*.vert
 
 **/*.js
+
+# Generated compact wireframe data; regenerate with graphics:prepare-loader.
+src/components/loading/loader-geometry.json
+src/components/loading/loader-outlines.json

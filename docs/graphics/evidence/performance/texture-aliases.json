@@ -1,0 +1,84 @@
+{
+  "redundantFiles": 11,
+  "redundantBytes": 66638,
+  "perMeshSettingsUnchanged": true,
+  "aliases": [
+    {
+      "old": "/3d/textures/matcap-SM_07_02-4e664cc8.webp",
+      "canonical": "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
+      "bytes": 5062,
+      "sha256": "4e664cc8222f9879704e7e6f7b563b6081185b91ed774d50dab2765ca8cf9902",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_KissBag_METAL-4e664cc8.webp",
+      "canonical": "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
+      "bytes": 5062,
+      "sha256": "4e664cc8222f9879704e7e6f7b563b6081185b91ed774d50dab2765ca8cf9902",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_MateMetallic-4e664cc8.webp",
+      "canonical": "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
+      "bytes": 5062,
+      "sha256": "4e664cc8222f9879704e7e6f7b563b6081185b91ed774d50dab2765ca8cf9902",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_MrBeast-4e664cc8.webp",
+      "canonical": "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
+      "bytes": 5062,
+      "sha256": "4e664cc8222f9879704e7e6f7b563b6081185b91ed774d50dab2765ca8cf9902",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_NextjsMetallic-4e664cc8.webp",
+      "canonical": "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
+      "bytes": 5062,
+      "sha256": "4e664cc8222f9879704e7e6f7b563b6081185b91ed774d50dab2765ca8cf9902",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_SOTD_Glass_02-dffa5eb9.webp",
+      "canonical": "/3d/textures/matcap-SM_SOTD_Glass-dffa5eb9.webp",
+      "bytes": 11072,
+      "sha256": "dffa5eb9a2132a2b31f9ad2464670de9a27ca3149c52480aab67be2e6609c75a",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_ScreenPatas_Glass-dffa5eb9.webp",
+      "canonical": "/3d/textures/matcap-SM_SOTD_Glass-dffa5eb9.webp",
+      "bytes": 11072,
+      "sha256": "dffa5eb9a2132a2b31f9ad2464670de9a27ca3149c52480aab67be2e6609c75a",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_TermoMetallic-4e664cc8.webp",
+      "canonical": "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
+      "bytes": 5062,
+      "sha256": "4e664cc8222f9879704e7e6f7b563b6081185b91ed774d50dab2765ca8cf9902",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_VercelGeistGlass-e33b0ff5.webp",
+      "canonical": "/3d/textures/matcap-SM_VercelShipGlass-e33b0ff5.webp",
+      "bytes": 3998,
+      "sha256": "e33b0ff5bad62cad25f3d53fbf71082207f3c4031a20f7360b8f18c488ea76ef",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_WebbyKidSuper-4e664cc8.webp",
+      "canonical": "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
+      "bytes": 5062,
+      "sha256": "4e664cc8222f9879704e7e6f7b563b6081185b91ed774d50dab2765ca8cf9902",
+      "retained": true
+    },
+    {
+      "old": "/3d/textures/matcap-SM_WebbyMrBeast-4e664cc8.webp",
+      "canonical": "/3d/textures/matcap-SM_EDGLRD-4e664cc8.webp",
+      "bytes": 5062,
+      "sha256": "4e664cc8222f9879704e7e6f7b563b6081185b91ed774d50dab2765ca8cf9902",
+      "retained": true
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import NextLink from "next/link"
 import { useRouter } from "next/navigation"
 
 import { useHandleNavigation } from "@/hooks/use-handle-navigation"
+import { requestSceneAssets } from "@/lib/graphics/scene-assets"
 
 interface LinkProps {
   href: string
@@ -36,6 +37,7 @@ export const Link = ({
   prefetch,
   disabled,
   fromMobileNav,
+  onFocus,
   ...rest
 }: LinkProps) => {
   const { handleNavigation } = useHandleNavigation()
@@ -43,6 +45,7 @@ export const Link = ({
 
   const handleMouseEnter = () => {
     if (!href.includes("http") && !href.includes("mailto")) {
+      requestSceneAssets(href)
       router.prefetch(href)
     }
   }
@@ -54,6 +57,7 @@ export const Link = ({
       target={target}
       rel={rel}
       onClick={onClick}
+      onFocus={onFocus}
       prefetch={prefetch}
       {...rest}
     >
@@ -83,6 +87,13 @@ export const Link = ({
         if (e.pointerType === "mouse") handleMouseEnter()
       }}
       className={className}
+      onFocus={() => {
+        handleMouseEnter()
+        onFocus?.()
+      }}
+      onPointerDown={(event) => {
+        if (event.pointerType !== "mouse") requestSceneAssets(href)
+      }}
       {...rest}
     >
       {children}

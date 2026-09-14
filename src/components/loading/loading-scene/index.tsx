@@ -21,10 +21,11 @@ import { create } from "zustand"
 
 import { createFlowMaterial } from "@/shaders/material-flow"
 import { createSolidRevealMaterial } from "@/shaders/material-solid-reveal"
-import { doubleFbo } from "@/utils/double-fbo"
 import { easeInOutCirc } from "@/utils/math/easings"
 import { clamp } from "@/utils/math/interpolation"
 import type { LoadingWorkerMessageEvent } from "@/workers/loading-worker"
+
+import { doubleFbo } from "./double-fbo"
 
 interface LoadingWorkerStore {
   isAppLoaded: boolean
@@ -136,6 +137,10 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
 
     if (uScreenReveal.current < 1) {
       uScreenReveal.current += delta
+      self.postMessage({
+        type: "loading-reveal-progress",
+        progress: uScreenReveal.current
+      })
       ;(solid.material as any).uniforms.uScreenReveal.value =
         uScreenReveal.current
     } else {
@@ -148,9 +153,7 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
     }
   })
 
-  useEffect(() => {
-    self.postMessage({ type: "offscreen-canvas-loaded" })
-  }, [solid])
+  const reportedFirstFrame = useRef(false)
 
   const lines = useMemo(() => {
     const l = nodes.SM_Line
@@ -281,6 +284,10 @@ function LoadingScene({ modelUrl }: { modelUrl: string }) {
       solidMaterial.uniforms.uFar.value = camera.far
       gl.setRenderTarget(null)
       gl.render(scene, camera)
+      if (!reportedFirstFrame.current) {
+        reportedFirstFrame.current = true
+        self.postMessage({ type: "offscreen-canvas-loaded" })
+      }
     }
     return
   }, 1)

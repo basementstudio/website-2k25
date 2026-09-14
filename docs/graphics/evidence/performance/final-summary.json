@@ -1,0 +1,914 @@
+{
+  "loading": {
+    "webgpu": {
+      "backend": "webgpu",
+      "rows": [
+        {
+          "route": "/",
+          "cache": "cold",
+          "before": {
+            "loadingMs": 12192.100000023842,
+            "preparedAtMs": 12183.700000017881,
+            "fadeMs": 7.9000000059604645,
+            "frameP95Ms": 9.699999988079071,
+            "baseLightingStartMs": 7036,
+            "matcapDownloads": 7
+          },
+          "after": {
+            "loadingMs": 12154.300000011921,
+            "preparedAtMs": 12145.59999999404,
+            "fadeMs": 8.699999988079071,
+            "frameP95Ms": 9.400000005960464,
+            "baseLightingStartMs": 3528.2999999821186,
+            "matcapDownloads": 3
+          },
+          "loadingChange": -0.003100368272229259,
+          "frameChange": -0.030927833246112924,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/",
+          "cache": "warm",
+          "before": {
+            "loadingMs": 2217.7000000178814,
+            "preparedAtMs": 2209.800000011921,
+            "fadeMs": 8.299999982118607,
+            "frameP95Ms": 9.699999988079071,
+            "baseLightingStartMs": 1000.9000000059605,
+            "matcapDownloads": 0
+          },
+          "after": {
+            "loadingMs": 2169.300000011921,
+            "preparedAtMs": 2160.199999988079,
+            "fadeMs": 9.100000023841858,
+            "frameP95Ms": 9.699999988079071,
+            "baseLightingStartMs": 1003.7000000178814,
+            "matcapDownloads": 0
+          },
+          "loadingChange": -0.021824412682315053,
+          "frameChange": 0,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/services",
+          "cache": "cold",
+          "before": {
+            "loadingMs": 11876.299999982119,
+            "preparedAtMs": 11866.5,
+            "fadeMs": 9.799999982118607,
+            "frameP95Ms": 9.700000017881393,
+            "baseLightingStartMs": 6910.299999982119,
+            "matcapDownloads": 5
+          },
+          "after": {
+            "loadingMs": 12025.800000011921,
+            "preparedAtMs": 12014.90000000596,
+            "fadeMs": 11.200000017881393,
+            "frameP95Ms": 9.799999982118607,
+            "baseLightingStartMs": 3466.300000011921,
+            "matcapDownloads": 2
+          },
+          "loadingChange": 0.01258809562153429,
+          "frameChange": 0.01030927464462561,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/services",
+          "cache": "warm",
+          "before": {
+            "loadingMs": 1989.5999999940395,
+            "preparedAtMs": 1977.7999999821186,
+            "fadeMs": 11.200000017881393,
+            "frameP95Ms": 9.800000011920929,
+            "baseLightingStartMs": 1004,
+            "matcapDownloads": 0
+          },
+          "after": {
+            "loadingMs": 1973.699999988079,
+            "preparedAtMs": 1961.5,
+            "fadeMs": 12.199999988079071,
+            "frameP95Ms": 9.699999988079071,
+            "baseLightingStartMs": 1005.5999999940395,
+            "matcapDownloads": 0
+          },
+          "loadingChange": -0.007991556094696484,
+          "frameChange": -0.010204084053083262,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/people",
+          "cache": "cold",
+          "before": {
+            "loadingMs": 11506.29999999702,
+            "preparedAtMs": 11497.75,
+            "fadeMs": 8.75,
+            "frameP95Ms": 10,
+            "baseLightingStartMs": 6411.300000011921,
+            "matcapDownloads": 2
+          },
+          "after": {
+            "loadingMs": 11569.799999982119,
+            "preparedAtMs": 11560.749999985099,
+            "fadeMs": 9.299999982118607,
+            "frameP95Ms": 9.5,
+            "baseLightingStartMs": 3486.3500000089407,
+            "matcapDownloads": 1
+          },
+          "loadingChange": 0.0055187158326408525,
+          "frameChange": -0.050000000000000044,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/people",
+          "cache": "warm",
+          "before": {
+            "loadingMs": 2166.7999999970198,
+            "preparedAtMs": 2156.75,
+            "fadeMs": 9.399999991059303,
+            "frameP95Ms": 9.650000005960464,
+            "baseLightingStartMs": 999.5,
+            "matcapDownloads": 0
+          },
+          "after": {
+            "loadingMs": 2128.6500000059605,
+            "preparedAtMs": 2118.5499999821186,
+            "fadeMs": 10.5,
+            "frameP95Ms": 9.349999994039536,
+            "baseLightingStartMs": 1003.2999999970198,
+            "matcapDownloads": 0
+          },
+          "loadingChange": -0.017606608819970337,
+          "frameChange": -0.031088084117681825,
+          "loadingPass": true,
+          "framePass": true
+        }
+      ],
+      "passed": true
+    },
+    "webgl2": {
+      "backend": "webgl2",
+      "rows": [
+        {
+          "route": "/services",
+          "cache": "cold",
+          "before": {
+            "loadingMs": 12279,
+            "preparedAtMs": 12272.300000011921,
+            "fadeMs": 6.699999988079071,
+            "frameP95Ms": 9.699999988079071,
+            "baseLightingStartMs": 6911.5,
+            "matcapDownloads": 5
+          },
+          "after": {
+            "loadingMs": 12419.90000000596,
+            "preparedAtMs": 12413.40000000596,
+            "fadeMs": 6.200000017881393,
+            "frameP95Ms": 9.5,
+            "baseLightingStartMs": 3454.5,
+            "matcapDownloads": 2
+          },
+          "loadingChange": 0.011474875804704077,
+          "frameChange": -0.02061855549740854,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/services",
+          "cache": "warm",
+          "before": {
+            "loadingMs": 2362.9000000059605,
+            "preparedAtMs": 2353.4000000059605,
+            "fadeMs": 9.199999988079071,
+            "frameP95Ms": 9.700000017881393,
+            "baseLightingStartMs": 1020.9000000059605,
+            "matcapDownloads": 0
+          },
+          "after": {
+            "loadingMs": 2378.699999988079,
+            "preparedAtMs": 2369.399999976158,
+            "fadeMs": 9.300000011920929,
+            "frameP95Ms": 9.800000011920929,
+            "baseLightingStartMs": 1020.4000000059605,
+            "matcapDownloads": 0
+          },
+          "loadingChange": 0.006686698540809388,
+          "frameChange": 0.010309277717029941,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/",
+          "cache": "cold",
+          "before": {
+            "loadingMs": 12678.90000000596,
+            "preparedAtMs": 12665.800000011921,
+            "fadeMs": 11.599999994039536,
+            "frameP95Ms": 9.600000023841858,
+            "baseLightingStartMs": 7022.5,
+            "matcapDownloads": 7
+          },
+          "after": {
+            "loadingMs": 12713.799999982119,
+            "preparedAtMs": 12701.40000000596,
+            "fadeMs": 11.099999994039536,
+            "frameP95Ms": 9.600000023841858,
+            "baseLightingStartMs": 3562.9000000059605,
+            "matcapDownloads": 3
+          },
+          "loadingChange": 0.0027526047193480174,
+          "frameChange": 0,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/",
+          "cache": "warm",
+          "before": {
+            "loadingMs": 3433,
+            "preparedAtMs": 3424.9000000059605,
+            "fadeMs": 8.099999994039536,
+            "frameP95Ms": 9.699999988079071,
+            "baseLightingStartMs": 1019.0999999940395,
+            "matcapDownloads": 0
+          },
+          "after": {
+            "loadingMs": 2693,
+            "preparedAtMs": 2680.7000000178814,
+            "fadeMs": 10.600000023841858,
+            "frameP95Ms": 9.599999994039536,
+            "baseLightingStartMs": 1020.6000000238419,
+            "matcapDownloads": 0
+          },
+          "loadingChange": -0.21555490824351875,
+          "frameChange": -0.01030927774870427,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/people",
+          "cache": "cold",
+          "before": {
+            "loadingMs": 11956.699999988079,
+            "preparedAtMs": 11944.799999982119,
+            "fadeMs": 11.900000005960464,
+            "frameP95Ms": 9.799999982118607,
+            "baseLightingStartMs": 6407.200000017881,
+            "matcapDownloads": 2
+          },
+          "after": {
+            "loadingMs": 12042.699999988079,
+            "preparedAtMs": 12030.799999982119,
+            "fadeMs": 9.5,
+            "frameP95Ms": 9.699999988079071,
+            "baseLightingStartMs": 3491,
+            "matcapDownloads": 1
+          },
+          "loadingChange": 0.0071926200373084725,
+          "frameChange": -0.010204081043061142,
+          "loadingPass": true,
+          "framePass": true
+        },
+        {
+          "route": "/people",
+          "cache": "warm",
+          "before": {
+            "loadingMs": 2586.600000023842,
+            "preparedAtMs": 2578,
+            "fadeMs": 8.700000017881393,
+            "frameP95Ms": 9.700000017881393,
+            "baseLightingStartMs": 1014.8000000119209,
+            "matcapDownloads": 0
+          },
+          "after": {
+            "loadingMs": 2595.800000011921,
+            "preparedAtMs": 2586.2000000178814,
+            "fadeMs": 9.599999994039536,
+            "frameP95Ms": 9.799999982118607,
+            "baseLightingStartMs": 1017.5999999940395,
+            "matcapDownloads": 0
+          },
+          "loadingChange": 0.0035567926962012386,
+          "frameChange": 0.01030927464462561,
+          "loadingPass": true,
+          "framePass": true
+        }
+      ],
+      "passed": true
+    }
+  },
+  "preparation": {
+    "before-webgpu": [
+      {
+        "phase": "handoff",
+        "compileCalls": 394,
+        "textureCalls": 212,
+        "asyncApiElapsedMs": 448.10000002384186,
+        "fadeMs": 708.4000000059605,
+        "preparedAt": 2211.2000000178814,
+        "meshes": 213
+      },
+      {
+        "phase": "idle",
+        "compileCalls": 2258,
+        "textureCalls": 1180,
+        "asyncApiElapsedMs": 609.6000000834465,
+        "fadeMs": 708.4000000059605,
+        "preparedAt": 2211.2000000178814,
+        "meshes": 258
+      },
+      {
+        "phase": "services",
+        "compileCalls": 2494,
+        "textureCalls": 1310,
+        "asyncApiElapsedMs": 641.200000077486,
+        "fadeMs": 708.4000000059605,
+        "preparedAt": 2211.2000000178814,
+        "meshes": 247
+      }
+    ],
+    "after-webgpu": [
+      {
+        "phase": "handoff",
+        "compileCalls": 394,
+        "textureCalls": 105,
+        "asyncApiElapsedMs": 457.7999997437,
+        "fadeMs": 708.5999999940395,
+        "preparedAt": 2227.5999999940395,
+        "meshes": 213
+      },
+      {
+        "phase": "idle",
+        "compileCalls": 914,
+        "textureCalls": 135,
+        "asyncApiElapsedMs": 588.7999997437,
+        "fadeMs": 708.5999999940395,
+        "preparedAt": 2227.5999999940395,
+        "meshes": 258
+      },
+      {
+        "phase": "services",
+        "compileCalls": 914,
+        "textureCalls": 135,
+        "asyncApiElapsedMs": 588.7999997437,
+        "fadeMs": 708.5999999940395,
+        "preparedAt": 2227.5999999940395,
+        "meshes": 247
+      }
+    ],
+    "before-webgl2": [
+      {
+        "phase": "handoff",
+        "compileCalls": 394,
+        "textureCalls": 212,
+        "asyncApiElapsedMs": 926.2000000476837,
+        "fadeMs": 708.7999999821186,
+        "preparedAt": 2761.600000023842,
+        "meshes": 213
+      },
+      {
+        "phase": "idle",
+        "compileCalls": 2258,
+        "textureCalls": 1180,
+        "asyncApiElapsedMs": 1076.9000001847744,
+        "fadeMs": 708.7999999821186,
+        "preparedAt": 2761.600000023842,
+        "meshes": 258
+      },
+      {
+        "phase": "services",
+        "compileCalls": 2494,
+        "textureCalls": 1309,
+        "asyncApiElapsedMs": 1093.1000002026558,
+        "fadeMs": 708.7999999821186,
+        "preparedAt": 2761.600000023842,
+        "meshes": 247
+      }
+    ],
+    "after-webgl2": [
+      {
+        "phase": "handoff",
+        "compileCalls": 394,
+        "textureCalls": 105,
+        "asyncApiElapsedMs": 913.7999999821186,
+        "fadeMs": 707.3000000119209,
+        "preparedAt": 2741.800000011921,
+        "meshes": 213
+      },
+      {
+        "phase": "idle",
+        "compileCalls": 914,
+        "textureCalls": 135,
+        "asyncApiElapsedMs": 1045.3000000417233,
+        "fadeMs": 707.3000000119209,
+        "preparedAt": 2741.800000011921,
+        "meshes": 258
+      },
+      {
+        "phase": "services",
+        "compileCalls": 914,
+        "textureCalls": 135,
+        "asyncApiElapsedMs": 1045.3000000417233,
+        "fadeMs": 707.3000000119209,
+        "preparedAt": 2741.800000011921,
+        "meshes": 247
+      }
+    ]
+  },
+  "navigation": {
+    "before-webgpu": [
+      {
+        "route": "/services",
+        "lap": 0,
+        "p95Ms": 10,
+        "maxFrameMs": 28.200000017881393,
+        "initial": [6.26, 1.16, -7.57],
+        "endpoint": [6, 1.53, -10.21],
+        "cameraSamples": 549
+      },
+      {
+        "route": "/people",
+        "lap": 0,
+        "p95Ms": 9.800000011920929,
+        "maxFrameMs": 14.700000017881393,
+        "initial": [6, 1.53, -10.21],
+        "endpoint": [2.41, 5.29, -28.77],
+        "cameraSamples": 545
+      },
+      {
+        "route": "/blog",
+        "lap": 0,
+        "p95Ms": 10,
+        "maxFrameMs": 28.400000005960464,
+        "initial": [2.41, 5.29, -28.77],
+        "endpoint": [12.3, 4.27, -16.49],
+        "cameraSamples": 545
+      },
+      {
+        "route": "/lab",
+        "lap": 0,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 12.099999994039536,
+        "initial": [12.3, 4.27, -16.49],
+        "endpoint": [2.96, 1.05, -12.89],
+        "cameraSamples": 546
+      },
+      {
+        "route": "/",
+        "lap": 0,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 14.200000017881393,
+        "initial": [2.96, 1.05, -12.89],
+        "endpoint": [6.26, 1.16, -7.57],
+        "cameraSamples": 550
+      },
+      {
+        "route": "/services",
+        "lap": 1,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 13,
+        "initial": [6.26, 1.16, -7.57],
+        "endpoint": [6, 1.53, -10.21],
+        "cameraSamples": 543
+      },
+      {
+        "route": "/people",
+        "lap": 1,
+        "p95Ms": 9.899999976158142,
+        "maxFrameMs": 16.900000005960464,
+        "initial": [6, 1.53, -10.21],
+        "endpoint": [2.41, 5.29, -28.77],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/blog",
+        "lap": 1,
+        "p95Ms": 9.799999982118607,
+        "maxFrameMs": 12.400000005960464,
+        "initial": [2.41, 5.29, -28.77],
+        "endpoint": [12.3, 4.27, -16.49],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/lab",
+        "lap": 1,
+        "p95Ms": 10,
+        "maxFrameMs": 11.099999994039536,
+        "initial": [12.3, 4.27, -16.49],
+        "endpoint": [2.96, 1.05, -12.89],
+        "cameraSamples": 547
+      },
+      {
+        "route": "/",
+        "lap": 1,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 14.699999988079071,
+        "initial": [2.96, 1.05, -12.89],
+        "endpoint": [6.26, 1.16, -7.57],
+        "cameraSamples": 547
+      }
+    ],
+    "after-webgpu": [
+      {
+        "route": "/services",
+        "lap": 0,
+        "p95Ms": 10.099999994039536,
+        "maxFrameMs": 29.700000017881393,
+        "initial": [6.26, 1.16, -7.57],
+        "endpoint": [6, 1.53, -10.21],
+        "cameraSamples": 547
+      },
+      {
+        "route": "/people",
+        "lap": 0,
+        "p95Ms": 10,
+        "maxFrameMs": 15.599999994039536,
+        "initial": [6, 1.53, -10.21],
+        "endpoint": [2.41, 5.29, -28.77],
+        "cameraSamples": 544
+      },
+      {
+        "route": "/blog",
+        "lap": 0,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 16,
+        "initial": [2.41, 5.29, -28.77],
+        "endpoint": [12.3, 4.27, -16.49],
+        "cameraSamples": 545
+      },
+      {
+        "route": "/lab",
+        "lap": 0,
+        "p95Ms": 10,
+        "maxFrameMs": 21,
+        "initial": [12.3, 4.27, -16.49],
+        "endpoint": [2.96, 1.05, -12.89],
+        "cameraSamples": 544
+      },
+      {
+        "route": "/",
+        "lap": 0,
+        "p95Ms": 9.800000011920929,
+        "maxFrameMs": 15.899999976158142,
+        "initial": [2.96, 1.05, -12.89],
+        "endpoint": [6.26, 1.16, -7.57],
+        "cameraSamples": 547
+      },
+      {
+        "route": "/services",
+        "lap": 1,
+        "p95Ms": 10.099999994039536,
+        "maxFrameMs": 12.5,
+        "initial": [6.26, 1.16, -7.57],
+        "endpoint": [6, 1.53, -10.21],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/people",
+        "lap": 1,
+        "p95Ms": 9.800000011920929,
+        "maxFrameMs": 17.69999998807907,
+        "initial": [6, 1.53, -10.21],
+        "endpoint": [2.41, 5.29, -28.77],
+        "cameraSamples": 544
+      },
+      {
+        "route": "/blog",
+        "lap": 1,
+        "p95Ms": 10,
+        "maxFrameMs": 14.800000011920929,
+        "initial": [2.41, 5.29, -28.77],
+        "endpoint": [12.3, 4.27, -16.49],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/lab",
+        "lap": 1,
+        "p95Ms": 10,
+        "maxFrameMs": 11.799999982118607,
+        "initial": [12.3, 4.27, -16.49],
+        "endpoint": [2.96, 1.05, -12.89],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/",
+        "lap": 1,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 15,
+        "initial": [2.96, 1.05, -12.89],
+        "endpoint": [6.26, 1.16, -7.57],
+        "cameraSamples": 547
+      }
+    ],
+    "before-webgl2": [
+      {
+        "route": "/services",
+        "lap": 0,
+        "p95Ms": 10,
+        "maxFrameMs": 28.900000005960464,
+        "initial": [6.26, 1.16, -7.57],
+        "endpoint": [6, 1.53, -10.21],
+        "cameraSamples": 550
+      },
+      {
+        "route": "/people",
+        "lap": 0,
+        "p95Ms": 10,
+        "maxFrameMs": 14.5,
+        "initial": [6, 1.53, -10.21],
+        "endpoint": [2.41, 5.29, -28.77],
+        "cameraSamples": 545
+      },
+      {
+        "route": "/blog",
+        "lap": 0,
+        "p95Ms": 10.099999994039536,
+        "maxFrameMs": 16.80000001192093,
+        "initial": [2.41, 5.29, -28.77],
+        "endpoint": [12.3, 4.27, -16.49],
+        "cameraSamples": 547
+      },
+      {
+        "route": "/lab",
+        "lap": 0,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 20,
+        "initial": [12.3, 4.27, -16.49],
+        "endpoint": [2.96, 1.05, -12.89],
+        "cameraSamples": 545
+      },
+      {
+        "route": "/",
+        "lap": 0,
+        "p95Ms": 9.800000011920929,
+        "maxFrameMs": 22.599999994039536,
+        "initial": [2.96, 1.05, -12.89],
+        "endpoint": [6.26, 1.16, -7.57],
+        "cameraSamples": 549
+      },
+      {
+        "route": "/services",
+        "lap": 1,
+        "p95Ms": 9.899999976158142,
+        "maxFrameMs": 12.900000005960464,
+        "initial": [6.26, 1.16, -7.57],
+        "endpoint": [6, 1.53, -10.21],
+        "cameraSamples": 549
+      },
+      {
+        "route": "/people",
+        "lap": 1,
+        "p95Ms": 10.099999994039536,
+        "maxFrameMs": 18.19999998807907,
+        "initial": [6, 1.53, -10.21],
+        "endpoint": [2.41, 5.29, -28.77],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/blog",
+        "lap": 1,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 13.5,
+        "initial": [2.41, 5.29, -28.77],
+        "endpoint": [12.3, 4.27, -16.49],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/lab",
+        "lap": 1,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 12.099999994039536,
+        "initial": [12.3, 4.27, -16.49],
+        "endpoint": [2.96, 1.05, -12.89],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/",
+        "lap": 1,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 14.300000011920929,
+        "initial": [2.96, 1.05, -12.89],
+        "endpoint": [6.26, 1.16, -7.57],
+        "cameraSamples": 547
+      }
+    ],
+    "after-webgl2": [
+      {
+        "route": "/services",
+        "lap": 0,
+        "p95Ms": 10.199999988079071,
+        "maxFrameMs": 30.80000001192093,
+        "initial": [6.26, 1.16, -7.57],
+        "endpoint": [6, 1.53, -10.21],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/people",
+        "lap": 0,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 14.599999994039536,
+        "initial": [6, 1.53, -10.21],
+        "endpoint": [2.41, 5.29, -28.77],
+        "cameraSamples": 544
+      },
+      {
+        "route": "/blog",
+        "lap": 0,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 24,
+        "initial": [2.41, 5.29, -28.77],
+        "endpoint": [12.3, 4.27, -16.49],
+        "cameraSamples": 544
+      },
+      {
+        "route": "/lab",
+        "lap": 0,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 17.5,
+        "initial": [12.3, 4.27, -16.49],
+        "endpoint": [2.96, 1.05, -12.89],
+        "cameraSamples": 545
+      },
+      {
+        "route": "/",
+        "lap": 0,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 16.099999994039536,
+        "initial": [2.96, 1.05, -12.89],
+        "endpoint": [6.26, 1.16, -7.57],
+        "cameraSamples": 544
+      },
+      {
+        "route": "/services",
+        "lap": 1,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 11.900000005960464,
+        "initial": [6.26, 1.16, -7.57],
+        "endpoint": [6, 1.53, -10.21],
+        "cameraSamples": 549
+      },
+      {
+        "route": "/people",
+        "lap": 1,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 15.900000005960464,
+        "initial": [6, 1.53, -10.21],
+        "endpoint": [2.41, 5.29, -28.77],
+        "cameraSamples": 544
+      },
+      {
+        "route": "/blog",
+        "lap": 1,
+        "p95Ms": 10,
+        "maxFrameMs": 12.899999976158142,
+        "initial": [2.41, 5.29, -28.77],
+        "endpoint": [12.3, 4.27, -16.49],
+        "cameraSamples": 548
+      },
+      {
+        "route": "/lab",
+        "lap": 1,
+        "p95Ms": 9.900000005960464,
+        "maxFrameMs": 12.400000005960464,
+        "initial": [12.3, 4.27, -16.49],
+        "endpoint": [2.96, 1.05, -12.89],
+        "cameraSamples": 549
+      },
+      {
+        "route": "/",
+        "lap": 1,
+        "p95Ms": 9.799999982118607,
+        "maxFrameMs": 14.599999994039536,
+        "initial": [2.96, 1.05, -12.89],
+        "endpoint": [6.26, 1.16, -7.57],
+        "cameraSamples": 547
+      }
+    ]
+  },
+  "cameraEndpoints": [
+    {
+      "backend": "webgpu",
+      "route": "/services",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgpu",
+      "route": "/people",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgpu",
+      "route": "/blog",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgpu",
+      "route": "/lab",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgpu",
+      "route": "/",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgpu",
+      "route": "/services",
+      "lap": 1,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgpu",
+      "route": "/people",
+      "lap": 1,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgpu",
+      "route": "/blog",
+      "lap": 1,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgpu",
+      "route": "/lab",
+      "lap": 1,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgpu",
+      "route": "/",
+      "lap": 1,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/services",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/people",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/blog",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/lab",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/",
+      "lap": 0,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/services",
+      "lap": 1,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/people",
+      "lap": 1,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/blog",
+      "lap": 1,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/lab",
+      "lap": 1,
+      "distance": 0.0
+    },
+    {
+      "backend": "webgl2",
+      "route": "/",
+      "lap": 1,
+      "distance": 0.0
+    }
+  ]
+}

@@ -8,13 +8,13 @@ import {
   Mesh,
   OrthographicCamera,
   PlaneGeometry,
+  RenderTarget,
   RepeatWrapping,
   RGBAFormat,
   Scene,
   SRGBColorSpace,
   Vector2,
-  Vector3,
-  WebGLRenderTarget
+  Vector3
 } from "three"
 
 import { useAssets } from "@/components/assets-provider"
@@ -106,7 +106,7 @@ const EVENING_ZENITH = new Vector3(0.75, 0.65, 1.1)
 export const Sky = () => {
   const { lutTarget, lutScene, lutCamera, lutMaterial, skyMaterial } =
     useMemo(() => {
-      const lutTarget = new WebGLRenderTarget(SKY_LUT_WIDTH, SKY_LUT_HEIGHT, {
+      const lutTarget = new RenderTarget(SKY_LUT_WIDTH, SKY_LUT_HEIGHT, {
         type: HalfFloatType,
         format: RGBAFormat,
         colorSpace: LinearSRGBColorSpace,
@@ -145,10 +145,13 @@ export const Sky = () => {
   useEffect(
     () => () => {
       lutTarget.dispose()
+      lutScene.traverse((object) => {
+        if (object instanceof Mesh) object.geometry.dispose()
+      })
       lutMaterial.dispose()
       skyMaterial.dispose()
     },
-    [lutTarget, lutMaterial, skyMaterial]
+    [lutTarget, lutScene, lutMaterial, skyMaterial]
   )
 
   const {
@@ -361,10 +364,14 @@ export const Sky = () => {
       lu.uTwilight.value = twilight
       ;(lu.uTwilightHorizon.value as Vector3).copy(twilightHorizon)
       ;(lu.uTwilightZenith.value as Vector3).copy(twilightZenith)
-
-      gl.setRenderTarget(lutTarget)
+      const renderer = gl as unknown as import("three/webgpu").WebGPURenderer
+      const previousTarget = renderer.getRenderTarget()
+      const previousColorSpace = renderer.outputColorSpace
+      renderer.outputColorSpace = LinearSRGBColorSpace
+      renderer.setRenderTarget(lutTarget)
       gl.render(lutScene, lutCamera)
-      gl.setRenderTarget(null)
+      renderer.setRenderTarget(previousTarget)
+      renderer.outputColorSpace = previousColorSpace
 
       last.baked = true
       last.sunDir.copy(sunDir)

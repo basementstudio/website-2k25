@@ -1,4 +1,3 @@
-import { MeshDiscardMaterial } from "@react-three/drei"
 import { track } from "@vercel/analytics"
 import { useCallback, useEffect, useState } from "react"
 
@@ -6,6 +5,7 @@ import { useAmbiencePlaylist } from "@/hooks/use-ambience-playlist"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useCursor } from "@/hooks/use-mouse"
 import { useSiteAudio, useSiteAudioStore } from "@/hooks/use-site-audio"
+import { MeshDiscardMaterial } from "@/lib/graphics/discard-material"
 
 export const SpeakerHover = () => {
   const setCursor = useCursor()

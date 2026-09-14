@@ -1,15 +1,11 @@
-import { useThree } from "@react-three/fiber"
-import { useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import type { LineSegments } from "three"
-import { Group, ShaderMaterial, Vector2 } from "three"
-import { Line2 } from "three/examples/jsm/lines/Line2.js"
+import { Group } from "three"
+import { Line2 } from "three/addons/lines/webgpu/Line2.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
-import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
-
-import { useFrameCallback } from "@/hooks/use-pausable-time"
+import { Line2NodeMaterial as LineMaterial } from "three/webgpu"
 
 import { COLORS } from "../lib/colors"
-import { setMaterialUniforms } from "../lib/uniforms"
 
 export interface GridProps {
   position?: [number, number, number]
@@ -19,59 +15,12 @@ export interface GridProps {
   caps?: boolean
 }
 
-const gridMaterial = new ShaderMaterial({
-  uniforms: {
-    u_color: { value: COLORS.cyan },
-    u_color2: { value: COLORS.violet },
-    u_cameraPosition: { value: [0, 0, 0] },
-    u_lineWidth: { value: 19.0 }
-  },
-  vertexShader: /* glsl */ `
-    uniform float u_lineWidth;
-    attribute float lineDirection;
-    varying vec3 v_worldPosition;
-    varying float v_lineDirection;
-
-    void main() {
-      v_lineDirection = lineDirection;
-      v_worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-      
-      vec4 viewPos = modelViewMatrix * vec4(position, 1.0);
-      vec4 projectedPos = projectionMatrix * viewPos;
-      gl_Position = projectedPos;
-      gl_PointSize = u_lineWidth;
-    }
-  `,
-  fragmentShader: /* glsl */ `
-    uniform vec3 u_color;
-    uniform vec3 u_color2;
-    uniform vec3 u_cameraPosition;
-    varying vec3 v_worldPosition;
-    varying float v_lineDirection;
-
-    float valueRemap(float value, float low1, float high1, float low2, float high2) {
-      return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
-    }
-
-    void main() {
-      float distance = length(v_worldPosition - u_cameraPosition);
-
-      float fadeEnd = mix(300.0, 50.0, v_lineDirection);
-      float fade = valueRemap(distance, 0.0, fadeEnd, 1.0, 0.0);
-      vec3 color = mix(u_color, u_color2, v_lineDirection);
-      gl_FragColor = vec4(color, clamp(fade, 0.0, 1.0));
-    }
-  `,
-  transparent: true
-})
-
 export const Grid = ({
   position = [0, 0, 0],
   size,
   divisions,
   caps = false
 }: GridProps) => {
-  const { camera } = useThree()
   const lineRef = useRef<LineSegments | null>(null)
 
   const [divisionsX, divisionsY] = useMemo(() => {
@@ -98,7 +47,6 @@ export const Grid = ({
       const material = new LineMaterial({
         color: COLORS.cyan,
         linewidth: 5,
-        resolution: new Vector2(window.innerWidth, window.innerHeight),
         transparent: true,
         opacity: 0.8
       })
@@ -120,7 +68,6 @@ export const Grid = ({
       const material = new LineMaterial({
         color: COLORS.violet,
         linewidth: 5,
-        resolution: new Vector2(window.innerWidth, window.innerHeight),
         transparent: true,
         opacity: 0.8
       })
@@ -139,25 +86,29 @@ export const Grid = ({
       const material = new LineMaterial({
         color: COLORS.violet,
         linewidth: 5,
-        resolution: new Vector2(window.innerWidth, window.innerHeight),
         transparent: true,
         opacity: 0.8
       })
 
-      group.add(new Line2(bottomGeometry, material.clone()))
-      group.add(new Line2(topGeometry, material.clone()))
+      group.add(new Line2(bottomGeometry, material))
+      group.add(new Line2(topGeometry, material))
     }
 
     return group
   }, [size, divisionsX, divisionsY, caps])
-
-  useFrameCallback(() => {
-    if (lineRef.current) {
-      setMaterialUniforms(gridMaterial, {
-        u_cameraPosition: camera.position
+  useEffect(
+    () => () => {
+      const materials = new Set<LineMaterial>()
+      lines.traverse((object) => {
+        if (object instanceof Line2) {
+          object.geometry.dispose()
+          materials.add(object.material)
+        }
       })
-    }
-  })
+      materials.forEach((material) => material.dispose())
+    },
+    [lines]
+  )
 
   return (
     <group position={position}>

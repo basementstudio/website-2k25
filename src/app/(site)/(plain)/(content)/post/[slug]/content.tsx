@@ -366,19 +366,18 @@ export const Content = ({ post }: ContentProps) => {
                                 className="h-full w-full object-cover"
                               />
                             ) : (
-                              <video
+                              <Video
+                                src={value.videoUrl!}
+                                mimeType={getVideoMimeType(
+                                  value.videoUrl ?? ""
+                                )}
                                 autoPlay
                                 loop
                                 muted
                                 playsInline
-                                preload="auto"
+                                preload="metadata"
                                 className="h-full w-full object-cover"
-                              >
-                                <source
-                                  src={value.videoUrl}
-                                  type={getVideoMimeType(value.videoUrl ?? "")}
-                                />
-                              </video>
+                              />
                             )}
                           </div>
                         </div>

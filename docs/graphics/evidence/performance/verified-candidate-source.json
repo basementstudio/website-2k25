@@ -1,0 +1,8 @@
+{
+  "sha256": "6bcfb1136dfccf5c6ebd79eb104ed934f38cc6c05b24f6c2ee31cc33ebaabb03",
+  "buildId": "c27b0P6TvLjJTOKwSWrfu",
+  "node": "24.20.0",
+  "backend": "auto",
+  "benchmark": true,
+  "hashMethod": "SHA-256 of sorted JSON path-to-SHA256 mapping in verified-candidate-files.json"
+}

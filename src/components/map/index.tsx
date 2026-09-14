@@ -1,8 +1,7 @@
 "use client"
 
 import { memo, useEffect, useMemo, useRef } from "react"
-import { Mesh, MeshStandardMaterial, Object3D } from "three"
-import * as THREE from "three"
+import { Mesh } from "three"
 
 import { ArcadeBoard } from "@/components/arcade-board"
 import { ArcadeScreen } from "@/components/arcade-screen"
@@ -12,28 +11,21 @@ import { LedScoreboard } from "@/components/basketball/led-scoreboard"
 import { Net } from "@/components/basketball/net"
 import { BlogDoor } from "@/components/blog-door"
 import { ChristmasTree } from "@/components/christmas-tree"
-import {
-  CITY_POSITION,
-  CITY_SCALE,
-  CitySkyline
-} from "@/components/city-skyline"
+import { CitySkyline } from "@/components/city-skyline"
 import { Clock } from "@/components/clock"
 import { Godrays } from "@/components/godrays"
 import { LockedDoor } from "@/components/locked-door"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { OutdoorCars } from "@/components/outdoor-cars"
-import { cctvConfig } from "@/components/postprocessing/renderer"
 import { RoutingElement } from "@/components/routing-element/routing-element"
 import { Sky } from "@/components/sky"
 import { SpeakerHover } from "@/components/speaker-hover"
 import { Weather } from "@/components/weather"
 import { useMesh } from "@/hooks/use-mesh"
-import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
 import { markCanvasBootStage } from "@/lib/canvas-boot"
-import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
-import { createNotFoundMaterial } from "@/shaders/material-not-found"
 
 import { extractMeshes } from "./extract-meshes"
+import { usePrepareMapMaterials } from "./prepare-materials"
 import { useFrameLoop } from "./use-frame-loop"
 import { useLoader } from "./use-loader"
 
@@ -67,6 +59,7 @@ export const Map = memo(() => {
     return meshes
   }, [routingElements])
 
+  const traverse = usePrepareMapMaterials()
   const alreadyTraversed = useRef(false)
 
   useEffect(() => {
@@ -81,131 +74,6 @@ export const Map = memo(() => {
       godrays &&
       basketballNet
     ) {
-      const traverse = (
-        child: Object3D,
-        overrides?: { FOG?: boolean; GODRAY?: boolean; OUTDOOR?: boolean }
-      ) => {
-        if (legacySkyNodes.includes(child.name)) {
-          child.visible = false
-          return
-        }
-
-        if (child.name === "SM_TvScreen_4" && "isMesh" in child) {
-          const meshChild = child as Mesh
-          useMesh.setState({ cctv: { screen: meshChild } })
-          const texture = cctvConfig.renderTarget.read.texture
-
-          const diffuseUniform = { value: texture }
-
-          cctvConfig.renderTarget.onSwap(() => {
-            diffuseUniform.value = cctvConfig.renderTarget.read.texture
-          })
-
-          meshChild.material = createNotFoundMaterial(diffuseUniform)
-
-          return
-        }
-
-        if ("isMesh" in child) {
-          const meshChild = child as Mesh
-
-          if (meshChild.name !== "SM_ArcadeLab_Screen") {
-            meshChild.raycast = () => null
-          }
-
-          const alreadyReplaced = meshChild.userData.hasGlobalMaterial
-          if (alreadyReplaced) return
-
-          const currentMaterial = meshChild.material as MeshStandardMaterial
-
-          const withVideo = videos.find(
-            (video) => video.mesh === meshChild.name
-          )
-          const withMatcap = matcaps?.find((m) => m.mesh === meshChild.name)
-          const isGlass = glassMaterials.includes(currentMaterial.name)
-          const isCity = meshChild.name === "TX_Building"
-          const isDaylight = meshChild.name === "DL_ScreenB"
-
-          currentMaterial.side = doubleSideElements.includes(meshChild.name)
-            ? THREE.DoubleSide
-            : THREE.FrontSide
-
-          if (withVideo) {
-            const videoTexture = createVideoTextureWithResume(withVideo.url)
-
-            // Clean up old video texture if it exists
-            if (
-              currentMaterial.map &&
-              "video" in (currentMaterial.map as any)
-            ) {
-              const oldTexture = currentMaterial.map as THREE.VideoTexture
-              if (oldTexture.userData && oldTexture.userData.cleanup) {
-                oldTexture.userData.cleanup()
-              }
-              oldTexture.dispose()
-            }
-
-            currentMaterial.map = videoTexture
-            currentMaterial.map.flipY = false
-            currentMaterial.emissiveMap = videoTexture
-            currentMaterial.emissiveIntensity = withVideo.intensity
-          }
-
-          if (currentMaterial.map) {
-            currentMaterial.map.generateMipmaps = false
-            currentMaterial.map.magFilter = THREE.NearestFilter
-            currentMaterial.map.minFilter = THREE.NearestFilter
-          }
-
-          const CONFIG = {
-            GLASS: isGlass,
-            LIGHT: false,
-            GODRAY: overrides?.GODRAY,
-            FOG: overrides?.FOG,
-            MATCAP: withMatcap !== undefined,
-            VIDEO: withVideo !== undefined,
-            OUTDOOR: overrides?.OUTDOOR,
-            CITY: isCity,
-            DAYLIGHT: isDaylight
-          }
-
-          const newMaterials = Array.isArray(currentMaterial)
-            ? currentMaterial.map((material) =>
-                createGlobalShaderMaterial(material, CONFIG)
-              )
-            : createGlobalShaderMaterial(currentMaterial, CONFIG)
-
-          if (isGlass) {
-            Array.isArray(newMaterials)
-              ? newMaterials.forEach((material) => {
-                  material.depthWrite = false
-                })
-              : (newMaterials.depthWrite = false)
-          }
-
-          meshChild.material = newMaterials
-
-          if (
-            meshChild.name === "SM_Glass_Dust" &&
-            !Array.isArray(newMaterials)
-          ) {
-            newMaterials.uniforms.opacity.value =
-              (newMaterials.uniforms.opacity.value as number) * 0.5
-          }
-
-          if (isCity && !Array.isArray(newMaterials)) {
-            meshChild.position.set(...CITY_POSITION)
-            meshChild.scale.setX(CITY_SCALE.x)
-            meshChild.scale.setY(CITY_SCALE.y)
-            useMesh.setState({
-              city: { material: newMaterials, mesh: meshChild }
-            })
-          }
-
-          meshChild.userData.hasGlobalMaterial = true
-        }
-      }
-
       alreadyTraversed.current = true
 
       // One material swap per mesh across seven scene graphs — run per-graph
@@ -213,7 +81,6 @@ export const Map = memo(() => {
       // one uninterruptible long task right after the GLTFs decode.
       const steps = [
         () => office.traverse((child) => traverse(child)),
-        () => officeItems.traverse((child) => traverse(child)),
         () =>
           routingElements.traverse((child) => traverse(child, { FOG: false })),
         () =>
@@ -240,14 +107,19 @@ export const Map = memo(() => {
         }
       ]
 
+      let canceled = false
       const runSteps = async () => {
         for (const step of steps) {
+          if (canceled) return
           step()
           await new Promise((resolve) => setTimeout(resolve, 0))
         }
       }
 
       runSteps()
+      return () => {
+        canceled = true
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -263,7 +135,7 @@ export const Map = memo(() => {
   return (
     <group>
       <primitive object={office} />
-      <primitive object={officeItems} />
+
       <primitive object={outdoor} />
 
       {/*Godrays */}

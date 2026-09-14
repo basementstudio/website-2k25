@@ -1,25 +1,23 @@
-import {
-  PerspectiveCamera,
-  useTexture,
-  useVideoTexture
-} from "@react-three/drei"
+import { PerspectiveCamera, useTexture } from "@react-three/drei"
 import { useThree } from "@react-three/fiber"
 import { animate } from "motion"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { Suspense, useEffect, useMemo, useState } from "react"
-import { type Mesh, Vector3, WebGLRenderTarget } from "three"
-import { Box3 } from "three"
+import { Box3, type Mesh, RenderTarget, Vector3 } from "three"
 import { degToRad } from "three/src/math/MathUtils.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
-import { useVideoTextureResume } from "@/hooks/use-video-resume"
+import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
+import { useSceneAssets } from "@/lib/graphics/scene-assets"
 import { createScreenMaterial } from "@/shaders/material-screen"
 import { useArcadeStore } from "@/store/arcade-store"
 
 import { RenderTexture } from "./render-texture"
+
+const arcadeReady = () => useSceneAssets.getState().markReady("arcade")
 
 const ArcadeGame = dynamic(
   () =>
@@ -59,12 +57,32 @@ export const ArcadeScreen = () => {
   const bootTexture = useTexture(arcade.boot, (texture) => {
     texture.flipY = false
   })
-  const videoTexture = useVideoTexture(arcade.idleScreen, { loop: true })
+  const videoTexture = useMemo(
+    () => createVideoTextureWithResume(arcade.idleScreen),
+    [arcade.idleScreen]
+  )
   const screenMaterial = useMemo(() => createScreenMaterial(), [])
-  const renderTarget = useMemo(() => new WebGLRenderTarget(1024, 1024), [])
+  const renderTarget = useMemo(() => new RenderTarget(1024, 1024), [])
 
-  // Use our custom hook to ensure video playback resumes when tab becomes visible
-  useVideoTextureResume(videoTexture)
+  useEffect(
+    () => () => {
+      renderTarget.dispose()
+      screenMaterial.dispose()
+      videoTexture.dispose()
+    },
+    [renderTarget, screenMaterial, videoTexture]
+  )
+
+  useEffect(() => {
+    if (!arcadeScreen) return
+    arcadeScreen.userData.sceneVideo = videoTexture
+    arcadeScreen.userData.videoDisabled = hasVisitedArcade || isLabRoute
+    if (arcadeScreen.userData.videoDisabled)
+      videoTexture.userData.setActive(false)
+    return () => {
+      delete arcadeScreen.userData.sceneVideo
+    }
+  }, [arcadeScreen, videoTexture, hasVisitedArcade, isLabRoute])
 
   useEffect(() => {
     const screen = scene.getObjectByName("SM_ArcadeLab_Screen")
@@ -83,11 +101,12 @@ export const ArcadeScreen = () => {
     if (!arcadeScreen) return
 
     videoTexture.flipY = false
+    screenMaterial.uniforms.uGameMode.value = isInGame ? 1 : 0
 
     if (!hasVisitedArcade) {
       if (isLabRoute) {
         screenMaterial.uniforms.map.value = bootTexture
-        screenMaterial.uniforms.uRevealProgress = { value: 0.0 }
+        screenMaterial.uniforms.uRevealProgress.value = 0.0
 
         animate(0, 1, {
           duration: 2,
@@ -99,22 +118,18 @@ export const ArcadeScreen = () => {
             if (screenMaterial.uniforms.uRevealProgress.value >= 0.99) {
               screenMaterial.uniforms.map.value = renderTarget.texture
               setHasVisitedArcade(true)
-              if (isInGame) {
-                screenMaterial.uniforms.uFlip = { value: 1 }
-              } else {
-                screenMaterial.uniforms.uFlip = { value: 0 }
-              }
+              screenMaterial.uniforms.uFlip.value = 0
             }
           }
         })
       } else {
         screenMaterial.uniforms.map.value = videoTexture
-        screenMaterial.uniforms.uRevealProgress = { value: 1.0 }
-        screenMaterial.uniforms.uFlip = { value: 0 }
+        screenMaterial.uniforms.uRevealProgress.value = 1.0
+        screenMaterial.uniforms.uFlip.value = 0
       }
     } else {
       screenMaterial.uniforms.map.value = renderTarget.texture
-      screenMaterial.uniforms.uFlip = { value: isInGame ? 1 : 0 }
+      screenMaterial.uniforms.uFlip.value = 0
     }
 
     arcadeScreen.material = screenMaterial
@@ -171,14 +186,18 @@ export const ArcadeScreen = () => {
       />
 
       <Suspense fallback={null}>
-        <ScreenUI visible={(hasVisitedArcade || isLabRoute) && !isInGame} />
+        {(hasVisitedArcade || isLabRoute) && (
+          <ScreenUI visible={!isInGame} onLoad={arcadeReady} />
+        )}
       </Suspense>
 
       <Suspense fallback={null}>
-        <ArcadeGame
-          visible={(hasVisitedArcade || isLabRoute) && isInGame}
-          screenMaterial={screenMaterial}
-        />
+        {isInGame && (
+          <ArcadeGame
+            visible={(hasVisitedArcade || isLabRoute) && isInGame}
+            screenMaterial={screenMaterial}
+          />
+        )}
       </Suspense>
     </RenderTexture>
   )

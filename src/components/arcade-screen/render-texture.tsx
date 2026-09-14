@@ -37,7 +37,7 @@ export interface PaintCanvasProps {
   /** Callback called when a new depthTexture is used */
   onDepthTexture?: (texture: THREE.DepthTexture) => void
   /** Use a custom render target */
-  fbo: THREE.WebGLRenderTarget
+  fbo: THREE.RenderTarget
   /** A scene to use as a container */
   containerScene?: THREE.Scene
   /** Use global mouse coordinate to calculate raycast */
@@ -73,7 +73,7 @@ export const RenderTexture = ({
   containerScene,
   children,
   useGlobalPointer,
-  renderPriority,
+  renderPriority = 0,
   raycasterMesh
 }: PropsWithChildren<PaintCanvasProps>) => {
   // once the canvas is loaded, force render
@@ -163,7 +163,7 @@ export const RenderTexture = ({
       const uv = intersection.uv
       if (!uv) return false
       state.raycaster.setFromCamera(
-        state.pointer.set(uv.x * 2 - 1, uv.y * 2 - 1),
+        state.pointer.set(uv.x * 2 - 1, 1 - uv.y * 2),
         state.camera
       )
     },
@@ -232,7 +232,7 @@ export const useTextureFrame = (
 }
 
 interface SceneContainerProps {
-  fbo: THREE.WebGLRenderTarget
+  fbo: THREE.RenderTarget
   renderPriority?: number
 }
 
@@ -242,9 +242,15 @@ const SceneContainer = ({
   children
 }: PropsWithChildren<SceneContainerProps>) => {
   useTextureFrame(({ state }) => {
-    state.gl.setRenderTarget(fbo)
-    state.gl.render(state.scene, state.camera)
-    state.gl.setRenderTarget(null)
+    const gl = state.gl as unknown as import("three/webgpu").WebGPURenderer
+    const previous = gl.getRenderTarget()
+    const output = gl.outputColorSpace
+    gl.outputColorSpace = THREE.LinearSRGBColorSpace
+    gl.setRenderTarget(fbo)
+    gl.clear()
+    gl.render(state.scene, state.camera)
+    gl.setRenderTarget(previous)
+    gl.outputColorSpace = output
   }, renderPriority)
 
   return <>{children}</>

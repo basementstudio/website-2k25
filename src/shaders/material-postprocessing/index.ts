@@ -1,10 +1,10 @@
-import { ShaderMaterial, Vector2 } from "three"
+import { Vector2 } from "three"
 
-import fragmentShader from "./fragment.glsl"
-import vertexShader from "./vertex.glsl"
+import { createNodeMaterial } from "@/lib/graphics/material"
+import { createShader as fragmentNodeFactory } from "@/shaders/generated/postprocessing"
 
 export const createPostProcessingMaterial = () =>
-  new ShaderMaterial({
+  createNodeMaterial({
     uniforms: {
       uMainTexture: { value: null },
       uDepthTexture: { value: null },
@@ -32,6 +32,5 @@ export const createPostProcessingMaterial = () =>
       uBloomRadius: { value: 1 },
       uBloomThreshold: { value: 1 }
     },
-    vertexShader,
-    fragmentShader
+    fragmentNodeFactory
   })

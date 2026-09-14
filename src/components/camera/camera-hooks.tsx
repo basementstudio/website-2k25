@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
 import { useInspectable } from "@/components/inspectables/context"
-import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import type { ICameraConfig } from "@/components/navigation-handler/navigation.interface"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { useMedia } from "@/hooks/use-media"
@@ -69,6 +68,7 @@ export const useCameraSetup = (
       cameraRef.current.position.copy(currentPos)
       cameraRef.current.lookAt(currentTarget)
       cameraRef.current.fov = cameraConfig.fov
+      cameraRef.current.updateProjectionMatrix()
 
       setIsInitialized(true)
     }
@@ -152,9 +152,12 @@ export const useCameraMovement = (
   const isTransitioningFrom404 = previousScene?.name === "404"
 
   // Use the appropriate animation duration
-  const animationDuration = isTransitioningFrom404
-    ? ANIMATION_DURATION_FROM_404
-    : ANIMATION_DURATION
+  const reducedMotion = useMedia("(prefers-reduced-motion: reduce)")
+  const animationDuration = reducedMotion
+    ? 0
+    : isTransitioningFrom404
+      ? ANIMATION_DURATION_FROM_404
+      : ANIMATION_DURATION
 
   const divisor = useResponsiveDivisor()
   const offsetMultiplier = useMemo(() => {
@@ -187,8 +190,6 @@ export const useCameraMovement = (
   const isTransitioning = useRef(false)
   const prevCameraConfig = useRef(cameraConfig)
   const firstRender = useRef(true)
-
-  const loadingCanvasWorker = useAppLoadingStore((state) => state.worker)
 
   useEffect(() => {
     if (cameraConfig && prevCameraConfig.current !== cameraConfig) {
@@ -228,110 +229,108 @@ export const useCameraMovement = (
     animationDuration
   ])
 
-  useFrameCallback(({ pointer }, dt) => {
-    const { boundariesRef, basePosition, np } = boundaries
-    const b = boundariesRef.current
-    const plane = planeRef.current
-    const boundary = planeBoundaryRef.current
+  useFrameCallback(
+    ({ pointer }, dt) => {
+      const { boundariesRef, basePosition, np } = boundaries
+      const b = boundariesRef.current
+      const plane = planeRef.current
+      const boundary = planeBoundaryRef.current
 
-    if (!plane || !boundary || !basePosition || !np || !cameraConfig) return
+      if (!plane || !boundary || !basePosition || !np || !cameraConfig) return
 
-    b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
-    b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
-    b.offset = pointer.x * b.maxOffset * offsetMultiplier
+      b.maxOffset = (boundary.scale.x - plane.scale.x) / 2
+      b.rightVector = calculateMovementVectors(basePosition, cameraConfig)
+      b.offset = pointer.x * b.maxOffset * offsetMultiplier
 
-    b.pos.x = b.rightVector.x * b.offset
-    b.pos.z = b.rightVector.z * b.offset
-    b.targetPosition.x = basePosition[0] + b.pos.x
-    b.targetPosition.z = basePosition[2] + b.pos.z
-    b.planePosition.x = plane.position.x
-    b.planePosition.z = plane.position.z
+      b.pos.x = b.rightVector.x * b.offset
+      b.pos.z = b.rightVector.z * b.offset
+      b.targetPosition.x = basePosition[0] + b.pos.x
+      b.targetPosition.z = basePosition[2] + b.pos.z
+      b.planePosition.x = plane.position.x
+      b.planePosition.z = plane.position.z
 
-    plane.position.setX(np.x)
-    plane.position.setZ(np.z)
+      plane.position.setX(np.x)
+      plane.position.setZ(np.z)
 
-    if (!selected && cameraConfig?.offsetMultiplier !== 0) {
-      newDelta.set(b.pos.x, 0, b.pos.z)
-      newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
+      if (!selected && cameraConfig?.offsetMultiplier !== 0) {
+        newDelta.set(b.pos.x, 0, b.pos.z)
+        newLookAtDelta.set(b.pos.x / divisor, 0, b.pos.z)
 
-      easing.damp3(panTargetDelta, newDelta, 0.5, dt)
-      easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
-    } else {
-      easing.damp3(panTargetDelta, 0, 0.5, dt)
-      easing.damp3(panLookAtDelta, 0, 0.25, dt)
-    }
-
-    if (cameraConfig) {
-      targetPosition.set(...cameraConfig.position)
-      targetLookAt.set(...cameraConfig.target)
-      targetFov.current = cameraConfig.fov
-    }
-
-    if (!disableCameraTransition && isDesktop) {
-      targetPosition.y +=
-        (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
-      targetLookAt.y +=
-        (targetY - initialY) * Math.min(1, window.scrollY / window.innerHeight)
-    }
-
-    if (disableCameraTransition || firstRender.current) {
-      progress.current = 1
-      currentPos.copy(targetPosition)
-      currentTarget.copy(targetLookAt)
-      currentFov.current = targetFov.current
-      isTransitioning.current = false
-      setIsCameraTransitioning(false)
-
-      if (firstRender.current) {
-        firstRender.current = false
+        easing.damp3(panTargetDelta, newDelta, 0.5, dt)
+        easing.damp3(panLookAtDelta, newLookAtDelta, 0.25, dt)
+      } else {
+        easing.damp3(panTargetDelta, 0, 0.5, dt)
+        easing.damp3(panLookAtDelta, 0, 0.25, dt)
       }
-    } else if (isTransitioning.current && progress.current < 1) {
-      progress.current = Math.min(progress.current + dt / animationDuration, 1)
-      const easeValue = easeInOutCubic(progress.current)
 
-      currentPos.lerpVectors(initialCurrentPos, targetPosition, easeValue)
-      currentTarget.lerpVectors(initialCurrentTarget, targetLookAt, easeValue)
-      currentFov.current =
-        initialFov.current +
-        (targetFov.current - initialFov.current) * easeValue
+      if (cameraConfig) {
+        targetPosition.set(...cameraConfig.position)
+        targetLookAt.set(...cameraConfig.target)
+        targetFov.current = cameraConfig.fov
+      }
 
-      if (progress.current === 1) {
+      if (!disableCameraTransition && isDesktop) {
+        targetPosition.y +=
+          (targetY - initialY) *
+          Math.min(1, window.scrollY / window.innerHeight)
+        targetLookAt.y +=
+          (targetY - initialY) *
+          Math.min(1, window.scrollY / window.innerHeight)
+      }
+
+      if (disableCameraTransition || firstRender.current) {
+        progress.current = 1
+        currentPos.copy(targetPosition)
+        currentTarget.copy(targetLookAt)
+        currentFov.current = targetFov.current
         isTransitioning.current = false
         setIsCameraTransitioning(false)
-      }
-    } else {
-      currentPos.copy(targetPosition)
-      currentTarget.copy(targetLookAt)
-      currentFov.current = targetFov.current
-    }
 
-    if (cameraRef.current) {
-      finalPos.copy(currentPos).add(panTargetDelta)
-      finalLookAt.copy(currentTarget).add(panLookAtDelta)
+        if (firstRender.current) {
+          firstRender.current = false
+        }
+      } else if (isTransitioning.current && progress.current < 1) {
+        progress.current =
+          animationDuration === 0
+            ? 1
+            : Math.min(progress.current + dt / animationDuration, 1)
+        const easeValue = easeInOutCubic(progress.current)
 
-      cameraRef.current.position.copy(finalPos)
-      cameraRef.current.lookAt(finalLookAt)
-      cameraRef.current.fov = currentFov.current
-      // lookAt only writes the world matrix; the projection matrix depends on
-      // fov alone here (R3F handles aspect on resize), so skip the rebuild
-      // unless fov moved.
-      if (lastAppliedFov.current !== currentFov.current) {
-        cameraRef.current.updateProjectionMatrix()
-        lastAppliedFov.current = currentFov.current
+        currentPos.lerpVectors(initialCurrentPos, targetPosition, easeValue)
+        currentTarget.lerpVectors(initialCurrentTarget, targetLookAt, easeValue)
+        currentFov.current =
+          initialFov.current +
+          (targetFov.current - initialFov.current) * easeValue
+
+        if (progress.current === 1) {
+          isTransitioning.current = false
+          setIsCameraTransitioning(false)
+        }
+      } else {
+        currentPos.copy(targetPosition)
+        currentTarget.copy(targetLookAt)
+        currentFov.current = targetFov.current
       }
 
-      if (loadingCanvasWorker) {
-        loadingCanvasWorker.postMessage({
-          type: "update-camera-config",
-          actualCamera: {
-            position: finalPos,
-            target: finalLookAt,
-            fov: currentFov.current
-          }
-        })
+      if (cameraRef.current) {
+        finalPos.copy(currentPos).add(panTargetDelta)
+        finalLookAt.copy(currentTarget).add(panLookAtDelta)
+
+        cameraRef.current.position.copy(finalPos)
+        cameraRef.current.lookAt(finalLookAt)
+        cameraRef.current.fov = currentFov.current
+        // lookAt only writes the world matrix; the projection matrix depends on
+        // fov alone here (R3F handles aspect on resize), so skip the rebuild
+        // unless fov moved.
+        if (lastAppliedFov.current !== currentFov.current) {
+          cameraRef.current.updateProjectionMatrix()
+          lastAppliedFov.current = currentFov.current
+        }
       }
-    }
-  })
+    },
+    undefined,
+    Infinity
+  )
 
   return { currentPos, currentTarget, targetPosition, targetLookAt }
 }

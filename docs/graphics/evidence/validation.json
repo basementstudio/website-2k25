@@ -1,0 +1,44 @@
+{
+  "date": "2026-09-09",
+  "buildId": "wRVoRdNg1S05YlmiAeMZW",
+  "checks": {
+    "productionBuild": "passed; 176 prerendered pages generated",
+    "typescript": "passed",
+    "graphicsRegressionTests": {
+      "passed": 7,
+      "failed": 0
+    },
+    "assetVerification": "passed",
+    "basisConsistency": "passed",
+    "shaderRegeneration": "deterministic",
+    "changedGraphicsLint": "passed",
+    "fullLint": {
+      "status": "pre-existing failures",
+      "errors": 21,
+      "errorFile": "sanity/schemas/singletons/scenesConfig.ts",
+      "existingWarnings": 4
+    },
+    "developmentSmoke": {
+      "url": "http://localhost:3000",
+      "backend": "webgpu",
+      "errors": []
+    },
+    "chromiumRecoveryContact": "recovery-validation.json",
+    "firefoxRecoveryContact": "recovery-firefox.json",
+    "faults": "fault-validation.json",
+    "webgpuFeatures": "features-webgpu.json",
+    "webgl2Features": "features-webgl2.json",
+    "loader": "loader-validation.json",
+    "audioChromium": "audio-chromium.json",
+    "audioFirefox": "audio-firefox.json",
+    "cctv": "cctv-validation.json"
+  },
+  "openReleaseGates": [
+    "Windows integrated GPU, iPhone Safari and midrange Android physical devices",
+    "At least five repeated cold/warm trials and sustained thermal/adaptive-quality workloads",
+    "Final visual review, touch/keyboard review and HDR uncompressed fallback on relevant devices",
+    "Field Core Web Vitals and driver-level GPU resource reclamation",
+    "Warm forced-WebGL2 home initialization regression: about 0.45 s slower than live production"
+  ],
+  "rollout": "Not deployed. WebGPU remains an explicit build-time opt-in."
+}
