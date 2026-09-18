@@ -3,8 +3,11 @@
 import { Canvas } from "@react-three/fiber"
 import dynamic from "next/dynamic"
 import { Suspense, useEffect, useRef, useState } from "react"
+import { ErrorBoundary as FlightErrorBoundary } from "react-error-boundary"
 import * as THREE from "three"
 
+import { AirplaneHud } from "@/components/airplane-mode/hud"
+import { useAirplaneStore } from "@/components/airplane-mode/store"
 import ErrorBoundary from "@/components/basketball/error-boundary"
 import { CameraController } from "@/components/camera/camera-controller"
 import { CharacterInstanceConfig } from "@/components/characters/character-instancer"
@@ -26,6 +29,14 @@ import { useMinigameStore } from "@/store/minigame-store"
 import { cn } from "@/utils/cn"
 
 import { DoomJs } from "../doom-js"
+
+const AirplaneFlight = dynamic(
+  () =>
+    import("@/components/airplane-mode/flight").then(
+      (mod) => mod.AirplaneFlight
+    ),
+  { ssr: false }
+)
 
 const HoopMinigame = dynamic(
   () =>
@@ -68,6 +79,7 @@ export const Scene = () => {
     const name = state.currentScene?.name
     return name === "basketball" || name === "lab" || name === "404"
   })
+  const airplaneActive = useAirplaneStore((s) => s.phase !== "off")
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const clearPlayedBalls = useMinigameStore((state) => state.clearPlayedBalls)
   const userHasLeftWindow = useRef(false)
@@ -148,6 +160,7 @@ export const Scene = () => {
 
   return (
     <>
+      <AirplaneHud />
       <div
         className={cn(
           "absolute inset-0",
@@ -200,7 +213,20 @@ export const Scene = () => {
                     <WebGlTunnelOut />
                   </Suspense>
                   <Suspense fallback={null}>
-                    <CameraController />
+                    {!airplaneActive &&
+                      !isFullHeightScene && <AirplaneFlight preview />}
+                    {airplaneActive ? (
+                      <FlightErrorBoundary
+                        fallback={null}
+                        onError={() =>
+                          useAirplaneStore.setState({ phase: "error" })
+                        }
+                      >
+                        <AirplaneFlight />
+                      </FlightErrorBoundary>
+                    ) : (
+                      <CameraController />
+                    )}
                   </Suspense>
                   <Suspense fallback={null}>
                     <Sparkles />

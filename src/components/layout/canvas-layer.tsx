@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/nextjs"
 import dynamic from "next/dynamic"
 import { ErrorBoundary } from "react-error-boundary"
 
+import { useAirplaneStore } from "@/components/airplane-mode/store"
 import { CustomCursor } from "@/components/custom-cursor"
 import { InspectableViewer } from "@/components/inspectables/inspectable-viewer"
 import {
@@ -29,6 +30,7 @@ const Scene = dynamic(
 export const CanvasLayer = () => {
   useCanvasAvailability()
 
+  const airplaneActive = useAirplaneStore((s) => s.phase !== "off")
   // `isCanvasInPage` (sticky) keeps the Scene mounted across navigations;
   // `canvasVisible` toggles whether it's shown for the current route.
   const isCanvasInPage = useAppLoadingStore((state) => state.isCanvasInPage)
@@ -55,7 +57,8 @@ export const CanvasLayer = () => {
           <div
             className={cn(
               "canvas-container absolute top-0 h-[var(--canvas-offset)] w-full lg:fixed lg:aspect-auto",
-              !canvasVisible && "pointer-events-none invisible fixed opacity-0"
+              !canvasVisible && "pointer-events-none invisible fixed opacity-0",
+              airplaneActive && "!fixed !inset-0 !z-[2147482999] !h-[100svh]"
             )}
           >
             {isCanvasInPage && <Scene />}
