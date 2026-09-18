@@ -4,12 +4,12 @@ import { PerspectiveCamera, useGLTF } from "@react-three/drei"
 import { useEffect, useMemo, useRef } from "react"
 import {
   Bone,
-  Box3,
   DoubleSide,
   Group,
   MathUtils,
   Mesh,
   MeshBasicMaterial,
+  Object3D,
   PerspectiveCamera as ThreeCamera,
   Vector3
 } from "three"
@@ -17,15 +17,19 @@ import { clone } from "three/examples/jsm/utils/SkeletonUtils.js"
 
 import { useAssets } from "@/components/assets-provider"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { useDeviceDetect } from "@/hooks/use-device-detect"
 import { useFrameCallback } from "@/hooks/use-pausable-time"
 
 import {
   createFlightCollider,
   crossesGate,
   FLIGHT_GATES,
-  PLANE_RADIUS
+  PLANE_RADIUS,
+  WING_TIPS,
+  yawTowards
 } from "./physics"
 import { flightKeys, useAirplaneStore } from "./store"
+import { WingTrail } from "./wing-trail"
 
 export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
   const { airplane } = useAssets()
@@ -34,6 +38,8 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
   const run = useAirplaneStore((s) => s.run)
   const enter = useAirplaneStore((s) => s.enter)
   const gate = useAirplaneStore((s) => s.gate)
+  const mode = useAirplaneStore((s) => s.mode)
+  const { isMobile } = useDeviceDetect()
   const cameraRef = useRef<ThreeCamera>(null)
   const cameraDistance = useRef(2.15)
   const planeRef = useRef<Group>(null)
@@ -41,7 +47,7 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
     () => createFlightCollider(colliderSource),
     [colliderSource]
   )
-  const { model, spawn, material, bones } = useMemo(() => {
+  const { model, spawn, material, bones, wingTips } = useMemo(() => {
     const model = clone(source)
     const spawn = new Vector3(4.96, 4.4951, -27.903)
     model.position.sub(new Vector3(5.833486, 3.521211, -9.476917))
@@ -53,14 +59,30 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       string,
       { bone: Bone; rotation: import("three").Euler }
     >()
+    let fuselage: Mesh | undefined
     model.traverse((child) => {
-      if (child instanceof Mesh) child.material = material
+      if (child instanceof Mesh) {
+        child.material = material
+        fuselage = child
+      }
       if (child instanceof Bone)
         bones.set(child.name, { bone: child, rotation: child.rotation.clone() })
     })
-    return { model, spawn, material, bones }
+    // Anchors for the wingtip trails, parented directly to the fuselage mesh
+    // so their world position tracks it without re-deriving axis/rotation math.
+    const wingTips = WING_TIPS.map((local) => {
+      const anchor = new Object3D()
+      anchor.position.set(...local)
+      fuselage?.add(anchor)
+      return anchor
+    }) as [Object3D, Object3D]
+    return { model, spawn, material, bones, wingTips }
   }, [source])
   useEffect(() => () => material.dispose(), [material])
+  const initialYaw = useMemo(
+    () => yawTowards(spawn, new Vector3(...FLIGHT_GATES[0])),
+    [spawn]
+  )
   const state = useMemo(
     () => ({
       position: spawn.clone(),
@@ -69,7 +91,7 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       cameraTarget: new Vector3(),
       lookAt: new Vector3(),
       next: new Vector3(),
-      yaw: 0,
+      yaw: initialYaw,
       pitch: 0,
       bank: 0,
       seconds: 0,
@@ -81,7 +103,7 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       collisionGrace: 1.25,
       gates: FLIGHT_GATES.map((p) => new Vector3(...p))
     }),
-    [spawn]
+    [spawn, initialYaw]
   )
 
   useEffect(() => {
@@ -98,21 +120,26 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
     if (preview) return
     cameraDistance.current = 2.15
     state.position.copy(spawn)
-    state.yaw =
-      state.pitch =
-      state.bank =
-      state.seconds =
-      state.gate =
-      state.tick =
-        0
+    state.yaw = initialYaw
+    state.pitch = state.bank = state.seconds = state.gate = state.tick = 0
     state.verticalVelocity = 0
     state.impulseCooldown = 0
     state.impulseWasDown = false
     state.collisionGrace = 1.25
     if (cameraRef.current) {
+      // Start pulled back along the takeoff heading so the first frames read
+      // as a dolly-in toward the plane, not a hard cut — it settles into the
+      // exact same framing the in-flight chase cam uses (see below), so
+      // there's no jump once the player actually takes off.
       cameraRef.current.position
         .copy(spawn)
-        .add(new Vector3(0.5, 0.7, cameraDistance.current))
+        .add(
+          new Vector3(
+            Math.sin(initialYaw) * 4.5 + 0.8,
+            1.7,
+            Math.cos(initialYaw) * 4.5
+          )
+        )
       cameraRef.current.lookAt(spawn)
       cameraRef.current.updateProjectionMatrix()
     }
@@ -123,7 +150,7 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       altitude: spawn.y,
       speed: 0
     })
-  }, [run, spawn, state, preview])
+  }, [run, spawn, state, preview, initialYaw])
 
   useEffect(() => {
     if (preview) return
@@ -141,6 +168,7 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
 
   useFrameCallback((_, frameDelta) => {
     const phase = useAirplaneStore.getState().phase
+    const flightMode = useAirplaneStore.getState().mode
     if (preview) {
       planeRef.current?.position.copy(spawn)
       return
@@ -192,6 +220,7 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
         }
         state.position.copy(state.next)
         if (
+          flightMode === "trial" &&
           state.gate < state.gates.length &&
           crossesGate(state.previous, state.position, state.gates[state.gate])
         ) {
@@ -221,18 +250,31 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       planeRef.current.position.copy(state.position)
       planeRef.current.rotation.set(state.pitch, state.yaw, state.bank, "YXZ")
     }
-    if (phase === "flying" && cameraRef.current) {
+    if (cameraRef.current) {
+      // Same framing while parked (state.position/yaw sit at spawn/initialYaw)
+      // as while flying, so choosing a mode never snaps the view around —
+      // it's the exact shot the player was already looking at.
+      const camDistance = phase === "flying" ? 2.8 : cameraDistance.current
       state.cameraTarget
-        .set(Math.sin(state.yaw) * 2.8 + 0.8, 0.9, Math.cos(state.yaw) * 2.8)
+        .set(
+          Math.sin(state.yaw) * camDistance + 0.8,
+          phase === "flying" ? 0.9 : 0.7,
+          Math.cos(state.yaw) * camDistance
+        )
         .add(state.position)
-      // Pull the chase camera forward if a wall is behind the plane.
-      for (
-        let i = 0;
-        i < 10 && collider.collides(state.position, state.cameraTarget, 0.08);
-        i++
+      if (phase === "flying") {
+        // Pull the chase camera forward if a wall is behind the plane.
+        for (
+          let i = 0;
+          i < 10 && collider.collides(state.position, state.cameraTarget, 0.08);
+          i++
+        )
+          state.cameraTarget.lerp(state.position, 0.25)
+      }
+      if (
+        phase === "flying" &&
+        collider.collides(state.position, cameraRef.current.position, 0.08)
       )
-        state.cameraTarget.lerp(state.position, 0.25)
-      if (collider.collides(state.position, cameraRef.current.position, 0.08))
         cameraRef.current.position.copy(state.cameraTarget)
       else
         cameraRef.current.position.lerp(
@@ -296,28 +338,38 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
           <primitive object={model} dispose={null} />
         </group>
       </group>
-      {FLIGHT_GATES.map((position, i) => {
-        const previous = i === 0 ? spawn.toArray() : FLIGHT_GATES[i - 1]
-        return (
-          <mesh
-            key={i}
-            position={position}
-            rotation={[
-              0,
-              Math.atan2(position[0] - previous[0], position[2] - previous[2]),
-              0
-            ]}
-            visible={i >= gate}
-          >
-            <torusGeometry args={[0.72, i === gate ? 0.025 : 0.009, 8, 48]} />
-            <meshBasicMaterial
-              color={i === gate ? "#ffd377" : "#e5e0c8"}
-              transparent
-              opacity={i === gate ? 1 : 0.3}
-            />
-          </mesh>
-        )
-      })}
+      {!preview && !isMobile && (
+        <>
+          <WingTrail anchor={wingTips[0]} />
+          <WingTrail anchor={wingTips[1]} />
+        </>
+      )}
+      {mode === "trial" &&
+        FLIGHT_GATES.map((position, i) => {
+          const previous = i === 0 ? spawn.toArray() : FLIGHT_GATES[i - 1]
+          return (
+            <mesh
+              key={i}
+              position={position}
+              rotation={[
+                0,
+                Math.atan2(
+                  position[0] - previous[0],
+                  position[2] - previous[2]
+                ),
+                0
+              ]}
+              visible={i >= gate}
+            >
+              <torusGeometry args={[0.72, i === gate ? 0.025 : 0.009, 8, 48]} />
+              <meshBasicMaterial
+                color={i === gate ? "#ffd377" : "#e5e0c8"}
+                transparent
+                opacity={i === gate ? 1 : 0.3}
+              />
+            </mesh>
+          )
+        })}
     </>
   )
 }

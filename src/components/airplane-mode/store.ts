@@ -9,8 +9,11 @@ export type FlightPhase =
   | "crashed"
   | "finished"
   | "error"
+// "trial": the seven gates, timed. "free": open flight, no gates/finish.
+export type FlightMode = "trial" | "free"
 interface FlightState {
   phase: FlightPhase
+  mode: FlightMode
   run: number
   gate: number
   seconds: number
@@ -19,10 +22,12 @@ interface FlightState {
   enter: () => void
   exit: () => void
   restart: () => void
+  launch: (mode: FlightMode) => void
 }
 export const flightKeys = new Set<string>()
 export const useAirplaneStore = create<FlightState>((set) => ({
   phase: "off",
+  mode: "trial",
   run: 0,
   gate: 0,
   seconds: 0,
@@ -51,5 +56,9 @@ export const useAirplaneStore = create<FlightState>((set) => ({
       seconds: 0,
       speed: 0
     }))
+  },
+  launch: (mode) => {
+    flightKeys.clear()
+    set({ mode, phase: "flying" })
   }
 }))
