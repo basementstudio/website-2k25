@@ -1,0 +1,15 @@
+.launch { position: fixed; right: 24px; bottom: 24px; z-index: 70; border: 1px solid #ffffff55; border-radius: 4px; padding: 12px 18px; color: #f5f5f5; background: #0a0a0ae8; font-family: inherit; font-size: 13px; cursor: pointer; backdrop-filter: blur(12px); }
+.hud { position: fixed; inset: 0; z-index: 2147483000; color: #f5f5f5; font-family: inherit; outline: none; background: linear-gradient(180deg,#11150f55,transparent 25%,transparent 70%,#11150f77); }
+.hud button { cursor: pointer; border: 1px solid #fff6df55; border-radius: 3px; padding: 11px 16px; color: inherit; background: #0a0a0adf; font: inherit; font-size: 12px; }
+.hud button:focus-visible,.launch:focus-visible { outline: 2px solid #ffd377; outline-offset: 4px; }
+.header { position: absolute; top: max(24px,env(safe-area-inset-top)); left: 28px; right: 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.header span,.card>span,.footer span { display: block; font-size: 9px; letter-spacing: 2px; opacity: .7; }
+.header strong { display: block; margin-top: 6px; font-size: 21px; font-weight: 500; }
+.card { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: min(440px,calc(100% - 40px)); padding: 32px; border: 1px solid #fff6df33; border-radius: 5px; background: #0a0a0af2; backdrop-filter: blur(15px); }
+.card h2 { font-size: clamp(26px,3vw,38px); font-weight: 500; line-height: 1.1; margin: 18px 0; letter-spacing: -1px; }
+.card p { font-size: 13px; line-height: 1.8; opacity: .8; margin-bottom: 24px; }
+.card button { background: #ff5a1f; color: #ffffff; }
+.footer { position: absolute; left: 28px; bottom: max(26px,env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 28px; }
+.footer strong { display: block; font-size: 20px; margin-top: 7px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.touch { display: none; }
+@media (pointer:coarse),(max-width:768px) { .touch { display: flex; position: absolute; bottom: 108px; right: 20px; gap: 8px; } .touch button { width: 44px; height: 44px; padding: 0; font-size: 20px; touch-action: none; } .footer { left: 20px; right: 20px; gap: 16px; } .footer strong { font-size: 15px; } .footer span { font-size: 7px; letter-spacing: 1px; } .header { left: 20px; right: 20px; } .header strong { font-size: 17px; } .launch { right: 16px; bottom: 16px; } }

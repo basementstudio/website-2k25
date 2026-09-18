@@ -13,9 +13,13 @@ export type AssetsBase = Omit<
 >
 
 export const ASSETS_BASE: AssetsBase = {
+  airplane: {
+    plane: "/3d/models/airplane-plane-0542b052.glb",
+    collider: "/3d/models/airplane-collider-fd100c38.glb"
+  },
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-934efc75.glb",
-  office: "/3d/models/office-5a568ac6.glb",
+  officeItems: "/3d/models/officeItems-e8129b97.glb",
+  office: "/3d/models/office-912dc20c.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-6ead65cf.glb",
   godrays: "/3d/models/godrays-f4cbda2b.glb",
@@ -54,7 +58,14 @@ export const ASSETS_BASE: AssetsBase = {
   // KTX2 path looks wrong — flip USE_KTX2_LIGHTMAPS in bakes.tsx back to
   // false, don't need to touch this file.
   lightmapAtlas: "/3d/textures/lightmap-atlas-d331cacb.exr",
-  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-a69f004e.ktx2",
+  // TEMP A/B test (Sep 16) — Nico's "hdrastc_orig" re-bakes. fix2 confirmed
+  // working (Nico: "ahora funciona"); this one just tones down an
+  // over-strong light from that pass. Earlier candidates kept on disk,
+  // untouched, for a one-line revert: lightmap-atlas-a69f004e.ktx2
+  // (original), lightmap-atlas-test-cc5fe3a6.ktx2 (1st try),
+  // lightmap-atlas-fix-a09eb318.ktx2 (2nd try) and
+  // lightmap-atlas-fix2-f0e727ed.ktx2 (3rd try, confirmed working).
+  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-fix4-291b7694.ktx2",
   // AO trial (Sep 10) — jpg, shares the lightmap's UV atlas layout. Not in
   // KTX2 yet (uncompressed for now, per Nico — KTX2 pass comes later once
   // the AO look itself is confirmed).

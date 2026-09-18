@@ -3,6 +3,7 @@ import type { PortableTextBlock } from "@/service/sanity/types"
 import { fetchAssetsLocal } from "./fetch-assets-local"
 
 export interface AssetsResult {
+  airplane: { plane: string; collider: string }
   officeItems: string
   office: string
   officeWireframe: string

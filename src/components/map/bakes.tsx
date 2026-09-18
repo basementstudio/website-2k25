@@ -97,7 +97,11 @@ const ATLAS_LIGHTMAP_VALUE = "Map00"
 // Ambient occlusion trial for the shared atlas (Sep 10) — a jpg baked on
 // the same UV layout as the lightmap. Applied only to Map00-tagged meshes,
 // same traversal as the lightmap itself (see the atlas AO load below).
-const AO_ENABLED = true
+// TEMP disabled (Sep 16) — Nico: "podemos apagar el AO, capaz es ese",
+// testing whether it's contributing to SM_Fujifilm looking black. Same UV2
+// (vUv2) feeds both aoMap and lightMap, so this alone won't fix the root
+// cause if that UV is really unpacked, but it isolates the variable.
+const AO_ENABLED = false
 // Nico: "al AO lo podemos bajar al 15%" -> later settled on 10% — the atlas
 // AO reads strong at full intensity, unlike the pre-existing per-mesh aoMap
 // bakes below which stay at their normal 1.0.
