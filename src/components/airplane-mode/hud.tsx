@@ -8,6 +8,7 @@ import { useContactStore } from "@/components/contact/contact-store"
 import { useInspectable } from "@/components/inspectables/context"
 import { useAppLoadingStore } from "@/components/loading/app-loading-handler"
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
+import { cn } from "@/utils/cn"
 
 import { FLIGHT_GATES } from "./physics"
 import { flightKeys, useAirplaneStore } from "./store"
@@ -21,8 +22,18 @@ const controls = [
   ["Space", "+", "Impulso"]
 ]
 export function AirplaneHud() {
-  const { phase, gate, seconds, speed, altitude, enter, exit, restart } =
-    useAirplaneStore()
+  const {
+    phase,
+    mode,
+    gate,
+    seconds,
+    speed,
+    altitude,
+    enter,
+    exit,
+    restart,
+    launch
+  } = useAirplaneStore()
   const active = phase !== "off"
   const loaded = useAppLoadingStore(
     (s) => s.canRunMainApp && s.canvasVisible && !s.showLoadingCanvas
@@ -176,9 +187,13 @@ export function AirplaneHud() {
       document.body
     )
   }
-  const start = () => {
+  const resume = () => {
     flightKeys.clear()
     useAirplaneStore.setState({ phase: "flying" })
+    panel.current?.focus()
+  }
+  const chooseMode = (next: "free" | "trial") => {
+    launch(next)
     panel.current?.focus()
   }
   const title =
@@ -193,9 +208,13 @@ export function AirplaneHud() {
             : phase === "error"
               ? "We could not load the airplane."
               : "An unexpected landing."
+  // Loading/ready read as "looking closely at the plane", same as any other
+  // inspectable — no header chrome or stats yet, just a soft vignette and the
+  // choice card. The full flight HUD only kicks in once a mode is chosen.
+  const inspecting = phase === "loading" || phase === "ready"
   return createPortal(
     <div
-      className={styles.hud}
+      className={cn(styles.hud, inspecting && styles.inspecting)}
       ref={panel}
       tabIndex={-1}
       role="dialog"
@@ -203,11 +222,23 @@ export function AirplaneHud() {
       aria-label="Airplane mode"
     >
       <header className={styles.header}>
-        <div>
-          <span>PAPER FLIGHT</span>
-          <strong>Airplane mode</strong>
-        </div>
-        <button onClick={exit}>Back to the office ×</button>
+        {inspecting ? (
+          <button
+            className={styles.close}
+            onClick={exit}
+            aria-label="Close [ESC]"
+          >
+            Close [ESC]
+          </button>
+        ) : (
+          <>
+            <div>
+              <span>PAPER FLIGHT</span>
+              <strong>Airplane mode</strong>
+            </div>
+            <button onClick={exit}>Back to the office ×</button>
+          </>
+        )}
       </header>
       {phase !== "flying" && (
         <section className={styles.card} aria-live="polite">
@@ -219,62 +250,65 @@ export function AirplaneHud() {
               : phase === "loading"
                 ? "Loading the airplane and office collisions."
                 : phase === "finished"
-                  ? `You flew through ${FLIGHT_GATES.length} aros in ${seconds.toFixed(1)} seconds.`
-                  : "Follow the gold rings. W / ↑ climbs, S / ↓ descends, A and D turn. Space gives a boost; Esc pauses and R restarts."}
+                  ? `You flew through ${FLIGHT_GATES.length} rings in ${seconds.toFixed(1)} seconds.`
+                  : phase === "ready"
+                    ? "Chase the gold rings against the clock, or just cruise the office freely. W / ↑ climbs, S / ↓ descends, A and D turn. Space gives a boost; Esc pauses and R restarts."
+                    : "W / ↑ climbs, S / ↓ descends, A and D turn. Space gives a boost; Esc pauses and R restarts."}
           </p>
-          {phase !== "loading" && phase !== "error" && (
-            <button
-              onClick={
-                phase === "ready" || phase === "paused" ? start : restart
-              }
-            >
-              {phase === "paused"
-                ? "Keep flying"
-                : phase === "ready"
-                  ? "Take off ↗"
-                  : "Try again ↗"}
-            </button>
+          {phase === "ready" && (
+            <div className={styles.modes}>
+              <button onClick={() => chooseMode("free")}>Free flight ↗</button>
+              <button onClick={() => chooseMode("trial")}>Time trial ↗</button>
+            </div>
+          )}
+          {phase === "paused" && <button onClick={resume}>Keep flying</button>}
+          {(phase === "crashed" || phase === "finished") && (
+            <button onClick={restart}>Try again ↗</button>
           )}
         </section>
       )}
-      <footer className={styles.footer}>
-        <div>
-          <span>RINGS</span>
-          <strong>
-            {gate} / {FLIGHT_GATES.length}
-          </strong>
-        </div>
-        <div>
-          <span>SPEED</span>
-          <strong>{(speed * 3.6).toFixed(0)} km/h</strong>
-        </div>
-        <div>
-          <span>ALTITUDE</span>
-          <strong>{altitude.toFixed(1)} m</strong>
-        </div>
-        <div>
-          <span>TIME</span>
-          <strong>
-            {Math.floor(seconds / 60)
-              .toString()
-              .padStart(2, "0")}
-            :
-            {Math.floor(seconds % 60)
-              .toString()
-              .padStart(2, "0")}
-          </strong>
-        </div>
-        {phase === "flying" && (
-          <button
-            onClick={() => {
-              flightKeys.clear()
-              useAirplaneStore.setState({ phase: "paused" })
-            }}
-          >
-            Pause
-          </button>
-        )}
-      </footer>
+      {!inspecting && (
+        <footer className={styles.footer}>
+          {mode === "trial" && (
+            <div>
+              <span>RINGS</span>
+              <strong>
+                {gate} / {FLIGHT_GATES.length}
+              </strong>
+            </div>
+          )}
+          <div>
+            <span>SPEED</span>
+            <strong>{(speed * 3.6).toFixed(0)} km/h</strong>
+          </div>
+          <div>
+            <span>ALTITUDE</span>
+            <strong>{altitude.toFixed(1)} m</strong>
+          </div>
+          <div>
+            <span>TIME</span>
+            <strong>
+              {Math.floor(seconds / 60)
+                .toString()
+                .padStart(2, "0")}
+              :
+              {Math.floor(seconds % 60)
+                .toString()
+                .padStart(2, "0")}
+            </strong>
+          </div>
+          {phase === "flying" && (
+            <button
+              onClick={() => {
+                flightKeys.clear()
+                useAirplaneStore.setState({ phase: "paused" })
+              }}
+            >
+              Pause
+            </button>
+          )}
+        </footer>
+      )}
       {phase === "flying" && (
         <div className={styles.touch}>
           {controls.map(([code, label, aria]) => (

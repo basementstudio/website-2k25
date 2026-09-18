@@ -11,6 +11,22 @@ export const FLIGHT_GATES: [number, number, number][] = [
 ]
 export const PLANE_RADIUS = 0.16
 
+// The two wingtip vertices, in the "Plane" mesh's own local space (decoded
+// straight from the GLB's Draco-compressed geometry: the mirrored corners of
+// the vertex cluster skinned to Bone_L01/Bone_L02). Read as children of the
+// mesh node so their world position tracks the fuselage without depending on
+// the model's axis/rotation conventions.
+export const WING_TIPS: [[number, number, number], [number, number, number]] = [
+  [5.756100177764893, 3.5267457962036133, -9.548337936401367],
+  [5.756100177764893, 3.5405533313751221, -9.405926704406738]
+]
+
+// Heading (matches the plane's yaw convention: yaw 0 faces -Z) that points
+// `from` straight at `to`, ignoring pitch.
+export function yawTowards(from: Vector3, to: Vector3) {
+  return Math.atan2(from.x - to.x, from.z - to.z)
+}
+
 // Keep Blender world transforms: this collider is authored against the office.
 // Do not center or normalize it as we do for the plane's display geometry.
 export function createFlightCollider(root: Object3D) {
