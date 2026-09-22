@@ -150,6 +150,10 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
       altitude: spawn.y,
       speed: 0
     })
+    // enterMode() (the "Fly this plane" inspectable button) sets this to
+    // skip the trial/free choice screen and launch straight into a mode.
+    const autoLaunchMode = useAirplaneStore.getState().autoLaunchMode
+    if (autoLaunchMode) useAirplaneStore.getState().launch(autoLaunchMode)
   }, [run, spawn, state, preview, initialYaw])
 
   useEffect(() => {
@@ -214,8 +218,26 @@ export function AirplaneFlight({ preview = false }: { preview?: boolean }) {
           state.collisionGrace === 0 &&
           collider.collides(state.previous, state.next)
         ) {
-          useAirplaneStore.setState({ phase: "crashed", speed: 0 })
-          speed = 0
+          // Bounce instead of stopping dead: reflect the heading off the
+          // hit surface (falling back to straight back-the-way-it-came for
+          // an out-of-bounds catch, which has no real wall to reflect off),
+          // damped so it reads as a soft paper-plane bounce, not a perfect
+          // elastic one. yaw/pitch get re-derived from the new heading
+          // since state.direction itself is fully recomputed from them
+          // every frame — only verticalVelocity carries its own kick.
+          const hitNormal =
+            collider.collisionNormal(state.previous, state.next) ??
+            state.direction.clone().negate().normalize()
+          state.direction.reflect(hitNormal).multiplyScalar(0.6)
+          state.position
+            .copy(state.previous)
+            .addScaledVector(hitNormal, PLANE_RADIUS * 1.05)
+          state.yaw = Math.atan2(-state.direction.x, -state.direction.z)
+          state.pitch = Math.asin(MathUtils.clamp(state.direction.y, -1, 1))
+          state.verticalVelocity *= -0.4
+          state.bank *= -0.5
+          speed *= 0.5
+          state.collisionGrace = 0.3
           break
         }
         state.position.copy(state.next)
