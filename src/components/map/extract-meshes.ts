@@ -55,23 +55,32 @@ export const extractMeshes = ({
         const worldCenter = new Vector3()
         new Box3().setFromObject(mesh, true).getCenter(worldCenter)
         // Move the world-space center into the mesh's own local/object
-        // space by inverting its FULL matrixWorld (not just translation).
-        // SM_Octocat's parent chain happens not to rotate, so a naive
-        // translate-only version of this worked there — but SM_Plane is
-        // parented under an Armature that IS rotated in world space, and
-        // mixing a world-space vector directly into local geometry/position
-        // shifts it in the wrong direction whenever that's the case.
+        // space by inverting its FULL matrixWorld (not just translation) —
+        // needed for the geometry recenter below, which is purely a
+        // rotate/scale PIVOT fix (Inspectable rotates/scales around the
+        // mesh's own local origin, so an off-center geometry visibly swings
+        // around a distant pivot otherwise). SM_Octocat's parent chain
+        // happens not to rotate, so a naive translate-only version worked
+        // there — SM_Plane is parented under an Armature that IS rotated in
+        // world space, and mixing a world-space vector directly into local
+        // geometry shifts it in the wrong direction whenever that's true.
         const localCenter = worldCenter
           .clone()
           .applyMatrix4(mesh.matrixWorld.clone().invert())
         mesh.geometry.translate(-localCenter.x, -localCenter.y, -localCenter.z)
-        // Fold the removed offset back into position (still expressed
-        // through the mesh's own local rotation/scale — identity for both
-        // SM_Octocat and SM_Plane today, but kept general) so the mesh
-        // keeps rendering in the same place.
-        mesh.position.add(
-          localCenter.multiply(mesh.scale).applyQuaternion(mesh.quaternion)
-        )
+        // Inspectable reads userData.position (captured right below) as a
+        // WORLD-space coordinate — once it reparents the mesh away from
+        // office/officeItems, that value seeds the wrapping <group>'s
+        // position at the scene root, and mesh.position itself is zeroed
+        // and never read again. So mesh.position needs to BECOME the true
+        // world center here, not a value that only makes sense back under
+        // the mesh's original (and, for SM_Plane, rotated) parent — folding
+        // the offset through the parent chain, as a "keep it rendering in
+        // the same LOCAL spot" fix would, produced a value that pointed
+        // somewhere else entirely once actually reparented, which is why
+        // SM_Plane rendered in a plausible spot but its click hitbox (sized
+        // and positioned from this same value) never lined up.
+        mesh.position.copy(worldCenter)
       }
 
       const pos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z }

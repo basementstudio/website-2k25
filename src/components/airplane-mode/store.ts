@@ -19,7 +19,15 @@ interface FlightState {
   seconds: number
   speed: number
   altitude: number
+  // Set by enterMode, read once flight.tsx's setup effect reaches "ready" —
+  // auto-launches straight into this mode instead of showing the trial/free
+  // choice screen. Cleared by launch().
+  autoLaunchMode: FlightMode | null
   enter: () => void
+  // Same as enter(), but skips the trial/free choice screen and launches
+  // straight into `mode` once ready — used by the "Fly this plane" button
+  // on the SM_Plane inspectable (Nico, for now: only free mode from there).
+  enterMode: (mode: FlightMode) => void
   exit: () => void
   restart: () => void
   launch: (mode: FlightMode) => void
@@ -33,6 +41,7 @@ export const useAirplaneStore = create<FlightState>((set) => ({
   seconds: 0,
   speed: 0,
   altitude: 0,
+  autoLaunchMode: null,
   enter: () => {
     flightKeys.clear()
     set((s) => ({
@@ -41,6 +50,17 @@ export const useAirplaneStore = create<FlightState>((set) => ({
       gate: 0,
       seconds: 0,
       speed: 0
+    }))
+  },
+  enterMode: (mode) => {
+    flightKeys.clear()
+    set((s) => ({
+      phase: "loading",
+      run: s.run + 1,
+      gate: 0,
+      seconds: 0,
+      speed: 0,
+      autoLaunchMode: mode
     }))
   },
   exit: () => {
@@ -59,6 +79,6 @@ export const useAirplaneStore = create<FlightState>((set) => ({
   },
   launch: (mode) => {
     flightKeys.clear()
-    set({ mode, phase: "flying" })
+    set({ mode, phase: "flying", autoLaunchMode: null })
   }
 }))

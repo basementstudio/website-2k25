@@ -18,8 +18,8 @@ export const ASSETS_BASE: AssetsBase = {
     collider: "/3d/models/airplane-collider-fd100c38.glb"
   },
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-97c21c20.glb",
-  office: "/3d/models/office-912dc20c.glb",
+  officeItems: "/3d/models/officeItems-dd2fa590.glb",
+  office: "/3d/models/office-f4449cc1.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-6ead65cf.glb",
   godrays: "/3d/models/godrays-f4cbda2b.glb",
@@ -58,14 +58,13 @@ export const ASSETS_BASE: AssetsBase = {
   // KTX2 path looks wrong — flip USE_KTX2_LIGHTMAPS in bakes.tsx back to
   // false, don't need to touch this file.
   lightmapAtlas: "/3d/textures/lightmap-atlas-d331cacb.exr",
-  // TEMP A/B test (Sep 16) — Nico's "hdrastc_orig" re-bakes. fix2 confirmed
-  // working (Nico: "ahora funciona"); this one just tones down an
-  // over-strong light from that pass. Earlier candidates kept on disk,
-  // untouched, for a one-line revert: lightmap-atlas-a69f004e.ktx2
-  // (original), lightmap-atlas-test-cc5fe3a6.ktx2 (1st try),
-  // lightmap-atlas-fix-a09eb318.ktx2 (2nd try) and
-  // lightmap-atlas-fix2-f0e727ed.ktx2 (3rd try, confirmed working).
-  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-fix4-291b7694.ktx2",
+  // TEMP A/B test (ongoing) — Nico's "hdrastc_orig" re-bakes. Every earlier
+  // candidate kept on disk, untouched, for a one-line revert:
+  // lightmap-atlas-a69f004e.ktx2 (original),
+  // lightmap-atlas-test-cc5fe3a6.ktx2, lightmap-atlas-fix-a09eb318.ktx2,
+  // lightmap-atlas-fix2-f0e727ed.ktx2 (confirmed working, Sep 16),
+  // lightmap-atlas-fix3-f4d71467.ktx2, lightmap-atlas-fix4-291b7694.ktx2.
+  lightmapAtlasKtx2: "/3d/textures/lightmap-atlas-fix5-144bd902.ktx2",
   // AO trial (Sep 10) — jpg, shares the lightmap's UV atlas layout. Not in
   // KTX2 yet (uncompressed for now, per Nico — KTX2 pass comes later once
   // the AO look itself is confirmed).
@@ -187,7 +186,8 @@ export const ASSETS_BASE: AssetsBase = {
     "SM_BasketballGlass",
     "cloudy_01",
     "SM_NextjsBelt",
-    "SM_NextJSText"
+    "SM_NextJSText",
+    "SM_Plane"
   ],
   glassReflexes: [
     {

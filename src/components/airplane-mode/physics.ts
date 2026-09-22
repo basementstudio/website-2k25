@@ -52,7 +52,8 @@ export function createFlightCollider(root: Object3D) {
   const bounds = new Box3().setFromObject(root).expandByScalar(0.1)
   const nearest = new Vector3(),
     direction = new Vector3(),
-    hit = new Vector3()
+    hit = new Vector3(),
+    normal = new Vector3()
   const ray = new Ray()
   return {
     triangles,
@@ -77,6 +78,40 @@ export function createFlightCollider(root: Object3D) {
           hit.distanceToSquared(from) <= distance * distance
         )
       })
+    },
+    // Same sweep as collides, but returns the surface normal of whichever
+    // triangle actually stopped the plane, so flight.tsx can bounce off it
+    // instead of stopping dead. Null out-of-bounds (there's no wall there —
+    // the caller falls back to reflecting straight back the way it came).
+    collisionNormal(from: Vector3, to: Vector3, radius = PLANE_RADIUS) {
+      if (!bounds.containsPoint(to)) return null
+      direction.subVectors(to, from)
+      const distance = direction.length()
+      ray.set(from, direction.normalize())
+      for (const triangle of triangles) {
+        triangle.closestPointToPoint(to, nearest)
+        const penetrating = nearest.distanceToSquared(to) < radius * radius
+        const swept =
+          distance > 0 &&
+          ray.intersectTriangle(
+            triangle.a,
+            triangle.b,
+            triangle.c,
+            false,
+            hit
+          ) !== null &&
+          hit.distanceToSquared(from) <= distance * distance
+        if (penetrating || swept) {
+          triangle.getNormal(normal)
+          // Face the normal back toward the approach direction — a
+          // back-facing triangle (hit from "inside", e.g. a thin wall swept
+          // through in one step) would otherwise reflect the plane deeper
+          // into the surface instead of away from it.
+          if (normal.dot(direction) > 0) normal.negate()
+          return normal
+        }
+      }
+      return null
     }
   }
 }
