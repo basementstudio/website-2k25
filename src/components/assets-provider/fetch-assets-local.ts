@@ -120,6 +120,46 @@ const LOCAL_PLACEHOLDER_CONTENT: Record<
         ]
       }
     ]
+  },
+  plane: {
+    title: "Plane (placeholder)",
+    specs: [{ specId: "status", title: "Status", value: "Placeholder — WIP" }],
+    description: [
+      {
+        _type: "block",
+        _key: "placeholder-plane",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "placeholder-plane-span",
+            marks: [],
+            text: "Placeholder description — replace in Sanity once real copy is ready."
+          }
+        ]
+      }
+    ]
+  },
+  ipod: {
+    title: "iPod (placeholder)",
+    specs: [{ specId: "status", title: "Status", value: "Placeholder — WIP" }],
+    description: [
+      {
+        _type: "block",
+        _key: "placeholder-ipod",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "placeholder-ipod-span",
+            marks: [],
+            text: "Placeholder description — replace in Sanity once real copy is ready."
+          }
+        ]
+      }
+    ]
   }
 }
 

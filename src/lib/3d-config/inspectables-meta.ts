@@ -268,5 +268,28 @@ export const INSPECTABLES_META: InspectableMeta[] = [
     sizeTarget: 0.6,
     scenes: ["people"],
     fx: ""
+  },
+  {
+    // Skinned mesh (has an armature/skin) — extract-meshes.ts's generic
+    // SkinnedMesh pivot recentering already covers this, same as
+    // SM_Octocat, no special-casing needed here.
+    id: "plane",
+    mesh: "SM_Plane",
+    xOffset: -0.18,
+    yOffset: -0.1,
+    xRotationOffset: 0.23,
+    sizeTarget: 0.55,
+    scenes: ["people"],
+    fx: ""
+  },
+  {
+    id: "ipod",
+    mesh: "Ipod-body",
+    xOffset: -0.18,
+    yOffset: -0.1,
+    xRotationOffset: 0.23,
+    sizeTarget: 0.5,
+    scenes: ["people"],
+    fx: ""
   }
 ]

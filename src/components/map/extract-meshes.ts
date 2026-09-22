@@ -23,6 +23,17 @@ export const extractMeshes = ({
 }: ExtractMeshesProps) => {
   // --- Inspectables --- //
 
+  // Box3().setFromObject below calls updateWorldMatrix(false, false)
+  // per-object — it does NOT walk up and refresh ancestor matrices. A
+  // SkinnedMesh parented under an Armature with a real (non-identity)
+  // transform (e.g. SM_Plane) got its pivot computed against a stale/
+  // identity ancestor matrix if this runs before the tree's first render,
+  // silently placing its click hitbox somewhere else entirely. SM_Octocat
+  // never exposed this — its parent chain happens to sit near the origin.
+  // One full top-down pass here makes every inspectable's world matrix
+  // correct regardless of load/render timing.
+  officeItems.updateMatrixWorld(true)
+
   const i: Mesh[] = []
   inspectables.forEach(({ mesh: meshName }) => {
     const mesh = officeItems.getObjectByName(meshName) as Mesh | null
@@ -41,10 +52,26 @@ export const extractMeshes = ({
       // removed offset via the mesh's own position instead, same as how a
       // regular mesh's object origin already sits at its center.
       if (mesh instanceof SkinnedMesh) {
-        const center = new Vector3()
-        new Box3().setFromObject(mesh, true).getCenter(center)
-        mesh.geometry.translate(-center.x, -center.y, -center.z)
-        mesh.position.add(center)
+        const worldCenter = new Vector3()
+        new Box3().setFromObject(mesh, true).getCenter(worldCenter)
+        // Move the world-space center into the mesh's own local/object
+        // space by inverting its FULL matrixWorld (not just translation).
+        // SM_Octocat's parent chain happens not to rotate, so a naive
+        // translate-only version of this worked there — but SM_Plane is
+        // parented under an Armature that IS rotated in world space, and
+        // mixing a world-space vector directly into local geometry/position
+        // shifts it in the wrong direction whenever that's the case.
+        const localCenter = worldCenter
+          .clone()
+          .applyMatrix4(mesh.matrixWorld.clone().invert())
+        mesh.geometry.translate(-localCenter.x, -localCenter.y, -localCenter.z)
+        // Fold the removed offset back into position (still expressed
+        // through the mesh's own local rotation/scale — identity for both
+        // SM_Octocat and SM_Plane today, but kept general) so the mesh
+        // keeps rendering in the same place.
+        mesh.position.add(
+          localCenter.multiply(mesh.scale).applyQuaternion(mesh.quaternion)
+        )
       }
 
       const pos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z }

@@ -3,6 +3,7 @@
 import { PortableText } from "@portabletext/react"
 import { Fragment, useEffect, useState } from "react"
 
+import { useAirplaneStore } from "@/components/airplane-mode/store"
 import { useAssets } from "@/components/assets-provider"
 import { AssetsResult } from "@/components/assets-provider/fetch-assets"
 import { useInspectable } from "@/components/inspectables/context"
@@ -14,6 +15,23 @@ import { cn } from "@/utils/cn"
 // SM_FujifilmScreen's actual edges via drei's <Html>. This file only owns
 // resetting the shared photo-index store when the selection changes away.
 const FUJIFILM_MESH_NAME = "SM_Fujifilm"
+
+// The paper plane used to have its own dedicated "resting" model in
+// airplane-mode/flight.tsx (clicking it called enter() to start flying) —
+// now that SM_Plane ships as a regular Items inspectable, that duplicate
+// was removed (see scene/index.tsx) and this button is the one way to
+// start a flight instead (Nico: one click inspects, a button flies).
+const PLANE_MESH_NAME = "SM_Plane"
+
+const FlyButton = ({ onFly }: { onFly: () => void }) => (
+  <button
+    className="text-f-p-mobile text-brand-w1 lg:text-f-p"
+    tabIndex={0}
+    onClick={onFly}
+  >
+    Fly this plane
+  </button>
+)
 
 type InspectableData = AssetsResult["inspectables"][number]
 
@@ -104,6 +122,14 @@ export const InspectableViewer = () => {
           </div>
           <div className="row-span-1 flex flex-col justify-center gap-4">
             {data && <Content data={data} />}
+            {selected === PLANE_MESH_NAME && (
+              <FlyButton
+                onFly={() => {
+                  setSelected(null)
+                  useAirplaneStore.getState().enter()
+                }}
+              />
+            )}
           </div>
         </div>
       </div>

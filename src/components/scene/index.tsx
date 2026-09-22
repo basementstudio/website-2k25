@@ -213,8 +213,6 @@ export const Scene = () => {
                     <WebGlTunnelOut />
                   </Suspense>
                   <Suspense fallback={null}>
-                    {!airplaneActive &&
-                      !isFullHeightScene && <AirplaneFlight preview />}
                     {airplaneActive ? (
                       <FlightErrorBoundary
                         fallback={null}
