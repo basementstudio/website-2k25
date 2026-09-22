@@ -193,10 +193,6 @@ export const Scene = () => {
                     <WebGlTunnelOut />
                   </Suspense>
                   <Suspense fallback={null}>
-                    {!airplaneActive &&
-                      !isBasketball &&
-                      scene !== "lab" &&
-                      scene !== "404" && <AirplaneFlight preview />}
                     {airplaneActive ? (
                       <FlightErrorBoundary
                         fallback={null}
