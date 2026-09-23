@@ -1,8 +1,26 @@
-import { Box3, Mesh, Object3D, SkinnedMesh, Vector3 } from "three"
+import {
+  Box3,
+  DetachedBindMode,
+  Matrix4,
+  Mesh,
+  Object3D,
+  SkinnedMesh,
+  Vector3
+} from "three"
 
 import type { ArcadeButton, ArcadeStick } from "@/hooks/use-mesh"
 import { useMesh } from "@/hooks/use-mesh"
 import { findVertexColorRegionBounds } from "@/utils/vertex-color-region"
+
+// Nico authors the exact desk position for a skinned inspectable as an
+// empty (e.g. "PosCat" for SM_Octocat) instead of relying on a bind-pose
+// Box3 center for placement — more precise, and sidesteps the same
+// bind-pose unreliability noted below. Hand-mapped per mesh rather than
+// derived from its name until there's a second skinned inspectable to
+// confirm an actual naming convention.
+const SKINNED_MESH_POSITION_MARKERS: Record<string, string> = {
+  SM_Octocat: "PosCat"
+}
 
 interface ExtractMeshesProps {
   office: Object3D
@@ -21,18 +39,15 @@ export const extractMeshes = ({
   basketballNet,
   inspectables
 }: ExtractMeshesProps) => {
-  // --- Inspectables --- //
-
-  // Box3().setFromObject below calls updateWorldMatrix(false, false)
-  // per-object — it does NOT walk up and refresh ancestor matrices. A
-  // SkinnedMesh parented under an Armature with a real (non-identity)
-  // transform (e.g. SM_Plane) got its pivot computed against a stale/
-  // identity ancestor matrix if this runs before the tree's first render,
-  // silently placing its click hitbox somewhere else entirely. SM_Octocat
-  // never exposed this — its parent chain happens to sit near the origin.
-  // One full top-down pass here makes every inspectable's world matrix
-  // correct regardless of load/render timing.
+  // officeItems is loaded purely as a mesh source (useGLTF) and never
+  // itself mounted into the render tree, so nothing ever runs the normal
+  // scene-graph updateMatrixWorld() pass over it. SM_Octocat's bones need
+  // a correct, freshly-composed matrixWorld below (calculateInverses
+  // reads it directly), so force one update here before anything reads
+  // bone transforms.
   officeItems.updateMatrixWorld(true)
+
+  // --- Inspectables --- //
 
   const i: Mesh[] = []
   inspectables.forEach(({ mesh: meshName }) => {
@@ -40,47 +55,115 @@ export const extractMeshes = ({
     if (mesh) {
       // Blender exports a skinned mesh's vertices in armature-relative
       // space, not centered on the mesh node's own local origin like a
-      // regular mesh's usually are — its raw geometry can sit far from
-      // (0,0,0) (confirmed on SM_Octocat: its POSITION accessor bounds sit
-      // near [2, 2.7, -7.2], nowhere near local origin). Inspectable treats
-      // the mesh's own origin as its rotation/scale pivot when animating the
-      // wrapping <group> for inspect — an off-center geometry visibly swings
-      // around that distant pivot instead of turning in place. No skinning
-      // is applied by the map's shader (material-global-shader's
-      // vertex.glsl has no skinning chunks), so this is purely a
-      // geometry/pivot fix — recenter the geometry once, and carry the
-      // removed offset via the mesh's own position instead, same as how a
-      // regular mesh's object origin already sits at its center.
+      // regular mesh's usually are — the raw vertex data already encodes
+      // roughly where the object should sit, assuming an otherwise-identity
+      // transform. Inspectable treats the mesh's own origin as its
+      // rotation/scale pivot when animating the wrapping <group> for
+      // inspect — an off-center geometry visibly swings around a distant
+      // pivot otherwise.
+      //
+      // Recenter using the geometry's OWN local-space bounds —
+      // deliberately NOT Box3().setFromObject(mesh, true), which applies
+      // mesh.matrixWorld and therefore bakes in the parent chain's
+      // transform (SM_Octocat's parent, StickRig, carries a real rotation
+      // for the wiggle rig). Since the raw vertex data already assumes
+      // identity, rotating it again by StickRig's matrix swings the
+      // computed center somewhere else entirely — this bit the geometry
+      // translate below AND (transitively) the userData.position fallback,
+      // both previously derived from that same world-space center.
       if (mesh instanceof SkinnedMesh) {
-        const worldCenter = new Vector3()
-        new Box3().setFromObject(mesh, true).getCenter(worldCenter)
-        // Move the world-space center into the mesh's own local/object
-        // space by inverting its FULL matrixWorld (not just translation) —
-        // needed for the geometry recenter below, which is purely a
-        // rotate/scale PIVOT fix (Inspectable rotates/scales around the
-        // mesh's own local origin, so an off-center geometry visibly swings
-        // around a distant pivot otherwise). SM_Octocat's parent chain
-        // happens not to rotate, so a naive translate-only version worked
-        // there — SM_Plane is parented under an Armature that IS rotated in
-        // world space, and mixing a world-space vector directly into local
-        // geometry shifts it in the wrong direction whenever that's true.
-        const localCenter = worldCenter
-          .clone()
-          .applyMatrix4(mesh.matrixWorld.clone().invert())
+        const localCenter = new Box3()
+          .setFromBufferAttribute(mesh.geometry.attributes.position)
+          .getCenter(new Vector3())
         mesh.geometry.translate(-localCenter.x, -localCenter.y, -localCenter.z)
-        // Inspectable reads userData.position (captured right below) as a
-        // WORLD-space coordinate — once it reparents the mesh away from
-        // office/officeItems, that value seeds the wrapping <group>'s
-        // position at the scene root, and mesh.position itself is zeroed
-        // and never read again. So mesh.position needs to BECOME the true
-        // world center here, not a value that only makes sense back under
-        // the mesh's original (and, for SM_Plane, rotated) parent — folding
-        // the offset through the parent chain, as a "keep it rendering in
-        // the same LOCAL spot" fix would, produced a value that pointed
-        // somewhere else entirely once actually reparented, which is why
-        // SM_Plane rendered in a plausible spot but its click hitbox (sized
-        // and positioned from this same value) never lined up.
-        mesh.position.copy(worldCenter)
+
+        // The shader now actually applies skinning (added for SM_Octocat's
+        // wiggle bones — previously a no-op, so this never mattered before).
+        // bindMatrix is a frozen snapshot of "geometry space" from whenever
+        // GLTFLoader bound the skeleton; translating the geometry above
+        // without updating it left the skin deforming against a reference
+        // frame that no longer matched the actual vertex data — collapsing
+        // the mesh into a flat, mostly-black mess. Re-bind with a bind
+        // matrix that accounts for the same shift (still in the mesh's own
+        // local space, hence local — not world — center here).
+        const newBindMatrix = mesh.bindMatrix
+          .clone()
+          .multiply(
+            new Matrix4().makeTranslation(
+              localCenter.x,
+              localCenter.y,
+              localCenter.z
+            )
+          )
+        mesh.bind(mesh.skeleton, newBindMatrix)
+
+        // The skin(ned) result was rendering every leg/the tail rotated
+        // roughly 180° off — verified by computing
+        // boneMatrixWorld·boneInverse per joint live in the browser: for
+        // the "hip" bone of each limb it's a real ~180° rotation, not
+        // ~Identity. That means skeleton.boneInverses (baked into the glb
+        // from Blender's exported inverseBindMatrices) don't match these
+        // bones' actual authored rest rotation — a bind-pose/rest-pose
+        // mismatch from the Blender→glTF export, not something introduced
+        // here. calculateInverses() re-derives boneInverses from each
+        // bone's CURRENT matrixWorld (confirmed correct — matches the raw
+        // glb node rotations exactly), which is exactly what "treat this
+        // pose as the bind pose" means and cancels the extra rotation.
+        mesh.skeleton.calculateInverses()
+
+        // SkinnedMesh defaults to AttachedBindMode, whose updateMatrixWorld
+        // override unconditionally does
+        // `bindMatrixInverse.copy(this.matrixWorld).invert()` every frame,
+        // for every SkinnedMesh, regardless of what bind() above was called
+        // with (three's SkinnedMesh.js) — correct when the mesh and its
+        // skeleton move together as one rigid unit, but Inspectable
+        // reparents this mesh away from where its bones actually live
+        // (StickRig, still wherever officeItems left it), so that
+        // auto-sync stomps our bind() call the instant the mesh gets
+        // repositioned, blowing every vertex out to roughly
+        // -meshWorldPos. DetachedBindMode re-derives bindMatrixInverse
+        // from bindMatrix instead, which is what "skeleton doesn't share
+        // the mesh's world space" actually requires.
+        mesh.bindMode = DetachedBindMode
+
+        // A bind-pose bounding box (what Box3().setFromObject and
+        // three.js's own automatic frustum culling both use) doesn't
+        // reflect a SkinnedMesh's actual wiggle-deformed shape, and gets
+        // even less reliable once Inspectable moves/scales it right in
+        // front of the camera for inspection — three.js can decide the
+        // (stale, bind-pose-sized) bounding sphere no longer intersects the
+        // frustum and skip drawing it entirely, even though it's plainly
+        // on screen. (Confirmed against Nico's own working reference
+        // implementation, wiggle/IMPLEMENTATION.md point 3.)
+        mesh.frustumCulled = false
+
+        // See SKINNED_MESH_POSITION_MARKERS above. mesh.position is
+        // captured into userData.position right below, same as any other
+        // inspectable.
+        const posMarkerName = SKINNED_MESH_POSITION_MARKERS[meshName]
+        const posMarker = posMarkerName
+          ? officeItems.getObjectByName(posMarkerName)
+          : null
+        if (posMarker) {
+          posMarker.getWorldPosition(mesh.position)
+          // Nico: nudge off PosCat's raw marker position rather than
+          // re-export for a small placement tweak on the shelf.
+          if (meshName === "SM_Octocat") {
+            mesh.position.y += 0.1
+            mesh.position.x -= 0.1
+          }
+        } else {
+          console.warn(
+            `[extractMeshes] ${meshName}: no position marker${posMarkerName ? ` ("${posMarkerName}")` : ""} found — falling back to the geometry's own local-space center, which assumes an identity parent transform and won't be right if this mesh's parent chain rotates (see SM_Octocat above).`
+          )
+          mesh.position.copy(localCenter)
+        }
+
+        // PosCat only carries position — at rest (unselected) Inspectable
+        // slerps toward an identity rotation, so SM_Octocat renders facing
+        // whatever direction its raw bind pose happened to face (the
+        // shelf's back wall). Nico: needs to be rotated to face the room.
+        if (meshName === "SM_Octocat") mesh.rotation.y = Math.PI
       }
 
       const pos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z }
