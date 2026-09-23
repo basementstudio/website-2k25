@@ -21,7 +21,7 @@ import {
   SkinnedMesh,
   Vector3
 } from "three"
-import { WiggleRig } from "wiggle/rig"
+import { WiggleBone as WiggleSpringBone } from "wiggle/spring"
 
 import { useNavigationStore } from "@/components/navigation-handler/navigation-store"
 import { ANIMATION_CONFIG, SMOOTH_FACTOR } from "@/constants/inspectables"
@@ -49,6 +49,16 @@ interface InspectableProps {
 // Midpoint of Nico's "10 o 15" ask for the Fujifilm hover-to-change-photo
 // zones — see the SM_FujifilmLeft/SM_FujifilmRight handling below.
 const FUJIFILM_HOVER_OPACITY = 0.13
+
+// Wiggle tuning Nico dialed in against a reference build and liked — see
+// the wiggle-bones setup below for stiffness/damping. He tried a
+// continuous spin to feed it but didn't like being spun around while
+// inspecting; a small vertical bob reads as a calmer "idle" while still
+// giving the wiggle chain real motion to lag behind.
+const DEFAULT_WIGGLE_STIFFNESS = 960
+const DEFAULT_WIGGLE_DAMPING = 37
+const IDLE_BOB_AMPLITUDE = 0.015
+const IDLE_BOB_RAD_PER_SEC = 2.4
 
 export const Inspectable = memo(function InspectableInner({
   id
@@ -246,20 +256,90 @@ export const Inspectable = memo(function InspectableInner({
 
   // Wiggle bones (https://wiggle.three.tools/) — generic, not tied to a
   // specific mesh name: any inspectable whose mesh turns out to be a
-  // SkinnedMesh gets its skeleton driven by a WiggleRig. Which bones
+  // SkinnedMesh gets its skeleton driven by wiggle bones. Which bones
   // actually move is decided in Blender via the `wiggleVelocity` /
   // `wiggleStiffness`+`wiggleDamping` custom properties on each bone (same
   // "custom property → userData" convention as the Lightmap property) — a
   // rig with no tagged bones is a harmless no-op.
-  const wiggleRigRef = useRef<WiggleRig | null>(null)
+  //
+  // Not using wiggle/rig's WiggleRig directly: it wiggles every tagged
+  // bone unconditionally, but the library's technique (clone the bone as
+  // a "wrapper", re-derive the bone's rotation each frame from a lerped
+  // position delta) assumes a near-identity rest rotation relative to the
+  // parent. A bone that's ALREADY rotated ~90-180° at rest (e.g.
+  // SM_Octocat's Bone2/6/10/14/18 — the joint where each leg/tail bends
+  // away from the body) gets that rotation re-derived on top of itself,
+  // visibly flipping the limb. Worse, wiggling a PARENT of one of these
+  // (e.g. Bone1, the shared hip all five bend joints hang off) rewrites
+  // that parent's own local rotation too, which cascades into the bend
+  // joint's matrixWorld and corrupts the exact bind relationship
+  // extract-meshes.ts's skeleton.calculateInverses() just captured —
+  // same visible flip, one level removed. Keep every bend joint AND all
+  // of its ancestors rigid; only the smaller-rotation segments past them
+  // wiggle, still correctly lagging since they're driven by a now-moving
+  // (but rigid, undistorted) parent.
+  const wiggleBonesRef = useRef<
+    Array<{ update: (dt?: number) => void; dispose: () => void }>
+  >([])
+
+  // Wiggle only ever reacts to the skeleton's OWN root bone moving — but
+  // that root bone lives in officeItems's detached armature, entirely
+  // unaware of InspectableDragger's rotation while the user spins the
+  // inspected item. Mirror the drag's rotation delta onto the root bone
+  // each frame while selected (below), so dragging the octocat around is
+  // what actually feeds the wiggle chain — same mechanism the reference
+  // implementation uses (spin the outer group), just applied to the
+  // (disconnected) bone hierarchy instead of the mesh's own transform.
+  const restRootQuaternionRef = useRef<Quaternion | null>(null)
+  const restRootPositionRef = useRef<Vector3 | null>(null)
+  const dragBaseQuaternionRef = useRef<Quaternion | null>(null)
 
   useEffect(() => {
     if (mesh instanceof SkinnedMesh && mesh.skeleton) {
-      const rig = new WiggleRig(mesh.skeleton)
-      wiggleRigRef.current = rig
+      const bones = mesh.skeleton.bones
+      const rigid = new Set<(typeof bones)[number]>()
+      bones.forEach((bone) => {
+        const restAngle =
+          2 * Math.acos(Math.min(1, Math.abs(bone.quaternion.w)))
+        if (restAngle <= Math.PI / 2) return
+        for (
+          let b: typeof bone | null = bone;
+          b;
+          b = b.parent as typeof bone | null
+        ) {
+          rigid.add(b)
+        }
+      })
+
+      const wiggleBones: Array<{
+        update: (dt?: number) => void
+        dispose: () => void
+      }> = []
+      bones.forEach((bone) => {
+        if (rigid.has(bone)) return
+        if (!bone.userData.wiggleVelocity && !bone.userData.wiggleStiffness)
+          return
+        // Nico tuned stiffness/damping live against a reference build and
+        // liked 960/37 across the board — used as the default for every
+        // wiggle-tagged bone; still overridable per bone from Blender via
+        // wiggleStiffness/wiggleDamping if a specific joint ever needs
+        // different tuning.
+        wiggleBones.push(
+          new WiggleSpringBone(bone, {
+            stiffness:
+              bone.userData.wiggleStiffness ?? DEFAULT_WIGGLE_STIFFNESS,
+            damping: bone.userData.wiggleDamping ?? DEFAULT_WIGGLE_DAMPING
+          })
+        )
+      })
+      wiggleBonesRef.current = wiggleBones
+      restRootQuaternionRef.current = bones[0]?.quaternion.clone() ?? null
+      restRootPositionRef.current = bones[0]?.position.clone() ?? null
       return () => {
-        rig.dispose()
-        wiggleRigRef.current = null
+        wiggleBones.forEach((wb) => wb.dispose())
+        wiggleBonesRef.current = []
+        restRootQuaternionRef.current = null
+        restRootPositionRef.current = null
       }
     }
   }, [mesh])
@@ -371,7 +451,50 @@ export const Inspectable = memo(function InspectableInner({
   }, [mesh, gl])
 
   useFrameCallback((state, delta) => {
-    wiggleRigRef.current?.update(delta)
+    if (
+      mesh instanceof SkinnedMesh &&
+      mesh.skeleton &&
+      restRootQuaternionRef.current &&
+      mesh.parent
+    ) {
+      const rootBone = mesh.skeleton.bones[0]
+      const rest = restRootQuaternionRef.current
+      if (selected === id) {
+        // Idle bob on the mesh's own (otherwise-unused) local position —
+        // InspectableDragger owns mesh.parent's transform and snaps it
+        // back to front-facing on release, so this runs independently of
+        // drag state instead of fighting it. Mirrored onto the root
+        // bone's position below so it's what feeds the wiggle chain.
+        const bobOffset =
+          Math.sin(state.clock.elapsedTime * IDLE_BOB_RAD_PER_SEC) *
+          IDLE_BOB_AMPLITUDE
+        mesh.position.y = bobOffset
+        if (restRootPositionRef.current) {
+          rootBone.position.y = restRootPositionRef.current.y + bobOffset
+        }
+        const currentQuat = mesh.parent.quaternion
+          .clone()
+          .multiply(mesh.quaternion)
+        if (!dragBaseQuaternionRef.current) {
+          dragBaseQuaternionRef.current = currentQuat.clone()
+        }
+        const dragDelta = currentQuat
+          .clone()
+          .multiply(dragBaseQuaternionRef.current.clone().invert())
+        rootBone.quaternion.multiplyQuaternions(dragDelta, rest)
+      } else {
+        dragBaseQuaternionRef.current = null
+        mesh.position.y = 0
+        if (restRootPositionRef.current) {
+          rootBone.position.copy(restRootPositionRef.current)
+        }
+        mesh.rotation.set(0, 0, 0)
+        rootBone.quaternion.copy(rest)
+      }
+      rootBone.updateMatrixWorld(true)
+    }
+
+    wiggleBonesRef.current.forEach((wb) => wb.update(delta))
 
     const leftMaterial = fujifilmLeftPlane?.material as
       | ShaderMaterial

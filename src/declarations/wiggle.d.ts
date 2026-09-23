@@ -11,3 +11,32 @@ declare module "wiggle/rig" {
     update(dt?: number): void
   }
 }
+
+declare module "wiggle" {
+  import type { Bone } from "three"
+
+  export class WiggleBone {
+    constructor(
+      target: Bone,
+      options?: { velocity?: number; maxStretch?: number },
+      helpers?: boolean
+    )
+    reset(): void
+    dispose(): void
+    update(dt?: number): void
+  }
+}
+
+declare module "wiggle/spring" {
+  import type { Bone } from "three"
+
+  export class WiggleBone {
+    constructor(
+      target: Bone,
+      options?: { stiffness?: number; damping?: number }
+    )
+    reset(): void
+    dispose(): void
+    update(dt?: number): void
+  }
+}

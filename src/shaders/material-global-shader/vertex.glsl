@@ -1,5 +1,6 @@
 #include <common>
 #include <morphtarget_pars_vertex>
+#include <skinning_pars_vertex>
 
 attribute vec2 uv1;
 #ifdef LIGHTMAP_ATLAS
@@ -24,16 +25,23 @@ void main() {
   vUv2 = uv1.x > 0.0 ? uv1 : uv;
   #endif
 
-  // Normal (morph-aware). No normal morph targets are exported, so the chunk is a
-  // no-op for morphed meshes, but it keeps the standard three.js chunk flow.
+  // Normal (morph- and skin-aware). No normal morph targets are exported,
+  // so that chunk is a no-op for morphed meshes, but it keeps the standard
+  // three.js chunk flow. USE_SKINNING is set automatically by three.js for
+  // any SkinnedMesh (e.g. SM_Octocat's wiggle-bone rig) — no defines needed
+  // here, same as USE_MORPHTARGETS below.
   vec3 objectNormal = normal;
   #include <morphnormal_vertex>
+  #include <skinbase_vertex>
+  #include <skinnormal_vertex>
   vNormal = normalize(normalMatrix * objectNormal);
 
   // Position, deformed by morph targets when the geometry has them
-  // (arcade buttons / joysticks on SM_Controls). Guarded by USE_MORPHTARGETS.
+  // (arcade buttons / joysticks on SM_Controls) and then by skinning when
+  // it's a SkinnedMesh. Guarded by USE_MORPHTARGETS / USE_SKINNING.
   vec3 transformed = position;
   #include <morphtarget_vertex>
+  #include <skinning_vertex>
 
   vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
   vec4 worldPosition = modelMatrix * vec4(transformed, 1.0);

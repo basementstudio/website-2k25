@@ -18,8 +18,8 @@ export const ASSETS_BASE: AssetsBase = {
     collider: "/3d/models/airplane-collider-fd100c38.glb"
   },
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-dd2fa590.glb",
-  office: "/3d/models/office-f4449cc1.glb",
+  officeItems: "/3d/models/officeItems-fa1f865a.glb",
+  office: "/3d/models/office-5ab2bcd0.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-6ead65cf.glb",
   godrays: "/3d/models/godrays-f4cbda2b.glb",
