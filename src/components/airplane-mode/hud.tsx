@@ -11,7 +11,8 @@ import { useNavigationStore } from "@/components/navigation-handler/navigation-s
 import { cn } from "@/utils/cn"
 
 import { FLIGHT_GATES } from "./physics"
-import { flightKeys, useAirplaneStore } from "./store"
+import { SpeedLines } from "./speed-lines"
+import { flightFx, flightKeys, useAirplaneStore } from "./store"
 import styles from "./styles.module.css"
 
 const controls = [
@@ -29,7 +30,7 @@ export function AirplaneHud() {
     seconds,
     speed,
     altitude,
-    enter,
+    autopilot,
     exit,
     restart,
     launch
@@ -39,8 +40,6 @@ export function AirplaneHud() {
     (s) => s.canRunMainApp && s.canvasVisible && !s.showLoadingCanvas
   )
   const contactOpen = useContactStore((s) => s.isContactOpen)
-  const currentScene = useNavigationStore((s) => s.currentScene?.name)
-  const transitioning = useNavigationStore((s) => s.isCameraTransitioning)
   const { selected } = useInspectable()
   const pathname = usePathname()
   const panel = useRef<HTMLDivElement>(null)
@@ -62,10 +61,16 @@ export function AirplaneHud() {
     window.scrollTo({ top: 0, behavior: "instant" })
     useNavigationStore.getState().setIsCanvasTabMode(false)
     panel.current?.focus()
+    // Nico: no "Flight paused." card on Alt+Tab in free flight — the
+    // autopilot tour takes over instead (flight.tsx) and any key hands
+    // control back. The time trial still pauses, so the clock can't run
+    // (or rings get flown) while you're away.
     const pause = () => {
       flightKeys.clear()
-      if (useAirplaneStore.getState().phase === "flying")
-        useAirplaneStore.setState({ phase: "paused" })
+      const { phase, mode } = useAirplaneStore.getState()
+      if (phase !== "flying") return
+      if (mode === "free") flightFx.forceAutopilot = true
+      else useAirplaneStore.setState({ phase: "paused" })
     }
     const visibility = () => {
       if (document.hidden) pause()
@@ -115,6 +120,7 @@ export function AirplaneHud() {
           "Space",
           "Escape",
           "KeyR",
+          "KeyC",
           "Enter"
         ].includes(event.code)
       )
@@ -128,13 +134,16 @@ export function AirplaneHud() {
         return
       event.preventDefault()
       flightKeys.add(event.code)
+      if (event.code !== "Escape") {
+        flightFx.lastInput = performance.now()
+        flightFx.forceAutopilot = false
+      }
       if (event.repeat) return
+      // Nico: Esc always leaves flight straight away (used to pause).
       if (event.code === "Escape") {
         flightKeys.clear()
-        if (current === "flying") pause()
-        else if (current === "paused")
-          useAirplaneStore.setState({ phase: "flying" })
-        else exit()
+        exit()
+        return
       }
       if (event.code === "KeyR" && current !== "loading" && current !== "error")
         restart()
@@ -169,24 +178,11 @@ export function AirplaneHud() {
   }, [active, exit, restart])
 
   if (typeof document === "undefined") return null
-  if (!active) {
-    if (
-      !loaded ||
-      contactOpen ||
-      selected ||
-      transitioning ||
-      currentScene === "basketball" ||
-      currentScene === "lab" ||
-      currentScene === "404"
-    )
-      return null
-    return createPortal(
-      <button data-airplane-launch className={styles.launch} onClick={enter}>
-        ↗ Airplane mode
-      </button>,
-      document.body
-    )
-  }
+  // Nico: removed the standalone "↗ Airplane mode" launch button — flying
+  // is discovered by inspecting SM_Plane and hitting its "Fly" button
+  // (inspectable-viewer.tsx), which calls enterMode() directly and makes
+  // `active` true without ever going through this branch.
+  if (!active) return null
   const resume = () => {
     flightKeys.clear()
     useAirplaneStore.setState({ phase: "flying" })
@@ -221,6 +217,12 @@ export function AirplaneHud() {
       aria-modal="true"
       aria-label="Airplane mode"
     >
+      {!inspecting && <SpeedLines />}
+      {phase === "flying" && autopilot && (
+        <div className={styles.autopilot} aria-live="polite">
+          <span>AUTOPILOT</span> Press any key to take the controls
+        </div>
+      )}
       <header className={styles.header}>
         {inspecting ? (
           <button
@@ -252,8 +254,8 @@ export function AirplaneHud() {
                 : phase === "finished"
                   ? `You flew through ${FLIGHT_GATES.length} rings in ${seconds.toFixed(1)} seconds.`
                   : phase === "ready"
-                    ? "Chase the gold rings against the clock, or just cruise the office freely. W / ↑ climbs, S / ↓ descends, A and D turn. Space gives a boost; Esc pauses and R restarts."
-                    : "W / ↑ climbs, S / ↓ descends, A and D turn. Space gives a boost; Esc pauses and R restarts."}
+                    ? "Chase the gold rings against the clock, or just cruise the office freely. W / ↑ climbs, S / ↓ descends, A and D turn. Space gives a boost, C switches to the chase cam; Esc exits and R restarts."
+                    : "W / ↑ climbs, S / ↓ descends, A and D turn. Space gives a boost, C switches to the chase cam; Esc exits and R restarts."}
           </p>
           {phase === "ready" && (
             <div className={styles.modes}>
@@ -319,6 +321,8 @@ export function AirplaneHud() {
                 event.preventDefault()
                 event.currentTarget.setPointerCapture(event.pointerId)
                 flightKeys.add(code)
+                flightFx.lastInput = performance.now()
+                flightFx.forceAutopilot = false
               }}
               onPointerUp={() => flightKeys.delete(code)}
               onPointerCancel={() => flightKeys.delete(code)}

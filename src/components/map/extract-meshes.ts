@@ -22,6 +22,16 @@ const SKINNED_MESH_POSITION_MARKERS: Record<string, string> = {
   SM_Octocat: "PosCat"
 }
 
+// Last known world position of each marker above, for exports that drop the
+// empty (the "Items_optimized 00" drop lost PosCat). Taken from the
+// officeItems-fa1f865a.glb export, where PosCat was still present.
+const SKINNED_MESH_POSITION_FALLBACKS: Record<
+  string,
+  [number, number, number]
+> = {
+  SM_Octocat: [1.9958059787750244, 2.6755778789520264, -7.199682235717773]
+}
+
 interface ExtractMeshesProps {
   office: Object3D
   officeItems: Object3D
@@ -144,8 +154,15 @@ export const extractMeshes = ({
         const posMarker = posMarkerName
           ? officeItems.getObjectByName(posMarkerName)
           : null
-        if (posMarker) {
-          posMarker.getWorldPosition(mesh.position)
+        const fallbackPosition = SKINNED_MESH_POSITION_FALLBACKS[meshName]
+        if (!posMarker && fallbackPosition) {
+          console.warn(
+            `[extractMeshes] ${meshName}: position marker "${posMarkerName}" missing from this export — using its last known position. Re-add the empty in Blender to move it.`
+          )
+          mesh.position.set(...fallbackPosition)
+        }
+        if (posMarker || fallbackPosition) {
+          if (posMarker) posMarker.getWorldPosition(mesh.position)
           // Nico: nudge off PosCat's raw marker position rather than
           // re-export for a small placement tweak on the shelf.
           if (meshName === "SM_Octocat") {
@@ -164,6 +181,13 @@ export const extractMeshes = ({
         // whatever direction its raw bind pose happened to face (the
         // shelf's back wall). Nico: needs to be rotated to face the room.
         if (meshName === "SM_Octocat") mesh.rotation.y = Math.PI
+      }
+
+      // SM_Plane's export has its "u" shape key left at 1 by accident
+      // (Nico) — rest pose on the desk is all shape keys at 0. Flight drives
+      // them itself on its own clone (airplane-mode/flight.tsx).
+      if (meshName === "SM_Plane" && mesh.morphTargetInfluences) {
+        mesh.morphTargetInfluences.fill(0)
       }
 
       const pos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z }

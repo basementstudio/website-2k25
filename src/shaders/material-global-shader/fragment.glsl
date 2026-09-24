@@ -157,6 +157,9 @@ void main() {
 
   #ifdef USE_MAP
   vec2 mapUv = (mapMatrix * vec3(vUv, 1.0)).xy * mapRepeat;
+  #ifdef TWO_SIDED_ATLAS
+  if (!gl_FrontFacing) mapUv.x += 0.5;
+  #endif
   #endif
 
   #ifdef USE_ALPHA_MAP

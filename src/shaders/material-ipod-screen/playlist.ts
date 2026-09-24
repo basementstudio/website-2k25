@@ -1,0 +1,132 @@
+// Nico's "90's vs 2000's" Spotify playlist, shown on the inspectable iPod's
+// screen (screen.ts). Snapshotted from
+// https://open.spotify.com/playlist/5kJB1LmcMnfBcJCZiDVWso rather than
+// fetched live — it's decoration, not worth a Spotify API call per visit.
+// Remaster/edit suffixes stripped so titles fit the tiny screen.
+export interface IpodTrack {
+  title: string
+  artist: string
+  /** seconds */
+  duration: number
+}
+
+export const IPOD_PLAYLIST_NAME = "90's vs 2000's"
+
+export const IPOD_TRACKS: IpodTrack[] = [
+  { title: "Closing Time", artist: "Semisonic", duration: 274 },
+  { title: "No Rain", artist: "Blind Melon", duration: 217 },
+  { title: "Mr. Jones", artist: "Counting Crows", duration: 273 },
+  { title: "Southern Girl", artist: "Incubus", duration: 221 },
+  { title: "Semi-Charmed Life", artist: "Third Eye Blind", duration: 268 },
+  { title: "Every Morning", artist: "Sugar Ray", duration: 220 },
+  { title: "Secret Smile", artist: "Semisonic", duration: 276 },
+  { title: "Mexico", artist: "Incubus", duration: 259 },
+  { title: "Fly", artist: "Sugar Ray", duration: 245 },
+  { title: "Jumper", artist: "Third Eye Blind", duration: 273 },
+  {
+    title: "Summer Romance (Anti-Gravity Love Song)",
+    artist: "Incubus",
+    duration: 266
+  },
+  { title: "Absolutely (Story of a Girl)", artist: "Nine Days", duration: 189 },
+  { title: "When It's Over", artist: "Sugar Ray", duration: 218 },
+  { title: "I Miss You", artist: "Incubus", duration: 169 },
+  { title: "Bitter Sweet Symphony", artist: "The Verve", duration: 358 },
+  { title: "Higher", artist: "Creed", duration: 317 },
+  { title: "Island In The Sun", artist: "Weezer", duration: 200 },
+  { title: "One Last Breath", artist: "Creed", duration: 238 },
+  { title: "Shine", artist: "Collective Soul", duration: 306 },
+  { title: "One", artist: "Creed", duration: 303 },
+  { title: "You Get What You Give", artist: "New Radicals", duration: 301 },
+  { title: "My Sacrifice", artist: "Creed", duration: 295 },
+  { title: "Kryptonite", artist: "3 Doors Down", duration: 234 },
+  { title: "Under The Bridge", artist: "Red Hot Chili Peppers", duration: 266 },
+  { title: "With Arms Wide Open", artist: "Creed", duration: 235 },
+  { title: "What's My Age Again?", artist: "blink-182", duration: 149 },
+  { title: "Learn to Fly", artist: "Foo Fighters", duration: 235 },
+  { title: "Shiny Happy People", artist: "R.E.M.", duration: 226 },
+  { title: "In the Meantime", artist: "Spacehog", duration: 300 },
+  { title: "Wherever You Will Go", artist: "The Calling", duration: 209 },
+  { title: "How You Remind Me", artist: "Nickelback", duration: 224 },
+  { title: "Losing My Religion", artist: "R.E.M.", duration: 269 },
+  { title: "Here Without You", artist: "3 Doors Down", duration: 239 },
+  { title: "Smells Like Teen Spirit", artist: "Nirvana", duration: 302 },
+  { title: "Wish You Were Here", artist: "Incubus", duration: 213 },
+  { title: "Creep", artist: "Radiohead", duration: 239 },
+  { title: "In Too Deep", artist: "Sum 41", duration: 207 },
+  { title: "Drive", artist: "Incubus", duration: 232 },
+  { title: "Black Hole Sun", artist: "Soundgarden", duration: 319 },
+  { title: "Otherside", artist: "Red Hot Chili Peppers", duration: 255 },
+  { title: "Don't Look Back in Anger", artist: "Oasis", duration: 290 },
+  { title: "Basket Case", artist: "Green Day", duration: 182 },
+  { title: "Blurry", artist: "Puddle Of Mudd", duration: 304 },
+  { title: "When I Come Around", artist: "Green Day", duration: 178 },
+  { title: "The World I Know", artist: "Collective Soul", duration: 255 },
+  { title: "My Own Prison", artist: "Creed", duration: 299 },
+  { title: "Fake Plastic Trees", artist: "Radiohead", duration: 291 },
+  { title: "Deep Inside of You", artist: "Third Eye Blind", duration: 251 },
+  { title: "Imitation Of Life", artist: "R.E.M.", duration: 238 },
+  { title: "High And Dry", artist: "Radiohead", duration: 257 },
+  { title: "Sunday Morning", artist: "No Doubt", duration: 273 },
+  { title: "Butterfly", artist: "Crazy Town", duration: 217 },
+  { title: "Ana's Song (Open Fire)", artist: "Silverchair", duration: 222 },
+  { title: "Just A Girl", artist: "No Doubt", duration: 209 },
+  { title: "Perhaps, Perhaps, Perhaps", artist: "CAKE", duration: 144 },
+  { title: "Easy", artist: "Faith No More", duration: 187 },
+  { title: "I Will Survive", artist: "CAKE", duration: 310 },
+  { title: "Someday", artist: "Sugar Ray", duration: 243 },
+  { title: "Say It Ain't So", artist: "Weezer", duration: 259 },
+  {
+    title: "Only Wanna Be with You",
+    artist: "Hootie & The Blowfish",
+    duration: 230
+  },
+  { title: "Under the Sun", artist: "Sugar Ray", duration: 201 },
+  { title: "Mmm Mmm Mmm Mmm", artist: "Crash Test Dummies", duration: 233 },
+  { title: "One Headlight", artist: "The Wallflowers", duration: 313 },
+  { title: "Brick", artist: "Ben Folds Five", duration: 272 },
+  { title: "Army", artist: "Ben Folds Five", duration: 203 },
+  { title: "What I Got", artist: "Sublime", duration: 171 },
+  { title: "3AM", artist: "Matchbox Twenty", duration: 226 },
+  { title: "Santeria", artist: "Sublime", duration: 183 },
+  { title: "Coffee & TV", artist: "Blur", duration: 359 },
+  { title: "Alright", artist: "Supergrass", duration: 181 },
+  { title: "Beetlebum", artist: "Blur", duration: 305 },
+  { title: "If You Could Only See", artist: "Tonic", duration: 262 },
+  { title: "6th Avenue Heartache", artist: "The Wallflowers", duration: 337 },
+  { title: "Til I Hear It From You", artist: "Gin Blossoms", duration: 229 },
+  { title: "The Difference", artist: "The Wallflowers", duration: 230 },
+  { title: "Runaway Train", artist: "Soul Asylum", duration: 267 },
+  { title: "Never There", artist: "CAKE", duration: 164 },
+  { title: "Thinking About You", artist: "Radiohead", duration: 162 },
+  { title: "Just Looking", artist: "Stereophonics", duration: 253 },
+  { title: "Karma Police", artist: "Radiohead", duration: 264 },
+  { title: "A Thousand Trees", artist: "Stereophonics", duration: 183 },
+  { title: "She's Electric", artist: "Oasis", duration: 221 },
+  { title: "1979", artist: "The Smashing Pumpkins", duration: 266 },
+  { title: "Push", artist: "Matchbox Twenty", duration: 239 },
+  {
+    title: "Good Riddance (Time of Your Life)",
+    artist: "Green Day",
+    duration: 153
+  },
+  { title: "Big Me", artist: "Foo Fighters", duration: 133 },
+  { title: "Last Kiss", artist: "Pearl Jam", duration: 195 },
+  { title: "Lucky Man", artist: "The Verve", duration: 293 },
+  { title: "Can't Change Me", artist: "Chris Cornell", duration: 202 },
+  { title: "Never Let You Go", artist: "Third Eye Blind", duration: 237 },
+  { title: "My Friends", artist: "Red Hot Chili Peppers", duration: 249 },
+  { title: "Friday I'm in Love", artist: "The Cure", duration: 214 },
+  { title: "Words To Me", artist: "Sugar Ray", duration: 241 },
+  { title: "Walking Alone", artist: "Green Day", duration: 165 },
+  { title: "Someday", artist: "Sugar Ray", duration: 243 },
+  { title: "Father Of Mine", artist: "Everclear", duration: 231 },
+  {
+    title: "Breakfast At Tiffany's",
+    artist: "Deep Blue Something",
+    duration: 257
+  },
+  { title: "The Freshmen", artist: "The Verve Pipe", duration: 269 },
+  { title: "Stand by Me", artist: "Oasis", duration: 356 },
+  { title: "Have A Nice Day", artist: "Stereophonics", duration: 205 }
+]

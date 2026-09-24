@@ -126,8 +126,8 @@ export const InspectableViewer = () => {
               <FlyButton
                 onFly={() => {
                   setSelected(null)
-                  // Free mode only for now (Nico) — skips the trial/free
-                  // choice screen the global "↗ Airplane mode" button shows.
+                  // Free mode only for now (Nico) — enterMode() skips the
+                  // trial/free choice screen that launch() would show.
                   useAirplaneStore.getState().enterMode("free")
                 }}
               />

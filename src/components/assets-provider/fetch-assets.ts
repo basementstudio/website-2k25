@@ -3,7 +3,7 @@ import type { PortableTextBlock } from "@/service/sanity/types"
 import { fetchAssetsLocal } from "./fetch-assets-local"
 
 export interface AssetsResult {
-  airplane: { plane: string; collider: string }
+  airplane: { plane: string; collider: string; path: string }
   officeItems: string
   office: string
   officeWireframe: string
@@ -175,6 +175,9 @@ export interface AssetsResult {
   }[]
 }
 
+// Gotcha: in `next dev` this cache entry survives edits to
+// asset-manifest.ts (and edits to this file), so swapping a glb hash there
+// keeps serving the old URL until the dev server restarts.
 export async function fetchAssets(): Promise<AssetsResult> {
   "use cache"
   return fetchAssetsLocal()

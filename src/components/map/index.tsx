@@ -25,6 +25,7 @@ import { useCurrentScene } from "@/hooks/use-current-scene"
 import { useMesh } from "@/hooks/use-mesh"
 import { createVideoTextureWithResume } from "@/hooks/use-video-resume"
 import { createGlobalShaderMaterial } from "@/shaders/material-global-shader"
+import { createIpodScreenMaterial } from "@/shaders/material-ipod-screen"
 import { createNotFoundMaterial } from "@/shaders/material-not-found"
 
 import { BakesLoader } from "./bakes"
@@ -54,6 +55,11 @@ const PhysicsWorld = dynamic(
     }),
   { ssr: false }
 )
+
+// Meshes whose texture packs a second image for the back of the sheet at
+// U + 0.5 — see TWO_SIDED_ATLAS in material-global-shader. Must also be in
+// doubleSideElements or the back faces never render at all.
+const twoSidedAtlasElements = ["SM_Plane"]
 
 export const Map = memo(() => {
   const { inspectables, videos, matcaps, glassMaterials, doubleSideElements } =
@@ -126,6 +132,18 @@ export const Map = memo(() => {
 
           meshChild.material = createNotFoundMaterial(diffuseUniform)
 
+          return
+        }
+
+        // Nico: "algun efecto para que se sienta como una pantalla de ipod
+        // antigua" — swapped for a bespoke unlit material instead of the
+        // shared/baked one (no lightmap on this mesh worth keeping; the
+        // point is to look self-lit like a real LCD). See
+        // material-ipod-screen/fragment.glsl for the look itself.
+        if (child.name === "Ipod-screen" && "isMesh" in child) {
+          const meshChild = child as Mesh
+          useMesh.setState({ ipodScreen: meshChild })
+          meshChild.material = createIpodScreenMaterial(meshChild.geometry)
           return
         }
 
@@ -206,7 +224,8 @@ export const Map = memo(() => {
             // while inspecting (see material-global-shader/fragment.glsl).
             METAL: Boolean(
               currentMaterial.metalnessMap || currentMaterial.roughnessMap
-            )
+            ),
+            TWO_SIDED_ATLAS: twoSidedAtlasElements.includes(meshChild.name)
           }
 
           const newMaterials = Array.isArray(currentMaterial)

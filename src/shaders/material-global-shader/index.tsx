@@ -33,6 +33,14 @@ export const createGlobalShaderMaterial = (
      * isInspectionMode block). No effect at rest (lightmap-lit, no specular).
      */
     METAL?: boolean
+    /**
+     * Double-sided paper whose texture packs one image per side of the sheet
+     * side by side: front faces sample the UVs as authored (left half),
+     * back faces the same UVs shifted +0.5 in U (right half). Nico set this
+     * up on SM_Plane's "papier" material so the plane's top and underside
+     * read differently.
+     */
+    TWO_SIDED_ATLAS?: boolean
   }
 ) => {
   const {
@@ -143,7 +151,8 @@ export const createGlobalShaderMaterial = (
       DAYLIGHT:
         defines?.DAYLIGHT !== undefined ? Boolean(defines?.DAYLIGHT) : false,
       LIGHTMAP_ATLAS: Boolean(defines?.LIGHTMAP_ATLAS),
-      METAL: Boolean(defines?.METAL)
+      METAL: Boolean(defines?.METAL),
+      TWO_SIDED_ATLAS: Boolean(defines?.TWO_SIDED_ATLAS)
     },
     uniforms,
     transparent:

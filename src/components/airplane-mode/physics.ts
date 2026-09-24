@@ -1,4 +1,13 @@
-import { Box3, Mesh, Object3D, Ray, Triangle, Vector3 } from "three"
+import {
+  Box3,
+  CatmullRomCurve3,
+  Line,
+  Mesh,
+  Object3D,
+  Ray,
+  Triangle,
+  Vector3
+} from "three"
 
 export const FLIGHT_GATES: [number, number, number][] = [
   [5.83, 3.52, -12],
@@ -11,15 +20,104 @@ export const FLIGHT_GATES: [number, number, number][] = [
 ]
 export const PLANE_RADIUS = 0.16
 
-// The two wingtip vertices, in the "Plane" mesh's own local space (decoded
-// straight from the GLB's Draco-compressed geometry: the mirrored corners of
-// the vertex cluster skinned to Bone_L01/Bone_L02). Read as children of the
-// mesh node so their world position tracks the fuselage without depending on
-// the model's axis/rotation conventions.
-export const WING_TIPS: [[number, number, number], [number, number, number]] = [
-  [5.756100177764893, 3.5267457962036133, -9.548337936401367],
-  [5.756100177764893, 3.5405533313751221, -9.405926704406738]
-]
+// Free flight's idle autopilot tour (flight.tsx), from Nico's path.glb: a
+// closed loop drawn in Blender as a line mesh (edges only, 2 per vertex).
+// Walks the edges into an ordered loop in world space and smooths it into a
+// closed Catmull-Rom curve, pre-sampled by arc length so the autopilot can
+// find its place on it cheaply every frame.
+export function createFlightPath(root: Object3D, samples = 512) {
+  root.updateMatrixWorld(true)
+  // GLTFLoader turns a LINES primitive into LineSegments, not a Mesh.
+  let line: Line | Mesh | undefined
+  root.traverse((object) => {
+    if (!line && (object instanceof Line || object instanceof Mesh))
+      line = object
+  })
+  const position = line?.geometry.getAttribute("position")
+  const index = line?.geometry.getIndex()
+  if (!line || !position || !index || position.count < 3) return null
+
+  const neighbours = new Map<number, number[]>()
+  for (let i = 0; i < index.count; i += 2) {
+    const a = index.getX(i),
+      b = index.getX(i + 1)
+    neighbours.set(a, [...(neighbours.get(a) ?? []), b])
+    neighbours.set(b, [...(neighbours.get(b) ?? []), a])
+  }
+  const order = [0]
+  let previous = -1,
+    current = 0
+  for (let guard = 0; guard < position.count; guard++) {
+    const next = neighbours.get(current)?.find((n) => n !== previous)
+    if (next === undefined || next === 0) break
+    order.push(next)
+    previous = current
+    current = next
+  }
+  const matrix = line.matrixWorld
+  const points = order
+    .map((i) =>
+      new Vector3().fromBufferAttribute(position, i).applyMatrix4(matrix)
+    )
+    // Blender leaves the odd doubled vertex — drop near-duplicates, they
+    // make Catmull-Rom kink.
+    .filter((point, i, all) => i === 0 || point.distanceTo(all[i - 1]) > 0.02)
+
+  const curve = new CatmullRomCurve3(points, true, "centripetal")
+  const spaced = curve.getSpacedPoints(samples).slice(0, samples)
+  return {
+    curve,
+    points: spaced,
+    length: curve.getLength(),
+    // Nearest sample index to `point`. With `around`, only searches a
+    // window of samples around that index (cheap per-frame tracking).
+    nearest(point: Vector3, around?: number, window = 24) {
+      let best = around ?? 0
+      let bestDistance = Infinity
+      const from = around === undefined ? 0 : around - window
+      const to = around === undefined ? samples : around + window
+      for (let i = from; i < to; i++) {
+        const wrapped = ((i % samples) + samples) % samples
+        const distance = spaced[wrapped].distanceToSquared(point)
+        if (distance < bestDistance) {
+          bestDistance = distance
+          best = wrapped
+        }
+      }
+      return best
+    },
+    at(sample: number) {
+      return spaced[((Math.round(sample) % samples) + samples) % samples]
+    }
+  }
+}
+export type FlightPath = NonNullable<ReturnType<typeof createFlightPath>>
+
+// Autopilot steering toward `target`, as the same -1…1 horizontal/vertical
+// inputs the keys produce (flight.tsx feeds them through the normal flight
+// model). Shared with physics.test.ts's lap simulation.
+const AUTOPILOT_TURN_GAIN = 1.6
+const AUTOPILOT_CLIMB_GAIN = 1.5
+// Offsets the constant sink between boosts.
+const AUTOPILOT_CLIMB_BIAS = 0.2
+export function autopilotSteer(
+  position: Vector3,
+  yaw: number,
+  target: Vector3
+) {
+  const desired = yawTowards(position, target)
+  const headingError = Math.atan2(
+    Math.sin(desired - yaw),
+    Math.cos(desired - yaw)
+  )
+  const clamp = (v: number) => Math.min(1, Math.max(-1, v))
+  return {
+    horizontal: clamp(-headingError * AUTOPILOT_TURN_GAIN),
+    vertical: clamp(
+      (target.y - position.y) * AUTOPILOT_CLIMB_GAIN + AUTOPILOT_CLIMB_BIAS
+    )
+  }
+}
 
 // Heading (matches the plane's yaw convention: yaw 0 faces -Z) that points
 // `from` straight at `to`, ignoring pitch.
@@ -112,9 +210,62 @@ export function createFlightCollider(root: Object3D) {
         }
       }
       return null
+    },
+    // Spring-arm probe (Unreal's USpringArmComponent): how far from `from`
+    // toward `to` a sphere of `radius` can travel before touching the
+    // collider. Approximated with the center ray plus four rays offset by
+    // `radius` around it — plenty for a camera boom against the collider's
+    // big flat walls, and far cheaper than a real sphere sweep.
+    sweepDistance(from: Vector3, to: Vector3, radius: number) {
+      direction.subVectors(to, from)
+      const length = direction.length()
+      if (length === 0) return 0
+      direction.divideScalar(length)
+      sweepSide.crossVectors(direction, WORLD_UP)
+      if (sweepSide.lengthSq() < 1e-6) sweepSide.set(1, 0, 0)
+      sweepSide.normalize()
+      sweepUp.crossVectors(sweepSide, direction).normalize()
+      // A hit up to `radius` past the end still touches the sphere there.
+      let nearestHit = Infinity
+      for (const [side, up] of SWEEP_OFFSETS) {
+        sweepOrigin
+          .copy(from)
+          .addScaledVector(sweepSide, side * radius)
+          .addScaledVector(sweepUp, up * radius)
+        ray.set(sweepOrigin, direction)
+        for (const triangle of triangles) {
+          if (
+            ray.intersectTriangle(
+              triangle.a,
+              triangle.b,
+              triangle.c,
+              false,
+              hit
+            ) === null
+          )
+            continue
+          const distance = hit.distanceTo(sweepOrigin)
+          if (distance < nearestHit && distance < length + radius)
+            nearestHit = distance
+        }
+      }
+      if (nearestHit === Infinity) return length
+      return Math.min(length, Math.max(0, nearestHit - radius))
     }
   }
 }
+
+const WORLD_UP = new Vector3(0, 1, 0)
+const SWEEP_OFFSETS: [number, number][] = [
+  [0, 0],
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1]
+]
+const sweepSide = new Vector3()
+const sweepUp = new Vector3()
+const sweepOrigin = new Vector3()
 
 export function crossesGate(
   from: Vector3,

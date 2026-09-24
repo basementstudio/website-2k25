@@ -10,6 +10,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   Box3,
   DoubleSide,
+  Euler,
   type Group,
   Matrix3,
   Matrix4,
@@ -59,6 +60,14 @@ const DEFAULT_WIGGLE_STIFFNESS = 960
 const DEFAULT_WIGGLE_DAMPING = 37
 const IDLE_BOB_AMPLITUDE = 0.015
 const IDLE_BOB_RAD_PER_SEC = 2.4
+
+// Ipod-body's mesh-local rotation while inspected. Composed with the
+// group's standard lookAt · rotY(-π/2 + xRotationOffset) and the dragger's
+// net-identity rest, this nets out to rotY(xRotationOffset) · rotX(π/2) in
+// camera space: screen (+Y) toward the camera, screen end (-Z) up.
+const IPOD_INSPECT_QUATERNION = new Quaternion().setFromEuler(
+  new Euler(Math.PI / 2, Math.PI / 2, 0, "YXZ")
+)
 
 export const Inspectable = memo(function InspectableInner({
   id
@@ -245,6 +254,18 @@ export const Inspectable = memo(function InspectableInner({
     return () => window.removeEventListener("resize", handleResize)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, firstRender, mesh, position, id])
+
+  // Ipod-body only — see the inspect-orientation block in the frame loop.
+  const ipodLocalCenter = useRef(new Vector3())
+  const ipodCenterOffset = useMemo(() => new Vector3(), [])
+  const ipodRestQuaternion = useMemo(() => new Quaternion(), [])
+  const ipodRestEuler = useMemo(() => new Euler(), [])
+
+  useEffect(() => {
+    if (mesh?.name !== "Ipod-body") return
+    mesh.geometry.computeBoundingBox()
+    mesh.geometry.boundingBox?.getCenter(ipodLocalCenter.current)
+  }, [mesh])
 
   const vRef = useMemo(() => {
     return {
@@ -563,6 +584,28 @@ export const Inspectable = memo(function InspectableInner({
       direction.setFromMatrixColumn(lookAtMatrix, 2).negate()
     } else {
       targetQuaternion.identity()
+    }
+
+    // Ipod-body rests face-up (screen normal = local +Y, screen end = local
+    // -Z), so the usual camera-facing group rotation shows its back edge.
+    // Stand it up on the MESH, inside InspectableDragger — tilting the
+    // outer group instead also tilts the dragger's frame, so drags spin it
+    // around the wrong axes. Also re-centers the off-center origin so drags
+    // pivot around the middle of the body rather than near the dial.
+    if (id === "Ipod-body" && mesh) {
+      if (selected === id) {
+        mesh.quaternion.slerp(IPOD_INSPECT_QUATERNION, SMOOTH_FACTOR)
+        ipodCenterOffset
+          .copy(ipodLocalCenter.current)
+          .applyQuaternion(IPOD_INSPECT_QUATERNION)
+          .negate()
+        mesh.position.lerp(ipodCenterOffset, SMOOTH_FACTOR)
+      } else {
+        const r = mesh.userData.rotation
+        ipodRestQuaternion.setFromEuler(ipodRestEuler.set(r.x, r.y, r.z))
+        mesh.quaternion.slerp(ipodRestQuaternion, SMOOTH_FACTOR)
+        mesh.position.lerp(ipodCenterOffset.set(0, 0, 0), SMOOTH_FACTOR)
+      }
     }
 
     const t = targetPosition.current

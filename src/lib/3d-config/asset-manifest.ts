@@ -15,10 +15,13 @@ export type AssetsBase = Omit<
 export const ASSETS_BASE: AssetsBase = {
   airplane: {
     plane: "/3d/models/airplane-plane-0542b052.glb",
-    collider: "/3d/models/airplane-collider-fd100c38.glb"
+    collider: "/3d/models/airplane-collider-fd100c38.glb",
+    // Nico's autopilot tour: a closed line loop drawn in Blender
+    // (path.glb), followed by free flight's idle autopilot.
+    path: "/3d/models/airplane-path-2539e215.glb"
   },
   // --- Map models ---
-  officeItems: "/3d/models/officeItems-fa1f865a.glb",
+  officeItems: "/3d/models/officeItems-2c42f42d.glb",
   office: "/3d/models/office-5ab2bcd0.glb",
   officeWireframe: "/3d/models/officeWireframe-d770f1ee.glb",
   outdoor: "/3d/models/outdoor-6ead65cf.glb",
