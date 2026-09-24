@@ -54,6 +54,7 @@ export function DoomJs() {
 
   useEffect(() => {
     const handleButtonPress = (event: KeyboardEvent) => {
+      if (!event.key) return
       const key = event.key.toUpperCase()
       sequence.current.push(key)
       checkDoomCodeSequence({
