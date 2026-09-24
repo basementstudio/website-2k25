@@ -13,7 +13,17 @@ export interface Score {
   country: string
 }
 
-/** Leaderboard entries, refetched on score submissions and game end. */
+/**
+ * Leaderboard entries, refetched on score submissions and game-state changes.
+ *
+ * Fetch strategy (three effects, one fetch per trigger):
+ *  1. Effect 1 — initial mount fetch (unconditional, runs once).
+ *  2. Effect 2 — Supabase realtime: refetches whenever a new score is written.
+ *  3. Effect 3 — game-state transitions: refetches when `isGameActive` or
+ *     `hasPlayed` change *after* mount (e.g. when the game ends). The
+ *     `hasMounted` ref skips the first execution so Effect 1 stays the sole
+ *     owner of the initial fetch and no duplicate request is issued on mount.
+ */
 export const useLeaderboardScores = (initialScores: Score[] = []) => {
   const isGameActive = useMinigameStore((s) => s.isGameActive)
   const hasPlayed = useMinigameStore((s) => s.hasPlayed)
