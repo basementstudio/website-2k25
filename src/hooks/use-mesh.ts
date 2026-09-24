@@ -87,6 +87,7 @@ export interface MeshStore {
   cctv: { screen: Mesh | null }
   city: { material: ShaderMaterial | null; mesh: Mesh | null }
   mapMaterialsReady: boolean
+  ipodScreen: Mesh | null
 }
 
 export const useMesh = create<MeshStore>()(() => ({
@@ -129,7 +130,8 @@ export const useMesh = create<MeshStore>()(() => ({
     material: null,
     mesh: null
   },
-  mapMaterialsReady: false
+  mapMaterialsReady: false,
+  ipodScreen: null
 }))
 
 if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {

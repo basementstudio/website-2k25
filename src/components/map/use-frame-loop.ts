@@ -1,5 +1,7 @@
 import { useRef } from "react"
+import type { ShaderMaterial } from "three"
 
+import { useAirplaneStore } from "@/components/airplane-mode/store"
 import { useInspectable } from "@/components/inspectables/context"
 import { useFadeAnimation } from "@/components/inspectables/use-fade-animation"
 import { useIdleHint } from "@/hooks/use-idle-hint"
@@ -39,6 +41,14 @@ export const useFrameLoop = () => {
       useMesh.getState().cctv.screen.material.uniforms.uTime.value += delta
     }
 
+    const ipodScreenMaterial = useMesh.getState().ipodScreen
+      ?.material as ShaderMaterial
+    if (ipodScreenMaterial?.uniforms?.uTime) {
+      ipodScreenMaterial.uniforms.uTime.value += delta
+      ipodScreenMaterial.uniforms.fadeFactor.value = fadeFactor.current.get()
+      ipodScreenMaterial.userData.updateScreen?.(delta)
+    }
+
     // Idle hint: nudges the user toward inspectable items with a subtle
     // rim-light pulse (fragment.glsl's hintFactor) once they've spent a few
     // seconds in the current section, only while nothing is currently
@@ -53,11 +63,21 @@ export const useFrameLoop = () => {
       sectionTime.current += delta
     }
 
-    const targetIdleFactor =
-      !selected && sectionTime.current > IDLE_DELAY ? 1 : 0
-    idleFactor.current +=
-      (targetIdleFactor - idleFactor.current) *
-      Math.min(delta * IDLE_EASE_SPEED, 1)
+    // Off entirely while flying — the flying plane shares SM_Plane's
+    // material, and nothing's inspectable mid-flight anyway. Cut straight
+    // to 0 (no ease-out) and restart the clock so it doesn't pulse the
+    // moment the flight ends either.
+    const flying = useAirplaneStore.getState().phase !== "off"
+    if (flying) {
+      sectionTime.current = 0
+      idleFactor.current = 0
+    } else {
+      const targetIdleFactor =
+        !selected && sectionTime.current > IDLE_DELAY ? 1 : 0
+      idleFactor.current +=
+        (targetIdleFactor - idleFactor.current) *
+        Math.min(delta * IDLE_EASE_SPEED, 1)
+    }
 
     if (Math.abs(useIdleHint.getState().factor - idleFactor.current) > 1e-4) {
       useIdleHint.setState({ factor: idleFactor.current })
