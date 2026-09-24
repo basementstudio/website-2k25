@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { onScoreUpdate } from "@/service/supabase/client"
 import { useMinigameStore } from "@/store/minigame-store"
@@ -18,6 +18,7 @@ export const useLeaderboardScores = (initialScores: Score[] = []) => {
   const isGameActive = useMinigameStore((s) => s.isGameActive)
   const hasPlayed = useMinigameStore((s) => s.hasPlayed)
   const [highScores, setHighScores] = useState<Score[]>(initialScores)
+  const hasMounted = useRef(false)
 
   const fetchScores = useCallback(async () => {
     try {
@@ -48,6 +49,10 @@ export const useLeaderboardScores = (initialScores: Score[] = []) => {
   }, [fetchScores])
 
   useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true
+      return
+    }
     if (!isGameActive || hasPlayed) {
       fetchScores()
     }
